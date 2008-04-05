@@ -18,8 +18,7 @@ die "Did you already bootstrap?  cvs/vcv exists.\n"
     if -d "$LJHOME/cvs/vcv";
 
 # so now get it
-# FIXME: make this work over http, not ssh.  not everyone has accounts.  ;)
-system( '/usr/bin/hg -q clone ssh://hg@dwscoalition.org/vcv cvs/vcv' );
+system( '/usr/bin/hg -q clone http://hg.dwscoalition.org/vcv cvs/vcv' );
 die "Unable to checkout vcv from DWS Coalition repository.\n"
     unless -d "$LJHOME/cvs/vcv" && -e "$LJHOME/cvs/vcv/bin/vcv";
 
