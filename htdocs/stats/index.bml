@@ -1,0 +1,4 @@
+<?_code
+    return BML::redirect("$LJ::SITEROOT/stats.bml");
+_code?>
+

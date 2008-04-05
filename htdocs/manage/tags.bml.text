@@ -1,0 +1,53 @@
+;; -*- coding: utf-8 -*-
+.addnew=Add new tags here!
+
+.button.delete=Remove selected tag(s)
+
+.button.rename=Rename
+
+.button.save=Save Settings
+
+.button.show=Show journal entries
+
+.confirm.delete=Are you sure you want to remove the selected tags? This operation is not reversible.
+
+.error.invalidsettings=Invalid selection for tag permission settings.
+
+.hint.create=You can create multiple tags by separating them with commas.
+
+.hint.delete=Remove all references to the selected tag(s).
+
+.hint.entries=Display journal entries marked with the selected tag(s).
+
+.hint.rename=Change a tag name.
+
+.intro=Use this page to review and edit tags you have defined.
+
+.label.settings=Tag Settings
+
+.label.tags=Tag Properties
+
+.label.yours=Your Tags
+
+.none=You haven't created any tags yet.
+
+.setting.desc.add=Who can add existing tags to entries?
+
+.setting.desc.control=Who can create new tags and add/remove tags from entries?
+
+.setting.public=Any user
+
+.setting.friends=Friends only
+
+.setting.maintainers=Only maintainers
+
+.setting.members=Members only
+
+.setting.private=Only you
+
+.sort.a=<strong>sort</strong>: <a [[aopts]]>alphabetically</a> or by usage
+
+.sort.b=<strong>sort</strong>: alphabetically or by <a [[aopts]]>usage</a>
+
+.title2=Manage Tags
+

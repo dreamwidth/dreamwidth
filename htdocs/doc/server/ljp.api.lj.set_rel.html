@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::set_rel</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.set_lastcomment.html" title="LJ::set_lastcomment">
+<link rel="next" href="ljp.api.lj.set_rel_multi.html" title="LJ::set_rel_multi">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::set_rel</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.set_lastcomment.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.set_rel_multi.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.set_rel"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::set_rel</h2>
+<p>LJ::set_rel &#8212; Sets relationship information for two users.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::set_rel</b>(</code><var class="pdparam">dbs</var>, <var class="pdparam">userid</var>, <var class="pdparam">targetid</var>, <var class="pdparam">type</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3224661"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>dbs. </b>Deprecated; optional, a master/slave set of database handles.</p></li>
+<li><p><b>userid. </b>source userid, or a user hash</p></li>
+<li><p><b>targetid. </b>target userid, or a user hash</p></li>
+<li><p><b>type. </b>type of the relationship</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3224715"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/ljrelation.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3224728"></a><h2>Returns:</h2>
+<p>1 if set succeeded, otherwise undef</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.set_lastcomment.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.set_rel_multi.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::set_lastcomment </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::set_rel_multi</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

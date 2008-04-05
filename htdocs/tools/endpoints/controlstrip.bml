@@ -1,0 +1,19 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET);
+
+    my $control_strip;
+    my $user = $GET{'user'};
+    if (defined $user) {
+        unless (defined LJ::get_active_journal()) {
+            LJ::set_active_journal(LJ::load_user($user));
+        }
+        $control_strip = LJ::control_strip( user => $user );
+    }
+
+    sleep 1 if $LJ::IS_DEV_SERVER;
+
+    return LJ::js_dumper($control_strip);
+}
+_code?>

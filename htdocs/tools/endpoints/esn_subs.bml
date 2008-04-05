@@ -1,0 +1,124 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%POST %GET);
+    use LJ::Auth;
+    use JSON;
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            error => "Error: $msg",
+        });
+    };
+
+    my $nop = sub {
+        return JSON::objToJson({
+            success => 0,
+        });
+    };
+
+    return $err->("Sorry async ESN is not enabled") if LJ::conf_test($LJ::DISABLED{esn_ajax});
+
+    # get user
+    my $remote = LJ::get_remote()
+        or return $err->("Sorry, you must be logged in to use this feature.");
+
+    # check auth token
+    return $err->("Invalid auth token") unless LJ::Auth->check_ajax_auth_token($remote, '/__rpc_esn_subs', %POST);
+
+    my $action = $POST{action} or return $err->("No action specified");
+    my $success = 0;
+    my %ret;
+
+    if ($action eq 'delsub') {
+        my $subid = $POST{subid} or return $err->("No subid");
+        my $subscr = LJ::Subscription->new_by_id($remote, $subid) or return $nop->();
+
+        my %postauth;
+        foreach my $subkey (qw(journalid arg1 arg2 etypeid)) {
+            $ret{$subkey} = $subscr->$subkey || 0;
+            $postauth{$subkey} = $ret{$subkey} if $ret{$subkey};
+        }
+
+        $ret{event_class} = $subscr->event_class;
+
+        $subscr->delete;
+        $success = 1;
+        $ret{msg} = "Subscription deleted";
+        $ret{subscribed} = 0;
+
+
+        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+                                                   action    => 'addsub',
+                                                   %postauth,
+                                                   );
+
+        if ($subscr->event_class eq 'LJ::Event::JournalNewEntry') {
+            $ret{newentry_token} = $auth_token;
+        } else {
+            $ret{auth_token} = $auth_token;
+        }
+    } elsif ($action eq 'addsub') {
+        my %subparams = ();
+
+        return $err->("Invalid subscription parameters") unless (defined $POST{journalid}) && $POST{etypeid}+0;
+
+        foreach my $param (qw(journalid etypeid arg1 arg2)) {
+            $subparams{$param} = $POST{$param}+0;
+        }
+
+        $subparams{method} = 'Inbox';
+
+        my ($subscr) = $remote->has_subscription(%subparams);
+
+        $subparams{flags} = LJ::Subscription::TRACKING;
+        eval { $subscr ||= $remote->subscribe(%subparams) };
+        return $err->($@) if $@;
+
+        if ($subscr) {
+            $success = 1;
+            $ret{msg} = "Subscribed";
+            $ret{subscribed} = 1;
+            $ret{event_class} = $subscr->event_class;
+            my %sub_info = $subscr->sub_info;
+            $ret{sub_info} = \%sub_info;
+
+            # subscribe to email as well
+            my %email_sub_info = %sub_info;
+            $email_sub_info{method} = "Email";
+            $remote->subscribe(%email_sub_info);
+
+            # special case for JournalNewComment: need to return dtalkid for
+            # updating of tracking icons (on subscriptions with jtalkid)
+            if ($subscr->event_class eq 'LJ::Event::JournalNewComment' && $subscr->arg2) {
+                my $cmt = LJ::Comment->new($subscr->journal, jtalkid => $subscr->arg2);
+                $ret{dtalkid} = $cmt->dtalkid if $cmt;
+            }
+
+            my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+                                                       subid  => $subscr->id,
+                                                       action => 'delsub');
+
+            if ($subscr->event_class eq 'LJ::Event::JournalNewEntry') {
+                $ret{newentry_token} = $auth_token;
+                $ret{newentry_subid} = $subscr->id;
+            } else {
+                $ret{auth_token} = $auth_token;
+                $ret{subid}      = $subscr->id;
+            }
+        } else {
+            $success = 0;
+            $ret{subscribed} = 0;
+        }
+    } else {
+        return $err->("Invalid action $action");
+    }
+
+    return JSON::objToJson({
+        success => $success,
+        %ret,
+    });
+}
+
+_code?>

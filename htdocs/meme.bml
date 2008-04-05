@@ -1,0 +1,90 @@
+<?_code
+
+ $title = "Meme Tracker";
+ $body = "";
+
+ LJ::set_active_crumb('meme');
+
+ if ($LJ::DISABLED{'meme'}) {
+    $body .= $ML{'.meme.disabled'};
+    return;
+ }
+ 
+ my $dbr = LJ::get_db_reader();
+ my $sth;
+
+ if ($GET{'url'}) {
+     my $url = $GET{'url'};
+     my $skip = $GET{'skip'};
+     my $qskip = $skip+0;
+     my $qurl = $dbr->quote($url);
+     my $eurl = LJ::ehtml($url);
+     my $uurl = LJ::eurl($url);
+
+     $body .= "<?h1 Who linked this? h1?><?p The following journal entries link to:<blockquote><a href='$eurl'><b>$eurl</b></a></blockquote>p?>";
+
+     $body .= "<table>";
+     $body .= "<tr align='left'><td width='100'><b>User</b></td><td><b>Post Link</b></td></tr>\n";
+
+     $sth = $dbr->prepare("SELECT u.user, m.itemid FROM meme m LEFT JOIN useridmap u ON m.journalid=u.userid WHERE m.url=$qurl LIMIT $qskip,500");
+     $sth->execute;
+     my $count = 0;
+     while (my ($journal, $itemid) = $sth->fetchrow_array)
+     {
+         $body .= "<tr align='left'><td>";
+         $body .= "<?ljuser $journal ljuser?>" if $journal;
+         $body .= "</td>";
+         my $jarg = $journal ? "journal=$journal&amp;" : "";
+         $body .= "<td><a href='$LJ::SITEROOT/talkread.bml?${jarg}itemid=$itemid'>post</a></td>";
+         $body .= "</tr>";
+         $count++;
+     }
+
+     $body .= "</table>";
+     
+     my @pagers;
+     if ($skip > 0) {
+         my $newskip = $skip - 500;
+         push @pagers, "&lt;&lt; <a href='meme.bml?url=$uurl&amp;skip=$newskip'>Previous 500</a>";
+     }
+     if ($count == 500) {
+         my $newskip = 500;
+         if ($skip) { $newskip = $skip + 500; }
+         push @pagers, "<a href='meme.bml?url=$uurl&amp;skip=$newskip'>Next 500</a> &gt;&gt;";
+     }
+     if (@pagers) {
+         $body .= "<p>[&nbsp;" . join("&nbsp;|&nbsp;", @pagers) . "&nbsp;]</p>";
+     }
+
+     $body .= "<?hr?>&lt;&lt; <a href='meme.bml'>Back to Meme Listing</a>";
+     return;
+ }
+
+ $body .= "<?h1 Top 40 $LJ::SITENAME Memes h1?>\n";
+ $body .= "<?p From this page you can see the most popular URLs referenced recently. p?><?hr?>";
+
+ $sth = $dbr->prepare("SELECT statkey, statval FROM stats WHERE statcat='popmeme' ORDER BY 2 DESC LIMIT 100");
+ $sth->execute;
+
+ $body .= "<table>\n";
+ $body .= "<tr align='left'><td width='50' align='left'><b>Count</b></td><td><b>URL</b></td></tr>\n";
+ while (my ($url, $ct) = $sth->fetchrow_array) {
+     my $eurl = LJ::ehtml($url);
+     my $uurl = LJ::eurl($url);
+     $body  .= "<tr align='left'><td><b><a href='meme.bml?url=$uurl'><nobr>$ct links</nobr></a></b></td>";
+     $body .= "<td><a href='$eurl'>$eurl</a></td></tr>\n";
+ }
+ $body .= "</table>";
+ $body .= "<?h2 Disclaimer h2?>";
+ $body .= "<?p Many of the links on this page lead to external sites that are not controlled by $LJ::SITENAME. $LJ::SITENAME can not be held responsible for the content of these external sites. p?>";
+ $sth->finish;
+ return;
+ 
+
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?><?_c <LJDEP>
+link: htdocs/talkread.bml, htdocs/meme.bml
+lib: cgi-bin/cleanhtml.pl
+</LJDEP> _c?>

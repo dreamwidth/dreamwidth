@@ -1,0 +1,213 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+
+    LJ::set_active_crumb('commsentinvites');
+
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
+
+    # always have links at top
+    my $ret;
+
+    # get remote
+    my $remote = LJ::get_remote();
+    unless ($remote) {
+        $ret .= "<?needlogin?>";
+        return $ret;
+    }
+
+    my $cname = $GET{comm};
+    return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+
+    # get $c object
+    my $c = LJ::load_user($cname);
+    unless ($c) {
+        $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'/community/members.bml.error.nocomm'} p?>";
+        return $ret;
+    }
+
+    # make sure it is a comm
+    unless ($c->{'journaltype'} eq 'C') {
+        $ret .= "<?h1 $ML{'Error'} h1?><?p ";
+        $ret .= BML::ml('.error.notcomm', { 'user' => LJ::ljuser($c) });
+        $ret .= " p?>";
+        return $ret;
+    }
+
+    my $cid = $c->{'userid'};
+    # is $remote an admin?
+    unless (LJ::can_manage_other($remote, $c)) {
+        $ret .= "<?h1 $ML{'Error'} h1?><?p ";
+        $ret .= BML::ml('/community/members.bml.error.noaccess', 
+                        { 'comm' => LJ::ljuser($cname, { 'type' => 'C' }) });
+        $ret .= " p?>";
+        return $ret;
+    }
+
+    # columns of our table, excluding username
+    my @attribs = ('post');
+    my @titleattribs = ('P');
+    LJ::load_user_props($c, 'moderated');
+    if ($c->{moderated}) {
+        push @attribs, ('preapprove', 'moderate');
+        push @titleattribs, ('U', 'M');
+    }
+    push @attribs, 'admin';
+    push @titleattribs, 'A';
+
+    # now get sent invites and the users involved
+    my $sent = LJ::get_sent_invites($c) || [];
+    my @ids;
+    push @ids, ($_->{userid}, $_->{maintid}) foreach @$sent;
+    my $us = LJ::load_userids(@ids);
+
+    # populate %users hash
+    my %users = ();
+    foreach my $invite (@$sent) {
+        my $id = $invite->{userid};
+        next if $GET{show} && $GET{show} ne 'all' && $invite->{status} ne $GET{show};
+        $users{$id}{userid} = $id;
+        $users{$id}{maintainer} = $us->{$invite->{maintid}}{user};
+        $users{$id}{user} = $us->{$id}{user};
+        $users{$id}{$_} = 1 foreach keys %{$invite->{args}};
+        $users{$id}{status} = $invite->{status};
+        $users{$id}{date} = LJ::mysql_time($invite->{recvtime});
+        $users{$id}{date} =~ s/\s.+$//; # we just want the date, ignore time
+    }
+
+    # hop out if there were no invites
+    unless (%users) {
+        return "$ret<?h1 $ML{'.none.title'} h1?><?p " .
+               BML::ml('.none.body', { aopts => "href='/community/members.bml?comm=$c->{user}'" }) .
+               " p?>";
+    }
+    
+    # sorting method;
+    my $method = $GET{'sort'};
+
+    my $cmp = sub {$a->{'user'} cmp $b->{'user'}};
+    $cmp = sub {$b->{'admin'} <=> $a->{'admin'}} if $method eq 'A';
+    $cmp = sub {$b->{'post'} <=> $a->{'post'}} if $method eq 'P';
+    $cmp = sub {$b->{'moderate'} <=> $a->{'moderate'}} if $method eq 'M';
+    $cmp = sub {$b->{'preapprove'} <=> $a->{'preapprove'}} if $method eq 'U';
+    $cmp = sub {$a->{'status'} cmp $b->{'status'}} if $method eq 'status';
+    $cmp = sub {$b->{'date'} cmp $a->{'date'}} if $method eq 'date';
+    $cmp = sub {$b->{'maintainer'} cmp $a->{'maintainer'}} if $method eq 'maint';
+
+    my @users = sort $cmp values %users;
+    my $page_size = 100; # change to adjust page size
+
+    # are we going to jump to a specific user ?
+    my $jumppage;
+    my $jumpuser;
+    if (@users > $page_size && $POST{'jumpto'} =~ /^\w+$/) {
+        my $ct;
+        foreach (@users) {
+            $jumppage++ if $ct % $page_size == 0;
+            if ($POST{'jumpto'} eq $_->{'name'}) {
+                $jumpuser = $_->{'name'};
+                last;
+            }
+            $ct++;
+        }
+        undef $jumppage unless $jumpuser;
+    }
+
+    # how to make links back to this page
+    my $self_link = sub {
+        my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
+        my $filter = "&show=$GET{'show'}" if $GET{'show'};
+        return "sentinvites.bml?comm=$cname&page=$_[0]$sort$filter";
+    };
+
+    my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
+    my $navbar = LJ::paging_bar($items{'page'}, $items{'pages'},
+                                 { 'self_link' => $self_link });
+    @users = @{$items{'items'}};
+
+    # output starts here
+    $ret .= "<?p " . BML::ml('/community/members.bml.name', { 'name' => LJ::ljuser($cname, { 'type' => 'C' }) });
+    $ret .= " " . BML::ml('/community/members.bml.settings', { 'link' => "settings.bml?comm=$cname"}) . " p?>";
+
+    # jump to user
+    if ($items{'pages'} > 1) {
+        $ret .= "<form method='post' action='sentinvites.bml?comm=$cname'>";
+        $ret .= "<div style='margin-left: 30px;'>Jump to user: ";
+        $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
+                                'size' => '10', 'maxlength' => '15' }) . " ";
+        $ret .= LJ::html_submit(undef, 'Go') . "</div>";
+        $ret .= "</form>";
+        $ret .= $navbar;
+    }
+
+    # setup showlinks
+    my $showlinks = "<form method='get' action='/community/sentinvites.bml'>";
+    $showlinks .= LJ::html_hidden('comm', $c->{user});
+    $showlinks .= "Filter to: ";
+    $showlinks .= LJ::html_select({ name => 'show', selected => $GET{show} }, map { $_, $_ } qw(all accepted outstanding rejected));
+    $showlinks .= LJ::html_submit(undef, 'Refresh');
+    $showlinks .= "</form>";
+
+    my $filter = "&show=$GET{show}" if $GET{show};
+    my $sortlink = BML::get_uri() . "?comm=$cname$filter&sort=";
+    $ret .= "<br /><div align='center'>$showlinks";
+    $ret .= <<END; 
+<table class='borderedtable' cellpadding='2' cellspacing='0'>
+<tr style="border-bottom: solid 1px black;">
+    <th style='border-right: solid 1px black;'>P</th>
+    <td style='border-bottom: solid 1px black; border-right: solid 1px black;'>Posting Access</td>
+    <th style='border-right: solid 1px black;'>U</th>
+    <td style='border-bottom: solid 1px black;'>Unmoderated</td>
+</tr>
+<tr style="border-bottom: solid 1px black;">
+    <th style='border-right: solid 1px black; border-bottom: none;'>M</th>
+    <td style='border-right: solid 1px black;'>Moderator</td>
+    <th style='border-right: solid 1px black; border-bottom: none;'>A</th>
+    <td>Maintainer</td>
+</tr>
+</table>
+<br />
+END
+    $ret .= "<table class='alternating-rows' cellpadding='0' cellspacing='0'>\n<tr>" .
+            "<th><a href='${sortlink}name'>$ML{'/community/members.bml.key.user'}</a></th>";
+    $ret .= "<th><a href='${sortlink}$_'>$_</a></th>" foreach @titleattribs;
+    $ret .= "<th><a href='${sortlink}maint'>$ML{'.key.sentby'}</a></th>";
+    $ret .= "<th><a href='${sortlink}date'>$ML{'.key.date'}</a></th>";
+    $ret .= "<th><a href='${sortlink}status'>$ML{'.key.status'}</a></th>";
+    $ret .= "</tr>\n";
+
+    # checkboxes and such
+    my $yes = '<img src="/img/blue_check.gif" width="15" height="15" border="0">';
+    my $no = '-';
+
+    # rows for existing users
+    my $rc = 0;
+    foreach(@users) {
+        my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
+        $ret .= "<tr class='$rstyle'><td>" . LJ::ljuser($_->{user}) . "</td>";
+        foreach my $key (@attribs) {
+            $ret .= "<td align='center'>";
+            $ret .= $_->{$key} ? $yes : $no;
+            $ret .= "</td>";
+        }
+        $ret .= "<td>" . LJ::ljuser($_->{maintainer}, { type => 'P' }) . "</td>";
+        $ret .= "<td>$_->{date}</td>";
+        $ret .= "<td>$_->{status}</td>";
+        $ret .= "</tr>\n";
+    }
+
+    $ret .= "</table>\n";
+    $ret .= "<br /><a href='/community/members.bml?comm=$c->{user}'>$ML{'.send'}</a>";
+    $ret .= "</div>\n\n";
+    $ret .= $navbar;
+    return $ret;
+
+}
+_code?>
+
+<=body
+page?>

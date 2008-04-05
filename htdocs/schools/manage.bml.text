@@ -1,0 +1,45 @@
+;; -*- coding: utf-8 -*-
+.btn.save=Save Changes
+
+.error.cantaddattendance=Error adding school attendance record, please try again. You may have reached the limit of schools you can attend.
+
+.error.cantbeauthenticated=You could not be authenticated as the specified user.
+
+.error.cantdeleteattendance=Error deleting school attendance record, please try again.
+
+.error.cantendbeforestart=Your ending year cannot be earlier than your starting year.
+
+.error.cantloadschool=Unable to load school specified.
+
+.error.cantsetattendance=Unable to set your attendance at [[school]], please try again. You may have reached the limit of schools you can attend.
+
+.error.currentlyattend=If you currently attend this school, you should leave the end date field blank or enter "[[now]]".
+
+.error.disabled=The Schools Directory is currently disabled due to maintenance.
+
+.error.locationdoesntmatch=Country and/or city do not match specified school.
+
+.error.needstartingyear=You must specify a starting year if you specify an ending year.
+
+.error.toofuture=You must specify a starting year in the past or present.
+
+.error.toopast=Did you really attend this school that long ago?
+
+.findanother=<a [[aopts]]>Find another school</a> to add.
+
+.intro=Below you can edit the list of schools associated with your journal or communities. This information is public, if you provide it.
+
+.noschools=You have not listed any schools. <a [[aopts]]>Browse the school directory</a> to find and add schools.
+
+.selectjournal=See schools for:
+
+.table.input.delete=Delete
+
+.table.name=School name
+
+.table.to=to
+
+.table.years=Years attended
+
+.title=Manage Schools
+

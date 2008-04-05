@@ -1,0 +1,95 @@
+;; -*- coding: utf-8 -*-
+.back2=Advanced Customization
+
+.back2layers=Your Layers
+
+.btn.delete=Delete
+
+.btn.delete2=Delete...
+
+.btn.edit=Edit...
+
+.btn.layoutspecific.create=Create
+
+.btn.toplevel.create=Create
+
+.createlayer.header=Create Layer
+
+.createlayer.layoutspecific=Create layout-specific layer
+
+.createlayer.layoutspecific.label.layout=Layout:
+
+.createlayer.layoutspecific.label.type=Type:
+
+.createlayer.layoutspecific.select.language=Language
+
+.createlayer.layoutspecific.select.theme=Theme
+
+.createlayer.layoutspecific.select.user=User
+
+.createlayer.layoutspecific.select.userlayer=[[name]] (#[[id]])
+
+.createlayer.toplevel=Create top-level layer
+
+.createlayer.toplevel.label.coreversion=Core Version:
+
+.createlayer.toplevel.label.type=Type:
+
+.createlayer.toplevel.select.language=Language
+
+.createlayer.toplevel.select.layout=Layout
+
+.delete.layerid=#[[id]]
+
+.delete.layername='[[name]]'
+
+.delete.text=Are you sure you want to delete [[type]] layer [[name]]?
+
+.delete.title=Deleting layer [[name]]
+
+.error.badparentid=No/bogus parent layer ID given (for layouts and core languages, use core parent ID; for themes and layout languages, use layout ID).
+
+.error.cantbeauthenticated=You could not be authenticated as the specified user.
+
+.error.cantcreatelayer=Error creating layer.
+
+.error.cantsetuplayer=Error setting up &amp; compiling layer: [[errormsg]]
+
+.error.cantuseonsystem=This privilege cannot be used on the system account.
+
+.error.invalidlayertype=Invalid layer type.
+
+.error.layerdoesntexist=The specified layer does not exist.
+
+.error.maxlayers=You have reached your maximum number of allowed layers.
+
+.error.nolayertypeselected=No layer type selected.
+
+.error.notloggedin=You must be logged in to view your layers.
+
+.error.notyourlayer=You do not own the specified layer.
+
+.error.usercantuseadvanced=The selected user's account type does not allow advanced customization.
+
+.error.youcantuseadvanced=Your account type does not allow advanced customization.
+
+.nav.yourstyles=Your Styles
+
+.title=Your Layers
+
+.yourlayers.childof=Child of <a [[aopts]]>layer [[layerid]]</a>: [[name]]
+
+.yourlayers.header=Your Layers
+
+.yourlayers.noname=(none)
+
+.yourlayers.none=None
+
+.yourlayers.table.actions=Actions
+
+.yourlayers.table.layerid=LayerID
+
+.yourlayers.table.name=Name
+
+.yourlayers.table.type=Type
+

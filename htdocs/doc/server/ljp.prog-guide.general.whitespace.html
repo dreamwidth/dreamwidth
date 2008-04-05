@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. Trailing whitespace</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.prog-guide.general.html" title="Chapter 1. General Guidelines">
+<link rel="prev" href="ljp.prog-guide.general.keypoints.html" title="1. Key points to remember">
+<link rel="next" href="ljp.prog-guide.general.functions.html" title="3. Best Practices: Functions">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. Trailing whitespace</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.prog-guide.general.keypoints.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 1. General Guidelines</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.prog-guide.general.functions.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="ljp.prog-guide.general.whitespace">2. Trailing whitespace</h2></div></div></div>
+<p>Remember, trailing whitespace is contagious and can easily
+take over a file much like North American Ivy!</p>
+<p>Be a good camper and don't commit trailing whitespace.</p>
+<div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Tip</h3>
+<p>
+If you're using <span class="application">Emacs</span>, try adding this to
+your <code class="filename">~/.emacs</code> file.</p>
+<pre class="programlisting">
+(setq-default show-trailing-whitespace t)
+(setq-default default-indicate-empty-lines t)
+</pre>
+<p>
+You can customize the file to help out with other guidelines too. If you want
+to be safe, have tabs (excluding those
+escaped: <code class="literal">\t</code>) expand to spaces when you save:</p>
+<pre class="programlisting">(defun perl-mode-untabify ()
+         (save-excursion
+           (goto-char (point-min))
+           (while (re-search-forward "[ \t]+$" nil t)
+             (delete-region (match-beginning 0) (match-end 0)))
+           (goto-char (point-min))
+           (if (search-forward "\t" nil t)
+               (untabify (1- (point)) (point-max))))
+  nil)
+
+ (add-hook 'perl-mode-hook
+            '(lambda ()
+               (make-local-variable 'write-contents-hooks)
+               (add-hook 'write-contents-hooks 'perl-mode-untabify)))
+</pre>
+</div>
+<div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Tip</h3>
+<p><span class="application">vim</span> users can add the following to
+their <code class="filename">~/.vimrc</code> file.</p>
+<pre class="programlisting">&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+syntax enable
+set cindent smartindent smarttab showmatch shiftwidth=4
+set expandtab
+
+au BufRead,BufNewFile *.bml setfiletype perl
+
+set backup
+
+set list listchars=trail:_
+highlight SpecialKey ctermfg=DarkGray ctermbg=yellow
+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+</pre>
+<p>
+<code class="literal">shiftwidth</code> and <code class="literal">expandtab</code> make sure the
+indents are made up of 4 spaces. 
+<code class="literal">backup</code>, makes a backup file named filename~, which might be
+useful on occasions when your main file gets overwritten by accident.
+ <code class="literal">listchars</code> and <code class="literal">highlight SpecialKey</code> combined
+mark trailing whitespace with a grey underscore on a yellow background,
+quite easy to notice if you are working against a black background.
+Also, tab characters will show up as grey ^I on a yellow background.
+</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.prog-guide.general.keypoints.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.prog-guide.general.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.prog-guide.general.functions.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Key points to remember </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 3. Best Practices: Functions</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

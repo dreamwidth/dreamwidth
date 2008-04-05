@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chapter 13. Cookie Scheme</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.internals.html" title="Part II. Internals">
+<link rel="prev" href="ljp.int.portal_modules.html" title="Chapter 12. Portal Modules">
+<link rel="next" href="ljp.int.oh_crumbs.html" title="Chapter 14. Creating &amp; Using Breadcrumbs">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 13. Cookie Scheme</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.int.portal_modules.html">Prev</a> </td>
+<th width="60%" align="center">Part II. Internals</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.int.oh_crumbs.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en" id="ljp.int.cookie_scheme">
+<div class="titlepage"><div><div><h2 class="title">Chapter 13. Cookie Scheme</h2></div></div></div>
+<p><b>Old cookie format: </b></p>
+<pre class="synopsis">
+*.$LJ::DOMAIN = ws:&lt;user&gt;:&lt;sessid&gt;:&lt;auth&gt;:&lt;flags&gt;
+</pre>
+<div class="itemizedlist"><ul type="disc">
+<li><p>Insecure.</p></li>
+<li><p>Own one cookie, own an account.</p></li>
+<li><p>But, still used if <a class="link" href="lj.install.ljconfig.vars.html#ljconfig.only_user_vhosts">$LJ::ONLY_USER_VHOSTS</a>
+is <span class="emphasis"><em>not</em></span> enabled.</p></li>
+</ul></div>
+<p><b>New cookie format: </b></p>
+<pre class="synopsis">
+2 + n cookies
+</pre>
+<p>The <span class="emphasis"><em>2</em></span> cookies work like this:</p>
+<div class="variablelist"><dl>
+<dt><span class="term">ljmastersession</span></dt>
+<dd>
+<p>
+        
+        </p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>Master session cookie. We control this one tightly.</p></li>
+<li><p>Bound to: www.$LJ::DOMAIN.  No user content is on www.*</p></li>
+</ul></div>
+<p>
+
+        </p>
+<div class="itemizedlist"><ul type="disc"><li>
+<p>
+        <span class="strong"><strong>Format:</strong></span> </p>
+<pre class="synopsis">
+        v&lt;version&gt;:u&lt;uid&gt;:s&lt;sessionid&gt;:a&lt;auth&gt;:f&lt;flags&gt;//&lt;generation/poetry&gt;
+        </pre>
+<p>
+
+            </p>
+<div class="itemizedlist"><ul type="circle">
+<li><p>The <code class="literal">version</code> number is a code-wise version number.</p></li>
+<li><p><code class="literal">uid</code> is used now, now instead of <code class="literal">user</code>.</p></li>
+<li><p><code class="literal">session</code>/<code class="literal">auth</code>/<code class="literal">flags</code> all work as before.</p></li>
+<li><p><code class="literal">generation/poetry</code> is free-form text/poetry, so you can write a haiku and 
+            go after people for subverting security to steal copyrighted, perhaps poetic, material.</p></li>
+</ul></div>
+<p>
+        
+        </p>
+</li></ul></div>
+<p>
+
+    </p>
+</dd>
+<dt><span class="term">ljloggedin</span></dt>
+<dd>
+<p>The &#8220;<span class="quote">I'm logged in!</span>&#8221; cookie. This one
+advertised to all subdomains that the user is logged in. If it is stolen, it does not matter.
+It is only used to bridge the two cookies. It is useless by itself.</p>
+<p>Form: not present (not logged in), or:</p>
+<pre class="synopsis">
+u&lt;uid&gt;:s&lt;sessionid&gt;
+</pre>
+</dd>
+</dl></div>
+<p>The <span class="emphasis"><em><em class="replaceable"><code>n</code></em></em></span> cookies work like this:</p>
+<p>The &#8220;<span class="quote">n</span>&#8221; cookies are 1-per-user account.  They are bound
+to &lt;subdomain&gt;.$LJ::DOMAIN optionally with a path=/username/ restriction
+when &lt;subdomain&gt; is not a username, and is
+actually &#8220;<span class="quote">users</span>&#8221; or &#8220;<span class="quote">communities</span>&#8221;.</p>
+<pre class="screen">&#8220;<span class="quote">ljdomsess.&lt;subdomain&gt;</span>&#8221; or ljdomsess.bob
+&#8220;<span class="quote">ljdomsess.&lt;subdomain&gt;.&lt;user&gt;</span>&#8221; or ljdomsess.community.knitting
+ljdomsess.users._underscoreman</pre>
+<p>The format of this cookie is:</p>
+<pre class="synopsis">
+v&lt;version&gt;:u&lt;userid&gt;:s&lt;sessid&gt;:t&lt;unixtimestamp&gt;:g&lt;signature&gt;//&lt;gen/poetry&gt;
+</pre>
+<p>Where:</p>
+<div class="itemizedlist"><ul type="disc">
+<li><p><code class="literal">t</code> = <span class="application"><code class="systemitem">Unix</code></span> timestamp updated from LJ::get_secret(),
+<span class="application">LiveJournal</span>'s rolling server-secret that is updated every 30/60 minutes.
+This <code class="literal">t</code> value is the key into which server secret we are using.</p></li>
+<li><pre class="synopsis">
+<code class="literal">g</code> = HMAC-SHA1(key = server-secret(t),
+            value = JOIN("-", session-auth(u, sessid), domain, uid, sessid, time))
+</pre></li>
+</ul></div>
+<p>So, cookie is valid if:</p>
+<div class="itemizedlist"><ul type="disc">
+<li><p><code class="literal">v</code> is supported version</p></li>
+<li><p><code class="literal">gen/poetry</code> is current generation/poetry in 
+<code class="literal">$LJ::COOKIE_GEN_POETRY</code></p></li>
+<li><p><code class="literal">session</code>(uid, sessid) is still valid/logged in</p></li>
+<li><p><code class="literal">g</code> is correct signature</p></li>
+<li><p><code class="literal">t</code> is not older than <em class="replaceable"><code>$N</code></em> hours (48?)</p></li>
+</ul></div>
+<p>The cookie should expire every 24 hours.</p>
+<p>Future: cookies are bound to first two octets of <acronym class="acronym">IP</acronym> address.</p>
+<div class="procedure">
+<a name="id3046324"></a><p class="title"><b>Procedure 13.1. Cookie re-direction</b></p>
+<ol type="1">
+<li>
+<p>If cookie is not present, but ljloggedin=1 cookie is present, then redirect user to:</p>
+<p><code class="uri">http://www.$LJ::DOMAIN/set-domain-cookie.bml?redir=&lt;source_url&gt;</code></p>
+</li>
+<li>
+<p>which will make a &#8220;<span class="quote">ljdomsess_*</span>&#8221; cookie, then redirect them to:</p>
+<p><code class="uri">http://subdomain.$LJ::DOMAIN/__setcookie?redir=&lt;source_url&gt;&amp;domsess=&lt;domsess_cookie&gt;
+</code></p>
+</li>
+<li><p>which will then redirect them to &lt;source_url&gt;.</p></li>
+</ol>
+</div>
+<p><b>Mapping to Paths. </b>
+<a class="link" href="ljp.api.lj.get_remote.html" title="LJ::get_remote">LJ::get_remote()</a> needs to be
+modified to respect the right cookie based on the current hostname.</p>
+<p>For <code class="filename">talkscreen.bml</code> or any <acronym class="acronym">XML</acronym>HTTPRequest that
+goes to a userdomain, that endpoint has to make sure it only operates on data
+owned by the current hostname/path.</p>
+<div class="task">
+<a name="task-ljp-cookie_steal"></a><p class="title"><b>Cookie Permissions</b></p>
+<div class="procedure"><ol type="1">
+<li><p><code class="uri"><em class="replaceable"><code>attacker.lj.com</code></em></code> does malicious style.</p></li>
+<li><p>goodguy visits <code class="uri"><em class="replaceable"><code>attacker.lj.com</code></em></code>, gets ljdomsess stolen.</p></li>
+</ol></div>
+<div class="taskrelated">
+<p>Attacker <span class="strong"><strong>should not</strong></span> be able to use 
+goodguy's ljdomsess cookie to manipulate goodguy's data using, say, 
+<code class="filename">delcomment.bml</code> with args
+of <em class="replaceable"><code>?user=goodguy&amp;jtalkid=&lt;commentid&gt;</code></em>.</p>
+<p><code class="filename">delcomment.bml</code> and other endpoints should verify that
+the <em class="replaceable"><code>user=&lt;user&gt;</code></em> argument matches the
+current hostname/path.</p>
+<p>This means: <em class="replaceable"><code>&lt;sub&gt;.lj.com/&lt;user&gt;</code></em> should
+do <acronym class="acronym">XML</acronym>HTTPRequests not to <em class="replaceable"><code>&lt;sub&gt;.lj.com/endpoint.bml</code></em>, but
+to <em class="replaceable"><code>&lt;sub&gt;.lj.com/&lt;user&gt;/endpoint.bml</code></em> (otherwise ambiguous).</p>
+</div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.int.portal_modules.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.internals.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.int.oh_crumbs.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 12. Portal Modules </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 14. Creating &amp; Using Breadcrumbs</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+    <title>LiveJournal Poll</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta content="noindex, nofollow" name="robots">
+    <script src="/stc/fck/editor/dialog/common/fck_dialog_common.js" type="text/javascript"></script>
+    <script src="/js/poll.js" type="text/javascript"></script>
+    <script language="javascript">
+
+    //Standard setup stuff (notice the command name used in the property names)
+    var oEditor = window.parent.InnerDialogLoaded() ;
+    var FCK = oEditor.FCK ;
+    var FCKLang = oEditor.FCKLang ;
+    var LJPollCommand = oEditor.LJPollCommand ;
+    var pollID; // Poll ID loaded from existing poll
+    var index; // Poll index/ID for existing or new poll
+    var answer_count = new Array();
+    var Questions = 1; // Number of questions for a poll
+    var current_question = 0;
+
+    // Initialize Poll array in RTE window
+    if (!FCK.EditorWindow.top.LJPoll) FCK.EditorWindow.top.LJPoll = new Array();
+
+    // Dialog box tabs
+    window.parent.AddTab('setup', 'Setup');
+    window.parent.AddTab('questions', 'Questions');
+
+    function OnDialogTabChange( tabCode )
+    {
+        ShowE('divSetup', (tabCode == 'setup'));
+        ShowE('divQuestions', (tabCode == 'questions'));
+    }
+
+
+    window.onload = function () //Runs when this page is loaded
+    {
+        LoadSelected() ; //see function below
+        window.parent.SetOkButton( true ) ; // Show the "Ok" button.
+    }
+
+    //Get the currently selected element from the editor. Two Options follow.
+
+    //1. Use this form for some elements such as images
+    //var eSelected = oEditor.FCKSelection.GetSelectedElement() ;
+
+    //2. Use this form for elements with inner text (including the if statement)
+    var eSelected = FCK.Selection.MoveToAncestorNode( 'DIV' );
+    if ( eSelected ) {
+        FCK.Selection.SelectNode( eSelected );
+    //    var divIds = oEditor.FCKTools.GetAllChildrenIds( eSelected );
+    }
+
+    //If an object is currently selected, load the properties into the dialog
+    function LoadSelected()
+    {
+        // If inside DIV with ID like 'poll1'
+        if ( eSelected && eSelected.id.match(/poll\d+/) ) {
+            pollID = eSelected.id.replace(/poll(\d+)/, "$1");
+            index = pollID;
+            if (FCK.EditorWindow.top.LJPoll[pollID]) populateWizard(pollID);
+        } else {
+            pollID = FCK.EditorWindow.top.LJPoll.length;
+        }
+        index = pollID || FCK.EditorWindow.top.LJPoll.length;
+    }
+
+    //Code that runs after the OK button is clicked
+    //If a link has been entered, pass the values to the Add() function in the fckplugin.js file.
+    function Ok()
+    {
+        var pollsource = constructPoll(index);
+
+        if ( pollsource.length > 0 )
+        LJPollCommand.Add( pollsource, index ) ;
+        LJPollCommand.setKeyPressHandler();
+
+        return true ;
+    }
+
+    function constructPoll() {
+        FCK.EditorWindow.top.LJPoll[index] = new FCK.EditorWindow.top.Poll(document, Questions);
+        var thispoll = FCK.EditorWindow.top.LJPoll[index];
+        var html = thispoll.outputHTML();
+        return html;
+    }
+
+    function populateWizard() {
+        var poll = FCK.EditorWindow.top.LJPoll[index];
+        var form = document.poll;
+
+        if (poll.name && poll.name != '') form.name.value = poll.name;
+        setRadioValue(form.whovote, poll.whovote);
+        setRadioValue(form.whoview, poll.whoview);
+        var type = form["type_"+index];
+        for (var i=0; i<type.options.length; i++) {
+            if (type.options[i].value == poll.qa[index].atype) {
+                type.options[i].selected = true;
+            } else {
+                type.options[i].selected = false;
+            }
+        }
+
+        var aincrement = 5; // Answer Increment and default minimum
+        // For each Question
+        for (var i=0; i<poll.qa.length; i++) {
+            answer_count[i] = (aincrement > poll.qa[i].answer.length) ? aincrement : poll.qa[i].answer.length;
+            if (i > 0) {
+                addQuestion(false, true);
+                if (poll.qa[i].atype) setSelectValue(form["type_"+i], poll.qa[i].atype);
+            } else{
+                if (poll.qa[i].atype) setSelectValue(form["type_"+i], poll.qa[i].atype);
+            }
+            insertQandA(false, false, i);
+        }
+        updateQuestionNav();
+    }
+
+    function insertQandA(add_answers, switch_answers, q_num) {
+        var poll = FCK.EditorWindow.top.LJPoll[index];
+        var form = document.poll;
+        var add_a = false;
+        var switch_a = false;
+        var q_num = (q_num != null) ? q_num : current_question;
+        if (add_answers != null && form["inserted_"+q_num] != null && add_answers == true) add_a = true;
+        if (switch_answers != null && form["inserted_"+q_num] != null && switch_answers == true) switch_a = true;
+
+        // Answer counter
+        var aincrement = 5; // Answer Increment and default minimum
+        var acount = aincrement;
+        // Adding answer fields
+        if (add_a) {
+            if (poll && poll.qa[q_num] != null) {
+                var alength = (poll.qa[q_num].answer.length > answer_count[q_num])
+                               ? poll.qa[q_num].answer.length : answer_count[q_num];
+                acount = alength + aincrement;
+            } else {
+                acount += aincrement;
+            }
+        // Switching type of answer fields
+        } else if (switch_a) {
+            if (poll != null && poll.qa[q_num].answer.length > answer_count[q_num]) answer_count[q_num] = poll.qa[q_num].answer.length;
+            acount = answer_count[q_num];
+        } else if (answer_count[q_num]) {
+            acount = answer_count[q_num];
+        }
+        if (acount < aincrement) acount = aincrement; // Always show at least the minimum number of answer fields
+        answer_count[q_num] = acount;
+
+        var html = '';
+        if (form["type_"+q_num] != null) html = insertA(switch_a, add_a, q_num);
+
+        document.getElementById('QandA_'+q_num).innerHTML = html;
+        document.poll["setType_"+q_num].value = 'Switch';
+        if (!add_a && !switch_a && poll) populateQandA(poll, form, q_num);
+        if (add_a) {
+            var opt = "pq_"+q_num+"_opt_" + (acount - aincrement);
+            form[opt].focus();
+        }
+        return false;
+    }
+
+    function insertA (switch_a, add_a, q_num) {
+        var poll = FCK.EditorWindow.top.LJPoll[index];
+        var form = document.poll;
+
+        var html = '';
+        var type;
+        var ele = form["type_"+q_num];
+        type = ele.options[ele.selectedIndex].value;
+
+        if (poll && poll.qa[q_num] != null && poll.qa[q_num].answer.length != null) acount = poll.qa[q_num].answer.length;
+
+        html += "<div id='innerA' style='height: 120px; overflow: auto'>";
+        html += "<input type='hidden' name='inserted_"+q_num+"' value='1' />";
+
+        if (type == "radio" || type == "check" || type == "drop") {
+            for (var i=0; i<answer_count[q_num]; i++) {
+                var atype = type;
+                var value = '';
+                if (switch_a || add_a) {
+                    var opt = "pq_"+q_num+"_opt_" + i;
+                    if (form[opt] != null) value = form[opt].value;
+                }
+                if (atype == "check") atype = "checkbox";
+                if (type != "drop") html += '<input name="dummy_'+q_num+'" disabled="disabled" type="'+atype+'">';
+                html += '<input maxlength="500" value="'+value+'" name="pq_'+q_num+'_opt_'+i+'" size="35" type="text"><br />';
+            }
+        } else if (type == "text") {
+            html += 'Size: <input maxlength="3" value="30" name="pq_'+q_num+'_size" size="3" type="text"> ';
+            html += 'Maxlength: <input maxlength="3" value="50" name="pq_'+q_num+'_maxlength" size="3" type="text">\n';
+        } else if (type == "scale") {
+            html += 'From: <input maxlength="9" value="1" name="pq_'+q_num+'_from" size="3" type="text">\n';
+            html += 'To: <input maxlength="9" value="10" name="pq_'+q_num+'_to" size="3" type="text">\n';
+            html += 'By: <input maxlength="9" value="1" name="pq_'+q_num+'_by" size="3" type="text">\n';
+        }
+
+        html += "</div>";
+
+        // Add Answer button
+        if (type == "radio" || type == "check" || type == "drop") {
+            html += "<input type='button' name='more_answer' value=' More... ' onclick='insertQandA(true)'>";
+        }
+
+        return html;
+    }
+
+
+    function populateQandA(poll, form, q_num) {
+        var i = q_num;
+
+        if (poll.qa[i] == null) return;
+        if (poll.qa[i].question) form["question_"+i].value = poll.qa[i].question;
+        if (poll.qa[i].atype) {
+            if (poll.qa[i].atype == "radio" || poll.qa[i].atype == "check" || poll.qa[i].atype == "drop") {
+                for (var j=0; j<poll.qa[i].answer.length; j++) {
+                    var pqNum = "pq_"+i+"_opt_" + j;
+                    if (form[pqNum]) form[pqNum].value = poll.qa[i].answer[j];
+                }
+            } else if (poll.qa[i].atype == "text") {
+                form["pq_"+i+"_size"].value = poll.qa[i].size;
+                form["pq_"+i+"_maxlength"].value = poll.qa[i].maxlength;
+            } else if (poll.qa[i].atype == "scale") {
+                form["pq_"+i+"_from"].value = poll.qa[i].from;
+                form["pq_"+i+"_to"].value = poll.qa[i].to;
+                form["pq_"+i+"_by"].value = poll.qa[i].by;
+            }
+        }
+    }
+
+    function addQuestion(switchQ, ignore_empty) {
+        // Switch display to new question
+        switchQ = (switchQ != null && switchQ == true) ? true : false;
+        // Ignore empty field
+        ignore_empty = (ignore_empty != null && ignore_empty == true) ? true : false;
+        var form = document.poll;
+
+        // Don't add new questions if the current one is empty
+        if (!ignore_empty && form["question_"+current_question].value == '') {
+            alert("Current question is empty");
+            return;
+        }
+
+        // Add to Questions counter
+        Questions++;
+
+        // Current question
+        var current_div = document.getElementById('qa_'+current_question);
+
+        // Create new question
+        var newDiv = createQuestionDiv((Questions-1));
+        current_div.parentNode.appendChild(newDiv);
+
+        if (switchQ) {
+            switchQuestion((Questions-1));
+        } else {
+            // Update/Insert navigation for Questions
+            updateQuestionNav();
+        }
+    }
+
+    function switchQuestion(q_selected) {
+
+        // Hide current question
+        var current_div = document.getElementById('qa_'+current_question);
+        current_div.style.display = 'none';
+
+        // Display chosen question
+        current_question = q_selected;
+        document.getElementById('qa_'+current_question).style.display = 'block';
+
+        updateQuestionNav();
+    }
+
+    function updateQuestionNav() {
+        var html = '';
+
+        // Only show questions nav if multiple questions
+        if (Questions > 1) {
+            html += "Question " + (current_question+1) + " of " + Questions + " &nbsp; ";
+            if (current_question > 0) {
+                html += "<a href='javascript:switchQuestion(" + (current_question-1);
+                html += ")'>Prev</a> ";
+            } else {
+                html += "Prev ";
+            }
+            html += "| ";
+            if (current_question < Questions-1) {
+                html += "<a href='javascript:switchQuestion(" + (current_question+1);
+                html += ")'>Next</a> ";
+            } else {
+                html += "Next ";
+            }
+        }
+        document.getElementById('QNav').innerHTML = html;
+    }
+
+    function createQuestionDiv(q_num) {
+        var div = document.createElement("div");
+        div.id = "qa_"+q_num;
+        div.style.display = 'none';
+
+        var html = '';
+        html += '<p><table><tr><td>Question #'+(q_num+1)+' </td><td><input name="question_'+q_num+'" type="text" size="50" value=""></td></tr>\n';
+        html += '<tr>\n';
+        html += '<td>Answer Type </td><td><select name="type_'+q_num+'">\n';
+        html += '<option value="--"></option>\n';
+        html += '<option value="radio">Radio Buttons</option>\n';
+        html += '<option value="check">Check Boxes</option>\n';
+        html += '<option value="drop">Drop-down box</option>\n';
+        html += '<option value="text">Text entry</option>\n';
+        html += '<option value="scale">Scale</option>\n';
+        html += '</select>\n';
+        html += '<input type="button" name="setType_'+q_num+'" value="Insert" onclick="insertQandA(false, true)" />\n';
+        html += '</td></tr>\n';
+        html += '<tr><td></td><td><div id="QandA_'+q_num+'"></div></td></tr></table></p>\n';
+
+        div.innerHTML = html;
+
+        return div;
+    }
+
+
+    </script>
+</head>
+
+<body scroll="no" style="OVERFLOW: hidden">
+<form name="poll">
+<div id='divSetup'>
+    <p>
+    Poll Name<br />
+    <input name="name" id="name" type="text" size="50">
+    </p>
+    <p>
+    Who can vote in this poll?<br />
+    <input name="whovote" value="all" type="radio" id="whovote_all" checked="checked"> <label for="whovote_all">Everyone</label><br />
+    <input name="whovote" value="friends" type="radio" id="whovote_friend"> <label for="whovote_friend">Friends</label>
+    </p>
+    <p>
+    Who can view this poll?<br />
+    <input name="whoview" value="all" type="radio" id="whoview_all" checked="checked"> <label for="whoview_all">Everyone</label><br />
+    <input name="whoview" value="friends" type="radio" id="whoview_friends"> <label for="whoview_friends">Friends</label><br />
+    <input name="whoview" value="none" type="radio" id="whoview_none"> <label for="whoview_none">Only You</label>
+    </select>
+    </p>
+</div>
+<div id="divQuestions" style="DISPLAY: none">
+    <div style="padding: 0px 3px 3px 3px; border-bottom: 1px dashed #cec6b5; width: 100%">
+        <div style='float:right;'>
+            <input type='button' value=' Next Question ' onclick='addQuestion(true)'>
+        </div>
+        <div id='QNav' style="padding-top: 3px;">
+            Question 1 of 1  &nbsp; Prev | Next
+        </div>
+        <div style="clear: both"></div>
+    </div>
+    <div id="QArray" style="height: 220px; border: 0px;">
+        <div id="qa_0">
+            <p>
+            <table>
+            <tr><td>Question #1 </td><td><input name="question_0" type="text" size="50" value=""></td></tr>
+            <tr><td>Answer Type </td><td><select name="type_0">
+            <option value="--"></option>
+            <option value="radio">Radio Buttons</option>
+            <option value="check">Check Boxes</option>
+            <option value="drop">Drop-down box</option>
+            <option value="text">Text entry</option>
+            <option value="scale">Scale</option>
+            </select>
+            <input type="button" name="setType_0" value="Insert" onclick="insertQandA(false, true)" /></td></tr>
+            <tr><td></td><td><div id="QandA_0"></div></td></tr>
+            </table>
+            </p>
+        </div>
+    </div>
+</div>
+</form>
+</body>
+</html>

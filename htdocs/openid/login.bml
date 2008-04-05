@@ -1,0 +1,102 @@
+<?_code
+{
+    use strict;
+    use vars qw($title $head $body %GET %POST);
+    use LJ::OpenID;
+    LJ::set_active_crumb("openid_login");
+
+    $title = "OpenID Login";
+    $head = "";
+
+    my $err = sub {
+        $title = "Error";
+        $body = shift;
+        return;
+    };
+
+    return $err->("OpenID consumer support is disabled")
+        unless LJ::OpenID::consumer_enabled();
+
+    my $return_to = "$LJ::SITEROOT/openid/login.bml";
+
+    my $remote = LJ::get_remote();
+    if ($remote) {
+        $body .= "<?h1 Already logged in h1?><?p Hello, " . LJ::ljuser($remote) . ". Before logging in with <a href='http://www.danga.com/openid/'>OpenID</a>, you must first <a href='/logout.bml'>log out</a>. p?>";
+        return;
+    }
+
+    if ($GET{'openid.mode'}) {
+        my $csr = LJ::OpenID::consumer(\%GET);
+
+        if ($csr->user_cancel) {
+            return BML::redirect("$LJ::SITEROOT/openid/");
+        }
+
+        if (my $setup = $csr->user_setup_url) {
+            return BML::redirect($setup);
+        }
+
+        if ($GET{'openid.return_to'} && $GET{'openid.return_to'} !~ /^\Q$return_to\E/) {
+            return $err->("Invalid return_to");
+        }
+
+        my $vident = eval { $csr->verified_identity; };
+        return $err->($@) if $@;
+        return $err->($csr->err) unless $vident;
+
+        my $url = $vident->url;
+        return $err->("Invalid characters in identity URL.") if $url =~ /[\<\>\s]/;
+
+        my $u = LJ::User::load_identity_user("O", $url, $vident);
+        return $err->("Couldn't vivify your account (but we verified that you're " . LJ::ehtml($url) . ")") unless $u;
+
+        my $sess_opts = {
+            'exptype' => 'short',
+            'ipfixed' => 0,
+        };
+        my $etime = 0;
+        if ($POST{'expire'} eq "never") {
+            $etime = time()+60*60*24*60;
+            $sess_opts->{'exptype'} = "long";
+        }
+
+        $u->make_login_session($sess_opts->{'exptype'}, $sess_opts->{'ipfixed'});
+        LJ::set_remote($u);
+
+        return BML::redirect("$LJ::SITEROOT/login.bml");
+    }
+
+
+    if (LJ::did_post()) {
+        my $csr = LJ::OpenID::consumer();
+        my $url = $POST{'openid_url'};
+        return $err->("Invalid characters in identity URL.") if $url =~ /[\<\>\s]/;
+
+        my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
+
+        my $claimed_id = eval { $csr->claimed_identity($url); };
+        return $err->($@) if $@;
+
+        unless ($claimed_id) {
+            return $err->("You can't use a LiveJournal OpenID account on LiveJournal &mdash; ".
+                          "just <a href='/login.bml'>go login</a> with your actual LiveJournal account.") if $$tried_local_ref;
+            return $err->(LJ::bad_input($csr->err));
+        }
+
+        my $check_url = $claimed_id->check_url(
+                                               return_to => $return_to,
+                                               trust_root => "$LJ::SITEROOT/",
+                                               delayed_return => 1,
+                                               );
+        return BML::redirect($check_url);
+    }
+
+return undef;
+
+}
+ _code?><?_info
+nocache=>1
+_info?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>

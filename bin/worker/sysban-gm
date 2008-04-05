@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+require 'sysban.pl';
+
+use LJ::Worker::Gearman;
+use Storable;
+
+gearman_decl("sysban_populate" => \&sysban_populate);
+gearman_work();
+
+sub sysban_populate {
+    my $job = shift;
+    my $args = Storable::thaw($job->arg);
+
+    # what type of ban are we loading
+    my $what = $args->{what};
+
+    # empty hashref, we'll populate the caller from this
+    my $data = {};
+    my $res = LJ::_db_sysban_populate($data, $what);
+
+    return Storable::nfreeze($res);
+}

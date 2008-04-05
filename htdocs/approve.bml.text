@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+.comm.success=Success
+
+.comm.text<<
+You have been added to [[comm]].
+Click <a [[aopts]]>here</a> to add the community to your friends list.
+.
+
+.commjoin.text<<
+You have approved the membership request of [[user]] in [[comm]].
+Click <a [[aopts]]>here</a> to visit the member list for this community to set
+other options for this user.
+.
+
+.error.actionperformed=This action has already been performed
+
+.error.approving=There was an error approving this request to join.
+
+.error.internerr.invalidaction=Internal error: invalid action
+
+.error.invalidargument=Invalid argument given
+
+.error.unknownactiontype=Unknown action type
+
+.shared.success=Success
+
+.shared.text<<
+You have been given posting access to [[shared]].
+Click <a [[aopts]]>here</a> to add the shared journal to your friends list.
+.
+
+.title=Action Approval
+

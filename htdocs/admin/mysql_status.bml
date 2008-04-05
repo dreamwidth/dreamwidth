@@ -1,0 +1,129 @@
+<?_code
+
+ my $format = $FORM{'format'} || "html";
+
+ my $remote = LJ::get_remote();
+ return"<b>Error:</b> You don't have access to administer databases."
+ unless (LJ::check_priv($remote, "siteadmin", "mysqlstatus"));
+
+ my $dbh = LJ::get_db_writer();
+
+ if ($format eq "text") {
+     BML::set_content_type("text/plain");
+ }
+
+ my ($sth, $ret);
+
+ if ($format eq "html") {
+     $ret .= "<style>\ntd { font-family: arial; font-size: 11px };\n</style>\n";
+ }
+
+ my @modes = qw(status variables tables);
+ my $mode = $FORM{'mode'} || "status";
+ foreach my $m (@modes) {
+     if ($mode eq $m) {
+         $mode = $m;
+         $ret .= "<b>[ $mode ]</b>  " if ($format eq "html");
+     } else {
+         if ($format eq "html") {
+             $ret .= "<b>[</b> <a href=\"" . BML::self_link({'mode' => $m});
+             $ret .= "\">$m</a> <b>]</b>  ";
+         }
+     }
+ }
+ if ($format eq "html") {
+     $ret .= "<p>Or, view <a href=\"mysql_status.bml?mode=$mode&format=text\">as text</a>.<p>";
+ }
+
+ if ($mode eq "status")
+ {
+     $sth = $dbh->prepare("SHOW STATUS");
+     $sth->execute;
+     my %s;
+     while (my ($k, $v) = $sth->fetchrow_array) {
+         $s{$k} = $v;
+     }
+
+     $sth = $dbh->prepare("SHOW STATUS");
+     $sth->execute;
+     if ($format eq "html") {
+         $ret .= "<table cellpadding=2 border=1 cellspacing=1>";
+     }
+     while (my ($k, $v) = $sth->fetchrow_array) {
+         my $delta = $v - $s{$k};
+         if ($delta == 0) {
+             $delta = "";
+         } elsif ($delta > 0) {
+             $delta = "+$delta";
+         } else {
+             $delta = "-$delta";
+         }
+         if ($format eq "html") {
+             $ret .= "<tr><td><b>$k</b></td><td>$v</td><td>$delta</td></tr>\n";
+         } elsif ($format eq "text") {
+             $ret .= "$k,$v,$delta\n";
+         }
+     }
+     $ret .= "</table>\n" if ($format eq "html");
+     return $ret;
+ }
+
+ if ($mode eq "variables")
+ {
+     $sth = $dbh->prepare("SHOW VARIABLES");
+     $sth->execute;
+
+     $ret .= "<table cellpadding=2 border=1 cellspacing=1>" if ($format eq "html");
+     while (my ($k, $v) = $sth->fetchrow_array) {
+         if ($format eq "html") {
+             $ret .= "<tr><td><b>$k</b></td><td>$v</td></tr>\n";
+         } else {
+             $ret .= "$k,$v\n";
+         }
+     }
+     $ret .= "</table>\n" if ($format eq "html");
+     return $ret;
+ }
+
+ if ($mode eq "tables")
+ {
+     $sth = $dbh->prepare("SHOW TABLE STATUS");
+     $sth->execute;
+
+     if ($format eq "html") {
+         $ret .= "<table cellpadding=2 border=1 cellspacing=1>";
+         $ret .= "<tr>";
+     }
+     my @cols = @{$sth->{'NAME'}};
+     foreach (@cols) {
+         if ($format eq "html") {
+             $ret .= "<td><b>$_</b></td>";
+         } else {
+             $ret .= "$_,";
+         }
+     }
+     if ($format eq "html") {
+         $ret .= "</tr>\n";
+     } else {
+         $ret .= "\n";
+     }
+     while (my $t = $sth->fetchrow_hashref) {
+         $ret .= "<tr>" if ($format eq "html");
+         foreach my $c (@cols) {
+             if ($format eq "html") {
+                 $ret .= "<td>$t->{$c}</td>";
+             } elsif ($format eq "text") {
+                 $ret .= "$t->{$c},";
+             }
+         }
+         if ($format eq "html") {
+             $ret .= "</tr>";
+         } elsif ($format eq "text") {
+             $ret .= "\n";
+         }
+     }
+     $ret .= "</table>\n" if ($format eq "html");
+     return $ret;
+ }
+
+_code?>

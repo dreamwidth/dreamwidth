@@ -1,0 +1,20 @@
+.appwidget-qotd {
+    border-bottom: 1px solid #ededed;
+    padding: 10px;
+    margin: 0 !important;
+}
+
+.qotd-archive-item-date {
+    font-size: 11px;
+    padding-bottom: 5px;
+}
+
+.qotd-archive-item-question {
+    font-size: 16px;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+.qotd-archive-item-answers a {
+    font-size: 11px;
+}

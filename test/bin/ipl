@@ -1,0 +1,404 @@
+#!/usr/bin/perl
+package IPL::Shell;
+use strict;
+
+BEGIN {
+    use vars qw{$VERSION $RCSID};
+
+    $VERSION    = do { my @r = (q$Revision: 4662 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+    $RCSID      = q$Id: ipl 4662 2004-11-11 00:51:38Z deveiant $;
+
+    use base qw{Shell::Base};
+
+    use Carp            qw{carp croak confess};
+    use Data::Dumper    qw{};
+    use Term::ANSIColor qw{color};
+    use Cwd             qw{cwd};
+    use File::Basename  qw(basename);
+    use Net::Domain     qw(hostfqdn);
+    use String::Format  qw(stringf);
+    use Sys::Hostname   qw(hostname);
+    use Devel::Symdump  qw{};
+
+    $Shell::Base::RE_QUIT = '(?i)^\s*(exit|q(uit)?|logout)';
+}
+
+
+
+#####################################################################
+###	C L A S S   G L O B A L S
+#####################################################################
+
+# Default configuration values
+our %Defaults = (
+    prompt_fmt  => '%{bold cyan}C%p%{white}C %!> ',
+);
+
+
+
+#####################################################################
+###	I N S T A N C E   M E T H O D S
+#####################################################################
+
+### Shell initialization
+sub init {
+    my ( $self, $args ) = @_;
+
+    # Merge defaults
+    %$args = ( %Defaults, %$args );
+
+    # Add instance vars
+    $self->{result_history} = [];
+    $self->{package} = 'main';
+    $self->{prompt_fmt} = $args->{prompt_fmt};
+}
+
+
+### METHOD: init_completions()
+### Initialize the internal COMPLETIONS list.
+sub init_completions {
+    my $self = shift;
+    $self->SUPER::init_completions;
+    $self->completions( map { ":$_" } $self->completions );
+}
+
+
+### Intro/outro message
+sub intro { return qq{IPL: Interactive Perl Shell $VERSION} }
+sub outro { "" }
+
+
+### Prompt callback
+sub prompt {
+    my $self = shift;
+    my $fmt = $self->{prompt_fmt};
+
+    my $prompt = stringf $fmt => {
+        '!' => $self->term->{history_length},
+        '$' => $$,
+        '0' => $self->progname,
+        'C' => sub { color($_[0]) },
+        'H' => hostfqdn,
+        'W' => basename(cwd),
+        'c' => ref($self),
+        'g' => scalar getgrgid($(),
+        'h' => hostname,
+        'p' => $self->{package},
+        'u' => scalar getpwuid($<),
+        'w' => cwd,
+    };
+
+    # Append a reset to clean up if there are color escapes in the prompt
+    $prompt .= color( 'reset' ) if $prompt =~ m{\e\[};
+
+    return "\n$prompt";
+}
+
+
+### METHOD: print( $output )
+### Output method.
+sub print {
+    my $self = shift;
+    my $output = join( "", @_ );
+
+    my $nlcount = $output =~ tr/\n/\n/;
+
+    if ( $nlcount >= $self->{ROWS} - 3 ) {
+        my $pager = $self->pager;
+        open my $P, "|$pager" or carp "Can't open $pager: $!";
+        CORE::print $P $output;
+        close $P;
+    } else {
+        CORE::print $output;
+    }
+
+}
+
+
+### METHOD: parseline( $input )
+### Command-parsing method: parse the specified I<input>, run the specified
+### command, and output the result.
+sub parseline {
+    my ( $self, $input ) = @_;
+
+    if ( $input =~ m{^:(\S+.*)} ) {
+        return $self->SUPER::parseline( $1 );
+    }
+
+    else {
+        return ( "eval", {}, $input );
+    }
+}
+
+
+### METHOD: prettyPrint( $value )
+### Return the given I<value> as a pretty-printed string.
+sub prettyPrint {
+    my ( $self, $val ) = @_;
+
+    local $Data::Dumper::Terse = 1;
+    local $Data::Dumper::Indent = 1;
+    local $Data::Dumper::Pad = "    ";
+
+    my $rval = Data::Dumper->Dumpxs( [$val] );
+    $rval =~ s{^\s+}{};
+    $rval = " => $rval ";
+
+    return $rval;
+}
+
+
+
+#####################################################################
+###	C O M M A N D   M E T H O D S
+#####################################################################
+
+### METHOD: do_shellobj( undef )
+### Implementation of the 'shellobj' command
+sub do_shellobj {
+    my $self = shift;
+    return Data::Dumper->Dumpxs( [$self], [qw{self}] );
+}
+
+
+### METHOD: help_shellobj( undef )
+### Callback for help on the 'shellobj' command.
+sub help_shellobj {
+    return q{Show a dump of the IPL shell object itself.};
+}
+
+
+### METHOD: do_eval( @args )
+### Implementation of the 'eval' command.
+sub do_eval {
+    my ( $self, @args ) = @_;
+
+    my (
+        $input,
+        $res,
+        $rval,
+       );
+
+    $input = join( ' ', @args );
+    #$self->print( "[Evaluating '$input']\n" );
+    $res = eval qq{
+        package $self->{package};
+        no strict;
+        $input ;
+    };
+
+    # Show error message for errors
+    if ( $@ ) {
+        ( $rval = $@ ) =~ s{at \S+ line \d+\..*}{};
+    }
+
+    # Dump everything else
+    else {
+        $rval = $self->prettyPrint( $res );
+    }
+
+    return $rval;
+}
+
+### METHOD: help_eval( undef )
+### Provide help text for the 'eval' command.
+sub help_eval {
+    return q{Evaluate the input as Perl and display the result.};
+}
+
+
+### METHOD: do_rl( $subcmd, @args )
+### Implementation of the 'readline' command.
+sub do_rl {
+    my ( $self, $subcmd, @args ) = @_;
+
+    my $rval = '';
+
+    if ( $subcmd =~ m{features} ) {
+        $rval = $self->prettyPrint( $self->term->Features );
+    }
+
+    elsif ( $subcmd =~ m{module} ) {
+        $rval = "Readline features provided by: " .
+            $self->term->ReadLine;
+    }
+
+    elsif ( $subcmd =~ m{completions} ) {
+        $rval = "Tab-completions: \n" .
+            $self->prettyPrint( [sort $self->completions] );
+    }
+
+    else {
+        $rval = $self->prettyPrint( $self->term );
+    }
+
+    return $rval;
+}
+
+
+### METHOD: help_rl( undef )
+### Return help text for the 'rl' (readline) command.
+sub help_rl {q{
+rl [<subcommand>]
+
+Provide information about the readline implementation used by the shell. The
+<subcommand> can be one of:
+
+features    Dump the hash of features understood by the implementation.
+module      Show the name of the actual module that is providing readline
+            features.
+completions Dump the list of tab-completions.
+
+}}
+
+
+### METHOD: do_perldoc( @args )
+### Implementation of the 'perldoc' command.
+sub do_perldoc {
+    my ( $self, @args ) = @_;
+
+    if ( @args ) {
+        system 'perldoc', @args;
+        return undef;
+    } else {
+        return "'perldoc' requires at least one argument.";
+    }
+}
+
+
+### METHOD: help_perldoc()
+### Help method for the 'perldoc' command.
+sub help_perldoc {q{
+Run the 'perldoc' program.
+}}
+
+
+### METHOD: do_package( $newpkg )
+### Change the package future evals will take place in.
+sub do_package {
+    my ( $self, $package ) = @_;
+
+    if ( $package ) {
+        return "Invalid package name '$package'"
+            unless $package =~ m{^[a-z]\w+(?:::[a-z]\w+)*$}i;
+        $self->{package} = $package;
+        return "Set eval package to: '$package'.";
+    } else {
+        return "Current package is: '$self->{package}'.";
+    }
+}
+
+
+### METHOD: help_package()
+### Help method for the 'package' command.
+sub help_package {q{
+  package [<newpackage>]
+
+Set the package future evaluations will occur in to 'newpackage' if the optional
+argument is given, else just print the name of the current package.
+}}
+
+
+
+
+### METHOD: do_reload()
+### Implementation of the 'reload' command.
+sub do_reload {
+    my $self = shift;
+
+    if ( my $h = $self->histfile ) {
+        $self->term->WriteHistory( $h );
+    }
+
+    $self->print( "Re-execing shell...\n" );
+    local $ENV{IPL_RELOAD} = 1;
+    exec $0;
+    return "Hmmm... something funky happened.";
+}
+
+sub help_reload {q{
+  reload
+
+Reload the shell.
+}}
+
+
+### METHOD: do_inspect( [$package] )
+### Implementation of the 'inspect' command.
+sub do_inspect {
+    my $self = shift;
+    my $package = shift || $self->{package};
+
+    my $inspector = new Devel::Symdump $package;
+
+    no strict;
+    my @out = ( "Symbol table for $package" );
+    my ( %scalars, %arrays, %hashes, %functions, %packages, %filehandles );
+
+    # Grab entries for each type from the symbol table for the inspected
+    # package.
+    %scalars     = map { $_ => ${*{$_}{SCALAR}} } $inspector->scalars;
+    %arrays      = map { $_ => *{$_}{ARRAY} } $inspector->arrays;
+    %hashes      = map { $_ => *{$_}{HASH} } $inspector->hashes;
+    %functions   = map { $_ => *{$_}{CODE} } $inspector->functions;
+    %packages    = map { $_ => undef } $inspector->packages;
+    %filehandles = map { $_ => *{$_}{IO} } $inspector->filehandles;
+
+    # Build displays for each entry in the symbol table, sorted by type,
+    # prepending the sigil for each one. In part stolen from Matthew Simon
+    # Cavalletto's Term::ShellKit::Dev
+    foreach my $output (
+        [ 'Scalars', \%scalars, '$', ],
+        [ 'Arrays', \%arrays, '@'],
+        [ 'Hashes', \%hashes, '%'],
+        [ 'Subs', \%functions, 'sub '],
+        [ 'Packages', \%packages, '::'],
+        [ 'Filehandles', \%filehandles, '*'],
+       ) {
+        next unless scalar keys %{$output->[1]};
+        push @out, "$output->[0]:", '-' x length($output->[0]);
+        foreach ( sort keys %{$output->[1]} ) {
+            if ( defined $output->[1]{$_} ) {
+                push @out, qq{  $output->[2]$_ = "$output->[1]{$_}"};
+            } else {
+                push @out, qq{  $output->[2]$_};
+            }
+        }
+    }
+
+    return join "\n", @out;
+
+
+}
+
+sub help_inspect {q{
+  inspect [<package>]
+
+Inspect the contents of the specified package, or the current package if no
+package is given.
+}}
+
+
+
+#####################################################################
+###	R U N T I M E   P A C K A G E
+#####################################################################
+package ipl;
+use strict;
+
+BEGIN {
+    use Getopt::Long qw{GetOptions};
+    $GetOpt::Long::Bundling = 1;
+}
+
+
+if ( $0 eq __FILE__ ) {
+    my %opts = (
+        HISTFILE => glob("~/.ipl_history"),
+        RCFILES => [glob("~/.iplrc"), ".iplrc"],
+       );
+
+    IPL::Shell->new( %opts )->run;
+}
+
+

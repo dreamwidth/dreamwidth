@@ -1,0 +1,60 @@
+<html>
+<head><title>Comment view</title>
+<body>
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+    my $ret;
+    my $remote = LJ::get_remote();
+
+    return "<b>Error:</b> You don't have access to viewing recent comments."
+        unless LJ::check_priv($remote, "siteadmin", "commentview");
+
+    my $user = $GET{'user'};
+    my $u;
+    if ($user =~ /^\#(\d+)/) {
+        $u = LJ::load_userid($1);
+    } elsif ($user) {
+        $u = LJ::load_user($user);
+    }
+    unless ($u) {
+        return "<form method='GET'>Username or (#userid) to view comments of: ".
+            "<input name='user' size='15' /><input type='submit' value='Load' /></form>";
+    }
+    $user = $u->{'user'};
+    $ret .= "<a href='recent_comments.bml'>&lt;&lt;</a> <b>Recent comments of " . LJ::ljuser($u) . "</b> (\#$u->{userid})<br />\n";
+
+    my $dbcr = LJ::get_cluster_reader($u);
+    return "Error: can't get DB for user" unless $dbcr;
+
+    my $now = time();
+
+    my $sth = $dbcr->prepare("SELECT posttime, journalid, nodetype, nodeid, jtalkid, publicitem ".
+                             "FROM talkleft ".
+                             "WHERE userid=?  ORDER BY posttime DESC LIMIT 250");
+    $sth->execute($u->{'userid'});
+    my %jcount;  # jid -> ct
+    while (my $r = $sth->fetchrow_hashref) {
+        $jcount{$r->{'journalid'}}++;
+        next unless $r->{'nodetype'} eq "L";  # log2 comment
+
+        my $ju = LJ::load_userid($r->{'journalid'});
+        my $lrow = LJ::get_log2_row($ju, $r->{'nodeid'});
+        my $hr_ago = sprintf("%.1f", ($now - $r->{'posttime'}) / 3600);
+
+        if ($lrow) {
+            my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
+            my $url = "$LJ::SITEROOT/users/$ju->{user}/$lrow->{ditemid}.html?thread=$talkid\#t$talkid";
+            $ret .= "$hr_ago hr ago in " . LJ::ljuser($ju) . ": <a href='$url'>$url</a><br />\n";
+        } else {
+            $ret .= "$hr_ago hr ago in " . LJ::ljuser($ju) . ": link unavailable<br />";
+        }
+    }
+
+    return $ret;
+
+}
+_code?>
+</body>
+</html>

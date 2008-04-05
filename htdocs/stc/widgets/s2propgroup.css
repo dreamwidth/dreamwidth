@@ -1,0 +1,34 @@
+.prop-list {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.graybg {
+    background-color: #f1f1f1;
+}
+
+.prop-row td {
+    padding: 5px;
+}
+
+.prop-row-note td {
+    padding: 5px;
+    padding-top: 0;
+}
+
+.prop-row .prop-header {
+    width: 400px;
+}
+
+.prop-row .prop-color {
+    width: 150px;
+}
+
+.prop-note {
+    color: #666;
+    font-size: smaller;
+}
+
+.s2propgroup-outer-expandcollapse {
+    display: none;
+}

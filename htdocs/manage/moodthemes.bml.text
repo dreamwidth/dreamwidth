@@ -1,0 +1,65 @@
+;; -*- coding: utf-8 -*-
+.back2=Return To Editor
+
+.btn.create=Create
+
+.btn.delete=Delete
+
+.btn.edit=Edit
+
+.btn.savechanges=Save Changes
+
+.btn.use=Use
+
+.createtheme.header=Create a New Theme
+
+.createtheme.label.name=Name:
+
+.editingtheme.header=Editing Theme [[name]]
+
+.editingtheme.label.name=Theme Name:
+
+.error.cantcreatetheme=There was an error creating this moodtheme.
+
+.error.cantcreatethemes=Sorry, your account type does not allow creation of custom mood themes.
+
+.error.cantdeletetheme=There was an error deleting this moodtheme.
+
+.error.cantupdatetheme=There was an error updating this moodtheme.
+
+.error.nonamegiven=You must specify a name for this theme.
+
+.error.notyourtheme=You do not have permission to edit this theme.
+
+.mood.deleted=[[mood]] was deleted and will now be represented by its parent.
+
+.mood.label.height=Height:
+
+.mood.label.inherit=Inherit from [[mood]]:
+
+.mood.label.url=URL:
+
+.mood.label.width=Width:
+
+.mood.setpic=[[mood]] is set to [[url]].
+
+.saved=Changes have been successfully saved.
+
+.title=Custom Mood Theme Editor
+
+.usepublictheme=Select a public mood theme as your default at the <a [[aopts]]>Modify Journal page</a>.
+
+.yourthemes.delete.confirm=Are you sure you want to delete this mood theme?
+
+.yourthemes.example.angry=Angry
+
+.yourthemes.example.happy=Happy
+
+.yourthemes.example.none=[no image]
+
+.yourthemes.example.sad=Sad
+
+.yourthemes.header=Your Mood Themes
+
+.yourthemes.nothemes=You have not yet made any custom mood themes.
+

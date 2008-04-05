@@ -1,0 +1,133 @@
+;; -*- coding: utf-8 -*-
+.about=Managing your account is easy. Just choose from the following areas below:
+
+.communities=Create and manage your own communities:
+
+.communities.create.about=Create a new community
+
+.communities.header=Communities
+
+.communities.invites.about=View any pending invitations you have received to join communities.
+
+.communities.manage.about=Manage your communities' settings and members
+
+.customization=Customize the look of your journal pages:
+
+.customization.advanced=Advanced Customization
+
+.customization.advanced.about=Browse, create, and edit your S2 layouts and styles
+
+.customization.customize=Customize Journal
+
+.customization.customize.about=Change the appearance of your journal and switch between S1 and S2 style systems
+
+.customization.header=Customization
+
+.customization.links=Links List
+
+.customization.links.about=Create a list of links to appear in your journal
+
+.customization.modify.about=Modify your journal's display properties
+
+.customization.moodtheme.editor=Create and edit your custom mood themes
+
+.customization.moodtheme.editor.header=Mood Theme Editor
+
+.customization.moodtheme.header=Mood Themes
+
+.customization.moodtheme.set=Select which mood theme set your journal will use
+
+.customization.moodtheme.set.header=Set Your Mood Theme
+
+.customization.navstrip=Navigation Strip Settings
+
+.customization.s1.header=S1 Style System
+
+.customization.s2.header=S2 Style System
+
+.deleteaccount=Delete Account
+
+.entries=Work with entries you have made in your account's journal:
+
+.entries.edit.about=Edit and delete entries in your journal
+
+.entries.header=Journal Entries
+
+.entries.memories.about=View and work with your memorable posts
+
+.friends=Manage your friends and friend groups, or filter your friends page according to your saved friend groups:
+
+.friends.edit.about=Add, edit, or remove users from your friends list
+
+.friends.filter=Filter Friends Page
+
+.friends.filter.about=Filter your friends list to display a specific friend group
+
+.friends.groups.about=Create, edit, or delete subgroups of your friends list
+
+.friends.header=Friends
+
+.information=Choose what information is displayed on your account:
+
+.information.changepass=Change Account Password
+
+.information.changepass.about=Change your account's password
+
+.information.comments.about=Change your comment settings
+
+.information.editinfo.about=Edit your account information and various options
+
+.information.header=Account Information
+
+.information.mobilepost=Mobile Post Settings
+
+.information.mobilepost.about=Manage your email addresses and PIN for mobile posting support
+
+.information.profile.about=Edit your profile information
+
+.information.pubkey=PGP/GPG public key
+
+.information.pubkey.about=Upload your public key
+
+.information.settings.about=Change your viewing options and other account settings
+
+.information.siteopts.about=Select your preferred site layout &amp; language
+
+.information.status=Account Status
+
+.information.status.about=Set your account's activation status
+
+.login2=The following links will navigate you to pages where your login information is required. To save yourself some time, you can <a [[aopts]]>log in</a> beforehand.
+
+.manage.subscriptions=Manage Subscriptions
+
+.schools=Manage School Attendance
+
+.settings_pref=Settings & Preferences
+
+.title=Manage Accounts
+
+.undeleteaccount=Undelete Account
+
+.userpics=Upload and manage userpics for your account:
+
+.userpics.edit.about=Upload and Manage Your Userpics
+
+.userpics.header=Userpics
+
+.youraccount.email=Email Address:
+
+.youraccount.header=Your Account
+
+.youraccount.name=Name:
+
+.youraccount.setemail=Set
+
+.youraccount.user=User:
+
+.youraccount.validated=([[status]])
+
+.youraccount.validated.no=Not Validated
+
+.youraccount.validated.yes=Validated
+

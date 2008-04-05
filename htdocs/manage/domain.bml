@@ -1,0 +1,129 @@
+<?page
+title=>Domain Aliasing
+body<=
+<?_code
+{
+    # this file used to be /modify_do.bml, then /modify.bml, and now it's at
+    # /manage/domain.bml, but we don't want the translators to have to
+    # retranslate all of the phrases, so we're still using /modify_do.bml scope
+    BML::set_language_scope("/modify_do.bml");
+
+    use strict;
+    use vars qw(%GET %POST);
+
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
+
+    LJ::set_active_crumb('domain');
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input("You could not be authenticated as the specified user.")
+        unless $u;
+
+    return $LJ::MSG_READONLY_USER if LJ::get_cap($u, "readonly");
+
+    ### user is now authenticated ###
+
+    my $dbr = LJ::get_db_reader();
+    my $sth;
+
+    LJ::load_user_props($u, "journaldomain");
+
+    # if a POST, update their info
+    if (LJ::did_post()) {
+        return "<?badinput?>" unless LJ::text_in(\%POST);
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        # database error reporting
+        my $dberr = sub {
+            return "<?h1 $ML{'error'} h1?><?p $ML{'error.dberror'} <b>@_[0]</b> p?>";
+        };
+
+        my $dbh = LJ::get_db_writer();
+
+        # what userprops we'll be setting.
+        my %uprop;
+
+        # journal domains
+        my $dom_cap = LJ::get_cap($u, 'domainmap');
+        if ((exists $POST{'journaldomain'} && $u->{'journaldomain'} ne $POST{'journaldomain'}) ||
+            (!$dom_cap && $POST{'journaldomain_del'})) {
+
+            $POST{'journaldomain'} =~ s!^(http://)?(www\.)?!!;
+            my $dom = lc($POST{'journaldomain'});
+            if (($dom_cap && !$dom) || (!$dom_cap && $POST{'journaldomain_del'})) {
+                $dbh->do("DELETE FROM domains WHERE userid=?", undef, $u->{'userid'});
+            } else {
+                $dbh->do("INSERT INTO domains VALUES (?, ?)", undef, $dom, $u->{'userid'});
+                if ($dbh->err) {
+                    my $otherid = $dbh->selectrow_array("SELECT userid FROM domains WHERE domain=?",
+                                                        undef, $dom);
+                    return LJ::bad_input($ML{'.error.dupdomainalias'}) if $otherid != $u->{'userid'};
+                }
+                if ($u->{'journaldomain'}) {
+                    $dbh->do("DELETE FROM domains WHERE userid=? AND domain <> ?",
+                             undef, $u->{'userid'}, $dom);
+                }
+            }
+
+            # set journaldomain prop if it's been changed
+            $uprop{'journaldomain'} = $dom
+                unless $POST{'journaldomain'} eq $u->{'journaldomain'};
+        }
+
+        # change any of the userprops ?
+        foreach my $uprop (keys %uprop) {
+            next if $POST{$uprop} eq $u->{$uprop};
+            LJ::set_userprop($u, $uprop, $uprop{$uprop});
+        }
+
+        # tell the user all is well
+        return "<?h1 $ML{'.success.head'} h1?><?p Your domain aliasing settings have been updated. p?>";
+    }
+
+    # not submitting a post, show edit form
+    my $ret;
+
+    # user switcher
+    $ret .= "<form action='$LJ::SITEROOT/manage/domain.bml' method='get'>\n";
+    $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
+    $ret .= "</form>\n\n";
+
+    ###
+    ### JOURNAL DOMAIN OPTIONS
+    ###
+
+    $ret .= "<form method='post' action='/manage/domain.bml?authas=$authas'>\n";
+    $ret .= LJ::form_auth();
+
+    my $has_cap = LJ::get_cap($u, 'domainmap');
+    my $has_dom = $u->{journaldomain} ? 1 : 0;
+    if ($LJ::OTHER_VHOSTS && ($has_cap || $has_dom)) {
+        $ret .= "<?h2 $ML{'.domainalias.head'} h2?><?p $ML{'.domainalias.about'} p?>\n";
+
+        $ret .= "<div style='margin: 20px 0 20px 30px'>";
+        $ret .= "<table><tr><td align='left'><b>$ML{'.domainalias.domainname'}</b></td><td>";
+        $ret .= LJ::html_text({ 'name' => 'journaldomain', 'size' => '30',
+                                'maxlength' => '80', 'value' => $u->{'journaldomain'},
+                                'disabled' => ! $has_cap });
+        $ret .= LJ::html_submit('journaldomain_del' => "Remove") unless $has_cap;
+        $ret .= "</td></tr>";
+        $ret .= "<tr><td>&nbsp;</td><td>$ML{'.domainalias.example'}</td></tr></table>";
+        $ret .= "<?p " . BML::ml(".domainalias.helptext", {'sitename' => $LJ::SITENAME})." p?></div>\n\n";
+    }
+
+    ### ending submit block
+    $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.done.btn.savechanges'}) . " standout?>\n";
+    $ret .= "</form>\n";
+
+    return $ret;
+
+}
+_code?>
+
+<=body
+page?>

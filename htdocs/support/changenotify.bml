@@ -1,0 +1,108 @@
+<?_info
+nocache=>1
+_info?><?page
+title=><?_ml .title _ml?>
+body<=
+
+<?_code
+
+ LJ::set_active_crumb('supportnotify');
+
+ my @errors = ();
+
+ my $remote = LJ::get_remote();
+ my $mode = $FORM{'mode'} || "modify";
+
+ unless ($remote) {
+     push @errors, BML::ml('.mustlogin', {login=>"href=\"/login.bml?ret=1\""});
+ }
+ if ($mode eq "save" && ! LJ::did_post) {
+     push @errors, "<?requirepost?>";
+ }
+ return LJ::bad_input(@errors) if @errors;
+ 
+ LJ::Support::init_remote($remote);
+ my $cats = LJ::Support::load_cats();
+ my @filter_cats = LJ::Support::filter_cats($remote, $cats);
+
+ if ($mode eq "modify")
+ {
+     my $ret = "";
+     $ret .= "<form method='post' action='changenotify.bml'>\n";
+     $ret .= "<input type='hidden' name='mode' value='save' />\n";
+
+     $ret .= "<?h1 $ML{'.chagenotify.title'} h1?>";
+     $ret .= "<?p $ML{'.chagenotify.text'} p?>";
+
+     my %notify;
+     my $dbr = LJ::get_db_reader();
+     $sth = $dbr->prepare("SELECT spcatid, level FROM supportnotify WHERE userid=$remote->{'userid'}");
+     $sth->execute;
+     while (my ($spcatid, $level) = $sth->fetchrow_array) {
+         ## if user used to be able to read a category, subscribed, then lost
+         ## privs, this ensures any future save will turn off things they 
+         ## don't have access to:
+         if (LJ::Support::can_read_cat($cats->{$spcatid}, $remote)) {
+             $notify{$spcatid} = $level;
+         }
+     }
+
+     my %valname = ("off" => $ML{'.option.off'},
+                    "new" => $ML{'.option.new'},
+                    "all" => $ML{'.option.all'},
+                    );
+
+     $ret .= "<div style='margin-left: 30px'>\n";
+     foreach my $cat (@filter_cats) {
+         $ret .= "<p><select name='spcatid_$cat->{'spcatid'}'>";
+         foreach my $val ("off", "new", "all") {
+             my $sel = "";
+             if ($notify{$cat->{'spcatid'}} eq $val) { $sel = " selected='selected'"; }
+             $ret .= "<option value='$val'$sel>$valname{$val}</option>\n";
+         }
+         $ret .= "</select> $cat->{'catname'}</p>\n";
+     }
+     $ret .= "</div>\n";
+
+
+     ### ending submit block
+     $ret .= "<?h1 $ML{'.done.title'} h1?>";
+     $ret .= "<?p  $ML{'.done.text'} p?>\n";
+     $ret .= "<?standout <input type='submit' value='$ML{'.submit.button'}' /> standout?>\n";
+     $ret .= "</form>\n";
+
+     return $ret;
+ }
+
+ if ($mode eq "save")
+ {
+     my $dbh = LJ::get_db_writer();
+     $dbh->do("DELETE FROM supportnotify WHERE userid=$remote->{'userid'}");
+     my $sql;
+
+     foreach my $cat (@filter_cats)
+     {
+         my $id = $cat->{'spcatid'};
+         my $setting = $FORM{"spcatid_$id"};
+         if ($setting eq "all" || 
+             $setting eq "new") 
+         {
+             if ($sql) { $sql .= ", "; }
+             else { $sql .= "REPLACE INTO supportnotify (spcatid, userid, level) VALUES "; }
+             $sql .= "($id, $remote->{'userid'}, '$setting')";
+         }
+     }     
+     if ($sql) { $dbh->do($sql); }
+     
+     return "<?h1 $ML{'.success.title'} h1?><?p $ML{'.success.text'} p?>";
+ }
+
+ return $ML{'.unknow.mode'};
+
+_code?>
+
+<=body
+page?><?_c <LJDEP>
+link: htdocs/login.bml
+post: htdocs/support/changenotify.bml
+</LJDEP> _c?>

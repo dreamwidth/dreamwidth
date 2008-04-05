@@ -1,0 +1,222 @@
+<?_info
+nocache=>1
+_info?><?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+    use vars qw($body);
+
+    my $jsmode = !!$GET{jsmode};
+    $body = "";
+
+    my $error = sub {
+        if ($jsmode) {
+            BML::finish();
+            return "alert('" . LJ::ejs($_[0]) . "'); 0;";
+        }
+        $body = "<?h1 $ML{'Error'} h1?><?p $_[0] p?>";
+        return;
+    };
+    my $bad_input = sub {
+        return $error->("Bad input: $_[0]") if $jsmode;
+        $body = LJ::bad_input($_[0]);
+        return;
+    };
+
+    my $mode = $POST{'mode'} || $GET{'mode'};
+    my $talkid = $POST{'talkid'} || $GET{'talkid'};
+    my $journal = $POST{'journal'} || $GET{'journal'};
+    my $qtalkid = $talkid+0;
+    my $dtalkid = $qtalkid;   # display talkid, for use in URL later
+
+    my $jsres = sub {
+        my $mode = shift;
+
+        # flip case of 'un'
+        my $newmode = "un$mode";
+        $newmode =~ s/^unun//;
+        my $stockimg = {
+            'screen' => "btn_scr.gif",
+            'unscreen' => "btn_unscr.gif",
+            'freeze' => "btn_freeze.gif",
+            'unfreeze' => "btn_unfreeze.gif",
+        };
+
+        my $res = "rpcRes = {\n mode: \"$mode\", id: $dtalkid, \n" .
+            " oldimage: \"$LJ::IMGPREFIX/$stockimg->{$mode}\",\n " .
+            " newimage: '$LJ::IMGPREFIX/$stockimg->{$newmode}',\n " .
+            " newurl: '$LJ::SITEROOT/talkscreen.bml?mode=$newmode&journal=$journal&talkid=$dtalkid' \n" .
+            "};\n";
+        BML::finish();
+        return $res;
+    };
+
+    my $remote = LJ::get_remote();
+
+    return $error->($ML{'.error.login'}) unless $remote;
+
+    # we need to find out: $u, $up (poster of the entry this is a comment to),
+    # userpost (username of this comment's author). Then we can check permissions.
+
+    my $u = LJ::load_user($journal);
+    return $error->($ML{'.talk.error.bogusargs'}) unless $u;
+
+    # if we're on a user vhost, our remote was authed using that vhost,
+    # so let's let them only modify the journal that their session
+    # was authed against.  if they're on www., then their javascript is
+    # off/old, and they get a confirmation page, and we're using their
+    # mastersesion cookie anyway.
+    my $domain_owner = LJ::Session->url_owner;
+    if ($LJ::ONLY_USER_VHOSTS && $domain_owner) {
+        return $bad_input->("URL doesn't match journal owner") unless $domain_owner eq $u->{user};
+    }
+
+    my $dbcr = LJ::get_cluster_def_reader($u);
+    return $error->($ML{'error.nodb'}) unless $dbcr;
+
+    my $post;
+    $qtalkid = int($qtalkid / 256);  # get rid of anum
+    $post = $dbcr->selectrow_hashref("SELECT jtalkid AS 'talkid', nodetype, state, nodeid AS 'itemid', ".
+                                     "parenttalkid, journalid, posterid FROM talk2 ".
+                                     "WHERE journalid=$u->{'userid'} AND jtalkid=$qtalkid");
+
+    return $error->($ML{'talk.error.nocomment'}) unless $post;
+    return $error->($ML{'talk.error.comm_deleted'}) if $post->{'state'} eq "D";
+
+    my $state = $post->{'state'};
+
+    $u ||= LJ::load_userid($post->{'journalid'});
+    return $error->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
+
+    if ($post->{'posterid'}) {
+        $post->{'userpost'} = LJ::get_username($post->{'posterid'});
+    }
+
+    my $qitemid = $post->{'itemid'}+0;
+
+    # $posterid is the userid of the author of the entry, not the comment
+    my ($posterid, $anum) =
+        $dbcr->selectrow_array("SELECT posterid, anum FROM log2 WHERE ".
+                               "journalid=$u->{'userid'} AND jitemid=$qitemid");
+    my $up = LJ::load_userid($posterid);
+
+    my $ditemid = $qitemid*256 + $anum;
+
+    my $itemlink = LJ::journal_base($u) . "/$ditemid.html";
+    my $commentlink = "$itemlink?view=$dtalkid#t$dtalkid";
+
+    if ($mode eq 'screen') {
+        my $can_screen = LJ::Talk::can_screen($remote, $u, $up, $post->{'userpost'});
+        return $error->($ML{'.error.privs.screen'}) unless $can_screen;
+        if ($POST{'confirm'} eq 'Y') {
+            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+        } else {
+            $body .= "<?h1 $ML{'.screen.sure.title'} h1?><?p $ML{'.screen.sure.body'} p?>";
+            $body .= "<p><form method='POST' action='talkscreen.bml'><center>\n";
+            $body .= LJ::form_auth();
+            $body .= LJ::html_hidden(mode => 'screen', 'talkid' => $talkid,
+                                    journal => $u->{user}, confirm => 'Y');
+            $body .= LJ::html_submit(undef, $ML{'.screen.doit'});
+            $body .= "</center>";
+            $body .= "</form>\n";
+            return;
+        }
+        if ($state ne 'S') {
+            LJ::Talk::screen_comment($u, $qitemid, $qtalkid);
+        }
+        # FIXME: no error checking?
+        return $jsres->($mode) if $jsmode;
+        $body = "<?h1 $ML{'.screened.title'} h1?><?p " . BML::ml('.screened.body', {'link'=>$commentlink}) . " p?>";
+        return;
+    }
+
+ if ($mode eq 'unscreen') {
+     my $can_unscreen = LJ::Talk::can_unscreen($remote, $u, $up, $post->{'userpost'});
+     return $error->($ML{'.error.privs.unscreen'}) unless $can_unscreen;
+     if ($POST{'confirm'} eq 'Y') {
+            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+     } else {
+         $body .= "<?h1 $ML{'.unscreen.sure.title'} h1?><?p $ML{'.unscreen.sure.body'} p?>";
+         $body .= "<p><form method='POST' action='talkscreen.bml'><center>\n";
+         $body .= LJ::form_auth();
+         $body .= LJ::html_hidden(mode => 'unscreen', 'talkid' => $talkid,
+                                 journal => $u->{user}, confirm => 'Y');
+         $body .= LJ::html_submit(undef, $ML{'.unscreen.doit'});
+         $body .= "</center>";
+         $body .= "</form>\n";
+         return;
+     }
+     if ($state ne 'A') {
+         LJ::Talk::unscreen_comment($u, $qitemid, $qtalkid);
+     }
+     # FIXME: no error checking?
+     return $jsres->($mode) if $jsmode;
+     $body = "<?h1 $ML{'.unscreened.title'} h1?><?p " . BML::ml('.unscreened.body', {'link'=>$commentlink}) . " p?>";
+     return;
+ }
+
+ if ($mode eq 'freeze') {
+     my $can_freeze = LJ::Talk::can_freeze($remote, $u, $up, $post->{userpost});
+     unless ($can_freeze) {
+         $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.error.privs.freeze'} p?>";
+         return;
+     }
+
+     if ($POST{confirm} eq 'Y') {
+            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+     } else {
+         $body .= "<?h1 $ML{'.freeze.sure.title'} h1?><?p $ML{'.freeze.sure.body'} p?>";
+         $body .= "<p><form method='post' action='talkscreen.bml'><center>\n";
+         $body .= LJ::form_auth();
+         $body .= LJ::html_hidden(mode => 'freeze', 'talkid' => $talkid,
+                                 journal => $u->{user}, confirm => 'Y');
+         $body .= LJ::html_submit(undef, $ML{'.freeze.doit'});
+         $body .= "</center>";
+         $body .= "</form>\n";
+         return;
+     }
+     if ($state ne 'F') {
+         LJ::Talk::freeze_thread($u, $qitemid, $qtalkid);
+     }
+     return $jsres->($mode) if $jsmode;
+     my $linktext = BML::ml('.link', { aopts => "href='$itemlink'" });
+     $body = "<?h1 $ML{'.frozen.title'} h1?><?p $ML{'.frozen.body'} $linktext p?>";
+     return;
+ }
+
+ if ($mode eq 'unfreeze') {
+     my $can_unfreeze = LJ::Talk::can_unfreeze($remote, $u, $up, $post->{userpost});
+     unless ($can_unfreeze) {
+         $body = "<?h1 $ML{'Error'} h1?><?p You are not allowed to unfreeze this thread p?>";
+         return;
+     }
+     if ($POST{confirm} eq 'Y') {
+            $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+     } else {
+         $body .= "<?h1 $ML{'.unfreeze.sure.title'} h1?><?p $ML{'.unfreeze.sure.body'} p?>";
+         $body .= "<p><form method='post' action='talkscreen.bml'><center>\n";
+         $body .= LJ::form_auth();
+         $body .= LJ::html_hidden(mode => 'unfreeze', 'talkid' => $talkid,
+                                 journal => $u->{user}, confirm => 'Y');
+         $body .= LJ::html_submit(undef, $ML{'.unfreeze.doit'});
+         $body .= "</center>";
+         $body .= "</form>\n";
+         return;
+     }
+     if ($state eq 'F') {
+         LJ::Talk::unfreeze_thread($u, $qitemid, $qtalkid);
+     }
+     return $jsres->($mode) if $jsmode;
+     my $linktext = BML::ml('.link', { aopts => "href='$itemlink'" });
+     $body = "<?h1 $ML{'.unfrozen.title'} h1?><?p $ML{'.unfrozen.body'} $linktext p?>";
+     return;
+ }
+
+ $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.unknownmode'} p?>";
+ return;
+
+}
+_code?><?page
+title=><?_ml .title2 _ml?>
+body=><?_code return $body; _code?>
+page?>

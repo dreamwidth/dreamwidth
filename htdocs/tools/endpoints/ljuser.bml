@@ -1,0 +1,36 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%POST);
+    use LJ::Auth;
+    use JSON;
+
+    my $err = sub {
+        my $msg = shift;
+        my %extra = @_;
+        return JSON::objToJson({
+            error => "Error: $msg",
+            %extra,
+        });
+    };
+
+    my $username = $POST{'username'};
+    my $u = LJ::load_user($username);
+
+    my %ret;
+
+    BML::set_content_type('text/javascript; charset=utf-8');
+    BML::finish();
+
+    return $err->("No such user") unless $u;
+
+    $ret{ljuser} = LJ::ljuser($u);
+    $ret{userstr} = "<lj user=\"$username\">";
+
+    sleep(1.5) if $LJ::IS_DEV_SERVER;
+
+    $ret{success} = 1;
+
+    return LJ::js_dumper(\%ret);
+}
+_code?>

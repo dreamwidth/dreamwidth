@@ -1,0 +1,4 @@
+#NEWLAYER: refriedpaper/clean
+layerinfo type = "theme";
+layerinfo name = "Clean";
+layerinfo redist_uniq = "refriedpaper/clean";

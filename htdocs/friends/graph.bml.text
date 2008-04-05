@@ -1,0 +1,9 @@
+;; -*- coding: utf-8 -*-
+.error.unknownuser.header=Unknown user
+
+.error.unknownuser.text=No user with that username. Sorry.
+
+.reloadnote=If the image doesn't load, press reload.
+
+.user=User: [[user]] (<a [[aopts]]>user info</a>)
+

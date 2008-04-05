@@ -1,0 +1,107 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET $title);
+    use LJ::M::ProfilePage;
+
+    my $body = "";
+    $title = "";
+
+    # Deal with bots
+    my $sep  = "**";
+    my $pre  = "<!-- \n" . ($sep x 40 . "\n") x 2 . "$sep\n" x 10 . $sep;
+    my $post = "\n" . "$sep\n" x 10 . ($sep x 40 . "\n") x 2 . " -->";
+    $body .= LJ::run_hook("bot_director", $pre, $post);
+
+    if ($LJ::SERVER_DOWN) {
+        $title = $ML{'Sorry'};
+        $body = LJ::server_down_html();
+        return;
+    }
+
+    my $user = $GET{user};
+    my $u;
+    if ($user) {
+        $u = LJ::load_user_arg($user);
+        unless ($u) {
+            $title = $ML{'Sorry'};
+            return "Invalid user.";
+        }
+    } else {
+        $u = LJ::get_remote();
+        return BML::redirect("$LJ::SITEROOT/login.bml?ret=1") unless $u;
+    }
+
+    $title = "Friends of " . $u->display_username;
+
+    my $method = $GET{'mode'} eq "of" ? "friendof_uids" : "friend_uids";
+    my $friendu = LJ::load_userids($u->$method);
+    my @friends = grep { $_->is_visible || $_->is_memorial || $_->is_locked } values %$friendu;
+    if (my $type = $GET{type}) {
+        @friends = grep { $_->journaltype eq $type } @friends;
+    }
+
+    my $count = @friends;
+
+    return $u->user . " has no friends." unless $count;
+
+    # sort on display name
+    {
+        my %uid_name; # uid -> display name
+        foreach my $fu (@friends) {
+            $uid_name{$fu->id} = $fu->display_username;
+        }
+        @friends = sort { $uid_name{$a->{userid}} cmp $uid_name{$b->{userid}} } @friends;
+    }
+
+    my $self_link = sub {
+        my %params = map { ($_, $GET{$_}) } grep { exists $GET{$_} } qw(page nopics friendofs user mode);
+        $params{page} = $_[0];
+        return "/tools/friendlist.bml?" . join('&', map { LJ::eurl($_) . "=" . LJ::eurl($params{$_}) } keys %params);
+    };
+
+    my $page_size = 100;
+    my %items = BML::paging(\@friends, $GET{'page'}, $page_size);
+    my $navbar = LJ::paging_bar($items{'page'}, $items{'pages'},
+                                { 'self_link' => $self_link });
+    @friends = @{$items{'items'}};
+
+    LJ::Userpic->preload_default_userpics(@friends);
+
+    $body .= "Friends of " . $u->ljuser_display . ": $count\n";
+
+    $body .= $navbar;
+
+    $body .= '<table align="center" border=0 cellspacing=3>';
+
+    my $maxcol = 5;
+
+  ROW:
+    while (1) {
+        $body .= " <tr>\n";
+        for (1..$maxcol) {
+            last ROW unless @friends;
+            my $friend = shift @friends;
+            my $pic = "";
+            if (my $up = $friend->userpic) {
+                $pic .= $up->imgtag_lite . "<br />\n";
+            } elsif ($friend->is_syndicated) {
+                $pic .= "<img src='$LJ::IMGPREFIX/feed-userpic.gif' width='100' height='100' class='userpic-img' /><br />\n";
+            } else {
+                $pic .= "<img src='$LJ::STATPREFIX/horizon/nouserpic.png' width='100' height='100' class='userpic-img' /><br />\n";
+            }
+            $body .= "   <td valign='bottom' align='center' width=100>$pic" . $friend->ljuser_display . "</td>\n";
+        }
+        $body .= " </tr>\n";
+    }
+
+    $body .= "</table>\n";
+    $body .= $navbar if $count > $page_size;
+    return $body;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+page?>

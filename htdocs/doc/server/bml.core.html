@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chapter 3. Core BML blocks</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="bml.index.html" title="The Better Markup Language">
+<link rel="prev" href="bml.flags.html" title="Chapter 2. BML Block Types">
+<link rel="next" href="bml.api.ref.html" title="API Documentation">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 3. Core <abbr class="abbrev">BML</abbr> blocks</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="bml.flags.html">Prev</a> </td>
+<th width="60%" align="center">The Better Markup Language</th>
+<td width="20%" align="right"> <a accesskey="n" href="bml.api.ref.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en" id="bml.core">
+<div class="titlepage"><div><div><h1 class="title">Core <span class="abbrev">BML<br></span> blocks</h1></div></div></div>
+<p>
+    Core blocks are predefined blocks that are named with a leading underscore. 
+    Most core blocks have a higher purpose than simple template use: 
+  </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">_code</code></span></dt>
+<dd>
+<p>
+        <code class="literal">&lt;?_code _code?&gt;</code> blocks are perhaps the most useful feature of 
+        <abbr class="abbrev">BML</abbr> outside of the ability to have global site templates. 
+        These blocks allow template authors to embed pieces of executable Perl code 
+        within the bml page that get executed on the server.
+      </p>
+<p>
+      </p>
+<p>
+        The code you write gets executed in its own package (namespace) called 
+        <code class="computeroutput">BMLCodeBlock::</code>.
+        Any variables you declare in one code block on a page without using 
+        <code class="literal">my</code> are carried on to the next <code class="literal">_code</code> block.
+      </p>
+<p>
+        Because the BML parser must evaluate everything on the page before sending the 
+        <abbr class="abbrev">HTTP</abbr> headers, make sure you don't print anything. 
+        Any output printed to <code class="literal">STDOUT</code> will just be interpreted as 
+        <abbr class="abbrev">HTTP</abbr> headers. How the <code class="literal">_code</code> blocks work is 
+        that you need to return a value at the end.
+        Whatever value your code fragment returns is what the block evaluates to. 
+        Usually what you end up doing is building a string, concatenating things to it 
+        over and over, and then returning it at the end.
+      </p>
+</dd>
+<dt><span class="term"><code class="literal">_c</code> - <code class="literal">_comment</code></span></dt>
+<dd><p>
+        Comment blocks are templates that do not get parsed into resultant text later, 
+        and are useful when <abbr class="abbrev">HTML</abbr> style comments
+        (&#8220;<span class="quote"><code class="literal">&lt;!-- --&gt;</code></span>&#8221;) are not desired.
+      </p></dd>
+<dt><span class="term"><code class="literal">_info</code></span></dt>
+<dd>
+<p>
+        Information blocks can be used to include special information about the particular 
+        <abbr class="abbrev">BML</abbr> page the block is contained in. 
+        </p>
+<div class="variablelist">
+<p class="title"><b><code class="literal">_info</code> directives</b></p>
+<dl>
+<dt><span class="term"><code class="literal">package</code></span></dt>
+<dd><p>Specify and load a required package</p></dd>
+<dt><span class="term"><code class="literal">nocache</code></span></dt>
+<dd><p>Specified page is dynamic, and shouldn't be cached</p></dd>
+<dt><span class="term"><code class="literal">static</code></span></dt>
+<dd><p>Specified page is static; ok to cache</p></dd>
+<dt><span class="term"><code class="literal">noheaders</code></span></dt>
+<dd><p>Turn off default <abbr class="abbrev">BML</abbr> headers</p></dd>
+<dt><span class="term"><code class="literal">nocontent</code></span></dt>
+<dd><p>Specify that page has no cacheable content</p></dd>
+<dt><span class="term"><code class="literal">localblocks</code></span></dt>
+<dd><p>Declare page specific <abbr class="abbrev">BML</abbr> blocks.</p></dd>
+</dl>
+</div>
+<p>
+      </p>
+</dd>
+<dt><span class="term"><code class="literal">_include</code></span></dt>
+<dd><p>
+        Include blocks can be used to integrate a text file straight into a <abbr class="abbrev">BML</abbr>
+        file. Include files can be written in BML or plain text. 
+      </p></dd>
+<dt><span class="term"><code class="literal">_e*</code></span></dt>
+<dd>
+<p>
+        <code class="literal">_e*</code> are a variety of escape blocks, each with a different purpose:
+        </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">_eh</code></span></dt>
+<dd><p>Replace certain <abbr class="abbrev">ASCII</abbr> characters with their <abbr class="abbrev">HTML</abbr> entity counterparts</p></dd>
+<dt><span class="term"><code class="literal">_eb</code></span></dt>
+<dd><p>Replace certain <abbr class="abbrev">ASCII</abbr> characters that can trigger <abbr class="abbrev">BML</abbr> blocks (&#8220;<span class="quote"><code class="literal">&lt;?xml?&gt;</code></span>&#8221;) with their <abbr class="abbrev">HTML</abbr> entity counterparts</p></dd>
+<dt><span class="term"><code class="literal">_eu</code></span></dt>
+<dd><p>Escape non-compliant <abbr class="abbrev">ASCII</abbr> characters in <acronym class="acronym">URL</acronym>s</p></dd>
+<dt><span class="term"><code class="literal">_ea</code></span></dt>
+<dd><p>Escape text by passing through <code class="literal">eh</code> and then <code class="literal">eb</code></p></dd>
+</dl></div>
+<p>
+      </p>
+</dd>
+<dt><span class="term"><code class="literal">_ml</code></span></dt>
+<dd><p>
+        Multi language blocks are used to interchange certain text blocks with the specified language-domain translation.
+      </p></dd>
+</dl></div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="bml.flags.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="bml.index.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="bml.api.ref.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 2. BML Block Types </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> API Documentation</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

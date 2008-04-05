@@ -1,0 +1,220 @@
+fieldset
+{
+    border: 1px solid #cdcdcd;
+    padding: 0px 6px 6px 6px;
+}
+
+legend
+{
+    padding: 2px 10px 2px 10px;
+    border: 1px solid #cdcdcd;
+    font-weight: bold;
+    /* font-family: Arial; */
+    /* background: #eee url(/img/grey_gradbg.gif); */
+}
+
+.tagsec
+{
+    padding: 5px 2px 5px 2px;
+}
+
+.tagsort
+{
+    border-top: 1px solid #cdcdcd;
+    font-size: 0.8em;
+}
+
+.taginfo
+{
+    color: #777;
+    padding: 4px;
+    background: #eee url(/img/grey_gradbg.gif);
+    border: 1px solid #cdcdcd;
+}
+
+.tagbox
+{
+    width: 300px;
+    background-color: #eee;
+    padding: 4px;
+    height: 250px;
+}
+
+.tagbox option
+{
+    background-position: center left;
+    background-repeat: no-repeat;
+    padding-left: 22px;
+    padding-bottom: 2px;
+}
+
+.tagbox .level1
+{
+    background-image: url(/img/level1.gif);
+}
+
+.tagbox .level2
+{
+    background-image: url(/img/level2.gif);
+}
+
+.tagbox .level3
+{
+    background-image: url(/img/level3.gif);
+}
+
+.tagbox .level4
+{
+    background-image: url(/img/level4.gif);
+}
+
+.tagbox .level5
+{
+    background-image: url(/img/level5.gif);
+}
+
+.tagfield
+{
+    border: 1px solid #cdcdcd;
+}
+
+.tagfield_error
+{
+    border: 1px solid red;
+    background-color: #ecd7d7;
+}
+
+.tagfield:focus
+{
+    background-color: #eee;
+    border: 1px solid black;
+}
+
+.btn
+{
+    border-left:   1px solid #999;
+    border-top:    1px solid #999;
+    border-right:  1px solid #555;
+    border-bottom: 1px solid #555;
+}
+
+.btn:hover
+{
+    background-color: #eee;
+    border-right:  1px solid #999;
+    border-bottom: 1px solid #999;
+    border-left:   1px solid #555;
+    border-top:    1px solid #555;
+}
+
+#selected_tags
+{
+    padding: 5px;
+    margin-bottom: 10px;
+    color: #777;
+    width: 300px;
+    white-space: wrap;
+}
+
+.proptbl
+{
+    width: 100%;
+}
+
+.proptbl td
+{
+    padding: 4px;
+    width: 50%;
+}
+
+/* table headers */
+.proptbl .h
+{
+    color: #777;
+    padding: 4px;
+    background: #eee url(/img/grey_gradbg.gif);
+    border: 1px solid #cdcdcd;
+    text-align: center;
+}
+
+/* counts */
+.proptbl .c
+{
+    text-align: center;
+}
+
+/* count type */
+.proptbl .t
+{
+    color: #777;
+    text-align: right;
+    background-color: #fbfbfb;
+    border-right: 1px solid #cdcdcd;
+}
+
+/* results */
+.proptbl .r
+{
+    color: #777;
+    text-align: right;
+    background-color: #fbfbfb;
+    font-weight: bold;
+    border-right: 1px solid #cdcdcd;
+}
+
+/* result value */
+.proptbl .rv
+{
+    text-align: center;
+    background-color: #eee;
+    font-weight: bold;
+}
+
+/* edittags.bml */
+.edittbl td
+{
+    padding: 7px;
+}
+
+/* labels */
+.edittbl .l, .lsep
+{
+    font-weight: bold;
+    text-align: right;
+    vertical-align: top;
+    white-space: nowrap;
+    border-right: 1px solid #777;
+}
+
+/* separator line */
+.edittbl .sep
+{
+    border-top: 1px solid #777;
+    white-space: nowrap;
+}
+
+.curtags
+{
+    color: #777;
+}
+
+.tagbox_nohist
+{
+    width: 300px;
+    background-color: #eee;
+    padding: 4px;
+    height: 250px;
+}
+
+.tagbox_nohist option
+{
+    background-position: center left;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+}
+
+.update_good
+{
+    font-weight: bold;
+}
+

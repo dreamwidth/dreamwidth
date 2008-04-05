@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LiveJournal Server</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<meta name="description" content="This part of the documentation covers installation, customization, and maintenance of a LiveJournal server.">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="index.html" title="LiveJournal Server">
+<link rel="prev" href="index.html" title="LiveJournal Server">
+<link rel="next" href="lj.preface.html" title="Preface">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">
+<span class="application">LiveJournal</span> Server</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="index.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.preface.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="book" lang="en" id="lj.index">
+<div class="titlepage">
+<div>
+<div><h1 class="title">
+<span class="application">LiveJournal</span> Server</h1></div>
+<div><p class="copyright">Copyright © 1999, 2000, 2001, 2002, 2003, 2004, 2007 <a href="http://www.livejournal.org/" target="_top">LiveJournal<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></p></div>
+<div><div class="legalnotice">
+<a name="id2801195"></a><p>
+    Permission is granted to copy, distribute and/or modify this document
+    under the terms of the <acronym class="acronym">GNU</acronym> Free Documentation License,
+    Version 1.2 or any later version published by the Free Software Foundation;
+    with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+    Texts.  A copy of the license is included in in the section
+    entitled &#8220;<span class="quote"><a class="xref" href="appx.gfdl.html" title="Appendix A. GNU Free Documentation License">Appendix A, <i>GNU Free Documentation License</i></a></span>&#8221;.</p>
+</div></div>
+<div><div class="abstract">
+<p class="title"><b>Abstract</b></p>
+<p>
+        This part of the documentation covers installation,
+        customization, and maintenance of a <span class="application">LiveJournal</span> server.
+      </p>
+</div></div>
+</div>
+<hr>
+</div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="preface"><a href="lj.preface.html">Preface</a></span></dt>
+<dt><span class="part"><a href="lj.intro.index.html">I. Introduction to <span class="application">LiveJournal</span></a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="lj.intro.what_is.html">1. What is <span class="application">LiveJournal</span>?</a></span></dt>
+<dt><span class="chapter"><a href="lj.intro.story.html">2. The Story Behind <span class="application">LiveJournal</span></a></span></dt>
+<dt><span class="chapter"><a href="lj.intro.why_use.html">3. Why Use <span class="application">LiveJournal</span>?</a></span></dt>
+<dd><dl><dt><span class="section"><a href="lj.intro.why_use.features.html">1. Features</a></span></dt></dl></dd>
+<dt><span class="chapter"><a href="lj.intro.goat.html">4. Frank the Goat</a></span></dt>
+</dl></dd>
+<dt><span class="part"><a href="lj.install.index.html">II. <span class="application">LiveJournal</span> Installation</a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="lj.install.reqs.html">5. Requirements</a></span></dt>
+<dt><span class="chapter"><a href="lj.install.perl_setup.html">6. Perl</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.perl_setup.install.html">1. Installing Perl</a></span></dt>
+<dt><span class="section"><a href="lj.install.perl_setup.modules.html">2. Installing Perl Modules</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.install.general_setup.html">7. General Setup</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.ljhome.html">1. $LJHOME Environment Variable</a></span></dt>
+<dt><span class="section"><a href="lj.install.install_files.html">2. Installing the files</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.install.mysql_setup.html">8. <span class="application">MySQL</span></a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.mysql_setup.install.html">1. Install <span class="application">MySQL</span></a></span></dt>
+<dt><span class="section"><a href="lj.install.mysql_setup.secure_install.html">2. Secure your <span class="application">MySQL</span> installation</a></span></dt>
+<dt><span class="section"><a href="lj.install.mysql_setup.create_db.html">3. Create the <span class="application">LiveJournal</span> Database</a></span></dt>
+<dt><span class="section"><a href="lj.install.ljconfig.dbinfo.html">4. Configuring <code class="literal">%LJ::DBINFO</code></a></span></dt>
+<dt><span class="section"><a href="lj.install.mysql_setup.pop_db.html">5. Populate the Database</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.install.supplemental_sw.html">9. Supplemental Software</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.supplemental_sw.dependencies.html">1. Install extra required packages and modules</a></span></dt>
+<dt><span class="section"><a href="lj.install.supplemental_sw.multiple_db.html">2. Setting up multiple database servers</a></span></dt>
+<dt><span class="section"><a href="lj.install.supplemental_sw.memcached_ssl.html">3. Configure <span class="application">memcached</span> and <acronym class="acronym">SSL</acronym></a></span></dt>
+<dt><span class="section"><a href="lj.install.supplemental_sw.perlbal.html">4. Configure <span class="application">Perlbal</span></a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.supplemental_sw.perlbal.html#lj.install.supplemental_sw.perlbal-install">4.1. Install <span class="application">Perlbal</span></a></span></dt>
+<dt><span class="section"><a href="lj.install.supplemental_sw.perlbal.html#lj.install.supplemental_sw.perlbal-setup">4.2. Set up <span class="application">Perlbal</span></a></span></dt>
+<dt><span class="section"><a href="lj.install.supplemental_sw.perlbal.html#lj.install.supplemental_sw.perlbal.setup-example">4.3. Example <code class="filename">perlbal.conf</code></a></span></dt>
+<dt><span class="section"><a href="lj.install.supplemental_sw.perlbal.html#lj.install.supplemental_sw.perlbal-complete">4.4. <acronym class="acronym">SSL</acronym> steps and startup</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="lj.install.supplemental_sw.mogfs.html">5. Configure <code class="systemitem"><span class="application">MogileFS</span></code></a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.supplemental_sw.mogfs.html#lj.install.supplemental_sw.mogfs-install">5.1. Install <code class="systemitem"><span class="application">MogileFS</span></code></a></span></dt>
+<dt><span class="section"><a href="lj.install.supplemental_sw.mogfs.html#lj.install.supplemental_sw.mogfs-install-setup">5.2. Set up <code class="systemitem"><span class="application">MogileFS</span></code></a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="lj.install.supplemental_sw.fb.html">6. Set up <abbr class="abbrev">LJ</abbr> &lt;=&gt; <span class="application">FotoBilder</span> Integration</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.install.ljconfig.html">10. Configuring ljconfig.pl</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.ljconfig.vars.html">1. <code class="literal">$LJ::</code> Variables</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.ljconfig.vars.html#lj.install.ljconfig.vars.auto">1.1. Auto-Configured</a></span></dt>
+<dt><span class="section"><a href="lj.install.ljconfig.vars.html#lj.install.ljconfig.vars.user">1.2. User-Configurable</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="lj.install.ljconfig.helpurls.html">2. <code class="varname">%LJ::HELPURLS</code></a></span></dt>
+<dt><span class="section"><a href="lj.install.ljconfig.disabled.html">3. <code class="varname">%LJ::DISABLED</code></a></span></dt>
+<dt><span class="section"><a href="lj.install.ljconfig.caps.html">4. Setting Capabilities</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.install.apache_setup.html">11. <span class="application">Apache</span></a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.apache_setup.install.html">1. Installation</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.apache_setup.install.html#lj.install.apache_setup.install.mod_perl">1.1. <span class="application">mod_perl</span></a></span></dt>
+<dt><span class="section"><a href="lj.install.apache_setup.install.html#lj.install.apache_setup.install.suexec">1.2. <span class="application">Apache</span> suEXEC Support</a></span></dt>
+<dt><span class="section"><a href="lj.install.apache_setup.install.html#lj.install.apache_setup.install.vhosts">1.3. Virtual Hosts</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="lj.install.apache_setup.example.html">2. Example <code class="filename">httpd.conf</code></a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.install.workers_setup.html">12. Configure <span class="application">Gearman</span> / <abbr class="abbrev">TheSchwartz</abbr></a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.install.workers_setup_install.html">1. Install <span class="application">Gearman</span> / <abbr class="abbrev">TheSchwartz</abbr></a></span></dt>
+<dt><span class="section"><a href="lj.install.workers_setup_config.html">2. Set up <span class="application">Gearman</span> / <abbr class="abbrev">TheSchwartz</abbr></a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.install.schedule_tasks.html">13. Scheduling Maintenance tasks</a></span></dt>
+<dt><span class="chapter"><a href="lj.install.finishing.html">14. Finishing Up</a></span></dt>
+</dl></dd>
+<dt><span class="part"><a href="lj.customize.index.html">III. Customizing Your Installation</a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="lj.customize.local_svn.html">15. Using your own <abbr class="abbrev">SVN</abbr> directory</a></span></dt>
+<dd><dl><dt><span class="section"><a href="lj.customize.local_svn.cvsreport.html">1. <span class="application">cvsreport.pl</span> (<span class="application"><acronym class="acronym">vcv</acronym></span>) : Adding &amp; Overlaying</a></span></dt></dl></dd>
+<dt><span class="chapter"><a href="lj.customize.images.html">16. Using your own images and icons</a></span></dt>
+<dd><dl><dt><span class="section"><a href="lj.customize.images.imageconf.html">1. Using <code class="filename">imageconf.pl</code></a></span></dt></dl></dd>
+<dt><span class="chapter"><a href="lj.customize.text.html">17. Customizing <abbr class="abbrev">LJ</abbr>'s Content</a></span></dt>
+<dd><dl><dt><span class="section"><a href="lj.customize.text.new.html">1. Using site-specific text</a></span></dt></dl></dd>
+<dt><span class="chapter"><a href="lj.customize.limits.html">18. Setting your own Limits</a></span></dt>
+<dt><span class="chapter"><a href="lj.customize.hooks.html">19. Setting and using Hooks</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.customize.hooks.setup.html">1. Writing Hooks</a></span></dt>
+<dt><span class="section"><a href="lj.customize.hooks.ref.html">2. Hooks Reference</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.customize.layout.html">20. <span class="application"><acronym class="acronym">BML</acronym></span> Schemes</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.customize.layout.new.html">1. Writing a <span class="application"><acronym class="acronym">BML</acronym></span> Scheme</a></span></dt>
+<dt><span class="section"><a href="lj.customize.layout.ref.html">2. <span class="application"><acronym class="acronym">BML</acronym></span> Template Reference</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.customize.tasks.html">21. Running your own Maintenance Tasks</a></span></dt>
+</dl></dd>
+<dt><span class="part"><a href="lj.admin.index.html">IV. Administering a <span class="application">LiveJournal</span> Site</a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="lj.admin.create_users.html">22. Creating Users</a></span></dt>
+<dt><span class="chapter"><a href="lj.admin.caps.html">23. Capabilities Classes</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.admin.caps.intro.html">1. Introduction</a></span></dt>
+<dt><span class="section"><a href="lj.admin.caps.usage.html">2. Setting Capabilities</a></span></dt>
+<dt><span class="section"><a href="lj.admin.caps.list.html">3. Capabilities Reference</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.admin.privs.html">24. Administrating Privileges</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.admin.privs.intro.html">1. Using privs effectively</a></span></dt>
+<dt><span class="section"><a href="lj.admin.privs.ref.html">2. A list of all Privs</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.admin.console.html">25. The Administrative Console</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="lj.admin.console.intro.html">1. Taking control of the Console</a></span></dt>
+<dt><span class="section"><a href="lj.admin.console.ref.html">2. Console Command Reference</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="lj.admin.sysban.html">26. Banning Users</a></span></dt>
+<dt><span class="chapter"><a href="lj.site_scaling.html">27. Running a Busy Site</a></span></dt>
+</dl></dd>
+<dt><span class="part"><a href="lj.features.index.html">V. <span class="application">LiveJournal</span> Features</a></span></dt>
+<dd><dl>
+<dt><span class="chapter"><a href="lj.features.support.html">28. Internal Support System</a></span></dt>
+<dd><dl><dt><span class="section"><a href="lj.features.support.intro.html">1. Introduction</a></span></dt></dl></dd>
+</dl></dd>
+<dt><span class="appendix"><a href="appx.gfdl.html">A. GNU Free Documentation License</a></span></dt>
+<dt><span class="appendix"><a href="appx.contribs.html">B. Documentation Contributors</a></span></dt>
+<dt><span class="glossary"><a href="appx.glossary.html">Glossary</a></span></dt>
+</dl>
+</div>
+<div class="list-of-tables">
+<p><b>List of Tables</b></p>
+<dl><dt>6.1. <a href="lj.install.perl_setup.modules.html#table-lj-perl_modules">Required Perl Modules</a>
+</dt></dl>
+</div>
+<div class="list-of-examples">
+<p><b>List of Examples</b></p>
+<dl>
+<dt>7.1. <a href="lj.install.install_files.html#example-lj-creating_ljhome">Creating the <em class="parameter"><code>$<code class="envar">LJHOME</code></code></em> directory:</a>
+</dt>
+<dt>7.2. <a href="lj.install.install_files.html#example-lj-svn_install"><abbr class="abbrev">SVN</abbr> Install:</a>
+</dt>
+<dt>8.1. <a href="lj.install.ljconfig.dbinfo.html#example-lj-dbinfo_hash">Sample <code class="literal">%LJ::DBINFO</code> hash</a>
+</dt>
+<dt>10.1. <a href="lj.install.ljconfig.caps.html#example-lj-default_caps">Sample <code class="literal">%LJ::CAP_DEF</code></a>
+</dt>
+<dt>10.2. <a href="lj.install.ljconfig.caps.html#example-lj-cap">Sample <code class="literal">%LJ::CAP</code></a>
+</dt>
+<dt>19.1. <a href="lj.customize.hooks.setup.html#example-lj-hook">Sample hook: userinfo_html_by_user</a>
+</dt>
+<dt>20.1. <a href="lj.customize.layout.new.html#example-lj-local_bml_file">Sample <code class="filename">_config-local.bml</code></a>
+</dt>
+<dt>25.1. <a href="lj.admin.console.intro.html#example-lj-console_suspension">Using the console to suspend a user</a>
+</dt>
+<dt>26.1. <a href="lj.admin.sysban.html#example-lj-sysbans">Using ljsysban.pl</a>
+</dt>
+</dl>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="index.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.preface.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">
+<span class="application">LiveJournal</span> Server </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Preface</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chapter 29. Exporting Comments</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.protocol.html" title="Part III. Client/Server Protocol">
+<link rel="prev" href="ljp.csp.entry_downloading.html" title="Chapter 28. Downloading Entries">
+<link rel="next" href="ljp.csp.proplist.html" title="Chapter 30. Journal Item Meta-data">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 29. Exporting Comments</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.entry_downloading.html">Prev</a> </td>
+<th width="60%" align="center">Part III. Client/Server Protocol</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.proplist.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en" id="ljp.csp.export_comments">
+<div class="titlepage"><div><div><h2 class="title">Chapter 29. Exporting Comments</h2></div></div></div>
+<p>
+<span class="application">LiveJournal</span> provides an interface for exporting comments using an
+<acronym class="acronym">XML</acronym> format that makes it easy for people to write utilities to use
+the information. A user is allowed to download comments for any journal they
+administrate. It returns an <acronym class="acronym">XML</acronym> structure you can parse;
+it is not an <acronym class="acronym">RPC</acronym> interface.</p>
+<p>
+Please read the bot <a class="link" href="ljp.int.xml_userdata.rate_limits.html" title="2. Rates &amp; Limits">rates &amp; limits page</a>,
+which has general rules on how to download information from the <span class="application">LiveJournal</span> installation without getting
+yourself banned. Please also follow the directions in this chapter.</p>
+<p>
+To use the comment exporter, you need a valid session cookie.
+This can be obtained with the sessiongenerate protocol mode or by posting login
+information to the <code class="uri">login.bml</code> page.</p>
+<p><span class="strong"><strong>Comment Data Summary</strong></span></p>
+<p>
+</p>
+<div class="informaltable"><table border="1">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th align="center">Element</th>
+<th align="center">Attribute</th>
+<th align="center">Mode</th>
+<th align="center">Mutable</th>
+<th align="center">Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="center">maxid</td>
+<td align="center"> </td>
+<td align="center">meta</td>
+<td align="center">yes</td>
+<td align="center">This element gives you an integer value of the maximum comment
+        id currently available in the user's journal. This is the endpoint, inclusive.</td>
+</tr>
+<tr>
+<td align="center">comment</td>
+<td align="center">id</td>
+<td align="center">meta, body</td>
+<td align="center">no</td>
+<td align="center">The id of this particular comment.</td>
+</tr>
+<tr>
+<td align="center">comment</td>
+<td align="center">posterid</td>
+<td align="center">meta, body</td>
+<td align="center">yes</td>
+<td align="center">The id of the poster of this comment. This can only change
+        from 0 (anonymous) to some non-zero number. It will never go the other way,
+        nor will it change from some non-zero number to another non-zero number.
+        Anonymous (0) is the default if no posterid is supplied.</td>
+</tr>
+<tr>
+<td align="center">comment</td>
+<td align="center">state</td>
+<td align="center">meta, body</td>
+<td align="center">yes</td>
+<td align="center">S = screened comment, D = deleted comment, F = Frozen comment,
+        A = active (visible) comment. If the state is not explicitly defined,
+        it is assumed to be A.</td>
+</tr>
+<tr>
+<td align="center">comment</td>
+<td align="center">jitemid</td>
+<td align="center">body</td>
+<td align="center">no</td>
+<td align="center">Journal itemid this comment was posted in.</td>
+</tr>
+<tr>
+<td align="center">comment</td>
+<td align="center">parentid</td>
+<td align="center">body</td>
+<td align="center">no</td>
+<td align="center">0 if this comment is top-level, else, it is the id of the
+        comment this one was posted in response to. Top-level (0) is the
+        default if no parentid is supplied.</td>
+</tr>
+<tr>
+<td align="center">usermap</td>
+<td align="center">id</td>
+<td align="center">meta</td>
+<td align="center">no</td>
+<td align="center">Poster id part of pair.</td>
+</tr>
+<tr>
+<td align="center">usermap</td>
+<td align="center">user</td>
+<td align="center">meta</td>
+<td align="center">yes</td>
+<td align="center">Username part of poster id + user pair. This can change if
+        a user renames.</td>
+</tr>
+<tr>
+<td align="center">body</td>
+<td align="center"> </td>
+<td align="center">body</td>
+<td align="center">no</td>
+<td align="center">The text of the comment.</td>
+</tr>
+<tr>
+<td align="center">body</td>
+<td align="center"> </td>
+<td align="center">body</td>
+<td align="center">no</td>
+<td align="center">The text of the comment.</td>
+</tr>
+<tr>
+<td align="center">subject</td>
+<td align="center"> </td>
+<td align="center">body</td>
+<td align="center">no</td>
+<td align="center">The subject of the comment. This may not be present with every
+        comment.</td>
+</tr>
+<tr>
+<td align="center">date</td>
+<td align="center"> </td>
+<td align="center">body</td>
+<td align="center">no</td>
+<td align="center">The time at which this comment was posted. This is in
+        the <a href="http://www.w3.org/TR/NOTE-datetime" target="_top">W3C Date and Time<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a> format.</td>
+</tr>
+<tr>
+<td align="center">property</td>
+<td align="center"> </td>
+<td align="center">body</td>
+<td align="center">no</td>
+<td align="center">The property tag has one attribute, name, that indicates the
+        name of this property. The content of the tag is the value of
+        that property.</td>
+</tr>
+</tbody>
+</table></div>
+<p>
+</p>
+<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Fetching Metadata</h3>
+<p>
+Please cache metadata, but note that it does contain things that can
+change about a comment. You should follow these instructions to update your
+cache once in a while.</p>
+</div>
+<p>
+Comment metadata includes only information that is subject to change on
+a comment. It is a lightweight call that returns a small <acronym class="acronym">XML</acronym> file that
+provides basic information on each comment posted in a journal. Step 1 of any
+export should look like this:</p>
+<pre class="programlisting">GET /export_comments.bml?get=comment_meta&amp;startid=0</pre>
+<p>
+After you have made the above request, you will get back a response like this:</p>
+<pre class="programlisting">&lt;?xml version="1.0" encoding='utf-8'?&gt;
+    &lt;livejournal&gt;
+        &lt;maxid&gt;100&lt;/maxid&gt;
+        &lt;comments&gt;
+            &lt;comment id='71' posterid='3' state='D' /&gt;
+            &lt;comment id='70' state='D' /&gt;
+            &lt;comment id='99' /&gt;
+            &lt;comment id='100' posterid='3' /&gt;
+            &lt;comment id='92' state='D' /&gt;
+            &lt;comment id='69' posterid='3' state='S' /&gt;
+            &lt;comment id='98' posterid='3' /&gt;
+            &lt;comment id='73' state='D' /&gt;
+            &lt;comment id='86' state='S' /&gt;
+        &lt;/comments&gt;
+        &lt;usermaps&gt;
+            &lt;usermap id='6' user='exampleusername2' /&gt;
+            &lt;usermap id='3' user='exampleusername' /&gt;
+            &lt;usermap id='2' user='bob' /&gt;
+        &lt;usermaps&gt;
+    &lt;/livejournal&gt;</pre>
+<p>
+The first part is the actual comment metadata. Each row will contain the
+mutable information about a single comment. After this data is the list of
+users and their ids. These mappings will never change,
+so feel free to completely cache these.</p>
+<p>
+You should also notice the maxid line. This shows you the maximum
+comment id that is in this user's journal. You should use this number to
+determine if you are done downloading or not. So, in pseudocode, you should
+use something like this to get metadata:</p>
+<pre class="programlisting">    sub gather_metadata
+        get largest comment id known about from my cache
+        GET /export_comments.bml?get=comment_meta&amp;startid=<em class="replaceable"><code>maxid+1</code></em>
+        add results to metadata cache
+        if maximum id returned is less than maxid returned, call gather_metadata again
+    end sub</pre>
+<p><span class="strong"><strong>Downloading the Comments</strong></span></p>
+<div class="important" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Important</h3>
+<p>
+Comment body data is to be <span class="strong"><strong>heavily cached</strong></span>.
+None of this data can change. Once you have downloaded a comment,
+you do not need to do so again.</p>
+</div>
+<p>
+Once you have the entire list of metadata, you can begin downloading
+comments. The steps you will use are much the same as for getting metadata.
+Again, here is some pseudocode:</p>
+<pre class="programlisting">    sub download_comments
+        get largest comment id we have fully downloaded
+        GET /export_comments.bml?get=comment_body&amp;startid=<em class="replaceable"><code>maxid+1</code></em>
+        add results to comment cache
+        if maximum id returned is less than maxid in metadata cache, call download_comments again
+        if nothing was returned, and startid+1000 &lt; maxid from metadata, call download_comments again
+    end sub</pre>
+<p>
+The resulting format each time you hit <code class="uri">export_comments.bml</code>
+will look like this:</p>
+<pre class="programlisting">    &lt;?xml version="1.0" encoding='utf-8'?&gt;
+    &lt;livejournal&gt;
+        &lt;comments&gt;
+            &lt;comment id='68' posterid='3' state='S' jitemid='34'&gt;
+            &lt;body&gt;we should all comment all day&lt;/body&gt;
+            &lt;date&gt;2007-03-02T18:14:06Z&lt;/date&gt;
+        &lt;/comment&gt;
+        &lt;comment id='69' posterid='3' state='S' jitemid='34'&gt;
+            &lt;body&gt;commenting is fun&lt;/body&gt;
+            &lt;date&gt;2007-03-02T18:16:08Z&lt;/date&gt;
+        &lt;/comment&gt;
+        &lt;comment id='99' jitemid='43' parentid='98'&gt;
+            &lt;body&gt;anonynote!&lt;/body&gt;
+            &lt;date&gt;2007-03-16T19:06:31Z&lt;/date&gt;
+            &lt;property name='poster_ip'&gt;127.0.0.1&lt;/property&gt;
+        &lt;/comment&gt;
+        &lt;comment id='100' posterid='3' jitemid='43' parentid='98'&gt;
+            &lt;subject&gt;subject!#@?&lt;/subject&gt;
+            &lt;body&gt;&amp;lt;b&amp;gt;BOLD!&amp;lt;/b&amp;gt;&lt;/body&gt;
+            &lt;date&gt;2007-03-16T19:19:16Z&lt;/date&gt;
+        &lt;/comment&gt;
+    &lt;/comments&gt;
+    &lt;/livejournal&gt;</pre>
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Note</h3>
+<p>
+Users can now edit comments on-site, if they have the required usercap.
+This was introduced after the comment export facility was implemented.
+This means some comment data may change after it was originally posted.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.entry_downloading.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.protocol.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.proplist.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 28. Downloading Entries </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 30. Journal Item Meta-data</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

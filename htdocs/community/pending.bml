@@ -1,0 +1,139 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+
+    LJ::set_active_crumb('commpending');
+
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
+
+    # always have links at top
+    my $ret = BML::ml('Backlink', {
+        'link' => '/community/manage.bml',
+        'text' => $ML{'/community/members.bml.manage2'},
+    });
+
+    # get remote
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $cname = $GET{'comm'};
+    return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+
+    # get $c object
+    my $c = LJ::load_user($cname);
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'/community/members.bml.error.nocomm'} p?>"
+        unless $c;
+    my $cid = $c->{'userid'};
+
+    # is $remote an admin?
+    unless (LJ::can_manage($remote, $c)) {
+        $ret .= "<?h1 $ML{'Error'} h1?><?p ";
+        $ret .= BML::ml('/community/members.bml.error.noaccess', 
+                        { comm => LJ::ljuser($cname, { type => 'C' }) });
+        $ret .= " p?>";
+        return $ret;
+    }
+
+    # hit up the database to find pending members
+    my $pendids = LJ::get_pending_members($c) || [];
+    my $us = LJ::load_userids(@$pendids);
+
+    # nothing pending?
+    return "<?h1 $ML{'.nopending.title'} h1?><?p $ML{'.nopending.body'} p?>"
+        unless @$pendids || LJ::did_post();
+
+    # saving a form submission
+    if ($POST{'action:update'}) {
+        unless (LJ::check_form_auth()) {
+            $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
+            return $ret;
+        }
+        my @userids = split(',', $POST{'ids'});
+
+        # need a db handle now
+        my $dbh = LJ::get_db_writer();
+        
+        # hit up each user to find out what to do with them
+        my ($added, $rejected, $ignored, $previous);
+        foreach my $id (@userids) {
+            unless ($us->{$id}) {
+                $previous++;
+                next;
+            }
+            if ($POST{"pending_$id"} eq 'yes') {
+                LJ::approve_pending_member($cid, $id);
+                $added++;
+            } elsif ($POST{"pending_$id"} eq 'no') {
+                LJ::reject_pending_member($cid, $id);
+                $rejected++;
+            } else {
+                $ignored++;
+            }
+        }
+
+        $ret .= "<?h1 $ML{'/community/members.bml.success.header'} h1?><?p $ML{'/community/members.bml.success.message'} p?>";
+        $ret .= "<?p " . BML::ml('.success.added', { num => $added }) . " p?>" if $added;
+        $ret .= "<?p " . BML::ml('.success.rejected', { num => $rejected }) . " p?>" if $rejected;
+        $ret .= "<?p " . BML::ml('.success.ignored', { num => $ignored }) . " p?>" if $ignored;
+        $ret .= "<?p " . BML::ml('.success.previous', { num => $previous }) . " p?>" if $previous;
+        $ret .= "<?p " . BML::ml("/community/members.bml.success.return", { 'link' => BML::get_uri() . "?comm=$cname" }) . " p?>";
+
+        return $ret;
+    }
+
+    my @users = sort { $a->{user} cmp $b->{user} } values %$us;
+    my $page_size = 100; # change to adjust page size
+
+    # how to make links back to this page
+    my $self_link = sub {
+        return "pending.bml?comm=$cname&page=$_[0]";
+    };
+
+    my %items = BML::paging(\@users, $GET{page}, $page_size);
+    my $navbar = LJ::paging_bar($items{page}, $items{pages},
+                                 { self_link => $self_link });
+    @users = @{$items{items}};
+
+    # output starts here
+    $ret .= "<?p " . BML::ml('/community/members.bml.name', { name => LJ::ljuser($cname, { type => 'C' }) });
+    $ret .= " " . BML::ml('/community/members.bml.settings', { 'link' => "settings.bml?comm=$cname"}) . " p?>";
+
+    $ret .= "<form method='post' action='pending.bml?comm=$cname'>";
+    $ret .= LJ::form_auth();
+
+    # table headers
+    $ret .= "<br /><div align='center'><table class='borderedtable' cellspacing='0' cellpadding='2'>\n<tr>" .
+            "<th>$ML{'/community/members.bml.key.user'}</th><th colspan='2'>$ML{'.approve.title'}</th></tr>\n";
+
+    # rows for existing users
+    my $rc = 0;
+    foreach (@users) {
+        my $rstyle = ($rc++ & 1) ? '<?altcolor1?>' : '<?altcolor2?>';
+        $ret .= "<tr style='background-color: $rstyle;'><td>" . LJ::ljuser($_->{user}) . "</td>";
+        $ret .= "<td>" . LJ::html_check({ type => 'radio', name => "pending_$_->{userid}",
+                                          id => "pending_$_->{userid}_yes", value => 'yes' });
+        $ret .= " <label for='pending_$_->{userid}_yes'>$ML{'.yes'}</label></td>\n";
+        $ret .= "<td>" . LJ::html_check({ type => 'radio', name => "pending_$_->{userid}",
+                                          id => "pending_$_->{userid}_no", value => 'no' });
+        $ret .= " <label for='pending_$_->{userid}_no'>$ML{'.no'}</label></td>\n";
+        $ret .= "</tr>\n";
+    }
+
+    # some hidden values
+    $ret .= LJ::html_hidden('ids', join(',', map { $_->{userid}} @users)) . "\n";
+    $ret .= "</table><p>" . LJ::html_submit('action:update', $ML{'/community/members.bml.update'}) . "</p>\n";
+    $ret .= "</div></form>\n\n";
+
+    $ret .= $navbar;
+
+    return $ret;
+
+}
+_code?>
+
+<=body
+page?>

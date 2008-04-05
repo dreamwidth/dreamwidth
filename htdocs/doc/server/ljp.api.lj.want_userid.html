@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::want_userid</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.want_user.html" title="LJ::want_user">
+<link rel="next" href="ljp.api.lj.warning_list.html" title="LJ::warning_list">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::want_userid</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.want_user.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.warning_list.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.want_userid"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::want_userid</h2>
+<p>LJ::want_userid &#8212; Returns userid when passed either userid or the user hash. Useful to functions that want to accept either. Forces its return value to be a number (for safety).</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::want_userid</b>(</code><var class="pdparam">userid</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3227654"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc"><li><p><b>userid. </b>Either a userid, or a user hash with the userid in its 'userid' key.</p></li></ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3227676"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/LJ/User.pm</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3227690"></a><h2>Returns:</h2>
+<p>The userid, guaranteed to be a numeric value.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.want_user.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.warning_list.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::want_user </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::warning_list</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

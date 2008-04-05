@@ -1,0 +1,276 @@
+body {
+	background-color: #b0b0b0;
+	margin: 0px;
+	padding: 0px;
+	font-family: Tahoma, sans-serif;
+	font-size: 8pt;
+	overflow: auto;
+}
+
+div.header {
+	position: absolute;
+	top: 0px;
+	height: 19px;
+	width: 100%;
+	background-color: #ffffff;
+	font-size: 13px;
+	border-bottom: solid #808080 1px;
+	padding: 2px 0px 0px 0px;
+}
+
+h1 {
+	float: left;
+	margin: 0px;
+	padding: 0px 6px 0px 12px;
+	font-weight: bold;
+	font-size: 13px;
+}
+
+div.header a, div.tools a {
+	text-decoration: none;
+	color: #000000;
+	padding: 0px 6px 0px 6px;
+}
+
+div.header .compilelink {
+	color: #0000ff;
+	height: 16px;
+	font-size: 7pt;
+	font-weight: bold;
+}
+
+div.header a:hover, div.tools a:hover {
+	text-decoration: underline;
+}
+
+div.tools {
+	float: right;
+	padding-right: 6px;
+}
+
+div.reference {
+	position: absolute;
+	top: 27px;
+	left: 12px;
+	bottom: 43px;
+	height: auto;
+	width: 174px;
+	background-color: #ffffff;
+	padding: 3px;
+	border-top: solid #808080 1px;
+	border-right: solid #808080 1px;
+	border-left: solid #808080 1px;
+	overflow: auto;
+}
+
+div.tabs {
+	position: absolute;
+	height: 16px;
+	padding: 0px 6px 4px 6px;
+	border-top: solid #808080 1px;
+}
+
+#reftabs {
+	bottom: 22px;
+	left: 12px;
+	width: 170px;
+}
+
+#outputtabs {
+	bottom: 22px;
+	left: 204px; 
+	right: 12px;
+}
+
+h2 {
+	float: left;
+	z-index: 2;
+	margin: -1px 0px 0px 0px;
+	padding: 2px 4px 2px 4px;
+	font-size: 8pt;
+	font-weight: normal;
+	background-color: #ffffff;
+	border-right: solid #808080 1px;
+	border-left: solid #808080 1px;
+	border-bottom: solid #808080 1px;
+	border-top: solid #ffffff 1px;
+}
+
+div.tabs a {
+	display: block;
+	float: left;
+	padding: 2px 4px 2px 4px;
+	margin: 0px;
+	font-size: 8pt;
+	font-weight: normal;
+	background-color: #d0d0d0;
+	border-left: solid #808080 1px;
+	border-right: solid #808080 1px;
+	border-bottom: solid #808080 1px;
+	color: #000000;
+	text-decoration: none;
+}
+
+div.main {
+	position: absolute;
+	top: 26px;
+	left: 204px;
+	right: 12px;
+	bottom: 151px;
+	width: auto;
+	height: auto;
+}
+
+textarea.maintext {
+	position: absolute;
+	border: solid #808080 1px;
+	font-family: monospace;
+	font-size: 8pt;
+	bottom: 0px;
+	right: 0px;
+	top: 0px;
+	left: 0px;
+	height: 100%;
+	width: 100%;
+}
+
+div.output {
+	position: absolute;
+	background-color: #ffffff;
+	border-top: solid #808080 1px;
+	border-right: solid #808080 1px;
+	border-left: solid #808080 1px;
+	bottom: 43px;
+	left: 204px;
+	right: 12px;
+	height: 90px;
+	padding: 3px;
+	width: auto;
+	overflow: scroll;
+}
+
+div.divider {
+	padding: 0px;
+	background-color: #b0b0b0;
+	background-image: url(/img/s2edit/knob.gif);
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+#outputdivider {
+	position: absolute;
+	bottom: 140px;
+	left: 204px;
+	right: 12px;
+	height: 8px;
+	width: auto;
+	cursor: n-resize;
+}
+
+#refdivider {
+	position: absolute;
+	top: 27px;
+	bottom: 43px;
+	left: 196px;
+	width: 8px;
+	height: auto;
+	cursor: e-resize;
+}
+
+div.statusbar {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	width: auto;
+	bottom: 0px;
+	height: 16px;
+	border-top: solid #808080 1px;
+	font-size: 8pt;
+	background-color: #ffffff;
+	padding: 1px 12px 0px 12px;
+}
+
+div.gutter {
+	float: right;
+}
+
+a {
+	text-decoration: none;
+	color: #000000;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: #000000;
+}
+
+.treenode {
+	background-image: url(/img/s2edit/disclosure-closed.gif);
+	background-position: 0px 3px;
+	background-repeat: no-repeat;
+	padding: 0px 0px 0px 12px;
+	margin: 0px 0px 0px 4px;
+}
+
+.treenodeopen {
+	background-image: url(/img/s2edit/disclosure-open.gif);
+	background-position: 0px 3px;
+	background-repeat: no-repeat;
+	padding: 0px 0px 0px 12px;
+	margin: 0px 0px 0px 4px;
+}
+
+.treevar, .navvar {
+	background-image: url(/img/s2edit/icon-var.gif);
+	background-position: 0px 3px;
+	background-repeat: no-repeat;
+}
+
+.treevar, .treemethod {
+	padding: 0px 0px 0px 12px;
+	margin: 0px 0px 0px 20px;
+}
+
+.treefunction, .treeproperty {
+	padding: 0px 0px 0px 12px;
+	margin: 0px 0px 0px 4px;
+}
+
+.treemethod, .navmethod {
+	background-image: url(/img/s2edit/icon-method.gif);
+	background-position: 0px 3px;
+	background-repeat: no-repeat;
+}
+
+.treefunction, .navfunction {
+	background-image: url(/img/s2edit/icon-function.gif);
+	background-position: 0px 3px;
+	background-repeat: no-repeat;
+}
+
+.treeproperty {
+	background-image: url(/img/s2edit/icon-property.gif);
+	background-position: 0px 3px;
+	background-repeat: no-repeat;
+}
+
+.navfunction, .navmethod {
+	padding: 0px 0px 0px 12px;
+	margin: 0px 0px 0px 4px;
+}
+
+.navpropgroup {
+	background-image: url(/img/s2edit/icon-propgroup.gif);
+	background-position: 0px 3px;
+	background-repeat: no-repeat;
+	padding: 0px 0px 0px 12px;
+	margin: 0px 0px 0px 4px;
+}
+
+.refinvisible {
+	display: none;
+}
+.refvisible {
+	white-space: nowrap;
+}
+

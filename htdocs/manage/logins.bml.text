@@ -1,0 +1,39 @@
+;; -*- coding: utf-8 -*-
+.intro=This page shows you all of your currently logged in sessions on [[sitename]] as well as some of your prior login sessions. You can individually log out any logged in session if, for example, you forgot to log out when leaving a friend's computer.
+
+.loggedin.header=Currently Logged In Sessions
+
+.loggedin.header.user=Currently Logged In Sessions for [[user]]
+
+.loggedin.table.bound=Bound to IP
+
+.loggedin.table.create=Creation Time
+
+.loggedin.table.current=Current Session
+
+.loggedin.table.expire=Expiration Time
+
+.loggedin.table.exptype=Expiration Type
+
+.loggedin.table.ip=IP Address
+
+.loggedin.table.logout=Log Out
+
+.loggedin.table.time=Login Time
+
+.loggedin.table.useragent=User Agent
+
+.prior.header=Prior Login Sessions
+
+.prior.header.user=Prior Login Sessions for [[user]]
+
+.prior.table.ip=IP Address
+
+.prior.table.time=Login Time
+
+.prior.table.useragent=User Agent
+
+.title=Manage Your Login Sessions
+
+.user=Username:
+

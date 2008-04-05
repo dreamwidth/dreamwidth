@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+.back2=Mood Themes
+
+.btn.switch=Switch
+
+.btn.view=View
+
+.error.cantviewtheme=You only have permission to view public mood themes or user themes with an ownerid parameter.
+
+.moodname=[[name]] (#[[id]])
+
+.moodname.fromparent=(from parent)
+
+.moodname.nopicfortheme=(no pic for theme #[[id]])
+
+.moods.header=Moods
+
+.moods.howtochange=To change the icons in your journal, go to the <a [[aopts]]>modify journal page</a> and select your preferred icon set.
+
+.moods.intro=The following are server-supported moods on [[sitename]]. You can always enter your own, but these are the ones that can have pictures associated with them and can be searched on, etc. You're encouraged to use these if possible.
+
+.moodtheme.byauthor=by [[author]]
+
+.nav.viewall=View All
+
+.specialthemes.header=Special Mood Themes
+
+.title=[[sitename]] Moods
+
+.view.table=View this theme in a table layout.
+
+.view.tree=View this theme in a hierarchal tree layout.
+

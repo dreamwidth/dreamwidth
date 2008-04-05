@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+package LJ::Worker::UserSearch::Updater;
+use strict;
+use warnings;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+use base 'LJ::Worker::Manual';
+use LJ::UserSearch::MetaUpdater;
+use Carp;
+use Fcntl qw(:seek :DEFAULT);
+
+$SIG{__DIE__} = sub { Carp::croak( @_ ) };
+
+use constant MIN_SECS_BETWEEN_RESTARTS    => 60;
+use constant MIN_UPDATES_BETWEEN_RESTARTS => 5000;
+
+my $hostname = `hostname`;
+chomp($hostname);
+die "Couldn't get hostname" unless length $hostname;
+
+my $filename = $LJ::USERSEARCH_METAFILE_PATH || die "Don't have a valid filename to write to.";
+my $lock;
+my $fh;
+my $loop_limit = 10_000;            # The maximum number of updates to the file that should be done in a single run
+my $last_restart_time = 0;          # The last time the search-lookup worker was restarted
+my $updates_since_last_restart = 0; # This is a counter for the number of updates since the last search-lookup restart
+
+__PACKAGE__->run();
+
+# return 1 if we did work, false if not.
+sub work {
+    my $class = shift;
+
+    $lock ||= LJ::locker()->trylock("usersearch:updater:$hostname");
+    return 0 unless $lock;
+
+    my $dbr = LJ::get_db_reader() or die "No db";
+
+    unless ($fh) {
+        # Open the filehandle if we haven't done so already.
+        sysopen($fh, $filename, O_RDWR | O_CREAT)
+            or die "Couldn't open file '$filename' for read/write: $!";
+
+        unless (-s $filename >= 8) {
+            # Prepopulate the first 8 bytes if the file is new, so we start at the beginning of time.
+            my $zeros = "\0" x 8;
+            syswrite($fh, $zeros);
+        }
+    }
+
+    my $count;
+    do {
+        $count = LJ::UserSearch::MetaUpdater::update_file_partial($dbr, $fh, $loop_limit);
+        $updates_since_last_restart += $count;
+    } while ($count == $loop_limit);
+
+    restart_workers();
+
+    return $count;
+}
+
+sub restart_workers {
+    return unless $last_restart_time + MIN_SECS_BETWEEN_RESTARTS < time();
+
+    return unless $updates_since_last_restart > MIN_UPDATES_BETWEEN_RESTARTS;
+
+    my $lock = LJ::locker()->trylock("usersearch:search-lookup-restart");
+    return unless $lock;
+
+    system("$ENV{LJHOME}/bin/ljworkerctl", "graceful-restart", "host", $hostname, "search-lookup");
+
+    # Reset things after we're finished.
+    $last_restart_time = time();
+    $updates_since_last_restart = 0;
+}

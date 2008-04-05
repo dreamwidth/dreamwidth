@@ -1,0 +1,80 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    my $ju = LJ::load_user('test')        or die "No test user";
+    LJ::set_active_journal($ju);
+
+    my $remote = LJ::get_remote();
+    my $r = Apache->request;
+
+    # call s2 entry point to talkread in s1shortcomings
+    my $styleid = 's1short'; # special virtual styleid
+    my $ctx = LJ::S2::s2_context($r, $styleid);
+
+    my $entry = LJ::Entry->new($ju, ditemid => 1891);
+
+    my $s2_do_func = sub {
+        my $func = shift;
+        my @args = @_;
+
+        my $s2_ret = '';
+        $LJ::S2::ret_ref = \$s2_ret;
+        eval { LJ::S2::s2_run($r, $ctx, undef, $func, @args); };
+        return LJ::error_list($@) if $@;
+        return $s2_ret;
+    };
+
+    $ctx->[S2::PROPS]->{is_bml_embedded} = 1;
+
+    my $view = $GET{view} || 'entry';
+    my $pageClass;
+    my $page;
+
+    if ($view eq 'month') {
+        $pageClass = "MonthPage";
+        my $opts = {
+            r => $r,
+            ctx => $ctx,
+            pathextra => "/2006/10",
+        };
+        $page = LJ::S2::MonthPage($ju, $remote, $opts);
+        if (@{$opts->{errors}}) {
+            return LJ::error_list(@{$opts->{errors}});
+        }
+    } elsif ($view eq 'entry') {
+        $pageClass = "EntryPage";
+        my $opts = {
+            r => $r,
+            ctx => $ctx,
+            ljentry => $entry,
+        };
+        $page = LJ::S2::EntryPage($ju, $remote, $opts);
+    } elsif ($view eq 'tags') {
+        $pageClass = "TagsPage";
+        my $opts = {
+            r => $r,
+            ctx => $ctx,
+        };
+        $page = LJ::S2::TagsPage($ju, $remote, $opts);
+    }
+
+    #my $s2_head = $s2_do_func->("print_custom_stylesheet()");
+    my $s2_head = $s2_do_func->("${pageClass}::print_head()", $page);
+    my $s2_ret = $s2_do_func->("${pageClass}::print_body()", $page);
+
+    #$headextra = $s2_head;
+    $headextra = "";
+
+    return $s2_ret;
+}
+_code?>
+<=body
+head<=
+<?_code return $headextra; _code?>
+<=head
+<=body
+page?>

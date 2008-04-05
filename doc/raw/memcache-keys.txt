@@ -1,0 +1,147 @@
+<uid> userid:<uid>   == $u, 30 min  (in arrayref packed form)
+      uidof:<user>   == userid
+<uid> uprop:<uid>:<propid> == scalar, 30 minutes
+<uid> tags:<uid> == { tagid => { **tag info hashref, see LJ::Tags::get_usertags** } }
+<uid> sess:<uid>:<sessid> == sessions row hashref
+<uid> bio:<uid> == user bio text
+<uid> kws:<uid> == { kwid => keyword }; hashref of keyword ids and keywords
+
+<uid> talkprop:<uid>:<jtalkid> == { propname => $value, ... }
+<uid> talksubject:<cid>:<uid>:<jtalkid> == scalar
+<uid> talkbody:<cid>:<uid>:<jtalkid> == scalar
+<uid> talk2:<uid>:<nodetype>:<nodeid> == packed data
+<uid> talk2row:<uid>:<jtalkid> == packed data
+<uid> talk2ct:<uid> == # rows for user
+<uid> talkleftct:<uid> == # rows for user
+
+<uid> logtext:<cid>:<uid>:<jitemid> == [ subject, text ]
+<uid> logprop:<uid>:<jitemid> == { propname => $value, ... }
+<uid> logtag:<uid>:<jitemid> == [ kwid, kwid, kwid, ... ]
+<uid> log2:<uid>:<jitemid> == packed data
+<uid> log2ct:<uid> == # of rows for user
+<uid> log2lt:<uid> == packed data: array of recent log2 entries in rlogtime order, last 2 weeks by default
+<uid> rp:<uid>:<jitemid> == scalar, the replycount value
+
+<uid> memkwid:<uid> == hashref of 'memories' keyword ids to keywords.
+<uid> memkwcnt:<uid>:<w|t>:<f|v|u> == hashref of 'memories' keyword ids to keyword counts.  <w|t> is filter oWner|oTher.  <f|v|u> is security Friends|priVate|pUblic
+
+<uid> dayct:<uid> == arrayref of arrayrefs (see LJ::get_daycounts)
+
+<uid> auc:<uid>:<dom> == last ID from LJ::alloc_user_counter() for $uid/$domain
+
+<themeid> moodthemedata:<themeid> = { $moodid => { 'pic' => $pic, 'w' => $w, 'h' => $h } }
+
+<uid> s1overr:<uid> == overrides for a given user
+<uid> s1uc:<uid> == s1usercache row hashref
+      s1pubstyc == hashref keyed on styleid with values being rows from s1style table
+<styleid> s1styc:<styleid> == s1stylecache row hashref, 30 minutes
+<styleid> s1style:<styleid> == hashref of s1style row, without formatdata
+<styleid> s1style_all:<styleid> == hashref of s1style row, including formatdata
+<styleid> s1stylemap: <styleid> == userid who owns the given styleid
+
+<styleid> s2sl:<styleid> == hashref of s2stylelayers { type => s2lid }
+<styleid> s2s:<styleid> == hashref of s2styles row
+          s2publayers == memoize LJ::S2::get_public_layers for 10 mins
+<layerid> s2lo:<layerid> == userid of the owner of this layer
+<layerid> s2c:<layerid> == arrayref; [ compile time, compiled data (or 0 meaning no data) ]
+
+<uid> checkfriends:<uid>:<mask> == scalar maxupdate, expires after refresh interval
+<uid> frgmask:<uid>:<uid_friend>  -- scalar numeric mask, 15 minutes
+<uid> fgrp:<uid> == packed data, friendgroup rows for a given user
+<uid> friends:<uid> == packed data, friends rows for a user
+<uid> friendofs:<uid> == packed data, friendofs for a user
+<uid> tu:<uid> == packed number: unixtime when user last updated
+      popsyn == 100 most read syndicated accounts [user, userid, synurl, numreaders], 1 hour
+      popsyn_ids == 1000 most read syndicated accounts, list of userids, 1 hour
+<uid> friends2:<uid> == packed data. total # of friends for a user, with friend userids
+<uid> friendofs2:<uid> == packed data. total # of friendofs for a user, with friendof userids
+<uid> tc:<uid> == unixtime when the user created their account
+
+sysban:ip == hashref of ip => unix expiration time
+sysban:uniq == hashref of uniq => unix expiration time
+sysban:contentflag == hashref of username => unix expiration time
+
+<uid> userpic2:<uid> == arrayref of hashrefs of userpic2 rows
+
+<picid> userpic.<picid> == hashref-as-arrayref (ARRAYFMT: 'userpic' in LJ::MemCache)
+<uid> upicinf:<uid> == packed data, userpic keywords
+<uid> upiccom:<uid> == packed data, userpic comments
+<uid> upicurl:<uid> == packed data, userpic urls
+<picid> mogp.up.<picid> == arrayref of paths (URLs)
+
+rate_eperr:<email_address> == rate limiting errors sent via email for email gateway
+rate:tracked:<userid> == cluster tracking on login, posts, and comments
+
+ml.<lang>.<dmid>.<code>
+
+includefile:<name> == text of BML include file
+
+<intid> introw:<intid> -- arrayref of [ $intid, $interest, $intcount ]
+<uid>   intids:<uid>   -- arrayref of intids for this userid
+
+<uid> rel:<uid>:<targetid>:<rel> == [{0|1}, as_of_time]
+<uid> relmodu:<uid>:<rel> == as_of_time, updated when rel edges of uid change
+<targetid> relmodt:<targetid>:<rel> == as_of_time, updated when rel edges of targetid change
+<uid> reluser:<uid>:<rel> == arrayref of userids on the right side of this rel
+
+<uid>   memct:<uid>    -- number of memories user has
+
+<uid>   lastcomm:<uid> -- id of the last comment the user posted via quickreply
+
+<uid>    prtcfg:<uid>   -- arrayref of the portal box configuration for this userid
+<uid>    prtbox:<uid>:<pboxid>  --  arrayref of the state of a LJ::Portal::Box object
+<uid>    prtconu:<uid>:<pboxid>  --  [etag, maxtime, html] - per-user box content caching
+<typeid> prtcong:<typeid> -- [etag, maxtime, html] - global box content caching
+
+<uid> saui:<uid> == { schoolid => { year_start => .., year_end => .. } }
+<schoolid> saal:<schoolid> == [ userid, ... ]; userids at a school
+<schoolid> saaly:<schoolid>:<year> == [ userid, ... ]; userids at a school in this year
+<schoolid> sasi:<schoolid> == hashref; keys: name, country, state, city, url
+saccs == { country_code => country_name}; countries with schools
+sascs:<country_code> == { state_code => state_name }; states with schools
+<pendid> sapiu:<pendid> == userid of person editing this pending row
+saact == number of approved schools in db; cached for admins
+sapct == pending schools to be processed count; cached for admins
+
+<uid>    uactive:<type>:<uid> == unixtime user last active for a given type of activity
+
+<uniq>   loginout:<uniq> -- set to 1, expires in five seconds, denotes user just logged in our out and is going through a redirect
+
+<uid> inbox:<uid> == list of qids for a user's notificationinbox
+<uid> inbox:newct:<uid> == count of new messages in inbox
+
+<uid> jabpresence:<uid>:<reshash> == hash of jabber presence information for a particular userid/reshash pair
+<uid> jabuser:<uid> == hash of jabber resources for this user, keyed on resource name
+jabclusteraddr:<address> == id of server
+jabclusterid:<id> == address of server
+
+<uid> email:<uid> == email of user
+<uid> pw:<uid>    == password of user
+
+<uid> embedcont:<uid>:<moduleid> == embed module content
+
+<uid> frbdays:<uid>:<timespan> == friends birthdays for timespan, either 'full' or number of months in the future
+
+<uid> rcntalk:<uid>:<maxshow> == recent talkitems cached on user, cache on number of talkitems to get
+
+<uid> timezone_guess:<uid> == guess of the user's timezone offset based on time of their most recent entry
+
+<vertid> vert:<vertid> == row from 'vertical' table
+<vertname> vertname:<vertname> == row from 'vertical' table
+<vertid> vertentries:<vertid> == array of [ journalid, jitemid ] arrayrefs which should appear in vertical
+<vertid> vertrules:<vertid> == serialized (nfreeze) data structure representing filtering rules for this vertical
+
+# Widgets
+
+qotd:<type> == QotDs of the type <type> ('current' or 'old')
+sitemessages == site messages
+
+blockwatch_ids   == hash of blockwatch ids mapped to names
+blockwatch_names == hash of blockwatch names mapped to ids
+
+ct_flag_locked == array of locked content flag ids
+ct_flag_cat_count == hash of content flag counts
+
+pop_interests == array of interest keywords and counts
+
+verticalfeedentries:<vertid> == arrayref of feed entries that are being displayed for the given vertical id

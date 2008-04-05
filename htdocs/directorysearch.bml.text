@@ -1,0 +1,3 @@
+;; -*- coding: utf-8 -*-
+.error.notloggedin=You must <a [[aopts]]>login</a> to use the directory.
+

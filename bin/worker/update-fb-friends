@@ -1,0 +1,102 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+use LJ::Worker::TheSchwartz;
+
+LJ::Worker::TheSchwartz->set_memory_limit(1024 * 1024 * 100); # 100MB memory limit.
+
+schwartz_decl('LJ::Worker::UpdateFotobilderFriends');
+schwartz_work();
+
+############################################################################
+
+package LJ::Worker::UpdateFotobilderFriends;
+use base 'TheSchwartz::Worker';
+use RPC::XML;
+use RPC::XML::Client;
+
+sub keep_exit_status_for { 0 }
+sub grab_for { 60 }
+sub max_retries { 500 }   # pretty much forever (500 days almost)
+sub retry_delay {
+    my ($class, $fails) = @_;
+    return 86400 if $fails > 20;
+    return 3600 if $fails > 7;
+    return [15, 15, 30, 60, 120, 300, 900, 900]->[$fails];
+}
+
+sub work {
+    my ($class, $job) = @_;
+    my $uid = $job->arg;
+
+    my $u = LJ::load_userid($uid)
+        or die "no userid";
+
+    # fotobilder won't autovivify communities/shared, so it won't accept
+    # friends update pushes.
+    if ($u->is_community || $u->is_shared) {
+        $job->completed;
+        return;
+    }
+
+    my %req = ( user => RPC::XML::string->new($u->{user}) );
+
+    # find all equivalent jobs BEFORE we do the potentially slow /
+    # blocky XML-RPC request.  this way if new invalidations come in
+    # while we're working, we don't invalidate those.  which is also
+    # why we don't use TheSchwartz's 'unique' feature and do it by
+    # hand like this.... afterwards we'll mark these found jobs as
+    # completed.
+    my $client = $job->handle->client;
+    my @others = $client->list_jobs({
+        funcname => $class,
+        coalesce => "uid:$uid",
+        limit => 100000,  # some journals update their friends a ton, scripted.  find all dups.
+    });
+
+    # best interface ever...  (temp duplicated here so we can push this without LJ::User push)
+    $RPC::XML::ENCODING = "utf-8";
+
+    # fill in groups info
+    LJ::fill_groups_xmlrpc($u, \%req);
+
+    my $client = RPC::XML::Client
+        ->new("$LJ::FB_SITEROOT/interface/xmlrpc");
+
+    my $req = RPC::XML::request->new('FB.XMLRPC.groups_push',
+                                     RPC::XML::smart_encode(\%req));
+
+    if ($ENV{'SHOW_REQUESTS'}) {
+        my $str = $req->as_string;
+        $str =~ s/(<\w+)/\n$1/g;
+        print $str, "\n";
+    }
+
+    my $res = $client->send_request($req);
+
+    # weirdest calling conventions evar.
+    die "No response from client" unless $res;
+    die "Error response (local): $res" unless ref $res;
+    if (UNIVERSAL::isa($res, "RPC::XML::fault")) {
+        my $code = ${$res->{faultCode}};
+        my $str  = ${$res->{faultString}};
+        if ($code eq "Client" && $str eq "Invalid user: $u->{user}") {
+            # treat this as success.  they've never used fotobilder, so they
+            # don't have an account there.  when it's vivified later, that
+            # process will pull in their then-current friends info
+        } else {
+            die "Error response from other party: code=$code string=$str\n";
+        }
+    }
+
+    # after all that, should have worked, so close this job and all others
+    # that existed prior
+    my $main_handle = $job->handle->as_string;
+    $job->completed;
+    foreach my $j (@others) {
+        next if $j->handle->as_string eq $main_handle;
+        $j->completed;
+    }
+}
+

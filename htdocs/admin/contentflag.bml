@@ -1,0 +1,30 @@
+<?page
+title=>Content Flag Admin
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $ret $headextra @errors @warnings);
+
+    my $remote = LJ::get_remote();
+    return BML::redirect("$LJ::SITEROOT/support/")
+        unless $remote && $remote->can_admin_content_flagging;
+
+    LJ::Widget->handle_post(\%POST, qw(ContentFlagSummary));
+
+    my $widget = LJ::Widget::ContentFlagSummary->new;
+    $headextra .= $widget->wrapped_js;
+
+    my %opts;
+    $opts{status} = $POST{status} || $GET{status} || "N";
+    $opts{catid}  = $POST{catid}  || $GET{catid};
+    $opts{sort}   = $POST{sort}   || $GET{sort}   || "count";
+
+    $ret .= $widget->render(%opts);
+
+    return $ret;
+}
+_code?>
+<=body
+head=><?_code return $headextra; _code?>
+page?>

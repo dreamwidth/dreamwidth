@@ -1,0 +1,51 @@
+<?page
+title=>Logout User
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST %GET);
+
+    my $err = sub { return "<?h1 Error h1?><?p $_[0] p?>"; };
+
+    my $remote = LJ::get_remote();
+    return $err->("Please login") unless $remote;
+    return $err->("No access") unless LJ::check_priv($remote, 'suspend');
+
+    my $ret = "";
+    
+    if (LJ::did_post()) {
+        return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+        my $user = $POST{user};
+        my $u = LJ::load_user($user);
+        if ($u) {
+            my $udbh = LJ::get_cluster_master($u);
+            my $sessions = $udbh->selectcol_arrayref("SELECT sessid FROM sessions WHERE ".
+                                                     "userid=$u->{'userid'}");
+            $u->kill_sessions(@$sessions) if @$sessions;
+            my $ct = scalar(@$sessions);
+
+            LJ::statushistory_add($u->{userid}, $remote->{userid}, 'logout_user', "expired $ct sessions");
+
+            $ret .= "<?p " . LJ::ljuser($u) . " <b>sessions expired: $ct</b> p?>";
+        } else {
+            $ret .= "<?p <b>User not found</b> p?>";
+        }
+    }
+
+    my $popuser = $POST{user} || $GET{user};
+
+    my $form_auth = LJ::form_auth();
+    $ret .= <<FORM;
+<form method='post'>
+$form_auth
+User: <input type='text' name='user' value='$popuser' /> <input type='submit' value='Expire Sessions' />
+</form>
+FORM
+    
+    return $ret;
+}
+_code?>
+<=body
+page?>

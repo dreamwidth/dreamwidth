@@ -1,0 +1,16 @@
+.appwidget-createaccountprogressmeter td {
+    padding-right: 20px;
+}
+
+.appwidget-createaccountprogressmeter .step-selected {
+    color: #213368;
+    font-weight: bold;
+}
+
+.appwidget-createaccountprogressmeter .step-previous {
+    color: #4b5985;
+}
+
+.appwidget-createaccountprogressmeter .step-next {
+    color: #666;
+}

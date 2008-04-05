@@ -1,0 +1,47 @@
+;; -*- coding: utf-8 -*-
+.anonuser=<i>(Anonymous)</i>
+
+.button.more=More Options...
+
+.button.post=Post Comment
+
+.confirm.action=Are you sure you wish to delete the selected comments?
+
+.deletedpost=<b>(Deleted post)</b>
+
+.deleteduser=<i>(Deleted user: [[username]])</i>
+
+.edittime=Edited at [[edittime]]
+
+.fromip=(from [[ip]])
+
+.noreplies=No replies
+
+.nosubject=(no subject)
+
+.posted=Comment Posted Successfully
+
+.qr.spellcheck=Check spelling and preview
+
+.replysuspended=<b>(Reply from suspended user)</b>
+
+.screenedpost=<b>(Screened Post)</b>
+
+.select=Select
+
+.subjectdeleted=[deleted]
+
+.talkmulti.delete=Delete
+
+.talkmulti.deletespam=Delete as Spam
+
+.talkmulti.des=<b>Mass action</b> on selected comments:
+
+.talkmulti.screen=Screen
+
+.talkmulti.submit=Perform Action
+
+.talkmulti.unscreen=Unscreen
+
+.title=Read Comments
+

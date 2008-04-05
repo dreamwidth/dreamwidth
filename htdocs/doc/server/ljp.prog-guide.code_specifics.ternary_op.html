@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>3. Ternary Operator</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.prog-guide.code_specifics.html" title="Chapter 7. Coding Specifics">
+<link rel="prev" href="ljp.prog-guide.code_specifics.ifelse.html" title="2. if, unless, else">
+<link rel="next" href="ljp.prog-guide.patches.html" title="Chapter 8. Patches">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">3. Ternary Operator</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.prog-guide.code_specifics.ifelse.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 7. Coding Specifics</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.prog-guide.patches.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="ljp.prog-guide.code_specifics.ternary_op">3. Ternary Operator</h2></div></div></div>
+<p>The ternary operator should not be used as an if-else replacement for calling methods&#8230; for example, please do not do this:</p>
+<pre class="programlisting">$foo ? LJ::do_something() : LJ::do_something_else();</pre>
+<p>For clarity, please use the following form:</p>
+<pre class="programlisting">
+if ($foo) {
+    LJ::do_something()
+} else {
+    LJ::do_something_else()
+}
+</pre>
+<p>The ternary should be used only in constructions that involve relatively straightforward value substitutions. For example, the following would be fine:</p>
+<pre class="programlisting">LJ::call_a_function($u, $u-&gt;{journaltype} eq 'Y' ? 1 : 0);</pre>
+<p>Which passes through a 1 if the account is syndicated. It is short and easy to read. Please do not use ternaries in mid-line if you're going to end up with a mess, like this:</p>
+<pre class="programlisting">
+LJ::call_another_function($u, $u-&gt;{journaltype} eq 'P' &amp;&amp; $u-&gt;{status} eq 'A' &amp;&amp; $u-&gt;{statusvis} eq &gt;V&gt; ? ($u-&gt;prop('opt_gimmenews') ? 1 : 0) : 0));
+</pre>
+<p>Please instead use the following form, breaking it out for readability:</p>
+<pre class="programlisting">
+my $is_validated_user = $u-&gt;{journaltype} eq 'P' &amp;&amp; $u-&gt;{status} eq 'A' &amp;&amp; $u-&gt;{statusvis} eq 'V' ? 1 : 0;
+my $wants_news = $is_validated_user &amp;&amp; $u-&gt;prop('gimmenews') ? 1 : 0;
+LJ::call_another_function($u, $wants_news);
+</pre>
+<p>Avoid nested ternaries while you're at it.</p>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.prog-guide.code_specifics.ifelse.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.prog-guide.code_specifics.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.prog-guide.patches.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">2. if, unless, else </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 8. Patches</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

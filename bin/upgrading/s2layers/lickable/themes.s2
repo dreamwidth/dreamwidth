@@ -1,0 +1,99 @@
+#NEWLAYER: lickable/aqua-marine
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Aqua Marine";
+layerinfo "redist_uniq" = "lickable/aqua-marine";
+
+#NEWLAYER: lickable/future
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Forward Thinking";
+layerinfo "redist_uniq" = "lickable/future";
+
+set title_separator = false;
+set clr_page_fg = "#dcd3e2";
+set clr_margins = "#8b7aa5";
+set clr_link_visited = "#dcd3e2";
+set clr_link_normal = "#dcd3e2";
+set clr_title_pattern = "#dcd3e2";
+set clr_side_borders = "#000000";
+set clr_page_bg = "#62536c";
+set clr_title_bg = "#8b7aa5";
+set clr_title_fg = "#f2eef4";
+set clr_title_separator = "#000000";
+set title_style = "futuristic";
+
+
+#NEWLAYER: lickable/slinkypink
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Slinky Pink";
+layerinfo "redist_uniq" = "lickable/slinkypink";
+
+set clr_page_fg = "#000000";
+set clr_margins = "#cc6699";
+set clr_link_visited = "#ad437a";
+set clr_link_normal = "#ad437a";
+set clr_title_pattern = "#d5d5c3";
+set clr_side_borders = "#000000";
+set clr_page_bg = "#ffc5e3";
+set clr_title_bg = "#993366";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+set title_style = "ramblings";
+
+
+#NEWLAYER: lickable/nature
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Back To Nature";
+layerinfo "redist_uniq" = "lickable/nature";
+
+set clr_page_fg = "#000000";
+set clr_margins = "#66cc66";
+set clr_link_visited = "#007800";
+set clr_link_normal = "#007800";
+set clr_title_pattern = "#d6ead6";
+set clr_side_borders = "#000000";
+set clr_page_bg = "#d6ead6";
+set clr_title_bg = "#cc9966";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+set title_style = "nature";
+
+#NEWLAYER: lickable/steel
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Cool Steel";
+layerinfo "redist_uniq" = "lickable/steel";
+
+set clr_page_fg = "#000000";
+set clr_margins = "#ccccdd";
+set clr_link_visited = "#333344";
+set clr_link_normal = "#555566";
+set clr_title_pattern = "#ccccdd";
+set clr_side_borders = "#000000";
+set clr_page_bg = "#ffffff";
+set clr_title_bg = "#555566";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+set title_style = "explosion";
+
+#NEWLAYER: lickable/martialblue
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Martial Blue";
+layerinfo "redist_uniq" = "lickable/martialblue";
+
+set clr_page_fg = "#000000";
+set clr_margins = "#bfd8ff";
+set clr_link_visited = "#003070";
+set clr_link_normal = "#6fb7ff";
+set clr_title_pattern = "#bfd8ff";
+set clr_side_borders = "#000000";
+set clr_page_bg = "#ffffff";
+set clr_title_bg = "#6fb7ff";
+set clr_title_fg = "#000000";
+set clr_title_separator = "#000000";
+set title_style = "topglow";
+

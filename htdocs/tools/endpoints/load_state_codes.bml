@@ -1,0 +1,20 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%POST);
+    use JSON;
+    BML::finish();
+
+    my $country = $POST{'country'} or return JSON::objToJson({ error => "no country parameter" });
+
+    my %states;
+
+    my $states_type = $LJ::COUNTRIES_WITH_REGIONS{$country}->{'type'};
+
+    LJ::load_codes({ $states_type => \%states }) if defined $states_type;
+
+    my $json = JSON::objToJson({ states => [map { $_, $states{$_} } sort { $states{$a} cmp $states{$b} } keys %states],
+                             head => $ML{'states.head.defined'} });
+    return $json;
+}
+_code?>

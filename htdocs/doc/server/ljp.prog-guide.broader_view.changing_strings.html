@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. Deleting and changing translation strings</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.prog-guide.broader_view.html" title="Chapter 9. Focus on the broad picture">
+<link rel="prev" href="ljp.prog-guide.broader_view.strings_urls.html" title="1. Don't hard-code URLs in translation strings">
+<link rel="next" href="ljp.prog-guide.broader_view.schemesmarts.html" title="3. Be smart to site schemes">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. Deleting and changing translation strings</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.prog-guide.broader_view.strings_urls.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 9. Focus on the broad picture</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.prog-guide.broader_view.schemesmarts.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="ljp.prog-guide.broader_view.changing_strings">2. Deleting and changing translation strings</h2></div></div></div>
+<p><span class="strong"><strong>Deleting strings: Deadphrase them!</strong></span></p>
+<p>When a string is no longer used anywhere on the site, remove it
+from <code class="filename">en.dat</code> or <code class="filename">en_<em class="replaceable"><code>XY</code></em>.dat</code> and add
+the dead string to <code class="filename">deadphrases.dat</code> or <code class="filename">deadphrases-local.dat</code>, respectively.</p>
+<p>If the string is in both <code class="filename">en.dat</code> and <code class="filename">en_<em class="replaceable"><code>XY</code></em>.dat</code>
+(because it is used on a page in the <code class="systemitem">livejournal</code> repository but says something different for <code class="systemitem">LiveJournal.com</code>),
+then delete the string from <code class="filename">en.dat</code> and add it to <code class="filename">deadphrases.dat</code>&#8212;you don't need
+to delete it from <code class="filename">en_<em class="replaceable"><code>XY</code></em>.dat</code>.</p>
+<p><span class="strong"><strong>Changing strings: Create new ones; don't edit them!</strong></span></p>
+<p>If you need to change a string in the translation file and not on <a href="siteroot/translate/edit.bml?lang=en_LJ" target="_top">the site<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a>,
+remove the old string, deadphrase it (as described above), and create a new one; don't edit strings in the translation files.
+Editing an existing string in the translation file (that is already live on the site) will not update it on the site.
+Even if you are positive it isn't live on your production site yet, it is bad practice to edit the string since other sites may
+have put the <code class="filename">en.dat</code> file live for themselves. So, just create a new string&#8212;it's the option
+least likely to cause problems. This provision primarily applies to <code class="systemitem">LiveJournal.com</code>.</p>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.prog-guide.broader_view.strings_urls.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.prog-guide.broader_view.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.prog-guide.broader_view.schemesmarts.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Don't hard-code <acronym class="acronym">URL</acronym>s in translation strings </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 3. Be smart to site schemes</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

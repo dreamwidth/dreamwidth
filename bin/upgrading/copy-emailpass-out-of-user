@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+
+my $dbh = LJ::get_db_writer();
+
+my $max = $dbh->selectrow_array("SELECT MAX(userid) FROM user");
+print "max = $max\n";
+
+my $base = shift || 1;
+my $lastcheck = 0;
+
+my $size = 1000;
+while ($base <= $max) {
+    my $upper = $base + $size - 1;
+    my $rv = $dbh->do("INSERT IGNORE INTO email (userid, email) SELECT userid, email FROM user WHERE userid BETWEEN $base AND $upper");
+    my $rv2 = $dbh->do("INSERT IGNORE INTO password (userid, password) SELECT userid, password FROM user WHERE userid BETWEEN $base AND $upper");
+    $base += 1000;
+
+    my $busy = 0;
+
+    my $now = time();
+    if ($lastcheck != $now) {
+        $lastcheck = $now;
+        my $sth = $dbh->prepare("SHOW PROCESSLIST");
+        $sth->execute;
+        while (my $row = $sth->fetchrow_hashref) {
+            next if $row->{Command} eq "Sleep";
+            next if $row->{Command} eq "Connect";
+            $busy++;
+        }
+    }
+
+    print "$base = $rv / $rv2 b=$busy\n";
+    if ($busy > 100) {
+        sleep 1;
+    } elsif ($busy > 50) {
+        select undef, undef, undef, 0.25;
+    }
+}
+

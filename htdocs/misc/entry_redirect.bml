@@ -1,0 +1,20 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+
+    my $remote = LJ::get_remote();
+    return "Not authorized" unless LJ::check_priv($remote, "siteadmin", "entry_redirect");
+
+    my $u = LJ::load_user($GET{user}) || LJ::load_userid($GET{userid});
+    return "Invalid username/userid" unless $u;
+
+    return "No ditemid/jitemid specified" unless $GET{ditemid} || $GET{jitemid};
+
+    my $entry = $GET{ditemid} ? LJ::Entry->new($u, ditemid => $GET{ditemid})
+                              : LJ::Entry->new($u, jitemid => $GET{jitemid});
+
+    return "Invalid entry" unless $entry && $entry->valid;
+    BML::redirect($entry->url);
+}
+_code?>

@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::item_toutf8</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.item_link.html" title="LJ::item_link">
+<link rel="next" href="ljp.api.lj.join_community.html" title="LJ::join_community">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::item_toutf8</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.item_link.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.join_community.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.item_toutf8"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::item_toutf8</h2>
+<p>LJ::item_toutf8 &#8212; convert one item's subject, text and props to UTF-8. item can be an entry or a comment (in which cases props can be left empty, since there are no 8bit talkprops).</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::item_toutf8</b>(</code><var class="pdparam">u</var>, <var class="pdparam">subject</var>, <var class="pdparam">text</var>, <var class="pdparam">props</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3216313"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>u. </b>user hashref of the journal's owner</p></li>
+<li><p><b>subject. </b>ref to the item's subject</p></li>
+<li><p><b>text. </b>ref to the item's text</p></li>
+<li><p><b>props. </b>hashref of the item's props</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3216368"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/LJ/Entry.pm</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3216382"></a><h2>Returns:</h2>
+<p>nothing.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.item_link.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.join_community.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::item_link </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::join_community</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

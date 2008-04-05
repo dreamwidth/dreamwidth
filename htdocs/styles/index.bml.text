@@ -1,0 +1,40 @@
+;; -*- coding: utf-8 -*-
+.about.header=Creating and Using Custom Styles
+
+.about3<<
+<p>This page gives you links to where you can create, edit, and delete
+customized S1 styles. If you're using the S2 style system, go to
+<a [[aopts1]]>the customize journal page</a>.</p>
+
+<p>Advanced users can read more about the style system in
+<a [[aopts2]]>the style documentation page</a> and in
+<a [[aopts3]]>the developer area</a>.</p>
+.
+
+.nav.browse=Style Browser
+
+.nav.browse.about=The style browser lets you browse through public styles created by other users.
+
+.nav.create=Create a new style
+
+.nav.create.about=Create a new style from scratch, or base your style on an existing public style.
+
+.nav.edit=Edit or Delete an existing style
+
+.nav.edit.about<<
+You may only edit styles &ldquo;owned&rdquo; by your account. In order to customize
+a system style, you must first create a new style based on that system style.
+.
+
+.nav.embedding=Embed your journal in your website
+
+.nav.embedding.about=There are many different ways to embed your journal into your own website.
+
+.nav.header=Quick Links
+
+.nav.modify=Modify your account
+
+.nav.modify.about=Change your account's default style &mdash; either one of the system provided styles, or one you have created yourself.
+
+.title=Custom Styles
+

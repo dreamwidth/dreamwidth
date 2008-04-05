@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::is_valid_authaction</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.is_utf8.html" title="LJ::is_utf8">
+<link rel="next" href="ljp.api.lj.item_link.html" title="LJ::item_link">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::is_valid_authaction</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.is_utf8.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.item_link.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.is_valid_authaction"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::is_valid_authaction</h2>
+<p>LJ::is_valid_authaction &#8212; Validates a shared secret (authid/authcode pair)</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::is_valid_authaction</b>(</code><var class="pdparam">dbarg</var>, <var class="pdparam">aaid</var>, <var class="pdparam">auth</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3216002"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>dbarg. </b>Deprecated; a master database handle ($dbh) or a master/slave set of database handles ($dbs).</p></li>
+<li><p><b>aaid. </b>Integer; the authaction ID.</p></li>
+<li><p><b>auth. </b>String; the auth string. (random chars the client already got)</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3216049"></a><h2>Info</h2>
+<p>See <a class="link" href="ljp.api.lj.register_authaction.html" title="LJ::register_authaction">LJ::register_authaction</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3216068"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/ljlib.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3216082"></a><h2>Returns:</h2>
+<p>Hashref of authaction row from database.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.is_utf8.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.item_link.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::is_utf8 </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::item_link</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

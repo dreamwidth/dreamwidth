@@ -1,0 +1,13 @@
+;; -*- coding: utf-8 -*-
+.btn.lang=Switch Language
+
+.btn.scheme=Switch Scheme
+
+.head.lang=Select Your Language
+
+.head.scheme=Select Your Preferred Scheme
+
+.scheme.preview=[Preview of [[title]] scheme]
+
+.title=Browse Preferences
+

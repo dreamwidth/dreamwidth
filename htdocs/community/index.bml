@@ -1,0 +1,12 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+    LJ::set_active_crumb('community');
+    return BML::ml('.main2', {'aopts' => "href='$LJ::SITEROOT/community/create.bml'", 'sitename' => $LJ::SITENAMESHORT});
+_code?>
+<=body
+page?><?_c <LJDEP>
+# NONE
+</LJDEP> _c?>
+

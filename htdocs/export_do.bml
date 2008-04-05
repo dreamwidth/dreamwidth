@@ -1,0 +1,205 @@
+<?_code
+
+        LJ::set_active_crumb('export');
+
+        my $req = shift;
+        my $r = $req->{'r'};
+
+        my $remote = LJ::get_remote();
+        return "<?needlogin?>"
+            unless $remote;
+
+        my $authas = $GET{'authas'} || $remote->{'user'};
+        my $u = LJ::get_authas_user($authas);
+        return LJ::bad_input($ML{'error.invalidauth'})
+            unless $u;
+
+        my @errors = ();
+
+        my $year = $POST{'year'}+0;
+        my $month = $POST{'month'}+0;
+
+        my $dbcr = LJ::get_cluster_reader($u);
+        push @errors, $ML{'error.nodb'} unless $dbcr;
+
+        my $encoding;
+
+        if ($POST{'encid'}) {
+            my %encodings;
+            LJ::load_codes({ "encoding" => \%encodings } );
+            $encoding = $encodings{$POST{'encid'}};
+        }
+
+        $encoding ||= $POST{'encoding'};
+        $encoding ||= $LJ::UNICODE ? 'utf-8' : 'iso-8859-1';
+
+        if ($LJ::UNICODE && lc($encoding) ne "utf-8" &&
+            ! Unicode::MapUTF8::utf8_supported_charset($encoding)) {
+            push @errors, $ML{'.error.encoding'};
+        }
+
+        if (@errors) {
+            return LJ::bad_input(@errors);
+        }
+
+        # from now on, we manage our own output
+        BML::suppress_headers();
+        BML::suppress_content();
+
+        my $opts = {};  # information needed by printing routines
+
+        ##### figure out what fields we're exporting
+
+        my @fields;
+        foreach my $f (qw(itemid eventtime logtime subject event security allowmask)) {
+            if ($POST{"field_${f}"}) {
+                push @fields, $f;
+            }
+        }
+
+        if ($POST{'field_currents'}) {
+            push @fields, ("current_music", "current_mood");
+            $opts->{'currents'} = 1;
+        }
+
+        #### do file-format specific initialization
+
+        if ($POST{'format'} eq "csv") {
+            $opts->{'format'} = "csv";
+            $r->content_type("text/plain");
+            my $filename = "$u->{user}-$year-$month.csv";
+            $r->header_out('Content-Disposition' => "attachment; filename=$filename");
+            $r->send_http_header();
+            if ($POST{'header'}) {
+                $r->print(join(",",@fields) . "\n");
+            }
+        }
+        if ($POST{'format'} eq "xml") {
+            $opts->{'format'} = "xml";
+            my $lenc = lc($encoding);
+            $r->content_type("text/xml; charset=$lenc");
+            $r->send_http_header();
+            $r->print("<?xml version=\"1.0\" encoding='$lenc'?>\n");
+            $r->print("<livejournal>\n");
+        }
+
+        $opts->{'fields'} = \@fields;
+        $opts->{'encoding'} = $encoding;
+        $opts->{'notranslation'} = 1
+            if $POST{'notranslation'};
+
+        $sth = $dbcr->prepare("SELECT jitemid, anum, eventtime, logtime, security, allowmask FROM log2 ".
+                              "WHERE journalid=$u->{'userid'} AND year=$year AND month=$month");
+        $sth->execute;
+        if ($dbcr->err) { $r->print($dbcr->errstr); return; }
+        my @buffer;
+        while ($_ = $sth->fetchrow_hashref) {
+            $_->{'ritemid'} = $_->{'jitemid'} || $_->{'itemid'};
+            $_->{'itemid'} = $_->{'jitemid'} * 256 + $_->{'anum'} if $_->{'jitemid'};
+            push @buffer, $_;
+            if (@buffer == 20) {
+                load_and_dump_buffer($u, \@buffer, $opts);
+                @buffer = ();
+            }
+
+        }
+        load_and_dump_buffer($u, \@buffer, $opts);
+
+        if ($opts->{'format'} eq "xml") {
+            $r->print("</livejournal>\n");
+        }
+        return;
+
+        sub load_and_dump_buffer
+        {
+            my ($u, $buf, $opts) = @_;
+            my $lt;
+            my %props;
+            my @ids = map { $_->{'ritemid'} } @{$buf};
+
+            $lt = LJ::get_logtext2($u, @ids);
+            LJ::load_log_props2($dbcr, $u->{'userid'}, \@ids, \%props);
+
+            foreach my $e (@{$buf}) {
+                $e->{'subject'} = $lt->{$e->{'ritemid'}}->[0];
+                $e->{'event'} = $lt->{$e->{'ritemid'}}->[1];
+
+                my $eprops = $props{$e->{'ritemid'}};
+
+                # convert to UTF-8 if necessary
+                if ($LJ::UNICODE && $eprops->{'unknown8bit'} && !$opts->{'notranslation'}) {
+                    my $error;
+                    $e->{'subject'} = LJ::text_convert($e->{'subject'}, $u, \$error);
+                    $e->{'event'} = LJ::text_convert($e->{'event'}, $u, \$error);
+                    foreach (keys %{$eprops}) {
+                        $eprops->{$_} = LJ::text_convert($eprops->{$_}, $u, \$error);
+                    }
+                }
+
+                if ($opts->{'currents'}) {
+                    $e->{'current_music'} = $eprops->{'current_music'};
+                    $e->{'current_mood'} = $eprops->{'current_mood'};
+                    if ($eprops->{'current_moodid'}) {
+                        my $mood = LJ::mood_name($eprops->{'current_moodid'})
+                            if $eprops->{'current_moodid'};
+                        $e->{'current_mood'} = $mood if $mood;
+                    }
+                }
+
+                my $entry = dump_entry($e, $opts);
+
+                # now translate this to the chosen encoding but only if this is a
+                # Unicode environment. In a pre-Unicode environment the chosen encoding
+                # is merely a label.
+
+                if ($LJ::UNICODE && lc($opts->{'encoding'}) ne 'utf-8' && !$opts->{'notranslation'}) {
+                    $entry = Unicode::MapUTF8::from_utf8({-string=>$entry,
+                                                          -charset=>$opts->{'encoding'}});
+                }
+
+                $r->print($entry);
+            }
+        }
+
+        sub dump_entry
+        {
+            my $e = shift;
+            my $opts = shift;
+            my $format = $opts->{'format'};
+            my $entry = "";
+
+            my @vals = ();
+            if ($format eq "xml") {
+                $entry .= "<entry>\n";
+            }
+
+            foreach my $f (@{$opts->{'fields'}})
+            {
+                my $v = $e->{$f};
+                if ($format eq "csv") {
+                    if ($v =~ /[\"\n\,]/) {
+                        $v =~ s/\"/\"\"/g;
+                        $v = "\"$v\"";
+                    }
+                }
+                if ($format eq "xml") {
+                    $v = LJ::exml($v);
+                }
+                push @vals, $v;
+            }
+            if ($format eq "csv") {
+                $entry .= join(",", @vals) . "\n";
+            }
+            if ($format eq "xml") {
+                foreach my $f (@{$opts->{'fields'}}) {
+                    my $v = shift @vals;
+                    $entry .= "<$f>" . $v . "</$f>\n";
+                }
+                $entry .= "</entry>\n";
+            }
+            return $entry;
+        }
+
+
+_code?><?_c <LJDEP>
+</LJDEP> _c?>

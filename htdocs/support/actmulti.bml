@@ -1,0 +1,85 @@
+<?page
+title=>Support Request Management
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST);
+    
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+    my $spcatid = $POST{spcatid};
+    my $cats = LJ::Support::load_cats($spcatid);
+    my $cat = $cats->{$spcatid};
+    return "<?h1 $ML{'.error'} h1?><?p $ML{'.cat.not.exist'} p?>" unless $cat;
+
+    # get ids of requests
+    my @ids = map { $_+0 } grep { $POST{"check_$_"} } split(':', $POST{ids});
+    return "<?h1 $ML{'.error'} h1?><?p $ML{'.no.request'} p?>" unless @ids;
+
+    # just to be sane, limit it to 1000 requests
+    @ids = splice @ids, 0, 1000 if scalar @ids > 1000;
+
+    # what action are they trying to take?
+    if ($POST{'action:close'}) {
+        my $can_close = 0;
+        $can_close = 1 if LJ::check_priv($remote, 'supportclose', $cat->{catkey});
+        $can_close = 1 if $cat->{public_read} && LJ::check_priv($remote, 'supportclose', '');
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access'} p?>" unless $can_close;
+
+        # now close all of these requests
+        my $dbh = LJ::get_db_writer();
+        my $in = join ',', @ids;
+        $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() " .
+                 "WHERE spid IN ($in) AND spcatid = ?", undef, $spcatid);
+        
+        # and now insert a log comment for all of these... note that we're not using
+        # LJ::Support::append_request because that'd require us to load a bunch of requests
+        # and then do a bunch of individual queries, and that sucks.
+        my @stmts;
+        foreach (@ids) {
+            push @stmts, "($_, UNIX_TIMESTAMP(), 'internal', $remote->{userid}, " .
+                         "'(Request closed as part of mass closure.)')";
+        }
+        my $sql = "INSERT INTO supportlog (spid, timelogged, type, userid, message) VALUES ";
+        $sql .= join ',', @stmts;
+        $dbh->do($sql);
+        
+        # return redirection back? or success message otherwise
+        return BML::redirect($POST{ret}) if $POST{ret};
+        return "<?h1 $ML{'.success'} h1?><?p $ML{'.request.specified'} p?>";
+    } elsif ($POST{'action:move'}) {
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access.move.request'} p?>"
+            unless LJ::Support::can_perform_actions({ _cat => $cat }, $remote);
+
+        my $newcat = $POST{'changecat'} + 0;
+        my $cats = LJ::Support::load_cats();
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.category.invalid'} p?>" unless $cats->{$newcat};
+
+        # now move all of these requests
+        my $dbh = LJ::get_db_writer();
+        my $in = join ',', @ids;
+        $dbh->do("UPDATE support SET spcatid = ? WHERE spid IN ($in) AND spcatid = ?",
+                 undef, $newcat, $spcatid);
+
+        # now add movement notices
+        my @stmts;
+        foreach (@ids) {
+            push @stmts, "($_, UNIX_TIMESTAMP(), 'internal', $remote->{userid}, " .
+                         "'(Mass move from $cats->{$spcatid}->{catname} to $cats->{$newcat}->{catname}.)')";
+        }
+        my $sql = "INSERT INTO supportlog (spid, timelogged, type, userid, message) VALUES ";
+        $sql .= join ',', @stmts;
+        $dbh->do($sql);
+
+        # done now
+        return BML::redirect($POST{ret}) if $POST{ret};
+        return "<?h1 $ML{'.success'} h1?><?p $ML{'.request.moved'} p?>";
+    }
+}
+_code?>
+<=body
+page?>

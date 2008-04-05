@@ -1,0 +1,137 @@
+/* styles for /tour/ */
+
+.layout-2col-r300 {
+    padding-right: 320px;
+}
+* html .layout-2col-r300 {
+    height: 1%;
+}
+.primary {
+    float: left;
+    width: 100%;
+}
+.secondary {
+    width: 300px;
+    padding-left: 20px;
+    float: right;
+    margin-right: -320px;
+}
+* html .secondary {
+    float: left;
+}
+dl,dt,dd {
+    margin: 0;
+    padding: 0;
+}
+dl {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+dl.over {
+    background-color: #eee;
+}
+dt {
+    font-weight: bold;
+    margin-bottom: 3px;
+    font-size: 120% !important;
+}
+dd {
+    padding-right: 10px;
+}
+dd.image {
+    float: left;
+    margin-right: 10px;
+    width: 70px;
+    text-align: center;
+    padding-right: 0;
+}
+p.image-wrapper {
+    text-align: center;
+}
+ul.doublearrows {
+    margin-bottom: 15px !important;    
+}
+ul.doublearrows li a {
+    background: url('/img/arrow-double-black.gif') no-repeat 0 6px;
+    padding-left: 12px;
+}
+ul#tourskip {
+    position: relative;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+}
+ul#tourskip li {
+    font-weight: bold;
+}
+ul#tourskip li.home {
+    text-align: center;
+}
+ul#tourskip li.prev {
+    position: absolute;
+    left: 0;
+}
+ul#tourskip li.next {
+    position: absolute;
+    right: 0;
+}
+.start {
+    font-size: 1.2em;
+    text-align: center;
+    padding: 3px 10px;
+}
+.placeholder {
+    width: 300px;
+    height: 250px;
+}
+input.start {
+    background: #6293C3;
+    color: #fff;
+    border: 2px solid #90BDE8;
+    border-bottom: 2px solid #46719C;
+    border-right: 2px solid #46719C;
+}
+.getstarted-button {
+    position: absolute;
+    right: 30px;
+    top: 0;
+    float: right;
+    margin: 0;
+}
+.getstarted {
+    padding: 3px 6px;
+    border: 1px solid #cccccc;
+    background-color: #eeeeee;
+    text-align: center;
+}
+.getstarted-home {
+    text-align: center;
+    margin-bottom: 10px;
+}
+#tour-points {
+    border: 1px solid #ccc;
+    background-color: #eee;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+#tour-points ul {
+    margin: 0;
+    padding: 0 0 0 15px;
+}
+#tour-points ul li {
+    font-size: 95% !important;
+    margin-bottom: 4px;
+    padding: 0;
+}
+#tour-questions p {
+    margin-top: 0;
+}
+.appwidget {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.tour-login {
+    font-size: 85%;
+    text-align: center;
+    margin: 8px 0;
+}

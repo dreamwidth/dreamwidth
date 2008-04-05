@@ -1,0 +1,77 @@
+;; -*- coding: utf-8 -*-
+.btn.nudge=Yes, nudge them!
+
+.email.body.closing=Sincerely,
+
+.email.body.greeting=Hey [[user]],
+
+.email.body.info=Find out more about the nudge: [[helpurl]]
+
+.email.body.lastupdated|notes=[[timeago]] will be one of the strings "time.ago.week", "time.ago.day", "time.ago.hour", "time.ago.minute", or "time.ago.second".
+.email.body.lastupdated=Your mutual friend [[user]] has noticed that you last updated your journal on [[sitename]] [[timeago]]!  Be a friend and go post. ([[updateurl]])
+
+.email.body.neverupdated=Your mutual friend [[user]] has noticed that you have never updated your journal on [[sitename]]!  Be a friend and go post. ([[updateurl]])
+
+.email.body.team=The [[sitename]] Team
+
+.email.subject=Your friend has sent you a [[sitename]] nudge
+
+.error.cantloaduser=Can't load specified user.
+
+.error.cantnudgeuser=The user you are trying to nudge cannot be nudged.
+
+.error.disabled=Nudge is currently disabled.
+
+.error.invalidacctstatus.header=Nudging Disabled
+
+.error.invalidacctstatus.text=While we know you want to hear from [[user]], their account status does not permit being nudged.
+
+.error.invalidaccttype.header=Not a Person
+
+.error.invalidaccttype.text=While we know you want to hear from [[user]], you can only nudge other users.
+
+.error.nonudge.header=Nudging Disabled
+
+.error.nonudge.text=While we know you want to hear from [[user]], they have disabled nudges from other users.
+
+.error.notmutual.header=Not Mutual Friends
+
+.error.notmutual.text=While we know you want to hear from [[user]], it seems that the two of you are not mutual friends. Currently only mutual friends can nudge each other.
+
+.intro=Are you disappointed that one of your mutual friends hasn't updated their journal lately? Send them a nudge to let them know that you really want to hear from them!
+
+.mutualfriends.header=Your Mutual Friends
+
+.mutualfriends.none=It seems you have no mutual friends. Nudging is currently limited to mutual friends only.
+
+.mutualfriends.sort.lastupdated=Sort by: <a [[aopts]]>last updated</a> or <b>username</b>?
+
+.mutualfriends.sort.username=Sort by: <b>last updated</b> or <a [[aopts]]>username</a>?
+
+.mutualfriends.text=Feeling you haven't heard from someone recently, but don't know who? Here are all of your mutual friends who haven't updated within the past week.
+
+.mutualfriends.userinfo|notes=[[timeago]] will be either of the strings ".mutualfriends.userinfo.lastupdated" or ".mutualfriends.userinfo.neverupdated".
+.mutualfriends.userinfo=[[user]] - [[timeago]] (<i><a [[aopts]]>nudge them</a></i>)
+
+.mutualfriends.userinfo.lastupdated|notes=[[timeago]] will be one of the strings "time.ago.week", "time.ago.day", "time.ago.hour", "time.ago.minute", or "time.ago.second".
+.mutualfriends.userinfo.lastupdated=posted [[timeago]]
+
+.mutualfriends.userinfo.neverupdated=never posted
+
+.nudgeuser.header=Nudge [[user]]?
+
+.nudgeuser.lastupdated|notes=[[timeago]] will be one of the strings "time.ago.week", "time.ago.day", "time.ago.hour", "time.ago.minute", or "time.ago.second".
+.nudgeuser.lastupdated=It seems that [[user]] last updated their journal [[timeago]]. If you'd like, we'll send them this short email in their language:
+
+.nudgeuser.neverupdated=It seems that [[user]] has never updated their journal. If you'd like, we'll send them this short email in their language:
+
+.nudgeuser.recentlyupdated=It seems that [[user]] has updated their journal within the past week. While we appreciate that you'd like to hear from them, you cannot nudge them at this time.
+
+.success.header=Nudge Sent
+
+.success.text=[[user]] has been nudged.
+
+.success.text2=[[user]] has been nudged. <a [[aopts]]>Get notified</a> when they update their journal.
+
+.title=Nudge a Friend!
+

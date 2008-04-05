@@ -1,0 +1,57 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST %GET $title);
+
+    $title = "Manage Vertical Content";
+
+    my $remote = LJ::get_remote();
+
+    return "<?needlogin?>"
+        unless $remote;
+
+    return "You are not allowed to view this page."
+        unless LJ::check_priv($remote, "vertical") || $LJ::IS_DEV_SERVER;
+
+    my $ret = "";
+
+    if (LJ::did_post()) {
+        my %post_ret = LJ::Widget->handle_post(\%POST, qw(VerticalContentControl));
+
+        if ($post_ret{action} eq "add") {
+            $ret .= "<?p <strong>Entry Added!</strong> p?>";
+        } elsif ($post_ret{action} eq "remove") {
+            $ret .= "<?p <strong>Entry Removed!</strong> p?>";
+        } elsif ($post_ret{action} eq "view") {
+            my $verticals = $post_ret{verticals};
+            if (@$verticals) {
+                @$verticals = sort { $a cmp $b } @$verticals;
+                $ret .= "<?p <strong>Entry is in the following vertical(s):</strong> p?><?p ";
+                foreach my $v (@$verticals) {
+                    $ret .= $v->display_name . "<br />";
+                }
+                $ret .= " p?>";
+            } else {
+                $ret .= "<?p <strong>Entry does not exist in any verticals.</strong> p?>";
+            }
+        } elsif ($post_ret{action} eq "cats") {
+            $ret .= LJ::run_hook("category_output_for_entry", $post_ret{category_info});
+            $ret .= "<a href='$post_ret{return_url}'>Return to vertical</a>" if $post_ret{return_url};
+        } elsif ($post_ret{action} eq "rules") {
+            $ret .= "<?p <strong>Vertical rules updated!</strong> p?>";
+        }
+    }
+
+    $ret .= LJ::Widget::VerticalContentControl->render( get => \%GET, post => LJ::Widget::VerticalContentControl->post_fields(\%POST) );
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+.backfaq2=Back to the <a [[aopts]]>FAQ listing</a>.
+
+.backfaqcat2=Back to the <a [[aopts]]>parent FAQ category</a>.
+
+.backfaqcat3=Back to the <a [[aopts]]>[[categoryname]] FAQ category</a>.
+
+.backsearch=Back to the <a [[aopts]]>search page</a>.
+
+.backsupport2=Back to the <a [[aopts]]>support area</a>.
+
+.edit.faq=Edit this FAQ
+
+.error.nofaq=The specified FAQ does not exist.
+
+.lastupdated=Last Updated:
+
+.more=Read More
+
+.title_cat=FAQ - [[catname]]
+
+.title_num=FAQ Question #[[num]]
+
+.translate.faq=Translate this FAQ
+

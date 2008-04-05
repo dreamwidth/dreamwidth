@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+require 'ljprotocol.pl';
+use LJ::Worker::TheSchwartz;
+use LJ::EventLogRecord;
+
+foreach my $classname (LJ::EventLogRecord->schwartz_capabilities) {
+    schwartz_decl($classname);
+}
+
+schwartz_work();
+

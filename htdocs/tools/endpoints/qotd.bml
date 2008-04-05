@@ -1,0 +1,22 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET);
+    use JSON;
+
+    # if any opts aren't defined, they'll be passed in as empty strings
+    my $skip = $GET{skip} eq "" ? undef : $GET{skip};
+
+    my $u = LJ::load_user($GET{user});
+    $u = LJ::get_remote() unless $u;
+
+    my @questions = LJ::QotD->get_questions( user => $u, skip => $skip );
+
+    my $ret = "";
+    if (@questions) {
+        $ret = LJ::Widget::QotD->qotd_display( questions => \@questions );
+    }
+
+    return JSON::objToJson({ text => $ret });
+}
+_code?>

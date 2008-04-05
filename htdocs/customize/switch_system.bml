@@ -1,0 +1,85 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+        
+    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
+    return LJ::bad_input($ML{'.not.allowed'})
+        if $no_layer_edit;
+
+    my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
+
+    if (LJ::did_post()) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        if ($POST{s2}) {
+            $u->set_prop('stylesys', 2);
+            $u->set_prop('s1_confirmed', 0);
+            return BML::redirect("$LJ::SITEROOT/customize/$getextra");
+        } elsif ($POST{s1}) {
+            $u->set_prop('stylesys', 1);
+            $u->set_prop('s1_confirmed', time());
+            return BML::redirect("$LJ::SITEROOT/customize/s1/$getextra");
+        }
+    }
+
+    my $ret;
+
+    if ($u->prop('stylesys') == 2) {
+        $title = $ML{'.tos1.title'};
+
+        $ret .= "<p>$ML{'.tos1.intro'}</p>";
+
+        $ret .= "<form method='POST'>";
+        $ret .= LJ::form_auth();
+        $ret .= "<p>" . LJ::html_submit('s2', $ML{'.tos1.btn.s2'}, { class => 'switch' }) . "&nbsp;";
+        $ret .= LJ::html_submit('s1', $ML{'.tos1.btn.s1'}) . "</p>";
+        $ret .= "</form>";
+    } else {
+        $title = $ML{'.tos2.title'};
+
+        $ret .= "<p>$ML{'.tos2.intro'}</p>";
+        $ret .= "<h2>$ML{'.tos2.benefits'}</h2>";
+        $ret .= "<ul>";
+        $ret .= "<li>$ML{'.tos2.benefits.current'}</li>";
+        $ret .= "<li>$ML{'.tos2.benefits.management'}</li>";
+        $ret .= "<li>$ML{'.tos2.benefits.features'}</li>";
+        $ret .= "<li>$ML{'.tos2.benefits.wizard'}</li>";
+        $ret .= "<li>$ML{'.tos2.benefits.themes'}</li>";
+        $ret .= "</ul></p>";
+
+        $ret .= "<form method='POST'>";
+        $ret .= LJ::form_auth();
+        $ret .= "<p>" . LJ::html_submit('s2', $ML{'.tos2.btn.s2'}, { class => 'switch' }) . "&nbsp;";
+        $ret .= LJ::html_submit('s1', $ML{'.tos2.btn.s1'}) . "</p>";
+        $ret .= "</form>";
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<style type='text/css'>
+.switch {
+    background: #559A40;
+    color: #fff;
+    border: 2px solid #76AE65;
+    border-bottom: 2px solid #447C33;
+    border-right: 2px solid #447C33;
+}
+</style>
+<=head
+page?>

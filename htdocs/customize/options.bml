@@ -1,0 +1,86 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+    LJ::need_res(qw( stc/customize.css js/customize.js ));
+
+    $title = $ML{'.title'};
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+
+    # extra arguments for get requests
+    my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
+
+    # if using s1, either prompt the user to switch to s2 or redirect to the s1 customization page
+    unless ($u->prop('stylesys') == 2) {
+        if ($u->prop('s1_confirmed')) {
+            return BML::redirect("$LJ::SITEROOT/customize/s1/$getextra");
+        } else {
+            return BML::redirect("$LJ::SITEROOT/customize/switch_system.bml$getextra");
+        }
+    }
+
+    my $group = $GET{group} ? $GET{group} : "display";
+
+    # make sure there's a style set and load it
+    my $style = LJ::Customize->verify_and_load_style($u);
+
+    # lazy migration of style name
+    LJ::Customize->migrate_current_style($u);
+
+    my $ret;
+
+    if (LJ::did_post()) {
+        my @errors = LJ::Widget->handle_post(\%POST, qw(CustomizeTheme JournalTitles MoodThemeChooser NavStripChooser S2PropGroup LinksList));
+        $ret .= LJ::bad_input(@errors) if @errors;
+    }
+
+    my $handler = LJ::BetaFeatures->get_handler('customize2007');
+    if ($LJ::CUSTOMIZE_FEEDBACK_LINK && $handler->is_active) {
+        $ret .= "<div class='beta-feedback'><a href='$LJ::CUSTOMIZE_FEEDBACK_LINK'>$ML{'.customize.feedback'}</a></div>";
+    }
+
+    $ret .= "<form action='$LJ::SITEROOT/customize/options.bml' method='get' class='theme-switcher'>";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, label => $ML{'.switcher.label'}, button => $ML{'.switcher.btn'} });
+    $ret .= "</form>";
+
+    my $current_theme = LJ::Widget::CurrentTheme->new;
+    $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );
+    $ret .= "<div class='theme-current pkg'>";
+    $ret .= $current_theme->render( no_theme_chooser => 1 );
+    $ret .= "</div><!-- end .theme-current -->";
+
+    my $journal_titles = LJ::Widget::JournalTitles->new;
+    $headextra .= $journal_titles->wrapped_js;
+    $ret .= "<div class='theme-titles pkg'>";
+    $ret .= $journal_titles->render( no_theme_chooser => 1 );
+    $ret .= "</div><!-- end .theme-titles -->";
+    $ret .= "<br />";
+
+    my $customize_theme = LJ::Widget::CustomizeTheme->new;
+    $headextra .= $customize_theme->wrapped_js( page_js_obj => "Customize" );
+    $ret .= "<div class='customize-wrapper one-percent'>";
+    $ret .= $customize_theme->render(
+        group => $group,
+        headextra => \$headextra,
+        post => \%POST,
+    );
+    $ret .= "</div><!-- end .customize-wrapper -->";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

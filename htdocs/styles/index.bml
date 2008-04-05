@@ -1,0 +1,33 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+
+<?_code
+    return LJ::set_active_crumb('styles');
+_code?>
+
+<?_code return BML::ml('.about3', {
+        'aopts1' => "href='$LJ::SITEROOT/customize/'",
+        'aopts2' => "href='$LJ::SITEROOT/developer/styles.bml'",
+        'aopts3' => "href='$LJ::SITEROOT/developer/'",
+        'sitename' => $LJ::SITENAMESHORT,
+    }); _code?>
+<?h1 <?_ml .nav.header _ml?> h1?>
+<dl>
+  <dt><a href="/developer/embedding.bml"><?_ml .nav.embedding _ml?></a></dt>
+  <dd><?_ml .nav.embedding.about _ml?></dd>
+  <dt><a href="/customize/"><?_ml .nav.modify _ml?></a></dt>
+  <dd><?_ml .nav.modify.about _ml?></dd>
+  <dt><a href="create.bml"><?_ml .nav.create _ml?></a></dt>
+  <dd><?_ml .nav.create.about _ml?></dd>
+  <dt><a href="edit.bml"><?_ml .nav.edit _ml?></a></dt>
+  <dd><?_ml .nav.edit.about _ml?></dd>
+  <dt><a href="browse/"><?_ml .nav.browse _ml?></a></dt>
+  <dd><?_ml .nav.browse.about _ml?></dd>
+</ul>
+<=body
+page?><?_c <LJDEP>
+link: htdocs/developer/embedding.bml, htdocs/developer/styles.bml
+link: htdocs/developer/index.bml, htdocs/paidaccounts/index.bml
+link: htdocs/customize/index.bml, htdocs/styles/create.bml, htdocs/styles/edit.bml
+</LJDEP> _c?>

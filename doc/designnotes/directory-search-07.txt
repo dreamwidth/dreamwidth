@@ -1,0 +1,257 @@
+CREATE TABLE usersearch_packdata (
+  userid      INT UNSIGNED NOT NULL PRIMARY KEY,
+  packed      CHAR(8) BINARY,
+  mtime       INT UNSIGNED NOT NULL,
+  good_until  INT UNSIGNED,
+  INDEX (mtime),
+  INDEX (good_until)
+)
+
+
+cvs/LJ-UserSearch/
+  -- UserSearch.xs
+  -- c code, intersections:
+
+ struct meta {
+  u_int32_t lastmod;      // 4 bytes
+  u_int8_t  age;
+
+  u_int8_t  gender:2;   // 0: unspec, 1: male, 2: female
+  u_int8_t  status:2;   // single, looking, married, engaged, etc
+
+  u_int8_t  is_online:1;  /* or two bits?  web vs. jabber? */
+
+};
+
+
+cgi-bin/LJ/UserSearch/MetaUpdater.pm
+
+bin/build-usersearch:use LJ::UserSearch::MetaUpdater;
+
+
+
+LJ/DirectorySearch.pm
+
+my $ds = LJ::DirectorySearch->new(page_size => 100, page => 3, constraints => []);
+
+# $ds->add_constraint(LJ::DirectorySearch::Constraint::Age->new(from => 15, to => 18));
+
+$ds->add_constraint($_) foreach (LJ::DirectorySearch->constraints_from_post(\%POST));
+
+sub constraints_from_post {
+    my $pkg = shift;
+    my $postargs = shift;
+
+    my @ret;
+    foreach my $type (qw(Age Location Gender Interest)) {
+       my $class = "LJ::DirectorySearch::Constraint::$type";
+       my $con = $class->new_from_postargs($postargs) or
+           next;
+       push @ret, $con;
+    }
+    return @ret;
+}
+
+
+my LJ::DirectorySearch::Results $res = $ds->search;
+
+my $pages = $res->pages;
+my @uids  = $res->userids;
+my @us    = $res->users;
+
+PLAN:
+
+fork:
+
+htdocs/directorysearch.bml -> htdocs/directorysearch7.bml
+htdocs/directory.bml -> htdocs/directory7.bml
+
+
+LJ::Directory::
+LJ::Directory::Search
+LJ::Directory::Results
+LJ::Directory::Constraint::Age
+LJ::Directory::Constraint::Interests
+
+TODO:
+  -- updating rows w/ good_until in past in bin/build-usersearch
+
+
+
+mysql> select value, count(*) from userprop where upropid=31 and value like 'US%' group by 1 order by 2 desc limit 40;
++---------------------+----------+
+| value               | count(*) |
++---------------------+----------+
+| US--                |   280796 |
+| US-CA-              |    70353 |
+| US-NY-              |    43304 |
+| US-FL-              |    39630 |
+| US-MI-              |    36722 |
+| US-CA-Los Angeles   |    34008 |
+| US-WA-Seattle       |    29266 |
+| US-IL-Chicago       |    28830 |
+| US-FL-Miami         |    28347 |
+| US-NY-New York      |    27491 |
+| US-NJ-              |    26938 |
+| US-TX-              |    26078 |
+| US-MA-              |    24717 |
+| US-PA-              |    23394 |
+| US-TX-Houston       |    22609 |
+| US-CA-San Diego     |    22052 |
+| US-FL-Orlando       |    21157 |
+| US-TX-Austin        |    20643 |
+| US-MA-Boston        |    18424 |
+| US-PA-Philadelphia  |    18295 |
+| US-OR-Portland      |    18224 |
+| US-IL-              |    17774 |
+| US-OH-              |    17332 |
+| US-GA-Atlanta       |    17286 |
+| US-TX-San Antonio   |    16218 |
+| US-VA-              |    16193 |
+| US-NY-Brooklyn      |    15333 |
+| US-CA-San Francisco |    15299 |
+| US-NV-Las Vegas     |    14782 |
+| US-AZ-Phoenix       |    14507 |
+| US-MD-Baltimore     |    14270 |
+| US-PA-Pittsburgh    |    13878 |
+| US-MN-Minneapolis   |    12997 |
+| US-FL-Tampa         |    12971 |
+| US-MD-              |    12791 |
+| US-FL-Jacksonville  |    12629 |
+| US-GA-              |    12479 |
+| US-AZ-Tucson        |    12361 |
+| US-NC-              |    12332 |
+| US-WA-              |    12301 |
++---------------------+----------+
+40 rows in set (2 min 29.54 sec)
+
+mysql> select value, count(*) from userprop where upropid=31 and value like 'RU%' group by 1 order by 2 desc limit 40;
+
+(unicode, but lots of different Moscows, St Petersburg (very many), etc... need to canonicalize...)
+see:
+http://brad.livejournal.com/2279998.html
+
+
+mysql> select value, count(*) from userprop where upropid=31 and value like 'CA%' group by 1 order by 2 desc limit 40;
++-------------------------------+----------+
+| value                         | count(*) |
++-------------------------------+----------+
+| CA--                          |    51724 |
+| CA-Ontario-Toronto            |    25036 |
+| CA-Ontario-                   |    16368 |
+| CA-Ontario-Ottawa             |     9001 |
+| CA-Manitoba-Winnipeg          |     7745 |
+| CA--Toronto                   |     7666 |
+| CA-Alberta-Calgary            |     6695 |
+| CA-quebec-Montreal            |     5563 |
+| CA-Alberta-Edmonton           |     5038 |
+| CA-BC-Vancouver               |     4479 |
+| CA-British Columbia-Vancouver |     4389 |
+| CA-Ontario-Mississauga        |     3642 |
+| CA-Ontario-London             |     3184 |
+| CA-Nova Scotia-Halifax        |     3066 |
+| CA-Ontario-Windsor            |     2950 |
+| CA-Ontario-Hamilton           |     2937 |
+| CA-Alberta-                   |     2800 |
+| CA-British Columbia-          |     2540 |
+| CA-BC-                        |     2457 |
+| CA--Vancouver                 |     2276 |
+| CA-Nova Scotia-               |     2144 |
+| CA-BC-Victoria                |     1829 |
+| CA-British Columbia-Victoria  |     1773 |
+| CA--Ottawa                    |     1699 |
+| CA-Ontario-Brampton           |     1687 |
+| CA--Montreal                  |     1568 |
+| CA-ON-Toronto                 |     1520 |
+| CA-Ontario-Oshawa             |     1276 |
+| CA-Saskatchewan-Saskatoon     |     1227 |
+| CA--Winnipeg                  |     1223 |
+| CA-Ontario-Waterloo           |     1204 |
+| CA-Ontario-Kingston           |     1161 |
+| CA-Ontario-Kitchener          |     1107 |
+| CA-Ontario-Oakville           |     1105 |
+| CA-Ontario-Thunder Bay        |     1099 |
+| CA-Quebec-                    |     1090 |
+| CA-Manitoba-                  |     1082 |
+| CA--Calgary                   |      997 |
+| CA-Ontario-Markham            |      990 |
+| CA-Ontario-Guelph             |      987 |
++-------------------------------+----------+
+
+mysql> select value, count(*) from userprop where upropid=31 and value like 'UK%' group by 1 order by 2 desc limit 40;
++-----------------------------+----------+
+| value                       | count(*) |
++-----------------------------+----------+
+| UK--                        |    84220 |
+| UK--London                  |    30036 | london!
+| UK--Manchester              |     5603 |
+| UK--Glasgow                 |     4121 |
+| UK--Birmingham              |     2982 |
+| UK--Nottingham              |     2596 |
+| UK--Liverpool               |     2505 |
+| UK-England-London           |     2468 | london!
+| UK--Leeds                   |     2395 |
+| UK--Bristol                 |     2240 |
+| UK--Edinburgh               |     2074 |
+| UK--Hogwarts                |     1932 |
+| UK--Newcastle               |     1745 |
+| UK-England-                 |     1745 |
+| UK--Cambridge               |     1605 |
+| UK--Sheffield               |     1539 |
+| UK--Oxford                  |     1500 |
+| UK--Brighton                |     1304 |
+| UK-Scotland-Glasgow         |     1241 |
+| UK--Cardiff                 |     1196 |
+| UK--Leicester               |     1163 |
+| UK--Belfast                 |      974 |
+| UK-London-London            |      950 | london!
+| UK--Norwich                 |      910 |
+| UK--Southampton             |      903 |
+| UK--Essex                   |      876 |
+| UK--Derby                   |      801 |
+| UK--England                 |      788 |
+| UK--Portsmouth              |      733 |
+| UK--Coventry                |      726 |
+| UK--York                    |      702 |
+| UK--Reading                 |      689 |
+| UK--Scotland                |      637 |
+| UK--Hull                    |      631 |
+| UK-Scotland-Edinburgh       |      622 |
+| UK--Kent                    |      598 |
+| UK--Durham                  |      594 |
+| UK-Scotland-                |      581 |
+| UK-West Midlands-Birmingham |      581 |
+| UK--Lincoln                 |      558 |
++-----------------------------+----------+
+
+mysql> select value, count(*) from userprop where upropid=31 and value like 'AU%' group by 1 order by 2 desc limit 40;
++------------------------------+----------+
+| value                        | count(*) |
++------------------------------+----------+
+| AU--                         |    28856 |
+| AU-NSW-Sydney                |     9697 | sydney!
+| AU-Victoria-Melbourne        |     9408 |
+| AU--Sydney                   |     8007 | sydney!
+| AU--Melbourne                |     6774 |
+| AU-Queensland-Brisbane       |     3931 |
+| AU--Perth                    |     3524 |
+| AU-Western Australia-Perth   |     3408 |
+| AU--Brisbane                 |     2504 |
+| AU-new south wales-Sydney    |     2361 | sydney!
+| AU-South Australia-Adelaide  |     2265 |
+| AU-QLD-Brisbane              |     1932 |
+| AU-nsw-                      |     1885 |
+| AU--Adelaide                 |     1801 |
+| AU-Vic-Melbourne             |     1695 |
+| AU-ACT-Canberra              |     1338 |
+| AU-WA-Perth                  |     1285 |
+| AU-VICTORIA-                 |     1278 |
+| AU-SA-Adelaide               |      924 |
+| AU-QUEENSLAND-               |      903 |
+| AU--Canberra                 |      811 |
+| AU-NSW-Newcastle             |      802 |
+| AU-Tasmania-Hobart           |      596 |
+| AU-QLD-                      |      551 |
+| AU-Queensland-Gold Coast     |      476 |
+| AU-N.S.W-Sydney              |      434 | sydney!
+| AU-New South Wales-          |      420 |

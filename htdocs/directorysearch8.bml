@@ -1,0 +1,47 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    LJ::need_res(qw(
+                    js/json.js
+                    js/progressbar.js
+                    js/ljprogressbar.js
+                    js/ippu.js
+                    js/lj_ippu.js
+                    js/httpreq.js
+                    js/view.js
+                    js/datasource.js
+                    js/jsondatasource.js
+                    js/controller.js
+                    js/directorysearch.js
+                    js/directorysearchresults.js
+                    js/directorysearchconstraints.js
+                    stc/directory.css
+                    ));
+
+    $title = 'Enterprise Javascript Directory Search';
+
+    my $res = qq {
+        <div id="SearchBox"></div>
+        <div id="ResultsBox"></div>
+    };
+
+    return $res;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<script>
+    var ctsView;
+
+    LiveJournal.register_hook("page_load", function () {
+        ctsView = new DirectorySearchView($("SearchBox"), {resultsView: $("ResultsBox")});
+    });
+</script>
+<=head
+page?>

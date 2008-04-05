@@ -1,0 +1,147 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/de1";
+layerinfo "name" = "German";
+layerinfo "langcode" = "de";
+layerinfo "author_name" = "Timwi";
+layerinfo "author_email" = "timwi@livejournal.com";
+
+layerinfo "source_viewable" = 1;
+
+set lang_current = "de";
+
+# Kurzes Datumsformat
+set lang_fmt_date_short = "%%d%%.%%m%%.%%yy%%";
+# Mittellanges Datumsformat
+set lang_fmt_date_med = "%%dayord%% %%mon%% %%yyyy%%";
+# Mittellanges Datumsformat mit Wochentag
+set lang_fmt_date_med_day = "%%da%%, %%dayord%% %%mon%% %%yyyy%%";
+# Langes Datumsformat
+set lang_fmt_date_long = "%%dayord%% %%month%% %%yyyy%%";
+# Langes Datumsformat mit Wochentag
+set lang_fmt_date_long_day = "%%day%%, %%dayord%% %%month%% %%yyyy%%";
+# Zeitformat
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+# Kurzes Monatsformat
+#set lang_fmt_month_short = "%%mon%% %%yy%%";
+# Mittleres Monatsformat
+#set lang_fmt_month_med = "%%mon%% %%yyyy%%";
+# Langes Monatsformat
+#set lang_fmt_month_long = "%%month%% %%yyyy%%";
+# Monatsnamen
+set lang_monthname_long = [ "", "Januar",  "Februar", "März",
+                            "April", "Mai", "Juni",
+                            "Juli", "August", "September",
+                            "Oktober", "November", "Dezember" ];
+# Monatsabkürzungen
+set lang_monthname_short = [ "", "Jan",  "Feb", "Mär",
+                             "Apr", "Mai", "Jun",
+                             "Jul", "Aug", "Sep",
+                             "Okt", "Nov", "Dez" ];
+# Wochentagnamen
+set lang_dayname_long = [ "", "Sonntag", "Montag",  "Dienstag", "Mittwoch", 
+                          "Donnerstag", "Freitag", "Samstag" ];
+# Wochentagabkürzungen
+set lang_dayname_short = [ "", "So", "Mo",  "Di", "Mi", 
+                           "Do", "Fr", "Sa" ];
+set reg_firstdayofweek = "monday";
+
+#[[ texttranslation ]]
+
+# Currents
+set text_meta_music = "Aktuelle Musik";
+set text_meta_mood = "Aktuelle Stimmung";
+# Comments
+set text_post_comment = "Kommentar hinterlassen";
+set text_read_comments = "1 Kommentar // # Kommentare";
+set text_post_comment_friends = "Kommentar hinterlassen";
+set text_read_comments_friends = "1 Kommentar // # Kommentare";
+# Skiplinks
+set text_skiplinks_back="Vorherige #";
+set text_skiplinks_forward="Nächste #";
+# Views
+set text_view_recent = "Neueste Einträge";
+set text_view_friends = "Freunde";
+set text_view_archive = "Archiv";
+set text_view_userinfo = "Benutzerprofil";
+set text_view_month = "Monatsansicht"; # "Vis overskrifter"?
+# Misc. texts
+set text_nosubject = "(kein Betreff)";
+set text_noentries_recent = "Keine Einträge.";
+set text_noentries_day = "An diesem Tag wurden keine Einträge gemacht.";
+set text_permalink = "Link";
+set text_month_screened_comments = "zzgl. verdeckte";
+set text_multiform_check = "Auswählen:";
+set text_multiform_des = "Alle ausgewählten Kommentare:";
+set text_multiform_btn = "Ausführen";
+set text_multiform_opt_unscreen = "Aufdecken";
+set text_multiform_opt_screen = "Verdecken";
+set text_multiform_opt_delete = "Löschen";
+set text_multiform_conf_delete = "Bist du dir sicher, dass du die ausgewählten Kommentare löschen möchtest?";
+set text_day_prev = "Vorheriger Tag";
+set text_day_next = "Nächster Tag";
+set text_comment_from = "Von:";
+set text_comment_date = "Datum:";
+set text_comment_ipaddr = "IP-Adresse:";
+set text_comment_reply = "Darauf antworten";
+set text_comment_parent = "Kommentar davor";
+set text_comment_thread = "Nachfolgende Kommentare";
+set text_reply_back = "Kommentare lesen";
+set text_reply_nocomments_header = "Kommentarfunktion deaktiviert:";
+set text_reply_nocomments = "Für diesen Eintrag wurde die Kommentarfunktion deaktiviert.";
+set text_website_default_name = "Meine Webseite";
+set text_poster_anonymous = "(Anonym)";
+
+#[[ function translations ]]
+
+function lang_page_of_pages (int pg, int pgs) [notags] : string {
+	return "Seite $pg von $pgs";
+}
+
+function lang_ordinal(int num) [notags] : string {
+	return $num+".";
+}
+
+function lang_viewname(string viewid) [notags] : string 
+"Get some words representing a view"
+{
+    if ($viewid == "recent") { return $*text_view_recent; }
+    if ($viewid == "archive") { return $*text_view_archive; }
+    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "day") { return "Tag"; }
+    if ($viewid == "month") { return "Monat"; }
+    if ($viewid == "userinfo") { return $*text_view_userinfo; }
+    if ($viewid == "entry") { return "Kommentare lesen"; }
+    if ($viewid == "reply") { return "Kommentar hinterlassen"; }
+    return "Unbekannte Ansicht";
+}
+
+function ReplyPage::view_title() : string {
+    return "Kommentar hinterlassen";
+}
+
+function server_sig() {
+    """Gehostet von <a href="$*SITEROOT/">$*SITENAME</a>""";
+}
+
+function Page::print_entry_poster(Entry e) {
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        " schrieb in ";
+        $e.journal->print();
+    }
+}
+
+function lang_user_wrote(UserLite u) : string "Returns text describing that the user wrote something. i18nc layers should override this." {
+    if (defined $u) {
+        return $u->as_string()+" schrieb";
+    }
+    else {
+        return "Ein anonymer Benutzer schrieb";
+    }
+}
+
+function lang_at_datetime(DateTime d) : string "Returns a string saying \"at {the date and time given}\". Used in the core implementation of EntryPage and ReplyPage. i18nc layers should override this." {
+    return "am " + $d->date_format("long") + " um " + $d->time_format();
+}

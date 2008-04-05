@@ -1,0 +1,42 @@
+;; -*- coding: utf-8 -*-
+.about<<
+Here we have the concept of a "friends list".
+By adding other users to your friends list, you can easily keep
+track of what is going on in their lives from your friends page.
+Friends aren't limited by individuals, you can add communities and
+syndicated feeds to your friends list as well.
+.
+
+.edit.about=Add, edit, or remove users from your friends list.
+
+.editgroups.about=Create, edit, or delete sub groups of your friends.
+
+.filter<<
+These friend groups can be used to filter your friends list: you can 
+pick a specific friend group to view.
+.
+
+.filter.about=Filter your friends list according to specific sub groups.
+
+.groups=In addition, subgroups of friends can be specified.
+
+.invite.about2=Invite a friend to create a [[sitename]] account
+
+.invite.title=Invite a Friend
+
+.nudge.about=Nudge a mutual friend who hasn't posted recently to let them know that you want to hear from them.
+
+.nudge.title=Nudge a Friend
+
+.security=Your friends list is also used for posts with restricted access.
+
+.security.custom=With "Custom" posts, you can specify which friend groups can view your post.
+
+.security.header=Security
+
+.security.only=With "Friends-Only" posts, all of the other users on your friends list can view your post.
+
+.title=Friends Tools
+
+.tools=Tools
+

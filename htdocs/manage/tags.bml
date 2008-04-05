@@ -1,0 +1,318 @@
+<?page
+title=><?_code return $ML{'.title2'}; _code?>
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST %GET);
+
+    LJ::set_active_crumb('managetags');
+
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'/edittags.bml.disabled'} p?>"
+        if $LJ::DISABLED{tags};
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    LJ::need_res("stc/tags.css", "js/tags.js");
+
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+
+    # do user requested changes
+    my $add_text = $ML{'.addnew'};
+    if (LJ::did_post()) {
+        return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+        # Adding new tags
+        $POST{add} = 1 if $POST{'add.x'} or $POST{'add.y'}; # image submit
+        if ($POST{add} or ($POST{'add_field'} && $POST{'add_field'} ne $add_text)) {
+            my $tagerr = "";
+            my $rv = LJ::Tags::create_usertag($u, $POST{'add_field'}, { display => 1, err_ref => \$tagerr });
+            return LJ::bad_input($tagerr) unless $rv;
+        }
+
+        # Deleting tags
+        if ($POST{delete}) {
+            foreach my $id (split /\0/, $POST{tags}) {
+                $id =~ s/_.*//;
+                LJ::Tags::delete_usertag( $u, 'id', $id );
+            }
+        }
+
+        if ($POST{rename}) {
+            my @tagnames = map { s/\d+_//; $_; } split /\0/, $POST{tags};
+            my $new_tag = LJ::trim($POST{rename_field});
+            $new_tag =~ s/,.*//;
+
+            # FIXME: merge support later
+            LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag );
+        }
+
+        if ($POST{'show posts'}) {
+            # this should do some cute ajax display later.
+            my $tags = LJ::Tags::get_usertags( $u ); # we redirect, so we don't double load anyway
+            my $taglist = LJ::eurl(join ',', map { $tags->{$_}->{name} } map { /^(\d+)_/; $1; } split /\0/, $POST{tags});
+            BML::redirect( LJ::journal_base($u) . "/tag/$taglist" );
+        }
+
+        if ($POST{'save_levels'}) {
+            my $add = $POST{"add_level"};
+            my $control = $POST{"control_level"};
+
+            return LJ::bad_input($ML{'.error.invalidsettings'})
+               unless $add =~ /^(?:private|public|friends|group:\d+)$/ &&
+               $control =~ /^(?:private|public|friends|group:\d+)$/;
+
+            $u->set_prop("opt_tagpermissions", "$add,$control");
+        }
+    }
+
+    # get tags list!
+    my $tags = LJ::Tags::get_usertags( $u );
+    my $tagcount = scalar keys %$tags;
+
+    # create histogram usage levels from 'uses' counts
+    # for 'cell bars' icon display
+    if ($tagcount) {
+        my (
+            @data,
+            $groups,
+            $max, $min,
+            $width,
+            %range,
+        );
+
+        $groups = 5;
+
+        # order by use
+        @data = map { [ $_, $tags->{$_}->{uses} ] }
+          sort { $tags->{$a}->{uses} <=> $tags->{$b}->{uses} } keys %$tags;
+
+        # get min use, max use, and group 'width'
+        $max = $data[-1]->[1];
+        $min = $data[0]->[1];
+        $width  = ($max - $min) / $groups || 1;
+
+        # pre calculate ranges for groups
+        for (1..$groups) {
+             $range{$_} = [];
+             @{$range{$_}}[0] = $min + ($_ - 1) * $width;  # low
+             @{$range{$_}}[1] = $min + ($_ * $width);      # high
+        }
+
+        # iterate through sorted data, adding
+        # histogram group to the tags data structure.
+        foreach (@data) {
+            my ($id, $use) = (@$_);
+            GROUP:
+            for (1..$groups) {
+                if ($use >= @{$range{$_}}[0] && $use <= @{$range{$_}}[1]) {
+                    $tags->{$id}->{histogram_group} = $_;
+                    last GROUP;
+                }
+            }
+        }
+    }
+
+    # button titles (mouseovers)
+    my $mo = {
+        create => $ML{'.hint.create'},
+        rename => $ML{'.hint.rename'},
+        delete => $ML{'.hint.delete'},
+        entries => $ML{'.hint.entries'},
+    };
+
+    my $sp = '&nbsp;&nbsp;';
+    my $ret;
+
+    # user switcher
+    $ret .= "<form method='GET'>\n";
+    $ret .= LJ::make_authas_select($remote, { authas => $u->{user} });
+    $ret .= "</form>\n";
+
+    $ret .= "<?p $ML{'.intro'} p?>";
+
+    # convert tags data structure to javascript array for quick prop display.
+    # this is temporary, we'll eventually do a smarter
+    # xml-rpc call instead of requiring this.
+    $ret .= "\n<script type='text/javascript'>\n";
+    $ret .= "var tags = new Array();\n";
+
+    foreach (sort keys %$tags) {
+        my $tag = $tags->{$_};
+        my $sec = $tag->{security};
+        my ($pub, $pri, $fr, $tot) =
+                ($sec->{public}, $sec->{private},
+                 $sec->{friends}, $tag->{uses});
+        my $grp = $tot - ($pub+$pri+$fr);
+        $ret .= "tags[$_] = [ '" . LJ::ejs($tag->{name}) . "', '$tag->{security_level}', $pub, $pri, $fr, $grp, $tot ];\n";
+    }
+    $ret .= "</script>\n";
+
+    my $formauth = LJ::form_auth();
+    # the extra 'padding' div is a workaround for how
+    # IE incorrectly renders fieldsets.
+    $ret .= qq{
+    <form method="POST" name="tagform" id="tagform">
+    $formauth
+    <table cellpadding="0" cellspacing="0" align="center">
+    <tr><td valign="top">
+        <fieldset>
+            <legend>$ML{'.label.yours'}</legend>
+            <div style="padding-top: 6px;">
+    };
+
+    my $tagsort = sub {
+        $GET{sort} eq 'use' ?
+            $tags->{$b}->{uses} <=> $tags->{$a}->{uses} :
+            $tags->{$a}->{name} cmp $tags->{$b}->{name};
+    };
+
+    if ($tagcount) {
+        $ret .= "<select name='tags' id='tags' multiple='multiple' class='tagbox' " .
+                "onChange='tagselect(this)'>";
+        foreach (sort { $tagsort->() } keys %$tags) {
+            my $tag = $tags->{$_};
+            my $etag = LJ::ehtml( $tag->{name} );
+
+            # keep id and value for both JS and perl
+            my $value = $_ . '_' . $etag;
+
+            $ret .= "<option class='level$tag->{histogram_group}' ";
+            $ret .= "value='$value'>$etag</option>";
+        }
+        $ret .= "</select>";
+        $ret .= "<div class='tagsort'>";
+        $ret .= $GET{sort} eq 'use' ? BML::ml('.sort.a', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=alpha'" }) :
+                                      BML::ml('.sort.b', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=use'" });
+        $ret .= '</div>';
+    } else {
+        $ret .= "<div class='taginfo'>$ML{'.none'}</div>"
+    }
+
+    $ret .= '<div style="margin-top: 10px">';
+    $ret .= LJ::html_text(
+        {
+            name  => 'add_field',
+            size  => 20,
+            style => 'width: 260px',
+            class => 'tagfield',
+            value => LJ::did_post() ? "" : $add_text,
+            onClick => "reset_field(this, '$add_text')",
+        }
+    );
+    $ret .= '&nbsp;';
+    $ret .= "<input type='image' name='add' src='/img/rte/post_button_text_larger.gif'
+                    border='0' align='middle' title='$mo->{create}'
+                    onClick='return validate_input(this, \"add_field\", \"$add_text\")'>";
+
+    $ret .= '
+        </div>
+        </div>
+        </fieldset>
+    </td>
+    <td valign="top">';
+
+    if ($tagcount) {
+        $ret .= "<fieldset><legend>$ML{'.label.tags'}</legend>";
+        $ret .= '<div style="padding-top: 6px;">';
+        $ret .= "<div id='selected_tags'>&nbsp;</div>";
+
+        $ret .= "<div style='white-space: nowrap'>";
+        $ret .= LJ::html_text(
+            {
+                name    => 'rename_field',
+                size    => 30,
+                class   => 'tagfield',
+                onClick => 'reset_field(this)',
+            }
+         );
+        $ret .= $sp;
+        $ret .= LJ::html_submit(
+            'rename', $ML{'.button.rename'},
+            {
+                class   => 'btn',
+                title   => $mo->{rename},
+                onClick => 'return validate_input(this, "rename_field")',
+             }
+         );
+        $ret .= '<br /><br />';
+
+        my $del_conf = $ML{'.confirm.delete'};
+        $ret .= LJ::html_submit(
+            'delete', $ML{'.button.delete'},
+            {
+                class => 'btn',
+                title => $mo->{delete},
+                onClick => "return confirm('$del_conf')",
+            }
+          ) . $sp;
+         $ret .= LJ::html_submit(
+            'show posts', $ML{'.button.show'},
+            {
+                class => 'btn',
+                title => $mo->{entries},
+            }
+          );
+
+        $ret .= '</div><br /><div id="tag_props">&nbsp;</div>';
+
+        $ret .= '
+            </div>
+            </fieldset>
+        </td></tr>';
+    } else {
+        $ret .= '&nbsp;</td></tr>';
+    }
+
+    $ret .= '<tr><td colspan="2"><br /><fieldset><legend>' . $ML{'.label.settings'}. '</legend>';
+    $ret .= '<div style="padding-top: 6px;">';
+
+    my @groups = ("public", $ML{'.setting.public'});
+
+    if ($u->is_person) {
+        push @groups, ("friends", $ML{'.setting.friends'});
+        push @groups, ("private", $ML{'.setting.private'});
+    } else {
+        push @groups, ("friends", $ML{'.setting.members'});
+        push @groups, ("private", $ML{'.setting.maintainers'});
+    }
+
+    my $grouplist = LJ::get_friend_group($u);
+    push @groups,  map  { "group:" . $_, $grouplist->{$_}->{groupname} }
+    sort { $grouplist->{$a}->{groupname} cmp $grouplist->{$b}->{groupname} }
+    keys %$grouplist;
+
+    my $security = LJ::Tags::get_permission_levels($u);
+
+    $ret .= "<div class='tagsec'> "
+        . LJ::html_select({ name => 'control_level', selected => $security->{control} }, @groups)
+        . " $ML{'.setting.desc.control'} </div>";
+
+    $ret .= "<div class='tagsec'>"
+            . LJ::html_select({ name => 'add_level', selected => $security->{add} }, @groups)
+            . " $ML{'.setting.desc.add'} </div>";
+
+    $ret .= "<div align='center'>";
+    $ret .= LJ::html_submit(
+         'save_levels', $ML{'.button.save'},
+         {
+             class   => 'btn',
+             title   => 'Save',
+         });
+
+    $ret .= '</div></div></fieldset></td></tr>';
+
+    $ret .= '</table></form>';
+
+
+
+    return $ret;
+
+} _code?>
+<=body
+bodyopts=>onLoad="initTagPage()"
+page?>

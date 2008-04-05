@@ -1,0 +1,116 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+    LJ::need_res(qw( stc/customize.css js/customize.js ));
+
+    $title = $ML{'.title'};
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+
+    # extra arguments for get requests
+    my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
+
+    # if using s1, either prompt the user to switch to s2 or redirect to the s1 customization page
+    unless ($u->prop('stylesys') == 2) {
+        if ($u->prop('s1_confirmed')) {
+            return BML::redirect("$LJ::SITEROOT/customize/s1/$getextra");
+        } else {
+            return BML::redirect("$LJ::SITEROOT/customize/switch_system.bml$getextra");
+        }
+    }
+
+    # make sure there's a style set and load it
+    my $style = LJ::Customize->verify_and_load_style($u);
+
+    # lazy migration of style name
+    LJ::Customize->migrate_current_style($u);
+
+    my $cat = defined $GET{cat} ? $GET{cat} : "";
+    my $layoutid = defined $GET{layoutid} ? $GET{layoutid} : 0;
+    my $designer = defined $GET{designer} ? $GET{designer} : "";
+    my $search = defined $GET{search} ? $GET{search} : "";
+    my $filter_available = defined $GET{filter_available} ? $GET{filter_available} : 0;
+    my $page = defined $GET{page} ? $GET{page} : 1;
+    my $show = defined $GET{show} ? $GET{show} : 12;
+
+    my $ret;
+
+    if (LJ::did_post()) {
+        if ($POST{nextpage}) {
+            return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+                unless LJ::check_form_auth();
+
+            return BML::redirect("$LJ::SITEROOT/customize/options.bml$getextra");
+        }
+        my @errors = LJ::Widget->handle_post(\%POST, qw(JournalTitles ThemeChooser ThemeNav LayoutChooser AdLayout));
+        $ret .= LJ::bad_input(@errors) if @errors;
+    }
+
+    my $handler = LJ::BetaFeatures->get_handler('customize2007');
+    if ($LJ::CUSTOMIZE_FEEDBACK_LINK && $handler->is_active) {
+        $ret .= "<div class='beta-feedback'><a href='$LJ::CUSTOMIZE_FEEDBACK_LINK'>$ML{'.customize_area_feedback'}</a></div>";
+    }
+
+    $ret .= "<form action='$LJ::SITEROOT/customize/' method='get' class='theme-switcher'>";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, label => $ML{'.switcher.label'}, button => $ML{'.switcher.btn'} });
+    $ret .= "</form>";
+
+    my $current_theme = LJ::Widget::CurrentTheme->new;
+    $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );
+    $ret .= "<div class='theme-current pkg'>";
+    $ret .= $current_theme->render( filter_available => $filter_available, show => $show );
+    $ret .= "</div><!-- end .theme-current -->";
+
+    my $journal_titles = LJ::Widget::JournalTitles->new;
+    $headextra .= $journal_titles->wrapped_js;
+    $ret .= "<div class='theme-titles pkg'>";
+    $ret .= $journal_titles->render;
+    $ret .= "</div><!-- end .theme-titles -->";
+    $ret .= "<br />";
+
+    my $theme_nav = LJ::Widget::ThemeNav->new;
+    $headextra .= $theme_nav->wrapped_js( page_js_obj => "Customize" );
+    $ret .= "<div class='theme-selector-wrapper pkg'>";
+    $ret .= $theme_nav->render(
+        cat => $cat,
+        layoutid => $layoutid,
+        designer => $designer,
+        search => $search,
+        filter_available => $filter_available,
+        page => $page,
+        show => $show,
+        headextra => \$headextra,
+    );
+    $ret .= "</div><!-- end .theme-selector-wrapper -->";
+
+    my $layout_chooser = LJ::Widget::LayoutChooser->new;
+    $headextra .= $layout_chooser->wrapped_js( page_js_obj => "Customize" );
+    $ret .= "<a name='layout'></a>";
+    $ret .= "<div class='layout-selector-wrapper pkg'>";
+    $ret .= $layout_chooser->render( headextra => \$headextra );
+    $ret .= "</div><!-- end .layout-selector-wrapper' -->";
+
+    $ret .= "<form method='POST'><div class='theme-customize'>";
+    $ret .= LJ::form_auth();
+    $ret .= LJ::html_submit('nextpage', $ML{'.btn.nextpage'});
+    $ret .= "</div>";
+    $ret .= "</form>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

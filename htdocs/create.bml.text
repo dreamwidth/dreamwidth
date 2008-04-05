@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+
+.captcha.answer=Answer:
+
+.captcha.audiodesc=Type the numbers you hear to prove that you're not a spam robot:
+
+.captcha.desc=Type the letters and numbers you see below, to prove that you're not a spam robot.  If you can't read the text, type "AUDIO" and take a sound test instead.
+
+.captcha.invalid=Invalid answer to previous challenge.  Try another.
+
+.captcha.play=Play the sound
+
+.captcha.prove=Prove that you're a human
+
+.success.btn.enterinfo=Enter Personal Information
+
+.success.head=Success!
+
+.success.text1=Your journal has been created.  Important registration information has been emailed to <font size="+1"><b>[[email]]</b></font> containing further instructions.  Be sure to confirm your journal creation by clicking on the link sent to you in email.
+
+.success.text2=Your LiveJournal will be available at:
+
+.success.text3=Now, please take the time to fill in some information about yourself.  It's mostly optional, but it lets us get an idea of who's using LiveJournal.
+
+.title=Join [[sitename]]

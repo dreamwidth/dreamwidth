@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+use LJ::Entry;
+use LJ::Worker::TheSchwartz;
+
+schwartz_decl('LJ::Worker::DeleteEntry');
+schwartz_work();
+
+package LJ::Worker::DeleteEntry;
+use base 'TheSchwartz::Worker';
+
+sub work {
+    my ($class, $job) = @_;
+    my $args   = $job->arg;
+    my $client = $job->handle->client;
+
+    die "Failed to delete entry.\n" unless
+        LJ::delete_entry($args->{'uid'},
+                         $args->{'jitemid'},
+                         0,   # not quick.  do it all.
+                         $args->{'anum'});
+    $job->completed;
+}
+
+sub keep_exit_status_for { 0 }
+sub grab_for { 180 }
+sub max_retries { 5 * 24 }  # 5 days * 24 hours
+sub retry_delay {
+    my ($class, $fails) = @_;
+    return ((5*60, 5*60, 15*60, 30*60)[$fails] || 3600);
+}

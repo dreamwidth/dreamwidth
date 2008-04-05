@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>3. Static Blocks</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="bml.tutorial.html" title="Chapter 1. A Brief Tutorial">
+<link rel="prev" href="bml.tutorial.blockparams.html" title="2. Block Parameters">
+<link rel="next" href="bml.tutorial.fullexample.html" title="4. A Full Example">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">3. Static Blocks</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="bml.tutorial.blockparams.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 1. A Brief Tutorial</th>
+<td width="20%" align="right"> <a accesskey="n" href="bml.tutorial.fullexample.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="bml.tutorial.statics">3. Static Blocks</h2></div></div></div>
+<p>Sometimes re-expansion of embedded <acronym class="acronym">BML</acronym> might
+    not be what you want. In that case, you can designate a block with a flag that will cause
+    it to stop or limit the re-expansion of embedded calls.</p>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="bml.tutorial.statics.full">3.1. Fully-Static Blocks</h3></div></div></div>
+<p>If you add the <code class="literal">{S}</code> flag to the block you're
+        defining, the contents of it will not be re-evaluated afterwards. This is
+        useful mainly when you have blocks you are sure will never contain
+        <acronym class="acronym">BML</acronym> to be expanded or properties to fill in,
+        and you want to save the overhead of trying to re-evaluate them.</p>
+<div class="example">
+<a name="example-bml-lookup_6"></a><p class="title"><b>Example 1.14. Look file with <code class="literal">{S}</code> block</b></p>
+<div class="example-contents"><pre class="programlisting">
+companyname=&gt;{S}Acme, Inc.</pre></div>
+</div>
+<br class="example-break"><p>This defines the <code class="literal">companyname</code> block as
+        static.</p>
+<div class="example">
+<a name="example-bml-file_6"></a><p class="title"><b>Example 1.15. <acronym class="acronym">BML</acronym> file that calls the static block</b></p>
+<div class="example-contents"><pre class="programlisting">
+&lt;h1&gt;Welcome to &lt;?companyname companyname?&gt;&lt;/h1&gt;</pre></div>
+</div>
+<br class="example-break"><p>Combining the two yields:</p>
+<div class="example">
+<a name="example-bml-output_6"></a><p class="title"><b>Example 1.16. Example output</b></p>
+<div class="example-contents"><pre class="programlisting">
+&lt;h1&gt;Welcome to Acme, Inc.&lt;/h1&gt;</pre></div>
+</div>
+<br class="example-break">
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="bml.tutorial.statics.semi">3.2. Semi-static Blocks</h3></div></div></div>
+<p>Sometimes you want a block which fits somewhere between the
+        fully-dynamic <code class="literal">{D}</code> blocks and the completely-static
+        behavior of <code class="literal">{S}</code> blocks. Enter the
+        <code class="literal">{R}</code> block flag.
+        It expands p<span class="emphasis"><em>R</em></span>operties like those passed to a
+        <code class="literal">{D}</code>, <code class="literal">{F}</code>, or <code class="literal">{P}</code>
+        block, but doesn't expand <acronym class="acronym">BML</acronym> that might be inserted
+        by one of those.</p>
+<div class="example">
+<a name="example-bml-lookup_7"></a><p class="title"><b>Example 1.17. Look file with <code class="literal">{R}</code> block</b></p>
+<div class="example-contents"><pre class="programlisting">
+</pre></div>
+</div>
+<br class="example-break"><p></p>
+<div class="example">
+<a name="example-bml-file_7"></a><p class="title"><b>Example 1.18. <acronym class="acronym">BML</acronym> file</b></p>
+<div class="example-contents"><pre class="programlisting">
+</pre></div>
+</div>
+<br class="example-break"><p></p>
+<div class="example">
+<a name="example-bml-output_7"></a><p class="title"><b>Example 1.19. Example output</b></p>
+<div class="example-contents"><pre class="programlisting">
+        </pre></div>
+</div>
+<br class="example-break">
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="bml.tutorial.blockparams.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="bml.tutorial.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="bml.tutorial.fullexample.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">2. Block Parameters </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 4. A Full Example</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

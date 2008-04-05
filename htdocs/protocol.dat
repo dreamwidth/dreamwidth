@@ -1,0 +1,843 @@
+{ getusertags
+.des
+Retrieves a list of the user's defined tags.
+.request
+{ usejournal
+.des
+If you want to get the tags for a community you're a member of, include this key and the username of the account to get the tags of.  By default, you get your own tags.
+.optional
+1
+}
+.response
+{ tag_count
+.des
+The number of tags being returned in this set.  The number is base-1, so start at 1 and count up to this number inclusive in order to make sure you get all of the tags.  If this value is 0, there are no tags for the specified account.
+}
+{ tag_<i>num</i>_name
+.des
+The tag itself, this is the name to be sent when you're posting or editing an entry.  Textual representation of the tag.
+}
+{ tag_<i>num</i>_uses
+.des
+Indicates how many times this tag has been used.  May not be present, which indicates no usage of the tag.
+.optional
+1
+}
+{ tag_<i>num</i>_display
+.des
+If present and on, indicates that this tag is displayed on a user's list of tags.  A tag that is not displayed is hidden from the S2 style system, but is otherwise available for use.
+.optional
+1
+}
+{ tag_<i>num</i>_security
+.des
+The security level of this tag.  This indicates who can see the tag and the entries tagged with it.  Security can be one of 'public', 'private', 'friends', and 'group'.  Note that 'group' secure tags do not elaborate on which groups they're secured to, but that can be inferred from the security breakdown section.
+}
+{ tag_<i>num</i>_sb_friends
+.des
+If present, indicates the number of times this tag has been used on Friends-only entries.
+.optional
+1
+}
+{ tag_<i>num</i>_sb_public
+.des
+If present, indicates the number of times this tag has been used on public entries.
+.optional
+1
+}
+{ tag_<i>num</i>_sb_private
+.des
+If present, indicates the number of times this tag has been used on public entries.
+.optional
+1
+}
+{ tag_<i>num</i>_sb_group_count
+.des
+If present, indicates the number of groups that are using this tag.  This number can then be used in a loop (from 1 to this number inclusive) to get the actual groups this tag has been used on.
+.optional
+1
+}
+{ tag_<i>num</i>_sb_group_<i>num</i>_id
+.des
+The id of the group this tuple is about.  This has a 1:1 mapping with the frgrp_num in getfriendgroups.
+}
+{ tag_<i>num</i>_sb_group_<i>num</i>_count
+.des
+The number of times this tag has been used on this group.
+}
+}
+
+{ getfriendgroups
+.des
+Retrieves a list of the user's defined groups of friends.
+.response
+{ frgrp_<I>num</I>_name
+.des
+The name of the friend group with number <I>num</I>.
+}
+{ frgrp_<I>num</I>_sortorder
+.des
+The sort-order of the friend group with number <I>num</I>.  An integer value between 0 and 255.
+}
+{ frgrp_<I>num</I>_public
+.des
+If this key is returned and its value is "1", then group <I>num</I> is a public group.  (that is, other users can see the name of the group and who is in it)
+}
+{ frgrp_maxnum
+.des
+The largest friend group number that was returned.  This is <B>not</B> the number of friend groups returned, it is simply the upper bound.  In other words, there may be holes as you iterate from 1 to <TT>frgrp_maxnum</TT>, so don't assume the presence of any key/value pairs returned.  If this value is 0, however, you can safely assume there are no friend groups, as the minimum allowed friend group number is 1.
+}
+}
+
+{ editfriendgroups
+.des
+Edit the user's defined groups of friends.
+.request
+{ editfriend_groupmask_<I>friend</I>
+.des
+Send a key in the form editfriend_groupmask_<I>friend</I> where <I>friend</I> is the friend's username.  The value should be a string representing an unsigned 32-bit integer with bit 0 set (or the server will force it on anyway), bits 1-30 set for each group the friend belongs to, and bit 31 unset (reserved for future use).
+}
+{ efg_delete_<I>groupnum</I>
+.des
+Send a key of this type to delete the friend group with number <I>groupnum</I> (which can be from 1-30, inclusive).  The server will modify all old entries that allow access to that friend group, so a new friend group using that number won't have access to old non-related entries, and unset the bit for that friend group on the groupmask of each friend, unless your client sends the friend's new groupmask explicitly.
+}
+{ efg_set_<I>groupnum</I>_name
+.des
+Create or rename the friend group by sending this key, where <I>groupnum</I> is from 1-30.  The value is the name of the group.
+}
+{ efg_set_<I>groupnum</I>_sort
+.des
+If <TT>efg_set_<I>groupnum</I>_sort</TT> is sent, this field should be sent to indicate the sorting order of this group.  The value must be in the range of 0-255.  The default is 50.
+}
+{ efg_set_<I>groupnum</I>_public
+.des
+If <TT>efg_set_<I>groupnum</I>_public</TT> is "1", then this group is marked as public.  If public, other users can see the name of the group and the people that are in it.
+.optional
+1
+}
+}
+
+{ login
+.des
+Log in to the server, while announcing your client version.  The server returns with whether the password is good or not, the user's name, an optional message to be displayed to the user, and the list of the user's friend groups.  (friend groups can also be retrieved using the <TT>getfriendgroups</TT> mode)
+.request
+{ clientversion
+.des
+Although optional, this <B>should</B> be a string of the form <tt>Platform-ProductName/ClientVersionMajor.Minor.Rev</tt>, like <B><tt>Win32-MFC/1.2.7</tt></B> or <B><tt>GTK2-LogJam: 4.5.3</tt></B>.  Note in this case that "GTK2" is not a platform, but rather a toolkit, since the toolkit is multi-platform (Linux, FreeBSD, Solaris, Windows...).  You make a judgment what is best to send, but if it is of this form, we give you cool statistics about your users.
+.optional
+1
+}
+{ getmoods
+.des
+If your client supports moods, send this key with a value of the highest mood ID you have cached/stored on the user's computer.  For example, if you logged in last time with and got mood IDs 1, 2, 4, and 5, then send "5" as the value of "getmoods".  The server will return every new mood that has an internal MoodID greater than 5.  If you've never downloaded moods before, send "0".  If you don't care about getting any moods at all (if your client doesn't support them), then don't send this key at all.
+}
+{ getmenus
+.des
+Send something for this key if you want to get a list/tree of web jump menus to show in your client.
+}
+{ getpickws
+.des
+If your client supports picture keywords and you want to receive that list, send something for this key, like "1", and you'll receive the list of picture keywords the user has defined.
+}
+{ getpickwurls
+.des
+If your client supports picture keywords and can also display the pictures somehow, send something for this key, like "1", and you'll receive the list of picture keyword URLs that correspond to the picture keywords as well as the URL for the default picture.  You must send getpickws for this option to even matter.
+}
+.response
+{ name
+.des
+The user's full name.  Often, clients use this to change the top-level window's title bar text to say something like "LiveJournal - User name".  You can just ignore this if you'd like.
+}
+{ message
+.des
+A message that <i>should</i> be displayed in a dialog box (or to the screen in a console application).  The message is rarely present but when used notifies the user of software updates they've requested to hear about, problems with their account (if mail is bouncing to them, we'd like them to give us a current e-mail address), etc.  For example, on LiveJournal.com a newly-created account will return a message telling the user the e-mail address used for their account has not yet been validated.
+}
+{ frgrp_<I>num</I>_name
+.des
+The name of the friend group with number <I>num</I>.
+}
+{ frgrp_<I>num</I>_sortorder
+.des
+The sort-order of the friend group with number <I>num</I>.  An integer value between 0 and 255.
+}
+{ frgrp_<I>num</I>_public
+.des
+If this key is returned and its value is "1", then group <I>num</I> is a public group.  (that is, other users can see the name of the group and who is in it)
+}
+{ frgrp_maxnum
+.des
+The largest friend group number that was returned.  This is <B>not</B> the number of friend groups returned, it is simply the upper bound.  In other words, there may be holes as you iterate from 1 to <TT>frgrp_maxnum</TT>, so don't assume the presence of any key/value pairs returned.  If this value is 0, however, you can safely assume there are no friend groups, as the minimum allowed friend group number is 1.
+}
+{ access_count
+.des
+If this user has access to post in shared journals (e.g., news account), then this key is returned saying how many journals (besides the user's own) he/she has access to.  Then, a key is returned for each journal.
+}
+{ access_<I>n</I>
+.des
+The <I>n</I>th shared journal this user has access to post to.  These are returned in alphabetical order.
+}
+{ mood_count
+.des
+The number of new moods that are being returned.
+}
+{ mood_<I>n</I>_id
+.des
+The server mood ID for mood <I>n</I>, where <I>n</I> is between 1 and <TT>mood_count</TT>.
+}
+{ mood_<I>n</I>_name
+.des
+The mood text for mood <I>n</I>, where <I>n</I> is between 1 and <TT>mood_count</TT>.
+}
+{ menu_<I>menunum</I>_count
+.des
+Each menu or submenu returns the number of items in it.  Menunum "0" is the root menu and that's where you should start your recursive construction of the menus.
+}
+{ menu_<I>menunum</I>_<I>itemnum</I>_text
+.des
+The text of the <I>itemnum</I>th menu item (1-based index) in the <I>menunum</I>th menu (0-based index.. kinda.  it's not really an array.)  If the text is a single hyphen "-", then show a menu separator bar instead of any text.
+}
+{ menu_<I>menunum</I>_<I>itemnum</I>_url
+.des
+The URL to jump to for  the <I>itemnum</I>th menu item (1-based index) in the <I>menunum</I>th menu.  This may be absent, in which case this is a menu item which opens a sub-menu.
+}
+{ menu_<I>menunum</I>_<I>itemnum</I>_sub
+.des
+For menus that don't have associated URLs, this key contains the <I>menunum</I> of the associated sub menu.  Call your menu creation function recursively and start making that menu.
+}
+{ pickw_count
+.des
+The number of picture keywords about to be returned.  Picture keywords are used to identify which userpic (100x100 icon) to use for that particular post.  For instance, the user may have "Angry", "Happy", and "Sleepy" picture keywords which map to certain pictures.  The client should also do a case-insensitive compare on this list when a mood is selected or entered, and auto-select the current picture keyword.  That way it seems that selecting a mood also sets their corresponding picture.
+}
+{ pickw_<I>n</I>
+.des
+The <I>n</I>th picture keyword, where <I>n</I> is between 1 and <tt>pickw_count</tt>.  If a user selects one of these, send it as postevent/editevent meta-data with the key "picture_keyword" (which of course you have to prefix with "prop_" when sending)
+}
+{ pickwurl_count
+.des
+The number of picture URLs being returned, if you sent the 'getpickwurls' key.  This number will always be the same as pickw_count.
+}
+{ pickwurl_<i>n</i>
+.des
+The URL of the <i>n</i>th picture.  It corresponds with the <i>n</i>th picture keyword returned in the other list.  Note that the content behind these URLs can <u>never</u> change, so if your client downloads these to display, just cache them locally and never hit the servers again to re-download them or to even check if they've been modified.
+}
+{ defaultpicurl
+.des
+The URL of the default picture (if you sent the 'getpickwurls' key). Note that the content behind this URL can never change, so you can cache it locally; also note that the default picture might have no keyword associated with it.
+}
+{ fastserver
+.des
+LiveJournal sites may have priority servers for paying customers.  If this key is both present and set to value "1", then the client has permission to set the "ljfastserver" cookie in subsequent requests.  The HTTP request header to send is "<tt>Cookie: ljfastserver=1</tt>".  If you send this header without getting permission from the login mode, your requests will fail.  That is, you'll trick the load balancer into directing your request towards the priority servers, but the server you end up hitting won't be happy that you're trying to scam faster access and will deny your request.
+}
+}
+
+{ getdaycounts
+.des
+This mode retrieves the number of journal entries per day.  Useful for populating
+calendar widgets in GUI clients.
+.request
+{ usejournal
+.des
+If getting the day counts of a shared journal, include this key and the username you wish to get the counts of.  By default, you load the counts of "user" as specified above.
+.optional
+1
+}
+.response
+{ <I>yyyy-mm-dd</I>
+.des
+For each day that the user has posted a journal entry, a key in the form <TT>yyyy-mm-dd</TT> is returned, with the value being the number of entries posted that day.  The absence of a key implies zero entries for that day, as well as the presence of a key with the value "<TT>0</TT>".  Note that <TT>mm</TT> and <TT>dd</TT> are always two digits, zero padded, so the total key length will always be 10 characters.
+}
+}
+
+{ postevent
+.des
+The most important mode, this is how a user actually submits a new log entry to the server.
+.response
+{ itemid
+.des
+The unique number the server assigned to this post.  Currently nothing else in the protocol requires the use of this number so it's pretty much useless, but somebody requested it be returned, so it is.
+}
+{ anum
+.des
+The authentication number generated for this entry.  It can be used by the client to generate URLs, but that is not recommended.  (See the returned 'url' element if you want to link to a post.)
+}
+{ url
+.des
+The permanent link address to this post.  This is an opaque string--you should store it as is.  While it will generally follow a predictable pattern, there is no guarantee of any particular format for these, and it may change in the future.
+}
+.request
+{ event
+.des
+The event/log text the user is submitting.  Carriage returns are okay (<TT>0x0A</TT>, <TT>0x0A0D</TT>, or <TT>0x0D0A</TT>), although <TT>0x0D</TT> are removed internally to make everything into Unix-style line-endings (just <TT>\n</TT>s).  Posts may also contain HTML, but be aware that the LiveJournal server converts newlines to HTML <TT>&lt;BR&gt;</TT>s when displaying them, so your client should not try to insert these itself.
+}
+{ lineendings
+.des
+Specifies the type of line-endings you're using.  Possible values are <B><TT>unix</TT></B> (<TT>0x0A (\n)</TT>), <B><TT>pc</TT></B> (<TT>0x0D0A (\r\n)</TT>), or <B><TT>mac</TT></B> (<TT>0x0D (\r)</TT>).  The default is not-Mac.  Internally, LiveJournal stores all text as Unix-formatted text, and it does the conversion by removing all <TT>\r</TT> characters.  If you're sending a multi-line event on Mac, you have to be sure and send a <TT>lineendings</TT> value of <B><TT>mac</TT></B> or your line endings will be removed.  PC and Unix clients can ignore this setting, or you can send it.  It may be used for something more in the future.
+}
+{ subject
+.des
+The subject for this post.  Limited to 255 characters.  No newlines.
+}
+{ security
+.des
+Specifies who can read this post.  Valid values are <B><TT>public</TT></B> (default), <B><TT>private</TT></B> and <B><TT>usemask</TT></B>.  When value is <TT>usemask</TT>, viewability is controlled by the <TT>allowmask</TT>.
+.optional
+1
+}
+{ allowmask
+.des
+Relevant when <TT>security</TT> is <TT>usemask</TT>.  A 32-bit unsigned integer representing which of the user's groups of friends are allowed to view this post.  Turn bit 0 on to allow any defined friend to read it.  Otherwise, turn bit 1-30 on for every friend group that should be allowed to read it.  Bit 31 is reserved.
+}
+{ year
+.des
+The current 4-digit year (from the user's local timezone).
+}
+{ mon
+.des
+The current 1- or 2-digit month (from the user's local timezone).
+}
+{ day
+.des
+The current 1- or 2-digit day of the month (from the user's local timezone).
+}
+{ hour
+.des
+The current 1- or 2-digit hour from 0 to 23 (from the user's local timezone).
+}
+{ min
+.des
+The current 1- or 2-digit minute (from the user's local timezone).
+}
+{ prop_<I>name</I>
+.des
+Set an arbitrary (but restricted) meta-data property to this log item.  See [special[logprops]] for the documentation of them and the list of valid names.  You may send zero or more keys like this, one for each property you're setting.
+}
+{ usejournal
+.des
+If posting to a shared journal, include this key and the username you wish to post to.  By default, you post to the journal of "user" as specified above.
+.optional
+1
+}
+}
+
+{ friendof
+.des
+Returns a list of which other LiveJournal users list this user as their friend.
+.request
+{ friendoflimit
+.des
+If set to a numeric value greater than zero, this mode will only return the number of results indicated. Useful only for building pretty lists for display which might have a button to view the full list nearby.
+.optional
+1
+}
+.response
+{ friendof_count
+.des
+The number of records that will be returned.  The records returned are named numerically,
+using a 1-based index.  (1 .. <TT>friendof_count</TT>)
+}
+{ friendof_<I>n</I>_user
+.des
+The <I>n</I>th user that lists this user as their friend.
+}
+{ friendof_<I>n</I>_name
+.des
+The <I>n</I>th user's full name.
+}
+{ friendof_<I>n</I>_bg
+.des
+The background color the <I>n</I>th user chose to represent the current user.
+}
+{ friendof_<I>n</I>_fg
+.des
+The text color the <I>n</I>th user chose to represent the current user.
+}
+{ friendof_<I>n</I>_identity_display
+.des
+If friendof_<I>n</I>_type is identity: Pretty display name of an identity user.
+}
+{ friendof_<I>n</I>_identity_type
+.des
+If friendof_<I>n</I>_type is identity: Type of identity user - OpenID, TypeKey, etc.
+}
+{ friendof_<I>n</I>_identity_value
+.des
+If friendof_<I>n</I>_type is identity: Value for identity - OpenID is a URL.
+}
+{ friendof_<I>n</I>_type
+.des
+The account type of this user, if it is not a personal account.  This value can be one of "community" (which means you are a member of that community), "syndicated", "news", "shared", or "identity".
+}
+{ friendof_<I>n</I>_status
+.des
+The status of this user. If this field is absent, the user has a normal active account. Otherwise the currently possible values for this field are "deleted", "suspended" and "purged".
+}
+}
+
+{ getfriends
+.des
+Returns a list of which other LiveJournal users this user lists as their friend.
+.request
+{ includefriendof
+.des
+If set to <TT>1</TT>, you will also get back the info from the "friendof" mode.  Some clients show friends and friendof data in separate tabs/panes.  If you're always going to load both, then use this flag (as opposed to a tabbed dialog approach, where the user may not go to the second tab and thus would not need to load the friendof data.) friendof request variables can be used.
+.optional
+1
+}
+{ includegroups
+.des
+If set to <TT>1</TT>, you will also get back the info from the "getfriendgroups" mode.  See above for the reason why this would be useful.
+.optional
+1
+}
+{ includebdays
+.des
+If set to <TT>1</TT>, birthdays will be included with the friends results below.
+.optional
+1
+}
+{ friendlimit
+.des
+If set to a numeric value greater than zero, this mode will only return the number of results indicated. Useful only for building pretty lists for display which might have a button to view the full list nearby.
+.optional
+1
+}
+.response
+{ friend_count
+.des
+The number of records that will be returned.  The records returned are named numerically,
+using a 1-based index.  (1 .. <TT>friend_count</TT>)
+}
+{ friend_<I>n</I>_user
+.des
+The <I>n</I>th friend's user name.
+}
+{ friend_<I>n</I>_name
+.des
+The <I>n</I>th friend's full name.
+}
+{ friend_<I>n</I>_birthday
+.des
+The <I>n</I>th friend's birthday.  Note that this is only returned if the user has set
+their info to visible and if they have set a birthday, otherwise this key is skipped.
+You will also need to set <TT>includebdays</TT> to 1 when you make the request in order to
+receive this field.
+}
+{ friend_<I>n</I>_bg
+.des
+The background color representing the <I>n</I>th friend.
+}
+{ friend_<I>n</I>_fg
+.des
+The text color representing the <I>n</I>th friend.
+}
+{ friend_<I>n</I>_groupmask
+.des
+If the group mask is not "1" (just bit 0 set), then this variable is returned with an 32-bit unsigned integer with a bit 0 always set, and bits 1-30 set for each group this friend is a part of.  Bit 31 is reserved.
+}
+{ friend_<I>n</I>_identity_display
+.des
+If friend_<I>n</I>_type is identity: Pretty display name of an identity user.
+}
+{ friend_<I>n</I>_identity_type
+.des
+If friend_<I>n</I>_type is identity: Type of identity user - OpenID, TypeKey, etc.
+}
+{ friend_<I>n</I>_identity_value
+.des
+If friend_<I>n</I>_type is identity: Value for identity, OpenID is a URL.
+}
+{ friend_<I>n</I>_type
+.des
+The account type of this friend.  Possible values are "community" (it does not imply you are a member of the community if the type is community, just that you monitor it), "syndicated" - which means you are monitoring this syndicated feed on your friends list, "news", "shared", or "identity".  The account is a normal personal account when this value is not sent.
+}
+{ friend_<I>n</I>_status
+.des
+The status of this user. If this field is absent, the user has a normal active account. Otherwise the currently possible values for this field are "deleted", "suspended" and "purged".
+}
+}
+
+{ editfriends
+.des
+Add, edit, or delete friends from the user's Friends list.
+.request
+{ editfriend_delete_<I>user</I>
+.des
+Sending a variable of this form removes the friend <I>user</I> from the user's Friend list.  It is not an error to delete an already non-existent friend.  The value should just be <B><TT>1</TT></B>.
+}
+{ editfriend_add_<I>i</I>_user
+.des
+To add a friend, send a variable of this form, where <I>i</I> is any unique integer.  The value is the username of the friend to add.
+}
+{ editfriend_add_<I>i</I>_fg
+.des
+Sets the text color of the friend <I>i</I> being added.  This value is a HTML-style hex-triplet, and must either be of the form <B><TT>#rrggbb</TT></B> or not sent at all.  By default, the value assumed is <TT>#000000</TT>, black.
+.optional
+1
+}
+{ editfriend_add_<I>i</I>_bg
+.des
+Sets the background color of the friend <I>i</I> being added.  This value is a HTML-style hex-triplet, and must either be of the form <B><TT>#rrggbb</TT></B> or not sent at all.  By default, the value assumed is <TT>#FFFFFF</TT>, white.
+.optional
+1
+}
+{ editfriend_add_<I>i</I>_groupmask
+.des
+Sets this user's groupmask.  Only use this in clients if you've very recently loaded the friend groups.  If your client has been loaded on the end user's desktop for days and you haven't loaded friend groups since it started, they may be inaccurate if they've modified their friend groups through the website or another client.  In general, don't use this key unless you know what you're doing.
+.optional
+1
+}
+.response
+{ friends_added
+.des
+The number of friends that were added with this transaction.  The records returned indicate which friends were added, along with their names, named using a 1-based index.  (from 1 .. <TT>friends_added</TT>)
+}
+{ friend_<I>n</I>_user
+.des
+The username of the <I>n</I>th friend that was added.
+}
+{ friend_<I>n</I>_name
+.des
+The name of the <I>n</I>th friend that was added.
+}
+}
+
+{ getevents
+.des
+Download parts of the user's journal. See also syncitems protocol mode.
+.request
+{ truncate
+.des
+An optional value that if greater than or equal to 4, truncates the length of the returned events (after being decoded) to the value specified.  Entries less than or equal to this length are left untouched.  Values greater than this length are truncated to the specified length minus 3, and then have "<TT>...</TT>" appended to them, bringing the total length back up to what you specified.  This is good for populating list boxes where only the beginning of the entry is important, and you'll double-click it to bring up the full entry.
+.optional
+1
+}
+{ prefersubject
+.des
+If this setting is set to true (<B><TT>1</TT></B>), then no subjects are returned, and the events are actually subjects if they exist, or if not, then they're the real events.  This is useful when clients display history and need to give the user something to double-click.  The subject is shorter and often more informative, so it'd be best to download only this.
+}
+{ noprops
+.des
+If this setting is set to true (<B><TT>1</TT></B>), then no meta-data properties are returned.
+}
+{ selecttype
+.des
+Determines how you want to specify what part of the journal to download.  Valid values are <B><TT>day</TT></B> to download one entire day, <B><TT>lastn</TT></B> to get the most recent <I>n</I> entries (where <I>n</I> is specified in the <TT>howmany</TT> field), <B><TT>one</TT></B> to download just one specific entry, or <b><tt>syncitems</tt></b> to get some number of items (which the server decides) that have changed since a given time (specified in the <tt>lastsync</tt> parameter>).  Not that because the server decides what items to send, you may or may not be getting everything that's changed.  You should use the <tt>syncitems</tt> selecttype in conjunction with the <tt>syncitems</tt> protocol mode.
+}
+{ lastsync
+.des
+For a <tt>selecttype</tt> of <b><tt>syncitems</tt></b>, the date (in "yyyy-mm-dd hh:mm:ss" format) that you want to get updates since.
+}
+{ year
+.des
+For a <TT>selecttype</TT> of <B><TT>day</TT></B>, the 4-digit year of events you want to retrieve.
+}
+{ month
+.des
+For a <TT>selecttype</TT> of <B><TT>day</TT></B>, the 1- or 2-digit month of events you want to retrieve.
+}
+{ day
+.des
+For a <TT>selecttype</TT> of <B><TT>day</TT></B>, the 1- or 2-digit day of the month of events you want to retrieve.
+}
+{ howmany
+.des
+For a <TT>selecttype</TT> of <B><TT>lastn</TT></B>, how many entries to get.  Defaults to 20.  Maximum is 50.
+}
+{ beforedate
+.des
+For a <TT>selecttype</TT> of <B><TT>lastn</TT></B>, you can optionally include this variable and restrict all entries returned to be <I>before</I> the date you specify, which must be of the form <B><TT>yyyy-mm-dd hh:mm:ss</TT></B>.
+.optional
+1
+}
+{ itemid
+.des
+For a <TT>selecttype</TT> of <B><TT>one</TT></B>, the journal entry's unique ItemID for which you want to retrieve.  Or, to retrieve the most recent entry, use the value <TT>-1</TT>.  Using <TT>-1</TT> has the added effect that the data is retrieved from the master database instead of a replicated slave.  Clients with an "Edit last entry" feature might want to send -1, to make sure the data that comes back up is accurate, in case a slave database is a few seconds behind in replication.
+}
+{ lineendings
+.des
+The desired type of line-endings you'd like LiveJournal to return.  Possible values are 
+<B><TT>unix</TT></B> (<TT>0x0A (\n)</TT>), 
+<B><TT>pc</TT></B> (<TT>0x0D0A (\r\n)</TT>, the default), 
+<B><TT>mac</TT></B> (<TT>0x0D (\r)</TT>),
+<B><TT>space</TT></B> (newlines become spaces),
+or <B><TT>dots</TT></B> (newlines become " ... ").  The PC format was chosen
+as a default because it contains both Unix and Mac line endings in it, so if a client doesn't pick a line ending format, the worst case scenario is there are some ugly characters in the client's textbox beside the real newlines.
+}
+{ usejournal
+.des
+If getting the history of a shared journal, include this key and the username you wish to get the history of.  By default, you load the history of "user" as specified above.
+.optional
+1
+}
+.response
+{ events_count
+.des
+The number of events being returned.  The records returned are number from 1 to <TT>events_count</TT>.
+}
+{ events_<I>n</I>_itemid
+.des
+The unique integer ItemID of the <I>n</I>th item being returned.
+}
+{ events_<I>n</I>_eventtime
+.des
+The time the user posted (or said they posted, rather, since users can back-date posts) the <I>n</I>th item being returned.
+}
+{ events_<I>n</I>_event
+.des
+The <I>n</I>th event text itself.  This value is first truncated if the <TT>truncate</TT> variable is set, and then it is URL-encoded (alphanumerics stay the same, weird symbols to <TT>%hh</TT>, and spaces to <TT>+</TT> signs, just like URLs or post request).  This allows posts with line breaks to come back on one line.
+}
+{ events_<I>n</I>_security
+.des
+If this variable is <U>not</U> returned, then the security of the post is <B><TT>public</TT></B>, otherwise this value will be <B><TT>private</TT></B> or <B><TT>usemask</TT></B>.
+}
+{ events_<I>n</I>_allowmask
+.des
+If <TT>security</TT> is <B><TT>usemask</TT></B> then this is defined with the 32-bit unsigned int bit-mask of who is allowed to access this post.
+}
+{ events_<I>n</I>_subject
+.des
+The subject of the journal entry.  This won't be returned if "prefersubjects" is set, instead the subjects will show up as the events.
+}
+{ events_<I>n</I>_poster
+.des
+If the poster of this event is different from the <B><TT>user</TT></B> value sent above, then this key will be included and will specify the username of the poster of this event.  If this key is not present, then it is safe to assume that the poster of this event is none other than <B><TT>user</TT></B>.
+}
+{ events_<I>n</I>_anum
+.des
+The authentication number generated for this entry.  It can be used by the client to generate URLs, but that is not recommended.  (See the returned 'url' element if you want to link to a post.)
+}
+{ events_<I>n</I>_url
+.des
+The permanent link address to this post.  This is an opaque string--you should store it as is.  While it will generally follow a predictable pattern, there is no guarantee of any particular format for these, and it may change in the future.
+}
+{ prop_count
+.des
+The number of event properties being returned (meta-data about journal entries).  Note that this will not even be returned if you set <TT>noprops</TT> to true.
+}
+{ prop_<I>n</I>_itemid
+.des
+The ItemID of the journal entry that this meta-data is attached to.
+}
+{ prop_<I>n</I>_name
+.des
+The character string (alphanumerics and underscore only) of the meta-data property name.
+}
+{ prop_<I>n</I>_value
+.des
+The value of the <I>n</I>th meta-data property.
+}
+}
+
+{ editevent
+.des
+Edit or delete a user's past journal entry
+.request
+{ itemid
+.des
+The unique ItemID of the item being modified or deleted.
+}
+{ event
+.des
+The revised event/log text the user is submitting.  Or, to delete an entry, just send no text at all.  Carriage returns are okay (<TT>0x0A</TT>, <TT>0x0A0D</TT>, or <TT>0x0D0A</TT>), although <TT>0x0D</TT> are removed internally to make everything into Unix-style line-endings (just <TT>\n</TT>s).  Posts may also contain HTML, but be aware that the LiveJournal server converts newlines to HTML <TT>&lt;BR&gt;</TT>s when displaying them, so your client should not try to insert these itself.
+}
+{ lineendings
+.des
+Specifies the type of line-endings you're using.  Possible values are <B><TT>unix</TT></B> (<TT>0x0A (\n)</TT>), <B><TT>pc</TT></B> (<TT>0x0D0A (\r\n)</TT>), or <B><TT>mac</TT></B> (<TT>0x0D (\r)</TT>).  The default is not-Mac.  Internally, LiveJournal stores all text as Unix-formatted text, and it does the conversion by removing all <TT>\r</TT> characters.  If you're sending a multi-line event on Mac, you have to be sure and send a <TT>lineendings</TT> value of <B><TT>mac</TT></B> or your line endings will be removed.  PC and Unix clients can ignore this setting, or you can send it.  It may be used for something more in the future.
+}
+{ subject
+.des
+The subject for this post.  Limited to 255 characters.  No newlines.
+}
+{ security
+.des
+Specifies who can read this post.  Valid values are <B><TT>public</TT></B> (default), <B><TT>private</TT></B> and <B><TT>usemask</TT></B>.  When value is <TT>usemask</TT>, viewability is controlled by the <TT>allowmask</TT>.
+.optional
+1
+}
+{ allowmask
+.des
+Relevant when <TT>security</TT> is <TT>usemask</TT>.  A 32-bit unsigned integer representing which of the user's groups of friends are allowed to view this post.  Turn bit 0 on to allow any defined friend to read it.  Otherwise, turn bit 1-30 on for every friend group that should be allowed to read it.  Bit 31 is reserved.
+}
+{ year
+.des
+If modifying only, the 4-digit year of the event (from the user's local timezone).
+}
+{ mon
+.des
+If modifying only, the 1- or 2-digit month of the event (from the user's local timezone).
+}
+{ day
+.des
+If modifying only, the 1- or 2-digit day of the month of the event (from the user's local timezone).
+}
+{ hour
+.des
+If modifying only, the 1- or 2-digit hour from 0 to 23 of the event (from the user's local timezone).
+}
+{ min
+.des
+If modifying only, the 1- or 2-digit minute of the event (from the user's local timezone).
+}
+{ prop_<I>name</I>
+.des
+Set an arbitrary (but restricted) meta-data property to this log item.  If a key is sent, but the value is blank or zero (0), then the value of the given <I>name</I> is deleted from this item's property list. See [special[logprops]] for more information.
+}
+{ usejournal
+.des
+If editing a shared journal entry, include this key and the username you wish to edit the entry in.  By default, you edit the entry as if it were in user "user"'s journal, as specified above.
+.optional
+1
+}
+.response
+{ itemid
+.des
+The unique number the server assigned to this post.
+}
+{ anum
+.des
+The authentication number for this entry.  It can be used by the client to generate URLs, but that is not recommended.  (See the returned 'url' element if you want to link to a post.)
+}
+{ url
+.des
+The permanent link address to this post.  This is an opaque string--you should store it as is.  While it will generally follow a predictable pattern, there is no guarantee of any particular format for these, and it may change in the future.
+}
+}
+
+{ syncitems
+.des
+Returns a list (or part of a list) of all the items (journal entries, to-do items, comments) that have been created or updated on LiveJournal since you last downloaded them.  Note that the items themselves are not returned --- only the item type and the item number.  After you get this you have to go fetch the items using another protocol mode.  For journal entries (type "L"), use the <tt>getevents</tt> mode with a <tt>selecttype</tt> of "syncitems".
+.request
+{ lastsync
+.des
+The date you last downloaded synced, in "yyyy-mm-dd hh:mm:ss" format.  <b>Note:</b> do not make this date up from the client's local computer... send the date from this mode's response of the newest item you have saved on disk.
+.optional
+1
+}
+.response
+{ sync_total
+.des
+The total number of items that have been updated since the time specified.
+}
+{ sync_count
+.des
+The number of items that are contained in this response (numbered started at 1).  If <tt>sync_count</tt> is equal to <tt>sync_total</tt>, then you can stop your sync after you complete fetching every item in this response.
+}
+{ sync_<i>n</i>_item
+.des
+The <i>n</i>th item, in the form "Type-Number".  Type can be one of "L" for log entries (journal entries), "C" for comments (not implemented), "T" for to-do items (not implemented), or many other things presumably.  If your client doesn't know how to fetch an item of a certain type, just ignore them.  A new version of your client could later see that it has never downloaded anything of type "T" and go back and fetch everything of that type from the beginning.
+}
+{ sync_<i>n</i>_action
+.des
+Either "create" or "update".  This field isn't too useful, but you may want to make your client verbose and tell the user what it's doing.  For example, "Downloading entry 5 of 17: Updated".
+}
+{ sync_<i>n</i>_time
+.des
+The server time (in the form "yyyy-mm-dd hh:mm:ss") that this creation or update took place.  Remember in your local store the most recent for each item type ("L", "T", "C", etc...).  This is what you send in subsequent requests in <tt>lastsync</tt>.
+}
+}
+
+{ checkfriends
+.des
+Mode that clients can use to poll the server to see if their Friends list has been updated.  This request
+is extremely quick, and is the preferred way for users to see when their Friends list is updated, rather
+than pounding on reload in their browser, which is stressful on the servers.
+.request
+{ lastupdate
+.des
+The time that this mode request returned last time you called it.  If this is the first time you've ever called it (since your client has been running), leave this blank.  It's strongly recommended that you do not remember this value across invocations of your client, as it's very likely your friends will update since the client was running so the notification is pointless... the user probably read his/her Friends page already before starting the client.
+}
+{ mask
+.des
+The friend group(s) in which the client is checking for new entries, represented as a 32-bit unsigned int.  Turn on any combination of bits 1-30 to check for entries by friends in the respective friend groups.  Turn on bit 0, or leave the mask off entirely, to check for entries by any friends.
+.optional
+1
+}
+.response
+{ lastupdate
+.des
+The time of the most recent post that one of the user's friends has made.  Don't try to infer anything from this time.  It's currently of the form "yyyy-mm-dd hh:mm:ss", in PST.  However, in the future, it may not even be a date... just blindly store and return this value back later, ignoring its format.
+}
+{ new
+.des
+This is what you should use to determine if there are new entries.  Its value is "1" if there is new stuff, or "0" if there isn't.  A few people requested that this return the number of new entries, but that's a lot more resource intensive, and this protocol mode is supposed to be very quick and painless.  In the future we may add a "new_count" response value that says how many new items there are.  Note that once this values becomes "1" and you alert the user, <b>stop polling!</b>  It'd be pointless to have the client hitting the server all night while the user slept.  Once the user acknowledges the notification (double-clicks the system tray or panel applet or whatnot), then resume your polling.
+}
+{ interval
+.des
+How many seconds you <b>must</b> wait before polling the server again.  If your client disobeys, this protocol will just return error messages saying "slow down, bad client!" instead of giving you the data you were trying to cheat to obtain.  Note that this also means your client should have an option to disable polling for updates, since some users run multiple operating systems with multiple LiveJournal clients, and both would be fighting each other.
+}
+}
+
+{ getchallenge
+.des
+Generate a one-time, quick expiration challenge to be used in challenge/response authentication methods.
+.response
+{ auth_scheme
+.des
+You can ignore this for now. By default this is the highest version of our
+authentication schemes, if in the future if we implement other auth schemes or change the default.
+In that case we'd add a new capabilities exchange: your client could say, "I know c0 and c1", and
+our server would then say, "Use c1, it's the best."
+}
+{ challenge
+.des
+An opaque cookie to generate a hashed response from.
+}
+{ expire_time
+.des
+The expiration time of the challenge, as measured in seconds since the Unix epoch.
+}
+{ server_time
+.des
+The server time when the challenge was generated, as measured in seconds since the Unix epoch.
+}
+}
+
+{ sessionexpire
+.des
+Expires one or more sessions that a user has active within the system.  This can be used to log a user out of any browsers they are logged in from, as well as to cancel any sessions created with the sessionexpire mode.
+.request
+{ expireall
+.des
+If present and true, will expire all of a user's sessions.
+.optional
+1
+}
+{ expire_id_<I>num</I>
+.des
+If present and true, will expire the session with id <i>num</i>.  You can get the id of a session from the third element of the session: <tt>ws:<i>username</i>:<i>session_id</i>:<i>auth_code</i></tt>.
+.optional
+1
+}
+}
+
+{ sessiongenerate
+.des
+Generates a session that can be used to setup a cookie for accessing the site with a user's privileges.
+.request
+{ expiration
+.des
+Sessions can either expire in a short amount of time or last for a long period of time.  You can specify either "short" or "long" as the value of this parameter. Short is 24 hours, long is 30 days.
+.optional
+1
+}
+{ ipfixed
+.des
+If specified and true, this will cause the server to generate a session that is only valid from the IP address the sessiongenerate request was sent from.  If you leave out this value, it will default to allowing any IP address to use this session information.
+.optional
+1
+}
+.response
+{ ljsession
+.des
+This part of the response contains the actual session data.  If you use the complete contents of this element as a cookie named "ljsession" then you will be able to access the site using the privileges of the user you authenticated as.
+}
+}
+
+{ consolecommand
+.des
+Run an administrative command. The LiveJournal server has a text-based shell-like administration console where less-often used commands can be entered. 
+There is a web interface to this shell online; this is another gateway to that. The mode is limited to one server-parsed command only. 
+The command should be sent with double quotes around any arguments with spaces, with double quotes escaped by backslashes, and backslashes escaped with backslashes. 
+Optionally, you can send a listref instead of a string for this argument, in which case, we will use your argument separation and not parse it ourselves.
+.response
+}

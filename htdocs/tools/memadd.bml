@@ -1,0 +1,382 @@
+<?_code
+
+ use strict;
+ use vars qw(%GET %POST $title $body);
+ BML::decl_params(_default => qr/./);
+
+ my $dbr = LJ::get_db_reader();
+
+ $title = $ML{'.title'};
+ $body = "";
+
+ my $print_with_ad = sub {
+    my $str = shift;
+
+    my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+    return $ad_box . $str;
+ };
+
+ my $err = sub {
+     $title = "Error";
+     $body = $print_with_ad->(LJ::bad_input(@_));
+     return;
+ };
+
+ $POST{'oldkeywords'} = [ split('\0', $POST{'oldkeywords'}) ];
+
+ unless (LJ::text_in(\%POST)) {
+     return $err->("Invalid UTF-8 Input");
+ }
+
+ my $remote = LJ::get_remote();
+ unless ($remote) {
+    $body = $print_with_ad->("<?needlogin?>");
+    return;
+ }
+
+ my $authas = $GET{'authas'} || $remote->{'user'};
+ my $memoryu = LJ::get_authas_user($authas);
+ return $err->($ML{'error.invalidauth'})
+     unless $memoryu;
+
+ my $authextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
+
+ my %secopts = ( 'public' => $ML{'label.security.public'},
+                 'friends' => $ML{'label.security.friends'},
+                 'private' => $ML{'label.security.private'}, );
+
+ if ($memoryu->{'journaltype'} eq "C") {
+     $secopts{'private'} = $ML{'label.security.maintainers'};
+     $secopts{'friends'} = $ML{'label.security.members'};
+ }
+
+ my $sth;
+ my $journal = $GET{'journal'} || $POST{'journal'};
+ my $ditemid = $GET{'itemid'}+0 || $POST{'itemid'}+0;
+
+ # OK.  the memories schema is weird and stores *display* itemids in the database.
+ # additionally, we distinguish precluster itemids because they're stored without a userid.
+ # it's too late to fix it in the db, so we just work around it--
+ # all new memories still get userid+ditemid because we can't change the ditemid/itemid problem,
+ # but old-style itemids get fixed up to userid+ditemid.
+
+ # *however*, when editing old itemids we need to keep around
+ # the old-style ditemid so we can still edit it.
+
+ # to keep this all sorted out, we fixup variables like this:
+ #   - itemid -- real, new-style itemid
+ #   - ditemid -- display itemid (with anum)
+ #   - dbitemid -- itemid that is in the database;
+ #                 usually same as ditemid, but different for old-style itemids.
+
+ my $dbitemid = $ditemid;
+ my $itemid;
+ my $oldstyle = 0;
+ my $ju;
+ my $jid;
+
+ my $anum;
+
+ if ($journal) {
+     $ju = LJ::load_user($journal);
+     $jid = $ju->{'userid'};
+     $anum = $ditemid % 256;
+     $itemid = int($ditemid / 256);
+ } else {
+     # old-style item url?
+     my $newids = LJ::get_newids('L', $ditemid);
+     if ($newids) {
+         ($jid,  $itemid) = @$newids;
+         $ju = LJ::load_userid($jid);
+         $oldstyle = 1;
+     }
+ }
+
+ unless ($ju && $itemid) {
+     $title = $ML{'Error'};
+     $body = $print_with_ad->($ML{'error.nojournal'});
+     return;
+ }
+
+ my $dbcr = LJ::get_cluster_reader($ju);
+
+ my $log = LJ::get_log2_row($ju, $itemid);
+
+ # check to see if it already is memorable (thus we're editing, not adding);
+ my $memory = LJ::Memories::get_by_ditemid($memoryu, $oldstyle ? 0 : $jid, $ditemid);
+
+ if (!$log && !$POST{'mode'}) {
+     $title = $ML{'Error'};
+     $body = "The entry that this memory references has been deleted.<br/>";
+
+     if ($memoryu->{user} eq $authas && defined $memory) {
+         $body .= "<br /><form action='memadd.bml$authextra' method='POST'>";
+         $body .= LJ::form_auth();
+         $body .= LJ::html_hidden(journal => $GET{journal}) if $GET{journal};
+         $body .= LJ::html_hidden(itemid => $GET{itemid});
+         $body .= LJ::html_hidden('mode' => 'save');
+         $body .= LJ::html_submit('delete', 'Delete this memory') . "\n";
+         $body .= "</form>\n";
+     }
+
+     $body = $print_with_ad->($body);
+     return;
+ }
+ my $subject = LJ::get_logtext2($ju, $itemid)->{$log->{jitemid}}[0];
+
+ # if the entry is pre-UTF-8 conversion, the
+ # subject may need conversion into UTF-8
+ if ($LJ::UNICODE) {
+     my %props = ();
+     LJ::load_log_props2($dbcr, $log->{'journalid'}, [ $itemid ], \%props);
+     if ($props{$itemid}->{'unknown8bit'}) {
+         my $u = LJ::load_userid($log->{'journalid'});
+         my ($error, $subj);
+         $subj = LJ::text_convert($subject, $u, \$error);
+         $subject = $subj unless $error;
+     }
+     LJ::text_out(\$subject);
+ }
+
+ if ($oldstyle) {
+     # ditemid was an old-style itemid, so we update it to the new style.
+     $anum = $log->{anum};
+     $ditemid = $itemid<<8 + $anum;
+ }
+
+ # get keywords user has used
+ my $exist_kw = LJ::Memories::get_keywords($memoryu);
+ unless ($exist_kw) {
+     $title = $ML{'Error'};
+     $body = $print_with_ad->("Error fetching existing keywords.");
+     return;
+ }
+
+ if ($POST{'mode'} eq "")
+ {
+     my ($des, $keywords);
+
+     my @all_keywords;
+     my %selected_keyword;
+     @all_keywords = sort values %$exist_kw;
+
+     if (defined $memory) {
+         $title = $ML{'.title.edit_memory'};
+         $des = $memory->{'des'};
+         my $kwids = LJ::Memories::get_keywordids($memoryu, $memory->{memid}) || [];
+         foreach my $kwid (@$kwids) {
+             my $kw = $exist_kw->{$kwid};
+             next if ($kw eq "*");
+             if ($keywords) { $keywords .= ", "; }
+             $keywords .= $kw;
+             $selected_keyword{$kw} = 1;
+         }
+         if (!$log || ($jid && $log->{'anum'} != $anum))
+         {
+             LJ::Memories::delete_by_id($memoryu, $memory->{memid});
+             LJ::Memories::updated_keywords($memoryu);
+             $title = $ML{'Error'};
+             $body = $print_with_ad->($ML{'.error.entry_deleted'});
+             return;
+         }
+
+     }
+     elsif (!$log || ($jid && $log->{'anum'} != $anum))
+     {
+         $title = $ML{'Error'};
+         $body = $print_with_ad->($ML{'error.noentry'});
+         return;
+     }
+     else
+     {
+         $title = $ML{'.title.add_memory'};
+
+         # this is a new memory.
+         my $user = LJ::get_username($log->{'journalid'});
+         my $dt = substr($log->{'eventtime'}, 0, 10);
+         $des = "$dt: $user: $subject";
+     }
+
+     # it'd be nice to only show the authas form when adding an entry and not
+     # when editing one, but if user u is logged in and has post p as a memory
+     # already then wants to add it to community c, when u clicks the "add memory"
+     # link on p, u gets the "edit entry" page and they need to be able to switch
+     # to c.
+     $body .= "<form method='get' action='memadd.bml'>\n";
+     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
+     $body .= LJ::html_hidden(journal => $GET{journal}) if $GET{journal};
+     $body .= LJ::html_hidden(itemid => $GET{itemid});
+     $body .= "</form>\n\n";
+
+     LJ::text_out(\$des);
+     LJ::text_out(\$keywords);
+
+     if (defined $memory) {
+         $body .= $ML{'.edit_previous'};
+     } else {
+         $body .= $ML{'.add_previous'};
+     }
+
+     my $getextra = "?itemid=$dbitemid";
+     $getextra .= "&amp;authas=$authas" if $authas ne $remote->{'user'};
+     # we still need to pass the dbitemid and not the itemid to ourself.
+     $getextra .= "&amp;journal=$journal" unless $oldstyle;
+
+     $body .= "<form method='post' action='memadd.bml$getextra'>";
+     $body .= LJ::form_auth();
+     $body .= LJ::html_hidden(mode => "save");
+
+     $body .= "<table cellpadding='4'>";
+     $body .= "<tr><th align='right' valign='top'>$ML{'.description'}</th><td>";
+     $body .= LJ::html_text({name => 'des', value => $des, maxlength => LJ::CMAX_MEMORY, size => 40});
+     $body .= "<br /><small>$ML{'.description.text'}</small></td></tr>";
+
+     $body .= "<tr><th align='right' valign='top'>$ML{'.keywords'}</th><td>";
+     $body .= LJ::html_text({name => 'keywords', size => 40, value => $keywords});
+     $body .= "<br /><small>$ML{'.keywords.text'}</small><br />";
+
+     if (@all_keywords) {
+         my $size = scalar(@all_keywords);
+         $size = 15 if $size > 15;
+         $body .= "<small>$ML{'.keywords.select'}</small><div style='margin-left: 30px;'>";
+         $body .= LJ::html_select( { name => 'oldkeywords', size => $size, multiple => 1,
+                                     selected => [ keys %selected_keyword ], noescape => 1 },
+                                   map { (LJ::ehtml($_), LJ::ehtml($_)) } @all_keywords);
+         $body .= "</div><small>$ML{'.multiple_selections'}</small>";
+     } else {
+         $body .= "<small>$ML{'.keywords.example'}</small>";
+     }
+
+     $body .= "</td></tr>\n";
+     $body .= "<tr><th align='right' valign='top'>$ML{'.security'}</th><td>";
+     $body .= LJ::html_select({name => 'security', selected => defined $memory ? $memory->{'security'} : undef},
+                              map { ($_, $secopts{$_}) } qw(public friends private));
+     if ($memoryu->{'journaltype'} eq "C") {
+         $body .= "<br /><small>$ML{'.whocansee.comm'}</small></td></tr><tr><th></th><td>\n";
+     } else {
+         $body .= "<br /><small>$ML{'.whocansee'}</small></td></tr><tr><th></th><td>\n";
+     }
+     $body .= LJ::html_submit(undef, $ML{'.form.submit'});
+     $body .= LJ::html_submit(undef, $ML{'.form.reset'}, {type => 'reset'}) if defined $memory;
+     $body .= "</td></tr></table></form>";
+
+     $body = $print_with_ad->($body);
+     return;
+ }
+
+ if ($POST{'mode'} eq "save")
+ {
+     return $print_with_ad->("<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}") unless LJ::check_form_auth();
+
+     my $dbh = LJ::get_db_writer();
+
+     if (! $POST{'des'}) {
+         # then we're deleting.
+         unless (LJ::check_form_auth()) {
+             $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>");
+             return;
+         }
+         if (defined $memory) {
+             LJ::Memories::delete_by_id($memoryu, $memory->{memid});
+             LJ::Memories::updated_keywords($memoryu);
+             $title = $ML{'.title.deleted'};
+             $body = $print_with_ad->("<?h1 $ML{'.error.deleted.title'} h1?><?p " .
+                     BML::ml(".error.deleted.body", { 'desc' => $memory->{'des'} }) .
+                     "p?>");
+             return;
+         } else {
+             $title = $ML{'Error'};
+             $body = "<?h1 $ML{'.error.nodescription.title'} h1?><?p ";
+             $body .= BML::ml('.error.nodescription.body');
+             $body .= " p?>";
+             $body = $print_with_ad->($body);
+             return;
+         }
+     }
+
+     #### we're inserting/replacing now into memories
+     my @keywords;
+     {
+         my %kws;
+         foreach (split(/\s*,\s*/, $POST{'keywords'})) { $kws{$_} = 1; }
+         # oldkeywords were split at the beginning
+         foreach (@{$POST{'oldkeywords'}}) { $kws{$_} = 1; }
+         @keywords = keys %kws;
+     }
+     if (scalar(@keywords) > 5) {
+         $title = $ML{'Error'};
+         $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'.error.fivekeywords'} p?>");
+         return;
+     }
+     @keywords = grep { $_ } map { s/\s\s+/ /g; LJ::trim($_); } @keywords;
+     push @keywords, "*" unless (@keywords);
+     my @kwid;
+
+     my $needflush = 0;
+     foreach my $kw (@keywords) {
+         if (length($kw) > 40) {
+             $title = $ML{'Error'};
+             $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p " .
+                     BML::ml(".error.maxsize", { 'keyword' => LJ::ehtml($kw) }) . "p?>");
+             return;
+         }
+
+         my $kwid = LJ::get_keyword_id($memoryu, $kw);
+         $needflush = 1 unless defined $exist_kw->{$kwid};
+         push @kwid, $kwid;
+     }
+
+     unless (exists $secopts{$POST{'security'}}) {
+         $title = $ML{'Error'};
+         $body = $print_with_ad->($ML{'.error.invalid_security'});
+         return;
+     }
+
+     my $des = LJ::text_trim($POST{'des'}, LJ::BMAX_MEMORY, LJ::CMAX_MEMORY);
+     my $sec = $POST{'security'};
+
+     # handle edits by deleting the old memory and recreating
+     LJ::Memories::delete_by_id($memoryu, $memory->{memid})
+         if defined $memory;
+     LJ::Memories::create($memoryu, {
+                              journalid => $jid,
+                              ditemid => $ditemid,
+                              des => $des,
+                              security => $sec,
+                          }, \@kwid);
+     LJ::Memories::updated_keywords($memoryu) if $needflush;
+
+     $title = $ML{'.title.added'};
+     $body = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+     $body .= "<?h1 $ML{'.body.added.header'} h1?>";
+     $body .= "<?p $ML{'.body.added.text'} p?>";
+
+     my $entry = LJ::Entry->new($ju, jitemid => $itemid);
+     $body .= "<ul>";
+     $body .= "<li><a href='" . $entry->url . "'>$ML{'.body.added.next.entry'}</a></li>";
+     $body .= "<li><a href='$LJ::SITEROOT/tools/memories.bml?user=" . $memoryu->user . "'>"
+            . "$ML{'.body.added.next.view'}</a></li>";
+     $body .= "<li><a href='" . $remote->journal_base . "/friends'>$ML{'.body.added.next.friends'}</a></li>";
+     $body .= "<li>" . BML::ml(".body.added.next.journal", { 'user' => $ju->ljuser_display }) . "</li>";
+     $body .= "</ul>";
+
+     $body .= LJ::Widget::GettingStarted->render;
+
+     return;
+ }
+
+ $title = $ML{'Error'};
+ $body = $print_with_ad->($ML{'error.unknownmode'});
+
+ return;
+_code?>
+
+<?page
+title=><?_code return $title; _code?>
+body=> <?_code return $body;  _code?>
+page?>
+
+<?_c <LJDEP>
+link: htdocs/login.bml
+post: htdocs/tools/memadd.bml
+</LJDEP> _c?>

@@ -1,0 +1,1284 @@
+
+
+layerinfo "type" = "layout";
+layerinfo "name" = "Variable Flow";
+layerinfo "author_name" = "Martin Atkins";
+layerinfo "des" = "A really simple layout that you can customize like crazy!";
+layerinfo "redist_uniq" = "variableflow/layout";
+layerinfo "previews" = "variableflow/preview.jpg";
+
+#  Originally known as "Cleanly Shaven"
+#
+#  This layout is full of customization options, and is designed
+# with code overrides in mind.
+#  It also uses meaningful markup an CSS, for those who like that
+# sort of thing. If you like, you can override the stylesheet
+# completely in your user layer to drastically change the
+# presentation.
+
+propgroup presentation {
+    property string margin_left {
+        des = "Page Left Margin Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1; # Don't expect friendly interface users to enter CSS length values
+    }
+    property string margin_right {
+        des = "Page Right Margin Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    property string margin_top {
+        des = "Page Top Margin Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    property string margin_bottom {
+        des = "Page Bottom Margin Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    set margin_left = "25%";
+    set margin_right = "25%";
+    set margin_top = "5px";
+    set margin_bottom = "5px";
+
+    property string padding_left {
+        des = "Page Left Inner Padding Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    property string padding_right {
+        des = "Page Right Inner Padding Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    property string padding_top {
+        des = "Page Top Inner Padding Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    property string padding_bottom {
+        des = "Page Bottom Inner Padding Size";
+        values = "0|None|5px|Tiny|5%|Small|10%|Medium|25%|Large|50%|Massive";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    set padding_left = "5px";
+    set padding_right = "5px";
+    set padding_top = "5px";
+    set padding_bottom = "5px";
+
+    property string align_viewlinks {
+        des = "Position of links to other journal views";
+        values = "left|Left|right|Right|center|Center";
+    }
+    property string align_title {
+        des = "Position of journal title";
+        values = "left|Left|right|Right|center|Center";
+    }
+    property string align_talklinks {
+        des = "Position of comment links";
+        values = "left|Left|right|Right|center|Center";
+    }
+    set align_viewlinks = "right";
+    set align_title = "left";
+    set align_talklinks = "right";
+
+    property bool opt_page_border {
+        des = "Draw Line Around Content Box";
+        note = "With this disabled, the line color option has no effect";
+    }
+    property bool opt_page_background {
+        des = "Content Box has Background";
+        note = "With this disabled, the Content Box Background Color and Image options have no effect and the page background will show through instead.";
+    }
+    set opt_page_border = true;
+    set opt_page_background = true;
+
+    property bool opt_entry_userpics {
+        des = "Display userpics on entries";
+        note = "With this disabled, no entries will show userpics, even on the friends page.";
+    }
+    set opt_entry_userpics = true;
+
+    property bool opt_own_userpics {
+        des = "Display your userpics on recent entries and day views";
+        note = "Enable this to show userpics on your own entries. You must also have the previous option enabled. This option has no effect on community journals.";
+        requires = "opt_entry_userpics";
+    }
+    set opt_own_userpics = false;
+
+    # Some standard constructional properties
+    property use page_recent_items;
+    property use page_friends_items;
+    property use use_shared_pic;
+    property use page_year_sortorder;
+    property use page_day_sortorder;
+    property use linklist_support;
+
+
+    # Some "advanced" settings which don't appear in the UI,
+    # either because they have non-obvious interactions with
+    # other properties or they have issues in certain browsers.
+    property string adv_page_max_width {
+        des = "Maximum Width of Content Area";
+        note = "If you set this, you should also set margin_left and/or margin_right to 'auto'. Internet Explorer 6 does not support this property.";
+        noui = 1;
+    }
+    property string adv_entry_max_width {
+        des = "Maximum Width of Entry Text";
+        note = "Internet Explorer 6 does not support this property, and will present entries full-width.";
+        noui = 1;
+    }
+    property bool adv_enable_print_styles {
+        des = "Enable Print Stylesheet";
+        note = "If you disable this, your journal views may be unsuitable for printing.";
+        noui = 1;
+    }
+    property bool adv_enable_projection_styles {
+        des = "Enable Projection Stylesheet";
+        note = "With this enabled, browsers which support projection stylesheets will see a different stylesheet.";
+        noui = 1;
+    }
+    property bool adv_horrible_userpic_markup {
+        des = "Enable horrible userpic markup";
+        note = "With this enabled, the layout will use a table hack to present userpics. With it disabled, the userpics will just be shown raw with class userpic. You'll have to add your own stylesheet rules for them.";
+        # See the comment within Page::print_entry for more details
+        noui = 1;
+    }
+    set adv_page_max_width = "";
+    set adv_entry_max_width = "";
+    set adv_enable_print_styles = true;
+    set adv_enable_projection_styles = true;
+    set adv_horrible_userpic_markup = true;
+
+    # This layout has quite a big stylesheet so let's avoid
+    # transferring it over and over.
+    set external_stylesheet = true;
+
+    property use view_entry_disabled;
+    set view_entry_disabled = true;   # Disabled by default for back-compat reasons
+
+    property use custom_control_strip_colors;
+	
+	property string text_expand_link {
+        des = "Text for comments expander link in link bar";
+        noui = 1;
+    }
+    set text_expand_link = "Expand";
+}
+
+propgroup colors {
+    property Color clr_margin {
+        des = "Page Background Color";
+    }
+    property Color clr_line {
+        des = "Color of line separating the entry area from the background";
+        requires = "opt_page_border";
+    }
+    property Color clr_back {
+        des = "Background Color of Main Content Area";
+        requires = "opt_page_background";
+    }
+    property Color clr_text {
+        des = "Main Text Color";
+    }
+    property Color clr_link {
+        des = "Color of normal links";
+    }
+    property Color clr_vlink {
+        des = "Color of visited links";
+    }
+    property Color clr_alink {
+        des = "Color of links once clicked on";
+    }
+    property Color clr_title {
+        des = "Journal Title Color";
+    }
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
+    set clr_margin = "#337CCD";
+    set clr_line = "#000000";
+    set clr_back = "#33ABCD";
+    set clr_text = "#000000";
+    set clr_link = "#261A72";
+    set clr_vlink = "#190F57";
+    set clr_alink = "#261A72";
+    set clr_title = "#190F57";
+}
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+
+    property string font_size {
+        des = "Size of text";
+        values = "0.75em|Tiny|1em|Normal|1.1em|Large";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    set font_size = "0.75em";
+}
+
+propgroup images {
+    property string url_background_img_page {
+        des = "Page Background Image URL";
+        note = "Leave this blank if you do not wish to use a background image.";
+        palimg_transform = "tint;*clr_back"; # Doesn't do anything right now
+    }
+    set url_background_img_page = "";
+
+    property string background_properties_page {
+        des = "Page Background Image Display Options";
+        values = "scroll|Scrolling, Tiled|scroll no-repeat|Scrolling, No repeat|scroll repeat-x|Scrolling, tile horizontally|scroll repeat-y|Scrolling, tile vertically|fixed|Fixed, Tiled|fixed no-repeat|Fixed, No repeat|fixed repeat-x|Fixed, tile horizontally|fixed repeat-y|Fixed, tile vertically";
+        requires = "url_background_img_page";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    set background_properties_page = "scroll";
+
+    property string background_position_page {
+        des = "Page Background Position";
+        values = "center|Centered|center left|Centered Vertically, Left|center right|Centered Vertically, Right|top center|Top, Centered Horizontally|top left|Top, Left|top right|Top, Right|bottom center|Bottom, Centered Horizontally|bottom left|Bottom, Left|bottom right|Bottom, Right";
+        requires = "url_background_img_page";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    set background_position_page = "top left";
+
+    property string url_background_img_box {
+        des = "Content Box Background Image URL";
+        note = "Leave this blank if you do not wish to use a background image.";
+        palimg_transform = "tint;*clr_back"; # Doesn't do anything right now
+        requires = "opt_page_background";
+    }
+    set url_background_img_box = "";
+
+    property string background_properties_box {
+        des = "Content Box Background Image Display Options";
+        values = "scroll|Scrolling, Tiled|scroll no-repeat|Scrolling, No repeat|scroll repeat-x|Scrolling, tile horizontally|scroll repeat-y|Scrolling, tile vertically|fixed|Fixed, Tiled|fixed no-repeat|Fixed, No repeat|fixed repeat-x|Fixed, tile horizontally|fixed repeat-y|Fixed, tile vertically";
+        requires = "opt_page_background,url_background_img_box";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    set background_properties_box = "scroll";
+
+    property string background_position_box {
+        des = "Content Box Background Position";
+        values = "center|Centered|center left|Centered Vertically, Left|center right|Centered Vertically, Right|top center|Top, Centered Horizontally|top left|Top, Left|top right|Top, Right|bottom center|Bottom, Centered Horizontally|bottom left|Bottom, Left|bottom right|Bottom, Right";
+        requires = "opt_page_background,url_background_img_box";
+        allow_other = 1;
+        allow_other_noui = 1;
+    }
+    set background_position_box = "top left";
+}
+
+propgroup text {
+    property use text_post_comment;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+}
+
+propgroup customcss {
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+
+function prop_init () {
+    if ($*control_strip_bgcolor.as_string == "") {
+        $*control_strip_bgcolor = $*clr_back;
+    }
+    if ($*control_strip_fgcolor.as_string == "") {
+        $*control_strip_fgcolor = $*clr_text;
+    }
+    if ($*control_strip_bordercolor.as_string == "") {
+        $*control_strip_bordercolor = $*clr_line;
+    }
+    if ($*control_strip_linkcolor.as_string == "") {
+        $*control_strip_linkcolor = $*clr_link;
+    }
+
+    $*theme_bgcolor = $*clr_back;
+    $*theme_fgcolor = $*clr_text;
+    $*theme_bordercolor = $*clr_line;
+    $*theme_linkcolor = $*clr_link;
+}
+
+function makefontspec() : string
+"Forms a CSS 'font-family' value based on the font-related properties."
+{
+    var string fontspec;
+    if ($*font_base != "") {
+        $fontspec = $*font_base->css_string();
+        if ($*font_fallback != "none") {
+            $fontspec=$fontspec+",";
+        }
+    }
+    # Don't need to be paranoid about the fallback since it's restricted by the "values" attribute
+    if ($*font_fallback != "none") {
+        $fontspec=$fontspec + $*font_fallback;
+    }
+    return $fontspec;
+}
+
+function Page::lay_print_viewlinks()
+"If you override this, be sure to still use foreach or your style won't support any future views."
+{
+    # Output a list of textual links in a particular order
+    var bool first = true;
+
+    "<ul class=\"navbar\">\n";
+    foreach var string vl ($.views_order) {
+        if ($vl == $.view) {
+            print "<li class=\"active\">"+lang_viewname($vl)+"</li>\n";
+        } else {
+            print "<li><a href=\""+ehtml($.view_url{$vl})+"\">"+lang_viewname($vl)+"</a></li>\n";
+       }
+       $first = false;
+    }
+    "</ul>\n";
+}
+
+function Page::lay_print_heading()
+"This can be overridden to change the main page titles to something else."
+{
+print safe """<h1>"""+$.global_title+"""</h1>
+<div id="viewtitle">""";
+
+    if ($.view == "recent" and $.global_subtitle != "") {
+        print safe $.global_subtitle;
+    } else {
+        print safe $this->view_title();
+    }
+
+    println """</div>""";
+
+}
+
+function Page::print() {
+   """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
+<html>
+<head>
+""";
+    $this->print_head();
+    $this->print_stylesheets();
+    print safe """<title>"""+$this->title()+"""</title>""";
+"""
+</head>
+
+<body class="$.view">
+""";
+$this->print_control_strip();
+if (viewer_sees_hbox_top()) {
+    """<div style="text-align: center; margin-left: $*margin_left; margin-right: $*margin_right;">""";
+    $this->print_hbox_top();
+    "</div>";
+}
+if (viewer_sees_vbox()) {
+    "<div style='float: right; margin-right: 10px; position: relative; z-index: 15;'>";
+    $this->print_vbox();
+    "</div>";
+}
+"""
+<div id="page">
+"""; $this->lay_print_viewlinks();
+$this->print_linklist(); """
+
+<div id="title">
+"""; $this->lay_print_heading(); """
+</div>
+
+"""; $this->print_body(); """
+
+<div id="serversig" style="margin-top: 3em; text-align: center;">"""; server_sig(); """</div>
+
+</div>
+""";
+if (viewer_sees_hbox_bottom()) {
+    """<div style="text-align: center; margin-left: $*margin_left; margin-right: $*margin_right;">""";
+    $this->print_hbox_bottom();
+    "</div>";
+}
+"""
+</body>
+</html>""";
+
+}
+
+function lang_skipped_back(RecentNav nav) : string
+"Return short text saying how many entries have been skipped back. i18n layers should override this."
+{
+    return "Skipped Back $nav.skip";
+}
+
+## The properties for these links are currently broken
+## in core - they were never updated to work with lang_map_plural.
+# So, FIXME: When core does them right, remove the hardcoded English
+function RecentPage::lay_print_skiplinks() {
+    if ($.nav.backward_url != "" or $.nav.forward_url != "") {
+        println """<ul class="viewspecnavbar">""";
+        if ($.nav.backward_url) {
+            println """<li><a href="$.nav.backward_url">Previous $.nav.backward_count</a></li>""";
+        }
+        if ($.nav.skip > 0) {
+            println "<li>"+lang_skipped_back($.nav)+"</li>";
+        }
+        if ($.nav.forward_url) {
+            println """<li><a href="$.nav.forward_url">Next $.nav.forward_count</a></li>""";
+        }
+        println "</ul>";
+    }
+}
+
+function RecentPage::print_body() {
+
+    $this->lay_print_skiplinks();
+
+    foreach var Entry e ($.entries) {
+        if ($e.new_day) {
+            """<div class="day" id="day"""+$e.time->date_format("%%yyyy%%%%mm%%%%dd%%")+"\">\n";
+        }
+        # Print the entry
+        $this->print_entry($e);
+        if ($e->viewer_sees_ebox()) {
+            """<div align="center" style="margin-bottom: 4em;">""";
+            $e->print_ebox();
+            "</div>";
+        }
+        if ($e.end_day) {
+            "</div>";
+        }
+    }
+
+    if (size $.entries > 0) {
+        $this->lay_print_skiplinks();
+    }
+
+}
+
+function DayPage::print_body() {
+
+    """<ul class="viewspecnavbar">\n""";
+    "<li><a href=\"$.prev_url\">$*text_day_prev</a></li>\n";
+    "<li><a href=\"$.next_url\">$*text_day_next</a></li>\n</ul>";
+
+
+    if ($.has_entries) {
+        "<div class=\"day\" id=\"dayyymmmmmdddd\">\n";
+
+        foreach var Entry e ($.entries) {
+            $this->print_entry($e);
+            if ($e->viewer_sees_ebox()) {
+                """<div align="center" style="margin-bottom: 4em;">""";
+                $e->print_ebox();
+                "</div>";
+            }
+        }
+
+        "</div>";
+
+        "<div class=\"skiplinks\">\n";
+        "<a href=\"$.prev_url\">$*text_day_prev</a> - ";
+        "<a href=\"$.next_url\">$*text_day_next</a>\n</div>";
+
+
+    } else {
+        "<p>$*text_noentries_day</p>";
+    }
+
+}
+
+
+## YearPage Stuff
+function YearPage::print_body {
+    $this->print_year_links();
+    println """<div id="calendarmonthcontainer">""";
+    foreach var YearMonth m ($.months) {
+        $this->print_month($m);
+    }
+    println "</div>";
+}
+function YearPage::print_year_links() {
+    """<ul class="viewspecnavbar">\n""";
+    foreach var YearYear y ($.years) {
+        if ($y.displayed) {
+            """<li class="active">$y.year</li>\n""";
+        } else {
+            """<li><a href="$y.url">$y.year</a></li>\n""";
+        }
+    }
+    """</ul>\n""";
+}
+function YearPage::print_month(YearMonth m) {
+    if (not $m.has_entries) { return; }
+    """<table class="calendarmonth">\n
+       <tr><th colspan="7" style="text-align: center;">""";
+    print "<h2>"+$m->month_format()+"</h2>\n";
+    """</th></tr>\n""";
+    foreach var int d (weekdays()) {
+        "<th>"+$*lang_dayname_short[$d]+"</th>\n";
+    }
+    "</tr>\n";
+    foreach var YearWeek w ($m.weeks) {
+        $w->print();
+    }
+    """<tr><td colspan="7" style="text-align: center;" class="calendarmonthlink">
+        <a href="$m.url">$*text_view_month</a></td></tr>\n""";
+    "</table>";
+}
+function YearWeek::print() {
+   """<tr valign="top" style="height: 3em;">\n""";
+   if ($.pre_empty > 0) {
+      """<td class="emptyday" colspan="$.pre_empty">&nbsp;</td>\n""";
+   }
+   foreach var YearDay d ($.days) {
+       """<td class="calendarday">\n""";
+       """<div style="text-align: right;">$d.day</div>\n""";
+       if ($d.num_entries > 0) {
+           """<div style="text-align: center;"><a href="$d.url">$d.num_entries</a></div>\n""";
+       }
+       """</td>\n""";
+   }
+   if ($.post_empty > 0) {
+      """<td colspan="$.post_empty">&nbsp;</td>\n""";
+   }
+   "</tr>";
+}
+
+# This is just a wrapper function around a core layer function now.
+# Retained for backwards-compatibility reasons.
+function metadata_title(string which) : string {
+    return lang_metadata_title($which);
+}
+
+# Since the metadata keys have to be hardcoded (bad core design)
+# let's separate this out so people can override print_entry
+# and still get any new metadata added later.
+function Page::lay_print_entry_metadata(Entry e)
+"Overriding this is strongly discouraged, since if any new entry metadata is added in the future your overridden version will not support it."
+{
+    if (size $e.metadata > 0) {
+        # This is horrible and unextensible. We have core to thank.
+        # C'est la vie.
+        "<div class=\"metadata\">\n";
+        if ($e.metadata{"groups"} != "") {
+            print safe """<div class="currentgroups"><span class="metacaption">"""+metadata_title("groups") + ":</span> " +
+                                             $e.metadata{"groups"}+"</div>\n";
+        }
+        if ($e.metadata{"location"} != "") {
+            print safe """<div class="currentlocation"><span class="metacaption">"""+metadata_title("location") + ":</span> " +
+                                             $e.metadata{"location"}+"</div>\n";
+        }
+        if ($e.metadata{"music"} != "") {
+            print safe """<div class="currentmusic"><span class="metacaption">"""+metadata_title("music") + ":</span> " +
+                                             $e.metadata{"music"}+"</div>\n";
+        }
+        if ($e.metadata{"mood"} != "") {
+            print safe """<div class="currentmood"><span class="metacaption">"""+metadata_title("mood") + ":</span> ";
+            if (defined $e.mood_icon) {
+                print $e.mood_icon->as_string()+" ";
+            }
+            print $e.metadata{"mood"}+"</div>\n";
+        }
+        "</div>\n";
+    }
+}
+
+function Page::print_entry(Entry e) {
+    """<div class="entry" id="entry$e.itemid">\n""";
+
+    var bool altposter = $e.poster.username != $e.journal.username;
+    var bool showpic = ($*opt_entry_userpics and (($.view == "friends" or $altposter) or $*opt_own_userpics)) or $.view == "reply" or $.view == "entry";
+
+    # By default, this layout uses an ugly table hack to present the userpic
+    # alongside the entry. This is because I've been bitten on many previous
+    # occasions by a bug with floats in IE causing text to vanish in certain
+    # cases. You can set the property adv_horrible_userpic_markup to false
+    # in a user layer to disable this behavior, but there are no CSS rules
+    # in the stock stylesheet to handle it, so you'll have to supply your
+    # own.
+
+    if ($showpic) {
+        if ($*adv_horrible_userpic_markup) {
+            """<table cellpadding="0" border="0" cellspacing="0" style="margin: 0;" class="uglykludgeuserpic">
+            <tr valign="top">
+            <td style="text-align: center;" width="105">""";
+        }
+        if (defined $e.userpic) {
+            println """<img src="$e.userpic.url" width="$e.userpic.width" height="$e.userpic.height" alt="" class="userpic" />""";
+        } else {
+            if ($*adv_horrible_userpic_markup) {
+                print "&nbsp;";
+            }
+        }
+        if ($*adv_horrible_userpic_markup) {
+            "</td><td>";
+        }
+    }
+    """<h2 class="entryheading">""";
+    if ($.view != "day") {
+        print $e.time->date_format()+" ";
+    }
+    print $e.time->time_format();
+    if ($.view == "friends") {
+        " - "; $this->print_entry_poster($e);
+    }
+    elseif ($altposter) {
+        " - " + $e.poster->as_string();
+    }
+    if ($e.security != "") {
+        " - " + $e.security_icon->as_string();
+    }
+    if ($e.subject != "") {
+        " - $e.subject";
+    }
+    "</h2>\n";
+
+    if ($.view == "entry" or $.view == "reply") {
+        """<div class="entrylinkbar">"""; $e->print_linkbar(); """</div>""";
+    }
+
+    """<div class="entrytext">"""; $e->print_text(); "</div>";
+
+    $this->lay_print_entry_metadata($e);
+
+    if ($showpic and $*adv_horrible_userpic_markup) {
+        "</td></tr></table>";
+    }
+    $e.comments->print();
+    "</div>";
+}
+
+function Page::print_linklist() {
+    var string links_title = "Links";
+
+    if ($*linklist_support and size $.linklist > 0) {
+        var string linklist = "";
+        var string link = "";
+        var bool section_open = false;
+        var bool first = true;
+
+        foreach var UserLink l ($.linklist) {
+            if ($l.title) {
+                if ($l.is_heading or $first) {
+                    if ($section_open) {
+                        $linklist = $linklist + "</ul>";
+                    }
+                    if ($l.is_heading) {
+                        $link = """<ul class="navbar"><li class="active">$l.title</li>""";
+                    } else {
+                        $link = """<ul class="navbar"><li class="active">$links_title</li><li><a href="$l.url">$l.title</a></li>""";
+                    }
+                    $section_open = true;
+                    $first = false;
+                } else {
+                    $link = """<li><a href="$l.url">$l.title</a></li>""";
+                }
+            } else {
+                $link = """<ul class="navbar">&nbsp;</ul>""";
+            }
+            $linklist = $linklist + $link;
+        }
+        if ($linklist != "") {
+            "$linklist" + "</ul>";
+        }
+    }
+}
+
+function CommentInfo::print() {
+    if ($.show_readlink or $.show_postlink) {
+        """<ul class="entryextra">""";
+        if ($.show_readlink) {
+            print """<li class="entryreadlink">""";
+            $this->print_readlink();
+            println "</li>";
+        }
+        if ($.show_postlink) {
+            print """<li class="entrypostlink">""";
+            $this->print_postlink();
+            print "</li>";
+        }
+        "</ul>";
+    }
+}
+
+function print_comment(Comment e) {
+"""<div class="entry">""";
+
+    if ($*adv_horrible_userpic_markup) {
+        """<table cellpadding="0" border="0" cellspacing="0" style="margin: 0;" class="uglykludgeuserpic">
+        <tr valign="top">
+        <td style="text-align: center;" width="105">""";
+    }
+    if (defined $e.userpic) {
+        println """<img src="$e.userpic.url" width="$e.userpic.width" width="$e.userpic.height" alt="" class="userpic" />""";
+    } else {
+        if ($*adv_horrible_userpic_markup) {
+            print "&nbsp;";
+        }
+    }
+    if ($*adv_horrible_userpic_markup) {
+        "</td><td>";
+    }
+
+"""
+<h2 class="entryheading">"""+$e->time_display("short", "")+""" - $e.poster"""+($e.subject ? """ - $e.subject""" : "")+""" $e.subject_icon</h2>""";
+
+"""<div class="entrylinkbar">"""; $e->print_linkbar(); """</div>""";
+
+    """<div class="entrytext">"""; $e->print_text(); """</div>""";
+
+    if ($e.metadata{"poster_ip"} != "") {
+        println """<div class="metadata">""";
+        println """<div><span class="metacaption">Poster IP Address:</span> $e.metadata{"poster_ip"}</div>""";
+        println """</div>""";
+    }
+
+    println """<ul class="entryextra">""";
+    if ($e.parent_url != "") {
+        println """<li><a href="$e.parent_url">$*text_comment_parent</a></li>""";
+    }
+    if ($e.thread_url != "") {
+        println """<li><a href="$e.thread_url">$*text_comment_thread</a></li>""";
+        ## Thread expander doesn't work in Variableflow style yet
+		##var Link expand_link = $e->get_link("expand_comments");
+		##if (defined $expand_link) {
+		##		println """<li><a href="$e.thread_url" onClick="Expander.make(this,'$e.thread_url','$e.talkid'); return false;">$*text_expand_link</a></li>""";
+		##	 }
+    }
+    if ($e.reply_url != "") {
+        println """<li><a href="$e.reply_url">$*text_comment_reply</a></li>""";
+    }
+    println """</ul>""";
+
+
+    if ($*adv_horrible_userpic_markup) {
+        "</td></tr></table>";
+    }
+
+    println "</div>";
+
+}
+
+function ReplyPage::print_body() {
+    if ($.replyto isa Comment) {
+        print_comment($.replyto as Comment);
+    }
+    else {
+        $this->print_entry($.replyto as Entry);
+    }
+    """<div id="commentform">""";
+    $.form->print();
+    """</div>""";
+}
+
+function EntryPage::lay_print_pager() {
+    if ($.comment_pages.all_subitems_displayed) { return; }
+    print "<ul class=\"itemrange\">";
+    foreach var int i (1 .. $.comment_pages.total) {
+        if ($i == $.comment_pages.current) {
+            print "<li class=\"current\">$i</li>";
+        }
+        else {
+            print "<li><a href=\""+$.comment_pages->url_of($i)+"\">$i</a></li>";
+        }
+    }
+    print "</ul>";
+}
+
+function EntryPage::print_body() {
+    $this->print_entry($.entry);
+    $this->lay_print_pager();
+    $this->print_comments($.comments);
+    $this->lay_print_pager();
+}
+
+function EntryPage::print_comments(Comment[] comments) {
+    """<ul class="comments">""";
+    foreach var Comment c ($comments) {
+        """<li class="commentsitem">""";
+        $this->print_comment($c);
+        if (size($c.replies) > 0) {
+            $this->print_comments($c.replies);
+        }
+        "</li>\n";
+    }
+    """</ul>""";
+}
+
+function EntryPage::print_comment(Comment e) {
+    print_comment($e);
+}
+
+function css_rule_if_set(string prop, string val)
+"Print a CSS rule only if val is not an empty string."
+{
+    if ($prop->css_keyword() == "") { return; }
+
+    if ($val != "") {
+        println "  $prop: $val;";
+    }
+}
+function css_rule_if_length(string prop, string val) [fixed] {
+    css_rule_if_set($prop, $val->css_length_value());
+}
+function css_rule_if_keyword(string prop, string val, string[] allowed) [fixed] {
+    if (size $allowed > 0) {
+        css_rule_if_set($prop, $val->css_keyword($allowed));
+    }
+    else {
+        css_rule_if_set($prop, $val->css_keyword());
+    }
+}
+function css_rule_if_keyword_list(string prop, string val, string[] allowed) [fixed] {
+    if (size $allowed > 0) {
+        css_rule_if_set($prop, $val->css_keyword_list($allowed));
+    }
+    else {
+        css_rule_if_set($prop, $val->css_keyword_list());
+    }
+}
+function css_rule_if_set_quoted(string prop, string val) [fixed] {
+    if ($val != "") {
+        css_rule_if_set($prop, $val->css_string());
+    }
+}
+function css_rule_if_url(string prop, string val) [fixed] {
+    css_rule_if_set($prop, $val->css_url_value());
+}
+
+function custom_stylesheet()
+"Override this in your user layer to add new stuff to the stylesheet"
+{
+    # None, by default
+}
+
+function print_stylesheet_for_printing()
+"If you have printing styles enabled, you can override this function to change how the page is styled for printing."
+{
+
+    """    body, #page, a, a:link, a:visited, a:active, a:hover, #title, h2 {
+        background: #ffffff;
+        color: #000000;
+    }
+    body {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        font-size: 12pt;
+        margin-left: auto;
+        margin-right: auto;
+        font-family: "Garamond", "Palatino", "Palatino Linotype", serif;
+        max-width: 15cm;
+    }
+    h1, h2, h3, h4, h5, h6, #title #viewtitle {
+        font-family: "Frutiger", "Frutiger Linotype", "Helvetica", sans-serif;
+        page-break-after: avoid;
+    }
+    .entry {
+        page-break-inside: avoid;
+        text-align: justify;
+    }
+    .calendarmonth {
+        page-break-inside: avoid;
+    }
+    #page {
+        border: 0;
+        margin: 0;
+    }
+    .navbar, .entryextra, .viewspecnavbar {
+        display: none;
+    }
+    #title {
+        display: block;
+    }
+    #title h1, #title #viewtitle {
+        display: inline;
+    }
+    #title #viewtitle {
+        margin-left: 2em;
+        font-style: italic;
+    }
+""";
+}
+
+function print_stylesheet_for_projection()
+"If you have projection styles enabled, you can override this function to change how the page is styled for projection."
+{
+
+
+   var string background_body = $*clr_margin;
+   if (clean_url($*url_background_img_page) != "" and not $*url_background_img_page->contains(")")) {
+       $background_body = $background_body + " url($*url_background_img_page)";
+       if (not $*background_properties_page->contains(";")) {
+           $background_body = $background_body + " $*background_properties_page";
+       }
+   }
+   else {
+       $background_body = $background_body + " none";
+   }
+
+   var string background_page = $*clr_back;
+   if (clean_url($*url_background_img_box) != "" and not $*url_background_img_box->contains(")")) {
+       $background_page = $background_page + " url($*url_background_img_box)";
+       if (not $*background_properties_box->contains(";")) {
+           $background_page = $background_page + " $*background_properties_box";
+       }
+   }
+   else {
+       $background_page = $background_page + " none";
+   }
+
+    """    #page {
+        margin: 10px;
+        padding: 0;
+        border: 0;
+        font-size: 2em;
+    }
+    body {
+        background: $background_body;
+        color: $*clr_text;
+    }
+    .navbar, .viewspecnavbar { display: none; }
+    .entry, #title {
+        page-break-after: always;
+        margin: auto;
+        padding: 10px;
+        position: absolute;
+        top: 10px;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+""";
+    if ($*opt_page_border) {
+        println """        border: 1px solid $*clr_line;""";
+    }
+    if ($*opt_page_background) {
+        println """        background: $background_page;""";
+    }
+    "    }\n";
+}
+
+function print_stylesheet() {
+   var string fontspec=makefontspec();
+   if ($fontspec != "") {
+       $fontspec="  font-family: $fontspec;";
+   }
+
+   var string eextrastyle="";
+   if ($*align_talklinks != "right") {
+       $eextrastyle=$eextrastyle+
+       """.entryextra:after { content: " :."; }\n""";
+   }
+   if ($*align_talklinks != "left") {
+       $eextrastyle=$eextrastyle+
+       """.entryextra:before { content: ".: "; }\n""";
+   }
+   $eextrastyle=$eextrastyle+
+   """.entryextra { text-align: $*align_talklinks; font-size: 0.9em; }""";
+
+   var string background_body = $*clr_margin;
+   if ($*url_background_img_page->css_url_value() != "") {
+       $background_body = $background_body + " " + $*url_background_img_page->css_url_value();
+       $background_body = $background_body + " " + $*background_properties_page->css_keyword_list([ "scroll", "no-repeat", "repeat-x", "repeat-y", "fixed" ]);
+       $background_body = $background_body + " " + $*background_position_page->css_keyword_list([ "top", "center", "middle", "bottom", "left", "right" ]);
+   }
+   else {
+       $background_body = $background_body + " none";
+   }
+
+   var string background_page = $*clr_back;
+   if ($*url_background_img_box->css_url_value() != "") {
+       $background_page = $background_page + " " + $*url_background_img_box->css_url_value();
+       $background_page = $background_page + " " + $*background_properties_box->css_keyword_list([ "scroll", "no-repeat", "repeat-x", "repeat-y", "fixed" ]);
+       $background_page = $background_page + " " + $*background_position_box->css_keyword_list([ "top", "center", "middle", "bottom", "left", "right" ]);
+   }
+   else {
+       $background_page = $background_page + " none";
+   }
+
+"""
+body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: $background_body;
+  color: $*clr_text;
+  $fontspec""";
+
+  css_rule_if_length("font-size", $*font_size);
+
+"""}
+table, tr, td, th {
+  font-size: 1em;
+}
+.uglykludgeuserpic {
+width: 100%;
+margin: 0;
+padding: 0;
+}
+#page {
+""";
+  css_rule_if_length("margin-left", $*margin_left);
+  css_rule_if_length("margin-right", $*margin_right);
+  css_rule_if_length("margin-top", $*margin_top);
+  css_rule_if_length("margin-bottom", $*margin_bottom);
+  css_rule_if_length("padding-left", $*padding_left);
+  css_rule_if_length("padding-right", $*padding_right);
+  css_rule_if_length("padding-top", $*padding_top);
+  css_rule_if_length("padding-bottom", $*padding_bottom);
+  css_rule_if_length("max-width", $*adv_page_max_width);
+
+    if ($*opt_page_border) {
+        println """  border: 1px solid $*clr_line;""";
+    }
+    if ($*opt_page_background) {
+        println """  background: $background_page;""";
+    }
+"""
+}
+#title h1 {
+  font-size: 1.4em;
+  font-weight: bold;
+  text-align: $*align_title;
+  margin: 0;
+}
+#title #viewtitle {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-align: $*align_title;
+  margin: 0;
+}
+.navbar {
+  text-align: $*align_viewlinks;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+.viewspecnavbar {
+  text-align: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.navbar li { display: inline; white-space: nowrap; }
+.navbar li.active { display: inline; }
+.navbar li:before { content: " :: "; }
+.navbar li:first-child:before { content: ""; }
+.viewspecnavbar li { display: inline; white-space: nowrap; }
+.viewspecnavbar li.active { display: inline; }
+.viewspecnavbar li:before { content: " :: "; }
+.viewspecnavbar li:first-child:before { content: ""; }
+
+#title {
+  margin-top: 3em;
+  margin-bottom: 0.5em;
+  color: $*clr_title;
+  background: transparent;
+}
+a:link { color: $*clr_link; background: transparent; }
+a:visited { color: $*clr_vlink; background: transparent; }
+a:active, a:hover { color: $*clr_alink; background: transparent; }
+.entry {
+  margin-bottom: 4em;
+}
+.entryheading {
+  font-weight: bold; font-size: 1.0em;
+  float: left;
+  margin-top: 0;
+}
+.entrylinkbar {
+float: right;
+}
+.entrytext {
+"""; css_rule_if_length("max-width", $*adv_entry_max_width);
+"""  margin-left: auto;
+  margin-right: auto;
+  clear: both;
+}
+#commentform table, #commentform textarea {
+width: 100%;
+}
+
+.entry .metadata {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.entryextra {
+  list-style: none;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+  display: block;
+}
+.entryextra li {
+  display: inline;
+}
+.entryextra li:before {
+  content: " :: ";
+}
+.entryextra li:first-child:before {
+  content: "";
+}
+.entryextra li.entryreadlink {
+  font-weight: bold;
+}
+$eextrastyle
+
+.comments, .commentsitem {
+list-style: none;
+margin: 0;
+padding: 0;
+}
+.comments {
+margin-left: 20px;
+}
+
+/* IE hack - center the block with text-align! */
+.calendarmonthcontainer {
+    text-align: center;
+}
+
+.calendarmonth {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+.calendarmonth h2 {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0;
+}
+.calendarday {
+    width: 3em;
+    max-width: 3em;
+    height: 3em;
+}
+
+""";
+
+print_custom_control_strip_css();
+
+if ($*adv_enable_print_styles) {
+"""
+@media print {
+"""; print_stylesheet_for_printing(); """
+}
+""";
+}
+
+if ($*adv_enable_projection_styles) {
+"""
+@media projection {
+"""; print_stylesheet_for_projection(); """
+}
+""";
+}
+
+    custom_stylesheet();
+}
+
+function print_theme_preview() {
+   var string fontspec=makefontspec();
+   if ($fontspec != "") {
+       $fontspec="  font-family: $fontspec;";
+   }
+
+   var string background_body = $*clr_margin;
+   if ($*url_background_img_page->css_url_value() != "") {
+       $background_body = $background_body + " " + $*url_background_img_page->css_url_value();
+       $background_body = $background_body + " " + $*background_properties_page->css_keyword_list([ "scroll", "no-repeat", "repeat-x", "repeat-y", "fixed" ]);
+       $background_body = $background_body + " " + $*background_position_page->css_keyword_list([ "top", "center", "middle", "bottom", "left", "right" ]);
+   }
+   else {
+       $background_body = $background_body + " none";
+   }
+
+   var string background_page = $*clr_back;
+   if ($*url_background_img_box->css_url_value() != "") {
+       $background_page = $background_page + " " + $*url_background_img_box->css_url_value();
+       $background_page = $background_page + " " + $*background_properties_box->css_keyword_list([ "scroll", "no-repeat", "repeat-x", "repeat-y", "fixed" ]);
+       $background_page = $background_page + " " + $*background_position_box->css_keyword_list([ "top", "center", "middle", "bottom", "left", "right" ]);
+   }
+   else {
+       $background_page = $background_page + " none";
+   }
+
+"""<div style="margin: 0; padding: 5px; border: 0; background: $background_body; color: $*clr_text; $fontspec """;
+
+  css_rule_if_length("font-size", $*font_size);
+
+""" ">
+
+<div style=\"""";
+
+  css_rule_if_length("margin-left", $*margin_left);
+  css_rule_if_length("margin-right", $*margin_right);
+  css_rule_if_length("margin-top", $*margin_top);
+  css_rule_if_length("margin-bottom", $*margin_bottom);
+  css_rule_if_length("padding-left", $*padding_left);
+  css_rule_if_length("padding-right", $*padding_right);
+  css_rule_if_length("padding-top", $*padding_top);
+  css_rule_if_length("padding-bottom", $*padding_bottom);
+  css_rule_if_length("max-width", $*adv_page_max_width);
+
+    if ($*opt_page_border) {
+        println """  border: 1px solid $*clr_line;""";
+    }
+    if ($*opt_page_background) {
+        println """  background: $background_page;""";
+    }
+
+"""\">
+
+
+<div style="margin-top: 3em; margin-bottom: 0.5em; color: $*clr_title; background: transparent;">
+<h1 style="font-size: 1.4em; font-weight: bold; text-align: $*align_title; margin: 0;">Joe's Journal</h1>
+<div style="font-size: 1.1em; font-weight: bold; text-align: $*align_title; margin: 0;">A magical world of milk and rectangles</div>
+
+<div>
+
+<div style="margin-bottom: 4em;">
+<h2 style="font-weight: bold; font-size: 1.0em;">6/1/05 01:10 pm - Duis malesuada volutpat elit. Quisque.</h2>
+<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Suspendisse augue massa,
+<span style="text-decoration: underline; color: $*clr_link; background: transparent;">sagittis eget</span>, venenatis at,
+ornare at, erat. Praesent faucibus consectetuer nulla. Duis auctor justo at nisl. Nulla cursus. Pellentesque
+tortor orci, sodales ut, commodo ut, luctus quis, felis. In a nunc. Morbi ullamcorper quam non tortor. Sed
+vel tellus. Aliquam euismod rutrum elit. Aliquam dolor. Donec mollis scelerisque libero. Praesent auctor ante
+vel metus. Nam ullamcorper facilisis mauris. Donec et mi ut eros feugiat hendrerit. Nam dignissim, lectus
+tempor tempus imperdiet, ante urna feugiat ligula, non vestibulum massa mauris vitae massa. Nam eget velit.</p>
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>""";
+
+}
+
+

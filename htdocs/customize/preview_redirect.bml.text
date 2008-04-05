@@ -1,0 +1,6 @@
+;; -*- coding: utf-8 -*-
+.error.user=Invalid user.
+
+.error.id=No theme id or custom layout id specified.
+
+.error.preview=Error loading preview.

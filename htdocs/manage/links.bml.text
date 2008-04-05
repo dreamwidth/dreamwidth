@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+.about=Use the form below to create a list of links to appear on your journal. Links will only appear if this feature is supported by your S2 style.
+
+.about.blank=To create a blank line, enter a "-" for the title.
+
+.about.heading=To create a heading, enter a title with no URL.
+
+.about.reorder=To reorder links in the list, modify the order number at left (decimal numbers are ok).
+
+.error.s2required=The link list is only available on supported S2 styles. To switch to S2, see the [[link]] page.
+
+.error.s2required.header=S2 Required
+
+.success=Success!  Your links have been saved.
+
+.title=Links List
+

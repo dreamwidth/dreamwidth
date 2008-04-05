@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chapter 11. Capabilities Classes</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.internals.html" title="Part II. Internals">
+<link rel="prev" href="ljp.internals.html" title="Part II. Internals">
+<link rel="next" href="ljp.int.portal_modules.html" title="Chapter 12. Portal Modules">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 11. Capabilities Classes</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.internals.html">Prev</a> </td>
+<th width="60%" align="center">Part II. Internals</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.int.portal_modules.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en" id="ljp.int.caps">
+<div class="titlepage"><div><div><h2 class="title">Chapter 11. Capabilities Classes</h2></div></div></div>
+<p>
+The 'caps' column in the <span class="database">'user'</span>
+table is a 16 bit mask with a bit on for each capability class the user is a part of.
+Each site can define their own capability classes in <code class="filename">etc/ljconfig.pl</code>.
+Then, each capability class can define its own limits for the following things.
+The <code class="function">LJ::get_cap()</code> and <code class="function">LJ::get_cap_min()</code> functions
+will consider the limits of all the classes the member is a part of and return the max or min limit,
+depending on what it's being used for in the code.
+  </p>
+<div class="variablelist">
+<p class="title"><b>General Capabilities</b></p>
+<dl>
+<dt><span class="term"><code class="literal">bookmark_max</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of bookmarks, or flags, a user can use in their <code class="systemitem"><acronym class="acronym">ESN</acronym></code> Inbox.
+    </p></dd>
+<dt><span class="term"><code class="literal">can_post</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can post new entries.
+    </p></dd>
+<dt><span class="term"><code class="literal">checkfriends</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use checkfriends.
+    </p></dd>
+<dt><span class="term"><code class="literal">checkfriends_interval</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Time, in minutes, before clients can call &#8220;<span class="quote">checkfriends</span>&#8221;.
+    </p></dd>
+<dt><span class="term"><code class="literal">directory</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use the Directory to search for users.
+    </p></dd>
+<dt><span class="term"><code class="literal">disable_can_post</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Posting new journal entries is disabled for this account, presumably  because a trial period of some sort has expired.
+    </p></dd>
+<dt><span class="term"><code class="literal">disable_get_comments</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Getting new comments in this journal is disabled, presumably  because a trial period of some sort has expired.
+    </p></dd>
+<dt><span class="term"><code class="literal">disable_leave_comments</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - This account can no longer leave comments, presumably  because a trial period of some sort has expired.
+    </p></dd>
+<dt><span class="term"><code class="literal">domainmap</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can map (CNAME) a vanity domain to their journal <acronym class="acronym">URL</acronym>.
+    </p></dd>
+<dt><span class="term"><code class="literal">edit_comments</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can edit comments they posted, which have not been replied to or frozen.
+    </p></dd>
+<dt><span class="term"><code class="literal">emailpost</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can post via an <span class="application">e-mail</span> gateway.
+    </p></dd>
+<dt><span class="term"><code class="literal">findsim</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use the similar interests matching feature.
+    </p></dd>
+<dt><span class="term"><code class="literal">friendsfriendsview</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Has &#8220;<span class="quote">Friends of Friends</span>&#8221; /friendsfriends view enabled.
+    </p></dd>
+<dt><span class="term"><code class="literal">friendspopwithfriends</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use the &#8220;<span class="quote">Popular with Friends</span>&#8221; tool.
+    </p></dd>
+<dt><span class="term"><code class="literal">friendsviewupdate</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Interval in seconds after which user can see new Friends view items.
+    </p></dd>
+<dt><span class="term"><code class="literal">full_rss</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Show the full text in the RSS view.
+    </p></dd>
+<dt><span class="term"><code class="literal">get_comments</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can receive comments.
+    </p></dd>
+<dt><span class="term"><code class="literal">getselfemail</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can receive copy by <span class="application">e-mail</span> of own comments.
+    </p></dd>
+<dt><span class="term"><code class="literal">hide_email_after</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Hide an account's <span class="application">e-mail</span> address who has not used the site in a time period  longer than the given setting.  If 0, the <span class="application">e-mail</span> is never hidden.  The time period is in days.
+    </p></dd>
+<dt><span class="term"><code class="literal">inbox_max</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of <code class="systemitem"><acronym class="acronym">ESN</acronym></code> notifications a user can have in their Inbox.
+    </p></dd>
+<dt><span class="term"><code class="literal">leave_comments</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can leave comments on other accounts.
+    </p></dd>
+<dt><span class="term"><code class="literal">makepoll</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can make polls.
+    </p></dd>
+<dt><span class="term"><code class="literal">mass_privacy</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can edit entries en-masse, at <code class="filename">editprivacy.bml</code>.
+    </p></dd>
+<dt><span class="term"><code class="literal">maxcomments</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Total number of comments that can be posted to an entry. Defaults to 5000.
+    </p></dd>
+<dt><span class="term"><code class="literal">maxfriends</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of accounts a user can add to their &#8220;<span class="quote">Friends list</span>&#8221;.
+    </p></dd>
+<dt><span class="term"><code class="literal">mod_queue</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of entries that can be queued for approval by a community moderator, for a moderated community.
+    </p></dd>
+<dt><span class="term"><code class="literal">mod_queue_per_poster</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of entries a user can submit into a community  moderation queue, within a period.
+    </p></dd>
+<dt><span class="term"><code class="literal">moodthemecreate</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can create new mood themes.
+    </p></dd>
+<dt><span class="term"><code class="literal">no_mail_alias</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Disable forwarding of <span class="application">e-mail</span> sent to user's site-based (see useremail cap) address onto user's <span class="application">e-mail</span> address.
+    </p></dd>
+<dt><span class="term"><code class="literal">rateallowed-failed_login</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - How many times during a period an account can try to log in.
+    </p></dd>
+<dt><span class="term"><code class="literal">rateallowed-invitefriend</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - How many times within a period a user can invite a friend, at the <code class="filename">/friends/invite.bml</code> page.
+    </p></dd>
+<dt><span class="term"><code class="literal">rateallowed-lostinfo</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - How many times within a period a user can request a lost password/username reminder, at the <code class="filename">lostinfo.bml</code> page.
+    </p></dd>
+<dt><span class="term"><code class="literal">rateperiod-failed_login</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - The period of time an account can try to repeat logging in for.
+    </p></dd>
+<dt><span class="term"><code class="literal">rateperiod-invitefriend</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Rate-limiting for the <code class="filename">/friends/invite.bml</code>  &#8220;<span class="quote">Invite a Friend</span>&#8221; feature. The time period is in minutes.
+    </p></dd>
+<dt><span class="term"><code class="literal">rateperiod-lostinfo</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Rate-limiting for the Lost Username/Password <code class="filename">lostinfo.bml</code> page. The time period is in minutes, so one hour is a value of 60 while a value of 24*60 is 24 hours.
+    </p></dd>
+<dt><span class="term"><code class="literal">readonly</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - No writes to the database for this journal are permitted. (This is used by the cluster management tool: a journal is read-only while it is being moved to another cluster)
+    </p></dd>
+<dt><span class="term"><code class="literal">s2layersmax</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of allowed layers for a user.
+    </p></dd>
+<dt><span class="term"><code class="literal">s2props</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use all S2 properties. Custom hooks used to restrict user ability should be based on this instead of the s2styles cap.
+    </p></dd>
+<dt><span class="term"><code class="literal">s2styles</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use all S2 layers.
+    </p></dd>
+<dt><span class="term"><code class="literal">s2viewentry</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Lets S2 layouts disable customized EntryPage &#8220;<span class="quote">fall-back</span>&#8221; to <span class="application"><acronym class="acronym">BML</acronym></span> (actually &#8220;<span class="quote">s1shortcomings</span>&#8221; S2 style).
+    </p></dd>
+<dt><span class="term"><code class="literal">s2viewreply</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Lets S2 layouts disable customized ReplyPage &#8220;<span class="quote">fall-back</span>&#8221; to <span class="application"><acronym class="acronym">BML</acronym></span> (actually &#8220;<span class="quote">s1shortcomings</span>&#8221; S2 style).
+    </p></dd>
+<dt><span class="term"><code class="literal">security_filter</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use view-by-security filters to see all posts with a given security in their journal.
+    </p></dd>
+<dt><span class="term"><code class="literal">styles</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - User can create &amp; use their own (S1) styles.
+    </p></dd>
+<dt><span class="term"><code class="literal">subscriptions</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of <code class="systemitem"><acronym class="acronym">ESN</acronym></code> subscriptions allowed.
+    </p></dd>
+<dt><span class="term"><code class="literal">synd_create</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can create syndicated accounts.
+    </p></dd>
+<dt><span class="term"><code class="literal">tags_max</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of tags a user is allowed. A value of 0 allows unlimited tags If a user has more tags than the limit, they can continue to use existing tags, but cannot create new ones.
+    </p></dd>
+<dt><span class="term"><code class="literal">textmessaging</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use text messaging.
+    </p></dd>
+<dt><span class="term"><code class="literal">todomax</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of todo items allowed
+    </p></dd>
+<dt><span class="term"><code class="literal">todosec</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can make non-public todo items.
+    </p></dd>
+<dt><span class="term"><code class="literal">tools_recent_comments_display</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Total number of comments a user can see,  at <code class="filename">/tools/recent_comments.bml</code>.
+    </p></dd>
+<dt><span class="term"><code class="literal">track_defriended</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can add <code class="systemitem"><acronym class="acronym">ESN</acronym></code> notifications for being de-friended by other users.
+    </p></dd>
+<dt><span class="term"><code class="literal">track_pollvotes</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can add <code class="systemitem"><acronym class="acronym">ESN</acronym></code> subscriptions for tracking when a vote is added to a poll.
+    </p></dd>
+<dt><span class="term"><code class="literal">track_thread</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can add <code class="systemitem"><acronym class="acronym">ESN</acronym></code> subscriptions for comment threads.
+    </p></dd>
+<dt><span class="term"><code class="literal">track_user_newuserpic</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can add <code class="systemitem"><acronym class="acronym">ESN</acronym></code> subscriptions for a user uploading a new userpic.
+    </p></dd>
+<dt><span class="term"><code class="literal">userdomain</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can view journal at http://user.$LJ::DOMAIN/
+    </p></dd>
+<dt><span class="term"><code class="literal">useremail</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Has <span class="application">e-mail</span> address @$LJ::USER_DOMAIN
+    </p></dd>
+<dt><span class="term"><code class="literal">userlinks</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of links users can place in their Links  List (&#8220;<span class="quote">blogroll</span>&#8221;), used in S2 styles.
+    </p></dd>
+<dt><span class="term"><code class="literal">usermessage_length</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of characters a user can use in messages  they compose in their <code class="systemitem"><acronym class="acronym">ESN</acronym></code> Inbox. Defaults to 5000.
+    </p></dd>
+<dt><span class="term"><code class="literal">userpics</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>integer</em></span>) - Maximum number of userpics allowed.
+    </p></dd>
+<dt><span class="term"><code class="literal">userpicselect</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use the <acronym class="acronym">AJAX</acronym> Userpic Selector.
+    </p></dd>
+<dt><span class="term"><code class="literal">viewmailqueue</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can use the Email Gateway log at <code class="filename">/tools/recent_emailposts.bml</code> to view recent <span class="application">e-mail</span> posts, along with any error messages, for troubleshooting.
+    </p></dd>
+<dt><span class="term"><code class="literal">weblogscom</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - Can ping <code class="uri">weblogs.com</code> when posting new entries.
+    </p></dd>
+</dl>
+</div>
+<div class="variablelist">
+<p class="title"><b>Local Capabilities</b></p>
+<dl>
+<dt><span class="term"><code class="literal">fastserver</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - User has access to the faster (paid) servers.
+    </p></dd>
+<dt><span class="term"><code class="literal">paid</code></span></dt>
+<dd><p>
+      (<span class="emphasis"><em>boolean</em></span>) - User has paid for their account type.
+    </p></dd>
+</dl>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.internals.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.internals.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.int.portal_modules.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Part II. Internals </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 12. Portal Modules</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

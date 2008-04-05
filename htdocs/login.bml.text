@@ -1,0 +1,73 @@
+;; -*- coding: utf-8 -*-
+.createaccount.header=Not a <?sitename?> member?
+
+.createaccount.button=Create an Account
+
+.createaccount.tour=Take the Feature Tour
+
+.createaccount.whylogin.benefit1=Read friends-only posts that are addressed to you.
+
+.createaccount.whylogin.benefit2=Leave comments in any journal or community.
+
+.createaccount.whylogin.benefit3=Post entries in your own journal.
+
+.createaccount.whylogin.benefit4=Add any journal or community to your Friends page.
+
+.createaccount.whylogin.benefit5=Access features that are only visible when you're logged in.
+
+.error.notuser=Username not found.  Would you like to <a [[aopts]]>create an account</a> using this username?
+
+.loggedin.head2=Welcome back to [[sitename]]!
+
+.loggedin.suggest1=Did you know you can now easily add a photo?
+
+.loggedin.suggest2=See the latest updates to your friends' journals.
+
+.loggedin.suggest4=Customize your [[siteabbrev]] experience.
+
+.loggedin.suggesthead1=Update your Journal
+
+.loggedin.suggesthead2=Read your friends page
+
+.loggedin.suggesthead3=My [[siteabbrev]]
+
+.loggedin.text2=You're logged in as [[username]]. Go have fun. Here are some suggestions...
+
+.login.autologin=Log in automatically on this computer
+
+.login.bindcookie=Bind cookie to IP address
+
+.login.bindcookie.learnmore=Learn more about this option
+
+.login.btn.login=Log in
+
+.login.btn.save=Save
+
+.login.changelog=Change log-in options
+
+.login.expiration=Expiration:
+
+.login.forget2=Forgot password?
+
+.login.head=Log in
+
+.login.openid=Login with Open ID
+
+.login.optionssaved=Login options saved.
+
+.login.otheropts=Other Options:
+
+.login.password=Password:
+
+.login.remember=Remember me
+
+.login.secure=Secure
+
+.login.standard=Standard
+
+.login.title=Log in
+
+.login.username=Username:
+
+.logout.btn1=Log out
+

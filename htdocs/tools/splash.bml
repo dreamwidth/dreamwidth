@@ -1,0 +1,17 @@
+<?_code
+    use strict;
+    use warnings;
+    use Data::Dumper;
+
+    use LJ::Splash;
+
+    use SOAP::Transport::HTTP;
+
+    BML::noparse();    
+
+    my $transport = SOAP::Transport::HTTP::Apache->dispatch_with( {
+        'http://www.splashblog.com/ws' => LJ::Splash->new(),
+    } );
+    $transport->serializer->readable(1); 
+    $transport->handle;
+_code?>

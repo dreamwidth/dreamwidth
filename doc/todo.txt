@@ -1,0 +1,105 @@
+    (Don't try to make much sense of this list.  It's mainly for the
+     core developers to keep track of things.)
+
+ANYBODY:
+
+-- document all the db roles, and how to set 'em up in %LJ::DBINFO. (done?)
+
+-- Windows syncitem client.  Use Perl+Win::Forms+ActiveState compiler
+   ... make local GDBM/etc file.  Export to HTML/XML/etc from that
+   file.
+
+-- user journal stats (have most of plan)
+
+* need a 'replyanywhere' priv that lets site admins reply in journals
+  that are friends only, when the site admins aren't part of the
+  community.
+
+* fix LJ::get_itemid_{before|after} to respect security of $remote
+   NOTE: not easy to do fast.  maybe best not to do it. not a big deal.
+
++----------+
+| bradfitz |
++----------+
+
+* version checking in login protocol mode:
+   -- each client string:  versionid|version|security|noteline
+   -- new protocol login req opt: "checklevel" = { all | none | securityonly }
+   -- priv for client authors to update db
+
+misc:
+topics / named entries (url space control)
+logaccess bypass
+talkleft_xfp investigation
+
+* clustering:
+   -- console
+   -- after user's moved, update their memories:
+                 (0,global)->(userid,ditemid)
+      that way, filtering on "my own" will work.
+
+* rate limiting
+
+MISC:
+
+* new authentication/login system...
+   -- SSL logins & login tokens
+   -- for non-SSL clients:  challenge/response (with challenge
+      being request body, plus GMT yyyymmddhh)
+* ljcom: automate username changes (payments and renaming)
+* BML::500_on_die option: make BML send a 500 server error on any
+  _CODE block failure
+* BML: let VarInitScript define a hook to run on server error to
+  get error message, look at it, and decide new error message.
+* /fz/ joins on logtext (requires master) 
+* talk* joins on logtext (requires master)
+* LJ::delete_user()
+* require POST for all do actions (use LJ::did_post to check)
+* perf: don't preload friends in ljprotocol.pl:editfriends, check $sth->rows
+
++-------------+
+| Cleanliness |
++-------------+
+
+* use LJ::send_mail everywhere, not sendmail pipe by hand
+* XHTML compliant everywhere
+* remove *_do.bml pages, merge into one page instead.
+
++--------+
+| Future |
++--------+
+
+* HTML email we send out with images should be the images in the MIME body
+  and then HTML part reference those, not the ones on the site
+* attach files to posts (good for groupware)
+  -- new cap limits:  canattachfile, filemaxsize (0 for no limit)
+* support system tweaks:
+   - allow 5 minute locks
+* use <label> and accesskey= everywhere, for accessibility and
+  people that hate the mouse.
+* ability to further restrict HTML in comments in your journal:
+  no marquee, no img, etc.
+* respect user.status=="L" --> never let be modified, deleted, purged, etc
+* journal-wide security: private, friends/group only, by password
+
++--------------+
+| low priority |
++--------------+
+
+* ability to turn off display of friend ofs / friends / community ofs
+* remove necessity of menu_num arg in populate_web_menu 
+* allowing @livejournal.com on create_do.bml, but not editinfo_do.bml
+* on friends page, altposter posts show community mood theme, not owner's
+* remove directories in BML... make just generic.look -> scheme.look
+
++-----------------+
+| Meeting minutes |
++-----------------+
+* directory rewrite sometime
+* INERR undefined in livejournal?  no, it was.  weird.
+* two CVS: use collections (avva)
+* talkread/post library & abstraction for todo lists
+* todo list maintainership (Mart)
+* rate limiting
+* image serving / expiration (evan)
+

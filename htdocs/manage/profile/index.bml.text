@@ -1,0 +1,241 @@
+;; -*- coding: utf-8 -*-
+.birthday=Show your birthday to other users
+
+.birthday.year.opt=year is optional
+
+.birthday.underage=Users under the age of 14 cannot display their age on profiles.
+
+.chat.aolim=AOL IM
+
+.chat.gizmo=Gizmo Project
+
+.chat.googletalk=Google Talk
+
+.chat.icquin=ICQ UIN
+
+.chat.jabber=Jabber
+
+.chat.msnusername=MSN Username
+
+.chat.skype=Skype
+
+.chat.yahooid=Yahoo! ID
+
+.country.choose=Pick a country
+
+.email=Email
+
+.email.change=Change email
+
+.email.opt.both=Both (primary email + LiveJournal email)
+
+.email.opt.dont=Don't display my email address
+
+.email.opt.lj=LiveJournal email only
+
+.email.opt.no_show=Don't show email address
+
+.email.opt.prime=Primary email only
+
+.email.opt.show=Show email address
+
+.error.bday.child=Users under the age of 14 cannot display their birthday.
+
+.error.bio.toolong=Your user bio is too long.
+
+.error.contact.child=Users under the age of 14 cannot publically share their contact information.
+
+.error.day.notinmonth=Invalid day for that month.
+
+.error.day.outofrange=Invalid birthday day.  Enter a day from 1-31.
+
+.error.email.lj_domain=You cannot enter an @[[domain]] email address. Enter your real address in that field. If you're a paid user, your [[user]]@[[domain]] address will forward to your real address. To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option.
+
+.error.email.none=You must provide your email address
+
+.error.email.no_space=No spaces are allowed in an email address. If you're on AOL, remember that your Internet Email address is your screen name with all spaces removed, followed by <b>@aol.com</b>
+
+.error.invalidbio=Your stored bio contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
+
+.error.invalidname2=Your name contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
+
+.error.locale.country_ne_state=You specified United States as your country, but you typed in a non-US state in the "other state" field.
+
+.error.locale.invalid_country=Somehow you selected an invalid country.
+
+.error.locale.state_ne_country=You specified a non-US country but selected a US state.
+
+.error.locale.zip_ne_state=Your zip code does not match the state you specified. Either correct the information, or erase one or both of the state and zip code fields.
+
+.error.locale.zip_requires_us=You entered a zip code but you did not select United States as your country. We only collect zip code information about people in the US. Please go back and remove the zip code or select United States as your country.
+
+.error.month.outofrange=Invalid birthday month.  Enter a month from 1-12.  (Jan-Dec)
+
+.error.name.toolong=The name you have provided is too long.
+
+.error.noname=Your name is a required field.  At least provide your first name, or a nickname or handle.
+
+.error.txt.require.number=If you're going to use text messaging, you must enter your phone number.
+
+.error.txt.require_provider=If you're going to use text messaging, you must select your service provider. If yours is not listed, please contact us with information about how your service's text messaging feature works so we can add support for it.
+
+.error.usermessaging=Invalid option for User Messaging.
+
+.error.year.notenoughdigits=Invalid birthday year.  Enter a 4-digit year.
+
+.error.year.outofrange=Invalid birthday year.
+
+.fn.bio=Tell other users about yourself or your journal. If you want to display graphics, counters, or other HTML, you can enter it here.
+
+.fn.birthday=Birthday
+
+.fn.city=City
+
+.fn.contactinfo=Who can view your contact info?
+
+.fn.country=Country
+
+.fn.email=Primary email
+
+.fn.emaildisplay=Display
+
+.fn.friendof="Friend of" list
+
+.fn.gender=Gender
+
+.fn.imservices2=Instant Messaging
+
+.fn.interests=List all your interests, separated by commas, to allow other users to find you using the Interest Search.
+
+.fn.link=Link
+
+.fn.mutualfriends=Mutual friends
+
+.fn.name=Name
+
+.fn.province=or non-US State/province/territory
+
+.fn.schools=Schools
+
+.fn.servprov=Service Provider
+
+.fn.sitename=Name
+
+.fn.state=State
+
+.fn.timezone=Timezone
+
+.fn.txtmsg=Allow text messaging from
+
+.fn.txtnum=Full phone number
+
+.fn.userpic=Default userpic
+
+.fn.zip=ZIP Code
+
+.friendof=Show other users who have friended you, but you have not friended
+
+.gender.female=Female
+
+.gender.male=Male
+
+.gender.unspecified=(Unspecified)
+
+.im=IM/Chat
+
+.interest.line1=Short single-word phrases are best.
+
+.interest.line2=Rule of thumb: You should be able to put the interest in the sentence "I like ________".
+
+.interest.line3=When referring to nouns, use the plural form for consistency, e.g.: "I like DVDs" instead of "I like DVD".
+
+.interest.line4=<font color='#009000'><b>GOOD</b></font> Example: <b>biking, snow skiing, computers, dvds, mp3s, cheese</b>
+
+.interest.line5=<font color='#ff0000'><b>BAD</b></font> Example: <b>I like lots of bands and watching movies and talking to friends and going to clubs.</b>  That sort of stuff goes in your bio below.
+
+.intro1=Here's where you fill out your Profile page. You don't have to display all of your info to everyone - check out the options below. You may also want to edit your <a [[aopts1]]>comment settings</a> or your <a [[aopts2]]>viewing options</a>.
+
+.location=Show your location to
+
+.mutualfriends=Show friends who have also friended you
+
+.name=Your name will be displayed on your Profile and in search results
+
+.optional=Optional
+
+.save_button=Save Changes
+
+.schools=Show your schools to
+
+.schools.manage=Manage schools
+
+.section.bio=Bio
+
+.section.contact=Contact Info
+
+.section.friends=Friends
+
+.section.id=Identity
+
+.section.interests=Interests
+
+.section.location=Location
+
+.section.textmsg=Text Messaging
+
+.section.theme=Community Theme
+
+.section.web=Web Page
+
+.security.visibility.everybody=Everybody
+
+.security.visibility.friends=Friends only
+
+.security.visibility.nobody=Nobody
+
+.security.visibility.regusers=Registered Users
+
+.share.birthday=Show your Birthday to:
+
+.show.birthday=Birthday display options:
+
+.show.birthday.day=Display only the month and day
+
+.show.birthday.full=Display month, day, and year
+
+.show.birthday.nothing=Do not display
+
+.show.birthday.year=Display only the year
+
+.showljtalk=Do not show field?
+
+.state.us=US States
+
+.success.editpics=Manage your userpics
+
+.success.editprofile=Edit your profile
+
+.success.gonext=What would you like to do next?
+
+.success.header=Success!
+
+.success.text=Your profile has been updated.
+
+.success.viewprofile=View your profile
+
+.theme=Briefly describe the central focus of your community. This will be shown in interest searches.
+
+.timezone.select=(Select your timezone)
+
+.title=Edit Profile
+
+.txt.details=(<a [[aopts]]>details</a>)
+
+.userpic=This is the image that will display on your Profile. It will also represent you in your entries and comments, unless you select a different one.
+
+.userpic.change=Change default userpic
+
+.userpic.none=no image uploaded
+
+.zip.usonly=5 digit ZIP code; US residents only
+

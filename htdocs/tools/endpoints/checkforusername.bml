@@ -1,0 +1,12 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET);
+    use JSON;
+    use Class::Autouse qw( LJ::CreatePage );
+
+    my $error = LJ::CreatePage->verify_username($GET{user});
+
+    return JSON::objToJson({ error => $error ? $error : "" });
+}
+_code?>

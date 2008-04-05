@@ -1,0 +1,83 @@
+;; -*- coding: utf-8 -*-
+.approve.button=Yes, approve it
+
+.approve.header=Approve this entry?
+
+.approve.preapprove=Also, add user [[user]] to the list of pre-approved users for this community.
+
+.approve.text=Are you sure you want to approve this entry?
+
+.brlist.actions=Actions
+
+.brlist.poster=Poster
+
+.brlist.subject=Subject begins
+
+.brlist.time=Time
+
+.brlist.view=View
+
+.browse.empty=The moderation queue is empty.
+
+.browse.header=Moderate Community
+
+.browse.text=Here is the moderation queue for the community [[link]]
+
+.choice.approve=Approve
+
+.choice.bkapprove=#82dd88
+
+.choice.bkreject=#e08291
+
+.choice.reject=Reject
+
+.error.noaccess=You do not moderate the community [[comm]].
+
+.error.noentry=Entry not found (perhaps already handled by another moderator).
+
+.error.nolist=You do not moderate any communities.
+
+.error.notfound=Community account not found.
+
+.manage=Manage communities
+
+.moderate=Moderate this community
+
+.modlist.actions=Actions
+
+.modlist.actmodempty=[Moderate]
+
+.modlist.actmoderate=Moderate
+
+.modlist.count=Queue size
+
+.modlist.header=Moderate Communities
+
+.modlist.title=Title
+
+.modlist.username=Username
+
+.posted.appheader=Preapproved
+
+.posted.apptext=Additionally, the user [[user]] has been added to the list of pre-approved users for this community.
+
+.posted.header=Success
+
+.posted.proterror=The entry has not been posted due to this protocol error: [[err]]
+
+.posted.text=The entry has been successfully posted.
+
+.reject.button=Yes, reject it
+
+.reject.header=Reject this entry?
+
+.reject.reason=You can also explain to the poster your reasons for rejecting their entry. They will be sent to the poster by email.
+
+.reject.text=Are you sure you want to reject this entry?
+
+.rejected.header=Rejected
+
+.rejected.text=The entry has been rejected.
+
+.title=Community Moderation
+

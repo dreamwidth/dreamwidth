@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Glossary</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.index.html" title="LiveJournal Server">
+<link rel="prev" href="appx.contribs.html" title="Appendix B. Documentation Contributors">
+<link rel="next" href="bml.index.html" title="The Better Markup Language">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Glossary</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="appx.contribs.html">Prev</a> </td>
+<th width="60%" align="center">
+<span class="application">LiveJournal</span> Server</th>
+<td width="20%" align="right"> <a accesskey="n" href="bml.index.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="glossary" id="appx.glossary">
+<div class="titlepage"><div><div><h2 class="title">Glossary</h2></div></div></div>
+<p>
+Terms, definitions, and insight.</p>
+<p><em><span class="remark">Early version</span></em></p>
+<div class="glossdiv">
+<h3 class="title">Software</h3>
+<dl>
+<dt>DocBook</dt>
+<dd><p>Markup language commonly used for technical documentation,
+    and used in this manual.</p></dd>
+</dl>
+</div>
+<div class="glossdiv">
+<h3 class="title">Components</h3>
+<dl>
+<dt>LASTN/Recent</dt>
+<dd><p>Page view types. Lastn was the term used in the S1 style
+    system; <code class="literal">n</code> is the quantity of last-posted entries to
+    show. The view type displays the most recent entries in a journal. It is
+    generally the &#8220;<span class="quote">main</span>&#8221; <acronym class="acronym">HTML</acronym> page for the
+    journal.</p></dd>
+<dt>siteabbrev</dt>
+<dd><p>Abbreviated name of the site used as a variable value in
+    the code. So, <abbr class="abbrev">LJ</abbr> is the abbreviated site name used by
+    <code class="uri">www.livejournal.com</code>.</p></dd>
+<dt>sitename</dt>
+<dd><p>Name of the site used as a variable value in the code.
+    So, <code class="systemitem">LiveJournal.com</code> is the sitename used by <code class="uri">www.livejournal.com</code>.</p></dd>
+<dt>sitenameshort</dt>
+<dd><p>Shortened name of the site used as a variable value in the
+    code.  So, <span class="application">LiveJournal</span> is the short site name used
+    by <code class="uri">www.livejournal.com</code>.</p></dd>
+<dt>vcv</dt>
+<dd><p>Maps files from set of different repositories to a single
+    tree.</p></dd>
+</dl>
+</div>
+<div class="glossdiv">
+<h3 class="title">Key files</h3>
+<dl>
+<dt><code class="filename">checkconfig.pl</code></dt>
+<dd><p>A script in the installation's 
+    <code class="filename">bin</code> directory to check things
+    are setup correctly, such as whether required modules are installed.</p></dd>
+<dt><code class="filename">ljconfig.pl</code></dt>
+<dd><p>This file (in the 
+    <code class="filename">etc</code> directory) contains the
+    settings for a <span class="application">LiveJournal</span> installation; site admins enable/disable/override features
+    here.</p></dd>
+<dt><code class="filename">ljdb.pl</code></dt>
+<dd><p>This file (in the
+    <code class="filename">bin</code> directory) is a
+    tool to run the <span class="application">MySQL</span> interactive shell on your <span class="application">LiveJournal</span> database.</p></dd>
+<dt><code class="filename">ljdefaults.pl</code></dt>
+<dd><p>This file (in the
+    <code class="filename">cgi-bin</code> directory)
+    contains <span class="application">LiveJournal</span> installation default settings. It is similar to ljconfig.pl,
+    but you don't make changes to this defaults file.</p></dd>
+<dt><code class="filename">ljoverrides.pl</code></dt>
+<dd><p>This file (in the
+    <code class="filename">cgi-bin</code> directory)
+    is for local <span class="application">LiveJournal</span> server config overrides; this file gets loaded last,
+    overriding any other configuration. It uses the same format as
+    <code class="filename">ljconfig.pl</code>.</p></dd>
+<dt><code class="filename">texttool.pl</code></dt>
+<dd><p>This file loads new text, breadcrumbs, and their
+    metadata, for the installation.</p></dd>
+<dt><code class="filename">update-db.pl</code></dt>
+<dd><p>This file adds or adjusts tables in the <span class="application">MySQL</span> database
+    based on changes in the code.</p></dd>
+</dl>
+</div>
+<div class="glossdiv">
+<h3 class="title">Terminology</h3>
+<dl>
+<dt>anum</dt>
+<dd><p>All journal entries have 8 bits of randomness associated
+    with them (the &#8220;<span class="quote">anum</span>&#8221;, or &#8220;<span class="quote">access number</span>&#8221;).
+    In <code class="literal">itemids</code> that are shown to the public, the real
+    <code class="literal">jitemid</code> (24 bits) is shifted 8 bits left, and the anum
+    is in the low 8 bits. The advantage of &#8220;<span class="quote">anums</span>&#8221; over the
+    original system is they make it harder for people to enumerate over the
+    database with a simple script that counts up. This helps slow spammers
+    down (by 256). They obscure the per-user sequential
+    nature of <code class="literal">jitemids</code>, so people can't
+    tell: &#8220;<span class="quote">Oh, I can see 1, 2, 4, and 5. Where's 3?  aren't I a
+    good enough buddy?</span>&#8221;</p></dd>
+<dt>aopts</dt>
+<dd><p>[[aopts]] is used for <code class="sgmltag-element">a</code> 
+    tags within translation strings. 
+    <code class="sgmltag-element">&lt;a href="http://www.livejournal.com"&gt;community blogging&lt;/a&gt;</code>
+    becomes <code class="literal">&lt; [[aopts]]&gt;community blogging&lt;/a&gt;</code>.
+    This makes it easier to change where a link points, add <span class="application">JavaScript</span>, etc.,
+    so translators do not need to think about it. A translation string with
+    more than one link may start at
+    <code class="literal">aopts1</code>, continue with <code class="literal">aopts2</code>, etc.
+    </p></dd>
+<dt>Daughter sites</dt>
+<dd><p>Sites running a <span class="application">LiveJournal</span> code installation.</p></dd>
+<dt>FOO</dt>
+<dd><p>This is a variable. It is used to represent that something
+    gets filled in where it is used. FOO and BAR are the most commonly used,
+    although others you may see are BAZ, QUX, GIN, and TONIC.</p></dd>
+<dt><acronym class="acronym">ippu</acronym></dt>
+<dd><p>In Page Pop-Up Library. A library of common <span class="application">JavaScript</span>
+    snippets used in the <span class="application">LiveJournal</span>/<code class="systemitem">LiveJournal.com</code> code and other <a href="http://code.sixapart.com/" target="_top">Six Apart Code<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a> projects.
+    </p></dd>
+<dt>jitemid</dt>
+<dd><p>
+    The post (entry) number. For instance, say the first entry in your journal
+    has a <code class="literal">jitemid</code> of 1, the 50th post has a
+    <code class="literal">jitemid</code> of 50, etc. <code class="literal">jitemid</code> never
+    goes <span class="emphasis"><em>down</em></span>; if you post 50 entries, then delete #50,
+    and post another, that entry will have a <code class="literal">jitemid</code> of 51.
+    The <code class="literal">jitemid</code> is the whole-number part of the regular
+    <code class="literal">itemid</code>, divided by 256. (What this means is that
+    <code class="literal">itemid</code> = <code class="literal">jitemid</code>*256 +
+    <code class="literal">anum</code>, where <code class="literal">anum</code> is a random number
+    between 0 and 255.) Consequently, with this information, you can see
+    whether entries were deleted or not. The <code class="literal">itemid</code> for the
+    entry, say 12456, is the number the user sees in the 
+    <acronym class="acronym">URL</acronym> (http://exampleusername.http://www.livejournal.com/12456.html (<code class="literal">jitemid</code> 48).
+    Pre-clustering, entries were numbered sequentially. So for example
+    a <acronym class="acronym">URI</acronym> like <code class="uri">http://www.livejournal.com/talkread.bml?itemid=10000000</code>,
+    would indicate it was the 10,000,000th entry posted.</p></dd>
+<dt>Messageboards</dt>
+<dd><p>The comment facility available on journal entries.
+    Nowadays just referred to as &#8220;<span class="quote">comments</span>&#8221;.</p></dd>
+<dt>Portlets</dt>
+<dd><p>Portal boxes/widgets, only more cutely named.</p></dd>
+<dt>yadis</dt>
+<dd><p>Was the working title for <span class="trademark">OpenID</span>&#8482;.</p></dd>
+</dl>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="appx.contribs.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.index.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="bml.index.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Appendix B. Documentation Contributors </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> The Better Markup Language</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+;; -*- coding: utf-8 -*-
+
+.btn.ageconfirm=Yes, I am at least [[age]] years old.
+
+.explore=Explore [[siteabbrev]]
+
+.explore.notconfirmed=No, return me to Explore [[siteabbrev]].
+
+.message.concepts=The content that you are about to view <strong>could contain adult concepts which may not be suitable for minors</strong>. To continue, you must confirm that you are at least [[age]] years of age.
+
+.message.concepts.blocked=The content that you are about to view <strong>could contain adult concepts which may not be suitable for minors</strong>. You must be at least [[age]] years of age to view this.
+
+.message.explicit=The content that you are about to view <strong>may contain material only suitable for adults</strong>. To continue, you must confirm that you are at least [[age]] years of age.
+
+.message.explicit.blocked=The content that you are about to view <strong>may contain material only suitable for adults</strong>. You must be at least [[age]] years of age to view this.
+
+.setage=<a [[aopts]]>Edit your profile</a> to register your age.
+
+.title=Adult Content Notice

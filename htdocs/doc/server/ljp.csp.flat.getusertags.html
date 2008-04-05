@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>getusertags</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.flat.protocol.html" title="Flat Client/Server Protocol Reference">
+<link rel="prev" href="ljp.csp.flat.getfriends.html" title="getfriends">
+<link rel="next" href="ljp.csp.flat.login.html" title="login">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">getusertags</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.flat.getfriends.html">Prev</a> </td>
+<th width="60%" align="center">Flat Client/Server Protocol Reference</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.flat.login.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.csp.flat.getusertags"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>getusertags</h2>
+<p>getusertags &#8212; Retrieves a list of the user's defined tags.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3076359"></a><h2>Mode Description</h2>
+<p>Retrieves a list of the user's defined tags.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3076370"></a><h2>Arguments</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">mode</code></span></dt>
+<dd><p>
+The protocol request mode: <code class="literal">getusertags</code>
+      </p></dd>
+<dt><span class="term"><code class="literal">user</code></span></dt>
+<dd><p>
+Username.  Leading and trailing whitespace is ignored, as is case.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_method</code></span></dt>
+<dd><p>
+The authentication method used for this request. Default is 'clear', for plain-text authentication. 'cookie' or any of the challenge-response methods are also acceptable.
+      </p></dd>
+<dt><span class="term"><code class="literal">password</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Password in plain-text. For the default authentication method, either this needs to be sent, or <code class="literal">hpassword</code>.
+      </p></dd>
+<dt><span class="term"><code class="literal">hpassword</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Alternative to plain-text <code class="literal">password</code>.  Password as an MD5 hex digest.  Not perfectly secure, but defeats the most simple of network sniffers.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_challenge</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the challenge that was generated for your client.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_response</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the response hash you generate based on the challenge's formula.
+      </p></dd>
+<dt><span class="term"><code class="literal">ver</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Protocol version supported by the client; assumed to be 0 if not specified.  See <a class="xref" href="ljp.csp.versions.html" title="Chapter 27. Protocol Versions">Chapter 27, <i>Protocol Versions</i></a> for details on the protocol version.
+      </p></dd>
+<dt><span class="term"><code class="literal">usejournal</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+If you want to get the tags for a community you're a member of, include this key and the username of the account to get the tags of.  By default, you get your own tags.
+      </p></dd>
+</dl></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3076570"></a><h2>Return Values</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">success</code></span></dt>
+<dd><p>
+<span class="strong"><strong><code class="literal">OK</code></strong></span> on success or <span class="strong"><strong><code class="literal">FAIL</code></strong></span> when there's an error.  When there's an error, see <code class="literal">errmsg</code> for the error text.  The absence of this variable should also be considered an error.
+      </p></dd>
+<dt><span class="term"><code class="literal">errmsg</code></span></dt>
+<dd><p>
+The error message if <code class="literal">success</code> was <code class="literal">FAIL</code>, not present if <code class="literal">OK</code>.  If the success variable is not present, this variable most likely will not be either (in the case of a server error), and clients should just report "Server Error, try again later.".
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_count</code></span></dt>
+<dd><p>
+The number of tags being returned in this set.  The number is base-1, so start at 1 and count up to this number inclusive in order to make sure you get all of the tags.  If this value is 0, there are no tags for the specified account.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_name</code></span></dt>
+<dd><p>
+The tag itself, this is the name to be sent when you're posting or editing an entry.  Textual representation of the tag.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_uses</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Indicates how many times this tag has been used.  May not be present, which indicates no usage of the tag.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_display</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+If present and on, indicates that this tag is displayed on a user's list of tags.  A tag that is not displayed is hidden from the S2 style system, but is otherwise available for use.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_security</code></span></dt>
+<dd><p>
+The security level of this tag.  This indicates who can see the tag and the entries tagged with it.  Security can be one of 'public', 'private', 'friends', and 'group'.  Note that 'group' secure tags do not elaborate on which groups they're secured to, but that can be inferred from the security breakdown section.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_sb_friends</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+If present, indicates the number of times this tag has been used on Friends-only entries.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_sb_public</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+If present, indicates the number of times this tag has been used on public entries.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_sb_private</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+If present, indicates the number of times this tag has been used on public entries.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_sb_group_count</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+If present, indicates the number of groups that are using this tag.  This number can then be used in a loop (from 1 to this number inclusive) to get the actual groups this tag has been used on.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_sb_group_<em class="replaceable"><code>num</code></em>_id</code></span></dt>
+<dd><p>
+The id of the group this tuple is about.  This has a 1:1 mapping with the frgrp_num in getfriendgroups.
+      </p></dd>
+<dt><span class="term"><code class="literal">tag_<em class="replaceable"><code>num</code></em>_sb_group_<em class="replaceable"><code>num</code></em>_count</code></span></dt>
+<dd><p>
+The number of times this tag has been used on this group.
+      </p></dd>
+</dl></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.flat.getfriends.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.flat.protocol.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.flat.login.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">getfriends </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> login</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

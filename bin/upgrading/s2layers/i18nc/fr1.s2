@@ -1,0 +1,144 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/fr1";
+layerinfo "name" = "French";
+layerinfo "langcode" = "fr";
+layerinfo "author_name" = "Timwi, Diziet Sma, Eclips1st";
+layerinfo "author_email" = "timwi@livejournal.com, dizietsma@livejournal.com, eclips1st@livejournal.com";
+
+layerinfo "source_viewable" = 1;
+
+set lang_current = "fr";
+
+set lang_fmt_date_short = "%%d%% %%mon%% %%yy%%";
+set lang_fmt_date_med = "%%dd%% %%mon%% %%yyyy%%";
+set lang_fmt_date_med_day = "%%da%%, le %%dd%% %%mon%% %%yyyy%%";
+set lang_fmt_date_long = "le %%dd%% %%month%% %%yyyy%%";
+set lang_fmt_date_long_day = "%%day%%, le %%dd%% %%month%% %%yyyy%%";
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+set lang_fmt_month_short = "%%mon%% %%yy%%";
+set lang_fmt_month_med = "%%mon%% %%yyyy%%";
+set lang_fmt_month_long = "%%month%% %%yyyy%%";
+
+set lang_monthname_long = [ "", "janvier", "février", "mars",
+                            "avril", "mai", "juin",
+                            "juillet", "août", "septembre",
+                            "octobre", "novembre", "décembre" ];
+
+set lang_monthname_short = [ "", "jan",  "fév", "mar",
+                             "avr", "mai", "juin",
+                             "juil", "aoû", "sep",
+                             "oct", "nov", "déc" ];
+
+set lang_dayname_long = [ "", "dimanche", "lundi", "mardi", "mercredi",
+                          "jeudi", "vendredi", "samedi" ];
+
+set lang_dayname_short = [ "", "dim", "lun", "mar", "mer", 
+                           "jeu", "ven", "sam" ];
+set reg_firstdayofweek = "monday";
+
+#[[ texttranslation ]]
+
+# Currents
+set text_meta_music = "Musique actuelle";
+set text_meta_mood = "Humeur actuelle";
+# Comments
+set text_post_comment = "Envoyez un commentaire";
+set text_read_comments = "1 commentaire // # commentaires";
+set text_post_comment_friends = "Envoyez un commentaire";
+set text_read_comments_friends = "1 commentaire // # commentaires";
+# Skiplinks
+set text_skiplinks_back="# entrées précédentes";
+set text_skiplinks_forward="# entrées suivantes";
+# Views
+set text_view_recent = "Entrées récentes";
+set text_view_friends = "Amis";
+set text_view_archive = "Archives";
+set text_view_userinfo = "Profil";
+set text_view_month = "Sujets du mois";
+# Misc. texts
+set text_nosubject = "(pas de sujets)";
+set text_noentries_recent = "Pas d'entrées.";
+set text_noentries_day = "Il n'y a aucune entrée cette journée.";
+set text_permalink = "Lien";
+set text_month_screened_comments = "+ filtrée(s)";
+set text_multiform_check = "Cocher&nbsp;:";
+set text_multiform_des = "Modifier les commentaires cochés&nbsp;:";
+set text_multiform_btn = "Modifier";
+set text_multiform_opt_unscreen = "Rendre public";
+set text_multiform_opt_screen = "Filtrer";
+set text_multiform_opt_delete = "Effacer";
+set text_multiform_conf_delete = "Êtes-vous sûr de vouloir supprimer les commentaires sélectionnés?";
+set text_day_prev = "Journée précédente";
+set text_day_next = "Journée suivante";
+set text_comment_from = "De&nbsp;:";
+set text_comment_date = "Date&nbsp;:";
+set text_comment_ipaddr = "Adresse IP&nbsp;:";
+set text_comment_reply = "Répondre";
+set text_comment_parent = "Précédent";
+set text_comment_thread = "Fil";
+set text_reply_back = "Lire les commentaires";
+set text_reply_nocomments_header = "Commentaires désactivés&nbsp;:";
+set text_reply_nocomments = "L'utilisateur a désactivé les commentaires pour cette entrée.";
+set text_website_default_name = "Mon site";
+set text_poster_anonymous = "(anonyme)";
+
+#[[ function translations ]]
+
+function lang_page_of_pages (int pg, int pgs) [notags] : string {
+	return "Page $pg de $pgs";
+}
+
+function lang_ordinal(int num) [notags] : string {
+        if ($num == 1) { return $num+"er"; }
+	return $num+"e";
+}
+
+function lang_map_plural (int n) : int {
+    if ($n > 1) { return 1; }   # plural
+    return 0;                   # singular
+}
+
+function lang_viewname(string viewid) [notags] : string 
+"Get some words representing a view"
+{
+    if ($viewid == "recent") { return $*text_view_recent; }
+    if ($viewid == "archive") { return $*text_view_archive; }
+    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "day") { return "Journée"; }
+    if ($viewid == "month") { return "Mois"; }
+    if ($viewid == "userinfo") { return $*text_view_userinfo; }
+    if ($viewid == "entry") { return "Lire les commentaires"; }
+    if ($viewid == "reply") { return "Envoyer un commentaire"; }
+    return "Affichage inconnue";
+}
+
+function ReplyPage::view_title() : string {
+    return "Envoyer un commentaire";
+}
+
+function server_sig() {
+    """Actionné par <a href="$*SITEROOT/">$*SITENAME</a>""";
+}
+
+function Page::print_entry_poster(Entry e) {
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        " a écrit dans ";
+        $e.journal->print();
+    }
+}
+
+function lang_user_wrote(UserLite u) : string "Returns text describing that the user wrote something. i18nc layers should override this." {
+    if (defined $u) {
+        return $u->as_string()+" a écrit";
+    }
+    else {
+        return "Un utilisateur anonyme a écrit";
+    }
+}
+
+function lang_at_datetime(DateTime d) : string "Returns a string saying \"at {the date and time given}\". Used in the core implementation of EntryPage and ReplyPage. i18nc layers should override this." {
+    return $d->date_format("long") + " à " + $d->time_format();
+}

@@ -1,0 +1,240 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+
+    LJ::set_active_crumb('nudgefriend');
+
+    my $body;
+
+    my $remote = LJ::get_remote();
+    unless ($remote) {
+        $body .= "<?needlogin?>";
+        return $body;
+    }
+
+    return $ML{'.error.disabled'}
+        if $LJ::DISABLED{'nudge'};
+
+    if (LJ::did_post()) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        my $userid = $POST{userid};
+        my $u = LJ::load_userid($userid);
+
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantloaduser'} p?>"
+            unless $u;
+
+        my $updated = LJ::get_timeupdate_multi(($u->{userid}));
+
+        # check that they are still nudgeable
+        if ($u->{journaltype} ne 'P' ||
+            $u->{statusvis} ne 'V'   ||
+            $u->prop("opt_no_nudge") ||
+            (!LJ::is_friend($remote, $u) || !LJ::is_friend($u, $remote) ||
+            time() -  $updated->{$u->{userid}} < 604800))
+        {
+            return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantnudgeuser'} p?>";
+        }
+
+        # We want to send the nudge in the nudgee's language.  If no language is set, use the site's default language,
+        # not the nudger's language, since if the nudgee didn't set a language, they most likely understand the default language.
+        LJ::load_user_props($u, 'browselang');
+        my $nudgee_lang = $u->{browselang} || BML::get_language_default();
+        my $nudger_lang = $GET{'lang'} || BML::get_language();
+
+        BML::set_language($nudgee_lang); # Set the language to the nudgee's language while we build the email we're sending them
+
+        my $ebody;
+        $ebody .= BML::ml('.email.body.greeting', {'user' => $u->{user}}) . "\n\n";
+
+        if ($updated->{$u->{userid}} > 0) {
+            my $ago_text = LJ::ago_text(time() - $updated->{$u->{userid}});
+            $ebody .= BML::ml('.email.body.lastupdated', {
+                        'user' => $remote->{user},
+                        'sitename' => $LJ::SITENAMESHORT,
+                        'timeago' => $ago_text,
+                        'updateurl' => "$LJ::SITEROOT/update.bml"
+                    }) . "\n\n";
+        } else {
+            $ebody .= BML::ml('.email.body.neverupdated', {
+                        'user' => $remote->{user},
+                        'sitename' => $LJ::SITENAMESHORT,
+                        'updateurl' => "$LJ::SITEROOT/update.bml"
+                    }) . "\n\n";
+        }
+
+        $ebody .= "$ML{'.email.body.closing'}\n" . BML::ml('.email.body.team', {'sitename' => $LJ::SITENAMESHORT});
+
+        if (defined $LJ::HELPURL{'nudge'}) {
+            $ebody .= "\n\n\n" . BML::ml('.email.body.info', {'helpurl' => $LJ::HELPURL{'nudge'}});
+        }
+
+        LJ::send_mail({
+            to       => $u->email_raw,
+            toname   => $u->{name},
+            from     => $LJ::BOGUS_EMAIL,
+            fromname => $remote->{name},
+            charset  => 'utf-8',
+            subject  => BML::ml('.email.subject', {'sitename' => $LJ::SITENAMESHORT}),
+            body     => $ebody,
+        });
+
+        BML::set_language($nudger_lang); # Set the language back to the nudger's language
+
+        $body .= "<?warningbar <?h2 $ML{'.success.header'} h2?>";
+        $body .= "<?p " . BML::ml('.success.text2', {'user' => LJ::ljuser($u), 'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$u->{user}'",}) . " p?> warningbar?>";
+
+    }
+
+    unless (LJ::did_post()) {
+        $body .= "<?p $ML{'.intro'} ";
+        $body .= LJ::help_icon('nudge');
+        $body .= "p?>";
+    }
+
+    # Passed in a specific user to nudge
+    if (my $u = LJ::load_user($GET{'user'})) {
+        # Load opt_no_nudge userprop, show disabled message
+        if ($u->prop("opt_no_nudge")) {
+            $body .= "<?errorbar <?h1 $ML{'.error.nonudge.header'} h1?>";
+            $body .= "<?p " . BML::ml('.error.nonudge.text', {'user' => LJ::ljuser($u)}) . " p?> errorbar?>";
+
+        } elsif ($u->{statusvis} ne 'V') {
+            $body .= "<?errorbar <?h1 $ML{'.error.invalidacctstatus.header'} h1?>";
+            $body .= "<?p " . BML::ml('.error.invalidacctstatus.text', {'user' => LJ::ljuser($u)}) . " p?> errorbar?>";
+
+        } elsif ($u->{journaltype} ne 'P') {
+            $body .= "<?errorbar <?h1 $ML{'.error.invalidaccttype.header'} h1?>";
+            $body .= "<?p " . BML::ml('.error.invalidaccttype.text', {'user' => LJ::ljuser($u)}) . " p?> errorbar?>";
+
+        # Make sure they are mutual friends
+        } elsif (!LJ::is_friend($remote, $u) || !LJ::is_friend($u, $remote)) {
+            $body .= "<?errorbar <?h1 $ML{'.error.notmutual.header'} h1?>";
+            $body .= "<?p " . BML::ml('.error.notmutual.text', {'user' => LJ::ljuser($u)}) . " p?> errorbar?>";
+
+        } else {
+            my $updated = LJ::get_timeupdate_multi(($u->{userid}));
+
+            $body .= "<?h1 " . BML::ml('.nudgeuser.header', {'user' => $u->{user}}) . " h1?>";
+
+            # Don't allow nudging someone who updated in past week
+            if (time() - $updated->{$u->{userid}} >= 604800) {
+                my $time = BML::ml('.nudgeuser.neverupdated', {'user' => LJ::ljuser($u)});
+                my $ago_text = LJ::ago_text(time() - $updated->{$u->{userid}});
+                if ($updated->{$u->{userid}} > 0) {
+                    $time = BML::ml('.nudgeuser.lastupdated', {'user' => LJ::ljuser($u), 'timeago' => $ago_text});
+                }
+
+                $body .= "<?p $time p?>";
+
+                $body .= "<div style='margin-left: 40px'>";
+                $body .= "<?p " . BML::ml('.email.body.greeting', {'user' => $u->{user}}) . " p?>";
+
+                if ($updated->{$u->{userid}} > 0) {
+                    $body .= "<?p " . BML::ml('.email.body.lastupdated', {
+                        'user' => $remote->{user},
+                        'sitename' => $LJ::SITENAMESHORT,
+                        'timeago' => $ago_text,
+                        'updateurl' => "$LJ::SITEROOT/update.bml"}) . " p?>";
+                } else {
+                    $body .= "<?p " . BML::ml('.email.body.neverupdated', {
+                        'user' => $remote->{user},
+                        'sitename' => $LJ::SITENAMESHORT,
+                        'updateurl' => "$LJ::SITEROOT/update.bml"}) . " p?>";
+                }
+                $body .= "<?p $ML{'.email.body.closing'}<br />" . BML::ml('.email.body.team', {'sitename' => $LJ::SITENAMESHORT}) . " p?>";
+                $body .= "</div>";
+
+                $body .= "<div style='text-align: center'><form method='POST' action='nudge.bml'>";
+                $body .= LJ::form_auth();
+                $body .= LJ::html_hidden('userid', $u->{userid});
+                $body .= LJ::html_submit('nudge', $ML{'.btn.nudge'});
+                $body .= "</form></div>";
+            } else {
+                $body .= "<?p " . BML::ml('.nudgeuser.recentlyupdated', {'user' => LJ::ljuser($u)}) . " p?>";
+            }
+        }
+    }
+
+    # Show them a list of mutual friends that haven't updated
+    # recently
+    {
+        $body .= "<?h1 $ML{'.mutualfriends.header'} h1?>";
+        $body .= "<?p $ML{'.mutualfriends.text'} p?>";
+
+        # Get all of remote's friends
+        my $friends = LJ::get_friends($remote);
+
+        # Figure out which are mutual
+        my @mutual;
+        foreach my $userid (keys %$friends) {
+            next if $userid == $remote->{userid};
+
+            push @mutual, $userid
+                if LJ::is_friend($userid, $remote);
+        }
+
+        my $loaded = LJ::load_userids(@mutual);
+        @mutual = ();
+        foreach (values %$loaded) {
+            next if $_->{statusvis} ne 'V';
+            push @mutual, $_
+                if $_->{journaltype} eq 'P';
+        }
+
+
+        if (@mutual) {
+            my $namesort = $GET{sort} eq 'name' ? 1 : 0;
+            my $url = "$LJ::SITEROOT/friends/nudge.bml";
+
+            $body .= "<div style='margin-left: 25px'>";
+            if ($namesort) {
+                $url .= "?user=$GET{'user'}"
+                    if $GET{'user'};
+                $body .= BML::ml('.mutualfriends.sort.lastupdated', {'aopts' => "href='$url'"});
+            } else {
+                $url .= "?sort=name";
+                $url .= "&user=$GET{'user'}"
+                    if $GET{'user'};
+                $body .= BML::ml('.mutualfriends.sort.username', {'aopts' => "href='$url'"});
+            }
+            $body .= "</div>";
+
+            $body .= "<ul>";
+
+            my $updated = LJ::get_timeupdate_multi(map { $_->{userid} } @mutual);
+            my $sort = sub {
+                return $GET{sort} eq 'name' ? $a->{user} cmp $b->{user} :
+                    $updated->{$a->{userid}} <=> $updated->{$b->{userid}};
+            };
+
+            my $now = time();
+            foreach my $u (sort $sort @mutual) {
+                my $time = $ML{'.mutualfriends.userinfo.neverupdated'};
+                my $updated = $updated->{$u->{userid}};
+                if ($updated > 0) {
+                    my $secs = $now - $updated;
+                    next if $secs < 604800; # Only show if it has been longer than a week
+                    $time = BML::ml('.mutualfriends.userinfo.lastupdated', {'timeago' => LJ::ago_text($secs)});
+                }
+
+                $body .= "<li>" . BML::ml('.mutualfriends.userinfo', {'user' => LJ::ljuser($u), 'timeago' => $time, 'aopts' => "href='$LJ::SITEROOT/friends/nudge.bml?user=$u->{user}'"}) . "</li>";
+            }
+
+            $body .= "</ul>";
+
+        } else {
+            $body .= "<?p $ML{'.mutualfriends.none'} p?>";
+        }
+    }
+
+    return $body;
+}
+_code?>
+<=body
+page?>

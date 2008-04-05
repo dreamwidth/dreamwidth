@@ -1,0 +1,31 @@
+;; -*- coding: utf-8 -*-
+.as.theme=As Theme
+
+.core.layer=Core layer for layout not found.
+
+.customize=customize
+
+.core.layer.for.layout=Core layer for layout not found.
+
+.layer.belongs=Layer belongs to another user.
+
+.layer.isnt.type=Layer isn't of type user or theme.
+
+.layout.layer=Layout layer for this [[layertype]] layer not found.
+
+.login.required=Login Required
+
+.login.first=You must first <a [[url]]>login</a>. 
+
+.no.user.layer=No user layer
+
+.raw=Raw
+
+.style.not.found=Style not found.
+
+.switch=Switch
+
+.user.layer=User Layer
+
+.work.with.journal=Work with journal: 
+

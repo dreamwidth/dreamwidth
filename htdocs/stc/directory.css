@@ -1,0 +1,53 @@
+div.ConstraintFields {
+                       display: inline;
+                       margin: 2px;
+}
+
+User.UserpicContainer {
+                        width: 100px;
+                        height: 100px;
+}
+span.User {
+           display: inline;
+}
+
+div.UsersContainer {
+        overflow-y: scroll;
+        height: 300px;
+}
+
+/* old directory search styles */
+#SearchResults {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+}
+
+div.ResultUserpic {
+    width: 100px;
+    height: 100px;
+}
+
+div.NewSearch {
+    font-size: 14px;
+}
+
+#States div {
+    margin: 0 auto;
+    text-align: center;
+}
+
+#StateInfo {
+    height: 1em;
+    padding: 1em 0 0 0;
+    font-size: 1.1em;
+}
+
+#USMap {
+    margin: 0 auto;
+    width: 489px;
+}
+
+#CountryBrowse {
+    margin-top: 2em;
+}

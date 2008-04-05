@@ -1,0 +1,29 @@
+;; -*- coding: utf-8 -*-
+.already.head=Already logged out
+
+.already.text=You are already logged out.
+
+.killall.btn=Expire all my sessions
+
+.killall.head=Other sessions
+
+.killall.text=You have other active sessions, from other computers. Do you want to expire all your sessions, and not just this one?
+
+.loggedout.already=Already logged out.
+
+.loggedout.head=Logged out
+
+.loggedout.killedall=All your sessions have been expired.
+
+.loggedout.text=You are now logged out.
+
+.logout.btn=Log out
+
+.logout.head=Log out?
+
+.logout.text=Click the button below to log out.
+
+.title=Logout
+
+.title.loggedout=You've successfully logged out!
+

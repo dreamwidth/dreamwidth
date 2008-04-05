@@ -1,0 +1,250 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/lv1";
+layerinfo "name" = "Latvian";
+layerinfo "langcode" = "lv";
+layerinfo "author_email" = "lj_latvian@livejournal.com";
+set lang_current = "lv";
+
+set lang_dayname_long = ["",
+    "Svētdiena", "Pirmdiena", "Otrdiena", "Trešdiena", "Ceturtdiena",
+    "Piektdiena", "Sestdiena"
+];
+set lang_dayname_short = ["", "Sv", "P", "O", "T", "C", "Pk", "S"];
+
+set lang_fmt_date_long = "%%yyyy%%. gada %%dayord%% %%month%%";
+set lang_fmt_date_long_day = "%%day%%, %%yyyy%%. gada %%dayord%% %%month%%";
+set lang_fmt_date_med = "%%dayord%% %%mon%%, %%yyyy%%. g.";
+set lang_fmt_date_med_day = "%%da%%, %%dayord%% %%mon%%, %%yyyy%%. g.";
+set lang_fmt_date_short = "%%yyyy%%.%%mm%%.%%dd%%";
+set lang_fmt_month_long = "%%yyyy%%. g. %%month%%";
+set lang_fmt_month_med = "%%yyyy%%. g. %%mon%%";
+set lang_fmt_month_short = "%%m%%/%%yy%%";
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+
+set lang_monthname_long = ["",
+    "janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs",
+    "augusts", "septembris", "oktobris", "novembris", "decembris"
+];
+
+set lang_monthname_short = ["",
+    "janv.", "febr.", "marts", "apr.", "maijs", "jūn.", "jūl.", "aug.",
+    "sept.", "okt.", "nov.", "dec."
+];
+
+set reg_firstdayofweek = "monday";
+
+set text_comment_date = "Datums:";
+set text_comment_from = "No:";
+set text_comment_frozen = "Iesaldēts";
+set text_comment_ipaddr = "IP adrese:";
+set text_comment_parent = "Iepriekšējais";
+set text_comment_posted = "Komentārs veiksmīgi ierakstīts.";
+set text_comment_reply = "Atbildēt";
+set text_comment_thread = "Saruna";
+
+set text_day_next = "Nākošā diena";
+set text_day_prev = "Iepriekšējā diena";
+
+set text_icon_alt_private = "[privāts ieraksts]";
+set text_icon_alt_protected = "[aizsargāts ieraksts]";
+
+set text_max_comments = "Sasniegts lielākais iespējamais komentāru skaits";
+
+set text_meta_location = "Atrašanās vieta";
+set text_meta_mood = "Garastāvoklis";
+set text_meta_music = "Mūzika";
+
+set text_month_screened_comments = "Ar slēptiem";
+
+set text_multiform_btn = "Veikt darbību";
+set text_multiform_check = "Izvēlēties:";
+set text_multiform_conf_delete = "Dzēst izvēlētos komentārus?";
+set text_multiform_des = "Masīva izvēlēto komentāru apstrāde:";
+set text_multiform_opt_delete = "Dzēst";
+set text_multiform_opt_deletespam = "Dzēst kā spamu";
+set text_multiform_opt_freeze = "Iesaldēt";
+set text_multiform_opt_screen = "Paslēpt";
+set text_multiform_opt_unfreeze = "Atkausēt";
+set text_multiform_opt_unscreen = "Parādīt";
+
+set text_noentries_day = "Šajā dienā nebija neviena ieraksta.";
+set text_noentries_recent = "Nav neviena rādāma ieraksta.";
+set text_nosubject = "(nav temata)";
+
+set text_permalink = "Saite";
+set text_post_comment = "Ierakstīt komentāru";
+set text_post_comment_friends = "Ierakstīt komentāru";
+set text_poster_anonymous = "(anonīms)";
+set text_read_comments = "# komentārs // # komentāri // # komentāru";
+set text_read_comments_friends = "# komentārs // # komentāri // # komentāru";
+set text_reply_back = "Lasīt komentārus";
+set text_reply_nocomments = "Šim ierakstam komentāri liegti.";
+set text_reply_nocomments_header = "Bez komentāriem:";
+
+set text_skiplinks_back = "Iepriekšējie #";
+set text_skiplinks_forward = "Nākošie #";
+
+set text_tag_uses = "# reizi // # reizes // # reižu";
+set text_tags = "Marķieri: #";
+
+set text_view_archive = "Arhīvs";
+set text_view_friends = "Draugi";
+set text_view_friends_comm = "Biedri";
+set text_view_friends_filter = "Draugi (filtrs)";
+set text_view_friendsfriends = "Draugu draugi";
+set text_view_friendsfriends_filter = "Draugu draugi (filtrs)";
+set text_view_month = "Aplūkot virsrakstus";
+set text_view_recent = "Pēdējie ieraksti";
+set text_view_userinfo = "Lietotāja info";
+
+set text_website_default_name = "Mana lapa";
+
+# Language functions.
+
+function lang_map_plural(int n) : int
+{
+    # '0' for singular, '1' -- plural, '2' -- nullar.
+    return $n % 10 == 1 and $n % 100 != 11 ? 0 : ($n != 0 ? 1 : 2);
+}
+
+function lang_page_of_pages(int pg, int pgs) [notags] : string
+{
+    return $pg + ". lapa no $pgs";
+}
+
+function lang_user_wrote(UserLite u) : string
+"Returns text describing that the user wrote something. i18nc layers should
+override this."
+{
+    if (defined $u)
+    {
+        return $u->as_string() + " rakstīja";
+    }
+    return "Anonīms lietotājs rakstīja";
+}
+
+function lang_at_datetime(DateTime d) : string
+"Returns a string saying \"at {the date and time given}\". Used in the core
+implementation of EntryPage and ReplyPage. i18nc layers should override this."
+{
+    return $d->date_format("long") + ", " + $d->time_format();
+}
+
+function lang_ordinal(int num) [notags] : string
+"Make an ordinal number from a cardinal number"
+{
+    return $num + ".";
+}
+
+function lang_viewname(string viewid) [notags] : string
+"Get some words representing a view"
+{
+    if ($viewid == "recent")    { return $*text_view_recent; }
+    if ($viewid == "archive")   { return $*text_view_archive; }
+    if ($viewid == "friends")   { return $*text_view_friends; }
+    if ($viewid == "day")       { return "Diena"; }
+    if ($viewid == "month")     { return "Mēnesis"; }
+    if ($viewid == "userinfo")  { return $*text_view_userinfo; }
+    if ($viewid == "entry")     { return "Lasīt komentārus"; }
+    if ($viewid == "reply")     { return "Ierakstīt komentāru"; }
+    if ($viewid == "tags")      { return "Marķieri"; }
+    return "Nezināms skats";
+}
+
+# Hard-coded English stuff in random other functions.
+
+function Page::print_entry_poster(Entry e)
+{
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        # Significant whitespace!
+        " rakstīja "; $e.journal->print(); " žurnālā";
+    }
+}
+
+function ReplyPage::view_title() : string
+{
+    return "Ierakstīt komentāru";
+}
+
+function secs_to_string(int sec) : string
+{
+    # Since the code only allows seconds to equal zero, the other nullar cases
+    # provided here are pretty unnecessary, but I want it complete so here they
+    # are anyway.
+
+    var string[][] units = [
+        [" sekunde", " sekundes", " sekunžu"],
+        [" minūte",  " minūtes",  " minūšu"],
+        [" stunda",  " stundas",  " stundu"],
+        [" diena",   " dienas",   " dienu"]
+    ];
+
+    if ($sec < 60) {
+        return string($sec) + $units[0][lang_map_plural($sec)];
+    }
+    if ($sec < 3600) {
+        return string($sec / 60) + $units[1][lang_map_plural($sec / 60)];
+    }
+    if ($sec < 86400) {
+        return string($sec / 3600) + $units[2][lang_map_plural($sec / 3600)];
+    }
+    return string($sec / 86400) + $units[3][lang_map_plural($sec / 86400)];
+}
+
+function Comment::time_display (string datefmt, string timefmt) : string {
+    if ($datefmt == "") {
+        $datefmt = "iso";
+    }
+    if ($timefmt == "") {
+        $timefmt = "short";
+    }
+
+    var string tooltip = "";
+    var string etime = secs_to_string($this.seconds_since_entry);
+    $tooltip = $etime + " pēc žurnāla ieraksta";
+
+    var string main;
+
+    var string display_date;
+    var string display_time;
+
+    if ($this.time_remote)
+    {
+        $display_date = $this.time_remote->date_format($datefmt);
+        $display_time = $this.time_remote->time_format($timefmt)
+            + " (vietējais)";
+    }
+    else
+    {
+        $display_date = $this.time->date_format($datefmt);
+        $display_time = $this.time->time_format($timefmt) + " (UTC)";
+    }
+
+    if (defined $this.time_poster and defined $this.poster)
+    {
+        var string poster_date = $this.time_poster->date_format($datefmt);
+        $tooltip = $tooltip + ", ";
+
+        if ($poster_date == $display_date) { $poster_date = ""; }
+        else { $poster_date = $poster_date + " "; }
+
+        $tooltip = $tooltip + $poster_date
+            + $this.time_poster->time_format($timefmt)
+            + " (pēc " + $this.poster.username + " laika)";
+    }
+
+    if ($datefmt != "none") { $main = $main + $display_date; }
+    if ($datefmt != "none" and $timefmt != "none") { $main = $main + " "; }
+    if ($timefmt != "none") { $main = $main + $display_time; }
+
+    return "<span title=\"" + ehtml($tooltip) + "\">" + ehtml($main)
+        + "</span>";
+}
+
+function server_sig()
+{
+    """Lapu uztur <a href="$*SITEROOT/">$*SITENAME</a>""";
+}

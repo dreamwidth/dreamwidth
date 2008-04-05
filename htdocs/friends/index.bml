@@ -1,0 +1,54 @@
+<?page
+title=><?_ml .title _ml?>
+
+head<=
+<style type="text/css">
+.name {
+	width: 10em;
+	text-align: right;
+	font-weight: bold;
+	vertical-align: top;
+	}
+</style>
+<=head
+
+body<=
+<?_code
+    LJ::set_active_crumb('friends');
+_code?>
+
+<?p <?_ml .about _ml?> p?>
+<table cellspacing='2' cellpadding='5' border='0'>
+<tr>
+  <td class='name'><a href="<?siteroot?>/friends/invite.bml"><?_ml .invite.title _ml?></a></td>
+  <td><?_code BML::ml('.invite.about2', { sitename => $LJ::SITENAMESHORT }); _code?></td>
+</tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/friends/edit.bml"><?_ml /friends/edit.bml.title _ml?></a></td>
+  <td><?_ml .edit.about _ml?></td>
+</tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/friends/editgroups.bml"><?_ml /friends/editgroups.bml.title _ml?></a></td>
+  <td><?_ml .editgroups.about _ml?> <?_ml .filter _ml?></td>
+</tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/friends/filter.bml"><?_ml /friends/filter.bml.title _ml?></a></td>
+  <td><?_ml .filter.about _ml?></td>
+</tr>
+<tr>
+  <td class='name'><a href="<?siteroot?>/friends/nudge.bml"><?_ml .nudge.title _ml?></a></td>
+  <td><?_ml .nudge.about _ml?></td>
+</tr>
+</table>
+<?p p?>
+<?h1 <?_ml .security.header _ml?> h1?>
+<?p <?_ml .security _ml?> p?>
+<ul>
+  <li><?_ml .security.only _ml?></li>
+  <li><?_ml .security.custom _ml?></li>
+</ul>
+<=body
+page?><?_c <LJDEP>
+link: htdocs/friends/edit.bml, htdocs/friends/editgroups.bml
+link: htdocs/friends/filter.bml, htdocs/download/index.bml
+</LJDEP> _c?>

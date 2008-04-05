@@ -1,0 +1,79 @@
+.appwidget-moodthemechooser fieldset {
+    width: 100%;
+    float: right;
+}
+.appwidget-moodthemechooser[class] fieldset {
+    width: auto;
+    float: none;
+}
+.appwidget-moodthemechooser .detail {
+    float: left;
+}
+.appwidget-moodthemechooser .detail[class] {
+    float: none;
+}
+.moodtheme-links {
+    margin-top: 10px !important;
+}
+.moodtheme-links li {
+    background: url(/img/arrow-double-black.gif) no-repeat 0 50%;
+    padding-left: 12px;
+}
+.moodtheme-form {
+    float: left;
+}
+.moodtheme-preview {
+    float: left;
+    padding: 5px;
+    margin-left: 20px;
+    background-color: #ecf6ff;
+    border: 1px solid #c7e0f6;
+    width: 175px;
+}
+.moodtheme-preview-nospecial {
+    width: 360px;
+}
+.moodtheme-preview table {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+.moodtheme-preview table td {
+    text-align: center;
+}
+.moodtheme-preview-nospecial table td {
+    vertical-align: bottom;
+}
+.moodtheme-preview p {
+    text-align: right;
+}
+.special-moodthemes {
+    width: 175px;
+    float: left;
+    margin-left: 20px;
+}
+.special-moodthemes-inner {
+    border: 1px solid #FFCC33;
+}
+* html .special-moodthemes-inner {
+    height: 1%;
+}
+.special-moodthemes h3 {
+    font-weight: bold;
+    font-style: italic;
+    font-size: 11px;
+    color: #000;
+    background-color: #FFFFDD;
+    margin: 0 !important;
+    padding: 2px 4px;
+}
+.special-moodthemes ul li {
+    margin: 5px;
+    float: left;
+}
+.special-moodthemes-desc {
+    padding: 5px;
+    margin-top: 3px;
+    font-size: smaller;
+}

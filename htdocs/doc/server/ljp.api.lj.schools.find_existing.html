@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::Schools::find_existing</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.schools.expand_codes.html" title="LJ::Schools::expand_codes">
+<link rel="next" href="ljp.api.lj.schools.get_attended.html" title="LJ::Schools::get_attended">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::Schools::find_existing</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.schools.expand_codes.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.schools.get_attended.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.schools.find_existing"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::Schools::find_existing</h2>
+<p>LJ::Schools::find_existing &#8212; Finds an existing school by given criteria.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::Schools::find_existing</b>(</code><var class="pdparam">country</var>, <var class="pdparam">name</var>, <var class="pdparam">state</var>, <var class="pdparam">city</var>, <var class="pdparam">url</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3193637"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>country. </b>country school is in.</p></li>
+<li><p><b>name. </b>name of school.</p></li>
+<li><p><b>state. </b>state school is in, or nothing for undefined state.</p></li>
+<li><p><b>city. </b>optional city school is in.</p></li>
+<li><p><b>url. </b>optional URL of school.</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3193704"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/schoollib.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3193718"></a><h2>Returns:</h2>
+<p>single scalar schoolid on exact match, arrayref of school ids found if multiple, undef on error; or no results.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.schools.expand_codes.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.schools.get_attended.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::Schools::expand_codes </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::Schools::get_attended</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Part III. Client/Server Protocol</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.index.html" title="LiveJournal Programming">
+<link rel="prev" href="ljp.int.multihomed_userprops.html" title="Chapter 22. Multihomed Userprops">
+<link rel="next" href="ljp.csp.guide.html" title="Chapter 23. Client / Server Protocol - Quick Reference">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Part III. Client/Server Protocol</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.int.multihomed_userprops.html">Prev</a> </td>
+<th width="60%" align="center">
+<span class="application">LiveJournal</span> Programming</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.guide.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="part" lang="en" id="ljp.csp.protocol">
+<div class="titlepage"><div><div><h1 class="title">Part III. Client/Server Protocol</h1></div></div></div>
+<div class="partintro" lang="en" id="partintro.ljp.csp">
+<div></div>
+<p>
+      There are a few types of interfaces available to the <span class="application">LiveJournal</span>
+      protocol: the older &#8220;<span class="quote">flat</span>&#8221; interface, the custom <acronym class="acronym">XML-RPC</acronym> interface, 
+      Atom <acronym class="acronym">API</acronym> support, and a modified version of the Blogger <acronym class="acronym">API</acronym>.
+      The <acronym class="acronym">XML-RPC</acronym> interface is probably easiest to use, because there are lots of <acronym class="acronym">XML-RPC</acronym>
+      resources available to developers in just about any programming language. If
+      you are in a situation that requires you to write your own interface wrapper,
+      the flat interface is probably best to use.
+    </p>
+<div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Tip</h3>
+<p>
+        Internally, all interfaces are just wrappers around the same functions.  Don't
+        worry too much about which one you use, as they accomplish the same thing.
+      </p>
+</div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="chapter"><a href="ljp.csp.guide.html">23. Client / Server Protocol - Quick Reference</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ljp.csp.guide.intro.html">1. Introduction to the Protocol</a></span></dt>
+<dt><span class="section"><a href="ljp.csp.guide.proxies.html">2. Working with Proxies</a></span></dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ljp.csp.auth.html">24. Authentication in the Client Server Protocol</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="ljp.csp.auth.clear.html">1. Clear</a></span></dt>
+<dt><span class="section"><a href="ljp.csp.auth.cookies.html">2. <code class="systemitem">HTTP</code> Cookies</a></span></dt>
+<dt><span class="section"><a href="ljp.csp.auth.challresp.html">3. Challenge-Response</a></span></dt>
+</dl></dd>
+<dt><span class="reference"><a href="ljp.csp.flat.protocol.html">I. Flat Client/Server Protocol Reference</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.checkfriends.html">checkfriends</a></span><span class="refpurpose"> &#8212; Mode that clients can use to poll the server to see if their Friends list has been updated.  This request
+is extremely quick, and is the preferred way for users to see when their Friends list is updated, rather
+than pounding on reload in their browser, which is stressful on the servers.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.consolecommand.html">consolecommand</a></span><span class="refpurpose"> &#8212; Run an administrative command. The LiveJournal server has a text-based shell-like administration console where less-often used commands can be entered. 
+There is a web interface to this shell online; this is another gateway to that. The mode is limited to one server-parsed command only. 
+The command should be sent with double quotes around any arguments with spaces, with double quotes escaped by backslashes, and backslashes escaped with backslashes. 
+Optionally, you can send a listref instead of a string for this argument, in which case, we will use your argument separation and not parse it ourselves.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.editevent.html">editevent</a></span><span class="refpurpose"> &#8212; Edit or delete a user's past journal entry</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.editfriendgroups.html">editfriendgroups</a></span><span class="refpurpose"> &#8212; Edit the user's defined groups of friends.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.editfriends.html">editfriends</a></span><span class="refpurpose"> &#8212; Add, edit, or delete friends from the user's Friends list.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.friendof.html">friendof</a></span><span class="refpurpose"> &#8212; Returns a list of which other LiveJournal users list this user as their friend.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.getchallenge.html">getchallenge</a></span><span class="refpurpose"> &#8212; Generate a one-time, quick expiration challenge to be used in challenge/response authentication methods.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.getdaycounts.html">getdaycounts</a></span><span class="refpurpose"> &#8212; This mode retrieves the number of journal entries per day.  Useful for populating
+calendar widgets in GUI clients.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.getevents.html">getevents</a></span><span class="refpurpose"> &#8212; Download parts of the user's journal. See also syncitems protocol mode.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.getfriendgroups.html">getfriendgroups</a></span><span class="refpurpose"> &#8212; Retrieves a list of the user's defined groups of friends.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.getfriends.html">getfriends</a></span><span class="refpurpose"> &#8212; Returns a list of which other LiveJournal users this user lists as their friend.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.getusertags.html">getusertags</a></span><span class="refpurpose"> &#8212; Retrieves a list of the user's defined tags.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.login.html">login</a></span><span class="refpurpose"> &#8212; Log in to the server, while announcing your client version.  The server returns with whether the password is good or not, the user's name, an optional message to be displayed to the user, and the list of the user's friend groups.  (friend groups can also be retrieved using the <code class="literal">getfriendgroups</code> mode)</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.postevent.html">postevent</a></span><span class="refpurpose"> &#8212; The most important mode, this is how a user actually submits a new log entry to the server.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.sessionexpire.html">sessionexpire</a></span><span class="refpurpose"> &#8212; Expires one or more sessions that a user has active within the system.  This can be used to log a user out of any browsers they are logged in from, as well as to cancel any sessions created with the sessionexpire mode.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.sessiongenerate.html">sessiongenerate</a></span><span class="refpurpose"> &#8212; Generates a session that can be used to setup a cookie for accessing the site with a user's privileges.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.flat.syncitems.html">syncitems</a></span><span class="refpurpose"> &#8212; Returns a list (or part of a list) of all the items (journal entries, to-do items, comments) that have been created or updated on LiveJournal since you last downloaded them.  Note that the items themselves are not returned --- only the item type and the item number.  After you get this you have to go fetch the items using another protocol mode.  For journal entries (type "L"), use the <code class="literal">getevents</code> mode with a <code class="literal">selecttype</code> of "syncitems".</span>
+</dt>
+</dl></dd>
+<dt><span class="reference"><a href="ljp.csp.xml-rpc.protocol.html">II. <acronym class="acronym">XML-RPC</acronym> Client/Server Protocol Reference</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.checkfriends.html">checkfriends</a></span><span class="refpurpose"> &#8212; 
+Checks to see if your Friends list has been updated since a specified time.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.consolecommand.html">consolecommand</a></span><span class="refpurpose"> &#8212; 
+Run an administrative command.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.editevent.html">editevent</a></span><span class="refpurpose"> &#8212; 
+Edit or delete a user's past journal entry
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.editfriendgroups.html">editfriendgroups</a></span><span class="refpurpose"> &#8212; 
+Edit the user's defined groups of friends.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.editfriends.html">editfriends</a></span><span class="refpurpose"> &#8212; 
+Add, edit, or delete friends from the user's Friends list.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.friendof.html">friendof</a></span><span class="refpurpose"> &#8212; 
+Returns a list of which other LiveJournal users list this user as their friend.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.getchallenge.html">getchallenge</a></span><span class="refpurpose"> &#8212; 
+Generate a server challenge string for authentication.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.getdaycounts.html">getdaycounts</a></span><span class="refpurpose"> &#8212; 
+This mode retrieves the number of journal entries per day.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.getevents.html">getevents</a></span><span class="refpurpose"> &#8212; 
+Download parts of the user's journal. See also syncitems mode.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.getfriends.html">getfriends</a></span><span class="refpurpose"> &#8212; 
+Returns a list of which other LiveJournal users this user lists as their friend.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.getfriendgroups.html">getfriendgroups</a></span><span class="refpurpose"> &#8212; 
+Retrieves a list of the user's defined groups of friends.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.getusertags.html">getusertags</a></span><span class="refpurpose"> &#8212; 
+Retrieves a list of the user's defined tags.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.login.html">login</a></span><span class="refpurpose"> &#8212; 
+validate user's password and get base information needed for client to function
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.postevent.html">postevent</a></span><span class="refpurpose"> &#8212; 
+The most important mode, this is how a user actually submits a new log entry to the server.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.sessionexpire.html">sessionexpire</a></span><span class="refpurpose"> &#8212; 
+Expires session cookies.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.sessiongenerate.html">sessiongenerate</a></span><span class="refpurpose"> &#8212; 
+Generate a session cookie.
+</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.csp.xml-rpc.syncitems.html">syncitems</a></span><span class="refpurpose"> &#8212; 
+Returns a list of all the items that have been created or updated for a user.
+</span>
+</dt>
+</dl></dd>
+<dt><span class="chapter"><a href="ljp.csp.blogger.html">25. Supporting the Blogger <acronym class="acronym">API</acronym></a></span></dt>
+<dt><span class="chapter"><a href="ljp.csp.atom.html">26. Supporting the Atom <acronym class="acronym">API</acronym></a></span></dt>
+<dt><span class="chapter"><a href="ljp.csp.versions.html">27. Protocol Versions</a></span></dt>
+<dt><span class="chapter"><a href="ljp.csp.entry_downloading.html">28. Downloading Entries</a></span></dt>
+<dt><span class="chapter"><a href="ljp.csp.export_comments.html">29. Exporting Comments</a></span></dt>
+<dt><span class="chapter"><a href="ljp.csp.proplist.html">30. Journal Item Meta-data</a></span></dt>
+<dt><span class="appendix"><a href="ljp.csp.faq.html">A. Frequently Asked Questions</a></span></dt>
+</dl>
+</div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.int.multihomed_userprops.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.index.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.guide.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 22. Multihomed Userprops </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 23. Client / Server Protocol - Quick Reference</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

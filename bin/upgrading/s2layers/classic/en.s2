@@ -1,0 +1,16 @@
+# -*-s2-*-
+
+layerinfo type = "i18n";
+layerinfo name = "English";
+layerinfo redist_uniq = "classic/en";
+        
+set text_meta_music = "Current Music";
+set text_meta_mood = "Current Mood";
+
+set text_permalink = "Link";
+
+set text_post_comment = "Comment on This";
+set text_post_comment_friends = "Comment on This";
+
+set text_read_comments = "1 comment // # comments";
+set text_read_comments_friends = "1 comment // # comments";

@@ -1,0 +1,47 @@
+;; -*- coding: utf-8 -*-
+.abilities.title=Abilities
+
+.accept=Accept
+
+.accepted.body=You have joined the following communities, with the mentioned abilities:
+
+.accepted.title=Invitations Accepted
+
+.actions.title=Actions
+
+.back=Manage invites
+
+.community.title=Community
+
+.decline=Decline
+
+.fromline=From [[user]] ([[date]])
+
+.label.admin=Maintainer
+
+.label.member=Member
+
+.label.moderate=Moderator
+
+.label.post=Can Post
+
+.label.preapprove=Unmoderated
+
+.manage=Manage account
+
+.none.body=You have no pending community invitations at this time.
+
+.none.title=Nothing Pending
+
+.rejected.body=You have rejected the following community invitations:
+
+.rejected.title=Invitations Rejected
+
+.submit=Submit Selections
+
+.title=Manage Community Invitations
+
+.undecided.body=You have not decided on actions for the following invitations:
+
+.undecided.title=Invitations Still Pending
+

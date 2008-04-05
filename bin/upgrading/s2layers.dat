@@ -1,0 +1,83 @@
+################################################################
+# base filename         layer type      parent
+
+core1                   core            -
+i18nc/be1               i18nc           core1
+i18nc/da1               i18nc           core1
+i18nc/de1               i18nc           core1
+i18nc/en1               i18nc           core1
+i18nc/en_GB1            i18nc           core1
+i18nc/eo1               i18nc           core1
+i18nc/fi1               i18nc           core1
+i18nc/fr1               i18nc           core1
+i18nc/is1               i18nc           core1
+i18nc/ja1               i18nc           core1
+i18nc/lv1               i18nc           core1
+i18nc/ru1               i18nc           core1
+i18nc/uk1               i18nc           core1
+
+classic/layout          layout          core1
+classic/en              i18n            classic/layout
+classic/themes          theme+          classic/layout
+
+cleansimple/layout      layout          core1
+cleansimple/en          i18n            cleansimple/layout
+cleansimple/themes      theme+          cleansimple/layout
+
+digitalmultiplex/layout layout          core1
+digitalmultiplex/en     i18n            digitalmultiplex/layout
+digitalmultiplex/themes theme+          digitalmultiplex/layout
+
+disjointed/layout       layout          core1
+disjointed/themes       theme+          disjointed/layout
+
+haven/layout            layout          core1
+haven/themes            theme+          haven/layout
+
+generator/layout        layout          core1
+generator/en            i18n            generator/layout
+generator/themes        theme+          generator/layout
+
+magazine/layout         layout          core1
+magazine/en             i18n            magazine/layout
+magazine/themes         theme+          magazine/layout
+
+notepad/layout          layout          core1
+notepad/en              i18n            notepad/layout
+notepad/themes          theme+          notepad/layout
+
+punquin/layout          layout          core1
+punquin/en              i18n            punquin/layout
+punquin/themes          theme+          punquin/layout
+
+refriedpaper/layout     layout          core1
+refriedpaper/themes     theme+          refriedpaper/layout
+
+tabularindent/layout    layout          core1
+tabularindent/en        i18n            tabularindent/layout
+tabularindent/themes    theme+          tabularindent/layout
+
+sturdygesture/layout    layout          core1
+sturdygesture/themes    theme+          sturdygesture/layout
+
+variableflow/layout     layout          core1
+variableflow/themes     theme+          variableflow/layout
+
+s1shortcomings/layout   layout          core1
+
+sixhtml/layout          layout          core1
+sixhtml/themes          theme+          sixhtml/layout
+
+stylecontest/layout     layout(sixhtml/layout)  core1
+stylecontest/themes     theme+                  stylecontest/layout
+
+deardiary/layout        layout          core1
+deardiary/themes        theme+          deardiary/layout
+
+lickable/layout         layout          core1
+lickable/themes         theme+          lickable/layout
+
+hostedcomments/layout   layout          core1
+
+# include local file
+s2layers-local.dat      INCLUDE

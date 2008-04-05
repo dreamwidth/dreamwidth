@@ -1,0 +1,225 @@
+#NEWLAYER: sixhtml/__none
+layerinfo "type" = "theme";
+layerinfo "name" = "Unstyled";
+layerinfo "redist_uniq" = "sixhtml/__none";
+set base_theme = "__none";
+
+#NEWLAYER: sixhtml/april
+layerinfo "type" = "theme";
+layerinfo "name" = "April";
+layerinfo "redist_uniq" = "sixhtml/april";
+set base_theme = "april";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#cccccc";
+set theme_linkcolor = "#003366";
+
+#NEWLAYER: sixhtml/baby
+layerinfo "type" = "theme";
+layerinfo "name" = "Baby";
+layerinfo "redist_uniq" = "sixhtml/baby";
+set base_theme = "baby";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#e5fbd7";
+set theme_linkcolor = "#6db0f3";
+
+#NEWLAYER: sixhtml/beckett
+layerinfo "type" = "theme";
+layerinfo "name" = "Beckett";
+layerinfo "redist_uniq" = "sixhtml/beckett";
+set base_theme = "beckett";
+set theme_bgcolor = "#101921";
+set theme_fgcolor = "#cccccc";
+set theme_bordercolor = "#343f4a";
+set theme_linkcolor = "#888899";
+
+#NEWLAYER: sixhtml/bluecrush
+layerinfo "type" = "theme";
+layerinfo "name" = "Blue Crush";
+layerinfo "redist_uniq" = "sixhtml/bluecrush";
+set base_theme = "bluecrush";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#666666";
+set theme_bordercolor = "#d7d7d7";
+set theme_linkcolor = "#339933";
+
+#NEWLAYER: sixhtml/bonjour
+layerinfo "type" = "theme";
+layerinfo "name" = "Bonjour Chatette";
+layerinfo "redist_uniq" = "sixhtml/bonjour";
+set base_theme = "bonjour";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#f7a3c7";
+set theme_linkcolor = "#e32e61";
+
+#NEWLAYER: sixhtml/bryant
+layerinfo "type" = "theme";
+layerinfo "name" = "Bryant";
+layerinfo "redist_uniq" = "sixhtml/bryant";
+set base_theme = "bryant";
+set theme_bgcolor = "#edf2f7";
+set theme_fgcolor = "#666666";
+set theme_bordercolor = "#d1dbe5";
+set theme_linkcolor = "#0099cc";
+
+#NEWLAYER: sixhtml/classy
+layerinfo "type" = "theme";
+layerinfo "name" = "Classy";
+layerinfo "redist_uniq" = "sixhtml/classy";
+set base_theme = "classy";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#333333";
+set theme_linkcolor = "#cc6600";
+
+#NEWLAYER: sixhtml/earth
+layerinfo "type" = "theme";
+layerinfo "name" = "Earth";
+layerinfo "redist_uniq" = "sixhtml/earth";
+set base_theme = "earth";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#333333";
+set theme_linkcolor = "#003366";
+
+#NEWLAYER: sixhtml/green
+layerinfo "type" = "theme";
+layerinfo "name" = "Green";
+layerinfo "redist_uniq" = "sixhtml/green";
+set base_theme = "green";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#000000";
+set theme_bordercolor = "#cccccc";
+set theme_linkcolor = "#336600";
+
+#NEWLAYER: sixhtml/folio
+layerinfo "type" = "theme";
+layerinfo "name" = "Folio";
+layerinfo "redist_uniq" = "sixhtml/folio";
+set base_theme = "folio";
+set theme_bgcolor = "#000000";
+set theme_fgcolor = "#cccccc";
+set theme_bordercolor = "#adadad";
+set theme_linkcolor = "#dddddd";
+
+#NEWLAYER: sixhtml/forestgreen
+layerinfo "type" = "theme";
+layerinfo "name" = "Forest Green";
+layerinfo "redist_uniq" = "sixhtml/forestgreen";
+set base_theme = "forestgreen";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#403610";
+set theme_bordercolor = "#9bbe8e";
+set theme_linkcolor = "#a97700";
+
+#NEWLAYER: sixhtml/knitting
+layerinfo "type" = "theme";
+layerinfo "name" = "Knitting";
+layerinfo "redist_uniq" = "sixhtml/knitting";
+set base_theme = "knitting";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#f595da";
+set theme_linkcolor = "#6ab4a9";
+
+#NEWLAYER: sixhtml/powell-street
+layerinfo "type" = "theme";
+layerinfo "name" = "Powell Street";
+layerinfo "redist_uniq" = "sixhtml/powell-street";
+set base_theme = "powell-street";
+set theme_bgcolor = "#e7e7ec";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#bbbbbb";
+set theme_linkcolor = "#598a92";
+
+#NEWLAYER: sixhtml/masala
+layerinfo "type" = "theme";
+layerinfo "name" = "Masala";
+layerinfo "redist_uniq" = "sixhtml/masala";
+set base_theme = "masala";
+set theme_bgcolor = "#f0f0f0";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#e6caad";
+set theme_linkcolor = "#cc0000";
+
+#NEWLAYER: sixhtml/minimalist
+layerinfo "type" = "theme";
+layerinfo "name" = "Minimalist";
+layerinfo "redist_uniq" = "sixhtml/minimalist";
+set base_theme = "minimalist";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#333333";
+set theme_linkcolor = "#003366";
+
+#NEWLAYER: sixhtml/porpoise
+layerinfo "type" = "theme";
+layerinfo "name" = "Porpoise";
+layerinfo "redist_uniq" = "sixhtml/porpoise";
+set base_theme = "porpoise";
+set theme_bgcolor = "#618b9a";
+set theme_fgcolor = "#ffffff";
+set theme_bordercolor = "#7199a6";
+set theme_linkcolor = "#d3bc4b";
+
+#NEWLAYER: sixhtml/purplecrush
+layerinfo "type" = "theme";
+layerinfo "name" = "Purple Crush";
+layerinfo "redist_uniq" = "sixhtml/purplecrush";
+set base_theme = "purplecrush";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#666666";
+set theme_bordercolor = "#ccccff";
+set theme_linkcolor = "#99ccff";
+
+#NEWLAYER: sixhtml/stevenson
+layerinfo "type" = "theme";
+layerinfo "name" = "Stevenson";
+layerinfo "redist_uniq" = "sixhtml/stevenson";
+set base_theme = "stevenson";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#cccccc";
+set theme_linkcolor = "#0066cc";
+
+#NEWLAYER: sixhtml/sunburned
+layerinfo "type" = "theme";
+layerinfo "name" = "Sunburned";
+layerinfo "redist_uniq" = "sixhtml/sunburned";
+set base_theme = "sunburned";
+set theme_bgcolor = "#efeebf";
+set theme_fgcolor = "#403610";
+set theme_bordercolor = "#ebdc7e";
+set theme_linkcolor = "#ee3c0c";
+
+#NEWLAYER: sixhtml/stitch
+layerinfo "type" = "theme";
+layerinfo "name" = "Stitch";
+layerinfo "redist_uniq" = "sixhtml/stitch";
+set base_theme = "stitch";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#666666";
+set theme_bordercolor = "#e1b5e1";
+set theme_linkcolor = "#cc33cc";
+
+#NEWLAYER: sixhtml/travel
+layerinfo "type" = "theme";
+layerinfo "name" = "Travel";
+layerinfo "redist_uniq" = "sixhtml/travel";
+set base_theme = "travel";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#666666";
+set theme_bordercolor = "#efe0b6";
+set theme_linkcolor = "#84a2ec";
+
+#NEWLAYER: sixhtml/wedding
+layerinfo "type" = "theme";
+layerinfo "name" = "Wedding";
+layerinfo "redist_uniq" = "sixhtml/wedding";
+set base_theme = "wedding";
+set theme_bgcolor = "#ffffff";
+set theme_fgcolor = "#333333";
+set theme_bordercolor = "#cee4d7";
+set theme_linkcolor = "#0099cc";

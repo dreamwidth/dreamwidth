@@ -1,0 +1,183 @@
+;; -*- coding: utf-8 -*-
+.accounttype=Account type
+
+.answer=Answer
+
+.answered.need.help=<b><span style='color: #ff0000;'>answered</span></b> (<b>still needs help</b>)
+
+.answered=<b><span style='color: #ff0000;'>answered</span></b> (awaiting close)
+
+.approve.screened=Approve Screened Response
+
+.back.link=Back to <a [[backlink]]>the support area</a>.
+
+.birthday=birthday
+
+.change.cat=Change Category
+
+.change.summary=Change summary
+
+.clear=Clear
+
+.close.without.credit=close without credit
+
+.cluster=cluster
+
+.comment=Comment
+
+.credit.fix=credit fix here
+
+.dataversion=data version 
+
+.diagnostics=Diagnostics
+
+.email.validared=email validated?
+
+.email.user=Email/User:
+
+.error.text1=You do not appear to have permission to read any support categories.
+
+.error.text2=<?p No [[what]] open request [[cat]] found. p?>
+
+.error=Error
+
+.faq=FAQ
+
+.faq.reference=FAQ Reference
+
+.from=From:
+
+.goback.text=<?p Go back to <a [[request_link]]>Request #[[spid]]</a> p?>
+
+.help.link=Back to the <a href="help.bml">list of open requests</a>.<br />
+
+.important.notes.text<<
+<?standout <b>Important Notes:</b>
+<?p [[sitenameshort]] Support is an open-source project run by a community of volunteers. 
+If you think you know the answer to this question, you are welcome to help out by 
+submitting an answer in the box below. Your answer will be screened and 
+evaluated by senior support volunteers for content. If your answer is first 
+and correct, it will be sent to the user. p?>
+<?p If you have questions about Support, please see the <a [[supportlink]]>support guide</a> for more information. p?>
+<?p Thanks! p?> standout?>
+.
+
+.incat=in the same category
+
+.internal.comment=Internal Comment
+
+.language=language
+
+.lock.request=lock request
+
+.manualset=manual set 
+
+.mast.login=You must <a [[loginlink]]>login</a> to help people out.
+
+.message=Message
+
+.next=next
+
+.no.html.allowed=No HTML allowed, so don't worry about about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
+
+.no=no
+
+.not.have.access=Sorry, you do not have access to answer people's support requests in this category.
+
+.nothaveprivilege=You don't have the necessary privilege to view this request. 
+
+.none=none
+
+
+.open=open
+
+.original.request=Original Request
+
+.overrides=overrides
+
+.post.comment=Post a comment or solution
+
+.postbutton=Post Comment/Solution
+
+.posted=Posted
+
+.previous=previous
+
+.private.request=<b>This is a private request.</b> It is not publicly visible.
+
+.put.in.queue=Put in Queue
+
+.reference=Reference
+
+.reopen.this.request=reopen this request
+
+.reply.type=Reply Type
+
+.resend.validation.email=resend validation email
+
+.scheme=scheme
+
+.screened.response=Screened Response
+
+.see.next=<a [[next_link]]>next open request</a>
+
+.see.preview=Go to: <a [[preview_link]]>previous open request</a>,
+
+.select.canned.to.insert=select canned to insert
+
+.status=Status
+
+.statushistory=statushistory
+
+.status.deleted.and.purged=Status: <b>deleted and purged</b>
+
+.style=style
+
+.summary=Summary
+
+.supportcategory=Support category
+
+.timeposted=Time posted
+
+.title=Request #[[reqid]]
+
+.transitioning=<b>transitioning</b> (used to be validated, but changed email addresses and hasn't reconfirmed)
+
+.take.out.of.queue=Take out of Queue:
+
+.unable.connect=(unable to connect to cluster, some data temporarily unavailable)
+
+.underage=underage
+
+.uniquecookie=unique cookie 
+
+.uniq=Uniq:
+
+.unknown=Unknown
+
+.unknownumber=Unknown support number.
+
+.unlock.request=unlock request
+
+.use.this.to.change.awaiting=(Use this to change status to &quot;awaiting close&quot;.)
+
+.use.this.to.re-open=(Use this to re-open the request.)
+
+.use.this.to.summary=(Use this to change the request summary.)
+
+.username=username
+
+.userreadonly=(this user is currently in read-only mode)
+
+.view=view
+
+.wasby=was by
+
+.yes=yes
+
+.yesbirthday=yes because of birthday
+
+.yesmanualset=yes because of manual set
+
+.yesuniquecookie=yes because of unique cookie
+

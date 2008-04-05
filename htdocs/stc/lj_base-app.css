@@ -1,0 +1,257 @@
+/*
+    This is utility css that can be used anywhere in the app
+    It should be included on all app pages in all schemes
+*/
+
+/* .pkg class wraps enclosing block element around inner floated elements */
+.pkg:after {
+    content: " ";
+    display: block;
+    visibility: hidden;
+    clear: both;
+    height: 0.1px;
+    font-size: 0.1em;
+    line-height: 0;
+}
+.pkg { display: inline-block; }
+/* no ie mac \*/
+* html .pkg { height: 1%; }
+.pkg[class] { height: auto; }
+.pkg { display: block; }
+/* */
+
+/* form styles */
+label.left {
+    display: block;
+    float: left;
+}
+input.text,
+textarea.text,
+select.select {
+    margin: 0px 3px 0px 0px;
+    padding: 2px 2px;
+    background: #fff url(/img/input-bg.gif) repeat-x 0 -1px;
+    border: 1px solid #bbb;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+}
+select.select {
+    padding: 1px;
+}
+fieldset.nostyle {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+input.create-account {
+    font-size: 110%;
+    color: #fff;
+    margin: 0;
+    background: #559A40;
+    border: 2px solid #76AE65;
+    border-bottom: 2px solid #447C33;
+    border-right: 2px solid #447C33;
+}
+
+.detail {
+    font-size: 90%;
+    color: #444;
+}
+p.detail {
+    margin: 0 0 10px 0;
+    padding: 0;
+}
+h2.widget-header {
+    margin: 0 0 6px 0;
+    padding: 0 0 6px 0;
+    border-bottom: 1px solid #ccc;
+}
+ul.detail li {
+    font-size: 90%;
+}
+hr.hr {
+    border: 0;
+    width: 100%;
+    color: #8FC3F7; background-color: #8FC3F7;
+    height: 1px;
+}
+/* generic class for removing styling from ul */
+ul.nostyle {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* tables where rows alternate colors */
+table.alternating-rows th {
+    text-align: left;
+    border-top: 1px solid #8FC3F7;
+    border-bottom: 1px solid #8FC3F7;
+    background-color: #C5DFF9;
+    padding: 6px 4px;
+}
+table.alternating-rows tr.altrow1 {
+    background-color: #fff;
+}
+table.alternating-rows tr.altrow2 {
+    background-color: #eee;
+}
+table.alternating-rows td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+}
+
+/* columns for content layouts */
+
+div.columns-2 .columns-2-left {
+    float: left;
+    width: 49%;
+}
+div.columns-2 .columns-2-right {
+    float: right;
+    width: 49%;
+}
+div.columns-2-r300 {
+    width: 720px;
+}
+div.columns-2-r300 .columns-2-left {
+    float: left;
+    width: 405px;
+    margin-right: 15px;
+}
+div.columns-2-r300 .columns-2-right {
+    float: left;
+    width: 300px;
+}
+
+/* default margin for widgets */
+
+.appwidget {
+    margin-bottom: 15px;
+    position: relative;
+}
+.appwidget .more-link {
+    position: absolute;
+    right: 7px;
+    top: 6px;
+    font-size: 11px;
+    text-decoration: none;
+    padding-left: 10px;
+    text-transform: lowercase;
+    color: #114577 !important;
+    background: url('/img/arrow-double-blue.gif') no-repeat 0 60%;
+}
+.appwidget .more-link:hover {
+    text-decoration: underline;
+}
+/* add this class to anything to make upgrade icon appear next to it */
+
+.upgrade-account {
+    padding-right: 18px;
+    background: url('/horizon/upgrade-paid-icon.gif') no-repeat right 50%;
+}
+
+.arrow-link,
+.more-link {
+    padding-left: 12px;
+    background: url('/img/arrow-double-black.gif') no-repeat 0 50%;
+}
+
+/* Used to encapsualte message forms like Invite and Tell a Friend */
+.message {
+    border: 5px solid #eee;
+    margin-bottom: 15px;
+}
+
+.message blockquote {
+    margin: 0;
+    border: 1px solid #aaa;
+    padding: 15px;
+}
+
+.standout-border {
+    border: 1px solid #8fc3f7;
+    padding: 6px;
+}
+.standout-background {
+    background-color: #c5dff9;
+}
+
+/* Sidebars floated to the right */
+div.right-sidebar {
+    float: right;
+    width: 300px;
+    color: #000000;
+    background-color: #c5dff9;
+    border: 1px solid #8fc3f7;
+    margin: 10px;
+    padding: 10px;
+}
+div.ad-sidebar {
+    width: 300px;
+    float: right;
+}
+
+.textbutton { 
+    color: #0000CC;
+    cursor: pointer;
+}
+
+/* Solid background headings */
+h2.solid-neutral {
+    font-size: 14px;
+    font-family: Arial;
+    font-weight: bold;
+    background: #ededed url(/img/corner.gif) no-repeat 0 0;
+    margin: 0 0 8px 0;
+    padding: 5px 8px;
+    color: #222;
+}
+h2.solid-blue {
+    position: relative;
+    font-size: 14px;
+    font-family: Arial;
+    font-weight: bold;
+    background: #d7e7f7 url(/img/corner.gif) no-repeat 0 0;
+    margin: 0 0 8px 0;
+    padding: 5px 8px;
+    color: #222;
+}
+.solid-neutral {
+    background: #ededed;
+}
+
+input.bright {
+    background: url(/img/yellow_gradient.gif) repeat;
+    border: 1px solid #b48101;
+    color: #1f3368;
+    font-weight: bold;
+}
+
+.helper {
+    font-size: 0.8em;
+    color: #666;
+}
+
+.rounded-box {
+    background: no-repeat;
+    zoom: 1;
+}
+
+.rounded-box .rounded-box-tr {
+    background: 100% 0 no-repeat;
+}
+
+.rounded-box .rounded-box-bl {
+    background: 0 100% no-repeat;
+}
+
+.rounded-box .rounded-box-br {
+    background: 100% 100% no-repeat;
+    padding: 2px; /* border width */
+}
+
+.rounded-box .rounded-box-content {
+    padding: 10px;
+}

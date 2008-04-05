@@ -1,0 +1,43 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET);
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            content => "Error: $msg",
+        });
+    };
+
+    # get user
+    my $remote = LJ::get_remote()
+        or return $err->("Sorry, you must be logged in to use this feature.");
+
+    # log ack
+    my $class = $GET{class};
+    return $err->("Invalid class: $class")
+        unless $class && $class =~ /LJ::CProd::.+/;
+
+    LJ::CProd->mark_acked($remote, $class);
+
+    my %ret;
+
+    # generate content
+    my $style = $GET{style} || '';
+    if (!$GET{content} || lc $GET{content} eq 'framed') {
+        $ret{content} = LJ::CProd->full_box_for($remote, style => $style);
+    } elsif(lc $GET{content} eq 'raw') {
+        $ret{content} = LJ::CProd->box_for($remote, style => $style);
+    } else {
+        return $err->("Invalid content request");
+    }
+
+    select undef, undef, undef, 0.25 if $LJ::IS_DEV_SERVER;
+
+    BML::set_content_type('text/javascript; charset=utf-8');
+    BML::finish();
+
+    return LJ::js_dumper(\%ret);
+}
+_code?>

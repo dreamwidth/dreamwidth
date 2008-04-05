@@ -1,0 +1,1779 @@
+# -*-s2-*-
+layerinfo type = "layout";
+layerinfo name = "Haven";
+layerinfo lang = "en";
+
+layerinfo author_name  = "Jesse Proulx";
+layerinfo author_email = "jproulx@livejournal.com";
+layerinfo redist_uniq  = "haven/layout";
+layerinfo des          = "This style is more conceptual and boring than it is innovative and pretty. The goal for this style was to see how well I could automate color palette generation, given the functions available in S2.";
+layerinfo previews     = "haven/haven.png";
+
+propgroup presentation
+{
+    property use page_recent_items;
+    property use page_friends_items;
+    property use view_entry_disabled;
+    property use use_shared_pic;
+    property bool show_entry_userpic
+    {
+        des = "Show user picture icons with each of your entries?";
+    }
+    set show_entry_userpic = true;
+    property string content_width
+    {
+        des = "Entire width of the main content, in percentages";
+        values = "60%|60%|70%|70%|80%|80%|90%|90%|100%|100%";
+    }
+    set content_width = "90%";
+    property string title_position
+    {
+        des = "Location of the title bar in regards to the entire page";
+        values = "top|Top of the page|bottom|Bottom of the page|both|Both top and bottom of the page";
+    }
+    set title_position = "both";
+    property use custom_control_strip_colors;
+property string text_expand_link {
+        des = "Text for comments expander link in link bar";
+        noui = 1;
+    }
+    set text_expand_link = "Expand";
+
+}
+propgroup colors
+{
+    ### Automatic Color Palettes ###
+    property Color color_scheme_base
+    {
+        des = "Core color used to determine the entire color scheme.";
+        note = "After you select a base color and choose a color scheme, an entire palette will be built automatically for your journal colors.";
+    }
+    property string color_scheme
+    {
+        des = "Color scheme";
+        values = "monochromatic|Monochromatic: use variations of light and saturation without straying from your suggested color|analogous|Analogous: use slightly similar hues to enhance your suggested color|complementary|Complementary: create a high contrast scheme based on your suggested color|split_complementary|Split Complementary: A variation of the Complementary scheme using varying hues of the complementary color|double_complementary|Double Complementary: use slightly varying hues of the base and complementary colors|triadic|Triadic: offers less contrast than the complementary scheme, but is richer in color|tetradic|Tetradic: a combination of the Complementary and Triadic schemes";
+    }
+    set color_scheme_base = "#1111cc";
+    set color_scheme = "analogous";
+
+    ### Main page colors ###
+    property Color page_bgcolor
+    {
+        des = "Background color";
+    }
+    property Color page_fgcolor
+    {
+        des = "Text color";
+    }
+    #set page_bgcolor = "#ffffff";
+    #set page_fgcolor = "#000000";
+
+    ### Content colors ###
+    property Color content_bgcolor
+    {
+        des = "Background color for content on the page";
+    }
+    property Color content_fgcolor
+    {
+        des = "Text color for the content on the page";
+    }
+    property Color content_border
+    {
+       des = "Color for borders around content";
+    }
+    #set content_bgcolor = "#ffffff";
+    #set content_fgcolor = "#000000";
+    #set content_border  = "#c2c2c2";
+
+    ### Page title colors ###
+    property Color title_bgcolor
+    {
+        des = "Title box background color";
+    }
+    property Color title_fgcolor
+    {
+        des = "Title box text color";
+    }
+    property Color title_border
+    {
+        des = "Border color between title bar boxes";
+    }
+    #set title_bgcolor = "#cccccc";
+    #set title_fgcolor = "#000000";
+    #set title_border  = "#cccccc";
+
+    ### Navigation box colors ###
+    property Color nav_bgcolor
+    {
+        des = "Background color on navigation box";
+    }
+    property Color nav_fgcolor
+    {
+        des = "Text color on navigation box";
+    }
+    #set nav_bgcolor = "#e2e2e2";
+    #set nav_fgcolor = "#000000";
+
+    ### Tabbed box title colors ###
+    property Color tabs_bgcolor
+    {
+        des = "Background color on tabs and headers";
+    }
+    property Color tabs_fgcolor
+    {
+        des = "Text color on tabs and headers";
+    }
+
+    ### Sidebar boxes ###
+    property Color sidebar_box_bgcolor
+    {
+        des = "Background color on sidebar boxes";
+    }
+    property Color sidebar_box_fgcolor
+    {
+        des = "Text color on sidebar boxes";
+    }
+    property Color sidebar_box_title_bgcolor
+    {
+        des = "Background color on sidebar box titles";
+    }
+    property Color sidebar_box_title_fgcolor
+    {
+        des = "Text color on sidebar box titles";
+    }
+    property Color sidebar_box_border
+    {
+        des = "Border color on sidebar boxes";
+    }
+    #set sidebar_box_bgcolor = "#ffffff";
+    #set sidebar_box_fgcolor = "#000000";
+    #set sidebar_box_title_bgcolor = "#cccccc";
+    #set sidebar_box_title_fgcolor = "#000000";
+    #set sidebar_box_border = "#000000";
+
+    ### Accent color ###
+    property Color accent_bgcolor
+    {
+        des = "Color used to accent hotspot areas";
+    }
+    property Color accent_fgcolor
+    {
+        des = "Text color used on accent hotspot areas";
+    }
+    #set accent_bgcolor = "#c0c0c0";
+    #set accent_fgcolor = "#000000";
+
+    ### Comment bar colors ###
+    property Color comment_bar_one_bgcolor
+    {
+        des = "Background color for comment bars";
+    }
+    property Color comment_bar_one_fgcolor
+    {
+        des = "Text color on comment bars";
+    }
+    property Color comment_bar_two_bgcolor
+    {
+        des = "Alternating background color for comment bars";
+    }
+    property Color comment_bar_two_fgcolor
+    {
+        des = "Text color on alternating comment bars";
+    }
+    property Color comment_bar_screened_bgcolor
+    {
+        des = "Background bar color for screened comments";
+    }
+    property Color comment_bar_screened_fgcolor
+    {
+        des = "Text color on background bar for screened comments";
+    }
+    #set comment_bar_one_bgcolor = "#c0c0c0";
+    #set comment_bar_one_fgcolor = "#000000";
+    #set comment_bar_two_bgcolor = "#dddddd";
+    #set comment_bar_two_fgcolor = "#000000";
+    #set comment_bar_screened_bgcolor = "#f1f1f1";
+    #set comment_bar_screened_fgcolor = "#000000";
+
+    ### Footer colors ###
+    property Color footer_bgcolor
+    {
+        des = "Background color on the footer";
+    }
+    property Color footer_fgcolor
+    {
+        des = "Text color on the footer";
+    }
+
+    ### Navigation strip colors ###
+    property use control_strip_bgcolor;
+    property use control_strip_fgcolor;
+    property use control_strip_bordercolor;
+    property use control_strip_linkcolor;
+}
+propgroup fonts
+{
+    property string main_font
+    {
+        des = "Preferred Font";
+        maxlength = 25;
+        size = 10;
+        example = "Arial";
+        note = "Leave blank for your browser's default font";
+    }
+    property string main_font_fallback
+    {
+        des = "Alternative font style";
+        values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+        note = "This general style will serve as a fallback if your preferred font is unavailable.";
+    }
+    set main_font = "Trebuchet MS";
+    set main_font_fallback = "sans-serif";
+    property string sidebar_font
+    {
+        des = "Font for the sidebar boxes";
+        maxlength = 25;
+        size = 10;
+        example = "Arial";
+        note = "Leave blank for your browser's default font";
+    }
+    property string sidebar_font_fallback
+    {
+        des = "Alternative font style";
+        values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+        note = "This general style will serve as a fallback if your preferred font is unavailable.";
+    }
+    set sidebar_font = "Verdana";
+    set sidebar_font_fallback = "sans-serif";
+    property string content_font
+    {
+        des = "Font for the content boxes";
+        maxlength = 25;
+        size = 10;
+        example = "Arial";
+        note = "Leave blank for your browser's default font";
+    }
+    property string content_font_fallback
+    {
+        des = "Alternative font style";
+        values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+        note = "This general style will serve as a fallback if your preferred font is unavailable.";
+    }
+    set content_font = "Tahoma";
+    set content_font_fallback = "sans-serif";
+}
+propgroup images
+{
+    property string page_background_image
+    {
+        des = "Background image URL";
+        note = "URL to an image to be used for the page background (leave blank for none).";
+    }
+    property string page_background_repeat
+    {
+       des = "Background image repeat";
+       values = "repeat|Repeat|no-repeat|Don't repeat|repeat-x|Repeat across only|repeat-y|Repeat down only";
+    }
+    property string page_background_position
+    {
+       des = "Background image position";
+       note = "Does not apply if background image is repeating in both directions.";
+       values = "center|Center|center left|Center-left|center right|Center-right|top|Top|top left|Top-left|top right|Top-right|bottom|Bottom|bottom left|Bottom-left|bottom right|Bottom-right|left|Left|right|Right";
+    }
+    property string page_background_scrolling
+    {
+        des = "Background image scrolling";
+        note = "Not supported in all browsers, but allows for the background image to be in a fixed position when scrolling.";
+        values = "scroll|Scroll|fixed|Fixed";
+    }
+    set page_background_image     = "";
+    set page_background_repeat    = "repeat";
+    set page_background_position  = "center";
+    set page_background_scrolling = "scroll";
+}
+propgroup text
+{
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
+    property use text_meta_groups;
+    property use text_post_comment;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+    property use text_website_default_name;
+    property string text_sidebar_profile
+    {
+        des = "Title of the profile sidebar box";
+        noui = 1;
+    }
+    property string text_sidebar_blurb
+    {
+        des = "Title of the blurb sidebar box";
+        noui = 1;
+    }
+    property string text_sidebar_links
+    {
+        des = "Title of the links sidebar box";
+        noui = 1;
+    }
+    property string text_sidebar_summary
+    {
+        des = "Title of the summary sidebar box";
+        noui = 1;
+    }
+    set text_sidebar_profile = "Profile";
+    set text_sidebar_blurb = "Blurb";
+    set text_sidebar_links = "Links";
+    set text_sidebar_summary = "Page Summary";
+}
+propgroup sidebar
+{
+    property string sidebar_width
+    {
+        des = "Sidebar width specification";
+        values = "10%|Skinny|15%|Default|25%|Wide";
+    }
+    property string sidebar_position
+    {
+        des = "Page position of the sidebar";
+        values = "left|Left|right|Right";
+    }
+    set sidebar_width = "15%";
+    set sidebar_position = "left";
+    property string sidebar_blurb {
+        des = "Text to be added to the sidebar";
+        note = "Appears in the sidebar 'Blurb'";
+        rows = 10;
+        cols = 25;
+        string_mode = "html";
+    }
+
+    ### Positions ###
+    property string sidebar_position_one {
+        note = "Set to 'Nothing' to hide box";
+        des = "First Sidebar Box";
+        values = "nothing|Nothing|summary|Page Summary|links|Link List|blurb|Blurb|calendar|Calendar";
+    }
+    set sidebar_position_one = "summary";
+    property string sidebar_position_two {
+        note = "Set to 'Nothing' to hide box";
+        des = "Second Sidebar Box";
+        values = "nothing|Nothing|summary|Page Summary|links|Link List|blurb|Blurb|calendar|Calendar";
+    }
+    set sidebar_position_two = "links";
+    property string sidebar_position_three {
+        note = "Set to 'Nothing' to hide box";
+        des = "Third Sidebar Box";
+        values = "nothing|Nothing|summary|Page Summary|links|Link List|blurb|Blurb|calendar|Calendar";
+    }
+    set sidebar_position_three = "blurb";
+    property string sidebar_position_four {
+        note = "Set to 'Nothing' to hide box";
+        des = "Fourth Sidebar Box";
+        values = "nothing|Nothing|summary|Page Summary|links|Link List|blurb|Blurb|calendar|Calendar";
+    }
+    set sidebar_position_four = "calendar";
+}
+propgroup customcss
+{
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+set tags_aware = true;
+
+################################################################################
+#
+# Color scheme functions
+#
+
+function color_triadic(Color base) : Color[]
+{
+    var int red         = $base->red();
+    var int green       = $base->green();
+    var int blue        = $base->blue();
+    var Color color_two = $base->clone();
+    var Color color_one = $base->clone();
+
+    $color_one->blue($red);
+    $color_one->red($green);
+    $color_one->green($blue);
+
+    $color_two->red($blue);
+    $color_two->green($red);
+    $color_two->blue($green);
+
+    return [$base, $color_one, $color_two];
+}
+
+function color_tetradic(Color base) : Color[]
+{
+    var Color[] tetradic_one = color_triadic($base);
+    var Color[] tetradic_two = color_triadic($base->inverse());
+    var Color color_one = $tetradic_one[1]->average($tetradic_two[2]);
+    var Color color_two = $tetradic_one[2]->average($tetradic_two[1]);
+
+    return [$base, $base->inverse(), $color_one, $color_two];
+}
+
+function color_analogous(Color base) : Color[]
+{
+    var Color[] triad = color_triadic($base->inverse());
+    var Color color_one = $base->average($triad[1]);
+    var Color color_two = $base->average($triad[2]);
+
+    return [$base, $color_one, $color_two];
+}
+
+function color_split_complementary(Color base) : Color[]
+{
+    var Color[] analogous = color_analogous($base->inverse());
+    var Color color_one = $analogous[1];
+    var Color color_two = $analogous[2];
+
+    return [$base, $color_one, $color_two];
+}
+function color_double_complementary(Color base) : Color[]
+{
+    var Color[] analogous_one = color_analogous($base);
+    var Color color_one       = $analogous_one[1];
+    var Color color_two       = $analogous_one[2];
+    var Color[] analogous_two = color_analogous($base->inverse());
+    var Color color_three     = $analogous_two[1];
+    var Color color_four      = $analogous_two[2];
+
+    return [$base, $color_one, $color_two, $color_three, $color_four];
+}
+
+function color_ideal_foreground(Color bg) : Color "Used to determine the best text color (out of white and black currently) given a single solid background color"
+{
+    var Color fg = $bg->inverse();
+    var int saturation = $fg->saturation();
+    $saturation = $saturation >= 127 ? 255 : 0;
+    $fg->saturation($saturation);
+    var int lightness = $fg->lightness();
+    $lightness = $lightness >= 120 ? 255 : 0;
+    $fg->lightness($lightness);
+    return $fg;
+}
+
+function prop_init()
+{
+    # If the user has selected a base color for a scheme, we build a palette
+    # with that color as the base. All of the isnull checks allows a user to tweak individual
+    # color settings without having to set them all explicitly.
+    if ($*color_scheme_base) {
+        if (isnull $*title_bgcolor)       { $*title_bgcolor       = $*color_scheme_base->clone(); }
+        if (isnull $*sidebar_box_bgcolor) { $*sidebar_box_bgcolor = "#ffffff";                    }
+        if (isnull $*footer_bgcolor)      { $*footer_bgcolor      = "#ffffff";                    }
+        if ($*color_scheme == "monochromatic") {
+
+            if (isnull $*tabs_bgcolor)              { $*tabs_bgcolor              = $*title_bgcolor->lighter(20); }
+            if (isnull $*page_bgcolor)              { $*page_bgcolor              = $*title_bgcolor->darker(40);  }
+            if (isnull $*nav_bgcolor)               { $*nav_bgcolor               = $*title_bgcolor->darker(20);  }
+            if (isnull $*sidebar_box_title_bgcolor) { $*sidebar_box_title_bgcolor = $*title_bgcolor->lighter(40); }
+
+        } elseif ($*color_scheme == "complementary") {
+            var Color inverse = $*title_bgcolor->inverse();
+
+            if (isnull $*page_bgcolor)              { $*page_bgcolor              = $inverse->lighter(20);        }
+            if (isnull $*nav_bgcolor)               { $*nav_bgcolor               = $inverse->darker(20);         }
+            if (isnull $*tabs_bgcolor)              { $*tabs_bgcolor              = $*title_bgcolor->lighter(20); }
+            if (isnull $*sidebar_box_title_bgcolor) { $*sidebar_box_title_bgcolor = $*title_bgcolor->darker(20);  }
+
+        } elseif ($*color_scheme == "split_complementary") {
+            var Color[] split_complementary = color_split_complementary($*title_bgcolor);
+
+            if (isnull $*page_bgcolor)              { $*page_bgcolor              = $split_complementary[1]->lighter(20); }
+            if (isnull $*nav_bgcolor)               { $*nav_bgcolor               = $split_complementary[0]->darker(20);  }
+            if (isnull $*tabs_bgcolor)              { $*tabs_bgcolor              = $split_complementary[1];              }
+            if (isnull $*sidebar_box_title_bgcolor) { $*sidebar_box_title_bgcolor = $split_complementary[2];              }
+
+        } elseif ($*color_scheme == "double_complementary") {
+            var Color[] double_complementary = color_double_complementary($*title_bgcolor);
+
+            if (isnull $*page_bgcolor)              { $*page_bgcolor              = $double_complementary[3]; }
+            if (isnull $*nav_bgcolor)               { $*nav_bgcolor               = $double_complementary[1]; }
+            if (isnull $*tabs_bgcolor)              { $*tabs_bgcolor              = $double_complementary[4]; }
+            if (isnull $*sidebar_box_title_bgcolor) { $*sidebar_box_title_bgcolor = $double_complementary[2]; }
+
+        } elseif ($*color_scheme == "analogous") {
+            var Color[] analogous       = color_analogous($*title_bgcolor);
+
+            if (isnull $*page_bgcolor)              { $*page_bgcolor              = $analogous[1];                          }
+            if (isnull $*tabs_bgcolor)              { $*tabs_bgcolor              = $*page_bgcolor->average($analogous[0]); }
+            if (isnull $*nav_bgcolor)               { $*nav_bgcolor               = $analogous[2];                          }
+            if (isnull $*sidebar_box_title_bgcolor) { $*sidebar_box_title_bgcolor = $*nav_bgcolor->average($analogous[0]);  }
+
+        } elseif ($*color_scheme == "triadic") {
+            var Color[] triadic         = color_triadic($*title_bgcolor);
+
+            if (isnull $*page_bgcolor)              { $*page_bgcolor              = $triadic[1]->lighter(20); }
+            if (isnull $*tabs_bgcolor)              { $*tabs_bgcolor              = $triadic[1]->darker(20);  }
+            if (isnull $*nav_bgcolor)               { $*nav_bgcolor               = $triadic[2]->lighter(20); }
+            if (isnull $*sidebar_box_title_bgcolor) { $*sidebar_box_title_bgcolor = $triadic[2]->darker(20);  }
+
+        } elseif ($*color_scheme == "tetradic") {
+            var Color[] tetradic        = color_tetradic($*title_bgcolor);
+
+            if (isnull $*page_bgcolor)              { $*page_bgcolor              = $tetradic[1];             }
+            if (isnull $*nav_bgcolor)               { $*nav_bgcolor               = $tetradic[0]->darker(20); }
+            if (isnull $*tabs_bgcolor)              { $*tabs_bgcolor              = $tetradic[2];             }
+            if (isnull $*sidebar_box_title_bgcolor) { $*sidebar_box_title_bgcolor = $tetradic[3];             }
+        }
+    }
+    if (isnull $*page_fgcolor)              { $*page_fgcolor              = color_ideal_foreground($*page_bgcolor);              }
+    if (isnull $*title_fgcolor)             { $*title_fgcolor             = color_ideal_foreground($*title_bgcolor);             }
+    if (isnull $*tabs_fgcolor)              { $*tabs_fgcolor              = color_ideal_foreground($*tabs_bgcolor);              }
+    if (isnull $*title_border)              { $*title_border              = $*title_bgcolor->average($*nav_bgcolor);             }
+    if (isnull $*footer_fgcolor)            { $*footer_fgcolor            = color_ideal_foreground($*footer_bgcolor);            }
+    # Content
+    if (isnull $*content_bgcolor)           { $*content_bgcolor           = "#ffffff";                                           }
+    if (isnull $*content_fgcolor)           { $*content_fgcolor           = color_ideal_foreground($*content_bgcolor);           }
+    if (isnull $*content_border)            { $*content_border            = $*content_fgcolor;                                   }
+    # Sidebar
+    if (isnull $*sidebar_box_title_fgcolor) { $*sidebar_box_title_fgcolor = color_ideal_foreground($*sidebar_box_title_bgcolor); }
+    if (isnull $*sidebar_box_fgcolor)       { $*sidebar_box_fgcolor       = color_ideal_foreground($*sidebar_box_bgcolor);       }
+    if (isnull $*sidebar_box_border)        { $*sidebar_box_border        = $*sidebar_box_fgcolor;                               }
+    # Accent
+    if (isnull $*accent_bgcolor)            { $*accent_bgcolor            = $*nav_bgcolor;                                       }
+    if (isnull $*accent_fgcolor)            { $*accent_fgcolor            = color_ideal_foreground($*accent_bgcolor);            }
+    # Comment bar colors
+    if (isnull $*comment_bar_one_bgcolor)   { $*comment_bar_one_bgcolor   = $*nav_bgcolor;                                       }
+    if (isnull $*comment_bar_two_bgcolor)   { $*comment_bar_two_bgcolor   = $*sidebar_box_title_bgcolor;                         }
+    if (isnull $*comment_bar_one_fgcolor)   { $*comment_bar_one_fgcolor   = color_ideal_foreground($*comment_bar_one_bgcolor);   }
+    if (isnull $*comment_bar_two_fgcolor)   { $*comment_bar_two_fgcolor   = color_ideal_foreground($*comment_bar_two_bgcolor);   }
+
+    # Push the content over for ad users
+    if (viewer_sees_vbox()) { $*content_width = "70%"; }
+
+    # Set custom colors for navigation strip
+    if ($*control_strip_bgcolor.as_string == "") {
+        $*control_strip_bgcolor = $*content_bgcolor;
+    }
+    if ($*control_strip_fgcolor.as_string == "") {
+        $*control_strip_fgcolor = $*content_fgcolor;
+    }
+    if ($*control_strip_bordercolor.as_string == "") {
+        $*control_strip_bordercolor = $*content_border;
+    }
+    if ($*control_strip_linkcolor.as_string == "") {
+        $*control_strip_linkcolor = $*content_fgcolor;
+    }
+
+    $*theme_bgcolor = $*content_bgcolor;
+    $*theme_fgcolor = $*content_fgcolor;
+    $*theme_bordercolor = $*content_border;
+    $*theme_linkcolor = $*content_fgcolor;
+}
+
+function css_font_family(string base, string fallback) : string
+{
+    var string return;
+    if ($base != "" or $fallback != "none") {
+        $return = $return + "font-family: ";
+        if ($base != "") {
+            $return = $return + "\"$base\"";
+            if ($fallback != "none") {
+                $return = $return + ", ";
+            }
+        }
+        if ($fallback != "none") {
+            $return = $return + $fallback;
+        }
+    }
+    return $return;
+}
+
+function print_stylesheet ()
+{
+    var string body_font_family    = css_font_family($*main_font,    $*main_font_fallback);
+    var string sidebar_font_family = css_font_family($*sidebar_font, $*sidebar_font_fallback);
+    var string content_font_family = css_font_family($*content_font, $*content_font_fallback);
+    var string body_background = "";
+    if (clean_url($*page_background_image) != "") {
+        $body_background = """
+    background-image: url("$*page_background_image");
+    background-repeat: $*page_background_repeat;
+    background-position: $*page_background_position;
+    background-attachment: $*page_background_scrolling;
+        """;
+    }
+    print """
+body
+{
+    background-color: $*page_bgcolor;
+    $body_background
+    color: $*page_fgcolor;
+    $body_font_family;
+    font-size: 100%;
+    margin: 0px;
+}
+a
+{
+   color: $*page_fgcolor;
+}
+p, td, blockquote
+{
+    font-size: 1.0em;
+}
+code, kbd, pre, tt
+{
+    font-family: monospace;
+}
+h1
+{
+    font-size: 2.0em;
+}
+h2
+{
+    font-size: 1.5em;
+}
+.title_navigation
+{
+    border: 1px solid $*title_border;
+    width: 100%;
+}
+.title
+{
+    background-color: $*title_bgcolor;
+    color: $*title_fgcolor;
+    text-align: center;
+    width: 40%;
+}
+.main_subtitle
+{
+    line-height: .5em;
+}
+.navigation
+{
+    background-color: $*nav_bgcolor;
+    color: $*nav_fgcolor;
+    text-align: left;
+    white-space: nowrap;
+}
+.navigation_title
+{
+    width: 100%;
+    border-bottom: $*nav_fgcolor 1px solid;
+    text-align: left;
+}
+#sidebar
+{
+    $sidebar_font_family;
+    width: $*sidebar_width;
+}
+.sidebar_box
+{
+    background-color: $*sidebar_box_bgcolor;
+    color: $*sidebar_box_fgcolor;
+    width: 100%;
+}
+.sidebar_box th
+{
+    border-left: 1px solid $*sidebar_box_border;
+    border-right: 1px solid $*sidebar_box_border;
+    border-top: 1px solid $*sidebar_box_border;
+    background-color: $*sidebar_box_title_bgcolor;
+    color: $*sidebar_box_title_fgcolor;
+    text-align: center;
+}
+.sidebar_box td
+{
+    border: 1px solid $*sidebar_box_border;
+    font-size: .85em;
+    width: 100%;
+}
+.sidebar_box a
+{
+    color: $*sidebar_box_fgcolor;
+}
+.tabs
+{
+    background-color: $*tabs_bgcolor;
+    border-left: 1px solid $*content_border;
+    border-right: 1px solid $*content_border;
+    border-top: 1px solid $*content_border;
+    color: $*tabs_fgcolor;
+    $content_font_family;
+    margin-bottom: 0;
+    padding: 1em 1em .5em 1em;
+    text-decoration: none;
+    width: 40%;
+}
+.content
+{
+    background-color: $*content_bgcolor;
+    border: 1px solid $*content_border;
+    color: $*content_fgcolor;
+    $content_font_family;
+    width: 100%;
+    padding: .5em;
+}
+.content a
+{
+    color: $*content_fgcolor;
+}
+/* Box effect */
+.entry, .calendar_month, .month_day, .comment_page, .replyto
+{
+    margin: 0.25em 0.5em 0.25em 0.5em;
+    padding: 0.25em 0.5em 0.25em 0.5em;
+    text-align: justify;
+}
+.entry .text, .calendar_month .calendar, .month_day .posts, .comment_page .comments, .replyto .text
+{
+    margin: 0;
+    border-right: 1px solid $*content_border;
+    border-left: 1px solid $*content_border;
+    border-bottom: 1px solid $*content_bgcolor;
+    padding: .5em;
+}
+
+html>body .entry .text, html>body .calendar_month .calendar, html>body .month_day .posts, html>body .comment_page .comments, html>body .replyto .text {
+  border-bottom-width: 0;
+}
+
+.entry .subject, .calendar_month .header, .month_day .header, .comment_page .header, .replyto .subject
+{
+    border-bottom: 1px solid $*content_border;
+    border-left: 1em solid $*content_border;
+    font-size: 0.8em;
+    margin-bottom: 0;
+    padding-left: 0.8em;
+}
+.entry .comments, .calendar_month .subjects, .month_day .footer, .comment_page .footer, .replyto .footer
+{
+    border-right: 1em solid $*content_border;
+    border-top: 1px solid $*content_border;
+    font-size: 0.8em;
+    margin-top: 0;
+    padding-right: 0.8em;
+    text-align: right;
+}
+/* Entry */
+.entry .text .userpic, .replyto .text .userpic
+{
+    float: left;
+    margin: .1em .5em .1em .5em;
+}
+.entry .text .clearer, .replyto .text .clearer
+{
+    clear: left;
+    display: block;
+}
+.entry .text .currents
+{
+    margin-top: 0;
+}
+/* Comments */
+.comment_page .leave_comment, .selector
+{
+    text-align: center;
+}
+.comment_page .footer .pages
+{
+    text-align: left;
+}
+/* YearPage specific CSS */
+.calendar
+{
+    width: 100%;
+}
+.calendar .day, .calendar .day_with_posts
+{
+    border: 1px solid #000;
+    width: 14%;
+}
+.calendar .day_with_posts
+{
+    background-color: $*accent_bgcolor;
+}
+.calendar .day_with_posts a
+{
+    color: $*accent_fgcolor;
+    display: block;
+    text-decoration: none;
+    width: 100%;
+}
+.comment_bar_one, .comment_bar_two, .comment_bar_screened
+{
+    width: 100%; margin-top: 1em;
+}
+.comment_bar_one
+{
+    background-color: $*comment_bar_one_bgcolor;
+    color: $*comment_bar_one_fgcolor;
+}
+.comment_bar_two
+{
+    background-color: $*comment_bar_two_bgcolor;
+    color: $*comment_bar_two_fgcolor;
+}
+.comment_bar_screened
+{
+    background-color: $*comment_bar_screened_bgcolor;
+    color: $*comment_bar_screened_fgcolor;
+}
+#footer
+{
+    background-color: $*footer_bgcolor;
+    color: $*footer_fgcolor;
+    font-size: .8em;
+    margin-left: 10%;
+    margin-right: 10%;
+    text-align: center;
+    width: 80%;
+}
+#footer a
+{
+    color: $*footer_fgcolor;
+}
+    """;
+
+    print_custom_control_strip_css();
+}
+
+################################################################################
+#
+# Sidebar Boxes
+#
+
+# A simple sidebar box:
+# print_sidebar_box("Title", "My screenname: <em>test</em>");
+#
+# The same sidebar box, but with some additional css rules:
+# print_sidebar_box("Title", "My screenname: <em>test</em>", "text-decoration: underline");
+
+function print_sidebar_box(string title, string body, string style)
+{
+    println safe """<table class="sidebar_box" cellspacing="0" cellpadding="4" style="$style">""";
+    println safe """  <tr><th>&nbsp;$title&nbsp;</th></tr>""";
+    println safe """  <tr><td>$body</td></tr>""";
+    println safe """</table><br />""";
+}
+
+function print_sidebar_box(string title, string body)
+{
+    print_sidebar_box($title, $body, "");
+}
+
+function Page::lay_sidebar_view_userpic() : string
+{
+    return "";
+}
+function print_sidebar_userpic ()
+{
+    var Page page = get_page();
+    var string return;
+
+    var Image up_img = $page.journal.default_pic;
+    if ($page->lay_sidebar_view_userpic() != "") {
+        $return = $page->lay_sidebar_view_userpic();
+    } else {
+        if (defined $up_img) {
+            $return = """<img border="0" src="$up_img.url" height="$up_img.height" width="$up_img.width" alt="" /><br />""";
+        }
+        $return = $return + $page.journal.name + "<br />" + $page.journal;
+    }
+    print_sidebar_box($*text_sidebar_profile,$return,"text-align: center");
+}
+
+function Page::lay_sidebar_view_summary() : string
+{
+    return "";
+}
+function print_sidebar_summary()
+{
+    var Page page = get_page();
+    if ($page->lay_sidebar_view_summary() != "") {
+        var string summary = """<div>""";
+        $summary = $summary + $page->lay_sidebar_view_summary();
+        $summary = $summary + "</div>";
+        print_sidebar_box($*text_sidebar_summary,$summary);
+    }
+}
+
+function print_sidebar_linklist()
+{
+    var Page p = get_page();
+    if (size $p.linklist <= 0) {
+        return;
+    } elseif (not $*linklist_support) {
+        return;
+    }
+
+    var string list = "<div>";
+    foreach var UserLink l ($p.linklist) {
+        if ($l.title) {
+            if ($l.is_heading) {
+                $list = $list + """<strong>$l.title</strong><br />""";
+            } else {
+                $list = $list + """<a href="$l.url">$l.title</a><br />""";
+            }
+        } else {
+            $list = $list + "<br /><br />";
+        }
+    }
+    $list = $list + "</div>";
+    print_sidebar_box($*text_sidebar_links, $list);
+}
+
+function print_sidebar_blurb ()
+{
+    if ($*sidebar_blurb != "") {
+        print_sidebar_box($*text_sidebar_blurb,$*sidebar_blurb);
+    }
+}
+
+function print_sidebar_calendar()
+{
+    var string calendar;
+    var Page p = get_page();
+    var YearMonth m = $p->get_latest_month();
+    var string month = $m->month_format();
+    if($m.has_entries) {
+        $calendar = """<table class="calendar">""";
+        var YearWeek[] theWeeks = $m.weeks;
+    foreach var YearWeek w ($theWeeks) {
+            $calendar = $calendar + "<tr>";
+            var YearDay[] theDays = $w.days;
+            var int pre = $w.pre_empty;
+            if($pre > 0) {
+                $calendar = $calendar + """<td colspan="$pre" valign="top">&nbsp;</td>""";
+            }
+            foreach var YearDay d ($theDays) {
+                if ($d.num_entries) {
+                    $calendar = $calendar + """<td valign="top" class="day_with_posts"><a href="$d.url">$d.day</a></td>""";
+                } else {
+                    $calendar = $calendar + """<td valign="top" class="day">$d.day</td>""";
+                }
+            }
+            $calendar = $calendar + "</tr>\n";
+        }
+        $calendar = $calendar + "</table>";
+    }
+    if ($calendar != "") {
+        print_sidebar_box($month, $calendar, "text-align: left");
+    }
+}
+
+# By default, the first sidebar box (profile) is fixed,
+# and the order of the rest is determined by the sidebar properties.
+#
+# If you want to override the top two boxes, or want to define the order
+# of boxes without using the provided properties, just write a new user layer
+# and put each print_sidebar_foo function in the order that you want them:
+#
+# function print_sidebar()
+# {
+#     print_sidebar_linklist();
+#     print_sidebar_calendar();
+#     [etc]
+# }
+
+function print_sidebar()
+{
+    print_sidebar_userpic();
+    if ($*sidebar_position_one != "nothing") {
+        if ($*sidebar_position_one == "summary") {
+            print_sidebar_summary();
+        } elseif ($*sidebar_position_one == "links") {
+            print_sidebar_linklist();
+        } elseif ($*sidebar_position_one == "blurb") {
+            print_sidebar_blurb();
+        } elseif ($*sidebar_position_one == "calendar") {
+            print_sidebar_calendar();
+        }
+    }
+    if ($*sidebar_position_two != "nothing") {
+        if ($*sidebar_position_two == "summary") {
+            print_sidebar_summary();
+        } elseif ($*sidebar_position_two == "links") {
+            print_sidebar_linklist();
+        } elseif ($*sidebar_position_two == "blurb") {
+            print_sidebar_blurb();
+        } elseif ($*sidebar_position_two == "calendar") {
+            print_sidebar_calendar();
+        }
+    }
+    if ($*sidebar_position_three != "nothing") {
+        if ($*sidebar_position_three == "summary") {
+            print_sidebar_summary();
+        } elseif ($*sidebar_position_three == "links") {
+            print_sidebar_linklist();
+        } elseif ($*sidebar_position_three == "blurb") {
+            print_sidebar_blurb();
+        } elseif ($*sidebar_position_three == "calendar") {
+            print_sidebar_calendar();
+        }
+    }
+    if ($*sidebar_position_four != "nothing") {
+        if ($*sidebar_position_four == "summary") {
+            print_sidebar_summary();
+        } elseif ($*sidebar_position_four == "links") {
+            print_sidebar_linklist();
+        } elseif ($*sidebar_position_four == "blurb") {
+            print_sidebar_blurb();
+        } elseif ($*sidebar_position_four == "calendar") {
+            print_sidebar_calendar();
+        }
+    }
+}
+
+################################################################################
+#
+# Content Boxes
+#
+
+
+# Main body content should be placed in these generic content boxes
+function print_content_box (string title, string body)
+{
+    # title
+    println """<table cellspacing="0" cellpadding="3" width="100%"><tr>""";
+    println """  <td width="40%" bgcolor="#0044bb" style="border-top: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000;">""";
+    print safe """    <span class="title">&nbsp;<b>$title</b></span>""";
+    println """  </td><td width="65"><br /></td>""";
+    println """</tr></table>""";
+
+    # body
+    println """<table width="100%" cellspacing="0" cellpadding="0" style="border: 1px solid #000000;"><tr>""";
+    print safe """ <td bgcolor="#ffffff" align="center">$body</td>""";
+    println """</tr></table>""";
+}
+
+function print_content_tab (string content)
+{
+    print safe """<h3 class="tabs">$content</h3>""";
+}
+
+function format_replyto(Page p, Entry e, EntryLite el) : string
+{
+    var string replyto = "";
+
+    var Image security;
+    if ($el isa Entry) {
+        var Entry en = $el as Entry;
+
+        $security = $en.security_icon;
+    }
+
+    # Named anchor to link from page summary
+    $replyto = $replyto + """<div class="replyto">""";
+    var string subject = $el.subject != "" ? $el.subject : $*text_nosubject;
+    var string time    = $el.time->time_format();
+    $replyto = $replyto + """<h4 class="subject">$security $subject @ $time</h4>""";
+    $replyto = $replyto + """<div class="text">""";
+    if (defined $el.poster) {
+        if (defined $el.userpic) {
+            $replyto = $replyto + """<img src="$el.userpic.url" width="$el.userpic.width" height="$el.userpic.height" alt="" class="userpic" />""";
+        }
+        $replyto = $replyto + $el.poster->as_string();
+        if ($el.poster.username != $e.poster.username) {
+            $replyto = $replyto + " commented on " + $e.poster->as_string() + "'s post";
+        }
+        if ($e.poster.username != $e.journal.username) {
+            var string preposition = $e.poster.username == $el.poster.username ?
+                      " posted in " : " in ";
+            $replyto = $replyto + $preposition + $e.journal->as_string();
+        }
+    } else {
+        $replyto = $replyto + "<i>Anonymous</i> commented on " + $e.poster->as_string() + "'s post";
+        if ($e.poster.username != $e.journal.username) {
+            $replyto = $replyto + " in " + $e.journal->as_string();
+        }
+    }
+    $replyto = $replyto + ":<br /><br />" + $el.text;
+    $replyto = $replyto + """<div class="clearer">&nbsp;</div>""";
+    $replyto = $replyto + "</div>";
+    $replyto = $replyto + """<div class="footer">&nbsp;</div></div>""";
+    return $replyto;
+}
+
+function print_replyto(Page p, Entry e, EntryLite el)
+{
+    print format_replyto($p, $e, $el);
+}
+
+function print_entry(Page p, Entry e, Color bgcolor, Color fgcolor, bool viewing_thread)
+{
+    # Named anchor to link from page summary
+    println """<a name="entry_$e.itemid"></a>""";
+    println """<div class="entry">""";
+    var string subject = $e.subject != "" ? $e.subject : $*text_nosubject;
+    var string time    = $e.time->time_format();
+    println """<h4 class="subject">$e.security_icon $subject @ $time</h4>""";
+    println """<div class="text">""";
+
+    if (($p.view == "friends" or
+        $e.poster.username != $e.journal.username or
+        ($*show_entry_userpic and defined $e.userpic))) {
+        if ($p.view == "friends") {
+            if (defined $e.userpic) {
+                println """<img src="$e.userpic.url" width="$e.userpic.width"
+                        style="color: $fgcolor; background: $bgcolor; border: 5px solid $bgcolor;"
+                        height="$e.userpic.height" alt="" class="userpic" />""";
+            }
+            if ($e.poster.username != $e.journal.username) {
+                println $e.poster->as_string() + ", posting in ";
+            }
+            println $e.journal->as_string() + ":<br />";
+        } elseif ($e.poster.username != $e.journal.username) {
+            if (defined $e.userpic) {
+                println """<img src="$e.userpic.url" width="$e.userpic.width"
+                   height="$e.userpic.height" alt="" class="userpic" />""";
+            }
+            println $e.poster->as_string() + ":<br />";
+        } elseif (defined $e.userpic) {
+            println """<p><img src="$e.userpic.url" width="$e.userpic.width"
+               height="$e.userpic.height" alt="" class="userpic" />""";
+        }
+    }
+    if (size $e.metadata) {
+        println """<div class="currents">""";
+        foreach var string k ($e.metadata) {
+            var string text = $k;
+            var string val = $e.metadata{$k};
+            if ($k == "mood") {
+                $text = $*text_meta_mood;
+            } elseif ($k == "music") {
+                $text = $*text_meta_music;
+            } elseif ($k == "location") {
+                $text = $*text_meta_location;
+            } elseif ($k == "groups") {
+                $text = $*text_meta_groups;
+            }
+            if ($k == "mood" and defined $e.mood_icon) {
+                var Image i = $e.mood_icon;
+                $val = "<img src='$i.url' width='$i.width' height='$i.height' align='middle' alt='' /> $val";
+            }
+            println safe """<div class="current$k"><strong>$text:</strong> $val</div>""";
+        }
+        println "</div>\n";
+    }
+
+    if ($e.tags) {
+        var int tcount = 0;
+        println """<div class="ljtags"><strong>Tags:</strong> """;
+        var string tags;
+        foreach var Tag t ($e.tags) {
+            $tags = """$tags<a rel="tag" href="$t.url">$t.name</a>""";
+            $tcount++;
+            if ($tcount != size $e.tags) { $tags = """$tags, """; }
+        }
+        println """$tags </div>""";
+    }
+
+    if (size $e.tags or size $e.metadata) { println "<br />"; }
+    if (not $viewing_thread) { $e->print_text(); }
+    println """<div class="clearer">&nbsp;</div>""";
+    println "</div>";
+
+    # Comments
+    println """<div class="comments">""";
+    if (($e.comments.show_readlink or $e.comments.show_postlink) and $p.view != "entry") {
+        if ($e.comments.show_readlink) {
+            $e.comments->print_readlink();
+        }
+        if ($e.comments.show_postlink and $e.comments.show_readlink) {
+            "&nbsp;|&nbsp;";
+        }
+        if ($e.comments.show_postlink) {
+            $e.comments->print_postlink();
+        }
+    } elseif ($p.view == "entry") {
+        var Link l = new Link;
+        foreach var string ls ($e.link_keyseq) {
+            $l = $e->get_link($ls);
+            if (defined $l) {
+                println """<a href="$l.url">$l.caption</a> """;
+            }
+            if($ls != $e.link_keyseq[size($e.link_keyseq) - 1]) { println """&nbsp;|&nbsp;"""; }
+        }
+    } else {
+        println "&nbsp;";
+    }
+    println "</div></div>";
+}
+
+# Updated for safe printing of EntryLite
+# Please update any overriden instances of this function
+function format_entry(Page p, Entry e, Color bgcolor, Color fgcolor, bool viewing_thread) : string
+{
+    return "";
+}
+
+################################################################################
+#
+# Page
+#
+
+function Page::lay_view_nav() : string
+{
+    return "";
+}
+
+function Page::print_entry(Entry e) {
+    print_entry($this, $e, null Color, null Color, false);
+}
+
+function Page::print()
+{
+    var string subtitle = $.global_subtitle ? """<h2 class="main_subtitle">$.global_subtitle</h2>""": "";
+    var string view_title = $this->view_title() != "" ? $this->view_title() + ":" : "&nbsp;";
+    var string title_bar = """<table class="title_navigation" cellspacing="0" cellpadding="0">""";
+    $title_bar = $title_bar + """  <tr><td class="title"><h1 class="main_title">$.global_title</h1>$subtitle</td>""";
+    $title_bar = $title_bar + """  <td class="navigation">""";
+    $title_bar = $title_bar + """    <table align="center"><tr><td class="navigation_title">$view_title</td></tr>""";
+    $title_bar = $title_bar + """      <tr><td>""";
+    var string website_name = $.journal.website_name ? $.journal.website_name : $*text_website_default_name;
+    var string website;
+    if ($.journal.website_url != "") {
+        $title_bar = $title_bar +  """<a href="$.journal.website_url">$website_name</a>&nbsp;|&nbsp;""";
+    }
+    var int size = size($.views_order);
+    foreach var string v ($.views_order) {
+        if ($v == $.view) {
+            $title_bar = $title_bar + lang_viewname($v);
+        } else {
+            $title_bar = $title_bar + """<a href="$.view_url{$v}">""" + lang_viewname($v)+ """</a>""";
+        }
+        if($v != $.views_order[size($.views_order) - 1]) { $title_bar = $title_bar + """&nbsp;|&nbsp;"""; }
+    }
+    if ($this->lay_view_nav() != "") { $title_bar = $title_bar + $this->lay_view_nav(); }
+    $title_bar = $title_bar + """      </td></tr>""";
+    $title_bar = $title_bar + """    </table>""";
+    $title_bar = $title_bar + """   </td></tr>""";
+    $title_bar = $title_bar + """</table>""";
+
+
+    println """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html>""";
+    # Head
+    println "<head>";
+    $this->print_head();
+    $this->print_stylesheets();
+    println safe """<title>$.global_title</title>""";
+    println "</head><body>";
+    $this->print_control_strip();
+
+    if ($*title_position == "top" or $*title_position == "both") { println $title_bar; print "<br />"; }
+
+    if (viewer_sees_hbox_top()) {
+        """<div style="text-align: center;">""";
+        $this->print_hbox_top();
+        "</div>";
+    }
+
+    if (viewer_sees_vbox()) {
+        """<table width="100%" height="100%">""";
+        """<tr><td valign="top">""";
+    }
+
+    println """<table cellspacing="0" cellpadding="5" width="$*content_width" align="center"><tr>""";
+    if ($*sidebar_position == "left") { println """<td valign="top" id="sidebar">"""; print_sidebar(); println "</td>"; }
+    println """<td valign="top">"""; $this->print_body(); "</td>";
+    if ($*sidebar_position == "right") { println """<td valign="top" id="sidebar">"""; print_sidebar(); println "</td>"; }
+    println """</tr></table>""";
+
+    if (viewer_sees_vbox()) {
+        "</td>";
+        """<td valign="top" align="right" width="20%">""";
+        """<div style="margin-right: 10px;">""";
+        $this->print_vbox();
+        "</div></td></tr></table>";
+    }
+
+    println """<table cellpadding="0" cellspacing="0" id="footer"><tr valign="middle"><td>"""; server_sig(); println """</td></tr></table><br />""";
+
+    if (viewer_sees_hbox_bottom()) {
+        """<div style="text-align: center;">""";
+        $this->print_hbox_bottom();
+        "</div>";
+    }
+
+    if ($*title_position == "bottom" or $*title_position == "both") { println safe $title_bar; }
+
+    println "</body></html>";
+}
+
+################################################################################
+#
+# RecentPage
+#
+
+function RecentPage::lay_view_nav() : string
+{
+    var string return;
+    if ($.nav.forward_url != "" or $.nav.backward_url != "") {
+        $return = $return + "&nbsp;|&nbsp;";
+        if ($.nav.backward_url != "") {
+            $return = $return + """<a href="$.nav.backward_url">Previous Page</a>""";
+        }
+        if ($.nav.forward_url != "" and $.nav.backward_url != "") { $return = $return + "&nbsp;|&nbsp;"; }
+        if ($.nav.forward_url != "") {
+            $return = $return + """<a href="$.nav.forward_url">Next Page</a>""";
+        }
+    }
+    return $return;
+}
+
+function RecentPage::lay_sidebar_view_summary() : string
+{
+    var string return;
+    foreach var Entry e ($.entries) {
+        var string subject = $e.subject != "" ? $e.subject : $*text_nosubject;
+        $return = $return + "&rarr;";
+        if ($e.security) { $return = $return + " $e.security_icon"; }
+        $return = $e.poster.username != $.journal.username ?
+                  $return + """ $e.poster:<br /><a href="#entry_$e.itemid">$subject</a><br />""" :
+                  $return + """ <a href="#entry_$e.itemid">$subject</a><br />""";
+    }
+    return $return;
+}
+
+function RecentPage::print_body() {
+    foreach var Entry e ($.entries) {
+        if ($e.new_day) { print_content_tab($e.time->date_format("long")); print """<div class="content">"""; }
+        $this->print_entry($e);
+        if ($e->viewer_sees_ebox()) {
+            """<div align="center">""";
+            $e->print_ebox();
+            "</div>";
+        }
+        if ($e.end_day) { print """</div>"""; }
+    }
+}
+
+################################################################################
+#
+# FriendsPage
+#
+
+function FriendsPage::lay_sidebar_view_summary() : string
+{
+    var string return;
+    foreach var Entry e ($.entries) {
+        var string poster = $e.poster.username != $e.journal.username ? $e.poster->as_string() + ", posting in " + $e.journal->as_string() : $e.journal->as_string();
+        var string subject = $e.subject != "" ? $e.subject : $*text_nosubject;
+        $return = $return + "&rarr;";
+        if ($e.security) { $return = $return + " $e.security_icon"; }
+        $return = $return + """ $poster:<br /><a href="#entry_$e.itemid">$subject</a><br />""";
+    }
+    return $return;
+}
+
+################################################################################
+#
+# EntryPage
+#
+
+function EntryPage::lay_view_nav() : string
+{
+    var Link prev = $.entry->get_link("nav_prev");
+    var Link next = $.entry->get_link("nav_next");
+    var string return;
+    if ($prev.url != "" or $next.url != "") {
+        $return = $return + "&nbsp;|&nbsp;";
+        if ($prev.url != "") {
+            $return = $return + """<a href="$prev.url">$prev.caption</a>""";
+        }
+        if ($prev.url != "" and $next.url != "") { $return = $return + "&nbsp;|&nbsp;"; }
+        if ($next.url != "") {
+            $return = $return + """<a href="$next.url">$next.caption</a>""";
+        }
+    }
+    return $return;
+}
+
+function EntryPage::lay_sidebar_view_summary() : string {
+    var string return;
+    foreach var Comment c ($.comments) {
+        var string poster  = defined $c.poster ? $c.poster->as_string() : "<i>(Anonymous)</i>";
+        var string subject = $c.subject != "" ? $c.subject : $*text_nosubject;
+        $return = $return + """&rarr; $poster:<br /><a href="#$c.anchor">$subject</a><br />""";
+    }
+    return $return;
+}
+
+function EntryPage::print_body () {
+    print_content_tab($.entry.time->date_format("long"));
+    println """<div class="content">""";
+    print_entry($this, $.entry, null Color, null Color, $.viewing_thread);
+    println "</div>";
+
+    if ($.entry.comments.enabled)
+    {
+        print_content_tab("Comments");
+        println """<div class="content"><div class="comment_page"><div class="header">""";
+
+        var string pages;
+        if (not $.comment_pages.all_subitems_displayed) {
+            $pages = lang_page_of_pages($.comment_pages.current, $.comment_pages.total) + " - ";
+        foreach var int i (1 .. $.comment_pages.total) {
+                if ($i == $.comment_pages.current) {
+            $pages = "$pages <b>[$i]</b> ";
+        } else {
+                var string url_of = $.comment_pages->url_of($i);
+                $pages = """$pages <a href="$url_of" class="link"><b>[$i]</b></a> """;
+            }
+        }
+            println $pages;
+        } else {
+            println "&nbsp;";
+        }
+        println safe """</div><div class="comments"><div class="leave_comment">(<a href="$.entry.comments.post_url">$*text_post_comment</a>)</div>""";
+        if ($.comment_pages.total_subitems > 0) {
+            if ($this.multiform_on) { $this->print_multiform_start(); }
+            $this->print_comments($.comments);
+        }
+        if ($.entry.comments.count > 5) { println safe """<div class="leave_comment">(<a href="$.entry.comments.post_url">$*text_post_comment</a>)</div>"""; }
+        println """</div><div class="footer">""";
+        if (not $.comment_pages.all_subitems_displayed) {
+            $pages = lang_page_of_pages($.comment_pages.current, $.comment_pages.total) + " - ";
+            foreach var int i (1 .. $.comment_pages.total) {
+                if ($i == $.comment_pages.current) {
+            $pages = "$pages <b>[$i]</b> ";
+        } else {
+                var string url_of = $.comment_pages->url_of($i);
+                $pages = """$pages <a href="$url_of" class="link"><b>[$i]</b></a> """;
+            }
+            }
+            println $pages;
+        } else {
+            println "&nbsp;";
+        }
+        println "</div>";
+        if ($this.multiform_on) {
+            println """<div id="multiform_form">""";
+            $this->print_multiform_actionline();
+            println "</div>";
+            $this->print_multiform_end();
+        }
+        println "</div></div>";
+    }
+}
+
+function EntryPage::print_comment(Comment c)
+{
+    var string class = "";
+    if ($c.screened) {
+        $class = "comment_bar_screened";
+    } elseif ($c.depth % 2) {
+        $class = "comment_bar_one";
+    } else {
+        $class = "comment_bar_two";
+    }
+    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>(Anonymous)</i>";
+    var string sub_icon;
+    if (defined $c.subject_icon) {
+        $sub_icon = $c.subject_icon->as_string();
+    }
+    println """<a name="$c.anchor"></a><div class="$class">""";
+    println """<table cellpadding="2" cellspacing="0" style="width: 100%"><tr valign="top">""";
+    if (defined $c.userpic and $*comment_userpic_style != "off") {
+        var int w = $c.userpic.width;
+        var int h = $c.userpic.height;
+        if ($*comment_userpic_style == "small") {
+            $w = $w / 2;
+            $h = $h / 2;
+        }
+        println """<td style="width: 102px"><img src="$c.userpic.url" width="$w" height="$h" alt="[User Picture Icon]" /></td>""";
+    }
+
+    println """<td style="width: 100%"><table style="width: 100%"><tr>""";
+
+    println """<td align="left" valign="top" style="width: 50%">""";
+      println "<table>";
+      println """<tr><th align="right">From:</th><td>$poster</td></tr>""";
+      println """<tr><th align="right">Date:</th><td style="white-space: nowrap">""";
+        println $c->time_display("long", "") + "</td></tr>";
+      if ($c.metadata{"poster_ip"}) { println """<tr><th align="right">IP Address:</th><td>(""" + $c.metadata{"poster_ip"} + ")</td></tr>"; }
+    println "</table></td>";
+
+    println """<td align="right" style="width: 50%" valign="top">""";
+    if ($this.multiform_on) {
+        println """ <label for="ljcomsel_$c.talkid">$*text_multiform_check</label>""";
+        $c->print_multiform_check();
+    }
+    $c->print_linkbar();
+    println "</td></tr>";
+
+    println """<tr><td style="width: 50%" valign="top">""";
+    println (defined $c.subject_icon or $c.subject != "") ? """<h3 style="display: inline">$c.subject_icon $c.subject</h3>""" : "";
+    println "</td>";
+
+    println """<td style="width: 50%" align="right" valign="top"><strong>(<a href="$c.permalink_url">Link</a>)</strong></td></tr>""";
+
+    println "</table></td></tr></table></div>";
+    println """<div style="margin-left: 5px">""";
+    $c->print_text();
+    println "</div>";
+    println """<div style="margin-top: 3px; font-size: smaller"> """;
+    if ($c.frozen) {
+        println """(Replies frozen) """;
+    } else {
+        println """(<a href="$c.reply_url">Reply to this</a>) """;
+    }
+    if ($c.parent_url != "") { println """(<a href="$c.parent_url">Parent</a>) """; }
+    if ($c.thread_url != "") { 
+		println """(<a href="$c.thread_url">Thread</a>) """; 
+		var Link expand_link = $c->get_link("expand_comments");
+		if (defined $expand_link) {
+			println """(<a href="$c.thread_url" onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a>)""";
+		}
+	}
+    println "</div>";
+}
+
+function EntryPage::print_comment_partial (Comment c) {
+    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
+    var string subj = $c.subject != "" ? $c.subject : $*text_nosubject;
+    print safe "<a href='$c.permalink_url'>$subj</a> - $poster";
+    var Link expand_link = $c->get_link("expand_comments");
+    if (defined $expand_link) {
+        """ <a href="$c.thread_url" onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a>""";
+    }
+}
+
+################################################################################
+#
+# ReplyPage
+#
+
+function ReplyPage::print_body ()
+{
+    print_content_tab("Reply To:");
+    println """<div class="content">""";
+    print_replyto($this, $.entry, $.replyto);
+    println "</div>";
+
+    print_content_tab("Your Reply:");
+    println """<div class="content">""";
+    $.form->print();
+    println "</div>";
+}
+
+################################################################################
+#
+# YearPage
+#
+
+function YearPage::lay_view_nav() : string
+{
+    var string return = "&nbsp;|&nbsp;";
+    foreach var YearYear y ($.years)
+    {
+        $return = $y.displayed ? $return + $y.year : $return + """<a href="$y.url">$y.year</a>""";
+        if ($y.url != $.years[size($.years) - 1].url) { $return = $return + """&nbsp;|&nbsp;"""; }
+    }
+    return $return;
+}
+
+function YearPage::lay_sidebar_view_summary () : string
+{
+    var string return;
+    foreach var YearMonth m ($.months) {
+        if ($m.has_entries) {
+            $return = $return + """&rarr; <a href="#$m.month">""" + $m->month_format() + "</a><br />";
+        }
+    }
+    return $return;
+}
+
+function YearPage::print_body()
+{
+    print_content_tab(string($.year));
+    println """<div class="content">""";
+    foreach var YearMonth m ($.months) {
+        $this->print_month($m);
+    }
+    println "</div>";
+}
+
+function YearPage::print_month(YearMonth m)
+{
+    if (not $m.has_entries) { return; }
+
+    println """<div class="calendar_month"><div class="header"><a name="$m.month">""";
+    println $m->month_format();
+    println "</a></div>";
+    println """<table class="calendar" cellspacing="2" cellpadding="5"><tr align='center'>""";
+    foreach var int d (weekdays()) {
+        println """<th class="daysheader">""" + $*lang_dayname_short[$d] + "</th>";
+    }
+    println "</tr>\n";
+    foreach var YearWeek w ($m.weeks) {
+        $w->print();
+    }
+    println "</table>";
+    println """<div class="subjects"><a href="$m.url">$*text_view_month</a></div></div>""";
+}
+
+function YearWeek::print ()
+{
+    println "<tr>";
+    if ($.pre_empty) { println """<td colspan="$.pre_empty">&nbsp;</td>"""; }
+    foreach var YearDay d ($.days) {
+        if ($d.num_entries) {
+            println """<td valign="top" class="day_with_posts"><a href="$d.url">$d.day ($d.num_entries)</a></td>""";
+        } else {
+            println """<td valign="top" class="day">$d.day</td>""";
+        }
+    }
+    if ($.post_empty) { println """<td colspan="$.post_empty">&nbsp;</td>"""; }
+    println "</tr>";
+}
+
+################################################################################
+#
+# MonthPage
+#
+
+function MonthPage::lay_view_nav() : string
+{
+    var string return;
+    if ($.prev_url != "" or $.next_url != "")
+    {
+        $return = $return + "&nbsp;|&nbsp;";
+        if ($.prev_url != "") { $return = $return + """<a href="$.prev_url">Previous Month</a>"""; }
+        if ($.prev_url != "" and $.next_url != "") { $return = $return + "&nbsp;|&nbsp;"; }
+        if ($.next_url != "") { $return = $return + """<a href="$.next_url">Next Month</a>"""; }
+    }
+    return $return;
+}
+
+function MonthPage::lay_sidebar_view_summary () : string
+{
+    var string return;
+    foreach var MonthDay d ($.days) {
+        if ($d.has_entries) {
+            $return = $return + """&rarr; <a href="#$d.day">""" + lang_ordinal($d.day) + "</a><br />";
+        }
+    }
+    return $return;
+}
+
+function MonthPage::print_body()
+{
+    println """<form method="post" action="$.redir.url">""";
+    $.redir->print_hiddens();
+
+    var string selector;
+    if (size $.months > 1) {
+        $selector = "<select name='redir_key'>\n";
+        foreach var MonthEntryInfo mei ($.months) {
+            var string sel;
+            if ($mei.date.year == $.date.year and $mei.date.month == $.date.month) {
+                $sel = " selected='selected'";
+            }
+            $selector = "$selector<option value='$mei.redir_key'$sel>" + $mei.date->date_format($*lang_fmt_month_long) + "</option>";
+        }
+        $selector = "$selector</select>\n<input type='submit' value='View' />";
+    }
+
+    print_content_tab($.date->date_format($*lang_fmt_month_long));
+    println """<div class="content">""";
+    if ($selector != "") { println """<div class="selector">Switch to: $selector</div>"""; }
+    foreach var MonthDay d ($.days) {
+        if ($d.has_entries) {
+            println """<div class="month_day"><h4 class="header"><a href="$d.url">""";
+            print lang_ordinal($d.day);
+            println """</a></h4>\n<div class="posts">""";
+            $d->print_subjectlist();
+            println """</div>\n<div class="footer">&nbsp;</div></div>""";
+        }
+    }
+    println "</div></form>\n";
+}
+
+################################################################################
+#
+# DayPage
+#
+
+function DayPage::lay_view_nav() : string {
+    var string return;
+    if ($.prev_url != "" or $.next_url != "")
+    {
+        $return = $return + "&nbsp;|&nbsp;";
+        if ($.prev_url != "") { $return = $return + """<a href="$.prev_url">$*text_day_prev</a>"""; }
+        if ($.prev_url != "" and $.next_url != "") { $return = $return + "&nbsp;|&nbsp;"; }
+        if ($.next_url != "") { $return = $return + """<a href="$.next_url">$*text_day_next</a>"""; }
+    }
+    return $return;
+}
+
+function DayPage::print_body() {
+    if ($.has_entries) {
+        println """<div class="content">""";
+        foreach var Entry e ($.entries) {
+            $this->print_entry($e);
+            if ($e->viewer_sees_ebox()) {
+                """<div align="center" style="margin-bottom: 10px;">""";
+                $e->print_ebox();
+                "</div>";
+            }
+        }
+        println "</div>";
+    } else {
+        println """<p class="content">$*text_noentries_day</p>""";
+    }
+}
+
+################################################################################
+#
+# TagsPage
+#
+
+function TagsPage::print_body() {
+    print_content_tab($*text_tags_page_header);
+
+    """<div class="content"><ul class='ljtaglist'>""";
+
+    foreach var TagDetail td ($.tags) {
+        var string uses = get_plural_phrase($td.use_count, "text_tag_uses");
+        print """<li><a href="$td.url">$td.name</a> - $uses</li>""";
+    }
+
+    """</ul></div>""";
+}
+
+################################################################################
+#
+# Theme Previews
+#
+
+function print_theme_preview ()
+{
+    print """
+<div style="width: 100%; background-color: $*page_bgcolor; color: $*page_fgcolor; border: 3px solid #000">
+  <table style="border: 1px solid $*title_border; width: 100%" cellspacing="0" cellpadding="0">
+    <tr><td style="background-color: $*title_bgcolor; color: $*title_fgcolor; text-align: center; width: 40%">
+      <span style="font-size: 2em; font-weight: bold">Journal Title</span></td>
+    <td style="background-color: $*nav_bgcolor; color: $*nav_fgcolor; text-align: left; white-space: nowrap">
+      <table align="center"><tr><td style="width: 100%; border-bottom: 1px solid $*nav_fgcolor; text-align: left">Sed ut perspiciatis:</td></tr>
+      <tr><td>Recent Entries&nbsp;|&nbsp;Archive&nbsp;|&nbsp;Friends&nbsp;|&nbsp;User Info
+      </td></tr>
+    </table>
+  </td></tr></table>
+  <br /><table cellspacing="0" cellpadding="5" width="90%" align="center"><tr>
+    <td valign="top" style="width: $*sidebar_width">
+      <table style="background-color: $*sidebar_box_bgcolor; color: $*sidebar_box_fgcolor; width: 100%; text-align: center" cellspacing="0" cellpadding="4">
+        <tr><th style="border: 1px solid $*sidebar_box_border; background-color: $*sidebar_box_title_bgcolor; color: $*sidebar_box_title_fgcolor; text-align: center">&nbsp;Profile&nbsp;</th></tr>
+        <tr><td style="font-size: .85em; border-left: 1px solid $*sidebar_box_border; border-right: 1px solid $*sidebar_box_border; border-bottom: 1px solid $*sidebar_box_border; width: 100%">John Doe<br /><b>test</b></td></tr>
+        </table><br />
+      </td>
+    <td valign="top">
+      <div style="background-color: $*tabs_bgcolor; border-left: 1px solid $*content_border; border-right: 1px solid $*content_border; border-top: 1px solid $*content_border; color: $*tabs_fgcolor; margin-bottom: 0; padding: 1em 1em .5em 1em; width: 40%; font-weight: bold; font-size: 1.5em">Sed ut perspiciatis:</div>
+      <div style="background-color: $*content_bgcolor; color: $*content_fgcolor; border: 1px solid $*content_border; width: 100%; padding: .5em">
+        <div style="margin: 0.25em 0.5em 0.25em 0.5em; padding: 0.25em 0.5em 0.25em 0.5em; text-align: justify">
+          <div style="font-weight: bold; border-bottom: 1px solid $*content_border; border-left: 1em solid $*content_border; font-size: 0.8em; margin-bottom: 0; padding-left: 0.8em">gfdsgdsgfdsgd @ 01:18 am</div>
+          <div style="margin: 0; border-right: 1px solid $*content_border; border-left: 1px solid $*content_border; padding: .5em">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.<div class="clearer">&nbsp;</div></div>
+          <div style="border-right: 1em solid $*content_border; border-top: 1px solid $*content_border; font-size: 0.8em; margin-top: 0; padding-right: 0.8em; text-align: right">&nbsp;</div>
+        </div>
+      </div>
+  </td></tr>
+</table></div>""";
+}

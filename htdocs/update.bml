@@ -1,0 +1,583 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST %ML);
+    BML::decl_params(_default => qr/./);
+
+    # $_[1] is a pre-request scratch area
+    # put variables here so that we can access them later
+    # outside of this _code block
+    my $title    = \$_[1]->{'title'};
+    my $head     = \$_[1]->{'head'};
+    my $body     = \$_[1]->{'body'};
+    my $bodyopts = \$_[1]->{'bodyopts'};
+    my $onload   = \$_[1]->{'onload'};
+
+    $$title = $ML{'.title2'};
+
+    # server down?
+    if ($LJ::SERVER_DOWN) {
+        $$body = LJ::server_down_html();
+        return;
+    }
+
+    LJ::set_active_crumb("postentry");
+
+    # invalid text input?
+    unless (LJ::text_in(\%POST)) {
+        $$body = "<?badinput?>";
+        return;
+    }
+
+    # get remote and see if they can post right now
+    my $remote = LJ::get_remote();
+
+    # Errors that are unlikely to change between starting
+    # to compose an entry and submitting it.
+    if ($remote) {
+        if ($remote->underage) {
+            return BML::redirect("$LJ::SITEROOT/agecheck/?s=1");
+        }
+
+        return if LJ::bad_password_redirect();
+
+        if ($remote->identity) {
+            $$title = $ML{'Sorry'};
+            $$body = BML::ml('.error.nonusercantpost', {'sitename' => $LJ::SITENAME});
+            return;
+        }
+
+        if (! LJ::get_cap($remote, "can_post")) {
+            $$title = $ML{'.error.cantpost.title'};
+            $$body = $LJ::MSG_NO_POST || $ML{'.error.cantpost'};
+            return;
+        }
+
+        if (LJ::get_cap($remote, "disable_can_post")) {
+            unless (LJ::run_hook("update.bml_disable_can_post", {
+                title => $title, body => $body,
+            })) {
+                $$title = $ML{'.error.disabled.title'};
+                $$body = $ML{'.error.disabled'};
+            }
+            return;
+        }
+    }
+
+    my %res = ();
+
+    # see if we need to do any transformations
+    LJ::run_hooks("transform_update_$POST{transform}", \%GET, \%POST) if $POST{transform};
+
+    LJ::need_res('stc/display_none.css', 'stc/lj_base.css', 'stc/entry.css', 'js/inputcomplete.js');
+
+    ## figure out times
+    my $now = DateTime->now;
+
+    # if user has timezone, use it!
+    if ($remote && $remote->prop("timezone")) {
+        my $tz = $remote->prop("timezone");
+        $tz = $tz ? eval { DateTime::TimeZone->new(name => $tz); } : undef;
+        $now = eval { DateTime->from_epoch(epoch => time(), time_zone => $tz); }
+           if $tz;
+    }
+
+    my ($year, $mon, $mday, $hour, $min) = ($now->year,
+                                            sprintf("%02d", $now->month),
+                                            sprintf("%02d", $now->day),
+                                            $now->hour,
+                                            sprintf("%02d", $now->minute));
+
+    my $subject = $POST{'subject'} || $GET{'subject'};
+    my $event   = $POST{'event'}   || $GET{'event'};
+    my $tags    = $POST{'prop_taglist'} || $GET{'prop_taglist'};
+
+    # if a QotD id was passed in, fill in the fields with that QotD
+    my $qid = $GET{qotd}+0;
+    if ($qid) {
+        my $qotd = LJ::QotD->get_single_question($qid);
+        if ($qotd) {
+            $subject = LJ::Widget::QotD->subject_text($qotd, user => $remote);
+            $event = LJ::Widget::QotD->embed_text($qotd);
+            $tags = LJ::Widget::QotD->tags_text($qotd);
+            my $text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ], form_disabled => 1 );
+            $$head .= "<script>LiveJournal.qotdText = \"" . LJ::ejs($text) . "\";</script>";
+        }
+    }
+
+    ### define some bools with common logic ###
+    my $did_post = LJ::did_post() && !$POST{transform};                           # transforms aren't posts
+    my $user_is_remote = $remote && $remote->{'user'} eq $POST{'user'};           # user is remote
+    my $auth_as_remote = $remote && (! $GET{'altlogin'} || $user_is_remote);      # auth as remote
+    my $auth_missing = $POST{'user'} &&
+                       ! $POST{'password'} &&
+                       ! $user_is_remote &&
+                       ! $POST{'response'};                                       # user w/o password
+
+    # which authentication option do we display by default?
+    my $altlogin_display = 'none';
+    my $remotelogin_display = 'none';
+    if ($auth_as_remote) {
+        $remotelogin_display = 'block';
+    } else {
+        $altlogin_display = 'block';
+    }
+
+    # Check for errors, store in hash to render later
+    my $errors;
+    my $showform = $POST{'showform'} || $auth_missing;                            # show entry form
+    my $preview = $POST{'action:preview'};
+    
+        # are we spellchecking before we post?
+    my $did_spellcheck; my $spellcheck_html;
+    if ($LJ::SPELLER && $POST{'action:spellcheck'}) {
+        $did_spellcheck++;
+        my $s = new LJ::SpellCheck { 'spellcommand' => $LJ::SPELLER,
+                                     'color' => '<?hotcolor?>', };
+        $spellcheck_html = $s->check_html(\$event);
+        $spellcheck_html = "<?inerr $ML{'entryform.spellcheck.noerrors'} inerr?>" unless $spellcheck_html ne "";
+
+        my $date = LJ::html_datetime_decode({ 'name' => "date_ymd", }, \%POST);
+        ($year, $mon, $mday) = split( /\D/, $date);
+        $hour = $POST{'hour'};
+        $min  = $POST{'min'};
+
+    }
+
+    my $print_entry_form = sub {
+        my $opts = shift;
+
+        # authentication box
+        my $auth = '';
+
+        if ($altlogin_display eq 'none') {
+            $auth.= "<p id='remotelogin' class='pkg'>\n";
+            $auth .= "<label for='current_username' class='left'>" . BML::ml('entryform.postas') . "</label>\n";
+            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> <a href='$LJ::SITEROOT/update.bml?altlogin=1' id='remotelogin_content' class='small'>$ML{'entryform.switchuser'}</a>\n";
+            $auth .= "</p>\n\n";
+        }
+        # table with username/password fields
+        $auth .= "<div id='altlogin_wrapper' style='display: $altlogin_display;'>";
+        $auth .= "<p class='pkg'>\n";
+        $auth .= "<label for='altlogin_username' class='left'>$ML{'.username'}</label>\n";
+        $auth .=  LJ::html_text({ 'name' => 'user', 'id' => 'altlogin_username', 'class' => 'text', 'size' => '15', 
+                'maxlength' => '15', 'tabindex' => '5', 'value' => $POST{'user'} || $GET{'user'} }) . "\n";
+        $auth .= "</p>\n";
+        $auth .= "<p class='pkg'>\n";
+        $auth .= "<label for='altlogin_password' class='left'>$ML{'.password'}</label>\n";
+        $auth .= LJ::html_text({ 'type' => 'password', 'id' => 'altlogin_password', 'class' => 'text',  
+                'name' => 'password', 'tabindex' => '6', 'size' => '15', 'maxlength' => '30' }) . "\n";
+        # posted with a user, but no password
+        if ($did_post && $auth_missing) {
+            $auth .= "<br /><?inerr $ML{'.error.nopass'} inerr?>";
+        }
+        $auth .= "</p>\n\n";
+        $auth .= "</div>";
+
+        # if they submit the form and are spellchecking, remember
+        # their settings from the GET requests
+        my $getextra = '?';
+        $getextra .= "altlogin=1&" if $GET{'altlogin'};
+        $getextra .= "qotd=" . LJ::eurl($GET{qotd}) . "&" if $GET{'qotd'};
+        chop $getextra;
+
+        my $entry = {
+            'mode' => "update",
+            'auth_as_remote' => $auth_as_remote,
+            'subject' => $subject,
+            'event' => $event,
+            'prop_taglist' => $tags,
+            'datetime' => "$year-$mon-$mday $hour:$min",
+            'usejournal' => LJ::canonical_username($POST{'usejournal'} || $GET{'usejournal'}),
+            'auth' => $auth,
+            'remote' => $remote,
+            'spellcheck_html' => $spellcheck_html,
+            'clientversion' => "WebUpdate/2.0.0",
+            'richtext' => $LJ::DISABLED{'richtext'} ? 0 : 1,
+            'richtext_default' => $remote ? $remote->new_entry_editor eq 'rich' ? 1 : 0  # User setting
+                                          : $LJ::DEFAULT_EDITOR       eq 'rich' ? 1 : 0, # Site default
+            'include_insert_object' => $GET{'insobj'},
+            'prop_qotdid' => $qid,
+        };
+
+        if ($remote) {
+            $entry->{prop_opt_default_noemail} = $remote->prop('opt_gettalkemail');
+            $entry->{prop_opt_default_nocomments} = $remote->prop('opt_showtalklinks');
+            $entry->{prop_opt_default_screening} = $remote->prop('opt_whoscreened');
+        }
+        
+        if ($did_post) {
+            $entry->{$_} = $POST{$_} foreach keys %POST;
+
+        # Copy things over from the transform
+        } elsif (LJ::did_post()) {
+            foreach (qw(event_format richtext_default)) {
+                $entry->{$_} = $POST{$_} if defined $POST{$_};
+            }
+        }
+
+        # If they got an error, or spellchecked, and we're in rich text mode, enable rich text mode:
+        if ($did_post && $POST{'switched_rte_on'}) {
+            $entry->{richtext_default} = 1;
+        }
+
+
+        if (LJ::isu($remote) && (!$did_post || $did_spellcheck) && $remote->readonly) {
+            $$body .= "<div id='readonly'><?warningbar ";
+
+            if ($LJ::HELPURL{'readonly'}) {
+                $$body .= BML::ml('.rowarn', {
+                    'a_open' => "<a href='$LJ::HELPURL{readonly}'>",
+                    'a_close' => "</a>"}
+                                 );
+            } else {
+                $$body .= BML::ml('.rowarn', {
+                    'a_open' => '',
+                    'a_close' => ''}
+                                 );
+            }
+
+            $$body .= " warningbar?><br /></div>";
+        }
+
+        $$body .= "\n\n<form method='post' action='update.bml$getextra' id='updateForm' name='updateForm'>\n\n";
+        $$body .= LJ::form_auth();
+
+        if ($opts->{require_tos}){
+            $$body .= LJ::tosagree_html('update', $POST{agree_tos}, $errors->{require_tos});
+        }
+
+        $$body .= LJ::entry_form($entry, \$$head, $onload, $errors);
+        $$body .= "</form><!-- end #updateForm -->\n";
+
+        return;
+    };
+
+    my $okay_formauth = !$remote || LJ::check_form_auth();
+
+    if ($did_post && !$did_spellcheck && !$showform && !$preview &&
+        $okay_formauth && !$POST{'moreoptsbtn'} )
+    {
+        # what's our authentication scheme for subsequent protocol actions?
+        my $flags = {};
+        my ($u, $user);
+
+        if ($POST{'user'} &&                            # user argument given
+            ! $user_is_remote &&                        # user != remote
+            (!$remote || $GET{'altlogin'})) {           # user has clicked alt auth
+
+            $user = $POST{'user'};
+            $u = LJ::load_user($user);
+
+            # Verify entered password, if it is present.
+            my $ok;
+            if ($POST{response}) {
+                $ok = LJ::challenge_check_login($u, $POST{chal}, $POST{response});
+            } else {  # js disabled, fallback to plaintext
+                $ok = LJ::auth_okay($u, $POST{password});
+            }
+            $flags = { 'noauth' => 1, 'u' => $u } if $ok;
+
+        } elsif ($remote && LJ::check_referer()) {
+            # assume remote if we have it
+            $flags = { 'noauth' => 1, 'u' => $remote };
+            $user = $remote->{'user'};
+            $u = $remote;
+        }
+
+        if ($u && ! $u->tosagree_verify) {
+            if ($POST{agree_tos}) {
+                my $err = "";
+                unless ($u->tosagree_set(\$err)) {
+                    # error
+                    $errors->{require_tos} = $err;
+                    $print_entry_form->({ require_tos => 1 });
+                    return;
+                }
+                # successfully set
+            } else {
+                $errors->{require_tos} = $ML{'tos.error'};
+                $print_entry_form->({ require_tos => 1 });
+                return;
+            }
+        }
+
+        # Check if the account they're posting to is read-only
+        my $uj = $POST{'usejournal'} ? LJ::load_user($POST{'usejournal'}) : $u;
+        if ($uj && $uj->readonly) {
+            # Tell the user they can't post since read only
+            $$body .= "<?errorbar ";
+            $$body .= "<strong>$ML{'.error.update'}</strong> ";
+            $$body .= $LJ::MSG_READONLY_USER;
+            $$body .= " errorbar?><br />";
+
+            $print_entry_form->();
+            return
+        }
+
+        # do a login action
+        my $login_message;
+        {
+            # build a clientversion string
+            my $clientversion = "Web/2.0.0";
+            $clientversion .= 's' if $did_spellcheck;
+
+            # build a request object
+            my %req = ( 'mode' => 'login',
+                        'ver' => $LJ::PROTOCOL_VER,
+                        'clientversion' => $clientversion,
+                        'user' => $user,
+                        );
+
+            my %res;
+            LJ::do_request(\%req, \%res, $flags);
+
+            # error logging in ?
+            unless ($res{'success'} eq 'OK') {
+                $errors->{'auth'} = $ML{'.error.login'} . " " . LJ::ehtml($res{'errmsg'});
+            }
+
+            # server login message for user?
+            $login_message = LJ::auto_linkify(LJ::ehtml($res{'message'}))
+                if $res{'message'};
+        }
+        # any messages from the server?
+        if ($login_message) {
+            $$body .= "<?p <strong>$ML{'.loggingin'}</strong> $ML{'.servermsg'} p?><div style='margin-left: 40px'><b>$login_message</b></div>";
+        }
+
+        my %req = ( 'mode'        => 'postevent',
+                    'ver'         => $LJ::PROTOCOL_VER,
+                    'user'        => $user,
+                    'password'    => $POST{'password'},
+                    'usejournal'  => $POST{'usejournal'},
+                    'tz'          => 'guess',
+                    );
+
+        LJ::entry_form_decode(\%req, \%POST);
+        if ($req{'event'} eq "") {
+            $errors->{'entry'} = $ML{'.error.noentry'};
+        }
+
+        $req{prop_qotdid} = $qid;
+
+        my %res;
+        LJ::do_request(\%req, \%res, $flags);
+
+        if (!$errors) {
+            # examine response
+            my $update_message;
+            if ($res{'success'} eq "OK" && $res{'message'}) {
+                $update_message = LJ::auto_linkify(LJ::ehtml($res{'message'}));
+            }
+
+            # report results
+            $$body .= "<?p <strong>$ML{'.updating'}</strong> ";
+
+            if ($res{'success'} ne 'OK') {
+                # update failed?
+                $$body .= "<br /><?errorbar <strong>$ML{'.error.update'}</strong> ";
+                $$body .= LJ::ehtml($res{'errmsg'}) . " errorbar?>";
+                $$body .= "<br /> p?>";
+            } else {
+                # Clear out a draft
+                $remote->set_prop('entry_draft', '')
+                    if $remote;
+
+                # Store what editor they last used
+                unless (!$remote || $remote->prop('entry_editor') =~ /^always_/) {
+                     $POST{'switched_rte_on'} ?
+                         $remote->set_prop('entry_editor', 'rich') :
+                         $remote->set_prop('entry_editor', 'plain');
+                 }
+
+                $$body .= "<table width='100%'><tr valign='top'><td>\n\n";
+
+                my ($ju, $itemlink);
+                # short bail if this was posted moderated or some other special case (no itemid but a message)
+                if (!defined $res{itemid} && $res{message}) {
+                    $$body .= "<br />$res{message} p?>";
+                } else {
+
+                    # update success
+                    if ($POST{'usejournal'}) {
+                        $ju = LJ::load_user($POST{'usejournal'});  # posting as community
+                    } elsif ($user) {
+                        $ju = LJ::load_user($user);                # posting not as user from form
+                    } else {
+                        $ju = $remote;                             # posting as remote
+                    };
+                    $$body .= BML::ml('.update.success2', {'aopts' => "href='" . $ju->journal_base . "/'"});
+                    my $juser = $ju->{'user'};
+                    my ($itemid, $anum) = ($res{'itemid'}, $res{'anum'});
+                    $itemlink = LJ::item_link($ju, $itemid, $anum);
+                    $itemid = $itemid * 256 + $anum;
+
+                    my $writersblocklink = '';
+
+                    if ($qid && LJ::run_hook('show_qotd_extra_text', $remote)) {
+                        $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid\">View answers to Writer's Block</a></li>";
+                    }
+
+                    $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
+                        "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" .
+                        "<li><a href=\"/editjournal.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.edit'}</a></li>" .
+                        "<li><a href=\"/tools/memadd.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
+                        "<li><a href=\"/edittags.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
+                        "</ul>";
+
+                    $$body .= LJ::Widget::GettingStarted->render;
+                }
+
+                $$body .= "</td><td style=\"padding-left: 2em;\">";
+
+                {
+
+                    $$body .= LJ::ad_display(
+                        type => 'app',
+                        orient => 'BML-App-Confirm',
+                        below_ad => LJ::CProd->full_box_for($u, width => 300),
+                        interests_extra => $GET{qotd} ? "qotd" : "",
+                    );
+                }
+
+                $$body .= "</td></tr></table>";
+                $$body .= LJ::run_hook('after_entry_post_extra_html', user => $ju, itemlink => $itemlink, request => \%req);
+                return;
+            }
+        }
+    }
+
+    $$body .= "<table width='100%'><tr valign='top'><td>";
+    $print_entry_form->();
+    $$body .= "</td>";
+
+    {
+        my $old_ad = 0;
+        my $ad = LJ::ads( type => 'app', orient => 'BML-App-Func-1column', interests_extra => $GET{qotd} ? "qotd" : "" );
+        unless ($ad) {
+            $ad = LJ::ads( type => 'app', orient => 'BML-App-Confirm', interests_extra => $GET{qotd} ? "qotd" : "" );
+            $old_ad = 1;
+        }
+
+        my $extra = "";
+        if ($ad =~ /"ljad ljad(.+?)"/i) {
+            if ($1 eq "skyscraper" || $1 eq "medrect") { # Add a badge ad above all skyscrapers
+                $extra = LJ::ads( type => 'app', orient => 'BML-App-Extra', interests_extra => $GET{qotd} ? "qotd" : "" );
+                $extra .= LJ::ads( type => 'app', orient => 'BML-App-Double-Confirm', interests_extra => $GET{qotd} ? "qotd" : "" );
+            }
+            if ($old_ad) {
+                $$body .= "<td class='$1' style='width: 300px; padding-left: 2em;'>";
+                $$body .= "$ad$extra";
+            } else {
+                $$body .= "<td style='width: 160px; padding-left: 2em;'>";
+                $$body .= "$extra$ad";
+            }
+        } else {
+            $$body .= "<td>";
+        }
+    }
+
+    $$body .= "</td></tr></table>";
+    return;
+}
+
+_code?><?page
+title=>   <?_code return $_[1]->{'title'}; _code?>
+body=>    <?_code return $_[1]->{'body'}; _code?>
+bodyopts=><?_code return $_[1]->{'bodyopts'}; _code?>
+head<=
+
+<?entryformcss?>
+<?_code
+{
+    use strict;
+
+    my $ret = $_[1]->{'head'};
+
+    LJ::need_res(qw(
+                    js/core.js
+                    js/dom.js
+                    js/httpreq.js
+                    js/livejournal.js
+                    js/entry.js
+                    js/poll.js
+                    js/browserdetect.js
+                    ));
+
+    # draft autosave and restore
+    my $remote = LJ::get_remote();
+    my $draft = '""';
+    if ($remote) {
+        $draft = LJ::ejs_string($remote->prop('entry_draft'));
+    }
+
+    my $eMLautosave = LJ::ejs(BML::ml('.draft.autosave', { 'time' => '[[time]]' }));
+    my $eMLconfirm = LJ::ejs($ML{'.draft.confirm'});
+    my $eMLrestored = LJ::ejs($ML{'.draft.restored'});
+
+    # Setup draft saving and try to restore from a draft
+    # unless we did a post action
+    my $initDraft = '';
+    if ($remote && !$LJ::DISABLED{'update_draft'}) {
+        # While transforms aren't considered posts, we don't want to
+        # prompt the user to restore from a draft on a transform
+        if (!LJ::did_post()) {
+            $initDraft = 'initDraft(true);';
+        } else {
+            $initDraft = 'initDraft(false);';
+        }
+    }
+
+    my $pageload = $LJ::SPELLER && $POST{'action:spellcheck'} ? "pageload(0);" : "pageload(1);";
+
+    # JS vars for the RTE
+    $ret .= LJ::rte_js_vars($remote);
+
+    # Turning off BML parsing for the rest of this code block
+    # The draft might contain BML like syntax and cause problems
+    BML::noparse();
+    $ret .= qq^
+    <script type="text/javascript">
+    //<![CDATA[
+        var restoredDraft = $draft;
+
+        function init_update_bml() {
+            $initDraft
+            $_[1]->{'onload'}
+            $pageload
+        }
+
+        // TODO: make these function calls
+        LJDraft.autoSaveInterval = $LJ::AUTOSAVE_DRAFT_INTERVAL;
+        LJDraft.savedMsg = '$eMLautosave';
+
+            function initDraft(askToRestore) {
+                if (askToRestore && restoredDraft) {
+                    if (confirm("$eMLconfirm")) {
+                        \$("draft").value = restoredDraft;
+                        \$("draftstatus").value = '$eMLrestored ';
+                    } else {
+                        // Clear out their current draft
+                        LJDraft.save('');
+                    }
+                }
+                LJDraft.startTimer();
+           }
+    //]]>
+    </script>^;
+
+    $ret .= (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : "";
+    return $ret;
+}
+_code?>
+
+<=head
+page?><?_c <LJDEP>
+lib: LJ::SpellCheck
+link: htdocs/users, htdocs/download/index.bml, htdocs/moodlist.bml
+link: htdocs/update.bml, htdocs/lostinfo.bml, htdocs/support/faqbrowse.bml
+link: htdocs/allpics.bml
+post: htdocs/update.bml
+</LJDEP> _c?>
+

@@ -1,0 +1,78 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+
+    LJ::set_active_crumb('birthdays');
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $u;
+    if ($GET{user}) {
+        $u = LJ::load_user($GET{user});
+        return BML::ml('.error.invaliduser', { user => LJ::ehtml($GET{user}) })
+            unless $u;
+        return BML::ml('.error.badstatus', { user => LJ::ljuser($u->{user}) })
+            if $u->{statusvis} ne 'V';
+    }
+
+    my $body;
+    my $lastmon = 0;
+
+    $body .= '<?p ';
+    if ($u) {
+        $body .= BML::ml('.description.others', { user => LJ::ljuser($u) });
+    } else {
+        $body .= $ML{'.description'};
+    }
+    $body .= ' p?>';
+
+    $body .= "<?p $ML{'.findothers'} p?>";
+    $body .= "<form method='get' action='$LJ::SITEROOT/birthdays.bml'>";
+    $body .= LJ::html_text({ name => 'user', maxlength => 15, size => 15 });
+    $body .= LJ::html_submit(undef, $ML{'.view'});
+    $body .= "</form>";
+
+    my @bdays;
+
+    if (defined $u) {
+        @bdays = $u->get_friends_birthdays(full => 1);
+    } else {
+        @bdays = $remote->get_friends_birthdays(full => 1);
+    }
+
+    foreach my $bday (@bdays) {
+        LJ::text_out(\$bday->[2]);
+
+          if ($bday->[0] != $lastmon) {
+              if ($lastmon) { $body .= "</ul>\n"; }
+              $lastmon = $bday->[0];
+              $body .= "<?h1 " . LJ::Lang::month_long($lastmon) . " h1?><ul>\n";
+          }
+
+          my $day = sprintf("%2s", $bday->[1]);
+          $day =~ s/ /&nbsp;/;
+
+          my $friendu = LJ::load_user($bday->[2]);
+          my $name = LJ::ehtml($friendu->{'name'});
+          $body .= "<b><tt>$day</tt></b>: " . LJ::ljuser($friendu) . " - $name<br />\n";
+      }
+
+    if (@bdays) {
+        $body .= "</ul>\n";
+    } else {
+        $body .= "<?p $ML{'.nobirthdays'} p?>";
+    }
+
+    return $body;
+}
+_code?>
+<=body
+page?><?_c <LJDEP>
+link: htdocs/login.bml
+</LJDEP> _c?>
+

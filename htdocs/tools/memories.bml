@@ -1,0 +1,302 @@
+<?_code
+
+ use strict;
+ use vars qw(%POST %GET $head $title $body);
+ BML::decl_params(_default => qr/./);
+
+ LJ::set_active_crumb('memories');
+
+ my $dbr = LJ::get_db_reader();
+ my $remote = LJ::get_remote();
+
+ my $sth;
+
+ $title = "";
+ $head = "";
+ $body = "";
+
+ my $dberr = sub {
+     $title = $ML{'Error'};
+     $body = $ML{'error.nodb'};
+     return undef;
+ };
+
+ # Find out if a 'user' argument is specified in the URL.
+ my $user = LJ::canonical_username($GET{'user'});
+ if ($GET{'user'} && ! $user) {
+     $body = $ML{'error.malformeduser'};
+     return;
+ }
+
+ # Find out if an 'authas' argument is specified in the URL.
+ # If not, try to authenticate as 'user'. If still no success, use $remote.
+ my $authasu = LJ::get_authas_user($GET{'authas'} || $user) || $remote;
+ my $authasarg;
+ my $authasarge;
+ unless (LJ::did_post()) {
+     if ($authasu) {
+         $body .= "<form method='get' action='memories.bml'>\n";
+         $body .= LJ::make_authas_select($remote, { 'authas' => $authasu->{user} }) . "\n";
+         $body .= LJ::html_hidden(keyword => $GET{keyword}) if $GET{keyword};
+         $body .= "</form>\n\n";
+
+         $user ||= $authasu->{user};
+         $authasarg = "&authas=$authasu->{user}";
+         $authasarge = "&amp;authas=$authasu->{user}";
+     } else {
+         $authasu = $remote;
+     }
+ }
+
+ # Now, whose memories page do we actually want to see?
+ # - if 'user' is specified, we want to see theirs
+ #   (in this case, $user has already been set to that)
+ # - if no 'user', but 'authas' is specified, we want to see authas's
+ #   (in this case, $user has been set to $authasu->{user} above
+ # - if neither is specified, we want to see remote's:
+
+ if ($user eq "" && defined $remote) {
+     $user = $remote->{'user'};
+ }
+
+ my $u = LJ::load_user($user);
+ unless ($u) {
+     # There is no 'authas' OR $remote.
+     # If there's a 'user', that user doesn't exist.
+     # Otherwise, complain about the absence of 'user' / suggest logging in.
+     $title = $ML{'Error'};
+     $body = $user eq "" ? BML::ml('.login', { 'aopts' => 'href="/login.bml?ret=1"' })
+                         : $ML{'error.username_notfound'};
+     return;
+ }
+
+ my $ad = LJ::ad_display(type   => 'journal',
+                         orient => 'Journal-Medrect',
+                         user   => $u->{user},
+                         );
+ $body .= "<div class='ad-sidebar'>$ad</div>" if $ad;
+
+ # owner if you've authed as them or you administrate them
+ my $is_owner = $authasu && $user eq $authasu->{user} ||
+                LJ::can_manage_other($remote, $u);
+
+ my $userid = $u->{'userid'};
+
+ if ($u->{'journaltype'} eq "R") {
+    LJ::load_user_props($u, "renamedto");
+    return BML::redirect("/tools/memories.bml?user=$u->{'renamedto'}$authasarg");
+ }
+
+ $u->preload_props("opt_blockrobots", "adult_content", "admin_content_flag") if $u->is_visible;
+ unless ($u->is_visible && ! $u->should_block_robots) {
+     $head = LJ::robot_meta_tags();
+ }
+
+ if ($u->is_suspended) {
+     $title = $ML{'error.suspended.title'};
+     $body = "<?h1 $ML{'error.suspended.name'} h1?><?p " . BML::ml('error.suspended.text',{'sitename'=>$LJ::SITENAME,'user'=>$user}) . " p?>";
+     return;
+ }
+
+ if ($u->is_deleted) {
+     $title = $ML{'error.deleted.title'};
+     $body = "<?h1 $ML{'error.deleted.name'} h1?><?p " . BML::ml('error.deleted.text',{'user'=>$user}) . " p?>";
+     return;
+ }
+
+ if ($u->is_expunged) {
+     $title = $ML{'error.purged.title'};
+     $body = "<?h1 $ML{'error.purged.name'} h1?><?p $ML{'error.purged.text'} p?>";
+     return;
+ }
+
+ if (LJ::did_post()) {
+     unless (LJ::check_form_auth()) {
+         $title = $ML{'Error'};
+         $body = "<?p $ML{'error.invalidform'} p?>\n";
+         return;
+     }
+
+     unless ($is_owner) {
+         $title = $ML{'Error'};
+         $body = "<?p $ML{'error.invalidauth'} p?>\n";
+         return;
+     }
+
+     my @to_delete = ();
+     foreach (keys %POST) {
+         push @to_delete, $1 if /^select_mem_(\d+)$/;
+     }
+
+     unless (@to_delete) {
+         $title = $ML{'Error'};
+         $body = "<?p $ML{'.delete.error.noneselected'} p?>";
+         return;
+     }
+
+     # delete them!
+     LJ::Memories::delete_by_id($authasu, \@to_delete);
+     $title = $ML{'.delete.deleted.title'};
+     $body = "<?h1 $ML{'.delete.deleted.head'} h1?><?p ";
+     $body .= BML::ml('.delete.deleted.text', { aopts => "href='./memories.bml?user=$authasu->{user}'" }) . " p?>";
+     return;
+ }
+
+ my %filters = ("all" => $ML{'.filter.all'},
+                "own" => BML::ml(".filter.own", { 'user' => $user }),
+                "other" => $ML{'.filter.other'});
+ my $filter = $GET{'filter'} || "all";
+ unless (defined $filters{$filter}) { $filter = "all"; }
+
+ my %sorts = ('memid' => $ML{'.sort.orderadded'},
+              'des' => $ML{'.sort.description'},
+              'user' => $ML{'.sort.journal'});
+ my $sort = ($GET{'sortby'} || 'memid');
+ unless (defined $sorts{$sort}) { $sort = 'memid'; }
+
+ # keys must be the same as those of %sorts
+ my %sortfunc = ('memid' => sub {
+                              sort { $a->{'memid'} <=> $b->{'memid'} } @_;
+                            },
+                 'des'   => sub {
+                              sort { $a->{'des'}   cmp $b->{'des'}   } @_;
+                            },
+                 'user'  => sub {
+                              sort { $a->{'user'}  cmp $b->{'user'} ||
+                                     $a->{'des'}   cmp $b->{'des'}   } @_;
+                            });
+
+ my $securities = ['public'];
+ if ($authasu) {
+     if ($is_owner) {
+         $securities = [];
+     } elsif ($authasu->{'journaltype'} eq 'P' and LJ::is_friend($userid, $authasu->{'userid'})) {
+         $securities = ['public', 'friends'];
+     }
+ }
+
+ my $kwmap = LJ::Memories::get_keywords($u);
+ return $dberr->() unless defined $kwmap;
+
+ if ($GET{'keyword'})
+ {
+     if ($GET{'keyword'} eq "*") {
+         $title = $ML{'.title.memorable'};
+         $body .= "<?h1 $ML{'.title.memorable'} h1?><?p " . BML::ml(".body.memorable", { 'user' => $user }) . " p?>";
+     } else {
+         my $ekw = LJ::ehtml($GET{'keyword'});
+         $title = BML::ml(".title.keyword", { 'keyword' => $ekw, 'user' => $user });
+         $body .= BML::ml(".body.keyword", { 'keyword' => $ekw, 'user' => $user });
+     }
+
+     $body .= "<form method='get' action='memories.bml'>";
+     $body .= LJ::html_hidden(keyword => $GET{keyword}) if $GET{keyword};
+     $body .= LJ::html_hidden(user => $GET{user}) if $GET{user};
+     $body .= LJ::html_hidden(authas => $GET{user}) if $GET{authas};
+     $body .= "$ML{'.form.sort'} <select name='sortby'>";
+     foreach my $sorttype (qw(memid des user)) {
+         my $sel = $sort eq $sorttype ? 'selected="selected"' : '';
+         $body .= "<option id='$sorttype' value='$sorttype' $sel>$sorts{$sorttype}</option>\n";
+     }
+     $body .= "</select> <input type='submit' value='$ML{'.form.switch'}' />";
+     $body .= "</form>\n";
+     $body .= "<a href=\"/tools/memories.bml?user=$user$authasarge\">&lt;&lt; $ML{'.back'}</a>";
+
+     my $key_id;
+     foreach (keys %$kwmap) {
+         $key_id = $_ if $kwmap->{$_} eq $GET{keyword};
+     }
+     my $memoryhash = LJ::Memories::get_by_keyword($u, $key_id,
+             { security => $securities, filter => $filter });
+     return $dberr->() unless defined $memoryhash;
+     my @memories = $sortfunc{$sort}->( values %$memoryhash );
+
+     $body .= "<form method='post' action='./memories.bml?user=$user$authasarge'>\n" . LJ::form_auth()
+         if $is_owner && $GET{multidelete};
+     $body .= "<ul>\n";
+     foreach my $mem (@memories) {
+         my $user = $mem->{user};
+         my $eh_des = LJ::ehtml($mem->{'des'});
+         LJ::text_out(\$eh_des);
+
+         my ($entrylink, $editlink);
+         if ($user) {
+             my $itemid = int($mem->{'ditemid'} / 256);
+             my $anum = $mem->{'ditemid'} % 256;
+             $entrylink = LJ::item_link($user, $itemid, $anum);
+             $editlink = "/tools/memadd.bml?journal=$user&amp;itemid=$mem->{ditemid}$authasarge";
+         } else {
+             $entrylink = "/talkread.bml?itemid=$mem->{ditemid}";
+             $editlink = "/tools/memadd.bml?itemid=$mem->{ditemid}$authasarge";
+         }
+
+         my $edit = "";
+         my $delete = "";
+         if ($is_owner) {
+             $edit = " [<a href=\"$editlink\">$ML{'.edit'}</a>]";
+             $delete = LJ::html_check({ type => 'check', name => "select_mem_$mem->{memid}", value => 1 })
+                 if $GET{multidelete};
+         }
+
+         my %icons = (
+            'friends' => "<?securityprotected?>",
+            'private' => "<?securityprivate?>",
+         );
+         $body .= "<p><li>$delete <a href=\"$entrylink\"><b>$eh_des</b></a> $edit $icons{$mem->{security}}<br /><font size='-1'><b>$user</b></font></li>";
+     }
+     $body .= "</ul>";
+     if ($is_owner && $GET{multidelete}) {
+         $body .= LJ::html_submit(undef, $ML{'.delete'},
+                                  { onclick => "return confirm('" . LJ::ejs($ML{'.delete.confirm'}) . "')" });
+         $body .= "</form>\n";
+     }
+     return;
+ }
+
+ $title = $ML{'.title.memorable'};
+ $body .= BML::ml(".body.list_categories", { 'user' => $user });
+
+ my $rows = LJ::Memories::get_keyword_counts($u, { security => $securities, filter => $filter });
+ return $dberr->() unless defined $rows;
+ my @sortedrows;
+ push @sortedrows, { keyword => $kwmap->{$_}, count => $rows->{$_} }
+    foreach keys %{$rows || {}};
+ @sortedrows = sort { $a->{'keyword'} cmp $b->{'keyword'} } @sortedrows;
+
+ $body .= "<form method='get' action='memories.bml'>";
+ $body .= "<input type='hidden' name='user' value=\"$user\" />";
+ $body .= "$ML{'.form.filter'} <select name=\"filter\">";
+ foreach my $filt ("all", "own", "other") {
+     my $sel = $filter eq $filt ? "selected='selected'" : "";
+     $body .= "<option value=\"$filt\" $sel>$filters{$filt}</option>\n";
+ }
+ $body .= "</select> <input type='submit' value=\"$ML{'.form.switch'}\" />";
+ $body .= "</form>";
+
+ unless (@sortedrows) {
+     $body .= "<?h1 $ML{'.error.noentries.title'} h1?><?p $ML{'.error.noentries.body'} p?>";
+ } else {
+     $body .= "<ul>";
+     foreach my $row (@sortedrows) {
+         my $noun = BML::ml(".plur_entry", {'num' => $row->{'count'}});
+         my $ue_keyword = LJ::eurl($row->{'keyword'});
+         my $keyword = $row->{'keyword'};
+         LJ::text_out(\$keyword);
+         if ($keyword eq "*") { $keyword = $ML{'.uncategorized'}; }
+         else { $keyword = LJ::ehtml($keyword); }
+         $body .= "<li><b><a href=\"/tools/memories.bml?user=$user&amp;keyword=$ue_keyword&amp;filter=$filter\">$keyword</a></b>: $noun\n</li>";
+     }
+     $body .= "</ul>";
+ }
+ return;
+
+_code?><?page
+title=><?_code return $title; _code?>
+head=><?_code return $head; _code?>
+body<=
+<?_code return $body; _code?>
+<=body
+page?><?_c <LJDEP>
+link: htdocs/tools/memories.bml, htdocs/tools/memadd.bml, htdocs/talkread.bml
+form: htdocs/tools/memories.bml
+</LJDEP> _c?>

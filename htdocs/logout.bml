@@ -1,0 +1,130 @@
+<?_code # -*- mode: bml -*-
+{
+    use strict;
+    use vars qw($body %POST %GET $title);
+
+    LJ::set_active_crumb('logout');
+
+    $title = $ML{'.title'};
+    $body = "";
+
+    my $u = LJ::get_remote();
+    my $user = $POST{'user'} || $GET{'user'};
+    my $sessid = $POST{'sessid'} || $GET{'sessid'};
+    my $nojs = $GET{'nojs'};
+
+    # can't do challenge/response with LDAP.
+    $nojs = 1 if $LJ::LDAP_HOST;
+
+    my $logged_out_html = sub {
+        my $username = $u ? $u->display_username : $user;
+        my $old_remote = LJ::load_user($username);
+        return BML::redirect("$LJ::SITEROOT/") unless $old_remote;
+        my $html = LJ::run_hook("logout_page_html", $old_remote, get_ret => $GET{ret}, post_ret => $POST{ret}, nojs => $nojs);
+
+        if ($html) {
+            $title = $ML{'.title.loggedout'};
+            $body .= $html;
+        } else {
+            return BML::redirect("$LJ::SITEROOT/");
+        }
+    };
+
+    if ($u) {
+        if ($POST{'action:killall'}) {
+            $u->logout_all
+                or die "Failed to log out all sessions.";
+            $body = $ML{'.loggedout.killedall'};
+            $logged_out_html->();
+            return;
+        }
+
+        my $cursess = $u->session if $u;
+
+        if ($cursess &&
+            $user eq $u->{'user'} &&
+            $sessid == $cursess->id)
+        {
+            $u->logout;
+
+            # Redirect within the site if ret=1
+            my $referer = BML::get_client_header('Referer');
+            if ($GET{'ret'} == 1 && $referer && $referer =~ /\Q$LJ::DOMAIN\E/) {
+                my $uniq = Apache->request->notes('uniq');
+                if ($uniq) {
+                    LJ::MemCache::set("loginout:$uniq", 1, time() + 15);
+                }
+                return BML::redirect("$referer");
+            }
+
+            # Redirect to offsite uri if allowed.
+            if ($POST{'ret'}) {
+                my $redir_host = $1 if $POST{'ret'} =~ m#^http://([\.:\w-]+)#i;
+                return BML::redirect($POST{'ret'}) if $LJ::REDIRECT_ALLOWED{$redir_host};
+            }
+
+            $logged_out_html->();
+        } else {
+            if ($POST{ret_fail} && $POST{ret_fail} =~ m!^http://([\.:\w-]+)!i &&
+                $LJ::REDIRECT_ALLOWED{$1})
+            {
+                return BML::redirect($POST{ret_fail} . LJ::eurl('incorrect_sessid'));
+            }
+            $body .= "<form action='logout.bml' method='post'>";
+            $body .= LJ::html_hidden('ret', $GET{'ret'}) if $GET{'ret'};
+            $body .= LJ::html_hidden("user", $u->{'user'},
+                                     "sessid", $u->{'_session'}->{'sessid'});
+            $body .= "<?h1 $ML{'.logout.head'} h1?><?p $ML{'.logout.text'} ";
+            $body .= "<blockquote><input type='submit' value='$ML{'.logout.btn'}'></blockquote> p?></form>";
+
+            # do they have any other sessions?
+            my $udbr = LJ::get_cluster_reader($u);
+            unless ($udbr) {
+                $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.nodb'} p?>";
+                return undef;
+            }
+
+            my $curid = $u->{'_session'}->{'sessid'} || 0;
+
+            my $sessions = $udbr->selectcol_arrayref("SELECT sessid FROM sessions WHERE ".
+                                                     "userid=$u->{'userid'} AND timeexpire > UNIX_TIMESTAMP() ".
+                                                     "AND sessid <> $curid");
+            if (@$sessions) {
+                $body .= "<form method='post' action='logout.bml'>";
+                $body .= LJ::html_hidden("action:killall", '1');
+                $body .= "<?h1 $ML{'.killall.head'} h1?><?p $ML{'.killall.text'} ";
+                $body .= "<blockquote><input type='submit' value='$ML{'.killall.btn'}'></blockquote> p?></form>";
+            }
+        }
+    } else {
+        if ($POST{ret_fail} && $POST{ret_fail} =~ m!^http://([\.:\w-]+)!i &&
+           $LJ::REDIRECT_ALLOWED{$1})
+        {
+           return BML::redirect($POST{ret_fail} . LJ::eurl('no_user'));
+        }
+        $logged_out_html->();
+    }
+
+    return;
+}
+
+_code?><?page
+title=><?_code return $title; _code?>
+head<=
+<?_code LJ::need_res('stc/logout.css'); _code?>
+<style type='text/css'>
+.homepage-promo-wrapper {
+    float: left;
+    width: 180px;
+    margin-right: 4px;
+}
+.homepage-promo-wrapper.last {
+    margin-right: 0;
+}
+.stats-meter td {
+    background: url(<?imgprefix?>/stats_back.gif) repeat-x bottom;
+}
+</style>
+<=head
+body=><?_code return $body; _code?>
+page?>

@@ -1,0 +1,102 @@
+<?_code
+{
+    use strict;
+    use vars qw(%FORM $title $body);
+    use LJ::Poll;
+
+    $title = $ML{'.title'};
+    $body = "";
+
+    # answers to checkbox questions are null-separated sequences
+    # since our inout correctness check rules out nulls, we change them
+    # to commas here rather than inside LJ::Poll::submit() .
+    foreach (values %FORM) {
+        s/\0/,/g;
+    }
+    unless (LJ::text_in(\%FORM)) {
+        $body = "<?badinput?>";
+        return;
+    }
+
+    my $remote = LJ::get_remote();
+
+    my $pollid = ($FORM{'id'} || $FORM{'pollid'})+0;
+
+    unless ($pollid) {
+        $body .= BML::ml('.gotocreate2', {'aopts' => "href='$LJ::SITEROOT/poll/create.bml'"});
+        return;
+    }
+
+    my $poll = LJ::Poll->new($pollid);
+
+    unless ($poll && $poll->valid) {
+        $title = $ML{'Error'};
+        $body = $ML{'.pollnotfound'};
+        return;
+    }
+
+    my $u = $poll->journal;
+
+    my $mode = "";
+    foreach my $m ([ "enter", $ML{'.filloutpoll'} ], [ "results" , $ML{'.viewresults'} ]) {
+        if ($FORM{'mode'} eq $m->[0]) {
+            $mode = $FORM{'mode'};
+            $body .= "<b>[ $m->[1] ]</b> ";
+        } else {
+            $body .= "<a href=\"$LJ::SITEROOT/poll/?id=$pollid&amp;mode=$m->[0]\">[ $m->[1] ]</a> ";
+        }
+    }
+
+    # load the item being shown
+    my $entry = $poll->entry;
+    unless ($entry) {
+        $body = $ML{'.error.postdeleted'};
+        return;
+    }
+
+    unless ($entry->visible_to($remote)) {
+        $body = $ML{'.error.cantview'};
+        return;
+    }
+
+    $body .= "<a href='" . $entry->url . "'>[ $ML{'.discuss'} ]</a> ";
+
+    if ($FORM{'mode'} eq "ans") { $mode = "ans"; } # also allowed, but not shown
+
+    $body .= "<hr><p>";
+
+    if (defined $FORM{'poll-submit'})
+    {
+        unless (LJ::did_post()) {
+            $title = $ML{'Error'};
+            $body  = $ML{'bml.requirepost'};
+            return;
+        }
+
+        unless (LJ::check_form_auth()) {
+            $title = $ML{'Error'};
+            $body  = $ML{'error.invalidform'};
+            return;
+        }
+
+        my $error;
+        LJ::Poll->process_submission(\%FORM, \$error);
+        if ($error) {
+            $title = $ML{'Error'};
+            $body .= $error;
+            return;
+        }
+        return BML::redirect($entry->url);
+    }
+
+    $body .= $poll->render(mode => $mode, qid => $FORM{qid});
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?><?_c <LJDEP>
+lib: cgi-bin/ljlib.pl, cgi-bin/cleanhtml.pl
+link: htdocs/poll/index.bml, htdocs/talkread.bml, htdocs/support/faqbrowse.bml, htdocs/poll/create.bml
+</LJDEP> _c?>
+

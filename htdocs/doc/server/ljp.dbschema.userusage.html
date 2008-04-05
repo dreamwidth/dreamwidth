@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>userusage</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.dbschema.ref.html" title="Database Schema Browser">
+<link rel="prev" href="ljp.dbschema.usertrans_sum.html" title="usertrans_sum">
+<link rel="next" href="ljp.dbschema.vertical.html" title="vertical">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">
+      <span class="database">userusage</span>
+    </th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.dbschema.usertrans_sum.html">Prev</a> </td>
+<th width="60%" align="center">Database Schema Browser</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.dbschema.vertical.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.dbschema.userusage"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>
+      <span class="database">userusage</span>
+    </h2>
+<p>
+      <span class="database">userusage</span>
+     &#8212; Keep track of when <a class="link" href="ljp.dbschema.user.html" title="user"><span class="database">user</span></a>s did certain things.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3419685"></a><h2>
+      <span class="database">userusage</span>
+    </h2>
+<div class="informaltable"><table border="1">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Column name</th>
+<th>Type</th>
+<th>Null</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+              <span class="database">userid</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td>Userid of <a class="link" href="ljp.dbschema.user.html" title="user"><span class="database">user</span></a>.  One row in this table per user.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">timecreate</span>
+            </td>
+<td>
+              <span class="type">datetime</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td>When the user created their journal.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">timeupdate</span>
+            </td>
+<td>
+              <span class="type">datetime</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td>When the user last updated their journal.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">timecheck</span>
+            </td>
+<td>
+              <span class="type">datetime</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td>unused.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">lastitemid</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal">0</code>
+            </td>
+<td>Itemid of their last post (see <a class="link" href="ljp.dbschema.log2.html" title="log2"><span class="database">log2</span></a>)</td>
+</tr>
+</tbody>
+</table></div>
+<div class="informaltable"><table border="1">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Key name</th>
+<th>Type</th>
+<th>Column(s)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+              <span class="database">PRIMARY</span>
+            </td>
+<td>
+              <span class="type">PRIMARY</span>
+            </td>
+<td>
+              <span class="database"></span>
+            </td>
+</tr>
+<tr>
+<td>
+              <span class="database">timeupdate</span>
+            </td>
+<td>
+              <span class="type">INDEX</span>
+            </td>
+<td>
+              <span class="database"></span>
+            </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.dbschema.usertrans_sum.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.dbschema.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.dbschema.vertical.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">
+      <span class="database">usertrans_sum</span>
+     </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 
+      <span class="database">vertical</span>
+    </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

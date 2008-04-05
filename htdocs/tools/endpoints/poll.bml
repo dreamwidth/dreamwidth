@@ -1,0 +1,49 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%POST);
+    use JSON;
+
+    my $ret = {};
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            error => "Error: $msg",
+        });
+    };
+
+    BML::set_content_type('text/javascript; charset=utf-8');
+    BML::finish();
+    BML::noparse();
+
+    my $pollid  = $POST{pollid} or return $err->("No pollid");
+    my $pollqid = $POST{pollqid} or return $err->("No pollqid");
+    my $action  = $POST{action};
+
+    my $poll = LJ::Poll->new($pollid) or return $err->("Error loading poll $pollid");
+
+    # make sure this poll is visible to the remote user
+    my $remote = LJ::get_remote();
+    unless ($poll->can_view($remote)) {
+        return $err->("You cannot view this poll");
+    }
+
+    if ($action eq 'get_answers') {
+        my $question = $poll->question($pollqid) or return $err->("Error loading question $pollqid");
+        $ret->{answer_html} = $question->answers_as_html;
+    } else {
+        return $err->("Invalid action $action");
+    }
+
+    $ret = {
+        %$ret,
+        pollid  => $pollid,
+        pollqid => $pollqid,
+    };
+
+    sleep(1.5) if $LJ::IS_DEV_SERVER;
+
+    return LJ::js_dumper($ret);
+}
+_code?>

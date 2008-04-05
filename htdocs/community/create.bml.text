@@ -1,0 +1,47 @@
+;; -*- coding: utf-8 -*-
+.btn.create=Create Community
+
+.btn.proceed=Proceed...
+
+.create.text=Creating a new community is easy, just follow the instructions below.
+
+.error.notactive=Your account must be active in order to create a community.  Please make sure your account is not currently marked as deleted or suspended and try again.
+
+.error.notperson=You must be logged in as a personal account to create a community.
+
+.error.notvalidated2=You must <a [[aopts]]>validate your email address</a> in order to create a community.
+
+.error.postrequired=POST required.
+
+.error.username.inuse=Account name already in use; please select a different one.
+
+.error.username.mustenter=You must enter an account name.
+
+.error.username.reserved=Sorry, that is a reserved account name.
+
+.errors.label=Please note the following problems and resubmit:
+
+.name.head=Community Name
+
+.name.text=What's the name of this community?  This will appear at the top of the community, and in the user directory should you choose to list the community in it.
+
+.person=Would you rather <a [[aopts]]>create a personal journal</a>?
+
+.success.btn.enterinfo=Enter Community Information
+
+.success.head=Success!
+
+.success.text1=Your community has been created.  Additionally, your account has been made a maintainer of it.
+
+.success.text2=Your community will be available at:
+
+.success.text3=Now, please take the time to fill in some information about the community.  It's mostly optional, but it lets other users have an idea of what this community is for.
+
+.title=Create New Community
+
+.username.charsallowed=The community account name may contain only lower-case letters (a-z), digits (0-9) and the underscore character (_). Additionally, it must not be longer than 15 characters.
+
+.username.head=Account name
+
+.username.text=Each [[sitename]] account must have their own unique account name.  The account name is what appears in the address to the community.
+

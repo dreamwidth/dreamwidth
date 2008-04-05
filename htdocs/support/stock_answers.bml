@@ -1,0 +1,218 @@
+<?page
+title=>Support Stock Answers
+body<=
+<?_code
+{
+    use strict;
+    use vars qw($GET $POST);
+
+    # must be logged in to access this page
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    # most things have a category id
+    my $spcatid = ($GET{spcatid} || $POST{spcatid} || 0) + 0;
+    my $cats = LJ::Support::load_cats();
+    return "<?h1 $ML{'.error'} h1?><?p $ML{'.category.not.exist'} p?>"
+        unless !$spcatid || $cats->{$spcatid};
+
+    my $formauth = LJ::form_auth();
+
+    # editing is based on ability to grant supporthelp.  and throw an error if they
+    # posted but can't edit.
+    my $canedit = ($spcatid && LJ::check_priv($remote, 'admin', "supporthelp/$cats->{$spcatid}->{catkey}")) ||
+                  LJ::check_priv($remote, 'admin', 'supporthelp') ||
+                  LJ::check_priv($remote, 'admin', '*');
+    if (LJ::did_post()) {
+        return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access.to.actions'} p?>"
+        if ! $canedit;
+    }
+
+    # viewing is based on having supporthelp over the particular category you're viewing.
+    my %canview; # spcatid => 0/1
+    foreach my $cat (values %$cats) {
+        $canview{$cat->{spcatid}} = 1
+            if LJ::Support::support_check_priv({ _cat => $cat }, $remote, 'supportviewstocks');
+    }
+    return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access.to.view.answers'} p?>"
+        unless %canview;
+    return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access.to.view.answers.in.cat'} p?>"
+        if $spcatid && ! $canview{$spcatid};
+
+    # filter down the category list
+    $cats = { map { $_->{spcatid}, $_ } grep { $canview{$_->{spcatid}} } values %$cats };
+
+    my $ansid = ($GET{ansid} || 0) + 0;
+
+    my $ret = "<?h1 $ML{'.stock.answers'} h1?>";
+    my $self = "$LJ::SITEROOT/support/stock_answers.bml";
+
+    if ($POST{'action:delete'}) {
+        my $dbh = LJ::get_db_writer();
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.unable.get.database.handle'} p?>"
+            unless $dbh;
+
+        my $ct = $dbh->do("DELETE FROM support_answers WHERE ansid = ? AND spcatid = ?",
+                          undef, $ansid, $spcatid);
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.error'}: " . $dbh->errstr . " p?>" if $dbh->err;
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.no.answer'} p?>" unless $ct;
+        return BML::redirect("$self?spcatid=$spcatid&deleted=1");
+    }
+
+    if ($POST{'action:new'} || $POST{'action:save'}) {
+        my ($subj, $body) = ($POST{subject}, $POST{body});
+
+        foreach my $ref (\$subj, \$body) {
+            $$ref =~ s/^\s+//;
+            $$ref =~ s/\s+$//;
+            # FIXME: more stuff to clean it up?
+        }
+
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.fill.out.all.friends'} p?>"
+            unless $spcatid && $subj && $body;
+
+        my $dbh = LJ::get_db_writer();
+        return "<?h1 $ML{'.error'} h1?><?p $ML{'.unable.database.handle'} p?>"
+            unless $dbh;
+
+        if ($POST{'action:new'}) {
+            my $newid = LJ::alloc_global_counter('A');
+            return "<?h1 $ML{'.error'} h1?><?p $ML{'.unable.allocate.counter'} p?>"
+                unless $newid;
+
+            $dbh->do("INSERT INTO support_answers (ansid, spcatid, subject, body, lastmodtime, lastmoduserid) " .
+                     "VALUES (?, ?, ?, ?, UNIX_TIMESTAMP(), ?)",
+                     undef, $newid, $spcatid, $subj, $body, $remote->{userid});
+            return "<?h1 $ML{'.error'} h1?><?p $ML{'.error'}: " . $dbh->errstr . " p?>" if $dbh->err;
+
+            return BML::redirect("$self?user=$remote->{user}&spcatid=$spcatid&ansid=$newid&added=1");
+        } else {
+            return "<?h1 $ML{'.error'} h1?><?p $ML{'.no.answer.id'} p?>" unless $ansid;
+
+            $dbh->do("UPDATE support_answers SET subject = ?, body = ?, lastmodtime = UNIX_TIMESTAMP(), " .
+                     "lastmoduserid = ? WHERE ansid = ?", undef,
+                     $subj, $body, $remote->{userid}, $ansid);
+            return "<?h1 $ML{'.error'} h1?><?p $ML{'.error'}: " . $dbh->errstr . " p?>" if $dbh->err;
+
+            return BML::redirect("$self?user=$remote->{user}&spcatid=$spcatid&ansid=$ansid&saved=1");
+        }
+    }
+
+    if ($GET{new}) {
+        $ret .= "<form method='post' action='$self'>";
+        $ret .= $formauth;
+
+        $ret .= "<?p $ML{'.fill.out.following'} p?>";
+        $ret .= "<?p Category: " . LJ::html_select({ name => 'spcatid', selected => $spcatid },
+                                               0, "( please select )",
+                                               map { $_, $cats->{$_}->{catname} }
+                                                   grep { $canview{$_} } 
+                                                   sort { $cats->{$a}->{catname} cmp $cats->{$b}->{catname} }
+                                                   keys %$cats) . "<br />";
+        $ret .= "$ML{'.subject'} " . LJ::html_text({ name => 'subject', maxlength => 255, size => 40 }) . "<br />";
+        $ret .= LJ::html_textarea({ name => 'body', rows => 15, cols => 80 }) . "<br />";
+        $ret .= LJ::html_submit('action:new', "Save Answer");
+        $ret .= "</form> p?>";
+
+        return $ret;
+    }
+
+    my $dbr = LJ::get_db_reader();
+    return "<?h1 $ML{'.error'} h1?><?p $ML{'.no.database.available'} p?>" unless $dbr;
+
+    my $cols = "ansid, spcatid, subject, lastmodtime, lastmoduserid";
+    $cols .= ", body" if $ansid;
+
+    my $sql = "SELECT $cols FROM support_answers";
+    my @bind = ();
+
+    if ($spcatid || $ansid) {
+        $sql .= " WHERE ";
+        if ($spcatid) {
+            $sql .= "spcatid = ?";
+            push @bind, $spcatid;
+        }
+        if ($ansid) {
+            $sql .= ($spcatid ? " AND " : "") . "ansid = ?";
+            push @bind, $ansid;
+        }
+    }
+
+    my $sth = $dbr->prepare($sql);
+    $sth->execute(@bind);
+    return "<?h1 $ML{'.error'} h1?><?p $ML{'.error'}: " . $sth->errstr . " p?>" if $sth->err;
+
+    $ret .= "<form method='get' action='$self'>";
+    $ret .= "<?p $ML{'.filter'} ";
+    $ret .= LJ::html_select({ name => 'spcatid', selected => $spcatid },
+                            0, "( none )",
+                            map { $_, $cats->{$_}->{catname} }
+                                sort { $cats->{$a}->{catname} cmp $cats->{$b}->{catname} } keys %$cats);
+    $ret .= LJ::html_submit(undef, "Show") . "</form> p?>";
+
+    my %answers;
+    while (my $row = $sth->fetchrow_hashref) {
+        $answers{$row->{spcatid}}->{$row->{ansid}} = {
+            subject => $row->{subject},
+            body => $row->{body},
+            lastmodtime => $row->{lastmodtime},
+            lastmoduser => LJ::load_userid($row->{lastmoduserid}),
+        };
+    }
+
+    $ret .= "<?p [ <a href='$self'>$ML{'.view.all'}</a> ]";
+    $ret .= " [ <a href='$self?new=1&spcatid=$spcatid'>$ML{'.add.new.answer'}</a> ]" if $canedit;
+    $ret .= " p?>";
+
+    if ($GET{added}) {
+        $ret .= "<?p <strong>$ML{'.answer.added'}</strong> p?>";
+    } elsif ($GET{saved}) {
+        $ret .= "<?p <strong>$ML{'.changes.saved'}</strong> p?>";
+    } elsif ($GET{deleted}) {
+        $ret .= "<?p <strong>$ML{'.answer.deleted'}</strong> p?>";
+    }
+
+    # bilevel sort, fun and messy
+    foreach my $catid (sort { $cats->{$a}->{catname} cmp $cats->{$b}->{catname} } keys %$cats) {
+        my $override = $LJ::SUPPORT_STOCKS_OVERRIDE{$cats->{$catid}->{catkey}};
+        next unless %{$answers{$catid} || {}} || $override && (!$spcatid || $catid == $spcatid);
+
+        $ret .= "<?h2 <a href='$self?spcatid=$catid'>$cats->{$catid}->{catname}</a> h2?>";
+        $ret .= "<?p $ML{'.category.stock.answers'} $cats->{$override}->{catname}. p?>"
+            if $override && (!$spcatid || $catid == $spcatid);
+
+        $ret .= "<ul>";
+        foreach my $ansid (sort {
+                               $answers{$catid}->{$a}->{subject} cmp $answers{$catid}->{$b}->{subject}
+                           } keys %{$answers{$catid}}) {
+            my ($subj, $body, $lmu, $lmt) =
+                map { $answers{$catid}->{$ansid}->{$_} } qw(subject body lastmoduser lastmodtime);
+            if ($body) {
+                $ret .= "<li>";
+                $ret .= "<form method='post' action='$self?ansid=$ansid&spcatid=$catid'>";
+                $ret .= $formauth;
+                $ret .= LJ::html_text({ name => 'subject', value => $subj, size => 40, maxlength => 255 });
+                $ret .= "<br />";
+                $ret .= LJ::html_textarea({ name => 'body', value => $body, rows => 15, cols => 80 });
+                $ret .= "<br />";
+                $ret .= "$ML{'.last.modified.by'} " . LJ::ljuser($lmu) . " on " . LJ::mysql_time($lmt) . ".<br />";
+                if ($canedit) {
+                    $ret .= LJ::html_submit('action:save', $ML{'.save_changes'});
+                    $ret .= LJ::html_submit('action:delete', $ML{'.delete.answer'},
+                                            { onClick => 'return confirm("' . $ML{'.confirm.answer'} . '");' });
+                }
+                $ret .= "</form></li>";
+            } else {
+                $ret .= "<li><a href='$self?spcatid=$catid&ansid=$ansid'>" . LJ::ehtml($subj) . "</a></li>";
+            }
+        }
+        $ret .= "</ul>";
+    }
+
+
+    return $ret;
+}
+_code?>
+<=body
+page?>

@@ -1,0 +1,83 @@
+;; -*- coding: utf-8 -*-
+.back2=Advanced Customization
+
+.back2styles=Your Styles
+
+.btn.change=Change
+
+.btn.create=Create
+
+.btn.delete=Delete
+
+.btn.edit=Edit
+
+.btn.savechanges=Save Changes
+
+.btn.use=Use
+
+.createstyle.header=Create Style
+
+.createstyle.label.name=Name:
+
+.delete.confirm=Are you sure you want to delete style #[[id]]?
+
+.editstyle.title=Edit Style
+
+.error.cantbeauthenticated=You could not be authenticated as the specified user.
+
+.error.cantcreatestyle=Style not created: Database error
+
+.error.invalidlayertype=Invalid layer type: [[name]] is not a [[type]] layer
+
+.error.layerhierarchymismatch=Layer hierarchy mismatch: [[layername]] is not a child [[type]] layer of [[parentname]]
+
+.error.layernotfound=Layer not found: [[layer]]
+
+.error.layernotpublic=Layer not public: [[layer]]
+
+.error.maxstyles=You have reached your maximum number of styles.
+
+.error.notloggedin=You must be logged in to view your styles.
+
+.error.notyourstyle=You do not own this style.
+
+.error.stylenotfound=Style not found.
+
+.error.usercantuseadvanced=The selected user's account type does not allow advanced customization.
+
+.error.youcantuseadvanced=Your account type does not allow advanced customization.
+
+.layerid=#[[id]]
+
+.nav.yourlayers=Your Layers
+
+.stylelayers.header=Style Layers
+
+.stylelayers.label.corelanguage=Language (i18nc):
+
+.stylelayers.label.coreversion=Core Version:
+
+.stylelayers.label.language=Language (i18n):
+
+.stylelayers.label.layerid=Layerid:
+
+.stylelayers.label.layout=Layout:
+
+.stylelayers.label.theme=Theme:
+
+.stylelayers.label.user=User:
+
+.stylelayers.select.layout.other=Other ...
+
+.stylelayers.select.layout.user=[[layername]] (#[[id]])
+
+.styleoptions.header=Style Options
+
+.title=Your Styles
+
+.yourstyles.header=Your Styles
+
+.yourstyles.layername=[[name]] (<a [[aopts]]>#[[id]]</a>)
+
+.yourstyles.none=none
+

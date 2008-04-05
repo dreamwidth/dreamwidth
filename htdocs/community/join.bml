@@ -1,0 +1,166 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+
+    LJ::set_active_crumb('joincomm');
+
+    my $ret;
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>"
+        unless $remote;
+
+    # bad statusvis?
+    return "<?h1 $ML{'.error.statusvis.title'} h1?><?p $ML{'.error.statusvis.body'} p?>"
+        unless $remote->{statusvis} eq 'V';
+
+    # make sure a community doesn't join a community
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.commlogged'} p?>"
+        unless $remote->{'journaltype'} eq "P";
+
+    # get info about the community
+
+    my $cu = LJ::load_user($GET{comm});
+
+    # does this community even exist?
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.errorcomminfo'} p?>"
+        unless $cu;
+
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.notcomm'} p?>"
+        unless $cu->{journaltype} eq "C";
+
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.locked'} p?>"
+        if $cu->{statusvis} eq "L";
+
+    # ensure this user isn't banned
+    return "<?h1 $ML{'Sorry'} h1?><?p $ML{'.label.banned'} p?>"
+        if LJ::is_banned($remote, $cu);
+
+    # and make sure they're not already a member
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.already.member'} p?>"
+        if LJ::is_friend($cu, $remote);
+
+    # make sure underage users can't join adult communities
+    my $adult_content;
+    unless ($remote->can_join_adult_comm( comm => $cu, adultref => \$adult_content )) {
+        my $adult_err;
+        if ($adult_content eq "concepts") {
+            $adult_err = BML::ml('.error.ischild', {'comm' => $cu->ljuser_display});
+        } elsif ($adult_content eq "explicit") {
+            $adult_err = BML::ml('.error.isminor', {'comm' => $cu->ljuser_display});
+        }
+
+        unless ($remote->best_guess_age) {
+            $adult_err .= " " . BML::ml('.error.setage', {'aopts' => "href='$LJ::SITEROOT/manage/profile/'"});
+        }
+
+        return "<?h1 $ML{'Error'} h1?><?p $adult_err p?>";
+    }
+
+    my $ci = LJ::get_community_row($cu);
+    my $cuserid = $ci->{'userid'};
+
+    LJ::text_out(\$ci->{'name'});
+    my $ecname = LJ::ehtml($ci->{'name'});
+
+    # get the list of maintainers and their usernames
+    my $dbr = LJ::get_db_reader();
+    my $admins = $dbr->selectcol_arrayref("SELECT u.user FROM useridmap u, reluser r ".
+                                          "WHERE r.userid=$cuserid AND r.targetid=u.userid AND r.type='A'") || [];
+    my $list = "<ul>";
+    foreach (sort @$admins) { $list .= "<li><?ljuser $_ ljuser?></li>"};
+    $list .= "</ul>";
+
+    my $next_links = "<?p From here, you can: p?><ul>";
+    $next_links .= "<li><a href=\'" . $cu->journal_base . "'>Read the recent entries in " . $cu->user . "</a></li>";
+    $next_links .= "<li><a href=\'" . $cu->profile_url . "'>Read " . $cu->user . "'s community info" . "</a></li>";
+    $next_links .= "<li><a href='$LJ::SITEROOT/site/search.bml'>Search for other communities</a></li>";
+    $next_links .= LJ::run_hook("join_comm_extra")
+        if LJ::are_hooks("join_comm_extra");
+    $next_links .= "</ul>";
+
+    # can't join closed communities
+    if ($ci->{membership} eq 'closed') {
+        $ret .= "<?h1 $ML{'Sorry'} h1?><?p " . BML::ml('.error.closed', { admins => $list }) . " p?>";
+        $ret .= $next_links;
+        return $ret;
+    }
+
+    # now do the join
+    if (LJ::did_post()) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        # can members join this community openly?
+        if ($ci->{membership} ne 'open') {
+            # hit up the maintainers to let them know a join was requested
+            LJ::comm_join_request($cu, $remote);
+            $ret = "<?h1 $ML{'.reqsubmitted.title'} h1?><?p $ML{'.reqsubmitted.body'} p?> ";
+            $ret .= $next_links;
+            return $ret;
+          }
+
+        # join community
+        my $joined = LJ::join_community($remote, $cu);
+        unless ($joined) {
+            return "<?h1 $ML{'error'} h1?>"
+                   . "<?p " . LJ::last_error() . " p?>";
+        }
+
+        # add community as a friend if selected
+        if ($POST{addfriend}) {
+            BML::redirect("$LJ::SITEROOT/friends/add.bml?user=$cu->{user}");
+        }
+
+        # success message -- only shows if user didn't add the community as a friend
+        my $profile_url = $cu->profile_url;
+        $ret .= "<?h1 $ML{'.success'} h1?><?p " . BML::ml('.label.membernow6',
+                                                          { 'commname' => LJ::ljuser($cu) }) . " p?>";
+    } else {
+        my $commuser = $cu->{user};
+        my $cancel_text = $ML{'.btn.cancel'};
+
+        my $cancel_btn = "<script type='text/javascript' language='Javascript'> \n <!-- \n
+          document.write(\"<input type='button' value='$cancel_text' onclick='history.go(-1); return false;'>\");
+               \n // -->\n </script>";
+
+        if ($ci->{membership} ne 'open') {
+            $ret .= "<?h1 $ML{'.request.title'} h1?><?p ";
+            $ret .= BML::ml('.request.body', { comm => LJ::ljuser($cu) }) . "<br /> p?>";
+            $ret .= "<form method='post' action='join.bml?comm=$commuser'>";
+            $ret .= LJ::form_auth();
+            $ret .= "<?standout <input type='submit' value=\"$ML{'.button.join2'}\" /> ";
+            $ret .= "$cancel_btn standout?></form>";
+            return $ret;
+        }
+
+        $ret .= "<?h1 " . BML::ml('.label.sure2', {'comm' => LJ::ljuser($cu)}) . " h1?>";
+        $ret .= "<?p " . BML::ml('.label.expls2', {'commname' => $ecname}) . " p?>";
+        $ret .= $ci->{postlevel} eq "members" ?
+             "<?p " . BML::ml('.label.allowposting2', {'sitename' => $LJ::SITENAMESHORT}) . " p?>" :
+             "<?p " . BML::ml('.label.auth2', {'admins' => $list}) . " p?>";
+
+        $ret .= "<form method='post' action='join.bml?comm=$commuser'>";
+        $ret .= LJ::form_auth();
+        $ret .= "<table cellpadding='0' cellspacing='1' border='0'><tr>";
+        $ret .= "<td><input type='checkbox' name='addfriend' checked='checked'></td><td>";
+        $ret .= LJ::is_friend($remote, $cu) ? BML::ml('.label.addtofriends2.modify', {'comm' => LJ::ljuser($cu)}) : BML::ml('.label.addtofriends3', {'comm' => LJ::ljuser($cu)});
+        $ret .= "</td></tr><tr>";
+        $ret .= "<td>&nbsp;</td><td><span style='font-size: smaller;'>$ML{'.label.addtofriends.note2'}</span></td>";
+        $ret .= "</tr></table>";
+        $ret .= "<?standout <input type='submit' value=\"$ML{'.button.join2'}\" /> ";
+        $ret .= "$cancel_btn standout?></form>";
+    }
+
+    return $ret;
+}
+_code?>
+
+<=body
+page?><?_c <LJDEP>
+link: htdocs/login.bml, htdocs/userinfo.bml
+post: htdocs/community/join.bml
+</LJDEP> _c?>

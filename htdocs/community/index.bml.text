@@ -1,0 +1,21 @@
+;; -*- coding: utf-8 -*-
+.main2<<
+<?h1 Welcome! h1?>
+<?p
+Welcome to the Community Center. This is the place to find out how and where to 
+interact with the fellow members of your community! This site isn't only a great 
+place for keeping a journal - it's a place where people meet, interact, share 
+common interests, and have a good time.
+p?>
+
+<?h1 What is a Community? h1?>
+<?p
+A community is a journal run by a member of the site for people with common interests. 
+Communities are free to use and create... anyone can have them, and they're easy to set up.
+p?>
+
+<p align='center' style='font-size: 1.7em'><a [[aopts]]>Create a Community Now!</a></p>
+.
+
+.title=Community Center
+

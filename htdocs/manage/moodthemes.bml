@@ -1,0 +1,477 @@
+<?page
+title=><?_ml .title _ml?>
+
+head<=
+<script language="Javascript" type="text/javascript">
+    <!--
+
+    // Since JavaScript is dumb, we must get the page URL and save it here, to compare
+    // against later when we're seeing if we actually loaded an image or not...
+    var page_url = document.URL;
+
+    // Designed to update the fields for the image just changed as well as
+    // well as all those that inherit from it.
+    function update_children(id) {
+        if (! document.getElementById) return true;
+
+        var i = id+'img';
+        var url = document.getElementById(id);
+        var img = document.getElementById(i);
+
+        // If they actually have us something useful
+        if (url.value != "") {
+            var newimage = new Image();
+            newimage.src=url.value;
+
+            var oldurl = img.src;
+
+            // Update itself
+            img.src = url.value;
+            img.width = newimage.width;
+            img.height = newimage.height;
+
+            var w = id+'w';
+            var h = id+'h';
+            var width = document.getElementById(w);
+            var height = document.getElementById(h);
+            width.value = newimage.width;
+            height.value = newimage.height;
+
+            var form = document.getElementById('editform');
+            // Update everything to be its parent
+            for (var z = 0; z < form.elements.length; z++) {
+                var inherit = document.getElementById(form[z].id+'inherit');
+                var parent = document.getElementById(form[z].id+'parent');
+                if ((parent != undefined) && (inherit != undefined && inherit.checked == true)) {
+                    // our ids and stuff
+                    var pid = parent.value; // our parent's id
+                    var oid = form[z].id;   // our id
+
+                    // at this point we explode!
+                    var par_img = document.getElementById(pid+'img');
+                    if (par_img.src == page_url) {
+                        continue;
+                    }
+                    var our_img = document.getElementById(oid+'img');
+                    our_img.src = par_img.src;
+                    our_img.width = par_img.width;
+                    our_img.height = par_img.height;
+
+                    // now copy our_img info into text fields
+                    var our_url = document.getElementById(oid);
+                    var our_width = document.getElementById(oid+'w');
+                    var our_height = document.getElementById(oid+'h');
+                    our_url.value = par_img.src;
+                    our_width.value = par_img.width;
+                    our_height.value = par_img.height;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Logic behind grabbing the parent when checking inherit
+    function enable(id, parent) {
+        if (! document.getElementById) return true;
+
+        var check = document.getElementById(id+'inherit');
+        var url = document.getElementById(id);
+        var w = document.getElementById(id+'w');
+        var h = document.getElementById(id+'h');
+
+        var fill = switchdisable(id, check, url, w, h);
+
+        var pi = document.getElementById(parent+'img');
+        // For some dumb reason an img tag with no source has the src of the pages url
+        if(fill && parent != id && pi.src != page_url) {
+            url.value = pi.src;
+            w.value = pi.width;
+            h.value = pi.height;
+            var i = document.getElementById(id+'img');
+            i.src = pi.src;
+            i.width = pi.width;
+            i.height = pi.height;
+        }
+    }
+
+    // If a set of fields is disabled, it enables them and vice versa
+    function switchdisable(id, check, url, w, h) {
+        if (! document.getElementById) return true;
+
+        if (check == undefined) {
+            var check = document.getElementById(id+'inherit');
+            var url = document.getElementById(id);
+            var w = document.getElementById(id+'w');
+            var h = document.getElementById(id+'h');
+        }
+
+        if (check.checked == true) {
+            url.disabled = true;
+            w.disabled = true;
+            h.disabled = true;
+            return true;
+        } else {
+            url.disabled = false;
+            w.disabled = false;
+            h.disabled = false;
+            return false;
+        }
+    }
+
+    // Since not all browsers support JS, we need to use JS to disable form fields
+    // instead of doing it in Perl land.
+    function pageload() {
+        if (! document.getElementById) return true;
+
+        var form = document.getElementById('editform');
+        if (form == undefined) {
+            return false;
+        }
+
+        for (var z = 0; z < form.elements.length; z++) {
+            var inherit = document.getElementById(form[z].id+'inherit');
+            if (inherit != undefined && inherit.checked == true) {
+                switchdisable(form[z].id, undefined, undefined, undefined, undefined);
+            }
+        }
+    }
+//    -->
+</script>
+<=head
+
+body<=
+
+<?_code
+{
+    use strict;
+    use vars qw(%POST %GET);
+
+    LJ::set_active_crumb('moodeditor');
+    
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+
+    my $self_uri = "/manage/moodthemes.bml";
+    $self_uri .= "?authas=$authas" if $authas ne $remote->{'user'};
+
+    # Populated with all the moods later in editform
+    my %lists;
+
+    # one formauth for the whole page
+    my $form_auth = LJ::form_auth();
+
+    my $ret;
+
+    #### Closure Definitions ####
+    my $make_tree;
+    $make_tree = sub {
+        my ($num, $tid) = @_;
+        return unless $lists{$num};
+
+        $ret .= "<ul>\n";
+
+        foreach my $mood (@{$lists{$num}}) {
+            $ret .= "<li><b>$mood->{'name'}</b>";
+            my %pic;
+            LJ::get_mood_picture($tid, $mood->{'id'}, \%pic);
+            if (%pic) {
+                $ret .= "<img id='$mood->{'id'}img' align='absmiddle' src=\"$pic{'pic'}\" width='$pic{'w'}' height='$pic{'h'}' hspace='2' vspace='2' /></li>\n";
+            }
+
+            # Figure out if this picture is really just inherited from a parent
+            my $inherited;
+            if ($pic{'moodid'} != $mood->{'id'}) {
+                $inherited = 1;
+            } else {
+                $inherited = 0;
+            }
+
+            $ret .= "<table>";
+            if ($mood->{'parent'}) {
+                $ret .= "<tr><td colspan='2'><label for='$mood->{id}inherit'>" . BML::ml('.mood.label.inherit', {'mood' => LJ::mood_name($mood->{'parent'})}) . "</label>";
+                $ret .= " " . LJ::html_check({ type => 'check', name => "$mood->{id}inherit",
+                                                id => "$mood->{id}inherit",
+                                                onclick => "enable($mood->{id}, $mood->{parent})",
+                                                selected  => $inherited });
+                $ret .= "</td></tr>\n";
+            }
+            $ret .= "<tr><td>$ML{'.mood.label.url'} </td><td>";
+            $ret .= LJ::html_text({ name => $mood->{id}, id => $mood->{id}, value => $pic{pic},
+                                    size => 75, onchange => "update_children($mood->{id})" });
+            $ret .= "</td></tr>\n";
+            $ret .= "<tr><td>$ML{'.mood.label.width'} </td><td>";
+            $ret .= LJ::html_text({ name => "$mood->{id}w", id => "$mood->{id}w", value => $pic{w}, size => 4 });
+            $ret .= " $ML{'.mood.label.height'} " . LJ::html_text({ name => "$mood->{id}h", id => "$mood->{id}h",
+                                                  value => $pic{h}, size => 4 });
+            $ret .= "<br /><br /></td></tr>\n";
+            $ret .= LJ::html_hidden({ name => "$mood->{id}parent", id => "$mood->{id}parent", value => $mood->{parent} });
+            $ret .= "</table>\n";
+
+            $make_tree->($mood->{'id'}, $tid, 0);
+        }
+        $ret .= "</ul>\n";
+    };
+
+    my $editform = sub {
+        my $id = shift;
+
+        # Get a list of all possible moods
+        my $moods = LJ::get_moods();
+
+        foreach (sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods) {
+            my $m = $moods->{$_};
+            push @{$lists{$m->{'parent'}}}, $m;
+        }
+
+        $make_tree->(0, $id);
+    };
+
+
+    #### End Closure Definitions ####
+
+
+    if (LJ::did_post()) { # They actually did something, figure out what
+        return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+        my $themeid = $POST{'themeid'};
+        my $info;
+
+        # Figure out if they are editing a theme and which one they are
+        my @ids = split ',', $POST{'themeids'};
+        foreach (@ids) {
+            $themeid = $_ if $POST{"edit:$_"};
+        }
+        if (!$themeid) { # They decided to actually use a custom theme
+            my $use_theme;
+            foreach (@ids) {
+                $use_theme = $_ if $POST{"use:$_"};
+            }
+
+            if ($use_theme) {
+                my %update;
+                $update{'moodthemeid'} = $use_theme;
+                foreach (keys %update) {
+                    delete $update{$_} if $u->{$_} eq $update{$_};
+                }
+                LJ::update_user($u, \%update);
+                return BML::redirect($self_uri);
+            }
+        }
+        elsif ($POST{'isnew'} != 1) { # Make sure they can even edit this theme and fill in the $info variable for later use
+            my $dbr = LJ::get_db_reader();
+            my $sth = $dbr->prepare("SELECT name FROM moodthemes WHERE moodthemeid=? AND ownerid=?");
+            $sth->execute($themeid, $u->{'userid'});
+            $info = $sth->fetchrow_hashref;
+            return LJ::bad_input($ML{'.error.notyourtheme'})
+                unless defined $info;
+        }
+
+        # are we deleting a theme?
+        foreach my $tid (@ids) {
+            if ($POST{"delete:$tid"}) {
+                # good, delete this one
+                my $dbh = LJ::get_db_writer();
+                my $c = $dbh->do("DELETE FROM moodthemes WHERE moodthemeid = ? AND ownerid = ?", undef, $tid, $u->{userid})+0;
+                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantdeletetheme'} p?>" unless $c;
+                $dbh->do("DELETE FROM moodthemedata WHERE moodthemeid = ?", undef, $tid); # safe since we verified $c
+                return BML::redirect($self_uri);
+            }
+        }
+
+        # We are either making changes to an existing theme or showing the edit form for a new theme
+        if ($themeid && $POST{'edit'} == 1 || $POST{'isnew'} == 1) {
+            # Insert the new theme name and description into the db and grab its new themeid
+            if ($POST{'isnew'} == 1) {
+                return LJ::bad_input($ML{'.error.nonamegiven'})
+                    unless LJ::trim($POST{'name'});
+                my $dbh = LJ::get_db_writer();
+                my $i = $dbh->do("INSERT INTO moodthemes (ownerid, name, is_public) VALUES (?, ?, 'N')", undef, $u->{'userid'}, $POST{'name'});
+                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantcreatetheme'} p?>" unless $i;
+                $themeid = $dbh->{'mysql_insertid'};
+                $info->{'name'} = $POST{'name'};
+            }
+
+            $ret .= "<?hr?>\n";
+            $ret .= "<?h2 " . BML::ml('.editingtheme.header', {'name' => LJ::ehtml($info->{name})}) . " h2?>\n";
+
+            # Make the form
+            $ret .= "<?p <form action='$self_uri' method='post' id='editform' name='editform'>\n";
+            $ret .= $form_auth;
+            $ret .= "<b>$ML{'.editingtheme.label.name'}</b> ";
+            $ret .= LJ::html_text({ name => 'name', value => $info->{name}, size => 50, maxlength => 255 });
+            $ret .= "<br /><br />\n";
+            $ret .= LJ::html_hidden('themeid' => $themeid) . "\n";
+
+            # Actually make the editor form
+            $editform->($themeid);
+
+            $ret .= LJ::html_submit('save' => $ML{'.btn.savechanges'}) . "</form> p?>\n";
+
+        } elsif ($themeid)  { # Save their changes
+            my $dbh = LJ::get_db_writer();
+
+            # Update the name or description if needed
+            if ($info->{'name'} ne $POST{'name'}) {
+                my $u = $dbh->do("UPDATE moodthemes SET name=? WHERE moodthemeid=?", undef, $POST{'name'}, $POST{'themeid'});
+                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>" unless $u;
+            }
+
+            # The fun part of figuring out what needs to be changed in the db
+            my (@repl_values, @repl_bind, @del_values, @del_bind);
+            foreach my $key (keys %POST) {
+                # A key that is fully numeric signifies an actual mood theme.
+                # We then build off this id number to get other information needed
+                # about what the user specified.
+                if ($key =~ /(^\d+$)/) {
+                    my $mid = $1;
+                    my $width = $POST{$mid.'w'};
+                    my $height = $POST{$mid.'h'};
+                    my $picurl = $POST{$key};
+                    my $mname = LJ::mood_name($mid);
+
+                    # inherited, don't represent in db
+                    if ($POST{$mid.'check'} eq 'checked') {
+                        push @del_values, $mid;
+                        push @del_bind, ("?");
+                        $ret .= BML::ml('.mood.deleted', {'mood' => "$mname($mid)"}) . "<br />\n";
+                        next;
+                    }
+
+                    # one of these is blank, so delete the mood
+                    if (!$picurl || $width == 0 || $height == 0) {
+                        push @del_values, $mid;
+                        push @del_bind, ("?");
+                        next;
+                    }
+
+                    # we have a picurl, width, and height. add it.
+                    if ($picurl =~ m!^https?://[^\'\"\0\s]+$!) {
+                        push @repl_values, ($themeid, $mid, $picurl, $width, $height);
+                        push @repl_bind, ("(?, ?, ?, ?, ?)");
+                        $ret .= BML::ml('.mood.setpic', {'mood' => "$mname($mid)", 'url' => $picurl}) . "<br />\n";
+                    }
+                }
+            }
+
+            if (@del_values) {
+                my $bind = join(",", @del_bind);
+                my $p = $dbh->do("DELETE FROM moodthemedata WHERE moodthemeid=? AND moodid IN($bind)",
+                                 undef, $themeid, @del_values);
+                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>" unless $p;
+            }
+
+            if (@repl_values) {
+                my $bind = join(",", @repl_bind);
+                my $i = $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, " .
+                                 "picurl, width, height) VALUES $bind", undef, @repl_values);
+                return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.cantupdatetheme'} p?>" unless $i;
+             }
+
+            # Kill any memcache data about this moodtheme
+            LJ::MemCache::delete([$themeid, "moodthemedata:$themeid"]);
+
+            delete $LJ::CACHE_MOOD_THEME{$themeid};
+
+           $ret .= "<br />$ML{'.saved'}<br /><br />\n";
+           return BML::redirect($self_uri);
+        }
+
+        $ret .= BML::ml('Backlink', {
+            'link' => $self_uri,
+            'text' => $ML{'.back2'},
+        });
+    } else { # Show the first form to select user, which one to edit, or create a new one
+
+        # user switcher
+        $ret .= "<form action='/manage/moodthemes.bml' method='get'>\n";
+        $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
+        $ret .= "</form>\n\n";
+
+        my $moodtheme_upsell = LJ::run_hook("moodtheme_upsell");
+
+        unless (LJ::get_cap($u, "moodthemecreate")) {
+            if ($moodtheme_upsell) {
+                $ret .= $moodtheme_upsell;
+            } else {
+                $ret .= $ML{'.error.cantcreatethemes'};
+            }
+        } else {
+            # form to allow users to create new mood themes
+            $ret .= "<?h1 $ML{'.createtheme.header'} h1?>\n";
+            $ret .= "<form action='$self_uri' method='post' id='editform' name='editform' style='margin-left: 30px;'>\n";
+            $ret .= $form_auth;
+            $ret .= LJ::html_hidden('isnew' => 1) . "\n";
+            $ret .= "<?p <b>$ML{'.createtheme.label.name'}</b> " . LJ::html_text({ name => 'name', size => 30, maxlength => 50 });
+            $ret .= LJ::html_submit('create' => $ML{'.btn.create'}) . " p?></form>\n";
+
+            # Make up the form to choose to edit a theme or create a new one
+            $ret .= "<?h1 $ML{'.yourthemes.header'} h1?>\n";
+
+            # Get data to figure out if they have any themes already
+            my $dbr = LJ::get_db_reader();
+            my $sth = $dbr->prepare("SELECT moodthemeid, name FROM moodthemes WHERE ownerid=?");
+            $sth->execute($u->{userid});
+            my @user_themes = ();
+            push @user_themes, $_ while $_ = $sth->fetchrow_hashref;
+
+            if (@user_themes) { # The have some custom themes already defined
+                $ret .= "<form action='$self_uri' method='post' id='selectform' name='selectform' style='margin-left: 30px;'>\n";
+                $ret .= $form_auth;
+                $ret .= LJ::html_hidden('edit' => 1,
+                                        'themeids' => join(",", map { $_->{moodthemeid} } @user_themes));
+                $ret .= "<table>";
+                $ret .= "<tr><th></th><th>$ML{'.yourthemes.example.happy'}</th><th>$ML{'.yourthemes.example.sad'}</th><th>$ML{'.yourthemes.example.angry'}</th><th></th></tr>";
+                foreach my $theme (@user_themes) {
+                    my $ename = LJ::ehtml($theme->{'name'});
+                    my $tid = $theme->{'moodthemeid'};
+
+                    my $use_dis = 0;
+                    if ($tid == $u->{'moodthemeid'}) {
+                        $ret .= "<tr><td><b><a href='/moodlist.bml?moodtheme=$tid&ownerid=$u->{'userid'}'>$ename</a></b></td>";
+                        $use_dis = 1;
+                    } else {
+                        $ret .= "<tr><td><a href='/moodlist.bml?moodtheme=$tid&ownerid=$u->{'userid'}'>$ename</a></td>";
+                    }
+
+                    my @head_moods = (15, 25, 2); # happy, sad, angry
+                    foreach my $moodid (@head_moods) {
+                        my %pic = ();
+                        LJ::get_mood_picture($tid, $moodid, \%pic);
+                        $ret .= "<td>";
+                        if (%pic) {
+                            $ret .= "<img align='absmiddle' src=\"$pic{'pic'}\" width='$pic{'w'}' height='$pic{'h'}' hspace='2' vspace='2' />";
+                        } else {
+                            $ret .= "<i>$ML{'.yourthemes.example.none'}</i>";
+                        }
+                        $ret .= "</td>";
+                    }
+
+                    my $confirm_delete = LJ::ejs($ML{'.yourthemes.delete.confirm'});
+                    $ret .= "<td>" . LJ::html_submit("edit:$tid" => $ML{'.btn.edit'}) . " " . 
+                        LJ::html_submit("use:$tid", $ML{'.btn.use'}, {'disabled' => $use_dis}) . " " .
+                        LJ::html_submit("delete:$tid", $ML{'.btn.delete'}, 
+                                        { onclick => "return confirm('$confirm_delete');" }) . "</td>";
+                    $ret .= "</tr>";
+                }
+                $ret .= "</table>";
+                $ret .= "</form>\n";
+            } else {
+                $ret .= "<?p $ML{'.yourthemes.nothemes'} p?>\n";
+            }
+        }
+
+        $ret .= "<?p " . BML::ml('.usepublictheme', {'aopts' => "href='$LJ::SITEROOT/customize/style.bml'"}) . " p?>"
+            unless $moodtheme_upsell;
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+bodyopts=> onload="pageload();"
+page?>

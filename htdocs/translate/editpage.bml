@@ -1,0 +1,326 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<?_code
+{
+    LJ::run_hook('trans_editpage_bml_postsave_begin');
+    return LJ::res_includes();
+}
+ _code?>
+</head>
+<body>
+<?_code
+ use strict;
+ use vars qw(%FORM);
+
+ BML::set_content_type("text/html; charset=utf-8");
+
+ my $lang = $FORM{'lang'};
+ my $l = LJ::Lang::get_lang($lang);
+ return "<b>Invalid language</b>" unless $l;
+ my $lp = $l->{'parentlnid'} ? LJ::Lang::get_lang_id($l->{'parentlnid'}) : undef;
+
+ my $dbr = LJ::get_db_reader();
+ my $dbh;
+ my ($sth, $ret);
+
+ my $remote = LJ::get_remote();
+ my $can_edit = (LJ::check_priv($remote, "translate", "*") ||
+                 LJ::check_priv($remote, "translate", $l->{'lncode'}));
+ my $can_delete = LJ::check_priv($remote, "translate", "[itemdelete]");
+ my $can_rename = LJ::check_priv($remote, "translate", "[itemrename]");
+
+ my $mode = {
+     '' => 'view', 
+     'save' => 'save',
+ }->{$FORM{'mode'}};
+ return "bogus mode" unless $mode;
+
+ my $MAX_EDIT = 100;
+
+ if ($mode eq "view")
+ {
+     my @load;
+     foreach (split /,/, $FORM{'items'}) 
+     {
+         next unless /^(\d+):(\d+)$/;
+         last if @load >= $MAX_EDIT;
+         push @load, { 'dmid' => $1, 'itid'=> $2 };
+     }
+
+     return "Nothing to show." unless @load;
+     
+     $ret .= "<form method='post' action='editpage.bml'>";
+     $ret .= LJ::html_hidden('lang', $lang,
+                             'mode', 'save');
+
+     # load item info
+     my %ml_items;
+     my $itwhere = join(" OR ", map { "(dmid=$_->{'dmid'} AND itid=$_->{'itid'})" } @load);
+     $sth = $dbr->prepare("SELECT dmid, itid, itcode, notes FROM ml_items WHERE $itwhere");
+     $sth->execute;
+     while (my ($dmid, $itid, $itcode, $notes) = $sth->fetchrow_array) {
+         $ml_items{"$dmid-$itid"} = { 'itcode' => $itcode, 'notes' => $notes };
+     }
+     
+     # getting latest mappings for this lang and parent
+     my %ml_text;
+     my %ml_latest;
+     $sth = $dbr->prepare("SELECT lnid, dmid, itid, txtid, chgtime, staleness FROM ml_latest ".
+                          "WHERE ($itwhere) AND lnid IN ($l->{'lnid'}, $l->{'parentlnid'})");
+     $sth->execute;
+     return $dbr->errstr if $dbr->err;
+     while ($_ = $sth->fetchrow_hashref) {
+         $ml_latest{"$_->{'dmid'}-$_->{'itid'}"}->{$_->{'lnid'}} = $_;
+         $ml_text{"$_->{'dmid'}-$_->{'txtid'}"} = undef;  # mark to load later
+     }
+
+     # load text
+     $sth = $dbr->prepare("SELECT dmid, txtid, lnid, itid, text FROM ml_text ".
+                          "WHERE " . join(" OR ", 
+                                          map { "(dmid=$_->[0] AND txtid=$_->[1])" } 
+                                          map { [ split(/-/, $_) ] } keys %ml_text));
+     $sth->execute; 
+     while ($_ = $sth->fetchrow_hashref) {
+         $ml_text{"$_->{'dmid'}-$_->{'txtid'}"} = $_;
+     }
+
+     if ($can_delete) {
+         $ret .= "<p style='font-size:9pt'><b>To delete an item:</b> edit text to be \"XXDELXX\"</p>";
+     }
+
+     # show all editing items
+     my $ict = 0;
+     foreach my $i (@load) 
+     {
+         my ($dmid, $itid) = ($i->{'dmid'}, $i->{'itid'});
+         my $ituq = "$dmid-$itid";
+         my $it = $ml_items{$ituq};
+         my $lat = $ml_latest{$ituq}->{$l->{'lnid'}};
+         next unless $it and $lat;
+         $ict++;
+
+         my $plat;
+         if ($lp && defined $ml_latest{$ituq}->{$lp->{'lnid'}}) {
+             $plat = $ml_latest{$ituq}->{$lp->{'lnid'}};
+         }
+
+         $ret .= LJ::html_hidden("dom_$ict", $dmid,
+                                 "itid_$ict", $itid,
+                                 "oldtxtid_$ict", $lat->{'txtid'},
+                                 "oldptxtid_$ict", $plat ? $plat->{'txtid'} : 0,
+                                 );
+         
+         # top bar
+         $ret .= "<table bgcolor='#c0c0c0' width='100%'><tr><td><b>Code:</b> ";
+         if ($dmid != 1) {
+             my $d = LJ::Lang::get_dom_id($dmid);
+             $ret .= "[$d->{'uniq'}] ";
+         }
+
+         my $difflink;
+         if ($lat->{'staleness'}) {
+             $difflink = "($plat->{'chgtime'}, <a target='_new' href='diff.bml?it=$i->{'dmid'}:$i->{'itid'}&lang=$lp->{'lncode'}'>diff</a>)";
+         }
+
+         $ret .= "$it->{'itcode'} $difflink</td>";
+         $ret .= "<td align='right'><b><a target='_new' href='help-severity.bml'>Sev</a>:</b> $lat->{'staleness'}</td>";
+         $ret .= "</tr></table>";
+
+         $ret .= "<dl>";
+         if ($it->{'notes'}) {
+             my $notes = $it->{'notes'};
+             $notes =~ s!\n!<br />!g;
+             $ret .= "<dt><b>Notes:</b></dt><dd>$notes</dd>";
+         }
+
+         my $show_edit = 0;
+         my $use_textarea = 0;
+
+         if ($plat) {
+             $ret .= "<dt><b>$lp->{'lnname'}:</b></dt>";
+             my $t = $ml_text{"$plat->{'dmid'}-$plat->{'txtid'}"}->{'text'};
+             if ($t =~ /\n/) { $use_textarea = 1; }
+             if (length($t) > 255) { $use_textarea = 1; }
+             $t = LJ::eall($t);
+             $t =~ s/\n( *)/"<br \/>" . "&nbsp;"x length($1)/eg;
+             $ret .= "<dd>$t</dd>";
+         }
+
+         my $curtext = LJ::eall($ml_text{"$lat->{'dmid'}-$lat->{'txtid'}"}->{'text'});
+         if ($curtext =~ /\n/) { $use_textarea = 1; }
+         if (length($curtext) > 255) { $use_textarea = 1; }
+         if ($lat->{'staleness'} >= 3) {
+             # if wrong language, why populate it with stuff they'll just have to delete?
+             $curtext = "";
+         }
+         
+         $ret .= "<dt><b>$l->{'lnname'}</b>:</b></dt><dd>";
+         my $disabled = "disabled='disabled'";
+         if ($lat->{'staleness'} >= 3) {
+             $disabled = "";
+             # when something's this stale, assume both it's being
+             # edited and that the severity is major (going from wrong
+             # language to right language is a major change, afterall)
+             $ret .= LJ::html_hidden("ed_$ict", "1",
+                                     "sev_$ict", "2",
+                                     );
+         } else {
+             $ret .= "<input name='ed_$ict' type='checkbox' value='1' id='ed_$ict' onClick='a=document.getElementById(\"newtext_$ict\"); a.disabled=!this.checked; if (this.checked) a.focus();' /><label for='ed_$ict'>Edit Text</label>";
+             if ($l->{'children'} && @{$l->{'children'}}) {
+                 $ret .= " Severity: ";
+                 $ret .= LJ::html_select({ 'name' => "sev_$ict", "selected" => 1 },
+                                         0 => "Typo/etc (no notify)",
+                                         1 => "Minor (notify translators)",
+                                         2 => "Major (require translation updates)");
+             }
+             $ret .= "<br />";
+         }
+         if ($use_textarea) {
+             $ret .= "<textarea name='newtext_$ict' id='newtext_$ict' $disabled wrap='soft' rows='10' cols='60'>$curtext</textarea>";
+         } else {
+             $ret .= "<input name='newtext_$ict' id='newtext_$ict' $disabled size='60' value=\"$curtext\"/>";
+         }
+         $ret .= "</dd>\n";
+         $ret .= "</dl>";
+     }
+
+     if ($ict) {
+         $ret .= LJ::html_hidden("ict", $ict);
+         my $disabled = $can_edit ? "" : "disabled='disabled'";
+         $ret .= "<table width='100%' bgcolor='#e0e0e0'><tr><td align='center'><input type='submit' $disabled value='Save' /></td></tr></table>";
+     } else {
+         $ret .= "No items to show.  (since been deleted, perhaps?)";
+     }
+     $ret .= "</form>";
+     
+     return $ret;
+ }
+
+ if ($mode eq "save")
+ {
+     my $num = $FORM{'ict'}+0;
+     $num = $MAX_EDIT if $num > $MAX_EDIT;
+
+     my (@errors, @info);
+     unless ($can_edit) {
+         push @errors, "You don't have access to edit text for this language.";
+         $num = 0;
+     }
+
+     unless (LJ::text_in(\%FORM)) {
+         push @errors, "You seem to have changed your browser's encoding to something other than UTF-8.  It needs to be in UTF-8.";
+         push @errors, "Nothing saved.";
+         $num = 0;
+     }
+ 
+     my $saved = 0;  # do any saves?
+
+     for (my $i=1; $i<=$num; $i++)
+     {
+         next unless $FORM{"ed_$i"};
+         my ($dom, $itid, $oldtxtid, $oldptxtid, $sev) = 
+             map { int($FORM{"${_}_$i"}+0) } qw(dom itid oldtxtid oldptxtid sev);
+
+         my $itcode = $dbr->selectrow_array("SELECT itcode FROM ml_items WHERE dmid=$dom AND itid=$itid");
+         unless (defined $itcode) {
+             push @errors, "Bogus dmid/itid: $dom/$itid";
+             next;
+         }
+         
+         $dbh ||= LJ::get_db_writer();
+         my $lat = $dbh->selectrow_hashref("SELECT * FROM ml_latest WHERE lnid=$l->{'lnid'} AND dmid=$dom AND itid=$itid");
+         unless ($lat) {
+             push @errors, "No existing mapping for $itcode";
+             next;
+         }
+         unless ($lat->{'txtid'} == $oldtxtid) {
+             push @errors, "Another translator updated '$itcode' before you saved, so your edit has been ignored.";
+             next;
+         }
+
+         my $plat;
+         if ($lp) {
+             $plat = $dbh->selectrow_hashref("SELECT * FROM ml_latest WHERE lnid=$lp->{'lnid'} ".
+                                             "AND dmid=$dom AND itid=$itid");
+             my $ptid = $plat ? $plat->{'txtid'} : 0;
+             unless ($ptid == $oldptxtid) {
+                 push @errors, "The source text of item '$itcode' changed while you were editing, so your edit has been ignored.";
+                 next;
+             }
+         }
+
+         # did they type anything?
+         my $text = $FORM{"newtext_$i"};
+         next unless $text =~ /\S/;
+
+         # delete
+         if ($text eq "XXDELXX") {
+             if ($can_delete) {
+                 $dbh->do("DELETE FROM ml_latest WHERE dmid=$dom AND itid=$itid");
+                 push @info, "Deleted: '$itcode'";
+             } else {
+                 push @errors, "You don't have access to delete items.";
+             }
+             next;
+         }
+         
+         # did anything even change, though?
+         my $oldtext = $dbr->selectrow_array("SELECT text FROM ml_text WHERE dmid=$dom AND txtid=$lat->{'txtid'}");
+         if ($oldtext eq $text && $lat->{'staleness'} == 2) {
+             push @errors, "Severity of source language change requires change in text for item '$itcode'";
+             next;
+         }
+
+         # keep old txtid if text didn't change.
+         my $opts = {};
+         if ($oldtext eq $text) { 
+             $opts->{'txtid'} = $lat->{'txtid'}; 
+             $text = undef; 
+             $sev = 0;
+         }
+
+         # if setting text for first time, push down to children langs
+         if ($lat->{'staleness'} == 4) {
+             $opts->{'childrenlatest'} = 1;
+         }
+
+         # severity of change:
+         $opts->{'changeseverity'} = $sev;
+
+         # set userid of writer
+         $opts->{'userid'} = $remote->{'userid'};
+
+         my ($res, $msg) = LJ::Lang::web_set_text($dom, $l->{'lncode'}, $itcode, $text, $opts);
+         unless ($res) {
+             push @errors, $msg;
+         } else {
+             push @info, "OK: $itcode";
+             $saved = 1;
+         }
+         push @info, LJ::run_hook('trans_editpage_bml_postsave', $opts)
+             if LJ::are_hooks('trans_editpage_bml_postsave');
+     }
+
+     $dbh ||= LJ::get_db_writer();
+     $dbh->do("UPDATE ml_langs SET lastupdate=NOW() WHERE lnid=$l->{'lnid'}") if $saved;
+
+     if (@errors) {
+         $ret .= "<b>ERRORS:</b><ul>";
+         foreach (@errors) { $ret .= "<li>$_</li>"; }
+         $ret .= "</ul>";
+     }
+     if (@info) {
+         $ret .= "<b>Results:</b><ul>";
+         foreach (@info) { $ret .= "<li>$_</li>"; }
+         $ret .= "</ul>";
+     }
+     if (! @errors && ! @info) {
+         $ret .= "<i>No errors & nothing saved.</i>";
+     }
+     return $ret;
+ }
+
+_code?>
+</body>
+</html>

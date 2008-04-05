@@ -1,0 +1,96 @@
+;; -*- coding: utf-8 -*-
+.add_previous<<
+<?h1 Add to memories... h1?>
+<?p To add the journal entry you were just viewing to your "memories", fill out the form below. p?>
+.
+
+.body.added.header=Success
+
+.body.added.text=Your list of memorable entries has been updated.
+
+.body.added.next.entry=Go back to the entry
+
+.body.added.next.friends=Read your Friends page
+
+.body.added.next.journal=Continue reading [[user]]
+
+.body.added.next.view=View all your memories
+
+.description=Description:
+
+.description.text<<
+  Give this journal entry a description that you can remember it by.  
+  To delete this entry from your list of memorable posts, enter a blank description.
+.
+
+.edit_previous<<
+<?h1 Edit memorable entry... h1?>
+<?p To edit the settings for this memorable entry, fill out the form below. p?>
+.
+
+.error.deleted.body=The journal entry previously described as "[[desc]]" has been removed from your list of memorable posts.
+
+.error.deleted.title=Memory deleted
+
+.error.entry_deleted=Journal entry no longer exists.  Memory deleted.
+
+.error.fivekeywords=Only 5 keywords/categories are allowed per memorable post.
+
+.error.invalid_security=Invalid or missing security option.
+
+.error.maxsize=This keyword exceeds the maximum allowed size: "[[keyword]]"
+
+.error.nodescription.body<<
+To add a journal entry to your list of memories, you need to provide a description.  
+To delete a memory, you can edit it and remove the description, but you didn't already have this entry in your memories.
+.
+
+.error.nodescription.title=No description
+
+.form.reset=Reset
+
+.form.submit=Submit
+
+.keywords=Keywords:
+
+.keywords.example=Example:  <B>Funny, Geeky, Romantic</B>
+
+.keywords.select=Or, you can also select keywords you've used in the past:
+
+.keywords.text<<
+  Why is this post memorable?
+  Enter up to five comma separated keywords or categories so you can find it later. You can also select keywords you've used in the past.
+.
+
+.login.enterinfo=Enter username and password of the account you wish to save the memory into.
+
+.multiple_selections=Hold down 'Control' while clicking keywords to select multiple ones.
+
+.security=Security:
+
+.security.friendsonly=Friends Only
+
+.security.private=Private
+
+.security.public=Public 
+
+.title=Add to Memories
+
+.title.added=Added
+
+.title.add_memory=Add Memorable Entry
+
+.title.deleted=Deleted
+
+.title.edit_memory=Edit Memorable Entry
+
+.whocansee<<
+  Who can see that you've marked this post as memorable?
+  Everybody, only people you list as a friend, or just you?
+.
+
+.whocansee.comm<<
+  Who can see that you've marked this post as memorable?
+  Everybody, only members of the community, or only maintainers of the community?
+.
+

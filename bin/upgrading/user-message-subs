@@ -1,0 +1,77 @@
+#! /usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+
+my $dbslo = LJ::get_dbh("slow")
+    or die "cannot connect to slow role";
+
+my $limit = 5000;
+my $uids_done = 0;
+my $last_max_uid = 0;
+
+my $max_uid = $dbslo->selectrow_array("SELECT MAX(userid) FROM user")+0;
+
+print "Populating userids from $last_max_uid through $max_uid\n";
+
+# scary, i know... but we'll last out if we ever get less than $limit uids
+my $start_time = time();
+while (1) {
+    my $loop_begin = time();
+
+    # Let's call start_request
+    # -- so our in-process $u caches don't get unreasonable
+    # -- so we revalidate our database handles
+
+    LJ::start_request();
+    $dbslo = LJ::get_dbh("slow")
+	or die "cannot connect to slow role";
+
+    # load user rows from slow
+    my $sth = $dbslo->prepare
+	("SELECT * FROM user WHERE userid>? AND statusvis!='X' AND journaltype IN ('P', 'I') ORDER BY userid LIMIT $limit");
+    $sth->execute($last_max_uid);
+    die $dbslo->errstr if $dbslo->err;
+
+    # construct user objects from them since we have the full data around
+    my %user_rows = (); # uid => $row
+    while (my $row = $sth->fetchrow_hashref) {
+	$user_rows{$row->{userid}} = LJ::User->new_from_row($row);
+    }
+    last unless %user_rows;
+
+    # now update each one
+    while (my ($uid, $u) = each %user_rows) {
+        next if $u->is_expunged;
+
+        my %params = (event => 'UserMessageRecvd', journal => $u);
+        unless ($u->has_subscription(%params)) {
+            $u->subscribe(%params, method => $_) foreach qw(Email);
+        }
+
+	$last_max_uid = $uid if $uid > $last_max_uid;
+	$uids_done++;
+    }
+
+    # update max userid every so often for our pretty status display
+    if ($uids_done % 10_000 == 0) {
+	$max_uid = $dbslo->selectrow_array("SELECT MAX(userid) FROM user")+0;
+    }
+
+    printf ("[%.2f] $uids_done - current id $last_max_uid - %.2f hours\n",
+	    100*($last_max_uid / ($max_uid || 1)), ($max_uid - $last_max_uid) / (($uids_done || 1) / ((time() - $start_time) || 1)) / 3600
+	    );
+
+    # we're done if we got less than the limit
+    last if scalar (keys %user_rows) < $limit;
+
+    # each of these loops should take two minutes. rate limiting.
+    if (time() - $loop_begin < 120) {
+        my $delay = 120 - (time() - $loop_begin);
+        sleep $delay;
+    }
+}
+
+print "All done!\n";
+
+1;

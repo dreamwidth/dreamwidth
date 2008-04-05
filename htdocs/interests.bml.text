@@ -1,0 +1,146 @@
+;; -*- coding: utf-8 -*-
+.add.added.head=Added!
+
+.add.added.text=The interest has been added to your list.
+
+.add.btn.text=Add [[interest]]
+
+.add.confirm.head=Confirm
+
+.add.confirm.text=To add <b>[[interest]]</b> as an interest, click the button below.
+
+.add.toomany.head=Sorry...
+
+.add.toomany.text=You already have [[maxinterests]] interests defined.
+
+.addint2=If you're also interested in this and would like to be added to this list, <a [[aopts]]>click here</a>.
+
+.btn.switch=Switch
+
+.communities.header=Results for communities interested in "[[interest]]"
+
+.count=Count
+
+.enmasse.body.other<<
+Below are the interests of [[user]]. Check the boxes next to the interests you would like
+to add to your own, and uncheck the checkboxes next to the interests you would like to remove
+from your own. When you're done, click "Save Changes".
+.
+
+.enmasse.body.other_authas<<
+Below are the interests of [[user]]. Check the boxes next to the interests you would like
+to add to those of [[target]], and uncheck the checkboxes next to the interests you would
+like to remove. When you're done, click "Save Changes".
+.
+
+.enmasse.body.you<<
+Uncheck the checkboxes next to the interests you would like to remove.
+When you're done, click "Save Changes".
+.
+
+.enmasse.btn=Show list
+
+.enmasse.header=Add/Remove interests
+
+.enmasse.intro=Modify your interests based on those of:
+
+.error.add.mustlogin=You have to be logged in to add an interest this way. 
+
+.error.enmasse.noaccess=You do not appear to have access to the journal [[user]].
+
+.error.findsim_do.intnotfound=Interest wasn't found.
+
+.error.nointerests=The selected user does not exist or has not specified any interests.
+
+.findsim.searchwait=<b>Please note:</b> Search will take several seconds.  Be patient.
+
+.findsim_do.account.notallowed=Sorry, your account type doesn't let you use this tool.
+
+.findsim_do.magic=Magic<br />Index
+
+.findsim_do.magic.head=Magic Index?
+
+.findsim_do.magic.text=Each matching user gets computed a magic index, which is a weighting of two factors:  the raw number of like interests, and some extra points for sharing uncommon interests.
+
+.findsim_do.nomatch.head=No Matches
+
+.findsim_do.nomatch.text=No users are similar to [[user]].
+
+.findsim_do.notdefined=User [[user]] has no defined interests.
+
+.findsim_do.similar.head=Similar Users
+
+.findsim_do.similar.text=The following are the most related users to [[user]]
+
+.finished.about=When you're done, press the "Save Changes" button below:
+
+.finished.header=Done?
+
+.finished.save_button=Save Changes
+
+.interest=Interest
+
+.interested.btn.find=Find
+
+.interested.in=Find people interested in:
+
+.interests.findsim=Find users with interests similar to those of:
+
+.interests.head=Interests
+
+.interests.text=Here are some fun things you can do with interests.
+
+.interests.viewpop=View popular interests
+
+.login.enterinfo=Enter your username and password to modify your interests.
+
+.login.proceed=Proceed...
+
+.matches2=[[num]] [[?num|match|matches]]:
+
+.morestuff2=More fun stuff can be found on the <a [[aopts]]>interests page</a>.
+
+.nointerests.text2=Don't have any interests listed? Add some by going to the <a [[aopts]]>Edit Personal Information</a> page.
+
+.popular.disabled=Sorry, the popular interests feature is unavailable.
+
+.popular.head=Popular Interests
+
+.popular.text=The following are the most popular interests.
+
+.popular.textmode=<a [[aopts]]>View as table</a>.
+
+.results.added=The interests you selected were successfully added to your interests list.
+
+.results.both=The interests you selected were successfully added to your interests list, and those you deselected were removed.
+
+.results.deleted=The interests you deselected were successfully removed from your interests list.
+
+.results.del_and_toomany<<
+The interests you deselected were successfully removed from your interests list.
+However, you selected too many interests to add. You may only have [[intcount]]
+interests in total. None of the selected interests were added to your interests list.
+You may wish to go back and try again, selecting fewer interests to add.
+.
+
+.results.goback2=You may wish to go back to [[user]]'s <a [[aopts]]>profile</a> which you were viewing previously.
+
+.results.header=Results
+
+.results.message2=See your updated <a [[aopts]]>profile page</a>.
+
+.results.nothing=You did not make any changes.
+
+.results.toomany<<
+You selected too many interests to add. You may only have [[intcount]] interests
+in total. None of the selected interests were added to your interests list.
+You may wish to go back and try again, selecting fewer interests to add.
+.
+
+.title=Interests
+
+.toomany.body=There are [[intcount]] people and/or communities listing this as an interest.  A list will not be shown.
+
+.toomany.head=Many matches
+
+.users.header=Results for users interested in "[[interest]]"

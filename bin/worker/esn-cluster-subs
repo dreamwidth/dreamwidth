@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+require 'ljprotocol.pl';
+require 'ljlang.pl';
+use LJ::Worker::TheSchwartz;
+use LJ::ESN;
+
+schwartz_decl("LJ::Worker::FindSubsByCluster");
+
+schwartz_work();
+

@@ -1,0 +1,84 @@
+;; -*- coding: utf-8 -*-
+.body<<
+Edit the fields of your journal entry you'd like to modify and press the save button at the
+bottom of the page. Alternately, you can press the delete button to delete the entry.
+.
+
+.btn.delete=Delete Entry 
+
+.btn.deletespam=Delete and Mark As Spam
+
+.btn.edit=Edit Selected Entry
+
+.btn.preview=Preview Entry
+
+.btn.save=Save Journal Entry
+
+.continue.head=Press to continue...
+
+.continue.text=After you select an item to edit or delete, press the Edit button below.
+
+.currmusic=Current Music:
+
+.date=Date:
+
+.default=default
+
+.delete.confirm=Are you sure you want to delete this entry?
+
+.deletespam.confirm=Are you sure you want to delete this entry and mark it as spam?
+
+.edit.text=Edit the fields of your journal entry you'd like to modify and press the save button at the bottom of the page.  To delete the entry, just delete all the text and press save... the entry will be deleted.
+
+.error.getting=There was an error getting the journal entries to edit:
+
+.error.modify=An error occurred modifying your journal:
+
+.error.nofind=Could not find selected journal entry.
+
+.event=Event:
+
+.localtime=Local time:
+
+.noneother=None, or other:
+
+.opt.backdate=Backdate Entry:
+
+.opt.backdate.about=won't show on friends view
+
+.opt.nocomments=Disallow Comments:
+
+.opt.noemail=Don't email Comments:
+
+.opt.noformat=Don't auto-format:
+
+.opt.spellcheck=Spell check entry before saving
+
+.other=Other:
+
+.pickentry.head=Pick an entry to edit
+
+.pickentry.text=Select which item you want to edit and press the edit button at the bottom of the page.
+
+.preview.header=Preview Entry
+
+.preview.text=This is how the entry will look when posted. Using the form below, you can edit the entry further, or you can submit it as is.
+
+.save.head=Press to save...
+
+.save.text=After you're done editing your journal entry, press Save.
+
+.spellchecked=Your spell-checked post:
+
+.subject=<b>Subject:</b> <i>(optional)</i>
+
+.success.delete=Journal entry was deleted.
+
+.success.deletespam=Additionally, the entry was marked as spam.  Thank you for your report.
+
+.success.head=Success
+
+.timeformat=24 hour time
+
+.title=Edit Journal Entries
+

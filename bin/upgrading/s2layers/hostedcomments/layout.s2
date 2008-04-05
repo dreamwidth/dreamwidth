@@ -1,0 +1,367 @@
+layerinfo type = "layout";
+layerinfo name = "Hosted Comments";
+layerinfo redist_uniq = "hostedcomments/layout";
+layerinfo des = "A style with only comments";
+function print_custom_stylesheet() {}
+
+property bool no_show_control_strip;
+set no_show_control_strip = true;
+
+function print_stylesheet () {
+    print_custom_stylesheet();
+}
+
+function num_comments_in_thread (Comment[] comments)  : int {
+    var int total = 0;
+    foreach var Comment c ($comments) {
+        $total = $total + 1;
+        if (size $c.replies > 0) {
+            $total = $total + num_comments_in_thread($c.replies);
+        }
+    }
+    return $total;
+}
+
+function container_open (string name) {
+    println safe """<div id="$name"><div id="$name-inner">""";
+}
+
+function container_close () {
+    "</div></div>\n";
+}
+
+function Page::print () {
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   """;
+
+    $this->print_head();
+
+    $this->print_stylesheets();
+    print safe """<title>""" + $this->title() + """</title>\n""";
+
+"""
+</head>
+<body>""";
+    $this->print_body();
+"""</body>
+</html>""";
+}
+
+function EntryPage::print_body() {
+    if ($.entry.comments.enabled and $.comment_pages.total_subitems > 0) {
+
+    """<a id="comments"></a>
+<div id="comments">
+          <div class="comments-inner">
+            <div class="comments-body">
+              <div class="comments-nav">
+                ( """; $this->print_reply_link({"target" => "topcomment", "linktext" => $*text_post_comment}); """ )""";
+    $this->print_reply_container({"target" => "topcomment"});
+    """</div>""";
+
+    if($.multiform_on) {
+        $this->print_multiform_start();
+    }
+
+    if(not $.comment_pages.all_subitems_displayed) {
+        $.comment_pages->print();
+    }
+
+    foreach var Comment c ($.comments) {
+        """<div style="margin-left: 0px">""";
+        $this->print_comment($c);
+        """</div>""";
+    }
+
+    if(not $.comment_pages.all_subitems_displayed) {
+        $.comment_pages->print();
+    }
+
+    if ($.multiform_on) {
+        print """<div style="text-align: center">"""; $this->print_multiform_actionline(); print "</div>";
+        $this->print_multiform_end();
+    }
+"""
+            </div>
+          </div>
+        </div>
+""";
+    }
+}
+
+function lang_posted_by_date_and_time(EntryLite e, bool showposter, bool showdate, bool showtime) : string {
+    var string posted = "";
+    if ($showposter) {
+        var string posterstr = (defined $e.poster ? ""+$e.poster : """<i class="noposter">$*text_poster_anonymous</i>""");
+        if (not $showtime and not $showdate) {
+            return $posted;
+        }
+    }
+    if ($showdate and $showtime) {
+        if ($e.depth > 0) { # If $e is a comment
+            return $posted + $e->time_display("med", "");
+        } else {
+            return $posted + $e->time_display($*lang_fmt_date_med + " at %%h%%:%%min%% %%A%%M", "none");
+        }
+    }
+    if ($showdate and not $showtime) {
+        return $posted + $e->time_display("med", "none");
+    }
+    if (not $showdate and $showtime) {
+        return $e->time_display("none", "%%h%%:%%min%% %%A%%M");
+    }
+    return "";
+}
+
+function Comment::print_linkbar() {
+    var Link link;
+    var string sep  = """<span class="separator">|</span>""";
+    var string url  = "";
+    var string text = "";
+
+    var string{} link_caption = {
+        # TODO: These should really be separate properties
+        "delete_comment"   => $*text_multiform_opt_delete,
+        "freeze_thread"    => $*text_multiform_opt_freeze,
+        "unfreeze_thread"  => $*text_multiform_opt_unfreeze,
+        "screen_comment"   => $*text_multiform_opt_screen,
+        "unscreen_comment" => $*text_multiform_opt_unscreen,
+        "watch_comments"   => $*text_multiform_opt_track,
+        "unwatch_comments" => $*text_multiform_opt_untrack,
+    };
+
+    foreach var string link_key ($.link_keyseq) {
+        $link = $this->get_link($link_key);
+        if (defined $link) {
+            $url  = $link.url;
+            $text = $link_caption{$link_key} != "" ? $link_caption{$link_key} : $link.caption;
+            print safe """ $sep <a href="$url">$text</a>""";
+        }
+    }
+}
+
+function CommentInfo::print_readlink {
+    var Page p = get_page();
+    var string show_screened = "";
+    if ($.screened) {
+        $show_screened = " <b>$*text_month_screened_comments</b>";
+    }
+    print safe "<a href=\"$.read_url\">"+
+        get_plural_phrase($.count, $p.view == "friends" ?
+                          "text_read_comments_friends" : "text_read_comments")+
+                          "$show_screened</a>";
+}
+
+function CommentInfo::print() {
+    if ($.show_readlink)   {
+        """<li class="asset-meta-comments item asset-meta-no-comments">"""; $this->print_readlink(); "</li>\n";
+    }
+    if ($.show_postlink) {
+        """<li class="asset-meta-comments item asset-meta-no-comments">"""; $this->print_postlink(); "</li>\n";
+    }
+}
+
+function Entry::print_linkbar() {
+    var Link link;
+    var string url = "";
+    var string text = "";
+
+    print """<div class="asset-meta">\n""";
+    print """<ul class="asset-meta-list">\n""";
+
+    $.comments->print();
+
+    var string{} link_caption = {
+        "edit_entry" => $*text_edit_entry,
+        "edit_tags" => $*text_edit_tags,
+        "mem_add" => $*text_mem_add,
+        "watch_comments" => $*text_watch_comments,
+        "unwatch_comments" => $*text_unwatch_comments,
+    };
+
+    foreach var string link_key ($.link_keyseq) {
+        $link = $this->get_link($link_key);
+        if (defined $link) {
+            $url = $link.url;
+            $text = $link_caption{$link_key} != "" ? $link_caption{$link_key} : $link.caption;
+            print safe """<li class="asset-meta-comments item asset-meta-no-comments"><a href="$url">$text</a></li>""";
+        }
+    }
+    print """<li class="asset-meta-comments item asset-meta-no-comments"><a href="$.permalink_url">$*text_permalink</a></li>""";
+    println "\n</ul>\n</div>\n";
+}
+
+function Entry::print_metadata() {
+    if (size $.metadata) {
+        """<div class="lj-currents">\n<ul>\n""";
+        foreach var string m ($.metadata) {
+            var string text = lang_metadata_title($m);
+            var string val  = $.metadata{$m};
+            if ($m == "mood") {
+                if(($.mood_icon)) {
+                    $val = " $.mood_icon " + $val;
+                }
+            }
+            print safe """<li><span class="entryMetadata-label">${text}:</span><span class="entryMetadata-content">$val</span></li>""";
+        }
+        "</ul>\n</div>\n";
+    }
+
+    if ((size($.tags) > 0) and ($*tags_aware)) {
+        var int tcount = 0;
+        """<div class="asset-tags"><h4 class="asset-tags-header page-header-4">Tags:</h4>\n<ul class="asset-tags-list">\n """;
+        foreach var Tag t ($this.tags) {
+            """<li class="item"><a rel="tag" href="$t.url">$t.name</a>""";
+            $tcount++;
+            if ($tcount != size $.tags) {
+                ",";
+            }
+            "</li>";
+        }
+        "\n</ul>\n</div>\n";
+    }
+}
+
+function EntryPage::print_comment(Comment e) {
+    var string barc = "comment-" + ($e.depth % 2 ? "odd" : "even");
+    var string screenbarc = "";
+    var string borderwidth = "";
+    if ($e.screened) {
+        $screenbarc = "style=\"border-width: 3px; border-style: dashed\"";
+    }
+    var int    num  = 0;
+
+    if (not $e.full) {
+        # Collapsed mode
+
+        var string id = $e.dom_id ? " id=\"comment-$e.talkid\"" : "";
+        """
+        <a name='$e.anchor'></a>
+        <div class="collapsed-comment"$id>
+          <div class="comment-inner">
+            <div class="comment-meta">""";
+
+        var string subject = $e.subject != "" ? $e.subject : """<i class="nosubject">$*text_nosubject</i>""";
+
+        print safe """<a href="$e.permalink_url" class="collapsed-comment-link">$subject</a> <span class="separator">-</span> """;
+
+        var string poster = (defined $e.poster ? ""+$e.poster : """<i class="noposter">$*text_poster_anonymous</i>""");
+        print safe """$poster <span class="separator">-</span> """;
+        print lang_posted_by_date_and_time($e, false, true, true);
+
+        if (size($e.replies) > 0) {
+            foreach var Comment c ($e.replies) {
+                $this->print_comment($c);
+            }
+        }
+
+        """
+            </div>
+          </div>
+        </div>\n""";
+
+        return;
+    }
+
+    var string id = $e.dom_id ? " id=\"comment-$e.talkid\"" : "";
+
+    """<a name='$e.anchor'></a>
+       <div $screenbarc class="$barc comment"$id>
+       <div class="comment-inner">
+       <div class="comment-meta">""";
+
+    if (defined $e.userpic) {
+        """<div class="user-icon">$e.userpic</div>""";
+    }
+
+    var string poster = defined $e.poster ? $e.poster->as_string() : "<i>$*text_poster_anonymous</i>";
+
+    print safe """<span class="commenter-name">$poster """;
+    if ($e.metadata{"poster_ip"} != "") {
+        "(" + $e.metadata{"poster_ip"} + ") ";
+    }
+    """wrote:</span><br />""";
+    var string datetime = lang_posted_by_date_and_time($e, true, true, true);
+    """<div class="comment-date"><abbr class="datetime">$datetime</abbr></div>""";
+
+    if (defined $e.subject_icon) {
+        """<div class="comment-subject-icon">$e.subject_icon</div>""";
+    }
+
+    if ($e.subject != "") {
+        """<div class="comment-subject">$e.subject</div>""";
+    }
+
+    """<div class="comment-body">""";
+    $e->print_text();
+    """</div>
+
+    <div class="comment-links">""";
+    var string sep = """<span class="separator">|</span>""";
+    """<a class="permalink" href="$e.permalink_url">$*text_permalink</a>""";
+
+    if ($e.frozen) {
+        print safe " $sep $*text_comment_frozen";
+    } else {
+        " $sep "; $e->print_reply_link({"linktext" => $*text_comment_reply});
+    }
+
+    if ($e.parent_url) { print """ $sep <a href="$e.parent_url">$*text_comment_parent</a>"""; }
+    if ($e.thread_url) { print """ $sep <a href="$e.thread_url">$*text_comment_thread</a>"""; }
+
+    $e->print_linkbar();
+
+    if ($this.multiform_on) {
+        println safe """ <label for="ljcomsel_$e.talkid">$*text_multiform_check</label>""";
+        $e->print_multiform_check();
+    }
+
+    "</div>\n</div>\n</div>\n</div>\n";
+    if (not $e.frozen) {
+        $e->print_reply_container({"class" => "quickreply"});
+    }
+
+    if (size($e.replies) > 0) {
+        foreach var Comment c ($e.replies) {
+            """<div style="margin-left: 35px">""";
+            $this->print_comment($c);
+            """</div>""";
+        }
+    }
+}
+
+
+function ReplyPage::print_body
+{
+    if (not $.entry.comments.enabled) {
+        print "<h2>$*text_reply_nocomments_header</h2><p>$*text_reply_nocomments</p>";
+        return;
+    }
+
+    print "\n<hr />\n";
+
+    container_open("comments");
+    """
+    <h2 class="comments-header page-header2">$*text_replyform_header</h2>
+    <div class="comments-body">
+      <div class="comments-nav">
+        ( <a href="$.entry.permalink_url">$*text_reply_back</a> )
+      </div>
+      <a name="replyform"></a>
+      <div class="replyform">""";
+
+    $.form->print();
+
+    """
+        <div class="comments-nav">
+          ( <a href="$.entry.permalink_url">$*text_reply_back</a> )
+        </div>
+      </div>
+    </div>""";
+
+    container_close();
+}

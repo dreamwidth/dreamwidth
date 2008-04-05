@@ -1,0 +1,26 @@
+stats.pl:
+  genstats - Generates the nightly statistics
+  genstats_size - Generates the site size stats
+  genstats_weekly - Generates the weekly statistics
+  memeclean - Removes things from meme summary that are excluded by new URL cleaner rules
+
+statspics.pl:
+  genstatspics - Makes a bunch of graphs to show on the statistics page.
+
+clean_caches.pl:
+  clean_caches - removes old cache files
+
+synsuck.pl:
+  synsuck - Polls needed remote, syndicated RSS/etc and updates journals.
+
+captcha.pl:
+  gen_audio_captchas - Generate any needed new audio challenges.
+  gen_image_captchas - Generate any needed new graphical challenges.
+  clean_captchas - Purge old challenges from the database.
+
+generic.pl:
+  joinmail - Generates daily email digests for community join requests
+  clean_spamreports - Clean out data from the spamreports table older than 90 days.
+
+comm_promo_list.pl:
+  comm_promo_list - Generates data needed for community promos

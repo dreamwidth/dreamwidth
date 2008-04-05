@@ -1,0 +1,20 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    my $remote = LJ::get_remote(); # used to check entry security
+
+    $title = "Writer's Block";
+
+    return LJ::Widget::QotDResponses->render;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

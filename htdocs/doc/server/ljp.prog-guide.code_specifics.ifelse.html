@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. if, unless, else</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.prog-guide.code_specifics.html" title="Chapter 7. Coding Specifics">
+<link rel="prev" href="ljp.prog-guide.code_specifics.accnames.html" title="1. Accessor names">
+<link rel="next" href="ljp.prog-guide.code_specifics.ternary_op.html" title="3. Ternary Operator">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. if, unless, else</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.prog-guide.code_specifics.accnames.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 7. Coding Specifics</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.prog-guide.code_specifics.ternary_op.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="ljp.prog-guide.code_specifics.ifelse">2. if, unless, else</h2></div></div></div>
+<p>Perl gives you <code class="literal">unless</code> in addition to <code class="literal">if</code>. Use it, but don't abuse it.</p>
+<p>Use <code class="literal">unless</code> when it makes code more readable, but don't try to use it for everything:</p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>If the condition gets complex, switch to <code class="literal">if</code>.</p></li>
+<li><p>Don't use an <code class="literal">else</code> with <code class="literal">unless</code>.</p></li>
+<li><p>Use <code class="literal">if (!$condition)</code> if that's more English-sounding in the context of your problem/code.</p></li>
+</ul></div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.prog-guide.code_specifics.accnames.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.prog-guide.code_specifics.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.prog-guide.code_specifics.ternary_op.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Accessor names </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 3. Ternary Operator</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. Block Parameters</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="bml.tutorial.html" title="Chapter 1. A Brief Tutorial">
+<link rel="prev" href="bml.tutorial.intro.html" title="1. Introducing BML">
+<link rel="next" href="bml.tutorial.statics.html" title="3. Static Blocks">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. Block Parameters</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="bml.tutorial.intro.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 1. A Brief Tutorial</th>
+<td width="20%" align="right"> <a accesskey="n" href="bml.tutorial.statics.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="bml.tutorial.blockparams">2. Block Parameters</h2></div></div></div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="bml.tutorial.blockparams.data">2.1. The <code class="varname">DATA</code> Block Parameter</h3></div></div></div>
+<p>Sometimes the insertion of simple static content into the output
+        will not suffice for projects of moderate complexity. A designer
+        frequently wishes to repeat elements throughout the page,
+        keeping a consistent look and structure.
+        <acronym class="acronym">BML</acronym> provides this functionality
+        by allowing you to declare blocks which take parameters,
+        that can then be used in building the content inserted into the
+        document.</p>
+<p>The simplest parameter-accepting block is the one you saw in the
+        examples earlier. Unless otherwise designated, all blocks accept one
+        parameter, which is put into a variable called
+        <code class="varname">DATA</code>. This parameter can then be interpolated
+        into the resulting output with a placeholder that looks like:
+        <code class="literal">%%DATA%%</code>.</p>
+<div class="example">
+<a name="example-bml-lookup_2"></a><p class="title"><b>Example 1.4. Lookup file with <code class="varname">DATA</code> blocks</b></p>
+<div class="example-contents"><pre class="programlisting">
+heading=&gt;&lt;h1&gt;%%DATA%%&lt;/h1&gt;
+subheading=&gt;&lt;h2&gt;%%DATA%%&lt;/h2&gt;
+</pre></div>
+</div>
+<br class="example-break"><p>This lookup file defines two blocks; one called
+        <code class="literal">heading</code> which creates level-one
+        heading <acronym class="acronym">HTML</acronym> markup, and
+        another called <code class="literal">subhead</code>, which creates level-two
+        headings.</p>
+<p>You could use these like this:</p>
+<div class="example">
+<a name="example-bml-file_2"></a><p class="title"><b>Example 1.5. <acronym class="acronym">BML</acronym> file using parameterized blocks</b></p>
+<div class="example-contents"><pre class="programlisting">
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;Hansel and Grendel Go to Finishing School&lt;/title&gt;
+  &lt;body&gt;
+
+<span class="emphasis"><em>    &lt;?heading Hansel and Grendel Go to Finishing School heading?&gt;</em></span>
+
+    &lt;p&gt;Our story begins at a point in the Universe not unlike where you are now
+      sitting, drinking your government-sanctioned stimulant, dreaming of the
+      day when you, too, will own your own personalized luxury home on 0.3 acres
+      of land, with a stunning view of, well, the neighbor's personalized luxury
+      home on 0.3 acres of land. Except this point in the Universe is much more
+      exciting, fine-smelling, and generally a better place to be than
+      yours.&lt;/p&gt;
+
+<span class="emphasis"><em>    &lt;?subheading No, Really, It Is Much Finer subheading?&gt;</em></span>
+
+    &lt;p&gt;So, anyway, at this particular point in the Universe, on a day not
+      entirely unlike today, two entirely unrelated mythological pantheons
+      collided, resulting in a fast friendship between a Little Boy Bound to be
+      Eaten by the Archetypal Crone and a Faceless Beast That Waits for the Hero
+      to Dispatch It. Which, as you might have guessed, was not the intention of
+      the various storytellers involved, but that's what happens when people
+      stop reading all the really cool stories and start checking the Financial
+      Section every 12 minutes. There's only so much space to go around in the
+      collective consciousness, you know...&lt;/p&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt;
+          </pre></div>
+</div>
+<br class="example-break"><p>which would result in output like:</p>
+<div class="example">
+<a name="example-bml-output_2"></a><p class="title"><b>Example 1.6. Parameterized Output: Named Parameters</b></p>
+<div class="example-contents"><pre class="programlisting">
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;Hansel and Grendel Go to Finishing School&lt;/title&gt;
+  &lt;body&gt;
+
+<span class="emphasis"><em>    &lt;h1&gt;Hansel and Grendel Go to Finishing School heading&lt;/h1&gt;</em></span>
+
+    &lt;p&gt;Our story begins at a point in the Universe not unlike where you are now
+      sitting, drinking your government-sanctioned stimulant, dreaming of the
+      day when you, too, will own your own personalized luxury home on 0.3 acres
+      of land, with a stunning view of, well, the neighbor's personalized luxury
+      home on 0.3 acres of land. Except this point in the Universe is much more
+      exciting, fine-smelling, and generally a better place to be than
+      yours.&lt;/p&gt;
+
+
+<span class="emphasis"><em>    &lt;h2&gt;No, Really, It Is Much Finer&lt;/h2&gt;</em></span>
+
+    &lt;p&gt;So, anyway, at this particular point in the Universe, on a day not
+      entirely unlike today, two entirely unrelated mythological pantheons
+      collided, resulting in a fast friendship between a Little Boy Bound to be
+      Eaten by the Archetypal Crone and a Faceless Beast That Waits for the Hero
+      to Dispatch It. Which, as you might have guessed, was not the intention of
+      the various storytellers involved, but that's what happens when people
+      stop reading all the really cool stories and start checking the Financial
+      Section every 12 minutes. There's only so much space to go around in the
+      collective consciousness, you know...&lt;/p&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre></div>
+</div>
+<br class="example-break"><p>
+        By this point, you might be saying, &#8220;<span class="quote">But wait! I'd much rather type
+        <code class="literal">'&lt;h1&gt; &#8230; &lt;/h1&gt;'</code> than
+        <code class="literal">'&lt;?heading &#8230; heading?&gt;'</code>!</span>&#8221;  If you were
+        absolutely confident headings would always be expressed with
+        <code class="literal">&lt;h1&gt;</code> tags, and subheadings with
+        <code class="literal">&lt;h2&gt;</code> tags, it might be more efficient to
+        leave them as static <acronym class="acronym">HTML</acronym>. If someone wants all headings and
+        subheadings to change throughout the site, having the definition of them
+        expressed as a block makes changing them everywhere a simple matter of
+        changing the block that defines them:</p>
+<div class="example">
+<a name="example-bml-lookup_3"></a><p class="title"><b>Example 1.7. Alternate Heading Block</b></p>
+<div class="example-contents"><pre class="programlisting">
+heading=&gt;&lt;h1 class="heading"&gt;&lt;img src="logo.png"/&gt; %%DATA%%&lt;/h1&gt;
+subhead&lt;=
+&lt;!-- This is a subheading, which naturally requires a chicken above it --&gt;
+&lt;img src="chicken.png" /&gt;&lt;br /&gt;
+&lt;h2 class="subheading"&gt;%%DATA%%&lt;/h2&gt;
+&lt;=subhead
+</pre></div>
+</div>
+<br class="example-break"><p>Instead of a fairly complex search-and-replace session over multiple
+        files, you only need to change the definition of what a heading means
+        in one place, to see it reflected throughout your site. Note that
+        multiline blocks can also use the <code class="varname">DATA</code>
+        parameter.</p>
+<p>The examples above are admittedly contrived, and could probably be
+        accomplished using <acronym class="acronym">CSS</acronym>. Nonetheless, they
+        demonstrate a use which parallels the role played by style systems.</p>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="bml.tutorial.blockparams.multiples">2.2. Block Flags and Passing Multiple Parameters</h3></div></div></div>
+<p>Many tasks cannot be accomplished with blocks that have
+        only one parameter, so <acronym class="acronym">BML</acronym> provides another kind of
+        block that can be passed multiple parameters.
+        Until now we've used blocks with an implied parameter,
+        so we'll need to tell <acronym class="acronym">BML</acronym> that the block we are
+        defining is different. We do this by specifying one or more
+        <em class="firstterm">flags</em> when declaring the block. Flags are single
+        letters placed inside curly braces (<code class="literal">{}</code>), at
+        the beginning of the block definition. For example, the flag that
+        corresponds to the full block type (which we'll be using for
+        blocks that can accept multiple parameters) is designated with an
+        <code class="literal">{F}</code> flag:</p>
+<div class="example">
+<a name="example-bml-lookup_4"></a><p class="title"><b>Example 1.8. Block Definitions with Flags</b></p>
+<div class="example-contents"><pre class="programlisting">
+smallcaps=&gt;{D}&lt;span style="font-variant: small-caps"&gt;%%DATA%%&lt;/span&gt;
+
+topiclink=&gt;{F}&lt;a href="/topic.pl?name=%%name%%"&gt;%%linktext%%&lt;/a&gt;
+
+section&lt;={F}
+&lt;div id="section-%%id%%" class="section"&gt;
+  &lt;h3&gt;%%heading%%&lt;/h3&gt;
+  &lt;p&gt;%%body%%&lt;/p&gt;
+&lt;/div&gt;
+&lt;=section
+</pre></div>
+</div>
+<br class="example-break"><p>As you can see, two blocks declared above have an
+        <code class="literal">{F}</code> flag, while one has a <code class="literal">{D}</code>
+        flag. The <code class="literal">{D}</code> flag stands for &#8220;<span class="quote">data</span>&#8221;,
+        which is the default block type we're already familiar with, so the
+        flag part could have been omitted. There are other block types which
+        specify other attributes and behaviors, but for now we'll focus on the
+        <code class="literal">{F}</code> type.</p>
+<p>In the above example, two <code class="literal">{F}</code> blocks are defined:
+        a single-line one and a multi-line one. Both expect multiple parameters,
+        which they use to fill in parts of the <acronym class="acronym">HTML</acronym> fragments
+        they are responsible for creating.
+        They also use placeholders like <code class="literal">{D}</code> blocks do,
+        but they have unique names that will serve as the label given with
+        the parameter that belongs there when calling it from a <acronym class="acronym">BML</acronym>
+        file.</p>
+<p>Calling an <code class="literal">{F}</code> block necessarily looks
+        different from the simple references made to <code class="literal">{D}</code>
+        blocks. Calls to a block that requires multiple parameters uses the same
+        syntax you use for declaring blocks:</p>
+<div class="example">
+<a name="example-bml-file_4"></a><p class="title"><b>Example 1.9. <acronym class="acronym">BML</acronym> file</b></p>
+<div class="example-contents"><pre class="programlisting">
+&lt;?section
+id=&gt;listrules
+heading=&gt;Rules of the Lists
+body&lt;=
+There are many considerations when engaging in mounted combat at a tourney, not
+the least of which is obeying the convoluted and sometimes confusing localized
+&lt;em&gt;Rules of the Lists&lt;/em&gt;.
+&lt;=body
+section?&gt;
+</pre></div>
+</div>
+<br class="example-break"><p>In the above example, the <code class="literal">section</code> block is being
+        called with three parameters. Two are single-line parameters
+        (<code class="varname">id</code> and <code class="varname">heading</code>), while a third
+        is a multi-line one (<code class="varname">body</code>). The output rendered after
+        combining the above <acronym class="acronym">BML</acronym> file with the previous lookup
+        file would look something like:</p>
+<div class="example">
+<a name="example-bml-output_4"></a><p class="title"><b>Example 1.10. Example output</b></p>
+<div class="example-contents"><pre class="programlisting">
+&lt;div id="section-listrules" class="section"&gt;
+  &lt;h3&gt;Rules of the Lists&lt;/h3&gt;
+  &lt;p&gt;There are many considerations when engaging in mounted combat at a tourney, not
+the least of which is obeying the convoluted and sometimes confusing localized
+&lt;em&gt;Rules of the Lists&lt;/em&gt;.
+&lt;/p&gt;
+&lt;/div&gt;</pre></div>
+</div>
+<br class="example-break">
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="bml.tutorial.blockparams.positionals">2.3. Parameterized Output: Positional Parameters</h3></div></div></div>
+<p>In addition to named parameters, <acronym class="acronym">BML</acronym>
+        supports positional parameters. As with named parameters, you designate
+        a block with positional parameters with a flag. This time it is the
+        <code class="literal">{P}</code> or &#8220;<span class="quote">pipe-delimited</span>&#8221; flag. Parameters in a
+        <code class="literal">{P}</code> block are represented with
+        <code class="varname">%%DATA1%%</code>, <code class="varname">%%DATA2%%</code>, etc.
+        This can be useful when a routine takes a lot of parameters, or when calling the
+        same block many times with tabular or list data.</p>
+<p>An example is building a list of links, each of which is an
+        item in a definition list:</p>
+<div class="example">
+<a name="example-bml-lookup_5"></a><p class="title"><b>Example 1.11. Block Definitions with Positional Parameters</b></p>
+<div class="example-contents"><pre class="programlisting">
+LINKITEM=&gt;{P}&lt;dt&gt;&lt;a href="%%data2%%"&gt;%%data1%%&lt;/a&gt;&lt;/dt&gt; &lt;dd&gt;%%data3%%&lt;/dd&gt;
+
+LINKLIST&lt;=
+{F}
+&lt;h4&gt;My Current Reading List&lt;/h4&gt;
+&lt;dl&gt;
+%%items%%
+&lt;/dl&gt;
+&lt;p&gt;&lt;small&gt;Last updated: %%date%%&lt;/small&gt;&lt;/p&gt;
+&lt;=LINKLIST</pre></div>
+</div>
+<br class="example-break"><div class="example">
+<a name="example-bml-file_5"></a><p class="title"><b>Example 1.12. <acronym class="acronym">BML</acronym> file using the &#8220;<span class="quote">listlist</span>&#8221; and &#8220;<span class="quote">linkitem</span>&#8221; blocks</b></p>
+<div class="example-contents"><pre class="programlisting">
+&lt;?linklist
+date=&gt;2007/11/02
+items&lt;=
+&lt;?linkitem News of Brad|http://brad.livejournal.com/|Brad's daily adventures linkitem?&gt;
+&lt;?linkitem BoingBoing|http://boingboing.net/|A directory of wonderful things linkitem?&gt;
+&lt;?linkitem WPGtR|http://poignantguide.net/ruby/|Wow, this book comes with an onion! linkitem?&gt;
+&lt;=items
+linklist?&gt;</pre></div>
+</div>
+<br class="example-break"><p>Combining the two files above would render output like this:</p>
+<div class="example">
+<a name="example-bml-output_5"></a><p class="title"><b>Example 1.13. Example output</b></p>
+<div class="example-contents"><pre class="programlisting">
+
+&lt;h4&gt;My Current Reading List&lt;/h4&gt;
+&lt;dl&gt;
+&lt;dt&gt;&lt;a href="http://brad.livejournal.com/"&gt;News of Brad&lt;/a&gt;&lt;/dt&gt; &lt;dd&gt;Brad's daily adventures&lt;/dd&gt;
+&lt;dt&gt;&lt;a href="http://boingboing.net/"&gt;BoingBoing&lt;/a&gt;&lt;/dt&gt; &lt;dd&gt;A directory of wonderful things&lt;/dd&gt;
+&lt;dt&gt;&lt;a href="http://poignantguide.net/ruby/"&gt;WPGtR&lt;/a&gt;&lt;/dt&gt; &lt;dd&gt;Wow, this book comes with an onion!&lt;/dd&gt;
+
+&lt;/dl&gt;
+&lt;p&gt;&lt;small&gt;Last updated: 2007/11/02&lt;/small&gt;&lt;/p&gt;</pre></div>
+</div>
+<br class="example-break">
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="bml.tutorial.intro.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="bml.tutorial.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="bml.tutorial.statics.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Introducing <acronym class="acronym">BML</acronym> </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 3. Static Blocks</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

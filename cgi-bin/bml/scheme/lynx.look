@@ -1,0 +1,65 @@
+###
+###       Lynx Scheme - Very simple for text browsers
+###
+
+_parent=>global.look
+
+h1=>{D}<h1>%%DATA%%</h1>
+h2=>{D}<h2>%%DATA%%</h2>
+
+loginboxstyle=>{S}
+commloginboxstyle=>{S}
+
+page<=
+{Fps}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<link rel="home" title="<?_ml lynx.nav.home _ml?>" href="<?siteroot?>/" />
+<link rel="contents" title="<?_ml lynx.nav.sitemap _ml?>" href="<?siteroot?>/site/" />
+<link rel="help" title="<?_ml lynx.nav.help _ml?>" href="<?siteroot?>/support/" />
+<?_code
+    use strict;
+    LJ::need_res("stc/lj_base-app.css");
+
+    my $crumb_up;
+    if (LJ::get_active_crumb() ne '') {
+        my $parentcrumb = LJ::get_parent_crumb();
+        $crumb_up = "<link rel='up' title='$parentcrumb->[0]' href='$parentcrumb->[1]' />";
+    }
+    return $crumb_up;
+_code?>
+<style>
+    #Comments q { padding-left: 2.5em; font-style: italic; }
+</style>
+<title><?_code {
+    my $elhash = $_[2];
+    return $elhash->{'WINDOWTITLE'} || $elhash->{'TITLE'};
+} _code?></title>
+<?_code LJ::res_includes() _code?>
+%%HEAD%%
+</head>
+
+<body %%bodyopts%%>
+
+%%BODY%%
+
+<hr />
+
+<p>[ <a href='<?siteroot?>/'><?_ml lynx.nav.home _ml?></a> | <a href='<?siteroot?>/update.bml'><?_ml lynx.nav.update _ml?></a> | <?_code
+   use strict;
+   if (my $u = LJ::get_remote()) {
+        my $baseurl = $u->journal_base();
+        return "<a href='$baseurl/'>$ML{'lynx.nav.recent'}</a> | <a href='$baseurl/friends/'>$ML{'lynx.nav.friends'}</a> | ";
+   }
+_code?><a href='<?siteroot?>/login.bml'><?_ml lynx.nav.login _ml?></a>/<a href='<?siteroot?>/logout.bml'><?_ml lynx.nav.logout _ml?></a> | <a href='<?siteroot?>/site/search.bml'><?_ml lynx.nav.search _ml?></a> | <a href='<?siteroot?>/manage/settings/'><?_ml lynx.nav.siteopts _ml?></a> | <a href='<?siteroot?>/site/'><?_ml lynx.nav.sitemap _ml?></a> ]</p>
+<?breadcrumbs?>
+<?_code
+{
+    my $pagestats_obj = LJ::pagestats_obj();
+    $pagestats_obj->render;
+}
+_code?>
+<?_code LJ::final_body_html() _code?>
+</body>
+</html>
+<=page

@@ -1,0 +1,2809 @@
+# -*-s2-*-
+
+##[ layerinfo ]
+
+layerinfo "type" = "core";
+layerinfo "name" = "LiveJournal S2 Core, v1";
+layerinfo "redist_uniq" = "core1";
+layerinfo "majorversion" = "1";
+layerinfo "author_name" = "LiveJournal Webmaster";
+layerinfo "author_email" = "webmaster@livejournal.com";
+
+##[ S2 core classes ]
+
+class int
+"An integer number.  This isn't really a class, as suggested by its lower-case name.  Parameters of type int pass by value, unlike all variables of real object types, which pass by reference.  Instead, this is just a pseudo-class which provides convenience methods on instances of integers.  The other pseudo-class is [class[string]]."
+{
+    function builtin zeropad(int digits) : string
+    "Return the integer as a string formatted at least \$digits characters long, left-padded with zeroes.";
+
+    function builtin compare(int n) : int
+    "Compare one integer with another. Returns a negative number if n is less than the subject, positive if greater or zero if the two are numerically equal.";
+}
+
+class string
+"A series of characters.  This isn't really a class, as suggested by its lower-case name.  Parameters of type string pass by value, unlike all variables of real object types, which pass by reference.  Instead, this is just a pseudo-class which provides convenience methods on instances of strings.  The other pseudo-class is [class[int]]."
+{
+    function builtin substr(int start, int length) : string
+    "Returns up to \$length characters from string, skipping \$start characters from the beginning.";
+
+    function builtin ends_with (string sub) : bool
+    "Returns true if string ends in \$sub";
+
+    function builtin starts_with (string sub) : bool
+    "Returns true if string begins with \$sub";
+
+    function builtin contains (string sub) : bool
+    "Return true if string contains \$sub";
+
+    function builtin lower : string
+    "Returns string in lower case.";
+
+    function builtin upper : string
+    "Returns string in upper case";
+
+    function builtin upperfirst : string
+    "Return string with the first character capitalized.";
+
+    function builtin length() : int
+    "Return the number of characters in the string.";
+
+    function builtin repeat(int n) : string
+    "Returns the string repeated n times";
+
+    function builtin compare(string s) : int
+    "Compare one string with another. Returns a negative number if n is alphabetically before the subject, positive if greater or zero if the two are equal. Note that this function currently does a simple ASCII compare, not a proper unicode-aware sort.";
+
+    function builtin css_string() : string
+    "Returns the string escaped and quoted as a CSS string literal, safe for insertion into a stylesheet.";
+
+    function builtin css_keyword() : string
+    "If the string is syntactically valid as a CSS keyword (only letters and spaces) returns it, else returns an empty string.";
+
+    function builtin css_keyword_list() : string
+    "Analyses the string as a space-separated list of CSS keywords and returns a string containing the items that are syntactically acceptable.";
+
+    function builtin css_keyword(string[] allowed) : string
+    "Same as [method[string.css_keyword()]] except also imposes a whitelist of valid keywords given in \$allowed.";
+
+    function builtin css_keyword_list(string[] allowed) : string
+    "Same as [method[string.css_keyword_list()]] except also imposes a whitelist of valid keywords given in \$allowed.";
+
+    function builtin css_length_value() : string
+    "If the string contains a valid CSS length value, returns a canonical version. Else returns an empty string.";
+
+    function builtin css_url_value : string
+    "If the string contains a valid HTTP or HTTPS URL it is returned. Otherwise, an empty string is returned.";
+
+}
+
+class Color
+"Represents a color."
+{
+  var readonly int r "Red value, 0-255.";
+  var readonly int g "Green value, 0-255.";
+  var readonly int b "Blue value, 0-255.";
+  var  string as_string "HTML hex encoded: #rrggbb";
+  function builtin Color(string s) : Color "Constructor for color class.  Lets you make a Color object from a string of form #rrggbb";
+  function builtin set_hsl (int h, int s, int v) "Set the HSL value for a color class.";
+
+  function builtin red(int r) "Set the red value. (0-255)";
+  function builtin green(int g) "Set the green value. (0-255)";
+  function builtin blue(int b) "Set the blue value. (0-255)";
+  function builtin red() : int "Get the red value.";
+  function builtin green() : int "Get the green value.";
+  function builtin blue() : int "Get the blue value.";
+
+  function builtin hue(int h) "Set the hue value. (0-255)";
+  function builtin saturation(int s) "Set the saturation value. (0-255)";
+  function builtin lightness(int v) "Set the lightness value. (0-255)";
+  function builtin hue() : int "Get the hue value. (0-255)";
+  function builtin saturation() : int "Get the saturation value. (0-255)";
+  function builtin lightness() : int "Get the lightness value. (0-255)";
+
+  function builtin clone() : Color "Returns identical color.";
+  function builtin lighter() : Color "Returns a new color with lightness increased by 30.";
+  function builtin lighter(int amt) : Color "Returns a new color with lightness increased by amount given.";
+  function builtin darker() : Color "Returns a new color with lightness decreased by 30.";
+  function builtin darker(int amt) : Color "Returns a new color with lightness decreased by amount given.";
+  function builtin inverse() : Color "Returns inverse of color.";
+  function builtin average(Color other) : Color "Returns color averaged with \$other color.";
+  function builtin blend(Color other, int value) : Color "Returns color blended with \$other color by percentage value (int between 0 and 100).";
+}
+
+
+##[ site-core classes ]
+
+class Date
+"Represents a date."
+{
+    var int year "Year; 4 digits.";
+    var int month "Month; 1-12.";
+    var int day "Day; 1-31.";
+
+    function builtin day_of_week() : int
+    "Returns the day of the week this date falls on, from Sunday=1 to Saturday=7";
+
+    function builtin date_format () : string
+    "Returns date formatted as normal.  // SeeAlso: siteapi.core1.dateformats";
+
+    function builtin date_format (string fmt) : string
+    "Returns date formatted as indicated by \$fmt.  One of: short, med, long, med_day, long_day.  Or a custom format.  Default is 'short'. // SeeAlso: siteapi.core1.dateformats";
+
+    function builtin compare(Date d) : int
+    "Compare two dates. Returns a negative number if d is before the subject in time, positive if it is after, or zero if the two dates are equal. When comparing a Date with a DateTime, the time on the bare Date value is assumed to be midnight.";
+
+    function builtin compare(DateTime d) : int
+    "Compare two dates. Returns a negative number if d is before the subject in time, positive if it is after, or zero if the two dates are equal. When comparing a Date with a DateTime, the time on the bare Date value is assumed to be midnight.";
+}
+
+class DateTime extends Date
+"Represents both a date and time."
+{
+    var int hour "Hour; 0-23.";
+    var int min "Minute; 0-59.";
+    var int sec "Second; 0-59.";
+
+    function builtin time_format () : string
+    "Returns time formatted as normal.  // SeeAlso: siteapi.core1.dateformats";
+
+    function builtin time_format (string fmt) : string
+    "Returns time formatted as indicated by \$fmt, or normal if blank.  // SeeAlso: siteapi.core1.dateformats";
+}
+
+class Image
+"Represents an image."
+{
+    var readonly string url "URL of the image";
+    var int width "Width in pixels";
+    var int height "Height in pixels";
+    var string alttext "Default alternative text for image";
+    var readonly string{} extra "Extra params for img tag";
+
+    function builtin set_url (string url)
+    "Sets the URL, doing any necessary escaping.";
+
+    function print ()
+    "Print an HTML tag for this Image";
+
+    function print (string alttext)
+    "Print an HTML tag for this Image with given alttext";
+
+    function print (string{} opts)
+    "Print the HTML for an image, Supported keys are 'href' to create a link to the image source
+     and 'a_attr' which adds attributes to the anchor tag if a link is to be printed.";
+
+    function as_string () : string
+    "Return the HTML tag for this image";
+
+    function as_string (string alttext) : string
+    "Return an HTML tag for this Image with given alttext";
+
+    function as_string (string{} opts) : string
+    "Return the HTML for an image, Supported keys are 'href' to create a link to the image source
+     and 'a_attr' which adds attributes to the anchor tag if a link is to be printed.";
+}
+
+class Link
+"A link or button"
+{
+    var readonly string url "URL which the link points to";
+    var readonly string caption "The caption for the link";
+    var Image icon
+    "A suggestion from the server as to which icon to use. layouts/users can override this of course.
+    alt text works similarly to [member[Link.caption]].";
+
+    function print_button
+    "Output this Link as a clickable button using [member[Link.icon]]";
+
+    function as_string() : string
+    "Return the button HTML link.";
+}
+
+class ItemRange
+"Represents a range of items which optionally contain items."
+{
+  var bool all_subitems_displayed "True if the subitems in this range represent the entire set. In this case, all of the URL members are blank.";
+  var int num_subitems_displayed "The number of subitems in this range.";
+  var int total "The total number of items that are navigable to.";
+  var int current "The currently-active item.";
+  var int from_subitem "The index of the first subitem in this range.";
+  var int to_subitem "The index of the last subitem in this range.";
+  var int total_subitems "The number of subitems.";
+  var readonly string url_next "URL for the 'next' link.  Blank if there isn't a next URL.";
+  var readonly string url_prev "URL for the 'previous' link.  Blank if there isn't a previous URL.";
+  var readonly string url_first "URL for the 'first' link.  Blank if already on the first page.";
+  var readonly string url_last "URL for the 'last' link.  Blank if already on the last page.";
+  function builtin url_of(int n) : string "Returns the URL to use to link to the nth item";
+
+  function print () "Prints the item range links";
+  function print(string labeltext) "Prints the item range links with the given \$labeltext";
+}
+
+### LJ Specific Classes
+
+class CommentInfo
+"Information about comments attached to something."
+{
+    var readonly string read_url "URL pointer to the 'Read Comments' view.";
+    var readonly string post_url "URL pointer to the 'Post Comments' view.";
+    var int count "Current number of comments available to be read by the viewer.";
+    var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
+    var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
+    var bool maxcomments "Set to true if entry has reached a comment maximum.";
+    var bool show_postlink "Indicates whether the Post Comment link for this entry should be shown.";
+    var bool show_readlink "Indicates whether the Read Comments link for this entry should be shown.";
+
+    function print
+    "Print all comment related links";
+    function print_readlink
+    "Print the formatted link to the 'Read Comments' view";
+    function print_postlink
+    "Print the formatted link to the 'Post Comments' view";
+}
+
+class UserLink
+"A user-defined link to an outside resource."
+{
+    var readonly bool is_heading "Is this link a heading or category name?  If so, it has no url and a list of children.";
+    var readonly string title "The title or label for the link";
+    var readonly string url "The url to which the link points";
+    var readonly UserLink[] children "Not Implemented: An array of child UserLink objects.";
+}
+
+class UserLite
+"A 'lite' version of a [class[User]] which the system often has more readily-available than a full version."
+{
+    var readonly string username "Canonical Username, ex: johnqpub.  Note that if journal_type is an external identity, there will be no username, so this field will be a display version of their URL, longer than 15 characters, and with characters other than a-z, 0-9 and underscore.";
+    var readonly string name "User's formatted name, ex: John Q. Public";
+    var readonly string journal_type "Type of account: P (personal), C (community), Y (syndicated), S (shared), I (external identity) etc";
+
+    var Link{} data_link "Links to various machine-readable data sources relating to this user";
+    var string[] data_links_order "An array of data views which can be used to order the data_link hash";
+
+    var string[] link_keyseq "Array of keys which can be passed into the get_link";
+
+    function builtin equals(UserLite u) : bool "Returns true if the two user objects refer to the same user. Use this rather than comparing usernames, since usernames aren't globally unique.";
+    function builtin ljuser() : string "Returns an LJ user tag for the user.";
+    function builtin ljuser(Color link_color) : string "Returns an LJ user tag for the user.  The color of the link will be link_color.";
+    function builtin get_link(string key) : Link "Returns a link based on the given key, or null if the link is unavailable";
+    function base_url () : string "Returns URL of user's journal.";
+    function tag_manage_url () : string "Returns URL to user's tag management page.";
+    function print_linkbar() "Print the link bar for this user/journal.";
+    function as_string() : string;
+    function print ();
+}
+
+class Tag
+"Represents a tag in its most basic form."
+{
+    var readonly string name "Textual representation of this tag.";
+    var readonly string url "URL to view entries with this tag.";
+}
+
+class TagDetail extends Tag
+"A rich structure with lots of information about a Tag."
+{
+    var readonly int use_count "Count of how many times this tag has been used.";
+    var readonly string visibility "The visibility level for this tag.  Based on the entries it's used on.  Can be one of: public, private, friends, group.";
+    var readonly int{} security_counts "How many times this tag has used this security.  The keys are which security, one of: public, private, friends, group.  The value is the count of times the tag is used on entries with that security level.";
+}
+
+class EntryLite
+"Base class for both journal entries and comments."
+{
+    var readonly string subject "Subject.  May contain HTML.  Don't do substring chops on this.";
+
+    var readonly string text
+        "Entry Text; Use [method[EntryLite.print_text()]] to print this so that the entry's trust level is not affected by your layer's trust level.";
+
+
+    var readonly bool text_must_print_trusted
+        "Indicates that this entry's text contains some content that must be printed trusted, with [method[EntryLite.print_text()]], rather than printed directly from an untrusted context. Use this to fall back to a plain trusted print if you are doing something unusual with [member[EntryLite.text]]. Most layers can just ignore this and always use [method[EntryLite.print_text()]].";
+
+    var DateTime time "The user-specified time of the post, or the GMT time if it's a comment.";
+    var DateTime system_time "The system time (in GMT) this entry or comment was posted.";
+
+    var UserLite poster "Author of the entry, or null if an anonymous comment";
+    var UserLite journal "Journal the entry has been posted to";
+
+    var readonly Tag[] tags "Array of tags applied to this entry.";
+
+    var Image userpic "The userpic selected to relate to this entry.";
+
+    var readonly string{} metadata "Post metadata. Keys: 'music', 'mood'";
+
+    var readonly string dom_id "The DOM 'id' attribute you should put on your outer-most element";
+
+    var readonly string permalink_url "A URL at which this specific entry can be viewed, for linking purposes.";
+    var int depth "Visual depth of entry.  Top-level journal entries are always depth zero.  Comments have a depth greater than or equal to one, depending on where the thread is rooted at.";
+
+    var string[] link_keyseq "An array of keys which you should pass to [method[EntryLite.get_link(string)]] to produce an entry 'toolbar'. Does not contain nav_next and nav_prev for entries; you should retrieve those separately and put them somewhere appropriate for your layout.";
+
+    function print_text() [fixed]
+        "Print the entry text. Doesn't print anything in some contexts, such as on a month view or in a collapsed comment.";
+    function builtin get_link (string key) : Link "Get a link to some action related to this entry or comment. You can iterate over [member[EntryLite.link_keyseq]] to get keys to pass in here to produce a 'toolbar' of links.";
+    function builtin get_plain_subject () : string "For Entries that can contain HTML subjects, this returns the subject without HTML.  Comments can't have HTML in subjects, so this is equivalent to just using \$.subject.  The returned 'plain' subject may still contain HTML entities, so don't do substring chops on it either.";
+    function builtin get_tags_text () : string "Returns a string containing a div of class 'ljtags' with the tags for the entry.  If there are no tags on the entry, returns a blank string.  The string is formatted according to the 'text_tags' property.";
+    function print_linkbar() "Print the link bar for this entry or comment.";
+    function time_display () : string "Show the time of this post, with most useful information for user, and with tooltip for more.";
+    function time_display (string datefmt, string timefmt) : string "time_display, with customized date/time formats.";
+}
+
+class Entry extends EntryLite
+"A journal entry"
+{
+    var readonly string security "The security level of the entry ('private', 'protected'), or blank if public.";
+    var Image security_icon "A little icon which should be displayed somewhere on an entry to represent the security setting";
+
+    var Image mood_icon "Mood icon, or null.";
+    var CommentInfo comments "Comment information on this entry";
+
+    var bool new_day "Is this entry on a different day to the previous one?";
+    var bool end_day "Is this the last entry of a day?";
+
+    var int itemid "Server stored ID number for this entry";
+
+    function print_metadata ();
+    function builtin plain_subject () : string
+        "Return entry's subject as plain text, with all HTML removed.";
+
+    function print_link_next() "Print the link to the next entry in this journal.";
+    function print_link_prev() "Print the link to the previous entry in this journal.";
+    function builtin viewer_sees_ebox() [fixed] : bool
+    "True if opaque horizontal site-specific content boxes between entries should be displayed to the user.";
+    function builtin print_ebox() [fixed]
+    "Prints a small horizontal bar of site-specific content between entries in a journal.";
+}
+
+class Comment extends EntryLite
+"A comment to a journal entry, or to another comment."
+{
+    var Image subject_icon "Subject icon, or null.";
+    var int talkid "Server stored ID number for this comment.";
+    var Comment[] replies "Comments replying to this comment.";
+    var bool full "True if all information is available for this comment.  False if only the subject, poster, and date are available.  (collapsed threads)";
+    var readonly string parent_url "URL to parent comment, or blank if a top-level comment.";
+    var readonly string reply_url "URL to reply to this comment.";
+    var readonly string thread_url "URL to view threaded rooted at this comment, or blank if comment has no children.";
+    var readonly bool screened "True if comment is in screened state.";
+    var readonly bool frozen "True if comment is in frozen state.";
+    var readonly bool deleted "True if comment has been deleted. Deleted comments still show up if they are the parent of a thread.";
+    var readonly string anchor "Direct link to comment, via HTML name anchors";
+    var readonly bool comment_posted "True if comment was just posted by the current user.";
+    var readonly bool edited "True if the comment has been edited.";
+
+    var readonly DateTime time_remote "The local time the comment appeared, in the remote user's (reader's) timezone.  Or undef if no remote user, or remote user hasn't set their timezone.";
+    var readonly DateTime time_poster "The local time the comment appeared, in the commenter's timezone.  Or undef if anonymous comment, or commenter's timezone is unknown.";
+    var readonly int seconds_since_entry "The number of elapsed seconds from the time of the journal entry until the comment was initially posted.";
+
+    var readonly DateTime edittime "The GMT time the comment was edited.  Or undef if the comment hasn't been edited.";
+    var readonly DateTime edittime_remote "The local time the comment was edited, in the remote user's (reader's) timezone.  Or undef if no remote user, or remote user hasn't set their timezone, or the comment hasn't been edited.";
+    var readonly DateTime edittime_poster "The local time the comment was edited, in the commenter's timezone.  Or undef if anonymous comment, or commenter's timezone is unknown, or the comment hasn't been edited.";
+
+    function builtin print_multiform_check "Prints the select checkbox in CSS class 'ljcomsel' with DOM id 'ljcomsel_\$talkid' for a multi-action form started with [method[EntryPage.print_multiform_start()]].";
+
+    function builtin print_reply_link(string{} opts) "Prints a link to reply to the comment. You may specify the link text in the 'linktext' option, and the link CSS class in 'class'. You may also specify the url of an image to use as a button in 'img_url'.";
+
+    function builtin print_reply_container() "Prints the area in which the quickreply box will go. If no container is available, quickreply will not work.";
+
+    function builtin print_reply_container(string{} opts) "Prints the area in which the quickreply box will go. You may 'class' which will be the CSS class used by the container. If no container is available, quickreply will not work.";
+
+    function time_display (string datefmt, string timefmt, bool edittime) : string "Same as EntryLite::time_display, except can pass in if we want the edit time or not.";
+    function edittime_display () : string "Show the time that this comment was edited, with most useful information for user.  Empty string if the comment hasn't been edited.";
+    function edittime_display (string datefmt, string timefmt) : string "edittime_display, with customized date/time formats.";
+
+    function print_edit_text () "Print the text that says when this comment was edited.";
+}
+
+### Userinfo
+
+class Friend extends UserLite
+"Represents a friends or friendof list"
+{
+    var Color bgcolor "Background color selected for friend";
+    var Color fgcolor "Foreground color selected for friend";
+}
+
+class User extends UserLite
+"A more information-rich userinfo structure"
+{
+    var Image default_pic "Information about default userpic";
+    var readonly string userpic_listing_url "URL of a page listing this user's userpics";
+    var readonly string website_url "URL pointer to user's website";
+    var readonly string website_name "'pretty' name of user's website";
+}
+
+### Other
+
+class Redirector
+"A redirector makes either a GET URL which redirects to a pretty URL or an HTML form which posts to a URL that redirects to a pretty URL.  This class exists because it's often desirable to use a form to end up at a URL, instead of doing a GET request.  It's also used in cases where finding the previous or next URL would incur database overhead which would be wasteful, considering most people don't click previous/next links.  Instead, the system will give you a Redirector object which has a URL that'll do the lookup for you later, followed by a redirect."
+
+{
+    var readonly string user;
+    var readonly string vhost;
+    var readonly string type;
+    var readonly string url;
+
+    function start_form() "Starts an inline HTML form, then calls [method[Redirector.print_hiddens()]].  You can also make it yourself, using [member[Redirector.url]], if you need special form attributes.";
+    function print_hiddens() "Prints the necessary hidden elements for a form.  Called automatically by [method[Redirector.start_form()]].";
+    function end_form() "Prints a form close tag.";
+
+    function builtin get_url(string redir_key) "Returns a GET URL, given a redir_key";
+}
+
+### Pages
+
+class Page
+"Base template for all views"
+{
+    var readonly string view "The view type (recent, friends, archive, month, day, entry)";
+    var readonly string{} args
+    "Arguments from the URL's query string (after the question mark). S2 code can only access arguments starting with a period, and this period is not included in the hash key.";
+
+    var User journal "User whose journal is being viewed";
+    var readonly string journal_type "Journal type, ex: 'P' (personal), 'C' (community), etc.";
+    var readonly string base_url "The base URL of the journal being viewed.";
+    var readonly string{} view_url
+    "Links to top-level views where id equals the name of the view being linked to.
+    (if one of views == \$.view, already looking at that view)";
+
+    var readonly string[] views_order "An array of view identifiers which can be used to order the views hash.";
+    var readonly string head_content
+    "Extra tags supplied by the server to go in the <head> section of the output HTML document. Layouts
+    should include this in the head section if they are writing HTML.";
+
+    var readonly string stylesheet_url
+    "The URL to use in a link element for the server-supported external stylesheet to put stuff in it)";
+
+    var readonly string global_title
+    "A title selected by the user for their whole journal.";
+
+    var readonly string global_subtitle
+    "A sub-title selected by the user for their whole journal.";
+
+    var readonly UserLink[] linklist
+    "An array of UserLink objects defined by the user to be displayed on their journal.";
+
+    var readonly DateTime time
+    "A DateTime object filled with the time (GMT) when the page was created.";
+
+    var Link{} data_link "Links to various machine-readable data sources relating to this page";
+    var string[] data_links_order "An array of data views which can be used to order the data_link hash";
+
+    function print
+    "The main entry point that LiveJournal calls. Layouts should override this to create HTML that's the
+    same for all view types, and use \$this->title, \$this->head and \$this->body to include view-specific
+    content into the template.";
+
+    function view_title : string
+    "Return a title for this particular page, such as \"Friends' Recent Entries\" for the friends view,
+    or a date for the day view. Should be overridden in i18n layers. Ideally, layout layers should never override
+    this.  See [method[Page.title()]].";
+
+    function title : string
+    "Return a relevant combination of [member[Page.global_title]] and [method[Page.view_title()]].  May be
+    overridden in layout layers or left untouched for the core layer to handle.";
+
+    function print_body
+    "Call from [method[Page.print()]] to render parts of the view that are specific to the view, eg print
+    the recent set of journal entries, recent friends entries, or rows of user information";
+
+    function print_head [fixed]
+    "Print server side supplied head content. This is a fixed function, so you can't override it. See
+    [method[Page.print_custom_head()]] if you want to supply custom head content.";
+
+    function builtin print_hbox_top [fixed]
+    "Prints an horizontal bar of site-specific content at the top of a journal.";
+
+    function builtin print_hbox_bottom [fixed]
+    "Prints an horizontal bar of site-specific content at the bottom of a journal.";
+
+    function builtin print_vbox [fixed]
+    "Prints an vertical bar of site-specific content on a journal.";
+
+    function builtin print_ad(string type) [fixed]
+    "Deprecated function.  Use print_hbox_(top|bottom) or print_vbox from now on.";
+
+    function builtin print_control_strip [fixed]
+    "Prints a control strip for the user's convenience";
+
+    function print_custom_head
+    "Layers can override this to add extra HTML to the head section of the HTML document.
+    Note that layouts are not intended to override this method.";
+
+    function print_linklist
+    "Print the list of UserLink objects specified by the user.";
+
+    function print_entry(Entry e)
+    "Output a journal entry. Layouts should override this and the inherited versions in RecentPage, FriendsPage
+    and DayPage to change how entries display.";
+
+    function print_entry_poster(Entry e)
+    "Output a line of text which says who posted an entry (just \"user\", or \"user posting in somejournal\")";
+
+    function builtin get_latest_month() : YearMonth
+    "Returns information about the latest month the user posted (or the current month, if no posts), so that the page may include a mini-calendar or similar features.";
+
+    function builtin visible_tag_list() : TagDetail[]
+    "Returns an array of tags that the logged in user can see for the journal being viewed.";
+
+    function builtin print_reply_link(string{} opts) "Prints a link to reply to the comment. You may specify the link text in the 'linktext' option, the link CSS class in 'class', and the target container in the 'target' option. You may also specify the url of an image to use as a button in 'img_url'.";
+
+    function builtin print_reply_container(string{} opts) "Prints the area in which the quickreply box will go. Options you may specify are 'target' which will be the target id, and 'class' which will be the CSS class used by the container. If no container is available, quickreply will not work.";
+
+    function print_stylesheets
+    "Prints all defined stylesheets, including default and user-defined ones.";
+
+    function builtin print_trusted(string key)
+    "Prints a trusted string by key.";
+}
+
+class TagsPage extends Page
+"A detail page listing a user's tags."
+{
+    var TagDetail[] tags "List of tags visible to the user viewing the page.";
+}
+
+class MessagePage extends Page
+"A page showing an error or confirmation message."
+{
+    var readonly string title "The title of the message.";
+    var readonly string message "The body of the message. Do not print this directly; use [method[MessagePage.print_body()]] instead.";
+    var Link{} links "An associative array of links to be displayed alongside this message. Iterate over [member[MessagePage.link_keyseq]] to find the keys.";
+    var string[] link_keyseq "A list of links, indicated by key, that should be displayed alongside this error. They should ideally be displayed in a similar way to the entry links displayed on the entry page.";
+
+    function print_message() [fixed] "Print the message. Call this rather than printing [member[MessagePage.message]] directly.";
+    function print_links() "Print the links from the [member[MessagePage.links]] and [member[MessagePage.link_keyseq]] members. Layouts will probably want to override this.";
+}
+
+class RecentNav
+"Navigation position within a [class[RecentPage]] or [class[FriendsPage]] and URLs to move about."
+{
+    var int version        "Currently version 1.  A new method of navigation has been frequently discussed, so this is planning for the future";
+
+    # version 1 attributes:
+    var int skip            "Indicates how many entries are being skipped back.";
+    var int count           "Indicates how many entries we're currently seeing";
+    var readonly string forward_url  "URL to go forward in time, or blank if furthest forward.";
+    var int forward_skip    "Number of items we'd be skipping going forward.";
+    var int forward_count   "Number of items we'd be potentially seeing going forward.";
+    var readonly string backward_url "URL to go backward in time, or blank if furthest back server will allow.";
+    var int backward_skip   "Number of items we'd be skipping going back more.";
+    var int backward_count  "Number of items we'd be potentially seeing going backward.";
+}
+
+class RecentPage extends Page
+"Most recent entries page, formally known as the LASTN view in the previous style system"
+{
+    var Entry[] entries
+    "Array of entries available to be seen by the viewer of the page.";
+
+    var RecentNav nav;
+}
+
+class FriendsPage extends RecentPage
+"Friends most recent entries"
+{
+    var Friend{} friends
+    "A mapping from friend username to color association information.  There will only be keys for friends whose entries are in the entries array.";
+
+    var readonly string friends_title
+    "A user-selected title for their friends page.";
+
+    var string friends_mode
+    "The 'mode' of this view. An empty string indicates a normal friends view, while 'friendsfriends' indicates the Friends-of-friends view.";
+
+    var bool filter_active
+    "If true, some kind of filter is in effect. If this filter has a name, it will be included in [member[FriendsPage.filter_name]]";
+
+    var string filter_name
+    "The name of the filter in effect, if it has a name. This is only used when 'custom' [member[FriendsPage.filter_active]] is true.";
+}
+
+class DayPage extends Page
+"View entries by specific day"
+{
+    var Date prev_date "Previous day";
+    var Date next_date "Next day";
+    var readonly string prev_url "URL to previous day";
+    var readonly string next_url "URL to next day";
+    var bool has_entries "True if there are entries on the specified day";
+    var Entry[] entries "Array of entries available to be seen by the viewer of the page";
+    var Date date "Date of the current day";
+}
+
+### Archive classes
+
+class YearYear
+"Information on how to link to a year in the year archive"
+{
+    var int year "Number of the year, eg 2001.";
+    var readonly string url "URL to link to for this year.";
+    var bool displayed "If this is the year currently being displayed, this will be true.";
+}
+
+class YearDay
+"Information on how to link to a day in the year archive"
+{
+    var int day "Day of month number";
+    var Date date "Date of day";
+
+    # http://zilla.livejournal.org/show_bug.cgi?id=504
+    # var bool is_today "True if the day represents the current day.";
+
+    var int num_entries "Number of entries made on this day";
+    var readonly string url "A URL to view the day, if there are entries, else blank.";
+}
+
+class YearWeek
+"Represents a week on the [class[YearMonth]] on the [class[YearPage]]."
+{
+    var int pre_empty "How many days at the start of the week are blank? (From previous month)";
+    var int post_empty "How many days at the end of the week are blank? (From next month)";
+    var YearDay[] days "An array of the days of the week (0=sunday)";
+
+    function print()
+    "Print formatted week";
+}
+
+class YearMonth
+"A month on the [class[YearPage]]."
+{
+    var bool has_entries "If this is false, you probably don't want to display this month.";
+    var int month "The number of the month";
+    var int year "The number of the year";
+    var YearWeek[] weeks "An array of the weeks of the month (for ease of building a row-per-week calendar)";
+    var readonly string url "A url to link to in order to view this month.";
+    var readonly string prev_url "A url to link to in order to view the previous month.";
+    var readonly string next_url "A url to link to in order to view the next month.";
+    var Date prev_date "Date of previous month, with day of zero, or null if none.";
+    var Date next_date "Date of next month, with day of zero, or null if none.";
+
+    function builtin month_format () : string
+    "Returns month formatted long (February 1980)  // SeeAlso: siteapi.core1.dateformats";
+    function builtin month_format (string fmt) : string
+    "Returns time formatted as indicated by \$fmt, or 'long' if blank.  // SeeAlso: siteapi.core1.dateformats";
+}
+
+class YearPage extends Page
+"Entire calendar page for a single year."
+{
+    var int year "The year being viewed";
+    var YearYear[] years "Information for linking to other years";
+    var YearMonth[] months "12 months objects, even if no entries are in that month.";
+
+    function print_month(YearMonth m)
+    "Print the calendar cell for the given month";
+
+    function print_year_links()
+    "Print the navigation links to move between years";
+}
+
+class MonthDay extends YearDay
+"Summaries of posts on a given day on the [class[MonthPage]]."
+{
+    var bool has_entries "True if there are entries on this day.";
+    var Entry[] entries "Only populated on the month view.  Entry text not present.";
+
+    function print_subjectlist
+    "Print a list of entry summaries including subjects";
+}
+
+class MonthEntryInfo
+"A month the user has journal entries, along with information to link to it."
+{
+    var Date date "Date of month, with day of zero.";
+    var readonly string url "URL for the [class[MonthPage]] month view.";
+    var readonly string redir_key "The 'redir_key' parameter for a [class[Redirector]] instance.";
+}
+
+class MonthPage extends Page
+"A page which contains a list of posts made in that month"
+{
+    var Date date "Date of this month, with day of zero.";
+    var MonthDay[] days "One entry for each day of the month.";
+    var MonthEntryInfo[] months "Other months this journal has entries.";
+    var Date prev_date "Date of previous month, with day of zero, or null if none.";
+    var Date next_date "Date of next month, with day of zero, or null if none.";
+    var readonly string prev_url "URL of previous month, or empty string if none.";
+    var readonly string next_url "URL of next month, or empty string if none.";
+    var Redirector redir "Necessary to make a form which POSTs to a redirector";
+}
+
+class EntryPage extends Page
+"A page with a single journal entry and associated comments."
+{
+    var Entry entry "Journal entry being viewed";
+    var ItemRange comment_pages "Represents what comment page is being displayed.";
+    var Comment[] comments "Comments to journal entry, or at least some of them.";
+    var bool viewing_thread "True if viewing a specific sub-thread of the comments.  Style may which to hide the journal entry at this point, since the focus is the comments.";
+
+    function print_comments(Comment[] comments) "Prints comments";
+    function print_comment(Comment comment) "Prints a full comment";
+    function print_comment_partial(Comment comment) "Prints a collapsed comment";
+
+    var bool multiform_on "Set to true if the multi-action is to be printed, which requires both comments and applicable permissions for the remote user.";
+    function builtin print_multiform_start "Prints start of form tag and hidden elements to do a multi-comment action (multiple delete, screen, unscreen, etc...)";
+    function builtin print_multiform_end "Prints end of form tag to do a multi-comment action.";
+    function builtin print_multiform_actionline "Prints the line of the multiform giving instructions, options, and the submit button, using the text of the different \$*text_multiform_ properties.";
+}
+
+class ReplyForm
+"This class will be used more in the future to set options on the reply form before
+it's printed out by the system.  The system has to print it since it contains
+sensitive information which can't be made available to S2."
+{
+    var readonly bool subj_icons "Whether user has enabled subject icons or not.  Currently read-only until policy is decided on whether layers should be able to change it (rather than changing it in the user preferences)";
+    function builtin print() "Prints the reply form";
+}
+
+class ReplyPage extends Page
+"A page to reply to a journal entry or comment"
+{
+    var Entry entry "The journal entry for this talk page";
+    var EntryLite replyto "The object which is being replied to, either the entry or a comment";
+    var ReplyForm form "The reply form.";
+}
+
+class PalItem
+"A specification for a numbered palette index in a GIF or PNG to be changed to a certain color"
+{
+    var int index "Integer palette index.";
+    var Color color "Color to put at specified index.";
+}
+
+##[ Built-in Functions ]
+
+function builtin eurl (string s) : string
+"URL escape";
+
+function builtin ehtml (string s) : string
+"Escapes all HTML tags and entities from the text";
+
+function builtin etags (string s) : string
+"Escapes all HTML tags (but not entities) from text";
+
+function builtin clean_url (string s) : string
+"Returns the given URL back if it's a valid URL.";
+
+function builtin rand (int high) : int
+"Returns a random integer between 1 and \$high, inclusive.";
+
+function builtin rand (int low, int high) : int
+"Returns a random integer between \$low and \$high, inclusive.";
+
+function builtin pageview_unique_string () : string
+"Returns a unique string for the remote user.";
+
+function builtin alternate (string a, string b) : string
+"With each call, this function will alternate between the two values and return one of them.
+Useful for making tables whose rows alternate in background color.";
+
+function builtin zeropad (int n, int digits) : string
+"Returns the number padded with zeroes so it has the amount of digits indicated.";
+
+function builtin zeropad (string n, int digits) : string
+"Returns the number padded with zeroes so it has the amount of digits indicated.";
+
+function builtin striphtml (string s) : string
+"Similar to ehtml, but the HTML tags are stripped rather than escaped.";
+
+function builtin viewer_logged_in() : bool
+"Returns true if the user viewing the page is logged in. It's recommended that your page links to the site
+login page if the user isn't logged in.";
+
+function builtin viewer_is_owner() : bool
+"Returns true if the user viewing the page is both logged in, and is the owner of the content in question.
+Useful for returning links to manage information, or edit entries.";
+
+function builtin viewer_is_friend() : bool
+"Returns true if the user viewing the page is both logged in, and is a friend of the journal being viewed. Always returns false for communities, since they cannot have friends.";
+
+function builtin viewer_is_member() : bool
+"Returns true if the user viewing the page is both logged in, and is a member of the community being viewed. Always returns false for personal journals, since they cannot have members.";
+
+function builtin viewer_sees_ads() [fixed] : bool
+"Deprecated function.  Use viewer_sees_hbox_(top|bottom) or viewer_sees_vbox from now on.";
+
+function builtin viewer_sees_vbox() [fixed] : bool
+"True if opaque vertical site-specific content box should be displayed to the user.";
+
+function builtin viewer_sees_hbox_top() [fixed] : bool
+"True if opaque horizontal site-specific content box should be displayed to the user at the top of the page.";
+
+function builtin viewer_sees_hbox_bottom() [fixed] : bool
+"True if opaque horizontal site-specific content box should be displayed to the user at the bottom of the page.";
+
+function builtin viewer_sees_ebox() [fixed] : bool
+"True if the user has selected to see opaque content boxes between entries.";
+
+function builtin viewer_sees_control_strip [fixed] : bool
+"Returns true if reader will see the built in control strip.";
+
+function builtin control_strip_logged_out_userpic_css [fixed] : string
+"Returns CSS for the userpic div in the logged out version of the control strip.";
+
+function builtin control_strip_logged_out_full_userpic_css [fixed] : string
+"Returns CSS for the loggedout_userpic div in the logged out version of the control strip.";
+
+function builtin get_page () : Page
+"Gets the top-level [class[Page]] instance that LiveJournal ran the [method[Page.print()]] method on.";
+
+function builtin get_url(string user, string view) : string
+"Returns a URL to the specified view for the specified user. Views use the same names as elsewhere. (recent, friends, archive, month, userinfo)";
+
+function builtin get_url(UserLite user, string view) : string
+"Returns a URL to the specified view for the specified user. Views use the same names as elsewhere. (recent, friends, archive, month, userinfo)";
+
+function builtin string(int i) : string
+"Return the given integer as a string";
+
+function builtin int(string s) : int
+"Convert the string to an integer and return";
+
+function builtin set_content_type(string text)
+"Set the HTTP Content-type response header (for example, if outputting XML). Must be called before printing any data.";
+
+function builtin get_plural_phrase(int n, string prop) : string
+"Picks the phrase with the proper plural form from those in the property \$prop, passing \$n to [function[lang_map_plural(int)]] to get the proper form for the current language, and then substituting the # character with \$n.  Also, returned string is HTML-escaped.";
+
+function builtin weekdays() : int[]
+"Integers representing the days of the week. This will start on Monday (2) or Sunday (1) depending on the property setting for start-of-week and go to Sunday (1) or Saturday (7)";
+
+function builtin PalItem(int index, Color c) : PalItem
+"Convenience constructor to make populating an array of PalItems (like in [function[palimg_modify(string,PalItem[])]]) easy.";
+
+
+function builtin UserLite(string username) : UserLite
+"Constructor for making a UserLite object from a username";
+
+function builtin palimg_modify(string filename, PalItem[] items) : string
+"Return a URL to the specified filename (relative to the palimg root) with its palette table altered, once for each provided [class[PalItem]].  Restrictions:  only 7 palette entries may be modified, and the PalItem indexes must be 0-15.";
+
+function builtin palimg_tint(string filename, Color bright) : string
+    "Return a URL to the specified filename (relative to the palimg root) with its palette table tinted.  The given 'bright' color will be the new white, and darkest color remains black.";
+
+function builtin palimg_tint(string filename, Color bright, Color dark) : string
+    "Return a URL to the specified filename (relative to the palimg root) with its palette table tinted.  The given 'bright' color will be the new white, and the given 'dark' color is the new black.";
+
+function builtin palimg_gradient(string filename, PalItem start, PalItem end) : string
+    "Return a URL to the specified filename (relative to the palimg root) with its palette table made into a gradient.  All palette entries between the inclusive indexes of \$start and \$end will fade from the colors in \$start and \$end.  The palette indexes for the start and end can be between 0 and 255.";
+
+function builtin set_handler(string eventname, string[][] commands);
+
+function builtin userlite_base_url(UserLite ul) : string;
+function builtin userlite_as_string(UserLite ul) : string "Deprecated function.  Use ljuser() from now on.";
+
+function builtin start_css () "Declare that you're about to start printing out CSS that should be buffered, then later cleaned when you call end_css().  WARNING: this is not re-entrant.  You can't call start_css recursively.";
+function builtin end_css () "Declare that you're done printing CSS and the output thus buffered should be cleaned and printed.";
+
+function builtin journal_current_datetime() : DateTime
+"Returns the current datetime in the timezone of the journal being viewed.";
+
+function builtin style_is_active() : bool
+"Returns if the style (layout and theme) calling it is active based on a hook.  If hook isn't defined, returns true always.";
+
+##[ properties ]
+
+propgroup colors = "Colors";
+propgroup fonts = "Fonts";
+propgroup presentation = "Presentation";
+propgroup other = "Other";
+propgroup text = "Text";
+propgroup background = "Background";
+propgroup sidebar = "Sidebar";
+propgroup appearance = "Appearance";
+propgroup options = "Options";
+propgroup images = "Images";
+propgroup customcss = "Custom CSS";
+
+property string lang_current {
+        noui = 1;
+        des = "Current language code.  So layouts can change date/time formats more safely if they want.";
+}
+set lang_current = "en";  # core is English.
+
+property string lang_fmt_date_short {
+    noui = 1;
+    des = "Short date format.  All numeric.";
+}
+set lang_fmt_date_short = "%%m%%/%%d%%/%%yy%%";
+
+property string lang_fmt_date_med {
+    noui = 1;
+    des = "Medium date format.  Abbreviated month name, no day of the week.";
+}
+set lang_fmt_date_med = "%%mon%%. %%dayord%%, %%yyyy%%";
+
+property string lang_fmt_date_med_day {
+    noui = 1;
+    des = "Medium date format with day of week.  Abbreviated month name and abbreviated day of the week.";
+}
+set lang_fmt_date_med_day = "%%da%%, %%mon%%. %%dayord%%, %%yyyy%%";
+
+property string lang_fmt_date_long {
+    noui = 1;
+    des = "Long date format.  With full month name, but no day of the week.";
+}
+set lang_fmt_date_long = "%%month%% %%dayord%%, %%yyyy%%";
+
+property string lang_fmt_date_long_day {
+    noui = 1;
+    des = "Long date format.  With full month name and full day of the week.";
+}
+set lang_fmt_date_long_day = "%%day%%, %%month%% %%dayord%%, %%yyyy%%";
+
+property string lang_fmt_time_short {
+    noui = 1;
+    des = "Time format.";
+}
+set lang_fmt_time_short = "%%hh%%:%%min%% %%a%%m";
+
+property string lang_fmt_month_short {
+    noui = 1;
+    des = "Short month format.";
+}
+set lang_fmt_month_short = "%%m%%/%%yy%%";
+
+property string lang_fmt_month_med {
+    noui = 1;
+    des = "Medium month format.";
+}
+set lang_fmt_month_med = "%%mon%% %%yyyy%%";
+
+property string lang_fmt_month_long {
+    noui = 1;
+    des = "Long month format.";
+}
+set lang_fmt_month_long = "%%month%% %%yyyy%%";
+
+property string[] lang_monthname_long {
+    noui = 1;
+    des = "Months of the year.  Indexed from 1 (January) to 12 (December).";
+}
+set lang_monthname_long = [ "", "January",  "February", "March",
+                            "April", "May", "June",
+                            "July", "August", "September",
+                            "October", "November", "December" ];
+
+property string[] lang_monthname_short {
+    noui = 1;
+    des = "Months of the year, in their short forms.  Indexed from 1 (Jan) to 12 (Dec).";
+}
+set lang_monthname_short = [ "", "Jan",  "Feb", "Mar",
+                             "Apr", "May", "Jun",
+                             "Jul", "Aug", "Sep",
+                             "Oct", "Nov", "Dec" ];
+
+property string[] lang_dayname_long {
+    noui = 1;
+    des = "Days of the week.  Indexed from 1 (Sunday) to 7 (Saturday).";
+}
+set lang_dayname_long = [ "", "Sunday", "Monday",  "Tuesday", "Wednesday",
+                          "Thursday", "Friday", "Saturday" ];
+
+property string[] lang_dayname_short {
+    noui = 1;
+    des = "Days of the week, in their short forms.  Indexed from 1 (Sun) to 7 (Sat).";
+}
+set lang_dayname_short = [ "", "Sun", "Mon",  "Tue", "Wed",
+                           "Thu", "Fri", "Sat" ];
+
+property string[] lang_dayname_shorter {
+    noui = 1;
+    des = "Days of the week, in their one letter forms.  Indexed from 1 (S) to 7 (S).";
+}
+set lang_dayname_shorter = [ "", "S", "M",  "T", "W",
+                             "T", "F", "S" ];
+
+property builtin string IMGDIR {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The base URL of the current LiveJournal site's image directory, without a trailing slash.  Example: \"http://www.livejournal.com/img\".";
+}
+property builtin string STATDIR {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The base URL of the current LiveJournal site's static files directory, without a trailing slash.";
+}
+property builtin string SITENAME {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "Name of the current LiveJournal site.  Example: \"LiveJournal.com\".";
+}
+
+property builtin string SITENAMESHORT {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "Shorter name of the current LiveJournal site.  Example: \"LiveJournal\".";
+}
+
+property builtin string SITENAMEABBREV {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "Abbreviation of the current LiveJournal site.  Example: \"LJ\".";
+}
+
+property builtin string SITEROOT {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The base URL of the current LiveJournal site, without a trailing slash.  Example: \"http://www.livejournal.com\".";
+}
+
+property builtin string PALIMGROOT {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The base URL of palimg files, without a trailing slash.  Example: \"http://www.livejournal.com/palimg\".";
+}
+
+property int page_recent_items {
+    des = "Number of journal entries to show on recent entries page";
+    doc_flags = "[construct]";
+    min = 1;
+    max = 50;
+}
+property int page_friends_items {
+    des = "Number of journal entries to show on friends page";
+    doc_flags = "[construct]";
+    min = 5;
+    max = 50;
+}
+set page_recent_items = 20;
+set page_friends_items = 20;
+
+property string page_day_sortorder {
+    des = "Order of entries shown on a day page";
+    values = "forward|Least recent first|reverse|Most recent first";
+}
+property string page_year_sortorder {
+    des = "Order of months shown on the year archive page";
+    values = "forward|Least recent first|reverse|Most recent first";
+}
+set page_day_sortorder = "forward";
+set page_year_sortorder = "forward";
+
+property bool page_month_textsubjects {
+    des = "If set, subjects will be provided for the month view in plain text only, with HTML removed.";
+    doc = "If set, subjects will be provided for the [class[MonthPage]] in plain text only, with HTML removed.";
+}
+set page_month_textsubjects = true;
+
+property string text_meta_music {
+    des = "Text for 'Current Music'";
+}
+set text_meta_music = "Current Music";
+
+property string text_meta_mood {
+    des = "Text for 'Current Mood'";
+}
+set text_meta_mood = "Current Mood";
+
+property string text_meta_location {
+    des = "Text for 'Current Location'";
+}
+set text_meta_location = "Current Location";
+
+property string text_meta_groups {
+    des = "Text for 'Custom Friends Groups'";
+}
+set text_meta_groups = "Custom Friends Groups";
+
+property string text_post_comment {
+    des = "Link text to leave a comment";
+    example = "Leave a comment";
+}
+property string text_max_comments {
+    des = "Text when entry has reached a comment maximum";
+    example = "Maximum comments reached";
+}
+property string text_read_comments {
+    des = "Link text to read comments";
+    format = "plurals";
+    example = "1 comment // # comments";
+}
+set text_post_comment = "Leave a comment";
+set text_max_comments = "Maximum comments reached";
+set text_read_comments = "1 comment // # comments";
+
+property string text_post_comment_friends {
+    des = "Link text to leave a comment on friends view entry";
+    example = "Leave a comment";
+}
+property string text_read_comments_friends {
+    des = "Link text to read comments on a friends view entry";
+    format = "plurals";
+    example = "1 comment // # comments";
+}
+set text_post_comment_friends = "Leave a comment";
+set text_read_comments_friends = "1 comment // # comments";
+
+property string text_tags_page_header {
+    des = "Text for the header of the Tags page";
+    example = "Visible Tags";
+}
+set text_tags_page_header = "Visible Tags";
+
+property string text_tag_uses {
+    des = "Text to show how many times a tag has been used";
+    format = "plurals";
+    example = "1 use // # uses";
+}
+set text_tag_uses = "1 use // # uses";
+
+property string text_skiplinks_back {
+    des = "Text to show in a link to skip back through entries";
+    maxlength = 20;
+    "size" = 15;
+    example = "Go back #";
+    note = "Include a # character to insert the number of entries that will be viewable when skipping back.";
+}
+property string text_skiplinks_forward {
+    des = "Text to show in a link to skip forward through entries";
+    maxlength = 20;
+    "size" = 15;
+    example = "Go forward #";
+    note = "Include a # character to insert the number of entries that will be viewable when skipping forward.";
+}
+property string text_skiplinks_forward_words {
+    des = "Text to show in a link to skip forward through entries";
+    maxlength = 20;
+    "size" = 15;
+    example = "Go forward";
+}
+set text_skiplinks_back="Previous #";
+set text_skiplinks_forward="Next #";
+
+property string text_view_recent {
+    des = "Text used to link to the 'Recent Entries' view";
+    maxlength = 20;
+    "size" = 15;
+    example = "Recent Posts";
+}
+property string text_view_friends {
+    des = "Text used to link to the 'Friends' view";
+    maxlength = 20;
+    "size" = 15;
+    example = "My Friends' Entries";
+}
+property string text_view_friends_comm {
+    des = "Text used to link to the 'Friends' view for a community";
+    maxlength = 20;
+    "size" = 15;
+    example = "Members' Journals";
+}
+property string text_view_friendsfriends {
+    des = "Title of the 'Friends of Friends' view";
+    maxlength = 20;
+    "size" = 15;
+    example = "Friends of Friends";
+}
+property string text_view_friends_filter {
+    des = "Title of a Friends page with an unnamed filter in effect";
+    maxlength = 20;
+    "size" = 15;
+    example = "Friends (Custom filter)";
+}
+property string text_view_friendsfriends_filter {
+    des = "Title of a Friends of Friends page with an unnamed filter in effect";
+    maxlength = 20;
+    "size" = 15;
+    example = "Friends of Friends (Custom filter)";
+}
+property string text_view_archive {
+    des = "Text used to link to the 'Archive' view";
+    maxlength = 20;
+    "size" = 15;
+    example = "Journal Archive";
+}
+property string text_view_userinfo {
+    des = "Text used to link to the 'User Information' view";
+    maxlength = 20;
+    "size" = 15;
+    example = "My Profile";
+}
+
+property string text_view_memories {
+    des = "Text used to link to the 'Memories' view";
+    maxlength = 20;
+    "size" = 15;
+    example = "My Memories";
+}
+
+property string text_view_month {
+    des = "Text used to link to a list of subjects for a month";
+    maxlength = 20;
+    "size" = 15;
+    example = "View Subjects";
+}
+set text_view_recent = "Recent Entries";
+set text_view_friends = "Friends";
+set text_view_friends_comm = "Members";
+set text_view_friends_filter = "Friends (Custom filter)";
+set text_view_friendsfriends = "Friends of Friends";
+set text_view_friendsfriends_filter = "Friends of Friends (Custom filter)";
+set text_view_archive = "Archive";
+set text_view_userinfo = "User Info";
+set text_view_memories = "Memories";
+set text_view_month = "View Subjects";
+
+property string text_links {
+    des = "Text used  for the heading of the links list";
+    maxlength = 50;
+    size = 20;
+    example = "Links";
+}
+set text_links = "Links";
+
+property string text_page_summary {
+    des = "Text used for the heading for the Page Summary navigation section";
+    maxlength = 100;
+    size = 30;
+    example = "Entries on This Page";
+}
+set text_page_summary = "Page Summary";
+
+property string text_syndicate {
+    des = "Text used for the heading for the Syndication navigation section";
+    maxlength = 50;
+    size = 20;
+    example = "Subscribe to my feeds";
+}
+set text_syndicate = "Syndicate";
+
+property string text_nosubject {
+    des = "Text to replace a subject line when no subject is specified";
+    maxlength = 20;
+    size = 10;
+    example = "No Subject";
+    note = "This only appears in places where a subject line is required, such as on a month view.";
+}
+set text_nosubject = "(no subject)";
+
+property string text_noentries_recent {
+    des = "Text to display when there are no entries on the recent or friends views";
+    maxlength = 255;
+    size = 50;
+}
+set text_noentries_recent = "There are no entries to display.";
+
+property string text_noentries_day {
+    des = "Text to display when there are no entries on the day view";
+    maxlength = 255;
+    size = 50;
+}
+set text_noentries_day = "There were no entries on this day.";
+
+property string text_entry_prev {
+    des = "Text to link to the previous entry";
+}
+set text_entry_prev = "Previous Entry";
+
+property string text_entry_next {
+    des = "Text to link to the next entry";
+}
+set text_entry_next = "Next Entry";
+
+property string text_permalink {
+    des = "Text for an entry's permanent link";
+    maxlength = 50;
+    size = 20;
+}
+set text_permalink = "Link";
+
+property string text_edit_entry {
+    des = "Text to edit an entry";
+}
+set text_edit_entry = "Edit Entry";
+
+property string text_edit_tags {
+    des = "Text to edit tags for an entry";
+}
+set text_edit_tags = "Edit Tags";
+
+property string text_tell_friend {
+    des = "Text to tell a friend about an entry";
+}
+set text_tell_friend = "Tell a Friend";
+
+property string text_mem_add {
+    des = "Text to add an entry into memories";
+}
+set text_mem_add = "Add to Memories";
+
+property string text_watch_comments {
+    des = "Text to track events on an entry";
+}
+set text_watch_comments = "Track This";
+
+property string text_unwatch_comments {
+    des = "Text to stop tracking events on an entry";
+}
+set text_unwatch_comments = "Untrack This";
+
+property string text_flag {
+    des = "Text to flag an entry";
+}
+set text_flag = "Flag";
+
+property string text_month_screened_comments {
+    des = "Text to indicate there are screened comments";
+}
+set text_month_screened_comments = "w/ Screened";
+
+property string text_month_form_btn {
+    des = "Text used for Submit button in MonthPage selector";
+}
+set text_month_form_btn = "View";
+
+property string text_replyform_header {
+    des = "Text for the heading above the form on the reply page";
+}
+set text_replyform_header = "Comment Form";
+
+property string text_multiform_check {
+    des = "Text beside a comment multi-action checkbox";
+}
+set text_multiform_check = "Select:";
+
+property string text_multiform_des {
+    des = "Text on the multiform action line.";
+}
+set text_multiform_des = "Mass action on selected comments:";
+
+property string text_multiform_btn {
+    des = "Text on the multiform action button.";
+}
+set text_multiform_btn = "Perform Action";
+
+property string text_multiform_opt_unscreen {
+    des = "Text for the comment unscreening action";
+}
+set text_multiform_opt_unscreen = "Unscreen";
+
+property string text_multiform_opt_screen {
+    des = "Text for the comment screening action";
+}
+set text_multiform_opt_screen = "Screen";
+
+property string text_multiform_opt_unfreeze {
+    des = "Text for the comment unfreezing action";
+}
+set text_multiform_opt_unfreeze = "Unfreeze";
+
+property string text_multiform_opt_freeze {
+    des = "Text for the comment freezing action";
+}
+set text_multiform_opt_freeze = "Freeze";
+
+property string text_multiform_opt_delete {
+    des = "Text for the comment delete action";
+}
+set text_multiform_opt_delete = "Delete";
+
+property string text_multiform_opt_deletespam {
+    des = "Text for the comment delete and mark as spam action";
+}
+set text_multiform_opt_deletespam = "Delete as Spam";
+
+property string text_multiform_conf_delete {
+    des = "Text for the confirming mass-delete action";
+}
+set text_multiform_conf_delete = "Delete selected comments?";
+
+property string text_multiform_opt_track {
+    des = "Text for the comment tracking action";
+}
+set text_multiform_opt_track = "Track This";
+
+property string text_multiform_opt_untrack {
+    des = "Text for the comment untracking action";
+}
+set text_multiform_opt_untrack = "Untrack This";
+
+property string text_multiform_opt_edit {
+    des = "Text for the comment editing action";
+}
+set text_multiform_opt_edit = "Edit";
+
+property string text_comment_posted {
+    des = "Text to display when a comment has just been posted by the user";
+}
+set text_comment_posted = "Comment successfully posted.";
+
+property string text_tags {
+    des = "Text for 'Tags' header for an entry";
+    note = "Use a # where you want the tag list inserted.";
+    example = "Tags: #";
+}
+set text_tags = "Tags: #";
+
+property string text_tags_section_header {
+    des = "Text for the 'Tags' heading in the navigation area";
+    maxlength = 50;
+    size = 20;
+    example = "My tags";
+}
+set text_tags_section_header = "Tags";
+
+property string font_base {
+    des = "Preferred Font";
+    maxlength = 25;
+    "size" = 10;
+    example = "Arial";
+    note = "Leave blank if you don't care.";
+}
+set font_base = "";   # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
+
+property string font_fallback {
+    des = "Alternative font style";
+    values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+    note = "This general style will serve as a fallback if your preferred font is unavailable.";
+}
+set font_fallback = "none"; # Default in core is to let the browser handle it.
+
+property string reg_firstdayofweek {
+    des = "The day of the week the calendar weeks starts on.";
+    doc = "The day of the week the calendar weeks starts on.  Either 'sunday' or 'monday'.";
+    doc_flags = "[construct]";
+    values = "sunday|Sunday|monday|Monday";
+}
+set reg_firstdayofweek = "sunday";
+
+property string text_day_prev {
+    des = "Text to link to the previous day";
+    example = "Previous Day";
+    maxlength = 20;
+}
+property string text_day_next {
+    des = "Text to link to the next day";
+    example = "Next Day";
+    maxlength = 20;
+}
+set text_day_prev = "Previous Day";
+set text_day_next = "Next Day";
+
+property string text_comment_from {
+    des = "Text of the 'from' header in comments";
+    example = "From:";
+    maxlength = "20";
+}
+property string text_comment_date {
+    des = "Text of the 'date' header in comments";
+    example = "Date:";
+    maxlength = "20";
+}
+property string text_comment_ipaddr {
+    des = "Text of the 'IP Address' header in comments";
+    example = "IP Address:";
+    maxlength = "20";
+}
+property string text_comment_edittime {
+    des = "Text of the 'Edited at' string at the bottom of edited comments";
+    example = "Edited at:";
+    maxlength = "20";
+}
+set text_comment_from = "From:";
+set text_comment_date = "Date:";
+set text_comment_ipaddr = "IP Address:";
+set text_comment_edittime = "Edited at";
+
+property string text_comment_reply {
+    des = "Text to link to reply for comment";
+    example = "Reply to this";
+    maxlength = "50";
+}
+property string text_comment_frozen {
+    des = "Text to replace reply link with if comment is frozen";
+    example = "Replies frozen";
+    maxlength = "50";
+}
+property string text_comment_parent {
+    des = "Text to link to parent comment of current comment";
+    example = "Parent";
+    maxlength = "50";
+}
+property string text_comment_thread {
+    des = "Text to link to the thread stemming from the comment";
+    example = "Thread";
+    maxlength = "50";
+}
+set text_comment_reply = "Reply";
+set text_comment_frozen = "Frozen";
+set text_comment_parent = "Parent";
+set text_comment_thread = "Thread";
+
+property string text_poster_anonymous {
+    des = "The placeholder used when something is posted by an anonymous user";
+    example = "(Anonymous)";
+}
+set text_poster_anonymous = "(Anonymous)";
+
+property string text_reply_back {
+    des = "Text to link back to the single entry view from the read comments page";
+    example = "Read Comments";
+    maxlength = "50";
+}
+set text_reply_back = "Read Comments";
+
+property string text_reply_nocomments_header {
+    des = "Heading text that explains that comments are disabled";
+    example = "Comments Disabled:";
+    maxlength = "50";
+}
+set text_reply_nocomments_header = "Comments Disabled:";
+
+property string text_reply_nocomments {
+    des = "Text that explains that comments are not allowed for this post.";
+    example = "Comments have been disabled for this post.";
+    maxlength = "100";
+}
+set text_reply_nocomments = "Comments have been disabled for this post.";
+
+property string text_website_default_name {
+    des = "If an account's website is specified, but there's no website name, use this text instead";
+    noui = 1;
+}
+set text_website_default_name = "My Website";
+
+property string text_icon_alt_protected {
+    des = "Alternative text for icons of friends-only entries";
+    noui = 1;
+}
+property string text_icon_alt_private {
+    des = "Alternative text for icons of private entries";
+    noui = 1;
+}
+property string text_icon_alt_groups {
+    des = "Alternative text for icons of custom friends group entries";
+    noui = 1;
+}
+set text_icon_alt_protected = "[protected post]";
+set text_icon_alt_private = "[private post]";
+set text_icon_alt_groups = "[custom friends groups post]";
+
+property bool use_shared_pic {
+    des = "Use community userpics instead of poster's userpic.";
+}
+set use_shared_pic = false;
+
+property bool view_entry_disabled {
+    des = "Disable customized comment pages for your journal";
+}
+set view_entry_disabled = false;
+
+property bool tags_aware {
+    des = "When enabled, style is responsible for handling tags.  When disabled, tags are automatically inserted into entry bodies.";
+    noui = 1;
+}
+set tags_aware = false;
+
+property Color color_comment_bar {
+   des = "Color of comment bar header";
+}
+set color_comment_bar = "#d0d0ff";
+
+property string comment_userpic_style {
+   des = "Userpic display style for comments";
+   doc = "Userpic display style for comments.  Either '' for full, 'small' for small, or 'off' for none.";
+   doc_flags = "[construct]";
+   values = "|Full|small|Small|off|Off";
+}
+set comment_userpic_style = "";
+
+property bool linklist_support {
+    des = "Display link list";
+}
+set linklist_support = true;
+
+property bool external_stylesheet {
+    des = "Use linked stylesheet";
+    note = "If true, a stylesheet link element will point to a file containing the layout's CSS data.";
+    noui = 1;
+}
+set external_stylesheet = false;
+
+property bool include_default_stylesheet {
+    des = "Use layout's stylesheet(s)";
+    note = "Disable this only if you want to re-style this layout completely from scratch using a custom stylesheet.";
+}
+set include_default_stylesheet = true;
+
+property string linked_stylesheet {
+    des = "Custom external stylesheet URL";
+    note = "If you have a custom external stylesheet that you'd like to use, enter its URL here.";
+}
+set linked_stylesheet = "";
+
+property string custom_css {
+    des = "Custom stylesheet";
+    note = "If you'd like to add custom CSS to this style, enter it here.";
+    cols = 50;
+    rows = 20;
+    string_mode = "css";
+}
+set custom_css = "";
+
+property string custom_control_strip_colors {
+    des = "Navigation strip colors";
+    values = "off|Do not use custom colors|on_gradient|Use custom colors with a background gradient|on_no_gradient|Use custom colors without a background gradient";
+    note = "Custom colors can be set in the \"Colors\" section.";
+}
+set custom_control_strip_colors = "off";
+
+property Color control_strip_bgcolor {
+    des = "Background color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_bgcolor = "";
+
+property Color control_strip_fgcolor {
+    des = "Text color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_fgcolor = "";
+
+property Color control_strip_bordercolor {
+    des = "Border color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_bordercolor = "";
+
+property Color control_strip_linkcolor {
+    des = "Link color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_linkcolor = "";
+
+property Color theme_bgcolor {
+    des = "Background color set by theme";
+    noui = 1;
+}
+set theme_bgcolor = "";
+
+property Color theme_fgcolor {
+    des = "Text color set by theme";
+    noui = 1;
+}
+set theme_bgcolor = "";
+
+property Color theme_bordercolor {
+    des = "Border color set by theme";
+    noui = 1;
+}
+set theme_bordercolor = "";
+
+property Color theme_linkcolor {
+    des = "Link color set by theme";
+    noui = 1;
+}
+set theme_linkcolor = "";
+
+###[ global function implementations ]
+
+function prop_init ()
+  "This function is the first thing called and is the place to set properties based on the values of other properties.  It's called before the style system looks at its builtin properties, so if you need to conditionally setup something based on your own custom properties, do it here.  You can't print from this function."
+{
+  # do nothing, just exist.
+}
+
+function print_stylesheet ()
+  "Prints a stylesheet, the URL of which can be referenced by [member[Page.stylesheet_url]].  This is another S2 entry point, in addition to [method[Page.print()]]." {
+}
+
+function print_custom_control_strip_css ()
+  "Prints the CSS for custom control strip colors, if the option is enabled. This should be called by print_stylesheet()."
+{
+    if ($*custom_control_strip_colors != "off") {
+        var bool bgcolor = $*control_strip_bgcolor.as_string != "";
+        var bool fgcolor = $*control_strip_fgcolor.as_string != "";
+        var bool bordercolor = $*control_strip_bordercolor.as_string != "";
+        var bool linkcolor = $*control_strip_linkcolor.as_string != "";
+        var string bgimage = "";
+
+        if ($*custom_control_strip_colors == "on_gradient" and $bgcolor and $fgcolor) {
+            var Color blended_color = $*control_strip_bgcolor->blend($*control_strip_fgcolor, 25); # Make the background color 25% like the text color
+            $bgimage = palimg_tint("controlstrip/bg.gif", $*control_strip_bgcolor, $blended_color);
+        }
+
+        if ($bgcolor) {
+"""
+
+#lj_controlstrip {
+    background-color: $*control_strip_bgcolor;
+""";
+if ($bgimage == "") {
+    """    background-image: none;""";
+} else {
+    """    background-image: url($bgimage);""";
+}
+"""
+}""";
+        }
+
+        if ($fgcolor or $bordercolor) {
+"""
+
+#lj_controlstrip td {
+""";
+if ($fgcolor) {
+    """    color: $*control_strip_fgcolor;""";
+}
+if ($fgcolor and $bordercolor) {
+    "\n";
+}
+if ($bordercolor) {
+    """    border-bottom: 1px solid $*control_strip_bordercolor;""";
+}
+"""
+}""";
+        }
+
+        if ($fgcolor) {
+"""
+
+#lj_controlstrip_statustext {
+    color: $*control_strip_fgcolor;
+}""";
+        }
+
+        if ($linkcolor) {
+"""
+
+#lj_controlstrip a {
+    color: $*control_strip_linkcolor;
+}""";
+        }
+
+        if ($bordercolor) {
+"""
+
+#lj_controlstrip_user,
+#lj_controlstrip_actionlinks,
+#lj_controlstrip_search,
+#lj_controlstrip_login,
+#lj_controlstrip_loggedout_userpic {
+    border-right: 1px solid $*control_strip_bordercolor;
+}
+
+#lj_controlstrip_login td {
+    border-bottom: 0;
+}
+
+#lj_controlstrip td td {
+    border-bottom: 0;
+}""";
+        }
+
+        if ($bgcolor and $fgcolor) {
+            print control_strip_logged_out_userpic_css();
+            print control_strip_logged_out_full_userpic_css();
+        }
+    }
+}
+
+function builtin htmlattr(string name, string value) : string
+"If the value isn't blank, return in HTML attribute format with a leading space.  HTML of name is not escaped.";
+
+function builtin htmlattr(string name, int value) : string
+"If the value isn't blank, return in HTML attribute format with a leading space.  HTML of name is not escaped.";
+
+### Language
+
+function lang_map_plural (int n) : int {
+    if ($n == 1) { return 0; } # singular
+    return 1;             # plural
+}
+
+function lang_page_of_pages (int pg, int pgs) [notags] : string {
+    return "Page $pg of $pgs";
+}
+
+function lang_user_wrote(UserLite u) : string "Returns text describing that the user wrote something. i18nc layers should override this." {
+    if (defined $u) {
+        return $u->as_string()+" wrote";
+    }
+    else {
+        return "An anonymous user wrote";
+    }
+}
+
+function lang_at_datetime(DateTime d) : string "Returns a string saying \"at {the data and time given}\". Used in the core implementation of EntryPage and ReplyPage. i18nc layers should override this." {
+    return "on " + $d->date_format("long") + " at " + $d->time_format();
+}
+
+function lang_ordinal(int num) [notags] : string
+"Make an ordinal number from a cardinal number"
+{
+    if ($num % 100 >= 4 and $num % 100 <= 20) { return $num+"th"; }
+    if ($num % 10 == 1) { return $num+"st"; }
+    if ($num % 10 == 2) { return $num+"nd"; }
+    if ($num % 10 == 3) { return $num+"rd"; }
+    return $num+"th";
+}
+
+function lang_ordinal(string num) [notags, fixed] : string
+"Make an ordinal number from a cardinal number.  Don't override this, since the core layer implementation just calls [function[lang_ordinal(int)]], which i18nc layers should override."
+{
+    return lang_ordinal(int($num));
+}
+
+
+function lang_viewname(string viewid) [notags] : string
+"Get some words representing a view"
+{
+    if ($viewid == "recent") { return $*text_view_recent; }
+    if ($viewid == "archive") { return $*text_view_archive; }
+    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "day") { return "Day"; }
+    if ($viewid == "month") { return "Month"; }
+    if ($viewid == "userinfo") { return $*text_view_userinfo; }
+    if ($viewid == "entry") { return "Read Comments"; }
+    if ($viewid == "reply") { return "Post Comment"; }
+    if ($viewid == "tags") { return "Tags"; }
+    return "Unknown View";
+}
+
+function lang_metadata_title(string which) [fixed] : string
+"Get a human-readable caption for a metadata key. Layers shouldn't override this, but should instead set the relevant string properties."
+{
+    if ($which == "music") {
+        return $*text_meta_music;
+    }
+    elseif ($which == "mood") {
+        return $*text_meta_mood;
+    }
+    elseif ($which == "location") {
+        return $*text_meta_location;
+    }
+    elseif ($which == "groups") {
+        return $*text_meta_groups;
+    }
+    else {
+        return $which;
+    }
+}
+
+### Navigation
+
+
+### Image Manipulation
+
+function Image::as_string(string{} opts) [fixed] : string {
+    var string img = "";
+    if ($opts{"href"} != "") { $img = $img + "<a href=\"" + eurl($opts{"href"}) + "\" $opts{"a_attr"}>"; }
+    $img = $img + $this->as_string($opts{"alt"});
+    if ($opts{"href"} != "") { $img = $img + "</a>"; }
+
+    return $img;
+}
+
+function Image::as_string(string alttext) [fixed] : string {
+    return "<img src=\"$.url\" alt=\"" + ehtml($alttext) + "\"" +
+        htmlattr("height", $.height) +
+        htmlattr("width", $.width) + " />";
+}
+
+function Image::as_string() [fixed] : string {
+    return $this->as_string($this.alttext);
+}
+
+function Image::print (string{} opts)
+{
+    # must do safe here because opts could have the 'a_attr' key set
+    print safe $this->as_string($opts);
+}
+
+function Image::print (string alttext)
+{
+    print $this->as_string($alttext);
+}
+
+function Image::print
+{
+    print $this->as_string($this.alttext);
+}
+
+function userinfoicon(UserLite user) : Image {
+    var Image uimage;
+    $uimage.width = 16;
+    $uimage.height = 16;
+
+    if ($user.journal_type == "C") {
+        $uimage->set_url("$*IMGDIR/community.gif");
+    } elseif ($user.journal_type == "Y") {
+        $uimage->set_url("$*IMGDIR/syndicated.gif");
+    } elseif ($user.journal_type == "N") {
+        $uimage->set_url("$*IMGDIR/newsinfo.gif");
+    } elseif ($user.journal_type == "I") {
+        $uimage->set_url("$*IMGDIR/openid-profile.gif");
+    } else {
+        $uimage->set_url("$*IMGDIR/userinfo.gif");
+        $uimage.width = 17;
+        $uimage.height = 17;
+    }
+    return $uimage;
+}
+
+### UserLite functions
+
+function UserLite::base_url() [fixed] : string {
+    return userlite_base_url($this);
+}
+
+function UserLite::tag_manage_url() [fixed] : string {
+    return "$*SITEROOT/manage/tags.bml?authas=$.username";
+}
+
+function UserLite::as_string() [fixed] : string {
+    return $this->ljuser();
+}
+
+function UserLite::print() {
+    print $this->as_string();
+}
+
+function UserLite::print_linkbar() {
+    var Link link;
+    foreach var string k ($.link_keyseq) {
+        $link = $this->get_link($k);
+        " $link ";
+    }
+}
+
+function Friend::print() {
+    print $this->as_string();
+}
+
+### Generic Page Functions
+
+function Page::print_stylesheets() {
+    if ($*include_default_stylesheet) {
+        if ($*external_stylesheet) {
+            println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+        }
+        else {
+            println """<style type="text/css">""";
+            start_css();
+            print_stylesheet();
+            end_css();
+            println """</style>""";
+        }
+    }
+
+    if ($*linked_stylesheet != "") {
+        println safe """<link rel="stylesheet" href="$*linked_stylesheet" type="text/css" />""";
+    }
+
+    if ($*custom_css != "") {
+        println """<style type="text/css">""";
+        start_css();
+        println safe $*custom_css;
+        end_css();
+        println """</style>""";
+    }
+}
+
+function Page::view_title() [notags] : string {
+    return lang_viewname($.view);
+}
+function FriendsPage::view_title() : string {
+    if ($.friends_mode == "") {
+        if ($.filter_active) {
+            if ($.filter_name != "") {
+                if ($.friends_title != "") {
+                    return $.friends_title+" ("+$.filter_name+")";
+                } else {
+                    return $*text_view_friends+" ("+$.filter_name+")";
+                }
+            } else {
+                return $*text_view_friends_filter;
+            }
+        } else {
+            if ($.friends_title != "") {
+                return $.friends_title;
+            } elseif ($.journal.journal_type == "C") {
+                return $*text_view_friends_comm;
+            } else {
+                return $*text_view_friends;
+            }
+        }
+    }
+    elseif ($.friends_mode == "friendsfriends") {
+        if ($.filter_active) {
+            if ($.filter_name != "") {
+                return $*text_view_friendsfriends+" ("+$.filter_name+")";
+            }
+            else {
+                return $*text_view_friendsfriends_filter;
+            }
+        }
+        else {
+            return $*text_view_friendsfriends;
+        }
+    }
+    else {
+        return "Unknown Friends View";
+    }
+}
+function DayPage::view_title : string {
+    return $.date->date_format("long");
+}
+function YearPage::view_title() : string {
+    return string($.year);
+}
+function EntryPage::view_title() : string {
+    return $.entry.subject ? $.entry->get_plain_subject() : "";
+}
+function ReplyPage::view_title() : string {
+    return "Post a comment";
+}
+function Page::title() [notags] : string {
+    var string title = $.global_title;
+    if ($title == "") {
+        $title = $.journal.name;
+    }
+    if ($.view != "recent") {
+        $title = $title + " - " + $this->view_title();
+    }
+    if ($.view == "friends") {
+        $title = $this->view_title();
+    }
+    return $title;
+}
+
+function server_sig() {
+    """Powered by <a href="$*SITEROOT/">$*SITENAME</a>""";
+}
+
+function Page::print() {
+    "<html>\n<head>\n";
+    $this->print_head();
+    $this->print_stylesheets();
+    "<title>"+$this->title()+"</title>\n";
+
+    if ($*font_base != "" or $*font_fallback != "none") {
+        """<style type="text/css">""";
+        start_css();
+        """
+<!--
+body, td, th, table, p, div {
+    font-family: """;
+        if ($*font_base != "") {
+            "\"$*font_base\"";
+            if ($*font_fallback != "none") {
+                ", ";
+            }
+        }
+        if ($*font_fallback != "none") {
+            print $*font_fallback;
+        }
+        ";\n}\n-->";
+        end_css();
+        "</style>\n";
+    }
+
+    "</head>\n<body>\n";
+    $this->print_control_strip();
+    if (defined $.journal.default_pic and
+        $.view != "entry" and
+        $.view != "reply") {
+            $.journal.default_pic->print();
+    }
+    print "<h1>" + $this->title() + "</h1>\n";
+
+    $this->print_body();
+    """\n<hr><address>""";
+    server_sig();
+    """</address>\n</body></html>""";
+}
+
+function Page::print_body() {
+    """<h2>No Default Renderer</h2><p>There is no body renderer for viewtype <tt>$.view</tt> defined.</p>""";
+}
+
+function Page::print_head() {
+    print $.head_content;
+    $this->print_custom_head();
+}
+
+function Page::print_custom_head() {
+    # blank
+}
+
+function Page::print_linklist() {
+    if (size $.linklist <= 0) {
+        return;
+    } elseif (not $*linklist_support) {
+        return;
+    }
+
+    foreach var UserLink l ($.linklist) {
+        if ($l.title) {
+            if ($l.is_heading) {
+                "<b>$l.title</b>";
+            } else {
+                "<a href='$l.url'>$l.title</a>";
+            }
+        }
+        "<br />";
+    }
+}
+
+function Page::print_entry_poster(Entry e) {
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        " posting in ";
+        $e.journal->print();
+    }
+}
+function Page::print_entry(Entry e) {
+    ## For most styles, this will be overridden by FriendsPage::print_entry and such.
+    """<div class="entry" id="$e.dom_id">\n""";
+    "<h3>$e.security_icon $e.subject</h3>\n";
+    if ($.view == "friends" or $e.poster.username != $e.journal.username) {
+        "<div>"; $this->print_entry_poster($e); "</div>";
+    }
+    """<div class="entrytext">""";
+    $e->print_text();
+    """</div>\n""";
+    $e->print_metadata();
+    if ($e.comments.enabled) {
+        $e.comments->print();
+    }
+    "</div>\n\n";
+}
+function FriendsPage::print_entry(Entry e) {
+    ## For most styles, this will be overridden by FriendsPage::print_entry and such.
+    """<div class="entry" id="$e.dom_id">\n""";
+    var Color bg;
+    var Color fg;
+    $bg = $.friends{$e.journal.username}.bgcolor;
+    $fg = $.friends{$e.journal.username}.fgcolor;
+    "<h3>";
+    $this->print_entry_poster($e);
+    "$e.security_icon $e.subject";
+    "</h3>\n";
+    """<div style="color: """ + $fg + "; background: " + $bg + """ none;">"""; $this->print_entry_poster($e); "</div>";
+    """<div class="entrytext">"""; $e->print_text(); """</div>""";
+    $e->print_metadata();
+    if ($e.comments.enabled) {
+        $e.comments->print();
+    }
+    "</div>\n\n";
+}
+
+function Comment::print_edit_text() {
+    if ($this.edited) {
+        print "<br /><br /><span class='ljedittime'><em>$*text_comment_edittime " + $this->edittime_display() + "</em></span>";
+    }
+}
+
+function EntryLite::print_text() [fixed] {
+    print $.text;
+
+    if ($this isa Comment) {
+        var Comment c = $this as Comment;
+        $c->print_edit_text();
+    }
+}
+
+function Entry::print_metadata() {
+    if (size $.metadata) {
+        """<div class="metadata">\n""";
+        foreach var string m ($.metadata) {
+            "<div><strong>$m</strong>: ";
+            if ($m == "mood") {
+                " $.mood_icon ";
+            }
+            print $.metadata{$m}; "</div>\n";
+        }
+        "</div>\n";
+    }
+}
+
+function EntryLite::print_linkbar() {}
+function Comment::print_linkbar() {
+    var Link link;
+    foreach var string k ($.link_keyseq) {
+        $link = $this->get_link($k);
+        " $link ";
+    }
+}
+function Entry::print_link_next() {
+    var Link link = $this->get_link("nav_next");
+    " $link";
+}
+function Entry::print_link_prev() {
+    var Link link = $this->get_link("nav_prev");
+    "$link ";
+}
+function Entry::print_linkbar() {
+    ## There's no point in showing previous/next links on pages which show
+    ## multiple entries anyway, so we only print them on EntryPage and ReplyPage.
+
+    var Page p = get_page();
+    var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
+    if ($show_interentry) {
+        $this->print_link_prev();
+    }
+    var Link link;
+    foreach var string k ($.link_keyseq) {
+        $link = $this->get_link($k);
+        " $link ";
+    }
+    if ($show_interentry) {
+        $this->print_link_next();
+    }
+}
+
+### RecentPage and related functions
+
+function RecentPage::print_body {
+    # Creator for both the Recent and Friends views, since they are similar
+    # If someone wants to do the two views differently, they can create
+    # FriendsPage::print_body since FriendsPage extends RecentPage.
+
+    foreach var Entry e ($.entries) {
+        if ($e.end_day) {
+            "</div>";
+        }
+        if ($e.new_day) {
+            """<div class="day" id="dayYYYYMMMDD">\n<h2>""";
+            print $e.time->date_format("long_day");
+            "</h2>\n";
+        }
+        # Print the entry
+        $this->print_entry($e);
+    }
+
+    if ($.nav.backward_url != "" or $.nav.forward_url != "") {
+        if ($.nav.backward_url != "") {
+            print safe "<a href=\"" + $.nav.backward_url + "\">" + get_plural_phrase($.nav.backward_count, "text_skiplinks_back") + "</a>";
+        }
+        if ($.nav.backward_url != "" and $.nav.forward_url != "") {
+            " | ";
+        }
+        if ($.nav.forward_url != "") {
+            print safe "<a href=\"" + $.nav.forward_url + "\">" + get_plural_phrase($.nav.forward_count, "text_skiplinks_forward") + "</a>";
+        }
+    }
+}
+
+
+function secs_to_string (int sec) : string {
+   if ($sec < 60) {
+        return string($sec) + " seconds";
+    }
+   if ($sec < 3600) {
+        return string($sec / 60) + " minutes";
+    }
+   if ($sec < 86400) {
+        return string($sec / 3600) + " hours";
+    }
+   return string($sec / 86400) + " days";
+ }
+
+function EntryLite::time_display(string datefmt, string timefmt) : string {
+    if ($datefmt == "") {
+        $datefmt = "med";
+    }
+    if ($timefmt == "") {
+        $timefmt = "short";
+    }
+
+    var string ret;
+    if ($datefmt != "none") { $ret = $ret + $this.time->date_format($datefmt); }
+    if ($datefmt != "none" and $timefmt != "none") { $ret = $ret + " "; }
+    if ($timefmt != "none") { $ret = $ret + $this.time->time_format($timefmt); }
+
+    return ehtml($ret);
+}
+
+# edittime argument is true if we want the get the edit time of the comment
+function Comment::time_display (string datefmt, string timefmt, bool edittime) : string {
+    var DateTime time = ($edittime ? $this.edittime : $this.time);
+    var DateTime time_remote = ($edittime ? $this.edittime_remote : $this.time_remote);
+    var DateTime time_poster = ($edittime ? $this.edittime_poster : $this.time_poster);
+
+    if ($datefmt == "") {
+        $datefmt = "iso";
+    }
+    if ($timefmt == "") {
+        $timefmt = "short";
+    }
+
+    var string tooltip = "";
+    if ($edittime == false) {
+        var string etime = secs_to_string($this.seconds_since_entry);
+        $tooltip = $etime + " after journal entry";
+    }
+
+    var string main;
+
+    var string display_date;
+    var string display_time;
+
+    if ($time_remote) {
+        $display_date = $time_remote->date_format($datefmt);
+        if ($timefmt == "none") { $display_date = $display_date + " (local)"; }
+        $display_time = $time_remote->time_format($timefmt) + " (local)";
+    } else {
+        $display_date = $time->date_format($datefmt);
+        if ($timefmt == "none") { $display_date = $display_date + " (UTC)"; }
+        $display_time = $time->time_format($timefmt) + " (UTC)";
+    }
+
+    if (defined $time_poster and defined $this.poster)
+    {
+        var string poster_date = $time_poster->date_format($datefmt);
+        if ($edittime == false) {
+            $tooltip = $tooltip + ", ";
+        }
+
+        if ($poster_date == $display_date and $timefmt != "none") { $poster_date = ""; }
+        else { $poster_date = $poster_date + " "; }
+
+        if ($timefmt != "none") {
+            $tooltip = $tooltip + $poster_date + $time_poster->time_format($timefmt) + " (" + $this.poster.username + "'s time)";
+        } else {
+            $tooltip = $tooltip + $poster_date + "(" + $this.poster.username + "'s time)";
+        }
+    }
+
+    if ($datefmt != "none") { $main = $main + $display_date; }
+    if ($datefmt != "none" and $timefmt != "none") { $main = $main + " "; }
+    if ($timefmt != "none") { $main = $main + $display_time; }
+
+    return "<span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span>";
+}
+
+function Comment::time_display (string datefmt, string timefmt) : string {
+    return $this->time_display($datefmt, $timefmt, false);
+}
+
+function EntryLite::time_display() : string {
+    # Let the real function decide on some nice defaults
+    return $this->time_display("", "");
+}
+
+function Comment::edittime_display() : string {
+    return $this->time_display("", "", true);
+}
+
+function Comment::edittime_display (string datefmt, string timefmt) : string {
+    return $this->time_display($datefmt, $timefmt, true);
+}
+
+### Year view
+
+function YearPage::print_body {
+    $this->print_year_links();
+    foreach var YearMonth m ($.months) {
+        $this->print_month($m);
+    }
+}
+function YearPage::print_year_links() {
+    """<ul>\n""";
+    foreach var YearYear y ($.years) {
+        if ($y.displayed) {
+            """<li class="active">$y.year</li>\n""";
+        } else {
+            """<li><a href="$y.url">$y.year</a></li>\n""";
+        }
+    }
+    """</ul>\n""";
+}
+function YearPage::print_month(YearMonth m) {
+    if (not $m.has_entries) { return; }
+    """<table style="margin-left: 25%; margin-right: 25%; margin-top: 1em; margin-bottom: 1em;
+       border-collapse: collapse; border: 1px solid;" border="1">\n
+       <tr><th colspan="7" style="text-align: center; border: 1px solid;">""";
+    print $m->month_format();
+    """</th></tr>\n<tr>\n""";
+    foreach var int d (weekdays()) {
+        "<th>"+$*lang_dayname_short[$d]+"</th>\n";
+    }
+    "</tr>\n";
+    foreach var YearWeek w ($m.weeks) {
+        $w->print();
+    }
+    print safe """<tr><td colspan="7" style="text-align: center; border: 1px solid;">
+        <a href="$m.url">$*text_view_month</a></td></tr>\n""";
+    "</table>";
+}
+
+function YearWeek::print() {
+   """<tr valign="top" style="height: 2em;">\n""";
+   if ($.pre_empty > 0) {
+      """<td class="emptyday" colspan="$.pre_empty">&nbsp;</td>\n""";
+   }
+   foreach var YearDay d ($.days) {
+       """<td style="border: 1px solid;">\n""";
+       """<div style="text-align: right;">$d.day</div>\n""";
+       if ($d.num_entries > 0) {
+           """<div style="text-align: center;"><a href="$d.url">$d.num_entries</a></div>\n""";
+       }
+       """</td>\n""";
+   }
+   if ($.post_empty > 0) {
+      """<td colspan="$.post_empty">&nbsp;</td>\n""";
+   }
+   "</tr>";
+}
+
+function MonthPage::view_title : string {
+    return $.date->date_format($*lang_fmt_month_long);
+}
+
+function MonthPage::print_body {
+    "<form method='post' action='$.redir.url'><center>";
+    $.redir->print_hiddens();
+    if ($.prev_url != "") { "[<a href='$.prev_url'>&lt;&lt;&lt;</a>]\n"; }
+    if (size $.months > 1) {
+        "<select name='redir_key'>\n";
+        foreach var MonthEntryInfo mei ($.months) {
+            var string sel;
+            if ($mei.date.year == $.date.year and $mei.date.month == $.date.month) {
+                $sel = " selected='selected'";
+            }
+            "<option value='$mei.redir_key'$sel>" + $mei.date->date_format($*lang_fmt_month_long) + "</option>";
+        }
+        "</select>\n<input type='submit' value='View' />";
+    }
+    if ($.next_url != "") { "\n[<a href='$.next_url'>&gt;&gt;&gt;</a>]\n"; }
+    "</center></form>\n<dl>";
+    foreach var MonthDay d ($.days) {
+        if ($d.has_entries) {
+            "<dt><a href=\"$d.url\"><b>";
+            print lang_ordinal($d.day);
+            "</b></a></dt>\n<dd>";
+            $d->print_subjectlist();
+            "</dd>\n";
+        }
+    }
+    "</dl>\n";
+}
+
+function MonthDay::print_subjectlist() {
+    # Too many tables...
+    foreach var Entry e ($.entries) {
+        print $e.time->time_format("short") + ": ";
+        if ($e.poster.username != $e.journal.username) {
+            $e.poster->print(); " ";
+        }
+        "$e.security_icon";
+        if ($e.subject != "") {
+            " <a href=\"$e.permalink_url\">$e.subject</a>";
+        } else {
+            print safe " <a href=\"$e.permalink_url\" style=\"font-style: italic;\">$*text_nosubject</a>";
+        }
+        if ($e.comments.count > 0) {
+            print safe " - " + get_plural_phrase($e.comments.count, "text_read_comments");
+        }
+        if ($e.comments.screened) {
+            print safe " <b>$*text_month_screened_comments</b>";
+        }
+        "<br />\n";
+    }
+}
+
+### Day view
+
+function DayPage::print_body() {
+    if ($.has_entries) {
+        "<div class=\"day\" id=\"dayyymmmmmdddd\">\n<h2>";
+        print $.date->date_format("long");
+        "</h2>\n";
+
+        foreach var Entry e ($.entries) {
+            $this->print_entry($e);
+        }
+
+        "</div>";
+    } else {
+        print safe "<p>$*text_noentries_day</p>";
+    }
+
+    "<div class=\"skiplinks\">\n";
+    print safe "<a href=\"$.prev_url\">$*text_day_prev</a> | ";
+    print safe "<a href=\"$.next_url\">$*text_day_next</a>\n</div>";
+
+}
+
+### CommentInfo functions
+
+function CommentInfo::print_readlink {
+    var Page p = get_page();
+    print safe "<a href=\"$.read_url\">"+
+        get_plural_phrase($.count, $p.view == "friends" ?
+                          "text_read_comments_friends" : "text_read_comments")+
+    "</a>";
+}
+function CommentInfo::print_postlink() {
+    var Page p = get_page();
+    if ($.maxcomments) {
+        print safe "$*text_max_comments";
+    } else {
+        print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+    }
+}
+function CommentInfo::print() {
+    if ($.show_readlink or $.show_postlink) {
+        """<div style="text-align: right;">\n(""";
+        if ($.show_readlink) {
+            $this->print_readlink();
+        }
+        if ($.show_postlink and $.show_readlink) {
+            " | ";
+        }
+        if ($.show_postlink) {
+            $this->print_postlink();
+        }
+        ")</div>";
+    }
+}
+
+
+### Link object functions
+
+function Link::print_button() [fixed] {
+    print $this->as_string();
+}
+
+function Link::as_string() [fixed] : string {
+    if ($.url == "") { return ""; }
+    var string ealt = ehtml($.caption);
+    var string{} extra = $.icon.extra;
+    var string extraParams = "";
+
+    foreach var string extraKey ($extra) {
+        $extraParams = $extraParams + """$extraKey="$extra{$extraKey}" """;
+    }
+
+    return """<a href="$.url"><img border='0' width="$.icon.width" height="$.icon.height" alt="$ealt" title="$ealt" src="$.icon.url" $extraParams /></a>""";
+}
+
+# Redirector
+
+function Redirector::start_form ()
+{
+    "<form method='post' action='$.url' style='display: inline'>";
+    $this->print_hiddens();
+}
+function Redirector::print_hiddens ()
+{
+    "<input type='hidden' name='redir_user' value='$.user' />\n";
+    "<input type='hidden' name='redir_vhost' value='$.vhost' />\n";
+    "<input type='hidden' name='redir_type' value='$.type' />\n";
+}
+function Redirector::end_form ()
+{
+    "</form>";
+}
+
+### EntryPage functions
+
+function EntryPage::print_comments (Comment[] cs) {
+    if (size $cs == 0) { return; }
+    foreach var Comment c ($cs) {
+        var int indent = ($c.depth - 1) * 25;
+        "<div id='$c.dom_id' style='margin-left: ${indent}px; margin-top: 5px'>\n";
+        if ($c.full) {
+            $this->print_comment($c);
+        } else {
+            $this->print_comment_partial($c);
+        }
+        "</div>";
+        $this->print_comments($c.replies);
+    }
+}
+
+function EntryPage::print_comment (Comment c) {
+    var Color barlight = $*color_comment_bar->clone();
+    $barlight->lightness(($barlight->lightness() + 255) / 2);
+    var Color barc = $c.depth % 2 ? $*color_comment_bar : $barlight;
+    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
+
+    "<a name='$c.anchor'></a><div style='background-color: $barc; margin-top: 10px; width: 100%'>";
+    "<table cellpadding='2' cellspacing='0' summary='0' style='width: 100%'><tr valign='top'>";
+    if (defined $c.userpic and $*comment_userpic_style != "off") {
+        var int w = $c.userpic.width;
+        var int h = $c.userpic.height;
+        # WARNING: this will later be done by the system (it'll be a
+        # constructional property), so don't copy this hack into your
+        # layout layers or you'll be messed up later.
+        if ($*comment_userpic_style == "small") {
+            $w = $w / 2;
+            $h = $h / 2;
+        }
+        print "<td style='width: 102px'><img src='$c.userpic.url' width='$w' height='$h' alt='' /></td>";
+    }
+    "<td><table style='width: 100%'><tr>";
+
+    "<td align='left' style='width: 50%'>";
+      print "<table>";
+      print safe "<tr><th align='right'>$*text_comment_from</th><td>$poster</td></tr>\n";
+      print safe "<tr><th align='right'>$*text_comment_date</th><td style='white-space: nowrap'>";
+        print $c->time_display() + "</td></tr>";
+      if ($c.metadata{"poster_ip"}) { print safe "<tr><th align='right'>$*text_comment_ipaddr</th><td>(" + $c.metadata{"poster_ip"} + ")</td></tr>"; }
+    "</table></td>";
+
+    print "<td align='right' style='width: 50%'>";
+    if ($this.multiform_on) {
+        print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
+        $c->print_multiform_check();
+    }
+    $c->print_linkbar();
+    "</td></tr>";
+
+    print "<tr valign='top'><td style='width: 50%'>";
+    if (defined $c.subject_icon or $c.subject != "") { "<h3>$c.subject_icon $c.subject</h3>\n"; }
+    print "</td>";
+
+    print safe "<td style='width:50%;' align='right'><strong>(<a href='$c.permalink_url'>$*text_permalink</a>)</strong></td></tr>\n";
+    print "</table></td></tr></table></div>";
+
+    print "<div style='margin-left: 5px'>"; $c->print_text(); "</div>\n";
+    print "<div style='margin-top: 3px; font-size: smaller'>";
+    if ($c.frozen) {
+        print safe "($*text_comment_frozen) ";
+    } else {
+        "("; $c->print_reply_link({"linktext" => $*text_comment_reply}); ")";
+    }
+    if ($c.parent_url != "") { print safe "(<a href='$c.parent_url'>$*text_comment_parent</a>) "; }
+    if ($c.thread_url != "") { print safe "(<a href='$c.thread_url'>$*text_comment_thread</a>) "; }
+    "</div>\n";
+    $c->print_reply_container();
+}
+
+function EntryPage::print_comment_partial (Comment c) {
+    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
+    var string subj = $c.subject != "" ? $c.subject : $*text_nosubject;
+    print safe "<a href='$c.permalink_url'>$subj</a> - $poster";
+}
+
+function ItemRange::print() {
+    if ($.all_subitems_displayed) { return; }
+    print "<table align='center' border='0' cellpadding='3'>";
+    print "<tr><td align='center' colspan='3'><b>" +
+        lang_page_of_pages($.current, $.total) + "</b>";
+    print "</td></tr>";
+    var string url_prev = $this->url_of($.current - 1);
+    if ($.current != 1) {
+        print "<tr><td align='center'><a href='$url_prev#comments'>&lt;&lt;</a></td>";
+    } else {
+        print "<tr><td align='center'>&lt;&lt;</td>";
+    }
+    print "<td align='center'>";
+    foreach var int i (1..$.total) {
+        if ($i == $.current) { "<b>[$i]</b> "; }
+        else {
+            var string url_of = $this->url_of($i);
+            "<a href='$url_of#comments'><b>[$i]</b></a> ";
+        }
+    }
+    print "</td>";
+    var string url_next = $this->url_of($.current + 1);
+    if ($.current != $.total) {
+        print "<td align='center'><a href='$url_next#comments'>&gt;&gt;</a></td>";
+    } else {
+        print "<td align='center'>&gt;&gt;</td>";
+    }
+    print "</tr></table>";
+}
+
+function EntryPage::print_body
+{
+    var Entry e = $.entry;
+    """<div class="entry" id="$e.dom_id">\n""";
+
+    "<table><tr valign='middle'>";
+    if (defined $e.userpic) {
+        print "<td>$e.userpic</td>";
+    }
+    print "<td>"+lang_user_wrote($e.poster);
+    print "<br />"+lang_at_datetime($e.time);
+    "</td></tr></table>\n";
+
+    print "<div style='text-align: center'>";
+    $e->print_linkbar();
+    print "</div>";
+
+    "<h2>$e.security_icon $e.subject</h2>\n";
+
+    if (not $.viewing_thread) {
+        "<div class='entrytext'>";
+        $e->print_text();
+        "</div>\n";
+        $e->print_metadata();
+        "</div>\n\n";
+    }
+
+    if ($.entry.comments.enabled) {
+        "<hr /><a name='comments'></a>";
+        "("; $this->print_reply_link({ "linktext" => $*text_post_comment, "target" => "topcomment" }); ")";
+        $this->print_reply_container({ "target" => "topcomment" });
+        if ($.comment_pages.total_subitems > 0) {
+            "<hr />";
+            $.comment_pages->print();
+            $this->print_multiform_start();
+            $this->print_comments($.comments);
+            print "<hr />";
+            "("; $this->print_reply_link({ "linktext" => $*text_post_comment, "target" => "bottomcomment" }); ")";
+            $this->print_reply_container({"target" => "bottomcomment"});
+            if ($.comment_pages.all_subitems_displayed) { print "<hr />"; }
+            $this->print_multiform_actionline();
+            $this->print_multiform_end();
+            $.comment_pages->print();
+        }
+    }
+}
+
+function ReplyPage::print_body
+{
+    if (not $.entry.comments.enabled) {
+        print safe "<h2>$*text_reply_nocomments_header</h2><p>$*text_reply_nocomments</p>";
+        return;
+    }
+
+    var Image security;
+    if ($.replyto isa Entry) {
+        var Entry en = $.replyto as Entry;
+
+        $security = $en.security_icon;
+    }
+
+    "<table><tr valign='middle'>";
+        if (defined $.replyto.userpic) {
+            print "<td>$.replyto.userpic</td>";
+        }
+    print "<td>"+lang_user_wrote($.replyto.poster);
+    print "<br />"+lang_at_datetime($.replyto.time);
+    "</td></tr></table>\n";
+
+    print "<h2>$security $.replyto.subject</h2>";
+    print "<div>"; $.replyto->print_text(); "</div>";
+
+    print "\n<hr />\n";
+    print safe """(<a href="$.entry.permalink_url">$*text_reply_back</a>)""";
+    $.form->print();
+}
+
+### TagsPage functions
+
+function TagsPage::print_body
+{
+    print safe "<h2>$*text_tags_page_header</h2><ul class='ljtaglist'>";
+
+    foreach var TagDetail td ($.tags) {
+        var string uses = get_plural_phrase($td.use_count, "text_tag_uses");
+        print safe """<li><a href="$td.url">$td.name</a> - $uses</li>""";
+    }
+
+    print "</ul>";
+}
+
+### MessagePage functions
+
+function MessagePage::view_title() : string {
+    return $.title;
+}
+
+function MessagePage::print_body() {
+    $this->print_links();
+    $this->print_message();
+}
+
+function MessagePage::print_message() {
+    print $.message;
+}
+
+function MessagePage::print_links() {
+    println """<div style='text-align: center;'>""";
+    foreach var string k ($.link_keyseq) {
+        println """ $.links{$k} """;
+    }
+    println """</div>""";
+}
+

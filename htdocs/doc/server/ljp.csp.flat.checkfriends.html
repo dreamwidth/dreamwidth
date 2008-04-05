@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>checkfriends</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.flat.protocol.html" title="Flat Client/Server Protocol Reference">
+<link rel="prev" href="ljp.csp.flat.protocol.html" title="Flat Client/Server Protocol Reference">
+<link rel="next" href="ljp.csp.flat.consolecommand.html" title="consolecommand">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">checkfriends</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.flat.protocol.html">Prev</a> </td>
+<th width="60%" align="center">Flat Client/Server Protocol Reference</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.flat.consolecommand.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.csp.flat.checkfriends"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>checkfriends</h2>
+<p>checkfriends &#8212; Mode that clients can use to poll the server to see if their Friends list has been updated.  This request
+is extremely quick, and is the preferred way for users to see when their Friends list is updated, rather
+than pounding on reload in their browser, which is stressful on the servers.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3069705"></a><h2>Mode Description</h2>
+<p>Mode that clients can use to poll the server to see if their Friends list has been updated.  This request
+is extremely quick, and is the preferred way for users to see when their Friends list is updated, rather
+than pounding on reload in their browser, which is stressful on the servers.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3069720"></a><h2>Arguments</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">mode</code></span></dt>
+<dd><p>
+The protocol request mode: <code class="literal">checkfriends</code>
+      </p></dd>
+<dt><span class="term"><code class="literal">user</code></span></dt>
+<dd><p>
+Username.  Leading and trailing whitespace is ignored, as is case.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_method</code></span></dt>
+<dd><p>
+The authentication method used for this request. Default is 'clear', for plain-text authentication. 'cookie' or any of the challenge-response methods are also acceptable.
+      </p></dd>
+<dt><span class="term"><code class="literal">password</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Password in plain-text. For the default authentication method, either this needs to be sent, or <code class="literal">hpassword</code>.
+      </p></dd>
+<dt><span class="term"><code class="literal">hpassword</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Alternative to plain-text <code class="literal">password</code>.  Password as an MD5 hex digest.  Not perfectly secure, but defeats the most simple of network sniffers.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_challenge</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the challenge that was generated for your client.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_response</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the response hash you generate based on the challenge's formula.
+      </p></dd>
+<dt><span class="term"><code class="literal">ver</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Protocol version supported by the client; assumed to be 0 if not specified.  See <a class="xref" href="ljp.csp.versions.html" title="Chapter 27. Protocol Versions">Chapter 27, <i>Protocol Versions</i></a> for details on the protocol version.
+      </p></dd>
+<dt><span class="term"><code class="literal">lastupdate</code></span></dt>
+<dd><p>
+The time that this mode request returned last time you called it.  If this is the first time you've ever called it (since your client has been running), leave this blank.  It's strongly recommended that you do not remember this value across invocations of your client, as it's very likely your friends will update since the client was running so the notification is pointless... the user probably read his/her Friends page already before starting the client.
+      </p></dd>
+<dt><span class="term"><code class="literal">mask</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+The friend group(s) in which the client is checking for new entries, represented as a 32-bit unsigned int.  Turn on any combination of bits 1-30 to check for entries by friends in the respective friend groups.  Turn on bit 0, or leave the mask off entirely, to check for entries by any friends.
+      </p></dd>
+</dl></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3070558"></a><h2>Return Values</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">success</code></span></dt>
+<dd><p>
+<span class="strong"><strong><code class="literal">OK</code></strong></span> on success or <span class="strong"><strong><code class="literal">FAIL</code></strong></span> when there's an error.  When there's an error, see <code class="literal">errmsg</code> for the error text.  The absence of this variable should also be considered an error.
+      </p></dd>
+<dt><span class="term"><code class="literal">errmsg</code></span></dt>
+<dd><p>
+The error message if <code class="literal">success</code> was <code class="literal">FAIL</code>, not present if <code class="literal">OK</code>.  If the success variable is not present, this variable most likely will not be either (in the case of a server error), and clients should just report "Server Error, try again later.".
+      </p></dd>
+<dt><span class="term"><code class="literal">lastupdate</code></span></dt>
+<dd><p>
+The time of the most recent post that one of the user's friends has made.  Don't try to infer anything from this time.  It's currently of the form "yyyy-mm-dd hh:mm:ss", in PST.  However, in the future, it may not even be a date... just blindly store and return this value back later, ignoring its format.
+      </p></dd>
+<dt><span class="term"><code class="literal">new</code></span></dt>
+<dd><p>
+This is what you should use to determine if there are new entries.  Its value is "1" if there is new stuff, or "0" if there isn't.  A few people requested that this return the number of new entries, but that's a lot more resource intensive, and this protocol mode is supposed to be very quick and painless.  In the future we may add a "new_count" response value that says how many new items there are.  Note that once this values becomes "1" and you alert the user, <span class="strong"><strong>stop polling!</strong></span>  It'd be pointless to have the client hitting the server all night while the user slept.  Once the user acknowledges the notification (double-clicks the system tray or panel applet or whatnot), then resume your polling.
+      </p></dd>
+<dt><span class="term"><code class="literal">interval</code></span></dt>
+<dd><p>
+How many seconds you <span class="strong"><strong>must</strong></span> wait before polling the server again.  If your client disobeys, this protocol will just return error messages saying "slow down, bad client!" instead of giving you the data you were trying to cheat to obtain.  Note that this also means your client should have an option to disable polling for updates, since some users run multiple operating systems with multiple LiveJournal clients, and both would be fighting each other.
+      </p></dd>
+</dl></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.flat.protocol.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.flat.protocol.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.flat.consolecommand.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Flat Client/Server Protocol Reference </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> consolecommand</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

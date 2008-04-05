@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+
+use strict;
+use IO::Socket::INET;
+
+unless ($ENV{LJHOME}) {
+    die "\$LJHOME not set.";
+}
+chdir "$ENV{LJHOME}" or die "Failed to chdir to \$LJHOME";
+
+system("cvsreport.pl", "-u", "-c", "-s")
+    and die "Failed to run cvsreport.pl with update.";
+
+system("cvsreport.pl", "-c", "-s")
+    and die "Failed to run cvsreport.pl second time.";
+
+system("bin/upgrading/update-db.pl", "-r", "-p")
+    and die "Failed to run update-db.pl with -r/-p";
+
+system("bin/upgrading/update-db.pl", "-r", "--cluster=all")
+    and die "Failed to run update-db.pl on all clusters";
+
+system("bin/upgrading/texttool.pl", "load")
+    and die "Failed to run texttool.pl load";
+
+print "Restarting apache...\n";
+
+my $sock = IO::Socket::INET->new(PeerAddr => "127.0.0.1:7600")
+        or die "Couldn't connect to webnoded (port 7600)\n";
+
+print $sock "apr\r\n";
+while (my $ln = <$sock>) {
+    print "$ln";
+    last if $ln =~ /^OK/;
+}

@@ -1,0 +1,187 @@
+/* CSS for imgupload.bml */
+
+body { 
+    font-family: Verdana, Arial, Helvetica, 'sans-serif';
+    background: #fff;
+    margin: 0px; 
+    padding: 0px;
+}
+.insob-wrapper {
+    position: relative;
+}
+.insobjOuter {
+    position: relative;
+    border: 2px solid #444;
+    padding: 1px;
+    background-color: #fff;
+}
+.insobjOuter div.tabs {
+    font-size: 13px;
+    margin: 0px 0px 12px 0px;
+    padding: 6px 10px 0px 6px;
+    background: #444;
+    color: #fff;
+    height: 20px;
+}
+.insobjOuter ul {
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    height: 15px;
+}
+.insobjOuter li {
+    float: left;
+    display: inline;
+    text-align: center;
+    white-space: nowrap;
+    margin-right: 3px;
+    height: 15px;
+    width: auto;
+}
+
+div.tabs li.on {
+    font-weight: bold;
+}
+
+* html .insobjOuter li { width: 60px; }
+
+.insobjOuter a {
+    background-color: #fff;
+    display: block;
+    height: 15px;
+    padding: 3px;
+    text-decoration: none;
+    color: #333;
+}
+
+form {
+    margin: 0px;
+    padding: 0px;
+}
+h1 {
+    font-size: 13px;
+    margin: 0px 0px 12px 0px;
+    padding: 6px 10px;
+    background: #444;
+    color: #fff;
+}
+* html h1 {
+    height: 1%;
+}
+#close {
+    position: absolute; 
+    right: 7px; 
+    top: 7px; 
+    font-size: 10px; 
+}
+#close a { 
+    display: block; 
+    overflow: hidden; 
+    width: 15px; 
+    height: 15px; 
+    text-indent: -9999px; 
+    background: url(/img/CloseButton.gif) no-repeat 0 0; 
+}
+.insobjNav { 
+    background: #ccc; 
+    text-align: right; 
+    vertical-align: middle; 
+    padding: 6px 10px 6px 15px; 
+    margin: 20px 0 0 0;
+}
+* html .insobjNav {
+    width: 669px;
+}
+div.insobjOuter p.wintitle { 
+    font: 12pt; 
+    font-weight: bold;
+    border: 1px solid #fff; /* For IE6, prevents space padding */
+}
+#formcontent { 
+    padding: 5px 10px 0px 10px;
+    margin: 0px;
+}
+* html #formcontent {
+    padding-top: 0px;
+}
+p.inputs { 
+    margin: 0px 0px 4px 0px; 
+    padding: 0px;
+    clear: left;
+}
+p.ex { 
+    font-size: 11px; 
+    color: #888; 
+    font-style: italic; 
+    margin: 2px 0px 12px 0px;
+    padding: 0;
+    clear: left;
+    margin-left: 150px; 
+}
+* html p.ex {
+    margin-bottom: 10px;
+    margin-left: 160px;
+}
+p.ex.extended {
+    margin-left: 2em; 
+}
+* html p.ex.extended {
+    margin-top: -2px;
+    margin-left: 37px;
+}
+.errorbar {
+    display: none;
+    color: #000;
+    font: 12px Verdana, Arial, Sans-Serif;
+    background-color: #FFEEEE;
+    background-repeat: repeat-x;
+    border: 1px solid #FF9999;
+    padding: 6px 8px;
+    margin-top: auto; margin-bottom: 15px;
+    margin-left: auto; margin-right: auto;
+    width: auto;
+    text-align: left;
+}
+.warningbar {
+    color: #000;
+    font: 12px Verdana, Arial, Sans-Serif;
+    background-color: #FFFFDD;
+    background-repeat: repeat-x;
+    border: 1px solid #FFCC33;
+    padding: 8px;
+    margin-top: 10px; margin-bottom: 10px;
+    margin-left: auto; margin-right: auto;
+    width: auto;
+    text-align: left;
+}
+* html .errorbar {
+    height: 1px;
+    margin-bottom: 10px;
+}
+input.check { 
+    display: block; 
+    float: left; 
+    margin: 3px 5px;
+}
+* html input.check {
+    margin: 0px 5px;
+    padding: 0px;
+}
+label.left { 
+    width: 125px; 
+    font-size: 80%;
+    padding-top: 2px;
+}
+label.left.extended { 
+    width: 300px !important; 
+}
+span.inputcontainer {
+    display: block;
+    float: left;
+    margin-top: -2px;
+}
+#img_iframe_holder {
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+}

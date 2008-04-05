@@ -1,0 +1,35 @@
+;; -*- coding: utf-8 -*-
+.button.save=Save changes
+
+.current=Current tags:
+
+.disabled=Sorry, the tags system is currently disabled.
+
+.entry=Entry:
+
+.error.db=Sorry, we encountered a database error.  Please try again.
+
+.intro=Use the form below to edit the tags on this entry.
+
+.invalid.entry=Specified entry is invalid.
+
+.invalid.journal=Specified journal is invalid.
+
+.invalid.link=You have reached this page in an invalid way.  Please follow a link from an entry to edit tags.
+
+.invalid.notauthorized=You do not have access to view that entry.
+
+.permissions.add.yes=You may add tags from the list above.
+
+.permissions.control.yes=You may remove tags or create new ones.
+
+.permissions.none=(You do not have permission to edit tags on this entry.)
+
+.subject=Subject:
+
+.title=Edit Tags on Entry
+
+.users=User's tags:
+
+.view=<a [[aopts]]>View</a> this entry.
+

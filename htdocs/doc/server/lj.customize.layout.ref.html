@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. BML Template Reference</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.customize.layout.html" title="Chapter 20. BML Schemes">
+<link rel="prev" href="lj.customize.layout.new.html" title="1. Writing a BML Scheme">
+<link rel="next" href="lj.customize.tasks.html" title="Chapter 21. Running your own Maintenance Tasks">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. <span class="application"><acronym class="acronym">BML</acronym></span> Template Reference</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.customize.layout.new.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 20. <span class="application"><acronym class="acronym">BML</acronym></span> Schemes</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.customize.tasks.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.customize.layout.ref">2. <span class="application"><acronym class="acronym">BML</acronym></span> Template Reference</h2></div></div></div>
+<p>For reference, here are the most commonly used <span class="application"><acronym class="acronym">BML</acronym></span> templates in the <span class="application">LiveJournal</span> repository:</p>
+<div class="itemizedlist">
+<p class="title"><b>Pre-configured</b></p>
+<p>The following are <span class="application"><acronym class="acronym">BML</acronym></span> templates set from configuration options
+      in <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/etc/ljconfig.pl</code>.
+      All templates here are defined as &#8220;<span class="quote">S</span>&#8221; (static).</p>
+<ul type="disc">
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.admin_email">ADMIN_EMAIL</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.domain">DOMAIN</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.imgprefix">IMGPREFIX</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.sitename">SITENAME</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.siteroot">SITEROOT</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.sslimgprefix">SSLIMGPREFIX</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.ssljsprefix">SSLJSPREFIX</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.sslroot">SSLROOT</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.sslstatprefix">SSLSTATPREFIX</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.sslwstatprefix">SSLWSTATPREFIX</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.statprefix">STATPREFIX</a></p></li>
+<li><p><a class="link" href="lj.install.ljconfig.vars.html#ljconfig.support_email">SUPPORT_EMAIL</a></p></li>
+</ul>
+</div>
+<p>The following <span class="application"><acronym class="acronym">BML</acronym></span> templates are defined
+    in <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/cgi-bin/bml/scheme/global.look</code>
+      and are available in every scheme.</p>
+<div class="variablelist">
+<p class="title"><b>Global</b></p>
+<dl>
+<dt><span class="term">SECURITYPRIVATE</span></dt>
+<dd>
+<acronym class="acronym">HTML</acronym> image sourcing from <code class="filename">/img/icon_private.gif</code>
+</dd>
+<dt><span class="term">SECURITYPROTECTED</span></dt>
+<dd>
+<acronym class="acronym">HTML</acronym> image sourcing from <code class="filename">/img/icon_protected.gif</code>
+</dd>
+<dt><span class="term">HELP</span></dt>
+<dd>Given a <acronym class="acronym">URL</acronym>, this provides a small link with the caption &#8220;<span class="quote">help</span>&#8221;</dd>
+<dt><span class="term">INERR</span></dt>
+<dd>Displays an error message in an easily identifiable manner (bold red text)</dd>
+<dt><span class="term">NEEDLOGIN</span></dt>
+<dd>A small blurb that's included on pages where the user is not logged in and is required to be</dd>
+<dt><span class="term">BADINPUT</span></dt>
+<dd>An error message that displays when there is an encoding problem with the user's browser</dd>
+<dt><span class="term">REQUIREPOST</span></dt>
+<dd>An error message explaining that certain user actions require POSTing information through an <acronym class="acronym">HTML</acronym> form, rather than manually GETting the page</dd>
+<dt><span class="term">LOAD_PAGE_INFO</span></dt>
+<dd>Initializes and populates a perl array that is used to create a sidebar of links along a page layout</dd>
+<dt><span class="term">H1</span></dt>
+<dd>Top level header on a page</dd>
+<dt><span class="term">H2</span></dt>
+<dd>Sub level header on a page</dd>
+<dt><span class="term">P</span></dt>
+<dd>Generic <acronym class="acronym">HTML</acronym> paragraph wrapper</dd>
+<dt><span class="term">STANDOUT</span></dt>
+<dd>Given a block of text, this template tries grab the user's attention by using different text and background colors</dd>
+<dt><span class="term">BADCONTENT</span></dt>
+<dd>An error message that displays when a problem (that the user can fix) has occurred during a request</dd>
+<dt><span class="term">DE</span></dt>
+<dd>A template that de-emphasizes text</dd>
+<dt>
+<span class="term">EMCOLOR, </span><span class="term">EMCOLORLITE, </span><span class="term">HOTCOLOR</span>
+</dt>
+<dd>Various emphasis colors</dd>
+<dt><span class="term">SCREENEDBARCOLOR</span></dt>
+<dd>A color that is used to highlight screened comments in comment threads</dd>
+<dt><span class="term">CHOICE</span></dt>
+<dd>Given 3 arguments (a <acronym class="acronym">URL</acronym>, a title, and an explanatory blurb), this template fashions an item to be used in a CHOICES list</dd>
+<dt><span class="term">CHOICES</span></dt>
+<dd>Given 2 arguments, this template tries to construct a side by side list of options and appropriate links</dd>
+<dt><span class="term">PAGE</span></dt>
+<dd>
+<p>This template is the <span class="application"><acronym class="acronym">BML</acronym></span> template that governs the look of the entire scheme, and takes 4 arguments:
+            </p>
+<div class="variablelist"><dl>
+<dt><span class="term">title</span></dt>
+<dd>The page title</dd>
+<dt><span class="term">head</span></dt>
+<dd>Page-specific elements that belong in a <acronym class="acronym">HTML</acronym> head</dd>
+<dt><span class="term">bodyopts</span></dt>
+<dd>Additional attributes for the <acronym class="acronym">HTML</acronym> body element</dd>
+<dt><span class="term">body</span></dt>
+<dd>The main content of the page</dd>
+</dl></div>
+<p>
+          </p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.customize.layout.new.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.customize.layout.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.customize.tasks.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Writing a <span class="application"><acronym class="acronym">BML</acronym></span> Scheme </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 21. Running your own Maintenance Tasks</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

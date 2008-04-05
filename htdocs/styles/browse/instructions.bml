@@ -1,0 +1,12 @@
+<html>
+<head>
+<title>Style Browser</title>
+</head>
+<body>
+<h1>Style Browser</h1>
+<p>Enter a username in the box on the left and click "Preview" to see a list of that users'
+public styles. In the list, click on the style name to view what the style looks like, or
+click the dash to view style information.</p>
+</body>
+</html><!-- <LJDEP>
+</LJDEP> -->

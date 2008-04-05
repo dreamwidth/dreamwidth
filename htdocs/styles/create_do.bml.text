@@ -1,0 +1,19 @@
+;; -*- coding: utf-8 -*-
+.editstyle=Edit Style
+
+.error.accounttype=Your account type doesn't permit you to make styles.
+
+.error.invalidview=You did not select a valid style type.
+
+.error.styleexists=You already have a style of this type named <b>[[des]]</b>.  If you really want to create a new style of type <b>[[view]]</b>, then go modify your old [[view]] style, change its name, and then come back here to create a new style of this type.
+
+.error.stylenotfound=The style you're trying to make a new style from ([[baseid]]) does not seem to exist.
+
+.error.stylenotpublic=The style you're trying to make a new style from ([[baseid]]) is not public, so you cannot copy it.
+
+.success.head=Success
+
+.success.text=Your style has been created and has been temporarily named <b>[[des]]</b>. You can begin editing it by pressing the button below.
+
+.title=Create Style
+

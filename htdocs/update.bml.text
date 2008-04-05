@@ -1,0 +1,127 @@
+;; -*- coding: utf-8 -*-
+.altpost=Journal to post in:
+
+.auth.poster=Poster:
+
+.btn.preview=Preview
+
+.btn.update=Update Journal
+
+.currmusic=Current Music:
+
+.date=Date:
+
+.default=default
+
+.defaultjournal=([[user]]) -- default
+
+.draft.autosave=Autosaved draft at [[time]]
+
+.draft.confirm=Restore from saved draft?
+
+.draft.restored=Restored last saved draft
+
+.error.cantpost=Sorry, you cannot post at this time.
+
+.error.cantpost.title=Can't Post
+
+.error.disabled=Your account type does not permit posting.
+
+.error.disabled.title=Posting access disabled
+
+.error.login=Error logging on:
+
+.error.noentry=Must provide entry text.
+
+.error.nonusercantpost=Non-[[sitename]] users can't post, as they don't actually have journals here. You can leave comments in other journals, though.
+
+.error.nopass=Enter Password
+
+.error.update=Error updating journal:
+
+.event=Event:
+
+.full=Full Update Page
+
+.htmlokay.norich=(HTML okay; by default, newlines will be auto-formatted to <tt>&lt;br&gt;</tt>)
+
+.htmlokay.rich=(HTML okay; by default, newlines will be auto-formatted to <tt>&lt;br&gt;</tt> - or, use the <a [[opts]]>rich text</a> mode.)
+
+.htmlokay.rte_nosupport=(Sorry, your browser does not currently support the rich text environment.)
+
+.localtime=Local time:
+
+.loggedinas2=You are currently logged in as [[user]].<br />To post as another user, <a [[aopts]]>click here</a>.
+
+.loggingin=Logging in to server...
+
+.noneother=None, or other:
+
+.note=<b>Note:</b> The time/date above is from our server.  Correct them for your timezone before posting.
+
+.opt.backdate=Backdate Entry:
+
+.opt.backdate.about=won't show on friends view
+
+.opt.defpic=(default)
+
+.opt.nocomments=Disallow Comments:
+
+.opt.noemail=Don't email Comments:
+
+.opt.noformat=Don't auto-format:
+
+.opt.spellcheck=Spell check entry before posting
+
+.options=Optional Settings
+
+.other=Other:
+
+.password=Password:
+
+.preview.header=Preview
+
+.preview.text=This is how the entry will look when posted. Using the form below, you can edit the entry further, or you can submit it as is.
+
+.rowarn=<b>Warning:</b> Your account is currently in [[a_open]]read-only mode[[a_close]]. Due to this maintenance you may be unable to post to your journal at this time.
+
+.security.custom=Custom...
+
+.security.friends=Friends
+
+.security.head=Security Level:
+
+.security.private=Private
+
+.security.public=Public
+
+.servermsg=Also, the server has a message for you:
+
+.spellchecked=Your spell-checked post:
+
+.subject=<b>Subject:</b> <i>(optional)</i>
+
+.success.links=Now that you've posted, you can:
+
+.success.links.edit=Edit the entry
+
+.success.links.memories=Add the entry to your memories
+
+.success.links.tags=Edit this entry's tags
+
+.success.links.view=View the entry
+
+.timeformat=24 hour time
+
+.title2=Post an Entry
+
+.title.readonly=Read-only mode
+
+.update.head=Update your Journal...
+
+.update.success2=Update successful. You can view your updated journal <a [[aopts]]>here</a>.
+
+.updating=Updating journal...
+
+.username=Username:
+

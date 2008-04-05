@@ -1,0 +1,73 @@
+<?page
+title=>Search a Journal
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %ML);
+
+    LJ::set_active_crumb('feedstersearch');
+
+    if ($LJ::DISABLED{'offsite_journal_search'}) {
+        return LJ::bad_input('This search tool is currently disabled');
+    }
+
+    my $u = defined $GET{'journal'} ? LJ::load_user($GET{'journal'}) : LJ::get_remote();
+    return LJ::bad_input($ML{'error.nojournal'}) unless $u;
+
+    my $ljuser = LJ::ljuser($u);
+
+    my $ret;
+
+    # Allow sites to define a custom offsite search tool
+    $ret .= LJ::run_hook('offsite_journal_search', $u);
+
+    unless ($LJ::DISABLED{'feedster_search'}) {
+        $ret .= qq{
+            <?h1 Feedster Search h1?>
+                <?p
+                <b>Note:</b> This search is provided by an independent company, <a href='http://www.feedster.com/'>Feedster.com</a>, and is provided solely as a convenience.  We are not responsible for the resulting content or search results.
+                p?>
+
+                <?standout
+                <form action='http://www.feedster.com/search.php' method='get' style='display:inline'>
+            };
+
+        my $rss_feed = LJ::journal_base($u) . '/data/rss';
+        $ret .= LJ::html_hidden('hl' => 'en', 'ie' => 'UTF-8', 'inrss' => $rss_feed);
+
+        $ret .= qq{
+            <table cellpadding='3'>
+                <tr>
+                <td align='left'>Searching in:</td>
+                <td align='left'>$ljuser</td>
+                </tr>
+                <tr>
+                <td align='left'>Search for:</td>
+                <td align='left'><input maxlength='256' size='45' name='q' value='' /></td>
+                </tr>
+                <tr>
+                <td align='left'>Sort by:</td>
+                <td align='left'>
+                <div>
+                <input type='radio' value='date' name='sort' id='date' checked='checked' /><label for='date'>Date</label>
+                <input type='radio' value='' name='sort' id='relevance' /><label for='relevance'>Relevance</label>
+                <input type='radio' value='blogrank' name='sort' id='blogrank' /><label for='blogrank'>Blogrank</label><br/>
+                </div>
+                </td>
+                </tr>
+                <tr>
+                <td>&nbsp;</td>
+                <td align='left'><input type='submit' value='Search' name='btnG' /></td>
+                </tr>
+                </table>
+                </form>
+                standout?>
+            };
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+page?>

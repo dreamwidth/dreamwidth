@@ -1,0 +1,28 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+    my $remote = LJ::get_remote();
+    return LJ::error_noremote() unless $remote;
+
+    my $authas = $GET{'authas'} || $remote->user;
+    my $u = LJ::get_authas_user($authas) or
+        return $ML{'error.invalidauth'};
+
+    my $size = int($GET{'size'});
+    $size = 640 if $size <= 0 || $size > 640;
+
+    my $upf = LJ::get_upf_scaled(size => $size, userid => $u->id);
+
+    return "Error retreiving image." unless $upf;
+
+    my $blob = $upf->[0];
+    my $mime = $upf->[1];
+
+    BML::set_content_type($mime);
+    BML::noparse();
+
+    return $$blob;
+}
+_code?>
+

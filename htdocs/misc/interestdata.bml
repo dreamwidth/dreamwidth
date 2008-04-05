@@ -1,0 +1,41 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+
+    BML::set_content_type("text/plain; charset=utf-8");
+    if ($GET{'user'}) {
+        my $user = LJ::canonical_username($GET{'user'});
+        return "! bogus username\n" unless $user;
+        my $u = LJ::load_user($user);
+        return "! invalid user, or no interests\n" unless $u;
+        return "user is not visible" unless $u->is_visible;
+
+        my $ret;
+    
+        my $ints = LJ::get_interests($u) || [];
+        foreach my $int (@$ints) {
+            $ret .= "$int->[0] $int->[2] $int->[1]\n";
+        }
+
+        return "! invalid user, or no interests\n" unless $ret;
+        $ret = "# Note: Polite data miners cache on their end.  Impolite ones get banned.\n" .
+            "# <intid> <intcount> <interest ...>\n" .
+            $ret;
+        return $ret;
+    }
+
+    if ($GET{'int'}) {
+        my $dbr = LJ::get_db_reader();
+        my $sth = $dbr->prepare("SELECT * FROM interests WHERE interest=?");
+        $sth->execute($GET{'int'});
+        my $h = $sth->fetchrow_hashref;
+        return "! invalid interest\n" unless $h;
+        my $ret;
+        $ret = "# Note: Polite data miners cache on their end.  Impolite ones get banned.\n" .
+            "= intcount=$h->{intcount}\n";
+        return $ret;
+    }
+    return "! invalid parameters\n";
+}
+_code?>

@@ -1,0 +1,79 @@
+.cat_head {
+    background-color: #ddd;
+    padding: 1px 5px 3px 5px;
+}
+
+.field_block {
+    margin: 5px 0px 5px 0px;
+}
+
+.field_block td {
+    vertical-align: top;
+    padding-top: .3em;
+    padding-bottom: .3em;
+}
+
+.field_name {
+    padding-right: 5px;
+    white-space: nowrap;
+    font-size: .9em;
+    font-weight: bold;
+    color: #333;
+    text-align: right;
+    background-color: #eee;
+    width: 145px;
+}
+.field_block .field_name {
+    padding-top: .6em;
+}
+
+.field_desc {
+    color: #505050;
+}
+
+.helper {
+    font-size: 0.8em;
+}
+
+.helper li {
+    font-size: 1em;
+}
+
+.helper td {
+    font-size: 1em;
+}
+
+.example p {
+    font-size: 0.8em;
+}
+
+.section_head {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 5px;
+    color: #036;
+    background-color: #c5dff9;
+    border: 1px solid #8fc3f7;
+}
+
+.view_options {
+    margin-left: 20px;
+    font-size: .7em;
+    font-weight: bold;
+    color: #333;
+}
+
+#contextual_help {
+    padding: .5em;
+    line-height: 140%;
+}
+
+#contextual_help p {
+    padding: 0;
+    margin: 0;
+}
+
+#contextual_help ul {
+    list-style: circle;
+}

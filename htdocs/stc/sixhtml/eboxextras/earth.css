@@ -1,0 +1,19 @@
+.layout-one-column #container {
+    width: 500px;
+}
+
+.layout-two-column-left #container {
+    width: 700px;
+}
+
+.layout-two-column-left #beta {
+    width: 500px;
+}
+
+.layout-two-column-right #container {
+    width: 700px;
+}
+
+.layout-two-column-right #alpha {
+    width: 500px;
+}

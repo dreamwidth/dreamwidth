@@ -1,0 +1,231 @@
+<?_code
+
+ use strict;
+ use vars qw(%GET %POST $title $body);
+
+ BML::decl_params(user         => '.',
+                  journal      => '.',
+                  itemid       => 'digits',
+                  mode         => '.',
+                  toemail      => '.',
+                  fromname     => '.',
+                  subject      => '.',
+                  body         => '.',
+                  body_start   => '.',
+                  url          => '.',
+                  );
+
+ LJ::set_active_crumb('tellfriend');
+
+ $title = "Tell a Friend!";
+ $body = "";
+
+ my $remote = LJ::get_remote();
+ my $sth;
+
+ if ($LJ::DISABLED{'tellafriend'}) {
+     $body .= "This feature is disabled.";
+     return;
+ }
+
+# Not logged in
+ unless ($remote) {
+     my $url = $GET{url} if $GET{url};
+     my $uurl = LJ::eurl($url);
+     my $hurl = LJ::ehtml($url);
+     $body = "<?h1 Sorry... h1?><?p To use the \"Tell a Friend\" feature, you must first login.  p?>";
+     $body .= "<?p &nbsp;&nbsp;&nbsp;URL: <a href='$uurl'>$hurl</a> p?>\n" if $url;
+     $body .= "<?p <?h1 Login h1?>";
+     $body .= LJ::Widget::Login->render( get_ret => 1 ) . " p?>";
+     $body .= "<?p <?h1 Not a $LJ::SITENAMESHORT member? h1?> p?><?p <form action='$LJ::SITEROOT/create.bml'><input type='submit' value='Create an Account' class='create-account' /></form>\n p?>";
+     return;
+ }
+
+ # Get sender's email address
+ my $u = LJ::load_userid($remote->{'userid'});
+ $u->{'emailpref'} = $u->email_raw;
+ if ($LJ::USER_EMAIL && LJ::get_cap($u, "useremail")) {
+     $u->{'emailpref'} = $u->{'user'} . '@' . $LJ::USER_DOMAIN;
+ }
+
+ # Email not validated
+ unless ($u->{'status'} eq "A") {
+     $body .= "<?h1 Sorry... h1?><?p Your current email address (" . $u->email_raw . ") isn't validated, so we can't let you use the \"Tell a Friend\" feature.  To validate your email address, <a href=\"$LJ::SITEROOT/register.bml\">have the confirmation email resent</a>, and then follow the instructions in it when you get it. p?>";
+     return;
+ }
+
+ my $err = sub {
+     $title = "Error";
+     $body = "<?h1 Error h1?><?p $_[0] p?>";
+     return;
+ };
+
+ my $msg_footer = "\n\nEnjoy!\n- " . $u->{user} . "\n\n--\n$LJ::SITENAME Team\n" .
+                  "Read the latest $LJ::SITENAMESHORT news at http://news.livejournal.com/\n";
+ my $custom_msg = "\n\nCustom message from " . $u->{user} . ":";
+
+ # Tell a friend form submitted
+ if ($POST{'mode'} eq "mail")
+ {
+     my $email = $POST{'toemail'};
+     my @errors;
+     my @emails = split /,/, $email;
+
+     push @errors, "No email addresses found" unless (scalar @emails);
+     foreach my $em ( @emails ) {
+        LJ::check_email($em, \@errors);
+     }
+     # Check for images
+     if ($POST{'body'} =~ /<(img|image)\s+src/i) {
+         push @errors, "Images are not allowed in this message.";
+     }
+     # Check for external URLs
+     foreach ( LJ::get_urls($POST{'body'}) ) {
+         if ($_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.+)?$!i) {
+             push @errors, "Links to sites other than $LJ::SITENAME are not allowed in this message.";
+         }
+     }
+     push @errors, "<?requirepost?>" unless LJ::did_post();
+     push @errors, "Maximum number of messages sent for today" unless ($u->rate_log('tellafriend', scalar @emails));
+     push @errors, "Email list greater than 150 characters" if (length($POST{'toemail'}) > 150);
+     if (@errors) {
+         $title = "Error";
+         $body = LJ::bad_input(@errors);
+         return;
+     }
+
+     my $msg_body = $POST{'body_start'};
+     if ($POST{'body'} ne '') {
+         $msg_body .= $custom_msg . "\n-----\n" .
+                      $POST{'body'} . "\n-----";
+     }
+     $msg_body .= $msg_footer;
+
+     LJ::send_mail({
+         'to' => $POST{'toemail'},
+         'from' => $u->{'emailpref'},
+         'fromname' => $u->user . " via $LJ::SITENAMESHORT",
+         'charset' => 'utf-8',
+         'subject' => $POST{'subject'},
+         'body' => $msg_body,
+     });
+
+     my $referer = BML::get_client_header('Referer');
+     my $tolist = $POST{'toemail'};
+     $tolist =~ s/(,\s*)/<br \/>/g;
+     $body .= "<?h1 Sent! h1?>";
+     $body .= "<?p <a href='$referer'>Tell another friend.</a> p?>\n";
+     $body .= "<?p The following people have been mailed:<br />"
+              . $tolist . " p?>";
+     return;
+ }
+
+ my @warn;
+ # Display form with info filled in
+ $body .= "<form method='post' action='tellafriend.bml'>";
+ $body .= LJ::html_hidden({ name => 'mode', value => 'mail' });
+ $body .= "<table cellpadding=3 border=0>";
+
+ $body .= "<tr><td align=right nowrap>From:</td><td>" .
+          LJ::ehtml($u->{'name'} || $u->{'user'}) .
+          " &lt;$u->{'emailpref'}&gt;</td></tr>\n";
+
+ $body .= "<tr><td align=right valign='top'>Email Recipients:</td>" .
+          "<td>" . LJ::html_text({ name => 'toemail',
+                                   size => 60,
+                                   maxlength => 150 }) .
+          "<br /><span class='detail'>comma separated, maximum of 150 characters</span></td></tr>\n";
+
+ my ($subject, $msg);
+ $subject = "Check this out...";
+ if ($GET{'itemid'} =~ /^\d+$/)
+ {
+     my $journal = $GET{'journal'};
+     my $itemid = $GET{'itemid'}+0;
+     my $ditemid = $itemid;
+     my $uj;
+
+     $subject = "Check out this $LJ::SITENAMESHORT entry";
+
+     $itemid = int($itemid / 256);
+
+     $uj = LJ::load_user($journal);
+     return $err->("Unknown journal") unless $uj;
+
+     my $entry = LJ::Entry->new($uj->{'userid'}, jitemid => $itemid);
+
+     my $subject = $entry->subject_text;
+     my $pu = $entry->poster;
+     my $url = $entry->url;
+
+     my @errors;
+     my $uisjowner = ($pu->{'user'} eq $u->{'user'});
+     if ( !$uisjowner && $entry->security ne 'public' ) {
+         $err->("You can only tell your friends about public posts on other people's journals.");
+         return;
+     }
+     if ( $uisjowner && $entry->security eq 'private' ) {
+         $err->("You can not tell your friends about posts you marked as private.");
+         return;
+     }
+     if ( $uisjowner && $entry->security eq 'usemask' ) {
+         push @warn, "<b>Friends-Only!</b> Only people who are on your friends list can see this entry.";
+         $msg_footer = "\n\nYou will need to be logged-in and on " . $u->{'user'} . "'s friends list to read this entry. Don't have an account yet? Just <a href='$LJ::SITEROOT/create.bml?from=$u->{user}'>create one</a>, it's free." . $msg_footer;
+     }
+
+     $msg .= "Hi,\n\n" . $u->{'user'} .
+             " wants to share this $LJ::SITENAMESHORT entry with you:\n\n";
+     $msg .= " Title: $subject\n" if $subject;
+     $msg .= " URL: $url ";
+ }
+
+ if ($GET{'user'} =~ /^\w{1,15}$/) {
+     my $user = $GET{'user'};
+     my $uj = LJ::load_user($user);
+     my $url = $uj->journal_base;
+
+     $subject = "Check out this journal";
+     if ($user eq $u->{'user'}) {
+         $msg .= "Hey,\n\nCheck out my journal that I'm keeping online:\n\n";
+         $msg .= "   $url ";
+     } else {
+         $msg .= "Hey,\n\nCheck out my friend's journal online:\n\n";
+         $msg .= "  $url ";
+     }
+ }
+
+ my $warnings;
+ if (@warn) {
+     $warnings .= "<?warningbar ";
+     foreach my $w (@warn) {
+         $warnings .= "$w<br />";
+     }
+     $warnings .= " warningbar?>";
+     $body = $warnings . $body;
+ }
+ my $display_msg = $msg . $custom_msg;
+ my $display_msg_footer = $msg_footer;
+ $display_msg =~ s/\n/<br \/>/gm;
+ $display_msg_footer =~ s/\n/<br \/>/gm;
+ $body .= LJ::html_hidden({ name => 'subject', value => "$subject" });
+ $body .= LJ::html_hidden({ name => 'body_start', value => $msg });
+ $body .= "<tr><td valign=top colspan='2'>Your message to them:<br />" .
+          "<div class='message'><blockquote>" . $display_msg .
+          "<br /><textarea name=body rows=6 cols=55 wrap=soft></textarea>" .
+          "$display_msg_footer</blockquote></div></td></tr>\n";
+
+ $body .= "<tr><td colspan='2' align='center'><?standout " .
+          LJ::html_submit("Send") . " standout?></td></tr>\n";
+ $body .= "</table>";
+ $body .= "</form>";
+
+ return;
+
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?><?_c <LJDEP>
+lib: cgi-bin/emailcheck.pl
+link: htdocs/login.bml, htdocs/lostinfo.bml, htdocs/users, htdocs/talkread.bml
+form: htdocs/tools/tellafriend.bml
+</LJDEP> _c?>

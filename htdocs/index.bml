@@ -1,0 +1,60 @@
+<?page
+TITLE=><?sitename?>
+HEAD<=
+<meta name="description" content="<?sitename?> ... words words.">
+<meta name="keywords" content="diary,journal">
+<meta name="rating" content="General"> 
+<meta name="ROBOTS" content="All">
+<meta name="revisit-after" Content="14 days">
+<=HEAD
+BODYOPTS<=<?_code
+#  return "onLoad=\""";
+	   _code?>
+<=BODYOPTS
+BODY<=
+
+<?h1 What is <?sitename?>? h1?>
+<?p
+Word words.
+p?>
+<?p
+You'll want to customize this page.  Read the instructions at 
+<a href="http://www.livejournal.com/doc/server/lj.customize.index.html">http://www.livejournal.com/doc/server/lj.customize.index.html</a> for help.
+p?>
+
+
+<?h1 Getting Started h1?>
+<?choices
+ITEMS<=
+<?choice Create A Journal|create.bml|Come and create your very own LiveJournal! choice?>
+<?choice Update Journal|update.bml|Update your LiveJournal from the web. choice?>
+<=ITEMS
+ITEMSB<=
+<?choice Download|/download/|Download the LiveJournal update tool for your computer. choice?>
+<?choice Modify Journal|modify.bml|Customize the your LiveJournal's appearance and options. choice?>
+<=ITEMSB
+choices?>
+
+<?h1 Other Options h1?>
+<?choices
+ITEMS<=
+<?choice Edit Personal Information|editinfo.bml|Edit your personal information and preferences.  choice?>
+<?choice Edit Journal Entries|editjournal.bml|Edit or delete journal entries you've made in the past.  choice?>
+<=ITEMS
+ITEMSB<=
+<?choice Edit Friends|/friends/edit.bml|Edit your list of online LiveJournal friends to track from your LiveJournal friends page.  choice?>
+<=ITEMSB
+choices?>
+
+<?h1 Tech Support & Documentation h1?>
+<?choices
+ITEMS<=
+<?choice Support|/support/|Mail the support team and get a quick answer to your question.  choice?>
+<=ITEMS
+ITEMSB<=
+
+<=ITEMSB
+choices?>
+
+<=BODY
+page?>

@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::DB::time_range_to_ids</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.comment.new.html" title="LJ::Comment::new">
+<link rel="next" href="ljp.api.lj.entry.new.html" title="LJ::Entry::new">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::DB::time_range_to_ids</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.comment.new.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.entry.new.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.db.time_range_to_ids"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::DB::time_range_to_ids</h2>
+<p>LJ::DB::time_range_to_ids &#8212; Performs a binary search on a table's primary id key looking for time boundaries as specified.  Returns the boundary ids that were found, effectively simulating a key on 'time' for the specified table.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::DB::time_range_to_ids</b>(</code><var class="pdparam">opts</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3189386"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc"><li><p><b>opts. </b>A hashref of keys. Keys are: 'table' - table name to query; 'roles' - arrayref of db roles to use, in order. Defaults to ['slow']; 'idcol' - name of 'id' primary key column. 'timecol' - name of unixtime column to use for constraint; 'starttime' - starting unixtime time of rows to match; 'endtime' - ending unixtime of rows to match.</p></li></ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3189412"></a><h2>Info</h2>
+<p>This function shouldn't normally be used, but there are rare instances where it's useful.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3189424"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/ljdb.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3189437"></a><h2>Returns:</h2>
+<p>startid, endid; id boundaries which should be used by the caller.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.comment.new.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.entry.new.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::Comment::new </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::Entry::new</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

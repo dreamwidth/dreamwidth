@@ -1,0 +1,16 @@
+LookRoot $LJHOME/cgi-bin/bml/scheme
+DefaultScheme bluewhite
+DefaultLanguage en
+IncludePath inc/
+
+AllowOldSyntax 0
+ExtraConfig _config-local.bml, $LJHOME/cgi-bin/lj-bml-init.pl
+AllowCode 1
+AllowTemplateCode 1
+MildXSSProtection 1
+
+SubConfig: guide/, clients/, files/
+AllowCode 0
+
+
+

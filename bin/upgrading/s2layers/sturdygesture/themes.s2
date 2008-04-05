@@ -1,0 +1,81 @@
+#NEWLAYER: sturdygesture/beansprout
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Beansprout";
+layerinfo "redist_uniq" = "sturdygesture/beansprout";
+
+set clr_page_link = "#006760";
+set clr_boxhead_text = "#ffffff";
+set clr_box_text = "#000000";
+set clr_page_text = "#ffffff";
+set clr_box_back = "#ffffff";
+set clr_boxhead_back = "#006760";
+set clr_page_back = "#000000";
+set clr_page_vlink = "#002C29";
+
+#NEWLAYER: sturdygesture/boxedin
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Boxed In";
+layerinfo "redist_uniq" = "sturdygesture/boxedin";
+
+#NEWLAYER: sturdygesture/boxless
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Boxless";
+layerinfo "redist_uniq" = "sturdygesture/boxless";
+
+set clr_page_link = "#0000ff";
+set clr_boxhead_text = "#ffffff";
+set clr_box_text = "#000000";
+set clr_page_text = "#ffffff";
+set clr_box_back = "#ffffff";
+set clr_boxhead_back = "#000000";
+set clr_page_back = "#ffffff";
+set clr_page_vlink = "#00007f";
+
+#NEWLAYER: sturdygesture/martialblue
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Martial Blue";
+layerinfo "redist_uniq" = "sturdygesture/martialblue";
+
+set clr_page_link = "#0068CF";
+set clr_boxhead_text = "#000000";
+set clr_box_text = "#000000";
+set clr_page_text = "#000000";
+set clr_box_back = "#FFFFFF";
+set clr_boxhead_back = "#6FB7FF";
+set clr_page_back = "#BFD8FF";
+set clr_page_vlink = "#003070";
+
+#NEWLAYER: sturdygesture/redmond
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Redmond";
+layerinfo "redist_uniq" = "sturdygesture/redmond";
+
+set clr_page_link = "#0000ff";
+set clr_boxhead_text = "#ffffff";
+set clr_box_text = "#000000";
+set clr_page_text = "#000000";
+set clr_box_back = "#ffffff";
+set clr_boxhead_back = "#00007F";
+set clr_page_back = "#007F7F";
+set clr_page_vlink = "#0000ff";
+
+#NEWLAYER: sturdygesture/shadesofgray
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Shades of Gray"; # or, indeed, "grey" :)
+layerinfo "redist_uniq" = "sturdygesture/shadesofgray";
+
+set clr_page_link = "#444444";
+set clr_boxhead_text = "#ffffff";
+set clr_box_text = "#000000";
+set clr_page_text = "#7f7f7f";
+set clr_box_back = "#cccccc";
+set clr_boxhead_back = "#7f7f7f";
+set clr_page_back = "#888888";
+set clr_page_vlink = "#222222";
+

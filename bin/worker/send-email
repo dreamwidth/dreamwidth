@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Worker::TheSchwartz;
+use TheSchwartz::Worker::SendEmail;
+use Time::HiRes ();
+
+TheSchwartz::Worker::SendEmail->set_HELO($LJ::DOMAIN);
+TheSchwartz::Worker::SendEmail->set_keep_exit_status(sub { $LJ::KEEP_EXITSTATUS{'SendEmail'} || 0 });
+TheSchwartz::Worker::SendEmail->set_on_5xx(sub {
+    my ($rcpt, $job, $details) = @_;
+    LJ::errobj('DieString', message => "send_email to $rcpt failed: $details")->log;
+});
+
+my $sclient = LJ::theschwartz();
+$sclient->set_verbose(sub {
+    my ($msg, $job) = @_;
+    $msg =~ s/\s+$//;
+    warn "$msg\n";
+    return unless $LJ::DEBUG{'ts-sendemail'};
+    return if $msg =~ /found no jobs$/;
+
+    my $handle = $job->handle->as_string;
+    my $now = sprintf("%0.05f", Time::HiRes::time());
+    LJ::errobj('DieString', message => "ts_info: $now: [$handle] $msg")->log;
+});
+
+schwartz_decl('TheSchwartz::Worker::SendEmail');
+schwartz_on_idle(sub {
+    $0 = "send-email [idle]";
+});
+schwartz_work();

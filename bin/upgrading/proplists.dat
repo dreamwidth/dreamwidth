@@ -1,0 +1,1331 @@
+userproplist.ad_categories:
+  cldversion: 4
+  datatype: char
+  des: User selectable Ad categories
+  indexed: 0
+  multihomed: 0
+  prettyname: Ad Content Categories
+
+userproplist.admin_content_flag:
+  cldversion: 4
+  datatype: char
+  des: Internal flag describing the nature of this journal, set by an admin
+  indexed: 0
+  multihomed: 0
+  prettyname: Admin Content Flag
+
+userproplist.adult_content:
+  cldversion: 4
+  datatype: char
+  des: Sets the journal as containing adult content (none, explicit, concepts)
+  indexed: 0
+  multihomed: 0
+  prettyname: Adult Content Flag
+
+userproplist.aolim:
+  cldversion: 0
+  datatype: char
+  des: AOL IM ScreenName
+  indexed: 1
+  multihomed: 1
+  prettyname: AOL Instant Messanger
+
+userproplist.badpassword:
+  cldversion: 4
+  datatype: num
+  des: If this user has a bad password and should change it
+  indexed: 0
+  multihomed: 0
+  prettyname: Bad Password
+
+userproplist.betafeatures_list:
+  cldversion: 4
+  datatype: char
+  des: List of beta features the user is testing
+  indexed: 0
+  multihomed: 0
+  prettyname: Beta Features List
+
+userproplist.blob_clusterid:
+  cldversion: 0
+  datatype: num
+  des: The ID of the blob cluster user's media resides on.
+  indexed: 1
+  multihomed: 0
+  prettyname: Blob Cluster ID
+
+userproplist.browselang:
+  cldversion: 4
+  datatype: char
+  des: LJ lang code in ml_langs
+  indexed: 1
+  multihomed: 0
+  prettyname: Language to browse with
+
+userproplist.city:
+  cldversion: 4
+  datatype: char
+  des: City lived in.
+  indexed: 1
+  multihomed: 0
+  prettyname: City
+
+userproplist.comm_promo_blurb:
+  cldversion: 4
+  datatype: char
+  des: community promo blurb
+  indexed: 0
+  multihomed: 0
+  prettyname: A short description of a community that is displayed in the
+
+userproplist.comm_theme:
+  cldversion: 4
+  datatype: char
+  des: A brief desription of the theme of a community
+  indexed: 1
+  multihomed: 0
+  prettyname: Community theme
+
+userproplist.country:
+  cldversion: 4
+  datatype: char
+  des: 2 letter country code
+  indexed: 1
+  multihomed: 0
+  prettyname: Country
+
+userproplist.disable_comm_promo:
+  cldversion: 4
+  datatype: bool
+  des: set to force disable of community promo
+  indexed: 0
+  multihomed: 0
+  prettyname: Administratively disable community promo features for a user
+
+userproplist.dogeartime:
+  cldversion: 4
+  datatype: num
+  des: unixtime of most recently read friends item.  anything greater is new.
+  indexed: 0
+  multihomed: 0
+  prettyname: dog ear time
+
+userproplist.dont_load_members:
+  cldversion: 4
+  datatype: bool
+  des: Used for large communities to prevent loading and displaying the complete list of members
+  indexed: 0
+  multihomed: 0
+  prettyname: Don't load membership information
+
+userproplist.dupsig_post:
+  cldversion: 4
+  datatype: char
+  des: On each postevent, the dupsig is checked and updated to prevent accidental duplicate posts
+  indexed: 0
+  multihomed: 0
+  prettyname: Duplicate signature for last post
+
+userproplist.emailpost_allowfrom:
+  cldversion: 4
+  datatype: char
+  des: Comma separated list of email addresses allowed to send mail via gateway
+  indexed: 0
+  multihomed: 0
+  prettyname: Allowed addresses to post via email
+
+userproplist.emailpost_comments:
+  cldversion: 4
+  datatype: char
+  des: Default comment options for post-by-email entries
+  indexed: 
+  multihomed: 
+  prettyname: Comment options for email posting
+
+userproplist.emailpost_gallery:
+  cldversion: 4
+  datatype: char
+  des: Default gallery name for post-by-email pictures
+  indexed: 
+  multihomed: 
+  prettyname: Gallery name for email imgs
+
+userproplist.emailpost_imgcut:
+  cldversion: 4
+  datatype: char
+  des: Default image cut type for post-by-email images
+  indexed: 
+  multihomed: 
+  prettyname: Image cut type for email posting
+
+userproplist.emailpost_imglayout:
+  cldversion: 4
+  datatype: char
+  des: Default image layout for post-by-email images
+  indexed: 
+  multihomed: 
+  prettyname: Image layout for email posting
+
+userproplist.emailpost_imgsecurity:
+  cldversion: 4
+  datatype: char
+  des: Default security for post-by-email images
+  indexed: 
+  multihomed: 
+  prettyname: Image security for email posting
+
+userproplist.emailpost_imgsize:
+  cldversion: 4
+  datatype: char
+  des: Default image size for post-by-email images
+  indexed: 
+  multihomed: 
+  prettyname: Image size for email posting
+
+userproplist.emailpost_pin:
+  cldversion: 4
+  datatype: char
+  des: Numeric or alpha PIN used for posting via email gateway
+  indexed: 0
+  multihomed: 0
+  prettyname: PIN for email posting
+
+userproplist.emailpost_security:
+  cldversion: 4
+  datatype: char
+  des: Default security for post-by-email entries
+  indexed: 
+  multihomed: 
+  prettyname: Entry security for email posting
+
+userproplist.emailpost_userpic:
+  cldversion: 4
+  datatype: char
+  des: Default userpic for post-by-email entries
+  indexed: 
+  multihomed: 
+  prettyname: Userpic for email posting
+
+userproplist.entry_draft:
+  cldversion: 4
+  datatype: blobchar
+  des: Backup of a user's most recent unposted entry
+  indexed: 0
+  multihomed: 0
+  prettyname: New Entry Draft
+
+userproplist.entry_editor:
+  cldversion: 4
+  datatype: char
+  des: Editor that should be used when creating a new entry
+  indexed: 0
+  multihomed: 0
+  prettyname: Default entry editor
+
+userproplist.esn_has_managed:
+  cldversion: 4
+  datatype: bool
+  des: User has managed ESN subscriptions
+  indexed: 0
+  multihomed: 0
+  prettyname: Has managed ESN
+
+userproplist.esn_inbox_default_expand:
+  cldversion: 4
+  datatype: char
+  des: Default expanded state of ESN inbox items
+  indexed: 0
+  multihomed: 0
+  prettyname: Default ESN inbox expanded state
+
+userproplist.exclude_from_verticals:
+  cldversion: 4
+  datatype: bool
+  des: Set to true of the user should be excluded from entry aggregations.
+  indexed: 1
+  multihomed: 
+  prettyname: Exclude from Verticals
+
+userproplist.external_foaf_url:
+  cldversion: 4
+  datatype: char
+  des: Location of External FOAF file
+  indexed: 0
+  multihomed: 0
+  prettyname: FOAF address
+
+userproplist.fb_num_pubpics:
+  cldversion: 4
+  datatype: num
+  des: Number of Public Fotobilder Pictures
+  indexed: 0
+  multihomed: 0
+  prettyname: Num FB Pics
+
+userproplist.friendspagetitle:
+  cldversion: 4
+  datatype: char
+  des: Base Title of Friends Page
+  indexed: 0
+  multihomed: 0
+  prettyname: Friends Page Title
+
+userproplist.gender:
+  cldversion: 4
+  datatype: char
+  des: M: male, F: female, U: unspecified
+  indexed: 1
+  multihomed: 0
+  prettyname: Gender
+
+userproplist.gizmo:
+  cldversion: 0
+  datatype: char
+  des: Gizmo VoIP account ID
+  indexed: 1
+  multihomed: 0
+  prettyname: Gizmo Project ID
+
+userproplist.google_talk:
+  cldversion: 0
+  datatype: char
+  des: Google's 'Talk' Service address
+  indexed: 1
+  multihomed: 1
+  prettyname: Google Talk Address
+
+userproplist.hide_adult_content:
+  cldversion: 4
+  datatype: char
+  des: What type of adult content to hide on journal views that have entries (values: none, concepts, explicit)
+  indexed: 0
+  multihomed: 0
+  prettyname: Hide adult content on journals
+
+userproplist.howhear:
+  cldversion: 4
+  datatype: char
+  des: How the user heard about LiveJournal
+  indexed: 0
+  multihomed: 0
+  prettyname: How heard about LiveJouranl
+
+userproplist.icbm:
+  cldversion: 4
+  datatype: char
+  des: Of form 45.2343,-102.2352
+  indexed: 0
+  multihomed: 0
+  prettyname: ICBM Address
+
+userproplist.icq:
+  cldversion: 0
+  datatype: char
+  des: ICQ Number
+  indexed: 1
+  multihomed: 1
+  prettyname: ICQ
+
+userproplist.init_bdate:
+  cldversion: 4
+  datatype: char
+  des: Birthdate user enters for age verification
+  indexed: 0
+  multihomed: 0
+  prettyname: Birthdate
+
+userproplist.interest_ids_blob:
+  cldversion: 4
+  datatype: blobchar
+  des: Packed blob of a user's interest ids (4 bytes per id)
+  indexed: 1
+  multihomed: 0
+  prettyname: Interest IDs blob
+
+userproplist.jabber:
+  cldversion: 0
+  datatype: char
+  des: Jabber address (username@server)
+  indexed: 1
+  multihomed: 1
+  prettyname: Jabber Address
+
+userproplist.journaldomain:
+  cldversion: 4
+  datatype: char
+  des: Domain which will load user's journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Domain Alias
+
+userproplist.journalsubtitle:
+  cldversion: 4
+  datatype: char
+  des: Subtitle of Journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Journal Subtitle
+
+userproplist.journaltitle:
+  cldversion: 4
+  datatype: char
+  des: Base Title of Journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Journal Title
+
+userproplist.journal_box_entries:
+  cldversion: 4
+  datatype: bool
+  des: Show journal boxes between entries on journal views with entries; overrides journal_box_placement userprop
+  indexed: 0
+  multihomed: 0
+  prettyname: Journal Boxes Between Entries
+
+userproplist.journal_box_placement:
+  cldversion: 4
+  datatype: char
+  des: Specifies whether to use the horizontal or vertical box(es) in S2 layouts
+  indexed: 0
+  multihomed: 0
+  prettyname: Journal Box Placement
+
+userproplist.latest_optout:
+  cldversion: 4
+  datatype: bool
+  des: Opt out of latest.bml, latest-rss.bml, and latest-img.bml if on.
+  indexed: 0
+  multihomed: 0
+  prettyname: Latest Updates Opt Out
+
+userproplist.legal_tosagree:
+  cldversion: 4
+  datatype: char
+  des: Comma separated:  Unix time user agreed to the Terms of Service, revision number
+  indexed: 0
+  multihomed: 1
+  prettyname: Agreed to Terms of Service
+
+userproplist.mailencoding:
+  cldversion: 4
+  datatype: num
+  des: Encoding in which to mail comments to the user. Defaults to UTF-8.
+  indexed: 0
+  multihomed: 0
+  prettyname: Mail Encoding
+
+userproplist.moderated:
+  cldversion: 4
+  datatype: bool
+  des: 1: This community is moderated
+  indexed: 0
+  multihomed: 0
+  prettyname: Moderation status
+
+userproplist.msn:
+  cldversion: 0
+  datatype: char
+  des: MSN Username
+  indexed: 1
+  multihomed: 1
+  prettyname: MSN Username
+
+userproplist.newesteventtime:
+  cldversion: 4
+  datatype: char
+  des: Time (user-side) of the user's last entry in their personal journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Newest event time
+
+userproplist.newpost_minsecurity:
+  cldversion: 4
+  datatype: char
+  des: Minimal security for new events; values are: public, private or friends
+  indexed: 0
+  multihomed: 0
+  prettyname: Minimal Security
+
+userproplist.nonmember_posting:
+  cldversion: 4
+  datatype: bool
+  des: True if this community allows non-member posting access
+  indexed: 0
+  multihomed: 0
+  prettyname: Non-Member posting access
+
+userproplist.no_mail_alias:
+  cldversion: 4
+  datatype: bool
+  des: If true, mail to user's site email address isn't forwarded to their real address.
+  indexed: 0
+  multihomed: 0
+  prettyname: Disable site e-mail alias
+
+userproplist.opt_bdaymail:
+  cldversion: 0
+  datatype: bool
+  des: 0: don't get birthday reminder mail, 1: do get birthday reminder mail
+  indexed: 1
+  multihomed: 0
+  prettyname: Get Birthday Reminders
+
+userproplist.opt_blockrobots:
+  cldversion: 4
+  datatype: bool
+  des: 1: don't allow robots, 0: do
+  indexed: 1
+  multihomed: 0
+  prettyname: Block Robots & Spiders
+
+userproplist.opt_comminvitemail:
+  cldversion: 4
+  datatype: char
+  des: Y = send email, else don't.
+  indexed: 0
+  multihomed: 0
+  prettyname: Get Emails for Community Invites
+
+userproplist.opt_communityjoinemail:
+  cldversion: 4
+  datatype: char
+  des: N = send no email, D = send daily digest, else send email always.
+  indexed: 0
+  multihomed: 0
+  prettyname: Get Emails for Join Requests
+
+userproplist.opt_comm_promo:
+  cldversion: 4
+  datatype: bool
+  des: set to force disable of community promo
+  indexed: 0
+  multihomed: 0
+  prettyname: Administratively disable community promo features
+
+userproplist.opt_ctxpopup:
+  cldversion: 4
+  datatype: char
+  des: Show contextual popup
+  indexed: 0
+  multihomed: 0
+  prettyname: Contextual Popup
+
+userproplist.opt_embedplaceholders:
+  cldversion: 4
+  datatype: char
+  des: Y/N choice regarding whether lj-template tag embedded object should be hidden behind a placeholder.
+  indexed: 0
+  multihomed: 0
+  prettyname: Use Placeholders for lj-template embedded objects
+
+userproplist.opt_exclude_from_verticals:
+  cldversion: 4
+  datatype: char
+  des: User option for whether their entries should be excluded from verticals.  Can be set to "none" (explicit off) or "entries".  Undef = "none", but not explicit.
+  indexed: 0
+  multihomed: 0
+  prettyname: User Option to Exclude from Verticals
+
+userproplist.opt_exclude_stats:
+  cldversion: 4
+  datatype: bool
+  des: 1: don't include user when using offsite hit tracker
+  indexed: 0
+  multihomed: 0
+  prettyname: Exclude From Offsite Stats Tracking
+
+userproplist.opt_getselfemail:
+  cldversion: 4
+  datatype: char
+  des: 1 = send poster comments they make, else don't.
+  indexed: 0
+  multihomed: 0
+  prettyname: Get Emails for Comments You Make
+
+userproplist.opt_getting_started:
+  cldversion: 4
+  datatype: char
+  des: Show Getting Started widget
+  indexed: 0
+  multihomed: 0
+  prettyname: Show Getting Started widget
+
+userproplist.opt_hidefriendofs:
+  cldversion: 4
+  datatype: bool
+  des: 0: show friendofs, 1: hide friendofs
+  indexed: 0
+  multihomed: 0
+  prettyname: Hide Friend-Of List
+
+userproplist.opt_hidememberofs:
+  cldversion: 4
+  datatype: bool
+  des: 0: show memberofs, 1: hide memberofs
+  indexed: 0
+  multihomed: 0
+  prettyname: Hide Member-Of and Posting Access List
+
+userproplist.opt_imagelinks:
+  cldversion: 4
+  datatype: char
+  des: width|height: specifies maximum image size on a user's friends page.  0 for either field replaces all images.
+  indexed: 0
+  multihomed: 0
+  prettyname: Use Placeholders on Your Friend's Page
+
+userproplist.opt_ljcut_disable_friends:
+  cldversion: 4
+  datatype: bool
+  des: LJCUT disabled in friends view
+  indexed: 1
+  multihomed: 0
+  prettyname: LJCUT disabled in friends view
+
+userproplist.opt_ljcut_disable_lastn:
+  cldversion: 4
+  datatype: bool
+  des: LJCUT disabled in lastn and day views
+  indexed: 1
+  multihomed: 0
+  prettyname: LJCUT disabled in lastn and day views
+
+userproplist.opt_logcommentips:
+  cldversion: 4
+  datatype: char
+  des: N: No, S: some (anonymous), A: all
+  indexed: 1
+  multihomed: 0
+  prettyname: Log Comment IPs
+
+userproplist.opt_maxpicheight:
+  cldversion: 4
+  datatype: 
+  des: Maxium picture height to be shown in journal before being linkitized.  0: for no max
+  indexed: 1
+  multihomed: 0
+  prettyname: Max Picture Height
+
+userproplist.opt_maxpicwidth:
+  cldversion: 4
+  datatype: 
+  des: Maxium picture width to be shown in journal before being linkitized.  0: for no max
+  indexed: 1
+  multihomed: 0
+  prettyname: Max Picture Width
+
+userproplist.opt_maxwordlength:
+  cldversion: 0
+  datatype: 
+  des: Maxium word length before forced word breaks.  0: for no max
+  indexed: 1
+  multihomed: 0
+  prettyname: Max Word Length
+
+userproplist.opt_nctalklinks:
+  cldversion: 4
+  datatype: bool
+  des: Show number of comments in URL
+  indexed: 0
+  multihomed: 0
+  prettyname: Show number of comments in URL
+
+userproplist.opt_nomodemail:
+  cldversion: 4
+  datatype: bool
+  des: 1: do not send moderation emails, 0: default, send them
+  indexed: 0
+  multihomed: 0
+  prettyname: No Moderation Email
+
+userproplist.opt_notalkicons:
+  cldversion: 4
+  datatype: bool
+  des: 1: no forum icons shown, 0: default, show them
+  indexed: 1
+  multihomed: 0
+  prettyname: No Forum Icons
+
+userproplist.opt_no_nudge:
+  cldversion: 4
+  datatype: bool
+  des: Disable Friend Nudges
+  indexed: 0
+  multihomed: 0
+  prettyname: Disable Friend Nudges
+
+userproplist.opt_no_quickreply:
+  cldversion: 4
+  datatype: bool
+  des: Disable QuickReply
+  indexed: 0
+  multihomed: 0
+  prettyname: Disable QuickReply
+
+userproplist.opt_sharebday:
+  cldversion: 4
+  datatype: char
+  des: User selected security setting to determine who can see birthday info
+  indexed: 0
+  multihomed: 0
+  prettyname: Share Birthday
+
+userproplist.opt_showbday:
+  cldversion: 4
+  datatype: char
+  des: User selected security setting to show birthday
+  indexed: 0
+  multihomed: 0
+  prettyname: Show Birthday
+
+userproplist.opt_showljtalk:
+  cldversion: 4
+  datatype: char
+  des: User selected setting for showing (Y) or hiding (N) the LJ Talk field on their profile
+  indexed: 0
+  multihomed: 0
+  prettyname: Show LJ Talk field?
+
+userproplist.opt_showlocation:
+  cldversion: 4
+  datatype: char
+  des: User selected security setting to show location
+  indexed: 0
+  multihomed: 0
+  prettyname: Show Location
+
+userproplist.opt_showmutualfriends:
+  cldversion: 4
+  datatype: bool
+  des: Boolean: 1 means show only mutual friends on your userinfo page, 0 (default) means to use the standard mode of showing everybody.
+  indexed: 1
+  multihomed: 0
+  prettyname: Mutual Friends Display
+
+userproplist.opt_showonlinestatus:
+  cldversion: 0
+  datatype: char
+  des: Show online status to Everyone(Y), Mutual Friends(F) or Nobody(N).
+  indexed: 0
+  multihomed: 0
+  prettyname: Show online status
+
+userproplist.opt_showschools:
+  cldversion: 4
+  datatype: char
+  des: Show school info on userinfo Y: everyone, F: friends only N: don't show
+  indexed: 0
+  multihomed: 0
+  prettyname: Show School Information on Userinfo
+
+userproplist.opt_showtopicstuff:
+  cldversion: 0
+  datatype: char
+  des: Y: include links to topic directory, N: don't.
+  indexed: 1
+  multihomed: 0
+  prettyname: Topic Directory Integration
+
+userproplist.opt_stylemine:
+  cldversion: 4
+  datatype: bool
+  des: 1: use journal style when commenting on other journals from friends page
+  indexed: 0
+  multihomed: 0
+  prettyname: Style=Mine
+
+userproplist.opt_synlevel:
+  cldversion: 4
+  datatype: char
+  des: How much content to put into syndication (Atom/RSS) feeds; values are: title, summary, or friends
+  indexed: 
+  multihomed: 
+  prettyname: Syndication Level
+
+userproplist.opt_tagpermissions:
+  cldversion: 4
+  datatype: char
+  des: User defined permissions for tags.  Format of prop: "add,control".  (Who can add tags, who can manage tags.)  Format of both is one of "public","private","friends","group:N" where N is the group id.
+  indexed: 0
+  multihomed: 0
+  prettyname: User Tag Permissions
+
+userproplist.opt_usermsg:
+  cldversion: 4
+  datatype: char
+  des: Options for allowing who can send a message to a user
+  indexed: 0
+  multihomed: 0
+  prettyname: User Messaging Options
+
+userproplist.opt_usesharedpic:
+  cldversion: 4
+  datatype: bool
+  des: 1: friends view uses shared pictures, 0: uses poster's picture
+  indexed: 1
+  multihomed: 0
+  prettyname: Use Shared Journal Pic
+
+userproplist.opt_weblogscom:
+  cldversion: 4
+  datatype: char
+  des: 1: ping weblogs.com with updates
+  indexed: 0
+  multihomed: 0
+  prettyname: Ping Weblogs.com
+
+userproplist.opt_whatemailshow:
+  cldversion: 4
+  datatype: char
+  des: N: none, A: actual, L: livejournal, B: both
+  indexed: 1
+  multihomed: 0
+  prettyname: Which email address to display
+
+userproplist.opt_whoscreened:
+  cldversion: 4
+  datatype: char
+  des: Screen new comments: A=All, N=None, F=from non-Friends, R=from non-users
+  indexed: 0
+  multihomed: 0
+  prettyname: Screening comments
+
+userproplist.portalinit:
+  cldversion: 4
+  datatype: num
+  des: Has the user had their portal initialized yet?
+  indexed: 0
+  multihomed: 0
+  prettyname: Portal Init
+
+userproplist.public_key:
+  cldversion: 4
+  datatype: blobchar
+  des: Public key used for email gateway signature verification
+  indexed: 0
+  multihomed: 0
+  prettyname: PGP or GPG public key
+
+userproplist.renamedto:
+  cldversion: 4
+  datatype: char
+  des: Username of other journal to redirect to, if u.statusvis=="R"
+  indexed: 1
+  multihomed: 0
+  prettyname: Redirect to other account
+
+userproplist.rl_syncitems_getevents_loop:
+  cldversion: 4
+  datatype: char
+  des: Keep track of syncitems lastupdate value & time for last two getevent+syncitems requests, checking for loops from broken clients.
+  indexed: 0
+  multihomed: 0
+  prettyname: Prevent loops in syncitems getevents
+
+userproplist.rssparseerror:
+  cldversion: 4
+  datatype: char
+  des: Records the error message when RSS parsing fails
+  indexed: 0
+  multihomed: 0
+  prettyname: Syndication Parse Error
+
+userproplist.s1_calendar_style:
+  cldversion: 4
+  datatype: num
+  des: The style ID# of the S1 style for the calendar view.
+  indexed: 0
+  multihomed: 0
+  prettyname: Calendar View StyleID
+
+userproplist.s1_confirmed:
+  cldversion: 4
+  datatype: num
+  des: Unix time at which the user confirmed that they want to use S1 instead of S2.
+  indexed: 0
+  multihomed: 0
+  prettyname: S1 Confirmed
+
+userproplist.s1_day_style:
+  cldversion: 4
+  datatype: num
+  des: The style ID# of the S1 style for the day view view.
+  indexed: 0
+  multihomed: 0
+  prettyname: Day View StyleID
+
+userproplist.s1_friends_style:
+  cldversion: 4
+  datatype: num
+  des: The style ID# of the S1 style for the friends view page.
+  indexed: 0
+  multihomed: 0
+  prettyname: Friends View StyleID
+
+userproplist.s1_lastn_style:
+  cldversion: 4
+  datatype: num
+  des: The style ID# of the S1 style for the recent entries view.
+  indexed: 0
+  multihomed: 0
+  prettyname: Recent View StyleID
+
+userproplist.s2_style:
+  cldversion: 4
+  datatype: num
+  des: S2 Styleid to use
+  indexed: 0
+  multihomed: 0
+  prettyname: S2 Style
+
+userproplist.schemepref:
+  cldversion: 4
+  datatype: char
+  des: BML scheme name
+  indexed: 0
+  multihomed: 0
+  prettyname: BML Scheme Preference
+
+userproplist.scheme_manually_set:
+  cldversion: 4
+  datatype: num
+  des: Unix time at which site scheme has been explicitly set by the user
+  indexed: 0
+  multihomed: 0
+  prettyname: Explicit Scheme
+
+userproplist.safe_search:
+  cldversion: 4
+  datatype: char
+  des: Safe search filtering settings -- "none" means no filtering, otherwise it's a number, and the greater the number the more filtering occurs
+  indexed: 0
+  multihomed: 0
+  prettyname: Safe Search Filtering
+
+userproplist.show_control_strip:
+  cldversion: 4
+  datatype: char
+  des: Show a control strip on your journal or community
+  indexed: 0
+  multihomed: 0
+  prettyname: Show Control Strip
+
+userproplist.show_graphic_previews:
+  cldversion: 4
+  datatype: char
+  des: Show graphic previews when hovering over external links on your journal or community.
+  indexed: 0
+  multihomed: 0
+  prettyname: Show Graphic Previews
+
+userproplist.sidx_bdate:
+  cldversion: 0
+  datatype: char
+  des: Index to speed directory searches.  Only present if opt_infoshow=Y
+  indexed: 1
+  multihomed: 1
+  prettyname: SearchIndex: Birthdate
+
+userproplist.sidx_bday:
+  cldversion: 0
+  datatype: char
+  des: For finding all users with a birthday on a certain day of the year, not day with year, format mm-dd
+  indexed: 1
+  multihomed: 0
+  prettyname: SearchIndex: Birthday
+
+userproplist.sidx_loc:
+  cldversion: 0
+  datatype: char
+  des: Index to speed directory searches.  Format %2s-%s-%s (iso country code, state, city).  Only present if opt_infoshow=Y
+  indexed: 1
+  multihomed: 1
+  prettyname: SearchIndex: Location
+
+userproplist.skype:
+  cldversion: 0
+  datatype: char
+  des: Skype Account ID
+  indexed: 1
+  multihomed: 1
+  prettyname: Skype ID
+
+userproplist.sms_carrier:
+  cldversion: 4
+  datatype: char
+  des: SMS carrier
+  indexed: 0
+  multihomed: 0
+  prettyname: SMS carrier
+
+userproplist.sms_enabled:
+  cldversion: 4
+  datatype: char
+  des: If the user has activated and confirmed their SMS settings
+  indexed: 0
+  multihomed: 0
+  prettyname: SMS enabled status
+
+userproplist.sms_friend_group:
+  cldversion: 4
+  datatype: char
+  des: Default SMS friends page display
+  indexed: 0
+  multihomed: 0
+  prettyname: SMS friends page group
+
+userproplist.sms_perday_notif_limit:
+  cldversion: 4
+  datatype: num
+  des: Notification limit per day by SMS
+  indexed: 0
+  multihomed: 0
+  prettyname: SMS notification limit per day
+
+userproplist.sms_perpost_notif_limit:
+  cldversion: 4
+  datatype: num
+  des: Notification limit per post per day by SMS
+  indexed: 0
+  multihomed: 0
+  prettyname: SMS notification limit per post per day
+
+userproplist.sms_post_notify:
+  cldversion: 4
+  datatype: char
+  des: Does the user want notification of replies to posts made via SMS
+  indexed: 0
+  multihomed: 0
+  prettyname: Auto-subscribe to comments posted via SMS
+
+userproplist.sms_yes_means:
+  cldversion: 4
+  datatype: char
+  des: What a "yes" SMS message from the user means
+  indexed: 0
+  multihomed: 0
+  prettyname: What "yes" SMS message means
+
+userproplist.state:
+  cldversion: 4
+  datatype: char
+  des: 2 letter state code, or full state name
+  indexed: 1
+  multihomed: 0
+  prettyname: State
+
+userproplist.stylesys:
+  cldversion: 4
+  datatype: num
+  des: '1' for S1 or '2' for S2.  Undefined means site default.
+  indexed: 0
+  multihomed: 0
+  prettyname: Style System to use
+
+userproplist.theme_preview_styleid:
+  cldversion: 4
+  datatype: num
+  des: Style ID for the style used to preview themes on the customize page. Undefined means no style has been created yet.
+  indexed: 0
+  multihomed: 0
+  prettyname: Style ID for theme preview
+
+userproplist.third_party_notify_list:
+  cldversion: 4
+  datatype: char
+  des: Comma-separated list of third-party services that should be notified when a user takes an action.
+  indexed: 0
+  multihomed: 0
+  prettyname: Third-Party Notify List
+
+userproplist.timezone:
+  cldversion: 4
+  datatype: char
+  des: User's default timezone
+  indexed: 0
+  multihomed: 0
+  prettyname: Timezone
+
+userproplist.trusted_s1:
+  cldversion: 0
+  datatype: char
+  des: User's trusted S1 style ids
+  indexed: 0
+  multihomed: 0
+  prettyname: Trusted S1 Styles
+
+userproplist.underage_status:
+  cldversion: 4
+  datatype: char
+  des: Notes about underage status; Y: underage due to birthday; C: underage due to cookie.
+  indexed: 0
+  multihomed: 0
+  prettyname: Underage Status
+
+userproplist.url:
+  cldversion: 4
+  datatype: char
+  des: URL of website
+  indexed: 0
+  multihomed: 0
+  prettyname: Website Address
+
+userproplist.urlname:
+  cldversion: 4
+  datatype: char
+  des: Name of website
+  indexed: 0
+  multihomed: 0
+  prettyname: Website Name
+ 
+userproplist.view_control_strip:
+   cldversion: 4
+   datatype: char
+   des: View control strip on all journals
+   indexed: 0
+   multihomed: 0
+   prettyname: View Control Strip
+ 
+userproplist.who_invited:
+  cldversion: 4
+  datatype: char
+  des: Username of the person who invited this user
+  indexed: 0
+  multihomed: 0
+  prettyname: Who Invited User
+
+userproplist.yahoo:
+  cldversion: 0
+  datatype: char
+  des: Yahoo ID
+  indexed: 1
+  multihomed: 1
+  prettyname: Yahoo ID
+
+userproplist.zip:
+  cldversion: 4
+  datatype: char
+  des: 5 digit zip code (if in US)
+  indexed: 1
+  multihomed: 0
+  prettyname: ZIP code
+
+talkproplist.edit_time:
+  datatype: num
+  des: Unix time of the last edit.  undef if never edited.
+  prettyname: Edit Time
+
+talkproplist.deleted_poster:
+  datatype: char
+  des: If the comment poster's account is deleted, this field gets added to all of their posts, so the UI can show something besides 'anonymous' when posterid gets set to 0
+  prettyname: Username of deleted poster
+
+talkproplist.guest_auth:
+  datatype: bool
+  des: true if auth'd, false if not
+  prettyname: URL of Guest Poster
+
+talkproplist.guest_email:
+  datatype: char
+  des: Anonymous comments with an email attached
+  prettyname: Email of Guest Poster
+
+talkproplist.guest_mangle_email:
+  datatype: bool
+  des: If true, mangle guest email
+  prettyname: URL of Guest Poster
+
+talkproplist.guest_name:
+  datatype: char
+  des: Anonymous comments with a name attached
+  prettyname: Name of Guest Poster
+
+talkproplist.guest_url:
+  datatype: char
+  des: Anonymous comments with a URL attached
+  prettyname: Website of Guest Poster
+
+talkproplist.opt_preformatted:
+  datatype: bool
+  des: Turn on if post contains HTML and shouldn't be formatted
+  prettyname: Don't Auto-Format
+
+talkproplist.picture_keyword:
+  datatype: char
+  des: A keyword that should align to a defined picture
+  prettyname: Picture Keyword
+
+talkproplist.poster_ip:
+  datatype: char
+  des: The poster's IP address, optionally logged.
+  prettyname: Poster's IP address
+
+talkproplist.subjecticon:
+  datatype: char
+  des: partial filename for subject icon to use
+  prettyname: Subject Icon
+
+talkproplist.unknown8bit:
+  datatype: bool
+  des: True if text has 8-bit data that's not in UTF-8
+  prettyname: Unknown 8-bit text
+
+logproplist.admin_content_flag:
+  datatype: char
+  des: Internal flag describing the nature of this entry, set by an admin
+  prettyname: Admin Content Flag
+  sortorder: 106
+
+logproplist.adult_content:
+  datatype: char
+  des: Sets the entry as containing adult content (none, explicit, concepts)
+  prettyname: Adult Content Flag
+  sortorder: 105
+
+logproplist.commentalter:
+  datatype: num
+  des: Unix time of the last change to number of comments to this post.
+  prettyname: Comments altered
+  sortorder: 99
+
+logproplist.current_coords:
+  datatype: char
+  des: Current coordinates at time of post, in form '45.2935N 123.3452W'
+  prettyname: Current Coordinates
+  sortorder: 103
+
+logproplist.current_location:
+  datatype: char
+  des: Current location at time of post, free form text
+  prettyname: Current Location
+  sortorder: 103
+
+logproplist.current_mood:
+  datatype: char
+  des: Your current mood.
+  prettyname: Current Mood
+  sortorder: 5
+
+logproplist.current_moodid:
+  datatype: num
+  des: Your current mood ID number, if known.
+  prettyname: Current Mood ID#
+  sortorder: 6
+
+logproplist.current_music:
+  datatype: char
+  des: Music you're currently listening to.
+  prettyname: Current Music
+  sortorder: 10
+
+logproplist.hasscreened:
+  datatype: bool
+  des: True if comments to this item include screened comments
+  prettyname: Has screened replies
+  sortorder: 99
+
+logproplist.opt_backdated:
+  datatype: bool
+  des: Set to true if this item shouldn't show up on people's friends lists (because it occurred in the past)
+  prettyname: Back-dated
+  sortorder: 35
+
+logproplist.opt_nocomments:
+  datatype: bool
+  des: Turn on if readers can't post comments on this entry.
+  prettyname: Don't Allow Comments
+  sortorder: 25
+
+logproplist.opt_noemail:
+  datatype: bool
+  des: Turn on if the poster isn't interested in receiving comments to this post by email
+  prettyname: Don't email comments
+  sortorder: 40
+
+logproplist.opt_preformatted:
+  datatype: bool
+  des: Turn on if post contains HTML and shouldn't be formatted
+  prettyname: Don't Auto-Format
+  sortorder: 20
+
+logproplist.opt_screening:
+  datatype: char
+  des: Like opt_whoscreened: A = All, R = Remote needed (anonymous only), F = non-Friends, N = None, else use userprop.
+  prettyname: Custom Screening Level
+  sortorder: 45
+
+logproplist.picture_keyword:
+  datatype: char
+  des: A keyword that should align to a defined picture
+  prettyname: Picture Keyword
+  sortorder: 30
+
+logproplist.qotdid:
+  datatype: 
+  des: Writer's block ID
+  prettyname: Writer's block ID
+  sortorder: 104
+
+logproplist.revnum:
+  datatype: num
+  des: Number of times this post has been edited.
+  prettyname: Revision number
+  sortorder: 99
+
+logproplist.revtime:
+  datatype: num
+  des: Unix time of the last edit
+  prettyname: Revision time
+  sortorder: 99
+
+logproplist.sms_msgid:
+  datatype: num
+  des: SMS Message ID of the message which led to this journal entry
+  prettyname: SMS Message ID
+  sortorder: 99
+
+logproplist.syn_id:
+  datatype: char
+  des: Unique id of syndication item
+  prettyname: Syndicated item id
+  sortorder: 99
+
+logproplist.syn_link:
+  datatype: char
+  des: Original URL of syndication item
+  prettyname: Syndication item link URL
+  sortorder: 99
+
+logproplist.taglist:
+  datatype: char
+  des: Comma separated list of tags on the entry
+  prettyname: Tag List
+  sortorder: 101
+
+logproplist.unknown8bit:
+  datatype: bool
+  des: True if text has 8-bit data that's not in UTF-8
+  prettyname: Unknown 8-bit text
+  sortorder: 99
+
+logproplist.used_rte:
+  datatype: bool
+  des: True if entry was composed using the rich text editor
+  prettyname: Composed in RTE
+  sortorder: 102
+
+logproplist.useragent:
+  datatype: char
+  des: Name of web/mobile/sip/etc client used to post
+  prettyname: User Agent
+  sortorder: 103
+
+logproplist.verticals_list:
+  datatype: char
+  des: Comma-separated list of verticals that this entry is in
+  prettyname: Verticals List
+  sortorder: 103
+
+usermsgproplist.userpic:
+  des: Userpic chosen by the user who created the message
+

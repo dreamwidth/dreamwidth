@@ -1,0 +1,293 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+        our (%GET, %POST);
+
+    # for error reporting
+    my $err = sub {
+        return "<title>Error</title>\n<h2>Error</h2>" . shift;
+    };
+
+    # we need a valid id
+    my $id = $GET{'id'} if $GET{'id'} =~ /^\d+$/;
+    return $err->("You have not specified a layer to edit.")
+        unless $id;
+
+    # authenticate user;
+    my $remote = LJ::get_remote();
+    return $err->("You must be logged in to edit layers.")
+        unless $remote;
+
+    # load layer
+    my $lay = LJ::S2::load_layer($id);
+    return $err->("The specified layer does not exist.")
+        unless $lay;
+
+    # if the b2lid of this layer has been remapped to a new layerid
+    # then update the b2lid mapping for this layer
+    my $b2lid = $lay->{b2lid};
+    if ($b2lid && $LJ::S2LID_REMAP{$b2lid}) {
+        LJ::S2::b2lid_remap($remote, $id, $b2lid);
+        $lay->{b2lid} = $LJ::S2LID_REMAP{$b2lid};
+    }
+
+    # is authorized admin for this layer?
+    return $err->('You are not authorized to edit this layer.')
+        unless LJ::can_manage($remote, $lay->{'userid'});
+
+    # get u of user they are acting as
+    my $u = $lay->{'userid'} == $remote->{'userid'} ? $remote : LJ::load_userid($lay->{'userid'});
+
+    # check priv and ownership
+    return $err->("You are not authorized to edit styles.")
+        unless LJ::get_cap($u, "s2styles");
+
+    # at this point, they are authorized, allow viewing & editing
+
+    # get s2 code from db - use writer so we know it's up-to-date
+    my $dbh = LJ::get_db_writer();
+    my $s2code = $POST{'s2code'} || LJ::S2::load_layer_source($lay->{s2lid});
+
+    # we tried to compile something
+        my $build;
+    if ($POST{'action'} eq "compile") {
+        return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+        $build = "<b>S2 Compiler Output</b> <em>at " . scalar(localtime) . "</em><br />\n";
+
+        my $error;
+        $POST{'s2code'} =~ tr/\r//d;  # just in case
+        unless (LJ::S2::layer_compile($lay, \$error, { 's2ref' => \$POST{'s2code'} })) {
+
+            $error =~ s/LJ::S2,.+//s;
+            $error =~ s!, .+?(src/s2|cgi-bin)/!, !g;
+
+            $build .= "Error compiling layer:\n<pre style=\"border-left: 1px red solid\">$error</pre>";
+
+            # display error with helpful context
+            if ($error =~ /^compile error: line (\d+)/i) {
+                my $errline = $1;
+                my $kill = $errline - 5 < 0 ? 0 : $errline - 5;
+                my $prehilite = $errline - 1 > 4 ? 4: $errline - 1;
+                my $snippet = $s2code;
+
+                # make sure there's a newlilne at the end
+                chomp $snippet;
+                $snippet .= "\n";
+
+                # and now, fun with regular expressions
+                my $ct = 0;
+                $snippet =~ s!(.*?)\n!sprintf("%3d", ++$ct) . ": " .
+                    $1 . "\n"!ge;                      # add line breaks and numbering
+                $snippet = LJ::ehtml($snippet);
+                $snippet =~ s!^((?:.*?\n){$kill,$kill})           # kill before relevant lines
+                               ((?:.*?\n){$prehilite,$prehilite}) # capture context before error
+                               (.*?\n){0,1}                       # capture error
+                               ((?:.*?\n){0,4})                   # capture context after error
+                               .*                                 # kill after relevant lines
+                             !$2<em class='error'>$3</em>$4!sx;
+
+                $build .= "<b>Context</b><br /><pre>$snippet</pre>\n";
+            }
+
+        } else {
+            $build .= "Compiled with no errors.\n";
+        }
+    } else {
+                $build = "Loaded layer $id.";
+        }
+
+    # load layer info
+    my $layinf = {};
+    LJ::S2::load_layer_info($layinf, [ $id ]);
+
+    # find a title to display on this page
+    my $type = $layinf->{$id}->{'type'};
+    my $name = $layinf->{$id}->{'name'};
+
+    # find name of parent layer if this is a child layer
+    if (! $name && $type =~ /^(user|theme|i18n)$/) {
+        my $par = $lay->{'b2lid'} + 0;
+        LJ::S2::load_layer_info($layinf, [$par]);
+        $name =  $layinf->{$par}->{'name'};
+    }
+
+    # Only use the layer name if there is one and it's more than just whitespace
+    my $title = "[$type] ";
+    $title .= $name && $name =~ /[^\s]/ ? "$name [\#$id]" : "Layer \#$id";
+
+        LJ::need_res(   'js/s2edit/xlib.js',
+                                        'js/s2edit/s2edit.js',
+                                        'js/s2edit/s2gui.js',
+                                        'js/s2edit/s2parser.js',
+                                        'js/s2edit/s2sense.js',
+                                        'js/s2edit/s2library.js',
+                                        'stc/s2edit.css');
+
+        my $includes = LJ::res_includes();
+        my $formauth = LJ::form_auth();
+
+        # -------------------------------------------------------------------------
+        #   S2 Editor HTML follows
+        # -------------------------------------------------------------------------
+
+        return <<HERE;
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>$title - S2 Designer</title>
+
+<script type="text/javascript"><!--
+        var s2docBaseURL = "$LJ::SITEROOT/doc/s2";
+// -->
+</script>
+
+<!--[if IE]>
+<style type="text/css">
+    html {
+        overflow: hidden;
+    }
+</style>
+<![endif]-->
+
+$includes
+
+<!--[if IE]>
+<style type="text/css">
+    div.reference {
+        height: expression(xGetElementById('statusbar').offsetTop - (42 + 9 + 10) + "px");
+    }
+
+    div.output {
+        width: expression(xGetElementById('statusbar').clientWidth - (18 + xGetElementById('out').offsetLeft) + "px");
+                bottom: 45px;
+    }
+
+    div.divider {
+                font-size: 2px;
+    }
+
+        #outputdivider {
+                width: expression(xGetElementById('statusbar').clientWidth - (18 + xGetElementById('out').offsetLeft) + "px");
+                bottom: 145px;
+                height: 7px;
+        }
+
+        #refdivider {
+                height: expression(xGetElementById('statusbar').offsetTop - (42 + 9 + 10) + "px");
+        }
+
+    div.main {
+        width: expression(xGetElementById('statusbar').clientWidth - (18 + 6 + xGetElementById('out').offsetLeft) + "px");
+        height: expression(xGetElementById('statusbar').offsetTop - (42 - 16 + xGetElementById('out').clientHeight + 57) + "px");
+    }
+
+    textarea.maintext {
+        width: 100%;
+        height: expression(xGetElementById('statusbar').offsetTop - (42 - 16 + xGetElementById('out').clientHeight + 57) + "px");
+    }
+
+    #outputtabs {
+        width: expression(xGetElementById('statusbar').clientWidth - (18 + 4 + xGetElementById('out').offsetLeft) + "px");
+    }
+</style>
+<![endif]-->
+
+</head>
+<body onMouseMove="s2processDrag(event)" onMouseUp="s2endDrag(event)">
+        <form method="post">
+        $formauth
+        <input type="hidden" name="action" value="compile" />
+
+    <div class="header">
+        <h1>$title</h1>
+
+        <div class="tools">
+            <a href="$LJ::SITEROOT/doc/s2" target="_blank">Documentation</a>
+        </div>
+
+        <input type="submit" value="Save & Compile" class="compilelink" />
+    </div>
+
+    <div class="main" id="maindiv">
+        <div class="maincontainer">
+        <textarea id="main" class="maintext" name="s2code" onKeyPress="s2keyPressed(event)" wrap="off"
+                  onKeyDown="s2IETabKeyPressedHandler(event)">@{[ LJ::ehtml($s2code) ]}</textarea>
+        </div>
+    </div>
+        <div class="divider" id="outputdivider" onMouseDown="s2startDrag(event)"
+                onMouseUp="s2endDrag(event)"
+                onMouseMove="s2processDrag(event)">&nbsp;</div>
+    <div class="tabs" id="outputtabs">
+        <h2>Build</h2>
+    </div>
+    <div id="out" class="output">
+                $build
+    </div>
+
+    <div class="tabs" id="reftabs">
+                <span id="navtabs" class="refvisible">
+                        <h2>Nav.</h2>
+                        <a href="javascript:s2switchRefTab(0)">Classes</a>
+                        <a href="javascript:s2switchRefTab(1)">Funcs.</a>
+                        <a href="javascript:s2switchRefTab(2)">Props.</a>
+                </span>
+                <span id="classtabs" class="refinvisible">
+                        <a href="javascript:s2switchRefTab(-1)">Nav.</a>
+                        <h2>Classes</h2>
+                        <a href="javascript:s2switchRefTab(1)">Funcs.</a>
+                        <a href="javascript:s2switchRefTab(2)">Props.</a>
+                </span>
+                <span id="functabs" class="refinvisible">
+                        <a href="javascript:s2switchRefTab(-1)">Nav.</a>
+                        <a href="javascript:s2switchRefTab(0)">Classes</a>
+                        <h2>Funcs.</h2>
+                        <a href="javascript:s2switchRefTab(2)">Props.</a>
+                </span>
+                <span id="proptabs" class="refinvisible">
+                        <a href="javascript:s2switchRefTab(-1)">Nav.</a>
+                        <a href="javascript:s2switchRefTab(0)">Classes</a>
+                        <a href="javascript:s2switchRefTab(1)">Funcs.</a>
+                        <h2>Props.</h2>
+                </span>
+    </div>
+    <div id="ref" class="reference">
+        <div id="nav" class="refvisible">
+                &nbsp;
+        </div>
+        <div id="classref" class="refinvisible">
+                (Classes)
+        </div>
+        <div id="funcref" class="refinvisible">
+                (Functions)
+        </div>
+        <div id="propref" class="refinvisible">
+                (Properties)
+        </div>
+    </div>
+
+        <div class="divider" id="refdivider" onMouseDown="s2startDragRef(event)"
+                onMouseUp="s2endDrag(event)"
+                onMouseMove="s2processDrag(event)">&nbsp;</div>
+
+    <div class="statusbar" id="statusbar">
+        <div class="gutter"> </div>
+        <div id="status">Ready.</div>
+    </div>
+
+<script type="text/javascript">
+    if (navigator.userAgent.indexOf('Safari') > -1) {
+        xGetElementById('main').style.width = '100%';
+    }
+
+        s2init();
+</script>
+
+</body>
+</html>
+
+
+
+HERE
+}
+_code?>

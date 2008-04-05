@@ -1,0 +1,93 @@
+<?page
+title=>Style Info
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST %GET);
+
+    my $remote = LJ::get_remote();
+    BML::redirect("$LJ::SITEROOT/customize/")
+        unless LJ::Support::has_any_support_priv($remote) || $LJ::IS_DEV_SERVER;
+
+    my $ret;
+    $ret .= "<form method='POST'>";
+    $ret .= "View user: ";
+    $ret .= LJ::html_text({name => 'user', maxlength => '15', size => '15', value => $GET{user} || $POST{user}});
+    $ret .= LJ::html_submit(value => "View");
+    $ret .= "</form>";
+    $ret .= "<?hr?>";
+
+    my $user = $POST{user} || $GET{user};
+    return $ret unless $user;
+
+    my $u = LJ::load_user($user);
+    unless ($u) {
+        $ret .= LJ::error_list("$POST{user} is not a registered username.");
+        return $ret;
+    }
+
+    if ($u->is_expunged) {
+        $ret .= LJ::error_list("$POST{user} is deleted and purged.");
+        return $ret;
+    }
+
+    # okay, we now have a user
+    if ($u->prop("stylesys") == 2) {
+
+        unless ($u->prop("s2_style")) {
+            $ret .= "<?h2 S2 h2?>";
+            $ret .= "<?p No style is defined for this user. p?>";
+            return $ret;
+        }
+
+        my $s2style = LJ::S2::load_style($u->prop("s2_style"));
+        my $pub = LJ::S2::get_public_layers(); # cached
+
+        $ret .= "<?h2 S2 - $s2style->{name} h2?>";
+
+        $ret .= "<ul>";
+        $ret .= "<li>Style ID: $s2style->{styleid}</li>";
+        $ret .= "<li>Last modified: " . LJ::mysql_time($s2style->{modtime}) . "</li>";
+
+        foreach my $lay (sort { $a cmp $b } keys %{$s2style->{'layer'}}) {
+            my $lid = $s2style->{'layer'}->{$lay};
+            if ($lid) {
+                $ret .= "<li>$lay: <a href='$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$lid'>";
+                $ret .= (defined $pub->{$lid} ? 'public' : 'custom') . "</a> (#$lid)</li>";
+            } else {
+                $ret .= "<li>$lay: none</li>";
+            }
+        }
+
+    } else {
+        $ret .= "<?h2 S1 h2?>";
+
+        $ret .= "<ul>";
+        foreach my $view (@LJ::views) {
+            my $styid = $u->prop("s1_${view}_style");
+            my $uri = $u->journal_base;
+
+            if ($view eq "friends" || $view eq "calendar") {
+                $uri .= "/$view";
+            } elsif ($view eq "day") {
+                my ($dday, $dmon, $dyear) = (localtime(time))[3,4,5];
+                $uri .= sprintf("/%04d/%02d/%02d", $dyear+1900, $dmon+1, $dday);
+            }
+            $ret .= "<li><a href='$uri'>$view</a>: <a href='$LJ::SITEROOT/styles/browse/styleinfo.bml?styleid=$styid'>$styid</a></li>";
+        }
+        $ret .= "</ul>";
+
+        if ($u->{'useoverrides'} eq 'Y') {
+            $ret .= "<?p (<a href='/support/see_overrides.bml?user=" . $u->user . "'>view overrides</a>) p?>";
+        } else {
+            $ret .= "<?p This user does not have any overrides. p?>";
+        }
+
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+page?>

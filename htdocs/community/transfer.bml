@@ -1,0 +1,70 @@
+<?_code
+{
+    LJ::set_active_crumb('transfercomm');
+
+    $title = $ML{'.title'};
+    $body = "";
+
+    # is there a user out there?
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    # bad statusvis?
+    unless ($remote->{statusvis} eq 'V') {
+        $body = "<?h1 $ML{'.badstatus.title'} h1?><?p $ML{'.badstatus.body'} p?>";
+        return;
+    }
+
+    # see if they posted and perform actions if so
+    if (LJ::did_post()) {
+        $errors{invalidform} = $ML{'error.invalidform'} unless LJ::check_form_auth();
+        # get info about the community
+        my $cu = LJ::load_user($POST{comm});
+        $errors{username} = $ML{'.error.notfound'} unless $cu;
+
+        # the rest of the errors assume a community exists
+        if ($cu) {
+            # status/type errors
+            $errors{username} = $ML{'.error.notcomm'} unless $cu->{journaltype} eq 'C';
+            $errors{username} = $ML{'.error.badstatus'} if !%errors && $cu->{statusvis} !~ /[VD]/;
+
+            # are they already a maintainer?
+            $errors{username} = $ML{'.error.alreadyadmin'} if !%errors && LJ::can_manage($remote, $cu);
+
+            # check the password last
+            $errors{password} = $ML{'.error.nopassword'} if !%errors && !$POST{password};
+            $errors{password} = $ML{'.error.mismatch'} if !%errors && !LJ::auth_okay($cu, $POST{password});
+        }
+
+        # everything checks out, transfer it
+        unless (%errors) {
+            $cu->log_event('maintainer_add', { actiontarget => $remote->{userid}, remote => $remote });
+            LJ::set_rel($cu, $remote, 'A');
+            LJ::update_user($cu, { password => '' });
+            $body = "<?h1 $ML{'.success.title'} h1?><?p ";
+            $body .= BML::ml('.success.body', { comm =>  LJ::ljuser($cu, { type => 'C' }) });
+            $body .= " p?>";
+            return;
+        }
+    }
+
+    # setup the form to transfer the community
+    $body .= "<?h1 $ML{'.title'} h1?><?p $ML{'.body'} p?>";
+    $body .= "<form method='post' action='/community/transfer.bml'>";
+    $body .= LJ::form_auth();
+    $body .= "<table><tr><td>$ML{'.account'}</td>";
+    $body .= "<td>" . LJ::html_text({ name => 'comm', id => 'comm', value => $POST{comm} }) . "</td></tr>\n";
+    $body .= "<tr><td></td><td><?inerr $errors{invalidform} inerr?></td></tr>" if $errors{invalidform};
+    $body .= "<tr><td></td><td><?inerr $errors{username} inerr?></td></tr>" if $errors{username};
+    $body .= "<tr><td>$ML{'.password'}</td>";
+    $body .= "<td>" . LJ::html_text({ type => 'password', name => 'password', id => 'password' }) . "</td></tr>\n";
+    $body .= "<tr><td></td><td><?inerr $errors{password} inerr?></td></tr>" if $errors{password};
+    $body .= "<tr><td></td><td>" . LJ::html_submit(undef, $ML{'.button.title'}) . "</td></tr>";
+    $body .= "</table></form>";
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>

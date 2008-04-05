@@ -1,0 +1,148 @@
+html body
+{
+    padding: 45px 0 0 0;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+#lj_controlstrip
+{
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    background-repeat: repeat-x;
+    background-position: bottom;
+}
+
+#lj_controlstrip table
+{
+    margin: 0;
+    padding: 0;
+    width: auto;
+}
+
+#lj_controlstrip td
+{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    line-height: 16.5px;
+    letter-spacing: normal;
+}
+
+#lj_controlstrip a
+{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    line-height: 16.5px;
+    letter-spacing: normal;
+    text-decoration: none;
+    font-variant: normal;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#lj_controlstrip a:hover {
+    text-decoration: underline;
+}
+
+#lj_controlstrip img {
+    background: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#lj_controlstrip a img
+{
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+#lj_controlstrip form
+{
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+/* Make sure all form elements use default colors and control strip fonts */        
+#lj_controlstrip input
+{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    line-height: 16.5px;
+    background-color: ButtonFace;
+    color: ButtonText;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    text-transform: none;
+}
+
+/* Make sure all form elements use default colors and control strip fonts */
+#lj_controlstrip select, #lj_controlstrip input#xc_user, #lj_controlstrip input#xc_password, #lj_controlstrip input#xc_remember
+{
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    line-height: 16.5px;
+    background-color: Menu;
+    padding: 0;
+    margin: 0;
+}
+
+/* First cell */
+#lj_controlstrip_userpic
+{
+    vertical-align: top;
+    width: 43px;
+}
+
+/* Second cell */
+#lj_controlstrip_user
+{
+    text-align: left;
+    vertical-align: middle;
+    padding: 0 1em 0 1em;
+    white-space: nowrap;
+    width: 18em;
+}
+
+/* Third cell */
+#lj_controlstrip_actionlinks
+{
+    text-align: left;
+    vertical-align: middle;
+    padding: 0 1em 0 1em;
+    white-space: nowrap;
+    width: 33em;
+}
+
+/* Third cell first line */
+#lj_controlstrip_statustext
+{
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Log in form */
+#lj_controlstrip_login
+{
+    vertical-align: middle;
+    padding-left: 1em;
+    width: 28em; 
+    white-space: nowrap;
+}
+
+/* First cell logged out */
+#lj_controlstrip_loggedout_userpic
+{
+    vertical-align: top;
+    width: 140px;
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::get_userid</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.get_urls.html" title="LJ::get_urls">
+<link rel="next" href="ljp.api.lj.get_username.html" title="LJ::get_username">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::get_userid</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.get_urls.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.get_username.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.get_userid"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::get_userid</h2>
+<p>LJ::get_userid &#8212; Returns a userid given a username.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::get_userid</b>(</code><var class="pdparam">dbarg</var>, <var class="pdparam">user</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3213647"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>dbarg. </b>Deprecated; a master database handle ($dbh) or a master/slave set of database handles ($dbs).</p></li>
+<li><p><b>user. </b>Username whose userid to look up.</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3213682"></a><h2>Info</h2>
+<p>Results cached in memory.  On miss, does DB call.  Not advised to use this many times in a row... only once or twice perhaps per request.  Tons of serialized db requests, even when small, are slow.  Opposite of <a class="link" href="ljp.api.lj.get_username.html" title="LJ::get_username">LJ::get_username</a>.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3213704"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/LJ/User.pm</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3213717"></a><h2>Returns:</h2>
+<p>Userid, or 0 if invalid user.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.get_urls.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.get_username.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::get_urls </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::get_username</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

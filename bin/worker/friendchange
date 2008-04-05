@@ -1,0 +1,210 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+use LJ::Worker::TheSchwartz;
+
+LJ::Worker::TheSchwartz->set_memory_limit(1024 * 1024 * 100); # 100MB memory limit.
+
+schwartz_decl('LJ::Worker::FriendChange');
+schwartz_work();
+
+############################################################################
+
+package LJ::Worker::FriendChange;
+use base 'TheSchwartz::Worker';
+use LWP;
+use LWP::UserAgent;
+use LWP::ConnCache;
+use DateTime;
+use XML::Atom::Entry;
+use XML::Atom::Feed;
+use XML::Atom::Person;
+use XML::Atom::Link;
+use XML::Atom::Content;
+use XML::LibXML;
+
+my $ua;
+sub ua {
+    return $ua ||= LWP::UserAgent->new(
+                                       conn_cache => LWP::ConnCache->new(total_capacity => 10),
+                                       agent      => "$LJ::SITENAME Pinger",
+                                       );
+}
+
+sub keep_exit_status_for { 0 }
+sub grab_for { 60 }
+sub max_retries { 10 }   # retry over a few hours
+sub retry_delay {
+    my ($class, $fails) = @_;
+    return [15, 15, 30, 60, 120, 300, 900, 900, 900, 900]->[$fails];
+}
+
+sub work {
+    my ($class, $job) = @_;
+    my $args = $job->arg;
+    my ($uid, $action, $fid) = @$args;
+
+    my $u = LJ::load_userid($uid)
+        or die "no userid";
+
+    my $f = LJ::load_userid($fid)
+        or die "no friend userid";
+
+    # Should we ping anywhere on friend changes?
+    unless (LJ::conf_test($LJ::REL_PING{server})) {
+        warn "No relation ping servers defined\n"
+            if $LJ::IS_DEV_SERVER;
+
+        $job->completed;
+        return;
+    }
+
+    # Helper to create Atom Links in the entry
+    my $make_link = sub {
+        my ( $rel, $type, $href, $title ) = @_;
+        my $link = XML::Atom::Link->new(Version => 1.0);
+        $link->rel($rel);
+        $link->type($type);
+        $link->href($href);
+        $link->title( $title ) if $title;
+        return $link;
+    };
+
+    # Create the XML::Atom::Entry
+    my $entry = XML::Atom::Entry->new(Version => 1.0);
+
+    # Set the author of the entry as the sitename and siteroot
+    {
+        my $author = XML::Atom::Person->new(Version => 1.0);
+        $author->name($LJ::SITENAME);
+        $author->uri($LJ::SITEROOT);
+        $entry->author($author);
+    }
+
+    # Entry meta-data
+    $entry->title('Relation Change (' . $u->display_name . ' - ' . $f->display_name . ')');
+    $entry->add_link($make_link->('related', '', $u->journal_base, $u->display_name));
+    $entry->add_link($make_link->('related', '', $f->journal_base, $f->display_name));
+    $entry->published(LJ::time_to_w3c(time()));
+
+    # Create the entry content and summary
+    {
+        my $atom_rel_tag;
+        my $c = XML::Atom::Content->new(Version => 1.0);
+
+        # Build up the edges_out node
+        my $edge_str = "      <glueon:edges_out xmlns:glueon=\"http://xmlns.glueon.net/2007/10\">\n";
+        $edge_str   .= "        <glueon:edge>\n";
+        $edge_str   .= "          <glueon:local_node_id>$fid</glueon:local_node_id>\n";
+        $edge_str   .= "          <glueon:href>@{[  LJ::exml($f->journal_base)  ]}</glueon:href>\n";
+
+        # Add a friend or join a comm
+        if (lc($action) eq 'add') {
+            if ($u->is_community) { # Member of community
+                $entry->summary($f->display_name . " joined the $LJ::SITENAMESHORT community " . $u->display_name);
+                $edge_str .= "          <glueon:rel>member</glueon:rel>\n";
+
+                # Define relationship type
+                {
+                    my $def_str = "      <glueon:rel_defs xmlns:glueon=\"http://xmlns.glueon.net/2007/10\">\n";
+                    $def_str   .= "        <glueon:rel_def>\n";
+                    $def_str   .= "          <glueon:rel>member</glueon:rel>\n";
+                    $def_str   .= "          <glueon:meaning>trusts</glueon:meaning>\n";
+                    $def_str   .= "          <glueon:meaning>reads</glueon:meaning>\n";
+                    $def_str   .= "          <glueon:meaning>XFN:rel-group</glueon:meaning>\n";
+                    $def_str   .= "        </glueon:rel_def>\n";
+                    $def_str   .= "      </glueon:rel_defs>\n";
+                    $c->elem->appendChild(XML::LibXML->new->parse_string($def_str)->getDocumentElement);
+                }
+            } else {
+                if ($f->is_community || $f->is_syndicated) { # Watching, not member
+                    $entry->summary($u->display_name . ' is watching ' . $f->display_name . " on $LJ::SITENAMESHORT");
+                    $edge_str .= "          <glueon:rel>watching</glueon:rel>\n";
+
+                    # Define relationship type
+                    {
+                        my $def_str = "      <glueon:rel_defs xmlns:glueon=\"http://xmlns.glueon.net/2007/10\">\n";
+                        $def_str   .= "        <glueon:rel_def>\n";
+                        $def_str   .= "          <glueon:rel>watching</glueon:rel>\n";
+                        $def_str   .= "          <glueon:meaning>reads</glueon:meaning>\n";
+                        $def_str   .= "          <glueon:meaning>XFN:rel-group</glueon:meaning>\n";
+                        $def_str   .= "        </glueon:rel_def>\n";
+                        $def_str   .= "      </glueon:rel_defs>\n";
+                        $c->elem->appendChild(XML::LibXML->new->parse_string($def_str)->getDocumentElement);
+                    }
+                } else { # P->P friend
+                    $entry->summary($u->display_name . ' added ' . $f->display_name . " as a friend on $LJ::SITENAMESHORT");
+                    $edge_str .= "          <glueon:rel>friend</glueon:rel>\n";
+
+                    # Define relationship type
+                    {
+                        my $def_str = "      <glueon:rel_defs xmlns:glueon=\"http://xmlns.glueon.net/2007/10\">\n";
+                        $def_str   .= "        <glueon:rel_def>\n";
+                        $def_str   .= "          <glueon:rel>friend</glueon:rel>\n";
+                        $def_str   .= "          <glueon:meaning>trusts</glueon:meaning>\n";
+                        $def_str   .= "          <glueon:meaning>reads</glueon:meaning>\n";
+                        $def_str   .= "          <glueon:meaning>XFN:rel-contact</glueon:meaning>\n";
+                        $def_str   .= "          <glueon:meaning>XFN:rel-friend</glueon:meaning>\n";
+                        $def_str   .= "        </glueon:rel_def>\n";
+                        $def_str   .= "      </glueon:rel_defs>\n";
+                        $c->elem->appendChild(XML::LibXML->new->parse_string($def_str)->getDocumentElement);
+                    }
+                }
+            }
+
+        # Remove a friend or leave a comm
+        } elsif (lc($action) eq 'del') {
+            if ($u->is_community) { # Was a member
+                $entry->summary($f->display_name . " left the $LJ::SITENAMESHORT community " . $u->display_name);
+            } else {
+                if ($f->is_community || $f->is_syndicated) { # Watching, not member
+                    $entry->summary($u->display_name . ' stopped watching ' . $f->display_name . " on $LJ::SITENAMESHORT");
+                } else { # P->P friend
+                    $entry->summary($u->display_name . ' removed ' . $f->display_name . " as a friend on $LJ::SITENAMESHORT");
+                }
+            }
+            $edge_str .= "          <glueon:rel/>\n";
+
+        # Some other action, mark the job as completed
+        } else {
+            warn "Unknown action '$action' attempted on " . $u->display_name . " -> " . $f->display_name . "\n";
+            $job->completed;
+            return;
+        }
+
+        # Finish the edges_out node
+        $edge_str .= "        </glueon:edge>\n";
+        $edge_str .= "      </glueon:edges_out>";
+
+        # Append edges_out node
+        my $edge_node = XML::LibXML->new->parse_string($edge_str);
+        $c->elem->appendChild($edge_node->getDocumentElement);
+
+        # Append Content to Entry
+        $c->type('xml');
+        $entry->content($c);
+    }
+
+    my $feed = XML::Atom::Feed->new(Version => 1.0);;
+    $feed->add_entry($entry);
+    my $atom = $feed->as_xml;
+
+    warn "Putting Atom: [$atom]\n"
+        if $LJ::IS_DEV_SERVER;
+
+    # Send the request
+    my $req = HTTP::Request->new(PUT => $LJ::REL_PING{server});
+    $req->header("Content-Type" => "text/xml");
+    $req->content($atom);
+    my $ua = ua();
+    my $res = $ua->request($req) or die "No response object.\n";
+
+    # Check the response and see if we should retry
+    die "Failed to inject: " . $res->status_line . "\n"
+        unless $res->is_success;
+
+    $job->completed;
+    return;
+}
+

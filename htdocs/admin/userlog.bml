@@ -1,0 +1,137 @@
+<?page
+title=>User Log Viewer
+head<=
+<style>
+<!--
+td.logrow {
+    border: solid 1px rgb(230,230,230);
+    padding: 2px;
+    margin: 0px;
+}
+th.logrow {
+    border: solid 1px rgb(180,180,180);
+    padding: 2px;
+    margin: 0px;
+    text-weight: bold;
+}
+-->
+</style>
+<=head
+body<=
+<?_code
+{
+    use strict;
+    use vars qw($GET $POST);
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $err = sub {
+        return "<?h1 Error h1?><?p $_[0] p?>";
+    };
+
+    return $err->("You do not have the necessary privilege to view this page.")
+        unless LJ::check_priv($remote, 'canview', 'userlog') ||
+               LJ::check_priv($remote, 'canview', '*');
+
+    my $user = LJ::canonical_username($POST{user} || $GET{user});
+
+    my $ret = <<FORM;
+<form method='post' action='userlog.bml'>
+Username: <input type='text' name='user' value='$user' maxlength='15' size='15' /> <input type='submit' value='View' />
+</form>
+FORM
+    return $ret unless $user;
+
+    my $u = LJ::load_user($user);
+    return $err->("User does not exist.")
+        unless $u;
+
+    return $err->("User is deleted and purged.")
+        if $u->statusvis eq "X";
+
+    my $dbcr = LJ::get_cluster_reader($u);
+    return $err->("Unable to get user cluster reader.")
+        unless $dbcr;
+
+    my $sth = $dbcr->prepare('SELECT * FROM userlog WHERE userid = ? ORDER BY logtime DESC LIMIT 1000');
+    $sth->execute($u->{userid});
+    return $err->("Database error: " . $sth->errstr)
+        if $sth->err;
+
+    $ret .= "<?p Latest log entries for " . LJ::ljuser($u) . ". p?>";
+    $ret .= "<table style='border: solid 1px black; width: 95%;'>\n";
+    $ret .= "<tr>";
+    $ret .= join('', map { "<th class='logrow'>$_</th>" } ("Date and Time", "Action", "Initiator", "IP Address", "Uniq Cookie"));
+    $ret .= "</tr>\n";
+
+    while (my $row = $sth->fetchrow_hashref) {
+        my $extra = {};
+        LJ::decode_url_string($row->{extra}, $extra);
+
+        my $action = "Action undefined for: $row->{action}";
+        if ($row->{action} eq 'delete_entry') {
+            $action = "Deleted entry $row->{actiontarget} via $extra->{method}";
+        } elsif ($row->{action} eq 'account_create') {
+            $action = "Account created";
+        } elsif ($row->{action} eq 'ban_set') {
+            my $u = LJ::load_userid($row->{actiontarget});
+            $action = "Banned " . LJ::ljuser($u) if $u;
+        } elsif ($row->{action} eq 'ban_unset') {
+            my $u = LJ::load_userid($row->{actiontarget});
+            $action = "Unbanned " . LJ::ljuser($u) if $u;
+        } elsif ($row->{action} eq 'friend_invite_sent') {
+            $action = "Friend invite sent to $extra->{extra}";
+        } elsif ($row->{action} eq 'maintainer_add') {
+            my $u = LJ::load_userid($row->{actiontarget});
+            $action = "Added maintainer " . LJ::ljuser($u) if $u;
+        } elsif ($row->{action} eq 'maintainer_remove') {
+            my $u = LJ::load_userid($row->{actiontarget});
+            $action = "Removed maintainer " . LJ::ljuser($u) if $u;
+        } elsif ($row->{action} eq 'emailpost') {
+            $action = "User posted via email gateway";
+        } elsif ($row->{action} eq 'accountstatus') {
+            my $path = "$extra->{old} -> $extra->{new}";
+            $action = {
+                    'V -> D' => "Account deleted",
+                    'D -> V' => "Account undeleted",
+                }->{$path} || "Account status changed ($extra->{old} to $extra->{new})";
+        } elsif ($row->{action} eq 'password_change') {
+            $action = "User changed password";
+        } elsif ($row->{action} eq 'password_reset') {
+            $action = "User reset password via lost password email";
+        } elsif ($row->{action} eq 'email_change') {
+            $action = "Email address changed to: $extra->{new}";
+        } elsif ($row->{action} eq 'mass_privacy_change') {
+            $action = "Entry privacy updated (from $extra->{s_security} to $extra->{e_security})";
+            # TODO: parse out e_unixtime and s_unixtime and display?
+        } elsif ($row->{action} eq 'delete_userpic') {
+            $action = "Deleted userpic #$extra->{picid}";
+        } elsif (my $info = LJ::run_hook('userlog_rows', $row)) {
+            $action = $info;
+        } else {
+            $action = "Unknown action ($row->{action})";
+        }
+
+        my $time = LJ::mysql_time($row->{logtime});
+
+        my $actor;
+        if ($row->{remoteid}) {
+            my $u = LJ::load_userid($row->{remoteid});
+            $actor = LJ::ljuser($u);
+        } else {
+            $actor = "<em>not recorded</em>";
+        }
+
+        my $ip = $row->{ip} || "<em>not recorded</em>";
+        my $uniq = $row->{uniq} || "<em>not recorded</em>";
+
+        $ret .= "<tr>" . join('', map { "<td class='logrow'>$_</td>" } ($time, $action, $actor, $ip, $uniq)) . "</tr>\n";
+    }
+
+    $ret .= "</table>";
+    return $ret;
+}
+_code?>
+<=body
+page?>

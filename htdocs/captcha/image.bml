@@ -1,0 +1,34 @@
+<?_code
+{
+    my ($capid, $anum) = ($GET{capid}, $GET{anum});
+    ($capid, $anum) = LJ::Captcha::session($GET{chal}, 'image', $GET{cid}) if $GET{chal};
+    return "Error" unless $capid && $anum;
+
+    # determine if we are talking to someone interested in reproxying for us
+    my $can_reproxy = 0;
+    unless ($LJ::REPROXY_DISABLE{captchas}) {
+        my $hdr = BML::get_client_header('X-Proxy-Capabilities');
+        $can_reproxy = $hdr && $hdr =~ m{\breproxy-file\b}i;
+    }
+
+    my $png;
+    eval { $png = LJ::Captcha::get_visual_data($capid, $anum, $can_reproxy); };
+    if (ref $png eq 'ARRAY') {
+        return "Error: unable to handle array without reproxy\n" unless $can_reproxy;
+        return "Error: captcha not available (no paths)\n" unless scalar @$png;
+        if ($png->[0] =~ m!http://!) {
+            Apache->request->header_out('X-REPROXY-URL', join(' ', @$png));
+        } else {
+            Apache->request->header_out('X-REPROXY-FILE', $png->[0]);
+        }
+        BML::set_content_type("image/png");
+        
+    } elsif ($png) {
+        BML::set_content_type("image/png");
+        return BML::noparse($png);
+    } else {
+        return "Error: $@";
+    }
+           
+}
+_code?>

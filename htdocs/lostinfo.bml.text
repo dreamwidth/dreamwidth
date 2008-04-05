@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+.btn.proceed=Proceed
+
+.enter_email=Enter your email address:
+
+.enter_email_optional=Email address:  (optional)
+
+.enter_username=Enter your username:
+
+.error.commnopassword=The account you are trying to retrieve the password for is a community. This kind of account does not have a password to retrieve. All community management can be accomplished by logging in as a maintainer of the community.
+
+.error.no_email=You must enter an email address in order to recover your username.
+
+.error.purged=Cannot retrieve password for a deleted account once it has been purged.
+
+.error.renamed=Cannot retrieve password for a renamed account.
+
+.error.syndicated=The account you are trying to retrieve the password for is a syndicated account. This kind of account does not have a password to retrieve.
+
+.error.sysbanned=Your account is not allowed to e-mail passwords.
+
+.error.toofrequent=You are trying to send too many e-mails at once. You may only request five lost information e-mails within twenty-four hours.
+
+.lostpassword.text=If you've lost your password, enter your username and optionally, the email address you'd like the password sent to.  Note that the email address must be one you've used at LiveJournal before and had confirmed at one point.  If you leave the email field blank, it'll be mailed to your current address.
+
+.lostpassword.title=Lost your password?
+
+.lostusername.text=If you've lost your username, enter your email address and we'll send you your username.
+
+.lostusername.title=Lost your username?
+
+.title=Lost Information
+

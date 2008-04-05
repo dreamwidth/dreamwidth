@@ -1,0 +1,117 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+
+    LJ::set_active_crumb('emailmanage');
+
+    my $dbh = LJ::get_db_writer();
+    
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+
+    my $firstdate = $dbh->selectrow_array(qq{
+        SELECT MIN(timechange) FROM infohistory
+        WHERE userid=? AND what='email'
+        AND oldvalue=?
+    }, undef, $u->{'userid'}, $u->email_raw);
+
+    my @deleted;
+    if (LJ::did_post() && $u->{'status'} eq 'A') {
+        return "<?h1 $ML{'Error'} ?h1> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+        my $sth = $dbh->prepare("SELECT timechange, oldvalue " .
+                                "FROM infohistory WHERE userid=? " . 
+                                "AND what='email' ORDER BY timechange");
+        $sth->execute($u->{'userid'});
+        while (my ($time, $email) = $sth->fetchrow_array)
+        {
+            my $can_del = defined $firstdate && $time gt $firstdate;
+            if ($can_del && $POST{"$email-$time"}) {
+                push @deleted, BML::ml('.log.deleted', 
+                                       { 'email' => $email,
+                                         'time' => $time });
+
+                $dbh->do("UPDATE infohistory SET what='emaildeleted' WHERE what='email' " .
+                         "AND userid=? AND timechange=? AND oldvalue=?",
+                         undef, $u->{'userid'}, $time, $email);
+            }            
+        }
+    }
+
+    my $ret;
+    
+    # authas switcher form
+    $ret .= "<form method='get' action='emailmanage.bml'>\n";
+    $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
+    $ret .= "</form>\n\n";
+
+    # some explanatory text
+    $ret .= "<?h1 $ML{'.desc.title'} h1?>\n";
+    $ret .= "<?p $ML{'.desc.text'} p?>\n";
+    $ret .= "<?p $ML{'.desc.notfirst'} p?>\n";
+
+    $ret .= "<?hr?>\n";
+
+    unless ($u->{'status'} eq "A") {
+        $ret .= "<?h1 $ML{'.notvalidated.title'} h1?>\n";
+        $ret .= "<?p " . BML::ml('.notvalidated.text2', {'email' => $u->email_raw, 'aopts' => "href='$LJ::SITEROOT/register.bml'"}) . " p?>";
+        return $ret;
+    }
+
+    # current address
+    $ret .= "<?h1 $ML{'.address.current.title'} h1?>\n";
+    $ret .= "<div style='margin: 20px 0 20px 30px;'><b>";
+    $ret .= $u->email_raw . "</b></div>\n";
+
+    # old addresses
+    $ret .= "<?h1 $ML{'.address.old.title'} h1?>\n";
+    $ret .= "<?p $ML{'.address.old.text'} p?>";
+
+    my $sth = $dbh->prepare("SELECT timechange, oldvalue FROM infohistory " .
+                            "WHERE userid=? AND what='email' " .
+                            "ORDER BY timechange");
+    $sth->execute($u->{'userid'});
+    my $rows;
+    while (my ($time, $email) = $sth->fetchrow_array)
+    {
+        my $can_del = defined $firstdate && $time gt $firstdate;
+        $rows .= "<tr><td>" . LJ::html_check({ 'type' => 'check', 'name' => "$email-$time",
+                                              'disabled' => ! $can_del } ) . "</td>";
+        $rows .= "<td>$email</td><td>$time</td></tr>\n";
+    }
+
+    if ($rows) {
+        my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
+        $ret .= "<form method='post' action='emailmanage.bml$getextra'>";
+        $ret .= LJ::form_auth();
+        $ret .= "<table border='1' cellpadding='2' style='margin-bottom: 3px;'>\n";
+        $ret .= $rows;
+        $ret .= "</table>\n";
+        $ret .= LJ::html_submit(undef, $ML{'.delete_selected'});
+        $ret .= "</form>";
+    } else {
+        $ret .= "<div style='margin-left: 30px; margin-top: 10px'><i>$ML{'.address.old.none'}</i></div>\n";
+    }
+
+    if (@deleted) {
+        $ret .= "<?h1 $ML{'.log.deleted.title'} h1?>\n";
+        $ret .= "<ul>";
+        $ret .= "<li>$_</li>\n" foreach @deleted;
+        $ret .= "</ul>";
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+page?>

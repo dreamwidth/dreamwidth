@@ -1,0 +1,123 @@
+;; -*- coding: utf-8 -*-
+.button.changecommunity=Update Settings
+
+.button.createcommunity=Create Community
+
+.error.alreadycomm=Account is already a community.
+
+.error.badpassword=Invalid community password
+
+.error.hasentries=This account already has entries and cannot be converted.
+
+.error.maintainertype=Maintainer account must be a person, not another shared account.
+
+.error.noaccess=Only community maintainers are able to edit community settings. You are not a maintainer of community [[comm]].
+
+.error.notcomm=Not a community account.
+
+.error.notfound=Community account not found.
+
+.error.samenames=Maintainer account and community account cannot be the same.
+
+.label.adultcontentheader=Adult Content
+
+.label.adultcontentconcepts=Adult Concepts
+
+.label.adultcontentexplicit=Explicit Adult Content
+
+.label.adultcontentnone=No Adult Content
+
+.label.adultcontentnote=This is a global setting for the community. For "Explicit Adult Content", users under the age of [[explicitage]] will be restricted from viewing. "Adult Concepts" restricts users under the age of [[conceptsage]] years old from viewing.
+
+.label.adultcontenttext=Does this community have adult content?
+
+.label.anybodycan=<b>All Members</b><br />Anybody can post immediately once a member.
+
+.label.changeheader=Change Community Settings
+
+.label.changetext=Here you can change the settings for the community you own or maintain.
+
+.label.closedmemb2=<b>Closed Membership</b><br />Nobody can join the community.
+
+.label.commchanged=Your community settings have been changed.
+
+.label.commcreate2=This is the account that you want to turn into a community. It must <a [[aopts]]>already be created</a>, but should not already be in use by an individual, because after this, many different people will potentially be able to post in it.
+
+.label.commcreated=Your community is now set up.
+
+.label.commheader=Community Account
+
+.label.comminfo=Community info
+
+.label.commopts=Community Options
+
+.label.commsite=Community website
+
+.label.community=Community:
+
+.label.createheader=Create Community
+
+.label.createtext2=From here you can create a community account. A community is a special type of account that other users can join and post in.
+
+.label.createtext2_example=For an example of a community, check out the <a [[aopts]]>[[commname]] Community</a>.
+
+.label.howoperates=Choose how your community operates.  You can change these later.
+
+.label.maintainer=Maintainer:
+
+.label.maintainer.login2=If this is not the maintainer account, <a [[aopts]]>log in</a> as somebody else.
+
+.label.managepage=<a [[aopts]]>Community Management</a> - to add members, grant posting access, appoint moderators, etc.
+
+.label.membership=Membership
+
+.label.moderatedmemb=<b>Moderated Membership</b><br />Requests to join are emailed to you for approval.
+
+.label.modheader=Entry Moderation
+
+.label.modis=<b>Moderated</b><br />New entries must be approved by a moderator.
+
+.label.modisnt=<b>Unmoderated</b><br />New entries appear immediately.
+
+.label.modtext=Are submissions to this community moderated?
+
+.label.nmcan=<b>Non-Members Can Post</b><br />Users can post to this community without having to join it.
+
+.label.nmcan2=<b>Allow all users to post</b><br />Users can post to this community without having to join it.
+
+.label.nmcant=<b>Non-Members Cannot Post</b><br />Users have to join this community in order to post in it.
+
+.label.nmcant2=<b>Only members can post</b><br />Users have to join this community in order to post in it.
+
+.label.nmheader=Non-Member Posting Restrictions
+
+.label.nmtext=Can users post to this community without having to join it?
+
+.label.openmemb=<b>Open Membership</b><br />Anybody can join without getting approved.
+
+.label.password=Password:
+
+.label.postaccess=Member Posting Restrictions
+
+.label.rellinks=Relevant links:
+
+.label.selcan=<b>Select Members</b><br />Only some members are able to post, once a maintainer gives them access.
+
+.label.username=Username:
+
+.label.whocanjoin=Who can join your community?
+
+.label.whocanpost=Do you want to allow only certain members the ability to post?
+
+.manage2=Manage communities
+
+.members2=Members
+
+.name=<b>Community name:</b> [[name]]
+
+.success=Success
+
+.title.create=Create Community
+
+.title.modify=Community Settings
+

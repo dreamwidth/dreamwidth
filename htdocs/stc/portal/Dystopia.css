@@ -1,0 +1,207 @@
+/* The default color scheme for Dystopia.                     */
+
+
+/*-------------------- Configuration Menus -------------------*/ 
+ 
+.DropDownMenu {
+	background-color: #FFF;
+	border: 2px solid #003366;
+	}
+	
+.BoxDescription {
+	background-color: #fff;
+	}
+	
+.DropDownMenuContent table tbody tr td a:link {
+	color: #336699;
+	}
+	
+.DropDownMenuContent table tbody tr td {
+	color: #666;
+	}
+	
+.PortalFenster {
+	border: 2px solid #003366;
+	background-color: #fff;
+	}
+	
+.PortalPatternedTitleBar {
+	background-color: #336699;
+	}
+	
+.PortalBoxTitleBar {
+	background-color: #336699;
+	color: #fff;
+	}
+	
+.PortalPatternedTitleBar span {
+	color: #fff !important;
+	}
+	
+.PortalTitleBarText {
+	color: #fff;
+	}
+
+.PortalFensterContent {
+	color: #000;
+	}
+	
+.PortalConfigSubmitButtons {
+	background-color: #ccc;
+	border: 1px solid #999;
+	}
+	
+.PortalConfigResetButton a:link {
+	color: #fff;
+	}
+	
+.PortalConfigResetButton a:hover {
+	color: #666;
+	}
+	
+.PortalBoxContent a:link, .PortalBoxContent a:visited {
+	color: #000066 !important;
+	}
+	
+.PortalMenuRow1, .PortalMenuRow2 {
+	background: #336699;
+	}
+
+.PortalMenuRow1:hover, .PortalMenuRow2:hover {
+	background: #cc6600 !important;
+	}
+	
+.PortalMenuRow1 a, .PortalMenuRow2 a {
+	color: #fff !important;
+	}
+	
+.PortalMenuRow1 a:hover, .PortalMenuRow2 a:hover {
+	color: #fff !important;
+	}
+	
+#AddPortalMenuButton {
+    background: #336699 url(http://pics.livejournal.com/veroz/pic/00051xwq) no-repeat 4% 50% !important;
+	}
+	
+#AddPortalMenuButton:hover {
+    background-color: #003366 !important;
+    }
+
+#PortalResetAllButton {
+	background: #CCC;
+	border: 1px solid #AAA;
+	}
+
+	
+
+/*------------------ End Configuration Menus -----------------*/
+/*------------------------------------------------------------*/
+ 
+ 
+ 
+/*------------------ General Module Styling ------------------*/
+
+.PortalBox {
+	border: 1px solid #ccc;
+	border-bottom: 2px solid #bbb;
+	border-right: 1px solid #ccc;
+	}
+	
+.PortalBoxContent {
+	background-color: #fff;
+	}
+	
+.PortalBoxContent a:link, .PortalBoxContent a:visited {
+	color: #336699;
+ 	}
+  
+.PortalBoxContent a:hover {
+	color: #003366;
+	}
+	
+
+ /*---------------- End General Module Styling ----------------*/ 
+ /*------------------------------------------------------------*/
+ 
+ 
+ 
+ 
+ /*------------------ Specific Module Stylings ------------------*/
+ /*																 */
+ /*                This is where the magic happens.				 */
+ /*																 */
+ /*--------------------------------------------------------------*/
+ 
+
+
+/*----------------------- Account Management --------------------*/
+
+ .Manage table a {
+	border-left: 3px solid #336699;
+	}
+	
+/*------------------------- Announcements -----------------------*/
+
+.PortalTableHeader td {
+	background-color: #4284c6 !important;
+	color: #fff !important;
+	}
+	
+.Announcements table tbody tr td {
+	color: #000;
+	}
+	
+.AnnouncementRow1 {
+	background-color: #fff;
+	}
+	
+.PortalRow2 td {
+	border: 1px solid #dfecfa;
+	}
+
+.PortalRow1 td {
+	border: 1px solid #dfecfa;
+	}
+
+.PortalRow1:hover, .PortalRow2:hover {
+	background-color: #9bc9f6;
+	}
+	
+.AnnouncementRow1:hover a, .AnnouncementRow2:hover a {
+	color: #fff;
+	}
+	
+ 
+/*----------------------- Recent Comments ----------------------*/
+ 
+ .RecentCommentTitle {
+ 	color: #003366;
+ 	}
+ 	
+ .RecentCommentDate {
+ 	color: #ccc;
+ 	}
+ 	
+ .RecentCommentItem {
+ 	background-color: #fff;
+ 	color: #003366;
+ 	border: 1px solid #dfecfa;
+ 	}
+ 	
+ .RecentCommentLinks {
+ 	color: #fff;
+ 	background-color: #dfecfa;
+ 	}	
+	
+/*------------------------ Account Status -------------------------*/
+	
+.standout table {
+	background-color: #fff !important;
+	border: 0px solid !important;
+}
+
+/*------------------------- Friends Page --------------------------*/
+
+.PortalFriendsPageEntry {
+	color: #333;
+	}

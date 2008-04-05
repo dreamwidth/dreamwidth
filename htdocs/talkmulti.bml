@@ -1,0 +1,110 @@
+<?_code
+{
+    use strict;
+    use vars qw(%POST $title $body);
+
+    my $err = sub {
+        my $errmsg = shift;
+        $body = "<?h1 $ML{'Error'} h1?><?p $errmsg p?>";
+        return;
+    };
+
+    my $mode = $POST{'mode'};
+    if ($mode eq 'screen') {
+        $title = $ML{'.title.screen'};
+    } elsif ($mode eq 'unscreen') {
+        $title = $ML{'.title.unscreen'};
+    } elsif ($mode eq 'delete' || $mode eq 'deletespam') {
+        $title = $ML{'.title.delete'};
+    } else {
+        $title = $ML{'Error'};
+        return $err->($ML{'.error.invalid_mode'});
+    }
+
+    my $sth;
+   
+    my $remote = LJ::get_remote();
+    return $err->($ML{'.error.login'}) unless $remote;
+    return $err->("<?requirepost?>") unless LJ::did_post();
+
+    my @talkids;
+    foreach (keys %POST) {
+        push @talkids, $1 if /^selected_(\d+)$/;
+    }
+    return $err->($ML{'.error.none_selected'}) unless @talkids;
+
+    my $u = LJ::load_user($POST{'journal'});
+    return $err->($ML{'talk.error.bogusargs'}) unless $u && $u->{'clusterid'};
+    return $err->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
+
+    my $dbcr = LJ::get_cluster_def_reader($u);
+
+    my $jid = $u->{'userid'};
+    my $ditemid = $POST{'ditemid'}+0;
+    my $commentlink = LJ::journal_base($u) . "/$ditemid.html";
+    my $itemid = $ditemid >> 8;
+    my $log = $dbcr->selectrow_hashref("SELECT * FROM log2 WHERE journalid=? AND jitemid=?",
+                                       undef, $jid, $itemid);
+    return $err->($ML{'.error.inconsistent_data'}) unless $log && $log->{'anum'} == ($ditemid & 255);
+    my $up = LJ::load_userid($log->{'posterid'});
+
+    # check permissions
+    return $err->($ML{'.error.privs.screen'})
+        if $mode eq "screen" && ! LJ::Talk::can_screen($remote, $u, $up);
+    return $err->($ML{'.error.privs.unscreen'})
+        if $mode eq "unscreen" && ! LJ::Talk::can_unscreen($remote, $u, $up);
+    return $err->($ML{'.error.privs.delete'})
+        if ($mode eq "delete" || $mode eq 'deletespam') && ! LJ::Talk::can_delete($remote, $u, $up);
+
+    # filter our talkids down to those that are actually attached to the log2
+    # specified.  also, learn the state and poster of all the items.
+    my $in = join (',', @talkids);
+    $sth = $dbcr->prepare("SELECT jtalkid, state, posterid FROM talk2 ".
+                          "WHERE journalid=? AND jtalkid IN ($in) ".
+                          "AND nodetype='L' AND nodeid=?");
+    $sth->execute($jid, $itemid);
+    my %talkinfo;
+    while (my ($id, $state, $posterid) = $sth->fetchrow_array) {
+        $talkinfo{$id} = [ $state, $posterid ];
+    }
+    @talkids = keys %talkinfo;
+
+    # do the work:
+    if ($mode eq "delete" || $mode eq 'deletespam') {
+        # first, unscreen everything for replycount and hasscreened to adjust
+        my @unscreen = grep { $talkinfo{$_}->[0] eq "S" } @talkids;
+        LJ::Talk::unscreen_comment($u, $itemid, @unscreen);
+        # FIXME: race condition here... somebody could get lucky and view items while unscreened.
+        # then delete, updating the log2 replycount as necessary
+
+        # Mark as spam
+        if ($mode eq 'deletespam') {
+            # don't let $remote mark their own comments as spam
+            foreach (grep { $talkinfo{$_}->[1] != $remote->id } @talkids) {
+                my $s = LJ::Talk::mark_comment_as_spam($u, $_);
+            }
+        }
+
+        my $num = LJ::delete_comments($u, "L", $itemid, @talkids);
+        LJ::replycount_do($u, $itemid, "decr", $num);
+        LJ::Talk::update_commentalter($u, $itemid);
+        $body = "<?h1 $ML{'.deleted.title'} h1?><?p " . BML::ml('.deleted.body2', {'aopts' => "href='$commentlink'"}) . " p?>";
+        return;
+
+    } elsif ($mode eq "unscreen") {
+        LJ::Talk::unscreen_comment($u, $itemid, @talkids);
+        $body = "<?h1 $ML{'.unscreened.title'} h1?><?p " . BML::ml('.unscreened.body2', {'aopts' => "href='$commentlink'"}) . " p?>";
+        return;
+
+    } elsif ($mode eq "screen") {
+        LJ::Talk::screen_comment($u, $itemid, @talkids);
+        $body = "<?h1 $ML{'.screened.title'} h1?><?p " . BML::ml('.screened.body2', {'aopts' => "href='$commentlink'"}) . " p?>";
+        return;
+    }
+}
+_code?>
+<?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?><?_c <LJDEP>
+</LJDEP> _c?>

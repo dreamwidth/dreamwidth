@@ -1,0 +1,13 @@
+;; -*- coding: utf-8 -*-
+.addbox=Add a module
+
+.configtitle=Configure My [[sitenameabbrev]] Options
+
+.pagetitle=My [[sitenameabbrev]]
+
+.resetall=Are you sure you want to reset all your portal modules to their default settings?
+
+.resetalltitle=Reset?
+
+.returnlink=Return to My [[sitenameabbrev]]
+

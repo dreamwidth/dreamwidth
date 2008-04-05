@@ -1,0 +1,72 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+    use LWPx::ParanoidAgent;
+    use LJ::CSS::Cleaner;
+    use Digest::SHA1;
+    use URI::URL;
+
+    BML::decl_params(
+                     # url to proxy/clean
+                     u => qr/^https?:\/\//,
+                     );
+
+    BML::set_content_type("text/css");
+
+    # don't allow access via www.
+    my $host = lc(Apache->request->header_in("Host"));
+    $host =~ s/:.*//;
+    if ($LJ::ONLY_USER_VHOSTS && ($host eq $LJ::DOMAIN ||
+                                  $host eq $LJ::DOMAIN_WEB)) {
+        return "/* invalid domain */";
+    }
+
+    return "/* invalid URL */" unless $GET{u} and $GET{u} !~ /[<>]/;
+
+    my $url = $GET{u};
+    my $memkey = "css:" . Digest::SHA1::sha1_hex($url);
+
+    if (my $clean = LJ::MemCache::get($memkey)) {
+        return $clean;
+    }
+
+    my $ua = LWPx::ParanoidAgent->new(
+                                      timeout => $LJ::CSS_FETCH_TIMEOUT || 2,
+                                      max_size => 1024*300,
+                                      );
+    my $res = $ua->get($url);
+    unless ($res->is_success) {
+        my $errmsg = $res->error_as_HTML;
+        $errmsg =~ s/<.+?>//g;
+        $errmsg =~ s/[^\w ]/ /g;
+        $errmsg =~ s/\s+/ /g;
+        return "/* Error fetching CSS: $errmsg */";
+    }
+
+    my $pragma = $res->header("Pragma");
+    my $nocache = $pragma && $pragma =~ /no-cache/i;
+
+    my $unclean = $res->content;
+
+    # Braindead URL rewriting. Once there's a proper CSS parser behind the CSS cleaner
+    # this can be done more intelligently, but this should do for now aside from some
+    # odd-ball cases.
+    # We do this before CSS cleaning to avoid this being used to introduce nasties.
+    $unclean =~ s/\burl\(([\"\']?)(.+?)\1\)/ 'url('.URI::URL->new($2, $url)->abs().')' /egi;
+
+    # Whitelist this host
+    if ($url =~ m!^http://www\.typepad\.com/\.shared/!i) {
+        LJ::MemCache::set($memkey, $unclean, 600) unless $nocache;  # 10 minute caching
+        return $unclean;
+    }
+
+    my $cleaner = LJ::CSS::Cleaner->new;
+    my $clean = $cleaner->clean($unclean);
+
+    LJ::run_hook('css_cleaner_transform', \$clean);
+
+    LJ::MemCache::set($memkey, $clean, 300) unless $nocache;  # 5 minute caching
+    return $clean;
+}
+_code?>

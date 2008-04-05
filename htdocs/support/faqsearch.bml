@@ -1,0 +1,112 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET $title $body);
+
+    $title = $ML{'.title'};
+
+    $body = "<?standout $ML{'.info'} standout?><br />";
+    $body .= "<form method='GET'>";
+    $body .= "<table><tr><td>$ML{'.label.term'}: </td>";
+    $body .= "<td>" . LJ::html_text({ size => 30, value => $GET{'q'}, name => 'q' });
+    $body .= "&nbsp;" . LJ::html_submit($ML{'.button.search'});
+    $body .= "</td></tr>";
+
+    $body .= "<tr><td>";
+
+    my @langs;
+    foreach my $code (@LJ::LANGS) {
+        my $l = LJ::Lang::get_lang($code);
+        next unless $l;
+
+        my $item = "langname.$code";
+        my $namethislang = BML::ml($item);
+        my $namenative = LJ::Lang::get_text($l->{'lncode'}, $item);
+
+        push @langs, $code;
+
+        my $s = $namenative;
+        $s .= " ($namethislang)" if $namethislang ne $namenative;
+        push @langs, $s;
+    }
+
+    my $curr = BML::get_language();
+    $body .= "$ML{'.label.lang'}: ";
+    $body .= "</td><td>";
+    my $sel = $GET{'lang'} || $curr;
+    $body .= LJ::html_select
+        ({ name => 'lang',
+           selected => $sel, },
+         @langs);
+    
+    $body .= "&nbsp;$ML{'.example'}";
+    $body .= "</td></tr></table></form>";
+
+    my $q = $GET{'q'};
+    if (defined $q && !$q) {
+        $body .= "<p><i>($ML{'.error.noterm'})</i></p>";
+        return;
+    }
+
+    if (defined $q && length $q < 2) {
+	$body .= "<p><i>($ML{'.error.tooshort'})</i></p>";
+	return;
+    }
+
+    # If for some other reason it isn't set or
+    # this is an initial page load
+    return unless $q;
+
+    my $lang = $GET{lang} || $curr || $LJ::DEFAULT_LANG;
+    my $remote = LJ::get_remote();
+    my $user;
+    my $user_url;
+
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ($remote) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $u = LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+    }
+
+    my @results = LJ::Faq->load_matching($q, lang => $lang, user => $user, url => $user_url);
+
+    if (@results < 1) { # ain't no results
+        $body .= "<p><i>($ML{'.error.noresults'})</i></p>";
+        return;
+    }
+
+    if (@results > 25) { @results = @results[0..24]; }
+
+    my $term = sub {
+	my $term = shift;
+	return "<span class='searchhighlight'>" . LJ::ehtml($term) . "</span>";
+    };
+
+    $body .= "<ul class='spaced'>";
+    foreach my $f (@results) {
+	my $dq = $f->question_html;
+	$dq =~ s/\Q$q\E/$term->($&)/ige;
+	my $ueq = LJ::eurl($q);
+        my $ul = $GET{'lang'} ne $curr ? "&amp;lang=".$GET{'lang'} : '';
+
+	$body .= "<li><a href='/support/faqbrowse.bml?faqid="
+            . $f->faqid . "&amp;q=$ueq$ul'>$dq</a></li>";
+    }
+    $body .= "</ul>";
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code  return $body; _code?>
+head<=
+<?searchcss?>
+<style type="text/css">
+ul.spaced li { margin-top: 0.7em; }
+</style>
+<=head
+page?>

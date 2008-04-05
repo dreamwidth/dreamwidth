@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+.editgroups=If you want to edit your friends groups, go to the [[link]] page.
+
+.error.nogroups.header=No Groups Defined
+
+.error.nogroups2=You cannot filter your friends list because you must first <a [[aopts]]>set up your friends groups</a>.
+
+.reset=Clear
+
+.select=Check the group(s) of friends you want to view on your friends list.
+
+.select.header=Select Groups
+
+.submit=View!
+
+.title2=Filter Friends Page
+

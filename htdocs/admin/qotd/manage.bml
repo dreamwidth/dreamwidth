@@ -1,0 +1,37 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST %GET);
+    use Class::Autouse qw( LJ::QotD );
+
+    my $remote = LJ::get_remote();
+
+    return "<?needlogin?>"
+        unless $remote;
+
+    return "You are not allowed to view this page"
+        unless LJ::check_priv($remote, 'siteadmin', 'qotd') || $LJ::IS_DEV_SERVER;
+
+    my $ret = "";
+
+    # activate/inactivate a question
+    LJ::Widget->handle_post(\%POST, qw(ManageQotD));
+
+    # spotlight preview
+    $ret .= "<div style='float: right; width: 400px; border: 1px solid'>";
+    $ret .= LJ::Widget::QotD->render . "</div>";
+
+    # manage QotD form
+    $ret .= LJ::Widget::ManageQotD->render( get => \%GET );
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

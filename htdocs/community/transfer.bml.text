@@ -1,0 +1,31 @@
+;; -*- coding: utf-8 -*-
+.account=Community Account
+
+.badstatus.body=The account you are logged in as is not active and cannot use this page at this time.
+
+.badstatus.title=Account Status
+
+.body=If you have the password to a community and are not currently a maintainer, you can make yourself a maintainer by filling out the following form.
+
+.button.title=Transfer Community
+
+.error.alreadyadmin=Already a maintainer of community.
+
+.error.badstatus=Community is not active.
+
+.error.mismatch=Password does not match.
+
+.error.nopassword=No password provided.
+
+.error.notcomm=Account not a community.
+
+.error.notfound=Account not found.
+
+.password=Community Password
+
+.success.body=You have successfully added yourself as a maintainer of [[comm]].
+
+.success.title=Success
+
+.title=Transfer Community
+

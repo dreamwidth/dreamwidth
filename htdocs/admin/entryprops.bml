@@ -1,0 +1,83 @@
+<?page
+body<=
+<?_code
+{
+    # this is for viewing the properties set on a particular entry
+    use strict;
+    use vars qw($ret %POST);
+
+    my $remote = LJ::get_remote();
+    my $is_admin = LJ::check_priv($remote, "canview", "entryprops");
+    return BML::redirect("$LJ::SITEROOT/editjournal.bml")
+        unless $is_admin || $LJ::IS_DEV_SERVER;
+
+    $ret .= "<form method='POST'>";
+    $ret .= "View properties for URL: ";
+    $ret .= LJ::html_text({name => 'url', maxlength => '100', size => '50'});
+    $ret .= LJ::html_submit(value => "View");
+    $ret .= "</form>";
+    $ret .= "<?hr?>";
+
+    my $entry = LJ::Entry->new_from_url($POST{url});
+    unless ($entry && $entry->valid) {
+        $ret .= LJ::error_list("$POST{url} is not a valid entry URL.") if LJ::did_post();
+        return $ret;
+    }
+
+    # WE HAEV ENTRY!!
+
+    my $subject;
+    if ($entry->subject_html) {
+        if ($entry->visible_to($remote)) {
+            $subject = $entry->subject_html;
+        } else {
+            $subject = "<em>hidden</em>";
+        }
+    } else {
+        $subject = "<em>no subject</em>";
+    }
+
+    my $security = $entry->security;
+    if ($security eq "usemask") {
+        if ($entry->allowmask == 1) {
+            $security = "friends";
+        } else {
+            $security = "custom";
+        }
+    }
+
+    $ret .= "<strong>Subject</strong>: <a href=" . $entry->url . ">" . $subject . "</a><br />";
+    $ret .= "<strong>Poster</strong>: " . $entry->poster->ljuser_display . "<br />";
+    $ret .= "<strong>Journal</strong>: " . $entry->journal->ljuser_display . "<br />";
+    $ret .= "<strong>Security</strong>: " . $security . " ";
+    $ret .= "(journal wide minsecurity: " . ($entry->journal->prop("newpost_minsecurity") || "public") . ")<br />";
+    $ret .= "<strong>User Date/Time</strong>: " . $entry->eventtime_mysql . "<br />";
+    $ret .= "<strong>Server Date/Time</strong>: " . $entry->logtime_mysql . "<br />";
+    $ret .= "<strong>Journal Adult Content</strong>: " . ($entry->journal->adult_content || "none")
+        . " (admin setting: " . ($entry->admin_content_flag || "none") . ")<br />";
+
+    $ret .= "<br />";
+
+    my %props = %{$entry->props || {}};
+    return $ret unless %props;
+
+    $ret .= "<ul>";
+    foreach my $prop (sort keys %props) {
+        my $extra = "";
+        if (my $p = LJ::get_prop("log", $prop)) {
+            $extra = "<br /><small>$p->{des}</small>";
+            # an ugly hack, i know
+            $props{$prop} = LJ::mysql_time($props{$prop}) if $p->{des} =~ /unix/i;
+        }
+
+        $ret .= "<li><strong>$prop</strong>: $props{$prop}$extra</li><br />";
+    }
+    $ret .= "</ul>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=>Entry Properties
+<=body
+page?>

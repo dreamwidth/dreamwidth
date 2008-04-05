@@ -1,0 +1,33 @@
+;; -*- coding: utf-8 -*-
+.button.leave=Leave Community
+
+.button.stopwatch=Stop Watching Community
+
+.label.buttontoleave=Press the button below to leave the "[[commname]]" community.
+
+.label.buttontostopwatch=Press the button below to stop watching the "[[commname]]" community.
+
+.label.infoerror=The specified community information is not valid.
+
+.label.lastmaintainer=You are not allowed to leave this community because you are the sole maintainer.  If you wish to leave the community, please appoint another maintainer and then try leaving again.
+
+.label.logoutfirst2=To leave a community you must first <a [[aopts]]>log in</a>.
+
+.label.removed.stopwatch=You are no longer watching the <a [[aopts]]>[[commname]] Community</a>.
+
+.label.removed.stopwatch4=You are no longer watching the [[commname]] Community.
+
+.label.removed2=You are now removed from the <a [[aopts]]>[[commname]] Community</a>.
+
+.label.removed5=You are now removed from the [[commname]] Community.
+
+.label.removefromfriends=Also remove "[[user]]" from friends list.
+
+.success=Success
+
+.sure=You sure?
+
+.title=Leave Community
+
+.title.stopwatch=Stop Watching Community
+

@@ -1,0 +1,1263 @@
+<?_code
+{
+#line 2
+ use strict;
+ use vars qw($title $windowtitle $body $head $bml_okay %GET);
+
+ BML::set_language_scope('/userinfo.bml');
+
+ my $r = Apache->request;
+ $r->notes("codepath" => "bml.userinfo");
+
+ $bml_okay = 1;
+ $title = $ML{'.title'};
+ $body = "";
+ $head = "";
+ $windowtitle = "";
+
+ # Deal with bots
+ my $sep  = "**";
+ my $pre  = "<!-- \n" . ($sep x 40 . "\n") x 2 . "$sep\n" x 10 . $sep;
+ my $post = "\n" . "$sep\n" x 10 . ($sep x 40 . "\n") x 2 . " -->";
+ $body .= LJ::run_hook("bot_director", $pre, $post);
+
+ if ($LJ::SERVER_DOWN) {
+     $title = $ML{'Sorry'};
+     $body = LJ::server_down_html();
+     return;
+ }
+
+ # if new-style URLs, get the GET{user} arg from the request notes,
+ # which was set by LiveJournal.pm
+ unless ($GET{'user'}) {
+     $GET{'user'} = $r->notes("_journal");
+ }
+
+ my $remote = LJ::get_remote();
+ if ($GET{'user'} eq "" && $GET{'userid'} eq "" && !$remote) {
+     $body = "<?needlogin?>";
+     return;
+ }
+
+ my $sth;
+ my %countries = ();
+ LJ::load_codes({ "country" => \%countries});
+
+ my $error = sub {
+     my $e = shift;
+     $body = "<?h1 $ML{'Error'} h1?><?p $e p?>";
+     return;
+ };
+
+ my $user = LJ::canonical_username($GET{'user'});
+ if ($GET{'user'} && ! $user) {
+     $body = $ML{'.error.malfname'};
+     return;
+ }
+ if ($user eq "" && $remote) {
+     $user = $remote->{'user'};
+ }
+
+ my $dbr = LJ::get_db_reader();
+ return $error->($ML{'error.nodb'}) unless $dbr;
+
+ my $userid = $GET{'userid'};
+ my $u;
+ $userid += 0;
+
+ {
+     if ($userid) {
+         $u = LJ::load_userid($userid);
+     } else {
+         $u = LJ::load_user($user);
+     }
+
+     return $error->($ML{'.label.reqfinduser'})
+         if $userid && ! LJ::check_priv($remote, "finduser") && ! ($GET{t} eq "I" && $u && $u->{journaltype} eq "I");
+
+     # fix accidentally broken ext_nnnn URLs for identity users
+     if ($u && $u->{journaltype} eq "I" && ! $userid) {
+         return BML::redirect("$LJ::SITEROOT/userinfo.bml?userid=$u->{'userid'}&t=I");
+     }
+
+     $user = $u->{'user'} if $u;
+     $userid = $u->{'userid'}+0 if $u;
+
+     LJ::text_out(\$u->{'name'}) if $u;
+     if ($u && ($GET{'mode'} eq "full" || $u->{'journaltype'} eq "Y")) {
+         $sth = $dbr->prepare("SELECT timeupdate, timecreate, ".
+                              "UNIX_TIMESTAMP()-UNIX_TIMESTAMP(timeupdate) ".
+                              "AS 'secondsold' FROM userusage ".
+                              "WHERE userid=$userid");
+         $sth->execute;
+         ($u->{'timeupdate'},
+          $u->{'timecreate'},
+          $u->{'secondsold'}) = $sth->fetchrow_array;
+     }
+ }
+
+ unless ($u) {
+     $title = $ML{'Error'};
+     $body = "<?h1 $ML{'.nonexist.name'} h1?><?p " . BML::ml('.nonexist.body',{'user'=>$user}) . " p?>";
+     return;
+ }
+
+ LJ::set_active_journal($u);
+
+ my $remote_isowner = $remote && $remote->{'user'} eq $u->{'user'};
+
+ # account purged?
+ if ($u->is_expunged) {
+     $title = $ML{'error.purged.title'};
+     $body = "<?h1 $ML{'error.purged.name'} h1?><?p $ML{'error.purged.text'} p?>";
+     BML::set_status(410); # 410 Gone
+     return;
+ }
+
+ my $domain = BML::get_client_header("Host");
+ if ($LJ::ONLY_USER_VHOSTS && $u->{journaltype} ne "I") {
+     my $url = $u->journal_base . "/profile";
+     $url .= '?mode=full' if $GET{mode};
+
+     my $good_domain = $url;
+     $good_domain =~ s!^http://!!;
+     $good_domain =~ s!/.*!!;
+     if ($domain ne $good_domain) {
+         return BML::redirect($url);
+     }
+ }
+
+ my $dbcr = LJ::get_cluster_reader($u);
+ return $error->($ML{'error.nodb'}) unless $dbcr;
+
+
+ # make the profilepage model for this user.  this is the data
+ # provider for all the tricky stuff like
+ # friends/of/mutual/sorting/etc.  all the data loading/caching logic
+ # that shouldn't be in a BML page.
+ my $pm = LJ::M::ProfilePage->new($u);
+
+ my $remote_isfriend = LJ::is_friend($u, $remote);
+ my $com = $u->{'journaltype'} eq "C" ? 1 : 0;
+ my $extid = $u->{'journaltype'} eq "I" ? $u->identity : undef;
+
+ my $synd;
+ if ($u->{'journaltype'} eq "Y") {
+     $synd = $dbr->selectrow_hashref("SELECT * FROM syndicated WHERE userid=$u->{'userid'}");
+ }
+
+ if (!$u->is_visible || $u->should_block_robots) {
+     $head .= LJ::robot_meta_tags();
+ }
+
+ if ($u->{'journaltype'} eq "R" && $u->{'renamedto'}) {
+     my $extra = $GET{'mode'} eq 'full' ? "&mode=full" : '';
+     return BML::redirect("$LJ::SITEROOT/userinfo.bml?user=$u->{'renamedto'}$extra");
+ }
+
+ my %friends = ('load'=>1, 'loaded'=>0, 'display'=>1, 'count' => 0);
+ my %friendsof = ('load'=>1, 'loaded'=>0, 'display'=>1);
+
+ if ($com) {
+     $title = $ML{'.title.communityinfo'};
+ } elsif ($synd) {
+     $title = $ML{'.title.syndicated'};
+     $u->{'opt_whatemailshow'} = "N";  # don't show email
+     $friends{'load'} = $friends{'display'} = 0;
+ }
+
+ if ($extid) {
+     $windowtitle = "External identity profile";
+ } else {
+     $windowtitle = "$u->{'user'} - $title";
+ }
+
+ $friends{'load'} = $friendsof{'load'} = 0 if $com && $u->{'dont_load_members'};
+
+ # do they have the viewall priv?
+ # there are no entries on this page, so we just check if they have any viewall, so viewsome
+ # applies here too.  we can't see info they've hidden anyway, but we can see the page.
+ my $viewall = 0;
+ if ($GET{'viewall'} && LJ::check_priv($remote, "canview", "suspended")) {
+   $viewall = LJ::check_priv($remote, 'canview', '*');
+   LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
+                         "viewall", "userinfo: $u->{'user'}, statusvis: " . $u->statusvis);
+ } else {
+
+     if ($u->is_suspended) {
+         $title = $ML{'error.suspended.title'};
+         $body = "<?h1 $ML{'error.suspended.name'} h1?><?p " .
+                 BML::ml('error.suspended.text', { 'user' => LJ::ljuser($user),
+                                                   'sitename' => $LJ::SITENAME }) . " p?>";
+         BML::set_status(403); # 403 Forbidden
+         return;
+     }
+     if ($u->is_deleted) {
+         $title = $ML{'error.deleted.title'};
+         $body = "<?h1 $ML{'error.deleted.name'} h1?><?p " .
+           BML::ml('error.deleted.text',{'user'=>$user}) . " p?>";
+         my $username = $u->user;
+
+         $body .= qq {
+             If you're interested in renaming your account to this username,
+             <a href="$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$username">setup your notifications</a>
+             to be notified when the account is purged.
+         } unless LJ::User->is_protected_username($username);
+
+         BML::set_status(404); # 404 Not Found
+         return;
+     }
+ }
+
+ $user = $u->{'user'};
+ $userid = $u->{'userid'};
+
+ $u->{'bio'} = LJ::get_bio($u);
+ LJ::text_out(\$u->{'bio'});
+
+ # arrayref of interests rows:  [ intid, intname, intcount ]
+ my $intu = LJ::get_interests($u);
+
+ my %remote_interest;
+ if ($remote && $remote->{'userid'} != $userid) {
+     if (my $rint = LJ::get_interests($remote, { justids => 1 })) {
+         $remote_interest{$_} = 1 foreach @$rint;
+     }
+ }
+
+ if ($u->{'opt_hidefriendofs'} && ! $pm->remote_isowner) {
+     # at this point, load should be on if viewall is on or if the user
+     # wants to show their mutual friends
+     $friendsof{'load'} = $u->show_mutualfriends || $viewall;
+     $friendsof{'display'} = $viewall;
+ }
+
+ my $jbase = $u->journal_base;
+
+ # Add metadata links to <head>
+ $head .= $pm->head_meta_tags;
+
+ my @friends;    # ($u, $u, $u,....)  truncated to max_friends_show
+ my %is_friend;  # uid -> 1  (not truncated)
+
+ # TAG:FR:userinfo:loadfriends
+ if ($friends{'load'}) {
+     my @ids = $u->friend_uids;
+     $friends{'count'} = @ids;
+     $is_friend{$_} = 1 foreach @ids;
+     if (@ids > $pm->max_friends_show) {
+         @ids = splice(@ids, 0, $pm->max_friends_show);
+     }
+     my %fr;
+     LJ::load_userids_multiple([ map { $_ => \$fr{$_} } @ids ]);
+     push @friends, sort { $a->display_name cmp $b->display_name } values %fr;
+     $friends{'loaded'} = 1;
+ }
+
+ # TAG:FR:userinfo:loadfriendofs
+ use LJ::M::FriendsOf;
+ my $fro_m = LJ::M::FriendsOf->new($u,
+                                   sloppy => 1, # approximate if no summary info
+                                   mutuals_separate => $u->show_mutualfriends,
+                                   # TODO: lame that we have to pass this in, but currently
+                                   # it's not cached on the $u singleton
+                                   friends => \%is_friend,
+                                   hide_test_cb => sub {
+                                       return $pm->should_hide_friendof($_[0]);
+                                   },
+                                   );
+
+ # FIXME: can continue cleaning this stuff away.  might have callers later.
+ if ($friendsof{'load'}) {
+     $friendsof{'loaded'} = 1;
+ }
+
+ $u->{'name'} = LJ::ehtml($u->{'name'});
+
+ # TAG:FR:userinfo:remotefriends
+ # who does the remote user list as a friend?
+ my %remote_friendid;
+ if ($remote && $friends{'loaded'}) {
+     if ($remote->{'userid'} == $u->{'userid'}) {
+         foreach (@friends) { $remote_friendid{$_->{'userid'}} = 1; }
+     } else {
+         my $frs = LJ::get_friends($remote) || {};
+         $remote_friendid{$_} = 1 while $_ = each %$frs;
+     }
+ }
+
+ # BML helpers.  we do BML by hand in this page, so we don't force BML
+ # to evaluate this huge page looking for non-existent BML.  this
+ # makes it quicker, and prevents us from having to clean out BML in
+ # the HTML cleaner too.
+ my $h1 = sub {
+     return BML::fill_template("h1", { DATA => $_[0] });
+ };
+ my $p = sub {
+     return BML::fill_template("p", { DATA => $_[0] });
+ };
+
+ $body .= "<table cellpadding='5' width='100%' border='0' class='vcard'><tr><td colspan='2'>";
+
+ if ($com) {
+     $body .= $h1->($ML{'.comminfo.name'});
+     my $pt = BML::ml('.comminfo.body',{'commname'=>$u->{'name'}}) . " ";
+     my $userinfo_join_community;
+     LJ::run_hooks("userinfo_join_community", {
+         'u' => $u,
+         'ret' => \$userinfo_join_community,
+     });
+     $pt .= $userinfo_join_community ? $userinfo_join_community : BML::ml('.membership.body2', {'aopts' => "href='$LJ::SITEROOT/community/join.bml?comm=$u->{'user'}'"});
+     $pt .= " " . BML::ml('.body.leave2', {'aopts' => "href='$LJ::SITEROOT/community/leave.bml?comm=$u->{'user'}'"});
+     $body .= $p->($pt);
+ } elsif ($synd) {
+     $body .= $h1->($ML{'.syndinfo.name'}) . $p->(BML::ml('.syndinfo.body2', {'aopts' => "href='$LJ::SITEROOT/friends/add.bml?user=$u->{'user'}'"}));
+ } elsif ($extid) {
+     if ($extid->[0] eq "O") {
+         $body .= $h1->("OpenID user");
+         $body .= $p->("This is a non-$LJ::SITENAME user that's using their external identity to log in to $LJ::SITENAME using <a href='$LJ::SITEROOT/openid/'>OpenID</a> in order to leave authenticated comments and read friends-only entries.");
+     }
+
+
+ } else {
+     if ($remote_isowner) {
+        $body .= $p->(BML::ml('.userinfo.body3', {'aopts' => "href='$LJ::SITEROOT/manage/profile/'"}));
+     }
+ }
+
+ ## standout bar
+ if (my @linkele = $pm->header_bar_links) {
+     $body .= BML::fill_template("standout", {
+         DATA => join("&nbsp;&nbsp;", @linkele),
+     });
+ }
+
+ $body .= "</td>\n";
+
+ my $flag_link;
+ if ($remote && $remote->can_see_content_flag_button( content => $u )) {
+     $flag_link = "<div align='right'><a style='font-size: 0.8em;' href='" . LJ::ContentFlag->adult_flag_url($u) . "'>$ML{'.flag'}</a></div><br />";
+ }
+
+ my $boxad = LJ::ads(type   => 'app',
+                     orient => 'BML-Journal-Profile',
+                     user   => $u->{user},
+                     )
+            .LJ::ads(type   => 'app',
+                     orient => 'Sponsored-Profile',
+                     user   => $u->{user},
+                     );
+
+ my $narrow_left = $boxad ? 1 : 2;  ## rows with smaller colspan to 2
+ if ($boxad) {
+     $body .= "<td valign='top' rowspan='4'>";
+     $body .= $flag_link;
+     $body .= $boxad;
+     $body .= "</td></tr>";
+ }
+
+ ### picture
+ my $defpic;
+ $defpic .= $flag_link unless $boxad;
+ $defpic .= "<div>";
+ my %pic;
+ if ($u->{'defaultpicid'}) {
+     my $picid = $u->{'defaultpicid'};
+     LJ::load_userpics(\%pic, [ $u, $picid ]);
+     $defpic .= "<a href='$LJ::SITEROOT/allpics.bml?user=$user'><img src='$LJ::USERPIC_ROOT/$picid/$userid' width='$pic{$picid}->{'width'}' height='$pic{$picid}->{'height'}' vspace='3' border='0' alt='$user $ML{'.allpics'}' class='photo' /></a>";
+     $defpic .= "<br /><a href='$LJ::SITEROOT/allpics.bml?user=$user'><font size='1' style='white-space: nowrap'>$ML{'.allpics'}</font></a>";
+ } elsif (!$synd) {
+     $defpic .= "<div style='border: solid 1px #ccc; width: 100px; height: 100px; text-align: center; font-style: italic;'>";
+     $defpic .= "<div style='padding: 15px 5px 5px 5px;'>";
+     $defpic .= LJ::can_manage($remote, $u) ? "<div><a href='$LJ::SITEROOT/editpics.bml?authas=$user'>Choose default userpic</a></div>" : LJ::userpic_count($u) ? "<a href='$LJ::SITEROOT/allpics.bml?user=$user'>view userpics</a>" : "(no userpics)";
+     $defpic .= "</div></div>\n";
+ }
+ $defpic .= "</div>";
+ ### /picture
+
+ ## journal title
+ my $journal_titles;
+ if ($u->{'journaltitle'}) {
+     my $span = ($narrow_left-- >= 0) ? 1 : 2;
+     $journal_titles .= "<span style='font-size: 1.2em'><b>" . LJ::ehtml($u->{'journaltitle'}) . "</b>";
+     if ($u->{'journalsubtitle'}) {
+         $journal_titles .= "<br /><i>" . LJ::ehtml($u->{'journalsubtitle'}) . "</i>";
+     }
+     $journal_titles .= "</span>\n";
+ }
+
+ {
+     my $hook_by_user;
+     LJ::run_hooks("userinfo_html_by_user", {
+         'u' => $u,
+         'ret' => \$hook_by_user,
+     });
+     my $hook_by_journal;
+     LJ::run_hooks("userinfo_html_by_journal", {
+         'u' => $u,
+         'ret' => \$hook_by_journal,
+     });
+     if ($u->{journaltype} eq "I") {
+         $body .= "<tr valign='top'><td align='right'><b>OpenID:</b></td><td width='100%'>";
+         $body .= LJ::ljuser($u) . "$journal_titles</td>";
+     } else {
+         my $hcard = 'nickname';
+         $hcard .= ' org' if $com;
+         # If their name is their journalname then mark the username as N
+         $hcard .= $u->{'name'} eq $u->{'journalname'} ? ' n' : ' fn';
+
+         $body .= "<tr valign='top'><td align='right'><b>$ML{'.label.user'}</b></td><td width='100%'><a href='$jbase/' class='$hcard'><b>$user</b></a> ($u->{'userid'}) ";
+         if ($u->{public_key}) {
+             $body .= "<a href='$LJ::SITEROOT/pubkey.bml?user=$user'>";
+             $body .= "<img src='$LJ::IMGPREFIX/key.gif' width='16' height='16' border='0' alt='View public key' title='View public key' style='vertical-align: middle; border: 0;' /></a>";
+         }
+         $body .= " $hook_by_user <br />";
+         $body .= "<div style='float: left; margin: 1em 2em 0em 0em'>$defpic</div>\n" if ($boxad);
+         $body .= "<div style='float: left; margin: 2em .5em .5em 0em;'>$journal_titles</div><div style='clear: left'></div>\n" if ($journal_titles);
+         $body .= " $hook_by_journal</td>\n";
+     }
+ }
+
+ if (!$boxad) {
+     $body .= "<td align='right' rowspan='3'>";
+     $body .= $defpic . "</td>";
+ }
+ $body .= "</tr>\n";
+
+ ### name or 'syndicated from'
+ unless ($synd) {
+     unless ($u->underage || $u->{'name'} eq $u->{'journaltitle'}) {
+         $narrow_left--;
+         $body .= "<tr><td align='right'><b>$ML{'.label.name'}</b></td><td class='n'>$u->{'name'}</td></tr>\n";
+     }
+ } else {
+     $narrow_left--;
+     my $link;
+     if (my $url = $u->{'url'}) {
+         $link="<a href='" . LJ::ehtml($url) . "'>$u->{'name'}</a>";
+     } else {
+         $link=$u->{'name'};
+     }
+     my $icon="<a href='" . LJ::ehtml($synd->{'synurl'}) . "'>".
+              "<img src='$LJ::IMGPREFIX/xml.gif' width='36' height='14' align='middle' border='0' /></a>";
+     $body .= "<tr valign='top'><td align='right'><b>$ML{'.label.syndicatedfrom'}</b></td>\n".
+              "<td>$link $icon</td></tr>\n";
+
+     # syndication status
+     $body .= "<tr valign='top'><td align='right'><b>$ML{'.label.syndicatedstatus'}</b></td><td>\n";
+     $body .= "$ML{'.syn.lastcheck'} ";
+     $body .= $synd->{'lastcheck'} || $ML{'.syn.last.never'};
+     my $status = {
+         'parseerror' => "Parse error",
+         'notmodified' => "Not Modified",
+         'toobig' => "Too big",
+         'posterror' => "Posting error",
+         'ok' => "",     # no status line necessary
+         'nonew' => "",  # no status line necessary
+     }->{$synd->{'laststatus'}};
+     $body .= " ($status)" if $status;
+
+     if ($synd->{'laststatus'} eq "parseerror") {
+        $body .= "<br />$ML{'.syn.parseerror'} " . LJ::ehtml($u->{'rssparseerror'});
+     }
+
+     $body .= "<br />$ML{'.syn.nextcheck'} $synd->{'checknext'}";
+     $body .= "</td></tr>\n";
+
+ }
+
+ if ($com && $u->{comm_theme}) {
+     my $span = ($narrow_left-- >= 0) ? 1 : 2;
+     $body .= "<tr valign='top'><td align='right'><b>$ML{'.label.theme'}</b></td><td colspan='$span'>";
+     $body .= LJ::ehtml($u->{comm_theme});
+     $body .= "</td></tr>";
+ }
+
+ ## text message
+ if ($u->{'txtmsg_status'} eq "on" && LJ::get_cap($u, "textmessaging")) {
+     my $span = ($narrow_left-- >= 0) ? 1 : 2;
+     $body .= "<tr valign='top'><td align='right'><b>$ML{'.label.textmessage'}</b></td><td colspan='$span'>" . BML::ml('.sendmessage.body2', {'user' => "<b>$u->{'user'}</b>", 'aopts' => "href='$LJ::SITEROOT/tools/textmessage.bml?user=$u->{'user'}'"}) . "</td></tr>";
+ }
+
+ if ( ! $synd && $u->{'url'}) {
+     my $url = LJ::ehtml($u->{'url'});
+     my $span = ($narrow_left-- >= 0) ? 1 : 2;
+     unless ($url =~ /^https?:\/\//) {
+         $url =~ s/^http\W*//;
+         $url = "http://$url";
+     }
+     my $urlname = LJ::ehtml($u->{'urlname'} || $url);
+     $url = "<a href='$url' class='url'>$urlname</a>";
+     $body .= "<tr><td align='right'><b>$ML{'.label.website'}</b></td><td colspan='$span'>$url</td></tr>\n" if ($u->{'url'});
+ }
+
+
+  if ( ! $synd && ($u->can_show_location || $viewall)) {
+      if ($u->{'city'} || $u->{'state'} || $u->{'country'}) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          $body .= "<tr><td align='right'><b>$ML{'.label.location'}</b></td><td colspan='$span'>";
+          my $ecity = LJ::eurl($u->{'city'});
+          my $ecountry = LJ::eurl($u->{'country'});
+          my $estate = "";
+
+          my ($country, $city, $state);
+
+          if ($u->{'country'}) {
+              $country = $LJ::DISABLED{'directory'} ? "<span class='country-name'>$countries{$u->{'country'}}</span>" :
+                  "<a href='$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry' class='country-name'>".
+                      $countries{$u->{'country'}} . "</a>";
+          }
+
+          if ($u->{'state'}) {
+              my %states;
+
+              my $states_type = $LJ::COUNTRIES_WITH_REGIONS{$u->{'country'}}->{'type'};
+              LJ::load_codes({ $states_type => \%states }) if defined $states_type;
+
+              $state = $u->{'state'};
+              $state = $states{$state} if $states_type && $states{$state};
+              $estate = LJ::eurl($state);
+              $state = (!$country || $LJ::DISABLED{'directory'}) ? "<span class='region'>$state</span>" :
+                  "<a href='$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=".
+                  "$ecountry&amp;loc_st=$estate' class='region'>" . LJ::ehtml($state) . "</a>";
+          }
+
+          if ($u->{'city'}) {
+              my $ecity = LJ::eurl($u->{'city'});
+              $city = LJ::ehtml($u->{'city'});
+              unless (!$country || $LJ::DISABLED{'directory'}) {
+                  $city = "<a href='$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=".
+                      "$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity' class='locality'>$city</a>";
+              } else {
+                  $city = "<span class='locality'>$city</span>";
+              }
+          }
+
+          $body .= join(", ", grep { $_ } ($city, $state, $country));
+          $body .= "</td></tr>";
+      }
+  }
+
+  if ( ! $synd && $u->bday_string && ($u->can_share_bday || $viewall)) {
+      if ($u->{'bdate'} && !$com && $u->{'bdate'} ne "0000-00-00") {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          $body .= "<tr><td align='right'><b>$ML{'.label.birthdate'}</b></td><td colspan='$span' class='bday'>".$u->bday_string."</td></tr>\n";
+      }
+  }
+
+  if ($u->share_contactinfo($remote) || $viewall) {
+      my $mangleaddress = sub {
+          my ($email, $first) = @_;
+          $first ||= "";
+          my $mret = "<table cellpadding='0' cellspacing='0' class='email'><tr><td>$first";
+          for (my $i = 0; $i < length($email); $i++) {
+              my $letter = substr($email, $i, 1);
+              if ($letter eq "\@") { $letter = "</td><td align='center'><i>&#64;</i></td><td>"; }
+              $mret .= $letter;
+          }
+          $mret .= "</td></tr></table>";
+          return $mret;
+      };
+
+      my @emails = $u->emails_visible($remote);
+      if (@emails) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          $body .= "<tr valign='top'><td align='right'><b>$ML{'.label.email'}</b></td><td colspan='$span'>";
+          foreach my $email (@emails) {
+              $body .= ($u->{'opt_mangleemail'} eq "Y" || $email =~ /\@livejournal\.com$/)
+                        ? $mangleaddress->($email)
+                        : "<a href='mailto:$email' class='email'>$email</a><br />";
+          }
+          $body .= "</td></tr>";
+      }
+
+      # FIXME: don't modify the $u object!  gross/dangerous.
+      foreach my $k (qw(aolim icq yahoo msn jabber google_talk skype gizmo)) {
+          $u->{$k} = LJ::ehtml($u->{$k});
+      }
+
+      my $span = ($narrow_left-- >= 0) ? 1 : 2;
+
+      $body .= LJ::run_hook('userinfo_contact_extra', $u, $remote, span => $span, mangleaddress => $mangleaddress) || '';
+
+      if ($u->{'aolim'}) {
+          my $qim = $u->{'aolim'};
+          $qim =~ s/ //g;
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          $body .= "<tr><td align='right'><b style='white-space: nowrap;'>$ML{'.label.aolim'}</b></td><td colspan='$span'><img alt='AIM status' src='http://big.oscar.aol.com/$qim?on_url=http://www.aol.com/aim/gr/online.gif&amp;off_url=http://www.aol.com/aim/gr/offline.gif' height='13' width='11' /> $u->{'aolim'} (<b><a href='aim:addbuddy?screenname=$qim'>$ML{'.label.addbuddy'}</a>, <a href='aim:goim?screenname=$qim&amp;message=Hello+there!+How+are+you?'>$ML{'.label.sendmessage'}</a></b>)</td></tr>\n";
+      }
+
+      my $user_agent = eval {
+          my %header_in = BML::get_request->headers_in;
+          return $header_in{'User-Agent'};
+      };
+
+      if ($u->{'icq'}) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          $body .= "<tr><td align='right'><b>$ML{'.label.icquin'}</b></td>";
+          $body .= "<td colspan='$span'><img alt='ICQ status' src='http://web.icq.com/whitepages/online?icq=$u->{'icq'}&amp;img=5' height='18' width='18' /> ";
+          $body .= "$u->{'icq'} (<b><a href='http://wwp.icq.com/$u->{'icq'}'>";
+          $body .= "$ML{'.label.userprofile'}</a>";
+
+          if (defined $user_agent && $user_agent =~ /MSIE/) {
+              $body .= ",&nbsp;<a href='http://web.icq.com/whitepages/message_me?uin=$u->{'icq'}&action=message'>$ML{'.label.icq_send_message'}</a>";
+          }
+
+          $body .= "</b>)</td></tr>\n";
+      }
+      if ($u->{'yahoo'}) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          $body .= "<tr><td align='right'><b style='white-space: nowrap;'>$ML{'.label.yahooid'}</b></td><td colspan='$span'><img alt='Yahoo status' src='http://opi.yahoo.com/online?u=$u->{'yahoo'}&amp;m=g&amp;t=0' width='12' height='12' /> <a href='http://profiles.yahoo.com/$u->{'yahoo'}'>$u->{'yahoo'}</a> (<b><a href='http://edit.yahoo.com/config/set_buddygrp?.src=&amp;.cmd=a&amp;.bg=Friends&amp;.bdl=$u->{'yahoo'}'>$ML{'.label.adduser'}</a>, <a href='http://edit.yahoo.com/config/send_webmesg?.target=$u->{'yahoo'}'>$ML{'.label.sendmessage'}</a></b>) </td></tr>\n";
+      }
+      if ($u->{'msn'}) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          my $msnname = $mangleaddress->($u->{'msn'});
+          $body .= "<tr><td align='right'><b>$ML{'.label.msnusername'}</b></td><td colspan='$span'>$msnname</td></tr>\n";
+      }
+      if ($u->{'jabber'}) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          my $jabber = $mangleaddress->($u->{'jabber'});
+          $body .= "<tr><td align='right'><b>$ML{'.label.jabber'}</b></td><td colspan='$span'>$jabber</td></tr>\n";
+      }
+      if ($u->{'google_talk'}) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          my $google = $mangleaddress->($u->{'google_talk'});
+          $body .= "<tr><td align='right'><b>$ML{'.label.googletalk'}</b></td><td colspan='$span'>$google</td></tr>\n";
+      }
+      if ($u->{'skype'}) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          my $skimg = "";
+          if ($u->{skype} =~ /^[\w\.\-]+$/) {
+              $skimg = "<img alt='Skype Status' width='16' height='16' src='http://mystatus.skype.com/smallicon/$u->{skype}' /> ";
+          }
+          my $skype = $mangleaddress->($u->{'skype'}, $skimg);
+          $body .= "<tr><td align='right'><b>$ML{'.label.skype'}</b></td><td colspan='$span'>$skype</td></tr>\n";
+      }
+      if (my $gizmo = $u->gizmo_account) {
+          my $span = ($narrow_left-- >= 0) ? 1 : 2;
+          $gizmo = $mangleaddress->( $gizmo );
+          $body .= "<tr><td align='right'><b>$ML{'.label.gizmo2'}</b></td><td colspan='$span'>$gizmo</td></tr>\n";
+      }
+  }
+
+
+ if ($u->{'has_bio'} eq "Y") {
+     my $span = ($narrow_left-- >= 0) ? 1 : 2;
+     my $label = $com ? $ML{'.about.comm'} : $ML{'.about.user'};
+
+     if ($u->{journaltype} eq 'I' && $LJ::ONLY_USER_VHOSTS) {
+         $u->{'bio'} = LJ::ehtml($u->{'bio'}); # XXXXX FIXME: TEMP FIX
+         $u->{'bio'} =~ s!\n!<br/>!g;
+     } else {
+         LJ::CleanHTML::clean_userbio(\$u->{'bio'});
+     }
+
+     LJ::EmbedModule->expand_entry($u, \$u->{'bio'});
+     $body .= "<tr><td align='right' valign='top'><b>$label</b></td><td colspan='$span'>$u->{'bio'}</td></tr>\n";
+ }
+
+ ### memories
+ {
+     my $memcount = LJ::Memories::count($userid);
+     if ($memcount) {
+         my $span = ($narrow_left-- > 0) ? 1 : 2;
+         my $noun_name = $memcount == 1 ? '.memories.entry' : '.memories.entries';
+         my $count = BML::ml($noun_name, {'count'=>$memcount});
+         $body .= "<tr><td align='right' valign='top'><b>$ML{'.label.memories'}</b></td><td colspan='$span'><a href='$LJ::SITEROOT/tools/memories.bml?user=$user'>$count</a></td></tr>\n";
+     }
+ }
+
+ ### Fotobilder gallery count
+ {
+     if (LJ::get_cap($u, 'fb_account') && LJ::get_cap($u, 'fb_can_upload') && $u->{'fb_num_pubpics'}+0 > 0) {
+         my $span = ($narrow_left-- >= 0) ? 1 : 2;
+
+         # what we display is an estimate.  to eliminate confusion on the user end, we'll display the
+         # estimate in a way that makes it clear it's not an exact number. rules are:
+         #
+         #    * < 10    == "under 10"
+         #    * 10..999 == "at least 150" (rounded down to nearest 10)
+         #    * 1000+   == "at least 1500" (rounded down to nearest 100)
+         #
+         my $ct = $u->{fb_num_pubpics};
+         my $ct_str;
+         if ($ct < 10) {
+             $ct_str = BML::ml('.fbpictures.lessthan', { count => 10 });
+         } else {
+             my $order = $ct < 100 ? 10 : 100;
+             my $base = POSIX::floor($ct / $order);
+             $ct_str = BML::ml('.fbpictures.over', { count => $base * $order });
+         }
+
+         $body .= "<tr><td align='right' valign='top'><b>$ML{'.label.fbpictures'}</b></td><td colspan='$span'><a href='$LJ::FB_SITEROOT/$user/'>$ct_str</a></td></tr>\n";
+     }
+ }
+
+ if (@$intu) {
+     my $span = ($narrow_left-- > 0) ? 1 : 2;
+     $body .= "<tr><td align='right' valign='top'><b><a href='$LJ::SITEROOT/interests.bml'>$ML{'.label.interests'}</a>:</b></td><td colspan='$span'>";
+     my $intcount = 0;
+     my $intlist = "";
+     foreach my $int (@$intu) {
+         next if $intcount++ > 150;
+         LJ::text_out(\$int->[1]); # 1==interest
+         my $eint = LJ::eurl($int->[1]);
+         if ($int->[2] > 1) {  # 2==intcount
+             if ($remote_interest{$int->[0]}) {  # 0==intid
+                 $intlist .= "<b><a href='$LJ::SITEROOT/interests.bml?int=$eint'>$int->[1]</a></b>, ";
+             } else {
+                 $intlist .= "<a href='$LJ::SITEROOT/interests.bml?int=$eint'>$int->[1]</a>, ";
+             }
+         } else {
+             $intlist .= "$int->[1], ";
+         }
+     }
+     chop $intlist; chop $intlist;  # remove trailing ", "
+     if ($intcount > 150) {
+         my $notshown = $intcount - 150;
+         $intlist .= BML::ml('.label.intsnotshown',{'intnotshown'=>$notshown});
+     }
+
+     $body .= "<b>$intcount:</b> " . $intlist;
+     if ($remote) {
+         my $link = "$LJ::SITEROOT/interests.bml?mode=enmasse";
+         $link .= "&fromuser=$user" unless ($remote->{'userid'} == $userid);
+         $body .= ". <small>";
+         my $mlcode = ($remote->{'userid'} == $userid) ? '.label.interests.removesome'
+                                                       : '.label.interests.modifyyours';
+         $body .= BML::ml('Actionlink', { 'link' => "<a href='$link'>$ML{$mlcode}</a>" });
+         $body .= "</a></small>";
+     }
+     $body .= "</td></tr>";
+ }
+
+ # Schools Directory
+ #
+ # Outer if logic
+ #  - Don't show if journal is syndicated or schools are disabled
+ #  - Show if user set to show school info to everyone (or if userprop hasn't been set yet)
+ #  - Show if user set to show to friends and remote is a friend
+ #  - Show if remote is using viewall
+ if ($u->{'journaltype'} ne 'Y' &&
+     !$LJ::DISABLED{'schools'}  &&
+     (($u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y') ||
+      ($u->{'opt_showschools'} eq 'F' && $remote_isfriend) || $viewall)) {
+
+     my $schools = LJ::Schools::get_attended($u);
+
+     # Show if journal is not a community or
+     # if it is a community and there are schools defined
+     if ($u->{'journaltype'} ne 'C' || ($schools && %$schools)) {
+         my $span = ($narrow_left-- > 0) ? 1 : 2;
+         $body .= "<tr><td align='right' valign='top'><b><a href='$LJ::SITEROOT/schools/'>$ML{'.label.schools'}</a>:</b></td><td colspan='$span'>";
+
+         if ($schools && %$schools) {
+             my @links;
+             foreach my $sid (sort { $schools->{$a}->{year_start} <=> $schools->{$b}->{year_start} ||
+                                     $schools->{$a}->{year_end} <=> $schools->{$b}->{year_end} ||
+                                     $schools->{$a}->{name} cmp $schools->{$b}->{name} } keys %$schools) {
+                 my $link = "<a href='$LJ::SITEROOT/schools/" .
+                     "?ctc=" . LJ::eurl($schools->{$sid}->{country}) .
+                     "&sc=" . LJ::eurl($schools->{$sid}->{state}) .
+                     "&cc=" . LJ::eurl($schools->{$sid}->{city}) .
+                     "&sid=" . $sid .
+                     "'>" . LJ::ehtml($schools->{$sid}->{name}) . "</a>";
+                 $link .= " - <em>" . $schools->{$sid}->{city};
+                 $link .= $schools->{$sid}->{state} ? ", $schools->{$sid}->{state}" : "";
+                 if ($schools->{$sid}->{country} ne 'US') {
+                     my %countries;
+                     LJ::load_codes({ country => \%countries });
+                     $link .= ", $countries{$schools->{$sid}->{country}}";
+                 }
+                 $link .= "</em>";
+
+                 if (defined $schools->{$sid}->{year_start}) {
+                     $link .= " (" . $schools->{$sid}->{year_start};
+
+                     if ($schools->{$sid}->{year_start} != $schools->{$sid}->{year_end}) {
+                         $link .= " - " . ($schools->{$sid}->{year_end} || "present");
+                     }
+
+                     $link .= ")";
+                 }
+
+                 $link .= "<br />\n";
+
+                 push @links, $link;
+             }
+             $body .= join('', @links);
+         } else {
+             $body .= "<i>$ML{'.label.noschools'}</i>";
+         }
+
+         if ($remote->{userid} == $userid) {
+             $body .= ' <small>';
+             $body .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/schools/manage.bml'>$ML{'.label.manageschools'}</a>" });
+             $body .= '</small>';
+         }
+
+         $body .= "</td></tr>";
+     }
+ }
+
+         # returns if user is in an "invisible" state (deleted/suspended)
+         my $is_invisible = sub {
+             my $user = shift() or return 1;
+             return 1 if $user->is_deleted || $user->is_expunged || $user->is_suspended;
+             return 0;
+         };
+
+         # returns whether or not to show deleted, expunged and suspended users
+         my $show_user = sub {
+             my $user = shift() or return 0;
+
+             # don't display invisible users unless full mode or remote is viewing their profile
+             return 1 if $remote && LJ::u_equals($remote, $u);
+             return 1 if $GET{mode} eq 'full';
+
+             return 0 if $is_invisible->($user);
+
+             return 1;
+         };
+
+ # Prints out a list of users with links to their
+ # userinfo pages. Apply strikethru and bolding
+ # for deleted journals and friends of user.
+ # As of 09/22/07 this is only used for printing
+ # maints, mods, and members of communities. - DR
+ my $listusers = sub {
+     my $users = shift;
+     my $type = shift; # Currently maint, mod, or member
+     foreach my $f (@$users) {
+         next unless $show_user->($f);
+
+         # XFN relationships
+         my $rel = '';
+         if ($type eq 'member') {
+             $rel = " rel='member'";
+         }
+
+         my $uilink = "<a href='" . $f->profile_url . "'$rel>" . $f->display_name . "</a>";
+         $uilink = "<strike>$uilink</strike>" if $is_invisible->($f);
+         $uilink = "<b>$uilink</b>" if $remote_friendid{$f->{'userid'}} &&
+             $remote->{'userid'} != $u->{'userid'};
+         $body .= $uilink;
+         $body .= ', ';
+     }
+     # remove trailing ", "
+     chop $body; chop $body;
+ };
+
+
+ ##
+ ## community maintainers and moderators
+ ##
+ if ($com) {
+     # get the list of maintainers and moderators (userid only)
+     my $maintainers = LJ::load_rel_user_cache($userid, 'A') || [];
+     my $moderators  = (LJ::load_rel_user_cache($userid, 'M') || [])
+         if $u->{'moderated'};
+
+     if (scalar @$maintainers || ($u->{'moderated'} && scalar @$moderators)) {
+         # now load all the usernames.
+         my %userhash;
+         LJ::load_userids_multiple([ map { $_, \$userhash{$_} }
+                                     @$maintainers, @$moderators ]);
+
+         my @maintlist = sort { $a->{'user'} cmp $b->{'user'} }
+                         map { $userhash{$_} } @$maintainers;
+
+         my $span = ($narrow_left-- >= 0) ? 1 : 2;
+         $body .= "<tr><td align='right' valign='top'><b>$ML{'.label.maintainers'}:</b></td>";
+         $body .= "<td colspan='$span'>";
+         $body .= "<b>" . scalar @maintlist . ":</b> ";
+         $listusers->(\@maintlist, 'maint');
+
+         # moderators
+         if ($u->{'moderated'} && scalar @$moderators) {
+             my @modlist = sort { $a->{'user'} cmp $b->{'user'} }
+                           map { $userhash{$_} } @$moderators;
+
+             if (scalar @modlist) {
+                 my $span = ($narrow_left-- >= 0) ? 1 : 2;
+                 $body .= "<tr><td align='right' valign='top'><b>$ML{'.label.moderators'}:</b></td>";
+                 $body .= "<td colspan='$span'>";
+                 $body .= "<b>" . scalar @modlist . ":</b> ";
+                 $listusers->(\@modlist, 'mod');
+             }
+         }
+     }
+ }
+
+ ##
+ ## friends
+ ##
+ unless ($synd || $LJ::FORCE_EMPTY_FRIENDS{$userid}) {
+     my $label = $com ? $ML{'.friends.comm'} : $ML{'.friends.user'};
+     my $span = ($narrow_left-- >= 0) ? 1 : 2;
+     $body .= "<tr><td align='right' valign='top'><b><a href='$jbase/friends'>$label</a>:</b></td><td colspan='$span'>";
+
+     $friends{'display'} = 0 if $friends{'count'} > $pm->max_friends_show;
+     if ($friends{'count'}) {
+         if (!$friends{'loaded'} || !$friends{'display'}) {
+             $body .= "<b><a href='$LJ::SITEROOT/tools/friendlist.bml?user=" . $u->user_url_arg . "'>" . $friends{'count'} . "</a>:</b> ";
+             $body .= "<a href='$LJ::SITEROOT/directory.bml?s_fro=1&amp;fro_user=$u->{'user'}'> " . ($com ? $ML{'.label.viewmembers'} : $ML{'.label.viewfriends'}) .  "</a>.";
+         } elsif ($u->{'journaltype'} eq 'P' or $u->{'journaltype'} eq 'S') {
+             # personal/shared journals have a special way of showing their friends list, it breaks it down into
+             # three sublists: personal/shared, community/news, syndication
+             my (@pfriends, @cfriends, @yfriends);
+             my $friend_link = sub {
+                 my $f = shift;
+                 return unless $show_user->($f);
+
+                 # Add XFN markup
+                 my $rel = '';
+                 if ($f->is_person || $f->is_shared || $f->is_identity) {
+                     $rel = " rel='friend'";
+                 } elsif ($f->is_community || $f->is_news) {
+                     $rel = " rel='group'";
+                 }
+
+                 my $frlink = "<a href='" . $f->profile_url . "'$rel>" . LJ::ehtml($f->display_name) . "</a>";
+                 $frlink = "<strike>$frlink</strike>" if $is_invisible->($f);
+                 $frlink = "<b>$frlink</b>" if $remote_friendid{$f->{'userid'}} && $remote->{'userid'} != $u->{'userid'};
+                 return $frlink;
+             };
+
+             foreach my $f (@friends) {
+                 push @pfriends, $f if $f->is_person or $f->is_shared or $f->is_identity;
+                 push @cfriends, $f if $f->is_community or $f->is_news;
+                 push @yfriends, $f if $f->is_syndicated;
+             }
+
+             my @alt_cfriends;
+             my $alt_clabel;
+             # Run hook for xtra special community category
+             LJ::run_hook("userinfo_alt_cfriends", \@cfriends, \@alt_cfriends, \$alt_clabel);
+
+             # Make into friend links
+             foreach my $list (\@pfriends, \@cfriends, \@yfriends, \@alt_cfriends) {
+                $list = [] unless ref $list;
+                @$list = map { $friend_link->($_) } @$list;
+             }
+
+             my $pfriends = join ', ', @pfriends;
+             my $yfriends = join ', ', @yfriends;
+             my $cfriends = join ', ', @cfriends;
+             my $alt_cfriends = join ', ', @alt_cfriends;
+
+             # now spit out the HTML
+             $body .= "<table>";
+             if ($pfriends) {
+                 my $text = LJ::ehtml($ML{'.label.frpeople'});
+                 $body .= "<tr><td style='text-align: center;font-weight:bold' nowrap valign='top'>" .
+                          "<img src='$LJ::IMGPREFIX/userinfo.gif' title='$text' alt='$text' border='0' align='top' /></td>" .
+                          "<td style='text-align: left;font-weight:bold' nowrap valign='top'>" .
+                          "<a href='$LJ::SITEROOT/tools/friendlist.bml?user=" . $u->user_url_arg . "'>" .
+                          scalar @pfriends .
+                          "</a>" .
+                          ":</td>".
+                          "<td>$pfriends</td>";
+             }
+             if ($cfriends) {
+                 my $text = LJ::ehtml($ML{'.label.frcommunity'});
+                 $body .= "<tr><td style='text-align: center;font-weight:bold' nowrap valign='top'>" .
+                          "<img src='$LJ::IMGPREFIX/community.gif' title='$text' alt='$text' border='0' align='top' /></td>" .
+                          "<td style='text-align: left;font-weight:bold' nowrap valign='top'>" .
+                          scalar @cfriends . ":</td>" .
+                          "<td>$cfriends</td>";
+             }
+             if ($yfriends) {
+                 my $text = LJ::ehtml($ML{'.label.frsyndication2'});
+                 $body .= "<tr><td style='text-align: center;font-weight:bold' nowrap valign='top'>" .
+                          "<img src='$LJ::IMGPREFIX/syndicated.gif' title='$text' alt='$text' border='0' align='top' /></td>" .
+                          "<td style='text-align: left;font-weight:bold' nowrap valign='top'>" .
+                          scalar @yfriends . ":</td>" .
+                          "<td>$yfriends</td>";
+             }
+             if ($alt_cfriends) {
+                 $body .= "<tr><td style='text-align: center;font-weight:bold' nowrap valign='top'>" .
+                          $alt_clabel . "</td>" .
+                          "<td style='text-align: left;font-weight:bold' nowrap valign='top'>" .
+                          scalar @alt_cfriends . ":</td>" .
+                          "<td>$alt_cfriends</td>";
+             }
+
+             $body .= "</tr></table>";
+         } else {
+             $body .= "<b><a href='$LJ::SITEROOT/tools/friendlist.bml?user=" . $u->user_url_arg . "'>" . $friends{'count'} . "</a>:</b> ";
+             $listusers->(\@friends, 'member');
+         }
+     } else {
+         $body .= $ML{'.label.nofriends'};
+     }
+     $body .= "</td></tr>\n";
+ }
+
+ # friend of and mutual friends display
+ # there are two options that will affect what gets shown below: opt_hidefriendofs, opt_showmutualfriends
+ # if the option to show mutual friends is on, then what was known as the friend of list is broken down
+ # into two lists: mutual friends (people you list and who also list you back) and 'also friend of', which
+ # lists the people you don't also list as friends.  you can hide your friend of list, and leave just
+ # your mutual friends list showing, or you can not split them and have both be hidden.
+ unless ($synd) {
+     if ($friendsof{'loaded'}) {
+         my $label;
+         if ($u->show_mutualfriends && (my $n_friends = $fro_m->mutual_friends)) {
+             $label = $ML{'.label.mutual'};
+             $body .= "<tr><td align='right' valign='top'><b style='white-space: nowrap;'>$label</b>";
+             $body .= "</td>";
+             $body .= "<td colspan='2' valign='top'><b>$n_friends:</b> ";
+             my $count = 1;
+             my $bold_mutual = ! LJ::u_equals($remote, $u);
+             my $clipped = 0; # bool
+             foreach my $mf ($fro_m->mutual_friends) {
+                 if ($count > $pm->max_friendof_show && $GET{'mode'} ne "full") {
+                     $clipped = 1;
+                     last;
+                 }
+                 my $frlink = "<a href='" . $mf->profile_url . "' rel='friend'>" . $mf->display_name . "</a>";
+                 $frlink = "<b>$frlink</b>" if $bold_mutual && $remote_friendid{$mf->{'userid'}};
+                 $body .= "$frlink, ";
+                 $count++;
+             }
+             chop $body; chop $body;
+             $body .= ", <a href='?mode=full'>...</a>" if $clipped;
+             $body .= "</td></tr>\n";
+         }
+         if ($friendsof{'display'} && (my $n_friends = $fro_m->friend_ofs)) {
+             $label = $com ? $ML{'.friendof.comm'} :
+                      ($u->show_mutualfriends ? $ML{'.label.alsofriendof'} : $ML{'.friendof.user'});
+             $body .= "<tr><td align='right' valign='top'><b style='white-space: nowrap;'>$label</b>";
+             if ($u->{'opt_hidefriendofs'}) {
+                 $body  .= "<br /><i>$ML{'.friendof.hidden'}</i>";
+             }
+             $body .= "</td>";
+             $body .= "<td colspan='2' valign='top'><b>$n_friends:</b> ";
+             my $count = 1;
+             my $clipped = 0; # bool
+             foreach my $fr ($fro_m->friend_ofs) {
+                 if ($count > $pm->max_friendof_show && $GET{'mode'} ne "full") {
+                     $clipped = 1;
+                     last;
+                 }
+                 my $frlink;
+                 my $nofollow = $remote_friendid{$fr->{'userid'}} ? "" : " rel='nofollow'";
+                 if ($fr->{'journaltype'} eq "P") {
+                     $frlink = "<a$nofollow href='" . $fr->profile_url . "'>$fr->{'user'}</a>";
+                 } elsif ($fr->{'journaltype'} eq "I") {
+                     $frlink = "<a$nofollow href=\"$LJ::SITEROOT/userinfo.bml?userid=$fr->{'userid'}&amp;t=I\">" . LJ::ehtml($fr->display_name) . "</a>";
+                 }
+                 $frlink = "<b>$frlink</b>" if $remote_friendid{$fr->{'userid'}};
+                 $body .= "$frlink, ";
+                 $count++;
+             }
+             chop $body; chop $body;
+             $body .= ", <a href='?mode=full'>...</a>" if $clipped;
+             $body .= "</td></tr>\n";
+         };
+         if ($friendsof{'display'} && (my $n_friends = $fro_m->member_of)) {
+             $label = $ML{'.label.memberof'};
+             $body .= "<tr><td align='right' valign='top'><b style='white-space: nowrap;'>$label:</b></td><td colspan='2'>";
+             $body .= "<b>$n_friends:</b> ";
+             foreach my $cu ($fro_m->member_of) {
+                 my $frlink = "<a href='" . $cu->profile_url . "' rel='group'>$cu->{'user'}</a>";
+                 $frlink = "<b>$frlink</b>" if $remote_friendid{$cu->{'userid'}};
+                 $body .= "$frlink, ";
+             }
+             chop $body; chop $body;
+             $body .= "</td></tr>\n";
+         };
+     }
+ } else {  # Syndication journals are special
+     $body .= "<tr><td align='right' valign='top'><b style='white-space: nowrap;'>$ML{'.friendof.syndreadcount'}:</b></td>";
+     $body .= "<td colspan='2'><i>" . $fro_m->reader_count . "</i></td></tr>\n";
+ }
+
+ ## extra rows generated by hooks
+ foreach my $row (LJ::run_hooks("userinfo_rows", {
+     'dbr' => $dbr,
+     'u' => $u,
+     'remote' => $remote,
+ })) {
+     next unless $row->[0];
+     $body .= "<tr><td align='right' valign='top'><b style='white-space: nowrap;'>";
+     $body .= $row->[0];
+     $body .=":</b></td><td colspan='2'>";
+     $body .= $row->[1];
+     $body .= "</td></tr>\n";
+ }
+
+ unless ($synd || $GET{'mode'} eq "full") {  # Synd accts are always full, but their full ends early (see below)
+     my $full = $u->profile_url('full' => 1);
+
+     $body .= "</table>\n";
+     $body .= "<p align='center'><i><a href='$full'>$ML{'.label.moredetails'}</a></i></p>";
+     $body .= "<br />\n";
+     $bml_okay = 0;
+     return;
+ }
+
+
+ ##
+ ## interesting times
+ ##
+ $body .= "<tr><td align='right' nowrap='nowrap'><b>$ML{'.label.datecreated'}</b></td><td colspan='2'>$u->{'timecreate'}</td></tr>";
+ $body .= "<tr><td align='right' nowrap='nowrap'><b>$ML{'.label.dateupdated'}</b></td><td colspan='2'>";
+ if ($u->{'timeupdate'}) {
+     $body .= "$u->{'timeupdate'}, <i>";
+     my $secondsold = $u->{'secondsold'};
+     my $num;
+     if ($secondsold > 60*60*24*7) {
+         $num = int($secondsold / (60*60*24*7));
+         $body .= $num == 1 ? $ML{'.timeupdate.weekago'}
+                            : BML::ml('.timeupdate.weeksago',{'num'=>$num});
+     } elsif ($secondsold > 60*60*24) {
+         $num = int($secondsold / (60*60*24));
+         $body .= $num == 1 ? $ML{'.timeupdate.dayago'}
+                            : BML::ml('.timeupdate.daysago',{'num'=>$num});
+     } elsif ($secondsold > 60*60) {
+         $num = int($secondsold / (60*60));
+         $body .= $num == 1 ? $ML{'.timeupdate.hourago'}
+                            : BML::ml('.timeupdate.hoursago',{'num'=>$num});
+     } elsif ($secondsold > 60) {
+         $num = int($secondsold / (60));
+         $body .= $num == 1 ? $ML{'.timeupdate.minuteago'}
+                            : BML::ml('.timeupdate.minutesago',{'num'=>$num});
+     } else {
+         $num = $secondsold;
+         $body .= $num == 1 ? $ML{'.timeupdate.secondago'}
+                            : BML::ml('.timeupdate.secondsago',{'num'=>$num});
+     }
+     $body .= "</i>";
+ } else {
+     $body .= $ML{'.date.never'};
+ }
+ $body .= "</td></tr>";
+
+ if ($synd) { # The rest of the rows are not useful to synd accts
+     $body .= "</table>\n";
+     $bml_okay = 0;
+     return "";
+ }
+
+ unless ($LJ::DISABLED{'userinfo_clientusage'}) {
+     $body .= "<tr><td align='right' valign='top'><b>" . BML::ml('.label.clientsused2', {'aopts' => "href='$LJ::SITEROOT/download/'"}) . "</b></td><td colspan='2'>";
+     $sth = $dbr->prepare("SELECT DISTINCT c.client FROM clients c, clientusage cu ".
+                          "WHERE cu.userid=$userid AND cu.clientid=c.clientid ORDER BY c.client");
+     $sth->execute;
+     my $lastclient = "";
+     while (my $row = $sth->fetchrow_hashref) {
+         next unless $row->{'client'} =~ m!(.+)/(.+)!;
+         my ($client, $ver) = ($1, $2);
+         if ($lastclient ne $client)
+         {
+             if ($lastclient) { chop $body; chop $body; $body .= "<br />"; }
+             else { 1; }
+             $body .= "<b>" . LJ::ehtml($client) ."</b>: ";
+             $lastclient = $client;
+         }
+         $body .= LJ::ehtml($ver) . ", ";
+     }
+     if ($lastclient) { chop $body; chop $body; }
+     $body .= "</td></tr>";
+ }
+
+ ## extra rows for full mode generated by hooks
+ foreach my $row (LJ::run_hooks("userinfo_rows_full_mode", {
+     'u' => $u,
+     'remote' => $remote,
+ })) {
+     next unless $row->[0];
+     $body .= "<tr><td align='right' valign='top'><b style='white-space: nowrap;'>";
+     $body .= $row->[0];
+     $body .=":</b></td><td colspan='2'>";
+     $body .= $row->[1];
+     $body .= "</td></tr>\n";
+ }
+
+ # count journal entries
+ {
+     my $count = $u->number_of_posts;
+     $body .= "<tr><td align='right' nowrap='nowrap'><b>$ML{'.label.journalentrs'}</b></td>" .
+         "<td colspan='2'>" . LJ::commafy($count) . "</td></tr>";
+ }
+
+ my $points = $dbr->selectrow_array("SELECT SUM(points) AS 'points' FROM supportpoints WHERE userid=$userid");
+ if ($points) {
+     $body .= "<tr><td align='right' nowrap='nowrap'><b><a href='$LJ::SITEROOT/support/'>$ML{'.label.supportpoints'}</a>:</b></td><td colspan='2'>" . LJ::commafy($points) . "</td></tr>";
+ }
+
+##
+## journal comments
+ {
+     my ($com_post, $com_got);
+     unless ($LJ::DISABLED{'show-talkleft'}) {
+         my $memkey = [$userid, "talkleftct:$userid"];
+         my $count = LJ::MemCache::get($memkey);
+         unless ($count) {
+             my $expire = time() + 3600*24*2; # 2 days
+             $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talkleft " .
+                                             "WHERE userid=?", undef, $userid);
+             LJ::MemCache::set($memkey, $count, $expire) if defined $count;
+         }
+         $com_post = LJ::commafy($count);
+         $com_post = BML::ml('.label.composted', {'num'=>$com_post});
+     }
+
+     $com_got = LJ::commafy($u->num_comments_received( dbh => $dbcr ));
+     $com_got = BML::ml('.label.comreceived', {'num'=>$com_got});
+
+     $body .= "<tr><td align='right'><b>$ML{'.label.comments'}</b></td><td colspan='2'>$com_post" .
+         $com_got . "</td></tr>";
+ }
+
+###
+### posting access
+###
+{
+    my $list;
+    if ($com || $u->{'journaltype'} eq 'S') {
+        # load user who can post to this community
+        $list = LJ::load_rel_user($u, 'P');
+    } else {
+        # load communities/accounts this user can post to
+        $list = LJ::load_rel_target($u, 'P');
+    }
+    my %u;
+    my @ids = @$list;
+    my $count = @ids;
+    my $chopped = 0;
+    my $CHOP_POINT = 500;
+    if (@ids > $CHOP_POINT) {
+        @ids = splice(@ids, 0, $CHOP_POINT);
+        $chopped = 1;
+    }
+    LJ::load_userids_multiple([ map { $_ => \$u{$_} } @ids ]);
+    my @accesslist = sort { $a->{user} cmp $b->{user} } grep { $_->is_visible } values %u;
+
+    if (my $vcount = @accesslist) {
+        $count = $vcount if $count < $CHOP_POINT;
+        $body .= "<tr valign='top'><td align='right'><b>$ML{'.label.shared'}</b></td><td colspan='2'><b>$count</b>: ";
+        $body .= join(", ", map { "<a href='" . $_->profile_url() . "'>$_->{user}</a>" } @accesslist);
+        $body .= ", ..." if $chopped;
+        $body .= "</td></tr>";
+    }
+}
+
+$body .= "</table>\n";
+
+$body .= "<br />\n";
+
+# removed until we run graphviz locally
+# $body .= "<p><a href=\"$LJ::SITEROOT/friends/graph.bml?user=$user\"><b>Graph of friends</b></a></p>";
+
+$bml_okay = 0;
+return;
+}
+_code?><?page
+windowtitle=><?_code return $windowtitle; _code?>
+title=><?_code return $title; _code?>
+body=><?_code return $bml_okay ? $body : BML::noparse($body); _code?>
+head=><?_code return $head; _code?>
+page?>

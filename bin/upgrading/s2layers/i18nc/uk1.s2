@@ -1,0 +1,179 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/uk1";
+layerinfo "name" = "Ukrainian";
+layerinfo "langcode" = "uk";
+layerinfo "author_name" = "didaio, camomiletea";
+set lang_current = "uk";
+
+# Short date format.  All numeric.
+set lang_fmt_date_short = "%%d%%.%%m%%.%%yy%%";
+
+# Medium date format.  Abbreviated month name, no day of the week.
+set lang_fmt_date_med = "%%dd%% %%mon%% %%yyyy%%";
+
+# Medium date format with day of week.  Abbreviated month name and abbreviated day of the week.
+set lang_fmt_date_med_day = "%%dd%% %%mon%% %%yyyy%%, %%da%%";
+
+# Long date format.  With full month name, but no day of the week.
+set lang_fmt_date_long = "%%dd%% %%month%% %%yyyy%%";
+
+# Long date format.  With full month name and full day of the week.
+set lang_fmt_date_long_day = "%%dd%% %%month%% %%yyyy%%, %%day%%";
+
+# Time format.
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+
+# Short month format.
+set lang_fmt_month_short = "%%mm%%.%%yyyy%%";
+
+# Medium month format.
+set lang_fmt_month_med = "%%month%% %%yyyy%%";
+
+# Long month format.
+set lang_fmt_month_long = "%%mon%% %%yyyy%%";
+
+# Months of the year.  Indexed from 1 (January) to 12 (December).
+set lang_monthname_long = [ "", "січня",  "лютого", "березня", "квітня", "травня", "червня", "липня", "серпня", "вересня", "жовтня", "листопада", "грудня" ];
+
+# Months of the year, in their short forms.  Indexed from 1 (Jan) to 12 (Dec).
+set lang_monthname_short = [ "", "січень",  "лютий", "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень", "листопад", "грудень" ];
+
+# Days of the week.  Indexed from 1 (Sunday) to 7 (Saturday).
+set lang_dayname_long = [ "", "неділя", "понеділок",  "вівторок", "середа", "четвер", "п'ятниця", "субота" ];
+
+# Days of the week, in their short forms.  Indexed from 1 (Sun) to 7 (Sat).
+set lang_dayname_short = ["", "Нд", "Пн",  "Вт", "Ср", "Чт", "Пт", "Сб"];
+
+set text_meta_music = "Зараз грає";
+set text_meta_mood = "Настрій";
+
+set text_post_comment = "Прокоментувати";
+set text_max_comments = "Досягнуто максимальної кількості коментарів";
+set text_read_comments="# коментар // # коментарі // # коментарів";
+
+set text_post_comment_friends = "Прокоментувати";
+set text_read_comments_friends = "# коментар // # коментарі // # коментарів";
+
+set text_tag_uses = "1 раз // # рази // # разів";
+
+set text_skiplinks_back = "Попередні #";
+set text_skiplinks_forward = "Наступні #";
+set text_skiplinks_forward_words = "Вперед";
+
+set text_view_recent = "Останні записи";
+set text_view_friends = "Друзі";
+set text_view_friends_comm = "Учасники";
+set text_view_friends_filter = "Друзі (Окрема група)";
+set text_view_friendsfriends = "Друзі друзів";
+set text_view_friendsfriends_filter = "Друзі друзів (Окрема група)";
+set text_view_archive = "Архів";
+set text_view_userinfo = "Дані користувача";
+set text_view_month = "Дивитися заголовки";
+set text_nosubject = "(без теми)";
+set text_noentries_recent = "Записи відсутні.";
+set text_noentries_day = "Жодних записів за цей день";
+set text_permalink = "Посилання";
+
+set text_month_screened_comments = "Є приховані";
+
+# Коментарі
+set text_multiform_check = "Обрати:";
+set text_multiform_des = "Спільна дія над обраними коментарями:";
+set text_multiform_btn = "Виконати";
+set text_multiform_opt_unscreen = "Показати";
+set text_multiform_opt_screen = "Сховати";
+set text_multiform_opt_unfreeze = "Розморозити";
+set text_multiform_opt_freeze = "Заморозити";
+set text_multiform_opt_delete = "Видалити";
+set text_multiform_opt_deletespam = "Видалити, як спам";
+set text_multiform_conf_delete = "Видалити обрані коментарі?";
+set text_comment_posted = "Коментар успішно надіслано.";
+set text_comment_from = "Від:";
+set text_comment_date = "Дата:";
+set text_comment_ipaddr = "IP-адреса:";
+set text_comment_reply = "Відповісти";
+set text_comment_frozen = "Гілку заморожено";
+set text_comment_parent = "Вище";
+set text_comment_thread = "Гілка";
+
+set text_tags = "Теги: #";
+
+set reg_firstdayofweek = "monday";
+
+set text_day_prev = "Попередній день";
+set text_day_next = "Наступний день";
+
+set text_poster_anonymous = "(Анонімно)";
+set text_reply_back = "Читати коментарі";
+set text_reply_nocomments_header = "Коментарі вимкнуті:";
+set text_reply_nocomments = "Коментарі для цього запису вимкнуті.";
+
+set text_website_default_name = "Мій сайт";
+
+set text_icon_alt_protected = "[захищений запис]";
+set text_icon_alt_private = "[приватний запис]";
+
+### Functions
+
+function lang_page_of_pages (int pg, int pgs) [notags] : string {
+    return "Сторінка $pg з $pgs";
+}
+
+# Three forms, special cases for numbers ending in 1 and 2, 3, 4, except those ending in 1[1-4]
+function lang_map_plural (int n) : int {
+    if ($n%10 == 1 and $n%100 != 11) { return 0; }
+    if ($n%10 >= 2 and $n%10 <= 4 and ($n%100 < 10 or $n%100>=20)) { return 1; }
+    return 2;
+}
+
+function lang_ordinal(int num) [notags] : string
+"Make an ordinal number from a cardinal number"
+{
+	if ($num%10 == 3 and $num%100 != 13) { return $num+"-є"; }
+	return $num+"-е";
+}
+
+function lang_viewname(string viewid) [notags] : string {
+
+    if ($viewid == "recent") { return $*text_view_recent; }
+    if ($viewid == "archive") { return $*text_view_archive; }
+    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "day") { return "День"; }
+    if ($viewid == "month") { return "Місяць"; }
+    if ($viewid == "userinfo") { return $*text_view_userinfo; }
+    if ($viewid == "entry") { return "Читати коментарі"; }
+    if ($viewid == "reply") { return "Прокоментувати"; }
+    if ($viewid == "tags") { return "Теги"; }
+    return "Невідомий тип сторінки";
+}
+
+function ReplyPage::view_title() : string {
+    return "Прокоментувати";
+}
+
+function server_sig() {
+    """Розроблено <a href="$*SITEROOT/">$*SITENAME</a>""";
+}
+
+function Page::print_entry_poster(Entry e) {
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        " пише до ";
+        $e.journal->print();
+    }
+}
+
+function lang_user_wrote(UserLite u) : string {
+    if (defined $u) {
+        return $u->as_string()+" пише:";
+    }
+    else {
+        return "Анонім пише";
+    }
+}
+
+function lang_at_datetime(DateTime d) : string {
+    return " " + $d->date_format("long") + " о " + $d->time_format();
+}

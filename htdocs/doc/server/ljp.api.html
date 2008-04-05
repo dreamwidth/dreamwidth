@@ -1,0 +1,1117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Part V. Application Programming Interface</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.index.html" title="LiveJournal Programming">
+<link rel="prev" href="ljp.styles.s1.friends_website.html" title="FRIENDS_WEBSITE">
+<link rel="next" href="ljp.api.ref.html" title="API Documentation">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Part V. Application Programming Interface</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.styles.s1.friends_website.html">Prev</a> </td>
+<th width="60%" align="center">
+<span class="application">LiveJournal</span> Programming</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.ref.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="part" lang="en" id="ljp.api">
+<div class="titlepage"><div><div><h1 class="title">Part V. Application Programming Interface</h1></div></div></div>
+<div class="partintro" lang="en" id="partintro.ljp.api">
+<div></div>
+<p>
+      This is the complete <acronym class="acronym">API</acronym> documentation.</p>
+<p>
+      While every effort is made to keep this up-to-date, continuous
+      development of <span class="orgname">LiveJournal, Inc.</span> projects mean the source code may have
+      newer changes.</p>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="reference"><a href="ljp.api.ref.html">III. API Documentation</a></span></dt>
+<dd><dl>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cleanhtml.clean.html">LJ::CleanHTML::clean</a></span><span class="refpurpose"> &#8212; Multi-faceted HTML parse function</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmdbuffer.flush.html">LJ::Cmdbuffer::flush</a></span><span class="refpurpose"> &#8212; Flush up to 500 rows of a given command type from the <a class="link" href="ljp.dbschema.cmdbuffer.html" title="cmdbuffer">cmdbuffer</a> table.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmdbuffer.get_property.html">LJ::Cmdbuffer::get_property</a></span><span class="refpurpose"> &#8212; Get a property of an async job type, either built-in or site-specific.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.comment.create.html">LJ::Comment::create</a></span><span class="refpurpose"> &#8212; Create a new comment. Add them to DB.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.comment.new.html">LJ::Comment::new</a></span><span class="refpurpose"> &#8212; Gets a comment given journal_u entry and jtalkid.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.db.time_range_to_ids.html">LJ::DB::time_range_to_ids</a></span><span class="refpurpose"> &#8212; Performs a binary search on a table's primary id key looking for time boundaries as specified.  Returns the boundary ids that were found, effectively simulating a key on 'time' for the specified table.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.entry.new.html">LJ::Entry::new</a></span><span class="refpurpose"> &#8212; Gets a journal entry.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.fbupload.do_upload.html">LJ::FBUpload::do_upload</a></span><span class="refpurpose"> &#8212; Uploads an image to FotoBilder from LiveJournal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.faq.has_summary.html">LJ::Faq::has_summary</a></span><span class="refpurpose"> &#8212; Tests whether instance has a summary</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.faq.lang_update_in_place.html">LJ::Faq::lang_update_in_place</a></span><span class="refpurpose"> &#8212; Fill in question, summary and answer from database for one or more FAQs.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.faq.load.html">LJ::Faq::load</a></span><span class="refpurpose"> &#8212; Creates a LJ::Faq object and populates it from the database.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.faq.load_all.html">LJ::Faq::load_all</a></span><span class="refpurpose"> &#8212; Creates LJ::Faq objects from all FAQs in the database.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.faq.load_matching.html">LJ::Faq::load_matching</a></span><span class="refpurpose"> &#8212; Finds all FAQs containing a search term and ranks them by relevance.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.faq.new.html">LJ::Faq::new</a></span><span class="refpurpose"> &#8212; Creates a LJ::Faq object from supplied information.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.faq.render_in_place.html">LJ::Faq::render_in_place</a></span><span class="refpurpose"> &#8212; Render one or more FAQs by expanding FAQ-specific mark-up.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.jsutil.autocomplete.html">LJ::JSUtil::autocomplete</a></span><span class="refpurpose"> &#8212; given the name of a form filed and a list of strings, return the JavaScript needed to turn on autocomplete for the given field.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.add_hash.html">LJ::Memories::add_hash</a></span><span class="refpurpose"> &#8212; Add values of one hash, to the corresponding entries in another.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.clear_memcache.html">LJ::Memories::clear_memcache</a></span><span class="refpurpose"> &#8212; Deletes memcached keyword data.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.count.html">LJ::Memories::count</a></span><span class="refpurpose"> &#8212; Returns the number of memories that a user has.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.create.html">LJ::Memories::create</a></span><span class="refpurpose"> &#8212; Create a new memory for a user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.delete_by_id.html">LJ::Memories::delete_by_id</a></span><span class="refpurpose"> &#8212; Deletes a bunch of memories by memid.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.get_by_ditemid.html">LJ::Memories::get_by_ditemid</a></span><span class="refpurpose"> &#8212; Get memory for a given journal entry.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.get_by_id.html">LJ::Memories::get_by_id</a></span><span class="refpurpose"> &#8212; Get memories given some memory ids.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.get_by_keyword.html">LJ::Memories::get_by_keyword</a></span><span class="refpurpose"> &#8212; Get memories given a user and a keyword/keyword id.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.get_by_user.html">LJ::Memories::get_by_user</a></span><span class="refpurpose"> &#8212; Get memories given a user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.get_keyword_counts.html">LJ::Memories::get_keyword_counts</a></span><span class="refpurpose"> &#8212; Get a list of keywords and the counts for memories, showing how many memories are under each keyword.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.get_keywordids.html">LJ::Memories::get_keywordids</a></span><span class="refpurpose"> &#8212; Get all keyword ids a user has used for a certain memory.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.get_keywords.html">LJ::Memories::get_keywords</a></span><span class="refpurpose"> &#8212; Retrieves keyword/keyids without big joins, returns a hashref.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.update_memory.html">LJ::Memories::update_memory</a></span><span class="refpurpose"> &#8212; Updates the description and security of a memory.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memories.updated_keywords.html">LJ::Memories::updated_keywords</a></span><span class="refpurpose"> &#8212; Deletes memcached keyword data.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.parsefeed.parse_feed.html">LJ::ParseFeed::parse_feed</a></span><span class="refpurpose"> &#8212; Parses an RSS/Atom feed.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.s1.get_themeid.html">LJ::S1::get_themeid</a></span><span class="refpurpose"> &#8212; Loads or returns cached version of given color theme data.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.s1w2.date_s2_to_s1.html">LJ::S1w2::date_s2_to_s1</a></span><span class="refpurpose"> &#8212; Convert an S2 Date or DateTime object into an S1 date hash.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.s1w2.prepare_currents.html">LJ::S1w2::prepare_currents</a></span><span class="refpurpose"> &#8212; do all the current music/mood/weather/whatever stuff.  only used by ljviews.pl.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.s2.get_tags_text.html">LJ::S2::get_tags_text</a></span><span class="refpurpose"> &#8212; Gets text for display in entry for tags compatibility.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.add_pending_school.html">LJ::Schools::add_pending_school</a></span><span class="refpurpose"> &#8212; Adds a school from a user to the pending list of schools.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.approve_pending.html">LJ::Schools::approve_pending</a></span><span class="refpurpose"> &#8212; Takes a bunch of pending rows and approves them as a new target school.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.canonical_city_name.html">LJ::Schools::canonical_city_name</a></span><span class="refpurpose"> &#8212; Canonicalizes a cities name to a standard format.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.canonical_school_name.html">LJ::Schools::canonical_school_name</a></span><span class="refpurpose"> &#8212; Canonicalizes a school name to a standard format.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.delete_attended.html">LJ::Schools::delete_attended</a></span><span class="refpurpose"> &#8212; Removes an attended edge from a user/school.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.delete_school.html">LJ::Schools::delete_school</a></span><span class="refpurpose"> &#8212; Deletes an approved school</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.determine_location_opts.html">LJ::Schools::determine_location_opts</a></span><span class="refpurpose"> &#8212; Internal; used to perform the logic to determine the location codes to use for a record based on the inputs.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.edit_school.html">LJ::Schools::edit_school</a></span><span class="refpurpose"> &#8212; Edits the information for a school.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.expand_codes.html">LJ::Schools::expand_codes</a></span><span class="refpurpose"> &#8212; Expands country, state, and city codes into actual names.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.find_existing.html">LJ::Schools::find_existing</a></span><span class="refpurpose"> &#8212; Finds an existing school by given criteria.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.get_attended.html">LJ::Schools::get_attended</a></span><span class="refpurpose"> &#8212; Gets a list of schools a user has attended.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.get_attendees.html">LJ::Schools::get_attendees</a></span><span class="refpurpose"> &#8212; Gets a list of users that attended a school.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.get_cities.html">LJ::Schools::get_cities</a></span><span class="refpurpose"> &#8212; Gets information about what cities have been populated with schools.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.get_countries.html">LJ::Schools::get_countries</a></span><span class="refpurpose"> &#8212; Get a list of countries that we have schools in.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.get_pending.html">LJ::Schools::get_pending</a></span><span class="refpurpose"> &#8212; Returns the next "potentially good" set of records to be processed.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.get_schools.html">LJ::Schools::get_schools</a></span><span class="refpurpose"> &#8212; Gets schools defined in a given area.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.get_states.html">LJ::Schools::get_states</a></span><span class="refpurpose"> &#8212; Gets information about what states have been populated with schools.  States and provinces are considered the same thing.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.load_schools.html">LJ::Schools::load_schools</a></span><span class="refpurpose"> &#8212; Returns detailed information about schools.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.merge_schools.html">LJ::Schools::merge_schools</a></span><span class="refpurpose"> &#8212; Merges schools into one record.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.reject_pending.html">LJ::Schools::reject_pending</a></span><span class="refpurpose"> &#8212; Deletes pending schools.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.rename_city.html">LJ::Schools::rename_city</a></span><span class="refpurpose"> &#8212; Renames a city within a country and state.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.rename_state.html">LJ::Schools::rename_state</a></span><span class="refpurpose"> &#8212; Renames a state within a country.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.schools.set_attended.html">LJ::Schools::set_attended</a></span><span class="refpurpose"> &#8212; Lists a school as being attended by a user or updates an existing edge.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.stats.comma_formatter.html">LJ::Support::Stats::comma_formatter</a></span><span class="refpurpose"> &#8212; Format a number with commas</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.stats.date_formatter.html">LJ::Support::Stats::date_formatter</a></span><span class="refpurpose"> &#8212; Format a date</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.stats.filter_support_by_category.html">LJ::Support::Stats::filter_support_by_category</a></span><span class="refpurpose"> &#8212; Filter Support by Category ID.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.stats.get_grains_from_seconds.html">LJ::Support::Stats::get_grains_from_seconds</a></span><span class="refpurpose"> &#8212; Determine the grains (day/week/month/year) of given a date</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.stats.percent_formatter.html">LJ::Support::Stats::percent_formatter</a></span><span class="refpurpose"> &#8212; Format a percentage: Take integer portion and append percent sign.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.get_support_by_daterange.html">LJ::Support::get_support_by_daterange</a></span><span class="refpurpose"> &#8212; Get all the <a class="link" href="ljp.dbschema.support.html" title="support">support</a> rows based on a date range.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.get_support_by_ids.html">LJ::Support::get_support_by_ids</a></span><span class="refpurpose"> &#8212; Get all the <a class="link" href="ljp.dbschema.support.html" title="support">support</a> rows based on a list of Support IDs</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.get_supportlogs.html">LJ::Support::get_supportlogs</a></span><span class="refpurpose"> &#8212; Get all the <a class="link" href="ljp.dbschema.supportlog.html" title="supportlog">supportlog</a> rows for a list of Support IDs.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.get_touch_supportlogs_by_user_and_date.html">LJ::Support::get_touch_supportlogs_by_user_and_date</a></span><span class="refpurpose"> &#8212; Get all touch (non-req) supportlogs based on User ID and Date Range.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.support.slow_query_dbh.html">LJ::Support::slow_query_dbh</a></span><span class="refpurpose"> &#8212; Retrieve a database handle to be used for support-related slow queries... defaults to 'slow' role but can be overriden by <a class="xref" href="lj.install.ljconfig.vars.html#ljconfig.support_slow_roles"><code class="varname">@LJ::SUPPORT_SLOW_ROLES</code></a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.can_add_tags.html">LJ::Tags::can_add_tags</a></span><span class="refpurpose"> &#8212; Determines if one account is allowed to add tags to another's entry.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.can_control_tags.html">LJ::Tags::can_control_tags</a></span><span class="refpurpose"> &#8212; Determines if one account is allowed to control (add, edit, delete) the tags of another.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.create_usertag.html">LJ::Tags::create_usertag</a></span><span class="refpurpose"> &#8212; Creates tags for a user, returning the keyword ids allocated.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.delete_logtags.html">LJ::Tags::delete_logtags</a></span><span class="refpurpose"> &#8212; Deletes all tags on an entry.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.delete_usertag.html">LJ::Tags::delete_usertag</a></span><span class="refpurpose"> &#8212; Deletes a tag for a user, and all mappings.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.deleted_friend_group.html">LJ::Tags::deleted_friend_group</a></span><span class="refpurpose"> &#8212; Called from ljprotocol when a friends group is deleted.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.get_entry_tags.html">LJ::Tags::get_entry_tags</a></span><span class="refpurpose"> &#8212; Gets tags that have been used on an entry.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.get_logtagsmulti.html">LJ::Tags::get_logtagsmulti</a></span><span class="refpurpose"> &#8212; Load tags on a given set of entries</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.get_permission_levels.html">LJ::Tags::get_permission_levels</a></span><span class="refpurpose"> &#8212; Gets the permission levels on an account.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.get_security_breakdown.html">LJ::Tags::get_security_breakdown</a></span><span class="refpurpose"> &#8212; Returns a list of security levels that apply to the given security information.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.get_usertags.html">LJ::Tags::get_usertags</a></span><span class="refpurpose"> &#8212; Returns the tags that a user has defined for their account.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.get_usertagsmulti.html">LJ::Tags::get_usertagsmulti</a></span><span class="refpurpose"> &#8212; Gets a bunch of tags for the specified list of users.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.is_valid_tagstring.html">LJ::Tags::is_valid_tagstring</a></span><span class="refpurpose"> &#8212; Determines if a string contains a valid list of tags.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.rename_usertag.html">LJ::Tags::rename_usertag</a></span><span class="refpurpose"> &#8212; Deletes a tag for a user, and all mappings.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.reset_cache.html">LJ::Tags::reset_cache</a></span><span class="refpurpose"> &#8212; Clears out all cached information for a user's tags.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.set_usertag_display.html">LJ::Tags::set_usertag_display</a></span><span class="refpurpose"> &#8212; Set the display bool for a tag.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.update_logtags.html">LJ::Tags::update_logtags</a></span><span class="refpurpose"> &#8212; Updates the tags on an entry.  Tags not in the list you provide are deleted.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.tags.validate_tag.html">LJ::Tags::validate_tag</a></span><span class="refpurpose"> &#8212; Check the validity of a single tag.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.can_delete.html">LJ::Talk::can_delete</a></span><span class="refpurpose"> &#8212; Determines if a user can delete a comment or entry: You can delete anything you've posted.  You can delete anything posted in something you own (i.e. a comment in your journal, a comment to an entry you made in a community).  You can also delete any item in an account you have the "A"dministration edge for.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.delete_comment.html">LJ::Talk::delete_comment</a></span><span class="refpurpose"> &#8212; Deletes a single comment.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.delete_thread.html">LJ::Talk::delete_thread</a></span><span class="refpurpose"> &#8212; Deletes an entire thread of comments.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.freeze_comments.html">LJ::Talk::freeze_comments</a></span><span class="refpurpose"> &#8212; Freezes comments.  This is the internal helper function called by freeze_thread/unfreeze_thread.  Use those if you wish to freeze or unfreeze a thread.  This function just freezes specific comments.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.freeze_thread.html">LJ::Talk::freeze_thread</a></span><span class="refpurpose"> &#8212; Freezes an entire thread of comments.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.get_comments_in_thread.html">LJ::Talk::get_comments_in_thread</a></span><span class="refpurpose"> &#8212; Gets a list of comment ids that are contained within a thread, including the comment at the top of the thread.  You can also limit this to only return comments of a certain state.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.get_talk2_row.html">LJ::Talk::get_talk2_row</a></span><span class="refpurpose"> &#8212; Gets a row of data from <a class="link" href="ljp.dbschema.talk2.html" title="talk2">talk2</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.get_talk2_row_multi.html">LJ::Talk::get_talk2_row_multi</a></span><span class="refpurpose"> &#8212; Gets multiple rows of data from <a class="link" href="ljp.dbschema.talk2.html" title="talk2">talk2</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.screening_level.html">LJ::Talk::screening_level</a></span><span class="refpurpose"> &#8212; Determines the screening level of a particular post given the relevant information.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.talk.unfreeze_thread.html">LJ::Talk::unfreeze_thread</a></span><span class="refpurpose"> &#8212; unfreezes an entire thread of comments.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.user.activate_userpics.html">LJ::User::activate_userpics</a></span><span class="refpurpose"> &#8212; Sets/unsets userpics as inactive based on account caps.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.user.caps_icon.html">LJ::User::caps_icon</a></span><span class="refpurpose"> &#8212; get the icon for a user's cap.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.user.dudata_set.html">LJ::User::dudata_set</a></span><span class="refpurpose"> &#8212; Record or delete disk usage data for a journal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.user.get_friends_birthdays.html">LJ::User::get_friends_birthdays</a></span><span class="refpurpose"> &#8212; get the upcoming birthdays for friends of a user. shows birthdays 3 months away by default pass in full =&gt; 1 to get all friends' birthdays.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.user.large_journal_icon.html">LJ::User::large_journal_icon</a></span><span class="refpurpose"> &#8212; get the large icon by journal type.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.user.mogfs_userpic_key.html">LJ::User::mogfs_userpic_key</a></span><span class="refpurpose"> &#8212; Make a mogilefs key for the given pic for the user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj._friends_do.html">LJ::_friends_do</a></span><span class="refpurpose"> &#8212; Runs given SQL, then deletes the given userid's friends from memcache.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj._get_rel_memcache.html">LJ::_get_rel_memcache</a></span><span class="refpurpose"> &#8212; Helper function: returns memcached value for a given (userid, targetid, type) triple, if valid.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj._mod_rel_multi.html">LJ::_mod_rel_multi</a></span><span class="refpurpose"> &#8212; Sets/Clears relationship edges for lists of user tuples.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj._set_rel_memcache.html">LJ::_set_rel_memcache</a></span><span class="refpurpose"> &#8212; Helper function: sets memcache values for a given (userid, targetid, type) triple</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.accept_comm_invite.html">LJ::accept_comm_invite</a></span><span class="refpurpose"> &#8212; Accepts an invitation a user has received.  This does all the work to make the user join the community as well as sets up privileges.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.acct_code_check.html">LJ::acct_code_check</a></span><span class="refpurpose"> &#8212; Checks the validity of a given account code</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.acct_code_decode.html">LJ::acct_code_decode</a></span><span class="refpurpose"> &#8212; Breaks an account code down into its two parts</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.acct_code_encode.html">LJ::acct_code_encode</a></span><span class="refpurpose"> &#8212; Given an account ID integer and a 5 digit auth code, returns a 12 digit account code.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.acct_code_generate.html">LJ::acct_code_generate</a></span><span class="refpurpose"> &#8212; Creates invitation code(s) from an optional userid for use by anybody.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.acid_decode.html">LJ::acid_decode</a></span><span class="refpurpose"> &#8212; Given an acid encoding from <a class="link" href="ljp.api.lj.acid_encode.html" title="LJ::acid_encode">LJ::acid_encode</a>, returns the original decimal number.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.acid_encode.html">LJ::acid_encode</a></span><span class="refpurpose"> &#8212; Given a decimal number, returns base 30 encoding using an alphabet of letters &amp; numbers that are not easily mistaken for each other.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.activate_userpics.html">LJ::activate_userpics</a></span><span class="refpurpose"> &#8212; Wrapper around LJ::User-&gt;activate_userpics for compatibility.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.add_friend.html">LJ::add_friend</a></span><span class="refpurpose"> &#8212; Simple interface to add a friend edge.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.ago_text.html">LJ::ago_text</a></span><span class="refpurpose"> &#8212; Converts integer seconds to English time span</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.alldatepart_s1.html">LJ::alldatepart_s1</a></span><span class="refpurpose"> &#8212; Gets date in MySQL format, produces s1dateformat.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.alldatepart_s2.html">LJ::alldatepart_s2</a></span><span class="refpurpose"> &#8212; Gets date in MySQL format, produces s2dateformat.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.alldateparts_to_hash.html">LJ::alldateparts_to_hash</a></span><span class="refpurpose"> &#8212; Given a date/time format from MySQL, breaks it into a hash.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.approve_pending_member.html">LJ::approve_pending_member</a></span><span class="refpurpose"> &#8212; Approves someone's request to join a community.  This updates the <a class="link" href="ljp.dbschema.authactions.html" title="authactions">authactions</a> table as appropriate as well as does the regular join logic.  This also generates an e-mail to be sent to the user notifying them of the acceptance.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.are_hooks.html">LJ::are_hooks</a></span><span class="refpurpose"> &#8212; Returns true if the site has one or more hooks installed for the given hookname.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.auth_okay.html">LJ::auth_okay</a></span><span class="refpurpose"> &#8212; Validates a user's password.  The "clear" or "md5" argument must be present, and either the "actual" argument (the correct password) must be set, or the first argument must be a user object ($u) with the 'password' key set.  This is the preferred way to validate a password (as opposed to doing it by hand), since <span class="strong"><strong>this</strong></span> function will use a pluggable authenticator, if one is defined, so LiveJournal installations can be based off an LDAP server, for example.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.auto_linkify.html">LJ::auto_linkify</a></span><span class="refpurpose"> &#8212; Takes a plain-text string and changes URLs into &lt;a href&gt; tags (auto-linkification).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.bad_input.html">LJ::bad_input</a></span><span class="refpurpose"> &#8212; Returns common BML for reporting form validation errors in a bulleted list.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.bit_breakdown.html">LJ::bit_breakdown</a></span><span class="refpurpose"> &#8212; Breaks down a bitmask into an array of bits enabled.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.blocking_report.html">LJ::blocking_report</a></span><span class="refpurpose"> &#8212; Log a report on the total amount of time used in a slow operation to a remote host via UDP.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.can_manage.html">LJ::can_manage</a></span><span class="refpurpose"> &#8212; Given a user and a target user, will determine if the first user is an admin for the target user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.can_manage_other.html">LJ::can_manage_other</a></span><span class="refpurpose"> &#8212; Given a user and a target user, will determine if the first user is an admin for the target user, but not if the two are the same.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.can_use_journal.html">LJ::can_use_journal</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.can_view.html">LJ::can_view</a></span><span class="refpurpose"> &#8212; Checks to see if the remote user can view a given journal entry. <span class="strong"><strong>Note:</strong></span> This is meant for use on single entries at a time, not for calling many times on every entry in a journal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.canonical_username.html">LJ::canonical_username</a></span><span class="refpurpose"> &#8212; normalizes username.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.check_email.html">LJ::check_email</a></span><span class="refpurpose"> &#8212; checks for and rejects bogus e-mail addresses.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.check_form_auth.html">LJ::check_form_auth</a></span><span class="refpurpose"> &#8212; Verifies form authentication created with <a class="link" href="ljp.api.lj.form_auth.html" title="LJ::form_auth">LJ::form_auth</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.check_priv.html">LJ::check_priv</a></span><span class="refpurpose"> &#8212; Check to see if a user has a certain privilege.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.check_referer.html">LJ::check_referer</a></span><span class="refpurpose"> &#8212; Checks if the user is coming from a given URI.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.check_rel.html">LJ::check_rel</a></span><span class="refpurpose"> &#8212; Checks whether two users are in a specified relationship to each other.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.clear_caches.html">LJ::clear_caches</a></span><span class="refpurpose"> &#8212; This function is called from a HUP signal handler and is intentionally very very simple (1 line) so we don't core dump on a system without reentrant libraries.  It just sets a flag to clear the caches at the beginning of the next request (see <a class="link" href="ljp.api.lj.handle_caches.html" title="LJ::handle_caches">LJ::handle_caches</a>). There should be no need to ever call this function directly.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.clear_hooks.html">LJ::clear_hooks</a></span><span class="refpurpose"> &#8212; Removes all hooks.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.clear_rel.html">LJ::clear_rel</a></span><span class="refpurpose"> &#8212; Deletes a relationship between two users or all relationships of a particular type for one user, on either side of the relationship.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.clear_rel_multi.html">LJ::clear_rel_multi</a></span><span class="refpurpose"> &#8212; Clear relationship edges for lists of user tuples.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmd_buffer_add.html">LJ::cmd_buffer_add</a></span><span class="refpurpose"> &#8212; Schedules some command to be run sometime in the future which would be too slow to do synchronously with the web request.  An example is deleting a journal entry, which requires recursing through a lot of tables and deleting all the appropriate stuff.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.display_current_summary.html">LJ::cmize::display_current_summary</a></span><span class="refpurpose"> &#8212; HTML helper function: Returns a block of HTML that summarizes the user's current display options.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.get_moodtheme_select_list.html">LJ::cmize::get_moodtheme_select_list</a></span><span class="refpurpose"> &#8212; Spoof checking for mood theme ids</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.get_style_thumbnails.html">LJ::cmize::get_style_thumbnails</a></span><span class="refpurpose"> &#8212; Get style thumbnail information from per-process caches, or load if not available.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.html_save.html">LJ::cmize::html_save</a></span><span class="refpurpose"> &#8212; HTML helper function: Common HTML for the "save changes" button in a tab.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.html_tablinks.html">LJ::cmize::html_tablinks</a></span><span class="refpurpose"> &#8212; HTML helper function: Common HTML for links on top of tabs.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.js_redirect.html">LJ::cmize::js_redirect</a></span><span class="refpurpose"> &#8212; Function to determine the correct redirect when clicking on a tab link.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.s1_get_customcolors.html">LJ::cmize::s1_get_customcolors</a></span><span class="refpurpose"> &#8212; Gets style list (S1).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.s1_get_style_list.html">LJ::cmize::s1_get_style_list</a></span><span class="refpurpose"> &#8212; Gets style list (S1).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.s1_get_theme_list.html">LJ::cmize::s1_get_theme_list</a></span><span class="refpurpose"> &#8212; Gets style list (S1).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.s2_custom_layer_list.html">LJ::cmize::s2_custom_layer_list</a></span><span class="refpurpose"> &#8212; custom layers will be shown in the "Custom Layers" and "Disabled Layers" groups depending on the user's account status.  if they don't have the s2styles cap, then they will have all layers disabled, except for the one they are currently using.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.s2_get_lang.html">LJ::cmize::s2_get_lang</a></span><span class="refpurpose"> &#8212; Gets the lang code for the user's style</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.s2_implicit_style_create.html">LJ::cmize::s2_implicit_style_create</a></span><span class="refpurpose"> &#8212; Common "create s2 style" skeleton.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.cmize.validate_moodthemeid.html">LJ::cmize::validate_moodthemeid</a></span><span class="refpurpose"> &#8212; Spoof checking for mood theme ids</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.color_fromdb.html">LJ::color_fromdb</a></span><span class="refpurpose"> &#8212; Takes a value of unknown type from the DB and returns an #rrggbb string.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.color_todb.html">LJ::color_todb</a></span><span class="refpurpose"> &#8212; Takes an #rrggbb value and returns a 24-bit decimal number.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.comm_join_request.html">LJ::comm_join_request</a></span><span class="refpurpose"> &#8212; Registers an authaction to add a user to a community and sends an approval email to the maintainers</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.create_account.html">LJ::create_account</a></span><span class="refpurpose"> &#8212; Creates a new basic account.  <span class="strong"><strong>Note:</strong></span> This function is not really too useful but should be extended to be useful so htdocs/create.bml can use it, rather than doing the work itself.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.create_qr_div.html">LJ::create_qr_div</a></span><span class="refpurpose"> &#8212; Creates the hidden div that stores the QuickReply form.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.date_to_view_links.html">LJ::date_to_view_links</a></span><span class="refpurpose"> &#8212; Returns HTML of date with links to user's journal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.days_in_month.html">LJ::days_in_month</a></span><span class="refpurpose"> &#8212; Figures out the number of days in a month.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.decode_url_string.html">LJ::decode_url_string</a></span><span class="refpurpose"> &#8212; Parse URL-style arg/value pairs into a hash.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.delete_all_comments.html">LJ::delete_all_comments</a></span><span class="refpurpose"> &#8212; deletes all comments from a post, permanently, for when a post is deleted</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.delete_comments.html">LJ::delete_comments</a></span><span class="refpurpose"> &#8212; deletes comments, but not the relational information, so threading doesn't break</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.delete_entry.html">LJ::delete_entry</a></span><span class="refpurpose"> &#8212; Deletes a user's journal entry</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.did_post.html">LJ::did_post</a></span><span class="refpurpose"> &#8212; Cookies should only show pages which make no action. When an action is being made, check the request coming from the remote user is a POST request.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.disconnect_dbs.html">LJ::disconnect_dbs</a></span><span class="refpurpose"> &#8212; Clear cached DB handles</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.do_to_cluster.html">LJ::do_to_cluster</a></span><span class="refpurpose"> &#8212; Given a subref, this function will pick a random cluster and run the subref, passing it the cluster id.  If the subref returns a 1, this function will exit with a 1.  Else, the function will call the subref again, with the next cluster.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.durl.html">LJ::durl</a></span><span class="refpurpose"> &#8212; Decodes a value that's URL-escaped.  See also <a class="link" href="ljp.api.lj.eurl.html" title="LJ::eurl">LJ::eurl</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.ehtml.html">LJ::ehtml</a></span><span class="refpurpose"> &#8212; Escapes a value before it can be put in HTML.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.ejs.html">LJ::ejs</a></span><span class="refpurpose"> &#8212; Escapes a string value before it can be put in JavaScript.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.end_request.html">LJ::end_request</a></span><span class="refpurpose"> &#8212; Clears cached DB handles (if <a class="xref" href="lj.install.ljconfig.vars.html#ljconfig.disconnect_dbs"><code class="varname">$LJ::DISCONNECT_DBS</code></a> is true), and disconnects memcached handles (if <a class="xref" href="lj.install.ljconfig.vars.html#ljconfig.disconnect_memcache"><code class="varname">$LJ::DISCONNECT_MEMCACHE</code></a> is true).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.entry_form.html">LJ::entry_form</a></span><span class="refpurpose"> &#8212; Returns a properly formatted form for creating/editing entries.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.entry_form_decode.html">LJ::entry_form_decode</a></span><span class="refpurpose"> &#8212; Decodes an entry_form into a protocol-compatible hash.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.error_list.html">LJ::error_list</a></span><span class="refpurpose"> &#8212; Returns an error bar with bulleted list of errors.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.error_noremote.html">LJ::error_noremote</a></span><span class="refpurpose"> &#8212; Returns an error telling the user to log in.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.etags.html">LJ::etags</a></span><span class="refpurpose"> &#8212; Escapes &lt; and &gt; from a string</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.eurl.html">LJ::eurl</a></span><span class="refpurpose"> &#8212; Escapes a value before it can be put in a URL.  See also <a class="link" href="ljp.api.lj.durl.html" title="LJ::durl">LJ::durl</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.event_register.html">LJ::event_register</a></span><span class="refpurpose"> &#8212; Logs a subscribable event, if anybody is subscribed to it.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.exml.html">LJ::exml</a></span><span class="refpurpose"> &#8212; Escapes a value before it can be put in XML.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.expand_embedded.html">LJ::expand_embedded</a></span><span class="refpurpose"> &#8212; Used for expanding embedded content like polls, for entries.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.expunge_userpic.html">LJ::expunge_userpic</a></span><span class="refpurpose"> &#8212; Expunges a userpic so that the system will no longer deliver this userpic.  If your site has off-site caching or something similar, you can also define a hook "expunge_userpic" which will be called with a picid and userid when a pic is expunged.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.fill_groups_xmlrpc.html">LJ::fill_groups_xmlrpc</a></span><span class="refpurpose"> &#8212; Fills a hashref (presumably to be sent to an XML-RPC client, e.g. FotoBilder) with user friend group information</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.fill_var_props.html">LJ::fill_var_props</a></span><span class="refpurpose"> &#8212; S1 utility function to interpolate %%variables%% in a variable.  If a modifier is given like %%foo:var%%, then <a class="link" href="ljp.api.lj.fvp_transform.html" title="LJ::fvp_transform">LJ::fvp_transform</a> is called.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.flush_cleanup_handlers.html">LJ::flush_cleanup_handlers</a></span><span class="refpurpose"> &#8212; Runs all cleanup handlers registered in @LJ::CLEANUP_HANDLERS</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.form_auth.html">LJ::form_auth</a></span><span class="refpurpose"> &#8212; Creates an authentication token to be used later to verify that a form submission came from a particular user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.fvp_transform.html">LJ::fvp_transform</a></span><span class="refpurpose"> &#8212; Called from <a class="link" href="ljp.api.lj.fill_var_props.html" title="LJ::fill_var_props">LJ::fill_var_props</a> to do transformations.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_authas_list.html">LJ::get_authas_list</a></span><span class="refpurpose"> &#8212; Get a list of usernames a given user can authenticate as.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_authas_user.html">LJ::get_authas_user</a></span><span class="refpurpose"> &#8212; Given a username, will return a user object if remote is an admin for the username.  Otherwise returns undef.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_bio.html">LJ::get_bio</a></span><span class="refpurpose"> &#8212; gets a user bio, from DB or memcache.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_cap.html">LJ::get_cap</a></span><span class="refpurpose"> &#8212; Given a user object, capability class key or capability class bit mask and a capability/limit name, returns the maximum value allowed for given user or class, considering all the limits in each class the user is a part of.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_cap_min.html">LJ::get_cap_min</a></span><span class="refpurpose"> &#8212; Just like <a class="link" href="ljp.api.lj.get_cap.html" title="LJ::get_cap">LJ::get_cap</a>, but returns the minimum value. Although it might not make sense at first, some things are better when they're low, like the minimum amount of time a user might have to wait between getting updates or being allowed to refresh a page.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_cluster_def_reader.html">LJ::get_cluster_def_reader</a></span><span class="refpurpose"> &#8212; Returns a definitive cluster reader for a given user, used when the caller wants the master handle, but will only use it to read.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_cluster_description.html">LJ::get_cluster_description</a></span><span class="refpurpose"> &#8212; Get descriptive text for a cluster id.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_cluster_master.html">LJ::get_cluster_master</a></span><span class="refpurpose"> &#8212; Returns a cluster master for a given user, used when the caller might use it to do a write (insert/delete/update/etc...)</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_cluster_reader.html">LJ::get_cluster_reader</a></span><span class="refpurpose"> &#8212; Returns a cluster slave for a user, or cluster master if no slaves exist.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_community_row.html">LJ::get_community_row</a></span><span class="refpurpose"> &#8212; Gets data relevant to a community such as their membership level and posting access.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_dbh.html">LJ::get_dbh</a></span><span class="refpurpose"> &#8212; Given one or more roles, returns a database handle.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_dbirole_dbh.html">LJ::get_dbirole_dbh</a></span><span class="refpurpose"> &#8212; Internal function for get_dbh(). Uses the DBIRole to fetch a dbh, with hooks into db stats-generation if that's turned on.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_friend_group.html">LJ::get_friend_group</a></span><span class="refpurpose"> &#8212; Returns friendgroup row(s) for a given user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_friend_items.html">LJ::get_friend_items</a></span><span class="refpurpose"> &#8212; Return friend items for a given user, filter, and period.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_friendofs.html">LJ::get_friendofs</a></span><span class="refpurpose"> &#8212; Returns userids of friendofs for a given user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_friends.html">LJ::get_friends</a></span><span class="refpurpose"> &#8212; Returns friends rows for a given user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_keyword_id.html">LJ::get_keyword_id</a></span><span class="refpurpose"> &#8212; Get the id for a keyword.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_lastcomment.html">LJ::get_lastcomment</a></span><span class="refpurpose"> &#8212; Looks up the last talkid and journal the remote user posted in.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_lock.html">LJ::get_lock</a></span><span class="refpurpose"> &#8212; get a MySQL lock on a given key/dbrole combination.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_logtext2.html">LJ::get_logtext2</a></span><span class="refpurpose"> &#8212; Efficiently retrieves a large number of journal entry text, trying first slave database servers for recent items, then the master in cases of old items the slaves have already disposed of.  See also: <a class="link" href="ljp.api.lj.get_talktext2.html" title="LJ::get_talktext2">LJ::get_talktext2</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_logtext2multi.html">LJ::get_logtext2multi</a></span><span class="refpurpose"> &#8212; Gets log text from clusters.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_mood_picture.html">LJ::get_mood_picture</a></span><span class="refpurpose"> &#8212; Loads a mood icon hashref given a themeid and moodid.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_newids.html">LJ::get_newids</a></span><span class="refpurpose"> &#8212; Lookup an old global ID and see what journal it belongs to and its new ID.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_pending_invites.html">LJ::get_pending_invites</a></span><span class="refpurpose"> &#8212; Gets a list of pending invitations for a user to join a community.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_pending_members.html">LJ::get_pending_members</a></span><span class="refpurpose"> &#8212; Gets a list of userids for people that have requested to be added to a community but have not yet actually been approved or rejected.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_pic_from_keyword.html">LJ::get_pic_from_keyword</a></span><span class="refpurpose"> &#8212; Given a userid and keyword, returns the pic row hashref.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_post_ids.html">LJ::get_post_ids</a></span><span class="refpurpose"> &#8212; Given a user object and some options, return the number of posts or the posts'' IDs (jitemids) that match.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_posts_raw.html">LJ::get_posts_raw</a></span><span class="refpurpose"> &#8212; Gets raw post data (text and props) efficiently from clusters.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_postto_list.html">LJ::get_postto_list</a></span><span class="refpurpose"> &#8212; Get the list of usernames a given user can post to.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_prop.html">LJ::get_prop</a></span><span class="refpurpose"> &#8212; This is used to retrieve a hashref of a row from the given tablename's proplist table. One difference from getting it straight from the database is that the 'id' key is always present, as a copy of the real proplist unique id for that table.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_recent_items.html">LJ::get_recent_items</a></span><span class="refpurpose"> &#8212; Returns journal entries for a given account.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_recommended_communities.html">LJ::get_recommended_communities</a></span><span class="refpurpose"> &#8212; Get communities associated with a user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_reluser_id.html">LJ::get_reluser_id</a></span><span class="refpurpose"> &#8212; for <a class="link" href="ljp.dbschema.reluser2.html" title="reluser2">reluser2</a>, numbers 1 - 31999 are reserved for livejournal stuff, whereas numbers 32000-65535 are used for local sites.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_remote.html">LJ::get_remote</a></span><span class="refpurpose"> &#8212; authenticates the user at the remote end based on their cookies and returns a hashref representing them.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_sent_invites.html">LJ::get_sent_invites</a></span><span class="refpurpose"> &#8212; Get a list of sent invitations from the past 30 days.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_shared_journals.html">LJ::get_shared_journals</a></span><span class="refpurpose"> &#8212; Gets an array of shared journals a user has access to.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_talktext2.html">LJ::get_talktext2</a></span><span class="refpurpose"> &#8212; Retrieves comment text. Tries slave servers first, then master.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_timeupdate_multi.html">LJ::get_timeupdate_multi</a></span><span class="refpurpose"> &#8212; Get the last time a list of users updated.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_timezone.html">LJ::get_timezone</a></span><span class="refpurpose"> &#8212; Gets the timezone offset for the user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_urls.html">LJ::get_urls</a></span><span class="refpurpose"> &#8212; Returns a list of all referenced URLs from a string.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_userid.html">LJ::get_userid</a></span><span class="refpurpose"> &#8212; Returns a userid given a username.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_username.html">LJ::get_username</a></span><span class="refpurpose"> &#8212; Returns a username given a userid.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.get_userpic_info.html">LJ::get_userpic_info</a></span><span class="refpurpose"> &#8212; Given a user, gets their userpic information.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.handle_caches.html">LJ::handle_caches</a></span><span class="refpurpose"> &#8212; clears caches if the CLEAR_CACHES flag is set from an earlier HUP signal that called <a class="link" href="ljp.api.lj.clear_caches.html" title="LJ::clear_caches">LJ::clear_caches</a>, otherwise does nothing.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.help_icon.html">LJ::help_icon</a></span><span class="refpurpose"> &#8212; Returns BML to show a help link/icon given a help topic, or nothing if the site hasn't defined a URL for that topic.  Optional arguments include HTML/BML to place before and after the link/icon, should it be returned.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_check.html">LJ::html_check</a></span><span class="refpurpose"> &#8212; Creates HTML checkbox button, and radio button controls.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_color.html">LJ::html_color</a></span><span class="refpurpose"> &#8212; A text field with attached color preview and button to choose a color.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_datetime.html">LJ::html_datetime</a></span><span class="refpurpose"> &#8212; Creates date and time control HTML form elements.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_datetime_decode.html">LJ::html_datetime_decode</a></span><span class="refpurpose"> &#8212; Parses output of HTML form controls generated by <a class="link" href="ljp.api.lj.html_datetime.html" title="LJ::html_datetime">LJ::html_datetime</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_hidden.html">LJ::html_hidden</a></span><span class="refpurpose"> &#8212; Makes the HTML for a hidden form element.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_newlines.html">LJ::html_newlines</a></span><span class="refpurpose"> &#8212; Replace newlines with HTML break tags.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_select.html">LJ::html_select</a></span><span class="refpurpose"> &#8212; Creates a drop-down box or listbox HTML form element (the &lt;select&gt; tag).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_submit.html">LJ::html_submit</a></span><span class="refpurpose"> &#8212; Makes the HTML for a submit button.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_text.html">LJ::html_text</a></span><span class="refpurpose"> &#8212; Creates a text input field, for single-line input.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.html_textarea.html">LJ::html_textarea</a></span><span class="refpurpose"> &#8212; Creates a text box for multi-line input (the &lt;textarea&gt; tag).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.http_to_time.html">LJ::http_to_time</a></span><span class="refpurpose"> &#8212; Converts HTTP date to Unix time.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.img.html">LJ::img</a></span><span class="refpurpose"> &#8212; Returns an HTML &lt;img&gt; or &lt;input&gt; tag to an named image code, which each site may define with a different image file with its own dimensions.  This prevents hard-coding filenames &amp; sizes into the source.  The real image data is stored in LJ::Img, which has default values provided in cgi-bin/imageconf.pl but can be overridden in etc/ljconfig.pl.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.infohistory_add.html">LJ::infohistory_add</a></span><span class="refpurpose"> &#8212; Add a line of text to the  table for an account.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.is_ascii.html">LJ::is_ascii</a></span><span class="refpurpose"> &#8212; checks if text is pure ASCII.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.is_banned.html">LJ::is_banned</a></span><span class="refpurpose"> &#8212; Checks to see if a user is banned from a journal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.is_friend.html">LJ::is_friend</a></span><span class="refpurpose"> &#8212; Checks to see if a user is a friend of another user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.is_utf8.html">LJ::is_utf8</a></span><span class="refpurpose"> &#8212; check text for UTF-8 validity.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.is_valid_authaction.html">LJ::is_valid_authaction</a></span><span class="refpurpose"> &#8212; Validates a shared secret (authid/authcode pair)</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.item_link.html">LJ::item_link</a></span><span class="refpurpose"> &#8212; Returns URL to view an individual journal item.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.item_toutf8.html">LJ::item_toutf8</a></span><span class="refpurpose"> &#8212; convert one item's subject, text and props to UTF-8. item can be an entry or a comment (in which cases props can be left empty, since there are no 8bit talkprops).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.join_community.html">LJ::join_community</a></span><span class="refpurpose"> &#8212; Makes a user join a community.  Takes care of all <a class="xref" href="ljp.dbschema.reluser.ref.html#reluserdefs">reluser relationships</a> and friend stuff.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.journal_base.html">LJ::journal_base</a></span><span class="refpurpose"> &#8212; Returns URL of a user's journal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.leave_community.html">LJ::leave_community</a></span><span class="refpurpose"> &#8212; Makes a user leave a community.  Takes care of all <a class="xref" href="ljp.dbschema.reluser.ref.html#reluserdefs">reluser relationships</a> and friend stuff.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.ljuser.html">LJ::ljuser</a></span><span class="refpurpose"> &#8212; Make link to userinfo/journal of user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_codes.html">LJ::load_codes</a></span><span class="refpurpose"> &#8212; Populates hashrefs with lookup data from the database or from memory, if already loaded in the past.  Examples of such lookup data include state codes, country codes, color name/value mappings, etc.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_log_props2.html">LJ::load_log_props2</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_log_props2multi.html">LJ::load_log_props2multi</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_mood_theme.html">LJ::load_mood_theme</a></span><span class="refpurpose"> &#8212; Loads and caches a mood theme, or returns immediately if already loaded.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_moods.html">LJ::load_moods</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_props.html">LJ::load_props</a></span><span class="refpurpose"> &#8212; Loads and caches one or more of the various *proplist tables: <a class="link" href="ljp.dbschema.logproplist.html" title="logproplist">logproplist</a>, <a class="link" href="ljp.dbschema.talkproplist.html" title="talkproplist">talkproplist</a>, and <a class="link" href="ljp.dbschema.userproplist.html" title="userproplist">userproplist</a>, which describe the various meta-data that can be stored on log (journal) items, comments, and users, respectively.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_rel_target.html">LJ::load_rel_target</a></span><span class="refpurpose"> &#8212; Load user relationship information. Loads all relationships of type 'type' in which user 'targetid' participates on the right side (is the target of the relationship).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_rel_user.html">LJ::load_rel_user</a></span><span class="refpurpose"> &#8212; Load user relationship information. Loads all relationships of type 'type' in which user 'userid' participates on the left side (is the source of the relationship).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_rel_user_cache.html">LJ::load_rel_user_cache</a></span><span class="refpurpose"> &#8212; Loads user relationship information of the type 'type' where user 'targetid' participates on the left side (is the source of the relationship) trying memcache first.  The results from this sub should be <span class="strong"><strong>treated as inaccurate and out of date</strong></span>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_state_city_for_zip.html">LJ::load_state_city_for_zip</a></span><span class="refpurpose"> &#8212; Fetches state and city for the given zip-code value</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_talk_props2.html">LJ::load_talk_props2</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_user.html">LJ::load_user</a></span><span class="refpurpose"> &#8212; Loads a user record, from the <a class="link" href="ljp.dbschema.user.html" title="user">user</a> table, given a username.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_user_privs.html">LJ::load_user_privs</a></span><span class="refpurpose"> &#8212; loads all of the given privs for a given user into a hashref, inside the user record.  See also <a class="link" href="ljp.api.lj.check_priv.html" title="LJ::check_priv">LJ::check_priv</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_user_props.html">LJ::load_user_props</a></span><span class="refpurpose"> &#8212; Given a user hashref, loads the values of the given named properties into that user hashref.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_userid.html">LJ::load_userid</a></span><span class="refpurpose"> &#8212; Loads a user record, from the <a class="link" href="ljp.dbschema.user.html" title="user">user</a> table, given a userid.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_userids.html">LJ::load_userids</a></span><span class="refpurpose"> &#8212; Simple interface to LJ::load_userids_multiple.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_userids_multiple.html">LJ::load_userids_multiple</a></span><span class="refpurpose"> &#8212; Loads a number of users at once, efficiently.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.load_userpics.html">LJ::load_userpics</a></span><span class="refpurpose"> &#8212; Loads a bunch of userpic at once.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_auth_code.html">LJ::make_auth_code</a></span><span class="refpurpose"> &#8212; Makes a random string of characters of a given length.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_authas_select.html">LJ::make_authas_select</a></span><span class="refpurpose"> &#8212; Given a u object and some options, determines which users the given user can switch to.  If the list exists, returns a select list and a submit button with labels.  Otherwise returns a hidden element.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_cookie.html">LJ::make_cookie</a></span><span class="refpurpose"> &#8212; Prepares cookie header lines.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_journal.html">LJ::make_journal</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_link.html">LJ::make_link</a></span><span class="refpurpose"> &#8212; Takes a group of key=value pairs to append to a URL.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_postto_select.html">LJ::make_postto_select</a></span><span class="refpurpose"> &#8212; Given a u object and some options, determines which users the given user can post to.  If the list exists, returns a select list and a submit button with labels.  Otherwise returns a hidden element.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_qr_link.html">LJ::make_qr_link</a></span><span class="refpurpose"> &#8212; Creates the link to toggle the QR reply form or if JavaScript is not enabled, then forwards the user through to replyurl.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_qr_target.html">LJ::make_qr_target</a></span><span class="refpurpose"> &#8212; Returns a div usable for QuickReply boxes.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.make_user_active.html">LJ::make_user_active</a></span><span class="refpurpose"> &#8212; Record user activity per cluster, on <a class="link" href="ljp.dbschema.clustertrack2.html" title="clustertrack2">clustertrack2</a>, to make per-activity cluster stats easier.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.mark_as_spam.html">LJ::mark_as_spam</a></span><span class="refpurpose"> &#8212; Copies a message into the global <a class="link" href="ljp.dbschema.spamreports.html" title="spamreports">spamreports</a> table.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.mark_authaction_used.html">LJ::mark_authaction_used</a></span><span class="refpurpose"> &#8212; Marks an authaction as being used.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.mark_comment_as_spam.html">LJ::mark_comment_as_spam</a></span><span class="refpurpose"> &#8212; Copies a comment into the global <a class="link" href="ljp.dbschema.spamreports.html" title="spamreports">spamreports</a> table.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.mark_dirty.html">LJ::mark_dirty</a></span><span class="refpurpose"> &#8212; Marks a given user as being $what type of dirty.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.mark_entry_as_spam.html">LJ::mark_entry_as_spam</a></span><span class="refpurpose"> &#8212; Copies an entry in a community into the global <a class="link" href="ljp.dbschema.spamreports.html" title="spamreports">spamreports</a> table.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.may_lock.html">LJ::may_lock</a></span><span class="refpurpose"> &#8212; see if we <span class="strong"><strong>could</strong></span> get a MySQL lock on a given key/dbrole combination, but don't actually get it.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.memcache_kill.html">LJ::memcache_kill</a></span><span class="refpurpose"> &#8212; Kills a memcache entry, given a userid and type.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.modify_caps.html">LJ::modify_caps</a></span><span class="refpurpose"> &#8212; Given a list of caps to add and caps to remove, updates a user's caps.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.mysql_time.html">LJ::mysql_time</a></span><span class="refpurpose"></span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.name_caps.html">LJ::name_caps</a></span><span class="refpurpose"> &#8212; Given a user's capability class bit mask, returns a site-specific string representing the capability class name.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.name_caps_short.html">LJ::name_caps_short</a></span><span class="refpurpose"> &#8212; Given a user's capability class bit mask, returns a site-specific short string code.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.new_account_cluster.html">LJ::new_account_cluster</a></span><span class="refpurpose"> &#8212; Which cluster to put a new account on.  $DEFAULT_CLUSTER if it's a scalar, random element from <a class="xref" href="lj.install.ljconfig.vars.html#ljconfig.default_cluster"><code class="varname">$LJ::DEFAULT_CLUSTER</code></a> if it's arrayref. also verifies that the database seems to be available.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.parse_vars.html">LJ::parse_vars</a></span><span class="refpurpose"> &#8212; Parses S1 style data into hashref.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.prepare_currents.html">LJ::prepare_currents</a></span><span class="refpurpose"> &#8212; do all the current music/mood/weather/whatever stuff.  only used by ljviews.pl.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.procnotify_add.html">LJ::procnotify_add</a></span><span class="refpurpose"> &#8212; Sends a message to all other processes on all clusters.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.procnotify_callback.html">LJ::procnotify_callback</a></span><span class="refpurpose"> &#8212; Call back function process notifications.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.ratecheck_multi.html">LJ::ratecheck_multi</a></span><span class="refpurpose"> &#8212; takes a list of msg objects and sees if they will collectively pass the rate limit check.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.record_anon_comment_ip.html">LJ::record_anon_comment_ip</a></span><span class="refpurpose"> &#8212; Records the IP address of an anonymous comment.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.record_meme.html">LJ::record_meme</a></span><span class="refpurpose"> &#8212; Records a URL reference from a journal entry to the <a class="link" href="ljp.dbschema.meme.html" title="meme">meme</a> table.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.register_authaction.html">LJ::register_authaction</a></span><span class="refpurpose"> &#8212; Registers a secret to have the user validate.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.register_hook.html">LJ::register_hook</a></span><span class="refpurpose"> &#8212; Installs a site-specific hook.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.register_setter.html">LJ::register_setter</a></span><span class="refpurpose"> &#8212; Installs code to run for the "set" command in the console.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.reject_comm_invite.html">LJ::reject_comm_invite</a></span><span class="refpurpose"> &#8212; Rejects an invitation a user has received.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.reject_pending_member.html">LJ::reject_pending_member</a></span><span class="refpurpose"> &#8212; Rejects someone's request to join a community. Updates <a class="link" href="ljp.dbschema.authactions.html" title="authactions">authactions</a> and generates an e-mail to the user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.release_lock.html">LJ::release_lock</a></span><span class="refpurpose"> &#8212; release a MySQL lock on a given key/dbrole combination.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.remote_has_priv.html">LJ::remote_has_priv</a></span><span class="refpurpose"> &#8212; Check to see if the given remote user has a certain privilege.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.remove_friend.html">LJ::remove_friend</a></span><span class="refpurpose"> &#8212; delete existing friends.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.robot_meta_tags.html">LJ::robot_meta_tags</a></span><span class="refpurpose"> &#8212; Returns meta tags to instruct a robot/crawler to not index or follow links.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.run_hook.html">LJ::run_hook</a></span><span class="refpurpose"> &#8212; Runs single site-specific hook of the given name.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.run_hooks.html">LJ::run_hooks</a></span><span class="refpurpose"> &#8212; Runs all the site-specific hooks of the given name.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.send_comm_invite.html">LJ::send_comm_invite</a></span><span class="refpurpose"> &#8212; Sends an invitation to a user to join a community with the passed abilities.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.send_mail.html">LJ::send_mail</a></span><span class="refpurpose"> &#8212; Sends email.  Character set will only be used if message is not ASCII.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.server_down_html.html">LJ::server_down_html</a></span><span class="refpurpose"> &#8212; Returns an HTML server down message.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.set_interests.html">LJ::set_interests</a></span><span class="refpurpose"> &#8212; Change a user's interests.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.set_lastcomment.html">LJ::set_lastcomment</a></span><span class="refpurpose"> &#8212; Sets the lastcomm memcached key for this user's last comment.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.set_rel.html">LJ::set_rel</a></span><span class="refpurpose"> &#8212; Sets relationship information for two users.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.set_rel_multi.html">LJ::set_rel_multi</a></span><span class="refpurpose"> &#8212; Sets relationship edges for lists of user tuples.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.set_userprop.html">LJ::set_userprop</a></span><span class="refpurpose"> &#8212; Sets/deletes a userprop by name for a user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.shared_member_request.html">LJ::shared_member_request</a></span><span class="refpurpose"> &#8212; Registers an authaction to add a user to a shared journal and sends an approval e-mail.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.site_schemes.html">LJ::site_schemes</a></span><span class="refpurpose"> &#8212; Returns a list of available BML schemes.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.start_request.html">LJ::start_request</a></span><span class="refpurpose"> &#8212; Before a new web request is obtained, this should be called to determine if process should die or keep working, clean caches, reload config files, etc.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.statushistory_add.html">LJ::statushistory_add</a></span><span class="refpurpose"> &#8212; Adds a row to a user's statushistory</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.statushistory_time.html">LJ::statushistory_time</a></span><span class="refpurpose"> &#8212; Convert a time like "20070401120323" to "2007-04-01 12:03:23".</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.strip_bad_code.html">LJ::strip_bad_code</a></span><span class="refpurpose"> &#8212; Removes malicious/annoying HTML.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.sysban_block.html">LJ::sysban_block</a></span><span class="refpurpose"> &#8212; Notes a sysban in <a class="link" href="ljp.dbschema.statushistory.html" title="statushistory">statushistory</a> and returns a fake HTTP error message to the user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.sysban_check.html">LJ::sysban_check</a></span><span class="refpurpose"> &#8212; Given a 'what' and 'value', checks to see if a ban exists.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.sysban_create.html">LJ::sysban_create</a></span><span class="refpurpose"> &#8212; creates a sysban.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.sysban_note.html">LJ::sysban_note</a></span><span class="refpurpose"> &#8212; Inserts a properly-formatted row into <a class="link" href="ljp.dbschema.statushistory.html" title="statushistory">statushistory</a> noting that a ban has been triggered.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.sysban_validate.html">LJ::sysban_validate</a></span><span class="refpurpose"> &#8212; determines whether a sysban can be added for a given value.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.text_compress.html">LJ::text_compress</a></span><span class="refpurpose"> &#8212; Compresses a chunk of text, to gzip, if configured for site.  Can compress a scalarref in place, or return a compressed copy.  Won't compress if value is too small, already compressed, or size would grow by compressing.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.text_convert.html">LJ::text_convert</a></span><span class="refpurpose"> &#8212; convert old entries/comments to UTF-8 using user's default encoding.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.text_in.html">LJ::text_in</a></span><span class="refpurpose"> &#8212; do appropriate checks on input text. Should be called on all user-generated text.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.text_length.html">LJ::text_length</a></span><span class="refpurpose"> &#8212; returns both byte length and character length of a string. In a non-Unicode environment, this means byte length twice. In a Unicode environment, the function assumes that its argument is a valid UTF-8 string.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.text_out.html">LJ::text_out</a></span><span class="refpurpose"> &#8212; force outgoing text into valid UTF-8.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.text_trim.html">LJ::text_trim</a></span><span class="refpurpose"> &#8212; truncate string according to requirements on byte length, char length, or both. "char length" means number of UTF-8 characters if <a class="xref" href="lj.install.ljconfig.vars.html#ljconfig.unicode"><code class="varname">$LJ::UNICODE</code></a> is set, or the same thing as byte length otherwise.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.text_uncompress.html">LJ::text_uncompress</a></span><span class="refpurpose"> &#8212; Uncompresses a chunk of text, from gzip, if configured for site.  Can uncompress a scalarref in place, or return a compressed copy.  Won't uncompress unless it finds the gzip magic number at the beginning of the text.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.time_to_cookie.html">LJ::time_to_cookie</a></span><span class="refpurpose"> &#8212; Converts Unix time to format expected in a Set-Cookie header.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.time_to_http.html">LJ::time_to_http</a></span><span class="refpurpose"> &#8212; Converts a Unix time to a HTTP date.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.trim.html">LJ::trim</a></span><span class="refpurpose"> &#8212; Removes whitespace from left and right side of a string.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.u_equals.html">LJ::u_equals</a></span><span class="refpurpose"> &#8212; Compares two user objects to see if they are the same user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.use_diff_db.html">LJ::use_diff_db</a></span><span class="refpurpose"> &#8212; given two DB roles, returns true only if it is certain the two roles are served by different database servers.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.user_caps_icon.html">LJ::user_caps_icon</a></span><span class="refpurpose"> &#8212; Given a user's capability class bit mask, returns site-specific HTML with the capability class icon.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.userpic_count.html">LJ::userpic_count</a></span><span class="refpurpose"> &#8212; Gets a count of userpics for a given user.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.want_user.html">LJ::want_user</a></span><span class="refpurpose"> &#8212; Returns user object when passed either userid or user object. Useful to functions that want to accept either.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.want_userid.html">LJ::want_userid</a></span><span class="refpurpose"> &#8212; Returns userid when passed either userid or the user hash. Useful to functions that want to accept either. Forces its return value to be a number (for safety).</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.warning_list.html">LJ::warning_list</a></span><span class="refpurpose"> &#8212; Returns a warning bar with bulleted list of warnings.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.api.lj.wipe_major_memcache.html">LJ::wipe_major_memcache</a></span><span class="refpurpose"> &#8212; invalidate all major memcache items associated with a given user.</span>
+</dt>
+</dl></dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.styles.s1.friends_website.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.index.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.ref.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">FRIENDS_WEBSITE </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> API Documentation</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

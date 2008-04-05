@@ -1,0 +1,167 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+    
+    my $req = shift;
+    my $r = $req->{'r'};
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'}) unless $u;
+
+    my @errors = ();
+
+    my $dbcr = LJ::get_cluster_reader($u);
+    push @errors, $ML{'error.nodb'} unless $dbcr;
+
+    # don't let people hit us with silly GET attacks
+    push @errors, "This page can't be viewed except via POST."
+        if BML::get_client_header('Referer') && !LJ::did_post();
+
+    my $mode = $GET{get};
+    push @errors, "Invalid mode."
+        unless $mode =~ m/^comment_(?:meta|body)$/;
+
+    # error stuff
+    return LJ::bad_input(@errors) if @errors;
+
+    # from now on, we manage our own output
+    BML::suppress_headers();
+    BML::suppress_content();
+
+    # print top
+    $r->content_type("text/xml; charset=utf-8");
+    $r->send_http_header();
+    $r->print("<?xml version=\"1.0\" encoding='utf-8'?>\n<livejournal>\n");
+
+    # startid specified?
+    my $maxitems = $mode eq 'comment_meta' ? 10000 : 1000;
+    my $numitems = $GET{numitems};
+    my $gather;
+    if (defined $numitems && ($numitems > 0) && ($numitems <= $maxitems)) {
+        $gather = $numitems;
+    } else {
+        $gather = $maxitems;
+    }
+
+    my $startid = $GET{startid}+0;
+    my $endid = $startid + $gather;
+
+    # get metadata
+    my $rows = $dbcr->selectall_arrayref('SELECT jtalkid, nodeid, parenttalkid, posterid, state, datepost ' .
+                                         "FROM talk2 WHERE nodetype = 'L' AND journalid = ? AND " .
+                                         "                 jtalkid >= $startid AND jtalkid < $endid",
+                                         undef, $u->{userid});
+
+    # now let's gather them all together while making a list of posterids
+    my %posterids;
+    my %comments;
+    foreach my $r (@{$rows || []}) {
+        $comments{$r->[0]} = {
+            nodeid => $r->[1],
+            parenttalkid => $r->[2],
+            posterid => $r->[3],
+            state => $r->[4],
+            datepost => $r->[5],
+        };
+        $posterids{$r->[3]} = 1 if $r->[3]; # don't include 0 (anonymous)
+    }
+
+    # now we have two choices: comments themselves or metadata
+    if ($mode eq 'comment_meta') {
+        # meta data is easy :)
+        my $max = $dbcr->selectrow_array('SELECT MAX(jtalkid) FROM talk2 ' .
+                                        "WHERE journalid = ? AND nodetype = 'L'",
+                                        undef, $u->{userid});
+        $max += 0;
+        $r->print("<maxid>$max</maxid>\n");
+        my $nextid = $startid + $gather;
+        $r->print("<nextid>$nextid</nextid>\n") unless ($nextid > $max);
+        # load posterids
+        my $us = LJ::load_userids(keys %posterids);
+
+        # now spit out the metadata
+        $r->print("<comments>\n");
+        while (my ($id, $data) = each %comments) {
+            my $ret = "<comment id='$id'";
+            $ret .= " posterid='$data->{posterid}'" if $data->{posterid};
+            $ret .= " state='$data->{state}'" if $data->{state} ne 'A';
+            $ret .= " />\n";
+            $r->print($ret);
+        }
+        $r->print("</comments>\n<usermaps>\n");
+
+        # now spit out usermap
+        my $ret = '';
+        while (my ($id, $user) = each %$us) {
+            $ret .= "<usermap id='$id' user='$user->{user}' />\n";
+        }
+        $r->print($ret);
+        $r->print("</usermaps>\n");
+
+    # comment data also presented in glorious XML:
+    } elsif ($mode eq 'comment_body') {
+        # get real comments from startid to a limit of 10k data, however far that takes us
+        my @ids = sort { $a <=> $b } keys %comments;
+
+        # call a load to get comment text
+        my $texts = LJ::get_talktext2($u, @ids);
+
+        # get props if we need to
+        my $props = {};
+        if ($GET{'props'}) {
+            LJ::load_talk_props2($u->{userid}, \@ids, $props);
+        }
+
+        # now start spitting out data
+        $r->print("<comments>\n");
+        foreach my $id (@ids) {
+            # get text for this comment
+            my $data = $comments{$id};
+            my $text = $texts->{$id};
+            my ($subject, $body) = @{$text || []};
+
+            # only spit out valid UTF8, and make sure it fits in XML, and uncompress it
+            LJ::text_uncompress(\$body);
+            LJ::text_out(\$subject);
+            LJ::text_out(\$body);
+            $subject = LJ::exml($subject);
+            $body = LJ::exml($body);
+
+            # setup the date to be GMT and formatted per W3C specs
+            my $date = LJ::mysqldate_to_time($data->{datepost});
+            $date = LJ::time_to_w3c($date, 'Z');
+
+            # print the data
+            my $ret = "<comment id='$id' jitemid='$data->{nodeid}'";
+            $ret .= " posterid='$data->{posterid}'" if $data->{posterid};
+            $ret .= " state='$data->{state}'" if $data->{state} ne 'A';
+            $ret .= " parentid='$data->{parenttalkid}'" if $data->{parenttalkid};
+            if ($data->{state} eq 'D') {
+                $ret .= " />\n";
+            } else {
+                $ret .= ">\n";
+                $ret .= "<subject>$subject</subject>\n" if $subject;
+                $ret .= "<body>$body</body>\n" if $body;
+                $ret .= "<date>$date</date>\n";
+                foreach my $propkey (keys %{$props->{$id} || {}}) {
+                    $ret .= "<property name='$propkey'>";
+                    $ret .= LJ::exml($props->{$id}->{$propkey});
+                    $ret .= "</property>\n";
+                }
+                $ret .= "</comment>\n";
+            }
+            $r->print($ret);
+        }
+        $r->print("</comments>\n");
+    }
+
+    # all done
+    $r->print("</livejournal>\n");
+}
+_code?><?_c <LJDEP>
+</LJDEP> _c?>

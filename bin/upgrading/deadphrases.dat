@@ -1,0 +1,592 @@
+# these get removed if found by texttool.pl
+#
+
+general crumb.createjournal
+general crumb.modify
+general crumb.siteopts
+
+general /allpics.bml.edit
+general /allpics.bml.nopics.text
+general /allpics.bml.nopics.text.other
+general /allpics.bml.pics
+
+general /changeemail.bml.label.password
+
+general /community/join.bml.label.authpost
+general /community/join.bml.label.closedcomm
+
+general /community/manage.bml.actmembers
+general /community/manage.bml.actsettings
+general /community/manage.bml.commlist.actmoderate
+
+general /community/members.bml.manage
+
+general /community/search.bml.contasmember
+general /community/search.bml.userlikes
+
+general /community/settings.bml.label.admconsole
+general /community/settings.bml.manage
+
+general /create.bml.aolnotice.head
+general /create.bml.aolnotice.text
+general /create.bml.birthday.question
+general /create.bml.birthday.question_1
+general /create.bml.birthday.question_2
+general /create.bml.create.text
+general /create.bml.email.text3
+general /create.bml.error.seebelow
+general /create.bml.password.secure
+general /create.bml.password.secure2
+general /create.bml.proceed.head
+general /create.bml.proceed.text
+
+general /create.bml.title
+general /create.bml.tos.error
+general /create.bml.tos.haveread
+general /create.bml.tos.p1.2
+general /create.bml.username.charsallowed
+general /create.bml.username.text
+
+general /editinfo.bml.allowshocontact.email.if_domainaddy
+general /editinfo.bml.allowshowcontact.email.reason
+general /editinfo.bml.newemail.body
+general /editinfo.bml.settings.about
+general /editinfo.bml.showsubjicons.about
+general /editinfo.bml.showsubjicons.header
+general /editinfo.bml.tm.about
+general /editinfo.bml.schools.title
+general /editinfo.bml.topicdir.about
+general /editinfo.bml.topicdir.header
+
+general /editpics.bml.error.toomanypics2
+general /editpics.bml.error.toomanypics3
+general /editpics.bml.restriction.imagesize
+
+entryform.htmlokay.norich
+entryform.htmlokay.rich
+general editform.userpics
+
+general /friends/add.bml.colors.hover
+general /friends/add.bml.confirm.header
+general /friends/add.bml.confirm.syn.title
+general /friends/add.bml.confirm.text.nobold
+general /friends/add.bml.confirm.title
+general /friends/add.bml.error3.text
+general /friends/add.bml.groups.text
+general /freinds/add.bml.remove.text
+general /friends/edit.bml.btn.proceed
+general /friends/edit.bml.edit.head
+general /friends/edit.bml.edit.text
+general /friends/index.bml.invite.about
+general /friends/nudge.bml.success.text
+
+general /editjournal.bml.enterlogin
+general /editjournal.bml.lostinfo.head
+general /editjournal.bml.lostinfo.text
+
+general /editjournal_do.bml.error.mustlogin
+general /editjournal_do.bml.success.edit
+
+general /friends/editgroups.bml.login.header
+general /friends/editgroups.bml.login.text
+
+general /interests.bml.findsim.account.notallowed
+general /interests.bml.findsim.account.notloggedin
+general /interests.bml.findsim.btn.find
+general /interests.bml.findsim.head
+general /interests.bml.findsim.simtouser
+general /interests.bml.findsim.text
+general /interests.bml.interests.findsim1
+general /interests.bml.interests.findsim2
+
+general /login.bml.error.forgotpass
+general /login.bml.error.noaccount
+general /login.bml.loggedin.head
+general /login.bml.loggedin.suggest3
+general /login.bml.loggedin.text
+general /login.bml.login.forget
+general /login.bml.login.text1
+general /login.bml.login.text2
+general /login.bml.login.text3
+general /login.bml.title
+general /login.bml.whylogin.benefit1
+general /login.bml.whylogin.benefit2
+general /login.bml.whylogin.benefit3
+general /login.bml.whylogin.head
+general /login.bml.whylogin.text
+
+general /logout.bml.loggedout.success
+
+general /manage/comments/index.bml.disablecomment2
+
+general /manage/index.bml.information.editinfo.about
+general /manage/index.bml.information.setlang.about
+general /manage/index.bml.information.setscheme.about
+general /manage/index.bml.information.siteopts.about
+general /manage/index.bml.userpictures
+general /manage/index.bml.userpictures.edit.about
+general /manage/index.bml.userpictures.header
+general /manage/index.bml.information.emailpost
+general /manage/index.bml.information.emailpost.about
+general /manage/profile/index.bml.birthday
+general /manage/profile/index.bml.intro
+general /manage/profile/index.bml.im
+general /manage/profile/index.bml.email
+
+general /manage/settings/index.bml.bdayreminder.note
+
+general /manage/siteopts.bml.btn.lang
+general /manage/siteopts.bml.btn.scheme
+general /manage/siteopts.bml.head.lang
+general /manage/siteopts.bml.title
+general /manage/siteopts.bml.scheme.preview
+
+general /modify.bml.btn.proceed
+general /modify.bml.journalstatus.about
+general /modify.bml.journalstatus.head
+general /modify.bml.journalstatus.select.activated
+general /modify.bml.journalstatus.select.deleted
+general /modify.bml.journalstatus.select.head
+general /modify.bml.journalstatus.select.suspended
+general /modify.bml.lostinfo.head
+general /modify.bml.lostinfo.text
+general /modify.bml.modify.head
+general /modify.bml.modify.text
+
+general /modify_do.bml.title
+
+general /multisearch.bml.region.text
+
+general /register.bml.new.body
+general /register.bml.new.modify2
+
+general /setlang.bml.select
+general /setlang.bml.switch
+general /setlang.bml.title
+
+general /setscheme.bml.current
+general /setscheme.bml.default
+general /setscheme.bml.noschemes
+general /setscheme.bml.select
+general /setscheme.bml.switch
+general /setscheme.bml.title
+
+general /support/faqbrowse.bml.backfaq
+general /support/faqbrowse.bml.backfaqcat
+general /support/faqbrowse.bml.backsupport
+general /support/faqbrowse.bml.title
+
+general /talkpost.bml.label.picturetouse
+
+general /talkpost_do.bml.opt.spellcheck
+
+general /talkread.bml.pageofpages
+
+general /tools/memadd.bml.body.added.body
+
+general /update.bml.update.about
+general /update.bml.login.success
+general /update.bml.htmlokay
+
+general /uploadpic.bml.success.text
+general /uploadpic.bml.btn.proceed
+general /uploadpic.bml.error.badurl
+general /uploadpic.bml.error.databasedown
+general /uploadpic.bml.error.filetoolarge
+general /uploadpic.bml.error.imagetoolarge
+general /uploadpic.bml.error.invalidauth
+general /uploadpic.bml.error.invalidimage
+general /uploadpic.bml.error.toomanypics
+general /uploadpic.bml.error.unknownmode
+general /uploadpic.bml.error.urlerror
+general /uploadpic.bml.fromfile
+general /uploadpic.bml.fromfile.key
+general /uploadpic.bml.fromurl
+general /uploadpic.bml.fromurl.key
+general /uploadpic.bml.header
+general /uploadpic.bml.imagesize.by
+general /uploadpic.bml.kilobytes
+general /uploadpic.bml.makedefault
+general /uploadpic.bml.makedefault.key
+general /uploadpic.bml.restriction.fileformat
+general /uploadpic.bml.restriction.filesize
+general /uploadpic.bml.restriction.imagesize
+general /uploadpic.bml.success.editpics
+general /uploadpic.bml.success.header
+general /uploadpic.bml.success.preview
+general /uploadpic.bml.success.upload
+general /uploadpic.bml.text
+general /uploadpic.bml.title
+
+general /uploadpic_do.bml.error.urlerror
+general uploadpic.error.toolarge
+
+general /userinfo.bml.canpost
+general /userinfo.bml.closedmembership.body
+general /userinfo.bml.fbpictures
+general /userinfo.bml.label.gizmo2
+general /userinfo.bml.label.viewlabel
+general /userinfo.bml.openmembership.body
+general /userinfo.bml.posthere
+general /userinfo.bml.rpmembership.body
+general /userinfo.bml.syn.lastnew
+
+general /register.bml.error.alreadyvalidated
+
+general /tools/memories.bml.entry
+general /tools/memories.bml.entries
+
+general /create.bml.tos.p1
+general /create.bml.email.text
+general /create.bml.email.note
+
+general /syn/index.bml.table.cost
+general /syn/index.bml.quota.text
+general /syn/index.bml.quota.your
+general /syn/index.bml.quota.numbers
+general /syn/index.bml.invalid.overquota
+general /syn/index.bml.invalid.overquota.text
+general /syn/index.bml.invalid.overquota.title
+general /syn/index.bml.invalid.overquota.username
+general /syn/index.bml.accounttype.notallowed
+general /syn/index.bml.add.other.title
+general /syn/index.bml.add.other.text
+general /syn/index.bml.notused
+general /userinfo.bml.syn.cost
+
+general bml.needlogin.body
+general bml.needlogin.body2
+
+general /userinfo.bml.label.frsyndication
+
+general /syn/index.bml.invalid.address
+
+general /community/members.bml.key.name
+general /community/members.bml.success.addusers
+
+general /userinfo.bml.label.totalfriends
+
+general /community/settings.bml.label.closedmemb
+
+general /talkscreen.bml.title
+
+general /community/members.bml.success.message
+
+general /community/transfer.bml.error.banned
+
+general /create.bml.age.check.question
+general /create.bml.age.check.yes
+general /create.bml.age.check2.question
+general /create.bml.age.check2.yes
+general /create.bml.age.head
+
+general /community/members.bml.reinvited
+general /community/membres.bml.success.invited
+
+general /customize/index.bml.s1
+
+general /changepassword.bml.email.body
+
+general Success
+
+general /schools/index.bml.addschool.input.name.rule1
+general /schools/index.bml.addschool.input.name.rule2
+general /schools/index.bml.addschool.input.name.rule3
+general /schools/index.bml.addschool.input.name.rule4
+general /schools/index.bml.addschool.input.name.rule5
+
+general /schools/index.bml.addschool.input.name.campus
+general /schools/index.bml.addschool.input.name.capitalize
+general /schools/index.bml.addschool.input.name.fullname
+general /schools/index.bml.addschool.input.name.noabbrev
+general /schools/index.bml.addschool.input.name.nothe
+
+general /schools/index.bml.intro.dontseeschool
+
+general /schools/index.bml.intro.dontseeschool2
+
+general /community/join.bml.label.loginfirst
+general /community/join.bml.label.membernow
+general /community/leave.bml.label.logoutfirst
+general /community/leave.bml.label.removed
+general /community/settings.bml.label.commcreate
+general /community/settings.bml.label.createtext
+general /community/settings.bml.label.maintainer.login
+
+general /friends/add.bml.error1.header
+general /friends/add.bml.error1.text
+general /friends/add.bml.error2.text
+general /friends/filter.bml.error.nogroups
+general /manage/index.bml.login
+general /portal/index.bml.notloggedin
+general /portal/index.bml.notloggedintitle
+general /syn/index.bml.loginrequired.text
+general /syn/index.bml.loginrequired.title
+general /tools/emailmanage.bml.notvalidated.text
+general /tools/memadd.bml.error.login
+
+general /directory.bml.error.accounttype
+general /support/append_request.bml.back.requests
+general /support/append_request.bml.back.support
+general /support/append_request.bml.login.required
+general /support/encodings.bml.edit.text
+general /support/encodings.bml.groups.text
+general /support/encodings.bml.still.text
+
+general /editinfo.bml.error.invalidbio
+general /editinfo.bml.error.invalidints
+general /editinfo.bml.error.invalidname
+general /editinfo.bml.persinfo.disclaimer
+general /editinfo.bml.success.message
+general /editinfo.bml.tm.details
+general /editinfo.bml.userpic.edit
+general /userinfo.bml.body.leave
+general /userinfo.bml.error.notloggedin
+general /userinfo.bml.membership.body
+
+general /interests.bml.addint
+general /interests.bml.error.enmasse.mustlogin
+general /interests.bml.match
+general /interests.bml.matches
+general /interests.bml.morestuff
+general /interests.bml.results.goback
+general /interests.bml.results.message
+general /login.bml.error.mustenterusername
+general /login.bml.links.link1
+general /login.bml.links.link2
+general /modify_do.bml.overrides.note
+general /modify_do.bml.journaloptions.about
+
+general /multisearch.bml.region.bodytext
+general /register.bml.new.editinfo
+general /register.bml.new.login
+general /register.bml.new.modify
+general /register.bml.new.update
+general /talkpost_do.bml.error.badpassword
+general /talkpost_do.bml.error.badusername
+general /talkpost_do.bml.error.noverify
+general /update.bml.currmood
+general /update.bml.update.alternate
+
+general /editpics.bml.curpics.desc
+
+general error.noremote
+
+general bml.needlogin.body3
+general bml.needlogin.body4
+
+general /allpics.bml.edit2
+general /allpics.bml.nopics.text2
+general /community/index.bml.main
+general /community/manage.bml.commlist.actmembers
+general /community/manage.bml.commlist.actsettings
+general /community/manage.bml.commlist.moderation.num
+general /community/manage.bml.create.text
+general /community/members.bml.settings
+general /community/members.bml.success.return
+general /community/settings.bml.members
+general /editinfo.bml.allowshowcontact.email.withdomainaddr
+
+general /customize/index.bml.s2.advanced.permitted
+general /editinfo.bml.login.enterinfo
+general /editinfo.bml.login.forgot.header
+general /editinfo.bml.login.forgot.recover
+general /editjournal_do.bml.currmood
+general /editjournal_do.bml.picture
+general /friends/add.bml.add.text
+general /friends/add.bml.add.text.community
+general /friends/add.bml.add.text.feed
+general /friends/add.bml.confirm.text1.community
+general /friends/edit_do.bml.success.text
+general /interests.bml.nointerests.text
+general /modify_do.bml.overrides.about
+general /modify_do.bml.success.text
+general /poll/index.bml.gotocreate
+
+general /support/append_request.bml.successlinks
+general /talkmulti.bml.deleted.body
+general /talkmulti.bml.screened.body
+general /talkmulti.bml.unscreened.body
+general /talkpost_do.bml.success.message
+general /talkpost_do.bml.success.screened.comm
+general /talkpost_do.bml.success.screened.comm.anon
+general /talkpost_do.bml.success.screened.user
+general /talkpost_do.bml.success.screened.user.anon
+general /tools/memadd.bml.login.forgot.header
+general /tools/memadd.bml.login.forgot.recover
+general /update.bml.loggedinas
+general /update.bml.picture
+general /update.bml.simple
+general /update.bml.update.success
+general /userinfo.bml.label.clientsused
+general /userinfo.bml.sendmessage.body
+general /userinfo.bml.syndinfo.body
+general /userinfo.bml.userinfo.body
+general lostinfo.text
+
+general /customize/index.bml.s2.advanced.denied
+
+general /styles/create.bml.createstyle.text
+general /styles/index.bml.about
+
+general /support/see_overrides.bml.header
+
+general /poll/create.bml.error.accttype
+
+general /editpics.bml.noneupload
+
+general /allpics.bml.edit3
+
+general birthday.link
+general birthday.text
+general controlstrip.link
+general controlstrip.text
+general feeds.link
+general feeds.text
+general ljfeedback.text
+general ljspotlight.text
+general polls.link
+general polls.text
+general cprod.friendsfriends.text.v1
+general cprod.friendsfriends.text.v2
+general cprod.friendsfriends.text.v3
+general cprod.friendsfriends.text.v4
+general cprod.friendsfriends.text.v5
+general cprod.friendsfriends.link.v1
+general cprod.friendsfriends.link.v2
+general cprod.friendsfriends.link.v3
+general cprod.friendsfriends.link.v4
+general cprod.friendsfriends.link.v5
+general /tools/textmessage.bml.enter.user.text
+general cprod.friendsfriendsinline.link2.v1
+general cprod.friendsfriendsinline.link2.v2
+general cprod.friendsfriendsinline.link2.v3
+general cprod.friendsfriendsinline.link2.v4
+general cprod.friendsfriendsinline.link2.v5
+general cprod.friendsfriendsinline.text2.v1
+general cprod.friendsfriendsinline.text2.v2
+general cprod.friendsfriendsinline.text2.v3
+general cprod.friendsfriendsinline.text2.v4
+general cprod.friendsfriendsinline.text2.v5
+general cprod.links.text2.v1
+general cprod.textmessaging.text2.v1
+
+general web.controlstrip.links.changecommsettings
+
+general /community/join.bml.label.addtofriends
+general /community/join.bml.label.allowposting
+general /community/join.bml.label.auth
+general /community/join.bml.label.expls
+general /community/join.bml.label.membernow2
+general /community/join.bml.label.sure
+
+general /userinfo.bml.monitor.comm
+
+general cprod.directory.text.v1
+general cprod.directory.text.v2
+general cprod.directory.text.v3
+general cprod.directory.text.v4
+general cprod.directory.text.v5
+
+general /customize/index.bml.error.disallowed_theme_layer
+general /customize/index.bml.error.not_your_layout
+general /community/join.bml.button.join
+general /community/join.bml.label.addtofriends.note
+general /community/join.bml.label.addtofriends2
+general /community/join.bml.label.membernow3
+general /community/leave.bml.label.removed2
+general /community/leave.bml.label.removed.stopwatch
+general /community/join.bml.label.membernow4
+general /community/leave.bml.label.removed3
+general /community/leave.bml.label.removed.stopwatch2
+general /community/join.bml.label.membernow5
+general /community/leave.bml.label.removed4
+general /community/leave.bml.label.removed.stopwatch3
+
+general /customize/preview.bml.unavailable
+general /manage/profile/index.bml.fn.interests
+general /manage/profile/index.bml.fn.interests2
+general /manage/profile/index.bml.interest.line1
+general /manage/profile/index.bml.interest.line2
+general /manage/profile/index.bml.interest.line3
+general /manage/profile/index.bml.interest.line4
+general /manage/profile/index.bml.interest.line5
+general /manage/profile/index.bml.pop_interests
+general /manage/profile/index.bml.pop_interests2
+general /manage/profile/index.bml.pop_interests3
+general /manage/profile/index.bml.pop_interests4
+general /manage/profile/index.bml.pop_interests5
+general /manage/profile/index.bml.pop_interests6
+general /manage/profile/index.bml.pop_interests7
+general /manage/profile/index.bml.pop_interests8
+general /manage/profile/index.bml.pop_interests9
+general /manage/profile/index.bml.pop_interests10
+general /manage/profile/index.bml.pop_interests11
+general /manage/profile/index.bml.pop_interests12
+general /manage/profile/index.bml.pop_interests13
+general /manage/profile/index.bml.pop_interests14
+general /manage/profile/index.bml.pop_interests15
+general /manage/profile/index.bml.pop_interests16
+general /manage/profile/index.bml.pop_interests17
+general /manage/profile/index.bml.pop_interests18
+general /manage/profile/index.bml.pop_interests19
+general /manage/profile/index.bml.pop_interests20
+general /manage/profile/index.bml.pop_interests21
+
+general /friends/invite.bml.error.needcreatelink
+
+general email.newacct3.body
+general /manage/profile/index.bml.fn.imservices
+
+general /manage/profile/index.bml.pop_interests1.v2
+general /manage/profile/index.bml.pop_interests2.v2
+general /manage/profile/index.bml.pop_interests3.v2
+general /manage/profile/index.bml.pop_interests4.v2
+general /manage/profile/index.bml.pop_interests5.v2
+general /manage/profile/index.bml.pop_interests6.v2
+general /manage/profile/index.bml.pop_interests7.v2
+general /manage/profile/index.bml.pop_interests8.v2
+general /manage/profile/index.bml.pop_interests9.v2
+general /manage/profile/index.bml.pop_interests10.v2
+general /manage/profile/index.bml.pop_interests11.v2
+general /manage/profile/index.bml.pop_interests12.v2
+general /manage/profile/index.bml.pop_interests13.v2
+general /manage/profile/index.bml.pop_interests14.v2
+general /manage/profile/index.bml.pop_interests15.v2
+general /manage/profile/index.bml.pop_interests16.v2
+general /manage/profile/index.bml.pop_interests17.v2
+general /manage/profile/index.bml.pop_interests18.v2
+general /manage/profile/index.bml.pop_interests19.v2
+general /manage/profile/index.bml.pop_interests20.v2
+general /manage/profile/index.bml.pop_interests21.v2
+
+general /htdocs/register.bml.new.customize
+general /htdocs/register.bml.new.editinfo2
+general /htdocs/register.bml.new.header
+general /htdocs/register.bml.new.login2
+general /htdocs/register.bml.new.update2
+
+general /htdocs/register.bml.new.customize2
+general /htdocs/register.bml.new.editinfo3
+general /htdocs/register.bml.new.modify2
+general /htdocs/register.bml.new.search
+general /htdocs/register.bml.new.update3
+general /htdocs/register.bml.new.userpics
+
+general widget.qotd.title
+general widget.sitemessages.title
+
+general widget.themechooser.btn.layout_filter
+general widget.themechooser.layout_filter.label
+
+general /manage/settings/index.bml.safesearch
+general /manage/settings/index.bml.safesearch.select.concepts
+general /manage/settings/index.bml.safesearch.select.explicit
+
+general widget.verticalentries.title
+
+general widget.verticalentries.nocomments
+
+general widget.customizetheme.linkslist.manage
+
+general widget.customizetheme.linkslist

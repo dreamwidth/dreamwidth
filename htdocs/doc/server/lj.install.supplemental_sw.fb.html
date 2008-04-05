@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>6. Set up LJ &lt;=&gt; FotoBilder Integration</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.install.supplemental_sw.html" title="Chapter 9. Supplemental Software">
+<link rel="prev" href="lj.install.supplemental_sw.mogfs.html" title="5. Configure MogileFS">
+<link rel="next" href="lj.install.ljconfig.html" title="Chapter 10. Configuring ljconfig.pl">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">6. Set up <abbr class="abbrev">LJ</abbr> &lt;=&gt; <span class="application">FotoBilder</span> Integration</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.install.supplemental_sw.mogfs.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 9. Supplemental Software</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.install.ljconfig.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.install.supplemental_sw.fb">6. Set up <abbr class="abbrev">LJ</abbr> &lt;=&gt; <span class="application">FotoBilder</span> Integration</h2></div></div></div>
+<p>
+<span class="application">FotoBilder</span> has its own, separate,
+<a href="http://www.picpix.com/doc/manual/" target="_top">manual<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a> and
+<a href="http://code.sixapart.com/svn/fotobilder/trunk/" target="_top">codebase<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a>.
+Its codebase is being integrated into <span class="application">LiveJournal</span>; it will be discontinued as a separate
+project eventually. If you <span class="emphasis"><em>do</em></span> want to install it,
+you also need to set up <span class="application">Perlbal</span>.</p>
+<p>
+First, make sure the necessary directories are in place. You also need to set up
+<code class="envar">FBHOME</code>. You can place this into your startup files, as
+with <a class="xref" href="lj.install.ljhome.html" title="1. $LJHOME Environment Variable">Section 1, &#8220;$LJHOME Environment Variable&#8221;</a></p>
+<p>
+</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>cd</strong></span> <em class="parameter"><code>$<code class="envar">LJHOME</code></code></em></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>mkdir</strong></span> <code class="filename">fb</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>export</strong></span> <code class="envar">FBHOME</code>=<code class="filename">/home/lj/fb</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>mkdir</strong></span> <code class="filename">fb/cvs</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>cd</strong></span> <code class="filename">fb/cvs</code></code></strong></pre>
+<p>
+Next, get the code from the repository:</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>svn <code class="option">co</code></strong></span> <code class="uri">http://code.sixapart.com/svn/fotobilder/trunk</code> <span class="package">fb</span></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>/home/lj/bin/vcv</strong></span> <code class="option">--conf=fb/cvs/multicvs.conf --checkout</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>/home/lj/bin/vcv</strong></span> <code class="option">--conf=fb/cvs/multicvs.conf -s</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>cd</strong></span> <code class="literal">../</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>./bin/cvsreport.pl <code class="option">-s</code></strong></span></code></strong></pre>
+<p>
+Now set up the database:</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code>mysql -uroot -p</code></strong>
+<code class="prompt">mysql&gt;</code> <strong class="userinput"><code>CREATE DATABASE ON fotobilder.* TO </code></strong>
+<code class="prompt">     &gt;</code> <strong class="userinput"><code>fb@'localhost' IDENTIFIED BY 'fbpass';</code></strong>
+<code class="prompt">     &gt;</code> <strong class="userinput"><code>\q</code></strong></pre>
+<p>
+Run <span class="command"><strong>bin/checkconfig.pl</strong></span>. If it reports any missing
+packages, install them then re-run that command again.</p>
+<p>
+Now you need to copy across the configuration file and update the database.
+</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>cp</strong></span> <code class="filename">doc/fbconfig.pl</code> <code class="filename">etc/</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>mkdir</strong></span> <code class="filename">logs</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>./bin/upgrading/update-db.pl <code class="option">-r -p</code></strong></span></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>bin/upgrading/texttool.pl <code class="option">load <em class="replaceable"><code>en en_YS</code></em></code></strong></span></code></strong></pre>
+<p>
+You can make the following updates in <code class="filename">ljconfig.pl</code> to integrate
+the two installations:
+</p>
+<pre class="programlisting">{
+    <code class="literal">%FOTOBILDER_IP</code> = (
+            '127.0.0.1' =&gt; 1,
+            '192.170.2.5' =&gt; 1, # change for your <acronym class="acronym">IP</acronym>
+            );
+
+    <code class="literal">$FB_DOMAIN</code> = "pics.$DOMAIN";
+    <code class="literal">$FB_SITEROOT</code> = "http://$FB_DOMAIN";
+
+    # referrer domain names that <span class="application">LiveJournal</span> will redirect
+    # users to after login. Should usually match <code class="literal">$LJ::FB_DOMAIN</code>:
+    <code class="literal">$REDIRECT_ALLOWED{$FB_DOMAIN}</code> = 1; 
+
+    <code class="literal">$REDIRECT_ALLOWED{$FB_SITEROOT}</code> = 1;
+
+    <code class="literal">$REDIRECT_ALLOWED{'127.0.0.1'}</code> = 1;
+    <code class="literal">$REDIRECT_ALLOWED{'192.170.2.5'}</code> = 1;     # change for your <acronym class="acronym">IP</acronym>
+    # <code class="literal">$FOTOBILDER_IP{'127.0.0.1'}</code> = 1;        # <span class="application">FotoBilder</span> <acronym class="acronym">IP</acronym> address(es) trusted to make <acronym class="acronym">XML-RPC</acronym> calls
+}</pre>
+<p>
+Your <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/fb/etc/fbconfig.pl</code> needs
+the following corresponding settings:</p>
+<div class="informalexample"><pre class="programlisting">
+<code class="literal">$AUTH_DOMAIN{1}</code> = [ "LiveJournal", {                     # auth module name. do not change to your sitename.
+    'ljhost' =&gt; '127.0.0.1',                             # this should point to your server
+    'domain' =&gt; [ 'yourdomain.example.org' ],            # change to your domain / dev domain
+    'vhost' =&gt; [ 'pics.yourdomain.example.org' ],        # change to your domain / dev domain
+    # allowed_ips  =&gt; [ 127.0.0.1, 192.168.0.1 ],        # trusted <acronym class="acronym">IP</acronym> addresses <abbr class="abbrev">LJ</abbr> server uses for <acronym class="acronym">XML-RPC</acronym> calls
+}];
+</pre></div>
+<p>
+The <code class="literal">$FB::AUTH_DOMAIN{1}</code> variable controls
+cross-authentication between <span class="application">LiveJournal</span>/<span class="application">FotoBilder</span>. The <code class="filename">fbconfig.pl</code>
+example above uses the &#8220;<span class="quote">LiveJournal</span>&#8221; plugin, as distinct from the
+&#8220;<span class="quote">LJcom</span>&#8221; plugin, which is used for the site-specific 
+non-<acronym class="acronym">GPL</acronym> <code class="systemitem">ljcom</code>
+code and its <span class="application">FotoBilder</span> counterpart <code class="systemitem">picpix</code>.</p>
+<p>The relevant <a class="link" href="lj.admin.caps.html" title="Chapter 23. Capabilities Classes">usercaps</a> are:
+</p>
+<table class="simplelist" border="0" summary="Simple list">
+<tr><td>
+<code class="literal">fb_account</code>: determines whether a <span class="application">LiveJournal</span> user can have a <span class="application">FotoBilder</span> account auto-created for them on the fly.</td></tr>
+<tr><td>
+<code class="literal">fb_can_upload</code>: determines whether the user will have the &#8220;<span class="quote"><code class="literal">can_upload</code></span>&#8221; dcap sent in &#8220;<span class="quote"><code class="literal">get_user_info</code></span>&#8221; <acronym class="acronym">XML-RPC</acronym> requests from <span class="application">LiveJournal</span> to <span class="application">FotoBilder</span>.  For the <span class="emphasis"><em><code class="systemitem">LJCOM</code></em></span> auth module, this is what determines when an account enters/leaves a downgraded state.</td></tr>
+<tr><td>
+<code class="literal">fb_allstyles</code>: determines whether the user can use all the available styles.</td></tr>
+</table>
+<p>
+Add the following, amending as necessary, to your <code class="filename">/etc/perlbal/perlbal.conf</code> file:</p>
+<pre class="programlisting">
+# In service selector (ss) section:
+  VHOST pics.EXAMPLEHOSTNAME.lj = fotobilder
+  VHOST www.EXAMPLEHOSTNAME.lj;using:pics.EXAMPLEHOSTNAME.lj = fotobilder
+
+CREATE POOL fb_pool
+  POOL fb_pool ADD 127.0.0.1:8082
+
+CREATE SERVICE fotobilder
+  SET role = reverse_proxy
+  SET pool = fb_pool
+  SET persist_backend = on
+  SET max_backend_uses = 10
+  SET backend_persist_cache = 2
+  SET verify_backend = on
+  SET enable_reproxy = on
+  SET upload_status_listeners = 127.0.0.1:7002
+ENABLE fotobilder
+</pre>
+<p>
+Make the following updates in <code class="filename">/etc/apache-perl/httpd.conf</code>:</p>
+<p>
+Instead of <code class="literal">Port</code>, use:
+</p>
+<pre class="screen"><strong class="userinput"><code>Listen *:8081 # LiveJournal
+Listen *:8082 # FotoBilder</code></strong></pre>
+<p>
+Add the following, amending as necessary:</p>
+<pre class="programlisting">
+&lt;VirtualHost *:8082&gt;
+ServerName   pics.yourdomain.example.org
+PerlSetEnv   LJHOME /home/lj
+PerlSetEnv   FBHOME /home/lj/fb
+PerlRequire  /home/lj/fb/lib/startup.pl
+&lt;/VirtualHost&gt;
+</pre>
+<p>
+You might also need to add new spool directories:
+</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>cd</strong></span> <em class="parameter"><code>$<code class="envar">LJHOME</code></code></em></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>mkdir</strong></span> <code class="filename">fb/var/picroot/1/spool</code></code></strong></pre>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.install.supplemental_sw.mogfs.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.install.supplemental_sw.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.install.ljconfig.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">5. Configure <code class="systemitem"><span class="application">MogileFS</span></code> </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 10. Configuring ljconfig.pl</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

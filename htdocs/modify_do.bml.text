@@ -1,0 +1,103 @@
+;; -*- coding: utf-8 -*-
+.availablestyles.disabledstyles=Disabled Styles:
+
+.availablestyles.head=Available Styles
+
+.availablestyles.userstyles=User Styles:
+
+.colortheme.about=Here you can select what color theme will be applied to the layout options you pick above.  Or, if you don't like the provided colors, specify your own!  If you come up with something really sexy looking, let us know and we'll name a theme after it.
+
+.colortheme.area.head=Usage Area
+
+.colortheme.color.head1=Color
+
+.colortheme.color.head2=(#rrggbb or name)
+
+.colortheme.customcolors=Custom Colors
+
+.colortheme.defaulttheme=Default Theme
+
+.colortheme.head=Color Theme
+
+.domainalias.about=If you have a domain name already registered (or which you're planning on registering) and would like it to automatically load your LiveJournal, enter it here:
+
+.domainalias.domainname=Domain name:
+
+.domainalias.example=Example: <i>my-journal.com</i>
+
+.domainalias.head=Domain Aliasing
+
+.domainalias.helptext=For this to work, you'll need to arrange to have your domain name's DNS point to the same IP address of [[sitename]].
+
+.done.btn.savechanges=Save Changes
+
+.done.head=Done?
+
+.done.text=When done, press the "Save Changes" button below...
+
+.error.dupdomainalias=Another user has already registered themselves as using your selected domain alias.
+
+.error.stylenotavailable=One of the styles you've selected is not available.  This is either the result of somebody deleting the style, or you trying to pick one that you don't have access to.
+
+.friends.about=Here are options that control how your friends page looks.
+
+.friends.head=Friends View
+
+.friends.opt.usesharedpic.about=This option controls what picture you see on your friends page when a user posts in a shared or community journal.  If you check it, then you'll see the community's icon.  If you leave it unchecked, then you'll see the person that's actually posting's personal user icon.
+
+.friends.opt.usesharedpic.head=Use shared journal pictures instead of poster's user picture
+
+.journaloptions.about2=From here you can customize the look of your [[sitename]] pages. If you're really curious how everything works, read the <a [[aopts]]>developer information</a>. Otherwise, we'll assume you're satisfied with the basic options below:
+
+.journaloptions.head=Journal Options
+
+.journalstatus.about=If you want to delete or undelete your journal, this is where you do it.  Once you delete your journal you have 30 days to undelete it, just in case you change your mind.  After 30 days, the journal will be permanently deleted and there will be no way to recover it.
+
+.journalstatus.head=Journal Activation Status
+
+.journalstatus.select.activated=Activated
+
+.journalstatus.select.deleted=Deleted
+
+.journalstatus.select.head=Status:
+
+.journalstatus.select.suspended=Suspended
+
+.moodicons.about=When posting journal entries you can also specify your current mood.  Different users have submitted different sets of mood icons that you can use.  Or, select "None" if you don't want any pictures beside your moods.  (or, you don't even have to use the Current Mood feature at all.)
+
+.moodicons.head=Mood Icons
+
+.moodicons.opt.forcefriends.about=Force this mood theme for all friends on your friends page
+
+.moodicons.personal=Personal Themes:
+
+.moodicons.preview=preview
+
+.moodicons.select=Select mood icon set:
+
+.overrides.about2=You can ignore this section. This is for tweaking very specific things about your page layout. See the <a [[aopts1]]>developer section</a> for details. Also note that overrides are for overriding only one or two things about a style. If you'd like to override everything, you need to <a [[aopts2]]>create your own style</a>.
+
+.overrides.box.head=Overrides:
+
+.overrides.head=Style Overrides
+
+.overrides.note2<<
+Please note that not all style variables can be overridden. See the <a [[aopts]]>documentation</a> for more details.<br />
+Also, be aware that if you attempt to edit your overrides and you have used a tag that is not allowed in the head of the document &ndash;
+such as &lt;div&gt;, &lt;span&gt;, &lt;img&gt;, and many other tags &ndash; that tag will be stripped. The only HTML elements that can be
+used in the *_HEAD overrides are those elements that are valid in the head of a HTML document. This is limited to &lt;title&gt;,
+&lt;base&gt;, &lt;style&gt;, &lt;link&gt;, and &lt;meta&gt;.
+.
+
+.overrides.warning=THIS IS <U>NOT</U> WHERE YOU TYPE YOUR JOURNAL!!
+
+.pagelayoutstyle.about=Setting this controls how your journal is laid out on the screen.
+
+.pagelayoutstyle.head=Page Layout Style
+
+.pagelayoutstyle.warning=Your account type only permits you to select between a small number of default styles.
+
+.success.head=Success
+
+.success.text2=Your journal settings have been updated. You can view your journal <a [[aopts]]>here</a>.
+

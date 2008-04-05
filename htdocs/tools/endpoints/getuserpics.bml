@@ -1,0 +1,43 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use JSON;
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            'alert' => $msg,
+        });
+    };
+
+    # get user
+    my $u = LJ::get_remote()
+        or return $err->("Sorry, you must be logged in to use this feature.");
+
+    # get userpics
+    my @userpics = LJ::Userpic->load_user_userpics($u);
+
+    my %upics = (); # info to return
+    $upics{pics} = {}; # upicid -> hashref of metadata
+
+    foreach my $upic (@userpics) {
+        next if $upic->inactive;
+
+        my $id = $upic->id;
+        $upics{pics}{$id} = {
+            url => $upic->url,
+            state => $upic->state,
+            width => $upic->width,
+            height => $upic->height,
+            comment => LJ::strip_html($upic->comment),
+            id => $id,
+            keywords => [ map { LJ::strip_html($_) } $upic->keywords],
+        };
+    }
+
+    $upics{ids} = [keys %{$upics{pics}}];
+    sleep 1 if $LJ::IS_DEV_SERVER;
+
+    return JSON::objToJson(\%upics);
+}
+_code?>

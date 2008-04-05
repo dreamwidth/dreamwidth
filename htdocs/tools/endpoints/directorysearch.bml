@@ -1,0 +1,109 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%FORM);
+    use JSON;
+    use LJ::Directory::Search;
+    use LJ::WorkerResultStorage;
+    use Storable;
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            error => "$msg",
+        });
+    };
+
+    BML::set_content_type('text/javascript; charset=utf-8');
+    BML::finish();
+    BML::noparse();
+
+    my %ret;
+
+    if ($FORM{search_handle}) {
+        # return status of the search
+        my $result_storage = LJ::WorkerResultStorage->new(handle => $FORM{search_handle})
+            or return $err->("Error getting search results");
+
+        my %search_status = $result_storage->status;
+
+        if (%search_status) {
+            if ($search_status{status} eq 'running') {
+                # return the status of the job
+                $ret{$_} = $search_status{$_} foreach keys %search_status;
+            } elsif ($search_status{status} eq 'error') {
+                # return the error
+                return $err->($search_status{result});
+            } elsif ($search_status{status} eq 'success') {
+                # return results
+                {
+                    my $resultsblob = $search_status{result};
+                    my $results = Storable::thaw($resultsblob)
+                        or return $err->("Error getting search results");
+
+                    # get update times
+                    my $updated = LJ::get_timeupdate_multi(map { $_->userid } $results->users);
+
+                    my @users;
+                    foreach my $u ($results->users) {
+                        my $updatetime = $updated->{$u->userid};
+                        my $updatetimestring = $updatetime ? LJ::ago_text(time() - $updatetime) :
+                            'Never';
+
+                        push @users, {
+                            lastupdated => $updatetime,
+                            $u->info_for_js,
+                            lastupdated_string => $updatetimestring,
+                        };
+                    }
+
+                    $ret{users} = \@users;
+                    $ret{search_complete} = 1;
+                }
+            } else {
+                # unknown, perhaps the job hasn't started yet?
+                $ret{status} = "unknown";
+            }
+        } else {
+            $ret{status} = "unknown";
+        }
+    } else {
+        # initiate search
+
+        # build list of search constraints from post/get args
+        my $constraint_strings = JSON::jsonToObj($FORM{constraints}) || [];
+        my @constraints;
+        foreach my $constraint_string (@$constraint_strings) {
+            my @constraint_params = split('&',  $constraint_string);
+
+            my %constraint_args;
+
+            foreach my $constraint_param (@constraint_params) {
+                my @constraint_args = map { LJ::durl($_) } grep { $_ } (split('=', $constraint_param));
+                %constraint_args = (%constraint_args, @constraint_args);
+            }
+
+            push @constraints, LJ::Directory::Constraint->constraints_from_formargs(\%constraint_args);
+        }
+        foreach my $constraint (@constraints) {
+            next unless $constraint->isa('LJ::Directory::Constraint::Interest');
+            
+            if (LJ::run_hook("interest_search_ignore", intid => $constraint->intid)) {
+                return $err->("Sorry, we're unable to help you find users matching the interests you've provided.");
+            }
+        }
+        return $err->("No search constraints were specified") unless @constraints;
+
+        my $dir = LJ::Directory::Search->new(page_size => $LJ::MAX_DIR_SEARCH_RESULTS, constraints => \@constraints);
+        my $handle = $dir->search_background;
+
+        return $err->("Search is currently unavailable") unless $handle;
+
+        $ret{search_handle} = $handle;
+    }
+
+    sleep(1) if $LJ::IS_DEV_SERVER;
+
+    return LJ::js_dumper(\%ret);
+}
+_code?>

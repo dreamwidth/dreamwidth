@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>1. Introduction</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.features.support.html" title="Chapter 28. Internal Support System">
+<link rel="prev" href="lj.features.support.html" title="Chapter 28. Internal Support System">
+<link rel="next" href="appx.gfdl.html" title="Appendix A. GNU Free Documentation License">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">1. Introduction</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.features.support.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 28. Internal Support System</th>
+<td width="20%" align="right"> <a accesskey="n" href="appx.gfdl.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.features.support.intro">1. Introduction</h2></div></div></div>
+<p>
+      Packaged with every <span class="application">LiveJournal</span> distribution is an internal support center; a
+      set of pages that logs user requests and assigns them a ticket, so that
+      once it is answered they can return to close the ticket or mark it as
+      still needing assistance.
+    </p>
+<p>The support system was written and tailors to 3 types of users:</p>
+<p>
+      </p>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>Requester. </b>The user who files
+        the support request</p></li>
+<li><p><b>Volunteer. </b>The user who answers
+        the question as best as they can</p></li>
+<li><p><b>Admin. </b>The user who approves
+        screened answers and closes old/dead requests</p></li>
+</ul></div>
+<p>
+        </p>
+<p>The Support Center is located at <a href="http://www.livejournal.com/support/" target="_top">http://www.livejournal.com/support/<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a>.</p>
+<p class="remark"><i><span class="remark">FIXME: This needs a lot of work.</span></i></p>
+<p>
+The actions or &#8220;<span class="quote">touches</span>&#8221; each user can perform on tickets
+are determined by privs they hold.</p>
+<p><b>Support-Ticket Metadata. </b>Supplemental information is displayed on the web page for the ticket,
+to help the volunteer resolve it.</p>
+<p>Each ticket contains the information in the list below.
+Some items can be disabled, in <code class="filename">ljconfig.pl</code></p>
+<div class="variablelist"><dl>
+<dt><span class="term">Diagnostics</span></dt>
+<dd><p>User-agent string sent by the browser when the requester opened the ticket.
+This indicates the platform and <acronym class="acronym">OS</acronym> the requester used,
+when submitting the ticket. It can help in identifying &#8220;<span class="quote">malware</span>&#8221; that
+may affect their use of the <span class="application">LiveJournal</span> installation.</p></dd>
+<dt><span class="term">Cluster</span></dt>
+<dd><p>The cluster the user account is on.</p></dd>
+<dt><span class="term">Username, <span class="application">e-mail</span></span></dt>
+<dd><p>Username, <span class="application">e-mail</span> address (can be munged).</p></dd>
+<dt><span class="term"><a class="link" href="ljp.int.dversion.html" title="Chapter 16. Dversion Values">dversion</a> - data version</span></dt>
+<dd><p>Userpic storage, etc.</p></dd>
+<dt><span class="term">Account type</span></dt>
+<dd><p>Account types are set using hooks, e.g. &#8220;<span class="quote">paid</span>&#8221;.</p></dd>
+<dt><span class="term">Style system</span></dt>
+<dd><p>Style system in use: S1 or S2. Hyperlinks to layout code for the various
+different page views (journal, calendar/archive etc) are displayed. You can
+restrict who can load private/public styles linked here, using privs. Some
+layout code may not be publicly-viewable, depending on how the user has
+configured their layout.</p></dd>
+<dt><span class="term">S1 page</span></dt>
+<dd><p>View S1 overrides of a given username. Normally you will want to restrict
+who can use this. You can view overrides for a given username
+at /foo.html. (ljcom-specific?)</p></dd>
+<dt><span class="term"><span class="application">e-mail</span> validated</span></dt>
+<dd><p>Value: yes/no. Some site features are unavailable to the user until they
+validate their <span class="application">e-mail</span>  address.</p></dd>
+<dt><span class="term">Scheme</span></dt>
+<dd><p>The user's chosen site scheme.</p></dd>
+<dt><span class="term">Language</span></dt>
+<dd><p>The user's selected language. This is
+an <acronym class="acronym">ISO</acronym> language code.</p></dd>
+<dt><span class="term">Underage</span></dt>
+<dd><p>Status of the underage flag on the user account.</p></dd>
+<dt><span class="term">Support Category</span></dt>
+<dd><p>To help sort open/pending and closed requests, you can set up categories.
+New categories are created using <span class="application">SQL</span> <strong class="userinput"><code>INSERT</code></strong> commands
+into the <a class="link" href="ljp.dbschema.supportcat.html" title="supportcat"><span class="database">supportcat</span></a> table.
+Categories can be public, or private (visible only to those holding the necessary privs).</p></dd>
+<dt><span class="term">Status</span></dt>
+<dd><p>Open/closed/still needs help/locked?</p></dd>
+<dt><span class="term">Original request</span></dt>
+<dd><p>User description of problem/query.</p></dd>
+<dt><span class="term">Summary</span></dt>
+<dd><p>Short summary of problem description. Examples:
+<em class="replaceable"><code>OMG plz help thnx111</code></em>;
+<em class="replaceable"><code>Loading sitepage.bml fails</code></em>.</p></dd>
+</dl></div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.features.support.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.features.support.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="appx.gfdl.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 28. Internal Support System </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Appendix A. GNU Free Documentation License</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+;; -*- coding: utf-8 -*-
+.btn.status|notes=Submit button for form
+.btn.status=Change Status
+
+.error.db=There has been a database error processing your request.
+
+.error.invalid=Invalid status type
+
+.error.nochange.expunged=This account has been purged from the system.
+
+.error.nochange.suspend|notes=You can't change a journal to be unsuspended. This message is for users who attempt to do so.
+.error.nochange.suspend=Cannot change journal status from suspended.
+
+.header.success=Success
+
+.journalstatus.about=If you want to delete or undelete your journal, this is where you do it.  Once you delete your journal you have 30 days to undelete it, just in case you change your mind.  After 30 days, the journal will be permanently deleted and there will be no way to recover it.
+
+.journalstatus.head=Journal Activation Status
+
+.journalstatus.select.activated=Activated
+
+.journalstatus.select.deleted=Deleted
+
+.journalstatus.select.head=Status:
+
+.journalstatus.select.suspended=Suspended
+
+.message.deleted=If you wish to undelete this journal, you can return to this page at any time in the next 30 days to undelete it.
+
+.message.nochange=Your journal status has been left as <b>[[statusvis]]</b>.
+
+.message.success=Your journal status has been successfully changed to <b>[[statusvis]]</b>.
+
+.title=Account Status
+

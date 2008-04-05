@@ -1,0 +1,263 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw($title $body $head %GET %POST);
+    use Class::Autouse qw (
+                           LJ::NotificationInbox
+                           LJ::Event
+                           );
+
+    $title = "Inbox";
+    $body = "";
+
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
+    return "Not ready" unless $remote->can_use_esn;
+
+    LJ::need_res(qw(
+                  js/core.js
+                  js/dom.js
+                  js/view.js
+                  js/controller.js
+                  js/datasource.js
+                  js/checkallbutton.js
+                  js/selectable_table.js
+                  js/httpreq.js
+                  js/hourglass.js
+                  js/esn_inbox.js
+                  stc/esn.css
+                  stc/lj_base.css
+                  ));
+
+    my $formauth = LJ::form_auth();
+
+    # get the user's inbox
+    my $inbox = $remote->notification_inbox
+        or return LJ::error_list("Could not retrieve inbox for user $remote->{user}");
+
+    # 2 instances of action buttons
+    # map each to one variable
+    my @buttons = qw{markRead markUnread delete markAllRead};
+    foreach my $button (@buttons) {
+        for (my $i=1; $i<=2; $i++) {
+            my $sfx_button = $button . "_" . $i;
+            $GET{$button} = $GET{$sfx_button} if($GET{$sfx_button} && !$GET{$button});
+            $POST{$button} = $POST{$sfx_button} if($POST{$sfx_button} && !$POST{$button});
+        }
+    }
+
+    # Take a supplied filter but default it to undef unless it is valid
+    my $view = $POST{view} || $GET{view} || undef;
+    $view = undef if ($view eq 'archive' && $LJ::DISABLED{esn_archive});
+    $view = undef if ($view && !LJ::NotificationInbox->can("${view}_items"));
+
+    # Bolds the selected View/Folder
+    my $selected_folder = $view || 'all';
+    $selected_folder = qq(
+        <style>#esn_folder_$selected_folder {
+        font-weight: bold;
+        background-color: #C7E0F6;
+        border: 1px solid #bbb;
+        }</style>
+        );
+    $head = $selected_folder;
+
+    # get events sitting in inbox
+    my @notifications = $inbox->items;
+
+    my @errors;
+
+    if (LJ::did_post()) {
+
+        # operate on notices by default but switch if view parameter specified
+        my $nitems = \@notifications;
+        my $name = "all";
+        if ($view) {
+            my @items = eval "\$inbox->${name}_items";
+            $nitems = \@items;
+        }
+
+        if ($POST{markAllRead}) {
+            $_->mark_read foreach (@$nitems);
+        } else {
+            # go through each item and see if it's checked
+            foreach my $item (@$nitems) {
+                my $qid = eval { $item->qid } or next;
+                my $checked = $POST{"${name}_Check-$qid"};
+                next unless $checked;
+
+                if ($POST{markRead}) {
+                    $item->mark_read;
+                } elsif ($POST{markUnread}) {
+                    $item->mark_unread;
+                } elsif ($POST{delete}) {
+                    $item->delete;
+                }
+            }
+
+            # reload inbox after making changes
+            @$nitems = eval "\$inbox->${name}_items";
+        }
+    }
+
+    # Allow bookmarking to work without Javascript
+    # or before JS events are bound
+    if ($GET{bookmark_off} && $GET{bookmark_off} =~ /^\d+$/) {
+        push @errors, "Max number of bookmarks reached"
+            unless $inbox->add_bookmark($GET{bookmark_off});
+    }
+    if ($GET{bookmark_on} && $GET{bookmark_on} =~ /^\d+$/) {
+        $inbox->remove_bookmark($GET{bookmark_on});
+    }
+
+    my $unread_html = sub {
+        my $count = shift || 0;
+        return $count ? " <span class='unread_count'>($count)</span>"
+                      : " <span class='unread_count'></span>";
+    };
+
+    # print number of new alerts
+    my $unread_count = $inbox->unread_count;
+    my $alert_plural = $unread_count == 1 ? 'message' : 'messages';
+    $alert_plural .= $unread_count ? '!' : '.';
+    my $unread_all = $unread_html->($unread_count);
+    my $unread_usermsg_recvd = $unread_html->($inbox->usermsg_recvd_event_count);
+    my $unread_friend = $unread_html->($inbox->friendplus_event_count);
+    my $unread_entrycomment = $unread_html->($inbox->entrycomment_event_count);
+    my $message_button = "";
+    $message_button = qq{
+        <form action="./compose.bml" method="GET">
+        <input type="submit" value="New Message" style="width: 100%">
+        </form>} unless $LJ::DISABLED{user_messaging};
+
+    # Pagination
+    my $page = int($POST{page} || $GET{page});
+
+    $body .= LJ::error_list(@errors) if (@errors);
+
+    $body .= qq{
+        <div class="inbox_newitems pkg">
+            <span class="esnlinks"><a href="$LJ::SITEROOT/inbox/?page=$page" id="RefreshLink">Refresh</a> | <a href="$LJ::SITEROOT/manage/subscriptions/">Manage Settings</a></span>
+        </div> };
+
+    $body .= qq{
+        <table style="width: 100%"><tr><td valign="top" style="padding-right: 12px">
+            $message_button
+            <div class="folders"><p>
+            <a href="." id="esn_folder_all">All$unread_all</a>};
+    $body .= qq{<a href=".?view=usermsg_recvd" id="esn_folder_usermsg_recvd">Messages$unread_usermsg_recvd</a>} unless $LJ::DISABLED{user_messaging};
+    $body .= qq{<a href=".?view=friendplus" id="esn_folder_friendplus">Friend Updates$unread_friend</a>
+              <a href=".?view=birthday" class="subs" id="esn_folder_birthday">Birthdays</a>
+              <a href=".?view=befriended" class="subs" id="esn_folder_befriended">New Friends</a><a href=".?view=entrycomment" id="esn_folder_entrycomment">Entries &amp; Comments$unread_entrycomment</a>
+            ---
+            <a href=".?view=bookmark" id="esn_folder_bookmark">Bookmarks <img src="$LJ::IMGPREFIX/flag_on.gif" width="12" height="14" border="0" /></a>};
+    $body .= qq{<a href=".?view=usermsg_sent" id="esn_folder_usermsg_sent">Sent</a>\n} unless $LJ::DISABLED{user_messaging};
+    $body .= qq{<a href=".?view=archived" id="esn_folder_archived">Archive</a>\n} unless $LJ::DISABLED{esn_archive};
+    $body .= qq{
+            </p></div>&nbsp;<br />
+        </td>
+        <td width="1" height="100%" style="border-left: 1px solid #ccc"><img src="$LJ::IMGPREFIX/spacer.gif"></td>
+        <td valign="top" style="padding-left: 10px; width: 100%;">
+    };
+
+    # Filter by view if specified
+    my @all_items;
+    if ($view) {
+        @all_items = eval "\$inbox->${view}_items";
+    } else {
+        @all_items = $inbox->all_items;
+    }
+
+    $body .= LJ::Widget::InboxFolder->render(
+                     folder  => "all",
+                     reply_btn => 1,
+                     expand    => $GET{expand},
+                     inbox     => $inbox,
+                     page      => $page,
+                     view      => $view,
+                     mode      => $GET{mode},
+                     items     => \@all_items);
+
+    $body .= qq{
+        </td></tr></table>
+    };
+
+    return $body;
+}
+ _code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+
+<?_code return $head; _code?>
+
+<script>
+LJ_cmtinfo = {};
+LJ_cmtinfo['disableInlineDelete'] = 1;
+var pageNum;
+
+DOM.addEventListener(window, "load", setup);
+
+var tableview;
+var checkallButton;
+/* Can have multiple tables or folders displayed on the same page */
+var folders = ['all'];
+
+function setup (e) {
+    if (! Site.has_remote) return;
+
+    for (var i=0; i<folders.length; i++) {
+        var name = folders[i];
+        tableview = new View();
+
+        tableview.init({ "view": $(name + "_Table") });
+
+        // 2 instances of action buttons
+        for (var i=1; i<=2; i++) {
+            checkallButton = new CheckallButton();
+            checkallButton.init({
+                  "class": "InboxItem_Check",
+                  "button": $(name + "_CheckAll_" + i),
+                  "parent": tableview.getView()
+            });
+        }
+    }
+
+// 2 instances of action buttons
+for (var i=1; i<=2; i++) {
+    DOM.addEventListener($("Page_Prev_"+i), "click", Page_Prev);
+    DOM.addEventListener($("Page_Next_"+i), "click", Page_Next);
+}
+
+if ($("pageNum")) pageNum = parseInt($("pageNum").value);
+}
+
+function xtra_args () {
+    var args = '';
+    var view = $("inbox_view").value;
+    if (view) args += "&view=" + view;
+    return args;
+}
+
+function Page_Prev (e) {
+    if (pageNum) {
+        var args = xtra_args();
+        window.location.href = "<?siteroot?>/inbox/?page=" + (pageNum - 1) + args;
+    }
+}
+
+function Page_Next (e) {
+    if (pageNum) {
+        var args = xtra_args();
+        window.location.href = "<?siteroot?>/inbox/?page=" + (pageNum + 1) + args;
+    }
+}
+
+</script>
+
+<=head
+
+page?>

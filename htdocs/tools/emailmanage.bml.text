@@ -1,0 +1,41 @@
+;; -*- coding: utf-8 -*-
+.address.current.title=Current Address
+
+.address.old.none=None
+
+.address.old.text<<
+The following is a list of email addresses that were used with your account,
+and the time they were deactivated as the primary email address. Check the ones
+you wish to delete.
+.
+
+.address.old.title=Previous Addresses
+
+.delete_selected=Delete Selected
+
+.desc.notfirst<<
+This page only lets you remove email addresses that were used after the first time 
+you used the email address your account is currently validated with. In particular, 
+this means the attacker isn't able to remove your original email address.
+.
+
+.desc.text<<
+This page lets you remove past email addresses that were used with your account.
+By removing them, they'll no longer be able to have your password mailed to them.
+This is useful if somebody discovered your password and hijacked your journal. Simply
+have the new password mailed to your old address, change it back, and remove the
+attacker's email address.
+.
+
+.desc.title=Description
+
+.log.deleted=Deleted: [[email]] @ [[time]]
+
+.log.deleted.title=Changes Saved
+
+.notvalidated.text2=To use this tool, your current email address, [[email]] , must be validated. If you've lost the confirmation email to do this, you can <a [[aopts]]>have it re-sent</a>. After you validate your email, come back here.
+
+.notvalidated.title=Email not validated
+
+.title=Email Management
+

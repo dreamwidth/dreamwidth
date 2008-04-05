@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljprotocol.pl';
+use LJ::Worker::TheSchwartz;
+use LJ::MassPrivacy;
+
+foreach my $classname (LJ::MassPrivacy->schwartz_capabilities) {
+    schwartz_decl($classname);
+}
+
+schwartz_work();
+

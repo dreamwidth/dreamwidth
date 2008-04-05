@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>support</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.dbschema.ref.html" title="Database Schema Browser">
+<link rel="prev" href="ljp.dbschema.sup_sponsors.html" title="sup_sponsors">
+<link rel="next" href="ljp.dbschema.support_answers.html" title="support_answers">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">
+      <span class="database">support</span>
+    </th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.dbschema.sup_sponsors.html">Prev</a> </td>
+<th width="60%" align="center">Database Schema Browser</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.dbschema.support_answers.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.dbschema.support"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>
+      <span class="database">support</span>
+    </h2>
+<p>
+      <span class="database">support</span>
+     &#8212; Holds data for the Support system.  
+
+It is indexed by state, requserid, and reqemail, to let users with the supporthelp priv see past support requests by a user: When viewing a support request, the user with the priv will history.bml, which will then pull up a list of all requests opened by that user or by that e-mail address.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3396382"></a><h2>
+      <span class="database">support</span>
+    </h2>
+<div class="informaltable"><table border="1">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Column name</th>
+<th>Type</th>
+<th>Null</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+              <span class="database">spid</span>
+            </td>
+<td>
+              <span class="type">int unsigned auto_increment</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">reqtype</span>
+            </td>
+<td>
+              <span class="type">enum('user','email')</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">requserid</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal">0</code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">reqname</span>
+            </td>
+<td>
+              <span class="type">varchar(50)</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">reqemail</span>
+            </td>
+<td>
+              <span class="type">varchar(70)</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">state</span>
+            </td>
+<td>
+              <span class="type">enum('open','closed')</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">authcode</span>
+            </td>
+<td>
+              <span class="type">varchar(15)</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">spcatid</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal">0</code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">subject</span>
+            </td>
+<td>
+              <span class="type">varchar(80)</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">timecreate</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">timetouched</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">timeclosed</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+<tr>
+<td>
+              <span class="database">timelasthelp</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center">YES</td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+<div class="informaltable"><table border="1">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Key name</th>
+<th>Type</th>
+<th>Column(s)</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+              <span class="database">PRIMARY</span>
+            </td>
+<td>
+              <span class="type">PRIMARY</span>
+            </td>
+<td>
+              <span class="database"></span>
+            </td>
+</tr>
+<tr>
+<td>
+              <span class="database">reqemail</span>
+            </td>
+<td>
+              <span class="type">INDEX</span>
+            </td>
+<td>
+              <span class="database"></span>
+            </td>
+</tr>
+<tr>
+<td>
+              <span class="database">requserid</span>
+            </td>
+<td>
+              <span class="type">INDEX</span>
+            </td>
+<td>
+              <span class="database"></span>
+            </td>
+</tr>
+<tr>
+<td>
+              <span class="database">state</span>
+            </td>
+<td>
+              <span class="type">INDEX</span>
+            </td>
+<td>
+              <span class="database"></span>
+            </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.dbschema.sup_sponsors.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.dbschema.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.dbschema.support_answers.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">
+      <span class="database">sup_sponsors</span>
+     </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 
+      <span class="database">support_answers</span>
+    </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

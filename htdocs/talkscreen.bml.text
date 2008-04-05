@@ -1,0 +1,55 @@
+;; -*- coding: utf-8 -*-
+.error.login=You must be logged in to work with screened comments.
+
+.error.privs.freeze=You do not have permission to freeze this thread.
+
+.error.privs.screen=You do not have permission to screen this comment.
+
+.error.privs.unfreeze=You do not have permission to unfreeze this thread.
+
+.error.privs.unscreen=You do not have permission to unscreen this comment.
+
+.freeze.doit=Yes, freeze this thread
+
+.freeze.sure.body=Are you sure you want to freeze this thread?  No further responses will be allowed to it or any of the comments underneath it.
+
+.freeze.sure.title=Freeze this thread?
+
+.frozen.body=The thread has been frozen.
+
+.frozen.title=Success
+
+.link=Go back to <a [[aopts]]>the post</a>.
+
+.screen.doit=Yes, screen this comment
+
+.screen.sure.body=Are you sure you want to screen this comment?
+
+.screen.sure.title=Screen this comment?
+
+.screened.body=The comment has been screened.
+
+.screened.title=Success
+
+.title2=Change Comment Status
+
+.unfreeze.doit=Yes, unfreeze this thread
+
+.unfreeze.sure.body=Are you sure you want to unfreeze this thread?
+
+.unfreeze.sure.title=Unfreeze this thread?
+
+.unfrozen.body=The thread has been unfrozen.
+
+.unfrozen.title=Success
+
+.unscreen.doit=Yes, unscreen this comment
+
+.unscreen.sure.body=Are you sure you want to unscreen this comment?
+
+.unscreen.sure.title=Unscreen this comment?
+
+.unscreened.body=The comment has been unscreened.
+
+.unscreened.title=Success
+

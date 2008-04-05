@@ -1,0 +1,79 @@
+;; -*- coding: utf-8 -*-
+.account=Account:
+
+.add=Add Feed
+
+.add.byurl.text=Add a feed to your friends list by entering the feed URL below.
+
+.add.byurl.title=Add Feed by URL
+
+.add.pop.text=The following are some popular feeds you're not currently watching:
+
+.add.pop.title=Add Popular Feed
+
+.add.selected=Add Selected
+
+.back=Back
+
+.create=Create Feed
+
+.create.name=The URL you have entered is not currently being syndicated on this site.  Please enter an account name to use to syndicate this feed.
+
+.error.nocreate=The URL you have entered is not currently being syndicated on this site.  Your account type does not have the ability to create new syndicated feeds.
+
+.error.unknown=Unknown Error
+
+.feed.url=Feed URL:
+
+.invalid.accountname=Invalid account name.
+
+.invalid.cantadd=You can't add RSS feeds from this site.
+
+.invalid.http.text=There was an error retrieving this URL.  The server may be down or the content unavailable at this time.  Please verify the URL you have provided and try again.
+
+.invalid.http.title=Error retrieving content
+
+.invalid.inuse.text=That account name is already in use.
+
+.invalid.inuse.title=Username in use
+
+.invalid.needname.text=To add a syndicated account that doesn't exist, go back and give it an account name.
+
+.invalid.needname.title=Need an account name 
+
+.invalid.needurl=You must enter either a syndicated account's username or URL to add a new feed.
+
+.invalid.notexist=No syndicated account exists with that username.
+
+.invalid.notrss.text=The URL provided does not appear to contain XML formatted data.
+
+.invalid.notrss.title=Data not XML formatted
+
+.invalid.port=Non-standard port number not allowed
+
+.invalid.reserved=This account name is reserved. Please choose a different account name.
+
+.invalid.submission=Invalid form submission
+
+.invalid.url=The URL you have typed is invalid. Please make sure you have typed the URL correctly and try again.
+
+.promo.text=After you've created a syndicated account, share it with others! The more people there are watching a syndicated account, the more points are freed up to read and create syndicated accounts.
+
+.remove=Remove Selected
+
+.table.account=Account
+
+.table.feed=Feed
+
+.table.watchers=Watchers
+
+.title=Syndication
+
+.top1000.text=Browse a list of our <a [[aopts]]>top 1000 syndicated feeds</a>.
+
+.user.nomatch=User posting doesn't match user that filled out the form.
+
+.using.text=Here you can add syndicated feeds (RSS) from other sites to your friends list, removing the need to check a dozen sites every day.
+
+.using.title=Using [[sitename]] for syndication
+

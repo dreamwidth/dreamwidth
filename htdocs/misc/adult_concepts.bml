@@ -1,0 +1,67 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings %COOKIE);
+
+    BML::set_language_scope("/misc/adult_content.bml");
+    $windowtitle = $ML{'.title'};
+    my $ret = '';
+    my $returl = $POST{ret} || $GET{ret};
+
+    # reload this entry if the user is logged in and has an age, since
+    # only logged out users and users without ages should be here
+    my $remote = LJ::get_remote();
+    return BML::redirect($returl) if $remote && $remote->best_guess_age;
+
+    if ($returl) {
+        my $redir = LJ::ContentFlag->check_adult_cookie($returl, \%POST, "concepts");
+        return BML::redirect($redir) if $redir;
+    }
+
+    # OpenID Server and Yadis
+    if (defined $GET{user}) {
+        my $u = LJ::load_user($GET{user});
+        $headextra .= $u->openid_tags if $u;
+    }
+
+    my $field = LJ::html_hidden(ret => $returl);
+
+    my $extra_for_no_age = $remote ? BML::ml('.setage', { aopts => "href='$LJ::SITEROOT/manage/profile/'" }) : "";
+
+    $ret .= qq {
+        <table cellpadding="8" cellspacing="0" border="1" style="background-color: #FFFFD4; border: 1px solid black;">
+            <tr>
+                <td align="center"><h1>14</h1></td>
+                <td align="center"><h1>$ML{'.title'}</h1></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+    };
+    $ret .= BML::ml('.message.concepts', { age => 14 }) . " $extra_for_no_age";
+    $ret .= qq {
+                </td>
+            </tr>
+        </table>
+
+        <br />
+
+        <center>
+            <form method="POST" action="$LJ::SITEROOT/misc/adult_concepts.bml">
+                $field
+    };
+    $ret .= LJ::html_submit( adult_check => BML::ml('.btn.ageconfirm', { age => 14 }) ) . " ";
+    $ret .= "<a href='$LJ::SITEROOT/site/search.bml'>" . BML::ml('.explore.notconfirmed', { siteabbrev => $LJ::SITENAMEABBREV }) . "</a>";
+    $ret .= "</form></center>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

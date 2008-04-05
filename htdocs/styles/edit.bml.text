@@ -1,0 +1,23 @@
+;; -*- coding: utf-8 -*-
+.edit.action=Action:
+
+.edit.delete=Delete this style!
+
+.edit.easy=Edit in Easy Mode
+
+.edit.head=You own the following styles.  Choose which one you want to modify.
+
+.edit.nostyle=no styles
+
+.edit.raw=Edit in Raw Mode (Old)
+
+.edit.submit=Proceed
+
+.edit.text2=Pick a style:
+
+.editstyle.head=Edit which style?
+
+.editstyle.text2=After you <a [[aopts]]><b>create a style</b></a>, you can edit it here.  To read more about the style system, go <a [[aopts2]]>here</a>.
+
+.title=Edit Style
+

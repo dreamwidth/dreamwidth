@@ -1,0 +1,11 @@
+^#
+\bCVS\b
+^MANIFEST\.
+^Makefile$
+~$
+\.html$
+\.old$
+^blib/
+_blib$
+^MakeMaker-\d
+^\.exists

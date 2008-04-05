@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chapter 6. Performance &amp; Scalability</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.prog-guide.html" title="Part I. Programming Guidelines">
+<link rel="prev" href="ljp.prog-guide.database.html" title="Chapter 5. Database">
+<link rel="next" href="ljp.prog-guide.code_specifics.html" title="Chapter 7. Coding Specifics">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 6. Performance &amp; Scalability</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.prog-guide.database.html">Prev</a> </td>
+<th width="60%" align="center">Part I. Programming Guidelines</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.prog-guide.code_specifics.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en" id="ljp.prog-guide.performance">
+<div class="titlepage"><div><div><h2 class="title">Chapter 6. Performance &amp; Scalability</h2></div></div></div>
+<div class="itemizedlist">
+<p class="title"><b>Performance &amp; Scalability</b></p>
+<ul type="disc">
+<li><p>
+      Large chunks of code should be pre-loaded in libraries.  Code in <span class="application"><acronym class="acronym">BML</acronym></span> pages is re-evaled on every request, so it should be small.
+      If you need a lot of code, put it in a library and load it in cgi-bin/lj-bml-(init|local).pl
+    </p></li>
+<li><p>
+      Don't write temporary files to disk&#8230; all <span class="application">LiveJournal</span> code should be able to run on a cluster of web servers with no disk-based session persistence.
+    </p></li>
+<li><p>
+      If you are calling a function with a <code class="literal">$dbarg</code> parameter and you have both a <code class="literal">$dbs</code> and <code class="literal">$dbh</code> available,
+      call the function with your <code class="literal">$dbs</code> &#8230; otherwise the function and all its callees can't ever use the slave databases.
+    </p></li>
+</ul>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.prog-guide.database.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.prog-guide.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.prog-guide.code_specifics.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 5. Database </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 7. Coding Specifics</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

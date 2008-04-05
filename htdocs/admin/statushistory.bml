@@ -1,0 +1,124 @@
+<html>
+<head><title>Status History</title></head>
+<body>
+<?_code
+{
+    use strict;
+    use vars qw(%FORM);
+
+    my $dbr = LJ::get_db_reader();
+
+    # check privs
+    my $remote = LJ::get_remote();
+    unless (LJ::check_priv($remote, "historyview") || $LJ::IS_DEV_SERVER) {
+        return "Sorry, you don't have access to view this page.";
+    }
+
+    my $ret;
+
+    $ret .= "Fill in at least one field below:";
+    $ret .= "<form method='post' action='statushistory.bml'>\n";
+    $ret .= LJ::html_hidden('orderby', $FORM{'orderby'}, 'flow', $FORM{'flow'}) . "\n";
+    $ret .= "User: " . LJ::html_text({ 'name' => 'user', 'size' => '15', 'maxlength' => '15' }) . "\n";
+    $ret .= "Admin: " . LJ::html_text({ 'name' => 'admin', 'size' => '15', 'maxlength' => '15' }) . "\n";
+    $ret .= "Type: " . LJ::html_text({ 'name' => 'type', 'size' => '20', 'maxlength' => '20' }) . "\n";
+    $ret .= LJ::html_submit('query_submit', 'Search');
+    $ret .= "</form>\n\n";
+
+    return $ret unless ($FORM{'user'} || $FORM{'admin'} || $FORM{'type'});
+
+    $ret .= "<hr size='1'>\n\n";
+
+    # build query
+    my @where;
+    if ($FORM{'user'} ne "") {
+        my $userid = LJ::get_userid($FORM{'user'});
+        unless ($userid) { return "unknown user"; }
+        push @where, "s.userid=$userid";
+    }
+
+    if ($FORM{'admin'} ne "") {
+        my $userid = LJ::get_userid($FORM{'admin'});
+        unless ($userid) { return "unknown admin"; }
+        push @where, "s.adminid=$userid";
+    }
+
+    if ($FORM{'type'} ne "") {
+        my $qt = $dbr->quote($FORM{'type'});
+        push @where, "s.shtype=$qt";
+    }
+
+    my $where = "WHERE " . join(" AND ", @where) . " " if @where;
+
+    my $orderby = 'shdate';
+    foreach (qw(user admin shdate shtype notes)) {
+        $orderby = "u.$_", next if $FORM{'orderby'} eq $_ && $_ eq 'user';
+        $orderby = "ua.$_", next if $FORM{'orderby'} eq $_ && $_ eq 'admin';
+        $orderby = "s.$_" if $FORM{'orderby'} eq $_;
+    }
+    my $flow = $FORM{'flow'} eq 'asc' ? 'ASC' : 'DESC';
+
+    my $sth = $dbr->prepare("SELECT u.user, ua.user AS admin, s.shtype, s.shdate, s.notes " .
+                            "FROM statushistory s " .
+                            "LEFT JOIN useridmap ua ON s.adminid=ua.userid " .
+                            "LEFT JOIN useridmap u ON s.userid=u.userid " .
+                            $where .
+                            "ORDER BY $orderby $flow LIMIT 1000");
+    $sth->execute;
+    return $dbr->errstr if $dbr->err;
+
+    # column headings w/ sort links
+    $ret .= "<p><b>Query:";
+    foreach (qw(user admin type)) {
+        $ret .= "&nbsp;&nbsp;$_=" . LJ::eall($FORM{$_}) if $FORM{$_}
+    }
+    $ret .= "</b></p>\n";
+    $ret .= "<table border='1' cellpadding='5' width='100%'>\n<tr>";
+    foreach (qw(user admin shtype shdate notes)) {
+        my $link = "statushistory.bml?user=$FORM{'user'}&admin=$FORM{'admin'}&type=$FORM{'type'}&orderby=$_";
+        $link .= $FORM{'orderby'} eq $_ && $FORM{'flow'} eq 'asc' ? "&flow=desc" : "&flow=asc";
+        $ret .= "<td><b><a href='$link'>$_</a></b></td>";
+    }
+    $ret .= "</tr>\n";
+
+    # query built above
+    my $ct = 0;
+    while (my $hist = $sth->fetchrow_hashref) {
+        # see if they can see this item: either they have unarged historyview or
+        # they have historyview:shtype
+        next unless LJ::check_priv($remote, 'historyview', '') ||
+                    LJ::check_priv($remote, 'historyview', $hist->{shtype});
+
+        $ret .= "<tr>";
+        foreach (qw(user admin shtype shdate notes)) {
+
+            $ret .= "<td>";
+            if ($hist->{$_} && ($_ eq 'user' || $_ eq 'admin')) {
+                $ret .= LJ::ljuser($hist->{$_});
+            } elsif ($_ eq 'shdate') {
+                $ret .= LJ::statushistory_time($hist->{$_});
+            } elsif ($_ eq 'notes') {
+                # notes need to be ehtml'd, but afterwards, we can convert \n to <br />
+                my $enotes = LJ::ehtml($hist->{$_});
+                $enotes =~ s!\n!<br />\n!g;
+                $ret .= $enotes;
+            } else {
+                $ret .= LJ::ehtml($hist->{$_});
+            }
+            $ret .= "</td>";
+        }
+        $ret .= "</tr>\n";
+        $ct++;
+    }
+
+    $ret .= "<tr><td colspan='5'><b>$ct rows in set";
+    $ret .= "[truncated]" if $ct >= 1000;
+    $ret .= "</b></td></tr>\n";
+    $ret .= "</table>\n\n";
+
+    return $ret;
+}
+_code?>
+</body>
+</html>
+

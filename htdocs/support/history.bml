@@ -1,0 +1,117 @@
+<?page
+title=>Support Request History
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+    
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    # supporthelp anywhere lets them in
+    return "You are not authorized to view this page."
+        unless LJ::check_priv($remote, 'supporthelp');
+
+    my $ret;
+    if ($GET{user} || $GET{email} || $GET{userid}) {
+        my $dbr = LJ::get_db_reader();
+        return "Failed to get database handle."
+            unless $dbr;
+
+        my $reqlist;
+        if ($GET{user} || $GET{userid}) {
+            # get requests by a user, regardless of email (only gets user requests)
+            my $userid = $GET{userid} ? $GET{userid}+0 : LJ::get_userid(LJ::trim($GET{user}));
+            return "Invalid user to search on." unless $userid;
+            $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
+                                                'FROM support WHERE reqtype = \'user\' AND requserid = ?',
+                                                undef, $userid);
+        } elsif ($GET{email}) {
+            # try by email, note that this gets requests opened by users and anonymous
+            # requests, so we can view them all
+            my $email = LJ::trim($GET{email});
+            return "Invalid email to search on." unless $email =~ /^.+\@.+$/;
+            $reqlist = $dbr->selectall_arrayref('SELECT spid, subject, state, spcatid, requserid, timecreate, reqemail ' .
+                                                'FROM support WHERE reqemail = ?',
+                                                undef, $email);
+        }
+
+        if (@{$reqlist || []}) {
+            # construct a list of people who have answered these requests
+            my @ids;
+            foreach (@$reqlist) {
+                next unless $_->[2] eq 'closed';
+                push @ids, $_->[0];
+            }
+            my $idlist = join ',', map { $_+0 } @ids;
+            my $winners = $dbr->selectall_arrayref('SELECT sp.spid, u.user, sp.points FROM useridmap u, supportpoints sp ' .
+                                                   "WHERE u.userid = sp.userid AND sp.spid IN ($idlist)");
+            my %points;
+            $points{$_->[0]+0} = [ $_->[1], $_->[2]+0 ] foreach @{$winners || []};
+            
+            # now construct the request blocks
+            my %reqs;
+            my @userids;
+            foreach my $row (@$reqlist) {
+                $reqs{$row->[0]} = {
+                    spid => $row->[0],
+                    winner => $points{$row->[0]}->[0],
+                    points => $points{$row->[0]}->[1]+0,
+                    subject => LJ::ehtml($row->[1]),
+                    state => $row->[2],
+                    spcatid => $row->[3],
+                    requserid => $row->[4],
+                    timecreate => LJ::mysql_time($row->[5]),
+                    reqemail => LJ::ehtml($row->[6]),
+                };
+                push @userids, $row->[4] if $row->[4];
+            }
+            my $us = LJ::load_userids(@userids) if @userids;
+
+            # get categories
+            my $cats = LJ::Support::load_cats();
+
+            $ret .= '<table><tr><th>Summary</th><th>State</th><th>Answered By</th>' .
+                    '<th>Category</th><th>Opened By</th><th>Time Opened</th></tr>';
+            foreach my $id (sort { $a <=> $b } keys %reqs) {
+                # verify user can see this category (public_read or has supportread in it)
+                next unless $cats->{$reqs{$id}->{spcatid}}{public_read} ||
+                    LJ::Support::can_read_cat($cats->{$reqs{$id}->{spcatid}}, $remote);
+
+                # print out this request row
+                $ret .= '<tr>';
+                $ret .= "<td><a href=\"see_request.bml?id=$reqs{$id}->{spid}\">$reqs{$id}->{subject}</a></td>\n";
+                $ret .= "<td align='center'>$reqs{$id}->{state}</td>\n";
+                $ret .= '<td align="center">';
+                if ($reqs{$id}->{state} eq 'closed' && $reqs{$id}->{winner}) {
+                    $ret .= LJ::ljuser($reqs{$id}->{winner}) . " ($reqs{$id}->{points})";
+                } else {
+                    $ret .= '-';
+                }
+                $ret .= "</td>\n";
+                $ret .= "<td align='center'>$cats->{$reqs{$id}->{spcatid}}{catname}</td>\n<td align='center'>";
+                $ret .= $reqs{$id}->{requserid} ? LJ::ljuser($us->{$reqs{$id}->{requserid}}) : $reqs{$id}->{reqemail};
+                $ret .= "</td>\n<td align='center'>$reqs{$id}->{timecreate}</td>\n";
+                $ret .= '</tr>';
+            }
+            $ret .= '</table><br /><br />';
+        } else {
+            $ret .= "No results found for the search terms you entered.<br /><br />";
+        }
+    }
+
+    $ret .= "<table><tr><th colspan='2'>Search for Requests</th></tr>";
+    $ret .= "<form method='get' action='history.bml'>";
+    $ret .= "<tr><td>By Email:</td><td><input type='text' name='email'></td></tr>";
+    $ret .= "<tr><td>By Username:</td><td><input type='text' name='user'></td></tr>";
+    $ret .= "<tr><td>By Userid:</td><td><input type='text' name='userid'></td></tr>";
+    $ret .= "<tr><td colspan='2'><input type='submit' value='Perform Search'></td></tr>";
+    $ret .= "<tr><td colspan='2'>Please fill out only one of the search fields.</td></tr>";
+    $ret .= "</form></table>";
+    return $ret;
+
+}
+_code?>
+<=body
+page?>

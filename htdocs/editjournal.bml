@@ -1,0 +1,513 @@
+<?page
+title=><?_ML .title _ML?>
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+    BML::decl_params(_default => qr/./);
+
+    my $head     = \$_[1]->{'head'};
+    my $bodyopts = \$_[1]->{'bodyopts'};
+
+    LJ::set_active_crumb('editentries');
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    if ($remote->underage) {
+        return BML::redirect("$LJ::SITEROOT/agecheck/?s=1");
+    }
+
+    my $mode = $GET{'mode'} || $POST{'mode'} || "init";
+    if ($GET{'itemid'} || $POST{'itemid'}) { $mode = "edit"; }
+
+    my $ret;
+    my $getextra = "?authas=$GET{'authas'}" if $GET{'authas'};
+
+    LJ::need_res('stc/entry.css', 'js/inputcomplete.js');
+    
+    # are they asking to be authed as someone else?
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input("You could not be authenticated as the specified user.")
+        unless $u;
+    return LJ::bad_input("You must be authenticated as a person.")
+        unless $u->{'journaltype'} eq 'P';
+
+    if ($mode eq "edit")
+    {
+        # are we modify a community post?
+        my $usejournal = $GET{'usejournal'} || $POST{'usejournal'} || $GET{'journal'};
+        undef $usejournal if $usejournal eq $u->{'user'}; # ignore if it's the user
+
+        # user object for community if we're modifying one
+        my $usejournal_u;
+        if ($usejournal) {
+            $usejournal_u = LJ::load_user($usejournal);
+            return LJ::bad_input("The community you selected does not exist.")
+                unless $usejournal_u;
+        }
+
+        # extra get arguments
+        my $getextra;
+        $getextra .= "authas=$authas&" if $authas ne $u->{'user'};
+        $getextra .= "usejournal=$usejournal&" if $usejournal;
+        chop $getextra;
+        $getextra = "?$getextra" if $getextra;
+
+        ###
+        ### HAVE AN ITEMID TO EDIT
+        ###
+
+        if ($GET{'itemid'} || $POST{'itemid'}) {
+
+            # the 'itemid' form element is really an 'itemid'
+            my $ditemid = $GET{'itemid'} || $POST{'itemid'};
+            my $anum = $ditemid % 256;
+            my $itemid = $ditemid >> 8;
+
+            # do getevents request
+            my %res = ();
+            LJ::do_request({ 'mode' => 'getevents',
+                             'selecttype' => 'one',
+                             'ver' => $LJ::PROTOCOL_VER,
+                             'user' => $u->{'user'},
+                             'usejournal' => $usejournal,
+                             'itemid' => $itemid },
+                           \%res,
+                           { "noauth" => 1,
+                             'u' => $u }
+                           );
+
+            # was there a protocol error?
+            return "<?h1 $ML{'Error'} h1?><?p $res{'errmsg'} p?>"
+                unless $res{'success'} eq 'OK';
+
+            # does the requested entry exist?
+            return "<?h1 $ML{'Error'} h1?><?p $ML{'/editjournal_do.bml.error.nofind'} p?>"
+                unless $res{'events_count'} && $res{'events_1_anum'} == $anum;
+
+            # are we authorized to edit other peoples' posts in this community?
+            my $disabled_save = 0;
+            my $disabled_delete = 0;
+            my $disabled_spamdelete = 0;
+            if ($usejournal && $res{'events_1_poster'} ne $u->{'user'}) {
+                $disabled_delete = ! LJ::can_delete_journal_item($u, $usejournal_u);
+                $disabled_save++;
+            }
+            $disabled_spamdelete = $disabled_delete || !$usejournal || ($res{'events_1_poster'} eq $u->{'user'});
+
+            ###
+            ### SAVE EDITS
+            ###
+
+            # are we spellchecking before we post?
+            my $spellcheck_html;
+            my $did_spellcheck;
+            if ($LJ::SPELLER && $POST{'action:spellcheck'}) {
+                $did_spellcheck++;
+                my $s = new LJ::SpellCheck { 'spellcommand' => $LJ::SPELLER,
+                                             'color' => '<?hotcolor?>', };
+                my $event = LJ::ehtml($POST{'event'});
+                $spellcheck_html = $s->check_html(\$event);
+                $spellcheck_html = "<?inerr $ML{'entryform.spellcheck.noerrors'} inerr?>" unless $spellcheck_html ne "";
+            }
+
+            # they clicked the save or delete button
+            if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
+                return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
+
+                my %req = ( 'mode' => 'editevent',
+                            'ver' => $LJ::PROTOCOL_VER,
+                            'user' => $u->{'user'},
+                            'usejournal' => $usejournal,
+                            'itemid' => $itemid,
+                            );
+                LJ::entry_form_decode(\%req, \%POST);
+
+                # Delete
+                $req{'event'} = '' if $POST{'action:delete'} || $POST{'action:deletespam'};
+
+                # mark as spam, if need be
+                LJ::mark_entry_as_spam($usejournal_u, $itemid) if $POST{'action:deletespam'};
+
+                # if the action is to delete it, then let's note that
+                if ($POST{'action:delete'} || $POST{'action:deletespam'}) {
+                    # now log the event created above
+                    ($usejournal ? $usejournal_u : $u)->log_event('delete_entry', {
+                            remote => $remote,
+                            actiontarget => $ditemid,
+                            method => 'web',
+                        });
+                }
+
+                # do editevent request
+                LJ::do_request(\%req, \%res, { 'noauth' => 1, 'u' => $u });
+
+                # check response
+                unless ($res{'success'} eq "OK") {
+                    return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.modify'} <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
+                }
+
+                # deleted
+                unless ($req{'event'}) {
+                    my $result = "<?h1 $ML{'.success.head'} h1?>";
+
+                    $result .= "<table border='0' width='100%'><tr valign='top'><td>";
+                    $result .= "<?p $ML{'.success.delete'} p?>";
+                    $result .= "<?p $ML{'.success.deletespam'} p?>" if $POST{'action:deletespam'};
+
+                    my $deleted_extras = LJ::run_hook('entry_deleted_page_extras');
+                    $result .= $deleted_extras if defined $deleted_extras;
+
+                    my $j_base = ($usejournal ? $usejournal_u : $u)->journal_base;
+                    $result .= qq {
+                        <div id="fromhere">From here you can:
+                        <ul>
+                            <li>
+                            <a href="$j_base">View journal entries</a>
+                            </li>
+                            <li>
+                            <a href="$LJ::SITEROOT/editjournal.bml">Manage your journal entries</a>
+                            </li>
+                            </ul>
+                            </div>
+                    };
+                    $result .= "</td>";
+
+                    my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+                    if ($ad) {
+                        $result .= "<td valign='top' style='width: 300px;'>$ad</td>";
+                    }
+
+                    $result .= "</tr></table>";
+
+                    return $result;
+                }
+
+                # modified
+                return BML::redirect(LJ::item_link($usejournal ? $usejournal_u : $u, $itemid, $res{'anum'}));
+            }
+
+
+            ###
+            ### SHOW EDIT FORM
+            ###
+
+            my $auth = "<p class='pkg'><label for='' class='left'>$ML{'.auth.poster'}</label>";
+            $auth   .= "<span id='poster' class='float-left'>";
+            $auth   .= $usejournal ? LJ::ljuser($res{'events_1_poster'}) . " in community " . LJ::ljuser($usejournal)
+                                   :  LJ::ljuser($remote);
+            $auth .= LJ::html_hidden("usejournal", $usejournal);
+            $auth   .= "</span></p>";
+            my $username = $usejournal ? $usejournal : $remote->user;
+            $auth .= "<script>getUserTags('$username');</script>";
+
+
+            my ($year, $mon, $mday, $hour, $min) = split(/\D/, $res{"events_1_eventtime"});
+            my $datetime; my $date = LJ::html_datetime_decode({ 'name' => "date_ymd", }, \%POST);
+            if ($date ne "0000-00-00 00:00:00") {
+                my ($date, $time) = split( / /, $date);
+                $datetime = "$date $POST{'hour'}:$POST{'min'}";
+            } else {
+                $datetime = "$year-$mon-$mday $hour:$min";
+            }
+
+            my $subject = $POST{'subject'} || $res{'events_1_subject'};
+            my $event   = $POST{'event'}   || $res{'events_1_event'};
+
+            my $curmask = $res{'events_1_allowmask'};
+            my $cursec  = $res{'events_1_security'} || $POST{'security'};
+            if ($cursec eq 'usemask') {
+                $cursec = $curmask == 1 ? "friends" : "custom";
+            }
+
+            # start edit form
+            my $ret; my $js;
+            $ret .= "<table><tr><td>";
+            $ret .= "<div style='width: 100%; float: left;'><form method='post' action='editjournal.bml$getextra' id='updateForm' name='updateForm'>";
+            $ret .= LJ::form_auth();
+            $ret .= LJ::html_hidden('itemid', $ditemid,'mode','edit','edited',1) . "\n";
+
+            $event = LJ::durl($event);
+            my $journalu = $usejournal ? LJ::load_user($usejournal) : $remote;
+            LJ::EmbedModule->parse_module_embed($journalu, \$event, edit => 1);
+            $event = LJ::eurl($event);
+
+            my $entry = {
+                'mode' => "edit",
+                'auth_as_remote' => 1,
+                'subject' => $subject,
+                'event' => $event,
+                'datetime' => $datetime,
+                'usejournal' => $usejournal,
+                'security' => $cursec,
+                'security_mask' => $curmask,
+                'auth' => $auth,
+                'remote' => $remote,
+                'spellcheck_html' => $spellcheck_html,
+                'richtext' => $LJ::DISABLED{'richtext'} ? 0 : 1,
+                'mood' => $res{'events_1_'},
+                'disabled_save' => $disabled_save,
+                'disabled_delete' => $disabled_delete,
+                'disabled_spamdelete' => $disabled_spamdelete,
+            };
+            for (my $i = 1; $i <= $res{'prop_count'}; $i++) {
+                $entry->{"prop_" . $res{"prop_${i}_name"}} = $res{"prop_${i}_value"};
+            }
+            foreach ( keys %POST ) { $entry->{$_} = %POST->{$_}; }
+            $entry->{'richtext_default'} = $entry->{"prop_used_rte"} ? 1 : 0,
+
+            my $onload;
+            $ret .= LJ::entry_form($entry, \$$head, \$onload);
+            $ret .= "</form></div>";
+            $ret .= "</td>";
+            my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+            if ($ad) {
+                $ret .= "<td valign='top' style='width: 300px;'>$ad</td>";
+            }
+                
+            $ret .= "</tr></table>";
+
+            my $qotd = LJ::QotD->get_single_question($entry->{prop_qotdid});
+            my $qotd_text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ] );
+            my $escaped_qotd_text = LJ::ejs($qotd_text);
+
+            # javascript to initialize entry form since we've just called into entry_form
+            # -- shove into \$head which is a reference into $_[1]->{head} and will
+            #    be placed in the correct BML head portion later
+            # -- this is a hack, should be done by weblib and pushed into \$$head above
+            #    in a way which is compatible with both this page and update.bml
+            $$head .= qq{
+    <script type="text/javascript">
+    //<![CDATA[
+        function init_update_bml () {
+            $onload
+        }
+    //]]>
+    LiveJournal.qotdText = "$escaped_qotd_text";
+    </script>
+};
+
+            return $ret;
+        }
+
+        ###
+        ### NO ITEMID - SELECT ENTRY TO EDIT
+        ###
+
+        ### already authenticated from above
+
+        return BML::redirect("$LJ::SITEROOT/editjournal.bml")
+            unless LJ::did_post();
+
+        my %res;
+        my %req = (
+                   'mode' => 'getevents',
+                   'ver'  => $LJ::PROTOCOL_VER,
+                   'user' => $u->{'user'},
+                   'usejournal' => $usejournal,
+                   'truncate' => 300,
+                   'noprops' => 1,
+                   );
+
+        # last 1
+        if ($POST{'selecttype'} eq "last") {
+            $req{'selecttype'} = 'one';
+            $req{'itemid'} = -1;
+
+            # last n
+        } elsif ($POST{'selecttype'} eq 'lastn') {
+            $req{'selecttype'} = 'lastn';
+            $req{'howmany'} = $POST{'howmany'};
+
+            # day
+        } elsif ($POST{'selecttype'} eq 'day') {
+            $req{'selecttype'} = 'day';
+            $req{$_} = $POST{$_} foreach qw(year month day);
+        }
+
+        # do getevents request
+        LJ::do_request(\%req, \%res, { 'noauth' => 1, 'u' => $u });
+
+        # check response
+        unless ($res{'success'} eq "OK") {
+            return "<?h1 $ML{'Error'} h1?>\n" .
+                "<?p $ML{'.error.getting'} <ul><li><b><?_eh $res{'errmsg'} _eh?></b></li></ul> p?>";
+        }
+
+        # only one item returned?  go directly to edit it
+        if ($res{'events_count'} == 1) {
+            my $ditemid = ($res{'events_1_itemid'} << 8) + $res{'events_1_anum'};
+            my $ditemid_get = $getextra ? "$getextra&itemid=$ditemid" : "?itemid=$ditemid";
+            return BML::redirect("$LJ::SITEROOT/editjournal.bml$ditemid_get");
+        }
+
+        # how many results did we get?
+        my $ev_count = $res{'events_count'};
+        unless ($ev_count) {
+            if ($req{'selecttype'} eq 'lastn') {
+                return "<?h1 No Entries Found h1?>\n" .
+                    "<?p The selected journal has no entries. p?>\n";
+            }
+
+            return "<?h1 No Entries Found h1?>\n" .
+                "<?p No entries match the criteria you specified. Please go back and adjust your search. p?>\n";
+        }
+
+        ### display results
+        my $ret;
+        $ret .= "<?h1 $ML{'.pickentry.head'} h1?><?p $ML{'.pickentry.text'} p?>\n";
+
+        $ret .= "<table style='width: 100%;'><tr><td>";
+        my %props = ();
+        for (my $i=1; $i<=$res{'prop_count'}; $i++) {
+            $props{$res{"prop_${i}_itemid"}}->{$res{"prop_${i}_name"}} = $res{"prop_${i}_value"};
+        }
+
+        for (my $i=1; $i<=$ev_count; $i++) {
+            my $itemid = $res{"events_${i}_itemid"};
+            my $ditemid = $itemid * 256 + $res{"events_${i}_anum"};
+
+            $ret .= "<?hr?><table><tr valign='top'><td align='middle'>";
+            $ret .= "<form method='post' action='editjournal.bml$getextra'>\n";
+            $ret .= LJ::html_hidden('itemid',$ditemid,'mode',"edit");
+            $ret .= LJ::html_submit('itemid-$ditemid','Edit this Entry');
+            $ret .= "</form>";
+            $ret .= "</td><td>";
+
+            $ret .= " <b><label for='itemid-$ditemid'>" . $res{"events_${i}_eventtime"} . "</label></b>";
+            $ret .= " (Posted by: " . LJ::ljuser($res{"events_${i}_poster"}) . ")" if $usejournal;
+
+            ### security indicator
+            my $sec = ' ';
+            if ($res{"events_${i}_security"} eq "private") {
+                $sec .= BML::fill_template("securityprivate");
+            } elsif ($res{"events_${i}_security"} eq "usemask") {
+                $sec .= BML::fill_template("securityprotected");
+            }
+            $ret .= $sec;
+
+            if (my $subj = $res{"events_${i}_subject"}) {
+                LJ::CleanHTML::clean_subject_all(\$subj);
+                  $ret .= " <i>" . LJ::ehtml($subj) . "</i>";
+              }
+            $ret .= "<br />\n";
+
+            my $event = LJ::ehtml(LJ::durl($res{"events_${i}_event"}));
+            $event =~ s!\n!<br />!g;
+            $ret .= $event;
+
+            $ret .= "</td></tr></table>\n";
+        }
+        $ret .= "</td>";
+        my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+        if ($ad) {
+            $ret .= "<td valign='top'>$ad</td>";
+        }
+        $ret .= "</tr></table>";
+        return $ret;
+    } elsif ($mode eq "init") {
+        # no authentication needs to be done on this page, it's just a form anyway
+
+        # user switcher
+        my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+        if ($ad) {
+            $ret .= "<div class='ad-sidebar'>$ad</div>";
+        }
+        $ret .= "<form action='editjournal.bml' method='get'>\n";
+        $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'}, 'type' => 'P' });
+        $ret .= "</form>\n\n";
+
+        # header
+        $ret .= "<?p " . BML::ml('.desc',
+                                {'aopts' => "href='$LJ::SITEROOT/editprivacy.bml'"})
+                 . " p?>\n";
+
+        # edit form
+        $ret .= "<form action='editjournal.bml$getextra' method='post'>\n";
+        $ret .= LJ::html_hidden("mode","edit");
+        $ret .= "<?standout <table>\n";
+
+        # view type
+        $ret .= "<tr valign=\"top\"><td>$ML{'.viewwhat'}</td>\n<td>\n";
+        $ret .= LJ::html_check({ 'type' => 'radio', 'name' => 'selecttype', 'id' => 'selecttype-last',
+                                 'value' => 'last', 'selected' => 1 });
+        $ret .= "<label for='selecttype-last'>$ML{'.recententry'}</label><br />\n";
+
+        $ret .= LJ::html_check({ 'type' => 'radio', 'name' => 'selecttype',
+                                 'id' => 'selecttype-lastn', 'value' => 'lastn' }) . " ";
+        $ret .= LJ::html_text({ 'name' => 'howmany', 'size' => '3', 'maxlength' => '2', 'value' => '20',
+                                'onchange' => "checkRadioButton('selecttype-lastn');" }) . " ";
+        $ret .= "<label for='selecttype-lastn'>$ML{'.recententries'}</label><br />\n";
+
+        $ret .= LJ::html_check({ 'type' => 'radio', 'name' => 'selecttype',
+                                 'id' => 'selecttype-day', 'value' => 'day' });
+        $ret .= "<label for='selecttype-day'>$ML{'.certainday'}</label>";
+
+        my @time = localtime(time);
+        my $mday = sprintf("%02d", $time[3]);
+        my $mon = sprintf("%02d", $time[4] + 1);
+        my $year = $time[5] + 1900;
+
+        $ret .= LJ::html_text({ 'name' => 'year', 'size' => '5', 'maxlength' => '4', 'value' => $year,
+                                'onchange' => "checkRadioButton('selecttype-day');" }) . "-";
+        $ret .= LJ::html_text({ 'name' => 'month', 'size' => '3', 'maxlength' => '2', 'value' => $mon,
+                                'onchange' => "checkRadioButton('selecttype-day');" }) . "-";
+        $ret .= LJ::html_text({ 'name' => 'day', 'size' => '3', 'maxlength' => '2', 'value' => $mday,
+                                'onchange' => "checkRadioButton('selecttype-day');" }) . "\n";
+
+        $ret .= "</td></tr>\n";
+
+        # use journal
+        $ret .= "<tr valign=\"top\"><td align='right'>$ML{'.in'}</td>\n<td>\n";
+        $ret .= LJ::html_text({ 'name' => 'usejournal', 'size' => '20', 'maxlength' => '15', 'value' => $GET{'usejournal'} }) . " ";
+        $ret .= " (optional)</td></tr>";
+
+        # submit button
+        $ret .= "<tr><td>&nbsp;</td><td>" . LJ::html_submit(undef, $ML{'.btn.proceed'}) . "</td></tr>\n";
+
+        $ret .= "</table> standout?>\n";
+        $ret .= "</form>\n";
+
+        return $ret;
+    }
+}
+_code?>
+<=body
+
+bodyopts=><?_code return $_[1]->{'bodyopts'}; _code?>
+head<=
+
+<?entryformcss?>
+<?_code return $_[1]->{'head'}; _code?>
+<?_code return $LJ::COMMON_CODE{'autoradio_check'}; _code?>
+
+<?_code
+{
+    my $ret;
+
+    LJ::need_res(qw(
+                    js/core.js
+                    js/dom.js
+                    js/httpreq.js
+                    js/livejournal.js
+                    js/entry.js
+                    js/poll.js
+                    ));
+
+    # JS vars for the RTE
+    $ret .= LJ::rte_js_vars($remote);
+
+    return $ret;
+}
+_code?>
+
+
+<=head
+page?><?_c <LJDEP>
+post: htdocs/editjournal.bml
+link: htdocs/lostinfo.bml
+</LJDEP> _c?>
+

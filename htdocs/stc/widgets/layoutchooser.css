@@ -1,0 +1,37 @@
+.layout-item .layout-button {
+    font-size: 11px;
+    color: #fff;
+    background: #559A40;
+    border: 2px solid #76AE65;
+    border-bottom: 2px solid #447C33;
+    border-right: 2px solid #447C33;
+}
+.layout-item .layout-button-disabled {
+    background: #88CD73;
+}
+.layout-item {
+    position: relative;
+    float: left;
+    width: 156px;
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #fff;
+    font-size: 11px;
+}
+.layout-item.current {
+    border: 1px solid #C7E0F6;
+    background-color: #ECF6FF;
+}
+.layout-item .layout-desc {
+    font-size: 12px;
+    padding: 4px 0 6px 0;
+    margin: 0 !important;
+}
+.layout-item img.layout-preview {
+    border: 1px solid #fff;
+    width: 150px;
+    height: 114px;
+}
+.layout-content {
+    padding-left: 10px;
+}

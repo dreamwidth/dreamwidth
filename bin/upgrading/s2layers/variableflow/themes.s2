@@ -1,0 +1,185 @@
+#NEWLAYER: variableflow/realteal
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Real Teal";
+layerinfo "redist_uniq" = "variableflow/realteal";
+
+#NEWLAYER: variableflow/greyarea
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Grey Area";
+layerinfo "redist_uniq" = "variableflow/greyarea";
+
+set clr_vlink = "#101010";
+set clr_text = "#000000";
+set clr_title = "#191919";
+set clr_margin = "#6F6F6F";
+set clr_alink = "#303030";
+set clr_back = "#B0B0B0";
+set clr_line = "#000000";
+set clr_link = "#303030";
+
+#NEWLAYER: variableflow/redready
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Red and Ready";
+layerinfo "redist_uniq" = "variableflow/redready";
+
+set clr_vlink = "#8F3131";
+set clr_text = "#000000";
+set clr_title = "#C41A1A";
+set clr_margin = "#FF3300";
+set clr_alink = "#CC3333";
+set clr_back = "#FFCCCC";
+set clr_line = "#CC3333";
+set clr_link = "#CC3333";
+
+#NEWLAYER: variableflow/chiller
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Chiller";
+layerinfo "redist_uniq" = "variableflow/chiller";
+
+set clr_vlink = "#00008F";
+set clr_text = "#000000";
+set clr_title = "#6E59DB";
+set clr_margin = "#C6C2F5";
+set clr_alink = "#0000FF";
+set clr_back = "#FFFFFF";
+set clr_line = "#7C6CCD";
+set clr_link = "#0000FF";
+
+#NEWLAYER: variableflow/dirtyterminal
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Dirty Terminal";
+layerinfo "redist_uniq" = "variableflow/dirtyterminal";
+
+set clr_vlink = "#009A00";
+set clr_text = "#91FF91";
+set clr_title = "#00FF00";
+set clr_margin = "#003023";
+set clr_alink = "#00C000";
+set clr_back = "#00140E";
+set clr_line = "#00C000";
+set clr_link = "#00C000";
+
+#NEWLAYER: variableflow/bow
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Black on White";
+layerinfo "redist_uniq" = "variableflow/bow";
+
+set clr_vlink = "#000000";
+set clr_text = "#000000";
+set clr_title = "#000000";
+set clr_margin = "#ffffff";
+set clr_alink = "#000000";
+set clr_back = "#ffffff";
+set clr_line = "#000000";
+set clr_link = "#000000";
+
+#NEWLAYER: variableflow/wob
+
+layerinfo "type" = "theme";
+layerinfo "name" = "White on Black";
+layerinfo "redist_uniq" = "variableflow/wob";
+
+set clr_vlink = "#ffffff";
+set clr_text = "#ffffff";
+set clr_title = "#ffffff";
+set clr_margin = "#000000";
+set clr_alink = "#ffffff";
+set clr_back = "#000000";
+set clr_line = "#ffffff";
+set clr_link = "#ffffff";
+
+#NEWLAYER: variableflow/vossnaranja
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Vossnaranja";
+layerinfo "redist_uniq" = "variableflow/vossnaranja";
+
+set clr_vlink = "#ff6400";
+set clr_text = "#000000";
+set clr_title = "#000000";
+set clr_margin = "#ffffff";
+set clr_alink = "#ff6400";
+set clr_back = "#ffffff";
+set clr_line = "#000000";
+set clr_link = "#ff6400";
+
+#NEWLAYER: variableflow/martialblue
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Martial Blue";
+layerinfo "redist_uniq" = "variableflow/martialblue";
+
+set clr_vlink = "#284F9E";
+set clr_text = "#000000";
+set clr_title = "#000000";
+set clr_margin = "#bbddff";
+set clr_alink = "#3366CC";
+set clr_back = "#ffffff";
+set clr_line = "#000000";
+set clr_link = "#3366CC";
+
+#NEWLAYER: variableflow/regaldust
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Regal Dust";
+layerinfo "redist_uniq" = "variableflow/regaldust";
+
+set clr_vlink = "#DCD3E2";
+set clr_text = "#DCD3E2";
+set clr_title = "#F2EEF4";
+set clr_margin = "#8B7AA5";
+set clr_alink = "#DCD3E2";
+set clr_back = "#62536C";
+set clr_line = "#472B47";
+set clr_link = "#DCD3E2";
+
+#NEWLAYER: variableflow/purplepower
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Purple Power";
+layerinfo "redist_uniq" = "variableflow/purplepower";
+
+set clr_vlink = "#b375cd";
+set clr_line = "#000000";
+set clr_margin = "#d891f5";
+set clr_alink = "#d891f5";
+set clr_text = "#000000";
+set clr_link = "#d891f5";
+set clr_title = "#8b04b2";
+set clr_back = "#f8eefa";
+
+#NEWLAYER: variableflow/nature
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Back to Nature";
+layerinfo "redist_uniq" = "variableflow/nature";
+
+set clr_vlink = "#007800";
+set clr_line = "#000000";
+set clr_margin = "#cc9966";
+set clr_alink = "#007800";
+set clr_text = "#000000";
+set clr_link = "#007800";
+set clr_title = "#007800";
+set clr_back = "#d6ead6";
+
+#NEWLAYER: variableflow/slinkypink
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Slinky Pink";
+layerinfo "redist_uniq" = "variableflow/slinkypink";
+
+set clr_vlink = "#ad437a";
+set clr_line = "#000000";
+set clr_margin = "#993366";
+set clr_alink = "#ad437a";
+set clr_text = "#000000";
+set clr_link = "#ad437a";
+set clr_title = "#993366";
+set clr_back = "#ffc5e3";

@@ -1,0 +1,634 @@
+<?page
+title=><?_code return $ML{'.title'} _code?>
+body<=
+<?_code
+    LJ::set_active_crumb('editsettings');
+    return;
+_code?>
+
+<?_code
+{
+    use strict;
+    use vars qw(%POST %GET $head);
+
+    my $print_with_ad = sub {
+        my $str = shift;
+
+        my $ad_full_width = LJ::ad_display( type => 'app', orient => 'BML-App-Full-Width' );
+        return $ad_full_width . $str;
+    };
+
+    return $print_with_ad->(LJ::server_down_html()) if $LJ::SERVER_DOWN;
+
+    my $remote = LJ::get_remote();
+
+    # these need to be declared out here, due to scoping issues
+    my $getextra;
+    my $u;
+    my $authas;
+    my %saved;
+
+    if ($remote) {
+        $authas = $GET{'authas'} || $remote->{'user'};
+        $u = LJ::get_authas_user($authas);
+        return $print_with_ad->(LJ::bad_input("You could not be authenticated as the specified user."))
+            unless $u;
+
+        return $print_with_ad->($LJ::MSG_READONLY_USER) if $u->readonly;
+
+        # extra arguments for get requests
+        $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
+
+        ### user is now authenticated ###
+
+        # load user props
+        LJ::load_user_props(
+                            $u, { use_master => 1 },
+                            qw(
+                               opt_imagelinks
+                               opt_stylemine
+                               opt_blockrobots
+                               opt_weblogscom
+                               opt_ctxpopup
+                               opt_showonlinestatus
+                               newpost_minsecurity
+                               )
+                            );
+
+        # to store values before they undergo normalisation
+        %saved = ();
+
+        # clean userprops
+        foreach (values %$u) { LJ::text_out(\$_); }
+    }
+
+    # thumb schemes have thumbnails
+        # text schemes are in a drop-down
+    my @thumb_schemes;
+    my @text_schemes;
+    my @bml_schemes = LJ::site_schemes();
+    foreach (@bml_schemes) {
+        if (ref $_->{'thumb'} eq 'ARRAY') {
+            push @thumb_schemes, $_;
+        } else {
+            push @text_schemes, $_;
+        }
+    }
+
+
+    ###
+    ### no post, show edit form
+    ###
+    $head = "";
+
+    unless (LJ::did_post()) {
+        my $ret;
+
+        if ($remote) {
+            $ret .= "<div>";
+            # user switcher
+            $ret .= "<form method='get' action='index.bml'>\n";
+            $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
+            $ret .= "</form>\n\n";
+            $ret .= "</div>\n";
+        }
+
+        $ret .= "<?p $ML{'.intro'} p?>"
+            if $remote;
+        $ret .= "You can change other viewing options by <a href='$LJ::SITEROOT/login.bml?ret=1'>logging in</a>. If you don't have an account, you can <a href='$LJ::SITEROOT/create.bml'>create one now</a>."
+            unless $remote;
+
+        $ret.= "<div class='ljclear'></div>\n";
+
+        $ret .= "<form method='post' action='$LJ::SITEROOT/manage/settings/$getextra'>\n";
+        $ret .= LJ::form_auth()
+            if $remote;
+
+        # personal information
+        $ret .= "<div class='section_head'> $ML{'.section.viewing'}</div>\n";
+        $ret .= "<table class='field_block'>\n";
+
+        unless ($remote && $u->is_community()) {
+            # scheme selector
+            if (@bml_schemes) {
+                $ret .= "<tr><td class='field_name'>$ML{'.fn.scheme'}</td><td>\n";
+
+                # display hidden schemes?
+                my $show_hidden = $GET{"view"} eq "schemes";
+
+                my $scheme = BML::get_scheme() || $BML::COOKIE{'BMLschemepref'} || $bml_schemes[0]->{'scheme'};
+
+                if (@thumb_schemes) {
+                    my $cols = 3;
+                    my $width = int(100 / $cols +.5) . "%";
+
+                    foreach my $sh (@thumb_schemes) {
+                        next unless !$sh->{'hidden'} || $show_hidden;
+                        my $th = $sh->{'thumb'};
+                        $ret .= "\n<div style='float: left; margin: 0px 10px 10px 5px;'><h3>";
+                        $ret .= LJ::html_check({ 'type' => 'radio', 'name' => 'scheme',
+                                             'value' => $sh->{'scheme'},
+                                             'id' => "scheme-$sh->{'scheme'}",
+                                             'selected' => $scheme eq $sh->{'scheme'} });
+                        $ret .= "$sh->{'title'}</h3>";
+                        $ret .= "<label for='scheme-$sh->{'scheme'}'><img ";
+                        $ret .= "src='$LJ::IMGPREFIX/$th->[0]'";
+                        $ret .= " width='$th->[1]'" if $th->[1];
+                        $ret .= " height='$th->[2]'" if $th->[2];
+
+                        $ret .= "style='border: solid 1px black; margin: 1px;' ";
+                        my $alt = BML::ml('.scheme.preview', {'title' => $sh->{'title'},});
+                        $ret .= " alt='$alt' title='$sh->{'title'}' /></label></div>\n";
+                    }
+                    $ret .= "<div class='ljclear'></div>";
+                }
+
+                # have to check this here, so we don't output HTML that never gets used.
+                # only display if we're showing hidden schemes, or if we have a scheme
+                # that isn't hidden in the first place.
+                if (grep { $show_hidden || !$_->{hidden} } @text_schemes) {
+                    my $ct = 0;
+                    my $cols = 3;
+                    my $width = int(100 / $cols +.5) . "%";
+                    my $switch = @text_schemes / $cols;
+
+                    $ret .= "<table border='0' width='100%' cellpadding='2'>";
+                    $ret .= "<tr valign='top' align='left'>";
+
+                    foreach my $sh (@text_schemes) {
+                        next unless !$sh->{'hidden'} || $show_hidden;
+
+                        if ($ct == 0) {
+                            $ret .= "<td width='$width' align='left'>";
+                        }
+
+                        $ret .= "<p>" .
+                            LJ::html_check({ 'type' => 'radio', 'name' => 'text_scheme',
+                                             'value' => $sh->{'scheme'},
+                                             'id' => "scheme-$sh->{'scheme'}",
+                                             'selected' => $scheme eq $sh->{'scheme'} });
+
+                        $ret .= "<label for='scheme-$sh->{'scheme'}'>$sh->{'title'}</label></p>";
+
+                        if (++$ct >= $switch) {
+                            $ret .= "</td>";
+                            $ct = 0;
+                        }
+                    }
+
+                    $ret .= "</tr><tr><td colspan='$cols' align='left'>";
+                    $ret .= "</td></tr></table>";
+                }
+                $ret .= "</td></tr>\n";
+            }
+
+            # Language
+            $ret .= "<tr><td class='field_name'>$ML{'.fn.language'}</td>\n<td>";
+            $ret .= "<b style='white-space: nowrap'>$ML{'.language'} </b>\n";
+
+            my $curr = BML::get_language();
+            my @inc;
+            push @inc, $GET{'addlang'} if $GET{'addlang'};
+            my $list = LJ::Lang::get_lang_names(@LJ::LANGS, @inc);
+            $ret .= LJ::html_select({ 'name' => 'lang',
+                                      selected => $curr}, @$list);
+            $ret .= "</td></tr>\n";
+        }
+
+        # logged-out users end this page early
+        unless ($remote) {
+            $ret .= "</table>";
+        }
+
+        if ($remote) { # everything from here on down only applies to logged-in users
+
+        # Graphic Previews
+        my $graphicpreviews_obj = LJ::graphicpreviews_obj();
+        if ($graphicpreviews_obj->is_enabled($u)) {
+            $ret .= "<tr><td class='field_name'>$ML{'.fn.graphicpreviews'}</td>\n<td>";
+            $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'show_graphic_previews', 'id' => 'show_graphic_previews',
+                                     'value' => 1, 'selected' => $graphicpreviews_obj->should_render($u) });
+            $ret .= " <label for='show_graphic_previews'>$ML{'.graphicpreviews.desc'}</label>";
+            $ret .= " " . LJ::help_icon("graphic_previews") . "<br />\n";
+            $ret .= "<span class='helper'>$ML{'.graphicpreviews.note'}</span>";
+            $ret .= "</td></tr>\n";
+        }
+
+        # Image placeholders
+        my ($maxwidth, $maxheight) = (0, 0);
+        ($maxwidth, $maxheight) = ($1, $2) if ($u->{'opt_imagelinks'} =~ m/^(\d+)\|(\d+)$/);
+        my $is_stock = {'320|240' => 1, '640|480' => 1, '0|0' => 1, '' => 1}->{$u->{'opt_imagelinks'}};
+        my $extra = $is_stock ? '' : BML::ml('.imagelinks.size.custom', {'width' => $maxwidth, 'height' => $maxheight});
+        $ret .= "<tr><td class='field_name'>$ML{'.fn.imageplace'}</td>\n<td>";
+        $ret .= "$ML{'.imageplace'} ";
+        $ret .= LJ::html_select({'name' => 'opt_imagelinks', 'selected' => $u->{'opt_imagelinks'}},
+                                 '0', BML::ml('.imageplace.none'),
+                                 '0|0', BML::ml('.imageplace.all'),
+                                 '320|240', BML::ml('.imageplace.medium'),
+                                 '640|480', BML::ml('.imageplace.large'),
+                                 $extra ? ("$maxwidth|$maxheight", $extra) : ());
+        $ret.= "<br /><span class='helper'>$ML{'.imageplace.text'}</span>";
+        $ret .= "</td></tr>\n";
+
+        # Embed placeholders
+        $ret .= LJ::run_hook('opt_embedplaceholders', $u );
+
+        # Comment pages
+        $ret .= "<tr><td class='field_name'>$ML{'.fn.commentpage'}</td>\n<td>";
+        $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_stylemine', 'id' => 'opt_stylemine',
+                                 'value' => 1, 'selected' => $u->{'opt_stylemine'} });
+        $ret .= " <label for='opt_stylemine'>$ML{'.commentpage'}</label><br />\n";
+        $ret .= "<span class='helper'>$ML{'.commentpage.text'}</span>";
+        $ret .= "</td></tr>\n";
+
+        # Contextual Popup Disable
+        if ($LJ::CTX_POPUP) {
+            $ret .= "<tr><td class='field_name'>$ML{'.fn.contextualhover'}</td>\n<td>";
+            $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_ctxpopup', 'id' => 'opt_ctxpopup',
+                                     'value' => 1, 'selected' => $u->prop('opt_ctxpopup') });
+            $ret .= " <label for='opt_ctxpopup'>$ML{'.contextualhover'}</label><br />\n";
+            $ret .= "<span class='helper'>$ML{'.contextualhover.text'}</span>";
+            $ret .= "</td></tr>\n";
+        }
+
+        # Getting Started widget
+        $ret .= "<tr><td class='field_name'><a name='getting-started'></a>$ML{'.fn.gettingstarted'}</td>\n<td>";
+        if (LJ::Widget::GettingStarted->tasks_completed($u)) {
+            # if the user has completed all of the tasks, show a disabled option that doesn't have the box checked,
+            # but don't change the current value of the opt_getting_started prop while the option is disabled
+
+            $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_getting_started_notused', 'id' => 'opt_getting_started',
+                                     'selected' => 0, 'disabled' => 1 });
+            $ret .= " <label for='opt_getting_started'>$ML{'.gettingstarted'}</label><br />\n";
+            $ret .= "<span class='helper'>$ML{'.gettingstarted.text.completed'}</span>";
+            $ret .= LJ::html_hidden({ 'name' => 'opt_getting_started', 'value' => $u->has_enabled_getting_started });
+        } else {
+            $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_getting_started', 'id' => 'opt_getting_started',
+                                     'value' => 1, 'selected' => $u->has_enabled_getting_started });
+            $ret .= " <label for='opt_getting_started'>$ML{'.gettingstarted'}</label><br />\n";
+            $ret .= "<span class='helper'>$ML{'.gettingstarted.text'}</span>";
+        }
+        $ret .= "</td></tr>\n";
+
+        $ret .= "</table>\n";
+
+        # Additional privacy options
+        $ret .= "<div class='section_head'>$ML{'.section.privacy'}</div>\n";
+        $ret .= "<table class='field_block'>\n";
+
+        # new post minimum security
+        $ret .= "<tr><td class='field_name'>$ML{'.fn.minsecurity'}</td>\n<td>";
+        $ret .= "<label for='newpost_minsecurity'>$ML{'.minsecurity'}</label> ";
+
+        my @securities  = (""        => $ML{'.minsecurity.public'},
+                           "friends" => $u->is_community ? $ML{'.minsecurity.members'} : $ML{'.minsecurity.friends'});
+        push @securities, ("private" => $ML{'.minsecurity.private'})
+            if $u->is_person;
+
+        $ret .= LJ::html_select({ 'name' => 'newpost_minsecurity', selected => $u->{'newpost_minsecurity'} },
+                                @securities);
+
+        $ret .= "<br />\n<span class='helper'>$ML{'.minsecurity.text'}</span>";
+        $ret .= "</td></tr>";
+
+        # Search Inclusion
+        $ret .= "<tr><td class='field_name'>$ML{'.fn.searchincl'}</td>\n<td>";
+        $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_blockrobots', 'id' => 'opt_blockrobots',
+                                 'selected' => $u->{'opt_blockrobots'} });
+        $ret .= " <label for='opt_blockrobots'>$ML{'.searchincl'}</label><br />";
+        $ret .= "<span class='helper'>$ML{'.searchincl.text'}</span>";
+        $ret .= "</td></tr>\n";
+
+        # Vertical Inclusion
+        if (LJ::is_enabled("verticals", $remote) && !$u->is_comm) {
+            $ret .= "<tr><td class='field_name'>$ML{'.fn.verticalincl'}</td>\n<td>";
+            $ret .= LJ::html_check({
+                type => 'check',
+                name => 'opt_exclude_from_verticals',
+                id => 'opt_exclude_from_verticals',
+                selected => $u->opt_exclude_from_verticals eq "none" ? 0 : 1,
+            });
+            $ret .= " <label for='opt_exclude_from_verticals'>$ML{'.verticalincl'}</label><br />\n";
+            $ret .= "<span class='helper'>$ML{'.verticalincl.text'}</span>";
+            $ret .= "</td></tr>\n";
+        }
+
+        # Weblogs.com
+        unless ($LJ::DISABLED{'weblogs_com'}) {
+            $ret .= "<tr><td class='field_name'>$ML{'.fn.weblogs'}</td>\n<td>";
+            $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_weblogscom', 'id' => 'opt_weblogscom',
+                                     'selected' => $u->{'opt_weblogscom'},
+                                     'disabled' => !($u->get_cap("weblogscom") || $u->{'opt_weblogscom'}) });
+            $ret .= " <label for='opt_weblogscom'>$ML{'.weblogscom'}</label><br />\n";
+            $ret .= "<span class='helper'>$ML{'.weblogscom.text'}</span>";
+            $ret .= "</td></tr>\n";
+        }
+
+        # Anyone else to notify, if personal journal?
+        $ret .= LJ::run_hook('third_party_notify_options', $u)
+            if $u->is_personal;
+
+        # Jabber Online Status
+        my $jabber_title = LJ::run_hook("jabber_title") || $ML{'.jabber.title'};
+        $ret .= "<tr><td class='field_name'>$ML{'.fn.jabber'}</td>\n<td>";
+        $ret .= BML::ml('.jabber', {'jabbertitle' => $jabber_title}) . " ";
+        $ret .= LJ::html_select({ 'name' => 'opt_showonlinestatus',
+                                  'id' => 'opt_showonlinestatus',
+                                  'selected' => $u->opt_showonlinestatus },
+                                  "Y" => BML::ml(".security.visibility.everybody"),
+                                  "F" => BML::ml(".security.visibility.friends"),
+                                  "N"  => BML::ml(".security.visibility.nobody") );
+        $ret .= "<br />\n<span class='helper'>" . BML::ml('.jabber.text', {'jabbertitle' => $jabber_title}) . "</span>";
+        $ret .= "</td></tr>\n";
+
+        $ret .= join('', map { $_->[0] } LJ::run_hooks('extra_privacy_options', $u));
+        $ret .= "</table>\n";
+
+        # adult content settings
+        unless (LJ::conf_test($LJ::DISABLED{content_flag})) {
+            my $hide_adult = $u->hide_adult_content;
+
+            my $journal_adult = $u->adult_content;
+
+            my @adult_settings = (
+                                  none => $ML{'.adultcontentflag.select.none'},
+                                  concepts => $ML{'.adultcontentflag.select.concepts'},
+                                  explicit => $ML{'.adultcontentflag.select.explicit'},
+                                  );
+
+            my @adult_viewing = (
+                {
+                    value => 'none',
+                    text => $ML{'.viewingadult.select.none'},
+                    disabled => $u->is_minor || !$u->best_guess_age ? 1 : 0,
+                },
+                {
+                    value => 'explicit',
+                    text => $ML{'.viewingadult.select.explicit'},
+                    disabled => $u->is_child || !$u->best_guess_age ? 1 : 0,
+                },
+                {
+                    value => 'concepts',
+                    text => $ML{'.viewingadult.select.concepts'},
+                    disabled => 0,
+                },
+            );
+
+            my $journal_adult_settings_menu = LJ::html_select({
+                name => 'adult_content',
+                selected => $journal_adult,
+            }, @adult_settings);
+
+            my $hide_adult_content_menu = LJ::html_select({
+                name => 'hide_adult_content',
+                selected => $hide_adult,
+            }, @adult_viewing);
+ 
+            # adult content settings
+            $ret .= "<div class='section_head'>$ML{'.section.adult_content'}</div>";
+            $ret .= "<p>" . BML::ml('.section.adult_content.note', { sitename => $LJ::SITENAMESHORT }) . "</p>";
+            $ret .= "<table class='field_block'>";
+
+            $ret .= "<tr>";
+            $ret .= "<td class='field_name'>$ML{'.fn.adultcontentflag'}</td>";
+            $ret .= "<td>$ML{'.adultcontentflag'} $journal_adult_settings_menu<br />";
+            $ret .= "<span class='helper'>" . BML::ml('.adultcontentflag.text', { explicitage => 18, conceptsage => 14 }) . " ";
+            $ret .= LJ::help_icon("adult_content");
+            $ret .= "</span></td>";
+            $ret .= "</tr>";
+
+            $ret .= "<tr>";
+            $ret .= "<td class='field_name'>$ML{'.fn.viewingadult'}</td>";
+            $ret .= "<td>";
+            $ret .= "$ML{'.viewingadult'} $hide_adult_content_menu ";
+            $ret .= LJ::help_icon("adult_content");
+            $ret .= "</td>";
+            $ret .= "</tr>";
+
+            if (LJ::is_enabled("safe_search")) {
+                my $safesearch = $u->safe_search;
+
+                my @safe_search_options = (
+                    0 => $ML{'.safesearch.select.none'},
+                    10 => $ML{'.safesearch2.select.explicit'},
+                    20 => $ML{'.safesearch2.select.concepts'},
+                );
+
+                my $safe_search_menu = LJ::html_select({
+                    name => 'safe_search',
+                    selected => $safesearch,
+                }, @safe_search_options);
+
+                $ret .= "<tr>";
+                $ret .= "<td class='field_name'>$ML{'.fn.safesearch'}</td>";
+                $ret .= "<td>$ML{'.safesearch2'} ";
+                $ret .= LJ::help_icon("adult_content") . "<br />";
+                $ret .= $safe_search_menu;
+                $ret .= "</td>";
+                $ret .= "</tr>";
+            }
+
+            $ret .= "</table>";
+        }
+    }
+
+        # ending submit block
+        $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.finished.save_button'}) . " standout?>\n";
+        $ret .= "</form>\n";
+
+        return $print_with_ad->($ret);
+    }
+
+
+    ###
+    ### we have a post, process edits
+    ###
+
+    if (LJ::did_post()) {
+        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>") unless !$remote || LJ::check_form_auth();
+
+        return $print_with_ad->("<?badinput?>") unless LJ::text_in(\%POST);
+
+        # set language
+        if (exists $POST{'lang'}) {
+            my $l = LJ::Lang::get_lang($POST{'lang'});
+
+            # default cookie value to set
+            my $cval = $l->{'lncode'} . "/" . time();
+
+            # if logged in, change userprop and make cookie expiration
+            # the same as their login expiration
+            if ($remote) {
+                LJ::set_userprop($remote, "browselang", $l->{'lncode'});
+
+                  if ($remote->{'_session'}->{'exptype'} eq 'long') {
+                      $cval = [ $cval, $remote->{'_session'}->{'timeexpire'} ];
+                  }
+              }
+
+            # set cookie
+            $COOKIE{'langpref'} = $cval;
+
+            # set language through BML so it will apply immediately
+            BML::set_language($l->{'lncode'});
+        }
+
+        # was a scheme change posted?
+        my $scheme;
+        if (exists $POST{'text_scheme'}) {
+            foreach (@text_schemes) {
+                $scheme = $_->{'scheme'} if $POST{'text_scheme'} eq $_->{'scheme'};
+            }
+        } else {
+            foreach (@thumb_schemes) {
+                $scheme = $_->{'scheme'} if $POST{'scheme'} eq $_->{'scheme'};
+            }
+        }
+
+        # set scheme
+        if ($scheme) {
+            my $cval = $scheme;
+
+            # don't set cookie for default scheme
+            if ($scheme eq $bml_schemes[0]->{'scheme'} && !$LJ::SAVE_SCHEME_EXPLICITLY) {
+                $cval = '';
+                delete $COOKIE{'BMLschemepref'};
+            }
+
+            if ($remote) {
+                # set a userprop to remember their schemepref
+                $remote->set_prop('schemepref', $cval);
+
+                # cookie expires when session expires
+                $cval = [ $scheme, $remote->{'_session'}->{'timeexpire'} ]
+                    if ($remote->{'_session'}->{'exptype'} eq 'long');
+            }
+
+            # set cookie
+            $COOKIE{'BMLschemepref'} = $cval if $cval;
+            BML::set_scheme($scheme);
+
+        }
+
+        # everything past here only applies if we have a remote user
+        if ($remote) {
+
+        my $dbh = LJ::get_db_writer();
+
+        # Embed placeholders
+        LJ::run_hook('opt_embedplaceholders', $u, \%POST);
+
+        ### change any of the userprops ?
+        {
+            # opts
+            $POST{'opt_imagelinks'} = 0 unless $POST{'opt_imagelinks'} =~ m/^(\d+)\|(\d+)$/;
+            $POST{'opt_stylemine'} = $POST{'opt_stylemine'} ? 1 : 0;
+            $POST{'opt_blockrobots'} = $POST{'opt_blockrobots'} ? 1 : 0;
+            $POST{'opt_weblogscom'} = $POST{'opt_weblogscom'} ? 1 : 0 unless ($LJ::DISABLED{'weblogs_com'});
+            $POST{'opt_ctxpopup'} = $POST{'opt_ctxpopup'} ? 'Y' : 'N' if $LJ::CTX_POPUP;
+            $POST{'opt_showonlinestatus'} = '' unless $POST{'opt_showonlinestatus'} =~ m/^(Y|F|N)$/;
+            $POST{'opt_getting_started'} = $POST{'opt_getting_started'} ? 'Y' : 'N';
+            $POST{'newpost_minsecurity'} = "" unless $POST{'newpost_minsecurity'} =~ /(?:friends|private)/;
+
+
+            my @uprops = qw(
+              opt_imagelinks opt_stylemine
+              opt_blockrobots opt_ctxpopup opt_showonlinestatus
+              opt_getting_started newpost_minsecurity
+            );
+            
+            # weblogs.com requires a special cap, but let people turn it off even without the cap
+            push @uprops, 'opt_weblogscom'
+                if ( !$LJ::DISABLED{'weblogs_com'} && ($u->get_cap('weblogscom') || !$POST{'opt_weblogscom'}) );
+
+            if (LJ::is_enabled("content_flag")) {
+                $POST{adult_content} eq "none"
+                    unless $POST{adult_content} eq "explicit" || $POST{adult_content} eq "concepts";
+                push @uprops, 'adult_content';
+
+                if ($u->is_child || !$u->best_guess_age) {
+                    $POST{hide_adult_content} = "concepts";
+                } elsif ($u->is_minor) {
+                    $POST{hide_adult_content} = "explicit"
+                        unless $POST{hide_adult_content} eq "concepts";
+                } else {
+                    $POST{hide_adult_content} = "none"
+                        unless $POST{hide_adult_content} eq "concepts" || $POST{hide_adult_content} eq "explicit";
+                }
+                push @uprops, 'hide_adult_content';
+
+                if (LJ::is_enabled("safe_search")) {
+                    if ($POST{safe_search} != $u->safe_search) {
+                        $POST{safe_search} = 10 unless $POST{safe_search} =~ /^\d+$/;
+                        $POST{safe_search} = "none" if $POST{safe_search} == 0; # we store "none" in the prop to represent 0
+                        push @uprops, 'safe_search';
+                    }
+                }
+            }
+
+            # set userprops
+            foreach my $uprop (@uprops) {
+                my $eff_val = $POST{$uprop};   # effective value, since 0 isn't stored
+                $eff_val = "" unless $eff_val;
+                my $mem_only = $eff_val eq $u->{$uprop};
+                LJ::set_userprop($u, $uprop, $eff_val, $mem_only);
+            }
+        }
+
+        my $graphicpreviews_obj = LJ::graphicpreviews_obj();
+        if ($graphicpreviews_obj->is_enabled($u)) {
+            my $post_val = $POST{show_graphic_previews} ? 'on' : 'off';
+            my $prop_val = $u->show_graphic_previews;
+            if ($post_val ne $prop_val) {
+                my $new_val = "explicit_$post_val";
+                $u->set_prop('show_graphic_previews', $new_val);
+            }
+        }
+
+        if (LJ::is_enabled("verticals", $remote) && !$u->is_comm) {
+            $u->set_opt_exclude_from_verticals($POST{opt_exclude_from_verticals});
+        }
+
+        LJ::run_hook('set_third_party_notify_options', $u, \%POST);
+        LJ::run_hooks('set_extra_privacy_options', $u, \%POST);
+
+    }
+
+        # tell the user all is well
+        my $cprod = $remote ? LJ::CProd->full_box_for($remote, width => 300) : "";
+        my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => $cprod );
+        my $ret = $ad_box;
+        $ret .= "<?h1 $ML{'.success.header'} h1?>\n";
+        $ret .= "<?p $ML{'.success.text'} p?>\n";
+        $ret .= "<?p $ML{'.success.next'} p?>\n<ul>\n";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/$getextra'>$ML{'.success.next.viewing'}</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/customize/$getextra'>$ML{'.success.next.customize'}</a></li>";
+        $ret .= "<li><a href='" . $u->journal_base . "/friends'>$ML{'.success.next.friends'}</a></li>"
+            if $u && $u->is_person;
+        $ret .= "<li><a href='$LJ::SITEROOT/'>$ML{'.success.next.home'}</a></li>";
+        $ret .= "</ul>";
+        $ret .= LJ::Widget::GettingStarted->render;
+        return $ret;
+
+    }
+
+    # should never happen
+    return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.unknownmode'} p?>");
+
+}
+_code?>
+
+<=body
+head<=
+<?_code
+    LJ::need_res('stc/lj_base.css', 'stc/lj_settings.css');
+    return $head;
+_code?>
+<=head
+page?><?_c <LJDEP>
+lib: LJ::TextMessage, cgi-bin/ljlib.pl, cgi-bin/ljlang.pl
+link: htdocs/legal/privacy.bml, htdocs/support/faqbrowse.bml, htdocs/tools/textmessage.bml, htdocs/uploadpic.bml
+link: htdocs/paidaccounts/index.bml, htdocs/users, htdocs/userinfo.bml
+post: htdocs/manage/settings
+img: htdocs/userpic
+</LJDEP> _c?>

@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Worker::TheSchwartz;
+use Time::HiRes ();
+
+schwartz_decl('LJ::Worker::Ping::WeblogsCom');
+schwartz_work();
+
+# ============================================================================
+package LJ::Worker::Ping::WeblogsCom;
+use base 'TheSchwartz::Worker';
+use XMLRPC::Lite;
+
+sub work {
+    my ($class, $job) = @_;
+    my $a = $job->arg;
+
+    my $rv = XMLRPC::Lite
+        ->new( proxy => "http://rpc.weblogs.com/RPC2",
+               timeout => 10 )
+        ->call('weblogUpdates.ping', # xml-rpc method call
+               LJ::ehtml($a->{'title'}) . " \@ $LJ::SITENAMESHORT",
+               $a->{'url'},
+               "$LJ::SITEROOT/misc/weblogs-change.bml?user=$a->{'user'}")
+        ->result;
+
+    if ($rv && $rv->{message} =~ /Thanks for the ping/) {
+        $job->completed;
+        return;
+    }
+
+    die "Got message: $rv->{message}\n";
+}
+
+sub keep_exit_status_for { 86400 }
+sub grab_for { 180 }
+sub max_retries { 3 }
+sub retry_delay { 200 }
+

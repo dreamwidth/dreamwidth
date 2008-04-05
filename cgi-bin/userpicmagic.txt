@@ -1,0 +1,3 @@
+0       beshort         0xffd8          image/jpeg
+0       string          GIF             image/gif
+0	string		\211PNG         image/png

@@ -1,0 +1,27 @@
+;; -*- coding: utf-8 -*-
+.chagenotify.text=Here you may select what categories of support requests you'd like to be notified about.  Choices are <b>off</b> (the default), <b>new</b> (you'll get notifications when a new support request in that category is posted) or <b>all</b> (you'll get notifications and then a copy of each comment/solution posted).
+
+.chagenotify.title=Change Notification Settings
+
+.done.text=When done, press the "Save Changes" button below...
+
+.done.title=Done?
+
+.mustlogin=You must first <a href=[[login]]>login</a>.
+
+.option.all=All
+
+.option.new=New only.
+
+.option.off=Off.
+
+.submit.button=Save Changes
+
+.success.text=Your notification settings have been updated. 
+
+.success.title=Success
+
+.title=Change Notifications
+
+.unknow.mode=Unknown mode.
+

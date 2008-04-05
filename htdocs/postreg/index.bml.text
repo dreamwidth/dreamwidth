@@ -1,0 +1,45 @@
+;; -*- coding: utf-8 -*-
+
+.btn.save=Save and Continue
+
+.btn.skip=Skip This Step ->
+
+.change_account_type=Change
+
+.intro=Let others know who you are and what your journal is about! All fields are completely optional, but the more the merrier.
+
+.nav.editprofile=Edit Profile
+
+.nav.findfriends=Find Friends and Communities
+
+.setting.bio.desc=Tell us a little (or a lot) about yourself. Who you are, what your journal is about, or whatever else you want to put in here.
+
+.setting.bio.error.invalid=Invalid bio
+
+.setting.bio.note=Images, counters, and other HTML accepted.
+
+.setting.bio.question=Bio:
+
+.setting.birthday.question=Birthday:
+
+.setting.birthdaydisplay.error.invalid=You must pick one of the valid birthday display options.
+
+.setting.birthdaydisplay.question=Display:
+
+.setting.gender.error.invalid=You must pick male, female, or unspecified.
+
+.setting.gender.question=Gender:
+
+.setting.interests.desc=List some things you're into, usually things that can complete the phrase, "I like..."
+
+.setting.interests.note=List your interests separated by commas
+
+.setting.interests.question=Interests:
+
+.setting.name.question=Display Name:
+
+.skip_step_title=Skip This Step
+
+.title=Getting Started
+
+.welcome=Welcome to [[sitename]]! Your account has been created. An email has been sent to [[email]] containing further instructions. Click on the link provided in the email, and you'll be all set.

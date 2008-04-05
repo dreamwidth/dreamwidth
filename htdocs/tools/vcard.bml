@@ -1,0 +1,16 @@
+<?_code
+    use strict;
+    use LJ::vCard;
+
+    my $remote = LJ::get_remote();
+
+    my $addressbook = LJ::vCard::Addressbook->new;
+
+    $addressbook->add( LJ::vCard->new( $remote ) );
+
+    my $vcf_file = $addressbook->export();
+
+    BML::set_content_type("text/x-vcard");
+    BML::noparse();
+    return $vcf_file;
+_code?>

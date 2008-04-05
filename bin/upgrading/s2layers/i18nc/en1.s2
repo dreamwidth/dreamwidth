@@ -1,0 +1,9 @@
+#-*-s2-*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/en1";
+layerinfo "name" = "English";
+layerinfo "langcode" = "en";
+
+# Note: this file doesn't actually override anything, since the core
+#       is in English

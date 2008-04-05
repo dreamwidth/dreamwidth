@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+.auth.poster=Poster:
+
+.btn.proceed=Proceed...
+
+.certainday=Certain Day:
+
+.desc=Please use the form below to find the entry you would like to edit.
+
+.in=In community:
+
+.recententries=most recent entries
+
+.recententry=Most recent entry
+
+.success.delete=Journal entry was deleted.
+
+.success.deletespam=Additionally, the entry was marked as spam.  Thank you for your report.
+
+.success.head=Success
+
+.title=Edit Journal Entries
+
+.viewwhat=View What Entries:
+

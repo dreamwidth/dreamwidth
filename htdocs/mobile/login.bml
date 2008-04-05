@@ -1,0 +1,70 @@
+<?_code
+{
+    use strict;
+    use vars qw(%POST);
+
+    return "" unless LJ::did_post();
+
+    my $err = sub {
+        BML::finish();
+        return $_[0];
+    };
+
+    my $u = LJ::load_user($POST{user})
+        or return $err->("Invalid username");
+
+    my ($banned, $ok);
+    $ok = LJ::auth_okay($u, $POST{password}, undef, undef, \$banned);
+
+    if ($banned) {
+        return $err->("Your IP address is temporarily banned for exceeding the login failure rate.");
+    }
+
+    unless ($ok) {
+        return $err->("Bad password");
+    }
+
+    my $etime = time() + 60*60*24*60;
+    my $sess_opts = {
+        'exptype' => 'long',
+        'ipfixed' => 0,
+    };
+
+    $u->make_login_session('long');
+
+    return BML::redirect("$LJ::SITEROOT/mobile/?t=" . time());
+}
+_code?>
+<html>
+<head>
+<meta name="viewport" content="width = 320" />
+<style>
+h2 { font-size: 110%; text-decoration: underline; padding-bottom: 0; margin-bottom: 0.2em; }
+p { margin-top: 0.3em; }
+form { margin-left: 2em; }
+</style>
+
+</head>
+<body>
+<a href="./">&lt;&lt; Back</a> to LiveJournal Mobile.
+<h1>Login</h1>
+
+<h2>SSL secure login</h2>
+<p>Secure using SSL, but may not work on all mobile devices:</p>
+<form method='post' action='<?_code return $LJ::SSLROOT _code?>/mobile/login.bml'>
+Username: <input name='user' size='15' /><br />
+Password: <input name='password' type='password' size='15' />
+<input type='submit' value="Login" />
+</form>
+
+<h2>Insecure basic login</h2>
+<p>This sends your password unprotected, probably over the air.  Not a good idea on Wifi.  Probably okay over a mobile carrier's data network.</p>
+
+<form method='post' action='<?_code return $LJ::SITEROOT _code?>/mobile/login.bml'>
+Username: <input name='user' size='15' /><br />
+Password: <input name='password' type='password' size='15' />
+<input type='submit' value="Login" />
+</form>
+
+</body>
+</html>

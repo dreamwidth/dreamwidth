@@ -1,0 +1,13 @@
+;; -*- coding: utf-8 -*-
+.table.community=Community
+
+.table.language=Language
+
+.table.users=Users With Privs
+
+.teams.header=Teams
+
+.teams.text=Translation is being done by the following teams:
+
+.title=Translation Teams
+

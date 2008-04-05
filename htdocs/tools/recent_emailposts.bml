@@ -1,0 +1,132 @@
+<?page
+title=>Email gateway log
+head<=
+    <style type="text/css">
+
+    .disp
+    {
+        width: 700px;
+        border-left: 1px solid #c2c2c2;
+        border-top: 1px solid #c2c2c2;
+    }
+
+    .disp td
+    {
+        font-size: 0.85em;
+        border-right: 1px solid #c2c2c2;
+        padding: 6px;
+        border-bottom: 1px solid #c2c2c2;
+        vertical-align: top;
+    }
+
+    .err
+    {
+        background-color: #efefef;
+    }
+
+    .disp th
+    {
+        padding: 6px;
+        border-bottom: 1px solid #999;
+        border-right: 1px solid #999;
+        background-color: #dedede;
+        text-align: left;
+    }
+    
+    </style>
+<=head
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ $ret %POST /;
+
+    return "Sorry, this site is not configured to use the emailgateway."
+        unless $LJ::EMAIL_POST_DOMAIN;
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $admin = LJ::check_priv($remote, 'supporthelp');
+
+    my $u;
+    if ( $admin ) {
+        $u = LJ::load_user($POST{user} || $GET{user});
+    }
+
+    $u ||= $remote;
+
+    $ret .= '<?p This page displays up to the last 50 emailposts to your account,
+        and their individual status. p?>';
+    if ( $admin ) {
+        $ret .= "<form action=\"$LJ::SITEROOT/tools/recent_emailposts.bml\" method=\"POST\">";
+        $ret .= "Username to view: ";
+        $ret .= LJ::html_text(
+            {
+                name      => 'user',
+                maxlength => 20,
+                value => $POST{user} || $GET{user},
+            }
+        ) . '&nbsp;';
+        $ret .= LJ::html_submit('show', 'Show user' );
+        $ret .= "</form>";
+    }
+
+    unless ($u) {
+        $ret .= "No such user.";
+        return $ret;
+    }
+
+    my $dbcr = LJ::get_cluster_reader( $u );
+    my $sql = qq{
+        SELECT
+            logtime, extra,
+            DATE_FORMAT(FROM_UNIXTIME(logtime), "%M %D %Y, %l:%i%p") AS ftime
+        FROM userlog
+        WHERE userid=?
+            AND action='emailpost'
+        ORDER BY logtime DESC LIMIT 50
+    };
+    my $data = $dbcr->selectall_hashref( $sql, 'logtime', undef, $u->{userid} );
+
+    unless ( keys %$data ) {
+        $ret .= "There are currently no emailposts logged.";
+        return $ret;
+    }
+
+    $ret .= q{
+        <table class="disp" cellspacing="0">
+            <tr>
+                <th>When</th>
+                <th>Subject</th>
+                <th>Error?</th>
+                <th>Server Message</th>
+            </tr>
+    };
+
+    foreach ( reverse sort keys %$data ) {
+        my $row = {};
+        LJ::decode_url_string( $data->{$_}->{extra}, $row );
+        $ret .= $row->{e} ? "<tr class='err'>" : "<tr class='ok'>";
+        $ret .= qq{
+            <td nowrap="1">$data->{$_}->{ftime}</td>
+            <td nowrap="1"><em>$row->{s}</em></td>
+            <td nowrap="1">
+        };
+        if ($row->{e}) {
+            $ret .= '<strong>Yes</strong>';
+            $ret .= ' (will retry)' if $row->{retry};
+        } else {
+            $ret .= 'None';
+        }
+        $ret .= "</td><td width='100%'>" . ($row->{m} ? LJ::ehtml($row->{m}) : 'Post success.') . "</td></tr>";
+    }
+
+    $ret .= '</table>';
+
+    return $ret;
+
+} _code?>
+<=body
+page?>

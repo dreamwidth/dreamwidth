@@ -1,0 +1,171 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/is1";
+layerinfo "name" = "Icelandic";
+layerinfo "langcode" = "is";
+layerinfo "author_name" = "LiveJournal Icelandic Translation Team";
+layerinfo "author_email" = "lj_islenska@livejournal.com";
+set lang_current = "is";
+
+#[[ date and time l12n ]]
+
+# Stutt dagsetning
+set lang_fmt_date_short = "%%d%%. %%m%%. '%%yy%%";
+# Miðlungslöng dagsetning
+set lang_fmt_date_med = "%%dayord%% %%mon%%. %%yyyy%%";
+# Miðlungslöng dagsetning með stuttum vikudegi
+set lang_fmt_date_med_day = "%%da%%. %%dayord%% %%mon%%. %%yyyy%%";
+# Löng dagsetning
+set lang_fmt_date_long = "%%dayord%% %%month%% %%yyyy%%";
+# Löng dagsetning með vikudegi
+set lang_fmt_date_long_day = "%%day%% %%dayord%% %%month%% %%yyyy%%";
+# Tímatilvísun
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+# Stutt mánaðartilvísun
+set lang_fmt_month_short = "%%m%%. '%%yy%%";
+# Miðlungslöng mánaðartilvísun
+set lang_fmt_month_med = "%%mon%%. %%yyyy%%";
+# Löng mánaðartilvisun (eins og á ensku)
+set lang_fmt_month_long = "%%month%% %%yyyy%%";
+# Allir mánuðir, full heiti
+set lang_monthname_long = [ "", "Janúar",  "Febrúar", "Mars",
+                            "Apríl", "Maí", "Júní",
+                            "Júlí", "Ágúst", "September",
+                            "Október", "Nóvember", "Desember" ];
+# Allir mánuðir, styttir
+set lang_monthname_short = [ "", "Jan",  "Feb", "Mar",
+                             "Apr", "Maí", "Jún",
+                             "Júl", "Ágú", "Sep",
+                             "Okt", "Nóv", "Des" ];
+# Vikudagar, fullt heiti
+set lang_dayname_long = [ "", "Sunnudagur", "Mánudagur",  "Þriðjudagur", "Miðvikudagur", 
+                          "Fimmtudagur", "Föstudagur", "Laugardagur" ];
+# Vikudagar, styttir
+set lang_dayname_short = [ "", "Sun", "Mán",  "Þri", "Mið", 
+                           "Fim", "Fös", "Lau" ];
+set reg_firstdayofweek = "monday";
+
+#[[ texttranslation ]]
+
+set text_comment_date = "Dags:";
+set text_comment_from = "Frá:";
+set text_comment_frozen = "Fryst";
+set text_comment_ipaddr = "IP tala:";
+set text_comment_parent = "Foreldri";
+set text_comment_reply = "Svara svari";
+set text_comment_thread = "Þráður";
+set text_day_next = "Næsti dagur";
+set text_day_prev = "Fyrri dagur";
+set text_icon_alt_private = "[Einkafærsla]";
+set text_icon_alt_protected = "[Læst færsla]";
+set text_max_comments = "Hámarksfjölda leyfðra svara hefur verið náð";
+set text_meta_mood = "Hugarástand";
+set text_meta_music = "Tónlist";
+set text_month_screened_comments = "Með huldum svörum";
+set text_multiform_btn = "Gera aðgerð";
+set text_multiform_check = "Velja:";
+set text_multiform_conf_delete = "Eyða völdum svörum?";
+set text_multiform_des = "Hópaðgerð á valin svör:";
+set text_multiform_opt_delete = "Eyða";
+set text_multiform_opt_deletespam = "Eyða sem ruslsvari (spam)";
+set text_multiform_opt_freeze = "Frysta";
+set text_multiform_opt_screen = "Hylja";
+set text_multiform_opt_unfreeze = "Afturkalla frystingu";
+set text_multiform_opt_unscreen = "Afhylja";
+set text_noentries_day = "Engar færslur þennan dag.";
+set text_noentries_recent = "Engar færslur til staðar.";
+set text_nosubject = "(án titils)";
+set text_permalink = "Tengill";
+set text_post_comment = "Svara færslu";
+set text_post_comment_friends = "Svara færslu";
+set text_poster_anonymous = "(Ónafngreindur)";
+set text_read_comments = "1 svar // # svör";
+set text_read_comments_friends = "1 svar // # svör";
+set text_reply_back = "Lesa svör";
+set text_reply_nocomments = "Svör eru ekki leyfð við þessarri færslu.";
+set text_reply_nocomments_header = "Svör ekki leyfð:";
+set text_skiplinks_back="Fyrri # færslur";
+set text_skiplinks_forward="Næstu # færslur";
+set text_tag_uses = "1 notkun // # notkunnir";
+set text_tags = "Kenniorð: #";
+set text_view_archive = "Dagatal";
+set text_view_friends = "Vinir";
+set text_view_friends_comm = "Meðlimir";
+set text_view_friends_filter = "Vinir (sérsniðin sía)";
+set text_view_friendsfriends = "Vinir vina";
+set text_view_friendsfriends_filter = "Vinir vina (sérsniðin sía)";
+set text_view_month = "Skoða titla";
+set text_view_recent = "Nýlegar færslur";
+set text_view_userinfo = "Notandaupplýsingar";
+set text_website_default_name = "Vefsíðan mín";
+
+#[[ function translations ]]
+
+function lang_map_plural (int n) : int {
+    if ($n%10 == 1 and $n%100 != 11) { return 0; } # singular
+    return 1;             # plural
+}
+
+
+function lang_page_of_pages (int pg, int pgs) [notags] : string {
+        return "Síða $pg af $pgs";
+}
+
+function lang_ordinal(int num) [notags] : string 
+"Make an ordinal number from a cardinal number"
+{
+        return $num+".";
+}
+
+function lang_user_wrote(UserLite u) : string
+"Returns text describing that the user wrote something. i18nc layers should override this."
+{
+    if (defined $u) {
+        return $u->as_string()+" skrifaði";
+    }
+    else {
+        return "Ónafngreindur skrifaði";
+    }
+}
+
+function lang_at_datetime(DateTime d) : string
+"Returns a string saying \"at {the data and time given}\". Used in the core implementation of EntryPage and ReplyPage. i18nc layers should override this."
+{
+#   return "d. 1. Januar, 2004, kl. 23:01";
+    return $d->date_format("long") + ", klukkan " + $d->time_format();
+}
+
+###  ###
+
+function lang_viewname(string viewid) [notags] : string 
+"Get some words representing a view"
+{
+    if ($viewid == "recent") { return $*text_view_recent; }
+    if ($viewid == "archive") { return $*text_view_archive; }
+    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "day") { return "Dagur"; }
+    if ($viewid == "month") { return "Mánuður"; }
+    if ($viewid == "userinfo") { return $*text_view_userinfo; }
+    if ($viewid == "entry") { return "Lesa svör"; }
+    if ($viewid == "reply") { return "Svara færslu"; }
+    if ($viewid == "tags") { return "Kenniorð"; }
+    return "Óþekkt sýnd";
+}
+
+function server_sig() {
+    """Veftré <a href="$*SITEROOT/">$*SITENAME</a>""";
+}
+
+function ReplyPage::view_title() : string {
+    return "Svara færslu eða svari";
+}
+    
+function Page::print_entry_poster(Entry e) {
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        " skrifaði í ";
+        $e.journal->print();
+    }
+}
+

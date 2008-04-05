@@ -1,0 +1,310 @@
+<?page
+title<=
+<?_code
+ if ($GET{'mode'} eq 'create') {
+    return $ML{'.title.create'};
+ }
+ else {
+    return $ML{'.title.modify'};
+ }
+_code?>
+<=title
+head<=
+<style type='text/css'>
+    fieldset { display: block; float: left; width: 320px; border: 1px solid #ccc; margin: 0 15px 15px 0; padding: 8px; }
+    fieldset div { min-height: 170px; }
+    * html fieldset div { height: 190px; }
+    *:first-child+html fieldset div { min-height: 190px; }
+    #member-restrictions, #adult-content { clear: left; }
+    legend { color: #036; font-size: 1.2em; font-weight: bold; }
+    p.input-wrapper { margin-left: 27px; text-indent: -27px; }
+    label { color: #444; }
+    label b { color: #000; }
+    .standout { clear: left; max-width: 695px; }
+    .standout table { margin: 0 auto; }
+</style>
+<=head
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+
+    my $ret; 
+    my %errors;
+
+    my $print_with_ad = sub {
+        my $str = shift;
+
+        my $ad_full_width = LJ::ad_display( type => 'app', orient => 'BML-App-Func-1column' );
+        return $ad_full_width . $str;
+    };
+
+    my $remote = LJ::get_remote();
+
+    unless ($remote) {
+        $ret .= "<?needlogin?>";
+        return $print_with_ad->($ret);
+    }
+
+    unless ($remote->{'journaltype'} eq 'P') {
+        $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.maintainertype'} p?>";
+        return $print_with_ad->($ret);
+    }
+
+    my $mode = "modify";
+    $mode = "create" if $GET{'mode'} eq 'create';
+
+    if (LJ::did_post())
+    {
+        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>")
+            unless LJ::check_form_auth();
+
+        my $sth;
+        my $cuser = LJ::canonical_username($POST{'cuser'});
+        my $cu = LJ::load_user($cuser);
+        
+        unless ($cu) {
+            $errors{'username'} = $ML{'.error.notfound'};
+        }
+
+        if ($cu && $cu->{'userid'} == $remote->{'userid'}) {
+            $errors{'username'} = $ML{'.error.samenames'};
+        }
+
+        # if we're changing rather than creating, check that we can
+        if ($mode eq 'modify' && !LJ::can_manage_other($remote, $cu)) {
+            $errors{'username'} = BML::ml('.error.noaccess', {'comm'=>$cuser});
+        }
+
+        # if we're creating, community password must match
+        if ($mode eq 'create' && $cu && !LJ::auth_okay($cu, $POST{'cpassword'})) {
+            $errors{'password'} = $ML{'.error.badpassword'};
+        }
+
+        # disallow changing the journal type if the journal has entries
+        if ($mode eq 'create' && !%errors && !LJ::check_priv($remote, "changejournaltype", "")) {
+            my $count;
+            my $userid=$cu->{'userid'}+0;
+            
+            my $dbcr = LJ::get_cluster_reader($cu);
+            $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM log2 WHERE journalid=$userid AND posterid=journalid");
+            
+            $errors{'username'} = $ML{'.error.hasentries'} if $count;
+        }
+
+        # if it's already a community, don't let them turn it into a community
+        if ($mode eq 'create' && !%errors && $cu->{journaltype} eq 'C') {
+            $errors{'username'} = $ML{'.error.alreadycomm'};
+        }
+        
+        # if we found errors, we'll redisplay the form below.  otherwise,
+        # proceed.
+        unless (%errors) {
+            my $dbh = LJ::get_db_writer();
+            my $cid = $cu->{'userid'};
+            my $qmembership = $POST{membership};
+            $qmembership = 'closed' unless $qmembership =~ m/(?:open|moderated|closed)/;
+            $qmembership = $dbh->quote($qmembership);
+            my $qpostlevel = $dbh->quote($POST{'postlevel'} eq "members" ? "members" : "select");
+
+            LJ::update_user($cu, { journaltype => 'C', password => '' });
+            if ($mode eq 'create') {
+                $dbh->do("REPLACE INTO community (userid, membership, postlevel) VALUES ($cid, $qmembership, $qpostlevel)");
+                LJ::set_rel($cu, $remote, 'A');
+
+                # delete existing friends
+                my $friends = LJ::get_friends($cid, undef, undef, 'force') || {};
+                LJ::remove_friend($cid, [ keys %$friends ]);
+
+                # log this to statushistory
+                my $msg = "account '" . $cu->user . "' converted to community";
+                $msg .= " (maintainer is '" . $remote->user . "')";
+                LJ::statushistory_add($cu, $remote, "change_journal_type", $msg);
+
+            } else {
+                $dbh->do("UPDATE community SET membership=$qmembership, postlevel=$qpostlevel WHERE userid=$cid");
+            }
+
+            # lazy-cleanup: if a community has subscriptions (most likely
+            # due to a personal->comm conversion), nuke those subs.
+            # (since they can't manage them anyway!)
+            $cu->delete_all_subscriptions;
+
+            # ... and migrate their interests to the right table
+            $cu->lazy_interests_cleanup;
+            LJ::run_hook("change_journal_type", $cu);
+
+            my $nonmembers = $POST{'nonmember_posting'} + 0;
+            my $moderated = $POST{'moderated'} + 0;
+
+            LJ::set_userprop($cu, 'nonmember_posting', $nonmembers);
+            LJ::set_userprop($cu, 'moderated', $moderated);
+
+            if (LJ::is_enabled("content_flag")) {
+                my $adult_content = $POST{'adult_content'};
+                $adult_content eq "none"
+                    unless $adult_content eq "explicit" || $adult_content eq "concepts";
+                $cu->set_prop('adult_content', $adult_content);
+            }
+
+            if ($moderated && ! LJ::load_rel_user($cu->{'userid'}, 'M')->[0]) {
+                LJ::set_rel($cu->{'userid'}, $remote->{'userid'}, 'M');
+              }
+
+            # since journaltype changed
+            $cu->invalidate_directory_record;
+
+            $ret .= LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+            $ret .= "<?h1 $ML{'.success'} h1?>";
+            if ($mode eq 'create') {
+                $ret .= "<?p $ML{'.label.commcreated'} p?>";
+            } else {
+                $ret .= "<?p $ML{'.label.commchanged'} p?>";
+            }
+
+            $ret .= "<?p $ML{'.label.rellinks'} <ul><li><a href='" . $cu->journal_base . "'>$ML{'.label.commsite'}</a></li>";
+            $ret .= "<li><a href='" . $cu->profile_url() . "'>$ML{'.label.comminfo'}</a></li><li>"
+                . BML::ml('.label.managepage', { 'aopts' => 'href="/community/manage.bml"' }) . "</li></ul> p?>";
+
+            $ret .= LJ::Widget::GettingStarted->render;
+
+            return $ret;
+        }
+    }
+
+    # we're either creating a new community or modifying settings of an existing one
+    # based on whether $mode is 'create' or 'modify'. Most of the page is the same in
+    # either case, and additionally we must preload existing settings when modifying.
+
+    my ($cname, $c);
+
+    $cname = $POST{'cuser'}; # if we're falling through with errors when creating
+    
+    my %info = (
+                'membership'=>$POST{'membership'} || 'open',
+                'postlevel'=>$POST{'postlevel'} || 'members',
+                'nonmember_posting'=>$POST{'nonmember_posting'} || 0,
+                'moderated'=>$POST{'moderated'} || 0,
+                );
+
+    if ($mode eq 'modify') {
+        $cname = LJ::canonical_username($GET{'comm'});
+        $c = LJ::load_user($cname);
+        unless ($c) {
+            # if no community was specified, redirect to manage.bml
+            return BML::redirect("$LJ::SITEROOT/community/manage.bml");
+        } 
+        unless ($c->{'journaltype'} eq 'C') {
+            $ret = "<?h1 $ML{'Error'} h1?><?p $ML{'.error.notcomm'} p?>";
+            return $print_with_ad->($ret);
+        } 
+        my $dbr = LJ::get_db_reader();
+        ($info{'membership'},$info{'postlevel'}) = 
+            $dbr->selectrow_array("SELECT membership, postlevel FROM community WHERE userid=$c->{'userid'}");
+        LJ::load_user_props($c, "nonmember_posting", "moderated");
+        $info{'nonmember_posting'} = $c->{'nonmember_posting'} ? 1 : 0;
+        $info{'moderated'} = $c->{'moderated'} ? 1 : 0;
+    }
+
+    $ret .= "<form method='post' action='settings.bml?mode=$mode'>";
+    $ret .= LJ::form_auth();
+
+    if ($mode eq 'create') {
+        LJ::set_active_crumb('createcommunity');
+          $ret .= "<?h2 $ML{'.label.commheader'} h2?>" .
+              ($mode eq 'modify' ? "<?p $ML{'.label.commchange'} p?>" : "<?p " . BML::ml('.label.commcreate2', {'aopts' => "href='$LJ::SITEROOT/create.bml'"}) . " p?>");
+          $ret .= "<?standout <table width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
+          $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login2', {'aopts' => "href='$LJ::SITEROOT/login.bml?ret=1'"}) . "</td></tr>";
+          $ret .= "<tr valign='top'><td><b>$ML{'.label.community'}</b></td>";
+          $ret .= "<td>$ML{'.label.username'}<br /><input name='cuser' maxlength='15' value='$cname' /><br />";
+          $ret .= "<?inerr $errors{'username'} inerr?><br />";
+          $ret .= "$ML{'.label.password'}<br /><input name='cpassword' type='password' /><br />";
+          $ret .= "<?inerr $errors{'password'} inerr?></td></tr></table> standout?>";
+      } else {
+          LJ::set_active_crumb('commsettings');
+            $ret .= LJ::html_hidden('cuser', $cname);
+            $ret .= "<?p " . BML::ml('.name',{'name'=>"<?ljcomm $cname ljcomm?>"});
+            $ret .= " " . BML::ml('Actionlink', {'link' => "<a href='$LJ::SITEROOT/community/members.bml?comm=$cname'>$ML{'.members2'}</a>"}) . " p?>";
+        }
+
+    # membership levels
+    $ret .= "<fieldset id='membership'>";
+    $ret .= "<legend>$ML{'.label.membership'}</legend><div><?p $ML{'.label.whocanjoin'} p?>";
+    $ret .= "<p class='input-wrapper'>";
+    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memopen', 
+                             value => 'open', selected => ($info{membership} eq 'open' ? 1 : 0)});
+    $ret .= "<label for='memopen'> $ML{'.label.openmemb'}</label></p><p class='input-wrapper'>";
+    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memmoderated', 
+                             value => 'moderated', selected => ($info{membership} eq 'moderated' ? 1 : 0)});
+    $ret .= " <label for='memmoderated'>$ML{'.label.moderatedmemb'}</label></p><p class='input-wrapper'>";
+    $ret .= LJ::html_check({ type => 'radio', name => 'membership', id => 'memclosed', 
+                             value => 'closed', selected => ($info{membership} eq 'closed' ? 1 : 0)});
+    $ret .= "<label for='memclosed'> $ML{'.label.closedmemb2'}</label></p>";
+    $ret .= "</div></fieldset>";
+
+    my ($optopen,$optclosed);
+
+    if ($info{'moderated'}) {
+        ($optopen,$optclosed)=(" checked='checked'","");
+    } else {
+        ($optopen,$optclosed)=("", " checked='checked'");
+    }
+
+    $ret .= "<fieldset id='entry-moderation'>";
+    $ret .= "<legend>$ML{'.label.modheader'}</legend><div><?p $ML{'.label.modtext'} p?>";
+    $ret .= "<p class='input-wrapper'><input type='radio' id='radunmod' name='moderated' value='0'$optclosed /><label for='radunmod'> $ML{'.label.modisnt'}</label></p>";
+    $ret .= "<p class='input-wrapper'><input type='radio' id='radmod' name='moderated' value='1'$optopen /><label for='radmod'> $ML{'.label.modis'}</label></p>";
+    $ret .= "</div></fieldset>\n";
+
+    if ($info{'postlevel'} eq 'members') {
+        ($optopen,$optclosed)=(" checked='checked'","");
+    } else {
+        ($optopen,$optclosed)=("", " checked='checked'");
+    }
+
+    $ret .= "<fieldset id='member-restrictions'>";
+    $ret .= "<legend>$ML{'.label.postaccess'}</legend><div><?p $ML{'.label.whocanpost'} p?>";
+    $ret .= "<p class='input-wrapper'><input type='radio' id='postopen' name='postlevel' value='members'$optopen /><label for='postopen'> $ML{'.label.anybodycan'}</label></p>";
+    $ret .= "<p class='input-wrapper'><input type='radio' id='postclosed' name='postlevel' value='select'$optclosed /><label for='postclosed'> $ML{'.label.selcan'}</label></p>";
+    $ret .= "</div></fieldset>";
+
+    if ($info{'nonmember_posting'}) {
+        ($optopen,$optclosed)=(" checked='checked'","");
+    } else {
+        ($optopen,$optclosed)=("", " checked='checked'");
+    }
+
+    $ret .= "<fieldset id='non-member-restrictions'>";
+    $ret .= "<legend>$ML{'.label.nmheader'}</legend><div><?p $ML{'.label.nmtext'} p?>";
+    $ret .= "<p class='input-wrapper'><input type='radio' id='nonopen' name='nonmember_posting' value='0'$optclosed /><label for='nonopen'> $ML{'.label.nmcant2'}</label></p>";
+    $ret .= "<p class='input-wrapper'><input type='radio' id='nonclosed' name='nonmember_posting' value='1'$optopen /><label for='nonclosed'> $ML{'.label.nmcan2'}</label></p>";
+    $ret .= "</div></fieldset>";
+
+    if (LJ::is_enabled('content_flag')) {
+        # adult content
+        my @adult_settings = (
+                              none => $ML{'.label.adultcontentnone'},
+                              concepts => $ML{'.label.adultcontentconcepts'},
+                              explicit => $ML{'.label.adultcontentexplicit'},
+                              );
+
+        my $adult_content_menu = LJ::html_select({selected => $c ? $c->adult_content : "none", name => 'adult_content'}, @adult_settings);
+        $ret .= "<fieldset id='adult-content'>";
+        $ret .= "<legend>$ML{'.label.adultcontentheader'}</legend><div><?p $ML{'.label.adultcontenttext'} p?>";
+        $ret .= "<p class='input-wrapper'>$adult_content_menu</p>";
+        $ret .= "<span style='font-size: 0.8em; margin-bottom: 5px;'>";
+        $ret .= BML::ml('.label.adultcontentnote', { explicitage => 18, conceptsage => 14 });
+        $ret .= "</span></div></fieldset>";
+    }
+
+    $ret .= "<div style='clear: left; max-width: 695px;'><?standout <input type='submit' value='" .
+        ($mode eq 'create' ? "$ML{'.button.createcommunity'}" : "$ML{'.button.changecommunity'}") .
+        "' /> standout?></div></form>";
+
+    return $print_with_ad->($ret);
+}
+_code?>
+
+<=body
+page?>

@@ -1,0 +1,58 @@
+h2.widget-header {
+    font-size: 14px;
+    clear: left;
+    font-family: Arial;
+    font-weight: bold;
+    background: #ededed url(/img/corner.gif) no-repeat 0 0;
+    margin: 0 0 8px 0 !important;
+    padding: 5px 8px !important;
+    color: #222;
+    border: none !important;
+}
+
+.theme-current {
+    float: right;
+    width: 35%;
+    background-color: #ECF6FF;
+    margin-bottom: 15px;
+}
+
+.theme-titles {
+    float: right;
+    width: 63%;
+    margin-right: 2%;
+    margin-bottom: 15px;
+}
+
+.theme-selector-wrapper {
+    clear: both;
+}
+
+.theme-customize {
+    text-align: right;
+    clear: both;
+}
+
+form.theme-switcher {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.one-percent {
+    height: 1%;
+}
+
+.customize-wrapper {
+    clear: both;
+    position: relative;
+}
+
+.beta-feedback {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.beta-feedback a {
+    padding-left: 35px;
+    background: url(/img/beta.gif) no-repeat 0 50%;
+}

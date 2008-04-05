@@ -1,0 +1,185 @@
+;; -*- coding: utf-8 -*-
+
+.adultcontentflag=This journal contains:
+
+.adultcontentflag.select.concepts=Adult Concepts
+
+.adultcontentflag.select.explicit=Explicit Adult Content
+
+.adultcontentflag.select.none=No Adult Content
+
+.adultcontentflag.text=This is a global setting for the journal. For explicit adult content, users under the age of [[explicitage]] years old will be restricted from viewing. Adult concepts only restricts users under the age of [[conceptsage]] years old.
+
+.bdayreminder=Receive email reminders for your friends' birthdays
+
+.bdayreminder.note=Note: This feature is currently disabled, but may be re-enabled in the future.
+
+.commentpage=View comment pages in your own journal style
+
+.commentpage.text=When you follow a comment link from your Friends page, you can view that comment page in your own journal style.
+
+.contextualhover=Show contextual hover menu
+
+.contextualhover.text=Contextual hover menus appear when you hover over userhead images or userpics.
+
+.finished.save_button=Save Changes
+
+.fn.adultcontentflag=Adult Content
+
+.fn.bdayreminder=Birthday reminders
+
+.fn.commentpage=Comment pages
+
+.fn.contextualhover=Contextual Hover Menu
+
+.fn.gettingstarted=Getting Started Module
+
+.fn.graphicpreviews=Graphic previews
+
+.fn.imageplace=Image placeholders
+
+.fn.jabber=Online Status
+
+.fn.language=Language
+
+.fn.minsecurity=Entry Security
+
+.fn.navstrip=Navigation strip
+
+.fn.safesearch=Safe Search Filtering
+
+.fn.scheme=Scheme
+
+.fn.searchincl=Search inclusion
+
+.fn.verticalincl=Explore Area Inclusion
+
+.fn.viewingadult=Viewing Adult Content
+
+.fn.weblogs=Weblogs.com
+
+.gettingstarted=Show Getting Started module
+
+.gettingstarted.text=The Getting Started module displays on the homepage and confirmation pages until the required tasks have been completed.
+
+.gettingstarted.text.completed=Because you have completed all of the required tasks, the Getting Started module will not display.
+
+.graphicpreviews.desc=Enable graphic previews on external links within your journal
+
+.graphicpreviews.note=Allows viewers to preview links and linked images when hovering over external links within your journal.
+
+.imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
+
+.imageplace=Use image placeholders for
+
+.imageplace.all=all images
+
+.imageplace.large=large images (over 640x480)
+
+.imageplace.medium=medium images (over 320x240)
+
+.imageplace.none=nothing (display all images)
+
+.imageplace.text=Placeholders replace inline images with links, and are useful if you are browsing at work or over a slow connection.
+
+.intro=Customize your viewing, notification and additional privacy options.
+
+.jabber=Show [[jabbertitle]] online status to:
+
+.jabber.text=Your online status may be visible to others when logged in with any Jabber IM client using your [[jabbertitle]] username.
+
+.jabber.title=Jabber
+
+.language=Select your language:
+
+.minsecurity=Default privacy of new entries:
+
+.minsecurity.text=This setting will override the security for all future entries, unless you choose a more restrictive privacy. In that case, the more restrictive privacy setting will be used.
+
+.minsecurity.friends=Friends Only
+
+.minsecurity.members=Members Only
+
+.minsecurity.private=Just Me  (Private)
+
+.minsecurity.public=Everyone (Public)
+
+.navstrip=The navigation strip is a small toolbar that can show at the top of your journal/community, as well as when you're browsing other journals and communities. It provides:
+
+.navstrip.choose=Choose the navigation strip color you prefer:
+
+.navstrip.choose.dark=Dark gray
+
+.navstrip.choose.light=Light gray
+
+.navstrip.customcolors=To use custom colors on your journal style, enable the "Navigation strip colors" option under the <a [[aopts]]>Custom Options</a> tab within the "Journal Display" area.
+
+.navstrip.list1=Quick links to your own journal, the update page, and your Friends page
+
+.navstrip.list2=Options appropriate to the page you are looking at, i.e. filters for your Friends page
+
+.navstrip.list3=Community management options and more
+
+.navstrip.options=Navigation strip display options:
+
+.navstrip.options.see=Always see the navigation strip when you view any journal or community
+
+.navstrip.options.show=Always show the navigation strip to anyone who views your journal or community
+
+.safesearch2=You can choose to filter mature or offensive content out of search results.
+
+.safesearch2.select.concepts=Use strict filtering (filters all adult and offensive content)
+
+.safesearch2.select.explicit=Use moderate filtering (filters explicit adult and offensive content)
+
+.safesearch.select.none=Do not filter my results
+
+.searchincl=Minimize your journal's inclusion in search engine results
+
+.searchincl.text=We can instruct search engines not to include your journal entries in their search results. Not all search engines recognize this request; if you do not want a journal entry to show up in search results, then make sure it is posted private or Friends-only.
+
+.section.adult_content=Adult content options
+
+.section.adult_content.note=Not all content on [[sitename]] is appropriate for everyone. These settings let you rate your journal as well as determine the level of content you are comfortable with viewing.
+
+.section.privacy=Additional privacy options
+
+.section.viewing=Viewing Options
+
+.security.visibility.everybody=Everybody
+
+.security.visibility.friends=Friends only
+
+.security.visibility.nobody=Nobody
+
+.success.header=Success!
+
+.success.text=Your viewing options have been updated.
+
+.success.next=What would you like to do next?
+
+.success.next.customize=Customize your journal
+
+.success.next.friends=Read your Friends page
+
+.success.next.home=Return to the home page
+
+.success.next.viewing=Change your viewing options
+
+.title=Viewing Options
+
+.verticalincl=Exclude your entries from site explore areas
+
+.verticalincl.text=Journal entries posted private or Friends-only are automatically excluded.
+
+.viewingadult=Collapse adult-oriented material written by other users:
+
+.viewingadult.select.concepts=Collapse adult concepts and explicit adult content
+
+.viewingadult.select.explicit=Collapse explicit adult content only
+
+.viewingadult.select.none=Do not collapse
+
+.weblogscom=Notify Weblogs.com when I post new public entries
+
+.weblogscom.text=Weblogs.com, a VeriSign service, is a ping server that automatically notifies subscribers when new content is posted to a website or a blog, allowing many more people to be aware of updates to your journal.

@@ -1,0 +1,170 @@
+<?_code
+
+ LJ::set_active_crumb('supportact');
+ 
+ my $cmd = BML::get_query_string();
+ if ($cmd =~ /^(\w+);(\d+);(\w{15})(?:;(\d+))?$/) {
+     ($action, $spid, $authcode, $splid) = ($1, $2, $3, $4);
+ }
+ $title = "Error";
+ if ($action =~ /(?:touch|close|unlock|lock)/) {
+     $title = "Request #$spid";
+ }
+ return;
+ 
+_code?><?page
+title=><?_code return $title; _code?>
+body<=
+<?_code
+
+ if ($title eq "Error") { 
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.improper.arguments'} p?>";
+ }
+ my $remote = LJ::get_remote();
+ 
+ LJ::Support::init_remote($remote);
+ my $sp = LJ::Support::load_request($spid);
+
+ if ($sp->{'authcode'} ne $authcode) {
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.invalid.authcode'} p?>";
+ }
+
+ my $auth = LJ::Support::mini_auth($sp);
+
+ if ($action eq "touch") {
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.request.locked'} p?>"
+         if LJ::Support::is_locked($sp);
+
+     LJ::Support::touch_request($spid)
+       or return "<?h1 $ML{'.error'} h1?><?p $ML{'.touch.failed'} p?>";
+
+     return BML::redirect("$LJ::SITEROOT/support/see_request.bml?id=$spid")
+         if LJ::Support::can_close($sp, $remote);
+
+     $ret .= ("<?h1 $ML{'.touched'} h1?><?p $ML{'.your.request'} " .
+              ($sp->{'state'} eq "open" ? $ML{'.will.stay.open.now'}
+                                        : $ML{'.has.been.reopened'}) .
+              $ML{'.please.comment'} . " p?>");
+
+     $ret .= '<br /><form method="post" action="append_request.bml">';
+     # hidden values
+     $ret .= "<input type=\"hidden\" name=\"spid\" value=\"$spid\" />\n";
+     $ret .= "<input type=\"hidden\" name=\"auth\" value=\"$auth\" />\n";
+     $ret .= "<table border='0'>\n";
+ 
+     $ret .= '<tr valign="middle"><td align="right">From:</td><td>';
+     if ($remote && $remote->{'userid'}) {
+         $ret .= "<?ljuser $remote->{'user'} ljuser?>";
+     } else {
+         $ret .= "(not logged in)";
+     }
+     $ret .= "</td></tr>\n";
+
+     $ret .= "<tr><td align='right'>Reply Type:</td><td>";
+     $ret .= '<input type="hidden" name="replytype" value="comment" />';
+     $ret .= "<b>$ML{'.more.info'}</b>";
+
+     $ret .= "</td></tr>";
+
+     # textarea for their message body
+     $ret .= '<tr valign="top"><td align="right">' . $ML{'.message'} . '</td><td colspan="2">';
+     $ret .= '<textarea rows="10" cols="50" name="body"></textarea><br />';
+     $ret .= "\n<?de $ML{'.no.html.allowed'} de?><br />\n";
+     $ret .= '<input type="submit" name="submitpost" value="'. $ML{'.postbutton'} . '" />';
+     $ret .= "\n</td></tr></table></form>";
+
+     return $ret;
+ }
+
+ if ($action eq 'lock') {
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.allowed.request'} p?>"
+         unless $remote && LJ::Support::can_lock($sp, $remote);
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.request.already.locked'} p?>"
+         if LJ::Support::is_locked($sp);
+
+     # close this request and IC on it
+     LJ::Support::lock($sp);
+     LJ::Support::append_request($sp, {
+         body => '(Locking request.)',
+         remote => $remote,
+         type => 'internal',
+     });
+     return "<?h1 $ML{'.success'} h1?><?p " . BML::ml('.request.has.been.locked', {'requestlink'=>"href='/support/see_request.bml?id=$sp->{spid}'"}) . " p?>";
+ }
+
+ if ($action eq 'unlock') {
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.request.already.unlock'} p?>"
+         unless $remote && LJ::Support::can_lock($sp, $remote);
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.request.not.locked'} p?>"
+         unless LJ::Support::is_locked($sp);
+
+     # reopen this request and IC on it
+     LJ::Support::unlock($sp);
+     LJ::Support::append_request($sp, {
+         body => '(Unlocking request.)',
+         remote => $remote,
+         type => 'internal',
+     });
+     return "<?h1 $ML{'.success'} h1?><?p ".BML::ml('.request.has.been.unlocked', {"requestlink"=>"href='/support/see_request.bml?id=$sp->{spid}'"})." p?>";
+ }
+
+ if ($action eq "close") {
+     return "<?h1 $ML{'.error'} h1?><?p $ML{'.request.cannot.close'} p?>"
+         unless LJ::Support::can_close($sp, $remote, $auth);
+
+     if ($sp->{'state'} eq "open") {
+         my $dbh = LJ::get_db_writer();
+         $splid += 0;
+         if ($splid) {
+             $sth = $dbh->prepare("SELECT userid, timelogged, spid, type FROM supportlog WHERE splid=$splid");
+             $sth->execute;
+             my ($userid, $timelogged, $aspid, $type) = $sth->fetchrow_array;
+
+             if ($aspid != $spid) {
+                 return "<?h1 $ML{'.error'} h1?><?p $ML{'.answer.you.credited'} p?>";
+             }
+
+             ## can't credit yourself.
+             if ($userid != $sp->{'requserid'} && $type eq "answer") {
+                 my $cats = LJ::Support::load_cats($sp->{'spcatid'});
+                 my $secold = $timelogged - $sp->{'timecreate'};
+                 my $points = LJ::Support::calc_points($sp, $secold);
+                 LJ::Support::set_points($spid, $userid, $points);
+             }
+         }
+         $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() WHERE spid=$spid");
+     }
+
+     my $remote = LJ::get_remote();
+     if (LJ::Support::can_close_cat($sp, $remote)) {
+         my $dbr = LJ::get_db_reader();
+         my $catid = $sp->{'_cat'}->{'spcatid'};
+         my $sql = "SELECT MIN(spid) FROM support WHERE spcatid=$catid AND state='open' AND timelasthelp>timetouched AND spid>$spid";
+         my $sth = $dbr->prepare($sql);
+         $sth->execute;
+         my $next = $sth->fetchrow_array;
+         if ($next) {
+             return BML::redirect("$LJ::SITEROOT/support/see_request.bml?id=$next");
+         } else {
+             return "<?h1 $ML{'.closed'} h1?>
+<ul>
+   <li>" . BML::ml('.go.back.to.request', {'back.req.url'=>"href='see_request.bml?id=$sp->{'spid'}'", 'spid'=>$sp->{'spid'}}) ."</li>
+   <li>" . BML::ml('.go.back.to.open.request', {"url"=>"href='help.bml'"}) . "</li>
+   <li>" . BML::ml('.go.back.to.category', {"url"=>"'help.bml?cat=$sp->{'_cat'}->{'catkey'}'"}) . "</li>
+   <li>" . BML::ml('.go.to.previous.next.request', {"prev.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=prev'", "next.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=next'"}) . "</li>
+   <li>" . BML::ml('.go.to.previous.next.req.cat', {"prev.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=cprev'", "next.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=cnext'"}) . "</li>
+</ul>";
+         }
+     } 
+     
+     return "<?h1 $ML{'.closed'} h1?><?p $ML{'.request.closed'} p?>";
+ }
+
+ return;
+
+_code?>
+
+<=body
+page?><?_c <LJDEP>
+link: htdocs/support/see_request.bml
+</LJDEP> _c?>

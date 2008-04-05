@@ -1,0 +1,180 @@
+Return-Path: <${FROM_EMAIL}>
+Delivered-To: bradfitz@danga.com
+To: LJ LJ <${TEMPUSER}+${EMAILPIN}@${POSTDOMAIN}>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0DA4840B-93E7-4B3C-A278-4D4D10A3EA1A@tangent.org>
+Content-Transfer-Encoding: 7bit
+From: ${FROM_EMAIL}
+Subject: 2006, Seems like Only Yesterday for Brad Only
+Date: Mon, 1 Jan 2007 12:28:00 -0800
+X-Mailer: Apple Mail (2.752.2)
+
+<A HREF="http://krow.livejournal.com/2006/01/">Jan</A>
+<li/> Started game night. It feels like it has been longer but it was  
+only one year ago that I started doing the board game /card game  
+thing at my house once a month. A year later we have a hundred people  
+on the mailing list, the event regularly has 30 or more people  
+attending. Its fun
+<li/> <A HREF="http://krow.livejournal.com/393408.html">Went to  
+Australia</A>. Attended the Linux Conference there, which was one of  
+the best conferences I have been to in years. Stayed with Arjen and  
+Greg.
+<LI/> Launched <A HREF="http://planetasterisk.org/">Planet Asterisk</A>.
+
+<A HREF="http://krow.livejournal.com/2006/02/">Feb</A>
+<li/> Started hunting down <A HREF="http://krow.livejournal.com/ 
+400869.html">Blue Tooth viruses</A> and reading up on them.
+<li/> Went to <A HREF="http://krow.livejournal.com/ 
+403909.html">Mashup Camp</A>.
+
+<A HREF="http://krow.livejournal.com/2006/03/">March</A>
+<li/> Posted about <A HREF="http://krow.livejournal.com/ 
+407733.html">recharging laptops off the bathroom power</A>. I've been  
+getting hilarious photos ever since from others. Somewhere in iPhoto  
+is the picture of the guy who ran the orange power cord back to his  
+seat. He had a power strip for others to share.
+<li/> I got to see <A HREF="http://krow.livejournal.com/ 
+409338.html">Mt Vasuveus</A> during a Sun Rise. Incredible site. One  
+of the prettiest mountains I have seen.
+<li/> Learned about <A HREF="http://krow.livejournal.com/ 
+413808.html">Adam Bosworth's Six F's</A>. This has been a really  
+wonderful tool to use to apply in learning about my own focus and the  
+focus of other's.
+
+<A HREF="http://krow.livejournal.com/2006/04/">April</A>
+<li/> Started playing with <A HREF="http://krow.livejournal.com/ 
+415389.html">NAS solutions</A>.
+<li/> <A HREF="http://krow.livejournal.com/419138.html">MySQL's User  
+Conference</A>. Got to see Linden Lab's describe their architecture.  
+It is neat, but its not the future (the future is federated  
+services... Linden Lab is similar to AOL/Prodigy/Compuserve; HTTP was  
+the federated information system which was ubiquitious).
+
+<A HREF="http://krow.livejournal.com/2006/05/">May</A>
+<li/> Tim O'Reilly brought up the topic of <A HREF="http:// 
+radar.oreilly.com/archives/2006/05/ 
+brian_aker_of_mysql_responds.html">"Database War Stories"</A>. I  
+still think that there is a place for <A HREF="http:// 
+krow.livejournal.com/421577.html">meta data which can be queried in a  
+structured format</A>. But blobs? Less and less do I believe they  
+have any business being in databases, and more and more I believe  
+that something closer to HTTP like grammar makes more sense.
+<li/> Went to my eighth year of <A HREF="http://krow.livejournal.com/ 
+425894.html">Folklife</A>
+<li/> Started my practice of always going for walks on Sunday. I  
+don't always do this, but I do it most of the time.
+<li/> Tweaked my roll at MySQL. I only tend to stay at companies for  
+three years or so, and this has been good for me.
+
+<A HREF="http://krow.livejournal.com/2006/06/">June</A>
+<li/> <A HREF="http://krow.livejournal.com/427018.html">Panel  
+discussion</A> in Boston on Open Source Business Models. This was  
+with Miguel de Icaza from Novell, and Mike Olsen from SleepyCat/ 
+Oracle. Stephen Walli set it up.
+<li/> Spoke at <A HREF="http://krow.livejournal.com/ 
+427916.html">LinuxWorld</A> in Korea.
+<li/> Went to the Summer Solstice Parade in Freemont.
+
+<A HREF="http://krow.livejournal.com/2006/07/">July</A>
+<li/> Started the <A HREF="http://krow.livejournal.com/ 
+434338.html">Genesis</A> articles. I never finished this writing  
+project but it got me into thinking about the problem domain in new  
+ways.
+<li/>New <A HREF="http://krow.livejournal.com/436692.html">Julian  
+photo</A>. Have I mentioned lately Julian is one of the most filled  
+with life people I have met?
+<li/> Party at <A HREF="http://krow.livejournal.com/ 
+438599.html">OSCON</A>.
+
+<A HREF="http://krow.livejournal.com/2006/08/">August</A>
+<li/> Played with <A HREF="http://krow.livejournal.com/ 
+442461.html">S3</A> a bit to see what it was all about.
+<li/> Started tossing out concepts for new <A HREF="http:// 
+krow.livejournal.com/443675.html">Engine designs</A> for MySQL
+<li/> First release of the <A HREF="http://hg.tangent.org/ 
+memcache_engine">memcache storage engine</A> for MySQL.
+
+<A HREF="http://krow.livejournal.com/2006/09/">September</A>
+<li/> <A HREF="http://krow.livejournal.com/446256.html">Yellow  
+Jackets</A> invade the alley. The mailman still hates me.
+<li/>  <A HREF="http://krow.livejournal.com/450890.html">EC2</A>  
+response to <A HREF="http://aws.typepad.com/aws/2006/09/ 
+amazon_ec2_mysq.html">Jeff Barr</A>.
+
+<A HREF="http://krow.livejournal.com/2006/10/">October</A>
+<li/> Trixbox <A HREF="http://krow.livejournal.com/ 
+451870.html">acquisition</A> by Fonality. It shows how quickly the  
+focus of where open source can shift and that in the end  
+distributions are still king.
+<li/> I confront the <A HREF="http://krow.livejournal.com/ 
+453660.html">War on Moisturizer</A>.
+<li/> <A HREF="http://krow.livejournal.com/454477.html">Breakfast</A>  
+with Ace and Eric in Amsterdam
+
+<A HREF="http://krow.livejournal.com/2006/11/">November</A>
+<li/> <A HREF="http://krow.livejournal.com/456700.html">MySQL Camp</ 
+A>.  The Friday and Saturday morning were my favorite parts.  
+Listening to the Zmanda folks describe backups was really neat since  
+it meant someone is actually readying the design documents we publish!
+<li/> <A HREF="http://krow.livejournal.com/459865.html">Concrete!</A>  
+The return of having a hot tub again :)
+
+<A HREF="http://krow.livejournal.com/2006/12/">December</A>
+<li/> Finally got around to playing with <A HREF="http:// 
+krow.livejournal.com/467425.html">One Wire</A>. This solves a few  
+pieces of the puzzle for 2007 projects around the house.
+<li/> More <A HREF="http://krow.livejournal.com/467425.html">DD-WRT</ 
+A>. This is the first year I have really gotten into watching what  
+the communities around embedding Linux in application devices are  
+doing. rPath is another project that has sparked my interest in the  
+last month.
+<li/> <A HREF="http://blip.tv/file/115874">Ignite Seattle</A>.  As  
+much as I do different community activities I don't invest nearly as  
+much as I would like in the technical community in Seattle. I need to  
+work on changing this.
+
+On the technology front I notice a few themes. A need for NAS at  
+home, more application focused Hardware, and while Google is great I  
+found myself more interested in what Amazon was doing this year.
+
+Traveling? I can't tell if I traveled more or less this year. I  
+certainly racked up my frequent flyer miles though.
+
+On a personal note I have "space" which feels more like mine. This is  
+good for me.
+
+Health? I ate more like a Vegan this year then in any previous. I  
+doubt I will become a vegan, traveling would just about make this  
+impossible for me, but I like the trend I see in my diet. I have also  
+done a lot more walking this year (and met one great walking partner  
+too!).
+
+2005 was a lousy year for me writing software, 2006 was a complete  
+change. Wrote more, picked up better habits in writing code this year  
+(far more test cases, better use of revision control systems...), etc...
+
+Blogging? I wrote more this year. Heavy on the technology side, not  
+as strong on the personal accounts of the world around me.
+
+There will be a post later on about resolutions and tasks for the  
+next year (Will he finally get around to creating an Audio blog? Will  
+he kick all of the constructions crews out of his house? Will he get  
+a new puppy? Will he find Nirvana in NAS? Will <A HREF="http:// 
+exploitseattle.com/">ExploitSeattle</A> finally get rebooted? And how  
+about that Crawler project?).
+
+
+
+
+
+--
+_______________________________________________________
+Brian "Krow" Aker, brian at tangent.org
+Seattle, Washington
+http://krow.net/
+http://tangent.org/
+_______________________________________________________
+You can't grep a dead tree.
+
+

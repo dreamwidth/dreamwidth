@@ -1,0 +1,72 @@
+div.ContextualPopup {
+    position: relative;
+    margin: 5px 0 0 20px;
+    font: normal 11px "Arial", "Verdana", sans-serif !important;
+    }
+
+* html div.ContextualPopup {
+    background: none !important;
+    }
+
+div.ContextualPopup img {
+    border: 0;
+    }
+
+div.ContextualPopup div.Inner {
+    position: relative;
+    top: -2px;
+    left: -2px;
+    background-color: #fff !important;
+    color: #000 !important;
+    border: 1px solid #036;
+    padding: 0px;
+    width: 20em;
+    }
+
+* html div.ContextualPopup div.Inner {
+    top: 0px;
+    left: 0px;
+    }
+
+div.ContextualPopup .Content {
+    padding: 2px 4px 6px 4px;
+    margin-right: 50px;
+    line-height: 1.4;
+    }
+
+   div.ContextualPopup .Relation {
+       font-weight: bold !important;
+       }
+
+   div.ContextualPopup .Content .OnlineStatus {
+       font-weight: bold;
+       }
+
+   div.ContextualPopup .Content .GizmoBlurb {
+       font-size: smaller;
+       }
+
+div.ContextualPopup .Userpic {
+    float: right;
+    top: 0;
+    right: 0px;
+    padding: 4px 4px 0 0;
+    }
+
+* html div.ContextualPopup .Userpic {
+    top: 2px;
+    }
+
+   div.ContextualPopup .Userpic img {
+        margin: 0 auto;
+        max-width: 50px;
+        width:expression(this.width > 50 ? "50px" : this.width); /*IE Max-width */
+        height: auto;
+        vertical-align: middle;
+        }
+
+   div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
+        text-decoration: underline !important;
+        font-weight: bold;
+        color: #00C !important;
+        }

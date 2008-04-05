@@ -1,0 +1,53 @@
+body {
+	background: #efefef;
+	font: normal .8em "Lucida Grande" Arial" Verdana" sans-serif;
+	color: #333;
+	}
+	
+#boxbg {
+	background: #ccc;
+	width: 66%;
+	margin: 0 auto;
+	position: relative;
+	left: .5em;
+	top: .5em;
+	}
+	
+#box {
+	border: 1px solid #cdcdcd;
+	background: #fff;
+	padding: 1em 2em;
+	position: relative;
+	top: -.5em;
+	left: -.5em;
+	}
+	
+h1 {
+	margin: 0;
+	padding: 0 0 .2em 0;
+	border-bottom: 1px solid #cdcdcd;
+	}
+	
+.list-desc {
+	font-weight: bold;
+	}
+
+ul {
+	list-style-type: square;
+	}
+	
+.blue {
+	color: #0000FF;
+	}
+	
+.red {
+	color: #FF0000
+	}
+	
+.green {
+    color: #359946;
+    }
+    
+.orange {
+    color: #cc9933;
+    }

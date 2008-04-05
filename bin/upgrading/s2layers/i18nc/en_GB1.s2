@@ -1,0 +1,21 @@
+# -*-s2-*-
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/en_GB1";
+layerinfo "name" = "English (UK)";
+layerinfo "langcode" = "en_GB";
+layerinfo "author_name" = "Smigs";
+layerinfo "author_email" = "smigs@livejournal.com";
+set lang_current = "en_GB";
+
+# date formats
+set lang_fmt_date_short = "%%d%%/%%m%%/%%yy%%";
+set lang_fmt_date_med = "%%dayord%% %%mon%%, %%yyyy%%";
+set lang_fmt_date_med_day = "%%da%%, %%dayord%% %%mon%%. %%yyyy%%";
+set lang_fmt_date_long = "%%dayord%% %%month%% %%yyyy%%";
+set lang_fmt_date_long_day = "%%day%%, the %%dayord%% %%month%% %%yyyy%%";
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+set lang_fmt_month_short = "%%mm%%/%%yy%%";
+set lang_fmt_month_med = "%%mon%% %%yyyy%%";
+set lang_fmt_month_long = "%%month%% %%yyyy%%";
+
+propgroup colors = "Colours";

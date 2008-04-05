@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>editfriends</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.flat.protocol.html" title="Flat Client/Server Protocol Reference">
+<link rel="prev" href="ljp.csp.flat.editfriendgroups.html" title="editfriendgroups">
+<link rel="next" href="ljp.csp.flat.friendof.html" title="friendof">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">editfriends</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.flat.editfriendgroups.html">Prev</a> </td>
+<th width="60%" align="center">Flat Client/Server Protocol Reference</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.flat.friendof.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.csp.flat.editfriends"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>editfriends</h2>
+<p>editfriends &#8212; Add, edit, or delete friends from the user's Friends list.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3072271"></a><h2>Mode Description</h2>
+<p>Add, edit, or delete friends from the user's Friends list.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3072282"></a><h2>Arguments</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">mode</code></span></dt>
+<dd><p>
+The protocol request mode: <code class="literal">editfriends</code>
+      </p></dd>
+<dt><span class="term"><code class="literal">user</code></span></dt>
+<dd><p>
+Username.  Leading and trailing whitespace is ignored, as is case.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_method</code></span></dt>
+<dd><p>
+The authentication method used for this request. Default is 'clear', for plain-text authentication. 'cookie' or any of the challenge-response methods are also acceptable.
+      </p></dd>
+<dt><span class="term"><code class="literal">password</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Password in plain-text. For the default authentication method, either this needs to be sent, or <code class="literal">hpassword</code>.
+      </p></dd>
+<dt><span class="term"><code class="literal">hpassword</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Alternative to plain-text <code class="literal">password</code>.  Password as an MD5 hex digest.  Not perfectly secure, but defeats the most simple of network sniffers.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_challenge</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the challenge that was generated for your client.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_response</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the response hash you generate based on the challenge's formula.
+      </p></dd>
+<dt><span class="term"><code class="literal">ver</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Protocol version supported by the client; assumed to be 0 if not specified.  See <a class="xref" href="ljp.csp.versions.html" title="Chapter 27. Protocol Versions">Chapter 27, <i>Protocol Versions</i></a> for details on the protocol version.
+      </p></dd>
+<dt><span class="term"><code class="literal">editfriend_delete_<em class="replaceable"><code>user</code></em></code></span></dt>
+<dd><p>
+Sending a variable of this form removes the friend <em class="replaceable"><code>user</code></em> from the user's Friend list.  It is not an error to delete an already non-existent friend.  The value should just be <span class="strong"><strong><code class="literal">1</code></strong></span>.
+      </p></dd>
+<dt><span class="term"><code class="literal">editfriend_add_<em class="replaceable"><code>i</code></em>_user</code></span></dt>
+<dd><p>
+To add a friend, send a variable of this form, where <em class="replaceable"><code>i</code></em> is any unique integer.  The value is the username of the friend to add.
+      </p></dd>
+<dt><span class="term"><code class="literal">editfriend_add_<em class="replaceable"><code>i</code></em>_fg</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Sets the text color of the friend <em class="replaceable"><code>i</code></em> being added.  This value is a HTML-style hex-triplet, and must either be of the form <span class="strong"><strong><code class="literal">#rrggbb</code></strong></span> or not sent at all.  By default, the value assumed is <code class="literal">#000000</code>, black.
+      </p></dd>
+<dt><span class="term"><code class="literal">editfriend_add_<em class="replaceable"><code>i</code></em>_bg</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Sets the background color of the friend <em class="replaceable"><code>i</code></em> being added.  This value is a HTML-style hex-triplet, and must either be of the form <span class="strong"><strong><code class="literal">#rrggbb</code></strong></span> or not sent at all.  By default, the value assumed is <code class="literal">#FFFFFF</code>, white.
+      </p></dd>
+<dt><span class="term"><code class="literal">editfriend_add_<em class="replaceable"><code>i</code></em>_groupmask</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Sets this user's groupmask.  Only use this in clients if you've very recently loaded the friend groups.  If your client has been loaded on the end user's desktop for days and you haven't loaded friend groups since it started, they may be inaccurate if they've modified their friend groups through the website or another client.  In general, don't use this key unless you know what you're doing.
+      </p></dd>
+</dl></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3072658"></a><h2>Return Values</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">success</code></span></dt>
+<dd><p>
+<span class="strong"><strong><code class="literal">OK</code></strong></span> on success or <span class="strong"><strong><code class="literal">FAIL</code></strong></span> when there's an error.  When there's an error, see <code class="literal">errmsg</code> for the error text.  The absence of this variable should also be considered an error.
+      </p></dd>
+<dt><span class="term"><code class="literal">errmsg</code></span></dt>
+<dd><p>
+The error message if <code class="literal">success</code> was <code class="literal">FAIL</code>, not present if <code class="literal">OK</code>.  If the success variable is not present, this variable most likely will not be either (in the case of a server error), and clients should just report "Server Error, try again later.".
+      </p></dd>
+<dt><span class="term"><code class="literal">friends_added</code></span></dt>
+<dd><p>
+The number of friends that were added with this transaction.  The records returned indicate which friends were added, along with their names, named using a 1-based index.  (from 1 .. <code class="literal">friends_added</code>)
+      </p></dd>
+<dt><span class="term"><code class="literal">friend_<em class="replaceable"><code>n</code></em>_user</code></span></dt>
+<dd><p>
+The username of the <em class="replaceable"><code>n</code></em>th friend that was added.
+      </p></dd>
+<dt><span class="term"><code class="literal">friend_<em class="replaceable"><code>n</code></em>_name</code></span></dt>
+<dd><p>
+The name of the <em class="replaceable"><code>n</code></em>th friend that was added.
+      </p></dd>
+</dl></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.flat.editfriendgroups.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.flat.protocol.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.flat.friendof.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">editfriendgroups </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> friendof</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

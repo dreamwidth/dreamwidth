@@ -1,0 +1,56 @@
+;; -*- coding: utf-8 -*-
+.back.support2=Back to the <a [[aopts]]>support area</a>.
+
+.bounce.noemail=No email address specified for bounce.
+
+.bounce.notauth=You are not authorized to bounce this request.
+
+.bounce.toomany=You can only send to up to 5 email addresses.  You have specified more than 5.
+
+.bounced.success=<?h1 Bounced h1?><?p The selected support request has been bounced to [[addresslist]] and closed. p?>
+
+.closed.text=This support request has since been closed.
+
+.closed.title=Closed
+
+.internal.approve=To approve an answer, you must select "Internal Comment / Action" and optionally explain why you're approving it.
+
+.internal.changecat=To change a request's category, you must select "Internal Comment / Action" and optionally explain why you're changing it.
+
+.internal.changesum=To change the summary of a request, you must select "Internal Comment / Action" and enter in the new summary.
+
+.internal.touch=To change a request's status, you must select "Internal Comment / Action" and explain why you're changing it.
+
+.invalid.blank=Your message was blank.  Please type at least something in the message field.
+
+.invalid.noanswer=Invalid screened response to approve.
+
+.invalid.notcat=That category doesn't seem to exist.
+
+.invalid.noid=This action requires a support request ID.
+
+.invalid.nosummary=You must enter a request summary.
+
+.invalid.type=Invalid Reply Type.
+
+.logged.text=Your action/comment/response has been recorded.  Thanks.
+
+.logged.title=Success
+
+.successlinks2<<
+<ul>
+   <li>Go back to <a [[aopts1]]>Request #[[number]]</a></li>
+   <li>Go back to the <a [[aopts2]]>open support requests</a></li>
+   <li>Go back to the <a [[aopts3]]>open support requests in the same category</a></li>
+   <li>Go back to the <a [[aopts8]]>unanswered requests in the same category</a></li>
+   <li>Go to <a [[aopts4]]>previous</a> /
+             <a [[aopts5]]>next</a> open request</li>
+   <li>Go to <a [[aopts6]]>previous</a> /
+             <a [[aopts7]]>next</a> open request in the same category</li>
+</ul>
+.
+
+.title=Append Request
+
+.unknown.request=Unknown support request.
+

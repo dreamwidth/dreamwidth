@@ -1,0 +1,288 @@
+<?_code
+{
+    use strict;
+    use vars qw($title $body %GET %POST);
+
+    $title = "Spam Reports";
+    $body = "";
+    
+    my $error = sub { 
+        $title = "Error";
+        $body = join '', @_;
+        return undef;
+    };
+    my $makelink = sub {
+        my ($by, $what, $state, $reporttime, $etext) = @_;
+        $by = LJ::eurl($by);
+        $what = LJ::eurl($what);
+        $state = LJ::eurl($state);
+        $reporttime = LJ::mysql_time($reporttime);
+        $reporttime = $etext if $etext;
+        return "<a href=\"spamreports.bml?mode=view&amp;by=$by&amp;what=$what&amp;state=$state\">$reporttime</a>";
+    };
+    my $dellink = sub {
+        my ($srids, $text, $extra) = @_;
+        return "<form method=\"post\" action=\"spamreports.bml\">" .
+            LJ::html_hidden('mode', 'del') .
+            LJ::html_hidden('srids', join(',', @$srids)) .
+            LJ::html_hidden('ret', "spamreports.bml?" . join('&amp;', map { "$_=" . LJ::eurl($GET{$_}) } keys %GET)) .
+            LJ::html_submit('submit', $text) .
+            $extra . 
+            "</form>";
+    };
+    # login check
+    my $remote = LJ::get_remote();
+    return $error->("You must be logged in to be here.")
+        unless $remote;
+    
+    # priv check
+    return $error->("You do not have the necessary privilege to be here.")
+        unless LJ::check_priv($remote, 'siteadmin', 'spamreports');
+
+    # show the top 10 spam reports by IP
+    my $mode = lc($GET{mode} || $POST{mode});
+    $mode = '' if $mode =~ /^del/ && !LJ::did_post() && !LJ::check_referer('/admin/spamreports.bml');
+
+    # combined/user/anon viewing?
+    my $view = $mode =~ /_([cua])$/ ? $1 : 'c';
+    my ($extrawhere, $extratitle);
+    if    ($view eq 'c') { $extrawhere = '1'; }
+    elsif ($view eq 'u') { $extrawhere = 'posterid > 0'; $extratitle = " - Users Only"; }
+    elsif ($view eq 'a') { $extrawhere = 'posterid = 0'; $extratitle = " - Anonymous Only"; }
+    $mode =~ s/_[cua]$//; # strip out viewing option
+
+    my $dbr = LJ::get_db_reader();
+    return $error->("Unable to get database reader handle.") unless $dbr;
+    my @rows;
+    my @headers;
+    if ($mode eq 'top10ip') {
+        # top 10 by ip
+        $title = "Spam Reports - Top 10 by IP Address";
+        @headers = ('Number of Reports', 'IP Address', 'Most Recent Report');
+        my $res = $dbr->selectall_arrayref('SELECT COUNT(ip) AS num, ip, MAX(reporttime) FROM spamreports ' .
+                                           "WHERE state = 'open' AND ip IS NOT NULL " .
+                                           'GROUP BY ip ORDER BY num DESC LIMIT 10');
+        foreach (@$res) {
+            push @rows, [ $_->[0], $_->[1], $makelink->('ip', $_->[1], 'open', $_->[2]) ];
+        }
+ 
+    } elsif ($mode eq 'top10user') {
+        # top 10 by user
+        $title = "Spam Reports - Top 10 by User";
+        @headers = ('Number of Reports', 'Posted By User', 'Most Recent Report');
+        my $res = $dbr->selectall_arrayref('SELECT COUNT(posterid) AS num, posterid, MAX(reporttime) FROM spamreports ' .
+                                           "WHERE state = 'open' AND posterid > 0 " .
+                                           'GROUP BY posterid ORDER BY num DESC LIMIT 10');
+        foreach (@$res) {
+            my $u = LJ::load_userid($_->[1]);
+            push @rows, [ $_->[0], LJ::ljuser($u), $makelink->('posterid', $_->[1], 'open', $_->[2]) ];
+        }
+ 
+    } elsif ($mode eq 'tlast10') {
+        # most recent 10 reports
+        $title = "Spam Reports - Last 10$extratitle";
+        @headers = ('Posted By', 'Posted In', 'Report Time');
+        my $res = $dbr->selectall_arrayref('SELECT posterid, ip, journalid, reporttime FROM spamreports ' .
+                                           "WHERE state = 'open' AND $extrawhere ORDER BY reporttime DESC LIMIT 10");
+        foreach (@$res) {
+            my $u2 = LJ::load_userid($_->[2]);
+            if ($_->[0] > 0) {
+                my $u = LJ::load_userid($_->[0]);
+                push @rows, [ LJ::ljuser($u), LJ::ljuser($u2), $makelink->('posterid', $_->[0], 'open', $_->[3]) ];
+            } else {
+                push @rows, [ "$_->[1]", LJ::ljuser($u2), $makelink->('ip', $_->[1], 'open', $_->[3]) ];
+            }
+        }
+
+    } elsif ($mode =~ /^last(\d+)hr$/) {
+        # reports in last X hours
+        my $hours = $1+0;
+        my $secs = $hours * 3600; # seconds in an hour
+        $title = "Spam Reports - Last $hours Hour" . ($hours == 1 ? '' : 's') . $extratitle;
+        @headers = ('Number of Reports', 'Posted By', 'Report Time');
+        my $res = $dbr->selectall_arrayref('SELECT journalid, ip, posterid, reporttime FROM spamreports ' .
+                                           "WHERE $extrawhere AND reporttime > (UNIX_TIMESTAMP() - $secs) LIMIT 1000");
+
+        # count up items and their most recent report
+        my %hits;
+        my %times;
+        foreach (@$res) {
+            my $key;
+            if ($_->[2] > 0) {
+                my $u = LJ::load_userid($_->[2]);
+                next unless $u;
+                $key = $u->{userid};
+            } else {
+                next unless $_->[1];
+                $key = $_->[1];
+            }
+            $hits{$key}++;
+            $times{$key} = $_->[3] unless $times{$key} gt $_->[3];
+        }
+        
+        # now reverse to number => item list
+        my %revhits;
+        foreach (keys %hits) {
+            if ($revhits{$hits{$_}}) {
+                push @{$revhits{$hits{$_}}}, $_;
+            } else {
+                $revhits{$hits{$_}} = [ $_ ];
+            }
+        }
+
+        # now push them onto @rows
+        foreach (sort { $b <=> $a } keys %revhits) {
+            my $r = $revhits{$_};
+            foreach (@$r) {
+                my $isip = $_ =~ /\./ ? 1 : 0;
+                push @rows, [ $hits{$_}, $isip ? $_ : LJ::ljuser(LJ::load_userid($_)), 
+                              $makelink->($isip ? 'ip' : 'posterid', $_, 'open', $times{$_}) ];
+            }
+        }
+
+    } elsif ($mode eq 'view') {
+        # view a particular report
+        my ($by, $what, $state) = (lc($GET{by}), $GET{what}, lc($GET{state}));
+        $by = '' unless $by =~ /^(?:ip|poster(?:id)?)$/;
+        $state = 'open' unless $state =~ /^(?:open|closed)$/;
+        $body .= "<?p [ <a href=\"spamreports.bml\">&lt;&lt; Front Page</a> ] ";
+        
+        # open/closed links
+        my $eargs = LJ::eurl("?by=$by&what=$what&state");
+        if ($state eq 'open') {
+            $body .= " [ " . $makelink->($by, $what, 'closed', undef, "View Closed Reports") . " ]";
+        } else {
+            $body .= " [ " . $makelink->($by, $what, 'open', undef, "View Open Reports") . " ]";
+        }
+        $body .= " p?>\n";
+
+        # setup title and verify that the data is right
+        if ($by eq 'posterid') {
+            $what += 0;
+            my $u = LJ::load_userid($what);
+            return $error->('No such posterid.') unless $u;
+            $title = "Spam Reports - By $u->{user} ($state)";
+        } elsif ($by eq 'poster') {
+            my $u = LJ::load_user($what);
+            return $error->('No such user.') unless $u;
+            $title = "Spam Reports - Comments By $u->{user}";
+
+            # Now just pretend that user used 'posterid'
+            $by = 'posterid';
+            $what = $u->{userid};
+        } elsif ($by eq 'ip') {
+            # check for right format x.x.x.x, not necessarily a valid IP
+            return $error->('No such IP.') if $what !~ /^\d+\.\d+\.\d+\.\d+$/ or length $what > 15;
+            $title = "Spam Reports - By IP $what ($state)";
+        }
+
+        # see if we should call a hook for extra actions?
+        $body .= LJ::run_hook('spamreport_notification', $remote, { $by => $what })
+            if $state eq 'open' && $by eq 'posterid';
+
+        # now the general info gathering
+        my $res = $dbr->selectall_arrayref('SELECT reporttime, journalid, subject, body, ip, posttime, report_type, srid ' .
+                                           "FROM spamreports WHERE state=? AND $by=? ORDER BY reporttime DESC LIMIT 1000",
+                                            undef, $state, $what);
+        unless ($res && @$res) {
+            $body .= "No reports found.";
+            return undef;
+        }
+        $body .= '<table>';
+        my @srids;
+        foreach (@$res) {
+            my $u2 = LJ::load_userid($_->[1]);
+            my $x = $by eq 'ip' ? 4 : 1;
+            my $comment_body = $_->[3];
+            LJ::text_uncompress(\$comment_body);
+            my $spamlocation = ucfirst($_->[6]);
+            my $srid = $_->[7];
+            $body .= '<tr><td>' .  ($state eq 'open' ? $dellink->([$srid], 'Close') : '') . '</td><td>' .
+                     "<strong>$spamlocation in:</strong> " . LJ::ljuser($u2) . '<br />' .
+                     '<strong>Report Time:</strong> ' . LJ::mysql_time($_->[0]) . '<br />' .
+                     "<strong>$spamlocation Time:</strong> " . ($_->[5] ? LJ::mysql_time($_->[5]) : 'not recorded') . '<br />' .
+                     '<strong>Subject:</strong> ' . LJ::ehtml($_->[2] || 'no subject') . '<br />' .
+                     '<strong>Body:</strong> ' . LJ::ehtml($comment_body || 'no body') . '<br />' .
+                     '</td></tr><tr><td>&nbsp;</td></tr>';
+            push @srids, $srid;
+        }
+
+        # add quick sysban links for ease
+        my $extra = "";
+        if ($by eq "ip") {
+            if (LJ::sysban_check("talk_ip_test", $what)) {
+                $extra = "<strong>Already talk_ip_test banned</strong>";
+            } else {
+                $extra = LJ::html_check({'name' => "sysban_ip", value => $what, label => "Also Sysban IP?"});
+            }
+        }
+
+        $body .= "</table><br />" . ($state eq 'open' ? $dellink->(\@srids, 'Close All', $extra) : '');
+
+    } elsif ($mode =~ /^del/) {
+        # figure out our combination
+        my $dbh = LJ::get_db_writer();
+        return $error->("Unable to get database writer handle.") unless $dbh;
+        my ($sql, $count, $backlink);
+
+        my @srids = split(',', $POST{srids});
+        my $in = join("','", map { $_+0 } @srids);
+        $in = "'$in'";
+
+        if ($POST{'sysban_ip'} && !LJ::sysban_validate("talk_ip_test", $POST{'sysban_ip'})) {
+            LJ::sysban_create('what' => 'talk_ip_test', value => $POST{'sysban_ip'},
+                              'banlength' => 0, note => "anonymous spamreports");
+        }
+
+        $count = $dbh->do("UPDATE spamreports SET state='closed' WHERE srid IN($in) AND state='open'");
+        return $error->($dbh->errstr) if $dbh->err;
+        $backlink = "[ <a href='$POST{ret}'>&lt;&lt; Go Back</a> ]";
+
+        $title = "Close Reports";
+        $body .= "<?p [ <a href=\"spamreports.bml\">&lt;&lt; Front Page</a> ] $backlink p?>\n";
+        my $s = $count == 1 ? '' : 's';
+        $body .= "Closed $count report$s.\n";
+
+    } else {
+        # standard
+        my %modes = (top10user => 'Top 10 by User', top10ip => 'Top 10 by IP Address', tlast10 => 'Last 10 Reports',
+                     last01hr => 'Last 1 Hour', last06hr => 'Last 6 Hours', last24hr => 'Last 24 Hours');
+        $body .= "<?p Available reports: p?>\n<ul>";
+        foreach (sort keys %modes) {
+            $body .= "<li><a href=\"spamreports.bml?mode=$_\">$modes{$_}</a>";
+            if ($_ =~ /last/) {
+                # this is a last view, so we have other options
+                $body .= " [<a href=\"spamreports.bml?mode=${_}_u\">users</a>, ";
+                $body .= "<a href=\"spamreports.bml?mode=${_}_a\">anonymous</a>]";
+            }
+            $body .= "</li>";
+        }
+        $body .= qq{<li><form method="GET" action="spamreports.bml" style="display: inline; margin: 0;">
+            <label for="repu">Reports for user:
+                <input type="text" name="what" size="15" maxlength="15" id="repu" />
+                <input type="hidden" name="by" value="poster" />
+                <input type="hidden" name="mode" value="view" />
+            </label></form></li>
+        };
+        $body .= "</ul>\n<?p Please select one of the above reports to view.  Actions can be taken when viewing a report. p?>";
+    }
+
+    # now spit out the requested table
+    return unless @headers;
+    $body .= "<?p [ <a href=\"spamreports.bml\">&lt;&lt; Front Page</a> ] p?>";
+    $body .= "<table width=\"50%\">\n<tr>";
+    $body .= "<th align=\"center\">$_</th>" foreach @headers;
+    $body .= "</tr>\n";
+    foreach (@rows) {
+        $body .= "<tr>";
+        $body .= "<td align=\"center\">$_</td>" foreach @$_;
+        $body .= "</tr>\n";
+    }
+    $body .= "</table>\n";
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>

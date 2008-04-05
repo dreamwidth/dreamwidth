@@ -1,0 +1,63 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+
+    my $dbr = LJ::get_db_reader();
+    my ($ret, $sth);
+
+    LJ::set_active_crumb('translateteams');
+
+    $ret .= "<?h1 $ML{'.teams.header'} h1?>";
+    $ret .= "<?p $ML{'.teams.text'} p?>";
+
+    # get langs
+    $sth = $dbr->prepare("SELECT lnid, lncode, lnname, lastupdate FROM ml_langs");
+    $sth->execute;
+    my %lang;
+    $lang{$_->{'lnid'}} = $_ while $_ = $sth->fetchrow_hashref;
+
+    # get each lang's community
+    $sth = $dbr->prepare("SELECT l.lnid, t.text ".
+                        "FROM ml_latest l, ml_items i, ml_text t ".
+                        "WHERE l.dmid=1 AND t.dmid=1 AND i.dmid=1 AND i.itcode='thislang.community' ".
+                        "AND l.itid=i.itid AND t.txtid=l.txtid AND t.lnid=l.lnid");
+    $sth->execute;
+    while ($_ = $sth->fetchrow_hashref) {
+        next unless exists $lang{$_->{'lnid'}};
+        $lang{$_->{'lnid'}}->{'community'} = $_->{'text'};
+    }
+
+    # get people with privs
+    $sth = $dbr->prepare("SELECT pm.arg, u.user FROM useridmap u, priv_list pl, priv_map pm ".
+                        "WHERE pm.userid=u.userid AND pm.prlid=pl.prlid AND pl.privcode='translate'");
+    $sth->execute;
+    my %team;
+    while (my ($arg, $user) = $sth->fetchrow_array) {
+        push @{$team{$arg}}, $user;
+    }
+
+    $ret .= "<p><table cellpadding='5' border='1'>";
+    $ret .= "<tr><th>$ML{'.table.language'}</th><th>$ML{'.table.community'}</th><th>$ML{'.table.users'}</th></tr>";
+
+    foreach my $l (sort { $a->{'lnname'} cmp $b->{'lnname'} } values %lang) {
+        $ret .= "<tr valign='top' align='left'><td><b>$l->{'lnname'}</b></td>";
+        $ret .= "<td>";
+        $ret .= "<?ljcomm $l->{'community'} ljcomm?>" if $l->{'community'};
+        $ret .= "</td><td>";
+        if ($team{$l->{'lncode'}}) {
+            $ret .= join(", ", map { LJ::ljuser($_) }
+            sort @{$team{$l->{'lncode'}}});
+        }
+        $ret .= "</td></tr>\n";
+    }
+
+    $ret .= "</table>";
+    return $ret;
+}
+_code?>
+
+<=body
+page?>

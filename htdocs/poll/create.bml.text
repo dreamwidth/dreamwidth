@@ -1,0 +1,77 @@
+;; -*- coding: utf-8 -*-
+.button.editpoll=Edit Poll
+
+.button.insert=Insert
+
+.button.postpoll=Post Poll
+
+.button.preview=Preview Poll
+
+.button.seecode=See Code
+
+.button.startover=Start Over
+
+.elements.limitreached=Element limit reached
+
+.error.accttype=Your account type does not permit you to use the poll creation feature.
+
+.error.accttype2=Your account type does not permit you to use the poll creation feature.
+
+.error.allitemsblank=All items cannot be blank.
+
+.error.notext=You need text explaining your question
+
+.error.parsing=Error parsing poll:
+
+.error.pqmaxlengthinvalid=Maxlength attribute on lj-pq text tags must be an integer from [[min]] to [[max]].
+
+.error.pqsizeinvalid=Size attribute on lj-pq text tags must be an integer from [[min]] to [[max]].
+
+.error.scalemaxlessmin=Scale 'from' value must be less than 'to' value.
+
+.error.scalemininvalid=Scale increment must be at least [[min]].
+
+.error.scaletoobig=Limit of [[max]] selections (to-from)/by > 20
+
+.error.texttoolong=The text of your option is too long and has been truncated.
+
+.haserrors=You have one or more errors with your poll.  Please scroll down for more details.
+
+.insertquestion=Insert question here:
+
+.options=Options:
+
+.options.limitreached=Option limit reached
+
+.pollname=Poll Name: <i>(opt.)</i>
+
+.preview.desc=Below is a preview of your poll.  This is exactly how it will look once it is placed on your journal.  Use the buttons below to go back and make changes or post this poll to your journal.
+
+.preview.options=Options
+
+.properties=Poll Properties
+
+.question=Question:
+
+.questionnum=Question #[[num]]
+
+.questions=Poll Questions
+
+.seecode.desc=Below is the code for your poll. Use the  buttons below to go back and make changes or post this poll to your journal.
+
+.title=Poll Creator
+
+.type.check=Check Boxes
+
+.type.drop=Drop-down box
+
+.type.radio=Radio Buttons
+
+.type.scale=Scale
+
+.type.text=Text entry
+
+.whoview=Who can view this poll?
+
+.whovote=Who can vote in this poll?
+

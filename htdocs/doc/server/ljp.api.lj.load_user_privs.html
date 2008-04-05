@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::load_user_privs</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.load_user.html" title="LJ::load_user">
+<link rel="next" href="ljp.api.lj.load_user_props.html" title="LJ::load_user_props">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::load_user_privs</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.load_user.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.load_user_props.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.load_user_privs"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::load_user_privs</h2>
+<p>LJ::load_user_privs &#8212; loads all of the given privs for a given user into a hashref, inside the user record.  See also <a class="link" href="ljp.api.lj.check_priv.html" title="LJ::check_priv">LJ::check_priv</a>.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::load_user_privs</b>(</code><var class="pdparam">u</var>, <var class="pdparam">priv</var>, <var class="pdparam">arg</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3218241"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>u. </b>A hashref of a row from the user table, sometimes called a "user object".  Although only initially a row from the user table, gets a lot of tacked onto it from various other LJ API functions.</p></li>
+<li><p><b>priv. </b>Priv names to load (see <a class="link" href="ljp.dbschema.priv_list.html" title="priv_list">priv_list</a>).</p></li>
+<li><p><b>arg. </b>Optional argument.  See also <a class="link" href="ljp.api.lj.check_priv.html" title="LJ::check_priv">LJ::check_priv</a>.</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3218302"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/LJ/User.pm</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3218316"></a><h2>Returns:</h2>
+<p>boolean</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.load_user.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.load_user_props.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::load_user </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::load_user_props</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

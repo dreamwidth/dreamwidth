@@ -1,0 +1,30 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use JSON;
+    use vars qw(%GET);
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            'alert' => $msg,
+        });
+    };
+
+    my $remote = LJ::get_remote();
+    my $user = $GET{user};
+    my $u = LJ::load_user($user);
+    my $tags = $u ? $u->tags : {};
+
+    return $err->("You cannot view this journal's tags.") unless $remote && $remote->can_post_to($u);
+    return $err->("You cannot use this journal's tags.") unless $remote->can_add_tags_to($u);
+
+    my @tag_names;
+    if (keys %$tags) {
+        @tag_names = map { $_->{name} } values %$tags;
+        @tag_names = sort { lc $a cmp lc $b } @tag_names;
+    }
+
+    return JSON::objToJson({ tags => \@tag_names });
+}
+_code?>

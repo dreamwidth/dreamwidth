@@ -1,0 +1,2695 @@
+{ LASTN_WEBSITE
+.scope
+lastn
+.override
+yes
+.editrows
+4
+.type
+HTML
+.des
+When the user has specified their website URL, this variable goes into the %%website%% property of [var[LASTN_PAGE]].
+.props
+{ url
+.des
+The URL of the user's website.
+}
+{ name
+.des
+The name of the user's website, or "my website" if they haven't specified it.
+}
+}
+
+{ DAY_WEBSITE
+.scope
+day
+.override
+yes
+.editrows
+4
+.type
+HTML
+.des
+When the user has specified their website URL, this variable goes into the %%website%% property of [var[DAY_PAGE]].
+.props
+{ url
+.des
+The URL of the user's website.
+}
+{ name
+.des
+The name of the user's website, or "my website" if they haven't specified it.
+}
+}
+
+{ CALENDAR_WEBSITE
+.scope
+calendar
+.override
+yes
+.editrows
+4
+.type
+HTML
+.des
+When the user has specified their website URL, this variable goes into the %%website%% property of [var[CALENDAR_PAGE]].
+.props
+{ url
+.des
+The URL of the user's website.
+}
+{ name
+.des
+The name of the user's website, or "my website" if they haven't specified it.
+}
+}
+
+{ FRIENDS_WEBSITE
+.scope
+friends
+.override
+yes
+.editrows
+4
+.type
+HTML
+.des
+When the user has specified their website URL, this variable goes into the %%website%% property of [var[FRIENDS_PAGE]].
+.props
+{ url
+.des
+The URL of the user's website.
+}
+{ name
+.des
+The name of the user's website, or "my website" if they haven't specified it.
+}
+}
+
+{ FRIENDS_SKIP_FORWARD
+.scope
+friends
+.editrows
+4
+.type
+HTML
+.override
+no
+.des
+The HTML to make the link to the previous (more recent) page of the friends view... going forward in time.
+.props
+{ numitems
+.des
+The number of items being displayed on the next page.
+}
+{ url
+.des
+The URL of the page (the HREF of your A tag).
+}
+}
+
+{ FRIENDS_SKIP_BACKWARD
+.scope
+friends
+.editrows
+4
+.override
+no
+.type
+HTML
+.des
+The HTML to make the link to the next (less recent) page of the friends view... going back in time.
+.props
+{ numitems
+.des
+The number of items being displayed on the next page.
+}
+{ url
+.des
+The URL of the page (the HREF of your A tag).
+}
+}
+
+{ FRIENDS_SKIP_SPACER
+.scope
+friends
+.editrows
+2
+.type
+HTML
+.des
+The HTML shown if both the skip backward and skip forward elements are displayed.
+}
+
+{ FRIENDS_RANGE_MOSTRECENT
+.scope
+friends
+.editrows
+2
+.override
+no
+.type
+HTML
+.des
+This should be the text that says the user is viewing the top (most recent) entries, and there are %%numitems%% of them.
+.props
+{ numitems
+.des
+The number of items being displayed.
+}
+}
+
+{ FRIENDS_RANGE_HISTORY
+.scope
+friends
+.editrows
+2
+.type
+HTML
+.des
+This should be the text that says the user is not viewing the most recent entries, but is instead viewing back into the history.
+.props
+{ numitems
+.des
+The number of items being displayed.
+}
+{ skip
+.des
+The number of items that were skipped to get to this point in the history.
+}
+}
+
+{ LASTN_SKIP_LINKS
+.scope
+lastn
+.editrows
+3
+.override
+no
+.type
+HTML
+.des
+If the user can go back a page or forward a page, this variable is inserted into the %%skiplinks%% property of [var[LASTN_PAGE]].
+.deps
+LASTN_SKIP_BACKWARD, LASTN_SKIP_FORWARD, LASTN_SKIP_SPACER
+.props
+{ skipbackward
+.des
+If there are more entries that have been pushed off the bottom, this property
+is filled with the contents of [var[LASTN_SKIP_BACKWARD]].
+}
+{ skipforward
+.des
+If the user is not at the top of the journal (the most recent entries),
+this property is filled with the contents of [var[LASTN_SKIP_FORWARD]].
+}
+{ skipspacer
+.des
+If %%skipbackward%% and %%skipforward%% are both displayed, then
+this property is equal to [var[LASTN_SKIP_SPACER]].
+}
+}
+
+{ LASTN_SKIP_FORWARD
+.scope
+lastn
+.editrows
+4
+.override
+no
+.type
+HTML
+.des
+The HTML to make the link to the previous (more recent) page of the lastn view... going forward in time.
+.props
+{ numitems
+.des
+The number of items being displayed on the next page.
+}
+{ url
+.des
+The URL of the page (the HREF of your A tag).
+}
+}
+
+{ LASTN_SKIP_BACKWARD
+.scope
+lastn
+.editrows
+4
+.type
+HTML
+.des
+The HTML to make the link to the next (less recent) page of the lastn view... going back in time.
+.props
+{ numitems
+.des
+The number of items being displayed on the next page.
+}
+{ url
+.des
+The URL of the page.  (the HREF of your A tag)
+}
+}
+
+{ LASTN_SKIP_SPACER
+.scope
+lastn
+.editrows
+2
+.type
+HTML
+.des
+The HTML shown if both the skip backward and skip forward elements are displayed.
+}
+
+{ LASTN_RANGE_MOSTRECENT
+.scope
+lastn
+.editrows
+2
+.override
+no
+.type
+HTML
+.des
+This should be the text that says the user is viewing the top (most recent) entries, and there are %%numitems%% of them.
+.props
+{ numitems
+.des
+The number of items being displayed.
+}
+}
+
+{ LASTN_RANGE_HISTORY
+.scope
+lastn
+.editrows
+2
+.override
+no
+.type
+HTML
+.des
+This should be the text that says the user is not viewing the most recent entries, but is instead viewing back into the history.
+.props
+{ numitems
+.des
+The number of items being displayed.
+}
+{ skip
+.des
+The number of items that were skipped to get to this point in the history.
+}
+}
+
+{ LASTN_PAGE
+.scope
+lastn
+.deps
+LASTN_EVENT, LASTN_NEW_DAY, LASTN_END_DAY, LASTN_OPT_ITEMS, LASTN_USERPIC, LASTN_RANGE_MOSTRECENT, LASTN_RANGE_HISTORY, LASTN_SKIP_LINKS, LASTN_WEBSITE, LASTN_SKYSCRAPER_AD, LASTN_OPEN_SKYSCRAPER_AD, LASTN_CLOSE_SKYSCRAPER_AD, LASTN_5LINKUNIT_AD
+.editrows
+30
+.override
+no
+.des
+The HTML for the most recent journal entries page (lastn mode) that's sent to the browser.  Customize this as you'd like your page to look.
+.type
+HTML
+.props
+{ name
+.des 
+The user's full name, from the "user" field in the database.
+}
+{ name-'s
+.des
+An apostrophe followed by an "s" if the user's name does not end in "s", else 
+just an apostrophe.  Used in conjunction with the "name" property, can be 
+used to show possession.  For instance, "%%name%%%%name-'s%% Journal" could
+translate to "Bob's Journal".
+}
+{ events
+.des
+The actual 'n' number of most recent events from the user's journal.
+Each individual event is formatted according to the [var[LASTN_EVENT]] and related variables.  Before
+events that occur on a new day, [var[LASTN_NEW_DAY]] variables are inserted as well.
+.min
+1
+.max
+1
+}
+{ username
+.des
+The system username of the current user, useful in creating links to other
+views of your journal, like to the calendar view.
+}
+{ title
+.des
+The base title of the user's journal, which is normally used in the HTML
+title tags and also sometimes in a page heading.
+}
+{ range
+.des
+Text that describes the range of items being displayed.  Will be equal
+to either [var[LASTN_RANGE_MOSTRECENT]] or [var[LASTN_RANGE_HISTORY]].
+}
+{ skiplinks
+.des
+The "skiplinks" are the things that let you go back a page and forward a page.  
+If one of "back" or "forward" is applicable, then [var[LASTN_SKIP_LINKS]] is put here.
+}
+{ numitems
+.des
+The number of events that are going to show in the "events" property, as
+specified by the [var[LASTN_OPT_ITEMS]] variable.  
+<B>Deprecated:</B> you should now use %%range%% instead of this property.
+}
+{ userpic
+.des
+An IMG tag showing your uploaded picture, if any.  See [var[LASTN_USERPIC]].
+}
+{ skyscraper_ad
+.des
+HTML for printing a skyscraper ad, if available. See [var[LASTN_SKYSCRAPER_AD]].
+}
+{ open_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[LASTN_OPEN_SKYSCRAPER_AD]].
+}
+{ close_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[LASTN_CLOSE_SKYSCRAPER_AD]].
+}
+{ control_strip
+.des
+HTML for printing a control strip along the top of the page.
+}
+{ 5linkunit_ad
+.des
+HTML for printing an ad with 5 link units. See [var[LASTN_5LINKUNIT_AD]].
+}
+{ website
+.des
+If the user has specified their website, this block is filled with the contents of [var[LASTN_WEBSITE]].
+}
+{ head
+.des
+Any user-specified content to go inside the document's &lt;HEAD&gt;, like CSS or META tags.  The value is [var[GLOBAL_HEAD]] followed by [var[LASTN_HEAD]].  You shouldn't define the *_HEAD variables in the style, as users should set them themselves.
+}
+{ urlfriends
+.des
+URL to user's friends view.
+}
+{ urlcalendar
+.des
+URL to user's calendar view.
+}
+}
+
+{ LASTN_USERPIC
+.scope
+lastn
+.type
+HTML
+.des
+Creates the IMG tag needed to show your picture on the last-n page.
+.props
+{ src
+.des
+The IMG SRC= attribute.
+}
+{ width
+.des
+The IMG WIDTH= attribute.
+}
+{ height
+.des
+The IMG HEIGHT= attribute.
+}
+}
+
+{ LASTN_SKYSCRAPER_AD
+.scope
+lastn
+.type
+HTML
+.des
+The HTML tag needed to show a skyscraper ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the skyscraper ad.
+}
+}
+
+{ LASTN_OPEN_SKYSCRAPER_AD
+.scope
+lastn
+.type
+HTML
+.des
+Conditional open wrapper around ad and/or user content.
+}
+
+{ LASTN_CLOSE_SKYSCRAPER_AD
+.scope
+lastn
+.type
+HTML
+.des
+Conditional close wrapper around ad and/or user content.
+}
+
+{ LASTN_5LINKUNIT_AD
+.scope
+lastn
+.type
+HTML
+.des
+The HTML tag needed to show a 5 link unit ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the 5 link unit ad.
+}
+}
+
+{ LASTN_END_DAY
+.scope
+lastn
+.deps
+LASTN_NEW_DAY
+.type
+HTML
+.des
+The opposite of [var[LASTN_NEW_DAY]].  This variable is inserted into %%events%% in the [var[LASTN_PAGE]].
+}
+
+{ LASTN_NEW_DAY
+.scope
+lastn
+.type
+HTML
+.des
+Before any [var[LASTN_EVENT]] that's on a day that no other event has been shown before, this block is inserted into %%events%% in the [var[LASTN_PAGE]].
+.props
+{ dayshort
+.des
+Day of week.  Short form.  Example: Mon, Tue, Wed...
+}
+{ daylong
+.des
+Day of week.  Long form.  Example: Monday, Tuesday, Wednesday...
+}
+{ monshort
+.des
+Month.  Short form.  Example: Jan, Feb, Mar...
+}
+{ monlong
+.des
+Month.  Long form.  Example: January, February, March...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ m
+.des
+Month.  1-12.
+}
+{ mm
+.des
+Month.  01-12.
+}
+{ d
+.des
+Day.  1-31.
+}
+{ dd
+.des
+Day.  01-31.
+}
+{ dth
+.des
+Day plus ordinal.  1st, 2nd, 3rd, 4th, 5th...
+}
+}
+
+{ LASTN_SUBJECT
+.scope
+lastn
+.editrows
+5
+.des
+When a journal entry has a subject, this variable is inserted into the %%subject%% property of [var[LASTN_EVENT]].
+.type
+HTML
+.props
+{ subject
+.des
+The journal entry's subject.
+}
+}
+
+{ LASTN_EVENT_PRIVATE
+.scope
+lastn
+.editrows
+10
+.override
+no
+.des
+An optional specialized form of [var[LASTN_EVENT]] to be used on entries that are marked as "private" (only the original poster can see them).  If you leave this blank, the standard event variable will be used instead.
+}
+
+{ LASTN_EVENT_PROTECTED
+.scope
+lastn
+.editrows
+10
+.des
+An optional specialized form of [var[LASTN_EVENT]] to be used on entries that are marked as "friends" or "custom" (only a select group of people can see them).  If you leave this blank, the standard event variable will be used instead.
+.override
+no
+}
+
+{ FRIENDS_EVENT_PRIVATE
+.scope
+friends
+.editrows
+10
+.des
+An optional specialized form of [var[FRIENDS_EVENT]] to be used on entries that are marked as "private" (only the original poster can see them).  If you leave this blank, the standard event variable will be used instead.
+.override
+no
+}
+
+{ FRIENDS_EVENT_PROTECTED
+.scope
+friends
+.editrows
+10
+.override
+no
+.des
+An optional specialized form of [var[FRIENDS_EVENT]] to be used on entries that are marked as "friends" or "custom" (only a select group of people can see them).  If you leave this blank, the standard event variable will be used instead.
+}
+
+{ DAY_EVENT_PRIVATE
+.scope
+day
+.editrows
+10
+.override
+no
+.des
+An optional specialized form of [var[DAY_EVENT]] to be used on entries that are marked as "private" (only the original poster can see them).  If you leave this blank, the standard event variable will be used instead.
+}
+
+{ DAY_EVENT_PROTECTED
+.scope
+day
+.editrows
+10
+.override
+no
+.des
+An optional specialized form of [var[DAY_EVENT]] to be used on entries that are marked as "friends" or "custom" (only a select group of people can see them).  If you leave this blank, the standard event variable will be used instead.
+}
+
+{ LASTN_EVENT
+.scope
+lastn
+.deps
+LASTN_OPT_ITEMS, LASTN_DATE_FORMAT, LASTN_TALK_LINKS, LASTN_SUBJECT, LASTN_EVENT_PRIVATE, LASTN_EVENT_PROTECTED, LASTN_CURRENTS, LASTN_ALTPOSTER
+.editrows
+10
+.des
+An event from the user's journal.  A bunch of these (as specified by [var[LASTN_OPT_ITEMS]]) get put together to form the %%events%% property of the [var[LASTN_PAGE]] variable.  See also [var[LASTN_EVENT_PRIVATE]] and [var[LASTN_EVENT_PROTECTED]].
+.type
+HTML
+.props
+{ datetime
+.des
+The date and/or time of the event, as formatted by [var[LASTN_DATE_FORMAT]].
+}
+{ event
+.des
+The actual event from the journal.
+.min
+1
+}
+{ talklinks
+.des
+The value of [var[LASTN_TALK_LINKS]].  If you don't want commenting enabled on your journal, don't use this, or make [var[LASTN_TALK_LINKS]] empty.
+}
+{ subject
+.des
+When the journal entry has a subject, then a [var[LASTN_SUBJECT]] is inserted into this property.  That way you can do some specialized HTML only when there's a subject.
+}
+{ itemid
+.des
+A unique integer that represents this journal entry.  You probably won't ever have to use this.
+}
+{ itemargs
+.des
+A portion of a URL which identifies this event. This should be used when referring to memadd.bml, editjournal.bml or other similar actions which require an event to be identified in the URL. Do NOT use itemid=%%itemid%% for this purpose, or a similarly hardcoded scheme, use %%itemargs%%.
+}
+{ permalink
+.des
+The permalink of this event.
+}
+{ currents
+.des
+If the user has specified either a current mood or their current music, then a [var[LASTN_CURRENTS]] gets inserted in here.
+}
+{ altposter
+.des
+If this is a shared journal (like a news account) and somebody other than the journal owner is posting, [var[LASTN_ALTPOSTER]] goes into this.
+}
+}
+
+{ LASTN_CURRENTS
+.scope
+lastn
+.deps
+LASTN_CURRENT
+.des
+When a user has specified "current" information (like current music or current mood), this variable separates those entries from the rest of the journal entry in [var[LASTN_EVENT]].
+.editrows
+4
+.type
+HTML
+.props
+{ currents
+.des
+This property is one or more [var[LASTN_CURRENT]] variables joined together, one for each current item.
+}
+}
+
+{ LASTN_CURRENT
+.scope
+lastn
+.des
+When a user has specified "current" information (like current music or current mood), this variable is added to the %%currents%% property of [var[LASTN_CURRENTS]].
+.editrows
+4
+.type
+HTML
+.props
+{ what
+.des
+Specifies what this is the current item of.  It'll be something like "Mood", or "Music".  You can change the case with the transforms (%%lc:what%%, etc...).
+}
+{ value
+.des
+The actual current whatever.
+}
+}
+
+{ FRIENDS_CURRENTS
+.scope
+friends
+.deps
+FRIENDS_CURRENT
+.des
+When a user has specified "current" information (like current music or current mood), this variable separates those entries apart from the rest of the journal entry in [var[FRIENDS_EVENT]].
+.editrows
+4
+.type
+HTML
+.props
+{ currents
+.des
+This property is one or more [var[FRIENDS_CURRENT]] variables joined together, one for each current item.
+}
+}
+
+{ FRIENDS_CURRENT
+.scope
+friends
+.des
+When a user has specified "current" information (like current music or current mood), this variable is added to the %%currents%% property of [var[FRIENDS_CURRENTS]].
+.editrows
+4
+.type
+HTML
+.props
+{ what
+.des
+Specifies what this is the current item of.  It'll be something like "Mood", or "Music".  You can change the case with the transforms (%%lc:what%%, etc...).
+}
+{ value
+.des
+The actual current whatever.
+}
+}
+
+{ DAY_CURRENTS
+.scope
+day
+.deps
+DAY_CURRENT
+.des
+When a user has specified "current" information (like current music or current mood), this variable separates those entries apart from the rest of the journal entry in [var[DAY_EVENT]].
+.editrows
+4
+.type
+HTML
+.props
+{ currents
+.des
+This property is one or more [var[DAY_CURRENT]] variables joined together, one for each current item.
+}
+}
+
+{ DAY_CURRENT
+.scope
+day
+.des
+When a user has specified "current" information (like current music or current mood), this variable is added to the %%currents%% property of [var[DAY_CURRENTS]].
+.editrows
+4
+.type
+HTML
+.props
+{ what
+.des
+Specifies what this is the current item of.  It'll be something like "Mood", or "Music".  You can change the case with the transforms (%%lc:what%%, etc...).
+}
+{ value
+.des
+The actual current whatever.
+}
+}
+
+{ LASTN_DATE_FORMAT
+.scope
+lastn
+.override
+yes
+.des
+Describes how dates/times are formatted in each [var[LASTN_EVENT]] variable.
+.type
+HTML
+.editrows
+1
+.editcols
+60
+.props
+{ dayshort
+.des
+Day of week.  Short form.  Example: Mon, Tue, Wed...
+}
+{ daylong
+.des
+Day of week.  Long form.  Example: Monday, Tuesday, Wednesday...
+}
+{ monshort
+.des
+Month.  Short form.  Example: Jan, Feb, Mar...
+}
+{ monlong
+.des
+Month.  Long form.  Example: January, February, March...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ m
+.des
+Month.  1-12.
+}
+{ mm
+.des
+Month.  01-12.
+}
+{ d
+.des
+Day.  1-31.
+}
+{ dd
+.des
+Day.  01-31.
+}
+{ dth
+.des
+Day plus ordinal.  1st, 2nd, 3rd, 4th, 5th...
+}
+{ ap
+.des
+AM or PM as a one-character lower-case "a" or "p".
+}
+{ AP
+.des
+AM or PM as a one-character upper-case "A" or "P".
+}
+{ ampm
+.des
+AM or PM as a two-character lower-case "am" or "pm".
+}
+{ AMPM
+.des
+AM or PM as a two-character upper-case "AM" or "PM".
+}
+{ min
+.des
+Minutes.  00-59.
+}
+{ 12h
+.des
+Hour.  1-12.
+}
+{ 12hh
+.des
+Hour.  01-12.
+}
+{ 24h
+.des
+Hour.  1-23.
+}
+{ 24hh
+.des
+Hour.  01-23.
+}
+}
+
+{ LASTN_OPT_ITEMS
+.scope
+lastn
+.override
+yes
+.des
+This is an integer value between 1 and 50 that sets how many
+items are shown in the "events" property of the [var[LASTN_PAGE]] variable.
+.type
+integer
+.editrows
+1
+.editcols
+10
+.default
+20
+}
+
+{ CALENDAR_YEAR_LINK
+.scope
+calendar
+.editrows
+2
+.type
+HTML
+.des
+A link to view a different year in the calendar.
+.props
+{ url
+.des
+The URL to go to the other year.
+}
+{ yyyy
+.des
+The 4 digit year this link goes to.
+}
+{ yy
+.des
+The 2 digit year this link goes to.
+}
+}
+
+{ CALENDAR_YEAR_DISPLAYED
+.scope
+calendar
+.editrows
+2
+.type
+HTML
+.des
+Some HTML that goes in the [var[CALENDAR_YEAR_LINKS]] for the displayed year.
+.props
+{ yyyy
+.des
+The 4 digit year that's being displayed.
+}
+{ yy
+.des
+The 2 digit year that's being displayed.
+}
+}
+
+{ CALENDAR_YEAR_LINKS
+.scope
+calendar
+.deps
+CALENDAR_YEAR_LINK, CALENDAR_YEAR_DISPLAYED
+.editrows
+2
+.type
+HTML
+.des
+When there are more than 1 year of entries to be shown, this variable is inserted into the %%yearlinks%% property of [var[CALENDAR_PAGE]].  Its purpose is to indicate which year is selected and let you move between the different years by clicking links.
+.props
+{ years
+.des
+This property is made up of [var[CALENDAR_YEAR_LINK]] and [var[CALENDAR_YEAR_DISPLAYED]] variables, in the order you indicated in [var[CALENDAR_SORT_MODE]].
+}
+}
+
+{ CALENDAR_PAGE
+.scope
+calendar
+.deps
+CALENDAR_SORT_MODE, CALENDAR_MONTH, CALENDAR_NEW_YEAR, CALENDAR_WEBSITE, CALENDAR_YEAR_LINKS, CALENDAR_SKYSCRAPER_AD, CALENDAR_OPEN_SKYSCRAPER_AD, CALENDAR_CLOSE_SKYSCRAPER_AD, CALENDAR_5LINKUNIT_AD
+.editrows
+30
+.des
+The HTML page layout for the [view[calendar]] view.
+.type
+HTML
+.props
+{ name
+.des 
+The user's full name, from the "user" field in the database.
+}
+{ name-'s
+.des
+An apostrophe followed by an "s" if the user's name does not end in "s", else 
+just an apostrophe.  Used in conjunction with the "name" property, can be 
+used to show possession.  For instance, "%%name%%%%name-'s%% Journal" could
+translate to "Bob's Journal".  This is old.  You should just use the title instead.
+}
+{ title
+.des
+The base title of the user's journal, which is normally used in the HTML
+title tags and headings alongside something which indicates that this is
+a calendar view.
+}
+{ yearlinks
+.des
+When more than one year of entries are being displayed, the [var[CALENDAR_YEAR_LINKS]] variable goes in here.
+}
+{ months
+.des
+All the [var[CALENDAR_MONTH]] and [var[CALENDAR_NEW_YEAR]] variables grouped together, either in forward or reverse chronological order, depending on the value of [var[CALENDAR_SORT_MODE]].
+.min
+1
+.max
+1
+}
+{ username
+.des
+The system username of the current user, useful in creating links to other
+views of your journal, like to the calendar view.
+}
+{ website
+.des
+If the user has specified their website, this block is filled with the contents of [var[CALENDAR_WEBSITE]].
+}
+{ skyscraper_ad
+.des
+HTML for printing a skyscraper ad, if available. See [var[CALENDAR_SKYSCRAPER_AD]].
+}
+{ open_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[CALENDAR_OPEN_SKYSCRAPER_AD]].
+}
+{ close_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[CALENDAR_CLOSE_SKYSCRAPER_AD]].
+}
+{ control_strip
+.des
+HTML for printing a control strip along the top of the page.
+}
+{ 5linkunit_ad
+.des
+HTML for printing an ad with 5 link units. See [var[CALENDAR_5LINKUNIT_AD]].
+}
+{ head
+.des
+Any user-specified content to go inside the document's &lt;HEAD&gt;, like CSS or META tags.  The value is [var[GLOBAL_HEAD]] followed by [var[CALENDAR_HEAD]].  You shouldn't define the *_HEAD variables in the style, as users should set them themselves.
+}
+{ urlfriends
+.des
+URL to user's friends view.
+}
+{ urllastn
+.des
+URL to user's lastn view.
+}
+}
+
+{ CALENDAR_SKYSCRAPER_AD
+.scope
+calendar
+.type
+HTML
+.des
+The HTML tag needed to show a skyscraper ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the skyscraper ad.
+}
+}
+
+{ CALENDAR_OPEN_SKYSCRAPER_AD
+.scope
+calendar
+.type
+HTML
+.des
+Conditional open wrapper around ad and/or user content.
+}
+
+{ CALENDAR_CLOSE_SKYSCRAPER_AD
+.scope
+calendar
+.type
+HTML
+.des
+Conditional close wrapper around ad and/or user content.
+}
+
+{ CALENDAR_5LINKUNIT_AD
+.scope
+calendar
+.type
+HTML
+.des
+The HTML tag needed to show a 5 link unit ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the skyscraper ad.
+}
+}
+
+{ CALENDAR_NEW_YEAR
+.scope
+calendar
+.des
+Before any [var[CALENDAR_MONTH]] HTML for a month of a year that hasn't been shown yet, one of these variables gets inserted into %%months%% of [var[CALENDAR_PAGE]].
+.type
+HTML
+.props
+{ yy
+.des
+Year.  Two digit.
+}
+{ yyyy
+.des
+Year.  Four digit.
+}
+}
+
+{ CALENDAR_MONTH
+.scope
+calendar
+.deps
+CALENDAR_WEEK
+.editrows
+20
+.des
+The HTML for a month in the [view[calendar]] view.  A bunch of these variables as well as [var[CALENDAR_NEW_YEAR]] variables form the %%months%% property of the [var[CALENDAR_PAGE]] variable.
+.props
+{ monlong
+.des
+Month. Long form. Example: January, February, March...
+}
+{ monshort
+.des
+Month. Short form. Example: Jan, Feb, Mar...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ weeks
+.des
+All the weeks for this month, consisting of a bunch of [var[CALENDAR_WEEK]] variables.
+}
+{ urlmonthview
+.des
+The URL to a page showing all posts in this month, by subject.
+}
+}
+
+{ CALENDAR_WEEK
+.scope
+calendar
+.deps
+CALENDAR_DAY, CALENDAR_EMPTY_DAYS
+.editrows
+10
+.des
+HTML for a week in the calendar.  4-5 of these week objects get concatenated together into the %%weeks%% property of the [var[CALENDAR_MONTH]].
+.props
+{ days
+.des
+The days in the week, made up from a bunch of [var[CALENDAR_DAY]] variables.
+}
+{ emptydays_beg
+.des
+The empty days at the beginning of the month, from the [var[CALENDAR_EMPTY_DAYS]] variable.
+}
+{ emptydays_end
+.des
+The empty days at the end of the month, from the [var[CALENDAR_EMPTY_DAYS]] variable.
+}
+}
+
+{ CALENDAR_EMPTY_DAYS
+.scope
+calendar
+.des
+At the beginning and end of the month, there may be blank squares on the calendar.  For instance, if the 1st of the month lands on a Wednesday, the Sunday-Tuesdays squares are non-existent.  In the construction of a pretty HTML table, it will be necessary to make a TD cell with a COLSPAN equal to the number of empty days.  If you are not making your calendar view look like a calendar, just leave this variable blank.  Note: this variable is used in the %%emptydays_beg%% and %%emptydays_end%% properties of the [var[CALENDAR_WEEK]] variable.
+.props
+{ numempty
+.des
+The number of empty days.  Useful as the COLSPAN of table cells.
+}
+}
+
+{ CALENDAR_DAY
+.scope
+calendar
+.deps
+CALENDAR_DAY_EVENT, CALENDAR_DAY_NOEVENT
+.des
+This is a block of HTML for a day on the calendar, which gets inserted into %%days%% in the [var[CALENDAR_WEEK]] variable.
+.props
+{ d
+.des
+Day of the month.  (1-31)
+}
+{ eventcount
+.des
+The number of events (journal entries) that occurred on that day.
+}
+{ dayevent
+.des
+If the number of events (journal entries) is greater than zero for any given day,
+this property will be equal to the contents of a [var[CALENDAR_DAY_EVENT]] variable.  This is
+useful for when you only want to show certain HTML on days with events.
+}
+{ daynoevent
+.des
+If the number of events (journal entries) is equal to zero for any given day,
+this property will be equal to the contents of a [var[CALENDAR_DAY_NOEVENT]] variable.  This is
+useful for when you only want to show certain HTML on days without events.
+}
+}
+
+{ CALENDAR_DAY_EVENT
+.scope
+calendar
+.des
+Some HTML that gets inserted into [var[CALENDAR_DAY]] variables when the number of events (journal entries) for that day is non-zero.  For instance, this is useful if you want to display a link to the [view[day]] view to see what the user's events for that day were.  On a day with zero events, you wouldn't want a link, so you'd put your HTML into this variable, not in [var[CALENDAR_DAY]].  However, in [var[CALENDAR_DAY]], make sure you use %%dayevent%% somewhere.  
+.props
+{ eventcount
+.des
+The number of events that occurred on that day.
+}
+{ dayurl
+.des
+The URL of the corresponding [view[day]] view, which shows all the events.
+}
+}
+
+{ CALENDAR_DAY_NOEVENT
+.scope
+calendar
+.des
+Some HTML that gets inserted into [var[CALENDAR_DAY]] variables when the number of events (journal entries) for that day is zero.
+}
+
+{ CALENDAR_SORT_MODE
+.scope
+calendar
+.override
+yes
+.editrows
+1
+.type
+option
+.des
+Determines whether months in the calendar mode (variable: [var[CALENDAR_MONTH]]) are shown in "reverse" order (most recent month at top) or in "forward" order (oldest months at top).  The value of this variable should be either "forward" or "reverse", without quotes.  By default, reverse will be assumed.
+}
+
+{ DAY_PAGE
+.scope
+day
+.deps
+DAY_EVENTS, DAY_NOEVENTS, DAY_WEBSITE, DAY_SKYSCRAPER_AD, DAY_OPEN_SKYSCRAPER_AD, DAY_CLOSE_SKYSCRAPER_AD, DAY_5LINKUNIT_AD
+.editrows
+30
+.type
+HTML
+.des
+The HTML for the [view[day]] view, after somebody clicks a day on the [view[calendar]].
+.props
+{ username
+.des
+The username of the user.
+}
+{ title
+.des
+The base title of the user's journal, which is normally used in the HTML
+title tags and headings, alongside a reference to the date being viewed.
+}
+{ name
+.des
+The name of the user whose journal it is.
+}
+{ name-'s
+.des
+An apostrophe followed by an "s" if the user's name does not end in "s", else 
+just an apostrophe.  Used in conjunction with the "name" property, can be 
+used to show possession.  For instance, "%%name%%%%name-'s%% Journal" could
+translate to "Bob's Journal".
+}
+{ website
+.des
+If the user has specified their website, this block is filled with the contents of [var[DAY_WEBSITE]].
+}
+{ skyscraper_ad
+.des
+HTML for printing a skyscraper ad, if available. See [var[DAY_SKYSCRAPER_AD]].
+}
+{ open_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[DAY_OPEN_SKYSCRAPER_AD]].
+}
+{ close_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[DAY_CLOSE_SKYSCRAPER_AD]].
+}
+{ control_strip
+.des
+HTML for printing a control strip along the top of the page.
+}
+{ 5linkunit_ad
+.des
+HTML for printing an ad with 5 link units. See [var[DAY_5LINKUNIT_AD]].
+}
+{ events
+.des
+If events occurred on this day, then this is equal to [var[DAY_EVENTS]], else it is equal to [var[DAY_NOEVENTS]].
+.min
+1
+.max
+1
+}
+{ prevday_url
+.des
+A URL to the day view for the previous day.
+}
+{ nextday_url
+.des
+A URL to the day view for the next day.
+}
+{ dayshort
+.des
+Day of week.  Short form.  Example: Mon, Tue, Wed...
+}
+{ daylong
+.des
+Day of week.  Long form.  Example: Monday, Tuesday, Wednesday...
+}
+{ monshort
+.des
+Month.  Short form.  Example: Jan, Feb, Mar...
+}
+{ monlong
+.des
+Month.  Long form.  Example: January, February, March...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ m
+.des
+Month.  1-12.
+}
+{ mm
+.des
+Month.  01-12.
+}
+{ d
+.des
+Day.  1-31.
+}
+{ dd
+.des
+Day.  01-31.
+}
+{ dth
+.des
+Day plus ordinal.  1st, 2nd, 3rd, 4th, 5th...
+}
+{ head
+.des
+Any user-specified content to go inside the document's &lt;HEAD&gt;, like CSS or META tags.  The value is [var[GLOBAL_HEAD]] followed by [var[DAY_HEAD]].  You shouldn't define the *_HEAD variables in the style, as users should set them themselves.
+}
+{ urllastn
+.des
+URL to user's lastn view.
+}
+{ urlcalendar
+.des
+URL to user's calendar view.
+}
+{ urlfriends
+.des
+URL to user's friends view.
+}
+}
+
+{ DAY_SKYSCRAPER_AD
+.scope
+day
+.type
+HTML
+.des
+The HTML tag needed to show a skyscraper ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the skyscraper ad.
+}
+}
+
+{ DAY_OPEN_SKYSCRAPER_AD
+.scope
+day
+.type
+HTML
+.des
+Conditional open wrapper around ad and/or user content.
+}
+
+{ DAY_CLOSE_SKYSCRAPER_AD
+.scope
+day
+.type
+HTML
+.des
+Conditional close wrapper around ad and/or user content.
+}
+
+{ DAY_5LINKUNIT_AD
+.scope
+day
+.type
+HTML
+.des
+The HTML tag needed to show a 5 link unit ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the 5 link unit ad.
+}
+}
+
+{ DAY_EVENTS
+.scope
+day
+.deps
+DAY_SORT_MODE, DAY_EVENT
+.editrows
+10
+.type
+HTML
+.des
+When events occur on a given day in the [view[day]] view, this variable gets inserted into %%events%% of [var[DAY_PAGE]].
+.props
+{ events
+.des
+A bunch of [var[DAY_EVENT]] variables for the events that occurred on that day, in the order dictated by [var[DAY_SORT_MODE]].
+}
+}
+
+{ DAY_NOEVENTS
+.scope
+day
+.editrows
+8
+.type
+HTML
+.des
+When no events occur on a given day in the [view[day]] view, this variable gets inserted into %%events%% of [var[DAY_PAGE]].
+}
+
+{ DAY_SORT_MODE
+.scope
+day
+.editrows
+1
+.type
+option
+.des
+Determines whether events in the [view[day]] view (variable: [var[DAY_PAGE]]) are shown in "forward" order (earlier events first) or in "reverse" order (newest events shown first).  The value of this variable should be either "forward" or "reverse", without quotes.
+.default
+forward
+}
+
+{ DAY_SUBJECT
+.scope
+day
+.editrows
+5
+.des
+When a journal entry has a subject, this variable is inserted into the %%subject%% property of [var[DAY_EVENT]].
+.type
+HTML
+.props
+{ subject
+.des
+The journal entry's subject.
+}
+}
+
+{ DAY_EVENT
+.scope
+day
+.deps
+DAY_DATE_FORMAT, DAY_TALK_LINKS, DAY_SUBJECT, DAY_EVENT_PRIVATE, DAY_EVENT_PROTECTED, DAY_CURRENTS
+.des
+An event in the journal, which goes in %%events%% of [var[DAY_PAGE]].  See also [var[DAY_EVENT_PRIVATE]] and [var[DAY_EVENT_PROTECTED]].
+.type
+HTML
+.props
+{ datetime
+.des
+The date and/or time of the event, as formatted by [var[DAY_DATE_FORMAT]].
+}
+{ event
+.des
+The actual event from the journal.
+}
+{ talklinks
+.des
+The value of [var[DAY_TALK_LINKS]].  If you don't want commenting enabled on your journal, don't use this, or make [var[DAY_TALK_LINKS]] empty.
+}
+{ subject
+.des
+When the journal entry has a subject, then a [var[DAY_SUBJECT]] is inserted into this property.  That way you can do some specialized HTML only when there's a subject.
+}
+{ itemid
+.des
+A unique integer that represents this journal entry.  You probably won't ever have to use this.
+}
+{ itemargs
+.des
+A portion of a URL which identifies this event. This should be used when referring to memadd.bml, editjournal.bml or other similar actions which require an event to be identified in the URL. Do NOT use itemid=%%itemid%% for this purpose, or a similarly hardcoded scheme, use %%itemargs%%.
+}
+{ permalink
+.des
+The permalink of this event.
+}
+{ currents
+.des
+If the user has specified either a current mood or their current music, then a [var[DAY_CURRENTS]] gets inserted in here.
+}
+}
+
+{ DAY_DATE_FORMAT
+.scope
+day
+.editrows
+1
+.override
+yes
+.des
+Describes how dates/times are formatted in each [var[DAY_EVENT]] variable.
+.type
+HTML
+.props
+{ dayshort
+.des
+Day of week.  Short form.  Example: Mon, Tue, Wed...
+}
+{ daylong
+.des
+Day of week.  Long form.  Example: Monday, Tuesday, Wednesday...
+}
+{ monshort
+.des
+Month.  Short form.  Example: Jan, Feb, Mar...
+}
+{ monlong
+.des
+Month.  Long form.  Example: January, February, March...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ m
+.des
+Month.  1-12.
+}
+{ mm
+.des
+Month.  01-12.
+}
+{ d
+.des
+Day.  1-31.
+}
+{ dd
+.des
+Day.  01-31.
+}
+{ dth
+.des
+Day plus ordinal.  1st, 2nd, 3rd, 4th, 5th...
+}
+{ ap
+.des
+AM or PM as a one-character lower-case "a" or "p".
+}
+{ AP
+.des
+AM or PM as a one-character upper-case "A" or "P".
+}
+{ ampm
+.des
+AM or PM as a two-character lower-case "am" or "pm".
+}
+{ AMPM
+.des
+AM or PM as a two-character upper-case "AM" or "PM".
+}
+{ min
+.des
+Minutes.  00-59.
+}
+{ 12h
+.des
+Hour.  1-12.
+}
+{ 12hh
+.des
+Hour.  01-12.
+}
+{ 24h
+.des
+Hour.  1-23.
+}
+{ 24hh
+.des
+Hour.  01-23.
+}
+}
+
+
+{ SEARCH_PAGE
+.scope
+search
+.des
+HTML for a page that lets people search journals.
+.type
+HTML
+.props
+{ username
+.des
+The username of the user whose journal it is.
+}
+{ name
+.des
+The name of the user.
+}
+{ form
+.des
+The HTML &lt;FORM&gt; to the end &lt;/FORM&gt; so you don't have to generate it yourself.  (which is actually from [var[SEARCH_FORM]])
+}
+}
+
+{ SEARCH_FORM
+.scope
+search
+.des
+HTML for the &lt;FORM&gt; to let users search journals.  Unless you know what you're doing, don't override this... just leave it as is and use it as %%form%% in the [var[SEARCH_PAGE]] variable.
+.type
+HTML
+.props
+{ username
+.des
+The username of the user whose journal it is.
+}
+}
+
+{ SEARCHRES_PAGE
+.scope
+searchres
+.des
+HTML for the search results page.
+.type
+HTML
+.props
+{ username
+.des
+The username of the user whose journal it is.
+}
+{ name
+.des
+The name of the user.
+}
+{ nummatches
+.des
+The number of matches that were found
+}
+{ matches
+.des
+The matches that were found.  If zero matches are found, this will equal [var[SEARCHRES_NOMATCHES]], else it will equal [var[SEARCHRES_MATCHES]].
+.min
+1
+}
+}
+
+{ SEARCHRES_NOMATCHES
+.scope
+searchres
+.des
+HTML for when people perform a search and there are no matching journal entries.
+.type
+HTML
+}
+
+{ SEARCHRES_MATCHES
+.scope
+searchres
+.des
+The matching journal entries that were found after performing a search.
+.type
+HTML
+.props
+{ matches
+.des
+All the [var[SEARCHRES_MATCH]] variables added together, one for each match.
+.min
+1
+}
+}
+
+{ SEARCHRES_MATCH
+.scope
+searchres
+.des
+A search match, which goes in %%matches%% of [var[SEARCHRES_MATCHES]].
+.type
+HTML
+.props
+{ datetime
+.des
+The date and/or time of the event, as formatted by [var[SEARCHRES_DATE_FORMAT]].
+}
+{ event
+.des
+The actual event from the journal.
+}
+}
+
+{ SEARCHRES_DATE_FORMAT
+.scope
+searchres
+.des
+Describes how dates/times are formatted in each [var[SEARCHRES_MATCH]] variable.
+.type
+HTML
+.props
+{ dayshort
+.des
+Day of week.  Short form.  Example: Mon, Tue, Wed...
+}
+{ daylong
+.des
+Day of week.  Long form.  Example: Monday, Tuesday, Wednesday...
+}
+{ monshort
+.des
+Month.  Short form.  Example: Jan, Feb, Mar...
+}
+{ monlong
+.des
+Month.  Long form.  Example: January, February, March...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ m
+.des
+Month.  1-12.
+}
+{ mm
+.des
+Month.  01-12.
+}
+{ d
+.des
+Day.  1-31.
+}
+{ dd
+.des
+Day.  01-31.
+}
+{ dth
+.des
+Day plus ordinal.  1st, 2nd, 3rd, 4th, 5th...
+}
+{ ap
+.des
+AM or PM as a one-character lower-case "a" or "p".
+}
+{ AP
+.des
+AM or PM as a one-character upper-case "A" or "P".
+}
+{ ampm
+.des
+AM or PM as a two-character lower-case "am" or "pm".
+}
+{ AMPM
+.des
+AM or PM as a two-character upper-case "AM" or "PM".
+}
+{ min
+.des
+Minutes.  00-59.
+}
+{ 12h
+.des
+Hour.  1-12.
+}
+{ 12hh
+.des
+Hour.  01-12.
+}
+{ 24h
+.des
+Hour.  1-23.
+}
+{ 24hh
+.des
+Hour.  01-23.
+}
+}
+
+{ FRIENDS_SKIP_LINKS
+.scope
+friends
+.editrows
+3
+.type
+HTML
+.des
+If the user can go back a page or forward a page, this variable is inserted into the %%skiplinks%% property of [var[FRIENDS_PAGE]].
+.deps
+FRIENDS_SKIP_BACKWARD, FRIENDS_SKIP_FORWARD, FRIENDS_SKIP_SPACER
+.props
+{ skipbackward
+.des
+If there are more entries that have been pushed off the bottom, this property
+is filled with the contents of [var[FRIENDS_SKIP_BACKWARD]].
+}
+{ skipforward
+.des
+If the user is not at the top of the journal (the most recent entries),
+this property is filled with the contents of [var[FRIENDS_SKIP_FORWARD]].
+}
+{ skipspacer
+.des
+If %%skipbackward%% and %%skipforward%% are both displayed, then
+this property is equal to [var[FRIENDS_SKIP_SPACER]].
+}
+}
+
+
+{ FRIENDS_PAGE
+.scope
+friends
+.deps
+FRIENDS_OPT_ITEMS, FRIENDS_NOFRIENDS, FRIENDS_EVENTS, FRIENDS_RANGE_MOSTRECENT, FRIENDS_RANGE_HISTORY, FRIENDS_SKIP_LINKS, FRIENDS_WEBSITE, FRIENDS_SKYSCRAPER_AD, FRIENDS_OPEN_SKYSCRAPER_AD, FRIENDS_CLOSE_SKYSCRAPER_AD, FRIENDS_5LINKUNIT_AD
+.editrows
+30
+.des
+The HTML for the friends' most recent journal entries page (friends view) that's sent to the browser.  Customize this as you'd like your page to look.
+.type
+HTML
+.props
+{ name
+.des 
+The user's full name, from the "user" field in the database.
+}
+{ name-'s
+.des
+An apostrophe followed by an "s" if the user's name does not end in "s", else 
+just an apostrophe.  Used in conjunction with the "name" property, can be 
+used to show possession.  For instance, "%%name%%%%name-'s%% Journal" could
+translate to "Bob's Journal".
+}
+{ website
+.des
+If the user has specified their website, this block is filled with the contents of [var[FRIENDS_WEBSITE]].
+}
+{ skyscraper_ad
+.des
+HTML for printing a skyscraper ad, if available. See [var[FRIENDS_SKYSCRAPER_AD]].
+}
+{ open_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[FRIENDS_OPEN_SKYSCRAPER_AD]].
+}
+{ close_skyscraper_ad
+.des
+HTML for printing a wrapper around a skyscraper ad and user content. See [var[FRIENDS_CLOSE_SKYSCRAPER_AD]].
+}
+{ control_strip
+.des
+HTML for printing a control strip along the top of the page.
+}
+{ 5linkunit_ad
+.des
+HTML for printing an ad with 5 link units. See [var[FRIENDS_5LINKUNIT_AD]].
+}
+{ events
+.des
+If friends are defined, this is equal to the [var[FRIENDS_EVENTS]] variable, else it is equal to a message saying that no friends are defined... [var[FRIENDS_NOFRIENDS]].
+.min
+1
+.max
+1
+}
+{ username
+.des
+The system username of the current user, useful in creating links to other
+views of your journal, like to the calendar view.
+}
+{ title
+.des
+A title the user has chosen for their friends page. Normally used in the HTML
+title tags and also sometimes in a page heading.
+}
+{ range
+.des
+Text that describes the range of items being displayed.  Will be equal
+to either [var[FRIENDS_RANGE_MOSTRECENT]] or [var[FRIENDS_RANGE_HISTORY]].
+}
+{ skiplinks
+.des
+The "skiplinks" are the things that let you go back a page and forward a page.  
+If one of "back" or "forward" is applicable, then [var[FRIENDS_SKIP_LINKS]] is put here.
+}
+{ numitems
+.des
+The number of events that are going to show in the "events" property, as
+specified by the [var[FRIENDS_OPT_ITEMS]] variable.
+<B>Deprecated:</B> you should now use %%range%% instead of this property.
+}
+{ head
+.des
+Any user-specified content to go inside the document's &lt;HEAD&gt;, like CSS or META tags.  The value is [var[GLOBAL_HEAD]] followed by [var[FRIENDS_HEAD]].  You shouldn't define the *_HEAD variables in the style, as users should set them themselves.
+}
+{ urllastn
+.des
+URL to user's lastn view.
+}
+{ urlcalendar
+.des
+URL to user's calendar view.
+}
+}
+
+{ FRIENDS_SKYSCRAPER_AD
+.scope
+friends
+.type
+HTML
+.des
+The HTML tag needed to show a skyscraper ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the skyscraper ad.
+}
+}
+
+{ FRIENDS_OPEN_SKYSCRAPER_AD
+.scope
+friends
+.type
+HTML
+.des
+Conditional open wrapper around ad and/or user content.
+}
+
+{ FRIENDS_CLOSE_SKYSCRAPER_AD
+.scope
+friends
+.type
+HTML
+.des
+Conditional close wrapper around ad and/or user content.
+}
+
+{ FRIENDS_5LINKUNIT_AD
+.scope
+friends
+.type
+HTML
+.des
+The HTML tag needed to show a 5 link unit ad on your journal.
+.props
+{ ad
+.des
+The system-provided HTML to print the 5 link unit ad.
+}
+}
+
+{ FRIENDS_EVENTS
+.scope
+friends
+.deps
+FRIENDS_NEW_DAY, FRIENDS_EVENT, FRIENDS_END_DAY
+.type
+HTML
+.des
+A container for a bunch of [var[FRIENDS_EVENT]] variables.  Gets inserted into %%events%% of [var[FRIENDS_PAGE]].
+.props
+{ events
+.des
+The actual 'n' number of most recent events from the user's friends' journals.
+Each individual event is formatted according to the [var[FRIENDS_EVENT]] variable.  Before
+and after unique days, [var[FRIENDS_NEW_DAY]] and [var[FRIENDS_END_DAY]] variables are inserted as well.
+}
+}
+
+{ FRIENDS_END_DAY
+.scope
+friends
+.type
+HTML
+.des
+The opposite of [var[FRIENDS_NEW_DAY]].  This variable is inserted into %%events%% in the [var[FRIENDS_EVENTS]].
+}
+
+{ FRIENDS_NEW_DAY
+.scope
+friends
+.type
+HTML
+.des
+Before any [var[FRIENDS_EVENT]] that's on a day that no other event has been shown before, this block is inserted into %%events%% in the [var[FRIENDS_EVENTS]].
+.props
+{ dayshort
+.des
+Day of week.  Short form.  Example: Mon, Tue, Wed...
+}
+{ daylong
+.des
+Day of week.  Long form.  Example: Monday, Tuesday, Wednesday...
+}
+{ monshort
+.des
+Month.  Short form.  Example: Jan, Feb, Mar...
+}
+{ monlong
+.des
+Month.  Long form.  Example: January, February, March...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ m
+.des
+Month.  1-12.
+}
+{ mm
+.des
+Month.  01-12.
+}
+{ d
+.des
+Day.  1-31.
+}
+{ dd
+.des
+Day.  01-31.
+}
+{ dth
+.des
+Day plus ordinal.  1st, 2nd, 3rd, 4th, 5th...
+}
+}
+
+{ FRIENDS_SUBJECT
+.scope
+friends
+.editrows
+5
+.des
+When a journal entry has a subject, this variable is inserted into the %%subject%% property of [var[FRIENDS_EVENT]].
+.type
+HTML
+.props
+{ subject
+.des
+The journal entry's subject.
+}
+}
+
+{ FRIENDS_NO_SUBJECT
+.scope
+friends
+.editrows
+5
+.des
+When a journal entry does NOT have a subject, this variable is inserted into the %%subject%% property of [var[FRIENDS_EVENT]].
+.type
+HTML
+.props
+{ friend
+.des
+Friend's user name.
+}
+{ name
+.des
+Friend's name.
+}
+}
+
+{ FRIENDS_EVENT
+.scope
+friends
+.deps
+FRIENDS_DATE_FORMAT, FRIENDS_FRIENDPIC, FRIENDS_TALK_LINKS, FRIENDS_SUBJECT, FRIENDS_NO_SUBJECT, FRIENDS_EVENT_PRIVATE, FRIENDS_EVENT_PROTECTED, FRIENDS_ALTPOSTER, FRIENDS_CURRENTS
+.editrows
+10
+.des
+An event from the user's journal.  A bunch of these (as specified by [var[FRIENDS_OPT_ITEMS]]) get put together to form the %%events%% property of the [var[FRIENDS_EVENTS]] variable.  See also [var[FRIENDS_EVENT_PRIVATE]] and [var[FRIENDS_EVENT_PROTECTED]].
+.type
+HTML
+.props
+{ user
+.des
+The username of the friend whose journal entry is being displayed.
+}
+{ bgcolor
+.des
+The background color of the friend.
+}
+{ fgcolor
+.des
+The foreground color of the friend.
+}
+{ datetime
+.des
+The date and/or time of the event, as formatted by [var[FRIENDS_DATE_FORMAT]].
+}
+{ event
+.des
+The actual event from the journal.
+.min
+1
+}
+{ friendpic
+.des
+A picture of this friend, if they've uploaded a picture.  See [var[FRIENDS_FRIENDPIC]].
+}
+{ talklinks
+.des
+The value of [var[FRIENDS_TALK_LINKS]].  If you don't want commenting enabled on your journal, don't use this, or make [var[FRIENDS_TALK_LINKS]] empty.
+}
+{ subject
+.des
+When the journal entry has a subject, then a [var[FRIENDS_SUBJECT]] is inserted into this property.  That way you can do some specialized HTML only when there's a subject.
+}
+{ itemid
+.des
+A unique integer that represents this journal entry.  You probably won't ever have to use this.
+}
+{ itemargs
+.des
+A portion of a URL which identifies this event. This should be used when referring to memadd.bml, editjournal.bml or other similar actions which require an event to be identified in the URL. Do NOT use itemid=%%itemid%% for this purpose, or a similarly hardcoded scheme, use %%itemargs%%.
+}
+{ permalink
+.des
+The permalink of this event.
+}
+{ altposter
+.des
+If this is a shared journal, and somebody other than the journal creator is posting an item, this property gets the value of [var[FRIENDS_ALTPOSTER]].
+}
+{ currents
+.des
+If the user has specified either a current mood or their current music, then a [var[FRIENDS_CURRENTS]] gets inserted in here.
+}
+}
+
+{ FRIENDS_ALTPOSTER
+.scope
+friends
+.type
+HTML
+.des
+When a user other than the journal owner posts a top-level journal entry in a journal, this variable is inserted into the %%altposter%% property of [var[FRIENDS_EVENT]].
+.editrows
+4
+.props
+{ poster
+.des
+The username that's posting.
+}
+{ owner
+.des
+The username that owns the journal (the friend's username).
+}
+{ bgcolor
+.des
+The background color of the friend.
+}
+{ fgcolor
+.des
+The foreground color of the friend.
+}
+}
+
+{ LASTN_ALTPOSTER
+.scope
+lastn
+.deps
+LASTN_ALTPOSTER_PIC
+.type
+HTML
+.des
+When a user other than the journal owner posts a top-level journal entry in a journal, this variable is inserted into the %%altposter%% property of [var[LASTN_EVENT]].
+.editrows
+4
+.props
+{ poster
+.des
+The username that's posting.
+}
+{ owner
+.des
+The username that owns the journal.
+}
+{ pic
+.des
+If the user posting has a picture, the contents of [var[LASTN_ALTPOSTER_PIC]] go here.
+}
+}
+
+{ LASTN_ALTPOSTER_PIC
+.scope
+lastn
+.type
+HTML
+.des
+Goes into %%pic%% in [var[LASTN_ALTPOSTER]].
+.editrows
+3
+.props
+{ src
+.des
+The IMG SRC= attribute.
+}
+{ width
+.des
+The IMG WIDTH= attribute.
+}
+{ height
+.des
+The IMG HEIGHT= attribute.
+}
+}
+
+{ FRIENDS_FRIENDPIC
+.scope
+friends
+.type
+HTML
+.des
+Creates the IMG tag needed to show your friend's picture on the friends view page.
+.props
+{ src
+.des
+The IMG SRC= attribute.
+}
+{ width
+.des
+The IMG WIDTH= attribute.
+}
+{ height
+.des
+The IMG HEIGHT= attribute.
+}
+}
+
+{ FRIENDS_DATE_FORMAT
+.scope
+friends
+.override
+yes
+.editrows
+1
+.des
+Describes how dates/times are formatted in each [var[FRIENDS_EVENT]] variable.
+.type
+HTML
+.props
+{ dayshort
+.des
+Day of week.  Short form.  Example: Mon, Tue, Wed...
+}
+{ daylong
+.des
+Day of week.  Long form.  Example: Monday, Tuesday, Wednesday...
+}
+{ monshort
+.des
+Month.  Short form.  Example: Jan, Feb, Mar...
+}
+{ monlong
+.des
+Month.  Long form.  Example: January, February, March...
+}
+{ yy
+.des
+Year, two digit.
+}
+{ yyyy
+.des
+Year, four digit.
+}
+{ m
+.des
+Month.  1-12.
+}
+{ mm
+.des
+Month.  01-12.
+}
+{ d
+.des
+Day.  1-31.
+}
+{ dd
+.des
+Day.  01-31.
+}
+{ dth
+.des
+Day plus ordinal.  1st, 2nd, 3rd, 4th, 5th...
+}
+{ ap
+.des
+AM or PM as a one-character lower-case "a" or "p".
+}
+{ AP
+.des
+AM or PM as a one-character upper-case "A" or "P".
+}
+{ ampm
+.des
+AM or PM as a two-character lower-case "am" or "pm".
+}
+{ AMPM
+.des
+AM or PM as a two-character upper-case "AM" or "PM".
+}
+{ min
+.des
+Minutes.  00-59.
+}
+{ 12h
+.des
+Hour.  1-12.
+}
+{ 12hh
+.des
+Hour.  01-12.
+}
+{ 24h
+.des
+Hour.  1-23.
+}
+{ 24hh
+.des
+Hour.  01-23.
+}
+}
+
+{ FRIENDS_OPT_ITEMS
+.scope
+friends
+.override
+yes
+.editrows
+1
+.editcols
+10
+.des
+This is an integer value between 1 and 50 that sets how many
+items are shown in the "events" property of the [var[FRIENDS_PAGE]] variable.
+.type
+integer
+.default
+20
+}
+
+{ FRIENDS_NOFRIENDS
+.scope
+friends
+.type
+HTML
+.des
+This variable is used as %%events%% in [var[FRIENDS_PAGE]] if the user has not defined
+any friends.
+.props
+{ name
+.des 
+The user's full name, from the "user" field in the database.
+}
+{ name-'s
+.des
+An apostrophe followed by an "s" if the user's name does not end in "s", else 
+just an apostrophe.  Used in conjunction with the "name" property, can be 
+used to show possession.  For instance, "%%name%%%%name-'s%% Journal" could
+translate to "Bob's Journal".
+}
+{ username
+.des
+The system username of the current user, useful in creating links to other
+views of your journal, like to the calendar view.
+}
+}
+
+{ LASTN_TALK_LINKS
+.scope
+lastn
+.override
+yes
+.deps
+LASTN_TALK_READLINK
+.type
+HTML
+.des
+Define here HTML (if any) that you want to be displayed for the links to read comments and post comments on the current event.  The contents of this variable are inserted into %%talklinks%% in [var[LASTN_EVENT]], if the user has commenting enabled.
+.props
+{ readlink
+.des
+If there are existing comments for this event, then the value of [var[LASTN_TALK_READLINK]] is inserted into %%readlink%%
+}
+{ urlpost
+.des
+The URL you need to use in your &lt;a href=...&gt; tag to link to the "leave a comment" page.
+}
+{ urlread
+.des
+The URL to use in your &lt;a href=...&gt; tag to link to the "read comments" page.
+}
+{ messagecount
+.des
+The number of replies, or zero.
+}
+{ itemid
+.des
+A unique integer that represents this journal entry.  You probably won't ever have to use this.
+}
+{ itemargs
+.des
+A portion of a URL which identifies this event. This should be used when referring to memadd.bml, editjournal.bml or other similar actions which require an event to be identified in the URL. Do NOT use itemid=%%itemid%% for this purpose, or a similarly hardcoded scheme, use %%itemargs%%.
+}
+}
+
+{ LASTN_TALK_READLINK
+.scope
+lastn
+.override
+yes
+.type
+HTML
+.des
+If there are comments on the existing journal entry being displayed, then one of these variables is inserted into the %%readlink%% property of [var[LASTN_TALK_LINKS]].
+.props
+{ urlread
+.des
+The URL you need to use in your &lt;A HREF=...&gt; tag to link to the page where you read the comments.
+}
+{ messagecount
+.des
+The number of comments people have left in response to this journal entry.
+}
+{ mc-plural-s
+.des
+This property is "s" if messagecount is not equal to 1, so you can do things like "1 comment" or "2 comments".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-s%%</TT></B>
+}
+{ mc-plural-es
+.des
+This property is "es" if messagecount is not equal to 1, so you can do things like "1 kiss" or "2 kisses".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-es%%</TT></B>
+}
+{ mc-plural-ies
+.des
+This property is "ies" if messagecount is not equal to 1, else it is "y", so you can do things like "1 reply" or "2 replies".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-ies%%</TT></B>
+}
+}
+
+{ DAY_TALK_LINKS
+.scope
+day
+.override
+yes
+.deps
+DAY_TALK_READLINK
+.type
+HTML
+.des
+Define here HTML (if any) that you want to be displayed for the links to read comments and post comments on the current event.  The contents of this variable are inserted into %%talklinks%% in [var[DAY_EVENT]] if the user has commenting enabled.
+.props
+{ readlink
+.des
+If there are existing comments for this event, then the value of [var[DAY_TALK_READLINK]] is inserted into %%readlink%%
+}
+{ urlpost
+.des
+The URL you need to use in your &lt;a href=...&gt; tag to link to the "leave a comment" page.
+}
+{ urlread
+.des
+The URL to use in your &lt;a href=...&gt; tag to link to the "read comments" page.
+}
+{ messagecount
+.des
+The number of replies, or zero.
+}
+{ itemid
+.des
+A unique integer that represents this journal entry.  You probably won't ever have to use this.
+}
+{ itemargs
+.des
+A portion of a URL which identifies this event. This should be used when referring to memadd.bml, editjournal.bml or other similar actions which require an event to be identified in the URL. Do NOT use itemid=%%itemid%% for this purpose, or a similarly hardcoded scheme, use %%itemargs%%.
+}
+}
+
+{ DAY_TALK_READLINK
+.scope
+day
+.override
+yes
+.type
+HTML
+.des
+If there are comments on the existing journal entry being displayed, then one of these variables is inserted into the %%readlink%% property of [var[DAY_TALK_LINKS]].
+.props
+{ urlread
+.des
+The URL you need to use in your &lt;A HREF=...&gt; tag to link to the page where you read the comments.
+}
+{ messagecount
+.des
+The number of comments people have left in response to this journal entry.
+}
+{ mc-plural-s
+.des
+This property is "s" if messagecount is not equal to 1, so you can do things like "1 comment" or "2 comments".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-s%%</TT></B>
+}
+{ mc-plural-es
+.des
+This property is "es" if messagecount is not equal to 1, so you can do things like "1 kiss" or "2 kisses".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-es%%</TT></B>
+}
+{ mc-plural-ies
+.des
+This property is "ies" if messagecount is not equal to 1, else it is "y", so you can do things like "1 reply" or "2 replies".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-ies%%</TT></B>
+}
+}
+
+{ FRIENDS_TALK_LINKS
+.scope
+friends
+.override
+yes
+.deps
+FRIENDS_TALK_READLINK
+.type
+HTML
+.des
+Define here HTML (if any) that you want to be displayed for the links to read comments and post comments on the current event.  The contents of this variable are inserted into %%talklinks%% in [var[FRIENDS_EVENT]] if the user has commenting enabled.
+.props
+{ readlink
+.des
+If there are existing comments for this event, then the value of [var[FRIENDS_TALK_READLINK]] is inserted into %%readlink%%
+}
+{ urlpost
+.des
+The URL you need to use in your &lt;A HREF=...&gt; tag to link to the "leave a comment" page.
+}
+{ urlread
+.des
+The URL to use in your &lt;a href=...&gt; tag to link to the "read comments" page.
+}
+{ messagecount
+.des
+The number of replies, or zero.
+}
+{ itemid
+.des
+A unique integer that represents this journal entry.  You probably won't ever have to use this.
+}
+{ itemargs
+.des
+A portion of a URL which identifies this event. This should be used when referring to memadd.bml, editjournal.bml or other similar actions which require an event to be identified in the URL. Do NOT use itemid=%%itemid%% for this purpose, or a similarly hardcoded scheme, use %%itemargs%%.
+}
+}
+
+{ FRIENDS_TALK_READLINK
+.scope
+friends
+.override
+yes
+.type
+HTML
+.des
+If there are comments on the existing journal entry being displayed, then one of these variables is inserted into the %%readlink%% property of [var[FRIENDS_TALK_LINKS]].
+.props
+{ urlread
+.des
+The URL you need to use in your &lt;A HREF=...&gt; tag to link to the page where you read the comments.
+}
+{ messagecount
+.des
+The number of comments that people have left in response to this journal entry.
+}
+{ mc-plural-s
+.des
+This property is "s" if messagecount is not equal to 1, so you can do things like "1 comment" or "2 comments".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-s%%</TT></B>
+}
+{ mc-plural-es
+.des
+This property is "es" if messagecount is not equal to 1, so you can do things like "1 kiss" or "2 kisses".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-es%%</TT></B>
+}
+{ mc-plural-ies
+.des
+This property is "ies" if messagecount is not equal to 1, else it is "y", so you can do things like "1 reply" or "2 replies".  Use like:  <B><TT>%%messagecount%% comment%%mc-plural-ies%%</TT></B>
+}
+}
+
+{ GLOBAL_HEAD
+.scope
+lastn, calendar, day, friends
+.override
+only
+.type
+HTML
+.des
+Any arbitrary HTML you want placed in the &lt;HEAD&gt; of the page being displayed.
+This is a good place to put CSS or META tags.  Being global, this
+will be placed in any view type.  If you want to add tags for a specific view
+type, use [var[LASTN_HEAD]], [var[DAY_HEAD]], [var[FRIENDS_HEAD]], or [var[CALENDAR_HEAD]].
+}
+
+{ LASTN_HEAD
+.scope
+lastn
+.override
+only
+.type
+HTML
+.des
+Any arbitrary HTML you want placed in the &lt;HEAD&gt; of the [view[lastn]] page.
+This is a good place to put CSS or META tags.  If you want to add the
+same tags to all your pages, use [var[GLOBAL_HEAD]].
+}
+
+{ DAY_HEAD
+.scope
+day
+.override
+only
+.type
+HTML
+.des
+Any arbitrary HTML you want placed in the &lt;HEAD&gt; of the [view[day]] page.
+This is a good place to put CSS or META tags.  If you want to add the
+same tags to all your pages, use [var[GLOBAL_HEAD]].
+}
+
+{ CALENDAR_HEAD
+.scope
+calendar
+.override
+only
+.type
+HTML
+.des
+Any arbitrary HTML you want placed in the &lt;HEAD&gt; of the [view[calendar]] page.
+This is a good place to put CSS or META tags.  If you want to add the
+same tags to all your pages, use [var[GLOBAL_HEAD]].
+}
+
+{ FRIENDS_HEAD
+.scope
+friends
+.override
+only
+.type
+HTML
+.des
+Any arbitrary HTML you want placed in the &lt;HEAD&gt; of the [view[friends]] page.
+This is a good place to put CSS or META tags.  If you want to add the
+same tags to all your pages, use [var[GLOBAL_HEAD]].
+}

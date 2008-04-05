@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>1. Installation</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.install.apache_setup.html" title="Chapter 11. Apache">
+<link rel="prev" href="lj.install.apache_setup.html" title="Chapter 11. Apache">
+<link rel="next" href="lj.install.apache_setup.example.html" title="2. Example httpd.conf">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">1. Installation</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.install.apache_setup.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 11. <span class="application">Apache</span>
+</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.install.apache_setup.example.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.install.apache_setup.install">1. Installation</h2></div></div></div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="lj.install.apache_setup.install.mod_perl">1.1. <span class="application">mod_perl</span>
+</h3></div></div></div>
+<p>
+      <span class="application">LiveJournal</span> requires <span class="application">mod_perl</span>. It is widely used, so you might already
+      have it on your machine. If not, you can find the official installation
+      docs at <a href="http://perl.apache.org/docs/1.0/guide/install.html" target="_top">http://perl.apache.org/docs/1.0/guide/install.html<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a>.
+      </p>
+<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Caution</h3>
+<p>
+        We've found that more people have success when <span class="application">mod_perl</span> is statically
+        linked (&#8220;<span class="quote">compiled-in</span>&#8221; to the <span class="application">Apache</span> module), rather than using a <acronym class="acronym">DSO</acronym>.
+        <sup>[<a name="dso" href="#ftn.dso" class="footnote">6</a>]</sup> This is because it is difficult to build <span class="package">mod_perl</span> reliably
+        as a <acronym class="acronym">DSO</acronym>.</p>
+</div>
+<div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title"><code class="systemitem"><span class="application">Debian</span></code></h3>
+<p>Typically, if you already have a working <span class="application">Apache</span> installation in <code class="systemitem"><span class="application">Debian</span></code>
+          and would like to install <span class="application">mod_perl</span> support, then installing the package
+          <span class="package">libapache-mod-perl</span> should suit your needs. Otherwise,
+          you should install the package <span class="package">apache-perl</span>.
+          The <span class="package">apache-perl</span> package provides the advantage of easier
+          setup, because it is compiled with <span class="application">mod_perl</span> support already.
+      </p>
+</div>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="lj.install.apache_setup.install.suexec">1.2. <span class="application">Apache</span> suEXEC Support</h3></div></div></div>
+<p>
+        If you want the <span class="application">LiveJournal</span> code to run as a user other than
+        what your webserver runs as, then you'll need suEXEC<sup>[<a name="suexec" href="#ftn.suexec" class="footnote">7</a>]</sup> support in
+        <span class="application">Apache</span>.  You are free to figure that out yourself.  We will assume
+        your webserver is running as user <code class="systemitem">lj</code>,
+        though it does not have to run as any specific user to work.
+      </p>
+<p>
+        In fact, the <span class="application">LiveJournal</span> code never writes to disk. So, as long
+        as it can write to the database (which is essential, obviously),
+        you can run the code as any user, including
+        <code class="systemitem">nobody</code> or
+        <code class="systemitem">www-data</code>, both
+        of which are common in out-of-the-box configurations.
+      </p>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h3 class="title" id="lj.install.apache_setup.install.vhosts">1.3. Virtual Hosts</h3></div></div></div>
+<p>
+        You can run the <span class="application">LiveJournal</span> code inside or outside of a
+        <code class="literal">&lt;VirtualHost&gt;</code> section in <span class="application">Apache</span>'s
+        <code class="filename">httpd.conf</code> file.  However, you are not able
+        (yet) to have two VirtualHosts running parallel copies of the
+        code.  In the future we will fix that, but for now if you really
+        need two installations on the same machine, you will need to run
+        two sets of <span class="application">Apache</span> processes, listening on different ports.
+      </p>
+</div>
+<div class="footnotes">
+<br><hr width="100" align="left">
+<div class="footnote"><p><sup>[<a name="ftn.dso" href="#dso" class="simpara">6</a>] </sup>
+          Consult &#8220;<span class="citetitle">
+          <a href="http://perl.apache.org/docs/1.0/guide/install.html#When_DSO_can_be_Used" target="_top">
+          <span class="application">mod_perl</span> Installation User Guide: When <acronym class="acronym">DSO</acronym> Can Be Used<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></span>&#8221;
+          for more information. 
+        </p></div>
+<div class="footnote"><p><sup>[<a name="ftn.suexec" href="#suexec" class="simpara">7</a>] </sup><a href="http://httpd.apache.org/docs/suexec.html" target="_top">Official
+          <span class="application">Apache</span> suEXEC documentation<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></p></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.install.apache_setup.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.install.apache_setup.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.install.apache_setup.example.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 11. <span class="application">Apache</span> </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 2. Example <code class="filename">httpd.conf</code>
+</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

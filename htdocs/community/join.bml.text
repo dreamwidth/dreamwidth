@@ -1,0 +1,83 @@
+;; -*- coding: utf-8 -*-
+.btn.cancel=Cancel
+
+.button.join=Join Community
+
+.button.join2=Join Community
+
+.error.already.member=You are already a member of this community.
+
+.error.closed=This community is closed to new members.  If you wish to join, please contact one of the following maintainers: [[admins]]
+
+.error.ischild=[[comm]] could contain adult concepts which may not be suitable for minors. You must be at least 14 years of age to join this community.
+
+.error.isminor=[[comm]] may contain material only suitable for adults. You must be at least 18 years of age to join this community.
+
+.error.setage=<a [[aopts]]>Edit your profile</a> to register your age.
+
+.error.statusvis.body=The account you are logged in as is not an active account.
+
+.error.statusvis.title=Unable to Join Communities
+
+.label.addtofriends=Add "[[maintainer]]" to friends list.<br>
+
+.label.addtofriends.note=Subscribing to this community will allow you to read entries posted in it on your Friends page.
+
+.label.addtofriends.note2=Adding a community allows you to read entries posted in it on your Friends page.
+
+.label.addtofriends2=Subscribe to [[comm]] in addition to joining it.
+
+.label.addtofriends2.modify=Modify subscription to [[comm]] in addition to joining it.
+
+.label.addtofriends3=Yes, I want to watch [[comm]] in addition to joining it.  Take me to <strong>Step 2: Add to Friends</strong>.
+
+.label.allowposting=This community allows posting by all members, so you now have access to post in it.  If you already have a LiveJournal client open on your computer, you'll have to log out and log back in for this journal to show up in your list of journals you can post to.
+
+.label.allowposting2=Additionally, this community allows posting by all members. If you already have a [[sitename]] client open, log out and log back in for this community to show in your posting permissions.
+
+.label.auth=Although you are now listed as a member, this community only allows posting by authorized users.  Contact one of the maintainers if you desire posting access. Below is the list of maintainers for this community: [[admins]]
+
+.label.auth2=Please note that this community only allows posting by authorized users, so joining it will not allow you to post in it. Contact one of the maintainers if you desire posting access. Below is the list of maintainers for this community: [[admins]]
+
+.label.banned=The maintainer(s) of this community have banned you from joining.
+
+.label.closed=This community is closed.  If you're interested in joining it, please contact one of its maintainers. Below is the list of maintainers for this community: [[admins]]
+
+.label.commlogged=You're logged in as a shared/community account, not your personal account.
+
+.label.errorcomminfo=The specified community information is not valid.
+
+.label.expls=Press the button below to join the "[[maintainer]]" community. Uncheck the box below if you want to join the community without seeing community entries on your friends page.
+
+.label.expls2=Joining this community will allow you to read any members-only entries posted in it. It will not allow community members or maintainers to read protected entries in your own journal.
+
+.label.locked=This community is not accepting new members, and so you cannot join it.
+
+.label.membernow2=You are now a member of the <a [[aopts]]>[[commname]] Community</a>.
+
+.label.membernow3=You are now a member of <a [[aopts]]>[[commname]] Community</a>.
+
+.label.membernow6=You are now a member of [[commname]] Community.
+
+.label.notcomm=The specified journal is not a community.
+
+.label.sure=You sure?
+
+.label.sure2=Join [[comm]]?
+
+.reqsubmitted.body=Your request to join has been submitted to the maintainers. If approved, you will be added to the community automatically.
+
+.reqsubmitted.title=Join Request Submitted
+
+.request.body=The [[comm]] community does not have open membership. Clicking below will submit a membership request to the maintainers.
+
+.request.reason=<i>Optionally</i>, enter a reason you would like to join this community:
+
+.request.title=Request to Join
+
+.success=Success
+
+.title=Join Community
+
+.toomanyfriends=Adding [[community]] as a friend would exceed the maximum number of friends your account is allowed. You have however now joined this community.
+

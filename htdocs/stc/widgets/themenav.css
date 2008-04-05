@@ -1,0 +1,80 @@
+.appwidget-themechooser {
+    margin: 0 0 25px 16px;
+    padding-bottom: 20px;
+    position: relative;
+}
+.theme-nav-inner-wrapper {
+    background: url(/img/customize/bluepixel.gif) repeat-y scroll 134px 50%;
+}
+.theme-selector-wrapper h2 {
+    position: relative;
+}
+.theme-selector-wrapper h2 span {
+    position: absolute;
+    right: 8px;
+    top: 0;
+    font-size: 11px;
+    font-weight: normal;
+    font-family: verdana;
+    vertical-align: baseline;
+}
+.theme-nav-content {
+    margin: 0 0 15px 134px;
+    position: relative;
+    border: 1px solid #C7E0F6;
+    border-left: none;
+}
+.theme-selector-nav {
+    float: left;
+    width: 135px;
+    background-color: #ECF6FF;
+}
+.theme-nav li a,
+.theme-nav-small li {
+    text-decoration: none;
+    display: block;
+    padding: 3px 6px;
+    border-right: 1px solid #C7E0F6;
+}
+.theme-nav li a:hover,
+.theme-nav-small li a:hover {
+    text-decoration: underline;
+}
+.theme-nav li.on a {
+    border: 1px solid #C7E0F6;
+    border-right: none;
+    font-weight: bold;
+    background: #fff url(/img/customize/nav-on-arrow.gif) no-repeat right 50%;
+}
+.theme-nav li a:visited,
+.theme-nav-small a:visited {
+    color: #00c;
+}
+* html .theme-nav li a,
+* html .theme-nav-small li a {
+    display: inline-block;
+    width: 123px;
+}
+.theme-nav-separator {
+    border-right: 1px solid #C7E0F6;
+    padding: 5px 0;
+}
+* html .theme-nav-separator {
+    width: 135px;
+}
+.theme-nav-separator hr {
+    margin: 0 5px;
+    height: 1px;
+    width: 120px;
+    border-top: 1px solid #C7E0F6;
+}
+.theme-nav-small li.last a {
+    padding-bottom: 15px !important;
+}
+.theme-nav-small li a {
+    text-decoration: none;
+    font-size: 11px;
+}
+.theme-nav-search-box {
+    text-align: right;
+}

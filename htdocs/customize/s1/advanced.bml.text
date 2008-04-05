@@ -1,0 +1,57 @@
+;; -*- coding: utf-8 -*-
+.advancedoptions.header=Advanced Options
+
+.disclaimer<<
+Unless you're a programmer or web designer, most users should stay
+away from this area and use the <a [[aopts]]>main customization area</a>, which is designed for anybody to use.
+.
+
+.disclaimer.header=Disclaimer
+
+.noauth=You could not be authenticated as the specified user.
+
+.s1.browse=Style Browser
+
+.s1.browse.about=The style browser lets you browse through public styles created by other users.
+
+.s1.create=Create a new style
+
+.s1.create.about=Create a new style from scratch, or base your style on an existing public style.
+
+.s1.documentation.text=Advanced users can read more about the style system on <a [[aopts]]>the style documentation page</a>.
+
+.s1.edit=Edit or Delete an existing style
+
+.s1.edit.about<<
+You may only edit styles &ldquo;owned&rdquo; by your account. In order to customize
+a system style, you must first create a new style based on that system style.
+.
+
+.s1.embedding=Embed your journal in your website
+
+.s1.embedding.about=There are many different ways to embed your journal into your own website.
+
+.s2.doc.desc=under construction, but some good content
+
+.s2.doc.link=S2 Documentation
+
+.s2.documentation.header=Documentation
+
+.s2.documentation.text=Before you jump into tweaking/programming S2, you should understand how it works.
+
+.s2.publiclayers.desc=system layers (good reference &amp; place to learn)
+
+.s2.publiclayers.link=Public Layers
+
+.s2.yourlayers.desc=create/manage your layers
+
+.s2.yourlayers.link=Your Layers
+
+.s2.yourstyles.desc=create/manage your styles
+
+.s2.yourstyles.link=Your Styles
+
+.title=Journal Display
+
+.upsell=Your account type does not permit you to create custom styles.
+

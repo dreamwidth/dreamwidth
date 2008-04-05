@@ -1,0 +1,60 @@
+<?_code
+{
+ use strict;
+ use vars qw($title $body %GET %POST);
+
+ $title = $ML{'.defaulttitle'};
+ $body = $ML{'.defaultbody'};
+
+ # S2 Redirector
+ if ($POST{'redir_type'} eq "monthview") {
+     my $user = LJ::canonical_username($POST{'redir_user'});
+     my $vhost;
+     $vhost = $POST{'redir_vhost'} if $POST{'redir_vhost'}=~/users|tilde|community|front|other/;
+     if ($vhost eq "other") {
+         # FIXME: lookup their domain alias, and make vhost be "other:domain.com";
+     }
+     my $base = LJ::journal_base($user, $vhost);
+     return $ML{'.error.redirkey'} unless $POST{'redir_key'} =~/^(\d\d\d\d)(\d\d)$/;
+     my ($year, $month) = ($1, $2);
+     return BML::redirect("$base/$year/$month/");
+ }
+
+ # prev/next talkread links
+ my $itemid = $GET{'itemid'}+0;
+ if ($GET{'journal'} && $itemid) 
+ {
+     my $journal = $GET{'journal'};
+     my $u = LJ::load_user($journal);
+
+     # sanity check
+     unless ($u) {
+         $body = $ML{'.error.usernotfound'};
+         return;
+     }
+     my $journalid = $u->{'userid'}+0;
+
+     $itemid = int($itemid / 256);
+     
+     my $jumpid = 0;
+     $title = $ML{'.error.noentrytitle'};
+     
+     if ($GET{'dir'} eq "next") {
+         $jumpid = LJ::get_itemid_after2($u, $itemid);
+         $body = $ML{'.error.noentry.next'};
+     } elsif ($GET{'dir'} eq "prev") {
+         $jumpid = LJ::get_itemid_before2($u, $itemid);
+         $body = $ML{'.error.noentry.prev'};
+     }
+
+     if ($jumpid) {
+         return BML::redirect(LJ::journal_base($u) . "/$jumpid.html");
+     }
+ }
+
+ return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>

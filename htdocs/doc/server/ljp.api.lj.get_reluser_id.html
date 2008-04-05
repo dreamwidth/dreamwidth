@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::get_reluser_id</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.get_recommended_communities.html" title="LJ::get_recommended_communities">
+<link rel="next" href="ljp.api.lj.get_remote.html" title="LJ::get_remote">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::get_reluser_id</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.get_recommended_communities.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.get_remote.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.get_reluser_id"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::get_reluser_id</h2>
+<p>LJ::get_reluser_id &#8212; for <a class="link" href="ljp.dbschema.reluser2.html" title="reluser2">reluser2</a>, numbers 1 - 31999 are reserved for livejournal stuff, whereas numbers 32000-65535 are used for local sites.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::get_reluser_id</b>(</code><var class="pdparam">type</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3212760"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc"><li><p><b>type. </b>the name of the type you're trying to access, e.g. "hide_comm_assoc"</p></li></ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3212782"></a><h2>Info</h2>
+<p>If you wish to add your own hooks to this, you should define a hook "get_reluser_id" in ljlib-local.pl. No reluser2 <a class="xref" href="ljp.dbschema.reluser.ref.html#reluserdefs">reluser relationships</a> types can be a single character, those are reserved for the <a class="link" href="ljp.dbschema.reluser.html" title="reluser">reluser</a> table, so we don't have namespace problems.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3212809"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/ljrelation.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3212822"></a><h2>Returns:</h2>
+<p>id of type, 0 means it's not a reluser2 type</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.get_recommended_communities.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.get_remote.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::get_recommended_communities </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::get_remote</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

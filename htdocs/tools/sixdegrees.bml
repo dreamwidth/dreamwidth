@@ -1,0 +1,45 @@
+<?page
+title=>Six Degrees
+body<=
+
+<?h1 Find a path between users h1?>
+<?p
+This is for beta-testers.
+p?>
+
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+    use LJ::SixDegrees;
+    
+    my $remote = LJ::get_remote();
+    my $from_user = LJ::canonical_username($GET{'from'} || ($remote ? $remote->{user} : ""));
+    my $to_user = LJ::canonical_username($GET{'to'});
+
+    my $ret;
+    $ret .= qq{<form method='get'>
+From user:  <input name='from' value='$from_user' size='15' />
+To user:  <input name='to' value='$to_user' size='15' />
+<input type='submit' value='Find path' />
+</form>};
+
+    if ($from_user ne "" && $to_user ne "") {
+	my $fu = LJ::load_user($from_user);
+	my $tu = LJ::load_user($to_user);
+	my @path = LJ::SixDegrees::find_path($fu, $tu, 3);
+	$ret .= "<b>Path:</b>";
+	if (@path) {
+	    $ret .= join(" &gt; ", map { LJ::ljuser($_) } @path);
+	} else {
+	    $ret .= "<i>(none found)</i>";
+	}
+    }
+    
+    return $ret;
+
+}
+_code?>
+
+<=body
+page?>

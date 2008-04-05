@@ -1,0 +1,9 @@
+<FORM TARGET="links" ACTION="links.bml" METHOD=GET>
+View styles of user:
+<INPUT NAME="user" VALUE="system" SIZE=15 MAXLENGTH=15>
+<BR>
+
+<INPUT TYPE="SUBMIT" VALUE="Preview">
+</FORM> <?_c <LJDEP>
+form: htdocs/styles/browse/links.bml
+</LJDEP> _c?>

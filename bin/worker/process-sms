@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+require 'ljprotocol.pl';
+require 'ljlang.pl';
+use LJ::Worker::TheSchwartz;
+use LJ::SMS;
+
+foreach my $classname (LJ::SMS->schwartz_capabilities) {
+    schwartz_decl($classname);
+}
+
+schwartz_work();
+

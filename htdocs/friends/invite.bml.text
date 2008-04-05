@@ -1,0 +1,35 @@
+;; -*- coding: utf-8 -*-
+.btn.invite=Invite 'em!
+
+.error.bademail=Bogus looking email: [[errormsg]]
+
+.error.needcreatelink=You must include the link for your friend to create a journal: [[link]]
+
+.error.noemail=Please enter your friend's email address.
+
+.error.noimagesallowed=Images are not allowed in this message.
+
+.error.noname=Please enter your friend's name.
+
+.error.nooffsitelinksallowed=Links to sites other than [[sitename]] are not allowed in this message.
+
+.error.overratelimit=It looks like you are inviting a lot of your friends to [[sitename]]. To help us combat SPAM, you may wish to send the rest of your invitations via your own email address. Make sure you include the invite link in your email which you can find <a [[aopts]]>at the top of the page</a>.
+
+.error.useralreadyhasaccount=You are sending this invite to a user that already has an account.
+
+.form.header=Fill out this form to invite someone to [[sitename]]:
+
+.form.input.email=Your friend's email:
+
+.form.input.message=Your message to them:
+
+.form.input.name=Your friend's name:
+
+.form.note=If you want to invite your friend to a specific community, you can mention the community name and URL here.
+
+.intro=Use this form as often as you like, or just cut and paste this link and send from your own email account: <strong><a [[aopts]]>[[createlink]]</a></strong>
+
+.success=Message sent to [[email]]! Want to invite somebody else?
+
+.title=Invite a Friend!
+

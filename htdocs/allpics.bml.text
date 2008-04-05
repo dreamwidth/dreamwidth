@@ -1,0 +1,29 @@
+;; -*- coding: utf-8 -*-
+.current=Current Pictures
+
+.default=<u>Default</u>
+
+.edit3=You may be interested in <a [[aopts1]]>editing your picture keywords</a> or <a [[aopts2]]>uploading a new picture</a>.
+
+.edit4=You may be interested in <a [[aopts]]>editing your userpic keywords or uploading a new userpic</a>.
+
+.error.noparam=You need to specify a user parameter.
+
+.keywords=Keywords:
+
+.nopics.text.other=This user has not uploaded any user pictures.
+
+.nopics.text.other2=This user has not uploaded any userpics. <a [[aopts]]>Get notified</a> when they upload one.
+
+.nopics.text3=You have no pictures uploaded. To upload one, go <a [[aopts]]>here</a>.
+
+.nopics.title=No Pictures
+
+.pics=Here are the user pictures for [[user]].
+
+.pics2=Here are the userpics for [[user]]. <a [[aopts]]>Get notified</a> when they upload a new one.
+
+.pics.owner=Here are the userpics for [[user]].
+
+.title=User Pictures
+

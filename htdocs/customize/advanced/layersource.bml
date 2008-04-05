@@ -1,0 +1,84 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET);
+
+    my $pub = LJ::S2::get_public_layers();
+
+    # for error reporting
+    my $err = sub {
+        return "<h2>$ML{'Error'}</h2>" . shift;
+    };
+
+    my $dbr = LJ::get_db_reader();
+    my $remote = LJ::get_remote();
+
+    my $id = $GET{'id'};
+    return BML::redirect('layerbrowse.bml') unless $id =~ /^\d+$/;
+
+    my $lay = defined $pub->{$id} ? $pub->{$id} : LJ::S2::load_layer($id);
+    return $err->($ML{'/customize/advanced/layerbrowse.bml.error.layerdoesntexist'})
+        unless $lay;
+
+    my $layerinfo = {};
+    LJ::S2::load_layer_info($layerinfo, [ $id ]);
+    my $srcview = exists $layerinfo->{$id}->{'source_viewable'} ?
+        $layerinfo->{$id}->{'source_viewable'} : undef;
+
+    # authorized to view this layer?
+    my $isadmin = !defined $pub->{$id} &&                          # public styles are pulled from the system
+                  (LJ::check_priv($remote, 'canview', 'styles') || # account, so we don't want to check privileges
+                   LJ::check_priv($remote, 'canview', '*'));       # in case they're private styles
+    return $err->($ML{'/customize/advanced/layerbrowse.bml.error.cantviewlayer'})
+        unless defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
+               $srcview == 1 ||
+               LJ::can_manage($remote, $lay->{'userid'}) ||
+               $isadmin;
+
+    my $s2code = LJ::S2::load_layer_source($id);
+
+    # get html version of the code?
+    if ($GET{'fmt'} eq "html") {
+        my $html;
+        my ($md5, $save_cache);
+        if ($pub->{$id}) {
+            # let's see if we have it cached
+            $md5 = Digest::MD5::md5_hex($s2code);
+            my $cache = $dbr->selectrow_array("SELECT value FROM blobcache WHERE bckey='s2html-$id'");
+            if ($cache =~ s/^\[$md5\]//) {
+                $html = $cache;
+            } else {
+                $save_cache = 1;
+            }
+        }
+
+        unless ($html) {
+            my $cr = new S2::Compiler;
+            $cr->compile_source({
+                'source' => \$s2code,
+                'output' => \$html,
+                'format' => "html",
+                'type' => $pub->{$id}->{'type'},
+            });
+        }
+
+        if ($save_cache) {
+            my $dbh = LJ::get_db_writer();
+            $dbh->do("REPLACE INTO blobcache (bckey, dateupdate, value) VALUES (?,NOW(),?)",
+                     undef, "s2html-$id", "[$md5]$html");
+        }
+        return $html;
+    }
+
+    # return text version
+    BML::set_content_type("text/plain");
+    my $ua = BML::get_client_header("User-Agent");
+    if ($ua && $ua =~ /\bMSIE\b/) {
+        my $filename = "s2source-$id.txt";
+        Apache->request->header_out('Content-Disposition' => "attachment; filename=$filename");
+    }
+
+    BML::noparse();
+    return $s2code;
+}
+_code?>

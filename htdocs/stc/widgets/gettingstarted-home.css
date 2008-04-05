@@ -1,0 +1,33 @@
+.appwidget-gettingstarted {
+    padding-bottom: 10px;
+}
+* html .appwidget-gettingstarted {
+    padding-bottom: 0px;
+}
+/* .pkg class wraps enclosing block element around inner floated elements */
+.appwidget-gettingstarted:after {
+    content: " ";
+    display: block;
+    visibility: hidden;
+    clear: both;
+    height: 0.1px;
+    font-size: 0.1em;
+    line-height: 0;
+}
+.appwidget-gettingstarted { display: inline-block; }
+/* no ie mac \*/
+* html .appwidget-gettingstarted { height: 1%; }
+.appwidget-gettingstarted[class] { height: auto; }
+.appwidget-gettingstarted { display: block; }
+/* */
+.account-controls {
+    float: left;
+    clear: left;
+    margin: 4px 0 0 10px;
+    font-size: 11px;
+}
+.account-controls-manage {
+    float: right;
+    margin: 4px 10px 0 0;
+    font-size: 11px;
+}

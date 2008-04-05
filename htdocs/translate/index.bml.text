@@ -1,0 +1,13 @@
+;; -*- coding: utf-8 -*-
+.table.code=Code
+
+.table.done=% Done
+
+.table.langname=Language Name
+
+.table.lastupdate=Last Update
+
+.text=The following table lists the progress by each of the different <a [[aopts]]>translation teams</a>.
+
+.title=Translation Area
+

@@ -1,0 +1,9 @@
+;; -*- coding: utf-8 -*-
+
+.entryspam=Please report this through the spam reports system.
+
+.journalspam=Please report this through the spam reports system.
+
+.maint_communityspam=To report this entry as spam, go <a [[aopts]]>here</a> and click "Delete and Mark as Spam".
+
+.nonmaint_communityspam=Please report this through the spam reports system.

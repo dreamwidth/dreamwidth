@@ -1,0 +1,62 @@
+;; -*- coding: utf-8 -*-
+.edit.header=I cannot edit my entries in the web interface!
+
+.edit.text2<<
+<?p <b>Short answer:</b> <i>(applicable if you write your journal in English)</i>: Go to your 
+<a [[aopts1]]>personal settings page</a>. Find an option near the bottom of the page that is
+called <b>Auto-convert older entries from:</b>. Choose "Western European (Windows)" from the
+pull-down menu and save your settings. Your entries should now be editable. p?>
+
+<?p <b>Long answer</b>: In order to allow you to edit a non-Unicode entry, LiveJournal code needs to 
+know which encoding that entry has been posted in. For users of English and other West European 
+languages, this will normally be "Western European (Windows)", although if that doesn't work well
+for quote characters and other similar meta-characters, try "Western European (ISO)". Users
+writing in other languages should select their encoding; if it isn't in the supplied list, 
+contact <a [[aopts2]]>Support</a> and explain the problem.  p?>
+
+<?p Note that "non-Unicode entry" may mean either a journal entry posted before LiveJournal underwent
+the conversion to Unicode, or a new journal entry posted recently with a client program that 
+is not Unicode-compatible.  p?>
+.
+
+.editcl.header=I cannot edit my entries in the client program!
+
+.editcl.text<<
+<?p If there is a newer version of your client program that supports Unicode,
+upgrade. If not, you will be able to edit entries which contain ASCII symbols only (basically
+the Latin alphabet and the usual punctuation signs). For entries any fancy symbols or other 
+languages you will have to resort to editing via the web interface, which works fine in any case. p?>
+.
+
+.groups.header=I cannot edit my friend lists with my client program!
+
+.groups.text2<<
+<?p This is probably due to you having friend groups with names that aren't exclusively ASCII (for
+example, written in non-Latin languages or containing accent symbols). In order to successfully
+work with such group names, you have to use a Unicode-supporting client. Alternatively, you
+can rename your groups to ASCII-only names on the 
+<a [[aopts]]>group editing page</a> and then use your client program. p?>
+.
+
+.overview.header=What is this all about?
+
+.overview.text<<
+<?p LiveJournal uses Unicode to store and display everything: 
+text of journal entries, comments, names and personal information... everything. 
+Unicode is a very powerful standard for working with text. 
+For example, it allows users to store and input information in many languages at once. 
+It supports the infrastructure of translating and maintaining the user interface in 
+languages other than English. p?>
+
+<?p Journal entries and comments which had been stored before LiveJournal switched
+to Unicode need to be converted to Unicode on-the-fly in order for the user to be able 
+to view or edit them. This page explains how to deal with some of the common problems in
+that area. p?>
+.
+
+.still.header=Still stumped?
+
+.still.text2=<?p You can try asking your question in the <a [[aopts]]>Support Area</a>. p?>
+
+.title=Encodings
+

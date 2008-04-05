@@ -1,0 +1,15 @@
+;; -*- coding: utf-8 -*-
+.defaultbody=No parameters given.
+
+.defaulttitle=Error
+
+.error.noentry.next=There is no entry following this one.
+
+.error.noentry.prev=There is no entry preceding this one.
+
+.error.noentrytitle=No Entry
+
+.error.redirkey=Bogus redir_key.
+
+.error.usernotfound=User not found.
+

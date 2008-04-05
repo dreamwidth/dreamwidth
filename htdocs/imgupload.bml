@@ -1,0 +1,186 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+
+    # $_[1] is a pre-request scratch area
+    # put variables here so that we can access them later
+    # outside of this _code block
+    my $head = \$_[1]->{'head'};
+    my $body = \$_[1]->{'body'};
+
+    my $u = LJ::User->remote;
+
+    LJ::need_res('stc/lj_base-app.css',
+                 'stc/imgupload.css',
+                 'stc/display_none.css',
+                 'js/photobucket_jw.js');
+
+    if ($GET{upload_count} || LJ::did_post()) {
+        my $js = "";
+
+        if (my $ct = $GET{upload_count}) {
+            for my $pn (1..$ct) {
+                my $swidth  = int($GET{"sw_$pn"});
+                my $sheight = int($GET{"sh_$pn"});
+                my $esurl   = LJ::ejs($GET{"su_$pn"});
+                my $eppurl  = LJ::ejs($GET{"pp_$pn"});
+                $js .= "InOb.onUpload(\"$esurl\", \"$eppurl\", $swidth, $sheight);\n";
+            }
+
+        # From URL
+        } else {
+            my $img = LJ::ejs($POST{'url'});
+            $js = "InOb.onInsURL(\"$img\")\n";
+        }
+
+        my $ret = qq{
+            <html>
+                <body>
+                <script>
+                if (window.parent.parent && window.parent.parent.InOb) {
+                    window.parent.parent.$js
+                    window.parent.parent.InOb.onClosePopup();
+                } else if (window.parent && window.parent.InOb) {
+                    window.parent.$js
+                    window.parent.InOb.onClosePopup();
+                }
+                </script>
+                </body>
+            </html>
+        };
+        return $ret;
+    }
+
+    my $step = 1;
+    my $fbenabled = LJ::get_cap($u, 'fb_account') && LJ::get_cap($u, 'fb_can_upload');
+    my $ret = '';
+
+    $$head .= qq{
+        <script type="text/javascript">
+            var fileaction = '$LJ::FB_SITEROOT/interface/webupload';
+            var fbroot     = '$LJ::SITEROOT/__using/$LJ::FB_DOMAIN';
+            var urlaction  = 'imgupload.bml';
+
+            function onCancel () {
+                window.parent.InOb.onClosePopup();
+            }
+
+            function setTab(tab) {
+                clearTabs();
+                \$(tab).className = 'on';
+            }
+            function clearTabs() {
+                \$('tabInsert').className = '';
+                \$('tabPhotobucket').className = '';
+            }
+        </script>
+        };
+
+    $ret .= "<div class='insob-wrapper'>";
+    $ret .= "<div class='insobjOuter' id='insobjOuter'>";
+    $ret .= "<form id='insobjform' enctype='multipart/form-data' action='imgupload.bml' method='post' onsubmit='return window.parent.InOb.onSubmit()' >";
+    $ret .= "<div class='tabs'><ul><li id='tabInsert' class='on'><a href='javascript: void(0);' onclick='window.parent.InOb.showSelectorPage();setTab(\"tabInsert\");return false;'>Insert Image</a></li>";
+    $ret .= "<li id='tabPhotobucket'><a href='javascript: void(0);' onclick='window.parent.InOb.photobucket(seedurl,pb_affsite_id);setTab(\"tabPhotobucket\");return false;'>Photobucket</a></li></ul></div>";
+    $ret .= "<div id='close'><a href='#close' onclick='onCancel();return false;'>close</a></div>";
+
+    # content
+    $ret .= "<div class='insobjContent' id='img_iframe_holder' style='display: none; margin: 0px 0px 0px 0px;'></div><div id='img_fromwhere' class='insobjContent'>";
+
+    $ret .= "<p class='wintitle' id='wintitle'></p>";
+
+    $ret .= "<div id='formcontent'>";
+    $ret .= "<div id='img_error' class='errorbar'></div>";
+
+    # from URL
+    $ret .= "<p class='inputs pkg'>\n";
+    $ret .= LJ::html_check({
+        'type'     => 'radio',
+        'name'     => 'method',
+        'id'       => 'fromurl',
+        'class'    => 'check',
+        'value'    => 'url',
+        'selected' => 1,
+    });
+    $ret .= "<label for='fromurl' class='left'>Image from URL:</label>";
+    $ret .= "<span class='inputcontainer'>";
+    $ret .= LJ::html_text({
+        'name'    => 'url',
+        'id'      => 'fromurlentry',
+        'size'    => '50',
+    });
+    $ret .= "</span>";
+    $ret .= "</p>";
+    $ret .= "<p class='ex'><strong>Example:</strong> http://www.example.com/some-picture.jpg</p>";
+
+    # from file
+    $ret .= "<p class='inputs pkg'>";
+    $ret .= LJ::html_check({
+        'type'     => 'radio',
+        'name'     => 'method',
+        'id'       => 'fromfile',
+        'class'    => 'check',
+        'value'    => 'file',
+        'disabled' => $fbenabled ? 0 : 1,
+    });
+    $ret .= " <label for='fromfile' class='left'>Image from file:</label>";
+    $ret .= LJ::html_hidden('redir_to_auth_base', '1', 'sec1', '255');
+
+    my $disabled = $fbenabled ? '' : "disabled='1'";
+
+    $ret .= "<span class='inputcontainer'>";
+    $ret .= "<span id='filediv'><input type='file' name='file1' id='fromfileentry' size='50' $disabled /></span>";
+    $ret .= "</span>";
+    $ret .= "</p>";
+    if ($u) {
+        my $msg = LJ::run_hook('update_insobj_fb', $fbenabled) || "Upload a file from your computer";
+        $ret .= "<p class='ex'>$msg</p>";
+    } else {
+        $ret .= "<?warningbar $ML{'.login.message2'} warningbar?>";
+    }
+
+    # from Fotobilder
+    if ($fbenabled) {
+        $ret .= "<p class='inputs pkg'>";
+        $ret .= LJ::html_check({
+            'type'     => 'radio',
+            'name'     => 'method',
+            'id'       => 'fromfb',
+            'class'    => 'check',
+            'value'    => 'fb',
+        });
+
+        $ret .= " <label for='fromfb' class='left extended'>$ML{'.gallery.label'}</label>";
+        $ret .= "</p>";
+    }
+
+    if ($u) {
+        $ret .= "<p class='ex extended'>$ML{'.size'}</p>\n";
+    }
+    $ret .= "</div><!-- end #formcontent -->";
+    $ret .= "<div class='insobjNav' id='insobjNav'>";
+    $ret .= "<input type='button' name='btn:prev' id='btnPrev' style='display:none' value='&lt;-- Back' />";
+    $ret .= LJ::html_submit('btn:next', 'Insert', { 'id' => 'btnNext' }) . "\n";
+    $ret .= "</div>\n";
+    $ret .= "</form></div><script type='text/javascript'>window.parent.InOb.setupIframeHandlers();</script>";
+    $ret .= "</div><!-- end #insob-wrapper -->\n";
+
+    $$body = $ret;
+
+    $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb.bml';";
+    $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
+    $$head .= LJ::res_includes();
+    return;
+}
+_code?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Insert Image</title>
+<?_code return $_[1]->{'head'}; _code?>
+</head>
+<body>
+<?_code return $_[1]->{'body'}; _code?>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<?_info
+nocache=>1
+_info?><?page
+title=>FAQ
+body<=
+
+<?_code
+
+ my $dbh = LJ::get_db_writer();
+
+ my $remote = LJ::get_remote();
+ my %ac_add;
+ my %ac_edit;
+ LJ::remote_has_priv($remote, "faqadd", \%ac_add);
+ LJ::remote_has_priv($remote, "faqedit", \%ac_edit);
+
+ $ret = "";
+ if (%ac_add)
+ {
+     $ret .= "<A HREF=\"faqedit.bml\">[Add to FAQ]</A>\n";
+ }
+
+ my %faqcat;
+ my %faqq;
+ $sth = $dbh->prepare("SELECT faqcat, faqcatname, catorder FROM faqcat");
+ $sth->execute;
+ while ($_ = $sth->fetchrow_hashref)
+ {
+     $faqcat{$_->{'faqcat'}} = $_;
+ }
+ 
+ $sth = $dbh->prepare("SELECT faqid, question, sortorder, faqcat, lastmodtime FROM faq");
+ $sth->execute;
+ while ($_ = $sth->fetchrow_hashref)
+ {
+     $faqq{$_->{'faqcat'}}->{$_->{'faqid'}} = $_;
+ }
+
+ foreach my $faqcat (sort { $faqcat{$a}->{'catorder'} <=> $faqcat{$b}->{'catorder'} } keys %faqcat)
+ {
+     $ret .= "<H2><A HREF=\"readcat.bml?faqcat=$faqcat\">" . LJ::ehtml($faqcat{$faqcat}->{'faqcatname'}) . "</A></H2>\n";
+     $ret .= "<UL>\n";
+     foreach my $faqid (sort { $faqq{$faqcat}->{$a}->{'sortorder'} <=> $faqq{$faqcat}->{$b}->{'sortorder'} } keys %{$faqq{$faqcat}})
+     {
+         my $fe = $faqq{$faqcat}->{$faqid};
+         next unless ($fe->{'question'});
+         my $q = LJ::ehtml($fe->{'question'});
+         $q =~ s/^\s+//; $q =~ s/\s+$//;
+         $q =~ s/\n/<BR>/g;
+         $ret .= "<LI>";
+         if ($ac_edit{'*'} || $ac_edit{$faqcat}) {
+             $ret .= "<A HREF=\"faqedit.bml?id=$faqid\">[edit]</A> ($fe->{'sortorder'}) ";
+         }
+         $ret .= "<B>{$faqid}</B> $q\n";
+     }
+     $ret .= "</UL>\n";
+ }
+
+ return $ret;
+
+_code?>
+
+<=body
+page?><?_c <LJDEP>
+lib: cgi-bin/ljlib.pl
+link: htdocs/admin/faq/readcat.bml, htdocs/admin/faq/faqedit.bml
+</LJDEP> _c?>

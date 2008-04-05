@@ -1,0 +1,208 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/ru1"; 
+layerinfo "name" = "Russian";
+layerinfo "langcode" = "ru";
+set lang_current = "ru";
+
+set lang_fmt_date_short = "%%d%%/%%m%%/%%yyyy%%";
+set lang_fmt_date_med = "%%dayord%% %%mon%%, %%yyyy%%";
+set lang_fmt_date_med_day = "%%da%%, %%dayord%% %%mon%%, %%yyyy%%";
+set lang_fmt_date_long = "%%month%%, %%dayord%%, %%yyyy%%";
+set lang_fmt_date_long_day = "%%day%%, %%month%%, %%dayord%%, %%yyyy%%";
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+set lang_fmt_month_short = "%%mon%% %%yy%%";
+set lang_fmt_month_med = "%%mon%% %%yyyy%%";
+set lang_fmt_month_long = "%%month%% %%yyyy%%";
+
+set lang_monthname_long = [ "", "Январь",  "Февраль", "Март",
+                            "Апрель", "Май", "Июнь",
+                            "Июль", "Август", "Сентябрь",
+                            "Октябрь", "Ноябрь", "Декабрь" ];
+
+set lang_monthname_short = [ "", "Янв",  "Фев", "Мар",
+                             "Апр", "Май", "Июн",
+                             "Июл", "Авг", "Сент",
+                             "Окт", "Ноя", "Дек" ];
+
+set lang_dayname_long = [ "", "Воскресенье", "Понедельник",  "Вторник", "Среда", 
+                          "Четверг", "Пятница", "Суббота" ];
+
+set lang_dayname_short = [ "", "Вс", "Пн",  "Вт", "Ср", 
+                           "Чт", "Пт", "Сб" ];
+set lang_dayname_shorter = [ "", "Вс", "Пн",  "Вт", "Ср",
+                             "Чт", "Пт", "Сб" ];
+
+set reg_firstdayofweek = "monday";
+
+
+set text_meta_music = "Музыка";
+set text_meta_mood = "Настроение";
+
+set text_post_comment = "Оставить комментарий";
+set text_read_comments = "# комментарий // # комментария // # комментариев";
+set text_post_comment_friends = "Оставить комментарий";
+set text_read_comments_friends = "# комментарий // # комментария // # комментариев";
+set text_max_comments = "Достигнуто максимальное количество комментариев.";
+
+set text_skiplinks_back="Предыдущие #";
+set text_skiplinks_forward="Следующие #";
+set text_skiplinks_forward_words="Вперёд";
+
+set text_tags_page_header = "Метки";
+set text_tag_uses = "# раз // # раза // # раз";
+
+set text_view_recent = "Свежие записи";
+set text_view_friends = "Друзья";
+set text_view_friends_comm = "Участники";
+set text_view_friends_filter = "Друзья (фильтр)";
+set text_view_friendsfriends = "Друзья друзей";
+set text_view_friendsfriends_filter = "Друзья друзей (фильтр)";
+set text_view_archive = "Архив";
+set text_view_userinfo = "Личная информация";
+set text_view_month = "Просмотр заголовков";
+
+set text_links = "Ссылки";
+set text_page_summary = "На этой странице";
+set text_syndicate = "Трансляция";
+set text_nosubject = "(без темы)";
+set text_noentries_recent = "Записей нет";
+set text_noentries_day = "За этот день записей нет";
+set text_permalink = "ссылка";
+set text_edit_entry = "редактировать запись";
+set text_edit_tags = "редактировать метки";
+set text_tell_friend = "рассказать другу";
+set text_mem_add = "в избранное";
+set text_watch_comments = "отслеживать";
+set text_unwatch_comments = "перестать отслеживать";
+set text_month_screened_comments = "со скрытыми";
+set text_multiform_check = "Выбрать:";
+set text_multiform_des = "Групповая операция над выбранными комментариями:";
+set text_multiform_btn = "Выполнить";
+set text_multiform_opt_unscreen = "Раскрыть";
+set text_multiform_opt_screen = "Скрыть";
+set text_multiform_opt_delete = "Удалить";
+set text_multiform_conf_delete = "Вы уверены, что хотите удалить выделенные комментарии?";
+set text_multiform_opt_deletespam = "Удалить и отметить как спам";
+set text_multiform_opt_freeze = "Заморозить";
+set text_multiform_opt_unfreeze = "Разморозить";
+set text_comment_posted = "Комментарий добавлен.";
+set text_tags = "Метки: #";
+set text_tags_section_header = "Метки";
+set text_day_prev = "На день назад";
+set text_day_next = "На день вперёд";
+set text_comment_from = "От:";
+set text_comment_date = "Дата:";
+set text_comment_ipaddr = "Адрес IP:";
+set text_comment_reply = "Ответить";
+set text_comment_parent = "Уровень выше";
+set text_comment_thread = "Ветвь дискусии";
+set text_reply_back = "Читать комментарии";
+set text_comment_frozen = "Ответы заморожены";
+set text_reply_nocomments_header = "Комментарии отключены:";
+set text_reply_nocomments = "Для этой записи комментарии отключены.";
+set text_website_default_name = "Мой сайт";
+set text_poster_anonymous = "(Анонимно)";
+set text_icon_alt_protected = "[защищённая запись]";
+set text_icon_alt_private = "[личная запись]";
+
+
+# Three forms, special cases for numbers ending in 1 and 2, 3, 4, except those ending in 1[1-4]
+function lang_map_plural (int n) : int {
+    if ($n%10 == 1 and $n%100 != 11) { return 0; }
+    if ($n%10 >= 2 and $n%10 <= 4 and ($n%100 < 10 or $n%100>=20)) { return 1; }
+    return 2;
+}
+
+function lang_page_of_pages (int pg, int pgs) [notags] : string {
+    return "Страница $pg из $pgs";
+}
+
+function lang_ordinal(int num) [notags] : string
+"Make an ordinal number from a cardinal number"
+{
+	return $num+""; 
+}
+
+function lang_viewname(string viewid) [notags] : string {
+
+    if ($viewid == "recent") { return $*text_view_recent; }
+    if ($viewid == "archive") { return $*text_view_archive; }
+    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "day") { return "День"; }
+    if ($viewid == "month") { return "Месяц"; }
+    if ($viewid == "userinfo") { return $*text_view_userinfo; }
+    if ($viewid == "entry") { return "Читать комментарии"; }
+    if ($viewid == "reply") { return "Добавить комментарий"; }
+    if ($viewid == "tags") { return "Метки"; }
+    return "Неизвестный тип страницы";
+}
+
+function ReplyPage::view_title() : string {
+    return "Добавить комментарий";
+}
+
+function server_sig() {
+    """Разработано <a href="$*SITEROOT/">$*SITENAME</a>""";
+}
+
+function Page::print_entry_poster(Entry e) {
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        " написал в ";
+        $e.journal->print();
+    }
+}
+
+function lang_user_wrote(UserLite u) : string {
+    if (defined $u) {
+        return $u->as_string()+" написал:";
+    }
+    else {
+        return "Аноним написал";
+    }
+}
+
+function lang_at_datetime(DateTime d) : string {
+    return " " + $d->date_format("long") + " в " + $d->time_format();
+}
+
+function Comment::time_display (string datefmt, string timefmt) : string {
+    if ($datefmt == "") {
+        $datefmt = "iso";
+    }
+    if ($timefmt == "") {
+        $timefmt = "short";
+    }
+
+    var string tooltip = "";
+    var string etime = secs_to_string($this.seconds_since_entry);
+    $tooltip = $etime + " с момента записи";
+
+    var string main;
+    var string main_date;
+
+    if ($this.time_remote) {
+        $main_date = $this.time_remote->date_format($datefmt);
+        $main = $main_date;
+        $main = $main + " " + $this.time_remote->time_format("short") + " (местное)";
+    } else {
+        $main_date = $this.time->date_format($datefmt);
+        $main = $main_date;
+        $main = $main + " " + $this.time->time_format($timefmt) + " (UTC)";
+    }
+
+    if (defined $this.time_poster and defined $this.poster)
+    {
+        var string poster_date = $this.time_poster->date_format($datefmt);
+        $tooltip = $tooltip + ", ";
+
+        if ($poster_date == $main_date) { $poster_date = ""; }
+        else { $poster_date = $poster_date + " "; }
+
+         $tooltip = $tooltip + $poster_date + $this.time_poster->time_format($timefmt) + " (по времени " + $this.poster.username + ")";
+    }
+    return "<span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span>";
+}
+

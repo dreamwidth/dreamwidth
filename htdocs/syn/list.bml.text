@@ -1,0 +1,15 @@
+;; -*- coding: utf-8 -*-
+.error.nofeeds=<b>Error:</b> No syndicated feeds have been updated in the past 24 hours.
+
+.feeddesc=Feed Description
+
+.feedurl=Feed URL
+
+.numreaders=Number of readers
+
+.title=Syndicated Feeds
+
+.username=Username
+
+.xml_icon.alt=[View Raw Feed]
+

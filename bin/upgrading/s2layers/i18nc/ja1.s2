@@ -1,0 +1,19 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/ja1";
+layerinfo "name" = "Japanese";
+layerinfo "langcode" = "ja";
+set lang_current = "ja";
+
+# One form (the number is inflected)
+#   technically this should return 0, but sometimes people still
+#   put '1 comment // # comments' in their layers, so their journals
+#   would just display '1 comment' all the time...
+function lang_map_plural (int n) : int {
+    return 1;
+}
+set text_read_comments = "# コメント";
+set text_post_comment = "コメントの送信";
+set text_read_comments_friends = "# コメント";
+set text_post_comment_friends = "コメントの送信";

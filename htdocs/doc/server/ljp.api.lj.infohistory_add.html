@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::infohistory_add</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.img.html" title="LJ::img">
+<link rel="next" href="ljp.api.lj.is_ascii.html" title="LJ::is_ascii">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::infohistory_add</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.img.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.is_ascii.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.infohistory_add"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::infohistory_add</h2>
+<p>LJ::infohistory_add &#8212; Add a line of text to the  table for an account.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::infohistory_add</b>(</code><var class="pdparam">uuid</var>, <var class="pdparam">what</var>, <var class="pdparam">value</var>, <var class="pdparam">other</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3215461"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>uuid. </b>User id or user object to insert infohistory for.</p></li>
+<li><p><b>what. </b>What type of history is being inserted (15 chars max).</p></li>
+<li><p><b>value. </b>Value for the item (255 chars max).</p></li>
+<li><p><b>other. </b>Optional. Extra information / notes (30 chars max).</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3215518"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/LJ/User.pm</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3215532"></a><h2>Returns:</h2>
+<p>1 on success, 0 on error.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.img.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.is_ascii.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::img </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::is_ascii</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

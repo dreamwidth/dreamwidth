@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Appendix B. S1 Variable Reference: Most Recent Entries</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.styles.index.html" title="Part IV. Making Journal Styles">
+<link rel="prev" href="ljp.styles.s1.intro.html" title="1. S1 Introduction">
+<link rel="next" href="ljp.styles.s1.global_head.html" title="GLOBAL_HEAD">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Appendix B. S1 Variable Reference: Most Recent Entries</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.styles.s1.intro.html">Prev</a> </td>
+<th width="60%" align="center">Part IV. Making Journal Styles</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.styles.s1.global_head.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="appendix" lang="en" id="ljp.styles.s1.lastn">
+<div class="titlepage"><div><div><h2 class="title">Appendix B. S1 Variable Reference: Most Recent Entries</h2></div></div></div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.global_head.html">GLOBAL_HEAD</a></span><span class="refpurpose"> &#8212; Any arbitrary HTML you want placed in the &lt;HEAD&gt; of the page being displayed.
+This is a good place to put CSS or META tags.  Being global, this
+will be placed in any view type.  If you want to add tags for a specific view
+type, use <a class="xref" href="ljp.styles.s1.lastn_head.html" title="LASTN_HEAD">LASTN_HEAD</a>, <a class="xref" href="ljp.styles.s1.day_head.html" title="DAY_HEAD">DAY_HEAD</a>, <a class="xref" href="ljp.styles.s1.friends_head.html" title="FRIENDS_HEAD">FRIENDS_HEAD</a>, or <a class="xref" href="ljp.styles.s1.calendar_head.html" title="CALENDAR_HEAD">CALENDAR_HEAD</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_5linkunit_ad.html">LASTN_5LINKUNIT_AD</a></span><span class="refpurpose"> &#8212; The HTML tag needed to show a 5 link unit ad on your journal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_altposter.html">LASTN_ALTPOSTER</a></span><span class="refpurpose"> &#8212; When a user other than the journal owner posts a top-level journal entry in a journal, this variable is inserted into the %%altposter%% property of <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_altposter_pic.html">LASTN_ALTPOSTER_PIC</a></span><span class="refpurpose"> &#8212; Goes into %%pic%% in <a class="xref" href="ljp.styles.s1.lastn_altposter.html" title="LASTN_ALTPOSTER">LASTN_ALTPOSTER</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_close_skyscraper_ad.html">LASTN_CLOSE_SKYSCRAPER_AD</a></span><span class="refpurpose"> &#8212; Conditional close wrapper around ad and/or user content.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_current.html">LASTN_CURRENT</a></span><span class="refpurpose"> &#8212; When a user has specified "current" information (like current music or current mood), this variable is added to the %%currents%% property of <a class="xref" href="ljp.styles.s1.lastn_currents.html" title="LASTN_CURRENTS">LASTN_CURRENTS</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_currents.html">LASTN_CURRENTS</a></span><span class="refpurpose"> &#8212; When a user has specified "current" information (like current music or current mood), this variable separates those entries from the rest of the journal entry in <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_date_format.html">LASTN_DATE_FORMAT</a></span><span class="refpurpose"> &#8212; Describes how dates/times are formatted in each <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a> variable.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_end_day.html">LASTN_END_DAY</a></span><span class="refpurpose"> &#8212; The opposite of <a class="xref" href="ljp.styles.s1.lastn_new_day.html" title="LASTN_NEW_DAY">LASTN_NEW_DAY</a>.  This variable is inserted into %%events%% in the <a class="xref" href="ljp.styles.s1.lastn_page.html" title="LASTN_PAGE">LASTN_PAGE</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_event.html">LASTN_EVENT</a></span><span class="refpurpose"> &#8212; An event from the user's journal.  A bunch of these (as specified by <a class="xref" href="ljp.styles.s1.lastn_opt_items.html" title="LASTN_OPT_ITEMS">LASTN_OPT_ITEMS</a>) get put together to form the %%events%% property of the <a class="xref" href="ljp.styles.s1.lastn_page.html" title="LASTN_PAGE">LASTN_PAGE</a> variable.  See also <a class="xref" href="ljp.styles.s1.lastn_event_private.html" title="LASTN_EVENT_PRIVATE">LASTN_EVENT_PRIVATE</a> and <a class="xref" href="ljp.styles.s1.lastn_event_protected.html" title="LASTN_EVENT_PROTECTED">LASTN_EVENT_PROTECTED</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_event_private.html">LASTN_EVENT_PRIVATE</a></span><span class="refpurpose"> &#8212; An optional specialized form of <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a> to be used on entries that are marked as "private" (only the original poster can see them).  If you leave this blank, the standard event variable will be used instead.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_event_protected.html">LASTN_EVENT_PROTECTED</a></span><span class="refpurpose"> &#8212; An optional specialized form of <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a> to be used on entries that are marked as "friends" or "custom" (only a select group of people can see them).  If you leave this blank, the standard event variable will be used instead.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_head.html">LASTN_HEAD</a></span><span class="refpurpose"> &#8212; Any arbitrary HTML you want placed in the &lt;HEAD&gt; of the <a class="link" href="ljp.styles.s1.lastn.html" title="Appendix B. S1 Variable Reference: Most Recent Entries">lastn</a> page.
+This is a good place to put CSS or META tags.  If you want to add the
+same tags to all your pages, use <a class="xref" href="ljp.styles.s1.global_head.html" title="GLOBAL_HEAD">GLOBAL_HEAD</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_new_day.html">LASTN_NEW_DAY</a></span><span class="refpurpose"> &#8212; Before any <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a> that's on a day that no other event has been shown before, this block is inserted into %%events%% in the <a class="xref" href="ljp.styles.s1.lastn_page.html" title="LASTN_PAGE">LASTN_PAGE</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_open_skyscraper_ad.html">LASTN_OPEN_SKYSCRAPER_AD</a></span><span class="refpurpose"> &#8212; Conditional open wrapper around ad and/or user content.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_opt_items.html">LASTN_OPT_ITEMS</a></span><span class="refpurpose"> &#8212; This is an integer value between 1 and 50 that sets how many
+items are shown in the "events" property of the <a class="xref" href="ljp.styles.s1.lastn_page.html" title="LASTN_PAGE">LASTN_PAGE</a> variable.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_page.html">LASTN_PAGE</a></span><span class="refpurpose"> &#8212; The HTML for the most recent journal entries page (lastn mode) that's sent to the browser.  Customize this as you'd like your page to look.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_range_history.html">LASTN_RANGE_HISTORY</a></span><span class="refpurpose"> &#8212; This should be the text that says the user is not viewing the most recent entries, but is instead viewing back into the history.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_range_mostrecent.html">LASTN_RANGE_MOSTRECENT</a></span><span class="refpurpose"> &#8212; This should be the text that says the user is viewing the top (most recent) entries, and there are %%numitems%% of them.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_skip_backward.html">LASTN_SKIP_BACKWARD</a></span><span class="refpurpose"> &#8212; The HTML to make the link to the next (less recent) page of the lastn view... going back in time.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_skip_forward.html">LASTN_SKIP_FORWARD</a></span><span class="refpurpose"> &#8212; The HTML to make the link to the previous (more recent) page of the lastn view... going forward in time.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_skip_links.html">LASTN_SKIP_LINKS</a></span><span class="refpurpose"> &#8212; If the user can go back a page or forward a page, this variable is inserted into the %%skiplinks%% property of <a class="xref" href="ljp.styles.s1.lastn_page.html" title="LASTN_PAGE">LASTN_PAGE</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_skip_spacer.html">LASTN_SKIP_SPACER</a></span><span class="refpurpose"> &#8212; The HTML shown if both the skip backward and skip forward elements are displayed.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_skyscraper_ad.html">LASTN_SKYSCRAPER_AD</a></span><span class="refpurpose"> &#8212; The HTML tag needed to show a skyscraper ad on your journal.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_subject.html">LASTN_SUBJECT</a></span><span class="refpurpose"> &#8212; When a journal entry has a subject, this variable is inserted into the %%subject%% property of <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_talk_links.html">LASTN_TALK_LINKS</a></span><span class="refpurpose"> &#8212; Define here HTML (if any) that you want to be displayed for the links to read comments and post comments on the current event.  The contents of this variable are inserted into %%talklinks%% in <a class="xref" href="ljp.styles.s1.lastn_event.html" title="LASTN_EVENT">LASTN_EVENT</a>, if the user has commenting enabled.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_talk_readlink.html">LASTN_TALK_READLINK</a></span><span class="refpurpose"> &#8212; If there are comments on the existing journal entry being displayed, then one of these variables is inserted into the %%readlink%% property of <a class="xref" href="ljp.styles.s1.lastn_talk_links.html" title="LASTN_TALK_LINKS">LASTN_TALK_LINKS</a>.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_userpic.html">LASTN_USERPIC</a></span><span class="refpurpose"> &#8212; Creates the IMG tag needed to show your picture on the last-n page.</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="ljp.styles.s1.lastn_website.html">LASTN_WEBSITE</a></span><span class="refpurpose"> &#8212; When the user has specified their website URL, this variable goes into the %%website%% property of <a class="xref" href="ljp.styles.s1.lastn_page.html" title="LASTN_PAGE">LASTN_PAGE</a>.</span>
+</dt>
+</dl>
+</div>
+<div class="abstract">
+<p class="title"><b>Abstract</b></p>
+<p>The default view, a reverse-chronological list of the last 'n' items in your journal, where 'n' is an integer value that the user may specify.  Usually 'n' defaults to something like 20.</p>
+<p><a href="http://www.livejournal.com/users/exampleusername/" target="_top">Example page<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.styles.s1.intro.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.styles.index.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.styles.s1.global_head.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. S1 Introduction </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> GLOBAL_HEAD</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

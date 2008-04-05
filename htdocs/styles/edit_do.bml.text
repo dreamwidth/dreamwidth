@@ -1,0 +1,93 @@
+;; -*- coding: utf-8 -*-
+.delete.confirmed.head=Deleted
+
+.delete.confirmed.text=The style has been deleted. You can view your current list of styles <a [[aopts]]>here</a>.
+
+.delete.head=Are you sure?
+
+.delete.submit=Yes, delete it!
+
+.delete.text=Are you sure you want to delete <b>[[style]]</b>?  If so, press the button below.  This will temporarily break your journal if you're using this style, until you select a different style to use.
+
+.edit.col.code=Code
+
+.edit.col.description=Description:
+
+.edit.col.transform=Transform
+
+.edit.colorcodes.head=Color Codes
+
+.edit.colorcodes.text=When designing a style, it's always best to avoid hard-coding colors in if possible.  That way, if you get bored of your colors you can change them at one place (the modify journal page) and it'll affect all your styles where you use that color code.  Obviously, if you need to use special images in your style, you may have to hard-code certain colors, but try to use them when you can.  It's your call.  <b>The following color codes can be used in any variable below that contains HTML:</b> 
+
+.edit.customize.head=Customizable Variables
+
+.edit.description=Style Description:
+
+.edit.head=Edit Style
+
+.edit.links.head=Convenience Links
+
+.edit.links.text=You can use these links to scroll the page up to where the variable is declared...
+
+.edit.options=Style Options:
+
+.edit.override.head=Override only.
+
+.edit.override.text=Only end-users may override this.  You cannot define it in a style.
+
+.edit.preview=<a [[aopts]]>[Preview Current Style]</a> (must save below to see your changes, keep this window open and reload it whenever you save)
+
+.edit.styleid=Style ID Number:
+
+.edit.submit=Save Style
+
+.edit.success.head=Success
+
+.edit.success.text=Style has been updated.  You can view it <a [[aopts]]>here</a>.
+
+.edit.text=Make any desired changes and press "Save" when done.
+
+.edit.transforms.head=Transforms
+
+.edit.transforms.text=What if you want to use a property but don't like its formatting?  Any property can be transformed 0 or more times by transform rules.  Say you want to use <tt>%%monlong%%</tt> (March, April, May, etc...) but you don't like that the default has those upper case initial letters.  You can apply the <b><tt>lc</tt></b> (lowercase) transform to it:  <b><tt>%%lc:monlong%%</tt></b>.  Transform are applied in order from the right to the left, so if you went <tt>%%a:b:c:d:property%%</tt>, <i>d</i> would be applied first.  Here are a list of the supported transforms: 
+
+.edit.type=Style View Type:
+
+.edit.variables.head=Style Variables:
+
+.edit.variables.text=(<a [[aopts]]>reference information</a>)
+
+.error.mode=Unknown mode:
+
+.error.nostyle=The requested style does not exist.
+
+.opts.colorfree.des=A style is color-free if it does not contain any hard-coded color tags, but only uses the generic color codes listed in the table below.
+
+.opts.colorfree.title=Color Free?
+
+.opts.embedded.des=Is this style designed to be embedded in somebody's homepage?  Check if so, otherwise it's a full page style
+
+.opts.embedded.title=Embedded?
+
+.opts.public.des=Mark this style public if you want other people to be able to use it or copy it.
+
+.opts.public.title=Public?
+
+.transforms.color.des=A weird transform that handles color codes.  See the color code table.
+
+.transforms.cons.des=Access site constants.  Currently supported are 'siteroot', 'sitename', and 'img' (the image root).  Example use: %%cons:img%%/icon_protected.gif
+
+.transforms.lc.des=Lower case.
+
+.transforms.ljcomm.des=Transform the variable as if it were surrounded by &lt;lj comm=%%variable%%&gt;.  ex: %%ljcomm:username%%"
+
+.transforms.ljuser.des=Transform the variable as if it were surrounded by &lt;lj user=%%variable%%&gt;.  ex: %%ljuser:username%%
+
+.transforms.uc.des=Upper case.
+
+.transforms.ue.des=URL-Encode.  Turn spaces to +, and all weird characters to <tt>%hh</tt>, the hex representation.  This is useful for building data files to be used in Flash-4 movies.
+
+.transforms.userurl.des='Takes in a username and transforms it into a link to their journal.
+
+.transforms.xe.des=XML-Encode.  Makes value acceptable for use in an XML attribute or element.  Escapes ampersands, angle brackets, and both types of quotes.  Does <i>not</i> however, escape ]]&gt;, so don't use CDATA elements.
+

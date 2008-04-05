@@ -1,0 +1,11 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET);
+    use JSON;
+
+    my $vertical = LJ::Vertical->load_by_id($GET{vertid});
+
+    return JSON::objToJson({ verturl => $vertical ? $vertical->url : "" });
+}
+_code?>

@@ -1,0 +1,28 @@
+#lj_controlstrip
+{
+    background-color: #2e2c2c;
+    background-image: url(/img/controlstrip/bg-dark.gif);
+}
+
+#lj_controlstrip td
+{
+    color: #989898;
+}
+
+#lj_controlstrip a
+{
+    color: #f5f5f5;
+}
+
+#lj_controlstrip_user,
+#lj_controlstrip_login,
+#lj_controlstrip_loggedout_userpic,
+#lj_controlstrip_actionlinks
+{
+    border-right: 1px solid #878080;
+}
+
+#lj_controlstrip_statustext
+{
+    color: #f5f5f5;
+}

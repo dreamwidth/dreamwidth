@@ -1,0 +1,72 @@
+;; -*- coding: utf-8 -*-
+.ask.body=Validating your email address will confirm your account and allow you to use all its features. Click the button below to have a validation email sent to <b>[[email]]</b>.
+
+.ask.button=Send Validation Email
+
+.ask.header=Validate Email
+
+.ask.select=Select account
+
+.ask.switch=Switch
+
+.asterisk.comment=(Accounts marked with an * have not yet been validated)
+
+.asterisk.name=* [[journal]]
+
+.email.body<<
+This is the validation email you have requested.
+To complete validating your account, please visit this URL:
+
+    [[conflink]]
+
+You may have to copy and paste this link into your browser's window.
+
+Sincerely,
+[[sitename]]
+[[siteroot]]
+.
+
+.email.subject=Validate Email
+
+.error.emailchanged=This verification link is out of date.  Please <a [[aopts]]>request a new verification email</a>.
+
+.error.identity_no_email=You do not have an email address set. Go <a [[aopts]]>here</a> to set one.
+
+.error.invalidcode=Invalid validation code. The link in the email may have expired. Please <a [[aopts]]>request a new verification email</a>.
+
+.error.useralreadyvalidated=The email address for [[user]] has already been validated.
+
+.error.usernotfound=User not found.
+
+.new.101.community.answer=Discussion groups built around every topic imaginable. From music to ninjas, there's something here for you.
+
+.new.101.community.question=What is a community?
+
+.new.101.friends.answer=It lets you read the latest from friends' journals and favorite web feeds all in one place.
+
+.new.101.friends.question=What is a Friends Page?
+
+.new.101.journal.answer=Your journal is for writing and sharing stories, photos, videos, and more with others.
+
+.new.101.journal.question=What is a journal?
+
+.new.101.profile.answer=A collection of goodies about yourself. Express yourself with userpics, interests, a bio, and more!
+
+.new.101.profile.question=What is a profile?
+
+.new.101.title=[[sitename]] 101
+
+.new.bodyuser=Thanks!  The email address for [[user]] has now been verified.  Now that you're registered, what to do first?
+
+.new.title=Welcome to [[sitename]]
+
+.sent.body=A validation email has been sent to <b>[[email]]</b>. In order to complete validation, you need to click the link in that email.
+
+.sent.header=Success
+
+.title=Validate Email
+
+.trans.body=Your new email address has been validated.
+
+.trans.header=Success
+

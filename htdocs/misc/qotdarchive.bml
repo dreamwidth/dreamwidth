@@ -1,0 +1,20 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    $title = $ML{'.title'};
+
+    my $page = defined $GET{page} ? $GET{page} : 1;
+
+    return LJ::Widget::QotDArchive->render( page => $page );
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

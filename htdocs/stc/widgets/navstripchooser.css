@@ -1,0 +1,28 @@
+#control_strip_color_dark, #control_strip_color_light {
+    float: left;
+}
+
+.color-dark {
+    color: #fff;
+    width: 15em;
+    height: 39px;
+    display: block;
+    padding-top: 5px;
+    padding-left: 5px;
+    background-image: url(/img/controlstrip/bg-dark.gif);
+    background-repeat: repeat-x;
+}
+
+.color-light {
+    width: 15em;
+    height: 39px;
+    display: block;
+    padding-top: 5px;
+    padding-left: 5px;
+    background-image: url(/img/controlstrip/bg-light.gif);
+    background-repeat: repeat-x;
+}
+
+.color-picker {
+    margin-top: 10px;
+}

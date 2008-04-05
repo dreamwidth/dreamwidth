@@ -1,0 +1,47 @@
+;; -*- coding: utf-8 -*-
+.btn.proceed=Proceed...
+
+.description=This feature lets you download your entire journal to a custom format for backup purposes.
+
+.fields=Fields:
+
+.format.csv=CSV (Comma Separated Values)
+
+.format.xml=XML
+
+.label.encoding=Encoding:
+
+.label.field.allowmask=Allow Mask
+
+.label.field.currents=Current Mood &amp; Music
+
+.label.field.event=<b>Event</b>
+
+.label.field.eventtime=Event Time (from user's clock)
+
+.label.field.itemid=ID Number
+
+.label.field.logtime=Log Time (from system's clock)
+
+.label.field.security=Security Level
+
+.label.field.subject=Subject
+
+.label.format=Format:
+
+.label.header=Header
+
+.label.month=Select month:
+
+.label.month.month=mm:
+
+.label.month.year=yyyy:
+
+.label.notranslation=Do not translate between encodings
+
+.label.what=Export what:
+
+.title=Export Journal
+
+.what.entries=Journal entries
+

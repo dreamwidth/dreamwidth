@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::Talk::can_delete</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.tags.validate_tag.html" title="LJ::Tags::validate_tag">
+<link rel="next" href="ljp.api.lj.talk.delete_comment.html" title="LJ::Talk::delete_comment">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::Talk::can_delete</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.tags.validate_tag.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.talk.delete_comment.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.talk.can_delete"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::Talk::can_delete</h2>
+<p>LJ::Talk::can_delete &#8212; Determines if a user can delete a comment or entry: You can delete anything you've posted.  You can delete anything posted in something you own (i.e. a comment in your journal, a comment to an entry you made in a community).  You can also delete any item in an account you have the "A"dministration edge for.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::Talk::can_delete</b>(</code><var class="pdparam">remote</var>, <var class="pdparam">u</var>, <var class="pdparam">up</var>, <var class="pdparam">userpost</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3198467"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>remote. </b>User object we're checking access of.  From <a class="link" href="ljp.api.lj.get_remote.html" title="LJ::get_remote">LJ::get_remote</a>.</p></li>
+<li><p><b>u. </b>Username or object of the account the thing is located in.</p></li>
+<li><p><b>up. </b>Username or object of person who owns the parent of the thing.  (I.e. the poster of the entry a comment is in.)</p></li>
+<li><p><b>userpost. </b>Username (<span class="strong"><strong>not</strong></span> object) of person who posted the item.</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3198539"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/talklib.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3198552"></a><h2>Returns:</h2>
+<p>Boolean indicating whether remote is allowed to delete the thing specified by the other options.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.tags.validate_tag.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.talk.delete_comment.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::Tags::validate_tag </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::Talk::delete_comment</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    $title = "Reporting Spam";
+
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
+    return "Content flagging is disabled"
+        if LJ::conf_test($LJ::DISABLED{content_flag});
+
+    my $ditemid = $GET{itemid};
+    my $user = $GET{user};
+    my $journal = LJ::load_user($user) or return "Invalid username";
+    my $content = $ditemid ? LJ::Entry->new($journal, ditemid => $ditemid) : $journal;
+
+    return "You are not allowed to flag this."
+        unless $remote->can_flag_content( content => $content );
+
+    my $ret;
+
+    if ($ditemid) { # entry
+        if ($journal->is_comm) {
+            if ($remote->can_manage($journal)) {
+                $ret .= BML::ml('.maint_communityspam', { aopts => "href='$LJ::SITEROOT/editjournal.bml?journal=$user&itemid=$ditemid'" });
+            } else {
+                $ret .= $ML{'.nonmaint_communityspam'};
+
+                my $maintainers = LJ::load_rel_user($journal->id, 'A') || [];
+                if (@$maintainers) {
+                    my $maints = LJ::load_userids(@$maintainers);
+                    my @maint_list = sort { $a->user cmp $b->user } values %$maints;
+
+                    $ret .= "<ul>";
+                    foreach my $maintu (@maint_list) {
+                        $ret .= "<li>" . $maintu->ljuser_display . "</li>";
+                    }
+                    $ret .= "</ul>";
+                }
+            }
+        } else {
+            $ret .= $ML{'.entryspam'};
+        }
+    } else { # journal
+        $ret .= $ML{'.journalspam'};
+    }
+
+    my $url = $journal->journal_base;
+    if ($ditemid) {
+        my $entry = LJ::Entry->new($journal, ditemid => $ditemid);
+        return "Invalid entry" unless $entry && $entry->valid;
+        $url = $entry->url;
+    }
+
+    my $itemtype = $ditemid ? 'entry' : 'journal';
+    $ret .= "<p><a href='$url'>Return to " . ucfirst $itemtype . "</a></p>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

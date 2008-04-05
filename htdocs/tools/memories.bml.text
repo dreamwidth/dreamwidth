@@ -1,0 +1,68 @@
+;; -*- coding: utf-8 -*-
+.back=Back
+
+.body.keyword<<
+<?h1 [[keyword]] h1?>
+<?p The following is a list of "[[keyword]]" journal entries that user <B>[[user]]</B> found memorable. p?>
+.
+
+.body.list_categories<<
+<?h1 Memorable Posts h1?>
+<?p The following is a list of categories that user <b>[[user]]</b> has placed memorable journal entries in. p?>
+.
+
+.body.memorable=The following is a list of uncategorized journal entries that user <B>[[user]]</B> found memorable.
+
+.delete=Delete Selected
+
+.delete.confirm=You are about to delete one or more memories.  Are you sure you want to do this?
+
+.delete.deleted.head=Success
+
+.delete.deleted.text=The selected memories have been deleted.  You may return to your <a [[aopts]]>list of memorable posts</a>.
+
+.delete.deleted.title=Memories Deleted
+
+.delete.error.dberror=There was a database error while deleting your memories.  The error is [[error]].  Please try again.
+
+.delete.error.noneselected=You did not select any memories to delete.
+
+.edit=edit
+
+.error.noentries.body<<
+This could be because: <ol>
+<li>the user hasn't defined any memorable events,</li>
+<li>the user's memorable events are protected and you don't have access to view them, or</li>
+<li>the user doesn't have any memories that match your filter criteria.</li></ol>
+.
+
+.error.noentries.title=No memories found.
+
+.filter.all=All memories
+
+.filter.other=Only other entries
+
+.filter.own=Only '[[user]]' entries
+
+.form.filter=Filter entries by:
+
+.form.sort=Sort entries by:
+
+.form.switch=Switch
+
+.login=In order to view your own memories, please <a [[aopts]]>log in</a>.
+
+.plur_entry=[[num]] [[?num|entry|entries]]
+
+.sort.description=Description
+
+.sort.journal=Journal
+
+.sort.orderadded=Order Added
+
+.title.keyword=Memorable [[keyword]] Posts
+
+.title.memorable=Memorable Posts
+
+.uncategorized=Uncategorized
+

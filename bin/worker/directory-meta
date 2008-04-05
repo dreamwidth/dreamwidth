@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+
+LJ::Worker::DirectoryMeta->run;
+
+package LJ::Worker::DirectoryMeta;
+use base 'LJ::Worker::Manual';
+use LJ::UserSearch::MetaUpdater;
+
+# return 1 if we did work, false if not.
+sub work {
+    my $class = shift;
+    my $did_work = 0;
+
+    my $t1 = time();
+    while (LJ::UserSearch::MetaUpdater::update_some_rows()) {
+        return 1 if time() > $t1 + 30;
+        $did_work = 1;
+    }
+
+    if (my $lock = LJ::locker()->trylock("dirpack:addrows")) {
+        if (LJ::UserSearch::MetaUpdater::missing_rows()) {
+            print "adding missing rows....\n";
+            LJ::UserSearch::MetaUpdater::add_some_missing_rows();
+            $did_work = 1;
+        }
+    }
+
+    return $did_work;
+}
+

@@ -1,0 +1,21 @@
+;; -*- coding: utf-8 -*-
+.ask.head=Ask a Question
+
+.ask.text=If you can't find what you're looking for, <a [[aopts]]>open a support request</a> and we'll get back to you.
+
+.faq.all=view all faqs
+
+.faq.head=Frequently Asked Questions
+
+.faq.search.btn=Search
+
+.faq.text=We've got answers to hundreds of questions. Search the FAQ -- you may just find what you're looking for.
+
+.knownissues.head=Known Issues
+
+.title=<?sitename?> Support
+
+.volunteer.head=Did You Know?
+
+.volunteer.text=<?sitename?> Support is primarily run by volunteers. Got time? <strong><a [[aopts-help]]>Help someone out!</a></strong> Check out the <a [[aopts-points]]>high scores</a> page to see who helps out the most.</a>
+

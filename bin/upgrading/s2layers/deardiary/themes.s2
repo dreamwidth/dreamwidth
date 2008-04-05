@@ -1,0 +1,183 @@
+#NEWLAYER: deardiary/royalty
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Royalty";
+layerinfo "redist_uniq" = "deardiary/royalty";
+
+#NEWLAYER: deardiary/redrock
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Red Rock";
+layerinfo "redist_uniq" = "deardiary/redrock";
+
+set clr_sidebar_bg = "#990000";
+set clr_sidebar_fg = "#ff9933";
+set clr_page_fg = "#dddddd";
+set clr_link_visited = "#ee7711";
+set clr_link_normal = "#ff9933";
+set clr_title_pattern = "#ff9933";
+set clr_page_bg = "#333333";
+set clr_title_bg = "#660000";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/wired
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Wired";
+layerinfo "redist_uniq" = "deardiary/wired";
+
+set clr_sidebar_bg = "#0183fd";
+set title_pattern = "wires.png";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#0063c0";
+set clr_link_normal = "#0183fd";
+set clr_title_pattern = "#faf49a";
+set clr_page_bg = "#e3f1ff";
+set clr_title_bg = "#0063c0";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/everred
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Ever Red";
+layerinfo "redist_uniq" = "deardiary/everred";
+
+set clr_sidebar_bg = "#e10b52";
+set title_pattern = "bubblewrap.png";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#c0003b";
+set clr_link_normal = "#e10b52";
+set clr_title_pattern = "#d5fdf9";
+set clr_page_bg = "#ffffff";
+set clr_title_bg = "#c0003b";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/cellular
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Cellular";
+layerinfo "redist_uniq" = "deardiary/cellular";
+
+set clr_sidebar_bg = "#3d9aff";
+set title_pattern = "explosion.png";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#017fff";
+set clr_link_normal = "#3d9aff";
+set clr_title_pattern = "#ff8312";
+set clr_page_bg = "#ffffff";
+set clr_title_bg = "#69e8f9";
+set clr_title_fg = "#000000";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/deepblue
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Deep Blue";
+layerinfo "redist_uniq" = "deardiary/deepblue";
+
+set clr_sidebar_bg = "#336699";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#FFFFFF";
+set clr_link_visited = "#9FBFDD";
+set clr_link_normal = "#9FBFDD";
+set clr_title_pattern = "#9FBFDD";
+set clr_page_bg = "#003366";
+set clr_title_bg = "#6699CC";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/unsaturates
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Unsaturates";
+layerinfo "redist_uniq" = "deardiary/unsaturates";
+
+set clr_sidebar_bg = "#838383";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#838383";
+set clr_link_normal = "#c0c0c0";
+set clr_title_pattern = "#ffffff";
+set clr_page_bg = "#ffffff";
+set clr_title_bg = "#c0c0c0";
+set clr_title_fg = "#000000";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/nature
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Back To Nature";
+layerinfo "redist_uniq" = "deardiary/nature";
+
+set clr_sidebar_bg = "#66cc66";
+set title_pattern = "nature.png";
+set clr_sidebar_fg = "#000000";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#007800";
+set clr_link_normal = "#007800";
+set clr_title_pattern = "#d6ead6";
+set clr_page_bg = "#d6ead6";
+set clr_title_bg = "#cc9966";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/slinkypink
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Slinky Pink";
+layerinfo "redist_uniq" = "deardiary/slinkypink";
+
+set clr_sidebar_bg = "#cc6699";
+set title_pattern = "ramblings.png";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#ad437a";
+set clr_link_normal = "#ad437a";
+set clr_title_pattern = "#d5d5c3";
+set clr_page_bg = "#ffc5e3";
+set clr_title_bg = "#993366";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#000000";
+
+#NEWLAYER: deardiary/striking
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Striking";
+layerinfo "redist_uniq" = "deardiary/striking";
+
+set title_separator = false;
+set clr_sidebar_bg = "#cc0000";
+set title_pattern = "letters.png";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#cc0000";
+set clr_link_normal = "#cc0000";
+set clr_title_pattern = "#ff0f0f";
+set clr_page_bg = "#ffffff";
+set clr_title_bg = "#000000";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#cc0000";
+
+#NEWLAYER: deardiary/regal
+
+layerinfo "type" = "theme";
+layerinfo "name" = "Regal";
+layerinfo "redist_uniq" = "deardiary/regal";
+
+set title_separator = false;
+set clr_sidebar_bg = "#a000ce";
+set clr_sidebar_fg = "#ffffff";
+set clr_page_fg = "#000000";
+set clr_link_visited = "#a000ce";
+set clr_link_normal = "#a000ce";
+set clr_title_pattern = "#a000ce";
+set clr_page_bg = "#ffffff";
+set clr_title_bg = "#000000";
+set clr_title_fg = "#ffffff";
+set clr_title_separator = "#a000ce";

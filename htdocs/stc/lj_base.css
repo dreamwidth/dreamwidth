@@ -1,0 +1,136 @@
+iframe.lj_embedcontent {
+    border: 0;
+}
+
+form {
+    margin: 0px;
+    padding: 0px;
+}
+
+.ljclear {
+    clear: both;
+    margin: 0 -1px -1px 0;
+    border: 0;
+    padding: 0;
+    width: 1px;
+    height: 1px;
+    font-size: 0;
+    line-height: 0;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.lj_progresscontainer {
+    height: 25px;
+    width: 400px;
+    margin: 1em;
+    background: url(/img/progress/inactive.gif) repeat;
+}
+
+.lj_progressoverlay {
+    background: url(/img/progress/active.gif) repeat;
+}
+
+.lj_progressindefinite {
+    background-image: url(/img/progress/barber.gif);
+}
+
+.lj_hourglass {
+        z-index: 20000;
+}
+
+.ErrorNote .Inner {
+    background-color: #FFEEEE;
+    background-repeat: repeat-x;
+    border: 1px solid #FF9999;
+    padding: 8px;
+}
+
+.Note .Inner {
+    background: #FFFFDD;
+    border: 1px solid #FFCC33;
+    padding: 8px;
+}
+
+div.lj_ippu {
+    background-color: #fff;
+    border: 2px solid #444;
+    padding: 2px;
+}
+
+div.lj_ippu_titlebar {
+    background-color: #444;
+    height: 20px;
+    font-weight: bold;
+    color: #fff;
+    width: auto !important;
+    padding: 5px 0 0 5px;
+}
+
+	div.lj_ippu_titlebar div {
+		
+	}
+
+	.lj_ippu_titlebar img {
+		opacity: .25;
+	}
+	
+		.lj_ippu_titlebar img:hover {
+			opacity: 1;
+		}
+
+.LJ_Placeholder_Container { /* see also lj_base-ie.css */
+        display: table-cell;
+        vertical-align: middle;
+        border: 1px dashed #ccc;
+        _position: relative;
+        overflow: hidden;
+}
+
+.LJ_Placeholder_Container img { /* see also lj_base-ie.css */
+        cursor: pointer;
+        display: block;
+        margin: 0 auto;
+        _position: absolute;
+        _top: 45%;
+        _left: 45%;
+}
+
+.ljhidden {
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        height: 0;
+        margin: 0;
+        border: 0;
+        padding: 0;
+        font-size: 0.1px;
+        line-height: 0;
+        opacity: 0;
+        filter: alpha(opacity=0);
+}
+
+.lj_pollanswer {
+}
+
+.lj_pollanswer_loading {
+        color: #CCC;
+        border: 1px solid #EEE;
+}
+
+.super {
+    vertical-align: super;
+    font-size: .7em;
+}
+
+.notice {
+    color: #f00;
+}
+
+.ljedittime {
+    font-size: smaller;
+}

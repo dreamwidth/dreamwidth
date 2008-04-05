@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+require "supportlib.pl";
+require "ljmail.pl";
+
+use LJ::Worker::TheSchwartz;
+
+schwartz_decl('LJ::Worker::SupportNotify');
+schwartz_work();
+
+

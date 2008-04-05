@@ -1,0 +1,35 @@
+<?_code
+{
+    my ($capid, $anum) = ($GET{capid}, $GET{anum});
+    ($capid, $anum) = LJ::Captcha::session($GET{chal}, 'audio', $GET{cid}) if $GET{chal};
+    return "Error" unless $capid && $anum;
+
+    # determine if we are talking to someone interested in reproxying for us
+    my $can_reproxy = 0;
+    unless ($LJ::REPROXY_DISABLE{captchas}) {
+        my $hdr = BML::get_client_header('X-Proxy-Capabilities');
+        $can_reproxy = $hdr && $hdr =~ m{\breproxy-file\b}i;
+    }
+
+    my $wav;
+    eval { $wav = LJ::Captcha::get_audio_data($capid, $anum, $can_reproxy); };
+    print STDERR "$can_reproxy\n";
+    if (ref $wav eq 'ARRAY') {
+        return "Error: unable to handle array without reproxy\n" unless $can_reproxy;
+        return "Error: captcha not available (no paths)\n" unless scalar @$wav;
+        if ($wav->[0] =~ m!http://!) {
+            Apache->request->header_out('X-REPROXY-URL', join(' ', @$wav));
+        } else {
+            Apache->request->header_out('X-REPROXY-FILE', $wav->[0]);
+        }
+        BML::set_content_type("audio/x-wav");
+        
+    } elsif ($wav) {
+        BML::set_content_type("audio/x-wav");
+        return BML::noparse($wav);
+    } else {
+        return "Error: $@";
+    }
+           
+}
+_code?>

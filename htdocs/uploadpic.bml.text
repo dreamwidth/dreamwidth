@@ -1,0 +1,3 @@
+;; -*- coding: utf-8 -*-
+.error.unsupportedtype=Files of type [[filetype]] are not supported.  You can only upload GIF, PNG or JPG files.  Nearly all image/photo programs can do this conversion for you.
+

@@ -1,0 +1,277 @@
+/<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET %POST $title $body);
+
+    LJ::set_active_crumb('yourlayers');
+
+    my $remote;
+
+    # authas switcher form
+    my $authasform = sub {
+        $body .= "<form method='get' action='layers.bml'>\n";
+        $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
+        $body .= "</form>\n\n";
+    };
+
+    # only one of the many forms should be submitted,
+    # so only bother with generating one form_auth
+    my $formauth = LJ::form_auth();
+
+    # used for error messages
+    my $err = sub {
+        $title = $ML{'Error'};
+        $body = '';
+        $authasform->() if $remote;
+        $body .= "<?p $_[0] p?>";
+        return;        
+    };
+
+    # id is optional
+    my $id = $POST{'id'} if $POST{'id'} =~ /^\d+$/;
+
+    # this catches core_hidden if it's set
+    $POST{'parid'} ||= $POST{'parid_hidden'};
+
+    # authenticate user
+    $remote = LJ::get_remote();
+    return $err->($ML{'.error.notloggedin'})
+        unless $remote;
+
+    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $remote);
+    return $err->($ML{'/customize/advanced/index.bml.error.advanced.editing.denied'})
+        if $no_layer_edit;
+
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+
+    # if we don't have a u, maybe they're an admin and can view stuff anyway?
+    my $noactions = 0;
+    my $viewall = LJ::check_priv($remote, 'canview', 'styles') || LJ::check_priv($remote, 'canview', '*');
+
+    if ($GET{user} && $viewall) {
+        return $err->($ML{'.error.cantuseonsystem'})
+            if $GET{user} eq 'system';
+        $u = LJ::load_user($GET{user});
+        $noactions = 1; # don't let admins change anything
+    }    
+    return $err->($ML{'.error.cantbeauthenticated'})
+        unless $u;
+
+    # load user and public layers
+    my $pub = LJ::S2::get_public_layers();
+    my $ulay = LJ::S2::get_layers_of_user($u);
+
+    my $has_priv = LJ::get_cap($u, 's2styles');
+    return $err->($remote->{user} eq $u->{user} ?
+            $ML{'.error.youcantuseadvanced'} :
+            $ML{'.error.usercantuseadvanced'} )
+        unless $has_priv || $viewall;
+
+    # start of output
+    $title = $ML{'.title'};
+    $body .= BML::ml("Backlink", {
+        'link' => "$LJ::SITEROOT/customize/advanced/",
+        'text' => $ML{'.back2'},
+    }) . "\n";
+    $body .= BML::ml("Actionlink", {
+        'link' => "<a href='$LJ::SITEROOT/customize/advanced/styles.bml?authas=$authas'>$ML{'.nav.yourstyles'}</a>",
+    }) . "\n";
+
+
+    ### perform actions ###
+
+    # create
+    if ($POST{'action:create'} && !$noactions) {
+        return $err->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+
+        return $err->($ML{'.error.maxlayers'})
+            if keys %$ulay >= LJ::get_cap($u, 's2layersmax');
+
+        my $err_badparid = $ML{'.error.badparentid'};
+        my $type = $POST{'type'} or return $err->($ML{'.error.nolayertypeselected'});
+        my $parid = $POST{'parid'}+0 or return $err->($err_badparid);
+        return $err->($ML{'.error.invalidlayertype'}) unless $type =~ /^layout|theme|user|i18nc?$/;
+        my $parent_type = ($type eq "theme" || $type eq "i18n" || $type eq "user") ? "layout" : "core";
+        
+        # parent ID is public layer
+        if ($pub->{$parid}) {
+            # of the wrong type
+            return $err->($err_badparid) if $pub->{$parid}->{'type'} ne $parent_type;
+
+        # parent ID is user layer, or completely invalid
+        } else {
+            return $err->($err_badparid) if 
+                ! $ulay->{$parid} || $ulay->{$parid}->{'type'} != $parent_type;
+        }
+
+        my $id = LJ::S2::create_layer($u, $parid, $type);
+        return $err->($ML{'.error.cantcreatelayer'}) unless $id;
+
+        my $lay = { 
+            'userid' => $u->{'userid'},
+            'type' => $type,
+            'b2lid' => $parid,
+            's2lid' => $id,
+        };
+
+        # help user out a bit, creating the beginning of their layer.
+        my $s2 = "layerinfo \"type\" = \"$type\";\n";
+        $s2 .= "layerinfo \"name\" = \"\";\n\n";
+        my $error;
+        unless (LJ::S2::layer_compile($lay, \$error, { 's2ref' => \$s2 })) {
+            return $err->(BML::ml('.error.cantsetuplayer', {'errormsg' => $error}));
+        }
+
+        # redirect so they can't refresh and create a new layer again
+        return BML::redirect("layers.bml?authas=$authas");
+    }
+
+    # delete
+    if ($POST{'action:del'} && !$noactions) {
+        return $err->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+
+        my $id = $POST{'id'}+0;
+        my $lay = LJ::S2::load_layer($id);
+        return $err->($ML{'.error.layerdoesntexist'})
+            unless $lay;
+
+        return $err->($ML{'.error.notyourlayer'})
+            unless $lay->{'userid'} == $u->{'userid'};
+
+        unless ($POST{'confirm'}) {
+            my $layerinfo = {};
+            LJ::S2::load_layer_info($layerinfo, [ $id ]);
+            my $name = $layerinfo->{$id}->{'name'} ? BML::ml('.delete.layername', {'name' => $layerinfo->{$id}->{'name'}}) : BML::ml('.delete.layerid', {'id' => $id});
+            $name = LJ::ehtml($name);
+
+            $title = BML::ml('.delete.title', {'name' => $name});
+            $body .= "<br /> ";
+            $body .= BML::ml("Backlink", {
+                'link' => "$LJ::SITEROOT/customize/advanced/layers.bml?authas=$authas",
+                'text' => $ML{'.back2layers'},
+            }) . "\n";
+            $body .= "<form method='post' action='layers.bml?authas=$authas'>";
+            $body .= $formauth;
+            $body .= LJ::html_hidden('action:del', '1', 'id', $id);
+              
+            $body .= BML::ml('.delete.text', {'type' => $lay->{'type'}, 'name' => $name});
+            $body .= "<p>" . LJ::html_submit('confirm', $ML{'.btn.delete'}) . "</p>\n";;
+            $body .= "</form>\n";
+            return;
+        }
+
+        LJ::S2::delete_layer($u, $id);
+        return BML::redirect("layers.bml?authas=$authas");
+    }
+
+    # authas switcher form
+    unless ($noactions) {
+        $authasform->();
+    }
+
+    # show list of layers
+    $body .= "<?h1 $ML{'.yourlayers.header'} h1?>\n";
+    if (%$ulay) {
+        $body .= "<table style='margin-bottom: 10px' cellpadding='3' border='1'>\n";
+        $body .= "<tr><td><b>$ML{'.yourlayers.table.layerid'}</b></td><td><b>$ML{'.yourlayers.table.type'}</b></td><td><b>$ML{'.yourlayers.table.name'}</b></td><td><b>$ML{'.yourlayers.table.actions'}</b></td></tr>\n";
+        my $lastbase = 0;
+        foreach my $lid (sort { $ulay->{$a}->{'b2lid'} <=> $ulay->{$b}->{'b2lid'} || $a <=> $b } 
+                         keys %$ulay) 
+        {
+            my $bid = $ulay->{$lid}->{'b2lid'};
+            if ($bid != $lastbase) {
+                $lastbase = $bid;
+                my $parlay = $ulay->{$bid} || $pub->{$bid};
+                my $pname = LJ::ehtml($parlay->{'name'});
+                $body .= "<tr><td colspan='4'><small>" . BML::ml('.yourlayers.childof', {'aopts' => "href='$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$bid'", 'layerid' => $bid, 'name' => $pname}) . "</small></td></tr>\n";
+            }
+            my $lay = $ulay->{$lid};
+            my $name = LJ::ehtml($lay->{'name'}) || "<i>$ML{'.yourlayers.noname'}</i>";
+            $body .= "<tr><td><a href='layerbrowse.bml?id=$lid'>$lid</a></td><td>$lay->{'type'}</td><td>$name</td><td>";
+            $body .= "<form method='post' style='display:inline' action='layeredit.bml?id=$lid'>";
+            $body .= LJ::html_submit('action:edit', $ML{'.btn.edit'}, { disabled => $noactions });
+            $body .= "</form>";
+
+            $body .= "<form method='post' style='display:inline' action='layers.bml?authas=$authas'>";
+            $body .= $formauth;
+            $body .= LJ::html_hidden('id', $lid);
+            $body .= LJ::html_submit('action:del', $ML{'.btn.delete2'}, { disabled => $noactions });
+            $body .= "</form>";
+            $body .= "</td></tr>\n"
+        }
+        $body .= "</table>\n\n";
+    } else {
+        $body .= "<?p <i>$ML{'.yourlayers.none'}</i> p?>\n\n";
+    }
+
+    # jump out if we're just viewing
+    return if $noactions;
+
+    # create layer
+    $body .= "<?h1 $ML{'.createlayer.header'} h1?>\n";
+
+    $body .= "<div style='margin-top: 10px;'>\n";
+    $body .= "<?h2 $ML{'.createlayer.toplevel'} h2?>\n";
+    $body .= "<form method='post' action='layers.bml?authas=$authas'>\n";
+    
+    $body .= "$ML{'.createlayer.toplevel.label.type'} " . LJ::html_select({ 'name' => 'type' },
+                                          "" => "",
+                                          "layout" => $ML{'.createlayer.toplevel.select.layout'},
+                                          "i18nc" => $ML{'.createlayer.toplevel.select.language'},
+                                        ) . "\n";
+
+    my @corelayers = map { $_, $pub->{$_}->{'majorversion'} }
+                     sort { $pub->{$b}->{'majorversion'} <=> $pub->{$a}->{'majorversion'} }
+                     grep { $pub->{$_}->{'b2lid'} == 0 && $pub->{$_}->{'type'} eq 'core' && /^\d+$/}
+                     keys %$pub;
+    $body .= " $ML{'.createlayer.toplevel.label.coreversion'} " . LJ::html_select({ 'name' => 'parid', 
+                                                   'selected' => $corelayers[0],
+                                                   'disabled' => @corelayers > 2 ? 0: 1 },
+                                                 @corelayers ) . "\n";
+
+    # store value in hidden to later be copied to 'parid' if necessary
+    # defaults to $corelayers[0] which should be the highest numbered core
+    $body .= LJ::html_hidden("parid_hidden", $POST{'parid'} || $corelayers[0]) . "\n";
+    $body .= $formauth;
+    $body .= LJ::html_submit("action:create", $ML{'.btn.toplevel.create'}) . "\n";
+    $body .= "</form>\n";
+    $body .= "</div>\n\n";
+
+    $body .= "<?h2 $ML{'.createlayer.layoutspecific'} h2?>\n";
+    $body .= "<form method='post' action='layers.bml?authas=$authas'>\n";
+    $body .= $formauth;
+
+    $body .= "$ML{'.createlayer.layoutspecific.label.type'} " . LJ::html_select({ 'name' => 'type' },
+                                        "" => "",
+                                        "theme" => $ML{'.createlayer.layoutspecific.select.theme'},
+                                        "i18n" => $ML{'.createlayer.layoutspecific.select.language'},
+                                        "user" => $ML{'.createlayer.layoutspecific.select.user'}
+                                        ) . "\n";
+
+    my @layouts = ('', '');
+    push @layouts, map { $_, $pub->{$_}->{'name'} }
+                   sort { $pub->{$a}->{'name'} cmp $pub->{$b}->{'name'} || $a <=> $b}
+                   grep { $pub->{$_}->{'type'} eq 'layout' && /^\d+$/} 
+                   keys %$pub;
+    if (%$ulay) {
+        my @ulayouts = ();
+        push @ulayouts, map { $_, BML::ml('.createlayer.layoutspecific.select.userlayer', {'name' => $ulay->{$_}->{'name'}, 'id' => $_}) } 
+                        sort { $ulay->{$a}->{'name'} cmp $ulay->{$b}->{'name'} || $a <=> $b}
+                        grep { $ulay->{$_}->{'type'} eq 'layout' } 
+                        keys %$ulay;
+        push @layouts, ('', '---', @ulayouts) if @ulayouts;
+    }
+
+    $body .= "$ML{'.createlayer.layoutspecific.label.layout'} " . LJ::html_select({ 'name' => 'parid' }, @layouts) . "\n";
+
+    $body .= LJ::html_submit("action:create", $ML{'.btn.layoutspecific.create'}) . "\n";
+    $body .= "</form>\n\n";
+    
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>
+    

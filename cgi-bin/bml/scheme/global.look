@@ -1,0 +1,304 @@
+_parent=>../../lj-bml-blocks.pl
+
+loginboxstyle=>{Ss}background: url(/img/userinfo.gif) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;
+commloginboxstyle=>{Ss}background: url(/img/community.gif) no-repeat; background-color: #fff; background-position: 0px 2px; padding-left: 19px; color: #00C; font-weight: bold;
+
+SECURITYPRIVATE=>{Ss}<img src="<?imgprefix?>/icon_private.gif" width=16 height=16 align=absmiddle>
+SECURITYPROTECTED=>{Ss}<img src="<?imgprefix?>/icon_protected.gif" width=14 height=15 align=absmiddle>
+SECURITYGROUPS=>{Ss}<img src="<?imgprefix?>/icon_groups.gif" width=19 height=16 align=absmiddle>
+HELP=>{DR}(<a href="%%data%%"><i>help</i></a>)
+INERR=>{DR}<font color="#ff0000"><b>%%data%%</b></font>
+SOERROR=>{DR}<div><b>%%data%%</b></div>
+EMAILEX=><div style='font-family: courier; border: solid black 1px; padding: 5px;'>%%data%%</div>
+
+ENTRYFORMCSS<=
+{Ss}
+<style type="text/css">
+</style>
+<=ENTRYFORMCSS
+
+BADINPUT<=
+<?h1 <?_ml bml.badinput.head _ml?> h1?>
+<?p <?_ml bml.badinput.body _ml?> p?>
+<=BADINPUT
+
+REQUIREPOST=><?_ml bml.requirepost _ml?>
+
+LOAD_PAGE_INFO<=
+<?_code
+#line 3
+ @sidebar = ({ 'name' => 'Home',
+	       'uri' => '/',
+	       'match' => "^/(index\\.bml)?(\\?.*)?\$",
+	       'children' => [
+			      { 'name' => 'Create Journal',
+				'uri' => '/create.bml', },
+			      { 'name' => 'Update',
+				'uri' => '/update.bml', 
+#				'children' => [
+#					       { 'name' => 'Full Update',
+#						 'uri' => '/update.bml?mode=full', }
+#					       ],
+			    },
+			      { 'name' => 'Download',
+				'uri' => '/download/', },
+			      ],
+	       },
+	     { 'name' => 'LiveJournal',
+	       'children' => [
+			      { 'name' => 'News',
+				'match' => '^/news\\.bml\$',
+				'uri' => '/news.bml', },
+			      { 'name' => 'Paid Accounts',
+				'uri' => '/paidaccounts/', 
+                                'recursematch' => '^/paidaccounts/',
+				'children' => [ 
+						{ 'name' => 'Is this safe?',
+						  'uri' => '/paidaccounts/whysafe.bml', },
+						{ 'name' => 'Progress',
+						  'uri' => '/paidaccounts/progress.bml', },
+						],
+				},
+#			      { 'name' => 'To-Do list',
+#				'uri' => '/todo.bml', },
+			      { 'name' => 'Contributors',
+				'uri' => '/contributors.bml', },
+			      ],
+	       },
+	     { 'name' => 'Customize',
+	       'children' => [
+			      { 'name' => 'Customize Journal',
+				'uri' => '/customize/', },
+			      { 'name' => 'Create Style',
+				'uri' => '/createstyle.bml', },
+			      { 'name' => 'Edit Style',
+				'uri' => '/editstyle.bml', },
+			      ],
+	   },
+	     { 'name' => 'Find Users',
+	       'children' => [
+       			      { 'name' => 'Random!',
+				'uri' => '/random.bml', },
+       			      { 'name' => 'By Region',
+				'uri' => '/directory.bml', },
+       			      { 'name' => 'By Interest',
+				'uri' => '/interests.bml', },
+                              { 'name' => 'Search',	
+				'uri' => '/directorysearch.bml', }  
+	              ], },
+	     { 'name' => 'Edit ...',
+	       'children' => [
+			      { 'name' => 'Personal Info &',
+				'uri' => '/manage/profile/', },
+			      { 'name' => 'Settings', cont => 1,
+				'uri' => '/manage/', },
+			      { 'name' => 'Your Friends',
+				'uri' => '/editfriends.bml', },
+			      { 'name' => 'Old Entries',
+				'uri' => '/editjournal.bml', },
+			      { 'name' => 'Your Pictures',
+				'uri' => '/editpics.bml', },
+			      { 'name' => 'Your Password',
+				'uri' => '/changepassword.bml', },
+			      ],
+	   },
+	     { 'name' => 'Developer Area',
+	       'uri' => '/developer/',
+	       'match' => "^/developer/\$",
+	       'recursematch' => "^/developer/",
+	       'children' => [
+			      { 'name' => 'Style System',
+				'uri' => '/developer/styles.bml', 
+				'children' => [
+					       { 'name' => 'View Types',
+						 'uri' => '/developer/views.bml', },
+					       { 'name' => 'Variable List',
+						 'uri' => '/developer/varlist.bml', },
+					       ],
+				},
+			      { 'name' => 'Embedding',
+				'uri' => '/developer/embedding.bml', },
+			      { 'name' => 'Protocol',
+				'uri' => '/developer/protocol.bml', 
+				'children' => [
+					       { 'name' => 'Mode List',
+						 'uri' => '/developer/modelist.bml', }
+					       ],
+			    },
+			      ],
+	   },
+	     { 'name' => 'Need Help?',
+	       'children' => [
+			      { 'name' => 'Lost Password?',
+				'uri' => '/lostinfo.bml', },
+			      { 'name' => 'Freq. Asked',
+				'uri' => '/support/faq.bml', },
+			      { 'name' => 'Questions',
+				'uri' => '/support/faq.bml', cont => 1, },
+			      { 'name' => 'Support Area',
+				'uri' => '/support/', },
+			      ],
+	   },
+ );
+ 
+ my $remote = LJ::get_remote();
+ my $remuser = $remote ? $remote->{'user'} : "";
+ my $uri = BML::get_uri();        
+ if ($remuser ne "" && $uri ne "/logout.bml") 
+ {
+     my $subdomain = $remuser;
+     $subdomain =~ s/_/-/g;
+     unshift @sidebar, { 'name' => "Hello, $remuser!",
+			 'children' => [
+					{ 'name' => 'Your Journal', 
+					  'children' => [
+							 { 'name' => 'Recent',
+							   'uri' => "/users/$remuser/", },
+							 { 'name' => 'Calendar',
+							   'uri' => "/users/$remuser/calendar", },
+							 { 'name' => 'Friends',
+							   'uri' => "/users/$remuser/friends",
+							   'extra' => "/friendsfilter.bml",
+						       },
+							 ],
+					  },
+					{ 'name' => 'User Info',
+					  'uri' => "/userinfo.bml?user=$remuser", },
+					{ 'name' => 'Memories',
+					  'uri' => "/memories.bml?user=$remuser", },
+					{ 'name' => 'Logout',
+					  'uri' => '/logout.bml', },
+					]
+					};
+ } elsif ($uri ne "/login.bml") {
+     unshift @sidebar, { 'name' => "Log In",
+			 'uri' => '/login.bml', }
+ }
+
+return "";
+_code?>
+<=LOAD_PAGE_INFO
+
+AL=>{P}<i><a href="%%data1%%">%%data2%%</a></i> <img src="/img/external_link.gif" width='16' height='11' align='absmiddle' />
+AWAYLINK=>{P}<i><a href="%%data1%%">%%data2%%</a></i> <img src="/img/external_link.gif" width='16' height='11' align='absmiddle' />
+
+SEARCHCSS<=
+{S}<style>
+span.searchhighlight { background-color: #ff0; }
+</style>
+<=SEARCHCSS
+
+H1=>{D}<h1>%%data%%</h1>
+H2=>{D}<h2>%%data%%</h2>
+
+# Banner Header: search results banner, content desriptor, etc...
+BH=>{D}<p align='center'><font face="Arial,Helvetica" color="#CC0000" size='-1'><b>%%data%%</b></font>
+
+GRIN=>{S}&lt;grin&gt;
+HR=>{S}<hr />
+
+NEWLINE=>{S}<BR>&nbsp;&nbsp;&nbsp;&nbsp;
+P=>{D}<p>%%data%%</p>
+BLOCK=>{D}<div>%%data%%</div>
+
+STANDOUT<=
+{D}<blockquote>
+<hr />
+%%data%%
+<hr />
+</blockquote>
+<=STANDOUT
+
+ERRORBAR<=
+{D}<blockquote>
+<hr />
+%%data%%
+<hr />
+</blockquote>
+<=ERRORBAR
+
+WARNINGBAR<=
+{D}<blockquote>
+<hr />
+%%data%%
+<hr />
+</blockquote>
+<=WARNINGBAR
+
+BADCONTENT<=
+<?h1 <?_ml Error _ml?> h1?>
+<?p <?_ml bml.badcontent.body _ml?> p?>
+<=BADCONTENT
+
+DE<=
+%%data%%
+<=DE
+
+EMCOLOR=>{S}#c0c0c0
+HOTCOLOR=>{S}#ff0000
+EMCOLORLITE=>{S}#e2e2e2
+ALTCOLOR1=>{S}#eeeeee
+ALTCOLOR2=>{S}#dddddd
+screenedbarcolor=>{S}#d0d0d0
+
+CHOICE=>{P}<dt><a href="%%data2%%"><font size="+1"><tt><b>%%data1%%</b></tt></font></a><dd><font size="2">%%data3%%</font>
+
+CHOICES<=
+{F}<table width="100%" cellpadding="2" cellspacing="5">
+<tr>
+<td valign='top' width="50%">
+<dl>
+%%items%%
+</dl>
+</td>
+<td valign='top' width="50%">
+<dl>
+%%itemsb%%
+</dl>
+</td>
+</tr>
+</table>
+<=CHOICES
+
+PAGE<=
+{Fp}<html>
+<head><title>%%title%%</title>
+<?_code LJ::res_includes() _code?>
+<link rel="stylesheet" type="text/css" href="<?statprefix?>/lj_base-app.css" />
+%%head%%
+</head>
+<body %%bodyopts%%>
+<?_code
+    return @errors && scalar @errors ? LJ::error_list(@errors) : '';
+_code?>
+%%body%%
+</body>
+</html>
+<=PAGE
+
+BREADCRUMBS<=
+{Fp}<?_code
+    # where are we
+    my @crumbs = LJ::get_crumb_path();
+    return unless @crumbs;
+    my @ret;
+    my $count = 0;
+    foreach my $crumb (@crumbs) {
+        # put crumbs together
+        next unless $crumb->[3]; # no blank crumbs
+        if ($crumb->[3] eq 'dynamic') {
+            # dynamic
+            unshift @ret, "<b>$crumb->[0]</b>";
+            $count++;
+        } else {
+            # non-dynamic
+            unshift @ret, $count++ == 0 ?
+                "<b>$ML{'crumb.'.$crumb->[3]}</b>" :
+                $crumb->[1] ne '' ?
+                    "<a href=\"$crumb->[1]\">$ML{'crumb.'.$crumb->[3]}</a>" :
+                    "$ML{'crumb.'.$crumb->[3]}";
+        }
+    }
+    return "<div id='ljbreadcrumbs'>" . join(" : ", @ret) . "</div>";
+_code?>
+<=BREADCRUMBS

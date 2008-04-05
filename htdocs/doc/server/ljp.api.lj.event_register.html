@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::event_register</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.eurl.html" title="LJ::eurl">
+<link rel="next" href="ljp.api.lj.exml.html" title="LJ::exml">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::event_register</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.eurl.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.exml.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.event_register"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::event_register</h2>
+<p>LJ::event_register &#8212; Logs a subscribable event, if anybody is subscribed to it.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::event_register</b>(</code><var class="pdparam">dbarg</var>, <var class="pdparam">dbc</var>, <var class="pdparam">etype</var>, <var class="pdparam">ejid</var>, <var class="pdparam">eiarg</var>, <var class="pdparam">duserid</var>, <var class="pdparam">diarg</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3208099"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>dbarg. </b>Deprecated; a master database handle ($dbh) or a master/slave set of database handles ($dbs).</p></li>
+<li><p><b>dbc. </b>Cluster master of event</p></li>
+<li><p><b>etype. </b>One character event type.</p></li>
+<li><p><b>ejid. </b>Journalid event occurred in.</p></li>
+<li><p><b>eiarg. </b>4 byte numeric argument</p></li>
+<li><p><b>duserid. </b>Event doer's userid</p></li>
+<li><p><b>diarg. </b>Event's 4 byte numeric argument</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3208190"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/ljlib.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3208203"></a><h2>Returns:</h2>
+<p>boolean; 1 on success; 0 on fail.</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.eurl.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.exml.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::eurl </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::exml</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

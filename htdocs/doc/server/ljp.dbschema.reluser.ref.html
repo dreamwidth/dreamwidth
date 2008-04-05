@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chapter 33. Relationships between users</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.dbschema.index.html" title="Part VI. Database Schema">
+<link rel="prev" href="ljp.dbschema.index.html" title="Part VI. Database Schema">
+<link rel="next" href="ljp.dbschema.ref.html" title="Database Schema Browser">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 33. Relationships between users</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.dbschema.index.html">Prev</a> </td>
+<th width="60%" align="center">Part VI. Database Schema</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.dbschema.ref.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en" id="ljp.dbschema.reluser.ref">
+<div class="titlepage"><div>
+<div><h2 class="title">Chapter 33. Relationships between users</h2></div>
+<div><h3 class="subtitle"><i>The <span class="database">reluser</span> Table</i></h3></div>
+</div></div>
+<p>
+    The <span class="database">reluser</span> table is used to track special relationships
+    between accounts, such as community maintainers/moderators and their communities, which communities
+    a user is allowed to post to, and which users are banned from commenting in specific journals.
+    These relationships are defined as a single character in the database:
+  </p>
+<div class="variablelist"><dl>
+<dt><span class="term">A</span></dt>
+<dd>
+<span class="database">targetid</span> can
+        administrate <span class="database">userid</span> as a community maintainer
+      </dd>
+<dt><span class="term">B</span></dt>
+<dd>
+<span class="database">targetid</span> is
+        banned in <span class="database">userid</span>, either in comments, or from
+        posting, if <span class="database">userid</span> is a shared or community account
+      </dd>
+<dt><span class="term">P</span></dt>
+<dd>
+<span class="database">targetid</span> can
+        post to <span class="database">userid</span>
+      </dd>
+<dt><span class="term">M</span></dt>
+<dd>
+<span class="database">targetid</span> can
+        moderate the community <span class="database">userid</span>
+      </dd>
+<dt><span class="term">N</span></dt>
+<dd>
+<span class="database">targetid</span> is pre-approved
+        to post in <span class="database">userid</span> without moderation
+      </dd>
+<dt><span class="term">I</span></dt>
+<dd>
+<span class="database">targetid</span> invited
+      <span class="database">userid</span> to the site
+      </dd>
+</dl></div>
+<p>
+    The <span class="database">reluser</span> table is a non-clustered global table.
+    Its counterpart, the <span class="database">reluser2</span> table, is clustered.
+    Clustered relationship types are defined in <code class="filename">ljlib.pl</code> and
+    <code class="filename">ljlib-local.pl</code>, in the <a class="xref" href="ljp.api.lj.get_reluser_id.html" title="LJ::get_reluser_id">LJ::get_reluser_id</a> function.
+    The <code class="literal">LJ::get_reluser_id</code> description explains the numbering scheme;
+    no <span class="database">reluser2</span> types can be a single character.</p>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.dbschema.index.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.dbschema.index.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.dbschema.ref.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Part VI. Database Schema </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Database Schema Browser</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+    use Class::Autouse qw( LJ::SiteMessages );
+
+    my $remote = LJ::get_remote();
+
+    return "<?needlogin?>"
+        unless $remote;
+
+    return "You are not allowed to view this page"
+        unless LJ::check_priv($remote, 'siteadmin', 'sitemessages') || $LJ::IS_DEV_SERVER;
+
+    my $ret = "";
+
+    # activate/inactivate a message
+    LJ::Widget->handle_post(\%POST, qw(ManageSiteMessages));
+
+    # spotlight preview
+    $ret .= "<div style='float: right; width: 400px; border: 1px solid'>";
+    $ret .= LJ::Widget::SiteMessages->render . "</div>";
+
+    # activate/inactive site messages form
+    $ret .= LJ::Widget::ManageSiteMessages->render( get => \%GET );
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

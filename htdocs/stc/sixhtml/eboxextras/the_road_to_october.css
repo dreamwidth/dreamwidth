@@ -1,0 +1,29 @@
+#pagebody {
+    width: 750px;
+    background-image: none;
+    background-color: #faefd8;
+}
+
+#pagebody-inner {
+    background-repeat: repeat-x;
+}
+
+.layout-one-column #alpha {
+    width: 690px;
+}
+
+.layout-two-column-left #alpha {
+    margin: 0px 0px 0px 25px;
+}
+
+.layout-two-column-left #beta {
+    width: 490px;
+}
+
+.layout-two-column-right #alpha {
+    width: 490px;
+}
+
+.layout-two-column-right #beta {
+    margin: 0px 25px 0px 0px;
+}

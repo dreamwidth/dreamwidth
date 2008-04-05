@@ -1,0 +1,15 @@
+.appwidget-friendbirthdays table {
+    width: 100%;
+    border: 0;
+}
+
+.appwidget-friendbirthdays .gift-link {
+    display: block;
+    padding: 0 0 0 20px;
+    line-height: 20px;
+    background: url(/img/gift.gif) no-repeat 0 50%;
+    float: right;
+}
+* html .appwidget-friendbirthdays .gift-link {
+    line-height: 14px;
+}

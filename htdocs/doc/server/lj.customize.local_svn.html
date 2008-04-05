@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Chapter 15. Using your own SVN directory</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.customize.index.html" title="Part III. Customizing Your Installation">
+<link rel="prev" href="lj.customize.index.html" title="Part III. Customizing Your Installation">
+<link rel="next" href="lj.customize.local_svn.cvsreport.html" title="1. cvsreport.pl (vcv) : Adding &amp; Overlaying">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">Chapter 15. Using your own <abbr class="abbrev">SVN</abbr> directory</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.customize.index.html">Prev</a> </td>
+<th width="60%" align="center">Part III. Customizing Your Installation</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.customize.local_svn.cvsreport.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="chapter" lang="en" id="lj.customize.local_svn">
+<div class="titlepage"><div><div><h2 class="title">Chapter 15. Using your own <abbr class="abbrev">SVN</abbr> directory</h2></div></div></div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl><dt><span class="section"><a href="lj.customize.local_svn.cvsreport.html">1. <span class="application">cvsreport.pl</span> (<span class="application"><acronym class="acronym">vcv</acronym></span>) : Adding &amp; Overlaying</a></span></dt></dl>
+</div>
+<p>
+    <abbr class="abbrev">SVN</abbr> is a version control system for source code.  We don't care
+    whether or not you actually use it to control your site-local
+    modifications.  However, even if you don't, it's still important
+    you put your modifications under a directory in <code class="filename"><code class="envar">$LJHOME</code>/cvs</code>.
+    The <code class="filename">&#8230;/cvs</code> directory is a holdover, 
+    from when the <span class="application">LiveJournal</span> project used <acronym class="acronym">CVS</acronym> for version control.
+  </p>
+<p>
+    At this point, <a class="link" href="lj.install.install_files.html" title="2. Installing the files">you already have</a> a directory named
+    <code class="filename">cvs</code> underneath
+    your <a class="link" href="lj.install.ljhome.html" title="1. $LJHOME Environment Variable"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em></a>
+    directory.  Further, that directory already has under it a directory called <code class="filename">livejournal</code>,
+    which holds the &#8220;<span class="quote">general</span>&#8221; files.
+  </p>
+<p>
+    What you want to do now is make a directory that holds the
+    &#8220;<span class="quote">local</span>&#8221; files.  The <span class="application">LiveJournal</span> tools look for your
+    files in a directory beside <code class="filename">livejournal</code> named
+    <code class="filename">local</code>, but <code class="filename">local</code> can
+    actually be a symlink to your real directory.
+    <sup>[<a name="local_mods" href="#ftn.local_mods" class="footnote">8</a>]</sup>
+  </p>
+<div class="footnotes">
+<br><hr width="100" align="left">
+<div class="footnote"><p><sup>[<a name="ftn.local_mods" href="#local_mods" class="para">8</a>] </sup><code class="systemitem">LiveJournal.com</code> uses the directory name
+        <code class="filename">ljcom</code> for its site-local modifications, so
+        the <code class="filename">livejournal</code> directory is entirely free
+        of <code class="systemitem">LiveJournal.com</code>-specific code.  If you're helping with
+        <code class="systemitem">LiveJournal.com</code> development, you'll want to symlink <code class="filename">ljcom</code> to
+        <code class="filename">local</code>.</p></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.customize.index.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.customize.index.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.customize.local_svn.cvsreport.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Part III. Customizing Your Installation </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 1. <span class="application">cvsreport.pl</span> (<span class="application"><acronym class="acronym">vcv</acronym></span>) : Adding &amp; Overlaying</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

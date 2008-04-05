@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>LJ::auth_okay</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.api.ref.html" title="API Documentation">
+<link rel="prev" href="ljp.api.lj.are_hooks.html" title="LJ::are_hooks">
+<link rel="next" href="ljp.api.lj.auto_linkify.html" title="LJ::auto_linkify">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">LJ::auth_okay</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.api.lj.are_hooks.html">Prev</a> </td>
+<th width="60%" align="center">API Documentation</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.api.lj.auto_linkify.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.api.lj.auth_okay"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>LJ::auth_okay</h2>
+<p>LJ::auth_okay &#8212; Validates a user's password.  The "clear" or "md5" argument must be present, and either the "actual" argument (the correct password) must be set, or the first argument must be a user object ($u) with the 'password' key set.  This is the preferred way to validate a password (as opposed to doing it by hand), since <span class="strong"><strong>this</strong></span> function will use a pluggable authenticator, if one is defined, so LiveJournal installations can be based off an LDAP server, for example.</p>
+</div>
+<div class="refsynopsisdiv">
+<h2>Use</h2>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">LJ::auth_okay</b>(</code><var class="pdparam">u</var>, <var class="pdparam">clear</var>, <var class="pdparam">md5</var>, <var class="pdparam">actual</var>, <var class="pdparam">ip_banned</var><code>)</code>;</p></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3202436"></a><h2>Arguments</h2>
+<div class="itemizedlist"><ul type="disc">
+<li><p><b>u. </b>A hashref of a row from the user table, sometimes called a "user object".  Although only initially a row from the user table, gets a lot of tacked onto it from various other LJ API functions.</p></li>
+<li><p><b>clear. </b>Clear text password the client is sending. (need this or md5)</p></li>
+<li><p><b>md5. </b>MD5 of the password the client is sending. (need this or clear). If this value instead of clear, clear can be anything, as md5 validation will take precedence.</p></li>
+<li><p><b>actual. </b>The actual password for the user.  Ignored if a pluggable authenticator is being used.  Required unless the first argument is a user object instead of a username scalar.</p></li>
+<li><p><b>ip_banned. </b>Optional scalar ref which this function will set to true if IP address of remote user is banned.</p></li>
+</ul></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3202512"></a><h2>Source:</h2>
+<p><code class="filename">cgi-bin/ljlib.pl</code></p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3202526"></a><h2>Returns:</h2>
+<p>boolean; 1 if authentication succeeded, 0 on failure</p>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.api.lj.are_hooks.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.api.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.api.lj.auto_linkify.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">LJ::are_hooks </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> LJ::auto_linkify</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

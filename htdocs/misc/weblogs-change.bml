@@ -1,0 +1,36 @@
+<?_code
+{
+    use strict;
+    use vars qw(%FORM);
+
+    return "no user" unless $FORM{'user'};
+
+    my $dbr = LJ::get_db_reader();
+    my $u =  LJ::load_user($FORM{'user'});
+    return "no user" unless $u;
+
+    my $tu = $dbr->selectrow_array("SELECT timeupdate FROM userusage WHERE userid=?", 
+                                   undef, $u->{'userid'});
+    
+    # we have no _fucking_ clue how weblogs.com detects changes.  god forbid
+    # it should be documented.
+
+    # here are some guesses, based on other people's half-educated guesses
+    # in mailing lists:
+
+    # attempt #1:  (change HTTP last modified)
+    my $modtime = LJ::mysqldate_to_time($tu);
+    BML::want_last_modified(1);
+    BML::note_mod_time($modtime);
+
+    # attempt #2:  (change the page text)
+    my $ret = "New post (not edit) at: $tu\n";
+    
+    # attempt #3:  (make the returned content differ by 50 bytes (!?!))
+    # waste 50b - 2.5k on bogus ex characters, modulus some seconds
+    $ret .= "Bogus chars to unconfuse weblogs.com:\n";
+    $ret .= "x" x ($modtime % 50 * 50);
+
+    return $ret;
+}
+_code?>

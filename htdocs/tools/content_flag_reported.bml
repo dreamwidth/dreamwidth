@@ -1,0 +1,27 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    $title = 'Your report has been filed';
+
+    my $flag = LJ::ContentFlag->load_by_id($GET{flagid}) or return "Invalid report";
+
+    my $url = $flag->url;
+
+    return qq {
+        <p>Thank you for your report. We will process it as soon as possible and take
+            any appropriate actions, though unfortunately, we can't provide a personal response.</p>
+
+        <p><a href="$url">Return to Journal</a> <a href="$LJ::SITEROOT/site/search.bml">Explore $LJ::SITENAME</a></p>
+    };
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

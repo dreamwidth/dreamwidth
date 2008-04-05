@@ -1,0 +1,37 @@
+;; -*- coding: utf-8 -*-
+.browse.country.desc=Select a country to read journals from that country...
+
+.browse.country.title=Browse Journals by Country
+
+.browse.usa.desc=Click a US state below to read journals from that state, or click a country name below the map to read journals from that country.
+
+.browse.usa.title=Browse Journals by US State
+
+.error.accounttype2<<
+Sorry, your account type doesn't permit usage of the
+directory, or you aren't currently <a [[aopts]]>logged in</a>.  If your account type permits
+directory usage, be sure that you are logged in and then try again.
+.
+
+.error.notloggedin=You must <a [[aopts]]>login</a> to use the directory.
+
+.navcrap.matches=[[count]] matches
+
+.navcrap.xofy=Page [[curpage]] of [[totpages]] shown (records [[reca]]-[[recb]])
+
+.open=Open
+
+.post=Post
+
+.search.monkey=Hundreds of trained monkeys are currently running about finding your search results.  Please stand by.
+
+.search.new=New Query
+
+.search.overflow=<b>Search results limited to [[count]] results.  Please refine your query.</b>
+
+.search.title=Searching
+
+.update=Update:
+
+.user=User
+

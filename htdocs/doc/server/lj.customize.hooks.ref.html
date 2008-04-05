@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. Hooks Reference</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.customize.hooks.html" title="Chapter 19. Setting and using Hooks">
+<link rel="prev" href="lj.customize.hooks.setup.html" title="1. Writing Hooks">
+<link rel="next" href="lj.customize.layout.html" title="Chapter 20. BML Schemes">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. Hooks Reference</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.customize.hooks.setup.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 19. Setting and using Hooks</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.customize.layout.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.customize.hooks.ref">2. Hooks Reference</h2></div></div></div>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">bad_password</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">bad_password</b>(</code>
+          <var class="pdparam">$arg</var>
+        <code>)</code>;</p></div>
+<p>
+      Check the given password, and either return a string explaining why the password is bad, or undef if the password is okay.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">$arg</code></span></dt>
+<dd><p>Hashref containing at least a password element.  Can also contain a u object and user, name, and <span class="application">e-mail</span> elements.</p></dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc">
+<li><code class="filename">cgi-bin/ljprotocol.pl</code></li>
+<li><code class="filename">htdocs/changepassword.bml</code></li>
+<li><code class="filename">htdocs/create.bml</code></li>
+<li><code class="filename">htdocs/update.bml</code></li>
+<li><code class="filename">ssldocs/changepassword.bml</code></li>
+</ul></div>
+</dd>
+<dt><span class="term"><code class="literal">canonicalize_url</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">canonicalize_url</b>(</code>
+          <var class="pdparam">$url</var>
+        <code>)</code>;</p></div>
+<p>
+      Cleans up a <acronym class="acronym">URL</acronym> into its canonical form.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">$url</code></span></dt>
+<dd><p><acronym class="acronym">URL</acronym> to be cleaned.</p></dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">bin/maint/stats.pl</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">emailconfirmed</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">emailconfirmed</b>(</code>
+          <var class="pdparam">$dbarg</var>
+          <var class="pdparam">$u</var>
+        <code>)</code>;</p></div>
+<p>
+      After a user has confirmed their <span class="application">e-mail</span> address, this hook is called with a dbs/dbh and a user object.  This is useful to update a database alias table which you also have your mail system using for address lookups.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">$dbarg</code></span></dt>
+<dd><p>Either a dbs or dbh resource object.</p></dd>
+<dt><span class="term"><code class="literal">$u</code></span></dt>
+<dd><p>User object.</p></dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">htdocs/register.bml</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">login_add_opts</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">login_add_opts</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Appends options to the cookie value.  Each option should be short, and preceded by a period.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p></p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">u</code> &#8212; User object.</li>
+<li>
+<code class="literal">form</code> &#8212; Login form elements.</li>
+<li>
+<code class="literal">opts</code> &#8212; Hash reference of options to append to login cookie.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">htdocs/login.bml</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">login_formopts</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">login_formopts</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Returns extra <acronym class="acronym">HTML</acronym> for login options on <code class="filename">login.bml</code>.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments.</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc"><li>
+<code class="literal">ret</code> &#8212; Scalar return reference.</li></ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">htdocs/login.bml</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">modify_login_menu</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">modify_login_menu</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Modifies or resets entirely the web menu data structure that is sent to the client.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments.</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">menu</code> &#8212; Menu item.</li>
+<li>
+<code class="literal">u</code> &#8212; User object.</li>
+<li>
+<code class="literal">dbs</code> &#8212; Resource object.</li>
+<li>
+<code class="literal">user</code> &#8212; Username string.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">cgi-bin/ljprotocol.pl</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">name_caps</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">name_caps</b>(</code>
+          <var class="pdparam">$cap</var>
+        <code>)</code>;</p></div>
+<p>
+      Returns the long name of the given capability bit.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">$cap</code></span></dt>
+<dd><p>Capability bit to check.</p></dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc">
+<li><code class="filename">cgi-bin/ljlib.pl</code></li>
+<li><code class="filename">cgi-bin/ljcapabilities.pl</code></li>
+</ul></div>
+</dd>
+<dt><span class="term"><code class="literal">name_caps_short</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">name_caps_short</b>(</code>
+          <var class="pdparam">$cap</var>
+        <code>)</code>;</p></div>
+<p>
+      Returns the short name of the given capability bit.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">$cap</code></span></dt>
+<dd><p>Capability bit to check.</p></dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc">
+<li><code class="filename">cgi-bin/ljlib.pl</code></li>
+<li><code class="filename">cgi-bin/ljcapabilities.pl</code></li>
+</ul></div>
+</dd>
+<dt><span class="term"><code class="literal">post_changepassword</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">post_changepassword</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Action to take after changing password, before <acronym class="acronym">HTML</acronym> is sent to to client (possibly to print <code class="systemitem">HTTP</code> headers directly).
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments.</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">u</code> &#8212; User object.</li>
+<li>
+<code class="literal">dbs</code> &#8212; Resource object.</li>
+<li>
+<code class="literal">newpassword</code> &#8212; New password.</li>
+<li>
+<code class="literal">oldpassword</code> &#8212; Old password.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc">
+<li><code class="filename">htdocs/changepassword.bml</code></li>
+<li><code class="filename">ssldocs/changepassword.bml</code></li>
+</ul></div>
+</dd>
+<dt><span class="term"><code class="literal">post_create</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">post_create</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Action to take after creating an account.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments.</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">dbs</code> &#8212; Resource object.</li>
+<li>
+<code class="literal">user</code> &#8212; Username string.</li>
+<li>
+<code class="literal">userid</code> &#8212; Integer</li>
+<li>
+<code class="literal">code</code> &#8212; Auth code, if in use.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">cgi-bin/ljlib.pl</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">post_login</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">post_login</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Action to take after logging in, before <acronym class="acronym">HTML</acronym> is sent to to client (possibly to print <code class="systemitem">HTTP</code> headers directly).
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments.</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">u</code> &#8212; User object.</li>
+<li>
+<code class="literal">form</code> &#8212; Hash of form elements.</li>
+<li>
+<code class="literal">expiretime</code> &#8212; Used for cookies. Can either be a <span class="application"><code class="systemitem">Unix</code></span> timestamp, or '0' for session cookies.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc">
+<li><code class="filename">htdocs/login.bml</code></li>
+<li><code class="filename">htdocs/talkread_do.bml</code></li>
+</ul></div>
+</dd>
+<dt><span class="term"><code class="literal">set_s2bml_lang</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">set_s2bml_lang</b>(</code>
+          <var class="pdparam">$ctx</var>
+          <var class="pdparam">$langref</var>
+        <code>)</code>;</p></div>
+<p>
+      Given an S2 Context, return the correct <span class="application"><acronym class="acronym">BML</acronym></span> language id.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">$ctx</code></span></dt>
+<dd><p>S2 Context.</p></dd>
+<dt><span class="term"><code class="literal">$langref</code></span></dt>
+<dd><p>Language id reference.</p></dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">cgi-bin/LJ/S2.pm</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">userinfo_html_by_user</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">userinfo_html_by_user</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Extra <acronym class="acronym">HTML</acronym> to show next to username &amp; id on <code class="filename">userinfo.bml</code>
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments.</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">ret</code> &#8212; Scalar return reference.</li>
+<li>
+<code class="literal">u</code> &#8212; User object.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">htdocs/userinfo.bml</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">userinfo_rows</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">userinfo_rows</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      Returns a two-element arrayref for a row on a userinfo page, containing first the left side label, then the body.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments.</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">dbr</code> &#8212; Resource Object (read-only).</li>
+<li>
+<code class="literal">u</code> &#8212; User object</li>
+<li>
+<code class="literal">remote</code> &#8212; Remote user object.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">htdocs/userinfo.bml</code></li></ul></div>
+</dd>
+<dt><span class="term"><code class="literal">validate_get_remote</code></span></dt>
+<dd>
+<p><b>Synopsis: </b>
+      </p>
+<div class="funcsynopsis"><p><code class="funcdef"><b class="fsfunc">validate_get_remote</b>(</code>
+          <var class="pdparam">%args</var>
+        <code>)</code>;</p></div>
+<p>
+      This hook lets you ignore the remote user's cookies or flag them as intentionally forged to LJ::get_remote().  If you return a true value, no action is taken.  If you return false, <code class="function">LJ::get_remote()</code> returns undef.  You can optionally set <code class="literal">$criterr</code> to something true as well.
+    </p>
+<p><b>Arguments: </b>
+      </p>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">%args</code></span></dt>
+<dd>
+<p>Hash of arguments</p>
+<div class="itemizedlist">
+<p class="title"><b>Keys</b></p>
+<ul type="disc">
+<li>
+<code class="literal">user</code> &#8212; May be an empty string or undef.</li>
+<li>
+<code class="literal">userid</code> &#8212; May be 0</li>
+<li>
+<code class="literal">dbs</code> &#8212; Resource object</li>
+<li>
+<code class="literal">caps</code> &#8212; Capabilities.</li>
+<li>
+<code class="literal">criterr</code> &#8212; Scalar error reference.</li>
+<li>
+<code class="literal">cookiesource</code> &#8212; Sub reference which takes a cookie name and returns its value.</li>
+</ul>
+</div>
+</dd>
+</dl></div>
+<p>
+    </p>
+<p><b>Source: </b></p>
+<div class="itemizedlist"><ul type="disc"><li><code class="filename">cgi-bin/ljlib.pl</code></li></ul></div>
+</dd>
+</dl></div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.customize.hooks.setup.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.customize.hooks.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.customize.layout.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Writing Hooks </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 20. <span class="application"><acronym class="acronym">BML</acronym></span> Schemes</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

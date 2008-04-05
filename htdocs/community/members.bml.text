@@ -1,0 +1,73 @@
+;; -*- coding: utf-8 -*-
+.error.adding=[[user]] has banned this community from sending them invitations.
+
+.error.alreadyadded=[[user]] was not added because they already have access to this community.
+
+.error.alreadysent=[[user]] could not be added because they were already sent a confirmation email on <i>[[datetime]]</i>.  Please wait for them to respond.
+
+.error.invaliduser=Cannot add community or syndicated account: [[user]]
+
+.error.ischild=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 14 years old.
+
+.error.isminor=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 18 years old.
+
+.error.limit=Unable to invite [[user]], the outstanding invitation limit for this community has been exceeded.
+
+.error.noaccess=Only community maintainers are able to edit membership lists. You are not a maintainer of community [[comm]].
+
+.error.noattr=No attributes selected for user: [[user]]
+
+.error.nocomm=Community not found.
+
+.error.notactive=Account is not active: <b>[[user]]</b>
+
+.error.notcomm=[[user]] is not a community.
+
+.error.nouser=User does not exist: <b>[[user]]</b>
+
+.error.unknown=Error inviting [[user]].  Please make sure they're not already a member and try again.
+
+.key.admin=<b>Maintainer</b>
+
+.key.member=<b>Member</b>
+
+.key.moderate=<b>Moderator</b>
+
+.key.post=<b>Posting Access</b>
+
+.key.preapprove=Unmoderated
+
+.key.user=<b>User</b>
+
+.manage2=Manage communities
+
+.name=<b>Community name:</b> [[name]]
+
+.nextlink=<i>(Next page...)</i>
+
+.prevlink=<i>(Previous page...)</i>
+
+.reinvited2=[[user]] has been reinvited to join this community.  They will need to accept the invite from the <a [[aopts]]>Community Invitation Page</a>.
+
+.settings2=Settings
+
+.success.added=added: [[list]]
+
+.success.deleted=removed: [[list]]
+
+.success.header=Success
+
+.success.invited=The following users have been successfully invited to this community with the listed privileges:
+
+.success.invited2=The following users have been successfully invited to this community with the listed privileges.  They will need to accept the invite from the <a [[aopts]]>Community Invitation Page</a> before they can become a member of the community.
+
+.success.message2=The following changes have been made:
+
+.success.nochanges=No changes have been made.
+
+.success.return2=<a [[aopts]]>Return to the list</a>
+
+.title=Community Members
+
+.update=Update settings
+

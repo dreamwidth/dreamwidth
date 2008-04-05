@@ -1,0 +1,79 @@
+;; -*- coding: utf-8 -*-
+.error.no_usernames_for_email=No username(s) for this email address: [[address]] .
+
+.error1.text=You never used that email address with this account or it was never validated.
+
+.lostpasswordmail.part1<<
+*** This is an automated email.  You do not need to respond to it. ***
+
+This is your requested password reminder from [[sitename]].
+Below is your username, password, and email address your journal is
+registered under.
+
+          Username: [[username]]
+          Password: [[password]]
+     EMail Address: [[emailadr]]
+.
+
+.lostpasswordmail.part2=To validate your email address, go here:
+
+.lostpasswordmail.part3<<
+This information was requested on the website from [[remoteip]].
+
+If you didn't request to have this password emailed to you, don't panic.
+After all, you're the one who's seeing this email, and not the other person.
+It's possible that the user who made the request is mistaken and
+believes that he or she controls this username. It's also possible that
+someone made a typo in a username or email address.
+.
+
+.lostpasswordmail.part4|notes=Site-local text.  For 'en', it's blank.
+.lostpasswordmail.part4=
+
+.lostpasswordmail.part5<<
+Useful links:
+
+  Your LiveJournal:
+    [[journalurl]]
+
+  Update your journal online:
+    [[updateurl]]
+
+Regards,
+The site team
+
+[[rooturl]]
+.
+
+.lostpasswordmail.reset<<
+A request has been made at [[lostinfolink]] to reset
+the password to the [[sitename]] account associated with this email address.
+
+The account information is:
+
+          Username: [[username]]
+     Email Address: [[emailadr]]
+
+Follow this link to confirm the request to reset your password:
+
+    [[resetlink]]
+
+If you did not make this request, please ignore this email and your password
+will not be reset.
+
+Regards,
+[[sitename]] Team
+.
+
+.lostpasswordmail.subject=Lost Password
+
+.password_mailed.text=Success.  Your password has been mailed.
+
+.password_mailed.title=Password mailed!
+
+.title=Lost Information
+
+.username_mailed.text=Success.  Your username has been mailed.
+
+.username_mailed.title=Username mailed!
+

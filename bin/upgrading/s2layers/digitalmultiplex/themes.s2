@@ -1,0 +1,4 @@
+#NEWLAYER: digitalmultiplex/classic
+layerinfo type = "theme";
+layerinfo name = "Classic";
+layerinfo redist_uniq = "digitalmultiplex/classic";

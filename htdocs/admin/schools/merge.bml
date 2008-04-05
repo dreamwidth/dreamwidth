@@ -1,0 +1,60 @@
+<?page
+title=>Merge School Data
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST);
+
+    my $ret = '';
+    my $err = sub {
+        return "<?errorbar $_[0] errorbar?>";
+    };
+
+    return $err->('The Schools Directory is currently disabled due to maintenance.')
+        if $LJ::DISABLED{'schools'};
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    return $err->('You do not have access to use this tool.')
+        unless LJ::check_priv($remote, 'siteadmin', 'school');
+
+    $ret .= "<?p [ <a href='index.bml'>&lt;&lt; Back to Admin Index</a> ] p?>";
+
+    if (LJ::did_post()) {
+        my $check = sub {
+            return $err->("Invalid form")
+                unless LJ::check_form_auth();
+
+            my ($from, $to) = ($POST{from}+0, $POST{to}+0);
+            return $err->('Invalid school IDs (one or both)')
+                unless $from && $to;
+
+            my $school = LJ::Schools::load_schools($from, $to);
+            return $err->("Unable to load schools (are the IDs valid?)")
+                unless $school->{$from} && $school->{$to};
+
+            my $rv = LJ::Schools::merge_schools($to, $from);
+            return $err->("Unable to merge schools")
+                unless $rv;
+
+            return "<?warningbar The schools have been merged! warningbar?>";
+        };
+        $ret .= $check->();
+    }
+
+    # simply dump the form for merging
+    $ret .= "<?p <form method='post' action='merge.bml'>";
+    $ret .= LJ::form_auth();
+    $ret .= "Merge " . LJ::html_text({ name => 'from', size => 10, value => $POST{from} });
+    $ret .= " into " . LJ::html_text({ name => 'to', size => 10, value => $POST{to} });
+    $ret .= " " . LJ::html_submit('merge', 'Merge Schools');
+    $ret .= "</form> p?>";
+    $ret .= "<?p This takes the people from the first school and moves them into " .
+            "the second school.  The first school is deleted. p?>";
+
+}
+_code?>
+<=body
+page?>

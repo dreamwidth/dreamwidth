@@ -1,0 +1,427 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>syncitems</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.xml-rpc.protocol.html" title="XML-RPC Client/Server Protocol Reference">
+<link rel="prev" href="ljp.csp.xml-rpc.sessiongenerate.html" title="sessiongenerate">
+<link rel="next" href="ljp.csp.blogger.html" title="Chapter 25. Supporting the Blogger API">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">syncitems</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.xml-rpc.sessiongenerate.html">Prev</a> </td>
+<th width="60%" align="center">
+<acronym class="acronym">XML-RPC</acronym> Client/Server Protocol Reference</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.blogger.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.csp.xml-rpc.syncitems"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>syncitems</h2>
+<p>syncitems &#8212; 
+Returns a list of all the items that have been created or updated for a user.
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3108651"></a><h2>Mode Description</h2>
+<p>
+Returns a list (or part of a list) of all the items (journal entries, to-do items, comments) that have been created or updated on LiveJournal since you last downloaded them. Note that the items themselves are not returned --- only the item type and the item number. After you get this you have to go fetch the items using another protocol mode. For journal entries (type "L"), use the getevents mode with a selecttype of "syncitems".
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3100203"></a><h2>Arguments</h2>
+<div class="orderedlist"><ol type="1"><li>
+<p><span class="emphasis"><em>[struct]</em></span>(required)</p>
+<p>
+  Containing keys:
+    </p>
+<div class="itemizedlist"><ul type="disc">
+<li>
+<p><span class="strong"><strong>username</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+    Username of user logging in.
+  </p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>auth_method</strong></span>(optional):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+    Authentication method used for this request. The default value is "clear", for plain-text authentication. "cookie" and any of the challenge-response methods are also acceptable.
+  </p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>password</strong></span>(optional):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+    Deprecated. Password of user logging in in plaintext. If using the "clear" authentication method, either this or "hpassword" must be present.
+  </p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>hpassword</strong></span>(optional):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+    Deprecated. MD5 digest of user's password.  Not much more secure than password, but at least it's not in plain text.
+  </p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>auth_challenge</strong></span>(optional):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+    If using challenge-response authentication, this should be the challenge that was issued to you by the server.
+  </p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>auth_response</strong></span>(optional):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+    If using challenge-response authentication, this should be the response hash that you generate, based on the formula required for your challenge.
+  </p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>ver</strong></span>(optional):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+    Protocol version supported by the client; assumed to be 0 if not specified. See <a class="xref" href="ljp.csp.versions.html" title="Chapter 27. Protocol Versions">Chapter 27, <i>Protocol Versions</i></a> for details on the protocol version.
+  </p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>lastsync</strong></span>(optional):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+The date you last downloaded synced, in "yyyy-mm-dd hh:mm:ss" format. Note:  do not make this date up from the client's local computer... send the date from this mode's response of the newest item you have saved on disk.
+</p></li></ul></div>
+</li>
+</ul></div>
+</li></ol></div>
+<div class="example">
+<a name="example-ljp.csp.xml-rpc-call_syncitems"></a><p class="title"><b>Example 35. Sample call to <code class="literal">LJ.XMLRPC.syncitems</code></b></p>
+<div class="example-contents">
+<p>
+        </p>
+<pre class="programlisting">
+POST /interface/xmlrpc HTTP/1.0
+User-Agent: XMLRPC Client 1.0
+Host: www.livejournal.com
+Content-Type: text/xml
+Content-Length: 495
+
+&lt;?xml version="1.0"?&gt;
+&lt;methodCall&gt;
+&lt;methodName&gt;LJ.XMLRPC.syncitems&lt;/methodName&gt;
+&lt;params&gt;
+&lt;param&gt;
+
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;username&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;test&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;password&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;test&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;ver&lt;/name&gt;
+&lt;value&gt;&lt;int&gt;1&lt;/int&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;lastsync&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-13 00:00:00&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+
+&lt;/param&gt;
+&lt;/params&gt;
+&lt;/methodCall&gt;
+</pre>
+<p>
+      </p>
+</div>
+</div>
+<br class="example-break">
+</div>
+<div class="refsect1" lang="en">
+<a name="id3109024"></a><h2>Return Values</h2>
+<div class="orderedlist"><ol type="1"><li>
+<p><span class="emphasis"><em>[struct]</em></span>(required)</p>
+<p>
+  Containing keys:
+    </p>
+<div class="itemizedlist"><ul type="disc">
+<li>
+<p><span class="strong"><strong>syncitems</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li>
+<p><span class="emphasis"><em>[array]</em></span>(required)
+    Containing items:
+    </p>
+<div class="itemizedlist"><ul type="square"><li>
+<p><span class="emphasis"><em>[struct]</em></span>(optional; multiple allowed)</p>
+<p>
+  Containing keys:
+    </p>
+<div class="itemizedlist"><ul type="disc">
+<li>
+<p><span class="strong"><strong>item</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+The nth item, in the form "Type-Number". Type can be one of "L" for log entries (journal entries), "C" for comments (not implemented), "T" for to-do items (not implemented), or many other things presumably. If your client doesn't know how to fetch an item of a certain type, just ignore them. A new version of your client could later see that it has never downloaded anything of type "T" and go back and fetch everything of that type from the beginning.
+</p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>action</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+Either "create" or "update". This field isn't too useful, but you may want to make your client verbose and tell the user what it's doing. For example, "Downloading entry 5 of 17: Updated".
+</p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>time</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+The server time (in the form "yyyy-mm-dd hh:mm:ss") that this creation or update took place. Remember in your local store the most recent for each item type ("L", "T", "C", etc...). This is what you send in subsequent requests in lastsync.
+</p></li></ul></div>
+</li>
+</ul></div>
+</li></ul></div>
+</li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>count</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+The number of items that are contained in this response (numbered started at 1). If sync_count is equal to sync_total, then you can stop your sync after you complete fetching every item in this response.
+</p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>total</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+The total number of items that have been updated since the time specified.
+</p></li></ul></div>
+</li>
+</ul></div>
+</li></ol></div>
+<div class="example">
+<a name="example-ljp.csp.xml-rpc-return_syncitems"></a><p class="title"><b>Example 36. Sample return value for <code class="literal">LJ.XMLRPC.syncitems</code></b></p>
+<div class="example-contents">
+<p>
+        </p>
+<pre class="programlisting">
+HTTP/1.1 200 OK
+Connection: close
+Content-length: 3360
+Content-Type: text/xml
+Date: Tue, 16 Jul 2002 22:39:30 GMT
+Server: Apache/1.3.4 (Unix)
+
+&lt;?xml version="1.0"?&gt;
+&lt;methodResponse&gt;
+&lt;params&gt;
+&lt;param&gt;
+
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;total&lt;/name&gt;
+&lt;value&gt;&lt;int&gt;11&lt;/int&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;count&lt;/name&gt;
+
+&lt;value&gt;&lt;int&gt;11&lt;/int&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;syncitems&lt;/name&gt;
+&lt;value&gt;&lt;array&gt;
+&lt;data&gt;
+
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1947&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;2002-07-13 00:06:26&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;del&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1954&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-13 00:09:05&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;del&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;L-1958&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-13 02:01:07&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;create&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1948&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;2002-07-13 08:27:56&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;update&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1960&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-14 02:52:18&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;create&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;L-1961&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-14 03:07:55&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;create&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1962&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;2002-07-14 03:08:14&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;create&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1963&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-14 03:13:26&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;create&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;L-1964&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-14 03:17:03&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;create&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1959&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;2002-07-14 14:25:07&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;update&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;item&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;L-1965&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;time&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;2002-07-16 04:36:15&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;action&lt;/name&gt;
+
+&lt;value&gt;&lt;string&gt;update&lt;/string&gt;&lt;/value&gt;
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;/data&gt;
+&lt;/array&gt;&lt;/value&gt;
+&lt;/member&gt;
+
+&lt;/struct&gt;&lt;/value&gt;
+&lt;/param&gt;
+&lt;/params&gt;
+&lt;/methodResponse&gt;
+</pre>
+<p>
+      </p>
+</div>
+</div>
+<br class="example-break">
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.xml-rpc.sessiongenerate.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.xml-rpc.protocol.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.blogger.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">sessiongenerate </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 25. Supporting the Blogger <acronym class="acronym">API</acronym>
+</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

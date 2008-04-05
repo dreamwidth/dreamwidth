@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+use Image::Magick;
+use Gearman::Worker;
+use Storable;
+use LJ::Worker::Gearman;
+
+gearman_decl("lj_upf_resize"  => \&lj_upf_resize);
+gearman_work();
+
+sub lj_upf_resize {
+    my $job = shift;
+    my $args = eval { Storable::thaw($job->arg) } || [];
+    return Storable::nfreeze(LJ::_get_upf_scaled(@$args));
+}
+

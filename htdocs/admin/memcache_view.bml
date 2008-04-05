@@ -1,0 +1,277 @@
+<html>
+<head><title>Memcache view</title>
+<body>
+<?_code
+
+ use strict;
+ use vars qw(%GET %POST); 
+ use Data::Dumper;
+ my $ret;
+
+
+ my $remote = LJ::get_remote();
+
+ return "<b>Error:</b> You don't have access to viewing memcache info."
+     unless (LJ::check_priv($remote, "siteadmin", "memcacheview"));
+
+ return "<b>Error:</b> No memcache servers defined."
+     unless @LJ::MEMCACHE_SERVERS;
+
+ my $uid = sub {
+     my $u = LJ::load_user(shift);
+     return $u ? $u->{'userid'} : "";
+ };
+ my $cuid = sub {
+     my $u = LJ::load_user(shift);
+     return $u ? "$u->{'clusterid'}:$u->{'userid'}" : "";
+ };
+
+ # key: unique prefix of a memcache key 
+ # value: number n, means the n-th component of the key when 
+ # split by ':' is the hash key. 0 means no hash key.
+ # the default, when absent from this hash, is "n=2 if the 2nd component
+ # is a number".
+
+ my %MEMC_HASHKEYS = (
+     'uidof:' => 0,
+     'talksubject:' => 3,
+     'talkbody:' => 3,
+     'logtext:' => 3,
+     's1pubstyc:' => 0,
+     'popsyn:' => 0,
+     'rate_eperr:' => 0,
+     'rate:' => 0,
+     'ml.' => 0,
+     'mogp.' => 3,
+ );
+
+ my $get_hashkey = sub {
+     my $key = shift;
+     return undef unless $key;
+
+     my $hk;
+     my $component;
+
+     foreach (keys %MEMC_HASHKEYS) {
+         if ($key =~ /^$_/) {
+             $component = $MEMC_HASHKEYS{$_};
+         }
+     }
+     return undef if defined ($component) and $component == 0;
+     my $sep = ':'; 
+     $sep = '.' if $key =~ /userpic\./; #special case
+     $sep = '.' if $key =~ /mogp\./; #special case
+     my @els = split (/\Q$sep\E/, $key);
+     $hk = $els[defined($component) ? $component-1 : 2-1];
+     $hk = undef
+         unless defined($component) || int($hk)==$hk;
+     return $hk;
+ };
+   
+ my $display = sub {
+     my ($key, $val) = @_;
+    
+     # first, transform array->hash if necessary
+     $val = LJ::MemCache::array_to_hash("user", $val)
+         if $key =~ /^user:/
+         or $key =~ /^userid:/;
+
+     # blot out passwords
+     if (ref $val eq 'HASH' && defined($val->{'password'})) {
+         $val->{'password'} = '*' x 8;
+     }
+
+     # unpack packed data
+     if ($key =~ /^talk2:/) {
+         my $newval;
+         my $n = (length($val) - 1) / 16;
+         for (my $i=0; $i<$n; $i++) {
+             my ($f1, $par, $poster, $time) = unpack("NNNN",substr($val,$i*16+1,16));
+             my $state = chr($f1 & 255);
+             my $talkid = $f1 >> 8;
+             $newval->{$talkid} = {
+                 talkid => $talkid,
+                 state => $state,
+                 posterid => $poster,
+                 datepost => LJ::mysql_time($time),
+                 parenttalkid => $par,
+             };
+         }
+         $val = [substr($val,0,1), $newval];
+     }
+
+     if ($key =~ /^log2:/) {
+         my $item = {};
+         @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNNN", $val);
+         $item->{'security'} = ($item->{'allowmask'} == 0 ? 'private' :
+                               ($item->{'allowmask'} == 2**31 ? 'public' : 'usemask'));
+         @$item{'jitemid', 'anum'} = ($item->{'ditemid'} >> 8, $item->{'ditemid'} % 256);
+         $item->{'eventtime'} = LJ::mysql_time($item->{'eventtime'}, 1);
+         $item->{'logtime'} = LJ::mysql_time($item->{'logtime'}, 1);
+         $val = $item;
+     }
+
+     if ($key =~ /^log2lt:/) {
+         my $items = [];
+         my $ver = substr($val, 0, 1);
+         my $offset = {1=>1, 2=>5, 3=>5}->{$ver};
+         my $newval;
+
+         push @$newval, $ver;
+         push @$newval, unpack("N", substr($val, 1, 4)) 
+             if $ver>=2;
+         
+         my $n = (length($val) - $offset )/20;
+         for (my $i=0; $i<$n; $i++) {
+             my ($posterid, $eventtime, $rlogtime, $allowmask, $ditemid) =
+                 unpack("NNNNN", substr($val, $i*20+$offset, 20));
+            $eventtime = LJ::mysql_time($eventtime, 1);
+            my $security = $allowmask == 0 ? 'private' :
+                ($allowmask == 2**31 ? 'public' : 'usemask');
+            my ($jitemid, $anum) = ($ditemid >> 8, $ditemid % 256);
+            my $item = {};
+            @$item{'posterid','eventtime','rlogtime','allowmask','ditemid',
+                   'security', 'jitemid', 'anum'} =
+                       ($posterid, $eventtime, $rlogtime, $allowmask,
+                        $ditemid, $security, $jitemid, $anum);
+            push @$items, $item;
+         }
+         push @$newval, $items;
+         $val = $newval;
+     }
+
+     if ($key =~ /^fgrp:/) {
+         my $newval = [];
+         my $ver = shift @$val;
+         push @$newval, $ver;
+         foreach(@$val) {
+             push @$newval, LJ::MemCache::array_to_hash("fgrp", [$ver, @$_]);
+         }
+         $val = $newval;
+     }
+
+     if ($key =~ /^upicinf:(\d+)$/) {
+         my $userid = $1;
+         my ($ver, $picstr, $kwstr) = @$val;
+         my $info = {
+             'version' => $ver,
+             'pic' => {},
+             'kw' => {},
+         };
+
+         while (length $picstr >= 7) {
+             my $pic = { userid => $userid };
+             ($pic->{picid},
+              $pic->{width}, $pic->{height},
+              $pic->{state}) = unpack "NCCA", substr($picstr, 0, 7, '');
+             $info->{pic}{$pic->{picid}} = $pic;
+         }
+
+         my ($pos, $nulpos);
+         $pos = $nulpos = 0;
+         while (($nulpos = index($kwstr, "\0", $pos)) > 0) {
+             my $kw = substr($kwstr, $pos, $nulpos-$pos);
+             my $id = unpack("N", substr($kwstr, $nulpos+1, 4));
+             $pos = $nulpos + 5; # skip NUL + 4 bytes.
+             $info->{kw}{$kw} = $info->{pic}{$id} if $info;
+         }
+         $val = $info;
+     }
+
+     if ($key =~ /^friends:/) {
+         my $ver = substr($val, 0, 1, '');
+         my $packfmt = "NH6H6NC";
+         my $packlen = 15;
+         my @cols = qw(friendid fgcolor bgcolor groupmask showbydefault);
+         my %friends;
+
+         while (length($val) >= $packlen) {
+            my @row = unpack($packfmt, substr($val, 0, $packlen, ''));
+
+            # add "#" to beginning of colors
+            $row[$_] = "\#$row[$_]" foreach 1..2;
+
+            # turn unpacked row into hashref
+            my $fid = $row[0];
+            my $idx = 1;
+            foreach my $col (@cols[1..$#cols]) {
+                $friends{$fid}->{$col} = $row[$idx];
+                $idx++;
+            }
+         }
+         $val = [$ver, \%friends];
+     }
+
+     if ($key =~ /^tu:/) {
+         $val = unpack("N", $val);
+     }
+     # just in case this remains a packed scalar
+     if (not ref $val) {
+         $val =~ s/([\x00-\x1f])/sprintf("\\x%02x", $1)/eg;
+     }
+     $ret .= "<b>Data: </b>";
+
+     my $dumper = Data::Dumper->new([$val],["Value"]);
+     $dumper->Terse(1);
+     $dumper->Indent(2);
+     my $d = $dumper->Dump();
+
+     $ret.= "<pre>" . LJ::ehtml($d) . "</pre>";
+
+     return;
+ };
+         
+
+ if ($POST{'query'}) {
+     foreach my $key (split(/\r\n/, $POST{'query'})) {
+
+         next unless $key =~ /\S/;
+         # shortcuts
+         $key =~ s/(##)(\w+)/$cuid->($2)/eg;
+         $key =~ s/(#)(\w+)/$uid->($2)/eg;
+         $key =~ s!\((\d+)\)!int($1/256)!eg;
+                    
+         my $sock = LJ::MemCache::_get_sock($key);
+         $ret .= "<p><b>Key: </b>$key<br />";
+
+         unless ($sock) {
+             $ret .= "<b>Error: </b>Could not connect to server<br /></p>";
+             next;
+         }
+         
+         if ($POST{'sock'}) {
+             $ret .= "<b>Socket:</b> $sock<br />";
+         } 
+
+         my $hashkey = $get_hashkey->($key);
+         if ($hashkey) {
+             $ret .= "<b>Hashkey:</b> $hashkey<br />";
+         }
+         my $pars = defined($hashkey) ? [$hashkey, $key] : $key;
+         my $val = LJ::MemCache::get($pars);
+         unless (defined $val) {
+             $ret .= "<b>Data:</b> not found</br ></p>";
+             next;
+         }
+         $display->($key, $val);
+         $ret .= "</p>";
+     }
+     return $ret;
+ }
+
+ $ret .= "<p>Enter your memcache query(-ies) below.</p>";
+ $ret .= '<p>Here\'s the <a href="http://code.sixapart.com/svn/livejournal/trunk/doc/raw/memcache-keys.txt">reference</a> of key names.</p>';
+ $ret .= "<p>Shortcuts: <blockquote>#username -> userid<br /> ##username -> cid:userid<br />(number) -> number/256 </blockquote></p>";
+
+ $ret .= '<form method="post" action="memcache_view.bml">';
+ $ret .= "<textarea name=query rows=3 cols=60 wrap=off></textarea> ";
+ $ret .= "<p>" . LJ::html_check({ 'type' => 'check', 'name' => 'sock', 'id' => 'sock' });
+ $ret .= "<label for='sock'>Show host/port per key.</label></p>";
+
+ $ret .= "<input type='submit' value='Submit'>";
+ return $ret;
+
+
+_code?>
+</body>
+</html>

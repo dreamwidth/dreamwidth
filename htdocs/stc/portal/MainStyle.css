@@ -1,0 +1,557 @@
+/* The default portal stylesheet. By Mischa Spiegelmock, 2005
+   featuring added sexiness by Andy Mai.                      
+
+   This is the main global stylesheet for portal. It contains
+   all the layout, positioning, and font attributes.          */
+
+
+
+/*--------------------------- Global -------------------------*/
+
+#PortalColL {
+	width: 68%;
+	float: left;
+	margin: 0px;
+  	}
+
+#PortalColR {
+	width: 30%;
+	float: right;
+	margin: 0px;
+	}
+
+img {
+	border: 0px;
+  	}
+  
+#Content h1 {
+	}
+	
+#Content {
+    width: 93% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    }
+
+#PortalContentContainer {
+    font-size: 12px;
+    clear: both;
+    }
+
+.PortalFaqLink {
+    display: inline;
+ 	}
+
+.LoadingText {
+    vertical-align: middle;
+    font-size: xx-large;
+    font-weight: bold;
+    font-family: Arial, Verdna;
+    text-align: center;
+	}
+
+.LoadingBox {
+    width: 100%;
+    height: 100%;
+	}
+	
+#PortalAdBox {
+    float: right;
+    height: 120px;
+    width: 728px;
+    margin: 0px;
+    }
+
+/*------------------------ End Global ------------------------*/
+/*------------------------------------------------------------*/
+ 
+ 
+ 
+ 
+/*-------------------- Configuration Menus -------------------*/ 
+ 
+.DropDownMenu {
+	z-index: 2;
+	position: absolute;
+	margin-left: 273px;
+	overflow: hidden;
+	display: none;
+	padding: 0px;
+	width: auto;
+	max-width: 400px;
+	_width: 400px;
+	}
+	
+.DropDownMenu br {
+	display: none;
+	}
+	
+.BoxDescription {
+	padding: 5px 10px 5px 10px;
+	font-style: italic;
+	}
+	
+.DropDownMenuContent {
+	margin: 0;
+	}
+	
+.DropDownMenuContent table tbody tr td a:link {
+	display: block;
+	width: 100%;
+	font-weight: bold;
+	text-decoration: none;
+	}
+	
+.DropDownMenuContent table br {
+	display: none;
+	}
+	
+.DropDownMenuContent table tbody tr td {
+	margin: 0px;
+    padding: 0px;
+	}
+	
+.PortalFenster {
+	padding: 2px;
+	margin: 0px;
+	z-index: 1;
+	position: absolute;
+	width: 320px;
+	height: auto;
+	}
+
+.PortalFenster img {
+	_margin-top: -15px;
+	float: right;
+	}
+	
+.PortalPatternedTitleBar {
+	display: table;
+	width: 100%;
+	_margin-right: 1px;
+	padding: 2px 0px 2px 2px;
+	}
+	
+.PortalBoxTitleBar {
+	display: table;
+	width: 100%;
+	padding: 2px;
+	height: 15px;
+	}
+
+.PortalPatternedTitleBar span {
+	display: table-cell;
+	vertical-align: middle;
+	padding: 0px;
+	font-weight: bold;
+	font-family: Arial, Verdana, sans-serif;
+	}
+	
+.PortalResetAllButton {
+	float: right;
+	padding: 0;
+	}
+
+.PortalFensterContent {
+	padding: 0px;
+	width: 318px;
+	_width: 320px;
+	font-size: smaller;
+	}
+	
+.PortalBoxConfigContent {
+	height: auto;
+	_height: 200px;
+	max-height: 200px;
+	overflow: auto;
+	margin-top: 2px;
+	}
+	
+.PortalBoxConfigContent table {
+	width: 100%
+	}
+	
+.PortalBoxConfigContent div {
+	padding: 2px;
+	}
+	
+.PortalConfigSubmitButtons {
+	display: block;
+	margin-top: 2px;
+	margin-bottom: 0px;
+	width: 318px;
+	padding: 0px;
+	}
+	
+.PortalConfigResetButton {
+	vertical-align: middle;
+	text-decoration: none;
+	float: right;
+	margin: 0;
+	font-weight: bold;
+	}
+
+.PortalFensterResButton {
+	display: none;
+	}
+
+.PortalFensterBarMaxButton {
+	display: none;
+	}
+
+#PortalConfigMenuBar { 
+    float: left;
+    margin: 0 0 10px 0;
+	}
+
+#AddPortalMenuButton {
+	text-align: right;
+    margin: 10px -4px 15px 0;
+    background: #6699cc url(http://pics.livejournal.com/veroz/pic/00051xwq) no-repeat 4% 50%;
+    width: 125px;
+    padding: 3px;
+	}
+	
+#AddPortalMenuButton a:link, #AddPortalMenuButton a:visited {
+    text-decoration: none;
+    font-weight: bold;
+    color: #fff;
+    font-size: smaller;
+    }
+
+/*------------------ End Configuration Menus -----------------*/
+/*------------------------------------------------------------*/
+ 
+ 
+ 
+/*------------------ General Module Styling ------------------*/
+
+.PortalBox {
+	width: 100%;
+	margin-bottom: 10px;
+	overflow: hidden;
+	padding: 1px !important;
+	}
+	
+.PortalBoxIcon {
+        vertical-align: middle;
+        width: 15px;
+        height: 15px;
+        display: none;
+	}
+	
+.PortalBoxTitleText {
+	display: table-cell;
+	vertical-align: middle;
+	position: static;
+	font-weight: bold;
+	font-family: arial, verdana, sans-serif;
+	padding: 0 0 0 5px;
+	_width: 120px;
+	}
+
+.PortalBoxTitleText a, .PortalBoxTitleText a:visited, .PortalBoxTitleText a:link, .PortalBoxTitleText a:active {
+        color: #FFFFFF;
+}
+
+.PortalBoxMoveButtons {
+        display: inline;
+        float: right;
+        width: 115px;
+        margin-right: 2px;
+        visibility: hidden;
+}
+* html .PortalBoxMoveButtons {
+    margin-top: -16px; /* Lame IE6 hack to fix positioning -- need to find a better workaround */
+}
+*:first-child+html .PortalBoxMoveButtons {
+    margin-top: -16px; /* Lame IE7 hack to fix positioning -- need to find a better workaround */
+}
+
+.PortalBoxMoveButtons a {
+	float: right;
+	margin-left: 2px;
+	}
+	
+.PortalBoxMoveButtons:hover {
+	visibility: visible;
+	}
+	
+.PortalBoxContent {
+	font-family: Verdana, Arial, san-serif !important;
+	padding: 2px;
+	width: 100%;
+	margin: 0 auto;
+	}
+	
+.PortalBoxContent a:link, .PortalBoxContent a:visited {
+	font-size: 12px !important;
+	text-decoration: none;
+ 	}
+
+.PortalBoxContent a:hover {
+	font-size: 12px !important;
+	text-decoration: underline;
+ 	}
+	
+
+ /*---------------- End General Module Styling ----------------*/ 
+ /*------------------------------------------------------------*/
+ 
+ 
+ 
+ 
+ /*------------------ Specific Module Stylings ------------------*/
+ /*																 */
+ /*                This is where the magic happens.				 */
+ /*																 */
+ /*--------------------------------------------------------------*/
+ 
+ 
+ /*------------------------ Update Journal ----------------------*/
+ 
+ .UpdateBoxSubject {
+ 	width: 99%;
+ 	}
+ 	
+ .UpdateBoxEvent {
+ 	width: 99%;
+ 	}
+ 
+.UpdateJournal table {
+	background-color: #dfdfdf;
+	border: 1px outset #000;
+	width: 99%;
+	}
+	
+.UpdateJournal table td {
+	font-weight: bold;
+	}
+
+.UpdateJournal table br {
+	display: none;
+	}
+	
+/*--------------- Account Management (Quick Links) --------------*/
+
+ .Manage table a {
+	line-height: 125%;
+	margin-left: 20px;
+	}
+	
+/*------------------------- Announcements -----------------------*/
+
+.Announcements {
+	padding: 1px 0px 0px 0px !important;
+	}
+	
+.PortalTableHeader td {
+	padding: 2px;
+	font-size: smaller !important;
+	font-weight: bold !important;
+	text-transform: uppercase;
+	}
+	
+.Announcements table {
+	width: 100%;
+	}
+	
+.Announcements table tbody tr td {
+	padding: 3px;
+	border-spacing: 0;
+	border-collapse: separate;
+	}
+	
+.ljuser a:link {
+	display: inline !important;
+	}
+	
+.Announcements table tbody tr td a:link {
+	display: block;
+	width: 100%;
+	}
+	
+ 
+/*----------------------- Recent Comments ----------------------*/
+
+ .RecentCommentTitle {
+ 	font-weight: bold;
+ 	}
+ 	
+ .RecentCommentSubject {
+    font-weight: bold;
+    }
+
+ .RecentCommentDate a:link, .RecentCommentDate a:visited {
+ 	font-size: xx-small !important;
+ 	color: #666 !important;
+ 	}
+
+ .RecentCommentItem {
+    font-size: 90%;
+ 	font-style: italic;
+ 	padding: 0px;
+ 	margin-top: -15px;
+ 	}
+ 	
+ .RecentCommentBody {
+    padding: 5px;
+    font-style: normal;
+    }
+    
+ .RecentCommentLinks {
+ 	padding: 2px 5px 2px 2px;
+ 	text-align: right;
+ 	color: #ccc;
+ 	font-size: x-small;
+ 	}
+ 	
+ .RecentCommentLinks a:link, .RecentCommentLinks a:visited {
+ 	font-size: x-small !important;
+ 	font-style: normal;
+ 	color: #666 !important;
+ 	}
+
+ /*------------------------ PopWithFriends ---------------------*/
+ 
+ .PopWithFriends {
+ 	padding: 3px;
+ 	}
+ 	
+ .PopWithFriends table td {
+ 	text-align: left;
+ 	}
+ 	
+ 
+ 	
+ /*------------------------- Text Message -----------------------*/
+ 
+.TextMessage {
+	padding: 3px;
+	}
+	
+.TextMessage input {
+	display: inline;
+	}
+	
+.TextMessageDisclaimer {
+	font-size: smaller;
+	margin-top: 3px;
+	}
+	
+ /*--------------------------- New User --------------------------*/
+ 
+ .NewUserBlurb {
+ 	font-size: small !important;
+ 	font-style: italic;
+ 	}
+ 	
+ .NewUserMoreLink {
+ 	display: block;
+ 	text-align: right;
+ 	width: 99%;
+ 	}
+ 	
+ .NewUser {
+ 	padding: 5px 5px 5px 5px;
+ 	}
+ 	
+ /*---------------------------- Frank -----------------------------*/
+ 
+.Frank img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	}
+ 	
+/*------------------------ Manage Friends -------------------------*/
+  
+	
+.FriendsList br {
+	display: none;
+	}
+  
+.FriendsCurrentTitle {
+  	font-size: smaller !important;
+  	font-weight: bold !important;
+  	margin-bottom: 5px;
+  	}
+  	
+.FriendsList {
+	margin-bottom: 10px;
+	}
+	
+/*------------------------ Account Status -------------------------*/
+	
+.standout table {
+	width: 100% !important;
+	}
+
+
+/*------------------------- Friends Page --------------------------*/
+
+.FriendsPage {
+    width: 99%;
+    }
+    
+.PortalFriendsPageUserpic {
+    float: left;
+    }
+
+.FriendsPageTitle {
+	font-weight: bold;
+	margin-bottom: 5px;
+	}
+	
+.FriendsPageEntry {
+	_height: 300px;
+	max-height: 300px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	overflow: scroll;
+	}
+	
+.PortalFriendsPageEntry {
+    margin-top: 15px;
+    }
+	
+.PortalFriendsPageSubject {
+	font-weight: bold;
+	}
+	
+.PortalFriendsPageLinks {
+    padding: 5px 5px 5px 2px;
+    font-size: x-small;
+    color: #ccc;
+	margin-bottom: 10px;
+	padding-right: 5px;
+	}
+	
+.PortalFriendsPageLinks a:link, .PortalFriendsPageLinks a:visited {
+ 	font-size: x-small !important;
+ 	font-style: normal;
+ 	color: #666 !important;
+    }
+
+.PortalFriendsPagePoster {
+    margin: 0px;
+    padding: 0px;
+    vertical-align: bottom;
+    }
+	
+/*----------------------- Friends Birthdays -----------------------*/
+	
+.Birthdays table td {
+	text-align: left;
+	}
+
+/*----------------------- CProd             -----------------------*/
+
+.CProd .CProd_box_content {
+        width: 100% !important;
+}
+
+.ESN_Links {
+	text-align: right;
+	margin-right: 5px;
+	}

@@ -1,0 +1,19 @@
+;; -*- coding: utf-8 -*-
+.date=Date Sent
+
+.error.notcomm=[[user]] is not a community.
+
+.key.date=Date
+
+.key.sentby=Sent By
+
+.key.status=Status
+
+.none.body=No invites have been sent in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
+
+.none.title=No Invites Found
+
+.send=Send Invitations
+
+.title=Sent Invitations
+

@@ -1,0 +1,55 @@
+<base target=_top>
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+
+    my $user = LJ::canonical_username($GET{'user'});
+    return "Enter a username." unless $user;
+
+    my $remote = LJ::get_remote();
+    my ($dispuser, $styles);
+    if ($user eq 'system') {
+        $dispuser = $remote;
+        $styles = LJ::S1::get_public_styles();
+    } else {
+        $dispuser = LJ::load_user($user);
+        $styles = LJ::S1::get_user_styles($user);
+    }
+    my $styu = LJ::load_user($user);
+
+    my $admin = $remote &&
+                (LJ::check_priv($remote, 'canview', 'styles') ||
+                 LJ::check_priv($remote, 'canview', '*'));
+
+    my ($dday,$dmon,$dyear) = (localtime(time))[3..5];
+    $dyear+=1900; $dmon++;
+    my %extra = ( 'day' => "&amp;month=$dmon&amp;day=$dday&amp;year=$dyear" );
+
+    my $ret = "Styles for " . LJ::ljuser($user) . ":<br /><br />";
+
+    my $last;
+  STY:
+    foreach my $sty (sort { $a->{'type'} cmp $b->{'type'} || $a->{'styledes'} cmp $b->{'styledes'} }
+                     values %$styles) {
+
+        next STY unless $sty->{is_public} eq 'Y' ||      # public is always visible
+                        LJ::u_equals($remote, $styu) ||  # yours are visible to you
+                        LJ::can_manage($remote, $styu) ||# you can view things you manage
+                        $admin;                          # you have appropriate canview
+
+        if ($last ne $LJ::viewinfo{$sty->{'type'}}->{'des'}) {
+            $last = $LJ::viewinfo{$sty->{'type'}}->{'des'};
+            $ret .= "<b>$last</b><br />\n";
+        }
+
+        $ret .= "<nobr>&nbsp;&nbsp;[<a target='main' href='styleinfo.bml?styleid=$sty->{'styleid'}'>info</a>] ";
+        $ret .= "<a target='main' href='" . $dispuser->journal_base . "/data/customview?styleid=$sty->{'styleid'}&amp;";
+        $ret .= "nooverride=1$extra{$sty->{'type'}}'>$sty->{'styledes'}</a></nobr><br />\n";
+    }
+
+    return $ret;
+}
+_code?><?_c <LJDEP>
+link: htdocs/styles/browse/styleinfo.bml, htdocs/customview.cgi
+</LJDEP> _c?>

@@ -1,0 +1,47 @@
+<?page
+title=>Cluster Status
+body<=
+<?_code
+{
+    use strict;
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+    return "<?h1 Error h1?><?p You do not have the necessary privilege (supporthelp) to use this page. p?>"
+        unless LJ::check_priv($remote, 'supporthelp');
+
+    my $ret;
+    foreach my $cid (@LJ::CLUSTERS) {
+        my $name = LJ::get_cluster_description($cid) || 'no name';
+
+        $ret .= "<b>$name</b>: ";
+
+        my $check = 0;
+        if ($LJ::READONLY_CLUSTER{$cid}) {
+            $ret .= "<strong>read-only for all users</strong>";
+        } elsif ($LJ::READONLY_CLUSTER_ADVISORY{$cid} eq 'when_needed') {
+            $ret .= "<strong>read-only for free users during load</strong>",
+        } elsif ($LJ::READONLY_CLUSTER_ADVISORY{$cid}) {
+            $ret .= "<strong>read-only for free users</strong>";
+        } else {
+            $ret .= "no known issues";
+            $check = 1;
+        }
+
+        if ($check) {
+            my $dbcm = LJ::get_cluster_master($cid);
+            if ($dbcm) {
+                $ret .= "; available";
+            } else {
+                $ret .= "; <span style='color: red;'>unavailable</span>";
+            }
+        }
+
+        $ret .= "<br />";
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+page?>

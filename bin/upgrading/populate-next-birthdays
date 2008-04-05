@@ -1,0 +1,89 @@
+#! /usr/bin/perl
+use strict;
+require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+
+my $dbslo = LJ::get_dbh("slow")
+    or die "cannot connect to slow role";
+
+my $clear = $ARGV[0] eq '--clear' ? 1 : 0;
+
+my $limit = 5000;
+
+if ($clear) {
+    print "Clearing 'birthdays' on all clusters\n";
+
+    foreach my $cid (@LJ::CLUSTERS) {
+	my $dbcm = LJ::get_cluster_master($cid)
+	    or die "no cluster: $cid\n";
+
+	$dbcm->do("DELETE FROM birthdays")
+	    or die "unable to delete from birthdays for cluster: $cid\n";
+    }
+}
+
+my $last_max_uid = 0;
+print "Querying clusters for current max\n";
+foreach my $cid (@LJ::CLUSTERS) {
+    my $dbcr = LJ::get_cluster_def_reader($cid)
+	or die "no cluster: $cid\n";
+
+    my $cluster_max_uid = $dbcr->selectrow_array
+	("SELECT MAX(userid) FROM birthdays");
+    $last_max_uid = $cluster_max_uid if $cluster_max_uid > $last_max_uid;
+}
+
+my $uids_done = 0;
+
+my $max_uid = $dbslo->selectrow_array("SELECT MAX(userid) FROM user")+0;
+
+print "Populating userids from $last_max_uid through $max_uid\n";
+
+# scary, i know... but we'll last out if we ever get less than $limit uids
+my $start_time = time();
+while (1) {
+
+    # Let's call start_request
+    # -- so our in-process $u caches don't get unreasonable
+    # -- so we revalidate our database handles
+
+    LJ::start_request();
+    $dbslo = LJ::get_dbh("slow")
+	or die "cannot connect to slow role";
+
+    # load user rows from slow
+    my $sth = $dbslo->prepare
+	("SELECT * FROM user WHERE userid>? AND statusvis!='X' AND journaltype='P' ORDER BY userid LIMIT $limit");
+    $sth->execute($last_max_uid);
+    die $dbslo->errstr if $dbslo->err;
+
+    # construct user objects from them since we have the full data around
+    my %user_rows = (); # uid => $row
+    while (my $row = $sth->fetchrow_hashref) {
+	$user_rows{$row->{userid}} = LJ::User->new_from_row($row);
+    }
+    last unless %user_rows;
+
+    # now update each one
+    while (my ($uid, $u) = each %user_rows) {
+        $u->set_next_birthday;
+
+	$last_max_uid = $uid if $uid > $last_max_uid;
+	$uids_done++;
+    }
+
+    # update max userid every so often for our pretty status display
+    if ($uids_done % 10_000 == 0) {
+	$max_uid = $dbslo->selectrow_array("SELECT MAX(userid) FROM user")+0;
+    }
+
+    printf ("[%.2f] $uids_done - current id $last_max_uid - %.2f hours\n", 
+	    100*($last_max_uid / $max_uid), ($max_uid - $last_max_uid) / ($uids_done / (time() - $start_time)) / 3600
+	    );
+
+    # we're done if we got less than the limit
+    last if scalar (keys %user_rows) < $limit;
+}
+
+print "All done!\n";
+
+1;

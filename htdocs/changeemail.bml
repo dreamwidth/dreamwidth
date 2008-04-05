@@ -1,0 +1,172 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+
+    my $body;
+
+    if ($LJ::SERVER_DOWN) {
+        $body = LJ::server_down_html();
+        return $body;
+    }
+
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
+    my $authas = $FORM{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input("You could not be authenticated as the specified user.")
+        unless $u;
+
+    return LJ::error_list($ML{'.error.suspended'})
+        if $u->is_suspended;
+
+    # extra arguments for get requests
+    my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
+
+    if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{'ssl'} ne "no") {
+        return BML::redirect("$LJ::SSLROOT/changeemail.bml$getextra");
+    }
+
+    my $crumb = $LJ::IS_SSL ? 'securechangeemail' : 'changeemail';
+    LJ::set_active_crumb($crumb);
+
+    my $update_form = sub {
+        my $ret;
+
+        my $is_identity_no_email = $u->is_identity && !$u->email_raw;
+
+        if ($u->is_identity) {
+            $ret .= "<?p $ML{'.instructions.identity'} p?>";
+        } else {
+            $ret .= '<?p ' . BML::ml('.instructions', { sitename => $LJ::SITENAMESHORT }) . ' p?>';
+        }
+
+        $ret .= "<form action='changeemail.bml$getextra' method='post'>\n";
+        $ret .= LJ::html_hidden(mode => 'submit',
+                                ssl => $FORM{'ssl'});
+
+
+        # Warn them if logged in and not validated
+        if ($u && !LJ::did_post() && $u->{'status'} ne 'A' && !$is_identity_no_email) {
+            $ret .= "<?warningbar <b>$ML{'label.warning'}</b> $ML{'.error.notvalidated'} warningbar?>";
+            $ret .= "<br />";
+        }
+
+        my $old_email = $is_identity_no_email ? "<em>$ML{'.noemail'}</em>" : $u->email_raw;
+
+        $ret .= "<?standout\n";
+
+        $ret .= LJ::make_authas_select($remote, { 'authas' => $FORM{'authas'} });
+
+        $ret .= "<br/><br/><div>$ML{'.label.username'}<br />\n";
+        $ret .= LJ::ljuser($u) . "</div><br/>\n";
+        $ret .= "<div>$ML{'.label.oldemail'}<br />\n";
+        $ret .= "<b>" . $old_email . "</b></div><br/>\n";
+        $ret .= "<div>$ML{'.label.newemail'}<br />\n";
+        $ret .= "<input type='text' name='email' size='50' maxlength='50' /></div><br />\n";
+        unless ($u->is_identity) {
+            $ret .= "<div>" . BML::ml('.label.password2', { remote => LJ::ljuser($remote) }) . "<br />\n";
+            $ret .= "<input type='password' name='password' size='50' maxlength='50' /></div>\n";
+        }
+
+        $ret .= "standout?>\n";
+        $ret .= "<br />\n";
+        $ret .= "<?standout\n";
+        $ret .= "<input type='submit' value=\"$ML{'.btn.change'}\" />\n";
+        $ret .= "standout?>\n";
+        $ret .= "</form>\n";
+        return $ret;
+    };
+
+    if ($POST{'mode'} eq 'submit' && ($POST{'email'} || $POST{'password'})) {
+        my $password = $POST{'password'} unless $remote->is_identity;
+        my $email = LJ::trim($POST{'email'});
+
+        my @errors = ();
+
+        LJ::check_email($POST{'email'}, \@errors);
+
+        my $blocked = 0;
+
+        if ($LJ::BLOCKED_PASSWORD_EMAIL && $POST{'email'} =~ /$LJ::BLOCKED_PASSWORD_EMAIL/) {
+            $blocked = 1;
+            push @errors, $ML{'.error.invalidemail'};
+        }
+
+        if ($LJ::USER_EMAIL and $POST{'email'} =~ /\@\Q$LJ::USER_DOMAIN\E$/i) {
+            push @errors, BML::ml(".error.lj_domain", { 'user' => $remote->{'user'}, 'domain' => $LJ::USER_DOMAIN, });
+        }
+
+        if ($POST{'email'} =~ /\s/) {
+            push @errors, $ML{'.error.nospace'};
+        }
+
+        if ($POST{'password'} ne $remote->password && !$remote->is_identity) {
+            push @errors, $ML{'.error.invalidpassword'};
+        }
+
+        if (@errors) {
+            $body .= LJ::error_list(@errors) . "<br />";
+            $body .= $update_form->();
+            return $body;
+        }
+
+        ## make note of changed email
+        my $is_identity_no_email = $u->is_identity && !$u->email_raw;
+        my $old_email = $is_identity_no_email ? "none" : $u->email_raw;
+
+        my $loginfo = "old: $old_email, new: $POST{'email'}";
+        $loginfo .= ", ip: " . BML::get_remote_ip if $LJ::LOG_CHANGEEMAIL_IP;
+        $loginfo .= ", blocked: " . $blocked;
+        $loginfo .= ", success: " . ((scalar @errors) ? 'false' : 'true');
+
+        LJ::statushistory_add($u->{userid}, $u->{userid}, 'email_changed', $loginfo);
+
+        LJ::infohistory_add($u, 'email', $old_email, $u->{status});
+
+        $u->log_event('email_change', { remote => $remote, new => $POST{'email'} });
+
+        LJ::run_hook('post_email_change',
+                     {
+                         user     => $u,
+                         newemail => $POST{'email'},
+                     });
+
+        my $tochange = {
+            email => $POST{'email'}
+        };
+        $tochange->{status} = 'T' if $u->{status} eq 'A';
+
+        LJ::update_user($u, $tochange);
+
+        # send validation mail
+        my $aa = LJ::register_authaction($u->{'userid'}, "validateemail", $POST{'email'});
+        LJ::send_mail({
+            'to' => $POST{'email'},
+            'from' => $LJ::ADMIN_EMAIL,
+            'charset' => 'utf-8',
+            'subject' => $ML{'/editinfo.bml.newemail.subject'},
+            'body' => BML::ml('/editinfo.bml.newemail.body2',
+                              { username => $u->{user},
+                                sitename => $LJ::SITENAME,
+                                sitelink => $LJ::SITEROOT,
+                                conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
+        });
+
+        $body = "<?h1 $ML{'.success.header'} h1?><?p $ML{'.success.text'} p?>";
+    } else {
+        $body .= $update_form->();
+    }
+
+    return $body;
+}
+_code?>
+    <=body
+    page?><?_c <LJDEP>
+post: htdocs/changepassword.bml
+lib: Digest::MD5
+hook: post_changepassword
+    </LJDEP> _c?>

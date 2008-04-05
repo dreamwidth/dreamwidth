@@ -1,0 +1,471 @@
+/* for update.bml */
+
+.small {
+    font-size: 85%;
+    margin-left: 6px;
+}
+
+#updateForm {
+    font-family: arial, verdana, 'sans-serif';
+    min-width: 620px;
+    max-width: 800px;
+}
+* html #updateForm {
+    width: 725px;
+    width: 650px; /* once ad switched back to skyscraper, remove this */
+}
+#updateForm iframe {
+    margin: 0px;
+    padding: 0px;
+}
+#updateForm p {
+    clear: left;
+    margin: 0 0 4px 0;
+    position: relative;
+    line-height: 1.8em;
+}
+#updateForm label {
+    font-weight: bold;
+}
+#updateForm label.left {
+    width: auto;
+    min-width: 6em;
+    line-height: 1.8em;
+    font-size: 14px;
+}
+* html #updateForm label.left {
+    width: 6em;
+}
+#updateForm label.options {
+    font-size: 11px;
+}
+#updateForm input.text {
+    float: left;
+    font-size: 13px;
+}
+#updateForm select {
+    float: left;
+    font-size: 13px;
+}
+#updateForm .float-left {
+    float: left;
+}
+#updateForm span.inputgroup-left {
+    display: block; float: left; width: 48%; position: relative;
+}
+#updateForm span.inputgroup-right {
+    display: block; float: right; width: 50%;  position: relative;
+}
+#updateForm span.inputgroup-right label.left {
+    width: 11em;
+}
+#updateForm a.helplink {
+    margin-left: 5px;
+    margin-top: 4px;
+    float: left;
+}
+#updateForm h4 {
+    margin: 0 0 4px 0;
+    padding: 0;
+}
+#updateForm ul {
+    margin: 0;
+    padding: 0;
+}
+#updateForm ul li {
+    margin: 0 0 4px 0;
+    padding: 0;
+}
+#userpic {
+    float: left;
+    margin-right: 10px;
+    width: 100px;
+}
+#lj_userpicselect {
+    float: left;
+    font-size: 85%;
+    color: #00C;
+    margin: 4px 0px 0px 5px;
+    position: relative;
+    font-size: 85%;
+}
+#lj_userpicselect_img {
+    display: block;
+    border: 1px solid #fff;
+    height: 100px;
+    position: relative;
+}
+#lj_userpicselect_img:hover {
+    border: 1px solid #003366;
+}
+#lj_userpicselect_img img {
+    display: block;
+    margin: 0 auto;
+    border: none;
+}
+#lj_userpicselect_img:hover img {
+    filter:alpha(opacity=35);
+    -moz-opacity:.35;
+    opacity:.35;
+}
+#lj_userpicselect_img_txt {
+    display: none;
+    position: absolute;
+    text-align: center;
+    left: 0;
+    top: 38px; 
+    color: #003366 !important;
+    cursor: pointer;
+    width: 100%;
+}
+#userpic_preview {
+    width: 102px;
+}
+#userpic_preview_image.userpic_loggedout {
+    border: 1px solid #003366;
+}
+.userpic_preview_border {
+    border: 1px solid #ccc;
+    text-align: center;
+    height: 70px;
+    padding-top: 30px;
+}
+.userpic_preview_border a {
+    font-size: 90%;
+    line-height: 110%;
+}
+#metainfo {
+    float: left;
+    margin-right: 10px;
+    width: 55%;
+    margin-bottom: 20px;
+}
+#currentdate {
+    display: none;
+}
+#currentdate-edit {
+    font-size: 85%;
+    margin-left: 5px;
+}
+#time-correct {
+    padding-left: 7.5em;
+}
+#infobox {
+    border-left: 1px solid #000;
+    padding-left: 10px;
+    float: right;
+    margin-bottom: 10px;
+    min-width: 130px;
+}
+* html #infobox {
+    width: 130px;
+}
+#infobox ul {
+    list-style: none;
+}
+#entry {
+    clear: both;
+    padding: 0px;
+    margin: 0px;
+    position: relative;
+    background: url(/img/entry-tab-bg.gif) repeat-x 0 bottom;
+}
+#entry p {
+    margin: 0 !important;
+}
+#entry ul {
+    float: right;
+    clear: right;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#entry ul li {
+    float: left;
+    margin: 0 4px 0 0;
+}
+#entry ul li a {
+    display: block;
+    padding: 8px 10px;
+    background-color: #fff;
+    float: left;
+    outline: none;
+    border: 1px solid #6699CC;
+    border-bottom: none;
+}
+#entry ul li.on {
+}
+#entry ul li.on a {
+    font-weight: bold;
+    padding-bottom: 9px;
+}
+#metainfo, #metainfo label, #metainfo input.text, #metainfo strong {
+    font-size: 14px;
+}
+#metainfo p, #metainfo label, #metainfo label.left {
+    line-height: 1.5em ;
+}
+#subject {
+    /* width: 62%; */
+    width: 380px;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+#draft-container {
+    border-left: 1px solid #bbb;
+    border-right: 1px solid #bbb;
+    border-bottom: 1px solid #bbb;
+    border-top: none;
+    margin-bottom: 4px;
+    position: relative;
+    padding: 0px 4px 2px 4px;
+}
+* html #draft-container {
+    padding: 0; 
+}
+#draft {
+    display: block;
+    width: 100%;
+    border: none;
+    font-size: 105%;
+}
+* html #draft {
+    width: 99%;
+    margin: 0 auto;
+}
+/* IE7 only */
+*:first-child+html #draft {
+    width: 98%;
+    margin: 0 auto;
+}
+#draftstatus {
+    font-style: italic;
+    font-size: 80%;
+    border: none;
+    padding: 0 2px 0 0;
+    text-align: right;
+    display: block;
+    margin-bottom: 4px;
+    width: 100%;
+    background-color: #fff;
+}
+.errorbar {
+    margin-bottom: 10px !important;
+}
+.errorbar ul {
+    margin: 0 0 0 15px !important;
+}
+#spellcheck-results {
+    border: 1px solid #6699CC;
+    border-top: none;
+    font-size: 95%;
+    background-color: #ffffdd;
+    padding: 4px 6px;
+}
+#spellcheck-results p {
+    font-size: 95% !important;
+}
+#htmltools {
+    padding: 2px 2px 2px 1px;
+    position: relative;
+    border-right: 1px solid #bbb;
+    border-left: 1px solid #bbb;
+    margin: 0;
+}
+* html #htmltools ul {
+    height: 20px;
+}
+#htmltools ul {
+    list-style: none;
+    margin: 0;
+    padding: 5px 2px 5px 2px;
+    border-bottom: 1px solid #8D8D8D;
+    min-height: 18px;
+}
+#htmltools ul li {
+    float: left;
+    margin: 0 4px 0 0;
+    padding: 0;
+    font-size: 0.95em;
+}
+#htmltools ul li a {
+    display: block;
+    overflow: hidden;
+    float: left;
+    height: 19px;
+    line-height: 19px;
+    text-decoration: none;
+}
+#htmltools ul li.image a {
+    background: url(/img/html-buttons-image.gif) no-repeat 0 0;
+    padding-left: 24px;
+}
+#htmltools ul li.image a:hover {
+/*    background: url(/img/html-buttons-image.gif) no-repeat 0 -40px; */
+}
+#htmltools ul li.media a {
+    background: url(/stc/fck/editor/plugins/livejournal/ljvideo.gif) no-repeat 0 0;
+    padding-left: 24px;
+}
+#htmltools ul li.media a:hover {
+/*    background: url(/stc/fck/editor/plugins/livejournal/ljvideo.gif) no-repeat 0 -40px; */
+}
+#htmltools ul li.movie a {
+    width: 21px;
+    background: url(/img/html-buttons-media.gif) no-repeat 0 0;
+}
+#htmltools ul li.movie a:hover {
+    background: url(/img/html-buttons-media.gif) no-repeat 0 -40px;
+}
+#linebreaks {
+    position: absolute;
+    right: 6px;
+    top: 5px;
+}
+#linebreaks label {
+    margin-right: 6px;
+}
+#linebreaks a.helplink {
+    display: inline !important;
+    float: none;
+    margin: 0 !important;
+}
+#options {
+    border: 1px solid #bbb;
+    background-color: #eee;
+    padding: 10px;
+}
+#prop_taglist {
+    width: 80%;
+}
+#prop_current_moodid {
+    width: 32%;
+}
+#prop_current_mood {
+    width: 17%;
+}
+#prop_opt_backdated {
+    clear: left;
+    display: block;
+    float: left;
+    margin-left: 6.5em;
+}
+* html #prop_opt_backdated {
+    margin-left: 3em;
+}
+#modifydate label.right {
+    float: left;
+    display: block;
+    font-size: 90%;
+    line-height: 200%;
+}
+#modifydate a.helplink {
+    float: left;
+    display: block;
+}
+#mood_preview {
+    float: left;
+    position: absolute;
+    left: 80%;
+    font-size: 90%;
+    text-align: center;
+    background: transparent;
+    min-width: 60px;
+    display: block !important;
+}
+#mood_text_preview {
+    display: block;
+}
+#prop_current_music,
+#prop_current_location {
+    width: 63%;
+}
+#prop_current_music.narrow,
+#prop_current_location.narrow {
+    width: 39%;
+}
+.hidden_submit {
+    position: absolute;
+    left: -9999px;
+    height: 0.1px;
+    font-size: 0.1em;
+    line-height: 0;
+}
+#submitbar {
+    background-color: #ddd;
+    border: 1px solid #aaa;    
+    padding: 7px 10px;
+    margin-top: 10px;
+    text-align: center;
+    position: relative;
+}
+#security_container {
+    width: 600px;
+    margin: 0 auto;
+}
+#security {
+    float: none !important;
+}
+#custom_boxes {
+    display: none;
+    text-align:left;
+    float: left; 
+}
+* html #custom_boxes {
+    clear: left;
+}
+#custom_boxes.columns1 {
+    padding-left: 225px;
+    width: 150px !important;
+}
+* html .columns1 {
+    padding-left: 225px;
+}
+#custom_boxes.columns2 {
+    padding-left: 150px;
+    width: 300px !important;
+}
+* html .columns2 {
+    padding-left: 150px;
+}
+#custom_boxes.columns3 {
+    padding-left: 75px;
+    width: 450px !important;
+}
+* html .columns3 {
+    padding-left: 75px;
+}
+#custom_boxes.columns4 {
+    padding-left: 0;
+    width: 600px !important;
+}
+#custom_boxes ul {
+    float: left !important;
+    width: 140px; 
+    clear: none !important;
+    list-style: none;
+    margin: 0 10px 5px 0;
+    padding: 8px 0 0 0;
+}
+#custom_boxes ul li {
+    margin: 0 0 0 25px;
+    padding: 0;
+    line-height: 120%;
+    text-indent: -25px;
+}
+#security-help {
+   margin-right: 5px;
+}
+/* for ad when it appears until box ad */
+.medrect .ljadbadge {
+    width: 300px !important;
+    padding: 5px;
+    text-align: center;
+    margin-top: 15px;
+}
+.medrect .ljadbadge #ad2 {
+    background-color: #eee;
+    text-align: center;
+    width: 300px !important;
+    padding: 5px 0;
+}

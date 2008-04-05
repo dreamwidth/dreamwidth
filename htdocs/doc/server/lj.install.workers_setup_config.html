@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. Set up Gearman / TheSchwartz</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.install.workers_setup.html" title="Chapter 12. Configure Gearman / TheSchwartz">
+<link rel="prev" href="lj.install.workers_setup_install.html" title="1. Install Gearman / TheSchwartz">
+<link rel="next" href="lj.install.schedule_tasks.html" title="Chapter 13. Scheduling Maintenance tasks">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. Set up <span class="application">Gearman</span> / <abbr class="abbrev">TheSchwartz</abbr>
+</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.install.workers_setup_install.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 12. Configure <span class="application">Gearman</span> / <abbr class="abbrev">TheSchwartz</abbr>
+</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.install.schedule_tasks.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.install.workers_setup_config">2. Set up <span class="application">Gearman</span> / <abbr class="abbrev">TheSchwartz</abbr>
+</h2></div></div></div>
+<p>
+The workers all live in <code class="filename">bin/worker/<em class="replaceable"><code>*</code></em></code>.
+There should be <code class="systemitem">gearmand</code> - the main
+executable for the <span class="application">Gearman</span> server, <abbr class="abbrev">TheSchwartz</abbr> <abbr class="abbrev">DB</abbr>, and at least one copy of each
+worker running, in order to get full functionality from the <span class="application">LiveJournal</span> application.
+The filename for each worker gives you an idea what it does. If you have disabled a particular feature in
+<code class="filename">ljconfig.pl</code>, it generally follows you do not need to start that particular worker.</p>
+<p><b>Setting up <span class="application">Gearman</span>. </b>
+First, make sure the necessary directories are in place.
+</p>
+<pre class="screen"><code class="prompt">#</code> <strong class="userinput"><code><span class="command"><strong>mkdir</strong></span> <code class="filename">/var/run/gearman</code></code></strong></pre>
+<p>
+</p>
+<p>
+Next, create the configuration file for the workers.
+</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>touch</strong></span> <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/cgi-bin/workers.conf</code></code></strong>
+<code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>nano</strong></span> <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/cgi-bin/workers.conf</code></code></strong></pre>
+<p>Enter tasks for the workers in the file you just created, using the following
+format: <em class="replaceable"><code>hostname</code></em> / <em class="replaceable"><code>jobname</code></em> = <em class="replaceable"><code>num_to_run</code></em>.
+For example:
+</p>
+<div class="informalexample"><pre class="programlisting">localhost / process-esn = 1
+localhost / process-sms = 1
+localhost / send-email  = 1</pre></div>
+<p>You need to configure <code class="systemitem">gearmand</code> servers in <code class="filename">ljconfig.pl</code>,
+so you can run workers. It is a good idea to set particular features to use <span class="application">Gearman</span> at the same time.
+</p>
+<div class="informalexample"><pre class="programlisting">@LJ::GEARMAN_SERVERS
+('foo.example.com:7003')
+$LJ::LOADTAGS_USING_GEARMAN =1;
+$LJ::LOADFRIENDS_USING_GEARMAN =1;</pre></div>
+<p>
+Last, start up the worker processes,
+in <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/bin/worker</code>.</p>
+<p><b>Setting up <abbr class="abbrev">TheSchwartz</abbr>. </b>
+First, configure <code class="filename">ljconfig.pl</code> so <abbr class="abbrev">TheSchwartz</abbr> can connect to your database:</p>
+<div class="informalexample"><pre class="programlisting">my $mast = $LJ::DBINFO{master};
+        my $dbname = $mast-&gt;{dbname} || "livejournal";
+        @LJ::THESCHWARTZ_DBS = ({
+            dsn  =&gt; "dbi:mysql:$dbname;host=$mast-&gt;{host}",
+            user =&gt; $mast-&gt;{user},
+            pass =&gt; $mast-&gt;{pass},
+            prefix =&gt; "sch_",
+        });</pre></div>
+<p>
+The database tables are created for you &#8220;<span class="quote">automatically</span>&#8221;, by the <code class="filename">update-db.pl</code> tool.</p>
+<p>Now start up <abbr class="abbrev">TheSchwartz</abbr> worker processes from <code class="filename">bin/worker/</code>.
+To use the workers you can start them from a shell script, or manually at a command prompt.</p>
+<div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Tip</h3>
+<p>
+To make worker processes run in the background, add a <span class="application"><code class="systemitem">Unix</code></span> switch to the command:
+</p>
+<pre class="screen"><span class="command"><strong>bin/worker/process-esn <code class="option">&amp;</code></strong></span></pre>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.install.workers_setup_install.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.install.workers_setup.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.install.schedule_tasks.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Install <span class="application">Gearman</span> / <abbr class="abbrev">TheSchwartz</abbr> </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 13. Scheduling Maintenance tasks</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

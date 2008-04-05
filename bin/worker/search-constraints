@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+use Gearman::Worker;
+use Storable;
+use LJ::Worker::Gearman;
+use LJ::Directory::Constraint;
+
+gearman_decl("directory_search_constraint"  => \&dir_search_constraint);
+gearman_work();
+
+sub dir_search_constraint {
+    my $job = shift;
+    my $args = eval { Storable::thaw($job->arg) } || [];
+
+    my $constraint = LJ::Directory::Constraint->deserialize(${$args->[0]});
+    return undef unless $constraint;
+
+    my $res = $constraint->sethandle;
+
+    my $res_str = $res->as_string;
+    return $res_str;
+}

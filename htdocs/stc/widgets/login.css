@@ -1,0 +1,37 @@
+/* this is css for the login widget */
+
+.appwidget-login h2 {
+    margin: 0 0 8px 0;
+    display: none;
+}
+.appwidget-login form {
+    margin-bottom: 15px;
+}
+.appwidget-login fieldset.nostyle {
+    margin-bottom: 0.5em !important;
+}
+.appwidget-login label.left {
+    width: 6.25em;
+    line-height: 22px;
+}
+.appwidget-login input.text {
+    width: 160px;
+}
+.appwidget-login #user {
+    background: #fff url(/img/userinfo.gif) no-repeat 1px 50%;
+    padding-left: 18px;
+    font-weight: bold;
+    color: #00C;
+    width: 144px; /* needs to be 16px less than input.text width */
+}
+.appwidget-login fieldset.nostyle,
+.appwidget-login p {
+    margin: 0 0 0.5em 0;
+}
+.appwidget-login p {
+    margin-left: 6.25em;
+}
+.appwidget-login a.small-link {
+    font-size: 85%;
+    color: #777;
+}

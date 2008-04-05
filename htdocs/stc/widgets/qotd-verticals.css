@@ -1,0 +1,28 @@
+.appwidget-qotd {
+    margin-bottom: 20px !important;
+}
+
+.appwidget-qotd h2 {
+    font-size: 14px;
+    clear: left;
+    font-family: Arial;
+    font-weight: bold;
+    background: #ededed url(/img/corner.gif) no-repeat 0 0;
+    margin: 0 !important;
+    padding: 5px 8px !important;
+    color: #222;
+}
+
+.appwidget-qotd #all_questions {
+    padding: 8px 10px 0 10px;
+    border: 1px solid #ededed;
+    border-top: 0;
+}
+
+.appwidget-qotd p.detail span.suggestions {
+    display: none;
+}
+
+.appwidget-qotd .small-view-link {
+    font-size: 11px;
+}

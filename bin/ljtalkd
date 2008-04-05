@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use Danga::Socket;
+use IO::Socket::INET;
+require 'ljlib.pl';
+
+die "This is currently for dev servers only.\n" unless $LJ::IS_DEV_SERVER;
+die "No gearmand servers configured in \@LJ::GEARMAN_SERVERS.\n" unless @LJ::GEARMAN_SERVERS;
+my $sock = IO::Socket::INET->new(PeerAddr => $LJ::GEARMAN_SERVERS[0])
+    or die "First gearmand server in \@LJ::GEARMAN_SERVERS ($LJ::GEARMAN_SERVERS[0]) isn't responding.\n";
+
+print $sock "workers\r\n";
+my $found_ljtalk = 0;
+while (<$sock>) {
+    $found_ljtalk = 1 if (/ljtalk_auth_check/ && /ljtalk_bot_talk/);
+    last if /^\./;
+}
+
+my $worker_pid;
+END {
+    if ($worker_pid) {
+        kill 9, $worker_pid;
+        print "killing worker pid $worker_pid\n";
+    }
+}
+unless ($found_ljtalk) {
+    $worker_pid = fork;
+    die "Fork error" unless defined $worker_pid;
+    if (!$worker_pid) {
+        exec("$LJ::HOME/bin/worker/ljtalk-gm");
+    }
+    print "Gearman worker ljtalk-gm started w/ pid $worker_pid.\n";
+}
+
+chdir("$LJ::HOME/cvs/djabberd/DJabberd") or die "failed to chdir";
+print "Starting djabberd.\n";
+$ENV{LJ_DOMAIN} = $LJ::DOMAIN;
+system("perl",
+       "-I", "$ENV{LJHOME}/cgi-bin",
+       '-I', '../../gearman/api/perl/Gearman-Client-Async/lib/',
+       '-I', '../DJabberd-LiveJournal/lib',
+       '-I', 'lib',
+       './djabberd', '--conf=../DJabberd-LiveJournal/conf/ljtalk.conf');
+
+

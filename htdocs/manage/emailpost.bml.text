@@ -1,0 +1,256 @@
+;; -*- coding: utf-8 -*-
+.addresses.header=Allowed sender addresses
+
+.addresses.table.address=Address:
+
+.addresses.table.errors=Send errors?
+
+.addresses.text=Only the addresses listed below are allowed to post to your account via the email gateway. If no addresses are listed, posting via the email gateway will be disabled for your account. Marked addresses will receive errors if there are any to send.
+
+.error.invalidemail=Invalid email address: [[email]]
+
+.error.invalidimagesize=Image size must be [[size]] or less to disable the lj-cut.
+
+.error.invalidpin=Your PIN is currently limited to alphabet characters and numbers, and needs to be at least [[num]] [[?num|character|characters]] long.
+
+.error.invalidpinaccount=This PIN is invalid. You should change it to something that does <b>NOT</b> have anything to do with your [[sitename]] account.
+
+.error.notloggedin.header=Please log in!
+
+.error.sitenotconfigured=Sorry, this site is not configured to allow updating your journal via email.
+
+.help.advanced.header=Advanced usage
+
+.help.advanced.pgp.body=This body should be properly signed with my private key.
+
+.help.advanced.pgp.header=PGP/GPG message signing
+
+.help.advanced.pgp.text1=If you specify "[[pgp]]" instead of your PIN, allowed sender addresses and the saved PIN are completely ignored. Your email will only be posted if it is signed with a valid PGP/GPG private key.
+
+.help.advanced.pgp.text2=You must first upload your public key <a [[aopts]]>here</a>.
+
+.help.allowedsenderemail|notes=A made-up email address for users that haven't specified an allowed email address for email posts to be sent from.
+.help.allowedsenderemail=allowed_sender@example.com
+
+.help.body|notes=Example body text for the example email.
+.help.body=This is the body of my post.
+
+.help.body_images|notes=Example body text for the example picture email.
+.help.body_images=This is the body of my post, with image attachments.
+
+.help.examplecommhyphen|notes=This is the example community username used to show the underscore/hyphen change -- leave as is unless your translations has its own example community account with hyphens.
+.help.examplecommhyphen=comm-example
+
+.help.examplecommunity|notes=This is the example community username used -- leave as is unless your translation has its own example community account.
+.help.examplecommunity=communityname
+
+.help.exampleuserhyphen|notes=This is the example username used to show the underscore/hyphen change -- leave as is unless your translation has its own example username account with hyphens.
+.help.exampleuserhyphen=user-example
+
+.help.exampleusername|notes=This is the username used if you're not logged in -- leave as is unless your translation has its own example username account.
+.help.exampleusername=exampleusername
+
+.help.from|notes=The "email" variable will be replaced with the .help.allowedsenderemail string if the user has not specified an allowed sender.
+.help.from=From: [[email]]
+
+.help.header=How does this feature work?
+
+.help.headers.header=[[sitenameabbrev]] headers and security
+
+.help.headers.options.comments.example=("[[off]]" or "[[noemail]]")
+
+.help.headers.options.header=Journal entry options
+
+.help.headers.options.mood.example=happy
+
+.help.headers.options.music.example=The Pixies: Where is my mind?
+
+.help.headers.options.tags.example=greyhounds, potato, wool
+
+.help.headers.options.text=Most journal specific features can be set via "lj-headers" in the body of your message. The lj-headers should be at the top of your message, separated by a newline. All lj-headers are completely optional, and simply override your journal defaults.
+
+.help.headers.options.userpic.example=userpic keywords
+
+.help.headers.security.friends.desc=The post can only be viewed by those on your Friends list.
+
+.help.headers.security.group.desc=This is literally the name of a friend group. Only friends belonging to that group can view the post.
+
+.help.headers.security.group.example=Example: [[header]] <b>my friends</b>
+
+.help.headers.security.group.word|notes=A single word that tells the person to put a friend group name in its place.
+.help.headers.security.group.word=friendgroup
+
+.help.headers.security.header=Journal entry security
+
+.help.headers.security.private.desc=The post is posted privately.
+
+.help.headers.security.public.desc=The post is posted publicly.
+
+.help.headers.security.text=Security options are set via the lj-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security is specified, the entry is posted according to your default journal security.
+
+.help.images.gallery.example=vacation photos
+
+.help.images.gallery.header=Choosing a gallery
+
+.help.images.gallery.text=You can specify what photo gallery you want your attachments uploaded into using the [[header]] header. If unspecified, the default gallery is '[[name]]'. If you decide to move your images into different galleries in the future, the images posted in your journal will still work correctly.
+
+.help.images.header=Image attachments
+
+.help.images.layout.header=Changing image layout
+
+.help.images.layout.text1=If you attach multiple images, you can change the way they appear in your journal via the [[header]] header.
+
+.help.images.layout.text2=By default, multiple images will be placed in a vertical layout:
+
+.help.images.layout.text3=Currently, the only other option is "[[horizontal]]".
+
+.help.images.ljcut.header=lj-cut behavior
+
+.help.images.ljcut.text=By default, images [[ljcutsize]] or smaller are placed in your journal without an <a [[aopts]]>lj-cut</a>. You can change this behavior using the [[header]] header. Valid options are "[[count]]" and "[[titles]]". Using "[[count]]", if you attached 3 images in your email message, the lj-cut would read, "( 3 images )". Setting the [[header]] header to "[[titles]]" changes the cut caption to the title of the filename, one cut per image. "( emo.jpg ) ( pict002.jpg ) ( me_and_bob.jpg )"
+
+.help.images.security.header=Image security
+
+.help.images.security.text1=Images are publicly viewable by default. Use the [[header]] header to change this behavior. Please note that image security is separate from your journal entry security! For example, you can have a journal entry that is private, while the pictures within it are public. This feature only changes the security on the images themselves - not the journal entry.
+
+.help.images.security.text2=Valid options are "[[option1]]", "[[option2]]", and "[[option3]]".
+
+.help.images.size.header=Changing the image display size
+
+.help.images.size.text1=You may attach images of any size. They will be displayed in your journal at a maximum size of [[maxsize]]. The default size is [[defaultsize]]. You may specify a size using the [[header]] header. Images larger than [[ljcutsize]] will be automatically placed behind an <a [[aopts]]>lj-cut</a>.
+
+.help.images.size.text2=Valid sizes are "[[size1]]", "[[size2]]", and "[[size3]]".
+
+.help.images.text=If you have <a [[aopts1]]>[[scrapbook]]</a> access (and enough disk quota), any image you attach to your email message will be automatically uploaded to your [[scrapbook]] account and displayed in your journal entry. All images above [[dimensions]] in size are displayed under an <a [[aopts2]]>lj-cut</a>. Using <a [[aopts3]]>lj-headers</a>, you can change the way the images look in your journal, as well as set various image attributes.
+
+.help.manage.header=Manage your emailpost settings
+
+.help.optionalfeatures.header=Optional features
+
+.help.optionalfeatures.hyphens.header=Hyphens and underscores
+
+.help.optionalfeatures.hyphens.text=To compensate for mobile phones that don't have an underscore key, you may substitute a hyphen in their place inside any user or community account name. The hyphens will be automatically converted to underscores.
+
+.help.optionalfeatures.posttocommunity.header=Posting to a community
+
+.help.optionalfeatures.posttocommunity.text=Simply embed the community name in the email address.
+
+.help.optionalfeatures.removetext.example=This text and anything underneath it will be ignored, including automatic signatures added by free email services.<br />__________________________________________________<br />Try the all new SUPER FREE MAIL version 17 today!!!
+
+.help.optionalfeatures.removetext.header=Removing unwanted text
+
+.help.optionalfeatures.removetext.text=All text below two or more dashes or underscores ("[[dashes]]" or "[[underscores]]") on a line by itself will be automatically removed. The red text below won't show up in your posting.
+
+.help.pgpsenderemail|notes=A made-up sender email address for users posting with PGP.  It should imply that the user can post from any email address.
+.help.pgpsenderemail=anywhere@example.com
+
+.help.pin=PIN
+
+.help.pinusage.header=PIN usage examples
+
+.help.pinusage.inbody.header=PIN in body
+
+.help.pinusage.inemail.header=PIN in email address
+
+.help.pinusage.insubject.header=PIN in subject
+
+.help.subject|notes=An example subject line for the example email.  The "pin" variable is only filled in in certain cases.
+.help.subject=Subject: [[pin]] Neat, I can post via email.
+
+.help.subject_images|notes=An example subject line for the example picture email.
+.help.subject_images=Subject: Neat, I can post pictures via email.
+
+.help.text1=Email posting uses normal email messages to post to your journal or a community. Your PIN needs to be embedded in the email address, subject, or body of the message. Embed your PIN by prefixing it with the [[plus]] symbol. You must be sending the message from an email address on your "Allowed sender addresses" list. If you embed your PIN in either the subject or the body, it will be automatically removed before posting.
+
+.help.text2=Posting via email permits many options to be set on a per message basis. Because of this complexity, we've separated examples into different topics. Please select from the list below:
+
+.help.to|notes=The "email" variable will be replaced with the .help.exampleusername string + @post.livejournal.com OR .help.exampleusername + .help.pin + @post.livejournal.com (unless the user is logged in and/or has specified a PIN, in which case it uses the user's actual username and/or PIN).
+.help.to=To: [[email]]
+
+.instructions.header=Instructions
+
+.intro=If you'd like to be able to update your journal via email, please fill out the following fields. For more help using this feature, check out the <a [[aopts]]>instructions</a>.
+
+.pin.header=PIN
+
+.pin.text=Your PIN is used only for the email gateway. Do not use your regular password for this. This way, if someone obtains your PIN, they can't obtain full access to your journal. The PIN should be at least [[num]] [[?num|character|characters]] long, and may only contain alphabet characters and/or numbers.
+
+.settings.entry.comments=Comments:
+
+.settings.entry.comments.select.default=default
+
+.settings.entry.comments.select.noemail=No email
+
+.settings.entry.comments.select.off=off
+
+.settings.entry.header=Journal entry defaults
+
+.settings.entry.security=Security:
+
+.settings.entry.security.select.default=default
+
+.settings.entry.security.select.friends=friends
+
+.settings.entry.security.select.private=private
+
+.settings.entry.security.select.public=public
+
+.settings.entry.userpic=Userpic:
+
+.settings.entry.userpic.select.default=default
+
+.settings.header=Default settings
+
+.settings.image.cut=Image cut type:
+
+.settings.image.cut.select.count=count
+
+.settings.image.cut.select.default=default
+
+.settings.image.cut.select.titles=titles
+
+.settings.image.galname=Gallery name:
+
+.settings.image.header=Image hosting defaults
+
+.settings.image.layout=Image layout:
+
+.settings.image.layout.select.default=default
+
+.settings.image.layout.select.horizontal=horizontal
+
+.settings.image.layout.select.vertical=vertical
+
+.settings.image.security=Image security:
+
+.settings.image.security.select.default=default
+
+.settings.image.security.select.friends=friends
+
+.settings.image.security.select.private=private
+
+.settings.image.security.select.public=public
+
+.settings.image.security.select.regusers=registered users
+
+.settings.image.size=Image size:
+
+.settings.image.size.select.100x100=100x100
+
+.settings.image.size.select.320x240=320x240
+
+.settings.image.size.select.640x480=640x480
+
+.settings.image.size.select.default=default
+
+.settings.text=These settings apply to all journal updates via email. You can leave these options alone to let your journal defaults take over, or override on a per message basis using lj-headers. These settings (and lj-header overrides) are described <a [[aopts]]>here</a>.
+
+.sorry.acct=Sorry, updating your journal via email is not available for your account type.
+
+.success.header=Success
+
+.success.info=Click <a [[aopts]]>here</a> for information on how to use this feature.
+
+.success.saved=Your email gateway settings have been saved.
+
+.title=Mobile Post Settings
+

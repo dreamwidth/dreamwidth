@@ -1,0 +1,268 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $body $arg);
+
+    $title = "";
+    $body = "";
+    my $type = $POST{'type'} || $GET{'type'};
+    my $q = $POST{'q'} || $GET{'q'};
+    my $output = lc($POST{'output'}) || lc($GET{'output'});
+    my $dbr = LJ::get_db_reader();
+
+    my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Search-Skyscraper', search_arg => $q );
+
+    if ($type eq "nav_and_user" || $type eq "nav") {
+        # Some special shortcuts used for easy navigation
+        if ($q =~ /^faq (\d+)$/) {
+            return BML::redirect("$LJ::SITEROOT/support/faqbrowse.bml?faqid=$1&view=full");
+        }
+        if ($q =~ /^req(uest)? (\d+)$/) {
+            return BML::redirect("$LJ::SITEROOT/support/see_request.bml?id=$2");
+        }
+        if ($q =~ m!(.+)/(pics|full)!) {
+            if (my $u = LJ::load_user($1)) {
+                return BML::redirect( $u->profile_url('full' => 1) )
+                    if $2 eq "full";
+                return BML::redirect( $u->allpics_base )
+                    if $2 eq "pics";
+            }
+        }
+
+        do "LJ/NavTag.pm";
+        my @dests = LJ::NavTag->dests_of_tag($q);
+        my $last_is_untrusted = 0;
+
+        if ($type eq "nav_and_user") {
+            my $u = LJ::load_user_or_identity($q);
+            if ($u) {
+                push @dests, LJ::NavTag::Dest->new(type => "LJUSER", dest => $u->{user});
+
+                # presumably users will start registering usernames that match our site navigation tags,
+                # so let's preempt that and throw them into a lame bottom section when site-defined tags
+                # are alse present.
+                $last_is_untrusted = 1 if $u->{statusvis} eq "V";
+            }
+        }
+
+        my $eq = LJ::ehtml($q);
+        if (@dests == 0) {
+            $title = "No matches";
+            $body = $ad . "<?h1 $ML{'Error'} h1?><?p No site page or username matches your search for <b>$eq</b>. p?>";
+            return;
+        }
+        if (@dests == 1) {
+            return BML::redirect($dests[0]->url);
+        }
+
+        $title = "Choices";
+        $body = $ad . "<?h1 Multiple Choices h1?>";
+
+        my @cats = ({
+            title => "Site pages",
+            text => "The following $LJ::SITENAMESHORT pages match your search for <b>$eq</b>:",
+            list => \@dests,
+        });
+
+        if ($last_is_untrusted) {
+            push @cats, {
+                title => "User account",
+                text => "The following user account matches your search for <b>$eq</b>:",
+                list => [ pop @dests ],
+            };
+        }
+
+        foreach my $cat (@cats) {
+            $body .= "<?h2 $cat->{title} h2?><?p $cat->{text} p?>";
+            $body .= "<ul>";
+            foreach my $dst (@{ $cat->{list} }) {
+                my $lju = $dst->ljuser;
+                my $link;
+                if ($lju) {
+                    $link = $dst->ljuser->ljuser_display . " - " . LJ::ehtml($dst->title);
+                } else {
+                    $link = "<a href=\"" . LJ::ehtml($dst->url) . "\">" . LJ::ehtml($dst->title) . "</a>";
+                }
+                if (!$lju || ($lju && $lju->{statusvis} eq "V")) {
+                    $body .= "<li>$link</li>\n";
+                }
+            }
+            $body .= "</ul>";
+        }
+
+        return;
+    }
+
+    if ($type eq "user" || $type eq "ljtalk") {
+        my $user = lc($q);
+        $user =~ s!\@$LJ::USER_DOMAIN!!;
+        my $what;
+        if ($user =~ s!/(\w+)!!) {
+            $what = $1;
+        }
+
+        $user =~ s/-/_/g;
+        $user =~ s/[^\w]//g;
+        if ($user) {
+            my $url;
+            if ($what eq "pics") {
+                $url = "$LJ::SITEROOT/allpics.bml?user=$user";
+            } elsif ($output eq "foaf") {
+                $url = LJ::journal_base($user) . '/data/foaf';
+            } else {
+                if (my $u = LJ::load_user($user)) {
+                    $url = $u->profile_url;
+                    $url .= "?mode=full" if $what eq 'full';
+                } else {
+                    $url = "$LJ::SITEROOT/userinfo.bml?user=$user";
+                }
+            }
+            return BML::redirect($url);
+        } else {
+            return BML::redirect("$LJ::SITEROOT/random.bml");
+        }
+    }
+
+    if ($type eq "int") {
+        my $int = lc($q);
+        if ($int) {
+            return BML::redirect("$LJ::SITEROOT/interests.bml?int=" . LJ::eurl($int));
+        } else {
+            $title = $ML{'.nointerest.title'};
+            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.nointerest.text'} p?>";
+            return;
+        }
+    }
+
+    if ($type eq "email") {
+        my $email = lc($q);
+        unless ($email) {
+            $title = $ML{'.noaddress.title'};
+            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.noaddress.text'} p?>";
+            return;
+        } else {
+            my $uid = $dbr->selectrow_array("SELECT userid FROM user WHERE journaltype='P' AND statusvis='V' ".
+                                            "AND allow_contactshow='Y' AND email=? LIMIT 1", undef, $email);
+            # try the email table
+            unless ($uid) {
+                $uid = $dbr->selectrow_array(qq{
+                    SELECT e.userid
+                    FROM user u, email e
+                    WHERE e.email=? AND e.userid=u.userid AND u.journaltype='P' AND u.statusvis='V'
+                    AND u.allow_contactshow='Y' LIMIT 1
+                }, undef, $email);
+            }
+            if (my $u = LJ::load_userid($uid)) {
+                LJ::load_user_props($u, "opt_whatemailshow");
+                if ($u->{'opt_whatemailshow'} eq "A" || $u->{'opt_whatemailshow'} eq "B") {
+                    if ($output eq "foaf") {
+                        return BML::redirect(LJ::journal_base($u) . '/data/foaf');
+                    } else {
+                        return BML::redirect($u->profile_url);
+                    }
+                }
+            }
+            $title = $ML{'.nomatch.title'};
+            $body = $ad . "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
+            return;
+        }
+    }
+
+    if ($type eq "im" ||
+        $type eq "aolim" || $type eq "icq" ||
+        $type eq "yahoo" || $type eq "msn" ||
+        $type eq "jabber") {
+
+        use LJ::Directory::Constraint::ContactInfo;
+        my @uids = LJ::Directory::Constraint::ContactInfo->new(screenname => $q)->matching_uids;
+
+        if (@uids == 1) {
+            my $u = LJ::load_userid(shift @uids);
+            if ($output eq "foaf") {
+                return BML::redirect($u->journal_base . '/data/foaf');
+            } else {
+                return BML::redirect($u->profile_url);
+            }
+        } elsif (@uids > 1) {
+            my $us = LJ::load_userids(@uids);
+
+            $title = $ML{'.title.results'};
+            $body .= LJ::user_search_display(
+                                             users      => [ values %$us ],
+                                             timesort   => 1,
+                                             perpage    => 50,
+                                             );
+            return;
+        }
+
+        # If we haven't returned already then the search turned up nothing.
+        $title = $ML{'.nomatch.title'};
+        $body = $ad . "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
+        return;
+    }
+
+    if ($type eq "region") {
+        $q =~ s/^\s+//; $q =~ s/\s+$//;
+        my @parts = split(/\s*,\s*/, $q);
+        if (@parts==0 || @parts>3) {
+            $title = $ML{'.formaterror'};
+            $body .= $ad . "<?h1 $ML{'.region.head'} h1?><?p " . BML::ml('.region.bodytext2', {'aopts' => "href='$LJ::SITEROOT/directorysearch.bml'"}) . " p?>";
+            return;
+        }
+
+        my $ctc = $parts[-1];
+        my $sth = $dbr->prepare("SELECT code FROM codes WHERE type='country' AND (code=? OR item=?) LIMIT 1");
+        $sth->execute($ctc, $ctc);
+        my ($country) = $sth->fetchrow_array;
+        my ($state, $city);
+
+        if ($country) {
+            pop @parts;
+            if (@parts == 1) {
+                $state = $parts[0];
+            } elsif (@parts == 2) {
+                ($city, $state) = @parts;
+            }
+        } else {
+            $country = "US";
+            if (@parts ==1) {
+                $city = $parts[0];
+            } elsif (@parts == 2) {
+                ($city, $state) = @parts;
+            }
+        }
+        ($city, $state, $country) = map { LJ::eurl($_); } ($city, $state, $country);
+        return BML::redirect("$LJ::SITEROOT/directory.bml?s_loc=1&loc_cn=$country&loc_st=$state&loc_ci=$city&opt_sort=ut&opt_format=pics&opt_pagesize=50");
+    }
+
+    if ($type eq "faq") {
+        my $term = lc($q);
+        if ($term) {
+            return BML::redirect("$LJ::SITEROOT/support/faqsearch.bml?q=" . LJ::eurl($term));
+        } else {
+            $title = $ML{'.nofaqsearch.title'};
+            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.nofaqsearch.text'} p?>";
+            return;
+        }
+    }
+
+    # Unknown type, try running site hooks
+    if ($type) {
+        # TODO: check return value of this hook, and fall back to another
+        # hook that shows the results here, rather than redirecting to another page
+        return LJ::run_hook('multisearch_custom_search_redirect', {
+            type  => $type,
+            query => $q, });
+    }
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?><?_c <LJDEP>
+link: htdocs/talkread.bml, htdocs/allpics.bml, htdocs/userinfo.bml, htdocs/random.bml
+link: htdocs/interests.bml, htdocs/directorysearch.bml, htdocs/directory.bml
+hook: multisearch_custom_search_redirect
+</LJDEP> _c?>
+

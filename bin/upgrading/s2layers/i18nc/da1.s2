@@ -1,0 +1,161 @@
+#-*-s2-*- ;; -*- coding: utf-8 -*-
+
+layerinfo "type" = "i18nc";
+layerinfo "redist_uniq" = "i18nc/da1";
+layerinfo "name" = "Danish";
+layerinfo "langcode" = "da";
+layerinfo "author_name" = "LiveJournal Danish Translation Team";
+layerinfo "author_email" = "lj_dansk@livejournal.com";
+
+layerinfo "source_viewable" = 1;
+
+set lang_current = "da";
+
+#[[ date and time l12n ]]
+
+# Kort datoformat
+set lang_fmt_date_short = "%%d%%/%%m%%/%%yy%%";
+# Mellem dato
+set lang_fmt_date_med = "%%dayord%% %%mon%%., %%yyyy%%";
+# Mellem dato med forkortet ugedag
+set lang_fmt_date_med_day = "%%da%%, d. %%dayord%% %%mon%%., %%yyyy%%";
+# Lang dato
+set lang_fmt_date_long = "%%dayord%% %%month%%, %%yyyy%%";
+# Lang dato med ugedag
+set lang_fmt_date_long_day = "%%day%%, d. %%dayord%% %%month%%, %%yyyy%%";
+# Tidsformat
+set lang_fmt_time_short = "%%HH%%:%%min%%";
+# Kort månedsformat (samme som engelsk)
+set lang_fmt_month_short = "%%m%%/%%yy%%";
+# Mellem måned (samme som engelsk)
+set lang_fmt_month_med = "%%mon%% %%yyyy%%";
+# Lang måned (samme som engelsk)
+set lang_fmt_month_long = "%%month%% %%yyyy%%";
+# Årets måneder, lang
+set lang_monthname_long = [ "", "Januar",  "Februar", "Marts",
+                            "April", "Maj", "Juni",
+                            "Juli", "August", "September",
+                            "Oktober", "November", "December" ];
+# Årets måneder, kort
+set lang_monthname_short = [ "", "Jan",  "Feb", "Mar",
+                             "Apr", "Maj", "Jun",
+                             "Jul", "Aug", "Sep",
+                             "Okt", "Nov", "Dec" ];
+# Ugens dage, lang
+set lang_dayname_long = [ "", "Søndag", "Mandag",  "Tirsdag", "Onsdag", 
+                          "Torsdag", "Fredag", "Lørdag" ];
+# Ugens dage, kort
+set lang_dayname_short = [ "", "Søn", "Man",  "Tirs", "Ons", 
+                           "Tors", "Fre", "Lør" ];
+set reg_firstdayofweek = "monday";
+
+#[[ texttranslation ]]
+
+# Currents
+set text_meta_music = "Nuværende musik";
+set text_meta_mood = "Nuværende humør";
+# Comments
+set text_post_comment = "Skriv kommentar";
+set text_read_comments = "1 kommentar // # kommentarer";
+set text_post_comment_friends = "Skriv kommentar";
+set text_read_comments_friends = "1 kommentar // # kommentarer";
+# Skiplinks
+set text_skiplinks_back="Forrige #";
+set text_skiplinks_forward="Næste #";
+# Views
+set text_view_recent = "Seneste poster";
+set text_view_friends = "Venner";
+set text_view_archive = "Arkiv";
+set text_view_userinfo = "Brugerinfo";
+set text_view_month = "Vis emner"; # "Vis overskrifter"?
+# Misc. texts
+set text_nosubject = "(intet emne)";
+set text_noentries_recent = "Der er ingen poster at vise.";
+set text_noentries_day = "Der blev ikke skrevet nogle poster denne dag.";
+set text_permalink = "Link";
+set text_month_screened_comments = "m. skærmede";
+set text_multiform_check = "Vælg:";
+set text_multiform_des = "Massehandling på valgte kommentarer:";
+set text_multiform_btn = "Udfør handling";
+set text_multiform_opt_unscreen = "Afskærm";
+set text_multiform_opt_screen = "Skærm";
+set text_multiform_opt_delete = "Slet";
+set text_multiform_conf_delete = "Slet valgte kommentarer?";
+set text_day_prev = "Forrige dag";
+set text_day_next = "Næste dag";
+set text_comment_from = "Fra:";
+set text_comment_date = "Dato:";
+set text_comment_ipaddr = "IP adresse:";
+set text_comment_reply = "Svar";
+set text_comment_parent = "Forælder";
+set text_comment_thread = "Tråd";
+set text_reply_back = "Læs kommentarer";
+set text_reply_nocomments_header = "Kommentarer slået fra:";
+set text_reply_nocomments = "Kommentarer til denne post er blevet slået fra.";
+set text_poster_anonymous = "(Anonym)";
+set text_website_default_name = "Mit websted";
+
+#[[ function translations ]]
+
+# Samme som engelsk:
+#function lang_map_plural (int n) : int {
+#    if ($n == 1) { return 0; } # singular
+#    return 1;             # plural
+#}
+
+function lang_page_of_pages (int pg, int pgs) [notags] : string {
+	return "Side $pg af $pgs";
+}
+
+function lang_ordinal(int num) [notags] : string {
+	return $num+".";
+}
+
+function lang_user_wrote(UserLite u) : string
+"Returns text describing that the user wrote something. i18nc layers should override this."
+{
+    if (defined $u) {
+        return $u->as_string()+" skrev";
+    }
+    else {
+        return "En anonym bruger skrev";
+    }
+}
+
+function lang_at_datetime(DateTime d) : string
+"Returns a string saying \"at {the data and time given}\". Used in the core implementation of EntryPage and ReplyPage. i18nc layers should override this."
+{
+#   return "d. 1. Januar, 2004, kl. 23:01";
+    return "d. " + $d->date_format("long") + ", kl. " + $d->time_format();
+}
+### Ovenstående skal testes i brug ASAP. ###
+
+function lang_viewname(string viewid) [notags] : string 
+"Get some words representing a view"
+{
+    if ($viewid == "recent") { return $*text_view_recent; }
+    if ($viewid == "archive") { return $*text_view_archive; }
+    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "day") { return "Dag"; }
+    if ($viewid == "month") { return "Måned"; }
+    if ($viewid == "userinfo") { return $*text_view_userinfo; }
+    if ($viewid == "entry") { return "Læs kommentarer"; }
+    if ($viewid == "reply") { return "Skriv kommentar"; }
+    return "Ukendt visningstype";
+}
+
+function server_sig() {
+    """Kørt af <a href="$*SITEROOT/">$*SITENAME</a>""";
+}
+
+function ReplyPage::view_title() : string {
+    return "Skriv kommentar";
+}
+    
+function Page::print_entry_poster(Entry e) {
+    $e.poster->print();
+    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+        " skrev i ";
+        $e.journal->print();
+    }
+}

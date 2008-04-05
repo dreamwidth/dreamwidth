@@ -1,0 +1,9 @@
+bin/ipl
+examples/example.test.pl
+examples/moveuclusterd_tests.pl
+lib/LJ/Object.pm
+lib/LJ/Test/Assertions.pm
+lib/LJ/Test/Result.pm
+lib/LJ/Test/Unit.pm
+Makefile.PL
+MANIFEST

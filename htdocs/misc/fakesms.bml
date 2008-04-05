@@ -1,0 +1,32 @@
+<?_code
+{
+    use strict;
+    use vars qw(%POST);
+    use LJ::SMS;
+
+    return "Developer-only feature"
+        unless $LJ::IS_DEV_SERVER;
+
+    unless (LJ::did_post()) {
+        return qq {
+            <form method='post'>
+            From: <input type='text' name='from'> <small>(+1xxxyyyzzzz)</small><br />
+            Message: <input type='text' name='message'><br />
+            <input type='submit'>
+            </form>
+        };
+    }
+
+    my $uid = LJ::SMS->num_to_uid($POST{from}, verified_only => 0);
+    my $u = LJ::want_user($uid)
+        or return "Unable to locate owner\n";
+
+    my $sms = LJ::SMS::Message->new(from      => $POST{from},
+                                    owner     => $u,
+                                    type      => "incoming",
+                                    body_text => $POST{message});
+
+    LJ::SMS::MessageHandler->handle($sms);
+    return "ok\n";
+}
+_code?>

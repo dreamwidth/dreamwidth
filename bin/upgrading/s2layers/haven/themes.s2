@@ -1,0 +1,396 @@
+#NEWLAYER: haven/indigoblue
+layerinfo "type" = "theme";
+layerinfo "name" = "Indigo Blue";
+layerinfo "redist_uniq" = "haven/indigoblue";
+
+#NEWLAYER: haven/bluemonochromatic
+layerinfo "type" = "theme";
+layerinfo "name" = "Nautical Blue";
+layerinfo "redist_uniq" = "haven/bluemonochromatic";
+
+set color_scheme_base = "#1575C7";
+set color_scheme = "monochromatic";
+
+#NEWLAYER: haven/blueanalogous
+layerinfo "type" = "theme";
+layerinfo "name" = "Blue Teal";
+layerinfo "redist_uniq" = "haven/blueanalogous";
+
+set color_scheme_base = "#1575C7";
+set color_scheme = "analogous";
+
+#NEWLAYER: haven/bluecomplementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Tan Blues";
+layerinfo "redist_uniq" = "haven/bluecomplementary";
+
+set color_scheme_base = "#1575C7";
+set color_scheme = "complementary";
+
+#NEWLAYER: haven/bluesplit_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Nautical Birch";
+layerinfo "redist_uniq" = "haven/bluesplit_complementary";
+
+set color_scheme_base = "#1575C7";
+set color_scheme = "split_complementary";
+
+#NEWLAYER: haven/bluedouble_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Olive";
+layerinfo "redist_uniq" = "haven/bluedouble_complementary";
+
+set color_scheme_base = "#1575C7";
+set color_scheme = "double_complementary";
+
+#NEWLAYER: haven/bluetriadic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Flourescents";
+layerinfo "redist_uniq" = "haven/bluetriadic";
+
+set color_scheme_base = "#1575C7";
+set color_scheme = "triadic";
+
+#NEWLAYER: haven/bluetetradic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Orange Blues";
+layerinfo "redist_uniq" = "haven/bluetetradic";
+
+set color_scheme_base = "#1575C7";
+set color_scheme = "tetradic";
+
+#NEWLAYER: haven/orangemonochromatic
+layerinfo "type" = "theme";
+layerinfo "name" = "Orange Sorbet";
+layerinfo "redist_uniq" = "haven/orangemonochromatic";
+
+set color_scheme_base = "#F3904E";
+set color_scheme = "monochromatic";
+
+#NEWLAYER: haven/orangeanalogous
+layerinfo "type" = "theme";
+layerinfo "name" = "Earthy Rose";
+layerinfo "redist_uniq" = "haven/orangeanalogous";
+
+set color_scheme_base = "#F3904E";
+set color_scheme = "analogous";
+
+#NEWLAYER: haven/orangecomplementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Nautical Orange";
+layerinfo "redist_uniq" = "haven/orangecomplementary";
+
+set color_scheme_base = "#F3904E";
+set color_scheme = "complementary";
+
+#NEWLAYER: haven/orangesplit_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Blue Oranges";
+layerinfo "redist_uniq" = "haven/orangesplit_complementary";
+
+set color_scheme_base = "#F3904E";
+set color_scheme = "split_complementary";
+
+#NEWLAYER: haven/orangedouble_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Blue Tans";
+layerinfo "redist_uniq" = "haven/orangedouble_complementary";
+
+set color_scheme_base = "#F3904E";
+set color_scheme = "double_complementary";
+
+#NEWLAYER: haven/orangetriadic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Light Purple";
+layerinfo "redist_uniq" = "haven/orangetriadic";
+
+set color_scheme_base = "#F3904E";
+set color_scheme = "triadic";
+
+#NEWLAYER: haven/orangetetradic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Blue Orange";
+layerinfo "redist_uniq" = "haven/orangetetradic";
+
+set color_scheme_base = "#F3904E";
+set color_scheme = "tetradic";
+
+#NEWLAYER: haven/greenmonochromatic
+layerinfo "type" = "theme";
+layerinfo "name" = "Forest Green";
+layerinfo "redist_uniq" = "haven/greenmonochromatic";
+
+set color_scheme_base = "#48C754";
+set color_scheme = "monochromatic";
+
+#NEWLAYER: haven/greenanalogous
+layerinfo "type" = "theme";
+layerinfo "name" = "Fresh Green";
+layerinfo "redist_uniq" = "haven/greenanalogous";
+
+set color_scheme_base = "#48C754";
+set color_scheme = "analogous";
+
+#NEWLAYER: haven/greencomplementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Purple Greens";
+layerinfo "redist_uniq" = "haven/greencomplementary";
+
+set color_scheme_base = "#48C754";
+set color_scheme = "complementary";
+
+#NEWLAYER: haven/greensplit_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Rose Garden";
+layerinfo "redist_uniq" = "haven/greensplit_complementary";
+
+set color_scheme_base = "#48C754";
+set color_scheme = "split_complementary";
+
+#NEWLAYER: haven/greendouble_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Mauve Greens";
+layerinfo "redist_uniq" = "haven/greendouble_complementary";
+
+set color_scheme_base = "#48C754";
+set color_scheme = "double_complementary";
+
+#NEWLAYER: haven/greentriadic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Rose";
+layerinfo "redist_uniq" = "haven/greentriadic";
+
+set color_scheme_base = "#48C754";
+set color_scheme = "triadic";
+
+#NEWLAYER: haven/greentetradic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Purple Greens";
+layerinfo "redist_uniq" = "haven/greentetradic";
+
+set color_scheme_base = "#48C754";
+set color_scheme = "tetradic";
+
+#NEWLAYER: haven/violetmonochromatic
+layerinfo "type" = "theme";
+layerinfo "name" = "Purple Power";
+layerinfo "redist_uniq" = "haven/violetmonochromatic";
+
+set color_scheme_base = "#9D1EC7";
+set color_scheme = "monochromatic";
+
+#NEWLAYER: haven/violetanalogous
+layerinfo "type" = "theme";
+layerinfo "name" = "Mauve Blue";
+layerinfo "redist_uniq" = "haven/violetanalogous";
+
+set color_scheme_base = "#9D1EC7";
+set color_scheme = "analogous";
+
+#NEWLAYER: haven/violetcomplementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Hyper Green";
+layerinfo "redist_uniq" = "haven/violetcomplementary";
+
+set color_scheme_base = "#9D1EC7";
+set color_scheme = "complementary";
+
+#NEWLAYER: haven/violetsplit_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Mint Purple";
+layerinfo "redist_uniq" = "haven/violetsplit_complementary";
+
+set color_scheme_base = "#9D1EC7";
+set color_scheme = "split_complementary";
+
+#NEWLAYER: haven/violetdouble_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Cyber Green";
+layerinfo "redist_uniq" = "haven/violetdouble_complementary";
+
+set color_scheme_base = "#9D1EC7";
+set color_scheme = "double_complementary";
+
+#NEWLAYER: haven/violettriadic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Teal";
+layerinfo "redist_uniq" = "haven/violettriadic";
+
+set color_scheme_base = "#9D1EC7";
+set color_scheme = "triadic";
+
+#NEWLAYER: haven/violettetradic
+layerinfo "type" = "theme";
+layerinfo "name" = "Bright Green Purple";
+layerinfo "redist_uniq" = "haven/violettetradic";
+
+set color_scheme_base = "#9D1EC7";
+set color_scheme = "tetradic";
+
+#NEWLAYER: haven/yellowmonochromatic
+layerinfo "type" = "theme";
+layerinfo "name" = "Pale Yellows";
+layerinfo "redist_uniq" = "haven/yellowmonochromatic";
+
+set color_scheme_base = "#F3EAA0";
+set color_scheme = "monochromatic";
+
+#NEWLAYER: haven/yellowanalogous
+layerinfo "type" = "theme";
+layerinfo "name" = "Olive Tans";
+layerinfo "redist_uniq" = "haven/yellowanalogous";
+
+set color_scheme_base = "#F3EAA0";
+set color_scheme = "analogous";
+
+#NEWLAYER: haven/yellowcomplementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Standard";
+layerinfo "redist_uniq" = "haven/yellowcomplementary";
+
+set color_scheme_base = "#F3EAA0";
+set color_scheme = "complementary";
+
+#NEWLAYER: haven/yellowsplit_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Purple Tans";
+layerinfo "redist_uniq" = "haven/yellowsplit_complementary";
+
+set color_scheme_base = "#F3EAA0";
+set color_scheme = "split_complementary";
+
+#NEWLAYER: haven/yellowdouble_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Purple";
+layerinfo "redist_uniq" = "haven/yellowdouble_complementary";
+
+set color_scheme_base = "#F3EAA0";
+set color_scheme = "double_complementary";
+
+#NEWLAYER: haven/yellowtriadic
+layerinfo "type" = "theme";
+layerinfo "name" = "Pastels";
+layerinfo "redist_uniq" = "haven/yellowtriadic";
+
+set color_scheme_base = "#F3EAA0";
+set color_scheme = "triadic";
+
+#NEWLAYER: haven/yellowtetradic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Dark Blue";
+layerinfo "redist_uniq" = "haven/yellowtetradic";
+
+set color_scheme_base = "#F3EAA0";
+set color_scheme = "tetradic";
+
+#NEWLAYER: haven/redmonochromatic
+layerinfo "type" = "theme";
+layerinfo "name" = "Pink Reds";
+layerinfo "redist_uniq" = "haven/redmonochromatic";
+
+set color_scheme_base = "#F35951";
+set color_scheme = "monochromatic";
+
+#NEWLAYER: haven/redanalogous
+layerinfo "type" = "theme";
+layerinfo "name" = "Rose Tans";
+layerinfo "redist_uniq" = "haven/redanalogous";
+
+set color_scheme_base = "#F35951";
+set color_scheme = "analogous";
+
+#NEWLAYER: haven/redcomplementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Salmon Teal";
+layerinfo "redist_uniq" = "haven/redcomplementary";
+
+set color_scheme_base = "#F35951";
+set color_scheme = "complementary";
+
+#NEWLAYER: haven/redsplit_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Red Blues";
+layerinfo "redist_uniq" = "haven/redsplit_complementary";
+
+set color_scheme_base = "#F35951";
+set color_scheme = "split_complementary";
+
+#NEWLAYER: haven/reddouble_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Light Blue";
+layerinfo "redist_uniq" = "haven/reddouble_complementary";
+
+set color_scheme_base = "#F35951";
+set color_scheme = "double_complementary";
+
+#NEWLAYER: haven/redtriadic
+layerinfo "type" = "theme";
+layerinfo "name" = "Light Blue Greens";
+layerinfo "redist_uniq" = "haven/redtriadic";
+
+set color_scheme_base = "#F35951";
+set color_scheme = "triadic";
+
+#NEWLAYER: haven/redtetradic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Aqua";
+layerinfo "redist_uniq" = "haven/redtetradic";
+
+set color_scheme_base = "#F35951";
+set color_scheme = "tetradic";
+
+#NEWLAYER: haven/indigomonochromatic
+layerinfo "type" = "theme";
+layerinfo "name" = "Real Blue";
+layerinfo "redist_uniq" = "haven/indigomonochromatic";
+
+set color_scheme_base = "#6F60C7";
+set color_scheme = "monochromatic";
+
+#NEWLAYER: haven/indigoanalogous
+layerinfo "type" = "theme";
+layerinfo "name" = "Purple Blues";
+layerinfo "redist_uniq" = "haven/indigoanalogous";
+
+set color_scheme_base = "#6F60C7";
+set color_scheme = "analogous";
+
+#NEWLAYER: haven/indigocomplementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Olive Blues";
+layerinfo "redist_uniq" = "haven/indigocomplementary";
+
+set color_scheme_base = "#6F60C7";
+set color_scheme = "complementary";
+
+#NEWLAYER: haven/indigosplit_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Sage Blues";
+layerinfo "redist_uniq" = "haven/indigosplit_complementary";
+
+set color_scheme_base = "#6F60C7";
+set color_scheme = "split_complementary";
+
+#NEWLAYER: haven/indigodouble_complementary
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Green";
+layerinfo "redist_uniq" = "haven/indigodouble_complementary";
+
+set color_scheme_base = "#6F60C7";
+set color_scheme = "double_complementary";
+
+#NEWLAYER: haven/indigotriadic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Mint";
+layerinfo "redist_uniq" = "haven/indigotriadic";
+
+set color_scheme_base = "#6F60C7";
+set color_scheme = "triadic";
+
+#NEWLAYER: haven/indigotetradic
+layerinfo "type" = "theme";
+layerinfo "name" = "Multi Olive Blues";
+layerinfo "redist_uniq" = "haven/indigotetradic";
+
+set color_scheme_base = "#6F60C7";
+set color_scheme = "tetradic";

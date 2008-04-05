@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+.description=Below are the birthdays for everyone that you list as a friend.
+
+.description.others=Below are the birthdays for everyone that [[user]] lists as a friend.
+
+.error.badstatus=[[user]] is not a currently active account.
+
+.error.invaliduser=Invalid user: <b>[[user]]</b>.  The specified account does not exist.
+
+.findothers=If you would like to see the birthdays of the friends of another user, or of the members of a community, enter a username below:
+
+.nobirthdays=There are no birthdays to display. This happens when a user doesn't have anyone added to their Friends list, or if none of the user's friends list their birthday publically.
+
+.title=Birthdays
+
+.view=View
+

@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+require 'talklib.pl';
+
+use LJ::Worker::Gearman;
+use Storable;
+
+gearman_decl("fixup_logitem_replycount"  => \&fixup_logitem_replycount);
+gearman_work();
+
+sub fixup_logitem_replycount {
+    my $job = shift;
+    my $args = Storable::thaw($job->arg);
+    my ($uid, $jitemid) = (@$args);
+
+    my $u = LJ::load_userid($uid)
+        or return "ERR:nouser";
+
+    LJ::Talk::fixup_logitem_replycount($u, $jitemid);
+    return "OK";
+}
+
+

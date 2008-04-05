@@ -1,0 +1,41 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+
+    my $ret;
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
+    $ret .= "<h2><a href='$LJ::SITEROOT/postreg/'>$ML{'.nav.editprofile'}</a> &gt; <strong>$ML{'.nav.findfriends'}</strong></h2>";
+    $ret .= "<p>" . BML::ml('.intro', {sitename => $LJ::SITENAMESHORT}) . "</p>";
+
+    $ret .= "<div id='browse'>";
+    $ret .= "<h2>" . BML::ml('.browse', {'sitename' => $LJ::SITENAMESHORT}) . "</h2>";
+    $ret .= "<p><a href='$LJ::SITEROOT/interests.bml?view=popular'>$ML{'.browse.popinterests'}</a><br />";
+    $ret .= BML::ml('.browse.popinterests.desc', {'sitename' => $LJ::SITENAMESHORT}) . "</p>";
+    $ret .= "<p><a href='$LJ::SITEROOT/schools/'>$ML{'.browse.schools'}</a><br />";
+    $ret .= "$ML{'.browse.schools.desc'}</p>";
+    $ret .= "<p><a href='$LJ::SITEROOT/syn/'>$ML{'.browse.feeds'}</a><br />";
+    $ret .= "$ML{'.browse.feeds.desc'}</p>";
+    $ret .= "</div>";
+
+    $ret .= "<div id='home'>";
+    $ret .= "<p>&raquo; <a href='$LJ::SITEROOT/'>" . BML::ml('.home', {'sitename' => $LJ::SITENAMESHORT}) . "</a></p>";
+    $ret .= "</div>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_ml .title _ml?>
+head<=
+<style type="text/css">
+#browse, #home {
+    margin: 20px 0;
+}
+</style>
+<=head
+<=body
+page?>

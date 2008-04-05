@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>2. The /translate/ system - English-stripping</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.prog-guide.i18n.html" title="Chapter 10. Internationalization">
+<link rel="prev" href="lj.customize.text.thenstrip.html" title="1. Removing hard-coded English text">
+<link rel="next" href="ljp.internals.html" title="Part II. Internals">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">2. The /translate/ system - English-stripping</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.customize.text.thenstrip.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 10. Internationalization</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.internals.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.customize.text.strippingtips">2. The /translate/ system - English-stripping</h2></div></div></div>
+<p><span class="strong"><strong>Viewing Translation Codes</strong></span></p>
+<p>
+You can use the <code class="literal">uselang</code> <acronym class="acronym">URL</acronym> argument to view an individual <span class="application"><acronym class="acronym">BML</acronym></span> page
+in a particular language. For example:
+</p>
+<table class="simplelist" border="0" summary="Simple list">
+<tr><td><code class="uri">http://www.livejournal.com/?uselang=ru</code></td></tr>
+<tr><td><code class="uri">http://www.livejournal.com/?uselang=en_GB</code></td></tr>
+</table>
+<p>You can also append <code class="literal">uselang=debug</code> to a <span class="application"><acronym class="acronym">BML</acronym></span> page
+<acronym class="acronym">URL</acronym>, to show the string names of the text on the given page:
+<code class="uri">http://www.livejournal.com/?uselang=debug</code></p>
+<p>Strings of text on the page that are not yet translatable will be in normal English text.
+From this you can see which text still needs to be &#8220;<span class="quote">English-stripped</span>&#8221;,
+so it can be translated (localized).</p>
+<p><span class="strong"><strong>English-stripping Tips</strong></span></p>
+<p>There are important points to remember when English-stripping text, which might not be obvious.</p>
+<div class="orderedlist"><ol type="1">
+<li><p>If you are English-stripping, you should
+strip <span class="strong"><strong>everything</strong></span>. You should not leave
+parentheses, brackets, punctuation, etc. hard-coded. Some languages, like Arabic
+and Japanese, use their special characters for these, and some need them treated specially.</p></li>
+<li><p><span class="emphasis"><em>Never split sentences</em></span>. You should not construct sentences from smaller bits.
+It tends to confuse translators, and unnecessarily limit them in their freedom.
+After all, you never know what grammatical quirks a language can have, so when
+you do this, you could potentially make a grammatically-correct translation impossible.
+For example: &#8220;<span class="quote">Paid user</span>&#8221; and &#8220;<span class="quote">Paid user, previously an Early
+Adopter</span>&#8221; should be separate strings. Most translators are happy to
+use <span class="action">Copy</span> &amp; <span class="action">Paste</span>, so don't worry
+about increasing their workload.</p></li>
+<li><p>Last, please <span class="strong"><strong>document</strong></span> unconventional things
+using the <code class="literal">|notes=</code> directive in your translation files.
+It can confuse translators a <span class="emphasis"><em>lot</em></span> when they do not know
+where things go or how things are put together. For something like a string, it
+is important to provide a clue to what it's for, what it does, and how it works.</p></li>
+</ol></div>
+<div class="blockquote"><blockquote class="blockquote"><div class="informalexample">
+<p><span class="strong"><strong><code class="literal">notes</code> directive examples:</strong></span></p>
+<table class="simplelist" border="0" summary="Simple list">
+<tr><td><code class="code">thislang.community|notes=Name of community you use to discuss the
+translation for this language.</code></td></tr>
+<tr><td><code class="code">Sorry|notes=typically used to announce that the requested action can't be done.</code></td></tr>
+<tr><td><code class="code">Error|notes=typically used inside an H1 tag to announce an error.</code></td></tr>
+</table>
+</div></blockquote></div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.customize.text.thenstrip.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.prog-guide.i18n.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.internals.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">1. Removing hard-coded English text </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Part II. Internals</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

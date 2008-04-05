@@ -1,0 +1,31 @@
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+    use LJ::Auth;
+    use LJ::EmbedModule;
+
+    # this can only be accessed from the embed module subdomain
+    my $r = Apache->request;
+    return "This page cannot be viewed from $LJ::DOMAIN"
+        unless $r->header_in("Host") =~ /.*$LJ::EMBED_MODULE_DOMAIN$/i;
+
+    # we should have three GET params: journalid, moduleid, auth_token
+    my $journalid = $GET{journalid}+0 or return "No journalid specified";
+    my $moduleid  = $GET{moduleid};
+    return "No module id specified" unless defined $moduleid;
+    $moduleid += 0;
+
+    # check auth_token
+    return "Invalid auth string" unless
+        LJ::Auth->check_sessionless_auth_token('embedcontent', %GET);
+
+    # ok we're cool, return content
+    my $content = LJ::EmbedModule->module_content(journalid => $journalid,
+                                                  moduleid  => $moduleid);
+
+    return qq {
+        <html><head></head><body style="background-color: transparent;">$content</body></html>
+    };
+}
+_code?>

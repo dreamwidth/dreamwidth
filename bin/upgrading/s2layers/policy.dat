@@ -1,0 +1,35 @@
+# Do not modify this file.  To set the S2-usage policy for your own
+# LiveJournal-based site, create a file beside this one called
+# policy-local.dat, based on instructions you find in this document.
+# That file will override anything not set here.
+#
+# 'allow' means all users get access.  'deny' means only users with
+# the 's2styles' capability get access.
+#
+
+# Default policy for layouts without their own policy section.
+layer: *
+        use allow     # can all users use it?
+        props allow   # can all users modify any property of it?
+
+# If you decide to make your site's default policy for * to be 'deny',
+# then you'll have to selectively allow access to parts, like so:
+
+#layer: generator/layout
+#  use allow
+#  props deny
+#  prop page_bgcolor allow
+
+# Notes:
+#    -- allowing/denying access to properties is only valid on
+#       layout and core layers.  
+#    -- you can't disallow use of a core layer, or i18n layers.
+#    -- for theme layers, you can only set the 'use' property.
+
+layer: */themes
+        use allow     # can all users use it?
+
+# To deny use of certain themes:
+#
+#layer: generator/mintchoc
+#  use deny

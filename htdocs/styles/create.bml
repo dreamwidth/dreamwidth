@@ -1,0 +1,75 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+
+<?_code
+{
+    use strict;
+    use vars qw(%GET);
+
+    LJ::set_active_crumb('createstyle');
+
+    my $user = LJ::canonical_username($GET{'user'});
+    my $remote = LJ::get_remote();
+
+    return "<?needlogin?>" unless $remote;
+
+    my $ret;
+    my $authas = $GET{'authas'} || $remote->{'user'};
+    my $u = LJ::get_authas_user($authas);
+    my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : "";
+
+    # no authentication needs to be done on this page, it's just a form anyway
+
+    # user switcher
+    $ret .= "<form action='create.bml' method='get'>\n";
+    $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
+    $ret .= "</form>\n\n";
+
+    $ret .= "<form action='create_do.bml$getextra' method='post'>\n";
+    $ret .= LJ::form_auth();
+
+    # main form
+    $ret .= "<?h1 $ML{'.createstyle.head'} h1?>\n";
+
+    $ret .= "<?p " . BML::ml('.createstyle.text2', {'aopts' => "href='$LJ::SITEROOT/developer/embedding.bml'"}) . " p?>";
+    my $inline;
+    unless (LJ::get_cap($u, "styles") || LJ::get_cap($u, "s2styles")) {
+        if ($inline .= LJ::run_hook("cprod_inline",$u,'CreateStyles')) {
+            $ret .= $inline;
+        } else {
+            $ret .= $ML{'cprod.createstyles.text.v1'};
+        }
+    }
+    $ret .= "<?h1 $ML{'.selecttype.head'} h1?>\n";
+    $ret .= "<?p $ML{'.selecttype.text'} p?>\n";
+
+    my $pubstyles = LJ::S1::get_public_styles();
+    my %styles;
+    push @{$styles{$_->{'type'}}}, $_ foreach values %$pubstyles;
+ 
+    foreach my $view (@LJ::views) {
+        $ret .= "<p>" . LJ::html_check({ 'type' => 'radio', 'name' => 'type', 'id' => "type-$view", 'value' => $view });
+        $ret .= "<b><label for='type-$view'>$LJ::viewinfo{$view}->{'des'}</label></b></p>\n";
+        $ret .= "<div style='margin: 10px 0 20px 30px;'>$ML{'.choosebase'}<br />\n";
+        $ret .= LJ::html_select({ 'name' => "base_$view" },
+                                '', $ML{'.noneorother'},
+                                map { $_->{'styleid'}, $_->{'styledes'} }
+                                sort { $a->{'styledes'} cmp $b->{'styledes'} } @{$styles{$view}} );
+        $ret .= "<br />$ML{'.enterstyleid'} ";
+        $ret .= LJ::html_text({ 'name' => "basenum_$view", 'size' => '5', 'maxlength' => '10' }) . "</div>\n";
+    }
+
+    $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.submit'}) . " standout?>\n";
+    $ret .= "</form>\n";
+    
+    return $ret;
+}
+_code?>
+
+<=body
+page?><?_c <LJDEP>
+link: htdocs/developer/embedding.bml, htdocs/developer/views.bml
+link: htdocs/paidaccounts/index.bml
+post: htdocs/styles/create_do.bml
+</LJDEP> _c?>

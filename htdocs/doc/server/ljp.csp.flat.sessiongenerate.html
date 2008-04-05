@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>sessiongenerate</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.flat.protocol.html" title="Flat Client/Server Protocol Reference">
+<link rel="prev" href="ljp.csp.flat.sessionexpire.html" title="sessionexpire">
+<link rel="next" href="ljp.csp.flat.syncitems.html" title="syncitems">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">sessiongenerate</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.flat.sessionexpire.html">Prev</a> </td>
+<th width="60%" align="center">Flat Client/Server Protocol Reference</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.flat.syncitems.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.csp.flat.sessiongenerate"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>sessiongenerate</h2>
+<p>sessiongenerate &#8212; Generates a session that can be used to setup a cookie for accessing the site with a user's privileges.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3079098"></a><h2>Mode Description</h2>
+<p>Generates a session that can be used to setup a cookie for accessing the site with a user's privileges.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3079110"></a><h2>Arguments</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">mode</code></span></dt>
+<dd><p>
+The protocol request mode: <code class="literal">sessiongenerate</code>
+      </p></dd>
+<dt><span class="term"><code class="literal">user</code></span></dt>
+<dd><p>
+Username.  Leading and trailing whitespace is ignored, as is case.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_method</code></span></dt>
+<dd><p>
+The authentication method used for this request. Default is 'clear', for plain-text authentication. 'cookie' or any of the challenge-response methods are also acceptable.
+      </p></dd>
+<dt><span class="term"><code class="literal">password</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Password in plain-text. For the default authentication method, either this needs to be sent, or <code class="literal">hpassword</code>.
+      </p></dd>
+<dt><span class="term"><code class="literal">hpassword</code></span></dt>
+<dd><p>
+<span class="strong"><strong>Deprecated</strong></span>. Alternative to plain-text <code class="literal">password</code>.  Password as an MD5 hex digest.  Not perfectly secure, but defeats the most simple of network sniffers.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_challenge</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the challenge that was generated for your client.
+      </p></dd>
+<dt><span class="term"><code class="literal">auth_response</code></span></dt>
+<dd><p>
+If using challenge-response authentication, this should be the response hash you generate based on the challenge's formula.
+      </p></dd>
+<dt><span class="term"><code class="literal">ver</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Protocol version supported by the client; assumed to be 0 if not specified.  See <a class="xref" href="ljp.csp.versions.html" title="Chapter 27. Protocol Versions">Chapter 27, <i>Protocol Versions</i></a> for details on the protocol version.
+      </p></dd>
+<dt><span class="term"><code class="literal">expiration</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+Sessions can either expire in a short amount of time or last for a long period of time.  You can specify either "short" or "long" as the value of this parameter. Short is 24 hours, long is 30 days.
+      </p></dd>
+<dt><span class="term"><code class="literal">ipfixed</code></span></dt>
+<dd><p>
+<span class="emphasis"><em>(Optional)</em></span>
+If specified and true, this will cause the server to generate a session that is only valid from the IP address the sessiongenerate request was sent from.  If you leave out this value, it will default to allowing any IP address to use this session information.
+      </p></dd>
+</dl></div>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3079331"></a><h2>Return Values</h2>
+<div class="variablelist"><dl>
+<dt><span class="term"><code class="literal">success</code></span></dt>
+<dd><p>
+<span class="strong"><strong><code class="literal">OK</code></strong></span> on success or <span class="strong"><strong><code class="literal">FAIL</code></strong></span> when there's an error.  When there's an error, see <code class="literal">errmsg</code> for the error text.  The absence of this variable should also be considered an error.
+      </p></dd>
+<dt><span class="term"><code class="literal">errmsg</code></span></dt>
+<dd><p>
+The error message if <code class="literal">success</code> was <code class="literal">FAIL</code>, not present if <code class="literal">OK</code>.  If the success variable is not present, this variable most likely will not be either (in the case of a server error), and clients should just report "Server Error, try again later.".
+      </p></dd>
+<dt><span class="term"><code class="literal">ljsession</code></span></dt>
+<dd><p>
+This part of the response contains the actual session data.  If you use the complete contents of this element as a cookie named "ljsession" then you will be able to access the site using the privileges of the user you authenticated as.
+      </p></dd>
+</dl></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.flat.sessionexpire.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.flat.protocol.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.flat.syncitems.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">sessionexpire </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> syncitems</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

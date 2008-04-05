@@ -1,0 +1,157 @@
+<?_info
+localblocks<=
+
+crit<=
+{F}
+<tr bgcolor='<?emcolor?>'>
+<td align='left' colspan='2'><b>%%name%%</b>
+</tr>
+<tr><td>&nbsp;</td><td>%%form%%</td></tr>
+<=crit
+
+bar<=
+{F}
+<tr bgcolor='<?emcolor?>'>
+<td>&nbsp;</td>
+<td><b>%%name%%</b>
+</tr>
+<tr><td>&nbsp;</td><td>%%form%%</td></tr>
+<=bar
+
+<=localblocks
+_info?>
+
+<?page
+title=><?_ml .title _ml?>
+body<=
+
+<?_code
+{
+    my $remote = LJ::get_remote();
+    if (LJ::are_hooks("cprod_redirect_user")) {
+        return LJ::run_hook("cprod_redirect_user", $remote);
+    }
+    return;
+}
+_code?>
+
+<?h1 <?_ml .label.searchcomm _ml?> h1?>
+<?p <?_ml .label.selecriteria _ml?> p?>
+
+<CENTER>
+
+<form action="/directory.bml">
+
+<table cellpadding='4' cellspacing='0' border='0'>
+
+<!--- location --->
+<?crit
+name=><?_ml .label.bylocation _ml?>
+code=>s_loc
+form<=
+
+<table>
+<tr><td align='right'><?_ml .label.country _ml?></td><td>
+<?_code
+{
+    use strict;
+    LJ::set_active_crumb('commsearch');
+
+    my %countries = ();
+    LJ::load_codes({ "country" => \%countries });
+    return LJ::html_select({ 'name' => 'loc_cn',  },
+                           '', '',
+                           map { $_, $countries{$_} } 
+                           ("US", sort { $countries{$a} cmp $countries{$b} } keys %countries));
+} 
+_code?>
+</td></tr>
+<tr><td align='right'><?_ml .label.stateprovince _ml?></td><td><input name="loc_st" /></td></tr>
+<tr><td align='right'><?_ml .label.city _ml?></td><td><input name="loc_ci" /></td></tr>
+</table>
+
+<=form
+crit?>
+
+<!---- update time ----->
+<?crit
+name=><?_ml .label.bytime _ml?>
+code=>s_ut
+form<=
+<?_ml .label.updated _ml?>
+<select name="ut_days">
+<option value="">-------</option>
+<option value="1"><?_ml .sel.day _ml?></option>
+<option value="7"><?_ml .sel.week _ml?></option>
+<option value="30"><?_ml .sel.month _ml?></option>
+</select>
+<=form
+crit?>
+
+<!---- interest ----->
+<?crit
+name=><?_ml .label.byinterest _ml?>
+code=>s_int
+form<=
+Community interest: <input name="int_like" size='30' />
+<=form
+crit?>
+
+<!---- has member ----->
+<?crit
+name=><?_ml .label.hasmember _ml?>
+code=>s_fr
+form<=
+Contains user <input name="fr_user" size='15' maxlength='15' /> as a member.
+<=form
+crit?>
+
+<!---- output formatting ----->
+<?bar
+name=><?_ml .label.displayoptions _ml?>
+form<=
+
+<table>
+<tr>
+<td align='right'>
+<?_ml .label.outputformat _ml?>
+</td><td>
+<select name="opt_format">
+<option value="pics" selected='selected'>Picture</option>
+<option value="simple">Text only</option>
+</select>
+</td></tr>
+
+<tr>
+<td align='right'>
+<?_ml .label.records _ml?>
+</td><td>
+<select name="opt_pagesize">
+<option value="25">25</option>
+<option value="50">50</option>
+<option value="100" selected='selected'>100</option>
+<option value="200">200</option>
+</select>
+</td></tr>
+
+</table>
+<=form
+bar?>
+
+<!--- submit --->
+<input type='hidden' name='journaltype' value='C'>
+<tr bgcolor='<?emcolor?>'><td colspan='2' align='center'>
+  <input type='submit' value="<?_ml .button.search _ml?>" />
+  <input type='reset' value="<?_ml .button.clear _ml?>" />
+</td></tr>
+
+</table>
+</form>
+
+</center>
+
+<=body
+page?>
+<?_c <LJDEP>
+form: htdocs/directory.bml
+</LJDEP> _c?>

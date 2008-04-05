@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require "ljlib.pl";
+use Gearman::Worker;
+use Storable;
+use LJ::Worker::Gearman;
+use LJ::Directory::Search;
+use LJ::UserSearch;
+use LJ::UserSearch::MetaUpdater;
+
+my $mtime = init_memory_datastructure();
+gearman_decl("directory_search"  => \&dir_search);
+gearman_set_idle_handler(\&idle);
+gearman_work(save_result => 1);
+
+sub idle {
+    $mtime = LJ::UserSearch::MetaUpdater::update_users($mtime);
+}
+
+sub dir_search {
+    my $job = shift;
+    my $args = eval { Storable::thaw($job->arg) } || [];
+    die "Got error: $@" if $@;
+
+    my $dir = $args;
+    my @constraints = $dir->constraints;
+    return undef unless scalar @constraints;
+
+    my $results = $dir->search_no_dispatch($job);
+
+    return Storable::nfreeze($results);
+}
+
+sub init_memory_datastructure {
+    my $file = $LJ::USERSEARCH_METAFILE_PATH;
+    my $size = -s $file;
+    my $filemtime = (stat($file))[9];
+    die "Refusing to start until '$file' exists and has nonzero size" unless $size;
+
+    LJ::UserSearch::reset_usermeta($size);
+    open (my $fh, $file) or die;
+    my $buf;
+    my $pushed = 0;
+    my $rv;
+    while ($rv = sysread($fh, $buf, 256*1024)) {
+        LJ::UserSearch::add_usermeta($buf, $rv);
+        $pushed += $rv;
+    }
+    die "Error reading file: $!" unless defined $rv;
+    die "Didn't read all file" unless $pushed == $size;
+    return $filemtime;
+}

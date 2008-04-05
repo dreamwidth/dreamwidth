@@ -1,0 +1,11 @@
+;; -*- coding: utf-8 -*-
+
+.btn.nextpage=Customize Selected Theme ->
+
+.customize_area_feedback=Customize Area Feedback
+
+.switcher.btn=Go
+
+.switcher.label=Switch to:
+
+.title=Choose Journal Style

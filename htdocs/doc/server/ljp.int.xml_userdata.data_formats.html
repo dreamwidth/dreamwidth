@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>1. Data Formats</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.int.xml_userdata.html" title="Chapter 17. XML Userdata">
+<link rel="prev" href="ljp.int.xml_userdata.html" title="Chapter 17. XML Userdata">
+<link rel="next" href="ljp.int.xml_userdata.rate_limits.html" title="2. Rates &amp; Limits">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">1. Data Formats</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.int.xml_userdata.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 17. <acronym class="acronym">XML</acronym> Userdata</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.int.xml_userdata.rate_limits.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="ljp.int.xml_userdata.data_formats">1. Data Formats</h2></div></div></div>
+<p><span class="application">LiveJournal</span> provides user content in a variety of machine-readable formats.
+You may like to create a page for your site listing these.
+Using the <code class="literal">$LJ::BLOCKED_BOT_URI</code> <abbr class="abbrev">config</abbr> variable, you
+can direct automated bots, spiders, data-miners, etc., to that page &#8212; you
+could also include information there on the rate limits you decide to
+set for your site.</p>
+<p>Note: The examples below use user subdomains.
+If you do not have the <a class="link" href="lj.install.ljconfig.vars.html#ljconfig.only_user_vhosts">$LJ::ONLY_USER_VHOSTS</a>
+variable set, the <acronym class="acronym">URI</acronym>s will follow the users/USERNAME, and community/USERNAME format.
+E.g. <code class="uri">http://www.livejournal.com/users/exampleusername/data/foaf</code> instead of
+<code class="uri">http://exampleusername.livejournal.com/data/foaf</code>.</p>
+<p>A variety of user data in standard <acronym class="acronym">XML</acronym> formats are available, namely:</p>
+<div class="variablelist"><dl>
+<dt><span class="term"><acronym class="acronym"><a href="http://cyber.law.harvard.edu/rss/rss.html" target="_top">RSS<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></acronym></span></dt>
+<dd>
+<p>A user's recent entries syndicated using the Really Simple Syndication (2.0) <acronym class="acronym">XML</acronym> format.
+It is available with public entries only at:</p>
+<p><code class="uri">http://exampleusername.livejournal.com/data/rss</code></p>
+<p>If you want security-restricted posts included and you have access to view them,
+you may request the auth-required version of the feed using <code class="systemitem">HTTP</code> Digest auth, using:</p>
+<p><code class="uri">http://exampleusername.livejournal.com/data/rss?auth=digest</code></p>
+</dd>
+<dt><span class="term"><a href="http://www.atomenabled.org/developers/syndication/atom-format-spec.php" target="_top">Atom<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></span></dt>
+<dd>
+<p>A user's recent entries syndicated using the Atom <acronym class="acronym">XML</acronym> format. Available at the <acronym class="acronym">URL</acronym> with or without auth:</p>
+<p><code class="uri">http://exampleusername.livejournal.com/data/atom</code></p>
+<p><code class="uri">http://exampleusername.livejournal.com/data/atom?auth=digest</code></p>
+</dd>
+<dt><span class="term"><acronym class="acronym"><a href="http://xmlns.com/foaf/0.1/" target="_top">FOAF<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></acronym></span></dt>
+<dd>
+<p>A user's information page using the Friend of a Friend <acronym class="acronym">XML</acronym> format. Available at the <acronym class="acronym">URL</acronym>:</p>
+<p><code class="uri">http://exampleusername.livejournal.com/data/foaf</code></p>
+</dd>
+<dt><span class="term"><acronym class="acronym"><a href="http://www.opml.org/spec" target="_top">OPML<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></acronym></span></dt>
+<dd>
+<p>A list of user's subscribed syndicated feed accounts using the <acronym class="acronym">OPML</acronym> 1.0 <acronym class="acronym">XML</acronym> format.
+Available at the <acronym class="acronym">URL</acronym>:</p>
+<p><code class="uri">http://www.livejournal.com/tools/opml.bml?user=exampleusername</code></p>
+</dd>
+<dt><span class="term"><abbr class="abbrev"><a href="http://tools.ietf.org/html/rfc2426" target="_top">vCard<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a></abbr></span></dt>
+<dd>
+<p>You need to have installed the optional <span class="package">Text::vCard</span> Perl module for this.
+The remote user's profile information in the vCard format. Available at the <acronym class="acronym">URL</acronym>:</p>
+<p><code class="uri">http://www.livejournal.com/tools/vcard.bml</code></p>
+</dd>
+<dt><span class="term">Userpic data</span></dt>
+<dd>
+<p>A user's userpic data in a machine-readable 
+(<a href="http://www.atomenabled.org/developers/syndication/atom-format-spec.php" target="_top">Atom<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a>) format.
+Available at the <acronym class="acronym">URL</acronym>:</p>
+<p><code class="uri">http://exampleusername.livejournal.com/data/userpics</code></p>
+</dd>
+<dt><span class="term">Interest-Data</span></dt>
+<dd>
+<p>Interests of a user or community, in a line separated format. Available at the <acronym class="acronym">URL</acronym>:</p>
+<p><code class="uri">http://www.livejournal.com/misc/interestdata.bml?user=exampleusername</code></p>
+<p>The <code class="literal">&lt;intid&gt;</code> is the interest <acronym class="acronym">ID</acronym>.
+The <code class="literal">&lt;intcount&gt;</code> is the total number of accounts listing the interest.
+The <code class="literal">&lt;interest&gt;</code> field shows the name of the interest.</p>
+</dd>
+<dt><span class="term">S2 Client Interface</span></dt>
+<dd>
+<p>An <code class="systemitem">HTTP</code> interface to the S2 style system for downloading a layer or
+uploading an existing layer. The <em class="parameter"><code>Content-type</code></em> value used
+in server responses and client layer uploads is: <code class="literal">application/x-danga-s2-layer</code>.
+For more information please see the <a href="/doc/s2/" target="_top">S2 Manual<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a>.
+Available at the <acronym class="acronym">URI</acronym>:</p>
+<p><code class="uri">http://www.livejournal.com/interface/s2/<em class="replaceable"><code>layerid</code></em></code></p>
+</dd>
+<dt><span class="term">Ping Server</span></dt>
+<dd>
+<p>A <code class="systemitem">REST</code>-like interface for pinging <span class="application">LiveJournal</span>'s feed crawler
+to re-fetch an external syndication <acronym class="acronym">URL</acronym>.  Do a <code class="literal">POST</code> to this <acronym class="acronym">URL</acronym> with a &#8220;<span class="quote">feed</span>&#8221; parameter equal to the <acronym class="acronym">URL</acronym>. 
+Also permitted are multiple feed parameters, if you are not sure the <span class="application">LiveJournal</span> installation is indexing your Atom versus <acronym class="acronym">RSS</acronym>, etc.
+At most, 3 are currently accepted.
+A positive acknowledgment from the <acronym class="acronym">API</acronym> does not promise to go and fetch it straightaway. Just that it will be considered.
+If it would be violating rate-limits, the <span class="application">LiveJournal</span> installation does not have to go and fetch it.</p>
+<p>Available at the <acronym class="acronym">URL</acronym>:</p>
+<p><code class="uri">http://www.livejournal.com/misc/feedping.bml</code></p>
+<p>Command-line example:
+</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code><span class="command"><strong>curl</strong></span> <code class="option">-d</code> '<code class="uri"><em class="replaceable"><code>feed=http://www.example.com/my.rss</code></em></code>' <code class="uri">http://www.livejournal.com/misc/feedping.bml</code></code></strong>
+    <code class="computeroutput">Thanks! We'll get to it soon.</code></pre>
+</dd>
+</dl></div>
+<p>You should encourage users to use these resources instead of 
+&#8220;<span class="quote">screen-scraping</span>&#8221; user pages.</p>
+<p><span class="strong"><strong>Other, <code class="systemitem">LiveJournal.com</code>-specific, Resources:</strong></span></p>
+<div class="variablelist"><dl>
+<dt><span class="term">Friend-Data</span></dt>
+<dd>
+<p>A line-separated list of usernames which are friends or friends-of a user. Available at the <acronym class="acronym">URL</acronym>:</p>
+<p><code class="uri">http://www.livejournal.com/misc/fdata.bml?user=exampleusername</code></p>
+<p>By default <code class="filename">fdata.bml</code> returns only personal journals, not communities. 
+You need to pass a different argument for it to return communities:</p>
+<p><code class="uri">http://www.livejournal.com/misc/fdata.bml?comm=1&amp;user=<em class="replaceable"><code>communityname</code></em></code></p>
+<p>Before the data was cached, creating <code class="filename">fdata.bml</code> was an expensive operation,
+and was not a public interface developers were made aware of. Now the data is cached, it is just for historic reasons
+that it has not moved into a public <abbr class="abbrev">SVN</abbr> repository.</p>
+<p><code class="filename">fdata.bml</code> may be considered a best effort type of system.
+It is not designed to be be effective on users/communities with excessively large groups of friends (say, larger than 2500).</p>
+</dd>
+<dt><span class="term">&#8220;<span class="quote">Update Stream</span>&#8221;</span></dt>
+<dd>
+<p>For a live stream of all <a href="http://www.sixapart.com/" target="_top">Six Apart<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a> (including <a href="http://www.livejournal.com/" target="_top">LiveJournal.com<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a>) posts, see:</p>
+<p><code class="uri">http://updates.sixapart.com/</code></p>
+</dd>
+</dl></div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.int.xml_userdata.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.int.xml_userdata.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.int.xml_userdata.rate_limits.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 17. <acronym class="acronym">XML</acronym> Userdata </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 2. Rates &amp; Limits</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

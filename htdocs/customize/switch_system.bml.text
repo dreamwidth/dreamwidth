@@ -1,0 +1,31 @@
+;; -*- coding: utf-8 -*-
+
+.not.allowed=You are not allowed to switch to S1 style system.
+
+.tos1.intro=The S1 style system is no longer supported. We recommend that you stay with S2 for the latest features and themes.
+
+.tos1.btn.s1=Switch me to S1 anyway.
+
+.tos1.btn.s2=Keep me in S2.
+
+.tos1.title=Are you sure?
+
+.tos2.benefits=The Benefits of S2
+
+.tos2.benefits.current=A current and updated system
+
+.tos2.benefits.features=Tags and choice of ad placement
+
+.tos2.benefits.management=Easy management of themes
+
+.tos2.benefits.themes=Plus hundreds of new themes
+
+.tos2.benefits.wizard=Override options in a simple wizard
+
+.tos2.btn.s1=No, I want to stay in S1.
+
+.tos2.btn.s2=Yes, I want to upgrade to S2.
+
+.tos2.intro=You are currently using S1, which is our older and deprecated style system. We recommend that you switch to S2 to take advantage of new features not supported in S1.
+
+.tos2.title=Switch to S2!

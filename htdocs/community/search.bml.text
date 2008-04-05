@@ -1,0 +1,57 @@
+;; -*- coding: utf-8 -*-
+.button.clear=Clear Form
+
+.button.search=Search!
+
+.checkbox.onlywithpics=Only communities with pictures
+
+.label.byinterest=By Interest
+
+.label.bylocation=By Location
+
+.label.bytime=By Journal Update Time
+
+.label.city=City:
+
+.label.country=Country:
+
+.label.displayoptions=Display Options
+
+.label.hasmember=Has Member
+
+.label.othercriteria=Other Criteria
+
+.label.outputformat=Output Format:
+
+.label.records=Records per page:
+
+.label.searchcomm=Search Communities
+
+.label.selecriteria=Select the criteria below that you'd like to find communities by.  The results returned are the intersection of all search criteria.  In other words, each checkbox you click means "AND", not "OR".
+
+.label.sortmethod=Sorting Method:
+
+.label.stateprovince=State/Province:
+
+.label.updated=Updated in last 
+
+.sel.bypicture=By Picture
+
+.sel.communityname=Community Name
+
+.sel.commview=Community View
+
+.sel.day=day
+
+.sel.month=month
+
+.sel.simple=Simple
+
+.sel.updatetime=Update Time
+
+.sel.username=User Name
+
+.sel.week=week
+
+.title=Community Search
+

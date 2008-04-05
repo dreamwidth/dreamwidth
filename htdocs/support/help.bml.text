@@ -1,0 +1,53 @@
+;; -*- coding: utf-8 -*-
+.backlink=Back to the <a [[backurl]]>support area</a>.
+
+.button.filter=Filter
+
+.cat.all=All
+
+.interim=The support queue is intended for use by people with support privileges.
+
+.requests.type=requests of type
+
+.showonlyhelp=Show only 
+
+.state.closed.text=Below are all support requests that have been recently closed.  To return to the open requests, <a [[clickurl]]>click here</a>
+
+.state.closed.title=Recently Closed Support Requests
+
+.state.closed=Closed
+
+.state.else.text=<?p Below are all support requests that are open (they just came in and haven't been touched yet) or answered (either awaiting to be closed by the person needing help, or the person requested they still need help).  The <a [[statelink]]>closed reports</a> are also available.  If you help somebody out and they confirm you helped them, you get the number of points indicated in the status column.  These points will show up on your userinfo page p?>
+
+.state.else.title=Open Support Requests
+
+.state.green=Green
+
+.state.open=Open
+
+.state.youreplied.rem.text=You must be logged in to filter on requests that you've replied to.
+
+.state.youreplied.rem.title=Error
+
+.state.youreplied.text=This shows all open requests you've replied to.
+
+.state.youreplied.title=Requests you replied to
+
+.statr.youreplied=You Replied
+
+.status.awaitingclose=answered awaiting close
+
+.status.needhelp=still need help
+
+.status.totalopen=total open
+
+.status.unanswered=unanswered
+
+.th.posted=Posted
+
+.th.problemarea=Problem Area
+
+.th.status=Status
+
+.th.summary=Summary
+

@@ -1,0 +1,159 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%POST %GET $title $body);
+
+    my $dbh = LJ::get_db_writer();
+
+    my $remote = LJ::get_remote();
+    return "<?h1 $ML{'.login.required'} h1?><?p " . BML::ml('.login.first', {'url'=>"href='/login.bml?ret=1'"}) . " p?>"
+        unless $remote;
+
+    my @journals = ($remote->{'user'});
+    push @journals, LJ::get_shared_journals($remote);
+    my $journal = $GET{'journal'} || $remote->{'user'};
+    unless (grep { $_ eq $journal } @journals) {  return BML::redirect("/customize/");  }
+
+    my $u = $remote;
+    $u = LJ::load_user($journal) unless $journal eq $remote->{'user'};
+    my $userid = $u->{'userid'};
+
+    LJ::load_user_props($u, "stylesys", "s2_style");
+
+    $body = "";
+    $title = $ML{".user.layer"};
+
+    if (@journals > 1) {
+        $body .= "<form method='get' action='viewuser.bml'>";
+        $body .= $ML{'.work.with.journal'};
+        $body .= LJ::html_select({
+            'name' => 'journal',
+            'selected' => $journal,
+        }, map { $_, $_ } @journals);
+        $body .= " <input type='submit' value='$ML{'.switch'}'> </form>";
+    }
+
+    $body .= "&lt;&lt; <a href='/customize/?journal=$journal'>$ML{'.customize'}</a><p>";
+
+    my $err = sub {
+        $title = $ML{"Error"};
+        $body = shift;
+        return;
+    };
+
+    my ($style, $layer);
+    my $save_arg;
+    my $save_redir;
+
+    # when given 'w' argument, load user's current style, and edit the user layer.
+    # this is the mode redirected to from /customize/ (the simple customization UI)
+    if ($u->{'stylesys'} == 2) 
+    {
+        $style = LJ::S2::load_style($u->{'s2_style'});
+        return $err->("Style not found.") unless $style && $style->{'userid'} == $u->{'userid'};
+        $layer = LJ::S2::load_layer($dbh, $style->{'layer'}->{'user'});
+    }
+
+    unless ($layer) {
+        $body .= $ML{'.no.user.layer'};
+        return;
+    }
+
+    return $err->($ML{'.layer.belongs'}) unless $layer->{'userid'} == $u->{'userid'};
+    return $err->($ML{'.layer.isnt.type'}) 
+        unless $layer->{'type'} eq "user";
+
+    my $lyr_layout = LJ::S2::load_layer($dbh, $layer->{'b2lid'});
+    return $err->(BML::ml('.layout.layer', {'layertype'=>$layer->{'type'}})) 
+        unless $lyr_layout;
+    my $lyr_core = LJ::S2::load_layer($dbh, $lyr_layout->{'b2lid'});
+    return $err->($ML{'.core.layer.for.layout'}) 
+        unless $lyr_core;
+
+    $lyr_layout->{'uniq'} = $dbh->selectrow_array("SELECT value FROM s2info WHERE s2lid=? AND infokey=?",
+                                                  undef, $lyr_layout->{'s2lid'}, "redist_uniq");
+
+    my ($lid_i18nc, $lid_theme, $lid_i18n);
+    $lid_i18nc = $style->{'layer'}->{'i18nc'};
+    $lid_theme = $style->{'layer'}->{'theme'};
+    $lid_i18n = $style->{'layer'}->{'i18n'};
+
+    my $layerid = $layer->{'s2lid'};
+
+    my @layers;
+    push @layers, ([ 'core' => $lyr_core->{'s2lid'} ],
+                    [ 'i18nc' => $lid_i18nc ],
+                    [ 'layout' => $lyr_layout->{'s2lid'} ],
+                    [ 'i18n' => $lid_i18n ]);
+    if ($layer->{'type'} eq "user" && $lid_theme) {
+        push @layers, [ 'theme' => $lid_theme ];
+    }
+    push @layers, [ $layer->{'type'} => $layer->{'s2lid'} ];
+
+    my @layerids = grep { $_ } map { $_->[1] } @layers;
+    LJ::S2::load_layers(@layerids);
+    
+    my %layerinfo;
+
+    # load the language and layout choices for core.
+    LJ::S2::load_layer_info(\%layerinfo, \@layerids);
+   
+    $body .= "<a href='viewuser.bml?journal=$journal'>$ML{'.raw'}</a> | ";
+    $body .= "<a href='viewuser.bml?journal=$journal&as=theme'>$ML{'.as.theme'}</a>\n";
+
+    $body .= "<p><textarea rows='40' cols='60' wrap='off'>";
+    
+    $body .= "# for layout: $lyr_layout->{'s2lid'} ($lyr_layout->{'uniq'})\n";
+
+    if ($GET{'as'} eq "") {
+        $body .= "layerinfo type = user;\n\n";
+    } elsif ($GET{'as'} eq "theme") {
+        $body .= "layerinfo type = theme;\nlayerinfo name = \"\";\n\n";
+    }
+
+    foreach my $prop (S2::get_properties($lyr_layout->{'s2lid'}))
+    {
+        $prop = S2::get_property($lyr_core->{'s2lid'}, $prop)
+            unless ref $prop;
+        next unless ref $prop;
+        next if $prop->{'noui'};
+
+        my $name = $prop->{'name'};
+        my $type = $prop->{'type'};
+        
+        # figure out existing value (if there was no user/theme layer)
+        my $existing;
+        foreach my $lid (reverse @layerids) {
+            next if $lid == $layerid; 
+            $existing = S2::get_set($lid, $name);
+            last if defined $existing;
+        }
+
+        if (ref $existing eq "HASH") { $existing = $existing->{'as_string'}; }
+        my $val = S2::get_set($layerid, $name);
+        my $had_override = defined $val;
+        $val = $existing unless $had_override;
+        if (ref $val eq "HASH") { $val = $val->{'as_string'}; }
+
+        next if $GET{'as'} eq "" && ! $had_override;
+        next if $GET{'as'} eq "theme" && $type ne "Color";
+
+        if ($prop->{'type'} eq "int") {
+            $val = int($val);
+        } elsif ($prop->{'type'} eq "bool") {
+            $val = $val ? "true" : "false";
+        } else {
+            $val =~ s/[\\\$\"]/\\$&/g;
+            $val = "\"$val\"";
+        }
+        $body .= "set $name = $val;\n";
+    }
+    $body .= "</textarea>";
+
+    return;
+
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>

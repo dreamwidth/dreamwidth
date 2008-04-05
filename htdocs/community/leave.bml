@@ -1,0 +1,95 @@
+<?_code
+{
+    use strict;
+    use vars qw($title $body);
+
+    LJ::set_active_crumb('leavecomm');
+    $title = $ML{'.title'};
+    $body = "";
+
+    my $error = sub {
+        $body = "<?h1 $ML{'Error'} h1?><?p $_[0] p?>";
+        return;
+    };
+
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    # get info about the community
+    my $cu = LJ::load_user($FORM{comm});
+
+    my $watching = LJ::is_friend($remote, $cu);
+    my $memberof = LJ::is_friend($cu, $remote);
+
+    $title = $ML{'.title.stopwatch'} if (!$memberof && $watching);
+
+    # error check
+    return $error->($ML{'.label.infoerror'})
+        unless $cu && $cu->{journaltype} =~ /[CS]/;
+
+    # used in both paths below
+    my $ecname = LJ::ehtml($cu->{'name'});
+
+    if ($FORM{confirm}) {
+        # get current list of maintainers to make sure the last one doesn't leave
+        my $maintids = LJ::load_rel_user($cu->{userid}, 'A');
+        return $error->($ML{'error.nodb'}) unless ref $maintids eq 'ARRAY';
+
+        # error if we're a maintainer and there are no others
+        my $ismaint     = grep { $_ == $remote->{userid} } @$maintids;
+        if ($ismaint) {
+            my $othermaints = grep { $_ != $remote->{userid} } @$maintids;
+
+            return $error->($ML{'.label.lastmaintainer'}) unless $othermaints;
+
+            # log maint removal to userlog
+            $cu->log_event('maintainer_remove', { actiontarget => $remote->id, remote => $remote });
+        }
+
+        # remove user from community's friends list
+        unless ($watching && !$memberof) {
+            LJ::leave_community($remote, $cu, $FORM{removefriend});
+        } else {
+            $remote->remove_friend($cu);
+        }
+
+        # success message
+        my $profile_url = $cu->profile_url;
+        $body .= "<?h1 $ML{'.success'} h1?><?p ";
+        unless ($watching && !$memberof) {
+            $body .= BML::ml('.label.removed5', { 'commname' => LJ::ljuser($cu) });
+        } else {
+            $body .= BML::ml('.label.removed.stopwatch4', { 'commname' => LJ::ljuser($cu) });
+        }
+        $body .= " p?>";
+    } else {
+        # show a confirmation form
+        $body .= "<?h1 $ML{'.sure'} h1?><?p ";
+        if ($watching && !$memberof) {
+            $body .= BML::ml('.label.buttontostopwatch', { commname => $ecname });
+        } else {
+            $body .= BML::ml('.label.buttontoleave', { commname => $ecname });
+        }
+        $body .= " p?>";
+        $body .= '<form method="post" action="leave.bml">';
+        $body .= LJ::html_hidden("comm", $cu->{user}, "confirm", 1) . "<p align='center'>";
+        unless ($watching && !$memberof) {
+            $body .= LJ::html_check({ name => 'removefriend', selected => 1, value => 1 }) . " ";
+            $body .= BML::ml('.label.removefromfriends', { user => $ecname });
+            $body .= '<br /><br />' . LJ::html_submit(undef, $ML{'.button.leave'}) . '</p></form>';
+        } else {
+            $body .= '<br /><br />' . LJ::html_submit(undef, $ML{'.button.stopwatch'}) . '</p></form>';
+        }
+    } 
+
+    return;
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?><?_c <LJDEP>
+link: htdocs/login.bml, htdocs/userinfo.bml
+post: htdocs/community/leave.bml
+</LJDEP> _c?>
+

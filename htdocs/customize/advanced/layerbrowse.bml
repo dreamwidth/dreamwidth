@@ -1,0 +1,352 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use vars qw(%GET %POST $title $body);
+
+    # start of content
+    $body = BML::ml("Backlink", {
+        'link' => "$LJ::SITEROOT/customize/advanced/",
+        'text' => $ML{'.back2'},
+    });
+
+    my $err = sub {
+        $title = $ML{'Error'};
+        $body = shift;
+        return;
+    };
+
+    my $pub = LJ::S2::get_public_layers();
+
+    my $id;
+    if ($GET{'id'} =~ /^\d+$/) { # numeric
+        $id = $GET{'id'};
+    } elsif ($GET{'id'}) {       # redist_uniq
+        $id = $pub->{$GET{'id'}}->{'s2lid'};
+    }
+
+    my $dbr = LJ::get_db_reader();
+    my $remote = LJ::get_remote();
+
+    # show the public layers
+    unless ($id) {
+        $title = $ML{'.title'};
+        LJ::set_active_crumb('layerbrowse');
+
+        my %layerinfo;
+        my @to_load = grep { /^\d+$/ } keys %$pub;
+        LJ::S2::load_layer_info(\%layerinfo, \@to_load);
+
+        my $recurse = sub {
+            my $self = shift;
+            my $lid = shift;           # layer  id
+            my $lay = $pub->{$lid};
+            return unless $lay;
+
+            # set to true if the layer is not core and is not a layout
+            my $is_child = $lay->{'type'} ne 'core' && $lay->{'type'} ne 'layout';
+            
+            my $typedes = " ($lay->{'type'}" . (! $is_child ? ": <b>$lid</b>" : '') . ")";
+
+            # show link to detailed view
+            $body .= "<li><a href='layerbrowse.bml?id=$lay->{'uniq'}'>" . LJ::ehtml($layerinfo{$lid}->{'name'});
+            $body .= "</a>$typedes</li>\n";
+
+            # done unless there are children to recurse through
+            return unless ! $is_child && $lay->{'children'};
+
+            # if we're not expanding these children, stop and show a link
+            if ($lay->{'type'} eq 'layout' && $GET{'expand'} != $lid) {
+                my $num_children = 0;
+                foreach my $child (@{$lay->{'children'}}) {
+                    my $is_active = LJ::run_hook("layer_is_active", $pub->{$child}->{uniq});
+                    $num_children++ if !defined $is_active || $is_active;
+                }
+                $body .= "<ul><li>[<a href='layerbrowse.bml?expand=$lid'>";
+                $body .= BML::ml('.layerchildren', {'numchildren' => $num_children}) . "</a>]</li></ul>";
+                return;
+            }
+
+            # This sorts first by type backwards (so that layout and theme sort before
+            # i18nc and i18n) and then by name, thus causing the layouts to group by type
+            # and then be alphabetical within their type.
+            my @children = sort { ($layerinfo{$b}{type} cmp $layerinfo{$a}{type})
+                                 || ($layerinfo{$a}{name} cmp $layerinfo{$b}{name}) } @{$lay->{children}};
+
+            # expand children
+            $body .= "<ul>";
+            foreach (@children) {
+                my $is_active = LJ::run_hook("layer_is_active", $pub->{$_}->{uniq});
+                next unless !defined $is_active || $is_active;
+                $self->($self, $_);
+            }
+            $body .= "</ul>";
+
+            return;
+        };
+
+        # iterate through core layers
+        $body .= "<ul>";
+        foreach (grep { $pub->{$_}->{'b2lid'} == 0 } grep { /^\d+$/ } keys %$pub) {
+            my $is_active = LJ::run_hook("layer_is_active", $pub->{$_}->{uniq});
+            next unless !defined $is_active || $is_active;
+            $recurse->($recurse, $_);  # start from the top
+        }
+        $body .= "</ul>";
+        
+        return;
+    }
+
+    ### details on a specific layer ###
+
+    my $xlink = sub {
+        my $r = shift;
+        $$r =~ s/\[class\[(\w+)\]\]/<a href=\"\#class.$1\">$1<\/a>/g;
+        $$r =~ s/\[method\[(.+?)\]\]/<a href=\"\#meth.$1\">$1<\/a>/g;
+        $$r =~ s/\[function\[(.+?)\]\]/<a href=\"\#func.$1\">$1<\/a>/g;
+        $$r =~ s/\[member\[(.+?)\]\]/<a href=\"\#member.$1\">$1<\/a>/g;
+    };
+
+    # load layer info
+    my $layer = defined $pub->{$id} ? $pub->{$id} : LJ::S2::load_layer($id);
+    return $err->($ML{'.error.layerdoesntexist'})
+        unless $layer;
+
+    my $layerinfo = {};
+    LJ::S2::load_layer_info($layerinfo, [ $id ]);
+    my $srcview = exists $layerinfo->{$id}->{'source_viewable'} ?
+        $layerinfo->{$id}->{'source_viewable'} : undef;
+
+    # do they have access?
+    my $isadmin = !defined $pub->{$id} &&                          # public styles are pulled from the system
+                  (LJ::check_priv($remote, 'canview', 'styles') || # account, so we don't want to check privileges
+                   LJ::check_priv($remote, 'canview', '*'));       # in case they're private styles
+    return $err->($ML{'.error.cantviewlayer'})
+        unless defined $pub->{$id} || $srcview == 1 ||
+               LJ::can_manage($remote, $layer->{'userid'}) ||
+               $isadmin;
+
+    LJ::S2::load_layers($id);
+    my $s2info = S2::get_layer_all($id);
+    my $class = $s2info->{'class'} || {};
+
+    my $xlink_args = sub {
+        my $r = shift;
+        return unless 
+            $$r =~ /^(.+?\()(.*)\)$/;
+        my ($new, @args) = ($1, split(/\s*\,\s*/, $2));
+        foreach (@args) { 
+            s/^(\w+)/defined $class->{$1} ? "[class[$1]]" : $1/eg;
+        }
+        $new .= join(", ", @args) . ")";
+        $$r = $new;
+        $xlink->($r);
+    };
+
+    $body .= "<br />";
+    # link to layer list if this is a public layer, otherwise user's layer list
+    if (defined $pub->{$id}) {
+        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layerbrowse.bml", 'text' => $ML{'.nav.publiclayers'} }) . "\n";
+    } else {
+        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layers.bml", 'text' => $ML{'.nav.yourlayers'} }) . "\n";
+        $body .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=$id'>$ML{'.nav.editlayer'}</a>" }) . "\n";
+    }
+
+
+    if ($layer->{'b2lid'}) {
+        $body .= BML::ml('Actionlink', { 'link' => "<a href=\"$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$layer->{'b2lid'}\">$ML{'.nav.parentlayer'}</a>" }) . "\n";
+    }
+    if (defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
+            $srcview == 1 ||
+            LJ::can_manage($remote, $layer->{'userid'}) ||
+            $isadmin) {
+
+        $body .= BML::ml('Actionlink', { 'link' => "$ML{'.nav.viewsource'} <a href=\"$LJ::SITEROOT/customize/advanced/layersource.bml?id=$id\">$ML{'.nav.viewsource.raw'}</a> | <a href=\"$LJ::SITEROOT/customize/advanced/layersource.bml?id=$id&fmt=html\">$ML{'.nav.viewsource.highlighted'}</a>" }) . "\n";
+    }
+
+    # layerinfo
+    if (my $info = $s2info->{'info'}) {
+        $body .= "<?h1 $ML{'.layerinfo.header'} h1?>";
+        $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2'>";
+        foreach my $k (sort keys %$info) {
+            my ($ek, $ev) = map { LJ::ehtml($_) } ($k, $info->{$k});
+            $title = $ev if $k eq "name";
+            $body .= "<tr><td><b>$ek</b></td><td>$ev</td></tr>\n";
+        }
+        $body .= "</table>";
+    }
+
+    my $format_value;
+    $format_value = sub {
+        my $v = shift;
+
+        if (ref $v eq "HASH") {
+            if ($v->{'_type'} eq "Color" && $v->{'as_string'} =~ /^#\w\w\w\w\w\w$/) {
+                my $ecolor = LJ::ehtml($v->{'as_string'});
+                $v = "<span style=\"border: 1px solid #000000; padding-left: 2em; background-color: $ecolor\">&nbsp;</span> <tt>$ecolor</tt>";
+            } elsif (defined $v->{'_type'}) {
+                $v = BML::ml('.propformat.object', {'type' => LJ::ehtml($v->{'_type'})});
+            } else {
+                if (scalar(%$v)) {
+                    $v = "<code>{</code><ul style='list-style: none; margin: 0 0 0 1.5em; padding: 0;'>"
+                         . join("\n", map { "<li><b>".LJ::ehtml($_)."</b> &rarr; ".$format_value->($v->{$_}).",</li>" } keys %$v)
+                         . "</ul><code>}</code>";
+                }
+                else {
+                    $v = "<code>{}</code>";
+                }
+            }
+        } elsif (ref $v eq "ARRAY") {
+            if (scalar(@$v)) {
+                $v = "<code>[</code><ul style='list-style: none; margin: 0 0 0 1.5em; padding: 0;'>"
+                     . join("\n", map { "<li>".$format_value->($_).",</li>" } @$v)
+                     . "</ul><code>]</code>";
+            } else {
+                $v = "<code>[]</code>";
+            }
+        } else {
+            $v = $v ne '' ? LJ::ehtml($v) : "<i>$ML{'.propformat.empty'}</i>";
+        }
+
+        return $v;
+    };
+
+    # sets
+    if (my $set = $s2info->{'set'}) {
+        $body .= "<?h1 $ML{'.propertiesset.header'} h1?>";
+        $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
+        foreach my $k (sort keys %$set) {
+            my $v = $set->{$k};
+
+            $v = $format_value->($v);
+
+            $body .= "<tr><td><b>$k</b></td><td>$v</td></tr>\n";
+        }
+        $body .= "</table>";
+    }
+
+    # global functions
+    my $gb = $s2info->{'global'};
+    if (ref $gb eq "HASH" && %$gb) {
+        $body .= "<?h1 $ML{'.globalfunctions.header'} h1?>";
+        $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'>";
+        foreach my $fname (sort keys %$gb) {
+            my $rt = $gb->{$fname}->{'returntype'};
+            if (defined $class->{$rt}) {
+                $rt = "[class[$rt]]";
+            }
+            $xlink->(\$rt);
+            my $ds = LJ::ehtml($gb->{$fname}->{'docstring'}) || "&nbsp;";
+            $xlink->(\$ds);
+            
+            my $args = $gb->{$fname}->{'args'};
+            $xlink_args->(\$args);
+            
+            $body .= "<tr><td><nobr><a name='func.$fname'><tt>$args : $rt</tt></a></nobr></td><td>$ds</td></tr>";
+        }
+        $body .= "</table>";
+    }
+        
+
+    if (%$class) 
+    {
+        # class index
+        $body .= "<?h1 $ML{'.classes.header'} h1?>";
+        $body .= "<table style='margin-bottom: 10px'><tr valign='top' align='left'>";
+        $body .= "<td width='50%'>$ML{'.classes.sort.alphabetical'}";
+        $body .= "<ul>";
+        foreach my $cname (sort { lc($a) cmp lc($b) } keys %$class) {
+            $body .= "<li><a href='#class.$cname'><b>$cname</b></a></li>\n";
+        }
+        $body .= "</ul>";
+        $body .= "</td>";
+        $body .= "<td width='50%'>$ML{'.classes.sort.hierarchical'}";
+        my $dumpsub = sub {
+            my $self = shift;
+            my $parent = shift;
+            $body .= "<li><a href='#class.$parent'><b>$parent</b></a></li>\n"
+                if $parent;
+            my $didul = 0;
+            foreach my $cname (sort { lc($a) cmp lc($b) } keys %$class) {
+                next unless $class->{$cname}->{'parent'} eq $parent;
+                unless ($didul++) { $body .= "<ul>"; }
+                $self->($self, $cname);
+            }
+            if ($didul) { $body .= "</ul>"; }
+        };
+        $dumpsub->($dumpsub, "");
+        $body .= "</td></tr></table>";
+
+        # classes
+        foreach my $cname (sort { lc($a) cmp lc($b) } keys %$class) {
+            $body .= "<a name='class.$cname'><?h1 " . BML::ml('.classname.header', {'name' => $cname}) . " h1?></a>";
+            my $ds = LJ::ehtml($class->{$cname}->{'docstring'});
+            if ($class->{$cname}->{'parent'}) {
+                $ds = BML::ml('.classname.childclass', {'name' => "[class[$class->{$cname}->{'parent'}]]"}) . " $ds";
+            }
+            if ($ds) {
+                $xlink->(\$ds);
+                $body .= "<?p $ds p?>";
+            }
+
+            # build functions & methods
+            my (%func, %var);
+            my $add = sub {
+                my ($self, $aname) = @_;
+                foreach (keys %{$class->{$aname}->{'funcs'}}) {
+                    $func{$_} = $class->{$aname}->{'funcs'}->{$_};
+                    $func{$_}->{'_declclass'} = $aname;
+                }
+                foreach (keys %{$class->{$aname}->{'vars'}}) {
+                    $var{$_} = $class->{$aname}->{'vars'}->{$_};
+                    $var{$_}->{'_declclass'} = $aname;
+                }
+                
+                my $parent = $class->{$aname}->{'parent'};
+                $self->($self, $parent) if $parent;
+            };
+            $add->($add, $cname);
+
+            $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.members.header'} h2?>" if %var;
+            foreach (sort keys %var) {
+                my $type = $var{$_}->{'type'};
+                $type =~ s/(\w+)/defined $class->{$1} ? "[class[$1]]" : $1/eg;
+                $xlink->(\$type);
+
+                my $ds = LJ::ehtml($var{$_}->{'docstring'}) || "&nbsp;";
+                $xlink->(\$ds);
+
+                if ($var{$_}->{'readonly'}) {
+                    $ds = "$ds <i>$ML{'.members.readonly'}</i>";
+                }
+
+                $body .= "<tr><td><nobr><a name='member.${cname}.$_'><tt>$type $_</tt></a></nobr></td><td>$ds</td></tr>";
+            }
+            $body .= "</table>" if %var;
+            
+            $body .= "<table style='margin-bottom: 10px' border='1' cellpadding='2' valign='top'><?h2 $ML{'.methods.header'} h2?>" if %func;
+            foreach (sort keys %func) {
+                my $rt = $func{$_}->{'returntype'};
+                if (defined $class->{$rt}) {
+                    $rt = "[class[$rt]]";
+                }
+                $xlink->(\$rt);
+                my $ds = LJ::ehtml($func{$_}->{'docstring'}) || "&nbsp;";
+                $xlink->(\$ds);
+
+                my $args = $_;
+                $xlink_args->(\$args);
+
+                $body .= "<tr><td><nobr><a name='meth.${cname}::$_'><tt>$args : $rt</tt></a></nobr></td><td>$ds</td></tr>";
+            }
+            $body .= "</table>" if %func;
+        }
+    }
+    
+    LJ::set_dynamic_crumb($title, 'layerbrowse');
+    return;
+
+}
+_code?><?page title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?>
+    

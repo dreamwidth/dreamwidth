@@ -1,0 +1,114 @@
+.appwidget-verticalentries .firstpage {
+    background-color: #f6f6f6;
+    border: 1px solid #ededed;
+    padding: 5px;
+}
+
+.appwidget-verticalentries h2 {
+    margin-bottom: 10px;
+}
+
+.appwidget-verticalentries .remove-entry,
+.appwidget-verticalentries .entry-cats {
+    float: right;
+    margin: 0;
+    padding: 0;
+}
+
+.appwidget-verticalentries .entry-cats {
+    margin-right: 3px;
+}
+
+.appwidget-verticalentries .entry,
+.appwidget-verticalentries .entry-collapsed,
+.appwidget-verticalentries .entry-collapsed-inner {
+    width: 100%;
+}
+
+.appwidget-verticalentries .entry-collapsed {
+    background-color: #fff;
+}
+
+.appwidget-verticalentries .entry td.userpic {
+    width: 116px;
+    text-align: center;
+    vertical-align: top;
+}
+
+.appwidget-verticalentries .entry td.content {
+    padding-left: 10px;
+    vertical-align: top;
+}
+
+.appwidget-verticalentries .entry-collapsed-inner td.userpic {
+    width: 50px;
+    text-align: center;
+    vertical-align: top;
+}
+
+.appwidget-verticalentries .entry-collapsed-inner td.content {
+    padding-left: 5px;
+    vertical-align: top;
+}
+
+.appwidget-verticalentries hr {
+    color: #ddd;
+    background-color: #ddd;
+    border: 0;
+    height: 1px;
+}
+
+.appwidget-verticalentries .firstpage hr {
+    color: #ededed;
+    background-color: #ededed;
+}
+
+.appwidget-verticalentries .poster {
+    font-size: 11px;
+    text-align: center;
+    margin: 0;
+}
+
+.appwidget-verticalentries .tags,
+.appwidget-verticalentries .posttime,
+.appwidget-verticalentries .collapsed-tags,
+.appwidget-verticalentries .collapsed-posttime {
+    color: #666;
+    font-size: 11px;
+    margin-bottom: 1px;
+    margin-top: 1px;
+}
+
+.appwidget-verticalentries .tags a,
+.appwidget-verticalentries .posttime a,
+.appwidget-verticalentries .collapsed-tags a,
+.appwidget-verticalentries .collapsed-posttime a {
+    color: #69c !important;
+}
+
+.appwidget-verticalentries .subject {
+    font-size: 14px;
+    margin-top: 0;
+}
+
+.appwidget-verticalentries .event {
+    font-size: 12px;
+}
+
+.appwidget-verticalentries .entry-collapsed td.entry-collapsed-entry {
+    vertical-align: top;
+    width: 50%;
+}
+
+.appwidget-verticalentries .collapsed-subject {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+}
+
+.appwidget-verticalentries .collapsed-poster {
+    font-size: 11px;
+    padding: 0;
+    margin: 2px 0 7px 0;
+}

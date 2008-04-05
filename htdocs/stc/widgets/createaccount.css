@@ -1,0 +1,48 @@
+.appwidget-createaccount .field-name {
+    text-align: right;
+}
+
+.appwidget-createaccount .field-desc {
+    color: #666;
+    margin-bottom: 0;
+}
+
+.appwidget-createaccount .tos-blurb {
+    margin-bottom: 0;
+}
+
+.appwidget-createaccount #tips_box_arrow {
+    display: none;
+    position: absolute;
+    background: url(/img/create/tip-arrow.png) no-repeat;
+    width: 12px;
+    height: 19px;
+    z-index: 100;
+}
+
+.appwidget-createaccount #tips_box {
+    display: none;
+    position: absolute;
+    background-color: #fcf6db;
+    border: 1px solid #ffdfc0;
+    padding: 10px;
+    width: 300px;
+}
+
+.appwidget-createaccount .create-button {
+    color: #fff;
+    background-color: #213368;
+    border: 1px solid #fff;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.appwidget-createaccount #username_check,
+.appwidget-createaccount #username_error {
+    display: none;
+}
+
+.appwidget-createaccount #username_error_inner {
+    font-weight: bold;
+}

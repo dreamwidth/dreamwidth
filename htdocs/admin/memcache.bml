@@ -1,0 +1,175 @@
+<?_code
+{
+#line 3
+    use strict;
+    no strict 'refs';
+    use vars qw(%GET);
+    use Data::Dumper;
+    use Time::HiRes ();
+
+    my $u = LJ::get_remote();
+    return "You must be logged in to view this tool." unless $u;
+    return "You don't have 'siteadmin' priv." unless LJ::check_priv($u, "siteadmin", "memcacheview");
+
+    my $prev_hits = $u ? LJ::MemCache::get([$u->{'userid'},"mcrate:$u->{'userid'}"]) : undef;
+
+    my $ret;
+
+    my $mode = $GET{'mode'};
+    if ($GET{'host'}) {
+	$mode ||= "host";
+    }
+    $mode ||= "overview";
+
+    $ret .= "<div class='topbar'>[<a href='memcache.bml'>Overview</a>]\n";
+
+    if ($mode eq "overview") {
+	$ret .= <<"END_TOP";
+</div>
+<h1>Memory Cache Overview</h1>
+<table border='1' cellpadding='5'>
+<tr><th>Host</th><th>Hit Rate</th><th>Curr/Max Size</th><th><span title='Utilization'>Utlz %</span></th><th>Uptime</th><th>Version</th></tr>
+END_TOP
+    }
+
+    my %now_hits;
+    if ($prev_hits) { %now_hits = %$prev_hits; }
+
+    my ($tot_hits, $tot_misses) = ();
+
+    my %memc_servers = (); # ip => 1
+    foreach (@LJ::MEMCACHE_SERVERS) {
+        $memc_servers{$_}++;
+    }
+
+    foreach my $entry (sort keys %memc_servers) {
+	my $host = ref $entry ? $entry->[0] : $entry;
+	next if $mode eq "host" && $host ne $GET{'host'};
+
+	LJ::MemCache::forget_dead_hosts();
+	my $sock = Cache::Memcached::sock_to_host($host);
+
+        my $t1 = Time::HiRes::time();
+
+	my $log;
+	my %stat;
+	my @cmds = ("", "malloc", "items", "slabs");
+	my $cmd;
+        if ($sock) {
+            while (defined($cmd = shift @cmds)) {
+                my $realcmd = "stats" . ($cmd ? " $cmd" : "");
+                $log .= "<b>$realcmd</b>\n";
+                foreach (LJ::MemCache::run_command($sock, "$realcmd\r\n")) {
+                    last if $_ eq "END\r\n";
+                    $log .= $_;
+                    next if $cmd eq "maps";
+                    if (/^STAT (\S+) (\S+)/) {
+                        $stat{$cmd}{$1} = $2;
+                    }
+                }
+            }
+        }
+
+        my $t2 = Time::HiRes::time();
+
+	my $cpu = 0;
+	foreach my $key (qw(rusage_user rusage_system)) {
+	    my $sec = $stat{''}{$key};
+	    $sec =~ s/:/\./;
+	    $cpu += $sec;
+	    #$ret .= "Host $host was $stat{''}{$key} = $sec, cpu = $cpu<br />\n";
+	}
+	
+	$now_hits{$host} = [ $stat{''}{'get_hits'}, $stat{''}{'get_misses'}, $cpu ];
+	
+	my $hit_rate = sprintf("%0.02f%%", $stat{''}{'get_hits'}/($stat{''}{'get_hits'}+$stat{''}{'get_misses'}||1)*100);
+
+	if ($mode eq "overview") {
+	    $ret .= "<tr><td><a href='memcache.bml?host=$host'>$host</a></td>\n";
+	    $ret .= "<td>$hit_rate";
+	    if ($prev_hits && $prev_hits->{$host}) {
+		my $nh = $now_hits{$host};
+		my $ph = $prev_hits->{$host};
+
+		my $new_hits = $now_hits{$host}[0] - $prev_hits->{$host}[0];
+		my $new_misses = $now_hits{$host}[1] - $prev_hits->{$host}[1];
+		$tot_hits += $new_hits;
+		$tot_misses += $new_misses;
+		my $new_whatev = $new_hits + $new_misses;
+		my $new_rate = $new_hits / ($new_whatev || 1);
+
+		my $cpu = sprintf("%0.6f", $nh->[2] - $ph->[2]);
+		$ret .= sprintf(" [%0.02f%% {$new_whatev} $cpu]", $new_rate * 100);
+	    }
+            $ret .= sprintf(" %0.02f", $t2-$t1);
+	    $ret .= "</td>";
+	    my $gb_used = ($stat{'malloc'}{'mmapped_space'} + $stat{'malloc'}{'arena_size'}) / (1024*1024*1024);
+	    my $gb_max = $stat{''}{'limit_maxbytes'} / (1024*1024*1024);
+	    if ($gb_used >= $gb_max) {
+		$ret .= sprintf("<td align='center'>%0.01fG</td>", $gb_max);
+	    } else {
+		$ret .= sprintf("<td>%0.02f/%0.01fG (%0.02f%%)</td>", $gb_used, $gb_max, $gb_used*100/($gb_max||1));
+	    }
+
+	    my $utiliz = $stat{''}{'bytes'} /
+		(($stat{'malloc'}{'mmapped_space'} + $stat{'malloc'}{'arena_size'}) || 1);
+	    $ret .= sprintf("<td>%0.02f%%</td>", $utiliz*100);
+	    
+	    my $up = $stat{''}{'uptime'};
+	    my $upstring;
+	    foreach my $u ([86400,"d"],[3600,"h"],[60,"m"],[1,"s"]) {
+		if ($up / $u->[0] > 1) {
+		    my $v = int($up / $u->[0]);
+		    $upstring .= "${v}$u->[1] ";
+		    $up -= $v * $u->[0];
+		}
+	    }
+	    $ret .= "<td>$upstring</td>";
+	    $ret .= "<td>$stat{''}{'version'}</td>";
+	    $ret .= "</tr>";
+	}
+
+	if ($mode eq "host" && $host eq $GET{'host'}) {
+	    $ret .= "[<a href='memcache.bml?host=$host&amp;mode=raw'>Raw Data</a>]</div>";
+	    $ret .= "<h1>Details for $host</h1>";
+
+	    $ret .= "<h2>Slab classes</h2>";
+	    $ret .= "<table border='1' cellpadding='2'>";
+	    $ret .= "<tr><th>class</th><th>size</th><th>used</th><th>total</th><th colspan='2'>free</th><th>pages</th><th>max age</th></tr>\n";
+	    foreach my $cls (0..31) {
+		my $size = $stat{'slabs'}{"$cls:chunk_size"};
+		next unless $size;
+		$ret .= "<tr><td>$cls</td>"
+		    . join('', map { "<td>" . $stat{'slabs'}{"$cls:$_"} . "</td>" }
+			   qw(chunk_size used_chunks total_chunks free_chunks free_chunks_end total_pages));
+		my $age = $stat{'items'}{"items:$cls:age"};
+		$ret .= "<td>$age</td>";
+		$ret .= "</tr>";
+	    }
+	    $ret .= "</table>\n";
+
+	}
+
+	if ($mode eq "raw" && $host eq $GET{'host'}) {
+	    $ret .= "[<a href='memcache.bml?host=$host'>Host Stats</a>]</div>";
+	    $ret .= "<h1>Raw data for $host</h1>";
+	    $ret .= "<pre>$log</pre>";
+	}
+	
+    }
+
+    LJ::MemCache::set([$u->{'userid'},"mcrate:$u->{'userid'}"], \%now_hits)
+	if $u;
+
+    if ($mode eq "overview") {
+	$ret .= "</table>\n";
+
+	my $new_whatev = $tot_hits + $tot_misses;
+	my $new_rate = $tot_hits / ($new_whatev || 1);	
+	$ret .= sprintf("Global [%0.02f%% {$new_whatev}]", $new_rate * 100);
+    }
+
+    return $ret;
+}
+_code?>
+

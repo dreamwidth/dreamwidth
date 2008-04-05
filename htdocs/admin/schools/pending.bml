@@ -1,0 +1,281 @@
+<?page
+title=>Approve Pending School Data
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST);
+
+    my $ret = '';
+    my $err = sub { return "<?h1 Error h1?><?p $_[0] p?>"; };
+
+    return $err->('The Schools Directory is currently disabled due to maintenance.')
+        if $LJ::DISABLED{'schools'};
+
+    my %ierr;
+    my $bogus = sub {
+        my $key = shift;
+        my $msg = shift;
+        $ierr{$key} = $msg;
+    };
+    # inline error
+    my $inerr = sub {
+        my $key  = shift;
+        my $pre  = shift || '';
+        my $post = shift || '';
+        return '' unless $ierr{$key};
+        return "$pre<font color='red'><b>$ierr{$key}</b></font>$post";
+    };
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    return $err->('You do not have access to use this tool.')
+        unless (LJ::check_priv($remote, 'siteadmin', 'school'));
+
+    my $getextra = '';
+
+    if (LJ::did_post()) {
+        return $err->($ML{'error.invalidform'}) unless LJ::check_form_auth();
+
+        my @locextra;
+        push @locextra, "country=" . LJ::eurl($POST{uct}) if defined $POST{uct};
+        push @locextra, "state="   . LJ::eurl($POST{ust}) if defined $POST{ust};
+        push @locextra, "city="    . LJ::eurl($POST{uci}) if defined $POST{uci};
+        $getextra = '?' . join('&', @locextra) if @locextra;
+
+
+        my $pri  = $POST{primary};
+        my @sids = map { $_ => 0 } split(',', $POST{pendids});
+
+        return $err->('Invalid school ID')
+            unless $pri =~ /\d+/;
+
+        # Build up our data structures for use later
+        my $approve_sids = ();
+        my $approve_users = (); # If this school exists already
+        my $delete_sids = ();
+        push @$approve_sids, $pri;
+        push @$approve_users, $POST{'userid'};
+        foreach (@sids) {
+            if ($POST{$_}) {
+                push @$approve_sids, $_;
+                push @$approve_users, $POST{$_};
+                next;
+            } elsif ($POST{"delete$_"}) {
+                push @$delete_sids, $_;
+            }
+        }
+
+        # Reject any secondary schools they said to delete
+        if ($delete_sids) {
+            my $drv = LJ::Schools::reject_pending($delete_sids);
+
+            return "Unable to delete schools"
+                unless $drv;
+        }
+
+        my $primary_act = $POST{'primary_act'};
+        return "Invalid primary action"
+            unless $primary_act =~ /^approve|delete|ignore$/;
+
+        # See if they are deleting primary
+        if ($primary_act eq 'delete') {
+            my $rv = LJ::Schools::reject_pending([$pri]);
+
+            return "Unable to delete primary school"
+                unless $rv;
+
+            return BML::redirect("pending.bml$getextra");
+        } elsif ($primary_act eq 'approve') {
+            my $country = $POST{country};
+            my $city = $POST{city};
+            my $name = $POST{name};
+            my $state = $POST{state};
+            my $url = $POST{url};
+
+            return $err->('country', 'You must enter a valid country code.')
+                unless $country && $country =~ /\w\w/;
+
+            if ($country eq 'US') {
+                return $err->('state', 'You must enter a valid US state code.')
+                    unless $state =~ /\w\w/;
+            };
+
+            return $err->('city', 'You must enter the city this school is located in.')
+                unless length($city);
+
+            return $err->('name', 'You must enter the school\'s full name.')
+                unless length($name);
+
+            if ($url) {
+                $url = LJ::CleanHTML::canonical_url($url);
+                return $err->('url', 'The URL entered does not appear to be valid.')
+                    if $url !~ m!https?://[^\s\"\'\<\>]+!g;
+            }
+
+            # Try approving this school, if that fails then try merging
+            # them into an existing school
+            my $arv = LJ::Schools::approve_pending($approve_sids,
+                                                   {
+                                                       name        => $name,
+                                                       city        => $city,
+                                                       state       => $state,
+                                                       countrycode => $country,
+                                                       url         => $url,
+                                                   });
+
+            unless ($arv) {
+                # Find the existing school that we will merge into.  This could
+                # get moved into an API at some point, but for now this is the
+                # only place that will do this and will ease this file going
+                # live.
+                my $dbh = LJ::get_db_writer();
+                my $scs = $state ? "state = ?" : "state IS NULL";
+                my $ccs = $city  ? "city = ?"  : "city IS NULL";
+                my $ex_sid = $dbh->selectrow_arrayref
+                    ("SELECT schoolid FROM schools WHERE country = ? AND name = ? AND $scs AND $ccs",
+                     undef, $country, $name, $state, $city);
+
+                return $err->($dbh->errstr) if $dbh->err;
+
+                return $err->("Error approving school, could not find existing school to merge into")
+                    unless $ex_sid;
+
+                # Mark these users as having attended this existing school
+                # don't really care if it fails
+                foreach my $userid (@$approve_users) {
+                  LJ::Schools::set_attended($userid, $ex_sid->[0]);
+                }
+
+                # Delete all the pending schools
+                LJ::Schools::reject_pending($approve_sids);
+            }
+
+            return BML::redirect("pending.bml$getextra");
+
+        # Someday we may do more in the ignore action, but for now
+        # it is just a redirect
+        } elsif ($primary_act eq 'ignore') {
+            return BML::redirect("pending.bml$getextra");
+        }
+
+        return $ret;
+
+    } else {
+        my $country = $GET{country};
+        my $state = $GET{state};
+        my $city = $GET{city};
+
+        my $schools = LJ::Schools::get_pending($remote, $country, $state, $city);
+
+        return "<?p No pending schools found p?>"
+            unless $schools;
+
+        my $primary = $schools->{primary};
+        my $secondary = $schools->{secondary};
+        my $tertiary = $schools->{tertiary};
+
+        my @locextra;
+        push @locextra, "country=" . LJ::eurl($country) if defined $country;
+        push @locextra, "state="   . LJ::eurl($state)   if defined $state;
+        push @locextra, "city="    . LJ::eurl($city)    if defined $city;
+        $getextra = '?' . join('&', @locextra) if @locextra;
+
+        $ret .= "<a href='pending.bml$getextra'>Give me a different school!</a><br /><br />";
+
+        $ret .= "<?h2 Primary School Record h2?>";
+        $ret .= "<form method='post' action='pending.bml'>";
+        $ret .= LJ::form_auth();
+        $ret .= LJ::html_hidden('uct', $country) if $country;
+        $ret .= LJ::html_hidden('ust', $state) if $state;
+        $ret .= LJ::html_hidden('uci', $city) if $city;
+        $ret .= LJ::html_hidden('primary', $primary->{pendid}, 'userid', $primary->{userid});
+        $ret .= LJ::html_hidden('pendids', join(',', map { $_ } keys %$secondary, keys %$tertiary));
+        $ret .= "<table><tr><td>";
+        $ret .= "Country: ";
+        my %countries;
+        LJ::load_codes({ "country" => \%countries });
+        $ret .= "</td><td>";
+        $ret .= LJ::html_select(
+                                {
+                                    name     => "country",
+                                    selected => $primary->{country},
+                                },  map { $_ => $countries{$_} } sort { $countries{$a} cmp $countries{$b} } keys %countries);
+        $ret .= "</td></tr><tr><td colspan='2'>";
+        $ret .= $inerr->('country');
+        $ret .= "</td></tr><tr><td valign='top'>";
+        $ret .= "State/province:</td><td>" . LJ::html_text({ name => "state", maxlength => 255, size => 15, value => $primary->{state} });
+        $ret .= "</td></tr><tr><td colspan='2'>";
+        $ret .= $inerr->('state');
+        $ret .= "</td></tr><tr><td valign='top'>";
+        $ret .= "City:</td><td>" . LJ::html_text({ name => "city", maxlength => 255, size => 20, value => $primary->{city} });
+        $ret .= "</td></tr><tr><td colspan='2'>";
+        $ret .= $inerr->('city');
+        $ret .= "</td></tr><tr><td valign='top'>";
+        $ret .= "Name of school:</td><td valign='top'>" . LJ::html_text({ name => "name", size => 50, value => $primary->{name} });
+        $ret .= "</td></tr><tr><td colspan='2'>";
+        $ret .= $inerr->('name');
+        $ret .= "</td></tr><tr><td valign='top'>";
+        $ret .= "URL: <?de (optional) de?></td><td>" . LJ::html_text({ name => "url", size => 50, value => $primary->{url} }) . "<br />";
+        $ret .= "</td></tr><tr><td colspan='2'>";
+        $ret .= $inerr->('url');
+        $ret .= "</td></tr><tr><td>Primary Action:</td><td>";
+        $ret .= LJ::html_select(
+                                {
+                                    name     => "primary_act",
+                                    selected => "approve",
+                                }, ( 'approve' => 'Approve', 'delete' => 'Delete', 'ignore' => 'Ignore')
+                                );
+        $ret .= "</td></tr><tr><td colspan='2'>";
+        $ret .= LJ::html_submit("Do It!");
+        $ret .= "</td></tr></table><br />";
+
+        # Find if there are any approved related schools
+        my $related = LJ::Schools::find_existing($primary->{country}, $primary->{name}, $primary->{state}, $primary->{city}, $primary->{url});
+
+        if ($related && ref $related eq 'ARRAY') {
+            $ret .= "<?h2 Related Approved Schools h2?><?p Country and state are the same as the primary record p?>";
+            $ret .= "<table border='1'><th>Name</th><th>City</th><th>URL</th></tr>";
+
+            my $relschools = LJ::Schools::load_schools(@$related);
+            foreach my $sid (sort {$relschools->{$a}->{name} cmp $relschools->{$b}->{name}} keys %$relschools) {
+                $ret .= "<tr><td>";
+                $ret .= LJ::ehtml($relschools->{$sid}->{name}) . "</td><td>";
+                $ret .= LJ::ehtml($relschools->{$sid}->{city}) . "</td><td>";
+                $ret .= LJ::ehtml($relschools->{$sid}->{url}) . "</td></tr>";
+            }
+            $ret .= "</table><br />";
+        } elsif ($related) {
+            $ret .= "<?h2 An Exact Match for the Primary Record was Found! h2?><br />";
+        }
+
+        if (%$secondary || %$tertiary) {
+            $ret .= "<?h2 Related Pending Schools h2?>";
+            $ret .= "<table border='1'>";
+            $ret .= "<tr><th>Approve<br />Into Primary</th><th>Reject<br />Fully</th><th>Name</th><th>City</th><th>State</th><th>URL</th></tr>";
+            foreach my $school (sort { $a->{name} cmp $b->{name}} values %$secondary, values %$tertiary) {
+                $ret .= "<tr><td align='center'>";
+                $ret .= LJ::html_check({ 'type' => 'check', 'name' => $school->{pendid}, id => $school->{pendid}, value => $school->{userid}});
+                $ret .= "</td><td align='center'>";
+                $ret .= LJ::html_check({ 'type' => 'check', 'name' => "delete$school->{pendid}" });
+                $ret .= "</td><td><label for='$school->{pendid}'>";
+                $ret .= LJ::ehtml($school->{name}) . '</label></td><td align="center">';
+                $ret .= LJ::ehtml($school->{city}) . '</td><td align="center">';
+                $ret .= LJ::ehtml($school->{state}) . '</td><td>';
+                $ret .= LJ::ehtml($school->{url});
+                $ret .= "</td></tr>";
+            }
+            $ret .= "</table>";
+
+        } else {
+            $ret .= "<?p No related pending schools found p?>";
+        }
+
+        $ret .= "</form>";
+        return $ret;
+    }
+}
+_code?>
+<=body
+page?>

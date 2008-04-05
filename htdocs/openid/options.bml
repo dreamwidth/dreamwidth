@@ -1,0 +1,65 @@
+<?_code
+{
+    use strict;
+    use vars qw($title $body %GET %POST);
+
+    my $err = sub {
+	$title = "Error";
+	$body = shift;
+	return "";
+    };
+
+    return $err->("OpenID server support is disabled")
+        unless LJ::OpenID::server_enabled();
+
+    my $u = LJ::get_remote() or
+	return $err->("You need to be <a href='/login.bml?ret=1'>logged in</a> to manage your OpenID options.");
+
+    my $dbh = LJ::get_db_writer();
+    my $trusted = {};
+
+    my $load_trusted = sub {
+	$trusted = $dbh->selectall_hashref("SELECT ye.endpoint_id as 'endid', ye.url FROM openid_endpoint ye, openid_trust yt WHERE yt.endpoint_id=ye.endpoint_id AND yt.userid=$u->{userid}", 'endid');
+    };
+
+    if (LJ::did_post()) {
+	return $err->("Possible form tampering detected.") unless LJ::check_form_auth();
+	my $dur;
+	$body = "";
+
+	$load_trusted->();
+	foreach my $endid (sort { $trusted->{$a} cmp $trusted->{$b} } keys %$trusted) {
+	    next unless $POST{"delete:$endid"};
+	    $dbh->do("DELETE FROM openid_trust WHERE userid=? AND endpoint_id=?", undef, $u->{userid}, $endid);
+	}
+
+    }
+
+    $load_trusted->();
+
+    $title = "OpenID Options";
+    $body = "";
+    $body .= "<form method='post'>";
+    $body .= LJ::form_auth();
+    $body .= "<?h1 Sites you trust h1?><?p You've marked these sites as able to verify your identity.  You may remove them here. p?>";
+    $body .= "<div style='margin: 5px 0px 5px 30px'>";
+    if (%$trusted) {
+	foreach my $endid (sort { $trusted->{$a}->{url} cmp $trusted->{$b}->{url} } keys %$trusted) {
+	    my $url = $trusted->{$endid}->{url};
+	    my $dis_site = LJ::ehtml($url);
+	    $dis_site =~ s!\*\.!<i>&lt;anything&gt;</i>.!;
+	    $body .= LJ::html_submit("delete:$endid", "Delete") . " -- $dis_site<br />";
+	}
+    } else {
+	$body .= "<i>(None)</i>";
+    }
+    $body .= "</div>";
+
+    $body .= "</form>";
+    return;
+
+}
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code  return $body;  _code?>
+page?>

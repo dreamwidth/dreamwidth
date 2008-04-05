@@ -1,0 +1,52 @@
+<html>
+<head><title>Admin Console</title></head>
+<body>
+<?_code
+
+ use strict;
+ use LJ::Console;
+ use vars qw(%POST %cmd);
+
+ my ($ret, $sth);
+ my $commands = $POST{'commands'};
+
+ my $remote = LJ::get_remote();
+ return "<?needlogin?>"
+    unless $remote;
+
+ if (LJ::did_post()) {
+     return "<b>Error:</b> invalid form submission, please refresh and try again."
+         unless LJ::check_form_auth();
+
+     $ret .= "<p>[ console | <a href=\"reference.bml\">reference</a> ]</p>";
+
+     $ret .= LJ::Console->run_commands_html($commands);
+
+     $ret .= "<tt>enter commands:</tt><br />";
+     $ret .= "<form method=post>";
+     $ret .= LJ::form_auth();
+     $ret .= "<textarea name=commands rows=3 cols=60 wrap=off></textarea> ";
+     $ret .= "<input type=submit value=\"execute\"></form>\n";
+
+     return $ret;
+
+ } else {
+     $ret .= "[ console | <A HREF=\"reference.bml\">reference</A> ]<P>";
+
+     $ret .= "<FORM METHOD=POST>";
+     $ret .= LJ::form_auth();
+     $ret .= "<TABLE WIDTH=400><TR VALIGN=BOTTOM>";
+     $ret .= "<TD><IMG SRC=\"$LJ::IMGPREFIX/nerd_small.jpg\" WIDTH=167 HEIGHT=169 HSPACE=2 VSPACE=2></TD>";
+     $ret .= "<TD><B><TT>command console.</TT></B>";
+     $ret .= "<P>welcome to the livejournal console.  from here administrators can do administrative type things.  you will forget the commands, so there is a <A HREF=\"reference.bml\">reference</A>.</TD>";
+     $ret .= "</TR>";
+     $ret .= "<TR><TD COLSPAN=2>";
+     $ret .= "<P><tt>enter commands:</tt><BR>";
+     $ret .= "<TEXTAREA NAME=commands ROWS=10 COLS=60 WRAP=OFF></TEXTAREA></TD></TR>\n";
+     $ret .= "<TR><TD COLSPAN=2 ALIGN=RIGHT><INPUT TYPE=SUBMIT VALUE=\"execute\"></P></TD></TR></TABLE></FORM>\n";
+     return $ret;
+ }
+
+_code?>
+</body>
+</html>

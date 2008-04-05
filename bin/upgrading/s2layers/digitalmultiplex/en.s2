@@ -1,0 +1,10 @@
+# -*-s2-*-
+
+layerinfo type = "i18n";
+layerinfo name = "English";
+layerinfo redist_uniq = "digitalmultiplex/en";
+
+set text_meta_music = "Music";
+set text_meta_mood = "Mood";
+
+set text_sidebar_link_separator = "&nbsp;&nbsp;&raquo;&nbsp;&nbsp;";

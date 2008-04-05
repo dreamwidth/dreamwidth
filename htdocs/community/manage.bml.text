@@ -1,0 +1,56 @@
+;; -*- coding: utf-8 -*-
+.commlist.actinfo=Info
+
+.commlist.actinvites=Invitations
+
+.commlist.actions=<b>Actions</b>
+
+.commlist.actmembers2=Members
+
+.commlist.actpending|notes=This is appended to /community/manage.bml.commlist.actmembers2 when there are pending people.
+.commlist.actpending=, <a [[aopts]]>[[num]] pending</a>
+
+.commlist.actsettings2=Settings
+
+.commlist.customize=Customize
+
+.commlist.header=Your communities
+
+.commlist.moderation=Awaiting Moderation
+
+.commlist.moderation.num2=[<a [[aopts]]>[[num]] in queue</a>]
+
+.commlist.none=<i>You are not managing any communities.</i>
+
+.commlist.text=Here are the communities that you manage or co-manage:
+
+.commlist.title=<b>Title</b>
+
+.commlist.username=<b>Username</b>
+
+.create.header=Create a community
+
+.create.text2=You can also <a [[aopts]]><b>create a new community</b></a>.
+
+.error.badaccounttype=You must be logged in as a regular user account in order to access this page.
+
+.joinmail.body2=For communities with moderated membership, you can <a [[aopts]]>get notified</a> whenever anyone requests membership.
+
+.joinmail.email.all=E-mail every time someone requests to join
+
+.joinmail.email.digest=One e-mail each day with a list of all pending requests
+
+.joinmail.email.none=No e-mail, I will use this page to look for new requests
+
+.joinmail.save=Save Settings
+
+.joinmail.title=Administrative options
+
+.modemail.body=For moderated communities, you can choose whether to send emails or not:
+
+.modemail.no=No email, I will manage the moderation queue manually
+
+.modemail.yes=Email me every time someone submits a post to the queue
+
+.title2=Manage Communities
+

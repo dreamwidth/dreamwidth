@@ -1,0 +1,36 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    $title = "Flag Content";
+
+    my $remote = LJ::get_remote()
+        or return "<?needlogin?>";
+
+    return "Content flagging is disabled"
+        if LJ::conf_test($LJ::DISABLED{content_flag});
+
+    my $ditemid = $GET{itemid};
+    my $user = $GET{user};
+    my $journal = LJ::load_user($user) or return "Invalid username";
+    my $content = $ditemid ? LJ::Entry->new($journal, ditemid => $ditemid) : $journal;
+
+    return "You are not allowed to flag this."
+        unless $remote->can_flag_content( content => $content );
+
+    my %opts = ();
+    return LJ::Widget->handle_post_and_render(\%POST, 'ContentFlagReport',
+                                               user => $user,
+                                               itemid => $ditemid,
+                                               %opts);
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

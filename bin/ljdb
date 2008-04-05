@@ -1,0 +1,110 @@
+#!/usr/bin/perl
+#
+#  ljdb          connects to master
+#  ljdb --help
+#  ljdb --user=bob
+#  ljdb --user=bob --slave
+#  ljdb --role=slave
+#  ljdb --role=slow
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljdb.pl';
+
+use Getopt::Long;
+my ($user, $role, $inactive, $help);
+usage() unless
+    GetOptions(
+	       'help' => \$help,
+	       'inactive' => \$inactive,
+	       'role=s' => \$role,
+	       'user=s' => \$user,
+	       );
+usage() if $help;
+
+sub usage {
+    die "Usage:
+
+   ljdb                    (connects to master)
+   ljdb bob                (implies --user=bob --inactive)
+   ljdb --help
+   ljdb --user=bob
+   ljdb --user=bob --inactive
+   ljdb --role=slave
+   ljdb --role=slow
+";
+
+}
+
+if (@ARGV) {
+    if ($ARGV[0] =~ /^\w{1,15}$/) {
+	$user = shift;
+	$inactive = 1;
+    } else {
+	usage();
+    }
+}
+	
+usage() if $role && ($user || $inactive);
+
+print "For more usage options, see: ljdb --help\n";
+
+if (!$role && $user) {
+    die "Bogus username" unless $user =~ /^\w{1,15}$/;
+    my $dbs = LJ::DB::dbh_by_role('slave', 'master');
+    my ($userid, $cid) = $dbs->selectrow_array('SELECT userid, clusterid FROM user WHERE user = ?', undef, $user);
+    die "no such user\n" unless $userid && $cid;
+    $role = "cluster" . $cid;
+
+    print "user: $user / userid: $userid / clusterid: $cid";
+
+    if (my $ab = $LJ::CLUSTER_PAIR_ACTIVE{$cid}) {
+	print " / active=$ab\n";
+	if ($inactive) {
+	    $role .= "b" if $ab eq 'a';
+	    $role .= "a" if $ab eq 'b';
+	} else {
+	    $role .= $ab;
+	}
+    } else {
+	# type must be master/slave
+	$role .= "slave" if $inactive && grep { $_->{role}{"${role}slave"} } values %LJ::DBINFO;
+    }
+    print "\n";
+}
+
+$role ||= "master";
+
+# find a database (not necessarily an alive one) that matches the role
+# you need.  FIXME: capture mysql's output and try and reconnect to
+# another one if it fails?
+
+my $db;
+my $dbname;
+foreach my $key (keys %LJ::DBINFO) {
+    my $rec = $LJ::DBINFO{$key};
+    if ($key eq "master") { $rec->{role}{master} = 1; };
+    if ($rec->{role}{$role}) {
+	$dbname = $key;
+	$db = $rec;
+	last;
+    }
+}
+
+die "no database record for role $role\n" unless $db;
+
+if ($db->{_fdsn}) {
+    $db->{_fdsn} =~ /^DBI:mysql:(\w+):host=(.+?)\|(\w+)\|(.+)/
+	or die "Bogus _fdsn format for $dbname: $db->{_fdsn}\n";
+    print "found: $1, $2, $3, $4\n";
+    $db->{dbname} = $1;
+    $db->{host} = $2;
+    $db->{user} = $3;
+    $db->{pass} = $4;
+}
+
+my $database = $db->{dbname} || "livejournal";
+
+print "...connecting to $dbname, $db->{host}, db: $database, user: $db->{user}\n\n";
+
+exec("mysql", "--host=$db->{host}", "--user=$db->{user}", "--password=$db->{pass}", "-A", $database);

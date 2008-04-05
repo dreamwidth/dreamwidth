@@ -1,0 +1,44 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
+
+    # OpenID Server and Yadis
+    if (defined $GET{user}) {
+        my $u = LJ::load_user($GET{user});
+        $headextra .= $u->openid_tags if $u;
+    }
+
+    BML::set_language_scope("/misc/adult_content.bml");
+    $windowtitle = $ML{'.title'};
+    my $ret = '';
+
+    $ret .= qq {
+        <table cellpadding="8" cellspacing="0" border="1" style="background-color: #FFFFD4; border: 1px solid black;">
+            <tr>
+                <td align="center"><h1>14</h1></td>
+                <td align="center"><h1>$ML{'.title'}</h1></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+    };
+    $ret .= BML::ml('.message.concepts.blocked', { age => 14 });
+    $ret .= qq {
+                </td>
+            </tr>
+        </table>
+    };
+    $ret .= "<br /><center><a href='$LJ::SITEROOT/site/search.bml'>" . BML::ml('.explore', { siteabbrev => $LJ::SITENAMEABBREV }) . "</a></center>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

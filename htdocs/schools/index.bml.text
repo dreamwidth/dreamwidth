@@ -1,0 +1,155 @@
+;; -*- coding: utf-8 -*-
+.addschool.example=Example:
+
+.addschool.input.city=City:
+
+.addschool.input.city.examples=San Francisco, Portland
+
+.addschool.input.country=Country:
+
+.addschool.input.name=Name of school:
+
+.addschool.input.name.campus2=For schools with multiple locations, add the city/campus after a dash (e.g. University of Texas - Austin)
+
+.addschool.input.name.examples=University of California Berkeley, Oregon State University
+
+.addschool.input.name.fullname2=Type in the school's full name (e.g. "Harvard College" instead of just "Harvard")
+
+.addschool.input.name.noabbrev2=No abbreviations. (Spell out University, North, State, High School, etc.)
+
+.addschool.input.state=State/province:
+
+.addschool.input.state.examples=CA, NY, AB
+
+.addschool.input.url=URL:
+
+.addschool.input.url.optional=(optional)
+
+.addschool.intro=Enter your school's information. If approved, we'll add it to the Schools Directory and to the Schools list for this journal:
+
+.allcountries.header=All Countries
+
+.btn.add=Add
+
+.btn.addschool=Add School
+
+.btn.chooseschool=Choose School
+
+.btn.filter=Filter
+
+.city.header=City
+
+.city.select=Select a city
+
+.dontseeschool=Don't see what you're looking for?
+
+.dontseeschool.add=Add a School
+
+.error.cantfindschool=No such school found.
+
+.error.cantgetcountries=Unable to get country list.
+
+.error.cantgetdata=Unable to get necessary data.
+
+.error.cantsetattendance=Unable to set your attendance at [[name]].
+
+.error.cantsetattendance_limit=Unable to set your attendance at [[name]], please try again. You may have reached the limit of schools you can attend.
+
+.error.disabled=The Schools Directory is currently disabled due to maintenance.
+
+.error.invalidaustate=You must enter a valid two or three letter abbreviation for the Australian state.
+
+.error.invalidcountry=You must enter a valid country code.
+
+.error.invalidprovince=You must enter a valid two-letter abbreviation for the Canadian province.
+
+.error.invalidstate=You must enter a valid two-letter abbreviation for the US state.
+
+.error.invalidurl=The URL entered does not appear to be valid.
+
+.error.invalidyear=You must enter a valid year to filter your results.
+
+.error.nocities=No cities found.
+
+.error.nocity=You must enter the city this school is located in.
+
+.error.nocountries=No countries found.
+
+.error.noname=You must enter the school's full name.
+
+.error.noschools=No schools found.
+
+.error.nostates=No states or provinces found.
+
+.error.undefinedstate=undefined state or province
+
+.error.validaustates=Valid Australian state abbreviations are ACT, NSW, NT, Qld, SA, Tas, Vic, and WA.
+
+.error.validprovinces=Valid Canadian abbreviations are AB, BC, MB, NB, NL, NT, NS, NU, ON, PE, QC, SK, and YT.
+
+.findschool=Find a school in:
+
+.intro=With the Schools Directory, you can:
+
+.intro.addschool=Add a school to your journal or community's user info page.
+
+.intro.dontseeschool3=If you don't see what you're searching for, use the Add a School link at the bottom of this page to submit it.
+
+.intro.findusers=Find other users and communities associated with a school.
+
+.intro.manageschools=<a [[aopts]]>Manage</a> the schools you have attended.
+
+.matchesfound.header=Possible Matches Found
+
+.matchesfound.table.city=City
+
+.matchesfound.table.school=School
+
+.matchesfound.table.url=URL
+
+.matchesfound.text=We have found the following possible matches for your school in the same country and state. Please select one of the following schools or continue to add what you entered if it is in fact a new school. If your school shows up with incorrect data, please <a [[aopts]]>open a support request</a> providing as much information as you can.
+
+.school.addthisschool=Add this school for [[user]]
+
+.school.browsejournals=Browse journals associated with this school:
+
+.school.communities=Communities
+
+.school.findanother=Find another school
+
+.school.header=School
+
+.school.limitbyyear=Limit this list by year:
+
+.school.manage=Manage your schools
+
+.school.nousers=There are no communities or users that list this school yet.
+
+.school.nousersforthisyear=There are no communities or users that list this school in [[year]].
+
+.school.select=Select a school
+
+.school.url=(<a [[aopts]]>official website</a>)
+
+.school.users=Users
+
+.schoolcount=([[numschools]] [[?numschools|school|schools]])
+
+.state.header=State
+
+.state.select=Select a state
+
+.stateorprovince.header=State or Province
+
+.submitted.header=School Submitted
+
+.submitted.manage=Go to your Schools list
+
+.submitted.return=Return to the Schools Directory
+
+.submitted.text=Your school has been submitted for approval. If approved, your school will be added to the Schools Directory and automatically added to your <a [[aopts]]>Schools</a> list. You can check the <a [[aopts]]>Manage Schools</a> page later to add years attended.
+
+.title=Schools Directory
+
+.top5countries.header=Top Five Countries
+

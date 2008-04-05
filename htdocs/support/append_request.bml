@@ -1,0 +1,249 @@
+<?page
+title=><?_ml .title _ml?> 
+body<=
+
+<?_code
+{
+    use strict;
+    use vars qw(%FORM);
+
+    LJ::set_active_crumb('supportappend');
+
+    my $apache_req = shift;
+    my $r = $apache_req->{'r'};
+
+    my $status = "";
+
+    my $spid = $FORM{'spid'}+0;
+    my $sp = LJ::Support::load_request($spid);
+
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'.unknown.request'} p?>" unless $sp;
+    return "<?h1 $ML{'.closed.title'} h1?><?p $ML{'.closed.text'} p?>"
+        if $sp->{'state'} eq "closed";
+
+    my $remote = LJ::get_remote();
+    LJ::Support::init_remote($remote);
+
+    unless (LJ::Support::can_append($sp, $remote, $FORM{'auth'}) || $remote) {
+        return "<?needlogin?>";
+    }
+
+    if ($remote && ! $remote->tosagree_verify) {
+        my $ret = "<?h1 " . LJ::tosagree_str('support' => 'title') . " h1?>";
+
+        my $html_str = LJ::tosagree_str('support' => 'html');
+        if ($html_str) {
+            $ret .= "<?p $html_str p?>";
+        } else {
+            $ret .= BML::ml
+                ('tos.mustread',
+                 { aopts => "target='_new' href='$LJ::SITEROOT/legal/tos.bml'" });
+        }
+
+        return $ret;
+    }
+
+    my $scat = $sp->{_cat};
+    my $problemarea = $scat->{'catname'};
+    my $catkey = $scat->{'catkey'};
+
+    return LJ::bad_input($ML{'.invalid.noid'}) unless $FORM{'spid'};
+    return LJ::bad_input("<?requirepost?>") unless LJ::did_post();
+
+    $FORM{'summary'} = LJ::trim($FORM{'summary'});
+    return LJ::bad_input($ML{'.invalid.nosummary'})
+        if $FORM{'changesum'} && !$FORM{'summary'};
+
+    ### links to show on success
+    my $auth_arg = $FORM{'auth'} ? "&amp;auth=$FORM{'auth'}" : "";
+    my $successlinks = BML::ml('.successlinks2',
+        {   'number'    => $sp->{'spid'},
+            'aopts1'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}$auth_arg'",
+            'aopts2'    => "href='$LJ::SITEROOT/support/help.bml'",
+            'aopts3'    => "href='$LJ::SITEROOT/support/help.bml?cat=$scat->{'catkey'}'",
+            'aopts8'    => "href='$LJ::SITEROOT/support/help.bml?cat=$scat->{'catkey'}&amp;state=green'",
+            'aopts4'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=prev'",
+            'aopts5'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=next'",
+            'aopts6'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cprev'",
+            'aopts7'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cnext'",
+        });
+
+    ### insert record
+    my $faqid = $FORM{'faqid'}+0;
+
+    my %answer_types = LJ::Support::get_answer_types($sp, $remote, $FORM{'auth'});
+
+    my $type = $FORM{'replytype'};
+    return LJ::bad_input($ML{'.invalid.type'}) unless defined $answer_types{$type};
+
+    ## can we do the action we want?
+    return LJ::bad_input($ML{'.internal.approve'})
+        if $FORM{'approveans'} && ($type ne "internal" || ! LJ::Support::can_help($sp, $remote));
+
+    return LJ::bad_input($ML{'.internal.changecat'})
+        if $FORM{'changecat'} && ($type ne "internal" || ! LJ::Support::can_perform_actions($sp, $remote));
+
+    return LJ::bad_input($ML{'.internal.touch'})
+        if ($FORM{'touch'} || $FORM{'untouch'}) &&
+            ($type ne "internal" || ! LJ::Support::can_perform_actions($sp, $remote));
+
+    return LJ::bad_input($ML{'.internal.changesum'})
+        if $FORM{'changesum'} && ($type ne "internal" || ! LJ::Support::can_change_summary($sp, $remote));
+
+    return LJ::bad_input($ML{'.invalid.blank'})
+        if $FORM{'body'} !~ /\S/ && !$FORM{'approveans'} && !$FORM{'changecat'} &&
+            !$FORM{'touch'} && !$FORM{'untouch'} && !$FORM{'changesum'} && !$FORM{'bounce_email'};
+
+    # Load up vars for approvals
+    my $res;
+    my $splid;
+    if ($FORM{'approveans'}) {
+        $splid = $FORM{'approveans'}+0;
+        $res = LJ::Support::load_response($splid);
+
+        return LJ::bad_input($ML{'.invalid.noanswer'})
+            if ($res->{'spid'} == $spid && $res->{'type'} ne "screened");
+
+        return LJ::bad_input('Invalid type to approve screened response as.')
+            if (($FORM{'approveas'} ne 'answer') && ($FORM{'approveas'} ne 'comment'));
+    }
+
+    # Load up vars for category moves
+    my $newcat;
+    my $cats;
+    if ($FORM{'changecat'}) {
+        $newcat = $FORM{'changecat'}+0;
+        $cats = LJ::Support::load_cats($newcat);
+
+        return LJ::bad_input($ML{'.invalid.notcat'})
+            unless ($cats->{$newcat});
+    }
+
+    # get dbh now, it's always needed
+    my $dbh = LJ::get_db_writer();
+
+    ## touch/untouch request
+    if ($FORM{'touch'}) {
+        $dbh->do("UPDATE support SET state='open', timetouched=UNIX_TIMESTAMP(), timeclosed=0 WHERE spid=$spid");
+        $status .= "(Inserting request into queue)\n\n";
+    }
+    if ($FORM{'untouch'}) {
+        $dbh->do("UPDATE support SET timelasthelp=UNIX_TIMESTAMP() WHERE spid=$spid");
+        $status .= "(Removing request from queue)\n\n";
+    }
+
+    ## bounce request to email
+    if ($type eq 'bounce') {
+
+        return LJ::bad_input($ML{'.bounce.noemail'})
+            unless $FORM{'bounce_email'};
+
+        return LJ::bad_input($ML{'.bounce.notauth'})
+            unless LJ::Support::can_bounce($sp, $remote);
+
+        # check given emails using LJ::check_email
+        my @form_emails = split(/\s*,\s*/, $FORM{'bounce_email'});
+
+        return LJ::bad_input($ML{'.bounce.toomany'})
+            if @form_emails > 5;
+
+        my @emails; # error-checked, good emails
+        my @email_errors;
+        foreach my $email (@form_emails) {
+
+            # see if it's a valid lj username
+            unless ($email =~ /\@/) {
+                my $eu = LJ::load_user($email); # $email is a username
+                $email = $eu->email_raw if $eu;
+            }
+
+            LJ::check_email($email, \@email_errors);
+            @email_errors = map { "<strong>$email:</strong> $_" } @email_errors;
+            return LJ::bad_input(@email_errors) if @email_errors;
+
+            # push onto our list of valid emails
+            push @emails, $email;
+        }
+
+        # append notice that this message was bounced
+        my $splid = LJ::Support::append_request($sp, {
+            'body' => "(Bouncing mail to '" . join(', ', @emails) . "' and closing)\n\n" . $FORM{'body'},
+            'posterid' => $remote,
+            'type' => 'internal',
+            'uniq' => $r->notes('uniq'),
+            'remote' => $remote,
+        });
+
+        # bounce original request to email
+        my $message = $dbh->selectrow_array("SELECT message FROM supportlog " .
+                                            "WHERE spid=? ORDER BY splid LIMIT 1",
+                                            undef, $sp->{'spid'});
+
+        LJ::send_mail({ 
+            'to' => join(", ", @emails),
+            'from' => $sp->{'reqemail'},
+            'fromname' => $sp->{'reqname'},
+            'headers' => { 'X-Bounced-By' => $remote->{'user'} },
+            'subject' => "$sp->{'subject'} (support request #$sp->{'spid'})",
+            'body' => "$message\n\n$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}",
+        });
+
+        # close request, nobody gets credited
+        $dbh->do("UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() WHERE spid=?",
+                 undef, $sp->{'spid'});
+
+        return BML::ml('.bounced.success', { 'addresslist' => "<strong>".join(', ', @emails)."</strong>" })
+            .$successlinks;
+    }
+
+    $dbh->do("UPDATE support SET state='open', timetouched=UNIX_TIMESTAMP(), timeclosed=0 WHERE spid=$spid")
+        if LJ::Support::is_poster($sp, $remote, $FORM{'auth'});
+
+    ## change category
+    if ($FORM{'changecat'}) {
+        # $newcat, $cats defined above
+        $dbh->do("UPDATE support SET spcatid=$newcat WHERE spid=$spid");
+        $status .= "Changing from $catkey => $cats->{$newcat}->{'catkey'}\n\n";
+        $sp->{'spcatid'} = $newcat; # update category so IC e-mail goes to right place
+    }
+
+    ## approving a screened response
+    if ($FORM{'approveans'}) {
+        # $res, $splid defined above
+        # approve
+        my $qtype = $dbh->quote($FORM{'approveas'});
+        $dbh->do("UPDATE supportlog SET type=$qtype WHERE splid=$splid");
+        $status .= "(Approving $FORM{'approveas'} \#$splid)\n\n";
+        LJ::Support::mail_response_to_user($sp, $splid);
+    }
+
+    ## change summary
+    if ($FORM{'changesum'}) {
+        $FORM{'summary'} =~ s/[\n\r]//g;
+        my $qnewsub = $dbh->quote($FORM{'summary'});
+        $dbh->do("UPDATE support SET subject=$qnewsub WHERE spid=$spid");
+        $status .= "Changing subject from \"$sp->{'subject'}\" to \"$FORM{'summary'}\".\n\n";
+    }
+
+    my $splid = LJ::Support::append_request($sp, {
+        'body' => $status . $FORM{'body'},
+        'type' => $type,
+        'faqid' => $faqid,
+        'uniq' => $r->notes('uniq'),
+        'remote' => $remote,
+    });
+
+    LJ::Support::mail_response_to_user($sp, $splid)
+        unless LJ::Support::is_poster($sp, $remote, $FORM{'auth'});
+
+    return "<?h1 $ML{'.logged.title'} h1?><?p $ML{'.logged.text'} p?>" . $successlinks;
+}
+_code?>
+<?hr?>
+<?_code return BML::ml('.back.support2', {'aopts' => "href='$LJ::SITEROOT/support/'"}); _code?>
+
+<=body
+page?><?_c <LJDEP>
+link: htdocs/login.bml, htdocs/support/see_request.bml, htdocs/support/help.bml
+link: htdocs/support/index.bml
+</LJDEP> _c?>

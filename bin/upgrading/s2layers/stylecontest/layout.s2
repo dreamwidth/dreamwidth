@@ -1,0 +1,14 @@
+layerinfo type = "layout";
+layerinfo name = "Style Contest";
+layerinfo redist_uniq = "stylecontest/layout";
+layerinfo previews = "stylecontest/layout.jpg";
+layerinfo des = "Themes from the Bloggish style contest.";
+
+set base_theme = "the_late_show";
+# The colors for the default theme
+set theme_bgcolor = "#111111";
+set theme_fgcolor = "#eadbc0";
+set theme_bordercolor = "#d43402";
+set theme_linkcolor = "#eadbc0";
+
+set layout_type = "2CL";

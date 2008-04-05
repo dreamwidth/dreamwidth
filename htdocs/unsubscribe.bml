@@ -1,0 +1,58 @@
+<?page
+title=>Unsubscribe
+body<=
+
+<?_code
+
+ my $aaid = $POST{'aaid'} || $GET{'aaid'};
+ my $auth = $POST{'auth'} || $GET{'auth'};
+ my $confirm = $POST{'confirm'};
+
+ LJ::set_active_crumb('unsubscribe');
+ 
+unless ($aaid && $auth) {
+     return "<?h1 Error h1?><?p How did you get to this page?  You should only get here via a link in a newsletter. p?><?p Another way to unsubscribe from the newsletter is to visit the <a href=\"/manage/settings/\">viewing options</a> page and change the setting there. p?>";
+ }
+
+ if (($aa = LJ::is_valid_authaction($aaid, $auth))
+     && $aa->{'action'} eq "nonews"
+   ) 
+ {
+     if ($confirm) 
+     {
+         my $quid = $aa->{'userid'}+0;
+         LJ::update_user($quid, { allow_getljnews => 'N' });
+         return "<?h1 Done. h1?><?p You won't get $LJ::SITENAME news anymore. p?>";
+     } 
+     else 
+     {
+         my $ret = "";
+         $ret .= "<?h1 Are you sure? h1?><?p If you want to unsubscribe from the $LJ::SITENAME news mailing list, press the button below.... p?>";
+         $ret .= "<FORM METHOD=POST ACTION=/unsubscribe.bml>\n";
+         my $eaaid = LJ::ehtml($aaid);
+         my $eauth = LJ::ehtml($auth);
+         $ret .= "<INPUT TYPE=HIDDEN NAME=aaid VALUE=\"$eaaid\">\n";
+         $ret .= "<INPUT TYPE=HIDDEN NAME=auth VALUE=\"$eauth\">\n";
+         $ret .= "<INPUT TYPE=HIDDEN NAME=confirm VALUE=1>\n";
+         $ret .= "<CENTER><INPUT TYPE=SUBMIT VALUE=\"Unsubscribe!\"></CENTER></FORM>\n";
+         return $ret;	 
+
+     }
+     my $blah = join(", ", %$aa);
+     return $blah;
+ }
+ else 
+ {
+     my $blah = join(", ", %$aa);
+     return "<?h1 Error h1?><?p The authorization code is invalid. $aa, $blah p?>";
+ }
+     
+
+
+_code?>
+
+<=body
+page?><?_c <LJDEP>
+post: htdocs/unsubscribe.bml
+link: htdocs/manage/settings/index.bml
+</LJDEP> _c?>

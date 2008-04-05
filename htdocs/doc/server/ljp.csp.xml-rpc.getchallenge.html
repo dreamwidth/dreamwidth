@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>getchallenge</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.xml-rpc.protocol.html" title="XML-RPC Client/Server Protocol Reference">
+<link rel="prev" href="ljp.csp.xml-rpc.friendof.html" title="friendof">
+<link rel="next" href="ljp.csp.xml-rpc.getdaycounts.html" title="getdaycounts">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">getchallenge</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.xml-rpc.friendof.html">Prev</a> </td>
+<th width="60%" align="center">
+<acronym class="acronym">XML-RPC</acronym> Client/Server Protocol Reference</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.xml-rpc.getdaycounts.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.csp.xml-rpc.getchallenge"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>getchallenge</h2>
+<p>getchallenge &#8212; 
+Generate a server challenge string for authentication.
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3103280"></a><h2>Mode Description</h2>
+<p>
+Generate a one-time, quick expiration challenge to be used in challenge/response authentication methods.
+</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3103292"></a><h2>Arguments</h2>
+<div class="orderedlist"><ol type="1"></ol></div>
+<div class="example">
+<a name="example-ljp.csp.xml-rpc-call_getchallenge"></a><p class="title"><b>Example 15. Sample call to <code class="literal">LJ.XMLRPC.getchallenge</code></b></p>
+<div class="example-contents">
+<p>
+        </p>
+<pre class="programlisting">
+POST /interface/xmlrpc HTTP/1.0
+User-Agent: XMLRPC Client 1.0
+Host: www.livejournal.com
+Content-Type: text/xml
+Content-Length: 97
+
+&lt;?xml version="1.0"?&gt;
+&lt;methodCall&gt;
+&lt;methodName&gt;LJ.XMLRPC.getchallenge&lt;/methodName&gt;
+&lt;params&gt;
+&lt;param&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;/param&gt;
+&lt;/params&gt;
+&lt;/methodCall&gt;
+</pre>
+<p>
+      </p>
+</div>
+</div>
+<br class="example-break">
+</div>
+<div class="refsect1" lang="en">
+<a name="id3103340"></a><h2>Return Values</h2>
+<div class="orderedlist"><ol type="1"><li>
+<p><span class="emphasis"><em>[struct]</em></span>(required)</p>
+<p>
+  Containing keys:
+    </p>
+<div class="itemizedlist"><ul type="disc">
+<li>
+<p><span class="strong"><strong>auth_scheme</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+You can ignore this for now. By default this is the highest version of our
+authentication schemes, if in the future if we implement other auth schemes or change the default.
+In that case we'd add a new capabilities exchange: Your client could say, "I know c0 and c1", and
+our server would then say, "Use c1, it's the best."
+</p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>challenge</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+An opaque cookie to generate a hashed response from.
+</p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>expire_time</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+The expiration time of the challenge, as measured in seconds since the Unix epoch.
+</p></li></ul></div>
+</li>
+<li>
+<p><span class="strong"><strong>server_time</strong></span>(required):    
+    </p>
+<div class="itemizedlist"><ul type="circle"><li><p><span class="emphasis"><em>[scalar]</em></span>(required)
+The server time when the challenge was generated, as measured in seconds since the Unix epoch.
+</p></li></ul></div>
+</li>
+</ul></div>
+</li></ol></div>
+<div class="example">
+<a name="example-ljp.csp.xml-rpc-return_getchallenge"></a><p class="title"><b>Example 16. Sample return value for <code class="literal">LJ.XMLRPC.getchallenge</code></b></p>
+<div class="example-contents">
+<p>
+        </p>
+<pre class="programlisting">
+HTTP/1.1 200 OK
+Connection: close
+Content-length: 557
+Content-Type: text/xml
+Date: Tue, 16 Jul 2002 00:30:01 GMT
+Server: Apache/1.3.4 (Unix)
+
+&lt;?xml version="1.0"?&gt;
+&lt;methodResponse&gt;
+&lt;params&gt;
+&lt;param&gt;
+&lt;value&gt;&lt;struct&gt;
+&lt;member&gt;&lt;name&gt;auth_scheme&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;c0&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;challenge&lt;/name&gt;
+&lt;value&gt;&lt;string&gt;c0:1073113200:2831:60:2TCbFBYR72f2jhVDuowz:0fba728f5964ea54160a5b18317d92df&lt;/string&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;expire_time&lt;/name&gt;
+&lt;value&gt;&lt;int&gt;1073116091&lt;/int&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;member&gt;&lt;name&gt;server_time&lt;/name&gt;
+&lt;value&gt;&lt;int&gt;1073116031&lt;/int&gt;&lt;/value&gt;
+
+&lt;/member&gt;
+&lt;/struct&gt;&lt;/value&gt;
+&lt;/param&gt;
+&lt;/params&gt;
+&lt;/methodResponse&gt;
+</pre>
+<p>
+      </p>
+</div>
+</div>
+<br class="example-break">
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.xml-rpc.friendof.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.xml-rpc.protocol.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.xml-rpc.getdaycounts.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">friendof </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> getdaycounts</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

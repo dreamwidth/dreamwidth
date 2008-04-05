@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>1. Writing Hooks</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.customize.hooks.html" title="Chapter 19. Setting and using Hooks">
+<link rel="prev" href="lj.customize.hooks.html" title="Chapter 19. Setting and using Hooks">
+<link rel="next" href="lj.customize.hooks.ref.html" title="2. Hooks Reference">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">1. Writing Hooks</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.customize.hooks.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 19. Setting and using Hooks</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.customize.hooks.ref.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.customize.hooks.setup">1. Writing Hooks</h2></div></div></div>
+<p>
+      Hooks are written either in <code class="filename">cgi-bin/ljlib.pl</code> file, or in a separate
+      site-specific library file. Site-specific hooks are defined by the function <code class="function">LJ::register_hook()</code>,
+      which takes two arguments: the name of the hook, and the hook's perl coderef.
+    </p>
+<p>
+      Most hook coderefs are passed a single hash of various objects as their argument, though there are a few
+      exceptions. Consult <a class="xref" href="lj.customize.hooks.ref.html" title="2. Hooks Reference">Section 2, &#8220;Hooks Reference&#8221;</a> for more information.
+    </p>
+<div class="example">
+<a name="example-lj-hook"></a><p class="title"><b>Example 19.1. Sample hook: userinfo_html_by_user</b></p>
+<div class="example-contents">
+<p>
+        To give you an idea of how a hook is set up, a smaller hook is sampled below:
+      </p>
+<pre class="programlisting">LJ::register_hook("userinfo_html_by_user", sub {
+    my $o = shift;
+    my $r = $o-&gt;{'ret'};
+    my $u = $o-&gt;{'u'};
+    return unless (LJ::get_cap($u, "normal"));
+    $$r .= "&lt;img src='$LJ::IMGPREFIX/talk/sm08_star.gif' width='20' height='18' alt='&amp;#8902;' style='vertical-align: middle; border: 0;' /&gt;";
+        });</pre>
+<p>
+        <code class="varname">$o</code> is the argument hash that is passed to the hook's subroutine,
+        and consists of the scalar reference member <code class="varname">$o-&gt;{'r'}</code> and the user object
+        member <code class="varname">$o-&gt;{'u'}</code>. The subroutine then checks to see if the user
+        is part of the capability class &#8220;<span class="quote">normal</span>&#8221;, and if so it will pass the
+        <acronym class="acronym">HTML</acronym> image directive as the scalar reference. Now when someone loads
+        a user information page for a &#8220;<span class="quote">normal</span>&#8221; user, a small star will appear
+        next to their username and userid.
+      </p>
+</div>
+</div>
+<br class="example-break">
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.customize.hooks.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.customize.hooks.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.customize.hooks.ref.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 19. Setting and using Hooks </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 2. Hooks Reference</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>1. Introduction to the Protocol</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.csp.guide.html" title="Chapter 23. Client / Server Protocol - Quick Reference">
+<link rel="prev" href="ljp.csp.guide.html" title="Chapter 23. Client / Server Protocol - Quick Reference">
+<link rel="next" href="ljp.csp.guide.proxies.html" title="2. Working with Proxies">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">1. Introduction to the Protocol</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.csp.guide.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 23. Client / Server Protocol - Quick Reference</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.csp.guide.proxies.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="ljp.csp.guide.intro">1. Introduction to the Protocol</h2></div></div></div>
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Note</h3>
+<p>
+        Before reading this document, it is assumed you know at least some
+        basics about network programming, at least the whole idea of opening
+        sockets and reading/writing to them. If not, this might be kind've
+        confusing.
+      </p>
+</div>
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Client Developer Community</h3>
+<p>
+      If you ever have any questions about building clients for <span class="application">LiveJournal</span>, then
+      you'll probably be interested in the <a href="http://community.livejournal.com/lj_dev/profile" target="_top">lj_dev<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a> community on <code class="systemitem">LiveJournal.com</code>.
+      The archives of the <a href="http://community.livejournal.com/lj_clients/profile" target="_top">lj_clients<span class="ulink"><img src="/img/link.png" alt="[o]" title=""></span></a> community may also be of interest.
+      </p>
+</div>
+<p>Basically, sending a <span class="application">LiveJournal</span> request is like this:</p>
+<div class="procedure">
+<a name="id3067775"></a><p class="title"><b>Procedure 23.1. Handshake</b></p>
+<ol type="1">
+<li><p>Open a socket to <code class="uri">www.livejournal.com</code> on port 80</p></li>
+<li><p>Send an <code class="systemitem">HTTP</code> <code class="literal">POST</code> request, containing the request variables (mode, user, password, etc&#8230;)</p></li>
+<li><p>Read the socket to get the response. The response is really easy to parse.</p></li>
+<li><p>Close the socket. Do any appropriate action based on the server's response.</p></li>
+</ol>
+</div>
+<p>For example, your client would output a request:
+      </p>
+<pre class="programlisting">
+POST /interface/flat HTTP/1.1
+Host: www.livejournal.com
+Content-type: application/x-www-form-urlencoded
+Content-length: 34
+
+mode=login&amp;user=test&amp;password=test
+</pre>
+<p>
+    </p>
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Note</h3>
+<p>
+        All values must be quoted or the values can interfere with the encoding form. 
+        For example, if somebody's password was &#8220;<span class="quote">blah&amp;=2+&amp;something=yeah</span>&#8221;,
+        it could quite possibly ruin the encoding format.
+        Here are some guidelines on how to encode values:
+        </p>
+<div class="itemizedlist"><ul type="disc">
+<li><p>Leave all values from a-z, A-Z, and 0-9 alone. These are fine.</p></li>
+<li><p>Convert spaces to a + (plus) sign.</p></li>
+<li><p>Convert everything else to %<em class="replaceable"><code>hh</code></em> where <em class="replaceable"><code>hh</code></em> is the hex representation of the character's <acronym class="acronym">ASCII</acronym> value.</p></li>
+</ul></div>
+<p>
+      </p>
+<p>
+        For example, the phrase &#8220;<span class="quote">I'm going to the mall</span>&#8221; could encoded as &#8220;<span class="quote">I%27m+going+to+the+mall</span>&#8221;.
+        There should be <abbr class="abbrev">CGI</abbr> libraries for all major languages which do this encoding for you.
+        If not, it isn't that hard to do it yourself.
+      </p>
+</div>
+<p>
+      After you construct the long ugly string of variables/values, find the length of
+      it and send it in the Content-length field, as in the example above.
+      Then send a blank line, then the big long ugly string.
+    </p>
+<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Line Endings</h3>
+<p>
+        Please note that the end of lines should be a carriage return 
+        (<acronym class="acronym">ASCII</acronym> <code class="literal">13</code>, <code class="literal">0x0D</code>) and then a
+        newline (<acronym class="acronym">ASCII</acronym> <code class="literal">10</code>, <code class="literal">0x0A</code>).
+        In Perl, C/C++ or Java this is &#8220;<span class="quote">\r\n</span>&#8221;. 
+        In Basic, this is <code class="literal">Chr(13)</code> &amp; <code class="literal">Chr(10)</code>.
+        Sending just the newline may work too, but it's generally better to send both.
+      </p>
+</div>
+<p>A typical response would be:
+      </p>
+<pre class="programlisting">
+HTTP/1.1 200 OK
+Date: Sat, 23 Oct 1999 21:32:35 GMT
+Server: Apache/1.3.4 (Unix)
+Connection: close
+Content-Type: text/plain
+
+name
+Mr. Test Account
+success
+OK
+message
+Hello Test Account!
+</pre>
+<p>
+    </p>
+<p>
+      The top stuff is headers from the <code class="systemitem">HTTP</code> request.
+      There may be a lot of other stuff in there too. 
+      First thing to do is make sure the first line ends with &#8220;<span class="quote"><code class="computeroutput">200 OK</code></span>&#8221;.
+      If the first line does not end with &#8220;<span class="quote"><code class="computeroutput">200 OK</code></span>&#8221;,
+      tell the user that an error occurred on the server and that it's not their fault.
+      If you see &#8220;<span class="quote"><code class="computeroutput">200 OK</code></span>&#8221; at the end, proceed with parsing the output.
+      The format is as follows:
+      </p>
+<pre class="programlisting">variable
+value
+someothervariable
+someothervalue</pre>
+<p>
+      The ordering of the variable/value pairs does not matter.
+      As you read them in, read them into a hash structure
+      (associative array, dictionary, collection&#8230;whatever it's called in your language.
+      Just a data structure that links one string variable key to another string variable value.).
+    </p>
+<p>
+      After your hash is loaded, proceed with the logic of reporting errors if needed, as governed by the variables and logic above.
+    </p>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.csp.guide.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.csp.guide.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.csp.guide.proxies.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 23. Client / Server Protocol - Quick Reference </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 2. Working with Proxies</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

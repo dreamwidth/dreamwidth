@@ -1,0 +1,13 @@
+# Note to people using LJ Server software: 
+#   Do not modify this file.  Create text-local.dat, and that will
+#   be read as well.  See LiveJournal.com's text-local.dat in ljcom CVS.
+
+# one language, english, which is the master of one domain (general)
+lang:1:en:English
+domain:1:general
+langdomain:en:general:1
+
+# htdocs/support/faq*.bml and cgi-bin/LJ/Faq.pm expect the faq domain to exist
+# so make an empty one
+domain:100:faq
+langdomain:en:faq:1

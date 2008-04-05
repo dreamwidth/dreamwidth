@@ -1,0 +1,40 @@
+;; -*- coding: utf-8 -*-
+.deleted.body2=The comments have been deleted. You can view the rest of the thread <a [[aopts]]>here</a>.
+
+.deleted.title=Comments deleted
+
+.error.comms_deleted=One of the comments has been deleted since you selected it. For security reasons, please go back and try again.
+
+.error.inconsistent_data=The supplied data is inconsistent.
+
+.error.invalid=Invalid parameters specified.
+
+.error.invalid_mode<<
+You have not selected one of the actions. Please go back and choose
+if you would like to screen, unscreen, or delete the comments.
+.
+
+.error.login=You are not logged in.
+
+.error.none_selected=You have not selected any comments.
+
+.error.privs.delete=You do not have permission to delete these comments.
+
+.error.privs.screen=You do not have permission to screen these comments.
+
+.error.privs.unscreen=You do not have permission to unscreen these comments.
+
+.screened.body2=The comments have been screened. You can view them <a [[aopts]]>here</a>.
+
+.screened.title=Comments screened
+
+.title.delete=Delete Multiple Comments
+
+.title.screen=Screen Multiple Comments
+
+.title.unscreen=Unscreen Multiple Comments
+
+.unscreened.body2=The comments have been unscreened. You can view them <a [[aopts]]>here</a>.
+
+.unscreened.title=Comments unscreened
+

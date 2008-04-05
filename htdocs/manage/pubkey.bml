@@ -1,0 +1,97 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%POST);
+
+    LJ::set_active_crumb('setpgpkey');
+
+    return $ML{'.error.notconfigured'} unless $LJ::USE_PGP;
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
+
+    my $u = LJ::get_remote();
+    return "<?needlogin?>"
+        unless $u;
+    return BML::redirect("$LJ::SITEROOT/agecheck/?s=1")
+        if $u->underage;
+
+    return $LJ::MSG_READONLY_USER if $u->readonly;
+
+    my $check_key = sub {
+        my $key = shift;
+
+        # make sure it is a public key, not a private or a signature,
+        # before we bother with other checks
+        my $kt = $1 if $key =~ /-{5}BEGIN PGP (\w+) /;
+        return 0 unless $kt eq 'PUBLIC';
+
+        # pull key data, return if suspicious
+        my $ks = "$kt KEY BLOCK";
+        my $data = $1 if $key =~ /$ks-{5}(.+?)-{5}.+?$ks(?:-)+/s;
+        foreach ($data =~ /^(\w+):/mg) {
+            return 0 unless $1 =~ /(Version|Hash|Comment|MessageID|Charset)/i;
+        }
+        $data =~ s/^(\s|\w+:).*//mg;
+        $data =~ s/(?:\r)?\n//sg;
+        return 0 if $data =~ tr/[ \t]// || length $data < 500;
+
+        return 1;
+    };
+
+    # Update settings
+    my $error;
+    if (LJ::did_post()) {
+        return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+
+        my @errors;
+        my $key = $POST{key};
+        push(@errors, $ML{'.error.invalidkey'})
+            if ! $check_key->($key) && length $key != 0;
+        $error =  LJ::error_list(@errors) if @errors;
+
+        unless (@errors) {
+            $key = LJ::trim($key);
+            LJ::set_userprop($u, 'public_key', $key);
+
+            # This page shows them their key saved
+            # eventually add a confirmation bar on it
+            return BML::redirect('/pubkey.bml');
+        }
+    }
+
+    # Initial page
+    LJ::load_user_props($u, qw(public_key));
+
+    my $ret;
+    $ret .= "<?p ";
+    $ret .= BML::ml('.info', {
+        aoptsinfo => "href='/userinfo.bml'",
+        aoptshelp => "href='emailpost.bml?mode=help&type=advanced\#pgp'",
+    });
+    $ret .= " p?>";
+    $ret .= "<?p ";
+    $ret .= BML::ml('.whatis', {
+        aoptspgp => "href='http://www.pgp.com/'",
+        aoptsgpg => "href='http://www.gnupg.org/'",
+    });
+    $ret .= " p?>";
+
+    $ret .= "<?h1 $ML{'.header'} <img src='/img/key.gif' height='16' width='16'> h1?>";
+    $ret .= "<form method='post' action='pubkey.bml'>\n";
+    $ret .= LJ::form_auth();
+    $ret .= $error if $error;
+    $ret .= "<?p $ML{'.pastekey'} p?>\n";
+    $ret .= LJ::html_hidden(userid => $u->{userid});
+    my $val = LJ::did_post() ? $POST{'key'} : $u->{'public_key'};
+    $ret .= LJ::html_textarea({name=>'key', value=>$val, rows=>20, cols=>70 });
+    $ret .= "<br /><br /><?standout ";
+    $ret .= LJ::html_submit($ML{'.save'});
+    $ret .= " standout?>";
+    $ret .= "</form>";
+    return $ret;
+
+} _code?>
+<=body
+page?>

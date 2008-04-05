@@ -1,0 +1,19 @@
+;; -*- coding: utf-8 -*-
+.choosebase=Choose base style to start with and edit:
+
+.createstyle.head=Create a Style
+
+.createstyle.text2=From here you can create a new personal-style, useful if you're going to either <a [[aopts]]>embed your journal in your homepage</a> or you want to make a public style that everybody can use and you need to work on it here first, rather than in your overrides section.
+
+.enterstyleid=Or, enter a non-system public Style ID#:
+
+.noneorother=(None, or other below:)
+
+.selecttype.head=Select Style Type
+
+.selecttype.text=A style only affects one view type.  If you want to create a matching set of styles for your journal, you have to create your style for each view type.
+
+.submit=Create Style
+
+.title=Create Style
+

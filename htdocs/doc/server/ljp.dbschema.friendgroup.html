@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>friendgroup</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="ljp.dbschema.ref.html" title="Database Schema Browser">
+<link rel="prev" href="ljp.dbschema.fraudsuspects.html" title="fraudsuspects">
+<link rel="next" href="ljp.dbschema.friendgroup2.html" title="friendgroup2">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">
+      <span class="database">friendgroup</span>
+    </th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="ljp.dbschema.fraudsuspects.html">Prev</a> </td>
+<th width="60%" align="center">Database Schema Browser</th>
+<td width="20%" align="right"> <a accesskey="n" href="ljp.dbschema.friendgroup2.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="refentry" lang="en">
+<a name="ljp.dbschema.friendgroup"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2>
+      <span class="database">friendgroup</span>
+    </h2>
+<p>
+      <span class="database">friendgroup</span>
+     &#8212; Table describing a user's friends groups. Friends groups are used to restrict who can see an individual entry, or to filter the friends view.</p>
+</div>
+<div class="refsect1" lang="en">
+<a name="id3334269"></a><h2>
+      <span class="database">friendgroup</span>
+    </h2>
+<div class="informaltable"><table border="1">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Column name</th>
+<th>Type</th>
+<th>Null</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+              <span class="database">userid</span>
+            </td>
+<td>
+              <span class="type">int unsigned</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal">0</code>
+            </td>
+<td>The userid of the <a class="link" href="ljp.dbschema.user.html" title="user"><span class="database">user</span></a> who this friends group belongs to.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">groupnum</span>
+            </td>
+<td>
+              <span class="type">tinyint unsigned</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal">0</code>
+            </td>
+<td>The group number. Can be 1-30.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">groupname</span>
+            </td>
+<td>
+              <span class="type">varchar(60)</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal"></code>
+            </td>
+<td>Name given to the friend group.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">sortorder</span>
+            </td>
+<td>
+              <span class="type">tinyint unsigned</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal">50</code>
+            </td>
+<td>The sorting order.</td>
+</tr>
+<tr>
+<td>
+              <span class="database">is_public</span>
+            </td>
+<td>
+              <span class="type">enum('0','1')</span>
+            </td>
+<td align="center"> </td>
+<td align="center">
+              <code class="literal">0</code>
+            </td>
+<td>Determines if the group can be seen by anyone, or just the owner.</td>
+</tr>
+</tbody>
+</table></div>
+<div class="informaltable"><table border="1">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Key name</th>
+<th>Type</th>
+<th>Column(s)</th>
+</tr></thead>
+<tbody><tr>
+<td>
+              <span class="database">PRIMARY</span>
+            </td>
+<td>
+              <span class="type">PRIMARY</span>
+            </td>
+<td>
+              <span class="database"></span>
+            </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="ljp.dbschema.fraudsuspects.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="ljp.dbschema.ref.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="ljp.dbschema.friendgroup2.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">
+      <span class="database">fraudsuspects</span>
+     </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> 
+      <span class="database">friendgroup2</span>
+    </td>
+</tr>
+</table>
+</div>
+</body>
+</html>

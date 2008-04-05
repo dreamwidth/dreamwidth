@@ -1,0 +1,157 @@
+#!/usr/bin/perl
+
+package LJ::Worker::BirthdayNotify;
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use base 'LJ::Worker::Manual';
+use LJ::Event::Birthday;
+use List::Util ();
+
+# send out for notifications up to two days in the future
+my $advance_notify = $LJ::BIRTHDAY_NOTIFS_ADVANCE || 2*86400; # 2 days
+
+# delay for polling clusters that last had no users
+my $delay_when_none = 15;
+
+# how long to wait if we didn't process any at all
+my $sleep_when_idle = 10;
+
+# mapping of clusterid -> when they were last empty
+my %last_empty;
+
+# the cluster we're working on. used in several places.
+my $working_clusterid;
+
+sub work {
+    my $class = shift;
+    my @uids = @_;
+
+    # pick a cluster to work on, get a lock
+    my $lock;
+    foreach my $cid (List::Util::shuffle(@LJ::CLUSTERS)) {
+        last if @uids;
+
+        debug("Checking cluster: $cid");
+        next unless cluster_needs_work($cid);
+
+        $lock = LJ::locker()->trylock("birthday-notify:" . $cid);
+        next unless $lock;
+
+        # got a lock and a reader
+        debug("Fetching users from cluster: $cid");
+        push @uids, get_users_from_cluster($cid);
+
+        # found a clusterid to work on!
+        $working_clusterid = $cid;
+
+        last;
+    }
+
+    # when we return 0 here, we'll be considered idle
+    return 0 unless @uids;
+
+    my $us = LJ::load_userids(@uids);
+    my $ct = 0;
+
+    # a multiloader to fetch everyone's birthdays currently, so
+    # we can discard notifications for people whose birthdays
+    # have already passed (eg, worker backlog)
+    my $bdays = LJ::User->next_birthdays(@uids);
+
+    foreach my $u (values %$us) {
+        # don't want to process read-only users (being moved?)
+        next if $u->readonly;
+
+        # if a user's data is still on this cluster, but the user isn't,
+        # we want to enter lazy-cleanup mode so we don't spin on these users
+        # (this is a superset of the case of expunged users)
+        if ($u->clusterid != $working_clusterid) {
+            remove_user_from_cluster($u, $working_clusterid);
+            next;
+        }
+
+        # do this first, so we properly update even if we don't notify
+        # next out if the setter failed (eg, invalid birthday)
+        $u->set_next_birthday or next;
+
+        # don't mail if their birthday's already passed
+        next if $bdays->{$u->id} < time();
+
+        next unless $u->should_fire_birthday_notif;
+
+        debug("Firing off notification for " . $u->user);
+        LJ::Event::Birthday->new($u)->fire;
+        $ct++;
+    }
+
+    # return and release our lock as it falls out of scope
+
+    return $ct;
+}
+
+sub on_idle {
+    return sleep $sleep_when_idle;
+}
+
+sub debug {
+    LJ::Worker::Manual->cond_debug(@_);
+}
+
+
+# checks if a cluster has pending notifications to send out.
+sub cluster_needs_work {
+    my $cluster = shift;
+
+    # don't hammer a cluster if we don't have anyone on it.
+    return if $last_empty{$cluster} && $delay_when_none > time() - $last_empty{$cluster};
+
+    # now check if there are pending notifications on the cluster
+    my $dbcr = LJ::get_cluster_def_reader($cluster);
+    return unless $dbcr;
+
+    my $ct = $dbcr->selectrow_array("SELECT userid FROM birthdays WHERE " .
+                                    "nextbirthday < UNIX_TIMESTAMP() + $advance_notify LIMIT 1")+0;
+    die $dbcr->errstr if $dbcr->err;
+    return 1 if $ct;
+
+    # otherwise, we had nobody. make a note of that.
+    $last_empty{$cluster} = time();
+    return undef;
+}
+
+sub get_users_from_cluster {
+    my $cluster = shift;
+
+    my $dbcr = LJ::get_cluster_def_reader($cluster);
+    die "Unable to get cluster reader for cluster $cluster" unless $dbcr;
+
+    my $userids = $dbcr->selectcol_arrayref("SELECT userid FROM birthdays " .
+                                            "WHERE nextbirthday < UNIX_TIMESTAMP() + $advance_notify LIMIT 1000");
+    die $dbcr->errstr if $dbcr->err;
+
+    return @$userids;
+}
+
+sub remove_user_from_cluster {
+    my ($u, $cid) = @_;
+    debug("Cleaning up for moved user: " . $u->user);
+
+    my $dbh = LJ::get_cluster_master($cid)
+        or die "Unable to get cluster reader for cluster: $cid";
+
+    $dbh->do("DELETE FROM birthdays WHERE userid = ?", undef, $u->id);
+    die $dbh->errstr if $dbh->err;
+}
+
+################################################################################
+
+# to be able to work on one specific user
+if (@ARGV) {
+    my $user = shift;
+    my $u = LJ::load_user($user);
+    $working_clusterid = $u->clusterid;
+    __PACKAGE__->work($u->id);
+} else {
+    __PACKAGE__->run();
+}

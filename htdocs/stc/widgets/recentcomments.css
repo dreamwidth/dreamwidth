@@ -1,0 +1,16 @@
+/* recent comments */
+
+.appwidget-recentcomments .userpic-img {
+    width: 60px;
+    float: left;
+    margin-right: 8px;
+    border: none;
+}
+.appwidget-recentcomments p.pkg {
+    border-bottom: 1px solid #ddd;
+    padding: 0 0 10px 0;
+}
+.appwidget-recentcomments p.pkg.last {
+    border-bottom: none;
+    padding-bottom: 0;
+}

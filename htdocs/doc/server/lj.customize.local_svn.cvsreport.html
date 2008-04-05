@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>1. cvsreport.pl (vcv) : Adding &amp; Overlaying</title>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="index.html" title="LiveJournal Server">
+<link rel="up" href="lj.customize.local_svn.html" title="Chapter 15. Using your own SVN directory">
+<link rel="prev" href="lj.customize.local_svn.html" title="Chapter 15. Using your own SVN directory">
+<link rel="next" href="lj.customize.images.html" title="Chapter 16. Using your own images and icons">
+<meta name="date" content="2008-Jan-15">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="navheader">
+<table width="100%" summary="Navigation header">
+<tr><th colspan="3" align="center">1. <span class="application">cvsreport.pl</span> (<span class="application"><acronym class="acronym">vcv</acronym></span>) : Adding &amp; Overlaying</th></tr>
+<tr>
+<td width="20%" align="left">
+<a accesskey="p" href="lj.customize.local_svn.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 15. Using your own <abbr class="abbrev">SVN</abbr> directory</th>
+<td width="20%" align="right"> <a accesskey="n" href="lj.customize.images.html">Next</a>
+</td>
+</tr>
+</table>
+<hr>
+</div>
+<div class="section" lang="en">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both" id="lj.customize.local_svn.cvsreport">1. <span class="application">cvsreport.pl</span> (<span class="application"><acronym class="acronym">vcv</acronym></span>) : Adding &amp; Overlaying</h2></div></div></div>
+<p>
+      In <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/bin</code>
+      there's a tool named <span class="application"><acronym class="acronym">vcv</acronym></span> (&#8220;<span class="quote">version control views</span>&#8221;).
+      This tool, named <span class="application">cvsreport.pl</span> in its original
+      incarnation, manages (among other things) merging together the general files
+      and your site-local files into the live area
+      under <em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>. It uses a file
+      named <code class="filename">multicvs.conf</code> for mapping instructions, to
+      find out where to place the different files.
+      The <span class="application">cvsreport.pl</span> utility is just a front-end to the <span class="application"><acronym class="acronym">vcv</acronym></span> tool.</p>
+<p>
+      The command you'll need most of the time is:
+
+</p>
+<pre class="screen"><code class="prompt">$</code> <strong class="userinput"><code>bin/cvsreport.pl -u -c -s</code></strong></pre>
+<p>
+      <em class="parameter"><code>-u</code></em> is short for <em class="parameter"><code>--update</code></em> 
+      (the files in the local <code class="filename">cvs</code> directory from the external 
+      <abbr class="abbrev">SVN</abbr> repositories), <em class="parameter"><code>-c</code></em> is short for <em class="parameter"><code>--cvsonly</code></em>
+      (only copies from the <code class="filename">cvs</code> directory back to the live area, not
+      vice-versa) and <em class="parameter"><code>-s</code></em> is short for <em class="parameter"><code>--sync</code></em>
+      (which means actually do the copying, don't just print out what it would have done,
+      which is the default without <em class="parameter"><code>-s</code></em>).
+    </p>
+<p>
+      So, say you want to override the provided
+      <code class="filename">htdocs/index.bml</code> file.  Create the
+      <code class="filename">htdocs</code> under
+      <code class="filename"><em class="parameter"><code>$<code class="envar">LJHOME</code></code></em>/cvs/local</code> and
+      put an <code class="filename">index.bml</code> file in it, then run
+      <span class="application">cvsreport.pl</span> <em class="parameter"><code>-c -s</code></em> and you are set.
+    </p>
+<p>
+      More commonly, you will be adding new files, rather than replacing
+      provided ones.  In general, you should never really need to
+      replace files, since you should already be able to change all
+      the text, images, and layout of any given page.  Replacing a
+      file would mean duplicating functionality, and that's bad.
+    </p>
+<p>
+      One popular strategy with the general code libraries is to look
+      for a similarly named file with <code class="filename">-local</code> in it
+      and load that also.  That way you inherit all the functionality
+      that is provided, and change only what you want.  When general
+      changes, you don't have to update right away&#8230; you can change
+      things later if you want, or keep the newly added stuff as it
+      was given to you.
+    </p>
+</div>
+<div class="navfooter">
+<hr>
+<table width="100%" summary="Navigation footer">
+<tr>
+<td width="40%" align="left">
+<a accesskey="p" href="lj.customize.local_svn.html">Prev</a> </td>
+<td width="20%" align="center"><a accesskey="u" href="lj.customize.local_svn.html">Up</a></td>
+<td width="40%" align="right"> <a accesskey="n" href="lj.customize.images.html">Next</a>
+</td>
+</tr>
+<tr>
+<td width="40%" align="left" valign="top">Chapter 15. Using your own <abbr class="abbrev">SVN</abbr> directory </td>
+<td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
+<td width="40%" align="right" valign="top"> Chapter 16. Using your own images and icons</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

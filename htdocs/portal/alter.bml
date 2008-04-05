@@ -1,0 +1,132 @@
+<?_code
+
+ $title = "";
+ $body = "";
+
+ my $remote = LJ::get_remote();
+ 
+ unless ($remote) { $body = "<?needlogin?>"; return; }
+
+ my $op = $FORM{'op'};
+ my $t = $FORM{'t'};
+ my ($bname, $loc, $pos) = split(/-/, $t);
+ $pos += 0;
+
+ my $portopts = LJ::Portal::load_portopts($remote);
+ 
+ if ($op eq "x")
+ {
+     LJ::Portal::delete_box($portopts, $loc, $pos, $bname);
+     LJ::Portal::save_portopts($remote, $portopts);
+     if ($loc eq "moz") {
+         return BML::redirect("$LJ::SITEROOT/portal/moz.bml");
+     } else {
+         return BML::redirect("$LJ::SITEROOT$LJ::PORTAL_URI");
+     }
+ }
+
+ if ($op eq "u" || $op eq "d")
+ {
+     LJ::Portal::move_box($portopts, $loc, $pos, $bname, $op);
+     LJ::Portal::save_portopts($remote, $portopts);
+     if ($loc eq "moz") {
+         return BML::redirect("$LJ::SITEROOT/portal/moz.bml");
+     } else {
+         return BML::redirect("$LJ::SITEROOT$LJ::PORTAL_URI");
+     }
+ }
+
+ if ($op eq "a")
+ {
+     $title = "Customize Homepage";
+     
+     $body .= "<?h1 Welcome! h1?>";
+     $body .= "<?p By clicking the little plus sign on the main page you can do several things.  You can change the settings for the box you clicked, you can add a new box, or you can reset your settings back to the default. p?>";
+
+     $body .= "<?h1 Change Box Settings h1?>";
+     $body .= "<?p Change the settings for the box you just clicked:<ul>\n";
+     {
+         my $modform = LJ::Portal::make_box_modify_form($portopts, $loc, $pos);
+         if ($modform) {
+             $body .= $modform;
+         } else {
+             $body .= "<i>No options for this box.</i>";
+         }
+     }
+     $body .= "</ul> p?>";
+     
+     $body .= "<?h1 Add New Box h1?><?p You can create a new box to show on the main page:<ul>";
+     foreach my $loc (@LJ::PORTAL_COLS)
+     {
+         $body .= "<form method='post' action='alter.bml'>";
+         $body .= LJ::html_hidden("op", "addnew",
+                                  "loc", $loc);
+         $body .= "<p><b>$LJ::Portal::colname{$loc}</b><br>";
+         $body .= LJ::html_select({ 'name' => "bname",
+                                    'noescape' => 1,
+                                  },
+                                  "", "(Pick Box Type)",
+                                  LJ::Portal::get_box_types($loc));
+         $body .= " <input type=submit value=\"Proceed --&gt;\"></form>";
+     }
+     $body .= "</ul> p?>";
+     return;
+ }
+
+ if ($op eq "addnew") 
+ {
+     my $bname = $FORM{'bname'};
+     my $loc = $FORM{'loc'};
+
+     my $pos = LJ::Portal::create_new_box($portopts, $bname, $loc);
+     LJ::Portal::save_portopts($remote, $portopts);
+     
+     my $modform =  LJ::Portal::make_box_modify_form($portopts, $loc, $pos);
+     if ($modform) 
+     {
+         $title = "Configure Box";
+         $body .= $modform;
+         return;
+     } 
+     else
+     {
+         if ($loc eq "moz") {
+             $op = "mozadd";
+         } else {
+             return BML::redirect("$LJ::SITEROOT$LJ::PORTAL_URI");
+         }
+     }
+ }
+
+ if ($op eq "modbox")
+ {
+     my $newargs = LJ::Portal::modify_box($remote, $portopts, $FORM{'loc'}, $FORM{'pos'}, \%FORM);
+     if ($FORM{'loc'} eq "moz") {
+         $op = "mozadd";
+     } else {
+         return BML::redirect("$LJ::SITEROOT$LJ::PORTAL_URI");
+     }
+ }
+
+ ## add sidebar to mozilla
+ if ($op eq "mozadd")
+ {
+     $title = "Add Mozilla Sidebar";
+     $body = "If you're running Mozilla or Netscape &gt;= 6.0 you can click the link below to add this LJ portal box to your Mozilla sidebar.  If you're using Internet Explorer, sorry.<p>";
+     $body .= "<ul>";
+
+     $body .= "<a href=\"javascript:sidebar.addPanel('$LJ::SITENAME','$LJ::SITEROOT/portal/moz.bml','')\"><b>&lt;--- Add $LJ::SITENAME Mozilla Sidebar</b></a>";
+     $body .= "</ul>";
+     $body .= "If you just added a new box to the sidebar or changed a setting and the $LJ::SITENAME sidebar is already open, hit the reload link in the sidebar.";
+     return;
+ }
+
+ return;
+
+_code?><?page
+title=><?_code return $title; _code?>
+body=><?_code return $body; _code?>
+page?><?_c <LJDEP>
+link: htdocs/portal/moz.bml, htdocs/portal/index.bml
+post: htdocs/portal/alter.bml
+</LJDEP> _c?>

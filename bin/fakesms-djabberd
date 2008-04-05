@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$ENV{LJHOME}/src/djabberd/lib";
+require 'ljconfig.pl';
+
+use DJabberd;
+use DJabberd::Authen::AllowedUsers;
+use DJabberd::Authen::StaticPassword;
+use DJabberd::Delivery::Local;
+use DJabberd::FakeSMS;
+use Getopt::Long;
+
+use vars qw($DEBUG);
+$DEBUG = 0;
+
+my ($daemonize);
+
+Getopt::Long::GetOptions(
+    'd|daemon'       => \$daemonize,
+    'debug=i'        => \$DEBUG,
+   );
+
+use FindBin qw($Bin);
+
+use DJabberd::VHost;
+my $vhost = DJabberd::VHost->new(
+                                 server_name => $LJ::DOMAIN,
+                                 s2s       => 0,
+                                 plugins   => [
+                                               DJabberd::Authen::AllowedUsers->new(policy => "deny",
+                                                                                   allowedusers => [qr/^\+?\d+/, 'sms']),
+                                               DJabberd::Authen::StaticPassword->new(password => "smstest"),
+                                               DJabberd::Delivery::FakeSMS->new(),
+                                               DJabberd::Delivery::Local->new(),
+                                               DJabberd::RosterStorage::FakeSMS->new(),
+                                               DJabberd::PresenceChecker::FakeSMS->new(),
+                                               ],
+                                 );
+
+my $server = DJabberd->new(
+                           daemonize => $daemonize,
+                           );
+
+$server->add_vhost($vhost);
+
+# incoming
+$server->start_simple_server(5224);
+
+$server->run;
+
+

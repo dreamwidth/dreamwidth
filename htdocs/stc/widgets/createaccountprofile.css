@@ -1,0 +1,37 @@
+.appwidget-createaccountprofile {
+    margin-bottom: 10px !important;
+}
+
+.appwidget-createaccountprofile h2 {
+    color: #213368;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+.appwidget-createaccountprofile .field-name {
+    font-size: 12px;
+    background-color: #dee9f1;
+    font-weight: bold;
+    text-align: right;
+    width: 70px;
+    padding-right: 5px;
+}
+
+.appwidget-createaccountprofile .appwidget-location {
+    margin: 0;
+    padding: 0;
+}
+
+.appwidget-createaccountprofile .header {
+    color: #213368;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.appwidget-createaccountprofile .header-note {
+    font-size: 12px;
+    font-weight: normal;
+}

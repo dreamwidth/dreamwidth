@@ -1,0 +1,439 @@
+;; -*- coding: utf-8 -*-
+.advanced.about=Don't worry about this stuff if you don't know what it is.
+
+.advanced.title=Advanced Options
+
+.allowshowcontact.about<<
+You should keep this option enabled.  This lets other people be able to contact 
+you by showing your email address, ICQ number, and AOL Instant Messenger screenname 
+all on your LiveJournal.
+.
+
+.allowshowcontact.email=If visible, email address to be displayed:
+
+.allowshowcontact.email.actual_only=Actual address only
+
+.allowshowcontact.email.both=Both (actual + [[domain]])
+
+.allowshowcontact.email.lj_only=Site address only
+
+.allowshowcontact.email.neither=Neither. Don't show any email address.
+
+.allowshowcontact.email.no_show=Don't show email address
+
+.allowshowcontact.email.show=Show email address
+
+.allowshowcontact.email.withdomainaddr2<<
+With the option above, you may also choose to hide your email address
+(while still showing other contact information), only show your [[sitename]] email address,
+only show your real address, or show them both.
+.
+
+.allowshowcontact.email.withoutdomainaddr<<
+With the option above, you may also choose to hide your email address
+(while still showing other contact information).
+.
+
+.allowshowcontact.title=Show your contact information on your LiveJournal?
+
+.allowshowinfo.about=Turn this on if you want your city/state/country and birthday to be visible to other users.
+
+.allowshowinfo.title=Show location &amp; birthday?
+
+.autotranslate.about<<
+Use this option to tell LiveJournal which encoding to assume for your entries and comments entered before the site was converted to Unicode. 
+If you write in English, choose "Western European" here.
+.
+
+.autotranslate.header=Auto-translate older entries from:
+
+.bday.title=Birthday
+
+.bday.year.opt=year is optional
+
+.bdayreminders.about=If you want to get email reminding you of birthdays for your friends on LiveJournal, click this box.
+
+.bdayreminders.header=Send me birthday reminders (currently disabled)
+
+.bio.about=Here you can enter a little mini-biography about yourself. This will show up on your User Info page.
+
+.bio.header=About You
+
+.blockrobots.about<<
+If you check this option, robots will be told to go away.  
+Not all robots respect the rules.
+.
+
+.blockrobots.header=Block Robots/Spiders from indexing your journal
+
+.chat.aolim.title=AOL IM
+
+.chat.gizmo.title=Gizmo Project
+
+.chat.googletalk.title=Google Talk
+
+.chat.icquin.title=ICQ UIN
+
+.chat.jabber.title=Jabber
+
+.chat.msnusername.title=MSN Username
+
+.chat.skype.title=Skype
+
+.chat.yahooid.title=Yahoo! ID
+
+.city.title=City
+
+.country.choose=Pick a country
+
+.country.title=Country
+
+.donotlog=No
+
+.email.address=[[email]] (<a [[aopts]]>change</a>)
+
+.email.title=Email
+
+.enableboards.about=Check this if you want people to be able to reply to journal entries you post.
+
+.enableboards.header=Enable message boards
+
+.encoding.about=Don't worry about this stuff.  In general, only international users that write in several different languages will need to change anything here.
+
+.encoding.header=Encoding Options
+
+.error.day.notinmonth=Invalid day for that month.
+
+.error.day.outofrange=Invalid birthday day.  Enter a day from 1-31.
+
+.error.email.lj_domain<<
+You cannot enter an @[[domain]] email address.  
+Enter your real address in that field.  
+If you're a paid user, your [[user]]@[[domain]] address will forward to your real address.  
+To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option.
+.
+
+.error.email.none=You must provide your email address
+
+.error.email.no_space<<
+No spaces are allowed in an email address.  
+If you're on AOL, remember that your Internet Email address is your screen name with all spaces removed, followed by <b>@aol.com</b>
+.
+
+.error.excessive_int<<
+Sorry, you listed too many interests.  The limit is 150, but you've listed [[intcount]].  
+Any changes you made to your interests were not saved.  Go back and cut down your list, 
+then save again.
+.
+
+.error.invalidbio2<<
+Your stored bio contains invalid characters. You must visit 
+the <a [[aopts]]><b>conversion page</b></a> to convert it 
+to Unicode.
+.
+
+.error.invalidname2<<
+Your name contains invalid characters. You must visit 
+the <a [[aopts]]><b>conversion page</b></a> to convert it 
+to Unicode.
+.
+
+.error.locale.country_ne_state=You specified United States as your country, but you typed in a non-US state in the "other state" field.
+
+.error.locale.invalid_country=Somehow you selected an invalid country.
+
+.error.locale.state_ne_country=You specified a non-US country but selected a US state.
+
+.error.locale.zip_ne_state<<
+Your zip code does not match the state you specified.  
+Either correct the information, or erase one or both of the state and zip code fields.
+.
+
+.error.locale.zip_requires_us<<
+You entered a zip code but you did not select United States as your country.  
+We only collect zip code information about people in the US.  
+Please go back and remove the zip code or select United States as your country.
+.
+
+.error.month.outofrange=Invalid birthday month.  Enter a month from 1-12.  (Jan-Dec)
+
+.error.noname=Your name is a required field.  At least provide your first name, or a nickname or handle.
+
+.error.tm.require.number=If you're going to use text messaging, you must enter your phone number.
+
+.error.tm.require_provider<<
+If you're going to use text messaging, you must select your service provider.  
+If yours is not listed, please contact us with information about how your service's text messaging feature works so we can add support for it.
+.
+
+.error.year.notenoughdigits=Invalid birthday year.  Enter a 4-digit year.
+
+.error.year.outofrange=Invalid birthday year.
+
+.finished.about=When done, press the "Save Changes" button below:
+
+.finished.header=Done?
+
+.finished.save_button=Save Changes
+
+.foafurl.about=If you do not want to use the default FOAF page we provide, any URL you enter above will be used as your FOAF resource instead.  We will redirect FOAF requests to the specified URL.
+
+.foafurl.title=External FOAF URL:
+
+.gender.female=Female
+
+.gender.male=Male
+
+.gender.title=Gender
+
+.gender.unspecified=(Unspecified)
+
+.getreplies.about=Check this if you want to get email updates when people reply to your journal entries in the message boards.
+
+.getreplies.header=Get message board replies
+
+.getselfemails.about=Check this if you wish to get an email every time you post a comment in a journal or community.  You will not get email for anonymous comments.
+
+.getselfemails.header=Get comments you post emailed to you
+
+.hidefriendof.about=If you check this, the list of people that list you as a friend is hidden on your profile page.
+
+.hidefriendof.header=Hide "Friend of" list
+
+.howhear.about<<
+Just for curiosity's sake, where did you hear about [[sitename]] from?  
+If it was a specific person, enter their username; if it 
+was from another source/article/link/website, enter the appropriate information.
+.
+
+.howhear.header=Curiosity
+
+.htmlemail.about<<
+Check this if your email program fully supports HTML in your email.  
+Many clients try to support it but fail horribly.  
+If you uncheck it, LiveJournal will only send text emails.
+.
+
+.htmlemail.header=Send HTML Emails
+
+.imagelinks.about=Placeholders are useful if you are browsing at work or over a slow connection, replacing inline images with links.  What size images do you want placeholders to be used for?
+
+.imagelinks.header=Use image placeholders on your friends page
+
+.imagelinks.size.all=Use placeholders for all images
+
+.imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
+
+.imagelinks.size.medium=Use placeholders for large images (over [[width]]x[[height]])
+
+.imagelinks.size.small=Use placeholders for medium images (over [[width]]x[[height]])
+
+.int.about<<
+If you want other people to be able to search the directory and find you by interest, 
+list below everything you're interested in, separated by commas.  
+Short single-word phrases are best.  <b>Rule of thumb:</b> You should be able to put 
+the interest in the sentence "I like ________".  When referring to nouns, use the 
+plural form for consistency.  "I like DVDs" instead of "I like DVD".
+.
+
+.int.ex.bad=<FONT COLOR=#FF0000><B>BAD</B></FONT> Example: <B>I like lots of bands and watching movies and talking to friends and going to clubs.</B>  That sort of stuff goes in your bio above.
+
+.int.ex.good=<FONT COLOR=#009000><B>GOOD</B></FONT> Example: <B>biking, snow skiing, computers, dvds, mp3s, cheese, women</B>
+
+.int.header=Interests
+
+.logip.always=Always
+
+.logip.anon_only=Anonymous posters only
+
+.logip.header=Log IP addresses of people replying?
+
+.mangleaddress.about<<
+If you have the above option selected and are afraid spam-robots will find your email 
+address on LiveJournal, select this option. Your email address will be modified 
+so your email address won't be found by email-collecting robots.
+.
+
+.mangleaddress.header=Mangle your displayed email address
+
+.mutualfriends.about=This option adds a new list to your profile page: the mutual friends list.  People who you list as a friend and who also list you as a friend will be put on this list.
+
+.mutualfriends.header=Display mutual friends on profile page
+
+.name.title=Name
+
+.navstrip.about=The navigation strip is a small toolbar that can show at the top of your journal/community, as well as when you're browsing other journals and communities. It provides:
+
+.navstrip.about.provides.links=Quick links to your own journal, the update page, and your Friends page
+
+.navstrip.about.provides.management=Community management options and more
+
+.navstrip.about.provides.options=Options appropriate to the page you are looking at, i.e. filters for your Friends page
+
+.navstrip.choose=Choose the navigation strip color you prefer:
+
+.navstrip.choose.dark=Dark gray
+
+.navstrip.choose.light=Light gray
+
+.navstrip.header=Navigation Strip Options
+
+.navstrip.options=Navigation strip display options:
+
+.navstrip.options.myjournal=Always display the navigation strip to anyone who views my journal or community
+
+.navstrip.options.viewjournals=Show me the navigation strip when I view any journal or community
+
+.newemail.body2<<
+You have just changed the email address for your [[sitename]] account "[[username]]".  To validate the change, please go to this address:
+
+[[conflink]]
+
+Regards,
+[[sitename]] Team
+[[sitelink]]
+.
+
+.newemail.subject=Email Address Changed
+
+.numcomments.about=Check this if you want to append the comment count to URLs to make your browser possibly display the links in a different color.
+
+.numcomments.header=Add &amp;nc=xx to comment URLs
+
+.optional=Optional
+
+.opt_in.about<<
+If you want to know when we add some cool new feature to LiveJournal, check this box.  
+We aren't currently using this feature, but we might in the future.  
+Your email address will not be visible to other users, and you can turn this off at anytime.
+.
+
+.opt_in.header=Send me LiveJournal news.
+
+.persinfo.disclaimer2<<
+Fill in some quick information about yourself, for our own curiosity and statistical purposes. 
+We're not going to do anything evil or annoying with this information, we'd just like to see 
+who and where our users are.  Please, fill it in correctly.  If you're concerned, 
+read our <a [[aopts]]>privacy policy</a>.
+.
+
+.persinfo.header=Personal Information
+
+.schools.des=This option allows you to restrict or hide the schools information displayed on your userinfo page.  Your school attendance will always be viewable by the public when browsing to your school via the Schools Directory.
+
+.schools.title2=Show your schools information on your userinfo?
+
+.schools.who=Who can view this information?
+
+.screen.all=All
+
+.screen.anon=Anonymous
+
+.screen.header=Which replies do you want screened by default?
+
+.screen.none=None
+
+.screen.nonfriends=By non-friends
+
+.screen.nonmembers=By non-members
+
+.security.header=Security
+
+.security.visibility.anybody=Anybody
+
+.security.visibility.everybody=Everybody
+
+.security.visibility.friends=Friends only
+
+.security.visibility.regusers=Registered Users
+
+.settings.friendspage.title=Friends Page Title:
+
+.settings.friendspage.title.optional=<i>Optionally</i>, enter a title for your friends view pages. (no HTML)
+
+.settings.header=LiveJournal Options
+
+.settings.journal.subtitle=Journal Subtitle:
+
+.settings.journal.subtitle.optional=<i>Optionally</i>, enter a title and subtitle for your journal. (no HTML).
+
+.settings.journal.title=Journal Title:
+
+.settings.privacy.about=Select below your personal privacy options and preferences.
+
+.settings.privacy.header=Privacy Options
+
+.state.other=Or, type other state/province/territory
+
+.state.title=State
+
+.state.us=US States
+
+.stylemine.about=Check this option to view comment pages in your journal style when following links from your friends page.
+
+.stylemine.header=View comment pages in your journal style?
+
+.success.header=Success!
+
+.success.message2=Your information, <a [[aopts1]]>journal</a> settings, and <a [[aopts2]]>profile</a> have been updated.
+
+.switch.button=Switch
+
+.switch.header=Switch Journal
+
+.switch.workwith=Work with journal:
+
+.timezone.select=(Select your timezone)
+
+.timezone.title=Timezone
+
+.title=Edit Personal Information
+
+.tm.details2=(<a [[aopts]]>details</a>)
+
+.tm.phonenum=Full phone number:
+
+.tm.sec.about=Enable text messaging from other users.
+
+.tm.sec.title=Security Level:
+
+.tm.servprov=Service Provider
+
+.tm.title=Text Messaging
+
+.translatemailto.about<<
+In case you chose to receive message board replies by email, and your email client doesn't handle Unicode (UTF-8) 
+messages very well, use this option to specify a different encoding into which LiveJournal will automatically translate the text of comments sent to you.
+.
+
+.translatemailto.header=Translate email notifications into: 
+
+.unbanusers.about=You have the following users banned from posting in your journal.  Check the checkbox by their username to remove the ban on them.
+
+.unbanusers.header=Unban Users
+
+.userpic.about<<
+Below is the miniature picture you have uploaded to represent you 
+throughout the LiveJournal site and in your journal and in your friends' journals:
+.
+
+.userpic.edit2=To delete this picture, or upload a new one, <a [[aopts]]>go here</a>.
+
+.userpic.header=Your Picture
+
+.userpic.none=no image uploaded
+
+.weblogscom.about=Select this option if you would like to have Weblogs.com list your journal when you post new public entries.
+
+.weblogscom.header=Notify Weblogs.com of updates
+
+.webpagename.title=Webpage Name
+
+.webpageurl.title=Webpage URL
+
+.whoreply.header=Who can reply to your entries?
+
+.zip.title=ZIP Code
+
+.zip.usonly=5 digit ZIP code; US residents only
+

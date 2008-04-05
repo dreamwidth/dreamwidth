@@ -1,0 +1,23 @@
+;; -*- coding: utf-8 -*-
+.discuss=Discuss Results
+
+.error.cantview=Sorry, you're not permitted to see this poll.
+
+.error.postdeleted=Owning post deleted, so poll no longer accessible.
+
+.filloutpoll=Fill out Poll
+
+.gotocreate2=This is the address to participate in a poll. You've stumbled onto an address which does nothing right now. If you'd like, you can <a [[aopts]]>create a new poll</a>.
+
+.pollnotfound=Poll not found.
+
+.submitted.head=Thanks
+
+.submitted.text=Your poll answers have been submitted.
+
+.submitted.title=Submitted!
+
+.title=Poll
+
+.viewresults=View Poll Results
+

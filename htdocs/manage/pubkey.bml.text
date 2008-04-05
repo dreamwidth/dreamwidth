@@ -1,0 +1,21 @@
+;; -*- coding: utf-8 -*-
+.error.invalidkey=That doesn't appear to be a valid PGP/GPG key.
+
+.error.notconfigured=This site is not configured with PGP support.
+
+.header=PGP/GPG key
+
+.info=Publishing your public key allows others to view it via your <a [[aoptsinfo]]>userinfo</a> page, and you can post to the email gateway with signed messages.  See instructions <a [[aoptshelp]]>here</a>.
+
+.pastekey=Paste your key in its entirety (ascii armored format) into the below field:
+
+.save=Save
+
+.successhead=Success
+
+.successtext=Your public key been saved. You may view it <a [[aopts]]>here</a>.
+
+.title=Set Public Key
+
+.whatis=Don't know what a public key is? Need help exporting your key? Read more about <a [[aoptspgp]]>PGP</a> and <a [[aoptsgpg]]>GPG</a>.
+

@@ -1,0 +1,61 @@
+;; -*- coding: utf-8 -*-
+.answer.you.credited=The answer you credited for helping you out was not a response to your support request. If you copied a URL to get here, make sure you copied the entire URL correctly.
+
+.closed=Closed
+
+.error=Error
+
+.go.back.to.category=Go back to the <a [[url]]>open support requests in the same category</a>
+
+.go.back.to.open.request=Go back to the <a [[url]]>open support requests</a>
+
+.go.back.to.request=Go back to <a [[back.req.url]]>Request # [[spid]]</a>
+
+.go.to.previous.next.req.cat=Go to <a [[prev.url]]>previous</a> / <a [[next.url]]>next</a> open request in the same category
+
+.go.to.previous.next.request=Go to <a [[prev.url]]>previous</a> / <a [[next.url]]>next</a> open request
+
+.has.been.reopened=has been re-opened now.
+
+.improper.arguments=Improper arguments.
+
+.invalid.authcode=Invalid authcode.
+
+.message=Message:
+
+.more.info=More Information
+
+.no.html.allowed=No HTML allowed, so don't worry about about escaping &lt; and &gt;<br />URLs are automatically link-ified, so just reference those.
+
+.not.allowed.request=You are not allowed to lock this request.
+
+.please.comment=Please comment back telling us why you've touched this request:
+
+.postbutton=Post Comment/Solution
+
+.request.already.locked=That request has already been locked.
+
+.request.already.unlock=You are not allowed to unlock this request.
+
+.request.cannot.close=You cannot close this support request.
+
+.request.closed=The support request has been closed.
+
+.request.has.been.locked=The <a [[requestlink]]>request</a> has been locked.
+
+.request.has.been.unlocked=This <a [[requestlink]]>request</a> has been unlocked.
+
+.request.locked=That request has been locked and cannot be reopened.
+
+.request.not.locked=That request is not locked.
+
+.success=Success
+
+.touch.failed=Touch failed.
+
+.touched=Touched
+
+.will.stay.open.now=will stay open now.
+
+.your.request=Your support request
+
