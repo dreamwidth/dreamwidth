@@ -35,6 +35,7 @@ die "Unable to checkout vcv from DWS Coalition repository.\n"
 
 # now get vcv to do the rest for us
 system( 'cvs/vcv/bin/vcv --conf=cvs/multicvs.conf --checkout' );
+system( 'cvs/vcv/bin/vcv --conf=cvs/multicvs.conf --init' );
 
 # finished :-)
-print "Done!  We hope.  :-)\n";
+print "Done!  We hope.  You should remove this file!  :-)\n";
