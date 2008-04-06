@@ -5,9 +5,8 @@
 
 use strict;
 
-unless (-d $ENV{'LJHOME'}) {
-    die "\$LJHOME not set.\n";
-}
+die "\$LJHOME not set.\n"
+    unless -d $ENV{'LJHOME'};
 
 if (defined $ENV{'FBHOME'} && $ENV{'PWD'} =~ /^$ENV{'FBHOME'}/i) {
     die "You are running this LJ script while working in FBHOME" unless $ENV{FBHOME} eq $ENV{LJHOME};
@@ -28,7 +27,7 @@ my @extra;
 my $vcv_exe = "multicvs.pl";
 if (-e "$ENV{LJHOME}/bin/vcv") {
     $vcv_exe = "vcv";
-    @extra = ("--headserver=code.sixapart.com:10000");
+    #@extra = ("--headserver=code.sixapart.com:10000");
 }
 
 exec("$ENV{'LJHOME'}/bin/$vcv_exe",
