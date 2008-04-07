@@ -21,7 +21,7 @@ use sigtrap handler => \&terminate, qw/ INT ABRT QUIT TERM /;
 
 # now get config
 my $want = load_config()
-    or die "no jobs configured in $LJHOME/etc/workers.conf\n";
+    or die "no jobs configured in $ENV{LJHOME}/etc/workers.conf\n";
 
 # main loop is pretty simple, reap and spawn
 my ( %have, %kids );
