@@ -1,0 +1,151 @@
+#!/usr/bin/perl
+#
+# Dreamwidth worker manager
+#
+# Written by Mark Smith <mark@dwscoalition.org>.
+#
+# This maintains a group of workers for ESN and the like.  It can manage any
+# process that can be run and needs to be restarted if it dies.  Configuration
+# is done from the $LJHOME/etc directory, workers.conf.
+#
+
+use strict;
+use POSIX qw/ :sys_wait_h /;
+
+# daemonize ourselves unless debugging
+my $debug = $ARGV[0] eq '--debug' ? 1 : 0;
+daemonize() unless $debug;
+
+# setup termination catcher
+use sigtrap handler => \&terminate, qw/ INT ABRT QUIT TERM /;
+
+# now get config
+my $want = load_config()
+    or die "no jobs configured in $LJHOME/etc/workers.conf\n";
+
+# main loop is pretty simple, reap and spawn
+my ( %have, %kids );
+while (1) {
+    reap_children( \%have, \%kids );
+    spawn_children( $want, \%have, \%kids );
+    sleep 5;
+}
+
+################################################################################
+################################################################################
+################################################################################
+
+sub load_config {
+    print "load_config()\n" if $debug;
+
+    my $fn = "$ENV{LJHOME}/etc/workers.conf";
+    return unless -e $fn;
+
+    my %jobs;
+
+    open FILE, "<$fn" or return;
+    foreach my $line (<FILE>) {
+        next unless $line =~ /^(.+?)\s+(\d+)/;
+
+        my ($path, $ct) = ($1, $2);
+        my @fns = ( $path, "$ENV{LJHOME}/$path", "$ENV{LJHOME}/bin/worker/$path" );
+        foreach my $ffn ( @fns ) {
+            if ( -e $ffn ) {
+                print "\tconfigured $ct $ffn\n" if $debug;
+                $jobs{$ffn} = $ct;
+                last;
+            }
+        }
+    }   
+    close FILE;
+
+    return \%jobs;
+}
+
+sub daemonize {
+    my ( $pid, $sess_id, $i );
+
+    ## Fork and exit parent
+    if ($pid = fork) { exit 0; }
+
+    ## Detach ourselves from the terminal
+    die "Cannot detach from controlling terminal"
+        unless $sess_id = POSIX::setsid();
+
+    ## Prevent possibility of acquiring a controling terminal
+    $SIG{'HUP'} = 'IGNORE';
+    if ($pid = fork) { exit 0; }
+
+    ## Change working directory
+    chdir "/";
+
+    ## Clear file creation mask
+    umask 0;
+
+    ## Close open file descriptors
+    close(STDIN);
+    close(STDOUT);
+    close(STDERR);
+
+    ## Reopen stderr, stdout, stdin to /dev/null
+    open(STDIN,  "+>/dev/null");
+    open(STDOUT, "+>&STDIN");
+    open(STDERR, "+>&STDIN");
+}
+
+sub start_worker {
+    my $cmd = shift;
+    print "start_worker( $cmd )\n" if $debug;
+
+    my $pid = fork;
+    return $pid if $pid;
+
+    exec($cmd);
+    exit 0; # just in case exec fails
+}
+
+sub reap_children {
+    my ( $have, $kids ) = @_;
+    print "reap_children()\n" if $debug;
+
+    while ( ( my $pid = waitpid( -1, WNOHANG ) ) > 0 ) {
+        my $job = $kids->{$pid};
+        next unless $job && exists $have->{$job};
+
+        print "\treaped $pid $job\n";
+
+        delete $have->{$job}->{$pid};
+        delete $kids->{$pid};
+    }
+}
+
+sub spawn_children {
+    my ( $want, $have, $kids ) = @_;
+    print "spawn_children()\n" if $debug;
+
+    foreach my $job ( keys %$want ) {
+        my $ct = keys %{ $have->{$job} || {} };
+        next if $ct >= $want->{$job};
+
+        my $pid = start_worker( $job );
+        $have->{$job}->{$pid} = 1;
+        $kids->{$pid} = $job;
+    }
+}
+
+sub terminate {
+    print "terminate()\n" if $debug;
+
+    kill 1, $_ foreach keys %kids;
+
+    my $stop = time + 10;
+    while ( time < $stop && scalar(keys %kids) > 0 ) {
+        reap_children( \%have, \%kids );
+        select( undef, undef, undef, 0.25 );
+    }
+
+    kill 9, $_ foreach %kids;
+
+    # ensure we exit now :-)
+    exit 0;
+}
