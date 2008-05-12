@@ -17,7 +17,7 @@
             foreach my $k (keys %POST) {
                 next unless ($k =~ /^bit_(\d+)$/);
                 my $bit = $1;
-                next if ($bit < 1 || $bit > 30);
+                next if ($bit < 1 || $bit > 60);
                 $filter |= (1 << $bit);
             }
             $extra = "?filter=$filter";

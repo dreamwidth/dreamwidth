@@ -165,7 +165,7 @@ CREATE TABLE friends (
   friendid int(10) unsigned NOT NULL default '0',
   fgcolor char(7) default NULL,
   bgcolor char(7) default NULL,
-  groupmask int(10) unsigned NOT NULL default '1',
+  groupmask bigint(20) unsigned NOT NULL default '1',
   showbydefault enum('1','0') NOT NULL default '1',
   PRIMARY KEY  (userid,friendid),
   KEY (friendid)
@@ -881,7 +881,7 @@ CREATE TABLE log2 (
   compressed char(1) NOT NULL default 'N',
   anum TINYINT UNSIGNED NOT NULL,
   security enum('public','private','usemask') NOT NULL default 'public',
-  allowmask int(10) unsigned NOT NULL default '0',
+  allowmask bigint(20) unsigned NOT NULL default '0',
   replycount smallint(5) unsigned default NULL,
   year smallint(6) NOT NULL default '0',
   month tinyint(4) NOT NULL default '0',
@@ -919,7 +919,7 @@ register_tablecreate("logsec2", <<'EOC');
 CREATE TABLE logsec2 (
   journalid INT UNSIGNED NOT NULL,
   jitemid MEDIUMINT UNSIGNED NOT NULL,
-  allowmask INT UNSIGNED NOT NULL,
+  allowmask BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (journalid,jitemid)
 )
 EOC
@@ -2066,7 +2066,7 @@ register_tablecreate("logkwsum", <<'EOC');
 CREATE TABLE logkwsum (
     journalid INT UNSIGNED NOT NULL,
     kwid      INT UNSIGNED NOT NULL,
-    security  INT UNSIGNED NOT NULL,
+    security  BIGINT UNSIGNED NOT NULL,
     entryct   INT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (journalid, kwid, security),
     KEY (journalid, security)
@@ -3766,6 +3766,26 @@ register_alter(sub {
         do_alter("vertical_editorials",
                  "ALTER TABLE vertical_editorials " .
                  "ADD img_link_url VARCHAR(255) DEFAULT NULL AFTER img_height");
+    }
+
+    unless (column_type("friends", "groupmask") =~ /^bigint/) {
+        do_alter("friends",
+                 q{ ALTER TABLE friends MODIFY COLUMN groupmask BIGINT UNSIGNED NOT NULL });
+    }
+
+    unless (column_type("log2", "allowmask") =~ /^bigint/) {
+        do_alter("log2",
+                 q{ ALTER TABLE log2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL });
+    }
+
+    unless (column_type("logsec2", "allowmask") =~ /^bigint/) {
+        do_alter("logsec2",
+                 q{ ALTER TABLE logsec2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL });
+    }
+
+    unless (column_type("logkwsum", "security") =~ /^bigint/) {
+        do_alter("logkwsum",
+                 q{ ALTER TABLE logkwsum MODIFY COLUMN security BIGINT UNSIGNED NOT NULL });
     }
 });
 

@@ -1434,7 +1434,7 @@ sub editevent
         # update memcached
         my $sec = $qallowmask;
         $sec = 0 if $security eq 'private';
-        $sec = 2**31 if $security eq 'public';
+        $sec = 2**63 if $security eq 'public';
 
         my $row = pack("NNNNN", $oldevent->{'posterid'},
                        LJ::mysqldate_to_time($eventtime, 1),
@@ -2086,7 +2086,7 @@ sub editfriendgroups
     foreach my $bit (@{$req->{'delete'}})
     {
         $bit += 0;
-        next unless ($bit >= 1 && $bit <= 30);
+        next unless ($bit >= 1 && $bit <= 60);
         $bitset{$bit} = 0;  # so later we replace into, not update.
     }
 
@@ -2095,7 +2095,7 @@ sub editfriendgroups
     foreach my $bit (keys %{$req->{'set'}})
     {
         $bit += 0;
-        next unless ($bit >= 1 && $bit <= 30);
+        next unless ($bit >= 1 && $bit <= 60);
         my $sa = $req->{'set'}->{$bit};
         my $name = LJ::text_trim($sa->{'name'}, $bmax, $cmax);
 
@@ -2132,8 +2132,8 @@ sub editfriendgroups
     ## do deletions ('delete' array)
     my $dbcm = LJ::get_cluster_master($u);
 
-    # ignore bits that aren't integers or that are outside 1-30 range
-    my @delete_bits = grep {$_ >= 1 and $_ <= 30} map {$_+0} @{$req->{'delete'}};
+    # ignore bits that aren't integers or that are outside 1-60 range
+    my @delete_bits = grep {$_ >= 1 and $_ <= 60} map {$_+0} @{$req->{'delete'}};
     my $delete_mask = 0;
     foreach my $bit (@delete_bits) {
         $delete_mask |= (1 << $bit)

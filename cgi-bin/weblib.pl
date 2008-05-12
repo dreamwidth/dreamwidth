@@ -1746,7 +1746,7 @@ sub entry_form_decode
         $sec = "usemask"; $amask = 1;
     } elsif ($POST->{'security'} eq "custom") {
         $sec = "usemask";
-        foreach my $bit (1..30) {
+        foreach my $bit (1..60) {
             next unless $POST->{"custom_bit_$bit"};
             $amask |= (1 << $bit);
         }

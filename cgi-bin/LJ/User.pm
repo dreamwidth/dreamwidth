@@ -7057,7 +7057,7 @@ sub get_friend_group {
 
     # sanity check bitnum
     delete $opt->{'bit'} if
-        $opt->{'bit'} > 31 || $opt->{'bit'} < 0;
+        $opt->{'bit'} > 63 || $opt->{'bit'} < 0;
 
     my $fg;
     my $find_grp = sub {
@@ -7154,7 +7154,7 @@ sub fill_groups_xmlrpc {
     };
 
     $ret->{"grp:0"} = $str->("_all_");
-    foreach my $bit (1..30) {
+    foreach my $bit (1..60) {
         next unless my $g = $grp->{$bit};
         $ret->{"grp:$bit"} = $str->($g->{groupname});
     }
@@ -7167,7 +7167,7 @@ sub fill_groups_xmlrpc {
 
         my $fname = $u->{user};
         $ret->{"grpu:$fid:$fname"} =
-            $str->(join(",", 0, grep { $grp->{$_} && $f->{groupmask} & 1 << $_ } 1..30));
+            $str->(join(",", 0, grep { $grp->{$_} && $f->{groupmask} & 1 << $_ } 1..60));
     }
 
     return 1;
@@ -7839,7 +7839,7 @@ sub make_journal
     }
 
     unless ($geta->{'viewall'} && LJ::check_priv($remote, "canview", "suspended") ||
-            $opts->{'pathextra'} =~ m#/(\d+)/stylesheet$#) { # don't check style sheets
+            $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) { # don't check style sheets
         return $error->("Journal has been deleted.  If you are <b>$user</b>, you have a period of 30 days to decide to undelete your journal.", "404 Not Found") if ($u->is_deleted);
         return $error->("This journal has been suspended.", "403 Forbidden") if ($u->is_suspended);
     }

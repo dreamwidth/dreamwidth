@@ -1461,7 +1461,7 @@ sub get_log2_row
     if ($row) {
         @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNNN", $row);
         $item->{'security'} = ($item->{'allowmask'} == 0 ? 'private' :
-                               ($item->{'allowmask'} == 2**31 ? 'public' : 'usemask'));
+                               ($item->{'allowmask'} == 2**63 ? 'public' : 'usemask'));
         $item->{'journalid'} = $jid;
         @$item{'jitemid', 'anum'} = ($item->{'ditemid'} >> 8, $item->{'ditemid'} % 256);
         $item->{'eventtime'} = LJ::mysql_time($item->{'eventtime'}, 1);
@@ -1485,7 +1485,7 @@ sub get_log2_row
     my ($sec, $eventtime, $logtime);
     $sec = $item->{'allowmask'};
     $sec = 0 if $item->{'security'} eq 'private';
-    $sec = 2**31 if $item->{'security'} eq 'public';
+    $sec = 2**63 if $item->{'security'} eq 'public';
     $eventtime = LJ::mysqldate_to_time($item->{'eventtime'}, 1);
     $logtime = LJ::mysqldate_to_time($item->{'logtime'}, 1);
 
@@ -1553,7 +1553,7 @@ sub get_log2_recent_log
             next if $notafter and $rlogtime > $notafter;
             $eventtime = LJ::mysql_time($eventtime, 1);
             my $security = $allowmask == 0 ? 'private' :
-                ($allowmask == 2**31 ? 'public' : 'usemask');
+                ($allowmask == 2**63 ? 'public' : 'usemask');
             my ($jitemid, $anum) = ($ditemid >> 8, $ditemid % 256);
             my $item = {};
             @$item{'posterid','eventtime','rlogtime','allowmask','ditemid',
@@ -1633,7 +1633,7 @@ sub get_log2_recent_log
         my ($sec, $ditemid, $eventtime, $logtime);
         $sec = $item->{'allowmask'};
         $sec = 0 if $item->{'security'} eq 'private';
-        $sec = 2**31 if $item->{'security'} eq 'public';
+        $sec = 2**63 if $item->{'security'} eq 'public';
         $ditemid = $item->{'jitemid'}*256 + $item->{'anum'};
         $eventtime = LJ::mysqldate_to_time($item->{'eventtime'}, 1);
 

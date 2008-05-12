@@ -104,7 +104,7 @@
          my $item = {};
          @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNNN", $val);
          $item->{'security'} = ($item->{'allowmask'} == 0 ? 'private' :
-                               ($item->{'allowmask'} == 2**31 ? 'public' : 'usemask'));
+                               ($item->{'allowmask'} == 2**63 ? 'public' : 'usemask'));
          @$item{'jitemid', 'anum'} = ($item->{'ditemid'} >> 8, $item->{'ditemid'} % 256);
          $item->{'eventtime'} = LJ::mysql_time($item->{'eventtime'}, 1);
          $item->{'logtime'} = LJ::mysql_time($item->{'logtime'}, 1);
@@ -127,7 +127,7 @@
                  unpack("NNNNN", substr($val, $i*20+$offset, 20));
             $eventtime = LJ::mysql_time($eventtime, 1);
             my $security = $allowmask == 0 ? 'private' :
-                ($allowmask == 2**31 ? 'public' : 'usemask');
+                ($allowmask == 2**63 ? 'public' : 'usemask');
             my ($jitemid, $anum) = ($ditemid >> 8, $ditemid % 256);
             my $item = {};
             @$item{'posterid','eventtime','rlogtime','allowmask','ditemid',

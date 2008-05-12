@@ -91,7 +91,7 @@
     $body .= "<form method='post' name='fg' action='editgroups.bml$getextra'>";
     $body .= LJ::form_auth();
     $body .= "<input type='hidden' name='mode' value='save' />";
-    for (my $i=1; $i<=30; $i++) {
+    for (my $i=1; $i<=60; $i++) {
         my $sort = 255;
         my $name = "";
         my $public = 0;
@@ -125,7 +125,7 @@
                rename  .prompt.rename
                newname .prompt.newname
                delete  .confirm.delete
-               max30   .error.max30
+               max60   .error.max60
                );
     foreach (keys %T) { $T{$_} = LJ::ejs($ML{$T{$_}}); }
     
@@ -376,14 +376,14 @@
      var form = document.fg;
      var i;
      var foundg = false;
-     for (i=1; i<=30; i++) {
+     for (i=1; i<=60; i++) {
          if (form["efg_delete_"+i].value==1) { continue; }
          if (form["efg_set_"+i+"_name"].value!="") { continue; }
          foundg = true;
          break;	 
      }
      if (! foundg) {
-         alert("$T{'max30'}");
+         alert("$T{'max60'}");
          return;
      }
      var gnum = i;

@@ -3081,9 +3081,9 @@ sub load_include {
 sub bit_breakdown {
     my $mask = shift()+0;
 
-    # check each bit 0..31 and return only ones that are defined
+    # check each bit 0..63 and return only ones that are defined
     return grep { defined }
-           map { $mask & (1<<$_) ? $_ : undef } 0..31;
+           map { $mask & (1<<$_) ? $_ : undef } 0..63;
 }
 
 sub last_error_code

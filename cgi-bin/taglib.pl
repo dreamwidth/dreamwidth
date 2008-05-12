@@ -205,7 +205,7 @@ sub _get_usertagsmulti {
         next if $dbcr->err || ! $counts;
 
         # setup some helper values
-        my $public_mask = 1 << 31;
+        my $public_mask = 1 << 63;
         my $friends_mask = 1 << 0;
 
         # melt this information down into the hashref
@@ -513,7 +513,7 @@ sub _remote_satisfies_permission {
         return LJ::can_manage($remote, $u);
     } elsif ($perm =~ /^group:(\d+)$/) {
         my $grpid = $1+0;
-        return undef unless $grpid >= 1 && $grpid <= 30;
+        return undef unless $grpid >= 1 && $grpid <= 60;
 
         my $mask = LJ::get_groupmask($u, $remote);
         return ($mask & (1 << $grpid)) ? 1 : 0;
@@ -638,10 +638,10 @@ sub get_security_breakdown {
     if ($sec eq 'private') {
         @out = (0);
     } elsif ($sec eq 'public') {
-        @out = (1 << 31);
+        @out = (1 << 63);
     } else {
         # have to get each group bit into a mask
-        foreach my $bit (0..30) { # include 0 for friends only
+        foreach my $bit (0..60) { # include 0 for friends only
             if ($mask & (1 << $bit)) {
                 push @out, (1 << $bit);
             }
@@ -1294,13 +1294,13 @@ sub set_usertag_display {
 # des: Called from ljprotocol when a friends group is deleted.
 # args: uobj, bit
 # des-uobj: User id or object of account deleting the group.
-# des-bit: The id (1..30) of the friends group being deleted.
+# des-bit: The id (1..60) of the friends group being deleted.
 # returns: 1 of success undef on failure.
 # </LJFUNC>
 sub deleted_friend_group {
     my $u = LJ::want_user(shift);
     my $bit = shift() + 0;
-    return undef unless $u && $bit >= 1 && $bit <= 30;
+    return undef unless $u && $bit >= 1 && $bit <= 60;
 
     # delete from logkwsum and then nuke the user's tags
     $u->do("DELETE FROM logkwsum WHERE journalid = ? AND security = ?",

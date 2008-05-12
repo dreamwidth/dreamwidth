@@ -55,7 +55,7 @@ use vars qw($body $title $windowtitle %GET %POST);
      }
 
      my $gmask = 1;
-     foreach my $bit (1..30) {
+     foreach my $bit (1..60) {
          next unless $POST{"bit_$bit"};
          $gmask |= (1 << $bit);
      }
