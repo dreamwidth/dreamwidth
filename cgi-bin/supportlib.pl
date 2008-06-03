@@ -9,7 +9,7 @@ use vars qw(@SUPPORT_PRIVS);
 
 use Digest::MD5 qw(md5_hex);
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 require "sysban.pl";
 
 # Constants

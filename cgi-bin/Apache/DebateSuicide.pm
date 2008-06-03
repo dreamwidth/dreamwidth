@@ -4,7 +4,7 @@
 package Apache::DebateSuicide;
 
 use strict;
-use Apache::Constants qw(:common);
+use Apache2::Const qw/ :common /;
 use Class::Autouse qw(
                       LJ::ModuleCheck
                       );

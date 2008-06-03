@@ -8,7 +8,7 @@ use Cwd ();
 use Digest::MD5 ();
 use LJ::Blob qw{};
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 require "ljlib.pl";
 
 # stolen from Authen::Captcha.  code was small enough that duplicating

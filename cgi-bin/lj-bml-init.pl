@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 use Errno qw(ENOENT);
 use LJ::Config;
 LJ::Config->load;
@@ -16,13 +16,13 @@ BML::set_config("CookieDomain" => $LJ::COOKIE_DOMAIN);
 BML::set_config("CookiePath"   => $LJ::COOKIE_PATH);
 
 BML::register_hook("startup", sub {
-    my $r = Apache->request;
+    my $r = BML::get_request();
     my $uri = "bml" . $r->uri;
     unless ($uri =~ s/\.bml$//) {
         $uri .= ".index";
     }
     $uri =~ s!/!.!g;
-    $r->notes("codepath" => $uri);
+    $r->notes->{"codepath"} = $uri;
 });
 
 BML::register_hook("codeerror", sub {

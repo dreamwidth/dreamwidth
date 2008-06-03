@@ -24,7 +24,7 @@ sub render_body {
     my $num_entries_this_page = $page > 1 ? $num_entries_older_pages : $num_entries_first_page;
     my $start_index = $page > 1 ? (($page - 2) * $num_entries_this_page) + $num_entries_first_page : 0;
 
-    my $r = Apache->request;
+    my $r = BML::get_request();
     my $return_url = "$LJ::SITEROOT" . $r->uri;
     my $args = $r->args;
     $return_url .= "?$args" if $args;

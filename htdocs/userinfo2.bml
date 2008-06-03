@@ -27,7 +27,7 @@
  # if new-style URLs, get the GET{user} arg from the request notes,
  # which was set by LiveJournal.pm
  unless ($GET{'user'}) {
-     my $r = Apache->request;
+     my $r = BML::get_request();
      $GET{'user'} = $r->notes("_journal");
  }
 

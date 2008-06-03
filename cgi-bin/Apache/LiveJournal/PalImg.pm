@@ -4,7 +4,7 @@
 package Apache::LiveJournal::PalImg;
 
 use strict;
-use Apache::Constants qw(:common REDIRECT HTTP_NOT_MODIFIED);
+use Apache2::Const qw(:common REDIRECT HTTP_NOT_MODIFIED);
 use PaletteModify;
 
 # for callers to 'ping' as a class method for Class::Autouse to lazily load

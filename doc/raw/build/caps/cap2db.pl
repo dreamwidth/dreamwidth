@@ -3,7 +3,7 @@
 
 use strict;
 
-unless (-d $ENV{'LJHOME'}) {
+unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
@@ -12,7 +12,7 @@ use vars qw(%caps_general %caps_local);
 # Local caps are placed in file: cap-local.pl.
 # Use format in cap2db.pl, substituting 'caps_local' with 'caps_general'
 
-my $LJHOME = $ENV{'LJHOME'};
+my $LJHOME = $LJ::HOME;
 
 require "$LJHOME/doc/raw/build/docbooklib.pl";
 

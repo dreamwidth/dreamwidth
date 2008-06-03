@@ -4,8 +4,8 @@
 package Apache::LiveJournal::Interface::FotoBilder;
 
 use strict;
-use Apache::Constants qw(:common REDIRECT HTTP_NOT_MODIFIED
-                         HTTP_MOVED_PERMANENTLY BAD_REQUEST);
+use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
+                       HTTP_MOVED_PERMANENTLY HTTP_BAD_REQUEST /;
 
 sub run_method
 {
@@ -33,14 +33,14 @@ sub handler
     return 404 unless $uri =~ m#^/interface/fotobilder(?:/(\w+))?$#;
     my $cmd = $1;
 
-    return BAD_REQUEST unless $r->method eq "POST";
+    return HTTP_BAD_REQUEST unless $r->method eq "POST";
 
     $r->content_type("text/plain");
     $r->send_http_header();
 
     my %POST = $r->content;
     my $res = run_method($cmd, \%POST)
-        or return BAD_REQUEST;
+        or return HTTP_BAD_REQUEST;
 
     $res->{"fotobilder-interface-version"} = 1;
 

@@ -2,11 +2,11 @@
 #
 
 use strict;
-unless (-d $ENV{'LJHOME'}) {
+unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
-my $LJHOME = $ENV{'LJHOME'};
+my $LJHOME = $LJ::HOME;
 require "$LJHOME/doc/raw/build/docbooklib.pl";
 
 my %ljconfig =
@@ -1008,7 +1008,7 @@ before you can leave any comments.;",
             },
             'home' => {
                     'desc' => "Set to the same value as [special[ljhome]].",
-                    'default' => "\$ENV{'LJHOME'}",
+                    'default' => "\$LJ::HOME",
             },
             'htdocs' => {
                     'desc' => "Points to the <filename class='directory'>htdocs</filename> directory under [ljconfig[home]].",
@@ -1016,7 +1016,7 @@ before you can leave any comments.;",
             },
             'livedir' => {
                     'desc' => "Points to [ljconfig[home]]. This is used by <filename>multicvs.conf</filename>, which specifies how the files from the multiple &svn; repositories map onto the live file space from [ljconfig[cvsdir]].",
-                    'default' => "\$ENV{'LJHOME'}",
+                    'default' => "\$LJ::HOME",
             },
             'ssldocs' => {
                     'desc' => "Points to the <filename class='directory'>ssldocs</filename> directory under [ljconfig[home]].",

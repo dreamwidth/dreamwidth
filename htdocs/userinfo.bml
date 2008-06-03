@@ -6,8 +6,8 @@
 
  BML::set_language_scope('/userinfo.bml');
 
- my $r = Apache->request;
- $r->notes("codepath" => "bml.userinfo");
+ my $r = BML::get_request();
+ $r->notes->{codepath} = "bml.userinfo";
 
  $bml_okay = 1;
  $title = $ML{'.title'};
@@ -30,7 +30,7 @@
  # if new-style URLs, get the GET{user} arg from the request notes,
  # which was set by LiveJournal.pm
  unless ($GET{'user'}) {
-     $GET{'user'} = $r->notes("_journal");
+     $GET{'user'} = $r->notes->{_journal};
  }
 
  my $remote = LJ::get_remote();

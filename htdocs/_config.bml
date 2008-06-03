@@ -1,5 +1,5 @@
 LookRoot $LJHOME/cgi-bin/bml/scheme
-DefaultScheme bluewhite
+DefaultScheme dreamwidth
 DefaultLanguage en
 IncludePath inc/
 

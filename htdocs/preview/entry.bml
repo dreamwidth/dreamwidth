@@ -193,7 +193,7 @@
     } else {
         $LJ::S2::ret_ref = \$ret;
         my $opts;
-        my $r = Apache->request; $opts->{'r'} = $r;
+        my $r = BML::get_request(); $opts->{'r'} = $r;
 
         $u->{'_s2styleid'} = $styleid + 0;
         $u->{'_journalbase'} = LJ::journal_base($u->{'user'});

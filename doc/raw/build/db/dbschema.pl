@@ -3,7 +3,7 @@
 
 use strict;
 
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+require "$LJ::HOME/cgi-bin/ljlib.pl";
 
 my $dbr = LJ::get_dbh("slave", "master");
 my $sth;
@@ -66,7 +66,7 @@ sub dump_xml
 my %table;
 my %coldes;
 
-foreach (`$ENV{'LJHOME'}/bin/upgrading/update-db.pl --listtables`) {
+foreach (`$LJ::HOME/bin/upgrading/update-db.pl --listtables`) {
     chomp;
     $table{$_} = {};
 }

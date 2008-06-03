@@ -484,7 +484,7 @@ sub prepare_adverts_and_control_strip {
 
 package LJ::S1w2;
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 use LJ::Config;
 LJ::Config->load;
 

@@ -19,7 +19,7 @@
     $DEFAULT_CLUSTER ||= 1;
     @CLUSTERS = (1) unless @CLUSTERS;
 
-    $HOME = $ENV{'LJHOME'};
+    $HOME = $LJ::HOME;
     $HTDOCS = "$HOME/htdocs";
     $SSLDOCS ||= "$HOME/ssldocs";
     $BIN = "$HOME/bin";

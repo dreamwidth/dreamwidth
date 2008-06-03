@@ -3,11 +3,11 @@
 
 use strict;
 
-unless (-d $ENV{'LJHOME'}) {
+unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
-my $LJHOME = $ENV{'LJHOME'};
+my $LJHOME = $LJ::HOME;
 my (%modules, @debs, $line);
 require "$LJHOME/doc/raw/build/docbooklib.pl";
 require "$LJHOME/cgi-bin/ljlib.pl";

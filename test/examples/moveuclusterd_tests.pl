@@ -12,7 +12,7 @@ LiveJournal user-mover.
 package moveuclusterd_tests;
 use strict;
 
-use lib ( "$ENV{LJHOME}/bin", "lib" );
+use lib ( "$LJ::HOME/bin", "lib" );
 
 use LJ::Test::Unit          qw{+autorun};
 use LJ::Test::Assertions    qw{:all};

@@ -10,8 +10,9 @@ BEGIN {
     $LJ::_LJLIB_INIT = 1;
 }
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 
+use Apache2::Connection ();
 use Carp;
 use DBI;
 use DBI::Role;
@@ -108,8 +109,8 @@ require "ljhooks.pl";
 require "ljrelation.pl";
 require "ljuserpics.pl";
 
-require "$ENV{'LJHOME'}/cgi-bin/ljlib-local.pl"
-    if -e "$ENV{'LJHOME'}/cgi-bin/ljlib-local.pl";
+require "$LJ::HOME/cgi-bin/ljlib-local.pl"
+    if -e "$LJ::HOME/cgi-bin/ljlib-local.pl";
 
 # if this is a dev server, alias LJ::D to Data::Dumper::Dumper
 if ($LJ::IS_DEV_SERVER) {
@@ -1919,7 +1920,7 @@ sub start_request
 
     # include standard files if this is web-context
     unless ($LJ::DISABLED{sitewide_includes}) {
-        if (eval { Apache->request }) {
+        if (eval { BML::get_request() }) {
             # standard site-wide JS and CSS
             LJ::need_res(qw(
                             js/core.js
@@ -2444,7 +2445,7 @@ sub work_report {
     my $dest = $LJ::WORK_REPORT_HOST;
     return unless $dest;
 
-    my $r = eval { Apache->request; };
+    my $r = eval { BML::get_request(); };
     return unless $r;
     return if $r->method eq "OPTIONS";
 
@@ -2744,7 +2745,7 @@ sub get_remote_ip
     my $ip;
     return $LJ::_T_FAKE_IP if $LJ::IS_DEV_SERVER && $LJ::_T_FAKE_IP;
     eval {
-        $ip = Apache->request->connection->remote_ip;
+        $ip = BML::get_request()->connection->remote_ip;
     };
     return $ip || $ENV{'FAKE_IP'};
 }
@@ -2992,7 +2993,7 @@ sub is_web_context {
 sub is_open_proxy
 {
     my $ip = shift;
-    eval { $ip ||= Apache->request; };
+    eval { $ip ||= BML::get_request(); };
     return 0 unless $ip;
     if (ref $ip) { $ip = $ip->connection->remote_ip; }
 
@@ -3058,7 +3059,7 @@ sub load_include {
     }
 
     # hit it up from the file, if it exists
-    my $filename = "$ENV{'LJHOME'}/htdocs/inc/$file";
+    my $filename = "$LJ::HOME/htdocs/inc/$file";
     return unless -e $filename;
 
     # get it and return it

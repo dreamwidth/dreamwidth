@@ -3,12 +3,12 @@
 
 use strict;
 
-unless (-d $ENV{'LJHOME'}) {
+unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
-require "$ENV{'LJHOME'}/doc/raw/build/docbooklib.pl";
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+require "$LJ::HOME/doc/raw/build/docbooklib.pl";
+require "$LJ::HOME/cgi-bin/ljlib.pl";
 
 my $dbr = LJ::get_dbh("slave", "master");
 my $sth;

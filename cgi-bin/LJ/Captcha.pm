@@ -4,7 +4,7 @@ package LJ::Captcha;
 use strict;
 use LJ::Blob qw{};
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 require "ljlib.pl";
 
 ### get_visual_id() -> ( $capid, $anum )

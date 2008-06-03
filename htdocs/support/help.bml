@@ -46,7 +46,7 @@ body<=
 
  my ($ret, $sth);
  my $dbr = LJ::get_db_reader();
- my $r = Apache->request;
+ my $r = BML::get_request();
 
  my $remote = LJ::get_remote();
  LJ::Support::init_remote($remote);

@@ -7,9 +7,9 @@ use strict;
 
 package LJ;
 
-use Apache;
+use Apache2::ServerUtil ();
+
 use Apache::LiveJournal;
-use Apache::CompressClientFixup;
 use Apache::BML;
 use Apache::SendStats;
 use Apache::DebateSuicide;
@@ -89,8 +89,8 @@ require "ljemailgateway-web.pl";
 require "customizelib.pl";
 
 # preload site-local libraries, if present:
-require "$ENV{'LJHOME'}/cgi-bin/modperl_subs-local.pl"
-    if -e "$ENV{'LJHOME'}/cgi-bin/modperl_subs-local.pl";
+require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
+    if -e "$LJ::HOME/cgi-bin/modperl_subs-local.pl";
 
 # defer loading of hooks, better that in the future, the hook loader
 # will be smarter and only load in the *.pm files it needs to fulfill
@@ -119,7 +119,7 @@ sub setup_start {
     }
 
     # set this before we fork
-    $LJ::CACHE_CONFIG_MODTIME = (stat("$ENV{'LJHOME'}/cgi-bin/ljconfig.pl"))[9];
+    $LJ::CACHE_CONFIG_MODTIME = (stat("$LJ::HOME/cgi-bin/ljconfig.pl"))[9];
 
     eval { setup_start_local(); };
 }
@@ -127,63 +127,72 @@ sub setup_start {
 sub setup_restart {
 
     # setup httpd.conf things for the user:
-    Apache->httpd_conf("DocumentRoot $LJ::HTDOCS")
+    LJ::ModPerl::add_httpd_config("DocumentRoot $LJ::HTDOCS")
         if $LJ::HTDOCS;
-    Apache->httpd_conf("ServerAdmin $LJ::ADMIN_EMAIL")
+    LJ::ModPerl::add_httpd_config("ServerAdmin $LJ::ADMIN_EMAIL")
         if $LJ::ADMIN_EMAIL;
 
-    Apache->httpd_conf(qq{
-
+    LJ::ModPerl::add_httpd_config(q{
 
 # User-friendly error messages
 ErrorDocument 404 /404-error.html
 ErrorDocument 500 /500-error.html
 
-
 # This interferes with LJ's /~user URI, depending on the module order
 <IfModule mod_userdir.c>
-  UserDir disabled
+    UserDir disabled
 </IfModule>
 
+# required for the $r we use
+PerlOptions +GlobalRequest
+
 PerlInitHandler Apache::LiveJournal
-PerlInitHandler Apache::SendStats
-PerlFixupHandler Apache::CompressClientFixup
-PerlCleanupHandler Apache::SendStats
-PerlChildInitHandler Apache::SendStats
+#PerlInitHandler Apache::SendStats
+#PerlCleanupHandler Apache::SendStats
+#PerlChildInitHandler Apache::SendStats
 DirectoryIndex index.html index.bml
+
 });
 
     # setup child init handler to seed random using a good entropy source
-    Apache->push_handlers(PerlChildInitHandler => sub {
+    Apache2::ServerUtil->server->push_handlers(PerlChildInitHandler => sub {
         srand(LJ::urandom_int());
     });
 
     if ($LJ::BML_DENY_CONFIG) {
-        Apache->httpd_conf("PerlSetVar BML_denyconfig \"$LJ::BML_DENY_CONFIG\"\n");
+        LJ::ModPerl::add_httpd_config("PerlSetVar BML_denyconfig \"$LJ::BML_DENY_CONFIG\"\n");
     }
 
     unless ($LJ::SERVER_TOTALLY_DOWN)
     {
-        Apache->httpd_conf(qq{
+        LJ::ModPerl::add_httpd_config(q{
+
 # BML support:
-<Files ~ "\\.bml\$">
-  SetHandler perl-script
-  PerlHandler Apache::BML
+<Files ~ "\.bml$">
+    SetHandler perl-script
+    PerlResponseHandler Apache::BML
 </Files>
 
 });
     }
 
     unless ($LJ::DISABLED{ignore_htaccess}) {
-        Apache->httpd_conf(qq{
-            <Directory />
-                AllowOverride none
-            </Directory>
+        LJ::ModPerl::add_httpd_config(qq{
+
+<Directory />
+    AllowOverride none
+</Directory>
+
         });
     }
 
     eval { setup_restart_local(); };
 
+}
+
+sub add_httpd_config {
+    my $text = shift;
+    Apache2::ServerUtil->server->add_config( [ split /\n/, $text ] );
 }
 
 setup_start();

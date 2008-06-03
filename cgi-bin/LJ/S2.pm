@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 #
 
+package LJ::S2;
+
 use strict;
-use lib "$ENV{'LJHOME'}/src/s2";
+use lib "$LJ::HOME/src/s2";
 use S2;
 use S2::Color;
 use Class::Autouse qw(
@@ -20,10 +22,8 @@ use Class::Autouse qw(
                       LJ::S2::TagsPage
                       );
 use Storable;
-use Apache::Constants ();
+use Apache2::Const qw/ :common /;
 use POSIX ();
-
-package LJ::S2;
 
 # TEMP HACK
 sub get_s2_reader {
@@ -67,7 +67,7 @@ sub make_journal
     $con_opts->{'style_u'} = $opts->{'style_u'};
     my $ctx = s2_context($r, $styleid, $con_opts);
     unless ($ctx) {
-        $opts->{'handler_return'} = Apache::Constants::OK();
+        $opts->{'handler_return'} = OK;
         return;
     }
 
@@ -181,9 +181,9 @@ sub s2_run
         # expand lj-embed tags
         if ($text =~ /lj\-embed/i) {
             # find out what journal we're looking at
-            my $r = eval { Apache->request };
-            if ($r && $r->notes("journalid")) {
-                my $journal = LJ::load_userid($r->notes("journalid"));
+            my $r = eval { BML::get_request() };
+            if ($r && $r->notes->{journalid}) {
+                my $journal = LJ::load_userid($r->notes->{journalid});
                 # expand tags
                 LJ::EmbedModule->expand_entry($journal, \$text)
                     if $journal;
@@ -204,7 +204,8 @@ sub s2_run
         my $status = $ctx->[S2::SCRATCH]->{'status'} || 200;
         $r->status($status);
         $r->content_type($ctx->[S2::SCRATCH]->{'ctype'} || $ctype);
-        $r->send_http_header();
+        # FIXME: not necessary in ModPerl 2.0?
+        #$r->send_http_header();
     };
 
     my $need_flush;
@@ -658,8 +659,8 @@ sub s2_context
     # but it doesn't matter if we're using the minimal style ...
     my %style;
     eval {
-        my $r = Apache->request;
-        if ($r->notes('use_minimal_scheme')) {
+        my $r = BML::get_request();
+        if ($r->notes->{use_minimal_scheme}) {
             my $public = get_public_layers();
             while (my ($layer, $name) = each %LJ::MINIMAL_STYLE) {
                 next unless $name ne "";
@@ -710,23 +711,25 @@ sub s2_context
 
         # were we trying to load the default style?
         $r->content_type("text/html");
-        $r->send_http_header();
+        # FIXME: not necessary in ModPerl 2.0?
+        #$r->send_http_header();
         $r->print("<b>Error preparing to run:</b> One or more layers required to load the stock style have been deleted.");
         return undef;
     }
 
     if ($opts->{'use_modtime'})
     {
-        my $ims = $r->header_in("If-Modified-Since");
+        my $ims = $r->headers_in->{"If-Modified-Since"};
         my $ourtime = LJ::time_to_http($modtime);
         if ($ims eq $ourtime) {
             # 304 return; unload non-public layers
             LJ::S2::cleanup_layers(@layers);
             $r->status_line("304 Not Modified");
-            $r->send_http_header();
+            # FIXME: not necessary in ModPerl 2.0?
+            #$r->send_http_header();
             return undef;
         } else {
-            $r->header_out("Last-Modified", $ourtime);
+            $r->headers_out->{"Last-Modified"} = $ourtime;
         }
     }
 
@@ -753,7 +756,8 @@ sub s2_context
 
     my $err = $@;
     $r->content_type("text/html");
-    $r->send_http_header();
+    # FIXME: not necessary in ModPerl 2.0 anymore?
+    #$r->send_http_header();
     $r->print("<b>Error preparing to run:</b> $err");
     return undef;
 
@@ -2454,16 +2458,16 @@ sub viewer_sees_control_strip
 {
     return 0 unless $LJ::USE_CONTROL_STRIP;
 
-    my $r = Apache->request;
+    my $r = BML::get_request();
     return LJ::run_hook('show_control_strip', {
-        userid => $r->notes("journalid"),
+        userid => $r->notes->{journalid},
     });
 }
 
 sub viewer_sees_vbox
 {
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return 0 unless $u;
 
     if (LJ::S2::current_box_type($u) eq "vbox") {
@@ -2475,8 +2479,8 @@ sub viewer_sees_vbox
 
 sub viewer_sees_hbox_top
 {
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return 0 unless $u;
 
     if (LJ::S2::current_box_type($u) eq "hbox") {
@@ -2488,8 +2492,8 @@ sub viewer_sees_hbox_top
 
 sub viewer_sees_hbox_bottom
 {
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return 0 unless $u;
     my $type = LJ::S2::current_box_type($u);
 
@@ -2501,8 +2505,8 @@ sub viewer_sees_hbox_bottom
 }
 
 sub viewer_sees_ebox {
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return 0 unless $u;
 
     if (LJ::S2::current_box_type($u) eq "ebox") {
@@ -2515,8 +2519,8 @@ sub viewer_sees_ebox {
 sub Entry__viewer_sees_ebox
 {
     my ($ctx, $this) = @_;
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return 0 unless $u;
 
     my $curr_entry_ct = LJ::S2::nth_entry_seen($this);
@@ -2538,17 +2542,17 @@ sub viewer_sees_ads
 {
     return 0 unless $LJ::USE_ADS;
 
-    my $r = Apache->request;
+    my $r = BML::get_request();
     return LJ::run_hook('should_show_ad', {
         ctx  => 'journal',
-        userid => $r->notes("journalid"),
+        userid => $r->notes->{journalid},
     });
 }
 
 sub control_strip_logged_out_userpic_css
 {
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return '' unless $u;
 
     return LJ::run_hook('control_strip_userpic', $u);
@@ -2556,8 +2560,8 @@ sub control_strip_logged_out_userpic_css
 
 sub control_strip_logged_out_full_userpic_css
 {
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return '' unless $u;
 
     return LJ::run_hook('control_strip_loggedout_userpic', $u);
@@ -2574,8 +2578,8 @@ sub journal_current_datetime {
 
     my $ret = { '_type' => 'DateTime' };
 
-    my $r = Apache->request;
-    my $u = LJ::load_userid($r->notes("journalid"));
+    my $r = BML::get_request();
+    my $u = LJ::load_userid($r->notes->{journalid});
     return $ret unless $u;
 
     # turn the timezone offset number into a four character string (plus '-' if negative)
@@ -3711,8 +3715,8 @@ sub Page__print_vbox
 sub Entry__print_ebox
 {
     my ($ctx, $this) = @_;
-    my $r = Apache->request;
-    my $journalu = LJ::load_userid($r->notes("journalid"))
+    my $r = BML::get_request();
+    my $journalu = LJ::load_userid($r->notes->{journalid})
         or die "unable to load journal user";
 
     my $curr_entry_ct = LJ::S2::nth_entry_seen($this);

@@ -13,13 +13,13 @@ die unless GetOptions(
 die "Unknown arguments.\n" if @ARGV;
 die "Can't exclude and include at same time!\n" if $opt_include && $opt_exclude;
 
-unless (-d $ENV{'LJHOME'}) {
+unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
-require "$ENV{'LJHOME'}/doc/raw/build/docbooklib.pl";
+require "$LJ::HOME/doc/raw/build/docbooklib.pl";
 
-chdir $ENV{'LJHOME'} or die "Can't cd to $ENV{'LJHOME'}\n";
+chdir $LJ::HOME or die "Can't cd to $ENV{'LJHOME'}\n";
 
 unless ($opt_book) { $opt_book = "ljp"; }
 
@@ -28,7 +28,7 @@ my $VAR1;
 my $param;
 $param = "--include=$opt_include" if $opt_include;
 $param = "--exclude=$opt_exclude" if $opt_exclude;
-eval `$ENV{'LJHOME'}/doc/raw/build/apidoc.pl --conf=$ENV{'LJHOME'}/doc/raw/build/api/apidoc.conf $param`;
+eval `$LJ::HOME/doc/raw/build/apidoc.pl --conf=$ENV{'LJHOME'}/doc/raw/build/api/apidoc.conf $param`;
 my $api = $VAR1;
 
 print "<reference id=\"$opt_book.api.ref\">\n";

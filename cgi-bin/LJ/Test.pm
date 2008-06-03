@@ -34,7 +34,7 @@ my $theschwartz = undef;
 sub theschwartz {
     return $theschwartz if $theschwartz;
 
-    my $fakedb = "$ENV{LJHOME}/t-theschwartz.sqlite";
+    my $fakedb = "$LJ::HOME/t-theschwartz.sqlite";
     unlink $fakedb, "$fakedb-journal";
     my $fakedsn = "dbi:SQLite:dbname=$fakedb";
 
@@ -48,7 +48,7 @@ sub theschwartz {
 
     my $dbh = DBI->connect($fakedsn,
                            '', '', { RaiseError => 1, PrintError => 0 });
-    my @sql = $load_sql->("$ENV{LJHOME}/cvs/TheSchwartz/t/schema-sqlite.sql");
+    my @sql = $load_sql->("$LJ::HOME/cvs/TheSchwartz/t/schema-sqlite.sql");
     for my $sql (@sql) {
         $dbh->do($sql);
     }
@@ -130,7 +130,7 @@ sub fake_apache {
     # currently a fakeapache-using test has to start with:
     #   use strict;
     #   use Test::More 'no_plan';
-    #   use lib "$ENV{LJHOME}/cgi-bin";
+    #   use lib "$LJ::HOME/cgi-bin";
     #   require 'modperl.pl';
     #   use LJ::Test;
     # but that modperl.pl require is kinda ugly.

@@ -1,6 +1,6 @@
 package LJ::DBUtil;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 require "ljlib.pl";
 
 die "Don't use this in web context, it's only for admin scripts!"

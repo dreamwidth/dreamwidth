@@ -3,10 +3,10 @@
 package Apache::LiveJournal::Interface::AtomAPI;
 
 use strict;
-use Apache::Constants qw(:common);
+use Apache2::Const qw(:common);
 use Digest::SHA1;
 use MIME::Base64;
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 use Class::Autouse qw(
                       LJ::ModuleCheck
                       );

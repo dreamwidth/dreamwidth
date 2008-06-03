@@ -3,13 +3,13 @@
 
  use strict;
 
- unless (-d $ENV{'LJHOME'}) { die "\$LJHOME not set.\n"; }
+ unless (-d $LJ::HOME) { die "\$LJHOME not set.\n"; }
 
- require "$ENV{'LJHOME'}/doc/raw/build/docbooklib.pl";
- require "$ENV{'LJHOME'}/cgi-bin/propparse.pl";
+ require "$LJ::HOME/doc/raw/build/docbooklib.pl";
+ require "$LJ::HOME/cgi-bin/propparse.pl";
 
  my @vars;
- LJ::load_objects_from_file("$ENV{'LJHOME'}/htdocs/protocol.dat", \@vars);
+ LJ::load_objects_from_file("$LJ::HOME/htdocs/protocol.dat", \@vars);
 
  foreach my $mode (sort { $a->{'name'} cmp $b->{'name'} } @vars)
  {

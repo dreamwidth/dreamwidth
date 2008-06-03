@@ -5,12 +5,12 @@ use strict;
 
 # FIXME This needs updating. Does not work with LJ::Console, which superseded console.pl.
 
-unless (-d $ENV{'LJHOME'}) {
+unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
-require "$ENV{'LJHOME'}/doc/raw/build/docbooklib.pl";
-require "$ENV{'LJHOME'}/cgi-bin/console.pl";
+require "$LJ::HOME/doc/raw/build/docbooklib.pl";
+require "$LJ::HOME/cgi-bin/console.pl";
 my $ret;
 
 $ret .= "<variablelist><title>Administrative Console Commands</title>\n";

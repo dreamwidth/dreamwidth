@@ -4,7 +4,7 @@
 package LJ;
 use strict;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 
 # load the bread crumb hash
 require "crumbs.pl";
@@ -1942,11 +1942,11 @@ sub res_includes {
     }
 
     # find current journal
-    my $r = eval { Apache->request };
+    my $r = eval { BML::get_request() };
     my $journal_base = '';
     my $journal = '';
     if ($r) {
-        my $journalid = $r->notes('journalid');
+        my $journalid = $r->notes->{journalid};
 
         my $ju;
         $ju = LJ::load_userid($journalid) if $journalid;
@@ -2177,7 +2177,7 @@ sub get_style_for_ads {
         $ret{layout} = $layout ? $layout : $custom_layout;
         $ret{theme} = $theme ? $theme : $custom_theme;
     } else {
-        my $view = Apache->request->notes->{view};
+        my $view = BML::get_request()->notes->{view};
         $view = "lastn" if $view eq "";
 
         if ($view =~ /^(?:friends|day|calendar|lastn)$/) {
@@ -2213,7 +2213,7 @@ sub get_search_term {
     return "" unless $search_pages{$uri};
 
     my $term = "";
-    my $args = Apache->request->args;
+    my $args = BML::get_request()->args;
     if ($uri eq '/interests.bml') {
         if ($args =~ /int=([^&]+)/) {
             $term = $1;
@@ -2420,7 +2420,7 @@ sub ads {
         return '';
     }
 
-    my $r = Apache->request;
+    my $r = BML::get_request();
     my %adcall = ();
 
     # Make sure this mapping is correct for app ads, journal ads only call this function
@@ -2433,8 +2433,8 @@ sub ads {
 
         # Try making the uri from request notes if it doesn't match
         # and uri ends in .html
-        if (!LJ::check_page_ad_block($uri,$orient) && $r->header_in('Host') ne $LJ::DOMAIN_WEB) {
-            if ($uri = $r->notes('bml_filename')) {
+        if (!LJ::check_page_ad_block($uri,$orient) && $r->headers_in->{Host} ne $LJ::DOMAIN_WEB) {
+            if ($uri = $r->notes->{bml_filename}) {
                 $uri =~ s!$LJ::HOME/(?:ssldocs|htdocs)!!;
                 $uri = $uri =~ /\/$/ ? "$uri/index.bml" : $uri;
             }
@@ -2463,7 +2463,7 @@ sub ads {
     $adcall{type}    = $adcall{type} || $ad_page_mapping->{target}; # user|content
 
 
-    $adcall{url}     = 'http://' . $r->header_in('Host') . $r->uri;
+    $adcall{url}     = 'http://' . $r->headers_in->{Host} . $r->uri;
 
     $adcall{contents} = $pubtext;
     $adcall{tags} = $tag_list;
@@ -2520,7 +2520,7 @@ sub ads {
     $adcall{gender} ||= "unknown"; # for logged-out users
 
     if ($ctx eq 'journal') {
-        my $u = $opts{user} ? LJ::load_user($opts{user}) : LJ::load_userid($r->notes("journalid"));
+        my $u = $opts{user} ? LJ::load_user($opts{user}) : LJ::load_userid($r->notes->{journalid});
         $opts{entry} = LJ::Entry->new_from_url($adcall{url});
 
         if ($u) {
@@ -2537,7 +2537,7 @@ sub ads {
 
             # pass style info
 
-            my %GET = Apache->request->args;
+            my %GET = BML::get_request()->args;
             my $styleu = $GET{style} eq "mine" && $remote ? $remote : $u;
             my %style = LJ::get_style_for_ads($styleu);
             $adcall{layout} = defined $style{layout} ? $style{layout} : "";
@@ -2550,7 +2550,7 @@ sub ads {
 
     # Language this page is displayed in
     # set the language to the current user's preferences if they are logged in
-    $adcall{language} = $r->notes('langpref') if $remote;
+    $adcall{language} = $r->notes->{langpref} if $remote;
     $adcall{language} =~ s/_LJ//; # Trim _LJ postfixJ
 
     # What type of account level do they have?
@@ -2745,10 +2745,10 @@ sub control_strip
 
     my $remote = LJ::get_remote();
 
-    my $r = Apache->request;
+    my $r = BML::get_request();
     my $args = scalar $r->args;
     my $querysep = $args ? "?" : "";
-    my $uri = "http://" . $r->header_in("Host") . $r->uri . $querysep . $args;
+    my $uri = "http://" . $r->headers_in->{Host} . $r->uri . $querysep . $args;
     $uri = LJ::eurl($uri);
 
     # Build up some common links
@@ -2855,15 +2855,15 @@ sub control_strip
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
         if (LJ::u_equals($remote, $journal)) {
-            if ($r->notes('view') eq "friends") {
+            if ($r->notes->{view} eq "friends") {
                 $ret .= $statustext{'yourfriendspage'};
-            } elsif ($r->notes('view') eq "friendsfriends") {
+            } elsif ($r->notes->{view} eq "friendsfriends") {
                 $ret .= $statustext{'yourfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'yourjournal'};
             }
             $ret .= "<br />";
-            if ($r->notes('view') eq "friends") {
+            if ($r->notes->{view} eq "friends") {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
                 my %res;
                 # FIXME: make this use LJ::Protocol::do_request
@@ -2918,9 +2918,9 @@ sub control_strip
                 $ret .= "$statustext{'friendof'}<br />";
                 $ret .= "$links{'add_friend'}";
             } else {
-                if ($r->notes('view') eq "friends") {
+                if ($r->notes->{view} eq "friends") {
                     $ret .= $statustext{'personalfriendspage'};
-                } elsif ($r->notes('view') eq "friendsfriends") {
+                } elsif ($r->notes->{view} eq "friendsfriends") {
                     $ret .= $statustext{'personalfriendsfriendspage'};
                 } else {
                     $ret .= $statustext{'personal'};
@@ -3027,9 +3027,9 @@ LOGIN_BAR
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
 
         if ($journal->is_personal || $journal->is_identity) {
-            if ($r->notes('view') eq "friends") {
+            if ($r->notes->{view} eq "friends") {
                 $ret .= $statustext{'personalfriendspage'};
-            } elsif ($r->notes('view') eq "friendsfriends") {
+            } elsif ($r->notes->{view} eq "friendsfriends") {
                 $ret .= $statustext{'personalfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'personal'};
@@ -3460,7 +3460,7 @@ sub subscribe_interface {
 
     # print buttons
     my $referer = BML::get_client_header('Referer');
-    my $uri = $LJ::SITEROOT . Apache->request->uri;
+    my $uri = $LJ::SITEROOT . BML::get_request()->uri;
 
     # normalize the URLs -- ../index.bml doesn't make it a different page.
     $uri =~ s/index\.bml//;
@@ -3603,9 +3603,9 @@ sub final_body_html {
     my $before_body_close = "";
     LJ::run_hooks('insert_html_before_body_close', \$before_body_close);
 
-    my $r = Apache->request;
-    if ($r->notes('codepath') eq "bml.talkread" || $r->notes('codepath') eq "bml.talkpost") {
-        my $journalu = LJ::load_userid($r->notes('journalid'));
+    my $r = BML::get_request();
+    if ($r->notes->{codepath} eq "bml.talkread" || $r->notes->{codepath} eq "bml.talkpost") {
+        my $journalu = LJ::load_userid($r->notes->{journalid});
         my $graphicpreviews_obj = LJ::graphicpreviews_obj();
         $before_body_close .= $graphicpreviews_obj->render($journalu);
     }

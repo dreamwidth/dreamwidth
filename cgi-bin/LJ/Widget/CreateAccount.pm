@@ -290,7 +290,7 @@ sub handle_post {
     if ($LJ::COPPA_CHECK) {
         my $uniq;
         if ($LJ::UNIQ_COOKIES) {
-            $uniq = Apache->request->notes('uniq');
+            $uniq = BML::get_request()->notes('uniq');
             if ($uniq) {
                 my $timeof = $dbh->selectrow_array('SELECT timeof FROM underage WHERE uniq = ?', undef, $uniq);
                 $is_underage = 1 if $timeof && $timeof > 0;

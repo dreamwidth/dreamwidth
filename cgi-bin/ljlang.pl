@@ -2,7 +2,7 @@
 #
 
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 
 use Class::Autouse qw(
                       LJ::Cache
@@ -200,7 +200,7 @@ sub langdat_file_of_lang_itcode
             $cvs_extra = "/cvs/local";
         }
     }
-    return "$ENV{LJHOME}$cvs_extra/$langdat_file";
+    return "$LJ::HOME$cvs_extra/$langdat_file";
 }
 
 sub relative_langdat_file_of_lang_itcode

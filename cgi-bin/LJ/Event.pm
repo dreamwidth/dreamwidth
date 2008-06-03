@@ -454,7 +454,7 @@ sub template_file_for {
         "$event_type/default/$journal_name/$section.tmpl",
         "$event_type/default/default/$section.tmpl",
     ) {
-        $file = "$ENV{LJHOME}/templates/ESN/$file"; # add common prefix
+        $file = "$LJ::HOME/templates/ESN/$file"; # add common prefix
         return $file if -e $file;
     }
     return undef;

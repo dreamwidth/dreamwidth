@@ -15,7 +15,7 @@ use vars qw(@ISA @EXPORT);
 sub module_subclasses {
     shift if @_ > 1; # get rid of classname
     my $base_class = shift;
-    my $base_path  = "$ENV{LJHOME}/cgi-bin/" . join("/", split("::", $base_class));
+    my $base_path  = "$LJ::HOME/cgi-bin/" . join("/", split("::", $base_class));
     die "invalid base: $base_class" unless -d $base_path;
 
     my @dirs = $base_path;
@@ -62,7 +62,7 @@ sub require_if_exists {
 
     # allow caller to pass in "filename.pl", which will be
     # assumed in $LJHOME/cgi-bin/, otherwise a full path
-    $req_file = "$ENV{LJHOME}/cgi-bin/$req_file"
+    $req_file = "$LJ::HOME/cgi-bin/$req_file"
         unless $req_file =~ m!/!;
 
     # lib should return 1

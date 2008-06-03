@@ -1,6 +1,6 @@
 package LJ::Worker::Gearman;
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 use Gearman::Worker;
 use base "LJ::Worker", "Exporter";
 use LJ::WorkerResultStorage;

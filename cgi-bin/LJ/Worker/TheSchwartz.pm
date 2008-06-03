@@ -1,6 +1,6 @@
 package LJ::Worker::TheSchwartz;
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 use base "LJ::Worker", "Exporter";
 
 require "ljlib.pl";

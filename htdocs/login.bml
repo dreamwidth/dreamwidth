@@ -382,7 +382,7 @@
             {
                 return BML::redirect("$POST{'ref'}");
             } elsif ($GET{'ret'} == 1 && $referer && $referer =~ /\Q$LJ::DOMAIN\E/) {
-                my $uniq = Apache->request->notes('uniq');
+                my $uniq = BML::get_request()->notes->{uniq};
                 if ($uniq) {
                     LJ::MemCache::set("loginout:$uniq", 1, time() + 15);
                 }

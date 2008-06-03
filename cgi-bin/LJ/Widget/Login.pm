@@ -21,7 +21,7 @@ sub render_body {
 
     # Is this the login page?
     # If so treat ret value differently
-    my $r = eval { Apache->request };
+    my $r = eval { BML::get_request() };
     my $isloginpage = 0;
     $isloginpage = 1 if ($r->uri eq '/login.bml');
 

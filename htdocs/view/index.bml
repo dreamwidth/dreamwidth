@@ -8,7 +8,7 @@
  $body = "";
 
 my $uri = BML::get_uri();
-my $r = Apache->request;
+my $r = BML::get_request();
 if ($uri =~ m!/(\d\d\d\d)/(\d\d)/?$!) {
     $FORM{'user'} = $r->notes('_journal');
     $FORM{'type'} = "month";

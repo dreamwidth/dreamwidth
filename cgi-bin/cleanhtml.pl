@@ -896,7 +896,7 @@ sub clean
             }
 
             if ($opencount{'style'} && $LJ::DEBUG{'s1_style_textnode'}) {
-                my $r = Apache->request;
+                my $r = BML::get_request();
                 my $uri = $r->uri;
                 my $host = $r->header_in("Host");
                 warn "Got text node while style elements open.  Shouldn't happen anymore. ($host$uri)\n";

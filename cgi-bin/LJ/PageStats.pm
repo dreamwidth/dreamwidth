@@ -90,7 +90,7 @@ sub get_user {
 sub get_request {
     my ($self) = @_;
 
-    return Apache->request;
+    return BML::get_request();
 }
 
 sub get_root {

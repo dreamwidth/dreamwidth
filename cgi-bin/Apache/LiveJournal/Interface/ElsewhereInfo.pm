@@ -3,8 +3,8 @@
 package Apache::LiveJournal::Interface::ElsewhereInfo;
 
 use strict;
-use Apache::Constants qw(:common);
-use lib "$ENV{LJHOME}/cgi-bin";
+use Apache2::Const qw(:common);
+use lib "$LJ::HOME/cgi-bin";
 use Class::Autouse qw(
                       JSON
                       );

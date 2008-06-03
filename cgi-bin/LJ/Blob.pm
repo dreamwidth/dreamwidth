@@ -2,7 +2,7 @@
 
 package LJ::Blob;
 use strict;
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 use Class::Autouse qw(
                       BlobClient
                       BlobClient::Local

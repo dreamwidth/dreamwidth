@@ -15,7 +15,7 @@
     BML::set_content_type("text/css");
 
     # don't allow access via www.
-    my $host = lc(Apache->request->header_in("Host"));
+    my $host = lc(BML::get_request()->headers_in->{Host});
     $host =~ s/:.*//;
     if ($LJ::ONLY_USER_VHOSTS && ($host eq $LJ::DOMAIN ||
                                   $host eq $LJ::DOMAIN_WEB)) {

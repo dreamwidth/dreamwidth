@@ -9,7 +9,7 @@ body<=
     LJ::set_active_journal($ju);
 
     my $remote = LJ::get_remote();
-    my $r = Apache->request;
+    my $r = BML::get_request();
 
     # call s2 entry point to talkread in s1shortcomings
     my $styleid = 's1short'; # special virtual styleid

@@ -2,7 +2,8 @@
 #
 
 use strict;
-require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
+use lib "$ENV{LJHOME}/cgi-bin";
+require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 
 my $dbh = LJ::get_dbh("master");
 

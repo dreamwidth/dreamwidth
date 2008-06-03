@@ -8,7 +8,7 @@
     BML::set_language_scope("/editpics.bml");
 
     my $suffix = "";
-    if (Apache->request->uri =~ /editpics-beta/) {
+    if (BML::get_request()->uri =~ /editpics-beta/) {
         $suffix = "-beta";
     }
 
@@ -185,7 +185,7 @@
         ### no post data, so we'll parse the multipart data
         unless (%POST) {
 
-            my $r = Apache->request;
+            my $r = BML::get_request();
             my $size = $r->header_in("Content-length");
             unless ($size) {
                 return $err->("No content-length header: can't upload");

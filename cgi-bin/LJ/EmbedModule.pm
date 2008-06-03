@@ -349,7 +349,7 @@ sub module_iframe_tag {
     # if placeholder_prop is not set, then show placeholder on a friends
     # page view UNLESS the embedded content is only one embed/object
     # tag and it's whitelisted video.
-    my $r = eval { Apache->request };
+    my $r = eval { BML::get_request() };
     my $view = $r ? $r->notes("view") : '';
     if (! $placeholder_prop && $view eq 'friends') {
         # show placeholder if this is not whitelisted video

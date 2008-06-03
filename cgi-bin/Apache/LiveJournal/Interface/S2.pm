@@ -5,7 +5,7 @@ package Apache::LiveJournal::Interface::S2;
 
 use strict;
 use MIME::Base64 ();
-use Apache::Constants;
+use Apache2::Const;
 
 sub load { 1 }
 

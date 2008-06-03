@@ -19,7 +19,7 @@ use Class::Autouse qw(
 
 LJ::Config->load;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 
 require "taglib.pl";
 
@@ -165,9 +165,9 @@ sub do_request
     $flags ||= {};
     my @args = ($req, $err, $flags);
 
-    my $r = eval { Apache->request };
-    $r->notes("codepath" => "protocol.$method")
-        if $r && ! $r->notes("codepath");
+    my $r = eval { BML::get_request() };
+    $r->notes->{codepath} = "protocol.$method"
+        if $r && ! $r->notes->{codepath};
 
     if ($method eq "login")            { return login(@args);            }
     if ($method eq "getfriendgroups")  { return getfriendgroups(@args);  }
@@ -187,7 +187,8 @@ sub do_request
     if ($method eq "sessionexpire")    { return sessionexpire(@args);    }
     if ($method eq "getusertags")      { return getusertags(@args);      }
 
-    $r->notes("codepath" => "") if $r;
+    $r->notes->{codepath} = ""
+        if $r;
     return fail($err,201);
 }
 
@@ -278,8 +279,8 @@ sub login
 
     if ($req->{'clientversion'} =~ /^\S+\/\S+$/) {
         eval {
-            my $r = Apache->request;
-            $r->notes("clientver", $req->{'clientversion'});
+            my $r = BML::get_request();
+            $r->notes->{clientver} = $req->{'clientversion'};
         };
     }
 
@@ -1557,7 +1558,7 @@ sub getevents
 
     my $reject_code = $LJ::DISABLE_PROTOCOL{getevents};
     if (ref $reject_code eq "CODE") {
-        my $r = eval { Apache->request };
+        my $r = eval { BML::get_request() };
         my $errmsg = $reject_code->($req, $flags, $r);
         if ($errmsg) { return fail($err, "311", $errmsg); }
     }
@@ -2617,13 +2618,14 @@ sub check_altusage
     # complain if the username is invalid
     return fail($err,206) unless LJ::canonical_username($alt);
 
-    my $r = eval { Apache->request };
+    my $r = eval { BML::get_request() };
 
     # allow usage if we're told explicitly that it's okay
     if ($flags->{'usejournal_okay'}) {
         $flags->{'u_owner'} = LJ::load_user($alt);
         $flags->{'ownerid'} = $flags->{'u_owner'}->{'userid'};
-        $r->notes("journalid" => $flags->{'ownerid'}) if $r && !$r->notes("journalid");
+        $r->notes->{journalid} = $flags->{'ownerid'}
+            if $r && !$r->notes->{journalid};
         return 1 if $flags->{'ownerid'};
         return fail($err,206);
     }
@@ -2633,7 +2635,8 @@ sub check_altusage
     my $canuse = LJ::can_use_journal($u->{'userid'}, $alt, $info);
     $flags->{'ownerid'} = $info->{'ownerid'};
     $flags->{'u_owner'} = $info->{'u_owner'};
-    $r->notes("journalid" => $flags->{'ownerid'}) if $r && !$r->notes("journalid");
+    $r->notes->{journalid} = $flags->{'ownerid'}
+        if $r && !$r->notes->{journalid};
 
     return 1 if $canuse || $flags->{'ignorecanuse'};
 
@@ -2660,12 +2663,14 @@ sub authenticate
     return fail($err,100) if ($u->{'statusvis'} eq "X");
     return fail($err,505) unless $u->{'clusterid'};
 
-    my $r = eval { Apache->request };
+    my $r = eval { BML::get_request() };
     my $ip;
     if ($r) {
-        $r->notes("ljuser" => $u->{'user'}) unless $r->notes("ljuser");
-        $r->notes("journalid" => $u->{'userid'}) unless $r->notes("journalid");
-        $ip = $r->connection->remote_ip;
+        $r->notes->{ljuser} = $u->{'user'}
+            unless $r->notes->{ljuser};
+        $r->notes->{journalid} = $u->{'userid'}
+            unless $r->notes->{journalid};
+        $ip = LJ::get_remote_ip();
     }
 
     my $ip_banned = 0;

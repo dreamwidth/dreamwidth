@@ -17,9 +17,9 @@
         return "Error: unable to handle array without reproxy\n" unless $can_reproxy;
         return "Error: captcha not available (no paths)\n" unless scalar @$png;
         if ($png->[0] =~ m!http://!) {
-            Apache->request->header_out('X-REPROXY-URL', join(' ', @$png));
+            BML::get_request()->header_out('X-REPROXY-URL', join(' ', @$png));
         } else {
-            Apache->request->header_out('X-REPROXY-FILE', $png->[0]);
+            BML::get_request()->header_out('X-REPROXY-FILE', $png->[0]);
         }
         BML::set_content_type("image/png");
         

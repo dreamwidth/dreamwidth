@@ -16,15 +16,15 @@ body<=
 
     my $pics = LJ::Talk::get_subjecticons();
 
-    my $r = Apache->request;
-    $r->notes("codepath" => "bml.talkpost");
+    my $r = BML::get_request();
+    $r->notes->{codepath} = "bml.talkpost";
 
     my $uri = BML::get_uri();
 
     my $editid = $FORM{edit} ? $FORM{edit} : 0;
     my $comment;
     if ($editid) {
-        $comment = LJ::Comment->new(LJ::load_user($r->notes("_journal")), dtalkid => $editid);
+        $comment = LJ::Comment->new(LJ::load_user($r->notes->{_journal}), dtalkid => $editid);
         return $errtxt unless $comment->remote_can_edit(\$errtxt);
 
         my $parent = $comment->parent;
@@ -39,7 +39,7 @@ body<=
 
     if ($uri =~ m!/(\d+)\.html$!) {
         $FORM{'itemid'} = $1 unless $FORM{'replyto'} > 0;
-        $FORM{'journal'} = $r->notes("_journal");
+        $FORM{'journal'} = $r->notes->{_journal};
         BML::set_language_scope("/talkpost.bml");
     }
 
@@ -49,7 +49,7 @@ body<=
     my $u = $init->{'journalu'};
     return $ML{'talk.error.nojournal'} unless $u;
 
-    $r->notes("journalid" => $u->{'userid'});
+    $r->notes->{journalid} = $u->{'userid'};
     return $LJ::MSG_READONLY_USER if LJ::get_cap($u, "readonly");
 
     my $dbcr = LJ::get_cluster_def_reader($u);

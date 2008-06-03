@@ -12,7 +12,7 @@ use Class::Autouse qw(
                       LJ::Entry
                       );
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 
 require "htmlcontrols.pl";
 require "talklib.pl";

@@ -18,9 +18,9 @@
         return "Error: unable to handle array without reproxy\n" unless $can_reproxy;
         return "Error: captcha not available (no paths)\n" unless scalar @$wav;
         if ($wav->[0] =~ m!http://!) {
-            Apache->request->header_out('X-REPROXY-URL', join(' ', @$wav));
+            BML::get_request()->header_out('X-REPROXY-URL', join(' ', @$wav));
         } else {
-            Apache->request->header_out('X-REPROXY-FILE', $wav->[0]);
+            BML::get_request()->header_out('X-REPROXY-FILE', $wav->[0]);
         }
         BML::set_content_type("audio/x-wav");
         

@@ -186,7 +186,7 @@ sub log {
                   'usercaused'  => $err->user_caused, # 0, 1 or NULL
                   );
 
-    if (my $r = eval {Apache->request}) {
+    if (my $r = eval {BML::get_request()}) {
         my $rl = $r->last;
 
         my $remote = eval { LJ::load_user($rl->notes('ljuser')) };

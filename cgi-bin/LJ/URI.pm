@@ -2,16 +2,16 @@
 use strict;
 
 package LJ::URI;
-use Apache::Constants qw(:common REDIRECT HTTP_NOT_MODIFIED
-                         HTTP_MOVED_PERMANENTLY HTTP_MOVED_TEMPORARILY
-                         M_TRACE M_OPTIONS);
+use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
+                       HTTP_MOVED_PERMANENTLY HTTP_MOVED_TEMPORARILY
+                       M_TRACE M_OPTIONS /;
 
 # Takes an Apache $r and a path to BML filename relative to htdocs
 sub bml_handler {
     my ($class, $r, $filename) = @_;
 
     $r->handler("perl-script");
-    $r->notes("bml_filename" => "$LJ::HOME/htdocs/$filename");
+    $r->notes->{bml_filename} = "$LJ::HOME/htdocs/$filename";
     $r->push_handlers(PerlHandler => \&Apache::BML::handler);
     return OK;
 }

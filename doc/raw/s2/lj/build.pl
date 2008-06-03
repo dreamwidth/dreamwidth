@@ -12,7 +12,7 @@ exit 1 unless GetOptions('clean' => \$opt_clean,
                          'single' => \$opt_single,
                          );
 
-my $home = $ENV{'LJHOME'};
+my $home = $LJ::HOME;
 require "$home/cgi-bin/ljlib.pl";
 require "$home/cgi-bin/LJ/S2.pm";
 

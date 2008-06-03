@@ -3,13 +3,13 @@
 
 use strict;
 
-unless (-d $ENV{'LJHOME'}) {
+unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
 
 use vars qw(%hooks);
 
-my $LJHOME = $ENV{'LJHOME'};
+my $LJHOME = $LJ::HOME;
 
 require "$LJHOME/doc/raw/build/docbooklib.pl";
 

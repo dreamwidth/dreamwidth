@@ -3,7 +3,7 @@ package LJ::Test::AtomAPI;
 use strict;
 use warnings;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 
 use Test::FakeApache;
 

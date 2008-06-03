@@ -6,7 +6,7 @@
 
 package LJ::Portal::Config;
 
-use lib "$ENV{LJHOME}/cgi-bin";
+use lib "$LJ::HOME/cgi-bin";
 use LJ::Portal::Box;
 
 # u: user object that is who this config is for

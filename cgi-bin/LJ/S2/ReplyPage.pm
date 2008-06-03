@@ -198,7 +198,7 @@ sub ReplyForm__print
     my $parpost = $form->{'_parpost'};
     my $parent = $parpost ? $parpost->{'jtalkid'} : 0;
 
-    my $r = Apache->request;
+    my $r = BML::get_request();
     my $post_vars = { $r->content };
     $post_vars = $form->{_values} unless keys %$post_vars;
 

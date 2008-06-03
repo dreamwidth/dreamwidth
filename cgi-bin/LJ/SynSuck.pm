@@ -2,7 +2,7 @@ package LJ::SynSuck;
 use strict;
 use HTTP::Status;
 
-use lib "$ENV{LJHOME}/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
+use lib "$LJ::HOME/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
 require "ljprotocol.pl";
 require "parsefeed.pl";
 require "cleanhtml.pl";

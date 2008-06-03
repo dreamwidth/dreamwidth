@@ -480,7 +480,7 @@ sub session_from_cookies {
     my %getopts = @_;
 
     # must be in web context
-    return undef unless eval { Apache->request; };
+    return undef unless eval { BML::get_request(); };
 
     my $sessobj;
 
@@ -734,7 +734,11 @@ sub session_length {
 # given an Apache $r object, returns the URL to go to after setting the domain cookie
 sub setdomsess_handler {
     my ($class, $r) = @_;
-    my %get = $r->args;
+
+    # FIXME: ModPerl 2.0: best way to do this?  has to be a better way of handling incoming
+    # requests so that we don't have to parse input at all these stages...
+    Apache::BML::parse_inputs( $r );
+    my %get = %{ BML::get_GET() || {} };
 
     my $dest    = $get{'dest'};
     my $domcook = $get{'k'};
@@ -770,10 +774,10 @@ sub setdomsess_handler {
 ############################################################################
 
 sub _current_url {
-    my $r = Apache->request;
+    my $r = BML::get_request();
     my $args = $r->args;
     my $args_wq = $args ? "?$args" : "";
-    my $host = $r->header_in("Host");
+    my $host = $r->headers_in->{Host};
     my $uri = $r->uri;
     return "http://$host$uri$args_wq";
 }
@@ -813,7 +817,7 @@ sub _memkey {
 sub set_cookie {
     my ($key, $value, %opts) = @_;
 
-    my $r = eval { Apache->request };
+    my $r = eval { BML::get_request() };
     return unless $r;
 
     my $http_only = delete $opts{http_only};
@@ -825,7 +829,7 @@ sub set_cookie {
 
     # Mac IE 5 can't handle HttpOnly, so filter it out
     if ($http_only && ! $LJ::DEBUG{'no_mac_ie_httponly'}) {
-        my $ua = $r->header_in("User-Agent");
+        my $ua = $r->headers_in->{'User-Agent'};
         $http_only = 0 if $ua =~ /MSIE.+Mac_/;
     }
 

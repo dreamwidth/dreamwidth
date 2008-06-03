@@ -4,6 +4,7 @@ package LJ::Config;
 use strict;
 use warnings;
 
+$LJ::HOME ||= $ENV{LJHOME};
 $LJ::CONFIG_LOADED = 0;
 $LJ::CACHE_CONFIG_MODTIME = 0;
 
@@ -56,34 +57,34 @@ sub reload {
 
 # load user-supplied config changes
 sub load_ljconfig {
-    do "$ENV{'LJHOME'}/etc/ljconfig.pl";
+    do "$LJ::HOME/etc/ljconfig.pl";
     $LJ::CACHE_CONFIG_MODTIME_LASTCHECK = time();
 }
 
 # load defaults (should not clobber any existing configs)
 sub load_defaults {
-    do "$ENV{'LJHOME'}/cgi-bin/ljdefaults.pl";
+    do "$LJ::HOME/cgi-bin/ljdefaults.pl";
 }
 
 # loads policy configuration
 sub load_policy {
-    my $policyconfig = "$ENV{LJHOME}/etc/policyconfig.pl";
+    my $policyconfig = "$LJ::HOME/etc/policyconfig.pl";
     return unless -e $policyconfig;
     do "$policyconfig";
 }
 
 # load config overrides
 sub load_overrides {
-    if (-e "$ENV{LJHOME}/cgi-bin/ljconfig.pl") {
+    if (-e "$LJ::HOME/cgi-bin/ljconfig.pl") {
         warn "You are still using cgi-bin/ljconfig.pl. This has been deprecated, please use etc/ljconfig.pl and etc/ljoverrides.pl instead.";
 
         # but ignore ljconfig if both exist.
-        unless (-e "$ENV{LJHOME}/etc/ljconfig.pl") {
-            do "$ENV{LJHOME}/cgi-bin/ljconfig.pl";
+        unless (-e "$LJ::HOME/etc/ljconfig.pl") {
+            do "$LJ::HOME/cgi-bin/ljconfig.pl";
         }
     }
 
-    my $overrides = "$ENV{LJHOME}/etc/ljoverrides.pl";
+    my $overrides = "$LJ::HOME/etc/ljoverrides.pl";
     return unless -e $overrides;
     do $overrides;
 }
@@ -95,8 +96,8 @@ sub start_request_reload {
     # if the file has changed
     my $now = time();
     if ($now - $LJ::CACHE_CONFIG_MODTIME_LASTCHECK > 10) {
-        my $modtime = (stat("$ENV{'LJHOME'}/etc/ljconfig.pl"))[9]
-            || (stat("$ENV{'LJHOME'}/cgi-bin/ljconfig.pl"))[9];
+        my $modtime = (stat("$LJ::HOME/etc/ljconfig.pl"))[9]
+            || (stat("$LJ::HOME/cgi-bin/ljconfig.pl"))[9];
         if (!$LJ::CACHE_CONFIG_MODTIME || $modtime > $LJ::CACHE_CONFIG_MODTIME) {
             # reload config and update cached modtime
             $LJ::CACHE_CONFIG_MODTIME = $modtime;
@@ -117,7 +118,7 @@ sub start_request_reload {
                 #
                 # only print when we're in web-context
                 print STDERR "[$$] ljconfig.pl reloaded\n"
-                    if eval { Apache->request };
+                    if eval { BML::get_request() };
             }
         }
         $LJ::CACHE_CONFIG_MODTIME_LASTCHECK = $now;

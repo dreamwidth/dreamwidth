@@ -63,7 +63,7 @@ sub get_keys {
     }
 
     if ($ENV{READ_LJ_SOURCE}) {
-        chdir $ENV{LJHOME} or die;
+        chdir $LJ::HOME or die;
         my @lines = `grep -Er '[\$\@\%]LJ::[A-Z_]+\\b' cgi-bin htdocs bin ssldocs`;
         foreach my $line (@lines) {
             next if $line =~ m!~:!;  # ignore emacs backup files
