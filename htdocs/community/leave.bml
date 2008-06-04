@@ -31,7 +31,10 @@
     # used in both paths below
     my $ecname = LJ::ehtml($cu->{'name'});
 
-    if ($FORM{confirm}) {
+    if (LJ::did_post() && $FORM{confirm}) {
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
         # get current list of maintainers to make sure the last one doesn't leave
         my $maintids = LJ::load_rel_user($cu->{userid}, 'A');
         return $error->($ML{'error.nodb'}) unless ref $maintids eq 'ARRAY';
@@ -73,6 +76,7 @@
         }
         $body .= " p?>";
         $body .= '<form method="post" action="leave.bml">';
+        $body .= LJ::form_auth();
         $body .= LJ::html_hidden("comm", $cu->{user}, "confirm", 1) . "<p align='center'>";
         unless ($watching && !$memberof) {
             $body .= LJ::html_check({ name => 'removefriend', selected => 1, value => 1 }) . " ";
