@@ -53,7 +53,7 @@ body<=
 
  return $ML{'.interim'} if
     (!$remote || !$remote->{'_priv'}) &&
-    ($r->header_in("Referer") eq "$LJ::SITEROOT/support/" || $r->header_in("Referer") eq "$LJ::SITEROOT/support/index.bml" || $r->header_in("Referer") eq "$LJ::SITEROOT/support/submit.bml");
+    ($r->headers_in->{Referer} eq "$LJ::SITEROOT/support/" || $r->headers_in->{Referer} eq "$LJ::SITEROOT/support/index.bml" || $r->headers_in->{Referer} eq "$LJ::SITEROOT/support/submit.bml");
 
  my $cats = LJ::Support::load_cats();
 

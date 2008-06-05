@@ -27,7 +27,7 @@ REQUIREPOST=><?_ml bml.requirepost _ml?>
 LOAD_PAGE_INFO<=
 <?_code
 #line 3
- @sidebar = ({ 'name' => 'Home',
+@sidebar = ({ 'name' => 'Home',
            'uri' => '/',
            'match' => "^/(index\\.bml)?(\\?.*)?\$",
            'children' => [
@@ -40,41 +40,8 @@ LOAD_PAGE_INFO<=
 #                         'uri' => '/update.bml?mode=full', }
 #                           ],
                 },
-                  { 'name' => 'Download',
-                'uri' => '/download/', },
                   ],
            },
-         { 'name' => 'LiveJournal',
-           'children' => [
-                  { 'name' => 'News',
-                'match' => '^/news\\.bml\$',
-                'uri' => '/news.bml', },
-                  { 'name' => 'Paid Accounts',
-                'uri' => '/paidaccounts/', 
-                                'recursematch' => '^/paidaccounts/',
-                'children' => [ 
-                        { 'name' => 'Is this safe?',
-                          'uri' => '/paidaccounts/whysafe.bml', },
-                        { 'name' => 'Progress',
-                          'uri' => '/paidaccounts/progress.bml', },
-                        ],
-                },
-#                  { 'name' => 'To-Do list',
-#                'uri' => '/todo.bml', },
-                  { 'name' => 'Contributors',
-                'uri' => '/contributors.bml', },
-                  ],
-           },
-         { 'name' => 'Customize',
-           'children' => [
-                  { 'name' => 'Customize Journal',
-                'uri' => '/customize/', },
-                  { 'name' => 'Create Style',
-                'uri' => '/createstyle.bml', },
-                  { 'name' => 'Edit Style',
-                'uri' => '/editstyle.bml', },
-                  ],
-       },
          { 'name' => 'Find Users',
            'children' => [
                          { 'name' => 'Random!',
@@ -91,6 +58,8 @@ LOAD_PAGE_INFO<=
            'children' => [
                   { 'name' => 'Your Profile',
                 'uri' => '/manage/profile/', },
+                  { 'name' => 'Your Style',
+                'uri' => '/customize/', },
                   { 'name' => 'Your Friends',
                 'uri' => '/editfriends.bml', },
                   { 'name' => 'Your Entries',
@@ -130,10 +99,8 @@ LOAD_PAGE_INFO<=
            'children' => [
                   { 'name' => 'Lost Password?',
                 'uri' => '/lostinfo.bml', },
-                  { 'name' => 'Freq. Asked',
+                  { 'name' => 'FAQ / Guide',
                 'uri' => '/support/faq.bml', },
-                  { 'name' => 'Questions',
-                'uri' => '/support/faq.bml', cont => 1, },
                   { 'name' => 'Support Area',
                 'uri' => '/support/', },
                   ],
