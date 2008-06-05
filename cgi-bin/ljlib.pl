@@ -8,6 +8,11 @@ BEGIN {
     # ljlib.pl (via require, ick!).  so this lets them know if it's recursive.
     # we REALLY need to move the rest of this crap to .pm files.
     $LJ::_LJLIB_INIT = 1;
+
+    # ensure we have $LJ::HOME, or complain very vigorously
+    $LJ::HOME ||= $ENV{LJHOME};
+    die "No \$LJ::HOME set, or not a directory!\n"
+        unless $LJ::HOME && -d $LJ::HOME;
 }
 
 use lib "$LJ::HOME/cgi-bin";
