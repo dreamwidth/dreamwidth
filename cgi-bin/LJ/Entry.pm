@@ -1549,7 +1549,7 @@ sub get_log2_recent_log
         my $n = (length($rows) - 5 )/20;
         for (my $i=0; $i<$n; $i++) {
             my ($posterid, $eventtime, $rlogtime, $allowmask, $ditemid) =
-                unpack("NNNQN", substr($rows, $i*20+5, 20));
+                unpack("NNNQN", substr($rows, $i*24+5, 24));
             next if $notafter and $rlogtime > $notafter;
             $eventtime = LJ::mysql_time($eventtime, 1);
             my $security = $allowmask == 0 ? 'private' :
