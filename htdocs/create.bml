@@ -23,6 +23,8 @@ body<=
 
  return "<?badinput?>" unless LJ::text_in(\%POST);
 
+ return "<?h1 Sorry! h1?><?p This site is not yet open for business.  :-) p?>";
+
  my $mode = $POST{'mode'};
  my $code = $POST{'code'} || $GET{'code'};
 
