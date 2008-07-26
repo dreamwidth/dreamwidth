@@ -360,7 +360,7 @@ sub trans
        $r->log_error("REFERER WARNING: POST to $uri from $referer");
     }
 
-    my %GET = $r->args;
+    my %GET = LJ::parse_args( $r->args );
 
     if ($LJ::IS_DEV_SERVER && $GET{'as'} =~ /^\w{1,15}$/) {
         my $ru = LJ::load_user($GET{'as'});
@@ -1198,7 +1198,7 @@ sub journal_content
     my $r = shift;
     my $uri = $r->uri;
 
-    my %GET = $r->args;
+    my %GET = LJ::parse_args( $r->args );
 
     if ($RQ{'mode'} eq "robots_txt")
     {
