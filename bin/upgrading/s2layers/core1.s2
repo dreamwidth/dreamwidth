@@ -793,9 +793,12 @@ function builtin viewer_logged_in() : bool
 "Returns true if the user viewing the page is logged in. It's recommended that your page links to the site
 login page if the user isn't logged in.";
 
+function builtin viewer_can_manage() : bool
+"Returns true if the user viewing the page is both logged in, and can manage the account in question.  For
+a community, this means they are a maintainer.  For all other account types, this means they are the owner.";
+
 function builtin viewer_is_owner() : bool
-"Returns true if the user viewing the page is both logged in, and is the owner of the content in question.
-Useful for returning links to manage information, or edit entries.";
+"Deprecated function.  Use viewer_can_manage from now on.";
 
 function builtin viewer_is_friend() : bool
 "Returns true if the user viewing the page is both logged in, and is a friend of the journal being viewed. Always returns false for communities, since they cannot have friends.";

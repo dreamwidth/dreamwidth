@@ -2421,6 +2421,15 @@ sub viewer_logged_in
     return defined $remote;
 }
 
+sub viewer_can_manage
+{
+    my ($ctx) = @_;
+    my $remote = LJ::get_remote();
+    return 0 unless $remote;
+    return 0 unless defined($LJ::S2::CURR_PAGE);
+    return LJ::can_manage($remote, $LJ::S2::CURR_PAGE->{_u});
+}
+
 sub viewer_is_owner
 {
     my ($ctx) = @_;
