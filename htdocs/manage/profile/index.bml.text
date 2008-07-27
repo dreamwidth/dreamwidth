@@ -139,6 +139,8 @@
 
 .gender.male=Male
 
+.gender.other=Other
+
 .gender.unspecified=(Unspecified)
 
 .im=IM/Chat

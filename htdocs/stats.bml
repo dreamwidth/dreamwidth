@@ -62,14 +62,16 @@ p?>
  $ret .= "</ul> \n";
 
  $ret .= "<?h1 Gender h1?>\n";
- $ret .= "<?p Are males or females more likely to maintain journals? p?><ul>";
+ $ret .= "<?p Who is more likely to maintain a journal? p?><ul>";
  {
      my $male = $stat{'gender'}->{'M'}+0;
      my $female = $stat{'gender'}->{'F'}+0;
-     my $tot = $male+$female;
+     my $other = $stat{'gender'}->{'O'}+0;
+     my $tot = $male+$female+$other;
      $tot ||= 1;
-     $ret .= "<li><b>Male: </b> $male (" . sprintf("%0.1f", $male*100/($tot||1)) . "%)</li>";
      $ret .= "<li><b>Female: </b> $female (" . sprintf("%0.1f", $female*100/($tot||1)) . "%)</li>";
+     $ret .= "<li><b>Male: </b> $male (" . sprintf("%0.1f", $male*100/($tot||1)) . "%)</li>";
+     $ret .= "<li><b>Other: </b> $other (" . sprintf("%0.1f", $other*100/($tot||1)) . "%)</li>";
  }
  $ret .= "<li><b>Unspecified: </b> " . ($stat{'gender'}->{'U'}+0) . "</li>";
  $ret .= "</ul>\n";

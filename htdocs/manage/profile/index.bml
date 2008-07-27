@@ -149,8 +149,11 @@ body<=
 
         # gender
         $ret .= "<tr><td class='field_name'>$ML{'.fn.gender'}</td><td>";
-        $ret .= LJ::html_select({ 'name' => 'gender', 'selected' => $u->{'gender'} },
-                                  'U' => $ML{'.gender.unspecified'}, 'M' => $ML{'.gender.male'}, 'F' => $ML{'.gender.female'} );
+        $ret .= LJ::html_select({ 'name' => 'gender', 'selected' => $u->{'gender'} || 'U' },
+                                  'F' => $ML{'.gender.female'},
+                                  'M' => $ML{'.gender.male'},
+                                  'O' => $ML{'.gender.other'},
+                                  'U' => $ML{'.gender.unspecified'}, );
         $ret .= "</td></tr>\n";
 
 
@@ -617,7 +620,7 @@ body<=
             $POST{'opt_showmutualfriends'} = $POST{'opt_showmutualfriends'} ? 1 : 0;
             $POST{'opt_hidefriendofs'} = $POST{'opt_hidefriendofs'} ? 0 : 1;
             $POST{'opt_showschools'} = 'N' unless $POST{'opt_showschools'} =~ m/^(N|R|Y|F)$/;
-            $POST{'gender'} = 'U' unless $POST{'gender'} =~ m/^[UMF]$/;
+            $POST{'gender'} = 'U' unless $POST{'gender'} =~ m/^[UMFO]$/;
             $POST{'opt_sharebday'} = undef unless $POST{'opt_sharebday'} =~ m/^(A|F|N|R)$/;
             $POST{'opt_showbday'} = 'F' unless $POST{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
             # undefined means show to everyone, "N" means don't show

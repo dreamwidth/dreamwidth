@@ -53,11 +53,12 @@ sub render_body {
     $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.gender') . "</td>\n<td>";
     $ret .= $class->html_select(
         name => 'gender',
-        selected => $u->prop('gender'),
+        selected => $u->prop('gender') || 'U',
         list => [
-            U => LJ::Lang::ml('/manage/profile/index.bml.gender.unspecified'),
-            M => LJ::Lang::ml('/manage/profile/index.bml.gender.male'),
             F => LJ::Lang::ml('/manage/profile/index.bml.gender.female'),
+            M => LJ::Lang::ml('/manage/profile/index.bml.gender.male'),
+            O => LJ::Lang::ml('/manage/profile/index.bml.gender.other'),
+            U => LJ::Lang::ml('/manage/profile/index.bml.gender.unspecified'),
         ],
     );
     $ret .= $error_msg->('gender', '<br /><span class="formitemFlag">', '</span>');
@@ -181,7 +182,7 @@ sub handle_post {
     $post->{name} = LJ::text_trim($post->{name}, LJ::BMAX_NAME, LJ::CMAX_NAME);
 
     # gender
-    $post->{gender} = 'U' unless $post->{gender} =~ m/^[UMF]$/;
+    $post->{gender} = 'U' unless $post->{gender} =~ m/^[UMFO]$/;
 
     # location is handled by LJ::Widget::Location
 

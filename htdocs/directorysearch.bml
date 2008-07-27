@@ -121,8 +121,9 @@ code=>s_gen
 form<=
 User is: <select name="gen_sel">
 <option></option>
-<option value="M">Male</option>
 <option value="F">Female</option>
+<option value="M">Male</option>
+<option value="O">Other</option>
 </select>
 <=form
 crit?>

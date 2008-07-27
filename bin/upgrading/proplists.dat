@@ -273,7 +273,7 @@ userproplist.friendspagetitle:
 userproplist.gender:
   cldversion: 4
   datatype: char
-  des: M: male, F: female, U: unspecified
+  des: F: female, M: male, O: other, U: unspecified
   indexed: 1
   multihomed: 0
   prettyname: Gender

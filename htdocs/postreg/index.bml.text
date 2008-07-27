@@ -26,7 +26,7 @@
 
 .setting.birthdaydisplay.question=Display:
 
-.setting.gender.error.invalid=You must pick male, female, or unspecified.
+.setting.gender.error.invalid=You must pick female, male, other or unspecified.
 
 .setting.gender.question=Gender:
 

@@ -3,7 +3,7 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-sub tags { qw(gender sex male female boy girl) }
+sub tags { qw(gender sex male female boy girl other) }
 
 sub as_html {
     my ($class, $u, $errs, $args) = @_;
@@ -14,17 +14,18 @@ sub as_html {
         $u->prop("gender");
 
     return "<label for='${key}gender'>" . $class->ml('.setting.gender.question') . "</label>" .
-        LJ::html_select({ 'name' => "${key}gender", 'id' => '${key}gender', 'class' => 'select', 'selected' => $gender },
-                        'U' => LJ::Lang::ml('/manage/profile/index.bml.gender.unspecified'),
+        LJ::html_select({ 'name' => "${key}gender", 'id' => '${key}gender', 'class' => 'select', 'selected' => $gender || 'U' },
+                        'F' => LJ::Lang::ml('/manage/profile/index.bml.gender.female'),
                         'M' => LJ::Lang::ml('/manage/profile/index.bml.gender.male'),
-                        'F' => LJ::Lang::ml('/manage/profile/index.bml.gender.female') ) .
+                        'O' => LJ::Lang::ml('/manage/profile/index.bml.gender.other'),
+                        'U' => LJ::Lang::ml('/manage/profile/index.bml.gender.unspecified') ) .
                         $class->errdiv($errs, "gender");
 }
 
 sub error_check {
     my ($class, $u, $args) = @_;
     my $val = $class->get_arg($args, "gender");
-    $class->errors("gender" => $class->ml('.setting.gender.error.invalid')) unless $val =~ /^[UMF]$/;
+    $class->errors("gender" => $class->ml('.setting.gender.error.invalid')) unless $val =~ /^[UMFO]$/;
     return 1;
 }
 
