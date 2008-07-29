@@ -1923,9 +1923,12 @@ sub start_request
     # reload config if necessary
     LJ::Config->start_request_reload;
 
+    # reset the request abstraction layer
+    DW::Request->reset;
+
     # include standard files if this is web-context
     unless ($LJ::DISABLED{sitewide_includes}) {
-        if (eval { BML::get_request() }) {
+        if ( DW::Request->get ) {
             # standard site-wide JS and CSS
             LJ::need_res(qw(
                             js/core.js
@@ -1936,27 +1939,30 @@ sub start_request
                             stc/lj_base.css
                             ));
 
-              # esn ajax
-              LJ::need_res(qw(
-                              js/esn.js
-                              stc/esn.css
-                              ))
-                  unless LJ::conf_test($LJ::DISABLED{esn_ajax});
+            # esn ajax
+            LJ::need_res(qw(
+                            js/esn.js
+                            stc/esn.css
+                            ))
+                unless LJ::conf_test($LJ::DISABLED{esn_ajax});
 
-              # contextual popup JS
-              LJ::need_res(qw(
-                              js/ippu.js
-                              js/lj_ippu.js
-                              js/hourglass.js
-                              js/contextualhover.js
-                              stc/contextualhover.css
-                              )) if $LJ::CTX_POPUP;
+            # contextual popup JS
+            LJ::need_res(qw(
+                            js/ippu.js
+                            js/lj_ippu.js
+                            js/hourglass.js
+                            js/contextualhover.js
+                            stc/contextualhover.css
+                            ))
+                if $LJ::CTX_POPUP;
 
-              LJ::need_res(qw(
-                              js/devel.js
-                              js/livejournal-devel.js
-                              )) if $LJ::IS_DEV_SERVER;
-          }
+            # development JS
+            LJ::need_res(qw(
+                            js/devel.js
+                            js/livejournal-devel.js
+                            ))
+                if $LJ::IS_DEV_SERVER;
+        }
     }
 
     LJ::run_hooks("start_request");
@@ -2450,7 +2456,7 @@ sub work_report {
     my $dest = $LJ::WORK_REPORT_HOST;
     return unless $dest;
 
-    my $r = eval { BML::get_request(); };
+    my $r = DW::Request->get;
     return unless $r;
     return if $r->method eq "OPTIONS";
 
@@ -2467,7 +2473,7 @@ sub work_report {
     if ($what eq "start") {
         my $host = $r->header_in("Host");
         my $uri = $r->uri;
-        my $args = $r->args;
+        my $args = $r->query_string;
         $args = substr($args, 0, 100) if length $args > 100;
         push @fields, $host, $uri, $args;
 
@@ -2747,12 +2753,10 @@ sub procnotify_check
 # call paths which end up thinking they need the remote IP, but don't.
 sub get_remote_ip
 {
-    my $ip;
     return $LJ::_T_FAKE_IP if $LJ::IS_DEV_SERVER && $LJ::_T_FAKE_IP;
-    eval {
-        $ip = BML::get_request()->connection->remote_ip;
-    };
-    return $ip || $ENV{'FAKE_IP'};
+
+    my $r = DW::Request->get;
+    return ( $r ? $r->get_remote_ip : undef ) || $ENV{'FAKE_IP'};
 }
 
 sub md5_struct
@@ -2997,10 +3001,12 @@ sub is_web_context {
 
 sub is_open_proxy
 {
-    my $ip = shift;
-    eval { $ip ||= BML::get_request(); };
+    my $ip = $_[0] || DW::Request->get;
     return 0 unless $ip;
-    if (ref $ip) { $ip = $ip->connection->remote_ip; }
+
+    if ( ref $ip ) {
+        $ip = $ip->get_remote_ip;
+    }
 
     my $dbr = LJ::get_db_reader();
     my $stat = $dbr->selectrow_hashref("SELECT status, asof FROM openproxy WHERE addr=?",
