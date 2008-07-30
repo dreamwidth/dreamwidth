@@ -68,7 +68,7 @@ body<=
 }
 _code?>
 <=body
-title=><?_ml .title _ml?>
+title=><?_code $ML{'.title'} _code?>
 head<=
 <style type='text/css'>
 div.sidebar-right {
