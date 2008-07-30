@@ -18,6 +18,7 @@
 package DW::Request;
 
 use strict;
+use Apache2::RequestUtil ();
 use DW::Request::Apache2;
 
 use vars qw( $cur_req );
