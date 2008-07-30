@@ -65,10 +65,24 @@ sub query_string {
     return $self->{r}->args;
 }
 
+# searches for a given note and returns the value, or sets it
+sub note {
+    my DW::Request::Apache2 $self = $_[0];
+    if ( scalar( @_ ) == 2 ) {
+        return $self->{r}->notes->{$_[1]};
+    } else {
+        return $self->{r}->notes->{$_[1]} = $_[2];
+    }
+}
+
 # searches for a given header and returns the value, or sets it
 sub header_in {
     my DW::Request::Apache2 $self = $_[0];
-    return $self->{r}->header_in( $_[1], $_[2] );
+    if ( scalar( @_ ) == 2 ) {
+        return $self->{r}->headers_in->{$_[1]};
+    } else {
+        return $self->{r}->headers_in->{$_[1]} = $_[2];
+    }
 }
 
 # returns the ip address of the connected person
