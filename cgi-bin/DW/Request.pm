@@ -18,7 +18,6 @@
 package DW::Request;
 
 use strict;
-use Apache2::RequestUtil ();
 use DW::Request::Apache2;
 
 use vars qw( $cur_req );
@@ -31,11 +30,14 @@ sub get {
 
     # attempt Apache 2 
     eval {
-        require 'Apache2::RequestUtil';
+        eval "use Apache2::RequestUtil ();";
         my $r = Apache2::RequestUtil->request;
-        return $cur_req = DW::Request::Apache2->new( $r )
+        $cur_req = DW::Request::Apache2->new( $r )
             if $r;
     };
+
+    # hopefully one of the above worked
+    return $cur_req if $cur_req;
 
     # okay, we fell through, something is really busted
     die "DW::Request failed to identify current operating environment.";
