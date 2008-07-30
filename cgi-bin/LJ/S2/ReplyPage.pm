@@ -198,8 +198,7 @@ sub ReplyForm__print
     my $parpost = $form->{'_parpost'};
     my $parent = $parpost ? $parpost->{'jtalkid'} : 0;
 
-    my $r = BML::get_request();
-    my $post_vars = { $r->content };
+    my $post_vars = DW::Request->get->post_args;
     $post_vars = $form->{_values} unless keys %$post_vars;
 
     $S2::pout->(LJ::Talk::talkform({ 'remote'    => $remote,

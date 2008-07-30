@@ -25,7 +25,8 @@ use Apache2::RequestUtil ();
 use Apache2::RequestIO ();
 
 use fields (
-            'r',    # The Apache2::Request object
+            'r',         # The Apache2::Request object
+            'post_args', # hashref of POST arguments
         );
 
 # creates a new DW::Request object, based on what type of server environment we
@@ -35,7 +36,8 @@ sub new {
     $self = fields::new( $self ) unless ref $self;
 
     # setup object
-    $self->{r} = $_[1];
+    $self->{r}         = $_[1];
+    $self->{post_args} = undef;
 
     # done
     return $self;
@@ -63,6 +65,16 @@ sub uri {
 sub query_string {
     my DW::Request::Apache2 $self = $_[0];
     return $self->{r}->args;
+}
+
+# get POST arguments as an APR::Table object (which is a tied hashref)
+sub post_args {
+    my DW::Request::Apache2 $self = $_[0];
+    unless ( $self->{post_args} ) {
+        my $tmp_r = Apache2::Request->new( $self->{r} );
+        $self->{post_args} = $tmp_r->body;
+    }
+    return $self->{post_args};
 }
 
 # searches for a given note and returns the value, or sets it
