@@ -276,6 +276,7 @@
                    'host' => "localhost",
                    'port' => 3306,
                    'user' => 'lj',
+                   'dbname' => 'lj_global',
                    'pass' => 'ljpass',
                    'role' => {
                        'cluster1' => 1,
