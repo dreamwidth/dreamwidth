@@ -33,6 +33,7 @@ use Time::Local ();
 use Storable ();
 use Compress::Zlib ();
 use Class::Autouse qw(
+                      DW::Request
                       TheSchwartz
                       TheSchwartz::Job
                       LJ::AdTargetedInterests

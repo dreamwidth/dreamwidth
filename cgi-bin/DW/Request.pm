@@ -18,6 +18,8 @@
 package DW::Request;
 
 use strict;
+use DW::Request::Apache2;
+
 use vars qw( $cur_req );
 
 # creates a new DW::Request object, based on what type of server environment we
