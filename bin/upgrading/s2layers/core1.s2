@@ -125,10 +125,10 @@ class Date
     "Returns the day of the week this date falls on, from Sunday=1 to Saturday=7";
 
     function builtin date_format () : string
-    "Returns date formatted as normal.  // SeeAlso: siteapi.core1.dateformats";
+    "Returns date formatted as normal.  /// SeeAlso: siteapi.core1.dateformats";
 
     function builtin date_format (string fmt) : string
-    "Returns date formatted as indicated by \$fmt.  One of: short, med, long, med_day, long_day.  Or a custom format.  Default is 'short'. // SeeAlso: siteapi.core1.dateformats";
+    "Returns date formatted as indicated by \$fmt.  One of: short, med, long, med_day, long_day.  Or a custom format.  Default is 'short'. /// SeeAlso: siteapi.core1.dateformats";
 
     function builtin compare(Date d) : int
     "Compare two dates. Returns a negative number if d is before the subject in time, positive if it is after, or zero if the two dates are equal. When comparing a Date with a DateTime, the time on the bare Date value is assumed to be midnight.";
@@ -145,10 +145,10 @@ class DateTime extends Date
     var int sec "Second; 0-59.";
 
     function builtin time_format () : string
-    "Returns time formatted as normal.  // SeeAlso: siteapi.core1.dateformats";
+    "Returns time formatted as normal.  /// SeeAlso: siteapi.core1.dateformats";
 
     function builtin time_format (string fmt) : string
-    "Returns time formatted as indicated by \$fmt, or normal if blank.  // SeeAlso: siteapi.core1.dateformats";
+    "Returns time formatted as indicated by \$fmt, or normal if blank.  /// SeeAlso: siteapi.core1.dateformats";
 }
 
 class Image
@@ -318,7 +318,7 @@ class EntryLite
     var readonly string permalink_url "A URL at which this specific entry can be viewed, for linking purposes.";
     var int depth "Visual depth of entry.  Top-level journal entries are always depth zero.  Comments have a depth greater than or equal to one, depending on where the thread is rooted at.";
 
-    var string[] link_keyseq "An array of keys which you should pass to [method[EntryLite.get_link(string)]] to produce an entry 'toolbar'. Does not contain nav_next and nav_prev for entries; you should retrieve those separately and put them somewhere appropriate for your layout.";
+    var string[] link_keyseq "An array of keys which you should pass to [method[EntryLite.get_link(string key)]] to produce an entry 'toolbar'. Does not contain nav_next and nav_prev for entries; you should retrieve those separately and put them somewhere appropriate for your layout.";
 
     function print_text() [fixed]
         "Print the entry text. Doesn't print anything in some contexts, such as on a month view or in a collapsed comment.";
@@ -388,6 +388,12 @@ class Comment extends EntryLite
     function builtin print_reply_container() "Prints the area in which the quickreply box will go. If no container is available, quickreply will not work.";
 
     function builtin print_reply_container(string{} opts) "Prints the area in which the quickreply box will go. You may 'class' which will be the CSS class used by the container. If no container is available, quickreply will not work.";
+
+    function builtin expand_link () : string "Returns a link to expand a collapsed comment. Uses the value of the 'text_comment_expand' property as the text. Will not work in untrusted layers.";
+    function builtin expand_link (string{} opts) : string "Returns a link to expand a collapsed comment. Can pass options 'text', 'title', 'class', and 'img_url' (and other 'img_*' options). Will not work in untrusted layers.";
+
+    function builtin print_expand_link () : string "Prints a link to expand a collapsed comment. Uses the value of the 'text_comment_expand' property as the text.";
+    function builtin print_expand_link (string{} opts) : string "Prints a link to expand a collapsed comment. Can pass options 'text', 'title', 'class', and 'img_url' (and other 'img_*' options).";
 
     function time_display (string datefmt, string timefmt, bool edittime) : string "Same as EntryLite::time_display, except can pass in if we want the edit time or not.";
     function edittime_display () : string "Show the time that this comment was edited, with most useful information for user.  Empty string if the comment hasn't been edited.";
@@ -574,7 +580,7 @@ class RecentNav
 }
 
 class RecentPage extends Page
-"Most recent entries page, formally known as the LASTN view in the previous style system"
+"Most recent entries page, formerly known as the LASTN view in the previous style system"
 {
     var Entry[] entries
     "Array of entries available to be seen by the viewer of the page.";
@@ -661,9 +667,9 @@ class YearMonth
     var Date next_date "Date of next month, with day of zero, or null if none.";
 
     function builtin month_format () : string
-    "Returns month formatted long (February 1980)  // SeeAlso: siteapi.core1.dateformats";
+    "Returns month formatted long (February 1980)  /// SeeAlso: siteapi.core1.dateformats";
     function builtin month_format (string fmt) : string
-    "Returns time formatted as indicated by \$fmt, or 'long' if blank.  // SeeAlso: siteapi.core1.dateformats";
+    "Returns time formatted as indicated by \$fmt, or 'long' if blank.  /// SeeAlso: siteapi.core1.dateformats";
 }
 
 class YearPage extends Page
@@ -793,12 +799,9 @@ function builtin viewer_logged_in() : bool
 "Returns true if the user viewing the page is logged in. It's recommended that your page links to the site
 login page if the user isn't logged in.";
 
-function builtin viewer_can_manage() : bool
-"Returns true if the user viewing the page is both logged in, and can manage the account in question.  For
-a community, this means they are a maintainer.  For all other account types, this means they are the owner.";
-
 function builtin viewer_is_owner() : bool
-"Deprecated function.  Use viewer_can_manage from now on.";
+"Returns true if the user viewing the page is both logged in, and is the owner of the content in question.
+Useful for returning links to manage information, or edit entries.";
 
 function builtin viewer_is_friend() : bool
 "Returns true if the user viewing the page is both logged in, and is a friend of the journal being viewed. Always returns false for communities, since they cannot have friends.";
@@ -1008,7 +1011,7 @@ property builtin string IMGDIR {
 property builtin string STATDIR {
     noui = 1;
     doc_flags = "[sys]";
-    des = "The base URL of the current LiveJournal site's static files directory, without a trailing slash.";
+    des = "The base URL of the current LiveJournal site's static files directory, without a trailing slash.  Example: \"http://www.livejournal.com/stc\".";
 }
 property builtin string SITENAME {
     noui = 1;
@@ -1511,10 +1514,16 @@ property string text_comment_thread {
     example = "Thread";
     maxlength = "50";
 }
+property string text_comment_expand {
+    des = "Text to expand a collapsed comment thread";
+    example = "Expand";
+    maxlength = "50";
+}
 set text_comment_reply = "Reply";
 set text_comment_frozen = "Frozen";
 set text_comment_parent = "Parent";
 set text_comment_thread = "Thread";
+set text_comment_expand = "Expand";
 
 property string text_poster_anonymous {
     des = "The placeholder used when something is posted by an anonymous user";
@@ -1882,7 +1891,7 @@ function Image::as_string(string{} opts) [fixed] : string {
 }
 
 function Image::as_string(string alttext) [fixed] : string {
-    return "<img src=\"$.url\" alt=\"" + ehtml($alttext) + "\"" +
+    return "<img src=\"$.url\" title=\"\" alt=\"" + ehtml($alttext) + "\"" +
         htmlattr("height", $.height) +
         htmlattr("width", $.width) + " />";
 }
@@ -2652,10 +2661,16 @@ function EntryPage::print_comment (Comment c) {
     if ($c.frozen) {
         print safe "($*text_comment_frozen) ";
     } else {
-        "("; $c->print_reply_link({"linktext" => $*text_comment_reply}); ")";
+        "("; $c->print_reply_link({"linktext" => $*text_comment_reply}); ") ";
     }
     if ($c.parent_url != "") { print safe "(<a href='$c.parent_url'>$*text_comment_parent</a>) "; }
-    if ($c.thread_url != "") { print safe "(<a href='$c.thread_url'>$*text_comment_thread</a>) "; }
+    if ($c.thread_url != "") {
+        print safe "(<a href='$c.thread_url'>$*text_comment_thread</a>) ";
+        var Link expand_link = $c->get_link("expand_comments");
+        if (defined $expand_link) {
+            "("; $c->print_expand_link(); ") ";
+        }
+    }
     "</div>\n";
     $c->print_reply_container();
 }
@@ -2664,6 +2679,10 @@ function EntryPage::print_comment_partial (Comment c) {
     var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
     var string subj = $c.subject != "" ? $c.subject : $*text_nosubject;
     print safe "<a href='$c.permalink_url'>$subj</a> - $poster";
+    var Link expand_link = $c->get_link("expand_comments");
+    if ($c.thread_url != "" and defined $expand_link) {
+        " "; $c->print_expand_link();
+    }
 }
 
 function ItemRange::print() {

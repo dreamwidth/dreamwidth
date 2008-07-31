@@ -219,34 +219,29 @@ sub DayPage
         $p->{'entries'}->[-1]->{'end_day'} = 1;
     }
 
-    # calculate previous day
-    my $pdyear = $year;
-    my $pdmonth = $month;
-    my $pdday = $day-1;
-    if ($pdday < 1)
+    # find near days
+    my ($prev, $next);
+    my $here = sprintf("%04d%02d%02d", $year, $month, $day);        # we are here now
+    foreach (@{LJ::get_daycounts($u, $remote)})
     {
-        if (--$pdmonth < 1)
-        {
-          $pdmonth = 12;
-          $pdyear--;
+        $_ = sprintf("%04d%02d%02d", (@$_)[0 .. 2]);    # map each date as YYYYMMDD number
+        if ($_ < $here && (!$prev || $_ > $prev)) {     # remember in $prev less then $here last date
+            $prev = $_;
+        } elsif ($_ > $here && (!$next || $_ < $next)) {# remember in $next greater then $here first date
+            $next = $_;
         }
-        $pdday = LJ::days_in_month($pdmonth, $pdyear);
     }
 
-    # calculate next day
-    my $nxyear = $year;
-    my $nxmonth = $month;
-    my $nxday = $day+1;
-    if ($nxday > LJ::days_in_month($nxmonth, $nxyear))
-    {
-        $nxday = 1;
-        if (++$nxmonth > 12) { ++$nxyear; $nxmonth=1; }
-    }
+    # create Date objects for ($prev, $next) pair
+    my ($pdate, $ndate) = map { /^(\d\d\d\d)(\d\d)(\d\d)\b/ ? Date($1, $2, $3) : Null('Date') } ($prev, $next);
 
-    $p->{'prev_url'} = "$u->{'_journalbase'}/" . sprintf("%04d/%02d/%02d/", $pdyear, $pdmonth, $pdday);
-    $p->{'prev_date'} = Date($pdyear, $pdmonth, $pdday);
-    $p->{'next_url'} = "$u->{'_journalbase'}/" . sprintf("%04d/%02d/%02d/", $nxyear, $nxmonth, $nxday);
-    $p->{'next_date'} = Date($nxyear, $nxmonth, $nxday);
+    # insert slashes into $prev and $next
+    ($prev, $next)      = map { s!^(\d\d\d\d)(\d\d)(\d\d)\b!$1/$2/$3!; $_ } ($prev, $next);
+
+    $p->{'prev_url'} = defined $prev ? ("$u->{'_journalbase'}/$prev") : '';
+    $p->{'prev_date'} = $pdate;
+    $p->{'next_url'} = defined $next ? ("$u->{'_journalbase'}/$next") : '';
+    $p->{'next_date'} = $ndate;
 
     return $p;
 }

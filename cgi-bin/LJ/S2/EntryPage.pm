@@ -130,11 +130,12 @@ sub EntryPage
             my $seconds_since_entry = $com->{'datepost_unix'} - $entry->logtime_unix;
             my $datetime_poster = DateTime_tz($com->{'datepost_unix'}, $pu);
 
-            my ($edited, $edittime, $edittime_remote, $edittime_poster);
+            my ($edited, $edit_url, $edittime, $edittime_remote, $edittime_poster);
             if ($com->{_loaded}) {
                 my $comment = LJ::Comment->new($u, jtalkid => $com->{talkid});
 
                 $edited = $comment->is_edited;
+                $edit_url = LJ::Talk::talkargs($comment->edit_url, $style_arg);
                 if ($edited) {
                     $edittime = DateTime_unix($comment->edit_time);
                     $edittime_remote = $tz_remote ? DateTime_tz($comment->edit_time, $tz_remote) : undef;
@@ -224,6 +225,7 @@ sub EntryPage
                 'seconds_since_entry' => $seconds_since_entry,
                 'edittime_remote' => $edittime_remote,
                 'edittime_poster' => $edittime_poster,
+                'edit_url' => $edit_url,
             };
 
             # don't show info from suspended users

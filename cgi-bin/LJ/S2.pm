@@ -2078,8 +2078,11 @@ sub Image_userpic
 
     $picid ||= LJ::get_picid_from_keyword($u, $kw);
 
-    my $pi = LJ::get_userpic_info($u);
+    my $pi = LJ::get_userpic_info($u, {load_comments => 1});
     my $p = $pi->{'pic'}->{$picid};
+    my $k = $pi->{'kw'};
+    my $kwstr = join(', ', ( grep { $k->{$_}{'picid'} eq $picid } (keys %$k) ) );
+    my $alttext = $kwstr;
 
     return Null("Image") unless $p;
     return {
@@ -2087,7 +2090,7 @@ sub Image_userpic
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
         'width' => $p->{'width'},
         'height' => $p->{'height'},
-        'alttext' => "",
+        'alttext' => $alttext,
     };
 }
 
@@ -2419,15 +2422,6 @@ sub viewer_logged_in
     my ($ctx) = @_;
     my $remote = LJ::get_remote();
     return defined $remote;
-}
-
-sub viewer_can_manage
-{
-    my ($ctx) = @_;
-    my $remote = LJ::get_remote();
-    return 0 unless $remote;
-    return 0 unless defined($LJ::S2::CURR_PAGE);
-    return LJ::can_manage($remote, $LJ::S2::CURR_PAGE->{_u});
 }
 
 sub viewer_is_owner
@@ -3051,7 +3045,8 @@ sub _Comment__get_link
     }
     if ($key eq "edit_comment") {
         return $null_link unless $comment->remote_can_edit;
-        return LJ::S2::Link($comment->edit_url,
+        my $edit_url = $this->{edit_url} || $comment->edit_url;
+        return LJ::S2::Link($edit_url,
                             $ctx->[S2::PROPS]->{"text_multiform_opt_edit"},
                             LJ::S2::Image("$LJ::IMGPREFIX/btn_edit.gif", 22, 20));
     }
@@ -3059,14 +3054,14 @@ sub _Comment__get_link
         return $null_link unless LJ::run_hook('show_thread_expander');
         ## show "Expand" link only if 
         ## 1) the comment is collapsed 
-        ## 2) any of comment's children are collapsed and comment is not top-level
+        ## 2) any of comment's children are collapsed
         my $show_expand_link;
-        if (!$this->{full}) {
+        if (!$this->{full} and !$this->{deleted}) {
             $show_expand_link = 1;
         }
-        elsif ($this->{depth}>1) {
+        else {
             foreach my $c (@{ $this->{replies} }) {
-                if (!$c->{full}) {
+                if (!$c->{full} and !$c->{deleted}) {
                     $show_expand_link = 1;
                     last;
                 }
@@ -3074,7 +3069,7 @@ sub _Comment__get_link
         }
         return $null_link unless $show_expand_link;
         return LJ::S2::Link("#",        ## actual link is javascript: onclick='....'
-                            $ctx->[S2::PROPS]->{"text_expand_link"});
+                            $ctx->[S2::PROPS]->{"text_comment_expand"});
     }
 }
 
@@ -3215,6 +3210,52 @@ sub _print_reply_container
 *Comment__print_reply_container = \&_print_reply_container;
 *EntryPage__print_reply_container = \&_print_reply_container;
 *Page__print_reply_container = \&_print_reply_container;
+
+sub Comment__expand_link
+{
+    my ($ctx, $this, $opts) = @_;
+    $opts ||= {};
+
+    my $prop_text = LJ::ehtml($ctx->[S2::PROPS]->{"text_comment_expand"});
+
+    my $text = LJ::ehtml($opts->{text});
+    $text =~ s/&amp;nbsp;/&nbsp;/gi; # allow &nbsp; in the text
+
+    my $opt_img = LJ::CleanHTML::canonical_url($opts->{img_url});
+
+    # if they want an image change the text link to the image,
+    # and add the text after the image if they specified it as well
+    if ($opt_img) {
+        my $width = $opts->{img_width};
+        my $height = $opts->{img_height};
+        my $border = $opts->{img_border};
+        my $align = LJ::ehtml($opts->{img_align});
+        my $alt = LJ::ehtml($opts->{img_alt}) || $prop_text;
+        my $title = LJ::ehtml($opts->{img_title}) || $prop_text;
+
+        $width  = defined $width  && $width  =~ /^\d+$/ ? " width=\"$width\"" : "";
+        $height = defined $height && $height =~ /^\d+$/ ? " height=\"$height\"" : "";
+        $border = defined $border && $border =~ /^\d+$/ ? " border=\"$border\"" : "";
+
+        $align  = $align =~ /^\w+$/ ? " align=\"$align\"" : "";
+        $alt    = $alt   ? " alt=\"$alt\"" : "";
+        $title  = $title ? " title=\"$title\"" : "";
+
+        $text = "<img src=\"$opt_img\"$width$height$border$align$title$alt />$text";
+    } elsif (!$text) {
+        $text = $prop_text;
+    }
+
+    my $title = $opts->{title} ? " title='" . LJ::ehtml($opts->{title}) . "'" : "";
+    my $class = $opts->{class} ? " class='" . LJ::ehtml($opts->{class}) . "'" : "";
+
+    return "<a href='$this->{thread_url}'$title$class onClick=\"Expander.make(this,'$this->{thread_url}','$this->{talkid}'); return false;\">$text</a>";
+}
+
+sub Comment__print_expand_link
+{
+    $S2::pout->(Comment__expand_link(@_));
+}
 
 sub Page__print_trusted
 {
