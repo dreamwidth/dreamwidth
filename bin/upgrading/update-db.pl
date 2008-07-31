@@ -58,6 +58,7 @@ if ($opt_help) {
   -l  --listtables   Print used tables, one per line.
       --nostyles     When used in combination with --populate, disables population
                      of style information.
+      --innodb       Use InnoDB when creating tables.
 ";
 }
 
