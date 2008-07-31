@@ -1,0 +1,1381 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Bob";
+layerinfo is_public = 1;
+layerinfo source_viewable = 1;
+
+
+propgroup setup = "Page Setup";
+propgroup setup {
+    property use page_recent_items;
+    property use page_friends_items;
+    property bool recent_upics {
+        des = "Display per-entry user pictures on the Recent Entries page.";
+    }
+    property bool friends_upics {
+        des = "Display per-entry user pictures on the Friends page.";
+    }
+    property use use_shared_pic;    
+    property int year_cols {
+        des = "Number of columns (1-4) in the calendar year view.";
+        min = 1;
+        max = 4;
+    }
+    property use view_entry_disabled;
+    property use linklist_support;
+    property bool reverse_currents {
+        des = "Reverse order of current mood and current music.";
+        note = "Default order is mood+music; reverse is music+mood.";
+    }
+    property bool time_24 {
+        des = "Enable 24-hour time.";
+        note = "Entry and comment times will display as 18:34 instead of 6:34p";
+    }
+}
+set recent_upics = true;
+set friends_upics = true;
+set year_cols = 2;
+set reverse_currents = false;
+set time_24 = false;
+
+
+propgroup presentation = "Presentation";
+propgroup presentation {
+    property use font_base;
+    property use font_fallback;
+    property string font_size {
+        des = "Size of text";
+        values = "0.5em|Smallest|0.75em|Smaller|0.9em|Small|1em|Normal|1.1em|Large|1.25em|Larger|1.5em|Largest";
+    }
+    property string font_alt {
+        des = "Alternate size of text";
+        note = "Custom value for font size.  Leave blank to use the above font size value.";
+    }
+    property string link_dec {
+        des = "Link decoration";
+        values = "none|None|underline|Underline|overline|Overline|underline overline|Under+Over|line-through|Line-through";
+    }
+    property string alink_dec {
+        des = "Active/Hover link decoration";
+        values = "none|None|underline|Underline|overline|Overline|underline overline|Under+Over|line-through|Line-through";
+    }
+    property string background_image {
+        des = "Background image";
+        note = "URL to an image to be used for the page background (leave blank for none).";
+    }
+    property string background_repeat {
+        des = "Background image repeat";
+        values = "repeat|Repeat|no-repeat|Don't repeat|repeat-x|Repeat across only|repeat-y|Repeat down only";
+    }
+    property string background_position {
+        des = "Background image position";
+        note = "Does not apply if background image is repeating in both directions.";
+        values = "center|Center|center left|Center-left|center right|Center-right|top|Top|top left|Top-left|top right|Top-right|bottom|Bottom|bottom left|Bottom-left|bottom right|Bottom-right|left|Left|right|Right";
+    }
+    property string background_scrolling {
+        des = "Background attachment";
+        values = "scroll|Scroll|fixed|Fixed";
+    }
+    property string header_image {
+        des = "Header image";
+        note = "URL to an image to be used as a header, above the journal content (leave blank for none).";
+    }
+    property string header_position {
+        des = "Position of header image";
+        values = "left|Left|center|Center|right|Right";
+    }
+    property string content_width {
+        des = "Width of journal content";
+        values = "100%|100%|90%|90%|80%|80%|70%|70%|60%|60%|50%|50%|40%|40%";
+    }
+    property string content_position {
+        des = "Position of journal content";
+        note = "Does not apply if width is at 100%";
+        values = "left|Left|right|Right|center|Center|";
+    }
+}
+set font_base = "Arial";
+set font_fallback = "sans-serif";
+set font_size = "1em";
+set font_alt = "";
+set link_dec = "underline";
+set alink_dec = "underline";
+set background_image = "";
+set background_repeat = "repeat";
+set background_position = "center";
+set background_scrolling = "scroll";
+set header_image = "";
+set header_position = "center";
+set content_width = "100%";
+set content_position = "center";
+
+propgroup colors = "Colors";
+propgroup colors {
+    property Color pageback {
+        des = "Page background color";
+    }
+    property bool etransp {
+        des = "Entry area background transparency";
+    }
+    property Color entryback {
+        des = "Entry area background color";
+        note = "Does not apply if transparency is enabled.";
+    }
+    property Color entrytext {
+        des = "Entry area text color";
+    }
+    property Color entrylink {
+        des = "Entry area link color";
+    }
+    property Color entryalink {
+        des = "Entry area active link color";
+    }
+    property Color entryvlink {
+        des = "Entry area visited link color";
+    }
+    property bool stransp {
+        des = "Sidebar/header area background transparency";
+    }
+    property Color sideback {
+        des = "Sidebar/header background color";
+        note = "Does not apply if transparency is enabled.";
+    }
+    property Color sidetext {
+        des = "Sidebar/header area text color";
+    }
+    property Color sidelink {
+        des = "Sidebar/header area link color";
+    }
+    property Color sidealink {
+        des = "Sidebar/header area active link color";
+    }
+    property Color sidevlink {
+        des = "Sidebar/header area visited link color";
+    }
+    property bool itransp {
+        des = "Default icon area background transparency";
+    }
+    property Color iconback {
+        des = "Default icon area background color";
+        note = "Does not apply if transparency is enabled.";
+    }
+}    
+set pageback = "#000000";
+set etransp = false;
+set entryback = "#404040";
+set entrytext = "#FFFFFF";
+set entrylink = "#7070FF";
+set entryalink = "#FF0000";
+set entryvlink = "#FF70FF";
+set stransp = false;    
+set sideback = "#707070";
+set sidetext = "#FFFFFF";
+set sidelink = "#FFFFFF";
+set sidealink = "#FF0000";
+set sidevlink = "#FFFFFF";
+set itransp = false;
+set iconback = "#707070";
+
+propgroup borders = "Borders";
+propgroup borders {
+    property bool entryborder {
+        des = "Border around main entry area.";
+    }
+    property string ebordersize {
+        des = "Size of border around main entry area.";
+        values = "1px|1px|2px|2px|3px|3px|4px|4px|5px|5px";
+    }
+    property string eborderstyle {
+        des = "Style of border around main entry area.";
+        values = "solid|Solid|double|Double|dotted|Dotted|dashed|Dashed";
+    }
+    property Color ebordercolor {
+        des = "Color of border around main entry area.";
+    }
+
+    property bool sidetopborder {
+        des = "Border around sidebar/header/default icon area";
+    }
+    property string sbordersize {
+        des = "Size of border around sidebar/header/default icon area.";
+        values = "1px|1px|2px|2px|3px|3px|4px|4px|5px|5px";
+    }
+    property string sborderstyle {
+        des = "Style of border around sidebar/header/default icon area.";
+        values = "solid|Solid|double|Double|dotted|Dotted|dashed|Dashed";
+    }
+    property Color sbordercolor {
+        des = "Color of border around sidebar/header/default icon area.";
+    }
+    property bool indivborder {
+        des = "Border around individual entries.";
+        note = "Applies to entries on all views, and to months on the year view.";
+    }
+    property string ibordersize {
+        des = "Size of border around individual entries/comments.";
+        values = "1px|1px|2px|2px|3px|3px|4px|4px|5px|5px";
+    }
+    property string iborderstyle {
+        des = "Style of border around individual entries/comments.";
+        values = "solid|Solid|double|Double|dotted|Dotted|dashed|Dashed";
+    }
+    property Color ibordercolor {
+        des = "Color of border around individual entries/comments.";
+    }
+}
+set entryborder = false;
+set ebordersize = "1px";
+set eborderstyle = "solid";
+set ebordercolor = "#FFFFFF";
+set sidetopborder = false;
+set sbordersize = "1px";
+set sborderstyle = "solid";
+set sbordercolor = "#FFFFFF";
+set indivborder = false;
+set ibordersize = "1px";
+set iborderstyle = "solid";
+set ibordercolor = "#FFFFFF";
+
+propgroup scroll = "Scrollbars";
+propgroup scroll {
+    property bool usescroll {
+        des = "Use custom scrollbar colors.";
+        note = "(May not work in all browsers.)";
+    }
+    property Color scrolltrack {
+        des = "Color for background of the scrollbar track.";
+    }
+    property Color scrollface {
+        des = "Main color for scrollbar face.";
+    }
+    property Color scrollhighlight {
+        des = "Highlight color.";
+    }
+    property Color scroll3dlight {
+        des = "3dlight color.";
+    }
+    property Color scrollshadow {
+        des = "Shadow color.";
+    }
+    property Color scrolldarkshadow {
+        des = "Dark shadow color.";
+    }
+    property Color scrollarrow {
+        des = "Color for up/down arrows.";
+    }
+}
+set usescroll = false;
+
+propgroup text = "Text";
+propgroup text {
+    property use text_post_comment;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+    property string text_add_memory {
+        des = "Link text to add an entry to your memories";
+    }
+    property string text_edit_entry {
+        des = "Link text to edit entry";
+    }
+    property string text_comment_reply {
+        des = "Link text to reply to a comment.";
+    }
+    property string text_comment_read {
+        des = "Link text to read a comment.";
+    }
+    property string text_comment_thread {
+        des = "Link text to view a comment thread.";
+    }
+    property string text_comment_parent {
+        des = "Link text to view a comment's parent-thread.";
+    }
+    property use text_meta_mood;
+    property use text_meta_music;
+    property use text_meta_location;
+    property use text_meta_groups;
+    property string text_view_website {
+        des = "Link to website";
+        noui = 1;
+    }
+    property string text_view_memories {
+        des = "Link to memories";
+        noui = 1;
+    }
+}
+set text_post_comment = "Speak";
+set text_read_comments = "Listen";
+set text_post_comment_friends = "Speak";
+set text_read_comments_friends = "Listen";
+set text_add_memory = "Learn";
+set text_edit_entry = "Edit";
+set text_comment_reply = "Speak";
+set text_comment_read = "Listen";
+set text_comment_thread = "Thread";
+set text_comment_parent = "Parent";
+set text_meta_mood = "Mood";
+set text_meta_music = "Music";
+set text_meta_location = "Location";
+set text_meta_groups = "Groups";
+set text_view_recent = "entries";
+set text_view_friends = "friends";
+set text_view_archive = "archive";
+set text_view_userinfo = "userinfo";
+set text_view_website = "website";
+set text_view_memories = "memories";
+set text_skiplinks_back = "back";
+set text_skiplinks_forward = "forward";
+set text_view_month = "subjects";
+
+propgroup sticky = "Sticky Entry";
+propgroup sticky {
+    property bool use_sticky {
+        des = "Display a sticky pseudo-entry at the top of the Recent Entries page";
+        note = "Can be used for information about the journal, rules for a community, etc.  Will display at the top of the page, directly above the entries, as if it were an entry itself.";
+    }
+    property string sticky_subject {
+        des = "Subject line of the sticky pseudo-entry";
+    }
+    property string sticky_text {
+        des = "Entry text for the sticky pseudo-entry";
+        note = "HTML is allowed";
+        rows = 10;
+        cols = 40;
+        string_mode = "html";
+    }
+    property string sticky_image {
+        des = "URL to an image to be included in the sticky pseudo-entry";
+    }
+    property string sticky_order {
+        des = "Order of text/image";
+        note = "Has no effect if only one is used";
+        values = "textimg|Text+Image|imgtext|Image+Text";
+    }
+    property string sticky_url {
+        des = "URL of an entry, or another site, for more information";
+        note = "Will display as a fake lj-cut tag in the pseudo-entry.";
+    }
+    property string sticky_urltext {
+        des = "Text of the fake lj-cut tag";
+    }
+}
+set use_sticky = false;
+set sticky_subject = "";
+set sticky_text = "";
+set sticky_image = "";
+set sticky_order = "textimg";
+set sticky_url = "";
+set sticky_urltext = "Read more...";
+
+
+# [ STYLESHEET ]
+
+function print_stylesheet () {
+    """
+    body {
+        background-color : $*pageback;
+        """;
+
+    print clean_url($*background_image) != "" ? "background-image : url($*background_image);\n" : "";
+
+"""background-repeat: $*background_repeat;
+        background-position: $*background_position;
+        background-attachment: $*background_scrolling;""";
+
+if ($*usescroll) { """
+        scrollbar-track-color: $*scrolltrack;
+        scrollbar-face-color: $*scrollface;
+
+        scrollbar-highlight-color: $*scrollhighlight;
+        scrollbar-3dlight-color: $*scroll3dlight;
+
+        scrollbar-darkshadow-color: $*scrolldarkshadow;
+        scrollbar-shadow-color: $*scrollshadow;
+        scrollbar-arrow-color: $*scrollarrow;""";
+}
+"""
+    }
+    td {
+        vertical-align : top;
+        font-size: """;
+    print ($*font_alt == "") ? "$*font_size;" : "$*font_alt;";
+"""
+        font-family : $*font_base, $*font_fallback;
+        text-align : left;
+        color : $*entrytext;
+    }
+    td.main {
+        color : $*entrytext;
+        background-color : """;
+
+    if ($*etransp) { print ";"; } else { print "$*entryback;"; }
+    if ($*entryborder) {
+        """
+        border : $*ebordersize $*eborderstyle $*ebordercolor;
+    }
+    td.main table {
+        border : none;""";
+    }
+    """
+    }
+    a:link {
+        color : $*entrylink;
+        text-decoration: $*link_dec;
+    }
+    a:visited {
+        color : $*entryvlink;
+    }
+    a:active, a:hover {
+        color : $*entryalink;
+        text-decoration: $*alink_dec;
+    }
+    table.entry {
+        width : 100%;
+    }
+    td.sidetop {
+        background-color : """;
+    if ($*stransp) { print ";"; } else { print "$*sideback;"; }
+    """
+        text-align : center;
+        color : $*sidetext;
+        vertical-align : top;""";
+
+    if ($*sidetopborder) {
+        """
+        border : $*sbordersize $*sborderstyle $*sbordercolor;
+    }
+    td.sidetop td {
+        border : none;""";
+    }
+
+    """
+    }
+    td.topicon {
+        background-color : """;
+    if ($*itransp) { print ";"; } else { print "$*iconback;"; }
+    if ($*sidetopborder) {
+        "\n        border : $*sbordersize $*sborderstyle $*sbordercolor;";
+    }
+    """
+        width : 104px;
+        text-align : center;
+        vertical-align : middle;
+        max-width: 104px;
+    }
+    td.icon {
+        text-align : center;
+        vertical-align : top;
+        width: 104px;
+        max-width: 104px;
+    }
+    td.sidetop a:link {
+        color : $*sidelink;
+        text-decoration: $*link_dec;
+    }
+    td.sidetop a:visited {
+        color : $*sidevlink;
+        text-decoration: $*link_dec;
+    }
+    td.sidetop a:active, td.sidetop a:hover {
+        color : $*sidealink;
+        text-decoration: $*alink_dec;
+    }
+    td.talklinks {
+        vertical-align : top;
+        text-align : right;
+    }
+    hr {
+        color : $*entrytext;
+    }
+    table.hr {
+        width : 100%;
+    }
+    table.hr td {
+        text-align : center;
+    }
+    div.currents {
+        vertical-align: middle;
+        text-align: left;
+    }
+""";
+}
+
+
+# [ TITLE FUNCTIONS ]
+
+function Page::lay_title() {
+
+"""<font size="+2">$.global_title</font>""";
+println $.global_subtitle ? "<br /><font size=\"+1\">$.global_subtitle</font>" : "";
+}
+
+function FriendsPage::lay_title() {
+
+"""<font size="+2">$.global_title</font>""";
+println $.global_subtitle ? "<br /><font size=\"+1\">$.global_subtitle</font>" : "";
+println $.friends_title ? "<br /><font size=\"+1\">$.friends_title</font>" : "";
+
+}
+
+
+# [ MINI-CALENDAR FUNCTION ]
+# (commented out because I couldn't get it to look right)
+# (left in the code in case I ever do)
+# 
+# function Page::lay_minical() {
+# 
+#     var YearMonth m = $this->get_latest_month();
+# 
+#    """<br />*<br />
+#    <table width="100" border=1><tr><td class="calhead" colspan="7">""";
+#    print $m->month_format("short");
+#    "</td></tr>\n";
+#
+#    foreach var YearWeek w ($m.weeks) {
+#        "<tr>";
+#        if ($w.pre_empty) { "<td colspan=\"$w.pre_empty\">&nbsp;</td>"; }
+#        foreach var YearDay d ($w.days) {
+#            "<td class=\"calbody\">";
+#            if ($d.num_entries) { "<a href=\"$d.url\">"; }
+#            "$d.day";
+#            if ($d.num_entries) { "</a>"; }
+#            "</td>";
+#        }
+#        if ($w.post_empty) { "<td colspan=\"$w.post_empty\">&nbsp;</td>"; }
+#        "</tr>\n";
+#    }
+#
+#    "</table><br />*<br />\n\n";
+# 
+# }
+
+
+# [ NAV FUNCTIONS ]
+
+function Page::lay_nav () {
+    "&nbsp;";
+}
+function Page::lay_link() {
+
+}
+
+function RecentPage::lay_nav () {
+
+    if ($.nav.skip > 0) { "<b>Skipping $.nav.skip</b>"; }
+    else { "<b>Most Recent</b>"; }
+
+    "<br />";
+
+    var string backlink = $*text_skiplinks_back;
+    if ($.nav.backward_url != "") { $backlink = "<a href=\"$.nav.backward_url\">$backlink</a>"; }
+    var string forlink = $*text_skiplinks_forward;
+    if ($.nav.forward_url != "") { $forlink = "<a href=\"$.nav.forward_url\">$forlink</a>"; }
+
+    "$backlink<br \>$forlink";
+}
+function RecentPage::lay_link() {
+    if ($.nav.backward_url != "") { """<link href="$.nav.backward_url" rel="prev">\n"""; }
+    if ($.nav.forward_url != "") { """<link href="$.nav.forward_url" rel="next">\n"""; }
+}
+
+function EntryPage::lay_nav () {
+
+    var int itemid = $this.entry.itemid/256;
+    "<b>Entry #$itemid</b><br />";
+
+    var Link backlink;
+    $backlink = $this.entry->get_link("nav_prev");
+    var Link forlink;
+    $forlink = $this.entry->get_link("nav_next");
+
+    """<a href="$backlink.url">$*text_skiplinks_back</a><br /> <a href="$forlink.url">$*text_skiplinks_forward</a>""";
+
+}
+function EntryPage::lay_link() {
+    var Link backlink;
+    $backlink = $this.entry->get_link("nav_prev");
+    var Link forlink;
+    $forlink = $this.entry->get_link("nav_next");
+    
+    """<link href="$backlink.url" rel="prev">\n<link href="$forlink.url" rel="next">\n""";
+}
+
+function ReplyPage::lay_nav () {
+
+    var int itemid = $this.entry.itemid/256;
+    "<b>Entry #$itemid</b><br />";
+
+    var Link backlink;
+    $backlink = $this.entry->get_link("nav_prev");
+    var Link forlink;
+    $forlink = $this.entry->get_link("nav_next");
+
+    """<a href="$backlink.url">$*text_skiplinks_back</a><br /> <a href="$forlink.url">$*text_skiplinks_forward</a>""";
+
+}
+function EntryPage::lay_link() {
+    var Link backlink;
+    $backlink = $this.entry->get_link("nav_prev");
+    var Link forlink;
+    $forlink = $this.entry->get_link("nav_next");
+    
+    """<link href="$backlink.url" rel="prev">\n<link href="$forlink.url" rel="next">\n""";
+}
+
+function YearPage::lay_nav() {
+    foreach var YearYear y ($.years) {
+        if ($y.displayed) { "<b>$y.year</b>"; }
+    }
+    
+}
+
+function MonthPage::lay_nav() {
+
+    "<form method='post' action='$.redir.url'>";
+    $.redir->print_hiddens();
+    if (size $.months > 1) {
+        "<select name='redir_key'>\n";
+        foreach var MonthEntryInfo mei ($.months) {
+            var string sel;
+            if ($mei.date.year == $.date.year and $mei.date.month == $.date.month) {
+                $sel = " selected='selected'";
+            }
+            "<option value='$mei.redir_key'$sel>" + $mei.date->date_format($*lang_fmt_month_short) + "</option>";
+        }
+        "</select>\n<input type='submit' value='View' />";
+    }
+
+    """<br /><a href="$this.prev_url">$*text_skiplinks_back</a><br />""";
+    """<a href="$this.next_url">$*text_skiplinks_forward</a>""";    
+}
+function MonthPage::lay_link() {
+    """<link href="$this.prev_url" rel="prev">\n<link href="$this.next_url" rel="next">\n""";
+}
+
+function DayPage::lay_nav() {
+    "<b>"+$this.date->date_format()+"</b><br />";
+    """<a href="$this.prev_url">$*text_skiplinks_back</a><br /> <a href="$this.next_url">$*text_skiplinks_forward</a>""";
+}
+function DayPage::lay_link() {
+    """<link href="$this.prev_url" rel="prev">\n<link href="$this.next_url" rel="next">\n""";
+}
+
+
+
+# [ PAGE FUNCTIONS / ALL VIEWS ]
+
+function print_entry (Page p, Entry e, bool hide_text) {
+    var string subject;
+    if ($e.subject != "") { $subject = "<b>$e.subject</b>"; }
+    else { $subject = "no subject"; }
+
+    "\n<table class=\"entry\"";
+
+    if ($*indivborder) { " style=\"border : $*ibordersize $*iborderstyle $*ibordercolor;\""; }
+
+    """>
+    <tr><td colspan="4">[&nbsp;$subject&nbsp;] [&nbsp;""";
+    var string timefmt;
+    if ($*time_24) { $timefmt = "%%HH%%:%%min%%"; }
+    else { $timefmt = "%%hh%%:%%min%% %%a%%m"; }
+    print $e.time->time_format("$timefmt :: %%da%% %%dayord%% %%mon%% %%yyyy%%")+"&nbsp;]";
+    
+    if ($p.view == "friends" or $e.poster.username != $e.journal.username) { 
+        " [&nbsp;$e.poster ";
+        if ($e.poster.username != $e.journal.username) { " in $e.journal"; }
+        "&nbsp;]";
+    }
+
+
+    if ($e.security == "private") { " [&nbsp;private&nbsp;]"; }
+    elseif ($e.security == "protected") { " [&nbsp;protected&nbsp;]"; }
+    elseif ($e.security == "custom") { " [&nbsp;custom friends groups&nbsp;]"; }
+
+    """</td></tr>
+    <tr><td width="104">&nbsp;</td>
+    <td colspan="3"><hr size="2"></td></tr>
+    <tr><td rowspan="2" width="104" class="icon">""";
+
+    var bool show_upic;
+    $show_upic = defined $e.userpic;
+    if ($p.view == "friends" and $show_upic) { $show_upic = $*friends_upics; }
+    if ($p.view == "recent" and $show_upic) { $show_upic = $*recent_upics; }
+    if ($show_upic) { 
+        """<a href="$*SITEROOT/allpics.bml?user=$e.poster.username">""";
+        """<img src="$e.userpic.url" width="$e.userpic.width" height="$e.userpic.height" alt="" border=0></a>""";
+    } else {
+        "&nbsp;";
+    }
+    """
+    <td>"""; $e->print_text(); """</td>
+    <td width="1">&nbsp;</td>
+    <td class="talklinks">""";
+
+    if ($e.comments.enabled) {
+        if ($e.comments.count > 0) { "[&nbsp;$e.comments.count&nbsp;]<br />"; }
+        $p->print_reply_link({ "linktext" => $*text_post_comment, "target" => "topcomment" });
+        "<br />";
+        $e.comments->print_readlink();
+    } else {
+        """<a href="$e.permalink_url">"""+get_plural_phrase(0,"text_read_comments")+"""</a>""";
+    }
+    
+    var Link memlink;
+    $memlink = $e->get_link("mem_add");
+    """<br />\n<a href="$memlink.url">$*text_add_memory</a><br />""";
+    var Link editlink;
+    $editlink = $e->get_link("edit_entry");
+    if ($editlink.url != "") { """<a href="$editlink.url">$*text_edit_entry</a><br />"""; }
+    var Link edittaglink;
+    $edittaglink = $e->get_link("edit_tags");
+    if ($edittaglink.url != "") { """<a href="$edittaglink.url">$*text_edit_tags</a><br />"""; }
+    var Link tellafriendlink;
+    $tellafriendlink = $e->get_link("tell_friend");
+    if ($tellafriendlink.url != "") { """<a href="$tellafriendlink.url">$*text_tell_friend</a><br />"""; }
+    var Link tracklink;
+    $tracklink = $e->get_link("watch_comments");
+    if ($tracklink.url != "") { """<a href="$tracklink.url">$*text_watch_comments</a><br />"""; }
+    var Link untracklink;
+    $untracklink = $e->get_link("unwatch_comments");
+    if ($untracklink.url != "") { """<a href="$untracklink.url">$*text_unwatch_comments</a><br />"""; }
+    """</td></tr>
+    <tr><td colspan="3"><hr size="2"></td></tr>""";
+
+    if ($e.metadata) {
+        var string metadata = "";
+        foreach var string k ($e.metadata) {
+            var string text = $k;
+            var string val = $e.metadata{$k};
+            if ($k == "mood") {
+                $text = $*text_meta_mood;
+            } elseif ($k == "music") {
+                $text = $*text_meta_music;
+            } elseif ($k == "location") {
+                $text = $*text_meta_location;
+            } elseif ($k == "groups") {
+                $text = $*text_meta_groups;
+            }
+            if ($k == "mood" and defined $e.mood_icon) {
+                var Image i = $e.mood_icon;
+                $val = "<img src='$i.url' width='$i.width' height='$i.height' align='absmiddle'> $val";
+            }
+            if ($*reverse_currents) { $metadata = "[&nbsp;$text : $val&nbsp;] $metadata"; }
+            else { $metadata = "$metadata [&nbsp;$text : $val&nbsp;]"; }
+        }
+        """<tr><td width="104">&nbsp;</td><td colspan="3"><div class="currents">$metadata</div></td></tr>""";
+    }
+    "</table>
+    <br /><br />\n\n";
+    $p->print_reply_container({ "target" => "topcomment", "class" => "quickreply" });
+
+    if ($e.end_day) {
+        """<table class="hr"><tr><td>*</td></tr></table><br /><br />\n\n""";
+    }
+}
+
+function print_sticky_entry (User j) {
+    var string subject;
+    if ($*sticky_subject != "") { $subject = "<b>$*sticky_subject</b>"; }
+    else { $subject = "no subject"; }
+
+    "\n<table class=\"entry\"";
+
+
+    if ($*indivborder) { " style=\"border : $*ibordersize $*iborderstyle $*ibordercolor;\""; }
+
+    """>
+    <tr><td colspan="2">[&nbsp;$subject&nbsp;]</td></tr>
+    <tr><td width="104">&nbsp;</td>
+    <td colspan="3"><hr size="2"></td></tr>
+    <tr><td rowspan="2" width="104" class="icon">""";
+
+    var bool show_upic;
+    $show_upic = defined $j.default_pic;
+    if ($show_upic) { $show_upic = $*recent_upics; }
+    if ($show_upic) { 
+        """<a href="$*SITEROOT/allpics.bml?user=$j.username">""";
+        """<img src="$j.default_pic.url" width="$j.default_pic.width" height="$j.default_pic.height" alt="" border=0></a>""";
+    } else {
+        "&nbsp;";
+    }
+
+    var string stext = "";
+    if ($*sticky_order == "textimg") { $stext = $stext+$*sticky_text+"<br \><br \>"; }
+    var string simg = clean_url($*sticky_image);
+    if ($simg) { $stext = $stext + """<img src="$simg"><br \><br \>"""; }
+    if ($*sticky_order == "imgtext") { $stext = $stext+$*sticky_text; }
+
+
+    """
+    <td>$stext""";
+    print clean_url($*sticky_url) ? """<br \><br \><b>(&nbsp;<a href="$*sticky_url">$*sticky_urltext</a>&nbsp;)</b>""" : "";
+
+    """</td></tr>
+    <tr><td colspan="3"><hr size="2"></td></tr></table>
+    <br /><br />
+    <table class="hr"><tr><td>*</td></tr></table><br /><br />
+
+    """;
+}
+
+function Page::print() {
+
+"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+""";
+    if ($*external_stylesheet) {
+        println """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    } else {
+        println """<style type="text/css">"""; print_stylesheet(); "</style>";
+    }
+"<title>$.journal.name - $.view</title>";
+$this->print_head();
+$this->lay_link();
+"""
+</head>
+
+<body><a name="top"></a>""";
+$this->print_control_strip();
+print clean_url($*header_image) != "" ? "<div align=\"$*header_position\"><img src=\"$*header_image\"></div>" : "";
+"""
+<table align="$*content_position" width="$*content_width" cellspacing="10" cellpadding="2" border="0">
+<tr>
+<td width="104" height="104" class="topicon">""";
+
+    var Image up_img = $.journal.default_pic;
+    if (defined $up_img) {
+        """<a href="$*SITEROOT/allpics.bml?user=$.journal.username"><img border="0" src="$up_img.url" height="$up_img.height" width="$up_img.width" alt="" border=0></a>""";
+    } else { "&nbsp;"; }
+
+
+"""</td>
+<td valign="middle" class="sidetop">
+
+
+<table width="100%" border=0><tr><td class="sidetop" style="text-align: left;">""";
+$this->lay_title();
+"""</td><td class="sidetop" style="text-align: right;">""";
+$this->lay_nav();
+"""</td></tr></table>
+
+<br />
+</td>
+</tr><tr>
+<td valign="top" class="sidetop" width="104">
+.<br />""";
+var string recenturl = $.view_url{"recent"};
+var string friendurl = $.view_url{"friends"};
+var string archiveurl = $.view_url{"archive"};
+var string memurl = "$*SITEROOT/tools/memories.bml?user=$.journal.username";
+var string infourl = $.view_url{"userinfo"};
+"""<a href="$recenturl">$*text_view_recent</a><br />
+.<br />
+<a href="$friendurl">$*text_view_friends</a><br />
+.<br />
+<a href="$archiveurl">$*text_view_archive</a><br />
+.<br />
+<a href="$memurl">$*text_view_memories</a><br />
+.<br />
+<a href="$infourl">$*text_view_userinfo</a><br />
+.<br />
+
+""";
+
+var string website;
+if ($.journal.website_url != "") {
+    $website = "<a href=\"$.journal.website_url\">$*text_view_website</a><br />.<br />\n";
+}
+
+print $website;
+
+if (size $.linklist > 0 and $*linklist_support) {
+    "<br \><b>Links</b><br \>.<br \>";
+    foreach var UserLink l ($.linklist) {
+        if ($l.title) {
+            if ($l.is_heading) {
+                print "\n<b>$l.title</b><br \>.<br \>";
+            } else {
+                print """\n<a href="$l.url">$l.title</a><br \>.<br \>""";
+            }
+        }
+    }
+}
+
+"""
+</td>
+<td class="main">
+""";
+
+if ($.view == "recent" and $*use_sticky) { print_sticky_entry($.journal); }
+
+$this->print_body();
+
+
+"""
+</td>
+</tr><tr>
+<td class="sidetop" style="vertical-align:middle;"><a href="#top">top</a></td>
+<td class="sidetop">
+<table width="100%" border=0><tr><td class="sidetop" style="text-align: left;">
+<a href="$*SITEROOT">$*SITENAMESHORT</a>
+</td><td class="sidetop" style="text-align: right;">""";
+$this->lay_nav();
+"""</td></tr></table>
+</td>
+
+</tr>
+</table>
+
+
+</body>
+</html>
+""";
+}
+
+
+function Page::print_entry (Entry e)
+{
+    print_entry($this, $e, false);
+}
+
+
+# [ RECENT ]
+
+function RecentPage::print_body {
+    foreach var Entry e ($.entries) {
+        $this->print_entry($e);
+    }
+
+}
+
+
+# [ ENTRY ]
+
+function EntryPage::print_body {
+    print_entry ($this, $.entry, $.viewing_thread);
+
+    if ($.entry.comments.enabled and $.comment_pages.total_subitems > 0) {
+        if ($this.multiform_on) {
+            $this->print_multiform_start();
+        }
+        """<table class="hr"><tr><td>""";
+        $.comment_pages->print();
+        "</td></tr></table><br />";
+        $this->print_comments($.comments);
+        """<table class="hr"><tr><td>""";
+        $.comment_pages->print();
+        "</td></tr></table><br />";
+        if ($this.multiform_on) {
+            """<table class="hr"><tr><td>*<br /><br />\n""";
+            $this->print_multiform_actionline();
+            """</td></tr></table><br /><br />""";
+            $this->print_multiform_end();
+        }
+        "</td></tr></table><br />";
+        
+
+
+    }
+}
+
+function EntryPage::print_comments (Comment[] cs) {
+    if (size $cs == 0) { return; }
+    foreach var Comment c ($cs) {
+        var int indent = ($c.depth - 1) * 4;
+        var int width = 100 - $indent;
+        if ($c.full) {
+            "<br /><a name=\"$c.anchor\"></a><table width=\"$width%\" class=\"comment\" style=\"margin-left:$indent%;\" id=\"$c.dom_id\">\n";
+            $this->print_comment($c);
+        "</table><br />\n";
+        } else {
+            """<div style="margin-left: $indent%;" id="$c.dom_id">\n""";
+            $this->print_comment_partial($c);
+            "</div>\n";
+        }
+        $this->print_comments($c.replies);
+    }
+}
+
+function EntryPage::print_comment (Comment c) {
+    var string sub_icon = defined $c.subject_icon ? $c.subject_icon->as_string() : "";
+    var string subject = $c.subject;
+    if ($c.subject == "") { 
+        var string thingie = $c.depth > 1 ? "comment" : "post";
+        $subject = "<i>reply to $thingie</i>"; 
+    } else {
+        $subject = "<b>$subject</b>";
+    }
+    """<tr><td colspan="4">[&nbsp;$subject $sub_icon&nbsp;] [&nbsp;""";
+
+    var string timefmt;
+    if ($*time_24) { $timefmt = "%%HH%%:%%min%%"; }
+    else { $timefmt = "%%hh%%:%%min%% %%a%%m"; }
+
+    print $c.time->time_format("$timefmt :: %%da%% %%dayord%% %%mon%% %%yyyy%%")+"&nbsp;] [&nbsp;";
+
+    if (defined $c.poster) { "$c.poster"; }
+
+    else { "<i>anonymous</i>"; }
+
+    "&nbsp;]";
+    if ($c.screened) { " [&nbsp;screened&nbsp;]"; }
+    if ($c.metadata{"poster_ip"}) { " [&nbsp;" + $c.metadata{"poster_ip"} + "&nbsp;]"; }
+
+    var Link clink;
+    $clink = $c->get_link("edit_comment");
+    if (defined $clink) { """ - <a href="$clink.url">edit</a>"""; }
+    $clink = $c->get_link("delete_comment");
+    if (defined $clink) { """ - <a href="$clink.url">delete</a>"""; }
+    $clink = $c->get_link("screen_comment");
+    if (defined $clink) { """ - <a href="$clink.url">screen</a>"""; }
+    $clink = $c->get_link("unscreen_comment");
+    if (defined $clink) { """ - <a href="$clink.url">unscreen</a>"""; }
+    $clink = $c->get_link("freeze_thread");
+    if (defined $clink) { """ - <a href="$clink.url">freeze</a>"""; }
+    $clink = $c->get_link("unfreeze_thread");
+    if (defined $clink) { """ - <a href="$clink.url">unfreeze</a>"""; }
+    $clink = $c->get_link("watch_thread");
+    if (defined $clink) { """ - <a href="$clink.url">track</a>"""; }
+    $clink = $c->get_link("unwatch_thread");
+    if (defined $clink) { """ - <a href="$clink.url">untrack</a>"""; }
+    $clink = $c->get_link("watching_parent");
+    if (defined $clink) { """ - <a href="$clink.url">tracking</a>"""; }
+
+    if ($this.multiform_on) {
+        " <label for='ljcomsel_$c.talkid'> - </label>";
+        $c->print_multiform_check();
+    }
+
+    """</td></tr>
+    <tr><td width="100">&nbsp;</td>
+    <td colspan="3"><hr size="2"></td></tr>
+    <tr><td width="100" class="icon">""";
+    if (defined $c.userpic and $*comment_userpic_style != "off") { 
+        var string keyword = $c.metadata{"picture_keyword"};
+        if ($keyword == "") { $keyword = "[default]"; }
+        """<a href="$*SITEROOT/allpics.bml?user=$c.poster.username">""";
+        """<img src="$c.userpic.url" width="$c.userpic.width" height="$c.userpic.height" alt="$keyword" title="$keyword" border=0></a>""";
+    } else {
+        "&nbsp;";
+    }
+    """</td>
+    <td>"""; $c->print_text(); """</td>
+    <td width="1">&nbsp;</td>
+    <td class="talklinks">""";
+    if ($c.frozen) {
+        "(frozen)<br />";
+    } else {
+        """<a href="$c.reply_url">"""; $c->print_reply_link({ "linktext" => $*text_comment_reply }); """</a><br />""";
+    }
+    """
+    <a href="$c.permalink_url">$*text_comment_read</a><br />
+    """;
+
+    if ($c.parent_url != "") { """<a href="$c.parent_url">$*text_comment_parent</a><br />"""; }
+    if ($c.thread_url != "") {
+        """<a href="$c.thread_url">$*text_comment_thread</a><br />""";
+        var Link expand_link = $c->get_link("expand_comments");
+        if (defined $expand_link) {
+            $c->print_expand_link(); "<br />";
+        }
+    }
+
+    
+    """</td></tr>
+    <tr><td colspan="4"><hr size="2"></td></tr>""";
+    """<tr><td colspan="4">"""; $c->print_reply_container({ "class" => "quickreply" }); """</td></tr>""";
+}
+
+function EntryPage::print_comment_partial (Comment c) {
+
+    var string sub_icon = defined $c.subject_icon ? $c.subject_icon->as_string() : "";
+    var string subject = $c.subject;
+    if ($c.subject == "") {
+        var string thingie = $c.depth > 1 ? "comment" : "post";
+        $subject = "<i>reply to $thingie</i>";
+    }
+    """<a name="t$c.talkid"></a>
+[&nbsp;<a href="$c.permalink_url">$subject</a> $sub_icon&nbsp;] [&nbsp;""";
+
+    var string timefmt;
+    if ($*time_24) { $timefmt = "%%HH%%:%%min%%"; }
+    else { $timefmt = "%%hh%%:%%min%% %%a%%m"; }
+
+    print $c.time->time_format("$timefmt :: %%da%% %%dayord%% %%mon%% %%yyyy%%")+"&nbsp;] [&nbsp;";
+
+    if (defined $c.poster) { "$c.poster"; }
+
+    else { "<i>anonymous</i>"; }
+
+    "&nbsp;]";
+    if ($c.screened) { " [&nbsp;screened&nbsp;]"; }
+    if ($c.metadata{"poster_ip"}) { " [&nbsp;" + $c.metadata{"poster_ip"} + "&nbsp;]"; }
+
+    var Link clink;
+    $clink = $c->get_link("edit_comment");
+    if (defined $clink) { """ - <a href="$clink.url">edit</a>"""; }
+    $clink = $c->get_link("delete_comment");
+    if (defined $clink) { """ - <a href="$clink.url">delete</a>"""; }
+    $clink = $c->get_link("screen_comment");
+    if (defined $clink) { """ - <a href="$clink.url">screen</a>"""; }
+    $clink = $c->get_link("unscreen_comment");
+    if (defined $clink) { """ - <a href="$clink.url">unscreen</a>"""; }
+    $clink = $c->get_link("freeze_thread");
+    if (defined $clink) { """ - <a href="$clink.url">freeze</a>"""; }
+    $clink = $c->get_link("unfreeze_thread");
+    if (defined $clink) { """ - <a href="$clink.url">unfreeze</a>"""; }
+    $clink = $c->get_link("watch_thread");
+    if (defined $clink) { """ - <a href="$clink.url">track</a>"""; }
+    $clink = $c->get_link("unwatch_thread");
+    if (defined $clink) { """ - <a href="$clink.url">untrack</a>"""; }
+    $clink = $c->get_link("watching_parent");
+    if (defined $clink) { """ - <a href="$clink.url">tracking</a>"""; }
+    $clink = $c->get_link("expand_comments");
+    if ($c.thread_url != "" and defined $clink) {
+        " - "; $c->print_expand_link({ "text" => "expand" });
+    }
+
+    if ($this.multiform_on) {
+        " - ";
+
+        $c->print_multiform_check();
+    }
+
+    "<br />";
+
+}    
+
+function ReplyPage::print_body() {
+    var EntryLite e = $.replyto;
+
+
+    var string subject;
+    if ($e.subject != "") { $subject = "<b>$e.subject</b>"; }
+    else { $subject = "no subject"; }
+
+    "<table class=\"entry\"";
+
+    if ($*indivborder) { " style=\"border : $*ibordersize $*iborderstyle $*ibordercolor;\""; }
+
+    """>
+    <tr><td colspan="4">[&nbsp;$subject&nbsp;] [&nbsp;""";
+
+    var string timefmt;
+    if ($*time_24) { $timefmt = "%%HH%%:%%min%%"; }
+    else { $timefmt = "%%hh%%:%%min%% %%a%%m"; }
+
+    $e.time->time_format("$timefmt :: %%da%% %%dayord%% %%mon%% %%yyyy%%")+"&nbsp;]";
+    " [&nbsp;$e.poster ";
+    if (not $.replyto.poster->equals($.entry.journal)) { " in $.entry.journal"; }
+    "&nbsp;]";
+
+    if ($.entry.security == "private") { " [&nbsp;private&nbsp;]"; }
+    elseif ($.entry.security == "protected") { " [&nbsp;protected&nbsp;]"; }
+
+    """</td></tr>
+    <tr><td width="100">&nbsp;</td>
+    <td colspan="3"><hr size="2"></td></tr>
+    <tr><td rowspan="2" width="100" class="icon">""";
+    if (defined $e.userpic) { 
+        """<a href="$*SITEROOT/allpics.bml?user=$e.poster.username">""";
+        """<img src="$e.userpic.url" width="$e.userpic.width" height="$e.userpic.height" alt="" border=0></a>""";
+    } else {
+        "&nbsp;";
+    }
+    """
+    <td>$e.text</td>
+    <td width="1">&nbsp;</td>
+    <td class="talklinks">""";
+
+    if ($.entry.comments.enabled) {
+        if ($.entry.comments.count > 0) { "[&nbsp;$.entry.comments.count&nbsp;]<br />"; }
+        $.entry.comments->print_postlink();
+        "<br />";
+        $.entry.comments->print_readlink();
+    } else {
+        """<a href="$.entry.permalink_url">"""+get_plural_phrase(0,"text_read_comments")+"""</a>""";
+    }
+    
+    var Link memlink;
+    $memlink = $.entry->get_link("mem_add");
+    """<br />\n<a href="$memlink.url">$*text_add_memory</a><br \>""";
+    var Link editlink;
+    $editlink = $.entry->get_link("edit_entry");
+    if ($editlink.url != "") { """<a href="$editlink.url">$*text_edit_entry</a>"""; }
+    """</td></tr>
+    <tr><td colspan="3"><hr size="2"></td></tr>""";
+
+    if ($e.depth==0) {
+    if ($e.metadata) {
+        var string metadata = "";
+        foreach var string k ($e.metadata) {
+            var string text = $k;
+            var string val = $e.metadata{$k};
+            if ($k == "mood") {
+                $text = $*text_meta_mood;
+            } elseif ($k == "music") {
+                $text = $*text_meta_music;
+            }
+            if ($k == "mood" and defined $.entry.mood_icon) {
+                var Image i = $.entry.mood_icon;
+                $val = "<img src='$i.url' width='$i.width' height='$i.height' align='absmiddle'> $val";
+            }
+            if ($*reverse_currents) { $metadata = "[&nbsp;$text : $val&nbsp;] $metadata"; }
+            else { $metadata = "$metadata [&nbsp;$text : $val&nbsp;]"; }
+        }
+        """<tr><td>&nbsp;</td><td colspan="3">$metadata</td></tr>""";
+    }}
+    "</table>
+    <br /><br />";
+
+    """<div align="center">""";
+    if ($.entry.comments.enabled) { $.form->print(); }
+    else { "$*text_reply_nocomments"; }
+    """</div>""";
+
+}
+
+# [ DAY / MONTH / YEAR ]
+
+function DayPage::print_body() {
+    if ($.has_entries) {
+        foreach var Entry e ($.entries) {
+            $this->print_entry($e);
+        }
+    } else {
+        """<table class="entry">
+        <tr><td>[&nbsp; """+$.date->date_format("%%da%% %%dayord%% %%mon%% %%yyyy%%")+"&nbsp;]</td></tr><tr><td>";
+        print ehtml($*text_noentries_day);
+        "</td></tr></table>";
+    }
+}
+
+function MonthDay::print_subjectlist () {
+    foreach var Entry e ($.entries) {
+        "[&nbsp;";
+
+        var string timefmt;
+        if ($*time_24) { $timefmt = "%%HH%%:%%min%%"; }
+        else { $timefmt = "%%hh%%:%%min%% %%a%%m"; }
+
+        print $e.time->time_format($timefmt);
+        "&nbsp;] [&nbsp;<a href=\"$e.permalink_url\">";
+        if ($e.subject != "") { "<b>$e.subject</b>"; }
+        else { "no subject"; }
+        "</a>&nbsp;] ";
+
+        if (not $e.poster->equals($e.journal)) { " [&nbsp;$e.poster&nbsp;] "; }
+
+        if ($e.security == "private") { " [&nbsp;private&nbsp;] "; }
+        if ($e.security == "protected") { " [&nbsp;protected&nbsp;] "; }
+        
+        if (not $e.comments.enabled) { " - comments disabled "; }
+        else {
+            if ($e.comments.count > 0) { "- $e.comments.count comments";
+                if ($e.comments.screened) { " +screened"; }
+            }
+        }
+        
+        "<br />\n\n";
+    }
+    "<br />";
+}
+
+function MonthPage::print_body () {
+    "<div align=\"center\">[&nbsp;"+$this.date->date_format($*lang_fmt_month_long)+"&nbsp;]</div>\n\n<dl>";
+    foreach var MonthDay d ($.days) {
+        if ($d.has_entries) {
+            "<dt><a href=\"$d.url\"><b>";
+            print lang_ordinal($d.day);
+            "</b></a></dt>\n<dd>";
+            $d->print_subjectlist();
+            "</dd>\n";
+        }
+    }
+    "</dl>\n";
+
+}
+
+
+function YearPage::print_year_links () {
+    """<div align="center">""";
+    foreach var YearYear y ($.years) {
+        "[&nbsp;";
+        if ($y.displayed) {
+            "<b>$y.year</b>";
+        } else {
+            """<a href="$y.url">$y.year</a>""";
+        }
+        "&nbsp;] ";
+    }
+    """</div><br /><br />\n\n""";
+}
+
+function YearPage::print_body {
+    var int cols = $*year_cols;
+    if ($cols < 0) { $cols = 0; }
+    if ($cols > 4) { $cols = 4; }
+    $this->print_year_links();
+    """<table border="0" width="100%" cellpadding="10" cellspacing="10">""";
+    var int i = 0;
+    foreach var YearMonth m ($.months) {
+        if ($m.has_entries) {
+            if ($i == 0) { "<tr>"; }
+            "<td>";
+            $this->print_month($m);
+            if ($i == $cols-1) {
+                "</td></tr>";
+                $i = 0;
+            } else {
+                "</td>";
+                $i++;
+            }
+        }
+    }
+    if ($i > 0) {
+        var int diff = $cols - $i;
+        "<td colspan=\"$diff\">&nbsp;</td></tr>";
+    }
+    "</table>";
+}
+
+function YearPage::print_month (YearMonth m) {
+    if (not $m.has_entries) { return; }
+
+    """<table width="100%" border=1""";
+
+    if ($*indivborder) { " style=\"border : $*ibordersize $*iborderstyle $*ibordercolor;\""; } 
+
+    """>
+    <tr><td class="sidetop" colspan=7>""";
+    print $m->month_format();
+    "</td></tr>";
+    foreach var YearWeek w ($m.weeks) {
+        $w->print();
+    }
+    """<tr><td colspan="7" style="text-align: center;">
+        [&nbsp;<a href="$m.url">$*text_view_month</a>&nbsp;]</td></tr>\n""";
+    "</table>";
+}
+
+function YearWeek::print() {
+   """<tr valign="top">\n""";
+   if ($.pre_empty > 0) {
+      """<td colspan="$.pre_empty">&nbsp;</td>\n""";
+   }
+   foreach var YearDay d ($.days) {
+       """<td>""";
+       """<div style="text-align: left;">$d.day</div>\n<div style="text-align: center;">[&nbsp;""";
+       if ($d.num_entries > 0) {
+           """<a href="$d.url">$d.num_entries</a>""";
+       } else {
+            "&nbsp;";
+        }
+       """&nbsp;]</div></td>\n""";
+   }
+   if ($.post_empty > 0) {
+      """<td colspan="$.post_empty">&nbsp;</td>\n""";
+   }
+   "</tr>";
+}

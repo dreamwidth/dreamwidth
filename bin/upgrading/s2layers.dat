@@ -16,6 +16,8 @@ i18nc/lv1               i18nc           core1
 i18nc/ru1               i18nc           core1
 i18nc/uk1               i18nc           core1
 
+bob/layout              layout          core1
+
 classic/layout          layout          core1
 classic/en              i18n            classic/layout
 classic/themes          theme+          classic/layout
