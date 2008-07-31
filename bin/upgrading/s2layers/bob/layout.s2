@@ -2,7 +2,8 @@ layerinfo "type" = "layout";
 layerinfo "name" = "Bob";
 layerinfo is_public = 1;
 layerinfo source_viewable = 1;
-
+layerinfo author_name = "Isabeau";
+layerinfo author_email = "isabeau@livejournal.com";
 
 propgroup setup = "Page Setup";
 propgroup setup {
