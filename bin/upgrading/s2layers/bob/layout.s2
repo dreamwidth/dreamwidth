@@ -4,6 +4,7 @@ layerinfo is_public = 1;
 layerinfo source_viewable = 1;
 layerinfo author_name = "Isabeau";
 layerinfo author_email = "isabeau@livejournal.com";
+layerinfo redist_uniq = "bob/layout";
 
 propgroup setup = "Page Setup";
 propgroup setup {
