@@ -2,8 +2,8 @@
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-use LJ::Entry;
 use LJ::Worker::TheSchwartz;
+use LJ::Entry;
 
 schwartz_decl('LJ::Worker::DeleteEntry');
 schwartz_work();
