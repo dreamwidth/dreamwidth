@@ -6,7 +6,7 @@
     use LJ::EmbedModule;
 
     # this can only be accessed from the embed module subdomain
-    my $r = BML::get_request();
+    my $r = DW::Request->get;
     return "This page cannot be viewed from $LJ::DOMAIN"
         unless $r->header_in("Host") =~ /.*$LJ::EMBED_MODULE_DOMAIN$/i;
 
