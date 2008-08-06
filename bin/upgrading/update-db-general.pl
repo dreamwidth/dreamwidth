@@ -3017,6 +3017,71 @@ CREATE TABLE vertical_editorials (
 )
 EOC
 
+register_tablecreate("dw_payments", <<'EOC');
+CREATE TABLE dw_payments (
+    paymentid int unsigned NOT NULL auto_increment,
+    paydate int unsigned NOT NULL,
+    pp_token varchar(20) NOT NULL,
+    from_userid int unsigned,
+    target_userid int unsigned,
+    target_username varchar(15),
+    typeid smallint unsigned NOT NULL,
+    duration smallint unsigned NOT NULL,
+    amount smallint unsigned NOT NULL,
+    status varchar(20) NOT NULL,
+
+    PRIMARY KEY (paymentid),
+    INDEX (paydate, pp_token),
+    INDEX (from_userid),
+    INDEX (target_userid),
+    INDEX (status)
+)
+EOC
+
+register_tablecreate("dw_pp_details", <<'EOC');
+CREATE TABLE dw_pp_details (
+    paymentid int unsigned NOT NULL,
+
+    email varchar(255),
+    firstname varchar(255),
+    lastname varchar(255),
+    payerid varchar(255),
+
+    PRIMARY KEY (paymentid)
+)
+EOC
+
+register_tablecreate("dw_paidstatus", <<'EOC');
+CREATE TABLE dw_paidstatus (
+    userid int unsigned NOT NULL,
+    typeid smallint unsigned NOT NULL,
+    expiretime int unsigned,
+    permanent tinyint unsigned NOT NULL,
+    lastemail int unsigned,
+
+    PRIMARY KEY (userid),
+    INDEX (expiretime)
+)
+EOC
+
+register_tablecreate("dw_pp_log", <<'EOC');
+CREATE TABLE dw_pp_log (
+    paymentid int unsigned NOT NULL,
+    transdate int unsigned NOT NULL,
+    pp_log varchar(3000) NOT NULL,
+
+    INDEX (paymentid)
+)
+EOC
+
+register_tablecreate("dw_pp_notify_log", <<'EOC');
+CREATE TABLE dw_pp_notify_log (
+    transdate int unsigned NOT NULL,
+    pp_log varchar(3000) NOT NULL,
+
+    INDEX (transdate)
+)
+EOC
 
 # NOTE: new table declarations go here
 

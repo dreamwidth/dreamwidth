@@ -536,6 +536,8 @@ INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES 
 UPDATE priv_list SET des='Allows a user to view data in the \"statushistory\" table for all users.  arg=Type of \"statushistory\" entries user can see, or no argument to see everything.',is_public='1',privname='View statushistory info',scope='general' WHERE privcode='historyview';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to edit mood themes and make themes public.', '1', 'moodthememanager', 'Mood Themes - Manager', 'general');
 UPDATE priv_list SET des='Allows a user to edit mood themes and make themes public.',is_public='1',privname='Mood Themes - Manager',scope='general' WHERE privcode='moodthememanager';
+INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allow viewing of payment data, setting of account type, etc.', '0', 'payments', 'Administer Payments', 'general');
+UPDATE priv_list SET des='Allow viewing of payment data, setting of account type, etc.',is_public='0',privname='Administer Payments',scope='general' WHERE privcode='payments';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to delete all email addresses from an account.', '1', 'reset_email', 'Reset User Email Address', 'general');
 UPDATE priv_list SET des='Allows a user to delete all email addresses from an account.',is_public='1',privname='Reset User Email Address',scope='general' WHERE privcode='reset_email';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to reset the password to an account', '1', 'reset_password', 'Reset User Password', 'general');

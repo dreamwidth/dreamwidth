@@ -1,0 +1,123 @@
+<html>
+<head><title>Payment Management</title></head>
+<body>
+
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+
+    use Date::Parse;
+
+    my $remote = LJ::get_remote();
+    return "You don't have access to do that.\n"
+        unless LJ::check_priv($remote, 'payments');
+
+    my $body = '<h1>Payment Status Import Tool</h1>';
+
+    if (LJ::did_post()) {
+        $body .= '<p>[ <a href="/admin/pay/import.bml">&lt;&lt; Back to Index</a> ]</p>';
+
+        #my $note = sub {
+        #    LJ::statushistory_add( $u, $remote, 'paidstatus', sprintf( shift, @_ ) );
+        #};
+
+        my @out;
+        my @lines = grep { $_ } split( /\r?\n/, $POST{input} );
+        my @cmds;
+
+        foreach my $line (@lines) {
+            push @out, [ $line, undef, undef ];
+
+            my ($user, $type, $date) = split( /\s*,\s*/, $line );
+            unless (defined $user && defined $type && defined $date) {
+                $out[-1][2] = '#ff0000';
+                $out[-1][1] = 'line not of correct format';
+                next;
+            }
+            
+            my $u = LJ::load_user( $user );
+            unless ($u) {
+                $out[-1][2] = '#ff0000';
+                $out[-1][1] = 'unknown user';
+                next;
+            }
+
+            unless ($type eq 'basic' || $type eq 'premium') {
+                $out[-1][2] = '#ff0000';
+                $out[-1][1] = 'type not one of: basic, premium';
+                next;
+            }
+
+            my $time = str2time( $date );
+            unless (defined $time || $date eq 'permanent') {
+                $out[-1][2] = '#ff0000';
+                $out[-1][1] = 'date not one "permanent" or valid date';
+                next;
+            }
+
+            push @cmds, [ $u, {basic=>1,premium=>2}->{$type}, $time ];
+        }
+
+        my $ct = 0;
+        my $errs = 0;
+        foreach my $l (@out) {
+            $ct++;
+            $body .= qq|<tt>$ct: $l->[0]</tt><br />|;
+            if (defined $l->[1]) {
+                $errs = 1;
+                $body .= qq|<tt style="color: $l->[2];">&nbsp;&nbsp;&nbsp;&nbsp;&raquo; $l->[1]</tt><br />|;
+            }
+        }
+
+        if ($errs) {
+            $body .= '<p>We detected errors, please go back and correct them.</p>';
+            return $body;
+        }
+
+        $body .= '<p>Looks okay, setting status...</p><ul>';
+
+        foreach my $cmd (@cmds) {
+            my ($u, $type, $exp) = @$cmd;
+            $body .= "<li>$u->{user}($u->{userid}) type=$type exp=" . ($exp||'permanent') . '</li>';
+            DW::Pay::update_paid_status($u, permanent => (defined $exp ? 0 : 1), expiretime => ($exp||0), typeid => $type);
+            if (DW::Pay::was_error()) {
+                $body .= '<li>FAILURE ABOVE: ' . DW::Pay::error_text() . '</li>';
+                next;
+            }
+
+            LJ::statushistory_add( $u, $remote, 'paidstatus', sprintf('Manual status import: typeid=%d, exptime=%d', $type, $exp||0) );
+            DW::Pay::sync_caps($u);
+            if (DW::Pay::was_error()) {
+                $body .= '<li>FAILURE ABOVE: ' . DW::Pay::error_text() . '</li>';
+                next;
+            }
+        }
+
+        $body .= '</ul>';
+
+    } else {
+        # print the basic form
+        $body .= <<EOF;
+
+<form method="post" action="/admin/pay/import.bml">
+
+<p>To import data, please paste it in the box below.  The format is:</p>
+<p><strong>username , account type , expiration date</strong></p>
+<p>I.e., here are some examples:</p>
+<p><strong>test, basic, 2008-05-01 12:00:00<br />
+test2, premium, permanent</strong></p>
+
+<textarea name="input" rows=20 cols=80></textarea><br />
+<input type="submit">
+</form>
+EOF
+
+    }
+
+    return $body;
+}
+_code?>
+
+</body>
+</html>

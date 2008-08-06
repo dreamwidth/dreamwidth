@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+
+require 'ljlang.pl';
+require 'ljlib.pl';
+
+use Data::Dumper;
+
+if ( $ARGV[0] eq 'get_paid_status' ) {
+    my $u = $ARGV[1] > 0 ? LJ::load_userid( $ARGV[1] ) : LJ::load_user( $ARGV[1] )
+        or die "user not found\n";
+    print "Status for: $u->{user}($u->{userid})\n";
+
+    my $stat = DW::Pay::get_paid_status( $u );
+    if ( defined $stat ) {
+        print "\taccount type = " . DW::Pay::type_name( $stat->{typeid} ) . "\n";
+        if ( $stat->{expiresin} > 0 ) {
+            print "\texpires in " . LJ::ago_text( $stat->{expiresin} ) . "\n";
+        } else {
+            if ( $stat->{permanent} ) {
+                print "\taccount is PERMANENT\n";
+            } else {
+                print "\texpired " . LJ::ago_text( -$stat->{expiresin} ) . "\n";
+            }
+        }
+    } else {
+        print "\taccount is free and has never been a paid account.\n";
+    }
+
+} elsif ( $ARGV[0] eq 'pp_get_checkout_url' ) {
+    my $url = DW::Pay::pp_get_checkout_url( map { $_ eq 'undef' ? undef : $_ } @ARGV[1..6] );
+    if ( defined $url ) {
+        print "Success: $url\n";
+    } else {
+        print "Failure: " . DW::Pay::error_text() . "\n";
+    }
+
+} elsif ( $ARGV[0] eq 'get_payment_details' ) {
+    my $details = DW::Pay::get_payment_details( $ARGV[1] );
+    if ( defined $details ) {
+        print "Payment ID:   $details->{paymentid}\n";
+        print "Payment Date: " . LJ::mysql_time( $details->{paydate} ) . "\n";
+        if ( $details->{pp_token} ) {
+            print "PayPal Token: $details->{pp_token}\n";
+        }
+        if ( $details->{from_userid} ) {
+            my $fu = LJ::load_userid( $details->{from_userid} );
+            print "From User:    $fu->{user}($fu->{userid})\n";
+        } else {
+            print "From User:    not from a user\n";
+        }
+        if ( $details->{target_userid} ) {
+            my $tu = LJ::load_userid( $details->{target_userid} );
+            print "Target User:  $tu->{user}($tu->{userid}) by id\n";
+        } elsif ( $details->{target_username} ) {
+            my $tu = LJ::load_user( $details->{target_username} );
+            if ( $tu ) {
+                print "Target User:  $tu->{user}($tu->{userid}) by name, exists\n";
+            } else {
+                print "Target User:  '$details->{target_username}' by name, does not exist\n";
+            }
+        }
+        print "Payment For:  " . DW::Pay::type_name( $details->{typeid} ) . "\n";
+        if ( $details->{duration} == 99 ) {
+            print "Duration:     PERMANENT\n";
+        } else {
+            print "Duration:     $details->{duration} months\n";
+        }
+        print "Amount:       \$" . sprintf( '%0.2f', $details->{amount} )  . "\n";
+        print "Status:       $details->{status}\n"; 
+        
+    } else {
+        print "Failure: " . DW::Pay::error_text() . "\n";
+    }
+
+} elsif ( $ARGV[0] eq 'pp_get_paymentid_from_token' ) {
+    my $payid = DW::Pay::pp_get_paymentid_from_token( $ARGV[1] );
+    if ( defined $payid ) {
+        print "Success: paymentid = $payid\n";
+    } else {
+        print "Failure: error? = " . DW::Pay::error_text() . "\n";
+    }
+
+} elsif ( $ARGV[0] eq 'pp_get_order_details' ) {
+    my $res = DW::Pay::pp_get_order_details( $ARGV[1] );
+    if ( defined $res ) {
+        print "TEMP: " . Dumper($res);
+    } else {
+        print "Failure: error? = " . DW::Pay::error_text() . "\n";
+    }
+
+} elsif ( $ARGV[0] eq 'pp_confirm_order' ) {
+    my $res = DW::Pay::pp_confirm_order( $ARGV[1] );
+    if ( defined $res ) {
+        print "Success!  Order submitted for processing.\n";
+    } else {
+        print "Failure: error? = " . DW::Pay::error_text() . "\n";
+    }
+
+} else {
+    print <<'EOF';
+test-pay.pl - payment system debugging tool
+
+Usage:
+
+    test-pay.pl get_paid_status <username>
+        return the status of this user, when they expire, and
+        other useful information.
+
+    test-pay.pl get_payment_details <paymentid>
+        return details on a payment.
+
+    test-pay.pl pp_confirm_order <paymentid>
+        submits an order for processing in our system.
+
+    test-pay.pl pp_get_checkout_url <tgt_uid> <tgt_uname> <frm_uid> <typeid> <duration> <amount>
+        return a PayPal checkout URL.  this function will setup
+        the checkout at PayPal with the given parameters.  note that
+        if you want to send undef, just type 'undef' as a parameter.
+
+    test-pay.pl pp_get_order_details <paymentid>
+        return a PayPal data structure showing the status of an
+        order as per the PayPal systems.
+
+    test-pay.pl pp_get_paymentid_from_token <token>
+        returns the paymentid from a given token, if the token is
+        still valid.  (they're only good for three hours.)
+
+EOF
+
+}
+
