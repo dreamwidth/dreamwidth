@@ -9,8 +9,7 @@ body<=
 
     LJ::set_active_crumb('supportappend');
 
-    my $apache_req = shift;
-    my $r = $apache_req->{'r'};
+    my $r = DW::Request->get;
 
     my $status = "";
 
@@ -170,7 +169,7 @@ body<=
             'body' => "(Bouncing mail to '" . join(', ', @emails) . "' and closing)\n\n" . $FORM{'body'},
             'posterid' => $remote,
             'type' => 'internal',
-            'uniq' => $r->notes('uniq'),
+            'uniq' => $r->note('uniq'),
             'remote' => $remote,
         });
 
@@ -229,7 +228,7 @@ body<=
         'body' => $status . $FORM{'body'},
         'type' => $type,
         'faqid' => $faqid,
-        'uniq' => $r->notes('uniq'),
+        'uniq' => $r->note('uniq'),
         'remote' => $remote,
     });
 
