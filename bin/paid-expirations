@@ -24,7 +24,7 @@ my $dbh = DW::Pay::get_db_writer()
 my $now = $dbh->selectrow_array( 'SELECT UNIX_TIMESTAMP()' );
 my $people = $dbh->selectall_arrayref( q{
         SELECT userid, typeid, expiretime, permanent, lastemail
-        FROM jf_paidstatus
+        FROM dw_paidstatus
         WHERE permanent = 0
           AND expiretime IS NOT NULL
           AND expiretime < UNIX_TIMESTAMP(DATE_ADD(NOW(), INTERVAL 14 DAY))

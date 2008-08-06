@@ -167,7 +167,7 @@
 
         my $rows = $dbr->selectall_arrayref( q{
                 SELECT DATE_FORMAT(FROM_UNIXTIME(paydate), '%m-%d'), typeid, duration, COUNT(*), SUM(amount)
-                FROM jf_payments
+                FROM dw_payments
                 WHERE paydate > UNIX_TIMESTAMP() - 86400*8
                       AND status = 'paid-completed'
                 GROUP BY 1, 2, 3
@@ -184,7 +184,7 @@
 
         my $rows = $dbr->selectall_arrayref( q{
                 SELECT DATE_FORMAT(FROM_UNIXTIME(paydate), '%m-%Y'), typeid, duration, COUNT(*), SUM(amount)
-                FROM jf_payments
+                FROM dw_payments
                 WHERE status = 'paid-completed'
                 GROUP BY 1, 2, 3
                 ORDER BY 1 DESC, 2, 3

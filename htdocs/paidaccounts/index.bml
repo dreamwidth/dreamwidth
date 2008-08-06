@@ -96,11 +96,11 @@ my %errors;
 
 my $remote = LJ::get_remote();
 my $user = $GET{'user'};
-   $user = $POST{'jf_pay_target'} if $POST{'jf_pay_for'} eq "gift";
+   $user = $POST{'dw_pay_target'} if $POST{'dw_pay_for'} eq "gift";
 
 # If this is for an existing user, load them up and see what upgrades they can get
 if ($remote || $user) {
-    my $u = $POST{'jf_pay_for'} eq "gift" ? LJ::load_user($user) : $remote;
+    my $u = $POST{'dw_pay_for'} eq "gift" ? LJ::load_user($user) : $remote;
 
     if ($u && DW::Pay::get_current_account_status($u)) {
         my $paid_status = DW::Pay::get_paid_status($u);
@@ -132,7 +132,7 @@ if ($remote || $user) {
 
 # POST processing
 if (LJ::did_post()) {
-    my $purchase_option = $POST{'jf_pay_option'};
+    my $purchase_option = $POST{'dw_pay_option'};
 
     $errors{'option'} = "You have selected an invalid upgrade option" 
         unless $purchase_options{$purchase_option};
@@ -141,13 +141,13 @@ if (LJ::did_post()) {
 
     my ($target_user, $target_name, $from_user);
 
-    if ($POST{'jf_pay_for'} eq "existing") {
+    if ($POST{'dw_pay_for'} eq "existing") {
         $target_user = $remote;
-    } elsif ($POST{'jf_pay_for'} eq "gift") {
-        $target_user = LJ::load_user($POST{'jf_pay_target'});
-        $errors{'user'} = "The username &ldquo;".$POST{'jf_pay_target'}."&rdquo; doesn't exist" unless $target_user;
-    } elsif ($POST{'jf_pay_for'} eq "new") {
-        $target_name = $POST{'jf_pay_target'};
+    } elsif ($POST{'dw_pay_for'} eq "gift") {
+        $target_user = LJ::load_user($POST{'dw_pay_target'});
+        $errors{'user'} = "The username &ldquo;".$POST{'dw_pay_target'}."&rdquo; doesn't exist" unless $target_user;
+    } elsif ($POST{'dw_pay_for'} eq "new") {
+        $target_name = $POST{'dw_pay_target'};
         if ($target_name) {
             my $u = LJ::load_user($target_name);
             $errors{'user'} = "The username &ldquo;$target_name&rdquo; is already taken, please select another username" if $u;
@@ -289,14 +289,14 @@ if ($errors{'user'}) {
     $body .= '<p style="color: #f00">'.$errors{'user'}.'</p>';
 }
 $body .= "<?p Purchase a $LJ::SITEROOT Paid Account for: p?>";
-$body .= '<select name="jf_pay_for">';
+$body .= '<select name="dw_pay_for">';
 if ($remote) { $body .= '<option value="existing">my own journal ('.$remote->{user}.')</option>'; }
 $body .= '<option value="new">a new journal</option>';
 $body .= '<option value="gift">a friend\'s journal</option>';
 $body .= '</select>';
 
-my $jf_pay_target = $POST{'jf_pay_target'} || $GET{'user'} || $remote->{'user'};
-$body .= '<input type="text" name="jf_pay_target" value="'.$jf_pay_target.'" />';
+my $dw_pay_target = $POST{'dw_pay_target'} || $GET{'user'} || $remote->{'user'};
+$body .= '<input type="text" name="dw_pay_target" value="'.$dw_pay_target.'" />';
 
 # This is ghetto but quick dev
 $body .= '<div style="clear: both">';
@@ -310,7 +310,7 @@ foreach my $upgrade (@available_upgrades) {
     my $checked = $ct == 1 ? ' checked="checked"' : '';
 
     $badge .= '<td><div style="background-color: #b28099; color: #fff; width: 7em; border: 1px solid #555; margin: .25em; text-align: center">';
-    $badge .= '<label><input type="radio" name="jf_pay_option" value="'.$form_id.'" '.$checked.' /><br />';
+    $badge .= '<label><input type="radio" name="dw_pay_option" value="'.$form_id.'" '.$checked.' /><br />';
     $badge .= $duration.'<br />$'.$upgrade->{'amount'}.' USD</label></div></td>';
 
     if ($upgrade->{'type'} == 1) {
