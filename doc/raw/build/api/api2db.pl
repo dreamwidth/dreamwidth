@@ -13,6 +13,8 @@ die unless GetOptions(
 die "Unknown arguments.\n" if @ARGV;
 die "Can't exclude and include at same time!\n" if $opt_include && $opt_exclude;
 
+$LJ::HOME = $ENV{'LJHOME'};
+
 unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }

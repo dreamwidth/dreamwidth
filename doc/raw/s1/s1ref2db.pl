@@ -3,6 +3,8 @@
 
  use strict;
 
+ $LJ::HOME = $ENV{'LJHOME'};
+
  unless (-d $LJ::HOME) { die "\$LJHOME not set.\n"; }
 
  require "$LJ::HOME/doc/raw/build/docbooklib.pl";

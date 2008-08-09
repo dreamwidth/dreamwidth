@@ -2,6 +2,9 @@
 #
 
 use strict;
+
+$LJ::HOME = $ENV{'LJHOME'};
+
 unless (-d $LJ::HOME) {
     die "\$LJHOME not set.\n";
 }
@@ -627,7 +630,7 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                     'desc' => "Used in conjunction with [ljconfig[qbufferd_isolate]], to specify a time to sleep between runs of <systemitem>qbuffered</systemitem> tasks. The default is 15 seconds.",
                     'example' => "10",
             },
-            'usersearch_metafile_path => {
+            'usersearch_metafile_path' => {
                     'desc' => "File name and path the search-updater worker should use for the usersearch data file.",
                     'example' => "\$LJ::HOME/var/usersearch.data",
             },

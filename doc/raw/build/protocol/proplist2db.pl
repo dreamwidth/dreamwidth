@@ -3,7 +3,7 @@
 
 use strict;
 
-require "$LJ::HOME/cgi-bin/ljlib.pl";
+require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
 
 my $dbr = LJ::get_dbh("slave", "master");
 my $sth;

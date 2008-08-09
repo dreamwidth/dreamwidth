@@ -13,7 +13,7 @@ exit 1 unless GetOptions('clean' => \$opt_clean,
                          'single' => \$opt_single,
                          );
 
-my $home = $LJ::HOME;
+my $home = $ENV{'LJHOME'};
 require "$home/cgi-bin/ljlib.pl";
 $ENV{'XML_CATALOG_FILES'} = $LJ::CATALOG_FILES || "/usr/share/xml/docbook/schema/dtd/4.4/catalog.xml";
 
