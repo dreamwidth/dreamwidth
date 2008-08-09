@@ -264,21 +264,6 @@ List your friends, add a friend, or remove a friend.  Optionally, add friends to
   </para></listitem>
 </varlistentry>
 <varlistentry>
-  <term><literal role="console.command">gencodes</literal></term>
-  <listitem><para>
-Generate invite codes.
-    <itemizedlist>
-      <title>Arguments:</title>
-      <listitem><formalpara><title>username</title>
-      <para>User to be given the codes</para>
-      </formalpara></listitem>
-      <listitem><formalpara><title>quantity</title>
-      <para>Number of codes to generate</para>
-      </formalpara></listitem>
-    </itemizedlist>
-  </para></listitem>
-</varlistentry>
-<varlistentry>
   <term><literal role="console.command">get_maintainer</literal></term>
   <listitem><para>
 Finds out the current maintainer(s) of a community or the communities that a user maintains.  If you pass a community as the argument, the maintainer(s) will be listed.  Otherwise, if you pass a user account, the account(s) they maintain will be listed.
