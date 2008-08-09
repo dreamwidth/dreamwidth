@@ -122,7 +122,7 @@
 
 .safesearch2=You can choose to filter mature or offensive content out of search results.
 
-.safesearch2.select.concepts=Use strict filtering (Excludes content tpe poster has marked 14+)
+.safesearch2.select.concepts=Use strict filtering (Excludes content the poster has marked 14+)
 
 .safesearch2.select.explicit=Use moderate filtering (Excludes content the poster has marked 18+)
 
