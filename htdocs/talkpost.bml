@@ -66,8 +66,6 @@ body<=
     }
 
     LJ::run_hooks("need_res_for_journals", $u);
-    my $graphicpreviews_obj = LJ::graphicpreviews_obj();
-    $graphicpreviews_obj->need_res($u);
 
     my $ret = "";
 

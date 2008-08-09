@@ -202,18 +202,6 @@ _code?>
 
         if ($remote) { # everything from here on down only applies to logged-in users
 
-        # Graphic Previews
-        my $graphicpreviews_obj = LJ::graphicpreviews_obj();
-        if ($graphicpreviews_obj->is_enabled($u)) {
-            $ret .= "<tr><td class='field_name'>$ML{'.fn.graphicpreviews'}</td>\n<td>";
-            $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'show_graphic_previews', 'id' => 'show_graphic_previews',
-                                     'value' => 1, 'selected' => $graphicpreviews_obj->should_render($u) });
-            $ret .= " <label for='show_graphic_previews'>$ML{'.graphicpreviews.desc'}</label>";
-            $ret .= " " . LJ::help_icon("graphic_previews") . "<br />\n";
-            $ret .= "<span class='helper'>$ML{'.graphicpreviews.note'}</span>";
-            $ret .= "</td></tr>\n";
-        }
-
         # Image placeholders
         my ($maxwidth, $maxheight) = (0, 0);
         ($maxwidth, $maxheight) = ($1, $2) if ($u->{'opt_imagelinks'} =~ m/^(\d+)\|(\d+)$/);
@@ -572,16 +560,6 @@ _code?>
                 $eff_val = "" unless $eff_val;
                 my $mem_only = $eff_val eq $u->{$uprop};
                 LJ::set_userprop($u, $uprop, $eff_val, $mem_only);
-            }
-        }
-
-        my $graphicpreviews_obj = LJ::graphicpreviews_obj();
-        if ($graphicpreviews_obj->is_enabled($u)) {
-            my $post_val = $POST{show_graphic_previews} ? 'on' : 'off';
-            my $prop_val = $u->show_graphic_previews;
-            if ($post_val ne $prop_val) {
-                my $new_val = "explicit_$post_val";
-                $u->set_prop('show_graphic_previews', $new_val);
             }
         }
 

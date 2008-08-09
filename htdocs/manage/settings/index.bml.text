@@ -34,8 +34,6 @@
 
 .fn.gettingstarted=Getting Started Module
 
-.fn.graphicpreviews=Graphic previews
-
 .fn.imageplace=Image placeholders
 
 .fn.jabber=Online Status
@@ -63,10 +61,6 @@
 .gettingstarted.text=The Getting Started module displays on the homepage and confirmation pages until the required tasks have been completed.
 
 .gettingstarted.text.completed=Because you have completed all of the required tasks, the Getting Started module will not display.
-
-.graphicpreviews.desc=Enable graphic previews on external links within your journal
-
-.graphicpreviews.note=Allows viewers to preview links and linked images when hovering over external links within your journal.
 
 .imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
 

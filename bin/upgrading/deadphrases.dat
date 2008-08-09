@@ -590,3 +590,7 @@ general widget.verticalentries.nocomments
 general widget.customizetheme.linkslist.manage
 
 general widget.customizetheme.linkslist
+
+general /manage/settings/index.bml.fn.graphicpreviews
+general /manage/settings/index.bml.graphicpreviews.desc
+general /manage/settings/index.bml.graphicpreviews.note

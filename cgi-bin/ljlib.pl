@@ -54,7 +54,6 @@ use Class::Autouse qw(
                       LJ::WorkerResultStorage
                       LJ::EventLogRecord
                       LJ::EventLogRecord::DeleteComment
-                      LJ::GraphicPreviews
                       LJ::Vertical
                       );
 
@@ -3193,26 +3192,6 @@ sub AUTOLOAD {
 
 sub pagestats_obj {
     return LJ::PageStats->new;
-}
-
-sub graphicpreviews_obj {
-    return $LJ::GRAPHIC_PREVIEWS_OBJ if $LJ::GRAPHIC_PREVIEWS_OBJ;
-
-    my $ret_obj;
-    my $plugin = $LJ::GRAPHIC_PREVIEWS_PLUGIN;
-    if ($plugin) {
-        my $class = "LJ::GraphicPreviews::$plugin";
-        $ret_obj = eval "use $class; $class->new";
-        if ($@) {
-           warn "Error loading GraphicPreviews plugin '$class': $@";
-           $ret_obj = LJ::GraphicPreviews->new;
-        }
-    } else {
-        $ret_obj = LJ::GraphicPreviews->new;
-    }
-
-    $LJ::GRAPHIC_PREVIEWS_OBJ = $ret_obj;
-    return $ret_obj;
 }
 
 sub conf_test {

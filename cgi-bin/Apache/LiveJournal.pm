@@ -1416,11 +1416,6 @@ sub journal_content
     my $before_body_close = "";
     LJ::run_hooks("insert_html_before_body_close", \$before_body_close);
     LJ::run_hooks("insert_html_before_journalctx_body_close", \$before_body_close);
-    {
-        my $journalu = LJ::load_user($user);
-        my $graphicpreviews_obj = LJ::graphicpreviews_obj();
-        $before_body_close .= $graphicpreviews_obj->render($journalu);
-    }
 
     # Insert pagestats HTML and Javascript
     $before_body_close .= LJ::pagestats_obj()->render('journal');

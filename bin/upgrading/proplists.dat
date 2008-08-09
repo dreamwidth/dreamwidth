@@ -910,14 +910,6 @@ userproplist.show_control_strip:
   multihomed: 0
   prettyname: Show Control Strip
 
-userproplist.show_graphic_previews:
-  cldversion: 4
-  datatype: char
-  des: Show graphic previews when hovering over external links on your journal or community.
-  indexed: 0
-  multihomed: 0
-  prettyname: Show Graphic Previews
-
 userproplist.sidx_bdate:
   cldversion: 0
   datatype: char

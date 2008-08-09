@@ -172,8 +172,6 @@ my $old_url = 0;
  LJ::load_user_props($remote, "opt_no_quickreply");
 
  LJ::run_hooks("need_res_for_journals", $u);
- my $graphicpreviews_obj = LJ::graphicpreviews_obj();
- $graphicpreviews_obj->need_res($u);
 
  LJ::need_res('js/thread_expander.js');
 
