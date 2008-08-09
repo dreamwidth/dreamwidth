@@ -4348,6 +4348,14 @@ sub adult_content_calculated {
     return $u->adult_content;
 }
 
+# returns who marked the entry as the 'adult_content_calculated' adult content level
+sub adult_content_marker {
+    my $u = shift;
+    
+    return "admin" if $u->admin_content_flag eq "explicit_adult";
+    return "journal";
+}
+
 sub can_manage {
     my ($u, $target) = @_;
     return LJ::can_manage($u, $target);

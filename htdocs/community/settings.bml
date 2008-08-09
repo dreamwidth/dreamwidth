@@ -294,7 +294,7 @@ body<=
         $ret .= "<legend>$ML{'.label.adultcontentheader'}</legend><div><?p $ML{'.label.adultcontenttext'} p?>";
         $ret .= "<p class='input-wrapper'>$adult_content_menu</p>";
         $ret .= "<span style='font-size: 0.8em; margin-bottom: 5px;'>";
-        $ret .= BML::ml('.label.adultcontentnote', { explicitage => 18, conceptsage => 14 });
+        $ret .= BML::ml('.label.adultcontentnote');
         $ret .= "</span></div></fieldset>";
     }
 

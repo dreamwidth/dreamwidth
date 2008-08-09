@@ -45,7 +45,7 @@ use constant {
 our %CAT_NAMES = (
     LJ::ContentFlag::CHILD_PORN             => "Nude Images of Minors",
     LJ::ContentFlag::ILLEGAL_ACTIVITY       => "Illegal Activity",
-    LJ::ContentFlag::EXPLICIT_ADULT_CONTENT => "Explicit Adult Content",
+    LJ::ContentFlag::EXPLICIT_ADULT_CONTENT => "Age 18 and Over Only",
     LJ::ContentFlag::OFFENSIVE_CONTENT      => "Offensive Content",
     LJ::ContentFlag::HATRED_SITE            => "Hate Speech",
     LJ::ContentFlag::SPAM                   => "Spam",
@@ -76,7 +76,7 @@ our @CATS_TO_SPAMREPORTS = (
 our %STATUS_NAMES = (
     LJ::ContentFlag::NEW                 => 'New',
     LJ::ContentFlag::CLOSED              => 'Marked as Bogus Report (No Action)',
-    LJ::ContentFlag::FLAG_EXPLICIT_ADULT => 'Flagged as Explicit Adult Content',
+    LJ::ContentFlag::FLAG_EXPLICIT_ADULT => 'Flagged as Age 18 and Over Only',
     LJ::ContentFlag::FLAG_HATRED         => 'Flagged as Hate Speech',
     LJ::ContentFlag::FLAG_ILLEGAL        => 'Flagged as Illegal Activity',
     LJ::ContentFlag::FLAG_CHILD_PORN     => 'Flagged as Nude Images of Minors',
@@ -565,10 +565,12 @@ sub adult_interstitial_link {
     my $url = $entry->url;
     my $msg;
 
+    my $markedby = $entry->adult_content_marker;
+
     if ($type eq 'explicit') {
-        $msg = LJ::Lang::ml('contentflag.viewingexplicit');
+        $msg = LJ::Lang::ml('contentflag.viewingexplicit.by' . $markedby);
     } else {
-        $msg = LJ::Lang::ml('contentflag.viewingconcepts');
+        $msg = LJ::Lang::ml('contentflag.viewingconcepts.by' . $markedby);
     }
 
     return '' unless $msg;

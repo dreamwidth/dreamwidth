@@ -380,7 +380,7 @@ _code?>
             $ret .= "<tr>";
             $ret .= "<td class='field_name'>$ML{'.fn.adultcontentflag'}</td>";
             $ret .= "<td>$ML{'.adultcontentflag'} $journal_adult_settings_menu<br />";
-            $ret .= "<span class='helper'>" . BML::ml('.adultcontentflag.text', { explicitage => 18, conceptsage => 14 }) . " ";
+            $ret .= "<span class='helper'>" . BML::ml('.adultcontentflag.text') . " ";
             $ret .= LJ::help_icon("adult_content");
             $ret .= "</span></td>";
             $ret .= "</tr>";

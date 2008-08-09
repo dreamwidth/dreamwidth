@@ -1,14 +1,14 @@
 ;; -*- coding: utf-8 -*-
 
-.adultcontentflag=This journal contains:
+.adultcontentflag=Limit age:
 
-.adultcontentflag.select.concepts=Adult Concepts
+.adultcontentflag.select.concepts=Age 14 and over
 
-.adultcontentflag.select.explicit=Explicit Adult Content
+.adultcontentflag.select.explicit=Age 18 and over
 
-.adultcontentflag.select.none=No Adult Content
+.adultcontentflag.select.none=No age limits
 
-.adultcontentflag.text=This is a global setting for the journal. For explicit adult content, users under the age of [[explicitage]] years old will be restricted from viewing. Adult concepts only restricts users under the age of [[conceptsage]] years old.
+.adultcontentflag.text=This is a global setting for the journal.
 
 .bdayreminder=Receive email reminders for your friends' birthdays
 
@@ -24,7 +24,7 @@
 
 .finished.save_button=Save Changes
 
-.fn.adultcontentflag=Adult Content
+.fn.adultcontentflag=Age Limits
 
 .fn.bdayreminder=Birthday reminders
 
@@ -52,7 +52,7 @@
 
 .fn.verticalincl=Explore Area Inclusion
 
-.fn.viewingadult=Viewing Adult Content
+.fn.viewingadult=Viewing Age Limited Content
 
 .fn.weblogs=Weblogs.com
 
@@ -122,9 +122,9 @@
 
 .safesearch2=You can choose to filter mature or offensive content out of search results.
 
-.safesearch2.select.concepts=Use strict filtering (filters all adult and offensive content)
+.safesearch2.select.concepts=Use strict filtering (Excludes content tpe poster has marked 14+)
 
-.safesearch2.select.explicit=Use moderate filtering (filters explicit adult and offensive content)
+.safesearch2.select.explicit=Use moderate filtering (Excludes content the poster has marked 18+)
 
 .safesearch.select.none=Do not filter my results
 
@@ -166,11 +166,11 @@
 
 .verticalincl.text=Journal entries posted private or Friends-only are automatically excluded.
 
-.viewingadult=Collapse adult-oriented material written by other users:
+.viewingadult=Collapse content marked as inappropriate for anyone under:
 
-.viewingadult.select.concepts=Collapse adult concepts and explicit adult content
+.viewingadult.select.concepts=Anyone under the age of 14
 
-.viewingadult.select.explicit=Collapse explicit adult content only
+.viewingadult.select.explicit=Anyone under the age of 18
 
 .viewingadult.select.none=Do not collapse
 

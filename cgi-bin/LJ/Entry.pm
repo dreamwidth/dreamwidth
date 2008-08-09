@@ -981,6 +981,15 @@ sub adult_content_calculated {
     return $self->adult_content;
 }
 
+# returns who marked the entry as the 'adult_content_calculated' adult content level
+sub adult_content_marker {
+    my $self = shift;
+    
+    return "admin" if $self->admin_content_flag eq "explicit_adult";
+    return "poster" if $self->adult_content ne "";
+    return $self->journal->adult_content_marker;
+}
+
 sub qotdid {
     my $self = shift;
 

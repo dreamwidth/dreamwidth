@@ -594,3 +594,10 @@ general widget.customizetheme.linkslist
 general /manage/settings/index.bml.fn.graphicpreviews
 general /manage/settings/index.bml.graphicpreviews.desc
 general /manage/settings/index.bml.graphicpreviews.note
+
+general contentflag.viewingconcepts
+general contentflag.viewingexplicit
+general /misc/adult_content.bml.message.concepts
+general /misc/adult_content.bml.message.concepts.blocked
+general /misc/adult_content.bml.message.explicit
+general /misc/adult_content.bml.message.explicit.blocked

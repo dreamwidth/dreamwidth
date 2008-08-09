@@ -15,6 +15,18 @@ body<=
     $windowtitle = $ML{'.title'};
     my $ret = '';
 
+    my $entry = LJ::Entry->new_from_url($returl);
+    my $journal = defined($entry) ? $entry->journal : LJ::User->new_from_url($returl);
+    my $poster = defined($entry) ? $entry->poster : $journal;
+
+    my $markedby;
+    
+    if (defined($entry)) {
+        $markedby = $entry->adult_content_marker;
+    } else {
+        $markedby = $journal->adult_content_marker;
+    }
+
     $ret .= qq {
         <table cellpadding="8" cellspacing="0" border="1" style="background-color: #FFFFD4; border: 1px solid black;">
             <tr>
@@ -24,7 +36,7 @@ body<=
             <tr>
                 <td colspan="2">
     };
-    $ret .= BML::ml('.message.explicit.blocked', { age => 18 });
+    $ret .= BML::ml('.message.explicit.blocked.by' . $markedby, { journal => $journal->ljuser_display, poster => $poster->ljuser_display });
     $ret .= qq {
                 </td>
             </tr>

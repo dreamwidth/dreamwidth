@@ -6,14 +6,30 @@
 
 .explore.notconfirmed=No, return me to Explore [[siteabbrev]].
 
-.message.concepts=The content that you are about to view <strong>could contain adult concepts which may not be suitable for minors</strong>. To continue, you must confirm that you are at least [[age]] years of age.
+.message.concepts.blocked.byadmin=You are about to view content that has been marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. You must be at least 14 years of age to view this.
 
-.message.concepts.blocked=The content that you are about to view <strong>could contain adult concepts which may not be suitable for minors</strong>. You must be at least [[age]] years of age to view this.
+.message.concepts.blocked.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. You must be at least 14 years of age to view this.
 
-.message.explicit=The content that you are about to view <strong>may contain material only suitable for adults</strong>. To continue, you must confirm that you are at least [[age]] years of age.
+.message.concepts.blocked.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. You must be at least 14 years of age to view this.
 
-.message.explicit.blocked=The content that you are about to view <strong>may contain material only suitable for adults</strong>. You must be at least [[age]] years of age to view this.
+.message.concepts.byadmin=You are about to view content that has been marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. To continue, you must confirm that you are at least 14 years of age.
+
+.message.concepts.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. To continue, you must confirm that you are at least 14 years of age.
+
+.message.concepts.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. To continue, you must confirm that you are at least 14 years of age.
+
+.message.explicit.blocked.byadmin=You are about to view content that has been marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
+
+.message.explicit.blocked.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
+
+.message.explicit.blocked.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
+
+.message.explicit.byadmin=You are about to view content that has been marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you are at least 18 years of age.
+
+.message.explicit.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you are at least 18 years of age.
+
+.message.explicit.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you are at least 18 years of age.
 
 .setage=<a [[aopts]]>Edit your profile</a> to register your age.
 
-.title=Adult Content Notice
+.title=Age Filtered Notice

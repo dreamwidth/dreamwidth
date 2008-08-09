@@ -26,6 +26,18 @@ body<=
         $headextra .= $u->openid_tags if $u;
     }
 
+    my $entry = LJ::Entry->new_from_url($returl);
+    my $journal = defined($entry) ? $entry->journal : LJ::User->new_from_url($returl);
+    my $poster = defined($entry) ? $entry->poster : $journal;
+
+    my $markedby;
+    
+    if (defined($entry)) {
+        $markedby = $entry->adult_content_marker;
+    } else {
+        $markedby = $journal->adult_content_marker;
+    }
+
     my $field = LJ::html_hidden(ret => $returl);
 
     my $extra_for_no_age = $remote ? BML::ml('.setage', { aopts => "href='$LJ::SITEROOT/manage/profile/'" }) : "";
@@ -39,7 +51,7 @@ body<=
             <tr>
                 <td colspan="2">
     };
-    $ret .= BML::ml('.message.explicit', { age => 18 }) . " $extra_for_no_age";
+    $ret .= BML::ml('.message.explicit.by' . $markedby, { journal => $journal->ljuser_display, poster => $poster->ljuser_display }) . " $extra_for_no_age";
     $ret .= qq {
                 </td>
             </tr>

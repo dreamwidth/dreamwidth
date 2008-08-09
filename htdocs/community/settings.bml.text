@@ -19,17 +19,17 @@
 
 .error.samenames=Maintainer account and community account cannot be the same.
 
-.label.adultcontentheader=Adult Content
+.label.adultcontentheader=Age Limits
 
-.label.adultcontentconcepts=Adult Concepts
+.label.adultcontentconcepts=Age 14 and over
 
-.label.adultcontentexplicit=Explicit Adult Content
+.label.adultcontentexplicit=Age 18 and over
 
-.label.adultcontentnone=No Adult Content
+.label.adultcontentnone=No age limits
 
-.label.adultcontentnote=This is a global setting for the community. For "Explicit Adult Content", users under the age of [[explicitage]] will be restricted from viewing. "Adult Concepts" restricts users under the age of [[conceptsage]] years old from viewing.
+.label.adultcontentnote=This is a global setting for the community.
 
-.label.adultcontenttext=Does this community have adult content?
+.label.adultcontenttext=Does this community require age filtering?
 
 .label.anybodycan=<b>All Members</b><br />Anybody can post immediately once a member.
 

@@ -46,9 +46,17 @@ btn.add=Add
 
 btn.search=Search
 
-contentflag.viewingconcepts=You are about to view content that may not be appropriate for minors.
+contentflag.viewingconcepts.byadmin=You are about to view content that has been marked as possibly inappropriate for anyone under the age of 14.
 
-contentflag.viewingexplicit=You are about to view content that may only be appropriate for adults.
+contentflag.viewingconcepts.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 14.
+
+contentflag.viewingconcepts.byjournal=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 14.
+
+contentflag.viewingexplicit.byadmin=You are about to view content that has been marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byjournal=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 18.
 
 controlstrip.link=Navigation Strip
 
@@ -971,15 +979,15 @@ Enjoy!
 [[siteroot]]/
 .
 
-entryform.adultcontent=Adult Content:
+entryform.adultcontent=Age Filter:
 
-entryform.adultcontent.concepts=Adult Concepts
+entryform.adultcontent.concepts=Age 14 and over
 
 entryform.adultcontent.default=Journal Default
 
-entryform.adultcontent.explicit=Explicit Adult Content
+entryform.adultcontent.explicit=Age 18 and over
 
-entryform.adultcontent.none=No Adult Content
+entryform.adultcontent.none=No Age Filter
 
 entryform.backdated=Entry is Backdated:
 

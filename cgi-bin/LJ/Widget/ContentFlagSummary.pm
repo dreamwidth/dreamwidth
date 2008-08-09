@@ -32,7 +32,7 @@ my @actions = (
                LJ::ContentFlag::NEW             => 'New',
                LJ::ContentFlag::CLOSED          => 'Bogus Report (No Action)',
                '', '',
-               LJ::ContentFlag::FLAG_EXPLICIT_ADULT => 'Flag > Explicit Adult Content',
+               LJ::ContentFlag::FLAG_EXPLICIT_ADULT => 'Flag > 18 and Over Only',
                LJ::ContentFlag::FLAG_HATRED         => 'Flag > Hate Speech',
                LJ::ContentFlag::FLAG_ILLEGAL        => 'Flag > Illegal Activity',
                LJ::ContentFlag::FLAG_CHILD_PORN     => 'Flag > Nude Images of Minors',

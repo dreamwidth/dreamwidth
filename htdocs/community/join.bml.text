@@ -9,9 +9,9 @@
 
 .error.closed=This community is closed to new members.  If you wish to join, please contact one of the following maintainers: [[admins]]
 
-.error.ischild=[[comm]] could contain adult concepts which may not be suitable for minors. You must be at least 14 years of age to join this community.
+.error.ischild=The maintainers of [[comm]] require that all members be over the age of 14.
 
-.error.isminor=[[comm]] may contain material only suitable for adults. You must be at least 18 years of age to join this community.
+.error.isminor=The maintainers of [[comm]] require that all members be over the age of 18.
 
 .error.setage=<a [[aopts]]>Edit your profile</a> to register your age.
 
