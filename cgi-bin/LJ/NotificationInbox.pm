@@ -12,7 +12,7 @@ use Class::Autouse qw (LJ::NotificationItem LJ::Event LJ::NotificationArchive);
 sub new {
     my ($class, $u) = @_;
 
-    croak "Invalid args to construct LJ::NotificationQueue" unless $class && $u;
+    croak "Invalid args to construct LJ::NotificationInbox" unless $class && $u;
     croak "Invalid user" unless LJ::isu($u);
 
     # return singleton from $u if it already exists
@@ -39,7 +39,7 @@ sub u {
 sub items {
     my $self = shift;
 
-    croak "notifications is an object method"
+    croak "items is an object method"
         unless (ref $self) eq __PACKAGE__;
 
     return @{$self->{items}} if defined $self->{items};

@@ -31,7 +31,7 @@ ITEMS<=
 <=ITEMS
 ITEMSB<=
 <?choice Download|/download/|Download the LiveJournal update tool for your computer. choice?>
-<?choice Modify Journal|modify.bml|Customize the your LiveJournal's appearance and options. choice?>
+<?choice Modify Journal|modify.bml|Customize your LiveJournal's appearance and options. choice?>
 <=ITEMSB
 choices?>
 

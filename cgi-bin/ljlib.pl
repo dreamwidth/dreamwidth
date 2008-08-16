@@ -466,7 +466,7 @@ sub get_friend_items
     my $userid = $opts->{'userid'}+0;
     return () if $LJ::FORCE_EMPTY_FRIENDS{$userid};
 
-    # 'remote' opt takes precendence, then 'remoteid'
+    # 'remote' opt takes precedence, then 'remoteid'
     my $remote = $opts->{'remote'};
     my $remoteid = $remote ? $remote->{'userid'} : 0;
     if ($remoteid == 0 && $opts->{'remoteid'}) {
@@ -747,10 +747,10 @@ sub get_friend_items
 
             # sort all the total items by rlogtime (recent at beginning).
             # if there's an in-second tie, the "newer" post is determined by
-            # the higher jitemid, which means nothing if the posts aren't in the same
-            # journal, but means everything if they are (which happens almost never
-            # for a human, but all the time for RSS feeds, once we remove the
-            # synsucker's 1-second delay between postevents)
+            # the higher jitemid, which means nothing if the posts aren't in
+            # the same journal, but means everything if they are (which happens
+            # almost never for a human, but all the time for RSS feeds, once we
+            # remove the synsucker's 1-second delay between postevents)
             @items = sort { $a->{'rlogtime'} <=> $b->{'rlogtime'} ||
                             $b->{'jitemid'}  <=> $a->{'jitemid'}     } @items;
 
@@ -835,7 +835,7 @@ sub get_recent_items
 
     my $userid = $opts->{'userid'}+0;
 
-    # 'remote' opt takes precendence, then 'remoteid'
+    # 'remote' opt takes precedence, then 'remoteid'
     my $remote = $opts->{'remote'};
     my $remoteid = $remote ? $remote->{'userid'} : 0;
     if ($remoteid == 0 && $opts->{'remoteid'}) {

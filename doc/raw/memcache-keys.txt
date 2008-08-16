@@ -108,6 +108,7 @@ sapct == pending schools to be processed count; cached for admins
 <uniq>   loginout:<uniq> -- set to 1, expires in five seconds, denotes user just logged in our out and is going through a redirect
 
 <uid> inbox:<uid> == list of qids for a user's notificationinbox
+<uid> inbox:bookmarks:<uid> == list of bookmarked qids for a user's notificationinbox (packed, see LJ::NotificationInbox->load_bookmarks)
 <uid> inbox:newct:<uid> == count of new messages in inbox
 
 <uid> jabpresence:<uid>:<reshash> == hash of jabber presence information for a particular userid/reshash pair

@@ -24,7 +24,7 @@
     </para>
     <formalpara><title>Privilege packages:</title><para>You can also grant privs in <emphasis>sets</emphasis>, 
     or <quote>packages</quote>; this is useful for the Support System (and elsewhere). 
-    Those with any admin/siteadmin priv can first define <quote>packages</quote> of privileges 
+    Those with any admin priv can first define <quote>packages</quote> of privileges 
     at the <link linkend='lj.admin.console.intro'>Admin Console</link>, and grant or revoke them 
     en-masse&hellip;</para></formalpara>
     <para><programlisting>
@@ -38,7 +38,7 @@
         priv grant #General-I1 someuser
         priv revoke #General-I1 someuser
         
-        priv_package remote #General-I1 supporthelp:general
+        priv_package remove #General-I1 supporthelp:general
         priv_package delete #General-I1</programlisting></para>
 
     <calloutlist>
