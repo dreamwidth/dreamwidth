@@ -17,6 +17,7 @@ i18nc/ru1               i18nc           core1
 i18nc/uk1               i18nc           core1
 
 bob/layout              layout          core1
+bob/themes              theme+          bob/layout
 
 classic/layout          layout          core1
 classic/en              i18n            classic/layout

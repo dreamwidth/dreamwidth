@@ -16,7 +16,7 @@ propgroup setup {
     property bool friends_upics {
         des = "Display per-entry user pictures on the Friends page.";
     }
-    property use use_shared_pic;    
+    property use use_shared_pic;
     property int year_cols {
         des = "Number of columns (1-4) in the calendar year view.";
         min = 1;
@@ -160,7 +160,7 @@ propgroup colors {
         des = "Default icon area background color";
         note = "Does not apply if transparency is enabled.";
     }
-}    
+}
 set pageback = "#000000";
 set etransp = false;
 set entryback = "#404040";
@@ -168,7 +168,7 @@ set entrytext = "#FFFFFF";
 set entrylink = "#7070FF";
 set entryalink = "#FF0000";
 set entryvlink = "#FF70FF";
-set stransp = false;    
+set stransp = false;
 set sideback = "#707070";
 set sidetext = "#FFFFFF";
 set sidelink = "#FFFFFF";
@@ -522,11 +522,11 @@ println $.friends_title ? "<br /><font size=\"+1\">$.friends_title</font>" : "";
 # [ MINI-CALENDAR FUNCTION ]
 # (commented out because I couldn't get it to look right)
 # (left in the code in case I ever do)
-# 
+#
 # function Page::lay_minical() {
-# 
+#
 #     var YearMonth m = $this->get_latest_month();
-# 
+#
 #    """<br />*<br />
 #    <table width="100" border=1><tr><td class="calhead" colspan="7">""";
 #    print $m->month_format("short");
@@ -547,7 +547,7 @@ println $.friends_title ? "<br /><font size=\"+1\">$.friends_title</font>" : "";
 #    }
 #
 #    "</table><br />*<br />\n\n";
-# 
+#
 # }
 
 
@@ -597,7 +597,7 @@ function EntryPage::lay_link() {
     $backlink = $this.entry->get_link("nav_prev");
     var Link forlink;
     $forlink = $this.entry->get_link("nav_next");
-    
+
     """<link href="$backlink.url" rel="prev">\n<link href="$forlink.url" rel="next">\n""";
 }
 
@@ -619,7 +619,7 @@ function EntryPage::lay_link() {
     $backlink = $this.entry->get_link("nav_prev");
     var Link forlink;
     $forlink = $this.entry->get_link("nav_next");
-    
+
     """<link href="$backlink.url" rel="prev">\n<link href="$forlink.url" rel="next">\n""";
 }
 
@@ -627,7 +627,7 @@ function YearPage::lay_nav() {
     foreach var YearYear y ($.years) {
         if ($y.displayed) { "<b>$y.year</b>"; }
     }
-    
+
 }
 
 function MonthPage::lay_nav() {
@@ -647,7 +647,7 @@ function MonthPage::lay_nav() {
     }
 
     """<br /><a href="$this.prev_url">$*text_skiplinks_back</a><br />""";
-    """<a href="$this.next_url">$*text_skiplinks_forward</a>""";    
+    """<a href="$this.next_url">$*text_skiplinks_forward</a>""";
 }
 function MonthPage::lay_link() {
     """<link href="$this.prev_url" rel="prev">\n<link href="$this.next_url" rel="next">\n""";
@@ -680,8 +680,8 @@ function print_entry (Page p, Entry e, bool hide_text) {
     if ($*time_24) { $timefmt = "%%HH%%:%%min%%"; }
     else { $timefmt = "%%hh%%:%%min%% %%a%%m"; }
     print $e.time->time_format("$timefmt :: %%da%% %%dayord%% %%mon%% %%yyyy%%")+"&nbsp;]";
-    
-    if ($p.view == "friends" or $e.poster.username != $e.journal.username) { 
+
+    if ($p.view == "friends" or $e.poster.username != $e.journal.username) {
         " [&nbsp;$e.poster ";
         if ($e.poster.username != $e.journal.username) { " in $e.journal"; }
         "&nbsp;]";
@@ -701,7 +701,7 @@ function print_entry (Page p, Entry e, bool hide_text) {
     $show_upic = defined $e.userpic;
     if ($p.view == "friends" and $show_upic) { $show_upic = $*friends_upics; }
     if ($p.view == "recent" and $show_upic) { $show_upic = $*recent_upics; }
-    if ($show_upic) { 
+    if ($show_upic) {
         """<a href="$*SITEROOT/allpics.bml?user=$e.poster.username">""";
         """<img src="$e.userpic.url" width="$e.userpic.width" height="$e.userpic.height" alt="" border=0></a>""";
     } else {
@@ -714,13 +714,17 @@ function print_entry (Page p, Entry e, bool hide_text) {
 
     if ($e.comments.enabled) {
         if ($e.comments.count > 0) { "[&nbsp;$e.comments.count&nbsp;]<br />"; }
-        $p->print_reply_link({ "linktext" => $*text_post_comment, "target" => "topcomment" });
+        if ($p.view == "entry" ) {
+            $p->print_reply_link({ "linktext" => $*text_post_comment, "target" => "topcomment" });
+        } else {
+            $e.comments->print_postlink();
+        }
         "<br />";
         $e.comments->print_readlink();
     } else {
         """<a href="$e.permalink_url">"""+get_plural_phrase(0,"text_read_comments")+"""</a>""";
     }
-    
+
     var Link memlink;
     $memlink = $e->get_link("mem_add");
     """<br />\n<a href="$memlink.url">$*text_add_memory</a><br />""";
@@ -793,7 +797,7 @@ function print_sticky_entry (User j) {
     var bool show_upic;
     $show_upic = defined $j.default_pic;
     if ($show_upic) { $show_upic = $*recent_upics; }
-    if ($show_upic) { 
+    if ($show_upic) {
         """<a href="$*SITEROOT/allpics.bml?user=$j.username">""";
         """<img src="$j.default_pic.url" width="$j.default_pic.width" height="$j.default_pic.height" alt="" border=0></a>""";
     } else {
@@ -975,7 +979,7 @@ function EntryPage::print_body {
             $this->print_multiform_end();
         }
         "</td></tr></table><br />";
-        
+
 
 
     }
@@ -1002,9 +1006,9 @@ function EntryPage::print_comments (Comment[] cs) {
 function EntryPage::print_comment (Comment c) {
     var string sub_icon = defined $c.subject_icon ? $c.subject_icon->as_string() : "";
     var string subject = $c.subject;
-    if ($c.subject == "") { 
+    if ($c.subject == "") {
         var string thingie = $c.depth > 1 ? "comment" : "post";
-        $subject = "<i>reply to $thingie</i>"; 
+        $subject = "<i>reply to $thingie</i>";
     } else {
         $subject = "<b>$subject</b>";
     }
@@ -1053,7 +1057,7 @@ function EntryPage::print_comment (Comment c) {
     <tr><td width="100">&nbsp;</td>
     <td colspan="3"><hr size="2"></td></tr>
     <tr><td width="100" class="icon">""";
-    if (defined $c.userpic and $*comment_userpic_style != "off") { 
+    if (defined $c.userpic and $*comment_userpic_style != "off") {
         var string keyword = $c.metadata{"picture_keyword"};
         if ($keyword == "") { $keyword = "[default]"; }
         """<a href="$*SITEROOT/allpics.bml?user=$c.poster.username">""";
@@ -1083,7 +1087,7 @@ function EntryPage::print_comment (Comment c) {
         }
     }
 
-    
+
     """</td></tr>
     <tr><td colspan="4"><hr size="2"></td></tr>""";
     """<tr><td colspan="4">"""; $c->print_reply_container({ "class" => "quickreply" }); """</td></tr>""";
@@ -1146,7 +1150,7 @@ function EntryPage::print_comment_partial (Comment c) {
 
     "<br />";
 
-}    
+}
 
 function ReplyPage::print_body() {
     var EntryLite e = $.replyto;
@@ -1179,7 +1183,7 @@ function ReplyPage::print_body() {
     <tr><td width="100">&nbsp;</td>
     <td colspan="3"><hr size="2"></td></tr>
     <tr><td rowspan="2" width="100" class="icon">""";
-    if (defined $e.userpic) { 
+    if (defined $e.userpic) {
         """<a href="$*SITEROOT/allpics.bml?user=$e.poster.username">""";
         """<img src="$e.userpic.url" width="$e.userpic.width" height="$e.userpic.height" alt="" border=0></a>""";
     } else {
@@ -1198,7 +1202,7 @@ function ReplyPage::print_body() {
     } else {
         """<a href="$.entry.permalink_url">"""+get_plural_phrase(0,"text_read_comments")+"""</a>""";
     }
-    
+
     var Link memlink;
     $memlink = $.entry->get_link("mem_add");
     """<br />\n<a href="$memlink.url">$*text_add_memory</a><br \>""";
@@ -1271,14 +1275,14 @@ function MonthDay::print_subjectlist () {
 
         if ($e.security == "private") { " [&nbsp;private&nbsp;] "; }
         if ($e.security == "protected") { " [&nbsp;protected&nbsp;] "; }
-        
+
         if (not $e.comments.enabled) { " - comments disabled "; }
         else {
             if ($e.comments.count > 0) { "- $e.comments.count comments";
                 if ($e.comments.screened) { " +screened"; }
             }
         }
-        
+
         "<br />\n\n";
     }
     "<br />";
@@ -1347,7 +1351,7 @@ function YearPage::print_month (YearMonth m) {
 
     """<table width="100%" border=1""";
 
-    if ($*indivborder) { " style=\"border : $*ibordersize $*iborderstyle $*ibordercolor;\""; } 
+    if ($*indivborder) { " style=\"border : $*ibordersize $*iborderstyle $*ibordercolor;\""; }
 
     """>
     <tr><td class="sidetop" colspan=7>""";
