@@ -71,6 +71,37 @@ body<=
 
         if ($POST{statusvis} eq 'D') {
             $ret .= "<?p $ML{'.message.deleted'} p?>";
+
+            if ( $u->is_person ) {
+                # are they leaving any community maintainerless?
+                my $cids = LJ::load_rel_target( $remote, "A" );
+                my @warn_comm_ids;
+
+                if ( $cids ) {
+                    # verify there are visible maintainers for each community
+                    foreach my $cid ( @$cids ) {
+                        push @warn_comm_ids, $cid
+                            unless
+                                grep { $_->is_visible }
+                                values %{ LJ::load_userids(
+                                              @{ LJ::load_rel_user( $cid, 'A' ) }
+                                          ) };
+                    }
+
+                    # and if not, warn them about it
+                    if ( @warn_comm_ids ) {
+                        my $commlist = '<ul>';
+                        $commlist .= '<li>' . $_->ljuser_display . '</li>'
+                            foreach values %{ LJ::load_userids( @warn_comm_ids ) };
+                        $commlist .= '</ul>';
+                       
+                        $ret .= '<?p ' . BML::ml( '.message.noothermaintainer',
+                                { commlist => $commlist, aopts => "href='$LJ::SITEROOT/community/manage.bml'",
+                                  pagetitle => BML::ml( '/community/manage.bml.title2' ) } ) . 'p?>';
+                    }
+                }
+            }
+
             # optional stuff that gets printed after deletion
             $ret .= LJ::run_hook("accountstatus.bml_after_deletion", $u, \%POST);
         }

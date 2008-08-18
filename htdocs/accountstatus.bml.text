@@ -31,5 +31,7 @@
 
 .message.success=Your journal status has been successfully changed to <b>[[statusvis]]</b>.
 
+.message.noothermaintainer=You are about to leave the following without an active maintainer: [[commlist]] If you want to appoint an additional maintainer now, visit the <a [[aopts]]>[[pagetitle]]</a> page.
+
 .title=Account Status
 
