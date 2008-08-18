@@ -739,11 +739,34 @@ sub get_friend_items
             foreach (@newitems) { $_->{'clusterid'} = $fr->[2]; }
         }
 
+        my $nextfr;
+
         if (@newitems)
         {
             push @items, @newitems;
 
-            $itemsleft--; # we'll need at least one less for the next friend
+            # For the next user, we need one event less for each event in
+            # @newitems that we're sure to keep, that is, with a logtime that
+            # makes it more recent than the "last updated" timestamp for the
+            # next user. This is usually at least 1, but if the most recent
+            # entry for the user retrieved in the previous round is invisible
+            # to $remote (or it's not $remote's friends page), it should be 0.
+            # Otherwise, excessive pruning may occur. See
+            # http://www.dreamwidth.org/show_bug.cgi?id=86.
+            #
+            # Note that this can in some cases prune more aggressively than was
+            # previously the case, if logtimes indicate that more than one
+            # entry in @newitems is guaranteed to be kept. Also note that this
+            # is a separate optimization than the one further down involving
+            # $lastmax, which checks for entries guaranteed *not* to be kept.
+
+            $nextfr ||= $get_next_friend->();
+            if ($nextfr) {
+                foreach my $it (@newitems) {
+                    last if $it->{'rlogtime'} < $nextfr->[1];
+                    $itemsleft--;
+                }
+            }
 
             # sort all the total items by rlogtime (recent at beginning).
             # if there's an in-second tie, the "newer" post is determined by
@@ -766,7 +789,7 @@ sub get_friend_items
             # stop looping if we know the next friend's newest entry
             # is greater (older) than the oldest one we've already
             # loaded.
-            my $nextfr = $get_next_friend->();
+            $nextfr ||= $get_next_friend->();
             $loop = 0 if ($nextfr && $nextfr->[1] > $lastmax);
         }
     }
