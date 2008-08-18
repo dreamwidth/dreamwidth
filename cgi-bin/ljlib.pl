@@ -1406,12 +1406,12 @@ sub load_state_city_for_zip
     if ($zip =~ /^\d{5}$/) {
         my $dbr = LJ::get_db_reader()
             or die "Unable to get database handle";
-    
+
         my $sth = $dbr->prepare("SELECT city, state FROM zip WHERE zip=?");
         $sth->execute($zip) or die "Failed to fetch state and city for zip: $DBI::errstr";
         ($zipcity, $zipstate) = $sth->fetchrow_array;
     }
-    
+
     return ($zipcity, $zipstate);
 }
 
@@ -2963,8 +2963,8 @@ sub blobcache_get {
 
     my $dbr = LJ::get_db_reader()
         or die "Unable to contact global reader";
-    
-    my ($value, $timeupdate) = 
+
+    my ($value, $timeupdate) =
         $dbr->selectrow_array("SELECT value, UNIX_TIMESTAMP(dateupdate) FROM blobcache WHERE bckey=?",
                               undef, $key);
 

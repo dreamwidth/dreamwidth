@@ -94,7 +94,7 @@ body<=
                         $commlist .= '<li>' . $_->ljuser_display . '</li>'
                             foreach values %{ LJ::load_userids( @warn_comm_ids ) };
                         $commlist .= '</ul>';
-                       
+
                         $ret .= '<?p ' . BML::ml( '.message.noothermaintainer',
                                 { commlist => $commlist, aopts => "href='$LJ::SITEROOT/community/manage.bml'",
                                   pagetitle => BML::ml( '/community/manage.bml.title2' ) } ) . 'p?>';
@@ -131,7 +131,7 @@ body<=
                               map { $_, $statusvis{$_} }
                               reverse sort keys %statusvis) . "\n";
 
-    $ret .= LJ::html_submit(undef, $ML{'.btn.status'}, 
+    $ret .= LJ::html_submit(undef, $ML{'.btn.status'},
                             { 'disabled' => $u->is_suspended }) . "\n";
     $ret .= "</div>\n</form>\n";
 
