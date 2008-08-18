@@ -16,7 +16,15 @@
 
 .message.concepts.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. To continue, you must confirm that you are at least 14 years of age.
 
+.message.concepts.byposter.reason=The following reason has been provided by [[poster]] for this entry being marked inappropriate for anyone under the age of 14: <strong>[[reason]]</strong>.
+
 .message.concepts.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. To continue, you must confirm that you are at least 14 years of age.
+
+.message.concepts.byjournal.reason=The following reason has been provided by [[journal]] for this entry being marked inappropriate for anyone under the age of 14: <strong>[[reason]]</strong>.
+
+.message.concepts.communityreason=The following reason has been provided by [[journal]] for this community being marked inappropriate for anyone under the age of 14: <strong>[[reason]]</strong>.
+
+.message.concepts.journalreason=The following reason has been provided by [[journal]] for this journal being marked inappropriate for anyone under the age of 14: <strong>[[reason]]</strong>.
 
 .message.explicit.blocked.byadmin=You are about to view content that has been marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. You must be at least 18 years of age to view this.
 
@@ -28,7 +36,15 @@
 
 .message.explicit.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you are at least 18 years of age.
 
+.message.explicit.byposter.reason=The following reason has been provided by [[poster]] for this entry being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>.
+
 .message.explicit.byjournal=You are about to view content that [[journal]] marked as <strong>possibly inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you are at least 18 years of age.
+
+.message.explicit.byjournal.reason=The following reason has been provided by [[journal]] for this entry being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>.
+
+.message.explicit.communityreason=The following reason has been provided by [[journal]] for this community being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>.
+
+.message.explicit.journalreason=The following reason has been provided by [[journal]] for this journal being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>.
 
 .setage=<a [[aopts]]>Edit your profile</a> to register your age.
 

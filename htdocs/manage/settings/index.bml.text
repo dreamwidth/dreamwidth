@@ -10,6 +10,8 @@
 
 .adultcontentflag.text=This is a global setting for the journal.
 
+.adultcontentreason.text=Optional reason to be displayed as to why your journal is set as having adult content
+
 .bdayreminder=Receive email reminders for your friends' birthdays
 
 .bdayreminder.note=Note: This feature is currently disabled, but may be re-enabled in the future.
@@ -25,6 +27,8 @@
 .finished.save_button=Save Changes
 
 .fn.adultcontentflag=Age Limits
+
+.fn.adultcontentreason=Age Limit Reason
 
 .fn.bdayreminder=Birthday reminders
 

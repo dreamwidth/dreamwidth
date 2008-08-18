@@ -386,6 +386,15 @@ _code?>
             $ret .= "</tr>";
 
             $ret .= "<tr>";
+            $ret .= "<td class='field_name'>$ML{'.fn.adultcontentreason'}</td>";
+            $ret .= "<td>";
+            $ret .= LJ::html_text({ 'name' => 'adult_content_reason', 'value' => $u->adult_content_reason, 'size' => '40', 'maxlength' => '255' });
+            $ret .= "<br />";
+            $ret .= "<span class='helper'>" . BML::ml('.adultcontentreason.text') . " ";
+            $ret .= "</span></td>";
+            $ret .= "</tr>";
+
+            $ret .= "<tr>";
             $ret .= "<td class='field_name'>$ML{'.fn.viewingadult'}</td>";
             $ret .= "<td>";
             $ret .= "$ML{'.viewingadult'} $hide_adult_content_menu ";
@@ -518,7 +527,6 @@ _code?>
             $POST{'opt_getting_started'} = $POST{'opt_getting_started'} ? 'Y' : 'N';
             $POST{'newpost_minsecurity'} = "" unless $POST{'newpost_minsecurity'} =~ /(?:friends|private)/;
 
-
             my @uprops = qw(
               opt_imagelinks opt_stylemine
               opt_blockrobots opt_ctxpopup opt_showonlinestatus
@@ -530,9 +538,12 @@ _code?>
                 if ( !$LJ::DISABLED{'weblogs_com'} && ($u->get_cap('weblogscom') || !$POST{'opt_weblogscom'}) );
 
             if (LJ::is_enabled("content_flag")) {
-                $POST{adult_content} eq "none"
+                $POST{adult_content} = "none"
                     unless $POST{adult_content} eq "explicit" || $POST{adult_content} eq "concepts";
                 push @uprops, 'adult_content';
+
+                $POST{'adult_content_reason'} = LJ::text_trim($POST{'adult_content_reason'} || "",0,255);
+                push @uprops, 'adult_content_reason';
 
                 if ($u->is_child || !$u->best_guess_age) {
                     $POST{hide_adult_content} = "concepts";

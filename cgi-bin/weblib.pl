@@ -1499,6 +1499,24 @@ MOODS
             $out .= "</span>\n";
             $out .= "</p>\n";
 
+            if (LJ::is_enabled("content_flag")) {
+                 $out .= "<p class='pkg'>";
+                 $out .= "<label for='prop_adult_content_reason' class='left options'>" . BML::ml('entryform.adultcontentreason') . "</label>";
+                 $out .= LJ::html_text(
+                     {
+                         'name'      => 'prop_adult_content_reason',
+                         'id'        => 'prop_adult_content_reason',
+                         'class'     => 'text',
+                         'size'      => '35',
+                         'maxlength' => '255',
+                         'value'     => $opts->{'prop_adult_content_reason'},
+                         'tabindex'  => $tabindex->(),
+                     }
+                 );
+                 $out .= LJ::help_icon_html('adult_content_reason');
+                 $out .= "</p>";
+            }
+
             $out .= "<p class='pkg'>\n";
             $out .= "<span class='inputgroup-left'></span>";
             $out .= "<span class='inputgroup-right'>";
@@ -1805,6 +1823,8 @@ sub entry_form_decode
         $req->{prop_adult_content} = $POST->{prop_adult_content};
         $req->{prop_adult_content} = ""
             unless $req->{prop_adult_content} eq "none" || $req->{prop_adult_content} eq "concepts" || $req->{prop_adult_content} eq "explicit";
+
+        $req->{prop_adult_content_reason} = $POST->{prop_adult_content_reason} || "";
     }
 
     # nuke taglists that are just blank

@@ -966,6 +966,13 @@ sub adult_content {
     return $self->prop('adult_content');
 }
 
+# defined by the entry poster
+sub adult_content_reason {
+    my $self = shift;
+    
+    return $self->prop('adult_content_reason');
+}
+
 # defined by an admin
 sub admin_content_flag {
     my $self = shift;

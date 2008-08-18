@@ -56,6 +56,9 @@ body<=
     $ret .= qq {
                 </td>
             </tr>
+    };
+    $ret .= LJ::ContentFlag::interstitial_reason($returl);
+    $ret .= qq {
         </table>
 
         <br />

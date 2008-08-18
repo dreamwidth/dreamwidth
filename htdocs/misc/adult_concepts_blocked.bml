@@ -40,6 +40,9 @@ body<=
     $ret .= qq {
                 </td>
             </tr>
+    };
+    $ret .= LJ::ContentFlag::interstitial_reason($returl);
+    $ret .= qq {
         </table>
     };
     $ret .= "<br /><center><a href='$LJ::SITEROOT/site/search.bml'>" . BML::ml('.explore', { siteabbrev => $LJ::SITENAMEABBREV }) . "</a></center>";

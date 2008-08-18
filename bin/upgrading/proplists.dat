@@ -22,6 +22,14 @@ userproplist.adult_content:
   multihomed: 0
   prettyname: Adult Content Flag
 
+userproplist.adult_content_reason:
+  cldversion: 4
+  datatype: char
+  des: The reason that the journal is marked as containing adult content
+  indexed: 0
+  multihomed: 0
+  prettyname: Adult Content Reason
+
 userproplist.aolim:
   cldversion: 0
   datatype: char
@@ -1172,6 +1180,12 @@ logproplist.adult_content:
   datatype: char
   des: Sets the entry as containing adult content (none, explicit, concepts)
   prettyname: Adult Content Flag
+  sortorder: 105
+
+logproplist.adult_content_reason:
+  datatype: char
+  des: The reason that the entry is marked as containing adult content
+  prettyname: Adult Content Reason
   sortorder: 105
 
 logproplist.commentalter:

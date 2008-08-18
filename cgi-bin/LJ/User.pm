@@ -4333,6 +4333,13 @@ sub adult_content {
     return $prop_value ? $prop_value : "none";
 }
 
+# defuned by the user
+sub adult_content_reason {
+    my $u = shift;
+
+    return $u->prop('adult_content_reason');
+}
+
 # defined by an admin
 sub admin_content_flag {
     my $u = shift;

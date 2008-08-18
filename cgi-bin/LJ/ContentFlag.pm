@@ -599,6 +599,44 @@ sub cookie_name {
     return "adult_$type";
 }
 
+sub interstitial_reason {
+    my $entry = LJ::Entry->new_from_url($_[0]);
+    my $journal = defined($entry) ? $entry->journal : LJ::User->new_from_url($_[0]);
+    my $poster = defined($entry) ? $entry->poster : $journal;
+    my $ret = "";
+    my $reason_exists = 0;
+
+    if ($journal->adult_content ne 'none' && $journal->adult_content_reason ne '') {
+        my $what = $journal->is_community ? 'community' : 'journal';
+        my $reason = LJ::ehtml($journal->adult_content_reason);
+        
+        if ($journal->adult_content_calculated eq 'concepts') {
+            $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.concepts.' . $what . 'reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
+        } else {
+            $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.explicit.' . $what . 'reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
+        }
+        
+        $reason_exists = 1;
+    }
+    
+    if (defined($entry) && $entry->adult_content_calculated ne 'none' && $entry->adult_content_reason ne '') {
+        $ret .= "<br/>" if ($reason_exists);
+        my $reason = LJ::ehtml($entry->adult_content_reason);
+        
+        if ($entry->adult_content_calculated eq 'concepts') {
+            $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.concepts.byposter.reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
+        } else {
+            $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.explicit.byposter.reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
+        }
+        $reason_exists = 1;
+    }
+    
+    if ($reason_exists) {
+        $ret = "<tr><td colspan=\"2\">\n$ret\n</td></tr>\n";
+    }
+    
+    return $ret;
+}
 
 ######## instance methods
 

@@ -989,6 +989,8 @@ entryform.adultcontent.explicit=Age 18 and over
 
 entryform.adultcontent.none=No Age Filter
 
+entryform.adultcontentreason=Reason for Age Filter:
+
 entryform.backdated=Entry is Backdated:
 
 entryform.backdated2=Backdate &amp; exclude from all Friends Pages
