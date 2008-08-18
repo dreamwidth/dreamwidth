@@ -40,6 +40,9 @@
     # expand the embedded content for reals
     LJ::expand_embedded($u, $ditemid, $remote, \$event);
 
+    my $r = BML::get_request;
+    my $ctx;
+
     if ($u && $up) {
         ### Load necessary props
         my @needed_props = ("stylesys", "s2_style", "url", "urlname",
@@ -49,10 +52,15 @@
 
         ### Determine style system to preview with
         my $get_styleinfo = sub {
-            my $forceflag = 0;
-            LJ::run_hooks("force_s1", $u, \$forceflag);
-            if ( !$forceflag && $u->{'stylesys'} == 2 ) {
-                return (2, $u->{'s2_style'});
+            if ( $u->{'stylesys'} == 2 ) {
+                my $forceflag = 0;
+                LJ::run_hooks("force_s1", $u, \$forceflag);
+
+                # check whether to use custom comment pages
+                $ctx = LJ::S2::s2_context($r, $u->{'s2_style'});
+                my $view_entry_disabled = $ctx->[S2::PROPS]->{'view_entry_disabled'} if $ctx;
+            
+                return (2, $u->{'s2_style'}) unless $forceflag || $view_entry_disabled;
             }
             # no special case and not s2, fall through to s1
             return (1, 0);
@@ -193,12 +201,11 @@
     } else {
         $LJ::S2::ret_ref = \$ret;
         my $opts;
-        my $r = BML::get_request(); $opts->{'r'} = $r;
+        $opts->{'r'} = $r;
 
         $u->{'_s2styleid'} = $styleid + 0;
         $u->{'_journalbase'} = LJ::journal_base($u->{'user'});
 
-        my $ctx = LJ::S2::s2_context($r, $styleid);
         $LJ::S2::CURR_CTX = $ctx;
 
         my $p = LJ::S2::Page($u, $opts);
