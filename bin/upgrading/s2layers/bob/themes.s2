@@ -1,0 +1,5 @@
+#NEWLAYER: bob/basic
+layerinfo type = "theme";
+layerinfo name = "Bob Basic";
+layerinfo redist_uniq = "bob/basic";
+
