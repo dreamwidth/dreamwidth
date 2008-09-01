@@ -225,6 +225,7 @@
                  'tellafriend' => 0,
                  'feedster_search' => 0,
                  'community-logins' => 0,
+                 'eventlogrecord' => 1,
                  );
 
     # turn $SERVER_DOWN on while you do any maintenance
@@ -299,6 +300,19 @@
                #    'pass' => 'password',
                #},
                );
+
+    # TheSchwartz configuration.
+    # If you enable this, you may want to remove 'eventlogrecord' from
+    # the %DISABLED list.
+    #
+    #my $mast = $LJ::DBINFO{master};
+    #    my $dbname = $mast->{dbname} || "livejournal";
+    #    @LJ::THESCHWARTZ_DBS = ({
+    #        dsn  => "dbi:mysql:$dbname;host=$mast->{host}",
+    #        user => $mast->{user},
+    #        pass => $mast->{pass},
+    #        prefix => "sch_",
+    #    });
 
     # if database logging is enabled above, should we log images or just page requests?
     #$DONT_LOG_IMAGES = 1;
