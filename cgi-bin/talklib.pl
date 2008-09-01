@@ -2265,7 +2265,7 @@ sub indent {
     my $a = shift;
     my $leadchar = shift || " ";
     $Text::Wrap::columns = 76;
-    return Text::Wrap::fill("$leadchar ", "$leadchar ", $a);
+    return Text::Wrap::wrap("$leadchar ", "$leadchar ", $a);
 }
 
 sub blockquote {
