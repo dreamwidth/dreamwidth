@@ -50,7 +50,7 @@
             # Redirect within the site if ret=1
             my $referer = BML::get_client_header('Referer');
             if ($GET{'ret'} == 1 && $referer && $referer =~ /\Q$LJ::DOMAIN\E/) {
-                my $uniq = BML::get_request()->notes('uniq');
+                my $uniq = DW::Request->get->note('uniq');
                 if ($uniq) {
                     LJ::MemCache::set("loginout:$uniq", 1, time() + 15);
                 }
