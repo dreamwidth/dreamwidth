@@ -82,8 +82,11 @@ sub register_hook
 
 sub load_hooks_dir {
     return if $hooks_dir_scanned++;
-    # eh, not actually subclasses... just files:
-    foreach my $class (LJ::ModuleLoader->module_subclasses("LJ::Hooks")) {
+    
+    # eh, not actually subclasses... just files named $class.pm
+    # $a::$b ==> cgi-bin/$a/$b
+    foreach my $class (LJ::ModuleLoader->module_subclasses("LJ::Hooks"),
+                       LJ::ModuleLoader->module_subclasses("DW::Hooks")) {
         eval "use $class;";
         die "Error loading $class: $@" if $@;
     }

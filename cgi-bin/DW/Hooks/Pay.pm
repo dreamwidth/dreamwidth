@@ -1,10 +1,24 @@
-package DW::Hooks;
+#!/usr/bin/perl
+#
+# DW::Hooks::Pay
+#
+# Hooks tht are part of the payment system.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2008 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+package DW::Hooks::Pay;
 
 use strict;
 
-# theoretically these should all be translated, but I am not doing
-# that right now because it's easier for the JF team to work with these
-# if we don't worry with translation ...
+# FIXME: these should probably be stripped
 
 LJ::register_hook( 'name_caps', sub {
     my $caps = shift()+0;
