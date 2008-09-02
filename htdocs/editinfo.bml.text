@@ -408,7 +408,7 @@ In case you chose to receive message board replies by email, and your email clie
 messages very well, use this option to specify a different encoding into which LiveJournal will automatically translate the text of comments sent to you.
 .
 
-.translatemailto.header=Translate email notifications into: 
+.translatemailto.header=Translate email notifications into:
 
 .unbanusers.about=You have the following users banned from posting in your journal.  Check the checkbox by their username to remove the ban on them.
 

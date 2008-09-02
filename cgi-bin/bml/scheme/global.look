@@ -34,7 +34,7 @@ LOAD_PAGE_INFO<=
                   { 'name' => 'Create Journal',
                 'uri' => '/create.bml', },
                   { 'name' => 'Update',
-                'uri' => '/update.bml', 
+                'uri' => '/update.bml',
 #                'children' => [
 #                           { 'name' => 'Full Update',
 #                         'uri' => '/update.bml?mode=full', }
@@ -50,8 +50,8 @@ LOAD_PAGE_INFO<=
                 'uri' => '/directory.bml', },
                          { 'name' => 'By Interest',
                 'uri' => '/interests.bml', },
-                              { 'name' => 'Search',    
-                'uri' => '/directorysearch.bml', }  
+                              { 'name' => 'Search',
+                'uri' => '/directorysearch.bml', }
                   ], },
          { 'name' => 'Manage ...',
            uri => '/manage/',
@@ -76,7 +76,7 @@ LOAD_PAGE_INFO<=
            'recursematch' => "^/developer/",
            'children' => [
                   { 'name' => 'Style System',
-                'uri' => '/developer/styles.bml', 
+                'uri' => '/developer/styles.bml',
                 'children' => [
                            { 'name' => 'View Types',
                          'uri' => '/developer/views.bml', },
@@ -87,7 +87,7 @@ LOAD_PAGE_INFO<=
                   { 'name' => 'Embedding',
                 'uri' => '/developer/embedding.bml', },
                   { 'name' => 'Protocol',
-                'uri' => '/developer/protocol.bml', 
+                'uri' => '/developer/protocol.bml',
                 'children' => [
                            { 'name' => 'Mode List',
                          'uri' => '/developer/modelist.bml', }
@@ -106,17 +106,17 @@ LOAD_PAGE_INFO<=
                   ],
        },
  );
- 
+
  my $remote = LJ::get_remote();
  my $remuser = $remote ? $remote->{'user'} : "";
- my $uri = BML::get_uri();        
- if ($remuser ne "" && $uri ne "/logout.bml") 
+ my $uri = BML::get_uri();
+ if ($remuser ne "" && $uri ne "/logout.bml")
  {
      my $subdomain = $remuser;
      $subdomain =~ s/_/-/g;
      unshift @sidebar, { 'name' => "Hello, $remuser!",
              'children' => [
-                    { 'name' => 'Your Journal', 
+                    { 'name' => 'Your Journal',
                       'children' => [
                              { 'name' => 'Recent',
                                'uri' => "/users/$remuser/", },

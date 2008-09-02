@@ -105,33 +105,29 @@ PAGE<=
             <TABLE WIDTH="520" CELLSPACING="0" CELLPADDING="0" BORDER="0">
                  <TR ALIGN=CENTER VALIGN=MIDDLE>
 <?_code
-	@headers = (
-		{ width => 55, href => "/", text => "Home" },
-		{ width => 50, href => "/news.bml", text => "News" },
-		{ width => 105, href => "/create.bml", text => "Create Journal" },
-		{ width => 105, href => "/update.bml", text => "Update Journal" },
-		{ width => 70, href => "/download/", text => "Download" },
-		{ width => 75, href => "/directory.bml", text => "Directory" },
-		{ width => 60, href => "/support.bml", text => "Support" },
-	);
+    @headers = (
+        { width => 55, href => "/", text => "Home" },
+        { width => 50, href => "/news.bml", text => "News" },
+        { width => 105, href => "/create.bml", text => "Create Journal" },
+        { width => 105, href => "/update.bml", text => "Update Journal" },
+        { width => 70, href => "/download/", text => "Download" },
+        { width => 75, href => "/directory.bml", text => "Directory" },
+        { width => 60, href => "/support.bml", text => "Support" },
+    );
 
-	my $ret = "";
+    my $ret = "";
         my $uri = BML::get_uri();
-	foreach $h (@headers)
-	{
-		if ($uri eq $h->{'href'})
-		{
-			$ret .= "<TD ALIGN=CENTER WIDTH=$h->{'width'} BGCOLOR=#000066><FONT FACE=\"Arial, Helvetica\" SIZE=-1 COLOR=#CCCCCC><STRONG>$h->{'text'}</STRONG></FONT><BR></TD>\n";
-		}
-		else
-		{
- 			$ret .= "<TD WIDTH=$h->{'width'} BGCOLOR=#6666CC><A HREF=\"$h->{'href'}\"><FONT FACE=\"Arial, Helvetica\" SIZE=-1 COLOR=#CCCCCC><STRONG>$h->{'text'}</STRONG></FONT></A></TD>\n";
-		}
-	}
-	return $ret;
+    foreach $h (@headers) {
+        if ($uri eq $h->{'href'}) {
+            $ret .= "<TD ALIGN=CENTER WIDTH=$h->{'width'} BGCOLOR=#000066><FONT FACE=\"Arial, Helvetica\" SIZE=-1 COLOR=#CCCCCC><STRONG>$h->{'text'}</STRONG></FONT><BR></TD>\n";
+        } else {
+            $ret .= "<TD WIDTH=$h->{'width'} BGCOLOR=#6666CC><A HREF=\"$h->{'href'}\"><FONT FACE=\"Arial, Helvetica\" SIZE=-1 COLOR=#CCCCCC><STRONG>$h->{'text'}</STRONG></FONT></A></TD>\n";
+        }
+    }
+    return $ret;
 _code?>
                  </TR>
-	<TR>
+    <TR>
 <TD COLSPAN=7 ALIGN=RIGHT>
 <FONT SIZE=2 FACE="Verdana,Arial">
 <?_code
@@ -180,13 +176,13 @@ _code?>
 <TABLE WIDTH="630" CELLSPACING="0" CELLPADDING="0" BORDER="0">
 <TR ALIGN=CENTER VALIGN=TOP>
 <TD ALIGN=CENTER>
-	<IMG SRC="<?imgprefix?>/bluedot.gif" ALT="" WIDTH="350" HEIGHT="1" HSPACE="0" VSPACE="2" BORDER="0"><BR>
-	<FONT FACE="Arial, Helvetica" SIZE="-2">
-		<A HREF="/privacy.bml">Privacy Policy</A> - 
-		<A HREF="/coppa.bml">COPPA</A><BR>
-		<A HREF="/disclaimer.bml">Legal Disclaimer</A> - 
-		<A HREF="/sitemap.bml">Site Map</A><BR>
-	</FONT>
+    <IMG SRC="<?imgprefix?>/bluedot.gif" ALT="" WIDTH="350" HEIGHT="1" HSPACE="0" VSPACE="2" BORDER="0"><BR>
+    <FONT FACE="Arial, Helvetica" SIZE="-2">
+        <A HREF="/privacy.bml">Privacy Policy</A> -
+        <A HREF="/coppa.bml">COPPA</A><BR>
+        <A HREF="/disclaimer.bml">Legal Disclaimer</A> -
+        <A HREF="/sitemap.bml">Site Map</A><BR>
+    </FONT>
 </TD>
 </TR>
 </TABLE>

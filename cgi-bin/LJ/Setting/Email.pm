@@ -14,7 +14,7 @@ sub save {
     local $BML::ML_SCOPE = "/editinfo.bml";
 
     if ($LJ::EMAIL_CHANGE_REQUIRES_PASSWORD) {
-        push @errors, "You cannot change your your email address here.";
+        push @errors, "You cannot change your email address here.";
     } else {
         push @errors, $BML::ML{'.error.email.none'}
            unless $email;
@@ -59,6 +59,3 @@ sub as_html {
 }
 
 1;
-
-
-

@@ -8,7 +8,7 @@ actually write out documentation here.  :-)
 If you just want to get started with a fresh installation, you can get things
 rolling along:
 
-   perl bin/bootstra.pl
+   perl bin/bootstrap.pl
 
 This will check out the various repositories that we use and put them in the
 appropriate place.

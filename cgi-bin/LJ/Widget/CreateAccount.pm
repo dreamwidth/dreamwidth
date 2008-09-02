@@ -57,7 +57,7 @@ sub render_body {
     $ret .= $class->html_text(
         name => 'user',
         id => 'create_user',
-        size => 15, 
+        size => 15,
         maxlength => 16,
         raw => 'style="<?loginboxstyle?>"',
         value => $post->{user} || $get->{user},

@@ -192,7 +192,7 @@ body<=
         return $body;
 
     # User is sure they want to update posts
-    } elsif ($mode eq 'amsure' || 'secured') {
+    } elsif ($mode eq 'amsure' || $mode eq 'secured') {
         my $body;
 
         if ($mode eq 'amsure') {

@@ -13,7 +13,7 @@ use constant ERR_TEMP => 2;
 
 ################################################################################
 # DW::Pay::pp_get_checkout_url
-# 
+#
 # ARGUMENTS: target_userid, target_username, from_userid, type, duration, amount
 #
 #   target_user     optional    the user that we are giving this item to
@@ -86,7 +86,7 @@ sub pp_get_checkout_url {
 
 ################################################################################
 # DW::Pay::pp_get_paymentid_from_token
-# 
+#
 # ARGUMENTS: token
 #
 #   token       required    the token, passed to us by PayPal
@@ -120,7 +120,7 @@ sub pp_get_paymentid_from_token {
 
 ################################################################################
 # DW::Pay::get_payment_details
-# 
+#
 # ARGUMENTS: paymentid
 #
 #   paymentid   required    the paymentid
@@ -155,7 +155,7 @@ sub get_payment_details {
 
 ################################################################################
 # DW::Pay::pp_get_order_details
-# 
+#
 # ARGUMENTS: paymentid
 #
 #   paymentid   required    the paymentid that this order is with
@@ -226,10 +226,10 @@ sub pp_get_order_details {
                 qw/ email firstname lastname payerid /,
         };
 }
- 
+
 ################################################################################
 # DW::Pay::pp_confirm_order
-# 
+#
 # ARGUMENTS: paymentid
 #
 #   paymentid   required    the id of the payment, returned in the URL from PP
@@ -383,7 +383,8 @@ sub get_current_account_status {
 #
 # NOTE: you can set special keys if you want to extend time by months, use
 # _set_months to set expiretime to now + N months, and _add_months to append
-# that many months.  This is more than likely only useful for such things as 
+# that many months.  This is more than likely only useful for such things as
+# TODO complete that sentence.
 #
 sub update_paid_status {
     DW::Pay::clear_error();
@@ -496,7 +497,7 @@ sub pp_do_request {
     $req->content( join( '&', map { uc( LJ::eurl( $_ ) ) . '=' . LJ::eurl( $args{$_} ) } keys %args ) );
 
     my $ua = LJ::get_useragent( role => 'paypal', timeout => 10 );
-    $ua->agent( 'JF-PayPal/1.0' );
+    $ua->agent( 'DW-PayPal/1.0' );
 
     my $res = $ua->request( $req );
     if ( $res->is_success ) {

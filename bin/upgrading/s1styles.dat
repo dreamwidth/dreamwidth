@@ -298,9 +298,9 @@ CALENDAR_PAGE<=
 
 <FONT FACE="Arial,Helvetica" SIZE=+2 COLOR=%%color:page_text_title%%>%%title%%</FONT><FONT SIZE=1><BR>&nbsp;<BR></FONT>
 <B><TT>
-<A HREF="%%urllastn%%">[Most Recent Entries]</A> 
+<A HREF="%%urllastn%%">[Most Recent Entries]</A>
 [Calendar View]
-<A HREF="%%urlfriends%%">[Friends]</A> 
+<A HREF="%%urlfriends%%">[Friends]</A>
 </TT></B>
 
 <P>%%yearlinks%%
@@ -826,7 +826,7 @@ CALENDAR_MONTH<=
 border="0"
 summary="">
 <tr>
-<td class="caption">%%monlong%% %%yyyy%%</td> 
+<td class="caption">%%monlong%% %%yyyy%%</td>
 <td class="caption" align="right">[<a href="%%urlmonthview%%" class="index">subjects</a>]</td>
 </tr>
 <tr>
@@ -1278,29 +1278,28 @@ body {
     color: #000000;
 }
 
-A 			{ color: #CC6633; text-decoration: none; } 
-A:link		{ color: #CC6633; text-decoration: none; } 
-A:visited	{ color: #CC6633; text-decoration: none; } 
-A:active	{ color: #FF9966;  } 
-A:hover		{ color: #FF9966; } 
-	
-	
-td.body { padding:20px;}
-td.title { padding:20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight:bold; letter-spacing:.1em; }
-td.links { padding:8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px;}
+A               { color: #CC6633; text-decoration: none; }
+A:link          { color: #CC6633; text-decoration: none; }
+A:visited       { color: #CC6633; text-decoration: none; }
+A:active        { color: #FF9966; }
+A:hover         { color: #FF9966; }
 
-font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform:uppercase; font-weight:bold; letter-spacing:.2em; padding:5px;}
 
-font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height:16px;}
-font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height:16px;}
-font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight:bold; padding:8px; 
-letter-spacing:  .1em}
-font.subtitle { font-family: verdana, sans-serif; font-size: 12px; color: #FFFFFF; line-height:16px;}
-font.year { font-family: verdana, sans-serif; font-size: 20px; color: #666666; line-height:16px;}
+td.body { padding: 20px; }
+td.title { padding: 20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight: bold; letter-spacing: .1em; }
+td.links { padding: 8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; }
 
-p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size:12px; color:#666666; line-height:18px; }
+font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform:uppercase; font-weight: bold; letter-spacing: .2em; padding: 5px; }
+
+font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height: 16px; }
+font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height: 16px; }
+font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight: bold; padding: 8px; letter-spacing: .1em }
+font.subtitle { font-family: verdana, sans-serif; font-size: 12px; color: #FFFFFF; line-height: 16px; }
+font.year { font-family: verdana, sans-serif; font-size: 20px; color: #666666; line-height: 16px; }
+
+p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size: 12px; color: #666666; line-height: 18px; }
 p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-height:12px; }
 
 </style>
@@ -1345,66 +1344,66 @@ p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-heigh
 <!--journal-->
 
 <td valign="top" width="175">
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	
+
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+
 <tr>
-	<td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
-	</tr>
-	
-	</table>
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
+        </tr>
+
+        </table>
+
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
 
 
-	<!-- ARCHIVES -->
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">select year</font></td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	
-	<tr>
-	<td class="links">
-	%%yearlinks%%
-	</td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
+        <!-- ARCHIVES -->
 
-	<!-- END ARCHIVES -->
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">select year</font></td>
+        </tr>
 
-	<!-- JOURNAL BLOCK-->
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
-	</tr>
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
 
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	
+        <tr>
+        <td class="links">
+        %%yearlinks%%
+        </td>
+        </tr>
 
-	<tr>
-	<td class="links">
-	<a href="%%urllastn%%">recent posts</a><br>
-	<a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
-	<a href="%%urlfriends%%">my friends</a><br>
-	%%website%%</td>
-	</tr>
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
 
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-       	<!-- JOURNAL BLOCK-->
-		
+        <!-- END ARCHIVES -->
+
+        <!-- JOURNAL BLOCK-->
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+
+        <tr>
+        <td class="links">
+        <a href="%%urllastn%%">recent posts</a><br>
+        <a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
+        <a href="%%urlfriends%%">my friends</a><br>
+        %%website%%</td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+        <!-- JOURNAL BLOCK-->
+
         %%skyscraper_ad%%
 
-	</table>
+        </table>
 
 </td>
 <td width="1" bgcolor="#000000" rowspan="2"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
@@ -1432,13 +1431,13 @@ CALENDAR_CLOSE_SKYSCRAPER_AD=>
 CALENDAR_DAY_EVENT=><CENTER><A HREF="%%dayurl%%"><B>%%eventcount%%</B></A></CENTER>
 
 CALENDAR_SKYSCRAPER_AD<=
-	<!-- AD -->
-	
-	<tr>
-	<td class="links">%%ad%%</td>
-	</tr>
+        <!-- AD -->
 
-	<!-- AD -->
+        <tr>
+        <td class="links">%%ad%%</td>
+        </tr>
+
+        <!-- AD -->
 <=CALENDAR_SKYSCRAPER_AD
 
 CALENDAR_YEAR_LINKS=>%%years%%
@@ -1501,11 +1500,11 @@ CALENDAR_PAGE<=
  <HEAD>
   <STYLE>
    <!--
-    body,td,p { color:%%color:page_text%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt }
-    a { color:%%color:page_link%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:visited { color:%%color:page_vlink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:active { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:hover { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:underline }
+    body,td,p { color: %%color:page_text%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt }
+    a { color: %%color:page_link%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:visited { color: %%color:page_vlink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:active { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:hover { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: underline }
    -->
   </STYLE>
   %%head%%
@@ -2183,98 +2182,98 @@ DAY_PAGE<=
 <style type="text/css">
 <!--
 body {
-background:%%color:page_back%%;
+background: %%color:page_back%%;
 }
 body, table, td, div {
-font-size:8pt;
+font-size: 8pt;
 font-family: "OCR A Extended", "Courier";
 }
 ..entries {
-width:85%;
-margin-bottom:50px;
+width: 85%;
+margin-bottom: 50px;
 }
 ..entries td {
-padding:4px;
+padding: 4px;
 }
 ..entries td.nopad {
-padding:0;
+padding: 0;
 }
 ..altposter {
-background:%%color:strong_back%%;
-border:solid 2px %%color:weak_back%%;
-border-bottom:0;
-font-weight:bold;
-text-align:center;
-color:%%color:strong_text%%;
+background: %%color:strong_back%%;
+border: solid 2px %%color:weak_back%%;
+border-bottom: 0;
+font-weight: bold;
+text-align: center;
+color: %%color:strong_text%%;
 }
 ..metabox {
-background:%%color:strong_back%%;
-width:50%;
-border:solid 2px %%color:weak_back%%;
-font-weight:bold;
-color:%%color:strong_text%%;
+background: %%color:strong_back%%;
+width: 50%;
+border: solid 2px %%color:weak_back%%;
+font-weight: bold;
+color: %%color:strong_text%%;
 }
 ..necorn {
-background:%%color:stronger_back%%;
-text-align:right;
-font-style:italic;
-border-right:solid 2px %%color:weak_back%%;
-border-top:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+text-align: right;
+font-style: italic;
+border-right: solid 2px %%color:weak_back%%;
+border-top: solid 2px %%color:weak_back%%;
+color: %%color:stronger_text%%;
 }
 ..sidepad {
-width:5%
+width: 5%
 }
 ..entrybox {
-background:%%color:stronger_back%%;
-width:90%;
-border-right:solid 2px %%color:weak_back%%;
-border-left:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+width: 90%;
+border-right: solid 2px %%color:weak_back%%;
+border-left: solid 2px %%color:weak_back%%;
+color: %%color:stronger_text%%;
 }
 ..currbox {
-width:30%;
-background:%%color:strong_back%%;
-border:solid 2px %%color:weak_back%%;
-margin:3px;
-float:right;
-color:%%color:strong_text%%;
+width: 30%;
+background: %%color:strong_back%%;
+border: solid 2px %%color:weak_back%%;
+margin: 3px;
+float: right;
+color: %%color:strong_text%%;
 }
 ..swcorn {
-background:%%color:stronger_back%%;
-border-left:solid 2px %%color:weak_back%%;
-border-bottom:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border-left: solid 2px %%color:weak_back%%;
+border-bottom: solid 2px %%color:weak_back%%;
+color:%%color: stronger_text%%;
 }
 a {
-color:%%color:page_link%%;
-text-decoration:none;
+color: %%color:page_link%%;
+text-decoration: none;
 }
 a img {
-border:0
+border: 0
 }
 a:hover, .entrybox a:hover {
-color:%%color:page_alink%%;
+color: %%color:page_alink%%;
 text-decoration: underline overline;
 }
 #secorn {
-background:%%color:stronger_back%%;
-border-right:solid 2px %%color:weak_back%%;
-border-bottom:solid 2px %%color:weak_back%%;
-width:40%;
+background: %%color:stronger_back%%;
+border-right: solid 2px %%color:weak_back%%;
+border-bottom: solid 2px %%color:weak_back%%;
+width: 40%;
 color:%%color:stronger_text%%;
 }
 #navlink, #daylink {
 text-align:right;
-width:60%;
+width: 60%;
 
 }
 ..nav {
-background:%%color:stronger_back%%;
-border:solid 2px %%color:weak_back%%;
-border-bottom:0;
-text-align:center;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border: solid 2px %%color:weak_back%%;
+border-bottom: 0;
+text-align: center;
+color: %%color:stronger_text%%;
 }
 -->
 </style>
@@ -2840,11 +2839,11 @@ DAY_PAGE<=
  <HEAD>
   <STYLE type="text/css">
    <!--
-    td,body,p,div    {color:#000000; text-decoration:none; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:link           {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:visited        {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:active         {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:hover          {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
+    td,body,p,div    { color: #000000; text-decoration: none; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:link           { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:visited        { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:active         { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:hover          { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
    -->
   </STYLE>
   %%head%%
@@ -3116,17 +3115,17 @@ DAY_5LINKUNIT_AD=>
 
 DAY_WEBSITE<=
 <br>
-	<a href="%%url%%">%%name%%</a>
+        <a href="%%url%%">%%name%%</a>
 <=DAY_WEBSITE
 
 DAY_SKYSCRAPER_AD<=
-	<!-- AD -->
-	
-	<tr>
-	<td class="links">%%ad%%</td>
-	</tr>
+        <!-- AD -->
 
-	<!-- AD -->
+        <tr>
+        <td class="links">%%ad%%</td>
+        </tr>
+
+        <!-- AD -->
 <=DAY_SKYSCRAPER_AD
 
 DAY_TALK_LINKS=>%%readlink%%<a href="%%urlpost%%">post a comment</a>
@@ -3174,35 +3173,34 @@ DAY_PAGE<=
 
 <style type="text/css">
 
-body { 
+body {
   margin: 0;
   padding: 0;
   background: #ffffff none;
   color: #000000;
 }
 
-A 			{ color: #CC6633; text-decoration: none; } 
-A:link		{ color: #CC6633; text-decoration: none; } 
-A:visited	{ color: #CC6633; text-decoration: none; } 
-A:active	{ color: #FF9966;  } 
-A:hover		{ color: #FF9966;  } 
-	
-	
-td.body { padding:20px;}
-td.title { padding:20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight:bold; letter-spacing:.1em; }
-td.links { padding:8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px;}
+A               { color: #CC6633; text-decoration: none; }
+A:link          { color: #CC6633; text-decoration: none; }
+A:visited       { color: #CC6633; text-decoration: none; }
+A:active        { color: #FF9966; }
+A:hover         { color: #FF9966; }
 
-font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform:uppercase; font-weight:bold; letter-spacing:.2em; padding:5px;}
 
-font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height:16px;}
-font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height:16px;}
-font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight:bold; padding:8px; 
-letter-spacing:  .1em}
+td.body { padding: 20px; }
+td.title { padding: 20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight: bold; letter-spacing: .1em; }
+td.links { padding: 8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; }
 
-p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size:12px; color:#666666; line-height:18px; text-align:justify; }
-p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-height:12px; }
+font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform: uppercase; font-weight: bold; letter-spacing: .2em; padding: 5px; }
+
+font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height: 16px; }
+font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height: 16px; }
+font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight:bold; padding: 8px; letter-spacing: .1em }
+
+p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size: 12px; color: #666666; line-height: 18px; text-align: justify; }
+p.links { font-family: verdana, arial; font-size: 10px; color: #666666; line-height: 12px; }
 
 </style>
 %%head%%
@@ -3244,74 +3242,74 @@ p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-heigh
 <td width="1" bgcolor="#000000" rowspan="2"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
 
 <td valign="top" width="175">
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
-	</tr>
-	
-	</table>
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
 
-	<!-- ARCHIVES -->
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">browse days</font></td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
 
-	<tr>
-	<td class="links">
-	<a href="%%prevday_url%%">previous day</a><br>
-	<a href="%%nextday_url%%">next day</a>
-	</td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	</tr>
-
-	<!-- END ARCHIVES -->
-		
-	<!-- JOURNAL BLOCK-->
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	
-	<tr>
-	<td class="links">
-	<a href="%%urllastn%%">recent posts</a><br>
-	<a href="%%urlfriends%%">my friends</a><br>
-	<a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
-	<a href="%%urlcalendar%%">my calendar</a>
-        %%website%%</td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-        
         <tr>
-	<td class="links">%%userpic%%</td>
-	</tr>
+        <td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
+        </tr>
+
+        </table>
+
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+
+        <!-- ARCHIVES -->
+
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">browse days</font></td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">
+        <a href="%%prevday_url%%">previous day</a><br>
+        <a href="%%nextday_url%%">next day</a>
+        </td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+        </tr>
+
+        <!-- END ARCHIVES -->
+
+        <!-- JOURNAL BLOCK-->
+
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">
+        <a href="%%urllastn%%">recent posts</a><br>
+        <a href="%%urlfriends%%">my friends</a><br>
+        <a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
+        <a href="%%urlcalendar%%">my calendar</a>
+        %%website%%</td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">%%userpic%%</td>
+        </tr>
 
 
-	<!-- JOURNAL BLOCK-->
-		
+        <!-- JOURNAL BLOCK-->
+
         %%skyscraper_ad%%
 
-	</table>
+        </table>
 
 </td>
 
@@ -3465,11 +3463,11 @@ DAY_PAGE<=
  <HEAD>
   <STYLE>
    <!--
-    body,td,p { color:%%color:page_text%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt }
-    a { color:%%color:page_link%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:visited { color:%%color:page_vlink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:active { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:hover { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:underline }
+    body,td,p { color: %%color:page_text%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt }
+    a { color: %%color:page_link%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:visited { color: %%color:page_vlink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:active { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:hover { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: underline }
    -->
   </STYLE>
   %%head%%
@@ -4171,71 +4169,71 @@ FRIENDS_PAGE<=
 <style type="text/css">
 <!--
 body {
-background:%%color:page_back%%;
+background: %%color:page_back%%;
 }
 body, table, td, div {
-font-size:8pt;
+font-size: 8pt;
 font-family: "OCR A Extended", "Courier";
 }
 ..entries {
-width:85%;
-margin-bottom:50px;
+width: 85%;
+margin-bottom: 50px;
 }
 ..entries td {
-padding:4px;
+padding: 4px;
 }
 ..entries td.nopad {
-padding:0;
+padding: 0;
 }
 ..metabox {
-background:%%color:strong_back%%;
-width:50%;
-border:solid 2px %%color:weak_back%%;
-font-weight:bold;
-color:%%color:strong_text%%;
+background: %%color:strong_back%%;
+width: 50%;
+border: solid 2px %%color:weak_back%%;
+font-weight: bold;
+color:%%color: strong_text%%;
 }
 ..altposter {
-background:%%color:strong_back%%;
-border:solid 2px %%color:weak_back%%;
-border-bottom:0;
-font-weight:bold;
-text-align:center;
-color:%%color:strong_text%%;
+background: %%color:strong_back%%;
+border: solid 2px %%color:weak_back%%;
+border-bottom: 0;
+font-weight: bold;
+text-align: center;
+color: %%color:strong_text%%;
 }
 ..necorn {
-background:%%color:stronger_back%%;
-text-align:right;
-font-style:italic;
-border-right:solid 2px %%color:weak_back%%;
-border-top:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+text-align: right;
+font-style: italic;
+border-right: solid 2px %%color:weak_back%%;
+border-top: solid 2px %%color:weak_back%%;
+color: %%color:stronger_text%%;
 }
 ..sidepad {
-width:5%
+width: 5%
 }
 ..entrybox {
-background:%%color:stronger_back%%;
-width:90%;
-border-right:solid 2px %%color:weak_back%%;
-border-left:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+width: 90%;
+border-right: solid 2px %%color:weak_back%%;
+border-left: solid 2px %%color:weak_back%%;
+color: %%color:stronger_text%%;
 }
 ..currbox {
-width:30%;
-background:%%color:strong_back%%;
-border:solid 2px %%color:weak_back%%;
-margin:3px;
-float:right;
-color:%%color:strong_text%%;
+width: 30%;
+background: %%color:strong_back%%;
+border: solid 2px %%color:weak_back%%;
+margin: 3px;
+float: right;
+color: %%color:strong_text%%;
 }
 ..swcorn {
-background:%%color:stronger_back%%;
-border-left:solid 2px %%color:weak_back%%;
-border-bottom:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border-left: solid 2px %%color:weak_back%%;
+border-bottom: solid 2px %%color:weak_back%%;
+color: %%color:stronger_text%%;
 }
 a {
-text-decoration:none;
+text-decoration: none;
 }
 a:link, a:hover {
 color: %%color:page_link%%;
@@ -4251,23 +4249,23 @@ color: %%color:page_alink%%;
 text-decoration: underline;
 }
 #secorn {
-background:%%color:stronger_back%%;
-border-right:solid 2px %%color:weak_back%%;
-border-bottom:solid 2px %%color:weak_back%%;
-width:40%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border-right: solid 2px %%color:weak_back%%;
+border-bottom: solid 2px %%color:weak_back%%;
+width: 40%;
+color: %%color:stronger_text%%;
 }
 #navlink, #skiplink {
-text-align:right;
-width:60%;
+text-align: right;
+width: 60%;
 
 }
 ..nav {
-background:%%color:stronger_back%%;
-border:solid 2px %%color:weak_back%%;
-border-bottom:0;
-text-align:center;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border: solid 2px %%color:weak_back%%;
+border-bottom: 0;
+text-align: center;
+color: %%color:stronger_text%%;
 }
 -->
 </style>
@@ -4989,7 +4987,7 @@ FRIENDS_NO_SUBJECT=>
 FRIENDS_NEW_DAY=>
 
 FRIENDS_EVENT_PRIVATE<=
-<TABLE BORDER="0"><TR><TD VALIGN="top"><CENTER>%%friendpic%%<A HREF="%%cons:siteroot%%/users/%%user%%/">%%user%%</A>%%altposter%%</CENTER></TD><TD VALIGN="top"><IMG SRC="%%cons:img%%/icon_private.gif" WIDTH=14 HEIGHT=15 VSPACE=2 HSPACE=2 ALT="Private"> 
+<TABLE BORDER="0"><TR><TD VALIGN="top"><CENTER>%%friendpic%%<A HREF="%%cons:siteroot%%/users/%%user%%/">%%user%%</A>%%altposter%%</CENTER></TD><TD VALIGN="top"><IMG SRC="%%cons:img%%/icon_private.gif" WIDTH=14 HEIGHT=15 VSPACE=2 HSPACE=2 ALT="Private">
 <FONT SIZE="+1">%%datetime%%%%subject%%</FONT><BR><BR>
 %%event%%
 %%currents%%
@@ -5041,11 +5039,11 @@ FRIENDS_PAGE<=
  <HEAD>
   <STYLE type="text/css">
    <!--
-    td,body,p,div    {color:#000000; text-decoration:none; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:link           {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:visited        {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:active         {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:hover          {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
+    td,body,p,div    { color: #000000; text-decoration: none; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:link           { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:visited        { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:active         { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:hover          { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
    -->
   </STYLE>
   %%head%%
@@ -5112,7 +5110,7 @@ FRIENDS_NOFRIENDS<=
 FRIENDS_END_DAY=>
 
 FRIENDS_EVENT_PROTECTED<=
-<TABLE BORDER="0"><TR><TD VALIGN="top"><CENTER>%%friendpic%%<A HREF="%%cons:siteroot%%/users/%%user%%/">%%user%%</A>%%altposter%%</CENTER></TD><TD VALIGN="top"><IMG SRC="%%cons:img%%/icon_protected.gif" WIDTH=14 HEIGHT=15 VSPACE=2 HSPACE=2 ALT="Protected"> 
+<TABLE BORDER="0"><TR><TD VALIGN="top"><CENTER>%%friendpic%%<A HREF="%%cons:siteroot%%/users/%%user%%/">%%user%%</A>%%altposter%%</CENTER></TD><TD VALIGN="top"><IMG SRC="%%cons:img%%/icon_protected.gif" WIDTH=14 HEIGHT=15 VSPACE=2 HSPACE=2 ALT="Protected">
 <FONT SIZE="+1">%%datetime%%%%subject%%</FONT><BR><BR>
 %%event%%
 %%currents%%
@@ -5168,7 +5166,7 @@ FRIENDS_EVENT_PRIVATE<=
 <FONT FACE="Verdana,Arial,Helvetica" SIZE="2">
 %%event%%
 <BR>
-%%currents%% 
+%%currents%%
 </FONT>
 </TD></TR>
 </TABLE>
@@ -5196,7 +5194,7 @@ FRIENDS_EVENT<=
 <FONT FACE="Verdana,Arial,Helvetica" SIZE="2">
 %%event%%
 <BR>
-%%currents%% 
+%%currents%%
 </FONT>
 </TD></TR>
 </TABLE>
@@ -5335,7 +5333,7 @@ FRIENDS_EVENT_PROTECTED<=
 <FONT FACE="Verdana,Arial,Helvetica" SIZE="2">
 %%event%%
 <BR>
-%%currents%% 
+%%currents%%
 </FONT>
 </TD></TR>
 </TABLE>
@@ -5414,7 +5412,7 @@ FRIENDS_EVENT<=
 
 FRIENDS_WEBSITE<=
 <br>
-	<a href="%%url%%">my website</a>
+        <a href="%%url%%">my website</a>
 
 <=FRIENDS_WEBSITE
 
@@ -5437,13 +5435,13 @@ FRIENDS_SKIP_BACKWARD=><a href="%%url%%">back %%lc:numitems%% entries</a>
 FRIENDS_TALK_READLINK=><a href="%%urlread%%">%%messagecount%% comment%%mc-plural-s%%</a> | 
 
 FRIENDS_SKYSCRAPER_AD<=
-	<!-- AD -->
-	
-	<tr>
-	<td class="links">%%ad%%</td>
-	</tr>
+        <!-- AD -->
 
-	<!-- AD -->
+        <tr>
+        <td class="links">%%ad%%</td>
+        </tr>
+
+        <!-- AD -->
 <=FRIENDS_SKYSCRAPER_AD
 
 FRIENDS_PAGE<=
@@ -5453,35 +5451,34 @@ FRIENDS_PAGE<=
 
 <style type="text/css">
 
-body { 
+body {
   margin: 0;
   padding: 0;
   background: #ffffff none;
   color: #000000;
 }
 
-A 			{ color: #CC6633; text-decoration: none; } 
-A:link		{ color: #CC6633; text-decoration: none; } 
-A:visited	{ color: #CC6633; text-decoration: none; } 
-A:active	{ color: #FF9966;  } 
-A:hover		{ color: #FF9966;  } 
-	
-	
-td.body { padding:20px;}
-td.title { padding:20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight:bold; letter-spacing:.1em; }
-td.links { padding:8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px;}
+A               { color: #CC6633; text-decoration: none; }
+A:link          { color: #CC6633; text-decoration: none; }
+A:visited       { color: #CC6633; text-decoration: none; }
+A:active        { color: #FF9966; }
+A:hover         { color: #FF9966; }
 
-font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform:uppercase; font-weight:bold; letter-spacing:.2em; padding:5px;}
 
-font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height:16px;}
-font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height:16px;}
-font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight:bold; padding:8px; 
-letter-spacing:  .1em}
+td.body { padding: 20px; }
+td.title { padding: 20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight: bold; letter-spacing: .1em; }
+td.links { padding: 8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; }
 
-p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size:12px; color:#666666; line-height:18px; text-align:justify; }
-p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-height:12px; }
+font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform: uppercase; font-weight: bold; letter-spacing: .2em; padding: 5px; }
+
+font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height: 16px; }
+font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height: 16px; }
+font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight: bold; padding: 8px; letter-spacing: .1em }
+
+p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size: 12px; color: #666666; line-height: 18px; text-align: justify; }
+p.links { font-family: verdana, arial; font-size: 10px; color: #666666; line-height: 12px; }
 
 </style>
 %%head%%
@@ -5517,72 +5514,72 @@ p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-heigh
 <img src="%%cons:img%%/dot.gif" width="100%" height="1">
 
 %%events%%
-	
+
 </td>
 
 <td width="1" bgcolor="#000000" rowspan="2"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
 
 <td valign="top" width="175">
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
-	</tr>
-	
-	</table>
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
 
-	<!-- ARCHIVES -->
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">browse</font></td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	
-	<tr>
-	<td class="links">
-	%%skiplinks%%
-	</td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
 
-	<!-- END ARCHIVES -->
-		
-	<!-- JOURNAL BLOCK-->
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	
-	<tr>
-	<td class="links">
-	<a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
-	<a href="%%urllastn%%">my journal</a><br>
-	<a href="%%urlcalendar%%">my calendar</a>
+        <tr>
+        <td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
+        </tr>
+
+        </table>
+
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+
+        <!-- ARCHIVES -->
+
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">browse</font></td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">
+        %%skiplinks%%
+        </td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <!-- END ARCHIVES -->
+
+        <!-- JOURNAL BLOCK-->
+
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">
+        <a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
+        <a href="%%urllastn%%">my journal</a><br>
+        <a href="%%urlcalendar%%">my calendar</a>
         %%website%%</td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
+        </tr>
 
-	<!-- JOURNAL BLOCK-->
-		
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <!-- JOURNAL BLOCK-->
+
         %%skyscraper_ad%%
 
-	</table>
+        </table>
 
 </td>
 
@@ -5797,11 +5794,11 @@ FRIENDS_PAGE<=
  <HEAD>
   <STYLE>
    <!--
-    body,td,p { color:%%color:page_text%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt }
-    a { color:%%color:page_link%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:visited { color:%%color:page_vlink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:active { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:hover { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:underline }
+    body,td,p { color: %%color:page_text%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt }
+    a { color: %%color:page_link%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:visited { color: %%color:page_vlink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:active { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:hover { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: underline }
    -->
   </STYLE>
   %%head%%
@@ -6354,12 +6351,12 @@ text-align: left;
 %%userpic%%
 <FONT FACE="Arial,Helvetica" SIZE=+2 COLOR=%%color:page_text_title%%>%%title%%</FONT><FONT SIZE=1><BR>&nbsp;<BR></FONT>
 <B><TT>
-[Most Recent Entries] 
+[Most Recent Entries]
 <A HREF="%%urlcalendar%%">[Calendar View]</A>
 <A HREF="%%urlfriends%%">[Friends]</A>
 </TT></B>
 
-<P>%%range%% recorded in 
+<P>%%range%% recorded in
 <A HREF="%%cons:siteroot%%/userinfo.bml?user=%%username%%">%%name%%</A>%%name-'s%% LiveJournal:
 <BR CLEAR=BOTH>
 <UL>
@@ -6567,71 +6564,71 @@ LASTN_PAGE<=
 <style type="text/css">
 <!--
 body {
-background:%%color:page_back%%;
+background: %%color:page_back%%;
 }
 body, table, td, div {
-font-size:8pt;
+font-size: 8pt;
 font-family: "OCR A Extended", "Courier";
 }
 ..entries {
-width:85%;
-margin-bottom:50px;
+width: 85%;
+margin-bottom: 50px;
 }
 ..entries td {
-padding:4px;
+padding: 4px;
 }
 ..entries td.nopad {
-padding:0;
+padding: 0;
 }
 ..altposter {
-background:%%color:strong_back%%;
-border:solid 2px %%color:weak_back%%;
-border-bottom:0;
-font-weight:bold;
-text-align:center;
-color:%%color:strong_text%%;
+background: %%color:strong_back%%;
+border: solid 2px %%color:weak_back%%;
+border-bottom: 0;
+font-weight: bold;
+text-align: center;
+color: %%color:strong_text%%;
 }
 ..metabox {
-background:%%color:strong_back%%;
-width:50%;
-border:solid 2px %%color:weak_back%%;
-font-weight:bold;
-color:%%color:strong_text%%;
+background: %%color:strong_back%%;
+width: 50%;
+border: solid 2px %%color:weak_back%%;
+font-weight: bold;
+color: %%color:strong_text%%;
 }
 ..necorn {
-background:%%color:stronger_back%%;
-text-align:right;
-font-style:italic;
-border-right:solid 2px %%color:weak_back%%;
-border-top:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+text-align: right;
+font-style: italic;
+border-right: solid 2px %%color:weak_back%%;
+border-top: solid 2px %%color:weak_back%%;
+color:%%color: stronger_text%%;
 }
 ..sidepad {
-width:5%
+width: 5%
 }
 ..entrybox {
-background:%%color:stronger_back%%;
-width:90%;
-border-right:solid 2px %%color:weak_back%%;
-border-left:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+width: 90%;
+border-right: solid 2px %%color:weak_back%%;
+border-left: solid 2px %%color:weak_back%%;
+color:%%color: stronger_text%%;
 }
 ..currbox {
-width:30%;
-background:%%color:strong_back%%;
-border:solid 2px %%color:weak_back%%;
-margin:3px;
-float:right;
-color:%%color:strong_text%%;
+width: 30%;
+background: %%color:strong_back%%;
+border: solid 2px %%color:weak_back%%;
+margin: 3px;
+float: right;
+color: %%color:strong_text%%;
 }
 ..swcorn {
-background:%%color:stronger_back%%;
-border-left:solid 2px %%color:weak_back%%;
-border-bottom:solid 2px %%color:weak_back%%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border-left: solid 2px %%color:weak_back%%;
+border-bottom: solid 2px %%color:weak_back%%;
+color: %%color:stronger_text%%;
 }
 a {
-text-decoration:none;
+text-decoration: none;
 }
 a:link, a:hover {
 color: %%color:page_link%%;
@@ -6647,23 +6644,23 @@ color: %%color:page_alink%%;
 text-decoration: underline;
 }
 #secorn {
-background:%%color:stronger_back%%;
-border-right:solid 2px %%color:weak_back%%;
-border-bottom:solid 2px %%color:weak_back%%;
-width:40%;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border-right: solid 2px %%color:weak_back%%;
+border-bottom: solid 2px %%color:weak_back%%;
+width: 40%;
+color: %%color:stronger_text%%;
 }
 #navlink, #skiplink {
-text-align:right;
-width:60%;
+text-align: right;
+width: 60%;
 
 }
 ..nav {
-background:%%color:stronger_back%%;
-border:solid 2px %%color:weak_back%%;
-border-bottom:0;
-text-align:center;
-color:%%color:stronger_text%%;
+background: %%color:stronger_back%%;
+border: solid 2px %%color:weak_back%%;
+border-bottom: 0;
+text-align: center;
+color: %%color:stronger_text%%;
 }
 -->
 </style>
@@ -6785,8 +6782,7 @@ summary="">
 LASTN_RANGE_MOSTRECENT=>most recent entries
 
 LASTN_ALTPOSTER_PIC<=
-<img border="0" src="%%src%%" width="%%width%%" height="%%height%%" 
-alt=""><br>
+<img border="0" src="%%src%%" width="%%width%%" height="%%height%%" alt=""><br>
 <=LASTN_ALTPOSTER_PIC
 
 LASTN_SKIP_FORWARD=><a href="%%url%%">later</a>
@@ -6819,7 +6815,7 @@ summary="" class="entrybox">
 border="0"
 summary="">
 <tr align='left'>
-<td class="caption"><img src="%%cons:img%%/icon_private.gif" width="14" 
+<td class="caption"><img src="%%cons:img%%/icon_private.gif" width="14"
 height="15"> %%subject%%</td>
 <td align="right" class="index">[%%datetime%%]</td>
 </tr>
@@ -6882,7 +6878,7 @@ summary="" class="entrybox">
 border="0"
 summary="">
 <tr align='left'>
-<td class="caption"><img src="%%cons:img%%/icon_protected.gif" width="14" 
+<td class="caption"><img src="%%cons:img%%/icon_protected.gif" width="14"
 height="15"> %%subject%%</td>
 <td align="right" class="index">[%%datetime%%]</td>
 </tr>
@@ -7280,7 +7276,7 @@ LASTN_EVENT<=
 %%event%%
 %%currents%%
 %%talklinks%%
-<P><CENTER><IMG SRC="%%cons:img%%/style/notepad/hr.gif" WIDTH="345" 
+<P><CENTER><IMG SRC="%%cons:img%%/style/notepad/hr.gif" WIDTH="345"
 HEIGHT="23"></CENTER></P>
 <=LASTN_EVENT
 
@@ -7295,13 +7291,13 @@ LASTN_ALTPOSTER=>(<a href="%%cons:siteroot%%/users/%%poster%%">%%poster%%</a>)
 LASTN_RANGE_HISTORY=><B>%%numitems%%</B>
 
 LASTN_EVENT_PRIVATE<=
-<IMG SRC="%%cons:img%%/icon_private.gif" WIDTH=14 HEIGHT=15 VSPACE=2 
-HSPACE=2 ALT="Private"> <FONT 
+<IMG SRC="%%cons:img%%/icon_private.gif" WIDTH=14 HEIGHT=15 VSPACE=2
+HSPACE=2 ALT="Private"> <FONT
 SIZE="+1">%%datetime%%%%subject%%%%altposter%%</FONT><BR><BR>
 %%event%%
 %%currents%%
 %%talklinks%%
-<P><CENTER><IMG SRC="%%cons:img%%/style/notepad/hr.gif" WIDTH="345" 
+<P><CENTER><IMG SRC="%%cons:img%%/style/notepad/hr.gif" WIDTH="345"
 HEIGHT="23"></CENTER></P>
 <=LASTN_EVENT_PRIVATE
 
@@ -7320,13 +7316,13 @@ LASTN_WEBSITE=><A HREF="%%url%%">&gt; %%name%%</A><BR>
 LASTN_SKIP_SPACER=> -
 
 LASTN_EVENT_PROTECTED<=
-<IMG SRC="%%cons:img%%/icon_protected.gif" WIDTH=14 HEIGHT=15 VSPACE=2 
-HSPACE=2 ALT="Protected"> <FONT 
+<IMG SRC="%%cons:img%%/icon_protected.gif" WIDTH=14 HEIGHT=15 VSPACE=2
+HSPACE=2 ALT="Protected"> <FONT
 SIZE="+1">%%datetime%%%%subject%%%%altposter%%</FONT><BR><BR>
 %%event%%
 %%currents%%
 %%talklinks%%
-<P><CENTER><IMG SRC="%%cons:img%%/style/notepad/hr.gif" WIDTH="345" 
+<P><CENTER><IMG SRC="%%cons:img%%/style/notepad/hr.gif" WIDTH="345"
 HEIGHT="23"></CENTER></P>
 <=LASTN_EVENT_PROTECTED
 
@@ -7352,11 +7348,11 @@ LASTN_PAGE<=
  <HEAD>
   <STYLE type="text/css">
    <!--
-    td,body,p,div    {color:#000000; text-decoration:none; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:link           {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:visited        {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:active         {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
-    a:hover          {color:#000000; text-decoration:underline; font-family:Verdana,Arial,Helvetica; font-size:12px}
+    td,body,p,div    { color: #000000; text-decoration: none; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:link           { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:visited        { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:active         { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
+    a:hover          { color: #000000; text-decoration: underline; font-family: Verdana,Arial,Helvetica; font-size: 12px }
 th,td {
 text-align: left;
 }
@@ -7461,8 +7457,7 @@ LASTN_EVENT<=
 LASTN_RANGE_MOSTRECENT=>below are the <B>%%numitems%%</B> most recent journal entries
 
 LASTN_ALTPOSTER_PIC<=
-<IMG SRC=%%src%% WIDTH=%%width%% 
-HEIGHT=%%height%% border="0"><br>
+<IMG SRC=%%src%% WIDTH=%%width%% HEIGHT=%%height%% border="0"><br>
 <=LASTN_ALTPOSTER_PIC
 
 LASTN_SKIP_FORWARD=><A HREF="%%url%%">&gt; next %%numitems%% entries</A>
@@ -7480,8 +7475,8 @@ LASTN_RANGE_HISTORY=><B>%%numitems%%</B>
 LASTN_EVENT_PRIVATE<=
 <TR><TD VALIGN=TOP>
 <FONT FACE="Verdana,Arial,Helvetica" SIZE="2">
-<B>%%datetime%%</B>%%subject%% &nbsp;<IMG 
-SRC="%%cons:img%%/icon_private.gif" WIDTH=16 HEIGHT=16 VSPACE=2 HSPACE=2 
+<B>%%datetime%%</B>%%subject%% &nbsp;<IMG
+SRC="%%cons:img%%/icon_private.gif" WIDTH=16 HEIGHT=16 VSPACE=2 HSPACE=2
 ALT="Private">
 </FONT></td></tr>
 <tr><td><table border="0" width="100%" cellspacing="0" cellpadding="4"><tr>
@@ -7514,8 +7509,8 @@ LASTN_SKIP_SPACER=><BR>
 LASTN_EVENT_PROTECTED<=
 <TR><TD VALIGN=TOP>
 <FONT FACE="Verdana,Arial,Helvetica" SIZE="2">
-<B>%%datetime%%</B>%%subject%% &nbsp;<IMG 
-SRC="%%cons:img%%/icon_protected.gif" WIDTH=14 HEIGHT=15 VSPACE=2 HSPACE=2 
+<B>%%datetime%%</B>%%subject%% &nbsp;<IMG
+SRC="%%cons:img%%/icon_protected.gif" WIDTH=14 HEIGHT=15 VSPACE=2 HSPACE=2
 ALT="Protected">
 </FONT></td></tr>
 <tr><td><table border="0" width="100%" cellspacing="0" cellpadding="4"><tr>
@@ -7649,13 +7644,13 @@ lastupdate: 2003-07-08 12:27:54
 LASTN_DATE_FORMAT=>%%yyyy%%-%%mm%%-%%dd%% %%24hh%%:%%min%%
 
 LASTN_SKYSCRAPER_AD<=
-	<!-- AD -->
-	
-	<tr>
-	<td class="links">%%ad%%</td>
-	</tr>
+        <!-- AD -->
 
-	<!-- AD -->
+        <tr>
+        <td class="links">%%ad%%</td>
+        </tr>
+
+        <!-- AD -->
 <=LASTN_SKYSCRAPER_AD
 
 LASTN_EVENT<=
@@ -7709,7 +7704,7 @@ LASTN_5LINKUNIT_AD<=
 
 LASTN_WEBSITE<=
 <br>
-	<a href="%%url%%">my website</a>
+        <a href="%%url%%">my website</a>
 
 <=LASTN_WEBSITE
 
@@ -7753,35 +7748,33 @@ LASTN_PAGE<=
 
 <style type="text/css">
 
-body { 
+body {
   margin: 0;
   padding: 0;
   background: #ffffff none;
   color: #000000;
 }
 
-A 			{ color: #CC6633; text-decoration: none; } 
-A:link		{ color: #CC6633; text-decoration: none; } 
-A:visited	{ color: #CC6633; text-decoration: none; } 
-A:active	{ color: #FF9966;  } 
-A:hover		{ color: #FF9966;  } 
-	
-	
-td.body { padding:20px;}
-td.title { padding:20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight:bold; letter-spacing:.1em; }
-td.links { padding:8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px;}
+A               { color: #CC6633; text-decoration: none; }
+A:link          { color: #CC6633; text-decoration: none; }
+A:visited       { color: #CC6633; text-decoration: none; }
+A:active        { color: #FF9966; }
+A:hover         { color: #FF9966; }
 
-font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform:uppercase; font-weight:bold; letter-spacing:.2em; padding:5px;}
 
-font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height:16px;}
-font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height:16px; text-transform:uppercase;}
-font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height:16px;}
-font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight:bold; padding:8px; 
-letter-spacing:  .1em}
+td.body { padding: 20px; }
+td.title { padding: 20px; font-family: verdana, sans-serif; font-size: 16px; color: #666666; font-weight: bold; letter-spacing: .1em; }
+td.links { padding: 8px; font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; }
 
-p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size:12px; color:#666666; line-height:18px; text-align:justify; }
-p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-height:12px; }
+font.descrip { font-family: verdana, sans-serif; font-size: 10px; color: #999966; text-transform: uppercase; font-weight: bold; letter-spacing: .2em; padding: 5px; }
+
+font.date { font-family: georgia, sans-serif; font-size: 12px; color: #336699; line-height: 16px; }
+font.author { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font.time { font-family: verdana, sans-serif; font-size: 10px; color: #336699; line-height: 16px; text-transform: uppercase; }
+font { font-family: verdana, sans-serif; font-size: 10px; color: #666666; line-height: 16px; }
+font.subhead { font-family: verdana, sans-serif; font-size: 11px; color: #333333; font-weight: bold; padding: 8px; letter-spacing: .1em }
+p,td,tr,table,hr,br,ul,ol,li { font-family: georgia, verdana, arial; font-size: 12px; color: #666666; line-height: 18px; text-align: justify; }
+p.links { font-family: verdana, arial; font-size: 10px; color: #666666; line-height: 12px; }
 
 </style>
 %%head%%
@@ -7817,77 +7810,77 @@ p.links { font-family: verdana, arial; font-size:10px; color:#666666; line-heigh
 <img src="%%cons:img%%/dot.gif" width="100%" height="1">
 
 %%events%%
-	
+
 </td>
 
 <td width="1" bgcolor="#000000" rowspan="2"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
 
 <td valign="top" width="175">
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
-	</tr>
-	
-	</table>
-	
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
 
-	<!-- ARCHIVES -->
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">browse</font></td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	
-	<tr>
-	<td class="links">
-	%%skiplinks%%
-	</td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
 
-	<!-- END ARCHIVES -->
-		
-	<!-- JOURNAL BLOCK-->
-	
-	<tr>
-	<td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-	
-	<tr>
-	<td class="links">
-	<a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
-	<a href="%%urlfriends%%">my friends</a><br>
-	<a href="%%urlcalendar%%">my calendar</a>
-        %%website%%</td>
-	</tr>
-	
-	<tr>
-	<td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
-	</tr>
-        
         <tr>
-	<td class="links">%%userpic%%</td>
-	</tr>
+        <td bgcolor="#CCCCCC"><img src="%%cons:img%%/dot.gif" width="175" height="1"></td>
+        </tr>
+
+        </table>
+
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+
+        <!-- ARCHIVES -->
+
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">browse</font></td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">
+        %%skiplinks%%
+        </td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <!-- END ARCHIVES -->
+
+        <!-- JOURNAL BLOCK-->
+
+        <tr>
+        <td bgcolor="#CCCCCC"><font class="subhead">my journal</font></td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">
+        <a href="http://www.livejournal.com/users/%%username%%/info">my userinfo</a><br>
+        <a href="%%urlfriends%%">my friends</a><br>
+        <a href="%%urlcalendar%%">my calendar</a>
+        %%website%%</td>
+        </tr>
+
+        <tr>
+        <td bgcolor="#000000"><img src="%%cons:img%%/dot.gif" width="1" height="1"></td>
+        </tr>
+
+        <tr>
+        <td class="links">%%userpic%%</td>
+        </tr>
 
 
-	<!-- JOURNAL BLOCK-->
-		
+        <!-- JOURNAL BLOCK-->
+
         %%skyscraper_ad%%
 
-	</table>
+        </table>
 
 </td>
 
@@ -8066,11 +8059,11 @@ LASTN_PAGE<=
  <HEAD>
   <STYLE>
    <!--
-    body,td,p { color:%%color:page_text%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt }
-    a { color:%%color:page_link%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:visited { color:%%color:page_vlink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:active { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:none }
-    a:hover { color:%%color:page_alink%%; font-family:Verdana, Arial, Helvetica, Sans-Serif; font-size:8pt; text-decoration:underline }
+    body,td,p { color: %%color:page_text%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt }
+    a { color: %%color:page_link%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:visited { color: %%color:page_vlink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:active { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: none }
+    a:hover { color: %%color:page_alink%%; font-family: Verdana, Arial, Helvetica, Sans-Serif; font-size: 8pt; text-decoration: underline }
    -->
   </STYLE>
   %%head%%
@@ -8191,9 +8184,9 @@ src="%%cons:img%%/style/webley/ul.png"></td>
 </tr>
 <tr>
 <td colspan="1"><img src="%%cons:img%%/style/webley/ll.png"></td>
-<td colspan="1" 
+<td colspan="1"
 background="%%cons:img%%/style/webley/bottom.png">&nbsp;</td>
-<td colspan="2" 
+<td colspan="2"
 background="%%cons:img%%/style/webley/rb.png">%%talklinks%%</td>
 </tr>
 </table>

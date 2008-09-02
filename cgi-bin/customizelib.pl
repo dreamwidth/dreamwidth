@@ -7,10 +7,12 @@ use strict;
 # <LJFUNC>
 # name: LJ::cmize::s1_get_style_list
 # des:  Gets style list (S1).
-# info: 
-# args: 
-# des-: 
+# args: user, view
+# des-user: whose styles to return, together with public S1 styles
+# des-view: which S1 view to return the style ids for
 # returns: A list of style ids and names, suitable for [func[LJ::html_select]].
+#          The list include separators labels for available user styles and
+#          disabled user styles if appropriate.
 # </LJFUNC>
 sub s1_get_style_list
 {
@@ -53,10 +55,9 @@ sub s1_get_style_list
 
 # <LJFUNC>
 # name: LJ::cmize::s1_get_customcolors
-# des:  Gets style list (S1).
-# info: 
-# args: 
-# des-: 
+# des:  Gets colors for user's custom S1 theme.
+# args: user
+# des-user: Whose custom S1 theme to retrieve
 # returns: A hash of colors for a custom S1 theme.
 # </LJFUNC>
 sub s1_get_customcolors
@@ -88,9 +89,6 @@ sub s1_get_customcolors
 # <LJFUNC>
 # name: LJ::cmize::s1_get_theme_list
 # des:  Gets style list (S1).
-# info: 
-# args: 
-# des-: 
 # returns: A list of S1 theme ids and names, suitable for [func[LJ::html_select]].
 # </LJFUNC>
 sub s1_get_theme_list
@@ -108,10 +106,15 @@ sub s1_get_theme_list
 # <LJFUNC>
 # name: LJ::cmize::s2_implicit_style_create
 # des:  Common "create s2 style" skeleton.
-# info: 
-# args: force
-# des-: $opts->{'force'} force the creation of a new style, even if one already exists
-# returns: 
+# args: opts?, user, style*
+# des-opts: Hash of options
+#           - force: forces creation of a new style even if one already exists
+# des-user: User to get layers of
+# des-style: Hash of style information
+#            - theme: theme id of style theme
+#            - layout: layout id of style layout
+#            Other keys as used by LJ::S2::set_style_layers
+# returns: 1 if successful
 # </LJFUNC>
 sub s2_implicit_style_create
 {
@@ -154,10 +157,10 @@ sub s2_implicit_style_create
 # <LJFUNC>
 # name: LJ::cmize::s2_get_lang
 # des:  Gets the lang code for the user's style
-# info: 
-# args: 
-# des-: 
-# returns: 
+# args: user, styleid
+# des-user: user to return the style lang code for
+# des-styleid: S2 style ID to return lang code for
+# returns: lang code if found, undef otherwise
 # </LJFUNC>
 sub s2_get_lang {
     my ($u, $styleid) = @_;
@@ -177,10 +180,14 @@ sub s2_get_lang {
 #      groups depending on the user's account status.  if they don't have the
 #      s2styles cap, then they will have all layers disabled, except for the one
 #      they are currently using.
-# info: 
-# args: 
-# des-: 
-# returns: 
+# args: user, type, ptype
+# des-user: User whose layers to return
+# des-type: Type of layers to return
+# des-ptype: Parent type of layers to return (used to restrict layers to
+#            children of the layer of that type in the user's current S2 style)
+# returns: A list of layer ids and names, suitable for [func[LJ::html_select]].
+#          The list include separators labels for available layers and disabled
+#          layers if appropriate.
 # </LJFUNC>
 sub s2_custom_layer_list {
     my ($u, $type, $ptype) = @_;
@@ -225,10 +232,10 @@ sub s2_custom_layer_list {
 # <LJFUNC>
 # name: LJ::cmize::validate_moodthemeid
 # des: Spoof checking for mood theme ids
-# info: 
-# args: 
-# des-: 
-# returns: 
+# args: user, themeid
+# des-user: user attempting to use the mood theme
+# des-themeid: mood theme user wants to use
+# returns: themeid if public or owned by user, false otherwise
 # </LJFUNC>
 sub validate_moodthemeid {
     my ($u, $themeid) = @_;
@@ -243,11 +250,10 @@ sub validate_moodthemeid {
 
 # <LJFUNC>
 # name: LJ::cmize::get_moodtheme_select_list
-# des: Spoof checking for mood theme ids
-# info: 
-# args: 
-# des-: 
-# returns: Returns a list of moodthemes that the user can select from,
+# des: Gets mood theme list.
+# args: user
+# des-user: users whose private mood themes should be returned
+# returns: Returns a list of mood themes that the user can select from,
 #          suitable for [func[LJ::html_select]].
 # </LJFUNC>
 sub get_moodtheme_select_list
@@ -285,10 +291,11 @@ sub get_moodtheme_select_list
 # <LJFUNC>
 # name: LJ::cmize::js_redirect
 # des: Function to determine the correct redirect when clicking on a tab link.
-# info: 
-# args: 
-# des-: 
-# returns: 
+# args: opts
+# des-opts: Hash of options
+#           - s1only: use S1 pages only, not S2 or on-the-fly selection
+#           - getextra: extra arguments appended to the redirected URL
+# returns: Nothing
 # </LJFUNC>
 sub js_redirect
 {
@@ -311,11 +318,8 @@ sub js_redirect
 # <LJFUNC>
 # name: LJ::cmize::get_style_thumbnails
 # des: Get style thumbnail information from per-process caches,
-#      or load if not available.
-# info: 
-# args: 
-# des-: 
-# returns: 
+#      or load if not available or cache is more than 5 minutes old.
+# returns: {style name => thumbnail URL} hash reference, or undef on failure.
 # </LJFUNC>
 sub get_style_thumbnails
 {
@@ -339,10 +343,9 @@ sub get_style_thumbnails
 # name: LJ::cmize::display_current_summary
 # des: HTML helper function: Returns a block of HTML that summarizes the
 #      user's current display options.
-# info: 
-# args: 
-# des-: 
-# returns: HTML
+# args: user
+# des-user: user whose settings to display
+# returns: HTML wrapped inside a BML <?standout ... standout?> block.
 # </LJFUNC>
 sub display_current_summary
 {
@@ -387,10 +390,12 @@ sub display_current_summary
 # <LJFUNC>
 # name: LJ::cmize::html_tablinks
 # des: HTML helper function: Common HTML for links on top of tabs.
-# info: 
-# args: 
-# des-: 
-# returns: HTML
+# args: page, getextra, opts*
+# des-page: name of the current page/tab
+# des-getextra: get parameters added to URLs for other pages/tabs
+# del-opts: hash of options
+#           - s1only = true to generate S1 links only
+# returns: HTML fragment
 # </LJFUNC>
 sub html_tablinks
 {
@@ -432,10 +437,10 @@ sub html_tablinks
 # name: LJ::cmize::html_save
 # des: HTML helper function: Common HTML for the "save changes" button
 #      in a tab.
-# info: 
-# args: 
-# des-: 
-# returns: HTML
+# args: opts
+# des-opts: hashref of options
+#           - remove = add a "Remove changes" button
+# returns: HTML fragment
 # </LJFUNC>
 sub html_save
 {

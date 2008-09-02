@@ -1,235 +1,235 @@
 <?_code
+{
+    use strict;
+    use vars qw($title $head $body %GET %POST %FORM);
 
- use strict;
- use vars qw($title $head $body %GET %POST %FORM);
+    $title = "";
+    $head = "";
+    $body = "";
 
- $title = "";
- $head = "";
- $body = "";
+    my $uri = BML::get_uri();
+    my $r = BML::get_request();
+    if ($uri =~ m!/(\d\d\d\d)/(\d\d)/?$!) {
+        $FORM{'user'} = $r->notes('_journal');
+        $FORM{'type'} = "month";
+        $FORM{'y'} =  $1;
+        $FORM{'m'} = $2 + 0;
+    }
+    $r->notes("codepath" => "bml.view.index");
 
-my $uri = BML::get_uri();
-my $r = BML::get_request();
-if ($uri =~ m!/(\d\d\d\d)/(\d\d)/?$!) {
-    $FORM{'user'} = $r->notes('_journal');
-    $FORM{'type'} = "month";
-    $FORM{'y'} =  $1;
-    $FORM{'m'} = $2 + 0;
+    my $view = $FORM{'type'};
+    my $user = $FORM{'user'};
+
+    if ($view ne "month") {
+        $title = "Error";
+        $body .= "Unknown view.";
+        return;
+    }
+    unless ($user) {
+        $title = "Error";
+        $body .= "No user given.";
+        return;
+    }
+
+    my $u = LJ::load_user($user);
+    unless ($u) {
+        $title = "Error";
+        $body .= "User doesn't exist.";
+        return;
+    }
+
+    # check for purged
+    if ($u->is_expunged) {
+        $body = "<?h1 $ML{'error.purged.title'} h1?><?p $ML{'error.purged.text'} p?>";
+        return;
+    }
+
+    if ($u->{'journaltype'} eq "R") {
+        LJ::load_user_props($u, "renamedto");
+        if ($u->{'renamedto'}) {
+            return BML::redirect(sprintf(LJ::journal_base($u->{'renamedto'}) . "/%04d/%02d/", $FORM{'y'}, $FORM{'m'}));
+        }
+    }
+
+    my $remote = LJ::get_remote();
+
+    # do they have the viewall priv?
+    my $viewall = 0;
+    my $viewsome = 0;
+    if ($GET{'viewall'} && LJ::check_priv($remote, "canview")) {
+        LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
+                              "viewall", "month: $u->{'user'}, statusvis: " . $u->statusvis);
+        $viewall = LJ::check_priv($remote, 'canview', '*');
+        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+
+    # check for deleted/suspended
+    } else {
+
+        # check suspended
+        if ($u->is_suspended) {
+            $body = "<?h1 $ML{'talk.error.suspended.title'} h1?><?p $ML{'talk.error.suspended'} p?>";
+            return;
+        }
+
+        # check deleted
+        if ($u->is_deleted) {
+            $body = "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>";
+            return;
+        }
+    }
+
+    $u->preload_props("opt_blockrobots", "adult_content", "admin_content_flag") if $u->is_visible;
+    if (!$u->is_visible || $u->should_block_robots) {
+        $head .= LJ::robot_meta_tags();
+    }
+
+    my $base = LJ::journal_base($u);
+
+    if (LJ::did_post()) {
+        my $newuri = sprintf("$base/%04d/%02d/", $POST{'y'}, $POST{'m'});
+        return BML::redirect($newuri);
+    }
+
+    my $secwhere = "AND l.security='public'";
+    if ($remote) {
+        if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
+            $secwhere = "";   # see everything
+        } elsif ($remote->{'journaltype'} eq 'P') {
+            my $gmask = LJ::get_groupmask($u, $remote);
+            $secwhere = "AND (l.security='public' OR (l.security='usemask' AND l.allowmask & $gmask))"
+                if $gmask;
+        }
+    }
+
+    my $year = $FORM{'y'}+0;
+    my $month = $FORM{'m'}+0;
+    unless ($year =~ /^\d\d\d\d$/ && ($month >= 1 && $month <= 12)) {
+        my @now = localtime();
+        $year = $now[5] + 1900;
+        $month = $now[4] + 1;
+    }
+
+    my $monlang = LJ::Lang::month_long($month);
+    $title = $monlang;
+    $title .= ", $year - $u->{'user'}";
+
+    my $is_person = $u->{'journaltype'} eq "P";
+    if ($is_person) {
+        $body .= "<?h1 Month View h1?><?p Here are the subjects of all posts by user " . LJ::ljuser($u->{'user'}) . " in $monlang, $year. p?>";
+    } else {
+        $body .= "<?h1 Month View h1?><?p Here are the subjects of all posts in the " . LJ::ljuser($u->{'user'}) . " journal in $monlang, $year. p?>";
+    }
+
+    ### make standout box
+    {
+        my @next = ($year, $month+1);
+        if ($next[1] > 12) { @next = ($year+1, 1); }
+        my @prev = ($year, $month-1);
+        if ($prev[1] < 1) { @prev = ($year-1, 12); }
+
+        my $next = "<a href=\"" . $base . "/$next[0]/" . sprintf("%02d", $next[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_next.gif\" width='22' height='20' border='0'></a>";
+        my $prev = "<a href=\"" . $base . "/$prev[0]/" . sprintf("%02d", $prev[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_prev.gif\" width='22' height='20' border='0'></a>";
+
+        $body .= "<?standout \n";
+        $body .= "<form method='post' action='$LJ::SITEROOT/view/' style='display:inline'><input type='hidden' name='type' value='month' /><input type='hidden' name='user' value='$u->{'user'}' />";
+        $body .= "<table><tr valign='middle'>";
+        $body .= "<td><b>$prev</b></td>";
+        $body .= "<td><select name='m'>";
+        for (my $i=1;$i<=12;$i++) {
+            my $sel = ($i == $month) ? " selected='selected'" : "";
+            $body .= "<option value='$i'$sel'>" . LJ::Lang::month_long($i) . "</option>";
+        }
+        $body .= "</select> <input type=text name=y maxlength=4 size=4 value=$year> <input type=submit value=\"View\"></td>";
+        $body .= "<td><b>$next</b></td>";
+        $body .= "</tr></table>";
+        $body .= " standout?></form>\n";
+    }
+
+    $body .= "<dl>\n";
+
+    my $db = LJ::get_cluster_reader($u);
+    my $sth = $db->prepare("SELECT l.jitemid, l.anum, l.day, l.eventtime, l.posterid, ".
+                           "l.replycount, l.security, l.allowmask ".
+                           "FROM log2 l ".
+                           "WHERE l.journalid=$u->{'userid'} AND l.year=$year AND l.month=$month ".
+                           "$secwhere LIMIT 2000");
+    my $items = $db->selectall_arrayref($sth);
+
+    # figure out what we need to load
+    my @itemids;
+    my %need_userid;  # userid -> 1
+    foreach my $it (@$items) {
+        push @itemids, $it->[0];
+        $need_userid{$it->[4]} = 1;
+    }
+    my $lt = LJ::get_logtext2($u, @itemids);
+    my %u;
+    LJ::load_userids_multiple([map { $_ => \$u{$_} } keys %need_userid], []);
+
+    # sort on event time
+    my $lday = 0;  # last day shown
+    foreach my $it (sort { $a->[3] cmp $b->[3] } @$items)
+    {
+        my ($itemid, $anum, $day, $eventtime, $posterid, $replycount, $security, $allowmask) = @$it;
+        next if $u{$posterid}->is_suspended && !$viewsome;
+
+        my $subject = $lt->{$itemid}->[0];
+        my $poster = $u{$posterid}->{user};
+
+        if ($day != $lday) {
+            if ($lday) { $body .= "</table></dd>"; }
+            $lday = $day;
+            my $ord = LJ::Lang::day_ord($day);
+            my $dayview_url = sprintf("$base/%04d/%02d/%02d/",
+                                      $year, $month, $day);
+            $body .= "<dt><b><a href=\"$dayview_url\">$day$ord</a></b></dt>";
+            $body .= "<dd><table cellpadding=2>";
+        }
+
+        # we need to convert the subject to UTF-8 if it's a pre-Unicode entry
+        # loading all the props for all the posts and checking 'unknown8bit'
+        # is too long. The heuristic "if it's not UTF-8, convert it" works
+        # well here.
+        if ($LJ::UNICODE && !LJ::is_utf8($subject)) {
+            my $error;
+            my $subj = LJ::text_convert($subject, $u, \$error);
+            $subject = $subj unless $error;
+            LJ::text_out(\$subject);
+        }
+
+        unless ($subject ne "") { $subject = "(no subject)"; }
+        my $h = substr($eventtime, 11, 2);
+        my $m = substr($eventtime, 14, 2);
+        my ($rep, $sec);
+        if ($security eq "private") {
+            $sec = " <?securityprivate?>";
+        } elsif ($security eq "usemask") {
+            if ($allowmask == 0) { # custom security with no group -- essentially private
+                $sec = " <?securityprivate?>";
+            } elsif ($allowmask > 1 && $u && $u->equals($remote)) { # custom group -- only show to journal owner
+                $sec = " <?securitygroups?>";
+            } else { # friends only or custom group showing to non journal owner
+                $sec = " <?securityprotected?>";
+            }
+        }
+        if ($replycount) {
+            if ($replycount == 1) { $rep .= " - $replycount reply"; }
+            else { $rep .= " - $replycount replies"; }
+        }
+        $body .= "<tr><td align=right><i>" . LJ::Lang::time_format(12, $h, $m, "short") . "</i></td>";
+        if (! $is_person) {
+            $body .= "<td>" . LJ::ljuser($poster) . "</td>";
+        }
+
+        LJ::CleanHTML::clean_subject_all(\$subject);
+
+        $body .= "<td><a href='" . LJ::item_link($u, $itemid, $anum) . "'>$subject</a>$sec$rep</td></tr>\n";
+    }
+    if ($lday) { $body .= "</table></dd>\n"; }
+    $body .= "</dl>";
+
+    return;
 }
-$r->notes("codepath" => "bml.view.index");
-
- my $view = $FORM{'type'};
- my $user = $FORM{'user'};
-
- if ($view ne "month") {
-     $title = "Error";
-     $body .= "Unknown view.";
-     return;
- }
- unless ($user) {
-     $title = "Error";
-     $body .= "No user given.";
-     return;
- }
-
- my $u = LJ::load_user($user);
- unless ($u) {
-     $title = "Error";
-     $body .= "User doesn't exist.";
-     return;
- }
-
- # check for purged
- if ($u->is_expunged) {
-     $body = "<?h1 $ML{'error.purged.title'} h1?><?p $ML{'error.purged.text'} p?>";
-     return;
- }
-
- if ($u->{'journaltype'} eq "R") {
-     LJ::load_user_props($u, "renamedto");
-     if ($u->{'renamedto'}) {
-         return BML::redirect(sprintf(LJ::journal_base($u->{'renamedto'}) . "/%04d/%02d/", $FORM{'y'}, $FORM{'m'}));
-     }
- }
-
- my $remote = LJ::get_remote();
-
- # do they have the viewall priv?
- my $viewall = 0;
- my $viewsome = 0;
- if ($GET{'viewall'} && LJ::check_priv($remote, "canview")) {
-     LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                           "viewall", "month: $u->{'user'}, statusvis: " . $u->statusvis);
-     $viewall = LJ::check_priv($remote, 'canview', '*');
-     $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
-
- # check for deleted/suspended
- } else {
-
-     # check suspended
-     if ($u->is_suspended) {
-         $body = "<?h1 $ML{'talk.error.suspended.title'} h1?><?p $ML{'talk.error.suspended'} p?>";
-         return;
-     }
-
-     # check deleted
-     if ($u->is_deleted) {
-         $body = "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>";
-         return;
-     }
- }
-
- $u->preload_props("opt_blockrobots", "adult_content", "admin_content_flag") if $u->is_visible;
- if (!$u->is_visible || $u->should_block_robots) {
-     $head .= LJ::robot_meta_tags();
- }
-
- my $base = LJ::journal_base($u);
-
- if (LJ::did_post()) {
-     my $newuri = sprintf("$base/%04d/%02d/", $POST{'y'}, $POST{'m'});
-     return BML::redirect($newuri);
- }
-
- my $secwhere = "AND l.security='public'";
- if ($remote) {
-     if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
-         $secwhere = "";   # see everything
-     } elsif ($remote->{'journaltype'} eq 'P') {
-         my $gmask = LJ::get_groupmask($u, $remote);
-         $secwhere = "AND (l.security='public' OR (l.security='usemask' AND l.allowmask & $gmask))"
-             if $gmask;
-     }
- }
-
- my $year = $FORM{'y'}+0;
- my $month = $FORM{'m'}+0;
- unless ($year =~ /^\d\d\d\d$/ && ($month >= 1 && $month <= 12)) {
-     my @now = localtime();
-     $year = $now[5] + 1900;
-     $month = $now[4] + 1;
- }
-
- my $monlang = LJ::Lang::month_long($month);
- $title = $monlang;
- $title .= ", $year - $u->{'user'}";
-
- my $is_person = $u->{'journaltype'} eq "P";
- if ($is_person) {
-     $body .= "<?h1 Month View h1?><?p Here are the subjects of all posts by user " . LJ::ljuser($u->{'user'}) . " in $monlang, $year. p?>";
- } else {
-     $body .= "<?h1 Month View h1?><?p Here are the subjects of all posts in the " . LJ::ljuser($u->{'user'}) . " journal in $monlang, $year. p?>";
- }
-
- ### make standout box
- {
-     my @next = ($year, $month+1);
-     if ($next[1] > 12) { @next = ($year+1, 1); }
-     my @prev = ($year, $month-1);
-     if ($prev[1] < 1) { @prev = ($year-1, 12); }
-
-     my $next = "<a href=\"" . $base . "/$next[0]/" . sprintf("%02d", $next[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_next.gif\" width='22' height='20' border='0'></a>";
-     my $prev = "<a href=\"" . $base . "/$prev[0]/" . sprintf("%02d", $prev[1]) . "/\"><img src=\"$LJ::IMGPREFIX/btn_prev.gif\" width='22' height='20' border='0'></a>";
-
-     $body .= "<?standout \n";
-     $body .= "<form method='post' action='$LJ::SITEROOT/view/' style='display:inline'><input type='hidden' name='type' value='month' /><input type='hidden' name='user' value='$u->{'user'}' />";
-     $body .= "<table><tr valign='middle'>";
-     $body .= "<td><b>$prev</b></td>";
-     $body .= "<td><select name='m'>";
-     for (my $i=1;$i<=12;$i++) {
-         my $sel = ($i == $month) ? " selected='selected'" : "";
-         $body .= "<option value='$i'$sel'>" . LJ::Lang::month_long($i) . "</option>";
-     }
-     $body .= "</select> <input type=text name=y maxlength=4 size=4 value=$year> <input type=submit value=\"View\"></td>";
-     $body .= "<td><b>$next</b></td>";
-     $body .= "</tr></table>";
-     $body .= " standout?></form>\n";
- }
-
- $body .= "<dl>\n";
-
- my $db = LJ::get_cluster_reader($u);
- my $sth = $db->prepare("SELECT l.jitemid, l.anum, l.day, l.eventtime, l.posterid, ".
-                        "l.replycount, l.security, l.allowmask ".
-                        "FROM log2 l ".
-                        "WHERE l.journalid=$u->{'userid'} AND l.year=$year AND l.month=$month ".
-                        "$secwhere LIMIT 2000");
- my $items = $db->selectall_arrayref($sth);
-
- # figure out what we need to load
- my @itemids;
- my %need_userid;  # userid -> 1
- foreach my $it (@$items) {
-     push @itemids, $it->[0];
-     $need_userid{$it->[4]} = 1;
- }
- my $lt = LJ::get_logtext2($u, @itemids);
- my %u;
- LJ::load_userids_multiple([map { $_ => \$u{$_} } keys %need_userid], []);
-
- # sort on event time
- my $lday = 0;  # last day shown
- foreach my $it (sort { $a->[3] cmp $b->[3] } @$items)
- {
-     my ($itemid, $anum, $day, $eventtime, $posterid, $replycount, $security, $allowmask) = @$it;
-     next if $u{$posterid}->is_suspended && !$viewsome;
-
-     my $subject = $lt->{$itemid}->[0];
-     my $poster = $u{$posterid}->{user};
-
-     if ($day != $lday) {
-         if ($lday) { $body .= "</table></dd>"; }
-         $lday = $day;
-         my $ord = LJ::Lang::day_ord($day);
-         my $dayview_url = sprintf("$base/%04d/%02d/%02d/",
-                                   $year, $month, $day);
-         $body .= "<dt><b><a href=\"$dayview_url\">$day$ord</a></b></dt>";
-         $body .= "<dd><table cellpadding=2>";
-     }
-
-     # we need to convert the subject to UTF-8 if it's a pre-Unicode entry
-     # loading all the props for all the posts and checking 'unknown8bit'
-     # is too long. The heuristic "if it's not UTF-8, convert it" works
-     # well here.
-     if ($LJ::UNICODE && !LJ::is_utf8($subject)) {
-         my $error;
-         my $subj = LJ::text_convert($subject, $u, \$error);
-         $subject = $subj unless $error;
-         LJ::text_out(\$subject);
-     }
-
-     unless ($subject ne "") { $subject = "(no subject)"; }
-     my $h = substr($eventtime, 11, 2);
-     my $m = substr($eventtime, 14, 2);
-     my ($rep, $sec);
-     if ($security eq "private") {
-         $sec = " <?securityprivate?>";
-     } elsif ($security eq "usemask") {
-         if ($allowmask == 0) { # custom security with no group -- essentially private
-             $sec = " <?securityprivate?>";
-         } elsif ($allowmask > 1 && $u && $u->equals($remote)) { # custom group -- only show to journal owner
-             $sec = " <?securitygroups?>";
-         } else { # friends only or custom group showing to non journal owner
-             $sec = " <?securityprotected?>";
-         }
-     }
-     if ($replycount) {
-         if ($replycount == 1) { $rep .= " - $replycount reply"; }
-         else { $rep .= " - $replycount replies"; }
-     }
-     $body .= "<tr><td align=right><i>" . LJ::Lang::time_format(12, $h, $m, "short") . "</i></td>";
-     if (! $is_person) {
-         $body .= "<td>" . LJ::ljuser($poster) . "</td>";
-     }
-
-     LJ::CleanHTML::clean_subject_all(\$subject);
-
-     $body .= "<td><a href='" . LJ::item_link($u, $itemid, $anum) . "'>$subject</a>$sec$rep</td></tr>\n";
- }
- if ($lday) { $body .= "</table></dd>\n"; }
- $body .= "</dl>";
-
- return;
-
 _code?><?page
 title=><?_code return $title; _code?>
 head=><?_code return $head; _code?>

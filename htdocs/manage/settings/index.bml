@@ -371,7 +371,7 @@ _code?>
                 name => 'hide_adult_content',
                 selected => $hide_adult,
             }, @adult_viewing);
- 
+
             # adult content settings
             $ret .= "<div class='section_head'>$ML{'.section.adult_content'}</div>";
             $ret .= "<p>" . BML::ml('.section.adult_content.note', { sitename => $LJ::SITENAMESHORT }) . "</p>";
@@ -532,7 +532,7 @@ _code?>
               opt_blockrobots opt_ctxpopup opt_showonlinestatus
               opt_getting_started newpost_minsecurity
             );
-            
+
             # weblogs.com requires a special cap, but let people turn it off even without the cap
             push @uprops, 'opt_weblogscom'
                 if ( !$LJ::DISABLED{'weblogs_com'} && ($u->get_cap('weblogscom') || !$POST{'opt_weblogscom'}) );

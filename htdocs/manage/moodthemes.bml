@@ -147,7 +147,7 @@ body<=
     use vars qw(%POST %GET);
 
     LJ::set_active_crumb('moodeditor');
-    
+
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
@@ -452,9 +452,9 @@ body<=
                     }
 
                     my $confirm_delete = LJ::ejs($ML{'.yourthemes.delete.confirm'});
-                    $ret .= "<td>" . LJ::html_submit("edit:$tid" => $ML{'.btn.edit'}) . " " . 
+                    $ret .= "<td>" . LJ::html_submit("edit:$tid" => $ML{'.btn.edit'}) . " " .
                         LJ::html_submit("use:$tid", $ML{'.btn.use'}, {'disabled' => $use_dis}) . " " .
-                        LJ::html_submit("delete:$tid", $ML{'.btn.delete'}, 
+                        LJ::html_submit("delete:$tid", $ML{'.btn.delete'},
                                         { onclick => "return confirm('$confirm_delete');" }) . "</td>";
                     $ret .= "</tr>";
                 }
