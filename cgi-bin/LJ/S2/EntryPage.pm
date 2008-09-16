@@ -481,6 +481,7 @@ sub EntryPage_entry
         'dateparts' => LJ::alldatepart_s2($entry->eventtime_mysql),
         'system_dateparts' => LJ::alldatepart_s2($entry->logtime_mysql),
         'security' => $entry->security,
+        'age_restriction' => $entry->adult_content_calculated,
         'allowmask' => $entry->allowmask,
         'props' => $entry->props,
         'itemid' => $ditemid,

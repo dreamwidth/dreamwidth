@@ -795,7 +795,10 @@ function print_entry (Page p, Entry e, Color bgcolor, Color fgcolor, bool hide_t
     if ($e.security != "") {
         $e.security_icon->print();
     }
-
+    if ($e.age_restriction != "") {
+        $e.age_restriction_icon->print();
+    }
+    
     print safe """ $e.subject</td>
 <td align="right" class="index">[$datetime]</td>
 </tr>

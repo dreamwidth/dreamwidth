@@ -500,10 +500,11 @@ function s1_print_entry(Entry entry) {
     get_tags_text($entry); print "<br/>";
   }
   var Image securityicon = $entry.security_icon;
+  var Image ageicon = $entry.age_restriction_icon;
   if ($entry.subject) {
-    """<div class="entrytitle">$securityicon $entry.subject</div>""";
+    """<div class="entrytitle">$securityicon $ageicon $entry.subject</div>""";
   } else {
-    print $securityicon;
+    """$securityicon $ageicon""";
   }
   $entry->print_text();
   print """

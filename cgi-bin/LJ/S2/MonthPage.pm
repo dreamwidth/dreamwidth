@@ -145,12 +145,15 @@ sub MonthPage
             $userpic = Image_userpic($pu{$posterid}, 0, $pickw);
         }
 
+        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
+
         my $entry = Entry($u, {
             'subject' => $subject,
             'text' => "",
             'dateparts' => $alldatepart,
             'system_dateparts' => $item->{system_alldatepart},
             'security' => $security,
+            'age_restriction' => $entry_obj->adult_content_calculated,
             'allowmask' => $allowmask,
             'props' => $logprops{$itemid},
             'itemid' => $ditemid,
