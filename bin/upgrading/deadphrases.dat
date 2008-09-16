@@ -2,8 +2,11 @@
 #
 
 general crumb.createjournal
+general crumb.editentries_do
 general crumb.modify
+general crumb.preview
 general crumb.siteopts
+general crumb.themes
 
 general /allpics.bml.edit
 general /allpics.bml.nopics.text

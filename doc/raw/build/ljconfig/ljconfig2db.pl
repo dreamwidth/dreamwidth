@@ -566,7 +566,7 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                     'example' => '%HELPURLS = (
             "accounttype" => "http://www.example.com/doc/faq/",
             "security" => "\$SITEROOT/support/faqbrowse.bml?faqid=1",
-            "linklist_support" => "\$SITEROOT/manage/links.bml",
+            "linklist_support" => "\$SITEROOT/customize/options.bml?group=linkslist",
             );',
             },
             'initial_friends' => {

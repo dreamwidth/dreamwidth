@@ -388,7 +388,7 @@ sub handle_post {
                 editprofileurl => "$LJ::SITEROOT/manage/profile/",
                 searchinterestsurl => "$LJ::SITEROOT/interests.bml",
                 editpicsurl => "$LJ::SITEROOT/editpics.bml",
-                customizeurl => "$LJ::SITEROOT/customize/style.bml",
+                customizeurl => "$LJ::SITEROOT/customize/",
                 postentryurl => "$LJ::SITEROOT/update.bml",
             });
 

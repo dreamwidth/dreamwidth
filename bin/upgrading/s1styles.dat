@@ -1545,7 +1545,7 @@ CALENDAR_PAGE<=
        <TR><TD>View:</TD><TD><A HREF="%%urllastn%%">Personal Journal</A>.</TD></TR>
        <TR><TD>View:</TD><TD><A HREF="%%urlfriends%%">Friends</A>.</TD></TR>
        %%website%%<BR>
-       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
+       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/tools/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
       <TR><TD COLSPAN="2">%%yearlinks%%</TD></TR>
       </TABLE>
      </TD>
@@ -3519,7 +3519,7 @@ DAY_PAGE<=
       <TR><TD>View:</TD><TD><A HREF="%%urlfriends%%">Friends</A>.</TD></TR>
        <TR><TD>View:</TD><TD><A HREF="%%urlcalendar%%">Calendar</A>.</TD></TR>
        %%website%%<BR>
-       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
+       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/tools/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
        <TR><TD COLSPAN="2">Missed some entries?  Then simply jump to the <A HREF="%%prevday_url%%">previous day</A> or the <A HREF="%%nextday_url%%">next day</A>.</TD></TR>
       </TABLE>
      </TD>
@@ -5840,7 +5840,7 @@ FRIENDS_PAGE<=
        <TR><TD>View:</TD><TD><A HREF="%%urllastn%%">Personal Journal</A>.</TD></TR>
        <TR><TD>View:</TD><TD><A HREF="%%urlcalendar%%">Calendar</A>.</TD></TR>
        %%website%%<BR>
-       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
+       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/tools/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
        <TR><TD COLSPAN="2">%%range%% %%skiplinks%%</TD></TR>
       </TABLE>
      </TD>
@@ -8083,7 +8083,7 @@ LASTN_PAGE<=
       <TR><TD>View:</TD><TD><A HREF="%%urlfriends%%">Friends</A>.</TD></TR>
       <TR><TD>View:</TD><TD><A HREF="%%urlcalendar%%">Calendar</A>.</TD></TR>
       %%website%%<BR>
-      <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
+      <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/tools/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
       <TR><TD COLSPAN="2">%%range%% %%skiplinks%%</TD></TR>
      </TABLE>
     </TD>
@@ -8108,7 +8108,7 @@ LASTN_PAGE<=
       <TR><TD>View:</TD><TD><A HREF="%%urlfriends%%">Friends</A>.</TD></TR>
        <TR><TD>View:</TD><TD><A HREF="%%urlcalendar%%">Calendar</A>.</TD></TR>
        %%website%%<BR>
-       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
+       <TR><TD>View:</TD><TD><A HREF="%%cons:siteroot%%/tools/memories.bml?user=%%username%%">Memories</A>.<BR></TD></TR>
        <TR><TD COLSPAN="2">%%range%% %%skiplinks%%</TD></TR>
       </TABLE>
      </TD>

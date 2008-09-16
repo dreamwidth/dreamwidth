@@ -44,10 +44,10 @@ our $linkinfo = {
     'EditProfile'    => [ "/manage/profile/", 'Edit Profile', 1 ],
     'EditPics'       => [ '/editpics.bml', 'Upload and Manage Your Userpics', 1 ],
     'ManageCom'      => [ '/community/manage.bml', 'Manage Communities', 1 ],
-    'ManageMood'     => [ '/customize/style.bml', 'Set Your Mood Theme', 1 ],
+    'ManageMood'     => [ '/customize/', 'Set Your Mood Theme', 1 ],
     'ChangePassword' => [ '/changepassword.bml', 'Change Account Password', 1 ],
 
-    'LinkList'       => [ '/manage/links.bml', 'Create Link List', 0 ],
+    'LinkList'       => [ '/customize/options.bml?group=linkslist', 'Create Link List', 0 ],
     'EmailGateway'   => [ '/manage/emailpost.bml', 'Mobile Post Settings', 0 ],
     'VoicePost'      => [ '/manage/voicepost.bml', 'Voice Post Settings', 0 ],
     'InviteFriend'   => [ '/friends/invite.bml', 'Invite a Friend', 0 ],

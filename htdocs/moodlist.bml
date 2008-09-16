@@ -33,7 +33,7 @@ body<=
     my $u = LJ::load_user($journal);
 
     my $add_header = sub {
-        $ret .= "<?h1 $ML{'.moods.header'} h1?><?p " . BML::ml('.moods.intro', {'sitename' => $LJ::SITENAME}) . " p?><?p " . BML::ml('.moods.howtochange', {'aopts' => "href='$LJ::SITEROOT/customize/style.bml'"}) . " p?>";
+        $ret .= "<?h1 $ML{'.moods.header'} h1?><?p " . BML::ml('.moods.intro', {'sitename' => $LJ::SITENAME}) . " p?><?p " . BML::ml('.moods.howtochange', {'aopts' => "href='$LJ::SITEROOT/customize/'"}) . " p?>";
     };
 
     # Get a list of all possible moods
@@ -294,5 +294,5 @@ _code?>
 <=body
 page?><?_c <LJDEP>
 form: htdocs/moodlist.bml
-link: htdocs/customize/style.bml
+link: htdocs/customize/
 </LJDEP> _c?>

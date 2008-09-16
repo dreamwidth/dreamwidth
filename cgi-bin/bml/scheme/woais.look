@@ -112,7 +112,7 @@ PAGE<=
         { width => 105, href => "/update.bml", text => "Update Journal" },
         { width => 70, href => "/download/", text => "Download" },
         { width => 75, href => "/directory.bml", text => "Directory" },
-        { width => 60, href => "/support.bml", text => "Support" },
+        { width => 60, href => "/support/", text => "Support" },
     );
 
     my $ret = "";

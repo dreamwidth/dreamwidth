@@ -73,7 +73,7 @@
                 #"s2propoff"           => '$SITEROOT/support/faqbrowse.bml?faqid=145',
                 #"userpic_inactive"    => "$SITEROOT/support/faqbrowse.bml?faqid=46",
                 #"textmessaging_about" => "$SITEROOT/support/faqbrowse.bml?faqid=30",
-                #"linklist_support"    => "$SITEROOT/manage/links.bml",
+                #"linklist_support"    => "$SITEROOT/customize/options.bml?group=linkslist",
                 );
 
 

@@ -616,7 +616,7 @@ _code?>
 <=head
 page?><?_c <LJDEP>
 lib: LJ::TextMessage, cgi-bin/ljlib.pl, cgi-bin/ljlang.pl
-link: htdocs/legal/privacy.bml, htdocs/support/faqbrowse.bml, htdocs/tools/textmessage.bml, htdocs/uploadpic.bml
+link: htdocs/legal/privacy.bml, htdocs/support/faqbrowse.bml, htdocs/tools/textmessage.bml, htdocs/editpics.bml
 link: htdocs/paidaccounts/index.bml, htdocs/users, htdocs/userinfo.bml
 post: htdocs/manage/settings
 img: htdocs/userpic
