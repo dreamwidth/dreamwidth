@@ -3,7 +3,7 @@
 
 use GD::Graph::bars;
 
-$maint{'genstatspics'} = sub 
+$maint{'genstatspics'} = sub
 {
     my $dbh = LJ::get_db_writer();
     my $sth;
@@ -17,7 +17,7 @@ $maint{'genstatspics'} = sub
     my @data;
     my $i;
     my $max;
-    while ($_ = $sth->fetchrow_hashref) 
+    while ($_ = $sth->fetchrow_hashref)
     {
         my $val = $_->{'new'};
         unshift @{$data[0]}, ($i++ % 5 == 0 ? $_->{'day'} : "");
@@ -25,21 +25,23 @@ $maint{'genstatspics'} = sub
         if ($val > $max) { $max = $val; }
     }
 
-    # posts by day graph
-    my $g = GD::Graph::bars->new(520, 350);
-    $g->set(
+    if ( @data ) {
+        # posts by day graph
+        my $g = GD::Graph::bars->new(520, 350);
+        $g->set(
             x_label           => 'Day',
             y_label           => 'Accounts',
             title             => 'New accounts per day',
             tranparent        => 0,
             y_max_value       => $max,
-            );
+        );
 
-    my $gd = $g->plot(\@data);
-    open(IMG, ">$LJ::HTDOCS/stats/newbyday.png") or die $!;
-    binmode IMG;
-    print IMG $gd->png;
-    close IMG;
+        my $gd = $g->plot(\@data) or die $g->error;
+        open(IMG, ">$LJ::HTDOCS/stats/newbyday.png") or die $!;
+        binmode IMG;
+        print IMG $gd->png;
+        close IMG;
+    }
 
     unless ($LJ::DISABLED{'stats-postsbyday'}) {
         print "-I- posts in last 60 days.\n";
@@ -54,7 +56,7 @@ $maint{'genstatspics'} = sub
         my @data;
         my $i;
         my $max;
-        while ($_ = $sth->fetchrow_hashref) 
+        while ($_ = $sth->fetchrow_hashref)
         {
             my $val = $_->{'posts'};
             unshift @{$data[0]}, ($i++ % 5 == 0 ? $_->{'day'} : "");
@@ -62,21 +64,23 @@ $maint{'genstatspics'} = sub
             if ($val > $max) { $max = $val; }
         }
 
-        # posts by day graph
-        my $g = GD::Graph::bars->new(520, 350);
-        $g->set(
+        if ( @data ) {
+            # posts by day graph
+            my $g = GD::Graph::bars->new(520, 350);
+            $g->set(
                 x_label           => 'Day',
                 y_label           => 'Posts',
                 title             => 'Posts per day',
                 tranparent        => 0,
                 y_max_value       => $max,
-                );
+            );
 
-        my $gd = $g->plot(\@data);
-        open(IMG, ">$LJ::HTDOCS/stats/postsbyday.png") or die $!;
-        binmode IMG;
-        print IMG $gd->png;
-        close IMG;
+            my $gd = $g->plot(\@data) or die $g->error;
+            open(IMG, ">$LJ::HTDOCS/stats/postsbyday.png") or die $!;
+            binmode IMG;
+            print IMG $gd->png;
+            close IMG;
+        }
 
         print "-I- posts by week.\n";
 
@@ -90,7 +94,7 @@ $maint{'genstatspics'} = sub
         my @data;
         my $i;
         my $max;
-        while ($_ = $sth->fetchrow_hashref) 
+        while ($_ = $sth->fetchrow_hashref)
         {
             my $val = $_->{'posts'};
             unshift @{$data[0]}, ($i++ % 10 == 0 ? $_->{'week'} : "");
@@ -98,21 +102,23 @@ $maint{'genstatspics'} = sub
             if ($val > $max) { $max = $val; }
         }
 
-        # posts by week graph
-        my $g = GD::Graph::bars->new(520, 350);
-        $g->set(
+        if ( @data ) {
+            # posts by week graph
+            my $g = GD::Graph::bars->new(520, 350);
+            $g->set(
                 x_label           => 'Week',
                 y_label           => 'Posts',
                 title             => 'Posts per week',
                 tranparent        => 0,
                 y_max_value       => $max,
-               );
+            );
 
-        my $gd = $g->plot(\@data);
-        open(IMG, ">$LJ::HTDOCS/stats/postsbyweek.png") or die $!;
-        binmode IMG;
-        print IMG $gd->png;
-        close IMG;
+            my $gd = $g->plot(\@data) or die $g->error;
+            open(IMG, ">$LJ::HTDOCS/stats/postsbyweek.png") or die $!;
+            binmode IMG;
+            print IMG $gd->png;
+            close IMG;
+        }
     }
 
     print "-I- done.\n";

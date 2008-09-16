@@ -218,7 +218,7 @@
                  'directory' => 0,
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
-                 'stats-postsbyday' => 0,
+                 'stats-postsbyday' => 1,
                  'show-talkleft' => 0,
                  'memories' => 0,
                  'topicdir' => 0,
