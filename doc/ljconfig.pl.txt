@@ -363,7 +363,12 @@
     #                        );
 
     # list of regular expressions matching usernames that people can't have.
-    @PROTECTED_USERNAMES = ("^ex_", "^lj_");
+    @PROTECTED_USERNAMES = (
+        '^ex_',   # Reserved for renamed accounts
+        '^ext_',  # Reserved for external accounts
+        '^' . lc( $SITENAMEABBREV ) . '_', # Reserve the site abbreviation as a prefix
+        '^_', '_$', '__' # Disallow for making usernames that can be a valid subdomain
+    );
 
     # test accounts are special
     @TESTACCTS = qw(test);
