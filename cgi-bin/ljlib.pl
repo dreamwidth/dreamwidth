@@ -1530,6 +1530,9 @@ sub auth_okay
 sub auth_digest {
     my ($r) = @_;
 
+    # FIXME: Move this up to the caller.
+    $r = DW::Request->get;
+
     my $decline = sub {
         my $stale = shift;
 

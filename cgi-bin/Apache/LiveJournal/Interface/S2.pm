@@ -5,21 +5,21 @@ package Apache::LiveJournal::Interface::S2;
 
 use strict;
 use MIME::Base64 ();
-use Apache2::Const;
+use Apache2::Const -compile => qw/OK NOT_FOUND/;
 
 sub load { 1 }
 
 sub handler {
-    my $r = shift;
+    my $r = DW::Request->get;
 
-    my $meth = $r->method();
-    my %GET = $r->args();
-    my $uri = $r->uri();
+    my $meth = $r->method;
+    my %GET = $r->query_string;
+    my $uri = $r->uri;
     my $id;
     if ($uri =~ m!^/interface/s2/(\d+)$!) {
         $id = $1 + 0;
     } else {
-        return NOT_FOUND;
+        return Apache2::Const::NOT_FOUND;
     }
 
     my $lay = LJ::S2::load_layer($id);
@@ -32,10 +32,10 @@ sub handler {
         # Tell the client how it can authenticate
         # use digest authorization.
 
-        $r->send_http_header("text/plain; charset=utf-8");
+        $r->content_type("text/plain; charset=utf-8");
         $r->print("Unauthorized\nYou must send your $LJ::SITENAME username and password or a valid session cookie\n");
 
-        return OK;
+        return Apache2::Const::OK;
     }
 
     my $dbr = LJ::get_db_reader();
@@ -61,9 +61,10 @@ sub handler {
 
         my $s2code = LJ::S2::load_layer_source($id);
 
-        $r->send_http_header("application/x-danga-s2-layer");
+        $r->content_type("application/x-danga-s2-layer");
         $r->print($s2code);
 
+        return Apache2::Const::OK;
     }
     elsif ($meth eq 'PUT') {
 
@@ -95,14 +96,16 @@ sub handler {
             $error =~ s/LJ::.+//s;
             $error =~ s!, .+?(src/s2|cgi-bin)/!, !g;
 
-            print $error;
-            return OK;
+            $r->print($error);
+            return Apache2::Const::OK;
         }
         else {
             $r->status_line("201 Compiled and Saved");
             $r->header_out("Location" => "$LJ::SITEROOT/interface/s2/$id");
-            $r->send_http_header("text/plain; charset=utf-8");
+            $r->content_type("text/plain; charset=utf-8");
             $r->print("Compiled and Saved\nThe layer was uploaded successfully.\n");
+
+            return Apache2::Const::OK;
         }
     }
     else {
@@ -116,11 +119,11 @@ sub error {
     my ($r, $code, $string, $long) = @_;
 
     $r->status_line("$code $string");
-    $r->send_http_header("text/plain; charset=utf-8");
+    $r->content_type("text/plain; charset=utf-8");
     $r->print("$string\n$long\n");
 
     # Tell Apache OK so it won't try to handle the error
-    return OK;
+    return Apache2::Const::OK;
 }
 
 1;

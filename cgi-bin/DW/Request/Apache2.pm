@@ -17,9 +17,10 @@
 package DW::Request::Apache2;
 
 use strict;
-use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED /;
+use Apache2::Const -compile => qw/ :common REDIRECT HTTP_NOT_MODIFIED /;
 use Apache2::Log ();
 use Apache2::Request;
+use Apache2::Response ();
 use Apache2::RequestRec ();
 use Apache2::RequestUtil ();
 use Apache2::RequestIO ();
@@ -61,6 +62,11 @@ sub uri {
     return $self->{r}->uri;
 }
 
+sub content_type {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r}->content_type($_[1]);
+}
+
 # returns the query string
 sub query_string {
     my DW::Request::Apache2 $self = $_[0];
@@ -97,10 +103,61 @@ sub header_in {
     }
 }
 
+# searches for a given header and returns the value, or sets it
+sub header_out {
+    my DW::Request::Apache2 $self = $_[0];
+    if ( scalar( @_ ) == 2 ) {
+        return $self->{r}->headers_out->{$_[1]};
+    } else {
+        return $self->{r}->headers_out->{$_[1]} = $_[2];
+    }
+}
+
 # returns the ip address of the connected person
 sub get_remote_ip {
     my DW::Request::Apache2 $self = $_[0];
     return $self->{r}->connection->remote_ip;
+}
+
+# sets last modified
+sub set_last_modified {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r}->set_last_modified($_[1]);
+}
+
+sub status_line {
+    my DW::Request::Apache2 $self = $_[0];
+    if (scalar(@_) == 2) {
+        # Apparently both status and status_line must be set
+        my ($status) = $_[1] =~ m/^(\d+)/;
+        $self->{r}->status($status);
+        return $self->{r}->status_line($_[1]);
+    } else {
+        return $self->{r}->status_line();
+    }
+}
+
+# meets conditions
+sub meets_conditions {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r}->meets_conditions;
+}
+
+sub print {
+    my DW::Request::Apache2 $self = shift;
+    return $self->{r}->print(@_);
+}
+
+sub read {
+    my DW::Request::Apache2 $self = shift;
+    my $ret = $self->{r}->read(@_);
+    return $ret;
+}
+
+# constants
+sub OK {
+    my DW::Request::Apache2 $self = $_[0];
+    return Apache2::Const::OK;
 }
 
 1;

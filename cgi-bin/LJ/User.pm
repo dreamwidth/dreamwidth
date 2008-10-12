@@ -7452,7 +7452,7 @@ sub make_journal
     &nodb;
     my ($user, $view, $remote, $opts) = @_;
 
-    my $r = $opts->{'r'};  # mod_perl $r, or undef
+    my $r = DW::Request->get;
     my $geta = $opts->{'getargs'};
 
     if ($LJ::SERVER_DOWN) {
@@ -7635,7 +7635,7 @@ sub make_journal
         $opts->{pathextra} = undef;
     }
 
-    $r->notes->{journalid} = $u->{'userid'}
+    $r->note(journalid => $u->{'userid'})
         if $r;
 
     my $notice = sub {
@@ -7738,7 +7738,7 @@ sub make_journal
         # render it in the lynx site scheme.
         if ($geta->{'format'} eq 'light') {
             $fallback = 'bml';
-            $r->notes->{bml_use_scheme} = 'lynx';
+            $r->note(bml_use_scheme => 'lynx');
         }
 
         # there are no BML handlers for these views, so force s2
@@ -7846,7 +7846,7 @@ sub make_journal
     }
 
     if ($stylesys == 2) {
-        $r->notes->{codepath} = "s2.$view"
+        $r->note(codepath => "s2.$view")
             if $r;
 
         eval { LJ::S2->can("dostuff") };  # force Class::Autouse
@@ -7869,7 +7869,7 @@ sub make_journal
 
     # Everything from here on down is S1.  FIXME: this should be moved to LJ::S1::make_journal
     # to be more like LJ::S2::make_journal.
-    $r->notes->{codepath} = "s1.$view"
+    $r->note(codepath => "s1.$view")
         if $r;
 
     # For embedded polls
@@ -7982,15 +7982,15 @@ sub make_journal
         # It should ideally generate exactly the same output as traditional S1 with
         # the same input data, but until this has been tested thoroughly it's
         # disabled by default.
-        
+
         # We render S1w2 in addition to traditional S1 so that we can see if there
         # is any difference.
         my $s1result = $ret;
         $ret = "";
-        
+
         require "ljviews-s1-using-s2.pl"; # Load on demand
         $LJ::S1w2::viewcreator{$view}->(\$ret, $u, \%vars, $remote, $opts);
-        
+
         if ($s1result ne $ret) {
             warn "S1w2 differed from S1 when rendering a $view page for $u->{user} with ".($remote ? $remote->{user} : "an anonymous user")." watching";
 
@@ -8001,7 +8001,7 @@ sub make_journal
                 $ret .= "<plaintext>".LJ::S1w2::_make_diff($s1result, $ret);
             }
         }
-        
+
     }
 
     unless ($res) {

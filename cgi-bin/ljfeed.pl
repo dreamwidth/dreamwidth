@@ -31,7 +31,7 @@ sub make_feed
 
     $opts->{noitems} = 1 if $feedtype eq 'foaf' or $feedtype eq 'yadis';
 
-    $r->notes('codepath' => "feed.$feedtype") if $r;
+    $r->note('codepath' => "feed.$feedtype") if $r;
 
     my $dbr = LJ::get_db_reader();
 
@@ -71,7 +71,7 @@ sub make_feed
         return undef;
     }
 
-    my %FORM = $r->args;
+    my %FORM = $r->query_string;
 
     ## load the itemids
     my (@itemids, @items);
@@ -149,7 +149,7 @@ sub make_feed
     # conjunction with a static request for a file on disk that has been
     # stat()ed in the course of the current request. It is inappropriate and
     # "dangerous" to use it for dynamic content.
-    if ((my $status = $r->meets_conditions) != Apache::Constants::OK()) {
+    if ((my $status = $r->meets_conditions) != $r->OK) {
         $opts->{handler_return} = $status;
         return undef;
     }
