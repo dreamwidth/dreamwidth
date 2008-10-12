@@ -1175,162 +1175,189 @@ logproplist.admin_content_flag:
   des: Internal flag describing the nature of this entry, set by an admin
   prettyname: Admin Content Flag
   sortorder: 106
+  ownership: system
 
 logproplist.adult_content:
   datatype: char
   des: Sets the entry as containing adult content (none, explicit, concepts)
   prettyname: Adult Content Flag
   sortorder: 105
+  ownership: user
 
 logproplist.adult_content_reason:
   datatype: char
   des: The reason that the entry is marked as containing adult content
   prettyname: Adult Content Reason
   sortorder: 105
+  ownership: user
 
 logproplist.commentalter:
   datatype: num
   des: Unix time of the last change to number of comments to this post.
   prettyname: Comments altered
   sortorder: 99
+  ownership: system
 
 logproplist.current_coords:
   datatype: char
   des: Current coordinates at time of post, in form '45.2935N 123.3452W'
   prettyname: Current Coordinates
   sortorder: 103
+  ownership: user
 
 logproplist.current_location:
   datatype: char
   des: Current location at time of post, free form text
   prettyname: Current Location
   sortorder: 103
+  ownership: user
 
 logproplist.current_mood:
   datatype: char
   des: Your current mood.
   prettyname: Current Mood
   sortorder: 5
+  ownership: user
 
 logproplist.current_moodid:
   datatype: num
   des: Your current mood ID number, if known.
   prettyname: Current Mood ID#
   sortorder: 6
+  ownership: user
 
 logproplist.current_music:
   datatype: char
   des: Music you're currently listening to.
   prettyname: Current Music
   sortorder: 10
+  ownership: user
 
 logproplist.hasscreened:
   datatype: bool
   des: True if comments to this item include screened comments
   prettyname: Has screened replies
   sortorder: 99
+  ownership: system
 
 logproplist.opt_backdated:
   datatype: bool
   des: Set to true if this item shouldn't show up on people's friends lists (because it occurred in the past)
   prettyname: Back-dated
   sortorder: 35
+  ownership: user
 
 logproplist.opt_nocomments:
   datatype: bool
   des: Turn on if readers can't post comments on this entry.
   prettyname: Don't Allow Comments
   sortorder: 25
+  ownership: user
 
 logproplist.opt_noemail:
   datatype: bool
   des: Turn on if the poster isn't interested in receiving comments to this post by email
   prettyname: Don't email comments
   sortorder: 40
+  ownership: user
 
 logproplist.opt_preformatted:
   datatype: bool
   des: Turn on if post contains HTML and shouldn't be formatted
   prettyname: Don't Auto-Format
   sortorder: 20
+  ownership: user
 
 logproplist.opt_screening:
   datatype: char
   des: Like opt_whoscreened: A = All, R = Remote needed (anonymous only), F = non-Friends, N = None, else use userprop.
   prettyname: Custom Screening Level
   sortorder: 45
+  ownership: user
 
 logproplist.picture_keyword:
   datatype: char
   des: A keyword that should align to a defined picture
   prettyname: Picture Keyword
   sortorder: 30
+  ownership: user
 
 logproplist.qotdid:
   datatype: 
   des: Writer's block ID
   prettyname: Writer's block ID
   sortorder: 104
+  ownership: user
 
 logproplist.revnum:
   datatype: num
   des: Number of times this post has been edited.
   prettyname: Revision number
   sortorder: 99
+  ownership: system
 
 logproplist.revtime:
   datatype: num
   des: Unix time of the last edit
   prettyname: Revision time
   sortorder: 99
+  ownership: system
 
 logproplist.sms_msgid:
   datatype: num
   des: SMS Message ID of the message which led to this journal entry
   prettyname: SMS Message ID
   sortorder: 99
+  ownership: system
 
 logproplist.syn_id:
   datatype: char
   des: Unique id of syndication item
   prettyname: Syndicated item id
   sortorder: 99
+  ownership: system
 
 logproplist.syn_link:
   datatype: char
   des: Original URL of syndication item
   prettyname: Syndication item link URL
   sortorder: 99
+  ownership: system
 
 logproplist.taglist:
   datatype: char
   des: Comma separated list of tags on the entry
   prettyname: Tag List
   sortorder: 101
+  ownership: user
 
 logproplist.unknown8bit:
   datatype: bool
   des: True if text has 8-bit data that's not in UTF-8
   prettyname: Unknown 8-bit text
   sortorder: 99
+  ownership: user
 
 logproplist.used_rte:
   datatype: bool
   des: True if entry was composed using the rich text editor
   prettyname: Composed in RTE
   sortorder: 102
+  ownership: user
 
 logproplist.useragent:
   datatype: char
   des: Name of web/mobile/sip/etc client used to post
   prettyname: User Agent
   sortorder: 103
+  ownership: user
 
 logproplist.verticals_list:
   datatype: char
   des: Comma-separated list of verticals that this entry is in
   prettyname: Verticals List
   sortorder: 103
+  ownership: system
 
 usermsgproplist.userpic:
   des: Userpic chosen by the user who created the message

@@ -198,6 +198,8 @@ CREATE TABLE logproplist (
   prettyname varchar(60) default NULL,
   sortorder mediumint(8) unsigned default NULL,
   datatype enum('char','num','bool') NOT NULL default 'char',
+  scope enum('general', 'local') NOT NULL default 'general',
+  ownership ENUM('system', 'user') NOT NULL default 'user',
   des varchar(255) default NULL,
   PRIMARY KEY  (propid),
   UNIQUE KEY name (name)
@@ -3851,6 +3853,12 @@ register_alter(sub {
     unless (column_type("logkwsum", "security") =~ /^bigint/) {
         do_alter("logkwsum",
                  q{ ALTER TABLE logkwsum MODIFY COLUMN security BIGINT UNSIGNED NOT NULL });
+    }
+    
+    unless ( column_type("logproplist", "ownership") ) {
+        do_alter("logproplist",
+                 "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".
+                 "DEFAULT 'user' NOT NULL");
     }
 });
 
