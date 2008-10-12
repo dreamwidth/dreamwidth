@@ -16,6 +16,11 @@ my @day_long    = (qw[Sunday Monday Tuesday Wednesday Thursday Friday Saturday])
 my @month_short = (qw[Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec]);
 my @month_long  = (qw[January February March April May June July August September October November December]);
 
+# For init_cvsprefixes(), langdat_file_of_lang_itcode(), and stuff.
+my @shared_cvsprefixes = qw(cvs/livejournal cvs/dw-free);
+my @local_cvsprefixes = qw(cvs/local cvs/dw-nonfree);
+my ($cvspfx_shared, $cvspfx_local);
+
 # get entire array of days and months
 sub day_list_short   { return @LJ::Lang::day_short;   }
 sub day_list_long    { return @LJ::Lang::day_long;    }
@@ -187,6 +192,36 @@ sub load_lang_struct
     $LS_CACHED = 1;
 }
 
+sub init_cvsprefixes {
+    return if defined($cvspfx_shared);
+
+    foreach my $p (@shared_cvsprefixes) {
+        if (-d "$LJ::HOME/$p") {
+            $cvspfx_shared = $p;
+            last;
+        }
+    }
+    $cvspfx_shared ||= "";
+
+    foreach my $p (@local_cvsprefixes) {
+        if (-d "$LJ::HOME/$p") {
+            $cvspfx_local = $p;
+            last;
+        }
+    }
+    $cvspfx_local ||= "";
+}
+
+sub cvsprefix_shared {
+    init_cvsprefixes();
+    return $cvspfx_shared;
+}
+
+sub cvsprefix_local {
+    init_cvsprefixes();
+    return $cvspfx_local;
+}
+
 sub langdat_file_of_lang_itcode
 {
     my ($lang, $itcode, $want_cvs) = @_;
@@ -194,10 +229,11 @@ sub langdat_file_of_lang_itcode
     my $langdat_file = LJ::Lang::relative_langdat_file_of_lang_itcode($lang, $itcode);
     my $cvs_extra = "";
     if ($want_cvs) {
+        init_cvsprefixes();
         if ($lang eq "en") {
-            $cvs_extra = "/cvs/livejournal";
+            $cvs_extra = "/$cvspfx_shared";
         } else {
-            $cvs_extra = "/cvs/local";
+            $cvs_extra = "/$cvspfx_local";
         }
     }
     return "$LJ::HOME$cvs_extra/$langdat_file";

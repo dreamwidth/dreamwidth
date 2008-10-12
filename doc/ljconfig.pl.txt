@@ -259,7 +259,8 @@
                 { scheme => 'bluewhite', title => 'Blue White' },
                );
 
-    # supported languages
+    # supported languages (defaults to qw(en) if none given)
+    # First element is default language for user interface, untranslated text
     #@LANGS = qw(en_LJ en_GB de da es fr it ru ja pt eo he nl hu ga is fi nb sv pl zh lv tr ms);
 
     # support unicode (posts in multiple languages)?  leave enabled.

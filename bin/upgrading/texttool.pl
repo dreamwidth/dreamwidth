@@ -5,48 +5,48 @@
 #
 
 use strict;
+use File::Basename ();
+use File::Path ();
 use Getopt::Long;
 use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Config; LJ::Config->load;
 use LJ::LangDatFile;
 
 my $opt_help = 0;
 my $opt_local_lang;
 my $opt_only;
 my $opt_verbose;
-exit 1 unless
-GetOptions(
-           "help" => \$opt_help,
-           "local-lang=s" => \$opt_local_lang,
-           "verbose" => \$opt_verbose,
-           "only=s" => \$opt_only,
-           );
+exit 1
+    unless GetOptions( "help" => \$opt_help, "local-lang=s" => \$opt_local_lang,
+        "verbose" => \$opt_verbose, "only=s" => \$opt_only );
 
 my $mode = shift @ARGV;
 
 help() if $opt_help or not defined $mode;
 
-sub help
-{
+sub help {
     die "Usage: texttool.pl <command>
 
-Where 'command' is one of:
-  load         Runs the following four commands in order:
+Where <command> is one of:
+  load         Runs the following five commands in order:
     popstruct  Populate lang data from text[-local].dat into db
     poptext    Populate text from en.dat, etc into database.
     copyfaq    If site is translating FAQ, copy FAQ data into trans area
-    loadcrumbs Load crumbs from ljcrumbs.pl and ljcrumbs-local.pl.
+    loadcrumbs Load crumbs from crumbs.pl and crumbs-local.pl.
     makeusable Setup internal indexes necessary after loading text
   dumptext     Dump lang text based on text[-local].dat information
+               Optionally:
+                  [lang...] list of languages to dump (default is all)
+  dumptextcvs  Same as dumptext, but dumps to the CVS area, not the live area
   check        Check validity of text[-local].dat files
   wipedb       Remove all language/text data from database, including crumbs.
   wipecrumbs   Remove all crumbs from the database, leaving other text alone.
   newitems     Search files in htdocs, cgi-bin, & bin and insert
                necessary text item codes in database.
-  remove       takes two extra arguments: domain name and code, and removes
-               that code and its text in all languages
-
                Optionally:
                   --local-lang=..  If given, works on local site files too
+  remove       takes two extra arguments: domain name and code, and removes
+               that code and its text in all languages
 
 ";
 }
@@ -72,8 +72,7 @@ my $set = sub {
     $hash->{$key} = $val;
 };
 
-foreach my $scope ("general", "local")
-{
+foreach my $scope ("general", "local") {
     my $file = $scope eq "general" ? "text.dat" : "text-local.dat";
     my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
     unless (-e $ffile) {
@@ -90,12 +89,12 @@ foreach my $scope ("general", "local")
         # language declaration
         if ($what eq "lang") {
             my $lang = {
-                'scope'  => $scope,
-                'lnid'   => $vals[0],
-                'lncode' => $vals[1],
-                'lnname' => $vals[2],
-                'parentlnid' => 0,   # default.  changed later.
-                'parenttype' => 'diff',
+                scope  => $scope,
+                lnid   => $vals[0],
+                lncode => $vals[1],
+                lnname => $vals[2],
+                parentlnid => 0,   # default.  changed later.
+                parenttype => 'diff',
             };
             $lang->{'parenttype'} = $vals[3] if defined $vals[3];
             if (defined $vals[4]) {
@@ -113,25 +112,29 @@ foreach my $scope ("general", "local")
             my $dcode = $vals[1];
             my ($type, $args) = split(m!/!, $dcode);
             my $dom = {
-                'scope' => $scope,
-                'dmid' => $vals[0],
-                'type' => $type,
-                'args' => $args || "",
+                scope => $scope,
+                dmid => $vals[0],
+                type => $type,
+                args => $args || "",
             };
-            $set->(\%dom_id,   $dom->{'dmid'}, $dom, "Domain already defined with ID: ");
-            $set->(\%dom_code, $dcode, $dom, "Domain already defined with parameters: ");
+            $set->(\%dom_id,   $dom->{'dmid'}, $dom,
+                "Domain already defined with ID: ");
+            $set->(\%dom_code, $dcode, $dom,
+                "Domain already defined with parameters: ");
         }
 
         # langdomain declaration
         if ($what eq "langdomain") {
             my $ld = {
-                'lnid' =>
-                    (exists $lang_code{$vals[0]} ? $lang_code{$vals[0]}->{'lnid'} :
-                     die "Undefined language: $vals[0]\n"),
-                'dmid' =>
-                    (exists $dom_code{$vals[1]} ? $dom_code{$vals[1]}->{'dmid'} :
-                     die "Undefined domain: $vals[1]\n"),
-                'dmmaster' => $vals[2] ? "1" : "0",
+                lnid =>
+                    (exists $lang_code{$vals[0]}
+                        ? $lang_code{$vals[0]}->{'lnid'}
+                        : die "Undefined language: $vals[0]\n"),
+                dmid =>
+                    (exists $dom_code{$vals[1]}
+                        ? $dom_code{$vals[1]}->{'dmid'}
+                        : die "Undefined domain: $vals[1]\n"),
+                dmmaster => $vals[2] ? "1" : "0",
                 };
             push @lang_domains, $ld;
         }
@@ -164,8 +167,8 @@ my $out = sub {
     }
 };
 
-my @good = qw(load popstruct poptext dumptext dumptextcvs newitems wipedb makeusable copyfaq remove
-              wipecrumbs loadcrumbs);
+my @good = qw(load popstruct poptext dumptext dumptextcvs newitems wipedb
+    makeusable copyfaq remove wipecrumbs loadcrumbs);
 
 popstruct() if $mode eq "popstruct" or $mode eq "load";
 poptext(@ARGV) if $mode eq "poptext" or $mode eq "load";
@@ -180,8 +183,7 @@ remove(@ARGV) if $mode eq "remove" and scalar(@ARGV) == 2;
 help() unless grep { $mode eq $_ } @good;
 exit 0;
 
-sub makeusable
-{
+sub makeusable {
     $out->("Making usable...", '+');
     my $rec = sub {
         my ($lang, $rec) = @_;
@@ -218,8 +220,7 @@ sub makeusable
     $out->("-", "done.");
 }
 
-sub copyfaq
-{
+sub copyfaq {
     my $faqd = LJ::Lang::get_dom("faq");
     my $ll = LJ::Lang::get_root_lang($faqd);
     unless ($ll) { return; }
@@ -239,7 +240,7 @@ sub copyfaq
     $sth->execute;
     while (my ($cat, $name) = $sth->fetchrow_array) {
         next if exists $existing{"cat.$cat"};
-        my $opts = { 'childrenlatest' => 1 };
+        my $opts = { childrenlatest => 1 };
         LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "cat.$cat", $name, $opts);
     }
 
@@ -251,7 +252,7 @@ sub copyfaq
             exists $existing{"$faqid.1question"} and
             exists $existing{"$faqid.2answer"} and
             exists $existing{"$faqid.3summary"};
-        my $opts = { 'childrenlatest' => 1 };
+        my $opts = { childrenlatest => 1 };
         LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.1question", $q, $opts);
         LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.2answer", $a, $opts);
         LJ::Lang::set_text($dbh, $domid, $ll->{'lncode'}, "$faqid.3summary", $s, $opts);
@@ -260,8 +261,7 @@ sub copyfaq
     $out->('-', "done.");
 }
 
-sub wipedb
-{
+sub wipedb {
     $out->("Wiping DB...", '+');
     foreach (qw(domains items langdomains langs latest text)) {
         $out->("deleting from $_");
@@ -270,8 +270,7 @@ sub wipedb
     $out->("-", "done.");
 }
 
-sub wipecrumbs
-{
+sub wipecrumbs {
     $out->('Wiping DB of all crumbs...', '+');
 
     # step 1: get all items that are crumbs. [from ml_items]
@@ -295,13 +294,12 @@ sub wipecrumbs
     $out->('-', 'done.');
 }
 
-sub loadcrumbs
-{
+sub loadcrumbs {
     $out->('Loading all crumbs into DB...', '+');
 
-    # get domain id of 'general' and language id of 'en'
+    # get domain id of 'general' and language id of default language
     my $genid = $dom_code{'general'}->{'dmid'};
-    my $loclang = $LJ::LANGS[0] || 'en';
+    my $loclang = $LJ::DEFAULT_LANG;
 
     # list of crumbs
     my @crumbs;
@@ -325,8 +323,7 @@ sub loadcrumbs
     $out->('-', 'done.');
 }
 
-sub popstruct
-{
+sub popstruct {
     $out->("Populating structure...", '+');
     foreach my $l (values %lang_id) {
         $out->("Inserting language: $l->{'lnname'}");
@@ -348,8 +345,7 @@ sub popstruct
     $out->("-", "done.");
 }
 
-sub poptext
-{
+sub poptext {
     my @langs = @_;
     push @langs, (keys %lang_code) unless @langs;
 
@@ -384,8 +380,7 @@ sub poptext
 
     my %existing_item;  # langid -> code -> 1
 
-    foreach my $file (keys %source)
-    {
+    foreach my $file (keys %source) {
         my ($lang, $pfx) = @{$source{$file}};
 
         $out->("$lang", '+');
@@ -450,7 +445,7 @@ sub poptext
                 my ($dom, $it) = split(/\s+/, $li);
                 next unless exists $dom_code{$dom};
                 my $dmid = $dom_code{$dom}->{'dmid'};
-                
+
                 my @items;
                 if ($it =~ s/\*$/\%/) {
                     my $sth = $dbh->prepare("SELECT itcode FROM ml_items WHERE dmid=? AND itcode LIKE ?");
@@ -469,15 +464,14 @@ sub poptext
     }
 }
 
-sub dumptext
-{
+# TODO: use LJ::LangDatFile->save
+sub dumptext {
     my $to_cvs = shift;
     my @langs = @_;
     unless (@langs) { @langs = keys %lang_code; }
 
     $out->('Dumping text...', '+');
-    foreach my $lang (@langs)
-    {
+    foreach my $lang (@langs) {
         $out->("$lang");
         my $l = $lang_code{$lang};
 
@@ -518,12 +512,9 @@ sub dumptext
             my $fh = $fh_map{$langdat_file};
             unless ($fh) {
 
-                # the dir might not exist in some cases, so if it doesn't
-                # we'll create a zero-byte file to overwrite
-                # -- yeah, this is really gross
-                unless (-e $langdat_file) {
-                    system("install", "-D", "/dev/null", $langdat_file);
-                }
+                # the dir might not exist in some cases
+                my $d = File::Basename::dirname($langdat_file);
+                File::Path::mkpath($d) unless -e $d;
 
                 open ($fh, ">$langdat_file")
                     or die "unable to open langdat file: $langdat_file ($!)";
@@ -552,15 +543,13 @@ sub dumptext
     $out->('-', 'done.');
 }
 
-sub newitems
-{
+sub newitems {
     $out->("Searching for referenced text codes...", '+');
     my $top = $ENV{'LJHOME'};
     my @files;
     push @files, qw(htdocs cgi-bin bin);
     my %items;  # $scope -> $key -> 1;
-    while (@files)
-    {
+    while (@files) {
         my $file = shift @files;
         my $ffile = "$top/$file";
         next unless -e $ffile;
@@ -576,7 +565,8 @@ sub newitems
         }
         if (-f $ffile) {
             my $scope = "local";
-            $scope = "general" if -e "$top/cvs/livejournal/$file";
+            $scope = "general"
+                if -e ("$top/" . LJ::Lang::cvsprefix_shared() . "/$file");
 
             open (F, $ffile) or die "Can't open $file";
             my $line = 0;
@@ -671,6 +661,3 @@ sub remove {
 
     $out->("-","done.");
 }
-
-
-
