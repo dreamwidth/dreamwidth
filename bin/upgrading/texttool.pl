@@ -25,12 +25,18 @@ my $mode = shift @ARGV;
 help() if $opt_help or not defined $mode;
 
 sub help {
-    die "Usage: texttool.pl <command>
+    die 'Usage: texttool.pl <command>
 
 Where <command> is one of:
   load         Runs the following five commands in order:
     popstruct  Populate lang data from text[-local].dat into db
-    poptext    Populate text from en.dat, etc into database.
+    poptext    Populate text from en.dat, etc into database. This will also
+               delete any text items listed in deadphrases[-local].dat. If
+               texttool.pl is run on a production server ($LJ::IS_DEV_SERVER is
+               false), the text items will be dumped first (as if by dumptext)
+               for all languages except en and the local root language
+               ($LJ::DEFAULT_LANG or $LJ::LANGS[0]), but existing text files
+               will be appended, not overwritten.
     copyfaq    If site is translating FAQ, copy FAQ data into trans area
     loadcrumbs Load crumbs from crumbs.pl and crumbs-local.pl.
     makeusable Setup internal indexes necessary after loading text
@@ -48,7 +54,7 @@ Where <command> is one of:
   remove       takes two extra arguments: domain name and code, and removes
                that code and its text in all languages
 
-";
+';
 }
 
 ## make sure $LJHOME is set so we can load & run everything
@@ -175,7 +181,7 @@ poptext(@ARGV) if $mode eq "poptext" or $mode eq "load";
 copyfaq() if $mode eq "copyfaq" or $mode eq "load";
 loadcrumbs() if $mode eq "loadcrumbs" or $mode eq "load";
 makeusable() if $mode eq "makeusable" or $mode eq "load";
-dumptext($1, @ARGV) if $mode =~ /^dumptext(cvs)?$/;
+dumptext($1, 0, @ARGV) if $mode =~ /^dumptext(cvs)?$/;
 newitems() if $mode eq "newitems";
 wipedb() if $mode eq "wipedb";
 wipecrumbs() if $mode eq "wipecrumbs";
@@ -431,42 +437,50 @@ sub poptext {
     $out->("-", "done.");
 
     # dead phrase removal
-    if ($LJ::IS_DEV_SERVER) {
-        $out->("Removing dead phrases...", '+');
-        foreach my $file ("deadphrases.dat", "deadphrases-local.dat") {
-            my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
-            next unless -s $ffile;
-            $out->("File: $file");
-            open (DP, $ffile) or die;
-            while (my $li = <DP>) {
-                $li =~ s/\#.*//;
-                next unless $li =~ /\S/;
-                $li =~ s/\s+$//;
-                my ($dom, $it) = split(/\s+/, $li);
-                next unless exists $dom_code{$dom};
-                my $dmid = $dom_code{$dom}->{'dmid'};
-
-                my @items;
-                if ($it =~ s/\*$/\%/) {
-                    my $sth = $dbh->prepare("SELECT itcode FROM ml_items WHERE dmid=? AND itcode LIKE ?");
-                    $sth->execute($dmid, $it);
-                    push @items, $_ while $_ = $sth->fetchrow_array;
-                } else {
-                    @items = ($it);
-                }
-                foreach (@items) {
-                    remove($dom, $_, 1);
-                }
-            }
-            close DP;
+    unless ($LJ::IS_DEV_SERVER) {
+        my @trans = grep { $_ ne "en" && $_ ne $LJ::DEFAULT_LANG } @LJ::LANGS;
+        if (@trans) {
+            $out->('Dumping text (with append) before removing deadphrases');
+            dumptext(0, 1, @trans);
+        } else {
+            $out->('No translated languages, skipping dumptext');
         }
-        $out->('-', "Done.");
     }
+    $out->("Removing dead phrases...", '+');
+    foreach my $file ("deadphrases.dat", "deadphrases-local.dat") {
+        my $ffile = "$ENV{'LJHOME'}/bin/upgrading/$file";
+        next unless -s $ffile;
+        $out->("File: $file");
+        open (DP, $ffile) or die;
+        while (my $li = <DP>) {
+            $li =~ s/\#.*//;
+            next unless $li =~ /\S/;
+            $li =~ s/\s+$//;
+            my ($dom, $it) = split(/\s+/, $li);
+            next unless exists $dom_code{$dom};
+            my $dmid = $dom_code{$dom}->{'dmid'};
+
+            my @items;
+            if ($it =~ s/\*$/\%/) {
+                my $sth = $dbh->prepare("SELECT itcode FROM ml_items WHERE dmid=? AND itcode LIKE ?");
+                $sth->execute($dmid, $it);
+                push @items, $_ while $_ = $sth->fetchrow_array;
+            } else {
+                @items = ($it);
+            }
+            foreach (@items) {
+                remove($dom, $_, 1);
+            }
+        }
+        close DP;
+    }
+    $out->('-', "Done.");
 }
 
 # TODO: use LJ::LangDatFile->save
 sub dumptext {
     my $to_cvs = shift;
+    my $append = shift;
     my @langs = @_;
     unless (@langs) { @langs = keys %lang_code; }
 
@@ -516,7 +530,7 @@ sub dumptext {
                 my $d = File::Basename::dirname($langdat_file);
                 File::Path::mkpath($d) unless -e $d;
 
-                open ($fh, ">$langdat_file")
+                open ($fh, $append ? ">>$langdat_file" : ">$langdat_file")
                     or die "unable to open langdat file: $langdat_file ($!)";
 
                 $fh_map{$langdat_file} = $fh;
