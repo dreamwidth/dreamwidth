@@ -214,6 +214,9 @@ sub new_from_row {
 sub new_from_url {
     my ($class, $url) = @_;
 
+    # this doesn't seem to like URLs with ?...
+    $url =~ s/\?.+$//;
+
     # /users, /community, or /~
     if ($url =~ m!^\Q$LJ::SITEROOT\E/(?:users/|community/|~)([\w-]+)/?!) {
         return LJ::load_user($1);
