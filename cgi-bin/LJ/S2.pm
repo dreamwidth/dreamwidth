@@ -1870,7 +1870,7 @@ sub Entry
         $e->{'security_icon'} = Image_std("security-private");
     }
 
-    $e->{'age_restriction'} = $arg->{'age_restriction'};
+    $e->{'age_restriction'} = "";
     if ($arg->{'age_restriction'} eq "explicit") {
         $e->{'age_restriction'} = "18";
         $e->{'age_restriction_icon'} = Image_std("age-18");
