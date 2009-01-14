@@ -191,7 +191,8 @@ sub expiration_time {
     # expiration time if we have it,
     return $sess->{timeexpire} if $sess->{timeexpire};
 
-    return time() + LJ::Session->session_length($sess->{exptype});
+    $sess->{timeexpire} = time() + LJ::Session->session_length($sess->{exptype});
+    return $sess->{timeexpire};
 }
 
 # return format of the "ljloggedin" cookie.
@@ -391,21 +392,38 @@ sub try_renew {
     }
 }
 
-
 ############################################################################
 #  CLASS METHODS
 ############################################################################
 
 # NOTE: internal function REQUIRES trusted input
 sub helper_url {
-    my ($class, $domcook) = @_;
-    return unless $domcook;
+    my ($class, $dest) = @_;
 
-    my @parts = split(/\./, $domcook);
-    my $url = "http://$parts[1].$LJ::USER_DOMAIN/";
-    $url .= "$parts[2]/" if @parts == 3;
-    $url .= "__setdomsess";
-    return $url;
+    return unless $dest;
+
+    my $u = LJ::get_remote();
+    unless ($u) {
+        LJ::Session->clear_master_cookie;
+        return BML::redirect($dest);
+    }
+
+    my $domcook = LJ::Session->domain_cookie($dest) or
+        return;
+
+    if ($dest =~ m!^(https?://)([^/]*?)\.\Q$LJ::USER_DOMAIN\E/?([^/]*)!) {
+        my $url = "$1$2.$LJ::USER_DOMAIN/";
+        if ($LJ::SUBDOMAIN_FUNCTION{lc($2)} eq "journal") {
+            $url .= "$3/" if $3 && ($3 ne '/'); # 'http://community.livejournal.com/name/__setdomsess'
+        }
+
+        my $sess = $u->session;
+        my $cookie = $sess->domsess_cookie_string($domcook);
+        return $url . "__setdomsess?dest=" . LJ::eurl($dest) .
+            "&k=" . LJ::eurl($domcook) . "&v=" . LJ::eurl($cookie);
+    }
+
+    return;
 }
 
 # given a URL (or none, for current url), what domain cookie represents this URL?
@@ -436,7 +454,7 @@ sub domain_journal {
 
     $url ||= _current_url();
     return undef unless
-        $url =~ m!^http://(.+?)(/.*)$!;
+        $url =~ m!^https?://(.+?)(/.*)$!;
 
     my ($host, $path) = ($1, $2);
     $host = lc($host);
@@ -445,7 +463,7 @@ sub domain_journal {
     return undef if $host eq lc($LJ::DOMAIN_WEB) || $host eq lc($LJ::DOMAIN);
 
     return undef unless
-        $host =~ m!^([\w-]{1,50})\.\Q$LJ::USER_DOMAIN\E$!;
+        $host =~ m!^([\w-\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!;
 
     my $subdomain = lc($1);
     if ($LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal") {
@@ -485,7 +503,6 @@ sub session_from_cookies {
     my $sessobj;
 
     my $domain_cookie = LJ::Session->domain_cookie;
-
     if ($domain_cookie) {
         # journal domain
         $sessobj = LJ::Session->session_from_domain_cookie(\%getopts, @{ $BML::COOKIE{"$domain_cookie\[\]"} || [] });
@@ -744,13 +761,25 @@ sub setdomsess_handler {
     my $domcook = $get{'k'};
     my $cookie  = $get{'v'};
 
-    my $is_valid = valid_destination($dest);
-    return "$LJ::SITEROOT" unless $is_valid;
+    return "$LJ::SITEROOT" unless valid_destination($dest);
+    return $dest unless valid_domain_cookie($domcook, $cookie, $BML::COOKIE{'ljloggedin'});
 
-    $is_valid = valid_domain_cookie($domcook, $cookie, $BML::COOKIE{'ljloggedin'});
-    return $dest           unless $is_valid;
+    my $path = '/'; # By default cookie path is root
 
-    my $path    = path_of_domcook($domcook);
+    # If it is not the master domain
+
+    if ($dest =~ m!^https?://(.+?)(/.*)$!) {
+        my ($host, $url_path) = (lc($1), $2);
+        my ($subdomain, $user);
+
+        if (    $host =~ m!^([\w-\.]{1,50})\.\Q$LJ::USER_DOMAIN\E$!
+            && ($subdomain = lc($1))                                # undef: not on a user-subdomain
+            && ($LJ::SUBDOMAIN_FUNCTION{$subdomain} eq "journal")
+            && ($url_path =~ m!^/(\w{1,15})\b!) ) {
+                $path = '/' . lc($1) . '/' if $1;
+        }
+    }
+
     my $expires = $LJ::DOMSESS_EXPIRATION || 0; # session-cookie only
     set_cookie($domcook   => $cookie,
                path       => $path,
@@ -760,7 +789,7 @@ sub setdomsess_handler {
     # add in a trailing slash, if URL doesn't have at least two slashes.
     # otherwise the path on the cookie above (which is like /community/)
     # won't be caught when we bounce them to /community.
-    unless ($dest =~ m!^http://.+?/.+?/! || $path eq "/") {
+    unless ($dest =~ m!^https?://.+?/.+?/! || $path eq "/") {
         # add a slash unless we can slip one in before the query parameters
         $dest .= "/" unless $dest =~ s!\?!/?!;
     }
@@ -940,24 +969,7 @@ sub valid_fb_cookie {
 
 sub valid_destination {
     my $dest = shift;
-    my $rx = valid_dest_rx();
-    return $dest =~ /$rx/;
-}
-
-sub valid_dest_rx {
-    return qr!^http://[\w-]+\.\Q$LJ::USER_DOMAIN\E/.*!;
-}
-
-sub path_of_domcook {
-    my $domcook = shift;
-    # if domcookie is 3 parts (ljdomsess.community.knitting), then restrict
-    # path of the cookie to /knitting/.  by default path is /
-    my @parts = split(/\./, $domcook);
-    my $path = "/";
-    if (@parts == 3) {
-        $path = "/" . $parts[-1] . "/";
-    }
-    return $path;
+    return $dest =~ qr!^http://[\w\-\.]+\.\Q$LJ::USER_DOMAIN\E/.*!;
 }
 
 sub valid_cookie_generation {

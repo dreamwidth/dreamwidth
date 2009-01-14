@@ -28,69 +28,69 @@ propgroup presentation {
     }
     set theme_stylesheet = {
         # Bloggish themes
-        "april" => "http://stat.livejournal.com/sixhtml/themes/classic/theme-april.css",
-        "baby" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-baby.css",
-        "beckett" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-beckett.css",
-        "bluecrush" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-bluecrush.css",
-        "bonjour" => "http://stat.livejournal.com/sixhtml/themes/classic/theme-bonjour.css",
-        "bryant" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-bryant.css",
-        "cityblend" => "http://stat.livejournal.com/sixhtml/themes/shea/theme-cityblend.css",
-        "classy" => "http://stat.livejournal.com/sixhtml/themes/classic/theme-classy.css",
-        "earth" => "http://stat.livejournal.com/sixhtml/themes/classic/theme-earth.css",
-        "folio" => "http://stat.livejournal.com/sixhtml/themes/shea/theme-folio.css",
-        "forestgreen" => "http://stat.livejournal.com/sixhtml/themes/shea/theme-forestgreen.css",
-        "green" => "http://stat.livejournal.com/sixhtml/themes/classic/theme-green.css",
-        "knitting" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-knitting.css",
-        "masala" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-masala.css",
-        "minimalist" => "http://stat.livejournal.com/sixhtml/themes/classic/theme-minimalist.css",
-        "porpoise" => "http://stat.livejournal.com/sixhtml/themes/shea/theme-porpoise.css",
-        "powell-street" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-powell-street.css",
-        "purplecrush" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-purplecrush.css",
-        "stevenson" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-stevenson.css",
-        "stitch" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-stitch.css",
-        "subtle" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-subtle.css",
-        "sunburned" => "http://stat.livejournal.com/sixhtml/themes/shea/theme-sunburned.css",
-        "tickle" => "http://stat.livejournal.com/sixhtml/themes/shea/theme-tickle.css",
-        "travel" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-travel.css",
-        "wedding" => "http://stat.livejournal.com/sixhtml/themes/lilia/theme-wedding.css",
+        "april" => "classic/theme-april.css",
+        "baby" => "lilia/theme-baby.css",
+        "beckett" => "lilia/theme-beckett.css",
+        "bluecrush" => "lilia/theme-bluecrush.css",
+        "bonjour" => "classic/theme-bonjour.css",
+        "bryant" => "lilia/theme-bryant.css",
+        "cityblend" => "shea/theme-cityblend.css",
+        "classy" => "classic/theme-classy.css",
+        "earth" => "classic/theme-earth.css",
+        "folio" => "shea/theme-folio.css",
+        "forestgreen" => "shea/theme-forestgreen.css",
+        "green" => "classic/theme-green.css",
+        "knitting" => "lilia/theme-knitting.css",
+        "masala" => "lilia/theme-masala.css",
+        "minimalist" => "classic/theme-minimalist.css",
+        "porpoise" => "shea/theme-porpoise.css",
+        "powell-street" => "lilia/theme-powell-street.css",
+        "purplecrush" => "lilia/theme-purplecrush.css",
+        "stevenson" => "lilia/theme-stevenson.css",
+        "stitch" => "lilia/theme-stitch.css",
+        "subtle" => "lilia/theme-subtle.css",
+        "sunburned" => "shea/theme-sunburned.css",
+        "tickle" => "shea/theme-tickle.css",
+        "travel" => "lilia/theme-travel.css",
+        "wedding" => "lilia/theme-wedding.css",
         # Style Contest themes
-        "bamboo_dream" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/bamboo_dream/bamboodream.css",
-        "cartoon" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/cartoon/style.css",
-        "clean_cut" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/clean_cut/stylesheet.css",
-        "cleanstyle_black_and_white" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/cleanstyle_black_and_white/theme-clean_style_bw.css",
-        "cleanstyle_blue_and_yellow" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/cleanstyle_blue_and_yellow/theme-clean_style_by.css",
-        "espresso_at_midnight" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/espresso_at_midnight/style.css",
-        "feminism" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/feminism/feminism.css",
-        "fleur" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/fleur/fleur.css",
-        "frankenblog" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/frankenblog/frankenblog.css",
-        "freshly_baked_bread" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/freshly_baked_bread/theme-fbbread.css",
-        "garden_state" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/garden_state/gardenstate.css",
-        "gothic" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/gothic/styles.css",
-        "hot_springs" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/hot_springs/style.css",
-        "kinda_canoe" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/kinda_canoe/boat6.css",
-        "kubrick" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/kubrick/theme-kubrick.css",
-        "magic_paper" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/magic_paper/magic-book.css",
-        "make_my_way" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/make_my_way/makemyway.css",
-        "makeup" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/makeup/styles-site.css",
-        "mango" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/mango/theme-mango.css",
-        "miniml" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/miniml/miniml.css",
-        "modernist_citron" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/modernist_citron/modernist-citron.css",
-        "modernist_lounge" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/modernist_lounge/modernist-lounge.css",
-        "my_news" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/my_news/styles-site.css",
-        "newsline" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/newsline/newsline.css",
-        "note_taking" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/note_taking/theme-notes.css",
-        "painterly" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/painterly/painterly.css",
-        "scarf" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/scarf/scarf.css",
-        "shadow_dancers" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/shadow_dancers/style.css",
-        "shlyapa" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/shlyapa/shlyapa.css",
-        "summer_love" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/summer_love/theme-summerlove.css",
-        "swimmingly" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/swimmingly/theme-swimmingly.css",
-        "the_great_outdoors" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/the_great_outdoors/greatoutdoors.css",
-        "the_late_show" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/the_late_show/thelateshow.css",
-        "the_road_to_october" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/the_road_to_october/roadtooctober.css",
-        "top_secret" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/top_secret/style.css",
-        "utopia" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/utopia/stylesheet.css",
-        "zen_and_the_art_of_movable_type" => "http://stat.livejournal.com/sixhtml/themes/stylecontest/zen_and_the_art_of_movable_type/theme-zataomt.css",
+        "bamboo_dream" => "stylecontest/bamboo_dream/bamboodream.css",
+        "cartoon" => "stylecontest/cartoon/style.css",
+        "clean_cut" => "stylecontest/clean_cut/stylesheet.css",
+        "cleanstyle_black_and_white" => "stylecontest/cleanstyle_black_and_white/theme-clean_style_bw.css",
+        "cleanstyle_blue_and_yellow" => "stylecontest/cleanstyle_blue_and_yellow/theme-clean_style_by.css",
+        "espresso_at_midnight" => "stylecontest/espresso_at_midnight/style.css",
+        "feminism" => "stylecontest/feminism/feminism.css",
+        "fleur" => "stylecontest/fleur/fleur.css",
+        "frankenblog" => "stylecontest/frankenblog/frankenblog.css",
+        "freshly_baked_bread" => "stylecontest/freshly_baked_bread/theme-fbbread.css",
+        "garden_state" => "stylecontest/garden_state/gardenstate.css",
+        "gothic" => "stylecontest/gothic/styles.css",
+        "hot_springs" => "stylecontest/hot_springs/style.css",
+        "kinda_canoe" => "stylecontest/kinda_canoe/boat6.css",
+        "kubrick" => "stylecontest/kubrick/theme-kubrick.css",
+        "magic_paper" => "stylecontest/magic_paper/magic-book.css",
+        "make_my_way" => "stylecontest/make_my_way/makemyway.css",
+        "makeup" => "stylecontest/makeup/styles-site.css",
+        "mango" => "stylecontest/mango/theme-mango.css",
+        "miniml" => "stylecontest/miniml/miniml.css",
+        "modernist_citron" => "stylecontest/modernist_citron/modernist-citron.css",
+        "modernist_lounge" => "stylecontest/modernist_lounge/modernist-lounge.css",
+        "my_news" => "stylecontest/my_news/styles-site.css",
+        "newsline" => "stylecontest/newsline/newsline.css",
+        "note_taking" => "stylecontest/note_taking/theme-notes.css",
+        "painterly" => "stylecontest/painterly/painterly.css",
+        "scarf" => "stylecontest/scarf/scarf.css",
+        "shadow_dancers" => "stylecontest/shadow_dancers/style.css",
+        "shlyapa" => "stylecontest/shlyapa/shlyapa.css",
+        "summer_love" => "stylecontest/summer_love/theme-summerlove.css",
+        "swimmingly" => "stylecontest/swimmingly/theme-swimmingly.css",
+        "the_great_outdoors" => "stylecontest/the_great_outdoors/greatoutdoors.css",
+        "the_late_show" => "stylecontest/the_late_show/thelateshow.css",
+        "the_road_to_october" => "stylecontest/the_road_to_october/roadtooctober.css",
+        "top_secret" => "stylecontest/top_secret/style.css",
+        "utopia" => "stylecontest/utopia/stylesheet.css",
+        "zen_and_the_art_of_movable_type" => "stylecontest/zen_and_the_art_of_movable_type/theme-zataomt.css",
     };
 
     property use page_recent_items;
@@ -142,12 +142,6 @@ propgroup presentation {
     set external_stylesheet = true;
     property use linklist_support;
     property use custom_control_strip_colors;
-property string text_expand_link {
-        des = "Text for comments expander link in link bar";
-        noui = 1;
-    }
-    set text_expand_link = "Expand";
-
 }
 
 propgroup colors {
@@ -663,11 +657,11 @@ function body_class (string lay) : string {
 
 function Page::print_stylesheets() {
     if ($*use_6a_base) {
-        println safe """<link rel="stylesheet" href="http://stat.livejournal.com/sixhtml/themes/common/base-weblog.css" type="text/css" />\n""";
+        println safe """<link rel="stylesheet" href="$*STATDIR/sixhtml/themes/common/base-weblog.css" type="text/css" />\n""";
     }
 
     if ($*base_theme != "__none") {
-        println safe """<link rel="stylesheet" href="$*theme_stylesheet{$*base_theme}" type="text/css" />\n""";
+        println safe """<link rel="stylesheet" href="$*STATDIR/sixhtml/themes/$*theme_stylesheet{$*base_theme}" type="text/css" />\n""";
     }
     if ($*linked_stylesheet != "") {
         println safe """<link rel="stylesheet" href="$*linked_stylesheet" type="text/css" />\n""";
@@ -801,7 +795,7 @@ function RecentPage::print_body() {
         # Print the entry
         $this->print_entry($e);
         if ($e->viewer_sees_ebox()) {
-            """<div align="center" style="margin-bottom: 20px;">""";
+            """<div style="text-align: center; margin-bottom: 20px;">""";
             $e->print_ebox();
             "</div>";
         }
@@ -825,6 +819,11 @@ function RecentPage::print_body() {
 function EntryPage::print_body() {
 
     $this->print_entry($.entry);
+    if ($.entry->viewer_sees_ebox()) {
+        """<div style="text-align: center; margin-bottom: 20px;">""";
+        $.entry->print_ebox();
+        "</div>";
+    }
 
 """
     <a id="comments"></a>
@@ -851,6 +850,42 @@ function EntryPage::print_body() {
 
 }
 
+function ReplyPage::print_body
+{
+    if (not $.entry.comments.enabled) {
+        print safe "<h2>$*text_reply_nocomments_header</h2><p>$*text_reply_nocomments</p>";
+        return;
+    }
+
+    var Image security;
+    if ($.replyto isa Entry) {
+        var Entry en = $.replyto as Entry;
+
+        $security = $en.security_icon;
+    }
+
+    "<table><tr valign='middle'>";
+        if (defined $.replyto.userpic) {
+            print "<td>$.replyto.userpic</td>";
+        }
+    print "<td>"+lang_user_wrote($.replyto.poster);
+    print "<br />"+lang_at_datetime($.replyto.time);
+    "</td></tr></table>\n";
+
+    print "<h2>$security $.replyto.subject</h2>";
+    print "<div>"; $.replyto->print_text(); "</div>";
+
+    print "\n<hr />\n";
+    print safe """(<a href="$.entry.permalink_url">$*text_reply_back</a>)""";
+    if ($.entry->viewer_sees_ebox()) {
+        """<div style="text-aling: center; margin-bottom: 20px;">""";
+        $.entry->print_ebox();
+        "</div>";
+    }
+    $.form->print();
+}
+
+
 function DayPage::print_body() {
     if ($.has_entries) {
         "<div class=\"day\" id=\"dayyymmmmmdddd\">\n<h2>";
@@ -860,7 +895,7 @@ function DayPage::print_body() {
         foreach var Entry e ($.entries) {
             $this->print_entry($e);
             if ($e->viewer_sees_ebox()) {
-                """<div align="center" style="margin-bottom: 20px;">""";
+                """<div style="text-aling: center; margin-bottom: 20px;">""";
                 $e->print_ebox();
                 "</div>";
             }
@@ -872,8 +907,16 @@ function DayPage::print_body() {
     }
 
     "<div class=\"skiplinks\">\n";
-    "<a href=\"$.prev_url\">$*text_day_prev</a> | ";
-    "<a href=\"$.next_url\">$*text_day_next</a>\n</div>";
+    if ($.prev_url != "") {
+        "<a href=\"$.prev_url\">$*text_day_prev</a>";
+    }
+    if ($.prev_url != "" and $.next_url != "") {
+        " | ";
+    }
+    if ($.next_url != "") {
+        "<a href=\"$.next_url\">$*text_day_next</a>";
+    }
+    "\n</div>";
 
 }
 
@@ -932,6 +975,20 @@ function Comment::print_linkbar() {
     }
 }
 
+function CommentInfo::print_postlink() {
+    var Page p = get_page();
+    if ($.maxcomments) {
+        print safe "$*text_max_comments";
+    } else {
+        if ($p.view == "entry") {
+                $p->print_reply_link({"target" => "topcomment", "linktext" => $*text_post_comment});
+        } else {
+        print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+       }
+    }
+}
+
+
 function EntryPage::print_comment(Comment e) {
     if (not $e.full) {
         # Collapsed mode
@@ -944,8 +1001,8 @@ function EntryPage::print_comment(Comment e) {
         print safe lang_posted_by($e.poster, $e.poster); " <span class='separator'>-</span> ";
         print lang_posted_date_and_time($e, $e.time, true, true);
         var Link expand_link = $e->get_link("expand_comments");
-        if (defined $expand_link) {
-            println """ <a href="$e.thread_url" onClick="Expander.make(this,'$e.thread_url','$e.talkid'); return false;">$*text_expand_link</a>""";
+        if ($e.thread_url != "" and defined $expand_link) {
+            println " " + $e->expand_link();
         }
         "</div>";
 
@@ -1000,17 +1057,34 @@ function EntryPage::print_comment(Comment e) {
     "<a class='permalink' href='$e.permalink_url'>$*text_permalink</a>";
 
     if ($e.parent_url) { print " $sep <a href='$e.parent_url'>$*text_comment_parent</a>"; }
-    if ($e.thread_url) { 
-		print " $sep <a href='$e.thread_url'>$*text_comment_thread</a>"; 
-		var Link expand_link = $e->get_link("expand_comments");
-		if (defined $expand_link) {
-			println """$sep <a href="$e.thread_url" onClick="Expander.make(this,'$e.thread_url','$e.talkid'); return false;">$*text_expand_link</a>""";
-		}
-	}
-    if ($e.reply_url)  { print " $sep <a href='$e.reply_url'>$*text_comment_reply</a>"; }
+    if ($e.thread_url) {
+        print " $sep <a href='$e.thread_url'>$*text_comment_thread</a>";
+        var Link expand_link = $e->get_link("expand_comments");
+        if (defined $expand_link) {
+            println " $sep " + $e->expand_link();
+        }
+    }
+    if ($e.reply_url)  { 
+        print " $sep "; 
+        ###$e->print_reply_link({"linktext" => $*text_comment_reply}); 
+
+        if($e.screened == true) {
+            ### if comment screened - show link for unscreen
+            var Link link;
+            $link = $e->get_link("unscreen_to_reply");
+            """<a href="$link.url" title="$link.caption">$link.caption</a>""";
+        } else {
+            ### showing reply link if comment not screened
+            $e->print_reply_link({ "linktext" => $*text_comment_reply });
+        }
+
+    }
 
     $e->print_linkbar();
     "</div>";
+   if (not $e.frozen) {
+        $e->print_reply_container({"class" => "quickreply"});
+    }
 
     if (size($e.replies) > 0) {
         println "<div class='comment-replies'>";
@@ -1021,8 +1095,8 @@ function EntryPage::print_comment(Comment e) {
 
         println "</div>";
     }
+     "</div>";
 
-    "</div>";
 }
 
 function Entry::print_linkbar() {
@@ -1065,7 +1139,11 @@ function Page::print_entry(Entry e) {
       if (defined $e.security_icon) {
           print "<span class='lj-entry-securityicon'>$e.security_icon</span> ";
       }
-      "$e.subject</h3>\n";
+      if ($.view != "entry") {
+        print $e->formatted_subject({"class"=>"subj-link"});
+      } else { "$e.subject"; }
+
+      "</h3>\n";
       "<div class='entry-content'>\n";
 
          "<div class='entry-body'>\n";
@@ -1087,8 +1165,8 @@ function Page::print_entry(Entry e) {
 
          $e->print_linkbar();
          "</p>";
-
-       "</div>\n";
+        "</div>\n";
+        $this->print_reply_container({"target" => "topcomment"});
      "</div>\n";
 }
 

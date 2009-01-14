@@ -1,21 +1,24 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: pt-br.js
- * 	Brazilian Portuguese language file.
- * 
- * File Authors:
- * 		Carlos Alberto Tomatis Loth (carlos.loth@conectait.com.br)
- * 		GibaPhp (www.xoopstotal.com.br)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Brazilian Portuguese language file.
  */
 
 var FCKLang =
@@ -41,7 +44,9 @@ RemoveFormat		: "Remover Formatação",
 InsertLinkLbl		: "Hiperlink",
 InsertLink			: "Inserir/Editar Hiperlink",
 RemoveLink			: "Remover Hiperlink",
+VisitLink			: "Open Link",	//MISSING
 Anchor				: "Inserir/Editar Âncora",
+AnchorDelete		: "Remover Âncora",
 InsertImageLbl		: "Figura",
 InsertImage			: "Inserir/Editar Figura",
 InsertFlashLbl		: "Flash",
@@ -67,6 +72,10 @@ RightJustify		: "Alinhar Direita",
 BlockJustify		: "Justificado",
 DecreaseIndent		: "Diminuir Recuo",
 IncreaseIndent		: "Aumentar Recuo",
+Blockquote			: "Recuo",
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "Desfazer",
 Redo				: "Refazer",
 NumberedListLbl		: "Numeração",
@@ -86,8 +95,8 @@ Find				: "Localizar",
 Replace				: "Substituir",
 SpellCheck			: "Verificar Ortografia",
 UniversalKeyboard	: "Teclado Universal",
-PageBreakLbl		: "Page Break",	//MISSING
-PageBreak			: "Insert Page Break",	//MISSING
+PageBreakLbl		: "Quebra de Página",
+PageBreak			: "Inserir Quebra de Página",
 
 Form			: "Formulário",
 Checkbox		: "Caixa de Seleção",
@@ -99,17 +108,29 @@ Button			: "Botão",
 SelectionField	: "Caixa de Listagem",
 ImageButton		: "Botão de Imagem",
 
+FitWindow		: "Maximizar o tamanho do editor",
+ShowBlocks		: "Mostrar blocos",
+
 // Context Menu
 EditLink			: "Editar Hiperlink",
-InsertRow			: "Inserir Linha",
+CellCM				: "Célula",
+RowCM				: "Linha",
+ColumnCM			: "Coluna",
+InsertRowAfter		: "Inserir linha abaixo",
+InsertRowBefore		: "Inserir linha acima",
 DeleteRows			: "Remover Linhas",
-InsertColumn		: "Inserir Coluna",
+InsertColumnAfter	: "Inserir coluna à direita",
+InsertColumnBefore	: "Inserir coluna à esquerda",
 DeleteColumns		: "Remover Colunas",
-InsertCell			: "Inserir Células",
+InsertCellAfter		: "Inserir célula à direita",
+InsertCellBefore	: "Inserir célula à esquerda",
 DeleteCells			: "Remover Células",
 MergeCells			: "Mesclar Células",
-SplitCell			: "Dividir Célular",
-TableDelete			: "Delete Table",	//MISSING
+MergeRight			: "Mesclar com célula à direita",
+MergeDown			: "Mesclar com célula abaixo",
+HorizontalSplitCell	: "Dividir célula horizontalmente",
+VerticalSplitCell	: "Dividir célula verticalmente",
+TableDelete			: "Apagar Tabela",
 CellProperties		: "Formatar Célula",
 TableProperties		: "Formatar Tabela",
 ImageProperties		: "Formatar Figura",
@@ -137,9 +158,10 @@ UnknownToolbarItem	: "O item da barra de ferramentas \"%1\" não é reconhecido"
 UnknownCommand		: "O comando \"%1\" não é reconhecido",
 NotImplemented		: "O comando não foi implementado",
 UnknownToolbarSet	: "A barra de ferramentas \"%1\" não existe",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
-BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
-DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+NoActiveX			: "As configurações de segurança do seu browser podem limitar algumas características do editor. Você precisa habilitar a opção \"Executar controles e plug-ins ActiveX\". Você pode experimentar erros e alertas de características faltantes.",
+BrowseServerBlocked : "Os recursos do browser não puderam ser abertos. Tenha certeza que todos os bloqueadores de popup estão desabilitados.",
+DialogBlocked		: "Não foi possível abrir a janela de diálogo. Tenha certeza que todos os bloqueadores de popup estão desabilitados.",
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "OK",
@@ -147,12 +169,12 @@ DlgBtnCancel		: "Cancelar",
 DlgBtnClose			: "Fechar",
 DlgBtnBrowseServer	: "Localizar no Servidor",
 DlgAdvancedTag		: "Avançado",
-DlgOpOther			: "&lt;Outros&gt;",
+DlgOpOther			: "<Outros>",
 DlgInfoTab			: "Info",
 DlgAlertUrl			: "Inserir a URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;não ajustado&gt;",
+DlgGenNotSet		: "<não ajustado>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Direção do idioma",
 DlgGenLangDirLtr	: "Esquerda para Direita (LTR)",
@@ -208,20 +230,20 @@ DlgFlashScaleFit	: "Escala Exata",
 
 // Link Dialog
 DlgLnkWindowTitle	: "Hiperlink",
-DlgLnkInfoTab		: "Informações do hiperlink",
-DlgLnkTargetTab		: "Informações de destino",
+DlgLnkInfoTab		: "Informações",
+DlgLnkTargetTab		: "Destino",
 
 DlgLnkType			: "Tipo de hiperlink",
 DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Âncora nesta página",
 DlgLnkTypeEMail		: "E-Mail",
 DlgLnkProto			: "Protocolo",
-DlgLnkProtoOther	: "&lt;outro&gt;",
+DlgLnkProtoOther	: "<outro>",
 DlgLnkURL			: "URL do hiperlink",
 DlgLnkAnchorSel		: "Selecione uma âncora",
 DlgLnkAnchorByName	: "Pelo Nome da âncora",
 DlgLnkAnchorById	: "Pelo Id do Elemento",
-DlgLnkNoAnchors		: "&lt;Não há âncoras disponíveis neste documento&gt;",
+DlgLnkNoAnchors		: "(Não há âncoras disponíveis neste documento)",
 DlgLnkEMail			: "Endereço E-Mail",
 DlgLnkEMailSubject	: "Assunto da Mensagem",
 DlgLnkEMailBody		: "Corpo da Mensagem",
@@ -229,8 +251,8 @@ DlgLnkUpload		: "Enviar ao Servidor",
 DlgLnkBtnUpload		: "Enviar ao Servidor",
 
 DlgLnkTarget		: "Destino",
-DlgLnkTargetFrame	: "&lt;quadro&gt;",
-DlgLnkTargetPopup	: "&lt;janela popup&gt;",
+DlgLnkTargetFrame	: "<frame>",
+DlgLnkTargetPopup	: "<janela popup>",
 DlgLnkTargetBlank	: "Nova Janela (_blank)",
 DlgLnkTargetParent	: "Janela Pai (_parent)",
 DlgLnkTargetSelf	: "Mesma Janela (_self)",
@@ -254,6 +276,7 @@ DlgLnkPopTop		: "Superior",
 DlnLnkMsgNoUrl		: "Por favor, digite o endereço do Hiperlink",
 DlnLnkMsgNoEMail	: "Por favor, digite o endereço de e-mail",
 DlnLnkMsgNoAnchor	: "Por favor, selecione uma âncora",
+DlnLnkMsgInvPopName	: "O nome da janela popup deve começar com uma letra ou sublinhado (_) e não pode conter espaços",
 
 // Color Dialog
 DlgColorTitle		: "Selecione uma Cor",
@@ -284,7 +307,7 @@ DlgTableHeight		: "Altura",
 DlgTableCellSpace	: "Espaçamento",
 DlgTableCellPad		: "Enchimento",
 DlgTableCaption		: "Legenda",
-DlgTableSummary		: "Summary",	//MISSING
+DlgTableSummary		: "Resumo",
 
 // Table Cell Dialog
 DlgCellTitle		: "Formatar célula",
@@ -313,6 +336,9 @@ DlgCellBackColor	: "Cor do Plano de Fundo",
 DlgCellBorderColor	: "Cor da Borda",
 DlgCellBtnSelect	: "Selecionar...",
 
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Localizar e Substituir",
+
 // Find Dialog
 DlgFindTitle		: "Localizar...",
 DlgFindFindBtn		: "Localizar",
@@ -328,18 +354,16 @@ DlgReplaceReplAllBtn	: "Substituir Tudo",
 DlgReplaceWordChk		: "Coincidir a palavra inteira",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "As configurações de segurança do seu navegador não permitem que o editor excute operações de colar automaticamente. Por favor, utilize o teclado para colar (Ctrl+V).",
-PasteErrorCut	: "As configurações de segurança do seu navegador não permitem que o editor excute operações de recortar automaticamente. Por favor, utilize o teclado para recortar (Ctrl+X).",
-PasteErrorCopy	: "As configurações de segurança do seu navegador não permitem que o editor excute operações de copiar automaticamente. Por favor, utilize o teclado para copiar (Ctrl+C).",
+PasteErrorCut	: "As configurações de segurança do seu navegador não permitem que o editor execute operações de recortar automaticamente. Por favor, utilize o teclado para recortar (Ctrl+X).",
+PasteErrorCopy	: "As configurações de segurança do seu navegador não permitem que o editor execute operações de copiar automaticamente. Por favor, utilize o teclado para copiar (Ctrl+C).",
 
 PasteAsText		: "Colar como Texto sem Formatação",
 PasteFromWord	: "Colar do Word",
 
 DlgPasteMsg2	: "Transfira o link usado no box usando o teclado com (<STRONG>Ctrl+V</STRONG>) e <STRONG>OK</STRONG>.",
+DlgPasteSec		: "As configurações de segurança do seu navegador não permitem que o editor acesse os dados da área de transferência diretamente. Por favor cole o conteúdo novamente nesta janela.",
 DlgPasteIgnoreFont		: "Ignorar definições de fonte",
 DlgPasteRemoveStyles	: "Remove definições de estilo",
-DlgPasteCleanBox		: "Limpar Box",
-
 
 // Color Picker
 ColorAutomatic	: "Automático",
@@ -371,8 +395,11 @@ DlgSpellManyChanges		: "Verificação ortográfica encerrada: %1 foram alteradas
 IeSpellDownload			: "A verificação ortográfica não foi instalada. Você gostaria de realizar o download agora?",
 
 // Button Dialog
-DlgButtonText	: "Texto (Valor)",
-DlgButtonType	: "Tipo",
+DlgButtonText		: "Texto (Valor)",
+DlgButtonType		: "Tipo",
+DlgButtonTypeBtn	: "Botão",
+DlgButtonTypeSbm	: "Enviar",
+DlgButtonTypeRst	: "Limpar",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nome",
@@ -421,9 +448,10 @@ DlgHiddenValue	: "Valor",
 // Bulleted List Dialog
 BulletedListProp	: "Formatar Marcadores",
 NumberedListProp	: "Formatar Numeração",
+DlgLstStart			: "Iniciar",
 DlgLstType			: "Tipo",
 DlgLstTypeCircle	: "Círculo",
-DlgLstTypeDisc		: "Disc",	//MISSING
+DlgLstTypeDisc		: "Disco",
 DlgLstTypeSquare	: "Quadrado",
 DlgLstTypeNumbers	: "Números (1, 2, 3)",
 DlgLstTypeLCase		: "Letras Minúsculas (a, b, c)",
@@ -443,6 +471,15 @@ DlgDocLangDirLTR	: "Esquerda para Direita (LTR)",
 DlgDocLangDirRTL	: "Direita para Esquerda (RTL)",
 DlgDocLangCode		: "Código do Idioma",
 DlgDocCharSet		: "Codificação de Caracteres",
+DlgDocCharSetCE		: "Europa Central",
+DlgDocCharSetCT		: "Chinês Tradicional (Big5)",
+DlgDocCharSetCR		: "Cirílico",
+DlgDocCharSetGR		: "Grego",
+DlgDocCharSetJP		: "Japonês",
+DlgDocCharSetKR		: "Coreano",
+DlgDocCharSetTR		: "Turco",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Europa Ocidental",
 DlgDocCharSetOther	: "Outra Codificação de Caracteres",
 
 DlgDocDocType		: "Cabeçalho Tipo de Documento",
@@ -472,11 +509,18 @@ DlgTemplatesTitle	: "Modelo de layout do conteúdo",
 DlgTemplatesSelMsg	: "Selecione um modelo de layout para ser aberto no editor<br>(o conteúdo atual será perdido):",
 DlgTemplatesLoading	: "Carregando a lista de modelos de layout. Aguarde...",
 DlgTemplatesNoTpl	: "(Não foram definidos modelos de layout)",
+DlgTemplatesReplace	: "Substituir o conteúdo atual",
 
 // About Dialog
 DlgAboutAboutTab	: "Sobre",
 DlgAboutBrowserInfoTab	: "Informações do Navegador",
+DlgAboutLicenseTab	: "Licença",
 DlgAboutVersion		: "versão",
-DlgAboutLicense		: "Licenciado sobre os termos da GNU Lesser General Public License",
-DlgAboutInfo		: "Para maiores informações visite"
-}
+DlgAboutInfo		: "Para maiores informações visite",
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
+};

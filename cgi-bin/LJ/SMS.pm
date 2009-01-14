@@ -422,6 +422,36 @@ sub set_sms_quota {
     return LJ::run_hook("modify_sms_quota", $u, amount => $qty, type => $type);
 }
 
+# Handle a request from a phone number that is not mapped ot a user
+# Only respond to HELP requests, send an SMS with instructions
+sub handle_unmapped {
+    my ($class, $dsms_msg) = @_;
+
+    # shared test gateway requires prefix of "lj " before
+    # any message to ensure it is delivered to us
+    my $body_text = $dsms_msg->body_text || '';
+    $body_text =~ s/^lj\s+//i if $LJ::IS_DEV_SERVER;
+
+    # if it is a HELP request
+    if ($body_text  =~ /^\s*help/i) {
+        my $help_text = "To use $LJ::SMS_TITLE go to $LJ::SITEROOT/sms/. For help contact support\@livejournal.com or 415-294-5054. Std msg chrgs apply. To cancel reply STOP.";
+        my $gw =  LJ::sms_gateway()
+            or die "unable to instantiate SMS gateway object";
+
+        my $dmsg = DSMS::Message->new
+            (
+             to         => LJ::SMS::Message->normalize_num($dsms_msg->from),
+             from       => LJ::SMS::Message->normalize_num($dsms_msg->to),
+             type       => "outgoing",
+             body_text  => $help_text,
+            ) or die "unable to construct DSMS::Message to send";
+        $gw->send_msg($dmsg);
+        return 1;
+    }
+
+    return 0;
+}
+
 # Schwartz worker for responding to incoming SMS messages
 package LJ::Worker::IncomingSMS;
 use base 'TheSchwartz::Worker';

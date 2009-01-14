@@ -1,6 +1,8 @@
 ;; -*- coding: utf-8 -*-
 .commlist.actinfo=Info
 
+.commlist.actinfo2=Profile
+
 .commlist.actinvites=Invitations
 
 .commlist.actions=<b>Actions</b>
@@ -14,6 +16,8 @@
 
 .commlist.customize=Customize
 
+.commlist.customize2=Journal Style
+
 .commlist.header=Your communities
 
 .commlist.moderation=Awaiting Moderation
@@ -21,6 +25,8 @@
 .commlist.moderation.num2=[<a [[aopts]]>[[num]] in queue</a>]
 
 .commlist.none=<i>You are not managing any communities.</i>
+
+.commlist.post=Post
 
 .commlist.text=Here are the communities that you manage or co-manage:
 
@@ -45,6 +51,8 @@
 .joinmail.save=Save Settings
 
 .joinmail.title=Administrative options
+
+.managelinks=Manage [[user]]'s:
 
 .modemail.body=For moderated communities, you can choose whether to send emails or not:
 

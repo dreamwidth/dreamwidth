@@ -196,7 +196,7 @@ sub get_countries {
 # des: Gets information about what states have been populated with schools.  States
 #      and provinces are considered the same thing.
 # args: countrycode
-# des-countrycode: The country code provided from LJ::Schools::get_countries.
+# des-countrycode: The country code provided from [func[LJ::Schools::get_countries]].
 # returns: Hashref; statecode as key, statename as the values.
 # </LJFUNC>
 sub get_states {
@@ -236,8 +236,8 @@ sub get_states {
 # class: schools
 # des: Gets information about what cities have been populated with schools.
 # args: countrycode, statecode
-# des-countrycode: The country code provided from LJ::Schools::get_countries.
-# des-statecode: The state code provided from LJ::Schools::get_states.
+# des-countrycode: The country code provided from [func[LJ::Schools::get_countries]].
+# des-statecode: The state code provided from[func[LJ::Schools::get_states]].
 # returns: Hashref; citycode as key, cityname as the values.
 # </LJFUNC>
 sub get_cities {
@@ -273,9 +273,9 @@ sub get_cities {
 # class: schools
 # des: Gets schools defined in a given area.
 # args: countrycode, statecode, citycode
-# des-countrycode: The country code provided from LJ::Schools::get_countries.
-# des-statecode: The state code provided from LJ::Schools::get_states.
-# des-citycode: The city code provided from LJ::Schools::get_cities.
+# des-countrycode: The country code provided from [func[LJ::Schools::get_countries]].
+# des-statecode: The state code provided from[func[LJ::Schools::get_states]].
+# des-citycode: The city code provided from [func[LJ::Schools::get_cities]].
 # returns: Hashref; schoolid as key, hashref of schools row as value with
 #          keys: name, city, state, country, url.
 # </LJFUNC>
@@ -632,6 +632,9 @@ sub approve_pending {
 # des: Returns the next "potentially good" set of records to be processed.
 # args: uobj, country?, state?, city?
 # des-uobj: User id or object of user doing the admin work.
+# des-country: Optional. Country school is in.
+# des-state: Optional. State school is in, or nothing for undefined state.
+# des-city: Optional. City school is in.
 # returns: Hashref; keys being 'primary' with a value of a school hashref,
 #          and 'secondary', 'tertiary' with values being a hashref of
 #          { pendid => { ..school.. } }, where the school hashref contains
@@ -1216,8 +1219,8 @@ sub merge_schools {
 # des-country: country school is in.
 # des-name: name of school.
 # des-state: state school is in, or nothing for undefined state.
-# des-city: optional city school is in.
-# des-url: optional URL of school.
+# des-city: Optional. City school is in.
+# des-url: Optional. URL of school.
 # returns: single scalar schoolid on exact match,
 #          arrayref of school ids found if multiple,
 #          undef on error; or no results.

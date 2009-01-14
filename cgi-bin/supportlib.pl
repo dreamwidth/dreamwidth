@@ -347,6 +347,15 @@ sub load_props
     return \%props;
 }
 
+sub prop
+{
+    my ($spid, $propname) = @_;
+
+    my $props = LJ::Support::load_props($spid);
+
+    return $props->{$propname} || undef;
+}
+
 sub set_prop
 {
     my ($spid, $propname, $propval) = @_;
@@ -512,6 +521,11 @@ sub file_request
 
     if (@$errors) { return 0; }
 
+    if (LJ::is_enabled("support_request_language")) {
+        $o->{'language'} = undef unless grep { $o->{'language'} eq $_ } (@LJ::LANGS, "xx");
+        $reqsubject = "[$o->{'language'}] $reqsubject" if $o->{'language'} && $o->{'language'} !~ /^en_/;
+    }
+
     my $dbh = LJ::get_db_writer();
 
     my $dup_id = 0;
@@ -533,12 +547,15 @@ sub file_request
     my $sth;
 
     $dbh->do("LOCK TABLES support WRITE, duplock WRITE");
-    $sth = $dbh->prepare("SELECT dupid FROM duplock WHERE realm='support' AND reid=0 AND userid=$qrequserid AND digest='$md5'");
-    $sth->execute;
-    ($dup_id) = $sth->fetchrow_array;
-    if ($dup_id) {
-        $dbh->do("UNLOCK TABLES");
-        return $dup_id;
+
+    unless ($o->{ignore_dup_check}) {
+        $sth = $dbh->prepare("SELECT dupid FROM duplock WHERE realm='support' AND reid=0 AND userid=$qrequserid AND digest='$md5'");
+        $sth->execute;
+        ($dup_id) = $sth->fetchrow_array;
+        if ($dup_id) {
+            $dbh->do("UNLOCK TABLES");
+            return $dup_id;
+        }
     }
 
     my ($urlauth, $url, $spid);  # used at the bottom
@@ -555,7 +572,8 @@ sub file_request
     }
     $spid = $dbh->{'mysql_insertid'};
 
-    $dbh->do("INSERT INTO duplock (realm, reid, userid, digest, dupid, instime) VALUES ('support', 0, $qrequserid, '$md5', $spid, NOW())");
+    $dbh->do("INSERT INTO duplock (realm, reid, userid, digest, dupid, instime) VALUES ('support', 0, $qrequserid, '$md5', $spid, NOW())")
+        unless $o->{ignore_dup_check};
     $dbh->do("UNLOCK TABLES");
 
     unless ($spid) {
@@ -570,7 +588,11 @@ sub file_request
         return unless $q && $q ne 'NULL';
         push @data, "($spid, '$_[0]', $q)";
     };
-    $add_data->($_, $o->{$_}) foreach qw(uniq useragent);
+    if (LJ::is_enabled("support_request_language") && $o->{language} ne "xx") {
+        $add_data->($_, $o->{$_}) foreach qw(uniq useragent language);
+    } else {
+        $add_data->($_, $o->{$_}) foreach qw(uniq useragent);
+    }
     $dbh->do("INSERT INTO supportprop (spid, prop, value) VALUES " . join(',', @data));
 
     $dbh->do("INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message) ".
@@ -625,6 +647,7 @@ sub append_request
     # $re->{'faqid'}
     # $re->{'remote'}  (remote if known)
     # $re->{'uniq'}    (uniq of remote)
+    # $re->{'tier'}    (tier of response if type is answer or internal)
 
     my $remote = $re->{'remote'};
     my $posterid = $remote ? $remote->{'userid'} : 0;
@@ -661,8 +684,14 @@ sub append_request
     my $qfaqid = $re->{'faqid'}+0;
     my $quserid = $posterid+0;
     my $spid = $sp->{'spid'}+0;
+    my $qtier = $re->{'tier'} ? ($re->{'tier'}+0) . "0" : "NULL";
 
-    my $sql = "INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message) VALUES (NULL, $spid, UNIX_TIMESTAMP(), $qtype, $qfaqid, $quserid, $qmessage)";
+    my $sql;
+    if (LJ::is_enabled("support_response_tier")) {
+        $sql = "INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message, tier) VALUES (NULL, $spid, UNIX_TIMESTAMP(), $qtype, $qfaqid, $quserid, $qmessage, $qtier)";
+    } else {
+        $sql = "INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message) VALUES (NULL, $spid, UNIX_TIMESTAMP(), $qtype, $qfaqid, $quserid, $qmessage)";
+    }
     $dbh->do($sql);
     my $splid = $dbh->{'mysql_insertid'};
 
@@ -709,6 +738,15 @@ sub set_points
     $dbh->do("REPLACE INTO supportpointsum (userid, totpoints, lastupdate) ".
              "SELECT userid, SUM(points), UNIX_TIMESTAMP() FROM supportpoints ".
              "WHERE userid=? GROUP BY 1", undef, $userid) if $userid;
+
+    # clear caches
+    if ($userid) {
+        my $u = LJ::load_userid($userid);
+        delete $u->{_supportpointsum} if $u;
+
+        my $memkey = [$userid, "supportpointsum:$userid"];
+        LJ::MemCache::delete($memkey);
+    }
 }
 
 sub touch_request

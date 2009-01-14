@@ -34,7 +34,7 @@ if ($opt_getxsl) {
     chdir "$home/doc/raw/build" or die "Where is build dir?";
     unlink "xsl-docbook.tar.gz";
     my $fetched =  0;
-    my $url = "http://code.sixapart.com/svn/ljdocbook/trunk/dist/xsl/xsl-docbook.tar.gz";
+    my $url = "http://code.livejournal.org/svn/ljdocbook/trunk/dist/xsl/xsl-docbook.tar.gz";
     my @fetcher = ([ 'wget', "wget $url", ],
                    [ 'lynx', "lynx -source $url > xsl-docbook.tar.gz", ],
                    [ 'GET', "GET $url > xsl-docbook.tar.gz", ]);
@@ -111,9 +111,9 @@ print "Generating Flat protocol reference\n";
 system("./flat2db.pl > $docraw_dir/ljp.book/csp/flat/protocol.gen.xml")
     and die "Error processing protocol reference.\n";
 
-print "Generating Log Prop List\n";
+print "Generating Entry Prop List\n";
 system("./proplist2db.pl > $docraw_dir/ljp.book/csp/proplist.ref.gen.xml")
-    and die "Error generating log prop list\n";
+    and die "Error generating entry prop list\n";
 
 print "Generating Privilege list reference\n";
 chdir "$docraw_dir/build/priv" or die;

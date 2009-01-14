@@ -99,7 +99,7 @@ body<=
                '<?p ' . BML::ml('.commjoin.text', {
                            user => LJ::ljuser($username),
                            comm => LJ::ljuser($commname),
-                           aopts => "href=\"$LJ::SITEROOT/community/members.bml?comm=$commname\"",
+                           aopts => "href=\"$LJ::SITEROOT/community/members.bml?authas=$commname\"",
                         }) . ' p?>';
     }
 

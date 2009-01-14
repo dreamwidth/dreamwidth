@@ -136,6 +136,9 @@ sub RecentPage
         my ($posterid, $itemid, $security, $allowmask, $alldatepart) =
             map { $item->{$_} } qw(posterid itemid security allowmask alldatepart);
 
+        my $ditemid = $itemid * 256 + $item->{'anum'};
+        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
+
         my $replycount = $logprops{$itemid}->{'replycount'};
         my $subject = $logtext->{$itemid}->[0];
         my $text = $logtext->{$itemid}->[1];
@@ -147,8 +150,9 @@ sub RecentPage
 
         $itemnum++;
 
-        # don't show posts from suspended users unless the user doing the viewing says to (and is allowed)
+        # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
         next ENTRY if $apu{$posterid} && $apu{$posterid}->{'statusvis'} eq 'S' && !$viewsome;
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
             LJ::item_toutf8($u, \$subject, \$text, $logprops{$itemid});
@@ -164,13 +168,14 @@ sub RecentPage
 
         LJ::CleanHTML::clean_subject(\$subject) if $subject;
 
-        my $ditemid = $itemid * 256 + $item->{'anum'};
+        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
                                               'cuturl' => LJ::item_link($u, $itemid, $item->{'anum'}),
-                                              'ljcut_disable' => $remote->{"opt_ljcut_disable_lastn"}, });
+                                              'ljcut_disable' => $remote->{"opt_ljcut_disable_lastn"},
+                                              'suspend_msg' => $suspend_msg,
+                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($u, $ditemid, $remote, \$text);
 
-        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
         $text = LJ::ContentFlag->transform_post(post => $text, journal => $u,
                                                 remote => $remote, entry => $entry_obj);
 

@@ -1,4 +1,4 @@
-/<?_code # -*-bml-*-
+<?_code # -*-bml-*-
 {
     use strict;
     use vars qw(%GET %POST $title $body);
@@ -74,8 +74,9 @@
         'link' => "$LJ::SITEROOT/customize/advanced/",
         'text' => $ML{'.back2'},
     }) . "\n";
+    my $styles_arg = $noactions ? "?user=" . $u->user : "?authas=" . $u->user;
     $body .= BML::ml("Actionlink", {
-        'link' => "<a href='$LJ::SITEROOT/customize/advanced/styles.bml?authas=$authas'>$ML{'.nav.yourstyles'}</a>",
+        'link' => "<a href='$LJ::SITEROOT/customize/advanced/styles.bml$styles_arg'>$ML{'.nav.yourstyles'}</a>",
     }) . "\n";
 
 

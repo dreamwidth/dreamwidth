@@ -157,7 +157,7 @@ sub load_default_of {
     my %opts = @_;
 
     my $default_theme = $class->default_theme($layoutid, %opts);
-    return $class->load_by_uniq($default_theme);
+    return $default_theme ? $class->load_by_uniq($default_theme) : undef;
 }
 
 sub load_by_uniq {
@@ -366,7 +366,7 @@ sub new {
     my $layers = LJ::S2::get_public_layers();
     my $is_custom = 0;
     my %outhash = ();
-    unless (ref $layers->{$themeid}) {
+    unless ($layers->{$themeid} && $layers->{$themeid}->{uniq}) {
         if ($opts{user}) {
             my $u = $opts{user};
             die "Invalid user object." unless LJ::isu($u);

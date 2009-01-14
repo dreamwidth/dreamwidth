@@ -56,10 +56,34 @@ body<=
 
         my $res = 0;
 
+        my $ip = BML::get_remote_ip();
+
+        my @date = localtime(time);
+        my $date = sprintf("%02d:%02d %02d/%02d/%04d", @date[2,1], $date[3], $date[4]+1, $date[5]+1900);
+
         if ($POST{'statusvis'} eq 'D') {
+            
             $res = $u->set_deleted;
+            
+            if($res) {
+                # sending ESN status was changed
+                LJ::Event::SecurityAttributeChanged->new($u, { 
+                    action   => 'account_deleted',
+                    ip       => BML::get_remote_ip(),
+                    datetime => $date,
+                })->fire;
+            }
         } elsif ($POST{'statusvis'} eq 'V') {
+            
             $res = $u->set_visible;
+            
+            if($res) {
+                LJ::Event::SecurityAttributeChanged->new($u ,  { 
+                    action   => 'account_activated',
+                    ip       => BML::get_remote_ip(),
+                    datetime => $date,
+                })->fire;
+            }
         }
 
         # error updating?

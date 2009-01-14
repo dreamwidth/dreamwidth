@@ -70,10 +70,7 @@
      return;
  }
 
- my $ad = LJ::ad_display(type   => 'journal',
-                         orient => 'Journal-Medrect',
-                         user   => $u->{user},
-                         );
+ my $ad = LJ::get_ads({ location => 'bml.tools.memories', ljadwrapper => 1, journalu => $u });
  $body .= "<div class='ad-sidebar'>$ad</div>" if $ad;
 
  # owner if you've authed as them or you administrate them

@@ -229,6 +229,9 @@ sub parseOpts {
         $opts->{$opt} = eval "\$opt_$opt";
     }
 
+    # Have the same delete behavior despite of how the input delete parameter is specified: by 'delete=1' or by 'del=1'
+    $opts->{del} = $opts->{'delete'} if defined $opts->{'delete'} and not $opts->{del};
+
     return $opts;
 }
 
@@ -508,12 +511,22 @@ sub moveUser {
             # figure out if they have any S1 styles
             my $styleids = $dboa->selectcol_arrayref("SELECT styleid FROM s1style WHERE userid = $userid");
 
+            $dbh->do("DELETE FROM domains WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM email_aliases WHERE alias = ?",
                      undef, "$u->{user}\@$LJ::USER_DOMAIN");
             $dbh->do("DELETE FROM userinterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM comminterests WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM syndicated WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM supportnotify WHERE userid = ?", undef, $u->id);
+            $dbh->do("DELETE FROM reluser WHERE userid = ?", undef, $u->id);
+            $dbh->do("DELETE FROM smsusermap WHERE userid = ?", undef, $u->id);
+            $dbh->do("DELETE FROM friends WHERE userid = ?", undef, $u->id);
+            $dbh->do("DELETE FROM phonepostlogin WHERE userid = ?", undef, $u->id);
+
+            # no need for other users to ban this user any more
+            while ($dbh->do("DELETE FROM reluser WHERE targetid = ? AND type = 'B' LIMIT 1000", undef, $u->id) > 0) {
+                print "  deleted bans from reluser\n" if $optv;
+            }
 
             # now delete from the main tables
             foreach my $table (keys %$tinfo) {
@@ -540,6 +553,7 @@ sub moveUser {
         } else {
             die "Could not load module LJ::Event::UserExpunged: $@";
         }
+        LJ::run_hooks('purged_user', $u);
 
         return 1;
     }

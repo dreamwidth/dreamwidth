@@ -37,10 +37,7 @@
      
      $u = LJ::load_userid($it->{'journalid'});
 
-     my $ad = LJ::ad_display(type   => 'journal',
-                             orient => 'Journal-Leaderboard-Top',
-                             user   => $u->{user},
-                             );
+     my $ad = LJ::get_ads({ location => 'bml.todo.item', ljadwrapper => 1, journalu => $u });
      $body .= $ad if $ad;
 
      if ($it->{'security'} eq "private") {

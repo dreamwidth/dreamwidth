@@ -66,6 +66,7 @@ body<=
                                      categories   => $categories,
                                      ret_url      => $entry->url,
                                      default_selected_notifications => ['LJ::NotificationMethod::Email'],
+                                     post_to_settings_page => 1,
                                      );
 
     return $body;

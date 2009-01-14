@@ -159,6 +159,7 @@ my $sth;
 unless ($dbh) {
     die "Can't connect to the database.\n";
 }
+$dbh->{RaiseError} = 1;
 
 # indenter
 my $idlev = 0;
@@ -333,13 +334,13 @@ sub popstruct {
     $out->("Populating structure...", '+');
     foreach my $l (values %lang_id) {
         $out->("Inserting language: $l->{'lnname'}");
-        $dbh->do("INSERT INTO ml_langs (lnid, lncode, lnname, parenttype, parentlnid) ".
+        $dbh->do("REPLACE INTO ml_langs (lnid, lncode, lnname, parenttype, parentlnid) ".
                  "VALUES (" . join(",", map { $dbh->quote($l->{$_}) } qw(lnid lncode lnname parenttype parentlnid)) . ")");
     }
 
     foreach my $d (values %dom_id) {
         $out->("Inserting domain: $d->{'type'}\[$d->{'args'}\]");
-        $dbh->do("INSERT INTO ml_domains (dmid, type, args) ".
+        $dbh->do("REPLACE INTO ml_domains (dmid, type, args) ".
                  "VALUES (" . join(",", map { $dbh->quote($d->{$_}) } qw(dmid type args)) . ")");
     }
 
@@ -414,10 +415,14 @@ sub poptext {
                 $sth->execute($l->{lnid});
                 die $sth->errstr if $sth->err;
                 while (my ($code, $oldtext) = $sth->fetchrow_array) {
-                    $existing_item{$l->{'lnid'}}->{$code} = $oldtext;
+                    $existing_item{$l->{'lnid'}}->{ lc($code) } = $oldtext;
                 }
             }
 
+            # Remove last '\r' char from loaded from files text before compare.
+            # In database text stored without this '\r', LJ::Lang::set_text remove it
+            # before update database.
+            $text =~ s/\r//;
             unless ($existing_item{$l->{'lnid'}}->{$code} eq $text) {
                 $addcount++;
                 # if the text is changing, the staleness is at least 1
@@ -425,7 +430,8 @@ sub poptext {
 
                 my $res = LJ::Lang::set_text($dbh, 1, $l->{'lncode'}, $code, $text,
                                              { 'staleness' => $staleness,
-                                               'notes' => $metadata{'notes'}, });
+                                               'notes' => $metadata{'notes'},
+                                               'changeseverity' => 2, });
                 $out->("set: $code") if $opt_verbose;
                 unless ($res) {
                     $out->('x', "ERROR: " . LJ::Lang::last_error());
@@ -671,7 +677,7 @@ sub remove {
         $txtids .= $txtid;
     }
     $dbh->do("DELETE FROM ml_latest WHERE dmid=$dmid AND itid=$itid");
-    $dbh->do("DELETE FROM ml_text WHERE dmid=$dmid AND txtid IN ($txtids)");
+    $dbh->do("DELETE FROM ml_text WHERE dmid=$dmid AND txtid IN ($txtids)") if $txtids;
 
     $out->("-","done.");
 }

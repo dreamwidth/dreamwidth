@@ -6,6 +6,8 @@ use strict;
 use Class::Autouse qw(
                       LJ::Event::CommunityInvite
                       LJ::Event::CommunityJoinRequest
+                      LJ::Event::CommunityJoinApprove
+                      LJ::Event::CommunityJoinReject
                       );
 
 # <LJFUNC>
@@ -314,7 +316,7 @@ sub join_community {
 
     my $err = "";
     return LJ::error("You have joined the community, but it has not been added to ".
-                     "your Friends list. " . $err) unless $u->can_add_friends(\$err);
+                     "your Friends list. " . $err) unless $u->can_add_friends(\$err, { friend => $cu });
 
     $u->friend_and_watch($cu);
 
@@ -407,21 +409,12 @@ sub approve_pending_member {
     return unless LJ::join_community($u->{userid}, $cu->{userid}, 1);
 
     # step 3, email the user
-    my $email = "Dear $u->{name},\n\n" .
-                "Your request to join the \"$cu->{user}\" community has been approved.  If you " .
-                "wish to add this community to your friends page reading list, click the link below.\n\n" .
-                "\t$LJ::SITEROOT/friends/add.bml?user=$cu->{user}\n\n" .
-                "Please note that replies to this email are not sent to the community's maintainer(s). If you " .
-                "have any questions, you will need to contact them directly.\n\n" .
-                "Regards,\n$LJ::SITENAME Team";
-    LJ::send_mail({
-        to => $u->email_raw,
-        from => $LJ::BOGUS_EMAIL,
-        fromname => $LJ::SITENAME,
-        charset => 'utf-8',
-        subject => "Your Request to Join $cu->{user}",
-        body => $email,
-    });
+    my %params = (event => 'CommunityJoinApprove', journal => $u);
+    unless ($u->has_subscription(%params)) {
+        $u->subscribe(%params, method => 'Email');
+    }
+    LJ::Event::CommunityJoinApprove->new($u, $cu)->fire unless $LJ::DISABLED{esn};
+
     return 1;
 }
 
@@ -447,20 +440,12 @@ sub reject_pending_member {
     return unless $count;
 
     # step 2, email the user
-    my $email = "Dear $u->{name},\n\n" .
-                "Your request to join the \"$cu->{user}\" community has been declined.\n\n" .
-                "Replies to this email are not sent to the community's maintainer(s). If you would ".
-                "like to discuss the reasons for your request's rejection, you will need to contact ".
-                "a maintainer directly.\n\n" .
-                "Regards,\n$LJ::SITENAME Team";
-    LJ::send_mail({
-        to => $u->email_raw,
-        from => $LJ::BOGUS_EMAIL,
-        fromname => $LJ::SITENAME,
-        charset => 'utf-8',
-        subject => "Your Request to Join $cu->{user}",
-        body => $email,
-    });
+    my %params = (event => 'CommunityJoinReject', journal => $u);
+    unless ($u->has_subscription(%params)) {
+        $u->subscribe(%params, method => 'Email');
+    }
+    LJ::Event::CommunityJoinReject->new($u, $cu)->fire unless $LJ::DISABLED{esn};
+
     return 1;
 }
 
@@ -506,7 +491,7 @@ sub comm_join_request {
 
     # now prepare the emails
     foreach my $au (values %$admins) {
-        next unless $au;
+        next unless $au && !$au->is_expunged;
 
         # unless it's a hyphen, we need to migrate
         my $prop = $au->prop("opt_communityjoinemail");
@@ -525,6 +510,87 @@ sub comm_join_request {
     }
 
     return $aa;
+}
+
+sub maintainer_linkbar {
+    my $comm = shift;
+    my $page = shift;
+
+    my $username = $comm->user;
+    my @links;
+
+    my %manage_link_info = LJ::run_hook('community_manage_link_info', $username);
+    if (keys %manage_link_info) {
+        push @links, $page eq "account" ?
+            "<strong>$manage_link_info{text}</strong>" :
+            "<a href='$manage_link_info{url}'>$manage_link_info{text}</a>";
+    }
+
+    push @links, (
+        $page eq "profile" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinfo2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/manage/profile/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinfo2') . "</a>",
+        $page eq "customize" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/customize/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</a>",
+        $page eq "settings" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/settings.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</a>",
+        $page eq "invites" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/sentinvites.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
+        $page eq "members" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/members.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
+    );
+
+    my $ret .= "<strong>" . LJ::Lang::ml('/community/manage.bml.managelinks', { user => $comm->ljuser_display }) . "</strong> ";
+    $ret .= join(" | ", @links);
+
+    return "<p style='margin-bottom: 20px;'>$ret</p>";
+}
+
+# Get membership and posting level settings for a community
+sub get_comm_settings {
+    my $c = shift;
+
+    my $cid = $c->{userid};
+    my ($membership, $postlevel);
+    my $memkey = [ $cid, "commsettings:$cid" ];
+
+    my $memval = LJ::MemCache::get($memkey);
+    ($membership, $postlevel) = @$memval if ($memval);
+    return ($membership, $postlevel)
+        if ( $membership && $postlevel );
+
+    my $dbr = LJ::get_db_reader();
+    ($membership, $postlevel) =
+        $dbr->selectrow_array("SELECT membership, postlevel FROM community WHERE userid=?", undef, $cid);
+
+    LJ::MemCache::set($memkey, [$membership,$postlevel] ) if ( $membership && $postlevel );
+
+    return ($membership, $postlevel);
+}
+
+# Set membership and posting level settings for a community
+sub set_comm_settings {
+    my ($c, $u, $opts) = @_;
+
+    die "User cannot modify this community"
+        unless (LJ::can_manage_other($u, $c));
+
+    die "Membership and posting levels are not available"
+        unless ($opts->{membership} && $opts->{postlevel});
+
+    my $cid = $c->{userid};
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do("REPLACE INTO community (userid, membership, postlevel) VALUES (?,?,?)" , undef, $cid, $opts->{membership}, $opts->{postlevel});
+
+    my $memkey = [ $cid, "commsettings:$cid" ];
+    LJ::MemCache::delete($memkey);
+
+    return;
 }
 
 1;

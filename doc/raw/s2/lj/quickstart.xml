@@ -67,7 +67,7 @@
               A layout layer is where the real customization starts. To draw a loose
               comparison to the old style system, a layout layer can be regarded as an
               S1 style except that the S2 layout covers each journal view, unlike the
-              s1 style that only dealt with a single view. A layout layer, much like the core
+              S1 style that only dealt with a single view. A layout layer, much like the core
               layer, defines its own set of properties that change the appearance and
               behavior of the layout.
             </simpara>
@@ -225,11 +225,11 @@
         <listitem><simpara>
           <ulink url='http://community.livejournal.com/s2practice/profile'>S2 Practice Discussion</ulink> is a community
           on <ulink url='http://www.livejournal.com/'>LiveJournal.com</ulink> that deals with introducing S2 to
-          members of LiveJournal's support team. The introductory text available in the community was actually used
-          to write portions of this chapter.
+          members of LiveJournal&apos;s support team. Although geared toward support volunteers, participation is open to all.
         </simpara></listitem>
       </varlistentry>
     </variablelist>
   </section>
 
 </chapter>
+

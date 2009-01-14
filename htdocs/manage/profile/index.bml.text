@@ -55,6 +55,8 @@
 
 .error.email.no_space=No spaces are allowed in an email address. If you're on AOL, remember that your Internet Email address is your screen name with all spaces removed, followed by <b>@aol.com</b>
 
+.error.findbyemail=Invalid option for find by email.
+
 .error.invalidbio=Your stored bio contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
 
 .error.invalidname2=Your name contains invalid characters. You must visit the <a [[aopts]]><b>conversion page</b></a> to convert it to Unicode.
@@ -105,7 +107,13 @@
 
 .fn.imservices2=Instant Messaging
 
+.fn.imservices3=Instant Messaging and other
+
 .fn.interests=List all your interests, separated by commas, to allow other users to find you using the Interest Search.
+
+.fn.last_fm=Last.fm username 
+
+.fn.last_fm.desc=Enter your last.fm username here and you will be able to automatically fill in Music field with scrobbled music when posting new entry.
 
 .fn.link=Link
 
@@ -174,6 +182,8 @@
 .section.bio=Bio
 
 .section.contact=Contact Info
+
+.section.description=Community Description
 
 .section.friends=Friends
 

@@ -22,7 +22,9 @@ body<=
 
     my $journal = $GET{journal} || $POST{journal};
     my $u = LJ::load_user($journal);
-    return $err->($ML{'.invalid.journal'}) unless $u && $u->{statusvis} eq 'V';
+    return $err->($ML{'.invalid.journal'}) unless $u;
+    return $err->($ML{'.readonly.journal'}) if $u->is_readonly;
+    return $err->($ML{'.invalid.journal'}) unless $u->{statusvis} eq 'V';
 
     my $ditemid = ($GET{itemid} || $POST{itemid})+0;
     my $anum = $ditemid % 256;
@@ -38,7 +40,11 @@ body<=
     # poster must be visible too
     if ($logrow->{posterid} != $u->{userid}) {
         my $pu = LJ::load_userid($logrow->{posterid});
-        return $err->($ML{'.invalid.journal'}) if $u->{statusvis} ne 'V';
+
+        unless ($remote->can_manage($u) && !$pu->is_suspended) {
+            return $err->($ML{'.readonly.poster'}) if $pu->is_readonly;
+            return $err->($ML{'.invalid.journal'}) if $pu->{statusvis} ne 'V';
+        }
     }
 
     if (LJ::did_post()) {
@@ -67,6 +73,12 @@ body<=
 
     LJ::CleanHTML::clean_subject(\$subj);
     LJ::CleanHTML::clean_event(\$evt, \%opts);
+
+    # prevent BML tags interpretation inside post body
+    $subj =~ s/<\?/&lt;?/g;
+    $subj =~ s/\?>/?&gt;/g;
+    $evt =~ s/<\?/&lt;?/g;
+    $evt =~ s/\?>/?&gt;/g;
 
     my $logtags = LJ::Tags::get_logtags($u, $jitemid);
     my $usertags = LJ::Tags::get_usertags($u, { remote => $remote }) || {};

@@ -6,6 +6,7 @@ body<=
 {
     use strict;
     use vars qw(%GET %POST);
+    use HTTP::Date; # str2time
 
     LJ::set_active_crumb('emailmanage');
 
@@ -19,11 +20,24 @@ body<=
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
 
+    # at the point that the latest email has been on the account for 6 months, *all* previous emails should become removable. 
+    # They should be able to remove all other email addresses at that point if multiple ones are listed, 
+    # so that they can remove anything that might potentially be compromised, leaving only their current/secured email on the account.
+    # - Anne Zell, 11 december 2008 in LJSUP-3193, based on discussions in lj_core
+
     my $firstdate = $dbh->selectrow_array(qq{
         SELECT MIN(timechange) FROM infohistory
         WHERE userid=? AND what='email'
         AND oldvalue=?
     }, undef, $u->{'userid'}, $u->email_raw);
+
+    my $lastdate = $dbh->selectrow_array(qq{
+        SELECT MAX(timechange) FROM infohistory
+        WHERE userid=? AND (what='email' OR what='emaildeleted')
+    }, undef, $u->{'userid'});
+
+    # current address was set more, than 6 months ago?
+    my $six_month_case = time() - str2time($lastdate) > 182 * 24 * 3600; # half year
 
     my @deleted;
     if (LJ::did_post() && $u->{'status'} eq 'A') {
@@ -35,7 +49,7 @@ body<=
         $sth->execute($u->{'userid'});
         while (my ($time, $email) = $sth->fetchrow_array)
         {
-            my $can_del = defined $firstdate && $time gt $firstdate;
+            my $can_del = defined $firstdate && $time gt $firstdate || $six_month_case;
             if ($can_del && $POST{"$email-$time"}) {
                 push @deleted, BML::ml('.log.deleted', 
                                        { 'email' => $email,
@@ -84,7 +98,7 @@ body<=
     my $rows;
     while (my ($time, $email) = $sth->fetchrow_array)
     {
-        my $can_del = defined $firstdate && $time gt $firstdate;
+        my $can_del = defined $firstdate && $time gt $firstdate || $six_month_case;
         $rows .= "<tr><td>" . LJ::html_check({ 'type' => 'check', 'name' => "$email-$time",
                                               'disabled' => ! $can_del } ) . "</td>";
         $rows .= "<td>$email</td><td>$time</td></tr>\n";

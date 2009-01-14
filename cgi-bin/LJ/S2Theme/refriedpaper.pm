@@ -3,7 +3,7 @@ use base qw(LJ::S2Theme);
 
 sub layouts { ( "2l" => "left", "2r" => "right" ) }
 sub layout_prop { "sidebar_position" }
-sub cats { qw( clean warm modern featured ) }
+sub cats { qw( clean warm modern ) }
 sub designer { "idigital" }
 
 sub display_option_props {
@@ -48,6 +48,7 @@ sub comment_props {
     my @props = qw(
         comment_screened_bgcolor comment_screened_fgcolor text_user text_date text_subject text_post_comment text_read_comments
         text_post_comment_friends text_read_comments_friends text_comment_frozen text_comment_reply text_comment_parent text_comment_thread
+        text_comment_expand
     );
     return $self->_append_props("comment_props", @props);
 }

@@ -22,7 +22,7 @@ body<=
                     stc/directory.css
                     ));
 
-    $title = 'Enterprise Javascript Directory Search';
+    $title = $ML{'.title'};
 
     my $res = qq {
         <div id="SearchBox"></div>

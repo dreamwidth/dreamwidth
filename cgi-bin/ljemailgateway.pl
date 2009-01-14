@@ -24,6 +24,7 @@ use IO::Handle;
 use MIME::Words ();
 use XML::Simple;
 use Unicode::MapUTF8 ();
+use Encode;
 
 # $entity -- MIME object
 # $to -- left part of email address.  either a username, or "username+PIN"
@@ -117,7 +118,7 @@ sub process {
     $body =~ s/\s+$//;
 
     # Snag charset and do utf-8 conversion
-    my $content_type = $head->get('Content-type:');
+    my $content_type = $tent->head->get('Content-type:');
     $charset = $1 if $content_type =~ /\bcharset=['\"]?(\S+?)['\"]?[\s\;]/i;
     $format = $1 if $content_type =~ /\bformat=['\"]?(\S+?)['\"]?[\s\;]/i;
     my $delsp = $1 if $content_type =~ /\bdelsp=['\"]?(\w+?)['\"]?[\s\;]/i;
@@ -317,7 +318,7 @@ sub process {
     }
 
     # verizon crap.  remove paragraphs of text.
-    $body =~ s/This message was sent using PIX-FLIX.+?faster download\.//s;
+    $body =~ s/This message was sent using.+?Verizon.+?faster download\.//s;
 
     # virgin mobile adds text to the *top* of the message, killing lj-headers.
     # Kill this silly (and grammatically incorrect) string.
@@ -452,8 +453,19 @@ sub process {
       ) || return $err->( $fb_upload_errstr, { retry => 1 } );
 
     # if we found and successfully uploaded some images...
-    $body .= LJ::FBUpload::make_html( $u, $fb_upload, \%lj_headers )
-      if ref $fb_upload eq 'ARRAY';
+    if (ref $fb_upload eq 'ARRAY') {
+        my $fb_html = LJ::FBUpload::make_html( $u, $fb_upload, \%lj_headers );
+        ##
+        ## A problem was here: 
+        ## $body is utf-8 text without utf-8 flag (see Unicode::MapUTF8::to_utf8),
+        ## $fb_html is ASCII with utf-8 flag on (because uploaded image description
+        ## is parsed by XML::Simple, see cgi-bin/fbupload.pl, line 153).
+        ## When 2 strings are concatenated, $body is auto-converted (incorrectly)
+        ## from Latin-1 to UTF-8.
+        ##
+        $fb_html = Encode::encode("utf8", $fb_html) if Encode::is_utf8($fb_html);
+        $body .= $fb_html;
+    }
 
     # at this point, there are either no images in the message ($fb_upload == 1)
     # or we had some error during upload that we may or may not want to retry

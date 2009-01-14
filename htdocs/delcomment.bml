@@ -136,8 +136,8 @@ _info?><?_code
 
     ### show confirmation form
 
-    $body .= "<?h1 $ML{'.confirm.head'} h1?>";
-    $body .= "<?p $ML{'.confirm.body'} p?>";
+#    $body .= "<?h1 $ML{'.confirm.head'} h1?>";
+#    $body .= "<?p $ML{'.confirm.body'} p?>";
     $body .= "<form method='post' action='delcomment.bml?";
     $body .= "journal=$u->{'user'}&id=$GET{'id'}'>\n";
     $body .= LJ::form_auth();

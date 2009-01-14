@@ -26,26 +26,51 @@ sub is_common { 1 }
 
 sub zero_journalid_subs_means { 'all' }
 
+sub _construct_prefix {
+    my $self = shift;
+    return $self->{'prefix'} if $self->{'prefix'};
+    my ($classname) = (ref $self) =~ /Event::(.+?)$/;
+    return $self->{'prefix'} = 'esn.' . lc($classname);
+}
+
 sub as_email_subject {
     my $self = shift;
+    my $u = shift;
+    my $label = _construct_prefix($self);
+
+    # construct label
 
     if ($self->entry->subject_text) {
-        return sprintf "$LJ::SITENAMESHORT Announcement: %s", $self->entry->subject_text;
+        $label .= '.subject';
     } else {
-        return sprintf "$LJ::SITENAMESHORT Announcement: New %s announcement", $self->entry->journal->display_username;
+        $label .= '.nosubject';
     }
+
+    return LJ::Lang::get_text(
+        $u->prop("browselang"),
+        $label,
+        undef,
+        {
+            siteroot        => $LJ::SITEROOT,
+            sitename        => $LJ::SITENAME,
+            sitenameshort   => $LJ::SITENAMESHORT,
+            subject         => $self->entry->subject_text || '',
+            username        => $self->entry->journal->display_username,
+        });
 }
 
 sub as_email_html {
     my $self = shift;
+    my $u = shift;
 
     return sprintf "%s<br />
 <br />
-%s", $self->as_html, $self->content;
+%s", $self->as_html($u), $self->content;
 }
 
 sub as_email_string {
     my $self = shift;
+    my $u = shift;
 
     my $text = $self->content;
     $text =~ s/\n+/ /g;
@@ -54,19 +79,45 @@ sub as_email_string {
 
     return sprintf "%s
 
-%s", $self->as_string, $text;
+%s", $self->as_string($u), $text;
 }
 
 sub as_html {
     my $self = shift;
+    my $u = shift;
     my $entry = $self->entry or return "(Invalid entry)";
-    return 'There is <a href="' . $entry->url . '">a new announcement</a> in ' . $entry->journal->ljuser_display;
+
+    return LJ::Lang::get_text(
+        $u->prop("browselang"),
+        _construct_prefix($self) . '.html',
+        undef,
+        {
+            siteroot        => $LJ::SITEROOT,
+            sitename        => $LJ::SITENAME,
+            sitenameshort   => $LJ::SITENAMESHORT,
+            subject         => $self->entry->subject_text || '',
+            username        => $entry->journal->ljuser_display,
+            url             => $entry->url,
+        });
 }
 
 sub as_string {
     my $self = shift;
+    my $u = shift;
     my $entry = $self->entry or return "(Invalid entry)";
-    return 'There is a new announcement in ' . $entry->journal->display_username . ' at ' . $entry->url;
+
+    return LJ::Lang::get_text(
+        $u->prop("browselang"),
+        _construct_prefix($self) . '.string',
+        undef,
+        {
+            siteroot        => $LJ::SITEROOT,
+            sitename        => $LJ::SITENAME,
+            sitenameshort   => $LJ::SITENAMESHORT,
+            subject         => $self->entry->subject_text || '',
+            username        => $self->entry->journal->display_username,
+            url             => $entry->url,
+        });
 }
 
 sub as_sms {
@@ -79,7 +130,9 @@ sub as_sms {
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-    return "$LJ::SITENAME makes a new announcement";
+    return BML::ml('event.officialpost', { sitename => $LJ::SITENAME }); # $LJ::SITENAME makes a new announcement
 }
+
+sub schwartz_role { 'mass' }
 
 1;

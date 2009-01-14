@@ -124,6 +124,11 @@ html body
     width: 33em;
 }
 
+#lj_controlstrip_actionlinks a
+{
+    white-space: nowrap;
+}
+
 /* Third cell first line */
 #lj_controlstrip_statustext
 {

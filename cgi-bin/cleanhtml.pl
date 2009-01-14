@@ -34,7 +34,6 @@ sub strip_bad_code
 }
 
 package LJ::CleanHTML;
-
 #     LJ::CleanHTML::clean(\$u->{'bio'}, {
 #        'wordlength' => 100, # maximum length of an unbroken "word"
 #        'addbreaks' => 1,    # insert <br/> after newlines where appropriate
@@ -54,6 +53,8 @@ package LJ::CleanHTML;
 #        'extractimages' => 1, # placeholder images
 #        'transform_embed_nocheck' => 1, # do not do checks on object/embed tag transforming
 #        'transform_embed_wmode' => <value>, # define a wmode value for videos (usually 'transparent' is the value you want)
+#        'blocked_links' => [ qr/evil\.com/, qw/spammer\.com/ ], # list of sites which URL's will be blocked
+#        'blocked_link_substitute' => 'http://domain.com/error.html' # blocked links will be replaced by this URL
 #     });
 
 sub helper_preload
@@ -129,9 +130,14 @@ sub clean
     my $remove_colors = $opts->{'remove_colors'} || 0;
     my $remove_sizes = $opts->{'remove_sizes'} || 0;
     my $remove_fonts = $opts->{'remove_fonts'} || 0;
+    my $blocked_links = (exists $opts->{'blocked_links'}) ? $opts->{'blocked_links'} : \@LJ::BLOCKED_LINKS;
+    my $blocked_link_substitute = 
+        (exists $opts->{'blocked_link_substitute'}) ? $opts->{'blocked_link_substitute'} :
+        ($LJ::BLOCKED_LINK_SUBSTITUTE) ? $LJ::BLOCKED_LINK_SUBSTITUTE : '#';
+    my $suspend_msg = $opts->{'suspend_msg'} || 0;
+    my $unsuspend_supportid = $opts->{'unsuspend_supportid'} || 0;
 
     my @canonical_urls; # extracted links
-
     my %action = ();
     my %remove = ();
     if (ref $opts->{'eat'} eq "ARRAY") {
@@ -157,8 +163,11 @@ sub clean
         }
     }
 
-    my @attrstrip = qw();
+    if ($opts->{'strongcleancss'}) {
+        $opts->{'cleancss'} = 1;
+    }
 
+    my @attrstrip = qw();
     # cleancss means clean annoying css
     # clean_js_css means clean javascript from css
     if ($opts->{'cleancss'}) {
@@ -573,6 +582,13 @@ sub clean
                                     next ATTR;
                                 }
                             }
+                            
+                            if ($opts->{'strongcleancss'}) {
+                                if ($hash->{style} =~ /-moz-|absolute|relative|outline|z-index|(?<!-)(?:top|left|right|bottom)\s*:|filter|-webkit-/io) {
+                                    delete $hash->{style};
+                                    next ATTR;
+                                }
+                            }
 
                             # remove specific CSS definitions
                             if ($remove_colors) {
@@ -593,6 +609,11 @@ sub clean
                         }
                     }
 
+                    if (($attr eq 'class' || $attr eq 'id') && $opts->{'strongcleancss'}) {
+                        delete $hash->{$attr};
+                        next;
+		    }
+		    
                     # reserve ljs_* ids for divs, etc so users can't override them to replace content
                     if ($attr eq 'id' && $hash->{$attr} =~ /^ljs_/i) {
                         delete $hash->{$attr};
@@ -640,6 +661,17 @@ sub clean
                     }
                 }
                 if (exists $hash->{href}) {
+                    ## links to some resources will be completely blocked
+                    ## and replaced by value of 'blocked_link_substitute' param
+                    if ($blocked_links) {
+                        foreach my $re (@$blocked_links) {
+                            if ($hash->{href} =~ $re) {
+                                $hash->{href} = sprintf($blocked_link_substitute, LJ::eurl($hash->{href}));
+                                last;
+                            }
+                        }
+                    }
+                    
                     unless ($hash->{href} =~ s/^lj:(?:\/\/)?(.*)$/ExpandLJURL($1)/ei) {
                         $hash->{href} = canonical_url($hash->{href}, 1);
                     }
@@ -998,6 +1030,21 @@ sub clean
     $$data = $newdata;
     $$data .= $extra_text if $extra_text; # invalid markup error
 
+    if ($suspend_msg) {
+        my $msg = qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-color: #ffeeee; background-repeat: repeat-x; border: 1px solid #ff9999; padding: 8px; margin: 5px auto; width: auto; text-align: left; background-image: url('$LJ::IMGPREFIX/message-error.gif');">};
+        my $link_style = "color: #00c; text-decoration: underline; background: transparent; border: 0;";
+
+        if ($unsuspend_supportid) {
+            $msg .= LJ::Lang::ml('cleanhtml.suspend_msg_with_supportid', { aopts => "href='$LJ::SITEROOT/support/see_request.bml?id=$unsuspend_supportid' style='$link_style'" });
+        } else {
+            $msg .= LJ::Lang::ml('cleanhtml.suspend_msg', { aopts => "href='$LJ::SITEROOT/abuse/report.bml' style='$link_style'" });
+        }
+
+        $msg .= "</div>";
+
+        $$data = $msg . $$data;
+    }
+
     return 0;
 }
 
@@ -1243,8 +1290,8 @@ sub clean_event
 
     my $wordlength = defined $opts->{'wordlength'} ? $opts->{'wordlength'} : 40;
 
-    # fast path:  no markup or URLs to linkify
-    if ($$ref !~ /\<|\>|http/ && ! $opts->{preformatted}) {
+    # fast path:  no markup or URLs to linkify, and no suspend message needed
+    if ($$ref !~ /\<|\>|http/ && ! $opts->{preformatted} && !$opts->{suspend_msg}) {
         $$ref =~ s/\S{$wordlength,}/break_word($&,$wordlength)/eg if $wordlength;
         $$ref =~ s/\r?\n/<br \/>/g;
         return;
@@ -1275,6 +1322,8 @@ sub clean_event
         'remove_fonts' => $opts->{'remove_fonts'} ? 1 : 0,
         'transform_embed_nocheck' => $opts->{'transform_embed_nocheck'} ? 1 : 0,
         'transform_embed_wmode' => $opts->{'transform_embed_wmode'},
+        'suspend_msg' => $opts->{'suspend_msg'} ? 1 : 0,
+        'unsuspend_supportid' => $opts->{'unsuspend_supportid'},
     });
 }
 
@@ -1314,6 +1363,7 @@ sub clean_comment
         'allow' => \@comment_all,
         'autoclose' => \@comment_close,
         'cleancss' => 1,
+        'strongcleancss' => 1,
         'extractlinks' => $opts->{'anon_comment'},
         'extractimages' => $opts->{'anon_comment'},
         'noearlyclose' => 1,

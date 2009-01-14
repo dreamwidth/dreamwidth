@@ -14,8 +14,8 @@ sub handle {
         LJ::SMS::stop_all($u, $msg);
       } else {
 
-          $msg->respond("Disable $LJ::SMS_TITLE? ".
-                        "Send YES to confirm. Standard rates apply.", no_quota => 1);
+          $msg->respond("$LJ::SMS_TITLE: Disable $LJ::SMS_TITLE? ".
+                        "Send YES to confirm. Std msg chrgs apply.", no_quota => 1);
 
           $u->set_prop('sms_yes_means', 'stop');
       }
@@ -33,12 +33,13 @@ sub owns {
                        stop
                        end
                        cancel
+                       unsub
                        unsubscribe
                        quit
                        );
 
     foreach my $syn (@synonyms) {
-        return 1 if $msg->body_text =~ /^\s*$syn/i;
+        return 1 if $msg->body_text =~ /^\s*$syn(?!\S)/i;
     }
 
     return 0;

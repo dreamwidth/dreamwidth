@@ -1,7 +1,19 @@
 ;; -*- coding: utf-8 -*-
+
+.awesomely<<
+Awesomely Yours,
+The [[sitenameshort]] Team
+.
+
 .btn.invite=Invite 'em!
 
+.btn.invite2=Send Invite
+
+.custom.message.from=Custom message from
+
 .error.bademail=Bogus looking email: [[errormsg]]
+
+.error.bademail2=The email address you entered is invalid: [[errormsg]]
 
 .error.needcreatelink=You must include the link for your friend to create a journal: [[link]]
 
@@ -28,6 +40,51 @@
 .form.note=If you want to invite your friend to a specific community, you can mention the community name and URL here.
 
 .intro=Use this form as often as you like, or just cut and paste this link and send from your own email account: <strong><a [[aopts]]>[[createlink]]</a></strong>
+
+.msg<<
+[[display_username]] has invited you to join [[sitenameshort]].
+
+[[sitenameshort]] is a place where people post and share thoughts on personal journals and communities. Start your own journal or just kick back and enjoy the atmosphere.
+
+Create an account (yes, it's free):
+
+    [[create_link]]
+
+[[display_username]] will be automatically added to your Friends List, and we'll let them know when you create your account so they can add you as well.
+.
+
+.msg.header=Message:
+
+.msg_body_top=Hi! [[displayname]] ([[username]]) has invited you to come check out [[sitename]].
+
+.msg_body_bottom<<
+Creating an account is free, and you can get started here:
+
+    [[createlink]]
+
+[[username]] will automatically be added to your Friends list, and we'll let them know when you create your account so that they can add you as well.
+.
+
+.msg_custom=It's a place where people post and share thoughts on personal journals and communities. You can start your own journal or just kick back and enjoy the atmosphere.
+
+.msg_footer<<
+This message was sent via the friend 
+invite system on [[sitenameshort]] ([[siteroot]]) by 
+the user [[username]] - [[name]].  If you believe this 
+message to be spam, you may contact [[adminemail].
+.
+
+.msg_footer2=This message was sent via the friend invite system on [[sitenameshort]] ([[siteroot]]) by the user [[username]] - [[name]].  If you believe this message to be spam, you may contact [[adminemail]].
+
+.msg_sig<<
+Awesomely Yours,
+The [[sitename]] Team
+[[siteroot]]
+.
+
+.msg_subject=[[username]] has invited you to join [[sitenameshort]]!
+
+.msg_subject.header=Subject:
 
 .success=Message sent to [[email]]! Want to invite somebody else?
 

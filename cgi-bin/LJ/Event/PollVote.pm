@@ -85,55 +85,56 @@ sub as_html_actions {
     return $ret;
 }
 
+my @_ml_strings = (
+    'esn.poll_vote.email_text', #Hi [[user]],
+                                #
+                                #[[voter]] has replied to [[pollname]].
+                                #
+                                #You can:
+                                #
+    'esn.poll_vote.subject',    #[[user]] voted in a poll!
+    'esn.view_poll_status',     #[[openlink]]View the poll's status[[closelink]]
+    'esn.discuss_poll'          #[[openlink]]Discuss the poll[[closelink]]
+);
+
 sub as_email_subject {
     my $self = shift;
-    return sprintf("%s voted in a poll!", $self->voter->display_username);
+    my $u    = shift;
+    return LJ::Lang::get_text($u->prop('browselang'), 'esn.poll_vote.subject', undef, { user => $self->voter->display_username } );
 }
 
+sub _as_email {
+    my ($self, $u, $is_html) = @_;
+
+    my $vars = {
+        user     => $is_html ? ($u->ljuser_display) : ($u->display_username),
+        voter    => $is_html ? ($self->voter->ljuser_display) : ($self->voter->display_username),
+        pollname => $self->pollname,
+    };
+
+    my $lang     = $u->prop('browselang');
+
+    # Precache text lines
+    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings);
+
+    return LJ::Lang::get_text($lang, 'esn.poll_vote.email_text', undef, $vars) .
+        $self->format_options($is_html, $lang, $vars,
+        {
+            'esn.view_poll_status'  => [ 1, $self->poll->url ],
+            'esn.discuss_poll'      => [ 2, $self->entry->url ],
+        }
+    );
+}
 
 sub as_email_string {
     my ($self, $u) = @_;
-
-    my $username = $u->display_username;
-    my $voter = $self->voter->display_username;
-    my $url = $self->poll->url;
-    my $pollname = $self->pollname;
-    my $entryurl = $self->entry->url;
-
-    my $email = "Hi $username,
-
-$voter has replied to $pollname.
-
-You can:
-
-  - View the poll's status
-    $url
-  - Discuss the poll
-    $entryurl";
-
-    return $email;
+    return _as_email($self, $u, 0);
 }
 
 
 sub as_email_html {
     my ($self, $u) = @_;
-
-    my $username = $u->ljuser_display;
-    my $voter = $self->voter->ljuser_display;
-    my $url = $self->poll->url;
-    my $pollname = $self->pollname;
-    my $entryurl = $self->entry->url;
-
-    my $email = "Hi $username,
-
-$voter has replied to $pollname.
-
-You can:<ul>";
-
-    $email .= "<li><a href=\"$url\">View the poll's status</a></li>";
-    $email .= "<li><a href=\"$entryurl\">Discuss the poll</a></li></ul>";
-
-    return $email;
+    return _as_email($self, $u, 1);
 }
 
 sub content {
@@ -146,9 +147,10 @@ sub subscription_as_html {
     my ($class, $subscr) = @_;
 
     my $pollid = $subscr->arg1;
-    return "Someone votes in a poll I posted" unless $pollid;
 
-    return "Someone votes in poll #$pollid";
+    return $pollid ?
+        BML::ml('event.poll_vote.id') : # "Someone votes in poll #$pollid";
+        BML::ml('event.poll_vote.me');  # "Someone votes in a poll I posted" unless $pollid;
 }
 
 # only users with the track_pollvotes cap can use this

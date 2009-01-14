@@ -15,71 +15,82 @@ sub new {
 
 sub is_common { 0 }
 
+my @_ml_strings_en = (
+    'esn.public',                       # 'public',
+    'esn.befriended.subject',           # '[[who]] added you as a friend!',
+    'esn.add_friend',                   # '[[openlink]]Add [[journal]] to your Friends list[[closelink]]',
+    'esn.read_journal',                 # '[[openlink]]Read [[postername]]\'s journal[[closelink]]',
+    'esn.view_profile',                 # '[[openlink]]View [[postername]]\'s profile[[closelink]]',
+    'esn.edit_friends',                 # '[[openlink]]Edit Friends[[closelink]]',
+    'esn.edit_groups',                  # '[[openlink]]Edit Friends groups[[closelink]]',
+    'esn.befriended.email_text',        # 'Hi [[user]],
+                                        #
+                                        #[[poster]] has added you to their Friends list. They will now be able to read your[[entries]] entries on their Friends page.
+                                        #
+                                        #You can:',
+    'esn.befriended.openid_email_text', # 'Hi [[user]],
+                                        #
+                                        #[[poster]] has added you to their Friends list.
+                                        #
+                                        #You can:',
+);
+
 sub as_email_subject {
     my ($self, $u) = @_;
+    return LJ::Lang::get_text($u->prop('browselang'), 'esn.befriended.subject', undef, { who => $self->friend->display_username } );
+}
 
-    return sprintf "%s added you as a friend!", $self->friend->display_username;
+sub _as_email {
+    my ($self, $u, $is_html) = @_;
+
+    my $lang        = $u->prop('browselang');
+    my $user        = $is_html ? ($u->ljuser_display) : ($u->display_username);
+    my $poster      = $is_html ? ($self->friend->ljuser_display) : ($self->friend->display_username);
+    my $postername  = $self->friend->user;
+    my $journal_url = $self->friend->journal_base;
+    my $journal_profile = $self->friend->profile_url;
+
+    # Precache text lines
+    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings_en);
+
+    my $entries = LJ::is_friend($u, $self->friend) ? "" : " " . LJ::Lang::get_text($lang, 'esn.public', undef);
+    my $is_open_identity = $self->friend->openid_identity;
+
+    my $vars = {
+        who         => $self->friend->display_username,
+        poster      => $poster,
+        postername  => $poster,
+        journal     => $poster,
+        user        => $user,
+        entries     => $entries,
+    };
+
+    my $email_body_key = 'esn.befriended.' .
+        ($u->openid_identity ? 'openid_' : '' ) . 'email_text';
+
+    return LJ::Lang::get_text($lang, $email_body_key, undef, $vars) .
+        $self->format_options($is_html, $lang, $vars,
+        {
+            'esn.add_friend'      => [ LJ::is_friend($u, $self->friend) ? 0 : 1,
+                                            # Why not $self->friend->addfriend_url ?
+                                            "$LJ::SITEROOT/friends/add.bml?user=$postername" ],
+            'esn.read_journal'    => [ $is_open_identity ? 0 : 2,
+                                            $journal_url ],
+            'esn.view_profile'    => [ 3, $journal_profile ],
+            'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/friends/edit.bml" ],
+            'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/friends/editgroups.bml" ],
+        }
+    );
 }
 
 sub as_email_string {
     my ($self, $u) = @_;
-
-    my $user = $u->user;
-    my $poster = $self->friend->user;
-    my $journal_url = $self->friend->journal_base;
-    my $journal_profile = $self->friend->profile_url;
-    my $entries = LJ::is_friend($u, $self->friend) ? "" : " public";
-
-    my $email = qq {Hi $user,
-
-$poster has added you to their Friends list. They will now be able to read your$entries entries on their Friends page.
-
-You can:};
-
-    $email .= "
-  - Add $poster to your Friends list:
-    $LJ::SITEROOT/friends/add.bml?user=$poster"
-       unless LJ::is_friend($u, $self->friend);
-
-    $email .= qq {
-  - Read $poster\'s journal:
-    $journal_url
-  - View $poster\'s profile:
-    $journal_profile
-  - Edit Friends:
-    $LJ::SITEROOT/friends/edit.bml
-  - Edit Friends groups:
-    $LJ::SITEROOT/friends/editgroups.bml};
-
-    return $email;
+    return _as_email($self, $u, 0);
 }
 
 sub as_email_html {
     my ($self, $u) = @_;
-
-    my $user = $u->ljuser_display;
-    my $poster = $self->friend->ljuser_display;
-    my $postername = $self->friend->user;
-    my $journal_url = $self->friend->journal_base;
-    my $journal_profile = $self->friend->profile_url;
-    my $entries = LJ::is_friend($u, $self->friend) ? "" : " public";
-
-    my $email = qq {Hi $user,
-
-$poster has added you to their Friends list. They will now be able to read your$entries entries on their Friends page.
-
-You can:
-<ul>};
-
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/add.bml?user=$postername\">Add $postername to your Friends list</a></li>"
-       unless LJ::is_friend($u, $self->friend);
-
-    $email .= "<li><a href=\"$journal_url\">Read $postername\'s journal</a></li>";
-    $email .= "<li><a href=\"$journal_profile\">View $postername\'s profile</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/edit.bml\">Edit Friends</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/editgroups.bml\">Edit Friends groups</a></li></ul>";
-
-    return $email;
+    return _as_email($self, $u, 1);
 }
 
 sub friend {
@@ -122,13 +133,15 @@ sub as_sms {
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-
     my $journal = $subscr->journal or croak "No user";
-
     my $journal_is_owner = LJ::u_equals($journal, $subscr->owner);
 
-    my $user = $journal_is_owner ? "me" : $journal->ljuser_display;
-    return "Someone adds $user as a friend";
+    if ($journal_is_owner) {
+        return BML::ml('event.befriended.me');   # "Someone adds me as a friend";
+    } else {
+        my $user = $journal->ljuser_display;
+        return BML::ml('event.befriended.user', { user => $user } ); # "Someone adds $user as a friend";
+    }
 }
 
 sub content {

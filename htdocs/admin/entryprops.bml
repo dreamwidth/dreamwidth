@@ -27,14 +27,10 @@ body<=
     # WE HAEV ENTRY!!
 
     my $subject;
-    if ($entry->subject_html) {
-        if ($entry->visible_to($remote)) {
-            $subject = $entry->subject_html;
-        } else {
-            $subject = "<em>hidden</em>";
-        }
+    if ($entry->visible_to($remote)) {
+        $subject = $entry->subject_html ? $entry->subject_html : "<em>no subject</em>";
     } else {
-        $subject = "<em>no subject</em>";
+        $subject = "<em>hidden</em>";
     }
 
     my $security = $entry->security;
@@ -54,7 +50,7 @@ body<=
     $ret .= "<strong>User Date/Time</strong>: " . $entry->eventtime_mysql . "<br />";
     $ret .= "<strong>Server Date/Time</strong>: " . $entry->logtime_mysql . "<br />";
     $ret .= "<strong>Journal Adult Content</strong>: " . ($entry->journal->adult_content || "none")
-        . " (admin setting: " . ($entry->admin_content_flag || "none") . ")<br />";
+        . " (admin setting: " . ($entry->journal->admin_content_flag || "none") . ")<br />";
 
     $ret .= "<br />";
 

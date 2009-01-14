@@ -98,7 +98,8 @@ sub END { LJ::end_request(); }
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
-                    "notifyarchive", "notifybookmarks",
+                    "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
+                    "logprop_history",
                     );
 
 # keep track of what db locks we have out
@@ -321,21 +322,25 @@ sub mogclient {
 }
 
 sub theschwartz {
-    return LJ::Test->theschwartz() if $LJ::_T_FAKESCHWARTZ;
-    return $LJ::SchwartzClient     if $LJ::SchwartzClient;
+    return LJ::Test->theschwartz(@_) if $LJ::_T_FAKESCHWARTZ;
 
     my $opts = shift;
 
-    my $mode = $opts->{mode} || "";
-    my @dbs = @LJ::THESCHWARTZ_DBS;
-    push @dbs, @LJ::THESCHWARTZ_DBS_NOINJECT if $mode eq "drain";
+    my $role = $opts->{role} || "default";
 
-    if (@dbs) {
-        # FIXME: use LJ's DBI::Role system for this.
-        $LJ::SchwartzClient = TheSchwartz->new(databases => \@dbs);
+    return $LJ::SchwartzClient{$role} if $LJ::SchwartzClient{$role};
+
+    unless (scalar grep { defined $_->{role} } @LJ::THESCHWARTZ_DBS) { # old config
+        $LJ::SchwartzClient{$role} = TheSchwartz->new(databases => \@LJ::THESCHWARTZ_DBS);
+        return $LJ::SchwartzClient{$role};
     }
 
-    return $LJ::SchwartzClient;
+    my @dbs = grep { $_->{role}->{$role} } @LJ::THESCHWARTZ_DBS;
+    die "Unknown role in LJ::theschwartz: '$role'" unless @dbs;
+
+    $LJ::SchwartzClient{$role} = TheSchwartz->new(databases => \@dbs);
+
+    return $LJ::SchwartzClient{$role};
 }
 
 sub sms_gateway {
@@ -435,6 +440,83 @@ sub get_timeupdate_multi {
     return \%timeupdate;
 }
 
+
+
+
+
+# <LJFUNC>
+# name: LJ::get_times_multi
+# des: Get the last update time and time create.
+# args: opt?, uids
+# des-opt: optional hashref, currently can contain 'memcache_only'
+#          to only retrieve data from memcache
+# des-uids: list of userids to load timeupdate and timecreate for
+# returns: hashref; uid => {timeupdate => unix timeupdate, timecreate => unix timecreate}
+# </LJFUNC>
+sub get_times_multi {
+    my ($opt, @uids) = @_;
+
+    # allow optional opt hashref as first argument
+    unless (ref $opt eq 'HASH') {
+        push @uids, $opt;
+        $opt = {};
+    }
+    return {} unless @uids;
+
+    my @memkeys = map { [$_, "tu:$_"], [$_, "tc:$_"] } @uids;
+    my $mem = LJ::MemCache::get_multi(@memkeys) || {};
+
+    my @need  = ();
+    my %times = ();
+    foreach my $uid (@uids) {
+        my ($tc, $tu) = ('', '');
+        if ($tu = $mem->{"tu:$uid"}) {
+            $times{updated}->{$uid} = unpack("N", $tu);
+        } 
+        if ($tc = $mem->{"tc:$_"}){
+            $times{created}->{$_} = $tc;
+        }
+        
+        push @need => $uid
+            unless $tc and $tu;
+    }
+
+    # if everything was in memcache, return now
+    return \%times if $opt->{'memcache_only'} or not @need;
+
+    # fill in holes from the database.  safe to use the reader because we
+    # only do an add to memcache, whereas postevent does a set, overwriting
+    # any potentially old data
+    my $dbr = LJ::get_db_reader();
+    my $need_bind = join(",", map { "?" } @need);
+
+    # Fetch timeupdate and timecreate from DB.    
+    # Timecreate is loaded in pre-emptive goals.
+    # This is tiny optimization for 'get_timecreate_multi',
+    # which is called right after this method during 
+    # friends page generation.
+    my $sth = $dbr->prepare("
+        SELECT userid, 
+               UNIX_TIMESTAMP(timeupdate),
+               UNIX_TIMESTAMP(timecreate)
+        FROM   userusage 
+        WHERE 
+               userid IN ($need_bind)");
+    $sth->execute(@need);
+    while (my ($uid, $tu, $tc) = $sth->fetchrow_array){
+        $times{updated}->{$uid} = $tu;
+        $times{created}->{$uid} = $tc;
+
+        # set memcache for this row
+        LJ::MemCache::add([$uid, "tu:$uid"], pack("N", $tu), 30*60);
+        # set this for future use
+        LJ::MemCache::add([$uid, "tc:$uid"], $tc, 60*60*24); # as in LJ::User->timecreate
+    }
+
+    return \%times;
+}
+
+
 # <LJFUNC>
 # name: LJ::get_friend_items
 # des: Return friend items for a given user, filter, and period.
@@ -489,10 +571,15 @@ sub get_friend_items
     my $skip = $opts->{'skip'}+0;
     my $getitems = $itemshow + $skip;
 
-    my $filter = $opts->{'filter'}+0;
+    # friendspage per day is allowed only for journals with 
+    # special cap 'friendspage_per_day'
+    my $events_date = $opts->{u}->get_cap('friendspage_per_day')
+                        ? $opts->{events_date}
+                        : '';
 
+    my $filter  = int $opts->{'filter'};
     my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14;  # 2 week default.
-    my $lastmax = $LJ::EndOfTime - time() + $max_age;
+    my $lastmax = $LJ::EndOfTime - ($events_date || (time() - $max_age));
     my $lastmax_cutoff = 0; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)
 
     # sanity check:
@@ -546,7 +633,11 @@ sub get_friend_items
         if ($LJ::SLOPPY_FRIENDS_THRESHOLD && $fcount > $LJ::SLOPPY_FRIENDS_THRESHOLD) {
             $tu_opts->{memcache_only} = 1;
         }
-        my $timeupdate = LJ::get_timeupdate_multi($tu_opts, keys %$friends);
+        
+        my $times = $events_date 
+                        ? LJ::get_times_multi($tu_opts, keys %$friends)
+                        : {updated => LJ::get_timeupdate_multi($tu_opts, keys %$friends)};
+        my $timeupdate = $times->{updated};
 
         # now push a properly formatted @friends_buffer row
         foreach my $fid (keys %$timeupdate) {
@@ -556,7 +647,16 @@ sub get_friend_items
             push @friends_buffer, [ $fid, $rupdate, $clusterid, $friends->{$fid}, $fu ];
         }
 
-        @friends_buffer = sort { $a->[1] <=> $b->[1] } @friends_buffer;
+        @friends_buffer = 
+            sort { $a->[1] <=> $b->[1] } 
+            grep { 
+                $timeupdate->{$_->[0]} >= $lastmax and # reverse index
+                ($events_date 
+                    ? $times->{created}->{$_->[0]} < $events_date
+                    : 1
+                )
+            }
+            @friends_buffer;
 
         # note that we've already loaded the friends
         $fr_loaded = 1;
@@ -723,13 +823,14 @@ sub get_friend_items
         $opts->{'friends_u'}->{$friendid} = $fr->[4]; # friend u object
 
         my @newitems = LJ::get_log2_recent_user({
-            'clusterid' => $fr->[2],
-            'userid' => $friendid,
-            'remote' => $remote,
-            'itemshow' => $itemsleft,
-            'notafter' => $lastmax,
-            'dateformat' => $opts->{'dateformat'},
-            'update' => $LJ::EndOfTime - $fr->[1], # reverse back to normal
+            'clusterid'   => $fr->[2],
+            'userid'      => $friendid,
+            'remote'      => $remote,
+            'itemshow'    => $itemsleft,
+            'notafter'    => $lastmax,
+            'dateformat'  => $opts->{'dateformat'},
+            'update'      => $LJ::EndOfTime - $fr->[1], # reverse back to normal
+            'events_date' => $events_date,
         });
 
         # stamp each with clusterid if from cluster, so ljviews and other
@@ -968,15 +1069,40 @@ sub get_recent_items
         $dateformat = "%Y %m %d %H %i %s %w"; # yyyy mm dd hh mm ss day_of_week
     }
 
+    my ($sql_limit, $sql_select) = ('', '');
+    if ($opts->{'ymd'}) {
+        my ($year, $month, $day);
+        if ($opts->{'ymd'} =~ m!^(\d\d\d\d)/(\d\d)/(\d\d)\b!) {
+            ($year, $month, $day) = ($1, $2, $3);
+            # check
+            if ($year !~ /^\d+$/) { $$err = "Corrupt or non-existant year."; return (); }
+            if ($month !~ /^\d+$/) { $$err = "Corrupt or non-existant month." ; return (); }
+            if ($day !~ /^\d+$/) { $$err = "Corrupt or non-existant day." ; return (); }
+            if ($month < 1 || $month > 12 || int($month) != $month) { $$err = "Invalid month." ; return (); }
+            if ($year < 1970 || $year > 2038 || int($year) != $year) { $$err = "Invalid year: $year"; return (); }
+            if ($day < 1 || $day > 31 || int($day) != $day) { $$err = "Invalid day."; return (); }
+            if ($day > LJ::days_in_month($month, $year)) { $$err = "That month doesn't have that many days."; return (); }
+        } else {
+            $$err = "wrong date: " . $opts->{'ymd'};
+            return ();
+        }
+        $sql_limit  = "LIMIT 200";
+        $sql_select = "AND year=$year AND month=$month AND day=$day";
+        $extra_sql .= "allowmask, ";
+    } else {
+        $sql_limit  = "LIMIT $skip,$itemshow";
+        $sql_select = "AND $sort_key <= $notafter";
+    }
+
     $sql = qq{
         SELECT jitemid AS 'itemid', posterid, security, $extra_sql
                DATE_FORMAT(eventtime, "$dateformat") AS 'alldatepart', anum,
                DATE_FORMAT(logtime, "$dateformat") AS 'system_alldatepart',
                allowmask, eventtime, logtime
         FROM log2 USE INDEX ($sort_key)
-        WHERE journalid=$userid AND $sort_key <= $notafter $secwhere $jitemidwhere $securitywhere
+        WHERE journalid=$userid $sql_select $secwhere $jitemidwhere $securitywhere
         ORDER BY journalid, $sort_key
-        LIMIT $skip,$itemshow
+        $sql_limit
     };
 
     unless ($logdb) {
@@ -1822,6 +1948,8 @@ sub get_talktext2
                                "WHERE journalid=$journalid AND jtalkid IN ($in)");
         $sth->execute;
         while (my ($id, $subject, $body) = $sth->fetchrow_array) {
+            $subject = "" unless defined $subject;
+            $body = "" unless defined $body;
             LJ::text_uncompress(\$body);
             $lt->{$id} = [ $subject, $body ];
             LJ::MemCache::add([$journalid,"talkbody:$clusterid:$journalid:$id"], $body)
@@ -2550,11 +2678,11 @@ sub blocking_report {
 # des: deletes comments, but not the relational information, so threading doesn't break
 # info: The tables [dbtable[talkprop2]] and [dbtable[talktext2]] are deleted from.  [dbtable[talk2]]
 #       just has its state column modified, to 'D'.
-# args: u, nodetype, nodeid, talkids+
+# args: u, nodetype, nodeid, talkids
 # des-nodetype: The thread nodetype (probably 'L' for log items)
 # des-nodeid: The thread nodeid for the given nodetype (probably the jitemid
 #              from the [dbtable[log2]] row).
-# des-talkids: List of talkids to delete.
+# des-talkids: List array of talkids to delete.
 # returns: scalar integer; number of items deleted.
 # </LJFUNC>
 sub delete_comments {
@@ -2585,6 +2713,7 @@ sub delete_comments {
     foreach my $talkid (@talkids) {
         my $cmt = LJ::Comment->new($u, jtalkid => $talkid);
         push @jobs, LJ::EventLogRecord::DeleteComment->new($cmt)->fire_job;
+        LJ::run_hooks('delete_comment', $jid, $nodeid, $talkid); # jitemid, jtalkid
     }
 
     my $sclient = LJ::theschwartz();

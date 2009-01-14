@@ -220,7 +220,7 @@ sub guess_remote {
     my $class = shift;
 
     my $uniq = $class->current_uniq;
-    return undef unless $uniq;
+    return unless $uniq;
 
     my $uid = $class->load_mapping( uniq => $uniq );
     return LJ::load_userid($uid);
@@ -230,7 +230,7 @@ sub guess_remote {
 # if 'remote' passed in, returns mapped uniq
 sub load_mapping {
     my $class = shift;
-    return undef if $class->is_disabled;
+    return if $class->is_disabled;
 
     my %opts = @_;
 
@@ -506,7 +506,7 @@ sub current_uniq {
     return $val if $val;
 
     # otherwise, legacy place is in $r->notes
-    return undef unless LJ::is_web_context();
+    return unless LJ::is_web_context();
 
     my $r = BML::get_request();
 

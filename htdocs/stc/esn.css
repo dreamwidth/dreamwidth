@@ -19,6 +19,10 @@
     background-color: #eee;
 }
 
+.Subscribe tr.altrow {
+    background-color: #f1f1f1;
+}
+
 .Subscribe tr.Inactive a {
     color: #aaa;
 }
@@ -36,16 +40,14 @@
 }
 
 .Subscribe td p {
-    font-size: 1.4em;
-    padding: 0 1em;
-    color: #bbb;
+    color: #666;
     background: #fff;
-    line-height: 1.5;
     cursor: default !important;
 }
 
 .CategoryRow .Caption {
     text-align: right;
+    vertical-align: bottom;
 }
 
 .CategoryRow {
@@ -54,10 +56,12 @@
 
 .CategoryRow td {
     vertical-align: middle;
-    background-color: #eee;
     border-bottom: 1px solid #ddd;
-    padding: .2em .4em;
-    font-size: .85em;
+    padding: 2em .4em .2em .4em;
+}
+
+.CategoryRowFirst td {
+    padding-top: .2em;
 }
 
 .CategoryRow .caption {
@@ -309,6 +313,12 @@ span.InboxItem_Read:hover a {
 }
 .folders a.subs {
     padding-left: 1em;
+}
+.folders .subs {
+    padding-left: 1em;
+}
+.folders a.subsubs {
+    padding-left: 2em;
 }
 .folders a:visited, .folders a:link {
     color: #000;

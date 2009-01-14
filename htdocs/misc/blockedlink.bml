@@ -1,0 +1,14 @@
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_ml .link_was_blocked _ml?>
+<br/>
+<br/>
+<b><?_code
+    use strict;
+    BML::decl_params('url'=>qr/./); 
+    return LJ::ehtml($GET{url}); 
+_code?></b>
+<=body
+page?>
+

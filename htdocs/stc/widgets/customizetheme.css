@@ -31,7 +31,8 @@
     margin: 0 0 15px 134px;
     position: relative;
     border: 1px solid #C7E0F6;
-    border-left: none;
+    border-left: none; 
+    zoom: 1;
 
 }
 .customize-content .subheader {

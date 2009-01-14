@@ -17,6 +17,10 @@
     my $remote = LJ::get_remote();
     return $err->("You must be logged in to edit layers.")
         unless $remote;
+        
+    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $remote);
+    return $err->($ML{'/customize/advanced/index.bml.error.advanced.editing.denied'})
+        if $no_layer_edit;
 
     # load layer
     my $lay = LJ::S2::load_layer($id);

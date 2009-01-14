@@ -22,7 +22,7 @@ If this setting is set to true (1), then no meta-data properties are returned.
 </des></scalar></key>
 
 <key name="selecttype" count="1"><scalar><des>
-Determines how you want to specify what part of the journal to download. Valid values are <emphasis>day</emphasis> to download one entire day, <emphasis>lastn</emphasis> to get the most recent n entries (where n is specified in the howmany field), <emphasis>one</emphasis> to download just one specific entry, or <emphasis>syncitems</emphasis> to get some number of items (which the server decides) that have changed since a given time (specified in the lastsync  parameter>). Not that because the server decides what items to send, you may or may not be getting everything that's changed. You should use the syncitems selecttype in conjunction with the syncitems protocol mode.
+Determines how you want to specify what part of the journal to download. Valid values are <emphasis>day</emphasis> to download one entire day, <emphasis>lastn</emphasis> to get the most recent n entries (where n is specified in the howmany field), <emphasis>one</emphasis> to download just one specific entry, or <emphasis>syncitems</emphasis> to get some number of items (which the server decides) that have changed since a given time (specified in the lastsync  parameter). Note that because the server decides what items to send, you may or may not be getting everything that's changed. You should use the syncitems selecttype in conjunction with the syncitems protocol mode.
 </des></scalar></key>
 
 <key name="lastsync" count="opt"><scalar><des>

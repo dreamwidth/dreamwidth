@@ -150,8 +150,9 @@
    }
 
    function checkLength() {
-        var textbox = xGetElementById('body');
-        if (!textbox) return true;
+        var qr_form = xGetElementById('qrform');
+        if (!qr_form) return true;
+        var textbox = qr_form.body;
         if (textbox.value.length > 4300) {
              alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of 4300.  Please try shortening it and then post again.');
              return false;
@@ -161,8 +162,9 @@
 
     // Maintain entry through browser navigations.
     function save_entry() {
-        var qr_body = xGetElementById('body');
-        if (!qr_body) return false;
+        var qr_form = xGetElementById('qrform');
+        if (!qr_form) return false;
+        var qr_body = qr_form.body;
         var qr_subject = xGetElementById('subject');
         var do_spellcheck = xGetElementById('do_spellcheck');
         var qr_dtid = xGetElementById('dtid');
@@ -207,8 +209,9 @@
 
                 quickreply(dtid.value, ptid.value, saved_body.value);
 
-                var body = xGetElementById('body');
-                if (! body) return false;
+                var qr_form = xGetElementById('qrform');
+                if (!qr_form) return false;
+                var body = qr_form.body
                 body.value = saved_body.value;
 
                 // Some browsers require we explicitly set this after the div has moved

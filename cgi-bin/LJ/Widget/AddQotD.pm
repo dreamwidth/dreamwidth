@@ -13,7 +13,7 @@ sub render_body {
 
     my $qid = $opts{qid};
     my (@classes, $show_logged_out);
-    my ($subject, $text, $tags, $from_user, $img_url, $extra_text, $countries, $link_url);
+    my ($subject, $text, $tags, $from_user, $img_url, $extra_text, $impression_url, $domain, $countries, $link_url, $is_special);
     my ($start_month, $start_day, $start_year);
     my ($end_month, $end_day, $end_year);
     if ($qid) {
@@ -29,8 +29,11 @@ sub render_body {
         $from_user = $question->{from_user};
         $img_url = $question->{img_url};
         $extra_text = $question->{extra_text};
+        $impression_url = $question->{impression_url};
+        $domain = $question->{domain};
         $countries = $question->{countries};
         $link_url = $question->{link_url};
+        $is_special = $question->{is_special};
 
         my $start_date = DateTime->from_epoch( epoch => $question->{time_start}, time_zone => 'America/Los_Angeles' );
         my $end_date = DateTime->from_epoch( epoch => $question->{time_end}, time_zone => 'America/Los_Angeles' );
@@ -100,6 +103,18 @@ sub render_body {
           maxlength => 4,
           value => $end_year ) . " @ 11:59 PM</td></tr>";
 
+    $ret .= "<tr><td valign='top'>Show on:</td><td>";
+    $ret .= $class->html_select
+        ( name => 'domain',
+          selected => $domain || "homepage",
+          list => [ LJ::QotD->get_domains ] ) . "</td></tr>";
+
+    $ret .= "<tr><td valign='top'>" . LJ::Lang::ml('widget.addqotd.is_special') . "</td><td>";
+    $ret .= $class->html_select
+        ( name => 'is_special',
+          selected => $is_special || "N",
+          list => [ "N", "No", "Y", "Yes" ] ) . "</td></tr>";
+
     $ret .= "<tr><td valign='top'>Subject:</td><td>";
     $ret .= $class->html_text
         ( name => 'subject',
@@ -146,6 +161,13 @@ sub render_body {
           cols => 30,
           wrap => 'soft',
           value => $extra_text ) . "<br /><small>" . $class->ml('widget.addqotd.extratext.note') . "</small></td></tr>";
+
+    $ret .= "<tr><td valign='top'>Impression URL (optional):</td><td>";
+    $ret .= $class->html_text
+        ( name => 'impression_url',
+          size => 30,
+          value => $impression_url ) . "<br />";
+    $ret .= "<small>Use <code>[[uniq]]</code> in the URL to have a unique identifier placed there automatically.</small></td></tr>";
 
     my $hook_rv = LJ::run_hook("qotd_class_checkboxes", class => $class, classes => \@classes, show_logged_out => $show_logged_out);
 
@@ -222,6 +244,9 @@ sub handle_post {
     die "No question subject specified." unless $post->{subject};
     die "No question text specified." unless $post->{text};
 
+    # Make sure the domain is valid
+    die "Invalid domain: " . LJ::ehtml($post->{domain}) unless LJ::QotD->is_valid_domain($post->{domain});
+
     # Make sure the from_user is valid (if given)
     my $from_user = $post->{from_user};
     if ($from_user) {
@@ -261,10 +286,13 @@ sub handle_post {
          tags       => LJ::QotD->add_default_tags($post->{tags}),
          img_url    => LJ::CleanHTML::canonical_url($post->{img_url}),
          extra_text => $post->{extra_text},
+         impression_url => LJ::CleanHTML::canonical_url($post->{impression_url}),
          classes => $post->{classes},
          show_logged_out => $post->{show_logged_out},
          countries  => $countries,
          link_url   => LJ::CleanHTML::canonical_url($post->{link_url}),
+         domain     => $post->{domain},
+         is_special => $post->{is_special} eq "Y" ? "Y" : "N",
     );
 
     return;

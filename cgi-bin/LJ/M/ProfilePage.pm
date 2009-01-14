@@ -42,7 +42,7 @@ sub _init {
         } elsif ($u->is_syndicated) {
             push @props, qw(rssparseerror);
         } else {
-            push @props, qw(gizmo aolim icq yahoo msn gender jabber google_talk skype);
+            push @props, qw(gizmo aolim icq yahoo msn gender jabber google_talk skype last_fm_user);
         }
         LJ::load_user_props($u, @props);
     }
@@ -87,6 +87,7 @@ sub remote_can_post {
     my $remote = LJ::get_remote()
         or return 0;
     return 0 unless $pm->has_journal;
+    return 0 if $remote->is_identity;
     return LJ::can_use_journal($remote->id, $pm->{u}->user);
 }
 
@@ -128,7 +129,7 @@ sub header_bar_links {
      }
 
      unless ($LJ::DISABLED{'nudge'} || $pm->remote_isowner || $pm->{u}->is_community || ! $pm->has_journal) {
-         push @ret, "<a href='$LJ::SITEROOT/friends/nudge.bml?user=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/btn_nudge.gif' width='22' height='20' alt='Nudge a friend' title='Nudge a friend' border='0' /></a>";
+         push @ret, "<a href='$LJ::SITEROOT/friends/nudge.bml?user=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/btn_nudge.gif' width='22' height='20' alt='$BML::ML{'.label.nudge'}' title='$BML::ML{'.label.nudge'}' border='0' /></a>";
      }
 
      if ($remote && !$pm->{u}->is_syndicated && $remote->can_use_esn) {

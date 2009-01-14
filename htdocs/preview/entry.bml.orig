@@ -1,0 +1,314 @@
+<?_code
+{
+    use strict;
+    return "<?requirepost?>" unless LJ::did_post();
+
+    my $ret;
+    my $remote = LJ::get_remote();
+    my $styleid; my $stylesys = 1;
+
+    ### Figure out poster/journal
+    my ($u, $up);
+    if ($POST{'usejournal'}) {
+        $u = LJ::load_user($POST{'usejournal'});
+        $up = $POST{'user'} ? LJ::load_user($POST{'user'}) : $remote;
+    } elsif ($POST{'user'}) {
+        $u = LJ::load_user($POST{'user'});
+    } else {
+        $u = $remote;
+    }
+    $up = $u unless $up;
+
+    ### Set up preview variables
+    my ($ditemid, $anum, $itemid);
+    my %req = ( 'usejournal' => $POST{'usejournal'}, );
+    LJ::entry_form_decode(\%req, \%POST);
+
+    my ($event, $subject) = ($req{'event'}, $req{'subject'});
+    LJ::CleanHTML::clean_subject(\$subject);
+
+    # parse out embed tags from the RTE
+    $event = LJ::EmbedModule->transform_rte_post($event);
+    # do first expand_embedded pass with the preview flag to extract
+    # embedded content before cleaning and replace with tags
+    # the cleaner won't eat
+    LJ::EmbedModule->parse_module_embed($u, \$event, preview => 1,);
+    # clean content normally
+    LJ::CleanHTML::clean_event(\$event, {
+        preformatted => $req{'prop_opt_preformatted'},
+    });
+    # expand the embedded content for reals
+    LJ::EmbedModule->expand_entry($u, \$event, preview => 1,);
+
+    my $r = BML::get_request;
+    my $ctx;
+
+    if ($u && $up) {
+        my $r = Apache->request;
+        $r->notes("_journal", $u->{user});
+        $r->notes("journalid", $u->{userid});
+
+        ### Load necessary props
+        my @needed_props = ("stylesys", "s2_style", "url", "urlname",
+                            "opt_usesharedpic", "journaltitle", "journalsubtitle",);
+
+        LJ::load_user_props($u, @needed_props);
+
+        ### Determine style system to preview with
+        my $get_styleinfo = sub {
+            if ( $u->{'stylesys'} == 2 ) {
+                my $forceflag = 0;
+                LJ::run_hooks("force_s1", $u, \$forceflag);
+
+                # check whether to use custom comment pages
+                $ctx = LJ::S2::s2_context($r, $u->{'s2_style'});
+                my $view_entry_disabled = $ctx->[S2::PROPS]->{'view_entry_disabled'} if $ctx;
+            
+                return (2, $u->{'s2_style'}) unless $forceflag || $view_entry_disabled;
+            }
+            # no special case and not s2, fall through to s1
+            return (1, 0);
+        };
+
+        ($stylesys, $styleid) = $get_styleinfo->();
+    } else {
+        $stylesys = 1; $styleid = 0;
+    }
+
+    if ($stylesys == 1) {
+        # pre-load common strings for little speed and less typing later
+        # (we're doing this *after* set_language_scope is called, because
+        # two below are relative strings)
+        my %T = qw(postcomments   talk.commentpost
+                   readcomments   talk.commentsread
+                   link           talk.commentpermlink
+                   nosubject      .nosubject
+            );
+        foreach (keys %T) { $T{$_} = $ML{$T{$_}}; }
+        # make the title
+        {
+            my $subject = $req{'subject'} || $req{'event'};
+            LJ::CleanHTML::clean_subject_all(\$subject);
+            $subject =~ s/\n.*//s;
+            # yes, the 3 param to text_trim is chars, and length returns bytes, but
+            # it works, as bytes >= chars:
+            $subject = LJ::text_trim($subject, 0, length($req{'subject'}) || 40);
+        }
+
+        $ret .= "<p>";
+
+        if ($u) {
+            $ret .= "<table><tr valign='middle'>";
+            my $picid = LJ::get_picid_from_keyword($up, $req{'prop_picture_keyword'});
+            my $upics = LJ::get_userpic_info($up);
+            my $pic   = $upics->{'pic'}->{$picid};
+
+            if ($pic) {
+                my $alt = $up->{'name'};
+                if ($req{'prop_picture_keyword'}) {
+                    $alt .= ": $req{'prop_picture_keyword'}";
+                }
+                LJ::text_out(\$alt);
+                $alt = LJ::ehtml($alt);
+                $ret .= "<td><img src='$LJ::USERPIC_ROOT/$picid/$u->{'userid'}' width='$pic->{'width'}' ".
+                    "height='$pic->{'height'}' align='absmiddle' ".
+                    "hspace='3' title='$alt' alt=''></td>";
+            }
+
+            $ret .= "<td>";
+            my $is_shared = $u->{'journaltype'} eq 'C' || $u->{'journaltype'} eq 'S';
+            if ($is_shared) {
+                $ret .= BML::ml("talk.somebodywrote_comm", { 'realname' => LJ::ehtml($up->{'name'}),
+                                                             'userlink' => LJ::ljuser($up),
+                                                             'commlink' => LJ::ljuser($u) });
+            } else {
+                $ret .= BML::ml("talk.somebodywrote", { 'realname' => LJ::ehtml($up->{'name'}),
+                                                        'userlink' => LJ::ljuser($up) });
+            }
+
+            my $etime = LJ::date_to_view_links($u, "$req{'year'}-$req{'mon'}-$req{'day'}");
+
+            $req{'hour'} = int($req{'hour'});
+            $req{'min'} = int($req{'min'});
+
+            $ret .= "<br /><font size='-1'>@ $etime $req{'hour'}:$req{'min'}:00</font>";
+            $ret .= "</td></tr></table>";
+        }
+
+        ## dump the log entry, unless we're browsing a thread.
+        my %current;
+        if ($req{'prop_current_mood'} || $req{'prop_current_moodid'}) {
+            my $themeid = $up->{'moodthemeid'};
+            my $moodid = $req{'prop_current_moodid'};
+            my $mood = $req{'prop_current_mood'};
+
+            my $moodname;
+            my $moodpic;
+
+            # favor custom mood over system mood
+            if (my $val = $mood) {
+                LJ::CleanHTML::clean_subject(\$val);
+                $moodname = $val;
+            }
+
+            if (my $val = $moodid) {
+                $moodname ||= LJ::mood_name($val);
+                my %pic;
+                if (LJ::get_mood_picture($themeid, $val, \%pic)) {
+                    $moodpic = "<img src=\"$pic{'pic'}\" align='absmiddle' width='$pic{'w'}' " .
+                               "height='$pic{'h'}' vspace='1' alt='' /> ";
+                }
+            }
+
+            $current{'Mood'} = "$moodpic$moodname";
+        }
+        if ($req{'prop_current_music'}) {
+            $current{'Music'} = $req{'prop_current_music'};
+            LJ::CleanHTML::clean_subject(\$current{'Music'});
+        }
+
+        $ret .= "<div style='margin-left: 30px'>";
+
+        if (%current)
+        {
+            $ret .= "<table border=0>\n";
+            foreach (sort keys %current) {
+                my $curkey = "talk.curname_" . $_;
+                my $curname = BML::ml($curkey);
+                $curname = "<b>Current $_:</b>" unless $curname;
+                $ret .= "<tr><td align=right>$curname</td><td>$current{$_}</td></tr>\n";
+            }
+            $ret .= "</table><p>\n";
+        }
+
+        ### security indicator
+        my $sec = "";
+        if ($req{'security'} eq "private") {
+            $sec = BML::fill_template("securityprivate");
+        } elsif ($req{'security'} eq "usemask") {
+            $sec = BML::fill_template("securityprotected");
+        }
+
+        $sec .= "<br />\n" unless $sec eq "" or $req{'subject'};
+        $ret .= $sec;
+
+        ###
+        if ($subject) {
+            BML::ebml(\$subject);
+            $ret .= "<font face='Arial,Helvetica' size='+1'><i><b>$subject</b></i></font><br />\n";
+        }
+
+        $ret .= $event;
+        $ret .= "</div>";
+
+        $ret .= "<br clear='all' /><hr width='100%' size='2' align='center' />";
+    } else {
+        $LJ::S2::ret_ref = \$ret;
+        my $opts;
+        $opts->{'r'} = $r;
+
+        $u->{'_s2styleid'} = $styleid + 0;
+        $u->{'_journalbase'} = LJ::journal_base($u->{'user'});
+
+        $LJ::S2::CURR_CTX = $ctx;
+
+        my $p = LJ::S2::Page($u, $opts);
+        $p->{'_type'} = "EntryPage";
+        $p->{'view'} = "entry";
+        $p->{'comment_pages'} = undef;
+        $p->{'comments'} = [];
+        $p->{'comment_pages'} = undef;
+
+        my $userlite_journal = LJ::S2::UserLite($u);
+        my $userlite_poster  = LJ::S2::UserLite($up);
+
+        my $userpic = LJ::S2::Image_userpic($up, 0, $req{'prop_picture_keyword'});
+
+        my $comments = LJ::S2::CommentInfo({
+            'read_url' => "#",
+            'post_url' => "#",
+            'count' => "0",
+            'maxcomments' => 0,
+            'enabled' => ($u->{'opt_showtalklinks'} eq "Y" && !
+                          $req{'prop_opt_nocomments'}) ? 1 : 0,
+                'screened' => 0,
+            });
+
+        # build tag objects, faking kwid as '0'
+        # * invalid tags will be stripped by is_valid_tagstring()
+        my @taglist = ();
+        LJ::Tags::is_valid_tagstring($POST{prop_taglist}, \@taglist);
+        @taglist = map { LJ::S2::Tag($u, 0, $_) } @taglist;
+
+        # format it
+        my $raw_subj = $req{'subject'};
+
+        my $s2entry = LJ::S2::Entry($u, {
+            'subject' => $subject,
+            'text' => $event,
+            'dateparts' => "$req{'year'} $req{'mon'} $req{'day'} $req{'hour'} $req{'min'} 00 ",
+            'security' => $req{'security'},
+            'allowmask' => $req{'allowmask'},
+            'props' => $req{'props'},
+            'itemid' => 0,
+            'comments' => $comments,
+            'journal' => $userlite_journal,
+            'poster' => $userlite_poster,
+            'new_day' => 0,
+            'end_day' => 0,
+            'tags' => \@taglist,
+            'userpic' => $userpic,
+            'permalink_url' => "#",
+        });
+
+        $p->{'multiform_on'} = 0;
+
+        if ($u->should_block_robots) {
+            $p->{'head_content'} .= LJ::robot_meta_tags();
+        }
+        if ($LJ::UNICODE) {
+            $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
+        }
+
+        # Don't show the navigation strip
+        $p->{'head_content'} .= qq{
+            <style type="text/css">
+            html body {
+                padding-top: 0 !important;
+            }
+            #lj_controlstrip {
+                display: none !important;
+            }
+            </style>
+        };
+
+        $p->{'entry'} = $s2entry;
+
+        my $userlite_journal = LJ::S2::UserLite($u);
+
+        $p->{'comments'} = [];
+
+        $p->{'viewing_thread'} = 0;
+
+        my $copts;
+
+        $copts->{'out_pages'} = $copts->{'out_page'} = 1;
+        $copts->{'out_items'} = 0;
+        $copts->{'out_itemfirst'} = $copts->{'out_itemlast'} = undef;
+
+        $p->{'comment_pages'} = LJ::S2::ItemRange({
+            'all_subitems_displayed' => ($copts->{'out_pages'} == 1),
+            'current' => $copts->{'out_page'},
+            'from_subitem' => $copts->{'out_itemfirst'},
+            'num_subitems_displayed' => 0,
+            'to_subitem' => $copts->{'out_itemlast'},
+            'total' => $copts->{'out_pages'},
+            'total_subitems' => $copts->{'out_items'},
+            '_url_of' => sub { return "#"; },
+        });
+
+        LJ::S2::s2_run($r, $ctx, $opts, "EntryPage::print()", $p);
+    }
+    return $ret;
+}
+_code?>

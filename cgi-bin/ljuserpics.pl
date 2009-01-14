@@ -3,7 +3,7 @@ use strict;
 
 # <LJFUNC>
 # name: LJ::load_userpics
-# des: Loads a bunch of userpic at once.
+# des: Loads a bunch of userpics at once.
 # args: dbarg?, upics, idlist
 # des-upics: hashref to load pictures into, keys being the picids.
 # des-idlist: [$u, $picid] or [[$u, $picid], [$u, $picid], +] objects
@@ -207,7 +207,7 @@ sub expunge_userpic {
 
 # <LJFUNC>
 # name: LJ::activate_userpics
-# des: Wrapper around LJ::User->activate_userpics for compatibility.
+# des: des: Wrapper around [func[LJ::User::activate_userpics]] for compatibility.
 # args: uuserid
 # returns: undef on failure 1 on success
 # </LJFUNC>

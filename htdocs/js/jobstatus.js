@@ -22,7 +22,7 @@ JobStatus = new Class(Object, {
     },
 
     gotData: function (res) {
-        if (res.error) return gotError(res.error);
+        if (res.error) return this.gotError(res.error);
         this.statusCallback(res);
     },
 

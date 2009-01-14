@@ -1,0 +1,30 @@
+;; -*- coding: utf-8 -*-
+
+.error.openid_support_disabled=OpenID consumer support is disabled
+
+.error.login_needed=You need to be logged in to grant another site permission to know your identity.
+
+.error.need_to_login=You Need to Login
+
+.error.cannot_provide_identity=The site you just came from seems to want to verify <a href='[[url]]'>an identity</a> that you, as [[user]], cannot provide.
+
+.error.invalid_site_address=Invalid site address
+
+.error.possible_form_tampering=Possible form tampering detected.
+
+.error.failed_to_save=Failed to save
+
+.error.failed_sign_url=Failed to make signed return URL.
+
+.form.title=Grant identity validation?
+
+.form.header1=<?h1 Identity Validation h1?><?p Another site on the web wants to validate your LiveJournal identity.  No information will be shared with them that isn't already public in your profile, only that you're who you've already told them you are (if you told them). p?><?p The address wanting permission is: p?>
+
+.form.header2=<?p Do you want to pass your identity to them? p?>
+
+.form.button.yes_this_time=Yes; just this time.
+
+.form.button.yes_always=Yes; always.
+
+.form.button.no=No.
+

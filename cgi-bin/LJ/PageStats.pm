@@ -34,7 +34,7 @@ sub render {
     }
 
     # return nothing
-    return $output;
+    return "<div id='hello-world' style='text-align: left; font-size:0; line-height:0; height:0; overflow:hidden;'>$output</div>";
 }
 
 # method on root object (LJ::PageStats instance) to decide if user has optted-out of page
@@ -216,4 +216,24 @@ sub loggedin {
 
     return $loggedin;
 }
+
+sub campaign_tracking {
+    my ($self, $opts) = @_;
+
+    return '' unless $self->should_do_pagestats;
+
+    my $output = '';
+    foreach my $plugin ($self->get_active_plugins) {
+        my $class = "LJ::PageStats::$plugin";
+        eval "use $class; 1;";
+        die "Error loading PageStats '$plugin': $@" if $@;
+        my $plugin_obj = $class->new;
+        next unless $plugin_obj->should_render;
+        next unless ($plugin_obj->can('campaign_track_html'));
+        $output .= $plugin_obj->campaign_track_html($opts);
+    }
+
+    return $output;
+}
+
 1;

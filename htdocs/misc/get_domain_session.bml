@@ -2,27 +2,7 @@
 {
     use strict;
     use vars qw(%GET);
-    BML::decl_params('return' => LJ::Session->valid_dest_rx);
-
-    my $dest = $GET{'return'} or
-        return BML::redirect("$LJ::SITEROOT/login.bml");
-
-    my $u = LJ::get_remote();
-
-    unless ($u) {
-        LJ::Session->clear_master_cookie;
-        return BML::redirect($dest);
-    }
-
-    my $domcook = LJ::Session->domain_cookie($dest) or
-        return BML::redirect("$LJ::SITEROOT/login.bml");
-
-    my $helper_url = LJ::Session->helper_url($domcook);
-
-    my $sess = $u->session;
-    my $cookie = $sess->domsess_cookie_string($domcook);
-    my $url = "$helper_url?dest=" . LJ::eurl($dest) . "&k=" . LJ::eurl($domcook) . "&v=" . LJ::eurl($cookie);
-    return BML::redirect($url);
+    return BML::redirect(LJ::Session->helper_url($GET{'return'}) || "$LJ::SITEROOT/login.bml");
 }
 _code?>
 

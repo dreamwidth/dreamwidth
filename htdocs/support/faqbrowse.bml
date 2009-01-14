@@ -49,7 +49,7 @@ body<=
     $altlang = 0 unless $mll && $mld;
     my $lang = $altlang ? $curlang : $deflang;
 
-    my $mode = $GET{'view'} eq 'full' ? 'answer' : 'summary';
+    my $mode = ($GET{'view'} eq 'full' || $faqidarg) ? 'answer' : 'summary';
 
     my @faqs;
 

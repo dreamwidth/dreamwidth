@@ -307,7 +307,20 @@ function EntryPage::print_comment(Comment e) {
     if ($e.frozen) {
         print safe " $sep $*text_comment_frozen";
     } else {
-        " $sep "; $e->print_reply_link({"linktext" => $*text_comment_reply});
+        " $sep "; 
+        ###$e->print_reply_link({"linktext" => $*text_comment_reply});
+
+        if($e.screened == true) {
+            ### if comment screened - show link for unscreen
+            var Link link;
+            $link = $e->get_link("unscreen_to_reply");
+            """<a href="$link.url" title="$link.caption">$link.caption</a>""";
+        } else {
+            ### showing reply link if comment not screened
+            $e->print_reply_link({ "linktext" => $*text_comment_reply });
+        }
+
+        
     }
 
     if ($e.parent_url) { print """ $sep <a href="$e.parent_url">$*text_comment_parent</a>"""; }

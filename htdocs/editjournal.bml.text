@@ -17,6 +17,20 @@
 
 .success.deletespam=Additionally, the entry was marked as spam.  Thank you for your report.
 
+.success.edited=Journal entry was edited.
+
+.success.editedstillsuspended=Please note that your entry is still suspended.
+
+.success.editedunsuspend=Additionally, an unsuspension request has been opened at [[url]], and your entry will be reviewed soon.
+
+.success.fromhere=From here you can:
+
+.success.fromhere.manageentries=Manage your journal entries
+
+.success.fromhere.viewentries=View journal entries
+
+.success.fromhere.viewentry=View this entry
+
 .success.head=Success
 
 .title=Edit Journal Entries

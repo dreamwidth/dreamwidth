@@ -25,7 +25,7 @@ sub new {
     return bless $self, $class;
 }
 
-sub title { 'Email' }
+sub title { BML::ml('notification_method.email.title') }
 
 sub new_from_subscription {
     my $class = shift;
@@ -58,6 +58,8 @@ sub notify {
         unless ref $self eq __PACKAGE__;
 
     my $u = $self->u;
+    my $lang = $u->prop('browselang');
+    my $vars = { sitenameshort => $LJ::SITENAMESHORT, sitename => $LJ::SITENAME, siteroot => $LJ::SITEROOT };
 
     my @events = @_;
     croak "'notify' requires one or more events"
@@ -66,9 +68,8 @@ sub notify {
     foreach my $ev (@events) {
         croak "invalid event passed" unless ref $ev;
 
-        my $footer = "\n\n-- \n$LJ::SITENAME Team\n$LJ::SITEROOT";
-        $footer .= LJ::run_hook("esn_email_footer", $ev, $u);
-        $footer .= "\n\nIf you prefer not to get these updates, you can change your preferences at $LJ::SITEROOT/manage/subscriptions/";
+        $vars->{'hook'} = LJ::run_hook("esn_email_footer", $ev, $u);
+        my $footer = LJ::Lang::get_text($lang, 'esn.footer.text', undef, $vars);
 
         my $plain_body = LJ::run_hook("esn_email_plaintext", $ev, $u);
         unless ($plain_body) {

@@ -14,7 +14,7 @@ _code?>
     my $print_with_ad = sub {
         my $str = shift;
 
-        my $ad_full_width = LJ::ad_display( type => 'app', orient => 'BML-App-Full-Width' );
+        my $ad_full_width = LJ::get_ads({ location => 'bml.manage.comments/error', ljadwrapper => 1 });
         return $ad_full_width . $str;
     };
 
@@ -33,13 +33,20 @@ _code?>
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
 
+    if ($remote->is_in_beta('settings2008')) {
+        my $getsep = $getextra ? "&" : "?";
+        return BML::redirect("$LJ::SITEROOT/manage/settings/index2.bml$getextra${getsep}cat=privacy");
+    }
+
     ### user is now authenticated ###
 
     # load user props
     LJ::load_user_props(
         $u, { use_master => 1 },
         qw/ opt_whoscreened opt_logcommentips
-            opt_getselfemail /
+            opt_getselfemail opt_show_captcha_to 
+            pingback
+            /
     );
 
     # to store values before they undergo normalisation
@@ -63,7 +70,7 @@ _code?>
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
         $ret .= "</form>\n\n";
 
-        $ret .= "<?p $ML{'.intro'} p?>";
+        $ret .= "<?p " . BML::ml('.intro2', { aopts1 => "href='$LJ::SITEROOT/manage/profile/'", aopts2 => "href='$LJ::SITEROOT/manage/settings/'" }) . " p?>";
         $ret .= "</div>\n";
 
         $ret.= "<div class='ljclear'></div>\n";
@@ -100,6 +107,17 @@ _code?>
         $ret .= "<br /><span class='helper'>\n$ML{'.screen.text'}</span>";
         $ret .= "</td></tr>\n";
 
+        # Require CAPTCHA (human test) before posting comment
+        $ret .= "<tr><td class='field_name'>$ML{'.fn.captcha'}</td>\n<td>";
+        $ret .= "$ML{'.captcha'}: ";
+        $ret .= LJ::html_select({ 'name' => 'opt_show_captcha_to', 'selected' => $u->{'opt_show_captcha_to'} },
+                                  "N" => BML::ml(".security.visibility.noone"),
+                                  "R" => BML::ml(".security.visibility.anon"),
+                                  "F" => ($u->is_comm ? BML::ml(".security.visibility.notmember") : BML::ml(".security.visibility.notfriends")),
+                                  "A" => BML::ml(".security.visibility.everyone") );
+        $ret .= "<br /><span class='helper'>\n$ML{'.captcha.text'}</span>";
+        $ret .= "</td></tr>\n";
+
         # IP address log
         $ret .= "<tr><td class='field_name'>$ML{'.fn.iplog'}</td>\n<td>";
         $ret .= " $ML{'.logip'}: ";
@@ -124,6 +142,11 @@ _code?>
             $ret .= "</td></tr>\n";
         }
 
+        # Extra options
+        $ret .= join "" => 
+                map { ref $_ eq 'ARRAY' ? @$_ : $_ } 
+                LJ::run_hooks("add_extra_options_to_manage_comments", $u);
+        
         $ret .= "</table>\n";
 
         if ($u->is_person) { # same logic as above
@@ -188,7 +211,7 @@ _code?>
                       'opt_showtalklinks' => $POST{'opt_showtalklinks'} ? "Y" : "N",
                       'opt_gettalkemail'  => $POST{'opt_gettalkemail'} ? "Y" : "N",
                       'opt_htmlemail'     => $POST{'opt_htmlemail'},
-                      'opt_whocanreply' => $POST{'opt_whocanreply'},
+                      'opt_whocanreply'   => $POST{'opt_whocanreply'},
                       );
 
         LJ::update_user($u, \%update);
@@ -197,19 +220,21 @@ _code?>
         {
             # opts
             $POST{'opt_getselfemail'} = $POST{'opt_getselfemail'} ? 1 : 0;
-            $POST{'opt_whoscreened'} = "N" unless $POST{'opt_whoscreened'} =~ m/^(N|R|F|A)$/;
-            if ($POST{'opt_logcommentips'} ne "N" &&
-                $POST{'opt_logcommentips'} ne "S" &&
-                $POST{'opt_logcommentips'} ne "A") { $POST{'opt_logcommentips'} = "N"; }
+            $POST{'opt_whoscreened'}    = "N" unless $POST{'opt_whoscreened'}    =~ /^[NRFA]$/;
+            $POST{'opt_show_captcha_to'}= "N" unless $POST{'opt_show_captcha_to'}=~ /^[NRFA]$/;
+            $POST{'opt_logcommentips'}  = "N" unless $POST{'opt_logcommentips'}  =~ /^[NSA]$/;
 
             my @uprops = qw(
               opt_whoscreened opt_logcommentips
-              opt_getselfemail
+              opt_getselfemail opt_show_captcha_to
             );
-
+            
+            my @extra_props = 
+                map { ref $_ eq 'ARRAY' ? @$_ : $_ } 
+                LJ::run_hooks("process_extra_options_for_manage_comments", $u, \%POST);
 
             # set userprops
-            foreach my $uprop (@uprops) {
+            foreach my $uprop (@uprops, @extra_props) {
                 my $eff_val = $POST{$uprop};   # effective value, since 0 isn't stored
                 $eff_val = "" unless $eff_val;
                 my $mem_only = $eff_val eq $u->{$uprop};
@@ -228,7 +253,7 @@ _code?>
         # tell the user all is well
         my $base = $u->journal_base;
         my $profile_url = $u->profile_url;
-        my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+        my $ad_box = LJ::get_ads({ location => 'bml.manage.comments/main', ljadwrapper => 1, below_ad => LJ::CProd->full_box_for($remote, width => 300) });
         return $ad_box . "<?h1 $ML{'.success.header'} h1?>\n" .
                          "<?p $ML{'.success.text'} p?>" .
                          LJ::Widget::GettingStarted->render;

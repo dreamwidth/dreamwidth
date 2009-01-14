@@ -28,7 +28,7 @@ sub designer { "" }
 
 package LJ::S2Theme::sixhtml::april;
 use base qw(LJ::S2Theme::sixhtml);
-sub cats { qw( clean cool featured ) }
+sub cats { qw( clean cool ) }
 sub designer { "" }
 
 package LJ::S2Theme::sixhtml::baby;

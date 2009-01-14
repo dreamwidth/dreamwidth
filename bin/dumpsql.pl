@@ -134,7 +134,7 @@ foreach my $k (keys %output) {
 print "Dumping proplists.dat\n";
 open (my $plg, ">$ENV{LJHOME}/bin/upgrading/proplists.dat") or die;
 open (my $pll, ">$ENV{LJHOME}/bin/upgrading/proplists-local.dat") or die;
-foreach my $table ('userproplist', 'talkproplist', 'logproplist', 'usermsgproplist') {
+foreach my $table ('userproplist', 'talkproplist', 'logproplist', 'usermsgproplist', 'pollproplist2') {
     my $sth = $dbh->prepare("DESCRIBE $table");
     $sth->execute;
     my @cols = ();

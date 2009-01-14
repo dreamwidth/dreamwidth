@@ -11,7 +11,7 @@ sub as_html {
     my $ret;
 
     $ret .= "<label for='${key}opt_showbday'>" . $class->ml('.setting.birthdaydisplay.question') . "</label>";
-    $u->prop('opt_showbday') = "F" unless $u->prop('opt_showbday') =~ m/^(D|F|N|Y)$/;
+    $u->prop('opt_showbday') = "D" unless $u->prop('opt_showbday') =~ m/^(D|F|N|Y)$/;
     $ret .= LJ::html_select({ 'name' => "${key}opt_showbday",
                               'id' => "${key}opt_showbday",
                               'class' => "select",

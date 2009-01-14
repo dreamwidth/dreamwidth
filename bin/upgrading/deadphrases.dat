@@ -316,6 +316,8 @@ general /community/settings.bml.label.commcreate
 general /community/settings.bml.label.createtext
 general /community/settings.bml.label.maintainer.login
 
+general esn.approve_join_request
+
 general /friends/add.bml.error1.header
 general /friends/add.bml.error1.text
 general /friends/add.bml.error2.text

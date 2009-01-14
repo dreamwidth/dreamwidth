@@ -18,7 +18,7 @@ sub usage { '<action> <privs> <usernames>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "admin");
+    return LJ::check_priv($remote, "admin") || $LJ::IS_DEV_SERVER;
 }
 
 sub execute {

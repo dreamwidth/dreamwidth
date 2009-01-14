@@ -17,6 +17,10 @@
     padding: 10px;
 }
 
+.editorials-content table {
+    width: 100%;
+}
+
 .appwidget-verticaleditorials .editorials-header-right {
     position: absolute;
     right: 7px;

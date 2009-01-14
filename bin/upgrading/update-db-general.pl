@@ -2784,6 +2784,27 @@ CREATE TABLE pollsubmission2 (
 EOC
 
 # clustered
+register_tablecreate("pollprop2", <<'EOC');
+CREATE TABLE pollprop2 (
+  journalid INT UNSIGNED NOT NULL,
+  pollid INT UNSIGNED NOT NULL,
+  propid SMALLINT UNSIGNED NOT NULL,
+  propval VARCHAR(255) NOT NULL,
+  PRIMARY KEY (journalid,pollid,propid)
+)
+EOC
+
+register_tablecreate("pollproplist2", <<'EOC');
+CREATE TABLE pollproplist2 (
+  propid SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) DEFAULT NULL,
+  des VARCHAR(255) DEFAULT NULL,
+  scope ENUM('general', 'local') DEFAULT 'general' NOT NULL,
+  UNIQUE KEY (name)
+)
+EOC
+
+# clustered
 register_tablecreate("embedcontent", <<'EOC');
 CREATE TABLE embedcontent (
   userid     INT UNSIGNED NOT NULL,
@@ -3019,6 +3040,18 @@ CREATE TABLE vertical_editorials (
 )
 EOC
 
+## --
+## -- embedconten previews
+## --
+register_tablecreate("embedcontent_preview", <<'EOC');
+CREATE TABLE embedcontent_preview (
+  userid int(10) unsigned NOT NULL default '0',
+  moduleid int(10) NOT NULL default '0',
+  content text,
+  PRIMARY KEY  (userid,moduleid)
+) TYPE=InnoDB
+EOC
+
 register_tablecreate("dw_payments", <<'EOC');
 CREATE TABLE dw_payments (
     paymentid int unsigned NOT NULL auto_increment,
@@ -3085,7 +3118,75 @@ CREATE TABLE dw_pp_notify_log (
 )
 EOC
 
-# NOTE: new table declarations go here
+register_tablecreate("logprop_history", <<'EOC');
+CREATE TABLE logprop_history (
+  journalid  INT UNSIGNED NOT NULL,
+  jitemid    MEDIUMINT UNSIGNED NOT NULL,
+  propid     TINYINT unsigned NOT NULL,
+  change_time  INT UNSIGNED NOT NULL DEFAULT '0',
+  old_value  VARCHAR(255) default NULL,
+  new_value  VARCHAR(255) default NULL,
+  note       VARCHAR(255) default NULL,
+  INDEX (journalid,jitemid,propid)
+)
+EOC
+
+register_tablecreate("sch_mass_funcmap", <<'EOC');
+CREATE TABLE sch_mass_funcmap (
+        funcid         INT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+        funcname       VARCHAR(255) NOT NULL,
+        UNIQUE(funcname)
+)
+EOC
+
+register_tablecreate("sch_mass_job", <<'EOC');
+CREATE TABLE sch_mass_job (
+        jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+        funcid          INT UNSIGNED NOT NULL,
+        arg             MEDIUMBLOB,
+        uniqkey         VARCHAR(255) NULL,
+        insert_time     INTEGER UNSIGNED,
+        run_after       INTEGER UNSIGNED NOT NULL,
+        grabbed_until   INTEGER UNSIGNED,
+        priority        SMALLINT UNSIGNED,
+        coalesce        VARCHAR(255),
+        INDEX (funcid, run_after),
+        UNIQUE(funcid, uniqkey),
+        INDEX (funcid, coalesce)
+)
+EOC
+
+register_tablecreate("sch_mass_note", <<'EOC');
+CREATE TABLE sch_mass_note (
+        jobid           BIGINT UNSIGNED NOT NULL,
+        notekey         VARCHAR(255),
+        PRIMARY KEY (jobid, notekey),
+        value           MEDIUMBLOB
+)
+EOC
+
+register_tablecreate("sch_mass_error", <<'EOC');
+CREATE TABLE sch_mass_error (
+        error_time      INTEGER UNSIGNED NOT NULL,
+        jobid           BIGINT UNSIGNED NOT NULL,
+        message         VARCHAR(255) NOT NULL,
+        INDEX (error_time),
+        INDEX (jobid)
+)
+EOC
+
+register_tablecreate("sch_mass_exitstatus", <<'EOC');
+CREATE TABLE sch_mass_exitstatus (
+        jobid           BIGINT UNSIGNED PRIMARY KEY NOT NULL,
+        status          SMALLINT UNSIGNED,
+        completion_time INTEGER UNSIGNED,
+        delete_after    INTEGER UNSIGNED,
+        INDEX (delete_after)
+)
+EOC
+
+# NOTE: new table declarations go ABOVE here ;)
+
 
 ### changes
 
@@ -3094,6 +3195,12 @@ register_alter(sub {
     my $dbh = shift;
     my $runsql = shift;
 
+    if (column_type("content_flag", "reporteruniq") eq "")
+    {
+        do_alter("content_flag",
+                 "ALTER TABLE content_flag ADD reporteruniq VARCHAR(15) AFTER reporterid");
+
+    }
     if (column_type("supportcat", "is_selectable") eq "")
     {
         do_alter("supportcat",
@@ -3835,6 +3942,24 @@ register_alter(sub {
                  "ADD img_link_url VARCHAR(255) DEFAULT NULL AFTER img_height");
     }
 
+    # add a status column to polls
+    unless (column_type("poll", "status")) {
+        do_alter("poll",
+                 "ALTER TABLE poll ADD status CHAR(1) AFTER name, " .
+                 "ADD INDEX (status)");
+    }
+    unless (column_type("poll2", "status")) {
+        do_alter("poll2",
+                 "ALTER TABLE poll2 ADD status CHAR(1) AFTER name, " .
+                 "ADD INDEX (status)");
+    }
+
+    unless (column_type("qotd", "domain")) {
+        do_alter("qotd",
+                 "ALTER TABLE qotd " .
+                 "ADD domain VARCHAR(255) NOT NULL DEFAULT 'homepage'");
+    }
+
     unless (column_type("friends", "groupmask") =~ /^bigint/) {
         do_alter("friends",
                  q{ ALTER TABLE friends MODIFY COLUMN groupmask BIGINT UNSIGNED NOT NULL });
@@ -3859,6 +3984,30 @@ register_alter(sub {
         do_alter("logproplist",
                  "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".
                  "DEFAULT 'user' NOT NULL");
+    }
+
+    unless (column_type("qotd", "impression_url")) {
+        do_alter("qotd",
+                 "ALTER TABLE qotd " .
+                 "ADD impression_url VARCHAR(255) DEFAULT NULL");
+    }
+
+    unless (column_type("qotd", "is_special")) {
+        do_alter("qotd",
+                 "ALTER TABLE qotd " .
+                 "ADD is_special ENUM('Y','N') NOT NULL DEFAULT 'N'");
+    }
+
+    unless (column_type("jobstatus", "userid")) {
+        do_alter("jobstatus",
+                 "ALTER TABLE jobstatus " .
+                 "ADD userid INT UNSIGNED DEFAULT NULL"); # yes, we allow userid to be NULL - it means no userid checking
+    }
+
+    unless (column_type("supportlog", "tier")) {
+        do_alter("supportlog",
+                 "ALTER TABLE supportlog " .
+                 "ADD tier TINYINT UNSIGNED DEFAULT NULL");
     }
 });
 

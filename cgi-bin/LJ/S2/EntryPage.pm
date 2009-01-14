@@ -28,6 +28,9 @@ sub EntryPage
 
     my ($entry, $s2entry) = EntryPage_entry($u, $remote, $opts);
     return if $opts->{'suspendeduser'};
+    return if $opts->{'suspendedentry'};
+    return if $opts->{'readonlyremote'};
+    return if $opts->{'readonlyjournal'};
     return if $opts->{'handler_return'};
     return if $opts->{'redir'};
 
@@ -91,6 +94,7 @@ sub EntryPage
         # user object is cached from call just made in EntryPage_entry
         'up' => LJ::load_user($s2entry->{'poster'}->{'username'}),
         'viewall' => $viewall,
+        'expand_all' => $opts->{expand_all},
     };
 
     my $userlite_journal = UserLite($u);
@@ -312,6 +316,7 @@ sub EntryPage
         my $js = "<script>\n// don't crawl this.  read http://www.livejournal.com/developer/exporting.bml\n";
         $js .= "var LJ_cmtinfo = " . LJ::js_dumper($cmtinfo) . "\n";
         $js .= '</script>';
+        $p->{'LJ_cmtinfo'} = $js if $opts->{'need_cmtinfo'};
         $p->{'head_content'} .= $js;
     }
 
@@ -402,14 +407,18 @@ sub EntryPage_entry
             my $args = scalar $r->args;
             my $querysep = $args ? "?" : "";
             my $redir = LJ::eurl("http://$host$uri$querysep$args");
-
-            $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir";
+            $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin";
             return;
         }
     }
 
     if (($pu && $pu->{'statusvis'} eq 'S') && !$viewsome) {
         $opts->{'suspendeduser'} = 1;
+        return;
+    }
+
+    if ($entry && $entry->is_suspended_for($remote)) {
+        $opts->{'suspendedentry'} = 1;
         return;
     }
 

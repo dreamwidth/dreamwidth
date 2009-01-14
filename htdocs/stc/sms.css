@@ -8,16 +8,16 @@
 	padding: 0 .5em .5em .5em;
 	} 
 
-#SMS_Setup {
+.SMS_Setup {
 	padding: 1em 0 0 1em;
 	margin: 0 0 1em 0;
 	}
 
-	#SMS_Setup span.Label {
+	.SMS_Setup span.Label {
 		font-weight: bold;
 		}
 		
-	#SMS_Setup td {
+	.SMS_Setup td {
 		vertical-align: top;
 		padding: .4em 0;
 		}
@@ -54,3 +54,10 @@
 .toggle {
 	padding: .5em 0 0 0;
 	}
+
+hr.hr_sms {
+    color: #a6a6a6;
+    background-color: #a6a6a6;
+    border: 0;
+    height: 1px;
+}

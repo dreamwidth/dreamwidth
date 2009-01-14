@@ -19,6 +19,8 @@
 
 .loggedin.head2=Welcome back to [[sitename]]!
 
+.loggedin.openidemail=Please <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address to get started.
+
 .loggedin.suggest1=Did you know you can now easily add a photo?
 
 .loggedin.suggest2=See the latest updates to your friends' journals.

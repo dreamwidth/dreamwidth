@@ -32,18 +32,22 @@
     # do first expand_embedded pass with the preview flag to extract
     # embedded content before cleaning and replace with tags
     # the cleaner won't eat
-    LJ::expand_embedded($u, $ditemid, $remote, \$event, preview => 1);
+    LJ::EmbedModule->parse_module_embed($u, \$event, preview => 1,);
     # clean content normally
     LJ::CleanHTML::clean_event(\$event, {
         preformatted => $req{'prop_opt_preformatted'},
     });
     # expand the embedded content for reals
-    LJ::expand_embedded($u, $ditemid, $remote, \$event);
+    LJ::EmbedModule->expand_entry($u, \$event, preview => 1,);
 
     my $r = BML::get_request;
     my $ctx;
 
     if ($u && $up) {
+        my $r = Apache->request;
+        $r->notes("_journal", $u->{user});
+        $r->notes("journalid", $u->{userid});
+
         ### Load necessary props
         my @needed_props = ("stylesys", "s2_style", "url", "urlname",
                             "opt_usesharedpic", "journaltitle", "journalsubtitle",);
@@ -187,6 +191,12 @@
 
         $sec .= "<br />\n" unless $sec eq "" or $req{'subject'};
         $ret .= $sec;
+
+        # prevent BML tags interpretation inside post body
+        $subject =~ s/<\?/<?/g;
+        $subject =~ s/\?>/?>/g;
+        $event =~ s/<\?/<?/g;
+        $event =~ s/\?>/?>/g;
 
         ###
         if ($subject) {

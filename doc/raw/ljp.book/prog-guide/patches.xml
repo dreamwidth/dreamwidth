@@ -31,7 +31,10 @@
     </para></listitem>
     <listitem><para>
     Your patch should be made against the current &svn; trunk revision.
-    Please see the &sixacode; website for repository links.
+    <ulink url="http://code.sixapart.com/trac/livejournal">[view]</ulink>
+    <ulink url="http://code.sixapart.com/svn/livejournal/">[svn]</ulink>
+    Please see the &sixacode; website for repository
+    links to other component parts.
     </para></listitem>
     <listitem><para>
     Please test your patch before you submit it; possible exceptions to

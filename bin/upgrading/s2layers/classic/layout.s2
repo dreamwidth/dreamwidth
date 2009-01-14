@@ -49,12 +49,6 @@ propgroup presentation {
       string_mode = "html-oneline";
   }
   property use custom_control_strip_colors;
-  property string text_expand_link {
-        des = "Text for comments expander link in link bar";
-        noui = 1;
-    }
-    set text_expand_link = "Expand";
-
 }
 set content_width = "100%";
 set content_alignment = "left";
@@ -364,10 +358,16 @@ td.metabar {
 .entry {
     border: $*entryborder_size $*entryborder_style $*border_color;
 }
-.subject {
+.subject, .subject A.subj-link {
     color:               $*page_subtitle_color;
     font-weight:         bold;
 }
+
+.subject A {
+    color:$*page_subtitle_color;
+    text-decoration: none;
+}
+
 .comments {
     text-align:          right;
 }
@@ -521,7 +521,7 @@ $this->print_linklist();
 
     ### Affliations
 
-    "<tr><td><table class='main' align='right'><tr>";
+    "<tr><td><table align='right'><tr>";
 
     if ($*counter_code != "") {
         """<td>$*counter_code</td><td class="body">&nbsp;</td>""";
@@ -530,7 +530,7 @@ $this->print_linklist();
 
     "</table></td></tr></table>";
     if (viewer_sees_hbox_bottom()) {
-        """<div style="text-align: center; margin-top: 50px;">""";
+        """<div style="text-align: center; margin-top: 50px; clear: both;">""";
         $this->print_hbox_bottom();
         "</div>";
     }
@@ -598,7 +598,12 @@ function print_entry (Page p, Entry e, Color bgcolor, Color fgcolor, bool hide_t
           print "</div>";
       }
 
-      if ($e.subject) { "\n\n<span class='subject'>$e.subject</span><br />"; }
+      if ($e.subject) { "\n\n<span class='subject'>";
+          if ($p.view !="entry") {
+              print $e->formatted_subject({"class"=>"subj-link"});
+          } else { "$e.subject"; } 
+       "</span><br />"; 
+      }
       if (not $hide_text) {
           $e->print_text();
           print "\n\n";
@@ -636,6 +641,7 @@ function print_entry (Page p, Entry e, Color bgcolor, Color fgcolor, bool hide_t
           }
       }
       $e.comments->print();
+      $p->print_reply_container({"target" => "topcomment"});
       "</td>";
     "</tr>\n";
 }
@@ -661,7 +667,13 @@ function RecentPage::lay_nav_blurb ()
         "Below are the $.nav.count most recent journal entries recorded in the \"$user\" journal:";
     }
 }
-
+function print_ebox (Entry e) {
+    if ($e->viewer_sees_ebox()) {
+        """<tr><td colspan="2" align="center">""";
+        $e->print_ebox();
+        "</td></tr>";
+    }
+}
 function RecentPage::print_body ()
 {
     var string nav = "";
@@ -685,12 +697,8 @@ function RecentPage::print_body ()
     "<table style='margin-left: 30px'>\n";
     foreach var Entry e ($.entries) {
         $this->print_entry($e);
-        if ($e->viewer_sees_ebox()) {
-            """<tr><td colspan="2" align="center">""";
-            $e->print_ebox();
-            "</td></tr>";
-        }
-    }
+            print_ebox($e);
+     }
     "</table>\n";
     if ($nav != "") { print $nav; }
 }
@@ -705,6 +713,22 @@ function FriendsPage::lay_nav_blurb ()
         "Below are the $total most recent friends journal entries:";
     }
 }
+
+function CommentInfo::print_postlink() {
+    var Page p = get_page();
+    if ($.maxcomments) {
+        print safe "$*text_max_comments";
+    } else {
+     if ($p.view == "entry") {
+            $p->print_reply_link({"target" => "topcomment", "linktext" => $*text_post_comment});
+            ###$p->print_reply_container({"target" => "topcomment"});
+     }
+    else {
+        print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+    }
+     }
+}
+
 
 function CommentInfo::print ()
 {
@@ -811,9 +835,7 @@ function DayPage::print_body ()
         foreach var Entry e ($.entries) {
             $this->print_entry($e);
             if ($e->viewer_sees_ebox()) {
-                """<tr><td colspan="2" align="center">""";
-                $e->print_ebox();
-                "</td></tr>";
+                print_ebox($e);
             }
         }
         "</table>";
@@ -824,12 +846,23 @@ function DayPage::print_body ()
 
     "<table align='center'><tr align='middle'>\n";
 
-    "<td width='33%' align='left'><a href='$.prev_url'>$tprev</a></td>\n";
+    "<td width='33%' align='left'>";
+    if ($.prev_url != "") {
+        "<a href='$.prev_url'>$tprev</a>";
+    } else {
+        "&nbsp;";
+    }
+    "</td>\n";
     "<td align='center' width='33%'>";
       "<strong>"; print $.date->date_format($*date_daypage_skip_format); "</strong><br />";
       "[<a href='"; print $this.journal->base_url(); "/calendar'>$*text_view_archive</a>]</td>\n";
-    "<td width='33%' align='right'><a href='$.next_url'>$tnext</a></td>\n";
-
+    "<td width='33%' align='right'>";
+    if ($.next_url != "") {    
+        "<a href='$.next_url'>$tnext</a>";
+    } else {
+        "&nbsp;";
+    }
+    "</td>\n";
     "</tr></table>";
 
 }
@@ -846,7 +879,8 @@ function EntryPage::print_body () {
 
     "<table style='margin-left: 30px'>\n";
     print_entry($this, $.entry, $*metabar_bgcolor, $*metabar_fgcolor, $.viewing_thread);
-
+    print_ebox($.entry);
+   
     if ($.entry.comments.enabled and $.comment_pages.total_subitems > 0)
     {
         var string background = $*metabar_bgcolor;
@@ -870,6 +904,7 @@ function EntryPage::print_body () {
             "</td></tr>";
         }
     }
+
     "</table>\n";
 }
 
@@ -942,29 +977,35 @@ function EntryPage::print_comment (Comment c) {
     if ($c.frozen) {
         print "(Replies frozen) ";
     } else {
-        print "(<a href='$c.reply_url'>Reply to this</a>) ";
+        print "(";
+        
+        if($c.screened == true) {
+            ### if comment screened - show link for unscreen
+            var Link link;
+            $link = $c->get_link("unscreen_to_reply");
+            """<a href="$link.url" title="$link.caption">$link.caption</a>""";
+        } else {
+            ### showing reply link if comment not screened
+            $c->print_reply_link({ "linktext" => $*text_comment_reply });
+        }
+        
+        print ") ";
     }
     if ($c.parent_url != "") { "(<a href='$c.parent_url'>Parent</a>) "; }
-    if ($c.thread_url != "") { 
-		"(<a href='$c.thread_url'>Thread</a>) "; 
-		var Link expand_link = $c->get_link("expand_comments");
-		if (defined $expand_link) {
-			"""(<a href='$c.thread_url'  onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a>) """;
-		}
-	}
-    "</div>";
-}
-
-function EntryPage::print_comment_partial (Comment c) {
-    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
-    var string subj = $c.subject != "" ? $c.subject : $*text_nosubject;
-    print safe "<a href='$c.permalink_url'>$subj</a> - $poster";
-    var Link expand_link = $c->get_link("expand_comments");
-    if ($c.thread_url != "" and defined $expand_link) {
-        """ <a style='font-size: smaller' href='$c.thread_url'  onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a>""";
+    if ($c.thread_url != "") {
+        "(<a href='$c.thread_url'>Thread</a>) ";
+        var Link expand_link = $c->get_link("expand_comments");
+        if (defined $expand_link) {
+            "(" + $c->expand_link() + ") ";
+        }
     }
-}
 
+    if (not $c.frozen) {
+        $c->print_reply_container({"class" => "quickreply"});
+    }
+
+ "</div>";
+}
 
 function ReplyPage::print_body()
 {
@@ -1010,12 +1051,13 @@ function ReplyPage::print_body()
         "<td style='text-align:left'>";
         if ($.replyto.subject != "") { "\n\n<span class='subject'>$.replyto.subject</span><br />"; }
         $.replyto->print_text();
-
+         
         "</td></tr>\n";
-    }
+    }             
 
     "<div align='center'><a href='$.entry.comments.read_url'>( Read Comments )</a></div>";
-    "<tr valign='top'><th class='headerbar' colspan='2'>Reply:</th></tr>";
+         print_ebox($.entry);
+     "<tr valign='top'><th class='headerbar' colspan='2'>Reply:</th></tr>";
     "<tr valing='top'><td style='background-color: $background'>&nbsp;</td><td>";
     $.form->print();
     "</td></tr></table>";

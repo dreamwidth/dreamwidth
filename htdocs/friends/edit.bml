@@ -1,5 +1,5 @@
 <?page
-title=><?_ml .title2 _ml?>
+title=><?_ml .title3 _ml?>
 body<=
 <?_code
 {
@@ -11,7 +11,7 @@ body<=
     my $print_with_ad = sub {
         my $str = shift;
 
-        my $ad_full_width = LJ::ad_display( type => 'app', orient => 'BML-App-Func-1column' );
+        my $ad_full_width = LJ::get_ads({ location => 'bml.friends.edit/error', ljadwrapper => 1 });
         return $ad_full_width . $str;
     };
 
@@ -31,7 +31,7 @@ body<=
     my $u = LJ::get_authas_user($authas);
     return $print_with_ad->(LJ::bad_input($ML{'error.invalidauth'}))
         unless $u;
-    return BML::redirect("$LJ::SITEROOT/community/members.bml?comm=$u->{'user'}")
+    return BML::redirect("$LJ::SITEROOT/community/members.bml?authas=$u->{'user'}")
         if $u->is_community;
     return $print_with_ad->(LJ::bad_input($ML{'.error.badjournaltype'}))
         unless $u->is_person || $u->is_shared || $u->is_identity;
@@ -249,7 +249,11 @@ body<=
         LJ::do_request(\%request, \%response, { 'noauth' => 1, 'u' => $u });
 
         if ($response{'success'} eq "OK") {
-            $ret = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+            $ret = LJ::get_ads({ 
+                location    => 'bml.friends.edit/main', 
+                ljadwrapper => 1,
+                below_ad    => LJ::CProd->full_box_for($remote, width => 300) 
+            });
             $ret .= "<?h1 $ML{'.success.head'} h1?>";
             $ret .= "<?p $ML{'.success.fromhere'} p?>";
             $ret .= "<ul>";

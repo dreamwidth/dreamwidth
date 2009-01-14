@@ -15,7 +15,13 @@
 
 .error.noreply_frozen=This comment is frozen and cannot be replied to.
 
+.error.noreply_readonly_journal=This journal is read-only.  You cannot reply to any entries in it.
+
+.error.noreply_readonly_remote=You are read-only.  You cannot post comments.
+
 .error.noreply_screened=This comment is screened and you have no permissions to see it or reply to it.
+
+.error.noreply_suspended=This entry is suspended.  You cannot reply to it.
 
 .label.picturetouse2=<a [[aopts]]>Picture</a> to use:
 
@@ -53,9 +59,13 @@
 
 .opt.noanonpost=- this user has disabled anonymous posting.
 
+.opt.noanonpost.nonpublic=- you cannot comment anonymously on a protected entry.
+
 .opt.noautoformat=Don't auto-format: 
 
 .opt.noimage=No Image
+
+.opt.noopenidpost=- you must <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address in order to comment.
 
 .opt.preview=Preview
 

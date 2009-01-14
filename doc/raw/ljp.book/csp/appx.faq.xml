@@ -87,7 +87,14 @@
       paid account; it is effectively <quote>disabled</quote> for free (non-paid) users.
       This was introduced because continually-polling broken clients placed unnecessary strain on the servers.
       </simpara></answer>
-    </qandaentry>    
+    </qandaentry>
+    <qandaentry id="ljp.csp.faq.chalresp_case">
+    <question><simpara>Why might my challenge-response authentication fail?</simpara></question>
+    <answer><simpara>Ensure all MD5 hashes you generate and use are lowercase. That&apos;s the
+    primary cause of verification failures. &unix; does lowercase,
+    many <trademark class="registered">Windows</trademark> libraries do uppercase.
+    </simpara></answer>
+    </qandaentry>
     <qandaentry id="ljp.csp.faq.memories">
       <question><simpara>Is there a client &api; to interact with the Memories feature?</simpara></question>
       <answer><simpara>No, there is no Memories &api; in place.
@@ -102,6 +109,12 @@
       <question><simpara>If I should avoid <quote>screen-scraping</quote> user pages then what are the site-friendly alternatives?</simpara></question>
       <answer><simpara>A variety of user content in machine-readable formats is available. 
       For details see the chapter on machine-readable <link linkend="ljp.int.xml_userdata.data_formats">userdata</link>.
+      </simpara></answer>
+    </qandaentry>
+    <qandaentry id="ljp.csp.faq.fb_client_docs">
+      <question><simpara>Where can I find information on the &fb; client protocol?</simpara></question>
+      <answer><simpara>For information on developing clients for &fb; installations (like &scrapbook;
+      on &ljcom;), please see the <ulink url="http://www.picpix.com/doc/protocol/">&fb; Protocol Documentation</ulink>.
       </simpara></answer>
     </qandaentry>
   </qandaset>

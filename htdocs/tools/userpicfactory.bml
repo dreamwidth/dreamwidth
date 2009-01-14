@@ -11,6 +11,12 @@
         return;
     }
 
+    LJ::need_res(qw(
+        js/core.js
+        js/dom.js
+        js/image-region-select.js
+    ));
+
     # optional suffix, for beta testing.  can be removed soon after 2006-03-29
     my $sfx = $GET{'sfx'} || "";
     $sfx = "" unless $sfx =~ /^[\-\w]{1,10}$/;
@@ -29,9 +35,6 @@
     my $picpath = $LJ::SITEROOT . "/misc/mogupic.bml?size=$scaledSizeMax&authas=$GET{authas}";
 
     $head .= qq {
-        <script type="text/javascript" src="$LJ::SITEROOT/js/core.js"></script>
-        <script type="text/javascript" src="$LJ::SITEROOT/js/dom.js"></script>
-        <script type="text/javascript" src="$LJ::SITEROOT/js/image-region-select.js"></script>
         <script>
                 var origW = $w;
                 var origH = $h;

@@ -35,12 +35,85 @@ body<=
     return LJ::bad_input("You must be authenticated as a person.")
         unless $u->{'journaltype'} eq 'P';
 
+    # are we modify a community post?
+    my $usejournal = $GET{'usejournal'} || $POST{'usejournal'} || $GET{'journal'};
+    undef $usejournal if $usejournal eq $u->{'user'}; # ignore if it's the user
+
+    # extra get arguments
+    my $getextra;
+    $getextra .= "authas=$authas&" if $authas ne $u->{'user'};
+    $getextra .= "usejournal=$usejournal&" if $usejournal;
+    chop $getextra;
+    $getextra = "?$getextra" if $getextra;
+
+    my $entry_chooser = sub {
+        my $ret;
+        my $ref = shift;
+        my %opts = @_;
+
+        my %res = %$ref;
+        my $show_ad = $opts{show_ad} ? 1 : 0;
+
+        $ret .= "<table style='width: 100%;'><tr><td>";
+        my %props = ();
+        for (my $i=1; $i<=$res{'prop_count'}; $i++) {
+            $props{$res{"prop_${i}_itemid"}}->{$res{"prop_${i}_name"}} = $res{"prop_${i}_value"};
+        }
+
+        my $ev_count = $res{'events_count'};
+        for (my $i=1; $i<=$ev_count; $i++) {
+            my $itemid = $res{"events_${i}_itemid"};
+            my $ditemid = $itemid * 256 + $res{"events_${i}_anum"};
+
+            $ret .= "<?hr?><table><tr valign='top'><td align='middle'>";
+            $ret .= "<form method='post' action='editjournal.bml$getextra'>\n";
+            $ret .= LJ::html_hidden('itemid',$ditemid,'mode',"edit");
+            $ret .= LJ::html_submit("itemid-$ditemid",'Edit this Entry');
+            $ret .= "</form>";
+            $ret .= "</td><td>";
+
+            $ret .= " <b><label for='itemid-$ditemid'>" . $res{"events_${i}_eventtime"} . "</label></b>";
+            $ret .= " (Posted by: " . LJ::ljuser($res{"events_${i}_poster"}) . ")" if $usejournal;
+
+            ### security indicator
+            my $sec = ' ';
+            if ($res{"events_${i}_security"} eq "private") {
+                $sec .= BML::fill_template("securityprivate");
+            } elsif ($res{"events_${i}_security"} eq "usemask") {
+                if ($res{"events_${i}_allowmask"} == 0) { # custom security with no group -- essentially private
+                    $sec .= BML::fill_template("securityprivate");
+                } elsif ($res{"events_${i}_allowmask"} > 1) { # custom group
+                    $sec .= BML::fill_template("securitygroups");
+                } else { # friends only
+                    $sec .= BML::fill_template("securityprotected");
+                }
+            }
+            $ret .= $sec;
+
+            if (my $subj = $res{"events_${i}_subject"}) {
+                LJ::CleanHTML::clean_subject_all(\$subj);
+                  $ret .= " <i>" . LJ::ehtml($subj) . "</i>";
+              }
+            $ret .= "<br />\n";
+
+            my $event = LJ::ehtml(LJ::durl($res{"events_${i}_event"}));
+            $event =~ s!\n!<br />!g;
+            $ret .= $event;
+
+            $ret .= "</td></tr></table>\n";
+        }
+        $ret .= "</td>";
+        my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
+        if ($ad && $show_ad) {
+            $ret .= "<td valign='top'>$ad</td>";
+        }
+        $ret .= "</tr></table>";
+
+        return $ret;
+    };
+
     if ($mode eq "edit")
     {
-        # are we modify a community post?
-        my $usejournal = $GET{'usejournal'} || $POST{'usejournal'} || $GET{'journal'};
-        undef $usejournal if $usejournal eq $u->{'user'}; # ignore if it's the user
-
         # user object for community if we're modifying one
         my $usejournal_u;
         if ($usejournal) {
@@ -48,13 +121,6 @@ body<=
             return LJ::bad_input("The community you selected does not exist.")
                 unless $usejournal_u;
         }
-
-        # extra get arguments
-        my $getextra;
-        $getextra .= "authas=$authas&" if $authas ne $u->{'user'};
-        $getextra .= "usejournal=$usejournal&" if $usejournal;
-        chop $getextra;
-        $getextra = "?$getextra" if $getextra;
 
         ###
         ### HAVE AN ITEMID TO EDIT
@@ -66,6 +132,9 @@ body<=
             my $ditemid = $GET{'itemid'} || $POST{'itemid'};
             my $anum = $ditemid % 256;
             my $itemid = $ditemid >> 8;
+
+            my $u_for_entry = $usejournal ? $usejournal_u : $u;
+            my $entry_obj = LJ::Entry->new($u_for_entry, ditemid => $ditemid);
 
             # do getevents request
             my %res = ();
@@ -98,6 +167,11 @@ body<=
             }
             $disabled_spamdelete = $disabled_delete || !$usejournal || ($res{'events_1_poster'} eq $u->{'user'});
 
+            # read-only posters and journals cannot be edited
+            if (!$disabled_save && ($u->is_readonly || ($usejournal_u && $usejournal_u->is_readonly))) {
+                $disabled_save++;
+            }
+
             ###
             ### SAVE EDITS
             ###
@@ -115,7 +189,7 @@ body<=
             }
 
             # they clicked the save or delete button
-            if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
+            if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:saveunsuspend'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
                 return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
 
                 my %req = ( 'mode' => 'editevent',
@@ -150,44 +224,62 @@ body<=
                     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.modify'} <ul><li><b>$res{'errmsg'}</b></li></ul> p?>";
                 }
 
-                # deleted
-                unless ($req{'event'}) {
-                    my $result = "<?h1 $ML{'.success.head'} h1?>";
+                my $deleted = $req{event} ? 0 : 1;
+                my $journalu = $usejournal ? $usejournal_u : $u;
+                my $j_base = $journalu->journal_base;
+                my $entry_url = LJ::item_link($journalu, $itemid, $res{anum});
 
-                    $result .= "<table border='0' width='100%'><tr valign='top'><td>";
+                my $result = "<?h1 $ML{'.success.head'} h1?>";
+                $result .= "<table border='0' width='100%'><tr valign='top'><td>";
+
+                if ($deleted) {
                     $result .= "<?p $ML{'.success.delete'} p?>";
                     $result .= "<?p $ML{'.success.deletespam'} p?>" if $POST{'action:deletespam'};
 
                     my $deleted_extras = LJ::run_hook('entry_deleted_page_extras');
                     $result .= $deleted_extras if defined $deleted_extras;
+                } else {
+                    $result .= "<?p $ML{'.success.edited'} p?>";
 
-                    my $j_base = ($usejournal ? $usejournal_u : $u)->journal_base;
-                    $result .= qq {
-                        <div id="fromhere">From here you can:
-                        <ul>
-                            <li>
-                            <a href="$j_base">View journal entries</a>
-                            </li>
-                            <li>
-                            <a href="$LJ::SITEROOT/editjournal.bml">Manage your journal entries</a>
-                            </li>
-                            </ul>
-                            </div>
-                    };
-                    $result .= "</td>";
+                    # open a request about the unsuspension if one doesn't already exist
+                    if ($POST{'action:saveunsuspend'} && !$entry_obj->prop("unsuspend_supportid") && $LJ::UNSUSPENSION_REQUEST_SPCATID) {
+                        my %req;
+                        $req{reqtype} = "user";
+                        $req{requserid} = $remote->id;
+                        $req{uniq} = LJ::UniqCookie->current_uniq;
+                        $req{spcatid} = $LJ::UNSUSPENSION_REQUEST_SPCATID;
+                        $req{ignore_dup_check} = 1; # can't have dup checking in case a particular entry gets re-suspended after unsuspension
+                        $req{subject} = "Unsuspension Request from " . $remote->user;
+                        $req{body} = "The suspended entry at " . $entry_obj->url . " has been edited and the poster requests unsuspension.";
 
-                    my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
-                    if ($ad) {
-                        $result .= "<td valign='top' style='width: 300px;'>$ad</td>";
+                        my @errors;
+                        my $spid = LJ::Support::file_request(\@errors, \%req);
+
+                        if ($spid) {
+                            $entry_obj->set_prop( unsuspend_supportid => $spid );
+                            my $url = "$LJ::SITEROOT/support/see_request.bml?id=$spid";
+                            $result .= "<?p " . BML::ml('.success.editedunsuspend', { url => "<a href='$url'>$url</a>" }) . " p?>";
+                        }
+                    } elsif ($POST{'action:save'} && $entry_obj->is_suspended && !$entry_obj->prop("unsuspend_supportid")) {
+                        $result .= "<?p " . BML::ml('.success.editedstillsuspended', { aopts => "href='$LJ::SITEROOT/abuse/report.bml'" }) . " p?>";
                     }
-
-                    $result .= "</tr></table>";
-
-                    return $result;
                 }
 
-                # modified
-                return BML::redirect(LJ::item_link($usejournal ? $usejournal_u : $u, $itemid, $res{'anum'}));
+                $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
+                $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
+                $result .= "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
+                $result .= "<li><a href='$LJ::SITEROOT/editjournal.bml'>$ML{'.success.fromhere.manageentries'}</a></li>";
+                $result .= "</ul></div>";
+                $result .= "</td>";
+
+                my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
+                if ($ad) {
+                    $result .= "<td valign='top' style='width: 300px;'>$ad</td>";
+                }
+
+                $result .= "</tr></table>";
+
+                return $result;
             }
 
 
@@ -235,6 +327,7 @@ body<=
             LJ::EmbedModule->parse_module_embed($journalu, \$event, edit => 1);
             $event = LJ::eurl($event);
 
+            my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
             my $entry = {
                 'mode' => "edit",
                 'auth_as_remote' => 1,
@@ -252,10 +345,18 @@ body<=
                 'disabled_save' => $disabled_save,
                 'disabled_delete' => $disabled_delete,
                 'disabled_spamdelete' => $disabled_spamdelete,
+                'suspended' => $suspend_msg,
+                'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0,
             };
             for (my $i = 1; $i <= $res{'prop_count'}; $i++) {
                 $entry->{"prop_" . $res{"prop_${i}_name"}} = $res{"prop_${i}_value"};
             }
+
+            # add property for current music button displaying if last.fm user specified
+            $entry->{prop_last_fm_user} = $u_for_entry->prop('last_fm_user');
+
+            $entry->{prop_copyright} = $entry_obj->prop('copyright');
+
             foreach ( keys %POST ) { $entry->{$_} = %POST->{$_}; }
             $entry->{'richtext_default'} = $entry->{"prop_used_rte"} ? 1 : 0,
 
@@ -263,7 +364,7 @@ body<=
             $ret .= LJ::entry_form($entry, \$$head, \$onload);
             $ret .= "</form></div>";
             $ret .= "</td>";
-            my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+            my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
             if ($ad) {
                 $ret .= "<td valign='top' style='width: 300px;'>$ad</td>";
             }
@@ -289,6 +390,8 @@ body<=
     LiveJournal.qotdText = "$escaped_qotd_text";
     </script>
 };
+
+            $ret .= LJ::Widget::SettingProdDisplay->render;
 
             return $ret;
         }
@@ -357,65 +460,13 @@ body<=
         }
 
         ### display results
-        my $ret;
-        $ret .= "<?h1 $ML{'.pickentry.head'} h1?><?p $ML{'.pickentry.text'} p?>\n";
-
-        $ret .= "<table style='width: 100%;'><tr><td>";
-        my %props = ();
-        for (my $i=1; $i<=$res{'prop_count'}; $i++) {
-            $props{$res{"prop_${i}_itemid"}}->{$res{"prop_${i}_name"}} = $res{"prop_${i}_value"};
-        }
-
-        for (my $i=1; $i<=$ev_count; $i++) {
-            my $itemid = $res{"events_${i}_itemid"};
-            my $ditemid = $itemid * 256 + $res{"events_${i}_anum"};
-
-            $ret .= "<?hr?><table><tr valign='top'><td align='middle'>";
-            $ret .= "<form method='post' action='editjournal.bml$getextra'>\n";
-            $ret .= LJ::html_hidden('itemid',$ditemid,'mode',"edit");
-            $ret .= LJ::html_submit('itemid-$ditemid','Edit this Entry');
-            $ret .= "</form>";
-            $ret .= "</td><td>";
-
-            $ret .= " <b><label for='itemid-$ditemid'>" . $res{"events_${i}_eventtime"} . "</label></b>";
-            $ret .= " (Posted by: " . LJ::ljuser($res{"events_${i}_poster"}) . ")" if $usejournal;
-
-            ### security indicator
-            my $sec = ' ';
-            if ($res{"events_${i}_security"} eq "private") {
-                $sec .= BML::fill_template("securityprivate");
-            } elsif ($res{"events_${i}_security"} eq "usemask") {
-                $sec .= BML::fill_template("securityprotected");
-            }
-            $ret .= $sec;
-
-            if (my $subj = $res{"events_${i}_subject"}) {
-                LJ::CleanHTML::clean_subject_all(\$subj);
-                  $ret .= " <i>" . LJ::ehtml($subj) . "</i>";
-              }
-            $ret .= "<br />\n";
-
-            my $event = LJ::ehtml(LJ::durl($res{"events_${i}_event"}));
-            $event =~ s!\n!<br />!g;
-            $ret .= $event;
-
-            $ret .= "</td></tr></table>\n";
-        }
-        $ret .= "</td>";
-        my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
-        if ($ad) {
-            $ret .= "<td valign='top'>$ad</td>";
-        }
-        $ret .= "</tr></table>";
-        return $ret;
+        return $entry_chooser->(\%res, show_ad => 1);
     } elsif ($mode eq "init") {
         # no authentication needs to be done on this page, it's just a form anyway
 
+        $ret .= "<table style='width: 100%;'><tr><td>";
+
         # user switcher
-        my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
-        if ($ad) {
-            $ret .= "<div class='ad-sidebar'>$ad</div>";
-        }
         $ret .= "<form action='editjournal.bml' method='get'>\n";
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'}, 'type' => 'P' });
         $ret .= "</form>\n\n";
@@ -470,6 +521,34 @@ body<=
 
         $ret .= "</table> standout?>\n";
         $ret .= "</form>\n";
+
+        my %res;
+        my %req = (
+            mode => 'getevents',
+            ver  => $LJ::PROTOCOL_VER,
+            user => $u->user,
+            usejournal => $usejournal,
+            truncate => 300,
+            noprops => 1,
+            selecttype => 'lastn',
+            howmany => 5,
+        );
+
+        # do getevents request
+        LJ::do_request(\%req, \%res, { noauth => 1, u => $u });
+
+        if ($res{success} eq "OK" && $res{events_count} > 0) {
+            $ret .= $entry_chooser->(\%res);
+        }
+
+        my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
+        if ($ad) {
+            $ret .= "</td><td valign='top'>$ad";
+        }
+
+        $ret .= "</td></tr></table>";
+
+        $ret .= LJ::Widget::SettingProdDisplay->render;
 
         return $ret;
     }

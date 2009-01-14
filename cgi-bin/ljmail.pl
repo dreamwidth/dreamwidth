@@ -68,15 +68,24 @@ sub send_mail
 
         my $body = $opt->{'wrap'} ? Text::Wrap::wrap('','',$opt->{'body'}) : $opt->{'body'};
         my $subject = $opt->{'subject'};
+        my $fromname = $opt->{'fromname'};
 
         # if it's not ascii, add a charset header to either what we were explictly told
         # it is (for instance, if the caller transcoded it), or else we assume it's utf-8.
         # Note: explicit us-ascii default charset suggested by RFC2854 sec 6.
         $opt->{'charset'} ||= "utf-8";
-        my $charset = (LJ::is_ascii($body) && LJ::is_ascii($subject)) ? 'us-ascii' : $opt->{'charset'};
+        my $charset;
+        if (!LJ::is_ascii($subject)
+         || !LJ::is_ascii($body) 
+         || ($opt->{html} && !LJ::is_ascii($opt->{html}))
+         || !LJ::is_ascii($fromname)) {
+            $charset = $opt->{'charset'};
+        } else {
+            $charset = 'us-ascii';
+        }
 
         # Don't convert from us-ascii and utf-8 charsets.
-        unless (($charset eq 'us-ascii') || ($charset =~ m/^utf-8$/i)) {
+        unless (($charset =~ m/us-ascii/i) || ($charset =~ m/^utf-8$/i)) {
             from_to($body,              "utf-8", $charset);
             # Convert also html-part if we has it.
             if ($opt->{html}) {
@@ -85,12 +94,20 @@ sub send_mail
         }
 
         from_to($subject, "utf-8", $charset) unless $charset =~ m/^utf-8$/i;
-        $subject = MIME::Words::encode_mimeword($subject, 'B', $charset);
+        if (!LJ::is_ascii($subject)) {
+            $subject = MIME::Words::encode_mimeword($subject, 'B', $charset);
+        }
+
+        from_to($fromname, "utf-8", $charset) unless $charset =~ m/^utf-8$/i;
+        if (!LJ::is_ascii($fromname)) {
+            $fromname = MIME::Words::encode_mimeword($fromname, 'B', $charset);
+        }
+        $fromname = $clean_name->($fromname, $opt->{'from'});
 
         if ($opt->{html}) {
             # do multipart, with plain and HTML parts
 
-            $msg = new MIME::Lite ('From'    => $clean_name->($opt->{'fromname'}, $opt->{'from'}),
+            $msg = new MIME::Lite ('From'    => $fromname,
                                    'To'      => $clean_name->($opt->{'toname'},   $opt->{'to'}),
                                    'Cc'      => $opt->{'cc'},
                                    'Bcc'     => $opt->{'bcc'},
@@ -115,7 +132,7 @@ sub send_mail
 
         } else {
             # no html version, do simple email
-            $msg = new MIME::Lite ('From'    => $clean_name->($opt->{'fromname'}, $opt->{'from'}),
+            $msg = new MIME::Lite ('From'    => $fromname,
                                    'To'      => $clean_name->($opt->{'toname'},   $opt->{'to'}),
                                    'Cc'      => $opt->{'cc'},
                                    'Bcc'     => $opt->{'bcc'},
@@ -131,7 +148,6 @@ sub send_mail
                 $msg->add($tag, $value);
             }
         }
-
     }
 
     # at this point $msg is a MIME::Lite

@@ -30,18 +30,14 @@
  unless ($u) {
      $title = "To-Do List";
 
-     my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Full-Width' );
-
+     my $ad = LJ::get_ads({ location => 'bml.todo', ljadwrapper => 1, journalu => $u });
      $body .= $ad if $ad;
      $body .= "<form method='get' action='./'>";
      $body .= "Enter the username of the user whose to-do list you would like to view:<UL><INPUT NAME=\"user\" SIZE=15 MAXLENGTH=15> <INPUT TYPE=SUBMIT VALUE=\"View\"></UL></FORM>\n";
      return;
  }
 
- my $ad = LJ::ad_display(type   => 'journal',
-                         orient => 'Journal-Leaderboard-Top',
-                         user   => $u->{user},
-                         );
+ my $ad = LJ::get_ads({ location => 'bml.todo', ljadwrapper => 1, journalu => $u });
  $body .= $ad if $ad;
 
  # block robots

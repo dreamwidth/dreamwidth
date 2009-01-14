@@ -13,15 +13,14 @@ LJ_IPPU = new Class ( IPPU, {
     this.setTitlebarClass("lj_ippu_titlebar");
 
     this.addClass("lj_ippu");
-
     this.setAutoCenterCallback(IPPU.center);
     this.setDimensions(400, "auto");
-    this.setOverflow("hidden");
+    //this.setOverflow("hidden");
 
     this.setFixedPosition(true);
     this.setClickToClose(true);
     this.setAutoHideSelects(true);
-  },
+ },
 
   setTitle: function (title) {
     var titlebarContent = "\
@@ -29,6 +28,8 @@ LJ_IPPU = new Class ( IPPU, {
       "<img src='" + Site.imgprefix + "/CloseButton.gif' width='15' height='15' id='" + this.uniqId + "_cancel' /></div>" + title;
 
     LJ_IPPU.superClass.setTitle.apply(this, [titlebarContent]);
+    
+      
   },
 
   generateUniqId: function() {
@@ -44,11 +45,14 @@ LJ_IPPU = new Class ( IPPU, {
 
   setup_lj_ippu: function (evt) {
     var cancelCallback = this.cancelThisFunc;
-    DOM.addEventListener($(this.uniqId + "_cancel"), "click", cancelCallback, true);
+   //DOM.addEventListener($(this.uniqId + "_cancel"), "click", cancelCallback, true);
+   $(this.uniqId + "_cancel").onclick = function(){
+	    cancelCallback();
+	    
+    };
   },
 
   hide: function() {
-    DOM.removeEventListener($(this.uniqId + "_cancel"), "click", this.cancelThisFunc, true);
     LJ_IPPU.superClass.hide.apply(this);
   }
 } );

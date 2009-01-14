@@ -11,7 +11,7 @@ _info?><?_code
     ## Non-OpenID-compliant section: let trusted sites query remote user,
     ## without knowing identity (mocked identity value '_ljwho' is passed)
     my $remote = LJ::get_remote();
-    if ($remote &&
+    if ($remote && $remote->is_person &&
         $GET{'openid.identity'} eq "_ljwho" &&
         $GET{'openid.trust_root'} &&
         $GET{'openid.trust_root'} =~ m!^https?://([^/]+)(/|$)! &&

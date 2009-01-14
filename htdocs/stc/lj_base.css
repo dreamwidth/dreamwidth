@@ -134,3 +134,7 @@ div.lj_ippu_titlebar {
 .ljedittime {
     font-size: smaller;
 }
+
+.warning-background {
+    background-image: url('/img/message-warning.gif');
+}

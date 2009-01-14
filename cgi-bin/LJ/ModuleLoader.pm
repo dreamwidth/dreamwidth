@@ -66,7 +66,11 @@ sub require_if_exists {
         unless $req_file =~ m!/!;
 
     # lib should return 1
-    return do $req_file if -e $req_file;
+    if (-e $req_file) {
+        my $rv = do $req_file;
+        warn $@ if $@;
+        return $rv;
+    }
 
     # no library loaded, return 0
     return 0;

@@ -9,7 +9,7 @@ body<=
                     js/editfriendsmany.js
                     ));
 
-    $title = 'Edit Friends';
+    $title = $ML{'.title'};
 
     my $remote = LJ::get_remote() or return "<?needlogin?>";
     my $u;
@@ -27,7 +27,7 @@ body<=
         # process edits:
         if ($POST{friend}) {
             # process friend groups
-            if ($remote->is_friend($u) || $remote->can_add_friends(\$err)) {
+            if ($remote->is_friend($u) || $remote->can_add_friends(\$err, {friend => $u})) {
                 my $groupmask = 1;
                 foreach my $fgroupid (@groupids) {
                     $groupmask |= 1 << $fgroupid if $POST{"fgroup$fgroupid"};
@@ -48,8 +48,8 @@ body<=
     $ret .= qq {
         <fieldset>
             <form method="GET" id="chooseuserform">
-                Edit user: <input name="user" type="text" maxlength="15" size="15" id="user" value="$username" />
-                <input type="submit" value="edit" />
+                $ML{'.edit.user'} <input name="user" type="text" maxlength="15" size="15" id="user" value="$username" />
+                <input type="submit" value="$ML{'.edit'}" />
             </form>
         </fieldset>
     };
@@ -96,15 +96,15 @@ body<=
             $relation = '';
         } elsif ($remote->is_friend($u)) {
             if ($u->is_friend($remote)) {
-                $relation = "You are mutual friends with $username";
+                $relation = BML::ml('.you.are.mutual', {"username"=>$username});
             } else {
-                $relation = "$username is your friend";
+                $relation = BML::ml('.is.your.friends', {"username"=>$username});
             }
         } else {
             if ($u->is_friend($remote)) {
-                $relation = "$username is friends with you";
+                $relation = BML::ml('.is.friends.with.you', {"username"=>$username});
             } else {
-                $relation = "You are not friends with $username";
+                $relation = BML::ml('.you.are.not.friends', {"username"=>$username});
             }
         }
 
@@ -124,7 +124,7 @@ body<=
                     <div id="friendgroups">
                         $friendgroups
                     </div>
-                    <input type="submit" id="save" value="Save" />
+                    <input type="submit" id="save" value="$ML{'.save'}" />
                 </form>
             </fieldset>
         };

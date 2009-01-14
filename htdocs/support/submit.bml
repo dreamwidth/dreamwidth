@@ -6,8 +6,9 @@ body<=
     use strict;
     LJ::set_active_crumb('supportsubmit');
 
+    LJ::Widget->use_specific_form_fields( post => \%POST, widget => "SubmitRequest_Support", fields => [ qw( recaptcha_response_field recaptcha_challenge_field ) ] );
     return LJ::Widget->handle_post_and_render(\%POST, 'LJ::Widget::SubmitRequest::Support',
-                                              'category' => $GET{category});
+                                              'category' => $GET{category}, 'post' => LJ::Widget::SubmitRequest::Support->post_fields(\%POST));
 }
 _code?>
 <=body

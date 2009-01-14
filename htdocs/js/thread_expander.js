@@ -26,12 +26,12 @@ Expander.prototype.getCanvas = function(id,context){
 }
 
 Expander.prototype.parseLJ_cmtinfo = function(context,callback){
-    var map={};
+    var map={}, node, j;
     var LJ = context.LJ_cmtinfo;
     if(!LJ)return false;
-    for(var j in LJ){
-        if(/^\d*$/.test(j)){
-            map[j] = {info:LJ[j],canvas:this.getCanvas(j,context)};
+    for(j in LJ){
+        if(/^\d*$/.test(j) && (node = this.getCanvas(j,context))){
+            map[j] = {info:LJ[j],canvas:node};
             if(typeof callback == 'function'){
                 callback(j,map[j]);     
             }

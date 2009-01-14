@@ -1,99 +1,99 @@
 div.ups_status {
-	color: #333;
-	font-size: larger;
-	font-weight: bold;
-	text-align: center;
+        color: #333;
+        font-size: larger;
+        font-weight: bold;
+        text-align: center;
 }
 
 .ups_table {
-	display: table;
-	width: 100%;
-	_width: 97%;
-	padding: 0;
-	margin: 0;
+        display: table;
+        width: 100%;
+        _width: 97%;
+        padding: 0;
+        margin: 0;
 }
 
 td.ups_cell {
-	padding: 5px;
-	border: 1px solid #fff;
-	cursor: pointer !important;
-	color: #000;
+        padding: 5px;
+        border: 1px solid #fff;
+        cursor: pointer !important;
+        color: #000;
 }
 
 .ups_row1 { background-color: #fff; }
 .ups_row2 { background-color: #efefef; }
 
 .ups_selected_cell {
-	background-color: #999 !important;
-	color: #000;
-	border: 1px solid #454545 !important;
+        background-color: #999 !important;
+        color: #000;
+        border: 1px solid #454545 !important;
 }
 
 div.ups_search {
-	padding: 5px;
-	background: #ccc;
-	color: #000;
-	border-top: 1px solid #fff;
-	border-bottom: 1px solid #fff;
-	height: 20px;
-	vertical-align: top;
+        padding: 5px;
+        background: #ccc;
+        color: #000;
+        border-top: 1px solid #fff;
+        border-bottom: 1px solid #fff;
+        height: 20px;
+        vertical-align: top;
 }
 
 .ups_selected {
-	border-top: 1px solid #777 !important;
-	border-left: 1px solid #777 !important;
-	border-right: 1px solid #444 !important;
-	border-bottom: 1px solid #444 !important;
+        border-top: 1px solid #777 !important;
+        border-left: 1px solid #777 !important;
+        border-right: 1px solid #444 !important;
+        border-bottom: 1px solid #444 !important;
 }
 
 img.ups_upic {
-	display: block;
-	padding: 3px;
-	border-top: 1px solid #eee;
-	border-left: 1px solid #eee;
-	border-right: 1px solid #aaa;
-	border-bottom: 1px solid #aaa;
-	background: #fff;
-	color: #000;
+        display: block;
+        padding: 3px;
+        border-top: 1px solid #eee;
+        border-left: 1px solid #eee;
+        border-right: 1px solid #aaa;
+        border-bottom: 1px solid #aaa;
+        background: #fff;
+        color: #000;
 }
 
 div.ups_userpics {
-	overflow: auto;
-	height: 353px;
-	margin: 0;
-	padding: 0;
+        overflow: auto;
+        height: 353px;
+        margin: 0;
+        padding: 0;
 }
 
 div.ups_container {
-	float: left;
-	margin: 0 5px 0 0;
+        float: left;
+        margin: 0 5px 0 0;
 }
 
 div.ups_closebuttonarea {
-	background: #ccc;
-	color: #000;
-	padding: 5px;
-	border-top: 1px solid #fff;
-	height: 20px;
-	position: relative;
+        background: #ccc;
+        color: #000;
+        padding: 5px;
+        border-top: 1px solid #fff;
+        height: 20px;
+        position: relative;
 }
 
-	div.ups_closebuttonarea input {
-		vertical-align: top;
-	}
+        div.ups_closebuttonarea input {
+                vertical-align: top;
+        }
 
-	span#ups_scaling_buttons {
-		display: block;
-		position: absolute;
-		right: 5px;
-		top: 2px;
-	}
+        span#ups_scaling_buttons {
+                display: block;
+                position: absolute;
+                right: 5px;
+                top: 2px;
+        }
 
-	#ups_scaling_buttons img {
-		margin: 0 0 0 2px;
-		padding: 2px;
-		border: 1px solid #ccc;
-	}
+        #ups_scaling_buttons img {
+                margin: 0 0 0 2px;
+                padding: 2px;
+                border: 1px solid #ccc;
+        }
 
         img.ups_scalebtn_selected {
                 border: 1px solid #666 !important;

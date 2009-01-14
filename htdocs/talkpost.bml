@@ -5,6 +5,8 @@ body<=
     use strict;
     use vars qw($head %FORM %ML %GET);
 
+    use LJ::LastFM;
+
     $head = "";  # not local, used to build <link> tags
 
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
@@ -149,14 +151,25 @@ body<=
         $head = LJ::robot_meta_tags();
     }
 
-    # check suspended
+    # check suspended user
     return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p $ML{'talk.error.suspended'} p?>"
         if $u->is_suspended || $up->is_suspended ||
            $ur && $ur->is_suspended;
 
+    # check read-only user
+    return "<?h1 $ML{'talk.error.readonly_remote.title'} h1?><?p $ML{'talk.error.readonly_remote'} p?>"
+        if $remote && $remote->is_readonly;
+    return "<?h1 $ML{'talk.error.readonly_journal.title'} h1?><?p $ML{'talk.error.readonly_journal'} p?>"
+        if $u->is_readonly;
+
     # check deleted
     return "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>"
         if ($u->is_deleted);
+
+    # check suspended entry
+    # reply page of suspended entry cannot be accessed by anyone, even entry poster
+    return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p " . BML::ml('talk.error.suspendedentryreply', { aopts => "href='" . $u->journal_base . "/'" }) . " p?>"
+        if $entry && $entry->is_suspended;
 
     # checked screened post
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noreply_screened'} p?>"
@@ -181,7 +194,10 @@ body<=
     my $event = !$FORM{'replyto'} ? $item->{'event'} : $parpost->{'body'};
     my $preformatted = $FORM{'replyto'} eq "" ? $props->{'opt_preformatted'} : $parpost->{'opt_preformatted'};
 
-    LJ::CleanHTML::clean_event(\$event, $preformatted);
+    my $suspend_msg = $entry && $entry->should_show_suspend_msg_to($remote) ? 1 : 0;
+    LJ::CleanHTML::clean_event(\$event, { 'preformatted' => $preformatted,
+                                          'suspend_msg' => $suspend_msg,
+                                          'unsuspend_supportid' => $suspend_msg ? $entry->prop("unsuspend_supportid") : 0, });
     LJ::expand_embedded($u, $ditemid, $remote, \$event);
     BML::ebml(\$event);
 
@@ -244,8 +260,17 @@ body<=
                                      'remote' => $remote, 'itemid' => $ditemid, });
     }
 
+    if ($u->is_locked) {
+        $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.locked'}</div>";
+    } elsif ($u->is_memorial) {
+        $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.memorial'}</div>";
+    } elsif ($u->is_readonly) {
+        $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.readonly'}</div>";
+    }
+
     my %current;
     if ($props->{'current_mood'} || $props->{'current_moodid'}) {
+
         my $themeid = $up->{'moodthemeid'};
         my $moodid = $props->{'current_moodid'};
         my $mood = $props->{'current_mood'};
@@ -271,7 +296,7 @@ body<=
         $current{'Mood'} = "$moodpic$moodname";
     }
     if ($props->{'current_music'}) {
-        $current{'Music'} = $props->{'current_music'};
+        $current{'Music'} = LJ::LastFM::format_current_music_string($props->{'current_music'});
         LJ::CleanHTML::clean_subject(\$current{'Music'});
     }
 
@@ -287,6 +312,13 @@ body<=
 
 
     $ret .= "<div style='margin-left: 30px'>";
+
+    ## copyright
+    if (LJ::is_enabled('default_copyright', $u)) {
+        if ($props->{'copyright'} ne 'P') {
+             $ret .= '<div class="copyrighted">&Oslash; ' . BML::ml("talk.copyright") . '</div>';
+        }
+    }
 
     ### currents
     if (! $init->{'replyto'} && %current)
@@ -338,21 +370,18 @@ body<=
     $ret .= "<br clear='both' /><hr size='2' align='center' />";
 
     my $qotd = 0;
-    $qotd = $entry->is_special_qotd_entry if $entry;
+    $qotd = $entry->prop("qotdid") if $entry;
 
     my @verticals = $entry->verticals_list_for_ad;
     if (@verticals) {
         $LJ::REQ_GLOBAL{verticals_of_first_public_post} = join(",", @verticals);
     }
-
-    my $ad = LJ::ad_display(type   => 'journal',
-                            orient => 'Journal-Indiv-Entry',
-                            user   => $u->user,
-                            use_wrapper => 0,
-                            vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
-                            interests_extra => $qotd ? "qotd" : "",
-                            );
-
+    my $ad = LJ::get_ads({
+        location        => 'bml.talkpost.ebox',
+        journalu        => $u, 
+        vertical        => $LJ::REQ_GLOBAL{verticals_of_first_public_post}, 
+        interests_extra => $qotd ? { qotd => $qotd } : {}
+    });
     if ($ad) {
         $ret .= $ad;
         $ret .= "<hr width='100%' size='2' align='center' />";
@@ -389,7 +418,14 @@ body<=
                                  'replyto'   => $init->{replyto},
                                  'ditemid'   => $ditemid,
                                  'stylemine' => $GET{'style'} eq "mine",
-                                 'form'      => \%FORM });
+                                 'form'      => \%FORM,
+                                 'do_captcha' => LJ::Talk::Post::require_captcha_test($remote, $u, $FORM{body}, $ditemid)});
+    my $ad = LJ::get_ads({ location => 'bml.talk.bottom', journalu => $u, });
+    if ($ad) {
+        $ret .= "<hr width='100%' size='2' align='center' />";
+        $ret .= qq[<div style='width:728px; margin: auto;'>$ad</div>];
+    }
+
     BML::noparse();
     return $ret;
 }

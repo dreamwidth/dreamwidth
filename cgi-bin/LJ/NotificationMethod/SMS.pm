@@ -21,7 +21,9 @@ sub new {
     return bless $self, $class;
 }
 
-sub title { $LJ::SMS_TITLE }
+sub title { BML::ml('notification_method.sms.title') }
+
+sub help_url { "sms_about" }
 
 sub new_from_subscription {
     my $class = shift;

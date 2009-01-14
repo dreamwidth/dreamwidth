@@ -30,15 +30,17 @@ sub render_body {
 
     unless ($remote->postreg_completed) {
         $ret .= "<p>" . $class->ml('.widget.gettingstarted.profile.note2') . "<br />";
-        $ret .= "<a href='$LJ::SITEROOT/postreg/' class='arrow-link'>" . $class->ml('.widget.gettingstarted.profile.link') . "</a></p>";
+        $ret .= "<a href='$LJ::SITEROOT/manage/profile/' class='arrow-link'>" . $class->ml('.widget.gettingstarted.profile.link') . "</a></p>";
     }
 
     unless ($class->has_enough_friends($remote)) {
+        my $url = LJ::run_hook("remote_should_see_vertical_nav") ? "$LJ::SITEROOT/explore/" : "$LJ::SITEROOT/site/search.bml";
+
         $ret .= "<p>" . $class->ml('.widget.gettingstarted.friends.note', {'num' => $remote->friends_added_count}) . "<br />";
-        $ret .= "<a href='$LJ::SITEROOT/postreg/find.bml' class='arrow-link'>" . $class->ml('.widget.gettingstarted.friends.link') . "</a></p>";
+        $ret .= "<a href='$url' class='arrow-link'>" . $class->ml('.widget.gettingstarted.friends.link') . "</a></p>";
     }
 
-    if ($remote->number_of_posted_posts < 1) {
+    if ($remote->number_of_posted_posts < 1 && !$remote->is_identity) {
         $ret .= "<p>" . $class->ml('.widget.gettingstarted.entry.note') . "<br />";
         $ret .= "<a href='$LJ::SITEROOT/update.bml' class='arrow-link'>" . $class->ml('.widget.gettingstarted.entry.link') . "</a></p>";
     }
@@ -86,7 +88,7 @@ sub tasks_completed {
     return 0 unless $u->postreg_completed;
     return 0 unless $class->has_enough_friends($u);
 
-    return 0 unless $u->number_of_posted_posts > 0;
+    return 0 unless $u->number_of_posted_posts > 0 || $u->is_identity;
     return 0 unless $u->get_userpic_count > 0;
 
     return 1;

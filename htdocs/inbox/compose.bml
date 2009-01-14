@@ -35,6 +35,8 @@ body<=
 
     my @errors;
 
+    push @errors, $ML{'.suspended.cannot.send'} if $remote->statusvis eq 'S';
+
     # Submitted message
     if (LJ::did_post()) {
         my $mode = $POST{'mode'};
@@ -84,7 +86,7 @@ body<=
                 }
 
                 # Can only send to other individual users
-                unless ($tou->is_person || $tou->is_identity) {
+                unless ($tou->is_person || $tou->is_identity || $tou->is_renamed) {
                     push @errors, BML::ml('error.message.individual', { 'ljuser' => $tou->ljuser_display });
                     next;
                 }
@@ -225,19 +227,20 @@ body<=
     # The drop-down userpic menu
     $body .= $picform . "</div>";
 
-    $body .= "<div style='clear: left;'><p><label>Subject:</label> ";
+    $body .= "<div class='inbox_formmes'><p><label class='subj-l'>Subject:</label> ";
     $body .= LJ::html_text({
                 name    => 'msg_subject',
                 size    => '50',
                 value   => $POST{'msg_subject'} || $msg_subject,
+                                class   => 'subj-t'
              });
     $body .= "</p>\n";
-    $body .= "<p>";
+    $body .= "<div class='msg_txt'>";
     $body .= "<textarea name='msg_body' rows=6 cols=55 wrap=soft>";
     $body .= $POST{'msg_body'} || $msg_body;
     $body .= "</textarea><br />";
     $body .= "<span class='helper'>Up to " . LJ::commafy($msg_limit) . " characters. Plain text, no HTML.";
-    $body .= "</span></p>\n";
+    $body .= "</span></div>\n";
 
     $body .= $msg_parent;
     $body .= LJ::html_hidden({

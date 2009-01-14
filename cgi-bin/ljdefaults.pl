@@ -109,7 +109,8 @@
                       'weblogscom' => 0,
                       'hide_email_after' => 0,
                       'userlinks' => 5,
-                      'maxcomments' => 5000,
+                      'maxcomments' => 10000,
+                      'maxcomments-before-captcha' => 5000,
                       'rateperiod-lostinfo' => 24*60, # 24 hours
                       'rateallowed-lostinfo' => 5,
                       'tools_recent_comments_display' => 50,
@@ -402,12 +403,15 @@
                        poll           => "tools/endpoints/poll.bml",
                        jobstatus      => "tools/endpoints/jobstatus.bml",
                        widget         => "tools/endpoints/widget.bml",
+                       multisearch    => "tools/endpoints/multisearch.bml",
                        );
 
     foreach my $src (keys %ajaxmapping) {
         $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};
     }
     $LJ::AJAX_URI_MAP{load_state_codes} = 'tools/endpoints/load_state_codes.bml';
+    $LJ::AJAX_URI_MAP{profileexpandcollapse} = 'tools/endpoints/profileexpandcollapse.bml';
+    $LJ::AJAX_URI_MAP{dismisspagenotice} = 'tools/endpoints/dismisspagenotice.bml';
 
     # List all countries that have states listed in 'codes' table in DB
     # These countries will be displayed with drop-down menu on Profile edit page
@@ -425,6 +429,11 @@
     %LJ::VERTICAL_URI_MAP =
         map { $LJ::VERTICAL_TREE{$_}->{url_path} => $_ }
         grep { $LJ::VERTICAL_TREE{$_}->{url_path} } keys %LJ::VERTICAL_TREE;
+
+    %LJ::VALID_PAGE_NOTICES = (
+        profile_design => 1,
+        settings_design => 1,
+    );
 }
 
 # no dependencies.

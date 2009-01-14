@@ -15,6 +15,10 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
+    if ($remote->is_in_beta('settings2008')) {
+        return BML::redirect("$LJ::SITEROOT/manage/settings/index2.bml?cat=notifications");
+    }
+
     return "Not ready" unless $remote->can_use_esn;
 
     my $formauth = LJ::form_auth();
@@ -120,6 +124,12 @@ body<=
             }
         }
 
+        # Define limits
+        my $paid_max = LJ::get_cap('paid', 'subscriptions');        
+        my $remote_max  = $remote->max_subscriptions;
+        # max for total number of subscriptions (generally it is $paid_max) 
+        my $system_max  = $remote_max > $paid_max ? $remote_max : $paid_max;
+
         my $inbox_ntypeid = LJ::NotificationMethod::Inbox->ntypeid;
         my @other_ntypeid_to_consider;
 
@@ -130,10 +140,13 @@ body<=
                 push @other_ntypeid_to_consider, $subscr;
             } else {
                 # this is an inbox subscription, save it
-                my @inbox_subs = grep { $_->active && $_->enabled } $remote->find_subscriptions(method => 'Inbox');
+                my @all_subs = $remote->find_subscriptions(method => 'Inbox');
+                my @active_subs = grep { $_->active && $_->enabled } @all_subs;
 
-                if ((scalar @inbox_subs) >= $remote->max_subscriptions && $subscr->method eq 'LJ::NotificationMethod::Inbox') {
+                if (@active_subs >= $remote_max) {
                     push @errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $remote);
+                } elsif (@all_subs >= $system_max) {
+                    push @errors, LJ::errobj("Subscription::TooManySystemMax", subscr => $subscr, u => $remote, max => $system_max);
                 } else {
                     # save this for consideration after we've processed all inbox subscriptions first
                     $subscr->commit;
@@ -153,6 +166,17 @@ body<=
             # If Inbox is always on, then act like an Inbox sub exists
             my $always_checked = $subscr->event_class->always_checked ? 1 : 0;
             next if (!$always_checked && !($inbox_sub && $inbox_sub->active && $inbox_sub->enabled));
+
+            my @all_subs = $remote->find_subscriptions(method => $subscr->method);
+            my @active_subs = grep { $_->active && $_->enabled } @all_subs;
+
+            if (@active_subs >= $remote_max) {
+                push @errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $remote);
+                next;
+            } elsif (@all_subs >= $system_max) {
+                push @errors, LJ::errobj("Subscription::TooManySystemMax", subscr => $subscr, u => $remote, max => $system_max);
+                next;
+            }
 
             $subscr->commit;
         }
@@ -221,9 +245,7 @@ body<=
         if $my_account_extra;
 
     $body .= qq {
-        <div class="Blurb">Manage your message settings and notices below. These settings
-enable you to receive notifications from LiveJournal regarding
-activity with your journal, friends, and communities.</div>
+        <div class="Blurb">$ML{'.subtitle'}</div>
     };
 
     $body .= LJ::subscribe_interface($remote,

@@ -20,6 +20,25 @@ sub ReplyPage
 
     my ($entry, $s2entry) = EntryPage_entry($u, $remote, $opts);
     return if $opts->{'suspendeduser'};
+
+    # reply page of suspended entry cannot be accessed by anyone, even entry poster
+    if ($entry && $entry->is_suspended) {
+        $opts->{suspendedentry} = 1;
+        return;
+    }
+
+    # read-only users can't comment anywhere
+    if ($remote && $remote->is_readonly) {
+        $opts->{readonlyremote} = 1;
+        return;
+    }
+
+    # no one can comment in a read-only journal
+    if ($u->is_readonly) {
+        $opts->{readonlyjournal} = 1;
+        return;
+    }
+
     return if $opts->{'handler_return'};
     return if $opts->{'redir'};
     my $ditemid = $entry->ditemid;
@@ -53,7 +72,7 @@ sub ReplyPage
             my $querysep = $args ? "?" : "";
             my $redir = LJ::eurl("http://$host$uri$querysep$args");
 
-            $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir";
+            $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin";
             return;
         }
         unless ($comment->remote_can_edit(\$errref)) {
@@ -110,6 +129,14 @@ sub ReplyPage
             #    For now, this hack will work; this error is pretty uncommon anyway.
             $opts->{status} = "403 Forbidden";
             return "<p>This thread has been frozen; no more replies are allowed.</p>";
+        }
+        if ($entry->is_suspended) {
+            $opts->{status} = "403 Forbidden";
+            return "<p>This entry has been suspended; you cannot reply to it.</p>";
+        }
+        if ($remote && $remote->is_readonly) {
+            $opts->{status} = "403 Forbidden";
+            return "<p>You are read-only.  You cannot reply to this entry.</p>";
         }
 
         my $tt = LJ::get_talktext2($u, $re_talkid);
@@ -207,7 +234,8 @@ sub ReplyForm__print
                                      'replyto'   => $parent,
                                      'ditemid'   => $form->{'_ditemid'},
                                      'stylemine' => $form->{'_stylemine'},
-                                     'form'      => $post_vars, }));
+                                     'form'      => $post_vars, 
+                                     'do_captcha' => LJ::Talk::Post::require_captcha_test($remote, $u, $post_vars->{body}, $form->{'_ditemid'})}));
 
 }
 

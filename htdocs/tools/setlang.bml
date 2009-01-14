@@ -1,0 +1,24 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    my $lang = LJ::strip_html($GET{lang});
+    my $returnto = LJ::CleanHTML::canonical_url($GET{returnto});
+
+    if ($lang && $returnto) {
+        LJ::Lang::set_lang($lang);
+        return BML::redirect($returnto);
+    }
+
+    return "No lang and/or returnto defined.";
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

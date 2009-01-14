@@ -6,9 +6,10 @@ var ESN_Inbox = {
 DOM.addEventListener(window, "load", function (evt) {
   for (var i=0; i<folders.length; i++) {
       var folder = folders[i];
+
       ESN_Inbox.initTableSelection(folder);
       ESN_Inbox.initContentExpandButtons(folder);
-      ESN_Inbox.initInboxBtns(folder);
+      ESN_Inbox.initInboxBtns(folder, cur_folder);
   }
 });
 
@@ -150,25 +151,27 @@ ESN_Inbox.saveDefaultExpanded = function (expanded) {
 };
 
 // set up inbox buttons
-ESN_Inbox.initInboxBtns = function (folder) {
+ESN_Inbox.initInboxBtns = function (folder, cur_folder) {
     // 2 instances of action buttons
     for (var i=1; i<=2; i++) {
         DOM.addEventListener($(folder + "_MarkRead_" + i), "click", function(e) { ESN_Inbox.markRead(e, folder) });
         DOM.addEventListener($(folder + "_MarkUnread_" + i), "click", function(e) { ESN_Inbox.markUnread(e, folder) });
         DOM.addEventListener($(folder + "_Delete_" + i), "click", function(e) { ESN_Inbox.deleteItems(e, folder) });
-        DOM.addEventListener($(folder + "_MarkAllRead_" + i), "click", function(e) { ESN_Inbox.markAllRead(e, folder) });
     }
+    
+    DOM.addEventListener($(folder + "_MarkAllRead"), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder) });
+    DOM.addEventListener($(folder + "_DeleteAll"), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder) });
 };
 
 ESN_Inbox.markRead = function (evt, folder) {
     Event.stop(evt);
-    ESN_Inbox.updateItems('mark_read', evt, folder);
+    ESN_Inbox.updateItems('mark_read', evt, folder, '');
     return false;
 };
 
 ESN_Inbox.markUnread = function (evt, folder) {
     Event.stop(evt);
-    ESN_Inbox.updateItems('mark_unread', evt, folder);
+    ESN_Inbox.updateItems('mark_unread', evt, folder, '');
     return false;
 };
 
@@ -182,13 +185,22 @@ ESN_Inbox.deleteItems = function (evt, folder) {
     var msg = ESN_Inbox.confirmDelete;
     if (has_bookmark && msg && !confirm(msg)) return false;
 
-    ESN_Inbox.updateItems('delete', evt, folder);
+    ESN_Inbox.updateItems('delete', evt, folder, '');
     return false;
 };
 
-ESN_Inbox.markAllRead = function (evt, folder) {
+ESN_Inbox.markAllRead = function (evt, folder, cur_folder) {
     Event.stop(evt);
-    ESN_Inbox.updateItems('mark_all_read', evt, folder);
+    ESN_Inbox.updateItems('mark_all_read', evt, folder, '', cur_folder);
+    return false;
+};
+
+ESN_Inbox.deleteAll = function (evt, folder, cur_folder) {
+    Event.stop(evt);
+
+    if (confirm("Delete all Inbox messages in the current folder except flagged?")) {
+        ESN_Inbox.updateItems('delete_all', evt, folder, '', cur_folder);
+    }
     return false;
 };
 
@@ -199,7 +211,7 @@ ESN_Inbox.bookmark = function (evt, folder, qid) {
 }
 
 // do an ajax action on the currently selected items
-ESN_Inbox.updateItems = function (action, evt, folder, qid) {
+ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder) {
     if (!ESN_Inbox.hourglass) {
         var coords = DOM.getAbsoluteCursorPosition(evt);
         ESN_Inbox.hourglass = new Hourglass();
@@ -212,7 +224,9 @@ ESN_Inbox.updateItems = function (action, evt, folder, qid) {
 
     var postData = {
         "action": action,
-        "qids": qids
+        "qids": qids,
+        "folder": folder,
+        "cur_folder": cur_folder
     };
 
     var opts = {
@@ -254,6 +268,7 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
 
     var unread_count = 0;
     var usermsg_recvd_count = 0;
+    var usermsg_sent_count = 0;
     var friend_count = 0;
     var entrycomment_count = 0;
     var inbox_count  = info.items.length;
@@ -263,6 +278,7 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
         var read    = item.read;
         var deleted = item.deleted;
         var bookmarked = item.bookmarked;
+
         if (!qid) return;
 
         if (!read && !deleted) unread_count++;
@@ -298,8 +314,9 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
     ESN_Inbox.refresh_count("esn_folder_usermsg_recvd", info.unread_usermsg_recvd);
     ESN_Inbox.refresh_count("esn_folder_friendplus", info.unread_friend);
     ESN_Inbox.refresh_count("esn_folder_entrycomment", info.unread_entrycomment);
+    ESN_Inbox.refresh_count("esn_folder_usermsg_sent", info.unread_usermsg_sent);
 
-    // Bottom row of action buttons counts as 1 row
+    // Bo row of action buttons counts as 1 row
     if ($(folder + "_Body").getElementsByTagName("tr").length < 2) {
         // no rows left, refresh page if more messages
         if (inbox_count != 0)
@@ -308,21 +325,23 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
 
     if (inbox_count == 0) {
         // reset if no messages
-        var row = document.createElement("tr");
-        var col = document.createElement("td");
-        col.colSpan = "3";
-        DOM.addClassName(col, "NoItems");
-        col.innerHTML = "(No Messages)";
-
-        row.appendChild(col);
-        $(folder + "_Body").appendChild(row);
+        if (!$("NoMessageTD")) {
+            var row = document.createElement("tr");
+            var col = document.createElement("td");
+            col.id = "NoMessageTD";
+            col.colSpan = "3";
+            DOM.addClassName(col, "NoItems");
+            col.innerHTML = "No Messages";
+            row.appendChild(col);
+            $(folder + "_Body").insertBefore(row, $("ActionRow2"));
+        }
     }
 
     // 2 instances of action buttons with suffix 1 and 2
     for (var i=1; i<=2; i++) {
         $(folder + "_MarkRead_" + i).disabled    = unread_count ? false : true;
-        $(folder + "_MarkAllRead_" + i).disabled = unread_count ? false : true;
     }
+    $(folder + "_MarkAllRead").disabled = unread_count ? false : true;
 };
 
 ESN_Inbox.refresh_count = function(name, count) {

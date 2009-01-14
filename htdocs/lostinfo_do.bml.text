@@ -61,6 +61,8 @@ Follow this link to confirm the request to reset your password:
 If you did not make this request, please ignore this email and your password
 will not be reset.
 
+Important: if you have set secret question/answer, please, log in to your account in the next 5 days in order to void the use of the secret question password reset feature.
+
 Regards,
 [[sitename]] Team
 .

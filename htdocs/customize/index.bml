@@ -6,7 +6,7 @@ body<=
     use vars qw(%GET %POST $title $headextra @errors @warnings);
     LJ::need_res(qw( stc/customize.css js/customize.js ));
 
-    $title = $ML{'.title'};
+    $title = $ML{'.title2'};
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;

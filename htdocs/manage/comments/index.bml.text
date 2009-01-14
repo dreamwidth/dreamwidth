@@ -1,4 +1,9 @@
 ;; -*- coding: utf-8 -*-
+
+.captcha=Show CAPTCHA while commenting to
+
+.captcha.text=This option will prevent spammer bots from commenting in your journal, but it makes life harder for regular users too.
+
 .commentnotify=Receive email copies of comments you make
 
 .commentnotify.text=You can receive e-mail copies of comments you make while logged in under your username. You will not receive copies of any anonymous comments you make.
@@ -14,6 +19,8 @@
 .enablecommenting=Enable commenting from
 
 .finished.save_button=Save Changes
+
+.fn.captcha=Human test
 
 .fn.commentnotify=Comment notifications
 
@@ -34,6 +41,8 @@
 .formatplain=Plain Text
 
 .intro=Set your comment preferences below.
+
+.intro2=Set your comment preferences below. You may also want to edit your <a [[aopts1]]>profile settings</a> or your <a [[aopts2]]>viewing options</a>.
 
 .logip=Log IPs for replies from
 

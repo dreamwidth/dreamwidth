@@ -36,7 +36,7 @@ sub render_body {
 
     my ($q) = $qid ? LJ::QotD->get_single_question($qid) : LJ::QotD->get_questions;
     $qid = $q->{qid} if $q;
-    return "No entries to display" unless $qid;
+    return $class->ml('widget.qotdresponses.no.entries.to.display') unless $qid;
 
     # get responses
     my $show_size = $class->responses_per_page;
@@ -52,12 +52,14 @@ sub render_body {
 
     my $ret = "";
     unless (@responses) {
-        $ret .= "<?p There are no answers to this Writer's Block. p?>";
+        my $answer_url = LJ::Widget::QotD->answer_url($q);
+
+        $ret .= "<?p " . $class->ml('widget.qotdresponses.there.are.no.answers') . " p?>";
         $ret .= "<ul>";
-        $ret .= "<li><a href='$LJ::SITEROOT/post_qotd.bml'>Answer the Question</a></li>";
-        $ret .= "<li><a href='" . $remote->journal_base . "/friends'>Read your Friends Page</a></li>"
+        $ret .= "<li><a href='$answer_url'>" . $class->ml('widget.qotdresponses.answer.the.question') . "</a></li>" if $answer_url;
+        $ret .= "<li><a href='" . $remote->journal_base . "/friends'>" . $class->ml('widget.qotdresponses.read.your.friends.page') . "</a></li>"
             if $remote;
-        $ret .= "<li><a href='$LJ::SITEROOT/site/search.bml'>Explore $LJ::SITENAMEABBREV</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/site/search.bml'>" . $class->ml('widget.qotdresponses.explore') . " $LJ::SITENAMEABBREV</a></li>";
         $ret .= "</ul>";
         return $ret;
     }
@@ -74,7 +76,7 @@ sub render_body {
     # did we have more to display?
     if ($need_more) {
         my $newskip = $skip + $show_size;
-        $ret .= "<div><a href='$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid&skip=$newskip'>Previous $show_size</a></div>";
+        $ret .= "<div><a href='$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid&skip=$newskip'>" . $class->ml('widget.qotdresponses.previous') . " $show_size</a></div>";
     }
 
     return $ret;
@@ -128,11 +130,11 @@ sub render_responses {
                 <div class="lj_qotd_entry_subject">$entry_subject</div>
                 <div class="lj_qotd_entry_body">$entry_html</div>
                 <div>
-                    <a href="$entry_url">Read More</a> | <a href="$entry_cmt_link">$comments</a>
-                </div>
-                <div class="clear">&nbsp;</div>
-            </div>
-        };
+        };    
+                
+        $ret .= "<a href=\"$entry_url\">" . $class->ml('widget.qotdresponses.read.more') . "</a> | <a href=\"$entry_cmt_link\">$comments</a>";
+        $ret .= '</div><div class="clear">&nbsp;</div></div>';
+        
     }
 
     return $ret;

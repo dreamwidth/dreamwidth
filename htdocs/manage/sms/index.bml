@@ -185,11 +185,15 @@ body<=
 
         <form method="POST" action="$LJ::SITEROOT/manage/sms/index.bml">
 
-        <table id="SMS_Setup">
-        <tr><td><span class="Label">Status</span><br/>$status</td></tr>
+        <table class="SMS_Setup">
+        <tr><td><span class="Label">Status:</span> $status</td></tr>
         <tr><td><span class="Label">Full Phone Number</span><br/>$msisdn<br/><small>(e.g. 555-555-1212)</small></td></tr>
         <tr><td><span class="Label">Carrier</span><br/>$carrier</td></tr>
-        <tr><td><span class="Label">Default Text Friends Page Display</span><br/>$fgroup</td></tr>
+        </table>
+        <hr class='hr_sms' />
+        <h2>Options</h2>
+        <table class="SMS_Setup">
+        <tr><td><span class="Label">Default friends group for FRIENDS command</span><br/>$fgroup</td></tr>
     };
 
     { # disable flag/subref for this sub-feature

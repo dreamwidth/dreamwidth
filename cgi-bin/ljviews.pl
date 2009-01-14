@@ -9,6 +9,7 @@ use strict;
 package LJ::S1;
 
 use vars qw(@themecoltypes);
+use Class::Autouse qw(LJ::LastFM);
 
 # this used to be in a table, but that was kinda useless
 @themecoltypes = (
@@ -262,7 +263,7 @@ sub get_public_styles {
 
     # Try process cache/memcache if no extra options are requested
     my $memkey = "s1pubstyc";
-    my $pubstyc = {};
+    my $pubstyc;
 
     unless ($opts) {
         # check process cache
@@ -274,6 +275,7 @@ sub get_public_styles {
         $LJ::CACHED_S1_PUBLIC_LAYERS = $pubstyc;
         return $pubstyc if $pubstyc;
     }
+    $pubstyc = {};
 
     # not cached, build from db
     my $sysid = LJ::get_userid("system");
@@ -996,7 +998,8 @@ sub current_mood_str {
 
 sub current_music_str {
     my $val = shift;
-
+    
+    $val = LJ::LastFM::format_current_music_string($val);
     LJ::CleanHTML::clean_subject(\$val);
     return $val;
 }
@@ -1136,11 +1139,7 @@ sub create_view_lastn
         $lastn_page{'head'} .= '<link rel="'.$rel.'" title="'.LJ::ehtml($friendstitle).'" href="'.LJ::ehtml($friendsurl)."\" />\n";
     }
 
-    my $show_ad = LJ::run_hook('should_show_ad', {
-        ctx  => "journal",
-        user => $u->{user},
-    });
-    $lastn_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n} if $show_ad;
+    $lastn_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
     my $show_control_strip = LJ::run_hook('show_control_strip', {
         user => $u->{user},
     });
@@ -1152,7 +1151,8 @@ sub create_view_lastn
     }
 
     LJ::run_hooks("need_res_for_journals", $u);
-    $lastn_page{'head'} .= LJ::res_includes();
+    my $extra_js = LJ::statusvis_message_js($u);
+    $lastn_page{'head'} .= LJ::res_includes() . $extra_js;
 
     # FOAF autodiscovery
     my $foafurl = $u->{external_foaf_url} ? LJ::eurl($u->{external_foaf_url}) : "$journalbase/data/foaf";
@@ -1252,15 +1252,19 @@ sub create_view_lastn
     }
 
     # spit out the S1
-
+    
   ENTRY:
     foreach my $item (@items)
     {
         my ($posterid, $itemid, $security, $alldatepart) =
             map { $item->{$_} } qw(posterid itemid security alldatepart);
 
+        my $ditemid = $itemid * 256 + $item->{'anum'};
+        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
+
         my $pu = $posteru{$posterid};
         next ENTRY if $pu && $pu->{'statusvis'} eq 'S' && !$viewsome;
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         my $replycount = $logprops{$itemid}->{'replycount'};
         my $subject = $logtext->{$itemid}->[0];
@@ -1308,22 +1312,27 @@ sub create_view_lastn
             });
         }
 
-        my $ditemid = $itemid * 256 + $item->{'anum'};
         my $itemargs = "journal=$user&amp;itemid=$ditemid";
         $lastn_event{'itemargs'} = $itemargs;
 
+        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$event, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
                                                'cuturl' => LJ::item_link($u, $itemid, $item->{'anum'}),
-                                               'ljcut_disable' => $remote->{'opt_ljcut_disable_lastn'}, });
+                                               'ljcut_disable' => $remote->{'opt_ljcut_disable_lastn'},
+                                               'suspend_msg' => $suspend_msg,
+                                               'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($u, $ditemid, $remote, \$event);
 
-        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
         $event = LJ::ContentFlag->transform_post(post => $event, journal => $u,
                                                  remote => $remote, entry => $entry_obj);
         $lastn_event{'event'} = $event;
 
         my $permalink = "$journalbase/$ditemid.html";
         $lastn_event{'permalink'} = $permalink;
+
+        if($subject !~ /[<>]/) {
+            $lastn_event{'subject'} = "<a href='$permalink'>" . $lastn_event{'subject'} . "</a>";
+        }
 
         if ($u->{'opt_showtalklinks'} eq "Y" &&
             ! $logprops{$itemid}->{'opt_nocomments'}
@@ -1398,6 +1407,18 @@ sub create_view_lastn
             $vars->{'LASTN_EVENT_PROTECTED'}) { $var = 'LASTN_EVENT_PROTECTED'; }
         $$events .= LJ::fill_var_props($vars, $var, \%lastn_event);
         LJ::run_hook('notify_event_displayed', $entry_obj);
+        
+        my $ads = LJ::get_ads({
+            location            => 's1.ebox',
+            s1_view             => 'lastn',
+            journalu            => $u, 
+            current_post_number => $eventnum,
+            total_posts_number  => scalar @items,
+        });
+        if ($ads) {   
+            my $var_name = (exists $vars->{ADS_EVENT}) ? 'ADS_EVENT' : 'LASTN_EVENT';
+            $$events .= LJ::fill_var_props($vars, $var_name, {event => $ads});
+        }
     } # end huge while loop
 
     $$events .= LJ::fill_var_props($vars, 'LASTN_END_DAY', {});
@@ -1474,28 +1495,31 @@ sub create_view_lastn
     }
 
     # ads and control strip
-    if ($LJ::USE_ADS && $show_ad) {
-        $lastn_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'LASTN_SKYSCRAPER_AD',
-                                                          { "ad" => LJ::ads( type => "journal",
-                                                                             orient => 'Journal-Badge',
-                                                                             pubtext => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
-                                                                             user => $u->{user}) .
-                                                                    LJ::ads( type => "journal",
-                                                                             orient => 'Journal-Skyscraper',
-                                                                             pubtext => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
-                                                                             user => $u->{user}), });
-        $lastn_page{'5linkunit_ad'} = LJ::fill_var_props($vars, 'LASTN_5LINKUNIT_AD',
-                                                         { "ad" => LJ::ads( type => "journal",
-                                                                            orient => 'Journal-5LinkUnit',
-                                                                            user => $u->{user}), });
+    my $vetical_ad = LJ::get_ads({ 
+        location            => 's1.vertical', 
+        s1_view             => 'lastn',
+        journalu            => $u, 
+        pubtext             => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
+        total_posts_number  => scalar @items,
+    });
+    my $bottom_ad  = LJ::get_ads({ 
+        location            => 's1.bottom',   
+        s1_view             => 'lastn',
+        journalu            => $u, 
+        pubtext             => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
+        total_posts_number  => scalar @items,
+    });
+    if ($vetical_ad || $bottom_ad) {
+        $lastn_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'LASTN_SKYSCRAPER_AD', { ad => $vetical_ad });
+        $lastn_page{'5linkunit_ad'}  = LJ::fill_var_props($vars, 'LASTN_5LINKUNIT_AD',  { ad => $bottom_ad });
         $lastn_page{'open_skyscraper_ad'}  = $vars->{'LASTN_OPEN_SKYSCRAPER_AD'};
         $lastn_page{'close_skyscraper_ad'} = $vars->{'LASTN_CLOSE_SKYSCRAPER_AD'};
     }
+    
     if ($LJ::USE_CONTROL_STRIP && $show_control_strip) {
         my $control_strip = LJ::control_strip(user => $u->{user});
         $lastn_page{'control_strip'} = $control_strip;
     }
-
 
     $$ret = LJ::fill_var_props($vars, 'LASTN_PAGE', \%lastn_page);
 
@@ -1571,11 +1595,7 @@ sub create_view_friends
     # Add a friends-specific XRDS reference
     $friends_page{'head'} .= qq{<meta http-equiv="X-XRDS-Location" content="}.LJ::ehtml($u->journal_base).qq{/data/yadis/friends" />\n};
 
-    my $show_ad = LJ::run_hook('should_show_ad', {
-        ctx  => "journal",
-        user => $u->{user},
-    });
-    $friends_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n} if $show_ad;
+    $friends_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
     my $show_control_strip = LJ::run_hook('show_control_strip', {
         user => $u->{user},
     });
@@ -1587,7 +1607,8 @@ sub create_view_friends
     }
 
     LJ::run_hooks("need_res_for_journals", $u);
-    $friends_page{'head'} .= LJ::res_includes();
+    my $extra_js = LJ::statusvis_message_js($u);
+    $friends_page{'head'} .= LJ::res_includes() . $extra_js;
 
     $friends_page{'head'} .=
         $vars->{'GLOBAL_HEAD'} . "\n" . $vars->{'FRIENDS_HEAD'};
@@ -1711,15 +1732,19 @@ sub create_view_friends
 
     my $lastday = -1;
     my $eventnum = 0;
-
+    
   ENTRY:
     foreach my $item (@items)
     {
         my ($friendid, $posterid, $itemid, $security, $alldatepart) =
             map { $item->{$_} } qw(ownerid posterid itemid security alldatepart);
 
+        my $ditemid = $itemid * 256 + $item->{'anum'};
+        my $entry_obj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
+
         my $pu = $friends{$posterid} || $aposter{$posterid};
         next ENTRY if $pu && $pu->{'statusvis'} eq 'S';
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         # counting excludes skipped entries
         $eventnum++;
@@ -1776,7 +1801,6 @@ sub create_view_friends
             });
         }
 
-        my $ditemid = $itemid * 256 + $item->{'anum'};
         my $itemargs = "journal=$friend&amp;itemid=$ditemid";
         $friends_event{'itemargs'} = $itemargs;
 
@@ -1784,14 +1808,16 @@ sub create_view_friends
         $stylemine .= "style=mine" if $remote && $remote->{'opt_stylemine'} &&
                                       $remote->{'userid'} != $friendid;
 
+        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$event, { 'preformatted' => $logprops{$datakey}->{'opt_preformatted'},
                                               'cuturl' => LJ::item_link($friends{$friendid}, $itemid, $item->{'anum'}, $stylemine),
                                               'maximgwidth' => $maximgwidth,
                                               'maximgheight' => $maximgheight,
-                                              'ljcut_disable' => $remote->{'opt_ljcut_disable_friends'}, });
+                                              'ljcut_disable' => $remote->{'opt_ljcut_disable_friends'},
+                                              'suspend_msg' => $suspend_msg,
+                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($friends{$friendid}, $ditemid, $remote, \$event);
 
-        my $entry_obj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
         $event = LJ::ContentFlag->transform_post(post => $event, journal => $friends{$friendid},
                                                  remote => $remote, entry => $entry_obj);
         $friends_event{'event'} = $event;
@@ -1844,6 +1870,8 @@ sub create_view_friends
         my $journalbase = LJ::journal_base($friends{$friendid});
         my $permalink = "$journalbase/$ditemid.html";
         $friends_event{'permalink'} = $permalink;
+
+        $friends_event{'subject'} = "<a href='$permalink'>" . $friends_event{'subject'} . "</a>";
 
         if ($friends{$friendid}->{'opt_showtalklinks'} eq "Y" &&
             ! $logprops{$datakey}->{'opt_nocomments'}
@@ -1899,6 +1927,18 @@ sub create_view_friends
 
         $$events .= LJ::fill_var_props($vars, $var, \%friends_event);
         LJ::run_hook('notify_event_displayed', $entry_obj);
+        
+        my $ads = LJ::get_ads({
+            location            => 's1.ebox',
+            s1_view             => 'friends',
+            journalu            => $u, 
+            current_post_number => $eventnum,
+            total_posts_number  => scalar @items,
+        });
+        if ($ads) {
+            my $var_name = (exists $vars->{ADS_EVENT}) ? 'ADS_EVENT' : 'FRIENDS_EVENT';
+            $$events .= LJ::fill_var_props($vars, $var_name, {event => $ads});
+        }
     } # end while
 
     $$events .= LJ::fill_var_props($vars, 'FRIENDS_END_DAY', {});
@@ -1988,28 +2028,31 @@ sub create_view_friends
     }
 
     ## ads and control strip
-    if ($LJ::USE_ADS && $show_ad) {
-        $friends_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'FRIENDS_SKYSCRAPER_AD',
-                                                            { "ad" => LJ::ads( type => "journal",
-                                                                               orient => 'Journal-Badge',
-                                                                               pubtext => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
-                                                                               user => $u->{user}) .
-                                                                      LJ::ads( type => "journal",
-                                                                               orient => 'Journal-Skyscraper',
-                                                                               pubtext => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
-                                                                               user => $u->{user}), });
-        $friends_page{'5linkunit_ad'} = LJ::fill_var_props($vars, 'FRIENDS_5LINKUNIT_AD',
-                                                           { "ad" => LJ::ads( type => "journal",
-                                                                              orient => 'Journal-5LinkUnit',
-                                                                              user => $u->{user}), });
+    my $vetical_ad = LJ::get_ads({ 
+        location            => 's1.vertical', 
+        s1_view             => 'friends',  
+        journalu            => $u, 
+        pubtext             => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
+        total_posts_number  => scalar @items,
+    });
+    my $bottom_ad  = LJ::get_ads({ 
+        location            => 's1.bottom',   
+        s1_view             => 'friends',  
+        journalu            => $u, 
+        pubtext             => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
+        total_posts_number  => scalar @items,
+    });
+    if ($vetical_ad || $bottom_ad) {
+        $friends_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'FRIENDS_SKYSCRAPER_AD', { ad => $vetical_ad });
+        $friends_page{'5linkunit_ad'}  = LJ::fill_var_props($vars, 'FRIENDS_5LINKUNIT_AD',  { ad => $bottom_ad });
         $friends_page{'open_skyscraper_ad'}  = $vars->{'FRIENDS_OPEN_SKYSCRAPER_AD'};
         $friends_page{'close_skyscraper_ad'} = $vars->{'FRIENDS_CLOSE_SKYSCRAPER_AD'};
     }
+    
     if ($LJ::USE_CONTROL_STRIP && $show_control_strip) {
         my $control_strip = LJ::control_strip(user => $u->{user});
         $friends_page{'control_strip'} = $control_strip;
     }
-
 
     $$ret .= "<base target='_top' />" if ($get->{'mode'} eq "framed");
     $$ret .= LJ::fill_var_props($vars, 'FRIENDS_PAGE', \%friends_page);
@@ -2048,11 +2091,7 @@ sub create_view_calendar
         $calendar_page{'head'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}.'" />';
     }
 
-    my $show_ad = LJ::run_hook('should_show_ad', {
-        ctx  => "journal",
-        user => $u->{user},
-    });
-    $calendar_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n} if $show_ad;
+    $calendar_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
     my $show_control_strip = LJ::run_hook('show_control_strip', {
         user => $u->{user},
     });
@@ -2066,7 +2105,8 @@ sub create_view_calendar
         $vars->{'GLOBAL_HEAD'} . "\n" . $vars->{'CALENDAR_HEAD'};
 
     LJ::run_hooks("need_res_for_journals", $u);
-    $calendar_page{'head'} .= LJ::res_includes();
+    my $extra_js = LJ::statusvis_message_js($u);
+    $calendar_page{'head'} .= LJ::res_includes() . $extra_js;
 
     $calendar_page{'months'} = "";
 
@@ -2083,18 +2123,22 @@ sub create_view_calendar
     $calendar_page{'urlfriends'} = "$journalbase/friends";
     $calendar_page{'urllastn'} = "$journalbase/";
 
-    if ($LJ::USE_ADS && $show_ad) {
-        $calendar_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'CALENDAR_SKYSCRAPER_AD',
-                                                             { "ad" => LJ::ads( type => "journal",
-                                                                                orient => 'Journal-Badge',
-                                                                                user => $u->{user}) .
-                                                                       LJ::ads( type => "journal",
-                                                                                orient => 'Journal-Skyscraper',
-                                                                                user => $u->{user} ) });
-        $calendar_page{'5linkunit_ad'} = LJ::fill_var_props($vars, 'CALENDAR_5LINKUNIT_AD',
-                                                            { "ad" => LJ::ads( type => "journal",
-                                                                               orient => 'Journal-5LinkUnit',
-                                                                               user => $u->{user} ) });
+    ## ads and control strip
+    my $vertical_ad = LJ::get_ads({ 
+        location    => 's1.vertical', 
+        s1_view     => 'calendar',  
+        journalu    => $u, 
+        pubtext     => $LJ::REQ_GLOBAL{'text_of_first_public_post'}, 
+    });
+    my $bottom_ad  = LJ::get_ads({ 
+        location    => 's1.bottom',   
+        s1_view     => 'calendar',  
+        journalu    => $u, 
+        pubtext     => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
+    });
+    if ($vertical_ad || $bottom_ad) {
+        $calendar_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'CALENDAR_SKYSCRAPER_AD', { ad => $vertical_ad });
+        $calendar_page{'5linkunit_ad'}  = LJ::fill_var_props($vars, 'CALENDAR_5LINKUNIT_AD',  { ad => $bottom_ad });
         $calendar_page{'open_skyscraper_ad'}  = $vars->{'CALENDAR_OPEN_SKYSCRAPER_AD'};
         $calendar_page{'close_skyscraper_ad'} = $vars->{'CALENDAR_CLOSE_SKYSCRAPER_AD'};
     }
@@ -2311,11 +2355,7 @@ sub create_view_day
         $day_page{'head'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}.'" />';
     }
 
-    my $show_ad = LJ::run_hook('should_show_ad', {
-        ctx  => "journal",
-        user => $u->{user},
-    });
-    $day_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n} if $show_ad;
+    $day_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
     my $show_control_strip = LJ::run_hook('show_control_strip', {
         user => $u->{user},
     });
@@ -2327,7 +2367,8 @@ sub create_view_day
     }
 
     LJ::run_hooks("need_res_for_journals", $u);
-    $day_page{'head'} .= LJ::res_includes();
+    my $extra_js = LJ::statusvis_message_js($u);
+    $day_page{'head'} .= LJ::res_includes() . $extra_js;
 
     $day_page{'head'} .=
         $vars->{'GLOBAL_HEAD'} . "\n" . $vars->{'DAY_HEAD'};
@@ -2348,26 +2389,6 @@ sub create_view_day
     $day_page{'urlfriends'} = "$journalbase/friends";
     $day_page{'urlcalendar'} = "$journalbase/calendar";
     $day_page{'urllastn'} = "$journalbase/";
-
-    if ($LJ::USE_ADS && $show_ad) {
-        $day_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'DAY_SKYSCRAPER_AD',
-                                                        { "ad" => LJ::ads( type => "journal",
-                                                                           orient => 'Journal-Badge',
-                                                                           user => $u->{user}) .
-                                                                  LJ::ads( type => "journal",
-                                                                           orient => 'Journal-Skyscraper',
-                                                                           user => $u->{user}), });
-        $day_page{'5linkunit_ad'} = LJ::fill_var_props($vars, 'DAY_5LINKUNIT_AD',
-                                                       { "ad" => LJ::ads( type => "journal",
-                                                                          orient => 'Journal-5LinkUnit',
-                                                                          user => $u->{user}), });
-        $day_page{'open_skyscraper_ad'}  = $vars->{'DAY_OPEN_SKYSCRAPER_AD'};
-        $day_page{'close_skyscraper_ad'} = $vars->{'DAY_CLOSE_SKYSCRAPER_AD'};
-    }
-    if ($LJ::USE_CONTROL_STRIP && $show_control_strip) {
-        my $control_strip = LJ::control_strip(user => $u->{user});
-        $day_page{'control_strip'} = $control_strip;
-    }
 
     my $initpagedates = 0;
 
@@ -2454,14 +2475,20 @@ sub create_view_day
     LJ::load_userids_multiple([map { $_->{'posterid'}, \$posteru{$_->{'posterid'}} } @items], [$u]);
 
     my $events = "";
+    my $eventnum = 0;
 
   ENTRY:
     foreach my $item (@items) {
         my ($itemid, $posterid, $security, $alldatepart, $anum) =
             map { $item->{$_} } qw(itemid posterid security alldatepart anum);
 
-        next ENTRY if $posteru{$posterid} && $posteru{$posterid}->{'statusvis'} eq 'S' && !$viewsome;
+        my $ditemid = $itemid*256 + $anum;
+        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
 
+        next ENTRY if $posteru{$posterid} && $posteru{$posterid}->{'statusvis'} eq 'S' && !$viewsome;
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
+        
+        $eventnum++;
         my $replycount = $logprops{$itemid}->{'replycount'};
         my $subject = $logtext->{$itemid}->[0];
         my $event = $logtext->{$itemid}->[1];
@@ -2488,22 +2515,25 @@ sub create_view_day
             });
         }
 
-        my $ditemid = $itemid*256 + $anum;
         my $itemargs = "journal=$user&amp;itemid=$ditemid";
         $day_event{'itemargs'} = $itemargs;
 
+        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$event, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
                                               'cuturl' => LJ::item_link($u, $itemid, $anum),
-                                              'ljcut_disable' => $remote->{'opt_ljcut_disable_lastn'}, });
+                                              'ljcut_disable' => $remote->{'opt_ljcut_disable_lastn'},
+                                              'suspend_msg' => $suspend_msg,
+                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($u, $ditemid, $remote, \$event);
 
-        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
         $event = LJ::ContentFlag->transform_post(post => $event, journal => $u,
                                                  remote => $remote, entry => $entry_obj);
         $day_event{'event'} = $event;
 
         my $permalink = "$journalbase/$ditemid.html";
         $day_event{'permalink'} = $permalink;
+
+        $day_event{'subject'} = "<a href='$permalink'>" . $day_event{'subject'} . "</a>";
 
         if ($u->{'opt_showtalklinks'} eq "Y" &&
             ! $logprops{$itemid}->{'opt_nocomments'}
@@ -2552,9 +2582,47 @@ sub create_view_day
             $vars->{'DAY_EVENT_PROTECTED'}) { $var = 'DAY_EVENT_PROTECTED'; }
 
         $events .= LJ::fill_var_props($vars, $var, \%day_event);
-        LJ::run_hook('notify_event_displayed', $entry_obj);
-    }
+        my $ads = LJ::get_ads({
+            location            => 's1.ebox',
+            s1_view             => 'day',
+            journalu            => $u, 
+            current_post_number => $eventnum,
+            total_posts_number  => scalar @items,
+        });
+        if ($ads) {
+            my $var_name = (exists $vars->{ADS_EVENT}) ? 'ADS_EVENT' : 'DAY_EVENT';
+            $events .= LJ::fill_var_props($vars, $var_name, {event => $ads});
+        }
 
+        LJ::run_hook('notify_event_displayed', $entry_obj); ## ---
+    }
+    
+    ## ads and control strip
+    my $vetical_ad = LJ::get_ads({ 
+        location            => 's1.vertical', 
+        s1_view             => 'day',
+        journalu            => $u, 
+        pubtext             => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
+        total_posts_number  => scalar @items,
+    });
+    my $bottom_ad  = LJ::get_ads({ 
+        location            => 's1.bottom',   
+        s1_view             => 'day',
+        journalu            => $u, 
+        pubtext             => $LJ::REQ_GLOBAL{'text_of_first_public_post'},
+        total_posts_number  => scalar @items,
+    });
+    if ($vetical_ad || $bottom_ad) {
+        $day_page{'skyscraper_ad'} = LJ::fill_var_props($vars, 'DAY_SKYSCRAPER_AD', { ad => $vetical_ad });
+        $day_page{'5linkunit_ad'}  = LJ::fill_var_props($vars, 'DAY_5LINKUNIT_AD',  { ad => $bottom_ad });
+        $day_page{'open_skyscraper_ad'}  = $vars->{'DAY_OPEN_SKYSCRAPER_AD'};
+        $day_page{'close_skyscraper_ad'} = $vars->{'DAY_CLOSE_SKYSCRAPER_AD'};
+    }
+    
+    if ($LJ::USE_CONTROL_STRIP && $show_control_strip) {
+        my $control_strip = LJ::control_strip(user => $u->{user});
+        $day_page{'control_strip'} = $control_strip;
+    }
     if (! $initpagedates)
     {
         # if no entries were on that day, we haven't populated the time shit!
@@ -2576,32 +2644,59 @@ sub create_view_day
         $events = "";  # free some memory maybe
     }
 
-    # calculate previous day
-    my $pdyear = $year;
-    my $pdmonth = $month;
-    my $pdday = $day-1;
-    if ($pdday < 1)
-    {
-        if (--$pdmonth < 1)
-        {
-          $pdmonth = 12;
-          $pdyear--;
+    # find near days
+    my $days = LJ::get_daycounts($u, $remote) || [];
+    my $numeric = ($year * 12 + $month) * 31 + $day; # applicable for date compare
+    my $prev = 0; # numeric
+    my ($pyear, $pmonth, $pday);
+    my $next = (2038 * 12 + 12) * 31 + 31; # max impossible
+    my ($nyear, $nmonth, $nday);
+    foreach my $count (@$days) {
+        my ($hyear, $hmonth, $hday, $hcount) = @$count;
+
+        my $here = ($hyear * 12 + $hmonth) * 31 + $hday; # applicable for date compare
+        if ($here < $numeric) { # candidate for prev role
+            next if $here <= $prev; # $prev is max of all previous
+            ($pyear, $pmonth, $pday) = ($hyear, $hmonth, $hday);
+            $prev = $here;
+        } elsif ($here > $numeric) { # candidate for next role
+            next if $here >= $next; # $next is min of all next
+            ($nyear, $nmonth, $nday) = ($hyear, $hmonth, $hday);
+            $next = $here;
         }
-        $pdday = LJ::days_in_month($pdmonth, $pdyear);
     }
 
-    # calculate next day
-    my $nxyear = $year;
-    my $nxmonth = $month;
-    my $nxday = $day+1;
-    if ($nxday > LJ::days_in_month($nxmonth, $nxyear))
-    {
-        $nxday = 1;
-        if (++$nxmonth > 12) { ++$nxyear; $nxmonth=1; }
-    }
+    $day_page{'prevday_url'} = defined $pyear ? ("$journalbase/" . sprintf("%04d/%02d/%02d/", $pyear, $pmonth, $pday)) : '';
+    $day_page{'nextday_url'} = defined $nyear ? ("$journalbase/" . sprintf("%04d/%02d/%02d/", $nyear, $nmonth, $nday)) : '';
 
-    $day_page{'prevday_url'} = "$journalbase/" . sprintf("%04d/%02d/%02d/", $pdyear, $pdmonth, $pdday);
-    $day_page{'nextday_url'} = "$journalbase/" . sprintf("%04d/%02d/%02d/", $nxyear, $nxmonth, $nxday);
+    $day_page{'prevday_link'} = defined $pyear ? "<li><a href=\"$day_page{'prevday_url'}\">Previous Day</a></li>" : '';
+    $day_page{'nextday_link'} = defined $nyear ? "<li><a href=\"$day_page{'nextday_url'}\">Next Day</a></li>" : '';
+    $day_page{'prevday_2link'} = defined $pyear ? "<A HREF=\"$day_page{'prevday_url'}\">&lt;&lt; Previous Day</A>" : '';
+    $day_page{'nextday_2link'} = defined $nyear ? "<A HREF=\"$day_page{'nextday_url'}\">Next Day &gt;&gt;</A>" : '';
+    $day_page{'prevday_3link'} = defined $pyear ? "<a href=\"$day_page{'prevday_url'}\">Previous</a>" : '';
+    $day_page{'nextday_3link'} = defined $nyear ? "<a href=\"$day_page{'nextday_url'}\">Next</a>" : '';
+    $day_page{'prevday_4link'} = defined $pyear ? "&larr; <a href=\"$day_page{'prevday_url'}\">Previous day</a>" : '';
+    $day_page{'nextday_4link'} = defined $nyear ? "<a href=\"$day_page{'nextday_url'}\">Next day</a> &rarr;" : '';
+    $day_page{'prevday_5link'} = defined $pyear ? "<A HREF=\"$day_page{'prevday_url'}\">&lt;&lt; previous day</A>" : '';
+    $day_page{'nextday_5link'} = defined $nyear ? "<A HREF=\"$day_page{'nextday_url'}\">next day &gt;&gt;</A>" : '';
+    $day_page{'prevday_6link'} = defined $pyear ? "<A HREF=\"$day_page{'prevday_url'}\">previous day</A>" : '';
+    $day_page{'nextday_6link'} = defined $nyear ? "<A HREF=\"$day_page{'nextday_url'}\">next day</A>" : '';
+    if (defined $pyear and not defined $nyear) {
+        $day_page{'prevnextday_link'} = "<a href=\"$day_page{'prevday_url'}\">previous day</a>";
+        $day_page{'prevnextday_2link'} = "<a href=\"$day_page{'prevday_url'}\">Previous&nbsp;day</a>";
+        $day_page{'prevnextday_3link'} = "<A HREF=\"$day_page{'prevday_url'}\">Back A Day</A>";
+        $day_page{'prevnextday_4link'} = "<a href=\"$day_page{'prevday_url'}\">previous day</a>";
+    } elsif (not defined $pyear and defined $nyear) {
+        $day_page{'prevnextday_link'} = "<a href=\"$day_page{'nextday_url'}\">next day</a>";
+        $day_page{'prevnextday_2link'} = "<a href=\"$day_page{'nextday_url'}\">Next&nbsp;day</a>";
+        $day_page{'prevnextday_3link'} = "<A HREF=\"$day_page{'nextday_url'}\">Forward A Day</A>";
+        $day_page{'prevnextday_4link'} = "<a href=\"$day_page{'nextday_url'}\">next day</a>";
+    } elsif (defined $pyear and defined $nyear) {
+        $day_page{'prevnextday_link'} = "<a href=\"$day_page{'prevday_url'}\">previous day</a>|<a href=\"$day_page{'nextday_url'}\">next day</a>";
+        $day_page{'prevnextday_2link'} = "<a href=\"$day_page{'prevday_url'}\">Previous&nbsp;day</a>&nbsp;|&nbsp;<a href=\"$day_page{'nextday_url'}\">Next&nbsp;day</a>";
+        $day_page{'prevnextday_3link'} = "<A HREF=\"$day_page{'prevday_url'}\">Back A Day</A> - <A HREF=\"$day_page{'nextday_url'}\">Forward A Day</A>";
+        $day_page{'prevnextday_4link'} = "<a href=\"$day_page{'prevday_url'}\">previous day</a> or the <a href=\"$day_page{'nextday_url'}\">next day</a>";
+    }
 
     $$ret .= LJ::fill_var_props($vars, 'DAY_PAGE', \%day_page);
     return 1;

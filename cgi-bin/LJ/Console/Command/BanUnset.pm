@@ -45,6 +45,8 @@ sub execute {
     LJ::clear_rel($journal, $banuser, 'B');
     $journal->log_event('ban_unset', { actiontarget => $banuser->id, remote => $remote });
 
+    LJ::run_hooks('ban_unset', $journal, $banuser);
+
     return $self->print("User " . $banuser->user . " unbanned from " . $journal->user);
 }
 

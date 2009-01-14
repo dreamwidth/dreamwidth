@@ -1,0 +1,35 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use JSON;
+    use vars qw(%GET);
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            'alert' => $msg,
+        });
+    };
+
+    my $remote = LJ::get_remote();
+    my $user = $GET{user};
+    my $u = LJ::load_user($user);
+
+    return JSON::objToJson({}) unless $u;
+
+    my %ret = (
+        is_comm => $u->is_comm ? 1 : 0,
+    );
+
+    return JSON::objToJson({ ret => \%ret }) unless $remote && $remote->can_post_to($u);
+
+    unless ($ret{is_comm}) {
+        my $friend_groups = LJ::get_friend_group($u->id);
+        $ret{friend_groups_exist} = keys %$friend_groups ? 1 : 0;
+    }
+
+    $ret{minsecurity} = $u->newpost_minsecurity;
+
+    return JSON::objToJson({ ret => \%ret });
+}
+_code?>

@@ -84,6 +84,21 @@ sub create {
         $u->set_prop($name, $val);
     }
 
+    if ($opts{extra_props}) {
+        while (my ($key, $value) = each( %{$opts{extra_props}} )) {
+            $u->set_prop( $key => $value );
+        }
+    }
+
+    if ($opts{status_history}) {
+        my $system = LJ::load_user("system");
+        if ($system) {
+            while (my ($key, $value) = each( %{$opts{status_history}} )) {
+                LJ::statushistory_add($u, $system, $key, $value);
+            }
+        }
+    }
+
     LJ::run_hooks("post_create", {
         'userid' => $userid,
         'user'   => $username,
@@ -107,17 +122,22 @@ sub create_personal {
     # Set the default style
     LJ::run_hook('set_default_style', $u);
 
-    # store inviter, if there was one
-    my $inviter = LJ::load_user($opts{inviter});
-    if ($inviter) {
-        LJ::set_rel($u, $inviter, "I");
-        LJ::statushistory_add($u, $inviter, 'create_from_invite', "Created new account.");
-
-
-        $u->add_friend($inviter);
-        LJ::Event::InvitedFriendJoins->new($inviter, $u)->fire;
+    if (length $opts{inviter}) {
+        if ($opts{inviter} =~ /^partner:/) {
+            LJ::run_hook('partners_registration_done', $u, $opts{inviter});
+        } else {
+            # store inviter, if there was one
+            my $inviter = LJ::load_user($opts{inviter});
+            if ($inviter) {
+                LJ::set_rel($u, $inviter, "I");
+                LJ::statushistory_add($u, $inviter, 'create_from_invite', "Created new account.");
+        
+        
+                $u->add_friend($inviter);
+                LJ::Event::InvitedFriendJoins->new($inviter, $u)->fire;
+            }
+        }
     }
-
     # if we have initial friends for new accounts, add them.
     foreach my $friend (@LJ::INITIAL_FRIENDS) {
         my $friendid = LJ::get_userid($friend);
@@ -145,6 +165,16 @@ sub create_personal {
     # now flag as underage (and set O to mean was old or Y to mean was young)
     $u->underage(1, $opts{ofage} ? 'O' : 'Y', 'account creation') if $opts{underage};
 
+    # For settings that are to be set explicitly
+    # on create, with more private settings for non-adults
+    if ($u->underage || $u->is_child) {
+        $u->set_prop("opt_findbyemail", 'N');
+    } elsif ($u->is_minor) {
+        $u->set_prop("opt_findbyemail", 'H');
+    } else {
+        $u->set_prop("opt_findbyemail", 'Y');
+    }
+
     return $u;
 }
 
@@ -153,10 +183,6 @@ sub create_community {
 
     $opts{journaltype} = "C";
     my $u = LJ::User->create(%opts) or return;
-
-    my $dbh = LJ::get_db_writer();
-    $dbh->do("REPLACE INTO community (userid, membership, postlevel) VALUES (?, ?, ?)",
-             undef, $u->id, $opts{membership}, $opts{postlevel});
 
     $u->set_prop("nonmember_posting", $opts{nonmember_posting}+0);
     $u->set_prop("moderated", $opts{moderated}+0);
@@ -167,6 +193,8 @@ sub create_community {
     LJ::set_rel($u, $remote, "M") if $opts{moderated}; # moderator if moderated
     LJ::join_community($remote, $u, 1, 1); # member
 
+    LJ::set_comm_settings($u, $remote, { membership => $opts{membership},
+                                         postlevel => $opts{postlevel} });
     return $u;
 }
 
@@ -190,6 +218,25 @@ sub create_syndicated {
     LJ::statushistory_add($remote, $u, "synd_create", "acct: " . $u->user);
 
     return $u;
+}
+
+# retrieve hash of basic syndicated info
+sub get_syndicated {
+    my $u = shift;
+
+    return unless $u->is_syndicated;
+    my $memkey = [$u->{'userid'}, "synd:$u->{'userid'}"];
+
+    my $synd = {};
+    $synd = LJ::MemCache::get($memkey);
+    unless ($synd) {
+        my $dbr = LJ::get_db_reader();
+        return unless $dbr;
+        $synd = $dbr->selectrow_hashref("SELECT * FROM syndicated WHERE userid=$u->{'userid'}");
+        LJ::MemCache::set($memkey, $synd) if $synd;
+    }
+
+    return $synd;
 }
 
 sub is_protected_username {
@@ -845,6 +892,11 @@ sub note_transition {
              undef, $u->{userid}, $what, $from, $to);
     die $dbh->errstr if $dbh->err;
 
+    # also log account changes to statushistory
+    my $remote = LJ::get_remote();
+    LJ::statushistory_add($u, $remote, "account_level_change", "$from -> $to")
+        if $what eq "account";
+
     return 1;
 }
 
@@ -1235,7 +1287,7 @@ sub ljuser_display {
 sub load_existing_identity_user {
     my ($type, $ident) = @_;
 
-    my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_reader();
     my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
                                     undef, $type, $ident);
     return $uid ? LJ::load_userid($uid) : undef;
@@ -1246,7 +1298,17 @@ sub load_identity_user {
     my ($type, $ident, $vident) = @_;
 
     my $u = load_existing_identity_user($type, $ident);
-    return $u if $u;
+
+    # If the user is marked as expunged, move identity mapping aside
+    # and continue to create new account.
+    # Otherwise return user if it exists.
+    if ($u) {
+        if ($u->is_expunged) {
+            return undef unless ($u->rename_identity);
+        } else {
+            return $u;
+        }
+    }
 
     # increment ext_ counter until we successfully create an LJ
     # account.  hard cap it at 10 tries. (arbitrary, but we really
@@ -1357,7 +1419,7 @@ sub opt_showbday {
     if ($u->raw_prop('opt_showbday') =~ /^(D|F|N|Y)$/) {
         return $u->raw_prop('opt_showbday');
     } else {
-        return 'F';
+        return 'D';
     }
 }
 
@@ -1494,6 +1556,18 @@ sub can_show_onlinestatus {
         return 0;
     }
     return 0;
+}
+
+# return the setting indicating how a user can be found by their email address
+# Y - Findable, N - Not findable, H - Findable but identity hidden
+sub opt_findbyemail {
+    my $u = shift;
+
+    if ($u->raw_prop('opt_findbyemail') =~ /^(N|Y|H)$/) {
+        return $u->raw_prop('opt_findbyemail');
+    } else {
+        return undef;
+    }
 }
 
 # return user selected mail encoding or undef
@@ -2016,60 +2090,47 @@ sub get_recent_talkitems {
     my ($u, $maxshow, %opts) = @_;
 
     $maxshow ||= 15;
-    # don't do memcache by default, callers can request cached version
-    my $memcache = $opts{memcache} || 0;
-
+    my $max_fetch = int($LJ::TOOLS_RECENT_COMMENTS_MAX*1.5) || 150;
+    # We fetch more items because some may be screened
+    # or from suspended users, and we weed those out later
+    
+    my $remote   = $opts{remote} || LJ::get_remote();
     return undef unless LJ::isu($u);
-
-    my @recv;
-
-    my $memkey = [$u->userid, 'rcntalk:' . $u->userid . ':' . $maxshow];
-    if ($memcache) {
-        my $recv_cached = LJ::MemCache::get($memkey);
-        if ($recv_cached) {
-            # construct an LJ::Comment singleton
-            foreach my $row (@$recv_cached) {
-                my $comment = LJ::Comment->new($u, jtalkid => $row->{jtalkid});
-                $comment->absorb_row(%$row);
-            }
-
-            return @$recv_cached;
-        }
+    
+    ## $raw_talkitems - contains DB rows that are not filtered 
+    ## to match remote user's permissions to see
+    my $raw_talkitems;
+    my $memkey = [$u->userid, 'rcntalk:' . $u->userid ];
+    $raw_talkitems = LJ::MemCache::get($memkey);
+    if (!$raw_talkitems) {
+        my $sth = $u->prepare(
+            "SELECT jtalkid, nodetype, nodeid, parenttalkid, ".
+            "       posterid, UNIX_TIMESTAMP(datepost) as 'datepostunix', state ".
+            "FROM talk2 ".
+            "WHERE journalid=? AND state <> 'D' " .
+            "ORDER BY jtalkid DESC ".
+            "LIMIT $max_fetch"
+        ); 
+        $sth->execute($u->{'userid'});
+        $raw_talkitems = $sth->fetchall_arrayref({});
+        LJ::MemCache::set($memkey, $raw_talkitems, 60*5);
     }
 
-    my $max = $u->selectrow_array("SELECT MAX(jtalkid) FROM talk2 WHERE journalid=?",
-                                     undef, $u->{userid});
-    return undef unless $max;
-
-    my $sth = $u->prepare("SELECT jtalkid, nodetype, nodeid, parenttalkid, ".
-                          "       posterid, UNIX_TIMESTAMP(datepost) as 'datepostunix', state ".
-                          "FROM talk2 ".
-                          "WHERE journalid=? AND jtalkid > ? " .
-                          "ORDER BY jtalkid DESC");
-    $sth->execute($u->{'userid'}, $max - $maxshow*2); # get $maxshow*2 because some may be deleted, and we want to weed those out
-
-    my $count = 1;
-    while (my $r = $sth->fetchrow_hashref) {
-        last if $count > $maxshow;
+    ## Check remote's permission to see the comment, and create singletons
+    my @recv;
+    foreach my $r (@$raw_talkitems) {
+        last if @recv >= $maxshow;
 
         # construct an LJ::Comment singleton
         my $comment = LJ::Comment->new($u, jtalkid => $r->{jtalkid});
         $comment->absorb_row(%$r);
-
-        next if $comment->is_deleted;
-        next unless $comment->visible_to($u);
-
+        next unless $comment->visible_to($remote);
         push @recv, $r;
-        $count++;
     }
 
-    # need to put the comments in order, with oldest first
-    @recv = sort { $a->{jtalkid} <=> $b->{jtalkid} } @recv;
-
-    # memcache results for 5 minutes
-    LJ::MemCache::set($memkey, \@recv, 60*5);
-
-    return @recv;
+    # need to put the comments in order, with "oldest first"
+    # they are fetched from DB in "recent first" order
+    return reverse @recv;
 }
 
 sub record_login {
@@ -2412,46 +2473,47 @@ sub enable_subscriptions {
 sub revert_style {
     my $u = shift;
 
-    # FIXME: both of these solutions suck
-    # - ensure that LJ::S2 is loaded via Class::Autouse by calling a method on it
+    # FIXME: this solution sucks
+    # - ensure that these packages are loaded via Class::Autouse by calling a method on them
     LJ::S2->can("dostuff");
+    LJ::S2Theme->can("dostuff");
+    LJ::Customize->can("dostuff");
 
-    # - also require LJ::customize
-    require "customizelib.pl";
+    my $current_theme = LJ::Customize->get_current_theme($u);
+    return unless $current_theme;
+    my $default_theme_of_current_layout = LJ::S2Theme->load_default_of($current_theme->layoutid, user => $u);
+    return unless $default_theme_of_current_layout;
 
     my $default_style = LJ::run_hook('get_default_style', $u) || $LJ::DEFAULT_STYLE;
+    my $default_layout_uniq = exists $default_style->{layout} ? $default_style->{layout} : '';
+    my $default_theme_uniq = exists $default_style->{theme} ? $default_style->{theme} : '';
 
     my %style = LJ::S2::get_style($u, "verify");
     my $public = LJ::S2::get_public_layers();
-    my @custom_layouts = LJ::cmize::s2_custom_layer_list($u, 'layout', 'core');
-    my @custom_themes = LJ::cmize::s2_custom_layer_list($u, 'theme', 'layout');
-    my $layout = $public->{$style{'layout'}};
-    my $theme = $public->{$style{'theme'}};
-    my $default_layout_uniq = exists $default_style->{'layout'} ? $default_style->{'layout'} : '';
-    my $default_theme_uniq = exists $default_style->{theme} ? $default_style->{theme} : '';
-    my $style_exists = 0;
-    my $using_custom_layer = 0;
+    my $userlay = LJ::S2::get_layers_of_user($u);
 
     # check to see if the user is using a custom layout or theme
     # if so, we want to let them keep using it
-    foreach my $custom_layout (@custom_layouts) {
-        if ($custom_layout == $style{'layout'}) {
-            $using_custom_layer = 1;
-        }
-    }
-    foreach my $custom_theme (@custom_themes) {
-        if ($custom_theme == $style{'theme'}) {
-            $using_custom_layer = 1;
-        }
+    foreach my $layerid (keys %$userlay) {
+        return if $current_theme->layoutid == $layerid;
+        return if $current_theme->themeid == $layerid;
     }
 
-    # if the user cannot use the layout, switch to the default style (if it's defined)
-    # if the user can use the layout but not the theme, switch to the default theme of that layout
-    if ($default_layout_uniq ne '' && $default_theme_uniq ne '' && ! $using_custom_layer && ! LJ::S2::can_use_layer($u, $layout->{'uniq'})) {
-        my $theme_obj = LJ::S2Theme->load_by_uniq($default_theme_uniq);
+    # if the user cannot use the layout or the default theme of that layout, switch to the default style (if it's defined)
+    if (($default_layout_uniq || $default_theme_uniq) && (!LJ::S2::can_use_layer($u, $current_theme->layout_uniq) || !$default_theme_of_current_layout->available_to($u))) {
+        my $new_theme;
+        if ($default_theme_uniq) {
+            $new_theme = LJ::S2Theme->load_by_uniq($default_theme_uniq);
+        } else {
+            my $layoutid = $public->{$default_layout_uniq}->{s2lid} if $public->{$default_layout_uniq} && $public->{$default_layout_uniq}->{type} eq "layout";
+            $new_theme = LJ::S2Theme->load_default_of($layoutid, user => $u) if $layoutid;
+        }
+
+        return unless $new_theme;
 
         # look for a style that uses the default layout/theme, and use it if it exists
-        my $styleid = $theme_obj->get_styleid_for_theme($u);
+        my $styleid = $new_theme->get_styleid_for_theme($u);
+        my $style_exists = 0;
         if ($styleid) {
             $style_exists = 1;
             $u->set_prop("s2_style", $styleid);
@@ -2466,13 +2528,13 @@ sub revert_style {
         while (my ($layer, $name) = each %$default_style) {
             next if $name eq "";
             next unless $public->{$name};
-            my $id = $public->{$name}->{'s2lid'};
+            my $id = $public->{$name}->{s2lid};
             $style{$layer} = $id if $id;
         }
 
         # make sure core was set
-        $style{'core'} = $public->{$default_layout_uniq->{'b2lid'}}
-            if $style{'core'} == 0;
+        $style{core} = $new_theme->coreid
+            if $style{core} == 0;
 
         # make sure the other layers were set
         foreach my $layer (qw(user i18nc i18n)) {
@@ -2481,18 +2543,19 @@ sub revert_style {
 
         # create the style
         if ($style_exists) {
-            LJ::cmize::s2_implicit_style_create($u, %style);
+            LJ::Customize->implicit_style_create($u, %style);
         } else {
-            LJ::cmize::s2_implicit_style_create({ 'force' => 1 }, $u, %style);
+            LJ::Customize->implicit_style_create({ 'force' => 1 }, $u, %style);
         }
 
-    } elsif (! $using_custom_layer && LJ::S2::can_use_layer($u, $layout->{'uniq'}) && ($theme && ! LJ::S2::can_use_layer($u, $theme->{'uniq'}))) {
-        my $theme_obj = LJ::S2Theme->load_default_of($style{layout}, user => $u);
-        $style{theme} = $theme_obj->themeid;
-
-        # create the style
-        LJ::cmize::s2_implicit_style_create($u, %style);
+    # if the user can use the layout but not the theme, switch to the default theme of that layout
+    # we know they can use this theme at this point because if they couldn't, the above block would have caught it
+    } elsif (LJ::S2::can_use_layer($u, $current_theme->layout_uniq) && !LJ::S2::can_use_layer($u, $current_theme->uniq)) {
+        $style{theme} = $default_theme_of_current_layout->themeid;
+        LJ::Customize->implicit_style_create($u, %style);
     }
+
+    return;
 }
 
 sub uncache_prop {
@@ -2623,7 +2686,7 @@ sub add_to_class {
     # current $u, so it can make inferences from the
     # old $u caps vs the new we say we'll be adding
     if (LJ::are_hooks('add_to_class')) {
-        LJ::run_hook('add_to_class', $u, $class);
+        LJ::run_hooks('add_to_class', $u, $class);
     }
 
     return LJ::modify_caps($u, [$bit], []);
@@ -2638,7 +2701,7 @@ sub remove_from_class {
     # current $u, so it can make inferences from the
     # old $u caps vs what we'll be removing
     if (LJ::are_hooks('remove_from_class')) {
-        LJ::run_hook('remove_from_class', $u, $class);
+        LJ::run_hooks('remove_from_class', $u, $class);
     }
 
     return LJ::modify_caps($u, [], [$bit]);
@@ -3032,6 +3095,13 @@ sub delete_all_subscriptions {
     return LJ::Subscription->delete_all_subs($u);
 }
 
+# delete all of a user's subscriptions
+sub delete_all_inactive_subscriptions {
+    my $u = shift;
+    my $dryrun = shift;
+    return LJ::Subscription->delete_all_inactive_subs($u, $dryrun);
+}
+
 # What journals can this user post to?
 sub posting_access_list {
     my $u = shift;
@@ -3404,6 +3474,22 @@ sub opt_getting_started {
     return $prop;
 }
 
+sub opt_stylealwaysmine {
+    my $u = shift;
+
+    return 0 unless $u->can_use_stylealwaysmine;
+    return $u->raw_prop('opt_stylealwaysmine') eq 'Y' ? 1 : 0;
+}
+
+sub can_use_stylealwaysmine {
+    my $u = shift;
+    my $ret = 0;
+
+    return 0 if $LJ::DISABLED{stylealwaysmine};
+    $ret = LJ::run_hook("can_use_stylealwaysmine", $u);
+    return $ret;
+}
+
 sub has_enabled_getting_started {
     my $u = shift;
 
@@ -3498,7 +3584,7 @@ sub statusvisdate_unix {
     return LJ::mysqldate_to_time($u->{statusvisdate});
 }
 
-# TODO: Handle more special cases such as logging to statushistory on suspend, etc.
+# set_statusvis only change statusvis parameter, all accompanied actions are done in set_* methods
 sub set_statusvis {
     my ($u, $statusvis) = @_;
 
@@ -3510,6 +3596,7 @@ sub set_statusvis {
             S|       # suspended
             L|       # locked
             M|       # memorial
+            O|       # read-only
             R        # renamed
                                 )$/x;
 
@@ -3521,15 +3608,8 @@ sub set_statusvis {
         });
 
     # do update
-    my $res = LJ::update_user($u, { statusvis => $statusvis,
-                                    raw => 'statusvisdate=NOW()' });
-
-    # run any account cancellation hooks
-    if ($statusvis eq 'D') {
-        LJ::run_hooks("account_delete", $u);
-      }
-
-    return $res;
+    return LJ::update_user($u, { statusvis => $statusvis,
+                                 raw => 'statusvisdate=NOW()' });
 }
 
 sub set_visible {
@@ -3539,7 +3619,11 @@ sub set_visible {
 
 sub set_deleted {
     my $u = shift;
-    return $u->set_statusvis('D');
+    my $res = $u->set_statusvis('D');
+
+    # run any account cancellation hooks
+    LJ::run_hooks("account_delete", $u);
+    return $res;
 }
 
 sub set_expunged {
@@ -3548,8 +3632,53 @@ sub set_expunged {
 }
 
 sub set_suspended {
-    my $u = shift;
-    return $u->set_statusvis('S');
+    my ($u, $who, $reason, $errref) = @_;
+    die "Not enough parameters for LJ::User::set_suspended call" unless $who and $reason;
+
+    my $res = $u->set_statusvis('S');
+    unless ($res) {
+        $$errref = "DB error while setting statusvis to 'S'" if ref $errref;
+        return $res;
+    }
+
+    LJ::statushistory_add($u, $who, "suspend", $reason);
+
+    eval { $u->fb_push };
+    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
+
+    LJ::run_hooks("account_cancel", $u);
+
+    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
+        $$errref = $err if ref $errref and $err;
+        return 0;
+    }
+
+    return $res; # success
+}
+
+# sets a user to visible, but also does all of the stuff necessary when a suspended account is unsuspended
+# this can only be run on a suspended account
+sub set_unsuspended {
+    my ($u, $who, $reason, $errref) = @_;
+    die "Not enough parameters for LJ::User::set_unsuspended call" unless $who and $reason;
+
+    unless ($u->is_suspended) {
+        $$errref = "User isn't suspended" if ref $errref;
+        return 0;
+    }
+
+    my $res = $u->set_statusvis('V');
+    unless ($res) {
+        $$errref = "DB error while setting statusvis to 'V'" if ref $errref;
+        return $res;
+    }
+
+    LJ::statushistory_add($u, $who, "unsuspend", $reason);
+
+    eval { $u->fb_push };
+    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
+
+    return $res; # success
 }
 
 sub set_locked {
@@ -3560,6 +3689,11 @@ sub set_locked {
 sub set_memorial {
     my $u = shift;
     return $u->set_statusvis('M');
+}
+
+sub set_readonly {
+    my $u = shift;
+    return $u->set_statusvis('O');
 }
 
 sub set_renamed {
@@ -3596,6 +3730,11 @@ sub is_locked {
 sub is_memorial {
     my $u = shift;
     return $u->statusvis eq 'M';
+}
+
+sub is_readonly {
+    my $u = shift;
+    return $u->statusvis eq 'O';
 }
 
 sub is_renamed {
@@ -3848,7 +3987,7 @@ sub _friend_friendof_uids_do {
         return @uids if @uids < $slimit;
     }
 
-    my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_reader();
     my $uids = $dbh->selectcol_arrayref($sql, undef, $u->id);
 
     # if the list of uids is greater than 950k
@@ -3937,9 +4076,9 @@ sub invalidate_directory_record {
     # then elsewhere, map that key to subref.  if primary run fails,
     # put in schwartz, then have one worker (misc-deferred) to
     # redo...
-
-    my $dbh = LJ::get_db_writer();
-    $dbh->do("UPDATE usersearch_packdata SET good_until=0 WHERE userid=?",
+    
+    my $dbs = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
+    $dbs->do("UPDATE usersearch_packdata SET good_until=0 WHERE userid=?",
              undef, $u->id);
 }
 
@@ -4124,6 +4263,8 @@ sub info_for_js {
     # Without url_message "Send Message" link should not display
     $ret{url_message} = $u->message_url unless ($u->opt_usermsg eq 'N');
 
+    LJ::run_hook("extra_info_for_js", $u, \%ret);
+
     my $up = $u->userpic;
 
     if ($up) {
@@ -4159,6 +4300,34 @@ sub ban_user {
     return LJ::set_rel($u->id, $ban_u->id, 'B');
 }
 
+sub ban_user_multi {
+    my ($u, @banlist) = @_;
+
+    LJ::set_rel_multi(map { [$u->id, $_, 'B'] } @banlist);
+
+    my $us = LJ::load_userids(@banlist);
+    foreach my $banuid (@banlist) {
+        $u->log_event('ban_set', { actiontarget => $banuid, remote => LJ::get_remote() });
+        LJ::run_hooks('ban_set', $u, $us->{$banuid}) if $us->{$banuid};
+    }
+
+    return 1;
+}
+
+sub unban_user_multi {
+    my ($u, @unbanlist) = @_;
+
+    LJ::clear_rel_multi(map { [$u->id, $_, 'B'] } @unbanlist);
+
+    my $us = LJ::load_userids(@unbanlist);
+    foreach my $banuid (@unbanlist) {
+        $u->log_event('ban_unset', { actiontarget => $banuid, remote => LJ::get_remote() });
+        LJ::run_hooks('ban_unset', $u, $us->{$banuid}) if $us->{$banuid};
+    }
+
+    return 1;
+}
+
 # return if $target is in $fgroupid
 sub user_in_friend_group {
     my ($u, $target, $fgroupid) = @_;
@@ -4185,8 +4354,13 @@ sub dversion {
 # take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
 sub upgrade_to_dversion_8 {
     my $u = shift;
+    my $dbh = shift;
+    my $dbhslo = shift;
+    my $dbcm = shift;
 
-    my $ok = LJ::Poll->make_polls_clustered($u);
+    # If user has been purged, go ahead and update version
+    # Otherwise move their polls
+    my $ok = $u->is_expunged ? 1 : LJ::Poll->make_polls_clustered($u, $dbh, $dbhslo, $dbcm);
 
     LJ::update_user($u, { 'dversion' => 8 }) if $ok;
 
@@ -4197,6 +4371,11 @@ sub upgrade_to_dversion_8 {
 sub can_add_friends {
     my ($u, $err, $opts) = @_;
 
+    if ($u->is_suspended) {
+        $$err = "Suspended journals cannot add friends.";
+        return 0;
+    }
+
     # have they reached their friend limit?
     my $fr_count = $opts->{'numfriends'} || $u->friend_uids;
     my $maxfriends = $u->get_cap('maxfriends');
@@ -4206,6 +4385,20 @@ sub can_add_friends {
     }
 
     # are they trying to add friends too quickly?
+
+    # don't count mutual friends
+    if (exists($opts->{friend})) {
+        my $fr_user = $opts->{friend};
+        # we needed LJ::User object, not just a hash.
+        if (ref($fr_user) eq 'HASH') {
+            $fr_user = LJ::load_user($fr_user->{username});
+        } else {
+            $fr_user = LJ::want_user($fr_user);
+        }
+
+        return 1 if $fr_user && $fr_user->is_friend($u);
+    }
+
     unless ($u->rate_log('addfriend', 1)) {
         $$err = "You are trying to add too many friends in too short a period of time.";
         return 0;
@@ -4596,6 +4789,27 @@ sub openid_tags {
     return $head;
 }
 
+# return the number of comments a user has posted
+sub num_comments_posted {
+    my $u = shift;
+    my %opts = @_;
+
+    my $dbcr = $opts{dbh} || LJ::get_cluster_reader($u);
+    my $userid = $u->id;
+
+    my $memkey = [$userid, "talkleftct:$userid"];
+    my $count = LJ::MemCache::get($memkey);
+    unless ($count) {
+        my $expire = time() + 3600*24*2; # 2 days;
+        $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talkleft " .
+                                        "WHERE userid=?", undef, $userid);
+        LJ::MemCache::set($memkey, $count, $expire) if defined $count;
+    }
+
+    return $count;
+}
+
+# return the number of comments a user has received
 sub num_comments_received {
     my $u = shift;
     my %opts = @_;
@@ -4613,6 +4827,247 @@ sub num_comments_received {
     }
 
     return $count;
+}
+
+# returns undef if there shouldn't be an option for this user
+# B = show ads [B]oth to logged-out traffic on the user's journal and on the user's app pages
+# J = show ads only to logged-out traffic on the user's [J]ournal
+# A = show ads only on the user's [A]pp pages
+sub ad_visibility {
+    my $u = shift;
+
+    return undef unless LJ::is_enabled("basic_ads") && LJ::run_hook("user_is_basic", $u);
+    return 'J' unless LJ::is_enabled("basic_ad_options") && $u->is_personal;
+
+    my $prop_val = $u->prop("ad_visibility");
+    return $prop_val =~ /^[BJA]$/ ? $prop_val : 'B';
+}
+
+sub wants_ads_on_app {
+    my $u = shift;
+
+    my $ad_visibility = $u->ad_visibility;
+    return $ad_visibility eq "B" || $ad_visibility eq "A" ? 1 : 0;
+}
+
+sub wants_ads_in_journal {
+    my $u = shift;
+
+    my $ad_visibility = $u->ad_visibility;
+    return $ad_visibility eq "B" || $ad_visibility eq "J" ? 1 : 0;
+}
+
+# format unixtimestamp according to the user's timezone setting
+sub format_time {
+    my $u = shift;
+    my $time = shift;
+
+    return undef unless $time;
+
+    return eval { DateTime->from_epoch(epoch=>$time, time_zone=>$u->prop("timezone"))->ymd('-') } ||
+                  DateTime->from_epoch(epoch => $time)->ymd('-');
+}
+
+sub support_points_count {
+    my $u = shift;
+
+    my $dbr = LJ::get_db_reader();
+    my $userid = $u->id;
+    my $count;
+
+    $count = $u->{_supportpointsum};
+    return $count if defined $count;
+
+    my $memkey = [$userid, "supportpointsum:$userid"];
+    $count = LJ::MemCache::get($memkey);
+    if (defined $count) {
+        $u->{_supportpointsum} = $count;
+        return $count;
+    }
+
+    $count = $dbr->selectrow_array("SELECT totpoints FROM supportpointsum WHERE userid=?", undef, $userid) || 0;
+    $u->{_supportpointsum} = $count;
+    LJ::MemCache::set($memkey, $count, 60*5);
+
+    return $count;
+}
+
+sub can_be_nudged_by {
+    my ($u, $nudger) = @_;
+
+    return 0 unless LJ::is_enabled("nudge");
+    return 0 if $u->equals($nudger);
+    return 0 unless $u->is_personal;
+    return 0 unless $u->is_visible;
+    return 0 if $u->prop("opt_no_nudge");
+    return 0 unless $u->is_mutual_friend($nudger);
+    return 0 unless time() - $u->timeupdate >= 604800; # updated in the past week
+
+    return 1;
+}
+
+sub should_show_schools_to {
+    my ($u, $targetu) = @_;
+
+    return 0 unless LJ::is_enabled("schools");
+    return 1 if $u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y';
+    return 1 if $u->{'opt_showschools'} eq 'F' && $u->has_friend($targetu);
+
+    return 0;
+}
+
+sub can_be_text_messaged_by {
+    my ($u, $sender) = @_;
+
+    return 0 unless $u->get_cap("textmessaging");
+
+    my $security = LJ::TextMessage->tm_security($u);
+
+    return 0 if $security eq "none";
+    return 1 if $security eq "all";
+
+    if ($sender) {
+        return 1 if $security eq "reg";
+        return 1 if $security eq "friends" && $u->has_friend($sender);
+    }
+
+    return 0;
+}
+
+# <LJFUNC>
+# name: LJ::User::rename_identity
+# des: Change an identity user's 'identity', update DB,
+#      clear memcache and log change.
+# args: user
+# returns: Success or failure.
+# </LJFUNC>
+sub rename_identity {
+    my $u = shift;
+    return 0 unless ($u && $u->is_identity && $u->is_expunged);
+
+    my $id = $u->identity;
+    return 0 unless $id;
+
+    my $dbh = LJ::get_db_writer();
+
+    # generate a new identity value that looks like ex_oldidvalue555
+    my $tempid = sub {
+        my $ident = shift;
+        my $idtype = shift;
+        my $temp = (length($ident) > 249) ? substr($ident, 0, 249) : $ident;
+        my $exid;
+
+        for (1..10) {
+            $exid = "ex_$temp" . int(rand(999));
+
+            # check to see if this identity already exists
+            unless ($dbh->selectrow_array("SELECT COUNT(*) FROM identitymap WHERE identity=? AND idtype=? LIMIT 1", undef, $exid, $idtype)) {
+                # name doesn't already exist, use this one
+                last;
+            }
+            # name existed, try and get another
+
+            if ($_ >= 10) {
+                return 0;
+            }
+        }
+        return $exid;
+    };
+
+    my $from = $id->value;
+    my $to = $tempid->($id->value, $id->typeid);
+
+    return 0 unless $to;
+
+    $dbh->do("UPDATE identitymap SET identity=? WHERE identity=? AND idtype=?",
+             undef, $to, $from, $id->typeid);
+
+    LJ::memcache_kill($u, "userid");
+
+    LJ::infohistory_add($u, 'identity', $from);
+
+    return 1;
+}
+
+#<LJFUNC>
+# name: LJ::User::get_renamed_user
+# des: Get the actual user of a renamed user
+# args: user
+# returns: user
+# </LJFUNC>
+sub get_renamed_user {
+    my $u = shift;
+    my %opts = @_;
+    my $hops = $opts{hops} || 5;
+
+    # Traverse the renames to the final journal
+    if ($u) {
+        while ($u->{'journaltype'} eq 'R' && $hops-- > 0) {
+            my $rt = $u->prop("renamedto");
+            last unless length $rt;
+            $u = LJ::load_user($rt);
+        }
+    }
+
+    return $u;
+}
+
+sub dismissed_page_notices {
+    my $u = shift;
+
+    my $val = $u->prop("dismissed_page_notices");
+    my @notices = split(",", $val);
+
+    return @notices;
+}
+
+sub has_dismissed_page_notice {
+    my $u = shift;
+    my $notice_string = shift;
+
+    return 1 if grep { $_ eq $notice_string } $u->dismissed_page_notices;
+    return 0;
+}
+
+# add a page notice to a user's dismissed page notices list
+sub dismissed_page_notices_add {
+    my $u = shift;
+    my $notice_string = shift;
+    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
+
+    # is it already there?
+    return 1 if $u->has_dismissed_page_notice($notice_string);
+
+    # create the new list of dismissed page notices
+    my @cur_notices = $u->dismissed_page_notices;
+    push @cur_notices, $notice_string;
+    my $cur_notices_string = join(",", @cur_notices);
+
+    # remove the oldest notice if the list is too long
+    if (length $cur_notices_string > 255) {
+        shift @cur_notices;
+        $cur_notices_string = join(",", @cur_notices);
+    }
+
+    # set it
+    $u->set_prop("dismissed_page_notices", $cur_notices_string);
+
+    return 1;
+}
+
+# remove a page notice from a user's dismissed page notices list
+sub dismissed_page_notices_remove {
+    my $u = shift;
+    my $notice_string = shift;
+    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
+
+    # is it even there?
+    return 0 unless $u->has_dismissed_page_notice($notice_string);
+
+    # remove it
+    $u->set_prop("dismissed_page_notices", join(",", grep { $_ ne $notice_string } $u->dismissed_page_notices));
+
+    return 1;
 }
 
 package LJ;
@@ -4648,8 +5103,8 @@ sub get_authas_list {
                grep { ! $opts->{'cap'} || LJ::get_cap($_, $opts->{'cap'}) }
                grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
 
-               # unless overridden, hide non-visible journals. always display the user's acct
-               grep { $opts->{'showall'} || $_->is_visible || LJ::u_equals($_, $u) }
+               # unless overridden, hide non-visible/non-read-only journals. always display the user's acct
+               grep { $opts->{'showall'} || $_->is_visible || $_->is_readonly || LJ::u_equals($_, $u) }
 
                # can't work as an expunged account
                grep { !$_->is_expunged && $_->{clusterid} > 0 }
@@ -4744,7 +5199,7 @@ sub wipe_major_memcache
     my $u = shift;
     my $userid = LJ::want_userid($u);
     foreach my $key ("userid","bio","talk2ct","talkleftct","log2ct",
-                     "log2lt","memkwid","dayct","s1overr","s1uc","fgrp",
+                     "log2lt","memkwid","dayct2","s1overr","s1uc","fgrp",
                      "friends","friendofs","tu","upicinf","upiccom",
                      "upicurl", "intids", "memct", "lastcomm")
     {
@@ -4926,7 +5381,7 @@ sub load_user_props
 
 # <LJFUNC>
 # name: LJ::load_userids
-# des: Simple interface to LJ::load_userids_multiple.
+# des: Simple interface to [func[LJ::load_userids_multiple]].
 # args: userids
 # returns: hashref with keys ids, values $u refs.
 # </LJFUNC>
@@ -4947,7 +5402,7 @@ sub load_userids
 #       <strong>Note</strong>: The $have parameter is deprecated,
 #       as is $memcache_only; but it is still preserved for now. 
 #       Really, this whole API (i.e. LJ::load_userids_multiple) is clumsy. 
-#       Use [func[LJ::load_userids] instead.
+#       Use [func[LJ::load_userids]] instead.
 # args: dbarg?, map, have, memcache_only?
 # des-map: Arrayref of pairs (userid, destination scalarref).
 # des-have: Arrayref of user objects caller already has.
@@ -5872,14 +6327,8 @@ sub ljuser
     my $u = isu($user) ? $user : LJ::load_user($user);
 
     # Traverse the renames to the final journal
-    if ($u) {
-        my $hops = 0;
-        while ($u->{'journaltype'} eq 'R'
-               and ! $opts->{'no_follow'} && $hops++ < 5) {
-            my $rt = $u->prop("renamedto");
-            last unless length $rt;
-            $u = LJ::load_user($rt);
-        }
+    if ($u && !$opts->{'no_follow'}) {
+        $u = $u->get_renamed_user;
     }
 
     # if invalid user, link to dummy userinfo page
@@ -5889,18 +6338,12 @@ sub ljuser
         return $make_tag->('userinfo.gif', "$LJ::SITEROOT/userinfo.bml?user=$user", 17);
     }
 
-    # if not visible, grey out and don't link
-    if (! $u->is_visible && ! $u->is_locked && ! $u->is_memorial) {
-        $user = $u->user;
-        return "<span class='ljuser' lj:user='$user' style='white-space: nowrap; font-weight: bold;'>$user</span>";
-    }
-
     $profile = $u->profile_url;
 
     my $type = $u->{'journaltype'};
 
-    # Mark accounts as deleted that aren't visible, memorial, or locked
-    $opts->{'del'} = 1 unless $u->is_visible || $u->is_memorial || $u->is_locked;
+    # Mark accounts as deleted that aren't visible, memorial, locked, or read-only
+    $opts->{'del'} = 1 unless $u->is_visible || $u->is_memorial || $u->is_locked || $u->is_readonly;
     $user = $u->{'user'};
 
     my $url = $u->journal_base . "/";
@@ -6020,7 +6463,7 @@ sub update_user
     }
 
     # log this updates
-    LJ::run_hook("update_user", userid => $_, fields => $ref)
+    LJ::run_hooks("update_user", userid => $_, fields => $ref)
         for @uid;
 
     return 1;
@@ -6129,23 +6572,56 @@ sub get_daycounts
 
     my $uid = LJ::want_userid($u) or return undef;
 
-    my @days;
-    my $memkey = [$uid,"dayct:$uid"];
+    my $memkind = 'p'; # public only, changed below
+    my $secwhere = "AND security='public'";
+    my $viewall = 0;
+    if ($remote) {
+        # do they have the viewall priv?
+        my $r = eval { Apache->request; }; # web context
+        my %getargs = $r->args if $r;
+        if (defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and LJ::check_priv($remote, 'canview', '*')) {
+            $viewall = 1;
+            LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
+                "viewall", "calendar");
+        }
+
+        if ($remote->{'userid'} == $uid || $viewall) {
+            $secwhere = "";   # see everything
+            $memkind = 'a'; # all
+        } elsif ($remote->{'journaltype'} eq 'P') {
+            my $gmask = LJ::get_groupmask($u, $remote);
+            if ($gmask) {
+                $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))";
+                $memkind = 'g' . $gmask; # friends case: allowmask == gmask == 1
+            }
+        }
+    }
+
+    ##
+    ## the first element of array, that is stored in memcache, 
+    ## is the time of the creation of the list. The memcache is 
+    ## invalid if there are new entries in journal since that time.
+    ##
+    my $memkey = [$uid, "dayct2:$uid:$memkind"];
     unless ($not_memcache) {
         my $list = LJ::MemCache::get($memkey);
-        return $list if $list;
+        if ($list) {
+            my $list_create_time = shift @$list;
+            return $list if $list_create_time >= $u->timeupdate;
+        }
     }
 
     my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
     my $sth = $dbcr->prepare("SELECT year, month, day, COUNT(*) ".
-                             "FROM log2 WHERE journalid=? GROUP BY 1, 2, 3");
+                             "FROM log2 WHERE journalid=? $secwhere GROUP BY 1, 2, 3");
     $sth->execute($uid);
+    my @days;
     while (my ($y, $m, $d, $c) = $sth->fetchrow_array) {
         # we force each number from string scalars (from DBI) to int scalars,
         # so they store smaller in memcache
         push @days, [ int($y), int($m), int($d), int($c) ];
     }
-    LJ::MemCache::add($memkey, \@days);
+    LJ::MemCache::add($memkey, [time, @days]);
     return \@days;
 }
 
@@ -6197,6 +6673,7 @@ sub set_interests
     }
 
     ### do we have new interests to add?
+    my @new_intids = ();  ## existing IDs we'll add for this user
     if (%int_new)
     {
         $did_mod = 1;
@@ -6205,7 +6682,6 @@ sub set_interests
         ## that nobody has ever entered before
         my $int_in = join(", ", map { $dbh->quote($_); } keys %int_new);
         my %int_exist;
-        my @new_intids = ();  ## existing IDs we'll add for this user
 
         ## find existing IDs
         my $sth = $dbh->prepare("SELECT interest, intid FROM interests WHERE interest IN ($int_in)");
@@ -6252,9 +6728,11 @@ sub set_interests
                 ## now we can actually insert it into the userinterests table:
                 $dbh->do("INSERT INTO $uitable (userid, intid) ".
                          "VALUES ($userid, $intid)");
+                push @new_intids, $intid;
             }
         }
     }
+    LJ::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
 
     # do migrations to clean up userinterests vs comminterests conflicts
     $u->lazy_interests_cleanup;
@@ -6752,7 +7230,7 @@ sub add_friend
 
             $sclient->insert_jobs(@jobs) if @jobs;
         }
-
+        LJ::run_hooks('befriended', LJ::load_userid($userid), LJ::load_userid($fid))
     }
     LJ::memcache_kill($userid, 'friends');
     LJ::memcache_kill($userid, 'friends2');
@@ -6792,11 +7270,11 @@ sub remove_friend {
         LJ::memcache_kill($fid, 'friendofs');
         LJ::memcache_kill($fid, 'friendofs2');
 
+        my $friendee = LJ::load_userid($fid);
         if ($sclient) {
             my @jobs;
 
             # only fire event if the friender is a person and not banned and visible
-            my $friendee = LJ::load_userid($fid);
             if ($notify && !$friendee->has_banned($u)) {
                 push @jobs, LJ::Event::Defriended->new($friendee, $u)->fire_job;
             }
@@ -6805,9 +7283,10 @@ sub remove_friend {
                                               funcname => "LJ::Worker::FriendChange",
                                               arg      => [$userid, 'del', $fid],
                                               ) unless $LJ::DISABLED{'friendchange-schwartz'};
-
+ 
             $sclient->insert_jobs(@jobs);
         }
+        LJ::run_hooks('defriended', $u, $friendee);
     }
     LJ::memcache_kill($userid, 'friends');
     LJ::memcache_kill($userid, 'friends2');
@@ -7502,6 +7981,7 @@ sub make_journal
             }
         }
     } else {
+
         $view ||= "lastn";    # default view when none specified explicitly in URLs
         if ($LJ::viewinfo{$view} || $view eq "month" ||
             $view eq "entry" || $view eq "reply")  {
@@ -7573,21 +8053,36 @@ sub make_journal
             if ($geta->{'s2id'}) {
 
                 # get the owner of the requested style
-                my $style = LJ::S2::load_style( $geta->{s2id}, skip_layer_load => 1 );
+                my $style = LJ::S2::load_style( $geta->{s2id} );
                 my $owner = $style && $style->{userid} ? $style->{userid} : 0;
 
                 # remote can use s2id on this journal if:
                 # owner of the style is remote or managed by remote OR
                 # owner of the style has s2styles cap and remote is viewing owner's journal
-                if (($remote && $remote->can_manage($owner)) ||
-                    ($u->id == $owner && $u->get_cap("s2styles"))) {
+
+                if ($u->id == $owner && $u->get_cap("s2styles")) {
                     $opts->{'style_u'} = LJ::load_userid($owner);
                     return (2, $geta->{'s2id'});
+                }
+
+                if ($remote && $remote->can_manage($owner)) {
+                    # check is owned style still available: paid user possible became plus...
+                    my $lay_id = $style->{layer}->{layout};
+                    my $theme_id = $style->{layer}->{theme};
+                    my %lay_info;
+                    LJ::S2::load_layer_info(\%lay_info, [$style->{layer}->{layout}, $style->{layer}->{theme}]);
+
+                    if (LJ::S2::can_use_layer($remote, $lay_info{$lay_id}->{redist_uniq})
+                        and LJ::S2::can_use_layer($remote, $lay_info{$theme_id}->{redist_uniq})) {
+                        $opts->{'style_u'} = LJ::load_userid($owner);
+                        return (2, $geta->{'s2id'});
+                    } # else this style not allowed by policy
                 }
             }
 
             # style=mine passed in GET?
-            if ($remote && $geta->{'style'} eq 'mine') {
+            if ($remote && ( $geta->{'style'} eq 'mine' ||
+                             $remote->opt_stylealwaysmine ) ) {
 
                 # get remote props and decide what style remote uses
                 $remote->preload_props("stylesys", "s2_style");
@@ -7732,7 +8227,8 @@ sub make_journal
         # if we are in this path, and they have style=mine set, it means
         # they either think they can get a S2 styled page but their account
         # type won't let them, or they really want this to fallback to bml
-        if ($remote && $geta->{'style'} eq 'mine') {
+        if ($remote && ( $geta->{'style'} eq 'mine' ||
+                         $remote->opt_stylealwaysmine ) ) {
             $fallback = 'bml';
         }
 
@@ -7832,8 +8328,19 @@ sub make_journal
 
     unless ($geta->{'viewall'} && LJ::check_priv($remote, "canview", "suspended") ||
             $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) { # don't check style sheets
-        return $error->("Journal has been deleted.  If you are <b>$user</b>, you have a period of 30 days to decide to undelete your journal.", "404 Not Found") if ($u->is_deleted);
+        if ($u->is_deleted){
+            my $warning = LJ::Lang::get_text(LJ::Lang::get_effective_lang(), 
+                                    'journal.deleted', undef, {username => $u->username})
+                       || LJ::Lang::get_text($LJ::DEFAULT_LANG, 
+                                    'journal.deleted', undef, {username => $u->username});
+            return $error->($warning, "404 Not Found");
+
+        }
         return $error->("This journal has been suspended.", "403 Forbidden") if ($u->is_suspended);
+
+        my $entry = $opts->{ljentry};
+        return $error->("This entry has been suspended. You can visit the journal <a href='" . $u->journal_base . "/'>here</a>.", "403 Forbidden")
+            if $entry && $entry->is_suspended_for($remote);
     }
     return $error->("This journal has been deleted and purged.", "410 Gone") if ($u->is_expunged);
 
@@ -7874,6 +8381,7 @@ sub make_journal
     # to be more like LJ::S2::make_journal.
     $r->note(codepath => "s1.$view")
         if $r;
+    $u->{'_s1styleid'} = $styleid + 0;
 
     # For embedded polls
     BML::set_language($LJ::LANGS[0] || 'en', \&LJ::Lang::get_text);

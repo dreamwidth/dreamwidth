@@ -19,8 +19,8 @@ sub get_current_theme {
 
     if ($style{theme} == 0) {
         # default theme of system layout
-        if (ref $pub->{$style{layout}}) {
-            return LJ::S2Theme->load_default_of($style{layout});
+        if ($pub->{$style{layout}} && $pub->{$style{layout}}->{uniq}) {
+            return LJ::S2Theme->load_default_of($style{layout}, user => $u);
 
         # default theme of custom layout
         } else {
@@ -660,6 +660,9 @@ sub get_cats {
             main => 1,
             order => 4,
         },
+        sup => {
+            text => LJ::Lang::ml('customize.cats.sup'),
+        },
         animals => {
             text => LJ::Lang::ml('customize.cats.animals'),
         },
@@ -707,6 +710,9 @@ sub get_cats {
         },
         travel => {
             text => LJ::Lang::ml('customize.cats.travel'),
+        },
+        writing => {
+            text => LJ::Lang::ml('customize.cats.writing'),
         },
     );
 

@@ -99,7 +99,11 @@
 
 .login2=The following links will navigate you to pages where your login information is required. To save yourself some time, you can <a [[aopts]]>log in</a> beforehand.
 
+.manage.logins=Manage Logins
+
 .manage.subscriptions=Manage Subscriptions
+
+.mobile.settings=Mobile Settings
 
 .schools=Manage School Attendance
 

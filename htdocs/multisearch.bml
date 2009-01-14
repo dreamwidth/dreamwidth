@@ -10,7 +10,7 @@
     my $output = lc($POST{'output'}) || lc($GET{'output'});
     my $dbr = LJ::get_db_reader();
 
-    my $ad = LJ::ad_display( type => 'app', orient => 'BML-App-Search-Skyscraper', search_arg => $q );
+    my $ad = LJ::get_ads({ location => 'bml.multisearch', ljadwrapper => 1 });
 
     if ($type eq "nav_and_user" || $type eq "nav") {
         # Some special shortcuts used for easy navigation

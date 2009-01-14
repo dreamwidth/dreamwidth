@@ -1,21 +1,24 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: th.js
- * 	Thai language file.
- * 
- * File Authors:
- * 		Audy Charin Arsakit (arsakit@gmail.com)
- * 		Joy Piyanoot Promnuan (piyanoot@gmail.com)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Thai language file.
  */
 
 var FCKLang =
@@ -41,11 +44,13 @@ RemoveFormat		: "ล้างรูปแบบ",
 InsertLinkLbl		: "ลิงค์เชื่อมโยงเว็บ อีเมล์ รูปภาพ หรือไฟล์อื่นๆ",
 InsertLink			: "แทรก/แก้ไข ลิงค์",
 RemoveLink			: "ลบ ลิงค์",
+VisitLink			: "Open Link",	//MISSING
 Anchor				: "แทรก/แก้ไข Anchor",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "รูปภาพ",
 InsertImage			: "แทรก/แก้ไข รูปภาพ",
-InsertFlashLbl		: "Flash",	//MISSING
-InsertFlash			: "Insert/Edit Flash",	//MISSING
+InsertFlashLbl		: "ไฟล์ Flash",
+InsertFlash			: "แทรก/แก้ไข ไฟล์ Flash",
 InsertTableLbl		: "ตาราง",
 InsertTable			: "แทรก/แก้ไข ตาราง",
 InsertLineLbl		: "เส้นคั่นบรรทัด",
@@ -67,6 +72,10 @@ RightJustify		: "จัดชิดขวา",
 BlockJustify		: "จัดพอดีหน้ากระดาษ",
 DecreaseIndent		: "ลดระยะย่อหน้า",
 IncreaseIndent		: "เพิ่มระยะย่อหน้า",
+Blockquote			: "Blockquote",	//MISSING
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "ยกเลิกคำสั่ง",
 Redo				: "ทำซ้ำคำสั่ง",
 NumberedListLbl		: "ลำดับรายการแบบตัวเลข",
@@ -86,8 +95,8 @@ Find				: "ค้นหา",
 Replace				: "ค้นหาและแทนที่",
 SpellCheck			: "ตรวจการสะกดคำ",
 UniversalKeyboard	: "คีย์บอร์ดหลากภาษา",
-PageBreakLbl		: "Page Break",	//MISSING
-PageBreak			: "Insert Page Break",	//MISSING
+PageBreakLbl		: "ใส่ตัวแบ่งหน้า Page Break",
+PageBreak			: "แทรกตัวแบ่งหน้า Page Break",
 
 Form			: "แบบฟอร์ม",
 Checkbox		: "เช็คบ๊อก",
@@ -99,21 +108,33 @@ Button			: "ปุ่ม",
 SelectionField	: "แถบตัวเลือก",
 ImageButton		: "ปุ่มแบบรูปภาพ",
 
+FitWindow		: "ขยายขนาดตัวอีดิตเตอร์",
+ShowBlocks		: "Show Blocks",	//MISSING
+
 // Context Menu
 EditLink			: "แก้ไข ลิงค์",
-InsertRow			: "แทรกแถว",
+CellCM				: "ช่องตาราง",
+RowCM				: "แถว",
+ColumnCM			: "คอลัมน์",
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "ลบแถว",
-InsertColumn		: "แทรกสดมน์",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "ลบสดมน์",
-InsertCell			: "แทรกช่อง",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "ลบช่อง",
 MergeCells			: "ผสานช่อง",
-SplitCell			: "แยกช่อง",
-TableDelete			: "Delete Table",	//MISSING
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
+TableDelete			: "ลบตาราง",
 CellProperties		: "คุณสมบัติของช่อง",
 TableProperties		: "คุณสมบัติของตาราง",
 ImageProperties		: "คุณสมบัติของรูปภาพ",
-FlashProperties		: "Flash Properties",	//MISSING
+FlashProperties		: "คุณสมบัติของไฟล์ Flash",
 
 AnchorProp			: "รายละเอียด Anchor",
 ButtonProp			: "รายละเอียดของ ปุ่ม",
@@ -137,9 +158,10 @@ UnknownToolbarItem	: "ไม่สามารถระบุปุ่มเค�
 UnknownCommand		: "ไม่สามารถระบุชื่อคำสั่งได้ \"%1\"",
 NotImplemented		: "ไม่สามารถใช้งานคำสั่งได้",
 UnknownToolbarSet	: "ไม่มีการติดตั้งชุดคำสั่งในแถบเครื่องมือ \"%1\" กรุณาติดต่อผู้ดูแลระบบ",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
-BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
-DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+NoActiveX			: "โปรแกรมท่องอินเตอร์เน็ตของท่านไม่อนุญาติให้อีดิตเตอร์ทำงาน \"Run ActiveX controls and plug-ins\". หากไม่อนุญาติให้ใช้งาน ActiveX controls ท่านจะไม่สามารถใช้งานได้อย่างเต็มประสิทธิภาพ.",
+BrowseServerBlocked : "เปิดหน้าต่างป๊อบอัพเพื่อทำงานต่อไม่ได้ กรุณาปิดเครื่องมือป้องกันป๊อบอัพในโปรแกรมท่องอินเตอร์เน็ตของท่านด้วย",
+DialogBlocked		: "เปิดหน้าต่างป๊อบอัพเพื่อทำงานต่อไม่ได้ กรุณาปิดเครื่องมือป้องกันป๊อบอัพในโปรแกรมท่องอินเตอร์เน็ตของท่านด้วย",
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "ตกลง",
@@ -147,12 +169,12 @@ DlgBtnCancel		: "ยกเลิก",
 DlgBtnClose			: "ปิด",
 DlgBtnBrowseServer	: "เปิดหน้าต่างจัดการไฟล์อัพโหลด",
 DlgAdvancedTag		: "ขั้นสูง",
-DlgOpOther			: "&lt;อื่นๆ&gt;",
-DlgInfoTab			: "Info",	//MISSING
-DlgAlertUrl			: "Please insert the URL",	//MISSING
+DlgOpOther			: "<อื่นๆ>",
+DlgInfoTab			: "อินโฟ",
+DlgAlertUrl			: "กรุณาระบุ URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;ไม่ระบุ&gt;",
+DlgGenNotSet		: "<ไม่ระบุ>",
 DlgGenId			: "ไอดี",
 DlgGenLangDir		: "การเขียน-อ่านภาษา",
 DlgGenLangDirLtr	: "จากซ้ายไปขวา (LTR)",
@@ -194,17 +216,17 @@ DlgImgAlignTextTop	: "ใต้ตัวอักษร",
 DlgImgAlignTop		: "บนสุด",
 DlgImgPreview		: "หน้าเอกสารตัวอย่าง",
 DlgImgAlertUrl		: "กรุณาระบุที่อยู่อ้างอิงออนไลน์ของไฟล์รูปภาพ (URL)",
-DlgImgLinkTab		: "Link",	//MISSING
+DlgImgLinkTab		: "ลิ้งค์",
 
 // Flash Dialog
-DlgFlashTitle		: "Flash Properties",	//MISSING
-DlgFlashChkPlay		: "Auto Play",	//MISSING
-DlgFlashChkLoop		: "Loop",	//MISSING
-DlgFlashChkMenu		: "Enable Flash Menu",	//MISSING
-DlgFlashScale		: "Scale",	//MISSING
-DlgFlashScaleAll	: "Show all",	//MISSING
-DlgFlashScaleNoBorder	: "No Border",	//MISSING
-DlgFlashScaleFit	: "Exact Fit",	//MISSING
+DlgFlashTitle		: "คุณสมบัติของไฟล์ Flash",
+DlgFlashChkPlay		: "เล่นอัตโนมัติ Auto Play",
+DlgFlashChkLoop		: "เล่นวนรอบ Loop",
+DlgFlashChkMenu		: "ให้ใช้งานเมนูของ Flash",
+DlgFlashScale		: "อัตราส่วน Scale",
+DlgFlashScaleAll	: "แสดงให้เห็นทั้งหมด Show all",
+DlgFlashScaleNoBorder	: "ไม่แสดงเส้นขอบ No Border",
+DlgFlashScaleFit	: "แสดงให้พอดีกับพื้นที่ Exact Fit",
 
 // Link Dialog
 DlgLnkWindowTitle	: "ลิงค์เชื่อมโยงเว็บ อีเมล์ รูปภาพ หรือไฟล์อื่นๆ",
@@ -216,12 +238,12 @@ DlgLnkTypeURL		: "ที่อยู่อ้างอิงออนไลน�
 DlgLnkTypeAnchor	: "จุดเชื่อมโยง (Anchor)",
 DlgLnkTypeEMail		: "ส่งอีเมล์ (E-Mail)",
 DlgLnkProto			: "โปรโตคอล",
-DlgLnkProtoOther	: "&lt;อื่นๆ&gt;",
+DlgLnkProtoOther	: "<อื่นๆ>",
 DlgLnkURL			: "ที่อยู่อ้างอิงออนไลน์ (URL)",
 DlgLnkAnchorSel		: "ระบุข้อมูลของจุดเชื่อมโยง (Anchor)",
 DlgLnkAnchorByName	: "ชื่อ",
 DlgLnkAnchorById	: "ไอดี",
-DlgLnkNoAnchors		: "&lt;ยังไม่มีจุดเชื่อมโยงภายในหน้าเอกสารนี้&gt;",
+DlgLnkNoAnchors		: "(ยังไม่มีจุดเชื่อมโยงภายในหน้าเอกสารนี้)",
 DlgLnkEMail			: "อีเมล์ (E-Mail)",
 DlgLnkEMailSubject	: "หัวเรื่อง",
 DlgLnkEMailBody		: "ข้อความ",
@@ -229,8 +251,8 @@ DlgLnkUpload		: "อัพโหลดไฟล์",
 DlgLnkBtnUpload		: "บันทึกไฟล์ไว้บนเซิร์ฟเวอร์",
 
 DlgLnkTarget		: "การเปิดหน้าลิงค์",
-DlgLnkTargetFrame	: "&lt;เปิดในเฟรม&gt;",
-DlgLnkTargetPopup	: "&lt;เปิดหน้าจอเล็ก (Pop-up)&gt;",
+DlgLnkTargetFrame	: "<เปิดในเฟรม>",
+DlgLnkTargetPopup	: "<เปิดหน้าจอเล็ก (Pop-up)>",
 DlgLnkTargetBlank	: "เปิดหน้าจอใหม่ (_blank)",
 DlgLnkTargetParent	: "เปิดในหน้าหลัก (_parent)",
 DlgLnkTargetSelf	: "เปิดในหน้าปัจจุบัน (_self)",
@@ -254,6 +276,7 @@ DlgLnkPopTop		: "พิกัดบน (Top Position)",
 DlnLnkMsgNoUrl		: "กรุณาระบุที่อยู่อ้างอิงออนไลน์ (URL)",
 DlnLnkMsgNoEMail	: "กรุณาระบุอีเมล์ (E-mail)",
 DlnLnkMsgNoAnchor	: "กรุณาระบุจุดเชื่อมโยง (Anchor)",
+DlnLnkMsgInvPopName	: "ชื่อของหน้าต่างป๊อบอัพ จะต้องขึ้นต้นด้วยตัวอักษรเท่านั้น และต้องไม่มีช่องว่างในชื่อ",
 
 // Color Dialog
 DlgColorTitle		: "เลือกสี",
@@ -262,7 +285,7 @@ DlgColorHighlight	: "ตัวอย่างสี",
 DlgColorSelected	: "สีที่เลือก",
 
 // Smiley Dialog
-DlgSmileyTitle		: "แทรกสัญักษณ์สื่ออารมณ์",
+DlgSmileyTitle		: "แทรกสัญลักษณ์สื่ออารมณ์",
 
 // Special Character Dialog
 DlgSpecialCharTitle	: "แทรกตัวอักษรพิเศษ",
@@ -284,7 +307,7 @@ DlgTableHeight		: "สูง",
 DlgTableCellSpace	: "ระยะแนวนอนน",
 DlgTableCellPad		: "ระยะแนวตั้ง",
 DlgTableCaption		: "หัวเรื่องของตาราง",
-DlgTableSummary		: "Summary",	//MISSING
+DlgTableSummary		: "สรุปความ",
 
 // Table Cell Dialog
 DlgCellTitle		: "คุณสมบัติของ ช่อง",
@@ -293,16 +316,16 @@ DlgCellWidthPx		: "จุดสี",
 DlgCellWidthPc		: "เปอร์เซ็น",
 DlgCellHeight		: "สูง",
 DlgCellWordWrap		: "ตัดบรรทัดอัตโนมัติ",
-DlgCellWordWrapNotSet	: "&lt;ไม่ระบุ&gt;",
+DlgCellWordWrapNotSet	: "<ไม่ระบุ>",
 DlgCellWordWrapYes	: "ใ่ช่",
 DlgCellWordWrapNo	: "ไม่",
 DlgCellHorAlign		: "การจัดวางแนวนอน",
-DlgCellHorAlignNotSet	: "&lt;ไม่ระบุ&gt;",
+DlgCellHorAlignNotSet	: "<ไม่ระบุ>",
 DlgCellHorAlignLeft	: "ชิดซ้าย",
 DlgCellHorAlignCenter	: "กึ่งกลาง",
 DlgCellHorAlignRight: "ชิดขวา",
 DlgCellVerAlign		: "การจัดวางแนวตั้ง",
-DlgCellVerAlignNotSet	: "&lt;ไม่ระบุ&gt;",
+DlgCellVerAlignNotSet	: "<ไม่ระบุ>",
 DlgCellVerAlignTop	: "บนสุด",
 DlgCellVerAlignMiddle	: "กึ่งกลาง",
 DlgCellVerAlignBottom	: "ล่างสุด",
@@ -312,6 +335,9 @@ DlgCellCollSpan		: "จำนวนสดมน์ที่คร่อมกั
 DlgCellBackColor	: "สีพื้นหลัง",
 DlgCellBorderColor	: "สีเส้นขอบ",
 DlgCellBtnSelect	: "เลือก..",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "ค้นหา",
@@ -328,18 +354,16 @@ DlgReplaceReplAllBtn	: "แทนที่ทั้งหมดที่พบ",
 DlgReplaceWordChk		: "ต้องตรงกันทุกคำ",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "ไม่สามารถวางข้อความที่สำเนามาได้เนื่องจากการกำหนดค่าระดับความปลอดภัย. กรุณาใช้ปุ่มลัดเพื่อวางข้อความแทน (กดปุ่ม Ctrl และตัว V พร้อมกัน).",
 PasteErrorCut	: "ไม่สามารถตัดข้อความที่เลือกไว้ได้เนื่องจากการกำหนดค่าระดับความปลอดภัย. กรุณาใช้ปุ่มลัดเพื่อวางข้อความแทน (กดปุ่ม Ctrl และตัว X พร้อมกัน).",
 PasteErrorCopy	: "ไม่สามารถสำเนาข้อความที่เลือกไว้ได้เนื่องจากการกำหนดค่าระดับความปลอดภัย. กรุณาใช้ปุ่มลัดเพื่อวางข้อความแทน (กดปุ่ม Ctrl และตัว C พร้อมกัน).",
 
 PasteAsText		: "วางแบบตัวอักษรธรรมดา",
 PasteFromWord	: "วางแบบตัวอักษรจากโปรแกรมเวิร์ด",
 
-DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRONG>Ctrl+V</STRONG>) and hit <STRONG>OK</STRONG>.",	//MISSING
-DlgPasteIgnoreFont		: "Ignore Font Face definitions",	//MISSING
-DlgPasteRemoveStyles	: "Remove Styles definitions",	//MISSING
-DlgPasteCleanBox		: "Clean Up Box",	//MISSING
-
+DlgPasteMsg2	: "กรุณาใช้คีย์บอร์ดเท่านั้น โดยกดปุ๋ม (<strong>Ctrl และ V</strong>)พร้อมๆกัน และกด <strong>OK</strong>.",
+DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
+DlgPasteIgnoreFont		: "ไม่สนใจ Font Face definitions",
+DlgPasteRemoveStyles	: "ลบ Styles definitions",
 
 // Color Picker
 ColorAutomatic	: "สีอัตโนมัติ",
@@ -371,8 +395,11 @@ DlgSpellManyChanges		: "ตรวจสอบคำสะกดเสร็จ�
 IeSpellDownload			: "ไม่ได้ติดตั้งระบบตรวจสอบคำสะกด. ต้องการติดตั้งไหมครับ?",
 
 // Button Dialog
-DlgButtonText	: "ข้อความ (ค่าตัวแปร)",
-DlgButtonType	: "ข้อความ",
+DlgButtonText		: "ข้อความ (ค่าตัวแปร)",
+DlgButtonType		: "ข้อความ",
+DlgButtonTypeBtn	: "Button",
+DlgButtonTypeSbm	: "Submit",
+DlgButtonTypeRst	: "Reset",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "ชื่อ",
@@ -421,6 +448,7 @@ DlgHiddenValue	: "ค่าตัวแปร",
 // Bulleted List Dialog
 BulletedListProp	: "คุณสมบัติของ บูลเล็ตลิสต์",
 NumberedListProp	: "คุณสมบัติของ นัมเบอร์ลิสต์",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "ชนิด",
 DlgLstTypeCircle	: "รูปวงกลม",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -443,6 +471,15 @@ DlgDocLangDirLTR	: "จากซ้ายไปขวา (LTR)",
 DlgDocLangDirRTL	: "จากขวาไปซ้าย (RTL)",
 DlgDocLangCode		: "รหัสภาษา",
 DlgDocCharSet		: "ชุดตัวอักษร",
+DlgDocCharSetCE		: "Central European",
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",
+DlgDocCharSetCR		: "Cyrillic",
+DlgDocCharSetGR		: "Greek",
+DlgDocCharSetJP		: "Japanese",
+DlgDocCharSetKR		: "Korean",
+DlgDocCharSetTR		: "Turkish",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Western European",
 DlgDocCharSetOther	: "ชุดตัวอักษรอื่นๆ",
 
 DlgDocDocType		: "ประเภทของเอกสาร",
@@ -467,16 +504,23 @@ DlgDocMeCopy		: "สงวนลิขสิทธิ์",
 DlgDocPreview		: "ตัวอย่างหน้าเอกสาร",
 
 // Templates Dialog
-Templates			: "Templates",	//MISSING
-DlgTemplatesTitle	: "Content Templates",	//MISSING
-DlgTemplatesSelMsg	: "Please select the template to open in the editor<br>(the actual contents will be lost):",	//MISSING
-DlgTemplatesLoading	: "Loading templates list. Please wait...",	//MISSING
-DlgTemplatesNoTpl	: "(No templates defined)",	//MISSING
+Templates			: "เทมเพลต",
+DlgTemplatesTitle	: "เทมเพลตของส่วนเนื้อหาเว็บไซต์",
+DlgTemplatesSelMsg	: "กรุณาเลือก เทมเพลต เพื่อนำไปแก้ไขในอีดิตเตอร์<br />(เนื้อหาส่วนนี้จะหายไป):",
+DlgTemplatesLoading	: "กำลังโหลดรายการเทมเพลตทั้งหมด...",
+DlgTemplatesNoTpl	: "(ยังไม่มีการกำหนดเทมเพลต)",
+DlgTemplatesReplace	: "แทนที่เนื้อหาเว็บไซต์ที่เลือก",
 
 // About Dialog
 DlgAboutAboutTab	: "เกี่ยวกับโปรแกรม",
 DlgAboutBrowserInfoTab	: "โปรแกรมท่องเว็บที่ท่านใช้",
+DlgAboutLicenseTab	: "ลิขสิทธิ์",
 DlgAboutVersion		: "รุ่น",
-DlgAboutLicense		: "สงวนลิขสิทธิ์ โดยนโยบายลิขสิทธิ์แบบ GNU Lesser General Public License",
-DlgAboutInfo		: "ข้อมูลเพิ่มเติมภาษาไทยติดต่อ</BR>นาย ชรินทร์ อาษากิจ (อู้ด)</BR><A HREF='mailto:arsakit@gmail.com'>arsakit@gmail.com</A> tel. (+66) 06-9241924</BR>หรือดาวน์โหลดรุ่นภาษาไทยได้ที่เว็บไซต์</BR><A HREF='http://www.thaimall4u.com'>www.Thaimall4u.com</A></BR>ข้อมูลเพิ่มเติมภาษาอังกฤษ กรุณาไปที่นี่"
-}
+DlgAboutInfo		: "For further information go to",	//MISSING
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
+};

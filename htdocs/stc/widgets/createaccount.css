@@ -1,5 +1,7 @@
 .appwidget-createaccount .field-name {
     text-align: right;
+    width: 125px;
+    vertical-align: top;
 }
 
 .appwidget-createaccount .field-desc {
@@ -18,6 +20,7 @@
     width: 12px;
     height: 19px;
     z-index: 100;
+    left: 489px;
 }
 
 .appwidget-createaccount #tips_box {
@@ -27,6 +30,7 @@
     border: 1px solid #ffdfc0;
     padding: 10px;
     width: 300px;
+    left: 500px;
 }
 
 .appwidget-createaccount .create-button {
@@ -43,6 +47,17 @@
     display: none;
 }
 
+span.appwidget-createaccount #username_check,
+span.appwidget-createaccount #username_error {
+    display: block;
+    width: 330px;
+}
+
 .appwidget-createaccount #username_error_inner {
     font-weight: bold;
+}
+
+.create-form span.formitemFlag {
+    display: block;
+    width: 330px;
 }

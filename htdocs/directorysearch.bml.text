@@ -1,3 +1,67 @@
 ;; -*- coding: utf-8 -*-
+
+.and=and
+
+.between=Between
+
+.by_age=By Age
+
+.by_friends=By Friends
+
+.by_gender=By Gender
+
+.by_interest=By Interest
+
+.by_location=By Location
+
+.clear_form=Clear Form
+
+.country=Country:
+
+.date=date
+
+.day=day
+
+.display_by=Display by
+
+.display_results=Display Results
+
 .error.notloggedin=You must <a [[aopts]]>login</a> to use the directory.
 
+.female=Female
+
+.h1=Search Directory
+
+.lists_user_as_a_friend=[[input]] lists user as a friend.
+
+.male=Male
+
+.month=month
+
+.other_criteria=Other Criteria
+
+.picture=Picture
+
+.recently_updated=Recently Updated
+
+.records_per_page=Records per page:
+
+.search=Search!
+
+.state_province=State/Province:
+
+.text_only=Text only
+
+.title=Directory Search
+
+.updated_in_last=Updated in last
+
+.use_this_dir=Use this directory to search for LiveJournal users. If you fill in more than one blank, the directory will display results that match all your criteria. (i.e user lives in "San Francisco" AND lists "music" as an interest.). Check out our <a [[aopts]]>community search</a> page to find new and interesting communities.
+
+.user_likes=User likes:
+
+.user_lists_as_a_friend=User lists [[input]] as a friend.
+
+.week=week
+
+.years_old=years old.

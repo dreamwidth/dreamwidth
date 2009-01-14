@@ -17,14 +17,40 @@ sub new {
 
 sub is_common { 1 }
 
+my @_ml_strings_en = (
+    'esn.mail_comments.fromname.user',                      # "[[user]] - [[sitenameabbrev]] Comment",
+    'esn.mail_comments.fromname.anonymous',                 # "[[sitenameshort]] Comment",
+    'esn.mail_comments.subject.edit_reply_to_your_comment', # "Edited reply to your comment...",
+    'esn.mail_comments.subject.reply_to_your_comment',      # "Reply to your comment...",
+    'esn.mail_comments.subject.edit_reply_to_your_entry',   # "Edited reply to your entry...",
+    'esn.mail_comments.subject.reply_to_your_entry',        # "Reply to your entry...",
+    'esn.mail_comments.subject.edit_reply_to_an_entry',     # "Edited reply to an entry...",
+    'esn.mail_comments.subject.reply_to_an_entry',          # "Reply to an entry...",
+    'esn.mail_comments.subject.edit_reply_to_a_comment',    # "Edited reply to a comment...",
+    'esn.mail_comments.subject.reply_to_a_comment',         # "Reply to a comment...",
+    'esn.mail_comments.subject.comment_you_posted',         # "Comment you posted...",
+    'esn.mail_comments.subject.comment_you_edited',         # "Comment you edited...",
+);
+
 sub as_email_from_name {
     my ($self, $u) = @_;
 
+    my $lang = $u->prop('browselang');
+
+    my $vars = {
+        user            => $self->comment->poster ? $self->comment->poster->display_username : '',
+        sitenameabbrev  => $LJ::SITENAMEABBREV,
+        sitenameshort   => $LJ::SITENAMESHORT,
+    };
+
+    my $key = 'esn.mail_comments.fromname.';
     if($self->comment->poster) {
-        return sprintf "%s - $LJ::SITENAMEABBREV Comment", $self->comment->poster->display_username;
+        $key .= 'user';
     } else {
-        return "$LJ::SITENAMESHORT Comment";
+        $key .= 'anonymous';
     }
+
+    return LJ::Lang::get_text($lang, $key, undef, $vars);
 }
 
 sub as_email_headers {
@@ -57,8 +83,9 @@ sub as_email_subject {
     my ($self, $u) = @_;
 
     my $edited = $self->comment->is_edited;
+    my $lang = $u->prop('browselang');
 
-    my $filename = $self->template_file_for(section => 'subject', lang => $u->prop('browselang'));
+    my $filename = $self->template_file_for(section => 'subject', lang => $lang);
     if ($filename) {
         # Load template file into template processor
         my $t = LJ::HTML::Template->new(filename => $filename);
@@ -66,23 +93,25 @@ sub as_email_subject {
         return $t->output;
     }
 
+    my $key = 'esn.mail_comments.subject.';
     if ($self->comment->subject_orig) {
         return LJ::strip_html($self->comment->subject_orig);
+    } elsif (LJ::u_equals($self->comment->poster, $u)) {
+        $key .= $edited ? 'comment_you_edited' : 'comment_you_posted';
     } elsif ($self->comment->parent) {
         if ($edited) {
-            return LJ::u_equals($self->comment->parent->poster, $u) ? 'Edited reply to your comment...' : 'Edited reply to a comment...';
+            $key .= LJ::u_equals($self->comment->parent->poster, $u) ? 'edit_reply_to_your_comment' : 'edit_reply_to_a_comment';
         } else {
-            return LJ::u_equals($self->comment->parent->poster, $u) ? 'Reply to your comment...' : 'Reply to a comment...';
+            $key .= LJ::u_equals($self->comment->parent->poster, $u) ? 'reply_to_your_comment' : 'reply_to_a_comment';
         }
-    } elsif (LJ::u_equals($self->comment->poster, $u)) {
-        return $edited ? 'Comment you edited...' : 'Comment you posted....';
     } else {
         if ($edited) {
-            return LJ::u_equals($self->comment->entry->poster, $u) ? 'Edited reply to your entry...' : 'Edited reply to an entry...';
+            $key .= LJ::u_equals($self->comment->entry->poster, $u) ? 'edit_reply_to_your_entry' : 'edit_reply_to_an_entry';
         } else {
-            return LJ::u_equals($self->comment->entry->poster, $u) ? 'Reply to your entry...' : 'Reply to an entry...';
+            $key .= LJ::u_equals($self->comment->entry->poster, $u) ? 'reply_to_your_entry' : 'reply_to_an_entry';
         }
     }
+    return LJ::Lang::get_text($lang, $key);
 }
 
 sub as_email_string {
@@ -253,6 +282,41 @@ sub as_html_actions {
     return $ret;
 }
 
+# ML-keys and contents of all items used in this subroutine:
+# 01 event.journal_new_comment.friend=Someone comments in any journal on my friends page
+# 02 event.journal_new_comment.my_journal=Someone comments in my journal, on any entry
+# 03 event.journal_new_comment.user_journal=Someone comments in [[user]], on any entry
+# 04 event.journal_new_comment.user_journal.deleted=Someone comments on a deleted entry in [[user]]
+# 05 event.journal_new_comment.my_journal.deleted=Someone comments on a deleted entry in my journal
+# 06 event.journal_new_comment.user_journal.titled_entry=Someone comments on <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+# 07 event.journal_new_comment.user_journal.untitled_entry=Someone comments on <a href='[[entryurl]]'>en entry</a> in [[user]]
+# 08 event.journal_new_comment.my_journal.titled_entry=Someone comments on <a href='[[entryurl]]'>[[entrydesc]]</a> my journal
+# 09 event.journal_new_comment.my_journal.untitled_entry=Someone comments on <a href='[[entryurl]]'>en entry</a> my journal
+# 10 event.journal_new_comment.my_journal.titled_entry.titled_thread.user=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by [[posteruser]] in <a href='[[entryurl]]'>[[entrydesc]]</a> on my journal
+# 11 event.journal_new_comment.my_journal.titled_entry.untitled_thread.user=Someone comments under <a href='[[threadurl]]'>the thread</a> by [[posteruser]] in <a href='[[entryurl]]'>[[entrydesc]]</a> on my journal
+# 12 event.journal_new_comment.my_journal.titled_entry.titled_thread.me=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by me in <a href='[[entryurl]]'>[[entrydesc]]</a> on my journal
+# 13 event.journal_new_comment.my_journal.titled_entry.untitled_thread.me=Someone comments under <a href='[[threadurl]]'>the thread</a> by me in <a href='[[entryurl]]'>[[entrydesc]]</a> on my journal
+# 14 event.journal_new_comment.my_journal.titled_entry.titled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by (Anonymous) in <a href='[[entryurl]]'>[[entrydesc]]</a> on my journal
+# 15 event.journal_new_comment.my_journal.titled_entry.untitled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>the thread</a> by (Anonymous) in <a href='[[entryurl]]'>[[entrydesc]]</a> on my journal
+# 16 event.journal_new_comment.my_journal.untitled_entry.titled_thread.user=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by [[posteruser]] in <a href='[[entryurl]]'>en entry</a> on my journal
+# 17 event.journal_new_comment.my_journal.untitled_entry.untitled_thread.user=Someone comments under <a href='[[threadurl]]'>the thread</a> by [[posteruser]] in <a href='[[entryurl]]'>en entry</a> on my journal
+# 18 event.journal_new_comment.my_journal.untitled_entry.titled_thread.me=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by me in <a href='[[entryurl]]'>en entry</a> on my journal
+# 19 event.journal_new_comment.my_journal.untitled_entry.untitled_thread.me=Someone comments under <a href='[[threadurl]]'>the thread</a> by me in <a href='[[entryurl]]'>en entry</a> on my journal
+# 20 event.journal_new_comment.my_journal.untitled_entry.titled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by (Anonymous) in <a href='[[entryurl]]'>en entry</a> on my journal
+# 21 event.journal_new_comment.my_journal.untitled_entry.untitled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>the thread</a> by (Anonymous) in <a href='[[entryurl]]'>en entry</a> on my journal
+# 22 event.journal_new_comment.user_journal.titled_entry.titled_thread.user=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by [[posteruser]] in <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+# 23 event.journal_new_comment.user_journal.titled_entry.untitled_thread.user=Someone comments under <a href='[[threadurl]]'>the thread</a> by [[posteruser]] in <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+# 24 event.journal_new_comment.user_journal.titled_entry.titled_thread.me=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by me in <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+# 25 event.journal_new_comment.user_journal.titled_entry.untitled_thread.me=Someone comments under <a href='[[threadurl]]'>the thread</a> by me in <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+# 26 event.journal_new_comment.user_journal.titled_entry.titled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by (Anonymous) in <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+# 27 event.journal_new_comment.user_journal.titled_entry.untitled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>the thread</a> by (Anonymous) in <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+# 28 event.journal_new_comment.user_journal.untitled_entry.titled_thread.user=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by [[posteruser]] in <a href='[[entryurl]]'>en entry</a> in [[user]]
+# 29 event.journal_new_comment.user_journal.untitled_entry.untitled_thread.user=Someone comments under <a href='[[threadurl]]'>the thread</a> by [[posteruser]] in <a href='[[entryurl]]'>en entry</a> in [[user]]
+# 30 event.journal_new_comment.user_journal.untitled_entry.titled_thread.me=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by me in <a href='[[entryurl]]'>en entry</a> in [[user]]
+# 31 event.journal_new_comment.user_journal.untitled_entry.untitled_thread.me=Someone comments under <a href='[[threadurl]]'>the thread</a> by me in <a href='[[entryurl]]'>en entry</a> in [[user]]
+# 32 event.journal_new_comment.user_journal.untitled_entry.titled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>[[thread_desc]]</a> by (Anonymous) in <a href='[[entryurl]]'>en entry</a> in [[user]]
+# 33 event.journal_new_comment.user_journal.untitled_entry.untitled_thread.anonymous=Someone comments under <a href='[[threadurl]]'>the thread</a> by (Anonymous) in <a href='[[entryurl]]'>en entry</a> in [[user]]
+# -- now, let's begin.
 sub subscription_as_html {
     my ($class, $subscr) = @_;
 
@@ -260,14 +324,28 @@ sub subscription_as_html {
     my $arg2 = $subscr->arg2;
     my $journal = $subscr->journal;
 
+    my $key = 'event.journal_new_comment';
+
     if (!$journal) {
-        return "Someone comments in any journal on my friends page";
+### 01 event.journal_new_comment.friend=Someone comments in any journal on my friends page
+        return BML::ml($key . '.friend');
     }
 
-    my $user = LJ::u_equals($journal, $subscr->owner) ? 'my journal' : LJ::ljuser($journal);
+    my ($user, $journal_is_owner);
+    if (LJ::u_equals($journal, $subscr->owner)) {
+        $user = 'my journal';
+        $key .= '.my_journal';
+        my $journal_is_owner = 1;
+    } else {
+        $user = LJ::ljuser($journal);
+        $key .= '.user_journal';
+        my $journal_is_owner = 0;
+    }
 
     if ($arg1 == 0 && $arg2 == 0) {
-        return "Someone comments in $user, on any entry";
+### 02 event.journal_new_comment.my_journal=Someone comments in my journal, on any entry
+### 03 event.journal_new_comment.user_journal=Someone comments in [[user]], on any entry
+        return BML::ml($key, { user => $user });
     }
 
     # load ditemid from jtalkid if no ditemid
@@ -278,28 +356,67 @@ sub subscription_as_html {
         $arg1 = $comment->entry->ditemid unless $arg1;
     }
 
-    my $journal_is_owner = LJ::u_equals($journal, $subscr->owner);
-
     my $entry = LJ::Entry->new($journal, ditemid => $arg1);
-    return "Someone comments on a deleted entry in $user" unless $entry && $entry->valid;
+### 04 event.journal_new_comment.user_journal.deleted=Someone comments on a deleted entry in [[user]]
+### 05 event.journal_new_comment.my_journal.deleted=Someone comments on a deleted entry in my journal
+    return BML::ml($key . '.deleted', { user => $user }) unless $entry && $entry->valid;
 
     my $entrydesc = $entry->subject_text;
-    $entrydesc = $entrydesc ? "\"$entrydesc\"" : "an entry";
+    if ($entrydesc) {
+        $entrydesc = "\"$entrydesc\"";
+        $key .= '.titled_entry';
+    } else {
+        $entrydesc = "an entry";
+        $key .= '.untitled_entry';
+    }
 
     my $entryurl  = $entry->url;
-    my $in_journal = $journal_is_owner ? " on my journal" : "in $user";
-    return "Someone comments on <a href='$entryurl'>$entrydesc</a> $in_journal" if $arg2 == 0;
-
-    my $threadurl = $comment->url;
+### 06 event.journal_new_comment.user_journal.titled_entry=Someone comments on <a href='[[entryurl]]'>[[entrydesc]]</a> in [[user]]
+### 07 event.journal_new_comment.user_journal.untitled_entry=Someone comments on <a href='[[entryurl]]'>en entry</a> in [[user]]
+### 08 event.journal_new_comment.my_journal.titled_entry=Someone comments on <a href='[[entryurl]]'>[[entrydesc]]</a> my journal
+### 09 event.journal_new_comment.my_journal.untitled_entry=Someone comments on <a href='[[entryurl]]'>en entry</a> my journal
+    return BML::ml($key,
+        {
+            user        => $user,
+            entryurl    => $entryurl,
+            entrydesc   => $entrydesc,
+        }) if $arg2 == 0;
 
     my $posteru = $comment->poster;
-    my $posteruser = $posteru ? LJ::ljuser($posteru) : "(Anonymous)";
+    my $posteruser;
 
-    $posteruser = $journal_is_owner ? 'me' : $posteruser;
+    my $threadurl = $comment->url;
+    my $thread_desc = $comment->subject_text;
+    if ($thread_desc) {
+        $thread_desc = "\"$thread_desc\"";
+        $key .= '.titled_thread';
+    } else {
+        $thread_desc = "the thread";
+        $key .= '.untitled_thread';
+    }
 
-    my $thread_desc = $comment->subject_text ? '"' . $comment->subject_text . '"' : "the thread";
-
-    return "Someone comments under <a href='$threadurl'>$thread_desc</a> by $posteruser in <a href='$entryurl'>$entrydesc</a> $in_journal";
+    if ($posteru) {
+        if ($journal_is_owner) {
+            $posteruser = LJ::ljuser($posteru);
+            $key .= '.me';
+        } else {
+            $posteruser = LJ::ljuser($posteru);
+            $key .= '.user';
+        }
+    } else {
+        $posteruser = "(Anonymous)";
+        $key .= '.anonymous';
+    }
+### 10 ... 33
+    return BML::ml($key,
+    {
+        user            => $user,
+        threadurl       => $threadurl,
+        thread_desc     => $thread_desc,
+        posteruser      => $posteruser,
+        entryurl        => $entryurl,
+        entrydesc       => $entrydesc,
+    });
 }
 
 sub matches_filter {
@@ -385,6 +502,45 @@ sub available_for_user  {
         $subscr->arg2;
 
     return 1;
+}
+
+# return detailed data for XMLRPC::getinbox
+sub raw_info {
+    my ($self, $target, $flags) = @_;
+    my $extended = ($flags and $flags->{extended}) ? 1 : 0; # add comments body
+    
+    my $res = $self->SUPER::raw_info;
+
+    my $comment = $self->comment;
+    my $journal = $self->u;
+
+    $res->{journal} = $journal->user;
+
+    return { %$res, action => 'deleted' }
+        unless $comment && $comment->valid && !$comment->is_deleted;
+
+    my $entry = $comment->entry;
+    return { %$res, action => 'comment_deleted' }
+        unless $entry && $entry->valid;
+
+    return { %$res, visibility => 'no' } unless $comment->visible_to($target);
+
+    $res->{entry}   = $entry->url;
+    $res->{comment} = $comment->url;
+    $res->{poster}  = $comment->poster->user if $comment->poster;
+    $res->{subject} = $comment->subject_text;
+
+    if ($extended){
+        $res->{extended}->{subject_raw} = $comment->subject_raw;
+        $res->{extended}->{body}        = $comment->body_raw;
+        $res->{extended}->{dtalkid}     = $comment->dtalkid;
+    }
+
+    if ($comment->is_edited) {
+        return { %$res, action => 'edited' };
+    } else {
+        return { %$res, action => 'new' };
+    }
 }
 
 1;

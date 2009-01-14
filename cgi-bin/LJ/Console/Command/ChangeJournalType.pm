@@ -12,21 +12,22 @@ sub args_desc { [
                  'journal' => "The username of the journal that type is changing.",
                  'type' => "Either 'person', 'community', or 'news'.",
                  'owner' => "The person to become the maintainer of the community/news journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
+                 'force' => "Specify this to create a community from a non-empty journal. The maintainer of the community will be the owner of the journal's entries."
                  ] }
 
-sub usage { '<journal> <type> <owner>' }
+sub usage { '<journal> <type> <owner> [force]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "changejournaltype");
+    return LJ::check_priv($remote, "changejournaltype") || $LJ::IS_DEV_SERVER;
 }
 
 sub execute {
     my ($self, $user, $type, $owner, @args) = @_;
     my $remote = LJ::get_remote();
 
-    return $self->error("This command takes either two or three arguments. Consult the reference.")
-        unless $user && $type && scalar(@args) == 0;
+    return $self->error("This command takes from three to four arguments. Consult the reference.")
+        unless $user && $type && $owner && (@args==0 || @args==1 && $args[0] eq 'force' && $type eq 'community');
 
     return $self->error("Type argument must be 'person', 'community', or 'news'.")
         unless $type =~ /^(?:person|community|news)$/;
@@ -71,12 +72,20 @@ sub execute {
             if $count;
 
     # going to a community, shared, news. do they have any entries posted by themselves?
+    # if so, make the new owner of the community to be the owner of these entries
     } else {
         my $dbcr = LJ::get_cluster_def_reader($u);
         my $count = $dbcr->selectrow_array('SELECT COUNT(*) FROM log2 WHERE journalid = ? AND posterid = journalid',
                                            undef, $u->id);
-        return $self->error("Account contains $count entries posted by the account itself and so cannot be converted.")
-            if $count;
+        if ($count) {
+            if ($args[0] eq 'force') {
+                $u->do("UPDATE log2 SET posterid = ? WHERE journalid = ? AND posterid = journalid", undef, $ou->id, $u->id) 
+                    or return $self->error($DBI::errstr);
+                $self->info("$count entries of user '$u->{user}' belong to '$ou->{user}' now");
+            } else {
+                return $self->error("Account contains $count entries posted by the account itself. Use 'force' option if you want to convert it anyway.");
+            }
+        }
     }
 
     #############################

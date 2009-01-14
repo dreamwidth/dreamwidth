@@ -83,8 +83,11 @@ sub FriendsPage
     my $itemload = $itemshow+$skip;
 
     my $filter;
-    my $group;
+    my $group_name    = '';
     my $common_filter = 1;
+    my $events_date   = ($get->{date} =~ m!^(\d{4})-(\d\d)-(\d\d)$!)
+                        ? LJ::mysqldate_to_time("$1-$2-$3")
+                        : 0;
 
     if (defined $get->{'filter'} && $remote && $remote->{'user'} eq $user) {
         $filter = $get->{'filter'};
@@ -92,22 +95,28 @@ sub FriendsPage
         $p->{'filter_active'} = 1;
         $p->{'filter_name'} = "";
     } else {
+
+        # Show group or day log
         if ($opts->{'pathextra'}) {
-            $group = $opts->{'pathextra'};
-            $group =~ s!^/!!;
-            $group =~ s!/$!!;
-            if ($group) { $group = LJ::durl($group); $common_filter = 0; }
+            $group_name = $opts->{'pathextra'};
+            $group_name =~ s!^/!!;
+            $group_name =~ s!/$!!;
+
+            if ($group_name) { 
+                $group_name    = LJ::durl($group_name); 
+                $common_filter = 0; 
+
+                $p->{'filter_active'} = 1;
+                $p->{'filter_name'}   = LJ::ehtml($group_name);
+            }
         }
-        if ($group) {
-            $p->{'filter_active'} = 1;
-            $p->{'filter_name'} = LJ::ehtml($group);
-        }
-        my $grp = LJ::get_friend_group($u, { 'name' => $group || "Default View" });
+
+        my $grp = LJ::get_friend_group($u, { 'name' => $group_name || "Default View" });
         my $bit = $grp->{'groupnum'};
         my $public = $grp->{'is_public'};
         if ($bit && ($public || ($remote && $remote->{'user'} eq $user))) {
             $filter = (1 << $bit);
-        } elsif ($group) {
+        } elsif ($group_name){
             $opts->{'badfriendgroup'} = 1;
             return 1;
         }
@@ -122,19 +131,20 @@ sub FriendsPage
     my %friends_row;
     my %idsbycluster;
     my @items = LJ::get_friend_items({
-        'u' => $u,
-        'userid' => $u->{'userid'},
-        'remote' => $remote,
-        'itemshow' => $itemshow,
-        'skip' => $skip,
-        'filter' => $filter,
-        'common_filter' => $common_filter,
-        'friends_u' => \%friends,
-        'friends' => \%friends_row,
-        'idsbycluster' => \%idsbycluster,
-        'showtypes' => $get->{'show'},
-        'friendsoffriends' => $opts->{'view'} eq "friendsfriends",
-        'dateformat' => 'S2',
+        'u'                 => $u,
+        'userid'            => $u->{'userid'},
+        'remote'            => $remote,
+        'itemshow'          => $itemshow,
+        'skip'              => $skip,
+        'filter'            => $filter,
+        'common_filter'     => $common_filter,
+        'friends_u'         => \%friends,
+        'friends'           => \%friends_row,
+        'idsbycluster'      => \%idsbycluster,
+        'showtypes'         => $get->{'show'},
+        'friendsoffriends'  => $opts->{'view'} eq "friendsfriends",
+        'dateformat'        => 'S2',
+        'events_date'       => $events_date,
     });
 
     while ($_ = each %friends) {
@@ -209,19 +219,22 @@ sub FriendsPage
         LJ::CleanHTML::clean_subject(\$subject) if $subject;
 
         my $ditemid = $itemid * 256 + $item->{'anum'};
+        my $entry_obj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
 
         my $stylemine = "";
         $stylemine .= "style=mine" if $remote && $remote->{'opt_stylemine'} &&
                                       $remote->{'userid'} != $friendid;
 
+        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$datakey}->{'opt_preformatted'},
                                              'cuturl' => LJ::item_link($friends{$friendid}, $itemid, $item->{'anum'}, $stylemine),
                                              'maximgwidth' => $maximgwidth,
                                              'maximgheight' => $maximgheight,
-                                             'ljcut_disable' => $remote->{'opt_ljcut_disable_friends'}, });
+                                             'ljcut_disable' => $remote->{'opt_ljcut_disable_friends'},
+                                             'suspend_msg' => $suspend_msg,
+                                             'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($friends{$friendid}, $ditemid, $remote, \$text);
 
-        my $entry_obj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
         $text = LJ::ContentFlag->transform_post(post => $text, journal => $friends{$friendid},
                                                 remote => $remote, entry => $entry_obj);
 
@@ -231,8 +244,8 @@ sub FriendsPage
         # get the poster user
         my $po = $posters{$posterid} || $friends{$posterid};
 
-        # don't allow posts from suspended users
-        if ($po->{'statusvis'} eq 'S') {
+        # don't allow posts from suspended users or suspended posts
+        if ($po->{'statusvis'} eq 'S' || ($entry_obj && $entry_obj->is_suspended_for($remote))) {
             $hiddenentries++; # Remember how many we've skipped for later
             next ENTRY;
         }
@@ -369,8 +382,8 @@ sub FriendsPage
     };
 
     my $base = "$u->{'_journalbase'}/$opts->{'view'}";
-    if ($group) {
-        $base .= "/" . LJ::eurl($group);
+    if ($group_name) {
+        $base .= "/" . LJ::eurl($group_name);
     }
 
     # $linkfilter is distinct from $filter: if user has a default view,
@@ -388,6 +401,7 @@ sub FriendsPage
         my $newskip = $skip - $itemshow;
         if ($newskip > 0) { $linkvars{'skip'} = $newskip; }
         else { $newskip = 0; }
+        $linkvars{'date'} = $get->{date} if $get->{date};
         $nav->{'forward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_count'} = $itemshow;
@@ -401,6 +415,7 @@ sub FriendsPage
         my %linkvars;
         $linkvars{'filter'} = $linkfilter if $incfilter;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
+        $linkvars{'date'} = $get->{'date'} if $get->{'date'};
         my $newskip = $skip + $itemshow;
         $linkvars{'skip'} = $newskip;
         $nav->{'backward_url'} = LJ::make_link($base, \%linkvars);
@@ -413,7 +428,6 @@ sub FriendsPage
     if ($get->{'mode'} eq "framed") {
         $p->{'head_content'} .= "<base target='_top' />";
     }
-
     return $p;
 }
 

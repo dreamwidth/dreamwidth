@@ -9,7 +9,18 @@ body<=
 
     $title = "Writer's Block";
 
-    return LJ::Widget::QotDResponses->render;
+    my $ret;
+
+    my $qid = $GET{qid}+0;
+    my $qotd = LJ::QotD->get_single_question($qid) if $qid;
+
+    $ret .= "<table width='100%' cellspacing='5' cellpadding='0'><tr><td valign='top'>";
+    $ret .= LJ::Widget::QotDResponses->render;
+    $ret .= "</td><td width='300' valign='top'>";
+    $ret .= LJ::get_ads({ location => 'bml.misc.latestqotd', interests_extra => $qid ? { qotd => $qotd } : {} });
+    $ret .= "</td></tr></table>";
+
+    return $ret;
 }
 _code?>
 <=body

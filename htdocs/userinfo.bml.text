@@ -1,17 +1,130 @@
 ;; -*- coding: utf-8 -*-
+
 .about.comm=About:
+
+.about.header=About
 
 .about.user=Bio:
 
+.admins.header=Administrators
+
 .allpics=View all userpics
 
+.basicinfo.header=Basic Info
+
+.bio.header=Bio
+
 .body.leave2=You may <a [[aopts]]>leave the community</a> at any time.
+
+.commdesc.header=Description:
 
 .comminfo.body=Below is information about the "[[commname]]" community on LiveJournal.
 
 .comminfo.name=Community Information
 
+.comms.header=Communities
+
+.comms.memberof=Member of
+
+.comms.postingaccess=Posting Access
+
+.comms.watching=Watching
+
+.commsettings.membership.closed=Closed
+
+.commsettings.membership.header=Membership:
+
+.commsettings.membership.moderated=Moderated
+
+.commsettings.membership.open=Open
+
+.commsettings.postlevel.anybody=Anybody
+
+.commsettings.postlevel.header=Posting Access:
+
+.commsettings.postlevel.members=All Members
+
+.commsettings.postlevel.moderated=, Moderated
+
+.commsettings.postlevel.select=Select Members
+
+.contact.header=Contact:
+
+.contact.pm=Private Message
+
+.contact.txtmsg=Text Message
+
 .date.never=<i>Never.</i>
+
+.details.comments.posted=[[num]] [[?num|comment|comments]] posted
+
+.details.comments.posted2=[[num_comma]] [[?num_raw|comment|comments]] posted
+
+.details.comments.received=[[num]] [[?num|comment|comments]] received
+
+.details.comments.received2=[[num_comma]] [[?num_raw|comment|comments]] received
+
+.details.created=Created: [[createdate]]
+
+.details.createdon=Created On: [[createdate]]
+
+.details.createdon2=Created on [[createdate]]
+
+.details.entries=[[num]] [[?num|entry|entries]]
+
+.details.entries2=[[num_comma]] [[?num_raw|entry|entries]]
+
+.details.entries3=[[num_comma]] <a [[aopts]]>[[?num_raw|Journal Entry|Journal Entries]]</a>
+
+.details.flag.other=Flag this journal as mature/adult.
+
+.details.flag.self=Set this journal as mature/adult.
+
+.details.fotobilder=[[num]] files in <a [[aopts]]>FotoBilder</a>
+
+.details.fotobilder2=[[num]] <a [[aopts]]>FotoBilder Files</a>
+
+.details.id=LJ User No.: [[id]]
+
+.details.joined=Joined: [[createdate]]
+
+.details.lastupdated=Last updated [[timestamp]]
+
+.details.lastupdated2=last updated [[timestamp]]
+
+.details.lastupdated.never=Never updated
+
+.details.lastupdated.never2=never updated
+
+.details.membersince=Member Since: [[createdate]]
+
+.details.memories=[[num]] <a [[aopts]]>[[?num|Memory|Memories]]</a>
+
+.details.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|Memories]]</a>
+
+.details.nudge=Nudge
+
+.details.search=Search
+
+.details.supportpoints=<a [[aopts]]>Support Points</a>: [[num]]
+
+.details.supportpoints2=[[num]] <a [[aopts]]>Support Points</a>
+
+.details.tags=[[num]] <a [[aopts]]>[[?num|Tag|Tags]]</a>
+
+.details.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]</a>
+
+.details.title=[[user]]'s Journal
+
+.details.userpics=[[num_comma]] <a [[aopts]]>[[?num_raw|Userpic|Userpics]]</a>
+
+.details.viewlinkssep=, 
+
+.details.warning.concepts=This journal may contain adult concepts.
+
+.details.warning.explicit=This journal may contain explicit adult content.
+
+.error.deleted.purgenotification=If you're interested in renaming your account to this username, <a [[aopts]]>set up your notifications</a> to be notified when the account is purged.
 
 .error.malfname=Malformed username.
 
@@ -29,9 +142,57 @@
 
 .friendof.user=Friend of:
 
+.friends.alsofriendof=Also Friend of
+
 .friends.comm=Members
 
+.friends.friendof=Friend of
+
+.friends.friends=Friends
+
+.friends.header=Friends
+
+.friends.mutual=Mutual Friends
+
 .friends.user=Friends
+
+.friends.viewall.comm2=<a [[aopts]]>View all</a>
+
+.friends.viewall.other=This user is watching [[num]] friends, communities, and feeds. <a [[aopts]]>View them all.</a>
+
+.friends.viewall.self=You are watching [[num]] friends, communities, and feeds. <a [[aopts]]>View them all.</a>
+
+.friends.viewentries=View Entries
+
+.im.aol=AIM
+
+.im.aol.status=AIM status
+
+.im.gizmo=Gizmo
+
+.im.gtalk=Google Talk
+
+.im.header=Instant Message:
+
+.im.header2=External Services:
+
+.im.icq=ICQ
+
+.im.icq.status=ICQ status
+
+.im.jabber=Jabber
+
+.im.lastfm=Last.fm
+
+.im.msn=MSN
+
+.im.skype=Skype
+
+.im.skype.status=Skype status
+
+.im.yim=Yahoo!
+
+.im.yim.status=Yahoo! status
 
 .label.addbuddy=Add Buddy
 
@@ -50,6 +211,8 @@
 .label.composted=<b>Posted:</b> [[num]] - 
 
 .label.comreceived=<b>Received:</b> [[num]]
+
+.label.connect=Connect
 
 .label.datecreated=Date created:
 
@@ -79,13 +242,21 @@
 
 .label.interests.modifyyours=Modify&nbsp;yours
 
+.label.interests.modifyyours2=Modify Yours
+
 .label.interests.removesome=Remove&nbsp;some
+
+.label.interests.removesome2=Remove Some
 
 .label.intsnotshown=<b>... [[intnotshown]] interests not shown</b>
 
 .label.jabber=Jabber:
 
 .label.journalentrs=Journal entries:
+
+.label.last_fm_user=Last.FM user:
+
+.label.last_fm_user2=Last.fm user:
 
 .label.location=Location:
 
@@ -95,7 +266,7 @@
 
 .label.memberof=Member of
 
-.label.memories=Memories:
+.label.memories=Memories
 
 .label.moderators=Moderators
 
@@ -110,6 +281,8 @@
 .label.nofriends=<i>None listed.</i>
 
 .label.noschools=None listed
+
+.label.nudge=Nudge This Friend
 
 .label.post=Post to "[[journal]]"
 
@@ -133,6 +306,8 @@
 
 .label.syndicatedstatus=Syndication Status:
 
+.label.syndreadcount=Number of Readers:
+
 .label.textmessage=<nobr>Text<br>Message</nobr>:
 
 .label.theme=Theme:
@@ -151,6 +326,14 @@
 
 .label.yahooid=Yahoo! ID:
 
+.members.header=Members
+
+.members.members=Members
+
+.members.postingaccess=Posting Access
+
+.members.watchedby=Watched by
+
 .membership.body2=To join this community, <a [[aopts]]>click here</a>.
 
 .memories.entries=[[count]] entries
@@ -167,7 +350,117 @@
 
 .nonexist.name=Unknown user
 
+.optionlinks.addfriend=Add Friend
+
+.optionlinks.addfriend.title.self=Add yourself as a friend
+
+.optionlinks.addfriend.title.other=Add this user as a friend
+
+.optionlinks.addfriend.title.loggedout=You must be logged in to add this user as a friend
+
+.optionlinks.joincomm=Join
+
+.optionlinks.joincomm.title.cantjoin=You cannot join this community
+
+.optionlinks.joincomm.title.closed=Membership for this community is closed
+
+.optionlinks.joincomm.title.loggedout=You must be logged in to join this community
+
+.optionlinks.joincomm.title.open=Join this community
+
+.optionlinks.leavecomm=Leave
+
+.optionlinks.leavecomm.title=Leave this community
+
+.optionlinks.modifyfriend=Modify Friend
+
+.optionlinks.modifyfriend.title.self=Modify/remove yourself as a friend
+
+.optionlinks.modifyfriend.title.other=Modify/remove this user as a friend
+
+.optionlinks.modifysub=Modify Subscription
+
+.optionlinks.modifysub.title=Modify/remove this feed from your Friends page
+
+.optionlinks.modifywatch=Modify Watch
+
+.optionlinks.modifywatch.title=Modify/remove this community from your Friends page
+
+.optionlinks.post=Post
+
+.optionlinks.post.title=Post to this community
+
+.optionlinks.post.title.cantpost=You cannot post to this community
+
+.optionlinks.post.title.loggedout=You must be logged in to post to this community
+
+.optionlinks.postentry=Post an Entry
+
+.optionlinks.postentry.title=Post to your journal
+
+.optionlinks.sendmessage=Send Message
+
+.optionlinks.sendmessage.title=Send a private message to this user
+
+.optionlinks.sendmessage.title.cantsendmessage=You cannot send a private message to this user
+
+.optionlinks.sendmessage.title.loggedout=You must be logged in to send a private message to this user
+
+.optionlinks.sub=Subscribe
+
+.optionlinks.sub.title=Add this feed to your Friends page
+
+.optionlinks.sub.title.loggedout=You must be logged in to add this feed to your Friends page
+
+.optionlinks.track=Track
+
+.optionlinks.track.title=Receive notifications of updates to this community
+
+.optionlinks.tracking=Tracking
+
+.optionlinks.tracking.title=Manage your notifications
+
+.optionlinks.tracksyn=Track Feed
+
+.optionlinks.tracksyn.title=Receive notifications of updates to this feed
+
+.optionlinks.trackuser=Track User
+
+.optionlinks.trackuser.title=Receive notifications of updates from this user
+
+.optionlinks.trackuser.title.cantuseesn=You cannot manage notifications
+
+.optionlinks.trackuser.title.loggedout=You must be logged in manage notifications
+
+.optionlinks.viewjournal=View Journal
+
+.optionlinks.viewjournal.title.comm=View this community's journal
+
+.optionlinks.viewjournal.title.self=View your journal
+
+.optionlinks.viewjournal.title.syn=View this feed's journal
+
+.optionlinks.viewjournal.title.user=View this user's journal
+
+.optionlinks.watch=Watch
+
+.optionlinks.watch.title=Add this community to your Friends page
+
+.optionlinks.watch.title.loggedout=You must be logged in to add this community to your Friends page
+
+.pubkey.alt=View public key
+
+.schools.header=Schools:
+
+.schools.manage=Manage
+
+.schools.presentyear=present
+
+.section.edit=Edit
+
 .sendmessage.body2=<a [[aopts]]>Send [[user]] a text message</a><br />on his/her cellphone/pager.
+
+.syn.header=Feeds
 
 .syn.last.never=Never
 
@@ -176,6 +469,10 @@
 .syn.nextcheck=Next check:
 
 .syn.parseerror=Error Message:
+
+.syn.watching=Watching
+
+.syn.xml=XML
 
 .syndinfo.body2=If you would like articles from the syndicated site to appear on your friends page, you can <a [[aopts]]>add this journal to your friends list</a>.
 
@@ -207,7 +504,15 @@
 
 .title.communityinfo=Community Info
 
+.title.communityprofile=Community Profile
+
+.title.openidprofile=OpenID Profile
+
 .title.syndicated=Syndicated Account
+
+.title.syndicatedprofile=Syndicated Feed Profile
+
+.title.userprofile=User Profile
 
 .title1=Profile
 
@@ -215,5 +520,18 @@
 
 .userinfo.name=User Information
 
+.userpic.alt=Userpic
+
+.userpic.choose=Choose userpic
+
 .userpic.none=no default userpic
 
+.userpic.none2=(no userpics)
+
+.userpic.none3=No Userpics
+
+.userpic.upload=Upload Userpic
+
+.userpic.viewall=View All Userpics
+
+.userpic.viewall.edit=<a [[aopts1]]>View All</a> / <a [[aopts2]]>Edit</a>

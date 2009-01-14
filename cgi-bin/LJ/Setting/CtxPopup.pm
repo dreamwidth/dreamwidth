@@ -1,26 +1,44 @@
 package LJ::Setting::CtxPopup;
-use base 'LJ::Setting::BoolSetting';
+use base 'LJ::Setting';
 use strict;
 use warnings;
-no warnings 'redefine';
 
-sub tags { qw(hide popup contextual user head icon pop) }
+sub should_render {
+    my ($class, $u) = @_;
+
+    return !$LJ::CTX_POPUP || !$u || $u->is_community ? 0 : 1;
+}
 
 sub label {
-    return "Contextual Hover Menus";
-}
-
-sub des {
-    return "Show contextual hover menus when you hover over userhead images or userpics.";
-}
-
-sub is_selected {
     my ($class, $u) = @_;
-    return $u->prop('opt_ctxpopup');
+
+    return $class->ml('setting.ctxpopup.label');
 }
 
-sub prop_name { "opt_ctxpopup" }
-sub checked_value { "Y" }
-sub unchecked_value { "N" }
+sub option {
+    my ($class, $u, $errs, $args) = @_;
+    my $key = $class->pkgkey;
+
+    my $ctxpopup = $class->get_arg($args, "ctxpopup") || $u->prop('opt_ctxpopup');
+
+    my $ret = LJ::html_check({
+        name => "${key}ctxpopup",
+        id => "${key}ctxpopup",
+        value => 1,
+        selected => $ctxpopup ? 1 : 0,
+    });
+    $ret .= " <label for='${key}ctxpopup'>" . $class->ml('setting.ctxpopup.option') . "</label>";
+
+    return $ret;
+}
+
+sub save {
+    my ($class, $u, $args) = @_;
+
+    my $val = $class->get_arg($args, "ctxpopup") ? "Y" : "N";
+    $u->set_prop( opt_ctxpopup => $val );
+
+    return 1;
+}
 
 1;

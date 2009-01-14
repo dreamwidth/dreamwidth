@@ -12,7 +12,7 @@
  my $print_with_ad = sub {
     my $str = shift;
 
-    my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+    my $ad_box = LJ::get_ads({ location => 'bml.tools.memadd/error', ljadwrapper => 1 });
     return $ad_box . $str;
  };
 
@@ -347,7 +347,11 @@
      LJ::Memories::updated_keywords($memoryu) if $needflush;
 
      $title = $ML{'.title.added'};
-     $body = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+     $body = LJ::get_ads({ 
+        location    => 'bml.tools.memadd/main',
+        ljadwrapper => 1,
+        below_ad    => LJ::CProd->full_box_for($remote, width => 300),
+     });
      $body .= "<?h1 $ML{'.body.added.header'} h1?>";
      $body .= "<?p $ML{'.body.added.text'} p?>";
 

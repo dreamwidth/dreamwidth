@@ -298,6 +298,24 @@ Regards,
 
 .newemail.subject=Email Address Changed
 
+.newemail_old.subject=Email Address Changed
+
+.newemail_old.body2<<
+Someone just changed the e-mail address for your [[sitename]] account "[[username]]".
+time and date of request: [[datetime]]
+ip: [[ip]]
+old email: [[old_email]]
+new email: [[new_email]]
+
+You can change your email here: [[email_change_link]],
+or you can to manage your previous addresses here: [[email_manage_link]]
+
+Regards,
+[[sitename]] Team
+[[sitelink]]
+.
+
+
 .numcomments.about=Check this if you want to append the comment count to URLs to make your browser possibly display the links in a different color.
 
 .numcomments.header=Add &amp;nc=xx to comment URLs

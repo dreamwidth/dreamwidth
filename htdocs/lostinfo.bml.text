@@ -31,3 +31,6 @@
 
 .title=Lost Information
 
+.captcha.invalid=Invalid answer in the antispam field. Please try again.
+
+.recaptcha.title=Prove that you are human

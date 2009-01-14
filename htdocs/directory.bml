@@ -7,7 +7,7 @@ body<=
     use LJ::Widget;
     use vars qw(%GET %POST %FORM $title $headextra @errors @warnings);
 
-    $title = 'Directory Search';
+    $title = $ML{'.title'};
 
     LJ::need_res(qw(
                     stc/directory.css
@@ -41,7 +41,7 @@ body<=
                 <?p $ML{'.browse.usa.desc'} p?>
                 <form action='get' name="stateForm">
                 <div>
-                <img id="USMap" alt="US Map" src="$LJ::IMGPREFIX/us_map.gif" width='489' height='315' border='0' usemap="#state_test" ismap='ismap' />
+                <img id="USMap" alt="$ML{'.us_map'}" src="$LJ::IMGPREFIX/us_map.gif" width='489' height='315' border='0' usemap="#state_test" ismap='ismap' />
                 <div id="StateInfo"></div>
                 </div>
                 </form>
@@ -185,13 +185,57 @@ body<=
                                                           : "directorysearch.bml";
     $ret .= qq {
         <div id="NewSearch">
-            <a href="$url"><< New search</a>
+            <a href="$url"><< $ML{'.new_search'}</a>
         </div>
-        <?h1 Search Results h1?>
+    };
+
+    $ret .= qq {
+        <?h1 $ML{'.search_results'} h1?>
+    };
+
+
+    my ($uri, $args) = (BML::get_uri(), BML::get_query_string());
+    my $filter_url;
+
+    $args =~ s/(\?|\&)page=\d*//gi;
+    $args =~ s/(\?|\&)journaltype=(C|P)?//gi;
+    $args =~ s/(\?|\&)start_search=\d*//gi;
+    $uri .= '?' . $args if $args;
+
+    my $all_search = "$ML{'.new_all_search'}";
+    my $community_search = "$ML{'.new_community_search'}";
+    my $user_search = "$ML{'.new_user_search'}";
+
+    # All search
+    if ('C' eq uc($GET{journaltype}) || 'P' eq uc($GET{journaltype}))
+    {
+        $filter_url = LJ::ehtml($LJ::SITEROOT . $uri);
+        $filter_url .= ($args ? "&" : "?") . 'start_search=1';
+        $all_search = "<a href='$filter_url'>$all_search</a>";
+    }
+
+    # Community search
+    if ('C' ne uc($GET{journaltype}))
+    {
+        $filter_url = LJ::ehtml($LJ::SITEROOT . $uri);
+        $filter_url .= ($args ? "&" : "?") . 'journaltype=C&start_search=1';
+        $community_search = "<a href='$filter_url'>$community_search</a>";
+    }
+
+    # Users search
+    if ('P' ne uc($GET{journaltype}))
+    {
+        $filter_url = LJ::ehtml($LJ::SITEROOT . $uri);
+        $filter_url .= ($args ? "&" : "?") . 'journaltype=P&start_search=1';
+        $user_search = "<a href='$filter_url'>$user_search</a>";
+    }
+
+    $ret .= qq {
+        <div id="FilterSearch">$ML{'.new_search_show'}&nbsp;$all_search&nbsp;|&nbsp;$community_search&nbsp;|&nbsp;$user_search</div>
     };
 
     if (LJ::run_hook("interest_search_ignore", query => $GET{int_like})) {
-        $ret .= "Sorry, we're unable to help you find users matching the interests you've provided.";
+        $ret .= $ML{'.unable_find_users'};
         return $ret;
     }
 
@@ -216,7 +260,7 @@ body<=
     $res = $dir->search while !$res;
 
     unless ($res) {
-        $ret .= "<?errorbar There was an error searching the directory. Please try again in a few minutes. errorbar?>";
+        $ret .= "<?errorbar $ML{'.errar.search_dir'} errorbar?>";
         return $ret;
     }
 
@@ -224,7 +268,7 @@ body<=
     my @users     = $res->users;
 
     unless (@users) {
-        $ret .= "<?standout No Results Found! standout?>";
+        $ret .= "<?standout $ML{'.no_results'} standout?>";
         return $ret;
     }
 

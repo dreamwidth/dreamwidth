@@ -20,10 +20,13 @@ my $opt_verbose;
 die "Unknown options" unless
     GetOptions("verbose|v" => \$opt_verbose);
 
-@EXPORT = qw(gearman_decl gearman_work gearman_set_idle_handler);
+@EXPORT = qw(gearman_decl gearman_work gearman_set_idle_handler gearman_set_requester_id);
 
 my $worker = Gearman::Worker->new;
 my $idle_handler;
+my $requester_id; # userid, who requested job, optional
+
+sub gearman_set_requester_id { $requester_id = $_[0]; }
 
 sub gearman_decl {
     my $name = shift;
@@ -92,6 +95,7 @@ sub gearman_work {
         my $handle = shift;
 
         LJ::start_request();
+        undef $requester_id;
 
         # save to db that we are starting the job
         if ($save_result) {
@@ -112,9 +116,11 @@ sub gearman_work {
         $res ||= '';
 
         if ($save_result && $storage) {
-            $storage->save_status(result   => $res,
-                                  status   => 'success',
-                                  end_time => 1);
+            my %row = (result   => $res,
+                       status   => 'success',
+                       end_time => 1);
+            $row{userid} = $requester_id if defined $requester_id;
+            $storage->save_status(%row);
         }
     };
 
@@ -124,9 +130,11 @@ sub gearman_work {
         $err ||= '';
 
         if ($save_result && $storage) {
-            $storage->save_status(result   => $err,
-                                  status   => 'error',
-                                  end_time => 1);
+            my %row = (result   => $err,
+                       status   => 'error',
+                       end_time => 1);
+            $row{userid} = $requester_id if defined $requester_id;
+            $storage->save_status(%row);
         }
 
     };

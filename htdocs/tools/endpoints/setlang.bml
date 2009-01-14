@@ -1,0 +1,18 @@
+<?_code # -*-bml-*-
+{
+    use strict;
+    use JSON;
+    use vars qw(%GET);
+
+    my $err = sub {
+        my $msg = shift;
+        return JSON::objToJson({
+            'alert' => $msg,
+        });
+    };
+
+    LJ::Lang::set_lang($GET{lang});
+
+    return 1;
+}
+_code?>

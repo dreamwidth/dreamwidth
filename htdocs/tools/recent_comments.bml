@@ -1,8 +1,5 @@
 <?page
 title=><?_ml .title _ml?>
-head<=
-<script src='/js/commentmanage.js'></script>
-<=head
 body<=
 <?_code
 {
@@ -11,6 +8,7 @@ body<=
     my $ret;
     my %LJ_cmtinfo;
 
+    LJ::need_res('js/commentmanage.js');
     LJ::set_active_crumb('managecomments');
 
     my $remote = LJ::get_remote();

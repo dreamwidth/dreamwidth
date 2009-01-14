@@ -5,6 +5,9 @@ body<=
  use strict;
  use vars qw($r_head $r_title %GET %ML $r_bodyopts);
 
+ # load package for formatting current music
+ use LJ::LastFM;
+ 
  # make refs to both title and head, that work in cached or non-cached contexts
  # $_[0] is the BML $req object, $_[1] is a pre-request scratch area.
  $r_head = "";
@@ -44,16 +47,17 @@ my $old_url = 0;
  # pre-load common strings for little speed and less typing later
  # (we're doing this *after* set_language_scope is called, because
  # two below are relative strings)
- my %T = qw(postcomments   talk.commentpost
-            readcomments   talk.commentsread
-            parent         talk.parentlink
-            thread         talk.threadlink
-            expand         talk.expandlink
-            replythis      talk.replytothis
-            frozen         talk.frozen
-            link           talk.commentpermlink
-            deleted        .subjectdeleted
-            nosubject      .nosubject
+ my %T = qw(postcomments    talk.commentpost
+            readcomments    talk.commentsread
+            parent          talk.parentlink
+            thread          talk.threadlink
+            expand          talk.expandlink
+            replythis       talk.replytothis
+            unscreentoreply talk.unscreentoreply
+            frozen          talk.frozen
+            link            talk.commentpermlink
+            deleted         .subjectdeleted
+            nosubject       .nosubject
             );
  foreach (keys %T) { $T{$_} = $ML{$T{$_}}; }
 
@@ -149,13 +153,17 @@ my $old_url = 0;
 
  # check for deleted/suspended/security
  unless ($viewsome) {
-     # check suspended
+     # check suspended user
      return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p $ML{'talk.error.suspended'} p?>"
          if ($u->is_suspended || $up->is_suspended);
 
      # check deleted
      return "<?h1 $ML{'talk.error.deleted.title'} h1?><?p $ML{'talk.error.deleted'} p?>"
          if ($u->is_deleted);
+
+     # check suspended entry
+     return "<?h1 $ML{'talk.error.suspended.title'} h1?><?p " . BML::ml('talk.error.suspendedentry', { aopts => "href='" . $u->journal_base . "/'" }) . " p?>"
+         if $entry && $entry->is_suspended_for($remote);
  }
 
  unless ($viewall) {
@@ -208,7 +216,10 @@ my $old_url = 0;
 
  my $event = $item->{'event'};
 
- LJ::CleanHTML::clean_event(\$event, $props->{'opt_preformatted'});
+ my $suspend_msg = $entry && $entry->should_show_suspend_msg_to($remote) ? 1 : 0;
+ LJ::CleanHTML::clean_event(\$event, { 'preformatted' => $props->{'opt_preformatted'},
+                                       'suspend_msg' => $suspend_msg,
+                                       'unsuspend_supportid' => $suspend_msg ? $entry->prop("unsuspend_supportid") : 0, });
  LJ::expand_embedded($u, $ditemid, $remote, \$event);
  BML::ebml(\$event);
 
@@ -260,6 +271,14 @@ my $old_url = 0;
  $ret .= LJ::Talk::link_bar({ 'u' => $u, 'up' => $up, 'headref' => $head,
                               'remote' => $remote, 'itemid' => $ditemid, });
 
+ if ($u->is_locked) {
+     $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.locked'}</div>";
+ } elsif ($u->is_memorial) {
+     $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.memorial'}</div>";
+ } elsif ($u->is_readonly) {
+     $ret .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.readonly'}</div>";
+ }
+
  ## dump the log entry, unless we're browsing a thread.
  my %current;
  if ($props->{'current_mood'} || $props->{'current_moodid'}) {
@@ -291,7 +310,6 @@ my $old_url = 0;
      $current{'Music'} = $props->{'current_music'};
      LJ::CleanHTML::clean_subject(\$current{'Music'});
  }
-
  if ($props->{'current_location'} || $props->{'current_coords'}) {
      my $loc = eval { LJ::Location->new(coords   => $props->{'current_coords'},
                                         location => $props->{'current_location'}) };
@@ -314,6 +332,14 @@ my $old_url = 0;
 
  $ret .= "<div style='margin-left: 30px'>";
 
+
+    ## copyright
+    if (LJ::is_enabled('default_copyright', $u)) {
+        if ($props->{'copyright'} ne 'P') {
+            $ret .= '<div class="copyrighted">&Oslash; ' . BML::ml("talk.copyright") . '</div>';
+        }
+    }
+
  if (%current)
  {
      $ret .= "<table border=0>\n";
@@ -321,7 +347,14 @@ my $old_url = 0;
          my $curkey = "talk.curname_" . $_;
          my $curname = BML::ml($curkey);
          $curname = "<b>Current $_:</b>" unless $curname;
-         $ret .= "<tr><td align=right>$curname</td><td>$current{$_}</td></tr>\n";
+         
+         $ret .= "<tr><td align=right>$curname</td>";
+         
+         if ($_ eq 'Music') {
+            $ret .= "<td>" . LJ::LastFM::format_current_music_string($current{$_}) . "</td></tr>\n";
+         } else {
+            $ret .= "<td>$current{$_}</td></tr>\n";
+         }
      }
      $ret .= "</table><p>\n";
  }
@@ -366,21 +399,21 @@ my $old_url = 0;
  $ret .= "<br style='clear: both' /><hr width='100%' size='2' align='center' />";
 
  my $qotd = 0;
- $qotd = $entry->is_special_qotd_entry if $entry;
+ $qotd = $entry->prop("qotdid") if $entry;
 
  my @verticals = $entry->verticals_list_for_ad;
  if (@verticals) {
      $LJ::REQ_GLOBAL{verticals_of_first_public_post} = join(",", @verticals);
  }
-
- my $ad = LJ::ad_display(type   => 'journal',
-                         orient => 'Journal-Indiv-Entry',
-                         user   => $u->user,
-                         use_wrapper => 0,
-                         vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
-                         interests_extra => $qotd ? "qotd" : "",
-                         );
-
+ 
+ my $ad = LJ::get_ads ({
+    location        => 'bml.talkread.ebox',
+    nowrap          => 1,
+    journalu        => $u, 
+    vertical        => $LJ::REQ_GLOBAL{verticals_of_first_public_post}, 
+    interests_extra => $qotd ? { qotd => $qotd } : {}
+ });
+ 
  if ($ad) {
      $ret .= $ad;
      $ret .= "<hr width='100%' size='2' align='center' />";
@@ -558,7 +591,7 @@ my $old_url = 0;
              $ret .= " <font size='-1'>(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dtid", $formatlight) . "#t$dtid'>$T{'link'}</a>)</font> ";
 
              if ($comment->remote_can_edit) {
-                 $ret .= "<a href='" . $comment->edit_url . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                 $ret .= "<a href='" . LJ::Talk::talkargs($comment->edit_url, $stylemine, $formatlight) . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
              }
 
              if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
@@ -661,12 +694,17 @@ my $old_url = 0;
                  # See if we want to force them to change their password
                  my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
                  if ($bp) {
-                     $ret .= "(<a href='$bp'>$T{'replythis'}</a>)";
+                     $ret .= "(<a href='$bp'>$T{'replythis'}</a>) ";
                  } else {
-                     $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ")";
+                    if ($post->{state} eq 'S') {
+                        # show unscreen to reply link id comment screened
+                        $ret .= "(<a href='$LJ::SITEROOT/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$dtid'>$T{'unscreentoreply'}</a>) ";
+                    } else {
+                        $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ") ";
+                    }
                  }
              } else {
-                 $ret .= "(<a href='$replyurl'>$T{'replythis'}</a>)";
+                 $ret .= "(<a href='$replyurl'>$T{'replythis'}</a>) ";
              }
 
              my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'};
@@ -678,7 +716,7 @@ my $old_url = 0;
                  my $url = LJ::Talk::talkargs($talkurl, "thread=$dtid", $stylemine, $formatlight) . "#t$dtid";
                  $ret .= "(<a href='$url'>$T{'thread'}</a>)";
 
-                 if ((grep {! $_->{_loaded}} @{$post->{'children'}}) && $show_thread_expander) { 
+                 if ((grep {! $_->{_loaded} and !($_->{state} eq "D")} @{$post->{'children'}}) && $show_thread_expander) { 
                     $ret .= qq[(<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)];
                 }
              }
@@ -772,7 +810,7 @@ my $old_url = 0;
          }
 
          if ($do_commentmanage_js) {
-             $$head .= "<script src=\"$LJ::SITEROOT/js/commentmanage.js\"></script>\n";
+            LJ::need_res('js/commentmanage.js');
              my $js_screen_color = "\"" . LJ::ejs(BML::get_template_def("screenedbarcolor") || BML::get_template_def("emcolor")) . "\"";
              my $js_normal_color = "\"" . LJ::ejs(BML::get_template_def("emcolor")) . "\"";
              $$head .= "<script>var LJ_cmtinfo = " . LJ::js_dumper(\%LJ_cmtinfo) . ";\n" .
@@ -805,10 +843,16 @@ my $old_url = 0;
                                            });
              $ret .= "</p>";
          }
+         
+         my $ad = LJ::get_ads({ location => 'bml.talk.bottom', journalu => $u, });
+         if ($ad) {
+            $ret .= "<hr width='100%' size='2' align='center' />" if $showmultiform && $multiform_selects;
+            $ret .= qq[<div style='width: 768px; margin: auto;'>$ad</div>];
+         }
      }
 
      $ret .= "</form>";
-
+     
      if ($navcrap) {
          $ret .= "<p>$navcrap</p>";
      }

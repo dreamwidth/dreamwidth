@@ -33,12 +33,6 @@ propgroup presentation
     }
     set title_position = "both";
     property use custom_control_strip_colors;
-property string text_expand_link {
-        des = "Text for comments expander link in link bar";
-        noui = 1;
-    }
-    set text_expand_link = "Expand";
-
 }
 propgroup colors
 {
@@ -767,6 +761,11 @@ html>body .entry .text, html>body .calendar_month .calendar, html>body .month_da
 {
     margin-top: 0;
 }
+
+.subject A, .subject A:hover, .subject A:visited {
+        text-decoration: none;
+}
+
 /* Comments */
 .comment_page .leave_comment, .selector
 {
@@ -1097,6 +1096,19 @@ function print_replyto(Page p, Entry e, EntryLite el)
     print format_replyto($p, $e, $el);
 }
 
+function CommentInfo::print_postlink() {
+    var Page p = get_page();
+    if ($.maxcomments) {
+        print safe "$*text_max_comments";
+    } else {
+        if ($p.view == "entry") {
+             $p->print_reply_link({"target" => "topcomment", "linktext" => $*text_post_comment});
+        } else {
+            print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+        }
+    }
+}
+
 function print_entry(Page p, Entry e, Color bgcolor, Color fgcolor, bool viewing_thread)
 {
     # Named anchor to link from page summary
@@ -1104,7 +1116,11 @@ function print_entry(Page p, Entry e, Color bgcolor, Color fgcolor, bool viewing
     println """<div class="entry">""";
     var string subject = $e.subject != "" ? $e.subject : $*text_nosubject;
     var string time    = $e.time->time_format();
-    println """<h4 class="subject">$e.security_icon $subject @ $time</h4>""";
+    println """<h4 class="subject">$e.security_icon """;
+    if ($p.view != "entry" and not $subject->contains("<a ")) {
+        print "<a href='$e.permalink_url' class='subj-link'>$subject</a>";
+    } else { print "$subject"; }
+    println """ @ $time</h4>""";
     println """<div class="text">""";
 
     if (($p.view == "friends" or
@@ -1332,14 +1348,16 @@ function RecentPage::lay_sidebar_view_summary() : string
     }
     return $return;
 }
-
+function print_ebox (Entry e) {
+        $e->print_ebox();
+}
 function RecentPage::print_body() {
     foreach var Entry e ($.entries) {
         if ($e.new_day) { print_content_tab($e.time->date_format("long")); print """<div class="content">"""; }
         $this->print_entry($e);
         if ($e->viewer_sees_ebox()) {
-            """<div align="center">""";
-            $e->print_ebox();
+            """<div style="margin-left:16px; margin-right:16px; margin-top:10px; text-align:center;">""";
+            print_ebox($e);
             "</div>";
         }
         if ($e.end_day) { print """</div>"""; }
@@ -1402,6 +1420,12 @@ function EntryPage::print_body () {
     println """<div class="content">""";
     print_entry($this, $.entry, null Color, null Color, $.viewing_thread);
     println "</div>";
+    if ($.entry->viewer_sees_ebox()) {
+        """<div style="margin-left:0px; margin-right:-18px; //margin-right:-6px; margin-top:10px; text-align:center;">""";
+        print_ebox($.entry); 
+        "</div>";
+    }
+
 
     if ($.entry.comments.enabled)
     {
@@ -1423,22 +1447,30 @@ function EntryPage::print_body () {
         } else {
             println "&nbsp;";
         }
-        println safe """</div><div class="comments"><div class="leave_comment">(<a href="$.entry.comments.post_url">$*text_post_comment</a>)</div>""";
+        println safe """</div><div class="comments"><div class="leave_comment">(""";
+        $this->print_reply_link({"target" => "topcomment", "linktext" => $*text_post_comment});
+        """)</div>""";
+        $this->print_reply_container({"target" => "topcomment"});
         if ($.comment_pages.total_subitems > 0) {
             if ($this.multiform_on) { $this->print_multiform_start(); }
             $this->print_comments($.comments);
         }
-        if ($.entry.comments.count > 5) { println safe """<div class="leave_comment">(<a href="$.entry.comments.post_url">$*text_post_comment</a>)</div>"""; }
+        if ($.entry.comments.count > 5) {
+            println safe """<div class="leave_comment">(""";
+            $this->print_reply_link({"target" => "bottomcomment", "linktext" => $*text_post_comment});
+            """)</div>""";
+        }
+        $this->print_reply_container({"target" => "bottomcomment"});
         println """</div><div class="footer">""";
         if (not $.comment_pages.all_subitems_displayed) {
             $pages = lang_page_of_pages($.comment_pages.current, $.comment_pages.total) + " - ";
             foreach var int i (1 .. $.comment_pages.total) {
                 if ($i == $.comment_pages.current) {
-            $pages = "$pages <b>[$i]</b> ";
-        } else {
-                var string url_of = $.comment_pages->url_of($i);
-                $pages = """$pages <a href="$url_of" class="link"><b>[$i]</b></a> """;
-            }
+                    $pages = "$pages <b>[$i]</b> ";
+                } else {
+                    var string url_of = $.comment_pages->url_of($i);
+                    $pages = """$pages <a href="$url_of" class="link"><b>[$i]</b></a> """;
+                }
             }
             println $pages;
         } else {
@@ -1514,27 +1546,34 @@ function EntryPage::print_comment(Comment c)
     if ($c.frozen) {
         println """(Replies frozen) """;
     } else {
-        println """(<a href="$c.reply_url">Reply to this</a>) """;
+        print "("; 
+        if($c.screened == true) {
+            ### if comment screened - show link for unscreen
+            var Link link;
+            $link = $c->get_link("unscreen_to_reply");
+            """<a href="$link.url" title="$link.caption">$link.caption</a>""";
+        } else {
+            ### showing reply link if comment not screened
+            $c->print_reply_link({ "linktext" => $*text_comment_reply });
+        }
+        
+        ##$c->print_reply_link({"linktext" => $*text_comment_reply}); 
+        
+        ") ";
     }
     if ($c.parent_url != "") { println """(<a href="$c.parent_url">Parent</a>) """; }
-    if ($c.thread_url != "") { 
-		println """(<a href="$c.thread_url">Thread</a>) """; 
-		var Link expand_link = $c->get_link("expand_comments");
-		if (defined $expand_link) {
-			println """(<a href="$c.thread_url" onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a>)""";
-		}
-	}
-    println "</div>";
-}
-
-function EntryPage::print_comment_partial (Comment c) {
-    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
-    var string subj = $c.subject != "" ? $c.subject : $*text_nosubject;
-    print safe "<a href='$c.permalink_url'>$subj</a> - $poster";
-    var Link expand_link = $c->get_link("expand_comments");
-    if (defined $expand_link) {
-        """ <a href="$c.thread_url" onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a>""";
+    if ($c.thread_url != "") {
+        println """(<a href="$c.thread_url">Thread</a>) """;
+        var Link expand_link = $c->get_link("expand_comments");
+        if (defined $expand_link) {
+            println "(" + $c->expand_link() + ") ";
+        }
     }
+    if (not $c.frozen) {
+        $c->print_reply_container({"class" => "quickreply"});
+    }
+
+    println "</div>";
 }
 
 ################################################################################
@@ -1548,7 +1587,11 @@ function ReplyPage::print_body ()
     println """<div class="content">""";
     print_replyto($this, $.entry, $.replyto);
     println "</div>";
-
+    if ($.entry->viewer_sees_ebox()) {
+        """<div style="margin-left:0px; margin-right:-18px; //margin-right:-6px; margin-top:10px; text-align: center;">""";
+        print_ebox($.entry); 
+        "</div>";
+    }
     print_content_tab("Your Reply:");
     println """<div class="content">""";
     $.form->print();
@@ -1711,8 +1754,8 @@ function DayPage::print_body() {
         foreach var Entry e ($.entries) {
             $this->print_entry($e);
             if ($e->viewer_sees_ebox()) {
-                """<div align="center" style="margin-bottom: 10px;">""";
-                $e->print_ebox();
+                """<div style="margin-left:16px; margin-right:16px; margin-top:10px; text-align:center;">""";
+                print_ebox($e);
                 "</div>";
             }
         }

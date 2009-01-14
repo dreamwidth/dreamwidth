@@ -70,11 +70,18 @@ SUBMIT:
             $error = "$ML{'.error.username.reserved'}";
         }
 
+        my $second_submit;
         my $u = LJ::load_user($user);
-        my $second_submit = ($u && $u->is_community && LJ::can_manage($remote, $u)) ? 1 : 0;
+        if ($u && $u->is_expunged) {
+            $error = BML::ml('widget.createaccount.error.username.purged', { aopts => "href='$LJ::SITEROOT/rename/'"});
+        } elsif ($u) {
+            # community was created in the last 10 minutes?
+            my $recent_create = ($u->timecreate > (time() - (10*60))) ? 1 : 0;
+            $second_submit = ($u->is_community && $recent_create
+                                 && LJ::can_manage($remote, $u)) ? 1 : 0;
 
-        $error = "$ML{'.error.username.inuse'}"
-            if $u && !$second_submit;
+            $error = "$ML{'.error.username.inuse'}" if (!$second_submit);
+        }
 
         last SUBMIT if $error;
 

@@ -29,6 +29,12 @@
         return;
     }
 
+    # invalid usejournal
+    if ($GET{usejournal} && !LJ::load_user($GET{usejournal})) {
+        $$body = $ML{'.error.invalidusejournal'};
+        return;
+    }
+
     # get remote and see if they can post right now
     my $remote = LJ::get_remote();
 
@@ -94,15 +100,23 @@
 
     # if a QotD id was passed in, fill in the fields with that QotD
     my $qid = $GET{qotd}+0;
-    if ($qid) {
-        my $qotd = LJ::QotD->get_single_question($qid);
-        if ($qotd) {
-            $subject = LJ::Widget::QotD->subject_text($qotd, user => $remote);
-            $event = LJ::Widget::QotD->embed_text($qotd);
-            $tags = LJ::Widget::QotD->tags_text($qotd);
-            my $text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ], form_disabled => 1 );
-            $$head .= "<script>LiveJournal.qotdText = \"" . LJ::ejs($text) . "\";</script>";
-        }
+    my $qotd = LJ::QotD->get_single_question($qid) if $qid;
+    if ($qotd) {
+        $subject = LJ::Widget::QotD->subject_text($qotd, user => $remote);
+        $event = LJ::Widget::QotD->embed_text($qotd);
+        $tags = LJ::Widget::QotD->tags_text($qotd);
+        my $text = LJ::Widget::QotD->qotd_display_embed( questions => [ $qotd ], form_disabled => 1 );
+        $$head .= "<script>LiveJournal.qotdText = \"" . LJ::ejs($text) . "\";</script>";
+    }
+
+    # try to call a hook to fill in the fields
+    my $override_fields = LJ::run_hook('update_fields', \%GET);
+    my $opt_preformatted = 0;
+    if ($override_fields) {
+            $event      = $override_fields->{'event'}   if exists($override_fields->{'event'});
+            $subject    = $override_fields->{'subject'} if exists($override_fields->{'subject'});
+            $tags       = $override_fields->{'tags'}    if exists($override_fields->{'tags'});
+            $opt_preformatted = $override_fields->{'prop_opt_preformatted'} if exists($override_fields->{'prop_opt_preformatted'});
     }
 
     ### define some bools with common logic ###
@@ -198,12 +212,15 @@
                                           : $LJ::DEFAULT_EDITOR       eq 'rich' ? 1 : 0, # Site default
             'include_insert_object' => $GET{'insobj'},
             'prop_qotdid' => $qid,
+            'altlogin' => $GET{altlogin} ? 1 : 0,
+            'prop_opt_preformatted' => $opt_preformatted ? 1 : 0,
         };
 
         if ($remote) {
             $entry->{prop_opt_default_noemail} = $remote->prop('opt_gettalkemail');
             $entry->{prop_opt_default_nocomments} = $remote->prop('opt_showtalklinks');
             $entry->{prop_opt_default_screening} = $remote->prop('opt_whoscreened');
+            $entry->{prop_last_fm_user} = $remote->prop('last_fm_user');
         }
         
         if ($did_post) {
@@ -249,6 +266,8 @@
 
         $$body .= LJ::entry_form($entry, \$$head, $onload, $errors);
         $$body .= "</form><!-- end #updateForm -->\n";
+
+        $$body .= LJ::Widget::SettingProdDisplay->render;
 
         return;
     };
@@ -419,27 +438,21 @@
                         $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid\">View answers to Writer's Block</a></li>";
                     }
 
+                    my @after_entry_post_extra_options = LJ::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
+                    my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
+
                     $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
                         "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" .
                         "<li><a href=\"/editjournal.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.edit'}</a></li>" .
                         "<li><a href=\"/tools/memadd.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
                         "<li><a href=\"/edittags.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
+                        $after_entry_post_extra_options .
                         "</ul>";
 
                     $$body .= LJ::Widget::GettingStarted->render;
                 }
 
                 $$body .= "</td><td style=\"padding-left: 2em;\">";
-
-                {
-
-                    $$body .= LJ::ad_display(
-                        type => 'app',
-                        orient => 'BML-App-Confirm',
-                        below_ad => LJ::CProd->full_box_for($u, width => 300),
-                        interests_extra => $GET{qotd} ? "qotd" : "",
-                    );
-                }
 
                 $$body .= "</td></tr></table>";
                 $$body .= LJ::run_hook('after_entry_post_extra_html', user => $ju, itemlink => $itemlink, request => \%req);
@@ -451,34 +464,9 @@
     $$body .= "<table width='100%'><tr valign='top'><td>";
     $print_entry_form->();
     $$body .= "</td>";
-
-    {
-        my $old_ad = 0;
-        my $ad = LJ::ads( type => 'app', orient => 'BML-App-Func-1column', interests_extra => $GET{qotd} ? "qotd" : "" );
-        unless ($ad) {
-            $ad = LJ::ads( type => 'app', orient => 'BML-App-Confirm', interests_extra => $GET{qotd} ? "qotd" : "" );
-            $old_ad = 1;
-        }
-
-        my $extra = "";
-        if ($ad =~ /"ljad ljad(.+?)"/i) {
-            if ($1 eq "skyscraper" || $1 eq "medrect") { # Add a badge ad above all skyscrapers
-                $extra = LJ::ads( type => 'app', orient => 'BML-App-Extra', interests_extra => $GET{qotd} ? "qotd" : "" );
-                $extra .= LJ::ads( type => 'app', orient => 'BML-App-Double-Confirm', interests_extra => $GET{qotd} ? "qotd" : "" );
-            }
-            if ($old_ad) {
-                $$body .= "<td class='$1' style='width: 300px; padding-left: 2em;'>";
-                $$body .= "$ad$extra";
-            } else {
-                $$body .= "<td style='width: 160px; padding-left: 2em;'>";
-                $$body .= "$extra$ad";
-            }
-        } else {
-            $$body .= "<td>";
-        }
-    }
-
+    $$body .= "<td>";
     $$body .= "</td></tr></table>";
+
     return;
 }
 

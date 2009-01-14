@@ -518,6 +518,79 @@ sub can_add_bookmark {
     return 1;
 }
 
+sub delete_all {
+    my ( $self, $view ) = @_;
+    my @items;
+
+    # Unless in folder 'Bookmarks', don't fetch any bookmarks
+    if ( $view eq 'all' ) {
+        @items = $self->all_items;
+        push @items, $self->usermsg_sent_items;
+    } elsif ( $view eq 'usermsg_recvd' ) {
+        @items = $self->usermsg_recvd_items;
+    } elsif ( $view eq 'friendplus' ) {
+        @items = $self->friendplus_items;
+        push @items, $self->birthday_items;
+        push @items, $self->befriended_items;
+    } elsif ( $view eq 'birthday' ) {
+        @items = $self->birthday_items;
+    } elsif ( $view eq 'befriended' ) {
+        @items = $self->befriended_items;
+    } elsif ( $view eq 'entrycomment' ) {
+        @items = $self->entrycomment_items;
+    } elsif ( $view eq 'bookmark' ) {
+        @items = $self->bookmark_items;
+    } elsif ( $view eq 'usermsg_sent' ) {
+        @items = $self->usermsg_sent_items;
+    }
+
+    @items = grep { !$self->is_bookmark($_->qid) } @items
+        unless $view eq 'bookmark';
+
+    my @ret;
+    foreach my $item (@items) {
+        push @ret, {qid => $item->qid};
+    }
+
+    # Delete items
+    foreach my $item (@items) {
+        $item->delete;
+    }
+
+    return @ret;
+}
+
+sub mark_all_read {
+    my ( $self, $view ) = @_;
+    my @items;
+
+    # Only get items in currently viewed folder and subfolders
+    if ( $view eq 'all' ) {
+        @items = $self->all_items;
+        push @items, $self->usermsg_sent_items;
+    } elsif ( $view eq 'usermsg_recvd' ) {
+        @items = $self->usermsg_recvd_items;
+    } elsif ( $view eq 'friendplus' ) {
+        @items = $self->friendplus_items;
+        push @items, $self->birthday_items;
+        push @items, $self->befriended_items;
+    } elsif ( $view eq 'birthday' ) {
+        @items = $self->birthday_items;
+    } elsif ( $view eq 'befriended' ) {
+        @items = $self->befriended_items;
+    } elsif ( $view eq 'entrycomment' ) {
+        @items = $self->entrycomment_items;
+    } elsif ( $view eq 'bookmark' ) {
+        @items = $self->bookmark_items;
+    } elsif ( $view eq 'usermsg_sent' ) {
+        @items = $self->usermsg_sent_items;
+    }
+
+    # Mark read
+    $_->mark_read foreach @items;
+    return @items;
+}
+
 # Copy archive notice to inbox
 # Needed when bookmarking a notice that only lives in archive
 sub ensure_queued {
@@ -559,9 +632,16 @@ sub ensure_queued {
 sub subset_unread_count {
     my ($self, @subset) = @_;
 
-     my %subset_events = map { "LJ::Event::" . $_ => 1 } @subset;
-     my @events = grep { $subset_events{$_->event->class} && $_->unread } $self->items;
-     return scalar @events;
+    my %subset_events = map { "LJ::Event::" . $_ => 1 } @subset;
+    my @events = grep { $subset_events{$_->event->class} && $_->unread } $self->items;
+    return scalar @events;
+}
+
+sub all_event_count {
+    my $self = shift;
+
+    my @events = grep { $_->event->class ne 'LJ::Event::UserMessageSent' && $_->unread } $self->items;
+    return scalar @events;
 }
 
 sub friend_event_count {
@@ -582,6 +662,12 @@ sub entrycomment_event_count {
 sub usermsg_recvd_event_count {
     my $self = shift;
     my @events = ('UserMessageRecvd' );
+    return $self->subset_unread_count(@events);
+}
+
+sub usermsg_sent_event_count {
+    my $self = shift;
+    my @events = ('UserMessageSent' );
     return $self->subset_unread_count(@events);
 }
 

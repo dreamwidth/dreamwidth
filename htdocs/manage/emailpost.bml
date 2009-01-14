@@ -483,7 +483,7 @@ body<=
     $ret .= "<?h1 $ML{'.pin.header'} h1?>";
     $ret .= "<?p " . BML::ml('.pin.text', {'num' => 4}) . " p?>";
     $ret .= "<div style='margin-left:40px;'>";
-    $ret .= LJ::html_text({name=>'pin', value=>$u->{emailpost_pin}, maxlength=>20});
+    $ret .= LJ::html_text({name=>'pin', type=>'password', value=>$u->{emailpost_pin}, maxlength=>20});
     $ret .= '</div><br />';
 
     $ret .= "<?h1 $ML{'.settings.header'} h1?>";

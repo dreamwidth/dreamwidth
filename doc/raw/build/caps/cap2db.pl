@@ -105,6 +105,10 @@ $caps_general{'full_rss'} = {
     type => 'boolean',
     desc => 'Show the full text in the RSS view.',
 };
+$caps_general{'latest_comments_rss'} = {
+    type => 'boolean',
+    desc => 'Can have an RSS feed of journal comments received.',
+};
 $caps_general{'edit_comments'} = {
     type => 'boolean',
     desc => 'Can edit comments they posted, which have not been replied to or frozen.',
@@ -220,7 +224,7 @@ $caps_general{'subscriptions'} = {
 };
 $caps_general{'mass_privacy'} = {
     type => 'boolean',
-    desc => 'Can edit entries en-masse, at <filename>editprivacy.bml</filename>.',
+    desc => 'Can edit entries en masse, at <filename>editprivacy.bml</filename>.',
 };
 $caps_general{'tags_max'} = {
     type => 'integer',
@@ -292,7 +296,7 @@ $caps_general{'rateallowed-lostinfo'} = {
 };
 $caps_general{'bookmark_max'} = {
     type => 'integer',
-    desc => 'Maximum number of bookmarks, or flags, a user can use in their &esn; Inbox.',
+    desc => 'Maximum number of bookmarks a user can use in their &esn; Inbox.',
 };
 $caps_general{'viewmailqueue'} = {
     type => 'boolean',

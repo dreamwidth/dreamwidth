@@ -9,7 +9,7 @@ sub designer { "" }
 
 package LJ::S2Theme::stylecontest::bamboo_dream;
 use base qw(LJ::S2Theme::stylecontest);
-sub cats { qw( illustrated modern nature featured ) }
+sub cats { qw( illustrated modern nature ) }
 sub designer { "Parker Torrence" }
 
 package LJ::S2Theme::stylecontest::cartoon;
@@ -84,7 +84,7 @@ sub designer { "Kevin Story" }
 
 package LJ::S2Theme::stylecontest::magic_paper;
 use base qw(LJ::S2Theme::stylecontest);
-sub cats { qw( hobbies illustrated ) }
+sub cats { qw( hobbies illustrated writing ) }
 sub designer { "Simone Plebani" }
 
 package LJ::S2Theme::stylecontest::make_my_way;

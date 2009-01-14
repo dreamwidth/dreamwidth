@@ -12,7 +12,7 @@ body<=
  LJ::set_active_crumb('register');
 
  my $ret;
- my $qs = BML::get_query_string();
+ my $qs = $POST{qs} || BML::get_query_string();
  $title = $ML{'.title'};
 
  my $remote = LJ::get_remote();
@@ -61,7 +61,7 @@ body<=
          'subject' => $ML{'.email.subject'},
          'body' => BML::ml('.email.body',
                            { 'sitename' => $LJ::SITENAME,
-                             'sitelink' => $LJ::SITEROOT,
+                             'siteroot' => $LJ::SITEROOT,
                              'conflink' => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
      });
 
@@ -82,6 +82,27 @@ body<=
      unless ($u->email_raw eq $aa->{arg1}) {
          return "<?h1 $ML{'Error'} h1?><?p " .
              BML::ml('.error.emailchanged', { aopts => "href='$LJ::SITEROOT/register.bml'" }) . " p?>";
+     }
+
+     ## if the user is OpenID, prove that he is human
+     if ($u->{journaltype} eq 'I' && LJ::is_enabled("recaptcha")) {
+        require Captcha::reCAPTCHA;
+        my $c = Captcha::reCAPTCHA->new;
+        if ($POST{recaptcha_response_field}) {
+            my $result = $c->check_answer(
+                LJ::conf_test($LJ::RECAPTCHA{private_key}), $ENV{'REMOTE_ADDR'},
+                $POST{'recaptcha_challenge_field'}, $POST{'recaptcha_response_field'}
+            );
+            return "<?h1 $ML{'Error'} h1?><?p $result->{error}  p?>" unless $result->{is_valid};
+        }
+        else {
+            my $ret = "<?h1 $ML{'.validate.human.title'} h1?>";
+            $ret .= "<form method='POST' action='$LJ::SITEROOT/register.bml'><input type='hidden' name='qs' value='$qs'>";
+            $ret .= $c->get_options_setter({ theme => 'white' });
+            $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) );
+            $ret .= "<input type='submit' value='$ML{'.validate.human.submit'}' ></form>";
+            return $ret;
+        }
      }
 
      LJ::update_user($u, { status => 'A' });

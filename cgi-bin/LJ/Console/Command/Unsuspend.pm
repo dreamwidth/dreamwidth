@@ -6,14 +6,14 @@ use Carp qw(croak);
 
 sub cmd { "unsuspend" }
 
-sub desc { "Unsuspend an account." }
+sub desc { "Unsuspend an account or entry." }
 
 sub args_desc { [
-                 'username or email address' => "The username of the account to unsuspend, or an email address to unsuspend all accounts at that address.",
-                 'reason' => "Why you're unsuspending the account.",
+                 'username or email address or entry url' => "The username of the account to unsuspend, or an email address to unsuspend all accounts at that address, or an entry URL to unsuspend a single entry within an account",
+                 'reason' => "Why you're unsuspending the account or entry",
                  ] }
 
-sub usage { '<username or email address> <reason>' }
+sub usage { '<username or email address or entry url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
@@ -25,6 +25,33 @@ sub execute {
 
     return $self->error("This command takes two arguments. Consult the reference.")
         unless $user && $reason && scalar(@args) == 0;
+
+    my $remote = LJ::get_remote();
+    my $entry = LJ::Entry->new_from_url($user);
+    if ($entry) {
+        my $poster = $entry->poster;
+        my $journal = $entry->journal;
+
+        return $self->error("Invalid entry.")
+            unless $entry->valid;
+
+        return $self->error("Journal and/or poster is purged; cannot unsuspend entry.")
+            if $poster->is_expunged || $journal->is_expunged;
+
+        return $self->error("Entry is not currently suspended.")
+            if $entry->is_visible;
+
+        $entry->set_prop( statusvis => "V" );
+        $entry->set_prop( unsuspend_supportid => 0 )
+            if $entry->prop("unsuspend_supportid");
+
+        $reason = "entry: " . $entry->url . "; reason: $reason";
+        LJ::statushistory_add($journal, $remote, "unsuspend", $reason);
+        LJ::statushistory_add($poster, $remote, "unsuspend", $reason)
+            unless $journal->equals($poster);
+
+        return $self->print("Entry " . $entry->url . " unsuspended.");
+    }
 
     my @users;
     if ($user !~ /@/) {
@@ -71,12 +98,11 @@ sub execute {
         LJ::update_user($u->{'userid'}, { statusvis => 'V', raw => 'statusvisdate=NOW()' });
         $u->{statusvis} = 'V';
 
-        my $remote = LJ::get_remote();
         LJ::statushistory_add($u, $remote, "unsuspend", $reason);
         eval { $u->fb_push };
         warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
 
-        $self->info("User '$username' unsuspended.");
+        $self->print("User '$username' unsuspended.");
     }
 
     return 1;

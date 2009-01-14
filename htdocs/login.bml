@@ -133,6 +133,9 @@
 
             $body .= "<?p " . BML::ml(".loggedin.text2",
                                       { 'username' => LJ::ljuser($remote)} ) . " p?>\n";
+            if ($remote->is_identity && !$remote->is_validated) {
+                $body .= "<?warningbar " . BML::ml('.loggedin.openidemail', { aopts1 => "href='$LJ::SITEROOT/changeemail.bml'", aopts2 => "href='$LJ::SITEROOT/register.bml'" }) . " warningbar?>";
+            }
             $body .= "<br />\n";
             $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
             $body .= "<img src='/img/pencil.gif'></div>\n";
@@ -146,13 +149,7 @@
             $body .= "<?h2 <a href='$base/friends/'>";
             $body .= "$ML{'.loggedin.suggesthead2'}</a> h2?>\n";
             $body .= "$ML{'.loggedin.suggest2'}<br />&nbsp;</div>\n";
-            $body .= "<div style='float: left; padding: 5px 10px 0px 10px'>";
-            $body .= "<img src='/img/pencil.gif'></div>\n";
-            $body .= "<div style='margin-left: 36px'>";
-            $body .= "<?h2 <a href=\"http://my.$LJ::DOMAIN/\">";
-            $body .= BML::ml(".loggedin.suggesthead3", { 'siteabbrev' => $LJ::SITENAMEABBREV } ) . "</a> h2?>\n";
-            $body .= BML::ml(".loggedin.suggest4", { 'siteabbrev' => $LJ::SITENAMEABBREV } );
-            $body .= "</div>\n<br />\n";
+            $body .= "<br />\n";
 
             $body .= "<form action='login.bml$getextra' method='post' id='login'>\n";
             $body .= LJ::form_auth();
@@ -223,8 +220,7 @@
             $body .= "</div><!-- end .login-create-account -->\n";
             $body .= "</div><!-- end .columns-2-left -->\n";
             $body .= "<div class='columns-2-right'>\n";
-            my $ad = LJ::ads( force => 1, type => 'app', orient => 'BML-App-Confirm' );
-            $body .= $ad unless $LJ::IS_SSL;
+            $body .= LJ::get_ads({ location => 'bml.login' }) unless $LJ::IS_SSL;
             $body .= "</div><!-- end .columns-2-right -->\n";
         }
 
@@ -372,6 +368,7 @@
             my $bindip  = ($POST{'bindip'} eq "yes") ? BML::get_remote_ip() : "";
 
             $u->make_login_session($exptype, $bindip);
+            LJ::run_hook('user_login', $u);
             $cursess = $u->session;
 
             return if $want_success_redirect->();

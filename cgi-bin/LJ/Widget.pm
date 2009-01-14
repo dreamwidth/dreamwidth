@@ -369,6 +369,23 @@ sub wrapped_js {
     };
 }
 
+# allows given form fields to be passed into the widget's handle_post, even if they don't have the widget prefix on them
+# this is needed for recaptcha modules in widgets
+sub use_specific_form_fields {
+    my $class = shift;
+    my %opts = @_;
+
+    my $post = $opts{post};
+    my $widget = $opts{widget};
+    my %given_fields = map { $_ => 1 } @{$opts{fields}};
+
+    foreach my $field (%$post) {
+        $post->{"Widget[$widget]_$field"} = $post->{$field} if $given_fields{$field};
+    }
+
+    return;
+}
+
 package LJ::Error::WidgetError;
 
 use strict;
@@ -733,6 +750,13 @@ Should be called on the parent class.
 
 Same as C<post_fields_of_widget>, but returns the POST fields for the widget
 it's called on.
+
+=item C<use_specific_form_fields>
+
+Given the POST values and a list of specific fields, this will allow those
+fields to be passed into the widget's C<handle_post> even if they don't have
+the necessary widget prefix on them.  This is currently used for widgets that
+have a reCAPTCHA module, since you can't modify the name of the fields for it.
 
 =item C<get_args>
 

@@ -18,7 +18,7 @@ body<=
     my $print_with_ad = sub {
         my $str = shift;
 
-        my $ad_full_width = LJ::ad_display( type => 'app', orient => 'BML-App-Full-Width' );
+        my $ad_full_width = LJ::get_ads({ location => 'bml.manage.profile/error', ljadwrapper => 1 });
         return $ad_override ? $str : $ad_full_width . $str;
     };
 
@@ -40,12 +40,14 @@ body<=
 
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
+    my $getsep = $getextra ? "&" : "?";
 
     ### user is now authenticated ###
 
     # The settings used on this page
     my @settings = ();
     push @settings, "LJ::Setting::UserMessaging" unless $LJ::DISABLED{'user_messaging'};
+    push @settings, "LJ::Setting::FindByEmail" unless $LJ::DISABLED{'opt_findbyemail'};
 
     my $dbr = LJ::get_db_reader();
     my $sth;
@@ -57,12 +59,12 @@ body<=
           country state city zip timezone
           icq aolim yahoo msn url jabber
           google_talk skype gizmo
-          urlname gender opt_hidefriendofs
+          urlname gender last_fm_user opt_hidefriendofs
           sidx_bdate sidx_bday sidx_loc
           opt_showmutualfriends opt_showschools
           opt_showbday opt_showlocation
           opt_sharebday
-          comm_theme opt_showljtalk/
+          comm_theme opt_showljtalk opt_showonlinestatus/
     );
 
     # to store values before they undergo normalisation
@@ -99,7 +101,7 @@ body<=
         $ret .= "</form>\n\n";
 
         $ret .= "<?p " . BML::ml(".intro1", { 'aopts1' => "href='$LJ::SITEROOT/manage/comments/$getextra'",
-                                             'aopts2' => "href='$LJ::SITEROOT/manage/settings/$getextra'"} )
+                                             'aopts2' => "href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=display'"} )
                 . " p?>";
 
         $ret .= "</div>\n";
@@ -194,7 +196,7 @@ body<=
 
         $ret .= "<div style=\"padding-top: .5em;\">\n";
         $ret .= " <label for='opt_showbday'>$ML{'.show.birthday'}</label>\n";
-        $u->{'opt_showbday'} = "F" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
+        $u->{'opt_showbday'} = "D" unless $u->{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
         $ret .= LJ::html_select({ 'name' => 'opt_showbday',
                                   'selected' => $u->{'opt_showbday'} },
                                 "N" => BML::ml(".show.birthday.nothing"),
@@ -220,7 +222,7 @@ body<=
         ## COMMUNITY THEME
 
         if ($u->is_community) {
-            $ret .= "<div class='section_head'>$ML{'.section.theme'}</div>\n";
+            $ret .= "<div class='section_head'>$ML{'.section.description'}</div>\n";
             $ret .= $ML{'.theme'} . "<br />";
             $ret .= LJ::html_text({ 'name' => 'comm_theme', 'value' => $u->{comm_theme},
                                     'size' => '50', 'maxlength' => '100' });
@@ -230,7 +232,7 @@ body<=
 
         {
             ### Interests
-            $ret .= "<div class='section_head'>$ML{'.section.interests'}</div>\n";
+            $ret .= "<a name='interests'></a><div class='section_head'>$ML{'.section.interests'}</div>\n";
             my @eintsl;
             foreach (sort keys %interests) {
                 push @eintsl, $_ if LJ::text_in($_);
@@ -256,7 +258,7 @@ body<=
         ## BIO
 
         ### User bio
-        $ret .= "<div class='section_head'>$ML{'.section.bio'}</div>";
+        $ret .= "<a name='bio'></a><div class='section_head'>$ML{'.section.bio'}</div>";
         if (LJ::text_in($saved{'bio'})) {
             $ret .= "<table class='field_block'>";
             $ret .= "<tr><td colspan='2'>$ML{'.fn.bio'}<br />\n";
@@ -293,7 +295,7 @@ body<=
                                 "N" => BML::ml(".security.visibility.nobody"));
         $ret .= "</span></div>";
 
-        $ret .= LJ::Widget::Location->render;
+        $ret .= LJ::Widget::Location->render( skip_timezone => 1 );
 
 
         ## CONTACT INFO
@@ -342,7 +344,16 @@ body<=
 
         $ret .= "</td></tr>\n";
 
+
         if ($u->is_person) {
+
+        # opt_findbyemail
+        unless ($LJ::DISABLED{'opt_findbyemail'}) {
+            $ret .= "<tr><td class='field_name'>" .
+                    LJ::Setting::FindByEmail->label . "</td><td>";
+            $ret .= LJ::Setting::FindByEmail->as_html($u);
+            $ret .= "</td></tr>\n";
+        }
 
         # opt_usermsg
         unless ($LJ::DISABLED{'user_messaging'}) {
@@ -352,7 +363,8 @@ body<=
         }
 
         # chat thingies
-        $ret .= "<tr><td colspan='2'></td></tr><tr><td class='field_name' colspan='2' style='text-align: center;'>$ML{'.fn.imservices2'}</td></tr>";
+        $ret .= "<tr><td colspan='2'></td></tr><tr><td class='field_name' colspan='2' style='text-align: center;'><a name='iminfo'></a>$ML{'.fn.imservices3'}</td></tr>";
+
 
         $u->{'gizmo'} = $u->gizmo_account();
 
@@ -381,9 +393,26 @@ body<=
                                          'id' => 'opt_showljtalk',
                                          'selected' => $u->hide_ljtalk });
                 $ret .= "<label for='opt_showljtalk' style='font-size: 10px;'>$ML{'.showljtalk'}</label>";
+
+                # Jabber Online Status
+                my $jabber_title = LJ::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
+                $ret .= "<br />";
+                $ret .= BML::ml('/manage/settings/index.bml.jabber', {'jabbertitle' => $jabber_title}) . " ";
+                $ret .= LJ::html_select({ 'name' => 'opt_showonlinestatus',
+                                          'id' => 'opt_showonlinestatus',
+                                          'selected' => $u->opt_showonlinestatus },
+                                          "Y" => BML::ml("/manage/settings/index.bml.security.visibility.everybody"),
+                                          "F" => BML::ml("/manage/settings/index.bml.security.visibility.friends"),
+                                          "N"  => BML::ml("/manage/settings/index.bml.security.visibility.nobody") );
+                $ret .= "<br />\n<span class='helper'>" . BML::ml('/manage/settings/index.bml.jabber.text', {'jabbertitle' => $jabber_title}) . "</span>";
             }
             $ret .= "</td></tr>\n";
         }
+
+        # last_fm_user
+        $ret .= "<tr><td class='field_name'>$ML{'.fn.last_fm'}</td><td>";
+        $ret .= LJ::html_text({ 'name' => 'last_fm_user', 'value' => $u->{'last_fm_user'}, 'size' => '20', 'maxlength' => '255' });
+        $ret .= "<div class='helper'>$ML{'.fn.last_fm.desc'}</div></td></tr>";
         $ret .= "</td></tr>\n";
 
         } # end is_person check
@@ -456,6 +485,8 @@ body<=
         $ret .= " <label for='opt_hidefriendofs'>$ML{'.friendof'}</label></td></tr>\n";
 
         $ret .= "</table>\n";
+
+        $ret .= LJ::run_hook("profile_settings_extra", $u);
 
         # ending submit block
         $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.save_button'}) . " standout?>\n";
@@ -535,6 +566,10 @@ body<=
 
         if ($POST{'LJ__Setting__UserMessaging_opt_usermsg'} && !$POST{'LJ__Setting__UserMessaging_opt_usermsg'} =~ /^[MFNY]$/) {
             push @errors, BML::ml(".error.usermessaging");
+        }
+
+        if ($POST{'LJ__Setting__FindByEmail_opt_findbyemail'} && !$POST{'LJ__Setting__FindByEmail_opt_findbyemail'} =~ /^[HNY]$/) {
+            push @errors, BML::ml(".error.findbyemail");
         }
 
         # bio
@@ -622,13 +657,14 @@ body<=
             $POST{'opt_showschools'} = 'N' unless $POST{'opt_showschools'} =~ m/^(N|R|Y|F)$/;
             $POST{'gender'} = 'U' unless $POST{'gender'} =~ m/^[UMFO]$/;
             $POST{'opt_sharebday'} = undef unless $POST{'opt_sharebday'} =~ m/^(A|F|N|R)$/;
-            $POST{'opt_showbday'} = 'F' unless $POST{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
+            $POST{'opt_showbday'} = 'D' unless $POST{'opt_showbday'} =~ m/^(D|F|N|Y)$/;
             # undefined means show to everyone, "N" means don't show
             $POST{'opt_showlocation'} = undef unless $POST{'opt_showlocation'} =~ m/^(N|R|Y|F)$/;
             # Does the user want to show the LJ Talk field?  Y=Yes, N=No
             # In this case, the question is actually if they want to hide
             # it, hence looking for a value of 'N' before 'Y'.
             $POST{'opt_showljtalk'} = $POST{'opt_showljtalk'} ? 'N' : 'Y';
+            $POST{'opt_showonlinestatus'} = '' unless $POST{'opt_showonlinestatus'} =~ m/^(Y|F|N)$/;
 
             # for the directory.
             $POST{'sidx_bdate'} = undef;
@@ -654,11 +690,11 @@ body<=
               opt_whatemailshow comm_theme
               icq aolim yahoo msn url jabber
               google_talk skype
-              urlname gender opt_hidefriendofs
+              urlname gender last_fm_user opt_hidefriendofs
               sidx_bdate sidx_bday
               opt_showmutualfriends opt_showschools
               opt_showbday opt_showlocation opt_showljtalk
-              opt_sharebday
+              opt_sharebday opt_showonlinestatus
             );
 
             # reset the gizmo account for this user account
@@ -698,6 +734,12 @@ body<=
                      undef, $u->{'userid'}, $POST{'txtmsg_provider'}, $POST{'txtmsg_number'}, $POST{'txtmsg_security'});
         }
 
+        # clear text message security caches
+        my $userid = $u->id;
+        delete $u->{_txtmsgsecurity};
+        my $memkey = [$userid, "txtmsgsecurity:$userid"];
+        LJ::MemCache::delete($memkey);
+
         # update interests
         unless ($POST{'interests_absent'}) {
             my @ints = LJ::interest_string_to_list($POST{'interests'});
@@ -735,10 +777,13 @@ body<=
             });
         }
 
+        LJ::run_hooks('profile_save', $u);
+        LJ::run_hook('set_profile_settings_extra', $u, \%POST);
+
         # tell the user all is well
         my $base = $u->journal_base;
         my $profile_url = $u->profile_url;
-        my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+        my $ad_box = LJ::get_ads({ location => 'bml.manage.profile/main', ljadwrapper => 1, below_ad => LJ::CProd->full_box_for($remote, width => 300) });
         return $ad_box . "<?h1 $ML{'.success.header'} h1?>\n" .
                          "<?p $ML{'.success.text'} p?>" .
                          "<?p $ML{'.success.gonext'} p?>" .

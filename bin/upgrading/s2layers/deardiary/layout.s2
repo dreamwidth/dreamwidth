@@ -53,12 +53,6 @@ propgroup presentation {
 
     property use linklist_support;
     property use custom_control_strip_colors;
-	
-	property string text_expand_link {
-        des = "Text for comments expander link in link bar";
-        noui = 1;
-    }
-    set text_expand_link = "Expand";
 }
 
 propgroup colors {
@@ -501,6 +495,11 @@ margin: 0;
 padding: 0;
 }
 
+#main .entryheader H3 A, #main .entryheader H3 A:hover, #main .entryheader H3 A:visited {
+        color: $*clr_page_fg;
+        text-decoration: none;
+}
+
 .entryheader .entryicon {
 float: right;
 margin-right: 1em;
@@ -811,6 +810,20 @@ function Comment::lay_print_metadata() {
     }
 }
 
+function CommentInfo::print_postlink() {
+    var Page p = get_page();
+    if ($.maxcomments) {
+        print safe "$*text_max_comments";
+    } else {
+        if ($p.view == "entry") {
+                $p->print_reply_link({"target" => "topcomment", "linktext" => $*text_post_comment});
+        } else {
+        print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+       }
+    }
+}
+
+
 function Entry::lay_print_cmdlinks() {
     if ($.comments.show_readlink or $.comments.show_postlink) {
         """<ul class="entrycmdlinks">""";
@@ -827,17 +840,28 @@ function Entry::lay_print_cmdlinks() {
 function Comment::lay_print_cmdlinks() {
     println """<ul class="entrycmdlinks">""";
     if ($.reply_url != "") {
-        println """<li><a href="$.reply_url">$*text_comment_reply</a></li>""";
+        println "<li>"; 
+        ##$this->print_reply_link({"linktext" => $*text_comment_reply}); 
+        if($.screened == true ) {
+            ### if comment screened - show link for unscreen
+            var Link link;
+            $link = $this->get_link("unscreen_to_reply");
+            """<a href="$link.url" title="$link.caption">$link.caption</a>""";
+        } else {
+            ### showing reply link if comment not screened
+            $this->print_reply_link({ "linktext" => $*text_comment_reply });
+        }
+        "</li>";
     }
     if ($.parent_url != "") {
         println """<li><a href="$.parent_url">$*text_comment_parent</a></li>""";
     }
     if ($.thread_url != "") {
         println """<li><a href="$.thread_url">$*text_comment_thread</a></li>""";
-		var Link expand_link = $this->get_link("expand_comments");
-		if (defined $expand_link) {
-			println """<li><a href="$.thread_url" onClick="Expander.make(this,'$.thread_url','$.talkid'); return false;">$*text_expand_link</a></li>""";
-		}
+        var Link expand_link = $this->get_link("expand_comments");
+        if (defined $expand_link) {
+            println "<li>" + $this->expand_link() + "</li>";
+        }
     }
     println """</ul>""";
 }
@@ -845,7 +869,13 @@ function Comment::lay_print_cmdlinks() {
 function Page::lay_print_entrylite(EntryLite e) {
 """<div class="entry">""";
 """<div class="entryheader">
-<h3 class="entrysubject">$e.subject</h3>""";
+<h3 class="entrysubject">""";
+    if ($.view != "entry") {
+		var Entry en = $e as Entry;
+        print $en->formatted_subject({"class"=>"subj-link"});
+    }
+    else { print "$e.subject"; }
+"</h3>";
     $e->lay_print_poster();
 """<div class="entrytimestamp">""";
 if ($e.depth > 0) { # If $e is a comment
@@ -873,9 +903,9 @@ $e->print_text();
 
 """; $e->lay_print_metadata(); """
 <div class="entrylinkbarpost">"""; $e->print_linkbar(); """</div>
-"""; $e->lay_print_cmdlinks(); """
-
-</div>
+"""; $e->lay_print_cmdlinks();
+     $this->print_reply_container({"target" => "topcomment"});
+"""</div>
 
 </div>""";
 }
@@ -904,50 +934,50 @@ function have_collapsed(Comment e) : bool {
 function EntryPage::print_comment(Comment c) {
     if ($c.full) {
         #$this->lay_print_entrylite($c);
-			"""<div class="entry ljcmt_full" id="$c.dom_id">""";
-			"""<div class="entryheader">
-			<h3 class="entrysubject">$c.subject</h3>""";
-			$c->lay_print_poster();
-			"""<div class="entrytimestamp">""";
-			if ($c.depth > 0) { # If $c is a comment
-			"""<span class="entrytimestampdate">"""+$c->time_display("short", "")+"</span>";
-			} else {
-			"""<span class="entrytimestampdate">"""+$c.time->date_format("short")+"""</span>
-			<span class="entrytimestamptime">"""+$c.time->time_format()+"""</span>""";
-			}
-			"""</div>""";
-			
-			$c->lay_print_icon();
-			"""<div class="entrylinkbarpre">"""; $c->print_linkbar(); """</div>
-			""";
-			if (defined $c.userpic) {
-			"""<div class="entryuserpic">$c.userpic</div>""";
-			}
-			"""</div>
-			
-			<div class="entrycontent">""";
-			$c->print_text();
-			"""
-			</div>
-			
-			<div class="entryfooter">
-			
-			"""; $c->lay_print_metadata(); """
-			<div class="entrylinkbarpost">"""; 
-			$c->print_linkbar(); 
-				
-			"""</div>"""; $c->lay_print_cmdlinks(); """
-			
-			</div>
-			
-			</div>""";	
+            """<div class="entry ljcmt_full" id="$c.dom_id">""";
+            """<div class="entryheader">
+            <h3 class="entrysubject">$c.subject</h3>""";
+            $c->lay_print_poster();
+            """<div class="entrytimestamp">""";
+            if ($c.depth > 0) { # If $c is a comment
+            """<span class="entrytimestampdate">"""+$c->time_display("short", "")+"</span>";
+            } else {
+            """<span class="entrytimestampdate">"""+$c.time->date_format("short")+"""</span>
+            <span class="entrytimestamptime">"""+$c.time->time_format()+"""</span>""";
+            }
+            """</div>""";
+
+            $c->lay_print_icon();
+            """<div class="entrylinkbarpre">"""; $c->print_linkbar(); """</div>
+            """;
+            if (defined $c.userpic) {
+            """<div class="entryuserpic">$c.userpic</div>""";
+            }
+            """</div>
+
+            <div class="entrycontent">""";
+            $c->print_text();
+            """
+            </div>
+
+            <div class="entryfooter">
+
+            """; $c->lay_print_metadata(); """
+            <div class="entrylinkbarpost">""";
+            $c->print_linkbar();
+
+            """</div>"""; $c->lay_print_cmdlinks();
+            $c->print_reply_container({"class" => "quickreply"});
+            """</div>
+
+            </div>""";
     }
     else {
         var string subject = ($c.subject ? $c.subject : "<i>(no subject)</i>");
-        """<div class="collapsed_entry" id="ljcmt$c.talkid"><a href="$c.permalink_url">$subject</a> - $c.poster""";
+        """<div class="collapsed_entry" id="$c.dom_id"><a href="$c.permalink_url">$subject</a> - $c.poster""";
         var Link expand_link = $c->get_link("expand_comments");
-        if (defined $expand_link) {
-            """ <a href="$c.thread_url" onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a>""";
+        if ($c.thread_url != "" and defined $expand_link) {
+            " " + $c->expand_link();
         }
         """</div>""";
     }
@@ -1181,13 +1211,22 @@ function EntryPage::lay_print_pager() {
 }
 function EntryPage::print_body() {
     $this->lay_print_entrylite($.entry);
+    if ($.entry->viewer_sees_ebox()) {
+        """<div class="entry">""";
+        $.entry->print_ebox();
+        "</div>";
+    }
     $this->lay_print_pager();
     $this->print_comments($.comments);
     $this->lay_print_pager();
 }
 function ReplyPage::print_body() {
+    var Entry e = $.entry;
     $this->lay_print_entrylite($.replyto);
-    """<div id="commentform">""";
+    """<div class="entry">""";
+    $e->print_ebox();
+    "</div>";
+    """<div id="commentform" style="margin-bottom: 10px;">""";
     $.form->print();
     """</div>""";
 }

@@ -31,7 +31,7 @@ sub handle {
     }
 
     my $err;
-    unless ($u->is_friend($fr_u) || $u->can_add_friends(\$err)) {
+    unless ($u->is_friend($fr_u) || $u->can_add_friends(\$err, {friend => $fr_u})) {
         die "Unable to add friend: $err";
     }
 

@@ -12,7 +12,7 @@
  my $remote = LJ::get_remote();
 
  return "<b>Error:</b> You don't have access to viewing memcache info."
-     unless (LJ::check_priv($remote, "siteadmin", "memcacheview"));
+     unless (LJ::check_priv($remote, "siteadmin", "memcacheview") || $LJ::IS_DEV_SERVER);
 
  return "<b>Error:</b> No memcache servers defined."
      unless @LJ::MEMCACHE_SERVERS;
@@ -260,7 +260,7 @@
  }
 
  $ret .= "<p>Enter your memcache query(-ies) below.</p>";
- $ret .= '<p>Here\'s the <a href="http://code.sixapart.com/svn/livejournal/trunk/doc/raw/memcache-keys.txt">reference</a> of key names.</p>';
+ $ret .= '<p>Here\'s the <a href="http://code.livejournal.org/svn/livejournal/trunk/doc/raw/memcache-keys.txt">reference</a> of key names.</p>';
  $ret .= "<p>Shortcuts: <blockquote>#username -> userid<br /> ##username -> cid:userid<br />(number) -> number/256 </blockquote></p>";
 
  $ret .= '<form method="post" action="memcache_view.bml">';

@@ -5,11 +5,12 @@ use strict;
 use lib "$LJ::HOME/cgi-bin";
 
 use Class::Autouse qw(
-                      LJ::Cache
                       LJ::LangDatFile
                       );
 
 package LJ::Lang;
+
+use constant MAXIMUM_ITCODE_LENGTH => 80;
 
 my @day_short   = (qw[Sun Mon Tue Wed Thu Fri Sat]);
 my @day_long    = (qw[Sunday Monday Tuesday Wednesday Thursday Friday Saturday]);
@@ -83,9 +84,7 @@ my %DM_UNIQ = ();   # "$type/$args" => ^^^
 my %LN_ID = ();     # id -> { ..., ..., 'children' => [ $ids, .. ] }
 my %LN_CODE = ();   # $code -> ^^^^
 my $LAST_ERROR;
-my $TXT_CACHE;      # LJ::Cache for text
-
-sub get_cache_object { return $TXT_CACHE; }
+my %TXT_CACHE;
 
 sub last_error
 {
@@ -154,8 +153,6 @@ sub load_lang_struct
     my $dbr = LJ::get_db_reader();
     return set_error("No database available") unless $dbr;
     my $sth;
-
-    $TXT_CACHE = new LJ::Cache { 'maxbytes' => $LJ::LANG_CACHE_BYTES || 50_000 };
 
     $sth = $dbr->prepare("SELECT dmid, type, args FROM ml_domains");
     $sth->execute;
@@ -315,6 +312,11 @@ sub get_itemid
     my ($dmid, $itcode, $opts) = @_;
     load_lang_struct() unless $LS_CACHED;
 
+    if (length $itcode > MAXIMUM_ITCODE_LENGTH) {
+        warn "'$itcode' exceeds maximum code length, truncating to " . MAXIMUM_ITCODE_LENGTH . " symbols";
+        $itcode = substr($itcode, 0, MAXIMUM_ITCODE_LENGTH);
+    }
+
     my $dbr = LJ::get_db_reader();
     $dmid += 0;
     my $itid = $dbr->selectrow_array("SELECT itid FROM ml_items WHERE dmid=$dmid AND itcode=?", undef, $itcode);
@@ -384,6 +386,8 @@ sub set_text
     my $dbh = LJ::get_db_writer();
     my $txtid = 0;
 
+    my $oldtextid = $dbh->selectrow_array("SELECT txtid FROM ml_text WHERE lnid=? AND dmid=? AND itid=?", undef, $lnid, $dmid, $itid);
+
     if (defined $text) {
         my $userid = $opts->{'userid'} + 0;
         # Strip bad characters
@@ -407,9 +411,9 @@ sub set_text
     return set_error("Error inserting ml_latest: ".$dbh->errstr) if $dbh->err;
     LJ::MemCache::set("ml.${lncode}.${dmid}.${itcode}", $text) if defined $text;
 
+    my $langids;
     {
         my $vals;
-        my $langids;
         my $rec = sub {
             my $l = shift;
             my $rec = shift;
@@ -433,14 +437,18 @@ sub set_text
                  "VALUES $vals") if $vals;
 
         # update languages that have no translation yet
-        $dbh->do("UPDATE ml_latest SET txtid=$txtid WHERE dmid=$dmid ".
+        if ($oldtextid) {
+            $dbh->do("UPDATE ml_latest SET txtid=$txtid WHERE dmid=$dmid ".
+                 "AND lnid IN ($langids) AND itid=$itid AND txtid=$oldtextid") if $langids;
+        } else {
+            $dbh->do("UPDATE ml_latest SET txtid=$txtid WHERE dmid=$dmid ".
                  "AND lnid IN ($langids) AND itid=$itid AND staleness >= 3") if $langids;
+        }
     }
 
-    if ($opts->{'changeseverity'} && $l->{'children'} && @{$l->{'children'}}) {
-        my $in = join(",", @{$l->{'children'}});
+    if ($opts->{'changeseverity'} && $langids) {
         my $newstale = $opts->{'changeseverity'} == 2 ? 2 : 1;
-        $dbh->do("UPDATE ml_latest SET staleness=$newstale WHERE lnid IN ($in) AND ".
+        $dbh->do("UPDATE ml_latest SET staleness=$newstale WHERE lnid IN ($langids) AND ".
                  "dmid=$dmid AND itid=$itid AND txtid<>$txtid AND staleness < $newstale");
     }
 
@@ -536,7 +544,8 @@ sub is_missing_string {
 sub get_text
 {
     my ($lang, $code, $dmid, $vars) = @_;
-
+    $lang ||= $LJ::DEFAULT_LANG;
+    
     my $from_db = sub {
         my $text = get_text_multi($lang, $dmid, [ $code ]);
         return $text->{$code};
@@ -601,67 +610,84 @@ sub get_text_multi
     $dmid = int($dmid || 1);
     $lang ||= $LJ::DEFAULT_LANG;
     load_lang_struct() unless $LS_CACHED;
+    ## %strings: code --> text
     my %strings;
-    my @memkeys;
-    my @dbload;
-    my $c = 0;
 
-    foreach my $code (@$codes) {
+    ## normalize the codes: all chars must be in lower case
+    ## MySQL string comparison isn't case-sensitive, but memcaches keys are.
+    ## Caller will get %strings with keys in original case.
+    ##
+    ## Final note about case:  
+    ##  Codes in disk .text files, mysql and bml files may be mixed-cased
+    ##  Codes in memcache and %TXT_CACHE are lower-case
+    ##  Codes are not case-sensitive
+    
+    ## %lc_code: lower-case code --> original code
+    my %lc_codes = map { lc($_) => $_ } @$codes;
+    
+    ## %memkeys: lower-case code --> memcache key
+    my %memkeys; 
+    foreach my $code (keys %lc_codes) {
         my $cache_key = "ml.${lang}.${dmid}.${code}";
-        my $text;
-        $text = $TXT_CACHE->get($cache_key) unless $LJ::NO_ML_CACHE;
-
-        if ($text) {
-            $strings{$code} = $text;
+        my $text = $TXT_CACHE{$cache_key} unless $LJ::NO_ML_CACHE;
+        
+        if (defined $text) {
+            $strings{ $lc_codes{$code} } = $text;
             $LJ::_ML_USED_STRINGS{$code} = $text if $LJ::IS_DEV_SERVER;
-            delete @$codes[$c];
         } else {
-            push @memkeys, $cache_key;
+            $memkeys{$cache_key} = $code;
         }
-        $c++;
     }
 
-    return \%strings unless @memkeys;
+    return \%strings unless %memkeys;
 
-    my $mem = LJ::MemCache::get_multi(@memkeys) || {};
+    my $mem = LJ::MemCache::get_multi(keys %memkeys) || {};
 
-    foreach my $code (@$codes) {
-        next unless $code;
-
-        my $cache_key = "ml.${lang}.${dmid}.${code}";
+    ## %dbload: lower-case key --> text; text may be empty (but defined) string
+    my %dbload;
+    foreach my $cache_key (keys %memkeys) {
+        my $code = $memkeys{$cache_key};
         my $text = $mem->{$cache_key};
-
-        if ($text) {
-            $strings{$code} = $text;
+        
+        if (defined $text) {
+            $strings{ $lc_codes{$code} } = $text;
             $LJ::_ML_USED_STRINGS{$code} = $text if $LJ::IS_DEV_SERVER;
-            $TXT_CACHE->set($cache_key, $text);
+            $TXT_CACHE{$cache_key} = $text;
         } else {
-            push @dbload, $code;
+            # we need to cache nonexistant/empty strings because otherwise we're running a lot of queries all the time
+            # to cache nonexistant strings, value of %dbload must be defined
+            $dbload{$code} = '';
         }
     }
 
-    return \%strings unless @dbload;
+    return \%strings unless %dbload;
 
     my $l = $LN_CODE{$lang};
 
     # This shouldn't happen!
-    die ("Unable to load language code") unless $l;
+    die ("Unable to load language code: $lang") unless $l;
 
     my $dbr = LJ::get_db_reader();
-    my $bind = join(',', map { '?' } @dbload);
+    my $bind = join(',', map { '?' } keys %dbload);
     my $sth = $dbr->prepare("SELECT i.itcode, t.text".
                             " FROM ml_text t, ml_latest l, ml_items i".
                             " WHERE t.dmid=? AND t.txtid=l.txtid".
                             " AND l.dmid=? AND l.lnid=? AND l.itid=i.itid".
                             " AND i.dmid=? AND i.itcode IN ($bind)");
-    $sth->execute($dmid, $dmid, $l->{lnid}, $dmid, @dbload);
+    $sth->execute($dmid, $dmid, $l->{lnid}, $dmid, keys %dbload);
 
+    # now replace the empty strings with the defined ones that we got back from the database
     while (my ($code, $text) = $sth->fetchrow_array) {
-        $strings{$code} = $text;
+        # some MySQL codes might be mixed-case
+        $dbload{ lc($code) } = $text;
+    }
+
+    while (my ($code, $text) = each %dbload) {
+        $strings{ $lc_codes{$code} } = $text;
         $LJ::_ML_USED_STRINGS{$code} = $text if $LJ::IS_DEV_SERVER;
 
         my $cache_key = "ml.${lang}.${dmid}.${code}";
-        $TXT_CACHE->set($cache_key, $text);
+        $TXT_CACHE{$cache_key} = $text;
         LJ::MemCache::set($cache_key, $text);
     }
 
@@ -686,6 +712,34 @@ sub get_lang_names {
     }
 
     return \@list;
+}
+
+sub set_lang {
+    my $lang = shift;
+
+    my $l = LJ::Lang::get_lang($lang);
+    my $remote = LJ::get_remote();
+
+    # default cookie value to set
+    my $cval = $l->{lncode} . "/" . time();
+
+    # if logged in, change userprop and make cookie expiration
+    # the same as their login expiration
+    if ($remote) {
+        $remote->set_prop("browselang", $l->{lncode});
+
+        if ($remote->{_session}->{exptype} eq 'long') {
+            $cval = [ $cval, $remote->{_session}->{timeexpire} ];
+        }
+    }
+
+    # set cookie
+    $BML::COOKIE{langpref} = $cval;
+
+    # set language through BML so it will apply immediately
+    BML::set_language($l->{lncode});
+
+    return;
 }
 
 # The translation system now supports the ability to add multiple plural forms of the word

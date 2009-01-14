@@ -18,9 +18,8 @@ h2.widget-header {
 }
 
 .theme-titles {
-    float: right;
+    float: left;
     width: 63%;
-    margin-right: 2%;
     margin-bottom: 15px;
 }
 
@@ -55,4 +54,9 @@ form.theme-switcher {
 .beta-feedback a {
     padding-left: 35px;
     background: url(/img/beta.gif) no-repeat 0 50%;
+}
+
+.theme-titles P {
+    overflow: hidden;
+    zoom: 1;
 }

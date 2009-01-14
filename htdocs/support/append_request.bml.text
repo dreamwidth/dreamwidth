@@ -17,15 +17,25 @@
 
 .internal.changecat=To change a request's category, you must select "Internal Comment / Action" and optionally explain why you're changing it.
 
+.internal.changelanguage=To change a request's language, you must select "Internal Comment / Action" and optionally explain why you're changing it.
+
 .internal.changesum=To change the summary of a request, you must select "Internal Comment / Action" and enter in the new summary.
 
+.internal.settier=To set a response's tier, you must select "Internal Comment / Action" or a screened response to approve as an answer, or you must select and write an "Answer".
+
 .internal.touch=To change a request's status, you must select "Internal Comment / Action" and explain why you're changing it.
+
+.invalid.badtier=The tier that you selected is not valid. You must select Tier 1, Tier 2, or Tier 3.
 
 .invalid.blank=Your message was blank.  Please type at least something in the message field.
 
 .invalid.noanswer=Invalid screened response to approve.
 
 .invalid.notcat=That category doesn't seem to exist.
+
+.invalid.notier=You must select a tier with your answer.
+
+.invalid.notlang=That language doesn't seem to exist.
 
 .invalid.noid=This action requires a support request ID.
 

@@ -521,7 +521,7 @@ If this setting is set to true (<B><TT>1</TT></B>), then no meta-data properties
 }
 { selecttype
 .des
-Determines how you want to specify what part of the journal to download.  Valid values are <B><TT>day</TT></B> to download one entire day, <B><TT>lastn</TT></B> to get the most recent <I>n</I> entries (where <I>n</I> is specified in the <TT>howmany</TT> field), <B><TT>one</TT></B> to download just one specific entry, or <b><tt>syncitems</tt></b> to get some number of items (which the server decides) that have changed since a given time (specified in the <tt>lastsync</tt> parameter>).  Not that because the server decides what items to send, you may or may not be getting everything that's changed.  You should use the <tt>syncitems</tt> selecttype in conjunction with the <tt>syncitems</tt> protocol mode.
+Determines how you want to specify what part of the journal to download.  Valid values are <B><TT>day</TT></B> to download one entire day, <B><TT>lastn</TT></B> to get the most recent <I>n</I> entries (where <I>n</I> is specified in the <TT>howmany</TT> field), <B><TT>one</TT></B> to download just one specific entry, or <b><tt>syncitems</tt></b> to get some number of items (which the server decides) that have changed since a given time (specified in the <tt>lastsync</tt> parameter).  Not that because the server decides what items to send, you may or may not be getting everything that's changed.  You should use the <tt>syncitems</tt> selecttype in conjunction with the <tt>syncitems</tt> protocol mode.
 }
 { lastsync
 .des
@@ -724,7 +724,7 @@ The number of items that are contained in this response (numbered started at 1).
 }
 { sync_<i>n</i>_item
 .des
-The <i>n</i>th item, in the form "Type-Number".  Type can be one of "L" for log entries (journal entries), "C" for comments (not implemented), "T" for to-do items (not implemented), or many other things presumably.  If your client doesn't know how to fetch an item of a certain type, just ignore them.  A new version of your client could later see that it has never downloaded anything of type "T" and go back and fetch everything of that type from the beginning.
+The <i>n</i>th item, in the form "Type-Number".  Type can be one of "L" for log entries (journal entries), "C" for comments (not implemented), or many other things presumably.  If your client doesn't know how to fetch an item of a certain type, just ignore them.  A new version of your client could later see that it has never downloaded anything of type "C" and go back and fetch everything of that type from the beginning.
 }
 { sync_<i>n</i>_action
 .des
@@ -732,7 +732,7 @@ Either "create" or "update".  This field isn't too useful, but you may want to m
 }
 { sync_<i>n</i>_time
 .des
-The server time (in the form "yyyy-mm-dd hh:mm:ss") that this creation or update took place.  Remember in your local store the most recent for each item type ("L", "T", "C", etc...).  This is what you send in subsequent requests in <tt>lastsync</tt>.
+The server time (in the form "yyyy-mm-dd hh:mm:ss") that this creation or update took place.  Remember in your local store the most recent for each item type ("L", "C", etc...).  This is what you send in subsequent requests in <tt>lastsync</tt>.
 }
 }
 

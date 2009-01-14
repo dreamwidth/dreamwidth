@@ -60,8 +60,10 @@ function pageload (dotime) {
 }
 
 function customboxes (e) {
+    copyright();
     if (! e) var e = window.event;
     if (! document.getElementById) return false;
+
     
     f = document.updateForm;
     if (! f) return false;
@@ -91,6 +93,33 @@ function customboxes (e) {
     return false;
 }
 
+function setCopyrightUpdate() {
+    if ($('prop_copyright') && Site.default_copyright == "P") {
+        $('prop_copyright').checked = 1;
+    }
+}
+
+function setCopyrightEdit() {
+    if ($('prop_copyright') && $('security') && $('security').value != "public") {
+        $('prop_copyright').checked = 0;
+        $('prop_copyright').disabled = true;
+    }
+}
+
+function copyright () {
+    if ($('security') && $('prop_copyright')) {
+        if ($('security').value != "public") {
+            $('prop_copyright').checked = 0;
+            $('prop_copyright').disabled = true;
+        } else {
+            if (Site.default_copyright == "P") {
+                $('prop_copyright').checked = 1;
+            }
+            $('prop_copyright').disabled = false;
+        }
+    }
+}
+
 function altlogin (e) {
     var agt   = navigator.userAgent.toLowerCase();
     var is_ie = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
@@ -107,8 +136,9 @@ function altlogin (e) {
     remotelogin.style.display = 'none';
     
     var usejournal_list = $('usejournal_list');
-    if (! usejournal_list) return false;
-    usejournal_list.style.display = 'none';
+    if (usejournal_list) {
+        usejournal_list.style.display = 'none';
+    }
 
     var readonly = $('readonly');
     var userbox = f.user;
@@ -123,7 +153,8 @@ function altlogin (e) {
 
     var userpic_preview = $('userpic_preview');
     if (userpic_preview) {
-        userpic_preview.style.display = 'none';
+        userpic_preview.className = "";
+        userpic_preview.innerHTML = "<img src='/img/userpic_loggedout.gif' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout' />";
     }
 
     var mood_preview = $('mood_preview');
@@ -148,6 +179,12 @@ function altlogin (e) {
     }
 
     changeSubmit('Post to Journal');
+
+    if ($('usejournal_username')) {
+        changeSecurityOptions($('usejournal_username').value);
+    } else {
+        changeSecurityOptions('');
+    }
 
     return false;    
 }
@@ -355,6 +392,86 @@ function getUserTags(defaultjournal) {
                 if ($('prop_taglist')) {
                     var keywords = new InputCompleteData(data.tags, "ignorecase");
                     inputObjs.push(new InputComplete($('prop_taglist'), keywords));
+                }
+            }
+        },
+        onError: function (msg) { }
+    });
+}
+
+function _changeOptionState(option, enable) {
+    if (option) {
+        if (enable) {
+            option.disabled = false;
+            option.style.color = "";
+        } else {
+            option.disabled = true;
+            option.style.color = "#999";
+        }
+    }
+}
+
+function changeSecurityOptions(defaultjournal) {
+    var user = defaultjournal;
+    if ($('usejournal') && $('usejournal').value != "") {
+        user = $('usejournal').value;
+    }
+
+    HTTPReq.getJSON({
+        url: "/tools/endpoints/getsecurityoptions.bml?user=" + user,
+        method: "GET",
+        onData: function (data) {
+            if ($('security')) {
+                // first empty out whatever is in the drop-down
+                for (i = 0; i < $('security').options.length; i++) {
+                    $('security').options[i] = null;
+                }
+
+                // if the user is known
+                if (data.ret) {
+                    // give the appropriate security options for the account type
+                    if (data.ret['is_comm']) {
+                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[1] = new Option(UpdateFormStrings.friends_comm, 'friends');
+                    } else {
+                        $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                        $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
+                        $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                        if (data.ret['friend_groups_exist']) {
+                            $('security').options[3] = new Option(UpdateFormStrings.custom, 'custom');
+                        }
+                    }
+
+                    // select the minsecurity value and disable the values with lesser security
+                    if (data.ret['minsecurity'] == "friends") {
+                        $('security').selectedIndex = 1;
+                        _changeOptionState($('security').options[0], false);
+                    } else if (data.ret['minsecurity'] == "private") {
+                        $('security').selectedIndex = 2;
+                        _changeOptionState($('security').options[0], false);
+                        _changeOptionState($('security').options[1], false);
+                        _changeOptionState($('security').options[3], false);
+                    } else {
+                        $('security').selectedIndex = 0;
+                        _changeOptionState($('security').options[0], true);
+                        _changeOptionState($('security').options[1], true);
+                        _changeOptionState($('security').options[2], true);
+                        _changeOptionState($('security').options[3], true);
+                    }
+
+                    // remove custom friends groups boxes if needed
+                    customboxes();
+
+                // if the user is not known
+                } else {
+                    // personal journal, but no custom option, and no minsecurity
+                    $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
+                    $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');
+                    $('security').options[2] = new Option(UpdateFormStrings.private, 'private');
+                    $('security').selectedIndex = 0;
+                    _changeOptionState($('security').options[0], true);
+                    _changeOptionState($('security').options[1], true);
+                    _changeOptionState($('security').options[2], true);
                 }
             }
         },
@@ -820,6 +937,7 @@ LJDraft.checkIfDirty = function () {
     if ($("draft").style.display == 'none') { // Need to check this to deal with hitting the back button
         // Since they may start using the RTE in the middle of writing their
         // entry, we should just get the editor each time.
+        if (! FCKeditor_LOADED) return;
         if (! FCKeditorAPI) return;
         var oEditor = FCKeditorAPI.GetInstance('draft');
         if (oEditor.GetXHTML) {

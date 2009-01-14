@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+
+.btn.banunban=Ban and Unban Users
+
+.error.toomanybans=Banning the user(s) that you specified will bring you over the maximum number of allowed bans. Please adjust your lists and try again. Any users that you chose to unban have been unbanned successfully.
+
+.header.ban=Ban Users
+
+.header.unban=Unban Users
+
+.intro.ban.comm=To ban users from commenting in your community, type in their usernames below. Separate multiple usernames with commas.
+
+.intro.ban.self=To ban users from commenting in your journal, type in their usernames below. Separate multiple usernames with commas.
+
+.intro.unban.comm=You have the following users banned from commenting in your community. Select which ones you'd like to unban.
+
+.intro.unban.comm.none=You do not currently have any users banned from commenting in your community.
+
+.intro.unban.self=You have the following users banned from commenting in your journal. Select which ones you'd like to unban.
+
+.intro.unban.self.none=You do not currently have any users banned from commenting in your journal.
+
+.success=You have successfully banned and unbanned the specified users.
+
+.title=Ban and Unban Users

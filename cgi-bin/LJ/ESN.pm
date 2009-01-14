@@ -279,7 +279,7 @@ sub work {
     return $job->completed unless $subsc;
 
     # if the user deleted their account (or otherwise isn't visible), bail
-    return $job->completed unless $u->is_visible;
+    return $job->completed unless $u->is_visible || $evt->is_significant;
 
     if ($LJ::DEBUG{esn_email_headers}) {
         # if debugging esn emails, stick the debug headers

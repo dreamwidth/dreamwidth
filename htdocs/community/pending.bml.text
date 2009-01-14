@@ -1,5 +1,14 @@
 ;; -*- coding: utf-8 -*-
-.approve.title=<b>Approve Membership?</b>
+
+.ban=No and ban
+
+.button.approve=Approve membership
+
+.button.reject=Reject membership
+
+.button.reject_ban=Reject membership and set ban
+
+.jump=Jump to user
 
 .no=No
 
@@ -8,6 +17,10 @@
 .nopending.title=Nobody Pending
 
 .success.added=You have added [[num]] [[?num|person|persons]] to this community.
+
+.success.banned=You have banned [[num]] [[?num|person|persons]] from this community.
+
+.succedd.ban_skipped=You have [[num]] failed [[?num|ban|bans]] from this community. You can clean ban list and try again.
 
 .success.ignored=[[num]] [[?num|request is|requests are]] still on file pending decisions.
 

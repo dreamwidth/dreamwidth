@@ -64,6 +64,21 @@ function getXTR () {
     return xtr;
 }
 
+function positionedOffset(element) {
+  var valueT = 0, valueL = 0;
+  do {
+    valueT += element.offsetTop  || 0;
+    valueL += element.offsetLeft || 0;
+    element = element.offsetParent;
+    if (element) {
+      if (element.tagName.toUpperCase() == 'BODY') break;
+      var p = DOM.getStyle(element, 'position');
+      if (p !== 'static') break;
+    }
+  } while (element);
+  return {x: valueL, y:valueT};
+}
+
 // push new element 'ne' after sibling 'oe' old element
 function addAfter (oe, ne) {
     if (oe.nextSibling) {
@@ -190,9 +205,8 @@ function getEventPos (e, fallBack)
         pos.x = e.clientX + scrollLeft();
         pos.y = e.clientY + scrollTop();
     } else {
-	var targ = fallBack || getTarget(e);
-	var pos = getElementPos(targ);
-	return pos;
+        var targ = fallBack || getTarget(e);
+        var pos = getElementPos(targ);
     }
     return pos;
 }
@@ -354,35 +368,38 @@ function createDeleteFunction (ae, dItemid) {
             var canAdmin = LJ_cmtinfo["canAdmin"];
 
             var clickTarget = getTarget(e);
-            var used_keyboard = clickTarget.nodeName == "A";
 
-            var pos = used_keyboard ? getElementPos(ae) : getEventPos(e);
-            var lx = pos.x + 5 - 250;
+            var pos = getEventPos(e);
+            var pos_offset = positionedOffset(ae)
+            var diff_x = DOM.findPosX(ae) - pos_offset.x
+            var diff_y = DOM.findPosY(ae) - pos_offset.y
+
+            var lx = pos.x - diff_x + 5 - 250;
             if (lx < 5) lx = 5;
             var de;
 
             if (curPopup && curPopup_id == dItemid) {
                 de = curPopup;
                 de.style.left = lx + "px";
-                de.style.top = (pos.y + 5) + "px";
+                de.style.top = (pos.y - diff_y + 5) + "px";
                 return stopEvent(e);
             }
 
             de = document.createElement("div");
             de.style.textAlign = "left";
-	    de.className = 'ljcmtmanage';
-	    de.style.height = "10px";
+            de.className = 'ljcmtmanage';
+            de.style.height = "10px";
             de.style.overflow = "hidden";
             de.style.position = "absolute";
             de.style.left = lx + "px";
-            de.style.top = (pos.y + 5) + "px";
+            de.style.top = (pos.y - diff_y + 5) + "px";
             de.style.width = "250px";
             de.style.zIndex = 3;
-  	    regEvent(de, "click", function (e) {
-		e = e || window.event;
+            regEvent(de, "click", function (e) {
+                e = e || window.event;
                 stopBubble(e);
-		return true;
-	    });
+                return true;
+            });
 
             var inHTML = "<form style='display: inline' id='ljdelopts" + dItemid + "'><span style='font-face: Arial; font-size: 8pt'><b>Delete comment?</b><br />";
             var lbl;
@@ -524,8 +541,6 @@ function createModerationFunction (ae, dItemid) {
 
         var clickTarget = getTarget(e);
 
-        var used_keyboard = clickTarget.nodeName == "A";
-
         var imgTarget;
         var imgs = ae.getElementsByTagName("img");
         if (imgs.length)
@@ -534,7 +549,7 @@ function createModerationFunction (ae, dItemid) {
         if (! clickTarget || typeof(clickTarget) != "object")
             return true;
 
-        var clickPos = used_keyboard ? getElementPos(imgTarget || ae) : getEventPos(e);
+        var clickPos = getEventPos(e);
 
         var de = document.createElement("img");
         de.style.position = "absolute";

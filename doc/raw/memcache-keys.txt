@@ -25,7 +25,7 @@
 <uid> memkwid:<uid> == hashref of 'memories' keyword ids to keywords.
 <uid> memkwcnt:<uid>:<w|t>:<f|v|u> == hashref of 'memories' keyword ids to keyword counts.  <w|t> is filter oWner|oTher.  <f|v|u> is security Friends|priVate|pUblic
 
-<uid> dayct:<uid> == arrayref of arrayrefs (see LJ::get_daycounts)
+<uid> dayct2:<uid>:<mask> == The number of posts for each day for calendar view, see LJ::get_daycounts. Arrayref [create_time, [year1, month1, day1, count1], [y2, m2, d2, c2], ...]. <mask> - permission mask: 'p' - public only entries count, 'a' - all entries count, 'g<bitmaks>' - usemask protected.
 
 <uid> auc:<uid>:<dom> == last ID from LJ::alloc_user_counter() for $uid/$domain
 
@@ -127,10 +127,18 @@ jabclusterid:<id> == address of server
 
 <uid> timezone_guess:<uid> == guess of the user's timezone offset based on time of their most recent entry
 
+<uid> commsettings:<cid> == [membership, postlevel] - Membership and Posting Access for a community
+
+<uid> synd:<uid> == hash of basic syndication info
+
 <vertid> vert:<vertid> == row from 'vertical' table
 <vertname> vertname:<vertname> == row from 'vertical' table
 <vertid> vertentries:<vertid> == array of [ journalid, jitemid ] arrayrefs which should appear in vertical
 <vertid> vertrules:<vertid> == serialized (nfreeze) data structure representing filtering rules for this vertical
+
+<uid> supportpointsum:<uid> == total number of support points that this user has
+
+<uid> txtmsgsecurity:<uid> == security level that the user has set for their text messages
 
 # Widgets
 
@@ -146,3 +154,5 @@ ct_flag_cat_count == hash of content flag counts
 pop_interests == array of interest keywords and counts
 
 verticalfeedentries:<vertid> == arrayref of feed entries that are being displayed for the given vertical id
+
+poll:<pollid> = arrayref of poll properties, see cgi-bin/LJ/Poll.pm for details (section under "use base 'LJ::MemCacheable'")

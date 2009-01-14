@@ -104,9 +104,13 @@ sub MonthPage
         my $subject = $lt->{$itemid}->[0];
         my $day = $item->{'day'};
 
-        # don't show posts from suspended users
+        my $ditemid = $itemid*256 + $anum;
+        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
+
+        # don't show posts from suspended users or suspended posts
         next unless $pu{$posterid};
         next ENTRY if $pu{$posterid}->{'statusvis'} eq 'S' && !$viewsome;
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
 	if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
             my $text;
@@ -119,7 +123,6 @@ sub MonthPage
             LJ::CleanHTML::clean_subject(\$subject);
         }
 
-        my $ditemid = $itemid*256 + $anum;
         my $nc = "";
         $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
         my $permalink = "$journalbase/$ditemid.html";

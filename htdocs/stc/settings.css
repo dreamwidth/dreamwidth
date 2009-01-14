@@ -1,0 +1,164 @@
+/*Common */
+
+#settings_page img {
+    border: 0;
+}
+.smaller {
+    font-size: 11px;
+}
+.disabled {
+    color: #666;
+}
+
+/* Layout */
+#intro {
+    margin-bottom: 20px;
+}
+#settings_left {
+    min-width: 625px;
+}
+#settings_save {
+    background: #c7e0f6;
+    padding: 5px 7px;
+}
+
+/* Tabs */
+#settings_nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+#settings_nav li {
+    float: left;
+}
+#settings_nav li a {
+    color: #000;
+    text-decoration: none;
+    display: block;
+    background: #ecf6ff;
+    margin-right: 5px;
+    padding: 2px 7px;
+    font-weight: bold;
+    border-color: #c7e0f6;
+    border-width: 2px 2px 0 2px;
+    border-style: solid;
+}
+#settings_nav li a:hover, #settings_nav li a.active {
+    background: #c7e0f6;
+}
+#settings_nav li.disabled {
+    color: #999;
+    display: block;
+    background: #efefef;
+    margin-right: 5px;
+    padding: 2px 7px;
+    font-weight: bold;
+    border-color: #ccc;
+    border-width: 2px 2px 0 2px;
+    border-style: solid;
+}
+#settings_nav_title p {
+    clear: left;
+    background: #c7e0f6;
+    padding: 4px 10px;
+    display: block;
+    margin: 0;
+    font-size: 11px;
+}
+
+/* Shared Content */
+.account table, .display table, .mobile table, .privacy table, .history table, .advertising table {
+    width: 100%;
+}
+.account td, .display td, .mobile td, .privacy td, .history td, .advertising td {
+    border-bottom: 1px #ccc solid;
+    padding: 10px 10px 10px 5px;
+}
+.account td.last, .display td.last, .mobile td.last, .privacy td.last, .history td.last, .advertising td.last {
+    border-bottom: none;
+}
+.account td.help, .display td.help, .mobile td.help, .privacy td.help, .history td.help, .advertising td.help {
+    width: 14px;
+    text-align: right;
+}
+.account_label, .display_label, .mobile_label, .privacy_label, .history_label {
+    font-weight: bold;
+}
+.display_option, .mobile_option, .privacy_option {
+    color: #000;
+}
+
+/* Account Content */
+.account {
+    margin-bottom: 10px;
+}
+.account_actionlink {
+    text-align: right;
+}
+.account_stats {
+    background: #eee;
+    padding: 5px 10px;
+    line-height: 18px;
+}
+.account_stats p {
+    padding: 0;
+    margin: 0 0 5px 0;
+}
+
+/* Display Content */
+.display .radiotext {
+    position: relative;
+    bottom: 2px;
+    left: 2px;
+    padding-right: 10px;
+}
+
+/* Mobile Content */
+.mobile table.setting_table {
+    width: auto;
+}
+.mobile table.setting_table td {
+    border: 0;
+    padding: 0;
+}
+.mobile td.setting_label {
+    text-align: right;
+    color: #000;
+}
+.mobile_label, .mobile .help {
+    vertical-align: top;
+}
+.mobile_option p {
+    margin: 0;
+    padding-bottom: 5px;
+}
+
+/* Privacy Content */
+.privacy .details {
+    font-size: 11px;
+    font-style: italic;
+    margin-bottom: 0;
+}
+
+/* Advertising Content */
+.advertising table.setting_table {
+    width: auto;
+    margin: 0;
+}
+.advertising table.setting_table td {
+    border: 0;
+    padding: 0;
+    vertical-align: top;
+}
+.advertising p {
+    margin-top: 0;
+}
+.advertising .example {
+    font-size: .8em;
+    color: #666;
+}
+.advertising .category {
+    padding-left: 1px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+}

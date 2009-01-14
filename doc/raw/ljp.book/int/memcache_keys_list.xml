@@ -165,8 +165,8 @@
     </row>
     <row>
         <entry>uid</entry>
-        <entry>dayct:&lt;uid&gt;</entry>
-        <entry>arrayref of arrayrefs (see LJ::get_daycounts)</entry>
+        <entry>dayct2:&lt;uid&gt;:&lt;mask&gt;</entry>
+        <entry>The number of posts for each day for calendar view, see LJ::get_daycounts. Arrayref [create_time, [year1, month1, day1, count1], [y2, m2, d2, c2], ...]. &lt;mask&gt; - permission mask: &apos;p&apos; - public only entries count, &apos;a&apos; - all entries count, &apos;g&lt;bitmask&gt;&apos; - usemask protected.</entry>
         <entry>livejournal</entry>
         <entry></entry>
     </row>
@@ -230,7 +230,8 @@
         row, including formatdata</entry>
         <entry>livejournal</entry>
         <entry></entry>
-    </row><row>
+    </row>
+    <row>
         <entry>styleid</entry>
         <entry>s1stylemap: &lt;styleid&gt;</entry>
         <entry>userid who owns the given styleid</entry>
@@ -322,7 +323,7 @@
     <row>
         <entry></entry>
         <entry>popsyn</entry>
-        <entry>100 most read syndicated accounts [user, userid, synurl, numreaders], 1 <abbrev>hr</abbrev></entry>
+        <entry>100 most read syndicated accounts [user, userid, synurl, numreaders], 1 hour</entry>
         <entry>livejournal</entry>
         <entry></entry>
     </row>
@@ -330,13 +331,6 @@
         <entry></entry>
         <entry>popsyn_ids</entry>
         <entry>1000 most read syndicated accounts, list of userids, 1 hour</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry></entry>
-        <entry>pop_interests</entry>
-        <entry>array of interest keywords and counts</entry>
         <entry>livejournal</entry>
         <entry></entry>
     </row>
@@ -700,24 +694,33 @@
         <entry></entry>
     </row>
     <row>
-        <entry>vertid</entry>
-        <entry>vert:&lt;vertid&gt;</entry>
-        <entry>row from <quote>vertical</quote> table</entry>
+        <entry>uid</entry>
+        <entry>commsettings:&lt;cid&gt;</entry>
+        <entry>[membership, postlevel] - membership and posting access for a community</entry>
         <entry>livejournal</entry>
         <entry></entry>
     </row>
     <row>
+        <entry>uid</entry>
+        <entry>synd:&lt;uid&gt;</entry>
+        <entry>hash of basic syndication info </entry>
+        <entry>livejournal</entry>
         <entry></entry>
-        <entry>verticalfeedentries:&lt;vertid&gt;</entry>
-        <entry>arrayref of feed entries that are being displayed for the given vertical id</entry>
+    </row>
+    <row>
+        <entry>vertid</entry>
+        <entry>vert:&lt;vertid&gt;</entry>
+        <entry>row
+        from <quote><link linkend="ljp.dbschema.vertical"><database class="table">vertical</database></link></quote> table</entry>
         <entry>livejournal</entry>
         <entry></entry>
     </row>
     <row>
         <entry>vertname</entry>
         <entry>vertname:&lt;vertname&gt;</entry>
-        <entry>row from <quote>vertical</quote> table. Holds same info as
-        <quote>vert</quote> &memcached; key, just keys on name instead of id</entry>
+        <entry>row
+        from <quote><link linkend="ljp.dbschema.vertical"><database class="table">vertical</database></link></quote> table.
+        Holds same info as <quote>vert</quote> &memcached; key, just keys on name instead of id</entry>
         <entry>livejournal</entry>
         <entry></entry>
     </row>
@@ -725,6 +728,27 @@
         <entry>vertid</entry>
         <entry>vertentries:&lt;vertid&gt;</entry>
         <entry>array of [ journalid, jitemid ] arrayrefs which should appear in vertical</entry>
+        <entry>livejournal</entry>
+        <entry></entry>
+    </row>
+    <row>
+        <entry>vertid</entry>
+        <entry>vertrules:&lt;vertid&gt;</entry>
+        <entry>serialized (nfreeze) data structure representing filtering rules for this vertical</entry>
+        <entry>livejournal</entry>
+        <entry></entry>
+    </row>
+    <row>
+        <entry>uid</entry>
+        <entry>supportpointsum:&lt;uid&gt;</entry>
+        <entry>total number of support points that this user has</entry>
+        <entry>livejournal</entry>
+        <entry></entry>
+    </row>
+    <row>
+        <entry>uid</entry>
+        <entry>txtmsgsecurity:&lt;uid&gt;</entry>
+        <entry>security level that the user has set for their text messages</entry>
         <entry>livejournal</entry>
         <entry></entry>
     </row>
@@ -767,6 +791,28 @@
         <entry></entry>
         <entry>ct_flag_cat_count</entry>
         <entry>hash of content flag counts</entry>
+        <entry>livejournal</entry>
+        <entry>Widget</entry>
+    </row>
+    <row>
+        <entry></entry>
+        <entry>pop_interests</entry>
+        <entry>array of interest keywords and counts</entry>
+        <entry>livejournal</entry>
+        <entry>Widget</entry>
+    </row>
+    <row>
+        <entry></entry>
+        <entry>verticalfeedentries:&lt;vertid&gt;</entry>
+        <entry>arrayref of feed entries that are being displayed for the given vertical id</entry>
+        <entry>livejournal</entry>
+        <entry>Widget</entry>
+    </row>
+    <row>
+        <entry></entry>
+        <entry>poll:&lt;pollid&gt;</entry>
+        <entry>arrayref of poll properties, see cgi-bin/LJ/Poll.pm for details (section
+        under <quote>use base &apos;LJ::MemCacheable&apos;</quote>)</entry>
         <entry>livejournal</entry>
         <entry>Widget</entry>
     </row>

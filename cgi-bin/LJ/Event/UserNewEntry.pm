@@ -131,13 +131,13 @@ sub subscription_as_html {
     # journal is the 'watched journal' of the subscription
     #  * 0 means the subscription is for posts by any friend
     my $journal = $subscr->journal;
-    return "Any of my friends posts a new entry anywhere."
-        unless $journal;
 
     # non-zero journal means the subscription refers to
     # posts made by a specific user
-    my $journaluser = $journal->ljuser_display;
-    return "$journaluser posts a new entry anywhere.";
+
+    return $journal ?
+        BML::ml('event.user_new_entry.user', { user => $journal->ljuser_display } ) : # $journaluser posts a new entry anywhere.
+        BML::ml('event.user_new_entry.any'); # "Any of my friends posts a new entry anywhere."
 }
 
 1;

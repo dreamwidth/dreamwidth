@@ -370,12 +370,14 @@ sub prod_to_show {
         # skip if they don't want it.
         next if $state && $state->{nothankstime};
 
-        push @poss, [$class, $cprodid, $state, $state ? $state->{acktime} : 0 ];
+        push @poss, [$class, $cprodid, $state, $state ? $state->{acktime} : 0, rand() ];
     }
-
+    
     return unless @poss;
 
-    foreach my $poss (sort { $a->[3] <=> $b->[3] } @poss) {
+    ## Sort CProds by date of show - oldest first.
+    ## If several have the same date (or never have been shown), sort randomly (i.e. shuffle)
+    foreach my $poss (sort { $a->[3] <=> $b->[3] || $a->[4] <=> $b->[4] } @poss) {
         my ($class, $cprodid, $state) = @$poss;
         eval "use $class; 1";
         if ($@) {

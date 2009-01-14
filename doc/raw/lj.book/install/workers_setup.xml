@@ -120,6 +120,8 @@ Next, create the configuration file for the workers.
 
 <para>Enter tasks for the workers in the file you just created, using the following
 format: <replaceable>hostname</replaceable> / <replaceable>jobname</replaceable> = <replaceable>num_to_run</replaceable>.
+The output of <command>hostname</command> needs to match the value in <filename>workers.conf</filename>,
+so the search-updater worker works correctly.
 For example:
 <informalexample>
 <programlisting>localhost / process-esn = 1
@@ -156,7 +158,12 @@ First, configure <filename>ljconfig.pl</filename> so &thesch; can connect to you
 The database tables are created for you <quote>automatically</quote>, by the <filename>update-db.pl</filename> tool.</para>
 
 <para>Now start up &thesch; worker processes from <filename class="directory">bin/worker/</filename>.
-To use the workers you can start them from a shell script, or manually at a command prompt.</para>
+To use the workers you can start them from a shell script, or manually at a command prompt.
+If you want to use &thesch; for incoming &email; create a file named
+<filename>.forward</filename> in your &envarljhome; directory to pipe into
+<filename>incoming-mail-inject.pl</filename>:
+<informalexample>
+<programlisting>|/home/lj/bin/incoming-mail-inject.pl</programlisting></informalexample></para>
 <tip><para>
 To make worker processes run in the background, add a &unix; switch to the command:
 <screen><command>bin/worker/process-esn <option>&amp;</option></command></screen></para></tip>

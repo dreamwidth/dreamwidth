@@ -55,13 +55,13 @@ Content-Length: 495
 
 <key name="syncitems" count="1"><list count="1"><struct count="0more">
 <key name="item" count="1"><scalar><des>
-The nth item, in the form "Type-Number". Type can be one of "L" for log entries (journal entries), "C" for comments (not implemented), "T" for to-do items (not implemented), or many other things presumably. If your client doesn't know how to fetch an item of a certain type, just ignore them. A new version of your client could later see that it has never downloaded anything of type "T" and go back and fetch everything of that type from the beginning.
+The nth item, in the form "Type-Number". Type can be one of "L" for log entries (journal entries), "C" for comments (not implemented), or many other things presumably. If your client doesn't know how to fetch an item of a certain type, just ignore them. A new version of your client could later see that it has never downloaded anything of type "C" and go back and fetch everything of that type from the beginning.
 </des></scalar></key>
 <key name="action" count="1"><scalar><des>
 Either "create" or "update". This field isn't too useful, but you may want to make your client verbose and tell the user what it's doing. For example, "Downloading entry 5 of 17: Updated".
 </des></scalar></key>
 <key name="time" count="1"><scalar><des>
-The server time (in the form "yyyy-mm-dd hh:mm:ss") that this creation or update took place. Remember in your local store the most recent for each item type ("L", "T", "C", etc...). This is what you send in subsequent requests in lastsync.
+The server time (in the form "yyyy-mm-dd hh:mm:ss") that this creation or update took place. Remember in your local store the most recent for each item type ("L", "C", etc...). This is what you send in subsequent requests in lastsync.
 </des></scalar></key>
 </struct></list></key>
 

@@ -61,12 +61,6 @@ propgroup presentation {
     property use linklist_support;
     property use external_stylesheet;
     property use custom_control_strip_colors;
-	
-	property string text_expand_link {
-        des = "Text for comments expander link in link bar";
-        noui = 1;
-    }
-    set text_expand_link = "Expand";
 }
 
 propgroup colors {
@@ -205,6 +199,10 @@ color: $*clr_boxhead_text;
 background: $*clr_boxhead_back;
 }
 
+.box h2 a.subjlink {
+   background: none;
+}
+
 #navbar .box div.userpic {
 margin: 1em;
 text-align: center;
@@ -254,6 +252,10 @@ table.box, table.box td, table.box th {
 border: 1px solid #000000;
 }
 
+A.subjlink, A.subjlink:hover, A.subjlink:visited {
+        text-decoration: none;
+}
+
 .metadata {
 margin-top: 1em;
 }
@@ -289,8 +291,12 @@ function RecentPage::lay_page_nav() {
 }
 function DayPage::lay_page_nav() {
     println "<div class=\"box\"><ul>";
-    println "<li><a href=\"$.prev_url\">"+$.prev_date->date_format("med")+"</a></li>";
-    println "<li><a href=\"$.next_url\">"+$.next_date->date_format("med")+"</a></li>";
+    if ($.prev_url != "") {
+        println "<li><a href=\"$.prev_url\">"+$.prev_date->date_format("med")+"</a></li>";
+    }
+    if ($.next_url != "") {
+        println "<li><a href=\"$.next_url\">"+$.next_date->date_format("med")+"</a></li>";
+    }
     println "</ul></div>";
 }
 function YearPage::lay_page_nav() {
@@ -567,7 +573,9 @@ function print_entry(Page p, Entry e, Color bgcolor, Color fgcolor) {
             $p->print_entry_poster($e);
             print ": ";
         }
-        print $e.subject;
+        if ($p.view != "entry") { 
+           print $e->formatted_subject({"class"=>"subjlink subj-link","style"=>"color: $fgcolor;"});
+        } else { print $e.subject; }
     }
     "</h2>\n<div class=\"entry\">\n";
     if (defined $e.userpic and (
@@ -589,7 +597,7 @@ function print_entry(Page p, Entry e, Color bgcolor, Color fgcolor) {
     """<div class="permalink"><a href="$e.permalink_url">$*text_permalink</a></div>&nbsp;""";
     $e.comments->print();
     "</div>";
-
+    $p->print_reply_container({"target" => "topcomment"});
     "</div>";
 
 } # print_entry(Page,Entry,Color,Color)
@@ -670,10 +678,23 @@ function RecentPage::print_body() {
     foreach var Entry e ($.entries) {
         $this->print_entry($e);
         if ($e->viewer_sees_ebox()) {
-            """<div align="center">""";
+            """<div style="text-align: center; margin:16px;">""";
             $e->print_ebox();
             "</div>";
         }
+    }
+}
+
+function CommentInfo::print_postlink() {
+    var Page p = get_page();
+    if ($.maxcomments) {
+        print safe "$*text_max_comments";
+    } else {
+        if ($p.view == "entry") {
+                $p->print_reply_link({"target" => "topcomment", "linktext" => $*text_post_comment});
+        } else {
+        print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+       }
     }
 }
 
@@ -702,7 +723,7 @@ function DayPage::print_body() {
     foreach var Entry e ($.entries) {
         $this->print_entry($e);
         if ($e->viewer_sees_ebox()) {
-            """<div align="center">""";
+            """<div style="text-align: center; margin:16px;">""";
             $e->print_ebox();
             "</div>";
         }
@@ -711,6 +732,11 @@ function DayPage::print_body() {
 
 function EntryPage::print_body() {
     $this->print_entry($.entry);
+    if ($.entry->viewer_sees_ebox()) {
+        """<div style="text-align: center; margin:16px;">""";
+        $.entry->print_ebox();
+        "</div>";
+    }
     if ($this.multiform_on) {
         $this->print_multiform_start();
     }
@@ -777,13 +803,13 @@ function EntryPage::print_comment(Comment c) {
     """<div class="permalink"><a href="$c.permalink_url">$*text_permalink</a></div>""";
 
     if ($c.parent_url != "") { """<a href="$c.parent_url">$*text_comment_parent</a> - """; }
-    if ($c.thread_url != "") { 
-		"""<a href="$c.thread_url">$*text_comment_thread</a> - """; 
-		var Link expand_link = $c->get_link("expand_comments");
-	    if (defined $expand_link) {
-			"""<a href="$c.thread_url" onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a> - """;
-		}
-	}
+    if ($c.thread_url != "") {
+        """<a href="$c.thread_url">$*text_comment_thread</a> - """;
+        var Link expand_link = $c->get_link("expand_comments");
+        if (defined $expand_link) {
+            print $c->expand_link() + " - ";
+        }
+    }
     var Link l = new Link;
     foreach var string ls ($c.link_keyseq) {
         $l = $c->get_link($ls);
@@ -793,7 +819,19 @@ function EntryPage::print_comment(Comment c) {
         }
     }
     if (not $c.frozen) {
-        """<a href="$c.reply_url">$*text_comment_reply</a>""";
+        ###$c->print_reply_link({"linktext" => $*text_comment_reply});
+
+        if($c.screened == true) {
+            ### if comment screened - show link for unscreen
+            var Link link;
+            $link = $c->get_link("unscreen_to_reply");
+            """<a href="$link.url" title="$link.caption">$link.caption</a>"""; 
+        } else {
+            ### showing reply link if comment not screened
+            $c->print_reply_link({ "linktext" => $*text_comment_reply });
+        }
+
+
     } else {
         """$*text_comment_frozen""";
     }
@@ -801,18 +839,14 @@ function EntryPage::print_comment(Comment c) {
     if ($.multiform_on) {
         """<br /><label for="ljcomsel_$c.talkid">$*text_multiform_check</label> """; $c->print_multiform_check();
     }
-    "</div></div></div>";
-    
-    if ((size $c.replies) > 0 and $c.replies[0].full == false) {
-        #"""<div style="margin-top: 5px; margin-bottom: 5px; clear: both;">\n""";
-        $this->print_comments($c.replies);
-        #"</div>\n";
+    "</div>";
+    if (not $c.frozen) {
+        $c->print_reply_container({"class" => "quickreply"});
     }
-
-    if ((size $c.replies) > 0 and $c.replies[0].full == true) {
+    "</div></div>";
+    if ((size $c.replies) > 0) {
         $this->print_comments($c.replies);
     }
-
 }
 
 function EntryPage::print_comment_partial(Comment c) {
@@ -820,8 +854,8 @@ function EntryPage::print_comment_partial(Comment c) {
     var string subj = $c.subject != "" ? $c.subject : $*text_nosubject;
     print """<div class="minicomment" id="$c.dom_id"><a href="$c.permalink_url">$subj</a> - $poster""";
     var Link expand_link = $c->get_link("expand_comments");
-    if (defined $expand_link) {
-        """ <a href="$c.thread_url" onClick="Expander.make(this,'$c.thread_url','$c.talkid'); return false;">$*text_expand_link</a> - """;
+    if ($c.thread_url != "" and defined $expand_link) {
+        " " + $c->expand_link();
     }
     print """</div>""";
     $this->print_comments($c.replies);
@@ -861,6 +895,11 @@ function ReplyPage::print_body() {
             """<br clear="all" />""";
         }
 
+        "</div>";
+    }
+    if ($.entry->viewer_sees_ebox()) {
+        """<div style="text-align: center; margin:16px;">""";
+        $.entry->print_ebox();
         "</div>";
     }
 

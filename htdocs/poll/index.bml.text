@@ -1,4 +1,6 @@
 ;; -*- coding: utf-8 -*-
+.close=Close Poll
+
 .discuss=Discuss Results
 
 .error.cantview=Sorry, you're not permitted to see this poll.
@@ -10,6 +12,8 @@
 .gotocreate2=This is the address to participate in a poll. You've stumbled onto an address which does nothing right now. If you'd like, you can <a [[aopts]]>create a new poll</a>.
 
 .pollnotfound=Poll not found.
+
+.reopen=Reopen Poll
 
 .submitted.head=Thanks
 

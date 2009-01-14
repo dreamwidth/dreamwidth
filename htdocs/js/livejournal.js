@@ -185,6 +185,10 @@ function _textElements (eleType, txts) {
     return ele.length == 1 ? ele[0] : ele;
 };
 
+var PollPages = {
+    "hourglass": null
+};
+
 LiveJournal.initPolls = function () {
     var pollLinks = DOM.getElementsByTagAndClassName(document, 'a', "LJ_PollAnswerLink") || [];  
 
@@ -207,13 +211,18 @@ LiveJournal.pollAnswerLinkClicked = function (e) {
     var pollqid = this.getAttribute("lj_qid");
     if (! pollqid) return true;
 
+    var page     = this.getAttribute("lj_page");
+    var pagesize = this.getAttribute("lj_pagesize");
+
     var action = "get_answers";
 
     // Do ajax request to replace the link with the answers
     var params = {
-        "pollid" : pollid,
-        "pollqid": pollqid,
-        "action" : action
+        "pollid"   : pollid,
+        "pollqid"  : pollqid,
+        "page"     : page,
+        "pagesize" : pagesize,
+        "action"   : action
     };
 
     var opts = {
@@ -225,30 +234,59 @@ LiveJournal.pollAnswerLinkClicked = function (e) {
     };
 
     HTTPReq.getJSON(opts);
-    this.innerHTML = "<div class='lj_pollanswer_loading'>Loading...</div>";
+
+    if (!PollPages.hourglass) {
+        var coords = DOM.getAbsoluteCursorPosition(e);
+        PollPages.hourglass = new Hourglass();
+        PollPages.hourglass.init();
+        PollPages.hourglass.hourglass_at(coords.x, coords.y);
+        PollPages.e = e;
+    }
 
     return false;
 };
 
 LiveJournal.pollAnswersReceived = function (answers) {
     if (! answers) return false;
+
+    if (PollPages.hourglass) {
+        PollPages.hourglass.hide();
+        PollPages.hourglass = null;
+    }
+
     if (answers.error) return LiveJournal.ajaxError(answers.error);
 
     var pollid = answers.pollid;
     var pollqid = answers.pollqid;
     if (! pollid || ! pollqid) return false;
+    var page     = answers.page;
 
-    var linkEle = $("LJ_PollAnswerLink_" + pollid + "_" + pollqid);
-    if (! linkEle) return false;
+    var answerPagEle;
+    var answerEle;
+    if (page) {
+        answerPagEle = DOM.getElementsByTagAndClassName(document, 'div', "lj_pollanswer_paging")[0];
+        answerEle    = DOM.getElementsByTagAndClassName(document, 'div', "lj_pollanswer")[0];
+    } else {
+        var linkEle = $("LJ_PollAnswerLink_" + pollid + "_" + pollqid);
+        if (! linkEle) return false;
 
-    var answerEle = document.createElement("div");
-    DOM.addClassName(answerEle, "lj_pollanswer");
-    answerEle.innerHTML = answers.answer_html ? answers.answer_html : "(No answers)";
+        answerPagEle = document.createElement("div");
+        DOM.addClassName(answerPagEle, "lj_pollanswer_paging");
 
-    linkEle.parentNode.insertBefore(answerEle, linkEle);
-    linkEle.parentNode.removeChild(linkEle);
+        answerEle = document.createElement("div");
+        DOM.addClassName(answerEle, "lj_pollanswer");
+
+        linkEle.parentNode.insertBefore(answerEle,    linkEle);
+        linkEle.parentNode.insertBefore(answerPagEle, linkEle);
+
+        linkEle.parentNode.removeChild(linkEle);
+    }
+
+    answerPagEle.innerHTML  = answers.paging_html ? answers.paging_html : "";
+    answerEle.innerHTML     = answers.answer_html ? answers.answer_html : "(No answers)";
+
+    LiveJournal.initPolls();
 };
-
 
 // gets a url for doing ajax requests
 LiveJournal.getAjaxUrl = function (action) {

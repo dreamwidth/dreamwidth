@@ -42,7 +42,7 @@ sub comment_props {
     my @props = qw(
         color_comment_bar comment_screened_bgcolor comment_screened_fgcolor text_post_comment
         text_read_comments text_post_comment_friends text_read_comments_friends text_comment_frozen
-        text_comment_reply text_comment_parent text_comment_thread
+        text_comment_reply text_comment_parent text_comment_thread text_comment_expand
     );
     return $self->_append_props("comment_props", @props);
 }
@@ -72,6 +72,6 @@ sub cats { qw( warm dark modern ) }
 
 package LJ::S2Theme::disjointed::xcolibur;
 use base qw(LJ::S2Theme::disjointed);
-sub cats { qw( cool modern featured ) }
+sub cats { qw( cool modern ) }
 
 1;

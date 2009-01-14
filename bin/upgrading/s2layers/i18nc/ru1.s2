@@ -97,7 +97,7 @@ set text_comment_date = "Дата:";
 set text_comment_ipaddr = "Адрес IP:";
 set text_comment_reply = "Ответить";
 set text_comment_parent = "Уровень выше";
-set text_comment_thread = "Ветвь дискусии";
+set text_comment_thread = "Ветвь дискуссии";
 set text_reply_back = "Читать комментарии";
 set text_comment_frozen = "Ответы заморожены";
 set text_reply_nocomments_header = "Комментарии отключены:";
@@ -106,7 +106,8 @@ set text_website_default_name = "Мой сайт";
 set text_poster_anonymous = "(Анонимно)";
 set text_icon_alt_protected = "[защищённая запись]";
 set text_icon_alt_private = "[личная запись]";
-
+set text_copyr_agree = "Разрешаю воспроизводить в любой форме";
+set text_copyr_disagree = "Запрещаю воспроизводить в какой-либо форме";
 
 # Three forms, special cases for numbers ending in 1 and 2, 3, 4, except those ending in 1[1-4]
 function lang_map_plural (int n) : int {

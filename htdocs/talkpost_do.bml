@@ -184,13 +184,24 @@ body<=
 
     # check max comments only if posting a new comment (not when editing)
     unless ($editid) {
-        return LJ::bad_input("Sorry, this entry already has the maximum number of comments allowed.")
+        return LJ::bad_input($ML{'.error.maxcomments'})
             if LJ::Talk::Post::over_maxcomments($journalu, $item->{'jitemid'});
     }
 
     # no replying to frozen comments
     return LJ::bad_input($ML{'/talkpost.bml.error.noreply_frozen'})
         if $parent->{state} eq 'F';
+
+    # no replying to suspended entries, even by entry poster
+    my $entry = LJ::Entry->new($journalu, jitemid => $item->{jitemid});
+    return LJ::bad_input($ML{'/talkpost.bml.error.noreply_suspended'})
+        if $entry && $entry->is_suspended;
+
+    # no replying to entries/comments in an entry where the remote user or journal are read-only
+    return LJ::bad_input($ML{'/talkpost.bml.error.noreply_readonly_remote'})
+        if $remote && $remote->is_readonly;
+    return LJ::bad_input($ML{'/talkpost.bml.error.noreply_readonly_journal'})
+        if $journalu && $journalu->is_readonly;
 
     ## insertion or editing
     my $wasscreened = ($parent->{state} eq 'S');

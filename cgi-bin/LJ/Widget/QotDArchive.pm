@@ -42,8 +42,6 @@ sub render_body {
     }
     $ret .= "</p>" if $show_page_back || $show_page_forward;
 
-    $ret .= "</div>" if $page == 1;
-
     return $ret;
 }
 

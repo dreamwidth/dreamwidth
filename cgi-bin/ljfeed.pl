@@ -9,11 +9,12 @@ use XML::Atom::Person;
 use XML::Atom::Feed;
 
 my %feedtypes = (
-    rss  => \&create_view_rss,
-    atom => \&create_view_atom,
-    foaf => \&create_view_foaf,
-    yadis => \&create_view_yadis,
-    userpics => \&create_view_userpics,
+    rss         => { handler => \&create_view_rss,  need_items => 1 },
+    atom        => { handler => \&create_view_atom, need_items => 1 },
+    foaf        => { handler => \&create_view_foaf,                 },
+    yadis       => { handler => \&create_view_yadis,                },
+    userpics    => { handler => \&create_view_userpics,             },
+    comments    => { handler => \&create_view_comments,             },
 );
 
 sub make_feed
@@ -28,8 +29,6 @@ sub make_feed
         $opts->{'handler_return'} = 404;
         return undef;
     }
-
-    $opts->{noitems} = 1 if $feedtype eq 'foaf' or $feedtype eq 'yadis';
 
     $r->note('codepath' => "feed.$feedtype") if $r;
 
@@ -56,8 +55,9 @@ sub make_feed
     };
 
     # if we do not want items for this view, just call out
-    return $viewfunc->($journalinfo, $u, $opts)
-        if ($opts->{'noitems'});
+    $opts->{'contenttype'} = 'text/xml; charset='.$opts->{'saycharset'};
+    return $viewfunc->{handler}->($journalinfo, $u, $opts)
+        unless ($viewfunc->{need_items});
 
     # for syndicated accounts, redirect to the syndication URL
     # However, we only want to do this if the data we're returning
@@ -171,8 +171,10 @@ sub make_feed
         # load required data
         my $itemid  = $it->{'itemid'};
         my $ditemid = $itemid*256 + $it->{'anum'};
+        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
 
         next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->{'statusvis'} eq 'S';
+        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
             LJ::item_toutf8($u, \$logtext->{$itemid}->[0],
@@ -231,6 +233,10 @@ sub make_feed
 
                 $event =~ s!<lj-poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
+            
+            my %args = $r->args;
+            LJ::EmbedModule->expand_entry($u, \$event, expand_full => 1)
+                if %args && $args{'unfold_embed'};
 
             $ppid = $1
                 if $event =~ m!<lj-phonepost journalid=[\'\"]\d+[\'\"] dpid=[\'\"](\d+)[\'\"]( /)?>!;
@@ -261,13 +267,13 @@ sub make_feed
             posterid   => $it->{posterid},
         };
         push @cleanitems, $cleanitem;
-        push @entries,    LJ::Entry->new($u, ditemid => $ditemid);
+        push @entries,    $entry_obj;
     }
 
     # fix up the build date to use entry-time
     $journalinfo->{'builddate'} = LJ::time_to_http($LJ::EndOfTime - $items[0]->{'rlogtime'}),
 
-    return $viewfunc->($journalinfo, $u, $opts, \@cleanitems, \@entries);
+    return $viewfunc->{handler}->($journalinfo, $u, $opts, \@cleanitems, \@entries);
 }
 
 # the creator for the RSS XML syndication view
@@ -276,6 +282,10 @@ sub create_view_rss
     my ($journalinfo, $u, $opts, $cleanitems) = @_;
 
     my $ret;
+
+    # For Yandex ( http://blogs.yandex.ru/faq.xml?id=542563 )
+    # if 'copyright' tag contains 'noindex', this rss will not be indexed.
+    my $copyright = $u->should_block_robots ? 'NOINDEX' : '';
 
     # header
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
@@ -292,6 +302,7 @@ sub create_view_rss
     $ret .= "  <generator>LiveJournal / $LJ::SITENAME</generator>\n";
     $ret .= "  <lj:journal>" . $u->user . "</lj:journal>\n";
     $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
+    $ret .= "  <copyright>" . $copyright . "</copyright>\n" if $copyright;
     # TODO: add 'language' field when user.lang has more useful information
 
     ### image block, returns info for their current userpic
@@ -492,6 +503,9 @@ sub create_view_atom
         $entry->add_link(
             $make_link->( 'alternate', 'text/html', "$j->{'link'}$ditemid.html" )
         );
+        $entry->add_link(
+            $make_link->( 'self', 'text/xml', "$api/?itemid=$ditemid" )
+        );
 
         $entry->add_link(
             $make_link->(
@@ -525,6 +539,12 @@ sub create_view_atom
             $category->setAttribute( 'term', $tag );
             $category->setNamespace( $ns );
             $entry_xml->getDocumentElement->appendChild( $category );
+        }
+
+        if ($it->{'music'}) {
+            my $music = $entry_xml->createElement( 'lj:music' );
+            $music->appendTextNode( $it->{'music'} );
+            $entry_xml->getDocumentElement->appendChild( $music );
         }
 
         # if syndicating the complete entry
@@ -947,5 +967,82 @@ sub create_view_userpics {
 
     return $normalize_ns->( $feed->as_xml() );
 }
+
+
+sub create_view_comments
+{
+    my ($journalinfo, $u, $opts) = @_;
+
+    if (LJ::conf_test($LJ::DISABLED{latest_comments_rss}, $u)) {
+        $opts->{handler_return} = 404;
+        return 404;
+    }
+    
+    unless ($u->get_cap('latest_comments_rss')) {
+        $opts->{handler_return} = 403;
+        return;
+    }
+    
+    my $ret;
+    $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
+    $ret .= LJ::run_hook("bot_director", "<!-- ", " -->") . "\n";
+    $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/'>\n";
+
+    # channel attributes
+    $ret .= "<channel>\n";
+    $ret .= "  <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
+    $ret .= "  <link>$journalinfo->{link}</link>\n";
+    $ret .= "  <description>Latest comments in " . LJ::exml($journalinfo->{title}) . "</description>\n";
+    $ret .= "  <managingEditor>" . LJ::exml($journalinfo->{email}) . "</managingEditor>\n" if $journalinfo->{email};
+    $ret .= "  <lastBuildDate>$journalinfo->{builddate}</lastBuildDate>\n";
+    $ret .= "  <generator>LiveJournal / $LJ::SITENAME</generator>\n";
+    $ret .= "  <lj:journal>" . $u->user . "</lj:journal>\n";
+    $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
+    # TODO: add 'language' field when user.lang has more useful information
+
+    ### image block, returns info for their current userpic
+    if ($u->{'defaultpicid'}) {
+        my $pic = {};
+        LJ::load_userpics($pic, [ $u, $u->{'defaultpicid'} ]);
+        $pic = $pic->{$u->{'defaultpicid'}}; # flatten
+
+        $ret .= "  <image>\n";
+        $ret .= "    <url>$LJ::USERPIC_ROOT/$u->{'defaultpicid'}/$u->{'userid'}</url>\n";
+        $ret .= "    <title>" . LJ::exml($journalinfo->{title}) . "</title>\n";
+        $ret .= "    <link>$journalinfo->{link}</link>\n";
+        $ret .= "    <width>$pic->{'width'}</width>\n";
+        $ret .= "    <height>$pic->{'height'}</height>\n";
+        $ret .= "  </image>\n\n";
+    }
+
+    my @comments = $u->get_recent_talkitems(25);
+    foreach my $r (@comments)
+    {
+        my $c = LJ::Comment->new($u, jtalkid => $r->{jtalkid});
+        my $thread_url = $c->thread_url;
+        my $subject = $c->subject_raw;
+        LJ::CleanHTML::clean_subject_all(\$subject);
+        
+        $ret .= "<item>\n";
+        $ret .= "  <guid isPermaLink='true'>$thread_url</guid>\n";
+        $ret .= "  <pubDate>" . LJ::time_to_http($r->{datepostunix}) . "</pubDate>\n";
+        $ret .= "  <title>" . LJ::exml($subject) . "</title>\n" if $subject;
+        $ret .= "  <link>$thread_url</link>\n";
+        # omit the description tag if we're only syndicating titles
+        unless ($u->{'opt_synlevel'} eq 'title') {
+            my $body = $c->body_raw;
+            LJ::CleanHTML::clean_subject_all(\$body);
+            $ret .= "  <description>" . LJ::exml($body) . "</description>\n";
+        }
+        $ret .= "</item>\n";
+    }
+
+    $ret .= "</channel>\n";
+    $ret .= "</rss>\n";
+
+
+    return $ret;
+}
+
 
 1;

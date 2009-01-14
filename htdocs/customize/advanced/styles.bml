@@ -34,13 +34,25 @@
 
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
+
+    # if we don't have a u, maybe they're an admin and can view stuff anyway?
+    my $noactions = 0;
+    my $viewall = LJ::check_priv($remote, 'canview', 'styles') || LJ::check_priv($remote, 'canview', '*');
+
+    if ($GET{user} && $viewall) {
+        return $err->($ML{'.error.cantuseonsystem'})
+            if $GET{user} eq 'system';
+        $u = LJ::load_user($GET{user});
+        $noactions = 1; # don't let admins change anything
+    }
     return $err->($ML{'.error.cantbeauthenticated'})
         unless $u;
 
+    my $has_priv = LJ::get_cap($u, 's2styles');
     return $err->($remote->{user} eq $u->{user} ?
             $ML{'.error.youcantuseadvanced'} :
             $ML{'.error.usercantuseadvanced'} )
-        unless LJ::get_cap($u, 's2styles');
+        unless $has_priv || $viewall;
 
     my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
     return $err->($ML{'/customize/advanced/index.bml.error.advanced.editing.denied'})
@@ -49,6 +61,10 @@
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
     my $getextra_amp = "&authas=$authas" if $getextra;
+    if ($noactions) {
+        $getextra = "?user=" . $u->user;
+        $getextra_amp = "&user=" . $u->user;
+    }
 
     # style id to edit, if we have one
     # if we have this we're assumed to be in 'edit' mode
@@ -82,12 +98,13 @@
             unless $style->{'userid'} == $u->{'userid'};
 
         # use selected style
-        if ($POST{'action:usestyle'}) {
+        if ($POST{'action:usestyle'} && !$noactions) {
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
             # save to db and update user object
             LJ::set_userprop($u, "stylesys", '2');
             LJ::set_userprop($u, "s2_style", $id);
+            LJ::run_hooks('apply_theme', $u);
             return BML::redirect("styles.bml$getextra");
         }
 
@@ -148,7 +165,7 @@
         ### process edit actions
 
         # delete
-        if ($POST{'action:delete'}) {
+        if ($POST{'action:delete'} && !$noactions) {
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
             LJ::S2::delete_user_style($u, $id);
             undef $id; # don't show form below
@@ -156,7 +173,7 @@
         }
 
         # save changes
-        if ($POST{'action:change'} || $POST{'action:savechanges'}) {
+        if (($POST{'action:change'} || $POST{'action:savechanges'}) && !$noactions) {
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
             # are they renaming their style?
@@ -248,7 +265,7 @@
         my $ustyle = LJ::S2::load_user_styles($u);
 
         # process create action
-        if ($POST{'action:create'} && $POST{'stylename'}) {
+        if (($POST{'action:create'} && $POST{'stylename'}) && !$noactions) {
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
             return $err->($ML{'.error.maxstyles'})
@@ -264,7 +281,7 @@
         LJ::load_user_props($u, 's2_style');
 
         # set up page header
-        $authasform->();
+        $authasform->() unless $noactions;
 
         $body .= "<div><?h1 $ML{'.yourstyles.header'} h1?></div>\n";
 
@@ -285,8 +302,8 @@
                 my $confirm_msg = LJ::ejs(BML::ml('.delete.confirm', {'id' => $styleid}));
                 
                 $body .= LJ::html_submit('action:delete', $ML{'.btn.delete'}, 
-                                         { 'onclick' => "return confirm('$confirm_msg')" }) . " ";
-                $body .= LJ::html_submit('action:usestyle', $ML{'.btn.use'}, { 'disabled' => $styleid == $u->{'s2_style'} }),
+                                         { 'onclick' => "return confirm('$confirm_msg')", disabled => $noactions }) . " ";
+                $body .= LJ::html_submit('action:usestyle', $ML{'.btn.use'}, { 'disabled' => $styleid == $u->{'s2_style'} || $noactions }),
                 $body .= "</form></td></tr>\n";
             }
         } else {
@@ -311,7 +328,7 @@
     $body .= "<tr><td>$ML{'.createstyle.label.name'} </td><td>";
     $body .= LJ::html_text({ 'name' => 'stylename', 'size' => '30', 'maxlength' => '255', 
                              'value' => defined $POST{'stylename'} ? $POST{'stylename'} : $style->{'name'} });
-    $body .= " " . LJ::html_submit('action:create', $ML{'.btn.create'}) unless $id;
+    $body .= " " . LJ::html_submit('action:create', $ML{'.btn.create'}, { disabled => $noactions }) unless $id;
     $body .= "</td></tr>\n";
     $body .= "</table>\n";
 
@@ -401,7 +418,7 @@
     my $coresel = $layerselect->('core', 0);
     $body .= $coresel->[0];
     $body .= LJ::html_hidden('core_hidden', $core);
-    my $dis = $coresel->[1]->{'disabled'} ? { 'disabled' => 'disabled' } : undef;
+    my $dis = $coresel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
     $body .= " " . LJ::html_submit('action:change', $ML{'.btn.change'}, $dis) . "</td></tr>\n";
     $body .= "</table>\n";
 
@@ -420,7 +437,7 @@
     my $layoutsel = $layerselect->('layout', $core);
     $body .= $layoutsel->[0];
     $body .= $layerother->('layout');
-    my $dis = $layoutsel->[1]->{'disabled'} ? { 'disabled' => 'disabled' } : undef;
+    my $dis = $layoutsel->[1]->{'disabled'} || $noactions ? { 'disabled' => 'disabled' } : undef;
     $body .= " " . LJ::html_submit("action:change", $ML{'.btn.change'}, $dis) . " </td></tr>\n";
     $body .= "</table>\n";
 
@@ -441,7 +458,7 @@
     $body .= $layerselect->('user', $layout)->[0];
     $body .= $layerother->('user') . "</td></tr>\n";
     $body .= "<tr><td>&nbsp;</td><td>";
-    $body .= LJ::html_submit('action:savechanges', $ML{'.btn.savechanges'}) . "</td></tr>\n";
+    $body .= LJ::html_submit('action:savechanges', $ML{'.btn.savechanges'}, { disabled => $noactions }) . "</td></tr>\n";
     $body .= "</table>\n";
 
     # end edit form

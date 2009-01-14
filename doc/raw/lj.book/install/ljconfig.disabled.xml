@@ -95,6 +95,11 @@
       <listitem><simpara>Enable query buffering for high-load sites, by <filename>qbufferd.pl</filename>.</simpara></listitem>
     </varlistentry>
     <varlistentry>
+      <term>recaptcha</term>
+      <listitem><simpara>Use older CAPTCHAs method, which automated tools may
+      find easier to guess, for human checks instead of using reCAPTCHA.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
       <term>richtext</term>
       <listitem><simpara>Enable the 
     <ulink url="http://www.fckeditor.net/"><acronym>FCK</acronym>editor</ulink>-based rich text
@@ -137,6 +142,11 @@
         <varlistentry>
       <term>blockwatch</term>
       <listitem><simpara>Enable the event timing system (backend feature).</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>edit_comments</term>
+      <listitem><simpara>Enable ability for users (with <parameter>edit_comments</parameter> usercap) to edit 
+      their comments. A comment cannot be edited if it has been replied to or frozen.</simpara></listitem>
     </varlistentry>
     <varlistentry>
       <term>eventlogrecord</term>
@@ -194,6 +204,15 @@
       These relate to user-actions, such as a new comment posted on a particular entry.</simpara></listitem>
     </varlistentry>
     <varlistentry>
+      <term>latest_comments_rss</term>
+      <listitem><simpara>Enable <acronym>RSS</acronym> feed of comments (if the user has
+      the <parameter>latest_comments_rss</parameter> usercap) on journals.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>last_fm</term>
+      <listitem><simpara>Allows users to set their <systemitem class='domainname'>Last.fm</systemitem> username and have the 'Current Music' field automatically filled in from <systemitem class='domainname'>Last.fm</systemitem>, when posting a new entry.</simpara></listitem>
+    </varlistentry>
+    <varlistentry>
       <term>user_messaging</term>
       <listitem><simpara>Display the &esn; compose new user-to-user message form on <filename>/inbox/index.bml</filename>.</simpara></listitem>
     </varlistentry>
@@ -232,7 +251,8 @@
     </varlistentry>
    <varlistentry>
       <term>module_reload</term>
-      <listitem><simpara>Automatically re-load changed library files without stopping/starting &apache; if the machine is set up as a development server.</simpara></listitem>
+      <listitem><simpara>Automatically re-load changed library files without stopping/starting &apache; if the machine is set up as a development server.
+      You could disable automatic re-loading to better simulate a live, production server.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>interests-community</term>
@@ -253,7 +273,7 @@
     </varlistentry>
    <varlistentry>
       <term>named_permalinks</term>
-      <listitem><simpara>Enable named permalinks, that is: <uri>http://example.com/this_is_a_named_uri.html</uri>.</simpara></listitem>
+      <listitem><simpara>Enable named permalinks, that is: <uri>http://example.com/this_is_a_named_uri.html (not yet implemented)</uri>.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>offsite_journal_search</term>

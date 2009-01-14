@@ -49,8 +49,8 @@ body<=
     $sth->execute;
     my $udbr;
     while (my ($uid, $membership) = $sth->fetchrow_array) {
-	my $cu = $us->{$uid};
-	next unless $cu && $cu->{statusvis} eq "V";
+        my $cu = $us->{$uid};
+        next unless $cu && $cu->{statusvis} eq "V" || $cu->is_readonly;
         $names{$uid} = [ $cu->{user}, $cu->{name}, -1 ];
         if ($mods{$uid}) {
             $udbr = LJ::get_cluster_reader($cu);
@@ -103,24 +103,26 @@ body<=
         my $rstyle = ($rc++ & 1) ? "altrow2" : "altrow1";
         $ret .= "<tr class='$rstyle'><td><?ljcomm $user ljcomm?></td><td>" . LJ::eall($name) . "</td><td nowrap='nowrap'>";
         if ($admin{$id}) {
+            $ret .= BML::ml('Actionlink', {
+                'link'=>"<a href='/update.bml?usejournal=$user'>$ML{'.commlist.post'}</a>"}) . "&nbsp;&nbsp;";
             $ret .= LJ::run_hook('community_manage_actionlink', $user);
             $ret .= BML::ml('Actionlink', {
-                'link'=>"<a href='/manage/profile/?authas=$user'>$ML{'.commlist.actinfo'}</a>"}) . "&nbsp;&nbsp;";
+                'link'=>"<a href='/manage/profile/?authas=$user'>$ML{'.commlist.actinfo2'}</a>"}) . "&nbsp;&nbsp;";
             $ret .= BML::ml('Actionlink', {
-                'link'=>"<a href='$LJ::SITEROOT/customize/?authas=$user'>$ML{'.commlist.customize'}</a>"}) . "&nbsp;&nbsp;";
+                'link'=>"<a href='$LJ::SITEROOT/customize/?authas=$user'>$ML{'.commlist.customize2'}</a>"}) . "&nbsp;&nbsp;";
             $ret .= BML::ml('Actionlink', {
-                'link'=>"<a href='/community/settings.bml?comm=$user'>$ML{'.commlist.actsettings2'}</a>"}) . "&nbsp;&nbsp;";
+                'link'=>"<a href='/community/settings.bml?authas=$user'>$ML{'.commlist.actsettings2'}</a>"}) . "&nbsp;&nbsp;";
             $ret .= BML::ml('Actionlink', {
-                'link'=>"<a href='/community/sentinvites.bml?comm=$user'>$ML{'.commlist.actinvites'}</a>"}) . "&nbsp;&nbsp;";
+                'link'=>"<a href='/community/sentinvites.bml?authas=$user'>$ML{'.commlist.actinvites'}</a>"}) . "&nbsp;&nbsp;";
             my $pend = $pending{$id} ? BML::ml('.commlist.actpending', { num => $pending{$id},
-                                               aopts => "href=\"/community/pending.bml?comm=$user\"" }) : '';
+                                               aopts => "href=\"/community/pending.bml?authas=$user\"" }) : '';
             $ret .= BML::ml('Actionlink', {
-                'link'=>"<a href='/community/members.bml?comm=$user'>$ML{'.commlist.actmembers2'}</a>$pend"}) . "&nbsp;&nbsp;";
+                'link'=>"<a href='/community/members.bml?authas=$user'>$ML{'.commlist.actmembers2'}</a>$pend"}) . "&nbsp;&nbsp;";
         }
         $ret .= "</td><td align='center'>";
         if ($mods{$id}) {
             my $num = $modcount{$id} || "0"; # relying on this to be <b>-wrapped
-            $ret .= BML::ml('.commlist.moderation.num2', {'aopts' => "href='$LJ::SITEROOT/community/moderate.bml?comm=$user'", 'num' => $num});
+            $ret .= BML::ml('.commlist.moderation.num2', {'aopts' => "href='$LJ::SITEROOT/community/moderate.bml?authas=$user'", 'num' => $num});
         } else {
             $ret .= "&nbsp";
         }

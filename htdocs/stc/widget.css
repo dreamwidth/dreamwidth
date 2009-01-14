@@ -1,3 +1,12 @@
 .indent_sm {
     margin-left: 8px;
 }
+
+.friendsfinder {
+   font-family: Verdana, arial, sans-serif !important;
+}
+
+.friendsfinder .rounded-box-content{
+    padding: 30px 25px 40px 25px;
+}
+

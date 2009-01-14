@@ -17,9 +17,11 @@
     BML::finish();
     BML::noparse();
 
-    my $pollid  = $POST{pollid} or return $err->("No pollid");
-    my $pollqid = $POST{pollqid} or return $err->("No pollqid");
-    my $action  = $POST{action};
+    my $pollid   = $POST{pollid}  or return $err->("No pollid");
+    my $pollqid  = $POST{pollqid} or return $err->("No pollqid");
+    my $action   = $POST{action};
+    my $page     = $POST{page};
+    my $pagesize = $POST{pagesize} || 2000;
 
     my $poll = LJ::Poll->new($pollid) or return $err->("Error loading poll $pollid");
 
@@ -31,7 +33,9 @@
 
     if ($action eq 'get_answers') {
         my $question = $poll->question($pollqid) or return $err->("Error loading question $pollqid");
-        $ret->{answer_html} = $question->answers_as_html;
+        my $pages    = $question->answers_pages($poll->journalid, $pagesize);
+        $ret->{paging_html} = $question->paging_bar_as_html($page, $pages, $pagesize, $poll->journalid, $pollid, $pollqid);
+        $ret->{answer_html} = $question->answers_as_html($poll->journalid, $page, $pagesize, $pages);
     } else {
         return $err->("Invalid action $action");
     }
@@ -40,6 +44,7 @@
         %$ret,
         pollid  => $pollid,
         pollqid => $pollqid,
+        page    => $page,
     };
 
     sleep(1.5) if $LJ::IS_DEV_SERVER;

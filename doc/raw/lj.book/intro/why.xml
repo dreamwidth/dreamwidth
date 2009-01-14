@@ -139,10 +139,10 @@
       </varlistentry>
        <varlistentry>
         <term>Content in a rich variety of formats</term>
-        <listitem><simpara>As well as publishing entries in <acronym>RSS</acronym>/Atom formats, your 
-        installation publishes various account metadata in an &xml;-based format. 
-        These include <acronym>OPML</acronym> feeds listing subscribed syndicated feed accounts, 
-        an Atom feed listing userpics updated to an account, 
+        <listitem><simpara>As well as publishing entries in <acronym>RSS</acronym>/Atom formats,
+        your installation publishes various <link linkend="ljp.int.xml_userdata.data_formats">account metadata</link> in
+        an &xml;-based format. These include <acronym>OPML</acronym> feeds listing subscribed
+        syndicated feed accounts, an Atom feed listing userpics updated to an account,
         contact information in vCard and <acronym>FOAF</acronym> 
         format, and more.</simpara></listitem>
       </varlistentry>

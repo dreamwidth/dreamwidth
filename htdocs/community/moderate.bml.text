@@ -31,6 +31,8 @@
 
 .choice.reject=Reject
 
+.choice.mark_as_spam=Reject and mark as spam
+
 .error.noaccess=You do not moderate the community [[comm]].
 
 .error.noentry=Entry not found (perhaps already handled by another moderator).

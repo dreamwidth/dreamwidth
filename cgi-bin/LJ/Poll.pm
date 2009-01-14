@@ -1,7 +1,25 @@
 package LJ::Poll;
 use strict;
 use Carp qw (croak);
-use Class::Autouse qw (LJ::Entry LJ::Poll::Question LJ::Event::PollVote);
+use Class::Autouse qw (LJ::Entry LJ::Poll::Question LJ::Event::PollVote LJ::Typemap);
+
+##
+## Memcache routines
+##
+use base 'LJ::MemCacheable';
+    *_memcache_id                   = \&id;
+sub _memcache_key_prefix            { "poll" }
+sub _memcache_stored_props          {
+    # first element of props is a VERSION
+    # next - allowed object properties
+    return qw/ 1
+               ditemid itemid
+               pollid journalid posterid whovote whoview name status questions props
+               /;
+}
+    *_memcache_hashref_to_object    = \*absorb_row;
+sub _memcache_expires               { 24*3600 }
+
 
 # loads a poll
 sub new {
@@ -27,6 +45,7 @@ sub new {
 #   whovote: who can vote in this poll
 #   whoview: who can view this poll
 #   name: name of this poll
+#   status: set to 'X' when poll is closed
 sub create {
     my ($classref, %opts) = @_;
 
@@ -124,10 +143,19 @@ sub create {
 
     if (ref $classref eq 'LJ::Poll') {
         $classref->{pollid} = $pollid;
+        foreach my $prop (keys %{$opts{props}}) {
+            $classref->set_prop($prop, $opts{props}->{$prop});
+        }
+
         return $classref;
     }
 
-    return LJ::Poll->new($pollid);
+    my $pollobj = LJ::Poll->new($pollid);
+    foreach my $prop (keys %{$opts{props}}) {
+        $pollobj->set_prop($prop, $opts{props}->{$prop});
+    }
+
+    return $pollobj;
 }
 
 sub clean_poll {
@@ -137,17 +165,17 @@ sub clean_poll {
         return;
     }
 
-    my $poll_eat = [qw[head title style layer iframe applet object]];
-    my $poll_allow = [qw[a b i u strong em img]];
+    my $poll_eat    = [qw[head title style layer iframe applet object]];
+    my $poll_allow  = [qw[a b i u strong em img]];
     my $poll_remove = [qw[bgsound embed object caption link font]];
 
     LJ::CleanHTML::clean($ref, {
         'wordlength' => 40,
-        'addbreaks' => 0,
-        'eat' => $poll_eat,
-        'mode' => 'deny',
-        'allow' => $poll_allow,
-        'remove' => $poll_remove,
+        'addbreaks'  => 0,
+        'eat'        => $poll_eat,
+        'mode'       => 'deny',
+        'allow'      => $poll_allow,
+        'remove'     => $poll_remove,
     });
     LJ::text_out($ref);
 }
@@ -161,7 +189,7 @@ sub contains_new_poll {
 sub new_from_html {
     my ($class, $postref, $error, $iteminfo) = @_;
 
-    $iteminfo->{'posterid'} += 0;
+    $iteminfo->{'posterid'}  += 0;
     $iteminfo->{'journalid'} += 0;
 
     my $newdata;
@@ -182,7 +210,7 @@ sub new_from_html {
     my $p = HTML::TokeParser->new($postref);
 
     # if we're being called from mailgated, then we're not in web context and therefore
-    # do not have any BML::ml functionality.  detect this now and report errors in a 
+    # do not have any BML::ml functionality.  detect this now and report errors in a
     # plaintext, non-translated form to be bounced via email.
 
     # FIXME: the above comment is obsolete, we now have LJ::Lang::ml
@@ -233,6 +261,15 @@ sub new_from_html {
                 $popts{'name'} = $opts->{'name'};
                 $popts{'whovote'} = lc($opts->{'whovote'}) || "all";
                 $popts{'whoview'} = lc($opts->{'whoview'}) || "all";
+
+                my $journal = LJ::load_userid($iteminfo->{posterid});
+                if (LJ::run_hook("poll_unique_prop_is_enabled", $journal)) {
+                    $popts{props}->{unique} = $opts->{unique} ? 1 : 0;
+                }
+                if (LJ::run_hook("poll_createdate_prop_is_enabled", $journal)) {
+                    $popts{props}->{createdate} = $opts->{createdate} || undef;
+                }
+                LJ::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
 
                 if ($popts{'whovote'} ne "all" &&
                     $popts{'whovote'} ne "friends")
@@ -483,13 +520,17 @@ sub new_from_html {
 # if we have a complete poll object (sans pollid) we can save it to
 # the database and get a pollid
 sub save_to_db {
+
+    # OBSOLETE METHOD?
+
     my $self = shift;
     my %opts = @_;
 
     my %createopts;
 
-    # name is an optional field
+    # name and props are optional fields
     $createopts{name} = $opts{name} || $self->{name};
+    $createopts{props} = $opts{props} || $self->{props};
 
     foreach my $f (qw(ditemid journalid posterid questions whovote whoview)) {
         $createopts{$f} = $opts{$f} || $self->{$f} or croak "Field $f required for save_to_db";
@@ -502,22 +543,33 @@ sub save_to_db {
 # loads poll from db
 sub _load {
     my $self = shift;
+
     return $self if $self->{_loaded};
 
     croak "_load called on LJ::Poll with no pollid"
         unless $self->pollid;
 
+    # Requests context
+    if (my $obj = $LJ::REQ_CACHE_POLL{ $self->id }){
+        %{ $self }= %{ $obj }; # change object in memory
+        return $self;
+    }
+
+    # Try to get poll from MemCache
+    return $self if $self->_load_from_memcache;
+
+    # Load object from MySQL database
     my $dbr = LJ::get_db_reader();
 
     my $journalid = $dbr->selectrow_array("SELECT journalid FROM pollowner WHERE pollid=?", undef, $self->pollid);
     die $dbr->errstr if $dbr->err;
 
-    my $row;
+    my $row = '';
 
     unless ($journalid) {
         # this is probably not clustered, check global
         $row = $dbr->selectrow_hashref("SELECT pollid, itemid, journalid, " .
-                                       "posterid, whovote, whoview, name " .
+                                       "posterid, whovote, whoview, name, status " .
                                        "FROM poll WHERE pollid=?", undef, $self->pollid);
         die $dbr->errstr if $dbr->err;
     } else {
@@ -528,13 +580,14 @@ sub _load {
         if ($u->polls_clustered) {
             # clustered poll
             $row = $u->selectrow_hashref("SELECT pollid, journalid, ditemid, " .
-                                         "posterid, whovote, whoview, name " .
-                                         "FROM poll2 WHERE pollid=?", undef, $self->pollid);
+                                         "posterid, whovote, whoview, name, status " .
+                                         "FROM poll2 WHERE pollid=? " .
+                                         "AND journalid=?", undef, $self->pollid, $journalid);
             die $u->errstr if $u->err;
         } else {
             # unclustered poll
             $row = $dbr->selectrow_hashref("SELECT pollid, itemid, journalid, " .
-                                           "posterid, whovote, whoview, name " .
+                                           "posterid, whovote, whoview, name, status " .
                                            "FROM poll WHERE pollid=?", undef, $self->pollid);
             die $dbr->errstr if $dbr->err;
         }
@@ -543,7 +596,11 @@ sub _load {
     return undef unless $row;
 
     $self->absorb_row($row);
-    $self->{_loaded} = 1;
+    $self->{_loaded} = 1; # object loaded
+
+    # store constructed object in caches
+    $self->_store_to_memcache;
+    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
 
     return $self;
 }
@@ -554,10 +611,72 @@ sub absorb_row {
 
     # questions is an optional field for creating a fake poll object for previewing
     $self->{ditemid} = $row->{ditemid} || $row->{itemid}; # renamed to ditemid in poll2
-    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid whovote whoview name questions);
+    $self->{$_} = $row->{$_} foreach qw(pollid journalid posterid whovote whoview name status questions props);
     $self->{_loaded} = 1;
+    return $self;
 }
 
+# Mark poll as closed
+sub close_poll {
+    my $self = shift;
+
+    # Nothing to do if poll is already closed
+    return if ($self->{status} eq 'X');
+
+    my $u = LJ::load_userid($self->journalid)
+        or die "Invalid journalid " . $self->journalid;
+
+    my $dbh = LJ::get_db_writer();
+
+    if ($u->polls_clustered) {
+        # poll stored on user cluster
+        $u->do("UPDATE poll2 SET status='X' where pollid=? AND journalid=?",
+               undef, $self->pollid, $self->journalid);
+        die $u->errstr if $u->err;
+    } else {
+        # poll stored on global
+        $dbh->do("UPDATE poll SET status='X' where pollid=? ",
+                 undef, $self->pollid);
+        die $dbh->errstr if $dbh->err;
+    }
+
+    # poll status has changed
+    $self->_remove_from_memcache;
+    delete $LJ::REQ_CACHE_POLL{ $self->id };
+
+    $self->{status} = 'X';
+}
+
+# Mark poll as open
+sub open_poll {
+    my $self = shift;
+
+    # Nothing to do if poll is already open
+    return if ($self->{status} eq '');
+
+    my $u = LJ::load_userid($self->journalid)
+        or die "Invalid journalid " . $self->journalid;
+
+    my $dbh = LJ::get_db_writer();
+
+    if ($u->polls_clustered) {
+        # poll stored on user cluster
+        $u->do("UPDATE poll2 SET status='' where pollid=? AND journalid=?",
+               undef, $self->pollid, $self->journalid);
+        die $u->errstr if $u->err;
+    } else {
+        # poll stored on global
+        $dbh->do("UPDATE poll SET status='' where pollid=? ",
+                 undef, $self->pollid);
+        die $dbh->errstr if $dbh->err;
+    }
+
+    # poll status has changed
+    $self->_remove_from_memcache;
+    delete $LJ::REQ_CACHE_POLL{ $self->id };
+
+    $self->{status} = '';
+}
 ######### Accessors
 # ditemid
 *ditemid = \&itemid;
@@ -619,6 +738,36 @@ sub is_clustered {
     return $self->journal->polls_clustered;
 }
 
+# return true if poll is closed
+sub is_closed {
+    my $self = shift;
+    $self->_load;
+    return $self->{status} eq 'X' ? 1 : 0;
+}
+
+# return true if remote is also the owner
+sub is_owner {
+    my ($self, $remote) = @_;
+    $remote ||= LJ::get_remote();
+
+    return 1 if $remote && $remote->userid == $self->posterid;
+    return 0;
+}
+
+# poll requires unique answers (by email address)
+sub is_unique {
+    my $self = shift;
+
+    return LJ::run_hook("poll_unique_prop_is_enabled", $self->poster) && $self->prop("unique") ? 1 : 0;
+}
+
+# poll requires voters to be created on or before a certain date
+sub is_createdate_restricted {
+    my $self = shift;
+
+    return LJ::run_hook("poll_createdate_prop_is_enabled", $self->poster) && $self->prop("createdate") ? 1 : 0;
+}
+
 # do we have a valid poll?
 sub valid {
     my $self = shift;
@@ -639,6 +788,23 @@ sub question {
 
 ##### Poll rendering
 
+# returns the time that the given user answered the given poll
+sub get_time_user_submitted {
+    my ($self, $u) = @_;
+
+    my $time;
+    if ($self->is_clustered) {
+        $time = $self->journal->selectrow_array('SELECT datesubmit FROM pollsubmission2 '.
+                                                'WHERE pollid=? AND userid=? AND journalid=?', undef, $self->pollid, $u->userid, $self->journalid);
+    } else {
+        my $dbr = LJ::get_db_reader();
+        $time = $dbr->selectrow_array('SELECT datesubmit FROM pollsubmission '.
+                                      'WHERE pollid=? AND userid=?', undef, $self->pollid, $u->userid);
+    }
+
+    return $time;
+}
+
 # expects a fake poll object (doesn't have to have pollid) and
 # an arrayref of questions in the poll object
 sub preview {
@@ -656,7 +822,9 @@ sub preview {
     }
 
     $ret .= "<br />\n";
-    $ret .= LJ::Lang::ml('poll.security', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote), 'whoview' => LJ::Lang::ml('poll.security.'.$self->whoview), });
+
+    my $whoview = $self->whoview eq "none" ? "none_remote" : $self->whoview;
+    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote), 'whoview' => LJ::Lang::ml('poll.security.'.$whoview), });
 
     # iterate through all questions
     foreach my $q ($self->questions) {
@@ -691,6 +859,7 @@ sub render_ans {
 # opts:
 #   mode => enter|results|ans
 #   qid  => show a specific question
+#   page => page #
 sub render {
     my ($self, %opts) = @_;
 
@@ -698,29 +867,26 @@ sub render {
     my $ditemid = $self->ditemid;
     my $pollid = $self->pollid;
 
-    my $mode = delete $opts{mode};
-    my $qid  = delete $opts{qid};
+    my $mode     = delete $opts{mode};
+    my $qid      = delete $opts{qid};
+    my $page     = delete $opts{page};
+    my $pagesize = delete $opts{pagesize};
 
+    # Default pagesize.
+    $pagesize = 2000 unless $pagesize;
+
+    return "<b>[ Poll owner has been deleted ]</b>" unless $self->journal->clusterid;
     return "<b>[" . LJ::Lang::ml('poll.error.pollnotfound', { 'num' => $pollid }) . "]</b>" unless $pollid;
     return "<b>[" . LJ::Lang::ml('poll.error.noentry') . "</b>" unless $ditemid;
 
     my $can_vote = $self->can_vote;
-    my $can_voew = $self->can_view;
 
     my $dbr = LJ::get_db_reader();
 
     # update the mode if we need to
-    $mode = 'results' if !$remote && !$mode;
+    $mode = 'results' if ((!$remote && !$mode) || $self->is_closed);
     if ($remote && !$mode) {
-        my $time;
-        if ($self->is_clustered) {
-            $time = $self->journal->selectrow_array('SELECT datesubmit FROM pollsubmission2 '.
-                                                    'WHERE pollid=? AND userid=? AND journalid=?', undef, $pollid, $remote->userid, $self->journalid);
-        } else {
-            $time = $dbr->selectrow_array('SELECT datesubmit FROM pollsubmission '.
-                                          'WHERE pollid=? AND userid=?', undef, $pollid, $remote->userid);
-        }
-
+        my $time = $self->get_time_user_submitted($remote);
         $mode = $time ? 'results' : $can_vote ? 'enter' : 'results';
     }
 
@@ -740,7 +906,7 @@ sub render {
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
         $ret .= $text;
-        $ret .= '<div>' . $q->answers_as_html . '</div>';
+        $ret .= '<div>' . $q->answers_as_html($self->journalid, $page, $pagesize) . '</div>';
         return $ret;
     }
 
@@ -781,8 +947,16 @@ sub render {
         $ret .= "<i>$name</i>";
     }
     $ret .= "<br />\n";
-    $ret .= LJ::Lang::ml('poll.security', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
-                                       'whoview' => LJ::Lang::ml('poll.security.'.$self->whoview) });
+    $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
+            BML::ml('poll.isclosed') . "</span><br />\n"
+        if ($self->is_closed);
+
+    my $whoview = $self->whoview;
+    if ($whoview eq "none") {
+        $whoview = $remote && $remote->id == $self->posterid ? "none_remote" : "none_others";
+    }
+    $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
+                                       'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });
 
     ## go through all questions, adding to buffer to return
     foreach my $q (@qs) {
@@ -843,7 +1017,7 @@ sub render {
             my $posterid = $self->posterid;
             $ret .= qq {
                 <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;qid=$qid&amp;mode=ans'
-                     class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid'
+                     class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid' lj_page='0' lj_pagesize="$pagesize"
                      id="LJ_PollAnswerLink_${pollid}_$qid">
                 } . LJ::Lang::ml('poll.viewanswers') . "</a><br />" if $self->can_view;
 
@@ -1020,6 +1194,20 @@ sub can_vote {
         return 0;
     }
 
+    if ($self->is_createdate_restricted) {
+        my $propval = $self->prop("createdate");
+        if ($propval =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/) {
+            my $propdate = DateTime->new( year => $1, month => $2, day => $3, hour => 23, minute => 59, second => 59, time_zone => 'America/Los_Angeles' );
+            my $timecreate = DateTime->from_epoch( epoch => $remote->timecreate, time_zone => 'America/Los_Angeles' );
+
+            # make sure that timecreate is before or equal to propdate
+            return 0 if $propdate && $timecreate && DateTime->compare($timecreate, $propdate) == 1;
+        }
+    }
+
+    my $can_vote_override = LJ::run_hook("can_vote_poll_override", $self);
+    return 0 unless !defined $can_vote_override || $can_vote_override;
+
     return 1;
 }
 
@@ -1051,7 +1239,7 @@ sub questions {
     croak "questions called on LJ::Poll with no pollid"
         unless $self->pollid;
 
-    my @qs;
+    my @qs = ();
     my $sth;
 
     if ($self->is_clustered) {
@@ -1073,7 +1261,58 @@ sub questions {
     @qs = sort { $a->sortorder <=> $b->sortorder } @qs;
     $self->{questions} = \@qs;
 
+    # store poll data with loaded questions
+    $self->_store_to_memcache;
+    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
+
     return @qs;
+}
+
+
+########## Props
+# get the typemap for pollprop2
+sub typemap {
+    my $self = shift;
+
+    return LJ::Typemap->new(
+        table       => 'pollproplist2',
+        classfield  => 'name',
+        idfield     => 'propid',
+    );
+}
+
+sub prop {
+    my ($self, $propname) = @_;
+
+    my $tm = $self->typemap;
+    my $propid = $tm->class_to_typeid($propname);
+    my $u = $self->journal;
+
+    my $sth = $u->prepare("SELECT * FROM pollprop2 WHERE journalid = ? AND pollid = ? AND propid = ?");
+    $sth->execute($u->id, $self->pollid, $propid);
+    die $sth->errstr if $sth->err;
+
+    if (my $row = $sth->fetchrow_hashref) {
+        return $row->{propval};
+    }
+
+    return undef;
+}
+
+sub set_prop {
+    my ($self, $propname, $propval) = @_;
+
+    if (defined $propval) {
+        my $tm = $self->typemap;
+        my $propid = $tm->class_to_typeid($propname);
+        my $u = $self->journal;
+
+        $u->do("INSERT INTO pollprop2 (journalid, pollid, propid, propval) " .
+               "VALUES (?,?,?,?)", undef, $u->id, $self->pollid, $propid, $propval);
+        die $u->errstr if $u->err;
+    }
+
+    return 1;
 }
 
 ########## Class methods
@@ -1120,12 +1359,56 @@ sub process_submission {
         return 0;
     }
 
+    if ($poll->is_closed) {
+        $$error = LJ::Lang::ml('poll.isclosed');
+        return 0;
+    }
+
     unless ($poll->can_vote($remote)) {
         $$error = LJ::Lang::ml('poll.error.cantvote');
         return 0;
     }
 
-    my $dbh = LJ::get_db_writer() unless $poll->is_clustered;
+    # if unique prop is on, make sure that a particular email address can only vote once
+    if ($poll->is_unique) {
+        # make sure their email address is validated
+        unless ($remote->is_validated) {
+            $$error = LJ::Lang::ml('poll.error.notvalidated', { aopts => "href='$LJ::HELPURL{validate_email}'" });
+            return 0;
+        }
+
+        # if this particular user has already voted, let them change their answer
+        my $time = $poll->get_time_user_submitted($remote);
+        unless ($time) {
+            my $uids;
+            if ($poll->is_clustered) {
+                $uids = $poll->journal->selectcol_arrayref("SELECT userid FROM pollsubmission2 " .
+                                                           "WHERE journalid = ? AND pollid = ?", undef, $poll->journalid, $poll->pollid);
+            } else {
+                my $dbr = LJ::get_db_reader();
+                $uids = $dbr->selectcol_arrayref("SELECT userid FROM pollsubmission " .
+                                                 "WHERE pollid = ?", undef, $poll->pollid);
+            }
+
+            if (@$uids) {
+                my $remote_email = $remote->email_raw;
+                my $us = LJ::load_userids(@$uids);
+
+                foreach my $u (values %$us) {
+                    next unless $u;
+
+                    my $u_email = $u->email_raw;
+                    if (lc $u_email eq lc $remote_email) {
+                        $$error = LJ::Lang::ml('poll.error.alreadyvoted', { user => $u->ljuser_display });
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+
+    # Handler needed only for 7th version of Polls.
+    my $dbh = $poll->is_clustered ? undef : LJ::get_db_writer();
 
     ### load all the questions
     my @qs = $poll->questions;
@@ -1175,6 +1458,10 @@ sub process_submission {
                  undef, $pollid, $remote->userid);
     }
 
+    # if vote results are not cached, there is no need to modify cache
+    #$poll->_remove_from_memcache;
+    #delete $LJ::REQ_CACHE_POLL{ $poll->id };
+
     # don't notify if they blank-polled
     LJ::Event::PollVote->new($poll->poster, $remote, $poll)->fire
         if $ct;
@@ -1184,32 +1471,32 @@ sub process_submission {
 
 # take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
 sub make_polls_clustered {
-    my ($class, $u) = @_;
+    my ($class, $u, $dbh, $dbhslo, $dbcm) = @_;
 
     return 1 if $u->dversion >= 8;
 
-    my $dbh = LJ::get_db_reader()
-        or die "Could not get db reader";
+    return 0 unless ($dbh && $dbhslo && $dbcm);
 
     # find polls this user owns
-    my $psth = $dbh->prepare("SELECT pollid, itemid, journalid, posterid, whovote, whoview, name " .
-                             "FROM poll WHERE journalid=?");
+    my $psth = $dbhslo->prepare("SELECT pollid, itemid, journalid, posterid, whovote, whoview, name, " .
+                             "status FROM poll WHERE journalid=?");
     $psth->execute($u->userid);
     die $psth->errstr if $psth->err;
 
     while (my @prow = $psth->fetchrow_array) {
         my $pollid = $prow[0];
         # insert a copy into poll2
-        $u->do("INSERT INTO poll2 (pollid, ditemid, journalid, posterid, whovote, whoview, name) " .
-               "VALUES (?,?,?,?,?,?,?)", undef, @prow);
-        die $u->errstr if $u->err;
+        $dbcm->do("REPLACE INTO poll2 (pollid, ditemid, journalid, posterid, whovote, whoview, name, " .
+               "status) VALUES (?,?,?,?,?,?,?,?)", undef, @prow);
+        die $dbcm->errstr if $dbcm->err;
 
         # map pollid -> userid
-        $dbh->do("INSERT INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
+        $dbh->do("REPLACE INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
                  $u->userid, $pollid);
+        die $dbh->errstr if $dbh->err;
 
         # get questions
-        my $qsth = $dbh->prepare("SELECT pollid, pollqid, sortorder, type, opts, qtext FROM " .
+        my $qsth = $dbhslo->prepare("SELECT pollid, pollqid, sortorder, type, opts, qtext FROM " .
                                  "pollquestion WHERE pollid=?");
         $qsth->execute($pollid);
         die $qsth->errstr if $qsth->err;
@@ -1219,12 +1506,12 @@ sub make_polls_clustered {
             my $pollqid = $qrow[1];
 
             # insert question into pollquestion2
-            $u->do("INSERT INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
+            $dbcm->do("REPLACE INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
                    "VALUES (?, ?, ?, ?, ?, ?, ?)", undef, $u->userid, @qrow);
-            die $u->errstr if $u->err;
+            die $dbcm->errstr if $dbcm->err;
 
             # get items
-            my $isth = $dbh->prepare("SELECT pollid, pollqid, pollitid, sortorder, item FROM pollitem " .
+            my $isth = $dbhslo->prepare("SELECT pollid, pollqid, pollitid, sortorder, item FROM pollitem " .
                                      "WHERE pollid=? AND pollqid=?");
             $isth->execute($pollid, $pollqid);
             die $isth->errstr if $isth->err;
@@ -1232,38 +1519,64 @@ sub make_polls_clustered {
             # copy items
             while (my @irow = $isth->fetchrow_array) {
                 # copy item to pollitem2
-                $u->do("INSERT INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) VALUES " .
+                $dbcm->do("REPLACE INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) VALUES " .
                        "(?, ?, ?, ?, ?, ?)", undef, $u->userid, @irow);
-                die $u->errstr if $u->err;
+                die $dbcm->errstr if $dbcm->err;
             }
         }
 
         # copy submissions
-        my $ssth = $dbh->prepare("SELECT userid, datesubmit FROM pollsubmission WHERE pollid=?");
+        my $ssth = $dbhslo->prepare("SELECT userid, datesubmit FROM pollsubmission WHERE pollid=?");
         $ssth->execute($pollid);
         die $ssth->errstr if $ssth->err;
 
         while (my @srow = $ssth->fetchrow_array) {
             # copy to pollsubmission2
-            $u->do("INSERT INTO pollsubmission2 (pollid, journalid, userid, datesubmit) " .
+            $dbcm->do("REPLACE INTO pollsubmission2 (pollid, journalid, userid, datesubmit) " .
                    "VALUES (?, ?, ?, ?)", undef, $pollid, $u->userid, @srow);
-            die $u->errstr if $u->err;
+            die $dbcm->errstr if $dbcm->err;
         }
 
         # copy results
-        my $rsth = $dbh->prepare("SELECT pollid, pollqid, userid, value FROM pollresult WHERE pollid=?");
+        my $rsth = $dbhslo->prepare("SELECT pollid, pollqid, userid, value FROM pollresult WHERE pollid=?");
         $rsth->execute($pollid);
         die $rsth->errstr if $rsth->err;
 
         while (my @rrow = $rsth->fetchrow_array) {
             # copy to pollresult2
-            $u->do("INSERT INTO pollresult2 (journalid, pollid, pollqid, userid, value) " .
+            $dbcm->do("REPLACE INTO pollresult2 (journalid, pollid, pollqid, userid, value) " .
                    "VALUES (?, ?, ?, ?, ?)", undef, $u->userid, @rrow);
-            die $u->errstr if $u->err;
+            die $dbcm->errstr if $dbcm->err;
         }
     }
 
     return 1;
+}
+
+sub dump_poll {
+    my $self = shift;
+    my $fh = shift || \*STDOUT;
+
+    my @tables = ($self->is_clustered) ?
+        qw(poll2 pollquestion2 pollitem2 pollsubmission2 pollresult2) :
+        qw(poll  pollquestion  pollitem  pollsubmission  pollresult );
+    my $db = ($self->is_clustered) ? $self->journal : LJ::get_db_reader();
+    my $id = $self->pollid;
+
+    print $fh "<poll id='$id'>\n";
+    foreach my $t (@tables) {
+        my $sth = $db->prepare("SELECT * FROM $t WHERE pollid = ?");
+        $sth->execute($id);
+        while (my $data = $sth->fetchrow_hashref) {
+            print $fh "<$t ";
+            foreach my $k (sort keys %$data) {
+                my $v = LJ::ehtml($data->{$k});
+                print $fh "$k='$v' ";
+            }
+            print $fh "/>\n";
+        }
+    }
+    print $fh "</poll>\n";
 }
 
 1;

@@ -270,6 +270,14 @@ sub trans
         r => $r,
     });
 
+    my $bml_handler = sub {
+        my $filename = shift;
+        $r->handler("perl-script");
+        $r->notes("bml_filename" => $filename);
+        $r->push_handlers(PerlHandler => \&Apache::BML::handler);
+        return OK;
+    };
+
     if ($r->is_initial_req) {
         # delete cookies if there are any we want gone
         if (my $cookie = $LJ::DEBUG{"delete_cookie"}) {
@@ -290,11 +298,16 @@ sub trans
                   return OK;
               }
           }
+    } else { # not is_initial_req
+        if ($r->status == 404) {
+            my $fn = $LJ::PAGE_404 || "404-error.html";
+            return $bml_handler->("$LJ::HOME/htdocs/" . $fn);
+        }
     }
 
     # only allow certain pages over SSL
     if ($is_ssl) {
-        if ($uri =~ m!^/interface/!) {
+        if ($uri =~ m!^/interface/! || $uri =~ m!^/__rpc_!) {
             # handled later
         } elsif ($LJ::SSLDOCS && $uri !~ m!(\.\.|\%|\.\/)!) {
             my $file = "$LJ::SSLDOCS/$uri";
@@ -387,14 +400,6 @@ sub trans
         }
     }
 
-    my $bml_handler = sub {
-        my $filename = shift;
-        $r->handler("perl-script");
-        $r->notes->{bml_filename} = $filename;
-        $r->push_handlers(PerlResponseHandler => \&Apache::BML::handler);
-        return OK;
-    };
-
     # is this the embed module host
     if ($LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/) {
         return $bml_handler->("$LJ::HOME/htdocs/tools/embedcontent.bml");
@@ -413,10 +418,10 @@ sub trans
         # do redirects:
         # -- communities to the right place
         # -- uppercase usernames
-        # -- users with hyphens/underscores
+        # -- users with hyphens/underscores, except users from external domains (see table 'domains')
         if ($u && $u->is_community && $opts->{'vhost'} =~ /^(?:users||tilde)$/ ||
             $orig_user ne lc($orig_user) ||
-            $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^http://$host!i) {
+            $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^http://$host!i && $opts->{'vhost'} !~ /^other:/) {
 
             my $newurl = $uri;
 
@@ -689,8 +694,11 @@ sub trans
         my $u = LJ::load_user($user);
         if ($u && $u->{'journaltype'} eq 'R' && $u->{'statusvis'} eq 'R') {
             LJ::load_user_props($u, 'renamedto');
-            return redir($r, LJ::journal_base($u->{'renamedto'}, $vhost) . $uuri . $args_wq, 301)
-                if $u->{'renamedto'} ne '';
+            my $renamedto = $u->{'renamedto'};
+            if ($renamedto ne '') {
+                my $redirect_url = ($renamedto =~ m!^https?://!) ? $renamedto : LJ::journal_base($renamedto, $vhost) . $uuri . $args_wq;
+                return redir($r, $redirect_url, 301);
+            }
         }
 
         return $journal_view->({
@@ -820,9 +828,9 @@ sub trans
     if (
         $uri =~ m!
         ^/(users\/|community\/|\~)  # users/community/tilde
-        ([^/]*)                     # potential username
+        ([^/]+)                     # potential username
         (.*)?                       # rest
-        !x)
+        !x && $uri !~ /\.bml/)
     {
         my ($part1, $user, $rest) = ($1, $2, $3);
 
@@ -922,6 +930,11 @@ sub trans
     # approve
     if ($uri =~ m!^/approve/(\w+\.\w+)!) {
         return redir($r, "$LJ::SITEROOT/approve.bml?$1");
+    }
+
+    # reject
+    if ($uri =~ m!^/reject/(\w+\.\w+)!) {
+        return redir($r, "$LJ::SITEROOT/reject.bml?$1");
     }
 
     return FORBIDDEN if $uri =~ m!^/userpics!;
@@ -1197,7 +1210,6 @@ sub journal_content
 {
     my $r = shift;
     my $uri = $r->uri;
-
     my %GET = LJ::parse_args( $r->args );
 
     if ($RQ{'mode'} eq "robots_txt")
@@ -1275,13 +1287,13 @@ sub journal_content
 
     my %headers = ();
     my $opts = {
-        'r' => $r,
-        'headers' => \%headers,
-        'args' => $RQ{'args'},
-        'getargs' => \%GET,
-        'vhost' => $RQ{'vhost'},
+        'r'         => $r,
+        'headers'   => \%headers,
+        'args'      => $RQ{'args'},
+        'getargs'   => \%GET,
+        'vhost'     => $RQ{'vhost'},
         'pathextra' => $RQ{'pathextra'},
-        'header' => {
+        'header'    => {
             'If-Modified-Since' => $r->headers_in->{"If-Modified-Since"},
         },
         'handle_with_bml_ref' => \$handle_with_bml,
@@ -1290,7 +1302,11 @@ sub journal_content
 
     $r->notes->{view} = $RQ{mode};
     my $user = $RQ{'user'};
+
     my $html = LJ::make_journal($user, $RQ{'mode'}, $remote, $opts);
+
+    # Allow to add extra http-header or even modify html
+    LJ::run_hooks("after_journal_content_created", $opts, \$html);
 
     return redir($r, $opts->{'redir'}) if $opts->{'redir'};
     return $opts->{'handler_return'} if defined $opts->{'handler_return'};
@@ -1350,7 +1366,7 @@ sub journal_content
     elsif ($opts->{'baduser'})
     {
         $status = "404 Unknown User";
-        $html = "<h1>Unknown User</h1><p>There is no user <b>$user</b> at $LJ::SITENAME.</p>";
+        $html = "<h1>Unknown User</h1><p>There is no user <b>$user</b> at <a href='$LJ::SITEROOT'>$LJ::SITENAME.</a></p>";
         $generate_iejunk = 1;
     }
     elsif ($opts->{'badfriendgroup'})
@@ -1380,6 +1396,20 @@ sub journal_content
         $status = "403 User suspended";
         $html = "<h1>Suspended User</h1>" .
                 "<p>The content at this URL is from a suspended user.</p>";
+
+        $generate_iejunk = 1;
+
+    } elsif ($opts->{'suspendedentry'}) {
+        $status = "403 Entry suspended";
+        $html = "<h1>Suspended Entry</h1>" .
+                "<p>The entry at this URL is suspended.  You cannot reply to it.</p>";
+
+        $generate_iejunk = 1;
+
+    } elsif ($opts->{'readonlyremote'} || $opts->{'readonlyjournal'}) {
+        $status = "403 Read-only user";
+        $html = "<h1>Read-Only User</h1>";
+        $html .= $opts->{'readonlyremote'} ? "<p>You are read-only.  You cannot post comments.</p>" : "<p>This journal is read-only.  You cannot comment in it.</p>";
 
         $generate_iejunk = 1;
     }
@@ -1420,7 +1450,7 @@ sub journal_content
     # Insert pagestats HTML and Javascript
     $before_body_close .= LJ::pagestats_obj()->render('journal');
 
-    $html =~ s!</body>!$before_body_close</body>! if $before_body_close;
+    $html =~ s!</body>!$before_body_close</body>!i if $before_body_close;
 
     my $do_gzip = $LJ::DO_GZIP && $LJ::OPTMOD_ZLIB;
     if ($do_gzip) {
@@ -1709,6 +1739,42 @@ sub xmlrpc_method {
             ->faultstring(LJ::Protocol::error_message($error))
             ->faultcode(substr($error, 0, 3));
     }
+
+    # Perl is untyped language and XML-RPC is typed.
+    # When library XMLRPC::Lite tries to guess type, it errors sometimes
+    # (e.g. string username goes as int, if username contains digits only).
+    # As workaround, we can select some elements by it's names
+    # and label them by correct types.
+ 
+    # Key - field name, value - type.
+    my %lj_types_map = (
+        journalname => 'string',
+    );
+
+    my $recursive_mark_elements;
+    $recursive_mark_elements = sub {
+        my $structure = shift;
+        my $ref = ref($structure);
+
+        if ($ref eq 'HASH') {
+            foreach my $hash_key (keys %$structure) {
+                if (exists($lj_types_map{$hash_key})) {
+                    $structure->{$hash_key} = SOAP::Data
+                            -> type($lj_types_map{$hash_key})
+                            -> value($structure->{$hash_key});
+                } else {
+                    $recursive_mark_elements->($structure->{$hash_key});
+                }
+            }
+        } elsif ($ref eq 'ARRAY') {
+            foreach my $idx (@$structure) {
+                $recursive_mark_elements->($idx);
+            }
+        }
+    };
+
+    $recursive_mark_elements->($res);
+
     return $res;
 }
 

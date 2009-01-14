@@ -6,6 +6,14 @@ userproplist.ad_categories:
   multihomed: 0
   prettyname: Ad Content Categories
 
+userproplist.ad_visibility:
+  cldversion: 4
+  datatype: char
+  des: User-selected ad visibility option
+  indexed: 0
+  multihomed: 0
+  prettyname: Ad Visibility
+
 userproplist.admin_content_flag:
   cldversion: 4
   datatype: char
@@ -109,6 +117,14 @@ userproplist.disable_comm_promo:
   indexed: 0
   multihomed: 0
   prettyname: Administratively disable community promo features for a user
+
+userproplist.dismissed_page_notices:
+  cldversion: 4
+  datatype: char
+  des: Comma-separated list of defined keys for page notices that the user has seen and dismissed
+  indexed: 0
+  multihomed: 0
+  prettyname: Dismissed Page Notices
 
 userproplist.dogeartime:
   cldversion: 4
@@ -398,6 +414,14 @@ userproplist.journal_box_placement:
   multihomed: 0
   prettyname: Journal Box Placement
 
+userproplist.last_fm_user:
+  cldversion: 4
+  datatype: char
+  des: LastFM user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: LastFM user account name
+
 userproplist.latest_optout:
   cldversion: 4
   datatype: bool
@@ -541,6 +565,14 @@ userproplist.opt_exclude_stats:
   indexed: 0
   multihomed: 0
   prettyname: Exclude From Offsite Stats Tracking
+
+userproplist.opt_findbyemail:
+  cldversion: 4
+  datatype: char
+  des: Y - Findable, N - Not findable, H - Findable but identity hidden
+  indexed: 0
+  multihomed: 0
+  prettyname: Allow other users to find you by your email address
 
 userproplist.opt_getselfemail:
   cldversion: 4
@@ -734,6 +766,14 @@ userproplist.opt_showtopicstuff:
   multihomed: 0
   prettyname: Topic Directory Integration
 
+userproplist.opt_stylealwaysmine:
+  cldversion: 4
+  datatype: char
+  des: 1: always use user journal style when viewing any journal
+  indexed: 0
+  multihomed: 0
+  prettyname: Always my Style
+
 userproplist.opt_stylemine:
   cldversion: 4
   datatype: bool
@@ -798,6 +838,14 @@ userproplist.opt_whoscreened:
   multihomed: 0
   prettyname: Screening comments
 
+userproplist.opt_show_captcha_to:
+  cldversion: 4
+  datatype: char
+  des: Show CAPTCHA before posting a comment to: A=All, N=No one, F=non-Friends, R=anonymous users
+  indexed: 0
+  multihomed: 0
+  prettyname: Show CAPTHCHA on commenting
+
 userproplist.portalinit:
   cldversion: 4
   datatype: num
@@ -805,6 +853,14 @@ userproplist.portalinit:
   indexed: 0
   multihomed: 0
   prettyname: Portal Init
+
+userproplist.profile_collapsed_headers:
+  cldversion: 4
+  datatype: char
+  des: Comma-separated list of header ids that should start out collapsed when the user is viewing any profile.
+  indexed: 0
+  multihomed: 0
+  prettyname: Profile Page Collapsed Headers
 
 userproplist.public_key:
   cldversion: 4
@@ -1310,6 +1366,12 @@ logproplist.sms_msgid:
   sortorder: 99
   ownership: system
 
+logproplist.statusvis:
+  datatype: char
+  des: 'V' or undef for visible, 'S' for suspended
+  prettyname: Visibility Status of an Entry
+  sortorder: 99
+
 logproplist.syn_id:
   datatype: char
   des: Unique id of syndication item
@@ -1338,6 +1400,12 @@ logproplist.unknown8bit:
   sortorder: 99
   ownership: user
 
+logproplist.unsuspend_supportid:
+  datatype: num
+  des: The support request ID of the unsuspension request submitted by a user whose entry was suspended. Undef or 0 if no request is currently open.
+  prettyname: Support Request ID for Unsuspension Request
+  sortorder: 99
+
 logproplist.used_rte:
   datatype: bool
   des: True if entry was composed using the rich text editor
@@ -1362,3 +1430,35 @@ logproplist.verticals_list:
 usermsgproplist.userpic:
   des: Userpic chosen by the user who created the message
 
+pollproplist2.unique:
+  des: If set to 1, then a person with a given email address can only vote once in the poll
+
+pollproplist2.createdate:
+  des: The voter must have created their account by the date specified (Pacific time) in order to vote.  Must be in format YYYY-MM-DD, otherwise there will be no restriction.
+
+logproplist.copyright:
+  datatype: char
+  des: Copyrighted status: 'C' - copyrighted, 'P' - public, full cite allowed.
+  prettyname: Copyrighted status
+
+userproplist.default_copyright:
+  cldversion: 4
+  datatype: char
+  des: Default value to entry prop 'copyright'
+  indexed: 0
+  multihomed: 0
+  prettyname: Default value to entry prop 'copyright'
+
+userproplist.pingback:
+  cldversion: 0
+  datatype: char
+  des: (O)pen - all links from post should be processed with PingBack. (L)iveJournal - only leading to/from livejournal.com. (D)isabled - pingbacks disabled.
+  indexed: 0
+  multihomed: 0
+  prettyname: PingBack options
+
+logproplist.pingback:
+  datatype: char
+  des: (J)ournal default, (O)pen - all links from post should be processed with PingBack. (L)iveJournal - only leading to/from livejournal.com. (D)isabled - pingbacks disabled.
+  prettyname: PingBack options
+  sortorder: 105

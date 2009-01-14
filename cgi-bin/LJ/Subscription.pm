@@ -207,6 +207,23 @@ sub delete_all_subs {
     return 1;
 }
 
+# class method, nukes all inactive subs for a user
+sub delete_all_inactive_subs {
+    my ($class, $u, $dryrun) = @_;
+
+    return if $u->is_expunged;
+
+    my @subs = $class->find($u);
+    @subs = grep { !($_->active && $_->enabled) } @subs;
+    my $count = scalar @subs;
+    if ($count > 0 && !$dryrun) {
+        $_->delete foreach (@subs);
+        undef $u->{_subscriptions};
+    }
+
+    return $count;
+}
+
 # find matching subscriptions with different notification methods
 sub corresponding_subs {
     my $self = shift;
@@ -264,6 +281,20 @@ sub create {
     foreach (qw(userid subid createtime)) {
         croak "Can't specify field '$_'" if defined $args{$_};
     }
+    
+    # load current subscription, check if subscription already exists
+    $class->subscriptions_of_user($u) unless $u->{_subscriptions};
+    my ($existing) = grep {
+        $args{etypeid} == $_->{etypeid} &&
+        $args{ntypeid} == $_->{ntypeid} &&
+        $args{journalid} == $_->{journalid} &&
+        $args{arg1} == $_->{arg1} &&
+        $args{arg2} == $_->{arg2} && 
+        $args{flags} == $_->flags
+    } @{$u->{_subscriptions}};
+
+    return $existing 
+        if defined $existing;
 
     my $subid = LJ::alloc_user_counter($u, 'E')
         or die "Could not alloc subid for user $u->{user}";
@@ -291,7 +322,7 @@ sub create {
     $sth->execute( @values );
     LJ::errobj($u)->throw if $u->err;
 
-    $u->{_subscriptions} ||= [];
+    $self->subscriptions_of_user($u) unless $u->{_subscriptions};
     push @{$u->{_subscriptions}}, $self;
 
     return $self;
@@ -517,7 +548,10 @@ sub process {
 
     return 1 if $self->etypeid == LJ::Event::OfficialPost->etypeid && $LJ::DISABLED{"officialpost_esn"};
 
-    return 1 unless $self->notify_class->configured_for_user($self->owner);
+    # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
+    return 1
+        unless $self->notify_class->configured_for_user($self->owner)
+            || LJ::Event->class($self->etypeid)->is_significant;
 
     return $note->notify(@events);
 }
@@ -562,8 +596,19 @@ sub as_string {
     my $self = shift;
     my $max = $self->field('u')->get_cap('subscriptions');
     return 'The subscription "' . $self->field('subscr')->as_html . '" was not saved because you have' .
-        " reached your limit of $max subscriptions";
+        " reached your limit of $max active subscriptions. Subscriptions need to be deactivated before more can be added.";
 }
 
+# Too many subscriptions exist, not necessarily active
+package LJ::Error::Subscription::TooManySystemMax;
+sub fields { qw(subscr u max); }
+
+sub as_html { $_[0]->as_string }
+sub as_string {
+    my $self = shift;
+    my $max = $self->field('max');
+    return 'The subscription "' . $self->field('subscr')->as_html . '" was not saved because you have' .
+        " more than $max existing subscriptions. Subscriptions need to be completely removed before more can be added.";
+}
 
 1;

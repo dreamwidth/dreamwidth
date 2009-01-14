@@ -74,7 +74,7 @@ Poll.prototype.outputLJtags = function (pollID, post) {
         if (this.qa[i].atype == 'text') {
             extrargs = ' size="'+this.qa[i].size+'"';
             extrargs += ' maxlength="'+this.qa[i].maxlength+'"';
-        } else if (this.atype == 'scale') {
+        } else if (this.qa[i].atype == 'scale') {
             extrargs = ' from="'+this.qa[i].from+'"';
             extrargs += ' to="'+this.qa[i].to+'"';
             extrargs += ' by="'+this.qa[i].by+'"';

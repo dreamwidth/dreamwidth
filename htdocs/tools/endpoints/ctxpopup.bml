@@ -104,7 +104,7 @@
 
     # generate auth tokens
     if ($remote) {
-        push @actions, 'addFriend', 'removeFriend';
+        push @actions, 'addFriend', 'removeFriend', 'setBan' , 'setUnban';
         foreach my $action (@actions) {
             $ret{"${action}_authtoken"} = LJ::Auth->ajax_auth_token(
                                                                     $remote,
@@ -116,12 +116,13 @@
     }
 
     sleep(1.5) if $LJ::IS_DEV_SERVER;
-
     my %extrainfo = LJ::run_hook("ctxpopup_extra_info", $u);
     %ret = (%ret, %extrainfo);
 
-    $ret{success} = 1;
+    $ret{is_banned} = LJ::is_banned($u,$remote) ? 1 : 0
+        if $remote && $u;
 
+    $ret{success} = 1;
     return LJ::js_dumper(\%ret);
 }
 _code?>

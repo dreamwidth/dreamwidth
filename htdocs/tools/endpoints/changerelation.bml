@@ -35,7 +35,7 @@
     if ($action eq 'addFriend') {
         my $errmsg = "";
         return $err->($errmsg)
-            unless $remote->can_add_friends(\$errmsg);
+            unless $remote->can_add_friends(\$errmsg, {friend => $targetu});
 
         $success = $remote->friend_and_watch($targetu);
     } elsif ($action eq 'removeFriend') {
@@ -93,6 +93,23 @@
         }
 
         $success = LJ::leave_community($remote, $targetu);
+    } elsif ($action eq 'setBan') {
+        my $list_of_banned = LJ::load_rel_user($remote, 'B') || [ ];
+        
+        return $err->("Exceeded limit maximum of banned users")
+            if @$list_of_banned >= ($LJ::MAX_BANS || 5000);
+        
+        my $ban_user = LJ::load_user($target);
+        $success = $remote->ban_user($ban_user);
+        LJ::run_hooks('ban_set', $remote, $ban_user);
+
+        #$ret{is_banned} = $remote->is_banned($ban_user) ? 1 : 0;
+        
+    } elsif ($action eq 'setUnban') {    
+        my $unban_user = LJ::load_user($target);
+        $success = $remote->unban_user_multi($unban_user->{userid});
+        #$ret{is_banned} = $remote->is_banned($unban_user) ? 1 : 0;
+    
     } else {
         return $err->("Invalid action $action");
     }
@@ -106,6 +123,7 @@
         success   => $success,
         is_friend => LJ::is_friend($remote, $targetu),
         is_member => LJ::is_friend($targetu, $remote),
+        is_banned => $remote->is_banned(LJ::load_user($target)),
         %ret,
     });
 }

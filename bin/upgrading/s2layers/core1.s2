@@ -328,6 +328,7 @@ class EntryLite
     function print_linkbar() "Print the link bar for this entry or comment.";
     function time_display () : string "Show the time of this post, with most useful information for user, and with tooltip for more.";
     function time_display (string datefmt, string timefmt) : string "time_display, with customized date/time formats.";
+    function builtin formatted_subject (string{} opts) : string "formats subject - outputs subject as html-link, gets hash of attributes - class and(or) style ";
 }
 
 class Entry extends EntryLite
@@ -510,6 +511,9 @@ class Page
 
     function builtin print_vbox [fixed]
     "Prints an vertical bar of site-specific content on a journal.";
+
+    function builtin print_ad_box(string type) [fixed]
+    "Prints an side bar of site-specific content on a journal.";
 
     function builtin print_ad(string type) [fixed]
     "Deprecated function.  Use print_hbox_(top|bottom) or print_vbox from now on.";
@@ -824,6 +828,9 @@ function builtin viewer_sees_hbox_top() [fixed] : bool
 function builtin viewer_sees_hbox_bottom() [fixed] : bool
 "True if opaque horizontal site-specific content box should be displayed to the user at the bottom of the page.";
 
+function builtin viewer_sees_ad_box(string type) [fixed] : bool
+"True if opaque sidebar site-specific content box should be displayed to the user.";
+
 function builtin viewer_sees_ebox() [fixed] : bool
 "True if the user has selected to see opaque content boxes between entries.";
 
@@ -1098,6 +1105,15 @@ property string text_meta_groups {
 }
 set text_meta_groups = "Custom Friends Groups";
 
+property string text_copyr_agree {
+    des = "Text for copyright post agree"; }
+set text_copyr_agree= "Hereinafter I give my permission to reproduce in any form";
+
+property string text_copyr_disagree {
+    des = "Text for copyright post disagree"; }
+set text_copyr_disagree= "The reproduction is prohibited in any form";
+
+
 property string text_post_comment {
     des = "Link text to leave a comment";
     example = "Leave a comment";
@@ -1370,6 +1386,11 @@ property string text_multiform_opt_unscreen {
 }
 set text_multiform_opt_unscreen = "Unscreen";
 
+property string text_multiform_opt_unscreen_to_reply {
+    des = "Text for the comment unscreening action it's showed instead of reply-link for screened comments";
+}
+set text_multiform_opt_unscreen_to_reply = "Unscreen to reply";
+    
 property string text_multiform_opt_screen {
     des = "Text for the comment screening action";
 }

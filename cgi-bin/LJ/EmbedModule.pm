@@ -7,6 +7,19 @@ use Class::Autouse qw (
                        HTML::TokeParser
                        );
 
+# states for a finite-state machine we use in parse()
+use constant {
+    # reading plain html without <object>, <embed> or <lj-embed>
+    REGULAR => 1,
+    # inside <object> or <embed> tag
+    IMPLICIT => 2,
+    # inside explicit <lj-embed> tag
+    EXPLICIT => 3,
+    # maximum embed width and height
+    MAX_WIDTH => 800,
+    MAX_HEIGHT => 800,
+};
+
 # can optionally pass in an id of a module to change its contents
 # returns module id
 sub save_module {
@@ -16,21 +29,25 @@ sub save_module {
     my $id       = $opts{id};
     my $journal  = $opts{journal}
         or croak "No journal passed to LJ::EmbedModule::save_module";
+    my $preview = $opts{preview};
 
     # are we creating a new entry?
-    unless ($id || $opts{preview}) {
+    unless (defined $id) {
         $id = LJ::alloc_user_counter($journal, 'D')
             or die "Could not allocate embed module ID";
-    }
+    } 
 
     my $cmptext = 'C-' . LJ::text_compress($contents);
 
-    $journal->do("REPLACE INTO embedcontent (userid, moduleid, content) VALUES ".
-                 "(?, ?, ?)", undef, $journal->userid, $id, $cmptext);
+    ## embeds for preview are stored in a special table, 
+    ## where new items overwrites old ones
+    my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
+    $journal->do("REPLACE INTO $table_name (userid, moduleid, content) VALUES ".
+                "(?, ?, ?)", undef, $journal->userid, $id, $cmptext);
     die $journal->errstr if $journal->err;
-
+    
     # save in memcache
-    my $memkey = $class->memkey($journal->userid, $id);
+    my $memkey = $class->memkey($journal->userid, $id, $preview);
     LJ::MemCache::set($memkey, $contents);
 
     return $id;
@@ -47,16 +64,40 @@ sub transform_rte_post {
 }
 
 # takes a scalarref to entry text and expands lj-embed tags
+# REPLACE
 sub expand_entry {
     my ($class, $journal, $entryref, %opts) = @_;
 
-    $opts{expand} = 1;
-
-    $class->parse_module_embed($journal, $entryref, %opts);
+    $$entryref =~ s/(<lj\-embed[^>]+\/>)/$class->_expand_tag($journal, $1, $opts{edit}, %opts)/ge;        
 }
+
+sub _expand_tag {
+    my $class = shift;
+    my $journal = shift;
+    my $tag = shift;
+    my $edit = shift;
+    my %opts = @_;
+    
+    my %attrs = $tag =~ /(\w+)="?(\-?\d+)"?/g;
+
+    return '[invalid lj-embed, id is missing]' unless $attrs{id};
+    
+    if ($opts{expand_full}){
+        return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id);
+    } elsif ($edit) {
+        return '<lj-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">\n" . 
+                 $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id) . 
+                 "\n<\/lj-embed>";
+    } else {
+        @opts{qw /width height/} = @attrs{qw/width height/};
+        return $class->module_iframe_tag($journal, $attrs{id}, %opts)
+    }            
+};
+
 
 # take a scalarref to a post, parses any lj-embed tags, saves the contents
 # of the tags and replaces them with a module tag with the id.
+# REPLACE
 sub parse_module_embed {
     my ($class, $journal, $postref, %opts) = @_;
 
@@ -75,179 +116,105 @@ sub parse_module_embed {
 
     # previews are a special case (don't want to permanantly save to db)
     my $preview = $opts{preview};
-
+    
+    # deal with old-fashion calls
+    if (($edit || $expand) && ! $preview) {
+        return $class->expand_entry($journal, $postref, %opts);
+    } 
+    
+    # ok, we can safely parse post text
+    # machine state    
+    my $state = REGULAR;
     my $p = HTML::TokeParser->new($postref);
-    my $newdata = '';
-    my $embedopen = 0;
-    my $embedcontents = '';
-    my $embedid;
-    my $embed_depth;
-    my $depth = 0;
-
-  TOKEN:
+    my $newtxt = '';
+    my %embed_attrs = (); # ($eid, $ewidth, $eheight);
+    my $embed = '';
+    my @stack = ();
+    my $next_preview_id = 1;
+    
     while (my $token = $p->get_token) {
-        my $type = $token->[0];
-        my $tag  = $token->[1];
-        my $attr = $token->[2];  # hashref
-
-        if ($type eq "S") {
-            # start tag
-            if (lc $tag eq "lj-embed") {
-                if ($attr->{'/'}) {
-                    # this is an already-existing lj-embed tag.
-                    if ($expand) {
-                        if (defined $attr->{id}) {
-                            $newdata .= $class->module_iframe_tag($journal, $attr->{id}+0, %opts);
-                        } else {
-                            $newdata .= "[Error: lj-embed tag with no id]";
-                        }
-                     } elsif ($edit) {
-                        my $content = $class->module_content(moduleid  => $attr->{id},
-                                                             journalid => $journal->id);
-                        $newdata .= qq{<lj-embed id="$attr->{id}">\n$content\n</lj-embed>};
-                    } else {
-                        $newdata .= qq(<lj-embed id="$attr->{id}" />);
-                    }
-                    next TOKEN;
-                } else {
-                    $embedopen = 1;
-                    $embedcontents = '';
-                    $embedid = $attr->{id};
+        my ($type, $tag, $attr) = @$token;
+        $tag = lc $tag;
+        my $newstate = undef;
+        my $reconstructed = $class->reconstruct($token);
+        
+        if ($state == REGULAR) {
+            if ($tag eq 'lj-embed' && $type eq 'S' && ! $attr->{'/'}) {
+                # <lj-embed ...>, not self-closed 
+                # switch to EXPLICIT state
+                $newstate = EXPLICIT;
+                # save embed id, width and height if they do exist in attributes
+                $embed_attrs{id} = $attr->{id} if $attr->{id};
+                $embed_attrs{width} = ($attr->{width} > MAX_WIDTH ? MAX_WIDTH : $attr->{width}) if $attr->{width};
+                $embed_attrs{height} = ($attr->{height} > MAX_HEIGHT ? MAX_HEIGHT : $attr->{height}) if $attr->{height};
+            } elsif (($tag eq 'object' || $tag eq 'embed') && $type eq 'S') {            
+                # <object> or <embed>
+                # switch to IMPLICIT state unless it is a self-closed tag
+                unless ($attr->{'/'}) {
+                    $newstate = IMPLICIT;
+                    # tag balance
+                    push @stack, $tag;
                 }
-
-                next TOKEN;
+                # append the tag contents to new embed buffer, so we can convert in to lj-embed later
+                $embed .= $reconstructed;
             } else {
-                my $tagcontent = "<$tag";
-                my $selfclose;
-
-                # preserve order of attributes. the original order is
-                # in element 4 of $token
-                foreach my $attrname (@{$token->[3]}) {
-                    if ($attrname eq '/') {
-                        $selfclose = 1;
-                        next;
-                    }
-
-                    # FIXME: ultra ghetto.
-                    $attr->{$attrname} = LJ::no_utf8_flag($attr->{$attrname});
-
-                    $tagcontent .= " $attrname=\"" . LJ::ehtml($attr->{$attrname}) . "\"";
-                }
-                $tagcontent .= $selfclose ? " />" : ">";
-
-                $depth++ unless $selfclose;
-
-                if ($embedopen) {
-                    # capture this in the embed contents cuz we're in an lj-embed tag
-                    $embedcontents .= $tagcontent;
-                } else {
-                    # this is outside an lj-embed tag
-
-                    if ((lc $tag eq 'object' || lc $tag eq 'embed')
-                        && (! $edit && ! $expand) && ! $embed_depth) {
-                        # object/embed tag and not inside a lj-embed tag
-
-                        # wrap object/embeds in <lj-embed> tag
-                        # get an id
-                        $embedid = LJ::EmbedModule->save_module(
-                                                                contents => '',
-                                                                journal  => $journal,
-                                                                preview  => $preview,
-                                                                );
-
-                        # eat this tag
-                        $embedcontents .= $tagcontent;
-                        $tagcontent = '';
-
-                        unless ($selfclose) {
-                            $embedopen = 1;
-                            $embed_depth = $depth;
-                        }
-                    }
-
-                    $newdata .= $tagcontent;
+                # otherwise stay in REGULAR
+                $newtxt .= $reconstructed;
+            }
+        } elsif ($state == IMPLICIT) {
+            if ($tag eq 'object' || $tag eq 'embed') {
+                if ($type eq 'E') {
+                    # </object> or </embed>
+                    # update tag balance, but only if we have a valid balance up to this moment
+                    pop @stack if $stack[-1] eq $tag;
+                    # switch to REGULAR if tags are balanced (stack is empty), stay in IMPLICIT otherwise
+                    $newstate = REGULAR unless @stack;
+                } elsif ($type eq 'S') {
+                    # <object> or <embed>
+                    # mind the tag balance, do not update it in case of a self-closed tag
+                    push @stack, $tag unless $attr->{'/'};
                 }
             }
-        } elsif ($type eq "T" || $type eq "D") {
-            # tag contents
-            if ($embedopen) {
-                # we're in a lj-embed tag, capture the contents
-                $embedcontents .= $token->[1];
+            # append to embed buffer
+            $embed .= $reconstructed;                
+            
+        } elsif ($state == EXPLICIT) {
+
+            if ($tag eq 'lj-embed' && $type eq 'E') {
+                # </lj-embed> - that's the end of explicit embed block, switch to REGULAR
+                $newstate = REGULAR;
             } else {
-                # whatever, we don't care about this
-                $newdata .= $token->[1];
+                # continue appending contents to embed buffer
+                $embed .= $reconstructed;
             }
-        } elsif ($type eq 'C') {
-            # <!-- comments -->. keep these, let cleanhtml deal with it.
-            $newdata .= $token->[1];
-        } elsif ($type eq 'E') {
-            # end tag
-            if ($embed_depth && $embed_depth == $depth && (! $edit && ! $expand)
-                && (lc $tag eq 'embed' || lc $tag eq 'object')) {
-                # end wrapped object/embed tag
-                $embedopen = 0;
-                $embed_depth = 0;
-                $embedcontents .= "</$tag>";
-
-                # save embed contents
-                LJ::EmbedModule->save_module(
-                                             id       => $embedid,
-                                             contents => $embedcontents,
-                                             journal  => $journal,
-                                             preview  => $preview,
-                                             );
-                # and then start over, in case there are multiple embeds
-                $embedcontents = "";
-
-                $newdata .= "<lj-embed id=\"$embedid\" />";
-            } elsif (lc $tag eq 'lj-embed') {
-                if ($embedopen) {
-                    $embedopen = 0;
-                    if ($embedcontents) {
-                        # if this is a preview, save the module as id 0 and expand it
-                        if ($preview) {
-                            $embedid = 0;
-                            $expand = 0;
-                        }
-
-                        # ok, we have a lj-embed tag with stuff in it.
-                        # save it and replace it with a tag with the id
-                        $embedid = LJ::EmbedModule->save_module(
-                                                                contents => $embedcontents,
-                                                                id       => $embedid,
-                                                                journal  => $journal,
-                                                                preview  => $preview,
-                                                                );
-
-                        if ($embedid || $preview) {
-                            if ($expand) {
-                                $newdata .= $class->module_iframe_tag($journal, $embedid, %opts);
-                            } elsif ($edit) {
-                                my $content = $class->module_content(moduleid  => $embedid,
-                                                                     journalid => $journal->id);
-                                $newdata .= qq{<lj-embed id="$embedid">\n$content\n</lj-embed>};
-                            } else {
-                                $newdata .= qq(<lj-embed id="$embedid" />);
-                            }
-                        }
-                    }
-                    $embedid = undef;
-                } else {
-                    $newdata .= "[Error: close lj-embed tag without open tag]";
-                }
-            } else {
-                if ($embedopen) {
-                    $embedcontents .= "</$tag>";
-                } else {
-                    $newdata .= "</$tag>";
-                }
-            }
-
-            $depth--;
+        } else {
+            # let's be paranoid
+            die "Invalid state: '$state'";
         }
-    }
+        
+        # we decided to switch back to REGULAR and have something in embed buffer
+        # so let's save buffer as an embed module and start all over again
+        if ($newstate == REGULAR && $embed) {
+            $embed_attrs{id} = $class->save_module(
+                id => ($preview ? $next_preview_id++ : $embed_attrs{id}),
+                contents => $embed,
+                journal  => $journal,
+                preview => $preview,
+            );
+                        
+            $newtxt .= "<lj-embed " . join(' ', map { exists $embed_attrs{$_} ? "$_=\"$embed_attrs{$_}\"" : () } qw / id width height /) . "/>";
+            
+            $embed = '';
+            %embed_attrs = ();
+        }
+        
+        # switch the state if we have a new one
+        $state = $newstate if defined $newstate;
+        
+    }    
 
-    $$postref = $newdata;
+    # update passed text
+    $$postref = $newtxt;
 }
 
 sub module_iframe_tag {
@@ -260,82 +227,90 @@ sub module_iframe_tag {
 
     # parse the contents of the module and try to come up with a guess at the width and height of the content
     my $content = $class->module_content(moduleid => $moduleid, journalid => $journalid);
+    my $preview = $opts{preview};
     my $width = 0;
     my $height = 0;
     my $p = HTML::TokeParser->new(\$content);
     my $embedcodes;
-
+    
     # if the content only contains a whitelisted embedded video
     # then we can skip the placeholders (in some cases)
     my $no_whitelist = 0;
     my $found_embed = 0;
 
-    while (my $token = $p->get_token) {
-        my $type = $token->[0];
-        my $tag  = $token->[1] ? lc $token->[1] : '';
-        my $attr = $token->[2];  # hashref
-
-        if ($type eq "S") {
-            my ($elewidth, $eleheight);
-
-            if ($attr->{width}) {
-                $elewidth = $attr->{width}+0;
-                $width = $elewidth if $elewidth > $width;
-            }
-            if ($attr->{height}) {
-                $eleheight = $attr->{height}+0;
-                $height = $eleheight if $eleheight > $height;
-            }
-
-            my $flashvars = $attr->{flashvars};
-
-            if ($tag eq 'object' || $tag eq 'embed') {
-                my $src;
-                next unless $src = $attr->{src};
-
-                # we have an object/embed tag with src, make a fake lj-template object
-                my @tags = (
-                            ['S', 'lj-template', {
-                                name => 'video',
-                                (defined $elewidth     ? ( width  => $width  ) : ()),
-                                (defined $eleheight    ? ( height => $height ) : ()),
-                                (defined $flashvars ? ( flashvars => $flashvars ) : ()),
-                            }],
-                            [ 'T', $src, {}],
-                            ['E', 'lj-template', {}],
-                            );
-
-                $embedcodes = LJ::run_hook('expand_template_video', \@tags);
-
-                $found_embed = 1 if $embedcodes;
-                $found_embed &&= $embedcodes !~ /Invalid video/i;
-
-                $no_whitelist = !$found_embed;
-            } elsif ($tag ne 'param') {
-                $no_whitelist = 1;
+    # we don't need to estimate the dimensions if they are provided in tag attributes
+    unless ($opts{width} && $opts{height}) {
+        while (my $token = $p->get_token) {
+            my $type = $token->[0];
+            my $tag  = $token->[1] ? lc $token->[1] : '';
+            my $attr = $token->[2];  # hashref
+    
+            if ($type eq "S") {
+                my ($elewidth, $eleheight);
+    
+                if ($attr->{width}) {
+                    $elewidth = $attr->{width}+0;
+                    $width = $elewidth if $elewidth > $width;
+                }
+                if ($attr->{height}) {
+                    $eleheight = $attr->{height}+0;
+                    $height = $eleheight if $eleheight > $height;
+                }
+    
+                my $flashvars = $attr->{flashvars};
+    
+                if ($tag eq 'object' || $tag eq 'embed') {
+                    my $src;
+                    next unless $src = $attr->{src};
+    
+                    # we have an object/embed tag with src, make a fake lj-template object
+                    my @tags = (
+                                ['S', 'lj-template', {
+                                    name => 'video',
+                                    (defined $elewidth     ? ( width  => $width  ) : ()),
+                                    (defined $eleheight    ? ( height => $height ) : ()),
+                                    (defined $flashvars ? ( flashvars => $flashvars ) : ()),
+                                }],
+                                [ 'T', $src, {}],
+                                ['E', 'lj-template', {}],
+                                );
+    
+                    $embedcodes = LJ::run_hook('expand_template_video', \@tags);
+    
+                    $found_embed = 1 if $embedcodes;
+                    $found_embed &&= $embedcodes !~ /Invalid video/i;
+    
+                    $no_whitelist = !$found_embed;
+                } elsif ($tag ne 'param') {
+                    $no_whitelist = 1;
+                }
             }
         }
-    }
-
-    # add padding
-    $width += 50 if $width;
-    $height += 50 if $height;
+    
+        # add padding
+        $width += 50 if $width;
+        $height += 50 if $height;
+    } 
+    
+    # use explicit values if we have them
+    $width = $opts{width} if $opts{width};
+    $height = $opts{height} if $opts{height};
 
     $width ||= 480;
     $height ||= 400;
 
     # some dimension min/maxing
     $width = 50 if $width < 50;
-    $width = 800 if $width > 800;
+    $width = MAX_WIDTH if $width > MAX_WIDTH;
     $height = 50 if $height < 50;
-    $height = 800 if $height > 800;
+    $height = MAX_HEIGHT if $height > MAX_HEIGHT;
 
     # safari caches state of sub-resources aggressively, so give
     # each iframe a unique 'name' attribute
     my $id = qq(name="embed_${journalid}_$moduleid");
 
-    my $auth_token = LJ::eurl(LJ::Auth->sessionless_auth_token('embedcontent', moduleid => $moduleid, journalid => $journalid));
-    my $iframe_tag = qq {<iframe src="http://$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&auth_token=$auth_token" } .
+    my $auth_token = LJ::eurl(LJ::Auth->sessionless_auth_token('embedcontent', moduleid => $moduleid, journalid => $journalid, preview => $preview,));
+    my $iframe_tag = qq {<iframe src="http://$LJ::EMBED_MODULE_DOMAIN/?journalid=$journalid&moduleid=$moduleid&preview=$preview&auth_token=$auth_token" } .
         qq{width="$width" height="$height" allowtransparency="true" frameborder="0" class="lj_embedcontent" $id></iframe>};
 
     my $remote = LJ::get_remote();
@@ -376,14 +351,16 @@ sub module_content {
 
     my $journalid = $opts{journalid}+0 or croak "No journalid";
     my $journal = LJ::load_userid($journalid) or die "Invalid userid $journalid";
+    return '' if ($journal->is_expunged);
+    my $preview = $opts{preview};
 
     # try memcache
-    my $memkey = $class->memkey($journalid, $moduleid);
+    my $memkey = $class->memkey($journalid, $moduleid, $preview);
     my $content = LJ::MemCache::get($memkey);
-
     my ($dbload, $dbid); # module id from the database
     unless (defined $content) {
-        ($content, $dbid) = $journal->selectrow_array("SELECT content, moduleid FROM embedcontent WHERE " .
+        my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
+        ($content, $dbid) = $journal->selectrow_array("SELECT content, moduleid FROM $table_name WHERE " .
                                                       "moduleid=? AND userid=?",
                                                       undef, $moduleid, $journalid);
         die $journal->errstr if $journal->err;
@@ -427,8 +404,42 @@ sub module_content {
 }
 
 sub memkey {
-    my ($class, $journalid, $moduleid) = @_;
-    return [$journalid, "embedcont:$journalid:$moduleid"];
+    my ($class, $journalid, $moduleid, $preview) = @_;
+    my $pfx = $preview ? 'embedcontpreview' : 'embedcont';
+    return [$journalid, "$pfx:$journalid:$moduleid"];
 }
 
+# create a tag string from HTML::TokeParser token
+sub reconstruct {
+    my $class = shift;
+    my $token = shift;
+    my ($type, $tag, $attr, $attord) = @$token;
+    if ($type eq 'S') {
+        my $txt = "<$tag";
+        my $selfclose;
+    
+        # preserve order of attributes. the original order is
+        # in element 4 of $token
+        foreach my $name (@$attord) {
+            if ($name eq '/') {
+                $selfclose = 1;
+                next;
+            }
+    
+            # FIXME: ultra ghetto.
+            $attr->{$name} = LJ::no_utf8_flag($attr->{$name});
+    
+            $txt .= " $name=\"" . LJ::ehtml($attr->{$name}) . "\"";
+        }
+        $txt .= $selfclose ? " />" : ">";    
+        
+    } elsif ($type eq 'E') {
+        return "</$tag>";
+    } else { # C, T, D or PI
+        return $tag;
+    }
+}
+
+
 1;
+

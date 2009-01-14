@@ -11,9 +11,11 @@ use LJ::Directory::MajorRegion;
 sub update_user {
     my $u = LJ::want_user(shift) or die "No userid specified";
     my $dbh = LJ::get_db_writer() or die "No db";
+    my $dbs = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
+    die "No db" unless $dbs;
 
     if ($u->is_expunged) {
-        $dbh->do("REPLACE INTO usersearch_packdata (userid, packed, good_until, mtime) ".
+        $dbs->do("REPLACE INTO usersearch_packdata (userid, packed, good_until, mtime) ".
                  "VALUES (?, ?, ?, UNIX_TIMESTAMP())", undef, $u->id, "\0"x8, undef);
         return 1;
     }
@@ -34,7 +36,7 @@ sub update_user {
                                                        regionid    => $regid,
                                                        )->packed;
 
-    my $rv = $dbh->do("REPLACE INTO usersearch_packdata (userid, packed, good_until, mtime) ".
+    my $rv = $dbs->do("REPLACE INTO usersearch_packdata (userid, packed, good_until, mtime) ".
                       "VALUES (?, ?, ?, UNIX_TIMESTAMP())", undef, $u->id, $newpack, $good_until);
 
     die "DB Error: " . $dbh->errstr if $dbh->errstr;
@@ -46,7 +48,8 @@ sub update_user {
 sub update_users {
     my $starttime = shift;
 
-    my $dbr = LJ::get_db_reader() or die "No db";
+    my $dbr = defined $LJ::USERSEARCH_DB_READER ? LJ::get_dbh($LJ::USERSEARCH_DB_READER) : LJ::get_db_reader();
+    die "No db" unless $dbr;
 
     unless (LJ::ModuleCheck->have("LJ::UserSearch")) {
         die "Missing module 'LJ::UserSearch'\n";
@@ -70,14 +73,18 @@ sub update_users {
 
 sub missing_rows {
     my $dbh = LJ::get_db_writer() or die "No db";
+    my $dbs = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
+    die "No db" unless $dbs;
     my $highest_uid        = $dbh->selectrow_array("SELECT MAX(userid) FROM user")                || 0;
-    my $highest_search_uid = $dbh->selectrow_array("SELECT MAX(userid) FROM usersearch_packdata") || 0;
+    my $highest_search_uid = $dbs->selectrow_array("SELECT MAX(userid) FROM usersearch_packdata") || 0;
     return $highest_uid != $highest_search_uid;
 }
 
 sub add_some_missing_rows {
     my $dbh = LJ::get_db_writer() or die "No db";
-    my $highest_search_uid = $dbh->selectrow_array("SELECT MAX(userid) FROM usersearch_packdata") || 0;
+    my $dbs = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
+    die "No db" unless $dbs;
+    my $highest_search_uid = $dbs->selectrow_array("SELECT MAX(userid) FROM usersearch_packdata") || 0;
     my $sth = $dbh->prepare("SELECT userid FROM user WHERE userid > ? ORDER BY userid LIMIT 500");
     $sth->execute($highest_search_uid);
     my @ids;
@@ -87,7 +94,7 @@ sub add_some_missing_rows {
     my $vals = join(",", map { "($_,0)" } @ids);
 
     if ($vals) {
-        $dbh->do("INSERT IGNORE INTO usersearch_packdata (userid, good_until) ".
+        $dbs->do("INSERT IGNORE INTO usersearch_packdata (userid, good_until) ".
                  "VALUES $vals") or die;
         return 1;
     }
@@ -95,7 +102,8 @@ sub add_some_missing_rows {
 }
 
 sub update_some_rows {
-    my $dbh = LJ::get_db_writer() or die "No db";
+    my $dbh = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
+    die "No db" unless $dbh;
     my $ids = $dbh->selectcol_arrayref("SELECT userid FROM usersearch_packdata WHERE good_until <= UNIX_TIMESTAMP() LIMIT 1000");
     my $updated = 0;
     foreach my $uid (List::Util::shuffle(@$ids)) {
@@ -121,7 +129,8 @@ sub update_some_rows {
 sub update_file {
     my $filename = shift;
 
-    my $dbh = LJ::get_db_reader() or die "No db";
+    my $dbh = defined $LJ::USERSEARCH_DB_READER ? LJ::get_dbh($LJ::USERSEARCH_DB_READER) : LJ::get_db_reader();
+    die "No db" unless $dbh;
 
     sysopen(my $fh, $filename, O_RDWR | O_CREAT) or die "Couldn't open file '$filename' for read/write: $!";
     unless (-s $filename >= 8) {

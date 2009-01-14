@@ -344,8 +344,8 @@ sub get_logtags {
 # name: LJ::Tags::get_logtagsmulti
 # class: tags
 # des: Load tags on a given set of entries
-# args: idsbyc
-# des-idsbyc: { clusterid => [ [ jid, jitemid ], [ jid, jitemid ], ... ] }
+# args: idsbycluster
+# des-idsbycluster: { clusterid => [ [ jid, jitemid ], [ jid, jitemid ], ... ] }
 # returns: hashref with "jid jitemid" keys, value of each being a hashref of
 #          { tagid => tagname, ... }
 # </LJFUNC>
@@ -655,9 +655,10 @@ sub get_security_breakdown {
 # name: LJ::Tags::update_logtags
 # class: tags
 # des: Updates the tags on an entry.  Tags not in the list you provide are deleted.
-# args: uobj, jitemid, uobj, tags, opts
+# args: uobj, jitemid, tags, opts
 # des-uobj: User id or object of account with entry
 # des-jitemid: Journal itemid of entry to tag
+# des-tags: List of tags you want applied to entry.
 # des-opts: Hashref; keys being the action and values of the key being an arrayref of
 #           tags to involve in the action.  Possible actions are 'add', 'set', and
 #           'delete'.  With those, the value is a hashref of the tags (textual tags)

@@ -5,26 +5,27 @@ body<=
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
 
-    $title = "Flag Content";
+    $title = $ML{'.title'};
 
     my $remote = LJ::get_remote()
         or return "<?needlogin?>";
 
-    return "Content flagging is disabled"
-        if LJ::conf_test($LJ::DISABLED{content_flag});
+    return $ML{'.error.disabled'}
+        unless LJ::is_enabled("content_flag");
 
     my $ditemid = $GET{itemid};
     my $user = $GET{user};
-    my $journal = LJ::load_user($user) or return "Invalid username";
+    my $journal = LJ::load_user($user) or return $ML{'.error.invalidusername'};
     my $content = $ditemid ? LJ::Entry->new($journal, ditemid => $ditemid) : $journal;
 
-    return "You are not allowed to flag this."
+    return $ML{'.error.cantflag'}
         unless $remote->can_flag_content( content => $content );
 
     my %opts = ();
     return LJ::Widget->handle_post_and_render(\%POST, 'ContentFlagReport',
                                                user => $user,
                                                itemid => $ditemid,
+                                               confirm => $GET{confirm} ? 1 : 0,
                                                %opts);
 }
 _code?>

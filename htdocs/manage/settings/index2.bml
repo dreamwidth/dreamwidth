@@ -1,0 +1,530 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
+
+    BML::set_language_scope('/manage/settings/index.bml');
+
+    LJ::need_res("stc/settings.css", "js/settings.js");
+    LJ::set_active_crumb('manage');
+
+    my $remote = LJ::get_remote();
+    my $authas;
+    my $u;
+
+    if ($remote) {
+        $authas = $GET{authas} || $remote->user;
+        $u = LJ::get_authas_user($authas);
+        return LJ::bad_input($ML{'error.invalidauth'})
+            unless $u;
+    }
+
+    my @cats_order = qw(
+        account
+        display
+        notifications
+        mobile
+        privacy
+        history
+    );
+
+    # the different navigation categories and their settings
+    my %cats_with_settings = (
+        account => {
+            name => $ML{'.cat.account'},
+            visible => 1,
+            disabled => !$u ? 1 : 0,
+            form => 0,
+            desc => $ML{'.cat.account.desc'},
+            settings => [qw(
+                LJ::Setting::Display::AccountLevel
+                LJ::Setting::Display::AccountStatus
+                LJ::Setting::Display::Username
+                LJ::Setting::Display::Email
+                LJ::Setting::Display::Password
+                LJ::Setting::Display::SecretQuestion
+                LJ::Setting::Display::DomainMapping
+            )],
+        },
+        display => {
+            name => $ML{'.cat.display'},
+            visible => 1,
+            disabled => 0,
+            form => 1,
+            desc => $ML{'.cat.display.desc'},
+            settings => [qw(
+                LJ::Setting::Language
+                LJ::Setting::TimeZone
+                LJ::Setting::ImagePlaceholders
+                LJ::Setting::EmbedPlaceholders
+                LJ::Setting::GraphicPreviews
+                LJ::Setting::EmailFormat
+                LJ::Setting::EntryEditor
+                LJ::Setting::StyleAlwaysMine
+                LJ::Setting::StyleMine
+                LJ::Setting::CtxPopup
+                LJ::Setting::GettingStarted
+                LJ::Setting::SiteScheme
+                LJ::Setting::AdultContent
+                LJ::Setting::ViewingAdultContent
+                LJ::Setting::SafeSearch
+                LJ::Setting::CyrillicServices
+            )],
+        },
+        notifications => {
+            name => $ML{'.cat.notifications'},
+            visible => 1,
+            disabled => !$u || $u->is_community ? 1 : 0,
+            form => 1,
+            desc => $ML{'.cat.notifications.desc'},
+            settings => [qw(
+                LJ::Setting::CommentEmailNotify
+                LJ::Setting::SelfCommentEmail
+            )],
+        },
+        mobile => {
+            name => $ML{'.cat.mobile'},
+            visible => 1,
+            disabled => !$u || $u->is_community ? 1 : 0,
+            form => 1,
+            desc => $ML{'.cat.mobile.desc'},
+            settings => [qw(
+                LJ::Setting::VoicePosting
+                LJ::Setting::SMS
+                LJ::Setting::EmailPosting
+                LJ::Setting::Display::MobileApps
+            )],
+        },
+        privacy => {
+            name => $ML{'.cat.privacy'},
+            visible => 1,
+            disabled => !$u ? 1 : 0,
+            form => 1,
+            desc => $ML{'.cat.privacy.desc'},
+            settings => [qw(
+                LJ::Setting::MinSecurity
+                LJ::Setting::SearchInclusion
+                LJ::Setting::ContentPromotion
+                LJ::Setting::NotifyWeblogs
+                LJ::Setting::FacebookBeacon
+                LJ::Setting::EnableComments
+                LJ::Setting::CommentScreening
+                LJ::Setting::CommentCaptcha
+                LJ::Setting::CommentIP
+                LJ::Setting::Display::BanUsers
+                LJ::Setting::FindByEmail
+            )],
+        },
+        history => {
+            name => $ML{'.cat.history'},
+            visible => 1,
+            disabled => !$u || $u->is_community ? 1 : 0,
+            form => 0,
+            desc => $ML{'.cat.history.desc'},
+            settings => [qw(
+                LJ::Setting::Display::Logins
+                LJ::Setting::Display::Payments
+                LJ::Setting::Display::Emails
+                LJ::Setting::Display::EmailPosts
+                LJ::Setting::Display::SMSHistory
+                LJ::Setting::Display::GiftCerts
+            )],
+        },
+    );
+
+    LJ::run_hook("settings_extra_cats", \@cats_order, \%cats_with_settings, user => $u);
+
+    my $given_cat = $GET{cat};
+    if ($u) {
+        $given_cat = "account"
+            unless defined $cats_with_settings{$given_cat} &&
+                   $cats_with_settings{$given_cat}->{visible} &&
+                   !$cats_with_settings{$given_cat}->{disabled};
+    } else {
+        $given_cat = "display";
+    }
+
+    my @settings = @{$cats_with_settings{$given_cat}->{settings}};
+
+    # remove any settings that don't exist for this category
+    my $remove_setting = sub {
+        my $el_ref = shift;
+
+        splice(@settings, $$el_ref, 1);
+        $$el_ref--;
+    };
+    for (my $i = 0; $i < scalar @settings; $i++) {
+        my $setting = $settings[$i];
+
+        if (eval "use $setting; 1;") {
+            $remove_setting->(\$i) unless $setting->should_render($u);
+        } else {
+            $remove_setting->(\$i);
+        }
+    }
+
+    my $save_rv;
+    my $submit_msg;
+    if (LJ::did_post()) {
+        return LJ::bad_input($ML{'error.invalidform'})
+            unless LJ::check_form_auth();
+
+        if ($given_cat eq "notifications") {
+            my @notif_errors;
+
+            # do they want to add or edit subscriptions?
+            next unless $POST{mode} eq 'save_subscriptions';
+
+            my @sub_edit;
+            my @to_consider;
+            my @to_activate;
+
+            foreach my $postkey (keys %POST) {
+                my $subscr;
+                my $old_postkey = $postkey;
+                my $old = $postkey =~ /-old$/;
+
+                # are there other options for this pending subscription? if so, process those not this one
+                next if $postkey =~ /\.arg\d/;
+
+                $subscr = LJ::Subscription->thaw($postkey, $u, \%POST) or next;
+
+                if ($subscr->pending) {
+                    push @to_consider, $subscr;
+                } else {
+                    push @to_activate, $subscr if !$old && !$subscr->active;
+                }
+
+                # remove old string
+                $postkey =~ s/-old// if $old;
+
+                next unless $old;
+
+                my $oldvalue = $POST{$old_postkey};
+                my $checked = $POST{$postkey};
+
+                push @sub_edit, [
+                                 $subscr,
+                                 $checked,
+                                 $oldvalue,
+                                 ];
+            }
+
+            # first process deletions
+            foreach my $edit_info (@sub_edit) {
+                my ($subscr, $checked, $oldvalue) = @$edit_info;
+
+                if (!$checked && $oldvalue && $subscr->method->configured_for_user($u)) {
+                    # if it's not checked and is currently a real subscription, deactivate it
+                    # unless we disabled it for them (disabled checkboxes don't POST)
+                    $subscr->deactivate;
+                }
+            }
+
+            # then process new subs and activations
+            foreach my $subscr (@to_activate) {
+                my @inbox_subs = grep { $_->active && $_->enabled } $u->find_subscriptions(method => 'Inbox');
+
+                if ((scalar @inbox_subs) >= $u->max_subscriptions) {
+                    # too many, sorry
+                    push @notif_errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $u);
+                } else {
+                    # all is good, reactivate it
+                    $subscr->activate;
+                }
+            }
+
+            # Define limits
+            my $paid_max = LJ::get_cap('paid', 'subscriptions');
+            my $u_max  = $u->max_subscriptions;
+            # max for total number of subscriptions (generally it is $paid_max)
+            my $system_max  = $u_max > $paid_max ? $u_max : $paid_max;
+
+            my $inbox_ntypeid = LJ::NotificationMethod::Inbox->ntypeid;
+            my @other_ntypeid_to_consider;
+
+            # process new inbox subs
+            foreach my $subscr (@to_consider) {
+                # if this is not an inbox sub, check it
+                if ($subscr->ntypeid != $inbox_ntypeid) {
+                    push @other_ntypeid_to_consider, $subscr;
+                } else {
+                    # this is an inbox subscription, save it
+                    my @all_subs = $u->find_subscriptions(method => 'Inbox');
+                    my @active_subs = grep { $_->active && $_->enabled } @all_subs;
+
+                    if (@active_subs >= $u_max) {
+                        push @notif_errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $u);
+                    } elsif (@all_subs >= $system_max) {
+                        push @notif_errors, LJ::errobj("Subscription::TooManySystemMax", subscr => $subscr, u => $u, max => $system_max);
+                    } else {
+                        # save this for consideration after we've processed all inbox subscriptions first
+                        $subscr->commit;
+                    }
+                }
+            }
+
+            # process all other new subs
+            foreach my $subscr (@other_ntypeid_to_consider) {
+                my %inbox_sub_params = $subscr->sub_info;
+                # don't save a subscription if there is no corresponding inbox sub for it
+                $inbox_sub_params{ntypeid} = $inbox_ntypeid;
+                delete $inbox_sub_params{flags};
+
+                my ($inbox_sub) = $u->has_subscription(%inbox_sub_params);
+
+                # If Inbox is always on, then act like an Inbox sub exists
+                my $always_checked = $subscr->event_class->always_checked ? 1 : 0;
+                next if (!$always_checked && !($inbox_sub && $inbox_sub->active && $inbox_sub->enabled));
+
+                my @all_subs = $u->find_subscriptions(method => $subscr->method);
+                my @active_subs = grep { $_->active && $_->enabled } @all_subs;
+
+                if (@active_subs >= $u_max) {
+                    push @notif_errors, LJ::errobj("Subscription::TooMany", subscr => $subscr, u => $u);
+                    next;
+                } elsif (@all_subs >= $system_max) {
+                    push @notif_errors, LJ::errobj("Subscription::TooManySystemMax", subscr => $subscr, u => $u, max => $system_max);
+                    next;
+                }
+
+                $subscr->commit;
+            }
+
+            delete $u->{_subscriptions};
+
+            return BML::redirect($POST{ret_url}) if $POST{ret_url} && !scalar @notif_errors;
+
+            # save the LJ::Setting notifications too
+            unless ($POST{post_to_settings_page}) {
+                $save_rv = LJ::Setting->save_all($u, \%POST, \@settings);
+            }
+
+            if (scalar @notif_errors || LJ::Setting->save_had_errors($save_rv)) {
+                $submit_msg .= LJ::error_list(@notif_errors) . "<br />";
+            } else {
+                $submit_msg .= "<?warningbar $ML{'.success'} warningbar?><br />";
+            }
+        } else {
+            $save_rv = LJ::Setting->save_all($u, \%POST, \@settings);
+
+            if (LJ::Setting->save_had_errors($save_rv)) {
+                $submit_msg .= "<?errorbar $ML{'.errors'} errorbar?><br />";
+            } else {
+                $submit_msg .= "<?warningbar $ML{'.success'} warningbar?><br />";
+            }
+        }
+    }
+
+    if ($given_cat eq "notifications") {
+        # look for deletions from GET
+        my $deleted_subs = 0;
+        foreach my $subscr ($u->subscriptions) {
+            my $id = $subscr->id;
+            next unless $id;
+
+            if ($GET{"deletesub_$id"}) {
+                $subscr->delete;
+                $deleted_subs = 1;
+            }
+        }
+        $submit_msg .= "<?warningbar $ML{'.success'} warningbar?><br />"
+            if $deleted_subs;
+    }
+
+    my $ret = "<div id='settings_page'>";
+
+    my ($getextra, $getsep) = ("", "?");
+    $title = $windowtitle = $ML{'.title.self'};
+    if ($u && $authas ne $remote->user) {
+        $getextra = "?authas=$authas";
+        $getsep = "&";
+        $title = BML::ml('.title.comm', { user => $u->ljuser_display({ head_size => 24 }) });
+        $windowtitle = BML::ml('.title.comm', { user => $u->display_username });
+    }
+
+    if ($u) {
+        $ret .= "<div id='authas_select'>";
+        $ret .= "<form action='$LJ::SITEROOT/manage/settings/index2.bml' method='get'>";
+        $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
+        $ret .= LJ::html_hidden( cat => $given_cat );
+        $ret .= "</form>";
+        $ret .= "</div>";
+    }
+
+    $ret .= "<p id='intro'>" . BML::ml('.intro3', { aopts1 => "href='$LJ::SITEROOT/manage/profile/$getextra'", aopts2 => "href='$LJ::SITEROOT/customize/$getextra'" }) . "</p>"
+        if $u;
+    $ret .= $submit_msg;
+
+    $ret .= "<div id='settings_left'>";
+
+    $ret .= "<ul id='settings_nav'>";
+    foreach my $cat (@cats_order) {
+        next unless $cats_with_settings{$cat}->{visible};
+
+        if ($cats_with_settings{$cat}->{disabled}) {
+            $ret .= "<li class='disabled'>$cats_with_settings{$cat}->{name}</li>";
+        } else {
+            my $active_class = " class='active'" if $cat eq $given_cat;
+            $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/index2.bml$getextra${getsep}cat=$cat'$active_class>$cats_with_settings{$cat}->{name}</a></li>";
+        }
+    }
+    $ret .= "</ul>";
+
+    $ret .= "<div id='settings_nav_title'><p>";
+    $ret .= $cats_with_settings{$given_cat}->{desc};
+    $ret .= "</p></div>";
+
+    if ($cats_with_settings{$given_cat}->{form}) {
+        my $confirm_msg = LJ::ejs($ML{'.form.confirm'});
+        $ret .= "<script>Settings.confirm_msg = \"$confirm_msg\";</script>";
+        $ret .= "<form id='settings_form' action='$LJ::SITEROOT/manage/settings/index2.bml$getextra${getsep}cat=$given_cat' method='post'>";
+        $ret .= LJ::form_auth();
+    }
+    $ret .= "<div class='settings_content'>";
+    $ret .= "<div class='$given_cat'>";
+
+    if ($given_cat eq "notifications") {
+        my $my_account_extra = LJ::run_hook('subscriptions_manage_my_account_extra', $u);
+
+        # set up default subscriptions for users that have not managed ESN stuff
+        if (!$u->prop('esn_has_managed') && !$u->subscription_count) {
+            $u->set_prop( esn_has_managed => 1 );
+
+            my @default_subscriptions = (
+                LJ::Subscription::Pending->new($u,
+                    event => 'OfficialPost',
+                ),
+            );
+
+            push @default_subscriptions, $my_account_extra
+                if $my_account_extra;
+
+            if ($u->prop('opt_gettalkemail') ne 'N') {
+                push @default_subscriptions, (
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment',
+                        journal => $u,
+                        method => 'Inbox',
+                    ),
+
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment',
+                        journal => $u,
+                        method => 'Email',
+                    ),
+                );
+            }
+
+            $_->commit foreach @default_subscriptions;
+        }
+
+        my @categories = (
+            {
+                "My Account" => [
+                    LJ::Subscription::Pending->new($u,
+                        event => 'OfficialPost',
+                    ),
+                    LJ::Subscription::Pending->new($u,
+                        event => 'JournalNewComment',
+                        journal => $u,
+                    ),
+                    "LJ::Setting::CommentEmailNotify",
+                    "LJ::Setting::SelfCommentEmail",
+                    LJ::Subscription::Pending->new($u,
+                        event => 'PollVote',
+                        journal => $u,
+                    ),
+                    'Befriended',
+                    'Defriended',
+                    LJ::Subscription::Pending->new($u,
+                        event => 'UserMessageRecvd',
+                        journal => $u,
+                        default_selected => 1,
+                    ),
+                ],
+            },
+            {
+                "Friends and Communities" => [
+                    'InvitedFriendJoins',
+                    'CommunityInvite',
+                    'CommunityJoinRequest',
+                    LJ::Subscription::Pending->new($u,
+                        event => 'NewUserpic',
+                    ),
+                    LJ::Subscription::Pending->new($u,
+                        event => 'Birthday',
+                    ),
+                    (LJ::run_hook('subscriptions_manage_friend_pending_extra', $u) || ()),
+                ],
+            },
+        );
+
+        unshift @{$categories[0]->{'My Account'}}, $my_account_extra
+            if $my_account_extra;
+
+        $ret .= LJ::subscribe_interface($u,
+            journal       => $u,
+            categories    => \@categories,
+            showtracking  => 1,
+            settings_page => 1,
+        ) . "<br />";
+
+    } else {
+        my $setting_ct = 1;
+        $ret .= "<table cellpadding='0' cellspacing='0'>";
+        foreach my $setting (@settings) {
+            my $errors = $setting->errors_from_save($save_rv);
+            my $args = $setting->args_from_save($save_rv);
+
+            my $label = $setting->label;
+            my $option = $setting->option($u, $errors, $args, getargs => \%GET );
+            my $actionlink = $setting->actionlink($u);
+            my $helpicon = LJ::help_icon($setting->helpurl($u));
+            my $last_class = $setting_ct == scalar @settings ? " last" : "";
+
+            $ret .= "<tr>";
+            $ret .= "<td class='${given_cat}_label$last_class'>$label</td>" if $label;
+            $ret .= "<td class='${given_cat}_option$last_class'>" . ($option ? $option : "&nbsp;") . "</td>";
+            $ret .= "<td class='${given_cat}_actionlink$last_class'>" . ($actionlink ? $actionlink : "&nbsp;") . "</td>";
+            $ret .= "<td class='help$last_class'>" . ($helpicon ? $helpicon : "&nbsp;") . "</td>";
+            $ret .= "</tr>";
+
+            $setting_ct++;
+        }
+        $ret .= "</table>";
+
+        if ($given_cat eq "account") {
+            my $account_stats = LJ::run_hook("settings_account_stats", $u);
+            if ($account_stats) {
+                $ret .= "<div class='account_stats'>";
+                $ret .= $account_stats;
+                $ret .= "</div>";
+            }
+        }
+    }
+
+    $ret .= "</div>";
+    $ret .= "</div>";
+
+    $ret .= "<div id='settings_save'>";
+    $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
+    $ret .= "</div>";
+    $ret .= "</form>" if $cats_with_settings{$given_cat}->{form};
+
+    $ret .= "</div>";
+
+    $ret .= "</div>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

@@ -11,7 +11,7 @@ body<=
     my $print_with_ad = sub {
         my $str = shift;
 
-        my $ad_func_2col = LJ::ad_display( type => 'app', orient => 'BML-App-Func-2column' );
+        my $ad_func_2col = LJ::get_ads({ location => 'bml.community.members/error', ljadwrapper => 1 });
         return $str . $ad_func_2col;
     };
 
@@ -26,8 +26,17 @@ body<=
         return $print_with_ad->($ret);
     }
 
-    my $cname = $GET{'comm'};
+    # old GET arg
+    if ($GET{comm}) {
+        return BML::redirect("$LJ::SITEROOT/community/members.bml?authas=$GET{comm}");
+    }
+
+    my $cname = $GET{authas};
     return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+
+    $ret .= "<form action='members.bml' method='GET'>\n";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
+    $ret .= "</form>\n\n";
 
     # get $c object
     my $c = LJ::load_user($cname);
@@ -53,6 +62,8 @@ body<=
         $ret .= " p?>";
         return $print_with_ad->($ret);
     }
+
+    $ret .= LJ::maintainer_linkbar($c, "members");
 
     my @allattribs = ('member', 'post', 'preapprove', 'moderate', 'admin');
     my %attrshort = ( X => 'member', P => 'post', N => 'preapprove', M => 'moderate', A => 'admin');
@@ -199,6 +210,7 @@ body<=
 
         # users already in community
         my $maints = 0;
+        my $us = LJ::load_userids(@userids);
         my (%addr, %delr); # store additions and removals sorted by userid
         foreach my $id (@userids) {
             $id = $id + 0;
@@ -216,7 +228,7 @@ body<=
                     }
                 }
             }
-            $maints++ if $POST{"edit_${id}_admin"};
+            $maints++ if $POST{"edit_${id}_admin"} && !$us->{$id}->is_expunged;
         }
 
         # can't remove ALL maintainers, give them an error so they can
@@ -225,7 +237,7 @@ body<=
              $ret .= "<?h1 $ML{'Error'} h1?><?p Your community, " .
                      LJ::ljuser($cname, { 'type' => 'C' }) .
                      ", must have at least one maintainer. " .
-                     "Please <a href='" . BML::get_uri() . "?comm=$cname'>" .
+                     "Please <a href='" . BML::get_uri() . "?authas=$cname'>" .
                      "go back</a> and add a maintainer. p?>";
              return $print_with_ad->($ret);
         }
@@ -411,7 +423,11 @@ $LJ::SITEROOT
             push @msgs, LJ::ljuser($users{$id}) . ":<ul>$str</ul>" if $str;
         }
 
-        my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+        my $ad_box = LJ::get_ads({ 
+            location    => 'bml.community.members/main', 
+            ljadwrapper => 1,
+            below_ad    => LJ::CProd->full_box_for($remote, width => 300),
+        });
         $ret .= $ad_box . "<?h1 $ML{'.success.header'} h1?>";
         if (@msgs) {
             $ret .= "<?p $ML{'.success.message2'} p?>\n<ul>";
@@ -432,7 +448,7 @@ $LJ::SITEROOT
             $ret .= "</ul>";
         }
         $ret .= "<?p $ML{'.success.nochanges'} p?>" unless @msgs || @invited;
-        $ret .= "<?p " . BML::ml('.success.return2', {'aopts' => "href='" . BML::get_uri() . "?comm=$cname'"}) . " p?>";
+        $ret .= "<?p " . BML::ml('.success.return2', {'aopts' => "href='" . BML::get_uri() . "?authas=$cname'"}) . " p?>";
         $ret .= LJ::Widget::GettingStarted->render;
 
         return $ret;
@@ -513,7 +529,7 @@ $LJ::SITEROOT
     # how to make links back to this page
     my $self_link = sub {
         my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
-        return "members.bml?comm=$cname&page=$_[0]$sort";
+        return "members.bml?authas=$cname&page=$_[0]$sort";
     };
 
     my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
@@ -522,15 +538,15 @@ $LJ::SITEROOT
     @users = @{$items{'items'}};
 
     # output starts here
-    $ret .= "<?p " . BML::ml('.name', { 'name' => LJ::ljuser($cname, { 'type' => 'C' }) });
-    $ret .= " " . BML::ml('Actionlink', {'link' => "<a href='$LJ::SITEROOT/community/settings.bml?comm=$cname'>$ML{'.settings2'}</a>"}) . " p?>";
+    $ret .= BML::ml('.intro', { aopts1 => "href='$LJ::HELPURL{maintainership}'", aopts2 => "href='$LJ::HELPURL{add_to_comm}'" }) . "<br /><br />";
+    $ret .= $ML{'.intro.invite'};
 
-    $ret .= "<form method='post' action='members.bml?comm=$cname'>";
+    $ret .= "<form method='post' action='members.bml?authas=$cname'>";
     $ret .= LJ::form_auth();
 
     # jump to user
     if ($items{'pages'} > 1) {
-        $ret .= "<div style='margin-left: 30px;'>Jump to user: ";
+        $ret .= "<div style='margin-left: 30px;'>$ML{'.jump'}: ";
         $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
                                 'class' => 'text', 'size' => '10', 'maxlength' => '15' }) . " ";
         $ret .= LJ::html_submit(undef, 'Go') . "</div>";
@@ -538,7 +554,7 @@ $LJ::SITEROOT
         $ret .= $navbar;
     }
 
-    my $sortlink = BML::get_uri() . "?comm=$cname&sort=";
+    my $sortlink = BML::get_uri() . "?authas=$cname&sort=";
     $ret .= "<br /><div align='center'><table class='alternating-rows' cellpadding='0' cellspacing='0'>\n<tr>" .
             "<th><a href='${sortlink}name'>$ML{'.key.user'}</a></th>";
     $ret .= "<th><a href='${sortlink}$_'>".$ML{".key.$_"}."</a></th>" for (@attribs);

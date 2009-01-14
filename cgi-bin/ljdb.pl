@@ -517,6 +517,17 @@ sub dbtime_callback {
     }
 }
 
+sub foreach_cluster {
+    my $coderef = shift;
+    my $opts = shift || {};
+    
+    foreach my $cluster_id (@LJ::CLUSTERS) {
+        my $dbr = ($LJ::IS_DEV_SERVER) ?
+            LJ::get_cluster_reader($cluster_id) : LJ::DBUtil->get_inactive_db($cluster_id, $opts->{verbose});
+        $coderef->($cluster_id, $dbr);
+    }
+}
+
 
 sub isdb { return ref $_[0] && (ref $_[0] eq "DBI::db" ||
                                 ref $_[0] eq "Apache::DBI::db"); }

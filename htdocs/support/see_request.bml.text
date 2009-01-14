@@ -15,6 +15,10 @@
 
 .change.cat=Change Category
 
+.change.language=Change Language:
+
+.change.language.nolang=(no language set)
+
 .change.summary=Change summary
 
 .clear=Clear
@@ -136,6 +140,20 @@ and correct, it will be sent to the user. p?>
 .summary=Summary
 
 .supportcategory=Support category
+
+.tier=Tier:
+
+.tier.0=Tier 0
+
+.tier.1=Tier 1
+
+.tier.2=Tier 2
+
+.tier.3=Tier 3
+
+.tier.selectone=(select one)
+
+.tier.set=Set Tier for Response:
 
 .timeposted=Time posted
 

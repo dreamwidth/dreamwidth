@@ -147,6 +147,17 @@
 
     $body .= "<dl>\n";
 
+    if ($u->is_locked) {
+        $body .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.locked'}</div>";
+    } elsif ($u->is_memorial) {
+        $body .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.memorial'}</div>";
+    } elsif ($u->is_readonly) {
+        $body .= "<div class='warningbar warning-background' style='text-align: center; margin: 5px auto;'>$ML{'statusvis_message.readonly'}</div>";
+    }
+
+    $body .= "<dl>\n";
+
+    # load items
     my $db = LJ::get_cluster_reader($u);
     my $sth = $db->prepare("SELECT l.jitemid, l.anum, l.day, l.eventtime, l.posterid, ".
                            "l.replycount, l.security, l.allowmask ".
@@ -172,6 +183,9 @@
     {
         my ($itemid, $anum, $day, $eventtime, $posterid, $replycount, $security, $allowmask) = @$it;
         next if $u{$posterid}->is_suspended && !$viewsome;
+
+        my $entry = LJ::Entry->new($u, jitemid => $itemid);
+        next if $entry && $entry->is_suspended_for($remote);
 
         my $subject = $lt->{$itemid}->[0];
         my $poster = $u{$posterid}->{user};

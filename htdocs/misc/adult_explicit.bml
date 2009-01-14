@@ -8,7 +8,7 @@ body<=
     BML::set_language_scope("/misc/adult_content.bml");
     $windowtitle = $ML{'.title'};
     my $ret = '';
-    my $returl = $POST{ret} || LJ::ehtml($GET{ret});
+    my $returl = $POST{ret} || $GET{ret};
 
     # reload this entry if the user is logged in and has an age, since
     # only logged out users and users without ages should be here

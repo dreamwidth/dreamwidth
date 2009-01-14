@@ -20,8 +20,17 @@ body<=
         return $ret;
     }
 
-    my $cname = $GET{comm};
+    # old GET arg
+    if ($GET{comm}) {
+        return BML::redirect("$LJ::SITEROOT/community/sentinvites.bml?authas=$GET{comm}");
+    }
+
+    my $cname = $GET{authas};
     return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+
+    $ret .= "<form action='sentinvites.bml' method='GET'>\n";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
+    $ret .= "</form>\n\n";
 
     # get $c object
     my $c = LJ::load_user($cname);
@@ -47,6 +56,8 @@ body<=
         $ret .= " p?>";
         return $ret;
     }
+
+    $ret .= LJ::maintainer_linkbar($c, "invites");
 
     # columns of our table, excluding username
     my @attribs = ('post');
@@ -82,7 +93,7 @@ body<=
     # hop out if there were no invites
     unless (%users) {
         return "$ret<?h1 $ML{'.none.title'} h1?><?p " .
-               BML::ml('.none.body', { aopts => "href='/community/members.bml?comm=$c->{user}'" }) .
+               BML::ml('.none.body', { aopts => "href='/community/members.bml?authas=$c->{user}'" }) .
                " p?>";
     }
     
@@ -121,7 +132,7 @@ body<=
     my $self_link = sub {
         my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
         my $filter = "&show=$GET{'show'}" if $GET{'show'};
-        return "sentinvites.bml?comm=$cname&page=$_[0]$sort$filter";
+        return "sentinvites.bml?authas=$cname&page=$_[0]$sort$filter";
     };
 
     my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
@@ -130,12 +141,10 @@ body<=
     @users = @{$items{'items'}};
 
     # output starts here
-    $ret .= "<?p " . BML::ml('/community/members.bml.name', { 'name' => LJ::ljuser($cname, { 'type' => 'C' }) });
-    $ret .= " " . BML::ml('/community/members.bml.settings', { 'link' => "settings.bml?comm=$cname"}) . " p?>";
 
     # jump to user
     if ($items{'pages'} > 1) {
-        $ret .= "<form method='post' action='sentinvites.bml?comm=$cname'>";
+        $ret .= "<form method='post' action='sentinvites.bml?authas=$cname'>";
         $ret .= "<div style='margin-left: 30px;'>Jump to user: ";
         $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
                                 'size' => '10', 'maxlength' => '15' }) . " ";
@@ -146,14 +155,14 @@ body<=
 
     # setup showlinks
     my $showlinks = "<form method='get' action='/community/sentinvites.bml'>";
-    $showlinks .= LJ::html_hidden('comm', $c->{user});
+    $showlinks .= LJ::html_hidden('authas', $c->{user});
     $showlinks .= "Filter to: ";
     $showlinks .= LJ::html_select({ name => 'show', selected => $GET{show} }, map { $_, $_ } qw(all accepted outstanding rejected));
     $showlinks .= LJ::html_submit(undef, 'Refresh');
     $showlinks .= "</form>";
 
     my $filter = "&show=$GET{show}" if $GET{show};
-    my $sortlink = BML::get_uri() . "?comm=$cname$filter&sort=";
+    my $sortlink = BML::get_uri() . "?authas=$cname$filter&sort=";
     $ret .= "<br /><div align='center'>$showlinks";
     $ret .= <<END; 
 <table class='borderedtable' cellpadding='2' cellspacing='0'>
@@ -201,7 +210,7 @@ END
     }
 
     $ret .= "</table>\n";
-    $ret .= "<br /><a href='/community/members.bml?comm=$c->{user}'>$ML{'.send'}</a>";
+    $ret .= "<br /><a href='/community/members.bml?authas=$c->{user}'>$ML{'.send'}</a>";
     $ret .= "</div>\n\n";
     $ret .= $navbar;
     return $ret;

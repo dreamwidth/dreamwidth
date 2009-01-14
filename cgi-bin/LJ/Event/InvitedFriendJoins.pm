@@ -14,61 +14,69 @@ sub new {
 
 sub is_common { 0 }
 
+my @_ml_strings = (
+    'esn.invited_friend_joins.subject', # '[[who]] created a journal!'
+    'esn.add_friend',                   # '[[openlink]]Add [[journal]] to your Friends list[[closelink]]',
+    'esn.read_journal',                 # '[[openlink]]Read [[postername]]\'s journal[[closelink]]',
+    'esn.view_profile',                 # '[[openlink]]View [[postername]]\'s profile[[closelink]]',
+    'esn.invite_another_friend',        # '[[openlink]]Invite another friend[[closelink]]",
+    'esn.invited_friend_joins.email',   # 'Hi [[user]],
+                                        #
+                                        # Your friend [[newuser]] has created a journal on [[sitenameshort]]!
+                                        #
+                                        # You can:'
+);
+
 sub as_email_subject {
     my ($self, $u) = @_;
-    return sprintf "%s created a journal!", $self->friend->user;
+    return LJ::Lang::get_text($u->prop('browselang'),
+        'esn.invited_friend_joins.subject', undef,
+        { who => $self->friend->display_username } );
+}
+
+sub _as_email {
+    my ($self, $u, $is_html) = @_;
+
+    return '' unless $u && $self->friend;
+
+    my $lang            = $u->prop('browselang');
+    my $user            = $is_html ? $u->ljuser_display : $u->display_username;
+    my $newusername     = $self->friend->display_username;
+    my $newuser         = $is_html ? $self->friend->ljuser_display : $newusername;
+    my $newuser_url     = $self->friend->journal_base;
+    my $newuser_profile = $self->friend->profile_url;
+
+    # Precache text lines
+    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings);
+
+    my $vars = {
+            user            => $user,
+            who             => $newuser,
+            newuser         => $newuser,
+            postername      => $newusername,
+            journal         => $newusername,
+            sitenameshort   => $LJ::SITENAMESHORT,
+    };
+
+    return LJ::Lang::get_text($lang, 'esn.invited_friend_joins.email', undef, $vars) .
+        $self->format_options($is_html, $lang, $vars,
+        {
+            'esn.add_friend'            => [ 1, "$LJ::SITEROOT/friends/add.bml?user=$newusername" ], # Why not $self->friend->addfriend_url ?
+            'esn.read_journal'          => [ 2, $newuser_url ],
+            'esn.view_profile'          => [ 3, $newuser_profile ],
+            'esn.invite_another_friend' => [ 4, "$LJ::SITEROOT/friends/invite.bml" ],
+        }
+    );
 }
 
 sub as_email_string {
     my ($self, $u) = @_;
-    return '' unless $u && $self->friend;
-
-    my $username = $u->user;
-    my $newuser = $self->friend->user;
-    my $newuser_url = $self->friend->journal_base;
-    my $newuser_profile = $self->friend->profile_url;
-
-    my $email = qq {Hi $username,
-
-Your friend $newuser has created a journal on $LJ::SITENAMESHORT!
-
-You can:
-  - Add $newuser to your Friends list
-    $LJ::SITEROOT/friends/add.bml?user=$newuser
-  - Read $newuser\'s journal
-    $newuser_url
-  - View $newuser\'s profile
-    $newuser_profile
-  - Invite another friend
-    $LJ::SITEROOT/friends/invite.bml
-};
-
-    return $email;
+    return _as_email($self, $u, 0);
 }
 
 sub as_email_html {
     my ($self, $u) = @_;
-    return '' unless $u && $self->friend;
-
-    my $username = $u->ljuser_display;
-    my $newuser = $self->friend->ljuser_display;
-    my $newusername = $self->friend->user;
-    my $newuser_url = $self->friend->journal_base;
-    my $newuser_profile = $self->friend->profile_url;
-
-    my $email = qq {Hi $username,
-
-Your friend $newuser has created a journal on $LJ::SITENAMESHORT!
-
-You can:<ul>};
-
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/add.bml?user=$newusername\">Add $newusername to your Friends list</a></li>";
-    $email .= "<li><a href=\"$newuser_url\">Read $newusername\'s journal</a></li>";
-    $email .= "<li><a href=\"$newuser_profile\">View $newusername\'s profile</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/invite.bml\">Invite another friend</a></li>";
-    $email .= "</ul>";
-
-    return $email;
+    return _as_email($self, $u, 1);
 }
 
 sub as_html {
@@ -109,9 +117,10 @@ sub friend {
     return LJ::load_userid($self->arg1);
 }
 
+
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-    return "Someone I invited creates a new journal";
+    return BML::ml('event.invited_friend_joins'); # "Someone I invited creates a new journal";
 }
 
 sub content {

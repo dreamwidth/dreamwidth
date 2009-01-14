@@ -17,7 +17,7 @@ Terms, definitions, and insight.</para>
     <glossentry>
     <glossterm><acronym>BML</acronym></glossterm>
     <glossdef><para>Better Markup Language. A website template
-    system written in Perl using &apache; and &modperl;.
+    system, which embeds perl. It is written in Perl using &apache; and &modperl;.
     </para></glossdef>
     </glossentry>
 
@@ -25,8 +25,8 @@ Terms, definitions, and insight.</para>
     <glossterm>FotoBilder</glossterm>
     <glossdef><para>&fb; is an open source web application built on
     &modperl; &amp; &mysql; that lets users manage pictures. &fb; is a
-    compound german word: <quote>das Foto</quote> (photo) &amp;
-    <quote>die Bilder</quote> (pictures).
+    compound German word: <quote><foreignphrase lang="de">das Foto</foreignphrase></quote> (photo)
+    &amp; <quote><foreignphrase lang="de">die Bilder</foreignphrase></quote> (pictures).
     </para></glossdef>
     </glossentry>
 
@@ -84,7 +84,7 @@ Terms, definitions, and insight.</para>
     <glossterm><filename>ljconfig.pl</filename></glossterm>
     <glossdef><para>This file (in the 
     <filename class="directory">etc</filename> directory) contains the
-    settings for a &lj; installation; site admins enable/disable/override features
+    settings for a &lj; installation; site admins enable/disable/configure features
     here.</para></glossdef>
     </glossentry>
 
@@ -156,6 +156,12 @@ Terms, definitions, and insight.</para>
     good enough buddy?</quote></para></glossdef>
     </glossentry>
 
+    <glossentry>
+    <glossterm>commitback</glossterm>
+    <glossdef><para>The putting of a code change, such as one made in the
+    trunk &svn; repository, into a certain release branch of the repository
+    for deployment to the live site.</para></glossdef>
+    </glossentry>
 
     <glossentry>
     <glossterm>Daughter sites</glossterm>
@@ -178,8 +184,9 @@ Terms, definitions, and insight.</para>
     <literal>jitemid</literal> of 50, etc. <literal>jitemid</literal> never
     goes <emphasis>down</emphasis>; if you post 50 entries, then delete #50,
     and post another, that entry will have a <literal>jitemid</literal> of 51.
-    The <literal>jitemid</literal> is the whole-number part of the regular
-    <literal>itemid</literal>, divided by 256. (What this means is that
+    The <literal>jitemid</literal> private sequential id is the whole-number
+    part of the regular public <literal>itemid</literal>, divided by
+    256. (What this means is that 
     <literal>itemid</literal> = <literal>jitemid</literal>*256 +
     <literal>anum</literal>, where <literal>anum</literal> is a random number
     between 0 and 255.) Consequently, with this information, you can see
@@ -194,7 +201,7 @@ Terms, definitions, and insight.</para>
 
     <glossentry>
     <glossterm><acronym>ippu</acronym></glossterm>
-    <glossdef><para>In Page Pop-Up Library. A library of common &js;
+    <glossdef><para>In-Page&ndash;Pop-Up&ndash;Library. A library of common &js;
     snippets used in the &lj;/&ljcom; code and other &sixacode; projects.
     </para></glossdef>
     </glossentry>
@@ -211,8 +218,20 @@ Terms, definitions, and insight.</para>
     </glossentry>
 
     <glossentry>
+    <glossterm>Scheme</glossterm>
+    <glossdef><para>A collection of &bml; templates that comprise a unique layout.</para></glossdef>
+    </glossentry>
+
+    <glossentry>
+    <glossterm>trunk</glossterm>
+    <glossdef><para>The base of a project on which development progresses, within a revision
+    control system such as &svn;.</para></glossdef>
+    </glossentry>
+
+    <glossentry>
     <glossterm>yadis</glossterm>
-    <glossdef><para>Was the working title for &openid;.</para></glossdef>
+    <glossdef><para>Was the working title for &openid;. Acronym
+    of <quote>Yet Another Distributed Identity System</quote>.</para></glossdef>
     </glossentry>
 
     </glossdiv>

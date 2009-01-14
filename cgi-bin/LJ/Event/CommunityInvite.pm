@@ -15,65 +15,72 @@ sub new {
 
 sub is_common { 0 }
 
+my @_ml_strings = (
+    'esn.comm_invite.subject',      # "You've been invited to join [[user]]"
+    'esn.comm_invite.email',        # 'Hi [[user]],
+                                    #
+                                    # [[maintainer]] has invited you to join the community [[community]]!
+                                    #
+                                    # You can:'
+    'esn.manage_invitations',       # '[[openlink]]Manage your invitations[[closelink]]'
+    'esn.read_last_comm_entries',   # '[[openlink]]Read the latest entries in [[journal]][[closelink]]'
+    'esn.view_profile',             # '[[openlink]]View [[postername]]'s profile[[closelink]]',
+    'esn.add_friend',               # '[[openlink]]Add [[journal]] to your Friends list[[closelink]]'
+);
+
 sub as_email_subject {
     my $self = shift;
     return sprintf "You've been invited to join %s", $self->comm->user;
 }
 
+sub _as_email {
+    my ($self, $u, $is_html) = @_;
+
+    my $lang        = $u->prop('browselang');
+
+    # Precache text lines
+    LJ::Lang::get_text_multi($lang, undef, \@_ml_strings);
+
+    my $username    = $u->user;
+    my $user        = $is_html ? $u->ljuser_display : $u->display_username;
+
+    my $maintainer  = $is_html ? $self->inviter->ljuser_display : $self->inviter->display_username;
+
+    my $communityname       = $self->comm->display_username;
+    my $community           = $is_html ? $self->comm->ljuser_display : $communityname;
+
+    my $community_url       = $self->comm->journal_base;
+    my $community_profile   = $self->comm->profile_url;
+    my $community_user      = $self->comm->user;
+
+    my $vars = {
+        user            => $user,
+        maintainer      => $maintainer,
+        community       => $community,
+        postername      => $communityname,
+        journal         => $communityname,
+    };
+
+    return LJ::Lang::get_text($lang, 'esn.comm_invite.email', undef, $vars) .
+        $self->format_options($is_html, $lang, $vars,
+        {
+            'esn.manage_invitations'        => [ 1, "$LJ::SITEROOT/manage/invites.bml" ],
+            'esn.read_last_comm_entries'    => [ 2, $community_url ],
+            'esn.view_profile'              => [ 3, $community_profile ],
+            'esn.add_friend'                => [ LJ::is_friend($u, $self->comm) ? 0 : 4,
+                                                "$LJ::SITEROOT/friends/add.bml?user=$community_user" ],
+        }
+    );
+}
+
 sub as_email_string {
     my ($self, $u) = @_;
-
-    my $username = $u->user;
-    my $maintainer = $self->inviter->user;
-    my $community = $self->comm->user;
-    my $community_url = $self->comm->journal_base;
-    my $community_profile = $self->comm->profile_url;
-
-    my $email = qq{Hi $username,
-
-$maintainer has invited you to join the community $community!
-
-You can:
-  - Manage your invitations
-    $LJ::SITEROOT/manage/invites.bml
-  - Read the latest entries in $community
-    $community_url
-  - View $community\'s profile
-    $community_profile};
-
-    $email .= "
-  - Add $community to your Friends list
-    $LJ::SITEROOT/friends/add.bml?user=$community"
-       unless LJ::is_friend($u, $self->comm);
-
-    return $email;
+    return _as_email($self, $u, 0);
 }
 
 sub as_email_html {
     my ($self, $u) = @_;
-
-    my $username = $u->ljuser_display;
-    my $maintainer = $self->inviter->ljuser_display;
-    my $community = $self->comm->ljuser_display;
-    my $communityname = $self->comm->user;
-    my $community_url = $self->comm->journal_base;
-    my $community_profile = $self->comm->profile_url;
-
-    my $email = qq{Hi $username,
-
-$maintainer has invited you to join the community $community!
-
-You can:<ul>};
-
-    $email .= "<li><a href=\"$LJ::SITEROOT/manage/invites.bml\">Manage your invitations</a></li>";
-    $email .= "<li><a href=\"$community_url\">Read the latest entries in $communityname</a></li>";
-    $email .= "<li><a href=\"$community_profile\">View $communityname\'s profile</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/add.bml?user=$communityname\">Add $communityname to your Friends list</a></li>"
-        unless LJ::is_friend($u, $self->comm);
-
-    $email .= "</ul>";
-
-    return $email;
+    return _as_email($self, $u, 1);
 }
 
 sub inviter {
@@ -128,7 +135,7 @@ sub as_sms {
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-    return "I receive an invitation to join a community";
+    return BML::ml('event.comm_invite'); # "I receive an invitation to join a community";
 }
 
 package LJ::Error::Event::CommunityInvite;

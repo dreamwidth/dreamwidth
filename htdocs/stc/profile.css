@@ -1,0 +1,271 @@
+#profile_page {
+    margin: 0 10px 0 0;
+}
+#profile_page a {
+    text-decoration: none;
+}
+#profile_page a:hover {
+    text-decoration: underline;
+}
+#profile_page a:visited {
+    color: #470196;
+}
+
+.left {
+    float: left;
+}
+.right {
+    float: right;
+}
+.clear_right {
+    clear: right;
+}
+.clear_left {
+    clear: left;
+}
+.tooltip {
+    border-bottom: 1px dotted #000;
+}
+
+/* start top box */
+
+#profile_top {
+    min-width: 740px;
+    margin: 15px 0 25px 0;
+}
+.userpicdiv {
+    float: left;
+    width: 100px;
+    text-align: center;
+    padding: 2px 0 0 0;
+}
+.user_pic {
+    margin: 0;
+    border: 0;
+}
+.user_pic_caption {
+    font-size: 0.7em;
+}
+.username {
+    margin: 2px 0 0 0;
+    font-size: 1.1em;
+    padding: 0;
+    border-bottom: 1px solid #c7e0f6;
+    background-color: #ecf6ff;
+    padding: 2px;
+}
+
+.actions {
+   
+}
+    .actions ul {
+        display: block;
+        float: right;
+        list-style: none;
+        margin: 0;
+    }
+    .actions li {
+        display: block;
+        padding: 3px 5px;
+        list-style: none;
+        border-bottom: 1px solid #c7e0f6;
+        background-color: #ecf6ff;
+        line-height: 18px;
+    }
+    .actions a {
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+    .actions img {
+        border: 0;
+        padding-right: 3px;
+        float: left;
+    }
+    .actions span {
+        display: block;
+        margin-top: 2px;
+    }
+    .profile_join_disabled, .profile_postentry_disabled, 
+    .profile_sendvgift_disabled, .profile_sendmessage_disabled, 
+    .profile_watch_disabled, .profile_addfeed_disabled,
+    .profile_addfriend_disabled, .profile_trackuser_disabled {
+        color: #999;
+        font-weight: bold;
+    }
+.user_details {
+    margin: 5px 0 20px 0;
+    float: left;
+    width: 70%;
+}
+
+.user_details_inner {
+    margin: 0 0 0 115px;
+}
+
+.details_journal {
+}
+    .details_journal .journal_title {
+        font-size: 1em;
+        font-weight: bold;
+    }
+    .details_journal .journal_subtitle {
+        font-style: italic;
+    }
+        
+.details_stats {
+    padding-right: 20px;
+}
+    .details_stats p {
+        font-size: 0.75em;
+        color: #666;
+        font-weight: normal;
+    }
+    .details_stats a {
+        font-weight: normal;
+        font-size: 1em;
+    }
+    .details_stats .account_level {
+        color: #000;
+    }
+    .details_stats .journal_warnings {
+        margin-top: 5px;
+    }
+        .details_stats .journal_adult_warning,
+        .details_stats .statusvis_msg {
+            font-weight: bold;
+        }
+
+.details_links {
+    padding: 12px 0 10px 0;
+}
+        
+        
+.user_details p, .user_details_bottom {
+    margin: 0;
+    padding: 0;
+}
+.user_details_bottom {
+    font-size: 0.85em;
+    padding-top: 5px;
+    font-weight: bold;
+}
+    .user_details_bottom a, .user_details_bottom span {
+        font-weight: normal;
+    }
+
+/* end top box */
+
+.section {
+    font-size: 1.1em;
+    font-weight: bold;
+    border-bottom: 1px solid #c7e0f6;
+    background-color: #ecf6ff;
+    margin: 10px 0 10px 0;
+    padding: 2px;
+    color: #222;
+    clear: both;
+}
+    .section span.section_link {
+        font-size: 0.75em;
+        font-weight: normal;
+        color: #000;
+    }
+.section_body {
+    padding: 0 20px 10px 20px;
+}
+    .section_body .inner_section_header {
+        color: #444;
+        font-weight: bold;
+        margin: 10px 0 0 0;
+    }
+        .section_body .inner_section_header_link {
+            font-size: 0.8em;
+            font-weight: normal;
+            }
+    .section_body .first {
+        margin: 0;
+    }
+    .section_body .inner_section_body {
+        margin: 0;
+    }
+    .section_body .alt_friends {
+        margin: 1px 0 0 0;
+    }
+span.expandcollapse {
+    cursor: pointer;
+}
+    .section_body .inner_section_header span.expandcollapse img {
+        margin-left: -17px;
+    }
+    
+.firsttwo {
+    clear: none;
+    margin-right: 310px;
+}
+
+.section_body_title {
+    color: #444;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+.userinfo, .external_services, .user_info_contact, .schools {
+    padding-bottom: 10px;
+}
+
+.userinfo {
+    float: left;
+    margin-right: 70px;
+}
+
+.userinfo th {
+    color: #444;
+    font-weight: bold;
+    text-align: right;
+}
+
+.userinfo th,
+.userinfo td {
+    vertical-align: top;
+}
+
+.contact {
+    float: left;
+}
+
+.external_services {
+    float: left;
+    margin: 10px 70px 0 0;
+}
+    .external_services img {
+        padding-right: 3px;
+        max-width: 19px;
+    }
+    .external_services table td.im_icon,
+    .external_services table td.im_status {
+        text-align: center;
+    }
+        .external_services table td.im_icon img,
+        .external_services table td.im_status img {
+            border: 0;
+        }
+
+.schools {  
+    float: left;
+    margin: 10px 0 0 0;
+    width: 50%;
+}
+    .schools_item {
+        font-size: 0.77em;
+    }
+         .schools_item a {
+             font-size: 1.07em;
+             }
+
+.profile_right_ad {
+    width: 300px;
+    float: right;
+    margin: 0 0 10px 10px;
+    padding: 0 0 0 10px;
+}

@@ -5,6 +5,13 @@ use base qw(LJ::SMS::MessageHandler);
 use strict;
 use Carp qw(croak);
 
+# handle messages from unverified users
+sub unverified_user_ok {
+    my ($class, $u) = @_;
+
+    return 1;
+}
+
 sub handle {
     my ($class, $msg) = @_;
 
@@ -23,7 +30,7 @@ sub owns {
     croak "invalid message passed to MessageHandler"
         unless $msg && $msg->isa("LJ::SMS::Message");
 
-    return $msg->body_text =~ /^\s*help/i ? 1 : 0;
+    return $msg->body_text =~ /^\s*help(?!\S)/i ? 1 : 0;
 }
 
 1;

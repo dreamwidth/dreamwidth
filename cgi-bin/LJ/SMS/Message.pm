@@ -214,8 +214,11 @@ sub new_from_dsms {
 
         $owner_num = $class->normalize_num($owner_num);
 
-        my $uid = LJ::SMS->num_to_uid($owner_num, verified_only => 0)
-            or croak "invalid owner id from number: $owner_num";
+        my $uid = LJ::SMS->num_to_uid($owner_num, verified_only => 0);
+        unless ($uid) {
+            return 0 if (LJ::SMS->handle_unmapped($dsms_msg));
+            croak "invalid owner id from number: $owner_num";
+        }
 
         $owneru = LJ::load_userid($uid);
         croak "invalid owner u from number: $owner_num"

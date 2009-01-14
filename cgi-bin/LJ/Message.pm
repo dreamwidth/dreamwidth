@@ -23,6 +23,13 @@ sub new {
     # unknown fields
     croak("Invalid fields: " . join(",", keys %$opts)) if (%$opts);
 
+    # Handle renamed users
+    my $other_u = LJ::want_user($self->{otherid});
+    if ($other_u && $other_u->is_renamed) {
+        $other_u = $other_u->get_renamed_user;
+        $self->{otherid} = $other_u->{userid};
+    }
+
     my $journalid = $self->{journalid} || undef;
     my $msgid = $self->{msgid} || undef;
 
@@ -369,6 +376,15 @@ sub can_send {
     # Can only send to other individual users
     unless ($ru->is_person || $ru->is_identity) {
         push @$errors, BML::ml('error.message.individual', { 'ljuser' => $ru->ljuser_display });
+        return 0;
+    }
+
+    # Can not send to deleted or expunged journals
+    if ($ru->is_deleted || $ru->is_expunged) {
+        push @$errors,
+             $ru->is_deleted
+                ? BML::ml('error.message.deleted', { 'ljuser' => $ru->ljuser_display })
+                : BML::ml('error.message.expunged', { 'ljuser' => $ru->ljuser_display });
         return 0;
     }
 

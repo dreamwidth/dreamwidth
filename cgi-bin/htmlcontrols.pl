@@ -235,7 +235,7 @@ sub html_text
 
     my $disabled = $opts->{'disabled'} ? " disabled='disabled'" : "";
     my $ehtml = $opts->{'noescape'} ? 0 : 1;
-    my $type = $opts->{'type'} eq 'password' ? 'password' : 'text';
+    my $type = $opts->{'type'} eq 'password' || $opts->{'type'} eq 'search' ? $opts->{'type'} : 'text';
     my $ret;
     $ret .= "<input type=\"$type\"";
     foreach (grep { ! /^(type|disabled|raw|noescape)$/ } keys %$opts) {

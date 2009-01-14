@@ -180,7 +180,7 @@ p?>
              $c =~ s/^\Q$cn\E\///;
              $out .= LJ::ehtml($c) . " ($count), ";
          }
-         chop $ret; chop $ret;  # remove trailing ", "
+         chop $out; chop $out;  # remove trailing ", "
          $out .= "</font>\n";
          $out .= "</td></tr>\n";
      }

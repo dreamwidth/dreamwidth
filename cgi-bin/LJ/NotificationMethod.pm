@@ -25,6 +25,7 @@ sub configured_for_user { my ($class, $u) = @_; return 0; }
 # override where applicable
 sub disabled_url { undef }
 sub url { undef }
+sub help_url { undef }
 
 # run a hook to see if a user can receive these kinds of notifications
 sub available_for_user  {

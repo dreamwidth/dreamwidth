@@ -3,6 +3,13 @@ title=><?_code return BML::ml('.title', { 'reqid' => $FORM{'id'}+0 }); _code?>
 head<=
 <?_code return LJ::robot_meta_tags(); _code?>
 <script language="JavaScript"><!--
+    var tier_cell = document.getElementById('tier_cell');
+    var approveans = document.getElementById('approveans');
+
+    if (tier_cell && !approveans) {
+        tier_cell.style.display = 'none';
+    }
+
     function check_replytype (e) {
         if (! e) var e = window.event;
         if (! document.getElementById) return false;
@@ -20,6 +27,16 @@ head<=
             bounce_email.style.display = 'inline';
         else
             bounce_email.style.display = 'none';
+
+        var tier_cell = document.getElementById('tier_cell');
+        var approveans = document.getElementById('approveans');
+
+        if (tier_cell && !approveans) {
+            if (replytype.value == 'answer' || replytype.value == 'internal')
+                tier_cell.style.display = 'block';
+            else
+                tier_cell.style.display = 'none';
+        }
 
         if (e) {
             e.cancelBubble = true;
@@ -73,6 +90,10 @@ head<=
     }
 
     function doChangeCategory () {
+        return doSetReplyType('internal');
+    }
+
+    function doChangeLanguage () {
         return doSetReplyType('internal');
     }
 
@@ -185,8 +206,12 @@ body<=
 
     my $u;
     my $clusterdown = 0;
-    if ($sp->{'reqtype'} eq "user") {
+    if ($sp->{'reqtype'} eq "user" && $sp->{'requserid'}) {
         $u = LJ::load_userid($sp->{'requserid'});
+        unless ($u) {
+            warn "Error: user '$sp->{requserid}' not found in request #$spid";
+            return "<?h1 $ML{'.error'} h1?><?p Unknown user p?>";
+        }
 
         # now do a check for a down cluster?
         my $dbr = LJ::get_cluster_reader($u);
@@ -205,6 +230,17 @@ body<=
                              "WHERE u.userid=sp.userid AND sp.spid=?");
         $sth->execute($spid);
         $winner = $sth->fetchrow_hashref;
+    }
+
+    # get all replies
+    my @replies;
+    my $dbr = LJ::get_db_reader();
+    my $sql_extra = LJ::is_enabled("support_response_tier") ? ", tier" : "";
+    $sth = $dbr->prepare("SELECT splid, timelogged, UNIX_TIMESTAMP()-timelogged AS 'age', type, faqid, userid, message$sql_extra " .
+                         "FROM supportlog WHERE spid=? ORDER BY timelogged");
+    $sth->execute($spid);
+    while (my $le = $sth->fetchrow_hashref) {
+        push @replies, $le;
     }
 
     # load category this request is in
@@ -268,22 +304,25 @@ body<=
         # thus once again could get this information anyway.
         my $has_sh = LJ::check_priv($remote, 'supporthelp');
         my $has_fu = LJ::check_priv($remote, 'finduser');
+        my $has_vs = LJ::check_priv($remote, 'supportviewscreened');
 
         my %show_history = (
                             user  => $has_sh,
-                            email => ($has_sh && $has_fu || ($has_sh && !$sp->{_cat}->{public_read})),
+                            email => ($has_fu || ($has_sh && !$sp->{_cat}->{public_read})),
                             );
 
         if ($show_history{user} || $show_history{email}) {
             $ret .= $sp->{reqtype} eq 'user' && $show_history{user} ?
                     "$ename <a href=\"history.bml?user=$u->{user}\">" . LJ::ehtml($u->{name}) . "</a>" :
                     "$ename";
-            $ret .= $show_history{email} ?
-                    " (<a href=\"history.bml?email=" . LJ::eurl($email) . "\">$email</a>)" :
-                    " ($visemail)";
+
+            my $email_string = " ($visemail)" if $has_vs || $has_sh;
+            $email_string = " (<a href=\"history.bml?email=" . LJ::eurl($email) . "\">$email</a>)" if $show_history{email};
+            $ret .= $email_string;
         } else {
             # default view
-            $ret .= "$ename ($visemail)";
+            $ret .= $ename;
+            $ret .= " ($visemail)" if $has_vs || $has_sh;
         }
     }
     $ret .= "</td></tr>\n";
@@ -346,7 +385,7 @@ body<=
                 $ret .= "<a href='$viewuri'>$view</a>: <a href='$LJ::SITEROOT/styles/browse/styleinfo.bml?styleid=$styid'>$styid</a> ";
             }
             if ($u->{'useoverrides'} eq 'Y') {
-                $ret .= "<br />$ML{'.overrides'}: <a href='see_overrides.bml?user=$u->{'user'}'>$ML{'view'}</a> ";
+                $ret .= "<br />$ML{'.overrides'}: <a href='see_overrides.bml?user=$u->{'user'}'>$ML{'.view'}</a> ";
             }
         }
 
@@ -418,6 +457,28 @@ body<=
     }
     $ret .= "</td></tr>\n";
 
+    # figure out the tier of the most recent answer
+    my %tier_map = (
+        0  => "0",
+        10 => "1",
+        20 => "2",
+        30 => "3",
+    );
+    my $can_see_tier = LJ::check_priv($remote, "supporthelp") || LJ::check_priv($remote, "supportviewscreened") ? 1 : 0;
+    if (LJ::is_enabled("support_response_tier") && $can_see_tier) {
+        my $latest_timelogged = 0;
+        my $latest_timelogged_tier = 0;
+        foreach my $reply (@replies) {
+            next unless $reply->{type} eq "answer" || $reply->{type} eq "internal";
+
+            if ($reply->{tier} && $reply->{timelogged} && $reply->{timelogged} > $latest_timelogged) {
+                $latest_timelogged = $reply->{timelogged};
+                $latest_timelogged_tier = $reply->{tier};
+            }
+        }
+        $ret .= "<tr><td align='right'><b>$ML{'.tier'}</b></td><td>$tier_map{$latest_timelogged_tier}</td></tr>\n";
+    }
+
     my $timecreate = LJ::time_to_http($sp->{'timecreate'});
     my $age = LJ::ago_text(time() - $sp->{'timecreate'});
     $ret .= "<tr><td align='right'><b>$ML{'.timeposted'}:</b></td><td>$timecreate ($age)</td></tr>\n";
@@ -481,14 +542,15 @@ body<=
     my %userpics;  # id -> {..}
 
     my @screened;
+    my $most_recent_tier = 0;
 
     ### reply loop
-    my $dbr = LJ::get_db_reader();
-    $sth = $dbr->prepare("SELECT splid, timelogged, UNIX_TIMESTAMP()-timelogged AS 'age', type, faqid, userid, message " .
-                         "FROM supportlog WHERE spid=? ORDER BY timelogged");
-    $sth->execute($spid);
-    while (my $le = $sth->fetchrow_hashref)
+    foreach my $le (@replies)
     {
+        if (LJ::is_enabled("support_response_tier") && $can_see_tier && ($le->{type} eq "answer" || $le->{type} eq "internal") && $le->{tier}) {
+            $most_recent_tier = $le->{tier};
+        }
+
         next if ($le->{'type'} eq "internal" && ! (LJ::Support::can_read_internal($sp, $remote) ||
                                                    ($remote && $remote->{'userid'} == $le->{'userid'} )));
         next if ($le->{'type'} eq "screened" && ! (LJ::Support::can_read_screened($sp, $remote) ||
@@ -549,6 +611,11 @@ body<=
 
         my $link = "<a href='$LJ::SITEROOT/support/see_request.bml?id=$spid#e$le->{splid}'>#$le->{splid}</a>";
         $header .= "<span style='font-size: 0.9em;'><b>$what</b> ($link)</span><br />";
+        if (LJ::is_enabled("support_response_tier") && $can_see_tier && $le->{type} eq "answer") {
+            # show the answer's tier level, or if there is no tier level, show the tier level at the time of posting
+            my $display_tier = $le->{tier} ? $le->{tier} : $most_recent_tier;
+            $header .= "<b>$ML{'.tier'}</b> $tier_map{$display_tier}<br />";
+        }
         my $timehelped = LJ::time_to_http($le->{'timelogged'});
         my $age = LJ::ago_text($le->{'age'});
         $header .= "<b>$ML{'.posted'}:</b> $timehelped ($age)";
@@ -625,7 +692,7 @@ body<=
 
     # form
     $ret .= "<table border='0'>\n";
-    $ret .= "<tr valign='middle'><td align='right'>$ML{'.from'}:</td><td>";
+    $ret .= "<tr valign='middle'><td align='right'>$ML{'.from'}</td><td>";
     
     if ($remote && $remote->{'userid'}) {
         $ret .= "<?ljuser $remote->{'user'} ljuser?>";
@@ -719,6 +786,7 @@ body<=
         if (@screened && $helper_mode) {
             $ret .= "<td>$ML{'.approve.screened'}:<br />";
             $ret .= LJ::html_select({ 'name' => 'approveans',
+                                      'id' => 'approveans',
                                       'onclick' => 'return doApproveAnswer();' },
                                     ('', ''),
                                     map { $_->{'splid'}, "\#$_->{'splid'} (" . LJ::get_username($_->{'userid'}) . ")" }
@@ -730,6 +798,57 @@ body<=
         $ret .= "</tr></table>\n";
 
         $ret .= "</td></tr>\n";
+    }
+
+    my $lang_ret;
+    my $tier_ret;
+
+    if (LJ::is_enabled("support_request_language") && LJ::Support::can_read_internal($sp, $remote) && ! $is_poster) {
+        # language
+        my %langs;
+        my @lang_codes;
+        my $lang_list = LJ::Lang::get_lang_names();
+        for (my $i = 0; $i < @$lang_list; $i = $i+2) {
+            push @lang_codes, $lang_list->[$i];
+            $langs{$lang_list->[$i]} = $lang_list->[$i+1];
+        }
+        @lang_codes = sort { $a cmp $b } @lang_codes;
+
+        my $current_lang = $props->{language} ? "[$props->{language}] $langs{$props->{language}}" : $ML{'.change.language.nolang'};
+
+        $lang_ret .= "<td>$ML{'.change.language'}<br />";
+        $lang_ret .= LJ::html_select({ 'name' => 'changelanguage',
+                                  'onchange' => 'doChangeLanguage();' },
+                                ('', $current_lang),
+                                map { $_, "---> [$_] $langs{$_}" }
+                                @lang_codes);
+        $lang_ret .= "</td>";
+    }
+
+    if (LJ::is_enabled("support_response_tier") && LJ::Support::can_perform_actions($sp, $remote) && ! $is_poster && $helper_mode) {
+        my @valid_tiers = (
+            tier1 => $ML{'.tier.1'},
+            tier2 => $ML{'.tier.2'},
+            tier3 => $ML{'.tier.3'},
+        );
+
+        $tier_ret .= "<td id='tier_cell'>$ML{'.tier.set'}<br />";
+        $tier_ret .= LJ::html_select({
+                name => 'settier',
+            }, ('' => $ML{'.tier.selectone'}), @valid_tiers
+        );
+        $tier_ret .= "</td>";
+    }
+
+    if ($lang_ret || $tier_ret) {
+        $ret .= "<tr><td align='right'></td><td>\n";
+        $ret .= "<table cellpadding='5'><tr>";
+        $ret .= "$lang_ret$tier_ret";
+        $ret .= "</tr></table>";
+        $ret .= "</td></tr>\n";
+    }
+
+    if (LJ::Support::can_perform_actions($sp, $remote) && ! $is_poster) {
         if ($sp->{'timelasthelp'} > ($sp->{'timetouched'}+5)) {
             $ret .= "<tr><td align='right'>$ML{'.put.in.queue'}:</td><td>";
             $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'touch',
@@ -744,7 +863,7 @@ body<=
             $ret .= "</td></tr>\n";
         }
         if (LJ::Support::can_change_summary($sp, $remote)) {
-            $ret .= "<tr><td>$ML{'.change.summary'}:</td><td>";
+            $ret .= "<tr><td align='right'>$ML{'.change.summary'}:</td><td>";
             $ret .= LJ::html_check({ 'type' => 'checkbox', 'name' => 'changesum', id => 'changesum', 'onClick' => 'doSummaryClick();' });
             $ret .= LJ::html_text({ 'type' => 'text', 'name' => 'summary', 'size' => '50', 'maxlength' => '80', 'value' => $sp->{'subject'}, 'onChange' => 'doSummaryChanged();' });
             $ret .= "</td></tr>\n";

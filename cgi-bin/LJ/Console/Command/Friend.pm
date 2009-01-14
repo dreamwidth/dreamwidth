@@ -70,7 +70,7 @@ sub execute {
     if ($command eq "add") {
         my $errmsg;
         return $self->error($errmsg)
-            unless $remote->can_add_friends(\$errmsg);
+            unless $remote->can_add_friends(\$errmsg, {friend => $fu});
 
         return $self->error("You cannot add inactive journals to your Friends list.")
             unless $fu->is_visible;

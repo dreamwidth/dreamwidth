@@ -1,20 +1,24 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: ms.js
- * 	Malay language file.
- * 
- * File Authors:
- * 		Fairul Izham Mohd Mokhlas (eg86@hotmail.com)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Malay language file.
  */
 
 var FCKLang =
@@ -40,7 +44,9 @@ RemoveFormat		: "Buang Format",
 InsertLinkLbl		: "Sambungan",
 InsertLink			: "Masukkan/Sunting Sambungan",
 RemoveLink			: "Buang Sambungan",
+VisitLink			: "Open Link",	//MISSING
 Anchor				: "Masukkan/Sunting Pautan",
+AnchorDelete		: "Remove Anchor",	//MISSING
 InsertImageLbl		: "Gambar",
 InsertImage			: "Masukkan/Sunting Gambar",
 InsertFlashLbl		: "Flash",	//MISSING
@@ -66,6 +72,10 @@ RightJustify		: "Jajaran Kanan",
 BlockJustify		: "Jajaran Blok",
 DecreaseIndent		: "Kurangkan Inden",
 IncreaseIndent		: "Tambahkan Inden",
+Blockquote			: "Blockquote",	//MISSING
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "Batalkan",
 Redo				: "Ulangkan",
 NumberedListLbl		: "Senarai bernombor",
@@ -98,16 +108,28 @@ Button			: "Butang",
 SelectionField	: "Field Pilihan",
 ImageButton		: "Butang Bergambar",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+ShowBlocks		: "Show Blocks",	//MISSING
+
 // Context Menu
 EditLink			: "Sunting Sambungan",
-InsertRow			: "Masukkan Baris",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
+InsertRowAfter		: "Insert Row After",	//MISSING
+InsertRowBefore		: "Insert Row Before",	//MISSING
 DeleteRows			: "Buangkan Baris",
-InsertColumn		: "Masukkan Lajur",
+InsertColumnAfter	: "Insert Column After",	//MISSING
+InsertColumnBefore	: "Insert Column Before",	//MISSING
 DeleteColumns		: "Buangkan Lajur",
-InsertCell			: "Masukkan Sel",
+InsertCellAfter		: "Insert Cell After",	//MISSING
+InsertCellBefore	: "Insert Cell Before",	//MISSING
 DeleteCells			: "Buangkan Sel-sel",
 MergeCells			: "Cantumkan Sel-sel",
-SplitCell			: "Bahagikan Sel",
+MergeRight			: "Merge Right",	//MISSING
+MergeDown			: "Merge Down",	//MISSING
+HorizontalSplitCell	: "Split Cell Horizontally",	//MISSING
+VerticalSplitCell	: "Split Cell Vertically",	//MISSING
 TableDelete			: "Delete Table",	//MISSING
 CellProperties		: "Ciri-ciri Sel",
 TableProperties		: "Ciri-ciri Jadual",
@@ -136,9 +158,10 @@ UnknownToolbarItem	: "Toolbar item tidak diketahui\"%1\"",
 UnknownCommand		: "Arahan tidak diketahui \"%1\"",
 NotImplemented		: "Arahan tidak terdapat didalam sistem",
 UnknownToolbarSet	: "Set toolbar \"%1\" tidak wujud",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "OK",
@@ -146,12 +169,12 @@ DlgBtnCancel		: "Batal",
 DlgBtnClose			: "Tutup",
 DlgBtnBrowseServer	: "Browse Server",
 DlgAdvancedTag		: "Advanced",
-DlgOpOther			: "&lt;Lain-lain&gt;",
+DlgOpOther			: "<Lain-lain>",
 DlgInfoTab			: "Info",	//MISSING
 DlgAlertUrl			: "Please insert the URL",	//MISSING
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;tidak di set&gt;",
+DlgGenNotSet		: "<tidak di set>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Arah Tulisan",
 DlgGenLangDirLtr	: "Kiri ke Kanan (LTR)",
@@ -215,12 +238,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Pautan dalam muka surat ini",
 DlgLnkTypeEMail		: "E-Mail",
 DlgLnkProto			: "Protokol",
-DlgLnkProtoOther	: "&lt;lain-lain&gt;",
+DlgLnkProtoOther	: "<lain-lain>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Sila pilih pautan",
 DlgLnkAnchorByName	: "dengan menggunakan nama pautan",
 DlgLnkAnchorById	: "dengan menggunakan ID elemen",
-DlgLnkNoAnchors		: "&lt;Tiada pautan terdapat dalam dokumen ini&gt;",
+DlgLnkNoAnchors		: "(Tiada pautan terdapat dalam dokumen ini)",
 DlgLnkEMail			: "Alamat E-Mail",
 DlgLnkEMailSubject	: "Subjek Mesej",
 DlgLnkEMailBody		: "Isi Kandungan Mesej",
@@ -228,8 +251,8 @@ DlgLnkUpload		: "Muat Naik",
 DlgLnkBtnUpload		: "Hantar ke Server",
 
 DlgLnkTarget		: "Sasaran",
-DlgLnkTargetFrame	: "&lt;bingkai&gt;",
-DlgLnkTargetPopup	: "&lt;tetingkap popup&gt;",
+DlgLnkTargetFrame	: "<bingkai>",
+DlgLnkTargetPopup	: "<tetingkap popup>",
 DlgLnkTargetBlank	: "Tetingkap Baru (_blank)",
 DlgLnkTargetParent	: "Tetingkap Parent (_parent)",
 DlgLnkTargetSelf	: "Tetingkap yang Sama (_self)",
@@ -253,6 +276,7 @@ DlgLnkPopTop		: "Posisi Atas",
 DlnLnkMsgNoUrl		: "Sila taip sambungan URL",
 DlnLnkMsgNoEMail	: "Sila taip alamat e-mail",
 DlnLnkMsgNoAnchor	: "Sila pilih pautan berkenaaan",
+DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
 
 // Color Dialog
 DlgColorTitle		: "Pilihan Warna",
@@ -292,16 +316,16 @@ DlgCellWidthPx		: "piksel-piksel",
 DlgCellWidthPc		: "peratus",
 DlgCellHeight		: "Tinggi",
 DlgCellWordWrap		: "Mengulung Perkataan",
-DlgCellWordWrapNotSet	: "&lt;Tidak diset&gt;",
+DlgCellWordWrapNotSet	: "<Tidak diset>",
 DlgCellWordWrapYes	: "Ya",
 DlgCellWordWrapNo	: "Tidak",
 DlgCellHorAlign		: "Jajaran Membujur",
-DlgCellHorAlignNotSet	: "&lt;Tidak diset&gt;",
+DlgCellHorAlignNotSet	: "<Tidak diset>",
 DlgCellHorAlignLeft	: "Kiri",
 DlgCellHorAlignCenter	: "Tengah",
 DlgCellHorAlignRight: "Kanan",
 DlgCellVerAlign		: "Jajaran Menegak",
-DlgCellVerAlignNotSet	: "&lt;Tidak diset&gt;",
+DlgCellVerAlignNotSet	: "<Tidak diset>",
 DlgCellVerAlignTop	: "Atas",
 DlgCellVerAlignMiddle	: "Tengah",
 DlgCellVerAlignBottom	: "Bawah",
@@ -311,6 +335,9 @@ DlgCellCollSpan		: "Penggunaan Lajur",
 DlgCellBackColor	: "Warna Latarbelakang",
 DlgCellBorderColor	: "Warna Border",
 DlgCellBtnSelect	: "Pilih...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Find and Replace",	//MISSING
 
 // Find Dialog
 DlgFindTitle		: "Carian",
@@ -327,18 +354,16 @@ DlgReplaceReplAllBtn	: "Ganti semua",
 DlgReplaceWordChk		: "Padana Keseluruhan perkataan",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "Keselamatan perisian browser anda tidak membenarkan operasi tampalan text/imej. Sila gunakan papan kekunci (Ctrl+V).",
 PasteErrorCut	: "Keselamatan perisian browser anda tidak membenarkan operasi suntingan text/imej. Sila gunakan papan kekunci (Ctrl+X).",
 PasteErrorCopy	: "Keselamatan perisian browser anda tidak membenarkan operasi salinan text/imej. Sila gunakan papan kekunci (Ctrl+C).",
 
 PasteAsText		: "Tampal sebagai text biasa",
 PasteFromWord	: "Tampal dari perisian \"Word\"",
 
-DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRONG>Ctrl+V</STRONG>) and hit <STRONG>OK</STRONG>.",	//MISSING
+DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<strong>Ctrl+V</strong>) and hit <strong>OK</strong>.",	//MISSING
+DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
 DlgPasteIgnoreFont		: "Ignore Font Face definitions",	//MISSING
 DlgPasteRemoveStyles	: "Remove Styles definitions",	//MISSING
-DlgPasteCleanBox		: "Clean Up Box",	//MISSING
-
 
 // Color Picker
 ColorAutomatic	: "Otomatik",
@@ -370,8 +395,11 @@ DlgSpellManyChanges		: "Pemeriksaan ejaan siap: %1 perkataan diubah",
 IeSpellDownload			: "Pemeriksa ejaan tidak dipasang. Adakah anda mahu muat turun sekarang?",
 
 // Button Dialog
-DlgButtonText	: "Teks (Nilai)",
-DlgButtonType	: "Jenis",
+DlgButtonText		: "Teks (Nilai)",
+DlgButtonType		: "Jenis",
+DlgButtonTypeBtn	: "Button",	//MISSING
+DlgButtonTypeSbm	: "Submit",	//MISSING
+DlgButtonTypeRst	: "Reset",	//MISSING
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nama",
@@ -420,6 +448,7 @@ DlgHiddenValue	: "Nilai",
 // Bulleted List Dialog
 BulletedListProp	: "Ciri-ciri senarai berpeluru",
 NumberedListProp	: "Ciri-ciri senarai bernombor",
+DlgLstStart			: "Start",	//MISSING
 DlgLstType			: "Jenis",
 DlgLstTypeCircle	: "Circle",
 DlgLstTypeDisc		: "Disc",	//MISSING
@@ -442,6 +471,15 @@ DlgDocLangDirLTR	: "Kiri ke Kanan (LTR)",
 DlgDocLangDirRTL	: "Kanan ke Kiri (RTL)",
 DlgDocLangCode		: "Kod Bahasa",
 DlgDocCharSet		: "Enkod Set Huruf",
+DlgDocCharSetCE		: "Central European",	//MISSING
+DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
+DlgDocCharSetCR		: "Cyrillic",	//MISSING
+DlgDocCharSetGR		: "Greek",	//MISSING
+DlgDocCharSetJP		: "Japanese",	//MISSING
+DlgDocCharSetKR		: "Korean",	//MISSING
+DlgDocCharSetTR		: "Turkish",	//MISSING
+DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
+DlgDocCharSetWE		: "Western European",	//MISSING
 DlgDocCharSetOther	: "Enkod Set Huruf yang Lain",
 
 DlgDocDocType		: "Jenis Kepala Dokumen",
@@ -471,11 +509,18 @@ DlgTemplatesTitle	: "Templat Kandungan",
 DlgTemplatesSelMsg	: "Sila pilih templat untuk dibuka oleh editor<br>(kandungan sebenar akan hilang):",
 DlgTemplatesLoading	: "Senarai Templat sedang diproses. Sila Tunggu...",
 DlgTemplatesNoTpl	: "(Tiada Templat Disimpan)",
+DlgTemplatesReplace	: "Replace actual contents",	//MISSING
 
 // About Dialog
 DlgAboutAboutTab	: "Tentang",
 DlgAboutBrowserInfoTab	: "Maklumat Perisian Browser",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "versi",
-DlgAboutLicense		: "Perlesenan dibawah terma GNU Lesser General Public License",
-DlgAboutInfo		: "Untuk maklumat lanjut sila pergi ke"
-}
+DlgAboutInfo		: "Untuk maklumat lanjut sila pergi ke",
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
+};

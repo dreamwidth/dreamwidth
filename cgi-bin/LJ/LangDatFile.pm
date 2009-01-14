@@ -34,7 +34,10 @@ sub parse {
         my $del;
         my $action_line;
 
-        if ($line =~ /^(\S+?)=(.*)/) {
+        if ($line =~ /^[\#\;]/) {
+            # comment line
+            next;
+        } elsif ($line =~ /^(\S+?)=(.*)/) {
             ($code, $text) = ($1, $2);
             $action_line = 1;
         } elsif ($line =~ /^\!\s*(\S+)/) {
@@ -50,9 +53,6 @@ sub parse {
             }
             chomp $text;  # remove file new-line (we added it)
             $action_line = 1;
-        } elsif ($line =~ /^[\#\;]/) {
-            # comment line
-            next;
         } elsif ($line =~ /\S/) {
             croak "$filename:$lnum: Bogus format.";
         }
@@ -62,9 +62,8 @@ sub parse {
             $self->{meta}->{$code}->{$1} = $text;
             $action_line = 1;
         }
-
         next unless $action_line;
-        $self->{values}->{$code} = $text;
+        $self->{values}->{ lc($code) } = $text;
     }
 
     close $datfile;
@@ -81,7 +80,7 @@ sub value {
     my ($self, $key) = @_;
 
     return undef unless $key;
-    return $self->{values}->{$key};
+    return $self->{values}->{ lc($key) };
 }
 
 sub foreach_key {
@@ -109,7 +108,7 @@ sub set {
     return 0 unless $k;
     $v ||= '';
 
-    $self->{values}->{$k} = $v;
+    $self->{values}->{ lc($k) } = $v;
     return 1;
 }
 

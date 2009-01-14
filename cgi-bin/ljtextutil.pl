@@ -208,7 +208,7 @@ sub ejs
 # does the double quotes for ya.
 sub ejs_string {
     my $str = ejs($_[0]);
-    $str =~ s!</script!</scri\" + \"pt!g;
+    $str =~ s!</script!</scri\" + \"pt!gi;
     return "\"" . $str . "\"";
 }
 

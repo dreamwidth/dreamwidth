@@ -131,7 +131,7 @@ sub new_from_item_hash {
     croak "no journalid in item hash"
         unless $item->{journalid};
     croak "no entry information in item hash"
-        unless $item->{ditemid} || ($item->{jitemid} && $item->{anum});
+        unless $item->{ditemid} || ($item->{jitemid} && defined($item->{anum}));
 
     my $entry;
 
@@ -141,7 +141,7 @@ sub new_from_item_hash {
                                 ditemid => $item->{ditemid});
 
     # jitemid/anum is okay too
-    } elsif ($item->{jitemid} && $item->{anum}) {
+    } elsif ($item->{jitemid} && defined($item->{anum})) {
         $entry = LJ::Entry->new($item->{journalid},
                                 jitemid => $item->{jitemid},
                                 anum    => $item->{anum});
@@ -768,6 +768,11 @@ sub event_html
         $opts = { preformatted => $opts };
     }
 
+    my $remote = LJ::get_remote();
+    my $suspend_msg = $self->should_show_suspend_msg_to($remote) ? 1 : 0;
+    $opts->{suspend_msg} = $suspend_msg;
+    $opts->{unsuspend_supportid} = $suspend_msg ? $self->prop("unsuspend_supportid") : 0;
+
     $self->_load_text unless $self->{_loaded_text};
     my $event = $self->{event};
     LJ::CleanHTML::clean_event(\$event, $opts);
@@ -842,6 +847,9 @@ sub visible_to
 
         # can't see anything by suspended users
         return 0 if $self->poster->{statusvis} eq 'S';
+
+        # can't see suspended entries
+        return 0 if $self->is_suspended_for($remote);
     }
 
     # public is okay
@@ -1003,6 +1011,7 @@ sub qotdid {
     return $self->prop('qotdid');
 }
 
+# don't use this anymore, instead check for is_special flag on question
 sub is_special_qotd_entry {
     my $self = shift;
 
@@ -1076,7 +1085,10 @@ sub should_show_in_verticals {
 sub verticals_list {
     my $self = shift;
 
-    my @verticals = split(/\s*,\s*/, $self->prop("verticals_list"));
+    my $verticals_list = $self->prop("verticals_list");
+    return () unless $verticals_list;
+
+    my @verticals = split(/\s*,\s*/, $verticals_list);
     return @verticals ? @verticals : ();
 }
 
@@ -1093,6 +1105,20 @@ sub verticals_list_for_ad {
             push @verticals_for_ad, $vertical->ad_name;
         }
     }
+
+    # remove parent verticals if any of their subverticals are in the list
+    my %vertical_in_list = map { $_ => 1 } @verticals_for_ad;
+    foreach my $vertname (@verticals_for_ad) {
+        my $vertical = LJ::Vertical->load_by_name($vertname);
+        next unless $vertical;
+
+        foreach my $child ($vertical->children) {
+            if ($vertical_in_list{$child->ad_name}) {
+                delete $vertical_in_list{$vertical->ad_name};
+            }
+        }
+    }
+    @verticals_for_ad = keys %vertical_in_list;
 
     return @verticals_for_ad ? @verticals_for_ad : ();
 }
@@ -1163,6 +1189,58 @@ sub group_names {
     }
 
     return "";
+}
+
+sub statusvis {
+    my $self = shift;
+
+    return $self->prop("statusvis") eq "S" ? "S" : "V";
+}
+
+sub is_visible {
+    my $self = shift;
+
+    return $self->statusvis eq "V" ? 1 : 0;
+}
+
+sub is_suspended {
+    my $self = shift;
+
+    return $self->statusvis eq "S" ? 1 : 0;
+}
+
+# same as is_suspended, except that it returns 0 if the given user can see the suspended entry
+sub is_suspended_for {
+    my $self = shift;
+    my $u = shift;
+
+    return 0 unless $self->is_suspended;
+    return 0 if LJ::check_priv($u, 'canview', 'suspended');
+    return 0 if LJ::isu($u) && $u->equals($self->poster);
+    return 1;
+}
+
+sub should_show_suspend_msg_to {
+    my $self = shift;
+    my $u = shift;
+
+    return $self->is_suspended && !$self->is_suspended_for($u) ? 1 : 0;
+}
+
+# some entry props must keep all their history
+sub put_logprop_in_history {
+    my ($self, $prop, $old_value, $new_value, $note) = @_;
+
+    my $p = LJ::get_prop("log", $prop);
+    return undef unless $p;
+    
+    my $propid = $p->{id};
+
+    my $u = $self->journal;
+    $u->do("INSERT INTO logprop_history (journalid, jitemid, propid, change_time, old_value, new_value, note) VALUES (?, ?, ?, unix_timestamp(), ?, ?, ?)",
+           undef, $self->journalid, $self->jitemid, $propid, $old_value, $new_value, $note);
+    return undef if $u->err;
+    return 1;
 }
 
 package LJ;
@@ -1238,7 +1316,7 @@ sub _get_posts_raw_wrapper {
 # returns: hashref with keys 'text', 'prop', or 'replycount', and values being
 #          hashrefs with keys "jid:jitemid".  values of that are as follows:
 #          text: [ $subject, $body ], props: { ... }, and replycount: scalar
-# args: opts?, id+
+# args: opts?, id
 # des-opts: An optional hashref of options:
 #            - memcache_only:  Don't fall back on the database.
 #            - text_only:  Retrieve only text, no props (used to support old API).
@@ -1525,17 +1603,23 @@ sub get_log2_row
 
 sub get_log2_recent_log
 {
-    my ($u, $cid, $update, $notafter) = @_;
+    my ($u, $cid, $update, $notafter, $events_date) = @_;
     my $jid = LJ::want_userid($u);
     $cid ||= $u->{'clusterid'} if ref $u;
 
     my $DATAVER = "4"; # 1 char
 
-    my $memkey = [$jid, "log2lt:$jid"];
+    my $use_cache = 1;
+    
+    # timestamp
+    $events_date = int $events_date;
+    $use_cache = 0 if $events_date; # do not use memcache for dayly friends log
+    
+    my $memkey  = [$jid, "log2lt:$jid"];
     my $lockkey = $memkey->[1];
     my ($rows, $ret);
 
-    $rows = LJ::MemCache::get($memkey);
+    $rows = LJ::MemCache::get($memkey) if $use_cache;
     $ret = [];
 
     my $construct_singleton = sub {
@@ -1596,14 +1680,20 @@ sub get_log2_recent_log
         return undef unless $db;
     }
 
+    #
     my $lock = $db->selectrow_array("SELECT GET_LOCK(?,10)", undef, $lockkey);
     return undef unless $lock;
 
-    $rows = LJ::MemCache::get($memkey);
-    if ($rows_decode->()) {
-        $db->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
-        return $construct_singleton->();
+    if ($use_cache){
+    # try to get cached data in exclusive context
+        $rows = LJ::MemCache::get($memkey);
+        if ($rows_decode->()) {
+            $db->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
+            return $construct_singleton->();
+        }
     }
+    
+    # ok. fetch data directly from DB.
     $rows = "";
 
     # get reliable update time from the db
@@ -1626,17 +1716,28 @@ sub get_log2_recent_log
     $dont_store = 1 unless defined $tu;
 
     # get reliable log2lt data from the db
-
     my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14; # 2 weeks default
-
-    my $sql = "SELECT jitemid, posterid, eventtime, rlogtime, " .
-        "security, allowmask, anum, replycount FROM log2 " .
-        "USE INDEX (rlogtime) WHERE journalid=? AND " .
-        "rlogtime <= ($LJ::EndOfTime - UNIX_TIMESTAMP()) + $max_age";
+    my $sql = "
+        SELECT 
+            jitemid, posterid, eventtime, rlogtime,
+            security, allowmask, anum, replycount
+         FROM log2 
+         USE INDEX (rlogtime) 
+         WHERE 
+                journalid=?
+         " . 
+         ($events_date
+            ? 
+              "AND rlogtime <= ($LJ::EndOfTime - $events_date)
+               AND rlogtime >= ($LJ::EndOfTime - " . ($events_date + 24*3600) . ")"
+            : 
+            "AND rlogtime <= ($LJ::EndOfTime - UNIX_TIMESTAMP()) + $max_age"
+         )
+         ;
 
     my $sth = $db->prepare($sql);
     $sth->execute($jid);
-    my @row;
+    my @row = ();
     push @row, $_ while $_ = $sth->fetchrow_hashref;
     @row = sort { $a->{'rlogtime'} <=> $b->{'rlogtime'} } @row;
     my $itemnum = 0;
@@ -1660,13 +1761,16 @@ sub get_log2_recent_log
                       $sec,
                       $ditemid);
 
-        if ($itemnum++ < 50) {
+        if ($use_cache && $itemnum++ < 50) {
             LJ::MemCache::add([$jid, "rp:$jid:$item->{'jitemid'}"], $item->{'replycount'});
         }
     }
 
     $rows = $DATAVER . pack("N", $tu) . $rows;
-    LJ::MemCache::set($memkey, $rows) unless $dont_store;
+    
+    # store journal log in cache
+    LJ::MemCache::set($memkey, $rows) 
+        if $use_cache and not $dont_store;
 
     $db->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
     return $construct_singleton->();
@@ -1678,11 +1782,11 @@ sub get_log2_recent_user
     my $ret = [];
 
     my $log = LJ::get_log2_recent_log($opts->{'userid'}, $opts->{'clusterid'},
-              $opts->{'update'}, $opts->{'notafter'});
+              $opts->{'update'}, $opts->{'notafter'}, $opts->{events_date});
 
-    my $left = $opts->{'itemshow'};
+    my $left     = $opts->{'itemshow'};
     my $notafter = $opts->{'notafter'};
-    my $remote = $opts->{'remote'};
+    my $remote   = $opts->{'remote'};
 
     my %mask_for_remote = (); # jid => mask for $remote
     foreach my $item (@$log) {
@@ -1725,6 +1829,9 @@ sub get_log2_recent_user
     return @$ret;
 }
 
+##
+## see subs 'get_itemid_after2' and 'get_itemid_before2'
+##
 sub get_itemid_near2
 {
     my $u = shift;
@@ -1733,11 +1840,11 @@ sub get_itemid_near2
 
     $jitemid += 0;
 
-    my ($inc, $order);
+    my ($order, $cmp1, $cmp2, $cmp3);
     if ($after_before eq "after") {
-        ($inc, $order) = (-1, "DESC");
+        ($order, $cmp1, $cmp2, $cmp3) = ("DESC", "<=", ">", sub {$a->[0] <=> $b->[0]} );
     } elsif ($after_before eq "before") {
-        ($inc, $order) = (1, "ASC");
+        ($order, $cmp1, $cmp2, $cmp3) = ("ASC",  ">=", "<", sub {$b->[0] <=> $a->[0]} );
     } else {
         return 0;
     }
@@ -1750,25 +1857,64 @@ sub get_itemid_near2
                                       "journalid=$jid AND jitemid=$jitemid");
     return 0 unless $stime;
 
+    my $secwhere = "AND security='public'";
+    my $remote = LJ::get_remote();
 
-    my $day = 86400;
-    foreach my $distance ($day, $day*7, $day*30, $day*90) {
-        my ($one_away, $further) = ($stime + $inc, $stime + $inc*$distance);
-        if ($further < $one_away) {
-            # swap them, BETWEEN needs lower number first
-            ($one_away, $further) = ($further, $one_away);
+    if ($remote) {
+        if ($remote->{'userid'} == $u->{'userid'}) {
+            $secwhere = "";   # see everything
+        } elsif ($remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I') {
+            my $gmask = LJ::get_groupmask($u, $remote);
+            $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))"
+                if $gmask;
         }
-        my ($id, $anum) =
-            $dbr->selectrow_array("SELECT jitemid, anum FROM log2 WHERE journalid=$jid ".
-                                  "AND $field BETWEEN $one_away AND $further ".
-                                  "ORDER BY $field $order LIMIT 1");
-        if ($id) {
+    }
+
+    ##
+    ## We need a next/prev record in journal before/after a given time
+    ## Since several records may have the same time (time is rounded to 1 minute), 
+    ## we're ordering them by jitemid. So, the SQL we need is 
+    ##      SELECT * FROM log2 
+    ##      WHERE journalid=? AND rlogtime>? AND jitmemid<?
+    ##      ORDER BY rlogtime, jitemid DESC
+    ##      LIMIT 1
+    ## Alas, MySQL tries to do filesort for the query.
+    ## So, we sort by rlogtime only and fetch all (2, 10, 50) records
+    ## with the same rlogtime (we skip records if rlogtime is different from the first one). 
+    ## If rlogtime of all fetched records is the same, increase the LIMIT and retry.
+    ## Then we sort them in Perl by jitemid and takes just one.
+    ##
+    my $result_ref;
+    foreach my $limit (2, 10, 50, 100) {
+        $result_ref = $dbr->selectall_arrayref(
+            "SELECT jitemid, anum, $field FROM log2 use index (rlogtime,revttime) ".
+                "WHERE journalid=? AND $field $cmp1 ? AND jitemid $cmp2 ? ".
+                $secwhere. " ".
+                "ORDER BY $field $order LIMIT $limit",
+            undef, $jid, $stime, $jitemid
+        );
+
+        my %hash_times = ();
+        map {$hash_times{$_->[2]} = 1} @$result_ref;
+
+        # If we has one the only 'time' in $limit fetched rows,
+        # may be $limit cuts off our record. Increase the limit and repeat.
+        if (((scalar keys %hash_times) > 1) || (scalar @$result_ref) < $limit) {
+            # Sort result by jitemid and get our id from a top.
+            my @result =  sort $cmp3 @$result_ref;
+            my ($id, $anum) = ($result[0]->[0], $result[0]->[1]);
+            return 0 unless $id;
             return wantarray() ? ($id, $anum) : ($id*256 + $anum);
         }
     }
     return 0;
 }
 
+##
+## Returns ID (a pair <jitemid, anum> in list context, ditmeid in scalar context)
+## of a journal record that follows/preceeds the given record.
+## Input: $u, $jitemid
+##
 sub get_itemid_after2  { return get_itemid_near2(@_, "after");  }
 sub get_itemid_before2 { return get_itemid_near2(@_, "before"); }
 
@@ -1932,7 +2078,8 @@ sub delete_entry
     my $dc = $u->log2_do(undef, "DELETE FROM log2 WHERE journalid=$jid AND jitemid=$jitemid $and");
     LJ::MemCache::delete([$jid, "log2:$jid:$jitemid"]);
     LJ::MemCache::decr([$jid, "log2ct:$jid"]) if $dc > 0;
-    LJ::memcache_kill($jid, "dayct");
+    LJ::memcache_kill($jid, "dayct2");
+    LJ::run_hooks("deletepost", $jid, $jitemid, $anum);
 
     # if this is running the second time (started by the cmd buffer),
     # the log2 row will already be gone and we shouldn't check for it.
@@ -1990,6 +2137,41 @@ sub mark_entry_as_spam {
     $dbh->do('INSERT INTO spamreports (reporttime, posttime, journalid, posterid, subject, body, report_type) ' .
              'VALUES (UNIX_TIMESTAMP(), UNIX_TIMESTAMP(?), ?, ?, ?, ?, \'entry\')',
               undef, $item->{logtime}, $journalu->{userid}, $posterid, $subject, $body);
+
+    return 0 if $dbh->err;
+    return 1;
+}
+
+# Same as previous, but mark as spam moderated event selected by modid.
+sub reject_entry_as_spam {
+    my ($journalu, $modid) = @_;
+    $journalu = LJ::want_user($journalu);
+    $modid += 0;
+    return 0 unless $journalu && $modid;
+
+    my $dbcr = LJ::get_cluster_def_reader($journalu);
+    my $dbh = LJ::get_db_writer();
+    return 0 unless $dbcr && $dbh;
+
+    # step 1: get info we need
+    my ($posterid, $logtime) = $dbcr->selectrow_array(
+        "SELECT posterid, logtime FROM modlog WHERE journalid=? AND modid=?",
+        undef, $journalu->{'userid'}, $modid);
+
+    my $frozen = $dbcr->selectrow_array(
+        "SELECT request_stor FROM modblob WHERE journalid=? AND modid=?",
+        undef, $journalu->{'userid'}, $modid);
+
+    use Storable;
+    my $req = Storable::thaw($frozen) if $frozen;
+
+    my ($subject, $body) = ($req->{subject}, $req->{event});
+    return 0 unless $body;
+
+    # step 2: insert into spamreports
+    $dbh->do('INSERT INTO spamreports (reporttime, posttime, journalid, posterid, subject, body, report_type) ' .
+             'VALUES (UNIX_TIMESTAMP(), UNIX_TIMESTAMP(?), ?, ?, ?, ?, \'entry\')',
+              undef, $logtime, $journalu->{userid}, $posterid, $subject, $body);
 
     return 0 if $dbh->err;
     return 1;
@@ -2137,7 +2319,7 @@ sub item_link
 #       and its hooks.
 # args: u, ditemid, remote, eventref, opts?
 # des-eventref:
-# des-opst:
+# des-opts:
 # returns:
 # </LJFUNC>
 

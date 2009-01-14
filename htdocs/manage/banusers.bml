@@ -1,0 +1,145 @@
+<?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    $title = $ML{'.title'};
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user($authas);
+    return LJ::bad_input($ML{'error.invalidauth'})
+        unless $u;
+
+    my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
+
+    my $submit_msg;
+    if (LJ::did_post()) {
+        return LJ::bad_input($ML{'error.invalidform'})
+            unless LJ::check_form_auth();
+
+        my $dbh = LJ::get_db_writer();
+
+        # unban users before banning users so that in the case of a collision (i.e. a particular
+        # user is being banned and unbanned at the same time), that user is left banned
+
+        # unban users
+        if ($POST{unban_user}) {
+            # first remove any users from the list that are not valid users
+            my @unbanlist = split(/\0/, $POST{unban_user});
+            my $unbanus = LJ::load_userids(@unbanlist);
+            for (my $i = 0; $i < scalar @unbanlist; $i++) {
+                unless ($unbanus->{$unbanlist[$i]}) {
+                    splice(@unbanlist, $i, 1);
+                    $i--;
+                }
+            }
+
+            # now unban the users
+            $u->unban_user_multi(@unbanlist) if @unbanlist;
+        }
+
+        # ban users
+        if ($POST{ban_list}) {
+            # first remove any users from the list that are not valid users
+            # FIXME: we need load_user_multiple
+            my @banlist_orig = split(/,/, $POST{ban_list});
+            my @banlist;
+            foreach my $banusername (@banlist_orig) {
+                my $banu = LJ::load_user($banusername);
+                push @banlist, $banu->id if $banu;
+            }
+
+            # make sure the user isn't over the max number of bans allowed
+            my $banned = LJ::load_rel_user($u, 'B') || [];
+            if (scalar @$banned >= ($LJ::MAX_BANS || 5000)) {
+                $submit_msg = "<?errorbar $ML{'.error.toomanybans'} errorbar?>";
+            } else {
+                # now ban the users
+                $u->ban_user_multi(@banlist) if @banlist;
+            }
+        }
+
+        $submit_msg = "<?warningbar $ML{'.success'} warningbar?>" unless $submit_msg;
+    }
+
+    my $ret;
+
+    $ret .= "<form action='$LJ::SITEROOT/manage/banusers.bml' method='get'>";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
+    $ret .= "</form>";
+
+    $ret .= "<div style='margin-top: 20px;'>$submit_msg</div>";
+
+    $ret .= "<form action='$LJ::SITEROOT/manage/banusers.bml$getextra' method='post'>";
+    $ret .= LJ::form_auth();
+
+    # ban users
+    $ret .= "<h2 style='margin-top: 20px;'>$ML{'.header.ban'}</h2>";
+    $ret .= $u->is_community ? "<p>$ML{'.intro.ban.comm'}</p>" : "<p>$ML{'.intro.ban.self'}</p>";
+    $ret .= LJ::html_textarea({
+        name => "ban_list",
+        rows => 5,
+        cols => 50,
+    });
+
+    # unban users
+    $ret .= "<h2 style='margin-top: 20px;'>$ML{'.header.unban'}</h2>";
+    my $banned = LJ::load_rel_user($u, 'B');
+    if ($banned && @$banned) {
+        my $us = LJ::load_userids(@$banned);
+
+        $ret .= $u->is_community ? "<p>$ML{'.intro.unban.comm'}</p>" : "<p>$ML{'.intro.unban.self'}</p>";
+        $ret .= "<table class='userslist-table' cellspacing=0 cellpadding=0><tr><th>";
+        $ret .= LJ::html_check({ id => 'all', name => 'all', onchange =>
+                "var inputs=document.getElementById('content-wrapper').getElementsByTagName('input');
+                for (var i = 0; i < inputs.length; i++) {
+                    if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
+                        inputs[i].checked = this.checked;                  
+                    } 
+                }",
+	            onclick=>
+                "var inputs=document.getElementById('content-wrapper').getElementsByTagName('input');
+                for (var i = 0; i < inputs.length; i++) {
+                    if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
+                        inputs[i].checked = this.checked;                  
+                    } 
+               }", selected => 0 });
+        $ret .= "</th><th>$ML{'/community/members.bml.key.user'}</th></tr>\n";
+		
+		my $rc = 0;
+		
+        foreach my $banuid (@$banned) {
+            my $bu = $us->{$banuid};
+            next unless $bu;
+			
+            my $rstyle = ($rc++ & 1) ? '#efefef' : '#ffffff';
+            $ret .= "<tr style='background-color: $rstyle;'>";
+            $ret .= "<td>" . LJ::html_check({
+                name => "unban_user",
+                value => $bu->id,
+            }) . "</td>";
+            $ret .= "<td>" . $bu->ljuser_display . "</td>";
+            $ret .= "</tr>";
+        }
+        $ret .= "</table>";
+    } else {
+        $ret .= $u->is_community ? "<p>$ML{'.intro.unban.comm.none'}</p>" : "<p>$ML{'.intro.unban.self.none'}</p>";
+    }
+
+    $ret .= "<p>" . LJ::html_submit($ML{'.btn.banunban'}) . "</p>";
+    $ret .= "</form>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

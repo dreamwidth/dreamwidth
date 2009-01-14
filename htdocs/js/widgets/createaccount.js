@@ -8,13 +8,25 @@ CreateAccount.init = function () {
     if (!$('create_bday_dd')) return;
     if (!$('create_bday_yyyy')) return;
 
-    DOM.addEventListener($('create_user'), "focus", CreateAccount.showTip.bindEventListener("create_user"));
-    DOM.addEventListener($('create_email'), "focus", CreateAccount.showTip.bindEventListener("create_email"));
-    DOM.addEventListener($('create_password1'), "focus", CreateAccount.showTip.bindEventListener("create_password1"));
-    DOM.addEventListener($('create_password2'), "focus", CreateAccount.showTip.bindEventListener("create_password1"));
-    DOM.addEventListener($('create_bday_mm'), "focus", CreateAccount.showTip.bindEventListener("create_bday_mm"));
-    DOM.addEventListener($('create_bday_dd'), "focus", CreateAccount.showTip.bindEventListener("create_bday_mm"));
-    DOM.addEventListener($('create_bday_yyyy'), "focus", CreateAccount.showTip.bindEventListener("create_bday_mm"));
+    CreateAccount.bubbleid = "";
+
+    DOM.addEventListener($('create_user'), "focus", CreateAccount.eventShowTip.bindEventListener("create_user"));
+    DOM.addEventListener($('create_email'), "focus", CreateAccount.eventShowTip.bindEventListener("create_email"));
+    DOM.addEventListener($('create_password1'), "focus", CreateAccount.eventShowTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_password2'), "focus", CreateAccount.eventShowTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_bday_mm'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_dd'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_yyyy'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+
+    if (CreateAccount.alt_layout) {
+        DOM.addEventListener($('create_user'), "blur", CreateAccount.eventHideTip.bindEventListener("create_user"));
+        DOM.addEventListener($('create_email'), "blur", CreateAccount.eventHideTip.bindEventListener("create_email"));
+        DOM.addEventListener($('create_password1'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
+        DOM.addEventListener($('create_password2'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
+        DOM.addEventListener($('create_bday_mm'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+        DOM.addEventListener($('create_bday_dd'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+        DOM.addEventListener($('create_bday_yyyy'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+    }
 
     if (!$('username_check')) return;
     if (!$('username_error')) return;
@@ -22,42 +34,59 @@ CreateAccount.init = function () {
     DOM.addEventListener($('create_user'), "blur", CreateAccount.checkUsername);
 }
 
-CreateAccount.showTip = function (evt) {
+CreateAccount.eventShowTip = function () {
     var id = this + "";
+    CreateAccount.id = id;
+    CreateAccount.showTip(id);
+}
 
-    var x = DOM.findPosX($(id));
-    var y = DOM.findPosY($(id));
+CreateAccount.eventHideTip = function () {
+    var id = this + "";
+    CreateAccount.id = id;
+    CreateAccount.hideTip(id);
+}
 
-    var text;
-    if (id == "create_bday_mm") {
-        text = CreateAccount.birthdate;
-    } else if (id == "create_email") {
-        text = CreateAccount.email;
-    } else if (id == "create_password1") {
-        text = CreateAccount.password;
-    } else if (id == "create_user") {
-        text = CreateAccount.username;
-    }
+CreateAccount.showTip = function (id) {
+    if (!id) return;
 
-    if ($('tips_box') && $('tips_box_arrow')) {
-        // Firefox on Mac and IE6 need to be over to the right more than other browsers
-        var browser = new BrowserDetectLite();
-        var x_offset = 0;
-        if (browser.isGecko && browser.isMac) {
-            x_offset = 100;
-        } else if (browser.isIE6x) {
-            x_offset = 50;
+    if (CreateAccount.alt_layout) {
+        CreateAccount.bubbleid = id.replace(/create/, 'bubble');
+        if ($(CreateAccount.bubbleid)) {
+            $(CreateAccount.bubbleid).style.visibility = "visible";
+        }
+    } else {
+        var y = DOM.findPosY($(id)), text;
+
+        if (id == "create_bday_mm") {
+            text = CreateAccount.birthdate;
+        } else if (id == "create_email") {
+            text = CreateAccount.email;
+        } else if (id == "create_password1") {
+            text = CreateAccount.password;
+        } else if (id == "create_user") {
+            text = CreateAccount.username;
         }
 
-        $('tips_box').innerHTML = text;
+        var box = $('tips_box'), box_arr = $('tips_box_arrow');
+        if (box && box_arr) {
+            box.innerHTML = text;
 
-        $('tips_box').style.left = x + 160 + x_offset + "px";
-        $('tips_box').style.top = y - 188 + "px";
-        $('tips_box').style.display = "block";
+            box.style.top = y - 188 + "px";
+            box.style.display = "block";
 
-        $('tips_box_arrow').style.left = x + 149 + x_offset + "px";
-        $('tips_box_arrow').style.top = y - 183 + "px";
-        $('tips_box_arrow').style.display = "block";
+            box_arr.style.top = y - 183 + "px";
+            box_arr.style.display = "block";
+        }
+    }
+}
+
+CreateAccount.hideTip = function (id) {
+    if (!id) return;
+
+    if (CreateAccount.alt_layout) {
+        if ($(CreateAccount.bubbleid)) {
+            $(CreateAccount.bubbleid).style.visibility = "hidden";
+        }
     }
 }
 
@@ -80,6 +109,7 @@ CreateAccount.checkUsername = function () {
                 $('username_error').style.display = "none";
                 $('username_check').style.display = "inline";
             }
+            CreateAccount.showTip(CreateAccount.id); // recalc
         },
         onError: function (msg) { }
     }); 

@@ -14,6 +14,9 @@ sub render_body {
     my $from_post = $opts{from_post};
     my $errors = $from_post->{errors};
     my $ab_testing_value = LJ::ab_testing_value();
+    my $post;
+    $post = $class->post_fields($opts{post});
+    my $loc_post = LJ::Widget->post_fields_of_widget("Location");
 
     my $error_msg = sub {
         my $key = shift;
@@ -40,7 +43,7 @@ sub render_body {
         $ret .= $class->html_text(
             name => 'name',
             size => 40,
-            value => $u->name_orig || "",
+            value => $post->{name} || $u->name_orig || "",
         );
     } else {
         $ret .= $class->html_hidden( name_absent => "yes" );
@@ -53,7 +56,7 @@ sub render_body {
     $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.gender') . "</td>\n<td>";
     $ret .= $class->html_select(
         name => 'gender',
-        selected => $u->prop('gender') || 'U',
+        selected => $post->{gender} || $u->prop('gender'),
         list => [
             F => LJ::Lang::ml('/manage/profile/index.bml.gender.female'),
             M => LJ::Lang::ml('/manage/profile/index.bml.gender.male'),
@@ -65,8 +68,15 @@ sub render_body {
     $ret .= "</td></tr>\n";
 
     ### location
+    my %countries;
+    LJ::load_codes({ "country" => \%countries});
+    my $defalt_country;
+    if ($LJ::USE_IPMAP) {    
+        $defalt_country = LJ::LJcom::get_ipmap()->Resolve(LJ::get_remote_ip());
+        undef $defalt_country unless $countries{$defalt_country};
+    }
     $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.location') . "</td>\n<td>";
-    $ret .= LJ::Widget::Location->render( minimal_display => 1, skip_timezone => 1 );
+    $ret .= LJ::Widget::Location->render( country => $defalt_country, minimal_display => 1, skip_timezone => 1 , $loc_post);
     $ret .= "</td></tr>\n";
 
     $ret .= "</table><br />\n";
@@ -88,6 +98,7 @@ sub render_body {
         name => 'interests_music',
         id => 'interests_music',
         size => 35,
+        value => $post->{interests_music_changed} ? $post->{interests_music} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_music_changed", value => 0, id => "interests_music_changed" });
     $ret .= "</td>\n";
@@ -98,6 +109,7 @@ sub render_body {
         name => 'interests_moviestv',
         id => 'interests_moviestv',
         size => 35,
+        value => $post->{interests_moviestv_changed} ? $post->{interests_moviestv} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_moviestv_changed", value => 0, id => "interests_moviestv_changed" });
     $ret .= "</td></tr>\n";
@@ -108,6 +120,7 @@ sub render_body {
         name => 'interests_books',
         id => 'interests_books',
         size => 35,
+        value => $post->{interests_books_changed} ? $post->{interests_books} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_books_changed", value => 0, id => "interests_books_changed" });
     $ret .= "</td>\n";
@@ -118,6 +131,7 @@ sub render_body {
         name => 'interests_hobbies',
         id => 'interests_hobbies',
         size => 35,
+        value => $post->{interests_hobbies_changed} ? $post->{interests_hobbies} : '',
     );
     $ret .= $class->html_hidden({ name => "interests_hobbies_changed", value => 0, id => "interests_hobbies_changed" });
     $ret .= "</td></tr>\n";
@@ -128,7 +142,7 @@ sub render_body {
         name => 'interests_other',
         id => 'interests_other',
         size => 88,
-        value => join(", ", @eintsl),
+        value => $post->{interests_other_changed} ? $post->{interests_other} : join(", ", @eintsl),
     );
     $ret .= $class->html_hidden({ name => "interests_other_changed", value => 0, id => "interests_other_changed" });
     $ret .= $error_msg->('interests', '<br /><span class="formitemFlag">', '</span>');
@@ -139,7 +153,7 @@ sub render_body {
     $ret .= "<p class='header'>" . $class->ml('widget.createaccountprofile.field.bio') . "</p>\n";
 
     ### bio
-    my $bio = $u->bio;
+    my $bio = $post->{bio} || $u->bio;
     LJ::EmbedModule->parse_module_embed($u, \$bio, edit => 1);
     LJ::text_out(\$bio, "force");
 
@@ -204,7 +218,11 @@ sub handle_post {
     my @interrors;
     my @valid_ints = LJ::validate_interest_list(\@interrors, @ints);
     if (@interrors > 0) {
-        $from_post{errors}->{interests} = LJ::Lang::ml($interrors[0]);
+        my $err = $interrors[0];
+        $from_post{errors}->{interests} = LJ::Lang::ml( $err->[0],
+                                            { words => $err->[1]{words},
+                                              words_max => $err->[1]{words_max},
+                                              'int' => $err->[1]{int} } );
     }
 
     my $old_interests = $u->interests;

@@ -23,7 +23,7 @@ You may have to copy and paste this link into your browser's window.
 
 Sincerely,
 [[sitename]]
-[[siteroot]]
+[[siteroot]]/
 .
 
 .email.subject=Validate Email
@@ -70,3 +70,6 @@ Sincerely,
 
 .trans.header=Success
 
+.validate.human.title=Please, verify that you are human
+
+.validate.human.submit=Continue

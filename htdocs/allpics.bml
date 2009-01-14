@@ -21,10 +21,7 @@
         $head .= LJ::robot_meta_tags();
     }
 
-    my $ad = LJ::ad_display(type   => 'journal',
-                            orient => 'Journal-Medrect',
-                            user   => $u->{user},
-                            );
+    my $ad = LJ::get_ads({ location => 'bml.allpics', ljadwrapper => 1, journalu => $u });
     $body .= "<div class='ad-sidebar'>$ad</div>" if $ad;
 
     # no need for viewsome, due to the fact that none of this is private anyway.  just

@@ -15,14 +15,17 @@
     my $moduleid  = $GET{moduleid};
     return "No module id specified" unless defined $moduleid;
     $moduleid += 0;
-
+    my $preview = $GET{preview};
     # check auth_token
     return "Invalid auth string" unless
         LJ::Auth->check_sessionless_auth_token('embedcontent', %GET);
 
     # ok we're cool, return content
-    my $content = LJ::EmbedModule->module_content(journalid => $journalid,
-                                                  moduleid  => $moduleid);
+    my $content = LJ::EmbedModule->module_content(
+        journalid => $journalid,
+        moduleid  => $moduleid,
+        preview => $preview,
+    );
 
     return qq {
         <html><head></head><body style="background-color: transparent;">$content</body></html>

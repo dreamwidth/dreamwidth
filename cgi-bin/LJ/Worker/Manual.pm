@@ -59,8 +59,9 @@ sub on_afterwork { }
 sub on_idle { }
 sub error {
     my ($class, $msg) = @_;
-
+    $class->debug($msg);
 }
+
 sub debug {
     my ($class, $msg) = @_;
     $msg =~ s/\s+$//;

@@ -38,9 +38,22 @@
     my $u = $poll->journal;
 
     my $mode = "";
-    foreach my $m ([ "enter", $ML{'.filloutpoll'} ], [ "results" , $ML{'.viewresults'} ]) {
-        if ($FORM{'mode'} eq $m->[0]) {
+    $mode = $FORM{'mode'} if ($FORM{'mode'} =~ /(enter|results|ans)/);
+
+    # Handle opening and closing of polls
+    # We do this first because a closed poll will alter how a poll is displayed
+    if ($poll->is_owner($remote)) {
+        if ($FORM{'mode'} =~ /(close|open)/) {
             $mode = $FORM{'mode'};
+            $poll->close_poll if ($mode eq 'close');
+            $poll->open_poll if ($mode eq 'open');
+            $mode = 'results' ;
+        }
+    }
+
+    foreach my $m ([ "enter", $ML{'.filloutpoll'} ], [ "results" , $ML{'.viewresults'} ]) {
+        next if ($m->[0] eq "enter" && $poll->is_closed);
+        if ($mode eq $m->[0]) {
             $body .= "<b>[ $m->[1] ]</b> ";
         } else {
             $body .= "<a href=\"$LJ::SITEROOT/poll/?id=$pollid&amp;mode=$m->[0]\">[ $m->[1] ]</a> ";
@@ -61,7 +74,12 @@
 
     $body .= "<a href='" . $entry->url . "'>[ $ML{'.discuss'} ]</a> ";
 
-    if ($FORM{'mode'} eq "ans") { $mode = "ans"; } # also allowed, but not shown
+    # Links for closing/reopening polls
+    if ($poll->is_owner($remote)) {
+        $body .= $poll->is_closed ?
+            "<a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=open'>[ $ML{'.reopen'} ]</a> " :
+            "<a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=close'>[ $ML{'.close'} ]</a> ";
+    }
 
     $body .= "<hr><p>";
 
@@ -89,7 +107,8 @@
         return BML::redirect($entry->url);
     }
 
-    $body .= $poll->render(mode => $mode, qid => $FORM{qid});
+    $body .= $poll->render(mode => $mode, qid => $FORM{qid},
+                page => $FORM{page}, pagesize => $FORM{pagesize});
     return;
 }
 _code?><?page

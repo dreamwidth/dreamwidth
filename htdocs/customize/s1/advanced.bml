@@ -30,7 +30,7 @@ body<=
 
     my $ret;
 
-    my $ad =  LJ::ads( type => 'app', orient => 'App-Customize' );
+    my $ad =  LJ::get_ads({ location => 'bml.customize.s1.advanced' });
     if ($ad) {
         $ret .= "<div id='CustomizeAdBox'>$ad</div>";
         $ret .= "<div style='clear: both; margin: 0; padding: 0; width: 0; height: 0;'></div>";

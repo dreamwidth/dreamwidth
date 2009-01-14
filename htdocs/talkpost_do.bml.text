@@ -22,6 +22,8 @@
 
 .error.manychars=Sorry, but your comment of [[current]] characters exceeds the maximum character length of [[limit]]. Please go back, shorten it, and try posting it again.
 
+.error.maxcomments=Sorry, this entry already has the maximum number of comments allowed.
+
 .error.mustlogin=You must be logged in or using a username/password to reply to this protected entry.
 
 .error.noanon=You can't post anonymously in this person's journal.

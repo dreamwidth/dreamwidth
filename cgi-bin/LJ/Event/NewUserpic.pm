@@ -62,7 +62,7 @@ $email .= "
   - View their journal:
     $journal_url
   - View their profile:
-    $profile";
+    $profile\n\n";
 
     return $email;
 }
@@ -118,13 +118,14 @@ sub zero_journalid_subs_means { "friends" }
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
-
     my $journal = $subscr->journal;
 
-    return "One of my friends uploads a new userpic" unless $journal;
-
-    my $ljuser = $subscr->journal->ljuser_display;
-    return "$ljuser uploads a new userpic";
+    # "One of my friends uploads a new userpic"
+    # or "$ljuser uploads a new userpic";
+    return $journal ?
+        BML::ml('event.userpic_upload.user',
+            { user => $journal->ljuser_display }) :
+        BML::ml('event.userpic_upload.me');
 }
 
 # only users with the track_user_newuserpic cap can use this

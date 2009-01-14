@@ -21,23 +21,12 @@
  $body = "";
 
  my $remote = LJ::get_remote();
+ return "<?needlogin?>" unless $remote;
+
  my $sth;
 
  if ($LJ::DISABLED{'tellafriend'}) {
      $body .= "This feature is disabled.";
-     return;
- }
-
-# Not logged in
- unless ($remote) {
-     my $url = $GET{url} if $GET{url};
-     my $uurl = LJ::eurl($url);
-     my $hurl = LJ::ehtml($url);
-     $body = "<?h1 Sorry... h1?><?p To use the \"Tell a Friend\" feature, you must first login.  p?>";
-     $body .= "<?p &nbsp;&nbsp;&nbsp;URL: <a href='$uurl'>$hurl</a> p?>\n" if $url;
-     $body .= "<?p <?h1 Login h1?>";
-     $body .= LJ::Widget::Login->render( get_ret => 1 ) . " p?>";
-     $body .= "<?p <?h1 Not a $LJ::SITENAMESHORT member? h1?> p?><?p <form action='$LJ::SITEROOT/create.bml'><input type='submit' value='Create an Account' class='create-account' /></form>\n p?>";
      return;
  }
 

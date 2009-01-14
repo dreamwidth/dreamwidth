@@ -20,16 +20,32 @@ $SIG{TERM} = sub {
 
 @EXPORT = qw(schwartz_decl schwartz_work schwartz_on_idle schwartz_on_afterwork schwartz_on_prework);
 
-my $sclient = LJ::theschwartz({mode => 'drain'}) or die "Could not get schwartz client";
-$sclient->set_verbose($verbose);
+my $sclient;
 
 my $on_idle = sub {};
 my $on_afterwork = sub {};
 
 my $on_prework = sub { 1 };  # return 1 to proceed and do work
 
+my $used_role;
+
+sub schwartz_init {
+    my ($role) = @_;
+    $role ||= 'drain';
+
+    $sclient = LJ::theschwartz({ role => $role }) or die "Could not get schwartz client";
+    $used_role = $role; # save success role
+    $sclient->set_verbose($verbose);
+}
+
 sub schwartz_decl {
-    my ($classname) = @_;
+    my ($classname, $role) = @_;
+    $role ||= 'drain';
+
+    die "Already connected to TheSchwartz with role '$used_role'" if defined $used_role and $role ne $used_role;
+
+    schwartz_init($role) unless $sclient;
+
     $sclient->can_do($classname);
 }
 
@@ -51,6 +67,8 @@ sub schwartz_on_prework {
 
 sub schwartz_work {
     my $sleep = 0;
+
+    schwartz_init() unless $sclient;
 
     LJ::Worker->setup_mother();
 

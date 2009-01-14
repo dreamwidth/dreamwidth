@@ -73,6 +73,7 @@ body<=
                                    $remote,
                                    categories => $categories,
                                    journal    => $journal,
+                                   post_to_settings_page => 1,
                                    );
 
 }

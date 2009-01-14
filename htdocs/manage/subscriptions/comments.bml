@@ -84,6 +84,7 @@ body<=
                                    journal => $journal,
                                    ret_url => ($can_watch ? $comment->url : $entry->url),
                                    default_selected_notifications => ['LJ::NotificationMethod::Email'],
+                                   post_to_settings_page => 1,
                                    );
 
 }

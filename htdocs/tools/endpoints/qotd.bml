@@ -6,11 +6,12 @@
 
     # if any opts aren't defined, they'll be passed in as empty strings
     my $skip = $GET{skip} eq "" ? undef : $GET{skip};
+    my $domain = $GET{domain} eq "" ? undef : $GET{domain};
 
     my $u = LJ::load_user($GET{user});
     $u = LJ::get_remote() unless $u;
 
-    my @questions = LJ::QotD->get_questions( user => $u, skip => $skip );
+    my @questions = LJ::QotD->get_questions( user => $u, skip => $skip, domain => $domain );
 
     my $ret = "";
     if (@questions) {

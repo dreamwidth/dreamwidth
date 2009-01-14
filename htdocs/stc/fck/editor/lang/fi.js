@@ -1,20 +1,24 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: fi.js
- * 	Finnish language file.
- * 
- * File Authors:
- * 		Marko Korhonen (marko.korhonen@datafisher.com)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Finnish language file.
  */
 
 var FCKLang =
@@ -40,7 +44,9 @@ RemoveFormat		: "Poista muotoilu",
 InsertLinkLbl		: "Linkki",
 InsertLink			: "Lisää linkki/muokkaa linkkiä",
 RemoveLink			: "Poista linkki",
+VisitLink			: "Open Link",	//MISSING
 Anchor				: "Lisää ankkuri/muokkaa ankkuria",
+AnchorDelete		: "Poista ankkuri",
 InsertImageLbl		: "Kuva",
 InsertImage			: "Lisää kuva/muokkaa kuvaa",
 InsertFlashLbl		: "Flash",
@@ -66,6 +72,10 @@ RightJustify		: "Tasaa oikeat reunat",
 BlockJustify		: "Tasaa molemmat reunat",
 DecreaseIndent		: "Pienennä sisennystä",
 IncreaseIndent		: "Suurenna sisennystä",
+Blockquote			: "Lainaus",
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "Kumoa",
 Redo				: "Toista",
 NumberedListLbl		: "Numerointi",
@@ -98,16 +108,28 @@ Button			: "Painike",
 SelectionField	: "Valintakenttä",
 ImageButton		: "Kuvapainike",
 
+FitWindow		: "Suurenna editori koko ikkunaan",
+ShowBlocks		: "Näytä elementit",
+
 // Context Menu
 EditLink			: "Muokkaa linkkiä",
-InsertRow			: "Lisää rivi",
+CellCM				: "Solu",
+RowCM				: "Rivi",
+ColumnCM			: "Sarake",
+InsertRowAfter		: "Lisää rivi alapuolelle",
+InsertRowBefore		: "Lisää rivi yläpuolelle",
 DeleteRows			: "Poista rivit",
-InsertColumn		: "Lisää sarake",
+InsertColumnAfter	: "Lisää sarake oikealle",
+InsertColumnBefore	: "Lisää sarake vasemmalle",
 DeleteColumns		: "Poista sarakkeet",
-InsertCell			: "Lisää solu",
+InsertCellAfter		: "Lisää solu perään",
+InsertCellBefore	: "Lisää solu eteen",
 DeleteCells			: "Poista solut",
 MergeCells			: "Yhdistä solut",
-SplitCell			: "Jaa solu",
+MergeRight			: "Yhdistä oikealla olevan kanssa",
+MergeDown			: "Yhdistä alla olevan kanssa",
+HorizontalSplitCell	: "Jaa solu vaakasuunnassa",
+VerticalSplitCell	: "Jaa solu pystysuunnassa",
 TableDelete			: "Poista taulu",
 CellProperties		: "Solun ominaisuudet",
 TableProperties		: "Taulun ominaisuudet",
@@ -139,6 +161,7 @@ UnknownToolbarSet	: "Työkalukokonaisuus \"%1\" ei ole olemassa",
 NoActiveX			: "Selaimesi turvallisuusasetukset voivat rajoittaa joitain editorin ominaisuuksia. Sinun pitää ottaa käyttöön asetuksista \"Suorita ActiveX komponentit ja -plugin-laajennukset\". Saatat kohdata virheitä ja huomata puuttuvia ominaisuuksia.",
 BrowseServerBlocked : "Resurssiselainta ei voitu avata. Varmista, että ponnahdusikkunoiden estäjät eivät ole päällä.",
 DialogBlocked		: "Apuikkunaa ei voitu avaata. Varmista, että ponnahdusikkunoiden estäjät eivät ole päällä.",
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "OK",
@@ -151,7 +174,7 @@ DlgInfoTab			: "Info",
 DlgAlertUrl			: "Lisää URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;ei asetettu&gt;",
+DlgGenNotSet		: "<ei asetettu>",
 DlgGenId			: "Tunniste",
 DlgGenLangDir		: "Kielen suunta",
 DlgGenLangDirLtr	: "Vasemmalta oikealle (LTR)",
@@ -215,12 +238,12 @@ DlgLnkTypeURL		: "Osoite",
 DlgLnkTypeAnchor	: "Ankkuri tässä sivussa",
 DlgLnkTypeEMail		: "Sähköposti",
 DlgLnkProto			: "Protokolla",
-DlgLnkProtoOther	: "&lt;muu&gt;",
+DlgLnkProtoOther	: "<muu>",
 DlgLnkURL			: "Osoite",
 DlgLnkAnchorSel		: "Valitse ankkuri",
 DlgLnkAnchorByName	: "Ankkurin nimen mukaan",
 DlgLnkAnchorById	: "Ankkurin ID:n mukaan",
-DlgLnkNoAnchors		: "&lt;Ei ankkureita tässä dokumentissa&gt;",
+DlgLnkNoAnchors		: "(Ei ankkureita tässä dokumentissa)",
 DlgLnkEMail			: "Sähköpostiosoite",
 DlgLnkEMailSubject	: "Aihe",
 DlgLnkEMailBody		: "Viesti",
@@ -228,8 +251,8 @@ DlgLnkUpload		: "Lisää tiedosto",
 DlgLnkBtnUpload		: "Lähetä palvelimelle",
 
 DlgLnkTarget		: "Kohde",
-DlgLnkTargetFrame	: "&lt;kehys&gt;",
-DlgLnkTargetPopup	: "&lt;popup ikkuna&gt;",
+DlgLnkTargetFrame	: "<kehys>",
+DlgLnkTargetPopup	: "<popup ikkuna>",
 DlgLnkTargetBlank	: "Uusi ikkuna (_blank)",
 DlgLnkTargetParent	: "Emoikkuna (_parent)",
 DlgLnkTargetSelf	: "Sama ikkuna (_self)",
@@ -253,6 +276,7 @@ DlgLnkPopTop		: "Ylhäältä (px)",
 DlnLnkMsgNoUrl		: "Linkille on kirjoitettava URL",
 DlnLnkMsgNoEMail	: "Kirjoita sähköpostiosoite",
 DlnLnkMsgNoAnchor	: "Valitse ankkuri",
+DlnLnkMsgInvPopName	: "Popup-ikkunan nimi pitää alkaa aakkosella ja ei saa sisältää välejä",
 
 // Color Dialog
 DlgColorTitle		: "Valitse väri",
@@ -312,6 +336,9 @@ DlgCellBackColor	: "Taustaväri",
 DlgCellBorderColor	: "Rajan väri",
 DlgCellBtnSelect	: "Valitse...",
 
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "Etsi ja korvaa",
+
 // Find Dialog
 DlgFindTitle		: "Etsi",
 DlgFindFindBtn		: "Etsi",
@@ -327,7 +354,6 @@ DlgReplaceReplAllBtn	: "Korvaa kaikki",
 DlgReplaceWordChk		: "Koko sana",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "Selaimesi turva-asetukset eivät salli editorin toteuttaa liittämistä. Käytä näppäimistöä liittämiseen (Ctrl+V).",
 PasteErrorCut	: "Selaimesi turva-asetukset eivät salli editorin toteuttaa leikkaamista. Käytä näppäimistöä leikkaamiseen (Ctrl+X).",
 PasteErrorCopy	: "Selaimesi turva-asetukset eivät salli editorin toteuttaa kopioimista. Käytä näppäimistöä kopioimiseen (Ctrl+C).",
 
@@ -335,10 +361,9 @@ PasteAsText		: "Liitä tekstinä",
 PasteFromWord	: "Liitä Wordista",
 
 DlgPasteMsg2	: "Liitä painamalla (<STRONG>Ctrl+V</STRONG>) ja painamalla <STRONG>OK</STRONG>.",
+DlgPasteSec		: "Selaimesi turva-asetukset eivät salli editorin käyttää leikepöytää suoraan. Sinun pitää suorittaa liittäminen tässä ikkunassa.",
 DlgPasteIgnoreFont		: "Jätä huomioimatta fonttimääritykset",
 DlgPasteRemoveStyles	: "Poista tyylimääritykset",
-DlgPasteCleanBox		: "Tyhjennä",
-
 
 // Color Picker
 ColorAutomatic	: "Automaattinen",
@@ -370,8 +395,11 @@ DlgSpellManyChanges		: "Tarkistus valmis: %1 sanaa muutettiin",
 IeSpellDownload			: "Oikeinkirjoituksen tarkistusta ei ole asennettu. Haluatko ladata sen nyt?",
 
 // Button Dialog
-DlgButtonText	: "Teksti (arvo)",
-DlgButtonType	: "Tyyppi",
+DlgButtonText		: "Teksti (arvo)",
+DlgButtonType		: "Tyyppi",
+DlgButtonTypeBtn	: "Painike",
+DlgButtonTypeSbm	: "Lähetä",
+DlgButtonTypeRst	: "Tyhjennä",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "Nimi",
@@ -420,6 +448,7 @@ DlgHiddenValue	: "Arvo",
 // Bulleted List Dialog
 BulletedListProp	: "Luettelon ominaisuudet",
 NumberedListProp	: "Numeroinnin ominaisuudet",
+DlgLstStart			: "Alku",
 DlgLstType			: "Tyyppi",
 DlgLstTypeCircle	: "Kehä",
 DlgLstTypeDisc		: "Ympyrä",
@@ -441,8 +470,17 @@ DlgDocLangDir		: "Kielen suunta",
 DlgDocLangDirLTR	: "Vasemmalta oikealle (LTR)",
 DlgDocLangDirRTL	: "Oikealta vasemmalle (RTL)",
 DlgDocLangCode		: "Kielikoodi",
-DlgDocCharSet		: "Merkistäkoodaus",
-DlgDocCharSetOther	: "Muu merkistäkoodaus",
+DlgDocCharSet		: "Merkistökoodaus",
+DlgDocCharSetCE		: "Keskieurooppalainen",
+DlgDocCharSetCT		: "Kiina, perinteinen (Big5)",
+DlgDocCharSetCR		: "Kyrillinen",
+DlgDocCharSetGR		: "Kreikka",
+DlgDocCharSetJP		: "Japani",
+DlgDocCharSetKR		: "Korealainen",
+DlgDocCharSetTR		: "Turkkilainen",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Länsieurooppalainen",
+DlgDocCharSetOther	: "Muu merkistökoodaus",
 
 DlgDocDocType		: "Dokumentin tyyppi",
 DlgDocDocTypeOther	: "Muu dokumentin tyyppi",
@@ -471,11 +509,18 @@ DlgTemplatesTitle	: "Sisältöpohjat",
 DlgTemplatesSelMsg	: "Valitse pohja editoriin<br>(aiempi sisältö menetetään):",
 DlgTemplatesLoading	: "Ladataan listaa pohjista. Hetkinen...",
 DlgTemplatesNoTpl	: "(Ei määriteltyjä pohjia)",
+DlgTemplatesReplace	: "Korvaa editorin koko sisältö",
 
 // About Dialog
 DlgAboutAboutTab	: "Editorista",
 DlgAboutBrowserInfoTab	: "Selaimen tiedot",
+DlgAboutLicenseTab	: "Lisenssi",
 DlgAboutVersion		: "versio",
-DlgAboutLicense		: "Lisenssi: GNU Lesser General Public License",
-DlgAboutInfo		: "Lisää tietoa osoitteesta"
-}
+DlgAboutInfo		: "Lisää tietoa osoitteesta",
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
+};

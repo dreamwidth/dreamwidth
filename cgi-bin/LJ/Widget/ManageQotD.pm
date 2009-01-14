@@ -71,7 +71,10 @@ sub table_display {
 
     my $ret;
     $ret .= "<table border='1' cellpadding='3'>";
-    $ret .= "<tr><th>Image</th><th>Subject</th><th>Question</th><th>Extra Text</th><th>Who Sees Question</th><th>Countries</th><th>Tags</th><th>Submitted By</th><th>Start Date</th><th>End Date</th><th colspan='2'>Active Status</th><th>Edit</th></tr>";
+    $ret .= "<tr><th>Image</th><th>Subject</th><th>Question</th>";
+    $ret .= "<th>" . LJ::Lang::ml('widget.manageqotd.extratext') . "</th>";
+    $ret .= "<th>" . LJ::Lang::ml('widget.manageqotd.is_special') . "</th>";
+    $ret .= "<th>Domain</th><th>Who Sees Question</th><th>Countries</th><th>Tags</th><th>Submitted By</th><th>Start Date</th><th>End Date</th><th colspan='2'>Active Status</th><th>Edit</th></tr>";
     foreach my $row (@questions) {
         my @classes = LJ::classes_from_mask($row->{cap_mask});
         @classes = LJ::run_hook("qotd_filter_classes", @classes);
@@ -99,6 +102,10 @@ sub table_display {
         $ret .= $row->{subject} ? "<td>$row->{subject}</td>" : "<td>&nbsp;</td>";
         $ret .= "<td>$row->{text}</td>";
         $ret .= $row->{extra_text} ? "<td>$row->{extra_text}</td>" : "<td>(none)</td>";
+        $ret .= $row->{is_special} eq "Y" ? "<td>Yes</td>" : "<td>No</td>";
+
+        my %domains = LJ::QotD->get_domains;
+        $ret .= defined $domains{$row->{domain}} ? "<td>$domains{$row->{domain}}</td>" : "<td>&nbsp;</td>";
         $ret .= "<td>$class_list</td>";
 
         # put spaces between the country codes so that the text wraps

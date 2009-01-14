@@ -123,4 +123,28 @@ sub display_pic {
     return $ret;
 }
 
+# return detailed data for XMLRPC::getinbox
+sub raw_info {
+    my ($self, $target) = @_;
+
+    my $res = $self->SUPER::raw_info;
+
+    my $msg = $self->load_message;
+    my $sender_u = LJ::want_user($msg->journalid);
+
+    my $pic;
+    if ($msg->userpic) {
+        $pic = LJ::Userpic->new_from_keyword($sender_u, $msg->userpic);
+    } else {
+        $pic = $sender_u->userpic;
+    }
+
+    $res->{to} = $msg->other_u->user;
+    $res->{picture} = $pic->url if $pic;
+    $res->{subject} = $msg->subject;
+    $res->{body} = $msg->body;
+
+    return $res;
+}
+
 1;

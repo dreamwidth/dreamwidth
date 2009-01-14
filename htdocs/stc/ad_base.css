@@ -72,3 +72,93 @@
 .lj_content_ad .ad_url {
     font-size: 11px;
 }
+
+/* Avertising for sup's user
+----------------------------- */
+.adv {
+position: relative;
+overflow: hidden;
+zoom:1;
+min-width: 400px;
+clear: both;
+background: #fff;
+border: 1px solid #808080;
+padding: 12px;
+text-align: left !important;
+}
+.adv-box {
+overflow: hidden;
+height: 250px;
+width: 100%;
+min-width: 400px;
+}
+* HTML .adv-box {
+width:expression(parentNode.clientWidth < 530 ? "400px" : "100%");}
+/* HTML .adv-box {
+width:expression(document.documentElement.clientWidth < 793 ? "400px" : "100%");}
+
+* HTML #adv_digitalmult .adv-box {	
+width:expression(document.documentElement.clientWidth < 944 ? "300px" : "100%");}
+*/
+/* Banner */
+.adv-box-banner {
+float: left;
+width: 313px;
+height: 250px;
+text-align: left;
+}
+
+/*text banner*/
+.adv-box-text {
+float: left;
+overflow: visible;
+width: 100%;
+min-width: 530px;
+margin-right: -313px;
+padding-top: 30px;
+}
+.adv-box-text-in {
+margin-right: 313px;
+}
+.body-adv-box {
+zoom:1;
+}
+/* min-width for ie6 */
+* HTML .mw {
+overflow:hidden;
+width:530px;
+height:0;
+font-size: 0;
+line-height: 0;
+}
+/* Advertising header 
+------------------------------*/
+H3.h-adv-box {
+padding: 3px 7px 5px 7px !important;
+margin: 0 !important;
+border: 0 !important;
+background: #a92242 !important;
+text-transform: uppercase;
+font: 10px/1 Verdana, Arial, sans-serif;
+color: #FFF;
+}
+H3.h-adv-box A {
+border: 0 !important;
+text-decoration: none !important;
+font: 10px/1 Verdana, Arial, sans-serif !important;
+color: #FFF !important;
+background: none !important;
+}
+H3.h-adv-box A:hover {
+border: 0 !important;
+text-decoration: underline !important;
+color: #FFF !important;
+}
+.adv H3.h-adv-box {
+position: absolute;
+right: -1px;
+top: 12px;
+float: right;
+z-index: 100;
+border: 0 !important;
+}

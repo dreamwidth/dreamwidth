@@ -63,7 +63,6 @@ body<=
         foreach my $view (@LJ::views) {
             my $sid = $POST{"s1_${view}_style"}+0;
             if ($sid) {
-                $u->set_prop("s1_${view}_style", $sid);
                 push @picked, $sid;
             }
         }
@@ -213,12 +212,6 @@ body<=
 
         LJ::cmize::js_redirect(\%POST, s1only => 1, getextra => $getextra);
         $saved_msg .= "Your settings have been saved. <a href='" . $u->journal_base() . "'>View your Journal</a>.";
-    }
-
-    my $ad =  LJ::ads( type => 'app', orient => 'BML-App-Customize' );
-    if ($ad) {
-        $ret .= "<div id='CustomizeAdBox'>$ad</div>";
-        $ret .= "<div style='clear: both; margin: 0; padding: 0; width: 0; height: 0;'></div>";
     }
 
     $ret .= "<?warningbar $saved_msg warningbar?>" if $saved_msg;

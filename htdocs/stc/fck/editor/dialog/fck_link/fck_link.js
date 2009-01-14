@@ -1,40 +1,48 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: fck_link.js
- * 	Scripts related to the Link dialog window (see fck_link.html).
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Scripts related to the Link dialog window (see fck_link.html).
  */
 
-var oEditor		= window.parent.InnerDialogLoaded() ;
+var dialog	= window.parent ;
+var oEditor = dialog.InnerDialogLoaded() ;
+
 var FCK			= oEditor.FCK ;
 var FCKLang		= oEditor.FCKLang ;
 var FCKConfig	= oEditor.FCKConfig ;
+var FCKRegexLib	= oEditor.FCKRegexLib ;
+var FCKTools	= oEditor.FCKTools ;
 
 //#### Dialog Tabs
 
 // Set the dialog tabs.
-window.parent.AddTab( 'Info', FCKLang.DlgLnkInfoTab ) ;
+dialog.AddTab( 'Info', FCKLang.DlgLnkInfoTab ) ;
 
 if ( !FCKConfig.LinkDlgHideTarget )
-	window.parent.AddTab( 'Target', FCKLang.DlgLnkTargetTab, true ) ;
+	dialog.AddTab( 'Target', FCKLang.DlgLnkTargetTab, true ) ;
 
 if ( FCKConfig.LinkUpload )
-	window.parent.AddTab( 'Upload', FCKLang.DlgLnkUpload, true ) ;
+	dialog.AddTab( 'Upload', FCKLang.DlgLnkUpload, true ) ;
 
 if ( !FCKConfig.LinkDlgHideAdvanced )
-	window.parent.AddTab( 'Advanced', FCKLang.DlgAdvancedTag ) ;
+	dialog.AddTab( 'Advanced', FCKLang.DlgAdvancedTag ) ;
 
 // Function called when a dialog tag is selected.
 function OnDialogTabChange( tabCode )
@@ -43,75 +51,224 @@ function OnDialogTabChange( tabCode )
 	ShowE('divTarget'	, ( tabCode == 'Target' ) ) ;
 	ShowE('divUpload'	, ( tabCode == 'Upload' ) ) ;
 	ShowE('divAttribs'	, ( tabCode == 'Advanced' ) ) ;
+
+	dialog.SetAutoSize( true ) ;
 }
 
 //#### Regular Expressions library.
 var oRegex = new Object() ;
 
-oRegex.UriProtocol = new RegExp('') ;
-oRegex.UriProtocol.compile( '^(((http|https|ftp|news):\/\/)|mailto:)', 'gi' ) ;
+oRegex.UriProtocol = /^(((http|https|ftp|news):\/\/)|mailto:)/gi ;
 
-oRegex.UrlOnChangeProtocol = new RegExp('') ;
-oRegex.UrlOnChangeProtocol.compile( '^(http|https|ftp|news)://(?=.)', 'gi' ) ;
+oRegex.UrlOnChangeProtocol = /^(http|https|ftp|news):\/\/(?=.)/gi ;
 
-oRegex.UrlOnChangeTestOther = new RegExp('') ;
-//oRegex.UrlOnChangeTestOther.compile( '^(javascript:|#|/)', 'gi' ) ;
-oRegex.UrlOnChangeTestOther.compile( '^((javascript:)|[#/\.])', 'gi' ) ; 
+oRegex.UrlOnChangeTestOther = /^((javascript:)|[#\/\.])/gi ;
 
-oRegex.ReserveTarget = new RegExp('') ;
-oRegex.ReserveTarget.compile( '^_(blank|self|top|parent)$', 'i' ) ;
+oRegex.ReserveTarget = /^_(blank|self|top|parent)$/i ;
 
-oRegex.PopupUri = new RegExp('') ;
-oRegex.PopupUri.compile( "^javascript:void\\(\\s*window.open\\(\\s*'([^']+)'\\s*,\\s*(?:'([^']*)'|null)\\s*,\\s*'([^']*)'\\s*\\)\\s*\\)\\s*$" ) ;
+oRegex.PopupUri = /^javascript:void\(\s*window.open\(\s*'([^']+)'\s*,\s*(?:'([^']*)'|null)\s*,\s*'([^']*)'\s*\)\s*\)\s*$/ ;
 
-oRegex.PopupFeatures = new RegExp('') ;
-oRegex.PopupFeatures.compile( '(?:^|,)([^=]+)=(\\d+|yes|no)', 'gi' ) ;
+// Accessible popups
+oRegex.OnClickPopup = /^\s*on[cC]lick="\s*window.open\(\s*this\.href\s*,\s*(?:'([^']*)'|null)\s*,\s*'([^']*)'\s*\)\s*;\s*return\s*false;*\s*"$/ ;
+
+oRegex.PopupFeatures = /(?:^|,)([^=]+)=(\d+|yes|no)/gi ;
 
 //#### Parser Functions
 
 var oParser = new Object() ;
 
-oParser.ParseEMailUrl = function( emailUrl )
+// This method simply returns the two inputs in numerical order. You can even
+// provide strings, as the method would parseInt() the values.
+oParser.SortNumerical = function(a, b)
+{
+	return parseInt( a, 10 ) - parseInt( b, 10 ) ;
+}
+
+oParser.ParseEMailParams = function(sParams)
+{
+	// Initialize the oEMailParams object.
+	var oEMailParams = new Object() ;
+	oEMailParams.Subject = '' ;
+	oEMailParams.Body = '' ;
+
+	var aMatch = sParams.match( /(^|^\?|&)subject=([^&]+)/i ) ;
+	if ( aMatch ) oEMailParams.Subject = decodeURIComponent( aMatch[2] ) ;
+
+	aMatch = sParams.match( /(^|^\?|&)body=([^&]+)/i ) ;
+	if ( aMatch ) oEMailParams.Body = decodeURIComponent( aMatch[2] ) ;
+
+	return oEMailParams ;
+}
+
+// This method returns either an object containing the email info, or FALSE
+// if the parameter is not an email link.
+oParser.ParseEMailUri = function( sUrl )
 {
 	// Initializes the EMailInfo object.
 	var oEMailInfo = new Object() ;
-	oEMailInfo.Address	= '' ;
-	oEMailInfo.Subject	= '' ;
-	oEMailInfo.Body		= '' ;
+	oEMailInfo.Address = '' ;
+	oEMailInfo.Subject = '' ;
+	oEMailInfo.Body = '' ;
 
-	var oParts = emailUrl.match( /^([^\?]+)\??(.+)?/ ) ;
-	if ( oParts )
+	var aLinkInfo = sUrl.match( /^(\w+):(.*)$/ ) ;
+	if ( aLinkInfo && aLinkInfo[1] == 'mailto' )
 	{
-		// Set the e-mail address.
-		oEMailInfo.Address = oParts[1] ;
-
-		// Look for the optional e-mail parameters.
-		if ( oParts[2] )
+		// This seems to be an unprotected email link.
+		var aParts = aLinkInfo[2].match( /^([^\?]+)\??(.+)?/ ) ;
+		if ( aParts )
 		{
-			var oMatch = oParts[2].match( /(^|&)subject=([^&]+)/i ) ;
-			if ( oMatch ) oEMailInfo.Subject = unescape( oMatch[2] ) ;
+			// Set the e-mail address.
+			oEMailInfo.Address = aParts[1] ;
 
-			oMatch = oParts[2].match( /(^|&)body=([^&]+)/i ) ;
-			if ( oMatch ) oEMailInfo.Body = unescape( oMatch[2] ) ;
+			// Look for the optional e-mail parameters.
+			if ( aParts[2] )
+			{
+				var oEMailParams = oParser.ParseEMailParams( aParts[2] ) ;
+				oEMailInfo.Subject = oEMailParams.Subject ;
+				oEMailInfo.Body = oEMailParams.Body ;
+			}
+		}
+		return oEMailInfo ;
+	}
+	else if ( aLinkInfo && aLinkInfo[1] == 'javascript' )
+	{
+		// This may be a protected email.
+
+		// Try to match the url against the EMailProtectionFunction.
+		var func = FCKConfig.EMailProtectionFunction ;
+		if ( func != null )
+		{
+			try
+			{
+				// Escape special chars.
+				func = func.replace( /([\/^$*+.?()\[\]])/g, '\\$1' ) ;
+
+				// Define the possible keys.
+				var keys = new Array('NAME', 'DOMAIN', 'SUBJECT', 'BODY') ;
+
+				// Get the order of the keys (hold them in the array <pos>) and
+				// the function replaced by regular expression patterns.
+				var sFunc = func ;
+				var pos = new Array() ;
+				for ( var i = 0 ; i < keys.length ; i ++ )
+				{
+					var rexp = new RegExp( keys[i] ) ;
+					var p = func.search( rexp ) ;
+					if ( p >= 0 )
+					{
+						sFunc = sFunc.replace( rexp, '\'([^\']*)\'' ) ;
+						pos[pos.length] = p + ':' + keys[i] ;
+					}
+				}
+
+				// Sort the available keys.
+				pos.sort( oParser.SortNumerical ) ;
+
+				// Replace the excaped single quotes in the url, such they do
+				// not affect the regexp afterwards.
+				aLinkInfo[2] = aLinkInfo[2].replace( /\\'/g, '###SINGLE_QUOTE###' ) ;
+
+				// Create the regexp and execute it.
+				var rFunc = new RegExp( '^' + sFunc + '$' ) ;
+				var aMatch = rFunc.exec( aLinkInfo[2] ) ;
+				if ( aMatch )
+				{
+					var aInfo = new Array();
+					for ( var i = 1 ; i < aMatch.length ; i ++ )
+					{
+						var k = pos[i-1].match(/^\d+:(.+)$/) ;
+						aInfo[k[1]] = aMatch[i].replace(/###SINGLE_QUOTE###/g, '\'') ;
+					}
+
+					// Fill the EMailInfo object that will be returned
+					oEMailInfo.Address = aInfo['NAME'] + '@' + aInfo['DOMAIN'] ;
+					oEMailInfo.Subject = decodeURIComponent( aInfo['SUBJECT'] ) ;
+					oEMailInfo.Body = decodeURIComponent( aInfo['BODY'] ) ;
+
+					return oEMailInfo ;
+				}
+			}
+			catch (e)
+			{
+			}
+		}
+
+		// Try to match the email against the encode protection.
+		var aMatch = aLinkInfo[2].match( /^location\.href='mailto:'\+(String\.fromCharCode\([\d,]+\))\+'(.*)'$/ ) ;
+		if ( aMatch )
+		{
+			// The link is encoded
+			oEMailInfo.Address = eval( aMatch[1] ) ;
+			if ( aMatch[2] )
+			{
+				var oEMailParams = oParser.ParseEMailParams( aMatch[2] ) ;
+				oEMailInfo.Subject = oEMailParams.Subject ;
+				oEMailInfo.Body = oEMailParams.Body ;
+			}
+			return oEMailInfo ;
 		}
 	}
-
-	return oEMailInfo ;
+	return false;
 }
 
 oParser.CreateEMailUri = function( address, subject, body )
 {
+	// Switch for the EMailProtection setting.
+	switch ( FCKConfig.EMailProtection )
+	{
+		case 'function' :
+			var func = FCKConfig.EMailProtectionFunction ;
+			if ( func == null )
+			{
+				if ( FCKConfig.Debug )
+				{
+					alert('EMailProtection alert!\nNo function defined. Please set "FCKConfig.EMailProtectionFunction"') ;
+				}
+				return '';
+			}
+
+			// Split the email address into name and domain parts.
+			var aAddressParts = address.split( '@', 2 ) ;
+			if ( aAddressParts[1] == undefined )
+			{
+				aAddressParts[1] = '' ;
+			}
+
+			// Replace the keys by their values (embedded in single quotes).
+			func = func.replace(/NAME/g, "'" + aAddressParts[0].replace(/'/g, '\\\'') + "'") ;
+			func = func.replace(/DOMAIN/g, "'" + aAddressParts[1].replace(/'/g, '\\\'') + "'") ;
+			func = func.replace(/SUBJECT/g, "'" + encodeURIComponent( subject ).replace(/'/g, '\\\'') + "'") ;
+			func = func.replace(/BODY/g, "'" + encodeURIComponent( body ).replace(/'/g, '\\\'') + "'") ;
+
+			return 'javascript:' + func ;
+
+		case 'encode' :
+			var aParams = [] ;
+			var aAddressCode = [] ;
+
+			if ( subject.length > 0 )
+				aParams.push( 'subject='+ encodeURIComponent( subject ) ) ;
+			if ( body.length > 0 )
+				aParams.push( 'body=' + encodeURIComponent( body ) ) ;
+			for ( var i = 0 ; i < address.length ; i++ )
+				aAddressCode.push( address.charCodeAt( i ) ) ;
+
+			return 'javascript:location.href=\'mailto:\'+String.fromCharCode(' + aAddressCode.join( ',' ) + ')+\'?' + aParams.join( '&' ) + '\'' ;
+	}
+
+	// EMailProtection 'none'
+
 	var sBaseUri = 'mailto:' + address ;
 
 	var sParams = '' ;
 
 	if ( subject.length > 0 )
-		sParams = '?subject=' + escape( subject ) ;
+		sParams = '?subject=' + encodeURIComponent( subject ) ;
 
 	if ( body.length > 0 )
 	{
 		sParams += ( sParams.length == 0 ? '?' : '&' ) ;
-		sParams += 'body=' + escape( body ) ;
+		sParams += 'body=' + encodeURIComponent( body ) ;
 	}
 
 	return sBaseUri + sParams ;
@@ -120,7 +277,7 @@ oParser.CreateEMailUri = function( address, subject, body )
 //#### Initialization Code
 
 // oLink: The actual selected link in the editor.
-var oLink = FCK.Selection.MoveToAncestorNode( 'A' ) ;
+var oLink = dialog.Selection.GetSelection().MoveToAncestorNode( 'A' ) ;
 if ( oLink )
 	FCK.Selection.SelectNode( oLink ) ;
 
@@ -148,39 +305,66 @@ window.onload = function()
 	if ( FCKConfig.LinkUpload )
 		GetE('frmUpload').action = FCKConfig.LinkUploadURL ;
 
+	// Set the default target (from configuration).
+	SetDefaultTarget() ;
+
 	// Activate the "OK" button.
-	window.parent.SetOkButton( true ) ;
+	dialog.SetOkButton( true ) ;
+
+	// Select the first field.
+	switch( GetE('cmbLinkType').value )
+	{
+		case 'url' :
+			SelectField( 'txtUrl' ) ;
+			break ;
+		case 'email' :
+			SelectField( 'txtEMailAddress' ) ;
+			break ;
+		case 'anchor' :
+			if ( GetE('divSelAnchor').style.display != 'none' )
+				SelectField( 'cmbAnchorName' ) ;
+			else
+				SelectField( 'cmbLinkType' ) ;
+	}
 }
 
 var bHasAnchors ;
 
 function LoadAnchorNamesAndIds()
 {
-	// Since version 2.0, the anchors are replaced in the DOM by IMGs so the user see the icon 
+	// Since version 2.0, the anchors are replaced in the DOM by IMGs so the user see the icon
 	// to edit them. So, we must look for that images now.
 	var aAnchors = new Array() ;
-	
+	var i ;
 	var oImages = oEditor.FCK.EditorDocument.getElementsByTagName( 'IMG' ) ;
-	for( var i = 0 ; i < oImages.length ; i++ )
+	for( i = 0 ; i < oImages.length ; i++ )
 	{
 		if ( oImages[i].getAttribute('_fckanchor') )
 			aAnchors[ aAnchors.length ] = oEditor.FCK.GetRealElement( oImages[i] ) ;
 	}
-	
-	var aIds = oEditor.FCKTools.GetAllChildrenIds( oEditor.FCK.EditorDocument.body ) ;
+
+	// Add also real anchors
+	var oLinks = oEditor.FCK.EditorDocument.getElementsByTagName( 'A' ) ;
+	for( i = 0 ; i < oLinks.length ; i++ )
+	{
+		if ( oLinks[i].name && ( oLinks[i].name.length > 0 ) )
+			aAnchors[ aAnchors.length ] = oLinks[i] ;
+	}
+
+	var aIds = FCKTools.GetAllChildrenIds( oEditor.FCK.EditorDocument.body ) ;
 
 	bHasAnchors = ( aAnchors.length > 0 || aIds.length > 0 ) ;
 
-	for ( var i = 0 ; i < aAnchors.length ; i++ )
+	for ( i = 0 ; i < aAnchors.length ; i++ )
 	{
 		var sName = aAnchors[i].name ;
 		if ( sName && sName.length > 0 )
-			oEditor.FCKTools.AddSelectOption( document, GetE('cmbAnchorName'), sName, sName ) ;
+			FCKTools.AddSelectOption( GetE('cmbAnchorName'), sName, sName ) ;
 	}
 
-	for ( var i = 0 ; i < aIds.length ; i++ )
+	for ( i = 0 ; i < aIds.length ; i++ )
 	{
-		oEditor.FCKTools.AddSelectOption( document, GetE('cmbAnchorId'), aIds[i], aIds[i] ) ;
+		FCKTools.AddSelectOption( GetE('cmbAnchorId'), aIds[i], aIds[i] ) ;
 	}
 
 	ShowE( 'divSelAnchor'	, bHasAnchors ) ;
@@ -195,12 +379,8 @@ function LoadSelection()
 
 	// Get the actual Link href.
 	var sHRef = oLink.getAttribute( '_fcksavedurl' ) ;
-	if ( !sHRef || sHRef.length == 0 )
-		sHRef = oLink.getAttribute( 'href' , 2 ) + '' ;
-	
-	// TODO: Wait stable version and remove the following commented lines.
-//	if ( sHRef.startsWith( FCK.BaseUrl ) )
-//		sHRef = sHRef.remove( 0, FCK.BaseUrl.length ) ;
+	if ( sHRef == null )
+		sHRef = oLink.getAttribute( 'href' , 2 ) || '' ;
 
 	// Look for a popup javascript link.
 	var oPopupMatch = oRegex.PopupUri.exec( sHRef ) ;
@@ -212,31 +392,48 @@ function LoadSelection()
 		SetTarget( 'popup' ) ;
 	}
 
+	// Accessible popups, the popup data is in the onclick attribute
+	if ( !oPopupMatch )
+	{
+		var onclick = oLink.getAttribute( 'onclick_fckprotectedatt' ) ;
+		if ( onclick )
+		{
+			// Decode the protected string
+			onclick = decodeURIComponent( onclick ) ;
+
+			oPopupMatch = oRegex.OnClickPopup.exec( onclick ) ;
+			if( oPopupMatch )
+			{
+				GetE( 'cmbTarget' ).value = 'popup' ;
+				FillPopupFields( oPopupMatch[1], oPopupMatch[2] ) ;
+				SetTarget( 'popup' ) ;
+			}
+		}
+	}
+
 	// Search for the protocol.
 	var sProtocol = oRegex.UriProtocol.exec( sHRef ) ;
 
-	if ( sProtocol )
+	// Search for a protected email link.
+	var oEMailInfo = oParser.ParseEMailUri( sHRef );
+
+	if ( oEMailInfo )
+	{
+		sType = 'email' ;
+
+		GetE('txtEMailAddress').value = oEMailInfo.Address ;
+		GetE('txtEMailSubject').value = oEMailInfo.Subject ;
+		GetE('txtEMailBody').value    = oEMailInfo.Body ;
+	}
+	else if ( sProtocol )
 	{
 		sProtocol = sProtocol[0].toLowerCase() ;
 		GetE('cmbLinkProtocol').value = sProtocol ;
 
-		// Remove the protocol and get the remainig URL.
+		// Remove the protocol and get the remaining URL.
 		var sUrl = sHRef.replace( oRegex.UriProtocol, '' ) ;
-
-		if ( sProtocol == 'mailto:' )	// It is an e-mail link.
-		{
-			sType = 'email' ;
-
-			var oEMailInfo = oParser.ParseEMailUrl( sUrl ) ;
-			GetE('txtEMailAddress').value	= oEMailInfo.Address ;
-			GetE('txtEMailSubject').value	= oEMailInfo.Subject ;
-			GetE('txtEMailBody').value		= oEMailInfo.Body ;
-		}
-		else				// It is a normal link.
-		{
-			sType = 'url' ;
-			GetE('txtUrl').value = sUrl ;
-		}
+		sType = 'url' ;
+		GetE('txtUrl').value = sUrl ;
 	}
 	else if ( sHRef.substr(0,1) == '#' && sHRef.length > 1 )	// It is an anchor link.
 	{
@@ -280,16 +477,21 @@ function LoadSelection()
 	GetE('txtAttContentType').value	= oLink.type ;
 	GetE('txtAttCharSet').value		= oLink.charset ;
 
+	var sClass ;
 	if ( oEditor.FCKBrowserInfo.IsIE )
 	{
-		GetE('txtAttClasses').value	= oLink.getAttribute('className',2) || '' ;
+		sClass	= oLink.getAttribute('className',2) || '' ;
+		// Clean up temporary classes for internal use:
+		sClass = sClass.replace( FCKRegexLib.FCK_Class, '' ) ;
+
 		GetE('txtAttStyle').value	= oLink.style.cssText ;
 	}
 	else
 	{
-		GetE('txtAttClasses').value	= oLink.getAttribute('class',2) || '' ;
-		GetE('txtAttStyle').value	= oLink.getAttribute('style',2) ;
+		sClass	= oLink.getAttribute('class',2) || '' ;
+		GetE('txtAttStyle').value	= oLink.getAttribute('style',2) || '' ;
 	}
+	GetE('txtAttClasses').value	= sClass ;
 
 	// Update the Link type combo.
 	GetE('cmbLinkType').value = sType ;
@@ -303,16 +505,16 @@ function SetLinkType( linkType )
 	ShowE('divLinkTypeEMail'	, (linkType == 'email') ) ;
 
 	if ( !FCKConfig.LinkDlgHideTarget )
-		window.parent.SetTabVisibility( 'Target'	, (linkType == 'url') ) ;
+		dialog.SetTabVisibility( 'Target'	, (linkType == 'url') ) ;
 
 	if ( FCKConfig.LinkUpload )
-		window.parent.SetTabVisibility( 'Upload'	, (linkType == 'url') ) ;
+		dialog.SetTabVisibility( 'Upload'	, (linkType == 'url') ) ;
 
 	if ( !FCKConfig.LinkDlgHideAdvanced )
-		window.parent.SetTabVisibility( 'Advanced'	, (linkType != 'anchor' || bHasAnchors) ) ;
+		dialog.SetTabVisibility( 'Advanced'	, (linkType != 'anchor' || bHasAnchors) ) ;
 
 	if ( linkType == 'email' )
-		window.parent.SetAutoSize( true ) ;
+		dialog.SetAutoSize( true ) ;
 }
 
 //#### Target type selection.
@@ -320,7 +522,7 @@ function SetTarget( targetType )
 {
 	GetE('tdTargetFrame').style.display	= ( targetType == 'popup' ? 'none' : '' ) ;
 	GetE('tdPopupName').style.display	=
-		GetE('tablePopupFeatures').style.display = ( targetType == 'popup' ? '' : 'none' ) ;
+	GetE('tablePopupFeatures').style.display = ( targetType == 'popup' ? '' : 'none' ) ;
 
 	switch ( targetType )
 	{
@@ -336,7 +538,7 @@ function SetTarget( targetType )
 	}
 
 	if ( targetType == 'popup' )
-		window.parent.SetAutoSize( true ) ;
+		dialog.SetAutoSize( true ) ;
 }
 
 //#### Called while the user types the URL.
@@ -370,14 +572,13 @@ function OnTargetNameChange()
 		GetE('cmbTarget').value = 'frame' ;
 }
 
-//#### Builds the javascript URI to open a popup to the specified URI.
-function BuildPopupUri( uri )
+// Accessible popups
+function BuildOnClickPopup()
 {
-	var oReg = new RegExp( "'", "g" ) ;
-	var sWindowName = "'" + GetE('txtPopupName').value.replace(oReg, "\\'") + "'" ;
+	var sWindowName = "'" + GetE('txtPopupName').value.replace(/\W/gi, "") + "'" ;
 
 	var sFeatures = '' ;
-	var aChkFeatures = document.getElementsByName('chkFeature') ;
+	var aChkFeatures = document.getElementsByName( 'chkFeature' ) ;
 	for ( var i = 0 ; i < aChkFeatures.length ; i++ )
 	{
 		if ( i > 0 ) sFeatures += ',' ;
@@ -389,7 +590,10 @@ function BuildPopupUri( uri )
 	if ( GetE('txtPopupLeft').value.length > 0 )	sFeatures += ',left=' + GetE('txtPopupLeft').value ;
 	if ( GetE('txtPopupTop').value.length > 0 )		sFeatures += ',top=' + GetE('txtPopupTop').value ;
 
-	return ( "javascript:void(window.open('" + uri + "'," + sWindowName + ",'" + sFeatures + "'))" ) ;
+	if ( sFeatures != '' )
+		sFeatures = sFeatures + ",status" ;
+
+	return ( "window.open(this.href," + sWindowName + ",'" + sFeatures + "'); return false" ) ;
 }
 
 //#### Fills all Popup related fields.
@@ -427,7 +631,8 @@ function FillPopupFields( windowName, features )
 //#### The OK button was hit.
 function Ok()
 {
-	var sUri ;
+	var sUri, sInnerHtml ;
+	oEditor.FCKUndo.SaveUndoStep() ;
 
 	switch ( GetE('cmbLinkType').value )
 	{
@@ -441,9 +646,6 @@ function Ok()
 			}
 
 			sUri = GetE('cmbLinkProtocol').value + sUri ;
-
-			if( GetE('cmbTarget').value == 'popup' )
-				sUri = BuildPopupUri( sUri ) ;
 
 			break ;
 
@@ -476,47 +678,116 @@ function Ok()
 			break ;
 	}
 
-	if ( oLink )	// Modifying an existent link.
+	// If no link is selected, create a new one (it may result in more than one link creation - #220).
+	var aLinks = oLink ? [ oLink ] : oEditor.FCK.CreateLink( sUri, true ) ;
+
+	// If no selection, no links are created, so use the uri as the link text (by dom, 2006-05-26)
+	var aHasSelection = ( aLinks.length > 0 ) ;
+	if ( !aHasSelection )
 	{
-		oEditor.FCKUndo.SaveUndoStep() ;
+		sInnerHtml = sUri;
+
+		// Built a better text for empty links.
+		switch ( GetE('cmbLinkType').value )
+		{
+			// anchor: use old behavior --> return true
+			case 'anchor':
+				sInnerHtml = sInnerHtml.replace( /^#/, '' ) ;
+				break ;
+
+			// url: try to get path
+			case 'url':
+				var oLinkPathRegEx = new RegExp("//?([^?\"']+)([?].*)?$") ;
+				var asLinkPath = oLinkPathRegEx.exec( sUri ) ;
+				if (asLinkPath != null)
+					sInnerHtml = asLinkPath[1];  // use matched path
+				break ;
+
+			// mailto: try to get email address
+			case 'email':
+				sInnerHtml = GetE('txtEMailAddress').value ;
+				break ;
+		}
+
+		// Create a new (empty) anchor.
+		aLinks = [ oEditor.FCK.InsertElement( 'a' ) ] ;
+	}
+
+	for ( var i = 0 ; i < aLinks.length ; i++ )
+	{
+		oLink = aLinks[i] ;
+
+		if ( aHasSelection )
+			sInnerHtml = oLink.innerHTML ;		// Save the innerHTML (IE changes it if it is like an URL).
+
 		oLink.href = sUri ;
-	}
-	else			// Creating a new link.
-	{
-		oLink = oEditor.FCK.CreateLink( sUri ) ;
-		if ( ! oLink )
-			return true ;
-	}
-	
-	SetAttribute( oLink, '_fcksavedurl', sUri ) ;
+		SetAttribute( oLink, '_fcksavedurl', sUri ) ;
 
-	// Target
-	if( GetE('cmbTarget').value != 'popup' )
-		SetAttribute( oLink, 'target', GetE('txtTargetFrame').value ) ;
-	else
-		SetAttribute( oLink, 'target', null ) ;
+		var onclick;
+		// Accessible popups
+		if( GetE('cmbTarget').value == 'popup' )
+		{
+			onclick = BuildOnClickPopup() ;
+			// Encode the attribute
+			onclick = encodeURIComponent( " onclick=\"" + onclick + "\"" )  ;
+			SetAttribute( oLink, 'onclick_fckprotectedatt', onclick ) ;
+		}
+		else
+		{
+			// Check if the previous onclick was for a popup:
+			// In that case remove the onclick handler.
+			onclick = oLink.getAttribute( 'onclick_fckprotectedatt' ) ;
+			if ( onclick )
+			{
+				// Decode the protected string
+				onclick = decodeURIComponent( onclick ) ;
 
-	// Advances Attributes
-	SetAttribute( oLink, 'id'		, GetE('txtAttId').value ) ;
-	SetAttribute( oLink, 'name'		, GetE('txtAttName').value ) ;		// No IE. Set but doesnt't update the outerHTML.
-	SetAttribute( oLink, 'dir'		, GetE('cmbAttLangDir').value ) ;
-	SetAttribute( oLink, 'lang'		, GetE('txtAttLangCode').value ) ;
-	SetAttribute( oLink, 'accesskey', GetE('txtAttAccessKey').value ) ;
-	SetAttribute( oLink, 'tabindex'	, ( GetE('txtAttTabIndex').value > 0 ? GetE('txtAttTabIndex').value : null ) ) ;
-	SetAttribute( oLink, 'title'	, GetE('txtAttTitle').value ) ;
-	SetAttribute( oLink, 'type'		, GetE('txtAttContentType').value ) ;
-	SetAttribute( oLink, 'charset'	, GetE('txtAttCharSet').value ) ;
+				if( oRegex.OnClickPopup.test( onclick ) )
+					SetAttribute( oLink, 'onclick_fckprotectedatt', '' ) ;
+			}
+		}
 
-	if ( oEditor.FCKBrowserInfo.IsIE )
-	{
-		SetAttribute( oLink, 'className', GetE('txtAttClasses').value ) ;
-		oLink.style.cssText = GetE('txtAttStyle').value ;
+		oLink.innerHTML = sInnerHtml ;		// Set (or restore) the innerHTML
+
+		// Target
+		if( GetE('cmbTarget').value != 'popup' )
+			SetAttribute( oLink, 'target', GetE('txtTargetFrame').value ) ;
+		else
+			SetAttribute( oLink, 'target', null ) ;
+
+		// Let's set the "id" only for the first link to avoid duplication.
+		if ( i == 0 )
+			SetAttribute( oLink, 'id', GetE('txtAttId').value ) ;
+
+		// Advances Attributes
+		SetAttribute( oLink, 'name'		, GetE('txtAttName').value ) ;
+		SetAttribute( oLink, 'dir'		, GetE('cmbAttLangDir').value ) ;
+		SetAttribute( oLink, 'lang'		, GetE('txtAttLangCode').value ) ;
+		SetAttribute( oLink, 'accesskey', GetE('txtAttAccessKey').value ) ;
+		SetAttribute( oLink, 'tabindex'	, ( GetE('txtAttTabIndex').value > 0 ? GetE('txtAttTabIndex').value : null ) ) ;
+		SetAttribute( oLink, 'title'	, GetE('txtAttTitle').value ) ;
+		SetAttribute( oLink, 'type'		, GetE('txtAttContentType').value ) ;
+		SetAttribute( oLink, 'charset'	, GetE('txtAttCharSet').value ) ;
+
+		if ( oEditor.FCKBrowserInfo.IsIE )
+		{
+			var sClass = GetE('txtAttClasses').value ;
+			// If it's also an anchor add an internal class
+			if ( GetE('txtAttName').value.length != 0 )
+				sClass += ' FCK__AnchorC' ;
+			SetAttribute( oLink, 'className', sClass ) ;
+
+			oLink.style.cssText = GetE('txtAttStyle').value ;
+		}
+		else
+		{
+			SetAttribute( oLink, 'class', GetE('txtAttClasses').value ) ;
+			SetAttribute( oLink, 'style', GetE('txtAttStyle').value ) ;
+		}
 	}
-	else
-	{
-		SetAttribute( oLink, 'class', GetE('txtAttClasses').value ) ;
-		SetAttribute( oLink, 'style', GetE('txtAttStyle').value ) ;
-	}
+
+	// Select the (first) link.
+	oEditor.FCKSelection.SelectNode( aLinks[0] );
 
 	return true ;
 }
@@ -528,13 +799,17 @@ function BrowseServer()
 
 function SetUrl( url )
 {
-	document.getElementById('txtUrl').value = url ;
+	GetE('txtUrl').value = url ;
 	OnUrlChange() ;
-	window.parent.SetSelectedTab( 'Info' ) ;
+	dialog.SetSelectedTab( 'Info' ) ;
 }
 
 function OnUploadCompleted( errorNumber, fileUrl, fileName, customMsg )
 {
+	// Remove animation
+	window.parent.Throbber.Hide() ;
+	GetE( 'divUpload' ).style.display  = '' ;
+
 	switch ( errorNumber )
 	{
 		case 0 :	// No errors
@@ -555,6 +830,9 @@ function OnUploadCompleted( errorNumber, fileUrl, fileName, customMsg )
 		case 203 :
 			alert( "Security error. You probably don't have enough permissions to upload. Please check your server." ) ;
 			return ;
+		case 500 :
+			alert( 'The connector is disabled' ) ;
+			break ;
 		default :
 			alert( 'Error on file upload. Error number: ' + errorNumber ) ;
 			return ;
@@ -570,19 +848,46 @@ var oUploadDeniedExtRegex	= new RegExp( FCKConfig.LinkUploadDeniedExtensions, 'i
 function CheckUpload()
 {
 	var sFile = GetE('txtUploadFile').value ;
-	
+
 	if ( sFile.length == 0 )
 	{
 		alert( 'Please select a file to upload' ) ;
 		return false ;
 	}
-	
+
 	if ( ( FCKConfig.LinkUploadAllowedExtensions.length > 0 && !oUploadAllowedExtRegex.test( sFile ) ) ||
 		( FCKConfig.LinkUploadDeniedExtensions.length > 0 && oUploadDeniedExtRegex.test( sFile ) ) )
 	{
 		OnUploadCompleted( 202 ) ;
 		return false ;
 	}
-	
+
+	// Show animation
+	window.parent.Throbber.Show( 100 ) ;
+	GetE( 'divUpload' ).style.display  = 'none' ;
+
 	return true ;
+}
+
+function SetDefaultTarget()
+{
+	var target = FCKConfig.DefaultLinkTarget || '' ;
+
+	if ( oLink || target.length == 0 )
+		return ;
+
+	switch ( target )
+	{
+		case '_blank' :
+		case '_self' :
+		case '_parent' :
+		case '_top' :
+			GetE('cmbTarget').value = target ;
+			break ;
+		default :
+			GetE('cmbTarget').value = 'frame' ;
+			break ;
+	}
+
+	GetE('txtTargetFrame').value = target ;
 }

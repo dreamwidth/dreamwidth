@@ -7,7 +7,7 @@
     my $print_with_ad = sub {
        my $str = shift;
 
-       my $ad_box = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm' );
+       my $ad_box = LJ::get_ads({ location => 'bml.friends.add/error', ljadwrapper => 1 });
        return $ad_box . $str;
     };
 
@@ -19,6 +19,7 @@
     my $userid = $u->{userid};
     $body = "";
 
+    LJ::need_res(qw(js/core.js js/dom.js js/colorpicker.js));
     LJ::set_active_crumb('addfriend');
 
     unless ($remote)
@@ -83,7 +84,11 @@
 
         if ($res{'success'} eq "OK")
         {
-            $body = LJ::ad_display( type => 'app', orient => 'BML-App-Confirm', below_ad => LJ::CProd->full_box_for($remote, width => 300) );
+            $body = LJ::get_ads({ 
+                location    => 'bml.friends.add/main', 
+                ljadwrapper => 1,
+                below_ad    => LJ::CProd->full_box_for($remote, width => 300) 
+            });
 
             if ($POST{'action:delete'}) {
                 $title = $ML{'.remove.title'};
@@ -469,7 +474,7 @@
 
     $body .= "</form>";
     $body = $print_with_ad->($body);
-
+ 
     return;
 }
 _code?>
@@ -478,15 +483,6 @@ title=><?_code return $title; _code?>
 windowtitle=><?_code return $windowtitle; _code?>
 head<=
 <?_code return $_[1]->{'head'}; _code?>
-<?_code
-{
-    $ret .= "<script type='text/javascript' src='$LJ::SITEROOT/js/core.js'></script>\n";
-    $ret .= "<script type='text/javascript' src='$LJ::SITEROOT/js/dom.js'></script>\n";
-    $ret .= "<script language=\"JavaScript\" src=\"$LJ::SITEROOT/js/colorpicker.js\"></script>";
-
-    return $ret;
-}
-_code?>
 <=head
 body=><?_code return $body; _code?>
 page?><?_c <LJDEP>

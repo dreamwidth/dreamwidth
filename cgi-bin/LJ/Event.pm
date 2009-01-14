@@ -95,11 +95,25 @@ sub is_common {
 # not show up in normal UI
 sub is_visible { 1 }
 
+# Override this with a true if notification to this event should be sent
+# even if user account is not in active state.
+sub is_significant { 0 }
+
 # Whether Inbox is always subscribed to
 sub always_checked { 0 }
 
 # Override this with HTML containing the actual event
 sub content { '' }
+
+# Override this to provide details, method for XMLRPC::getinbox
+sub raw_info {
+    my $self = shift;
+
+    my $subclass = ref $self;
+    $subclass =~ s/LJ::Event:?:?//;
+
+    return { type => $subclass };
+}
 
 sub as_string {
     my ($self, $u) = @_;
@@ -192,6 +206,9 @@ sub available_for_user  {
     return 1;
 }
 
+# override for very hard events
+sub schwartz_role { 'default' }
+
 ############################################################################
 #            Don't override
 ############################################################################
@@ -217,7 +234,7 @@ sub fire {
     my $self = shift;
     return 0 if $LJ::DISABLED{'esn'};
 
-    my $sclient = LJ::theschwartz();
+    my $sclient = LJ::theschwartz( { role => $self->schwartz_role } );
     return 0 unless $sclient;
 
     my $job = $self->fire_job or
@@ -458,6 +475,54 @@ sub template_file_for {
         return $file if -e $file;
     }
     return undef;
+}
+
+sub format_options {
+    my ($self, $is_html, $lang, $vars, $urls, $extra) = @_;
+
+    my ($tag_p, $tag_np, $tag_li, $tag_nli, $tag_ul, $tag_nul, $tag_br) = ('','','','','','',"\n");
+ 
+    if ($is_html) {
+        $tag_p  = '<p>';    $tag_np  = '</p>';
+        $tag_li = '<li>';   $tag_nli = '</li>';
+        $tag_ul = '<ul>';   $tag_nul = '</ul>';
+    }
+
+    my $options = $tag_br . $tag_br . $tag_ul;
+
+    if ($is_html) {
+        $vars->{'closelink'} = '</a>';
+        $options .=
+            join('',
+                map {
+                    my $key = $_;
+                    $vars->{'openlink'} = '<a href="' . $urls->{$key}->[1] . '">';
+                    $tag_li . LJ::Lang::get_text($lang, $key, undef, $vars) . $tag_nli;
+                    }
+                    sort { $urls->{$a}->[0] <=> $urls->{$b}->[0] }
+                        grep { $urls->{$_}->[0] }
+                            keys %$urls);
+    } else {
+        $vars->{'openlink'} = '';
+        $vars->{'closelink'} = '';
+        $options .=
+            join('',
+                map {
+                    my $key = $_;
+                    '  - ' . LJ::Lang::get_text($lang, $key, undef, $vars) . ":\n" .
+                    '    ' . $urls->{$key}->[1] . "\n"
+                    }
+                    sort { $urls->{$a}->[0] <=> $urls->{$b}->[0] }
+                        grep { $urls->{$_}->[0] }
+                            keys %$urls);
+        chomp($options);
+    }
+
+    $options .= $extra if $extra;
+
+    $options .= $tag_nul . $tag_br; 
+
+    return $options;
 }
 
 1;

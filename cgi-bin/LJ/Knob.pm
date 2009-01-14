@@ -59,12 +59,11 @@ sub value {
     return $self->{value} = $rv;
 }
 
-use constant HUNDREDTH_OF_32BIT => 42949672;
 sub check {
     my ($self, $checkon) = @_;
-    my $rand = String::CRC32::crc32($checkon);
-    my $val  = $self->value;
-    return $rand <= ($val * HUNDREDTH_OF_32BIT);
+    my $rand = (127 & int(String::CRC32::crc32($checkon))); # [0 .. 127]
+    my $val  = int(127 * $self->value / 100);               # [0 .. 127]
+    return $rand <= $val;
 }
 
 1;

@@ -1,20 +1,24 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
- * For further information visit:
- * 		http://www.fckeditor.net/
- * 
- * "Support Open Source software. What about a donation today?"
- * 
- * File Name: hi.js
- * 	Hindi language file.
- * 
- * File Authors:
- * 		Utkarshraj Atmaram (utcursch@gmail.com)
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2008 Frederico Caldeira Knabben
+ *
+ * == BEGIN LICENSE ==
+ *
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ *
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ *
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ *
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ *
+ * == END LICENSE ==
+ *
+ * Hindi language file.
  */
 
 var FCKLang =
@@ -40,7 +44,9 @@ RemoveFormat		: "फ़ॉर्मैट हटायें",
 InsertLinkLbl		: "लिंक",
 InsertLink			: "लिंक इन्सर्ट/संपादन",
 RemoveLink			: "लिंक हटायें",
+VisitLink			: "Open Link",	//MISSING
 Anchor				: "ऐंकर इन्सर्ट/संपादन",
+AnchorDelete		: "ऐंकर हटायें",
 InsertImageLbl		: "तस्वीर",
 InsertImage			: "तस्वीर इन्सर्ट/संपादन",
 InsertFlashLbl		: "फ़्लैश",
@@ -66,6 +72,10 @@ RightJustify		: "दायीं तरफ",
 BlockJustify		: "ब्लॉक जस्टीफ़ाई",
 DecreaseIndent		: "इन्डॅन्ट कम करें",
 IncreaseIndent		: "इन्डॅन्ट बढ़ायें",
+Blockquote			: "ब्लॉक-कोट",
+CreateDiv			: "Create Div Container",	//MISSING
+EditDiv				: "Edit Div Container",	//MISSING
+DeleteDiv			: "Remove Div Container",	//MISSING
 Undo				: "अन्डू",
 Redo				: "रीडू",
 NumberedListLbl		: "अंकीय सूची",
@@ -98,18 +108,30 @@ Button			: "बटन",
 SelectionField	: "चुनाव फ़ील्ड",
 ImageButton		: "तस्वीर बटन",
 
+FitWindow		: "एडिटर साइज़ को चरम सीमा तक बढ़ायें",
+ShowBlocks		: "ब्लॉक दिखायें",
+
 // Context Menu
 EditLink			: "लिंक संपादन",
-InsertRow			: "पंक्ति इन्सर्ट करें",
+CellCM				: "खाना",
+RowCM				: "पंक्ति",
+ColumnCM			: "कालम",
+InsertRowAfter		: "बाद में पंक्ति डालें",
+InsertRowBefore		: "पहले पंक्ति डालें",
 DeleteRows			: "पंक्तियाँ डिलीट करें",
-InsertColumn		: "कॉलम इन्सर्ट करें",
-DeleteColumns		: "कॉलम डिलीट करें",
-InsertCell			: "सॅल इन्सर्ट करें",
-DeleteCells			: "सॅल डिलीट करें",
-MergeCells			: "सॅल मिलायें",
-SplitCell			: "सॅल अलग करें",
+InsertColumnAfter	: "बाद में कालम डालें",
+InsertColumnBefore	: "पहले कालम डालें",
+DeleteColumns		: "कालम डिलीट करें",
+InsertCellAfter		: "बाद में सैल डालें",
+InsertCellBefore	: "पहले सैल डालें",
+DeleteCells			: "सैल डिलीट करें",
+MergeCells			: "सैल मिलायें",
+MergeRight			: "बाँया विलय",
+MergeDown			: "नीचे विलय करें",
+HorizontalSplitCell	: "सैल को क्षैतिज स्थिति में विभाजित करें",
+VerticalSplitCell	: "सैल को लम्बाकार में विभाजित करें",
 TableDelete			: "टेबल डिलीट करें",
-CellProperties		: "सॅल प्रॉपर्टीज़",
+CellProperties		: "सैल प्रॉपर्टीज़",
 TableProperties		: "टेबल प्रॉपर्टीज़",
 ImageProperties		: "तस्वीर प्रॉपर्टीज़",
 FlashProperties		: "फ़्लैश प्रॉपर्टीज़",
@@ -139,6 +161,7 @@ UnknownToolbarSet	: "टूलबार सॅट \"%1\" उपलब्ध न�
 NoActiveX			: "आपके ब्राउज़र् की सुरक्शा सेटिंग्स् एडिटर की कुछ् फ़ीचरों को सीमित कर् सकती हैं। क्रिपया \"Run ActiveX controls and plug-ins\" विकल्प को एनेबल करें. आपको एरर्स् और गायब फ़ीचर्स् का अनुभव हो सकता है।",
 BrowseServerBlocked : "रिसोर्सेज़ ब्राउज़र् नहीं खोला जा सका। क्रिपया सभी पॉप्-अप् ब्लॉकर्स् को डिसेबल करें।",
 DialogBlocked		: "डायलग विन्डो नहीं खोला जा सका। क्रिपया सभी पॉप्-अप् ब्लॉकर्स् को डिसेबल करें।",
+VisitLinkBlocked	: "It was not possible to open a new window. Make sure all popup blockers are disabled.",	//MISSING
 
 // Dialogs
 DlgBtnOK			: "ठीक है",
@@ -220,7 +243,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "ऐंकर चुनें",
 DlgLnkAnchorByName	: "ऐंकर नाम से",
 DlgLnkAnchorById	: "ऍलीमॅन्ट Id से",
-DlgLnkNoAnchors		: "<डॉक्यूमॅन्ट में ऐंकर्स की संख्या>",
+DlgLnkNoAnchors		: "(डॉक्यूमॅन्ट में ऐंकर्स की संख्या)",
 DlgLnkEMail			: "ई-मेल पता",
 DlgLnkEMailSubject	: "संदेश विषय",
 DlgLnkEMailBody		: "संदेश",
@@ -253,6 +276,7 @@ DlgLnkPopTop		: "दायीं तरफ",
 DlnLnkMsgNoUrl		: "लिंक URL टाइप करें",
 DlnLnkMsgNoEMail	: "ई-मेल पता टाइप करें",
 DlnLnkMsgNoAnchor	: "ऐंकर चुनें",
+DlnLnkMsgInvPopName	: "पॉप-अप का नाम अल्फाबेट से शुरू होना चाहिये और उसमें स्पेस नहीं होने चाहिए",
 
 // Color Dialog
 DlgColorTitle		: "रंग चुनें",
@@ -269,7 +293,7 @@ DlgSpecialCharTitle	: "विशेष करॅक्टर चुनें",
 // Table Dialog
 DlgTableTitle		: "टेबल प्रॉपर्टीज़",
 DlgTableRows		: "पंक्तियाँ",
-DlgTableColumns		: "कॉलम",
+DlgTableColumns		: "कालम",
 DlgTableBorder		: "बॉर्डर साइज़",
 DlgTableAlign		: "ऍलाइन्मॅन्ट",
 DlgTableAlignNotSet	: "<सॅट नहीं>",
@@ -277,18 +301,18 @@ DlgTableAlignLeft	: "दायें",
 DlgTableAlignCenter	: "बीच में",
 DlgTableAlignRight	: "बायें",
 DlgTableWidth		: "चौड़ाई",
-DlgTableWidthPx		: "पिक्सॅल",
+DlgTableWidthPx		: "पिक्सैल",
 DlgTableWidthPc		: "प्रतिशत",
 DlgTableHeight		: "ऊँचाई",
-DlgTableCellSpace	: "सॅल अंतर",
-DlgTableCellPad		: "सॅल पैडिंग",
+DlgTableCellSpace	: "सैल अंतर",
+DlgTableCellPad		: "सैल पैडिंग",
 DlgTableCaption		: "शीर्षक",
 DlgTableSummary		: "सारांश",
 
 // Table Cell Dialog
-DlgCellTitle		: "सॅल प्रॉपर्टीज़",
+DlgCellTitle		: "सैल प्रॉपर्टीज़",
 DlgCellWidth		: "चौड़ाई",
-DlgCellWidthPx		: "पिक्सॅल",
+DlgCellWidthPx		: "पिक्सैल",
 DlgCellWidthPc		: "प्रतिशत",
 DlgCellHeight		: "ऊँचाई",
 DlgCellWordWrap		: "वर्ड रैप",
@@ -307,10 +331,13 @@ DlgCellVerAlignMiddle	: "मध्य",
 DlgCellVerAlignBottom	: "नीचे",
 DlgCellVerAlignBaseline	: "मूलरेखा",
 DlgCellRowSpan		: "पंक्ति स्पैन",
-DlgCellCollSpan		: "कॉलम स्पैन",
+DlgCellCollSpan		: "कालम स्पैन",
 DlgCellBackColor	: "बैक्ग्राउन्ड रंग",
 DlgCellBorderColor	: "बॉर्डर का रंग",
 DlgCellBtnSelect	: "चुनें...",
+
+// Find and Replace Dialog
+DlgFindAndReplaceTitle	: "खोजें और बदलें",
 
 // Find Dialog
 DlgFindTitle		: "खोजें",
@@ -327,7 +354,6 @@ DlgReplaceReplAllBtn	: "सभी रिप्लेस करें",
 DlgReplaceWordChk		: "पूरा शब्द मिलायें",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "आपके ब्रा‌उज़र की सुरक्षा सॅटिन्ग्स ने पेस्ट करने की अनुमति नहीं प्रदान की है। (Ctrl+V) का प्रयोग करें।",
 PasteErrorCut	: "आपके ब्राउज़र की सुरक्षा सॅटिन्ग्स ने कट करने की अनुमति नहीं प्रदान की है। (Ctrl+X) का प्रयोग करें।",
 PasteErrorCopy	: "आपके ब्राआउज़र की सुरक्षा सॅटिन्ग्स ने कॉपी करने की अनुमति नहीं प्रदान की है। (Ctrl+C) का प्रयोग करें।",
 
@@ -335,13 +361,12 @@ PasteAsText		: "पेस्ट (सादा टॅक्स्ट)",
 PasteFromWord	: "पेस्ट (वर्ड से)",
 
 DlgPasteMsg2	: "Ctrl+V का प्रयोग करके पेस्ट करें और ठीक है करें.",
+DlgPasteSec		: "आपके ब्राउज़र की सुरक्षा आपके ब्राउज़र की सुरKश सैटिंग के कारण, एडिटर आपके क्लिपबोर्ड डेटा को नहीं पा सकता है. आपको उसे इस विन्डो में दोबारा पेस्ट करना होगा.",
 DlgPasteIgnoreFont		: "फ़ॉन्ट परिभाषा निकालें",
 DlgPasteRemoveStyles	: "स्टाइल परिभाषा निकालें",
-DlgPasteCleanBox		: "बॉक्स साफ़ करें",
-
 
 // Color Picker
-ColorAutomatic	: "ऑटोमैटिक",
+ColorAutomatic	: "स्वचालित",
 ColorMoreColors	: "और रंग...",
 
 // Document Properties
@@ -370,8 +395,11 @@ DlgSpellManyChanges		: "वर्तनी की जाँच : %1 शब्द
 IeSpellDownload			: "स्पॅल-चॅकर इन्स्टाल नहीं किया गया है। क्या आप इसे डा‌उनलोड करना चाहेंगे?",
 
 // Button Dialog
-DlgButtonText	: "टेक्स्ट (वैल्यू)",
-DlgButtonType	: "प्रकार",
+DlgButtonText		: "टेक्स्ट (वैल्यू)",
+DlgButtonType		: "प्रकार",
+DlgButtonTypeBtn	: "बटन",
+DlgButtonTypeSbm	: "सब्मिट",
+DlgButtonTypeRst	: "रिसेट",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "नाम",
@@ -380,7 +408,7 @@ DlgCheckboxSelected	: "सॅलॅक्टॅड",
 
 // Form Dialog
 DlgFormName		: "नाम",
-DlgFormAction	: "ऍक्शन",
+DlgFormAction	: "क्रिया",
 DlgFormMethod	: "तरीका",
 
 // Select Field Dialog
@@ -401,7 +429,7 @@ DlgSelectBtnDelete	: "डिलीट",
 
 // Textarea Dialog
 DlgTextareaName	: "नाम",
-DlgTextareaCols	: "कॉलम",
+DlgTextareaCols	: "कालम",
 DlgTextareaRows	: "पंक्तियां",
 
 // Text Field Dialog
@@ -420,6 +448,7 @@ DlgHiddenValue	: "वैल्यू",
 // Bulleted List Dialog
 BulletedListProp	: "बुलॅट सूची प्रॉपर्टीज़",
 NumberedListProp	: "अंकीय सूची प्रॉपर्टीज़",
+DlgLstStart			: "प्रारम्भ",
 DlgLstType			: "प्रकार",
 DlgLstTypeCircle	: "गोल",
 DlgLstTypeDisc		: "डिस्क",
@@ -442,6 +471,15 @@ DlgDocLangDirLTR	: "बायें से दायें (LTR)",
 DlgDocLangDirRTL	: "दायें से बायें (RTL)",
 DlgDocLangCode		: "भाषा कोड",
 DlgDocCharSet		: "करेक्टर सॅट ऍन्कोडिंग",
+DlgDocCharSetCE		: "मध्य यूरोपीय (Central European)",
+DlgDocCharSetCT		: "चीनी (Chinese Traditional Big5)",
+DlgDocCharSetCR		: "सिरीलिक (Cyrillic)",
+DlgDocCharSetGR		: "यवन (Greek)",
+DlgDocCharSetJP		: "जापानी (Japanese)",
+DlgDocCharSetKR		: "कोरीयन (Korean)",
+DlgDocCharSetTR		: "तुर्की (Turkish)",
+DlgDocCharSetUN		: "यूनीकोड (UTF-8)",
+DlgDocCharSetWE		: "पश्चिम यूरोपीय (Western European)",
 DlgDocCharSetOther	: "अन्य करेक्टर सॅट ऍन्कोडिंग",
 
 DlgDocDocType		: "डॉक्यूमॅन्ट प्रकार शीर्षक",
@@ -471,11 +509,18 @@ DlgTemplatesTitle	: "कन्टेन्ट टॅम्प्लेट",
 DlgTemplatesSelMsg	: "ऍडिटर में ओपन करने हेतु टॅम्प्लेट चुनें(वर्तमान कन्टॅन्ट सेव नहीं होंगे):",
 DlgTemplatesLoading	: "टॅम्प्लेट सूची लोड की जा रही है। ज़रा ठहरें...",
 DlgTemplatesNoTpl	: "(कोई टॅम्प्लेट डिफ़ाइन नहीं किया गया है)",
+DlgTemplatesReplace	: "मूल शब्दों को बदलें",
 
 // About Dialog
 DlgAboutAboutTab	: "FCKEditor के बारे में",
 DlgAboutBrowserInfoTab	: "ब्राउज़र के बारे में",
+DlgAboutLicenseTab	: "लाइसैन्स",
 DlgAboutVersion		: "वर्ज़न",
-DlgAboutLicense		: "लाइसेंस :GNU LGPL",
-DlgAboutInfo		: "अधिक जानकारी के लिये यहाँ जायें:"
-}
+DlgAboutInfo		: "अधिक जानकारी के लिये यहाँ जायें:",
+
+// Div Dialog
+DlgDivGeneralTab	: "General",	//MISSING
+DlgDivAdvancedTab	: "Advanced",	//MISSING
+DlgDivStyle		: "Style",	//MISSING
+DlgDivInlineStyle	: "Inline Style"	//MISSING
+};

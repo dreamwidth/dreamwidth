@@ -2,11 +2,10 @@
 localblocks<=
 
 crit<=
-{F}
-<tr bgcolor='<?emcolor?>'>
+{FpRs}<tr bgcolor='<?emcolor?>'>
 <td align='left' colspan='2'><b>%%name%%</b>
 </tr>
-<tr><td>&nbsp;</td><td>%%form%%</td></tr>
+<tr align='left'><td>&nbsp;</td><td>%%form%%</td></tr>
 <=crit
 
 bar<=
@@ -38,7 +37,7 @@ _code?>
 <?h1 <?_ml .label.searchcomm _ml?> h1?>
 <?p <?_ml .label.selecriteria _ml?> p?>
 
-<CENTER>
+<center>
 
 <form action="/directory.bml">
 
@@ -50,25 +49,19 @@ name=><?_ml .label.bylocation _ml?>
 code=>s_loc
 form<=
 
-<table>
-<tr><td align='right'><?_ml .label.country _ml?></td><td>
 <?_code
 {
-    use strict;
-    LJ::set_active_crumb('commsearch');
-
-    my %countries = ();
-    LJ::load_codes({ "country" => \%countries });
-    return LJ::html_select({ 'name' => 'loc_cn',  },
-                           '', '',
-                           map { $_, $countries{$_} } 
-                           ("US", sort { $countries{$a} cmp $countries{$b} } keys %countries));
-} 
+    my $w = LJ::Widget::GeoSearchLocation->new;
+    my $ret = '';
+    $ret .= "<style> .field_class {text-align: right;} </style>\n";
+    $ret .= $w->render(
+        country => '',
+        state => '',
+        city => '',
+    );
+    return $ret;
+}
 _code?>
-</td></tr>
-<tr><td align='right'><?_ml .label.stateprovince _ml?></td><td><input name="loc_st" /></td></tr>
-<tr><td align='right'><?_ml .label.city _ml?></td><td><input name="loc_ci" /></td></tr>
-</table>
 
 <=form
 crit?>

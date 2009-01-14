@@ -9,7 +9,16 @@ LJ::ModuleLoader->autouse_subclasses("LJ::Setting");
 
 # ----------------------------------------------------------------------------
 
+sub should_render { 1 }
+sub disabled { 0 }
+sub selected { 0 }
 sub tags { () }
+sub label { "" }
+sub actionlink { "" }
+sub helpurl { "" }
+sub option { "" }
+sub htmlcontrol { "" }
+sub htmlcontrol_label { "" }
 
 sub error_check {
     my ($class, $u, $args) = @_;
@@ -191,22 +200,23 @@ sub args_from_save {
 
 sub ml {
     my ($class, $code, $vars) = @_;
-    my $string;
 
-    # if the given string exists, return it
-    # if the given string is "_none", return nothing
-    $string = LJ::Lang::ml($code, $vars);
-    return "" if $string eq "_none";
-    return $string if LJ::Lang::string_exists($code, $vars);
+    # can pass in a string and check 2 places in order:
+    # 1) setting.foo.text => general .setting.foo.text (overridden by current page)
+    # 2) setting.foo.text => general setting.foo.text  (defined in en(_LJ).dat)
 
-    # if the global version of this string exists, return it
-    # if the global version of this string is "_none", return nothing
+    # whether passed with or without a ".", eat that immediately
     $code =~ s/^\.//;
-    $string = LJ::Lang::ml($code, $vars);
-    return "" if $string eq "_none";
-    return $string if LJ::Lang::string_exists($code, $vars);
 
-    # return the class name
+    # 1) try with a ., for current page override in 'general' domain
+    # 2) try without a ., for global version in 'general' domain
+    foreach my $curr_code (".$code", $code) {
+        my $string = LJ::Lang::ml($curr_code, $vars);
+        return "" if $string eq "_none";
+        return $string unless LJ::Lang::is_missing_string($string);
+    }
+
+    # return the class name if we didn't find anything
     $class =~ /.+::(\w+)$/;
     return $1;
 }

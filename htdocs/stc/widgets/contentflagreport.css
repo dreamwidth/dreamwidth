@@ -1,0 +1,13 @@
+.note-header {
+    color: #f00;
+    font-weight: bold;
+}
+
+.note-text {
+    font-style: italic;
+}
+
+.confirm-box {
+    background-color: #ededed;
+    padding: 5px;
+}
