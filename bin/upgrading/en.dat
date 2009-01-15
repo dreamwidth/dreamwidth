@@ -56,13 +56,13 @@ contentflag.viewingconcepts.byadmin=You are about to view content that has been 
 
 contentflag.viewingconcepts.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 14.
 
-contentflag.viewingconcepts.byjournal=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 14.
+contentflag.viewingconcepts.byjournal=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 14.
 
 contentflag.viewingexplicit.byadmin=You are about to view content that has been marked as possibly inappropriate for anyone under the age of 18.
 
 contentflag.viewingexplicit.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 18.
 
-contentflag.viewingexplicit.byjournal=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.byjournal=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 18.
 
 controlstrip.link=Navigation Strip
 
@@ -1473,9 +1473,15 @@ entryform.adultcontent.default=Journal Default
 
 entryform.adultcontent.explicit=Age 18 and over
 
+entryform.adultcontent.maintainer=Age Filter:
+
 entryform.adultcontent.none=No Age Filter
 
+entryform.adultcontent.poster=Poster's Setting ([[setting]])
+
 entryform.adultcontentreason=Reason for Age Filter:
+
+entryform.adultcontentreason.maintainer=Reason for Age Filter:
 
 entryform.backdated=Entry is Backdated:
 
@@ -1555,6 +1561,8 @@ entryform.insert.poll=Poll
 
 entryform.location=Location:
 
+entryform.maintainer=Maintainer Override
+
 entryform.mood=Mood:
 
 entryform.mood.noneother=None, or other:
@@ -1584,6 +1592,8 @@ entryform.save=Save Entry
 entryform.saveandrequestunsuspend=Save Entry & Request Unsuspension
 
 entryform.saveandrequestunsuspend2=Save & Request Unsuspension
+
+entryform.save.maintainer=Save Maintainer Override Settings
 
 entryform.security=Security:
 

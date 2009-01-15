@@ -974,10 +974,24 @@ sub adult_content {
     return $self->prop('adult_content');
 }
 
+# defined by a community maintainer
+sub adult_content_maintainer {
+    my $self = shift;
+
+    return $self->prop('adult_content_maintainer');
+}
+
+# defined by a community maintainer
+sub adult_content_maintainer_reason {
+    my $self = shift;
+
+    return $self->prop('adult_content_maintainer_reason');
+}
+
 # defined by the entry poster
 sub adult_content_reason {
     my $self = shift;
-    
+
     return $self->prop('adult_content_reason');
 }
 
@@ -993,15 +1007,17 @@ sub adult_content_calculated {
     my $self = shift;
 
     return "explicit" if $self->admin_content_flag eq "explicit_adult";
+    return $self->adult_content_maintainer if $self->adult_content_maintainer;
     return $self->adult_content;
 }
 
 # returns who marked the entry as the 'adult_content_calculated' adult content level
 sub adult_content_marker {
     my $self = shift;
-    
+
     return "admin" if $self->admin_content_flag eq "explicit_adult";
-    return "poster" if $self->adult_content ne "";
+    return "journal" if $self->adult_content_maintainer;
+    return "poster" if $self->adult_content;
     return $self->journal->adult_content_marker;
 }
 

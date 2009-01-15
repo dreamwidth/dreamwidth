@@ -1591,7 +1591,58 @@ PREVIEW
             $out .= "</p>\n";
         }
 
+    ### Community maintainer bar
 
+    if ($opts->{'maintainer_mode'}) {
+        $out .= "<p class='pkg'>\n";
+        $out .= "<em>" . BML::ml('entryform.maintainer') . "</em>\n";
+        $out .= "</p>\n";
+
+        if (LJ::is_enabled("content_flag")) {
+            $out .= "<p class='pkg'>\n";
+            my %poster_adult_content_menu = (
+                "" => BML::ml('entryform.adultcontent.default'),
+                none => BML::ml('entryform.adultcontent.none'),
+                concepts => BML::ml('entryform.adultcontent.concepts'),
+                explicit => BML::ml('entryform.adultcontent.explicit'),
+            );
+
+            my @adult_content_menu = (
+                "" => BML::ml('entryform.adultcontent.poster', {setting => $poster_adult_content_menu{$opts->{prop_adult_content}}}),
+                none => BML::ml('entryform.adultcontent.none'),
+                concepts => BML::ml('entryform.adultcontent.concepts'),
+                explicit => BML::ml('entryform.adultcontent.explicit'),
+            );
+
+            $out .= "<label for='prop_adult_content_maintainer' class='left options'>" . BML::ml('entryform.adultcontent.maintainer') . "</label>\n";
+            $out .= LJ::html_select({
+                name => 'prop_adult_content_maintainer',
+                id => 'prop_adult_content_maintainer',
+                class => 'select',
+                selected => $opts->{prop_adult_content_maintainer} || "",
+                tabindex => $tabindex->(),
+            }, @adult_content_menu);
+            $out .= LJ::help_icon_html("adult_content", "", " ");
+            $out .= "</p>\n";
+
+             $out .= "<p class='pkg'>";
+             $out .= "<label for='prop_adult_content_maintainer_reason' class='left options'>" . BML::ml('entryform.adultcontentreason.maintainer') . "</label>";
+             $out .= LJ::html_text(
+                 {
+                     'name'      => 'prop_adult_content_maintainer_reason',
+                     'id'        => 'prop_adult_content_maintainer_reason',
+                     'class'     => 'text',
+                     'size'      => '35',
+                     'maxlength' => '255',
+                     'value'     => $opts->{'prop_adult_content_maintainer_reason'},
+                     'tabindex'  => $tabindex->(),
+                 }
+             );
+             $out .= LJ::help_icon_html('adult_content_reason');
+             $out .= "</p>";
+        }
+
+    }
 
     $out .= "</div><!-- end #options -->\n\n";
 
@@ -1612,7 +1663,7 @@ PREVIEW
         $out .= "<label for='security'>" . BML::ml('entryform.security2') . " </label>\n";
 
         # Security
-            {
+            if ($opts->{'mode'} eq "update" || !$opts->{'disabled_save'}) {
                 my $usejournalu = LJ::load_user($opts->{usejournal});
                 my $is_comm = $usejournalu && $usejournalu->is_comm ? 1 : 0;
 
@@ -1691,11 +1742,17 @@ PREVIEW
             my $onclick = "";
             $onclick .= "return true;" if ! $LJ::IS_SSL;
 
-            $out .= LJ::html_submit('action:save', BML::ml('entryform.save'),
-                                    { 'onclick' => $onclick, 'disabled' => $opts->{'disabled_save'},
-                                      'tabindex' => $tabindex->() }) . "&nbsp;\n";
+            if (!$opts->{'disabled_save'}) {
+                $out .= LJ::html_submit('action:save', BML::ml('entryform.save'),
+                                        { 'onclick' => $onclick, 'disabled' => $opts->{'disabled_save'},
+                                          'tabindex' => $tabindex->() }) . "&nbsp;\n";
+            } else {
+                $out .= LJ::html_submit('action:savemaintainer', BML::ml('entryform.save.maintainer'),
+                                        { 'onclick' => $onclick, 'disabled' => !$opts->{'maintainer_mode'},
+                                          'tabindex' => $tabindex->() }) . "&nbsp;\n";
+            }
 
-            if ($opts->{suspended} && !$opts->{unsuspend_supportid}) {
+            if (!$opts->{'disabled_save'} && $opts->{suspended} && !$opts->{unsuspend_supportid}) {
                 $out .= LJ::html_submit('action:saveunsuspend', BML::ml('entryform.saveandrequestunsuspend2'),
                                         { 'onclick' => $onclick, 'disabled' => $opts->{'disabled_save'},
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";

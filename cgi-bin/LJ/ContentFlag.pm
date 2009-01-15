@@ -606,35 +606,47 @@ sub interstitial_reason {
     my $ret = "";
     my $reason_exists = 0;
 
-    if ($journal->adult_content ne 'none' && $journal->adult_content_reason ne '') {
+    if ($journal->adult_content ne 'none' && $journal->adult_content_reason) {
         my $what = $journal->is_community ? 'community' : 'journal';
         my $reason = LJ::ehtml($journal->adult_content_reason);
-        
+
         if ($journal->adult_content_calculated eq 'concepts') {
             $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.concepts.' . $what . 'reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
         } else {
             $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.explicit.' . $what . 'reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
         }
-        
+
         $reason_exists = 1;
     }
-    
-    if (defined($entry) && $entry->adult_content_calculated ne 'none' && $entry->adult_content_reason ne '') {
+
+    if (defined($entry) && $entry->adult_content && $entry->adult_content ne 'none' && $entry->adult_content_reason) {
         $ret .= "<br/>" if ($reason_exists);
         my $reason = LJ::ehtml($entry->adult_content_reason);
-        
-        if ($entry->adult_content_calculated eq 'concepts') {
+
+        if ($entry->adult_content eq 'concepts') {
             $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.concepts.byposter.reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
         } else {
             $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.explicit.byposter.reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
         }
         $reason_exists = 1;
     }
-    
+
+    if (defined($entry) && $entry->adult_content_maintainer && $entry->adult_content_maintainer ne 'none' && $entry->adult_content_maintainer_reason) {
+        $ret .= "<br/>" if ($reason_exists);
+        my $reason = LJ::ehtml($entry->adult_content_maintainer_reason);
+
+        if ($entry->adult_content_maintainer eq 'concepts') {
+            $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.concepts.byjournal.reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
+        } else {
+            $ret .= LJ::Lang::ml('/misc/adult_content.bml.message.explicit.byjournal.reason',{'journal' => $journal->ljuser_display, 'poster' => $poster->ljuser_display, 'reason' => $reason});
+        }
+        $reason_exists = 1;
+    }
+
     if ($reason_exists) {
         $ret = "<tr><td colspan=\"2\">\n$ret\n</td></tr>\n";
     }
-    
+
     return $ret;
 }
 

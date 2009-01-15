@@ -1240,6 +1240,20 @@ logproplist.adult_content:
   sortorder: 105
   ownership: user
 
+logproplist.adult_content_maintainer:
+  datatype: char
+  des: Sets the entry as containing adult content (none, explicit, concepts) -- community maintainer override
+  prettyname: Adult Content Flag (Maintainer Override)
+  sortorder: 105
+  ownership: system
+
+logproplist.adult_content_maintainer_reason:
+  datatype: char
+  des: The reason that the entry is marked as containing adult content -- community maintainer override
+  prettyname: Adult Content Reason (Maintainer Override)
+  sortorder: 105
+  ownership: system
+
 logproplist.adult_content_reason:
   datatype: char
   des: The reason that the entry is marked as containing adult content

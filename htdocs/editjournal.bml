@@ -188,6 +188,23 @@ body<=
                 $spellcheck_html = "<?inerr $ML{'entryform.spellcheck.noerrors'} inerr?>" unless $spellcheck_html ne "";
             }
 
+            # TODO: Move this to the protocol?
+            if ($POST{'action:savemaintainer'} && !$disabled_spamdelete) {
+                return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
+
+                my @props = qw(adult_content_maintainer_reason adult_content_maintainer);
+
+                my $propset = {};
+                foreach my $pname (@props) {
+                    my $p = LJ::get_prop("log", $pname);
+                    next unless $p;
+                    $propset->{$pname} = $POST{"prop_$pname"};
+                }
+                LJ::set_logprop($usejournal_u, $itemid, $propset);
+
+                return BML::redirect(LJ::item_link($usejournal ? $usejournal_u : $u, $itemid, $anum));
+            }
+
             # they clicked the save or delete button
             if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:saveunsuspend'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
                 return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
@@ -345,6 +362,7 @@ body<=
                 'disabled_save' => $disabled_save,
                 'disabled_delete' => $disabled_delete,
                 'disabled_spamdelete' => $disabled_spamdelete,
+                'maintainer_mode' => !$disabled_spamdelete,
                 'suspended' => $suspend_msg,
                 'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0,
             };
