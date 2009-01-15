@@ -1,15 +1,6 @@
 #profile_page {
     margin: 0 10px 0 0;
 }
-#profile_page a {
-    text-decoration: none;
-}
-#profile_page a:hover {
-    text-decoration: underline;
-}
-#profile_page a:visited {
-    color: #470196;
-}
 
 .left {
     float: left;
