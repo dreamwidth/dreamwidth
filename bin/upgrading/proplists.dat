@@ -1364,27 +1364,28 @@ logproplist.sms_msgid:
   des: SMS Message ID of the message which led to this journal entry
   prettyname: SMS Message ID
   sortorder: 99
-  ownership: system
+  ownership: user
 
 logproplist.statusvis:
   datatype: char
   des: 'V' or undef for visible, 'S' for suspended
   prettyname: Visibility Status of an Entry
   sortorder: 99
+  ownership: system
 
 logproplist.syn_id:
   datatype: char
   des: Unique id of syndication item
   prettyname: Syndicated item id
   sortorder: 99
-  ownership: system
+  ownership: user
 
 logproplist.syn_link:
   datatype: char
   des: Original URL of syndication item
   prettyname: Syndication item link URL
   sortorder: 99
-  ownership: system
+  ownership: user
 
 logproplist.taglist:
   datatype: char
@@ -1405,6 +1406,7 @@ logproplist.unsuspend_supportid:
   des: The support request ID of the unsuspension request submitted by a user whose entry was suspended. Undef or 0 if no request is currently open.
   prettyname: Support Request ID for Unsuspension Request
   sortorder: 99
+  ownership: system
 
 logproplist.used_rte:
   datatype: bool
@@ -1440,6 +1442,7 @@ logproplist.copyright:
   datatype: char
   des: Copyrighted status: 'C' - copyrighted, 'P' - public, full cite allowed.
   prettyname: Copyrighted status
+  ownership: user
 
 userproplist.default_copyright:
   cldversion: 4
@@ -1462,3 +1465,4 @@ logproplist.pingback:
   des: (J)ournal default, (O)pen - all links from post should be processed with PingBack. (L)iveJournal - only leading to/from livejournal.com. (D)isabled - pingbacks disabled.
   prettyname: PingBack options
   sortorder: 105
+  ownership: user

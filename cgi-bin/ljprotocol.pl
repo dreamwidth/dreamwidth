@@ -962,6 +962,13 @@ sub common_event_validation
             return fail($err,205,$pname);
         }
 
+        # This is a system logprop
+        # fail with unknown metadata here?
+        if ( $p->{ownership} eq 'system' ) {
+            $pname =~ s/[^\w]//g;
+            return fail($err,205,$pname);
+        }
+
         # don't validate its type if it's 0 or undef (deleting)
         next unless ($req->{'props'}->{$pname});
 

@@ -577,6 +577,8 @@ CREATE TABLE talkproplist (
   name varchar(50) default NULL,
   prettyname varchar(60) default NULL,
   datatype enum('char','num','bool') NOT NULL default 'char',
+  scope enum('general', 'local') NOT NULL default 'general',
+  ownership ENUM('system', 'user') NOT NULL default 'user',
   des varchar(255) default NULL,
   PRIMARY KEY  (tpropid),
   UNIQUE KEY name (name)
@@ -4008,6 +4010,12 @@ register_alter(sub {
         do_alter("supportlog",
                  "ALTER TABLE supportlog " .
                  "ADD tier TINYINT UNSIGNED DEFAULT NULL");
+    }
+
+    unless ( column_type("logproplist", "ownership") ) {
+        do_alter("logproplist",
+                 "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".
+                 "DEFAULT 'user' NOT NULL");
     }
 });
 
