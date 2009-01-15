@@ -86,7 +86,7 @@
 
     my $piccount = 0;
 
-    my @pics;
+    my @allpics;
     my $defaultpicid = $u ? $u->{'defaultpicid'} : undef;
 
     # allow support to view inactive userpics for debugging
@@ -94,11 +94,35 @@
                                            LJ::check_priv($remote, "supporthelp"));
     $view_inactive ||= $can_manage;
 
-    push @pics, $info->{'pic'}->{$u->{'defaultpicid'}} if $defaultpicid;
-    push @pics, map { $info->{'pic'}->{$_} } sort { $a <=> $b }
+    push @allpics, $info->{'pic'}->{$u->{'defaultpicid'}} if $defaultpicid;
+    push @allpics, map { $info->{'pic'}->{$_} } sort { $a <=> $b }
                 grep { $_ != $defaultpicid && ($info->{'pic'}->{$_}->{'state'} eq 'N' || $view_inactive) &&
-                       $info->{'pic'}->{$_}->{'state'} ne 'X' }
+                           $info->{'pic'}->{$_}->{'state'} ne 'X' }
                 keys %{$info->{'pic'}};
+
+    # pagination code
+
+    my @pics;
+    my $pagingbar;
+    my $start_index = 0;
+    my $page_size = $LJ::ALLPICS_PAGESIZE;
+    if ($page_size && $page_size > 0) {
+        my $pic_count = scalar @allpics;
+        my $pagecount = int (($pic_count - 1) / $page_size) + 1;
+    
+        if ($pagecount > 0) {
+            my $page = $GET{page};
+            unless ($page) { $page = 1; }
+            
+            my $querystring = join('&', map { LJ::eurl($_) . '=' . LJ::eurl($GET{$_}) } grep { $_ ne 'page' } keys %GET);
+            $pagingbar = LJ::paging_bar($page, $pagecount, {
+                self_link => sub { BML::get_uri() . "?page=$_[0]&" . $querystring }, });
+            $start_index = $page_size * ($page -1);
+        }
+        @pics = @allpics[$start_index..$start_index + $page_size - 1];
+    } else {
+        @pics = @allpics;
+    }
 
     foreach my $pic (@pics) {
 
@@ -177,6 +201,11 @@
             # finish off this row.
             # we need 2 columns: the pic and the text.
             $body .= "<td colspan='2'></td></tr>";
+        }
+        if ($pagingbar) {
+            $body .= "<tr><td colspan = '4'>";
+            $body .= $pagingbar;
+            $body .= "</td></tr>\n";
         }
         $body .= "</table></div>";
     } else {

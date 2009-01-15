@@ -648,6 +648,8 @@
     # want to set this higher to give a larger sample of users to select from.
     $RANDOM_USER_PERIOD = 7;
 
+    # Pagination for allpics.bml page.  -1 means unlimited.
+    # $ALLPICS_PAGESIZE = 20;
 }
 
 1;  # return true
