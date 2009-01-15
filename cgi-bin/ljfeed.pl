@@ -43,7 +43,7 @@ sub make_feed
 
     # opt_synlevel will default to 'full'
     $u->{'opt_synlevel'} = 'full'
-        unless $u->{'opt_synlevel'} =~ /^(?:full|summary|title)$/;
+        unless $u->{'opt_synlevel'} =~ /^(?:full|ljcut|summary|title)$/;
 
     # some data used throughout the channel
     my $journalinfo = {
@@ -149,6 +149,9 @@ sub make_feed
     # conjunction with a static request for a file on disk that has been
     # stat()ed in the course of the current request. It is inappropriate and
     # "dangerous" to use it for dynamic content.
+
+    # verify that our headers are good; especially check to see if we should
+    # return a 304 (Not Modified) response.
     if ((my $status = $r->meets_conditions) != $r->OK) {
         $opts->{handler_return} = $status;
         return undef;
@@ -206,7 +209,7 @@ sub make_feed
             }
 
             LJ::CleanHTML::clean_event(\$event,
-                                       { 'wordlength' => 0, 'preformatted' => $logprops{$itemid}->{'opt_preformatted'} });
+                                       { 'wordlength' => 0, 'preformatted' => $logprops{$itemid}->{'opt_preformatted'}, 'cuturl' => $u->{'opt_synlevel'} eq 'ljcut' ? "$journalinfo->{link}$ditemid.html" : "" });
 
             # do this after clean so we don't have to about know whether or not
             # the event is preformatted
@@ -564,7 +567,7 @@ sub create_view_atom
             $content->appendTextNode( $it->{'event'} );
             $entry_xml->getDocumentElement->appendChild( $content );
         };
-        if ($u->{'opt_synlevel'} eq 'full') {
+        if ($u->{'opt_synlevel'} eq 'full' || $u->{'opt_synlevel'} eq 'ljcut') {
             # Do this manually for now, until XML::Atom supports new
             # content type classifications.
             $make_content->('content');
