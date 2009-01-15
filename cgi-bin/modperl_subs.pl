@@ -85,7 +85,6 @@ require "synlib.pl";
 require "communitylib.pl";
 require "taglib.pl";
 require "schoollib.pl";
-require "accountcodes.pl";
 require "ljemailgateway-web.pl";
 require "customizelib.pl";
 
