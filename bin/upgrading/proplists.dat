@@ -102,6 +102,22 @@ userproplist.comm_theme:
   multihomed: 0
   prettyname: Community theme
 
+userproplist.control_strip_display:
+  cldversion: 4
+  datatype: num
+  des: Display the control strip to the viewer on a specific page
+  indexed: 0
+  multihomed: 0
+  prettyname: Display control strip
+
+userproplist.control_strip_color:
+  cldversion: 4
+  datatype: char
+  des: Color to use for the control strip
+  indexed: 0
+  multihomed: 0
+  prettyname: Control strip color
+  
 userproplist.country:
   cldversion: 4
   datatype: char
@@ -966,14 +982,6 @@ userproplist.safe_search:
   multihomed: 0
   prettyname: Safe Search Filtering
 
-userproplist.show_control_strip:
-  cldversion: 4
-  datatype: char
-  des: Show a control strip on your journal or community
-  indexed: 0
-  multihomed: 0
-  prettyname: Show Control Strip
-
 userproplist.sidx_bdate:
   cldversion: 0
   datatype: char
@@ -1133,15 +1141,7 @@ userproplist.urlname:
   indexed: 0
   multihomed: 0
   prettyname: Website Name
- 
-userproplist.view_control_strip:
-   cldversion: 4
-   datatype: char
-   des: View control strip on all journals
-   indexed: 0
-   multihomed: 0
-   prettyname: View Control Strip
- 
+  
 userproplist.who_invited:
   cldversion: 4
   datatype: char

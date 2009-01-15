@@ -3,8 +3,7 @@ use base 'LJ::CProd';
 
 sub applicable {
     my ($class, $u) = @_;
-    return 0 unless (!defined $u->prop("view_control_strip") || $u->prop("view_control_strip") eq '');
-    return 0 unless (!defined $u->prop("show_control_strip") || $u->prop("show_control_strip") eq '');
+    return 0 if defined $u->prop("control_strip_display");
 
     return 1;
 }

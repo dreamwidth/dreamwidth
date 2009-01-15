@@ -76,8 +76,6 @@
 
 .fn.minsecurity=Entry Security
 
-.fn.navstrip=Navigation strip
-
 .fn.safesearch=Safe Search Filtering
 
 .fn.scheme=Scheme
@@ -139,28 +137,6 @@
 .minsecurity.private=Just Me  (Private)
 
 .minsecurity.public=Everyone (Public)
-
-.navstrip=The navigation strip is a small toolbar that can show at the top of your journal/community, as well as when you're browsing other journals and communities. It provides:
-
-.navstrip.choose=Choose the navigation strip color you prefer:
-
-.navstrip.choose.dark=Dark gray
-
-.navstrip.choose.light=Light gray
-
-.navstrip.customcolors=To use custom colors on your journal style, enable the "Navigation strip colors" option under the <a [[aopts]]>Custom Options</a> tab within the "Journal Display" area.
-
-.navstrip.list1=Quick links to your own journal, the update page, and your Friends page
-
-.navstrip.list2=Options appropriate to the page you are looking at, i.e. filters for your Friends page
-
-.navstrip.list3=Community management options and more
-
-.navstrip.options=Navigation strip display options:
-
-.navstrip.options.see=Always see the navigation strip when you view any journal or community
-
-.navstrip.options.show=Always show the navigation strip to anyone who views your journal or community
 
 .public<<
 I hereby give my authorization to reproduce and/or 

@@ -1140,13 +1140,9 @@ sub create_view_lastn
     }
 
     $lastn_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
-    my $show_control_strip = LJ::run_hook('show_control_strip', {
-        user => $u->{user},
-    });
+    my $show_control_strip = LJ::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
-        LJ::run_hook('control_strip_stylesheet_link', {
-            user => $u->{user},
-        });
+        LJ::run_hook( 'control_strip_stylesheet_link' );
         $lastn_page{'head'} .= LJ::control_strip_js_inject( user => $u->{user} );
     }
 
@@ -1596,13 +1592,9 @@ sub create_view_friends
     $friends_page{'head'} .= qq{<meta http-equiv="X-XRDS-Location" content="}.LJ::ehtml($u->journal_base).qq{/data/yadis/friends" />\n};
 
     $friends_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
-    my $show_control_strip = LJ::run_hook('show_control_strip', {
-        user => $u->{user},
-    });
+    my $show_control_strip = LJ::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
-        LJ::run_hook('control_strip_stylesheet_link', {
-            user => $u->{user},
-        });
+        LJ::run_hook( 'control_strip_stylesheet_link' );
         $friends_page{'head'} .= LJ::control_strip_js_inject( user => $u->{user} );
     }
 
@@ -2092,13 +2084,9 @@ sub create_view_calendar
     }
 
     $calendar_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
-    my $show_control_strip = LJ::run_hook('show_control_strip', {
-        user => $u->{user},
-    });
+    my $show_control_strip = LJ::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
-        LJ::run_hook('control_strip_stylesheet_link', {
-            user => $u->{user},
-        });
+        LJ::run_hook( 'control_strip_stylesheet_link' );
         $calendar_page{'head'} .= LJ::control_strip_js_inject( user => $u->{user} );
     }
     $calendar_page{'head'} .=
@@ -2356,13 +2344,9 @@ sub create_view_day
     }
 
     $day_page{'head'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
-    my $show_control_strip = LJ::run_hook('show_control_strip', {
-        user => $u->{user},
-    });
+    my $show_control_strip = LJ::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
-        LJ::run_hook('control_strip_stylesheet_link', {
-            user => $u->{user},
-        });
+        LJ::run_hook( 'control_strip_stylesheet_link' );
         $day_page{'head'} .= LJ::control_strip_js_inject( user => $u->{user} );
     }
 

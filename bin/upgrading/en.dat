@@ -3419,7 +3419,7 @@ widget.moodthemechooser.title=Mood Themes
 
 widget.moodthemechooser.viewtheme=view all
 
-widget.navstripchooser.colors=In addition, you can customize the color of the navigation strip.
+widget.navstripchooser.colors=In addition, you can customize the color of the navigation strip on your journal.
 
 widget.navstripchooser.desc=This small toolbar is at the top of journal pages and provides access to quick links, filtering options, and management settings.
 
@@ -3444,6 +3444,24 @@ widget.navstripchooser.option.color.no_gradient=without background gradient
 widget.navstripchooser.option.onjournal=Always show on my journal/community
 
 widget.navstripchooser.option.onothers=Always show on any journal or community I view
+
+widget.navstripchooser.page.journal.own=See it on your own journal
+
+widget.navstripchooser.page.readlist.own=See it on your own readlist
+
+widget.navstripchooser.page.community.belongto=See it on all communities you belong to
+
+widget.navstripchooser.page.community.notbelongto=See it on all communities you don't belong to
+
+widget.navstripchooser.page.journal.watching=See it on all non-community journals you're watching
+
+widget.navstripchooser.page.journal.notwatching=See it on all non-community journals you aren't watching
+
+widget.navstripchooser.page.comment.custom=See it on all custom comment pages
+
+widget.navstripchooser.page.journal.loggedout=Show it to logged out users on your journal
+
+widget.navstripchooser.page.readlist.loggedout=Show it to logged out users on your readlist
 
 widget.navstripchooser.title=Navigation Strip
 

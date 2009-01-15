@@ -452,9 +452,7 @@ sub prepare_adverts_and_control_strip {
         ctx  => "journal",
         user => $u->{user},
     });
-    my $show_control_strip = LJ::run_hook('show_control_strip', {
-        user => $u->{user},
-    });
+    my $show_control_strip = LJ::run_hook( 'show_control_strip' );
 
     # FIXME: Do I need to add the ad and control stuff to <head> here,
     # or has the S2 backend done it for me already?

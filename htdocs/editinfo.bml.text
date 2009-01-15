@@ -264,28 +264,6 @@ so your email address won't be found by email-collecting robots.
 
 .name.title=Name
 
-.navstrip.about=The navigation strip is a small toolbar that can show at the top of your journal/community, as well as when you're browsing other journals and communities. It provides:
-
-.navstrip.about.provides.links=Quick links to your own journal, the update page, and your Friends page
-
-.navstrip.about.provides.management=Community management options and more
-
-.navstrip.about.provides.options=Options appropriate to the page you are looking at, i.e. filters for your Friends page
-
-.navstrip.choose=Choose the navigation strip color you prefer:
-
-.navstrip.choose.dark=Dark gray
-
-.navstrip.choose.light=Light gray
-
-.navstrip.header=Navigation Strip Options
-
-.navstrip.options=Navigation strip display options:
-
-.navstrip.options.myjournal=Always display the navigation strip to anyone who views my journal or community
-
-.navstrip.options.viewjournals=Show me the navigation strip when I view any journal or community
-
 .newemail.body2<<
 You have just changed the email address for your [[sitename]] account "[[username]]".  To validate the change, please go to this address:
 

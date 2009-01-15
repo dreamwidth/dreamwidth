@@ -2930,9 +2930,7 @@ sub control_strip
 
     my $journal = LJ::load_user($user);
     my $show_strip = 1;
-    if (LJ::are_hooks("show_control_strip")) {
-        $show_strip = LJ::run_hook("show_control_strip", { user => $user });
-    }
+    $show_strip = LJ::run_hook( "show_control_strip" ) if ( LJ::are_hooks( "show_control_strip" ) );
 
     return "" unless $show_strip;
 

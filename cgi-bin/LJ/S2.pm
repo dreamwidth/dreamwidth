@@ -2022,13 +2022,9 @@ sub Page
     # Ads and control strip
     $p->{'head_content'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
 
-    my $show_control_strip = LJ::run_hook('show_control_strip', {
-        user => $u->{user},
-    });
+    my $show_control_strip = LJ::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
-        LJ::run_hook('control_strip_stylesheet_link', {
-            user => $u->{user},
-        });
+        LJ::run_hook( 'control_strip_stylesheet_link' );
         $p->{'head_content'} .= LJ::control_strip_js_inject( user => $u->{user} );
     }
 
@@ -2481,9 +2477,7 @@ sub viewer_sees_control_strip
     return 0 unless $LJ::USE_CONTROL_STRIP;
 
     my $r = BML::get_request();
-    return LJ::run_hook('show_control_strip', {
-        userid => $r->notes->{journalid},
-    });
+    return LJ::run_hook( 'show_control_strip' );
 }
 
 sub _get_ad_box_args {

@@ -606,3 +606,27 @@ general /misc/adult_content.bml.message.concepts
 general /misc/adult_content.bml.message.concepts.blocked
 general /misc/adult_content.bml.message.explicit
 general /misc/adult_content.bml.message.explicit.blocked
+
+general /htdocs/editinfo.bml.navstrip.about
+general /htdocs/editinfo.bml.navstrip.about.provides.links
+general /htdocs/editinfo.bml.navstrip.about.provides.management
+general /htdocs/editinfo.bml.navstrip.about.provides.options
+general /htdocs/editinfo.bml.navstrip.choose
+general /htdocs/editinfo.bml.navstrip.choose.dark
+general /htdocs/editinfo.bml.navstrip.choose.light
+general /htdocs/editinfo.bml.navstrip.header
+general /htdocs/editinfo.bml.navstrip.options
+general /htdocs/editinfo.bml.navstrip.options.myjournal
+general /htdocs/editinfo.bml.navstrip.options.viewjournals
+
+general /htdocs/manage/settings/index.bml.fn.navstrip
+general /htdocs/manage/settings/index.bml.navstrip
+general /htdocs/manage/settings/index.bml.navstrip.choose.dark
+general /htdocs/manage/settings/index.bml.navstrip.choose.light
+general /htdocs/manage/settings/index.bml.navstrip.choose.customcolors
+general /htdocs/manage/settings/index.bml.navstrip.list1
+general /htdocs/manage/settings/index.bml.navstrip.list2
+general /htdocs/manage/settings/index.bml.navstrip.list3
+general /htdocs/manage/settings/index.bml.navstrip.options
+general /htdocs/manage/settings/index.bml.navstrip.options.see
+general /htdocs/manage/settings/index.bml.navstrip.options.show

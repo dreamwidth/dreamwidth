@@ -22,58 +22,36 @@ sub render_body {
     $ret .= "</fieldset>" if $u->prop('stylesys') == 2;
     $ret .= "<p class='detail'>" . $class->ml('widget.navstripchooser.desc') . " " . LJ::help_icon('navstrip') . "</p>";
 
-    # choose where to display/see it
-    my $show_checked = $u->prop('show_control_strip') ? 1 : 0;
-    my $view_checked = $u->prop('view_control_strip') ? 1 : 0;
+    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
+    return undef unless @pageoptions;
     
-    # If user cannot modify navstrip, the following two checkboxes should be disabled
-    my $show_disabled = LJ::run_hook('user_cannot_modify_navstrip', $u);
+    my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0..$#pageoptions;
 
-    $ret .= "<p>" . $class->html_check(
-        name => "show_control_strip",
-        id => "show_control_strip",
-        selected => $show_checked,
-        disabled => defined $show_disabled ? $show_disabled : 0,
-    );
-    $ret .= " <label for='show_control_strip'>" . $class->ml('widget.navstripchooser.option.onjournal') . "</label></p>";
-
-    $ret .= "<p>" . $class->html_check(
-        name => "view_control_strip",
-        id => "view_control_strip",
-        selected => $view_checked,
-        disabled => defined $show_disabled ? $show_disabled : 0,
-    );
-    $ret .= " <label for='view_control_strip'>" . $class->ml('widget.navstripchooser.option.onothers') . "</label></p>";
-
-    # if checkbox disabled, it cannot submit it's value, even if it's checked.
-    # if we want this data in submit, we must to use hidden input in this case.
-    if ($show_disabled) {
-        if ($view_checked) {
-            $ret .= LJ::html_hidden({
-                'name' => 'Widget[NavStripChooser]_view_control_strip',
-                value => "1",
-                'id' => "view_control_strip" });
-        }
-
-        if ($show_checked) {
-            $ret .= LJ::html_hidden({
-                'name' => 'Widget[NavStripChooser]_show_control_strip',
-                value => "1",
-                'id' => "show_control_strip" });
-        }
-    }
+    # TODO: make this default admin-settable from the UI?
+    # choose where to display/see it    
+    my $display = defined $u->prop( 'control_strip_display' )
+        ? $u->prop( 'control_strip_display' )
+        : $pagemask{'community.notbelongto'} | $pagemask{'journal.notwatching'};
+   
+    foreach my $pageoption ( @pageoptions ) {
+        my $for_html = $pageoption; $for_html =~ tr/\./_/;
+        
+        $ret .= "<p>" . $class->html_check(
+            name => 'control_strip_display',
+            id => $for_html,
+            selected => $display & $pagemask{$pageoption},
+            value => $pagemask{$pageoption},
+        );
+        
+        $ret .= " <label for='$for_html'>" . $class->ml( 'widget.navstripchooser.page.' . $pageoption) . "</label></p>";
+   }
 
     $ret .= "<p>" . $class->ml('widget.navstripchooser.colors') . "</p>";
 
     # choose colors
-
-    # note: if both props have colors, they are guaranteed to be the same color
-    my $color_selected = "dark";
-    if ($u->prop('view_control_strip') && $u->prop('view_control_strip') ne "off_explicit") {
-        $color_selected = $u->prop('view_control_strip');
-    } elsif ($u->prop('show_control_strip') && $u->prop('show_control_strip') ne "off_explicit") {
-        $color_selected = $u->prop('show_control_strip');
-    }
+    my $color_selected = $u->prop( 'control_strip_color' ) ne ''
+        ? $u->prop( 'control_strip_color' )
+        : "dark";
 
     my ($theme, @props, %prop_is_used, %colors_values, %bgcolor_values, %fgcolor_values, %bordercolor_values, %linkcolor_values);
     if ($u->prop('stylesys') == 2) {
@@ -210,37 +188,30 @@ sub handle_post {
 
     my %override;
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
-    my ($given_control_strip_color, $given_show_control_strip, $given_view_control_strip);
+    my ($given_control_strip_color, $given_control_strip_display);
     if ($post_fields_of_parent->{reset}) {
-        $given_control_strip_color = "dark";
-        $given_show_control_strip = 1;
-        $given_view_control_strip = 1;
+        $given_control_strip_color = "";
+        $given_control_strip_display = "";
         $override{control_strip_bgcolor} = "";
         $override{control_strip_fgcolor} = "";
         $override{control_strip_bordercolor} = "";
         $override{control_strip_linkcolor} = "";
     } else {
         $given_control_strip_color = $post->{control_strip_color};
-        $given_show_control_strip = $post->{show_control_strip};
-        $given_view_control_strip = $post->{view_control_strip};
+        $given_control_strip_display |= $_+0
+            foreach split( /\0/, $post->{control_strip_display} );
     }
 
-    my $color = $given_control_strip_color || "dark";
-    my $color_to_store = $color eq "light" ? "light" : "dark"; # we can only store dark or light in the user props
+    my $color = $given_control_strip_color;
 
     my $props;
-    $props->{show_control_strip} = $given_show_control_strip ? $color_to_store : 'off_explicit';
-    $props->{view_control_strip} = $given_view_control_strip ? $color_to_store : 'off_explicit';
-
-    ## if user can't hide control strip, then value 'off_explicit' is forbidden
-    if (LJ::run_hook("user_cannot_modify_navstrip", $u)) {
-        $props->{show_control_strip} = 'dark' if $props->{show_control_strip} eq 'off_explicit';
-        $props->{view_control_strip} = 'dark' if $props->{view_control_strip} eq 'off_explicit';
-    }
-    foreach my $uprop (qw/view_control_strip show_control_strip/) {
-        my $eff_val = $props->{$uprop}; # effective value, since 0 isn't stored
-        $eff_val = "" unless $eff_val;
-        $u->set_prop($uprop, $eff_val);
+    # we only want to store dark or light in the user props
+    $props->{control_strip_color} = $color if $color eq 'light' || $color eq 'dark';
+    # Stringify 0, so it will be stored. Hacky, but it works. 
+    $props->{control_strip_display} = $given_control_strip_display ? $given_control_strip_display : "0 ";
+    
+    foreach my $uprop ( qw/control_strip_color control_strip_display/ ) {
+        $u->set_prop($uprop, $props->{$uprop});
     }
 
     if ($color ne "layout_default" && $color ne "custom") {
