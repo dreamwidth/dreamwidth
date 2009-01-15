@@ -2,6 +2,7 @@
 {
     use strict;
     use vars qw(%GET);
+
     my $remote = LJ::get_remote();
     return LJ::error_noremote() unless $remote;
 
@@ -12,7 +13,7 @@
     my $size = int($GET{'size'});
     $size = 640 if $size <= 0 || $size > 640;
 
-    my $upf = LJ::get_upf_scaled(size => $size, userid => $u->id);
+    my $upf = LJ::get_upf_scaled(size => $size, userid => $u->id, mogkey => "upf_$GET{index}:$u->{userid}");
 
     return "Error retreiving image." unless $upf;
 

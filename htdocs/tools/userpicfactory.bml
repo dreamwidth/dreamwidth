@@ -28,11 +28,11 @@
 
     if (!$w || !$h) {
         # we do not have the width and height passed in, we have to compute it ourselves
-        my $upf = LJ::get_upf_scaled(size => $scaledSizeMax, userid => $remote->{userid});
+        my $upf = LJ::get_upf_scaled(size => $scaledSizeMax, userid => $remote->{userid}, mogkey => "upf_$GET{index}:$remote->{userid}");
         ($w, $h) = ($upf->[2], $upf->[3]) if ($upf && $upf->[2]);
     }
 
-    my $picpath = $LJ::SITEROOT . "/misc/mogupic.bml?size=$scaledSizeMax&authas=$GET{authas}";
+    my $picpath = $LJ::SITEROOT . "/misc/mogupic.bml?size=$scaledSizeMax&authas=$GET{authas}&index=$GET{index}";
 
     $head .= qq {
         <script>
@@ -160,6 +160,10 @@
 
 my ($x1, $y1, $x2, $y2) = (20, 20, $w - 20, $h - 20);
 
+if ($GET{successcount}) {
+    $body .= "<p>Uploaded $GET{successcount} picture(s) successfully.</p>";
+}
+
 $body .= qq {
     <a href="/editpics$sfx.bml"><< Edit Userpics</a>
     <noscript><p><b>
@@ -183,7 +187,7 @@ my $upload_form = qq {
 
 
 # is there a pic in mogile?
-my @paths = LJ::mogclient()->get_paths("upf:$remote->{userid}");
+my @paths = LJ::mogclient()->get_paths("upf_$GET{index}:$remote->{userid}");
 if (! @paths) {
     $body .= '<?p You have no picture uploaded. You must upload one: p?>';
     $body .= $upload_form;
@@ -239,7 +243,8 @@ $body .= qq {
       <input type="submit" value="Create Userpic"  id="createbtn" />
       } . LJ::html_hidden('keywords', $GET{'keywords'},
                           'comments', $GET{'comments'},
-                          'make_default', $GET{'make_default'}) . qq {
+                          'make_default', $GET{'make_default'},
+                          index => $GET{index}) . qq {
       </form></div> standout?>
     };
 }

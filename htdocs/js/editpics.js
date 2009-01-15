@@ -83,4 +83,97 @@ function toggleElement(elementId) {
     }
 }
 
+// keeps track of maximum number of uploads alowed
+var counter = 1;
+var maxcounter;
+var allowComments = false;
+
+function addNewUpload(uploadType) {
+  if (document.forms.uploadPic.make_default instanceof HTMLInputElement) {
+    value = document.forms.uploadPic.make_default.checked;
+    document.forms.uploadPic.make_default.type = "radio";
+    document.forms.uploadPic.make_default.checked = value;
+  }
+
+  insertIntoTag = document.getElementById("multi_insert");
+  insertElement = document.createElement("p");
+  insertElement.setAttribute("id", "additional_upload_" + counter);
+  insertElement.setAttribute("class", "pkg");
+
+  newPicHTML = "<input type='button' value='Remove' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
+
+  if (uploadType == 'file') {
+    newPicHTML += "<label class='left' for='userpic_" + counter + "'>From <u>F</u>ile:</label>";
+    newPicHTML += "<input type='file' class='file' name='userpic_" + counter + "' id='userpic_" + counter + "' size='22' />";
+  } else if (uploadType == 'url') {
+    newPicHTML += "<label class='left' for='urlpic_'" + counter + ">";
+    newPicHTML += 'From U<u>R</u>L:</label>';
+    newPicHTML += '<input type="text" name="urlpic_' + counter + '" id="urlpic_' + counter + '" class="text" />';
+  }
+  newPicHTML += "<label class='left' for='keywords_" + counter + "'>Keywords:</label><input type='text' name='keywords_" + counter + "' id='keywords_" + counter + "' class='text' />";
+  if (allowComments) {
+    newPicHTML += "<label class='left' for='comments_" + counter + "'>Comment:</label><input type='text' maxlength='120' name='comments_" + counter + "' id='comments_" + counter + "' class='text' />";
+  }
+  newPicHTML += "<br/><input type='radio' accesskey='d' value='" + counter + "' name='make_default' id='make_default_" + counter + "' /><label for='make_default_" + counter + "'>Make this your <u>d</u>efault picture</label>\n";
+
+  insertElement.innerHTML = newPicHTML;
+  insertIntoTag.appendChild(insertElement);
+  counter++;
+  if (counter >= maxcounter) {
+    hideUploadButtons();
+  }
+
+  if (document.forms.uploadPic.make_default.length == 2) {
+    addNoDefaultButton();
+  }
+
+}
+
+function removeAdditionalUpload(removeIndex) {
+  if (document.forms.uploadPic.make_default.length == 3) {
+    removeNoDefaultButton();
+  }
+
+  removeFromTag = document.getElementById("multi_insert");
+  removeElement = document.getElementById("additional_upload_" + removeIndex);
+  removeFromTag.removeChild(removeElement);
+  maxcounter++;
+  if (counter < maxcounter) {
+    unhideUploadButtons();
+  }
+
+  if (document.forms.uploadPic.make_default instanceof HTMLInputElement) {
+    value = document.forms.uploadPic.make_default.checked;
+    document.forms.uploadPic.make_default.type = "checkbox";
+    document.forms.uploadPic.make_default.checked = value;
+  }
+}
+
+function hideUploadButtons() {
+  buttonsElement = document.getElementById("multi_insert_buttons");
+  buttonsElement.style.display = 'none';
+}
+
+function unhideUploadButtons() {
+  buttonsElement = document.getElementById("multi_insert_buttons");
+  buttonsElement.style.display = 'block';
+}
+
+function addNoDefaultButton() {
+  buttonsElement = document.getElementById("no_default_insert");
+  insertElement = document.createElement("p");
+  insertElement.setAttribute("id", "make_default_none");
+  insertElement.setAttribute("class", "pkg");
+
+  newPicHTML = "<input type='radio' accesskey='d' value='-1' name='make_default' id='make_default_button_none' /><label for='make_default_button_none'>Keep existing default pic.</label>\n";
+  insertElement.innerHTML = newPicHTML;
+  buttonsElement.appendChild(insertElement);
+}
+
+function removeNoDefaultButton() {
+  removeFromTag = document.getElementById("no_default_insert");
+  removeElement = document.getElementById("make_default_none");
+  removeFromTag.removeChild(removeElement);
+}
+
 DOM.addEventListener(window, "load", setup);
