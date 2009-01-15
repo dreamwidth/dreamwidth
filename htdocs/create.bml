@@ -69,18 +69,18 @@ body<=
  if ($code && $mode eq "submit" || # account codes turned off, but one specified anyway
      $LJ::USE_ACCT_CODES && ($mode eq "codesubmit" || $mode eq "submit")) # account codes required
  {
-     my $error;
      my $userid = 0;  # acceptable userid for double-click protection
      if ($mode eq "submit") {
          my $u = LJ::load_user($POST{'user'});
-         $userid = $u->{'userid'};
+         $userid = $u->{userid};
      }
-     $errors{'code'} = $error
-         unless (LJ::acct_code_check($code, \$error, $userid));
-     if (%errors) {
+     my $valid = DW::InviteCodes->check_code( code => $code, userid => $userid );
+     
+     if ( !$valid ) {
          $mode = "entercode";
-     } elsif ($mode eq "codesubmit") {
-         $mode = "getinfo";
+         $errors{code} = $ML{'.error.code.invalid'};     
+     } elsif ( $valid && $mode eq "codesubmit" ) {
+        $mode = "getinfo";
      }
  }
 
@@ -97,7 +97,7 @@ body<=
      $ret .= "<?h1 $ML{'.useacctcodes.welcome'} h1?><?p $ML{'.useacctcodes.entercode'} p?>";
 
      $v = LJ::ehtml($code);
-     $ret .= "<?standout Code: <input type=\"text\" name=\"code\" value=\"$v\" size=\"13\" maxlength=\"12\"> <input type=\"submit\" value=\"$ML{'.btn.proceed'}\">";
+     $ret .= "<?standout Code: <input type=\"text\" name=\"code\" value=\"$v\" size=\"21\" maxlength=\"20\"> <input type=\"submit\" value=\"$ML{'.btn.proceed'}\">";
      $ret .= $error_msg->('code', '<br>');
      $ret .= " standout?>";
      $ret .= "</form>\n";
@@ -167,7 +167,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
      # for their username (happens often)
      if ($LJ::USE_ACCT_CODES && $user =~ /^.....a[ab].....$/) {
          # see if the acctcode is valid and unused
-         my ($acid, $auth) = LJ::acct_code_decode($user);
+         my ($acid, $auth) = DW::InviteCodes->decode( $user );
          my $is_valid = $dbh->selectrow_array("SELECT COUNT(*) FROM acctcode ".
                                               "WHERE acid=? AND rcptid=0",
                                               undef, $acid);
@@ -342,9 +342,8 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
 
          # if we're using account codes on this site, mark the code as used
          if ($code) {
-             my ($acid, $auth) = LJ::acct_code_decode($code);
-             $dbh->do("UPDATE acctcode SET rcptid=$nu->id WHERE acid=$acid");
-             if ($dbh->err) { return $dbh->errstr; }
+             my $invitecode = DW::InviteCodes->new( code => $code );
+             $invitecode->use_code( user => $nu );
          }
 
          foreach my $friend (@LJ::INITIAL_OPTIONAL_FRIENDS) {
@@ -372,7 +371,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
                  "editprofileurl" => "$LJ::SITEROOT/manage/profile/",
                  "searchinterestsurl" => "$LJ::SITEROOT/interests.bml",
                  "editpicsurl" => "$LJ::SITEROOT/editpics.bml",
-                 "customizeurl" => "$LJ::SITEROOT/customize/",
+                 "customizeurl" => "$LJ::SITEROOT/customize/style.bml",
                  "postentryurl" => "$LJ::SITEROOT/update.bml",
              });
 

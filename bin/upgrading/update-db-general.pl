@@ -1117,7 +1117,9 @@ CREATE TABLE acctcode
   acid    INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   userid  INT UNSIGNED NOT NULL,
   rcptid  INT UNSIGNED NOT NULL DEFAULT 0,
-  auth    CHAR(5) NOT NULL,
+  auth    CHAR(13) NOT NULL,
+  timegenerate TIMESTAMP,
+  reason  VARCHAR(255),
   INDEX (userid),
   INDEX (rcptid)
 )
@@ -3523,11 +3525,6 @@ register_alter(sub {
                  "ALTER TABLE s2styles ADD modtime INT UNSIGNED NOT NULL AFTER name");
     }
 
-    if (column_type("acctinvite", "reason") eq "varchar(20)") {
-        do_alter("acctinvite",
-                 "ALTER TABLE acctinvite MODIFY reason VARCHAR(40)");
-    }
-
     # Add BLOB flag to proplist
     unless (column_type("userproplist", "datatype") =~ /blobchar/) {
         if (column_type("userproplist", "is_blob")) {
@@ -4016,6 +4013,21 @@ register_alter(sub {
         do_alter("logproplist",
                  "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".
                  "DEFAULT 'user' NOT NULL");
+    }
+
+    if ( column_type( "acctcode", "auth" ) =~ /^\Qchar(5)\E/ ) {
+        do_alter( "acctcode",
+                 "ALTER TABLE acctcode MODIFY auth CHAR(13)" );
+    }
+
+    unless ( column_type( "acctcode", "reason" ) ) {
+        do_alter( "acctcode",
+                  "ALTER TABLE acctcode ADD reason VARCHAR(255)" );
+    }
+    
+    unless ( column_type( "acctcode", "timegenerate" ) ) {
+        do_alter( "acctcode",
+                  "ALTER TABLE acctcode ADD timegenerate TIMESTAMP");
     }
 });
 

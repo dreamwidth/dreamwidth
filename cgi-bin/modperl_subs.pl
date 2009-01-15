@@ -41,6 +41,7 @@ use Class::Autouse qw(
                       DDLockClient
                       LJ::BetaFeatures
                       LJ::Config
+                      DW::InviteCodes
                       );
 
 LJ::Config->load;

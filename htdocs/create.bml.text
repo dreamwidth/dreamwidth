@@ -76,6 +76,8 @@ Thanks for supporting [[sitename]]!
 
 .error.birthday.invalid=You must enter a valid birthday.
 
+.error.code.invalid=Invalid code.
+
 .error.coppa.under13=Sorry, due to COPPA restrictions, you cannot use the LiveJournal service until you're 13 years old.  Please come back on your 13th birthday.
 
 .error.email.blank=You must provide your email address.
