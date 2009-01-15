@@ -273,7 +273,7 @@ sub trans
     my $bml_handler = sub {
         my $filename = shift;
         $r->handler("perl-script");
-        $r->notes("bml_filename" => $filename);
+        $r->notes->{bml_filename} = $filename;
         $r->push_handlers(PerlHandler => \&Apache::BML::handler);
         return OK;
     };

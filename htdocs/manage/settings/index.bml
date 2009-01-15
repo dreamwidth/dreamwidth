@@ -44,7 +44,6 @@ body<=
                 LJ::Setting::Display::Username
                 LJ::Setting::Display::Email
                 LJ::Setting::Display::Password
-                LJ::Setting::Display::SecretQuestion
                 LJ::Setting::Display::DomainMapping
             )],
         },

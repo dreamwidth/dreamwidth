@@ -155,7 +155,7 @@ LJ::register_hook("after_journal_content_created", sub {
 
     return unless $r;
     return unless $entry;
-    return unless $r->notes("view") eq 'entry';
+    return unless $r->notes->{view} eq 'entry';
     return unless has_pingback($entry->journal);
 
 

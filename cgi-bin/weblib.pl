@@ -2095,7 +2095,7 @@ sub res_includes {
                 esn_async => $esn_async,
                 );
     $site{default_copyright} = $remote->prop('default_copyright')
-        if $remote && LJ::SUP->is_sup_enabled($remote);
+        if $remote && 0;#LJ::SUP->is_sup_enabled($remote);
 
     my $site_params = LJ::js_dumper(\%site);
     my $site_param_keys = LJ::js_dumper([keys %site]);

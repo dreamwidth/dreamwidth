@@ -44,9 +44,9 @@
     my $ctx;
 
     if ($u && $up) {
-        my $r = Apache->request;
-        $r->notes("_journal", $u->{user});
-        $r->notes("journalid", $u->{userid});
+        my $r = BML::get_request();
+        $r->notes->{_journal} = $u->{user};
+        $r->notes->{journalid} = $u->{userid};
 
         ### Load necessary props
         my @needed_props = ("stylesys", "s2_style", "url", "urlname",

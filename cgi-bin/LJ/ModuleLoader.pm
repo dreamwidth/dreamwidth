@@ -16,7 +16,7 @@ sub module_subclasses {
     shift if @_ > 1; # get rid of classname
     my $base_class = shift;
     my $base_path  = "$LJ::HOME/cgi-bin/" . join("/", split("::", $base_class));
-    die "invalid base: $base_class" unless -d $base_path;
+    die "invalid base: $base_class ($base_path)" unless -d $base_path;
 
     my @dirs = $base_path;
     my @files;
