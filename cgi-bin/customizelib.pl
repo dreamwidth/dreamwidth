@@ -393,7 +393,7 @@ sub display_current_summary
 # args: page, getextra, opts*
 # des-page: name of the current page/tab
 # des-getextra: get parameters added to URLs for other pages/tabs
-# del-opts: hash of options
+# des-opts: hash of options
 #           - s1only = true to generate S1 links only
 # returns: HTML fragment
 # </LJFUNC>
