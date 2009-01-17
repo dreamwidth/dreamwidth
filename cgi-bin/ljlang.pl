@@ -40,6 +40,13 @@ sub day_long_langcode    { return "date.day."   . lc(LJ::Lang::day_long(@_))    
 sub month_short_langcode { return "date.month." . lc(LJ::Lang::month_long(@_))  . ".short"; }
 sub month_long_langcode  { return "date.month." . lc(LJ::Lang::month_long(@_))  . ".long";  }
 
+# Translated names for individual day or month given integer. You probably want
+# these, not the ones above.
+sub day_short_ml { return LJ::Lang::ml( LJ::Lang::day_short_langcode( @_ ) ); }
+sub day_long_ml { return LJ::Lang::ml( LJ::Lang::day_long_langcode( @_ ) ); }
+sub month_short_ml { return LJ::Lang::ml( LJ::Lang::month_short_langcode( @_ ) ); }
+sub month_long_ml { return LJ::Lang::ml( LJ::Lang::month_long_langcode( @_ ) ); }
+
 ## ordinal suffix
 sub day_ord {
     my $day = shift;

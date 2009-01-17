@@ -34,7 +34,7 @@ sub generate_content {
     my $add_ord = BML::get_language() =~ /^en/i;
     foreach my $bi (@bdays)
     {
-        my $mon = BML::ml( LJ::Lang::month_short_langcode($bi->[0]) );
+        my $mon = LJ::Lang::month_short_ml( $bi->[0] );
         my $day = $bi->[1];
         $day .= LJ::Lang::day_ord($bi->[1]) if $add_ord;
 

@@ -18,7 +18,7 @@ sub as_html {
         if ($bdpart{day} eq "00") { $bdpart{day} = ""; }
     }
     $ret .= LJ::html_select({ 'name' => "${key}month", 'id' => "${key}month", 'class' => "select", 'selected' => int($bdpart{month}) },
-                            '', '', map { $_, LJ::Lang::ml(LJ::Lang::month_long_langcode($_)) } (1..12)) . " ";
+                            '', '', map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
 
     $ret .= LJ::html_text({ 'name' => "${key}day", 'value' => $bdpart{day}, 'class' => 'text', 'size' => '3', 'maxlength' => '2' }) . " ";
     $ret .= LJ::html_text({ 'name' => "${key}year", 'value' => $bdpart{year}, 'class' => 'text', 'size' => '5', 'maxlength' => '4' });

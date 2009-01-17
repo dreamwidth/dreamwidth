@@ -165,7 +165,7 @@ sub render_body {
                 name => "bday_mm",
                 id => "create_bday_mm",
                 selected => $post->{bday_mm} || 1,
-                list => [ map { $_, LJ::Lang::ml(LJ::Lang::month_long_langcode($_)) } (1..12) ],
+                list => [ map { $_, LJ::Lang::month_long_ml( $_ ) } (1..12) ],
             ) . " ";
             $ret .= $class->html_text(
                 name => "bday_dd",

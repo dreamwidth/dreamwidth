@@ -39,7 +39,7 @@ sub html_datetime
     }
     $ret .= html_select({ 'name' => "${name}_mm", 'id' => "${id}_mm", 'selected' => $mm, 'class' => 'select',
                           'disabled' => $disabled, %extra_opts },
-                         map { $_, LJ::Lang::ml(LJ::Lang::month_long_langcode($_)) } (1..12));
+                         map { $_, LJ::Lang::month_long_ml($_) } (1..12));
     $ret .= html_text({ 'name' => "${name}_dd", 'id' => "${id}_dd", 'size' => '2', 'class' => 'text',
                         'maxlength' => '2', 'value' => $dd,
                         'disabled' => $disabled, %extra_opts });

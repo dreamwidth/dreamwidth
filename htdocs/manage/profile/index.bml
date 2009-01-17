@@ -169,7 +169,7 @@ body<=
         }
 
         $ret .= LJ::html_select({ 'name' => 'month', 'selected' => int($bdpart{'month'}) },
-                                '', '', map { $_, $ML{LJ::Lang::month_long_langcode($_)} } (1..12)) . " ";
+                                '', '', map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
         $ret .= LJ::html_text({ 'name' => 'day', 'value' => $bdpart{'day'}, 'size' => '3', 'maxlength' => '2' }) . " ";
         $ret .= LJ::html_text({ 'name' => 'year', 'value' => $bdpart{'year'}, 'size' => '5', 'maxlength' => '4' });
         $ret .= "<div class='helper'>$ML{'.birthday.underage'}</div>" if $u->is_child;

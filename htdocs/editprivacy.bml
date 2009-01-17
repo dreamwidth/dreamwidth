@@ -100,7 +100,7 @@ body<=
                                 'value' => $POST{'s_year'} || '1999',
                                 'maxlength' => '4' }) . " ";
         $ret .= LJ::html_select({ 'name' => 's_mon', 'selected' => int($POST{'s_mon'}) },
-                                  map { $_, $ML{LJ::Lang::month_long_langcode($_)} } (1..12)) . " ";
+                                  map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
         $ret .= LJ::html_select({ 'name' => 's_day', 'selected' => int($POST{'s_day'}) },
                                   map { $_, $_ } (1..31)) . "<br/>\n";
         $ret .= "\n$ML{'.timeframe.range.end'}: ";
@@ -108,7 +108,7 @@ body<=
                                 'value' => $POST{'e_year'},
                                 'maxlength' => '4' }) . " ";
         $ret .= LJ::html_select({ 'name' => 'e_mon', 'selected' => int($POST{'e_mon'}) },
-                                  map { $_, $ML{LJ::Lang::month_long_langcode($_)} } (1..12)) . " ";
+                                  map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
         $ret .= LJ::html_select({ 'name' => 'e_day', 'selected' => int($POST{'e_day'}) },
                                   map { $_, $_ } (1..31)) . "<br/>\n";
         $ret .= "</td></tr></table>";
