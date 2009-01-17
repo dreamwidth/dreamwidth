@@ -34,23 +34,6 @@ sub default_theme {
     $layout =~ s/\/layout$//;
 
     my %default_themes = (
-        'classic' => 'classic/standard',
-        'cleansimple' => 'cleansimple/standard',
-        'deardiary' => 'deardiary/royalty',
-        'digitalmultiplex' => 'digitalmultiplex/classic',
-        'disjointed' => 'disjointed/periwinkle',
-        'generator' => 'generator/nautical',
-        'haven' => 'haven/indigoblue',
-        'lickable' => 'lickable/aqua-marine',
-        'magazine' => 'magazine/standard',
-        'notepad' => 'notepad/unruled',
-        'punquin' => 'punquin/standard',
-        'refriedpaper' => 'refriedpaper/clean',
-        'sixhtml' => 'sixhtml/powell-street',
-        'sturdygesture' => 'sturdygesture/boxedin',
-        'stylecontest' => 'stylecontest/the_late_show',
-        'tabularindent' => 'tabularindent/standard',
-        'variableflow' => 'variableflow/realteal',
     );
 
     my %local_default_themes = eval "use LJ::S2Theme_local; 1;" ? $class->local_default_themes($layout, %opts) : ();
