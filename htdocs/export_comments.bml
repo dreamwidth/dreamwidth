@@ -2,9 +2,9 @@
 {
     use strict;
     use vars qw(%GET);
-    
+
     my $req = shift;
-    my $r = $req->{'r'};
+    my $r = DW::Request->get;
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
@@ -35,7 +35,6 @@
 
     # print top
     $r->content_type("text/xml; charset=utf-8");
-    $r->send_http_header();
     $r->print("<?xml version=\"1.0\" encoding='utf-8'?>\n<livejournal>\n");
 
     # startid specified?

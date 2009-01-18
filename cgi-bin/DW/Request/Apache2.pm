@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Andrea Nall <anall@andreanall.com>
 #
 # Copyright (c) 2008 by Dreamwidth Studios, LLC.
 #
