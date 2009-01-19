@@ -286,10 +286,6 @@ sub create_view_rss
 
     my $ret;
 
-    # For Yandex ( http://blogs.yandex.ru/faq.xml?id=542563 )
-    # if 'copyright' tag contains 'noindex', this rss will not be indexed.
-    my $copyright = $u->should_block_robots ? 'NOINDEX' : '';
-
     # header
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
     $ret .= LJ::run_hook("bot_director", "<!-- ", " -->") . "\n";
@@ -305,7 +301,6 @@ sub create_view_rss
     $ret .= "  <generator>LiveJournal / $LJ::SITENAME</generator>\n";
     $ret .= "  <lj:journal>" . $u->user . "</lj:journal>\n";
     $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
-    $ret .= "  <copyright>" . $copyright . "</copyright>\n" if $copyright;
     # TODO: add 'language' field when user.lang has more useful information
 
     ### image block, returns info for their current userpic

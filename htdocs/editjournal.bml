@@ -373,8 +373,6 @@ body<=
             # add property for current music button displaying if last.fm user specified
             $entry->{prop_last_fm_user} = $u_for_entry->prop('last_fm_user');
 
-            $entry->{prop_copyright} = $entry_obj->prop('copyright');
-
             foreach ( keys %POST ) { $entry->{$_} = %POST->{$_}; }
             $entry->{'richtext_default'} = $entry->{"prop_used_rte"} ? 1 : 0,
 
@@ -386,7 +384,7 @@ body<=
             if ($ad) {
                 $ret .= "<td valign='top' style='width: 300px;'>$ad</td>";
             }
-                
+
             $ret .= "</tr></table>";
 
             my $qotd = LJ::QotD->get_single_question($entry->{prop_qotdid});

@@ -60,7 +60,6 @@ function pageload (dotime) {
 }
 
 function customboxes (e) {
-    copyright();
     if (! e) var e = window.event;
     if (! document.getElementById) return false;
 
@@ -91,33 +90,6 @@ function customboxes (e) {
         if (e.stopPropagation) e.stopPropagation();
     }
     return false;
-}
-
-function setCopyrightUpdate() {
-    if ($('prop_copyright') && Site.default_copyright == "P") {
-        $('prop_copyright').checked = 1;
-    }
-}
-
-function setCopyrightEdit() {
-    if ($('prop_copyright') && $('security') && $('security').value != "public") {
-        $('prop_copyright').checked = 0;
-        $('prop_copyright').disabled = true;
-    }
-}
-
-function copyright () {
-    if ($('security') && $('prop_copyright')) {
-        if ($('security').value != "public") {
-            $('prop_copyright').checked = 0;
-            $('prop_copyright').disabled = true;
-        } else {
-            if (Site.default_copyright == "P") {
-                $('prop_copyright').checked = 1;
-            }
-            $('prop_copyright').disabled = false;
-        }
-    }
 }
 
 function altlogin (e) {

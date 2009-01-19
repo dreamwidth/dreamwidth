@@ -1629,11 +1629,6 @@ entryform.userpic.choose=Choose userpic
 
 entryform.userpics=User Picture Icon:
 
-entryform.public<<
-I hereby give my authorization to reproduce and/or distribute any part or all of my Content by third parties, with the identification of the name and source, but without any modification. 
-This authorization is remuneration free. Except as stated herein, none of the Content may be transferred, copied, republished and distributed in any form or by any means for commercial use
-.
-
 error.badpassword=Incorrect Password.
 
 error.code.comm_not_comm=Account is not a community

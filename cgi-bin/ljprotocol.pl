@@ -1477,14 +1477,6 @@ sub postevent
         my $rv = LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
     }
 
-    ## copyright 
-    if (LJ::is_enabled('default_copyright', $u)) {
-        $req->{'props'}->{'copyright'} = $u->prop('default_copyright')
-            unless defined $req->{'props'}->{'copyright'};
-    } else {
-        delete $req->{'props'}->{'copyright'};
-    }
-
     # meta-data
     if (%{$req->{'props'}}) {
         my $propset = {};
@@ -1874,13 +1866,6 @@ sub editevent
             });
     }
 
-    unless (defined $req->{'props'}->{'copyright'}) {
-        $req->{'props'}->{'copyright'} = $curprops{$itemid}->{'copyright'}; # save previous choice
-    } else { # defined
-        $req->{'props'}->{'copyright'} = '' if $req->{'props'}->{'copyright'} eq 'C';
-            # we do not store 'C', but need distinguish it from unmade user choice
-    }
-
     # handle the props
     {
         my $propset = {};
@@ -1890,11 +1875,6 @@ sub editevent
             $propset->{$pname} = $req->{'props'}->{$pname};
         }
         LJ::set_logprop($uowner, $itemid, $propset);
-
-        if ($req->{'props'}->{'copyright'} ne $curprops{$itemid}->{'copyright'}) {
-            LJ::Entry->new($ownerid, jitemid => $itemid)->put_logprop_in_history('copyright', $curprops{$itemid}->{'copyright'}, 
-                                                                                  $req->{'props'}->{'copyright'});
-        }
     }
 
     # deal with backdated changes.  if the entry's rlogtime is

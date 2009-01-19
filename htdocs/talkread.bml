@@ -333,13 +333,6 @@ my $old_url = 0;
  $ret .= "<div style='margin-left: 30px'>";
 
 
-    ## copyright
-    if (LJ::is_enabled('default_copyright', $u)) {
-        if ($props->{'copyright'} ne 'P') {
-            $ret .= '<div class="copyrighted">&Oslash; ' . BML::ml("talk.copyright") . '</div>';
-        }
-    }
-
  if (%current)
  {
      $ret .= "<table border=0>\n";
@@ -347,9 +340,9 @@ my $old_url = 0;
          my $curkey = "talk.curname_" . $_;
          my $curname = BML::ml($curkey);
          $curname = "<b>Current $_:</b>" unless $curname;
-         
+
          $ret .= "<tr><td align=right>$curname</td>";
-         
+
          if ($_ eq 'Music') {
             $ret .= "<td>" . LJ::LastFM::format_current_music_string($current{$_}) . "</td></tr>\n";
          } else {

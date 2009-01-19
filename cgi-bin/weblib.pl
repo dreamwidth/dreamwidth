@@ -1646,15 +1646,6 @@ PREVIEW
 
     $out .= "</div><!-- end #options -->\n\n";
 
-    ## copyright
-    if ($remote && LJ::is_enabled('default_copyright', $remote)) {
-        $out .= "<div id='public' class='pkg'>\n";
-        $out .= "<input type='hidden' id='defined_copyright' name='defined_copyright' value='1' />\n";
-        $out .= "<input type='checkbox' id='prop_copyright' name='prop_copyright' " . ($opts->{'prop_copyright'} eq 'P' ? "checked" : "") . " />";
-        $out .= "<label for='prop_copyright'>" . BML::ml('entryform.public') . "</label>";
-        $out .= "</div>";
-    }
-    
     ### Submit Bar
     {
         $out .= "<div id='submitbar' class='pkg'>\n\n";
@@ -1954,9 +1945,6 @@ sub entry_form_decode
     $req->{"prop_opt_nocomments"}   ||= $POST->{'comment_settings'} eq "nocomments" ? 1 : 0;
     $req->{"prop_opt_noemail"}      ||= $POST->{'comment_settings'} eq "noemail" ? 1 : 0;
     $req->{'prop_opt_backdated'}      = $POST->{'prop_opt_backdated'} ? 1 : 0;
-    if ($req->{'defined_copyright'}) {
-        $req->{'prop_copyright'} = $POST->{'prop_copyright'} ? 'P' : 'C';
-    }
 
     if (LJ::is_enabled("content_flag")) {
         $req->{prop_adult_content} = $POST->{prop_adult_content};
@@ -2137,8 +2125,6 @@ sub res_includes {
     # esn ajax enabled?
     my $esn_async = LJ::conf_test($LJ::DISABLED{esn_ajax}) ? 0 : 1;
 
-    my $default_copyright = $remote ? $remote->prop("default_copyright") : '';
-
     my %site = (
                 imgprefix => "$imgprefix",
                 siteroot => "$siteroot",
@@ -2151,8 +2137,6 @@ sub res_includes {
                 media_embed_enabled => $embeds_enabled,
                 esn_async => $esn_async,
                 );
-    $site{default_copyright} = $remote->prop('default_copyright')
-        if $remote && 0;#LJ::SUP->is_sup_enabled($remote);
 
     my $site_params = LJ::js_dumper(\%site);
     my $site_param_keys = LJ::js_dumper([keys %site]);

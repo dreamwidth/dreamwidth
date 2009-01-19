@@ -313,13 +313,6 @@ body<=
 
     $ret .= "<div style='margin-left: 30px'>";
 
-    ## copyright
-    if (LJ::is_enabled('default_copyright', $u)) {
-        if ($props->{'copyright'} ne 'P') {
-             $ret .= '<div class="copyrighted">&Oslash; ' . BML::ml("talk.copyright") . '</div>';
-        }
-    }
-
     ### currents
     if (! $init->{'replyto'} && %current)
     {

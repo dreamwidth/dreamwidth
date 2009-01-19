@@ -1452,20 +1452,6 @@ pollproplist2.unique:
 pollproplist2.createdate:
   des: The voter must have created their account by the date specified (Pacific time) in order to vote.  Must be in format YYYY-MM-DD, otherwise there will be no restriction.
 
-logproplist.copyright:
-  datatype: char
-  des: Copyrighted status: 'C' - copyrighted, 'P' - public, full cite allowed.
-  prettyname: Copyrighted status
-  ownership: user
-
-userproplist.default_copyright:
-  cldversion: 4
-  datatype: char
-  des: Default value to entry prop 'copyright'
-  indexed: 0
-  multihomed: 0
-  prettyname: Default value to entry prop 'copyright'
-
 userproplist.pingback:
   cldversion: 0
   datatype: char

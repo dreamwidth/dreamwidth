@@ -1912,11 +1912,6 @@ sub Entry
     }
 
     my $r = BML::get_request();
-    if (LJ::is_enabled('default_copyright', $u) && ($r->notes->{codepath} eq 's2.entry' || $r->notes->{codepath} eq 's2.reply')) {
-        if ($p->{'copyright'} ne 'P') {
-            $e->{'metadata'}->{'<small>&Oslash; '} = $LJ::S2::CURR_CTX->[S2::PROPS]->{"text_copyr_disagree"} . '</small>';
-        }
-    }
 
     # custom friend groups
     my $entry = LJ::Entry->new($e->{journal}->{_u}, ditemid => $e->{itemid});
