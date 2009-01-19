@@ -1,3 +1,17 @@
+#!/usr/bin/perl
+#
+# DW::InviteCodes - Invite code management backend for Dreamwidth
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#      Pau Amma <pauamma@cpan.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
 package DW::InviteCodes;
 
 =head1 NAME
@@ -349,9 +363,19 @@ sub acid_decode {
 
 Bound to be some.
 
+=head1 AUTHORS
+
+Afuna <coder.dw@afunamatata.com>
+
+Pau Amma <pauamma@cpan.org>
+
 =head1 COPYRIGHT AND LICENSE
 
-(TBD)
+Copyright (c) 2009 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
 
 =cut
 
