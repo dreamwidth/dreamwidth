@@ -11,8 +11,7 @@ use File::Path ();
 use File::Basename ();
 use File::Copy ();
 use Image::Size ();
-BEGIN { require "ljlib.pl";
-        require "ljviews.pl"; }
+BEGIN { require "ljlib.pl"; }
 use LJ::S2;
 use MogileFS::Admin;
 
@@ -217,7 +216,6 @@ sub populate_database {
 
     # we have a flag to disable population of s1/s2 if the user requests
     unless ($opt_nostyles) {
-        populate_s1();
         populate_s2();
     }
 
@@ -258,42 +256,6 @@ sub vivify_system_user {
         $freshly_made = 1;
     }
     return wantarray ? ($su, $freshly_made) : $su;
-}
-
-sub populate_s1 {
-    # S1
-    print "Populating public system styles (S1):\n";
-    require "$ENV{'LJHOME'}/bin/upgrading/s1style-rw.pl";
-    my $ss = s1styles_read();
-    foreach my $uniq (sort keys %$ss) {
-
-        my $s = $ss->{$uniq};
-        my $existing = LJ::S1::check_dup_style($su, $s->{'type'}, $s->{'styledes'});
-
-        # update
-        if ($existing) {
-            if ($LJ::DONT_TOUCH_STYLES) {
-                next;
-            }
-            if ( LJ::S1::update_style($existing->{'styleid'},
-                                      { map { $_, $s->{$_} } qw(formatdata is_embedded is_colorfree) }) ) {
-                print "  $uniq: ";
-                print "updated \#$existing->{'styleid'}\n";
-            }
-            next;
-        }
-
-        # insert new
-        my %opts = ( "is_public" => 'Y', "opt_cache" => 'Y',
-                     map { $_, $s->{$_} } qw(styledes type formatdata is_embedded is_colorfree lastupdate));
-        LJ::S1::create_style($su, \%opts)
-            or die "Error: unable to create style!  Database potentially unavailable?";
-        print "  $uniq: ";
-        print "added\n";
-    }
-
-    # delete s1pubstyc from memcache
-    LJ::MemCache::delete("s1pubstyc");
 }
 
 sub populate_s2 {
