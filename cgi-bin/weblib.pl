@@ -3492,12 +3492,16 @@ sub subscribe_interface {
                 my $sub_title = " " . $pending_sub->htmlcontrol_label($u);
                 $sub_title = LJ::run_hook("disabled_esn_sub", $u) . $sub_title if $pending_sub->disabled($u);
 
-                $cat_html .= "<tr class='$disabled_class $altrow_class'";
+                $cat_html .= "<tr class='$disabled_class $altrow_class'>";
                 $cat_html .= "<td>" . $pending_sub->htmlcontrol($u) . "$sub_title*</td>";
                 $cat_html .= "<td>&nbsp;</td>";
-                $cat_html .= "<td class='NotificationOptions'$hidden>" . $pending_sub->htmlcontrol($u, undef, undef, notif => 1, notif_catid => $catid, notif_ntypeid => 2) . "</td>";
-                $cat_html .= "<td class='NotificationOptions'$hidden>" . LJ::html_check({ disabled => 1 }) . "</td>";
-                $cat_html .= "<td class='NotificationOptions'$hidden>" . LJ::html_check({ disabled => 1 }) . "</td>";
+                foreach my $notify_class (@notify_classes) {
+                    if ($notify_class eq "LJ::NotificationMethod::Email") {
+                        $cat_html .= "<td class='NotificationOptions'$hidden>" . $pending_sub->htmlcontrol($u, undef, undef, notif => 1, notif_catid => $catid, notif_ntypeid => 2) . "</td>";
+                    } else {
+                        $cat_html .= "<td class='NotificationOptions'$hidden>" . LJ::html_check({ disabled => 1 }) . "</td>";
+                    }
+                }
                 $cat_html .= "</tr>";
 
                 $special_subs++;

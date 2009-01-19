@@ -41,7 +41,6 @@ body<=
             settings => [qw(
                 LJ::Setting::Display::AccountLevel
                 LJ::Setting::Display::AccountStatus
-                LJ::Setting::Display::Username
                 LJ::Setting::Display::Email
                 LJ::Setting::Display::Password
                 LJ::Setting::Display::DomainMapping
