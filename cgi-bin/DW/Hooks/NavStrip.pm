@@ -1,0 +1,120 @@
+#!/usr/bin/perl
+#
+# DW::Hooks::NavStrip
+#
+# Implements logic for showing the navigation strip according to the Dreamwidth
+# site logic.
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+package DW::Hooks::NavStrip;
+
+LJ::register_hook( 'page_control_strip_options', sub {
+    # if you add to the middle of the list, existing preferences will *break*
+    return qw(
+        journal.own
+        readlist.own
+        community.belongto
+        community.notbelongto
+        journal.watching
+        journal.notwatching
+        comment.custom
+        journal.loggedout
+        readlist.loggedout
+    );
+});
+
+LJ::register_hook( 'show_control_strip', sub {
+
+    return undef unless $LJ::USE_CONTROL_STRIP;
+    return undef if $LJ::DISABLED{'control_strip'};
+
+    my $remote = LJ::get_remote();
+    my $r = DW::Request->get;
+    my $journal = LJ::get_active_journal();
+
+    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
+    return undef unless @pageoptions;
+
+    my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0..$#pageoptions;
+
+    if ( $remote ) {
+
+        # TODO: make this default admin-settable from the UI?
+        # Logged-in defaults: on for journals they aren't watching,
+        # comms they aren't members of. Off everywhere else
+        my $display = defined $remote->prop( 'control_strip_display' )
+            ? $remote->prop( 'control_strip_display' )
+            : $pagemask{'community.notbelongto'} | $pagemask{'journal.notwatching'};
+        return undef unless $display;
+
+        # customized comment pages (both entry and reply)
+        if ( $r->note('view') eq 'entry' || $r->note('view') eq 'reply' ) {
+            return $display & $pagemask{'comment.custom'};
+        }
+
+        # TODO: will this view name change after WTF?
+        # on your journal, all pages except readlist respect journal setting
+        if ( $remote->equals( $journal ) ) {
+            return $r->note( 'view' ) eq 'friends'
+                ? $display & $pagemask{'readlist.own'}
+                : $display & $pagemask{'journal.own'};
+        }
+
+        if ( $journal->is_community ) {
+            return $journal->is_friend( $remote )
+                ? $display & $pagemask{'community.belongto'}
+                : $display & $pagemask{'community.notbelongto'};
+        }
+
+        # TODO: make this "watching"; pending WTF
+        # all other journal types (personal, openid, syn, news, staff)
+        # readlist is treated by the same rule as all other journal pages
+        return $remote->is_friend( $journal )
+            ? $display & $pagemask{'journal.watching'}
+            : $display & $pagemask{'journal.notwatching'};
+
+    } else {
+        # Logged-out defaults: off everywhere (empty == off)
+        my $display = $journal->prop( 'control_strip_display' );
+        return undef unless $display;
+
+        # TODO: will this view name change after WTF?
+        return $r->note( 'view' ) eq 'friends'
+            ?  $display & $pagemask{'readlist.loggedout'}
+            : $display & $pagemask{'journal.loggedout'};
+    }
+
+    return undef;
+});
+
+LJ::register_hook( 'control_strip_stylesheet_link', sub {
+
+    my $remote = LJ::get_remote();
+    my $r = DW::Request->get;
+    my $journal = LJ::get_active_journal();
+
+    LJ::need_res('stc/controlstrip.css');
+
+    my $color;
+    my %GET = LJ::parse_args( $r->query_string );
+    $color = $GET{style} eq 'mine' && $remote
+        ? $remote->prop( 'control_strip_color' )
+        : $journal->prop( 'control_strip_color' );
+    $color = $color || 'dark';
+
+    if ( $color ) {
+        LJ::need_res("stc/controlstrip-$color.css");
+        LJ::need_res("stc/controlstrip-${color}-local.css");
+    }
+});
+
+1;
