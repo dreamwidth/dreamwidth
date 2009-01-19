@@ -116,12 +116,7 @@ sub render_body {
     
     $ret .= "<ul class='theme-nav-small nostyle'>";
     $ret .= "<li class='first'><a href='$LJ::SITEROOT/customize/advanced/'>" . $class->ml('widget.themenav.developer') . "</a>";
-    $ret .= LJ::run_hook('customize_advanced_area_upsell', $u) . "</li>";
-    
-    my $no_system_switch = LJ::run_hook("no_s1s2_system_switch", $u);
-    unless ($no_system_switch) {
-        $ret .= "<li class='last'><a href='$LJ::SITEROOT/customize/switch_system.bml$getextra'>" . $class->ml('widget.themenav.switchtos1') . "</a></li>";
-    }
+    $ret .= LJ::run_hook('customize_advanced_area_upsell', $u) . "</li>"; 
     $ret .= "</ul>";
 
     $ret .= "</div>";

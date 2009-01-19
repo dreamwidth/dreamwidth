@@ -293,7 +293,6 @@ sub get_moodtheme_select_list
 # des: Function to determine the correct redirect when clicking on a tab link.
 # args: opts
 # des-opts: Hash of options
-#           - s1only: use S1 pages only, not S2 or on-the-fly selection
 #           - getextra: extra arguments appended to the redirected URL
 # returns: Nothing
 # </LJFUNC>
@@ -309,9 +308,8 @@ sub js_redirect
                     "display_advanced" => "advanced.bml",
                     );
 
-    my $url_root = $opts{s1only} ? "$LJ::SITEROOT/customize/s1/" : "$LJ::SITEROOT/customize/";
     if ($POST->{"action:redir"} ne "" && $redirect{$POST->{"action:redir"}}) {
-        BML::redirect("$url_root$redirect{$POST->{'action:redir'}}$opts{getextra}");
+        BML::redirect("$LJ::SITEROOT/customize/$redirect{$POST->{'action:redir'}}$opts{getextra}");
     }
 }
 

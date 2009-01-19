@@ -170,11 +170,6 @@ sub render_body {
     }
     $ret .= "</table>";
 
-    if ($u->prop('stylesys') != 2) {
-        $ret .= "<p>" . $class->ml('widget.navstripchooser.upgradetos2', {'aopts' => "href='$LJ::SITEROOT/customize/switch_system.bml'"}) . "</p>";
-        $ret .= "</fieldset>";
-    }
-
     return $ret;
 }
 

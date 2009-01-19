@@ -19,13 +19,9 @@ body<=
     # extra arguments for get requests
     my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
 
-    # if using s1, either prompt the user to switch to s2 or redirect to the s1 customization page
+    # if using s1, switch them to s2
     unless ($u->prop('stylesys') == 2) {
-        if ($u->prop('s1_confirmed')) {
-            return BML::redirect("$LJ::SITEROOT/customize/s1/$getextra");
-        } else {
-            return BML::redirect("$LJ::SITEROOT/customize/switch_system.bml$getextra");
-        }
+        $u->set_prop( stylesys => 2 );
     }
 
     my $group = $GET{group} ? $GET{group} : "display";

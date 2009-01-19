@@ -80,6 +80,9 @@ sub create {
     my $remote = LJ::get_remote();
     $u->log_event('account_create', { remote => $remote });
 
+    # only s2 is supported
+    $u->set_prop( stylesys => 2 );
+
     while (my ($name, $val) = each %LJ::USERPROP_INIT) {
         $u->set_prop($name, $val);
     }
