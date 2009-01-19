@@ -3365,10 +3365,6 @@ package LJ::S1;
 
 use vars qw($AUTOLOAD);
 sub AUTOLOAD {
-    if ($AUTOLOAD eq "LJ::S1::get_public_styles") {
-        require "ljviews.pl";
-        goto &$AUTOLOAD;
-    }
     Carp::croak("Undefined subroutine: $AUTOLOAD");
 }
 

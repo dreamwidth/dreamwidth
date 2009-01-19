@@ -5347,22 +5347,6 @@ sub load_user_props
 
     # Add defaults to user object.
 
-    # defaults for S1 style IDs in config file are magic: really
-    # uniq strings representing style IDs, so on first use, we need
-    # to map them
-    unless ($LJ::CACHED_S1IDMAP) {
-
-        my $pubsty = LJ::S1::get_public_styles();
-        foreach (values %$pubsty) {
-            my $k = "s1_$_->{'type'}_style";
-            next unless $LJ::USERPROP_DEF{$k} eq "$_->{'type'}/$_->{'styledes'}";
-
-            $LJ::USERPROP_DEF{$k} = $_->{'styleid'};
-        }
-
-        $LJ::CACHED_S1IDMAP = 1;
-    }
-
     # If this was called with no @props, then the function tried
     # to load all metadata.  but we don't know what's missing, so
     # try to apply all defaults.
