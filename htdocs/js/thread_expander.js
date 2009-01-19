@@ -182,6 +182,7 @@ Expander.prototype.get = function(){
     iframe.style.width='1px';
     iframe.style.display = 'none';
     iframe.src = this.url;
+    iframe.id = this.id;
     document.body.appendChild(iframe);
     this.iframe=iframe;
     return true;
