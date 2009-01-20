@@ -1,0 +1,101 @@
+<?page
+body<=
+<?_code
+{
+    # Admin page to view and edit userprops.
+    #
+    # Authors:
+    #      Andrea Nall <anall@andreanall.com>
+    #
+    # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+    #
+    # This program is free software; you may redistribute it and/or modify it under
+    # the same terms as Perl itself.  For a copy of the license, please reference
+    # 'perldoc perlartistic' or 'perldoc perlgpl'.
+    #
+
+    use strict;
+    use vars qw($ret %POST);
+
+    my $temp;
+    my $remote = LJ::get_remote();
+    my $is_admin = LJ::check_priv( $remote, "canview", "userprops" );
+    my $can_save = LJ::check_priv( $remote, "siteadmin", "propedit" );
+    return BML::redirect( "$LJ::SITEROOT" ) unless $is_admin;
+
+    $ret .= "<form method='POST'>";
+    $ret .= "View properties for username: ";
+    $ret .= LJ::html_text({ name => 'username', maxlength => '50', size => '25' });
+    $ret .= LJ::html_submit( value => "View" );
+    $ret .= LJ::form_auth();
+    $ret .= "</form>";
+    $ret .= "<?hr?>";
+
+    if ( LJ::did_post() && LJ::check_referer('/admin/propedit.bml') ) {
+        return LJ::error_list( $ML{'error.invalidform'} ) unless LJ::check_form_auth();
+
+        my $u = LJ::load_user( $POST{username} );
+        unless ( $u ) {
+            $ret .= LJ::error_list( "$POST{username} is not a valid username." ) if LJ::did_post();
+            return $ret;
+        }
+
+        if ( $can_save && $POST{_save} ) {
+            foreach my $key ( keys %POST ) {
+                next if $key eq 'username';
+                next if $key eq '_save';
+                next unless LJ::get_prop( "user", $key );
+                $u->set_prop( $key, $POST{$key} );
+            }
+        }
+
+        $ret .= "<form method='POST'>";
+        $ret .= LJ::form_auth();
+        $ret .= "<input type='hidden' name='username' value='" . $u->username . "' />";
+        $ret .= "<input type='hidden' name='_save' value='1' />" if $can_save;
+
+        $ret .= "<strong>Username</strong>: " . $u->username . " (" . $u->userid . ")<br />";
+        $ret .= "<strong>Cluster</strong>: " . $u->clusterid . "<br />";
+        $ret .= "<strong>Database Version</strong>: " . $u->dversion . "<br />";
+
+        # statusvis -> english
+        my $temp = {
+            'V' => 'Visible',
+            'D' => 'Deleted',
+            'E' => 'Expunged',
+            'S' => 'Suspended',
+            'L' => 'Locked',
+            'M' => 'Memorial',
+            'O' => 'Read-Only',
+            'R' => 'Renamed',
+        }->{$u->statusvis} || '???';
+
+        $ret .= "<strong>Status Vis</strong>: $temp (" . $u->statusvis . ")<br />";
+
+        my $dbr = LJ::get_db_reader();
+        my $sth = $dbr->prepare( "SELECT * from userproplist;" );
+        $sth->execute;
+
+        $ret .= "<br />";
+
+        $ret .= "<ul>";
+        while ( my $p = $sth->fetchrow_hashref ) {
+            my $extra = "<br /><small>$p->{des}</small>";
+            my $value = $u->prop($p->{name});
+            next unless $value;
+            $value = "<br />" . LJ::html_text({ name => $p->{name}, value => $value, maxlength => '255', size => '100' }) if $can_save;
+            $ret .= "<li><strong>$p->{name}</strong>: $value$extra</li><br />";
+        }
+        $ret .= "</ul>";
+        $ret .= "<br />";
+        $ret .= LJ::html_submit( value => "Save" ) if $can_save;
+        $ret .= "</form>";
+    }
+
+    return $ret;
+}
+_code?>
+<=body
+title=>User Properties
+<=body
+page?>
