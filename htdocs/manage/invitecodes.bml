@@ -1,0 +1,48 @@
+<?page
+title=>Invite Codes
+body<=
+<?_code
+{
+    use strict;
+    
+    return LJ::server_down_html() if ($LJ::SERVER_DOWN);
+    
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>"
+        unless $remote;
+    
+    my $ret;
+    
+    if ( LJ::did_post ) {        
+        $ret .= LJ::run_hook( 'generate_invite_codes', $remote );
+    }
+    
+    $ret .= "<table border='1' cellpadding='5'><tr><th>Code</th><th>Recipient</th></tr>";  
+
+    my @invitecodes = DW::InviteCodes->by_owner( userid => $remote->id );
+    foreach my $code ( @invitecodes ) {
+        $ret .= "<tr>";
+        $ret .= "<td><tt>".$code->code."</tt></td>";
+        $ret .= "<td>";
+    
+        if($code->is_used ) {
+            my $u = LJ::load_userid( $code->recipient );
+            $ret .= $u->ljuser_display;
+        }
+        $ret.="</td>";
+        $ret .= "</td>";        
+        $ret .= "</tr>";
+    }
+    
+    if ( LJ::are_hooks( 'generate_invite_codes' ) ) {
+        $ret .= "<tr><form method='POST'>";
+        $ret .= "<td colspan='2' align='center'>" . LJ::html_submit( value => "Generate codes" ) . "</td>";
+        $ret .= "</form></tr>";
+    }
+    
+    $ret .= "</table>";
+
+    return $ret;
+} _code?>
+<=body
+page?>
