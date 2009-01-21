@@ -262,6 +262,7 @@
     # supported languages (defaults to qw(en) if none given)
     # First element is default language for user interface, untranslated text
     #@LANGS = qw(en_LJ en_GB de da es fr it ru ja pt eo he nl hu ga is fi nb sv pl zh lv tr ms);
+    @LANGS = qw(en_DW);
 
     # support unicode (posts in multiple languages)?  leave enabled.
     $UNICODE = 1;
@@ -409,19 +410,23 @@
     %CAP = (
         '0' => {  # 0x01
             '_name' => 'new user',
+            '_key' => 'new_user',
             'userpics' => 1,
         },
         '1' => {  # 0x02
             '_name' => 'free user',
+            '_key' => 'free_user',
             'userpics' => 3,
         },
         '2' => {  # 0x04
             '_name' => 'early adopter',
+            '_key' => 'early_adopter',
             'userpics' => 5,
             'styles' => 1,
         },
         '3' => {  # 0x08
             '_name' => 'paid user',
+            '_key' => 'paid_user',
             'styles' => 1,
             'makepoll' => 1,
             'userpics' => 10,
@@ -431,17 +436,27 @@
         },
         '4' => {  # 0x10
             '_name' => 'permanent account',
+            '_key' => 'perm_user',
             'paid' => 1,
             'useremail' => 1,
         },
         # a capability class with a name of "_moveinprogress" is required
         # if you want to be able to move users between clusters with the
         # provided tool.  further, this class must define 'readonly' => 1
-            '5' => {
+        '5' => {  # 0x20
             '_name' => '_moveinprogress',
             'readonly' => 1,
         },
-       );
+        '6' => {  # 0x40
+            '_name' => 'mass privacy change',
+            '_key' => 'mass_privacy',
+            'mass_privacy' => 1,
+        },
+        '8' => {  # 0x100
+            '_name' => 'beta',
+            '_key' => 'betafeatures',
+        },
+    );
 
     # default capability class mask for new users:
     # (16 bit unsigned int ... each bit is capability class flag)
