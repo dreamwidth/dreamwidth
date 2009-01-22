@@ -21,7 +21,6 @@
 
 .done.text=When you are done, press the button below to save your changes.
 
-.error.max60|notes=It is important for the JavaScript on this page to work that this string remains a single line without linebreaks. Additionally, it must not contain any quotation marks.
 .error.max60=You have reached the maximum limit of 60 custom friends groups. If you have deleted one or more groups but have not saved the changes yet, do so now, then come back to this page and reload it. You will then be able to create new custom friends groups.
 
 .error.text=The server returned the following error message:
