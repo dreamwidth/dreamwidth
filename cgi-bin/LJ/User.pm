@@ -134,8 +134,7 @@ sub create_personal {
             if ($inviter) {
                 LJ::set_rel($u, $inviter, "I");
                 LJ::statushistory_add($u, $inviter, 'create_from_invite', "Created new account.");
-        
-        
+
                 $u->add_friend($inviter);
                 LJ::Event::InvitedFriendJoins->new($inviter, $u)->fire;
             }
@@ -1678,7 +1677,7 @@ sub age {
 sub age_for_adcall {
     my $u = shift;
     croak "Invalid user object" unless LJ::isu($u);
-    
+
     return undef if $u->underage;
     return eval {$u->age || $u->init_age};
 }
@@ -2096,11 +2095,11 @@ sub get_recent_talkitems {
     my $max_fetch = int($LJ::TOOLS_RECENT_COMMENTS_MAX*1.5) || 150;
     # We fetch more items because some may be screened
     # or from suspended users, and we weed those out later
-    
+
     my $remote   = $opts{remote} || LJ::get_remote();
     return undef unless LJ::isu($u);
-    
-    ## $raw_talkitems - contains DB rows that are not filtered 
+
+    ## $raw_talkitems - contains DB rows that are not filtered
     ## to match remote user's permissions to see
     my $raw_talkitems;
     my $memkey = [$u->userid, 'rcntalk:' . $u->userid ];
@@ -2113,7 +2112,7 @@ sub get_recent_talkitems {
             "WHERE journalid=? AND state <> 'D' " .
             "ORDER BY jtalkid DESC ".
             "LIMIT $max_fetch"
-        ); 
+        );
         $sth->execute($u->{'userid'});
         $raw_talkitems = $sth->fetchall_arrayref({});
         LJ::MemCache::set($memkey, $raw_talkitems, 60*5);
@@ -2170,7 +2169,7 @@ sub email_raw {
     return $u->{_email};
 }
 
-sub validated_mbox_sha1sum { 
+sub validated_mbox_sha1sum {
     my $u = shift;
 
     # must be validated
@@ -2632,7 +2631,7 @@ sub notable_interests {
 
     # sorta arrayref inline
     LJ::AdTargetedInterests->sort_interests(\@ints);
-    
+
     return @ints[0..$n-1] if @ints > $n;
     return @ints;
 }
@@ -4079,7 +4078,7 @@ sub invalidate_directory_record {
     # then elsewhere, map that key to subref.  if primary run fails,
     # put in schwartz, then have one worker (misc-deferred) to
     # redo...
-    
+
     my $dbs = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
     $dbs->do("UPDATE usersearch_packdata SET good_until=0 WHERE userid=?",
              undef, $u->id);
@@ -4165,7 +4164,7 @@ sub can_expunge {
     my $hook_rv = 0;
     if (LJ::are_hooks("can_expunge_user", $u)) {
         $hook_rv = LJ::run_hook("can_expunge_user", $u);
-        return $hook_rv ? 1 : 0;        
+        return $hook_rv ? 1 : 0;
     }
 
     return 1;
@@ -4431,7 +4430,6 @@ sub can_join_adult_comm {
 
     return 1;
 }
-        
 
 sub is_in_beta {
     my ($u, $key) = @_;
@@ -4527,7 +4525,7 @@ sub show_raw_errors {
 sub adult_content {
     my $u = shift;
 
-    my $prop_value = $u->prop('adult_content'); 
+    my $prop_value = $u->prop('adult_content');
 
     return $prop_value ? $prop_value : "none";
 }
@@ -4557,7 +4555,7 @@ sub adult_content_calculated {
 # returns who marked the entry as the 'adult_content_calculated' adult content level
 sub adult_content_marker {
     my $u = shift;
-    
+
     return "admin" if $u->admin_content_flag eq "explicit_adult";
     return "journal";
 }
@@ -5387,8 +5385,8 @@ sub load_userids
 #       scalar refs to put result in.  $have is an optional listref of user
 #       object caller already has, but is too lazy to sort by themselves.
 #       <strong>Note</strong>: The $have parameter is deprecated,
-#       as is $memcache_only; but it is still preserved for now. 
-#       Really, this whole API (i.e. LJ::load_userids_multiple) is clumsy. 
+#       as is $memcache_only; but it is still preserved for now.
+#       Really, this whole API (i.e. LJ::load_userids_multiple) is clumsy.
 #       Use [func[LJ::load_userids]] instead.
 # args: dbarg?, map, have, memcache_only?
 # des-map: Arrayref of pairs (userid, destination scalarref).
@@ -6585,8 +6583,8 @@ sub get_daycounts
     }
 
     ##
-    ## the first element of array, that is stored in memcache, 
-    ## is the time of the creation of the list. The memcache is 
+    ## the first element of array, that is stored in memcache,
+    ## is the time of the creation of the list. The memcache is
     ## invalid if there are new entries in journal since that time.
     ##
     my $memkey = [$uid, "dayct2:$uid:$memkind"];
@@ -6820,7 +6818,7 @@ sub get_interests
         LJ::MemCache::add($mk_ids, $ids, 3600*12);
     }
 
-    # FIXME: set a 'justids' $u cache key in this case, then only return that 
+    # FIXME: set a 'justids' $u cache key in this case, then only return that
     #        later if 'justids' is requested?  probably not worth it.
     return $ids if $opts->{'justids'};
 
@@ -7270,7 +7268,7 @@ sub remove_friend {
                                               funcname => "LJ::Worker::FriendChange",
                                               arg      => [$userid, 'del', $fid],
                                               ) unless $LJ::DISABLED{'friendchange-schwartz'};
- 
+
             $sclient->insert_jobs(@jobs);
         }
         LJ::run_hooks('defriended', $u, $friendee);
@@ -8140,7 +8138,7 @@ sub make_journal
         $head .= qq{<link rel="service.post" type="application/atom+xml" title="Create a new post" href="$LJ::SITEROOT/interface/atom/post" />\n};
 
         # OpenID Server and Yadis
-        $head .= $u->openid_tags; 
+        $head .= $u->openid_tags;
 
         # FOAF autodiscovery
         my $foafurl = $u->{external_foaf_url} ? LJ::eurl($u->{external_foaf_url}) : "$journalbase/data/foaf";
@@ -8316,9 +8314,9 @@ sub make_journal
     unless ($geta->{'viewall'} && LJ::check_priv($remote, "canview", "suspended") ||
             $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) { # don't check style sheets
         if ($u->is_deleted){
-            my $warning = LJ::Lang::get_text(LJ::Lang::get_effective_lang(), 
+            my $warning = LJ::Lang::get_text(LJ::Lang::get_effective_lang(),
                                     'journal.deleted', undef, {username => $u->username})
-                       || LJ::Lang::get_text($LJ::DEFAULT_LANG, 
+                       || LJ::Lang::get_text($LJ::DEFAULT_LANG,
                                     'journal.deleted', undef, {username => $u->username});
             return $error->($warning, "404 Not Found");
 
