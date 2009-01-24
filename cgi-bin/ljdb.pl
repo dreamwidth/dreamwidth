@@ -303,9 +303,10 @@ sub get_db_writer {
 # <LJFUNC>
 # name: LJ::get_cluster_reader
 # class: db
-# des: Returns a cluster slave for a user, or cluster master if no slaves exist.
+# des: Returns a cluster slave for a user or clusterid, or cluster master if
+#      no slaves exist.
 # args: uarg
-# des-uarg: Either a userid scalar or a user object.
+# des-uarg: Either a clusterid scalar or a user object.
 # returns: DB handle.  Or undef if all dbs are unavailable.
 # </LJFUNC>
 sub get_cluster_reader
@@ -324,7 +325,7 @@ sub get_cluster_reader
 # <LJFUNC>
 # name: LJ::get_cluster_def_reader
 # class: db
-# des: Returns a definitive cluster reader for a given user, used
+# des: Returns a definitive cluster reader for a given user or clusterid, used
 #      when the caller wants the master handle, but will only
 #      use it to read.
 # args: uarg
@@ -344,8 +345,8 @@ sub get_cluster_def_reader
 # <LJFUNC>
 # name: LJ::get_cluster_master
 # class: db
-# des: Returns a cluster master for a given user, used when the caller
-#      might use it to do a write (insert/delete/update/etc...)
+# des: Returns a cluster master for a given user or clusterid, used when the
+#      caller might use it to do a write (insert/delete/update/etc...)
 # args: uarg
 # des-uarg: Either a clusterid scalar or a user object.
 # returns: DB handle.  Or undef if master is unavailable.
