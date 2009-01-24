@@ -35,17 +35,17 @@ sub save_module {
     unless (defined $id) {
         $id = LJ::alloc_user_counter($journal, 'D')
             or die "Could not allocate embed module ID";
-    } 
+    }
 
     my $cmptext = 'C-' . LJ::text_compress($contents);
 
-    ## embeds for preview are stored in a special table, 
+    ## embeds for preview are stored in a special table,
     ## where new items overwrites old ones
     my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
     $journal->do("REPLACE INTO $table_name (userid, moduleid, content) VALUES ".
                 "(?, ?, ?)", undef, $journal->userid, $id, $cmptext);
     die $journal->errstr if $journal->err;
-    
+
     # save in memcache
     my $memkey = $class->memkey($journal->userid, $id, $preview);
     LJ::MemCache::set($memkey, $contents);
@@ -68,7 +68,7 @@ sub transform_rte_post {
 sub expand_entry {
     my ($class, $journal, $entryref, %opts) = @_;
 
-    $$entryref =~ s/(<lj\-embed[^>]+\/>)/$class->_expand_tag($journal, $1, $opts{edit}, %opts)/ge;        
+    $$entryref =~ s/(<lj\-embed[^>]+\/>)/$class->_expand_tag($journal, $1, $opts{edit}, %opts)/ge;
 }
 
 sub _expand_tag {
@@ -77,21 +77,21 @@ sub _expand_tag {
     my $tag = shift;
     my $edit = shift;
     my %opts = @_;
-    
+
     my %attrs = $tag =~ /(\w+)="?(\-?\d+)"?/g;
 
     return '[invalid lj-embed, id is missing]' unless $attrs{id};
-    
+
     if ($opts{expand_full}){
         return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id);
     } elsif ($edit) {
-        return '<lj-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">\n" . 
-                 $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id) . 
+        return '<lj-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">\n" .
+                 $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id) .
                  "\n<\/lj-embed>";
     } else {
         @opts{qw /width height/} = @attrs{qw/width height/};
         return $class->module_iframe_tag($journal, $attrs{id}, %opts)
-    }            
+    }
 };
 
 
@@ -116,14 +116,14 @@ sub parse_module_embed {
 
     # previews are a special case (don't want to permanantly save to db)
     my $preview = $opts{preview};
-    
+
     # deal with old-fashion calls
     if (($edit || $expand) && ! $preview) {
         return $class->expand_entry($journal, $postref, %opts);
-    } 
-    
+    }
+
     # ok, we can safely parse post text
-    # machine state    
+    # machine state
     my $state = REGULAR;
     my $p = HTML::TokeParser->new($postref);
     my $newtxt = '';
@@ -131,23 +131,23 @@ sub parse_module_embed {
     my $embed = '';
     my @stack = ();
     my $next_preview_id = 1;
-    
+
     while (my $token = $p->get_token) {
         my ($type, $tag, $attr) = @$token;
         $tag = lc $tag;
         my $newstate = undef;
         my $reconstructed = $class->reconstruct($token);
-        
+
         if ($state == REGULAR) {
             if ($tag eq 'lj-embed' && $type eq 'S' && ! $attr->{'/'}) {
-                # <lj-embed ...>, not self-closed 
+                # <lj-embed ...>, not self-closed
                 # switch to EXPLICIT state
                 $newstate = EXPLICIT;
                 # save embed id, width and height if they do exist in attributes
                 $embed_attrs{id} = $attr->{id} if $attr->{id};
                 $embed_attrs{width} = ($attr->{width} > MAX_WIDTH ? MAX_WIDTH : $attr->{width}) if $attr->{width};
                 $embed_attrs{height} = ($attr->{height} > MAX_HEIGHT ? MAX_HEIGHT : $attr->{height}) if $attr->{height};
-            } elsif (($tag eq 'object' || $tag eq 'embed') && $type eq 'S') {            
+            } elsif (($tag eq 'object' || $tag eq 'embed') && $type eq 'S') {
                 # <object> or <embed>
                 # switch to IMPLICIT state unless it is a self-closed tag
                 unless ($attr->{'/'}) {
@@ -176,8 +176,8 @@ sub parse_module_embed {
                 }
             }
             # append to embed buffer
-            $embed .= $reconstructed;                
-            
+            $embed .= $reconstructed;
+
         } elsif ($state == EXPLICIT) {
 
             if ($tag eq 'lj-embed' && $type eq 'E') {
@@ -191,7 +191,7 @@ sub parse_module_embed {
             # let's be paranoid
             die "Invalid state: '$state'";
         }
-        
+
         # we decided to switch back to REGULAR and have something in embed buffer
         # so let's save buffer as an embed module and start all over again
         if ($newstate == REGULAR && $embed) {
@@ -201,17 +201,17 @@ sub parse_module_embed {
                 journal  => $journal,
                 preview => $preview,
             );
-                        
+
             $newtxt .= "<lj-embed " . join(' ', map { exists $embed_attrs{$_} ? "$_=\"$embed_attrs{$_}\"" : () } qw / id width height /) . "/>";
-            
+
             $embed = '';
             %embed_attrs = ();
         }
-        
+
         # switch the state if we have a new one
         $state = $newstate if defined $newstate;
-        
-    }    
+
+    }
 
     # update passed text
     $$postref = $newtxt;
@@ -232,7 +232,7 @@ sub module_iframe_tag {
     my $height = 0;
     my $p = HTML::TokeParser->new(\$content);
     my $embedcodes;
-    
+
     # if the content only contains a whitelisted embedded video
     # then we can skip the placeholders (in some cases)
     my $no_whitelist = 0;
@@ -244,10 +244,10 @@ sub module_iframe_tag {
             my $type = $token->[0];
             my $tag  = $token->[1] ? lc $token->[1] : '';
             my $attr = $token->[2];  # hashref
-    
+
             if ($type eq "S") {
                 my ($elewidth, $eleheight);
-    
+
                 if ($attr->{width}) {
                     $elewidth = $attr->{width}+0;
                     $width = $elewidth if $elewidth > $width;
@@ -256,13 +256,13 @@ sub module_iframe_tag {
                     $eleheight = $attr->{height}+0;
                     $height = $eleheight if $eleheight > $height;
                 }
-    
+
                 my $flashvars = $attr->{flashvars};
-    
+
                 if ($tag eq 'object' || $tag eq 'embed') {
                     my $src;
                     next unless $src = $attr->{src};
-    
+
                     # we have an object/embed tag with src, make a fake lj-template object
                     my @tags = (
                                 ['S', 'lj-template', {
@@ -274,24 +274,24 @@ sub module_iframe_tag {
                                 [ 'T', $src, {}],
                                 ['E', 'lj-template', {}],
                                 );
-    
+
                     $embedcodes = LJ::run_hook('expand_template_video', \@tags);
-    
+
                     $found_embed = 1 if $embedcodes;
                     $found_embed &&= $embedcodes !~ /Invalid video/i;
-    
+
                     $no_whitelist = !$found_embed;
                 } elsif ($tag ne 'param') {
                     $no_whitelist = 1;
                 }
             }
         }
-    
+
         # add padding
         $width += 50 if $width;
         $height += 50 if $height;
-    } 
-    
+    }
+
     # use explicit values if we have them
     $width = $opts{width} if $opts{width};
     $height = $opts{height} if $opts{height};
@@ -417,7 +417,7 @@ sub reconstruct {
     if ($type eq 'S') {
         my $txt = "<$tag";
         my $selfclose;
-    
+
         # preserve order of attributes. the original order is
         # in element 4 of $token
         foreach my $name (@$attord) {
@@ -425,14 +425,14 @@ sub reconstruct {
                 $selfclose = 1;
                 next;
             }
-    
+
             # FIXME: ultra ghetto.
             $attr->{$name} = LJ::no_utf8_flag($attr->{$name});
-    
+
             $txt .= " $name=\"" . LJ::ehtml($attr->{$name}) . "\"";
         }
-        $txt .= $selfclose ? " />" : ">";    
-        
+        $txt .= $selfclose ? " />" : ">";
+
     } elsif ($type eq 'E') {
         return "</$tag>";
     } else { # C, T, D or PI
