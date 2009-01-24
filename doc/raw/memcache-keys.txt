@@ -104,8 +104,9 @@ saact == number of approved schools in db; cached for admins
 sapct == pending schools to be processed count; cached for admins
 
 <uid>    uactive:<type>:<uid> == unixtime user last active for a given type of activity
+<uid>    timeactive:<uid> == memcached timeactive for user in clustertrack2
 
-<uniq>   loginout:<uniq> -- set to 1, expires in five seconds, denotes user just logged in our out and is going through a redirect
+<uniq>   loginout:<uniq> -- set to 1, expires in five seconds, denotes user just logged in or out and is going through a redirect
 
 <uid> inbox:<uid> == list of qids for a user's notificationinbox
 <uid> inbox:bookmarks:<uid> == list of bookmarked qids for a user's notificationinbox (packed, see LJ::NotificationInbox->load_bookmarks)
