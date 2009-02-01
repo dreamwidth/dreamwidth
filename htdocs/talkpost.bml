@@ -365,14 +365,9 @@ body<=
     my $qotd = 0;
     $qotd = $entry->prop("qotdid") if $entry;
 
-    my @verticals = $entry->verticals_list_for_ad;
-    if (@verticals) {
-        $LJ::REQ_GLOBAL{verticals_of_first_public_post} = join(",", @verticals);
-    }
     my $ad = LJ::get_ads({
         location        => 'bml.talkpost.ebox',
         journalu        => $u, 
-        vertical        => $LJ::REQ_GLOBAL{verticals_of_first_public_post}, 
         interests_extra => $qotd ? { qotd => $qotd } : {}
     });
     if ($ad) {

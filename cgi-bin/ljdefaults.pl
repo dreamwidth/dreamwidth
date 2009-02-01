@@ -426,10 +426,6 @@
         #'DE' => { type => 'statede', save_region_code => 0, },
     );
 
-    %LJ::VERTICAL_URI_MAP =
-        map { $LJ::VERTICAL_TREE{$_}->{url_path} => $_ }
-        grep { $LJ::VERTICAL_TREE{$_}->{url_path} } keys %LJ::VERTICAL_TREE;
-
     %LJ::VALID_PAGE_NOTICES = (
         profile_design => 1,
         settings_design => 1,

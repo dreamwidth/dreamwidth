@@ -2874,18 +2874,6 @@ userpic.link=userpic
 
 userpic.text=[[user]], this is what you currently look like to your friends: [[empty]]<br />Boooring. Be classy and upload a [[link]].
 
-vertical.nav.explore.culture=Culture
-
-vertical.nav.explore.entertainment=Entertainment
-
-vertical.nav.explore.life=Life
-
-vertical.nav.explore.music=Music
-
-vertical.nav.explore.news_and_politics=News & Politics
-
-vertical.nav.explore.technology=Technology
-
 web.ads.advertisement=<a [[aopts]]>Advertisement</a>
 
 web.ads.advertisement_nolink=Advertisement
@@ -3653,46 +3641,3 @@ widget.themenav.filteravailable=Only show themes available to me
 widget.themenav.switchtos1=Switch to old style system (S1)
 
 widget.themenav.title=2. Select a New Theme
-
-widget.verticaleditorials.byperson=by [[person]]
-
-widget.verticaleditorialsnippets.heading=In [[vertname]]
-
-widget.verticaleditorialsnippets.moreverts=Explore more in [[verticallist]]
-
-widget.verticalentries.cats.alt=View Categories for Entry
-
-widget.verticalentries.injournal=in [[user]]
-
-widget.verticalentries.nosubject=No Subject
-
-widget.verticalentries.postacomment=Post a comment
-
-widget.verticalentries.posttime=posted [[posttime]]
-
-widget.verticalentries.remove.alt=Remove From [[verticalname]]
-
-widget.verticalentries.remove.confirm=Are you sure that you want to remove this entry from [[verticalname]]?
-
-widget.verticalentries.replycount=[[count]] [[?count|comment|comments]]
-
-widget.verticalentries.skip.next=Newer
-
-widget.verticalentries.skip.previous=Older
-
-widget.verticalentries.tags=tags:
-
-widget.verticalentries.title2=Recent Entries in [[verticalname]]
-
-widget.verticalfeedentries.nosubject=No Subject
-
-widget.verticalsummary.byuser=by [[user]]
-
-widget.verticalsummary.injournal=in [[user]]
-
-widget.verticalsummary.nosubject=No Subject
-
-widget.verticalsummary.posttime=posted [[posttime]]
-
-widget.verticalsummary.subcats=more in [[subcats]]
-

@@ -708,37 +708,6 @@
         <entry></entry>
     </row>
     <row>
-        <entry>vertid</entry>
-        <entry>vert:&lt;vertid&gt;</entry>
-        <entry>row
-        from <quote><link linkend="ljp.dbschema.vertical"><database class="table">vertical</database></link></quote> table</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>vertname</entry>
-        <entry>vertname:&lt;vertname&gt;</entry>
-        <entry>row
-        from <quote><link linkend="ljp.dbschema.vertical"><database class="table">vertical</database></link></quote> table.
-        Holds same info as <quote>vert</quote> &memcached; key, just keys on name instead of id</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>vertid</entry>
-        <entry>vertentries:&lt;vertid&gt;</entry>
-        <entry>array of [ journalid, jitemid ] arrayrefs which should appear in vertical</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>vertid</entry>
-        <entry>vertrules:&lt;vertid&gt;</entry>
-        <entry>serialized (nfreeze) data structure representing filtering rules for this vertical</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
         <entry>uid</entry>
         <entry>supportpointsum:&lt;uid&gt;</entry>
         <entry>total number of support points that this user has</entry>

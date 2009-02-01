@@ -86,8 +86,6 @@
 
 .fn.stylealwaysmine=Other Journals
 
-.fn.verticalincl=Explore Area Inclusion
-
 .fn.viewingadult=Viewing Age Limited Content
 
 .fn.weblogs=Weblogs.com
@@ -212,10 +210,6 @@ as well.
 .title.comm=[[user]]'s Account Settings
 
 .title.self=My Account Settings
-
-.verticalincl=Exclude your entries from site explore areas
-
-.verticalincl.text=Journal entries posted private or Friends-only are automatically excluded.
 
 .viewingadult=Collapse content marked as inappropriate for anyone under:
 

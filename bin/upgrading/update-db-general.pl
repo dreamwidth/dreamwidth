@@ -2979,71 +2979,6 @@ CREATE TABLE persistent_queue (
 )
 EOC
 
-# global table for verticals
-register_tablecreate("vertical", <<'EOC');
-CREATE TABLE vertical (
-   vertid INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-   name VARCHAR(255),
-   createtime INT UNSIGNED NOT NULL,
-   lastfetch INT UNSIGNED,
-   # what else ?
-
-   UNIQUE KEY (name)
-)
-EOC
-
-# FIXME: need vertical_props
-# -- blacklists
-# -- whitelists
-# -- sync info
-
-register_tablecreate("vertical_entries", <<'EOC');
-CREATE TABLE vertical_entries (
-   vertid INT UNSIGNED NOT NULL,
-   instime INT UNSIGNED NOT NULL,
-   journalid INT UNSIGNED NOT NULL,
-   jitemid INT UNSIGNED NOT NULL,
-
-   PRIMARY KEY (vertid, journalid, jitemid),
-   INDEX (vertid, instime)
-)
-EOC
-
-register_tablecreate("vertical_rules", <<'EOC');
-CREATE TABLE vertical_rules (
-   vertid INT UNSIGNED NOT NULL,
-   rules BLOB,
-
-   PRIMARY KEY (vertid)
-)
-EOC
-
-register_tablecreate("vertical_editorials", <<'EOC');
-CREATE TABLE vertical_editorials (
-  edid          INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  vertid        INT UNSIGNED NOT NULL DEFAULT '0',
-  adminid       INT UNSIGNED NOT NULL DEFAULT '0',
-  time_start    INT UNSIGNED NOT NULL DEFAULT '0',
-  time_end      INT UNSIGNED NOT NULL DEFAULT '0',
-  title         VARCHAR(255) NOT NULL DEFAULT '',
-  editor        VARCHAR(255) DEFAULT NULL,
-  img_url       TEXT DEFAULT NULL,
-  submitter     VARCHAR(255) DEFAULT NULL,
-  block_1_title VARCHAR(255) NOT NULL DEFAULT '',
-  block_1_text  TEXT NOT NULL DEFAULT '',
-  block_2_title VARCHAR(255) DEFAULT NULL,
-  block_2_text  TEXT DEFAULT NULL,
-  block_3_title VARCHAR(255) DEFAULT NULL,
-  block_3_text  TEXT DEFAULT NULL,
-  block_4_title VARCHAR(255) DEFAULT NULL,
-  block_4_text  TEXT DEFAULT NULL,
-  PRIMARY KEY (edid),
-  INDEX (vertid),
-  INDEX (time_start),
-  INDEX (time_end)
-)
-EOC
-
 ## --
 ## -- embedconten previews
 ## --
@@ -3887,58 +3822,6 @@ register_alter(sub {
         do_alter("content_flag",
                  "ALTER TABLE content_flag " .
                  "ADD supportid INT(10) UNSIGNED NOT NULL DEFAULT '0'");
-    }
-
-    if (keys %LJ::VERTICAL_TREE && table_relevant("vertical")) {
-        my @vertical_names = keys %LJ::VERTICAL_TREE;
-
-
-        # get all of the verticals currently in the db
-        my $verts = $dbh->selectcol_arrayref("SELECT name FROM vertical");
-
-
-        # remove any verticals from the db that aren't in the config hash
-        my @verts_to_remove;
-        foreach my $name (@$verts) {
-            push @verts_to_remove, $name unless $LJ::VERTICAL_TREE{$name};
-        }
-
-        if (@verts_to_remove) {
-            my @string_verts = map { "'$_'" } @verts_to_remove;
-            my $vert_sql = join(',', @string_verts);
-            do_sql("DELETE FROM vertical WHERE name IN ($vert_sql)");
-        }
-
-
-        # add any verticals to the db that are in the config hash (and aren't there already)
-        my %verts_in_db = map { $_ => 1 } @$verts;
-
-        my %verts_to_add;
-        foreach my $name (@vertical_names) {
-            $verts_to_add{$name} = 1 unless $verts_in_db{$name};
-        }
-
-        if (keys %verts_to_add) {
-            my @vert_sql_values;
-            foreach my $vert (keys %verts_to_add) {
-                push @vert_sql_values, "('$vert',UNIX_TIMESTAMP())";
-            }
-            my $vert_sql = join(',', @vert_sql_values);
-            do_sql("INSERT INTO vertical (name, createtime) VALUES $vert_sql");
-        }
-    }
-
-    unless (column_type("vertical_editorials", "img_width")) {
-        do_alter("vertical_editorials",
-                 "ALTER TABLE vertical_editorials " .
-                 "ADD img_width INT(5) UNSIGNED DEFAULT NULL AFTER img_url, " .
-                 "ADD img_height INT(5) UNSIGNED DEFAULT NULL AFTER img_width");
-    }
-
-    unless (column_type("vertical_editorials", "img_link_url")) {
-        do_alter("vertical_editorials",
-                 "ALTER TABLE vertical_editorials " .
-                 "ADD img_link_url VARCHAR(255) DEFAULT NULL AFTER img_height");
     }
 
     # add a status column to polls

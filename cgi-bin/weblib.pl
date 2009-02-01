@@ -2530,7 +2530,6 @@ sub ads {
     my $position = $opts{'position'};
     my $search_arg = $opts{'search_arg'};
     my $interests_extra = $opts{'interests_extra'};
-    my $vertical = $opts{'vertical'};
     my $page     = $opts{'page'};
 
     ##
@@ -2645,7 +2644,6 @@ sub ads {
     $adcall{width}   = $addetails->{width};
     $adcall{height}  = $addetails->{height};
 
-    $adcall{vc} = $vertical;
     $adcall{pn} = $page;
 
     my $remote = LJ::get_remote();

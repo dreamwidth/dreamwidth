@@ -477,11 +477,6 @@ sub EntryPage_entry
         if (@taglist) {
             $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [map { $_->{name} } @taglist];
         }
-
-        my @verticals = $entry->verticals_list_for_ad;
-        if (@verticals) {
-            $LJ::REQ_GLOBAL{'verticals_of_first_public_post'} = join(",", @verticals);
-        }
     }
 
     my $s2entry = Entry($u, {

@@ -132,11 +132,6 @@ jabclusterid:<id> == address of server
 
 <uid> synd:<uid> == hash of basic syndication info
 
-<vertid> vert:<vertid> == row from 'vertical' table
-<vertname> vertname:<vertname> == row from 'vertical' table
-<vertid> vertentries:<vertid> == array of [ journalid, jitemid ] arrayrefs which should appear in vertical
-<vertid> vertrules:<vertid> == serialized (nfreeze) data structure representing filtering rules for this vertical
-
 <uid> supportpointsum:<uid> == total number of support points that this user has
 
 <uid> txtmsgsecurity:<uid> == security level that the user has set for their text messages
@@ -153,7 +148,5 @@ ct_flag_locked == array of locked content flag ids
 ct_flag_cat_count == hash of content flag counts
 
 pop_interests == array of interest keywords and counts
-
-verticalfeedentries:<vertid> == arrayref of feed entries that are being displayed for the given vertical id
 
 poll:<pollid> = arrayref of poll properties, see cgi-bin/LJ/Poll.pm for details (section under "use base 'LJ::MemCacheable'")

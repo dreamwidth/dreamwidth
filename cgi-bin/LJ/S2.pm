@@ -2495,7 +2495,6 @@ sub _get_ad_box_args {
         pubtext  => $LJ::REQ_GLOBAL{text_of_first_public_post},
         tags     => $LJ::REQ_GLOBAL{tags_of_first_public_post},
         colors   => $colors,
-        vertical => $LJ::REQ_GLOBAL{verticals_of_first_public_post},
         interests_extra => $qotd ? { qotd => $qotd } : {},
         s2_view  => $LJ::S2::CURR_PAGE->{'view'},
         total_posts_number => scalar( @{$LJ::S2::CURR_PAGE->{'entries'} || []}),

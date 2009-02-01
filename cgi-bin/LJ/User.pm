@@ -4752,28 +4752,6 @@ sub rate_memkey {
     return [$u->id, "rate:" . $u->id . ":$rp->{id}"];
 }
 
-sub opt_exclude_from_verticals {
-    my $u = shift;
-
-    my $prop_val = $u->prop('opt_exclude_from_verticals');
-
-    return $prop_val if $prop_val =~ /^(?:entries)$/;
-    return "none";
-}
-
-sub set_opt_exclude_from_verticals {
-    my $u = shift;
-    my $val = shift;
-
-    # only set the "none" value if the prop is currently set to something (explicit off)
-    my $prop_val = $val ? "entries" : undef;
-    $prop_val = "none" if !$val && $u->prop('opt_exclude_from_verticals');
-
-    $u->set_prop( opt_exclude_from_verticals => $prop_val );
-
-    return;
-}
-
 # prepare OpenId part of html-page, if needed
 sub openid_tags {
     my $u = shift;
