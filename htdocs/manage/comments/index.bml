@@ -33,11 +33,6 @@ _code?>
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
 
-    if ($remote->is_in_beta('settings2008')) {
-        my $getsep = $getextra ? "&" : "?";
-        return BML::redirect("$LJ::SITEROOT/manage/settings/index2.bml$getextra${getsep}cat=privacy");
-    }
-
     ### user is now authenticated ###
 
     # load user props

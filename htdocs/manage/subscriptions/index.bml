@@ -15,10 +15,6 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    if ($remote->is_in_beta('settings2008')) {
-        return BML::redirect("$LJ::SITEROOT/manage/settings/index2.bml?cat=notifications");
-    }
-
     return "Not ready" unless $remote->can_use_esn;
 
     my $formauth = LJ::form_auth();
