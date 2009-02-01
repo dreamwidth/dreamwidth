@@ -155,9 +155,19 @@ sub EntryPage
             }
 
             my $comment_userpic;
-            if (my $pic = $userpic{$com->{'picid'}}) {
-                $comment_userpic = Image("$LJ::USERPIC_ROOT/$com->{'picid'}/$pic->{'userid'}",
-                                         $pic->{'width'}, $pic->{'height'});
+            my $comment_userpic_style = $opts->{ctx}->[S2::PROPS]->{comment_userpic_style};
+            if ( ( my $pic = $userpic{$com->{picid}} ) && ( $comment_userpic_style ne 'off' ) )  {
+                my $width = $pic->{width};
+                my $height = $pic->{height};
+                
+                if ( $comment_userpic_style eq 'small' )
+                {
+                    $width = $width / 2;
+                    $height = $height / 2;
+                }
+
+                $comment_userpic = Image( "$LJ::USERPIC_ROOT/$com->{'picid'}/$pic->{'userid'}",
+                                         $width, $height );
             }
 
             my $reply_url = LJ::Talk::talkargs($permalink, "replyto=$dtalkid", $style_arg);
