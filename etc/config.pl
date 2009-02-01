@@ -207,7 +207,6 @@
                  'stats-postsbyday' => 1,
                  'show-talkleft' => 0,
                  'memories' => 0,
-                 'topicdir' => 0,
                  'tellafriend' => 0,
                  'feedster_search' => 0,
                  'community-logins' => 0,

@@ -750,14 +750,6 @@ userproplist.opt_showschools:
   multihomed: 0
   prettyname: Show School Information on Userinfo
 
-userproplist.opt_showtopicstuff:
-  cldversion: 0
-  datatype: char
-  des: Y: include links to topic directory, N: don't.
-  indexed: 1
-  multihomed: 0
-  prettyname: Topic Directory Integration
-
 userproplist.opt_stylealwaysmine:
   cldversion: 4
   datatype: char
