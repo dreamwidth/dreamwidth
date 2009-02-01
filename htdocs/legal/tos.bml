@@ -1,0 +1,386 @@
+<?page
+body<=
+<?_code
+{
+    # Terms of Service
+    #
+    # Authors:
+    #     Janine Costanzo <janine@netrophic.com>
+    #
+    # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+    #
+    # This program is free software; you may redistribute it and/or modify it under
+    # the same terms as Perl itself.  For a copy of the license, please reference
+    # 'perldoc perlartistic' or 'perldoc perlgpl'.
+    #
+
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    $title = "Terms of Service";
+
+    my $ret;
+
+    $ret .= <<PAGE;
+<p>We hate legalese, so we've tried to make ours readable. If you've got 
+any questions, feel free to <a href='$LJ::SITEROOT/support/submit.bml'>ask us</a>, and we'll do our best to answer.</p>
+
+<h2>Terms of Service</h2>
+
+<p>$LJ::SITECOMPANY ("we", "us", "our", "$LJ::SITENAMESHORT") present the 
+following terms and conditions, which govern your use of the $LJ::SITENAMESHORT 
+site (Website), and all content, services and products available at or 
+through the Website, including but not limited to 
+$LJ::SITEROOT. </p>
+
+<p>The Website is offered subject to your acceptance without 
+modification of all of the terms and conditions contained herein and all 
+other operating rules, policies (including, without limitation, 
+${LJ::SITENAMESHORT}'s <a href="$LJ::SITEROOT/legal/privacy.bml">Privacy 
+Policy</a>) and procedures that may be published from time to time on 
+this Website by us (collectively, the Agreement).</p>
+
+<p>Please read this Agreement carefully before accessing or using the 
+Website. By accessing or using any part of the web site, you agree to 
+become bound by the terms and conditions of this Agreement. If you do 
+not agree to all the terms and conditions of this Agreement, then you 
+may not access the Website or use any services. If these terms and 
+conditions are considered an offer by $LJ::SITENAME, acceptance is 
+expressly limited to these terms. The Website is available only to 
+individuals who are at least 13 years old.</p>
+
+<p>If you operate an account, comment on an account, post material to 
+the Website, post links on the Website, or otherwise make (or allow any 
+third party to make) material available by means of the Website (any 
+such material, also known as "Content"), you are entirely responsible for that Content and any harm that may result from it. That is the case 
+regardless of whether the Content in question constitutes text, 
+graphics, an audio file, a video file, or computer software.</p>
+
+
+<h2>I. Your Account</h2>
+
+<p>If you create an account on the Website, you are responsible for 
+maintaining the security of your account. You are responsible for all 
+activities that occur under the account and any other actions taken in 
+connection with the account. You must take reasonable steps to guard the 
+security of your account. We will not be liable for any acts or 
+omissions resulting from a breach of security, including any damages of 
+any kind incurred as a result of such acts or omissions.</p>
+
+
+<h2>II. Account Structure</h2>
+
+<p>$LJ::SITENAME currently has a tiered account structure. 
+Information on this account structure will be added to this Agreement 
+before account creation opens.</p>
+
+
+<h2>III. Privacy Policy</h2>
+
+<p>Your use of the Website is governed by the Privacy Policy, currently 
+located at $LJ::SITEROOT/legal/privacy.bml. </p>
+
+
+<h2>IV. Indemnity</h2>
+
+<p>You agree to indemnify and hold harmless $LJ::SITECOMPANY, its 
+contractors, its licensors, and their respective directors, officers, 
+employees and agents from and against any and all claims and expenses, 
+including attorneys' fees, arising out of your use of the Website, 
+including but not limited to out of your violation this Agreement.</p>
+
+
+<h2>V. Termination</h2>
+
+<p>We may terminate your access to all or any part of the Website at any 
+time, at our sole discretion, if we believe that you have violated this 
+Agreement. You agree that any termination of your access to the Website 
+may involve removing or discarding any content you have provided. We 
+may, at our sole discretion, discontinue providing the Website at any 
+time, with or without notice. </p>
+
+<p>If you wish to terminate this Agreement, you may delete your account 
+and cease using the Website. You agree that, upon deletion of your 
+account, we may but are not required to remove any content you have 
+provided at any time past the deletion of your account.</p>
+
+<p>Paid accounts that are terminated will not be refunded. </p>
+
+<p>All provisions of this Agreement which by their nature should survive 
+termination shall survive termination, including, without limitation, 
+ownership provisions, warranty disclaimers, indemnity and limitations of 
+liability. </p>
+
+
+<h2>VI. License to Reproduce Content</h2>
+
+<p>By submitting Content to us for inclusion on the Website, you grant 
+us a world-wide, royalty-free, and non-exclusive license to reproduce, 
+modify, adapt and publish the Content solely for the purpose of 
+displaying, distributing and promoting the contents of your account, 
+including through downloadable clients and external feeds. </p>
+
+<p>If you delete Content, we will use reasonable efforts to remove it 
+from the Website, but you acknowledge that caching or references to the 
+Content may not be made immediately unavailable.</p>
+
+
+<h2>VII. Account Content</h2>
+
+<p>You agree to the following provisions for posting Content to the 
+Website:</p>
+
+<p>1. We claim no ownership or control over any Content that you post to the 
+Website. You retain any intellectual property rights to the Content you 
+post, in accordance with applicable law. By posting Content, you 
+represent that you have the rights to reproduce that Content (and the right to allow us 
+to serve such Content) without violation of the rights of any third 
+party. You agree that you will bear any liability resulting from the 
+posting of any Content that you do not have the rights to post.</p>
+
+<p>2. All Content posted to the Website in any way is the responsibility 
+of the owner. Within the confines of international and local law, we 
+will generally not place a restriction on the type or appropriateness of 
+any Content. If Content is deemed illegal by any law having jurisdiction 
+over you, you agree that we may submit any necessary information to the 
+proper authorities.</p>
+
+<p>3. We do not pre-screen Content. However, you acknowledge that we 
+have the right (but not the obligation), in our sole discretion, to 
+remove or refuse to remove any Content from the service. You also agree 
+that we may, without limitation, take any steps necessary to remove 
+Content from the site search engine or member directory, at our sole 
+discretion.</p>
+
+<p>4. If any Content you have submitted is reported to us as violating 
+this Agreement, you agree that we may call upon you to change, modify, 
+or remove that Content, within a reasonable amount of time as defined by 
+us. If you do not follow this directive, we may terminate your account. 
+</p>
+
+
+
+<h2>VIII. Content Posted on Other Websites</h2>
+
+<p>We have not reviewed, and cannot review, all of the material, 
+including computer software, made available through the websites and 
+webpages to which we, any user, or any provider of Content links, or 
+that link to us. We do not have any control over those websites and 
+webpages, and are not responsible for their contents or their use. By 
+linking to an external website or webpage, we do not represent or imply 
+that we endorse such website or webpage. You are responsible for taking 
+precautions as necessary to protect yourself and your computer systems 
+from viruses, worms, Trojan horses, and other harmful or destructive 
+content. We disclaim any responsibility for any harm resulting from your 
+use of external websites and webpages, whether that link is provided by 
+us or by any provider of Content on the Website.</p>
+
+
+
+<h2>IX. No Resale of Services</h2>
+
+<p>You agree not to reproduce, duplicate, copy, sell, resell, or exploit 
+any portion of the Website, use of the Website, or access to the 
+Website.</p>
+
+
+<h2>X. Exposure to Content</h2>
+
+<p>You agree that by using the service, you may be exposed to Content 
+you find offensive or objectionable. If such Content is reported to us, 
+it will be our sole discretion as to what action, if any, should be 
+taken. </p>
+
+
+<h2>XI. Member Conduct</h2>
+
+<p>You agree that you will not use the Website to:</p>
+
+<p>1. Upload, post, or otherwise transmit any Content that is harmful, threatening, abusive, hateful, invasive to the privacy and publicity rights of any person, or that violates any applicable local, state, national, or international law, including any regulation having the force of law;
+
+<p>2. Upload, post, or otherwise transmit any Content that is spam, or 
+contains unethical or unwanted commercial content designed to drive 
+traffic to third party sites or boost the search engine rankings of 
+third party sites, or to further unlawful acts (such as phishing) or 
+mislead recipients as to the source of the material (such as 
+spoofing);</p>
+
+<p>3. Impersonate any real person or entity, including but not limited to a 
+$LJ::SITENAMESHORT staff member or volunteer, or to otherwise misrepresent your 
+affiliation with any person or entity;</p>
+
+<p>4. Upload, post or otherwise transmit any Content that you do not 
+have a right to transmit under any law or under contractual or fiduciary 
+relationships (such as inside information, proprietary and confidential 
+information learned or disclosed as part of employment relationships or 
+under nondisclosure agreements);</p>
+
+<p>5. Upload, post or otherwise transmit any Content that infringes any 
+patent, trademark, trade secret, copyright, or other proprietary rights 
+of any party;</p>
+
+<p>6. Interfere with or disrupt the Website or servers or networks 
+connected to the Website, or disobey any requirements, procedures, 
+policies or regulations of networks connected to the Website;</p>
+
+<p>7. Solicit passwords or personal identifying information for 
+unintended, commercial or unlawful purposes from other users;</p>
+
+<p>8. Provide any material that is illegal under United States law;</p>
+
+<p>9. Upload, post or otherwise transmit any Content that contains 
+viruses, worms, malware, Trojan horses or other harmful or destructive 
+content;</p>
+
+<p>10. Allow usage by others in such a way as to violate this 
+Agreement;</p>
+
+<p>11. Make excessive or otherwise harmful automated use of the 
+Website;</p>
+
+<p>12. Access any other person's account, or exceed the scope of the 
+Website that you have signed up for; for example, accessing and using 
+features you don't have a right to use.</p>
+
+
+<h2>XII. Copyright Infringement</h2>
+
+<p>If you believe that material located on the Website violates your 
+copyright, you may notify us in accordance with our Digital Millennium 
+Copyright Act ('DMCA') Policy. We will respond to all such notices as 
+required by law, including by removing the infringing material or 
+disabling access to the infringing 
+material. As set forth by law, we will, in our sole discretion, 
+terminate or deny access to the Website to users of the site who have 
+repeatedly infringed upon the copyrights or intellectual property rights 
+of others. </p>
+
+
+<h2>XIII. Volunteers</h2>
+
+<p>We appreciate the service of volunteers in many aspects of Website 
+management, including but not limited to providing technical support, 
+creating web-based content, performing site administration duties, 
+providing expert advice, research, technical writing, reviewing, 
+categorizing, and other duties as necessary. </p>
+
+<p>All volunteers are expected to be of legal age, or volunteering with 
+the consent of a legal parent or guardian.</p>
+
+<p>By volunteering, you agree that any work created as a result of your volunteer service shall be licensed to $LJ::SITENAMESHORT on a perpetual, irrevocable, and world-wide basis, to the extent permitted by law. You agree that $LJ::SITENAMESHORT may determine the basis upon which your volunteer work shall be licensed to others, including under Open Source licenses that may permit the further alteration or dissemination of your work. If laws prevent such licensing, you agree never to sue $LJ::SITENAMESHORT for the use of said work.</p>
+
+<p>By volunteering, you agree that you are providing your work with no 
+expectation of pay or future consideration by $LJ::SITENAMESHORT. You also agree 
+that you have taken reasonable diligence to ensure that the work is 
+correct, accurate, and free of defect. You agree that you will not 
+disclose or share any proprietary or confidential information you are 
+provided with in the course of your volunteer work. </p>
+
+<p>No user is required to volunteer for the Website, and users without 
+volunteer status will receive equal care, support, and attention.</p>
+
+
+<h2>XIV. Changes</h2>
+
+<p>We reserve the right, at our sole discretion, to modify or replace 
+any part of this Agreement at any time. We will take reasonable steps to 
+notify you of any substantial changes to this Agreement; however, it is 
+your responsibility to check this Agreement periodically for changes. 
+Your continued use of or access to the Website following the posting of 
+any changes to this Agreement constitutes acceptance of those changes. 
+</p>
+
+<p>We may also, in the future, offer new services and/or features 
+through the Website (including the release of new tools and resources). 
+Such new features and/or services shall be subject to the terms and 
+conditions of this Agreement. </p>
+
+
+<h2>XV. Disclaimer of Warranties</h2>
+
+<p><strong>This Website is provided "as is". $LJ::SITECOMPANY and its 
+suppliers and licensors hereby disclaim all warranties of any kind, 
+express or implied, including, without limitation, the warranties of 
+merchantability, fitness for a particular purpose and non-infringement. 
+Neither $LJ::SITECOMPANY, nor its suppliers and licensors, makes 
+any warranty that the Website will be error free or that access thereto 
+will be continuous or uninterrupted. You agree that any interruptions to the service will not qualify for reimbursement or compensation. You understand that you download 
+from, or otherwise obtain content or services through, the Website at 
+your own discretion and risk.</strong></p>
+
+<p><strong>No advice or information, whether oral or written, obtained by you 
+in any fashion shall create any warranty not expressly stated in this 
+Agreement.</strong></p>
+
+
+<h2>XVI. Limitation of Liability</h2>
+
+<p><strong>You expressly understand and agree that in no event will 
+$LJ::SITECOMPANY, or its suppliers or licensors, be liable with 
+respect to any subject matter of this agreement under any contract, 
+negligence, strict liability or other legal or equitable theory for: (i) 
+any special, incidental or consequential damages; (ii) the cost of 
+procurement or substitute products or services; (iii) interruption of use 
+or loss or corruption of data; (iv) any statements or conduct of any 
+third party on the service; (v) any unauthorized access to or 
+alterations of your Content. We shall have no liability for any failure 
+or delay due to matters beyond our reasonable control. </strong></p>
+
+<p><strong>The foregoing shall not apply to the extent prohibited by 
+applicable law.</strong></p>
+
+
+
+
+<h2>XVII. General Information</h2>
+
+<p>This Agreement constitutes the entire agreement between us and you 
+concerning your use of the Website. This Agreement may only be modified 
+by a written amendment signed by an authorized representative of 
+$LJ::SITECOMPANY, or by the posting of a revised version to this 
+location. Except to the extent that applicable law (if any) provides 
+otherwise, any access to or use of the Website will be governed by the 
+laws of the state of Maryland, and the federal laws of the United States 
+of America, excluding any conflict of law provisions. You agree to 
+submit to the jursidiction of the state and federal courts located in 
+Baltimore City, Maryland for any disputes arising out of or relating to 
+your use of the Website or your acceptance of this Agreement.</p>
+
+<p>If any part of this Agreement is held invalid or unenforceable, that 
+part will be construed to reflect the parties' original intent, and the 
+remaining portions will remain in full force and effect. A waiver by 
+either party of any term or condition of this Agreement or any breach 
+thereof, in any one instance, will not waive such term or condition or 
+any subsequent breach thereof. </p>
+
+<p>The section titles in this Agreement are for convenience only and 
+have no legal or contractual effect.</p>
+
+
+<h2>XVIII. Reporting Violations</h2>
+
+<p>Instructions on how to report a violation of this Agreement will be 
+added before account creation opens. </p>
+
+
+<h2>XIX. Creative Commons</h2>
+
+<p>This Terms of Service document is based on one developed by Automattic 
+(http://wordpress.com/tos/) and is licensed under a Creative Commons 
+Attribution-ShareAlike 2.5 License.</p>
+
+
+
+
+<p class='note'>Last revised June 18, 2008</p>
+PAGE
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

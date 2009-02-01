@@ -29,6 +29,7 @@
     $SITENAME = "Some LiveJournal Site";
     $SITENAMESHORT = "YourSite";
     $SITENAMEABBREV = "YS";
+    $SITECOMPANY = "YourSite's Company";
 
     # the base domain of your site.
     # CHANGE THIS

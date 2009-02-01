@@ -37,6 +37,8 @@
     $SUPPORT_EMAIL = "support\@$DOMAIN";
     $COMMUNITY_EMAIL = "community_invitation\@$DOMAIN";
     $BOGUS_EMAIL = "dw_null\@$DOMAIN";
+    $COPPA_EMAIL = "coppa\@$DOMAIN";
+    $PRIVACY_EMAIL = "privacy\@$DOMAIN";
 
     # news site support. if set, that journal loads on the main page.
     #$FRONTPAGE_JOURNAL = "news";
