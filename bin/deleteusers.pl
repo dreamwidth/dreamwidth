@@ -78,16 +78,6 @@ foreach my $uid (@delusers)
         $runsql->($dbh, $user, "DELETE FROM memorable WHERE memid IN ($in)");
     }
 
-    # delete todos
-    print "  todos\n";
-    while (($ids = $dbh->selectcol_arrayref("SELECT todoid FROM todo WHERE journalid=$uid LIMIT 100")) && @{$ids})
-    {
-        my $in = join(",", @$ids);
-        print "  id: $in\n";
-        $runsql->($dbh, $user, "DELETE FROM tododep WHERE todoid IN ($in)");
-        $runsql->($dbh, $user, "DELETE FROM todokeyword WHERE todoid IN ($in)");
-        $runsql->($dbh, $user, "DELETE FROM todo WHERE todoid IN ($in)");
-    }
 
     # delete userpics
     {

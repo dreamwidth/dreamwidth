@@ -7,7 +7,6 @@ use Errno qw(ENOENT);
 %LJ::CRUMBS = (
     'acctstatus' => ['Account Status', '/accountstatus.bml', 'manage'],
     'addfriend' => ['Add Friend', '', 'friends'],
-    'addtodo' => ['Add To-Do Item', '', 'todo'],
     'advcustomize' => ['Customize Advanced S2 Settings', '/customize/advanced/', 'manage'],
     'advsearch' => ['Advanced Search', '/directorysearch.bml', 'search'],
     'birthdays' => ['Birthdays', '/birthdays.bml', 'friends'],
@@ -85,7 +84,6 @@ use Errno qw(ENOENT);
     'supportscores' => ['High Scores', '/support/highscores.bml', 'support'],
     'supportsubmit' => ['Submit Request', '/support/submit.bml', 'support'],
     'textmessage' => ['Send Text Message', '/tools/textmessage.bml', 'home'],
-    'todo' => ['Todo List', '/todo', 'home'],
     'transfercomm' => ['Transfer Community', '/community/transfer.bml', 'managecommunity'],
     'translate' => ['Translation Area', '/translate/', 'home'],
     'translateteams' => ['Translation Teams', '/translate/teams.bml', 'translate'],

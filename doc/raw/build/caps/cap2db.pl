@@ -72,14 +72,6 @@ $caps_general{'textmessaging'} = {
     type => 'boolean',
     desc => 'Can use text messaging.',
 };
-$caps_general{'todomax'} = {
-    type => 'integer',
-    desc => 'Maximum number of todo items allowed.',
-};
-$caps_general{'todosec'} = {
-    type => 'boolean',
-    desc => 'Can make non-public todo items.',
-};
 $caps_general{'userdomain'} = {
     type => 'boolean',
     desc => 'Can view journal at http://user.$LJ::DOMAIN/',

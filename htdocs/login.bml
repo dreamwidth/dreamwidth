@@ -418,6 +418,6 @@ title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
 page?><?_c <LJDEP>
 hook: post_login login_formopts
-link: htdocs/login.bml, htdocs/todo/index.bml, htdocs/users, htdocs/create.bml, htdocs/lostinfo.bml
+link: htdocs/login.bml, htdocs/users, htdocs/create.bml, htdocs/lostinfo.bml
 post: htdocs/login.bml
 </LJDEP> _c?>

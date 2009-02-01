@@ -602,46 +602,6 @@ CREATE TABLE themelist (
 )
 EOC
 
-register_tablecreate("todo", <<'EOC');
-CREATE TABLE todo (
-  todoid int(10) unsigned NOT NULL auto_increment,
-  journalid int(10) unsigned NOT NULL default '0',
-  posterid int(10) unsigned NOT NULL default '0',
-  ownerid int(10) unsigned NOT NULL default '0',
-  statusline varchar(40) default NULL,
-  security enum('public','private','friends') NOT NULL default 'public',
-  subject varchar(100) default NULL,
-  des varchar(255) default NULL,
-  priority enum('1','2','3','4','5') NOT NULL default '3',
-  datecreate datetime NOT NULL default '0000-00-00 00:00:00',
-  dateupdate datetime default NULL,
-  datedue datetime default NULL,
-  dateclosed datetime default NULL,
-  progress tinyint(3) unsigned NOT NULL default '0',
-  PRIMARY KEY  (todoid),
-  KEY (journalid),
-  KEY (posterid),
-  KEY (ownerid)
-)
-EOC
-
-register_tablecreate("tododep", <<'EOC');
-CREATE TABLE tododep (
-  todoid int(10) unsigned NOT NULL default '0',
-  depid int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (todoid,depid),
-  KEY (depid)
-)
-EOC
-
-register_tablecreate("todokeyword", <<'EOC');
-CREATE TABLE todokeyword (
-  todoid int(10) unsigned NOT NULL default '0',
-  kwid int(10) unsigned NOT NULL default '0',
-  PRIMARY KEY  (todoid,kwid)
-)
-EOC
-
 register_tablecreate("txtmsg", <<'EOC');
 CREATE TABLE txtmsg (
   userid int(10) unsigned NOT NULL default '0',
@@ -1012,6 +972,9 @@ register_tabledrop("fvcache");
 register_tabledrop("userpic_comment");
 register_tabledrop("events");
 register_tabledrop("randomuserset");
+register_tabledrop("todo");
+register_tabledrop("tododep");
+register_tabledrop("todokeyword");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -3343,13 +3306,6 @@ register_alter(sub {
         do_alter("friendgroup",
                  "ALTER TABLE friendgroup ".
                  "MODIFY groupname VARCHAR(60) NOT NULL");
-    }
-    if (column_type("todo", "statusline") eq "varchar(15)") {
-        do_alter("todo",
-                 "ALTER TABLE todo ".
-                 "MODIFY statusline VARCHAR(40) NOT NULL, " .
-                 "MODIFY subject VARCHAR(100) NOT NULL, " .
-                 "MODIFY des VARCHAR(255) NOT NULL");
     }
     if (column_type("memorable", "des") eq "varchar(60)") {
         do_alter("memorable",

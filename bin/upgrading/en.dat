@@ -426,46 +426,6 @@ cprod.textmessaging.text.v5=
 
 cprod.textmessaging.text3.v1=Your account type does not permit usage of this feature.
 
-cprod.todomaxitems.link.v1=
-
-cprod.todomaxitems.link.v2=
-
-cprod.todomaxitems.link.v3=
-
-cprod.todomaxitems.link.v4=
-
-cprod.todomaxitems.link.v5=
-
-cprod.todomaxitems.text2.v1=You have reached the limit of todo items available to your account type.
-
-cprod.todomaxitems.text2.v2=
-
-cprod.todomaxitems.text2.v3=
-
-cprod.todomaxitems.text2.v4=
-
-cprod.todomaxitems.text2.v5=
-
-cprod.todononpublic.link.v1=
-
-cprod.todononpublic.link.v2=
-
-cprod.todononpublic.link.v3=
-
-cprod.todononpublic.link.v4=
-
-cprod.todononpublic.link.v5=
-
-cprod.todononpublic.text.v1=Your account type is not permitted to use non-public todo items.
-
-cprod.todononpublic.text.v2=
-
-cprod.todononpublic.text.v3=
-
-cprod.todononpublic.text.v4=
-
-cprod.todononpublic.text.v5=
-
 cprod.userpic.link.v1=default userpic
 
 cprod.userpic.link.v2=
@@ -489,8 +449,6 @@ cprod.userpic.text.v5=
 crumb.acctstatus=Account Status
 
 crumb.addfriend=Add Friend
-
-crumb.addtodo=Add To-Do Item
 
 crumb.advcustomize=Customize Advanced S2 Settings
 
@@ -655,8 +613,6 @@ crumb.supportscores=High Scores
 crumb.supportsubmit=Submit Request
 
 crumb.textmessage=Send Text Message
-
-crumb.todo=Todo List
 
 crumb.transfercomm=Transfer Community
 

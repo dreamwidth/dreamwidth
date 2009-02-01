@@ -74,7 +74,6 @@ require "supportlib.pl";
 require "supportstatslib.pl";
 require "cleanhtml.pl";
 require "talklib.pl";
-require "ljtodo.pl";
 require "ljfeed.pl";
 require "ljlinks.pl";
 require "emailcheck.pl";

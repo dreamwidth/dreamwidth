@@ -2905,8 +2905,6 @@ sub hash_menus
                 { 'text' => "-", },
                 { 'text' => "Your Profile",
                   'url' => "$LJ::SITEROOT/userinfo.bml?user=$user", },
-                { 'text' => "Your To-Do List",
-                  'url' => "$LJ::SITEROOT/todo/?user=$user", },
                 { 'text' => "-", },
                 { 'text' => "Change Settings",
                   'sub' => [ { 'text' => "Personal Info",

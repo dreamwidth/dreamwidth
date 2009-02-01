@@ -93,8 +93,6 @@
                       's2stylesmax' => 10,
                       's2layersmax' => 50,
                       'textmessage' => 1,
-                      'todomax' => 100,
-                      'todosec' => 1,
                       'userdomain' => 0,
                       'domainmap' => 0,
                       'useremail' => 0,

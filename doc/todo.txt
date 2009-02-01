@@ -98,8 +98,6 @@ MISC:
 * directory rewrite sometime
 * INERR undefined in livejournal?  no, it was.  weird.
 * two CVS: use collections (avva)
-* talkread/post library & abstraction for todo lists
-* todo list maintainership (Mart)
 * rate limiting
 * image serving / expiration (evan)
 

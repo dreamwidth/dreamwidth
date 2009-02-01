@@ -113,9 +113,6 @@ sub header_bar_links {
     }
 
     unless ($pm->{u}->is_identity || $pm->{u}->is_syndicated) {
-        $label = LJ::ehtml($BML::ML{'.label.todo'});
-        push @ret, "<a href='$LJ::SITEROOT/todo/?user=$user'><img src='$LJ::IMGPREFIX/btn_todo.gif' width='22' height='20' alt='$label' title='$label' align='middle' border='0' /></a>";
-
         $label = LJ::ehtml($BML::ML{'.label.memories'});
         push @ret, "<a href='$LJ::SITEROOT/tools/memories.bml?user=$user'><img src='$LJ::IMGPREFIX/btn_memories.gif' width='22' height='20' alt='$label' title='$label' align='middle' border='0' /></a>";
     }

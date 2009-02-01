@@ -1176,14 +1176,6 @@ sub ExpandLJURL
                  return "support/";
              }
          },
-         'todo' => sub {
-             my $user = LJ::canonical_username(shift);
-             if ($user) {
-                 return "todo/?user=$user";
-             } else {
-                 return "todo/";
-             }
-         },
          'user' => sub {
              my $user = LJ::canonical_username(shift);
              return "" if grep { /[\"\'\<\>\n\&]/ } @_;

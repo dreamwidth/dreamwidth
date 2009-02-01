@@ -24,7 +24,6 @@
 /modify_do.bml          /modify.bml
 /editjournal_do.bml     /editjournal.bml
 /editinfo.bml       /manage/profile/
-/todo.bml          /todo/
 /manage/siteopts.bml /manage/settings/
 /tools/notifications.bml /inbox/
 /customize2                         /customize/

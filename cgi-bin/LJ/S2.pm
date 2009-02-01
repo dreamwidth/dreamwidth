@@ -2198,7 +2198,7 @@ sub UserLite
         'link_keyseq' => [ ],
     };
     my $lks = $o->{link_keyseq};
-    push @$lks, qw(add_friend post_entry todo memories);
+    push @$lks, qw(add_friend post_entry memories);
     push @$lks, "tell_friend"  unless $LJ::DISABLED{'tellafriend'};
     push @$lks, "search"  unless $LJ::DISABLED{'offsite_journal_search'};
     push @$lks, "nudge"  unless $LJ::DISABLED{'nudge'};
@@ -3468,10 +3468,6 @@ sub UserLite__get_link
 
         my $caption = $is_remote ? "Update your journal" : "Post in $user";
         return $button->("$LJ::SITEROOT/update.bml?usejournal=$user", $caption, "btn_edit.gif");
-    }
-    if ($key eq 'todo') {
-        my $caption = $is_remote ? "Your to-do list" : "${user}'s to-do list";
-        return $button->("$LJ::SITEROOT/todo/?user=$user", $caption, "btn_todo.gif");
     }
     if ($key eq 'memories') {
         my $caption = $is_remote ? "Your memories" : "${user}'s memories";
