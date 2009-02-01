@@ -3509,7 +3509,7 @@ sub EntryLite__get_link
 *Comment__get_link = \&EntryLite__get_link;
 
 # method for smart converting raw subject to html-link
-sub Entry__formatted_subject {
+sub EntryLite__formatted_subject {
     my ($ctx, $this, $attrs) = @_;
 
     # if subject has html-tags - print raw subject
@@ -3522,6 +3522,9 @@ sub Entry__formatted_subject {
     return "<a href=\"".$this->{permalink_url}."\"$class$style>".$this->{subject}."</a>";
     
 }
+
+*Entry__formatted_subject = \&EntryLite__formatted_subject;
+*Comment__formatted_subject = \&EntryLite__formatted_subject;
 
 sub EntryLite__get_tags_text
 {
