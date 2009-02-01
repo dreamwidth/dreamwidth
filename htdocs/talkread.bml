@@ -581,7 +581,7 @@ my $old_url = 0;
                  $ret .= BML::ml('.fromip', {'ip'=>$post->{'props'}->{'poster_ip'}});
              }
 
-             $ret .= " <font size='-1'>(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dtid", $formatlight) . "#t$dtid'>$T{'link'}</a>)</font> ";
+             $ret .= " <font size='-1'>(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dtid", $formatlight) . "#t$dtid'>$T{'link'}</a>)</font><br />";
 
              if ($comment->remote_can_edit) {
                  $ret .= "<a href='" . LJ::Talk::talkargs($comment->edit_url, $stylemine, $formatlight) . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";

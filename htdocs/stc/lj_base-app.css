@@ -255,3 +255,9 @@ input.bright {
 .rounded-box .rounded-box-content {
     padding: 10px;
 }
+
+.formitemName {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 10px;
+}
