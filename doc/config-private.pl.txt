@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+# LiveJournal configuration file.  Copy this out of the documentation
+# directory to etc/config-private.pl and edit as necessary.  The reason
+# it's not in the etc directory already is to protect it from
+# getting clobbered when you upgrade to the newest LiveJournal code in
+# the future.
+#
+# This is where you define private, site-specific configs (e.g. passwords).
+
+{
+    package DW::PRIVATE;
+
+    #%PAYPAL = (
+    #    user => ,
+    #    password => ,
+    #    signature => ,
+    #    email => ,
+    #);
+
+    #%DBINFO = (
+    #    master => {
+    #        pass => ,
+    #    },
+    #);
+
+    #%THESCHWARTZ_DBS = (
+    #    pass => ,
+    #);
+
+    #%RECAPTCHA = (
+    #    public_key  => ,
+    #    private_key => ,
+    #);
+}
+
+1;
