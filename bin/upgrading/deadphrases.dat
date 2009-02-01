@@ -660,3 +660,11 @@ general widget.verticalsummary.posttime
 general widget.verticalsummary.subcats
 
 general crumb.nudgefriend
+
+general cprod.textmessaging.text3
+general cprod.todomaxitems.link
+general cprod.todomaxitems.text2
+general cprod.todononpublic.link
+general cprod.todononpublic.text
+general crumb.addtodo
+general crumb.todo
