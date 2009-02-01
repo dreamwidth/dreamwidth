@@ -210,6 +210,7 @@ use strict;
                 $current_upload{keywords} = $POST{keywords};
                 $current_upload{default} = $POST{default};
                 $current_upload{comments} = $POST{comments};
+                $current_upload{descriptions} = $POST{descriptions};
                 $current_upload{make_default} = $POST{make_default};
                 $current_upload{index} = 0;
 
@@ -259,7 +260,8 @@ use strict;
 
                     $factory_redirect = "$LJ::SITEROOT/tools/userpicfactory.bml?keywords=" .
                         BML::eurl($current_upload{keywords}) . "&comments=" .
-                        BML::eurl($current_upload{comments}) . 
+                        BML::eurl($current_upload{comments}) . "&descriptions=" .
+                        BML::eurl($current_upload{descriptions}) .
                         "&imageWidth=" . BML::eurl($current_upload{imagew}) . 
                         "&imageHeight=" . BML::eurl($current_upload{imageh}) .
                         "&make_default=" . BML::eurl($current_upload{make_default}) . 
@@ -286,6 +288,7 @@ use strict;
                         }
                         $userpic->set_keywords($current_upload{keywords}) if $current_upload{keywords};
                         $userpic->set_comment($current_upload{comments})  if $current_upload{comments};
+                        $userpic->set_description($current_upload{descriptions}) if $current_upload{descriptions};
                         $userpic->set_fullurl($current_upload{url})       if $POST{url};
                         
                         $userpic_count++;
@@ -403,6 +406,16 @@ use strict;
             }
 
             $body .= "<p class='pkg'>\n";
+            $body .= "<label class='left' for='descriptions_0'>$ML{'.label.description'}</label>\n";
+            my $descriptions = $POST{'descriptions'} if $fotobilder;
+            $body .= "<span class='input-wrapper'>";
+            $body .= LJ::html_text( { name => 'descriptions_0', class => 'text', id => 'descriptions_0', 'maxlength' => LJ::CMAX_UPIC_DESCRIPTION, value => $descriptions } ) . "\n";
+            $body .= LJ::help_icon_html('upic_descriptions') . "\n";
+            $body .= "</span>";
+            $body .= "</p>\n";
+            $body .= "<p class='detail'>$ML{'.label.description.desc'}</p>\n";
+
+            $body .= "<p class='pkg'>\n";
             $body .= LJ::html_check({ 'type' => 'checkbox',
                                       'name' => 'make_default',
                                       'id' => 'make_default_0',
@@ -427,6 +440,7 @@ use strict;
                 if (LJ::Userpic->user_supports_comments($u)) {
                     $body .= "allowComments = true;\n";
                 }
+                $body .= "allowDescriptions = true;\n";
                 $body .="</script>\n";
                 $body .= "</p>\n";
             }
@@ -490,6 +504,7 @@ use strict;
             # TODO: if no keywords then light grey text and empty out when you click in it
             my $keywords = $pic->keywords;
             my $comment = $pic->comment;
+            my $description = $pic->description;
             $body .= "<div class='userpic_controls'  style='float: left;'>";
             $body .= "<div class='userpic_keywords pkg'>\n";
             $body .= "<label class='left' for='kw_$pid'>$ML{'.label.keywords'}</label>\n ";
@@ -513,6 +528,17 @@ use strict;
                 $body .= "</div>\n";
             }
             
+            $body .= "<div class='userpic_descriptions pkg'>\n";
+            $body .= "<label class='left' for='com_$pid'>$ML{'.label.description'}</label>\n ";
+            $body .= LJ::html_text({ 'name' => "desc_$pid", 'class' => "text", 'id' => "desc_$pid",
+                                     'value' => $description,
+                                     'maxlength' => LJ::CMAX_UPIC_DESCRIPTION,
+                                     'disabled' => $pic->inactive }) . "\n";
+            $body .= LJ::html_hidden({ 'name' => "desc_orig_$pid",
+                                       'value' => $description }) . "\n";
+
+            $body .= "</div>\n";
+        
             $body .= "<div class='userpic_defaultdelete pkg'>";
             $body .= LJ::html_check({ 'type' => 'radio', 'name' => 'defaultpic', 'class' => "radio", 'value' => $pid,
                                       'selected' => $pic->is_default ? 1 : 0,
@@ -619,6 +645,12 @@ sub update_userpics
             $up->set_comment ($POST{"com_$picid"})
                 unless $POST{"com_$picid"} eq $POST{"com_orig_$picid"};
         } or push @errors, $@;
+        
+        eval {
+            $up->set_description ($POST{"desc_$picid"})
+                unless $POST{"desc_$picid"} eq $POST{"desc_orig_$picid"};
+        } or push @errors, $@;
+
     }
     
     foreach my $kw (keys %used_keywords) {
@@ -693,6 +725,7 @@ sub parse_post_uploads
                 my $counter = $tokens[1];
                 $current_upload{keywords} = $POST{"keywords_$counter"};
                 $current_upload{comments} = $POST{"comments_$counter"};
+                $current_upload{descriptions} = $POST{descriptions_$counter};
                 $current_upload{index} = $counter;
                 $current_upload{image} = \$POST{$userpic_key};
                 $current_upload{make_default} =  ($POST{"make_default"} eq $counter);
@@ -788,6 +821,7 @@ sub parse_post_uploads
                 my $counter = $tokens[1];
                 $current_upload{keywords} = $POST{"keywords_$counter"};
                 $current_upload{comments} = $POST{"comments_$counter"};
+                $current_upload{descriptions} = $POST{"descriptions_$counter"};
                 $current_upload{index} = $counter;
                 $current_upload{make_default} =  ($POST{"make_default"} eq $counter);
 

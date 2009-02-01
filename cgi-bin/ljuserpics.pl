@@ -230,7 +230,7 @@ sub activate_userpics
 # des: Given a user, gets their userpic information.
 # args: uuid, opts?
 # des-uuid: userid, or user object.
-# des-opts: Optional; hash of options, 'load_comments'.
+# des-opts: Optional; hash of options, 'load_comments', 'load_urls', 'load_descriptions'.
 # returns: hash of userpicture information;
 #          for efficiency, we store the userpic structures
 #          in memcache in a packed format.
@@ -251,13 +251,14 @@ sub get_userpic_info
     my $u = LJ::want_user($uuid); # This should almost always be in memory already
     return undef unless $u && $u->{clusterid};
 
-    # in the cache, cool, well unless it doesn't have comments or urls
+    # in the cache, cool, well unless it doesn't have comments or urls or descriptions
     # and we need them
     if (my $cachedata = $LJ::CACHE_USERPIC_INFO{$userid}) {
         my $good = 1;
         if ($u->{'dversion'} > 6) {
             $good = 0 if $opts->{'load_comments'} && ! $cachedata->{'_has_comments'};
             $good = 0 if $opts->{'load_urls'} && ! $cachedata->{'_has_urls'};
+            $good = 0 if $opts->{'load_descriptions'} && ! $cachedata->{'_has_descriptions'};
         }
         return $cachedata if $good;
     }
@@ -343,11 +344,34 @@ sub get_userpic_info
                     undef $info;
                 }
             }
+            
+            # Load picture descriptions
+            if ($opts->{'load_descriptions'}) {
+                my $descmemkey = [$u->{'userid'}, "upicdes:$u->{'userid'}"];
+                my $descinfo = LJ::MemCache::get($descmemkey);
+
+                if ($descinfo) {
+                    my ($pos, $nulpos);
+                    $pos = $nulpos = 0;
+                    while (($nulpos = index($descinfo, "\0", $pos)) > 0) {
+                        my $description = substr($descinfo, $pos, $nulpos-$pos);
+                        my $id = unpack("N", substr($descinfo, $nulpos+1, 4));
+                        $pos = $nulpos + 5; # skip NUL + 4 bytes.
+                        $info->{pic}->{$id}->{description} = $description;
+                        $info->{description}->{$id} = $description;
+                    }
+                    $info->{'_has_descriptions'} = 1;
+                } else { # Requested to load descriptions, but they aren't in memcache
+                         # so force a db load
+                    undef $info;
+                }
+            }
         }
     }
 
     my %minfocom; # need this in this scope
     my %minfourl;
+    my %minfodesc;
     unless ($info) {
         $info = {
             'pic' => {},
@@ -360,7 +384,7 @@ sub get_userpic_info
         return undef unless $dbcr && $db;
 
         if ($u->{'dversion'} > 6) {
-            $sth = $dbcr->prepare("SELECT picid, width, height, state, userid, comment, url ".
+            $sth = $dbcr->prepare("SELECT picid, width, height, state, userid, comment, url, description ".
                                   "FROM userpic2 WHERE userid=?");
         } else {
             $sth = $db->prepare("SELECT picid, width, height, state, userid ".
@@ -376,6 +400,8 @@ sub get_userpic_info
                 && $opts->{'load_comments'} && $pic->{'comment'};
             $minfourl{int($pic->{'picid'})} = $pic->{'url'} if $u->{'dversion'} > 6
                 && $opts->{'load_urls'} && $pic->{'url'};
+            $minfodesc{int($pic->{picid})} = $pic->{description} if $u->{dversion} > 6
+                && $opts->{load_descriptions} && $pic->{description}; 
         }
 
 
@@ -422,6 +448,16 @@ sub get_userpic_info
                 LJ::MemCache::set($memkey, $urlstr);
 
                 $info->{'_has_urls'} = 1;
+            }
+            
+            if ($opts->{load_descriptions}) {
+                $info->{description} = \%minfodesc;
+                my $descstring = join('', map { pack("Z*N", $minfodesc{$_}, $_) } keys %minfodesc);
+
+                my $memkey = [$u->{'userid'}, "upicdes:$u->{'userid'}"];
+                LJ::MemCache::set($memkey, $descstring);
+
+                $info->{'_has_descriptions'} = 1;
             }
         }
     }

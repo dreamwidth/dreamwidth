@@ -721,6 +721,7 @@ CREATE TABLE userpic2 (
   picdate datetime default NULL,
   md5base64 char(22) NOT NULL default '',
   comment varchar(255) BINARY NOT NULL default '',
+  description varchar(255) BINARY NOT NULL default '',
   flags tinyint(1) unsigned NOT NULL default 0,
   location enum('blob','disk','mogile') default NULL,
   PRIMARY KEY  (userid, picid)
@@ -3867,6 +3868,13 @@ register_alter(sub {
     unless ( column_type( "acctcode", "timegenerate" ) ) {
         do_alter( "acctcode",
                   "ALTER TABLE acctcode ADD timegenerate TIMESTAMP");
+    }
+    
+    unless ( column_type ("userpic2", "description" ) ) {
+        do_alter( "userpic2",
+                   "ALTER TABLE userpic2 ADD description varchar(255) 
+                   BINARY NOT NULL default ''" );
+
     }
 });
 

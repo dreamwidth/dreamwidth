@@ -50,11 +50,15 @@
 
 .label.comment=Comment:
 
-.label.comment.desc=Optional description of this picture for your friends.
+.label.comment.desc=Optional comments about the picture. Credit can go here. Example: "I made this!"
 
 .label.default=Default
 
 .label.delete=Delete
+
+.label.description=Description:
+
+.label.description.desc=Optional description of what is in the picture. Shown to people who cannot view the image, e.g. blind people using screen readers. Example: "Photo of me in the mirror, holding up camera"
 
 .label.formats.desc=Acceptable formats are GIF, JPG and PNG.
 

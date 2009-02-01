@@ -87,6 +87,7 @@ function toggleElement(elementId) {
 var counter = 1;
 var maxcounter;
 var allowComments = false;
+var allowDescriptions = false;
 
 function addNewUpload(uploadType) {
   if (document.forms.uploadPic.make_default instanceof HTMLInputElement) {
@@ -113,6 +114,9 @@ function addNewUpload(uploadType) {
   newPicHTML += "<label class='left' for='keywords_" + counter + "'>Keywords:</label><input type='text' name='keywords_" + counter + "' id='keywords_" + counter + "' class='text' />";
   if (allowComments) {
     newPicHTML += "<label class='left' for='comments_" + counter + "'>Comment:</label><input type='text' maxlength='120' name='comments_" + counter + "' id='comments_" + counter + "' class='text' />";
+  }
+  if (allowDescriptions) {
+    newPicHTML += "<label class='left' for='descriptions_" + counter + "'>Description:</label><input type='text' maxlength='120' name='descriptions_" + counter + "' id='descriptions_" + counter + "' class='text' />";
   }
   newPicHTML += "<br/><input type='radio' accesskey='d' value='" + counter + "' name='make_default' id='make_default_" + counter + "' /><label for='make_default_" + counter + "'>Make this your <u>d</u>efault picture</label>\n";
 

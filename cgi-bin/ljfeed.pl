@@ -895,7 +895,7 @@ sub create_view_userpics {
 
     # now start building all the userpic data
     # start up by loading all of our userpic information and creating that part of the feed
-    my $info = LJ::get_userpic_info($u, {'load_comments' => 1, 'load_urls' => 1});
+    my $info = LJ::get_userpic_info( $u, { load_comments => 1, load_urls => 1, load_descriptions => 1 } );
 
     my %keywords = ();
     while (my ($kw, $pic) = each %{$info->{kw}}) {
@@ -907,6 +907,12 @@ sub create_view_userpics {
     while (my ($pic, $comment) = each %{$info->{comment}}) {
         LJ::text_out(\$comment);
         $comments{$pic} = LJ::ehtml($comment);
+    }
+
+    my %descriptions = ();
+    while ( my( $pic, $description ) = each %{$info->{description}} ) {
+        LJ::text_out(\$description);
+        $descriptions{$pic} = LJ::ehtml( $description );
     }
 
     my @pics;
@@ -952,6 +958,13 @@ sub create_view_userpics {
             $category->setNamespace( $ns );
             $entry_xml->getDocumentElement->appendChild( $category );
         }
+        
+        if ( $descriptions{$pic->{picid}} ) {
+            my $content = $entry_xml->createElement( 'title' );
+            $content->setNamespace( $ns );
+            $content->appendTextNode( $descriptions{$pic->{picid}} );
+            $entry_xml->getDocumentElement->appendChild( $content );
+        };
 
         if($comments{$pic->{picid}}) {
             my $content = $entry_xml->createElement( "summary" );

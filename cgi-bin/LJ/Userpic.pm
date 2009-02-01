@@ -108,7 +108,7 @@ sub valid {
 
 sub absorb_row {
     my ($self, $row) = @_;
-    for my $f (qw(userid picid width height comment location state url pictime flags md5base64)) {
+    for my $f (qw(userid picid width height comment description location state url pictime flags md5base64)) {
         $self->{$f} = $row->{$f};
     }
     $self->{_ext} = $MimeTypeMap{$row->{fmt} || $row->{contenttype}};
@@ -147,6 +147,13 @@ sub comment {
     return $self->{comment} if exists $self->{comment};
     $self->load_row;
     return $self->{comment};
+}
+
+sub description {
+    my $self = shift;
+    return $self->{description} if exists $self->{description};
+    $self->load_row;
+    return $self->{description};
 }
 
 sub width {
@@ -477,7 +484,7 @@ sub load_user_userpics {
     # select all of their userpics and iterate through them
     my $sth;
     if (LJ::Userpic->userpics_partitioned($u)) {
-        $sth = $u->prepare("SELECT userid, picid, width, height, state, fmt, comment, location, " .
+        $sth = $u->prepare("SELECT userid, picid, width, height, state, fmt, comment, description, location, " .
                            "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
                            "FROM userpic2 WHERE userid=?");
     } else {
@@ -764,6 +771,22 @@ sub set_comment {
                   undef, $comment, $u->{'userid'}, $self->id)
         or die;
     $self->{comment} = $comment;
+
+    LJ::Userpic->delete_cache($u);
+    return 1;
+}
+
+sub set_description {
+    my ($self, $description) = @_;
+    local $LJ::THROW_ERRORS = 1;
+
+    my $u = $self->owner;
+    #return 0 unless LJ::Userpic->user_supports_descriptions($u);
+    $description = LJ::text_trim($description, LJ::BMAX_UPIC_DESCRIPTION, LJ::CMAX_UPIC_DESCRIPTION);
+    $u->do("UPDATE userpic2 SET description=? WHERE userid=? AND picid=?",
+                  undef, $description, $u->{'userid'}, $self->id)
+        or die;
+    $self->{description} = $description;
 
     LJ::Userpic->delete_cache($u);
     return 1;

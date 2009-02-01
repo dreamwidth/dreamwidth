@@ -41,6 +41,8 @@ use constant BMAX_INTEREST => 100;
 use constant CMAX_INTEREST => 50;
 use constant BMAX_UPIC_COMMENT => 255;
 use constant CMAX_UPIC_COMMENT => 120;
+use constant BMAX_UPIC_DESCRIPTION => 255;
+use constant CMAX_UPIC_DESCRIPTION => 120;
 
 # user.dversion values:
 #    0: unclustered  (unsupported)
