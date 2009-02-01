@@ -686,14 +686,6 @@ userproplist.opt_notalkicons:
   multihomed: 0
   prettyname: No Forum Icons
 
-userproplist.opt_no_nudge:
-  cldversion: 4
-  datatype: bool
-  des: Disable Friend Nudges
-  indexed: 0
-  multihomed: 0
-  prettyname: Disable Friend Nudges
-
 userproplist.opt_no_quickreply:
   cldversion: 4
   datatype: bool

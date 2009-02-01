@@ -4864,20 +4864,6 @@ sub support_points_count {
     return $count;
 }
 
-sub can_be_nudged_by {
-    my ($u, $nudger) = @_;
-
-    return 0 unless LJ::is_enabled("nudge");
-    return 0 if $u->equals($nudger);
-    return 0 unless $u->is_personal;
-    return 0 unless $u->is_visible;
-    return 0 if $u->prop("opt_no_nudge");
-    return 0 unless $u->is_mutual_friend($nudger);
-    return 0 unless time() - $u->timeupdate >= 604800; # updated in the past week
-
-    return 1;
-}
-
 sub should_show_schools_to {
     my ($u, $targetu) = @_;
 

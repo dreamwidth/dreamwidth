@@ -102,8 +102,6 @@
 
 .details.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|Memories]]</a>
 
-.details.nudge=Nudge
-
 .details.search=Search
 
 .details.supportpoints=<a [[aopts]]>Support Points</a>: [[num]]
@@ -281,8 +279,6 @@
 .label.nofriends=<i>None listed.</i>
 
 .label.noschools=None listed
-
-.label.nudge=Nudge This Friend
 
 .label.post=Post to "[[journal]]"
 

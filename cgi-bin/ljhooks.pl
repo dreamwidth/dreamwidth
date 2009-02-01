@@ -187,16 +187,6 @@ register_setter("disable_quickreply", sub {
     return 1;
 });
 
-register_setter("disable_nudge", sub {
-    my ($u, $key, $value, $err) = @_;
-    unless ($value =~ /^(0|1)$/) {
-        $$err = "Illegal value. Must be '0' or '1'";
-        return 0;
-    }
-    $u->set_prop("opt_no_nudge", $value);
-    return 1;
-});
-
 register_setter("trusted_s1", sub {
     my ($u, $key, $value, $err) = @_;
 

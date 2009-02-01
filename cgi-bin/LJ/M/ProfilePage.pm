@@ -125,10 +125,6 @@ sub header_bar_links {
          push @ret, "<a href='$LJ::SITEROOT/tools/search.bml?journal=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/btn_search.gif' width='22' height='20' alt='$BML::ML{'.label.searchjournal'}' title='$BML::ML{'.label.searchjournal'}' border='0' /></a>";
      }
 
-     unless ($LJ::DISABLED{'nudge'} || $pm->remote_isowner || $pm->{u}->is_community || ! $pm->has_journal) {
-         push @ret, "<a href='$LJ::SITEROOT/friends/nudge.bml?user=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/btn_nudge.gif' width='22' height='20' alt='$BML::ML{'.label.nudge'}' title='$BML::ML{'.label.nudge'}' border='0' /></a>";
-     }
-
      if ($remote && !$pm->{u}->is_syndicated && $remote->can_use_esn) {
          push @ret, "<a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$user'>" .
              LJ::img("track", "", { 'align' => 'middle' }) . "</a>";

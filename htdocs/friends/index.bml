@@ -35,10 +35,6 @@ _code?>
   <td class='name'><a href="<?siteroot?>/friends/filter.bml"><?_ml /friends/filter.bml.title _ml?></a></td>
   <td><?_ml .filter.about _ml?></td>
 </tr>
-<tr>
-  <td class='name'><a href="<?siteroot?>/friends/nudge.bml"><?_ml .nudge.title _ml?></a></td>
-  <td><?_ml .nudge.about _ml?></td>
-</tr>
 </table>
 <?p p?>
 <?h1 <?_ml .security.header _ml?> h1?>

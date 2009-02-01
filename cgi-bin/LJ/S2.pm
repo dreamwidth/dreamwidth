@@ -2201,7 +2201,6 @@ sub UserLite
     push @$lks, qw(add_friend post_entry memories);
     push @$lks, "tell_friend"  unless $LJ::DISABLED{'tellafriend'};
     push @$lks, "search"  unless $LJ::DISABLED{'offsite_journal_search'};
-    push @$lks, "nudge"  unless $LJ::DISABLED{'nudge'};
 
     # TODO: Figure out some way to use the userinfo_linkele hook here?
 
@@ -3480,9 +3479,6 @@ sub UserLite__get_link
     if ($key eq 'search' && $has_journal && !$LJ::DISABLED{'offsite_journal_search'}) {
         my $caption = $is_remote ? "Search your journal" : "Search $user";
         return $button->("$LJ::SITEROOT/tools/search.bml?user=$user", $caption, "btn_search.gif");
-    }
-    if ($key eq 'nudge' && !$is_remote && $has_journal && $u->{journaltype} ne 'C') {
-        return $button->("$LJ::SITEROOT/friends/nudge.bml?user=$user", "Nudge $user", "btn_nudge.gif");
     }
 
     # Else?

@@ -581,8 +581,6 @@
 
     my $search_link = "[<a href='$LJ::SITEROOT/tools/search.bml?journal=$user'>$ML{'.details.search'}</a>]"
         if LJ::is_enabled("offsite_journal_search") && $pm->has_journal;
-    my $nudge_link = "[<a href='$LJ::SITEROOT/friends/nudge.bml?user=$user'>$ML{'.details.nudge'}</a>]"
-        if $remote && $u->can_be_nudged_by($remote);
 
     my @comment_stats;
     my $num_comments_received = $u->num_comments_received( dbh => $dbcr );
@@ -604,13 +602,6 @@
     $body .= "<div class='details_stats'>";
     $body .= $journal_warnings;
     $body .= "<p>" . BML::ml('.details.createdon2', { createdate => $timecreate }) . " (#" . $u->id . ")";
-    unless ($u->is_identity) {
-        if ($u->timeupdate) {
-            $body .= ", " . BML::ml('.details.lastupdated2', { timestamp => "<span class='tooltip' title=\"$ago_text\">$lastupdated</span>" }) . " $nudge_link";
-        } else {
-            $body .= ", $ML{'.details.lastupdated.never2'} $nudge_link";
-        }
-    }
     $body .= "</p>";
     $body .= "<p>$comment_stats_string</p>" if $comment_stats_string;
     $body .= LJ::run_hook("userinfo_extra_user_details", user => $u);

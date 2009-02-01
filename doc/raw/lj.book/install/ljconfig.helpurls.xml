@@ -16,10 +16,6 @@
       <listitem><simpara>Explains different login options like <quote>Bind Cookie to IP Address</quote></simpara></listitem>
     </varlistentry>
     <varlistentry>
-      <term>nudge</term>
-      <listitem><simpara>Explains how the <quote>Nudge a Friend</quote> feature works</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
       <term>security</term>
       <listitem><simpara>Explains the different security settings available for posts</simpara></listitem>
     </varlistentry>
