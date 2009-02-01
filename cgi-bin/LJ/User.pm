@@ -2209,14 +2209,7 @@ sub emails_visible {
     my $hide_contactinfo = sub {
         my $hide_after = LJ::get_cap($u, "hide_email_after");
         return 0 unless $hide_after;
-        my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
-        my $active;
-        unless (defined($active = LJ::MemCache::get($memkey))) {
-            my $dbcr = LJ::get_cluster_def_reader($u) or return 0;
-            $active = $dbcr->selectrow_array("SELECT timeactive FROM clustertrack2 ".
-                                             "WHERE userid=?", undef, $u->{userid});
-            LJ::MemCache::set($memkey, $active, 86400);
-        }
+        my $active = $u->get_timeactive;
         return $active && (time() - $active) > $hide_after * 86400;
     };
 
@@ -6057,6 +6050,27 @@ sub alloc_user_counter
 }
 
 # <LJFUNC>
+# name: LJ::get_timeactive
+# des:  retrieve last active time for user from [dbtable[clustertrack2]] or
+#       memcache
+# args: u
+# des-u: source userobj ref
+# </LJFUNC>
+sub get_timeactive {
+    my ($u) = @_;
+    my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
+    my $active;
+    unless (defined($active = LJ::MemCache::get($memkey))) {
+        # TODO: die if unable to get handle? This was left verbatim from
+        # refactored code.
+        my $dbcr = LJ::get_cluster_def_reader($u) or return 0;
+        $active = $dbcr->selectrow_array("SELECT timeactive FROM clustertrack2 ".
+                                         "WHERE userid=?", undef, $u->{userid});
+        LJ::MemCache::set($memkey, $active, 86400);
+    }
+    return $active;
+}
+# <LJFUNC>
 # name: LJ::make_user_active
 # des:  Record user activity per cluster, on [dbtable[clustertrack2]], to
 #       make per-activity cluster stats easier.
@@ -6077,9 +6091,12 @@ sub mark_user_active {
         LJ::MemCache::add("rate:tracked:$uid", 1, 3600)) {
 
         return 0 unless $u->writer;
+        my $active = time();
         $u->do("REPLACE INTO clustertrack2 SET ".
                "userid=?, timeactive=?, clusterid=?", undef,
-               $uid, time(), $u->{clusterid}) or return 0;
+               $uid, $active, $u->{clusterid}) or return 0;
+        my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
+        LJ::MemCache::set($memkey, $active, 86400);
     }
     return 1;
 }
