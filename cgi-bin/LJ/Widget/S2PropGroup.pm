@@ -222,10 +222,6 @@ sub output_prop {
     my $existing = $prop_values{existing};
     my $override = $prop_values{override};
 
-    if ($type eq "bool") {
-        $prop->{values} ||= "1|Yes|0|No";
-    }
-
     my %values = split(/\|/, $prop->{values});
     my $existing_display = defined $values{$existing} ? $values{$existing} : $existing;
 
@@ -261,6 +257,24 @@ sub output_prop {
             maxlength => 5,
             size => 7,
         );
+        $ret .= "</td>";
+    } elsif ($type eq "bool") {
+        $ret .= "<td class='prop-check'>";
+        $ret .= $class->html_check(
+            name => $name,
+            disabled => ! $can_use,
+            selected => $override,
+            
+        );
+        
+        # force the checkbox to be submitted, if the user unchecked it
+        # so that it can be processed (disabled) when handling the post
+        $ret .= $class->html_hidden(
+            "${name}",
+            "0",
+            { disabled => ! $can_use }
+        );
+
         $ret .= "</td>";
     } elsif ($type eq "string") {
         my ($rows, $cols, $full) = ($prop->{rows}+0,
@@ -348,7 +362,17 @@ sub handle_post {
         LJ::Customize->save_s2_props($u, $style, \%override, reset => 1);
         LJ::Customize->save_language($u, $post->{langcode}, reset => 1) if defined $post->{langcode};
     } else {
-        LJ::Customize->save_s2_props($u, $style, $post);
+        my %override = map { $_ => 0 } keys %$post;
+        
+        # ignore all values after the first true $value
+        # only checkboxes have multiple values (forced post of 0, 
+        # so we don't ignore checkboxes that the user just unchecked)
+        foreach my $key ( keys %$post ) {
+            foreach my $value ( split ( /\0/, $post->{$key} ) ) {
+                $override{$key} ||= $value;
+            }
+        }
+        LJ::Customize->save_s2_props($u, $style, \%override);
         LJ::Customize->save_language($u, $post->{langcode}) if defined $post->{langcode};
     }
 
