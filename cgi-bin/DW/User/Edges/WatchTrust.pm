@@ -285,24 +285,6 @@ sub trustmask {
 *LJ::User::trustmask = \&trustmask;
 
 
-# returns 1/0 if the designated user is in the designated group
-sub target_in_trustgroup {
-    my ( $from_u, $to_u, $trustgroupid ) = @_;
-    $from_u = LJ::want_user( $from_u ) or return 0;
-    $to_u = LJ::want_user( $to_u ) or return 0;
-    $trustgroupid += 0;
-
-    return 0 unless $from_u->trusts( $to_u );
-
-    my $grpmask = 1 << $trustgroupid;
-    my $tgmask = $from_u->get_groupmask( $to_u );
-    return 0 unless $grpmask && $tgmask;
-
-    return $grpmask & $tgmask ? 1 : 0;
-}
-*LJ::User::target_in_trustgroup = \&target_in_trustgroup;
-
-
 # name: LJ::User::get_birthdays
 # des: get the upcoming birthdays for friends of a user. shows birthdays 3 months away by default
 #      pass in full => 1 to get all friends' birthdays.
