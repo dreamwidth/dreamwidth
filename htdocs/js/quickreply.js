@@ -153,8 +153,8 @@
         var qr_form = xGetElementById('qrform');
         if (!qr_form) return true;
         var textbox = qr_form.body;
-        if (textbox.value.length > 4300) {
-             alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of 4300.  Please try shortening it and then post again.');
+        if (textbox.value.length > 16000) {
+             alert('Sorry, but your comment of ' + textbox.value.length + ' characters exceeds the maximum character length of 16000.  Please try shortening it and then post again.');
              return false;
         }
         return true;

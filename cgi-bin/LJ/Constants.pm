@@ -19,8 +19,8 @@ $LJ::MAX_32BIT_SIGNED = 2147483647;
 
 use constant BMAX_SUBJECT => 255; # *_SUBJECT for journal events, not comments
 use constant CMAX_SUBJECT => 100;
-use constant BMAX_COMMENT => 9000;
-use constant CMAX_COMMENT => 4300;
+use constant BMAX_COMMENT => 65535;
+use constant CMAX_COMMENT => 16000;
 use constant BMAX_MEMORY  => 150;
 use constant CMAX_MEMORY  => 80;
 use constant BMAX_NAME    => 100;
