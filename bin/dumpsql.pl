@@ -179,17 +179,6 @@ while (my @row = $sth->fetchrow_array) {
 }
 close F;
 
-# and do S1 styles (ugly schema)
-print "Dumping s1styles.dat\n";
-require "$ENV{'LJHOME'}/bin/upgrading/s1style-rw.pl";
-my $ss = {};
-my $pubstyles = LJ::S1::get_public_styles({ 'formatdata' => 1});
-foreach my $s (values %$pubstyles) {
-    my $uniq = "$s->{'type'}/$s->{'styledes'}";
-    $ss->{$uniq}->{$_} = $s->{$_} foreach keys %$s;
-}
-s1styles_write($ss);
-
 # and dump mood info
 print "Dumping moods.dat\n";
 open (F, ">$ENV{'LJHOME'}/bin/upgrading/moods.dat") or die;

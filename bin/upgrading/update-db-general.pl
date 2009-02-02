@@ -251,20 +251,6 @@ CREATE TABLE moodthemes (
 )
 EOC
 
-register_tablecreate("news_sent", <<'EOC');
-CREATE TABLE news_sent (
-  newsid int(10) unsigned NOT NULL auto_increment,
-  newsnum mediumint(8) unsigned NOT NULL default '0',
-  user varchar(15) NOT NULL default '',
-  datesent datetime default NULL,
-  email varchar(100) NOT NULL default '',
-  PRIMARY KEY  (newsid),
-  KEY (newsnum),
-  KEY (user),
-  KEY (email)
-)
-EOC
-
 register_tablecreate("noderefs", <<'EOC');
 CREATE TABLE noderefs (
   nodetype char(1) NOT NULL default '',
@@ -272,14 +258,6 @@ CREATE TABLE noderefs (
   urlmd5 varchar(32) NOT NULL default '',
   url varchar(120) NOT NULL default '',
   PRIMARY KEY  (nodetype,nodeid,urlmd5)
-)
-EOC
-
-register_tablecreate("overrides", <<'EOC'); # global, old
-CREATE TABLE overrides (
-  user varchar(15) NOT NULL default '',
-  override text,
-  PRIMARY KEY  (user)
 )
 EOC
 
@@ -455,28 +433,6 @@ CREATE TABLE style (
 )  PACK_KEYS=1
 EOC
 
-# cache Storable-frozen pre-cleaned style variables
-register_tablecreate("s1stylecache", <<'EOC'); # clustered
-CREATE TABLE s1stylecache (
-   styleid   INT UNSIGNED NOT NULL PRIMARY KEY,
-   cleandate     DATETIME,
-   type          VARCHAR(10) NOT NULL DEFAULT '',
-   opt_cache     ENUM('Y','N') NOT NULL DEFAULT 'N',
-   vars_stor     BLOB,
-   vars_cleanver SMALLINT UNSIGNED NOT NULL
-)
-EOC
-
-# caches Storable-frozen pre-cleaned overrides & colors
-register_tablecreate("s1usercache", <<'EOC'); # clustered
-CREATE TABLE s1usercache (
-   userid            INT UNSIGNED NOT NULL PRIMARY KEY,
-   override_stor     BLOB,
-   override_cleanver SMALLINT UNSIGNED NOT NULL,
-   color_stor        BLOB
-)
-EOC
-
 register_tablecreate("support", <<'EOC');
 CREATE TABLE support (
   spid int(10) unsigned NOT NULL auto_increment,
@@ -571,23 +527,6 @@ CREATE TABLE talkproplist (
   des varchar(255) default NULL,
   PRIMARY KEY  (tpropid),
   UNIQUE KEY name (name)
-)
-EOC
-
-register_tablecreate("themedata", <<'EOC');
-CREATE TABLE themedata (
-  themeid mediumint(8) unsigned NOT NULL default '0',
-  coltype varchar(30) default NULL,
-  color varchar(30) default NULL,
-  KEY (themeid)
-) PACK_KEYS=1
-EOC
-
-register_tablecreate("themelist", <<'EOC');
-CREATE TABLE themelist (
-  themeid mediumint(8) unsigned NOT NULL auto_increment,
-  name varchar(50) NOT NULL default '',
-  PRIMARY KEY  (themeid)
 )
 EOC
 
@@ -972,6 +911,16 @@ register_tabledrop("vertical_rules");
 register_tabledrop("vertical_editorials");
 register_tabledrop("vertical_entries");
 register_tabledrop("vertical");
+register_tabledrop("news_sent");
+register_tabledrop("overrides");
+register_tabledrop("s1usercache");
+register_tabledrop("s1overrides");
+register_tabledrop("s1style");
+register_tabledrop("s1stylemap");
+register_tabledrop("s1stylecache");
+register_tabledrop("weekuserusage");
+register_tabledrop("themedata");
+register_tabledrop("themelist");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -1049,20 +998,6 @@ CREATE TABLE userusage
    timecheck DATETIME,
    lastitemid INT UNSIGNED NOT NULL DEFAULT '0',
    INDEX (timeupdate)
-)
-EOC
-
-# wknum - number of weeks past unix epoch time
-# ubefore - units before next week (unit = 10 seconds)
-# uafter - units after this week (unit = 10 seconds)
-register_tablecreate("weekuserusage", <<'EOC');
-CREATE TABLE weekuserusage
-(
-   wknum  SMALLINT UNSIGNED NOT NULL,
-   userid INT UNSIGNED NOT NULL,
-   PRIMARY KEY (wknum, userid),
-   ubefore  SMALLINT UNSIGNED NOT NULL,
-   uafter   SMALLINT UNSIGNED NOT NULL
 )
 EOC
 
@@ -1644,44 +1579,6 @@ CREATE TABLE supportprop (
   prop varchar(30) NOT NULL,
   value varchar(255) NOT NULL,
   PRIMARY KEY (spid, prop)
-)
-EOC
-
-# s1overrides
-register_tablecreate("s1overrides", <<'EOC'); # clustered
-CREATE TABLE s1overrides (
-  userid int unsigned NOT NULL default '0',
-  override text NOT NULL,
-  PRIMARY KEY  (userid)
-)
-EOC
-
-# s1style
-register_tablecreate("s1style", <<'EOC'); # clustered
-CREATE TABLE s1style (
-  styleid int(11) NOT NULL auto_increment,
-  userid int(11) unsigned NOT NULL,
-  styledes varchar(50) default NULL,
-  type varchar(10) NOT NULL default '',
-  formatdata text,
-  is_public enum('Y','N') NOT NULL default 'N',
-  is_embedded enum('Y','N') NOT NULL default 'N',
-  is_colorfree enum('Y','N') NOT NULL default 'N',
-  opt_cache enum('Y','N') NOT NULL default 'N',
-  has_ads enum('Y','N') NOT NULL default 'N',
-  lastupdate datetime NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY  (styleid),
-  KEY (userid)
-
-)
-EOC
-
-# s1stylemap
-register_tablecreate("s1stylemap", <<'EOC'); # global
-CREATE TABLE s1stylemap (
-   styleid int unsigned NOT NULL,
-   userid int unsigned NOT NULL,
-   PRIMARY KEY (styleid)
 )
 EOC
 
@@ -3186,23 +3083,6 @@ register_alter(sub {
                  "ALTER TABLE user DROP paidfeatures, DROP paiduntil, DROP paidreminder");
     }
 
-    # move S1 _style ids to userprop table!
-    if (column_type("user", "lastn_style")) {
-
-        # be paranoid and insert these in case they don't exist:
-        try_sql("INSERT INTO userproplist VALUES (null, 's1_lastn_style', 0, 'Recent View StyleID', 'num', 'The style ID# of the S1 style for the recent entries view.')");
-        try_sql("INSERT INTO userproplist VALUES (null, 's1_calendar_style', 0, 'Calendar View StyleID', 'num', 'The style ID# of the S1 style for the calendar view.')");
-        try_sql("INSERT INTO userproplist VALUES (null, 's1_day_style', 0, 'Day View StyleID', 'num', 'The style ID# of the S1 style for the day view.')");
-        try_sql("INSERT INTO userproplist VALUES (null, 's1_friends_style', 0, 'Friends View StyleID', 'num', 'The style ID# of the S1 style for the friends view.')");
-
-        foreach my $v (qw(lastn day calendar friends)) {
-            do_sql("INSERT INTO userproplite SELECT u.userid, upl.upropid, u.${v}_style FROM user u, userproplist upl WHERE upl.name='s1_${v}_style'");
-        }
-
-        do_alter("user",
-                 "ALTER TABLE user DROP lastn_style, DROP calendar_style, DROP search_style, DROP searchres_style, DROP day_style, DROP friends_style");
-    }
-
     # add scope columns to proplist tables
     if (column_type("userproplist", "scope") eq "") {
         do_alter("userproplist",
@@ -3345,13 +3225,6 @@ register_alter(sub {
                  "ALTER TABLE syndicated ADD laststatus VARCHAR(80), ADD lastnew DATETIME");
     }
 
-    # change themedata. key to being unique, if it's not already
-    unless (index_name("themedata", "UNIQUE:themeid-coltype")) {
-        do_alter("themedata", "ALTER IGNORE TABLE themedata ".
-                 "DROP KEY themeid, MODIFY coltype VARCHAR(30) NOT NULL, ".
-                 "ADD UNIQUE `thuniq` (themeid, coltype)");
-    }
-
     unless (column_type("syndicated", "numreaders")) {
         do_alter("syndicated",
                  "ALTER TABLE syndicated ".
@@ -3362,12 +3235,6 @@ register_alter(sub {
     {
         do_alter("community",
                  "ALTER TABLE community DROP ownerid");
-    }
-
-    # if it exists, but it's the old way, just kill it.
-    if (column_type("weekuserusage", "ubefore") && ! column_type("weekuserusage", "uafter")) {
-        do_sql("DROP TABLE weekuserusage");
-        create_table("weekuserusage");
     }
 
     unless (column_type("userproplist", "cldversion")) {

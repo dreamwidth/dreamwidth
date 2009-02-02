@@ -62,27 +62,7 @@ body<=
 
     } else {
         $ret .= "<?h2 S1 h2?>";
-
-        $ret .= "<ul>";
-        foreach my $view (@LJ::views) {
-            my $styid = $u->prop("s1_${view}_style");
-            my $uri = $u->journal_base;
-
-            if ($view eq "friends" || $view eq "calendar") {
-                $uri .= "/$view";
-            } elsif ($view eq "day") {
-                my ($dday, $dmon, $dyear) = (localtime(time))[3,4,5];
-                $uri .= sprintf("/%04d/%02d/%02d", $dyear+1900, $dmon+1, $dday);
-            }
-            $ret .= "<li><a href='$uri'>$view</a>: <a href='$LJ::SITEROOT/styles/browse/styleinfo.bml?styleid=$styid'>$styid</a></li>";
-        }
-        $ret .= "</ul>";
-
-        if ($u->{'useoverrides'} eq 'Y') {
-            $ret .= "<?p (<a href='/support/see_overrides.bml?user=" . $u->user . "'>view overrides</a>) p?>";
-        } else {
-            $ret .= "<?p This user does not have any overrides. p?>";
-        }
+        $ret .= "<?p S1 died... did you get the memo? p?>";
 
     }
 

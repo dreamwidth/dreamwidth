@@ -80,9 +80,8 @@ sub END { LJ::end_request(); }
                     "talk2", "talkprop2", "talktext2", "talkleft",
                     "userpicblob2", "subs", "subsprop", "has_subs",
                     "ratelog", "loginstall", "sessions", "sessions_data",
-                    "s1usercache", "modlog", "modblob",
-                    "userproplite2", "links", "s1overrides", "s1style",
-                    "s1stylecache", "userblob", "userpropblob",
+                    "modlog", "modblob", "userproplite2", "links",
+                    "userblob", "userpropblob",
                     "clustertrack2", "captcha_session", "reluser2",
                     "tempanonips", "inviterecv", "invitesent",
                     "memorable2", "memkeyword2", "userkeywords",
@@ -135,29 +134,23 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
 @LJ::views = qw(lastn friends calendar day);
 %LJ::viewinfo = (
                  "lastn" => {
-                     "creator" => \&LJ::S1::create_view_lastn,
                      "des" => "Most Recent Events",
                  },
                  "calendar" => {
-                     "creator" => \&LJ::S1::create_view_calendar,
                      "des" => "Calendar",
                  },
                  "day" => {
-                     "creator" => \&LJ::S1::create_view_day,
                      "des" => "Day View",
                  },
                  "friends" => {
-                     "creator" => \&LJ::S1::create_view_friends,
                      "des" => "Friends View",
                      "owner_props" => ["opt_usesharedpic", "friendspagetitle"],
                  },
                  "friendsfriends" => {
-                     "creator" => \&LJ::S1::create_view_friends,
                      "des" => "Friends of Friends View",
                      "styleof" => "friends",
                  },
                  "data" => {
-                     "creator" => \&LJ::Feed::create_view,
                      "des" => "Data View (RSS, etc.)",
                      "owner_props" => ["opt_whatemailshow", "no_mail_alias"],
                  },
@@ -1406,7 +1399,6 @@ sub start_request
     %LJ::REQ_LANGDATFILE = ();        # caches language files
     %LJ::SMS::REQ_CACHE_MAP_UID = (); # cached calls to LJ::SMS::num_to_uid()
     %LJ::SMS::REQ_CACHE_MAP_NUM = (); # cached calls to LJ::SMS::uid_to_num()
-    %LJ::S1::REQ_CACHE_STYLEMAP = (); # styleid -> uid mappings
     %LJ::S2::REQ_CACHE_STYLE_ID = (); # styleid -> hashref of s2 layers for style
     %LJ::S2::REQ_CACHE_LAYER_ID = (); # layerid -> hashref of s2 layer info (from LJ::S2::load_layer)
     %LJ::S2::REQ_CACHE_LAYER_INFO = (); # layerid -> hashref of s2 layer info (from LJ::S2::load_layer_info)
@@ -2437,7 +2429,7 @@ sub alloc_global_counter
 
     # no prior counter rows - initialize one.
     if ($dom eq "S") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(styleid) FROM s1stylemap");
+        confess 'Tried to allocate S1 counter.';
     } elsif ($dom eq "P") {
         $newmax = $dbh->selectrow_array("SELECT MAX(picid) FROM userpic");
     } elsif ($dom eq "C") {
@@ -2733,13 +2725,6 @@ sub conf_test {
 sub is_enabled {
     my $conf = shift;
     return ! LJ::conf_test($LJ::DISABLED{$conf}, @_);
-}
-
-package LJ::S1;
-
-use vars qw($AUTOLOAD);
-sub AUTOLOAD {
-    Carp::croak("Undefined subroutine: $AUTOLOAD");
 }
 
 package LJ::CleanHTML;

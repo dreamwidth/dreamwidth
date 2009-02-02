@@ -54,6 +54,10 @@ use constant CMAX_UPIC_DESCRIPTION => 120;
 #    6: clustered memories, friend groups, and keywords (for memories)
 #    7: clustered userpics, keyword limiting, and comment support
 #    8: clustered polls
+#
+# Dreamwidth installations should ALL be dversion >= 8.  We do not support anything
+# else and are ripping out code to support all previous dversions.
+#
 use constant MAX_DVERSION => 8;
 $LJ::MAX_DVERSION = MAX_DVERSION;
 

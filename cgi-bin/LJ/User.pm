@@ -7078,29 +7078,7 @@ sub make_journal
 
     my ($styleid);
     if ($opts->{'styleid'}) {  # s1 styleid
-        $styleid = $opts->{'styleid'}+0;
-
-        # if we have an explicit styleid, we have to load
-        # it early so we can learn its type, so we can
-        # know which uprops to load for its owner
-        if ($LJ::ONLY_USER_VHOSTS && $opts->{vhost} eq "customview") {
-            # reject this style if it's not trusted by the user, and we're showing
-            # stuff on user domains
-            my $ownerid = LJ::S1::get_style_userid_always($styleid);
-            my $is_trusted = sub {
-                return 1 if $ownerid == $u->{userid};
-                return 1 if $ownerid == LJ::system_userid();
-                return 1 if $LJ::S1_CUSTOMVIEW_WHITELIST{"styleid-$styleid"};
-                return 1 if $LJ::S1_CUSTOMVIEW_WHITELIST{"userid-$ownerid"};
-                my $trust_list = eval { $u->prop("trusted_s1") };
-                return 1 if $trust_list =~ /\b$styleid\b/;
-                return 0;
-            };
-            unless ($is_trusted->()) {
-                $style = undef;
-                $styleid = 0;
-            }
-        }
+        confess 'S1 was removed, sorry.';
     } else {
 
         $view ||= "lastn";    # default view when none specified explicitly in URLs
@@ -7140,13 +7118,6 @@ sub make_journal
     }
 
     $u->preload_props(@needed_props);
-
-    # FIXME: remove this after all affected accounts have been fixed
-    # see http://zilla.livejournal.org/1443 for details
-    if ($u->{$s1prop} =~ /^\D/) {
-        $u->{$s1prop} = $LJ::USERPROP_DEF{$s1prop};
-        $u->set_prop($s1prop, $u->{$s1prop});
-    }
 
     # if the remote is the user to be viewed, make sure the $remote
     # hashref has the value of $u's opt_nctalklinks (though with
@@ -7500,170 +7471,9 @@ sub make_journal
         return $mj;
     }
 
-    # Everything from here on down is S1.  FIXME: this should be moved to LJ::S1::make_journal
-    # to be more like LJ::S2::make_journal.
-    $r->note(codepath => "s1.$view")
-        if $r;
-    $u->{'_s1styleid'} = $styleid + 0;
-
-    # For embedded polls
-    BML::set_language($LJ::LANGS[0] || 'en', \&LJ::Lang::get_text);
-
-    # load the user-related S1 data  (overrides and colors)
-    my $s1uc = {};
-    my $s1uc_memkey = [$u->{'userid'}, "s1uc:$u->{'userid'}"];
-    if ($u->{'useoverrides'} eq "Y" || $u->{'themeid'} == 0) {
-        $s1uc = LJ::MemCache::get($s1uc_memkey);
-        unless ($s1uc) {
-            my $db;
-            my $setmem = 1;
-            if (@LJ::MEMCACHE_SERVERS) {
-                $db = LJ::get_cluster_def_reader($u);
-            } else {
-                $db = LJ::get_cluster_reader($u);
-                $setmem = 0;
-            }
-            $s1uc = $db->selectrow_hashref("SELECT * FROM s1usercache WHERE userid=?",
-                                           undef, $u->{'userid'});
-            LJ::MemCache::set($s1uc_memkey, $s1uc) if $s1uc && $setmem;
-        }
-    }
-
-    # we should have our cache row!  we'll update it in a second.
-    my $dbcm;
-    if (! $s1uc) {
-        $u->do("INSERT IGNORE INTO s1usercache (userid) VALUES (?)", undef, $u->{'userid'});
-        $s1uc = {};
-    }
-
-    # conditionally rebuild parts of our cache that are missing
-    my %update;
-
-    # is the overrides cache old or missing?
-    my $dbh;
-    if ($u->{'useoverrides'} eq "Y" && (! $s1uc->{'override_stor'} ||
-                                        $s1uc->{'override_cleanver'} < $LJ::S1::CLEANER_VERSION)) {
-
-        my $overrides = LJ::S1::get_overrides($u);
-        $update{'override_stor'} = LJ::CleanHTML::clean_s1_style($overrides);
-        $update{'override_cleanver'} = $LJ::S1::CLEANER_VERSION;
-    }
-
-    # is the color cache here if it's a custom user theme?
-    if ($u->{'themeid'} == 0 && ! $s1uc->{'color_stor'}) {
-        my $col = {};
-        $dbh ||= LJ::get_db_writer();
-        my $sth = $dbh->prepare("SELECT coltype, color FROM themecustom WHERE user=?");
-        $sth->execute($u->{'user'});
-        $col->{$_->{'coltype'}} = $_->{'color'} while $_ = $sth->fetchrow_hashref;
-        $update{'color_stor'} = Storable::freeze($col);
-    }
-
-    # save the updates
-    if (%update) {
-        my $set;
-        foreach my $k (keys %update) {
-            $s1uc->{$k} = $update{$k};
-            $set .= ", " if $set;
-            $set .= "$k=" . $u->quote($update{$k});
-        }
-        my $rv = $u->do("UPDATE s1usercache SET $set WHERE userid=?", undef, $u->{'userid'});
-        if ($rv && $update{'color_stor'}) {
-            $dbh ||= LJ::get_db_writer();
-            $dbh->do("DELETE FROM themecustom WHERE user=?", undef, $u->{'user'});
-        }
-        LJ::MemCache::set($s1uc_memkey, $s1uc);
-    }
-
-    # load the style
-    my $viewref = $view eq "" ? \$view : undef;
-    $style ||= $LJ::viewinfo{$view}->{'nostyle'} ? {} :
-        LJ::S1::load_style($styleid, $viewref);
-
-    my %vars = ();
-
-    # apply the style
-    foreach (keys %$style) {
-        $vars{$_} = $style->{$_};
-    }
-
-    # apply the overrides
-    if ($opts->{'nooverride'}==0 && $u->{'useoverrides'} eq "Y") {
-        my $tw = Storable::thaw($s1uc->{'override_stor'});
-        foreach (keys %$tw) {
-            $vars{$_} = $tw->{$_};
-        }
-    }
-
-    # apply the color theme
-    my $cols = $u->{'themeid'} ? LJ::S1::get_themeid($u->{'themeid'}) :
-        Storable::thaw($s1uc->{'color_stor'});
-    foreach (keys %$cols) {
-        $vars{"color-$_"} = $cols->{$_};
-    }
-
-    # instruct some function to make this specific view type
-    return unless defined $LJ::viewinfo{$view}->{'creator'};
-    my $ret = "";
-
-    # call the view creator w/ the buffer to fill and the construction variables
-    my $res = $LJ::viewinfo{$view}->{'creator'}->(\$ret, $u, \%vars, $remote, $opts);
-
-    if ($LJ::USE_S1w2 && $LJ::USE_S1w2->($view, $u, $remote)) {
-        # S1w2 is an experimental version of S1 that acts as if it were an S2 style,
-        # getting all of its necessary data from the S2 data structures rather than
-        # fetching the data itself and duplicating all of that logic.
-        # It should ideally generate exactly the same output as traditional S1 with
-        # the same input data, but until this has been tested thoroughly it's
-        # disabled by default.
-
-        # We render S1w2 in addition to traditional S1 so that we can see if there
-        # is any difference.
-        my $s1result = $ret;
-        $ret = "";
-
-        require "ljviews-s1-using-s2.pl"; # Load on demand
-        $LJ::S1w2::viewcreator{$view}->(\$ret, $u, \%vars, $remote, $opts);
-
-        if ($s1result ne $ret) {
-            warn "S1w2 differed from S1 when rendering a $view page for $u->{user} with ".($remote ? $remote->{user} : "an anonymous user")." watching";
-
-            # Optionally produce a diff between S1 and S1w2
-            # NOTE: This _make_diff function hits the filesystem and forks a diff process.
-            #   It's only useful/sensible on a low-load development server.
-            if ($LJ::SHOW_S1w2_DIFFS) {
-                $ret .= "<plaintext>".LJ::S1w2::_make_diff($s1result, $ret);
-            }
-        }
-
-    }
-
-    unless ($res) {
-        my $errcode = $opts->{'errcode'};
-        my $errmsg = {
-            'nodb' => 'Database temporarily unavailable during maintenance.',
-            'nosyn' => 'No syndication URL available.',
-        }->{$errcode};
-        return "<!-- $errmsg -->" if ($opts->{'vhost'} eq "customview");
-
-        # If not customview, set the error response code.
-        $opts->{'status'} = {
-            'nodb' => '503 Maintenance',
-            'nosyn' => '404 Not Found',
-        }->{$errcode} || '500 Server Error';
-        return $errmsg;
-    }
-
-    if ($opts->{'redir'}) {
-        return undef;
-    }
-
-    # clean up attributes which we weren't able to quickly verify
-    # as safe in the Storable-stored clean copy of the style.
-    $ret =~ s/\%\%\[attr\[(.+?)\]\]\%\%/LJ::CleanHTML::s1_attribute_clean($1)/eg;
-
-    # return it...
-    return $ret;
+    # if we get here, then we tried to run the old S1 path, so die and hope that
+    # somebody comes along to fix us :(
+    confess 'Tried to run S1 journal rendering path.';
 }
 
 # <LJFUNC>

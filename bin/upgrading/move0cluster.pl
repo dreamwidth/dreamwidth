@@ -48,8 +48,8 @@ my $dclust = shift @ARGV;
 # also, to use this you have to define the primary keys below
 my @manual_move = qw(loginstall ratelog sessions userproplite2
                      sessions_data userbio userpicblob2 userpropblob
-                     s1usercache modlog modblob counter
-                     s1style s1overrides links userblob clustertrack2);
+                     modlog modblob counter
+                     links userblob clustertrack2);
 sub usage {
     die "Usage:\n  movecluster.pl <user> <destination cluster #>\n";
 }
@@ -428,7 +428,6 @@ elsif ($sclust > 0)
         'userbio' => 'userid',
         'userpicblob2' => 'userid',
         'userproplite2' => 'userid',
-        's1usercache' => 'userid',
         'modlog' => 'journalid',
         'modblob' => 'journalid',
         'counter' => 'journalid',
@@ -449,10 +448,6 @@ elsif ($sclust > 0)
 
         # no primary key... move up by posttime
         'talkleft' => 'userid',
-
-        # s1 styles
-        's1style' => 'userid',
-        's1overrides' => 'userid',
 
         # link lists
         'links' => 'journalid',
@@ -515,8 +510,6 @@ elsif ($sclust > 0)
             $pendreplace{$dest}->{'recs'} > 500) { $flush->($dest); }
     };
 
-    my @styleids = ();
-
     # manual moving (dumb copies)
     foreach my $table (@manual_move, @local_tables) {
 	next if ($table eq "modlog" || $table eq "modblob") && $u->{journaltype} eq "P";
@@ -538,9 +531,6 @@ elsif ($sclust > 0)
         $sth->execute;
         while (my @vals = $sth->fetchrow_array) {
             $write->($dest, @vals);
-            if ($styleidcolnum > -1 && $table eq 's1style') {
-                push @styleids, $vals[$styleidcolnum];
-            }
         }
     }
 
@@ -656,14 +646,6 @@ elsif ($sclust > 0)
             my $pri = $pri_key->{$table};
             while ($dbo->do("DELETE FROM $table WHERE $pri=$userid LIMIT 500") > 0) {
                 print "  deleted from $table\n" if $optv;
-            }
-        }
-
-        # s1stylecache table
-        if (@styleids) {
-            my $styleids_in = join(",", map { $dbo->quote($_) } @styleids);
-            if ($dbo->do("DELETE FROM s1stylecache WHERE styleid IN ($styleids_in)") > 0) {
-                print "  deleted from s1stylecache\n" if $optv;
             }
         }
     } else {
@@ -874,7 +856,6 @@ sub verify_movable_tables {
     delete $table{"events"};
 
     # things we don't move because it doesn't really matter
-    delete $table{"s1stylecache"};
     delete $table{"captcha_session"};
 
     if (%table) {

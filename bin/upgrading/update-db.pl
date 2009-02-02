@@ -687,36 +687,8 @@ sub populate_mogile_conf {
 }
 
 sub schema_upgrade_scripts {
-    # convert users from dversion2 (no weekuserusage)
-    if (my $d2 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=2 LIMIT 1")) {
-        $dbh->do("UPDATE user SET dversion=3 WHERE dversion=2");
-    }
-
-    # convert users from dversion3 (unclustered props)
-    if (my $d3 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=3 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/pop-clusterprops.pl", 3);
-    }
-
-    # convert users from dversion4 (unclustered s1styles)
-    if (my $d4 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=4 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d4d5-global.pl");
-    }
-
-    # convert users from dversion5 (unclustered memories and friend groups)
-    if (my $d5 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=5 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d5d6-mkf.pl");
-    }
-
-    # convert users from dversion6 (unclustered user pictures)
-    if (my $d6 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=6 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d6d7-userpics.pl");
-    }
-
-    # convert users from dversion7 (unclustered polls)
-    if (my $d7 = $dbh->selectrow_array("SELECT userid FROM user WHERE dversion=7 LIMIT 1")) {
-        system("$ENV{'LJHOME'}/bin/upgrading/d7d8-polls.pl")
-            && warn "Error upgrading to dversion 8\n";
-    }
+    # none right now, when DW has some upgrades you can look back at this file's history
+    # to see what kind of stuff goes in here
 }
 
 sub skip_opt

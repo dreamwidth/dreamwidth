@@ -125,20 +125,6 @@
 
     # FIXME: should forcibly limit userlinks to 255 (tinyint)
 
-    # set default userprop limits if site maintainer hasn't
-    {
-        my %defuser = (
-                       's1_lastn_style'    => 'lastn/Generator',
-                       's1_friends_style'  => 'friends/Generator',
-                       's1_calendar_style' => 'calendar/Generator',
-                       's1_day_style'      => 'day/Generator',
-                       );
-        foreach my $k (keys %defuser) {
-            next if (defined $LJ::USERPROP_DEF{$k});
-            $LJ::USERPROP_DEF{$k} = $defuser{$k};
-        }
-    }
-
     # Send community invites from the admin address unless otherwise specified
     $COMMUNITY_EMAIL ||= $ADMIN_EMAIL;
 

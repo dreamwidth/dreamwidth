@@ -373,20 +373,7 @@ body<=
                 $ret .= $ML{'none'};
             }
         } else {
-            $ret .= "(S1) ";
-            foreach my $view (@LJ::views) {
-                my $styid = $u->{"s1_${view}_style"};
-                my $viewuri = $view eq "lastn" ? "/users/$u->{'user'}/" : "/users/$u->{'user'}/$view";
-                if ($view eq "day") {
-                    my (undef,undef,undef,$dday,$dmon,$dyear) = localtime(time); $dyear+=1900; $dmon++;
-                    $dmon = $dmon <= 9 ? "0$dmon" : $dmon; $dday = $dday <= 9 ? "0$dday" : $dday;
-                    $viewuri = "/users/$u->{'user'}/$dyear/$dmon/$dday/";
-                }
-                $ret .= "<a href='$viewuri'>$view</a>: <a href='$LJ::SITEROOT/styles/browse/styleinfo.bml?styleid=$styid'>$styid</a> ";
-            }
-            if ($u->{'useoverrides'} eq 'Y') {
-                $ret .= "<br />$ML{'.overrides'}: <a href='see_overrides.bml?user=$u->{'user'}'>$ML{'.view'}</a> ";
-            }
+            $ret .= "(User on S1; why?) ";
         }
 
         LJ::run_hooks("support_see_request_info_rows", {
@@ -959,11 +946,4 @@ _code?>
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/support/faqbrowse.bml, htdocs/styles/browse/styleinfo.bml
-link: htdocs/support/help.bml, htdocs/support/act.bml, htdocs/login.bml
-link: htdocs/guide/support.bml, htdocs/support/faq.bml, htdocs/support/index.bml
-link: htdocs/allpics.bml
-img: htdocs/userpic
-post: htdocs/support/append_request.bml
-</LJDEP> _c?>
+page?>

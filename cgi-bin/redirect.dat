@@ -7,9 +7,6 @@
 /editfriends_do.bml /friends/edit_do.bml
 /friendgraph.bml    /friends/graph.bml
 /friendsfilter.bml  /friends/filter.bml
-/createstyle.bml    /styles/create.bml
-/editstyle.bml      /styles/edit.bml
-/stylebrowser       /styles/browse/
 /friendgraph.bml    /friends/graph.bml
 /textmessage.bml    /tools/textmessage.bml
 /memories.bml       /tools/memories.bml

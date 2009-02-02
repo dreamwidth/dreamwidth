@@ -2329,24 +2329,7 @@ sub get_style_for_ads {
         $ret{layout} = $layout ? $layout : $custom_layout;
         $ret{theme} = $theme ? $theme : $custom_theme;
     } else {
-        my $view = DW::Request->get->note('view');
-        $view = "lastn" if $view eq "";
-
-        if ($view =~ /^(?:friends|day|calendar|lastn)$/) {
-            my $pubstyles = LJ::S1::get_public_styles();
-            my $styleid = $u->prop("s1_${view}_style");
-
-            my $layout = "";
-            if ($pubstyles->{$styleid}) {
-                $layout = $pubstyles->{$styleid}->{styledes}; # e.g. Clean and Simple
-                $layout =~ s/\W//g;
-                $layout =~ s/\s//g;
-                $layout = lc $layout;
-                $layout = $s1_prefix . $layout;
-            }
-
-            $ret{layout} = $layout ? $layout : $s1_prefix . $custom_layout;
-        }
+        confess 'S1 deprecated.';
     }
 
     return %ret;

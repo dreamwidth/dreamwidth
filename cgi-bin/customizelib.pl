@@ -4,104 +4,7 @@
 package LJ::cmize;
 use strict;
 
-# <LJFUNC>
-# name: LJ::cmize::s1_get_style_list
-# des:  Gets style list (S1).
-# args: user, view
-# des-user: whose styles to return, together with public S1 styles
-# des-view: which S1 view to return the style ids for
-# returns: A list of style ids and names, suitable for [func[LJ::html_select]].
-#          The list include separators labels for available user styles and
-#          disabled user styles if appropriate.
-# </LJFUNC>
-sub s1_get_style_list
-{
-    my ($u, $view) = @_;
-
-    my $capstyles = LJ::get_cap($u, "styles");
-    my $pubstyles = LJ::S1::get_public_styles();
-    my %pubstyles = ();
-    foreach (sort { $a->{'styledes'} cmp $b->{'styledes'} } values %$pubstyles) {
-        push @{$pubstyles{$_->{'type'}}}, $_;
-    }
-
-    my $userstyles = LJ::S1::get_user_styles($u);
-    my %userstyles = ();
-    foreach (sort { $a->{'styledes'} cmp $b->{'styledes'} } values %$userstyles) {
-        push @{$userstyles{$_->{'type'}}}, $_;
-    }
-    my @list = map { $_->{'styleid'}, $_->{'styledes'} } @{$pubstyles{$view} || []};
-    if (@{$userstyles{$view} || []}) {
-        my @user_list = map { $_->{'styleid'}, $_->{'styledes'} }
-        grep { $capstyles || $u->{"s1_${view}_style"} == $_->{'styleid'} }
-        @{$userstyles{$view} || []};
-        push @list, { value    => "",
-                      text     => "--- " . BML::ml('/modify_do.bml.availablestyles.userstyles') . " ---",
-                      disabled => 1 }, @user_list
-                          if @user_list;
-        my @disabled_list =
-            map { { value    => $_->{'styleid'},
-                    text     => $_->{'styledes'},
-                    disabled => 1 } }
-        grep { ! $capstyles && $u->{"s1_${view}_style"} != $_->{'styleid'} }
-                                @{$userstyles{$view} || []};
-        push @list, { value    => '',
-                      text     => "--- " . BML::ml('/modify_do.bml.availablestyles.disabledstyles') . " ---",
-                      disabled => 1 }, @disabled_list
-                          if @disabled_list;
-    }
-    return @list;
-}
-
-# <LJFUNC>
-# name: LJ::cmize::s1_get_customcolors
-# des:  Gets colors for user's custom S1 theme.
-# args: user
-# des-user: Whose custom S1 theme to retrieve
-# returns: A hash of colors for a custom S1 theme.
-# </LJFUNC>
-sub s1_get_customcolors
-{
-    my $u = shift;
-
-    my %custcolors = ();
-    my $dbr = LJ::get_db_reader();
-    if ($u->prop('themeid') == 0) {
-        my $stor = $u->selectrow_array("SELECT color_stor FROM s1usercache WHERE userid=?",
-                                       undef, $u->{'userid'});
-        if ($stor) {
-            %custcolors = %{ Storable::thaw($stor) };
-        } else {
-            # ancient table.
-            my $sth = $dbr->prepare("SELECT coltype, color FROM themecustom WHERE user=?");
-            $sth->execute($u->{'user'});
-            $custcolors{$_->{'coltype'}} = $_->{'color'} while $_ = $sth->fetchrow_hashref;
-        }
-    } else {
-        my $sth = $dbr->prepare("SELECT coltype, color FROM themedata WHERE themeid=?");
-        $sth->execute($u->{'themeid'});
-        $custcolors{$_->{'coltype'}} = $_->{'color'} while $_ = $sth->fetchrow_hashref;
-    }
-
-    return %custcolors;
-}
-
-# <LJFUNC>
-# name: LJ::cmize::s1_get_theme_list
-# des:  Gets style list (S1).
-# returns: A list of S1 theme ids and names, suitable for [func[LJ::html_select]].
-# </LJFUNC>
-sub s1_get_theme_list
-{
-    my @list;
-    my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare("SELECT themeid, name FROM themelist ORDER BY name");
-    $sth->execute;
-    while ($_ = $sth->fetchrow_hashref) {
-        push @list, ($_->{'themeid'}, $_->{'name'});
-    }
-    return @list;
-}
+use Carp qw/ confess /;
 
 # <LJFUNC>
 # name: LJ::cmize::s2_implicit_style_create
@@ -359,14 +262,7 @@ sub display_current_summary
             $style_settings = $ustyle->{$u->prop('s2_style')};
         }
     } else {
-        my $pubstyles = LJ::S1::get_public_styles();
-        my $lastn_styleid = $u->prop('s1_lastn_style');
-        if ($pubstyles->{$lastn_styleid}) {
-            $style_settings = $pubstyles->{$lastn_styleid}->{styledes};
-        } else {
-            my $userstyles = LJ::S1::get_user_styles($u);
-            $style_settings = $userstyles->{$lastn_styleid}->{styledes};
-        }
+        confess 'S1 deprecated.';
     }
     $ret .= "<tr valign='top'><th>Name:</th><td>" . LJ::ehtml($style_settings) . "</td></tr>";
 
@@ -391,33 +287,23 @@ sub display_current_summary
 # args: page, getextra, opts*
 # des-page: name of the current page/tab
 # des-getextra: get parameters added to URLs for other pages/tabs
-# des-opts: hash of options
-#           - s1only = true to generate S1 links only
 # returns: HTML fragment
 # </LJFUNC>
 sub html_tablinks
 {
-    my ($page, $getextra, %opts) = @_;
+    my ($page, $getextra) = @_;
     my $ret;
 
     my %strings;
     my @tabs;
 
-    if ($opts{s1only}) {
-        %strings = (
-            "index" => "Visual Options",
-            "advanced" => "Advanced",
-        );
-        @tabs = qw( index advanced );
-    } else {
-        %strings = (
-            "index" => "Basics",
-            "style" => "Look and Feel",
-            "options" => "Custom Options",
-            "advanced" => "Advanced",
-        );
-        @tabs = qw( index style options advanced );
-    }
+    %strings = (
+        "index" => "Basics",
+        "style" => "Look and Feel",
+        "options" => "Custom Options",
+        "advanced" => "Advanced",
+    );
+    @tabs = qw( index style options advanced );
 
     $ret .= "<ul id='Tabs'>";
     foreach my $tab (@tabs) {

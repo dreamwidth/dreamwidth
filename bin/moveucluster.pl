@@ -508,9 +508,6 @@ sub moveUser {
         if ($opts->{del}) {
             print "Deleting expungeable user data...\n" if $optv;
 
-            # figure out if they have any S1 styles
-            my $styleids = $dboa->selectcol_arrayref("SELECT styleid FROM s1style WHERE userid = $userid");
-
             $dbh->do("DELETE FROM domains WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM email_aliases WHERE alias = ?",
                      undef, "$u->{user}\@$LJ::USER_DOMAIN");
@@ -533,14 +530,6 @@ sub moveUser {
                 my $pri = $tinfo->{$table}->{idxcol};
                 while ($dboa->do("DELETE FROM $table WHERE $pri=$userid LIMIT 1000") > 0) {
                     print "  deleted from $table\n" if $optv;
-                }
-            }
-
-            # and from the s1stylecache table
-            if (@$styleids) {
-                my $styleids_in = join(",", map { $dboa->quote($_) } @$styleids);
-                if ($dboa->do("DELETE FROM s1stylecache WHERE styleid IN ($styleids_in)") > 0) {
-                    print "  deleted from s1stylecache\n" if $optv;
                 }
             }
 
@@ -682,7 +671,6 @@ sub moveUser {
     my %skip_table = (
                       "cmdbuffer" => 1,       # pre-flushed
                       "events" => 1,          # handled by qbufferd (not yet used)
-                      "s1stylecache" => 1,    # will be recreated
                       "captcha_session" => 1, # temporary
                       "tempanonips" => 1,     # temporary ip storage for spam reports
                       "recentactions" => 1,   # pre-flushed by clean_caches
@@ -746,7 +734,6 @@ sub moveUser {
     # start copying from source to dest.
     my $rows = 0;
     my @to_delete;  # array of [ $table, $prikey ]
-    my @styleids;   # to delete, potentially
 
     foreach my $table (@tables) {
         next if $skip_table{$table};
@@ -859,12 +846,6 @@ sub moveUser {
                 LJ::text_compress(\$r->[3]);
             };
         }
-        if ($table eq "s1style") {
-            $magic = sub {
-                my $r = shift;
-                push @styleids, $r->[0];
-            };
-        }
 
         # calculate the biggest batch size that can reasonably fit in memory
         my $max_batch = 10000;
@@ -899,8 +880,7 @@ sub moveUser {
                     # (where InnoDB differs and stops when primary key
                     # doesn't match)
                     $batch_size = 25;
-                    if ($table eq "clustertrack2" || $table eq "userbio" ||
-                        $table eq "s1usercache" || $table eq "s1overrides") {
+                    if ($table eq "clustertrack2" || $table eq "userbio") {
                         # we know these only have 1 row, so 2 will be enough to show
                         # in one pass that we're done.
                         $batch_size = 2;
@@ -1021,14 +1001,6 @@ sub moveUser {
                 print "  deleted from $table\n" if $optv;
             }
         }
-
-        # s1stylecache table
-        if (@styleids) {
-            my $styleids_in = join(",", map { $dboa->quote($_) } @styleids);
-            if ($dboa->do("DELETE FROM s1stylecache WHERE styleid IN ($styleids_in)") > 0) {
-                print "  deleted from s1stylecache\n" if $optv;
-            }
-        }
     } else {
         # at minimum, we delete the clustertrack2 row so it doesn't get
         # included in a future ljumover.pl query from that cluster.
@@ -1047,7 +1019,7 @@ sub fetchTableInfo
     my $memkey = "moveucluster:" . Digest::MD5::md5_hex(join(",",@tables));
     my $tinfo = LJ::MemCache::get($memkey) || {};
     foreach my $table (@tables) {
-        next if grep { $_ eq $table } qw(events s1stylecache cmdbuffer captcha_session recentactions pendcomments active_user random_user_set);
+        next if grep { $_ eq $table } qw(events cmdbuffer captcha_session recentactions pendcomments active_user random_user_set);
         next if $tinfo->{$table};  # no need to load this one
 
         # find the index we'll use

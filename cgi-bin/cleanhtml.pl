@@ -121,7 +121,6 @@ sub clean
     my $mode = $opts->{'mode'};
     my $cut = $opts->{'cuturl'} || $opts->{'cutpreview'};
     my $ljcut_disable = $opts->{'ljcut_disable'};
-    my $s1var = $opts->{'s1var'};
     my $extractlinks = 0 || $opts->{'extractlinks'};
     my $noautolinks = $extractlinks || $opts->{'noautolinks'};
     my $noexpand_embedded = $opts->{'noexpandembedded'} || $opts->{'textonly'} || 0;
@@ -467,9 +466,7 @@ sub clean
                 if (length $user) {
                     my $orig_user = $user; # save for later, in case
                     $user = LJ::canonical_username($user);
-                    if ($s1var) {
-                        $newdata .= "%%ljuser:$1%%" if $attr->{'user'} =~ /^\%\%([\w\-\']+)\%\%$/;
-                    } elsif (length $user) {
+                    if (length $user) {
                         if ($opts->{'textonly'}) {
                             $newdata .= $user;
                         } else {
@@ -618,38 +615,6 @@ sub clean
                     if ($attr eq 'id' && $hash->{$attr} =~ /^ljs_/i) {
                         delete $hash->{$attr};
                         next;
-                    }
-
-                    if ($s1var) {
-                        if ($attr =~ /%%/) {
-                            delete $hash->{$attr};
-                            next ATTR;
-                        }
-
-                        my $props = $LJ::S1::PROPS->{$s1var};
-
-                        if ($hash->{$attr} =~ /^%%([\w:]+:)?(\S+?)%%$/ && $props->{$2} =~ /[aud]/) {
-                            # don't change it.
-                        } elsif ($hash->{$attr} =~ /^%%cons:\w+%%[^\%]*$/) {
-                            # a site constant with something appended is also fine.
-                        } elsif ($hash->{$attr} =~ /%%/) {
-                            my $clean_var = sub {
-                                my ($mods, $prop) = @_;
-                                # HTML escape and kill line breaks
-                                $mods = "attr:$mods" unless
-                                    $mods =~ /^(color|cons|siteroot|sitename|img):/ ||
-                                    $props->{$prop} =~ /[ud]/;
-                                return '%%' . $mods . $prop . '%%';
-                            };
-
-                            $hash->{$attr} =~ s/[\n\r]//g;
-                            $hash->{$attr} =~ s/%%([\w:]+:)?(\S+?)%%/$clean_var->(lc($1), $2)/eg;
-
-                            if ($attr =~ /^(href|src|lowsrc|style)$/) {
-                                $hash->{$attr} = "\%\%[attr[$hash->{$attr}]]\%\%";
-                            }
-                        }
-
                     }
 
                     # remove specific attributes
@@ -925,13 +890,6 @@ sub clean
             if ($eating_ljuser_span) {
                 $ljuser_text_node = $token->[1];
                 next TOKEN;
-            }
-
-            if ($opencount{'style'} && $LJ::DEBUG{'s1_style_textnode'}) {
-                my $r = BML::get_request();
-                my $uri = $r->uri;
-                my $host = $r->header_in("Host");
-                warn "Got text node while style elements open.  Shouldn't happen anymore. ($host$uri)\n";
             }
 
             my $auto_format = $addbreaks &&
@@ -1381,40 +1339,6 @@ sub clean_userbio {
         'autoclose' => \@userbio_close,
         'cleancss' => 1,
     });
-}
-
-sub clean_s1_style
-{
-    my $s1 = shift;
-    my $clean;
-
-    my %tmpl;
-    LJ::parse_vars(\$s1, \%tmpl);
-    foreach my $v (keys %tmpl) {
-        clean(\$tmpl{$v}, {
-            'eat' => [qw[layer iframe script object embed applet]],
-            'mode' => 'allow',
-            'keepcomments' => 1, # allows CSS to work
-            'clean_js_css' => 1,
-            's1var' => $v,
-        });
-    }
-
-    return Storable::freeze(\%tmpl);
-}
-
-sub s1_attribute_clean {
-    my $a = $_[0];
-    $a =~ s/[\t\n]//g;
-    $a =~ s/\"/&quot;/g;
-    $a =~ s/\'/&\#39;/g;
-    $a =~ s/</&lt;/g;
-    $a =~ s/>/&gt;/g;
-
-    # IE sucks:
-    if ($a =~ /((?:(?:v\s*b)|(?:j\s*a\s*v\s*a))\s*s\s*c\s*r\s*i\s*p\s*t|
-                a\s*b\s*o\s*u\s*t)\s*:/ix) { return ""; }
-    return $a;
 }
 
 sub canonical_url {
