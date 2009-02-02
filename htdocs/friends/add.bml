@@ -84,10 +84,10 @@
 
         if ($res{'success'} eq "OK")
         {
-            $body = LJ::get_ads({ 
-                location    => 'bml.friends.add/main', 
+            $body = LJ::get_ads({
+                location    => 'bml.friends.add/main',
                 ljadwrapper => 1,
-                below_ad    => LJ::CProd->full_box_for($remote, width => 300) 
+                below_ad    => LJ::CProd->full_box_for($remote, width => 300)
             });
 
             if ($POST{'action:delete'}) {
@@ -129,7 +129,7 @@
     my $dbr = LJ::get_db_reader();
     my $sth = $dbr->prepare("SELECT groupmask, fgcolor, bgcolor FROM friends WHERE userid=? AND friendid=?");
     $sth->execute($remote->{'userid'}, $userid);
-    my $fr = $sth->fetchrow_hashref;
+    my $fr = undef;#$sth->fetchrow_hashref;
 
     if ($fr) {
         $title .= $ML{'.error3.title'};
@@ -474,7 +474,7 @@
 
     $body .= "</form>";
     $body = $print_with_ad->($body);
- 
+
     return;
 }
 _code?>

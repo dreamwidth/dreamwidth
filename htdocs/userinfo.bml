@@ -130,7 +130,6 @@
     # that shouldn't be in a BML page.
     my $pm = LJ::M::ProfilePage->new($u);
 
-    my $remote_isfriend = LJ::is_friend($u, $remote);
     my $com = $u->{'journaltype'} eq "C" ? 1 : 0;
     my $extid = $u->{'journaltype'} eq "I" ? $u->identity : undef;
 
@@ -230,9 +229,8 @@
     my @friends;    # ($u, $u, $u,....)  truncated to max_friends_show
     my %is_friend;  # uid -> 1  (not truncated)
 
-    # TAG:FR:userinfo:loadfriends
     if ($friends{'load'}) {
-        my @ids = $u->friend_uids;
+        my @ids = $u->watched_userids;
         $friends{'count'} = @ids;
         $is_friend{$_} = 1 foreach @ids;
         if (@ids > $pm->max_friends_show) {
@@ -244,15 +242,14 @@
         $friends{'loaded'} = 1;
     }
 
-    # TAG:FR:userinfo:loadfriendofs
-    use LJ::M::FriendsOf;
-    my $fro_m = LJ::M::FriendsOf->new($u,
+    use DW::User::Edges::WatchTrust::UserHelper;
+    my $fro_m = DW::User::Edges::WatchTrust::UserHelper->new($u,
                                       sloppy => 1, # approximate if no summary info
                                       mutuals_separate => $u->show_mutualfriends,
                                       # TODO: lame that we have to pass this in, but currently
                                       # it's not cached on the $u singleton
-                                      friends => \%is_friend,
-                                      hide_test_cb => sub {
+                                      t_userids => \%is_friend,
+                                      hide_watch_test_cb => sub {
                                           return $pm->should_hide_friendof($_[0]);
                                       },
                                       );
@@ -264,14 +261,13 @@
 
     $u->{'name'} = LJ::ehtml($u->{'name'});
 
-    # TAG:FR:userinfo:remotefriends
     # who does the remote user list as a friend?
     my %remote_friendid;
     if ($remote && $friends{'loaded'}) {
         if ($remote->{'userid'} == $u->{'userid'}) {
             foreach (@friends) { $remote_friendid{$_->{'userid'}} = 1; }
         } else {
-            my $frs = LJ::get_friends($remote) || {};
+            my $frs = $remote->trusted_userids || {};
             $remote_friendid{$_} = 1 while $_ = each %$frs;
         }
     }
@@ -360,7 +356,7 @@
     ### Box Ad
     my $boxad = LJ::get_ads({ location => 'bml.userinfo', journalu => $u }) .
                 LJ::get_ads({ location => 'bml.userinfo.sponsored', journalu => $u });
-    
+
     if ($boxad) {
         $body .= "<div class='profile_right_ad'>";
         $body .= $boxad;
@@ -429,7 +425,7 @@
         }
     } else {
         # has_friend doesn't work right if you are viewing your own profile
-        my $remote_hasfriend = $remote && LJ::get_groupmask($remote->userid, $u->userid) ? 1 : 0;
+        my $remote_hasfriend = $remote && $remote->trustmask( $u ) ? 1 : 0;
         $text = $remote_hasfriend ? $ML{'.optionlinks.modifyfriend'} : $ML{'.optionlinks.addfriend'};
         if ($remote && ($remote_hasfriend || $u->is_visible)) {
             if ($remote->equals($u)) {
@@ -1135,13 +1131,13 @@
     unless ($synd) {
         if ($friendsof{'loaded'}) {
             my $label;
-            if ($u->show_mutualfriends && (my $n_friends = $fro_m->mutual_friends)) {
+            if ($u->show_mutualfriends && (my $n_friends = $fro_m->mutually_watched_users)) {
                 $label = $ML{'.friends.mutual'};
                 my $count = 1;
                 my $bold_mutual = ! LJ::u_equals($remote, $u);
                 my $clipped = 0; # bool
                 my $list;
-                foreach my $mf ($fro_m->mutual_friends) {
+                foreach my $mf ($fro_m->mutually_watched_users) {
                     if ($count > $pm->max_friendof_show && $GET{'mode'} ne "full") {
                         $clipped = 1;
                         last;
@@ -1161,13 +1157,13 @@
                 }
                 $mutual .= "</div>\n";
             }
-            if ($friendsof{'display'} && (my $n_friends = $fro_m->friend_ofs)) {
+            if ($friendsof{'display'} && (my $n_friends = $fro_m->trusted_by_users)) {
                 $label = $com ? $ML{'.members.watchedby'} :
                          ($u->show_mutualfriends ? $ML{'.friends.alsofriendof'} : $ML{'.friends.friendof'});
                 my $count = 1;
                 my $clipped = 0; # bool
                 my $list;
-                foreach my $fr ($fro_m->friend_ofs) {
+                foreach my $fr ($fro_m->trusted_by_users) {
                     if ($count > $pm->max_friendof_show && $GET{'mode'} ne "full") {
                         $clipped = 1;
                         last;
@@ -1196,9 +1192,9 @@
                 }
                 $fofs .= "</div>\n";
             }
-            if ($friendsof{'display'} && (my $n_friends = $fro_m->member_of)) {
+            if ($friendsof{'display'} && (my $n_friends = 0)){#$fro_m->member_of)) {
                 $label = $ML{'.comms.memberof'};
-                my @memberof = $fro_m->member_of;
+                my @memberof = ();#$fro_m->member_of;
                 my (@alt_memberof, @alt2_memberof);
                 my ($alt_clabel, $alt2_clabel);
                 LJ::run_hook("userinfo_alt_cfriends", \@memberof, \@alt_memberof, \$alt_clabel, \@alt2_memberof, \$alt2_clabel, labels => 1);

@@ -2254,6 +2254,11 @@ sub getevents
 sub editfriends
 {
     my ($req, $err, $flags) = @_;
+
+    # TODO(mark): most of this code can move to the new trust groups editing
+    #             sort of thing, but for now just say we're deprecated
+    return fail( $err, 504 );
+
     return undef unless authenticate($req, $err, $flags);
 
     my $u = $flags->{'u'};
@@ -2286,11 +2291,9 @@ sub editfriends
     foreach (@{$req->{'delete'}})
     {
         my $deluser = LJ::canonical_username($_);
-        next DELETEFRIEND unless ($curfriend{$deluser});
+        next DELETEFRIEND unless $curfriend{$deluser};
 
-        my $friendid = LJ::get_userid($deluser);
-        # TAG:FR:protocol:editfriends2_del
-        LJ::remove_friend($userid, $friendid);
+        $u->remove_edge( LJ::get_userid( $deluser ), qw/ watch trust / );
         $friend_count--;
     }
 
@@ -2298,7 +2301,6 @@ sub editfriends
     my $friends_added = 0;
     my $fail = sub {
         LJ::memcache_kill($userid, "friends");
-        LJ::mark_dirty($userid, "friends");
         return fail($err, $_[0], $_[1]);
     };
 
@@ -2332,8 +2334,9 @@ sub editfriends
         $friend_count++ unless $curfriend{$aname};
 
         my $err;
+#TODO(mark): wtf
         return $fail->(104, "$err")
-            unless $u->can_add_friends(\$err, { 'numfriends' => $friend_count, friend => $fa });
+            unless 1;#$u->can_add_friends(\$err, { 'numfriends' => $friend_count, friend => $fa });
 
         my $fg = $fa->{'fgcolor'} || "#000000";
         my $bg = $fa->{'bgcolor'} || "#FFFFFF";
@@ -2378,8 +2381,10 @@ sub editfriends
                 $sth->execute;
                 $gmask = $sth->fetchrow_array;
             }
-            # force bit 0 on.
-            $gmask |= 1;
+
+            # force bit 0 and 61 on, since people who use this old path are going to
+            # be forced to watch+trust.
+            $gmask |= ( 1 & ( 1 << 61 ) );
 
             # TAG:FR:protocol:editfriends4_addeditfriend
             $dbh->do("REPLACE INTO friends (userid, friendid, fgcolor, bgcolor, groupmask) ".
@@ -2413,7 +2418,6 @@ sub editfriends
     # invalidate memcache of friends
     LJ::memcache_kill($userid, "friends");
     LJ::memcache_kill($userid, "friends2");
-    LJ::mark_dirty($userid, "friends");
 
     return $res;
 }
@@ -2421,6 +2425,11 @@ sub editfriends
 sub editfriendgroups
 {
     my ($req, $err, $flags) = @_;
+
+    # TODO(mark): most of this code can move to the new trust groups editing
+    #             sort of thing, but for now just say we're deprecated
+    return fail( $err, 504 );
+
     return undef unless authenticate($req, $err, $flags);
 
     my $u = $flags->{'u'};
@@ -2585,7 +2594,6 @@ sub editfriendgroups
     # invalidate memcache of friends/groups
     LJ::memcache_kill($userid, "friends");
     LJ::memcache_kill($userid, "fgrp");
-    LJ::mark_dirty($u, "friends");
 
     # return value for this is nothing.
     return {};
@@ -2864,6 +2872,13 @@ sub login_message
 sub list_friendgroups
 {
     my $u = shift;
+
+    warn "ljprotocol.pl: list_friendgroups called.\n";
+    return [];
+
+# TODO(mark): this needs updating to determine if we should send trust groups?
+#             answer is yes, but we also need to move this to list_trustgroups
+#             so clients don't think those are friend groups.
 
     # get the groups for this user, return undef if error
     my $groups = LJ::get_friend_group($u);

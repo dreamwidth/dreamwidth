@@ -1,0 +1,148 @@
+#!/usr/bin/perl
+# yes, there are so many better testing modules than just doing this in a crappy
+# half-ass way.
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+
+use Data::Dumper;
+
+# much time passes ...
+my $u1 = LJ::load_user( 'tester0394' ) or die 'no tester0394';
+my $u2 = LJ::load_user( 'tester0395' ) or die 'no tester0395';
+
+my @tests;
+print "Beginning tests...\n\n";
+
+my $dbh = LJ::get_db_writer();
+
+# reset, delete, etc
+sub rst {
+    $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?', undef, $_ )
+        foreach ( $u1->id, $u2->id );
+}
+
+################################################################################
+push @tests, [ 'add to watching list', sub
+{
+    rst();
+    $u1->add_edge( $u2, watch => { fgcolor => 123, bgcolor => 321, nonotify => 1 } );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND fgcolor = ? AND bgcolor = ? AND groupmask = ?',
+            undef, $u1->id, $u2->id, 123, 321, 1<<61
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add to trust list', sub
+{
+    rst();
+    $u1->add_edge( $u2, trust => { mask => 30004, nonotify => 1 } );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND groupmask = ?',
+            undef, $u1->id, $u2->id, 30004 | 1
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'watching list empty', sub
+{
+    my @ids = $u1->watched_userids;
+    return scalar( @ids ) == 0 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust list one member', sub
+{
+    my @ids = $u1->trusted_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'remove from trust list', sub
+{
+    $u1->remove_edge( $u2, qw/ trust / );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND groupmask = ?',
+            undef, $u1->id, $u2->id, 30004 | 1
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row == 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust list empty', sub
+{
+    my @ids = $u1->trusted_userids;
+    return scalar( @ids ) == 0 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add to both lists', sub
+{
+    $u1->add_edge( $u2, watch => { nonotify => 1 }, trust => { nonotify => 1 } );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND groupmask = ?',
+            undef, $u1->id, $u2->id, ( 1 << 61 ) | 1
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'watching list one member', sub
+{
+    my @ids = $u1->watched_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust list one member', sub
+{
+    my @ids = $u1->trusted_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'watching list reverse one member', sub
+{
+    my @ids = $u2->watched_by_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust list reverse one member', sub
+{
+    my @ids = $u2->trusted_by_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'get full watch list', sub
+{
+    my $hr = $u1->watch_list;
+    return scalar( keys %$hr ) == 1 ? 1 : 0;
+} ];
+
+
+################################################################################
+$| = 1;
+my $id = 1;
+foreach my $test ( @tests ) {
+    print "Test #$id: $test->[0]: ";
+    my $rv = 0;
+    eval {
+        $rv = $test->[1]->();
+    };
+    if ( $@ || $rv == 0 ) {
+        print "failure!\n\n\$@ = $@\n\$! = $!\nrv = $rv\n\n";
+    } else {
+        print "success\n";
+    }
+    $id++;
+}

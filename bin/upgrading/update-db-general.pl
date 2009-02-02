@@ -148,27 +148,16 @@ CREATE TABLE faquses (
 )
 EOC
 
-register_tablecreate("friendgroup", <<'EOC');
-CREATE TABLE friendgroup (
-  userid int(10) unsigned NOT NULL default '0',
-  groupnum tinyint(3) unsigned NOT NULL default '0',
-  groupname varchar(30) NOT NULL default '',
-  sortorder tinyint(3) unsigned NOT NULL default '50',
-  is_public enum('0','1') NOT NULL default '0',
-  PRIMARY KEY  (userid,groupnum)
-)
-EOC
-
-register_tablecreate("friends", <<'EOC');
-CREATE TABLE friends (
-  userid int(10) unsigned NOT NULL default '0',
-  friendid int(10) unsigned NOT NULL default '0',
-  fgcolor char(7) default NULL,
-  bgcolor char(7) default NULL,
+register_tablecreate("wt_edges", <<'EOC');
+CREATE TABLE wt_edges (
+  from_userid int(10) unsigned NOT NULL default '0',
+  to_userid int(10) unsigned NOT NULL default '0',
+  fgcolor mediumint unsigned NOT NULL default '0',
+  bgcolor mediumint unsigned NOT NULL default '16777215',
   groupmask bigint(20) unsigned NOT NULL default '1',
   showbydefault enum('1','0') NOT NULL default '1',
-  PRIMARY KEY  (userid,friendid),
-  KEY (friendid)
+  PRIMARY KEY  (from_userid,to_userid),
+  KEY (to_userid)
 )
 EOC
 
@@ -976,6 +965,13 @@ register_tabledrop("randomuserset");
 register_tabledrop("todo");
 register_tabledrop("tododep");
 register_tabledrop("todokeyword");
+register_tabledrop("friends");
+register_tabledrop("friendgroup");
+register_tabledrop("friendgroup2");
+register_tabledrop("vertical_rules");
+register_tabledrop("vertical_editorials");
+register_tabledrop("vertical_entries");
+register_tabledrop("vertical");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -1919,9 +1915,9 @@ CREATE TABLE userkeywords (
 )
 EOC
 
-# friendgroup2 -- clustered friend groups
-register_tablecreate("friendgroup2", <<'EOC');
-CREATE TABLE friendgroup2 (
+# trust_groups -- clustered
+register_tablecreate("trust_groups", <<'EOC');
+CREATE TABLE trust_groups (
     userid      INT(10) UNSIGNED NOT NULL DEFAULT '0',
     groupnum    TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
     groupname   VARCHAR(90) NOT NULL DEFAULT '',
@@ -2689,7 +2685,7 @@ CREATE TABLE pollowner (
   INDEX (journalid)
 )
 EOC
-  
+
 # clustereds
 register_tablecreate("poll2", <<'EOC');
 CREATE TABLE poll2 (
@@ -3272,24 +3268,6 @@ register_alter(sub {
                  "ADD INDEX idxversion (dversion)");
     }
 
-    if (column_type("friends", "bgcolor") eq "char(7)") {
-        do_alter("friends", "ALTER TABLE friends ".
-                 "MODIFY bgcolor CHAR(8) NOT NULL DEFAULT '16777215', ".
-                 "MODIFY fgcolor CHAR(8) NOT NULL DEFAULT '0'");
-        do_sql("UPDATE friends SET ".
-               "bgcolor=CONV(RIGHT(bgcolor,6),16,10), ".
-               "fgcolor=CONV(RIGHT(fgcolor,6),16,10)")
-            unless skip_opt() eq "colorconv";
-    }
-
-    return if skip_opt() eq "colorconv";
-
-    if (column_type("friends", "bgcolor") eq "char(8)") {
-        do_alter("friends", "ALTER TABLE friends ".
-                 "MODIFY bgcolor MEDIUMINT UNSIGNED NOT NULL DEFAULT 16777215, ".
-                 "MODIFY fgcolor MEDIUMINT UNSIGNED NOT NULL DEFAULT 0");
-    }
-
     # add the default encoding field, for recoding older pre-Unicode stuff
 
     if (column_type("user", "oldenc") eq "") {
@@ -3303,11 +3281,6 @@ register_alter(sub {
     }
 
     # widen columns to accomodate larger Unicode names
-    if (column_type("friendgroup", "groupname") eq "varchar(30)") {
-        do_alter("friendgroup",
-                 "ALTER TABLE friendgroup ".
-                 "MODIFY groupname VARCHAR(60) NOT NULL");
-    }
     if (column_type("memorable", "des") eq "varchar(60)") {
         do_alter("memorable",
                  "ALTER TABLE memorable ".
@@ -3799,11 +3772,6 @@ register_alter(sub {
                  "ADD domain VARCHAR(255) NOT NULL DEFAULT 'homepage'");
     }
 
-    unless (column_type("friends", "groupmask") =~ /^bigint/) {
-        do_alter("friends",
-                 q{ ALTER TABLE friends MODIFY COLUMN groupmask BIGINT UNSIGNED NOT NULL });
-    }
-
     unless (column_type("log2", "allowmask") =~ /^bigint/) {
         do_alter("log2",
                  q{ ALTER TABLE log2 MODIFY COLUMN allowmask BIGINT UNSIGNED NOT NULL });
@@ -3818,7 +3786,7 @@ register_alter(sub {
         do_alter("logkwsum",
                  q{ ALTER TABLE logkwsum MODIFY COLUMN security BIGINT UNSIGNED NOT NULL });
     }
-    
+
     unless ( column_type("logproplist", "ownership") ) {
         do_alter("logproplist",
                  "ALTER TABLE logproplist ADD ownership ENUM('system', 'user') ".

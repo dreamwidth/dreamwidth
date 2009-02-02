@@ -83,22 +83,21 @@ sub RecentPage
     ## load the itemids
     my @itemids;
     my $err;
-    my @items = LJ::get_recent_items({
-        'clusterid' => $u->{'clusterid'},
-        'clustersource' => 'slave',
-        'viewall' => $viewall,
-        'userid' => $u->{'userid'},
-        'remote' => $remote,
-        'itemshow' => $itemshow,
-        'skip' => $skip,
-        'tagids' => $opts->{tagids},
-        'security' => $opts->{'securityfilter'},
-        'itemids' => \@itemids,
-        'dateformat' => 'S2',
-        'order' => ($u->{'journaltype'} eq "C" || $u->{'journaltype'} eq "Y")  # community or syndicated
-            ? "logtime" : "",
-        'err' => \$err,
-    });
+    my @items = $u->recent_items(
+        clusterid     => $u->{clusterid},
+        clustersource => 'slave',
+        viewall       => $viewall,
+        remote        => $remote,
+        itemshow      => $itemshow,
+        skip          => $skip,
+        tagids        => $opts->{tagids},
+        security      => $opts->{securityfilter},
+        itemids       => \@itemids,
+        dateformat    => 'S2',
+        order         => ( $u->{journaltype} eq 'C' || $u->{journaltype} eq 'Y' )  # community or syndicated
+                          ? 'logtime' : '',
+        err           => \$err,
+    );
 
     die $err if $err;
 

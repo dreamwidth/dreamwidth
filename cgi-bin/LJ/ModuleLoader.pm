@@ -36,7 +36,7 @@ sub module_subclasses {
         }
         $d->close;
     }
-    
+
     return map {
         s!.+cgi-bin/!!;
         s!/!::!g;

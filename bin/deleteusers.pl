@@ -116,10 +116,9 @@ foreach my $uid (@delusers)
 
     # misc:
     $runsql->($user, "DELETE FROM userusage WHERE userid=$uid");
-    $runsql->($user, "DELETE FROM friends WHERE userid=$uid");
-    $runsql->($user, "DELETE FROM friends WHERE friendid=$uid");
-    $runsql->($user, "DELETE FROM friendgroup WHERE userid=$uid");
-    $runsql->($dbcm, $user, "DELETE FROM friendgroup2 WHERE userid=$uid");
+    $runsql->($user, "DELETE FROM wt_edges WHERE from_userid=$uid");
+    $runsql->($user, "DELETE FROM wt_edges WHERE to_userid=$uid");
+    $runsql->($dbcm, $user, "DELETE FROM trust_groups WHERE userid=$uid");
     $runsql->($user, "DELETE FROM memorable WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM memorable2 WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM userkeywords WHERE userid=$uid");

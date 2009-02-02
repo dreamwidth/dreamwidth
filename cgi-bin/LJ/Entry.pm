@@ -7,7 +7,7 @@
 package LJ::Entry;
 use strict;
 use vars qw/ $AUTOLOAD /;
-use Carp qw/ croak /;
+use Carp qw/ croak confess /;
 
 # internal fields:
 #
@@ -1089,26 +1089,26 @@ sub group_names {
 
     my $remote = LJ::get_remote();
     my $poster = $self->poster;
+    return "" unless $remote && $poster && $poster->equals( $remote );
 
-    if ($self->allowmask > 1 && $poster && $poster->equals($remote)) {
-        my $groups = LJ::get_friend_group($poster);
+    my %group_ids = ( map { $_ => 1 } grep { $self->allowmask & ( 1 << $_ ) } 1..60 );
+    return "" unless scalar( keys %group_ids ) > 0;
 
-        # if the poster has friend groups, return the ones to which this entry is filtered
-        if (keys %$groups) {
-            my @friendgroups = ();
+    my $groups = $poster->trust_groups || {};
+    if ( keys %$groups ) {
+        my @friendgroups = ();
 
-            foreach my $groupid (keys %$groups) {
-                next unless $self->allowmask & 1 << $groupid;
+        foreach my $groupid (keys %$groups) {
+            next unless $group_ids{$groupid};
 
-                my $name = LJ::ehtml($groups->{$groupid}->{groupname});
-                my $url = LJ::eurl($poster->journal_base . "/security/group:$name");
+            my $name = LJ::ehtml($groups->{$groupid}->{groupname});
+            my $url = LJ::eurl($poster->journal_base . "/security/group:$name");
 
-                my $group_text = $remote->get_cap("security_filter") || $poster->get_cap("security_filter") ? "<a href='$url'>$name</a>" : $name;
-                push @friendgroups, $group_text;
-            }
-
-            return join(', ', @friendgroups) if @friendgroups;
+            my $group_text = $remote->get_cap("security_filter") || $poster->get_cap("security_filter") ? "<a href='$url'>$name</a>" : $name;
+            push @friendgroups, $group_text;
         }
+
+        return join(', ', @friendgroups) if @friendgroups;
     }
 
     return "";
@@ -1156,7 +1156,7 @@ sub put_logprop_in_history {
 
     my $p = LJ::get_prop("log", $prop);
     return undef unless $p;
-    
+
     my $propid = $p->{id};
 
     my $u = $self->journal;
@@ -1533,11 +1533,11 @@ sub get_log2_recent_log
     my $DATAVER = "4"; # 1 char
 
     my $use_cache = 1;
-    
+
     # timestamp
     $events_date = int $events_date;
     $use_cache = 0 if $events_date; # do not use memcache for dayly friends log
-    
+
     my $memkey  = [$jid, "log2lt:$jid"];
     my $lockkey = $memkey->[1];
     my ($rows, $ret);
@@ -1569,7 +1569,7 @@ sub get_log2_recent_log
         # here, this data is unreliable
         return 0 if $update > $tu;
 
-        my $n = (length($rows) - 5 )/20;
+        my $n = (length($rows) - 5)/24;
         for (my $i=0; $i<$n; $i++) {
             my ($posterid, $eventtime, $rlogtime, $allowmask, $ditemid) =
                 unpack("NNNQN", substr($rows, $i*24+5, 24));
@@ -1615,7 +1615,7 @@ sub get_log2_recent_log
             return $construct_singleton->();
         }
     }
-    
+
     # ok. fetch data directly from DB.
     $rows = "";
 
@@ -1641,19 +1641,19 @@ sub get_log2_recent_log
     # get reliable log2lt data from the db
     my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14; # 2 weeks default
     my $sql = "
-        SELECT 
+        SELECT
             jitemid, posterid, eventtime, rlogtime,
             security, allowmask, anum, replycount
-         FROM log2 
-         USE INDEX (rlogtime) 
-         WHERE 
+         FROM log2
+         USE INDEX (rlogtime)
+         WHERE
                 journalid=?
-         " . 
+         " .
          ($events_date
-            ? 
+            ?
               "AND rlogtime <= ($LJ::EndOfTime - $events_date)
                AND rlogtime >= ($LJ::EndOfTime - " . ($events_date + 24*3600) . ")"
-            : 
+            :
             "AND rlogtime <= ($LJ::EndOfTime - UNIX_TIMESTAMP()) + $max_age"
          )
          ;
@@ -1690,9 +1690,9 @@ sub get_log2_recent_log
     }
 
     $rows = $DATAVER . pack("N", $tu) . $rows;
-    
+
     # store journal log in cache
-    LJ::MemCache::set($memkey, $rows) 
+    LJ::MemCache::set($memkey, $rows)
         if $use_cache and not $dont_store;
 
     $db->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
@@ -1795,15 +1795,15 @@ sub get_itemid_near2
 
     ##
     ## We need a next/prev record in journal before/after a given time
-    ## Since several records may have the same time (time is rounded to 1 minute), 
-    ## we're ordering them by jitemid. So, the SQL we need is 
-    ##      SELECT * FROM log2 
+    ## Since several records may have the same time (time is rounded to 1 minute),
+    ## we're ordering them by jitemid. So, the SQL we need is
+    ##      SELECT * FROM log2
     ##      WHERE journalid=? AND rlogtime>? AND jitmemid<?
     ##      ORDER BY rlogtime, jitemid DESC
     ##      LIMIT 1
     ## Alas, MySQL tries to do filesort for the query.
     ## So, we sort by rlogtime only and fetch all (2, 10, 50) records
-    ## with the same rlogtime (we skip records if rlogtime is different from the first one). 
+    ## with the same rlogtime (we skip records if rlogtime is different from the first one).
     ## If rlogtime of all fetched records is the same, increase the LIMIT and retry.
     ## Then we sort them in Perl by jitemid and takes just one.
     ##

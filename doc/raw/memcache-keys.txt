@@ -46,16 +46,20 @@
 <layerid> s2c:<layerid> == arrayref; [ compile time, compiled data (or 0 meaning no data) ]
 
 <uid> checkfriends:<uid>:<mask> == scalar maxupdate, expires after refresh interval
-<uid> frgmask:<uid>:<uid_friend>  -- scalar numeric mask, 15 minutes
-<uid> fgrp:<uid> == packed data, friendgroup rows for a given user
-<uid> friends:<uid> == packed data, friends rows for a user
-<uid> friendofs:<uid> == packed data, friendofs for a user
+<uid> trustmask:<uid_from>:<uid_to>  -- scalar numeric mask, 15 minutes
+<uid> trust_group:<uid> == packed data, trust_groups rows for a given user
+<uid> wt_edges:<uid> == packed data, wt_edges rows for a user
+<uid> wt_edges_rev:<uid> == packed data, wt_edges in reverse (friendofs) for a user
 <uid> tu:<uid> == packed number: unixtime when user last updated
       popsyn == 100 most read syndicated accounts [user, userid, synurl, numreaders], 1 hour
       popsyn_ids == 1000 most read syndicated accounts, list of userids, 1 hour
-<uid> friends2:<uid> == packed data. total # of friends for a user, with friend userids
-<uid> friendofs2:<uid> == packed data. total # of friendofs for a user, with friendof userids
+<uid> wt_edges2:<uid> == packed data. total # of friends for a user, with friend userids
+<uid> wt_edges_rev2:<uid> == packed data. total # of wt_edges for a user, with wt_edge userids
 <uid> tc:<uid> == unixtime when the user created their account
+<uid> watched:<uid> == array of userids we watch
+<uid> watched_by:<uid> == array of userids that watch us
+<uid> trusted:<uid> == array of userids we trust
+<uid> trusted_by:<uid> == array of userids that trust us
 
 sysban:ip == hashref of ip => unix expiration time
 sysban:uniq == hashref of uniq => unix expiration time
@@ -123,7 +127,7 @@ jabclusterid:<id> == address of server
 
 <uid> embedcont:<uid>:<moduleid> == embed module content
 
-<uid> frbdays:<uid>:<timespan> == friends birthdays for timespan, either 'full' or number of months in the future
+<uid> bdays:<uid>:<timespan> == related birthdays for timespan, either 'full' or number of months in the future
 
 <uid> rcntalk:<uid>:<maxshow> == recent talkitems cached on user, cache on number of talkitems to get
 

@@ -20,8 +20,10 @@ use Carp qw(croak);
 use LJ::ModuleLoader;
 
 my @CLASSES = LJ::ModuleLoader->module_subclasses("LJ::Console::Command");
+my @DWCLASSES = LJ::ModuleLoader->module_subclasses("DW::Console::Command");
+
 my %cmd2class;
-foreach my $class (@CLASSES) {
+foreach my $class (@CLASSES, @DWCLASSES) {
     eval "use $class";
     die "Error loading class '$class': $@" if $@;
     $cmd2class{$class->cmd} = $class;

@@ -17,6 +17,7 @@
 package DW::Hooks::Pay;
 
 use strict;
+use DW::Pay;
 
 # FIXME: these should probably be stripped
 

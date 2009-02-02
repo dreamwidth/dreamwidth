@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+
+use Getopt::Long;
+
+my ( $user, $email );
+GetOptions(
+        'user=s' => \$user,
+        'email=s' => \$email,
+    ) or die "usage: $0 -u USERNAME -e EMAIL\n";
+die "usage: $0 -u USERNAME -e EMAIL\n"
+    unless $user && $email;
+
+$user = LJ::canonical_username( $user );
+die "Username invalid\n"
+    unless $user;
+die "Email invalid\n"
+    unless $email && $email =~ /^[^@]+@[^@]+\.\w+$/;
+
+my $password = '';
+$password .= substr( 'abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ0123456789', int(rand()*62), 1 ) for 1..10;
+my $u = LJ::User->create_personal( user => $user, email => $email, password => $password );
+
+print "User: $u->{user}($u->{userid}) created with password $password.\n";

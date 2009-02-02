@@ -102,16 +102,18 @@ sub FriendsPage
             $group_name =~ s!^/!!;
             $group_name =~ s!/$!!;
 
-            if ($group_name) { 
-                $group_name    = LJ::durl($group_name); 
-                $common_filter = 0; 
+            if ($group_name) {
+                $group_name    = LJ::durl($group_name);
+                $common_filter = 0;
 
                 $p->{'filter_active'} = 1;
                 $p->{'filter_name'}   = LJ::ehtml($group_name);
             }
         }
 
-        my $grp = LJ::get_friend_group($u, { 'name' => $group_name || "Default View" });
+# TODO(mark): WTF broke this, as we no longer use friend groups for watching
+#             and therefore have to implement watch groups.  bug #166
+        my $grp = {};#LJ::get_friend_group($u, { 'name' => $group_name || "Default View" });
         my $bit = $grp->{'groupnum'};
         my $public = $grp->{'is_public'};
         if ($bit && ($public || ($remote && $remote->{'user'} eq $user))) {
@@ -130,22 +132,20 @@ sub FriendsPage
     my %friends;
     my %friends_row;
     my %idsbycluster;
-    my @items = LJ::get_friend_items({
-        'u'                 => $u,
-        'userid'            => $u->{'userid'},
-        'remote'            => $remote,
-        'itemshow'          => $itemshow,
-        'skip'              => $skip,
-        'filter'            => $filter,
-        'common_filter'     => $common_filter,
-        'friends_u'         => \%friends,
-        'friends'           => \%friends_row,
-        'idsbycluster'      => \%idsbycluster,
-        'showtypes'         => $get->{'show'},
-        'friendsoffriends'  => $opts->{'view'} eq "friendsfriends",
-        'dateformat'        => 'S2',
-        'events_date'       => $events_date,
-    });
+    my @items = $u->watch_items(
+        remote            => $remote,
+        itemshow          => $itemshow,
+        skip              => $skip,
+#        filter            => $filter,
+        common_filter     => $common_filter,
+        friends_u         => \%friends,
+        friends           => \%friends_row,
+        idsbycluster      => \%idsbycluster,
+        showtypes         => $get->{show},
+        friendsoffriends  => $opts->{view} eq 'friendsfriends',
+        dateformat        => 'S2',
+        events_date       => $events_date,
+    );
 
     while ($_ = each %friends) {
         # we expect fgcolor/bgcolor to be in here later

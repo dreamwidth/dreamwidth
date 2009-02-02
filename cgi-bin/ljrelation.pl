@@ -2,32 +2,6 @@ package LJ;
 use strict;
 
 # <LJFUNC>
-# name: LJ::is_friend
-# des: Checks to see if a user is a friend of another user.
-# returns: boolean; 1 if user B is a friend of user A or if A == B
-# args: usera, userb
-# des-usera: Source user hashref or userid.
-# des-userb: Destination user hashref or userid. (can be undef)
-# </LJFUNC>
-sub is_friend
-{
-    &nodb;
-
-    my ($ua, $ub) = @_[0, 1];
-
-    $ua = LJ::want_userid($ua);
-    $ub = LJ::want_userid($ub);
-
-    return 0 unless $ua && $ub;
-    return 1 if $ua == $ub;
-
-    # get group mask from the first argument to the second argument and
-    # see if first bit is set.  if it is, they're a friend.  get_groupmask
-    # is memcached and used often, so it's likely to be available quickly.
-    return LJ::get_groupmask(@_[0, 1]) & 1;
-}
-
-# <LJFUNC>
 # name: LJ::is_banned
 # des: Checks to see if a user is banned from a journal.
 # returns: boolean; 1 if "user" is banned from "journal"
@@ -51,32 +25,6 @@ sub is_banned
     # edge from journal -> user
     return LJ::check_rel($jid, $uid, 'B');
 }
-
-sub get_groupmask
-{
-    # TAG:FR:ljlib:get_groupmask
-    my ($journal, $remote) = @_;
-    return 0 unless $journal && $remote;
-
-    my $jid = LJ::want_userid($journal);
-    my $fid = LJ::want_userid($remote);
-    return 0 unless $jid && $fid;
-
-    my $memkey = [$jid,"frgmask:$jid:$fid"];
-    my $mask = LJ::MemCache::get($memkey);
-    unless (defined $mask) {
-        my $dbr = LJ::get_db_reader();
-        die "No database reader available" unless $dbr;
-
-        $mask = $dbr->selectrow_array("SELECT groupmask FROM friends ".
-                                      "WHERE userid=? AND friendid=?",
-                                      undef, $jid, $fid);
-        LJ::MemCache::set($memkey, $mask+0, time()+60*15);
-    }
-
-    return $mask+0;  # force it to a numeric scalar
-}
-
 
 # <LJFUNC>
 # name: LJ::get_reluser_id
