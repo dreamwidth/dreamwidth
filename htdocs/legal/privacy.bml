@@ -46,7 +46,7 @@ body<=
 
 <p>We collect this information for several purposes:</p>
 
-<ul><li>To diagnose and repair network issues with your use of the site;</li>
+<ul class='bullet-list'><li>To diagnose and repair network issues with your use of the site;</li>
 <li>To estimate the number of users accessing the service from specific geographic regions;</li>
 <li>To help prevent fraud and abuse.</li></ul>
 
