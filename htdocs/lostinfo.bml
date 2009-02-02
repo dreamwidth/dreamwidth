@@ -36,7 +36,7 @@ body<=
 
         $ret .= "<div class='form-basic form-fix'><div class='tl'><div class='tr'><div class='br'><div class='bl'>\n";
         $ret .= "<fieldset><label>$ML{'.enter_username'}</label>\n";
-        $ret .= LJ::html_text({ 'name' => 'user', 'id' => 'userlost', 'size' => 30, 'maxlength' => 15, onkeyup => 'enable_pass();'}) . "</fieldset>\n";
+        $ret .= LJ::html_text({ 'name' => 'user', 'id' => 'userlost', 'size' => 30, 'maxlength' => 25, onkeyup => 'enable_pass();'}) . "</fieldset>\n";
         $ret .= "<fieldset><label>$ML{'.enter_email_optional'}</label>\n";
         $ret .= LJ::html_text({ 'name' => 'email_p', 'size' => 30, 'maxlength' => 50 }) . "</fieldset>\n";
         $ret .= "<div class='btn-set'>\n";

@@ -529,7 +529,7 @@ body<=
 
         # use journal
         $ret .= "<tr valign=\"top\"><td align='right'>$ML{'.in'}</td>\n<td>\n";
-        $ret .= LJ::html_text({ 'name' => 'usejournal', 'size' => '20', 'maxlength' => '15', 'value' => $GET{'usejournal'} }) . " ";
+        $ret .= LJ::html_text({ 'name' => 'usejournal', 'size' => '20', 'maxlength' => '25', 'value' => $GET{'usejournal'} }) . " ";
         $ret .= " (optional)</td></tr>";
 
         # submit button

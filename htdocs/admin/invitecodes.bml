@@ -24,7 +24,7 @@ body<=
     $ret .= "<tr><td><label>By code: </label></td>";
     $ret .= "<td>" . LJ::html_text( { name => 'code', maxlength => DW::InviteCodes::CODE_LEN, size => DW::InviteCodes::CODE_LEN } ) . "</td></tr>";
     $ret .= "<tr><td><label>By account: </label></td>";
-    $ret .= "<td>" . LJ::html_text( { name => 'account', maxlength => 15, size=> 20 } ) . "</td></tr>";
+    $ret .= "<td>" . LJ::html_text( { name => 'account', maxlength => 25, size=> 20 } ) . "</td></tr>";
     $ret .= "<tr><td colspan='2' align='right'>";
     $ret .= LJ::html_submit( value => "View" );
     $ret .= "</td></tr></table>";

@@ -56,7 +56,7 @@ SUBMIT:
                                 { new_user => $user, email => $remote->email_raw, name => $user })
         if LJ::sysban_check('email', $remote->email_raw);
 
-        $error = "$ML{'error.usernamelong'}" if length($user) > 15;
+        $error = "$ML{'error.usernamelong'}" if length($user) > 25;
         $error = "$ML{'error.usernameinvalid'}" if $POST{user} && !$user;
         $error = "$ML{'.error.username.mustenter'}" unless $POST{user};
 
@@ -150,7 +150,7 @@ SUBMIT:
         $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'.username.head'}</div>";
         $ret .= "<p class='formitemFlag'>$error</p>";
         $ret .= "<div class='formitemDesc'>" . BML::ml(".username.text", { sitename => $LJ::SITENAME }) . "</div>";
-        $ret .= LJ::html_text({'name' => 'user', 'size' => 15, 'maxlength' => 15, 'value' => $v, raw => 'style="<?commloginboxstyle?>"' });
+        $ret .= LJ::html_text({'name' => 'user', 'size' => 15, 'maxlength' => 25, 'value' => $v, raw => 'style="<?commloginboxstyle?>"' });
         $ret .= "<br />" . BML::ml('.person', { aopts => "href='$LJ::SITEROOT/create.bml'" });
         $ret .= "<div class='formitemNote'>$ML{'.username.charsallowed'}</div>";
         $ret .= "</div></li>";

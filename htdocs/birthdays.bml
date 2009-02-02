@@ -33,7 +33,7 @@ body<=
 
     $body .= "<?p $ML{'.findothers'} p?>";
     $body .= "<form method='get' action='$LJ::SITEROOT/birthdays.bml'>";
-    $body .= LJ::html_text({ name => 'user', maxlength => 15, size => 15 });
+    $body .= LJ::html_text({ name => 'user', maxlength => 25, size => 15 });
     $body .= LJ::html_submit(undef, $ML{'.view'});
     $body .= "</form>";
 

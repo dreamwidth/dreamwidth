@@ -238,7 +238,7 @@ body<=
           $ret .= "<?standout <table width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
           $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login2', {'aopts' => "href='$LJ::SITEROOT/login.bml?ret=1'"}) . "</td></tr>";
           $ret .= "<tr valign='top'><td><b>$ML{'.label.community'}</b></td>";
-          $ret .= "<td>$ML{'.label.username'}<br /><input name='cuser' maxlength='15' value='$cname' /><br />";
+          $ret .= "<td>$ML{'.label.username'}<br /><input name='cuser' maxlength='25' value='$cname' /><br />";
           $ret .= "<?inerr $errors{'username'} inerr?><br />";
           $ret .= "$ML{'.label.password'}<br /><input name='cpassword' type='password' /><br />";
           $ret .= "<?inerr $errors{'password'} inerr?></td></tr></table> standout?>";

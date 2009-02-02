@@ -71,7 +71,7 @@ HTMLBLOCK
         $ret .= LJ::html_select({'name'=>'encid', 'selected'=>$selected},
                                 map { $_, $encnames{$_} } sort keys %encnames);
     } else {
-        $ret .= "<input type='text' name='encoding' size='15' maxlength='15' value='iso-8859-1' />";
+        $ret .= "<input type='text' name='encoding' size='15' maxlength='25' value='iso-8859-1' />";
     }
     $ret .= "<br />\n";
 

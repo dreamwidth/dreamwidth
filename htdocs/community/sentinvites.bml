@@ -147,7 +147,7 @@ body<=
         $ret .= "<form method='post' action='sentinvites.bml?authas=$cname'>";
         $ret .= "<div style='margin-left: 30px;'>Jump to user: ";
         $ret .= LJ::html_text({ 'name' => 'jumpto', 'value' => $POST{'jumpto'},
-                                'size' => '10', 'maxlength' => '15' }) . " ";
+                                'size' => '10', 'maxlength' => '25' }) . " ";
         $ret .= LJ::html_submit(undef, 'Go') . "</div>";
         $ret .= "</form>";
         $ret .= $navbar;

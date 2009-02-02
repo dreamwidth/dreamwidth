@@ -1563,7 +1563,7 @@ sub talkform {
 
     $ret .= "<table><tr><td>";
     $ret .= "$BML::ML{'Username'}:</td><td>";
-    $ret .= "<input class='textbox' name='userpost' size='13' maxlength='15' id='username' value='$ljuser_def' onclick='this.value=\"\"' ";
+    $ret .= "<input class='textbox' name='userpost' size='13' maxlength='25' id='username' value='$ljuser_def' onclick='this.value=\"\"' ";
     $ret .= "style='background: url($LJ::IMGPREFIX/userinfo.gif) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;'/>";
 
     $ret .= "</td></tr><tr><td>";

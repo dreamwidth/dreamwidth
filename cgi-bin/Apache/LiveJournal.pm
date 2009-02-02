@@ -374,7 +374,7 @@ sub trans
 
     my %GET = LJ::parse_args( $r->args );
 
-    if ($LJ::IS_DEV_SERVER && $GET{'as'} =~ /^\w{1,15}$/) {
+    if ($LJ::IS_DEV_SERVER && $GET{'as'} =~ /^\w{1,25}$/) {
         my $ru = LJ::load_user($GET{'as'});
         LJ::set_remote($ru); # might be undef, to allow for "view as logged out"
     }
@@ -717,7 +717,7 @@ sub trans
 
     # user domains
     if (($LJ::USER_VHOSTS || $LJ::ONLY_USER_VHOSTS) &&
-        $host =~ /^([\w\-]{1,15})\.\Q$LJ::USER_DOMAIN\E$/ &&
+        $host =~ /^([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/ &&
         $1 ne "www" &&
 
         # 1xx: info, 2xx: success, 3xx: redirect, 4xx: client err, 5xx: server err
@@ -757,7 +757,7 @@ sub trans
 
         } elsif ($func eq "journal") {
 
-            unless ($uri =~ m!^/(\w{1,15})(/.*)?$!) {
+            unless ($uri =~ m!^/(\w{1,25})(/.*)?$!) {
                 return DECLINED if $uri eq "/favicon.ico";
                 my $redir = LJ::run_hook("journal_subdomain_redirect_url",
                                          $host, $uri);
@@ -1193,7 +1193,7 @@ sub userpic_content
 sub files_trans
 {
     my $r = shift;
-    return 404 unless $r->uri =~ m!^/(\w{1,15})/(\w+)(/\S+)!;
+    return 404 unless $r->uri =~ m!^/(\w{1,25})/(\w+)(/\S+)!;
     my ($user, $domain, $rest) = ($1, $2, $3);
 
     if (my $handler = LJ::run_hook("files_handler:$domain", $user, $rest)) {

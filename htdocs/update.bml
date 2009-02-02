@@ -175,7 +175,7 @@
         $auth .= "<p class='pkg'>\n";
         $auth .= "<label for='altlogin_username' class='left'>$ML{'.username'}</label>\n";
         $auth .=  LJ::html_text({ 'name' => 'user', 'id' => 'altlogin_username', 'class' => 'text', 'size' => '15', 
-                'maxlength' => '15', 'tabindex' => '5', 'value' => $POST{'user'} || $GET{'user'} }) . "\n";
+                'maxlength' => '25', 'tabindex' => '5', 'value' => $POST{'user'} || $GET{'user'} }) . "\n";
         $auth .= "</p>\n";
         $auth .= "<p class='pkg'>\n";
         $auth .= "<label for='altlogin_password' class='left'>$ML{'.password'}</label>\n";

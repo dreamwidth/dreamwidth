@@ -33,7 +33,7 @@ body<=
 
         if ($acct ne "") {
             return $error->($ML{'.invalid.accountname'})
-                if $acct && $acct !~ /^\w{3,15}$/;
+                if $acct && $acct !~ /^\w{3,25}$/;
             foreach my $re ("^system\$", @LJ::PROTECTED_USERNAMES) {
                 next unless ($acct =~ /$re/);
                 return $error->($ML{'.invalid.reserved'});
@@ -70,7 +70,7 @@ body<=
                     $ret .= "<form method='post' action='./'>";
                     $ret .= LJ::html_hidden("userid", $u->{'userid'}, 'synurl', $url);
                     $ret .= "<blockquote>";
-                    $ret .= "<p>$ML{'.account'} <input size='15' maxlength='15' name='acct' />";
+                    $ret .= "<p>$ML{'.account'} <input size='15' maxlength='25' name='acct' />";
                     $ret .= "<p><input name='action:addcustom' type='submit' value='" . LJ::ehtml($ML{'.create'}) . "' />";
                     $ret .= "</blockquote></form>";
                     return $ret;

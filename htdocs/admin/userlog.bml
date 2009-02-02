@@ -38,7 +38,7 @@ body<=
 
     my $ret = <<FORM;
 <form method='post' action='userlog.bml'>
-Username: <input type='text' name='user' value='$user' maxlength='15' size='15' /> <input type='submit' value='View' />
+Username: <input type='text' name='user' value='$user' maxlength='25' size='15' /> <input type='submit' value='View' />
 </form>
 FORM
     return $ret unless $user;

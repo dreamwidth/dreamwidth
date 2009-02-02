@@ -20,7 +20,7 @@ sub verify_username {
     if ($given_username && !$user) {
         $error = LJ::Lang::ml('error.usernameinvalid');
     }
-    if (length $given_username > 15) {
+    if (length $given_username > 25) {
         $error = LJ::Lang::ml('error.usernamelong');
     }
 

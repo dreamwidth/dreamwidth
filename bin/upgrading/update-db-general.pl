@@ -524,7 +524,7 @@ EOC
 register_tablecreate("user", <<'EOC');
 CREATE TABLE user (
   userid int(10) unsigned NOT NULL auto_increment,
-  user char(15) default NULL,
+  user char(25) default NULL,
   caps SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   email char(50) default NULL,
   password char(30) default NULL,
@@ -960,7 +960,7 @@ EOC
 register_tablecreate("useridmap", <<'EOC');
 CREATE TABLE useridmap (
   userid int(10) unsigned NOT NULL,
-  user char(15) NOT NULL,
+  user char(25) NOT NULL,
   PRIMARY KEY  (userid),
   UNIQUE KEY user (user)
 )
@@ -2697,7 +2697,7 @@ EOC
 
 register_tablecreate("expunged_users", <<'EOC');
 CREATE TABLE `expunged_users` (
-  user varchar(15) NOT NULL default '',
+  user varchar(25) NOT NULL default '',
   expunge_time int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (user),
   KEY expunge_time (expunge_time)
@@ -2837,7 +2837,7 @@ CREATE TABLE dw_payments (
     pp_token varchar(20) NOT NULL,
     from_userid int unsigned,
     target_userid int unsigned,
-    target_username varchar(15),
+    target_username varchar(25),
     typeid smallint unsigned NOT NULL,
     duration smallint unsigned NOT NULL,
     amount smallint unsigned NOT NULL,
@@ -3693,6 +3693,27 @@ register_alter(sub {
                    BINARY NOT NULL default ''" );
 
     }
+
+    unless ( column_type( 'user', 'user' ) =~ /25/ ) {
+        do_alter( 'user',
+                  "ALTER TABLE user MODIFY COLUMN user CHAR(25)" );
+    }
+
+    unless ( column_type( 'useridmap', 'user' ) =~ /25/ ) {
+        do_alter( 'useridmap',
+                  "ALTER TABLE useridmap MODIFY COLUMN user CHAR(25) NOT NULL" );
+    }
+
+    unless ( column_type( 'expunged_users', 'user' ) =~ /25/ ) {
+        do_alter( 'expunged_users',
+                  "ALTER TABLE expunged_users MODIFY COLUMN user VARCHAR(25) NOT NULL" );
+    }
+
+    unless ( column_type( 'dw_payments', 'target_username' ) =~ /25/ ) {
+        do_alter( 'dw_payments',
+                  "ALTER TABLE dw_payments MODIFY COLUMN target_username VARCHAR(25)" );
+    }
+
 });
 
 

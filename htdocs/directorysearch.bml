@@ -132,12 +132,12 @@ name=><?_ml .by_friends _ml?>
 code=>s_fr
 form<=
 <?_code
-    my $ret = BML::ml('.user_lists_as_a_friend', { 'input' => "<input name=\"fr_user\" size='15' maxlength='15' />" });
+    my $ret = BML::ml('.user_lists_as_a_friend', { 'input' => "<input name=\"fr_user\" size='15' maxlength='25' />" });
     return $ret;
 _code?>
 <br />
 <?_code
-    my $ret = BML::ml('.lists_user_as_a_friend', { 'input' => "<input name=\"fro_user\" size='15' maxlength='15' />" });
+    my $ret = BML::ml('.lists_user_as_a_friend', { 'input' => "<input name=\"fro_user\" size='15' maxlength='25' />" });
     return $ret;
 _code?>
 <=form

@@ -374,8 +374,8 @@ sub subject_is_bogus {
         || $subject =~ /Attachment block message/i
         || $subject =~ /Use this patch immediately/i
         || $subject =~ /^YOUR PAYPAL\.COM ACCOUNT EXPIRES/i
-        || $subject =~ /^don\'t be late! ([\w\-]{1,15})$/i
-        || $subject =~ /^your account ([\w\-]{1,15})$/i
+        || $subject =~ /^don\'t be late! ([\w\-]{1,25})$/i
+        || $subject =~ /^your account ([\w\-]{1,25})$/i
         || $subject =~ /Message Undeliverable/i;
 }
 

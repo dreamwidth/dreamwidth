@@ -403,7 +403,7 @@ sub _bot_help {
 sub _bot_get_remote {
     my $req = shift;
 
-    if ($req->{jid} =~ /^([\w\-]{1,15})\@$LJ::DOMAIN$/) {
+    if ($req->{jid} =~ /^([\w\-]{1,25})\@$LJ::DOMAIN$/) {
         return LJ::load_user($1);
     }
 
@@ -457,7 +457,7 @@ sub ljtalk_addupdateset_roster {
     my $contact = lc $req->{contact};
     my $is_lj;
     my $cu;  # contact's $u object
-    if ($contact =~ /^([\w-]{1,15})\@\Q$LJ::DOMAIN\E/i) {
+    if ($contact =~ /^([\w-]{1,25})\@\Q$LJ::DOMAIN\E/i) {
         $is_lj = $1;
         $cu = LJ::load_user($is_lj)
             or die "Contact doesn't exist";
@@ -489,7 +489,7 @@ sub _contact_u_if_exists {
     my $contact = lc $contact;
     my $is_lj;
     my $cu;  # contact's $u object
-    if ($contact =~ /^([\w-]{1,15})\@\Q$LJ::DOMAIN\E/i) {
+    if ($contact =~ /^([\w-]{1,25})\@\Q$LJ::DOMAIN\E/i) {
         $is_lj = $1;
         $cu = LJ::load_user($is_lj);
     } else {

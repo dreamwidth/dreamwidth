@@ -62,7 +62,7 @@ sub render_body {
         $ret .= "<h2>" . LJ::Lang::ml('/login.bml.login.welcome', { 'sitename' => $LJ::SITENAMESHORT }) . "</h2>\n";
         $ret .= "<fieldset class='pkg nostyle'>\n";
         $ret .= "<label for='user' class='left'>" . LJ::Lang::ml('/login.bml.login.username') . "</label>\n";
-        $ret .= "<input type='text' value='$user' name='user' id='user' class='text' size='18' maxlength='17' style='' />\n";
+        $ret .= "<input type='text' value='$user' name='user' id='user' class='text' size='18' maxlength='27' style='' />\n";
         $ret .= "</fieldset>\n";
         $ret .= "<fieldset class='pkg nostyle'>\n";
         $ret .= "<label for='lj_loginwidget_password' class='left'>" . LJ::Lang::ml('/login.bml.login.password') . "</label>\n";

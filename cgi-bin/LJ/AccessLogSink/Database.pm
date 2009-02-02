@@ -60,7 +60,7 @@ sub log {
                 "whnunix INT UNSIGNED,".
                 "server VARCHAR(30),".
                 "addr VARCHAR(15) NOT NULL,".
-                "ljuser VARCHAR(15),".
+                "ljuser VARCHAR(25),".
                 "remotecaps INT UNSIGNED,".
                 "journalid INT UNSIGNED,". # userid of what's being looked at
                 "journaltype CHAR(1),".   # journalid's journaltype

@@ -190,7 +190,7 @@ sub sorter_bar {
 
     # Seach by a specific username
     $ret .= "<div class='appwidget-expungeusers-searchuser'>";
-    $ret .= $class->html_text( name => "search_user_$sorter_bar_idx", size => 15, maxlength => 15 );
+    $ret .= $class->html_text( name => "search_user_$sorter_bar_idx", size => 15, maxlength => 25 );
     $ret .= $class->html_submit( "search_$sorter_bar_idx" => "Search by username");
     $ret .= "</div>";
 

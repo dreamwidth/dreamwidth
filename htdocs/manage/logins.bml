@@ -25,7 +25,7 @@ body<=
         $body .= LJ::html_text({'name' => 'user',
                                 'id' => 'user',
                                 'value' => $user,
-                                'maxlength' => '15',
+                                'maxlength' => '25',
                                 'size' => '15'}) . "</label>\n";
         $body .= LJ::html_submit('View') . "\n</form>\n";
         $u = LJ::load_user($user) if $user;

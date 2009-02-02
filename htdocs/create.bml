@@ -144,7 +144,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
 
      my $dbh = LJ::get_db_writer();
 
-     if (length($user) > 15) {
+     if (length($user) > 25) {
          $errors{'username'} = "$ML{'error.usernamelong'}";
      }
      if ($POST{'user'} && ! $user) {
@@ -497,7 +497,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
              BML::ml(".username.text_1", {'sitename' => $LJ::SITENAME,
                                         'lc_sitename' => lc($LJ::SITENAME) })
              . "</div>";
-     $ret .= LJ::html_text({'name' => 'user', 'size' => 15, 'maxlength' => 15, 'value' => $v, raw => 'style="<?loginboxstyle?>"' });
+     $ret .= LJ::html_text({'name' => 'user', 'size' => 15, 'maxlength' => 25, 'value' => $v, raw => 'style="<?loginboxstyle?>"' });
      $ret .= " ($ML{'.username.maxchars'})<br />\n";
      $ret .= "<div class='formitemNote'>$ML{'.username.charsallowed_1'}</div>" if (!%errors || exists $errors{'username'});
      $ret .= "</div></li>";

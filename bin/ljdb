@@ -37,7 +37,7 @@ sub usage {
 }
 
 if (@ARGV) {
-    if ($ARGV[0] =~ /^\w{1,15}$/) {
+    if ($ARGV[0] =~ /^\w{1,25}$/) {
 	$user = shift;
 	$inactive = 1;
     } else {
@@ -50,7 +50,7 @@ usage() if $role && ($user || $inactive);
 print "For more usage options, see: ljdb --help\n";
 
 if (!$role && $user) {
-    die "Bogus username" unless $user =~ /^\w{1,15}$/;
+    die "Bogus username" unless $user =~ /^\w{1,25}$/;
     my $dbs = LJ::DB::dbh_by_role('slave', 'master');
     my ($userid, $cid) = $dbs->selectrow_array('SELECT userid, clusterid FROM user WHERE user = ?', undef, $user);
     die "no such user\n" unless $userid && $cid;

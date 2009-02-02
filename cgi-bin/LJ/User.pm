@@ -7486,7 +7486,7 @@ sub make_journal
 sub canonical_username
 {
     my $user = shift;
-    if ($user =~ /^\s*([A-Za-z0-9_\-]{1,15})\s*$/) {
+    if ($user =~ /^\s*([A-Za-z0-9_\-]{1,25})\s*$/) {
         # perl 5.8 bug:  $user = lc($1) sometimes causes corruption when $1 points into $user.
         $user = $1;
         $user = lc($user);

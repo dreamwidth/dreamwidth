@@ -307,7 +307,7 @@
 
      if ($showgrant) {
          $ret .= "<p>Grant <b>$privname</b> privilege to:<ul>";
-         $ret .= "User: <input name='grantuser' size='15' maxlength='15' /> ";
+         $ret .= "User: <input name='grantuser' size='15' maxlength='25' /> ";
          $ret .= "Arg: <input name='arg' size='10' maxlength='40' value='$FORM{'viewarg'}'/></ul>\n";
      } else {
          $ret .= "<p><i>(you don't have access to grant this privilege to other users)</i></p>\n";

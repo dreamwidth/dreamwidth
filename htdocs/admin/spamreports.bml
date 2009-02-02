@@ -259,7 +259,7 @@
         }
         $body .= qq{<li><form method="GET" action="spamreports.bml" style="display: inline; margin: 0;">
             <label for="repu">Reports for user:
-                <input type="text" name="what" size="15" maxlength="15" id="repu" />
+                <input type="text" name="what" size="15" maxlength="25" id="repu" />
                 <input type="hidden" name="by" value="poster" />
                 <input type="hidden" name="mode" value="view" />
             </label></form></li>

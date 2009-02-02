@@ -13,7 +13,7 @@ body<=
     my $ret;
     $ret .= "<form method='POST'>";
     $ret .= "View user: ";
-    $ret .= LJ::html_text({name => 'user', maxlength => '15', size => '15', value => $GET{user} || $POST{user}});
+    $ret .= LJ::html_text({name => 'user', maxlength => '25', size => '15', value => $GET{user} || $POST{user}});
     $ret .= LJ::html_submit(value => "View");
     $ret .= "</form>";
     $ret .= "<?hr?>";
