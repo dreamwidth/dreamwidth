@@ -5028,6 +5028,24 @@ sub dismissed_page_notices_remove {
     return 1;
 }
 
+# name: LJ::User->get_timeactive
+# des:  retrieve last active time for user from [dbtable[clustertrack2]] or
+#       memcache
+sub get_timeactive {
+    my ($u) = @_;
+    my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
+    my $active;
+    unless (defined($active = LJ::MemCache::get($memkey))) {
+        # TODO: die if unable to get handle? This was left verbatim from
+        # refactored code.
+        my $dbcr = LJ::get_cluster_def_reader($u) or return 0;
+        $active = $dbcr->selectrow_array("SELECT timeactive FROM clustertrack2 ".
+                                         "WHERE userid=?", undef, $u->{userid});
+        LJ::MemCache::set($memkey, $active, 86400);
+    }
+    return $active;
+}
+
 package LJ;
 
 use Carp;
@@ -6035,27 +6053,6 @@ sub alloc_user_counter
     return LJ::alloc_user_counter($u, $dom, { recurse => 1 });
 }
 
-# <LJFUNC>
-# name: LJ::get_timeactive
-# des:  retrieve last active time for user from [dbtable[clustertrack2]] or
-#       memcache
-# args: u
-# des-u: source userobj ref
-# </LJFUNC>
-sub get_timeactive {
-    my ($u) = @_;
-    my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
-    my $active;
-    unless (defined($active = LJ::MemCache::get($memkey))) {
-        # TODO: die if unable to get handle? This was left verbatim from
-        # refactored code.
-        my $dbcr = LJ::get_cluster_def_reader($u) or return 0;
-        $active = $dbcr->selectrow_array("SELECT timeactive FROM clustertrack2 ".
-                                         "WHERE userid=?", undef, $u->{userid});
-        LJ::MemCache::set($memkey, $active, 86400);
-    }
-    return $active;
-}
 # <LJFUNC>
 # name: LJ::make_user_active
 # des:  Record user activity per cluster, on [dbtable[clustertrack2]], to
