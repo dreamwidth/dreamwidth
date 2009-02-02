@@ -414,25 +414,6 @@ CREATE TABLE blobcache (
 )
 EOC
 
-register_tablecreate("style", <<'EOC');
-CREATE TABLE style (
-  styleid int(11) NOT NULL auto_increment,
-  user varchar(15) NOT NULL default '',
-  styledes varchar(50) default NULL,
-  type varchar(10) NOT NULL default '',
-  formatdata text,
-  is_public enum('Y','N') NOT NULL default 'N',
-  is_embedded enum('Y','N') NOT NULL default 'N',
-  is_colorfree enum('Y','N') NOT NULL default 'N',
-  opt_cache enum('Y','N') NOT NULL default 'N',
-  has_ads enum('Y','N') NOT NULL default 'N',
-  lastupdate datetime NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY  (styleid),
-  KEY (user),
-  KEY (type)
-)  PACK_KEYS=1
-EOC
-
 register_tablecreate("support", <<'EOC');
 CREATE TABLE support (
   spid int(10) unsigned NOT NULL auto_increment,
@@ -921,6 +902,7 @@ register_tabledrop("s1stylecache");
 register_tabledrop("weekuserusage");
 register_tabledrop("themedata");
 register_tabledrop("themelist");
+register_tabledrop("style");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (

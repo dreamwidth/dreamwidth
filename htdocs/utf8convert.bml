@@ -8,7 +8,7 @@
     $title = "UTF-8 Conversion Page";
     $body = "";
 
-    my @areanames = ('personal','interests','keywords','memories','polls','styles');
+    my @areanames = ('personal','interests','keywords','memories','polls');
 
     my %areas = (
                  'personal'=>{
@@ -39,12 +39,6 @@
                      'des'=>'Text of questions/answers for polls you created',
                      'browse'=>\&browse_polls,
                      'save'=>\&save_polls,
-                 },
-
-                 'styles'=>{
-                     'des'=>'Text of styles and overrides belonging to you',
-                     'browse'=>\&browse_styles,
-                     'save'=>\&save_styles,
                  },
                  );
 
@@ -361,43 +355,6 @@
         return $valid, $ret;
     }
     
-    sub browse_styles {
-        my ($u, $encid) = @_;
-        my $ret = "";
-        my $anystyles = 0;
-        my $valid = 1;
-        
-        my $sth = $dbh->prepare("SELECT styleid, styledes, formatdata FROM style WHERE user=?");
-        $sth->execute($u->{'user'});
-        while (my ($styleid, $styledes, $fdata) = $sth->fetchrow_array) {
-            $anystyles = 1;
-            $valid = 0 unless LJ::is_utf8($styledes) && LJ::is_utf8($fdata);
-            my $utfdata = LJ::is_utf8($fdata);
-            convert(\$styledes, $encid);
-            convert(\$fdata, $encid);
-            
-            $ret .= "<?p <b>Style number:</b> $styleid<br />";
-            $ret .= "<b>Description:</b> $styledes<br />";
-            if ($utfdata) {
-                $ret .= "<b>Format data:</b> valid UTF-8<br />";
-            } else {
-                $ret .= "<b>Format data:</b> contains non-Unicode characters (too large to display)<br />";
-            }
-            $ret .= "p?>";
-        }
-        unless ($anystyles) { $ret .= "<?p You have no styles defined. p?>"; }
-        
-        my ($overrides) = $dbh->selectrow_array("SELECT override FROM overrides WHERE user=?", undef, $u->{'user'});
-        if ($overrides) {
-            $valid = 0 unless LJ::is_utf8($overrides);
-            convert(\$overrides, $encid);
-            $ret .= "<?p Overrides: p?>";
-            $ret .= "<?p $overrides p?>";
-        } else { $ret .= "<?p You have no overrides defined. p?>"; }
-        
-        return $valid, $ret;
-    }
-    
     sub browse_memories {
         my ($u, $encid) = @_;
         my $ret = "";
@@ -631,41 +588,6 @@
         
         return 1, $message;
         
-    }
-    
-    sub save_styles {
-        my ($u, $encid) = @_;
-        my $success = 1;
-        my $message = "";
-        my $sth;
-        my $changed = 0;
-        
-        my $quser = $dbh->quote($u->{'user'});
-        
-        my $sth = $dbh->prepare("SELECT styleid, styledes, formatdata FROM style WHERE user=$quser");
-        $sth->execute;
-        while (my ($styleid, $styledes, $fdata) = $sth->fetchrow_array) { 
-            next if LJ::is_utf8($styledes) && LJ::is_utf8($fdata);
-            convert(\$styledes, $encid);
-            convert(\$fdata, $encid);
-            my $newdes = $dbh->quote($styledes);
-            my $newdata = $dbh->quote($fdata);
-            $dbh->do("UPDATE style SET styledes=$newdes, formatdata=$newdata WHERE styleid=$styleid");
-            $changed =1;
-        }
-        if ($changed) {
-            $message .= "<?p Converted styles. p?>";
-        }
-        
-        my ($overrides) = $dbh->selectrow_array("SELECT override FROM overrides WHERE user=$quser");
-        if ($overrides && !LJ::is_utf8($overrides)) {
-            convert(\$overrides, $encid);
-            my $qoverrides = $dbh->quote($overrides);
-            $dbh->do("UPDATE overrides SET override=$qoverrides WHERE user=$quser");
-            $message .= "<?p Converted overrides. p?>";
-        }
-        
-        return 1, $message;
     }
     
     sub save_memories {
