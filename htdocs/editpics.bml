@@ -725,7 +725,7 @@ sub parse_post_uploads
                 my $counter = $tokens[1];
                 $current_upload{keywords} = $POST{"keywords_$counter"};
                 $current_upload{comments} = $POST{"comments_$counter"};
-                $current_upload{descriptions} = $POST{descriptions_$counter};
+                $current_upload{descriptions} = $POST{"descriptions_$counter"};
                 $current_upload{index} = $counter;
                 $current_upload{image} = \$POST{$userpic_key};
                 $current_upload{make_default} =  ($POST{"make_default"} eq $counter);
