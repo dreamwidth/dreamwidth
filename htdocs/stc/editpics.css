@@ -81,7 +81,7 @@ hr {
 *:first-child+html .userpic_controls input.text {
     width: 180px;
 }
-.userpic_keywords, .userpic_comments, .userpic_defaultdelete {
+.userpic_keywords, .userpic_comments, .userpic_descriptions, .userpic_defaultdelete {
     float: left;
     clear: left;
     margin-bottom: 8px;
@@ -90,11 +90,13 @@ hr {
     width: 200px;
 }
 * html .userpic_keywords,
-* html .userpic_comments {
+* html .userpic_comments,
+* html .userpic_descriptions {
     width: 290px;
 }
 *:first-child+html .userpic_keywords, 
-*:first-child+html .userpic_comments {
+*:first-child+html .userpic_comments,
+*:first-child+html .userpic_descriptions {
     width: 290px;
 }
 html>body .userpic_defaultdelete {

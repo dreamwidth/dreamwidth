@@ -529,7 +529,7 @@ use strict;
             }
             
             $body .= "<div class='userpic_descriptions pkg'>\n";
-            $body .= "<label class='left' for='com_$pid'>$ML{'.label.description'}</label>\n ";
+            $body .= "<label class='left' for='desc_$pid'>$ML{'.label.description'}</label>\n ";
             $body .= LJ::html_text({ 'name' => "desc_$pid", 'class' => "text", 'id' => "desc_$pid",
                                      'value' => $description,
                                      'maxlength' => LJ::CMAX_UPIC_DESCRIPTION,
