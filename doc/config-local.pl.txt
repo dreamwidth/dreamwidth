@@ -21,7 +21,6 @@
     $IS_DEV_SERVER = 1;
 
     # home directory
-    # CHANGE THIS
     $HOME = $ENV{'LJHOME'};
 
     # human readable name of this site as well as shortened versions
