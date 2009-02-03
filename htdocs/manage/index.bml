@@ -141,12 +141,6 @@ _code?>
 
 <li><a href="/schools/manage.bml" title="<?_ml .schools _ml?>"><?_ml .schools _ml?></a></li>
 <li><a href="/manage/logins.bml" title="<?_ml .manage.logins _ml?>"><?_ml .manage.logins _ml?></a></li>
-<?_code
-    my $remote = LJ::get_remote();
-    return "" unless LJ::SMS->can_use_sms($remote);
-    return qq{<li><a href="/manage/mobile.bml" title="<?_ml .mobile.settings _ml?>"><?_ml .mobile.settings _ml?></a></li>};
-    
-_code?>
 <li><a href="/accountstatus.bml<?authas?>" title="<?_ml .information.status.about _ml?>">
 <?_code
 {

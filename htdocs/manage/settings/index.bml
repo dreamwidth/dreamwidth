@@ -89,7 +89,6 @@ body<=
             desc => $ML{'.cat.mobile.desc'},
             settings => [qw(
                 LJ::Setting::VoicePosting
-                LJ::Setting::SMS
                 LJ::Setting::EmailPosting
                 LJ::Setting::Display::MobileApps
             )],
@@ -125,7 +124,6 @@ body<=
                 LJ::Setting::Display::Payments
                 LJ::Setting::Display::Emails
                 LJ::Setting::Display::EmailPosts
-                LJ::Setting::Display::SMSHistory
                 LJ::Setting::Display::GiftCerts
             )],
         },
