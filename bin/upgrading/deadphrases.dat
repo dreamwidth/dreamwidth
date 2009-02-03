@@ -439,6 +439,7 @@ general /support/see_overrides.bml.header
 general /poll/create.bml.error.accttype
 
 general /editpics.bml.noneupload
+general /editpics.bml.kilobytes
 
 general /allpics.bml.edit3
 

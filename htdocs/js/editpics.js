@@ -86,6 +86,7 @@ function toggleElement(elementId) {
 // keeps track of maximum number of uploads alowed
 var counter = 1;
 var maxcounter;
+var ep_labels = {};
 var allowComments = false;
 var allowDescriptions = false;
 
@@ -101,24 +102,24 @@ function addNewUpload(uploadType) {
   insertElement.setAttribute("id", "additional_upload_" + counter);
   insertElement.setAttribute("class", "pkg");
 
-  newPicHTML = "<input type='button' value='Remove' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
+  newPicHTML = "<input type='button' value='" + ep_labels.remove + "' onclick='javascript:removeAdditionalUpload(" + counter + ");' /><br/>\n";
 
   if (uploadType == 'file') {
     newPicHTML += "<label class='left' for='userpic_" + counter + "'>From <u>F</u>ile:</label>";
     newPicHTML += "<input type='file' class='file' name='userpic_" + counter + "' id='userpic_" + counter + "' size='22' />";
   } else if (uploadType == 'url') {
     newPicHTML += "<label class='left' for='urlpic_'" + counter + ">";
-    newPicHTML += 'From U<u>R</u>L:</label>';
+    newPicHTML += ep_labels.fromurl + '</label>';
     newPicHTML += '<input type="text" name="urlpic_' + counter + '" id="urlpic_' + counter + '" class="text" />';
   }
-  newPicHTML += "<label class='left' for='keywords_" + counter + "'>Keywords:</label><input type='text' name='keywords_" + counter + "' id='keywords_" + counter + "' class='text' />";
+  newPicHTML += "<label class='left' for='keywords_" + counter + "'>" + ep_labels.keywords + "</label><input type='text' name='keywords_" + counter + "' id='keywords_" + counter + "' class='text' />";
   if (allowComments) {
-    newPicHTML += "<label class='left' for='comments_" + counter + "'>Comment:</label><input type='text' maxlength='120' name='comments_" + counter + "' id='comments_" + counter + "' class='text' />";
+    newPicHTML += "<label class='left' for='comments_" + counter + "'>" + ep_labels.comment + "</label><input type='text' maxlength='120' name='comments_" + counter + "' id='comments_" + counter + "' class='text' />";
   }
   if (allowDescriptions) {
-    newPicHTML += "<label class='left' for='descriptions_" + counter + "'>Description:</label><input type='text' maxlength='120' name='descriptions_" + counter + "' id='descriptions_" + counter + "' class='text' />";
+    newPicHTML += "<label class='left' for='descriptions_" + counter + "'>" + ep_labels.description +"</label><input type='text' maxlength='120' name='descriptions_" + counter + "' id='descriptions_" + counter + "' class='text' />";
   }
-  newPicHTML += "<br/><input type='radio' accesskey='d' value='" + counter + "' name='make_default' id='make_default_" + counter + "' /><label for='make_default_" + counter + "'>Make this your <u>d</u>efault picture</label>\n";
+  newPicHTML += "<br/><input type='radio' accesskey='" + ep_labels.makedefaultkey + "' value='" + counter + "' name='make_default' id='make_default_" + counter + "' /><label for='make_default_" + counter + "'>" + ep_labels.makedefault + "</label>\n";
 
   insertElement.innerHTML = newPicHTML;
   insertIntoTag.appendChild(insertElement);
@@ -169,7 +170,7 @@ function addNoDefaultButton() {
   insertElement.setAttribute("id", "make_default_none");
   insertElement.setAttribute("class", "pkg");
 
-  newPicHTML = "<input type='radio' accesskey='d' value='-1' name='make_default' id='make_default_button_none' /><label for='make_default_button_none'>Keep existing default pic.</label>\n";
+  newPicHTML = "<input type='radio' accesskey='" + ep_labels.makedefaultkey +"' value='-1' name='make_default' id='make_default_button_none' /><label for='make_default_button_none'>" + ep_labels.keepdefault + "</label>\n";
   insertElement.innerHTML = newPicHTML;
   buttonsElement.appendChild(insertElement);
 }

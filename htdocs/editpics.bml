@@ -128,8 +128,8 @@ use strict;
                                                  });
 
                 return $err->(BML::ml('.error.filetoolarge',
-                                      { 'maxsize' => int($MAX_UPLOAD / 1024) .
-                                            $ML{'.kilobytes'} }));
+                                      { 'maxsize' => int($MAX_UPLOAD / 1024) }));
+                                           
             }
 
             my $parsetomogile = !$factory_disabled && ($size > $MAX_UPLOAD + 2048);
@@ -169,8 +169,7 @@ use strict;
                         my $code = $1;
                         if ($code eq "toolarge") {
                             return $err->(BML::ml('.error.filetoolarge',
-                                                  { 'maxsize' => int($MAX_UPLOAD / 1024) .
-                                                        $ML{'.kilobytes'} }));
+                                                  { 'maxsize' => int($MAX_UPLOAD / 1024) }));
                         }
                         $error = BML::ml("BML.parse_multipart.$code");
                     }
@@ -202,7 +201,7 @@ use strict;
                         mogkey => "upf_$index:$u->{userid}",
                         );
                 }
-                or return $err->("There was an error in generating the userpic: $@");
+                or return $err->($ML{'.error.generatinguserpic'} . $@);
 
                 my %current_upload;
                 $current_upload{key} = "userpic_0";
@@ -222,9 +221,9 @@ use strict;
 
             unless (@uploaded_userpics) {
                 if ($POST{src} eq "file")  {
-                    return $err->("You must choose a file to upload");
+                    return $err->($ML{'.error.nofile'});
                 } else {
-                    return $err->("You must enter the URL of an image");
+                    return $err->($ML{'.error.nourl'});
                 }
             }
             
@@ -236,7 +235,7 @@ use strict;
                 $current_index++;
                 my $message_prefix = "";
                 if (scalar @uploaded_userpics > 1) {
-                    $message_prefix = "Userpic $current_index:  "
+                    $message_prefix = BML::ml('.userpic', { "num" => $current_index });
                 }
                 my %current_upload = %$current_upload_ref;
                 
@@ -270,7 +269,7 @@ use strict;
                     
                     # go ahead and add the error message to the info string;
                     # this will only get displayed if we don't do the redirect.
-                    push @info, $message_prefix . "Image is too large; please submit it separately to resize.";
+                    push @info, $message_prefix . $ML{'.error.toolarge.separately'};
                 } else {
                     my $userpic = eval { LJ::Userpic->create($u, data => $current_upload{image}); };
                     if (!$userpic) {
@@ -279,7 +278,7 @@ use strict;
                     } else {
                         my $picid = $userpic->id;
                         
-                        push @info, $message_prefix . "Image has been successfully uploaded";
+                        push @info, $message_prefix . $ML{'.uploadsuccessful'};
                         $success_count++;
 
                         # make it their default pic?
@@ -433,14 +432,25 @@ use strict;
                 $body .= "<div id='multi_insert'></div>";
                 $body .= "<div id='no_default_insert'></div>";
                 $body .= "<p class='pkg' id='multi_insert_buttons'>\n";
-                $body .= "<input type='button' value='Add File' onclick='javascript:addNewUpload(\"file\");' /> <input type='button' value='Add URL' onclick='javascript:addNewUpload(\"url\");'/>\n";
-                
+
+                $body .= "<input type='button' value='$ML{'.btn.addfile'}' onclick='javascript:addNewUpload(\"file\");' /> <input type='button' value='$ML{'.btn.addurl'}' onclick='javascript:addNewUpload(\"url\");'/>\n";
                 $body .= "<script type='text/javascript'>\n";
                 $body .= "maxcounter = $remaining_uploads;\n";
                 if (LJ::Userpic->user_supports_comments($u)) {
                     $body .= "allowComments = true;\n";
                 }
                 $body .= "allowDescriptions = true;\n";
+
+                $body .= "ep_labels.comment = '$ML{'.label.comment'}';\n";
+                $body .= "ep_labels.description = '$ML{'.label.description'}';\n";
+                $body .= "ep_labels.fromfile = '$ML{'.fromfile'}';\n";
+                $body .= "ep_labels.fromurl = '$ML{'.fromurl'}';\n";
+                $body .= "ep_labels.keepdefault = '$ML{'.label.keepdefault'}';\n";
+                $body .= "ep_labels.keywords = '$ML{'.label.keywords'}';\n";
+                $body .= "ep_labels.makedefault = '$ML{'.makedefault'}';\n";
+                $body .= "ep_labels.makedefaultkey = '$ML{'.makedefault.key'}';\n";
+                $body .= "ep_labels.remove = '$ML{'.btn.remove'}';\n";
+                
                 $body .="</script>\n";
                 $body .= "</p>\n";
             }
@@ -735,7 +745,7 @@ sub parse_post_uploads
                 my $size = length($$imgdata);
                 
                 if ($size == 0) {
-                    $current_upload{error} = "You must choose a file to upload";
+                    $current_upload{error} = $ML{'.error.nofile'};
                 } else {
                     my ($imagew, $imageh, $filetype) = Image::Size::imgsize($imgdata);
                     my $size = length($imgdata);
@@ -752,14 +762,14 @@ sub parse_post_uploads
                             if (int($imagew) > 100 || int($imageh) > 100) {
                                 $current_upload{error} = BML::ml('.error.imagetoolarge', {imagesize => "${imagew}x$imageh"});
                             } else {
-                                $current_upload{error} = BML::ml('.error.filetoolarge', { 'maxsize' => int($MAX_UPLOAD / 1024) . $ML{'.kilobytes'} });
+                                $current_upload{error} = BML::ml('.error.filetoolarge', { 'maxsize' => int($MAX_UPLOAD / 1024) });
                             }
                         } elsif ($filetype ne 'JPG' && $filetype ne 'PNG') {
                             # factory only works on jpegs and pngs because Image::Magick has issues
                             if (int($imagew) > 100 || int($imageh) > 100) {
-                                $current_upload{error} = "Sorry, you cannot upload a userpic larger than 100x100 pixels if it is in GIF format.";
+                                $current_upload{error} = $ML{'.error.giffiledimensions'};
                             } else {
-                                $current_upload{error} = BML::ml('.error.filetoolarge', { 'maxsize' => int($MAX_UPLOAD / 1024) . $ML{'.kilobytes'} });
+                                $current_upload{error} = BML::ml('.error.filetoolarge', { 'maxsize' => int($MAX_UPLOAD / 1024)});
                             }
                         } elsif ($imagew <= 100 && $imageh <= 100) {
                             # if it's the right size, just too large a file, see if we can
@@ -781,7 +791,7 @@ sub parse_post_uploads
                             };
                             
                             if ($@ || (length($POST{$userpic_key}) > $MAX_UPLOAD)) {
-                                $current_upload{error} = ML::ml('.error.filetoolarge', {maxsize => int($MAX_UPLOAD / 1024) . $ML{'.kilobytes'}});
+                                $current_upload{error} = ML::ml('.error.filetoolarge', {maxsize => int($MAX_UPLOAD / 1024) });
                             }
                         } else {
                             # this is a candidate for the userpicfactory.
@@ -789,8 +799,8 @@ sub parse_post_uploads
                             # we can only do a single pic in the factory, so if there are two,
                             # then error out for both.
                             if ($requires_factory) {
-                                $requires_factory -> {error} = "Error:  only one image requiring resizing may be sent.";
-                                $current_upload{error} = "Error:  only one image requiring resizing may be sent.";
+                                $requires_factory -> {error} = $ML{'.error.multipleresize'};
+                                $current_upload{error} = $ML{'.error.multipleresize'};
                                 $requires_factory->{requires_factory} = 0;
                             } else {
                                 $current_upload{requires_factory} = 1;
@@ -826,7 +836,7 @@ sub parse_post_uploads
                 $current_upload{make_default} =  ($POST{"make_default"} eq $counter);
 
                 if (! $POST{$userpic_key}) {
-                    $current_upload{error} = "You must enter the URL of an image";
+                    $current_upload{error} = $ML{'.error.nourl'};
                 } elsif ($POST{$userpic_key} !~ /^http:\/\//) {
                     $current_upload{error} = $ML{'.error.badurl'};
                 } else {
@@ -838,7 +848,7 @@ sub parse_post_uploads
                     my $res = $ua->get($POST{$userpic_key});
                     $current_upload{image} = \$res->content if $res && $res->is_success;
                     $current_upload{error} = $ML{'.error.urlerror'} unless $current_upload{image};
-                    $current_upload{error} = "You cannot upload large images from URLs." if length($current_upload{image}) > $MAX_UPLOAD;
+                    $current_upload{error} = $ML{'.error.urlfiletoolarge'} if length($current_upload{image}) > $MAX_UPLOAD;
                 }
                 push @uploads, \%current_upload;
             }
