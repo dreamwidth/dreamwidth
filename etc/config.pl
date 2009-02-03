@@ -83,7 +83,7 @@
     # put underage users in.  off by default.
 
     $TOS_CHECK = 0;     # require users to agree to TOS
-    $UNIQ_COOKIES = 1; # give users uniq cookies to help fight abuse
+    $UNIQ_COOKIES = 1;  # give users uniq cookies to help fight abuse
 
     %REQUIRED_TOS =
         (
@@ -133,7 +133,7 @@
     # require new free acounts to be referred by an existing user?
     # NOTE: mostly ljcom-specific.  some features unimplemented in
     # the livejournal-only tree.
-    $USE_ACCT_CODES = 0;
+    $USE_ACCT_CODES = 1;
 
     #$EVERYONE_VALID = 1; # are all users validated by default?
 
