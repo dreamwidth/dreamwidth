@@ -1,5 +1,12 @@
 ;; -*- coding: utf-8 -*-
+
+.btn.addfile=Add File
+
+.btn.addurl=Add URL
+
 .btn.proceed=Proceed
+
+.btn.remove=Remove
 
 .btn.save=Save Settings
 
@@ -9,9 +16,13 @@
 
 .error.badurl=The address for the picture to be uploaded does not look correct.  It should start with <b>http://</b>
 
-.error.filetoolarge=Image uploaded is too large.  File size cannot exceed [[maxsize]].
+.error.filetoolarge=Image uploaded is too large.  File size cannot exceed [[maxsize]] KB.
+
+.error.generatinguserpic=There was an error in generating the userpic: 
 
 .error.giffiletoolarge=The GIF image you uploaded is too large.  GIF file size cannot exceed [[maxsize]].
+
+.error.giffiledimensions=Sorry, you cannot upload a userpic larger than 100x100 pixels if it is in GIF format.
 
 .error.imagetoolarge=The dimensions of your image ([[imagesize]]) exceed maximum size.  Your picture can only be 100x100 pixels large.  Use a image/photo editing program to reduce the image to thumbnail-size.
 
@@ -19,7 +30,15 @@
 
 .error.keywords=You used the keyword "[[ekw]]" for multiple pictures.  One was randomly chosen, but likely not the one you wanted.  You may want to go back and fix that.
 
+.error.multipleresize=Error:  only one image requiring resizing may be sent.
+
+.error.nofile=You must choose a file to upload
+
+.error.nourl=You must enter the URL of an image
+
 .error.nomediauploads.delete=Unable to delete userpics at this time.  Media modification is currently disabled for the site.
+
+.error.toolarge.separately=Image is too large; please submit it separately to resize.
 
 .error.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]] not been saved as [[?numwords|its|their]] user picture icon already has [[max]] keywords.
 
@@ -32,6 +51,8 @@
 .error.unsupportedtype=Files of type [[filetype]] are not supported.  You can only upload GIF, PNG or JPG files.  Nearly all image/photo programs can do this conversion for you.
 
 .error.urlerror=An error ocurred while trying to fetch your image.
+
+.error.urlfiletoolarge=You cannot upload large images from URLs.
 
 .fromfile=From <u>F</u>ile:
 
@@ -46,8 +67,6 @@
 .imagesize.by|notes=This character is inserted between two numbers to indicate "by" when specifying image dimensions, for example "100x100".
 .imagesize.by=x
 
-.kilobytes=KB
-
 .label.comment=Comment:
 
 .label.comment.desc=Optional comments about the picture. Credit can go here. Example: "I made this!"
@@ -61,6 +80,8 @@
 .label.description.desc=Optional description of what is in the picture. Shown to people who cannot view the image, e.g. blind people using screen readers. Example: "Photo of me in the mirror, holding up camera"
 
 .label.formats.desc=Acceptable formats are GIF, JPG and PNG.
+
+.label.keepdefault=Keep existing default pic.
 
 .label.keywords=Keywords:
 
@@ -105,6 +126,10 @@
 .uploadheader=Upload a New Picture
 
 .uploadheader.fb=Upload a New Picture From ScrapBook
+
+.uploadsuccessful=Image has been successfully uploaded
+
+.userpic=Userpic [[num]]: 
 
 .warning.keywords=One or more of your pictures do not have keywords defined and thus cannot currently be used
 
