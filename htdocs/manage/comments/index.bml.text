@@ -1,0 +1,94 @@
+;; -*- coding: utf-8 -*-
+
+.captcha=Show CAPTCHA while commenting to
+
+.captcha.text=This option will prevent spammer bots from commenting in your journal, but it makes life harder for regular users too.
+
+.commentnotify=Receive email copies of comments you make
+
+.commentnotify.text=You can receive e-mail copies of comments you make while logged in under your username. You will not receive copies of any anonymous comments you make.
+
+.disablecomment1=If you disable commenting, all past comments on your journal will be hidden. They will re-appear if you enable commenting again.
+
+.disablecomment1.comm=If you disable commenting, all past comments on your community will be hidden. They will re-appear if you enable commenting again.
+
+.disablecomment2.1=If you wish to disable commenting for only some for your entries, adjust the "Comments Settings" setting on each entry.
+
+.emailnotify=Receive email notifications when others comment
+
+.enablecommenting=Enable commenting from
+
+.finished.save_button=Save Changes
+
+.fn.captcha=Human test
+
+.fn.commentnotify=Comment notifications
+
+.fn.emailformat=Email format
+
+.fn.emailnotify=Email notifications
+
+.fn.enablecomments=Enable comments
+
+.fn.iplog=IP address log
+
+.fn.screening=Comment screening
+
+.fn.unban=Unban users
+
+.formathtml=HTML Formatted
+
+.formatplain=Plain Text
+
+.intro=Set your comment preferences below.
+
+.intro2=Set your comment preferences below. You may also want to edit your <a [[aopts1]]>profile settings</a> or your <a [[aopts2]]>viewing options</a>.
+
+.logip=Log IPs for replies from
+
+.logip.text=You can set this option to log the IP addresses of commenters to your journal.
+
+.logip.text.comm=You can set this option to log the IP addresses of commenters to your community.
+
+.screen=Screen comments from
+
+.screen.text=Screening allows you to read comments before publishing them for others to see.
+
+.section.banned=Banned users
+
+.section.commcomments=Comments on your community
+
+.section.journalcomments=Comments on your journal
+
+.section.makecomments=Comments you make
+
+.security.visibility.anon=Anonymous commenters
+
+.security.visibility.everybody=Everybody
+
+.security.visibility.everyone=Everyone
+
+.security.visibility.friends=Friends only
+
+.security.visibility.members=Members only
+
+.security.visibility.nobody=Nobody
+
+.security.visibility.noone=No one
+
+.security.visibility.notfriends=Anyone not on my Friends list
+
+.security.visibility.notmember=Anyone who's not a member
+
+.security.visibility.regusers=Registered users
+
+.success.header=Success!
+
+.success.text=Your comment settings have been updated.
+
+.title2=Manage Comment Settings
+
+.unban=You have the following users banned from posting in your journal. Check the checkbox by their username to remove the ban.
+
+.unban.comm=You have the following users banned from posting in your community. Check the checkbox by their username to remove the ban.
+
