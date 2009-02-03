@@ -70,10 +70,33 @@ any kind incurred as a result of such acts or omissions.</p>
 
 <h2>II. Account Structure</h2>
 
-<p>$LJ::SITENAME currently has a tiered account structure. 
-Information on this account structure will be added to this Agreement 
-before account creation opens.</p>
+<p>$LJ::SITENAME currently has a tiered account structure.</p> 
 
+<ul><li><em>Free Accounts</em> are available free of charge. To create a
+free account, you will need an invitation ("invite code") from an
+existing $LJ::SITENAME user. Free accounts can access basic site
+functions, but do not receive access to all extended site features.</li>
+
+<li><em>Paid Accounts</em> are available for term-based fee and receive
+access to all extended site features.</li>
+
+<li><em>Premium Paid Accounts</em> are available for term-based fee and
+receive access to all extended site features at higher limits (for those
+features that have limits) than those given to paid accounts.</li>
+
+<li><em>Angel Accounts</em> are reserved for those who have contributed
+significantly to the $LJ::SITENAME project, at our discretion. They
+receive all features available to premium paid accounts, at those
+limits, for as long as $LJ::SITENAME continues to operate, without need
+for future payment.</li>
+
+<p>Payments to $LJ::SITENAME, for account services or for any other
+purpose, are refundable or transferable solely at ${LJ::SITENAMESHORT}'s
+discretion.</p>
+
+<p>By using this Service, you agree to this account structure, and to
+${LJ::SITENAMESHORT}'s right to change, modify, or discontinue any type
+of account or the features available to it at any time.</p>
 
 <h2>III. Privacy Policy</h2>
 
@@ -102,9 +125,11 @@ time, with or without notice. </p>
 <p>If you wish to terminate this Agreement, you may delete your account 
 and cease using the Website. You agree that, upon deletion of your 
 account, we may but are not required to remove any content you have 
-provided at any time past the deletion of your account.</p>
+provided, at any time past the deletion of your account.</p>
 
-<p>Paid accounts that are terminated will not be refunded. </p>
+<p>Paid accounts that are terminated for violations of this Agreement will
+only be refunded at our discretion, and only if such termination should
+come under our established criteria for issuing refunds.</p>
 
 <p>All provisions of this Agreement which by their nature should survive 
 termination shall survive termination, including, without limitation, 
@@ -372,7 +397,7 @@ Attribution-ShareAlike 2.5 License.</p>
 
 
 
-<p class='note'>Last revised June 18, 2008</p>
+<p class='note'>Last revised February 3, 2009</p>
 PAGE
 
     return $ret;
