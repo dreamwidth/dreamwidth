@@ -1,0 +1,20 @@
+;; -*- coding: utf-8 -*-
+.code.use=<a [[aopts]]>Use this code</a>
+
+.form.request.header=Request More Invite Codes
+
+.form.request.intro=Out of invite codes but still have friends you'd like to invite to our site? Enter a short message below to ask for an invite and a site administrator will review your request.
+
+.form.request.reason=Reason:
+
+.form.request.submit=Request invites
+
+.msg.request.success=Your request for new invite codes has been forwarded to site administrators for review.
+
+.msg.request.error=Your request could not go through.
+
+.noinvitecodes=You have no invite codes.
+
+.header.code=Code
+
+.header.recipient=Recipient

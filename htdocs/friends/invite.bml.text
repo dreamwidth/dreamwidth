@@ -21,6 +21,8 @@ The [[sitenameshort]] Team
 
 .error.noimagesallowed=Images are not allowed in this message.
 
+.error.noinvitecodes=You have no invite codes available. Please go to <a [[aopts]]>your manage invite codes page</a> to request new ones.
+
 .error.noname=Please enter your friend's name.
 
 .error.nooffsitelinksallowed=Links to sites other than [[sitename]] are not allowed in this message.
@@ -31,6 +33,8 @@ The [[sitenameshort]] Team
 
 .form.header=Fill out this form to invite someone to [[sitename]]:
 
+.form.input.code=Select a code:
+
 .form.input.email=Your friend's email:
 
 .form.input.message=Your message to them:
@@ -40,6 +44,8 @@ The [[sitenameshort]] Team
 .form.note=If you want to invite your friend to a specific community, you can mention the community name and URL here.
 
 .intro=Use this form as often as you like, or just cut and paste this link and send from your own email account: <strong><a [[aopts]]>[[createlink]]</a></strong>
+
+.intro.code=Use this form as often as you like, or grab a set of links at once from <a [[aopts]]>your complete list of invite codes</a>. Note that invite codes which have been sent but not yet redeemed are still counted as unused.
 
 .msg<<
 [[display_username]] has invited you to join [[sitenameshort]].
@@ -88,5 +94,6 @@ The [[sitename]] Team
 
 .success=Message sent to [[email]]! Want to invite somebody else?
 
-.title=Invite a Friend!
+.success.code=Message sent to [[email]] using invite code "[[invitecode]]"! Want to invite somebody else?
 
+.title=Invite a Friend!

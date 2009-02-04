@@ -24,6 +24,21 @@
     my $email = $POST{email} || '';
     my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT) . "/create.bml?from=$u->{user}";
 
+    
+    my @invitecodes;
+    my $code;
+    
+    if ( $LJ::USE_ACCT_CODES )  {
+        @invitecodes = DW::InviteCodes->by_owner_unused( userid => $u->id );
+        unless ( @invitecodes ) {
+            $body = BML::ml('.error.noinvitecodes', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" });
+            return;
+        }
+        
+        $code = $POST{code} || $invitecodes[0]->code;
+        $create_link .= "&code=".$code;    
+    }
+
     my $validate_form = sub {
         my $rv = 1;
         my $bogus = sub {
@@ -98,6 +113,9 @@
     my $msg_body_bottom_display = $msg_body_bottom;
     $msg_body_bottom_display =~ s/ /&nbsp;/g;
     $msg_body_bottom_display =~ s/\n/<br \/>/g;
+    # the code shown will be the code last posted, not the code that will be sent
+    # so just wipe it out, to prevent any confusion
+    $msg_body_bottom_display =~ s/(&code=).{20}/$1xxxxxxxxxxxxx/;
 
     my $msg_sig_display = $msg_sig;
     $msg_sig_display =~ s/ /&nbsp;/g;
@@ -136,7 +154,11 @@
             # recipient, but with the same message
             $email = '';
 
-            $body .= "<?standout " . BML::ml('.success', {'email' => $POST{email}}) . " standout?>";
+            if ( $LJ::USE_ACCT_CODES ) {
+                $body .= "<?standout " . BML::ml('.success.code', { email  => $POST{email}, invitecode => $code }) . " standout?>";
+            } else {
+                $body .= "<?standout " . BML::ml('.success', { email => $POST{email}}) . " standout?>";
+            }
 
        # Over rate limit
        } else {
@@ -148,8 +170,10 @@
     my $findfriends_intro = LJ::run_hook("findfriends_invite_intro");
     if ($findfriends_intro) {
         $body .= $findfriends_intro;
+    } elsif ( $LJ::USE_ACCT_CODES ) {
+        $body .= "<?p " . BML::ml('.intro.code', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" } ) . " p?>";
     } else {
-        $body .= "<?p " . BML::ml('.intro', {'aopts' => "href='$create_link'", 'createlink' => $create_link}) . " p?>";
+        $body .= "<?p " . BML::ml('.intro', { aopts => "href='$create_link'", createlink => $create_link} ) . " p?>";
     }
 
     $body .= "<form method='post'>";
@@ -162,6 +186,24 @@
     if ($inerr->("email")) {
         $body .= "<br />" . $inerr->("email");
     }
+    
+    if ( $LJ::USE_ACCT_CODES ) {
+        $body .= "<br />" . LJ::labelfy("code-".$invitecodes[0]->code, $ML{'.form.input.code'});
+
+        foreach my $invitecode ( splice( @invitecodes, 0, 5 ) ) {
+            $body .= "<p>";
+            $body .= LJ::html_check( { 
+                    selected => $invitecode eq $invitecodes[0] ? 1 : 0,
+                    name => "code", 
+                    id => "code-".$invitecode->code, 
+                    type=> "radio", 
+                    value => $invitecode->code, 
+                    label => $invitecode->code,
+            } );
+            $body .= "</p>";
+        }
+    }
+    
     $body .= "</div>";
 
     $body .= $inerr->('form_auth');
@@ -183,7 +225,7 @@
     $body .= "</div>";
     $body .= $msg_sig_display;
     $body .= "</div>";
-
+    
     $body .= LJ::html_submit($ML{'.btn.invite2'});
     $body .= "</form>";
 

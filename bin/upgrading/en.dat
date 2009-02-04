@@ -820,6 +820,18 @@ date.month.september.long=September
 
 date.month.september.short=Sep
 
+email.invitecoderequest.accept.body<<
+Your request for invites has been granted. You can view all your invite codes here:
+
+  [[invitesurl]]
+.
+
+email.invitecoderequest.accept.subject=Your invite code request has been granted
+
+email.invitecoderequest.reject.body=Your request for invites has been denied at this time.
+
+email.invitecoderequest.reject.subject=Your invite code request has been denied
+
 email.newacct.body<<
 Congratulations, you have a new [[sitename]] account!
 
@@ -1888,6 +1900,8 @@ inbox.message=Message
 inbox.messages=Messages
 
 inbox.refresh=Refresh
+
+invitecodes.userclass.lucky=Lucky users
 
 label.screening.all=All comments
 

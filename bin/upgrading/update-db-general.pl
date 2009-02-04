@@ -995,10 +995,23 @@ CREATE TABLE acctcode
   userid  INT UNSIGNED NOT NULL,
   rcptid  INT UNSIGNED NOT NULL DEFAULT 0,
   auth    CHAR(13) NOT NULL,
-  timegenerate TIMESTAMP,
+  timegenerate INT UNSIGNED NOT NULL,
   reason  VARCHAR(255),
   INDEX (userid),
   INDEX (rcptid)
+)
+EOC
+
+register_tablecreate("acctcode_request", <<'EOC');
+CREATE TABLE acctcode_request
+(
+    reqid   INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    userid  INT UNSIGNED NOT NULL,
+    status ENUM('accepted','rejected', 'outstanding') NOT NULL DEFAULT 'outstanding',
+    reason VARCHAR(255),
+    timegenerate    INT UNSIGNED NOT NULL,
+    timeprocessed   INT UNSIGNED,
+    INDEX (userid)
 )
 EOC
 
@@ -3713,6 +3726,12 @@ register_alter(sub {
         do_alter( 'dw_payments',
                   "ALTER TABLE dw_payments MODIFY COLUMN target_username VARCHAR(25)" );
     }
+
+    unless ( column_type( "acctcode", "timegenerate" ) eq "INT UNSIGNED" ) {
+        do_alter( "acctcode",
+                  "ALTER TABLE acctcode MODIFY COLUMN timegenerate INT UNSIGNED");
+    }
+
 
 });
 

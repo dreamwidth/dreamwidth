@@ -26,6 +26,8 @@ use LJ::Portal ();
 use LJ::Blob;
 use LJ::Captcha;
 use LJ::Faq;
+use DW::BusinessRules::InviteCodes;
+use DW::BusinessRules::InviteCodeRequests;
 
 use Class::Autouse qw(
                       DateTime
@@ -42,6 +44,7 @@ use Class::Autouse qw(
                       LJ::BetaFeatures
                       LJ::Config
                       DW::InviteCodes
+                      DW::InviteCodeRequests
                       );
 
 LJ::Config->load;

@@ -12,35 +12,55 @@ body<=
         unless $remote;
     
     my $ret;
-    
-    if ( LJ::did_post ) {        
-        $ret .= LJ::run_hook( 'generate_invite_codes', $remote );
+
+    if ( LJ::did_post ) {
+        return "<?h1 $ML{'Error'} ?h1> $ML{'error.invalidform'}" unless LJ::check_form_auth;
+        if ( DW::InviteCodeRequests->create( userid => $remote->id, reason => $POST{reason} ) ) {
+            $ret .= "<?standout $ML{'.msg.request.success'} standout?>";
+        } else {
+            $ret .= "<?errorbar $ML{'.msg.request.error'} errorbar?>";
+        }
     }
-    
-    $ret .= "<table border='1' cellpadding='5'><tr><th>Code</th><th>Recipient</th></tr>";  
 
     my @invitecodes = DW::InviteCodes->by_owner( userid => $remote->id );
-    foreach my $code ( @invitecodes ) {
-        $ret .= "<tr>";
-        $ret .= "<td><tt>".$code->code."</tt></td>";
-        $ret .= "<td>";
     
-        if($code->is_used ) {
-            my $u = LJ::load_userid( $code->recipient );
-            $ret .= $u->ljuser_display;
+    if ( @invitecodes ) {
+        $ret .= "<table border='1' cellpadding='5'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th></tr>";
+    
+        foreach my $code ( @invitecodes ) {
+            $ret .= "<tr>";
+            $ret .= "<td><tt>".$code->code."</tt></td>";
+            $ret .= "<td>";
+        
+            if( $code->is_used ) {
+                my $u = LJ::load_userid( $code->recipient );
+                $ret .= $u->ljuser_display;
+            } else {
+                my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT)
+                    . "/create.bml?from=$remote->{user}&code=".$code->code;
+                $ret .= BML::ml( '.code.use', { aopts => "href='$create_link'" } );
+            }        
+
+            $ret .= "</td>";        
+            $ret .= "</tr>";
         }
-        $ret.="</td>";
-        $ret .= "</td>";        
-        $ret .= "</tr>";
-    }
     
-    if ( LJ::are_hooks( 'generate_invite_codes' ) ) {
-        $ret .= "<tr><form method='POST'>";
-        $ret .= "<td colspan='2' align='center'>" . LJ::html_submit( value => "Generate codes" ) . "</td>";
-        $ret .= "</form></tr>";
-    }
+        $ret .= "</table>";
+    } else {
+        $ret .= "<?p $ML{'.noinvitecodes'} p?>";
+   }
     
-    $ret .= "</table>";
+    if ( DW::BusinessRules::InviteCodeRequests::can_request( user => $remote ) ) {
+        $ret .= "<?h2 $ML{'.form.request.header'} h2?>";
+        $ret .= "<?p $ML{'.form.request.intro'} p?>";
+        $ret .= "<div><form method='POST'>";
+        $ret .= LJ::form_auth;
+        $ret .= LJ::labelfy( 'reason', $ML{'.form.request.reason'} );
+        $ret .= LJ::html_text( { name => 'reason', id => 'reason', size => 75, maxlength => 255  } );
+        $ret .= LJ::html_submit( value => $ML{'.form.request.submit'} );
+        $ret .= "</form></div>";
+    }
+
 
     return $ret;
 } _code?>
