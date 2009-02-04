@@ -305,7 +305,7 @@
     #                        );
 
     # list of regular expressions matching usernames that people can't have.
-    @PROTECTED_USERNAMES = ("^ex_", "^ext_", "^dw_", "^_", "_$", "__");
+    @PROTECTED_USERNAMES = ('^ex_', '^ext_', '^dw_', '^_', '_$', '__');
 
     # test accounts are special
     @TESTACCTS = qw(test);
