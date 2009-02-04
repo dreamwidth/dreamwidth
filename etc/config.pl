@@ -311,13 +311,7 @@
     @TESTACCTS = qw(test);
 
     # props users should have by default
-    %USERPROP_DEF = (
-                     's1_lastn_style' => 29,
-                     's1_friends_style' => 20,
-                     's1_calendar_style' => 2,
-                     's1_day_style' => 11,
-                     );
-
+    %USERPROP_DEF = ();
 
     ### User Capabilities Classes:
 
@@ -339,8 +333,6 @@
             's2stylesmax' => 10,
             's2layersmax' => 50,
             'textmessage' => 0,
-            'todomax' => 100,
-            'todosec' => 1,
             'userdomain' => 1,
             'useremail' => 1,
             'userpics' => 5,
@@ -487,11 +479,6 @@
     # (16 bit unsigned int ... each bit is capability class flag)
     $NEWUSER_CAPS = 2;
 
-
-    ### S1 style options
-
-    $SYN_LASTN_S1 = 1;      # lastn style to use for syndication accounts
-    $DONT_TOUCH_STYLES = 0; # don't touch existing styles
 
     $DEFAULT_STYLE = {
         'core' => 'core1',

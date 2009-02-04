@@ -872,7 +872,6 @@ my %bools = (
              "REQUIRE_TALKHASH" => "Require submitted comments to include a signed hidden value provided by the server.  Slows down comment-spammers, at least, in that they have to fetch pages first, instead of just blasting away POSTs.  Defaults to off.",
              "REQUIRE_TALKHASH_NOTOLD" => "If \$REQUIRE_TALKHASH is on, also make sure that the talkhash provided was issued in the past two hours.  Defaults to off.",
              "DONT_LOG_IMAGES" => "Don't log requests for images.",
-             "DONT_TOUCH_STYLES" => "During the upgrade populator, don't touch styles.  That is, consider the local styles the definitive ones, and any differences between the database and the distribution files should mean that the distribution is old, not the database.",
              "DO_GZIP" => "Compress text content sent to browsers.  Cuts bandwidth by over 50%.",
              "EVERYONE_VALID" => "Users don't need to validate their email addresses.",
              "FB_QUOTA_NOTIFY" => "Do RPC requests to Fotobilder to inform it of disk quota changes.",
