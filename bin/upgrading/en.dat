@@ -2291,10 +2291,6 @@ setting.commentscreening.option.select.nonfriends=comments from non-friends
 
 setting.commentscreening.option.select.nonmembers=comments from non-members
 
-setting.contentpromotion.label=Content Promotion
-
-setting.contentpromotion.option=Promote my public entries on the [[sitenameabbrev]] site
-
 setting.ctxpopup.label=Hover Menu
 
 setting.ctxpopup.option=Show menu when I hover over userhead images or userpics

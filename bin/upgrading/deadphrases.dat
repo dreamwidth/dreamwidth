@@ -669,3 +669,6 @@ general cprod.todononpublic.link
 general cprod.todononpublic.text
 general crumb.addtodo
 general crumb.todo
+
+general setting.contentpromotion.label
+general setting.contentpromotion.option
