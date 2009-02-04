@@ -360,6 +360,7 @@
     %CAP = (
         '0' => {  # 0x01
             '_name' => 'sysop(UNUSED?)',
+            '_key' => 'sysop', # Just in case it's used
             'userpics' => 1000,
             'userlinks' => 50,
             'paid' => 1,
@@ -378,12 +379,14 @@
         },
         '1' => {  # 0x02
             '_name' => 'free user',
+            '_key' => 'free_user',
             'userpics' => 5,
             'styles' => 1,
             'synd_create' => 1,
         },
         '2' => {  # 0x04
             '_name' => 'UNUSED',
+            '_key' => 'UNUSED',
             'userpics' => 50,
             'styles' => 1,
             'makepoll' => 1,
@@ -396,6 +399,7 @@
         },
         '3' => {  # 0x08
             '_name' => 'basic paid',
+            '_key' => 'paid_user', # Some things expect that key name
             'styles' => 1,
             'makepoll' => 1,
             'userpics' => 50,
@@ -415,6 +419,7 @@
         },
         '4' => {  # 0x10
             '_name' => 'premium paid',
+            '_key' => 'premium_user',
             'paid' => 1,
             'useremail' => 1,
             'emailpost' => 1,
@@ -440,6 +445,7 @@
         },
         '6' => {  # 0x40
             '_name' => 'permanent',
+            '_key' => 'permanent_user',
             'styles' => 1,
             'makepoll' => 1,
             'userpics' => 1200,
@@ -457,6 +463,7 @@
         },
         '7' => {  # 0x80
             '_name' => 'staff',
+            '_key' => 'staff',
             'paid' => 1,
             'styles' => 1,
             'useremail' => 1,
