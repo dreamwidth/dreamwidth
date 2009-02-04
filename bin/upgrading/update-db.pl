@@ -210,15 +210,6 @@ print "# Done.\n";
 ############################################################################
 
 sub populate_database {
-    # system user
-    my $made_system;
-    ($su, $made_system) = vivify_system_user();
-
-    # we have a flag to disable population of s1/s2 if the user requests
-    unless ($opt_nostyles) {
-        populate_s2();
-    }
-
     # check for old style external_foaf_url (indexed:1, cldversion:0)
     my $prop = LJ::get_prop('user', 'external_foaf_url');
     if ($prop->{indexed} == 1 && $prop->{cldversion} == 0) {
@@ -233,6 +224,15 @@ sub populate_database {
     clean_schema_docs();
     populate_mogile_conf();
     schema_upgrade_scripts();
+
+    # system user
+    my $made_system;
+    ($su, $made_system) = vivify_system_user();
+
+    # we have a flag to disable population of s1/s2 if the user requests
+    unless ($opt_nostyles) {
+        populate_s2();
+    }
 
     print "\nThe system user was created with a random password.\nRun \$LJHOME/bin/upgrading/make_system.pl to change its password and grant the necessary privileges."
         if $made_system;
