@@ -670,7 +670,7 @@
     #    $LJ::LDAP_UID = "uid";  # field containing the username.  defaults to "uid".
 
     # if you know that your installation is behind a proxy or other fence that inserts
-    # X-Forwarded-For headers that you can trust, enable this.  otherwise, don't!
+    # X-Forwarded-For headers that you can trust (eg Perlbal), enable this.  otherwise, don't!
     # $TRUST_X_HEADERS = 1;
 
     # the following values allow you to control enabling your OpenID server and consumer
@@ -685,9 +685,6 @@
 
     # turn on control/nav strip
     $USE_CONTROL_STRIP = 1;
-
-    # proxies/perlbals
-    $TRUST_X_HEADERS = 1;
 
     # 404 page
     $PAGE_404 = "404-error-local.bml";
