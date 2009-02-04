@@ -688,6 +688,9 @@
 
     # 404 page
     $PAGE_404 = "404-error-local.bml";
+
+    # Pagination for allpics.bml page.  -1 means unlimited.
+    # $ALLPICS_PAGESIZE = 20;
 }
 
 1;
