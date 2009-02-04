@@ -416,6 +416,7 @@
             'moodthemecreate' => 1,
             'maxfriends' => 1500,
             'directorysearch' => 1,
+            'mass_privacy' => 1,
         },
         '4' => {  # 0x10
             '_name' => 'premium paid',
@@ -435,6 +436,7 @@
             'synd_create' => 10,
             'synd_quota' => 200,
             'directorysearch' => 1,
+            'mass_privacy' => 1,
         },
         # a capability class with a name of "_moveinprogress" is required
         # if you want to be able to move users between clusters with the
@@ -460,6 +462,7 @@
             'synd_quota' => 150,
             'maxfriends' => 2500,
             'directorysearch' => 1,
+            'mass_privacy' => 1,
         },
         '7' => {  # 0x80
             '_name' => 'staff',
@@ -478,6 +481,7 @@
             'synd_create' => 15,
             'synd_quota' => 250,
             'directorysearch' => 1,
+            'mass_privacy' => 1,
         },
         8 => { _name => 'beta', _key => 'betafeatures' }, # 0x100
     );
