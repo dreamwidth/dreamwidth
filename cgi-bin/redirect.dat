@@ -44,3 +44,9 @@
 /customize/s1/index.bml             /customize/
 /customize/s1/advanced.bml          /customize/advanced/
 /customize/switch_system.bml        /customize/
+/manage/comments                    /manage/settings/?cat=privacy
+/manage/comments/                   /manage/settings/?cat=privacy
+/manage/comments/index.bml          /manage/settings/?cat=privacy
+/manage/subscriptions               /manage/settings/?cat=notifications
+/manage/subscriptions/              /manage/settings/?cat=notifications
+/manage/subscriptions/index.bml     /manage/settings/?cat=notifications
