@@ -3727,7 +3727,7 @@ register_alter(sub {
                   "ALTER TABLE dw_payments MODIFY COLUMN target_username VARCHAR(25)" );
     }
 
-    unless ( column_type( "acctcode", "timegenerate" ) eq "INT UNSIGNED" ) {
+    unless ( column_type( "acctcode", "timegenerate" ) =~ /^\Qint(10) unsigned\E/ ) {
         do_alter( "acctcode",
                   "ALTER TABLE acctcode MODIFY COLUMN timegenerate INT UNSIGNED");
     }
