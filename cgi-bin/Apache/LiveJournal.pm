@@ -143,7 +143,7 @@ sub handler
             delete $INC{$_} foreach @key_del;
 
             foreach my $file (keys %to_reload) {
-                print STDERR "Reloading $file...\n";
+                print STDERR "[$$] Reloading file: $file.\n";
                 my %reloaded;
                 local $SIG{__WARN__} = sub {
                     if ($_[0] =~ m/^Subroutine (\S+) redefined at /)
