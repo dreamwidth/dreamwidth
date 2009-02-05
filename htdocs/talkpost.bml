@@ -11,7 +11,7 @@ body<=
 
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
-    LJ::need_res('stc/display_none.css');
+    LJ::need_res(qw (stc/display_none.css stc/talkpage.css) );
 
     my $remote = LJ::get_remote();
     my $errtxt;
@@ -201,7 +201,7 @@ body<=
     LJ::expand_embedded($u, $ditemid, $remote, \$event);
     BML::ebml(\$event);
 
-    $ret .= "<table><tr valign='middle'>";
+    $ret .= "<table id='poster'><tr>";
 
     my $pickw = $init->{'replyto'} ? $parpost->{'picture_keyword'} : $props->{'picture_keyword'};
     LJ::run_hook('notify_event_displayed', $entry);
@@ -222,12 +222,11 @@ body<=
         $alt .= ": $pickw" if $pickw;
         $alt = LJ::ehtml($alt);
         my ($w, $h) = $userpic->dimensions;
-        $ret .= "<td><img src='" . $userpic->url . "'' width='$w' height='$h' " .
-                "align='absmiddle' ".
-                "hspace='3' title='$alt' alt='' /></td>";
+        $ret .= "<td class='userpic' valign='bottom'><img src='" . $userpic->url . "' width='$w' height='$h' " .
+                "align='absmiddle' hspace='3' title='$alt' alt='' /></td>";
     }
 
-    $ret .= "<td>";
+    $ret .= "<td class='attrib' valign='bottom'>";
 
     # who-wrote-where
     {
@@ -250,7 +249,7 @@ body<=
     unless ($init->{'replyto'}) {
         my $etime = $item->{'eventtime'};
         $etime =~ s!(\d\d\d\d)-(\d\d)-(\d\d)!LJ::date_to_view_links($u, $&)!e;
-        $ret .= "<br /><font size='-1'>@ $etime</font>";
+        $ret .= "<br /><span class='time'>@ $etime</span>";
     }
 
     $ret .= "</td></tr></table>";
@@ -311,12 +310,12 @@ body<=
     $current{'Groups'} = $group_names if $group_names;
 
 
-    $ret .= "<div style='margin-left: 30px'>";
+    $ret .= "<div id='entry' style='margin-left: 30px'>";
 
     ### currents
     if (! $init->{'replyto'} && %current)
     {
-        $ret .= "<table border=0>\n";
+        $ret .= "<table class='currents' border=0>\n";
         foreach (sort keys %current) {
             my $curkey = "talk.curname_" . $_;
             my $curname = BML::ml($curkey);
@@ -354,7 +353,7 @@ body<=
             LJ::CleanHTML::clean_subject(\$cleansubject);
             BML::ebml(\$cleansubject);
           }
-        $ret .= "<font face=\"Arial,Helvetica\" size='+1'><i><b>$cleansubject</b></i></font><br />\n";
+        $ret .= "<div id='entrysubj'>$cleansubject</div><br />\n";
     }
 
     $ret .= $event;

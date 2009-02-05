@@ -1322,7 +1322,7 @@ sub talkform {
     }
 
     # from registered user or anonymous?
-    $ret .= "<table>\n";
+    $ret .= "<table class='talkform'>\n";
     $ret .= "<tr><td align='right' valign='top'>$BML::ML{'.opt.from'}</td>";
     $ret .= "<td>";
     $ret .= "<table>"; # Internal for "From" options

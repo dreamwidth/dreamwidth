@@ -180,8 +180,7 @@ my $old_url = 0;
  LJ::load_user_props($remote, "opt_no_quickreply");
 
  LJ::run_hooks("need_res_for_journals", $u);
-
- LJ::need_res('js/thread_expander.js');
+ LJ::need_res( qw( js/thread_expander.js stc/talkpage.css ) );
 
  if (($remote && !$remote->{'opt_no_quickreply'}) && !$nocomments) {
     # quickreply js libs
@@ -233,7 +232,7 @@ my $old_url = 0;
 }
 
  $ret .= "<p>";
- $ret .= "<table><tr valign='middle'>";
+ $ret .= "<table id='poster'><tr>";
 
  my $userpic = $entry->userpic;
  LJ::run_hook('notify_event_displayed', $entry);
@@ -247,12 +246,11 @@ my $old_url = 0;
      LJ::text_out(\$alt);
      $alt = LJ::ehtml($alt);
      my ($w, $h) = $userpic->dimensions;
-     $ret .= "<td><img src='" . $userpic->url . "' width='$w' height='$h' " .
-         "align='absmiddle' ".
+     $ret .= "<td class='userpic' valign='bottom'><img src='" . $userpic->url . "' width='$w' height='$h' " .
          "hspace='3' title='$alt' alt=''></td>";
  }
 
- $ret .= "<td>";
+ $ret .= "<td class='attrib' valign='bottom'>";
  if (!LJ::u_equals($u, $up)) {
      $ret .= BML::ml("talk.somebodywrote_comm", { 'realname' => LJ::ehtml($up->{'name'}),
                                                   'userlink' => LJ::ljuser($up),
@@ -264,7 +262,7 @@ my $old_url = 0;
 
  my $etime = $item->{'eventtime'};
  $etime =~ s!(\d\d\d\d)-(\d\d)-(\d\d)!LJ::date_to_view_links($u, $&)!e;
- $ret .= "<br /><font size='-1'>@ $etime</font>";
+ $ret .= "<br /><span class='time'>@ $etime</span>";
  $ret .= "</td></tr></table>";
 
  ## standout bar
@@ -299,7 +297,7 @@ my $old_url = 0;
           $moodname ||= LJ::mood_name($val);
           my %pic;
           if (LJ::get_mood_picture($themeid, $val, \%pic)) {
-              $moodpic = "<img src=\"$pic{'pic'}\" align='absmiddle' width='$pic{'w'}' " .
+              $moodpic = "<img class='moodpic' src=\"$pic{'pic'}\" align='absmiddle' width='$pic{'w'}' " .
                            "height='$pic{'h'}' vspace='1' alt='' /> ";
           }
      }
@@ -330,12 +328,12 @@ my $old_url = 0;
                         );
  }
 
- $ret .= "<div style='margin-left: 30px'>";
+ $ret .= "<div id='entry' style='margin-left: 30px'>";
 
 
  if (%current)
  {
-     $ret .= "<table border=0>\n";
+     $ret .= "<table class='currents' border=0>\n";
      foreach (sort keys %current) {
          my $curkey = "talk.curname_" . $_;
          my $curname = BML::ml($curkey);
@@ -378,7 +376,7 @@ my $old_url = 0;
      }
      LJ::CleanHTML::clean_subject(\$subject);
      BML::ebml(\$subject);
-     $ret .= "<font face='Arial,Helvetica' size='+1'><i><b>$subject</b></i></font><br />\n";
+     $ret .= "<div id='entrysubj'>$subject</div><br />\n";
  }
 
 
@@ -431,7 +429,7 @@ my $old_url = 0;
  ########## make the navcrap
  my $navcrap = '';
  if ($pages > 1) {
-     $navcrap .= "<table style='font-weight: bold'>";
+     $navcrap .= "<table id='journalnav'>";
      $navcrap .= "<tr><td align='center' colspan='3'>";
      $navcrap .= BML::ml('ljlib.pageofpages',{'page'=>$page, 'total'=>$pages});
      $navcrap .= "</td></tr>";
@@ -486,6 +484,7 @@ my $old_url = 0;
          " " . S2::Builtin::LJ::DateTime__time_format($s2_ctx, $s2_datetime, $fmt_time_short) .
          ($tz_remote ? " (local)" : " UTC");
 
+     my $level = ($opts->{'depth'} % 2) ? "even" : "odd";
      my $bgcolor = ($opts->{'depth'} % 2) ? "emcolorlite" : "emcolor";
      $bgcolor = BML::get_template_def($bgcolor);
      if ($post->{'state'} eq "S") {
@@ -509,16 +508,16 @@ my $old_url = 0;
      }
 
      if ($post->{'state'} eq "D") {
-         $ret .= "<p><a name='t$dtid'></a><table><tr>";
+         $ret .= "<p><a name='t$dtid'></a><table class='delcomment'><tr>";
          $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
          $ret .= "<td>$ML{'.deletedpost'}</td></tr></table>\n";
      } elsif ($post->{'state'} eq "S" && !$post->{'_loaded'} && !$post->{'_show'}) {
-         $ret .= "<p><a name='t$dtid'></a><table><tr>";
+         $ret .= "<p><a name='t$dtid'></a><table class='screenedcomment'><tr>";
          $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
          my $screenedtext = $ML{'.screenedpost'};
          $ret .= "<td>$screenedtext</td></tr></table>\n";
      } elsif ($pu && $pu->is_suspended && !$viewsome) {
-         $ret .= "<p><a name='t$dtid'></a><table><tr>";
+         $ret .= "<p><a name='t$dtid'></a><table class='suspendedcomment'><tr>";
          $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
          $ret .= "<td>$ML{'.replysuspended'}";
          if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
@@ -552,7 +551,7 @@ my $old_url = 0;
 
              $ret .= "<a name='t$dtid'></a><span id='ljcmt$dtid'><table width='100%' class='talk-comment'><tbody><tr>";
              $ret .= "<td rowspan='2'><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
-             $ret .= "<td id='cmtbar$dtid' bgcolor='$bgcolor' width='100%'>";
+             $ret .= "<td id='cmtbar$dtid' class='cmtbar-$level' style='background-color: $bgcolor' width='100%'>";
              if (my $picid = $post->{'picid'}) {
                  my $alt = $pu->{'name'};
                  if ($post->{'props'}->{'picture_keyword'}) {
@@ -565,9 +564,9 @@ my $old_url = 0;
              }
 
              my $cleansubject = LJ::ehtml($post->{'subject'});
-             $ret .= "<font size='+1' face='Arial,Helvetica'><b>$cleansubject</b></font> $icon";
+             $ret .= "<span class='commentsubject'><b>$cleansubject</b></span> $icon";
              $ret .= "<br />$user\n";
-             $ret .= "<br /><font size='-1'>$datepost</font>\n";
+             $ret .= "<br /><span class='datepost'>$datepost</span>\n";
              if ($post->{'props'}->{'poster_ip'} && $remote &&
                  ($remote->{'user'} eq $up->{'user'} ||
                   LJ::can_manage($remote, $u) || $viewall))
@@ -575,7 +574,7 @@ my $old_url = 0;
                  $ret .= BML::ml('.fromip', {'ip'=>$post->{'props'}->{'poster_ip'}});
              }
 
-             $ret .= " <font size='-1'>(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dtid", $formatlight) . "#t$dtid'>$T{'link'}</a>)</font><br />";
+             $ret .= " <span class='talkargs'>(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dtid", $formatlight) . "#t$dtid'>$T{'link'}</a>)</span>";
 
              if ($comment->remote_can_edit) {
                  $ret .= "<a href='" . LJ::Talk::talkargs($comment->edit_url, $stylemine, $formatlight) . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
@@ -657,7 +656,7 @@ my $old_url = 0;
              $ret .= "<br /><b>$ML{'.posted'}</b>"
                  if $last_talkid == $dtid && $last_jid == $u->{'userid'};
 
-             $ret .= "</td></tr><tr><td>";
+             $ret .= "</td></tr><tr><td class='commentbody'>";
 
              LJ::CleanHTML::clean_comment(\$post->{'body'}, { 'preformatted' => $post->{'props'}->{'opt_preformatted'},
                                                               'anon_comment' => (!$pu || $pu->{'journaltype'} eq 'I'),
@@ -708,7 +707,7 @@ my $old_url = 0;
                 }
              }
              
-             $ret .= "</font></p>";
+             $ret .= "</font></p><br />";
 
              $ret .= LJ::make_qr_target($dtid) if $remote;
 
