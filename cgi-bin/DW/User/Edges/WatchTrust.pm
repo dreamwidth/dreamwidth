@@ -78,15 +78,31 @@ sub _add_wt_edge {
         $mask |= ( $trust_edge->{mask}+0 ) | 1;
     }
 
+    # get current record, so we know what to modify
+    my $dbh = LJ::get_db_writer();
+    my $row = $dbh->selectrow_hashref( 'SELECT fgcolor, bgcolor, groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+                                       undef, $from_u->id, $to_u->id );
+    confess $dbh->errstr if $dbh->err;
+    $row ||= { groupmask => 0 };
+
     # only matters in the read case, but ...
-    my ( $fgcol, $bgcol ) = ( LJ::color_todb( '#000000' ), LJ::color_todb( '#ffffff' ) );;
-    if ( $do_watch ) {
-        $fgcol = $watch_edge->{fgcolor};
-        $bgcol = $watch_edge->{bgcolor};
+    my ( $fgcol, $bgcol ) = ( $row->{fgcolor} || LJ::color_todb( '#000000' ),
+                              exists $row->{bgcolor} ? $row->{bgcolor} : LJ::color_todb( '#ffffff' ) );
+    $fgcol = $watch_edge->{fgcolor} if exists $watch_edge->{fgcolor};
+    $bgcol = $watch_edge->{bgcolor} if exists $watch_edge->{bgcolor};
+
+    # set extra bits to keep what the user has already set
+    if ( $do_watch && $do_trust ) {
+        # do nothing, assume we're overriding
+    } elsif ( $do_watch ) {
+        # import the trust values
+        $mask |= ( $row->{groupmask} ^ ( 8 << 61 ) );
+    } elsif ( $do_trust ) {
+        # import the watch values
+        $mask |= ( $row->{groupmask} & ( 1 << 61 ) );
     }
 
     # now add the row
-    my $dbh = LJ::get_db_writer();
     $dbh->do( 'REPLACE INTO wt_edges (from_userid, to_userid, fgcolor, bgcolor, groupmask) VALUES (?, ?, ?, ?, ?)',
               undef, $from_u->id, $to_u->id, $fgcol, $bgcol, $mask );
     confess $dbh->errstr if $dbh->err;

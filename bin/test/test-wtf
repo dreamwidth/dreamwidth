@@ -19,7 +19,7 @@ my $dbh = LJ::get_db_writer();
 
 # reset, delete, etc
 sub rst {
-    $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?', undef, $_ )
+    $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?', undef, $_, $_ )
         foreach ( $u1->id, $u2->id );
 }
 
@@ -86,6 +86,55 @@ push @tests, [ 'trust list empty', sub
 push @tests, [ 'add to both lists', sub
 {
     $u1->add_edge( $u2, watch => { nonotify => 1 }, trust => { nonotify => 1 } );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND groupmask = ?',
+            undef, $u1->id, $u2->id, ( 1 << 61 ) | 1
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'watching list one member', sub
+{
+    my @ids = $u1->watched_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust list one member', sub
+{
+    my @ids = $u1->trusted_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'watching list reverse one member', sub
+{
+    my @ids = $u2->watched_by_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust list reverse one member', sub
+{
+    my @ids = $u2->trusted_by_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'get full watch list', sub
+{
+    my $hr = $u1->watch_list;
+    return scalar( keys %$hr ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add to both lists (one by one)', sub
+{
+    rst();
+    $u1->add_edge( $u2, watch => { nonotify => 1 } );
+    $u1->add_edge( $u2, trust => { nonotify => 1 } );
     my $row = $dbh->selectrow_array(
             'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND groupmask = ?',
             undef, $u1->id, $u2->id, ( 1 << 61 ) | 1
