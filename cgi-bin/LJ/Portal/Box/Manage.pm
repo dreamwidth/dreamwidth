@@ -38,7 +38,7 @@ our $_prop_keys = {
 
 # Prop => [URL, Text, Default] mapping
 our $linkinfo = {
-    'EditFriends'    => [ '/friends/edit.bml', 'Edit Friends', 1 ],
+    'EditFriends'    => [ '/manage/circle/edit.bml', 'Edit Friends', 1 ],
     'EditProfile'    => [ "/manage/profile/", 'Edit Profile', 1 ],
     'EditPics'       => [ '/editpics.bml', 'Upload and Manage Your Userpics', 1 ],
     'ManageCom'      => [ '/community/manage.bml', 'Manage Communities', 1 ],
@@ -48,11 +48,11 @@ our $linkinfo = {
     'LinkList'       => [ '/customize/options.bml?group=linkslist', 'Create Link List', 0 ],
     'EmailGateway'   => [ '/manage/emailpost.bml', 'Mobile Post Settings', 0 ],
     'VoicePost'      => [ '/manage/voicepost.bml', 'Voice Post Settings', 0 ],
-    'InviteFriend'   => [ '/friends/invite.bml', 'Invite a Friend', 0 ],
+    'InviteFriend'   => [ '/manage/circle/invite.bml', 'Invite a Friend', 0 ],
     'TextMessage'    => [ '/tools/textmessage.bml', 'Text Message Tool', 0 ],
     'Memories'       => [ '/tools/memories.bml', 'Memorable Posts', 0 ],
-    'EditFriendGroups' => [ '/friends/editgroups.bml', 'Edit Your Friends Groups', 0 ],
-    'FriendsFilter'  => [ '/friends/filter.bml', 'Friends Filter', 0 ],
+    'EditFriendGroups' => [ '/manage/circle/editgroups.bml', 'Edit Your Friends Groups', 0 ],
+    'FriendsFilter'  => [ '/manage/circle/filter.bml', 'Friends Filter', 0 ],
     'CommSearch'     => [ '/community/search.bml', 'Community Search', 0 ],
     'CommInvite'  => [ '/manage/invites.bml', 'Community Invitations', 0 ],
     'EditStyles'  => [ '/styles/edit.bml', 'Edit Styles', 0 ],

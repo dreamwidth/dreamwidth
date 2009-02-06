@@ -424,7 +424,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
                  username   => $ivf->{user},
                  sitename   => $LJ::SITENAMESHORT,
                  infolink   => "$LJ::SITEROOT/userinfo.bml?user=$nu->{user}",
-                 invitelink => "$LJ::SITEROOT/friends/invite.bml"
+                 invitelink => "$LJ::SITEROOT/manage/circle/invite.bml"
                  });
 
              LJ::send_mail({

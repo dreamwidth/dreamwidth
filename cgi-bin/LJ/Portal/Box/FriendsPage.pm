@@ -213,7 +213,7 @@ sub generate_content {
             $content .= "You have no friend groups defined.";
         }
 
-        $content .= "<br />(<a href=\"$LJ::SITEROOT/friends/editgroups.bml\">Edit Friend Groups</a>)";
+        $content .= "<br />(<a href=\"$LJ::SITEROOT/manage/circle/editgroups.bml\">Edit Friend Groups</a>)";
 
         $content .= '</div>';
     }

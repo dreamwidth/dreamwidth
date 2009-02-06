@@ -62,10 +62,10 @@ sub _as_email {
         $self->format_options($is_html, $lang, $vars,
         {
             'esn.remove_friend' => [ LJ::is_friend($u, $self->friend) ? 1 : 0,
-                                            "$LJ::SITEROOT/friends/add.bml?user=$postername" ],
+                                            "$LJ::SITEROOT/manage/circle/add.bml?user=$postername" ],
             'esn.post_entry'    => [ 3, "$LJ::SITEROOT/update.bml" ],
-            'esn.edit_friends'  => [ 4, "$LJ::SITEROOT/friends/edit.bml" ],
-            'esn.edit_groups'   => [ 5, "$LJ::SITEROOT/friends/editgroups.bml" ],
+            'esn.edit_friends'  => [ 4, "$LJ::SITEROOT/manage/circle/edit.bml" ],
+            'esn.edit_groups'   => [ 5, "$LJ::SITEROOT/manage/circle/editgroups.bml" ],
         }
     );
 }

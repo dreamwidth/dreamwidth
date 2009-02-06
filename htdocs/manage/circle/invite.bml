@@ -162,7 +162,7 @@
 
        # Over rate limit
        } else {
-           $body = BML::ml('.error.overratelimit', {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/friends/invite.bml'"});
+           $body = BML::ml('.error.overratelimit', {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/manage/circle/invite.bml'"});
            return;
        }
     }

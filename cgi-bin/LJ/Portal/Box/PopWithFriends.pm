@@ -120,7 +120,7 @@ sub generate_content {
 
         $rows .= "<tr><td>" . LJ::ljuser($fofu) . " - " . LJ::ehtml($fofu->{name}) .
             "</td><td align='right'>$friendcount</td>";
-        $rows .= "<td><a href=\"$LJ::SITEROOT/friends/add.bml?user=$fofu->{user}\"><img src=\"$LJ::IMGPREFIX/btn_addfriend.gif\" alt=\"Add this user as a friend\" /></a></td>" if !$fr->{$fofu->{userid}};
+        $rows .= "<td><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$fofu->{user}\"><img src=\"$LJ::IMGPREFIX/btn_addfriend.gif\" alt=\"Add this user as a friend\" /></a></td>" if !$fr->{$fofu->{userid}};
         $rows .= "</tr>\n";
     }
 

@@ -66,7 +66,7 @@
     # actions to generate auth tokens for
     my @actions = ();
 
-    $ret{url_addfriend} = "$LJ::SITEROOT/friends/add.bml?user=" . $u->{user};
+    $ret{url_addfriend} = "$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->{user};
 
     my $up = $u->userpic;
     if ($up) {

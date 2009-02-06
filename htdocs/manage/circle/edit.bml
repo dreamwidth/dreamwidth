@@ -158,7 +158,7 @@ body<=
 
         ### add friends
         $ret .= "<?h1 $ML{'.addfriends.head'} h1?>\n";
-        $ret .= "<?p " . BML::ml('.addfriends.text', { aopts => "href='$LJ::SITEROOT/friends/invite.bml'" }) . " p?>";
+        $ret .= "<?p " . BML::ml('.addfriends.text', { aopts => "href='$LJ::SITEROOT/manage/circle/invite.bml'" }) . " p?>";
 
         $ret .= "<br />";
         $ret .= "<div align='center'><table class='borderedtable'>\n";
@@ -258,8 +258,8 @@ body<=
             $ret .= "<?p $ML{'.success.fromhere'} p?>";
             $ret .= "<ul>";
             $ret .= "<li><a href='" . $u->journal_base . "/friends'>$ML{'.success.friendspage'}</a></li>";
-            $ret .= "<li><a href='$LJ::SITEROOT/friends/edit.bml'>$ML{'.success.editfriends'}</a></li>";
-            $ret .= "<li><a href='$LJ::SITEROOT/friends/editgroups.bml'>$ML{'.success.editgroups'}</a></li>";
+            $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit.bml'>$ML{'.success.editfriends'}</a></li>";
+            $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editgroups.bml'>$ML{'.success.editgroups'}</a></li>";
             $ret .= "</ul>";
             $ret .= LJ::Widget::GettingStarted->render;
 

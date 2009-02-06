@@ -68,7 +68,7 @@ sub _as_email {
             'esn.read_last_comm_entries'    => [ 2, $community_url ],
             'esn.view_profile'              => [ 3, $community_profile ],
             'esn.add_friend'                => [ LJ::is_friend($u, $self->comm) ? 0 : 4,
-                                                "$LJ::SITEROOT/friends/add.bml?user=$community_user" ],
+                                                "$LJ::SITEROOT/manage/circle/add.bml?user=$community_user" ],
         }
     );
 }

@@ -61,10 +61,10 @@ sub _as_email {
     return LJ::Lang::get_text($lang, 'esn.invited_friend_joins.email', undef, $vars) .
         $self->format_options($is_html, $lang, $vars,
         {
-            'esn.add_friend'            => [ 1, "$LJ::SITEROOT/friends/add.bml?user=$newusername" ], # Why not $self->friend->addfriend_url ?
+            'esn.add_friend'            => [ 1, "$LJ::SITEROOT/manage/circle/add.bml?user=$newusername" ], # Why not $self->friend->addfriend_url ?
             'esn.read_journal'          => [ 2, $newuser_url ],
             'esn.view_profile'          => [ 3, $newuser_profile ],
-            'esn.invite_another_friend' => [ 4, "$LJ::SITEROOT/friends/invite.bml" ],
+            'esn.invite_another_friend' => [ 4, "$LJ::SITEROOT/manage/circle/invite.bml" ],
         }
     );
 }

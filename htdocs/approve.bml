@@ -56,7 +56,7 @@ body<=
         return "<?h1 $ML{'.comm.success'} h1?>".
                '<?p '.BML::ml('.comm.text',
                {'comm'=>LJ::ljuser($username),
-                'aopts'=>'href="'.$LJ::SITEROOT.'/friends/add.bml?user='.$username.'"'}).
+                'aopts'=>'href="'.$LJ::SITEROOT.'/manage/circle/add.bml?user='.$username.'"'}).
                ' p?>';
     }
 
@@ -76,7 +76,7 @@ body<=
         return "<?h1 $ML{'.shared.success'} h1?>".
                '<?p '.BML::ml('.shared.text',
                {'shared'=>LJ::ljuser($username),
-                'aopts'=>'href="'.$LJ::SITEROOT.'/friends/add.bml?user='.$username.'"'}).
+                'aopts'=>'href="'.$LJ::SITEROOT.'/manage/circle/add.bml?user='.$username.'"'}).
                ' p?>';
     }
 

@@ -88,7 +88,7 @@ sub generate_content {
         <div class="FriendsCurrentTitle">
           Friends ($friendcount):
           <span class="FriendsEditButton">
-            (<a href="$LJ::SITEROOT/friends/edit.bml">Edit Friends</a>)
+            (<a href="$LJ::SITEROOT/manage/circle/edit.bml">Edit Friends</a>)
           </span>
         </div>
     };

@@ -224,9 +224,9 @@ block?>
 header=><?_ml .friends.header _ml?>
 about=><?_ml .friends        _ml?>
 list<=
-<li><a href="/friends/edit.bml" title="<?_ml .friends.edit.about _ml?>"><?_ml /friends/edit.bml.title2 _ml?></a></li>
-<li><a href="/friends/editgroups.bml" title="<?_ml .friends.groups.about _ml?>"><?_ml /friends/editgroups.bml.title2 _ml?></a></li>
-<li><a href="/friends/filter.bml" title="<?_ml .friends.filter.about _ml?>"><?_ml .friends.filter _ml?></a></li>
+<li><a href="/manage/circle/edit.bml" title="<?_ml .friends.edit.about _ml?>"><?_ml /manage/circle/edit.bml.title2 _ml?></a></li>
+<li><a href="/manage/circle/editgroups.bml" title="<?_ml .friends.groups.about _ml?>"><?_ml /manage/circle/editgroups.bml.title2 _ml?></a></li>
+<li><a href="/manage/circle/filter.bml" title="<?_ml .friends.filter.about _ml?>"><?_ml .friends.filter _ml?></a></li>
 <=list
 block?>
 

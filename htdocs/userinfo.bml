@@ -402,7 +402,7 @@
     }
 
     # add friend
-    $url = "$LJ::SITEROOT/friends/add.bml?user=$user";
+    $url = "$LJ::SITEROOT/manage/circle/add.bml?user=$user";
     if ($u->is_community) {
         my $remote_hasfriend = $remote && $remote->has_friend($u) ? 1 : 0;
         $text = $remote_hasfriend ? $ML{'.optionlinks.modifywatch'} : $ML{'.optionlinks.watch'};
@@ -1327,7 +1327,7 @@
         if ($u->is_community) {
             $friend_edit_link = " <span class='section_link'>[<a href='$LJ::SITEROOT/community/members.bml?authas=" . $u->user . "'>$ML{'.section.edit'}</a>]</span>";
         } else {
-            $friend_edit_link = " <span class='section_link'>[<a href='$LJ::SITEROOT/friends/edit.bml'>$ML{'.section.edit'}</a>]</span>";
+            $friend_edit_link = " <span class='section_link'>[<a href='$LJ::SITEROOT/manage/circle/edit.bml'>$ML{'.section.edit'}</a>]</span>";
         }
     }
 

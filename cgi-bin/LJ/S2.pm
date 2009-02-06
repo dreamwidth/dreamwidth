@@ -3460,7 +3460,7 @@ sub UserLite__get_link
     };
 
     if ($key eq 'add_friend' && defined($remote)) {
-        return $button->("$LJ::SITEROOT/friends/add.bml?user=$user", "Add $user to friends list", "btn_addfriend.gif");
+        return $button->("$LJ::SITEROOT/manage/circle/add.bml?user=$user", "Add $user to friends list", "btn_addfriend.gif");
     }
     if ($key eq 'post_entry') {
         return undef unless $has_journal and LJ::can_use_journal($remote->{'userid'}, $user);

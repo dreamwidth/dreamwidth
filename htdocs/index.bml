@@ -42,7 +42,7 @@ ITEMS<=
 <?choice Edit Journal Entries|editjournal.bml|Edit or delete journal entries you've made in the past.  choice?>
 <=ITEMS
 ITEMSB<=
-<?choice Edit Friends|/friends/edit.bml|Edit your list of online LiveJournal friends to track from your LiveJournal friends page.  choice?>
+<?choice Edit Friends|/manage/circle/edit.bml|Edit your list of online LiveJournal friends to track from your LiveJournal friends page.  choice?>
 <=ITEMSB
 choices?>
 

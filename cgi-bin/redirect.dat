@@ -1,13 +1,6 @@
 /community.bml      /community/
 /communities        /community/
 /support.bml        /support/
-/addfriend.bml      /friends/add.bml
-/editfriendgroups.bml   /friends/editgroups.bml
-/editfriends.bml    /friends/edit.bml
-/editfriends_do.bml /friends/edit_do.bml
-/friendgraph.bml    /friends/graph.bml
-/friendsfilter.bml  /friends/filter.bml
-/friendgraph.bml    /friends/graph.bml
 /textmessage.bml    /tools/textmessage.bml
 /memories.bml       /tools/memories.bml
 /memadd.bml     /tools/memadd.bml
@@ -38,7 +31,6 @@
 /customize/style.bml                /customize/
 /customize/themes.bml               /customize/
 /manage/links.bml                   /customize/options.bml?group=linkslist
-/userinfo_2008.bml                  /userinfo.bml
 /customize/s1                       /customize/
 /customize/s1/                      /customize/
 /customize/s1/index.bml             /customize/

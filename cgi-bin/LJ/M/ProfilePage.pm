@@ -97,7 +97,7 @@ sub header_bar_links {
     my $label = $pm->{u}->is_community ? $BML::ML{'.monitor.comm2'} : $BML::ML{'.monitor.user'};
 
     my $user = $pm->{u}->user;
-    push @ret, "<a href='$LJ::SITEROOT/friends/add.bml?user=$user'><img src='$LJ::IMGPREFIX/btn_addfriend.gif' width='22' height='20' alt='$label' title='$label' align='middle' border='0' /></a>";
+    push @ret, "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$user'><img src='$LJ::IMGPREFIX/btn_addfriend.gif' width='22' height='20' alt='$label' title='$label' align='middle' border='0' /></a>";
 
     my $remote = LJ::get_remote();
 

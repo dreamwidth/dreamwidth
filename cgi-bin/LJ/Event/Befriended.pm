@@ -73,12 +73,12 @@ sub _as_email {
         {
             'esn.add_friend'      => [ LJ::is_friend($u, $self->friend) ? 0 : 1,
                                             # Why not $self->friend->addfriend_url ?
-                                            "$LJ::SITEROOT/friends/add.bml?user=$postername" ],
+                                            "$LJ::SITEROOT/manage/circle/add.bml?user=$postername" ],
             'esn.read_journal'    => [ $is_open_identity ? 0 : 2,
                                             $journal_url ],
             'esn.view_profile'    => [ 3, $journal_profile ],
-            'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/friends/edit.bml" ],
-            'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/friends/editgroups.bml" ],
+            'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit.bml" ],
+            'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editgroups.bml" ],
         }
     );
 }

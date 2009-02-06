@@ -32,7 +32,7 @@
     unless ($user && $userid)
     {
         $title = $ML{'Error'};
-        $body = $print_with_ad->(BML::ml('.error2.text2', {'aopts' => "href='$LJ::SITEROOT/friends/edit.bml'"}));
+        $body = $print_with_ad->(BML::ml('.error2.text2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/edit.bml'"}));
         return;
     }
 
@@ -154,7 +154,7 @@
 
         # Is this account redirected?
         } elsif ($u->{'journaltype'} eq "R" && $u->prop('renamedto')) {
-            return BML::redirect("$LJ::SITEROOT/friends/add.bml?user=" . $u->prop('renamedto'));
+            return BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->prop('renamedto'));
 
         } elsif ($u->{'journaltype'} eq "C") {
             $windowtitle = BML::ml('.confirm.title.community', {'user'=> $user });
@@ -486,7 +486,7 @@ head<=
 <=head
 body=><?_code return $body; _code?>
 page?><?_c <LJDEP>
-link: htdocs/login.bml, htdocs/create.bml, htdocs/friends/edit.bml, htdocs/users
+link: htdocs/login.bml, htdocs/create.bml, htdocs/manage/circle/edit.bml, htdocs/users
 img: htdocs/img/dot.gif
-post: htdocs/friends/add.bml
+post: htdocs/manage/circle/add.bml
 </LJDEP> _c?>

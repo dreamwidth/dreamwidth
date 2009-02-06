@@ -55,7 +55,7 @@ You can:
     unless (LJ::is_friend($u, $self->userpic->owner)) {
         $email .= "
   - Add $poster as a friend:
-    $LJ::SITEROOT/friends/add.bml?user=$poster";
+    $LJ::SITEROOT/manage/circle/add.bml?user=$poster";
     }
 
 $email .= "
@@ -86,7 +86,7 @@ $poster has uploaded a new userpic:
 You can:<ul>";
 
     $email .= "<li><a href=\"$LJ::SITEROOT/allpics.bml?user=$postername\">View all of $postername\'s userpics</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/friends/add.bml?user=$postername\">Add $postername as a friend</a></li>"
+    $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$postername\">Add $postername as a friend</a></li>"
         unless (LJ::is_friend($u, $self->userpic->owner));
     $email .= "<li><a href=\"$journal_url\">View their journal</a></li>";
     $email .= "<li><a href=\"$profile\">View their profile</a></li></ul>";
