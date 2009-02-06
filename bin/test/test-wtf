@@ -23,6 +23,12 @@ sub rst {
         foreach ( $u1->id, $u2->id );
 }
 
+# return which bits are on (helper sub)
+sub bits {
+    my $mask = shift;
+    return grep { $mask & ( 1<<$_ ) } 0..63;
+}
+
 ################################################################################
 push @tests, [ 'add to watching list', sub
 {
@@ -178,6 +184,45 @@ push @tests, [ 'get full watch list', sub
     return scalar( keys %$hr ) == 1 ? 1 : 0;
 } ];
 
+################################################################################
+push @tests, [ 'add to trust and watch lists', sub
+{
+    rst();
+    $u1->add_edge( $u2, trust => { mask => 30004, nonotify => 1 }, watch => {} );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $u1->id, $u2->id
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'remove from watch list', sub
+{
+    $u1->remove_edge( $u2, qw/ watch / );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $u1->id, $u2->id
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'watching list empty', sub
+{
+    my @ids = $u1->watched_userids;
+    return scalar( @ids ) == 0 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust list one member', sub
+{
+    my @ids = $u1->trusted_userids;
+    return scalar( @ids ) == 1 ? 1 : 0;
+} ];
+
 
 ################################################################################
 $| = 1;
@@ -190,6 +235,7 @@ foreach my $test ( @tests ) {
     };
     if ( $@ || $rv == 0 ) {
         print "failure!\n\n\$@ = $@\n\$! = $!\nrv = $rv\n\n";
+        die;
     } else {
         print "success\n";
     }

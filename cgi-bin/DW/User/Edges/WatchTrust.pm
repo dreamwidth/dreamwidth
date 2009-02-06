@@ -96,7 +96,7 @@ sub _add_wt_edge {
         # do nothing, assume we're overriding
     } elsif ( $do_watch ) {
         # import the trust values
-        $mask |= ( $row->{groupmask} ^ ( 8 << 61 ) );
+        $mask |= ( $row->{groupmask} & ~( 7 << 61 ) );
     } elsif ( $do_trust ) {
         # import the watch values
         $mask |= ( $row->{groupmask} & ( 1 << 61 ) );
@@ -296,7 +296,7 @@ sub trustmask {
 
     # note: we mask out the top three bits (i.e., the reserved bits and the watch bit)
     # so external callers never see them.
-    return DW::User::Edges::WatchTrust::Loader::_trustmask( $from_userid, $to_userid ) ^ ( 8 << 61 );
+    return DW::User::Edges::WatchTrust::Loader::_trustmask( $from_userid, $to_userid ) & ~( 7 << 61 );
 }
 *LJ::User::trustmask = \&trustmask;
 
