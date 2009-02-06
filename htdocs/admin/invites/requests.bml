@@ -28,13 +28,13 @@ body<=
 
     # outstanding invites
     my @outstanding = DW::InviteCodeRequests->outstanding;
-    my @userids = grep { $_->userid } @outstanding;
+    my @userids = map { $_->userid } @outstanding;
     my $users = LJ::load_userids( @userids );
     
     $ret .= "<table>";
     $ret .= "<tr><th>User</th><th>Time Generated</th><th>Reason</th></tr>";
     foreach my $outstanding ( @outstanding ) {
-        my $u = $users->{$outstanding->userid}{user};
+        my $u = $users->{$outstanding->userid};
         $ret .= "<tr>";
         $ret .= "<td>" . $u->ljuser_display . "</td>";
         $ret .= "<td>" . LJ::time_to_http( $outstanding->timegenerate ) . "</td>";
