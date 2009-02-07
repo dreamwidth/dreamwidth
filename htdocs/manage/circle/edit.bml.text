@@ -3,6 +3,10 @@
 
 .addfriends.text=To add people to your Friends list, or to modify the colors associated with an existing friend, enter their LiveJournal usernames in the boxes below. You can also <a [[aopts]]>invite a friend</a> to join LiveJournal.
 
+.addrelationships.head=Add Relationships
+
+.addrelationships.text=To add people to your circle, or to modify the colors associated with a user that you subscribe to, enter their [[sitename]] usernames in the boxes below.  You can also <a [[aopts]]>invite a friend</a> to join [[sitename]].
+
 .background=Background
 
 .bgcolor=Background Color:
@@ -12,6 +16,20 @@
 .btn.save=Save Changes
 
 .btn.toggle=Preview
+
+.circle.intro=Here is your circle:
+
+.circle.name=Name
+
+.circle.trust=Give access?
+
+.circle.trusted_by=Gives you access?
+
+.circle.username=Username
+
+.circle.watch=Subscribe?
+
+.circle.watched_by=Subscribes to you?
 
 .editfriends.friend=Friend?
 
@@ -37,11 +55,11 @@
 
 .name=Name
 
-.success.editfriends=Manage your Friends list
+.success.editfriends=Manage your circle
 
 .success.editgroups=Edit custom friends groups
 
-.success.friendspage=Read your Friends page
+.success.friendspage=View your reading page
 
 .success.fromhere=From here, you can:
 
@@ -51,7 +69,7 @@
 
 .title2=Manage Friends
 
-.title3=Add or Remove Friends
+.title3=Manage Circle
 
 .user=User
 
