@@ -495,7 +495,7 @@ sub watch_list {
 
 
 # gets a hashref of trust group requested.  arguments is a hash of options
-#   bit => NNN,     bit of group to get
+#   id => NNN,      id of group to get
 #   name => "ZZZ",  name of group to get
 #
 # returns undef if group not found
@@ -504,7 +504,7 @@ sub trust_groups {
     my ( $u, %opts ) = @_;
     my $u = LJ::want_user( $u )
         or confess 'invalid user object';
-    my $bit = delete( $opts{bit} )+0;
+    my $bit = delete( $opts{id} )+0;
     confess 'invalid bit number' if $bit < 0 || $bit > 60;
     my $name = lc delete( $opts{name} );
     confess 'invalid arguments' if %opts;
@@ -512,6 +512,103 @@ sub trust_groups {
     return DW::User::Edges::WatchTrust::Loader::_trust_groups( $u, $bit, $name );
 }
 *LJ::User::trust_groups = \&trust_groups;
+
+
+# edits a new trust_group, arguments is a hash of options
+#   id => NNN,           (optional) bit/ID of the group to edit (1..60)
+#   groupname => "ZZZ",  name of this group
+#   sortorder => NNN,    (optional) sort order (0..255)
+#   is_public => 1/0,    (optional) defaults to 0
+#
+# arguments are used to create the group.  if you don't specify an id then one
+# will be automatically created for you.
+#
+# returns id of new group.
+#
+sub create_trust_group {
+    my ( $u, %opts ) = @_;
+    my $u = LJ::want_user( $u )
+        or confess 'invalid user object';
+    my $grp = $u->trust_groups;
+
+    # calculate an id to use
+    my $id = delete( $opts{id} )+0;
+    confess 'group with that id already exists'
+        if $id > 0 && exists $grp->{$id};
+    ($id) ||= (grep { ! exists $grp->{$_} } 1..60)[0];
+    confess 'id invalid'
+        if $id < 1 || $id > 60;
+
+    # validate other parameters
+    confess 'invalid sortorder (not in range 0..255)'
+        if exists $opts{sortorder} && $opts{sortorder} !~ /^\d+$/;
+    confess 'invalid group name'
+        if exists $opts{groupname} && $opts{groupname} !~ /^\w[\w\d\_ ]+?\w$/;
+    confess 'invalid is_public (not 1/0)'
+        if exists $opts{is_public} && $opts{is_public} !~ /^(?:0|1)$/;
+
+    # need a name
+    confess 'name not provided'
+        unless exists $opts{groupname};
+
+    # now perform an edit with our chosen id
+    return $id
+        if $u->edit_trust_group( id => $id, _force_create => 1, %opts );
+    return 0;
+}
+*LJ::User::create_trust_group = \&create_trust_group;
+
+
+# edits a new trust_group, arguments is a hash of options
+#   id => NNN,           bit/ID of the group to edit (1..60)
+#   groupname => "ZZZ",  (optional) name of this group
+#   sortorder => NNN,    (optional) sort order (0..255)
+#   is_public => 1/0,    (optional) defaults to 0
+#
+# arguments are used to update the group, if you don't specify a particular
+# parameter then we won't update that column.
+#
+# returns 1/0.
+#
+sub edit_trust_group {
+    my ( $u, %opts ) = @_;
+    my $u = LJ::want_user( $u )
+        or confess 'invalid user object';
+    my $id = delete( $opts{id} )+0;
+    confess 'invalid id number' if $id < 0 || $id > 60;
+
+    # and just in case they didn't tell us to change anything...
+    return 1 unless %opts;
+
+    # get current trust groups
+    my $grps = $u->trust_groups;
+    return 0 unless exists $grps->{$id} || $opts{_force_create};
+
+    # now calculate what to change
+    my %change = (
+            sortorder => $grps->{$id}->{sortorder},
+            groupname => $grps->{$id}->{groupname},
+            is_public => $grps->{$id}->{is_public},
+        );
+    $change{sortorder} = $opts{sortorder}
+        if exists $opts{sortorder} && $opts{sortorder} =~ /^\d+$/;
+    $change{groupname} = $opts{groupname}
+        if exists $opts{groupname} && $opts{groupname} =~ /^\w[\w\d\_ ]+?\w$/;
+    $change{is_public} = $opts{is_public}
+        if exists $opts{is_public} && $opts{is_public} =~ /^(?:0|1)$/;
+
+    # update the database
+    my $dbcm = LJ::get_cluster_master( $u )
+        or confess 'unable to connect to user cluster master';
+    $dbcm->do( 'REPLACE INTO trust_groups (userid, groupnum, groupname, sortorder, is_public) VALUES (?, ?, ?, ?, ?)',
+               undef, $u->id, $id, $change{groupname}, $change{sortorder}, $change{is_public} );
+    confess $dbcm->errstr if $dbcm->err;
+
+    # kill memcache and return
+    LJ::memcache_kill( $u, 'trust_group' );
+    return 1;
+}
+*LJ::User::edit_trust_group = \&edit_trust_group;
 
 
 # TODO(mark): update the following subs

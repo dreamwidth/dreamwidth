@@ -21,6 +21,8 @@ my $dbh = LJ::get_db_writer();
 sub rst {
     $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?', undef, $_, $_ )
         foreach ( $u1->id, $u2->id );
+    $dbh->do( 'DELETE FROM trust_groups WHERE userid = ?', undef, $_ )
+        foreach ( $u1->id, $u2->id );
 }
 
 # return which bits are on (helper sub)
@@ -262,6 +264,45 @@ push @tests, [ 'validate colors again', sub
     my $hr = $u1->watch_list;
     die unless scalar( keys %$hr ) == 1 ? 1 : 0;
     return ( $hr->{$u2->id}->{fgcolor} eq '#0000ff' && $hr->{$u2->id}->{bgcolor} eq '#0000ff' ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'create trust group', sub
+{
+    rst();
+    my $id = $u1->create_trust_group( groupname => 'foo group', sortorder => 10, is_public => 1 );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM trust_groups WHERE userid = ? AND groupname = ? AND sortorder = ? AND is_public = ?',
+            undef, $u1->id, 'foo group', 10, 1
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'get trust group', sub
+{
+    my $grp = $u1->trust_groups;
+    return scalar( %$grp ) > 0 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'edit trust group', sub
+{
+    $u1->edit_trust_group( id => 1, groupname => 'bar group' );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM trust_groups WHERE userid = ? AND groupname = ? AND sortorder = ? AND is_public = ?',
+            undef, $u1->id, 'bar group', 10, 1
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'get trust group again', sub
+{
+    my $grp = $u1->trust_groups;
+    return ( $grp->{1}->{groupname} eq 'bar group' ) ? 1 : 0;
 } ];
 
 ################################################################################
