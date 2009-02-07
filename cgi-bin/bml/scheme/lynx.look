@@ -49,7 +49,7 @@ _code?>
    use strict;
    if (my $u = LJ::get_remote()) {
         my $baseurl = $u->journal_base();
-        return "<a href='$baseurl/'>$ML{'lynx.nav.recent'}</a> | <a href='$baseurl/friends/'>$ML{'lynx.nav.friends'}</a> | ";
+        return "<a href='$baseurl/'>$ML{'lynx.nav.recent'}</a> | <a href='$baseurl/read/'>$ML{'lynx.nav.friends'}</a> | ";
    }
 _code?><a href='<?siteroot?>/login.bml'><?_ml lynx.nav.login _ml?></a>/<a href='<?siteroot?>/logout.bml'><?_ml lynx.nav.logout _ml?></a> | <a href='<?siteroot?>/site/search.bml'><?_ml lynx.nav.search _ml?></a> | <a href='<?siteroot?>/manage/settings/'><?_ml lynx.nav.siteopts _ml?></a> | <a href='<?siteroot?>/site/'><?_ml lynx.nav.sitemap _ml?></a> ]</p>
 <?breadcrumbs?>

@@ -34,7 +34,7 @@
             }
         }
         my $u = LJ::load_user($user);
-        BML::redirect($u->journal_base() . "/friends${extra}");
+        BML::redirect($u->journal_base() . "/read${extra}");
     }
     
     my $remote = LJ::get_remote();
@@ -73,7 +73,7 @@
     
     foreach my $g (sort { $group{$a}->{'sortorder'} <=> $group{$b}->{'sortorder'} } keys %group)
     {
-        my $url = $remote->journal_base . "/friends/" . LJ::eurl($group{$g}->{'name'});
+        my $url = $remote->journal_base . "/read/" . LJ::eurl($group{$g}->{'name'});
         $body .= LJ::html_check({ 'value' => "1", 'name' => "bit_$g" }) . " <a href='$url'>" . LJ::ehtml($group{$g}->{'name'}) . "</a><br />\n";
     }
 

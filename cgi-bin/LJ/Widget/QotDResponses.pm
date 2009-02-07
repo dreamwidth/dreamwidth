@@ -57,7 +57,7 @@ sub render_body {
         $ret .= "<?p " . $class->ml('widget.qotdresponses.there.are.no.answers') . " p?>";
         $ret .= "<ul>";
         $ret .= "<li><a href='$answer_url'>" . $class->ml('widget.qotdresponses.answer.the.question') . "</a></li>" if $answer_url;
-        $ret .= "<li><a href='" . $remote->journal_base . "/friends'>" . $class->ml('widget.qotdresponses.read.your.friends.page') . "</a></li>"
+        $ret .= "<li><a href='" . $remote->journal_base . "/read'>" . $class->ml('widget.qotdresponses.read.your.friends.page') . "</a></li>"
             if $remote;
         $ret .= "<li><a href='$LJ::SITEROOT/site/search.bml'>" . $class->ml('widget.qotdresponses.explore') . " $LJ::SITENAMEABBREV</a></li>";
         $ret .= "</ul>";

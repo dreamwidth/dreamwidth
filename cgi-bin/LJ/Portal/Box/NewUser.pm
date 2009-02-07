@@ -28,7 +28,7 @@ sub generate_content {
                 <td style="width: 50%;">
                      4) <a href="$LJ::SITEROOT/customize/">Customize</a> the look of your journal<br />
                      5) <a href="$LJ::SITEROOT/interests.bml">Find</a> friends and communities by interests<br />
-                     6) <a href="$base/friends">Read</a> your Friends page<br />
+                     6) <a href="$base/read">Read</a> your Friends page<br />
                 </td>
             </tr>
         </table>

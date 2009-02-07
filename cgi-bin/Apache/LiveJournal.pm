@@ -456,7 +456,7 @@ sub trans
             my $should_show_page = $remote && ($remote->can_manage($u) || ($entry && $remote->equals($poster)));
 
             my %journal_pages = (
-                friends => 1,
+                read => 1,
                 calendar => 1,
                 month => 1,
                 day => 1,

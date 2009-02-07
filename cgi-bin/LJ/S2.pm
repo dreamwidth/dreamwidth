@@ -113,12 +113,12 @@ sub make_journal
         lastn    => "RecentPage",
         calendar => "YearPage",
         day      => "DayPage",
-        friends  => "FriendsPage",
+        read     => "FriendsPage",
         month    => "MonthPage",
         reply    => "ReplyPage",
         entry    => "EntryPage",
         tag      => "TagsPage",
-        friendsfriends  => "FriendsPage",
+        network  => "FriendsPage",
     };
 
     if (my $class = $view2class->{$view}) {
@@ -1982,11 +1982,11 @@ sub Page
             'recent'   => "$base_url/",
             'userinfo' => $u->profile_url,
             'archive'  => "$base_url/calendar",
-            'friends'  => "$base_url/friends",
+            'read'     => "$base_url/read",
             'tags'     => "$base_url/tag",
         },
         'linklist' => $linklist,
-        'views_order' => [ 'recent', 'archive', 'friends', 'userinfo' ],
+        'views_order' => [ 'recent', 'archive', 'read', 'userinfo' ],
         'global_title' =>  LJ::ehtml($u->{'journaltitle'} || $u->{'name'}),
         'global_subtitle' => LJ::ehtml($u->{'journalsubtitle'}),
         'head_content' => '',
@@ -2032,8 +2032,8 @@ sub Page
         $p->{head_content} .= qq{<meta name="foaf:maker" content="foaf:mbox_sha1sum '$digest'" />\n};
     }
 
-    # Identity (type I) accounts only have friends views
-    $p->{'views_order'} = [ 'friends', 'userinfo' ] if $u->{'journaltype'} eq 'I';
+    # Identity (type I) accounts only have read views
+    $p->{'views_order'} = [ 'read', 'userinfo' ] if $u->{'journaltype'} eq 'I';
 
     return $p;
 }
@@ -2223,7 +2223,7 @@ sub curr_page_supports_ebox {
     my $u = shift;
     my $rv = LJ::run_hook('curr_page_supports_ebox', $u, $LJ::S2::CURR_PAGE->{'view'});
     return $rv if defined $rv;
-    return $LJ::S2::CURR_PAGE->{'view'} =~ /^(?:recent|friends|day)$/ ? 1 : 0;
+    return $LJ::S2::CURR_PAGE->{'view'} =~ /^(?:recent|read|day)$/ ? 1 : 0;
 }
 
 sub current_box_type {

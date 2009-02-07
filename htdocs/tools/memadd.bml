@@ -360,7 +360,7 @@
      $body .= "<li><a href='" . $entry->url . "'>$ML{'.body.added.next.entry'}</a></li>";
      $body .= "<li><a href='$LJ::SITEROOT/tools/memories.bml?user=" . $memoryu->user . "'>"
             . "$ML{'.body.added.next.view'}</a></li>";
-     $body .= "<li><a href='" . $remote->journal_base . "/friends'>$ML{'.body.added.next.friends'}</a></li>";
+     $body .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'.body.added.next.friends'}</a></li>";
      $body .= "<li>" . BML::ml(".body.added.next.journal", { 'user' => $ju->ljuser_display }) . "</li>";
      $body .= "</ul>";
 

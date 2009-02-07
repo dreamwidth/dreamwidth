@@ -24,7 +24,7 @@ sub RecentPage
         my $is_comm = $u->is_community;
         my $friendstitle = $LJ::SITENAMESHORT." ".($is_comm ? "members" : "friends");
         my $rel = "group ".($is_comm ? "members" : "friends made");
-        my $friendsurl = $u->journal_base."/friends"; # We want the canonical form here, not the vhost form
+        my $friendsurl = $u->journal_base."/read"; # We want the canonical form here, not the vhost form
         $p->{head_content} .= '<link rel="'.$rel.'" title="'.LJ::ehtml($friendstitle).'" href="'.LJ::ehtml($friendsurl)."\" />\n";
     }
 

@@ -1880,7 +1880,7 @@ function lang_viewname(string viewid) [notags] : string
 {
     if ($viewid == "recent") { return $*text_view_recent; }
     if ($viewid == "archive") { return $*text_view_archive; }
-    if ($viewid == "friends") { return $*text_view_friends; }
+    if ($viewid == "read") { return $*text_view_friends; }
     if ($viewid == "day") { return "Day"; }
     if ($viewid == "month") { return "Month"; }
     if ($viewid == "userinfo") { return $*text_view_userinfo; }
@@ -2055,7 +2055,7 @@ function FriendsPage::view_title() : string {
             }
         }
     }
-    elseif ($.friends_mode == "friendsfriends") {
+    elseif ($.friends_mode == "network") {
         if ($.filter_active) {
             if ($.filter_name != "") {
                 return $*text_view_friendsfriends+" ("+$.filter_name+")";
@@ -2092,7 +2092,7 @@ function Page::title() [notags] : string {
     if ($.view != "recent") {
         $title = $title + " - " + $this->view_title();
     }
-    if ($.view == "friends") {
+    if ($.view == "read") {
         $title = $this->view_title();
     }
     return $title;
@@ -2178,7 +2178,7 @@ function Page::print_linklist() {
 
 function Page::print_entry_poster(Entry e) {
     $e.poster->print();
-    if ($.view == "friends" and not $e.poster->equals($e.journal)) {
+    if ($.view == "read" and not $e.poster->equals($e.journal)) {
         " posting in ";
         $e.journal->print();
     }
@@ -2187,7 +2187,7 @@ function Page::print_entry(Entry e) {
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     """<div class="entry" id="$e.dom_id">\n""";
     "<h3>$e.security_icon $e.subject</h3>\n";
-    if ($.view == "friends" or $e.poster.username != $e.journal.username) {
+    if ($.view == "read" or $e.poster.username != $e.journal.username) {
         "<div>"; $this->print_entry_poster($e); "</div>";
     }
     """<div class="entrytext">""";
@@ -2562,7 +2562,7 @@ function DayPage::print_body() {
 function CommentInfo::print_readlink {
     var Page p = get_page();
     print safe "<a href=\"$.read_url\">"+
-        get_plural_phrase($.count, $p.view == "friends" ?
+        get_plural_phrase($.count, $p.view == "read" ?
                           "text_read_comments_friends" : "text_read_comments")+
     "</a>";
 }
@@ -2571,7 +2571,7 @@ function CommentInfo::print_postlink() {
     if ($.maxcomments) {
         print safe "$*text_max_comments";
     } else {
-        print safe "<a href=\"$.post_url\">"+($p.view == "friends" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+        print safe "<a href=\"$.post_url\">"+($p.view == "read" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
     }
 }
 function CommentInfo::print() {

@@ -41,12 +41,12 @@
     };
     my $findusernamefriends = sub {
         my $uri = shift;
-        return $1 if ($uri =~ m!^http://([a-z0-9\-]+).\Q$LJ::USER_DOMAIN\E/friends$!);
-        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/users/(\w+)/friends$!);
-        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/community/(\w+)/friends$!);
+        return $1 if ($uri =~ m!^http://([a-z0-9\-]+).\Q$LJ::USER_DOMAIN\E/read$!);
+        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/users/(\w+)/read$!);
+        return $1 if ($uri =~ m!^\Q$LJ::SITEROOT\E/community/(\w+)/read$!);
 
-        return $1 if ($uri =~ m!^http://community.\Q$LJ::USER_DOMAIN\E/\w/friends$!);
-        return $1 if ($uri =~ m!^http://users.\Q$LJ::USER_DOMAIN\E/\w/friends$!);
+        return $1 if ($uri =~ m!^http://community.\Q$LJ::USER_DOMAIN\E/\w/read$!);
+        return $1 if ($uri =~ m!^http://users.\Q$LJ::USER_DOMAIN\E/\w/read$!);
         return undef;
     };
 
@@ -67,7 +67,7 @@
     # Finally, make sure the canonical journal URL was used.
     #  (this is where we catch all those ljcom-specific cases above, since they'll never match
     #   on generic LJ)
-    return $failnotfound->("Must use canonical URI for group (".$u->journal_base."/friends)") unless $groupuri eq $u->journal_base."/friends";
+    return $failnotfound->("Must use canonical URI for group (".$u->journal_base."/read)") unless $groupuri eq $u->journal_base."/read";
 
     # Now, are we checking membership or are we enumerating members?
     my $memberuri = $GET{'grpmember.identifier'};

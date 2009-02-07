@@ -66,7 +66,7 @@ sub generate_content {
     my $entrytext = @entries == 1 ? 'entry' : 'entries';
 
     # link to friends' page
-    my $friendspageurl = $u->journal_base . '/friends/';
+    my $friendspageurl = $u->journal_base . '/read/';
 
     $content .= "<div class=\"FriendsPageTitle\"><img src='$LJ::SITEROOT/img/userinfo.gif' /> <a href=\"$friendspageurl\">Latest Friends page $entrytext: $frpagefaqbtn</a></div>";
 
@@ -201,7 +201,7 @@ sub generate_content {
             foreach my $group (@sortedgroups) {
                 my $journalbase = LJ::journal_base($u);
                 my $groupname = $groups->{$group}->{'groupname'};
-                $content .= qq { <a href="$journalbase/friends/$groupname">$groupname</a>, };
+                $content .= qq { <a href="$journalbase/read/$groupname">$groupname</a>, };
                 $foundgroups = 1;
             }
         }

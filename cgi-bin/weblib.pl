@@ -2924,7 +2924,7 @@ sub control_strip
                  );
 
     if ($remote) {
-        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/friends/'>$BML::ML{'web.controlstrip.links.viewfriendspage2'}</a>";
+        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewfriendspage2'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addfriend'}</a>";
         if ($journal->is_syndicated || $journal->is_news) {
             $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
@@ -3037,11 +3037,11 @@ sub control_strip
                 }
 
                 my $selected = "all";
-                if ($r->uri eq "/friends" && $r->query_string ne "") {
+                if ($r->uri eq "/read" && $r->query_string ne "") {
                     $selected = "showpeople"      if $r->query_string eq "show=P&filter=0";
                     $selected = "showcommunities" if $r->query_string eq "show=C&filter=0";
                     $selected = "showsyndicated"  if $r->query_string eq "show=Y&filter=0";
-                } elsif ($r->uri =~ /^\/friends\/?(.+)?/i) {
+                } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
                     my $filter = $1 || "default view";
                     $selected = "filter:" . LJ::durl(lc($filter));
                 }

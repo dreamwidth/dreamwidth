@@ -95,7 +95,7 @@
                 $body .= "<?h1 $ML{'.remove.header'} h1?><?p ";
                 $body .= BML::ml('.remove.text2', {
                                                  'ljuser' => LJ::ljuser($u),
-                                                 'aopts'    => "href='" . $remote->journal_base . "/friends/'",
+                                                 'aopts'    => "href='" . $remote->journal_base . "/read/'",
                                                  'aopts2'   => "href='" . $remote->profile_url . "'",
                                                  });
                 $body .= " p?>";
@@ -104,7 +104,7 @@
                 $body .= "<?h1 $ML{'.add.header'} h1?>";
 
                 $body .= "<?p " . BML::ml('.add.text2', { 'ljuser' => LJ::ljuser($u) }) . " p?>";
-                $body .= "<ul><li><a href='" . $remote->journal_base . "/friends'>$ML{'.add.next.friends'}</a></li>";
+                $body .= "<ul><li><a href='" . $remote->journal_base . "/read'>$ML{'.add.next.friends'}</a></li>";
                 $body .= "<li><a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$u->{user}'>"
                          . $ML{'.add.next.subscribe'} . "</a></li></ul>";
             }

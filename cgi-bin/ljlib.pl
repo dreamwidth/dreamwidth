@@ -131,7 +131,7 @@ LJ::MemCache::init();
 $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
 
 # declare views (calls into ljviews.pl)
-@LJ::views = qw(lastn friends calendar day);
+@LJ::views = qw(lastn read calendar day);
 %LJ::viewinfo = (
                  "lastn" => {
                      "des" => "Most Recent Events",
@@ -142,13 +142,13 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                  "day" => {
                      "des" => "Day View",
                  },
-                 "friends" => {
-                     "des" => "Friends View",
+                 "read" => {
+                     "des" => "Reading Page",
                      "owner_props" => ["opt_usesharedpic", "friendspagetitle"],
                  },
-                 "friendsfriends" => {
-                     "des" => "Friends of Friends View",
-                     "styleof" => "friends",
+                 "network" => {
+                     "des" => "Network View",
+                     "styleof" => "read",
                  },
                  "data" => {
                      "des" => "Data View (RSS, etc.)",

@@ -1336,11 +1336,11 @@
         my $label;
         if ($com) {
             $label = $ML{'.members.header'};
-            $body .= "<div class='section'>$label$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/friends'>$ML{'.friends.viewentries'}</a>]</span></div>";
+            $body .= "<div class='section'>$label$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/read'>$ML{'.friends.viewentries'}</a>]</span></div>";
             $body .= "<div class='section_body'>";
         } else {
             $label = $ML{'.friends.header'};
-            $body .= "<div class='section'><img src='$LJ::IMGPREFIX/userinfo.gif' alt='' /> $label$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/friends?show=P'>$ML{'.friends.viewentries'}</a>]</span></div>";
+            $body .= "<div class='section'><img src='$LJ::IMGPREFIX/userinfo.gif' alt='' /> $label$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/read?show=P'>$ML{'.friends.viewentries'}</a>]</span></div>";
             $body .= "<div class='section_body'>";
         }
 
@@ -1459,10 +1459,10 @@
             $comms .= "$posting" if ($posting);
             next unless $comms;
             $body .= "<div class='ljclear'></div>";
-            $body .= "<div class='section'><img src='$LJ::IMGPREFIX/community.gif' alt='' /> $ML{'.comms.header'}$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/friends?show=C'>$ML{'.friends.viewentries'}</a>]</span></div>";
+            $body .= "<div class='section'><img src='$LJ::IMGPREFIX/community.gif' alt='' /> $ML{'.comms.header'}$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/read?show=C'>$ML{'.friends.viewentries'}</a>]</span></div>";
             $body .= "<div class='section_body'>$comms</div>";
             if ($feeds) {
-                $body .= "<div class='ljclear'></div><div class='section'><img src='$LJ::IMGPREFIX/syndicated.gif' alt='' /> $ML{'.syn.header'}$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/friends?show=Y'>$ML{'.friends.viewentries'}</a>]</span></div>";
+                $body .= "<div class='ljclear'></div><div class='section'><img src='$LJ::IMGPREFIX/syndicated.gif' alt='' /> $ML{'.syn.header'}$friend_edit_link <span class='section_link'>[<a href='" . $u->journal_base . "/read?show=Y'>$ML{'.friends.viewentries'}</a>]</span></div>";
                 $body .= "<div class='section_body'>$feeds</div>";
             }
         }

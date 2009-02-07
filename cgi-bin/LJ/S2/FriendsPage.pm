@@ -124,8 +124,8 @@ sub FriendsPage
         }
     }
 
-    if ($opts->{'view'} eq "friendsfriends") {
-        $p->{'friends_mode'} = "friendsfriends";
+    if ($opts->{'view'} eq "network") {
+        $p->{'friends_mode'} = "network";
     }
 
     ## load the itemids
@@ -142,7 +142,7 @@ sub FriendsPage
         friends           => \%friends_row,
         idsbycluster      => \%idsbycluster,
         showtypes         => $get->{show},
-        friendsoffriends  => $opts->{view} eq 'friendsfriends',
+        friendsoffriends  => $opts->{view} eq 'network',
         dateformat        => 'S2',
         events_date       => $events_date,
     );

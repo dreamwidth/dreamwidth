@@ -814,8 +814,8 @@ sub create_view_yadis {
     if ($viewchunk eq '') {
         $view = "recent";    
     }
-    elsif ($viewchunk eq '/friends') {
-        $view = "friends";    
+    elsif ($viewchunk eq '/read') {
+        $view = "read";    
     }
     else {
         $view = undef;
@@ -830,11 +830,11 @@ sub create_view_yadis {
             $println->('    </Service>');
         }
     }
-    elsif ($view eq 'friends') {
+    elsif ($view eq 'read') {
         $println->('    <Service xmlns:gm="http://openid.net/xmlns/groupmembership/xrds">');
         $println->('        <Type>http://openid.net/xmlns/groupmembership</Type>');
         $println->('        <URI>'.LJ::exml($LJ::SITEROOT).'/openid/groupmembership.bml</URI>');
-        $println->('        <LocalID>'.LJ::exml($u->journal_base.'/friends').'</LocalID>');
+        $println->('        <LocalID>'.LJ::exml($u->journal_base.'/read').'</LocalID>');
         $println->('        <gm:CanEnumerate /><gm:CanQuery />');
         $println->('    </Service>');
     }

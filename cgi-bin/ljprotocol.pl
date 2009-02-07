@@ -2916,7 +2916,7 @@ sub hash_menus
                 { 'text' => "Calendar View",
                   'url' => "$LJ::SITEROOT/users/$user/calendar", },
                 { 'text' => "Friends View",
-                  'url' => "$LJ::SITEROOT/users/$user/friends", },
+                  'url' => "$LJ::SITEROOT/users/$user/read", },
                 { 'text' => "-", },
                 { 'text' => "Your Profile",
                   'url' => "$LJ::SITEROOT/userinfo.bml?user=$user", },
