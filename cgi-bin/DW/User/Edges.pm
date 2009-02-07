@@ -127,6 +127,10 @@ sub validate_edges {
                     if ! exists $edges->{$edge}->{$opt} &&
                        exists $opts->{$opt}->{default};
 
+                # skip the edge if they didn't provide and it's not required
+                next unless exists $edges->{$edge}->{$opt} ||
+                            $opts->{$opt}->{required};
+
                 # now error check
                 return $err->( "Edge $edge option $opt of type bool with invalid value [$edges->{$edge}->{$opt}]." )
                     if $opts->{$opt}->{type} eq 'bool' && $edges->{$edge}->{$opt} !~ /^(?:0|1)$/;

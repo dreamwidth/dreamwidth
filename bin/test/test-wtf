@@ -223,6 +223,46 @@ push @tests, [ 'trust list one member', sub
     return scalar( @ids ) == 1 ? 1 : 0;
 } ];
 
+################################################################################
+push @tests, [ 'add to watch list with colors', sub
+{
+    rst();
+    $u1->add_edge( $u2, watch => { fgcolor => 255, bgcolor => 255 } );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $u1->id, $u2->id
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'validate colors', sub
+{
+    my $hr = $u1->watch_list;
+    die unless scalar( keys %$hr ) == 1 ? 1 : 0;
+    return ( $hr->{$u2->id}->{fgcolor} eq '#0000ff' && $hr->{$u2->id}->{bgcolor} eq '#0000ff' ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add to watch list again', sub
+{
+    $u1->add_edge( $u2, watch => {} );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $u1->id, $u2->id
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'validate colors again', sub
+{
+    my $hr = $u1->watch_list;
+    die unless scalar( keys %$hr ) == 1 ? 1 : 0;
+    return ( $hr->{$u2->id}->{fgcolor} eq '#0000ff' && $hr->{$u2->id}->{bgcolor} eq '#0000ff' ) ? 1 : 0;
+} ];
 
 ################################################################################
 $| = 1;

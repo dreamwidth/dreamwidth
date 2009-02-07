@@ -31,9 +31,9 @@ DW::User::Edges::define_edge(
                 type => 'hashref',
                 db_edge => 'W',
                 options => {
-                    fgcolor  => { required => 0, type => 'int',  default => 0        },
-                    bgcolor  => { required => 0, type => 'int',  default => 16777215 },
-                    nonotify => { required => 0, type => 'bool', default => 0        },
+                    fgcolor  => { required => 0, type => 'int'                },
+                    bgcolor  => { required => 0, type => 'int'                },
+                    nonotify => { required => 0, type => 'bool', default => 0 },
                 },
                 add_sub => \&_add_wt_edge,
                 del_sub => \&_del_wt_edge,
@@ -48,7 +48,7 @@ DW::User::Edges::define_edge(
                 type => 'hashref',
                 db_edge => 'T',
                 options => {
-                    mask     => { required => 0, type => 'int', default => 0 },
+                    mask     => { required => 0, type => 'int',  default => 0 },
                     nonotify => { required => 0, type => 'bool', default => 0 },
                 },
                 add_sub => \&_add_wt_edge,
