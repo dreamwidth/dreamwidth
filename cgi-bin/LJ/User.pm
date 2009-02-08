@@ -21,6 +21,7 @@ use LJ::Constants;
 use LJ::MemCache;
 use LJ::Session;
 use DW::User::Edges;
+use DW::Logic::ProfilePage;
 
 use Class::Autouse qw(
                       LJ::Subscription

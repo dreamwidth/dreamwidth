@@ -1,0 +1,239 @@
+<?page
+
+#
+# userinfo.bml
+#
+# Displays information about an account in a viewer friendly manner.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
+
+    # this is how you include custom CSS/JS/etc
+    LJ::need_res( qw( stc/profile.css js/profile.js ) );
+
+    # translated/custom page title can go here
+    $title = 'Some Userinfo Page';
+
+    # for pages that require authentication
+    my $remote = LJ::get_remote();
+    my $u = LJ::load_user( $GET{user} || $remote->user );
+    return "awww, go to remote's profile or something :(" unless $u;
+
+# TESTING
+    BML::set_language_scope('/userinfo.bml');
+
+    # helper variables for later
+    my $user = $u->user;
+    my $profile = $u->profile_page( $remote );
+
+################################################################################
+##### HELPER SUBS
+
+    my $arrowimg = sub {
+        my $section = $_[0];
+        return qq(<img id="${section}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />);
+    };
+
+    my $linkify = sub {
+        my $l = $_[0];
+        return $l unless ref $l eq 'HASH';
+
+        if ( $l->{text} ) {
+            return $l->{text} unless $l->{url};
+            return qq(<a href="$l->{url}">$l->{text}</a>);
+        } elsif ( $l->{email} ) {
+            return LJ::mangle_email_address( $l->{email} );
+        } else {
+            return "(Error in Linkification)";
+        }
+    };
+
+    my $content_block = sub {
+        my %opts = @_;
+
+        my @links = map {
+                qq(<span class="section_link">[<a href="$_->{url}">$_->{text}</a>]</span>)
+            } @{ $opts{links} || [] };
+        my $links = join( ' ', @links );
+
+        my $ret = qq(
+            <div class='ljclear'></div>
+            <div class='section'>
+                <span class='expandcollapse on' id='basics_header'>
+                    <img id="$opts{section_name}_arrow" src="$LJ::IMGPREFIX/profile_icons/arrow-down.gif" align="absmiddle" alt="" />
+                    $ML{$opts{section_name_ml}}
+                </span>
+                $links
+            </div>
+            <div class='section_body' id='basics_body'>
+                $opts{body}
+            </div>
+        );
+    };
+
+################################################################################
+##### USERNAME
+
+    # begin the page
+    my $ret = q{ <div id='profile_page'> <div id='profile_top'> };
+
+    $ret .= q{ <div class='username'> } . $u->ljuser_display;
+    if ( $u->{public_key} ) {
+        $ret .= qq( 
+            <a href='$LJ::SITEROOT/pubkey.bml?user=$user'>
+                <img src='$LJ::IMGPREFIX/key.gif' width='16' height='16' border='0'
+                     alt="$ML{'.pubkey.alt'}" title="$ML{'.pubkey.alt'}"
+                     style='vertical-align: middle; border: 0;' />
+            </a>
+        );
+    }
+    $ret .= q{ </div> };
+
+################################################################################
+##### ACTION LINKS
+
+    $ret .= q{ <div class='actions'><ul> };
+
+    foreach my $link ( $profile->action_links ) {
+        if ( $link->{url} ) {
+            $ret .= qq(
+                <li class="$link->{class}" title="$link->{title}">
+                    <a href="$link->{url}">
+                        <img src="$link->{image}" alt="" />$link->{text}
+                    </a>
+                </li>
+            );
+        } else {
+            $ret .= qq(
+                <li class="$link->{class}" title="$link->{title}">
+                    <img src="$link->{image}" alt="" />$link->{text}
+                </li>
+            );
+        }
+    }
+
+    $ret .= q{ </ul></div> };
+
+################################################################################
+##### USER DETAILS
+
+    $ret .= q{ <div class='user_details'> <div class='userpicdiv'> };
+
+    my $up = $profile->userpic;
+    if ( $up->{userpic_url} ) {
+        $ret .= qq(
+            <a href="$up->{userpic_url}">
+                <img src="$up->{userpic}" class="user_pic" alt="$ML{'.userpic.alt'}" />
+            </a>
+        );
+    } else {
+        $ret .= qq(
+            <img src="$up->{userpic}" class="user_pic" alt="$ML{'.userpic.alt'}" />
+        );
+    }
+    if ( $up->{caption_text} ) {
+        $ret .= qq(
+            <br />
+            <span class="user_pic_caption">
+                [<a href="$up->{caption_url}">$up->{caption_text}</a>]
+            </span>
+        );
+    }
+
+    $ret .= q{ </div> };
+
+################################################################################
+##### JOURNAL TITLES
+
+    my $title = $u->{journaltitle} ?
+                    LJ::ehtml( $u->{journaltitle} ) :
+                    BML::ml( '.details.title', { user => $u->display_username } );
+    my $subtitle = LJ::ehtml( $u->{journalsubtitle} )
+        if $u->{journalsubtitle};
+
+    $ret .= qq{
+        <div class="details_journal">
+            <p class="journal_title">$title</p>
+            <p class="journal_subtitle">$subtitle</p>
+        </div>
+    };
+
+################################################################################
+##### JOURNAL STATISTICS
+
+    $ret .= q{ <div class='details_stats'> };
+
+    # journal warnings
+    $ret .= $_ foreach $profile->warnings;
+
+    # journal creation date
+    my $jcdate = BML::ml( '.details.createdon2', { createdate => LJ::mysql_time( $u->timecreate )  } );
+    $ret .= "<p>$jcdate (#" . $u->id . ')</p>';
+
+    # comment and support stats
+    my $csstats = join( ', ', ( $profile->comment_stats, $profile->support_stats ) );
+    $ret .= qq{<p>$csstats</p>};
+    $ret .= q{ </div> };
+
+    # other statistics
+    $ret .= q{ <div class='details_links'><p> };
+    $ret .= join( ', ', ( $profile->entry_stats, $profile->tag_stats, $profile->memory_stats, $profile->userpic_stats ) );
+    $ret .= q{ </p></div></div></div> };
+
+################################################################################
+##### BASIC INFORMATION BLOCK
+
+    my $bibody = '';
+
+    if ( my @rows = $profile->basic_info_rows ) {
+        $bibody .= q{ <div class="userinfo"><table cellpadding="0" cellspacing="3"><tr><th> };
+        $bibody .= join( '</td></tr><tr><th>', map { "$_->[0]</th><td>" . $linkify->( $_->[1] ) } @rows );
+        $bibody .= q{ </td></tr></table></div> };
+    }
+
+    if ( my @contacts = $profile->contact_rows ) {
+        $bibody .= qq( <div class="contact"><p class="section_body_title">$ML{'.contact.header'}</p> );
+        $bibody .= join( '<br />', map { $linkify->( $_ ) } @contacts );
+        $bibody .= q{ </div> };
+    };
+
+    $ret .= $content_block->(
+        section_name    => 'basics',
+        section_name_ml => '.basicinfo.header',
+        body            => $bibody,
+        links           => [ {url=>'sdf',text=>'text'},{url=>'sdf',text=>'more'}]
+    );
+
+################################################################################
+##### JOURNAL TITLES
+
+    $ret .= q{ </div> };
+
+
+################################################################################
+##### END
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+windowtitle=><?_code return $windowtitle; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

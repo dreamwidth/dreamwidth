@@ -33,6 +33,14 @@ sub strip_bad_code
     });
 }
 
+# attempt to mangle an email address for printing out to HTML.  this is
+# kind of futile, but we try anyway.
+sub mangle_email_address {
+     my $email = $_[0];
+     $email =~ s!^(.+)@(.+)$!<span>$1</span><span><em>&#64;</em></span>$2!;
+     return $email;
+}
+
 package LJ::CleanHTML;
 #     LJ::CleanHTML::clean(\$u->{'bio'}, {
 #        'wordlength' => 100, # maximum length of an unbroken "word"
