@@ -281,7 +281,7 @@ body<=
         push @groups, ("private", $ML{'.setting.maintainers'});
     }
 
-    my $grouplist = LJ::get_friend_group($u);
+    my $grouplist = $u->trust_groups;
     push @groups,  map  { "group:" . $_, $grouplist->{$_}->{groupname} }
     sort { $grouplist->{$a}->{groupname} cmp $grouplist->{$b}->{groupname} }
     keys %$grouplist;
