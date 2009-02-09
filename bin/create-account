@@ -20,8 +20,12 @@ die "Username invalid\n"
 die "Email invalid\n"
     unless $email && $email =~ /^[^@]+@[^@]+\.\w+$/;
 
+my $u2 = LJ::load_user( $user )
+    and die "User already exists\n";
+
 my $password = '';
 $password .= substr( 'abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ0123456789', int(rand()*62), 1 ) for 1..10;
-my $u = LJ::User->create_personal( user => $user, email => $email, password => $password );
+my $u = LJ::User->create_personal( user => $user, email => $email, password => $password )
+    or die "unable to create account?\n";
 
 print "User: $u->{user}($u->{userid}) created with password $password.\n";
