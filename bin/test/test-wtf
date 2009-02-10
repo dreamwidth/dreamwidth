@@ -72,6 +72,33 @@ push @tests, [ 'trust list one member', sub
 } ];
 
 ################################################################################
+push @tests, [ 'mutually trust list empty', sub
+{
+    my @ids = $u1->mutually_trusted_userids;
+    return scalar( @ids ) == 0 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add to trust list reverse', sub
+{
+    $u2->add_edge( $u1, trust => { mask => 30008, nonotify => 1 } );
+    my $row = $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND groupmask = ?',
+            undef, $u2->id, $u1->id, 30008 | 1
+        );
+    die $dbh->errstr if $dbh->err;
+    return ( $row > 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'mutually trust lists one member', sub
+{
+    my @ids = $u1->mutually_trusted_userids;
+    my @ids2 = $u2->mutually_trusted_userids;
+    return ( scalar( @ids ) == 1 && scalar( @ids2 ) == 1 ) ? 1 : 0;
+} ];
+
+################################################################################
 push @tests, [ 'remove from trust list', sub
 {
     $u1->remove_edge( $u2, qw/ trust / );

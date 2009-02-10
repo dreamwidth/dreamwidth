@@ -271,23 +271,6 @@ sub mutually_trusts {
 *LJ::User::mutually_trusts = \&mutually_trusts;
 
 
-# returns URL of watchwatch page
-sub watchwatch_url {
-    my $u = LJ::want_user( $_[0] )
-        or confess 'invalid user object';
-    return $u->journal_base . '/watchwatch';
-}
-
-
-# returns URL of trust management page
-sub manage_trust_url {
-    my $u = LJ::want_user( $_[0] )
-        or confess 'invalid user object';
-    return "$LJ::SITEROOT/manage/trust.bml?user=$u->{user}";
-}
-*LJ::User::manage_trust_url = \&manage_trust_url;
-
-
 # returns a numeric trustmask
 sub trustmask {
     my ( $from_u, $to_u ) = @_;
@@ -453,6 +436,44 @@ sub watched_userids {
         );
 }
 *LJ::User::watched_userids = \&watched_userids;
+
+
+# returns array of mutually watched userids.  by default, limit at 50k.
+# note that this function will be wildly inaccurate in any situation where
+# an account actually has more than 50k of either direction.  but we'll
+# cross that bridge when we come to it...
+sub mutually_watched_userids {
+    my ( $u, %args ) = @_;
+    $u = LJ::want_user( $u ) or confess 'not a valid user object';
+
+    my %mutual;
+    my %watched_fwd = map { $_ => 1 } $u->watched_userids( %args );
+    foreach my $uid ( $u->watched_by_userids( %args ) ) {
+        $mutual{$uid} = 1
+            if exists $watched_fwd{$uid};
+    }
+    
+    return keys %mutual;
+}
+*LJ::User::mutually_watched_userids = \&mutually_watched_userids;
+
+
+# returns array of mutually trusted userids.  by default, limit at 50k.
+# same limitations as above.
+sub mutually_trusted_userids {
+    my ( $u, %args ) = @_;
+    $u = LJ::want_user( $u ) or confess 'not a valid user object';
+
+    my %mutual;
+    my %trusted_fwd = map { $_ => 1 } $u->trusted_userids( %args );
+    foreach my $uid ( $u->trusted_by_userids( %args ) ) {
+        $mutual{$uid} = 1
+            if exists $trusted_fwd{$uid};
+    }
+
+    return keys %mutual;
+}
+*LJ::User::mutually_trusted_userids = \&mutually_trusted_userids;
 
 
 # returns hashref;
