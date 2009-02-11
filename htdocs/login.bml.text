@@ -71,5 +71,7 @@
 
 .login.username=Username:
 
+.login.welcome=Welcome to [[sitename]]!
+
 .logout.btn1=Log out
 
