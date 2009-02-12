@@ -4039,6 +4039,13 @@ sub UserLite__equals
 *User__equals = \&UserLite__equals;
 *Friend__equals = \&UserLite__equals;
 
+sub string__index
+{
+    use utf8;
+    my ($ctx, $this, $substr, $position) = @_;
+    return index( $this, $substr, $position );
+}
+
 sub string__substr
 {
     my ($ctx, $this, $start, $length) = @_;
