@@ -978,7 +978,14 @@ sub adult_content {
 sub adult_content_maintainer {
     my $self = shift;
 
-    return $self->prop('adult_content_maintainer');
+    my $userLevel = $self->adult_content;
+    my $maintLevel = $self->prop( 'adult_content_maintainer' );
+
+    return undef unless $maintLevel;
+    return $maintLevel if $userLevel eq $maintLevel;
+    return $maintLevel if !$userLevel || $userLevel eq "none";
+    return $maintLevel if $userLevel eq "concepts" && $maintLevel eq "explicit";
+    return undef;
 }
 
 # defined by a community maintainer
