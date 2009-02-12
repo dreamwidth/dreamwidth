@@ -1,0 +1,120 @@
+;; -*- coding: utf-8 -*-
+.title=Site Map
+
+.maplinks=If you're looking to:
+
+.maplinks.manage-journal-title=...manage your journal's contents:
+
+.maplinks.post-entry=Post an entry
+
+.maplinks.edit-entries=Edit entries
+
+.maplinks.manage-comments=Manage comments
+
+.maplinks.manage-tags=Manage tags
+
+.maplinks.manage-memories=Manage memories
+
+.maplinks.manage-profile=Manage profile
+
+.maplinks.manage-userpics=Manage userpics
+
+.maplinks.create-poll=Create poll
+
+.maplinks.manage-readlist-title=...manage your reading list:
+
+.maplinks.manage-readlist=Manage circle
+
+.maplinks.manage-groups=Manage custom groups
+
+.maplinks.filter-readlist=Filter reading list
+
+.maplinks.synfeeds=Syndicated feeds
+
+.maplinks.manage-accesslist-title=...manage your access list:
+
+.maplinks.manage-accesslist=Manage circle
+
+.maplinks.manage-invite-friend-title=...invite a friend to join [[sitename]]:
+
+.maplinks.invite-friend=Invite friend
+
+.maplinks.manage-account-title=...manage your [[sitename]] account:
+
+.maplinks.manage-settings=Manage settings
+
+.maplinks.inbox=Inbox
+
+.maplinks.upgrade=Upgrade your account
+
+.maplinks.changepassword=Change password
+
+.maplinks.changestatus=Change account status
+
+.maplinks.customize-title=...customize the look of your journal:
+
+.maplinks.selectstyle=Select style
+
+.maplinks.customizestyle=Customize style
+
+.maplinks.manage-linkslist=Manage links list
+
+.maplinks.about-customizing=Learn about customizing
+
+.maplinks.advanced-customization=Advanced customization
+
+.maplinks.layer-browser=Layer browser
+
+.maplinks.s2-manual=Customizing manual
+
+.maplinks.community-title=...manage a community:
+
+.maplinks.create-comm=Create a community
+
+.maplinks.manage-comm=Manage community settings
+
+.maplinks.manage-invites=Manage community invites
+
+.maplinks.search-comm=Search communities
+
+.maplinks.learn-site-title=...learn about [[sitename]]:
+
+.maplinks.aboutus=About us
+
+.maplinks.tos=Terms of Service
+
+.maplinks.privacy=Privacy policy
+
+.maplinks.principles=Guiding principles
+
+.maplinks.diversity=Diversity statement
+
+.maplinks.legal=Legal docs
+
+.maplinks.sitestats=Site statistics
+
+.maplinks.official-journals-title=...read the [[sitename]] official journals:
+
+.maplinks.gethelp-title=...get help using [[sitename]]:
+
+.maplinks.faq=Frequently asked questions
+
+.maplinks.faqsearch=Search the FAQ
+
+.maplinks.support=Support
+
+.maplinks.explore-title=...explore [[sitename]]:
+
+.maplinks.directory=Search directory
+
+.maplinks.toys-title=...play with some site toys:
+
+.maplinks.birthdays=Upcoming birthdays
+
+.maplinks.advanced-tools-title=...use the advanced tools:
+
+.maplinks.console=Admin console
+
+.maplinks.console-reference=Admin console reference
+
+.footer=What are we missing? <a href='/support/submit.bml'>Tell us!</a>
