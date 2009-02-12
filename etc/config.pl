@@ -350,6 +350,7 @@
             'maxcomments' => 5000,
             'rateperiod-lostinfo' => 24*60, # 24 hours
             'rateallowed-lostinfo' => 3,
+            'staff_headicon' => 0,
             );
 
     # capability class limits.
@@ -360,23 +361,8 @@
     #       this.  the important part then is %CAP_DEF, above.
     %CAP = (
         '0' => {  # 0x01
-            '_name' => 'sysop(UNUSED?)',
-            '_key' => 'sysop', # Just in case it's used
-            'userpics' => 1000,
-            'userlinks' => 50,
-            'paid' => 1,
-            'friendsfriendsview' => 1,
-            'styles' => 1,
-            'moodthemecreate' => 1,
-            'synd_befriend' => 1,
-            'synd_create' => 1,
-            'synd_quota' => 100,
-            'makepoll' => 1,
-            'emailpost' => 1,
-            'findsim' => 1,
-            'friendspopwithfriends' => 1,
-            's2everything' => 1,
-            'directorysearch' => 1,
+            '_name' => 'UNUSED',
+            '_key' => 'UNUSED',
         },
         '1' => {  # 0x02
             '_name' => 'Free',
@@ -424,17 +410,8 @@
             'weblogscom' => 0,
         },
         '2' => {  # 0x04
-            '_name' => 'UNUSED',
-            '_key' => 'UNUSED',
-            'userpics' => 50,
-            'styles' => 1,
-            'makepoll' => 1,
-            'synd_befriend' => 1,
-            'synd_quota' => 5,
-            'synd_create' => 5,
-            'maxfriends' => 1000,
-            'moodthemecreate' => 1,
-            's2everything' => 1,
+            '_name' => 'UNUSED2',
+            '_key' => 'UNUSED2',
         },
         '3' => {  # 0x08
             '_name' => 'Paid',
@@ -538,7 +515,7 @@
             'readonly' => 1,
         },
         '6' => {  # 0x40
-            '_name' => 'permanent',
+            '_name' => 'Permanent',
             '_key' => 'permanent_user',
             'bookmark_max' => 1000,
             'checkfriends' => 1,
@@ -585,7 +562,7 @@
             'fastserver' => 1,
         },
         '7' => {  # 0x80
-            '_name' => 'staff',
+            '_name' => 'Staff',
             '_key' => 'staff',
             'bookmark_max' => 1000,
             'checkfriends' => 1,
@@ -630,6 +607,7 @@
             'weblogscom' => 1,
             'paid' => 1,
             'fastserver' => 1,
+            'staff_headicon' => 1,
         },
         8 => { _name => 'beta', _key => 'betafeatures' }, # 0x100
     );

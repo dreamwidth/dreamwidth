@@ -6040,8 +6040,14 @@ sub ljuser
     } elsif ($type eq 'I') {
         return $u->ljuser_display($opts);
     } else {
-        return $make_tag->("user_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('userinfo.gif', $url, 17);
+        if ( $u->get_cap( 'staff_headicon' ) == 1 ) {
+            return $make_tag->( "staff_${head_size}.gif", $url, $head_size ) if $head_size;
+            return $make_tag->( 'staffinfo.gif', $url, 17 );
+        }
+        else {
+            return $make_tag->( "user_${head_size}.gif", $url, $head_size ) if $head_size;
+            return $make_tag->( 'userinfo.gif', $url, 17 );
+        }
     }
 }
 
