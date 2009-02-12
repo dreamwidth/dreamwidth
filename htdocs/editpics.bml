@@ -504,7 +504,7 @@ use strict;
         }
         $body .= "</div>";
 
-        $body .= "<div id='list_userpics' style='width: 100%; float: left;'>";
+        $body .= "<div id='list_userpics' style='width: 98%; float: left;'>";
         foreach my $pic (@userpics) {
             my $pid = $pic->id;
             
@@ -515,7 +515,7 @@ use strict;
             my $keywords = $pic->keywords;
             my $comment = $pic->comment;
             my $description = $pic->description;
-            $body .= "<div class='userpic_controls'  style='float: left;'>";
+            $body .= "<div class='userpic_controls'  style='float: left; width: auto;'>";
             $body .= "<div class='userpic_keywords pkg'>\n";
             $body .= "<label class='left' for='kw_$pid'>$ML{'.label.keywords'}</label>\n ";
             $body .= LJ::html_text({'name' => "kw_$pid", 'class' => "text", 'id' => "kw_$pid",
@@ -570,7 +570,7 @@ use strict;
 
         $body .= "</div><!-- end #list_userpics -->";
         # no default userpic
-        $body .= "<p id='no_default_userpic'>";
+        $body .= "<p id='no_default_userpic' style='clear: both;'>";
         $body .= LJ::html_check({ 'name' => 'defaultpic',
                                   'value' => 0,
                                   'type' => 'radio',
