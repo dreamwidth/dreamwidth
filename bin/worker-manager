@@ -45,6 +45,7 @@ sub load_config {
 
     open FILE, "<$fn" or return;
     foreach my $line (<FILE>) {
+        $line =~ s/\#.*$//;
         next unless $line =~ /^(.+?)\s+(\d+)/;
 
         my ($path, $ct) = ($1, $2);
