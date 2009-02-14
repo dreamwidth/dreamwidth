@@ -1273,7 +1273,7 @@ sub postevent
 
             $req->{'_moderate'}->{'authcode'} = LJ::make_auth_code(15);
             my $fr = $dbcm->quote(Storable::freeze($req));
-            return fail($err, 409) if length($fr) > 200_000;
+            return fail($err, 409) if length($fr) > 600_000;
 
             # store
             my $modid = LJ::alloc_user_counter($uowner, "M");

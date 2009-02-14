@@ -774,7 +774,7 @@ CREATE TABLE logtext2 (
   journalid INT UNSIGNED NOT NULL,
   jitemid MEDIUMINT UNSIGNED NOT NULL,
   subject VARCHAR(255) DEFAULT NULL,
-  event TEXT,
+  event MEDIUMTEXT,
   PRIMARY KEY (journalid, jitemid)
 ) max_rows=100000000
 EOC
@@ -3761,6 +3761,10 @@ register_alter(sub {
                   "ALTER TABLE acctcode MODIFY COLUMN timegenerate INT UNSIGNED");
     }
 
+    unless ( column_type( "logtext2", "event" ) =~ /^mediumtext/ ) {
+        do_alter( "logtext2",
+                  "ALTER TABLE logtext2 MODIFY COLUMN event MEDIUMTEXT");
+    }
 
 });
 
