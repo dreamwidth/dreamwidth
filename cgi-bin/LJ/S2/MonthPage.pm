@@ -84,6 +84,9 @@ sub MonthPage
     LJ::load_log_props2($u->{'userid'}, \@itemids, \%logprops);
     my $lt = LJ::get_logtext2($u, @itemids);
 
+    # load tags
+    my $tags = LJ::Tags::get_logtags($u, \@itemids);
+
     my (%pu, %pu_lite);  # poster users; UserLite objects
     foreach (@items) {
         $pu{$_->{'posterid'}} = undef;
@@ -150,6 +153,12 @@ sub MonthPage
 
         my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
 
+        my @taglist;
+        while (my ($kwid, $kw) = each %{$tags->{$itemid} || {}}) {
+            push @taglist, Tag($u, $kwid => $kw);
+        }
+        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
+
         my $entry = Entry($u, {
             'subject' => $subject,
             'text' => "",
@@ -163,6 +172,7 @@ sub MonthPage
             'journal' => $userlite_journal,
             'poster' => $userlite_poster,
             'comments' => $comments,
+            'tags' => \@taglist,
             'userpic' => $userpic,
             'permalink_url' => $permalink,
         });
