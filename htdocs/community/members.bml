@@ -449,7 +449,6 @@ $LJ::SITEROOT
         }
         $ret .= "<?p $ML{'.success.nochanges'} p?>" unless @msgs || @invited;
         $ret .= "<?p " . BML::ml('.success.return2', {'aopts' => "href='" . BML::get_uri() . "?authas=$cname'"}) . " p?>";
-        $ret .= LJ::Widget::GettingStarted->render;
 
         return $ret;
 

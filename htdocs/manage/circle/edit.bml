@@ -240,7 +240,6 @@ body<=
         $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit.bml'>$ML{'.success.editfriends'}</a></li>";
         $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editgroups.bml'>$ML{'.success.editgroups'}</a></li>";
         $ret .= "</ul>";
-        $ret .= LJ::Widget::GettingStarted->render;
 
         return $ret;
     }

@@ -183,8 +183,6 @@ body<=
             $ret .= "<li><a href='" . $cu->profile_url() . "'>$ML{'.label.comminfo'}</a></li><li>"
                 . BML::ml('.label.managepage', { 'aopts' => 'href="/community/manage.bml"' }) . "</li></ul> p?>";
 
-            $ret .= LJ::Widget::GettingStarted->render;
-
             return $ret;
         }
     }

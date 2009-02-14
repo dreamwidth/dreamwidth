@@ -789,8 +789,7 @@ body<=
                          "<?p $ML{'.success.gonext'} p?>" .
                          "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
                          "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/editpics.bml$getextra'>$ML{'.success.editpics'}</a></li></ul>" .
-                         LJ::Widget::GettingStarted->render;
+                         "<li><a href='$LJ::SITEROOT/editpics.bml$getextra'>$ML{'.success.editpics'}</a></li></ul>";
     }
 
     # should never happen

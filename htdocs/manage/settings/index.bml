@@ -62,7 +62,6 @@ body<=
                 LJ::Setting::StyleAlwaysMine
                 LJ::Setting::StyleMine
                 LJ::Setting::CtxPopup
-                LJ::Setting::GettingStarted
                 LJ::Setting::SiteScheme
                 LJ::Setting::AdultContent
                 LJ::Setting::ViewingAdultContent

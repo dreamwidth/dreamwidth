@@ -68,7 +68,6 @@
                 below_ad    => LJ::CProd->full_box_for($remote, width => 300)
             });
             $body .= "<?h1 $ML{'.saved.header'} h1?><?p $ML{'.saved.text'} p?>";
-            $body .= LJ::Widget::GettingStarted->render;
         } else {
             $body .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.text'} p?><?p $res{'errmsg'} p?>";
             $body = $print_with_ad->($body);

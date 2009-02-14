@@ -364,8 +364,6 @@
      $body .= "<li>" . BML::ml(".body.added.next.journal", { 'user' => $ju->ljuser_display }) . "</li>";
      $body .= "</ul>";
 
-     $body .= LJ::Widget::GettingStarted->render;
-
      return;
  }
 

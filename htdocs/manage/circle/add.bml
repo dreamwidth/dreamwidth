@@ -108,8 +108,6 @@
                 $body .= "<li><a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$u->{user}'>"
                          . $ML{'.add.next.subscribe'} . "</a></li></ul>";
             }
-
-            $body .= LJ::Widget::GettingStarted->render;
         } else {
             $title = $ML{'Error'};
             $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $res{'errmsg'} p?>");

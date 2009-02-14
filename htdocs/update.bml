@@ -448,8 +448,6 @@
                         "<li><a href=\"/edittags.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
                         $after_entry_post_extra_options .
                         "</ul>";
-
-                    $$body .= LJ::Widget::GettingStarted->render;
                 }
 
                 $$body .= "</td><td style=\"padding-left: 2em;\">";

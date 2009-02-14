@@ -2457,10 +2457,6 @@ setting.gender.error.invalid=Invalid option
 
 setting.gender.question=What's your gender?
 
-setting.gettingstarted.label=Getting Started Module
-
-setting.gettingstarted.option=Show Getting Started module on homepage and confirmation pages
-
 setting.graphicpreviews.label=Graphic Previews
 
 setting.graphicpreviews.option.comm=Allow viewers to preview external links within my community
@@ -3247,28 +3243,6 @@ widget.friendupdates.noupdates.setup=Set up your notifications in <a [[aopts]]>M
 widget.friendupdates.title=Friend Updates
 
 widget.friendupdates.viewall=More
-
-widget.gettingstarted.entry.link=Post an Entry
-
-widget.gettingstarted.entry.note=You haven't made an entry in your journal yet.
-
-widget.gettingstarted.expires=Expires [[date]]
-
-widget.gettingstarted.friends.link=Find Friends and Communities
-
-widget.gettingstarted.friends.note=You've only made [[num]] [[?num|friend|friends]].
-
-widget.gettingstarted.manage=Manage Account
-
-widget.gettingstarted.profile.link=Edit Profile
-
-widget.gettingstarted.profile.note2=You haven't filled out your bio and interests.
-
-widget.gettingstarted.title=Getting Started
-
-widget.gettingstarted.userpics.link=Upload a Userpic
-
-widget.gettingstarted.userpics.note=You have no userpics.
 
 widget.inboxfolder.confirm.delete=Are you sure you want to delete one or more bookmarked items?
 

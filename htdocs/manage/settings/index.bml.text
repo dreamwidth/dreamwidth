@@ -66,8 +66,6 @@
 
 .fn.contextualhover=Contextual Hover Menu
 
-.fn.gettingstarted=Getting Started Module
-
 .fn.imageplace=Image placeholders
 
 .fn.jabber=Online Status
@@ -89,12 +87,6 @@
 .fn.viewingadult=Viewing Age Limited Content
 
 .fn.weblogs=Weblogs.com
-
-.gettingstarted=Show Getting Started module
-
-.gettingstarted.text=The Getting Started module displays on the homepage and confirmation pages until the required tasks have been completed.
-
-.gettingstarted.text.completed=Because you have completed all of the required tasks, the Getting Started module will not display.
 
 .imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
 
