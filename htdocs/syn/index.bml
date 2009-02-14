@@ -174,8 +174,8 @@ body<=
     # get most popular feeds from memcache
     my $popsyn = LJ::Syn::get_popular_feeds();
 
-    # load user's friends so we can strip feeds they already watch
-    my $friends = LJ::get_friends($u) || {};
+    # load user's watch list so we can strip feeds they already watch
+    my %watched = map { $_ => 1 } $u->watched_userids;
 
     # populate @pop and add users they've chosen to add
     my @pop;
@@ -191,7 +191,7 @@ body<=
         $urls{$user} = $suser->{url};
 
         # skip suspended/deleted accounts, already watched feeds
-        next if $friends->{$suserid} || !$suser->is_visible;
+        next if $watched{$suserid} || !$suser->is_visible;
 
         if ($POST{'action:add'} && $POST{"add_$user"}) {
             $u->add_edge( $suserid, watch => 1 );

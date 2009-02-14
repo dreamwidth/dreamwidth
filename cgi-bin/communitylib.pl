@@ -277,25 +277,25 @@ sub leave_community {
 
 # <LJFUNC>
 # name: LJ::join_community
-# des: Makes a user join a community.  Takes care of all [special[reluserdefs]] and friend stuff.
-# args: uuserid, ucommid, friend?, noauto?
+# des: Makes a user join a community.  Takes care of all [special[reluserdefs]] and watch stuff.
+# args: uuserid, ucommid, watch?, noauto?
 # des-uuserid: a userid or u object of the user doing the joining
 # des-ucommid: a userid or u object of the community being joined
-# des-friend: 1 to add this comm to user's friends list, else not
+# des-watch: 1 to add this comm to user's watch list, else not
 # des-noauto: if defined, 1 adds P edge, 0 does not; else, base on community postlevel
 # returns: 1 if success, undef if error of some sort (ucommid not a comm, uuserid already in
 #          comm, db error, etc)
 # </LJFUNC>
 sub join_community {
-    my ($uuid, $ucid, $friend, $canpost) = @_;
+    my ($uuid, $ucid, $watch, $canpost) = @_;
     my $u = LJ::want_user($uuid);
     my $cu = LJ::want_user($ucid);
-    $friend = $friend ? 1 : 0;
+    $watch = $watch ? 1 : 0;
     return LJ::error('comm_not_found') unless $u && $cu;
     return LJ::error('comm_not_comm') unless $cu->{journaltype} eq 'C';
 
-    # friend comm -> user
-    LJ::add_friend($cu->{userid}, $u->{userid});
+    # FIXME: This need to be updated for the new community membership!
+    #LJ::add_friend($cu->{userid}, $u->{userid});
 
     # add edges that effect this relationship... if the user sent a fourth
     # argument, use that as a bool.  else, load commrow and use the postlevel.
@@ -308,17 +308,14 @@ sub join_community {
     }
     LJ::set_rel($cu->{userid}, $u->{userid}, 'P') if $addpostacc;
 
-    # friend user -> comm?
-    return 1 unless $friend;
+    # user should watch comm?
+    return 1 unless $watch;
 
-    # don't do the work if they already friended the comm
-    return 1 if $u->has_friend($cu);
+    # don't do the work if they already watch the comm
+    return 1 if $u->watches( $cu );
 
-    my $err = "";
-    return LJ::error("You have joined the community, but it has not been added to ".
-                     "your Friends list. " . $err) unless $u->can_add_friends(\$err, { friend => $cu });
-
-    $u->friend_and_watch($cu);
+    # watch the comm
+    $u->add_edge( $cu, watch => {} );
 
     # done
     return 1;
