@@ -69,8 +69,7 @@ LJ::register_hook( 'show_control_strip', sub {
         }
 
         if ( $journal->is_community ) {
-            # FIXME: Fix community membership!
-            return 0
+            return $remote->member_of( $journal )
                 ? $display & $pagemask{'community.belongto'}
                 : $display & $pagemask{'community.notbelongto'};
         }

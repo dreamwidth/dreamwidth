@@ -3106,7 +3106,7 @@ sub control_strip
             }
         } elsif ($journal->is_community) {
             my $watching = $remote->watches( $journal );
-            my $memberof = 0; # FIXME: Fix community membership!
+            my $memberof = $remote->member_of( $journal );
             my $haspostingaccess = LJ::check_rel($journal, $remote, 'P');
             if (LJ::can_manage_other($remote, $journal)) {
                 $ret .= "$statustext{'maintainer'}<br />";

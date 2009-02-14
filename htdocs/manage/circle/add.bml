@@ -126,7 +126,7 @@
         } elsif ($u->{'journaltype'} eq "C") {
             $windowtitle = BML::ml('.confirm.title.community', {'user'=> $user });
             $title = BML::ml('.confirm.title.community', {'icon'=> $icon, 'user'=> $user });
-            unless (0) { # FIXME: Fix community membership!
+            unless ( $remote->member_of( $u ) ) {
                 $body .= "<?p " . BML::ml('.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join.bml?comm=$user'"}) . " p?>";
             }
         } elsif ($u->{'journaltype'} eq "N") {

@@ -596,7 +596,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
          my %comms;
          unless ($POST{inviter_joins}) {
              # Load their community memberships
-             my @ids = (); # FIXME: Fix community membership!
+             my @ids = $inviter->member_of_userids;
              my %memberships;
              LJ::load_userids_multiple([ map { $_ => \$memberships{$_} } @ids ]);
 
@@ -666,9 +666,9 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
                  foreach my $comm (values %comms) {
                      next unless $comm->{istatus} eq 'normal';
 
-                     my $ids = {}; # FIXME: Fix community membership!
-                     if (scalar values %$ids < 5) {
-                     delete $comms{$comm->{userid}};
+                     my @ids = $comm->member_userids;
+                     if ( scalar @ids < 5 ) {
+                         delete $comms{$comm->{userid}};
                      }
                  }
              }

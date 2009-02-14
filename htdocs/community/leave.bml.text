@@ -21,7 +21,7 @@
 
 .label.removed5=You are now removed from the [[commname]] Community.
 
-.label.removefromfriends=Also remove "[[user]]" from friends list.
+.label.removefromfriends=Also remove "[[user]]" from subscriptions.
 
 .success=Success
 
