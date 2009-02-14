@@ -1929,9 +1929,9 @@ label.screening.nonfriends=By non-friends
 
 label.screening.nonfriends2=Non-friends
 
-label.security.custom=Custom...
+label.security.accesslist=Access List
 
-label.security.friends=Friends
+label.security.custom=Custom...
 
 label.security.head=Security Level:
 

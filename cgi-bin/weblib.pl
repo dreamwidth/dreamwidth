@@ -1659,7 +1659,7 @@ PREVIEW
                 my $is_comm = $usejournalu && $usejournalu->is_comm ? 1 : 0;
 
                 my $string_public = LJ::ejs(BML::ml('label.security.public2'));
-                my $string_friends = LJ::ejs(BML::ml('label.security.friends'));
+                my $string_friends = LJ::ejs(BML::ml('label.security.accesslist'));
                 my $string_friends_comm = LJ::ejs(BML::ml('label.security.members'));
                 my $string_private = LJ::ejs(BML::ml('label.security.private2'));
                 my $string_custom = LJ::ejs(BML::ml('label.security.custom'));
@@ -1678,7 +1678,8 @@ PREVIEW
                 push @secs, ("private", $string_private) unless $is_comm;
 
                 my @secopts;
-                if ($res && ref $res->{'friendgroups'} eq 'ARRAY' && scalar @{$res->{'friendgroups'}} && !$is_comm) {
+                my $trust_groups = $remote && $remote->trust_groups;
+                if ( ref $trust_groups eq 'HASH' && scalar keys %$trust_groups && !$is_comm ) {
                     push @secs, ("custom", $string_custom);
                     push @secopts, ("onchange" => "customboxes()");
                 }
@@ -1688,17 +1689,17 @@ PREVIEW
                                           'tabindex' => $tabindex->(), @secopts }, @secs) . "\n";
 
                 # if custom security groups available, show them in a hideable div
-                if ($res && ref $res->{'friendgroups'} eq 'ARRAY' && scalar @{$res->{'friendgroups'}}) {
+                if ( ref $trust_groups eq 'HASH' && scalar keys %$trust_groups ) {
                     my $display = $opts->{'security'} eq "custom" ? "block" : "none";
                     $out .= LJ::help_icon("security", "<span id='security-help'>\n", "\n</span>\n");
                     $out .= "<div id='custom_boxes' class='pkg' style='display: $display;'>\n";
                     $out .= "<ul id='custom_boxes_list'>";
-                    foreach my $fg (@{$res->{'friendgroups'}}) {
+                    foreach my $fg ( keys %$trust_groups ) {
                         $out .= "<li>";
-                        $out .= LJ::html_check({ 'name' => "custom_bit_$fg->{'id'}",
-                                                 'id' => "custom_bit_$fg->{'id'}",
-                                                 'selected' => $opts->{"custom_bit_$fg->{'id'}"} || $opts->{'security_mask'}+0 & 1 << $fg->{'id'} }) . " ";
-                        $out .= "<label for='custom_bit_$fg->{'id'}'>" . LJ::ehtml($fg->{'name'}) . "</label>\n";
+                        $out .= LJ::html_check({ 'name' => "custom_bit_$fg",
+                                                 'id' => "custom_bit_$fg",
+                                                 'selected' => $opts->{"custom_bit_$fg"} || $opts->{'security_mask'}+0 & 1 << $fg }) . " ";
+                        $out .= "<label for='custom_bit_$fg'>" . LJ::ehtml($trust_groups->{$fg}->{groupname}) . "</label>\n";
                         $out .= "</li>";
                     }
                     $out .= "</ul>";

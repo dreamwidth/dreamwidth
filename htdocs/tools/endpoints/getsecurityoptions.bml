@@ -24,7 +24,7 @@
     return JSON::objToJson({ ret => \%ret }) unless $remote && $remote->can_post_to($u);
 
     unless ($ret{is_comm}) {
-        my $friend_groups = LJ::get_friend_group($u->id);
+        my $friend_groups = $u->trust_groups;
         $ret{friend_groups_exist} = keys %$friend_groups ? 1 : 0;
     }
 
