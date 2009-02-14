@@ -805,8 +805,8 @@
 
     # the following values allow you to control enabling your OpenID server and consumer
     # support.
-    $OPENID_SERVER = 0;
-    $OPENID_CONSUMER = 0;
+    $OPENID_SERVER = 1;
+    $OPENID_CONSUMER = 1;
 
     # how many days to store random users for; after this many days they fall out of the table.
     # high traffic sites probably want a reasonably low number, whereas lower traffic sites might
