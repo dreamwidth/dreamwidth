@@ -2,17 +2,19 @@
 
 .add.header=Success
 
-.add.next.friends=Read your Friends page
+.add.next.friends=View your reading page
 
-.add.next.subscribe=Get notifications for new entries
+.add.next.modify=Modify your circle
 
-.add.text2=[[ljuser]] has been added to your friends list.
+.add.text2=[[ljuser]]'s status in your circle has been updated.
 
-.add.title=Friend Added!
+.add.title=Circle Updated!
+
+.add.trust=Grant access: they can read your journal entries that you restrict to your access list
+
+.add.watch=Subscribe: you can read their journal entries on your reading page
 
 .btn.add=Add [[user]]
-
-.btn.add.friend=Add
 
 .btn.cancel=Cancel
 
@@ -34,37 +36,31 @@
 
 .colors.hover=(Hover your mouse over a color to see its name)
 
-.colors.text=Select the colors that will represent [[user]] in your friends list.
+.colors.text=Select the colors that will represent [[user]] on your reading page (only applicable if you subscribe to them).
 
-.confirm.action1.person=you can read their journal entries on your friends page
-
-.confirm.action2.person=they can read your friends-only entries
-
-.confirm.syn.header=Add syndicated feed <b>[[user]]</b> as a friend?
-
-.confirm.syn.title1=Add [[icon]][[user]] to your friends page?
+.confirm.syn.title1=Modify [[icon]][[user]]'s subscription?
 
 .confirm.text=To add <b>[[user]]</b> to your friends list, click the button below.
 
-.confirm.text1.community2=Adding a community allows you to read the community's public posts on your friends page. If you would like to post to the community and be listed as a member, you'll need to <a [[aopts]]>join the community</a>.
+.confirm.text1.community2=Adding a community allows you to read the community's public posts on your reading page. If you would like to post to the community and be listed as a member, you'll need to <a [[aopts]]>join the community</a>.
 
-.confirm.text1.feed=Adding a feed allows you to read new content from the feed on your friends page.
+.confirm.text1.feed=Adding a feed allows you to read new content from the feed on your reading page.
 
-.confirm.text1.news=Adding [[user]] allows you to read new content from it on your friends page.
+.confirm.text1.news=Adding [[user]] allows you to read new content from it on your reading page.
 
-.confirm.text1.person=When you friend someone:
+.confirm.text1.notvisible=This account is deleted, purged, or suspended.  You can only remove it from your circle.  Clicking the button below will remove both its access and subscription.
 
-.confirm.text2.person=Would you like to add [[user]]?
+.confirm.text1.person=Choose one or both of the following:
 
-.confirm.title.community=Add [[icon]][[user]] to your friends page?
+.confirm.title.community=Modify [[icon]][[user]]'s subscription?
 
-.confirm.title.news=Add [[icon]][[user]] to your friends page?
+.confirm.title.news=Modify [[icon]][[user]]'s subscription?
 
-.confirm.title.person=Add [[icon]][[user]] as a friend?
+.confirm.title.person=Modify [[icon]][[user]]'s status in your circle?
 
 .disclaimer=This will not allow maintainers or members of the community to view your friends-only posts.
 
-.error.notvisible=The account [[user]] cannot be added as a friend because it is deleted, purged, or suspended.
+.error.notvisible=The account [[user]] cannot be added to your circle because it is deleted, purged, or suspended.
 
 .error.sessionchanged=Session info changed. Try again.
 
@@ -82,7 +78,7 @@
 
 .groups.nogroup=No friend groups set up.
 
-.groups.text1=<i>Optional:</i> Include in one or more custom friends groups.
+.groups.text1=<i>Optional:</i> Include in one or more access filters.  <strong>You must grant access to the user by selecting the first box above in order to add them to any access filters.</strong>
 
 .optional=Optional
 

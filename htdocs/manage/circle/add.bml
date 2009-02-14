@@ -62,56 +62,37 @@
             $gmask |= (1 << $bit);
         }
 
-        my $req = {
-            "user" => $remote->{'user'},
-            "mode" => "editfriends",
-            "ver"  => $LJ::PROTOCOL_VER,
-        };
-
-
-        if ($POST{'action:delete'}) {
-            $req->{"editfriend_delete_$user"} = 1;
-        } else {
-            $req->{"editfriend_add_1_user"} = $user;
-            $req->{"editfriend_add_1_fg"} = $POST{'editfriend_add_1_fg'};
-            $req->{"editfriend_add_1_bg"} = $POST{'editfriend_add_1_bg'};
-            $req->{"editfriend_add_1_groupmask"} = $gmask;
-        }
-
-        my %res = ();
-        LJ::do_request($req, \%res,
-                       { "noauth" => 1, "userid" => $remote->{'userid'} } );
-
-        if ($res{'success'} eq "OK")
-        {
-            $body = LJ::get_ads({
-                location    => 'bml.friends.add/main',
-                ljadwrapper => 1,
-                below_ad    => LJ::CProd->full_box_for($remote, width => 300)
+        if ( $POST{add_trust} ) {
+            $remote->add_edge( $u, trust => {
+                mask => $gmask,
             });
-
-            if ($POST{'action:delete'}) {
-                $title = $ML{'.remove.title'};
-                $body .= "<?h1 $ML{'.remove.header'} h1?><?p ";
-                $body .= BML::ml('.remove.text2', {
-                                                 'ljuser' => LJ::ljuser($u),
-                                                 'aopts'    => "href='" . $remote->journal_base . "/read/'",
-                                                 'aopts2'   => "href='" . $remote->profile_url . "'",
-                                                 });
-                $body .= " p?>";
-            } else {
-                $title = $ML{'.add.title'};
-                $body .= "<?h1 $ML{'.add.header'} h1?>";
-
-                $body .= "<?p " . BML::ml('.add.text2', { 'ljuser' => LJ::ljuser($u) }) . " p?>";
-                $body .= "<ul><li><a href='" . $remote->journal_base . "/read'>$ML{'.add.next.friends'}</a></li>";
-                $body .= "<li><a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$u->{user}'>"
-                         . $ML{'.add.next.subscribe'} . "</a></li></ul>";
-            }
         } else {
-            $title = $ML{'Error'};
-            $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $res{'errmsg'} p?>");
+            $remote->remove_edge( $u, 'trust' );
         }
+
+        if ( $POST{add_watch} ) {
+            my $fg = LJ::color_todb( $POST{editfriend_add_1_fg} );
+            my $bg = LJ::color_todb( $POST{editfriend_add_1_bg} );
+            $remote->add_edge( $u, watch => {
+                fgcolor => $fg,
+                bgcolor => $bg,
+            } );
+        } else {
+            $remote->remove_edge( $u, 'watch' );
+        }
+
+        $body = LJ::get_ads({
+            location    => 'bml.friends.add/main',
+            ljadwrapper => 1,
+            below_ad    => LJ::CProd->full_box_for($remote, width => 300)
+        });
+
+        $title = $ML{'.add.title'};
+        $body .= "<?h1 $ML{'.add.header'} h1?>";
+
+        $body .= "<?p " . BML::ml('.add.text2', { 'ljuser' => LJ::ljuser($u) }) . " p?>";
+        $body .= "<ul><li><a href='" . $remote->journal_base . "/read'>$ML{'.add.next.friends'}</a></li>";
+        $body .= "<li><a href='$LJ::SITEROOT/manage/circle/edit.bml'>$ML{'.add.next.modify'}</a></ul>";
         return;
     }
 
@@ -123,27 +104,15 @@
 
 
     # check to see if user is already a friend.
-    # TAG:fr:bml_friends_add:check_is_friend
-    my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare("SELECT groupmask, fgcolor, bgcolor FROM friends WHERE userid=? AND friendid=?");
-    $sth->execute($remote->{'userid'}, $userid);
-    my $fr = undef;#$sth->fetchrow_hashref;
+    my $trusted = $remote->trusts( $u );
+    my $watched = $remote->watches( $u );
+    my $watch_list = $remote->watch_list;
+    my $fgvalue = $watched ? $watch_list->{$userid}->{fgcolor} : "#000000";
+    my $bgvalue = $watched ? $watch_list->{$userid}->{bgcolor} : "#FFFFFF";
 
-    if ($fr) {
-        $title .= $ML{'.error3.title'};
-        if ($u->is_visible) {
-            $body .= "<?p " . BML::ml('.error3.text1', {'user' => LJ::ljuser($user)}) . " p?>";
-        } else {
-            $body .= "<?p " . BML::ml('.error3.text2', {'user' => LJ::ljuser($user)}) . " p?>";
-        }
-    } else {
-        # return an error if user being added isn't visible
-        unless ($u->is_visible) {
-            $title = $ML{'Error'};
-            $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p " . BML::ml('.error.notvisible', {'user' => LJ::ljuser($user)}) . " p?>");
-            return;
-        }
-        my $icon = $u->large_journal_icon;
+    # return an error if user being added isn't visible
+    my $icon = $u->large_journal_icon;
+    if ( $u->is_visible ) {
         # was this a syndicated add?
         if ($u->{journaltype} eq 'Y') {
             $windowtitle = BML::ml('.confirm.syn.title1', {'user'=> $user });
@@ -157,7 +126,7 @@
         } elsif ($u->{'journaltype'} eq "C") {
             $windowtitle = BML::ml('.confirm.title.community', {'user'=> $user });
             $title = BML::ml('.confirm.title.community', {'icon'=> $icon, 'user'=> $user });
-            unless (LJ::is_friend($userid, $remote->{userid})) {
+            unless (0) { # FIXME: Fix community membership!
                 $body .= "<?p " . BML::ml('.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join.bml?comm=$user'"}) . " p?>";
             }
         } elsif ($u->{'journaltype'} eq "N") {
@@ -173,47 +142,63 @@
                $windowtitle = BML::ml('.confirm.title.person', {'user'=> $user });
                $title = BML::ml('.confirm.title.person', {'icon'=> $icon, 'user'=> $user });
             }
-            $body .= "<?p $ML{'.confirm.text1.person'}";
-            $body .= "<ul><li>$ML{'.confirm.action1.person'}</li>";
-            $body .= "<li>$ML{'.confirm.action2.person'}</li>" if ($u->{'journaltype'} ne "I");
-            $body .= "</ul> p?>";
+            $body .= "<?p $ML{'.confirm.text1.person'} p?>";
         }
+    } elsif ( $trusted || $watched ) {
+        $windowtitle = BML::ml( '.confirm.title.person', { user => $user } );
+        $title = BML::ml( '.confirm.title.person', { icon => $icon, user => $user } );
+        $body .= "<?p $ML{'.confirm.text1.notvisible'} p?>";
+    } else {
+        $title = $ML{'Error'};
+        $body .= "<?p " . BML::ml('.error.notvisible', {'user' => LJ::ljuser($user)}) . " p?>";
+        return;
     }
 
    # users that aren't visible can only be removed, not modified
    if ($u->is_visible) {
 
+    if ( !$u->equals( $remote ) && ( $u->is_personal || $u->is_identity ) ) {
+        $body .= LJ::html_check({
+            name => "add_trust",
+            id => "add_trust",
+            selected => $trusted ? 1 : 0,
+            label => $ML{'.add.trust'},
+        }) . "<br />";
+    }
+
+    $body .= LJ::html_check({
+        name => "add_watch",
+        id => "add_watch",
+        selected => $watched ? 1 : 0,
+        label => $ML{'.add.watch'},
+    });
+
     ## let them pick friend groups
+    # FIXME: Add support for reading groups once those exist
     my $err;
-    my $greq = LJ::Protocol::do_request("getfriendgroups", {
-                                                           'username' => $remote->{'user'},
-                                                           'ver'      => $LJ::PROTOCOL_VER,
-                                                           },
-                                                           \$err, { 'noauth' => 1 });
+    my $trust_groups = $remote->trust_groups;
 
-    if (@{$greq->{'friendgroups'}}) {
-    $body .= "<?p &nbsp;<br />";
-    $body .= "$ML{'.groups.text1'} " . LJ::help_icon('customgroups', '&nbsp;') . "p?>\n";
-    $body .= "<blockquote>\n";
-       foreach my $g (@{$greq->{'friendgroups'}}) {
-            my $ck = ($fr && ($fr->{'groupmask'} & (1 << $g->{'id'}))) ||
-                     # by default, newly added friends are in default view unless unchecked
-                     (! $fr && $g->{'name'} eq 'Default View');
+    if ( !$u->equals( $remote ) && ( $u->is_personal || $u->is_identity ) && keys %$trust_groups ) {
+        $body .= "<?p &nbsp;<br />";
+        $body .= "$ML{'.groups.text1'} " . LJ::help_icon('customgroups', '&nbsp;') . "p?>\n";
+        $body .= "<blockquote>\n";
+           foreach my $g ( keys %$trust_groups ) {
+                my $ck = ( $remote->trustmask( $u ) & (1 << $g) );
 
-            $body .= LJ::html_check({ 'name'     => "bit_$g->{'id'}",
-                                      'id'       => "fg:bit_$g->{'id'}",
-                                      'selected' => $ck,
-                                      'label' => $g->{name}});
-            $body .= "<br />\n";
-        }
-    $body .= "</blockquote>";
+                $body .= LJ::html_check({ 'name'     => "bit_$g",
+                                          'id'       => "fg:bit_$g",
+                                          'selected' => $ck,
+                                          'label' => $trust_groups->{$g}->{groupname} });
+                $body .= "<br />\n";
+            }
+        $body .= "</blockquote>";
     }
 
     ## let them pick the colors
     my $color_text = "<?p <table><tr><td valign=\"top\"><i>$ML{'.optional'}:</i> ".
-             "<input type=\"checkbox\" id=\"color_switch\" value=\"\" onClick=\"color_display(this);\"> </td><td>" .
+             "<input type=\"checkbox\" id=\"color_switch\" value=\"\" onClick=\"color_display(this);\"> </td><td><label for=\"color_switch\">" .
              BML::ml('.colors.text', {'user'=>$user}) .
-             "<br /><span style=\"font-size: 7pt;\">($ML{'.colors.disclaimer'})</span></td></tr></table> p?>";
+             "</label><br /><span style=\"font-size: 7pt;\">($ML{'.colors.disclaimer'})</span></td></tr></table> p?>";
     $body .= "<script>\n";
     $body .= "function color_display(check) {\n";
     $body .= "  if (check.checked) {\n";
@@ -248,14 +233,6 @@
     $ret .= "<table width=\"650\" cellpadding='4'><tr><td><b>$ML{'.colors.fg'}</b></td><td>";
 
     # custom color selection
-
-    # retain existing fgcolor
-    my $fgvalue;
-    if ($fr) {
-        $fgvalue =  '#'.uc(sprintf("%06x", $fr->{'fgcolor'}));
-    } else {
-        $fgvalue = '#000000';
-    }
 
     # with javascript
     $ret .= qq~
@@ -342,14 +319,6 @@
 
     # background
     $ret .= "<tr><td><b>$ML{'.colors.bg'}</b></td><td>";
-
-    # retain existing bgcolor
-    my $bgvalue;
-    if ($fr) {
-        $bgvalue =  '#'.uc(sprintf("%06x", $fr->{'bgcolor'}));
-    } else {
-        $bgvalue = '#FFFFFF';
-    }
 
     # custom color selection
 
@@ -453,13 +422,10 @@
 
    $body .= "<br />\n <?p ";
     # Form submit buttons
-    if ($fr) {
-        if ($u->is_visible) {
-            $body .= "<input type='submit' value=\"$ML{'.btn.modify'}\"> - ";
-        }
-        $body .= "<input type='submit' name='action:delete' value=\"$ML{'.btn.remove'}\">\n";
+    if ($u->is_visible) {
+        $body .= "<input type='submit' value=\"$ML{'.btn.modify'}\"> ";
     } else {
-        $body .= "<input type='submit' value=\"&nbsp; $ML{'.btn.add.friend'} &nbsp;\">\n";
+        $body .= "<input type='submit' name='action:delete' value=\"$ML{'.btn.remove'}\"> \n";
     }
 
     my $cancel_btn = LJ::ejs($ML{'.btn.cancel'});
