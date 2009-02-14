@@ -146,6 +146,7 @@ sub validate_edges {
 
 # XXX: add new edge modules that are global here
 use DW::User::Edges::WatchTrust;
+use DW::User::Edges::CommMembership;
 
 ###############################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

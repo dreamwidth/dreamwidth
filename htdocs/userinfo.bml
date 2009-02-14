@@ -611,8 +611,8 @@ body<=
         @watched_by_userids = $u->watched_by_userids unless $u->is_syndicated;
     }
 
-    my @members_userids = () if $u->is_community; # FIXME: Fill this in!
-    my @member_of_userids = () if $u->is_personal; # FIXME: Fill this in!
+    my @members_userids = $u->member_userids if $u->is_community;
+    my @member_of_userids = $u->member_of_userids if $u->is_personal;
     my @posting_access_to_userids = @{LJ::load_rel_target( $u, 'P' )} if $u->is_personal;
     my @posting_access_from_userids = @{LJ::load_rel_user( $u, 'P' )} if $u->is_community;
 

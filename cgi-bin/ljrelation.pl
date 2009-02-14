@@ -146,6 +146,39 @@ sub load_rel_target
 }
 
 # <LJFUNC>
+# name: LJ::load_rel_target_cache
+# des: Loads user relationship information of the type 'type' where user
+#      'targetid' participates on the right side (is the target of the relationship)
+#      trying memcache first.  The results from this sub should be
+#      <strong>treated as inaccurate and out of date</strong>.
+# args: targetid, type
+# des-userid: userid or a user hash to load relationship information for.
+# des-type: type of the relationship
+# returns: reference to an array of userids
+# </LJFUNC>
+sub load_rel_target_cache
+{
+    my ($userid, $type) = @_;
+    return undef unless $type && $userid;
+
+    my $u = LJ::want_user($userid);
+    return undef unless $u;
+    $userid = $u->{'userid'};
+
+    my $key = [ $userid, "reluser_rev:$userid:$type" ];
+    my $res = LJ::MemCache::get($key);
+
+    return $res if $res;
+
+    $res = LJ::load_rel_target($userid, $type);
+
+    my $exp = time() + 60*30; # 30 min
+    LJ::MemCache::set($key, $res, $exp);
+
+    return $res;
+}
+
+# <LJFUNC>
 # name: LJ::_get_rel_memcache
 # des: Helper function: returns memcached value for a given (userid, targetid, type) triple, if valid.
 # args: userid, targetid, type

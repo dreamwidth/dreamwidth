@@ -41,7 +41,7 @@ body<=
 
     # and make sure they're not already a member
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.already.member'} p?>"
-        if LJ::is_friend($cu, $remote);
+        if $remote->member_of( $cu );
 
     # make sure underage users can't join adult communities
     my $adult_content;
@@ -147,7 +147,9 @@ body<=
         $ret .= LJ::form_auth();
         $ret .= "<table cellpadding='0' cellspacing='1' border='0'><tr>";
         $ret .= "<td><input type='checkbox' name='addfriend' checked='checked'></td><td>";
-        $ret .= LJ::is_friend($remote, $cu) ? BML::ml('.label.addtofriends2.modify', {'comm' => LJ::ljuser($cu)}) : BML::ml('.label.addtofriends3', {'comm' => LJ::ljuser($cu)});
+        $ret .= $remote->watches( $cu ) ?
+                BML::ml( '.label.addtofriends2.modify', { comm => $cu->ljuser_display } ) :
+                BML::ml( '.label.addtofriends3', { comm => $cu->ljuser_display } );
         $ret .= "</td></tr><tr>";
         $ret .= "<td>&nbsp;</td><td><span style='font-size: smaller;'>$ML{'.label.addtofriends.note2'}</span></td>";
         $ret .= "</tr></table>";

@@ -243,9 +243,10 @@ body<=
         }
 
         # delete members
-        if (%{$delete{'member'}}) {
-            # TAG:FR:bml_comm_members:del_members
-            LJ::remove_friend($cid, [ keys %{$delete{'member'}} ]);
+        foreach my $uid ( keys %{ $delete{member} || {} } ) {
+            my $temp_u = LJ::load_userid( $uid )
+                or next;
+            $temp_u->remove_edge( $cid, qw/ member / );
         }
 
         # create a closure to send a notification email to a user if they are
@@ -462,27 +463,17 @@ $LJ::SITEROOT
     # need a dbr now
     my $dbr = LJ::get_db_reader();
 
-    # get community members
-    # TAG:FR:bml_comm_members:get_members
-    my $sth = $dbr->prepare("SELECT u.userid, u.user FROM useridmap u, friends f " .
-                            "WHERE u.userid=f.friendid AND f.userid=?");
-    $sth->execute($cid);
-
-    while (my ($id, $user) = $sth->fetchrow_array) {
-        $users{$id}->{'userid'} = $id;
-        $users{$id}->{'name'} = $user;
-        $users{$id}->{'member'} = 1;
-    }
-
+    # get all community edges
+    # FIXME: kind of lame to do it this way, manually, instead of having accessors for this...
     my $sth = $dbr->prepare("SELECT r.targetid, r.type, u.user FROM reluser r, useridmap u " .
-                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ('A','P','M','N')");
+                            "WHERE r.targetid = u.userid AND r.userid=? AND r.type IN ('A','P','M','N','E')");
     $sth->execute($cid);
 
     my %count;
     while (my ($id, $type, $user) = $sth->fetchrow_array) {
         $users{$id}->{'userid'} = $id;
         $users{$id}->{'name'} = $user;
-        my $key = {'A'=>'admin','P'=>'post','M'=>'moderate','N'=>'preapprove'}->{$type};
+        my $key = {'A'=>'admin','P'=>'post','M'=>'moderate','N'=>'preapprove','E'=>'member'}->{$type};
         $users{$id}->{$key} = 1;
         $count{$type}++;
     }

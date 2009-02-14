@@ -64,8 +64,7 @@ sub action_links {
 
     if ( $u->is_community ) {
         # if logged in and a member of the community $u
-        # FIXME: change this when there's a way to check community membership
-        if ( $remote && 0 ) {
+        if ( $remote && $remote->member_of( $u ) ) {
             push @ret, {
                 url      => "community/leave.bml?comm=$user",
                 title_ml => '.optionlinks.leavecomm.title',

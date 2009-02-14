@@ -91,10 +91,11 @@ sub send_comm_invite {
         my $count = $cdbcr->selectrow_array("SELECT COUNT(*) FROM invitesent WHERE commid = ? " .
                                             "AND userid <> ? AND status = 'outstanding'",
                                             undef, $cu->{userid}, $u->{userid});
-        my $fr = LJ::get_friends($cu) || {};
-        my $max = int(scalar(keys %$fr) / 10); # can invite up to 1/10th of the community
-        $max = 50 if $max < 50;                # or 50, whichever is greater
-        return LJ::error('comm_invite_limit') if $count > $max;
+
+        # for now, limit to 500 outstanding invitations per community.  if this is not enough
+        # it can be raised or put back to the old system of using community size as an indicator
+        # of how many people to allow.
+        return LJ::error('comm_invite_limit') if $count > 500;
     }
 
     # step 5: setup arg string as url-encoded string
@@ -256,11 +257,11 @@ sub leave_community {
     my $cu = LJ::want_user($ucid);
     $defriend = $defriend ? 1 : 0;
     return LJ::error('comm_not_found') unless $u && $cu;
-
-    # defriend comm -> user
     return LJ::error('comm_not_comm') unless $cu->{journaltype} =~ /[CS]/;
-    my $ret = $cu->remove_friend($u);
-    return LJ::error('comm_not_member') unless $ret; # $ret = number of rows deleted, should be 1 if the user was in the comm
+
+    # remove community membership
+    return undef
+        unless $u->remove_edge( $cu, qw/ member / );
 
     # clear edges that effect this relationship
     foreach my $edge (qw(P N A M)) {
@@ -294,8 +295,9 @@ sub join_community {
     return LJ::error('comm_not_found') unless $u && $cu;
     return LJ::error('comm_not_comm') unless $cu->{journaltype} eq 'C';
 
-    # FIXME: This need to be updated for the new community membership!
-    #LJ::add_friend($cu->{userid}, $u->{userid});
+    # try to join the community, if this returns 0 something happened
+    return undef
+        unless $u->add_edge( $cu, member => 1 );
 
     # add edges that effect this relationship... if the user sent a fourth
     # argument, use that as a bool.  else, load commrow and use the postlevel.
