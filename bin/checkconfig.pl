@@ -90,6 +90,7 @@ my %modules = (
                    'deb' => 'librpc-xml-perl',
                    'opt' => 'Required for outgoing XML-RPC support',
                },
+               "XMLRPC::Lite" => {},
                "SOAP::Lite" => {
                    'deb' => 'libsoap-lite-perl',
                    'opt' => 'Required for XML-RPC support.',

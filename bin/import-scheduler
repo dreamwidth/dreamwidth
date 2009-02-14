@@ -1,0 +1,126 @@
+#!/usr/bin/perl
+#
+# import-scheduler
+#
+# This module is responsible for scheduling import jobs.  This takes care of
+# the hairy logic and dependencies so we don't have to do that in TheSchwartz.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+require 'ljlib.pl';
+
+use Danga::Daemon;
+
+_log( 'daemonizing' );
+Danga::Daemon::daemonize( \&worker_helper, { interval => 1 } );
+
+sub _log {
+    open FILE, ">>$ENV{LJHOME}/logs/import-scheduler.log" or die;
+    print FILE "[$$] " . sprintf( shift() . "\n", @_ );
+    close FILE;
+
+    return undef;
+}
+
+sub worker_helper {
+    eval { worker(); };
+    if ( my $msg = $@ ) {
+        $msg =~ s/\r?\n/ /g;
+        _log( "worker died: %s", $msg );
+    }
+}
+
+sub worker {
+    LJ::start_request();
+
+    my $dbh = LJ::get_db_writer()
+        or die "no global master database handle available";
+
+    my $userid = $dbh->selectrow_array(
+        q{SELECT userid FROM import_items WHERE status = 'ready'
+          ORDER BY priority DESC
+          LIMIT 1}
+    );
+    die $dbh->errstr . "\n" if $dbh->err;
+
+    return _log( "nothing to do" )
+        unless $userid;
+
+    my $u = LJ::load_userid( $userid )
+        or die "userid $userid doesn't exist\n";
+    _log( 'user %s(%d) has stuff to import', $u->user, $u->id );
+
+    my $statusrows = $dbh->selectall_arrayref(
+        q{SELECT item, status, created, import_data_id, priority
+          FROM import_items WHERE userid=?},
+        undef, $u->id
+    );
+    die $dbh->errstr . "\n" if $dbh->err;
+    die "user had no status rows!\n" unless @{ $statusrows || [] };
+
+    my %status = (
+        map {
+            $_->[0] => {
+                status => $_->[1],
+                created => $_->[2],
+                impid => $_->[3],
+                priority => $_->[4]
+            }
+        } @$statusrows
+    );
+
+# FIXME: handle the case where the user already has an import_job going and it's
+# different from the current import_data_id that we are trying to import for.
+# if we don't handle this case, we're going to get pretty confused about what
+# to update later...
+
+    # now find the ready jobs, dispatch them
+    foreach my $item ( keys %status ) {
+
+        next if $status{$item}->{status} ne 'ready';
+
+        _log( 'scheduling %s', $item );
+
+        my $class = {
+            lj_bio => 'DW::Worker::ContentImporter::LiveJournal::Bio',
+            lj_tags => 'DW::Worker::ContentImporter::LiveJournal::Tags',
+            lj_entries => 'DW::Worker::ContentImporter::LiveJournal::Entries',
+            lj_comments => 'DW::Worker::ContentImporter::LiveJournal::Comments',
+            lj_userpics => 'DW::Worker::ContentImporter::LiveJournal::Userpics',
+            lj_friends => 'DW::Worker::ContentImporter::LiveJournal::Friends',
+            lj_friendgroups => 'DW::Worker::ContentImporter::LiveJournal::FriendGroups',
+        }->{ $item } || die 'unknown item';
+
+        my $sh = LJ::theschwartz()
+            or die "no schwartz client\n";
+
+        my $job = TheSchwartz::Job->new(
+            funcname => $class,
+            uniqkey => join( '-', ( $item, $u->id ) ),
+            arg => {
+                userid         => $u->id,
+                import_data_id => $status{$item}->{impid},
+            }
+        ) or die "can't create job\n";
+
+        my $h = $sh->insert( $job )
+            or die "can't insert job (probably duplicate job)\n";
+
+        $u->set_prop( import_job => $status{$item}->{impid} );
+
+        $dbh->do( "UPDATE import_items SET status = 'queued', last_touch = UNIX_TIMESTAMP() " .
+                  "WHERE userid = ? AND item = ? AND import_data_id = ?",
+                  undef, $u->id, $item, $status{$item}->{impid} );
+        die $dbh->errstr . "\n" if $dbh->err;
+    }
+}

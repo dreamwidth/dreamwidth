@@ -2685,6 +2685,140 @@ sub enter_comment {
     return $jtalkid;
 }
 
+# this is used by the journal import code, but is kept here so as to be kept
+# local to the rest of the comment code
+sub enter_imported_comment {
+    my ( $journalu, $parent, $item, $comment, $date, $errref ) = @_;
+
+    my $partid = $parent->{talkid};
+    my $itemid = $item->{itemid};
+    my $posterid = $comment->{u} ? $comment->{u}->{userid} : 0;
+
+    my $err = sub {
+        $$errref = join(": ", @_);
+        return 0;
+    };
+
+    return $err->( "Invalid user object passed." )
+        unless LJ::isu( $journalu );
+
+    # prealloc counter before insert
+    my $jtalkid = LJ::alloc_user_counter( $journalu, "T" );
+    return $err->( "Database Error", "Could not generate a talkid necessary to post this comment." )
+        unless $jtalkid;
+    $comment->{talkid} = $jtalkid;
+
+    # insert the comment
+    my $errstr;
+    $journalu->talk2_do(
+        "L", $itemid, \$errstr,
+        q{
+            INSERT INTO talk2 (journalid, jtalkid, nodetype, nodeid, parenttalkid, posterid, datepost, state)
+            VALUES (?,?,'L',?,?,?,?,?)
+        },
+        $journalu->{userid}, $jtalkid, $itemid, $partid, $posterid, $date, $comment->{state}
+    );
+
+    return $err->( "Database Error",
+        "There was an error posting your comment to the database.  " .
+        "Please report this.  The error is: <b>$errstr</b>"
+    ) if $errstr;
+
+    LJ::MemCache::delete( [$journalu->{userid}, "talk2ct:$journalu->{userid}"] );
+
+    # add to poster's talkleft table, or the xfer place
+    if ( $posterid ) {
+        my $table;
+        my $db = LJ::get_cluster_master( $comment->{u} );
+
+        if ($db) {
+            # remote's cluster is writable
+            $table = "talkleft";
+        } else {
+            # log to global cluster, another job will move it later.
+            $db = LJ::get_db_writer();
+            $table = "talkleft_xfp";
+        }
+
+        my $pub  = $item->{'security'} eq "public" ? 1 : 0;
+        if ($db) {
+            $db->do(
+                qq{
+                    INSERT INTO $table (userid, posttime, journalid, nodetype, nodeid, jtalkid, publicitem)
+                    VALUES (?, UNIX_TIMESTAMP(?), ?, 'L', ?, ?, ?)
+                }, undef, $posterid, $date, $journalu->{userid}, $itemid, $jtalkid, $pub
+            );
+            LJ::MemCache::delete( [$posterid, "talkleftct:$posterid"] );
+        } else {
+            # both primary and backup talkleft hosts down.  can't do much now.
+            warn "Unable to insert comment into talkleft, cluster+master down?";
+        }
+    }
+
+    if ( $comment->{state} ne "D" ) {
+        $journalu->do(
+            q{
+                INSERT INTO talktext2 (journalid, jtalkid, subject, body)
+                VALUES (?, ?, ?, ?)
+            }, undef, $journalu->{userid}, $jtalkid, $comment->{subject},
+            LJ::text_compress( $comment->{body} )
+        );
+        die $journalu->errstr if $journalu->err;
+    }
+
+    my %talkprop;   # propname -> value
+
+    foreach my $key ( keys %{ $comment->{props} || {} } ) {
+        $talkprop{$key} = $comment->{props}->{$key};
+    }
+
+    $talkprop{'unknown8bit'}      = 1 if $comment->{unknown8bit};
+    $talkprop{'subjecticon'}      = $comment->{subjecticon};
+    $talkprop{'picture_keyword'}  = $comment->{picture_keyword};
+    $talkprop{'opt_preformatted'} = $comment->{preformat} ? 1 : 0;
+
+    # remove blank/0 values (defaults)
+    foreach ( keys %talkprop ) {
+        delete $talkprop{$_} unless $talkprop{$_};
+    }
+
+    # update the talkprops
+    LJ::load_props("talk");
+    if (%talkprop) {
+        my $values;
+        my $hash = {};
+        foreach (keys %talkprop) {
+            my $p = LJ::get_prop("talk", $_);
+            next unless $p;
+            $hash->{$_} = $talkprop{$_};
+            my $tpropid = $p->{'tpropid'};
+            my $qv = $journalu->quote($talkprop{$_});
+            $values .= "($journalu->{'userid'}, $jtalkid, $tpropid, $qv),";
+        }
+        if ($values) {
+            chop $values;
+            $journalu->do("INSERT INTO talkprop2 (journalid, jtalkid, tpropid, value) ".
+                      "VALUES $values");
+            die $journalu->errstr if $journalu->err;
+        }
+    }
+
+    # update the "replycount" summary field of the log table
+    if ( $comment->{state} eq 'A' || $comment->{state} eq 'F' ) {
+        LJ::replycount_do( $journalu, $itemid, "incr" );
+    }
+
+    # update the "hasscreened" property of the log item if needed
+    if ( $comment->{state} eq 'S' ) {
+        LJ::set_logprop( $journalu, $itemid, { 'hasscreened' => 1 } );
+    }
+
+    # update the comment alter property
+    LJ::Talk::update_commentalter( $journalu, $itemid );
+
+    return $jtalkid;
+}
+
 # XXX these strings should be in talk, but moving them means we have
 # to retranslate.  so for now we're just gonna put it off.
 my $SC = '/talkpost_do.bml';

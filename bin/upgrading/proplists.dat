@@ -358,6 +358,14 @@ userproplist.icq:
   multihomed: 1
   prettyname: ICQ
 
+userproplist.import_job:
+  cldversion: 4
+  datatype: char
+  des: Current import jobid
+  indexed: 0
+  multihomed: 0
+  prettyname: Import JobID
+
 userproplist.init_bdate:
   cldversion: 4
   datatype: char
@@ -1169,6 +1177,11 @@ talkproplist.guest_url:
   des: Anonymous comments with a URL attached
   prettyname: Website of Guest Poster
 
+talkproplist.import_source:
+  datatype: char
+  des: Where this entry was imported from
+  prettyname: Import source
+
 talkproplist.opt_preformatted:
   datatype: bool
   des: Turn on if post contains HTML and shouldn't be formatted
@@ -1277,6 +1290,13 @@ logproplist.hasscreened:
   prettyname: Has screened replies
   sortorder: 99
   ownership: system
+  
+logproplist.import_source:
+  datatype: char
+  des: String describing where this entry was imported from
+  prettyname: Import source
+  sortorder: 99
+  ownership: user
 
 logproplist.opt_backdated:
   datatype: bool

@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+#
+# schedule-import
+#
+# Test script for scheduling an import.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use lib "$ENV{LJHOME}/cgi-bin";
+use strict;
+use Getopt::Long;
+require 'ljlib.pl';
+use DW::ContentImporter;
+use Digest::MD5 qw/ md5_hex /;
+
+my ( $user, $pw, $tgt, $site );
+GetOptions(
+    'user=s' => \$user,
+    'password=s' => \$pw,
+    'site=s' => \$site,
+    'target=s' => \$tgt,
+) or die;
+die "need -u USER -p PASS -t TARGET [-s SITE.COM]\n"
+    unless $user && $pw && $tgt;
+die "-s SITE must be in the form FOO.COM\n"
+    if $site && $site !~ /^[\w\d-]\.\w+$/;
+my $u = LJ::load_user( $tgt ) or die "invalid target user\n";
+
+# get global db handle to create this record
+my $dbh = LJ::get_db_writer() or die "no global master\n";
+my $id = LJ::alloc_user_counter( $u, "I" ) or die "can't get id for import data\n";
+$dbh->do( "INSERT INTO import_data (userid, import_data_id, hostname, username, password_md5) VALUES (?, ?, ?, ?, ?)",
+          undef, $u->id, $id, $site || 'livejournal.com', $user, md5_hex( $pw ) );
+die $dbh->errstr if $dbh->err;
+
+# now insert the jobs that we want to accomplish
+my @items = qw/ lj_bio lj_tags lj_comments lj_entries lj_friends lj_friendgroups lj_userpics /;
+my @status = qw/ ready ready init init init ready ready /;
+foreach my $item ( @items ) {
+    $dbh->do( "INSERT INTO import_items (userid, item, status, created, import_data_id, priority) VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, UNIX_TIMESTAMP())",
+              undef, $u->id, $item, shift( @status ), $id );
+    die $dbh->errstr if $dbh->err;
+}
+
+print "Jobs queued with high priority.\n";

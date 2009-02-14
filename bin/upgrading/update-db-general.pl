@@ -2976,6 +2976,35 @@ CREATE TABLE sch_mass_exitstatus (
 )
 EOC
 
+register_tablecreate("import_items", <<'EOC');
+CREATE TABLE import_items (
+    userid INT UNSIGNED NOT NULL,
+    item VARCHAR(255) NOT NULL,
+    status ENUM('init', 'ready', 'queued', 'failed', 'succeeded') NOT NULL DEFAULT 'init',
+    created INT UNSIGNED NOT NULL,
+    last_touch INT UNSIGNED NOT NULL,
+    import_data_id INT UNSIGNED NOT NULL,
+    priority INT UNSIGNED NOT NULL,
+
+    PRIMARY KEY (userid, item, import_data_id),
+    INDEX (priority, status)
+)
+EOC
+
+register_tablecreate("import_data", <<'EOC');
+CREATE TABLE import_data (
+    userid INT UNSIGNED NOT NULL,
+    import_data_id INT UNSIGNED NOT NULL,
+    hostname VARCHAR(255),
+    username VARCHAR(255),
+    password_md5 VARCHAR(255),
+    groupmap BLOB,
+
+    PRIMARY KEY (userid, import_data_id),
+    INDEX (import_data_id)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 
