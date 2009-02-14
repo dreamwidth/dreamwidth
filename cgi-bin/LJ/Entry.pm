@@ -1735,7 +1735,8 @@ sub get_log2_recent_user
                 #    extra memcache calls
                 my $mask = $mask_for_remote{$item->{journalid}};
                 unless (defined $mask) {
-                    $mask = LJ::get_groupmask($item->{'journalid'}, $remote->{'userid'});
+                    my $ju = LJ::load_userid( $item->{journalid} );
+                    $mask = $ju->trustmask( $remote );
                     $mask_for_remote{$item->{journalid}} = $mask;
                 }
                 $permit = $item->{'allowmask'}+0 & $mask+0;
