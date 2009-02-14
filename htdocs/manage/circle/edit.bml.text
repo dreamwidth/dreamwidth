@@ -17,7 +17,11 @@
 
 .btn.toggle=Preview
 
-.circle.intro=Here is your circle:
+.circle.intro.people=Here are the people in your circle:
+
+.circle.intro.nonpeople=Here are the communities and feeds in your circle:
+
+.circle.na=N/A
 
 .circle.name=Name
 

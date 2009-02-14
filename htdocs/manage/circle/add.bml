@@ -157,7 +157,7 @@
    # users that aren't visible can only be removed, not modified
    if ($u->is_visible) {
 
-    if ( !$u->equals( $remote ) && ( $u->is_personal || $u->is_identity ) ) {
+    if ( !$u->equals( $remote ) && $remote->is_personal && ( $u->is_personal || $u->is_identity ) ) {
         $body .= LJ::html_check({
             name => "add_trust",
             id => "add_trust",

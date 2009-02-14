@@ -49,17 +49,27 @@ body<=
         my @watched_by_userids = $u->watched_by_userids;
         my %is_watched_by_userid = map { $_ => 1 } @watched_by_userids;
 
+        my $us = LJ::load_userids( @trusted_userids, @watched_userids, @trusted_by_userids, @watched_by_userids );
+        my @nonperson_userids;
+
         $ret .= "<form method='post' name='editFriends' action='edit.bml$getextra'>\n";
         $ret .= LJ::form_auth();
 
+        # people table
         if ( @trusted_userids || @watched_userids || @trusted_by_userids || @watched_by_userids ) {
-            my $us = LJ::load_userids( @trusted_userids, @watched_userids, @trusted_by_userids, @watched_by_userids );
-            $ret .= "<p>$ML{'.circle.intro'}</p>";
-            $ret .= "<div align='center'><table id='editfriends'>";
-            $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th><th>$ML{'.circle.trust'}</th><th>$ML{'.circle.watch'}</th></tr>";
-            foreach my $uid ( sort { $a cmp $b } keys %$us ) {
+            $ret .= "<p>$ML{'.circle.intro.people'}</p>";
+            $ret .= "<div align='center'><table class='editfriends'>";
+            $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th>";
+            $ret .= "<th>$ML{'.circle.trust'}</th>" if $u->is_personal;
+            $ret .= "<th>$ML{'.circle.watch'}</th></tr>";
+            foreach my $uid ( sort { $us->{$a}->user cmp $us->{$b}->user } keys %$us ) {
                 my $other_u = $us->{$uid};
                 next unless $other_u;
+
+                if ( $other_u->is_community || $other_u->is_syndicated ) {
+                    push @nonperson_userids, $uid;
+                    next;
+                }
 
                 my ( $u_fg, $u_bg, $t_bg, $w_bg, $t_text, $w_text );
                 if ( $is_watched_userid{$uid} ) {
@@ -67,12 +77,18 @@ body<=
                     $u_fg = $watch_list->{$uid}->{fgcolor};
                     $u_bg = $watch_list->{$uid}->{bgcolor};
                 }
-                if ( $is_trusted_by_userid{$uid} ) {
-                    $t_bg = "#00ff00";
-                    $t_text = "Y";
+
+                if ( $u->equals( $other_u ) || $other_u->is_identity ) {
+                    $t_bg = "transparent";
+                    $t_text = $ML{'.circle.na'};
                 } else {
-                    $t_bg = "#ff0000";
-                    $t_text = "N";
+                    if ( $is_trusted_by_userid{$uid} ) {
+                        $t_bg = "#00ff00";
+                        $t_text = "Y";
+                    } else {
+                        $t_bg = "#ff0000";
+                        $t_text = "N";
+                    }
                 }
                 if ( $is_watched_by_userid{$uid} ) {
                     $w_bg = "#00ff00";
@@ -87,11 +103,47 @@ body<=
                 $ret .= "<td style='color: $u_fg; background-color: $u_bg;'>" . $other_u->name_html . "</td>";
                 $ret .= "<td style='background-color: $t_bg;'>$t_text</td>";
                 $ret .= "<td style='background-color: $w_bg;'>$w_text</td>";
+                if ( $u->is_personal ) {
+                    if ( $u->equals( $other_u ) ) {
+                        $ret .= "<td>$ML{'.circle.na'}</td>";
+                    } else {
+                        $ret .= "<td>" . LJ::html_check({
+                            name => "editfriend_edit_${uid}_trust",
+                            value => 1,
+                            selected => $is_trusted_userid{$uid} ? 1 : 0,
+                        }) . "</td>";
+                    }
+                }
                 $ret .= "<td>" . LJ::html_check({
-                    name => "editfriend_edit_${uid}_trust",
+                    name => "editfriend_edit_${uid}_watch",
                     value => 1,
-                    selected => $is_trusted_userid{$uid} ? 1 : 0,
+                    selected => $is_watched_userid{$uid} ? 1 : 0,
                 }) . "</td>";
+                $ret .= "</tr>";
+                $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );
+            }
+            $ret .= "</table></div>";
+        }
+
+        # non-people table
+        if ( @nonperson_userids ) {
+            $ret .= "<p>$ML{'.circle.intro.nonpeople'}</p>";
+            $ret .= "<div align='center'><table class='editfriends'>";
+            $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.watch'}</th></tr>";
+            foreach my $uid ( @nonperson_userids ) { # no need to sort because we inserted them into the array in order
+                my $other_u = $us->{$uid};
+                next unless $other_u;
+
+                my ( $u_fg, $u_bg );
+                if ( $is_watched_userid{$uid} ) {
+                    my $watch_list = $u->watch_list;
+                    $u_fg = $watch_list->{$uid}->{fgcolor};
+                    $u_bg = $watch_list->{$uid}->{bgcolor};
+                }
+
+                $ret .= "<tr>";
+                $ret .= "<td>" . $other_u->ljuser_display . "</td>";
+                $ret .= "<td style='color: $u_fg; background-color: $u_bg;'>" . $other_u->name_html . "</td>";
                 $ret .= "<td>" . LJ::html_check({
                     name => "editfriend_edit_${uid}_watch",
                     value => 1,
@@ -109,7 +161,9 @@ body<=
 
         $ret .= "<br />";
         $ret .= "<div align='center'><table id='addfriends'>\n";
-        $ret .= "<tr><th>$ML{'.circle.username'}</th><th>$ML{'.circle.trust'}</th><th>$ML{'.circle.watch'}</th><th>$ML{'.foreground'}</th><th>$ML{'.background'}</th>\n";
+        $ret .= "<tr><th>$ML{'.circle.username'}</th>";
+        $ret .= "<th>$ML{'.circle.trust'}</th>" if $u->is_personal;
+        $ret .= "<th>$ML{'.circle.watch'}</th><th>$ML{'.foreground'}</th><th>$ML{'.background'}</th>\n";
 
         # load the colors
         my @color = ();
@@ -146,11 +200,15 @@ body<=
                                     'size' => '15', 'maxlength' => '15',
                                     'onchange' => "updatePreview(); return true;",
                                     'onfocus' => "setFriend($i);" });
-            $ret .= "</td><td style='text-align: center;'>";
-            $ret .= LJ::html_check({ name => "editfriend_add_${i}_trust",
-                                     value => 1,
-                                     onfocus => "setFriend($i);" });
-            $ret .= "</td><td style='text-align: center;'>";
+            $ret .= "</td>";
+            if ( $u->is_personal ) {
+                $ret .= "<td style='text-align: center;'>";
+                $ret .= LJ::html_check({ name => "editfriend_add_${i}_trust",
+                                         value => 1,
+                                         onfocus => "setFriend($i);" });
+                $ret .= "</td>";
+            }
+            $ret .= "<td style='text-align: center;'>";
             $ret .= LJ::html_check({ name => "editfriend_add_${i}_watch",
                                      value => 1,
                                      onfocus => "setFriend($i);" });
@@ -251,16 +309,16 @@ _code?>
 
 head<=
 <style type="text/css">
-#editfriends {
+.editfriends {
     margin-bottom: 10px;
 }
-#editfriends tr:hover {
+.editfriends tr:hover {
     background-color: #d1ced2;
 }
-#editfriends tr.header:hover {
+.editfriends tr.header:hover {
     background-color: transparent;
 }
-#editfriends td, #editfriends th,
+.editfriends td, .editfriends th,
 #addfriends td, #addfriends th {
     padding: 5px;
     text-align: center;

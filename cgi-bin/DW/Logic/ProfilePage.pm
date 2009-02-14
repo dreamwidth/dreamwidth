@@ -105,8 +105,8 @@ sub action_links {
 
 ### ADD TRUST
 
-    # can add/modify trust for the user if they are a person and not the same as the remote user
-    if ( ( $u->is_personal || $u->is_identity ) && ( !$remote || ( $remote && !$remote->equals( $u ) ) ) ) {
+    # can add/modify trust for the user if they are a person and not the same as the remote user, and remote is a personal account
+    if ( ( $u->is_personal || $u->is_identity ) && ( !$remote || ( $remote && !$remote->equals( $u ) && $remote->is_personal ) ) ) {
         my $link = {};
 
         my $remote_trusts = $remote && $remote->trusts( $u ) ? 1 : 0;
