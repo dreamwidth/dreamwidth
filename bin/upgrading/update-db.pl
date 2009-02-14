@@ -220,7 +220,6 @@ sub populate_database {
     populate_schools();
     populate_basedata();
     populate_proplists();
-    populate_moods();
     clean_schema_docs();
     populate_mogile_conf();
     schema_upgrade_scripts();
@@ -229,6 +228,7 @@ sub populate_database {
     my $made_system;
     ($su, $made_system) = vivify_system_user();
 
+    populate_moods();
     # we have a flag to disable population of s1/s2 if the user requests
     unless ($opt_nostyles) {
         populate_s2();
