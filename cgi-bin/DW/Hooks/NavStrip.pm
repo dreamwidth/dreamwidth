@@ -61,24 +61,23 @@ LJ::register_hook( 'show_control_strip', sub {
             return $display & $pagemask{'comment.custom'};
         }
 
-        # TODO: will this view name change after WTF?
         # on your journal, all pages except readlist respect journal setting
         if ( $remote->equals( $journal ) ) {
-            return $r->note( 'view' ) eq 'friends'
+            return $r->note( 'view' ) eq 'read'
                 ? $display & $pagemask{'readlist.own'}
                 : $display & $pagemask{'journal.own'};
         }
 
         if ( $journal->is_community ) {
-            return $journal->is_friend( $remote )
+            # FIXME: Fix community membership!
+            return 0
                 ? $display & $pagemask{'community.belongto'}
                 : $display & $pagemask{'community.notbelongto'};
         }
 
-        # TODO: make this "watching"; pending WTF
         # all other journal types (personal, openid, syn, news, staff)
         # readlist is treated by the same rule as all other journal pages
-        return $remote->is_friend( $journal )
+        return $remote->watches( $journal )
             ? $display & $pagemask{'journal.watching'}
             : $display & $pagemask{'journal.notwatching'};
 
@@ -87,8 +86,7 @@ LJ::register_hook( 'show_control_strip', sub {
         my $display = $journal->prop( 'control_strip_display' );
         return undef unless $display;
 
-        # TODO: will this view name change after WTF?
-        return $r->note( 'view' ) eq 'friends'
+        return $r->note( 'view' ) eq 'read'
             ?  $display & $pagemask{'readlist.loggedout'}
             : $display & $pagemask{'journal.loggedout'};
     }

@@ -2866,9 +2866,9 @@ web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
 
-web.controlstrip.links.addfeed=Add it to your Friends Page
+web.controlstrip.links.addfeed=Add it to your reading page
 
-web.controlstrip.links.addfriend=Add them as a friend
+web.controlstrip.links.addtocircle=Add them to your circle
 
 web.controlstrip.links.changecommsettings=Change Settings
 
@@ -2894,11 +2894,11 @@ web.controlstrip.links.leavecomm=Leave this community
 
 web.controlstrip.links.login=Log in
 
+web.controlstrip.links.managecircle=Manage Circle
+
 web.controlstrip.links.managecomminvites=Manage Invites
 
 web.controlstrip.links.manageentries=Manage Entries
-
-web.controlstrip.links.managefriends=Manage Friends
 
 web.controlstrip.links.more=More
 
@@ -2920,15 +2920,13 @@ web.controlstrip.links.random=Random Journal
 
 web.controlstrip.links.recentcomments=View Recent Comments
 
-web.controlstrip.links.removecomm=Stop watching this community
+web.controlstrip.links.removecomm=Unsubscribe from this community
 
-web.controlstrip.links.removefeed=Remove it from your Friends Page
+web.controlstrip.links.removefeed=Remove it from your reading page
 
-web.controlstrip.links.viewfriendspage=View my Friends Page
+web.controlstrip.links.viewreadingpage=Reading Page
 
-web.controlstrip.links.viewfriendspage2=Friends Page
-
-web.controlstrip.links.watchcomm=Watch this community
+web.controlstrip.links.watchcomm=Subscribe to this community
 
 web.controlstrip.login.forgot=Forgot your password?
 
@@ -2938,7 +2936,7 @@ web.controlstrip.nouserpic.alt=Upload Userpic
 
 web.controlstrip.nouserpic.title=Edit Userpics
 
-web.controlstrip.select.friends.all=All Friends
+web.controlstrip.select.friends.all=All Subscriptions
 
 web.controlstrip.select.friends.communities=Communities Only
 
@@ -2950,17 +2948,17 @@ web.controlstrip.select.friends.label=Filter:
 
 web.controlstrip.status.community=You are viewing the community [[user]]
 
-web.controlstrip.status.friend=You list [[user]] as a friend
-
-web.controlstrip.status.friendof=[[user]] lists you as a friend
-
 web.controlstrip.status.maintainer=You are a maintainer of [[user]]
 
 web.controlstrip.status.member=You are a member of [[user]]
 
 web.controlstrip.status.memberwatcher=You are a member of and are watching [[user]]
 
-web.controlstrip.status.mutualfriend=[[user]] is your mutual friend
+web.controlstrip.status.mutualtrust_mutualwatch=[[user]] and you have mutual access and mutual subscriptions
+
+web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to them
+
+web.controlstrip.status.mutualtrust_watchedby=[[user]] and you have mutual access and they subscribe to you
 
 web.controlstrip.status.news=You are viewing the site news account [[user]]
 
@@ -2968,19 +2966,31 @@ web.controlstrip.status.other=You are viewing [[user]]
 
 web.controlstrip.status.personal=You are viewing [[user]]'s journal
 
-web.controlstrip.status.personalfriendsfriendspage=You are viewing [[user]]'s Friends of Friends Page
+web.controlstrip.status.personalneworkpage=You are viewing [[user]]'s nework page
 
-web.controlstrip.status.personalfriendspage=You are viewing [[user]]'s Friends Page
+web.controlstrip.status.personalreadingpage=You are viewing [[user]]'s reading page
 
 web.controlstrip.status.syn=You are viewing the feed [[user]]
 
+web.controlstrip.status.trust_mutualwatch=You have granted access to [[user]] and you and they have mutual subscriptions
+
+web.controlstrip.status.trust_watch=You have granted access and subscribe to [[user]]
+
+web.controlstrip.status.trust_watchedby=You have granted access to [[user]] and they have subscribed to you
+
+web.controlstrip.status.trustedby_mutualwatch=[[user]] has granted access to you and you and they have mutual subscriptions
+
+web.controlstrip.status.trustedby_watch=[[user]] has granted access to you and you subscribe to them
+
+web.controlstrip.status.trustedby_watchedby=[[user]] has granted access and subscribes to you
+
 web.controlstrip.status.watcher=You are watching [[user]]
 
-web.controlstrip.status.yourfriendsfriendspage=You are viewing your Friends of Friends Page
-
-web.controlstrip.status.yourfriendspage=You are viewing your Friends Page
-
 web.controlstrip.status.yourjournal=You are viewing your journal
+
+web.controlstrip.status.yournetworkpage=You are viewing your network page
+
+web.controlstrip.status.yourreadingpage=You are viewing your reading page
 
 web.controlstrip.userpic.alt=Userpic
 

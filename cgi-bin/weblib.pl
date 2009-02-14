@@ -2914,7 +2914,7 @@ sub control_strip
                  'post_journal'      => "<a href='$LJ::SITEROOT/update.bml'>$BML::ML{'web.controlstrip.links.post2'}</a>",
                  'home'              => "<a href='$LJ::SITEROOT/'>" . $BML::ML{'web.controlstrip.links.home'} . "</a>",
                  'recent_comments'   => "<a href='$LJ::SITEROOT/tools/recent_comments.bml'>$BML::ML{'web.controlstrip.links.recentcomments'}</a>",
-                 'manage_friends'    => "<a href='$LJ::SITEROOT/manage/circle/'>$BML::ML{'web.controlstrip.links.managefriends'}</a>",
+                 'manage_friends'    => "<a href='$LJ::SITEROOT/manage/circle/'>$BML::ML{'web.controlstrip.links.managecircle'}</a>",
                  'manage_entries'    => "<a href='$LJ::SITEROOT/editjournal.bml'>$BML::ML{'web.controlstrip.links.manageentries'}</a>",
                  'invite_friends'    => "<a href='$LJ::SITEROOT/manage/circle/invite.bml'>$BML::ML{'web.controlstrip.links.invitefriends'}</a>",
                  'create_account'    => $create_link,
@@ -2924,8 +2924,8 @@ sub control_strip
                  );
 
     if ($remote) {
-        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewfriendspage2'}</a>";
-        $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addfriend'}</a>";
+        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
+        $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         if ($journal->is_syndicated || $journal->is_news) {
             $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
             $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
@@ -2944,18 +2944,24 @@ sub control_strip
     my $journal_display = LJ::ljuser($journal);
     my %statustext = (
                     'yourjournal'       => $BML::ML{'web.controlstrip.status.yourjournal'},
-                    'yourfriendspage'   => $BML::ML{'web.controlstrip.status.yourfriendspage'},
-                    'yourfriendsfriendspage' => $BML::ML{'web.controlstrip.status.yourfriendsfriendspage'},
+                    'yourfriendspage'   => $BML::ML{'web.controlstrip.status.yourreadingpage'},
+                    'yourfriendsfriendspage' => $BML::ML{'web.controlstrip.status.yournetworkpage'},
                     'personal'          => BML::ml('web.controlstrip.status.personal', {'user' => $journal_display}),
-                    'personalfriendspage' => BML::ml('web.controlstrip.status.personalfriendspage', {'user' => $journal_display}),
-                    'personalfriendsfriendspage' => BML::ml('web.controlstrip.status.personalfriendsfriendspage', {'user' => $journal_display}),
+                    'personalfriendspage' => BML::ml('web.controlstrip.status.personalreadingpage', {'user' => $journal_display}),
+                    'personalfriendsfriendspage' => BML::ml('web.controlstrip.status.personalnetworkpage', {'user' => $journal_display}),
                     'community'         => BML::ml('web.controlstrip.status.community', {'user' => $journal_display}),
                     'syn'               => BML::ml('web.controlstrip.status.syn', {'user' => $journal_display}),
                     'news'              => BML::ml('web.controlstrip.status.news', {'user' => $journal_display, 'sitename' => $LJ::SITENAMESHORT}),
                     'other'             => BML::ml('web.controlstrip.status.other', {'user' => $journal_display}),
-                    'mutualfriend'      => BML::ml('web.controlstrip.status.mutualfriend', {'user' => $journal_display}),
-                    'friend'            => BML::ml('web.controlstrip.status.friend', {'user' => $journal_display}),
-                    'friendof'          => BML::ml('web.controlstrip.status.friendof', {'user' => $journal_display}),
+                    'mutualtrust_mutualwatch' => BML::ml('web.controlstrip.status.mutualtrust_mutualwatch', {'user' => $journal_display}),
+                    'mutualtrust_watch' => BML::ml('web.controlstrip.status.mutualtrust_watch', {'user' => $journal_display}),
+                    'mutualtrust_watchedby' => BML::ml('web.controlstrip.status.mutualtrust_watchedby', {'user' => $journal_display}),
+                    'trust_mutualwatch' => BML::ml('web.controlstrip.status.trust_mutualwatch', {'user' => $journal_display}),
+                    'trust_watch' => BML::ml('web.controlstrip.status.trust_watch', {'user' => $journal_display}),
+                    'trust_watchedby' => BML::ml('web.controlstrip.status.trust_watchedby', {'user' => $journal_display}),
+                    'trustedby_mutualwatch' => BML::ml('web.controlstrip.status.trustedby_mutualwatch', {'user' => $journal_display}),
+                    'trustedby_watch' => BML::ml('web.controlstrip.status.trustedby_watch', {'user' => $journal_display}),
+                    'trustedby_watchedby' => BML::ml('web.controlstrip.status.trustedby_watchedby', {'user' => $journal_display}),
                     'maintainer'        => BML::ml('web.controlstrip.status.maintainer', {'user' => $journal_display}),
                     'memberwatcher'     => BML::ml('web.controlstrip.status.memberwatcher', {'user' => $journal_display}),
                     'watcher'           => BML::ml('web.controlstrip.status.watcher', {'user' => $journal_display}),
@@ -3007,22 +3013,18 @@ sub control_strip
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
         if (LJ::u_equals($remote, $journal)) {
-            if ($r->note('view') eq "friends") {
+            if ($r->note('view') eq "read") {
                 $ret .= $statustext{'yourfriendspage'};
-            } elsif ($r->note('view') eq "friendsfriends") {
+            } elsif ($r->note('view') eq "network") {
                 $ret .= $statustext{'yourfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'yourjournal'};
             }
             $ret .= "<br />";
-            if ($r->note('view') eq "friends") {
+            if ($r->note('view') eq "read") {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
                 my %res;
-                # FIXME: make this use LJ::Protocol::do_request
-                LJ::do_request({ 'mode' => 'getfriendgroups',
-                                 'ver'  => $LJ::PROTOCOL_VER,
-                                 'user' => $remote->{'user'}, },
-                               \%res, { 'noauth' => 1, 'userid' => $remote->{'userid'} });
+                # FIXME: Add this in when we have reading filter support!
                 my %group;
                 foreach my $k (keys %res) {
                     if ($k =~ /^frgrp_(\d+)_name/) {
@@ -3057,22 +3059,44 @@ sub control_strip
                 $ret .= "$links{'recent_comments'}&nbsp;&nbsp; $links{'manage_entries'}&nbsp;&nbsp; $links{'invite_friends'}";
             }
         } elsif ($journal->is_personal || $journal->is_identity) {
-            my $friend = LJ::is_friend($remote, $journal);
-            my $friendof = LJ::is_friend($journal, $remote);
+            my $trusted = $remote->trusts( $journal );
+            my $trusted_by = $journal->trusts( $remote );
+            my $mutual_trust = $trusted && $trusted_by ? 1 : 0;
+            my $watched = $remote->watches( $journal );
+            my $watched_by = $journal->watches( $remote );
+            my $mutual_watch = $watched && $watched_by ? 1 : 0;
 
-            if ($friend and $friendof) {
-                $ret .= "$statustext{'mutualfriend'}<br />";
-                $ret .= "$links{'manage_friends'}";
-            } elsif ($friend) {
-                $ret .= "$statustext{'friend'}<br />";
-                $ret .= "$links{'manage_friends'}";
-            } elsif ($friendof) {
-                $ret .= "$statustext{'friendof'}<br />";
-                $ret .= "$links{'add_friend'}";
+            if ( $mutual_trust && $mutual_watch ) {
+                $ret .= "$statustext{mutualtrust_mutualwatch}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $mutual_trust && $watched ) {
+                $ret .= "$statustext{mutualtrust_watch}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $mutual_trust && $watched_by ) {
+                $ret .= "$statustext{mutualtrust_watchedby}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $trusted && $mutual_watch ) {
+                $ret .= "$statustext{trust_mutualwatch}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $trusted && $watched ) {
+                $ret .= "$statustext{trust_watch}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $trusted && $watched_by ) {
+                $ret .= "$statustext{trust_watchedby}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $trusted_by && $mutual_watch ) {
+                $ret .= "$statustext{trustedby_mutualwatch}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $trusted_by && $watched ) {
+                $ret .= "$statustext{trustedby_watch}<br />";
+                $ret .= "$links{manage_friends}";
+            } elsif ( $trusted_by && $watched_by ) {
+                $ret .= "$statustext{trustedby_watchedby}<br />";
+                $ret .= "$links{manage_friends}";
             } else {
-                if ($r->note('view') eq "friends") {
+                if ($r->note('view') eq "read") {
                     $ret .= $statustext{'personalfriendspage'};
-                } elsif ($r->note('view') eq "friendsfriends") {
+                } elsif ($r->note('view') eq "network") {
                     $ret .= $statustext{'personalfriendsfriendspage'};
                 } else {
                     $ret .= $statustext{'personal'};
@@ -3080,8 +3104,8 @@ sub control_strip
                 $ret .= "<br />$links{'add_friend'}";
             }
         } elsif ($journal->is_community) {
-            my $watching = LJ::is_friend($remote, $journal);
-            my $memberof = LJ::is_friend($journal, $remote);
+            my $watching = $remote->watches( $journal );
+            my $memberof = 0; # FIXME: Fix community membership!
             my $haspostingaccess = LJ::check_rel($journal, $remote, 'P');
             if (LJ::can_manage_other($remote, $journal)) {
                 $ret .= "$statustext{'maintainer'}<br />";
@@ -3116,15 +3140,15 @@ sub control_strip
             }
         } elsif ($journal->is_syndicated) {
             $ret .= "$statustext{'syn'}<br />";
-            if ($remote && !LJ::is_friend($remote, $journal)) {
+            if ( $remote && !$remote->watches( $journal ) ) {
                 $ret .= "$links{'add_friend'}&nbsp;&nbsp; ";
-            } elsif ($remote && LJ::is_friend($remote, $journal)) {
+            } elsif ( $remote && $remote->watches( $journal ) ) {
                 $ret .= "$links{'remove_friend'}&nbsp;&nbsp; ";
             }
             $ret .= $links{'syndicated_list'};
         } elsif ($journal->is_news) {
             $ret .= "$statustext{'news'}<br />";
-            if ($remote && !LJ::is_friend($remote, $journal)) {
+            if ( $remote && !$remote->watches( $journal ) ) {
                 $ret .= $links{'add_friend'};
             } else {
                 $ret .= "&nbsp;";
@@ -3178,9 +3202,9 @@ LOGIN_BAR
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
 
         if ($journal->is_personal || $journal->is_identity) {
-            if ($r->note('view') eq "friends") {
+            if ($r->note('view') eq "read") {
                 $ret .= $statustext{'personalfriendspage'};
-            } elsif ($r->note('view') eq "friendsfriends") {
+            } elsif ($r->note('view') eq "network") {
                 $ret .= $statustext{'personalfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'personal'};

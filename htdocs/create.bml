@@ -23,8 +23,6 @@ body<=
 
  return "<?badinput?>" unless LJ::text_in(\%POST);
 
- return "<?h1 Sorry! h1?><?p This site is not yet open for business.  :-) p?>";
-
  my $mode = $POST{'mode'};
  my $code = $POST{'code'} || $GET{'code'};
 
@@ -346,9 +344,11 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
              $invitecode->use_code( user => $nu );
          }
 
+         # just do watch on initial friends since they will almost certainly not be personal journals
+         # if they are personal journals, we probably don't want to trust them anyway
          foreach my $friend (@LJ::INITIAL_OPTIONAL_FRIENDS) {
-             my $friendid = LJ::get_userid($friend);
-             LJ::add_friend($nu->id, $friendid) if $friendid and $POST{"initial_optional_friend_$friend"};
+             my $friendu = LJ::load_user( $friend );
+             $nu->add_edge( $friendu, watch => {} ) if $friendu and $POST{"initial_optional_friend_$friend"};
          }
 
          # Mark the turing test for deletion
@@ -385,14 +385,17 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
              });
          }
 
-         # If they were invited then add friend and do joins
+         # If they were invited then add trust and/or watch and do joins
          # Needed to do this after we load the $nu object
          if ($POST{from}) {
              my $ivf = LJ::load_user($POST{from});
-             my $friend = $POST{"inviter_friend_$ivf->{user}"};
+             my $friend_trust = $POST{"inviter_trust_$ivf->{user}"};
+             my $friend_watch = $POST{"inviter_watch_$ivf->{user}"};
 
-             LJ::add_friend($nu->id, $ivf->{userid})
-                 if $friend;
+             $nu->add_edge( $ivf, trust => {} )
+                 if $friend_trust;
+             $nu->add_edge( $ivf, watch => {} )
+                 if $friend_watch;
 
              my @ijoins;
              foreach (split(',', $POST{inviter_joins})) {
@@ -410,7 +413,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
                        next unless $cu && $nu;
 
                        LJ::comm_join_request($cu, $nu);
-                       LJ::add_friend($nu->id, $cu->{userid});
+                       $nu->add_edge( $cu, watch => {} );
                    }
              }
 
@@ -572,23 +575,32 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
 
          $ret .= LJ::html_hidden('from', $inviter->{user});
 
-         $ret .= LJ::html_check({ name     => "inviter_friend_$inviter->{user}",
+         $ret .= LJ::html_check({ name     => "inviter_trust_$inviter->{user}",
                                   value    => 1,
-                                  selected => LJ::did_post() ? $POST{"inviter_friend_$inviter->{user}"} : 1,
-                                  id       => "inviter_$inviter->{user}",
+                                  selected => LJ::did_post() ? $POST{"inviter_trust_$inviter->{user}"} : 1,
+                                  id       => "inviter_trust_$inviter->{user}",
                              });
-         $ret .= "<label for='inviter_$inviter->{user}'>" .
-             'add ' . LJ::ljuser($inviter->{user}) . ' as a friend' .
+         $ret .= "<label for='inviter_trust_$inviter->{user}'>" .
+             'add ' . LJ::ljuser($inviter->{user}) . ' to your access list' .
+             "</label><br />";
+
+         $ret .= LJ::html_check({ name     => "inviter_watch_$inviter->{user}",
+                                  value    => 1,
+                                  selected => LJ::did_post() ? $POST{"inviter_watch_$inviter->{user}"} : 1,
+                                  id       => "inviter_watch_$inviter->{user}",
+                             });
+         $ret .= "<label for='inviter_watch_$inviter->{user}'>" .
+             'add ' . LJ::ljuser($inviter->{user}) . ' to your subscriptions' .
              "</label><br />";
 
          my %comms;
          unless ($POST{inviter_joins}) {
-             # Load their friendofs to determine community membership
-             my @ids = LJ::get_friendofs($inviter);
-             my %fro;
-             LJ::load_userids_multiple([ map { $_ => \$fro{$_} } @ids ]);
+             # Load their community memberships
+             my @ids = (); # FIXME: Fix community membership!
+             my %memberships;
+             LJ::load_userids_multiple([ map { $_ => \$memberships{$_} } @ids ]);
 
-             foreach my $ulocal (values %fro) {
+             foreach my $ulocal (values %memberships) {
                  next unless $ulocal->{'statusvis'} eq 'V';
                  next unless $ulocal->{'journaltype'} eq 'C';
 
@@ -654,7 +666,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
                  foreach my $comm (values %comms) {
                      next unless $comm->{istatus} eq 'normal';
 
-                     my $ids = LJ::get_friends($comm);
+                     my $ids = {}; # FIXME: Fix community membership!
                      if (scalar values %$ids < 5) {
                      delete $comms{$comm->{userid}};
                      }
