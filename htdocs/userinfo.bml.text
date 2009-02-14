@@ -24,11 +24,19 @@
 
 .comms.header=Communities
 
-.comms.memberof=Member of
+.comms.member_of.none=Member Of (0)
 
-.comms.postingaccess=Posting Access
+.comms.member_of.some=Member Of ([[num]]):
 
-.comms.watching=Watching
+.comms.posting_access_to.none=Posting Access (0)
+
+.comms.posting_access_to.some=Posting Access ([[num]]):
+
+.comms.viewentries=View Entries
+
+.comms.watched.none=Subscriptions (0)
+
+.comms.watched.some=Subscriptions ([[num]]):
 
 .commsettings.membership.closed=Closed
 
@@ -130,37 +138,15 @@
 
 .fbpictures.over=over [[count]] public
 
+.feeds.header=Feeds
+
+.feeds.viewentries=View Entries
+
+.feeds.watched.none=Subscriptions (0)
+
+.feeds.watched.some=Subscriptions ([[num]]):
+
 .flag=Flag Journal
-
-.friendof.comm=Watched by:
-
-.friendof.hidden=(hidden)
-
-.friendof.syndreadcount=Number of Readers
-
-.friendof.user=Friend of:
-
-.friends.alsofriendof=Also Friend of
-
-.friends.comm=Members
-
-.friends.friendof=Friend of
-
-.friends.friends=Friends
-
-.friends.header=Friends
-
-.friends.mutual=Mutual Friends
-
-.friends.user=Friends
-
-.friends.viewall.comm2=<a [[aopts]]>View all</a>
-
-.friends.viewall.other=This user is watching [[num]] friends, communities, and feeds. <a [[aopts]]>View them all.</a>
-
-.friends.viewall.self=You are watching [[num]] friends, communities, and feeds. <a [[aopts]]>View them all.</a>
-
-.friends.viewentries=View Entries
 
 .im.aol=AIM
 
@@ -232,11 +218,13 @@
 
 .label.googletalk=Google Talk:
 
+.label.hidden=(hidden)
+
 .label.icq_send_message=Send Message
 
 .label.icquin=ICQ UIN:
 
-.label.interests=Interests
+.label.interests=Interests ([[num]]):
 
 .label.interests.modifyyours=Modify&nbsp;yours
 
@@ -245,8 +233,6 @@
 .label.interests.removesome=Remove&nbsp;some
 
 .label.interests.removesome2=Remove Some
-
-.label.intsnotshown=<b>... [[intnotshown]] interests not shown</b>
 
 .label.jabber=Jabber:
 
@@ -258,7 +244,7 @@
 
 .label.location=Location:
 
-.label.maintainers=Maintainers
+.label.maintainers=Maintainers ([[num]]):
 
 .label.manageschools=Manage Schools
 
@@ -266,7 +252,7 @@
 
 .label.memories=Memories
 
-.label.moderators=Moderators
+.label.moderators=Moderators ([[num]]):
 
 .label.moredetails=(more details...)
 
@@ -284,7 +270,7 @@
 
 .label.postalt=Update your journal
 
-.label.reqfinduser=Only users with 'finduser' priv can lookup users by userid.
+.label.reqfinduser=You cannot look up users by userid.
 
 .label.schools=Schools
 
@@ -344,13 +330,19 @@
 
 .nonexist.name=Unknown user
 
-.optionlinks.addfriend=Add Friend
+.optionlinks.addsub=Subscribe
 
-.optionlinks.addfriend.title.self=Add yourself as a friend
+.optionlinks.addsub.title.loggedout=You must be logged in to subscribe to this account
 
-.optionlinks.addfriend.title.other=Add this user as a friend
+.optionlinks.addsub.title.other=Subscribe to this account
 
-.optionlinks.addfriend.title.loggedout=You must be logged in to add this user as a friend
+.optionlinks.addsub.title.self=Subscribe to your account
+
+.optionlinks.addtrust=Grant Access
+
+.optionlinks.addtrust.title.other=Grant access to this user
+
+.optionlinks.addtrust.title.loggedout=You must be logged in to grant access to this user
 
 .optionlinks.joincomm=Join
 
@@ -366,19 +358,15 @@
 
 .optionlinks.leavecomm.title=Leave this community
 
-.optionlinks.modifyfriend=Modify Friend
-
-.optionlinks.modifyfriend.title.self=Modify/remove yourself as a friend
-
-.optionlinks.modifyfriend.title.other=Modify/remove this user as a friend
-
 .optionlinks.modifysub=Modify Subscription
 
-.optionlinks.modifysub.title=Modify/remove this feed from your Friends page
+.optionlinks.modifysub.title.other=Modify/remove subscription for this account
 
-.optionlinks.modifywatch=Modify Watch
+.optionlinks.modifysub.title.self=Modify/remove subscription for your account
 
-.optionlinks.modifywatch.title=Modify/remove this community from your Friends page
+.optionlinks.modifytrust=Modify Access
+
+.optionlinks.modifytrust.title.other=Modify/remove access from this user
 
 .optionlinks.post=Post
 
@@ -400,12 +388,6 @@
 
 .optionlinks.sendmessage.title.loggedout=You must be logged in to send a private message to this user
 
-.optionlinks.sub=Subscribe
-
-.optionlinks.sub.title=Add this feed to your Friends page
-
-.optionlinks.sub.title.loggedout=You must be logged in to add this feed to your Friends page
-
 .optionlinks.track=Track
 
 .optionlinks.track.title=Receive notifications of updates to this community
@@ -424,7 +406,7 @@
 
 .optionlinks.trackuser.title.cantuseesn=You cannot manage notifications
 
-.optionlinks.trackuser.title.loggedout=You must be logged in manage notifications
+.optionlinks.trackuser.title.loggedout=You must be logged in to manage notifications
 
 .optionlinks.viewjournal=View Journal
 
@@ -436,11 +418,57 @@
 
 .optionlinks.viewjournal.title.user=View this user's journal
 
-.optionlinks.watch=Watch
+.people.header=People
 
-.optionlinks.watch.title=Add this community to your Friends page
+.people.members.none=Members (0)
 
-.optionlinks.watch.title.loggedout=You must be logged in to add this community to your Friends page
+.people.members.some=Members ([[num]]):
+
+.people.mutually_trusted.none=Mutual Access (0)
+
+.people.mutually_trusted.some=Mutual Access ([[num]]):
+
+.people.mutually_watched.none=Mutual Subscriptions (0)
+
+.people.mutually_watched.some=Mutual Subscriptions ([[num]]):
+
+.people.not_mutually_trusted.none=Also Access To (0)
+
+.people.not_mutually_trusted.some=Also Access To ([[num]]):
+
+.people.not_mutually_trusted_by.none=Also Access From (0)
+
+.people.not_mutually_trusted_by.some=Also Access From ([[num]]):
+
+.people.not_mutually_watched.none=Also Subscribed To (0)
+
+.people.not_mutually_watched.some=Also Subscribed To ([[num]]):
+
+.people.not_mutually_watched_by.none=Also Subscribed From (0)
+
+.people.not_mutually_watched_by.some=Also Subscribed From ([[num]]):
+
+.people.posting_access_from.none=Posting Access (0)
+
+.people.posting_access_from.some=Posting Access ([[num]]):
+
+.people.trusted.none=Access To (0)
+
+.people.trusted.some=Access To ([[num]]):
+
+.people.trusted_by.none=Access From (0)
+
+.people.trusted_by.some=Access From ([[num]]):
+
+.people.viewentries=View Entries
+
+.people.watched.none=Subscriptions (0)
+
+.people.watched.some=Subscriptions ([[num]]):
+
+.people.watched_by.none=Subscribers (0)
+
+.people.watched_by.some=Subscribers ([[num]]):
 
 .pubkey.alt=View public key
 
@@ -463,8 +491,6 @@
 .syn.nextcheck=Next check:
 
 .syn.parseerror=Error Message:
-
-.syn.watching=Watching
 
 .syn.xml=XML
 
@@ -494,7 +520,7 @@
 
 .timeupdate.weeksago=[[num]] weeks ago
 
-.title=User Info
+.title=Profile
 
 .title.communityinfo=Community Info
 

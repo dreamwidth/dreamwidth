@@ -1,6 +1,9 @@
 #profile_page {
     margin: 0 10px 0 0;
 }
+#profile_page p {
+    margin-bottom: 0 !important;
+}
 
 .left {
     float: left;
@@ -78,8 +81,9 @@
     }
     .profile_join_disabled, .profile_postentry_disabled, 
     .profile_sendvgift_disabled, .profile_sendmessage_disabled, 
-    .profile_watch_disabled, .profile_addfeed_disabled,
-    .profile_addfriend_disabled, .profile_trackuser_disabled {
+    .profile_addtrust_disabled, .profile_addsub_comm_disabled,
+    .profile_addsub_feed_disabled, .profile_addsub_person_disabled,
+    .profile_trackuser_disabled {
         color: #999;
         font-weight: bold;
     }
@@ -214,6 +218,7 @@ span.expandcollapse {
     color: #444;
     font-weight: bold;
     text-align: right;
+    padding-right: 0.3em;
 }
 
 .userinfo th,

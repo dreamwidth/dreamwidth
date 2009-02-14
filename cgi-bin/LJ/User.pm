@@ -4758,6 +4758,22 @@ sub get_timeactive {
     return $active;
 }
 
+# returns an array of maintainer userids
+sub maintainer_userids {
+    my $u = shift;
+
+    return () unless $u->is_community;
+    return @{LJ::load_rel_user_cache( $u->id, 'A' )};
+}
+
+# returns an array of moderator userids
+sub moderator_userids {
+    my $u = shift;
+
+    return () unless $u->is_community && $u->prop( 'moderated' );
+    return @{LJ::load_rel_user_cache( $u->id, 'M' )};
+}
+
 package LJ;
 
 use Carp;
