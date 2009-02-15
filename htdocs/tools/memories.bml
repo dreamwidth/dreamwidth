@@ -167,7 +167,7 @@
  if ($authasu) {
      if ($is_owner) {
          $securities = [];
-     } elsif ($authasu->{'journaltype'} eq 'P' and LJ::is_friend($userid, $authasu->{'userid'})) {
+     } elsif ($authasu->{'journaltype'} eq 'P' && $u->trusts_or_has_member( $authasu )) {
          $securities = ['public', 'friends'];
      }
  }

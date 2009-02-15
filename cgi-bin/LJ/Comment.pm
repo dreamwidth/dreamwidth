@@ -930,7 +930,7 @@ sub user_can_edit {
     }
 
     # user must be a friend if friends-only commenting is on
-    if ($journal->prop('opt_whocanreply') eq "friends" && !$journal->has_friend($u)) {
+    if ($journal->prop('opt_whocanreply') eq "friends" && !$journal->trusts_or_has_member( $u )) {
         $$errref = LJ::Lang::ml('talk.error.cantedit.notfriend');
         return 0;
     }

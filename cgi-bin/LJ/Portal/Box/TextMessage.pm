@@ -62,7 +62,7 @@ sub handle_request {
         my $remote = $self->{'u'};
 
         if ($tminfo->{'security'} eq "friends" && $u->{'userid'} != $remote->{'userid'}) {
-            unless (LJ::is_friend($u->{'userid'}, $remote->{'userid'})) {
+            unless ( $u->trusts_or_has_member( $remote ) ) {
                 return $genjs->("<p>User <B>$u->{'user'}</B> has selected \"friends only\" as the security level required to send text messages to them.</p>", 0);
             }
         }

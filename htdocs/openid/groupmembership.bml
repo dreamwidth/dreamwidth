@@ -100,7 +100,7 @@
         };
         
         return $nonmember->() unless $memberu;
-        return $nonmember->() unless $u->has_friend($memberu);
+        return $nonmember->() unless $u->trusts_or_has_member( $memberu );
         return $member->();
     }
     else {

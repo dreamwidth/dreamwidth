@@ -286,8 +286,8 @@ sub get_usertags {
         # setup helper variables from u to remote
         my ($is_friend, $grpmask) = (0, 0);
         if ($opts->{remote}) {
-            $is_friend = LJ::is_friend($u, $opts->{remote});
-            $grpmask = LJ::get_groupmask($u, $opts->{remote});
+            $is_friend = $u->trusts_or_has_member( $opts->{remote} );
+            $grpmask = $u->trustmask( $opts->{remote} );
         }
 
         # figure out what we need to purge
@@ -508,14 +508,14 @@ sub _remote_satisfies_permission {
     } elsif ($perm eq 'none') {
         return 0;
     } elsif ($perm eq 'friends') {
-        return LJ::is_friend($u, $remote);
+        return $u->trusts_or_has_member( $remote );
     } elsif ($perm eq 'private') {
         return LJ::can_manage($remote, $u);
     } elsif ($perm =~ /^group:(\d+)$/) {
         my $grpid = $1+0;
         return undef unless $grpid >= 1 && $grpid <= 60;
 
-        my $mask = LJ::get_groupmask($u, $remote);
+        my $mask = $u->trustmask( $remote );
         return ($mask & (1 << $grpid)) ? 1 : 0;
     } else {
         # else, problem!

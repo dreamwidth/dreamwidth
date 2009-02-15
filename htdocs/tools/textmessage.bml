@@ -75,7 +75,7 @@ body<=
         }
 
         if ($tminfo->{'security'} eq "friends" && $u->{'userid'} != $remote->{'userid'}) {
-            unless (LJ::is_friend($u->{'userid'}, $remote->{'userid'})) {
+            unless ( $u->trusts_or_has_member( $remote ) ) {
                 $ret .= "<?h1 $ML{'.error.unauthorized.head'} h1?><?p ".
                     BML::ml('.error.unauthorized.text', { user => $u->{'user'} }) ." p?>";
                 add_footer();

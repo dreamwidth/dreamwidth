@@ -875,7 +875,7 @@ sub visible_to
     # so we have to load the user
     return 0 unless $remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I';
 
-    my $gmask = LJ::get_groupmask($userid, $remoteid);
+    my $gmask = $self->journal->trustmask( $remote );
     my $allowed = (int($gmask) & int($self->{'allowmask'}));
     return $allowed ? 1 : 0;  # no need to return matching mask
 }
@@ -1795,7 +1795,7 @@ sub get_itemid_near2
         if ($remote->{'userid'} == $u->{'userid'}) {
             $secwhere = "";   # see everything
         } elsif ($remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I') {
-            my $gmask = LJ::get_groupmask($u, $remote);
+            my $gmask = $u->trustmask( $remote );
             $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))"
                 if $gmask;
         }

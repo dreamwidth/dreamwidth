@@ -415,7 +415,7 @@ sub rate_multiple {
     my $ou = $self->_orig_u;
     my $ru = $self->_rcpt_u;
 
-    return 10 unless ($ru->has_friend($ou) || $self->{parent_msgid});
+    return 10 unless $ru->trusts( $ou ) || $self->{parent_msgid};
     return 1;
 }
 

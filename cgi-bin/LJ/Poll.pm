@@ -1186,7 +1186,7 @@ sub can_vote {
     # owner can do anything
     return 1 if $remote && $remote->userid == $self->posterid;
 
-    my $is_friend = $remote && LJ::is_friend($self->journalid, $remote->userid);
+    my $is_friend = $remote && $self->journal->trusts_or_has_member( $remote );
 
     return 0 if $self->whovote eq "friends" && !$is_friend;
 
@@ -1222,7 +1222,7 @@ sub can_view {
     return 0 if $self->whoview eq 'none';
 
     # okay if everyone can view or if friends can view and remote is a friend
-    my $is_friend = $remote && LJ::is_friend($self->journalid, $remote->userid);
+    my $is_friend = $remote && $self->journal->trusts_or_has_member( $remote );
     return 1 if $self->whoview eq "all" || ($self->whoview eq "friends" && $is_friend);
 
     return 0;

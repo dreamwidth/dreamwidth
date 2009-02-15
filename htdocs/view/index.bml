@@ -95,7 +95,7 @@
         if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
             $secwhere = "";   # see everything
         } elsif ($remote->{'journaltype'} eq 'P') {
-            my $gmask = LJ::get_groupmask($u, $remote);
+            my $gmask = $u->trustmask( $remote );
             $secwhere = "AND (l.security='public' OR (l.security='usemask' AND l.allowmask & $gmask))"
                 if $gmask;
         }

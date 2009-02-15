@@ -2443,6 +2443,13 @@ sub viewer_is_owner
     return $remote->{'userid'} == $LJ::S2::CURR_PAGE->{'_u'}->{'userid'};
 }
 
+# NOTE: this method is old and deprecated, but we still support it for people
+# who are importing styles from old sites.  since we don't know if the style
+# is asking if the viewer is "watched" or if they're "trusted", we default to
+# returning true if they're trusted.  since we believe that the majority of
+# trust relationships also include a watch relationship, this should be the
+# right behavior in 90%+ of cases.  in the few that it is not, we humbly
+# suggest that people update their styles to use the DW core/functions.
 sub viewer_is_friend
 {
     my ($ctx) = @_;
@@ -2452,7 +2459,7 @@ sub viewer_is_friend
 
     my $ju = $LJ::S2::CURR_PAGE->{'_u'};
     return 0 if $ju->{journaltype} eq 'C';
-    return LJ::is_friend($ju, $remote);
+    return $ju->trusts( $remote );
 }
 
 sub viewer_is_member
@@ -2463,8 +2470,8 @@ sub viewer_is_member
     return 0 unless defined($LJ::S2::CURR_PAGE);
 
     my $ju = $LJ::S2::CURR_PAGE->{'_u'};
-    return 0 if $ju->{journaltype} ne 'C';
-    return LJ::is_friend($ju, $remote);
+    return 0 unless $ju->is_community;
+    return $remote->member_of( $ju );
 }
 
 sub viewer_sees_control_strip
