@@ -280,7 +280,7 @@ sub subscriptions {
     my @wildcards_from;
     if ($zeromeans eq 'friends') {
         # find friendofs, add to @wildcards_from
-        @wildcards_from = LJ::get_friendofs($self->u);
+        @wildcards_from = $self->u->watched_by_userids;
     } elsif ($zeromeans eq 'all') {
         $allmatch = 1;
     }
