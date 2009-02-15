@@ -46,13 +46,28 @@ body<=
     $ret .= "</form>";
     $ret .= "</div>";
 
+    my $remote = LJ::get_remote();
+    my $user;
+    my $user_url;
+
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ($remote) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $u = LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+    }
+
     my $dbr = LJ::get_db_reader();
     my $sth = $dbr->prepare("SELECT statkey FROM stats WHERE statcat='pop_faq' ORDER BY statval DESC LIMIT 10");
     $sth->execute;
 
     $ret .= "<ul>";
     while (my $f = $sth->fetchrow_hashref) {
-        my $f = LJ::Faq->load($f->{statkey}, lang => BML::get_language());
+        $f = LJ::Faq->load($f->{statkey}, lang => BML::get_language());
+        $f->render_in_place({user => $user, url => $user_url});
         my $q = $f->question_html;
         $ret .= "<li><a href=\"faqbrowse.bml?faqid=" . $f->faqid . "\">$q</a></li>\n";
     }

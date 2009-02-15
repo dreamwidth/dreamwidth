@@ -39,10 +39,22 @@ sub generate_content {
     return "Could not load DB reader." unless $dbr;
 
     if ($showtopten) {
-        my $sth = $dbr->prepare("SELECT f.faqid, f.question, s.statval AS 'uses' ".
-                                "FROM faq f, stats s WHERE f.faqcat<>'int-abuse' ".
-                                "AND f.faqcat<>'' AND s.statcat='pop_faq' ".
-                                "AND s.statkey=f.faqid ORDER BY s.statval DESC LIMIT 10");
+        my $remote = LJ::get_remote();
+        my $user;
+        my $user_url;
+
+        # Get remote username and journal URL, or example user's username and
+        # journal URL
+        if ($remote) {
+            $user = $remote->user;
+            $user_url = $remote->journal_base;
+        } else {
+            my $u = LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+            $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+            $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+        }
+
+        my $sth = $dbr->prepare("SELECT statkey, statval FROM stats WHERE statcat='pop_faq' ORDER BY statval DESC LIMIT 10");
         $sth->execute;
 
         $content .= qq {
@@ -50,12 +62,14 @@ sub generate_content {
             <ul>
             };
 
-        while (my $f = $sth->fetchrow_hashref)
-        {
-            my $q = LJ::ehtml($f->{'question'});
+        while (my $s = $sth->fetchrow_hashref) {
+            my $f = LJ::Faq->load($s->{statkey}, lang => BML::get_language());
+            $f->render_in_place({user => $user, url => $user_url});
+            my $q = $f->question_html;
             $q =~ s/^\s+//; $q =~ s/\s+$//;
             $q =~ s/\n/<BR>/g;
-            $content .= "<li><a href=\"/support/faqbrowse.bml?faqid=$f->{'faqid'}\">$q</a> <i>($f->{'uses'})</i></li>\n";
+            $content .= "<li><a href='/support/faqbrowse.bml?faqid="
+                . $f->faqid . "'>$q</a> <i>($s->{statval})</i></li>\n";
         }
         $content .= "</ul>\n";
     }

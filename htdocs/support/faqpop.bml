@@ -7,19 +7,33 @@ body<=
  $ret .= "<?h1 $ML{'.head.title'} h1?>";
  $ret .= "<?p $ML{'.faqpop.title.text'} p?>";
  
+ my $remote = LJ::get_remote();
+ my $user;
+ my $user_url;
+
+ # Get remote username and journal URL, or example user's username and journal URL
+ if ($remote) {
+     $user = $remote->user;
+     $user_url = $remote->journal_base;
+ } else {
+     my $u = LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+     $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+     $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+ }
+
  my $dbr = LJ::get_db_reader();
- $sth = $dbr->prepare("SELECT f.faqid, f.question, s.statval AS 'uses'".
-                      "FROM faq f, stats s WHERE f.faqcat<>'int-abuse' AND s.statcat='pop_faq' ".
-                      "AND s.statkey=f.faqid ORDER BY s.statval DESC LIMIT 50");
+ my $sth = $dbr->prepare("SELECT statkey, statval FROM stats WHERE statcat='pop_faq' ORDER BY statval DESC LIMIT 50");
  $sth->execute;
 
  $ret .= "<ul>";
- while (my $f = $sth->fetchrow_hashref)
- {
-     my $q = LJ::ehtml($f->{'question'});
+ while (my $s = $sth->fetchrow_hashref) {
+     my $f = LJ::Faq->load($s->{statkey}, lang => BML::get_language());
+     $f->render_in_place({user => $user, url => $user_url});
+     my $q = $f->question_html;
      $q =~ s/^\s+//; $q =~ s/\s+$//;
      $q =~ s!\n!<br />!g;
-     $ret .= "<li><a href=\"faqbrowse.bml?faqid=$f->{'faqid'}\">$q</a> <i>($f->{'uses'})</i></li>\n";
+     $ret .= "<li><a href='faqbrowse.bml?faqid=" . $f->faqid
+         . "'>$q</a> <i>($s->{statval})</i></li>\n";
  }
  $ret .= "</ul>\n";
  $ret .= "<?hr?>";
