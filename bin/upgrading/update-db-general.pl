@@ -373,7 +373,9 @@ register_tablecreate("random_user_set", <<'EOC');
 CREATE TABLE random_user_set (
   posttime INT UNSIGNED NOT NULL,
   userid INT UNSIGNED NOT NULL,
-  PRIMARY KEY (posttime)
+  journaltype char(1) NOT NULL default 'P',
+  PRIMARY KEY (userid),
+  INDEX (posttime)
 )
 EOC
 
@@ -3768,6 +3770,24 @@ register_alter(sub {
 
 });
 
+    if ( column_type( "random_user_set", "journaltype") eq '' ) {
+
+        # We're changing the primary key, so we need to make sure we don't have
+        # any duplicates of the old primary key lying around to trip us up.
+        my $sth = $dbh->prepare("SELECT posttime, userid FROM random_user_set ORDER BY posttime desc");
+        $sth->execute();
+        my %found = ();
+        while (my $rowh = $sth->fetchrow_hashref) {
+            $dbh->do("DELETE FROM random_user_set WHERE userid=? AND posttime=?", undef, $rowh->{'userid'}, $rowh->{'posttime'}) if  $found{$rowh->{'userid'}}++;
+        }
+
+        do_alter("random_user_set",
+                 "ALTER TABLE random_user_set ADD COLUMN journaltype CHAR(1) NOT NULL DEFAULT 'P'");
+        do_alter("random_user_set",
+                 "ALTER TABLE random_user_set DROP PRIMARY KEY, ADD PRIMARY KEY (userid)");
+        do_alter("random_user_set",
+                 "ALTER TABLE random_user_set ADD INDEX (posttime)");
+    }
 
 
 1; # return true

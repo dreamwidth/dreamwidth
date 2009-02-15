@@ -289,9 +289,11 @@ sub new_from_url {
 }
 
 # returns LJ::User class of a random user, undef if we couldn't get one
-#   my $random_u = LJ::User->load_random_user();
+#   my $random_u = LJ::User->load_random_user(type);
+# If type is null, assumes a person.
 sub load_random_user {
     my $class = shift;
+    my $type = shift || 'P';
 
     # get a random database, but make sure to try them all if one is down or not
     # responding or similar
@@ -307,9 +309,10 @@ sub load_random_user {
     my $uids = $dbcr->selectcol_arrayref(qq{
             SELECT userid FROM random_user_set
             WHERE posttime > $when
+            AND journaltype = ?
             ORDER BY posttime
             LIMIT 10
-        });
+        }, undef, $type);
     die "Failed to execute query: " . $dbcr->errstr . "\n" if $dbcr->err;
     return undef unless $uids && @$uids;
 
@@ -319,7 +322,6 @@ sub load_random_user {
             or next;
 
         # situational checks to ensure this user is a good one to show
-        next unless $u->is_person;         # people accounts only
         next unless $u->is_visible;        # no suspended/deleted/etc users
         next if $u->prop('latest_optout'); # they have chosen to be excluded
 
