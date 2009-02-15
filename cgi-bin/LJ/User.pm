@@ -7473,7 +7473,7 @@ sub make_journal
     }
     return $error->("This journal has been deleted and purged.", "410 Gone") if ($u->is_expunged);
 
-    return $error->("This user has no journal here.", "404 Not here") if $u->{'journaltype'} eq "I" && $view ne "friends";
+    return $error->("This user has no journal here.", "404 Not here") if $u->{'journaltype'} eq "I" && $view ne "read";
 
     $opts->{'view'} = $view;
 
