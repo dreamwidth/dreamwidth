@@ -352,8 +352,8 @@ sub render_in_place {
         }
     };
 
-    # FAQ titles can't have item references.
     foreach my $faq (@faqs) {
+        $collect_item_codes->($faq->question_raw);
         $collect_item_codes->($faq->summary_raw) if $faq->has_summary;
         $collect_item_codes->($faq->answer_raw);
     }
