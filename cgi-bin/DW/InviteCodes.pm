@@ -46,7 +46,11 @@ DW::InviteCodes - Invite code management backend for Dreamwidth
   my $recipient = $object->recipient; # userid or 0
   my $reason = $object->reason;
   my $timegenerate = $object->timegenerate; # unix timestamp
+  my $timesent = $object->timesent; #unix timestamp
   my $is_used = $object->is_used; # true if used to create an account
+
+  # Mark the invite code as sent
+  $code->send_code;
 
   # Mark the invite code as used
   $code->use_code( user => LJ::load_user('new') );
@@ -56,7 +60,7 @@ DW::InviteCodes - Invite code management backend for Dreamwidth
 use strict;
 use warnings;
 
-use fields qw(acid userid rcptid auth reason timegenerate);
+use fields qw(acid userid rcptid auth reason timegenerate timesent);
 
 use constant { AUTH_LEN => 13, ACID_LEN => 7 };
 use constant DIGITS => qw(A B C D E F G H J K L M N P Q R S T U V W X Y Z 2 3 4 5 6 7 8 9);
@@ -140,6 +144,22 @@ sub use_code {
     return 1; # 1 means success? Needs error return in that case.
 }
 
+=head2 C<< $object->send_code >>
+
+Marks an invite code as having been sent. The code may or may not have been used to create a new account.
+
+=cut
+
+sub send_code {
+    my ($self, %opts) = @_;
+    my $dbh = LJ::get_db_writer();
+
+    $dbh->do( "UPDATE acctcode SET timesent=UNIX_TIMESTAMP() WHERE acid=?",
+        undef, $self->{acid} );
+
+    return 1; # 1 means success? Needs error return in that case.
+}
+
 =head2 C<< $class->new( code => $invite ) >>
 
 Returns object for invite, or undef if none exists.
@@ -153,7 +173,7 @@ sub new {
     return undef unless length( $opts{code} ) == CODE_LEN;
 
     my ($acid, $auth) = $class->decode( $opts{code} );
-    my $ac = $dbr->selectrow_hashref( "SELECT acid, userid, rcptid, auth, reason, timegenerate FROM acctcode ".
+    my $ac = $dbr->selectrow_hashref( "SELECT acid, userid, rcptid, auth, reason, timegenerate, timesent FROM acctcode ".
                                       "WHERE acid=? AND auth=?",
                                       undef, $acid, $auth);
 
@@ -234,7 +254,7 @@ sub load_by {
     my $dbr = LJ::get_db_reader();
 
     my $unused_sql = $only_load_unused ? "AND rcptid=0" : "";
-    my $sth = $dbr->prepare( "SELECT acid, userid, rcptid, auth, reason, timegenerate FROM acctcode WHERE $field = ? $unused_sql" )
+    my $sth = $dbr->prepare( "SELECT acid, userid, rcptid, auth, reason, timegenerate, timesent FROM acctcode WHERE $field = ? $unused_sql" )
         or die "Unable to retrieve invite codes by $field: " . $dbr->errstr;
 
     $sth->execute($userid + 0)
@@ -311,6 +331,18 @@ sub timegenerate {
     my ($self) = @_;
 
     return $self->{timegenerate};
+}
+
+=head2 C<< $object->timesent >>
+
+Returns the date and time the invite code was sent through the interface, as a unix timestamp. The code may or may not have been used since.
+
+=cut
+
+sub timesent {
+    my ($self) = @_;
+    
+    return $self->{timesent};
 }
 
 =head2 C<< $object->is_used >>

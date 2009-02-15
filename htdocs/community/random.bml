@@ -1,0 +1,14 @@
+<?_code
+{
+    # try to get a random user
+    my $u = LJ::User->load_random_user('C');
+    return BML::redirect($u->journal_base . "/") if $u;
+    
+    # if we are unable to load a community, redirect to root
+    return BML::redirect("$LJ::SITEROOT/");
+}
+_code?><?_info
+noheaders=>1
+_info?><?_c <LJDEP>
+link: htdocs/users
+</LJDEP> _c?>

@@ -13,7 +13,7 @@ body<=
     
     my $ret;
 
-    if ( LJ::did_post ) {
+    if ( LJ::did_post() ) {
         return "<?h1 $ML{'Error'} ?h1> $ML{'error.invalidform'}" unless LJ::check_form_auth;
         if ( DW::InviteCodeRequests->create( userid => $remote->id, reason => $POST{reason} ) ) {
             $ret .= "<?standout $ML{'.msg.request.success'} standout?>";
@@ -25,7 +25,7 @@ body<=
     my @invitecodes = DW::InviteCodes->by_owner( userid => $remote->id );
     
     if ( @invitecodes ) {
-        $ret .= "<table border='1' cellpadding='5'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th></tr>";
+        $ret .= "<table border='1' cellpadding='5'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th>$ML{'.header.sent'}</th></tr>";
     
         foreach my $code ( @invitecodes ) {
             $ret .= "<tr>";
@@ -41,7 +41,12 @@ body<=
                 $ret .= BML::ml( '.code.use', { aopts => "href='$create_link'" } );
             }        
 
-            $ret .= "</td>";        
+            $ret .= "</td>";
+            
+            $ret .= "<td>";
+            $ret .= LJ::time_to_http( $code->timesent ) if $code->timesent;
+            $ret .= "</td>";
+            
             $ret .= "</tr>";
         }
     

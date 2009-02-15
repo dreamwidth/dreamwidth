@@ -38,13 +38,14 @@ body<=
         my $owner = LJ::load_userid( $code->owner );
         my $recipient = LJ::load_userid( $code->recipient ) if $code->is_used;
 
-        $ret .= "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date used</th></tr>";
+        $ret .= "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date sent</th><th>Date used</th></tr>";
         $ret .= "<tr>";
         $ret .= "<td><tt>" . $code->code . "</tt></td>";
         $ret .= "<td>" . $owner->ljuser_display . "</td>";
         $ret .= "<td>" . ( $code->is_used ? $recipient->ljuser_display : "" ) . "</td>";
         $ret .= "<td>" . $code->reason . "</td>";
         $ret .= "<td>" . LJ::time_to_http( $code->timegenerate). "</td>";
+        $ret .= "<td>" . ( $code->timesent ? LJ::time_to_http( $code->timesent ) : "" ) . "</td>";
         $ret .= "<td>" . ( $code->is_used ? LJ::time_to_http( $recipient->timecreate ) : "" ) . "</td>";
         $ret .= "</tr>";
         $ret .= "</table>";
@@ -57,7 +58,7 @@ body<=
         my @used = DW::InviteCodes->by_recipient( userid => $account->id );
         my @owned = DW::InviteCodes->by_owner( userid => $account->id );
 
-        $ret .= "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date used</th></tr>";
+        $ret .= "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date sent</th><th>Date used</th></tr>";
         foreach my $code ( @used, @owned ) {
             my $owner = $code->owner == $account->id ? $account : LJ::load_userid( $code->owner );
             my $recipient = LJ::load_userid( $code->recipient ) if $code->is_used;
@@ -67,6 +68,7 @@ body<=
             $ret .= "<td>" . ( $code->is_used ? $recipient->ljuser_display : "" ) . "</td>";
             $ret .= "<td>" . $code->reason . "</td>";
             $ret .= "<td>" . LJ::time_to_http( $code->timegenerate). "</td>";
+            $ret .= "<td>" . ( $code->timesent ? LJ::time_to_http( $code->timesent ) : "" ) . "</td>";
             $ret .= "<td>" . ( $code->is_used ? LJ::time_to_http( $recipient->timecreate ) : "" ) . "</td>";
             $ret .= "</tr>";
         }

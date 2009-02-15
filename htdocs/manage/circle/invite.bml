@@ -34,9 +34,12 @@
             $body = BML::ml('.error.noinvitecodes', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" });
             return;
         }
-        
+
         $code = $POST{code} || $invitecodes[0]->code;
-        $create_link .= "&code=".$code;    
+        $create_link .= "&code=".$code;
+        
+        # sort so that those which have been sent are last on the list
+        @invitecodes = sort { ( $a->timesent || 0 ) <=> ( $b->timesent || 0 ) } @invitecodes;
     }
 
     my $validate_form = sub {
@@ -155,6 +158,10 @@
             $email = '';
 
             if ( $LJ::USE_ACCT_CODES ) {
+                # mark an invite code as sent
+                my $invite_obj = DW::InviteCodes->new( code => $code );
+                $invite_obj->send_code;
+
                 $body .= "<?standout " . BML::ml('.success.code', { email  => $POST{email}, invitecode => $code }) . " standout?>";
             } else {
                 $body .= "<?standout " . BML::ml('.success', { email => $POST{email}}) . " standout?>";
@@ -191,6 +198,17 @@
         $body .= "<br />" . LJ::labelfy("code-".$invitecodes[0]->code, $ML{'.form.input.code'});
 
         foreach my $invitecode ( splice( @invitecodes, 0, 5 ) ) {
+        
+            my $label = $invitecode->code;
+            
+            if ( $invitecode->code eq $POST{code} ) {
+                $label .= " - " . $ML{'.form.codelist.justsent'};
+            } elsif ( $invitecode->timesent ) {
+                $label .= " - " . BML::ml( '.form.codelist.alreadysent', { 
+                    date => LJ::time_to_http( $invitecode->timesent ) 
+                  })
+            }
+            
             $body .= "<p>";
             $body .= LJ::html_check( { 
                     selected => $invitecode eq $invitecodes[0] ? 1 : 0,
@@ -198,7 +216,7 @@
                     id => "code-".$invitecode->code, 
                     type=> "radio", 
                     value => $invitecode->code, 
-                    label => $invitecode->code,
+                    label => $label,
             } );
             $body .= "</p>";
         }

@@ -998,6 +998,7 @@ CREATE TABLE acctcode
   rcptid  INT UNSIGNED NOT NULL DEFAULT 0,
   auth    CHAR(13) NOT NULL,
   timegenerate INT UNSIGNED NOT NULL,
+  timesent INT UNSIGNED,
   reason  VARCHAR(255),
   INDEX (userid),
   INDEX (rcptid)
@@ -3768,8 +3769,6 @@ register_alter(sub {
                   "ALTER TABLE logtext2 MODIFY COLUMN event MEDIUMTEXT");
     }
 
-});
-
     if ( column_type( "random_user_set", "journaltype") eq '' ) {
 
         # We're changing the primary key, so we need to make sure we don't have
@@ -3788,6 +3787,13 @@ register_alter(sub {
         do_alter("random_user_set",
                  "ALTER TABLE random_user_set ADD INDEX (posttime)");
     }
+
+     unless ( column_type( "acctcode", "timesent" ) ) {
+         do_alter( "acctcode",
+                   "ALTER TABLE acctcode ADD timesent INT UNSIGNED");
+     }
+
+});
 
 
 1; # return true

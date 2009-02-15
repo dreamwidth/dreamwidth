@@ -31,6 +31,10 @@ The [[sitenameshort]] Team
 
 .error.useralreadyhasaccount=You are sending this invite to a user that already has an account.
 
+.form.codelist.alreadysent=Sent on [[date]], but has not been used.
+
+.form.codelist.justsent=Just sent!
+
 .form.header=Fill out this form to invite someone to [[sitename]]:
 
 .form.input.code=Select a code:
