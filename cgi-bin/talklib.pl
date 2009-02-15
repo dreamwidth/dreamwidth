@@ -1518,7 +1518,7 @@ sub talkform {
 
             $ret .= "<input type='hidden' name='cookieuser' value='$remote->{'user'}' id='cookieuser' />\n";
             if ($screening eq 'A' ||
-                ($screening eq 'F' && !LJ::is_friend($journalu, $remote))) {
+                ($screening eq 'F' && !$journalu->trusts_or_has_member( $remote ))) {
                 $ret .= " " . $BML::ML{'.opt.willscreen'};
             }
             $ret .= "</td>";
@@ -3148,7 +3148,7 @@ sub init {
     if ($journalu->{'opt_whocanreply'} eq "friends") {
         if ($up) {
             if ($up->{'userid'} != $journalu->{'userid'}) {
-                unless (LJ::is_friend($journalu, $up)) {
+                unless ( $journalu->trusts_or_has_member( $up ) ) {
                     my $msg = $journalu->is_comm ? "notamember" : "notafriend";
                     $err->(BML::ml("$SC.error.$msg", {'user'=>$journalu->{'user'}}));
                 }
@@ -3205,7 +3205,7 @@ sub init {
     my $screening = LJ::Talk::screening_level($journalu, $ditemid >> 8);
     if (!$form->{editid} && ($screening eq 'A' ||
         ($screening eq 'R' && ! $up) ||
-        ($screening eq 'F' && !($up && LJ::is_friend($journalu, $up))))) {
+        ($screening eq 'F' && !($up && $journalu->trusts_or_has_member( $up ))))) {
         $state = 'S';
     }
     $state = 'A' if LJ::Talk::can_unscreen($up, $journalu, $init->{entryu}, $init->{entryu}{user});
@@ -3331,7 +3331,7 @@ sub require_captcha_test {
         return 1 if $anon_commenter;
     } elsif ($show_captcha_to eq 'F') {
         ## not friends
-        return 1 if !LJ::is_friend($journal, $commenter);
+        return 1 if !$journal->trusts_or_has_member( $commenter );
     } elsif ($show_captcha_to eq 'A') {
         ## all
         return 1;

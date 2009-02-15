@@ -4774,6 +4774,16 @@ sub moderator_userids {
     return @{LJ::load_rel_user_cache( $u->id, 'M' )};
 }
 
+sub trusts_or_has_member {
+    my ( $u, $target_u ) = @_;
+    $target_u = LJ::want_user( $target_u ) or return 0;
+
+    return $target_u->member_of( $u ) ? 1 : 0
+        if $u->is_community;
+
+    return $u->trusts( $target_u ) ? 1 : 0;
+}
+
 package LJ;
 
 use Carp;
