@@ -197,7 +197,7 @@ body<=
         foreach my $i (1..10) {
             $ret .= "<tr><td>";
             $ret .= LJ::html_text({ 'name' => "editfriend_add_${i}_user",
-                                    'size' => '15', 'maxlength' => '15',
+                                    'size' => '20', 'maxlength' => '255',
                                     'onchange' => "updatePreview(); return true;",
                                     'onfocus' => "setFriend($i);" });
             $ret .= "</td>";
@@ -242,14 +242,21 @@ body<=
         return $print_with_ad->(LJ::bad_input($ML{'error.invalidform'}))
             unless LJ::check_form_auth();
 
+        # this hash is used to keep track of who we've processed via the add
+        # interface, since anyone who's in both the add and edit interfaces should
+        # only be proccessed via the add interface and not by the edit interface
+        my %userid_processed;
+
         # process the additions
         foreach my $key ( keys %POST ) {
             if ( $key =~ /^editfriend_add_(\d+)_user$/ ) {
                 my $num = $1;
                 next unless $POST{"editfriend_add_${num}_user"};
 
-                my $other_u = LJ::load_user( $POST{"editfriend_add_${num}_user"} );
+                my $other_u = LJ::load_user_or_identity( $POST{"editfriend_add_${num}_user"} );
                 next unless $other_u;
+
+                $userid_processed{$other_u->id} = 1;
 
                 if ( $POST{"editfriend_add_${num}_trust"} ) {
                     $u->add_edge( $other_u, trust => {} );
@@ -270,7 +277,7 @@ body<=
                 my $uid = $1;
 
                 my $other_u = LJ::load_userid( $uid );
-                next unless $other_u;
+                next unless $other_u && !$userid_processed{$uid};
 
                 if ( $POST{"editfriend_edit_${uid}_trust"} ) {
                     $u->add_edge( $other_u, trust => {} );

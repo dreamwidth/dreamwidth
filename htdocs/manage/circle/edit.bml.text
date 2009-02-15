@@ -1,11 +1,8 @@
 ;; -*- coding: utf-8 -*-
-.addfriends.head=Add Friends
-
-.addfriends.text=To add people to your Friends list, or to modify the colors associated with an existing friend, enter their LiveJournal usernames in the boxes below. You can also <a [[aopts]]>invite a friend</a> to join LiveJournal.
 
 .addrelationships.head=Add Relationships
 
-.addrelationships.text=To add people to your circle, or to modify the colors associated with a user that you subscribe to, enter their [[sitename]] usernames in the boxes below.  You can also <a [[aopts]]>invite a friend</a> to join [[sitename]].
+.addrelationships.text=To add people to your circle, or to modify the colors associated with a user that you subscribe to, enter their [[sitename]] usernames or their OpenID URLs in the boxes below.  You can also <a [[aopts]]>invite a friend</a> to join [[sitename]].
 
 .background=Background
 
@@ -29,7 +26,7 @@
 
 .circle.trusted_by=Gives you access?
 
-.circle.username=Username
+.circle.username=Username/OpenID URL
 
 .circle.watch=Subscribe?
 
