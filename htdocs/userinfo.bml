@@ -365,7 +365,7 @@ body<=
     $ret .= q{ <div class='details_stats'> };
 
     # journal warnings
-    $ret .= $_ foreach $profile->warnings;
+    $ret .= "<span class='$_->{class}'>$_->{text}</span>" foreach $profile->warnings;
 
     # journal creation date
     my $jcdate = BML::ml( '.details.createdon2', { createdate => LJ::mysql_time( $u->timecreate )  } );
