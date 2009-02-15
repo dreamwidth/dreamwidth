@@ -68,8 +68,12 @@ my %modules = (
                "MIME::Lite" => { 'deb' => 'libmime-lite-perl', },
                "MIME::Words" => { 'deb' => 'libmime-perl', },
                "Compress::Zlib" => { 'deb' => 'libcompress-zlib-perl', },
-               "Net::DNS" => {
-                   'deb' => 'libnet-dns-perl',
+               "Net::DNS" => { 'deb' => 'libnet-dns-perl', },
+               "Net::OpenID::Server" => {
+                   opt => 'Required for OpenID support.'
+               },
+               "Net::OpenID::Server" => {
+                   opt => 'Required for OpenID support.'
                },
                "URI::URL" => { 'deb' => 'liburi-perl' },
                "HTML::Tagset" => { 'deb' => 'libhtml-tagset-perl' },
@@ -163,9 +167,7 @@ my %modules = (
                "IP::Country::Fast" => {
                    'opt' => "Required for country lookup with IP address.",
                },
-               "GTop" => {
-                   'opt' => "Required for Apache per-request database logging.",
-               },
+               "GTop" => {},
                );
 
 sub check_modules {
@@ -225,8 +227,8 @@ sub check_env {
         exit 1 unless $good;
     }
 
-    $err->("No ljconfig.pl file found at $ENV{'LJHOME'}/etc/ljconfig.pl")
-        unless -e "$ENV{'LJHOME'}/etc/ljconfig.pl";
+    $err->("No config-local.pl file found at $ENV{'LJHOME'}/etc/config-local.pl")
+        unless -e "$ENV{'LJHOME'}/etc/config-local.pl";
 
     eval { require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl"; };
     $err->("Failed to load ljlib.pl: $@") if $@;
