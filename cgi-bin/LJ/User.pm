@@ -1166,8 +1166,8 @@ sub url {
     if ($u->{'journaltype'} eq "I" && ! $u->{url}) {
         my $id = $u->identity;
         if ($id && $id->typeid == 0) {
-            $u->set_prop("url", $id->[1]) if $id->[1];
             $url = $id->value;
+            $u->set_prop("url", $url) if $url;
         }
     }
 
