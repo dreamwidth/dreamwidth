@@ -271,15 +271,28 @@ sub mutually_trusts {
 *LJ::User::mutually_trusts = \&mutually_trusts;
 
 
-# returns a numeric trustmask
+# returns a numeric trustmask; can also be used as a setter if you specify a numeric
+# as the third argument.  in which case it returns the newly updated trustmask.
 sub trustmask {
     my ( $from_u, $to_u ) = @_;
-    my $from_userid = LJ::want_userid( $from_u ) or return 0;
-    my $to_userid = LJ::want_userid( $to_u ) or return 0;
+    my $from_u = LJ::want_user( $from_u ) or return 0;
+    my $to_u = LJ::want_user( $to_u ) or return 0;
+
+    # if we still have an argument, we need to set someone's mask
+    if ( scalar( @_ ) == 3 ) {
+        # make sure we trust them... we have to do this here because otherwise we could
+        # implicitly create a trust relationship when one doesn't exist
+        confess 'attempted to set trustmask on non-trusted edge'
+            unless $from_u->trusts( $to_u );
+
+        # we update the mask by re-adding the trust edge; this is the simplest way
+        # that ensures we do everything "properly"
+        $from_u->add_edge( $to_u, trust => { mask => $_[2], nonotify => 1 } );
+    }
 
     # note: we mask out the top three bits (i.e., the reserved bits and the watch bit)
     # so external callers never see them.
-    return DW::User::Edges::WatchTrust::Loader::_trustmask( $from_userid, $to_userid ) & ~( 7 << 61 );
+    return DW::User::Edges::WatchTrust::Loader::_trustmask( $from_u->id, $to_u->id ) & ~( 7 << 61 );
 }
 *LJ::User::trustmask = \&trustmask;
 
@@ -452,7 +465,7 @@ sub mutually_watched_userids {
         $mutual{$uid} = 1
             if exists $watched_fwd{$uid};
     }
-    
+
     return keys %mutual;
 }
 *LJ::User::mutually_watched_userids = \&mutually_watched_userids;
@@ -630,6 +643,89 @@ sub edit_trust_group {
     return 1;
 }
 *LJ::User::edit_trust_group = \&edit_trust_group;
+
+
+# alters a trustmask to munge someone's group membership
+#
+#   $u->edit_trustmask( $otheru, ARGUMENTS )
+#
+# where ARGUMENTS can be one or more of:
+#
+#   set => [ 1, 3 ]        put $otheru in groups 1 and 3 only, remove from others
+#   add => [ 1, 3 ]        add $otheru to groups 1 and 3
+#   remove => [ 1, 3 ]     remove $otheru from groups 1 and 3
+#
+# if you are only adding/removing/setting a single group, you may pass the argument
+# as a single number, not an arrayref.  e.g.,
+#
+#   $u->edit_trustmask( $otheru, add => 5 )
+#
+# adds $otheru to group 5.
+#
+# NOTE: passing the 'set' argument will override 'add' and 'remove' so they have no
+# effect in the same call.  (so use either set or add/remove.  not both.)
+#
+# returns 1 on success, 0 on error.
+#
+sub edit_trustmask {
+    my ( $u, $tu, %opts ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $tu = LJ::want_user( $tu ) or confess 'invalid target user object';
+    return 0 unless $u->trusts( $tu );
+
+    # there's got to be a better way of doing this... but we want our arrays to only
+    # contain valid group ids
+    my @add = grep { $_ >= 1 && $_ <= 60 } map { $_ + 0 } @{ ref $opts{add} ? $opts{add} : [$opts{add}] };
+    my @del = grep { $_ >= 1 && $_ <= 60 } map { $_ + 0 } @{ ref $opts{remove} ? $opts{remove} : [$opts{remove}] };
+    my @set = grep { $_ >= 1 && $_ <= 60 } map { $_ + 0 } @{ ref $opts{set} ? $opts{set} : [$opts{set}] };
+    my $do_clear = ( ref $opts{set} eq 'ARRAY' && scalar( @set ) == 0 ) ? 1 : 0;
+    return 1 unless @add || @del || @set || $do_clear;
+
+    # this is a special case, they said "set => []" with an empty arrayref,
+    # so we remove this person's membership from all groups
+    if ( $do_clear ) {
+        $u->trustmask( $tu, 0 );
+        return 1;
+    }
+
+    # if we're only doing a set, we can do that easily too
+    if ( @set ) {
+        my $mask = 0;
+        $mask += ( 1 << $_ ) foreach @set;
+        $u->trustmask( $tu, $mask );
+        return 1;
+    }
+
+    # hard path, we need to break down a user's mask and then update it
+    # and send out a new one
+    my $mask = $u->trustmask( $tu );
+    my %groups = map { $_ => 1 } grep { $mask & ( 1 << $_ ) } 1..60;
+
+    # now process adds/deletes
+    $groups{$_} = 1 foreach @add;
+    delete $groups{$_} foreach @del;
+
+    # now set it back and we're done
+    my $mask = 0;
+    $mask += ( 1 << $_ ) foreach keys %groups;
+    $u->trustmask( $tu, $mask );
+    return 1;
+}
+*LJ::User::edit_trustmask = \&edit_trustmask;
+
+
+# give a user and a group, returns if they are in that group
+sub trust_group_contains {
+    my ( $u, $tu, $gid ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $tu = LJ::want_user( $tu ) or confess 'invalid target user object';
+    $gid = $gid + 0;
+
+    return 0 unless $gid >= 1 && $gid <= 60;
+    return 1 if $u->trustmask( $tu ) & ( 1 << $gid );
+    return 0;
+}
+*LJ::User::trust_group_contains = \&trust_group_contains;
 
 
 # TODO(mark): update the following subs

@@ -13,7 +13,9 @@ my $u1 = LJ::load_user( 'tester0394' ) or die 'no tester0394';
 my $u2 = LJ::load_user( 'tester0395' ) or die 'no tester0395';
 
 my @tests;
-print "Beginning tests...\n\n";
+print "Beginning tests...\n";
+print "    u1 = " . $u1->user . '(' . $u1->id . ")\n";
+print "    u2 = " . $u2->user . '(' . $u2->id . ")\n\n";
 
 my $dbh = LJ::get_db_writer();
 
@@ -330,6 +332,58 @@ push @tests, [ 'get trust group again', sub
 {
     my $grp = $u1->trust_groups;
     return ( $grp->{1}->{groupname} eq 'bar group' ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'validate trustmask == 1', sub
+{
+    rst();
+    $u1->add_edge( $u2, trust => {} );
+    return ( $u1->trustmask( $u2 ) == 1 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add to group, validate trustmask == 3', sub
+{
+    $u1->edit_trustmask( $u2, add => 1 );
+    return ( $u1->trustmask( $u2 ) == 3 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add two more groups', sub
+{
+    $u1->edit_trustmask( $u2, add => [ 1, 3 ] );
+    return ( $u1->trustmask( $u2 ) == 11 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'remove group', sub
+{
+    $u1->edit_trustmask( $u2, remove => [ 1 ] );
+    return ( $u1->trustmask( $u2 ) == 9 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'set groups', sub
+{
+    $u1->edit_trustmask( $u2, set => [ 4, 3 ] );
+    return ( $u1->trustmask( $u2 ) == 25 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'test contains', sub
+{
+    $u1->trust_group_contains( $u2, 3 ) == 1 or return 0;
+    $u1->trust_group_contains( $u2, 4 ) == 1 or return 0;
+    $u1->trust_group_contains( $u2, 5 ) == 0 or return 0;
+    return 1;
+} ];
+
+################################################################################
+push @tests, [ 'clear groups', sub
+{
+    $u1->edit_trustmask( $u2, set => [] );
+    return ( $u1->trustmask( $u2 ) == 1 ) ? 1 : 0;
 } ];
 
 ################################################################################
