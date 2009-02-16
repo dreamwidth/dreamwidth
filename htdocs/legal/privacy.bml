@@ -85,17 +85,6 @@ body<=
 
 <p>We may disclose potentially personally-identifying and personally-identifying information when that release is required by law or by court order, or when we believe in good faith that disclosure is reasonably necessary to protect the property, safety, or rights of us, third parties, or the public at large.</p>
 
-
-<h2>Third-Party Vendors</h2>
-
-<p>We reserve the right to contract with third-party vendors to provide services we are unable to provide ourselves. We will only share personal information with third-party vendors to the extent that is necessary for such affiliates to provide the services. We require our third-party vendors to provide the same level of privacy protection that we do, and they do not have the right to share or use personal information for any purpose other than for an authorized transaction. Some of our third-party vendors may be located outside of your home country. By using this website, you consent to the transfer of such information to them.</p>
-
-<p>We will clearly identify which services are provided by third-party vendors, and provide you a way to opt out of using those services.</p>
-
-<p>We provide ways for you to optionally integrate third party applications or services into your account. If you choose to do so, any data you provide to that third party is governed by the privacy policy of the person creating or hosting that application or service.</p>
-
-
-
 <h2>Special rules regarding children</h2>
 
 <p>The Children's Online Privacy Protection Act ('COPPA') requires that we inform parents on how we collect and disclose the personal information of children under the age of 13.</p>
@@ -129,6 +118,29 @@ body<=
 <p>As part of the day to day operation of $LJ::SITENAME, we will make regular copies of the data contained in the databases for backup purposes. These backups can potentially contain deleted data for several weeks or months. These backups will also be governed by the rules for disclosure of personally-identifying information.</p>
 
 
+<h2>Outside Vendors</h2>
+
+<strong>Site Features</strong><br />
+
+<p>We reserve the right to contract with third-party vendors to provide site features we are unable to provide ourselves. We will only share personal information with third-party vendors to the extent that is necessary for such affiliates to provide these site features. We require our third-party vendors to provide the same level of privacy protection that we do, and they do not have the right to share or use personal information for any purpose other than for an authorized transaction. Some of our third-party vendors may be located outside of your home country. By using this website, you consent to the transfer of such information to them.</p>
+
+<p>We will clearly identify which site features are provided by third-party vendors, and provide you a way to opt out of using those site features.</p>
+
+<p>We provide ways for you to optionally integrate third party applications or services into your account. If you choose to do so, any data you provide to that third party is governed by the privacy policy of the person creating or hosting that application or service.</p>
+
+
+<strong>Business Vendors</strong><br />
+
+<p>From time to time, we may contract with outside vendors to provide business services that will assist us in administering and maintaining the $LJ::SITENAMESHORT service. We will list all of our business vendors in this privacy policy, as well as providing links to their privacy policies and information on how to opt out of your information being included in those services.</p>
+
+<p>Our current business vendors are:</p>
+
+<ul class='bullet-list'><li><a href='http://www.google.com/services/'>Google Business Services</a>: We use Google Business Services for their Google Analytics and Google Checkout services. For information on how Google Business Services may use your information, see <a href='http://www.google.com/intl/en_ALL/privacy.html'>Google's Privacy Center</a>. Google Analytics collects aggregate data on site usage, such as browser type and the navigational paths our users use, which helps us make decisions about how to improve the site. To opt out of your site use being included in our Google Analytics report, you can use a browser plugin to block the JavaScript being served by google-analytics.com. Google Checkout is a method by which users can make payments for their accounts. To opt out of using Google Checkout, you can decline to make a payment for your account, or use an alternate payment method.</li>
+
+<li><a href='https://www.paypal.com/us/'>PayPal Merchant Processing</a>: We use PayPal to allow users to make payments for their accounts. For information on how PayPal may use your information, see <a href='https://www.paypal.com/us/cgi-bin/webscr?cmd=p/gen/ua/policy_privacy-outside'>PayPal's Privacy Policy</a>. To opt out of using PayPal Merchant Processing, you can decline to make a payment for your account, or use an alternate payment method.
+</ul>
+
+
 <h2>Changes</h2>
 
 <p>We may change our privacy policy from time to time. If these changes are minor, we will post them to this page. If the changes are major, we will post them to this page and notify users through our $LJ::SITENAMESHORT News journal and through messages sent to your account's $LJ::SITENAMESHORT Inbox. Your continued use of this site after any change in this Privacy Policy will constitute your acceptance of such change.</p>
@@ -144,7 +156,7 @@ body<=
 
 <p>This privacy policy is based on one developed by Automattic (http://automattic.com/privacy/) and is licensed under a Creative Commons Attribution-ShareAlike 2.5 License.</p>
 
-<p class='note'>Last revised June 3, 2008</p>
+<p class='note'>Last revised February 15, 2009</p>
 PAGE
 
     return $ret;
