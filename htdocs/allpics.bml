@@ -146,7 +146,7 @@
                 $body .= BML::ml('.pics2', {'user' => LJ::ljuser($u), 'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$u->{user}'"});
             }
 
-            $body .= " p?><div style='margin-left: 50px;'><table cellpadding='5' border='0' cellspacing='1'>";
+            $body .= " p?><table class='allpics'>";
         }
 
         ### Keywords
@@ -154,10 +154,10 @@
         $eh_keywords = LJ::ehtml($eh_keywords);
 
         if ($piccount % 2 == 1) {
-            $body .= "<tr valign='middle'>";
+            $body .= "<tr>";
         }
 
-        $body .= "<td align='center'>";
+        $body .= "<td class='pic'>";
 
         my ($apre, $apost);
         if ($pic->{'url'}) {
@@ -166,7 +166,7 @@
         }
 
         $body .= "$apre<img src='$LJ::USERPIC_ROOT/$pic->{'picid'}/$u->{'userid'}' ";
-        $body .= "width='$pic->{'width'}' height='$pic->{'height'}' alt='' border='0'/>$apost</td><td>";
+        $body .= "width='$pic->{'width'}' height='$pic->{'height'}' alt='' border='0'/>$apost</td><td class='desc'>";
 
         if ($u->{'defaultpicid'} == $pic->{'picid'}) {
             $body .= "$ML{'.default'}<br />";
@@ -209,7 +209,7 @@
         $body .= "</td>";
 
         if ($piccount % 2 == 1) {
-            $body .= "<td width='50px'></td>";
+            $body .= "<td class='blank'></td>";
         } else {
             $body .= "</tr>\n";
         } 
@@ -226,7 +226,7 @@
             $body .= $pagingbar;
             $body .= "</td></tr>\n";
         }
-        $body .= "</table></div>";
+        $body .= "</table>";
     } else {
         if ($can_manage) {
             $body = "<?h1 $ML{'.nopics.title'} h1?><?p ";
