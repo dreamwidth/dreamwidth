@@ -175,7 +175,7 @@ sub redir {
     $r->content_type("text/html");
     $r->headers_out->{Location} = $url;
 
-    if (1||$LJ::DEBUG{'log_redirects'}) {
+    if ( $LJ::DEBUG{'log_redirects'} ) {
         $r->log_error("redirect to $url from: " . join(", ", caller(0)));
     }
     return $code || REDIRECT;
