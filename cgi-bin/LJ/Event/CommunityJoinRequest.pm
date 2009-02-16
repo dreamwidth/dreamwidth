@@ -71,7 +71,7 @@ sub as_string {
 }
 
 my @_ml_strings_en = (
-    'esn.community_join_requst.subject',    # '[[comm]] membership request by [[who]]',
+    'esn.community_join_requst.subject',    # '[[comm]] membership request by [[who]]!',
     'esn.manage_membership_reqs',           # '[[openlink]]Manage [[communityname]]\'s membership requests[[closelink]]',
     'esn.manage_community',                 # '[[openlink]]Manage your communities[[closelink]]',
     'esn.community_join_requst.email_text', # 'Hi [[maintainer]],
