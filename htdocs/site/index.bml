@@ -49,14 +49,14 @@ body<=
   <dd><ul>
    <li><a href='/manage/circle/'><?_ml .maplinks.manage-readlist _ml?></a></li>
    <li><a href='/manage/circle/editgroups.bml'><?_ml .maplinks.manage-groups _ml?></a></li>
-   <li><a href='/circle/filter.bml'><?_ml .maplinks.filter-readlist  _ml?></a></li>
+   <li><a href='/manage/circle/filter.bml'><?_ml .maplinks.filter-readlist  _ml?></a></li>
    <li><a href='/syn'><?_ml .maplinks.synfeeds _ml?></a></li>
   </ul></dd>
  </dt>
 
  <dt><?_code return BML::ml('.maplinks.manage-invite-friend-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/circle/invite.bml'><?_ml .maplinks.invite-friend _ml?></a></li>
+   <li><a href='/manage/circle/invite.bml'><?_ml .maplinks.invite-friend _ml?></a></li>
   </ul></dd>
  </dt>
 
