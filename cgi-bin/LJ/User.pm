@@ -7210,7 +7210,7 @@ sub make_journal
             }
 
             # style=mine passed in GET?
-            if ($remote && ( $geta->{'style'} eq 'mine' ||
+            if ( $remote && ( lc( $geta->{'style'} ) eq 'mine' ||
                              $remote->opt_stylealwaysmine ) ) {
 
                 # get remote props and decide what style remote uses
