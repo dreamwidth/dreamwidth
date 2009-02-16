@@ -59,13 +59,18 @@ body<=
         );
         return "Database error." if $dbh->err;
 
+        my @jobs = (
+            ['lj_userpics', 'ready'],
+            ['lj_bio', 'ready'],
+            ['lj_tags', 'ready'],
+        );
         # schedule userpic, bio, and tag imports
-        foreach my $item ( qw/ lj_userpics lj_bio lj_tags / ) {
+        foreach my $item (@jobs) {
             $dbh->do(
                 "INSERT INTO import_items (userid, item, status, created, import_data_id, priority) VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, UNIX_TIMESTAMP())",
-                undef, $u->id, $item, 'ready', $id
+                undef, $u->id, $item->[0], $item->[1], $id
             );
-            return "Database error." if $dbh->err;            
+            return "Database error." if $dbh->err;
         }
 
         return BML::redirect( "$LJ::SITEROOT/misc/import.bml" );
