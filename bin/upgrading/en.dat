@@ -1347,7 +1347,7 @@ Hi [[maintainer]],
 You can:
 .
 
-esn.community_join_requst.subject=[[comm]] membership request by [[who]]!
+esn.community_join_requst.subject=[[comm]] membership request by [[who]]
 
 esn.email.pm_without_body<<
 Hi [[user]],
