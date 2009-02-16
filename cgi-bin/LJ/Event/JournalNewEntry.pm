@@ -48,7 +48,7 @@ sub matches_filter {
     }
 
     # all posts by friends
-    return 1 if ! $subscr->journalid && LJ::is_friend($subscr->owner, $self->event_journal);
+    return 1 if ! $subscr->journalid && $subscr->owner->watches( $self->event_journal );
 
     # a post on a specific journal
     return LJ::u_equals($subscr->journal, $evtju);
@@ -217,11 +217,11 @@ sub _as_email {
                 'esn.view_entry'            => [ 1, $entry_url ],
                 'esn.read_recent_entries'   => [ $self->entry->journal->is_comm ? 2 : 0,
                                                     $journal_url ],
-                'esn.join_community'        => [ ($self->entry->journal->is_comm && !LJ::is_friend($self->entry->journal, $u)) ? 3 : 0,
+                'esn.join_community'        => [ ($self->entry->journal->is_comm && !$u->member_of( $self->entry->journal )) ? 3 : 0,
                                                     "$LJ::SITEROOT/community/join.bml?comm=$journal_user" ],
                 'esn.read_user_entries'     => [ ($self->entry->journal->is_comm) ? 0 : 4,
                                                     $journal_url ],
-                'esn.add_friend'            => [ LJ::is_friend($u, $self->entry->journal)? 0 : 5,
+                'esn.add_friend'            => [ $u->watches( $self->entry->journal ) ? 0 : 5,
                                                     "$LJ::SITEROOT/manage/circle/add.bml?user=$journal_user" ],
             });
 

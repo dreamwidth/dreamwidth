@@ -78,8 +78,8 @@ sub matches_filter {
     return 0 unless $entry->visible_to($subscr->owner);
 
     # journalid of 0 means 'all friends', so if the poster is
-    # a friend of the subscription owner, then they match
-    return 1 if ! $subscr->journalid && LJ::is_friend($subscr->owner, $self->poster);
+    # watched by the subscription owner, then they match
+    return 1 if ! $subscr->journalid && $subscr->owner->watches( $self->poster );
 
     # otherwise we have a journalid, see if it's the specific
     # journal that the subscription is watching

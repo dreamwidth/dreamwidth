@@ -52,9 +52,9 @@ You can:
   - View all of $poster\'s userpics:
     $LJ::SITEROOT/allpics.bml?user=$poster";
 
-    unless (LJ::is_friend($u, $self->userpic->owner)) {
+    unless ( $u->watches( $self->userpic->owner ) ) {
         $email .= "
-  - Add $poster as a friend:
+  - Add $poster to your reading list:
     $LJ::SITEROOT/manage/circle/add.bml?user=$poster";
     }
 
@@ -86,8 +86,8 @@ $poster has uploaded a new userpic:
 You can:<ul>";
 
     $email .= "<li><a href=\"$LJ::SITEROOT/allpics.bml?user=$postername\">View all of $postername\'s userpics</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$postername\">Add $postername as a friend</a></li>"
-        unless (LJ::is_friend($u, $self->userpic->owner));
+    $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$postername\">Add $postername to your reading list</a></li>"
+        unless $u->watches( $self->userpic->owner );
     $email .= "<li><a href=\"$journal_url\">View their journal</a></li>";
     $email .= "<li><a href=\"$profile\">View their profile</a></li></ul>";
 
