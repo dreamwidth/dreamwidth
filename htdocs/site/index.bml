@@ -101,7 +101,7 @@ body<=
    <li><a href='/legal/principles.bml'><?_ml .maplinks.principles _ml?></a></li>
    <li><a href='/legal/diversity.bml'><?_ml .maplinks.diversity _ml?></a></li>
    <li><a href='/legal/'><?_ml .maplinks.legal _ml?></a></li>
-   <li><a href='/stats.bml'><?_ml .maplinks.tos _ml?></a></li>
+   <li><a href='/stats.bml'><?_ml .maplinks.sitestats _ml?></a></li>
   </ul></dd>
 
  <dt><?_code return BML::ml('.maplinks.official-journals-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
