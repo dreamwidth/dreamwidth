@@ -367,6 +367,57 @@ sub get_current_account_status {
 }
 
 ################################################################################
+# DW::Pay::get_current_paid_userids
+#
+# ARGUMENTS: limit => #rows, typeid => paid account type, permanent => 0|1
+#
+#   limit       optional    how many userids to return (default: no limit)
+#   typeid      optional    1 to restrict to basic paid, 2 for premium paid
+#                           (default: both)
+#   permanent   optional    false to restrict to expiring accounts, true to
+#                           permanent (default: both)
+#
+# RETURN: arrayref of userids for currently paid accounts matching the above
+#         restrictions
+#
+sub get_current_paid_userids {
+    DW::Pay::clear_error();
+
+    my %opts = @_;
+
+    my $sql = 'SELECT userid FROM dw_paidstatus WHERE ';
+    my ( @where, @values );
+
+    if ( exists $opts{permanent} ) {
+        push @where, 'permanent = ?';
+        push @values, ($opts{permanent} ? 1 : 0);
+        push @where, 'expiretime > UNIX_TIMESTAMP(NOW())'
+            unless $opts{permanent};
+    } else {
+        push @where, '(permanent = 1 OR expiretime > UNIX_TIMESTAMP(NOW()))';
+    }
+
+    if ( exists $opts{typeid} ) {
+        push @where, 'typeid = ?';
+        push @values, $opts{typeid};
+    }
+
+    $sql .= join ' AND ', @where;
+
+    if ( exists $opts{limit} ) {
+        $sql .= ' LIMIT ?';
+        push @values, $opts{limit};
+    }
+
+    my $dbr = DW::Pay::get_db_reader()
+        or return error( ERR_TEMP, "Unable to get db reader." );
+    my $uids = $dbr->selectcol_arrayref( $sql, {}, @values );
+    return error( ERR_FATAL, "Database error: " . $dbr->errstr )
+        if $dbr->err;
+    return $uids;
+}
+
+################################################################################
 # DW::Pay::update_paid_status
 #
 # ARGUMENTS: uuserid, key => value pairs
@@ -388,7 +439,7 @@ sub get_current_account_status {
 #
 sub update_paid_status {
     DW::Pay::clear_error();
-    
+
     my $u = LJ::want_user( shift() )
         or return error( ERR_FATAL, "Invalid/not a user object." );
     my %cols = ( @_ )
@@ -462,7 +513,7 @@ sub load_payment {
 sub pp_log_notify {
     my $vars = shift
         or return error( ERR_FATAL, "Invalid input." );
-    
+
     my $dbh = DW::Pay::get_db_writer()
         or return error( ERR_TEMP, "Unable to get database handle." );
     $dbh->do( q{
@@ -484,7 +535,7 @@ sub pp_do_request {
 
     # standard arguments
     my ( $method, %args ) = @_;
- 
+
     $args{method} = $method;
     $args{version} = '3.2';
 
