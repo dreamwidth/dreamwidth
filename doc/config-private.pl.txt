@@ -11,6 +11,8 @@
 {
     package DW::PRIVATE;
 
+    $DOMAIN = "ljsite.com";
+
     #%PAYPAL = (
     #    user => ,
     #    password => ,

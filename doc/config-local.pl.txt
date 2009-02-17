@@ -23,16 +23,16 @@
     # home directory
     $HOME = $ENV{'LJHOME'};
 
+    # the base domain of your site.
+    # CHANGE THIS
+    $DOMAIN = $DW::PRIVATE::DOMAIN;
+
     # human readable name of this site as well as shortened versions
     # CHANGE THIS
     $SITENAME = "Some LiveJournal Site";
     $SITENAMESHORT = "YourSite";
     $SITENAMEABBREV = "YS";
     $SITECOMPANY = "YourSite's Company";
-
-    # the base domain of your site.
-    # CHANGE THIS
-    $DOMAIN = "ljsite.com";
 
     # MemCache information, if you have MemCache servers running
     #@MEMCACHE_SERVERS = ('hostname:port');
