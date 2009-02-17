@@ -35,24 +35,24 @@ title=>OpenID
 body<=
 
 <div style='background-color: #ffe680; float: right; width: 175px; font-size: 0.8em; border: 1px outset #333; padding: 2px;'>
-<strong style='text-decoration: underline'>BETA:</strong><br /> Our OpenID consumer support is very new.  That is, external users logging in with their identity here will find some rough edges while we work on smoothing it all out.<br /><br />Our server support is relatively complete, though.
+<strong style='text-decoration: underline'><?_ml .beta.heading _ml?></strong><br /> <?_ml .beta.content _ml?>
 </div>
 
-<?h1 What is OpenID? h1?>
-<?p <?sitename?> supports the <a href="http://openid.net/">OpenID</a> distributed identity system, letting you bring your <?sitename?> identity to other sites, and letting non-<?sitename?> users bring their identity here.  After all, not everybody uses the same websites, but you should still be able to play together. p?>
+<?h1 <?_ml .main.what_is_openid _ml?> h1?>
+<?p <?_code BML::ml(".main.what_is_openid.content", {'sitename' => $LJ::SITENAMESHORT}) _code?> p?>
 
-<?h1 Using your OpenID here. h1?>
+<?h1 <?_ml .main.using_your_openid_here _ml?> h1?>
 <?p
-If you're not a member of <?sitename?> but want to leave authenticated comments and let people add you as their friend, trust your comments, etc., then you can login either in the form below, or from any comment entry form.  Once you're logged in, you'll also be able to read friends-only posts that <?sitename?> users have indicated you're allowed to read.
+<?_code BML::ml(".main.using_your_openid_here.content", {'sitename' => $LJ::SITENAMESHORT}) _code?>
 p?>
 
    <div style='padding: 0.4em; margin-left: 25px; margin-right: 25px; width: auto; text-align: center; background: #ccc; border: #000'>
-<form method='post' action='login.bml' style='display:inline; width:auto'><nobr><b>Your OpenID URL:</b> <input class='sexy' id='openid_url' name="openid_url" size='30' />
-<input style='background: #ff6200; color: #fff;' type='submit' value='Login' /></nobr><br />For example: <tt>melody.someblog.com</tt> (if your host supports OpenID)</form></div>
+<form method='post' action='login.bml' style='display:inline; width:auto'><nobr><b><?_ml .login.openid_url _ml?></b> <input class='sexy' id='openid_url' name="openid_url" size='30' />
+<input style='background: #ff6200; color: #fff;' type='submit' value='<?_ml .login.submit _ml?>' /></nobr><br /><?_ml .login.example _ml?></form></div>
 
-<?h1 Using your OpenID on another site. h1?>
+<?h1 <?_ml .main.openid_other_sites _ml?> h1?>
 <?p
-If another site says it supports OpenID and you want to use your <?sitename?> identity there, just enter your journal URL.  (you don't need the http:// part either).  For example, just enter <b>melody.livejournal.com</b>, or whatever your address is.  After you do so, you'll be sent to LiveJournal briefly to ask if you want to trust that site to know who you are.  You can either trust them once, or forever.  You can change your <a href="/openid/options.bml">OpenID settings and trust</a> at any time.
+<?_code BML::ml(".main.openid_other_sites.content", {'sitename' => $LJ::SITENAMESHORT, 'domain' => $LJ::DOMAIN}) _code?>
 p?>
 
 

@@ -4,16 +4,16 @@
     use vars qw($title $body %GET %POST);
 
     my $err = sub {
-	$title = "Error";
+	$title = $ML{'.error.title'};
 	$body = shift;
 	return "";
     };
 
-    return $err->("OpenID server support is disabled")
+    return $err->( $ML{'.error.no_support'} )
         unless LJ::OpenID::server_enabled();
 
     my $u = LJ::get_remote() or
-	return $err->("You need to be <a href='/login.bml?ret=1'>logged in</a> to manage your OpenID options.");
+	return $err->( $ML{'.error.login'} );
 
     my $dbh = LJ::get_db_writer();
     my $trusted = {};
@@ -23,13 +23,13 @@
     };
 
     if (LJ::did_post()) {
-	return $err->("Possible form tampering detected.") unless LJ::check_form_auth();
+	return $err->( $ML{'.error.form_tampering'} ) unless LJ::check_form_auth();
 	my $dur;
 	$body = "";
 
 	$load_trusted->();
 	foreach my $endid (sort { $trusted->{$a} cmp $trusted->{$b} } keys %$trusted) {
-	    next unless $POST{"delete:$endid"};
+ 	    next unless $POST{"delete:$endid"};
 	    $dbh->do("DELETE FROM openid_trust WHERE userid=? AND endpoint_id=?", undef, $u->{userid}, $endid);
 	}
 
@@ -37,21 +37,21 @@
 
     $load_trusted->();
 
-    $title = "OpenID Options";
+    $title = $ML{'.title'};
     $body = "";
     $body .= "<form method='post'>";
     $body .= LJ::form_auth();
-    $body .= "<?h1 Sites you trust h1?><?p You've marked these sites as able to verify your identity.  You may remove them here. p?>";
+    $body .= "<?h1 " . $ML{'.main.trust.heading'} . " h1?><?p " . $ML{'.main.trust.content'} . " p?>";
     $body .= "<div style='margin: 5px 0px 5px 30px'>";
     if (%$trusted) {
 	foreach my $endid (sort { $trusted->{$a}->{url} cmp $trusted->{$b}->{url} } keys %$trusted) {
 	    my $url = $trusted->{$endid}->{url};
 	    my $dis_site = LJ::ehtml($url);
 	    $dis_site =~ s!\*\.!<i>&lt;anything&gt;</i>.!;
-	    $body .= LJ::html_submit("delete:$endid", "Delete") . " -- $dis_site<br />";
+	    $body .= LJ::html_submit( "delete:$endid", $ML{'.main.delete'} ) . " -- $dis_site<br />";
 	}
     } else {
-	$body .= "<i>(None)</i>";
+	$body .= "<i>" . $ML{'.main.none'} . "</i>";
     }
     $body .= "</div>";
 

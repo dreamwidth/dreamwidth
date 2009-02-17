@@ -1,0 +1,17 @@
+.title=OpenID Login
+
+.error.title=Error
+
+.error.no_support=OpenID consumer support is disabled
+
+.error.logout.heading=Already logged in
+
+.error.logout.content=Hello, [[user]]. Before logging in with <a href='http://openid.net/'>OpenID</a>, you must first <a href='/logout.bml'>log out</a>.
+
+.error.invalidparam=Invalid [[param]]
+
+.error.invalidchars=Invalid characters in identity URL.
+
+.error.notvivified=Couldn't vivify your account (but we verified that you're [[url]])
+
+.error.cantuseownsite=You can't use a [[sitename]] OpenID account on [[sitename]] &mdash; just <a href='/login.bml'>go login</a> with your actual [[sitename]] account.

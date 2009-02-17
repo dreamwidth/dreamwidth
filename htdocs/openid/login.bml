@@ -5,23 +5,23 @@
     use LJ::OpenID;
     LJ::set_active_crumb("openid_login");
 
-    $title = "OpenID Login";
+    $title = $ML{".title"};
     $head = "";
 
     my $err = sub {
-        $title = "Error";
+        $title = $ML{".error.title"};
         $body = shift;
         return;
     };
 
-    return $err->("OpenID consumer support is disabled")
+    return $err->($ML{'.error.no_support'})
         unless LJ::OpenID::consumer_enabled();
 
     my $return_to = "$LJ::SITEROOT/openid/login.bml";
 
     my $remote = LJ::get_remote();
     if ($remote) {
-        $body .= "<?h1 Already logged in h1?><?p Hello, " . LJ::ljuser($remote) . ". Before logging in with <a href='http://www.danga.com/openid/'>OpenID</a>, you must first <a href='/logout.bml'>log out</a>. p?>";
+        $body .= "<?h1 " . $ML{'.error.logout.heading'} . " h1?><?p " . BML::ml( '.error.logout.content', { user => LJ::ljuser($remote) } ) . " p?>";
         return;
     }
 
@@ -37,7 +37,7 @@
         }
 
         if ($GET{'openid.return_to'} && $GET{'openid.return_to'} !~ /^\Q$return_to\E/) {
-            return $err->("Invalid return_to");
+            return $err->(BML::ml( '.error.invalidparam', { item => "return_to" } ) );
         }
 
         my $vident = eval { $csr->verified_identity; };
@@ -45,10 +45,10 @@
         return $err->($csr->err) unless $vident;
 
         my $url = $vident->url;
-        return $err->("Invalid characters in identity URL.") if $url =~ /[\<\>\s]/;
+        return $err->( $ML{'.error.invalidchars'} ) if $url =~ /[\<\>\s]/;
 
         my $u = LJ::User::load_identity_user("O", $url, $vident);
-        return $err->("Couldn't vivify your account (but we verified that you're " . LJ::ehtml($url) . ")") unless $u;
+        return $err->( BML::ml( '.error.notvivified', { url => LJ::ehtml( $url ) } ) ) unless $u;
 
         my $sess_opts = {
             'exptype' => 'short',
@@ -70,7 +70,7 @@
     if (LJ::did_post()) {
         my $csr = LJ::OpenID::consumer();
         my $url = $POST{'openid_url'};
-        return $err->("Invalid characters in identity URL.") if $url =~ /[\<\>\s]/;
+        return $err->( $ML{'.error.invalidchars'} ) if $url =~ /[\<\>\s]/;
 
         my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
 
@@ -78,8 +78,7 @@
         return $err->($@) if $@;
 
         unless ($claimed_id) {
-            return $err->("You can't use a LiveJournal OpenID account on LiveJournal &mdash; ".
-                          "just <a href='/login.bml'>go login</a> with your actual LiveJournal account.") if $$tried_local_ref;
+            return $err->(BML::ml( '.error.cantuseownsite', { sitename => $LJ::SITENAMESHORT } ) ) if $$tried_local_ref;
             return $err->(LJ::bad_input($csr->err));
         }
 
