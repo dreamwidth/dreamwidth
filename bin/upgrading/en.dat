@@ -56,13 +56,17 @@ contentflag.viewingconcepts.byadmin=You are about to view content that has been 
 
 contentflag.viewingconcepts.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 14.
 
-contentflag.viewingconcepts.byjournal=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 14.
+contentflag.viewingconcepts.bycommunity=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 14.
+
+contentflag.viewingconcepts.byjournal=You are about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 14.
 
 contentflag.viewingexplicit.byadmin=You are about to view content that has been marked as possibly inappropriate for anyone under the age of 18.
 
 contentflag.viewingexplicit.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 18.
 
-contentflag.viewingexplicit.byjournal=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.bycommunity=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 18.
+
+contentflag.viewingexplicit.byjournal=You are about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
 controlstrip.link=Navigation Strip
 

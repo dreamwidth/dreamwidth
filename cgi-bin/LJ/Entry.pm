@@ -1023,7 +1023,7 @@ sub adult_content_marker {
     my $self = shift;
 
     return "admin" if $self->admin_content_flag eq "explicit_adult";
-    return "journal" if $self->adult_content_maintainer;
+    return "community" if $self->adult_content_maintainer;
     return "poster" if $self->adult_content;
     return $self->journal->adult_content_marker;
 }
