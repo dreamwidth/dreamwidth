@@ -110,7 +110,8 @@ LJ::register_hook( 'control_strip_stylesheet_link', sub {
 
     if ( $color ) {
         LJ::need_res("stc/controlstrip-$color.css");
-        LJ::need_res("stc/controlstrip-${color}-local.css");
+        LJ::need_res("stc/controlstrip-${color}-local.css")
+            if -e "$LJ::HOME/htdocs/stc/controlstrip-${color}-local.css";
     }
 });
 
