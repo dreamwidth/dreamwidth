@@ -47,16 +47,14 @@ sub generate_content {
 
     # get latest entries
     my $err;
-    my @entries = LJ::get_recent_items( {
-        'remote'           => $u,
-        'itemshow'         => $itemshow,
-        'skip'             => 0,
-        'showtypes'        => 'PYC',
-        'u'                => $wu,
-        'err'              => \$err,
-        'userid'           => $wu->{userid},
-        'clusterid'        => $wu->{clusterid},
-    } );
+    my @entries = $wu->recent_items(
+        remote           => $u,
+        itemshow         => $itemshow,
+        skip             => 0,
+        showtypes        => 'PYC',
+        err              => \$err,
+        clusterid        => $wu->{clusterid},
+    );
 
     return "Error fetching latest entries: $err" if $err;
 

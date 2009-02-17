@@ -33,15 +33,14 @@ sub handle {
         or die "nonexistant user: $user";
 
     my $err;
-    my ($item) = LJ::get_recent_items({
+    my ($item) = $u->recent_items(
         clusterid     => $u->{clusterid},
         clustersource => 'slave',
-        userid        => $u->id,
         remote        => $remote,
         itemshow      => 1,
         order         => 'logtime',
         err           => \$err,
-    });
+    );
 
     my $resp = "";
 

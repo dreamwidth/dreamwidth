@@ -2644,14 +2644,13 @@ sub recent_entries {
     die "unknown options" if %opts;
 
     my $err;
-    my @recent = LJ::get_recent_items({
+    my @recent = $u->recent_items(
         itemshow  => $count,
         err       => \$err,
-        userid    => $u->{userid},
         clusterid => $u->{clusterid},
         remote    => $remote,
         order     => $order,
-    });
+    );
     die "Error loading recent items: $err" if $err;
 
     my @objs;

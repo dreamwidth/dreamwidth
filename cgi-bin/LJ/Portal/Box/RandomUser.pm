@@ -25,13 +25,12 @@ sub generate_content {
         next unless $user;
 
         # get most recent post
-        my @items = LJ::get_recent_items({
-                'remote' => $u,
-                'userid' => $user->{'userid'},
-                'clusterid' => $user->{'clusterid'},
-                'skip' => 0,
-                'itemshow' => 1,
-            });
+        my @items = $user->recent_items(
+            remote => $u,
+            clusterid => $user->{clusterid},
+            skip => 0,
+            itemshow => 1,
+        );
 
         my $entryinfo = $items[0];
         next unless $entryinfo;

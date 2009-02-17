@@ -19,14 +19,13 @@ sub render_body {
 
     my $ret = "<h2>" . $journalu->name_html . "</h2>";
 
-    my @items = LJ::get_recent_items({
-        'userid'        => $journalu->id,
-        'clusterid'     => $journalu->clusterid,
-        'clustersource' => 'slave',
-        'order'         => 'logtime',
-        'itemshow'      => $num_to_show,
-        'dateformat'    => 'S2',
-    });
+    my @items = $journalu->recent_items(
+        clusterid     => $journalu->clusterid,
+        clustersource => 'slave',
+        order         => 'logtime',
+        itemshow      => $num_to_show,
+        dateformat    => 'S2',
+    );
 
     my $entry;
     foreach my $item (@items) {
