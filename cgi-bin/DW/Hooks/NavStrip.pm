@@ -41,6 +41,9 @@ LJ::register_hook( 'show_control_strip', sub {
     my $r = DW::Request->get;
     my $journal = LJ::get_active_journal();
 
+    # don't display if any of these are unavailable
+    return undef unless $r && $journal;
+    
     my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
     return undef unless @pageoptions;
 
