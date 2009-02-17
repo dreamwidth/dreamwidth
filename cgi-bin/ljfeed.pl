@@ -97,18 +97,17 @@ sub make_feed
             alldatepart => LJ::alldatepart_s2($entry->eventtime_mysql),
         };
     } else {
-        @items = LJ::get_recent_items({
-            'clusterid' => $u->{'clusterid'},
-            'clustersource' => 'slave',
-            'remote' => $remote,
-            'userid' => $u->{'userid'},
-            'itemshow' => 25,
-            'order' => "logtime",
-            'tagids' => $opts->{tagids},
-            'itemids' => \@itemids,
-            'friendsview' => 1,           # this returns rlogtimes
-            'dateformat' => "S2",         # S2 format time format is easier
-        });
+        @items = $u->recent_items(
+            clusterid => $u->{clusterid},
+            clustersource => 'slave',
+            remote => $remote,
+            itemshow => 25,
+            order => 'logtime',
+            tagids => $opts->{tagids},
+            itemids => \@itemids,
+            friendsview => 1,           # this returns rlogtimes
+            dateformat => 'S2',         # S2 format time format is easier
+        );
     }
 
     $opts->{'contenttype'} = 'text/xml; charset='.$opts->{'saycharset'};
@@ -237,7 +236,7 @@ sub make_feed
                 $event =~ s!<lj-poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
             
-            my %args = $r->args;
+            my %args = $r->query_string;
             LJ::EmbedModule->expand_entry($u, \$event, expand_full => 1)
                 if %args && $args{'unfold_embed'};
 
