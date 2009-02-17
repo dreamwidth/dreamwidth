@@ -2015,9 +2015,7 @@ sub Page
     # OpenID information if the caller asked us to include it here.
     $p->{'head_content'} .= $u->openid_tags if $opts && $opts->{'addopenid'};
 
-    # Ads and control strip
-    $p->{'head_content'} .= qq{<link rel='stylesheet' href='$LJ::STATPREFIX/ad_base.css' type='text/css' />\n};
-
+    # Control strip
     my $show_control_strip = LJ::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
         LJ::run_hook( 'control_strip_stylesheet_link' );
