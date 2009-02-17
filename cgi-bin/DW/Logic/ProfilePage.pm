@@ -253,9 +253,9 @@ sub action_links {
     # fix up image links and URLs and language
     foreach my $link ( @ret ) {
         $link->{image} = "$LJ::IMGPREFIX/profile_icons/$link->{image}"
-            if $link->{image} !~ /^$LJ::IMGPREFIX/;
+            if $link->{image} && $link->{image} !~ /^$LJ::IMGPREFIX/;
         $link->{url} = "$LJ::SITEROOT/$link->{url}"
-            if $link->{url} !~ /^$LJ::SITEROOT/;
+            if $link->{url} && $link->{url} !~ /^$LJ::SITEROOT/;
 
         if ( my $ml = delete $link->{title_ml} ) {
             $link->{title} = LJ::Lang::ml( $ml );
