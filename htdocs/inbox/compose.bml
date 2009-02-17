@@ -219,9 +219,13 @@ body<=
     }
 
     $body .= "</p>\n";
-    # autocomplete To field with friends usernames
-    my @flist = LJ::isu($remote) ?
-                map { $_->user } ($remote->people_friends) : ();
+    # autocomplete To field with trusted and watched people
+    my @flist = ();
+    if ( LJ::isu( $remote ) ) {
+        my %trusted_and_watched_userids = map { $_ => 1 } ( $remote->trusted_userids, $remote->watched_userids );
+        my $us = LJ::load_userids( keys %trusted_and_watched_userids );
+        @flist = map { $us->{$_}->user } grep { $us->{$_}->is_personal || $us->{$_}->is_identity } keys %trusted_and_watched_userids;
+    }
     $body .= LJ::JSUtil::autocomplete(field => 'msg_to', list => \@flist);
 
     # The drop-down userpic menu

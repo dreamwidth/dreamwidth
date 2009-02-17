@@ -728,25 +728,6 @@ sub trust_group_contains {
 *LJ::User::trust_group_contains = \&trust_group_contains;
 
 
-# TODO(mark): update the following subs
-
-# Returns a list of friends who are actual people, not communities or feeds
-#sub people_friends {
-#    return grep { $_->is_person || $_->is_identity } $_[0]->friends;
-#}
-
-# the count of friends that the user has added
-# -- eg, not initial friends auto-added for them
-#sub friends_added_count {
-#    my $u = shift;
-#
-#    my %initial = ( map { $_ => 1 } @LJ::INITIAL_FRIENDS, @LJ::INITIAL_OPTIONAL_FRIENDS, $u->user );
-#
-#    # return count of friends who were not initial
-#    return scalar grep { ! $initial{$_->user} } $u->friends;
-#}
-
-
 
 
 
