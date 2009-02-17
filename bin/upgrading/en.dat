@@ -2107,6 +2107,8 @@ poll.security.none_others=None
 poll.security.none_remote|notes=Shown only to the poster of the poll
 poll.security.none_remote=Just Me
 
+poll.security.trusted=Access List
+
 poll.submit=Submit Poll
 
 poll.viewanswers=View Answers

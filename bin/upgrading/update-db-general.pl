@@ -3788,10 +3788,23 @@ register_alter(sub {
                  "ALTER TABLE random_user_set ADD INDEX (posttime)");
     }
 
-     unless ( column_type( "acctcode", "timesent" ) ) {
-         do_alter( "acctcode",
-                   "ALTER TABLE acctcode ADD timesent INT UNSIGNED");
-     }
+    unless ( column_type( "acctcode", "timesent" ) ) {
+        do_alter( "acctcode",
+                  "ALTER TABLE acctcode ADD timesent INT UNSIGNED");
+    }
+
+    unless ( column_type( "poll", "whovote" ) =~ /trusted/ ) {
+        do_alter("poll",
+                 "ALTER TABLE poll MODIFY COLUMN whovote ENUM('all','trusted','ofentry') NOT NULL default 'all'" );
+        do_alter("poll",
+                 "ALTER TABLE poll MODIFY COLUMN whoview ENUM('all','trusted','ofentry','none') NOT NULL default 'all'" );
+    }
+    unless ( column_type( "poll2", "whovote" ) =~ /trusted/ ) {
+        do_alter("poll2",
+                 "ALTER TABLE poll2 MODIFY COLUMN whovote ENUM('all','trusted','ofentry') NOT NULL default 'all'" );
+        do_alter("poll2",
+                 "ALTER TABLE poll2 MODIFY COLUMN whoview ENUM('all','trusted','ofentry','none') NOT NULL default 'all'" );
+    }
 
 });
 

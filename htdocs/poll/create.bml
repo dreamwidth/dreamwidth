@@ -397,7 +397,7 @@
 
         $ret .= "<div style='margin-left: 40px; margin-bottom: 20px'>\n";
         $ret .= "<p>$ML{'.whoview2'}<br /><select name='whoview'>\n";
-        foreach my $sec ( qw(all friends none) ) {
+        foreach my $sec ( qw(all trusted none) ) {
             $ret .= "<option value='$sec'";
             $ret .= " selected='selected'" if $poll->{'whoview'} eq $sec;
             if ($sec eq "none") {
@@ -409,7 +409,7 @@
         $ret .= "</select></p>\n";
 
         $ret .= "<p>$ML{'.whovote'}<br /><select name='whovote'>\n";
-        foreach my $sec ( qw(all friends) ) {
+        foreach my $sec ( qw(all trusted) ) {
             $ret .= "<option value='$sec'";
             $ret .= " selected='selected'" if $poll->{'whovote'} eq $sec;
             $ret .= ">" . $ML{'poll.security.'.$sec} . "\n";

@@ -262,6 +262,10 @@ sub new_from_html {
                 $popts{'whovote'} = lc($opts->{'whovote'}) || "all";
                 $popts{'whoview'} = lc($opts->{'whoview'}) || "all";
 
+                # "friends" equals "trusted" for backwards compatibility
+                $popts{whovote} = "trusted" if $popts{whovote} eq "friends";
+                $popts{whoview} = "trusted" if $popts{whoview} eq "friends";
+
                 my $journal = LJ::load_userid($iteminfo->{posterid});
                 if (LJ::run_hook("poll_unique_prop_is_enabled", $journal)) {
                     $popts{props}->{unique} = $opts->{unique} ? 1 : 0;
@@ -272,12 +276,12 @@ sub new_from_html {
                 LJ::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
 
                 if ($popts{'whovote'} ne "all" &&
-                    $popts{'whovote'} ne "friends")
+                    $popts{'whovote'} ne "trusted")
                 {
                     return $err->('poll.error.whovote');
                 }
                 if ($popts{'whoview'} ne "all" &&
-                    $popts{'whoview'} ne "friends" &&
+                    $popts{'whoview'} ne "trusted" &&
                     $popts{'whoview'} ne "none")
                 {
                     return $err->('poll.error.whoview');
@@ -1188,7 +1192,7 @@ sub can_vote {
 
     my $is_friend = $remote && $self->journal->trusts_or_has_member( $remote );
 
-    return 0 if $self->whovote eq "friends" && !$is_friend;
+    return 0 if $self->whovote eq "trusted" && !$is_friend;
 
     if (LJ::is_banned($remote, $self->journalid) || LJ::is_banned($remote, $self->posterid)) {
         return 0;
@@ -1221,9 +1225,9 @@ sub can_view {
     # not the owner, can't view results
     return 0 if $self->whoview eq 'none';
 
-    # okay if everyone can view or if friends can view and remote is a friend
+    # okay if everyone can view or if trusted can view and remote is a friend
     my $is_friend = $remote && $self->journal->trusts_or_has_member( $remote );
-    return 1 if $self->whoview eq "all" || ($self->whoview eq "friends" && $is_friend);
+    return 1 if $self->whoview eq "all" || ($self->whoview eq "trusted" && $is_friend);
 
     return 0;
 }
