@@ -604,6 +604,7 @@ body<=
         @mutually_watched_userids = $u->mutually_watched_userids;
         @not_mutually_watched_userids = $profile->not_mutually_watched_userids;
         @not_mutually_watched_by_userids = $profile->not_mutually_watched_by_userids;
+        @watched_userids = $u->watched_userids; # need this one to get watched communities and feeds
     } else {
         @trusted_userids = $u->trusted_userids if $u->is_personal;
         @trusted_by_userids = $u->trusted_by_userids if $u->is_personal || $u->is_identity;
