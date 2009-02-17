@@ -999,7 +999,7 @@ sub schools {
                 state => $schools->{$sid}->{state},
                 country => $schools->{$sid}->{country} ne 'US' ? $countries{ $schools->{$sid}->{country} } : undef,
                 year_start => $schools->{$sid}->{year_start},
-                year_end => $schools->{$sid}->{year_start} != $schools->{$sid}->{year_end} ? $schools->{$sid}->{year_end} || LJ::Lang::ml{'.schools.presentyear'} : undef,
+                year_end => $schools->{$sid}->{year_start} != $schools->{$sid}->{year_end} ? $schools->{$sid}->{year_end} || LJ::Lang::ml('.schools.presentyear') : undef,
             };
         }
     }
