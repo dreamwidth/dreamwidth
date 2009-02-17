@@ -76,9 +76,6 @@ sub define_edge {
             if ref $opts->{$_} ne 'CODE';
     }
 
-    warn "Defined edge $name.\n"
-        if $LJ::IS_DEV_SERVER;
-
     $VALID_EDGES{$name} = $opts;
 }
 
