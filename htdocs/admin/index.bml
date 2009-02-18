@@ -58,7 +58,7 @@ body<=
     $ret .= "<div class='itemhead'><a href='invites/requests.bml'>Invite Code Requests</a></div><div class='itemdef'>Allows you to review requests for invite codes.</div>"
       if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'payments');
 
-    $ret .= "<div class='itemhead'><a href='invites/review.bml'>File Edit</a></div><div class='itemdef'>Allows you to view a user's invite history.</div>"
+    $ret .= "<div class='itemhead'><a href='invites/review.bml'>Review Invite History</a></div><div class='itemdef'>Allows you to view a user's invite history.</div>"
       if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'payments');
 
     $ret .= "<div class='itemhead'><a href='invitecodes.bml'>Invite Codes</a></div><div class='itemdef'>Shows the provenance of an invite code.</div>"
