@@ -102,6 +102,7 @@ body<=
    <li><a href='/legal/diversity.bml'><?_ml .maplinks.diversity _ml?></a></li>
    <li><a href='/legal/'><?_ml .maplinks.legal _ml?></a></li>
    <li><a href='/stats.bml'><?_ml .maplinks.sitestats _ml?></a></li>
+   <li><a href='staff.bml'><?_ml .maplinks.staff _ml?></a></li>
   </ul></dd>
 
  <dt><?_code return BML::ml('.maplinks.official-journals-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
