@@ -1,5 +1,4 @@
-<?page
-
+<?_c
 #
 # pagename.bml
 #
@@ -14,7 +13,7 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
-
+_c?><?page
 body<=
 <?_code
 {
