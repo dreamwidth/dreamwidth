@@ -162,7 +162,7 @@ sub sysban_check {
     return $check->($what, $value);
 }
 
-# takes a hashref to populate with 'value' => expiration pairs
+# takes a hashref to populate with 'value' => expiration  pairs
 # takes a 'what' to populate the hashref with sysbans of that type
 # returns undef on failure, hashref on success
 sub sysban_populate {
@@ -195,25 +195,68 @@ sub sysban_populate {
     return $where;
 }
 
+
 sub _db_sysban_populate {
     my ($where, $what) = @_;
-
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
     # build cache from db
-    my $sth = $dbh->prepare("SELECT value, UNIX_TIMESTAMP(banuntil) FROM sysban " .
+    my $sth = $dbh->prepare("SELECT value, UNIX_TIMESTAMP(banuntil) " .
+                            "FROM sysban " .
                             "WHERE status='active' AND what=? " .
                             "AND NOW() > bandate " .
                             "AND (NOW() < banuntil OR banuntil IS NULL)");
     $sth->execute($what);
     return undef if $sth->err;
-    while (my ($val, $exp) = $sth->fetchrow_array) {
+    while (my ($val, $exp ) = $sth->fetchrow_array) {
         $where->{$val} = $exp || 0;
     }
 
     return $where;
+
 }
+
+# <LJFUNC>
+# name: LJ::sysban_populate_full
+# des: populates a hashref with sysbans of given type
+# args: where, what
+# des-where: the hashref to populate with hash of hashes:
+#            value => { expire => expiration, note => note,
+#                      banid => banid } for each ban
+# des-what: the type of sysban to look up
+# returns: hashref on success, undef on failure
+# </LJFUNC>
+sub sysban_populate_full {
+    my ($where, $what) = @_;
+    return LJ::_db_sysban_populate_full($where, $what);
+}
+
+sub _db_sysban_populate_full {
+    my ($where, $what) = @_;
+    my $dbh = LJ::get_db_writer();
+    return undef unless $dbh;
+
+    # build cache from db
+    my $sth = $dbh->prepare("SELECT banid, value, 
+                                UNIX_TIMESTAMP(banuntil), note " .
+                            "FROM sysban " .
+                            "WHERE status='active' AND what=? " .
+                            "AND NOW() > bandate " .
+                            "AND (NOW() < banuntil OR banuntil IS NULL)");
+    $sth->execute($what);
+    return undef if $sth->err;
+    while (my ($banid, $val, $exp, $note) = $sth->fetchrow_array) {
+        $where->{$val}->{'banid'} = $banid || 0;
+        $where->{$val}->{'expire'} = $exp || 0;
+        $where->{$val}->{'note'} = $note || 0;
+    }
+
+    return $where;
+
+}
+
+
 
 # <LJFUNC>
 # name: LJ::sysban_note
@@ -277,10 +320,18 @@ EOM
 # des-bandays: length of sysban (0 for forever)
 # des-note: note to go with the ban (optional)
 # info: Takes args as a hash.
-# returns: 1 on success, 0 on failure
+# returns: BanID on success, error object on failure
 # </LJFUNC>
 sub sysban_create {
+
     my %opts = @_;
+
+    unless ( $opts{what} && $opts{value} && defined $opts{bandays} ) {
+        return bless {
+            message => "Wrong arguments passed; should be a hash\n",
+        }, 'ERROR';
+    }
+
 
     my $dbh = LJ::get_db_writer();
 
@@ -293,9 +344,16 @@ sub sysban_create {
     $opts{'value'} = LJ::trim($opts{'value'});
 
     # do insert
-    $dbh->do("INSERT INTO sysban (what, value, note, bandate, banuntil) VALUES (?, ?, ?, NOW(), $banuntil)",
-             undef, $opts{'what'}, $opts{'value'}, $opts{'note'});
-    return $dbh->errstr if $dbh->err;
+    $dbh->do( "INSERT INTO sysban (what, value, note, bandate, banuntil) 
+              VALUES (?, ?, ?, NOW(), $banuntil)",
+              undef, $opts{what}, $opts{value}, $opts{note} );
+
+    if ( $dbh->err ) {
+        return bless {
+            message => $dbh->errstr,
+        }, 'ERROR';
+    }    
+
     my $banid = $dbh->{'mysql_insertid'};
 
     my $exptime = $opts{bandays} ? time() + 86400*$opts{bandays} : 0;
@@ -415,5 +473,59 @@ sub sysban_validate {
     my $check = $validate->{$what} or return "Invalid sysban type";
     return $check->($value);
 }
+
+
+# <LJFUNC>
+# name: LJ::sysban_modify
+# des: modifies the expiry or note field of an entry
+# args: banid, bandays, expiry, expirenow, note (passed in as hash)
+# des-banid: the ban ID we're modifying
+# des-bandays: the new expiry 
+# des-expire: the old expiry
+# des-note: the new note (optional)
+# returns: ERROR object on success, error message on failure
+# </LJFUNC>
+sub sysban_modify {
+    my %opts = @_;
+    unless ( $opts{'banid'} && defined $opts{'expire'} ) {
+        return bless {
+            message => "Arguments must be passed as a hash; ban ID and 
+                        old expiry are required\n",
+        }, 'ERROR';
+    }
+
+    my $dbh = LJ::get_db_writer();
+
+    my $banid    = $dbh->quote($opts{'banid'});
+    my $expire   = $opts{'expire'};
+    my $bandays  = $opts{'bandays'};
+
+    my $banuntil = "NULL";
+    if ($bandays) {
+        if ($bandays eq "E") {
+            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . ")" 
+               unless ($expire==0);
+        } elsif ($bandays eq "X") {
+            $banuntil = "NOW()";
+        } else {
+            $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . 
+                       ") + INTERVAL " . $dbh->quote($bandays) . " DAY";
+        }
+    }
+
+    $dbh->do("UPDATE sysban SET banuntil=$banuntil,note=? 
+             WHERE banid=$banid",
+             undef, $opts{note} );
+            
+    if ( $dbh->err ) {
+        return bless {
+            message => $dbh->errstr,
+        }, 'ERROR';
+    }
+
+    return $dbh->{'mysql_insertid'};
+
+}
+
 
 1;
