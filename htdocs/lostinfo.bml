@@ -148,50 +148,18 @@ body<=
 
         my $body;
 
-        if ($LJ::SECURE_PASSWORD_RESET) {
-            # register an auth action for them to reset their password
-            my $aa = LJ::register_authaction($u->{'userid'}, "reset_password", $email);
-            $body = BML::ml('/lostinfo_do.bml.lostpasswordmail.reset', {
-                                lostinfolink => "$LJ::SITEROOT/lostinfo.bml",
-                                sitename => $LJ::SITENAME,
-                                username => $u->{user},
-                                emailadr => $u->email_raw,
-                                resetlink => "$LJ::SITEROOT/changepassword.bml?auth=$aa->{aaid}.$aa->{authcode}",
-                            });
-            $body .= "\n\n" .BML::ml('/lostinfo_do.bml.lostpasswordmail.part3',
-                             { 'remoteip' => BML::get_remote_host() . " (" . BML::get_remote_ip() . ")" });
-            $body .= "\n\n";
-
-        } else {
-            # old method of mailing the password
-            $body = BML::ml('/lostinfo_do.bml.lostpasswordmail.part1',
-                           { 'sitename' => $LJ::SITENAME,
-                             'username' => $u->user,
-                             'password' => $u->password,
-                             'emailadr' => $u->email }) . "\n\n";
-
-            my $remote = LJ::get_remote();
-            LJ::statushistory_add($u->{'userid'}, $remote ? $remote->{'userid'} : 0, 'lostinfo', $email);
-
-            if ($u->{'status'} ne "A") {
-                my $aa = LJ::register_authaction($u->{'userid'}, "validateemail", $u->email_raw);
-                $body .= $ML{'/lostinfo_do.bml.lostpasswordmail.part2'} . "\n\n";
-                $body .= "    $LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}\n\n";
-            }
-
-            $body .= BML::ml('/lostinfo_do.bml.lostpasswordmail.part3',
-                             { 'remoteip' => BML::get_remote_host() . " (" . BML::get_remote_ip() . ")" });
-            $body .= "\n\n";
-
-            # section 4 is optional, and blank in 'en'
-            my $mline = $ML{'/lostinfo_do.bml.lostpasswordmail.part4'};
-            $body .= $mline . "\n\n" if $mline;
-
-            $body .= BML::ml('/lostinfo_do.bml.lostpasswordmail.part5',
-                             { 'journalurl' => "$LJ::SITEROOT/users/$u->{'user'}/",
-                               'updateurl'  => "$LJ::SITEROOT/update.bml?$u->{'user'}",
-                               'rooturl'    => "$LJ::SITEROOT/" }) . "\n";
-        }
+        # register an auth action for them to reset their password
+        my $aa = LJ::register_authaction($u->{'userid'}, "reset_password", $email);
+        $body = BML::ml('/lostinfo_do.bml.lostpasswordmail.reset', {
+                            lostinfolink => "$LJ::SITEROOT/lostinfo.bml",
+                            sitename => $LJ::SITENAME,
+                            username => $u->{user},
+                            emailadr => $u->email_raw,
+                            resetlink => "$LJ::SITEROOT/changepassword.bml?auth=$aa->{aaid}.$aa->{authcode}",
+                        });
+        $body .= "\n\n" .BML::ml('/lostinfo_do.bml.lostpasswordmail.part3',
+                        { 'remoteip' => BML::get_remote_host() . " (" . BML::get_remote_ip() . ")" });
+        $body .= "\n\n";
 
         LJ::send_mail({
             'to' => $email,
