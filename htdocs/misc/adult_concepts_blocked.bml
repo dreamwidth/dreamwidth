@@ -45,7 +45,7 @@ body<=
     $ret .= qq {
         </table>
     };
-    $ret .= "<br /><center><a href='$LJ::SITEROOT/site/search.bml'>" . BML::ml('.explore', { siteabbrev => $LJ::SITENAMEABBREV }) . "</a></center>";
+    $ret .= "<br /><center><a href='$LJ::SITEROOT/'>" . BML::ml( '.notconfirmed.tooyoung', { sitename => $LJ::SITENAMESHORT } ) . "</a></center>";
 
     return $ret;
 }

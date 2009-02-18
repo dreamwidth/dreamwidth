@@ -2,10 +2,6 @@
 
 .btn.ageconfirm=Yes, I am at least [[age]] years old.
 
-.explore=Explore [[siteabbrev]]
-
-.explore.notconfirmed=No, return me to Explore [[siteabbrev]].
-
 .message.concepts.blocked.byadmin=You are about to view content that has been marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. You must be at least 14 years of age to view this.
 
 .message.concepts.blocked.byposter=You are about to view content that [[poster]] marked as <strong>possibly inappropriate for anyone under the age of 14</strong>. You must be at least 14 years of age to view this.
@@ -45,6 +41,10 @@
 .message.explicit.communityreason=The following reason has been provided by [[journal]] for this community being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>.
 
 .message.explicit.journalreason=The following reason has been provided by [[journal]] for this journal being marked inappropriate for anyone under the age of 18: <strong>[[reason]]</strong>.
+
+.notconfirmed=No, return me to [[sitename]].
+
+.notconfirmed.tooyoung=Return to [[sitename]]
 
 .setage=<a [[aopts]]>Edit your profile</a> to register your age.
 
