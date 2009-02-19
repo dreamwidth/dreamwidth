@@ -195,7 +195,7 @@ sub _watch_list_db {
 
     # try the SQL on the master database
     my $sth = $dbh->prepare( 'SELECT to_userid, fgcolor, bgcolor, groupmask, showbydefault ' .
-                             'FROM wt_edges WHERE from_userid = ?' );
+                             'FROM wt_edges WHERE from_userid = ? AND groupmask & 1<<61' );
     $sth->execute( $userid );
     confess $dbh->errstr if $dbh->err;
 

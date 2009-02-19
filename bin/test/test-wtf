@@ -162,6 +162,8 @@ push @tests, [ 'trust list reverse one member', sub
 ################################################################################
 push @tests, [ 'get full watch list', sub
 {
+    $u1->add_edge( $u1, trust => {} );
+
     my $hr = $u1->watch_list;
     return scalar( keys %$hr ) == 1 ? 1 : 0;
 } ];
