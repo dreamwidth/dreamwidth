@@ -277,11 +277,15 @@ sub subscriptions {
     my $allmatch = 0;
     my $zeromeans = $self->zero_journalid_subs_means;
 
-    my @wildcards_from;
-    if ($zeromeans eq 'friends') {
-        # find friendofs, add to @wildcards_from
+    my @wildcards_from; # used to hold the trusted and/or watched by lists for $self->u
+    if ( $zeromeans eq 'trusted' ) {
+        @wildcards_from = $self->u->trusted_by_userids;
+    } elsif ( $zeromeans eq 'watched' ) {
         @wildcards_from = $self->u->watched_by_userids;
-    } elsif ($zeromeans eq 'all') {
+    } elsif ( $zeromeans eq 'trusted_or_watched' ) {
+        my %unique_ids = map { $_ => 1 } ( $self->u->trusted_by_userids, $self->u->watched_by_userids );
+        @wildcards_from = keys %unique_ids;
+    } elsif ( $zeromeans eq 'all' ) {
         $allmatch = 1;
     }
 

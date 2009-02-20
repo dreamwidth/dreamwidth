@@ -1248,14 +1248,13 @@ esn.view_poll_status=[[openlink]]View the poll's status[[closelink]]
 
 esn.discuss_poll=[[openlink]]Discuss the poll[[closelink]]
 
-esn.add_friend_community=[[openlink]]Add community "[[community]]" to your friends page reading list[[closelink]]
+esn.add_friend_community=[[openlink]]Add community "[[community]]" to your reading page[[closelink]]
 
 esn.comm_join_approve.email_text<<
 Dear [[user]],
 
 Your request to join the "[[community]]" community has been approved.
-If you wish to add this community to your friends page reading list,
-click the link below.
+If you wish to add this community to your reading page, click the link below.
 
 [[options]]
 Please note that replies to this email are not sent to the community's maintainer(s). If you 
@@ -1851,7 +1850,7 @@ event.befriended.me=Someone adds me as a friend
 
 event.befriended.user=Someone adds [[user]] as a friend
 
-event.birthday.me=One of my friends has an upcoming birthday
+event.birthday.me=One of the people on my access or subscription lists has an upcoming birthday
 
 event.birthday.user=[[user]]'s birthday is coming up
 
@@ -1955,7 +1954,7 @@ event.journal_new_entry.community=Someone posts a new entry to [[user]]
 
 event.journal_new_entry.user=[[user]] posts a new entry.
 
-event.userpic_upload.me=One of my friends uploads a new userpic
+event.userpic_upload.me=One of the accounts I subscribe to uploads a new userpic
 
 event.userpic_upload.user=[[user]] uploads a new userpic
 

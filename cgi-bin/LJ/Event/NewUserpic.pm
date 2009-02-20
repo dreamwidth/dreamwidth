@@ -114,13 +114,13 @@ sub as_email_subject {
     return sprintf "%s uploaded a new userpic!", $self->event_journal->display_username;
 }
 
-sub zero_journalid_subs_means { "friends" }
+sub zero_journalid_subs_means { "watched" }
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
     my $journal = $subscr->journal;
 
-    # "One of my friends uploads a new userpic"
+    # "One of the accounts I subscribe to uploads a new userpic"
     # or "$ljuser uploads a new userpic";
     return $journal ?
         BML::ml('event.userpic_upload.user',

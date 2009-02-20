@@ -135,13 +135,13 @@ sub as_email_html {
     return _as_email($self, 1, $u);
 }
 
-sub zero_journalid_subs_means { "friends" }
+sub zero_journalid_subs_means { "trusted_or_watched" }
 
 sub subscription_as_html {
     my ($class, $subscr) = @_;
     my $journal = $subscr->journal;
 
-    return BML::ml('event.birthday.me') # "One of my friends has an upcoming birthday"
+    return BML::ml('event.birthday.me') # "One of the people on my access or subscription lists has an upcoming birthday"
         unless $journal;
 
     my $ljuser = $journal->ljuser_display;
