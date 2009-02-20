@@ -600,9 +600,8 @@ sub cookie_name {
 }
 
 sub interstitial_reason {
-    my $entry = LJ::Entry->new_from_url($_[0]);
-    my $journal = defined($entry) ? $entry->journal : LJ::User->new_from_url($_[0]);
-    my $poster = defined($entry) ? $entry->poster : $journal;
+    my ( $journal, $entry ) = @_;
+    my $poster = defined( $entry ) ? $entry->poster : $journal;
     my $ret = "";
     my $reason_exists = 0;
 
