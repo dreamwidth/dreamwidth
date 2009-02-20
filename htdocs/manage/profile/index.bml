@@ -261,7 +261,11 @@ body<=
         $ret .= "<a name='bio'></a><div class='section_head'>$ML{'.section.bio'}</div>";
         if (LJ::text_in($saved{'bio'})) {
             $ret .= "<table class='field_block'>";
-            $ret .= "<tr><td colspan='2'>$ML{'.fn.bio'}<br />\n";
+            if ($u->is_identity) {
+                $ret .= "<tr><td colspan='2'>$ML{'.fn.bio.openid'}<br />\n";
+            } else {
+                $ret .= "<tr><td colspan='2'>$ML{'.fn.bio'}<br />\n";
+            }
             $ret .= LJ::html_textarea({ 'name' => 'bio', 'rows' => '10', 'cols' => '50',
                                         'wrap' => 'soft', 'value' => $u->{'bio'}, 'style' => "width: 90%", }) . "</td></tr>\n";
             $ret .= "</table>\n";

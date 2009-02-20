@@ -89,6 +89,8 @@
 
 .fn.bio=Tell other users about yourself or your journal. If you want to display graphics, counters, or other HTML, you can enter it here.
 
+.fn.bio.openid=Tell other users about yourself. No HTML is allowed.
+
 .fn.birthday=Birthday
 
 .fn.city=City
