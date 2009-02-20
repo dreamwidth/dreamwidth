@@ -851,7 +851,7 @@ body<=
         if ( $member_of_body || $posting_access_to_body || $watched_body ) {
             my $links = [];
             if ( $remote && $remote->can_manage( $u ) ) {
-                push @$links, { url => "$LJ::SITEROOT/community/members.bml?authas=" . $u->user, text => $ML{'.section.edit'} };
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit.bml", text => $ML{'.section.edit'} };
             }
             push @$links, { url => $u->journal_base . "/read?show=C", text => $ML{'.comms.viewentries'} };
 
