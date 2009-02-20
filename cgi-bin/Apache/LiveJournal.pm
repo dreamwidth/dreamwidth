@@ -415,11 +415,9 @@ sub trans
         my $u = LJ::load_user($orig_user);
 
         # do redirects:
-        # -- communities to the right place
         # -- uppercase usernames
         # -- users with hyphens/underscores, except users from external domains (see table 'domains')
-        if ($u && $u->is_community && $opts->{'vhost'} =~ /^(?:users||tilde)$/ ||
-            $orig_user ne lc($orig_user) ||
+        if ( $orig_user ne lc($orig_user) ||
             $orig_user =~ /[_-]/ && $u && $u->journal_base !~ m!^http://$host!i && $opts->{'vhost'} !~ /^other:/) {
 
             my $newurl = $uri;
