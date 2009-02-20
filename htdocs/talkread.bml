@@ -760,7 +760,7 @@ my $old_url = 0;
          if ($bp) {
              $ret .= "(<a href='$bp'>$T{'replythis'}</a>)";
          } else {
-             $ret .= "(" . LJ::make_qr_link('top', '', $T{'postcomments'}, $posturl) . "</a>)";
+             $ret .= "(" . LJ::make_qr_link('top', '', $T{'postcomments'}, $posturl) . ")";
          }
      } else {
          $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
@@ -807,7 +807,11 @@ my $old_url = 0;
          }
 
          $ret .= "<hr /><p class='lesstop' align='center'><b>$readlink";
-         $ret .= "(" . LJ::make_qr_link('bottom', '', $T{'postcomments'}, $posturl) . "</a>)" if $remote;
+         if ( $remote ) {
+             $ret .= "(" . LJ::make_qr_link('bottom', '', $T{'postcomments'}, $posturl) . ")";
+         } else {
+             $ret .= "(<a href='$posturl'>$T{'postcomments'}</a>)";
+         }
          $ret .= "</b></p>";
          $ret .= "<div align='center'>" . LJ::make_qr_target('bottom') . "</div>" if $remote;
 
