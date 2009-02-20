@@ -3,7 +3,7 @@ package LJ::Identity;
 use strict;
 
 use fields (
-            'typeid',  # Id number of identity type
+            'typeid',  # character defining identity type
             'value',   # Identity string
             );
 
@@ -20,7 +20,7 @@ sub new {
 
 sub pretty_type {
     my LJ::Identity $self = shift;
-    return 'OpenID' if $self->{typeid} == 0;
+    return 'OpenID' if $self->{typeid} eq 'O';
     return 'Invalid identity type';
 }
 

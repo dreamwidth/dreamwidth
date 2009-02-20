@@ -1167,7 +1167,7 @@ sub url {
 
     if ($u->{'journaltype'} eq "I" && ! $u->{url}) {
         my $id = $u->identity;
-        if ($id && $id->typeid == 0) {
+        if ($id && $id->typeid eq 'O') {
             $url = $id->value;
             $u->set_prop("url", $url) if $url;
         }
@@ -1217,7 +1217,7 @@ sub identity {
 sub openid_identity {
     my $u = shift;
     my $ident = $u->identity;
-    return undef unless $ident && $ident->typeid == 0;
+    return undef unless $ident && $ident->typeid eq 'O';
     return $ident->value;
 }
 
@@ -1230,7 +1230,7 @@ sub display_name {
     return "[ERR:unknown_identity]" unless $id;
 
     my ($url, $name);
-    if ($id->typeid == 0) {
+    if ($id->typeid eq 'O') {
         require Net::OpenID::Consumer;
         $url = $id->value;
         $name = Net::OpenID::VerifiedIdentity::DisplayOfURL($url, $LJ::IS_DEV_SERVER);
@@ -1256,7 +1256,7 @@ sub ljuser_display {
 
     my ($url, $name);
 
-    if ($id->typeid == 0) {
+    if ($id->typeid eq 'O') {
         $url = $journal_url ne '' ? $journal_url : $id->value;
         $name = $u->display_name;
 
