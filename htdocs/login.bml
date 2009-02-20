@@ -137,12 +137,17 @@
                 $body .= "<?warningbar " . BML::ml('.loggedin.openidemail', { aopts1 => "href='$LJ::SITEROOT/changeemail.bml'", aopts2 => "href='$LJ::SITEROOT/register.bml'" }) . " warningbar?>";
             }
             $body .= "<br />\n";
-            $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
-            $body .= "<img src='/img/pencil.gif'></div>\n";
-            $body .= "<div style='margin-left: 36px;'>";
-            $body .= "<?h2 <a href='$LJ::SITEROOT/update.bml'>";
-            $body .= "$ML{'.loggedin.suggesthead1'}</a> h2?>\n";
-            $body .= "$ML{'.loggedin.suggest1'}<br />&nbsp;</div>\n";
+
+            unless ( $remote->is_identity ) {
+                $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
+                $body .= "<img src='/img/pencil.gif'></div>\n";
+                $body .= "<div style='margin-left: 36px;'>";
+                $body .= "<?h2 <a href='$LJ::SITEROOT/update.bml'>";
+                $body .= "$ML{'.loggedin.suggesthead1'}</a> h2?>\n";
+                $body .= "$ML{'.loggedin.suggest1'}<br />&nbsp;\n";
+                $body .= "</div>\n";
+            }
+
             $body .= "<div style='float: left; padding: 5px 10px 0px 10px'>";
             $body .= "<img src='/img/userinfo.gif'></div>\n";
             $body .= "<div style='margin-left: 36px'>";
