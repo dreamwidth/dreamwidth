@@ -102,7 +102,7 @@
 
      if ($key =~ /^log2:/) {
          my $item = {};
-         @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNNN", $val);
+         @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNQN", $val);
          $item->{'security'} = ($item->{'allowmask'} == 0 ? 'private' :
                                ($item->{'allowmask'} == 2**63 ? 'public' : 'usemask'));
          @$item{'jitemid', 'anum'} = ($item->{'ditemid'} >> 8, $item->{'ditemid'} % 256);
@@ -121,10 +121,10 @@
          push @$newval, unpack("N", substr($val, 1, 4)) 
              if $ver>=2;
          
-         my $n = (length($val) - $offset )/20;
+         my $n = (length($val) - $offset )/24;
          for (my $i=0; $i<$n; $i++) {
              my ($posterid, $eventtime, $rlogtime, $allowmask, $ditemid) =
-                 unpack("NNNNN", substr($val, $i*20+$offset, 20));
+                 unpack("NNNQN", substr($val, $i*24+$offset, 24));
             $eventtime = LJ::mysql_time($eventtime, 1);
             my $security = $allowmask == 0 ? 'private' :
                 ($allowmask == 2**63 ? 'public' : 'usemask');

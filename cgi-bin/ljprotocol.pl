@@ -1814,7 +1814,7 @@ sub editevent
         $sec = 0 if $security eq 'private';
         $sec = 2**63 if $security eq 'public';
 
-        my $row = pack("NNNNN", $oldevent->{'posterid'},
+        my $row = pack("NNNQN", $oldevent->{'posterid'},
                        LJ::mysqldate_to_time($eventtime, 1),
                        LJ::mysqldate_to_time($oldevent->{'logtime'}, 1),
                        $sec,
