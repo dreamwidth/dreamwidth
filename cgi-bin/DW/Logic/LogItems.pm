@@ -35,7 +35,7 @@ use Carp qw/ confess /;
 #           - dateformat:  either "S2" for S2 code, or anything else for S1
 #           - common_filter:  set true if this is the default view
 #           - friendsoffriends: load friends of friends, not just friends
-#           - showtypes: /[PICNY]/
+#           - showtypes: /[PICNYF]/
 #           - events_date: date to load events for ($u must have friendspage_per_day)
 # returns: Array of item hashrefs containing the same elements
 sub watch_items
@@ -86,6 +86,9 @@ sub watch_items
         my ( $friends, $friends_u, $memcache_only, $valid_types ) = @_;
         return unless $friends && $friends_u;
         $valid_types ||= uc $args{showtypes};
+
+        # make (F)eeds an alias for s(Y)ndicated
+        $valid_types =~ s/F/Y/g;
 
         # load u objects for all the given
         LJ::load_userids_multiple([ map { $_, \$friends_u->{$_} } keys %$friends ], [$remote],
