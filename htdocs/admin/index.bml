@@ -1,5 +1,4 @@
-<?page
-
+<?_c
 #
 # admin/index.bml
 #
@@ -8,6 +7,7 @@
 #
 # Authors:
 #      Denise Paolucci <denise@dreamwidth.org>
+#      Sophie Hamilton <dw-bugzilla@theblob.org>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -15,7 +15,7 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
-
+_c?><?page
 body<=
 <?_code
 {
@@ -32,81 +32,114 @@ body<=
 
     my $ret;
 
-    $ret .= "<div class='itemhead'><a href='capedit.bml'>Capability Edit</a></div><div class='itemdef'>For editing user capabilities.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'admin', 'capedit');
+    my @adminpages = (
+        [ 'capedit.bml',
+            'Capability Edit', 'For editing user capabilities.', [ 'admin:capedit', 'admin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            } ] ],
+        [ 'clusterstatus.bml',
+            'Cluster Status', 'Get information on cluster availability.', [ 'supporthelp' ] ],
+        [ 'console/',
+            'Console', 'For general input; usable by all users to an extent.' ],
+        [ 'schema/',
+            'Database Schema', 'Shows the database schema.', [ 'schemadoc' ] ],
+        [ 'dupkiller.bml',
+            'Duplicate Entry Killer', 'Checks for (and kills) duplicate entries.', [ 'supporthelp' ] ],
+        [ 'entryprops.bml',
+            'Entry Properties', 'View the properties set on a particular entry.', [ 'canview:entryprops', 'canview:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            } ] ],
+        [ 'faq/',
+            'FAQ Tools', 'Allows you to manipulate the FAQ.', [ 'faqadd', 'faqedit', 'faqcat' ] ],
+        [ 'fileedit/',
+            'File Edit', 'Allows you to edit various include files.', [ 'fileedit' ] ],
+        [ 'invites/requests.bml',
+            'Invite Code Requests', 'Allows you to review requests for invite codes.', [ 'payments' ] ],
+        [ 'invites/review.bml',
+            'Review Invite History', 'Allows you to view a user\'s invite history.', [ 'payments' ] ],
+        [ 'invitecodes.bml',
+            'Invite Codes', 'Shows the provenance of an invite code.', [ 'finduser:codetrace', 'finduser:*' ] ],
+        [ 'logout_user.bml',
+            'Logout User', 'Logs a user out of the site.', [ 'suspend' ] ],
+        [ 'memcache.bml',
+            'Memcache Overview', 'Shows current memcache conditions.', [ 'siteadmin:memcacheview', 'siteadmin:*' ] ],
+        [ 'memcache_view.bml',
+            'Memcache View', 'Shows current memcache details.', [ 'siteadmin:memcacheview', 'siteadmin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            } ] ],
+        [ 'mysql_status.bml',
+            'MySQL Status', 'Shows current MySQL status.', [ 'siteadmin:mysqlstatus', 'siteadmin:*' ] ],
+        [ 'navtag.bml',
+            'Navtag Edit', 'Allows you to tag pages for navigation.', [ 'siteadmin:navtag', 'siteadmin:*' ] ],
+        [ 'pay/',
+            'Payment Managements', 'Review payment details.', [ 'payments' ] ],
+        [ 'priv/',
+            'Privilege Management', 'View privs by priv or by user. Some priv lists are private.' ],
+        [ 'propedit.bml',
+            'User Property Edit', 'Allows you to view and edit userprops.', [ 'canview:userprops', 'canview:*' ] ],
+        [ 'recent_comments.bml',
+            'Recent Comments', 'Allows you to view a user\'s recent comments.', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
+        [ 'schools/',
+            'Schools Directory', 'View and manipulate schools data.', [ 'siteadmin:schools', 'siteadmin:*' ] ],
+        [ 'sitemessages/add.bml',
+            'Site Messages - Add', 'Add new site-wide messages.', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            } ] ],
+        [ 'sitemessages/manage.bml',
+            'Site Messages - Manage', 'View and manipulate site-wide messages.', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            } ] ],
+        [ 'spamreports.bml',
+            'Spam Reports', 'View and handle reports of spam.', [ 'siteadmin:spamreports', 'siteadmin:*' ] ],
+        [ 'statushistory.bml',
+            'Statushistory', 'Shows you a user\'s statushistory.', [ 'historyview', sub {
+                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            } ] ],
+        [ 'styleinfo.bml',
+            'Style Info', 'Shows you a user\'s style information.', [ sub {
+                return ( LJ::Support::has_any_support_priv($remote), "any support priv" );
+            }, sub {
+                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            } ] ],
+        [ 'userlog.bml',
+            'Userlog Viewer', 'Shows you a user\'s logged actions.', [ 'canview:userlog', 'canview:*' ] ],
+    );
 
-    $ret .= "<div class='itemhead'><a href='clusterstatus.bml'>Cluster Status</a></div><div class='itemdef'>Get information on cluster availability.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'supporthelp');
+    $ret .= "<ul>\n";
 
-    $ret .= "<div class='itemhead'><a href='console/'>Console</a></div><div class='itemdef'>For general input; usable by all users to an extent.</div>";
+    my $adminstar = LJ::check_priv( $remote, 'admin', '*' );
+    foreach my $page ( @adminpages ) {
+        my ( $path, $name, $description, $privs ) = @{$page};
+        my $showpage = 0;
+        my ( @needsprivs, @gotprivs );
+        my $haspriv = 0;
+        foreach my $priv ( @{$privs} ) {
+            my $result = ( ref( $priv ) eq "CODE" ?
+                             ( $priv->() )[0] :
+                             LJ::check_priv( $remote, split( /:/, $priv ) ) );
+            my $displayedpriv = ( ref( $priv ) eq "CODE" ? ( $priv->() )[1] : $priv );
+            push( @gotprivs,   $displayedpriv ) if $result;
+            push( @needsprivs, $displayedpriv ) if !$result;
+            $haspriv  = 1 if $result;
+            $showpage = 1 if $adminstar || $result;
+        }
+        if ( @{$privs} == 0 ) {
+            $showpage = 1;
+            $haspriv  = 1;
+        }
+        if ( $showpage ) {
+            my $needspriv = ( $haspriv ? "" : " needspriv" );
+            my $privreason = "";
+            if ( @gotprivs || @needsprivs ) {
+                my $oneof = ( @needsprivs > 1 ? " one of" : "" );
+                $privreason = ( $haspriv ? "(<b>"  . join( "</b>, <b>", @gotprivs   ) . "</b>)"
+                                         : "(needs$oneof: <b>" . join( "</b>, <b>", @needsprivs ) . "</b>)" );
+            }
+            $ret .= "<li class='item$needspriv'><div class='itemhead'><a href='$path'>$name</a> <span class='itemprivs'>$privreason</span></div><div class='itemdef'>$description</div></li>\n";
+        }
+    }
 
-    $ret .= "<div class='itemhead'><a href='schema/'>Database Schema</a></div><div class='itemdef'>Shows the database schema.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'schemadoc');
-
-    $ret .= "<div class='itemhead'><a href='dupkiller.bml'>Duplicate Entry Killer</a></div><div class='itemdef'>Checks for (and kills) duplicate entries.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'supporthelp');
-
-    $ret .= "<div class='itemhead'><a href='entryprops.bml'>Entry Properties</a></div><div class='itemdef'>View the properties set on a particular entry.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'canview', 'entryprops') || LJ::check_priv($remote, 'canview', '*');
-
-    $ret .= "<div class='itemhead'><a href='faq/'>FAQ Tools</a></div><div class='itemdef'>Allows you to manipulate the FAQ.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'faqadd') || LJ::check_priv($remote, 'faqedit') || LJ::check_priv($remote, 'faqcat');
-
-    $ret .= "<div class='itemhead'><a href='fileedit/'>File Edit</a></div><div class='itemdef'>Allows you to edit various include files.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'fileedit');
-
-    $ret .= "<div class='itemhead'><a href='invites/requests.bml'>Invite Code Requests</a></div><div class='itemdef'>Allows you to review requests for invite codes.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'payments');
-
-    $ret .= "<div class='itemhead'><a href='invites/review.bml'>Review Invite History</a></div><div class='itemdef'>Allows you to view a user's invite history.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'payments');
-
-    $ret .= "<div class='itemhead'><a href='invitecodes.bml'>Invite Codes</a></div><div class='itemdef'>Shows the provenance of an invite code.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'finduser', 'codetrace') || LJ::check_priv($remote, 'finduser', '*');
-
-    $ret .= "<div class='itemhead'><a href='logout_user.bml'>Logout User</a></div><div class='itemdef'>Logs a user out of the site.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'suspend');
-
-    $ret .= "<div class='itemhead'><a href='memcache.bml'>Memcache Overview</a></div><div class='itemdef'>Shows current memcache conditions</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'memcacheview') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='memcache_view.bml'>Memcache View</a></div><div class='itemdef'>Shows current memcache details</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'memcacheview') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='mysql_status.bml'>MySQL  Status</a></div><div class='itemdef'>Shows current MySQL status</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'mysqlstatus') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='navtag.bml'>Navtag Edit</a></div><div class='itemdef'>Allows you to tag pages for navigation.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'navtag') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='pay/'>Payment Managements</a></div><div class='itemdef'>Review payment details.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'payments');
-
-    $ret .= "<div class='itemhead'><a href='priv/'>Privilege Management</a></div><div class='itemdef'>View privs by priv or by user. Some priv lists are private.</div>";
-
-    $ret .= "<div class='itemhead'><a href='propedit.bml'>User property edit</a></div><div class='itemdef'>Allows you to view & edit userprops.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'propedit') || LJ::check_priv($remote, 'siteadmin', '*') || LJ::check_priv($remote, 'canview', 'userprops') || LJ::check_priv($remote, 'canview', '*');
-
-    $ret .= "<div class='itemhead'><a href='recent_comments.bml'>Recent Comments</a></div><div class='itemdef'>Allows you to view a user's recent comments.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'commentview') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='schools/'>Schools Directory</a></div><div class='itemdef'>View and manipulate schools data.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'schools') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='sitemessages/'>Site Messages</a></div><div class='itemdef'>View and manipulate site-wide messages.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'sitemessages') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='spamreports.bml'>Spamreports</a></div><div class='itemdef'>View and handle reports of spam.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'spamreports') || LJ::check_priv($remote, 'siteadmin', '*');
-
-    $ret .= "<div class='itemhead'><a href='statushistory.bml'>Statushistory</a></div><div class='itemdef'>Shows you a user's statushistory.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'historyview');
-
-    $ret .= "<div class='itemhead'><a href='styleinfo.bml'>Style Info</a></div><div class='itemdef'>Shows you a user's style information.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::Support::has_any_support_priv($remote);
-
-    $ret .= "<div class='itemhead'><a href='userlog.bml'>Userlog viewer</a></div><div class='itemdef'>Shows you a user's logged actions.</div>"
-      if LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'siteadmin', 'propedit') || LJ::check_priv($remote, 'canview', 'userlog') || LJ::check_priv($remote, 'canview', '*');
+    $ret .= "</ul>";
 
     return $ret;
 }
@@ -116,8 +149,11 @@ title=><?_code return $title; _code?>
 windowtitle=><?_code return $windowtitle; _code?>
 head<=
 <style type="text/css">
+.item {margin-bottom: 15px;}
+.item.needspriv div, .item.needspriv a {color: #A0A0A0;}
 .itemhead {font-size: bigger; font-weight: bold;}
-.itemdef {margin-left: 2em; margin-bottom: 15px;}
+.itemdef {margin-left: 2em;}
+.itemprivs {font-size: smaller; font-weight: normal; color: #707070;}
 </style>
 <=head
 page?>
