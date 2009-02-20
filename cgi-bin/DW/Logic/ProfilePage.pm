@@ -112,7 +112,7 @@ sub action_links {
         my $remote_trusts = $remote && $remote->trusts( $u ) ? 1 : 0;
         $link->{text_ml} = $remote_trusts ? '.optionlinks.modifytrust' : '.optionlinks.addtrust';
         if ( $remote && ( $remote_trusts || $u->is_visible ) ) {
-            $link->{url} = "manage/circle/add.bml?user=$user";
+            $link->{url} = "manage/circle/add.bml?user=$user&action=access";
             $link->{title_ml} = $remote_trusts ? '.optionlinks.modifytrust.title.other' : '.optionlinks.addtrust.title.other';
             $link->{class} = 'profile_addtrust';
             $link->{image} = 'add-friend.gif';
@@ -133,7 +133,7 @@ sub action_links {
         my $remote_watches = $remote && $remote->watches( $u ) ? 1 : 0;
         $link->{text_ml} = $remote_watches ? '.optionlinks.modifysub' : '.optionlinks.addsub';
         if ( $remote && ( $remote_watches || $u->is_visible ) ) {
-            $link->{url} = "manage/circle/add.bml?user=$user";
+            $link->{url} = "manage/circle/add.bml?user=$user&action=subscribe";
 
             if ( $remote->equals( $u ) ) {
                 $link->{title_ml} = $remote_watches ? '.optionlinks.modifysub.title.self' : '.optionlinks.addsub.title.self';

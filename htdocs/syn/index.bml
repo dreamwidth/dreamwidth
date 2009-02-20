@@ -124,7 +124,7 @@ body<=
                                                       "WHERE s.synurl=? AND s.userid=u.userid",
                                                       undef, $syn_url);
                     if ($adu) {
-                        return BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=$adu->{user}");
+                        return BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=$adu->{user}&action=subscribe");
                     } else {
                         $res = $ua->get($syn_url);
                         $content = $res && $res->is_success ? $res->content : "";
@@ -168,7 +168,7 @@ body<=
 
         # at this point, we have a new account, or an old account, but we have an account, so
         # let's redirect them to the add page
-        return BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=$su->{user}");
+        return BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=$su->{user}&action=subscribe");
     }
 
     # get most popular feeds from memcache

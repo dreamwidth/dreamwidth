@@ -222,7 +222,7 @@ sub _as_email {
                 'esn.read_user_entries'     => [ ($self->entry->journal->is_comm) ? 0 : 4,
                                                     $journal_url ],
                 'esn.add_friend'            => [ $u->watches( $self->entry->journal ) ? 0 : 5,
-                                                    "$LJ::SITEROOT/manage/circle/add.bml?user=$journal_user" ],
+                                                    "$LJ::SITEROOT/manage/circle/add.bml?user=$journal_user&action=subscribe" ],
             });
 
     return $email;

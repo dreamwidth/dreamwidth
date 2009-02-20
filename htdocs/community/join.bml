@@ -112,7 +112,7 @@ body<=
 
         # add community as a friend if selected
         if ($POST{addfriend}) {
-            BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=$cu->{user}");
+            BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=$cu->{user}&action=subscribe");
         }
 
         # success message -- only shows if user didn't add the community as a friend

@@ -2928,13 +2928,13 @@ sub control_strip
         $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         if ($journal->is_syndicated || $journal->is_news) {
-            $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
+            $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
             $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
         }
         if ($journal->is_community) {
             $links{'join_community'}   = "<a href='$LJ::SITEROOT/community/join.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.joincomm'}</a>";
             $links{'leave_community'}  = "<a href='$LJ::SITEROOT/community/leave.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.leavecomm'}</a>";
-            $links{'watch_community'}  = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.watchcomm'}</a>";
+            $links{'watch_community'}  = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.watchcomm'}</a>";
             $links{'unwatch_community'}   = "<a href='$LJ::SITEROOT/community/leave.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.removecomm'}</a>";
             $links{'post_to_community'}   = "<a href='$LJ::SITEROOT/update.bml?usejournal=$journal->{user}'>$BML::ML{'web.controlstrip.links.postcomm'}</a>";
             $links{'edit_community_profile'} = "<a href='$LJ::SITEROOT/manage/profile/?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommprofile'}</a>";

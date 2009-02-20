@@ -13,6 +13,9 @@
 
     my $head     = \$_[1]->{'head'};
 
+    my $action = $GET{action};
+    $action = '' unless $action eq 'access' || $action eq 'subscribe';
+
     my $remote = LJ::get_remote();
     my $user = $POST{'user'} || $GET{'user'};
     my $u = LJ::load_user($user);
@@ -161,7 +164,7 @@
         $body .= LJ::html_check({
             name => "add_trust",
             id => "add_trust",
-            selected => $trusted ? 1 : 0,
+            selected => $trusted || $action eq 'access' ? 1 : 0,
             label => $ML{'.add.trust'},
         }) . "<br />";
     }
@@ -169,7 +172,7 @@
     $body .= LJ::html_check({
         name => "add_watch",
         id => "add_watch",
-        selected => $watched ? 1 : 0,
+        selected => $watched || $action eq 'subscribe' ? 1 : 0,
         label => $ML{'.add.watch'},
     });
 

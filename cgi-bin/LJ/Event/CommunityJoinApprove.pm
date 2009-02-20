@@ -63,7 +63,7 @@ sub _as_email {
     $vars->{'options'} =
         $self->format_options($is_html, $lang, $vars,
             {
-                'esn.add_friend_community'  => [ 1, "$LJ::SITEROOT/manage/circle/add.bml?user=" . $cu->{user} ],
+                'esn.add_friend_community'  => [ 1, "$LJ::SITEROOT/manage/circle/add.bml?user=" . $cu->{user} . "&action=subscribe" ],
             });
 
     return LJ::Lang::get_text($lang, 'esn.comm_join_approve.email_text', undef, $vars);

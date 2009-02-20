@@ -3867,7 +3867,7 @@ sub render_promo_of_community {
     my $blurb = $comm->prop('comm_promo_blurb') || '';
 
     my $join_link = "$LJ::SITEROOT/community/join.bml?comm=$comm->{user}";
-    my $watch_link = "$LJ::SITEROOT/manage/circle/add.bml?user=$comm->{user}";
+    my $watch_link = "$LJ::SITEROOT/manage/circle/add.bml?user=$comm->{user}&action=subscribe";
     my $read_link = $comm->journal_base;
 
     LJ::need_res("stc/lj_base.css");

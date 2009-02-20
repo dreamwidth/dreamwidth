@@ -55,7 +55,7 @@ You can:
     unless ( $u->watches( $self->userpic->owner ) ) {
         $email .= "
   - Add $poster to your reading list:
-    $LJ::SITEROOT/manage/circle/add.bml?user=$poster";
+    $LJ::SITEROOT/manage/circle/add.bml?user=$poster&action=subscribe";
     }
 
 $email .= "
@@ -86,7 +86,7 @@ $poster has uploaded a new userpic:
 You can:<ul>";
 
     $email .= "<li><a href=\"$LJ::SITEROOT/allpics.bml?user=$postername\">View all of $postername\'s userpics</a></li>";
-    $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$postername\">Add $postername to your reading list</a></li>"
+    $email .= "<li><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$postername&action=subscribe\">Add $postername to your reading list</a></li>"
         unless $u->watches( $self->userpic->owner );
     $email .= "<li><a href=\"$journal_url\">View their journal</a></li>";
     $email .= "<li><a href=\"$profile\">View their profile</a></li></ul>";
