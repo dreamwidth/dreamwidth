@@ -364,16 +364,6 @@ body<=
     my $qotd = 0;
     $qotd = $entry->prop("qotdid") if $entry;
 
-    my $ad = LJ::get_ads({
-        location        => 'bml.talkpost.ebox',
-        journalu        => $u, 
-        interests_extra => $qotd ? { qotd => $qotd } : {}
-    });
-    if ($ad) {
-        $ret .= $ad;
-        $ret .= "<hr width='100%' size='2' align='center' />";
-    }
-
     my $jarg = "journal=$u->{'user'}&amp;";
     my $readurl = LJ::Talk::talkargs($talkurl, $stylemine, $formatlight);
 
@@ -407,11 +397,6 @@ body<=
                                  'stylemine' => $GET{'style'} eq "mine",
                                  'form'      => \%FORM,
                                  'do_captcha' => LJ::Talk::Post::require_captcha_test($remote, $u, $FORM{body}, $ditemid)});
-    my $ad = LJ::get_ads({ location => 'bml.talk.bottom', journalu => $u, });
-    if ($ad) {
-        $ret .= "<hr width='100%' size='2' align='center' />";
-        $ret .= qq[<div style='width:728px; margin: auto;'>$ad</div>];
-    }
 
     BML::noparse();
     return $ret;

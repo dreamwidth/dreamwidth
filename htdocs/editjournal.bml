@@ -52,7 +52,6 @@ body<=
         my %opts = @_;
 
         my %res = %$ref;
-        my $show_ad = $opts{show_ad} ? 1 : 0;
 
         $ret .= "<table style='width: 100%;'><tr><td>";
         my %props = ();
@@ -102,11 +101,7 @@ body<=
 
             $ret .= "</td></tr></table>\n";
         }
-        $ret .= "</td>";
-        my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
-        if ($ad && $show_ad) {
-            $ret .= "<td valign='top'>$ad</td>";
-        }
+        $ret .= "</td>";        
         $ret .= "</tr></table>";
 
         return $ret;
@@ -289,11 +284,6 @@ body<=
                 $result .= "</ul></div>";
                 $result .= "</td>";
 
-                my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
-                if ($ad) {
-                    $result .= "<td valign='top' style='width: 300px;'>$ad</td>";
-                }
-
                 $result .= "</tr></table>";
 
                 return $result;
@@ -380,10 +370,6 @@ body<=
             $ret .= LJ::entry_form($entry, \$$head, \$onload);
             $ret .= "</form></div>";
             $ret .= "</td>";
-            my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
-            if ($ad) {
-                $ret .= "<td valign='top' style='width: 300px;'>$ad</td>";
-            }
 
             $ret .= "</tr></table>";
 
@@ -557,10 +543,6 @@ body<=
             $ret .= $entry_chooser->(\%res);
         }
 
-        my $ad = LJ::get_ads({ location => 'bml.editjournal', ljadwrapper => 1 });
-        if ($ad) {
-            $ret .= "</td><td valign='top'>$ad";
-        }
 
         $ret .= "</td></tr></table>";
 

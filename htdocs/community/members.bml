@@ -8,14 +8,7 @@ body<=
 
     LJ::set_active_crumb('commmembers');
 
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_func_2col = LJ::get_ads({ location => 'bml.community.members/error', ljadwrapper => 1 });
-        return $str . $ad_func_2col;
-    };
-
-    return $print_with_ad->(LJ::server_down_html()) if $LJ::SERVER_DOWN;
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
     my $ret;
 
@@ -23,7 +16,7 @@ body<=
     my $remote = LJ::get_remote();
     unless ($remote) {
         $ret .= "<?needlogin?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     # old GET arg
@@ -42,7 +35,7 @@ body<=
     my $c = LJ::load_user($cname);
     unless ($c) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nocomm'} p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     # make sure it is a comm
@@ -50,7 +43,7 @@ body<=
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
         $ret .= BML::ml('.error.notcomm', { 'user' => LJ::ljuser($c) });
         $ret .= " p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     my $cid = $c->{'userid'};
@@ -60,7 +53,7 @@ body<=
         $ret .= BML::ml('.error.noaccess',
                         { 'comm' => LJ::ljuser($cname, { 'type' => 'C' }) });
         $ret .= " p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     $ret .= LJ::maintainer_linkbar($c, "members");
@@ -72,7 +65,7 @@ body<=
     # saving a form submission
     if ($POST{'action:update'}) {
         # validate form auth
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>")
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
 
         my @userids = split(',', $POST{'ids'});
@@ -157,7 +150,7 @@ body<=
             # insert authactions row
             push @to_add, [ $target, \@attr ];
         }
-        return $print_with_ad->(LJ::bad_input(@add_errors)) if @add_errors;
+        return LJ::bad_input(@add_errors) if @add_errors;
 
         # now do the additions if any were needed
         my @fail;
@@ -184,7 +177,7 @@ body<=
                     push @bad, BML::ml('.error.unknown', { user => LJ::ljuser($_->[0]) });
                 }
             }
-            return $print_with_ad->(LJ::bad_input(@bad));
+            return LJ::bad_input(@bad);
         }
 
         # initialize lists of users to update and delete
@@ -239,7 +232,7 @@ body<=
                      ", must have at least one maintainer. " .
                      "Please <a href='" . BML::get_uri() . "?authas=$cname'>" .
                      "go back</a> and add a maintainer. p?>";
-             return $print_with_ad->($ret);
+             return $ret;
         }
 
         # delete members
@@ -424,17 +417,6 @@ $LJ::SITEROOT
             push @msgs, LJ::ljuser($users{$id}) . ":<ul>$str</ul>" if $str;
         }
 
-        my $ad_box = LJ::get_ads({ 
-            location    => 'bml.community.members/main', 
-            ljadwrapper => 1,
-            below_ad    => LJ::CProd->full_box_for($remote, width => 300),
-        });
-        $ret .= $ad_box . "<?h1 $ML{'.success.header'} h1?>";
-        if (@msgs) {
-            $ret .= "<?p $ML{'.success.message2'} p?>\n<ul>";
-            $ret .= "<li>$_</li>\n" foreach @msgs;
-            $ret .= "</ul>";
-        }
         if (@invited) {
             $ret .= "<?p ";
             $ret .= BML::ml('.success.invited2',
@@ -598,7 +580,7 @@ $LJ::SITEROOT
 
     $ret .= $navbar;
 
-    return $print_with_ad->($ret);
+    return $ret;
 
 }
 _code?>

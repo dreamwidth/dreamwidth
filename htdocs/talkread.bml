@@ -392,17 +392,6 @@ my $old_url = 0;
  my $qotd = 0;
  $qotd = $entry->prop("qotdid") if $entry;
 
- my $ad = LJ::get_ads ({
-    location        => 'bml.talkread.ebox',
-    nowrap          => 1,
-    journalu        => $u, 
-    interests_extra => $qotd ? { qotd => $qotd } : {}
- });
- 
- if ($ad) {
-     $ret .= $ad;
-     $ret .= "<hr width='100%' size='2' align='center' />";
- }
 
  my $view_arg = $GET{'view'} || "";
  my $flat_mode = ($view_arg =~ /\bflat\b/);
@@ -834,11 +823,6 @@ my $old_url = 0;
              $ret .= "</p>";
          }
          
-         my $ad = LJ::get_ads({ location => 'bml.talk.bottom', journalu => $u, });
-         if ($ad) {
-            $ret .= "<hr width='100%' size='2' align='center' />" if $showmultiform && $multiform_selects;
-            $ret .= qq[<div style='width: 768px; margin: auto;'>$ad</div>];
-         }
      }
 
      $ret .= "</form>";

@@ -21,8 +21,6 @@
         $head .= LJ::robot_meta_tags();
     }
 
-    my $ad = LJ::get_ads({ location => 'bml.allpics', ljadwrapper => 1, journalu => $u });
-    $body .= "<div class='ad-sidebar'>$ad</div>" if $ad;
 
     # no need for viewsome, due to the fact that none of this is private anyway.  just
     # allow anybody with any version of viewall to see userpics for non-V statusvis users

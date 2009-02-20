@@ -33,23 +33,17 @@ body<=
     my $ret; 
     my %errors;
 
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_full_width = LJ::get_ads({ location => 'bml.community.settings/error', ljadwrapper => 1 });
-        return $ad_full_width . $str;
-    };
 
     my $remote = LJ::get_remote();
 
     unless ($remote) {
         $ret .= "<?needlogin?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     unless ($remote->{'journaltype'} eq 'P') {
         $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.maintainertype'} p?>";
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
     my $mode = "modify";
@@ -61,7 +55,7 @@ body<=
 
     if (LJ::did_post())
     {
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>")
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
 
         my $sth;
@@ -167,11 +161,6 @@ body<=
             $cu->invalidate_directory_record;
 
             $ret .= LJ::maintainer_linkbar($cu, "settings");
-            $ret .= LJ::get_ads({ 
-                location    => 'bml.community.settings/main', 
-                ljadwrapper => 1,
-                below_ad    => LJ::CProd->full_box_for($remote, width => 300),
-            });
             $ret .= "<?h1 $ML{'.success'} h1?>";
             if ($mode eq 'create') {
                 $ret .= "<?p $ML{'.label.commcreated'} p?>";
@@ -216,7 +205,7 @@ body<=
 
         unless ($c->{'journaltype'} eq 'C') {
             $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.notcomm'} p?>";
-            return $print_with_ad->($ret);
+            return $ret;
         } 
         my $dbr = LJ::get_db_reader();
         ($info{'membership'},$info{'postlevel'}) = 
@@ -340,7 +329,7 @@ body<=
         ($mode eq 'create' ? "$ML{'.button.createcommunity'}" : "$ML{'.button.changecommunity2'}") .
         "' /> standout?></div></form>";
 
-    return $print_with_ad->($ret);
+    return $ret;
 }
 _code?>
 
