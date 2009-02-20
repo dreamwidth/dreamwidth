@@ -7923,7 +7923,7 @@ sub user_search_display {
         if (my $picid = $get_picid->($u)) {
             $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/$u->{userid}' alt='$u->{user} userpic' style='border: 1px solid #000;' />";
         } else {
-            $ret .= "<img src='$LJ::STATPREFIX/horizon/nouserpic.png' alt='no default userpic' style='border: 1px solid #000;' width='100' height='100' />";
+            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='no default userpic' style='border: 1px solid #000;' width='100' height='100' />";
         }
         $ret .= "</a>";
 
