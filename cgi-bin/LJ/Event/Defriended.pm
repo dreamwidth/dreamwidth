@@ -65,7 +65,7 @@ sub _as_email {
                                             "$LJ::SITEROOT/manage/circle/add.bml?user=$postername" ],
             'esn.post_entry'    => [ 3, "$LJ::SITEROOT/update.bml" ],
             'esn.edit_friends'  => [ 4, "$LJ::SITEROOT/manage/circle/edit.bml" ],
-            'esn.edit_groups'   => [ 5, "$LJ::SITEROOT/manage/circle/editgroups.bml" ],
+            'esn.edit_groups'   => [ 5, "$LJ::SITEROOT/manage/circle/editfilters.bml" ],
         }
     );
 }

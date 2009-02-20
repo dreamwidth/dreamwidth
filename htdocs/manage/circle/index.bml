@@ -28,7 +28,7 @@ _code?>
   <td><?_ml .edit.about _ml?></td>
 </tr>
 <tr>
-  <td class='name'><a href="<?siteroot?>/manage/circle/editgroups.bml"><?_ml /manage/circle/editgroups.bml.title _ml?></a></td>
+  <td class='name'><a href="<?siteroot?>/manage/circle/editfilters.bml"><?_ml /manage/circle/editfilters.bml.title _ml?></a></td>
   <td><?_ml .editgroups.about _ml?> <?_ml .filter _ml?></td>
 </tr>
 <tr>
@@ -45,6 +45,6 @@ _code?>
 </ul>
 <=body
 page?><?_c <LJDEP>
-link: htdocs/manage/circle/edit.bml, htdocs/manage/circle/editgroups.bml
+link: htdocs/manage/circle/edit.bml, htdocs/manage/circle/editfilters.bml
 link: htdocs/manage/circle/filter.bml, htdocs/download/index.bml
 </LJDEP> _c?>

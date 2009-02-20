@@ -48,7 +48,7 @@ body<=
  <dt><?_code return BML::ml('.maplinks.manage-readlist-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
    <li><a href='/manage/circle/'><?_ml .maplinks.manage-readlist _ml?></a></li>
-   <li><a href='/manage/circle/editgroups.bml'><?_ml .maplinks.manage-groups _ml?></a></li>
+   <li><a href='/manage/circle/editfilters.bml'><?_ml .maplinks.manage-groups _ml?></a></li>
    <li><a href='/manage/circle/filter.bml'><?_ml .maplinks.filter-readlist  _ml?></a></li>
    <li><a href='/syn'><?_ml .maplinks.synfeeds _ml?></a></li>
   </ul></dd>

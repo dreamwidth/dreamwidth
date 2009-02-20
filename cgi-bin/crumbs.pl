@@ -52,7 +52,7 @@ use Errno qw(ENOENT);
     'managecommentsettings' => [ 'Manage Comment Settings', '/manage/comments', 'manage'],
     'managecommunities' => ['Manage Communities', '/community/manage.bml', 'manage'],
     'managefriends' => ['Manage Circle', '/manage/circle/edit.bml', 'friends'],
-    'managefriendgrps' => ['Manage Filters', '/manage/circle/editgroups.bml', 'friends'],
+    'managefriendgrps' => ['Manage Filters', '/manage/circle/editfilters.bml', 'friends'],
     'managetags' => ['Manage Tags', '/manage/tags.bml', 'manage'],
     'managelogins' => ['Manage Your Login Sessions', '/manage/logins.bml', 'manage'],
     'manageuserpics' => ['Manage Userpics', '/editpics.bml', 'manage'],

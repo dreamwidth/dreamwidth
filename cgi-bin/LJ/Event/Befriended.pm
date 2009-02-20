@@ -78,7 +78,7 @@ sub _as_email {
                                             $journal_url ],
             'esn.view_profile'    => [ 3, $journal_profile ],
             'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit.bml" ],
-            'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editgroups.bml" ],
+            'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters.bml" ],
         }
     );
 }

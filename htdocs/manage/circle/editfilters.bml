@@ -46,83 +46,94 @@
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
     
-    if ($POST{'mode'} eq "save") {
+    my $trust_groups = $u->trust_groups;
+
+    if ( $POST{mode} eq 'save' ) {
         unless (LJ::check_form_auth()) {
             $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>");
             return;
         }
 
-        my %res;
-        $POST{'mode'} = "editfriendgroups";
-        $POST{'user'} = $u->{'user'};
-        $POST{'ver'} = $LJ::PROTOCOL_VER;
-        LJ::do_request(\%POST, \%res, {
-            'u' => $u,
-            'noauth' => 1, 
-        });
-        
-        if ($res{'success'} eq "OK") {
-            $body .= LJ::get_ads({ 
-                location    => 'bml.friends.editgroups/main', 
-                ljadwrapper => 1,
-                below_ad    => LJ::CProd->full_box_for($remote, width => 300)
-            });
-            $body .= "<?h1 $ML{'.saved.header'} h1?><?p $ML{'.saved.text'} p?>";
-        } else {
-            $body .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.text'} p?><?p $res{'errmsg'} p?>";
-            $body = $print_with_ad->($body);
+        # add/edit/delete groups
+        for ( my $i = 1; $i <= 60; $i++ ) {
+            if ( $POST{"efg_delete_$i"} ) {
+                # FIXME: delete the group!
+            } elsif ( $POST{"efg_set_${i}_name"} ) {
+                my $create = ref $trust_groups->{$i} eq 'HASH' ? 0 : 1;
+                my $name = $POST{"efg_set_${i}_name"};
+                my $sort = $POST{"efg_set_${i}_sort"};
+                my $public = $POST{"efg_set_${i}_public"} ? 1 : 0;
+                if ( $create ) {
+                    $u->create_trust_group( id => $i, groupname => $name, sortorder => $sort, is_public => $public );
+                } else {
+                    $u->edit_trust_group( id => $i, groupname => $name, sortorder => $sort, is_public => $public );
+                }
+            }
         }
+
+        # update users' trustmasks
+        foreach my $post_key ( keys %POST ) {
+            next unless $post_key =~ /^editfriend_groupmask_(\w+)$/;
+
+            my $trusted_u = LJ::load_user( $1 );
+            next unless $trusted_u;
+            my $groupmask = $POST{$post_key};
+
+            $u->add_edge( $trusted_u, trust => { mask => $groupmask } );
+        }
+
+        $body .= LJ::get_ads({ 
+            location    => 'bml.friends.editgroups/main', 
+            ljadwrapper => 1,
+            below_ad    => LJ::CProd->full_box_for($remote, width => 300)
+        });
+        $body .= "<?h1 $ML{'.saved.header'} h1?><?p $ML{'.saved.text'} p?>";
+
         return;
     }
-    
-    my %res;
-    LJ::do_request({ 'mode' => 'getfriends',
-                     'user' => $u->{'user'}, 
-                     'ver'  => $LJ::PROTOCOL_VER,
-                     'includegroups' => 1 },
-                   \%res, { 'u' => $u,
-                            'noauth' => 1, });
-    my @num_used;
-    my @num_free;
+
+    my @trusted_userids = $u->trusted_userids;
+    my $trusted_us = LJ::load_userids( @trusted_userids );
 
     # authas switcher form
-    $body .= "<form method='get' action='editgroups.bml'>\n";
+    $body .= "<form method='get' action='editfilters.bml'>\n";
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $body .= "</form>\n\n";
 
-    $body .= "<?h1 $ML{'.title'} h1?><?p $ML{'.text'} p?><?p $ML{'.text.sec'} p?><p>";
-    $body .= "<form method='post' name='fg' action='editgroups.bml$getextra'>";
+    $body .= "<?p $ML{'.text'} p?><?p $ML{'.text.sec'} p?><p>";
+    $body .= "<form method='post' name='fg' action='editfilters.bml$getextra'>";
     $body .= LJ::form_auth();
     $body .= "<input type='hidden' name='mode' value='save' />";
-    for (my $i=1; $i<=60; $i++) {
+    for ( my $i = 1; $i <= 60; $i++ ) {
         my $sort = 255;
         my $name = "";
         my $public = 0;
-        if ($res{"frgrp_${i}_name"}) {
-            $sort = $res{"frgrp_${i}_sortorder"}+0;
-            $name = LJ::ehtml($res{"frgrp_${i}_name"});
-            $public = $res{"frgrp_${i}_public"}+0;
-            push @num_used, $i;
-        } else {
-            push @num_free, $i;
+
+        if ( ref $trust_groups->{$i} eq 'HASH' ) {
+            $sort = $trust_groups->{$i}->{sortorder}+0;
+            $name = LJ::ehtml( $trust_groups->{$i}->{groupname} );
+            $public = $trust_groups->{$i}->{is_public}+0;
         }
+
         $body .= "<input type='hidden' name='efg_set_${i}_name' value='$name' />";
         $body .= "<input type='hidden' name='efg_set_${i}_sort' value='$sort' />";
         $body .= "<input type='hidden' name='efg_delete_${i}' value='0' />";
         $body .= "<input type='hidden' name='efg_set_${i}_public' value='$public' />";
     }
-    for (my $i=1; $i<=$res{'friend_count'}; $i++) {
-        my $user = $res{"friend_${i}_user"};
+    foreach my $uid ( @trusted_userids ) {
+        my $trusted_u = $trusted_us->{$uid};
+        next unless LJ::isu( $trusted_u );
 
-        my $mask = $res{"friend_${i}_groupmask"} || 1;
+        my $user = $trusted_u->user;
+        my $mask = $u->trustmask( $trusted_u ) || 1;
         $body .= "<input type='hidden' name='editfriend_groupmask_$user' value='$mask' />";
 
-        if ($res{"friend_${i}_type"} eq 'identity') {
-            my $dn = $res{"friend_${i}_identity_display"};
+        if ( $trusted_u->is_identity ) {
+            my $dn = $trusted_u->display_name;
             $body .= "<input type='hidden' name='nameremap_$user' id='nameremap_$user' value='$dn' />";
         }
     }
-    
+
     # escape strings for JavaScript
     my %T = qw(public  .group.public
                rename  .prompt.rename
@@ -405,31 +416,28 @@
 // --></SCRIPT>
 END_JS
 
-    $body .= "<table cellspacing='5'><tr valign='bottom'>";
+    $body .= "<table class='editfilters'><tr style='vertical-align: bottom;'>";
     $body .= "<td nowrap='1' colspan='2'><strong>$ML{'.yourgroups'}</strong></td>";
     $body .= "<td nowrap='1' colspan='2'><strong>$ML{'.ingroup.not'}</strong></td>";
     $body .= "<td nowrap='1'><strong>$ML{'.ingroup'}</strong></td></tr>";
 
-    $body .= "<tr valign='top'>";
+    $body .= "<tr style='vertical-align: top;'>";
     $body .= "<td><select name='list_groups' style='width: 150px;' size='15' onchange='groupClicked();'>";
-    foreach my $num (sort { $res{"frgrp_${a}_sortorder"} <=> 
-                            $res{"frgrp_${b}_sortorder"} } @num_used) {
-
-        my $listname = $res{"frgrp_${num}_name"};
-        $listname .= " $ML{'.group.public'}" if $res{"frgrp_${num}_public"};
-        $body .= "<option value='$num'>" . LJ::ehtml($listname);
+    foreach my $trustgroupid ( sort { $trust_groups->{$a}->{sortorder} <=> $trust_groups->{$b}->{sortorder} } keys %$trust_groups ) {
+        my $listname = $trust_groups->{$trustgroupid}->{groupname};
+        $listname .= " $ML{'.group.public'}" if $trust_groups->{$trustgroupid}->{is_public};
+        $body .= "<option value='$trustgroupid'>" . LJ::ehtml($listname);
     }
-
     $body .= "</select></td>";
  
-    $body .= "<td valign='middle'>";
+    $body .= "<td style='vertical-align: middle;'>";
     $body .= "<input type='button' value='$ML{'.btn.mv.up'}' onClick='moveGroup(-1);' /><br /><br />";
     $body .= "<input type='button' value='$ML{'.btn.mv.down'}' onClick='moveGroup(1);' /></td>";
 
     $body .= "<td><select name='list_out' multiple='1' size='15'>";
     $body .= "<option value=''>---------------</option></select></td>";
 
-    $body .= "<td valign='middle'>";
+    $body .= "<td style='vertical-align: middle;'>";
     $body .= "<input type='button' onClick='moveIn();' value='&gt;&gt;' /><br /><br />";
     $body .= "<input type='button' onClick='moveOut();' value='&lt;&lt;' /></td>";
 
@@ -441,9 +449,6 @@ END_JS
     $body .= "<input type='button' value='$ML{'.btn.ge.new'}' onClick='newGroup();' /> ";
     $body .= "<input type='button' value='$ML{'.btn.ge.del'}' onClick='deleteGroup();' /> ";
     $body .= "<input type='button' value='$ML{'.btn.ge.ren'}' onClick='renameGroup();' />";
-    $body .= "</nobr><br /><nobr>";
-    $body .= "<input type='button' value='$ML{'.btn.gs.public'}' onClick='makePublic();' /> ";
-    $body .= "<input type='button' value='$ML{'.btn.gs.private'}' onClick='makePrivate();' />";
     $body .= "</nobr></td><td></td><td></td><td></td>";
 
     $body .= "</tr></table>";
@@ -460,5 +465,5 @@ title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
 page?><?_c <LJDEP>
 link: htdocs/login.bml
-post: htdocs/manage/circle/editgroups.bml
+post: htdocs/manage/circle/editfilters.bml
 </LJDEP> _c?>

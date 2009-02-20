@@ -303,7 +303,7 @@ body<=
         $ret .= "<ul>";
         $ret .= "<li><a href='" . $u->journal_base . "/read'>$ML{'.success.friendspage'}</a></li>";
         $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit.bml'>$ML{'.success.editfriends'}</a></li>";
-        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editgroups.bml'>$ML{'.success.editgroups'}</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editfilters.bml'>$ML{'.success.editgroups'}</a></li>";
         $ret .= "</ul>";
 
         return $ret;

@@ -50,7 +50,7 @@
     
     
     unless ($res{'frgrp_maxnum'}) {
-        $body = "<?h1 $ML{'.error.nogroups.header'} h1?><?p " . BML::ml('.error.nogroups2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/editgroups.bml'"}) . " p?>";
+        $body = "<?h1 $ML{'.error.nogroups.header'} h1?><?p " . BML::ml('.error.nogroups2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/editfilters.bml'"}) . " p?>";
         return;
     }
     
@@ -79,7 +79,7 @@
 
     $body .= LJ::html_submit($ML{'.submit'});
     $body .= " <input type='reset' value=\"$ML{'.reset'}\"></div>";
-    $body .= "<?p " . BML::ml('.editgroups', { 'link' => "<a href='editgroups.bml'>$ML{'/manage/circle/editgroups.bml.title'}</a>" }) . " p?>";
+    $body .= "<?p " . BML::ml('.editgroups', { 'link' => "<a href='editfilters.bml'>$ML{'/manage/circle/editfilters.bml.title'}</a>" }) . " p?>";
     $body .= "</form>";
     
     return;
@@ -88,6 +88,6 @@ _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
 page?><?_c <LJDEP>
-link: htdocs/users, htdocs/manage/circle/editgroups.bml
+link: htdocs/users, htdocs/manage/circle/editfilters.bml
 post: htdocs/manage/circle/filter.bml
 </LJDEP> _c?>
