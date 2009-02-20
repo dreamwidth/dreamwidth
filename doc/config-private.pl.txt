@@ -9,6 +9,21 @@
 # This is where you define private, site-specific configs (e.g. passwords).
 
 {
+    package LJ;
+
+    # allow changelog posting.  this allows unauthenticated posts to the changelog
+    # community from the IP and users specified.  this does not work on its own,
+    # you have to configure your version control server to do the posting.  see
+    # cgi-bin/DW/Hooks/Changelog.pm for more information.
+    %CHANGELOG = (
+        enabled          => 0,
+        community        => 'changelog',
+        allowed_posters  => [ qw/ mark denise / ],
+        allowed_ips      => [ qw/ 123.123.123.123 / ],
+    );
+}
+
+{
     package DW::PRIVATE;
 
     $DOMAIN = "ljsite.com";
