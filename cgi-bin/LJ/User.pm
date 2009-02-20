@@ -7914,8 +7914,7 @@ sub user_search_display {
         # we request.
         next unless LJ::isu($u);
 
-        $ret .= "<div style='width: 300px; height: 105px; overflow: hidden; float: left; ";
-        $ret .= "border-bottom: 1px solid <?altcolor2?>; margin-bottom: 10px; padding-bottom: 5px; margin-right: 10px'>";
+        $ret .= "<div class='user-search-display'>";
         $ret .= "<table style='height: 105px'><tr>";
 
         $ret .= "<td style='width: 100px; text-align: center;'>";

@@ -138,3 +138,20 @@ div.lj_ippu_titlebar {
 .warning-background {
     background-image: url('/img/message-warning.gif');
 }
+
+.user-search-display {
+    width: 300px;
+    height: 105px;
+    float: left;
+    margin-bottom: 5px;
+    margin-right: 10px;
+    vertical-align: top;
+}
+
+.user-search-display table td {
+    vertical-align: middle;
+}
+
+.example {
+    vertical-align: top;
+}
