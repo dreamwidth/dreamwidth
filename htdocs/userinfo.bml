@@ -677,7 +677,7 @@ body<=
                 $trusted_by_body = $content_inner_block->(
                     section_name    => 'trusted_by_people',
                     section_name_ml => $trusted_by_body_name_ml,
-                    extra_clsses    => $u->is_identity ? ' first' : '',
+                    extra_classes   => $u->is_identity ? ' first' : '',
                     body            => $listusers->( \@trusted_by_list ),
                     hidable         => 1,
                 );
@@ -735,7 +735,7 @@ body<=
                 $trusted_by_body = $content_inner_block->(
                     section_name    => 'trusted_by_people',
                     section_name_ml => $trusted_by_body_name_ml,
-                    extra_clsses    => $u->is_identity ? ' first' : '',
+                    extra_classes   => $u->is_identity ? ' first' : '',
                     body            => $listusers->( \@trusted_by_list ),
                     hidable         => 1,
                 );
