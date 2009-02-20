@@ -823,7 +823,7 @@ date.month.october.short=Oct
 date.month.september.long=September
 
 date.month.september.short=Sep
-
+            
 email.invitecoderequest.accept.body<<
 Your request for invites has been granted. You can view all your invite codes here:
 
@@ -835,6 +835,158 @@ email.invitecoderequest.accept.subject=Your invite code request has been granted
 email.invitecoderequest.reject.body=Your request for invites has been denied at this time.
 
 email.invitecoderequest.reject.subject=Your invite code request has been denied
+
+email.invitedist.inv.body.html<<
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=[[charset]]">
+</head><body><p>Dear [[username]],</p>
+
+<p>You received [[number]] invite [[?number|code|codes]] as part of a
+distribution to selected users for the following reason:</p>
+
+<blockquote><p>[[reason]]</p></blockquote>
+
+<p>You may use [[?number|that code|those codes]] as you see fit: to create
+secondary accounts for yourself, to invite friends or family, etc. The codes
+are listed below, one per line:</p>
+
+<p>[[codes]]</p>
+
+<p>If you have any question, you can reply to this email.</p>
+
+<p>Sincerely,<br />
+The [[sitename]] Team,<br />
+[[siteroot]]</p></body></html>
+.
+
+email.invitedist.inv.body.plain<<
+Dear [[username]],
+
+You received [[number]] invite [[?number|code|codes]] as part of a distribution
+to selected users for the following reason:
+
+  [[reason]]
+
+You may use [[?number|that code|those codes]] as you see fit: to create
+secondary accounts for yourself, to invite friends or family, etc. The codes
+are listed below, one per line:
+
+[[codes]]
+
+If you have any question, you can reply to this email.
+
+Sincerely,
+The [[sitename]] Team,
+[[siteroot]]
+.
+
+email.invitedist.inv.subject=Invite code distribution
+
+email.invitedist.req.body.adjustdown.html<<
+<p>The number of invites distributed has been adjusted down to [[actinvites]]
+to fit the actual number of eligible users, [[numusers]]. [[remainder]]
+[[?remainder|invite remains|invites remain]] undistributed, and [[peruser]]
+[[?peruser|invite has|invites have]] been issued to each qualifying user.</p>
+.
+
+email.invitedist.req.body.adjustdown.plain<<
+The number of invites distributed has been adjusted down to [[actinvites]]
+to fit the actual number of eligible users, [[numusers]]. [[remainder]]
+[[?remainder|invite remains|invites remain]] undistributed, and [[peruser]]
+[[?peruser|invite has|invites have]] been issued to each qualifying user.
+
+.
+
+email.invitedist.req.body.adjustup.html<<
+<p>The number of invites distributed has been adjusted up to [[actinvites]]
+to fit the actual number of eligible users, [[numusers]]. [[additional]]
+[[?additional|invite has|invites have]] been added, and [[peruser]]
+[[?peruser|invite has|invites have]] been issued to each qualifying user.</p>
+
+.
+
+email.invitedist.req.body.adjustup.plain<<
+The number of invites distributed has been adjusted up to [[actinvites]]
+to fit the actual number of eligible users, [[numusers]]. [[additional]]
+[[?additional|invite has|invites have]] been added, and [[peruser]]
+[[?peruser|invite has|invites have]] been issued to each qualifying user.
+
+.
+
+email.invitedist.req.body.cantadjust.html<<
+<p>Business rules prevent adjusting the number of invites to the actual number
+of eligible users, [[numusers]]. No invites have been distributed.</p>
+.
+
+email.invitedist.req.body.cantadjust.plain<<
+Business rules prevent adjusting the number of invites to the actual number
+of eligible users, [[numusers]]. No invites have been distributed.
+
+.
+
+email.invitedist.req.body.keptsame.html<<
+<p>No adjustment was required to fit the number of invites requested to the
+[[numusers]] eligible [[?numusers|user|users]]. It was kept exactly as you
+requested, and [[peruser]] [[?peruser|invite has|invites have]] been issued to
+each qualifying user.</p>
+.
+
+email.invitedist.req.body.keptsame.plain<<
+No adjustment was required to fit the number of invites requested to the
+[[numusers]] eligible [[?numusers|user|users]]. It was kept exactly as you
+requested, and [[peruser]] [[?peruser|invite has|invites have]] been issued to
+each qualifying user.
+
+.
+
+email.invitedist.req.body.nousers.html<<
+<p>There are no eligible users. No invites have been distributed.</p>
+.
+
+email.invitedist.req.body.nousers.plain<<
+There are no eligible users. No invites have been distributed.
+
+.
+
+email.invitedist.req.body.toomanyusers.html<<
+<p>There are at least [[maxusers]] eligible users, which is more than the
+number of invites to distribute, even after the maximum adjustment upward
+allowed by business rules. No invites have been distributed.</p>
+.
+
+email.invitedist.req.body.toomanyusers.plain<<
+There are at least [[maxusers]] eligible users, which is more than the
+number of invites to distribute, even after the maximum adjustment upward
+allowed by business rules. No invites have been distributed.
+
+.
+
+email.invitedist.req.footer.html<<
+<p>Sincerely,<br />
+The [[sitename]] team,<br />
+[[siteroot]]</p></body></html>
+.
+
+email.invitedist.req.footer.plain<<
+Sincerely,
+The [[sitename]] team,
+[[siteroot]]
+.
+
+email.invitedist.req.header.html<<
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=[[charset]]">
+</head><body>
+<p>You asked to distribute [[numinvites]] [[?numinvite|code|codes]] among users in class "[[class]]".</p>
+.
+
+email.invitedist.req.header.plain<<
+You asked to distribute [[numinvites]] invite [[?numinvite|code|codes]]
+among users in class "[[class]]".
+
+.
+
+email.invitedist.req.subject=Result of your invite code distribution request
 
 email.newacct.body<<
 Congratulations, you have a new [[sitename]] account!
@@ -1666,6 +1818,8 @@ error.nodbmaintenance=This part of the database is temporarily down for maintena
 error.noentry=No such journal entry.
 
 error.nojournal=Unknown Journal
+
+error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
 

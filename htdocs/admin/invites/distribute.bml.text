@@ -1,0 +1,13 @@
+.btn.distribute=Distribute
+
+.error.cantinsertjob=Unable to start TheSchwartz job for invite codes distribution.
+
+.field.distribute.label=Distribute to:
+
+.field.numinvites.label=Number of invites:
+
+.field.reason.label=Reason for invites:
+
+.success.jobstarted=Invite code distribution successfully initiated. You will receive a report by email to your registered address when it is complete.
+
+.title=Distribute Invite Codes
