@@ -71,29 +71,48 @@ sub caps_in_group {
 # <LJFUNC>
 # name: LJ::name_caps
 # des: Given a user's capability class bit mask, returns a
-#      site-specific string representing the capability class name.
+#      site-specific string representing the capability class(es) name.
 # args: caps
 # des-caps: 16 bit capability bitmask
 # </LJFUNC>
 sub name_caps
 {
-    return undef unless LJ::are_hooks("name_caps");
-    my $caps = shift;
-    return LJ::run_hook("name_caps", $caps);
+    my $bit = shift;
+    return join( ', ', LJ::caps_string( $bit, '_visible_name' ) );
 }
 
 # <LJFUNC>
 # name: LJ::name_caps_short
 # des: Given a user's capability class bit mask, returns a
-#      site-specific short string code.
+#      site-specific string representing the capability class(es) short name.
 # args: caps
 # des-caps: 16 bit capability bitmask
 # </LJFUNC>
 sub name_caps_short
 {
-    return undef unless LJ::are_hooks("name_caps_short");
-    my $caps = shift;
-    return LJ::run_hook("name_caps_short", $caps);
+    my $bit = shift;
+    return join( ', ', LJ::caps_string( $bit, '_name' ) );
+}
+
+# <LJFUNC>
+# name: LJ::caps_string
+# des: Given a user's capability class bitfield and a name field key, 
+#      returns an array of all the account class names.
+# args: caps, name_value
+# des-caps: bitfield
+# des-name_value: string (_name for short name, _visible_name for long)
+sub caps_string {
+    my ($caps, $name_value) = @_;
+
+    my @classes = ();
+    foreach my $bit (0..15) {
+        my $class = LJ::class_of_bit($bit);
+        next unless $class && LJ::caps_in_group($caps, $class);
+        my $name = $LJ::CAP{$bit}->{$name_value};
+        push @classes, $name;
+    }
+
+    return @classes;
 }
 
 # <LJFUNC>

@@ -366,6 +366,7 @@
         },
         '1' => {  # 0x02
             '_name' => 'Free',
+            '_visible_name' => 'Free Account',
             '_key' => 'free_user',
             'bookmark_max' => 25,
             'checkfriends' => 0,
@@ -416,6 +417,7 @@
         '3' => {  # 0x08
             '_name' => 'Paid',
             '_key' => 'paid_user', # Some things expect that key name
+            '_visible_name' => 'Paid Account',
             'bookmark_max' => 500,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -463,6 +465,7 @@
         '4' => {  # 0x10
             '_name' => 'Premium Paid',
             '_key' => 'premium_user',
+            '_visible_name' => 'Premium Paid Account',
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -517,6 +520,7 @@
         '6' => {  # 0x40
             '_name' => 'Permanent',
             '_key' => 'permanent_user',
+            '_visible_name' => 'Seed Account',
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -564,6 +568,7 @@
         '7' => {  # 0x80
             '_name' => 'Staff',
             '_key' => 'staff',
+            '_visible_name' => 'Staff Account',
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,

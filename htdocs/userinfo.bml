@@ -367,6 +367,10 @@ body<=
     # journal warnings
     $ret .= "<span class='$_->{class}'>$_->{text}</span>" foreach $profile->warnings;
 
+    # account type
+    my $acctype = LJ::name_caps( $u->caps);
+    $ret .= "<p>$acctype</p>";
+
     # journal creation date
     my $jcdate = BML::ml( '.details.createdon2', { createdate => LJ::mysql_time( $u->timecreate )  } );
     $ret .= "<p>$jcdate (#" . $u->id . ')</p>';
