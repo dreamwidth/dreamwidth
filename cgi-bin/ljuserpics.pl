@@ -303,11 +303,11 @@ sub get_userpic_info
         if ($u->{'dversion'} > 6) {
 
             # Load picture comments
-            if ($opts->{'load_comments'}) {
+            if ( $opts->{'load_comments'} ) {
                 my $commemkey = [$u->{'userid'}, "upiccom:$u->{'userid'}"];
                 my $comminfo = LJ::MemCache::get($commemkey);
 
-                if ($comminfo) {
+                if ( defined( $comminfo ) ) {
                     my ($pos, $nulpos);
                     $pos = $nulpos = 0;
                     while (($nulpos = index($comminfo, "\0", $pos)) > 0) {
@@ -325,11 +325,11 @@ sub get_userpic_info
             }
 
             # Load picture urls
-            if ($opts->{'load_urls'} && $info) {
+            if ( $opts->{'load_urls'} && $info ) {
                 my $urlmemkey = [$u->{'userid'}, "upicurl:$u->{'userid'}"];
                 my $urlinfo = LJ::MemCache::get($urlmemkey);
 
-                if ($urlinfo) {
+                if ( defined( $urlinfo ) ) {
                     my ($pos, $nulpos);
                     $pos = $nulpos = 0;
                     while (($nulpos = index($urlinfo, "\0", $pos)) > 0) {
@@ -344,13 +344,13 @@ sub get_userpic_info
                     undef $info;
                 }
             }
-            
+
             # Load picture descriptions
-            if ($opts->{'load_descriptions'}) {
+            if ( $opts->{'load_descriptions'} && $info ) {
                 my $descmemkey = [$u->{'userid'}, "upicdes:$u->{'userid'}"];
                 my $descinfo = LJ::MemCache::get($descmemkey);
 
-                if ($descinfo) {
+                if ( defined ( $descinfo ) ) {
                     my ($pos, $nulpos);
                     $pos = $nulpos = 0;
                     while (($nulpos = index($descinfo, "\0", $pos)) > 0) {
