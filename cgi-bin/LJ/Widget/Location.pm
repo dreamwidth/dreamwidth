@@ -5,7 +5,7 @@ use base qw(LJ::Widget);
 use Carp qw(croak);
 use DateTime::TimeZone;
 
-my @location_props = qw/ country state city zip timezone sidx_loc/;
+my @location_props = qw/ country state city zip sidx_loc /;
 
 
 sub authas {1}
@@ -29,6 +29,8 @@ sub render_body {
 
     # use "authas"-aware code
     my $u = $class->get_effective_remote;
+
+    push @location_props, 'timezone' unless $opts{skip_timezone};
     $u->preload_props(@location_props);
 
     # displayed country may be specified in %opts hash
