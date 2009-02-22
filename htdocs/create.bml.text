@@ -54,20 +54,6 @@
 
 .email.input.head=Email Address:
 
-.email.invite.body<<
-Dear [[username]],
-
-One of the people you invited to join [[sitename]] has accepted your invitation.  Here's a link to their new user info page:
-[[infolink]]
-
-If you'd like to invite more friends, follow this link:
-[[invitelink]]
-
-Thanks for supporting [[sitename]]!
-.
-
-.email.invite.subject=[[sitename]] Friend Invitation Accepted
-
 .email.text2=For verification and security purposes, we need your email address.  It will never ever, under any circumstances, be sold or given away to spammers.  We hate that more than anything.  Read our <a [[aopts]]>privacy policy</a> for more information.
 
 .email.text3=For verification and security purposes, we need your email address.  Read our <a [[aopts]]>privacy policy</a> for more information on our information practices.
