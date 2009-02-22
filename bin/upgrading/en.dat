@@ -1772,17 +1772,11 @@ error.interest.bytes=Sorry, you have listed an interest with [[bytes]] bytes.  E
 
 error.interest.bytes.chars=Sorry, you have listed an interest with [[bytes]] bytes, and [[chars]] characters.  Each interest has a limit of [[bytes_max]] bytes, and [[chars_max]] characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
 
-error.interest.bytes.chars.words=Sorry, you have listed an interest with [[bytes]] bytes, [[chars]] characters, and [[words]] words.  Each interest has a limit of [[bytes_max]] bytes, [[chars_max]] characters, and [[words_max]] words.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
-
 error.interest.chars=Sorry, you have listed an interest with [[chars]] characters.  Each interest has a limit of [[chars_max]] characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
-
-error.interest.chars.words=Sorry, you have listed an interest with [[chars]] characters, and [[words]] words.  Each interest has a limit of [[chars_max]] characters, and [[words_max]] words.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
 
 error.interest.excessive=Sorry, you have listed too many interests.  The limit is 150, but you have listed [[intcount]].  Any changes you made to your interests were not saved.  Go back and remove some interests.
 
 error.interest.invalid=Sorry, you have listed an interest with invalid characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
-
-error.interest.words=Sorry, you have listed an interest with [[words]] words.  Each interest has a limit of [[words_max]] words.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
 
 error.invalid.support.category=Invalid support category
 

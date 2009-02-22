@@ -6468,8 +6468,6 @@ sub validate_interest_list {
 
         # Specific interest failures
         my ($bytes,$chars) = LJ::text_length($int);
-        my @words = split(/\s+/, $int);
-        my $word_ct = scalar @words;
 
         my $error_string = '';
         if ($int =~ /[\<\>]/) {
@@ -6478,7 +6476,6 @@ sub validate_interest_list {
         } else {
             $error_string .= '.bytes' if $bytes > LJ::BMAX_INTEREST;
             $error_string .= '.chars' if $chars > LJ::CMAX_INTEREST;
-            $error_string .= '.words' if $word_ct > 4;
         }
 
         if ($error_string) {
@@ -6488,9 +6485,7 @@ sub validate_interest_list {
                                   bytes => $bytes,
                                   bytes_max => LJ::BMAX_INTEREST,
                                   chars => $chars,
-                                  chars_max => LJ::CMAX_INTEREST,
-                                  words => $word_ct,
-                                  words_max => 4
+                                  chars_max => LJ::CMAX_INTEREST
                                 }
                               ];
             next;
