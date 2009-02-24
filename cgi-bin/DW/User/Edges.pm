@@ -186,7 +186,7 @@ sub add_edge {
 
 # removes an edge between two users
 sub remove_edge {
-    my ( $from_u, $to_u, @edges ) = @_;
+    my ( $from_u, $to_u, %edges ) = @_;
 
     # need u objects
     $from_u = LJ::want_user( $from_u );
@@ -194,20 +194,21 @@ sub remove_edge {
 
     # error check inputs
     return 0 unless $from_u && $to_u;
-    return 0 unless DW::User::Edges::validate_edges( \@edges );
+    return 0 unless DW::User::Edges::validate_edges( \%edges );
 
-    # try to remove the edges
-    my %edges_hr = ( map { $_ => 1 } @edges );
-    while ( my $key = shift @edges ) {
+    # now we try to remove these edges.  note that we do this in this way so that
+    # multiple edges can be consumed by one remove sub.
+    my @to_del = keys %edges;
+    while ( my $key = shift @to_del ) {
 
         # some modules will define multiple edges, and so one call to add_sub might
         # get rid of more than one edge, so we have to do this check to ensure that
         # the edge still exists
-        next unless $edges_hr{$key};
+        next unless $edges{$key};
 
         # simply calls an add_sub to handle the edge.  we expect them to remove the
         # edge from the hashref if they process it.
-        $DW::User::Edges::VALID_EDGES{$key}->{del_sub}->( $from_u, $to_u, \%edges_hr );
+        $DW::User::Edges::VALID_EDGES{$key}->{del_sub}->( $from_u, $to_u, \%edges );
     }
 
     # all good

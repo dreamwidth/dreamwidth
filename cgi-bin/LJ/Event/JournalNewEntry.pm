@@ -136,7 +136,7 @@ my @_ml_strings_en = (
     'esn.read_recent_entries',                      # '[[openlink]]Read the recent entries in [[journal]][[closelink]]',
     'esn.join_community',                           # '[[openlink]]Join [[journal]] to read Members-only entries[[closelink]]',
     'esn.read_user_entries',                        # '[[openlink]]Read [[poster]]\'s recent entries[[closelink]]',
-    'esn.add_friend'                                # '[[openlink]]Add [[journal]] to your Friends list[[closelink]]',
+    'esn.add_watch'                                 # '[[openlink]]Subscribe to [[journal]][[closelink]]',
 );
 
 sub as_email_subject {
@@ -221,7 +221,7 @@ sub _as_email {
                                                     "$LJ::SITEROOT/community/join.bml?comm=$journal_user" ],
                 'esn.read_user_entries'     => [ ($self->entry->journal->is_comm) ? 0 : 4,
                                                     $journal_url ],
-                'esn.add_friend'            => [ $u->watches( $self->entry->journal ) ? 0 : 5,
+                'esn.add_watch'             => [ $u->watches( $self->entry->journal ) ? 0 : 5,
                                                     "$LJ::SITEROOT/manage/circle/add.bml?user=$journal_user&action=subscribe" ],
             });
 

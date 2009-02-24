@@ -52,7 +52,7 @@
 
         # remove user's membership to community
         if ($watching && !$memberof) {
-            $remote->remove_edge( $cu, 'watch' );
+            $remote->remove_edge( $cu, watch => {} );
         } else {
             LJ::leave_community($remote, $cu, $FORM{removefriend});
         }

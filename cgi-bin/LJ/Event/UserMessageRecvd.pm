@@ -53,7 +53,7 @@ sub _as_email {
         {
             'esn.view_profile'    => [ 1, $other_u->profile_url ],
             'esn.read_journal'    => [ 2, $other_u->journal_base ],
-            'esn.add_friend'      => [ $u->watches( $other_u ) ? 0 : 3,
+            'esn.add_watch'       => [ $u->watches( $other_u ) ? 0 : 3,
                                             "$LJ::SITEROOT/manage/circle/add.bml?user=$sender&action=subscribe" ],
         }
     );

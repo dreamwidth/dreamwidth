@@ -25,7 +25,7 @@ my @_ml_strings = (
     'esn.manage_invitations',       # '[[openlink]]Manage your invitations[[closelink]]'
     'esn.read_last_comm_entries',   # '[[openlink]]Read the latest entries in [[journal]][[closelink]]'
     'esn.view_profile',             # '[[openlink]]View [[postername]]'s profile[[closelink]]',
-    'esn.add_friend',               # '[[openlink]]Add [[journal]] to your Friends list[[closelink]]'
+    'esn.add_watch',                # '[[openlink]]Subscribe to [[journal]][[closelink]]',
 );
 
 sub as_email_subject {
@@ -67,7 +67,7 @@ sub _as_email {
             'esn.manage_invitations'        => [ 1, "$LJ::SITEROOT/manage/invites.bml" ],
             'esn.read_last_comm_entries'    => [ 2, $community_url ],
             'esn.view_profile'              => [ 3, $community_profile ],
-            'esn.add_friend'                => [ $u->watches( $self->comm ) ? 0 : 4,
+            'esn.add_watch'                 => [ $u->watches( $self->comm ) ? 0 : 4,
                                                 "$LJ::SITEROOT/manage/circle/add.bml?user=$community_user&action=subscribe" ],
         }
     );

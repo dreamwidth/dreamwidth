@@ -65,12 +65,18 @@
             $gmask |= (1 << $bit);
         }
 
+        my $trusted_nonotify = $remote->trusts( $u ) ? 1 : 0;
+        my $watched_nonotify = $remote->watches( $u ) ? 1 : 0;
+
         if ( $POST{add_trust} ) {
             $remote->add_edge( $u, trust => {
                 mask => $gmask,
+                nonotify => $trusted_nonotify ? 1 : 0,
             });
         } else {
-            $remote->remove_edge( $u, 'trust' );
+            $remote->remove_edge( $u, trust => {
+                nonotify => $trusted_nonotify ? 0 : 1,
+            } );
         }
 
         if ( $POST{add_watch} ) {
@@ -79,9 +85,12 @@
             $remote->add_edge( $u, watch => {
                 fgcolor => $fg,
                 bgcolor => $bg,
+                nonotify => $watched_nonotify ? 1 : 0,
             } );
         } else {
-            $remote->remove_edge( $u, 'watch' );
+            $remote->remove_edge( $u, watch => {
+                nonotify => $watched_nonotify ? 0 : 1,
+            } );
         }
 
         $body = LJ::get_ads({

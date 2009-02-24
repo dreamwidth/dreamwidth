@@ -56,18 +56,29 @@ sub execute {
         unless $remote;
 
     if ( $cmd eq 'add_read' ) {
-        $remote->add_edge( $to_u, watch => { fgcolor => int(rand()*16777216), bgcolor => int(rand()*16777216) } );
+        $remote->add_edge( $to_u, watch => {
+            fgcolor => int(rand()*16777216),
+            bgcolor => int(rand()*16777216),
+            nonotify => $remote->watches( $to_u ) ? 1 : 0,
+        } );
 
     } elsif ( $cmd eq 'del_read' ) {
-        $remote->remove_edge( $to_u, qw/ watch / );
+        $remote->remove_edge( $to_u, watch => {
+            nonotify => $remote->watches( $to_u ) ? 0 : 1,
+        } );
 
     } elsif ( $cmd eq 'add_access' ) {
         my $mask = 0;
         $mask += ( 1 << $_ ) foreach @groups;
-        $remote->add_edge( $to_u, trust => { mask => $mask } );
+        $remote->add_edge( $to_u, trust => {
+            mask => $mask,
+            nonotify => $remote->trusts( $to_u ) ? 1 : 0,
+        } );
 
     } elsif ( $cmd eq 'del_access' ) {
-        $remote->remove_edge( $to_u, qw/ trust / );
+        $remote->remove_edge( $to_u, trust => {
+            nonotify => $remote->trusts( $to_u ) ? 0 : 1,
+        } );
 
     } elsif ( $cmd eq 'get_read' ) {
 

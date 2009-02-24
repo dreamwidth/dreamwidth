@@ -16,7 +16,8 @@ sub is_common { 0 }
 
 my @_ml_strings = (
     'esn.invited_friend_joins.subject', # '[[who]] created a journal!'
-    'esn.add_friend',                   # '[[openlink]]Add [[journal]] to your Friends list[[closelink]]',
+    'esn.add_trust',                    # '[[openlink]]Grant access to [[journal]][[closelink]]',
+    'esn.add_watch',                    # '[[openlink]]Subscribe to [[journal]][[closelink]]',
     'esn.read_journal',                 # '[[openlink]]Read [[postername]]\'s journal[[closelink]]',
     'esn.view_profile',                 # '[[openlink]]View [[postername]]\'s profile[[closelink]]',
     'esn.invite_another_friend',        # '[[openlink]]Invite another friend[[closelink]]",
@@ -61,10 +62,11 @@ sub _as_email {
     return LJ::Lang::get_text($lang, 'esn.invited_friend_joins.email', undef, $vars) .
         $self->format_options($is_html, $lang, $vars,
         {
-            'esn.add_friend'            => [ 1, "$LJ::SITEROOT/manage/circle/add.bml?user=$newusername&action=subscribe" ], # Why not $self->friend->addfriend_url ?
-            'esn.read_journal'          => [ 2, $newuser_url ],
-            'esn.view_profile'          => [ 3, $newuser_profile ],
-            'esn.invite_another_friend' => [ 4, "$LJ::SITEROOT/manage/circle/invite.bml" ],
+            'esn.add_trust'             => [ 1, "$LJ::SITEROOT/manage/circle/add.bml?user=$newusername&action=access" ],
+            'esn.add_watch'             => [ 2, "$LJ::SITEROOT/manage/circle/add.bml?user=$newusername&action=subscribe" ],
+            'esn.read_journal'          => [ 3, $newuser_url ],
+            'esn.view_profile'          => [ 4, $newuser_profile ],
+            'esn.invite_another_friend' => [ 5, "$LJ::SITEROOT/manage/circle/invite.bml" ],
         }
     );
 }
@@ -85,7 +87,7 @@ sub as_html {
     return 'A friend you invited has created a journal.'
         unless $self->friend;
 
-    return sprintf "A friend you invited has created the journal %s", $self->friend->ljuser_display;
+    return sprintf "A friend you invited has created the journal %s.", $self->friend->ljuser_display;
 }
 
 sub as_html_actions {
@@ -104,7 +106,7 @@ sub as_string {
     return 'A friend you invited has created a journal.'
         unless $self->friend;
 
-    return sprintf "A friend you invited has created the journal %s", $self->friend->user;
+    return sprintf "A friend you invited has created the journal %s.", $self->friend->user;
 }
 
 sub as_sms {

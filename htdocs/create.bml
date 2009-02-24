@@ -347,7 +347,7 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
          # if they are personal journals, we probably don't want to trust them anyway
          foreach my $friend (@LJ::INITIAL_OPTIONAL_FRIENDS) {
              my $friendu = LJ::load_user( $friend );
-             $nu->add_edge( $friendu, watch => {} ) if $friendu and $POST{"initial_optional_friend_$friend"};
+             $nu->add_edge( $friendu, watch => { nonotify => 1 } ) if $friendu && $POST{"initial_optional_friend_$friend"};
          }
 
          # Mark the turing test for deletion

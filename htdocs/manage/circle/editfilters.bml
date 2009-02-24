@@ -79,7 +79,10 @@
             next unless $trusted_u;
             my $groupmask = $POST{$post_key};
 
-            $u->add_edge( $trusted_u, trust => { mask => $groupmask } );
+            $u->add_edge( $trusted_u, trust => {
+                mask => $groupmask,
+                nonotify => 1,
+            } );
         }
 
         $body .= LJ::get_ads({ 

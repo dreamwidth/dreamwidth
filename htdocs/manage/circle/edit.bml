@@ -256,12 +256,18 @@ body<=
                 my $other_u = LJ::load_user_or_identity( $POST{"editfriend_add_${num}_user"} );
                 next unless $other_u;
 
+                my $trusted_nonotify = $u->trusts( $other_u ) ? 1 : 0;
+                my $watched_nonotify = $u->watches( $other_u ) ? 1 : 0;
                 $userid_processed{$other_u->id} = 1;
 
                 if ( $POST{"editfriend_add_${num}_trust"} ) {
-                    $u->add_edge( $other_u, trust => {} );
+                    $u->add_edge( $other_u, trust => {
+                        nonotify => $trusted_nonotify ? 1 : 0,
+                    } );
                 } else {
-                    $u->remove_edge( $other_u, 'trust' );
+                    $u->remove_edge( $other_u, trust => {
+                        nonotify => $trusted_nonotify ? 0 : 1,
+                    } );
                 }
                 if ( $POST{"editfriend_add_${num}_watch"} ) {
                     my $fg = LJ::color_todb( $POST{"editfriend_add_${num}_fg"} );
@@ -269,9 +275,12 @@ body<=
                     $u->add_edge( $other_u, watch => {
                         fgcolor => $fg,
                         bgcolor => $bg,
+                        nonotify => $watched_nonotify ? 1 : 0,
                     } );
                 } else {
-                    $u->remove_edge( $other_u, 'watch' );
+                    $u->remove_edge( $other_u, watch => {
+                        nonotify => $watched_nonotify ? 0 : 1,
+                    } );
                 }
             } elsif ( $key =~ /^editfriend_edit_(\d+)_user/ ) {
                 my $uid = $1;
@@ -279,16 +288,27 @@ body<=
                 my $other_u = LJ::load_userid( $uid );
                 next unless $other_u && !$userid_processed{$uid};
 
+                my $trusted_nonotify = $u->trusts( $other_u ) ? 1 : 0;
+                my $watched_nonotify = $u->watches( $other_u ) ? 1 : 0;
+
                 if ( $POST{"editfriend_edit_${uid}_trust"} ) {
-                    $u->add_edge( $other_u, trust => {} );
+                    $u->add_edge( $other_u, trust => {
+                        nonotify => $trusted_nonotify ? 1 : 0,
+                    } );
                 } else {
-                    $u->remove_edge( $other_u, 'trust' );
+                    $u->remove_edge( $other_u, trust => {
+                        nonotify => $trusted_nonotify ? 0 : 1,
+                    } );
                 }
 
                 if ( $POST{"editfriend_edit_${uid}_watch"} ) {
-                    $u->add_edge( $other_u, watch => {} );
+                    $u->add_edge( $other_u, watch => {
+                        nonotify => $watched_nonotify ? 1 : 0,
+                    } );
                 } else {
-                    $u->remove_edge( $other_u, 'watch' );
+                    $u->remove_edge( $other_u, watch => {
+                        nonotify => $watched_nonotify ? 0 : 1,
+                    } );
                 }
             }
         }

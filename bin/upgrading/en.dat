@@ -1136,6 +1136,26 @@ Enjoy!
 [[siteroot]]/
 .
 
+esn.addedtocircle.trusted.email_text<<
+Hi [[user]],
+
+[[poster]] has granted you access to their journal. You will now be able to read their locked entries.
+
+You can:
+.
+
+esn.addedtocircle.trusted.subject=[[who]] granted you access to their journal!
+
+esn.addedtocircle.watched.email_text<<
+Hi [[user]],
+
+[[poster]] has subscribed to your journal. They will now be able to read your[[entries]] entries on their reading list.
+
+You can:
+.
+
+esn.addedtocircle.watched.subject=[[who]] subscribed to your journal!
+
 esn.bday.subject=[[bdayuser]]'s birthday is coming up!
 
 esn.bday.email<<
@@ -1466,34 +1486,6 @@ esn.journal_new_entry.head_user=[[poster]] has posted a new entry[[about]].[[tag
 
 esn.journal_new_entry.about= titled "[[title]]"
 
-esn.befriended.subject=[[who]] added you as a friend!
-
-esn.befriended.email_text<<
-Hi [[user]],
-
-[[poster]] has added you to their Friends list. They will now be able to read your[[entries]] entries on their Friends page.
-
-You can:
-.
-
-esn.befriended.openid_email_text<<
-Hi [[user]],
-
-[[poster]] has added you to their Friends list.
-
-You can:
-.
-
-esn.defriended.subject=[[who]] removed you from their Friends list
-
-esn.defriended.email_text<<
-Hi [[user]],
-
-[[poster]] has removed you from their Friends list.
-
-You can:
-.
-
 esn.community_join_requst.email_text<<
 Hi [[maintainer]],
 
@@ -1532,7 +1524,9 @@ esn.join_community=[[openlink]]Join [[journal]] to read Members-only entries[[cl
 
 esn.read_user_entries=[[openlink]]Read [[poster]]'s recent entries[[closelink]]
 
-esn.add_friend=[[openlink]]Add [[journal]] to your Friends list[[closelink]]
+esn.add_trust=[[openlink]]Grant access to [[journal]][[closelink]]
+
+esn.add_watch=[[openlink]]Subscribe to [[journal]][[closelink]]
 
 esn.screened=This comment was screened.
 
@@ -1572,19 +1566,41 @@ You can:
 
 esn.public=public
 
-esn.remove_friend=[[openlink]]Remove [[postername]] from your Friends list[[closelink]]
+esn.remove_trust=[[openlink]]Remove access from [[postername]][[closelink]]
+
+esn.remove_watch=[[openlink]]Unsubscribe from [[postername]][[closelink]]
 
 esn.post_entry=[[openlink]]Post an entry[[closelink]]
 
-esn.edit_friends=[[openlink]]Edit Friends[[closelink]]
+esn.edit_friends=[[openlink]]Manage Circle[[closelink]]
 
-esn.edit_groups=[[openlink]]Edit Friends groups[[closelink]]
+esn.edit_groups=[[openlink]]Edit Filters[[closelink]]
 
 esn.read_journal=[[openlink]]Read [[postername]]'s journal[[closelink]]
 
 esn.view_profile=[[openlink]]View [[postername]]'s profile[[closelink]]
 
 esn.your_inbox=your Inbox
+
+esn.removedfromcircle.trusted.email_text<<
+Hi [[user]],
+
+[[poster]] has removed your access to their journal.  You will no longer be able to read their locked entries.
+
+You can:
+.
+
+esn.removedfromcircle.trusted.subject=[[who]] removed your access to their journal
+
+esn.removedfromcircle.watched.email_text<<
+Hi [[user]],
+
+[[poster]] has unsubscribed from your journal.  They will no longer be able to read your entries on their reading list.
+
+You can:
+.
+
+esn.removedfromcircle.watched.subject=[[who]] has unsubscribed from your journal
 
 entryform.adultcontent=Adult Content:
 
@@ -1840,9 +1856,9 @@ error.usernameinvalid=Username contains invalid characters.
 
 error.usernamelong=Username is too long; cannot exceed 15 characters.
 
-event.befriended.me=Someone adds me as a friend
+event.addedtocircle.me=Someone adds me to their circle
 
-event.befriended.user=Someone adds [[user]] as a friend
+event.addedtocircle.user=Someone adds [[user]] to their circle
 
 event.birthday.me=One of the people on my access or subscription lists has an upcoming birthday
 
@@ -1851,10 +1867,6 @@ event.birthday.user=[[user]]'s birthday is coming up
 event.comm_invite=I receive an invitation to join a community
 
 event.community_join_requst=Someone requests membership in a community I maintain
-
-event.defriended.me=Someone removes me from their Friends list
-
-event.defriended.user=Someone removes [[user]] from their Friends list
 
 event.invited_friend_joins=Someone I invited creates a new journal
 
@@ -1947,6 +1959,10 @@ event.journal_new_entry.friendlist=Someone on my Friends list posts a new entry
 event.journal_new_entry.community=Someone posts a new entry to [[user]]
 
 event.journal_new_entry.user=[[user]] posts a new entry.
+
+event.removedfromcircle.me=Someone removes me from their circle
+
+event.removedfromcircle.user=Someone removes [[user]] from their circle
 
 event.userpic_upload.me=One of the accounts I subscribe to uploads a new userpic
 

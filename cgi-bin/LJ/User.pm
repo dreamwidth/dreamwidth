@@ -33,8 +33,6 @@ use Class::Autouse qw(
                       LJ::S2
                       IO::Socket::INET
                       Time::Local
-                      LJ::Event::Befriended
-                      LJ::Event::Defriended
                       LJ::BetaFeatures
                       LJ::S2Theme
                       );

@@ -261,7 +261,7 @@ sub leave_community {
 
     # remove community membership
     return undef
-        unless $u->remove_edge( $cu, qw/ member / );
+        unless $u->remove_edge( $cu, member => 1 );
 
     # clear edges that effect this relationship
     foreach my $edge (qw(P N A M)) {
@@ -270,7 +270,7 @@ sub leave_community {
 
     # defriend user -> comm?
     return 1 unless $defriend;
-    $u->remove_friend($cu);
+    $u->remove_edge( $cu, watch => {} );
 
     # don't care if we failed the removal of comm from user's friends list...
     return 1;

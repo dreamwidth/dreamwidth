@@ -308,7 +308,7 @@
 
     unless (@LJ::EVENT_TYPES) {
         @LJ::EVENT_TYPES = qw (
-                               Befriended
+                               AddedToCircle
                                Birthday
                                JournalNewComment
                                JournalNewEntry

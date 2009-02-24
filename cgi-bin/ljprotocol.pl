@@ -9,7 +9,7 @@ use Class::Autouse qw(
                       LJ::Console
                       LJ::Event::JournalNewEntry
                       LJ::Event::UserNewEntry
-                      LJ::Event::Befriended
+                      LJ::Event::AddedToCircle
                       LJ::Entry
                       LJ::Poll
                       LJ::EventLogRecord::NewEntry
@@ -335,13 +335,13 @@ sub getinbox
     my $inbox = $u->notification_inbox or return fail($err, 500, "Cannot get user inbox");
 
     my %type_number = (
-        Befriended           => 1,
+        AddedToCircle        => 1,
         Birthday             => 2,
         CommunityInvite      => 3,
         CommunityJoinApprove => 4,
         CommunityJoinReject  => 5,
         CommunityJoinRequest => 6,
-        Defriended           => 7,
+        RemovedFromCircle    => 7,
         InvitedFriendJoins   => 8,
         JournalNewComment    => 9,
         JournalNewEntry      => 10,
@@ -2293,7 +2293,7 @@ sub editfriends
         my $deluser = LJ::canonical_username($_);
         next DELETEFRIEND unless $curfriend{$deluser};
 
-        $u->remove_edge( LJ::get_userid( $deluser ), qw/ watch trust / );
+        $u->remove_edge( LJ::get_userid( $deluser ), watch => {}, trust => {} );
         $friend_count--;
     }
 

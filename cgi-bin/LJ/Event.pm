@@ -25,8 +25,10 @@ foreach my $event (@EVENTS) {
 #                                   ($ju,$jtalkid)   # TODO: should probably be ($ju,$jitemid,$jtalkid)
 #    LJ::Event::UserNewComment     -- a user left a new comment somewhere
 #                                   ($u,$journalid,$jtalkid)
-#    LJ::Event::Befriended         -- user $fromuserid added $u as a friend
-#                                   ($u,$fromuserid)
+#    LJ::Event::AddedToCircle      -- user $fromuserid added $u to their circle; $actionid is 1 (trust) or 2 (watch)
+#                                   ($u,$fromuserid,$actionid)
+#    LJ::Event::RemovedFromCircle  -- user $fromuserid removed $u to their circle; $actionid is 1 (trust) or 2 (watch)
+#                                   ($u,$fromuserid,$actionid)
 #    LJ::Event::CommunityInvite    -- user $fromuserid invited $u to join $commid community)
 #                                   ($u,$fromuserid, $commid)
 #    LJ::Event::InvitedFriendJoins -- user $u1 was invited to join by $u2 and created a journal
@@ -39,8 +41,6 @@ foreach my $event (@EVENTS) {
 #                                   ($u)
 #    LJ::Event::PollVote           -- $u1 voted in poll $p posted by $u
 #                                   ($u, $u1, $up)
-#    LJ::Event::Defriended         -- user $fromuserid removed $u as a friend
-#                                   ($u,$fromuserid)
 #    LJ::Event::UserMessageRecvd   -- user $u received message with ID $msgid from user $otherid
 #                                   ($u, $msgid, $otherid)
 #    LJ::Event::UserMessageSent    -- user $u sent message with ID $msgid to user $otherid

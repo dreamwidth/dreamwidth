@@ -136,7 +136,7 @@ sub birthday_items {
 sub befriended_items {
     my $self = shift;
 
-    my @events = ( 'Befriended' );
+    my @events = ( 'AddedToCircle' );
 
     return $self->subset_items(@events);
 }
@@ -674,7 +674,8 @@ sub usermsg_sent_event_count {
 # Methods that return Arrays of Event categories
 sub friend_event_list {
     my @events = qw(
-                    Befriended
+                    AddedToCircle
+                    RemovedFromCircle
                     InvitedFriendJoins
                     CommunityInvite
                     NewUserpic
@@ -685,11 +686,11 @@ sub friend_event_list {
 
 sub friendplus_event_list {
     my @events = qw(
-                    Befriended
+                    AddedToCircle
+                    RemovedFromCircle
                     InvitedFriendJoins
                     CommunityInvite
                     NewUserpic
-                    NewVGift
                     Birthday
                     );
     @events = (@events, (LJ::run_hook('friend_notification_types') || ()));

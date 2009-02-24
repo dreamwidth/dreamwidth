@@ -120,27 +120,25 @@ sub _add_wt_edge {
 
     # fire notifications if we have theschwartz
     if ( my $sclient = LJ::theschwartz() ) {
+        my $notify = !$LJ::DISABLED{esn} &&
+            !$from_u->equals( $to_u ) &&
+            $from_u->is_visible &&
+            ( $from_u->is_personal || $from_u->is_identity ) &&
+            ( $to_u->is_personal || $to_u->is_identity ) &&
+            !$to_u->has_banned( $from_u ) ? 1 : 0;
+        my $trust_notify = $notify && !$trust_edge->{nonotify} ? 1 : 0;
+        my $watch_notify = $notify && !$watch_edge->{nonotify} ? 1 : 0;
 
-        # part of the criteria for whether to fire befriended event
-        my $skip_notify = ( $trust_edge->{nonotify} || $watch_edge->{nonotify} ) ? 1 : 0;
-        my $notify = !$LJ::DISABLED{esn} && !$skip_notify
-                     && $from_u->is_visible && $from_u->is_person;
-
-        # only fire event if the from_u is a person and not banned
-        if ( $notify && ! $to_u->is_banned( $from_u ) ) {
-# FIXME(mark): need a new event here instead of just Befriended
-#            $sclient->insert_jobs( LJ::Event::Befriended->new( $to_u, $from_u )->fire_job );
-        }
+        $sclient->insert_jobs( LJ::Event::AddedToCircle->new( $to_u, $from_u, 1 )->fire_job )
+            if $do_trust && $trust_notify;
+        $sclient->insert_jobs( LJ::Event::AddedToCircle->new( $to_u, $from_u, 2 )->fire_job )
+            if $do_watch && $watch_notify;
     }
 
     return 1;
 }
 
 # internal method to delete an edge
-#
-# FIXME: we should be able to accept an options here that says
-# 'please do not notify', skips theschwartz event ...
-#
 sub _del_wt_edge {
     my ( $from_u, $to_u, $edges ) = @_;
     $from_u = LJ::want_user( $from_u ) or return 0;
@@ -150,6 +148,10 @@ sub _del_wt_edge {
     my $de_watch = delete $edges->{watch};
     my $de_trust = delete $edges->{trust};
     return 1 unless $de_watch || $de_trust;
+
+    # now setup some helper variables
+    my $do_watch = $de_watch ? 1 : 0;
+    my $do_trust = $de_trust ? 1 : 0;
 
     # get what we know
     my $does_watch = $from_u->watches( $to_u );
@@ -194,24 +196,22 @@ sub _del_wt_edge {
     LJ::memcache_kill( $to_u, 'trusted_by' );
     LJ::MemCache::delete( [$from_u->id, "trustmask:" . $from_u->id . ":" . $to_u->id] );
 
-# TODO(mark): need to add this when we get the events sorted
-#    # part of the criteria for whether to fire defriended event
-#    my $notify = !$LJ::DISABLED{esn} && !$opts->{nonotify} && $u->is_visible && $u->is_person;
-#
-#    # delete friend-of memcache keys for anyone who was removed
-#    foreach my $fid (@del_ids) {
-#
-#        my $friendee = LJ::load_userid($fid);
-#        if ($sclient) {
-#            my @jobs;
-#
-#            # only fire event if the friender is a person and not banned and visible
-#            if ($notify && !$friendee->has_banned($u)) {
-#                push @jobs, LJ::Event::Defriended->new($friendee, $u)->fire_job;
-#            }
-#            $sclient->insert_jobs(@jobs);
-#        }
-#    }
+    # fire notifications if we have theschwartz
+    if ( my $sclient = LJ::theschwartz() ) {
+        my $notify = !$LJ::DISABLED{esn} &&
+            !$from_u->equals( $to_u ) &&
+            $from_u->is_visible &&
+            ( $from_u->is_personal || $from_u->is_identity ) &&
+            ( $to_u->is_personal || $to_u->is_identity ) &&
+            !$to_u->has_banned( $from_u ) ? 1 : 0;
+        my $trust_notify = $notify && !$de_trust->{nonotify} ? 1 : 0;
+        my $watch_notify = $notify && !$de_watch->{nonotify} ? 1 : 0;
+
+        $sclient->insert_jobs( LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 1 )->fire_job )
+            if $do_trust && $trust_notify;
+        $sclient->insert_jobs( LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 2 )->fire_job )
+            if $do_watch && $watch_notify;
+    }
 }
 
 ###############################################################################
