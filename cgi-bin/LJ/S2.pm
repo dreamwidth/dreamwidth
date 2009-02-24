@@ -4111,6 +4111,22 @@ sub string__contains
     return $this =~ /\Q$str\E/;
 }
 
+sub string__replace
+{
+    use utf8;
+    my ($ctx, $this, $find, $replace) = @_;
+    $this =~ s/\Q$find\E/\Q$replace\E/g;
+    return $this;
+}
+
+sub string__split
+{
+    use utf8;
+    my ($ctx, $this, $splitby) = @_;
+    my @result = split /\Q$splitby\E/, $this;
+    return \@result;
+}
+
 sub string__repeat
 {
     use utf8;
