@@ -42,7 +42,7 @@ sub make_feed
         foreach ("name", "url", "urlname");
 
     # opt_synlevel will default to 'full'
-    $u->{'opt_synlevel'} = 'full'
+    $u->{'opt_synlevel'} = 'ljcut'
         unless $u->{'opt_synlevel'} =~ /^(?:full|ljcut|summary|title)$/;
 
     # some data used throughout the channel
