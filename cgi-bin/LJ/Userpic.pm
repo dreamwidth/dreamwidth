@@ -688,6 +688,8 @@ sub delete_cache {
     LJ::MemCache::delete($memkey);
     $memkey = [$u->{'userid'},"upicurl:$u->{'userid'}"];
     LJ::MemCache::delete($memkey);
+    $memkey = [$u->{'userid'},"upicdes:$u->{'userid'}"];
+    LJ::MemCache::delete($memkey);
 
     # userpic2 rows for a given $u
     $memkey = LJ::Userpic->memkey($u);

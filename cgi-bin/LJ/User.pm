@@ -4917,7 +4917,7 @@ sub wipe_major_memcache
     foreach my $key ("userid","bio","talk2ct","talkleftct","log2ct",
                      "log2lt","memkwid","dayct2","s1overr","s1uc","fgrp",
                      "wt_edges","wt_edges_rev","tu","upicinf","upiccom",
-                     "upicurl", "intids", "memct", "lastcomm")
+                     "upicurl", "upicdes", "intids", "memct", "lastcomm")
     {
         LJ::memcache_kill($userid, $key);
     }
