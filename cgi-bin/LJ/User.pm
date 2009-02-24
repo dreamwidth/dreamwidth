@@ -7761,7 +7761,7 @@ sub get_remote
     }
 
     LJ::User->set_remote($u);
-    $r->notes->{ljuser} => $u->{user};
+    $r->notes->{ljuser} = $u->{user};
     return $u;
 }
 

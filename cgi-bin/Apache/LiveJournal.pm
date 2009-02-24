@@ -1658,7 +1658,7 @@ sub db_logger
     my $r = shift;
     my $rl = $r->last;
 
-    $r->pnotes->{did_lj_logging} => 1;
+    $r->pnotes->{did_lj_logging} = 1;
 
     # these are common enough, it's worth doing it here, early, before
     # constructing the accesslogrecord.

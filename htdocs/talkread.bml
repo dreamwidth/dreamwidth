@@ -29,7 +29,7 @@ body<=
  }
 
  my $r = BML::get_request();
- $r->notes->{codepath} => "bml.talkread";
+ $r->notes->{codepath} = "bml.talkread";
 
  my $uri = BML::get_uri();
  my $itemid;
