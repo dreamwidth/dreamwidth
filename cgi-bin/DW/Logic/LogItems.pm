@@ -429,8 +429,14 @@ sub recent_items
     my $itemload = $itemshow + $skip;
 
     my $mask = 0;
-    if ($remote && ($remote->{'journaltype'} eq "P" || $remote->{'journaltype'} eq "I") && $remoteid != $userid) {
-        $mask = $u->trustmask( $remote );
+    if ( $remote && ( $remote->is_person || $remote->is_identity ) && $remoteid != $userid ) {
+        # if this is a community we're viewing, fake the mask to select on, as communities
+        # no longer have masks to users
+        if ( $u->is_community ) {
+            $mask = $remote->member_of( $u ) ? 1 : 0;
+        } else {
+            $mask = $u->trustmask( $remote );
+        }
     }
 
     # decide what level of security the remote user can see

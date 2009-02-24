@@ -875,6 +875,10 @@ sub visible_to
     # so we have to load the user
     return 0 unless $remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I';
 
+    # check if it's a community and they're a member
+    return 1 if $self->journal->is_community &&
+                $remote->member_of( $self->journal );
+
     my $gmask = $self->journal->trustmask( $remote );
     my $allowed = (int($gmask) & int($self->{'allowmask'}));
     return $allowed ? 1 : 0;  # no need to return matching mask
@@ -1736,7 +1740,12 @@ sub get_log2_recent_user
                 my $mask = $mask_for_remote{$item->{journalid}};
                 unless (defined $mask) {
                     my $ju = LJ::load_userid( $item->{journalid} );
-                    $mask = $ju->trustmask( $remote );
+                    if ( $ju->is_community ) {
+                        # communities don't have masks towards users, so fake it
+                        $mask = $remote->member_of( $ju ) ? 1 : 0;
+                    } else {
+                        $mask = $ju->trustmask( $remote );
+                    }
                     $mask_for_remote{$item->{journalid}} = $mask;
                 }
                 $permit = $item->{'allowmask'}+0 & $mask+0;

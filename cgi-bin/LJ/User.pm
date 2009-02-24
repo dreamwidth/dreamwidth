@@ -4869,6 +4869,9 @@ sub get_postto_list {
 # </LJFUNC>
 sub can_view
 {
+
+# TODO: fold this into LJ::Entry->visible_to :(
+
     &nodb;
     my $remote = shift;
     my $item = shift;
@@ -4896,8 +4899,14 @@ sub can_view
     # so we have to load the user
     return 0 unless $remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I';
 
-    # TAG:FR:ljlib:can_view  (turn off bit 0 for just watching?  hmm.)
+    # this far down we have to load the user
     my $u = LJ::want_user( $userid ) or return 0;
+
+    # check if it's a community and they're a member
+    return 1 if $u->is_community &&
+                $remote->member_of( $u );
+
+    # now load allowmask
     my $allowed = ( $u->trustmask( $remoteid ) & int($item->{'allowmask'}) );
     return $allowed ? 1 : 0;  # no need to return matching mask
 }
