@@ -78,7 +78,12 @@ sub caps_in_group {
 sub name_caps
 {
     my $bit = shift;
-    return join( ', ', LJ::caps_string( $bit, '_visible_name' ) );
+    my @caps = LJ::caps_string( $bit, '_visible_name' );
+    if ( @caps ) {
+        return join( ', ', @caps );
+    } else {
+        return LJ::name_caps_short( $bit );
+    }
 }
 
 # <LJFUNC>
@@ -109,7 +114,7 @@ sub caps_string {
         my $class = LJ::class_of_bit($bit);
         next unless $class && LJ::caps_in_group($caps, $class);
         my $name = $LJ::CAP{$bit}->{$name_value};
-        push @classes, $name;
+        push @classes, $name if $name ne "";
     }
 
     return @classes;

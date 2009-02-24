@@ -369,7 +369,7 @@ body<=
 
     # account type
     my $acctype = LJ::name_caps( $u->caps);
-    $ret .= "<p>$acctype</p>";
+    $ret .= "<p>$acctype</p>" if $acctype;
 
     # journal creation date
     my $jcdate = BML::ml( '.details.createdon2', { createdate => LJ::mysql_time( $u->timecreate )  } );
