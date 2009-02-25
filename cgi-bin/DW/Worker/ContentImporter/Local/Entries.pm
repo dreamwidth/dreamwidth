@@ -26,7 +26,135 @@ DW::Worker::ContentImporter::Local::Entries - Local data utilities for entries
 
 These functions are part of the Saving API for entries.
 
+=head2 C<< $class->get_entry_map( $user, $hashref )
+
+Returns a hashref mapping import_source keys to jitemids
+
 =cut
+
+sub get_entry_map {
+    my ( $class, $u ) = @_;
+
+    my $p = LJ::get_prop( "log", "import_source" );
+    return {} unless $p;
+
+    my $dbr = LJ::get_cluster_reader( $u );
+    my %map;
+    my $sth = $dbr->prepare( "SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?" );
+
+    $sth->execute( $u->id, $p->{id} );
+
+    while ( my ( $jitemid, $value ) = $sth->fetchrow_array ) {
+        $map{$value} = $jitemid;
+    }
+
+    return \%map;
+}
+
+=head2 C<< $class->post_event( $hashref, $u, $event, $item_errors ) >>
+
+$event is a hashref representation of a single entry, with the following format:
+
+  {
+    # standard event values
+    subject => 'My Entry',
+    event => 'I DID STUFF!!!!!',
+    security => 'usemask',
+    allowmask => 1,
+    eventtime => 'yyyy-mm-dd hh:mm:ss',
+    props => {
+        heres_a_userprop => "there's a userprop",
+        and_another_little => "userprop",
+    }
+
+    # the key is a uniquely opaque string that identifies this entry.  this must be
+    # unique across all possible import sources.  the permalink may work best.
+    key => 'some_unique_key',
+
+    # a url to this entry's original location
+    url => 'http://permalink.tld/',
+  }
+
+$item_errors is an arrayref of errors to be formatted nicely with a link to old and new entries.
+
+Returns 1 on success, undef on error.
+
+=cut
+
+sub post_event {
+    my ( $class, $data, $map, $u, $evt, $errors ) = @_;
+
+    return if $map->{$evt->{key}};
+
+    my ( $yr, $month, $day, $hr, $min, $sec ) = ( $1, $2, $3, $4, $5, $6 )
+        if $evt->{eventtime} =~ m/(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/;
+
+    my %proto = (
+        lineendings => 'unix',
+        subject => $evt->{subject},
+        event => $evt->{event},
+        security => $evt->{security},
+        allowmask => $evt->{allowmask},
+
+        year => $yr,
+        mon => $month,
+        day => $day,
+        hour => $hr,
+        min => $min,
+    );
+
+    my $props = $evt->{props};
+
+    # this is a list of props that actually exist on this site
+    # but have been shown to cause failures importing that entry.
+    my %bad_props = (
+        current_coords => 1,
+        personifi_word_count => 1,
+        personifi_lang => 1,
+    );
+    foreach my $prop ( keys %$props ) {
+        next if $bad_props{$prop};
+
+        my $p = LJ::get_prop( "log", $prop )
+            or next;
+        next if $p->{ownership} eq 'system';
+
+        $proto{"prop_$prop"} = $props->{$prop};
+    };
+
+    # Overwrite these here in case we're importing from an imported journal (hey, it could happen)
+    $proto{prop_opt_backdated} = '1';
+    $proto{prop_import_source} = $evt->{key};
+
+    my %res;
+    LJ::do_request(
+        {
+            mode => 'postevent',
+            user => $u->user,
+            ver  => $LJ::PROTOCOL_VER,
+            %proto,
+        },
+        \%res,
+        {
+            u => $u,
+            noauth => 1,
+        }
+    );
+
+    if ( $res{success} eq 'FAIL' ) {
+        push @$errors, "Entry from $evt->{url}: $res{errmsg}";
+        return undef;
+
+    } else {
+        $u->do( "UPDATE log2 SET logtime = ? where journalid = ? and jitemid = ?",
+                undef, $evt->{realtime}, $u->userid, $res{itemid} );
+        $map->{$evt->{key}} = $res{itemid};
+        return 1;
+
+    }
+
+    # flow will never get here
+}
 
 
 1;

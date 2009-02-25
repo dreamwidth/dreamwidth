@@ -51,22 +51,30 @@ sub try_work {
 
     my ( @friends, @feeds );
     foreach my $friend (@{ $r->{friends} || [] }) {
-        my $local_userid = $class->remap_username_friend( $data, $friend->{username} );
-        push @friends, {
-            userid => $local_userid,
-            groupmask => $class->remap_groupmask( $data, $friend->{groupmask} ),
-        } if $local_userid;
+        my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $friend->{username} );
 
-        $local_userid = $class->remap_username_feed( $data, $friend->{username} );
+        push @friends, {
+            userid => $local_oid,
+            groupmask => $class->remap_groupmask( $data, $friend->{groupmask} ),
+        } if $local_oid;
+
         push @feeds, {
             fgcolor => $friend->{fgcolor},
             bgcolor => $friend->{bgcolor},
-            userid => $local_userid,
-        } if $local_userid;
+            userid => $local_fid,
+        } if $local_fid;
     }
 
     DW::Worker::ContentImporter->merge_trust( $u, $opts, \@friends );
     DW::Worker::ContentImporter->merge_watch( $u, $opts, \@feeds );
+
+    # schedule events import
+    my $dbh = LJ::get_db_writer();
+    $dbh->do(
+        q{UPDATE import_items SET status = 'ready'
+          WHERE userid = ? AND item = 'lj_entries' AND import_data_id = ? AND status = 'init'},
+        undef, $u->id, $opts->{import_data_id}        
+    );
 
     return $ok->();
 }

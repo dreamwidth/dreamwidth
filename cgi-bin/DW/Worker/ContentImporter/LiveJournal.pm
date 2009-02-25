@@ -316,25 +316,56 @@ sub get_feed_account_from_url {
     return undef;
 }
 
+sub get_remapped_userids {
+    my ( $class, $data, $user ) = @_;
+
+    return @{ $MAPS{$data->{hostname}}->{$user} }
+        if exists $MAPS{$data->{hostname}}->{$user};
+
+    my $dbh = LJ::get_db_writer()
+        or return;
+    my ( $oid, $fid ) = $dbh->selectrow_array(
+        'SELECT identity_userid, feed_userid FROM import_usermap WHERE hostname = ? AND username = ?',
+        undef, $data->{hostname}, $user
+    );
+
+    unless ( defined $oid ) {
+        warn "[$$] Remapping identity userid of $data->{hostname}:$user\n";
+        $oid = $class->remap_username_friend( $data, $user );
+        warn "     IDENTITY USERID IS STILL UNDEFINED\n"
+            unless defined $oid;
+    }
+
+    unless ( defined $fid ) {
+        warn "[$$] Remapping feed userid of $data->{hostname}:$user\n";
+        $fid = $class->remap_username_feed( $data, $user );
+        warn "     FEED USERID IS STILL UNDEFINED\n"
+            unless defined $fid;
+    }
+
+    $dbh->do( 'REPLACE INTO import_usermap (hostname, username, identity_userid, feed_userid) VALUES (?, ?, ?, ?)',
+              undef, $data->{hostname}, $user, $oid, $fid );
+    $MAPS{$data->{hostname}}->{$user} = [ $oid, $fid ];
+
+    return ( $oid, $fid );
+}
+
 sub remap_username_feed {
     my ( $class, $data, $username ) = @_;
 
     # canonicalize username and try to return
     $username =~ s/-/_/g;
-    return $MAPS{feed_map}->{$username}
-        if defined $MAPS{feed_map}->{$username};
 
     # don't allow identity accounts (they're not feeds by default)
     return undef
         if $username =~ m/^ext_/;
 
     # fall back to getting it from the ATOM data
-    my $url = "http://$data->{hostname}/~$username/data/atom";
+    my $url = "http://www.$data->{hostname}/~$username/data/atom";
     my $acct = $class->get_feed_account_from_url( $data, $url, $username )
         or return undef;
 
-    # store it and return
-    return $MAPS{feed_map}->{$username} = $acct;
+    return $acct;
 }
 
 sub remap_username_friend {
@@ -343,9 +374,6 @@ sub remap_username_friend {
     # canonicalize username, in case they gave us a URL version, convert it to
     # the one we know sites use
     $username =~ s/-/_/g;
-
-    return $MAPS{friend_map}->{$username}
-        if defined $MAPS{friend_map}->{$username};
 
     if ( $username =~ m/^ext_/ ) {
         my $ua = LJ::get_useragent(
@@ -366,35 +394,33 @@ sub remap_username_friend {
         if ( $url =~ m!http://(.+)\.$LJ::DOMAIN\/$! ) {
             # this appears to be a local user!
             # Map this to the local userid in feed_map too, as this is a local user.
-            my $luid = LJ::User->new_from_url( $url )->id;
-            $MAPS{feed_map}->{$username} = $luid;
-            return $luid;
+            return LJ::User->new_from_url( $url )->id;
         }
 
         my $iu = LJ::User::load_identity_user( 'O', $url, undef )
             or return undef;
-        $MAPS{friend_map}->{$username} = $iu->userid;
+        return $iu->id;
 
     } else {
         my $url_prefix = "http://$data->{hostname}/~" . $username;
         my ( $foaf_items ) = $class->get_foaf_from( $url_prefix )
             or return undef;
 
+        # if they don't have an identity section (but foaf was successful
+        # or we would have returned undef above), then they are a community
+        # or some other account without.  return 0 to signify this.
         my $ident = $foaf_items->{identity}->{url}
-            or return undef;
-        $MAPS{ident_map}->{$username} = $ident;
+            or return 0;
 
         my $iu = LJ::User::load_identity_user( 'O', $ident, undef )
             or return undef;
-        $MAPS{friend_map}->{$username} = $iu->userid;
+        return $iu->id;
     }
-
-    return $MAPS{friend_map}->{$username};
 }
 
 sub remap_lj_user {
-    my ( $class, $server, $event ) = @_;
-    $event =~ s/(<lj.+?(user|comm|syn)=["']?(.+?)["' ]?>)/<lj site="$server" $2="$3">/gi;
+    my ( $class, $data, $event ) = @_;
+    $event =~ s/(<lj.+?(user|comm|syn)=["']?(.+?)["' ]?>)/<lj site="$data->{hostname}" $2="$3">/gi;
     return $event;
 }
 
@@ -422,6 +448,7 @@ sub xmlrpc_call_helper {
     my $res;
     eval { $res = $xmlrpc->call($method, $req); };
     if ( $res && $res->fault ) {
+        warn "XMLRPC fault: " . join( ', ', map { "$_:" . $res->fault->{$_} } keys %{$res->fault || {}} ) . "\n";
         return { fault => 1 };
     }
 

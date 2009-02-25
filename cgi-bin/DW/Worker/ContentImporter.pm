@@ -83,91 +83,6 @@ sub merge_watch {
 }
 
 
-=head2 C<< $class->post_event( $user, $hashref, $event, $item_errors ) >>
-
-$event is a hashref representation of a single entry, with the following format:
-
-  {
-    subject => 'My Entry',
-    event => 'I DID STUFF!!!!!',
-    security => 'usemask',
-    allowmask => 1,
-
-    eventtime => 'yyyy-mm-dd hh:mm:ss',
-    props => {
-        heres_a_userprop => "there's a userprop",
-        and_another_little => "userprop",
-    }
-    key => 'some_uniqe_key', # generally the permalink to the old entry, otherwise something unique (across *all* import sources possible)
-    url => 'http://permalink.tld/', # permalink to the old entry
-  }
-
-$item_errors is an arrayref of errors to be formatted nicely with a link to old and new entries.
-
-=cut
-sub post_event {
-    my ( $class, $u, $opts, $evt, $item_errors ) = @_;
-
-    return if $opts->{entry_map}->{$evt->{key}};
-
-    my ( $yr, $month, $day, $hr, $min, $sec ) = $evt->{eventtime} =~ m/([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/;
-    my %proto = (
-        lineendings => 'unix',
-        subject => $evt->{subject},
-        event => $evt->{event},
-        security => $evt->{security},
-        allowmask => $evt->{allowmask},
-
-        year => $yr,
-        mon => $month,
-        day => $day,
-        hour => $hr,
-        min => $min,
-    );
-
-    my $props = $evt->{props};
-
-    # this is a list of props that actually exist on this site
-    # but have been shown to cause failures importing that entry.
-    my %bad_props = (
-        current_coords => 1,
-    );
-    foreach my $prop ( keys %$props ) {
-        my $p = LJ::get_prop( "log", $prop );
-
-        # skip over system and non-existant props
-        next unless $p;
-        next if ( $p->{ownership} eq 'system' );
-        next if ( $bad_props{$prop} );
-
-        $proto{"prop_$prop"} = $props->{$prop};
-    };
-
-    # Overwrite these here in case we're importing from an imported journal (hey, it could happen)
-    $proto{prop_opt_backdated} = '1';
-    $proto{prop_import_source} = $evt->{key};
-
-    my %res;
-    LJ::do_request({ 'mode' => 'postevent',
-                     'user' => $u->{'user'},
-                     'ver'  => $LJ::PROTOCOL_VER,
-                     %proto },
-                   \%res, { 'u' => $u,
-                            'noauth' => 1, });
-
-    my $errors = $opts->{errors};
-    if ( $res{success} eq 'FAIL' ) {
-        push @$errors, "Entry from $evt->{url}: $res{errmsg}";
-    } else {
-        my $itemid = $res{itemid};
-        $u->do( "UPDATE log2 SET logtime = ? where journalid = ? and jitemid = ?", undef, $evt->{realtime}, $u->userid, $itemid );
-        $opts->{entry_map}->{$evt->{key}} = $itemid;
-        foreach my $err ( @$item_errors ) {
-            push @$errors, "Entry at $res{url}: $err ( from $evt->{url} )";
-        }
-    }
-}
-
 =head2 C<< $class->post_event( $user, $hashref, $comment ) >>
 
 $event is a hashref representation of a single comment, with the following format:
@@ -228,31 +143,6 @@ sub insert_comment {
     my $jtalkid = LJ::Talk::Post::enter_imported_comment( $u, $parent, $item, $comment, $date, \$errref );
     return undef unless $jtalkid;
     return $jtalkid;
-}
-
-=head2 C<< $class->get_entry_map( $user, $hashref )
-
-Returns a hashref mapping import_source keys to jitemids
-
-=cut
-sub get_entry_map {
-    my ( $class, $u, $opts ) = @_;
-    return $opts->{entry_map} if $opts->{entry_map};
-
-    my $p = LJ::get_prop( "log", "import_source" );
-    return {} unless $p;
-
-    my $dbr = LJ::get_cluster_reader( $u );
-    my %map;
-    my $sth = $dbr->prepare( "SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?" );
-
-    $sth->execute( $u->id, $p->{id} );
-
-    while ( my ( $jitemid, $value ) = $sth->fetchrow_array ) {
-        $map{$value} = $jitemid;
-    }
-
-    return \%map;
 }
 
 =head2 C<< $class->get_comment_map( $user, $hashref )

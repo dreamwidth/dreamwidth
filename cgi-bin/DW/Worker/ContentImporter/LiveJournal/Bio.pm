@@ -60,7 +60,7 @@ sub try_work {
 
     DW::Worker::ContentImporter::Local::Bio->merge_interests( $u, $interests );
 
-    $items->{bio} = $class->remap_lj_user( $data->{hostname}, $items->{bio} );
+    $items->{bio} = $class->remap_lj_user( $data, $items->{bio} );
     DW::Worker::ContentImporter::Local::Bio->merge_bio_items( $u, $items );
 
     return $ok->();

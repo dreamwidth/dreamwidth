@@ -63,11 +63,15 @@ body<=
             ['lj_userpics', 'ready'],
             ['lj_bio', 'ready'],
             ['lj_tags', 'ready'],
+            ['lj_friendgroups', 'ready'],
+            ['lj_friends', 'init'],
+            ['lj_entries', 'init'],
         );
         # schedule userpic, bio, and tag imports
         foreach my $item (@jobs) {
             $dbh->do(
-                "INSERT INTO import_items (userid, item, status, created, import_data_id, priority) VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, UNIX_TIMESTAMP())",
+                "INSERT INTO import_items (userid, item, status, created, import_data_id, priority) " .
+                "VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, UNIX_TIMESTAMP())",
                 undef, $u->id, $item->[0], $item->[1], $id
             );
             return "Database error." if $dbh->err;
@@ -80,7 +84,8 @@ body<=
     my $dbh = LJ::get_db_writer()
         or return "No database.";
     my $imps = $dbh->selectall_arrayref(
-        'SELECT import_data_id, hostname, username, password_md5 FROM import_data WHERE userid = ? ORDER BY import_data_id DESC LIMIT 10',
+        'SELECT import_data_id, hostname, username, password_md5 FROM import_data WHERE userid = ? ' .
+        'ORDER BY import_data_id DESC LIMIT 3',
         undef, $u->id
     );
 
@@ -109,7 +114,7 @@ body<=
         foreach my $impid ( sort { $b <=> $a } keys %s ) {
             my $h = $s{$impid};
             $ret .= "<tr><td colspan='4'>&nbsp;</td></tr>";
-            $ret .= "<tr><td colspan='4' style='background-color: #cccccc;'>$refresh <strong>$h->{host}</strong> | $h->{user} | $h->{pw}</td></tr>";
+            $ret .= "<tr><td colspan='4' style='background-color: #cccccc;'>$refresh <strong>$h->{host}</strong> | $h->{user}</td></tr>";
             foreach my $item ( sort keys %{$h->{items}} ) {
                 my $i = $h->{items}->{$item};
                 $ret .= "<tr><td><em>$item</em></td>";
@@ -132,7 +137,8 @@ body<=
     $ret .= "<select name='hostname'><option value='livejournal.com'>LiveJournal.com</option></select><br />";
     $ret .= "<br />";
     $ret .= "Clicking submit below will cause import jobs to be queued to import your userpics, your ";
-    $ret .= "tags, and your bio fields.  You can check this page for status.";
+    $ret .= "tags, and your bio fields.  You can check this page for status.<br />";
+    $ret .= "<strong>This option now imports your friend groups, friends, and entries.</strong><br />";
     $ret .= "<input type='submit' value='Do it!'></form>";
     return $ret;
 }

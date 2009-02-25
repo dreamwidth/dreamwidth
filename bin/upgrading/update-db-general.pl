@@ -3008,6 +3008,21 @@ CREATE TABLE import_data (
 )
 EOC
 
+# we don't store this in userprops because we need to index this
+# backwards and load it easily...
+register_tablecreate("import_usermap", <<'EOC');
+CREATE TABLE import_usermap (
+    hostname VARCHAR(255),
+    username VARCHAR(255),
+    identity_userid INT UNSIGNED,
+    feed_userid INT UNSIGNED,
+
+    PRIMARY KEY (hostname, username),
+    INDEX (identity_userid),
+    INDEX (feed_userid)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 
