@@ -154,7 +154,7 @@ body<=
                 } elsif ($friend->is_syndicated) {
                     $pic .= "<img src='$LJ::IMGPREFIX/feed-userpic.gif' width='100' height='100' class='userpic-img' /><br />\n";
                 } else {
-                    $pic .= "<img src='$LJ::STATPREFIX/horizon/nouserpic.png' width='100' height='100' class='userpic-img' /><br />\n";
+                    $pic .= "<img src='$LJ::IMGPREFIX/nouserpic.png' width='100' height='100' class='userpic-img' /><br />\n";
                 }
                 $body .= "   <td valign='bottom' align='center' width='100'>$pic" . $friend->ljuser_display . "</td>\n";
             }
