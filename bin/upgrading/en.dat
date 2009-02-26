@@ -2414,15 +2414,15 @@ setting.adultcontent.error.invalid=Invalid adult content setting.
 
 setting.adultcontent.label=Adult Content
 
-setting.adultcontent.option.comm=My community contains
+setting.adultcontent.option.comm=This community contains content suitable for
 
-setting.adultcontent.option.select.concepts=adult concepts
+setting.adultcontent.option.select.concepts=Ages 14+
 
-setting.adultcontent.option.select.explicit=explicit adult content
+setting.adultcontent.option.select.explicit=Ages 18+
 
-setting.adultcontent.option.select.none=no adult content
+setting.adultcontent.option.select.none=Everyone
 
-setting.adultcontent.option.self=My journal contains
+setting.adultcontent.option.self=This journal contains content suitable for
 
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
@@ -2686,11 +2686,11 @@ setting.safesearch.error.invalid=Invalid safe search setting.
 
 setting.safesearch.label=Safe Search Filter
 
-setting.safesearch.option.select.concepts=Use strict filtering (filters all adult and offensive content)
+setting.safesearch.option.select.concepts=Exclude 18+
 
-setting.safesearch.option.select.explicit=Use moderate filtering (filters explicit adult and offensive content)
+setting.safesearch.option.select.explicit=Exclude 14+
 
-setting.safesearch.option.select.none=Do not filter my results
+setting.safesearch.option.select.none=Exclude nothing
 
 setting.selfcommentemail.label=Self Comment Email Notification
 
@@ -2748,9 +2748,9 @@ setting.viewingadultcontent.label=Viewing Adult Content
 
 setting.viewingadultcontent.option=Collapse
 
-setting.viewingadultcontent.option.select.concepts=adult concepts and explicit adult content
+setting.viewingadultcontent.option.select.concepts=14+
 
-setting.viewingadultcontent.option.select.explicit=explicit adult content only
+setting.viewingadultcontent.option.select.explicit=18+
 
 setting.viewingadultcontent.option.select.none=nothing
 
