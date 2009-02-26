@@ -86,10 +86,7 @@ function s2keyPressed(e)
 				nxinsertText(area, "\t");
 				area.focus();
 			}
-			e.returnValue = false;
-			e.cancelBubble = true;
-			e.preventDefault();
-			e.stopPropagation();
+			Event.preventDefeault(e);
 			return false;
 		} else
 			s2sense(e.charCode);
@@ -102,16 +99,13 @@ function s2IETabKeyPressedHandler(e)
 {
 	var area = s2getCodeArea();
 
-	if (nxIE && e) {
+	if (( nxIE || navigator.userAgent.toLowerCase().indexOf('safari') ) && e) {
 		if (e.keyCode == 9) {
 			if (!s2acceptCompletion()) {
 				nxinsertText(area, "\t");
 				area.focus();
 			}
-			e.returnValue = false;
-			e.cancelBubble = true;
-			e.preventDefault();
-			e.stopPropagation();
+			Event.preventDefault(e);
 			return false;
 		}
 	}

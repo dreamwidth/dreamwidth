@@ -177,7 +177,7 @@ function nxinsertText(obj, text)
 		obj.value = val.substring(0, obj.selectionEnd) + text +
 			val.substring(obj.selectionEnd);
 			
-		obj.selectionEnd = oend + text.length;
+		obj.setSelectionRange(oend + text.length, oend + text.length);
 		obj.scrollTop = otop;
 	}
 }
