@@ -86,7 +86,7 @@ function s2keyPressed(e)
 				nxinsertText(area, "\t");
 				area.focus();
 			}
-			Event.preventDefeault(e);
+			Event.preventDefault(e);
 			return false;
 		} else
 			s2sense(e.charCode);
