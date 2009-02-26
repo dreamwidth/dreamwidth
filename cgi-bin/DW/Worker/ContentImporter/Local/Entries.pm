@@ -77,7 +77,7 @@ $event is a hashref representation of a single entry, with the following format:
 
 $item_errors is an arrayref of errors to be formatted nicely with a link to old and new entries.
 
-Returns 1 on success, undef on error.
+Returns (1, $res) on success, (undef, $res) on error.
 
 =cut
 
@@ -142,14 +142,14 @@ sub post_event {
     );
 
     if ( $res{success} eq 'FAIL' ) {
-        push @$errors, "Entry from $evt->{url}: $res{errmsg}";
-        return undef;
+        push @$errors, "Failed to post: $res{errmsg}";
+        return ( undef, \%res );
 
     } else {
         $u->do( "UPDATE log2 SET logtime = ? where journalid = ? and jitemid = ?",
                 undef, $evt->{realtime}, $u->userid, $res{itemid} );
         $map->{$evt->{key}} = $res{itemid};
-        return 1;
+        return ( 1, \%res );
 
     }
 

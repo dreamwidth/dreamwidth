@@ -3023,6 +3023,18 @@ CREATE TABLE import_usermap (
 )
 EOC
 
+# whenever we fire off a status event we have to store this in a table
+# for the user so they can get the data later
+register_tablecreate("import_status", <<'EOC');
+CREATE TABLE import_status (
+    userid INT UNSIGNED NOT NULL,
+    import_status_id INT UNSIGNED NOT NULL,
+    status BLOB,
+
+    PRIMARY KEY (userid, import_status_id)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 

@@ -41,7 +41,7 @@ sub try_work {
     # failure wrappers for convenience
     my $fail      = sub { return $class->fail( $data, 'lj_friendgroups', $job, @_ ); };
     my $ok        = sub { return $class->ok( $data, 'lj_friendgroups', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $job, @_ ); };
+    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_friendgroups', $job, @_ ); };
 
     # setup
     my $u = LJ::load_userid( $data->{userid} )
@@ -51,7 +51,7 @@ sub try_work {
         or return $temp_fail->( 'Unable to get global master database handle' );
 
     my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
-    return $temp_fail->( 'XMLRPC failure' )
+    return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
         if ! $r || $r->{fault};
 
     my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u, $r->{friendgroups} );

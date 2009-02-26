@@ -44,7 +44,7 @@ sub try_work {
     # failure wrappers for convenience
     my $fail      = sub { return $class->fail( $data, 'lj_comments', $job, @_ ); };
     my $ok        = sub { return $class->ok( $data, 'lj_comments', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $job, @_ ); };
+    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_comments', $job, @_ ); };
 
     # setup
     my $u = LJ::load_userid( $data->{userid} )

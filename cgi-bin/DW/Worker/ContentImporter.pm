@@ -229,7 +229,7 @@ Permanently fail this import job.
 =cut
 
 sub fail {
-    my ( $class, $imp, $item, $job ) = ( shift(), shift(), shift(), shift() );
+    my ( $class, $imp, $item, $job, $msgt, @args ) = @_;
 
     if ( my $dbh = LJ::get_db_writer() ) {
         $dbh->do( "UPDATE import_items SET status = 'failed', last_touch = UNIX_TIMESTAMP() ".
@@ -238,9 +238,12 @@ sub fail {
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
 
-    my $msg = sprintf( shift(), @_ );
+    my $msg = sprintf( $msgt, @args );
     warn "Permanent failure: $msg\n"
         if $LJ::IS_DEV_SERVER;
+
+    # fire an event for the user to know that it failed
+    LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'fail', msg => $msg } )->fire;
 
     $job->permanent_failure( $msg );
     return;
@@ -253,8 +256,23 @@ Temporarily fail this import job, it will get retried if it hasn't failed too ma
 =cut
 
 sub temp_fail {
-    my ( $class, $job ) = ( shift(), shift() );
-    $job->failed( sprintf( shift(), @_ ) );
+    my ( $class, $imp, $item, $job, $msgt, @args ) = @_;
+
+    my $msg = sprintf( $msgt, @args );
+    warn "Temporary failure: $msg\n"
+        if $LJ::IS_DEV_SERVER;
+
+    # fire an event for the user to know that it failed (temporarily)
+    LJ::Event::ImportStatus->new( $imp->{userid}, $item,
+        {
+            type     => 'temp_fail',
+            msg      => $msg,
+            failures => $job->failures,
+            retries  => $job->funcname->max_retries,
+        }
+    )->fire;
+
+    $job->failed( $msg );
     return;
 }
 
@@ -274,8 +292,23 @@ sub ok {
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
 
+    # advise the user this finished
+    LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'ok' } )->fire;
+
     $job->completed;
     return;
+}
+
+=head2 C<< $class->status( $import_data, $item, $args ) >>
+
+This creates an LJ::Event::ImportStatus item for the user to look at.  Note that $args
+is a hashref that is passed straight through in the item.
+
+=cut
+
+sub status {
+    my ( $class, $imp, $item, $args ) = @_;
+    return LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'status', %{ $args || {} } } )->fire;
 }
 
 

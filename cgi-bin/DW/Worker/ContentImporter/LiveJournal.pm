@@ -448,8 +448,11 @@ sub xmlrpc_call_helper {
     my $res;
     eval { $res = $xmlrpc->call($method, $req); };
     if ( $res && $res->fault ) {
-        warn "XMLRPC fault: " . join( ', ', map { "$_:" . $res->fault->{$_} } keys %{$res->fault || {}} ) . "\n";
-        return { fault => 1 };
+        return 
+            {
+                fault => 1,
+                faultString => $res->fault->{faultString} || 'Unknown error.',
+            };
     }
 
     # typically this is timeouts

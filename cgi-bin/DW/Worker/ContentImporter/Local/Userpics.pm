@@ -139,13 +139,13 @@ sub import_userpic {
 
         if ( $count >= $max ) {
             push @$errors, "Icon '$identifier': You are at your limit of $max " . ($max == 1 ? "userpic" : "userpics") .
-                           ". You cannot upload any more userpics until you delete one of your existing ones.";
+                           ". You cannot upload any more userpics right now.";
             return 0;
 
         } else {
             $userpic = eval { LJ::Userpic->create( $u, data => \$data ); };
             unless ( $userpic ) {
-                push( @$errors, "Icon '$identifier': " . $@->as_string );
+                push @$errors, "Icon '$identifier': " . $@->as_string;
                 return 0;
             }
         }

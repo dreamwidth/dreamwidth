@@ -41,17 +41,20 @@ sub try_work {
     # failure wrappers for convenience
     my $fail      = sub { return $class->fail( $data, 'lj_userpics', $job, @_ ); };
     my $ok        = sub { return $class->ok( $data, 'lj_userpics', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $job, @_ ); };
+    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_userpics', $job, @_ ); };
+    my $status    = sub { return $class->status( $data, 'lj_userpics', { @_ } ); };
 
     # setup
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
 
+# FIXME: URL may not be accurate here for all sites
     my ( $default, @pics ) = get_lj_userpic_data( "http://$data->{username}.$data->{hostname}/" );
 
-# FIXME: we need to be aware of errors that will be returned by this method and
-# properly handle them/expose them (add import_errors table?)
-    my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, [], $default, \@pics );
+    my $errs = [];
+    my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics );
+    $status->( text => "Your usericon import had some errors:\n\n" . join("\n", map { " * $_" } @$errs) )
+        if @$errs;
 
     if ( scalar( @imported ) != scalar( @pics ) ) {
         my $mog = LJ::mogclient();

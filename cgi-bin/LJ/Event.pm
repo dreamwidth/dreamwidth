@@ -45,6 +45,8 @@ foreach my $event (@EVENTS) {
 #                                   ($u, $msgid, $otherid)
 #    LJ::Event::UserMessageSent    -- user $u sent message with ID $msgid to user $otherid
 #                                   ($u, $msgid, $otherid)
+#    LJ::Event::ImportStatus       -- user $u has received an import status notification
+#                                   ($u, $item, $hashref)
 sub new {
     my ($class, $u, @args) = @_;
     croak("too many args")        if @args > 2;

@@ -40,7 +40,8 @@ sub try_work {
     # failure wrappers for convenience
     my $fail      = sub { return $class->fail( $data, 'lj_entries', $job, @_ ); };
     my $ok        = sub { return $class->ok( $data, 'lj_entries', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $job, @_ ); };
+    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_entries', $job, @_ ); };
+    my $status    = sub { return $class->status( $data, 'lj_entries', { @_ } ); };
 
     # setup
     my $u = LJ::load_userid( $data->{userid} )
@@ -53,6 +54,8 @@ sub try_work {
     while ( $tried_syncs{$lastsync} < 2 ) {
         warn "[$$] Attempting lastsync = " . ( $lastsync || 'undef' ) . "\n";
         my $hash = $class->call_xmlrpc( $data, 'syncitems', { lastsync => $lastsync } );
+        return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
+            if ! $hash || $hash->{fault};
 
         foreach my $item ( @{$hash->{syncitems} || []} ) {
             next unless $item->{item} =~ /^L-(\d+)$/;
@@ -88,6 +91,8 @@ sub try_work {
                 lineendings => 'unix',
             }
         );
+        return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
+            if ! $hash || $hash->{fault};
 
         foreach my $evt ( @{$hash->{events} || []} ) {
             $count++;
@@ -111,7 +116,7 @@ sub try_work {
             # the entry private and mark the error.
             if ( $allowmask != 1 && $newmask == 1 ) { 
                 $newmask = 0;
-                push @item_errors, "Could not determine groups.";
+                push @item_errors, "Could not determine groups to post to.";
             }
 
             $evt->{allowmask} = $newmask;
@@ -139,16 +144,15 @@ sub try_work {
             $evt->{event} = $class->remap_lj_user( $data, $event );
 
             # actually post it
-            my $res = DW::Worker::ContentImporter::Local::Entries->post_event( $data, $entry_map, $u, $evt, \@item_errors );
+            my ( $ok, $res ) =
+                DW::Worker::ContentImporter::Local::Entries->post_event( $data, $entry_map, $u, $evt, \@item_errors );
 
-# FIXME: do something with the return code and @item_errors ... other than
-# printing them to STDERR of course ...
-            if ( $res ) {
-                warn "     imported!\n";
-            }  else {
-                warn "     failed!\n";
-            }
-            warn "       $_\n" foreach @item_errors;
+            # now record any errors that happened
+            $status->(
+                remote_url => $evt->{url},
+                post_res   => $res,
+                errors     => \@item_errors,
+            ) if @item_errors;
         }
 
         warn "     count = $count && lastgrab = $lastgrab\n";
