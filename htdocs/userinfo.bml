@@ -182,6 +182,7 @@ body<=
             my $join_string = shift @$r;
             my @links;
             foreach my $l ( @$r ) {
+                next unless $l;
                 push @links, $linkify->( $l );
             }
 
