@@ -2144,14 +2144,14 @@ sub res_includes {
 
     # include standard JS info
     $ret .= qq {
-        <script language="JavaScript" type="text/javascript">
+        <script type="text/javascript">
             var Site;
             if (!Site)
                 Site = {};
 
             var site_p = $site_params;
             var site_k = $site_param_keys;
-            for (var i = 0; i < site_k.length; i++) {
+            for (var i = 0; site_k.length > i; i++) {
                 Site[site_k[i]] = site_p[site_k[i]];
             }
        </script>
