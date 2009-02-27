@@ -123,11 +123,9 @@ sub try_work {
 
             my $event = $evt->{event};
 
-            if ( $event =~ m/<.+?-poll-.+?>/ ) {
-                $event =~ s/<.+?-poll-.+?>//g;
-
-                push @item_errors, "Entry contained a poll, please manually re-add the poll.";
-            }
+            # we just link polls to the original site
+# FIXME: this URL should be from some method and not manually constructed
+            $event =~ s!<.+?-poll-(\d+?)>![<a href="http://www.$data->{hostname}/poll/?id=$1">Poll #$1</a>]!g;
 
             if ( $event =~ m/<.+?-embed-.+?>/ ) {
                 $event =~ s/<.+?-embed-.+?>//g;

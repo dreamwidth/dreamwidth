@@ -138,6 +138,7 @@ sub post_event {
         {
             u => $u,
             noauth => 1,
+            nonotify => 1,
         }
     );
 

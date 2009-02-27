@@ -1553,8 +1553,12 @@ sub postevent
     $res->{'anum'} = $anum;
     $res->{'url'} = $entry->url;
 
-    push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
-    push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if (!$LJ::DISABLED{'esn-userevents'} || $LJ::_T_FIRE_USERNEWENTRY);
+    # if the caller told us not to fire events (importer?) then skip the user events,
+    # but still fire the logging events
+    unless ( $flags->{nonotify} ) {
+        push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
+        push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if (!$LJ::DISABLED{'esn-userevents'} || $LJ::_T_FIRE_USERNEWENTRY);
+    }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 
     my $sclient = LJ::theschwartz();
