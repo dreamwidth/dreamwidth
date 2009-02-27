@@ -466,7 +466,7 @@ sub trans
             my $is_journal_page = !$opts->{mode} || $journal_pages{$opts->{mode}};
 
             if ($adult_content ne "none" && $is_journal_page && !$should_show_page) {
-                my $returl = LJ::eurl("http://$host" . $r->uri . "$args_wq");
+                my $returl = "http://$host" . $r->uri . "$args_wq";
 
                 LJ::ContentFlag->check_adult_cookie($returl, \%BMLCodeBlock::POST, "concepts");
                 LJ::ContentFlag->check_adult_cookie($returl, \%BMLCodeBlock::POST, "explicit");
