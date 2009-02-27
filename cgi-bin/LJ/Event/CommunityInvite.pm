@@ -138,6 +138,12 @@ sub subscription_as_html {
     return BML::ml('event.comm_invite'); # "I receive an invitation to join a community";
 }
 
+sub available_for_user {
+    my ($class, $u, $subscr) = @_;
+
+    return $u->is_identity ? 0 : 1;
+}
+
 package LJ::Error::Event::CommunityInvite;
 sub fields { 'u' }
 sub as_string {

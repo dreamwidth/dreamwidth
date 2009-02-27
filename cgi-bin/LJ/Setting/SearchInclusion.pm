@@ -6,7 +6,7 @@ use warnings;
 sub should_render {
     my ($class, $u) = @_;
 
-    return $u ? 1 : 0;
+    return $u && !$u->is_identity ? 1 : 0;
 }
 
 sub helpurl {

@@ -146,6 +146,12 @@ sub subscription_as_html {
     return BML::ml('event.community_join_requst'); # Someone requests membership in a community I maintain';
 }
 
+sub available_for_user {
+    my ($class, $u, $subscr) = @_;
+
+    return $u->is_identity ? 0 : 1;
+}
+
 package LJ::Error::Event::CommunityJoinRequest;
 sub fields { 'u' }
 sub as_string {

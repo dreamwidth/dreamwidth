@@ -131,4 +131,10 @@ sub content {
     return $self->as_html_actions;
 }
 
+sub available_for_user {
+    my ($class, $u, $subscr) = @_;
+
+    return $u->is_identity ? 0 : 1;
+}
+
 1;
