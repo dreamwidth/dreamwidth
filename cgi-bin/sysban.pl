@@ -223,7 +223,7 @@ sub _db_sysban_populate {
 # args: where, what
 # des-where: the hashref to populate with hash of hashes:
 #            value => { expire => expiration, note => note,
-#                      banid => banid } for each ban
+#                        banid => banid } for each ban
 # des-what: the type of sysban to look up
 # returns: hashref on success, undef on failure
 # </LJFUNC>
@@ -483,6 +483,8 @@ sub sysban_validate {
 # des-bandays: the new expiry 
 # des-expire: the old expiry
 # des-note: the new note (optional)
+# des-what: the ban type 
+# des-value: the ban value
 # returns: ERROR object on success, error message on failure
 # </LJFUNC>
 sub sysban_modify {
@@ -504,12 +506,12 @@ sub sysban_modify {
     if ($bandays) {
         if ($bandays eq "E") {
             $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . ")" 
-               unless ($expire==0);
+                unless ($expire==0);
         } elsif ($bandays eq "X") {
             $banuntil = "NOW()";
         } else {
             $banuntil = "FROM_UNIXTIME(" . $dbh->quote($expire) . 
-                       ") + INTERVAL " . $dbh->quote($bandays) . " DAY";
+                        ") + INTERVAL " . $dbh->quote($bandays) . " DAY";
         }
     }
 
@@ -523,9 +525,21 @@ sub sysban_modify {
         }, 'ERROR';
     }
 
+    # log in statushistory
+    my $remote = LJ::get_remote();
+    $banuntil = $opts{'bandays'} ? LJ::mysql_time($expire) : "forever";
+
+    LJ::statushistory_add(0, $remote, 'sysban_modify',
+                              "banid=$banid; status=active; " .
+                              "bandate=" . LJ::mysql_time() . "; banuntil=$banuntil; " .
+                              "what=$opts{'what'}; value=$opts{'value'}; " .
+                              "note=$opts{'note'};");
+
+
     return $dbh->{'mysql_insertid'};
 
 }
+
 
 
 1;

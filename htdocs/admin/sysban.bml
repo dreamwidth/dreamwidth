@@ -1,0 +1,233 @@
+<?page
+title=>Sysban Management
+head<=
+<style>
+<!--
+td {
+    border: solid 1px rgb(230,230,230);
+    padding: 2px;
+    margin: 0px;
+    vertical-align: top;
+}
+th {
+    border: solid 1px rgb(180,180,180);
+    padding: 2px;
+    margin: 0px;
+    text-weight: bold;
+}
+-->
+</style>
+<=head
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST);
+
+    my $main_return = '<p><form method="post" action="sysban.bml">
+        <input type="submit" value="Return to Sysban page"></form></p>';
+    my $err = sub {
+        return "<?h1 Error h1?><?p $_[0] p?><?p $main_return p?>";
+     };
+    my $priv = 'sysban';
+    my @all_sb_args = qw( ip uniq email email_domain user pay_cc msisdn 
+                          pay_user pay_email pay_uniq support_user 
+                          support_uniq lostpassword  talk_ip_test contentflag );
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    return $err->("You do not have the necessary privilege to view this page.")
+        unless LJ::check_priv( $remote, $priv );
+
+    LJ::load_user_privs($remote, $priv)
+        unless $remote->{'_privloaded'}->{$priv};
+    
+    my @sysban_privs;
+    foreach my $arg ( keys %{ $remote->{'_priv'}->{$priv} } ) {
+        if ( $arg eq '*' ) {
+            push @sysban_privs, @all_sb_args;
+        } else {
+            push @sysban_privs, $arg;
+        }
+    }
+
+    my $action;
+    if    ( $POST{'query'} )  { $action = 'query'; }
+    elsif ( $POST{'addnew'} ) { $action = 'addnew'; }
+    elsif ( $POST{'add'} )    { $action = 'add'; }
+    elsif ( $POST{'modify'} ) { $action = 'modify'; }
+    else                      { $action = undef; }
+
+    my $bantype = $POST{'bantype'};
+
+    my $ret = "<form method='post' action='sysban.bml'>";
+    $ret   .= LJ::form_auth();
+    $ret   .= "<select name='bantype'>";
+    foreach my $type ( @sysban_privs ) {
+        $ret .=  "<option value='$type'>$type</option>\n";
+    }
+    $ret .= <<FORM;
+</select>
+<input type='submit' name='addnew' value='Add New'>
+<input type='submit' name='query' value='Query'>
+
+</form>
+FORM
+
+    return $ret unless $action;
+
+    if ( $action eq "query" ) {
+
+        return $err->("Requires post") unless LJ::did_post();
+        return $err->("Invalid form") unless LJ::check_form_auth();
+        
+        my $existing_bans = {};
+
+        LJ::sysban_populate_full( $existing_bans, $bantype );
+
+        $ret = <<QUERYFORM;
+<table>
+<tr><th>Value</th><th>Expiration</th><th>Change expiry</th><th>Note</th><th>Action</th></tr>
+QUERYFORM
+
+        foreach my $value ( keys %$existing_bans ) {
+
+            my $expire = $existing_bans->{ $value }->{expire};
+            my $note   = $existing_bans->{ $value }->{note};
+            my $banid  = $existing_bans->{ $value }->{banid};
+            $note =~ s/^'(.*)'$/\1/;
+
+            $ret .= "<tr>\n <td>$value</td><td>" . localtime($expire) . "</td>";
+            $ret .= "<form method='post' action='sysban.bml'>" . 
+                    LJ::form_auth();
+            $ret .= <<QUERYFORM;
+<td>
+<select name='bandays'>
+<option selected value='E'>no change</option>
+<option value='X'>expire now</option>
+<option value='1'>add 24 hrs</option>
+<option value='7'>add 7 days</option>
+<option value='30'>add 1 month</option>
+<option value='0'>forever</option>
+</select>
+</td>
+<td>
+<textarea name='note' rows='2' cols='40'>$note</textarea> 
+</td>
+<td><input type='submit' name='modify' value='modify'>
+</td>
+<input type='hidden' name='expire' value=$expire>
+<input type='hidden' name='banid' value=$banid>
+<input type='hidden' name='bantype' value=$bantype>
+<input type='hidden' name='value' value=$value>
+</form>
+</tr>
+
+QUERYFORM
+        }
+        $ret .= "</table>";
+
+    }
+
+    # this action comes from the query section
+    elsif ( $action eq "modify" ) {
+
+        return $err->("Requires post") unless LJ::did_post();
+        return $err->("Invalid form") unless LJ::check_form_auth();
+
+        my $banid     = $POST{banid};
+        my $bandays   = $POST{bandays};
+        my $expire    = $POST{expire};
+        my $note      = $POST{note};
+        my $bantype   = $POST{bantype};
+        my $value     = $POST{value};
+
+        my $modify = LJ::sysban_modify('banid', $banid, 'expire', $expire,
+                'bandays', $bandays, 'note', $note, 'what', $bantype,
+                'value', $value);
+
+        return $err->("Ban modify error:" . $modify->{message}) 
+            if ( ref $modify eq 'ERROR' ); 
+
+        my $auth = LJ::form_auth();
+        $ret = <<RETURN;
+Ban modified.
+<p><form method="post" action="sysban.bml">
+$auth
+<input type='hidden' name='bantype' value=$bantype>
+<input type='submit' name='query' value='Return to updated query listing'>
+</form></p>
+RETURN
+
+    }
+
+    
+    elsif ($action eq "addnew") {
+
+        return $err->("Requires post") unless LJ::did_post();
+        return $err->("Invalid form") unless LJ::check_form_auth();
+
+        $ret = "<form method='post' action='sysban.bml'> " . LJ::form_auth() . 
+                "<select name='bantype'>";
+        foreach my $type ( @sysban_privs ) {
+            if ( $type eq $bantype ) {
+                $ret .=  "<option selected value='$type'>$type</option>\n";
+            } else {
+                $ret .=  "<option value='$type'>$type</option>\n";
+            }
+        }
+        $ret .= <<FORM;
+</select>
+Value: <input type='text' name='value'>
+Duration: <select name='bandays'>
+<option value='1'>24 hrs</option>
+<option value='7'>7 days</option>
+<option value='30'>1 month</option>
+<option value='0'>forever</option>
+</select>
+Note (required): <textarea name='note' rows='5' cols='80'></textarea> 
+<br />
+<input type='submit' name='add' value='Add'>
+</form>
+FORM
+    }
+
+    elsif ( $action eq "add" ) {
+
+        return $err->("Requires post") unless LJ::did_post();
+        return $err->("Invalid form") unless LJ::check_form_auth();
+
+        my $value   = $POST{value};
+        my $bandays = $POST{bandays};
+        my $note    = $POST{note};
+
+        return $err->("No note field!") unless $note; 
+        return $err->("You do not have the correct privileges") unless 
+            ( LJ::check_priv( $remote, $priv, '*' ) ||
+              LJ::check_priv( $remote, $priv, $bantype ) );
+
+        my $notvalid = LJ::sysban_validate( $bantype, $value );
+        return $err->("Ban not valid: $notvalid") if $notvalid;
+
+        my $create = LJ::sysban_create("what", $bantype, "value", $value, 
+                                         "bandays", $bandays, "note", $note); 
+        return $err->("Ban creation error:" . $create->{message}) 
+            if ( ref $create eq 'ERROR' ); 
+
+        $ret = "Ban successfully added.";
+
+    }
+
+    else {
+        return $err->("Form is returning an impossible action $action:
+            something is badly wrong!");
+    }
+
+    $ret .= $main_return;
+
+    return $ret;
+    
+}
+_code?>
+<=body
