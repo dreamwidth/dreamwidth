@@ -2873,7 +2873,7 @@ subscribe_interface.notify_me2=Notify me in my [[sitenameabbrev]] Inbox when...
 
 subscribe_interface.save=Save
 
-subscribe_interface.special_subs.note=These notification options are only available by email and will not show in your LJ Inbox.
+subscribe_interface.special_subs.note=These notification options are only available by email and will not show in your [[sitenameabbrev]] Inbox.
 
 taglib.error.toomany=This would make you exceed your maximum of [[max]] tags.  Please remove some and try again.
 

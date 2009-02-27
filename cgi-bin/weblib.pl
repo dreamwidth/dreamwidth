@@ -3674,7 +3674,7 @@ sub subscribe_interface {
         }
 
         $cat_html .= "</tr>";
-        $cat_html .= "<tr><td colspan='$cols' style='font-size: smaller;'>* " . LJ::Lang::ml('subscribe_interface.special_subs.note') . "</td></tr>" if $special_subs;
+        $cat_html .= "<tr><td colspan='$cols' style='font-size: smaller;'>* " . LJ::Lang::ml( 'subscribe_interface.special_subs.note', { sitenameabbrev => $LJ::SITENAMEABBREV } ) . "</td></tr>" if $special_subs;
         $cat_html .= "</div>";
         $events_table .= $cat_html unless ($is_tracking_category && !$showtracking);
 
