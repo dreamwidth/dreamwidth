@@ -13,6 +13,9 @@
 use strict;
 no warnings 'uninitialized';
 
+########################################################################
+### Begin LJ::User functions
+
 package LJ::User;
 use Carp;
 use lib "$LJ::HOME/cgi-bin";
@@ -36,6 +39,70 @@ use Class::Autouse qw(
                       LJ::BetaFeatures
                       LJ::S2Theme
                       );
+
+########################################################################
+### Please keep these categorized and alphabetized for ease of use. 
+### If you need a new category, add it at the end, BEFORE category 99.
+### Categories kinda fuzzy, but better than nothing.
+###
+### Categories:
+###  1. Creating and Deleting Accounts
+###  2. Statusvis and Account Types
+###  3. Working with All Types of Account
+###  4. Login, Session, and Rename Functions
+###  5. Database and Memcache Functions
+###  6. What the App Shows to Users
+###  7. Userprops, Caps, and Displaying Content to Others
+###  8. Formatting Content Shown to Users
+###  9. Logging and Recording Actions
+###  10. Banning-Related Functions
+###  11. Birthdays and Age-Related Functions
+###  12. Comment-Related Functions
+###  13. Community-Related Functions and Authas
+###  14. Content Flagging and Adult Content Functions
+###  15. Email-Related Functions
+###  16. Entry-Related Functions
+###  17. Interest-Related Functions
+###  18. Jabber-Related Functions
+###  19. OpenID and Identity Functions
+###  20. Page Notices Functions
+###  21. Password Functions
+###  22. Priv-Related Functions
+###  23. SMS-Related Functions
+###  24. Styles and S2-Related Functions
+###  25. Subscription, Notifiction, and Messaging Functions
+###  26. Syndication-Related Functions
+###  27. Tag-Related Functions
+###  28. Userpic-Related Functions
+###  99. Miscellaneous Legacy Items
+
+
+
+
+
+########################################################################
+### 1. Creating and Deleting Accounts
+
+
+sub can_expunge {
+    my $u = shift;
+
+    # must be already deleted
+    return 0 unless $u->is_deleted;
+
+    # and deleted 30 days ago
+    my $expunge_days = LJ::conf_test($LJ::DAYS_BEFORE_EXPUNGE) || 30;
+    return 0 unless $u->statusvisdate_unix < time() - 86400*$expunge_days;
+
+    my $hook_rv = 0;
+    if (LJ::are_hooks("can_expunge_user", $u)) {
+        $hook_rv = LJ::run_hook("can_expunge_user", $u);
+        return $hook_rv ? 1 : 0;
+    }
+
+    return 1;
+}
+
 
 # class method to create a new account.
 sub create {
@@ -111,6 +178,28 @@ sub create {
     return $u;
 }
 
+
+sub create_community {
+    my ($class, %opts) = @_;
+
+    $opts{journaltype} = "C";
+    my $u = LJ::User->create(%opts) or return;
+
+    $u->set_prop("nonmember_posting", $opts{nonmember_posting}+0);
+    $u->set_prop("moderated", $opts{moderated}+0);
+    $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled("content_flag");
+
+    my $remote = LJ::get_remote();
+    LJ::set_rel($u, $remote, "A");  # maintainer
+    LJ::set_rel($u, $remote, "M") if $opts{moderated}; # moderator if moderated
+    LJ::join_community($remote, $u, 1, 1); # member
+
+    LJ::set_comm_settings($u, $remote, { membership => $opts{membership},
+                                         postlevel => $opts{postlevel} });
+    return $u;
+}
+
+
 sub create_personal {
     my ($class, %opts) = @_;
 
@@ -182,25 +271,6 @@ sub create_personal {
     return $u;
 }
 
-sub create_community {
-    my ($class, %opts) = @_;
-
-    $opts{journaltype} = "C";
-    my $u = LJ::User->create(%opts) or return;
-
-    $u->set_prop("nonmember_posting", $opts{nonmember_posting}+0);
-    $u->set_prop("moderated", $opts{moderated}+0);
-    $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled("content_flag");
-
-    my $remote = LJ::get_remote();
-    LJ::set_rel($u, $remote, "A");  # maintainer
-    LJ::set_rel($u, $remote, "M") if $opts{moderated}; # moderator if moderated
-    LJ::join_community($remote, $u, 1, 1); # member
-
-    LJ::set_comm_settings($u, $remote, { membership => $opts{membership},
-                                         postlevel => $opts{postlevel} });
-    return $u;
-}
 
 sub create_syndicated {
     my ($class, %opts) = @_;
@@ -224,24 +294,31 @@ sub create_syndicated {
     return $u;
 }
 
-# retrieve hash of basic syndicated info
-sub get_syndicated {
+
+sub delete_and_purge_completely {
     my $u = shift;
+    # TODO: delete from user tables
+    # TODO: delete from global tables
+    my $dbh = LJ::get_db_writer();
 
-    return unless $u->is_syndicated;
-    my $memkey = [$u->{'userid'}, "synd:$u->{'userid'}"];
-
-    my $synd = {};
-    $synd = LJ::MemCache::get($memkey);
-    unless ($synd) {
-        my $dbr = LJ::get_db_reader();
-        return unless $dbr;
-        $synd = $dbr->selectrow_hashref("SELECT * FROM syndicated WHERE userid=$u->{'userid'}");
-        LJ::MemCache::set($memkey, $synd) if $synd;
+    my @tables = qw(user useridmap reluser priv_map infohistory email password);
+    foreach my $table (@tables) {
+        $dbh->do("DELETE FROM $table WHERE userid=?", undef, $u->id);
     }
 
-    return $synd;
+    $dbh->do("DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?", undef, $u->id, $u->id);
+    $dbh->do("DELETE FROM reluser WHERE targetid=?", undef, $u->id);
+    $dbh->do("DELETE FROM email_aliases WHERE alias=?", undef, $u->user . "\@$LJ::USER_DOMAIN");
+
+    $dbh->do("DELETE FROM community WHERE userid=?", undef, $u->id)
+        if $u->is_community;
+    $dbh->do("DELETE FROM syndicated WHERE userid=?", undef, $u->id)
+        if $u->is_syndicated;
+    $dbh->do("DELETE FROM content_flag WHERE journalid=? OR reporterid=?", undef, $u->id, $u->id);
+
+    return 1;
 }
+
 
 sub is_protected_username {
     my ($class, $username) = @_;
@@ -251,40 +328,325 @@ sub is_protected_username {
     return 0;
 }
 
-sub new_from_row {
-    my ($class, $row) = @_;
-    my $u = bless $row, $class;
 
-    # for selfassert method below:
-    $u->{_orig_userid} = $u->{userid};
-    $u->{_orig_user}   = $u->{user};
+sub postreg_completed {
+    my $u = shift;
 
-    return $u;
+    return 0 unless $u->bio;
+    return 0 unless $u->interest_count;
+    return 1;
 }
 
-sub new_from_url {
-    my ($class, $url) = @_;
 
-    # this doesn't seem to like URLs with ?...
-    $url =~ s/\?.+$//;
+sub who_invited {
+    my $u = shift;
+    my $inviterid = LJ::load_rel_user($u, 'I');
 
-    # /users, /community, or /~
-    if ($url =~ m!^\Q$LJ::SITEROOT\E/(?:users/|community/|~)([\w-]+)/?!) {
-        return LJ::load_user($1);
-    }
-
-    # user subdomains
-    if ($LJ::USER_DOMAIN && $url =~ m!^http://([\w-]+)\.\Q$LJ::USER_DOMAIN\E/?$!) {
-        return LJ::load_user($1);
-    }
-
-    # subdomains that hold a bunch of users (eg, users.siteroot.com/username/)
-    if ($url =~ m!^http://\w+\.\Q$LJ::USER_DOMAIN\E/([\w-]+)/?$!) {
-        return LJ::load_user($1);
-    }
-
-    return undef;
+    return LJ::load_userid($inviterid);
 }
+
+
+
+########################################################################
+###  2. Statusvis and Account Types
+
+
+sub is_deleted {
+    my $u = shift;
+    return $u->statusvis eq 'D';
+}
+
+
+sub is_expunged {
+    my $u = shift;
+    return $u->statusvis eq 'X' || $u->clusterid == 0;
+}
+
+
+sub is_locked {
+    my $u = shift;
+    return $u->statusvis eq 'L';
+}
+
+
+sub is_memorial {
+    my $u = shift;
+    return $u->statusvis eq 'M';
+}
+
+
+sub is_readonly {
+    my $u = shift;
+    return $u->statusvis eq 'O';
+}
+
+
+sub is_renamed {
+    my $u = shift;
+    return $u->statusvis eq 'R';
+}
+
+
+sub is_suspended {
+    my $u = shift;
+    return $u->statusvis eq 'S';
+}
+
+
+# returns if this user is considered visible
+sub is_visible {
+    my $u = shift;
+    return $u->statusvis eq 'V';
+}
+
+
+sub set_deleted {
+    my $u = shift;
+    my $res = $u->set_statusvis('D');
+
+    # run any account cancellation hooks
+    LJ::run_hooks("account_delete", $u);
+    return $res;
+}
+
+
+sub set_expunged {
+    my $u = shift;
+    return $u->set_statusvis('X');
+}
+
+
+sub set_locked {
+    my $u = shift;
+    return $u->set_statusvis('L');
+}
+
+
+sub set_memorial {
+    my $u = shift;
+    return $u->set_statusvis('M');
+}
+
+
+sub set_readonly {
+    my $u = shift;
+    return $u->set_statusvis('O');
+}
+
+
+sub set_renamed {
+    my $u = shift;
+    return $u->set_statusvis('R');
+}
+
+
+sub set_suspended {
+    my ($u, $who, $reason, $errref) = @_;
+    die "Not enough parameters for LJ::User::set_suspended call" unless $who and $reason;
+
+    my $res = $u->set_statusvis('S');
+    unless ($res) {
+        $$errref = "DB error while setting statusvis to 'S'" if ref $errref;
+        return $res;
+    }
+
+    LJ::statushistory_add($u, $who, "suspend", $reason);
+
+    eval { $u->fb_push };
+    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
+
+    LJ::run_hooks("account_cancel", $u);
+
+    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
+        $$errref = $err if ref $errref and $err;
+        return 0;
+    }
+
+    return $res; # success
+}
+
+
+# set_statusvis only change statusvis parameter, all accompanied actions are done in set_* methods
+sub set_statusvis {
+    my ($u, $statusvis) = @_;
+
+    croak "Invalid statusvis: $statusvis"
+        unless $statusvis =~ /^(?:
+            V|       # visible
+            D|       # deleted
+            X|       # expunged
+            S|       # suspended
+            L|       # locked
+            M|       # memorial
+            O|       # read-only
+            R        # renamed
+                                )$/x;
+
+    # log the change to userlog
+    $u->log_event('accountstatus', {
+            # remote looked up by log_event
+            old => $u->statusvis,
+            new => $statusvis,
+        });
+
+    # do update
+    return LJ::update_user($u, { statusvis => $statusvis,
+                                 raw => 'statusvisdate=NOW()' });
+}
+
+
+# sets a user to visible, but also does all of the stuff necessary when a suspended account is unsuspended
+# this can only be run on a suspended account
+sub set_unsuspended {
+    my ($u, $who, $reason, $errref) = @_;
+    die "Not enough parameters for LJ::User::set_unsuspended call" unless $who and $reason;
+
+    unless ($u->is_suspended) {
+        $$errref = "User isn't suspended" if ref $errref;
+        return 0;
+    }
+
+    my $res = $u->set_statusvis('V');
+    unless ($res) {
+        $$errref = "DB error while setting statusvis to 'V'" if ref $errref;
+        return $res;
+    }
+
+    LJ::statushistory_add($u, $who, "unsuspend", $reason);
+
+    eval { $u->fb_push };
+    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
+
+    return $res; # success
+}
+
+
+sub set_visible {
+    my $u = shift;
+    return $u->set_statusvis('V');
+}
+
+
+sub statusvis {
+    my $u = shift;
+    return $u->{statusvis};
+}
+
+
+sub statusvisdate {
+    my $u = shift;
+    return $u->{statusvisdate};
+}
+
+
+sub statusvisdate_unix {
+    my $u = shift;
+    return LJ::mysqldate_to_time($u->{statusvisdate});
+}
+
+
+
+########################################################################
+### 3. Working with All Types of Account
+
+
+# this will return a hash of information about this user.
+# this is useful for JavaScript endpoints which need to dump
+# JSON data about users.
+sub info_for_js {
+    my $u = shift;
+
+    my %ret = (
+               username         => $u->user,
+               display_username => $u->display_username,
+               display_name     => $u->display_name,
+               userid           => $u->userid,
+               url_journal      => $u->journal_base,
+               url_profile      => $u->profile_url,
+               url_allpics      => $u->allpics_base,
+               ljuser_tag       => $u->ljuser_display,
+               is_comm          => $u->is_comm,
+               is_person        => $u->is_person,
+               is_syndicated    => $u->is_syndicated,
+               is_identity      => $u->is_identity,
+               is_shared        => $u->is_shared,
+               );
+    # Without url_message "Send Message" link should not display
+    $ret{url_message} = $u->message_url unless ($u->opt_usermsg eq 'N');
+
+    LJ::run_hook("extra_info_for_js", $u, \%ret);
+
+    my $up = $u->userpic;
+
+    if ($up) {
+        $ret{url_userpic} = $up->url;
+        $ret{userpic_w}   = $up->width;
+        $ret{userpic_h}   = $up->height;
+    }
+
+    return %ret;
+}
+
+
+sub is_community {
+    my $u = shift;
+    return $u->{journaltype} eq "C";
+}
+*is_comm = \&is_community;
+
+
+sub is_identity {
+    my $u = shift;
+    return $u->{journaltype} eq "I";
+}
+
+
+sub is_news {
+    my $u = shift;
+    return $u->{journaltype} eq "N";
+}
+
+
+sub is_person {
+    my $u = shift;
+    return $u->{journaltype} eq "P";
+}
+*is_personal = \&is_person;
+
+
+sub is_shared {
+    my $u = shift;
+    return $u->{journaltype} eq "S";
+}
+
+
+sub is_syndicated {
+    my $u = shift;
+    return $u->{journaltype} eq "Y";
+}
+
+
+sub journaltype {
+    my $u = shift;
+    return $u->{journaltype};
+}
+
+
+# return the journal type as a name
+sub journaltype_readable {
+    my $u = shift;
+
+    return {
+        R => 'redirect',
+        I => 'identity',
+        P => 'personal',
+        S => 'shared',
+        Y => 'syndicated',
+        N => 'news',
+        C => 'community',
+    }->{$u->{journaltype}};
+}
+
 
 # returns LJ::User class of a random user, undef if we couldn't get one
 #   my $random_u = LJ::User->load_random_user(type);
@@ -331,12 +693,20 @@ sub load_random_user {
     return undef;
 }
 
+
+sub preload_props {
+    my $u = shift;
+    LJ::load_user_props($u, @_);
+}
+
+
 # class method.  returns remote (logged in) user object.  or undef if
 # no session is active.
 sub remote {
     my ($class, $opts) = @_;
     return LJ::get_remote($opts);
 }
+
 
 # class method.  set the remote user ($u or undef) for the duration of this request.
 # once set, it'll never be reloaded, unless "unset_remote" is called to forget it.
@@ -348,6 +718,41 @@ sub set_remote
     1;
 }
 
+
+# when was this account created?
+# returns unixtime
+sub timecreate {
+    my $u = shift;
+
+    return $u->{_cache_timecreate} if $u->{_cache_timecreate};
+
+    my $memkey = [$u->id, "tc:" . $u->id];
+    my $timecreate = LJ::MemCache::get($memkey);
+    if ($timecreate) {
+        $u->{_cache_timecreate} = $timecreate;
+        return $timecreate;
+    }
+
+    my $dbr = LJ::get_db_reader() or die "No db";
+    my $when = $dbr->selectrow_array("SELECT timecreate FROM userusage WHERE userid=?", undef, $u->id);
+
+    $timecreate = LJ::mysqldate_to_time($when);
+    $u->{_cache_timecreate} = $timecreate;
+    LJ::MemCache::set($memkey, $timecreate, 60*60*24);
+
+    return $timecreate;
+}
+
+
+# when was last time this account updated?
+# returns unixtime
+sub timeupdate {
+    my $u = shift;
+    my $timeupdate = LJ::get_timeupdate_multi($u->id);
+    return $timeupdate->{$u->id};
+}
+
+
 # class method.  forgets the cached remote user.
 sub unset_remote
 {
@@ -357,412 +762,119 @@ sub unset_remote
     1;
 }
 
-sub preload_props {
-    my $u = shift;
-    LJ::load_user_props($u, @_);
-}
 
-sub readonly {
-    my $u = shift;
-    return LJ::get_cap($u, "readonly");
-}
+########################################################################
+### 4. Login, Session, and Rename Functions
 
-# returns self (the $u object which can be used for $u->do) if
-# user is writable, else 0
-sub writer {
-    my $u = shift;
-    return $u if $u->{'_dbcm'} ||= LJ::get_cluster_master($u);
-    return 0;
-}
 
-sub userpic {
-    my $u = shift;
-    return undef unless $u->{defaultpicid};
-    return LJ::Userpic->new($u, $u->{defaultpicid});
-}
-
-# returns a true value if the user is underage; or if you give it an argument,
-# will turn on/off that user's underage status.  can also take a second argument
-# when you're setting the flag to also update the underage_status userprop
-# which is used to record if a user was ever marked as underage.
-sub underage {
-    # has no bearing if this isn't on
-    return undef unless LJ::class_bit("underage");
-
-    # now get the args and continue
-    my $u = shift;
-    return LJ::get_cap($u, 'underage') unless @_;
-
-    # now set it on or off
-    my $on = shift() ? 1 : 0;
-    if ($on) {
-        $u->add_to_class("underage");
-    } else {
-        $u->remove_from_class("underage");
-    }
-
-    # now set their status flag if one was sent
-    my $status = shift();
-    if ($status || $on) {
-        # by default, just records if user was ever underage ("Y")
-        $u->underage_status($status || 'Y');
-    }
-
-    # add to statushistory
-    if (my $shwhen = shift()) {
-        my $text = $on ? "marked" : "unmarked";
-        my $status = $u->underage_status;
-        LJ::statushistory_add($u, undef, "coppa", "$text; status=$status; when=$shwhen");
-    }
-
-    # now fire off any hooks that are available
-    LJ::run_hooks('set_underage', {
-        u => $u,
-        on => $on,
-        status => $u->underage_status,
-    });
-
-    # return true if no failures
-    return 1;
-}
-
-# return true if we know user is a minor (< 18)
-sub is_minor {
-    my $self = shift;
-    my $age = $self->best_guess_age;
-    return 0 unless $age;
-    return 1 if ($age < 18);
-    return 0;
-}
-
-# return true if we know user is a child (< 14)
-sub is_child {
-    my $self = shift;
-    my $age = $self->best_guess_age;
-
-    return 0 unless $age;
-    return 1 if ($age < 14);
-    return 0;
-}
-
-# get/set the gizmo account of a user
-sub gizmo_account {
-    my $u = shift;
-
-    # parse out their account information
-    my $acct = $u->prop( 'gizmo' );
-    my ($validated, $gizmo);
-    if ($acct && $acct =~ /^([01]);(.+)$/) {
-        ($validated, $gizmo) = ($1, $2);
-    }
-
-    # setting the account
-    # all account sets are initially unvalidated
-    if (@_) {
-        my $newgizmo = shift;
-        $u->set_prop( 'gizmo' => "0;$newgizmo" );
-
-        # purge old memcache keys
-        LJ::MemCache::delete( "gizmo-ljmap:$gizmo" );
-    }
-
-    # return the information (either account + validation or just account)
-    return wantarray ? ($gizmo, $validated) : $gizmo unless @_;
-}
-
-# get/set the validated status of a user's gizmo account
-sub gizmo_account_validated {
-    my $u = shift;
-
-    my ($gizmo, $validated) = $u->gizmo_account;
-
-    if ( defined $_[0] && $_[0] =~ /[01]/) {
-        $u->set_prop( 'gizmo' => "$_[0];$gizmo" );
-        return $_[0];
-    }
-
-    return $validated;
-}
-
-# log a line to our userlog
-sub log_event {
-    my $u = shift;
-
-    my ($type, $info) = @_;
-    return undef unless $type;
-    $info ||= {};
-
-    # now get variables we need; we use delete to remove them from the hash so when we're
-    # done we can just encode what's left
-    my $ip = delete($info->{ip}) || LJ::get_remote_ip() || undef;
-    my $uniq = delete $info->{uniq};
-    unless ($uniq) {
-        eval {
-            $uniq = BML::get_request()->notes->{uniq};
-        };
-    }
-    my $remote = delete($info->{remote}) || LJ::get_remote() || undef;
-    my $targetid = (delete($info->{actiontarget})+0) || undef;
-    my $extra = %$info ? join('&', map { LJ::eurl($_) . '=' . LJ::eurl($info->{$_}) } keys %$info) : undef;
-
-    # now insert the data we have
-    $u->do("INSERT INTO userlog (userid, logtime, action, actiontarget, remoteid, ip, uniq, extra) " .
-           "VALUES (?, UNIX_TIMESTAMP(), ?, ?, ?, ?, ?, ?)", undef, $u->{userid}, $type,
-           $targetid, $remote ? $remote->{userid} : undef, $ip, $uniq, $extra);
-    return undef if $u->err;
-    return 1;
-}
-
-# return or set the underage status userprop
-sub underage_status {
-    return undef unless LJ::class_bit("underage");
-
-    my $u = shift;
-
-    # return if they aren't setting it
-    unless (@_) {
-        return $u->prop("underage_status");
-    }
-
-    # set and return what it got set to
-    $u->set_prop('underage_status', shift());
-    return $u->{underage_status};
-}
-
-# returns a true value if user has a reserved 'ext' name.
-sub external {
-    my $u = shift;
-    return $u->{user} =~ /^ext_/;
-}
-
-# this is for debugging/special uses where you need to instruct
-# a user object on what database handle to use.  returns the
-# handle that you gave it.
-sub set_dbcm {
-    my $u = shift;
-    return $u->{'_dbcm'} = shift;
-}
-
-sub nodb_err {
-    my $u = shift;
-    return "Database handle unavailable (user: " . $u->user . "; cluster: " . $u->clusterid . ")";
-}
-
-sub is_innodb {
-    my $u = shift;
-    return $LJ::CACHE_CLUSTER_IS_INNO{$u->{clusterid}}
-    if defined $LJ::CACHE_CLUSTER_IS_INNO{$u->{clusterid}};
-
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-    my (undef, $ctable) = $dbcm->selectrow_array("SHOW CREATE TABLE log2");
-    die "Failed to auto-discover database type for cluster \#$u->{clusterid}: [$ctable]"
-        unless $ctable =~ /^CREATE TABLE/;
-
-    my $is_inno = ($ctable =~ /=InnoDB/i ? 1 : 0);
-    return $LJ::CACHE_CLUSTER_IS_INNO{$u->{clusterid}} = $is_inno;
-}
-
-sub begin_work {
-    my $u = shift;
-    return 1 unless $u->is_innodb;
-
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $rv = $dbcm->begin_work;
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-    return $rv;
-}
-
-sub commit {
-    my $u = shift;
-    return 1 unless $u->is_innodb;
-
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $rv = $dbcm->commit;
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-    return $rv;
-}
-
-sub rollback {
-    my $u = shift;
-    return 1 unless $u->is_innodb;
-
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $rv = $dbcm->rollback;
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-    return $rv;
-}
-
-# get an $sth from the writer
-sub prepare {
-    my $u = shift;
-
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $rv = $dbcm->prepare(@_);
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-    return $rv;
-}
-
-# $u->do("UPDATE foo SET key=?", undef, $val);
-sub do {
-    my $u = shift;
-    my $query = shift;
-
-    my $uid = $u->{userid}+0
-        or croak "Database update called on null user object";
-
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    $query =~ s!^(\s*\w+\s+)!$1/* uid=$uid */ !;
-
-    my $rv = $dbcm->do($query, @_);
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-
-    $u->{_mysql_insertid} = $dbcm->{'mysql_insertid'} if $dbcm->{'mysql_insertid'};
-
-    return $rv;
-}
-
-sub selectrow_array {
-    my $u = shift;
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $set_err = sub {
-        if ($u->{_dberr} = $dbcm->err) {
-            $u->{_dberrstr} = $dbcm->errstr;
-        }
-    };
-
-    if (wantarray()) {
-        my @rv = $dbcm->selectrow_array(@_);
-        $set_err->();
-        return @rv;
-    }
-
-    my $rv = $dbcm->selectrow_array(@_);
-    $set_err->();
-    return $rv;
-}
-
-sub selectcol_arrayref {
-    my $u = shift;
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $rv = $dbcm->selectcol_arrayref(@_);
-
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-
-    return $rv;
+# returns a new LJ::Session object, or undef on failure
+sub create_session
+{
+    my ($u, %opts) = @_;
+    return LJ::Session->create($u, %opts);
 }
 
 
-sub selectall_hashref {
-    my $u = shift;
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $rv = $dbcm->selectall_hashref(@_);
-
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-
-    return $rv;
-}
-
-sub selectrow_hashref {
-    my $u = shift;
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    my $rv = $dbcm->selectrow_hashref(@_);
-
-    if ($u->{_dberr} = $dbcm->err) {
-        $u->{_dberrstr} = $dbcm->errstr;
-    }
-
-    return $rv;
-}
-
-sub err {
-    my $u = shift;
-    return $u->{_dberr};
-}
-
-sub errstr {
-    my $u = shift;
-    return $u->{_dberrstr};
-}
-
-sub quote {
-    my $u = shift;
-    my $text = shift;
-
-    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
-        or croak $u->nodb_err;
-
-    return $dbcm->quote($text);
-}
-
-sub mysql_insertid {
-    my $u = shift;
-    if ($u->isa("LJ::User")) {
-        return $u->{_mysql_insertid};
-    } elsif (LJ::isdb($u)) {
-        my $db = $u;
-        return $db->{'mysql_insertid'};
-    } else {
-        die "Unknown object '$u' being passed to LJ::User::mysql_insertid.";
-    }
-}
-
-# <LJFUNC>
-# name: LJ::User::dudata_set
-# class: logging
-# des: Record or delete disk usage data for a journal.
-# args: u, area, areaid, bytes
-# des-area: One character: "L" for log, "T" for talk, "B" for bio, "P" for pic.
-# des-areaid: Unique ID within $area, or '0' if area has no ids (like bio)
-# des-bytes: Number of bytes item takes up.  Or 0 to delete record.
-# returns: 1.
+#<LJFUNC>
+# name: LJ::User::get_renamed_user
+# des: Get the actual user of a renamed user
+# args: user
+# returns: user
 # </LJFUNC>
-sub dudata_set {
-    my ($u, $area, $areaid, $bytes) = @_;
-    $bytes += 0; $areaid += 0;
-    if ($bytes) {
-        $u->do("REPLACE INTO dudata (userid, area, areaid, bytes) ".
-               "VALUES (?, ?, $areaid, $bytes)", undef,
-               $u->{userid}, $area);
-    } else {
-        $u->do("DELETE FROM dudata WHERE userid=? AND ".
-               "area=? AND areaid=$areaid", undef,
-               $u->{userid}, $area);
+sub get_renamed_user {
+    my $u = shift;
+    my %opts = @_;
+    my $hops = $opts{hops} || 5;
+
+    # Traverse the renames to the final journal
+    if ($u) {
+        while ($u->{'journaltype'} eq 'R' && $hops-- > 0) {
+            my $rt = $u->prop("renamedto");
+            last unless length $rt;
+            $u = LJ::load_user($rt);
+        }
     }
+
+    return $u;
+}
+
+
+# name: LJ::User->get_timeactive
+# des:  retrieve last active time for user from [dbtable[clustertrack2]] or
+#       memcache
+sub get_timeactive {
+    my ($u) = @_;
+    my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
+    my $active;
+    unless (defined($active = LJ::MemCache::get($memkey))) {
+        # TODO: die if unable to get handle? This was left verbatim from
+        # refactored code.
+        my $dbcr = LJ::get_cluster_def_reader($u) or return 0;
+        $active = $dbcr->selectrow_array("SELECT timeactive FROM clustertrack2 ".
+                                         "WHERE userid=?", undef, $u->{userid});
+        LJ::MemCache::set($memkey, $active, 86400);
+    }
+    return $active;
+}
+
+
+sub kill_all_sessions {
+    my $u = shift
+        or return 0;
+
+    LJ::Session->destroy_all_sessions($u)
+        or return 0;
+
+    # forget this user, if we knew they were logged in
+    if ($LJ::CACHE_REMOTE && $LJ::CACHE_REMOTE->{userid} == $u->{userid}) {
+        LJ::Session->clear_master_cookie;
+        LJ::User->set_remote(undef);
+    }
+
     return 1;
 }
+
+
+# $u->kill_session(@sessids)
+sub kill_session {
+    my $u = shift
+        or return 0;
+    my $sess = $u->session
+        or return 0;
+
+    $sess->destroy;
+
+    if ($LJ::CACHE_REMOTE && $LJ::CACHE_REMOTE->{userid} == $u->{userid}) {
+        LJ::Session->clear_master_cookie;
+        LJ::User->set_remote(undef);
+    }
+
+    return 1;
+}
+
+
+sub kill_sessions {
+    my $u = shift;
+    return LJ::Session->destroy_sessions($u, @_);
+}
+
+
+sub logout {
+    my $u = shift;
+    if (my $sess = $u->session) {
+        $sess->destroy;
+    }
+    $u->_logout_common;
+}
+
+
+sub logout_all {
+    my $u = shift;
+    LJ::Session->destroy_all_sessions($u)
+        or die "Failed to logout all";
+    $u->_logout_common;
+}
+
 
 sub make_login_session {
     my ($u, $exptype, $ipfixed) = @_;
@@ -823,6 +935,7 @@ sub make_login_session {
     return 1;
 }
 
+
 # We have about 10 million different forms of activity tracking.
 # This one is for tracking types of user activity on a per-hour basis
 #
@@ -873,6 +986,233 @@ sub note_activity {
     return 1;
 }
 
+
+sub rate_check {
+    my ($u, $ratename, $count, $opts) = @_;
+    LJ::rate_check($u, $ratename, $count, $opts);
+}
+
+
+sub rate_log {
+    my ($u, $ratename, $count, $opts) = @_;
+    LJ::rate_log($u, $ratename, $count, $opts);
+}
+
+
+sub record_login {
+    my ($u, $sessid) = @_;
+
+    my $too_old = time() - 86400 * 30;
+    $u->do("DELETE FROM loginlog WHERE userid=? AND logintime < ?",
+           undef, $u->{userid}, $too_old);
+
+    my ($ip, $ua);
+    eval {
+        my $r  = BML::get_request();
+        $ip = LJ::get_remote_ip();
+        $ua = $r->header_in('User-Agent');
+    };
+
+    return $u->do("INSERT INTO loginlog SET userid=?, sessid=?, logintime=UNIX_TIMESTAMP(), ".
+                  "ip=?, ua=?", undef, $u->{userid}, $sessid, $ip, $ua);
+}
+
+
+# my $sess = $u->session           (returns current session)
+# my $sess = $u->session($sessid)  (returns given session id for user)
+sub session {
+    my ($u, $sessid) = @_;
+    $sessid = $sessid + 0;
+    return $u->{_session} unless $sessid;  # should be undef, or LJ::Session hashref
+    return LJ::Session->instance($u, $sessid);
+}
+
+
+# in list context, returns an array of LJ::Session objects which are active.
+# in scalar context, returns hashref of sessid -> LJ::Session, which are active
+sub sessions {
+    my $u = shift;
+    my @sessions = LJ::Session->active_sessions($u);
+    return @sessions if wantarray;
+    my $ret = {};
+    foreach my $s (@sessions) {
+        $ret->{$s->id} = $s;
+    }
+    return $ret;
+}
+
+
+sub _logout_common {
+    my $u = shift;
+    LJ::Session->clear_master_cookie;
+    LJ::User->set_remote(undef);
+    delete $BML::COOKIE{'BMLschemepref'};
+    eval { BML::set_scheme(undef); };
+}
+
+
+########################################################################
+### 5. Database and Memcache Functions
+
+
+sub begin_work {
+    my $u = shift;
+    return 1 unless $u->is_innodb;
+
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    my $rv = $dbcm->begin_work;
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
+    }
+    return $rv;
+}
+
+
+sub cache {
+    my ($u, $key) = @_;
+    my $val = $u->selectrow_array("SELECT value FROM userblobcache WHERE userid=? AND bckey=?",
+                                  undef, $u->{userid}, $key);
+    return undef unless defined $val;
+    if (my $thaw = eval { Storable::thaw($val); }) {
+        return $thaw;
+    }
+    return $val;
+}
+
+
+# front-end to LJ::cmd_buffer_add, which has terrible interface
+#   cmd: scalar
+#   args: hashref
+sub cmd_buffer_add {
+    my ($u, $cmd, $args) = @_;
+    $args ||= {};
+    return LJ::cmd_buffer_add($u->{clusterid}, $u->{userid}, $cmd, $args);
+}
+
+
+sub commit {
+    my $u = shift;
+    return 1 unless $u->is_innodb;
+
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    my $rv = $dbcm->commit;
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
+    }
+    return $rv;
+}
+
+
+# $u->do("UPDATE foo SET key=?", undef, $val);
+sub do {
+    my $u = shift;
+    my $query = shift;
+
+    my $uid = $u->{userid}+0
+        or croak "Database update called on null user object";
+
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    $query =~ s!^(\s*\w+\s+)!$1/* uid=$uid */ !;
+
+    my $rv = $dbcm->do($query, @_);
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
+    }
+
+    $u->{_mysql_insertid} = $dbcm->{'mysql_insertid'} if $dbcm->{'mysql_insertid'};
+
+    return $rv;
+}
+
+
+sub dversion {
+    my $u = shift;
+    return $u->{dversion};
+}
+
+
+sub err {
+    my $u = shift;
+    return $u->{_dberr};
+}
+
+
+sub errstr {
+    my $u = shift;
+    return $u->{_dberrstr};
+}
+
+
+sub is_innodb {
+    my $u = shift;
+    return $LJ::CACHE_CLUSTER_IS_INNO{$u->{clusterid}}
+    if defined $LJ::CACHE_CLUSTER_IS_INNO{$u->{clusterid}};
+
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+    my (undef, $ctable) = $dbcm->selectrow_array("SHOW CREATE TABLE log2");
+    die "Failed to auto-discover database type for cluster \#$u->{clusterid}: [$ctable]"
+        unless $ctable =~ /^CREATE TABLE/;
+
+    my $is_inno = ($ctable =~ /=InnoDB/i ? 1 : 0);
+    return $LJ::CACHE_CLUSTER_IS_INNO{$u->{clusterid}} = $is_inno;
+}
+
+
+sub last_transition {
+    my ($u, $what) = @_;
+    croak "invalid user object" unless LJ::isu($u);
+
+    $u->transition_list($what)->[-1];
+}
+
+
+# log2_do
+# see comments for talk2_do
+sub log2_do {
+    my ($u, $errref, $sql, @args) = @_;
+    return undef unless $u->writer;
+
+    my $dbcm = $u->{_dbcm};
+
+    my $memkey = [$u->{'userid'}, "log2lt:$u->{'userid'}"];
+    my $lockkey = $memkey->[1];
+
+    $dbcm->selectrow_array("SELECT GET_LOCK(?,10)", undef, $lockkey);
+    my $ret = $u->do($sql, undef, @args);
+    $$errref = $u->errstr if ref $errref && $u->err;
+    $dbcm->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
+
+    LJ::MemCache::delete($memkey, 0) if int($ret);
+    return $ret;
+}
+
+
+sub mysql_insertid {
+    my $u = shift;
+    if ($u->isa("LJ::User")) {
+        return $u->{_mysql_insertid};
+    } elsif (LJ::isdb($u)) {
+        my $db = $u;
+        return $db->{'mysql_insertid'};
+    } else {
+        die "Unknown object '$u' being passed to LJ::User::mysql_insertid.";
+    }
+}
+
+
+sub nodb_err {
+    my $u = shift;
+    return "Database handle unavailable (user: " . $u->user . "; cluster: " . $u->clusterid . ")";
+}
+
+
 sub note_transition {
     my ($u, $what, $from, $to) = @_;
     croak "invalid user object" unless LJ::isu($u);
@@ -906,193 +1246,178 @@ sub note_transition {
     return 1;
 }
 
-sub transition_list {
-    my ($u, $what) = @_;
-    croak "invalid user object" unless LJ::isu($u);
 
-    my $dbh = LJ::get_db_writer()
-        or die "unable to contact global db master";
+# get an $sth from the writer
+sub prepare {
+    my $u = shift;
 
-    # FIXME: return list of transition object singleton instances?
-    my @list = ();
-    my $sth = $dbh->prepare("SELECT time, `before`, `after` " .
-                            "FROM usertrans WHERE userid=? AND what=?");
-    $sth->execute($u->{userid}, $what);
-    die $dbh->errstr if $dbh->err;
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
 
-    while (my $trans = $sth->fetchrow_hashref) {
-
-        # fill in a couple of properties here rather than
-        # sending over the network from db
-        $trans->{userid} = $u->{userid};
-        $trans->{what}   = $what;
-
-        push @list, $trans;
+    my $rv = $dbcm->prepare(@_);
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
     }
-
-    return wantarray() ? @list : \@list;
+    return $rv;
 }
 
-sub last_transition {
-    my ($u, $what) = @_;
-    croak "invalid user object" unless LJ::isu($u);
 
-    $u->transition_list($what)->[-1];
+sub quote {
+    my $u = shift;
+    my $text = shift;
+
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    return $dbcm->quote($text);
 }
 
-sub tosagree_set
-{
-    my ($u, $err) = @_;
-    return undef unless $u;
 
-    unless (-f "$LJ::HOME/htdocs/inc/legal-tos") {
-        $$err = "TOS include file could not be found";
-        return undef;
+# memcache key that holds the number of times a user performed one of the rate-limited actions
+sub rate_memkey {
+    my ($u, $rp) = @_;
+
+    return [$u->id, "rate:" . $u->id . ":$rp->{id}"];
+}
+
+
+sub readonly {
+    my $u = shift;
+    return LJ::get_cap($u, "readonly");
+}
+
+
+sub rollback {
+    my $u = shift;
+    return 1 unless $u->is_innodb;
+
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    my $rv = $dbcm->rollback;
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
     }
+    return $rv;
+}
 
-    my $rev;
-    open (TOS, "$LJ::HOME/htdocs/inc/legal-tos");
-    while ((!$rev) && (my $line = <TOS>)) {
-        my $rcstag = "Revision";
-        if ($line =~ /\$$rcstag:\s*(\S+)\s*\$/) {
-            $rev = $1;
-        }
+
+sub selectall_hashref {
+    my $u = shift;
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    my $rv = $dbcm->selectall_hashref(@_);
+
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
     }
-    close TOS;
-
-    # if the required version of the tos is not available, error!
-    my $rev_req = $LJ::REQUIRED_TOS{rev};
-    if ($rev_req > 0 && $rev ne $rev_req) {
-        $$err = "Required Terms of Service revision is $rev_req, but system version is $rev.";
-        return undef;
-    }
-
-    my $newval = join(', ', time(), $rev);
-    my $rv = $u->set_prop("legal_tosagree", $newval);
-
-    # set in $u object for callers later
-    $u->{legal_tosagree} = $newval if $rv;
 
     return $rv;
 }
 
-sub tosagree_verify {
+
+sub selectcol_arrayref {
     my $u = shift;
-    return 1 unless $LJ::TOS_CHECK;
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
 
-    my $rev_req = $LJ::REQUIRED_TOS{rev};
-    return 1 unless $rev_req > 0;
+    my $rv = $dbcm->selectcol_arrayref(@_);
 
-    my $rev_cur = (split(/\s*,\s*/, $u->prop("legal_tosagree")))[1];
-    return $rev_cur eq $rev_req;
-}
-
-# my $sess = $u->session           (returns current session)
-# my $sess = $u->session($sessid)  (returns given session id for user)
-
-sub session {
-    my ($u, $sessid) = @_;
-    $sessid = $sessid + 0;
-    return $u->{_session} unless $sessid;  # should be undef, or LJ::Session hashref
-    return LJ::Session->instance($u, $sessid);
-}
-
-# in list context, returns an array of LJ::Session objects which are active.
-# in scalar context, returns hashref of sessid -> LJ::Session, which are active
-sub sessions {
-    my $u = shift;
-    my @sessions = LJ::Session->active_sessions($u);
-    return @sessions if wantarray;
-    my $ret = {};
-    foreach my $s (@sessions) {
-        $ret->{$s->id} = $s;
-    }
-    return $ret;
-}
-
-sub logout {
-    my $u = shift;
-    if (my $sess = $u->session) {
-        $sess->destroy;
-    }
-    $u->_logout_common;
-}
-
-sub logout_all {
-    my $u = shift;
-    LJ::Session->destroy_all_sessions($u)
-        or die "Failed to logout all";
-    $u->_logout_common;
-}
-
-sub _logout_common {
-    my $u = shift;
-    LJ::Session->clear_master_cookie;
-    LJ::User->set_remote(undef);
-    delete $BML::COOKIE{'BMLschemepref'};
-    eval { BML::set_scheme(undef); };
-}
-
-# returns a new LJ::Session object, or undef on failure
-sub create_session
-{
-    my ($u, %opts) = @_;
-    return LJ::Session->create($u, %opts);
-}
-
-# $u->kill_session(@sessids)
-sub kill_sessions {
-    my $u = shift;
-    return LJ::Session->destroy_sessions($u, @_);
-}
-
-sub kill_all_sessions {
-    my $u = shift
-        or return 0;
-
-    LJ::Session->destroy_all_sessions($u)
-        or return 0;
-
-    # forget this user, if we knew they were logged in
-    if ($LJ::CACHE_REMOTE && $LJ::CACHE_REMOTE->{userid} == $u->{userid}) {
-        LJ::Session->clear_master_cookie;
-        LJ::User->set_remote(undef);
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
     }
 
+    return $rv;
+}
+
+
+sub selectrow_array {
+    my $u = shift;
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    my $set_err = sub {
+        if ($u->{_dberr} = $dbcm->err) {
+            $u->{_dberrstr} = $dbcm->errstr;
+        }
+    };
+
+    if (wantarray()) {
+        my @rv = $dbcm->selectrow_array(@_);
+        $set_err->();
+        return @rv;
+    }
+
+    my $rv = $dbcm->selectrow_array(@_);
+    $set_err->();
+    return $rv;
+}
+
+
+sub selectrow_hashref {
+    my $u = shift;
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    my $rv = $dbcm->selectrow_hashref(@_);
+
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
+    }
+
+    return $rv;
+}
+
+
+# do some internal consistency checks on self.  die if problems,
+# else returns 1.
+sub selfassert {
+    my $u = shift;
+    LJ::assert_is($u->{userid}, $u->{_orig_userid})
+        if $u->{_orig_userid};
+    LJ::assert_is($u->{user}, $u->{_orig_user})
+        if $u->{_orig_user};
     return 1;
 }
 
-sub kill_session {
-    my $u = shift
-        or return 0;
-    my $sess = $u->session
-        or return 0;
 
-    $sess->destroy;
+sub set_cache {
+    my ($u, $key, $value, $expr) = @_;
+    my $now = time();
+    $expr ||= $now + 86400;
+    $expr += $now if $expr < 315532800;  # relative to absolute time
+    $value = Storable::nfreeze($value) if ref $value;
+    $u->do("REPLACE INTO userblobcache (userid, bckey, value, timeexpire) VALUES (?,?,?,?)",
+           undef, $u->{userid}, $key, $value, $expr);
+}
 
-    if ($LJ::CACHE_REMOTE && $LJ::CACHE_REMOTE->{userid} == $u->{userid}) {
-        LJ::Session->clear_master_cookie;
-        LJ::User->set_remote(undef);
+
+# this is for debugging/special uses where you need to instruct
+# a user object on what database handle to use.  returns the
+# handle that you gave it.
+sub set_dbcm {
+    my $u = shift;
+    return $u->{'_dbcm'} = shift;
+}
+
+
+# class method, returns { clusterid => [ uid, uid ], ... }
+sub split_by_cluster {
+    my $class = shift;
+
+    my @uids = @_;
+    my $us = LJ::load_userids(@uids);
+
+    my %clusters;
+    foreach my $u (values %$us) {
+        next unless $u;
+        push @{$clusters{$u->clusterid}}, $u->id;
     }
 
-    return 1;
+    return \%clusters;
 }
 
-# <LJFUNC>
-# name: LJ::User::mogfs_userpic_key
-# class: mogilefs
-# des: Make a mogilefs key for the given pic for the user.
-# args: pic
-# des-pic: Either the userpic hash or the picid of the userpic.
-# returns: 1.
-# </LJFUNC>
-sub mogfs_userpic_key {
-    my $self = shift or return undef;
-    my $pic = shift or croak "missing required arg: userpic";
-
-    my $picid = ref $pic ? $pic->{picid} : $pic+0;
-    return "up:$self->{userid}:$picid";
-}
 
 # all reads/writes to talk2 must be done inside a lock, so there's
 # no race conditions between reading from db and putting in memcache.
@@ -1137,87 +1462,652 @@ sub talk2_do {
     return $ret;
 }
 
-# log2_do
-# see comments for talk2_do
 
-sub log2_do {
-    my ($u, $errref, $sql, @args) = @_;
-    return undef unless $u->writer;
+sub transition_list {
+    my ($u, $what) = @_;
+    croak "invalid user object" unless LJ::isu($u);
 
-    my $dbcm = $u->{_dbcm};
+    my $dbh = LJ::get_db_writer()
+        or die "unable to contact global db master";
 
-    my $memkey = [$u->{'userid'}, "log2lt:$u->{'userid'}"];
-    my $lockkey = $memkey->[1];
+    # FIXME: return list of transition object singleton instances?
+    my @list = ();
+    my $sth = $dbh->prepare("SELECT time, `before`, `after` " .
+                            "FROM usertrans WHERE userid=? AND what=?");
+    $sth->execute($u->{userid}, $what);
+    die $dbh->errstr if $dbh->err;
 
-    $dbcm->selectrow_array("SELECT GET_LOCK(?,10)", undef, $lockkey);
-    my $ret = $u->do($sql, undef, @args);
-    $$errref = $u->errstr if ref $errref && $u->err;
-    $dbcm->selectrow_array("SELECT RELEASE_LOCK(?)", undef, $lockkey);
+    while (my $trans = $sth->fetchrow_hashref) {
 
-    LJ::MemCache::delete($memkey, 0) if int($ret);
+        # fill in a couple of properties here rather than
+        # sending over the network from db
+        $trans->{userid} = $u->{userid};
+        $trans->{what}   = $what;
+
+        push @list, $trans;
+    }
+
+    return wantarray() ? @list : \@list;
+}
+
+
+sub uncache_prop {
+    my ($u, $name) = @_;
+    my $prop = LJ::get_prop("user", $name) or die; # FIXME: use exceptions
+    LJ::MemCache::delete([$u->{userid}, "uprop:$u->{userid}:$prop->{id}"]);
+    delete $u->{$name};
+    return 1;
+}
+
+
+# returns self (the $u object which can be used for $u->do) if
+# user is writable, else 0
+sub writer {
+    my $u = shift;
+    return $u if $u->{'_dbcm'} ||= LJ::get_cluster_master($u);
+    return 0;
+}
+
+
+########################################################################
+### 6. What the App Shows to Users
+
+sub can_use_stylealwaysmine {
+    my $u = shift;
+    my $ret = 0;
+
+    return 0 if $LJ::DISABLED{stylealwaysmine};
+    $ret = LJ::run_hook("can_use_stylealwaysmine", $u);
     return $ret;
 }
 
-sub url {
+
+# format unixtimestamp according to the user's timezone setting
+sub format_time {
+    my $u = shift;
+    my $time = shift;
+
+    return undef unless $time;
+
+    return eval { DateTime->from_epoch(epoch=>$time, time_zone=>$u->prop("timezone"))->ymd('-') } ||
+                  DateTime->from_epoch(epoch => $time)->ymd('-');
+}
+
+
+sub has_enabled_getting_started {
     my $u = shift;
 
-    my $url;
+    return $u->opt_getting_started eq 'Y' ? 1 : 0;
+}
 
-    if ($u->{'journaltype'} eq "I" && ! $u->{url}) {
-        my $id = $u->identity;
-        if ($id && $id->typeid eq 'O') {
-            $url = $id->value;
-            $u->set_prop("url", $url) if $url;
-        }
+
+sub is_in_beta {
+    my ($u, $key) = @_;
+    return LJ::BetaFeatures->user_in_beta( $u => $key );
+}
+
+
+sub opt_stylealwaysmine {
+    my $u = shift;
+
+    return 0 unless $u->can_use_stylealwaysmine;
+    return $u->raw_prop('opt_stylealwaysmine') eq 'Y' ? 1 : 0;
+}
+
+
+# sometimes when the app throws errors, we want to display "nice"
+# text to end-users, while allowing admins to view the actual error message
+sub show_raw_errors {
+    my $u = shift;
+
+    return 1 if $LJ::IS_DEV_SERVER;
+    return 1 if $LJ::ENABLE_BETA_TOOLS;
+
+    return 1 if LJ::check_priv($u, "supporthelp");
+    return 1 if LJ::check_priv($u, "supportviewscreened");
+    return 1 if LJ::check_priv($u, "siteadmin");
+
+    return 0;
+}
+
+
+# returns a DateTime object corresponding to a user's "now"
+sub time_now {
+    my $u = shift;
+
+    my $now = DateTime->now;
+
+    # if user has timezone, use it!
+    my $tz = $u->prop("timezone");
+    return $now unless $tz;
+
+    $now = eval { DateTime->from_epoch(
+                                       epoch => time(),
+                                       time_zone => $tz,
+                                       );
+              };
+
+    return $now;
+}
+
+
+# return the user's timezone based on the prop if it's defined, otherwise best guess
+sub timezone {
+    my $u = shift;
+
+    my $offset = 0;
+    LJ::get_timezone($u, \$offset);
+    return $offset;
+}
+
+
+sub tosagree_set
+{
+    my ($u, $err) = @_;
+    return undef unless $u;
+
+    unless (-f "$LJ::HOME/htdocs/inc/legal-tos") {
+        $$err = "TOS include file could not be found";
+        return undef;
     }
 
-    # not openid, what does their 'url' prop say?
-    $url ||= $u->prop('url');
-    return undef unless $url;
+    my $rev;
+    open (TOS, "$LJ::HOME/htdocs/inc/legal-tos");
+    while ((!$rev) && (my $line = <TOS>)) {
+        my $rcstag = "Revision";
+        if ($line =~ /\$$rcstag:\s*(\S+)\s*\$/) {
+            $rev = $1;
+        }
+    }
+    close TOS;
 
-    $url = "http://$url" unless $url =~ m!^http://!;
+    # if the required version of the tos is not available, error!
+    my $rev_req = $LJ::REQUIRED_TOS{rev};
+    if ($rev_req > 0 && $rev ne $rev_req) {
+        $$err = "Required Terms of Service revision is $rev_req, but system version is $rev.";
+        return undef;
+    }
 
+    my $newval = join(', ', time(), $rev);
+    my $rv = $u->set_prop("legal_tosagree", $newval);
+
+    # set in $u object for callers later
+    $u->{legal_tosagree} = $newval if $rv;
+
+    return $rv;
+}
+
+
+sub tosagree_verify {
+    my $u = shift;
+    return 1 unless $LJ::TOS_CHECK;
+
+    my $rev_req = $LJ::REQUIRED_TOS{rev};
+    return 1 unless $rev_req > 0;
+
+    my $rev_cur = (split(/\s*,\s*/, $u->prop("legal_tosagree")))[1];
+    return $rev_cur eq $rev_req;
+}
+
+
+########################################################################
+### 7. Userprops, Caps, and Displaying Content to Others
+
+
+sub add_to_class {
+    my ($u, $class) = @_;
+    my $bit = LJ::class_bit($class);
+    die "unknown class '$class'" unless defined $bit;
+
+    # call add_to_class hook before we modify the
+    # current $u, so it can make inferences from the
+    # old $u caps vs the new we say we'll be adding
+    if (LJ::are_hooks('add_to_class')) {
+        LJ::run_hooks('add_to_class', $u, $class);
+    }
+
+    return LJ::modify_caps($u, [$bit], []);
+}
+
+
+sub caps {
+    my $u = shift;
+    return $u->{caps};
+}
+
+
+sub can_be_text_messaged_by {
+    my ($u, $sender) = @_;
+
+    return 0 unless $u->get_cap("textmessaging");
+
+    my $security = LJ::TextMessage->tm_security($u);
+
+    return 0 if $security eq "none";
+    return 1 if $security eq "all";
+
+    if ($sender) {
+        return 1 if $security eq "reg";
+        return 1 if $security eq "friends" && $u->trusts( $sender );
+    }
+
+    return 0;
+}
+
+
+sub can_show_location {
+    my $u = shift;
+    croak "invalid user object passed" unless LJ::isu($u);
+    my $remote = LJ::get_remote();
+
+    return 0 if $u->underage;
+    return 0 if $u->opt_showlocation eq 'N';
+    return 0 if $u->opt_showlocation eq 'R' && !$remote;
+    return 0 if $u->opt_showlocation eq 'F' && !$u->trusts( $remote );
+    return 1;
+}
+
+
+sub can_show_onlinestatus {
+    my $u = shift;
+    my $remote = shift;
+    croak "invalid user object passed"
+        unless LJ::isu($u);
+
+    # Nobody can see online status of $u
+    return 0 if $u->opt_showonlinestatus eq 'N';
+
+    # Everybody can see online status of $u
+    return 1 if $u->opt_showonlinestatus eq 'Y';
+
+    # Only mutually trusted people of $u can see online status
+    if ($u->opt_showonlinestatus eq 'F') {
+        return 0 unless $remote;
+        return 1 if $u->mutually_trusts( $remote );
+        return 0;
+    }
+    return 0;
+}
+
+
+# <LJFUNC>
+# name: LJ::User::caps_icon
+# des: get the icon for a user's cap.
+# returns: HTML with site-specific cap icon.
+# </LJFUNC>
+sub caps_icon {
+    my $u = shift;
+    return LJ::user_caps_icon($u->{caps});
+}
+
+
+sub clear_prop {
+    my ($u, $prop) = @_;
+    $u->set_prop($prop, undef);
+    return 1;
+}
+
+
+# returns the country specified by the user
+sub country {
+    my $u = shift;
+    return $u->prop('country');
+}
+
+
+# returns the max capability ($cname) for all the classes
+# the user is a member of
+sub get_cap {
+    my ($u, $cname) = @_;
+    return 1 if $LJ::T_HAS_ALL_CAPS;
+    return LJ::get_cap($u, $cname);
+}
+
+
+# get/set the gizmo account of a user
+sub gizmo_account {
+    my $u = shift;
+
+    # parse out their account information
+    my $acct = $u->prop( 'gizmo' );
+    my ($validated, $gizmo);
+    if ($acct && $acct =~ /^([01]);(.+)$/) {
+        ($validated, $gizmo) = ($1, $2);
+    }
+
+    # setting the account
+    # all account sets are initially unvalidated
+    if (@_) {
+        my $newgizmo = shift;
+        $u->set_prop( 'gizmo' => "0;$newgizmo" );
+
+        # purge old memcache keys
+        LJ::MemCache::delete( "gizmo-ljmap:$gizmo" );
+    }
+
+    # return the information (either account + validation or just account)
+    return wantarray ? ($gizmo, $validated) : $gizmo unless @_;
+}
+
+# get/set the validated status of a user's gizmo account
+sub gizmo_account_validated {
+    my $u = shift;
+
+    my ($gizmo, $validated) = $u->gizmo_account;
+
+    if ( defined $_[0] && $_[0] =~ /[01]/) {
+        $u->set_prop( 'gizmo' => "$_[0];$gizmo" );
+        return $_[0];
+    }
+
+    return $validated;
+}
+
+
+# tests to see if a user is in a specific named class. class
+# names are site-specific.
+sub in_any_class {
+    my ($u, @classes) = @_;
+
+    foreach my $class (@classes) {
+        return 1 if LJ::caps_in_group($u->{caps}, $class);
+    }
+
+    return 0;
+}
+
+
+# tests to see if a user is in a specific named class. class
+# names are site-specific.
+sub in_class {
+    my ($u, $class) = @_;
+    return LJ::caps_in_group($u->{caps}, $class);
+}
+
+
+# must be called whenever birthday, location, journal modtime, journaltype, etc.
+# changes.  see LJ/Directory/PackedUserRecord.pm
+sub invalidate_directory_record {
+    my $u = shift;
+
+    # Future: ?
+    # LJ::try_our_best_to("invalidate_directory_record", $u->id);
+    # then elsewhere, map that key to subref.  if primary run fails,
+    # put in schwartz, then have one worker (misc-deferred) to
+    # redo...
+
+    my $dbs = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
+    $dbs->do("UPDATE usersearch_packdata SET good_until=0 WHERE userid=?",
+             undef, $u->id);
+}
+
+
+# <LJFUNC>
+# name: LJ::User::large_journal_icon
+# des: get the large icon by journal type.
+# returns: HTML to display large journal icon.
+# </LJFUNC>
+sub large_journal_icon {
+    my $u = shift;
+    croak "invalid user object"
+        unless LJ::isu($u);
+
+    my $wrap_img = sub {
+        return "<img src='$LJ::IMGPREFIX/$_[0]' border='0' height='24' " .
+            "width='24' style='padding: 0px 2px 0px 0px' />";
+    };
+
+    # hook will return image to use if it cares about
+    # the $u it's been passed
+    my $hook_img = LJ::run_hook("large_journal_icon", $u);
+    return $wrap_img->($hook_img) if $hook_img;
+
+    if ($u->is_comm) {
+        return $wrap_img->("community24x24.gif");
+    }
+
+    if ($u->is_syndicated) {
+        return $wrap_img->("syndicated24x24.gif");
+    }
+
+    if ($u->is_identity) {
+        return $wrap_img->("openid24x24.gif");
+    }
+
+    # personal, news, or unknown fallthrough
+    return $wrap_img->("userinfo24x24.gif");
+}
+
+
+sub opt_showcontact {
+    my $u = shift;
+
+    if ($u->{'allow_contactshow'} =~ /^(N|Y|R|F)$/) {
+        return $u->{'allow_contactshow'};
+    } else {
+        return 'N' if $u->underage || $u->is_child;
+        return 'F' if $u->is_minor;
+        return 'Y';
+    }
+}
+
+
+sub opt_showlocation {
+    my $u = shift;
+    # option not set = "yes", set to N = "no"
+    $u->_lazy_migrate_infoshow;
+
+    # see comments for opt_showbday
+    if ($LJ::DISABLED{infoshow_migrate} && $u->{allow_infoshow} ne ' ') {
+        return $u->{allow_infoshow} eq 'Y' ? undef : 'N';
+    }
+    if ($u->raw_prop('opt_showlocation') =~ /^(N|Y|R|F)$/) {
+        return $u->raw_prop('opt_showlocation');
+    } else {
+        return 'N' if ($u->underage || $u->is_child);
+        return 'F' if ($u->is_minor);
+        return 'Y';
+    }
+}
+
+
+# opt_showonlinestatus options
+# F = Mutually Trusted
+# Y = Everybody
+# N = Nobody
+sub opt_showonlinestatus {
+    my $u = shift;
+
+    if ($u->raw_prop('opt_showonlinestatus') =~ /^(F|N|Y)$/) {
+        return $u->raw_prop('opt_showonlinestatus');
+    } else {
+        return 'F';
+    }
+}
+
+
+sub profile_url {
+    my ($u, %opts) = @_;
+
+    my $url;
+    if ($u->{journaltype} eq "I") {
+        $url = "$LJ::SITEROOT/userinfo.bml?userid=$u->{'userid'}&t=I";
+        $url .= "&mode=full" if $opts{full};
+    } else {
+        $url = $u->journal_base . "/profile";
+        $url .= "?mode=full" if $opts{full};
+    }
     return $url;
 }
 
-# returns LJ::Identity object
-sub identity {
-    my $u = shift;
-    return $u->{_identity} if $u->{_identity};
-    return undef unless $u->{'journaltype'} eq "I";
 
-    my $memkey = [$u->{userid}, "ident:$u->{userid}"];
-    my $ident = LJ::MemCache::get($memkey);
-    if ($ident) {
-        my $i = LJ::Identity->new(
-                                  typeid => $ident->[0],
-                                  value  => $ident->[1],
-                                  );
+# instance method:  returns userprop for a user.  currently from cache with no
+# way yet to force master.
+sub prop {
+    my ($u, $prop) = @_;
 
-        return $u->{_identity} = $i;
+    # some props have accessors which do crazy things, if so they need
+    # to be redirected from this method, which only loads raw values
+    if ({ map { $_ => 1 }
+          qw(opt_sharebday opt_showbday opt_showlocation opt_showmutualfriends
+             view_control_strip show_control_strip opt_ctxpopup opt_embedplaceholders
+             esn_inbox_default_expand opt_getting_started)
+        }->{$prop})
+    {
+        return $u->$prop;
     }
 
-    my $dbh = LJ::get_db_writer();
-    $ident = $dbh->selectrow_arrayref("SELECT idtype, identity FROM identitymap ".
-                                      "WHERE userid=? LIMIT 1", undef, $u->{userid});
-    if ($ident) {
-        LJ::MemCache::set($memkey, $ident);
-        my $i = LJ::Identity->new(
-                                  typeid => $ident->[0],
-                                  value  => $ident->[1],
-                                  );
-        return $i;
-    }
-    return undef;
+    return $u->raw_prop($prop);
 }
 
-# returns a URL if account is an OpenID identity.  undef otherwise.
-sub openid_identity {
-    my $u = shift;
-    my $ident = $u->identity;
-    return undef unless $ident && $ident->typeid eq 'O';
-    return $ident->value;
+
+sub raw_prop {
+    my ($u, $prop) = @_;
+    $u->preload_props($prop) unless exists $u->{$_};
+    return $u->{$prop};
 }
+
+
+sub remove_from_class {
+    my ($u, $class) = @_;
+    my $bit = LJ::class_bit($class);
+    die "unknown class '$class'" unless defined $bit;
+
+    # call remove_from_class hook before we modify the
+    # current $u, so it can make inferences from the
+    # old $u caps vs what we'll be removing
+    if (LJ::are_hooks('remove_from_class')) {
+        LJ::run_hooks('remove_from_class', $u, $class);
+    }
+
+    return LJ::modify_caps($u, [], [$bit]);
+}
+
+
+# sets prop, and also updates $u's cached version
+sub set_prop {
+    my ($u, $prop, $value) = @_;
+    return 0 unless LJ::set_userprop($u, $prop, $value);  # FIXME: use exceptions
+    $u->{$prop} = $value;
+}
+
+
+sub share_contactinfo {
+    my ($u, $remote) = @_;
+
+    return 0 if $u->underage || $u->{journaltype} eq "Y";
+    return 0 if $u->opt_showcontact eq 'N';
+    return 0 if $u->opt_showcontact eq 'R' && !$remote;
+    return 0 if $u->opt_showcontact eq 'F' && !$u->trusts( $remote );
+    return 1;
+}
+
+
+sub should_block_robots {
+    my $u = shift;
+
+    return 1 if $u->prop('opt_blockrobots');
+
+    return 0 unless LJ::is_enabled("content_flag");
+
+    my $adult_content = $u->adult_content_calculated;
+    my $admin_flag = $u->admin_content_flag;
+
+    return 1 if $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
+    return 1 if $LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{block_robots};
+    return 0;
+}
+
+
+sub support_points_count {
+    my $u = shift;
+
+    my $dbr = LJ::get_db_reader();
+    my $userid = $u->id;
+    my $count;
+
+    $count = $u->{_supportpointsum};
+    return $count if defined $count;
+
+    my $memkey = [$userid, "supportpointsum:$userid"];
+    $count = LJ::MemCache::get($memkey);
+    if (defined $count) {
+        $u->{_supportpointsum} = $count;
+        return $count;
+    }
+
+    $count = $dbr->selectrow_array("SELECT totpoints FROM supportpointsum WHERE userid=?", undef, $userid) || 0;
+    $u->{_supportpointsum} = $count;
+    LJ::MemCache::set($memkey, $count, 60*5);
+
+    return $count;
+}
+
+
+sub should_show_schools_to {
+    my ($u, $targetu) = @_;
+
+    return 0 unless LJ::is_enabled("schools");
+    return 1 if $u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y';
+    return 1 if $u->{'opt_showschools'} eq 'F' && $u->trusts( $targetu );
+
+    return 0;
+}
+
+
+sub _lazy_migrate_infoshow {
+    my ($u) = @_;
+    return 1 if $LJ::DISABLED{infoshow_migrate};
+
+    # 1) column exists, but value is migrated
+    # 2) column has died from 'user')
+    if ($u->{allow_infoshow} eq ' ' || ! $u->{allow_infoshow}) {
+        return 1; # nothing to do
+    }
+
+    my $infoval = $u->{allow_infoshow} eq 'Y' ? undef : 'N';
+
+    # need to migrate allow_infoshow => opt_showbday
+    if ($infoval) {
+        foreach my $prop (qw(opt_showbday opt_showlocation)) {
+            $u->set_prop($prop => $infoval);
+        }
+    }
+
+    # setting allow_infoshow to ' ' means we've migrated it
+    LJ::update_user($u, { allow_infoshow => ' ' })
+        or die "unable to update user after infoshow migration";
+    $u->{allow_infoshow} = ' ';
+
+    return 1;
+}
+
+
+########################################################################
+### 8. Formatting Content Shown to Users
+
+sub ajax_auth_token {
+    my $u = shift;
+    return LJ::Auth->ajax_auth_token($u, @_);
+}
+
+
+sub bio {
+    my $u = shift;
+    return LJ::get_bio($u);
+}
+
+
+sub check_ajax_auth_token {
+    my $u = shift;
+    return LJ::Auth->check_ajax_auth_token($u, @_);
+}
+
+
+sub clusterid {
+    return $_[0]->{clusterid};
+}
+
 
 # returns username or identity display name, not escaped
 sub display_name {
@@ -1236,6 +2126,29 @@ sub display_name {
     }
     return $name;
 }
+
+
+# returns username for display
+sub display_username {
+    my $u = shift;
+    return $u->display_name if $u->is_identity;
+    return $u->{user};
+}
+
+
+sub equals {
+    my ($u, $target) = @_;
+
+    return LJ::u_equals($u, $target);
+}
+
+
+# userid
+*userid = \&id;
+sub id {
+    return $_[0]->{userid};
+}
+
 
 sub ljuser_display {
     my $u = shift;
@@ -1289,120 +2202,441 @@ sub ljuser_display {
     }
 }
 
-# class function - load an identity user, but only if they're already known to us
-sub load_existing_identity_user {
-    my ($type, $ident) = @_;
 
-    my $dbh = LJ::get_db_reader();
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, $type, $ident);
-    return $uid ? LJ::load_userid($uid) : undef;
+# returns the user-specified name of a journal in valid UTF-8
+# and with HTML escaped
+sub name_html {
+    my $u = shift;
+    return LJ::ehtml($u->name_raw);
 }
 
-# class function - load an identity user, and if we've never seen them before create a user account for them
-sub load_identity_user {
-    my ($type, $ident, $vident) = @_;
 
-    my $u = load_existing_identity_user($type, $ident);
+# returns the user-specified name of a journal exactly as entered
+sub name_orig {
+    my $u = shift;
+    return $u->{name};
+}
 
-    # If the user is marked as expunged, move identity mapping aside
-    # and continue to create new account.
-    # Otherwise return user if it exists.
-    if ($u) {
-        if ($u->is_expunged) {
-            return undef unless ($u->rename_identity);
-        } else {
-            return $u;
-        }
-    }
 
-    # increment ext_ counter until we successfully create an LJ
-    # account.  hard cap it at 10 tries. (arbitrary, but we really
-    # shouldn't have *any* failures here, let alone 10 in a row)
-    my $dbh = LJ::get_db_writer();
-    my $uid;
+# returns the user-specified name of a journal in valid UTF-8
+sub name_raw {
+    my $u = shift;
+    LJ::text_out(\$u->{name});
+    return $u->{name};
+}
 
-    for (1..10) {
-        my $extuser = 'ext_' . LJ::alloc_global_counter('E');
 
-        my $name = $extuser;
-        if ($type eq "O" && ref $vident) {
-            $name = $vident->display;
-        }
+sub new_from_row {
+    my ($class, $row) = @_;
+    my $u = bless $row, $class;
 
-        $uid = LJ::create_account({
-            caps => undef,
-            user => $extuser,
-            name => $name,
-            journaltype => 'I',
-        });
-        last if $uid;
-        select undef, undef, undef, .10;  # lets not thrash over this
-    }
-    return undef unless $uid &&
-        $dbh->do("INSERT INTO identitymap (idtype, identity, userid) VALUES (?,?,?)",
-                 undef, $type, $ident, $uid);
-
-    $u = LJ::load_userid($uid);
-
-    # record create information
-    my $remote = LJ::get_remote();
-    $u->log_event('account_create', { remote => $remote });
+    # for selfassert method below:
+    $u->{_orig_userid} = $u->{userid};
+    $u->{_orig_user}   = $u->{user};
 
     return $u;
 }
 
-# instance method:  returns userprop for a user.  currently from cache with no
-# way yet to force master.
-sub prop {
-    my ($u, $prop) = @_;
 
-    # some props have accessors which do crazy things, if so they need
-    # to be redirected from this method, which only loads raw values
-    if ({ map { $_ => 1 }
-          qw(opt_sharebday opt_showbday opt_showlocation opt_showmutualfriends
-             view_control_strip show_control_strip opt_ctxpopup opt_embedplaceholders
-             esn_inbox_default_expand opt_getting_started)
-        }->{$prop})
-    {
-        return $u->$prop;
+sub new_from_url {
+    my ($class, $url) = @_;
+
+    # this doesn't seem to like URLs with ?...
+    $url =~ s/\?.+$//;
+
+    # /users, /community, or /~
+    if ($url =~ m!^\Q$LJ::SITEROOT\E/(?:users/|community/|~)([\w-]+)/?!) {
+        return LJ::load_user($1);
     }
 
-    return $u->raw_prop($prop);
-}
-
-sub raw_prop {
-    my ($u, $prop) = @_;
-    $u->preload_props($prop) unless exists $u->{$_};
-    return $u->{$prop};
-}
-
-sub _lazy_migrate_infoshow {
-    my ($u) = @_;
-    return 1 if $LJ::DISABLED{infoshow_migrate};
-
-    # 1) column exists, but value is migrated
-    # 2) column has died from 'user')
-    if ($u->{allow_infoshow} eq ' ' || ! $u->{allow_infoshow}) {
-        return 1; # nothing to do
+    # user subdomains
+    if ($LJ::USER_DOMAIN && $url =~ m!^http://([\w-]+)\.\Q$LJ::USER_DOMAIN\E/?$!) {
+        return LJ::load_user($1);
     }
 
-    my $infoval = $u->{allow_infoshow} eq 'Y' ? undef : 'N';
+    # subdomains that hold a bunch of users (eg, users.siteroot.com/username/)
+    if ($url =~ m!^http://\w+\.\Q$LJ::USER_DOMAIN\E/([\w-]+)/?$!) {
+        return LJ::load_user($1);
+    }
 
-    # need to migrate allow_infoshow => opt_showbday
-    if ($infoval) {
-        foreach my $prop (qw(opt_showbday opt_showlocation)) {
-            $u->set_prop($prop => $infoval);
+    return undef;
+}
+
+
+sub url {
+    my $u = shift;
+
+    my $url;
+
+    if ($u->{'journaltype'} eq "I" && ! $u->{url}) {
+        my $id = $u->identity;
+        if ($id && $id->typeid eq 'O') {
+            $url = $id->value;
+            $u->set_prop("url", $url) if $url;
         }
     }
 
-    # setting allow_infoshow to ' ' means we've migrated it
-    LJ::update_user($u, { allow_infoshow => ' ' })
-        or die "unable to update user after infoshow migration";
-    $u->{allow_infoshow} = ' ';
+    # not openid, what does their 'url' prop say?
+    $url ||= $u->prop('url');
+    return undef unless $url;
+
+    $url = "http://$url" unless $url =~ m!^http://!;
+
+    return $url;
+}
+
+
+# returns username
+*username = \&user;
+sub user {
+    my $u = shift;
+    return $u->{user};
+}
+
+
+sub user_url_arg {
+    my $u = shift;
+    return "I,$u->{userid}" if $u->{journaltype} eq "I";
+    return $u->{user};
+}
+
+
+# if bio_absent is set to "yes", bio won't be updated
+sub set_bio {
+    my ($u, $text, $bio_absent) = @_;
+    $bio_absent = "" unless $bio_absent;
+
+    my $oldbio = $u->bio;
+    my $newbio = $bio_absent eq "yes" ? $oldbio : $text;
+    my $has_bio = ($newbio =~ /\S/) ? "Y" : "N";
+
+    my %update = (
+        'has_bio' => $has_bio,
+    );
+    LJ::update_user($u, \%update);
+
+    # update their bio text
+    if (($oldbio ne $text) && $bio_absent ne "yes") {
+        if ($has_bio eq "N") {
+            $u->do("DELETE FROM userbio WHERE userid=?", undef, $u->id);
+            $u->dudata_set('B', 0, 0);
+        } else {
+            $u->do("REPLACE INTO userbio (userid, bio) VALUES (?, ?)",
+                   undef, $u->id, $text);
+            $u->dudata_set('B', 0, length($text));
+        }
+        LJ::MemCache::set([$u->id, "bio:" . $u->id], $text);
+    }
+}
+
+
+########################################################################
+### 9. Logging and Recording Actions
+
+
+# <LJFUNC>
+# name: LJ::User::dudata_set
+# class: logging
+# des: Record or delete disk usage data for a journal.
+# args: u, area, areaid, bytes
+# des-area: One character: "L" for log, "T" for talk, "B" for bio, "P" for pic.
+# des-areaid: Unique ID within $area, or '0' if area has no ids (like bio)
+# des-bytes: Number of bytes item takes up.  Or 0 to delete record.
+# returns: 1.
+# </LJFUNC>
+sub dudata_set {
+    my ($u, $area, $areaid, $bytes) = @_;
+    $bytes += 0; $areaid += 0;
+    if ($bytes) {
+        $u->do("REPLACE INTO dudata (userid, area, areaid, bytes) ".
+               "VALUES (?, ?, $areaid, $bytes)", undef,
+               $u->{userid}, $area);
+    } else {
+        $u->do("DELETE FROM dudata WHERE userid=? AND ".
+               "area=? AND areaid=$areaid", undef,
+               $u->{userid}, $area);
+    }
+    return 1;
+}
+
+
+# log a line to our userlog
+sub log_event {
+    my $u = shift;
+
+    my ($type, $info) = @_;
+    return undef unless $type;
+    $info ||= {};
+
+    # now get variables we need; we use delete to remove them from the hash so when we're
+    # done we can just encode what's left
+    my $ip = delete($info->{ip}) || LJ::get_remote_ip() || undef;
+    my $uniq = delete $info->{uniq};
+    unless ($uniq) {
+        eval {
+            $uniq = BML::get_request()->notes->{uniq};
+        };
+    }
+    my $remote = delete($info->{remote}) || LJ::get_remote() || undef;
+    my $targetid = (delete($info->{actiontarget})+0) || undef;
+    my $extra = %$info ? join('&', map { LJ::eurl($_) . '=' . LJ::eurl($info->{$_}) } keys %$info) : undef;
+
+    # now insert the data we have
+    $u->do("INSERT INTO userlog (userid, logtime, action, actiontarget, remoteid, ip, uniq, extra) " .
+           "VALUES (?, UNIX_TIMESTAMP(), ?, ?, ?, ?, ?, ?)", undef, $u->{userid}, $type,
+           $targetid, $remote ? $remote->{userid} : undef, $ip, $uniq, $extra);
+    return undef if $u->err;
+    return 1;
+}
+
+
+########################################################################
+### 10. Banning-Related Functions
+
+
+sub ban_user {
+    my ($u, $ban_u) = @_;
+
+    my $remote = LJ::get_remote();
+    $u->log_event('ban_set', { actiontarget => $ban_u->id, remote => $remote });
+
+    return LJ::set_rel($u->id, $ban_u->id, 'B');
+}
+
+
+sub ban_user_multi {
+    my ($u, @banlist) = @_;
+
+    LJ::set_rel_multi(map { [$u->id, $_, 'B'] } @banlist);
+
+    my $us = LJ::load_userids(@banlist);
+    foreach my $banuid (@banlist) {
+        $u->log_event('ban_set', { actiontarget => $banuid, remote => LJ::get_remote() });
+        LJ::run_hooks('ban_set', $u, $us->{$banuid}) if $us->{$banuid};
+    }
 
     return 1;
 }
+
+
+# return if $target is banned from $u's journal
+*has_banned = \&is_banned;
+sub is_banned {
+    my ($u, $target) = @_;
+    return LJ::is_banned($target->userid, $u->userid);
+}
+
+
+sub unban_user_multi {
+    my ($u, @unbanlist) = @_;
+
+    LJ::clear_rel_multi(map { [$u->id, $_, 'B'] } @unbanlist);
+
+    my $us = LJ::load_userids(@unbanlist);
+    foreach my $banuid (@unbanlist) {
+        $u->log_event('ban_unset', { actiontarget => $banuid, remote => LJ::get_remote() });
+        LJ::run_hooks('ban_unset', $u, $us->{$banuid}) if $us->{$banuid};
+    }
+
+    return 1;
+}
+
+
+########################################################################
+### 11. Birthdays and Age-Related Functions
+###   FIXME: Some of these may be outdated when we remove under-13 accounts.
+
+
+
+# Users age based off their profile birthdate
+sub age {
+    my $u = shift;
+    croak "Invalid user object" unless LJ::isu($u);
+
+    my $bdate = $u->{bdate};
+    return unless length $bdate;
+
+    my ($year, $mon, $day) = $bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
+    my $age = LJ::calc_age($year, $mon, $day);
+    return $age if $age > 0;
+    return;
+}
+
+
+# This will format the birthdate based on the user prop
+sub bday_string {
+    my $u = shift;
+    croak "invalid user object passed" unless LJ::isu($u);
+    return 0 if $u->underage;
+
+    my $bdate = $u->{'bdate'};
+    my ($year,$mon,$day) = split(/-/, $bdate);
+    my $bday_string = '';
+
+    if ($u->can_show_full_bday && $day > 0 && $mon > 0 && $year > 0) {
+        $bday_string = $bdate;
+    } elsif ($u->can_show_bday && $day > 0 && $mon > 0) {
+        $bday_string = "$mon-$day";
+    } elsif ($u->can_show_bday_year && $year > 0) {
+        $bday_string = $year;
+    }
+    $bday_string =~ s/^0000-//;
+    return $bday_string;
+}
+
+
+# Returns the best guess age of the user, which is init_age if it exists, otherwise age
+sub best_guess_age {
+    my $u = shift;
+    return 0 unless $u->is_person || $u->is_identity;
+    return $u->init_age || $u->age;
+}
+
+
+# returns if this user can join an adult community or not
+# adultref will hold the value of the community's adult content flag
+sub can_join_adult_comm {
+    my ($u, %opts) = @_;
+
+    return 1 unless LJ::is_enabled('content_flag');
+
+    my $adultref = $opts{adultref};
+    my $comm = $opts{comm} or croak "No community passed";
+
+    my $adult_content = $comm->adult_content_calculated;
+    $$adultref = $adult_content;
+
+    if ($adult_content eq "concepts" && ($u->is_child || !$u->best_guess_age)) {
+        return 0;
+    } elsif ($adult_content eq "explicit" && ($u->is_minor || !$u->best_guess_age)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+
+# Birthday logic -- can any of the birthday info be shown
+# This will return true if any birthday info can be shown
+sub can_share_bday {
+    my $u = shift;
+    croak "invalid user object passed" unless LJ::isu($u);
+
+    my %opts = @_;
+    my $with_u = $opts{with} || LJ::get_remote();
+
+    return 0 if $u->opt_sharebday eq 'N';
+    return 0 if $u->opt_sharebday eq 'R' && !$with_u;
+    return 0 if $u->opt_sharebday eq 'F' && !$u->trusts( $with_u );
+    return 1;
+}
+
+
+# Birthday logic -- show appropriate string based on opt_showbday
+# This will return true if the actual birthday can be shown
+sub can_show_bday {
+    my ($u, %opts) = @_;
+    croak "invalid user object passed" unless LJ::isu($u);
+
+    my $to_u = $opts{to} || LJ::get_remote();
+
+    return 0 unless $u->can_share_bday( with => $to_u );
+    return 0 unless $u->opt_showbday eq 'D' || $u->opt_showbday eq 'F';
+    return 1;
+}
+
+
+# This will return true if the actual birth year can be shown
+sub can_show_bday_year {
+    my $u = shift;
+    croak "invalid user object passed" unless LJ::isu($u);
+
+    my %opts = @_;
+    my $to_u = $opts{to} || LJ::get_remote();
+
+    return 0 unless $u->can_share_bday( with => $to_u );
+    return 0 unless $u->opt_showbday eq 'Y' || $u->opt_showbday eq 'F';
+    return 1;
+}
+
+
+# This will return true if month, day, and year can be shown
+sub can_show_full_bday {
+    my $u = shift;
+    croak "invalid user object passed" unless LJ::isu($u);
+
+    my %opts = @_;
+    my $to_u = $opts{to} || LJ::get_remote();
+
+    return 0 unless $u->can_share_bday( with => $to_u );
+    return 0 unless $u->opt_showbday eq 'F';
+    return 1;
+}
+
+
+sub include_in_age_search {
+    my $u = shift;
+
+    # if they don't display the year
+    return 0 if $u->opt_showbday =~ /^[DN]$/;
+
+    # if it's not visible to registered users
+    return 0 if $u->opt_sharebday =~ /^[NF]$/;
+
+    return 1;
+}
+
+
+# This returns the users age based on the init_bdate (users coppa validation birthdate)
+sub init_age {
+    my $u = shift;
+    croak "Invalid user object" unless LJ::isu($u);
+
+    my $init_bdate = $u->prop('init_bdate');
+    return unless $init_bdate;
+
+    my ($year, $mon, $day) = $init_bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
+    my $age = LJ::calc_age($year, $mon, $day);
+    return $age if $age > 0;
+    return;
+}
+
+
+sub next_birthday {
+    my $u = shift;
+    return if $u->is_expunged;
+
+    return $u->selectrow_array("SELECT nextbirthday FROM birthdays " .
+                               "WHERE userid = ?", undef, $u->id)+0;
+}
+
+
+# class method, loads next birthdays for a bunch of users
+sub next_birthdays {
+    my $class = shift;
+
+    # load the users we need, so we can get their clusters
+    my $clusters = LJ::User->split_by_cluster(@_);
+
+    my %bdays = ();
+    foreach my $cid (keys %$clusters) {
+        next unless $cid;
+
+        my @users = @{$clusters->{$cid} || []};
+        my $dbcr = LJ::get_cluster_def_reader($cid)
+            or die "Unable to load reader for cluster: $cid";
+
+        my $bind = join(",", map { "?" } @users);
+        my $sth = $dbcr->prepare("SELECT * FROM birthdays WHERE userid IN ($bind)");
+        $sth->execute(@users);
+        while (my $row = $sth->fetchrow_hashref) {
+            $bdays{$row->{userid}} = $row->{nextbirthday};
+        }
+    }
+
+    return \%bdays;
+}
+
 
 # opt_showbday options
 # F - Full Display of Birthday
@@ -1429,6 +2663,7 @@ sub opt_showbday {
     }
 }
 
+
 # opt_sharebday options
 # A - All people
 # R - Registered Users
@@ -1444,335 +2679,6 @@ sub opt_sharebday {
         return 'F' if $u->is_minor;
         return 'A';
     }
-}
-
-# opt_showljtalk options based on user setting
-# Y = Show the LJ Talk field on profile (default)
-# N = Don't show the LJ Talk field on profile
-sub opt_showljtalk {
-    my $u = shift;
-
-    # Check for valid value, or just return default of 'Y'.
-    if ($u->raw_prop('opt_showljtalk') =~ /^(Y|N)$/) {
-        return $u->raw_prop('opt_showljtalk');
-    } else {
-        return 'Y';
-    }
-}
-
-# Show LJ Talk field on profile?  opt_showljtalk needs a value of 'Y'.
-sub show_ljtalk {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    # Fail if the user wants to hide the LJ Talk field on their profile,
-    # or doesn't even have the ability to show it.
-    return 0 if $u->opt_showljtalk eq 'N' || $LJ::DISABLED{'ljtalk'} || !$u->is_person;
-
-    # User either decided to show LJ Talk field or has left it at the default.
-    return 1 if $u->opt_showljtalk eq 'Y';
-}
-
-# Hide the LJ Talk field on profile?  opt_showljtalk needs a value of 'N'.
-sub hide_ljtalk {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    # ... The opposite of showing the field. :)
-    return $u->show_ljtalk ? 0 : 1;
-}
-
-sub ljtalk_id {
-    my $u = shift;
-    croak "Invalid user object passed" unless LJ::isu($u);
-
-    return $u->{'user'}.'@'.$LJ::USER_DOMAIN;
-}
-
-sub opt_showlocation {
-    my $u = shift;
-    # option not set = "yes", set to N = "no"
-    $u->_lazy_migrate_infoshow;
-
-    # see comments for opt_showbday
-    if ($LJ::DISABLED{infoshow_migrate} && $u->{allow_infoshow} ne ' ') {
-        return $u->{allow_infoshow} eq 'Y' ? undef : 'N';
-    }
-    if ($u->raw_prop('opt_showlocation') =~ /^(N|Y|R|F)$/) {
-        return $u->raw_prop('opt_showlocation');
-    } else {
-        return 'N' if ($u->underage || $u->is_child);
-        return 'F' if ($u->is_minor);
-        return 'Y';
-    }
-}
-
-sub opt_showcontact {
-    my $u = shift;
-
-    if ($u->{'allow_contactshow'} =~ /^(N|Y|R|F)$/) {
-        return $u->{'allow_contactshow'};
-    } else {
-        return 'N' if $u->underage || $u->is_child;
-        return 'F' if $u->is_minor;
-        return 'Y';
-    }
-}
-
-# opt_showonlinestatus options
-# F = Mutually Trusted
-# Y = Everybody
-# N = Nobody
-sub opt_showonlinestatus {
-    my $u = shift;
-
-    if ($u->raw_prop('opt_showonlinestatus') =~ /^(F|N|Y)$/) {
-        return $u->raw_prop('opt_showonlinestatus');
-    } else {
-        return 'F';
-    }
-}
-
-sub can_show_location {
-    my $u = shift;
-    croak "invalid user object passed" unless LJ::isu($u);
-    my $remote = LJ::get_remote();
-
-    return 0 if $u->underage;
-    return 0 if $u->opt_showlocation eq 'N';
-    return 0 if $u->opt_showlocation eq 'R' && !$remote;
-    return 0 if $u->opt_showlocation eq 'F' && !$u->trusts( $remote );
-    return 1;
-}
-
-sub can_show_onlinestatus {
-    my $u = shift;
-    my $remote = shift;
-    croak "invalid user object passed"
-        unless LJ::isu($u);
-
-    # Nobody can see online status of $u
-    return 0 if $u->opt_showonlinestatus eq 'N';
-
-    # Everybody can see online status of $u
-    return 1 if $u->opt_showonlinestatus eq 'Y';
-
-    # Only mutually trusted people of $u can see online status
-    if ($u->opt_showonlinestatus eq 'F') {
-        return 0 unless $remote;
-        return 1 if $u->mutually_trusts( $remote );
-        return 0;
-    }
-    return 0;
-}
-
-# return the setting indicating how a user can be found by their email address
-# Y - Findable, N - Not findable, H - Findable but identity hidden
-sub opt_findbyemail {
-    my $u = shift;
-
-    if ($u->raw_prop('opt_findbyemail') =~ /^(N|Y|H)$/) {
-        return $u->raw_prop('opt_findbyemail');
-    } else {
-        return undef;
-    }
-}
-
-# return user selected mail encoding or undef
-sub mailencoding {
-    my $u = shift;
-    my $enc = $u->prop('mailencoding');
-
-    return undef unless $enc;
-
-    LJ::load_codes({ "encoding" => \%LJ::CACHE_ENCODINGS } )
-        unless %LJ::CACHE_ENCODINGS;
-    return $LJ::CACHE_ENCODINGS{$enc}
-}
-
-# Birthday logic -- show appropriate string based on opt_showbday
-# This will return true if the actual birthday can be shown
-sub can_show_bday {
-    my ($u, %opts) = @_;
-    croak "invalid user object passed" unless LJ::isu($u);
-
-    my $to_u = $opts{to} || LJ::get_remote();
-
-    return 0 unless $u->can_share_bday( with => $to_u );
-    return 0 unless $u->opt_showbday eq 'D' || $u->opt_showbday eq 'F';
-    return 1;
-}
-
-# Birthday logic -- can any of the birthday info be shown
-# This will return true if any birthday info can be shown
-sub can_share_bday {
-    my $u = shift;
-    croak "invalid user object passed" unless LJ::isu($u);
-
-    my %opts = @_;
-    my $with_u = $opts{with} || LJ::get_remote();
-
-    return 0 if $u->opt_sharebday eq 'N';
-    return 0 if $u->opt_sharebday eq 'R' && !$with_u;
-    return 0 if $u->opt_sharebday eq 'F' && !$u->trusts( $with_u );
-    return 1;
-}
-
-
-# This will return true if the actual birth year can be shown
-sub can_show_bday_year {
-    my $u = shift;
-    croak "invalid user object passed" unless LJ::isu($u);
-
-    my %opts = @_;
-    my $to_u = $opts{to} || LJ::get_remote();
-
-    return 0 unless $u->can_share_bday( with => $to_u );
-    return 0 unless $u->opt_showbday eq 'Y' || $u->opt_showbday eq 'F';
-    return 1;
-}
-
-# This will return true if month, day, and year can be shown
-sub can_show_full_bday {
-    my $u = shift;
-    croak "invalid user object passed" unless LJ::isu($u);
-
-    my %opts = @_;
-    my $to_u = $opts{to} || LJ::get_remote();
-
-    return 0 unless $u->can_share_bday( with => $to_u );
-    return 0 unless $u->opt_showbday eq 'F';
-    return 1;
-}
-
-# This will format the birthdate based on the user prop
-sub bday_string {
-    my $u = shift;
-    croak "invalid user object passed" unless LJ::isu($u);
-    return 0 if $u->underage;
-
-    my $bdate = $u->{'bdate'};
-    my ($year,$mon,$day) = split(/-/, $bdate);
-    my $bday_string = '';
-
-    if ($u->can_show_full_bday && $day > 0 && $mon > 0 && $year > 0) {
-        $bday_string = $bdate;
-    } elsif ($u->can_show_bday && $day > 0 && $mon > 0) {
-        $bday_string = "$mon-$day";
-    } elsif ($u->can_show_bday_year && $year > 0) {
-        $bday_string = $year;
-    }
-    $bday_string =~ s/^0000-//;
-    return $bday_string;
-}
-
-# Users age based off their profile birthdate
-sub age {
-    my $u = shift;
-    croak "Invalid user object" unless LJ::isu($u);
-
-    my $bdate = $u->{bdate};
-    return unless length $bdate;
-
-    my ($year, $mon, $day) = $bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
-    my $age = LJ::calc_age($year, $mon, $day);
-    return $age if $age > 0;
-    return;
-}
-
-sub age_for_adcall {
-    my $u = shift;
-    croak "Invalid user object" unless LJ::isu($u);
-
-    return undef if $u->underage;
-    return eval {$u->age || $u->init_age};
-}
-
-# This returns the users age based on the init_bdate (users coppa validation birthdate)
-sub init_age {
-    my $u = shift;
-    croak "Invalid user object" unless LJ::isu($u);
-
-    my $init_bdate = $u->prop('init_bdate');
-    return unless $init_bdate;
-
-    my ($year, $mon, $day) = $init_bdate =~ m/^(\d\d\d\d)-(\d\d)-(\d\d)/;
-    my $age = LJ::calc_age($year, $mon, $day);
-    return $age if $age > 0;
-    return;
-}
-
-# Returns the best guess age of the user, which is init_age if it exists, otherwise age
-sub best_guess_age {
-    my $u = shift;
-    return 0 unless $u->is_person || $u->is_identity;
-    return $u->init_age || $u->age;
-}
-
-sub gender_for_adcall {
-    my $u = shift;
-    croak "Invalid user object" unless LJ::isu($u);
-
-    my $gender = $u->prop('gender');
-    if ($gender && $gender !~ /^[UO]/i) {
-        return uc(substr($gender, 0, 1)); # M|F
-    }
-
-    return "unspecified";
-}
-
-sub should_fire_birthday_notif {
-    my $u = shift;
-
-    return 0 unless $u->is_person;
-    return 0 unless $u->is_visible;
-
-    # if the month/day can't be shown
-    return 0 if $u->opt_showbday =~ /^[YN]$/;
-
-    # if the birthday isn't shown to anyone
-    return 0 if $u->opt_sharebday eq "N";
-
-    # note: this isn't intended to capture all cases where birthday
-    # info is restricted. we want to pare out as much as possible;
-    # individual "can user X see this birthday" is handled in
-    # LJ::Event::Birthday->matches_filter
-
-    return 1;
-}
-
-sub next_birthday {
-    my $u = shift;
-    return if $u->is_expunged;
-
-    return $u->selectrow_array("SELECT nextbirthday FROM birthdays " .
-                               "WHERE userid = ?", undef, $u->id)+0;
-}
-
-# class method, loads next birthdays for a bunch of users
-sub next_birthdays {
-    my $class = shift;
-
-    # load the users we need, so we can get their clusters
-    my $clusters = LJ::User->split_by_cluster(@_);
-
-    my %bdays = ();
-    foreach my $cid (keys %$clusters) {
-        next unless $cid;
-
-        my @users = @{$clusters->{$cid} || []};
-        my $dbcr = LJ::get_cluster_def_reader($cid)
-            or die "Unable to load reader for cluster: $cid";
-
-        my $bind = join(",", map { "?" } @users);
-        my $sth = $dbcr->prepare("SELECT * FROM birthdays WHERE userid IN ($bind)");
-        $sth->execute(@users);
-        while (my $row = $sth->fetchrow_hashref) {
-            $bdays{$row->{userid}} = $row->{nextbirthday};
-        }
-    }
-
-    return \%bdays;
 }
 
 
@@ -1830,14 +2736,22 @@ sub set_next_birthday {
 }
 
 
-sub include_in_age_search {
+sub should_fire_birthday_notif {
     my $u = shift;
 
-    # if they don't display the year
-    return 0 if $u->opt_showbday =~ /^[DN]$/;
+    return 0 unless $u->is_person;
+    return 0 unless $u->is_visible;
 
-    # if it's not visible to registered users
-    return 0 if $u->opt_sharebday =~ /^[NF]$/;
+    # if the month/day can't be shown
+    return 0 if $u->opt_showbday =~ /^[YN]$/;
+
+    # if the birthday isn't shown to anyone
+    return 0 if $u->opt_sharebday eq "N";
+
+    # note: this isn't intended to capture all cases where birthday
+    # info is restricted. we want to pare out as much as possible;
+    # individual "can user X see this birthday" is handled in
+    # LJ::Event::Birthday->matches_filter
 
     return 1;
 }
@@ -1859,138 +2773,9 @@ sub usersearch_age_with_expire {
     return ($age, $expire);
 }
 
-# returns the country specified by the user
-sub country {
-    my $u = shift;
-    return $u->prop('country');
-}
 
-# sets prop, and also updates $u's cached version
-sub set_prop {
-    my ($u, $prop, $value) = @_;
-    return 0 unless LJ::set_userprop($u, $prop, $value);  # FIXME: use exceptions
-    $u->{$prop} = $value;
-}
-
-sub clear_prop {
-    my ($u, $prop) = @_;
-    $u->set_prop($prop, undef);
-    return 1;
-}
-
-sub journal_base {
-    my $u = shift;
-    return LJ::journal_base($u);
-}
-
-sub allpics_base {
-    my $u = shift;
-    return "$LJ::SITEROOT/allpics.bml?user=" . $u->user;
-}
-
-sub get_userpic_count {
-    my $u = shift or return undef;
-    my $count = scalar LJ::Userpic->load_user_userpics($u);
-
-    return $count;
-}
-
-sub userpic_quota {
-    my $u = shift or return undef;
-    my $quota = $u->get_cap('userpics');
-
-    return $quota;
-}
-
-sub profile_url {
-    my ($u, %opts) = @_;
-
-    my $url;
-    if ($u->{journaltype} eq "I") {
-        $url = "$LJ::SITEROOT/userinfo.bml?userid=$u->{'userid'}&t=I";
-        $url .= "&mode=full" if $opts{full};
-    } else {
-        $url = $u->journal_base . "/profile";
-        $url .= "?mode=full" if $opts{full};
-    }
-    return $url;
-}
-
-# returns the gift shop URL to buy a gift for that user
-sub gift_url {
-    my ($u, $opts) = @_;
-    croak "invalid user object passed" unless LJ::isu($u);
-    my $item = $opts->{item} ? delete $opts->{item} : '';
-
-    return "$LJ::SITEROOT/shop/view.bml?item=$item&gift=1&for=$u->{'user'}";
-}
-
-# return the URL to the send message page
-sub message_url {
-    my $u = shift;
-    croak "invalid user object passed" unless LJ::isu($u);
-
-    return undef if $LJ::DISABLED{user_messaging};
-    return "$LJ::SITEROOT/inbox/compose.bml?user=$u->{'user'}";
-}
-
-# <LJFUNC>
-# name: LJ::User::large_journal_icon
-# des: get the large icon by journal type.
-# returns: HTML to display large journal icon.
-# </LJFUNC>
-sub large_journal_icon {
-    my $u = shift;
-    croak "invalid user object"
-        unless LJ::isu($u);
-
-    my $wrap_img = sub {
-        return "<img src='$LJ::IMGPREFIX/$_[0]' border='0' height='24' " .
-            "width='24' style='padding: 0px 2px 0px 0px' />";
-    };
-
-    # hook will return image to use if it cares about
-    # the $u it's been passed
-    my $hook_img = LJ::run_hook("large_journal_icon", $u);
-    return $wrap_img->($hook_img) if $hook_img;
-
-    if ($u->is_comm) {
-        return $wrap_img->("community24x24.gif");
-    }
-
-    if ($u->is_syndicated) {
-        return $wrap_img->("syndicated24x24.gif");
-    }
-
-    if ($u->is_identity) {
-        return $wrap_img->("openid24x24.gif");
-    }
-
-    # personal, news, or unknown fallthrough
-    return $wrap_img->("userinfo24x24.gif");
-}
-
-# <LJFUNC>
-# name: LJ::User::caps_icon
-# des: get the icon for a user's cap.
-# returns: HTML with site-specific cap icon.
-# </LJFUNC>
-sub caps_icon {
-    my $u = shift;
-    return LJ::user_caps_icon($u->{caps});
-}
-
-# tests to see if a user is in a specific named class. class
-# names are site-specific.
-sub in_any_class {
-    my ($u, @classes) = @_;
-
-    foreach my $class (@classes) {
-        return 1 if LJ::caps_in_group($u->{caps}, $class);
-    }
-
-    return 0;
-}
+########################################################################
+### 12. Comment-Related Functions
 
 
 # get recent talkitems posted to this user
@@ -2043,29 +2828,354 @@ sub get_recent_talkitems {
     return reverse @recv;
 }
 
-sub record_login {
-    my ($u, $sessid) = @_;
 
-    my $too_old = time() - 86400 * 30;
-    $u->do("DELETE FROM loginlog WHERE userid=? AND logintime < ?",
-           undef, $u->{userid}, $too_old);
+# return the number of comments a user has posted
+sub num_comments_posted {
+    my $u = shift;
+    my %opts = @_;
 
-    my ($ip, $ua);
-    eval {
-        my $r  = BML::get_request();
-        $ip = LJ::get_remote_ip();
-        $ua = $r->header_in('User-Agent');
+    my $dbcr = $opts{dbh} || LJ::get_cluster_reader($u);
+    my $userid = $u->id;
+
+    my $memkey = [$userid, "talkleftct:$userid"];
+    my $count = LJ::MemCache::get($memkey);
+    unless ($count) {
+        my $expire = time() + 3600*24*2; # 2 days;
+        $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talkleft " .
+                                        "WHERE userid=?", undef, $userid);
+        LJ::MemCache::set($memkey, $count, $expire) if defined $count;
+    }
+
+    return $count;
+}
+
+
+# return the number of comments a user has received
+sub num_comments_received {
+    my $u = shift;
+    my %opts = @_;
+
+    my $dbcr = $opts{dbh} || LJ::get_cluster_reader($u);
+    my $userid = $u->id;
+
+    my $memkey = [$userid, "talk2ct:$userid"];
+    my $count = LJ::MemCache::get($memkey);
+    unless ($count) {
+        my $expire = time() + 3600*24*2; # 2 days;
+        $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talk2 ".
+                                        "WHERE journalid=?", undef, $userid);
+        LJ::MemCache::set($memkey, $count, $expire) if defined $count;
+    }
+
+    return $count;
+}
+
+
+########################################################################
+### 13. Community-Related Functions and Authas
+
+
+sub can_manage {
+    my ($u, $target) = @_;
+    return LJ::can_manage($u, $target);
+}
+
+
+# can $u post to $targetu?
+sub can_post_to {
+    my ($u, $targetu) = @_;
+
+    return LJ::can_use_journal($u->id, $targetu->user);
+}
+
+
+# returns an array of maintainer userids
+sub maintainer_userids {
+    my $u = shift;
+
+    return () unless $u->is_community;
+    return @{LJ::load_rel_user_cache( $u->id, 'A' )};
+}
+
+
+# returns an array of moderator userids
+sub moderator_userids {
+    my $u = shift;
+
+    return () unless $u->is_community && $u->prop( 'moderated' );
+    return @{LJ::load_rel_user_cache( $u->id, 'M' )};
+}
+
+
+# What journals can this user post to?
+sub posting_access_list {
+    my $u = shift;
+
+    my @res;
+
+    my $ids = LJ::load_rel_target($u, 'P');
+    my $us = LJ::load_userids(@$ids);
+    foreach (values %$us) {
+        next unless $_->is_visible;
+        push @res, $_;
+    }
+
+    return sort { $a->{user} cmp $b->{user} } @res;
+}
+
+
+# Used to promote communities in interest search results
+sub render_promo_of_community {
+    my ($comm, $style) = @_;
+
+    return undef unless $comm;
+
+    $style ||= 'Vertical';
+
+    # get the ljuser link
+    my $commljuser = $comm->ljuser_display;
+
+    # link to journal
+    my $journal_base = $comm->journal_base;
+
+    # get default userpic if any
+    my $userpic = $comm->userpic;
+    my $userpic_html = '';
+    if ($userpic) {
+        my $userpic_url = $userpic->url;
+        $userpic_html = qq { <a href="$journal_base"><img src="$userpic_url" /></a> };
+    }
+
+    my $blurb = $comm->prop('comm_promo_blurb') || '';
+
+    my $join_link = "$LJ::SITEROOT/community/join.bml?comm=$comm->{user}";
+    my $watch_link = "$LJ::SITEROOT/manage/circle/add.bml?user=$comm->{user}&action=subscribe";
+    my $read_link = $comm->journal_base;
+
+    LJ::need_res("stc/lj_base.css");
+
+    # if horizontal, userpic needs to come before everything
+    my $box_class;
+    my $comm_display;
+
+    if (lc $style eq 'horizontal') {
+        $box_class = 'Horizontal';
+        $comm_display = qq {
+            <div class="Userpic">$userpic_html</div>
+            <div class="Title">LJ Community Promo</div>
+            <div class="CommLink">$commljuser</div>
+        };
+    } else {
+        $box_class = 'Vertical';
+        $comm_display = qq {
+            <div class="Title">LJ Community Promo</div>
+            <div class="CommLink">$commljuser</div>
+            <div class="Userpic">$userpic_html</div>
+        };
+    }
+
+
+    my $html = qq {
+        <div class="CommunityPromoBox">
+            <div class="$box_class">
+                $comm_display
+                <div class="Blurb">$blurb</div>
+                <div class="Links"><a href="$join_link">Join</a> | <a href="$watch_link">Watch</a> |
+                    <a href="$read_link">Read</a></div>
+
+                <div class='ljclear'>&nbsp;</div>
+            </div>
+        </div>
     };
 
-    return $u->do("INSERT INTO loginlog SET userid=?, sessid=?, logintime=UNIX_TIMESTAMP(), ".
-                  "ip=?, ua=?", undef, $u->{userid}, $sessid, $ip, $ua);
+    return $html;
 }
 
-# THIS IS DEPRECATED DO NOT USE
-sub email {
-    my ($u, $remote) = @_;
-    return $u->emails_visible($remote);
+
+sub trusts_or_has_member {
+    my ( $u, $target_u ) = @_;
+    $target_u = LJ::want_user( $target_u ) or return 0;
+
+    return $target_u->member_of( $u ) ? 1 : 0
+        if $u->is_community;
+
+    return $u->trusts( $target_u ) ? 1 : 0;
 }
+
+
+########################################################################
+### 14. Content Flagging and Adult Content Functions
+###  FIXME: Determine which are by-user and which are admin flagging
+###  (and remove admin flagging as an option)
+
+
+# defined by the user
+# returns 'none', 'concepts' or 'explicit'
+sub adult_content {
+    my $u = shift;
+
+    my $prop_value = $u->prop('adult_content');
+
+    return $prop_value ? $prop_value : "none";
+}
+
+
+# uses both user- and admin-defined props to figure out the adult content level
+sub adult_content_calculated {
+    my $u = shift;
+
+    return "explicit" if $u->admin_content_flag eq "explicit_adult";
+    return $u->adult_content;
+}
+
+
+# defined by an admin
+sub admin_content_flag {
+    my $u = shift;
+
+    return $u->prop('admin_content_flag');
+}
+
+
+# returns who marked the entry as the 'adult_content_calculated' adult content level
+sub adult_content_marker {
+    my $u = shift;
+
+    return "admin" if $u->admin_content_flag eq "explicit_adult";
+    return "journal";
+}
+
+
+# defuned by the user
+sub adult_content_reason {
+    my $u = shift;
+
+    return $u->prop('adult_content_reason');
+}
+
+
+sub can_admin_content_flagging {
+    my $u = shift;
+
+    return 0 unless LJ::is_enabled("content_flag");
+    return 1 if $LJ::IS_DEV_SERVER;
+    return LJ::check_priv($u, "siteadmin", "contentflag");
+}
+
+
+sub can_flag_content {
+    my $u = shift;
+    my %opts = @_;
+
+    return 0 unless $u->can_see_content_flag_button(%opts);
+    return 0 if LJ::sysban_check("contentflag", $u->user);
+    return 0 unless $u->rate_check("ctflag", 1);
+    return 1;
+}
+
+
+sub can_see_content_flag_button {
+    my $u = shift;
+    my %opts = @_;
+
+    return 0 unless LJ::is_enabled("content_flag");
+
+    my $content = $opts{content};
+
+    # user can't flag any journal they manage nor any entry they posted
+    # user also can't flag non-public entries
+    if (LJ::isu($content)) {
+        return 0 if $u->can_manage($content);
+    } elsif ($content->isa("LJ::Entry")) {
+        return 0 if $u->equals($content->poster);
+        return 0 unless $content->security eq "public";
+    }
+
+    # user can't flag anything if their account isn't at least one month old
+    my $one_month = 60*60*24*30;
+    return 0 unless time() - $u->timecreate >= $one_month;
+
+    return 1;
+}
+
+
+sub hide_adult_content {
+    my $u = shift;
+
+    my $prop_value = $u->prop('hide_adult_content');
+
+    if ($u->is_child || !$u->best_guess_age) {
+        return "concepts";
+    }
+
+    if ($u->is_minor && $prop_value ne "concepts") {
+        return "explicit";
+    }
+
+    return $prop_value ? $prop_value : "none";
+}
+
+
+# returns a number that represents the user's chosen search filtering level
+# 0 = no filtering
+# 1-10 = moderate filtering
+# >10 = strict filtering
+sub safe_search {
+    my $u = shift;
+
+    my $prop_value = $u->prop('safe_search');
+
+    # current user 18+ default is 0
+    # current user <18 default is 10
+    # new user default (prop value is "nu_default") is 10
+    return 0 if $prop_value eq "none";
+    return $prop_value if $prop_value && $prop_value =~ /^\d+$/;
+    return 0 if $prop_value ne "nu_default" && $u->best_guess_age && !$u->is_minor;
+    return 10;
+}
+
+
+# determine if the user in "for_u" should see $u in a search result
+sub should_show_in_search_results {
+    my $u = shift;
+    my %opts = @_;
+
+    return 1 unless LJ::is_enabled("content_flag") && LJ::is_enabled("safe_search");
+
+    my $adult_content = $u->adult_content_calculated;
+    my $admin_flag = $u->admin_content_flag;
+
+    my $for_u = $opts{for};
+    unless (LJ::isu($for_u)) {
+        return $adult_content ne "none" || $admin_flag ? 0 : 1;
+    }
+
+    my $safe_search = $for_u->safe_search;
+    return 1 if $safe_search == 0;
+
+    my $adult_content_flag_level = $LJ::CONTENT_FLAGS{$adult_content} ? $LJ::CONTENT_FLAGS{$adult_content}->{safe_search_level} : 0;
+    my $admin_flag_level = $LJ::CONTENT_FLAGS{$admin_flag} ? $LJ::CONTENT_FLAGS{$admin_flag}->{safe_search_level} : 0;
+
+    return 0 if $adult_content_flag_level && ($safe_search >= $adult_content_flag_level);
+    return 0 if $admin_flag_level && ($safe_search >= $admin_flag_level);
+    return 1;
+}
+
+
+########################################################################
+###  15. Email-Related Functions
+
+
+sub email_for_feeds {
+    my $u = shift;
+
+    # don't display if it's mangled
+    return if $u->prop("opt_mangleemail") eq "Y";
+
+    my $remote = LJ::get_remote();
+    return $u->email_visible($remote);
+}
+
 
 sub email_raw {
     my $u = shift;
@@ -2077,19 +3187,12 @@ sub email_raw {
     return $u->{_email};
 }
 
-sub validated_mbox_sha1sum {
+
+sub email_status {
     my $u = shift;
-
-    # must be validated
-    return undef unless $u->is_validated;
-
-    # must have one on file
-    my $email = $u->email_raw;
-    return undef unless $email;
-
-    # return SHA1, which does not disclose the actual value
-    return Digest::SHA1::sha1_hex('mailto:' . $email);
+    return $u->{status};
 }
+
 
 # in scalar context, returns user's email address.  given a remote user,
 # bases decision based on whether $remote user can see it.  in list context,
@@ -2099,6 +3202,7 @@ sub email_visible {
 
     return scalar $u->emails_visible($remote);
 }
+
 
 sub emails_visible {
     my ($u, $remote) = @_;
@@ -2137,25 +3241,44 @@ sub emails_visible {
     return wantarray ? @emails : $emails[0];
 }
 
-sub email_for_feeds {
-    my $u = shift;
-
-    # don't display if it's mangled
-    return if $u->prop("opt_mangleemail") eq "Y";
-
-    my $remote = LJ::get_remote();
-    return $u->email_visible($remote);
-}
-
-sub email_status {
-    my $u = shift;
-    return $u->{status};
-}
 
 sub is_validated {
     my $u = shift;
     return $u->email_status eq "A";
 }
+
+
+# return user selected mail encoding or undef
+sub mailencoding {
+    my $u = shift;
+    my $enc = $u->prop('mailencoding');
+
+    return undef unless $enc;
+
+    LJ::load_codes({ "encoding" => \%LJ::CACHE_ENCODINGS } )
+        unless %LJ::CACHE_ENCODINGS;
+    return $LJ::CACHE_ENCODINGS{$enc}
+}
+
+
+# return the setting indicating how a user can be found by their email address
+# Y - Findable, N - Not findable, H - Findable but identity hidden
+sub opt_findbyemail {
+    my $u = shift;
+
+    if ($u->raw_prop('opt_findbyemail') =~ /^(N|Y|H)$/) {
+        return $u->raw_prop('opt_findbyemail');
+    } else {
+        return undef;
+    }
+}
+
+
+sub set_email {
+    my ($u, $email) = @_;
+    return LJ::set_email($u->id, $email);
+}
+
 
 sub update_email_alias {
     my $u = shift;
@@ -2173,6 +3296,730 @@ sub update_email_alias {
     return 1;
 }
 
+
+sub validated_mbox_sha1sum {
+    my $u = shift;
+
+    # must be validated
+    return undef unless $u->is_validated;
+
+    # must have one on file
+    my $email = $u->email_raw;
+    return undef unless $email;
+
+    # return SHA1, which does not disclose the actual value
+    return Digest::SHA1::sha1_hex('mailto:' . $email);
+}
+
+
+########################################################################
+###  16. Entry-Related Functions
+
+# front-end to recent_entries, which forces the remote user to be
+# the owner, so we get everything.
+sub all_recent_entries {
+    my $u = shift;
+    my %opts = @_;
+    $opts{filtered_for} = $u;
+    return $u->recent_entries(%opts);
+}
+
+
+sub draft_text {
+    my ($u) = @_;
+    return $u->prop('entry_draft');
+}
+
+
+# <LJFUNC>
+# name: LJ::get_post_ids
+# des: Given a user object and some options, return the number of posts or the
+#      posts'' IDs (jitemids) that match.
+# returns: number of matching posts, <strong>or</strong> IDs of
+#          matching posts (default).
+# args: u, opts
+# des-opts: 'security' - [public|private|usemask]
+#           'allowmask' - integer for friends-only or custom groups
+#           'start_date' - UTC date after which to look for match
+#           'end_date' - UTC date before which to look for match
+#           'return' - if 'count' just return the count
+#           TODO: Add caching?
+# </LJFUNC>
+sub get_post_ids {
+    my ($u, %opts) = @_;
+
+    my $query = 'SELECT';
+    my @vals; # parameters to query
+
+    if ($opts{'start_date'} || $opts{'end_date'}) {
+        croak "start or end date not defined"
+            if (!$opts{'start_date'} || !$opts{'end_date'});
+
+        if (!($opts{'start_date'} >= 0) || !($opts{'end_date'} >= 0) ||
+            !($opts{'start_date'} <= $LJ::EndOfTime) ||
+            !($opts{'end_date'} <= $LJ::EndOfTime) ) {
+            return undef;
+        }
+    }
+
+    # return count or jitemids
+    if ($opts{'return'} eq 'count') {
+        $query .= " COUNT(*)";
+    } else {
+        $query .= " jitemid";
+    }
+
+    # from the journal entries table for this user
+    $query .= " FROM log2 WHERE journalid=?";
+    push(@vals, $u->{userid});
+
+    # filter by security
+    if ($opts{'security'}) {
+        $query .= " AND security=?";
+        push(@vals, $opts{'security'});
+        # If friends-only or custom
+        if ($opts{'security'} eq 'usemask' && $opts{'allowmask'}) {
+            $query .= " AND allowmask=?";
+            push(@vals, $opts{'allowmask'});
+        }
+    }
+
+    # filter by date, use revttime as it is indexed
+    if ($opts{'start_date'} && $opts{'end_date'}) {
+        # revttime is reverse event time
+        my $s_date = $LJ::EndOfTime - $opts{'start_date'};
+        my $e_date = $LJ::EndOfTime - $opts{'end_date'};
+        $query .= " AND revttime<?";
+        push(@vals, $s_date);
+        $query .= " AND revttime>?";
+        push(@vals, $e_date);
+    }
+
+    # return count or jitemids
+    if ($opts{'return'} eq 'count') {
+        return $u->selectrow_array($query, undef, @vals);
+    } else {
+        my $jitemids = $u->selectcol_arrayref($query, undef, @vals) || [];
+        die $u->errstr if $u->err;
+        return @$jitemids;
+    }
+}
+
+
+# Returns 'rich' or 'plain' depending on user's
+# setting of which editor they would like to use
+# and what they last used
+sub new_entry_editor {
+    my $u = shift;
+
+    my $editor = $u->prop('entry_editor');
+    return 'plain' if $editor eq 'always_plain'; # They said they always want plain
+    return 'rich' if $editor eq 'always_rich'; # They said they always want rich
+    return $editor if $editor =~ /(rich|plain)/; # What did they last use?
+    return $LJ::DEFAULT_EDITOR; # Use config default
+}
+
+
+sub newpost_minsecurity {
+    my $u = shift;
+
+    return $u->prop('newpost_minsecurity') || 'public';
+}
+
+
+*get_post_count = \&number_of_posts;
+sub number_of_posts {
+    my ($u, %opts) = @_;
+
+    # to count only a subset of all posts
+    if (%opts) {
+        $opts{return} = 'count';
+        return $u->get_post_ids(%opts);
+    }
+
+    my $memkey = [$u->{userid}, "log2ct:$u->{userid}"];
+    my $expire = time() + 3600*24*2; # 2 days
+    return LJ::MemCache::get_or_set($memkey, sub {
+        return $u->selectrow_array("SELECT COUNT(*) FROM log2 WHERE journalid=?",
+                                   undef, $u->{userid});
+    }, $expire);
+}
+
+
+# return the number of posts that the user actually posted themselves
+sub number_of_posted_posts {
+    my $u = shift;
+
+    my $num = $u->number_of_posts;
+    $num-- if LJ::run_hook('user_has_auto_post', $u);
+
+    return $num;
+}
+
+
+# returns array of LJ::Entry objects, ignoring security
+sub recent_entries {
+    my ($u, %opts) = @_;
+    my $remote = delete $opts{'filtered_for'} || LJ::get_remote();
+    my $count  = delete $opts{'count'}        || 50;
+    my $order  = delete $opts{'order'}        || "";
+    die "unknown options" if %opts;
+
+    my $err;
+    my @recent = $u->recent_items(
+        itemshow  => $count,
+        err       => \$err,
+        clusterid => $u->{clusterid},
+        remote    => $remote,
+        order     => $order,
+    );
+    die "Error loading recent items: $err" if $err;
+
+    my @objs;
+    foreach my $ri (@recent) {
+        my $entry = LJ::Entry->new($u, jitemid => $ri->{itemid});
+        push @objs, $entry;
+        # FIXME: populate the $entry with security/posterid/alldatepart/ownerid/rlogtime
+    }
+    return @objs;
+}
+
+
+sub set_draft_text {
+    my ($u, $draft) = @_;
+    my $old = $u->draft_text;
+
+    $LJ::_T_DRAFT_RACE->() if $LJ::_T_DRAFT_RACE;
+
+    # try to find a shortcut that makes the SQL shorter
+    my @methods;  # list of [ $subref, $cost ]
+
+    # one method is just setting it all at once.  which incurs about
+    # 75 bytes of SQL overhead on top of the length of the draft,
+    # not counting the escaping
+    push @methods, [ "set", sub { $u->set_prop('entry_draft', $draft); 1 },
+                     75 + length $draft ];
+
+    # stupid case, setting the same thing:
+    push @methods, [ "noop", sub { 1 }, 0 ] if $draft eq $old;
+
+    # simple case: appending
+    if (length $old && $draft =~ /^\Q$old\E(.+)/s) {
+        my $new = $1;
+        my $appending = sub {
+            my $prop = LJ::get_prop("user", "entry_draft") or die; # FIXME: use exceptions
+            my $rv = $u->do("UPDATE userpropblob SET value = CONCAT(value, ?) WHERE userid=? AND upropid=? AND LENGTH(value)=?",
+                            undef, $new, $u->{userid}, $prop->{id}, length $old);
+            return 0 unless $rv > 0;
+            $u->uncache_prop("entry_draft");
+            return 1;
+        };
+        push @methods, [ "append", $appending, 40 + length $new ];
+    }
+
+    # TODO: prepending/middle insertion (the former being just the latter), as well
+    # appending, wihch we could then get rid of
+
+    # try the methods in increasing order
+    foreach my $m (sort { $a->[2] <=> $b->[2] } @methods) {
+        my $func = $m->[1];
+        if ($func->()) {
+            $LJ::_T_METHOD_USED->($m->[0]) if $LJ::_T_METHOD_USED; # for testing
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+sub third_party_notify_list {
+    my $u = shift;
+
+    my $val = $u->prop('third_party_notify_list');
+    my @services = split(',', $val);
+
+    return @services;
+}
+
+
+# Add a service to a user's notify list
+sub third_party_notify_list_add {
+    my $u = shift;
+    my $svc = shift;
+    return 0 unless $svc;
+
+    # Is it already there?
+    return 1 if $u->third_party_notify_list_contains($svc);
+
+    # Create the new list of services
+    my @cur_services = $u->third_party_notify_list;
+    push @cur_services, $svc;
+    my $svc_list = join(',', @cur_services);
+
+    # Trim a service from the list if it is too long
+    if (length $svc_list > 255) {
+        shift @cur_services;
+        $svc_list = join(',', @cur_services)
+    }
+
+    # Set it
+    $u->set_prop('third_party_notify_list', $svc_list);
+    return 1;
+}
+
+
+# Check if the user's notify list contains a particular service
+sub third_party_notify_list_contains {
+    my $u = shift;
+    my $val = shift;
+
+    return 1 if grep { $_ eq $val } $u->third_party_notify_list;
+
+    return 0;
+}
+
+
+# Remove a service to a user's notify list
+sub third_party_notify_list_remove {
+    my $u = shift;
+    my $svc = shift;
+    return 0 unless $svc;
+
+    # Is it even there?
+    return 1 unless $u->third_party_notify_list_contains($svc);
+
+    # Remove it!
+    $u->set_prop('third_party_notify_list',
+                 join(',',
+                      grep { $_ ne $svc } $u->third_party_notify_list
+                      )
+                 );
+    return 1;
+}
+
+
+########################################################################
+###  17. Interest-Related Functions
+
+sub interest_count {
+    my $u = shift;
+
+    # FIXME: fall back to SELECT COUNT(*) if not cached already?
+    return scalar @{LJ::get_interests($u, { justids => 1 })};
+}
+
+
+sub interest_list {
+    my $u = shift;
+
+    return map { $_->[1] } @{ LJ::get_interests($u) };
+}
+
+
+# return hashref with intname => intid
+sub interests {
+    my $u = shift;
+    my $uints = LJ::get_interests($u);
+    my %interests;
+
+    foreach my $int (@$uints) {
+        $interests{$int->[1]} = $int->[0];  # $interests{name} = intid
+    }
+
+    return \%interests;
+}
+
+
+sub lazy_interests_cleanup {
+    my $u = shift;
+
+    my $dbh = LJ::get_db_writer();
+
+    if ($u->is_community) {
+        $dbh->do("INSERT IGNORE INTO comminterests SELECT * FROM userinterests WHERE userid=?", undef, $u->id);
+        $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $u->id);
+    } else {
+        $dbh->do("INSERT IGNORE INTO userinterests SELECT * FROM comminterests WHERE userid=?", undef, $u->id);
+        $dbh->do("DELETE FROM comminterests WHERE userid=?", undef, $u->id);
+    }
+
+    LJ::memcache_kill($u, "intids");
+    return 1;
+}
+
+
+sub set_interests {
+    my $u = shift;
+    LJ::set_interests($u, @_);
+}
+
+
+########################################################################
+###  18. Jabber-Related Functions
+
+
+# Hide the LJ Talk field on profile?  opt_showljtalk needs a value of 'N'.
+sub hide_ljtalk {
+    my $u = shift;
+    croak "Invalid user object passed" unless LJ::isu($u);
+
+    # ... The opposite of showing the field. :)
+    return $u->show_ljtalk ? 0 : 1;
+}
+
+
+# returns whether or not the user is online on jabber
+sub jabber_is_online {
+    my $u = shift;
+
+    return keys %{LJ::Jabber::Presence->get_resources($u)} ? 1 : 0;
+}
+
+
+sub ljtalk_id {
+    my $u = shift;
+    croak "Invalid user object passed" unless LJ::isu($u);
+
+    return $u->{'user'}.'@'.$LJ::USER_DOMAIN;
+}
+
+
+# opt_showljtalk options based on user setting
+# Y = Show the LJ Talk field on profile (default)
+# N = Don't show the LJ Talk field on profile
+sub opt_showljtalk {
+    my $u = shift;
+
+    # Check for valid value, or just return default of 'Y'.
+    if ($u->raw_prop('opt_showljtalk') =~ /^(Y|N)$/) {
+        return $u->raw_prop('opt_showljtalk');
+    } else {
+        return 'Y';
+    }
+}
+
+
+# find what servers a user is logged in to, and send them an IM
+# returns true if sent, false if failure or user not logged on
+# Please do not call from web context
+sub send_im {
+    my ($self, %opts) = @_;
+
+    croak "Can't call in web context" if LJ::is_web_context();
+
+    my $from = delete $opts{from};
+    my $msg  = delete $opts{message} or croak "No message specified";
+
+    croak "No from or bot jid defined" unless $from || $LJ::JABBER_BOT_JID;
+
+    my @resources = keys %{LJ::Jabber::Presence->get_resources($self)} or return 0;
+
+    my $res = $resources[0] or return 0; # FIXME: pick correct server based on priority?
+    my $pres = LJ::Jabber::Presence->new($self, $res) or return 0;
+    my $ip = $LJ::JABBER_SERVER_IP || '127.0.0.1';
+
+    my $sock = IO::Socket::INET->new(PeerAddr => "${ip}:5200")
+        or return 0;
+
+    my $vhost = $LJ::DOMAIN;
+
+    my $to_jid   = $self->user   . '@' . $LJ::DOMAIN;
+    my $from_jid = $from ? $from->user . '@' . $LJ::DOMAIN : $LJ::JABBER_BOT_JID;
+
+    my $emsg = LJ::exml($msg);
+    my $stanza = LJ::eurl(qq{<message to="$to_jid" from="$from_jid"><body>$emsg</body></message>});
+
+    print $sock "send_stanza $vhost $to_jid $stanza\n";
+
+    my $start_time = time();
+
+    while (1) {
+        my $rin = '';
+        vec($rin, fileno($sock), 1) = 1;
+        select(my $rout=$rin, undef, undef, 1);
+        if (vec($rout, fileno($sock), 1)) {
+            my $ln = <$sock>;
+            return 1 if $ln =~ /^OK/;
+        }
+
+        last if time() > $start_time + 5;
+    }
+
+    return 0;
+}
+
+
+# Show LJ Talk field on profile?  opt_showljtalk needs a value of 'Y'.
+sub show_ljtalk {
+    my $u = shift;
+    croak "Invalid user object passed" unless LJ::isu($u);
+
+    # Fail if the user wants to hide the LJ Talk field on their profile,
+    # or doesn't even have the ability to show it.
+    return 0 if $u->opt_showljtalk eq 'N' || $LJ::DISABLED{'ljtalk'} || !$u->is_person;
+
+    # User either decided to show LJ Talk field or has left it at the default.
+    return 1 if $u->opt_showljtalk eq 'Y';
+}
+
+
+########################################################################
+###  19. OpenID and Identity Users
+
+# returns a true value if user has a reserved 'ext' name.
+sub external {
+    my $u = shift;
+    return $u->{user} =~ /^ext_/;
+}
+
+
+# returns LJ::Identity object
+sub identity {
+    my $u = shift;
+    return $u->{_identity} if $u->{_identity};
+    return undef unless $u->{'journaltype'} eq "I";
+
+    my $memkey = [$u->{userid}, "ident:$u->{userid}"];
+    my $ident = LJ::MemCache::get($memkey);
+    if ($ident) {
+        my $i = LJ::Identity->new(
+                                  typeid => $ident->[0],
+                                  value  => $ident->[1],
+                                  );
+
+        return $u->{_identity} = $i;
+    }
+
+    my $dbh = LJ::get_db_writer();
+    $ident = $dbh->selectrow_arrayref("SELECT idtype, identity FROM identitymap ".
+                                      "WHERE userid=? LIMIT 1", undef, $u->{userid});
+    if ($ident) {
+        LJ::MemCache::set($memkey, $ident);
+        my $i = LJ::Identity->new(
+                                  typeid => $ident->[0],
+                                  value  => $ident->[1],
+                                  );
+        return $i;
+    }
+    return undef;
+}
+
+
+# class function - load an identity user, but only if they're already known to us
+sub load_existing_identity_user {
+    my ($type, $ident) = @_;
+
+    my $dbh = LJ::get_db_reader();
+    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
+                                    undef, $type, $ident);
+    return $uid ? LJ::load_userid($uid) : undef;
+}
+
+
+# class function - load an identity user, and if we've never seen them before create a user account for them
+sub load_identity_user {
+    my ($type, $ident, $vident) = @_;
+
+    my $u = load_existing_identity_user($type, $ident);
+
+    # If the user is marked as expunged, move identity mapping aside
+    # and continue to create new account.
+    # Otherwise return user if it exists.
+    if ($u) {
+        if ($u->is_expunged) {
+            return undef unless ($u->rename_identity);
+        } else {
+            return $u;
+        }
+    }
+
+    # increment ext_ counter until we successfully create an LJ
+    # account.  hard cap it at 10 tries. (arbitrary, but we really
+    # shouldn't have *any* failures here, let alone 10 in a row)
+    my $dbh = LJ::get_db_writer();
+    my $uid;
+
+    for (1..10) {
+        my $extuser = 'ext_' . LJ::alloc_global_counter('E');
+
+        my $name = $extuser;
+        if ($type eq "O" && ref $vident) {
+            $name = $vident->display;
+        }
+
+        $uid = LJ::create_account({
+            caps => undef,
+            user => $extuser,
+            name => $name,
+            journaltype => 'I',
+        });
+        last if $uid;
+        select undef, undef, undef, .10;  # lets not thrash over this
+    }
+    return undef unless $uid &&
+        $dbh->do("INSERT INTO identitymap (idtype, identity, userid) VALUES (?,?,?)",
+                 undef, $type, $ident, $uid);
+
+    $u = LJ::load_userid($uid);
+
+    # record create information
+    my $remote = LJ::get_remote();
+    $u->log_event('account_create', { remote => $remote });
+
+    return $u;
+}
+
+
+# returns a URL if account is an OpenID identity.  undef otherwise.
+sub openid_identity {
+    my $u = shift;
+    my $ident = $u->identity;
+    return undef unless $ident && $ident->typeid eq 'O';
+    return $ident->value;
+}
+
+
+# prepare OpenId part of html-page, if needed
+sub openid_tags {
+    my $u = shift;
+
+    my $head = '';
+
+    # OpenID Server and Yadis
+    if (LJ::OpenID->server_enabled and defined $u) {
+        my $journalbase = $u->journal_base;
+        $head .= qq{<link rel="openid.server" href="$LJ::OPENID_SERVER" />\n};
+        $head .= qq{<meta http-equiv="X-XRDS-Location" content="$journalbase/data/yadis" />\n};
+    }
+
+    return $head;
+}
+
+
+# <LJFUNC>
+# name: LJ::User::rename_identity
+# des: Change an identity user's 'identity', update DB,
+#      clear memcache and log change.
+# args: user
+# returns: Success or failure.
+# </LJFUNC>
+sub rename_identity {
+    my $u = shift;
+    return 0 unless ($u && $u->is_identity && $u->is_expunged);
+
+    my $id = $u->identity;
+    return 0 unless $id;
+
+    my $dbh = LJ::get_db_writer();
+
+    # generate a new identity value that looks like ex_oldidvalue555
+    my $tempid = sub {
+        my $ident = shift;
+        my $idtype = shift;
+        my $temp = (length($ident) > 249) ? substr($ident, 0, 249) : $ident;
+        my $exid;
+
+        for (1..10) {
+            $exid = "ex_$temp" . int(rand(999));
+
+            # check to see if this identity already exists
+            unless ($dbh->selectrow_array("SELECT COUNT(*) FROM identitymap WHERE identity=? AND idtype=? LIMIT 1", undef, $exid, $idtype)) {
+                # name doesn't already exist, use this one
+                last;
+            }
+            # name existed, try and get another
+
+            if ($_ >= 10) {
+                return 0;
+            }
+        }
+        return $exid;
+    };
+
+    my $from = $id->value;
+    my $to = $tempid->($id->value, $id->typeid);
+
+    return 0 unless $to;
+
+    $dbh->do("UPDATE identitymap SET identity=? WHERE identity=? AND idtype=?",
+             undef, $to, $from, $id->typeid);
+
+    LJ::memcache_kill($u, "userid");
+
+    LJ::infohistory_add($u, 'identity', $from);
+
+    return 1;
+}
+
+
+########################################################################
+###  20. Page Notices Functions
+
+sub dismissed_page_notices {
+    my $u = shift;
+
+    my $val = $u->prop("dismissed_page_notices");
+    my @notices = split(",", $val);
+
+    return @notices;
+}
+
+
+# add a page notice to a user's dismissed page notices list
+sub dismissed_page_notices_add {
+    my $u = shift;
+    my $notice_string = shift;
+    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
+
+    # is it already there?
+    return 1 if $u->has_dismissed_page_notice($notice_string);
+
+    # create the new list of dismissed page notices
+    my @cur_notices = $u->dismissed_page_notices;
+    push @cur_notices, $notice_string;
+    my $cur_notices_string = join(",", @cur_notices);
+
+    # remove the oldest notice if the list is too long
+    if (length $cur_notices_string > 255) {
+        shift @cur_notices;
+        $cur_notices_string = join(",", @cur_notices);
+    }
+
+    # set it
+    $u->set_prop("dismissed_page_notices", $cur_notices_string);
+
+    return 1;
+}
+
+
+# remove a page notice from a user's dismissed page notices list
+sub dismissed_page_notices_remove {
+    my $u = shift;
+    my $notice_string = shift;
+    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
+
+    # is it even there?
+    return 0 unless $u->has_dismissed_page_notice($notice_string);
+
+    # remove it
+    $u->set_prop("dismissed_page_notices", join(",", grep { $_ ne $notice_string } $u->dismissed_page_notices));
+
+    return 1;
+}
+
+
+sub has_dismissed_page_notice {
+    my $u = shift;
+    my $notice_string = shift;
+
+    return 1 if grep { $_ eq $notice_string } $u->dismissed_page_notices;
+    return 0;
+}
+
+
+########################################################################
+###  21. Password Functions
+
 sub can_receive_password {
     my ($u, $email) = @_;
 
@@ -2186,15 +4033,715 @@ sub can_receive_password {
                                  undef, $u->id, $email);
 }
 
-sub share_contactinfo {
-    my ($u, $remote) = @_;
 
-    return 0 if $u->underage || $u->{journaltype} eq "Y";
-    return 0 if $u->opt_showcontact eq 'N';
-    return 0 if $u->opt_showcontact eq 'R' && !$remote;
-    return 0 if $u->opt_showcontact eq 'F' && !$u->trusts( $remote );
+sub password {
+    my $u = shift;
+    $u->{_password} ||= LJ::MemCache::get_or_set([$u->{userid}, "pw:$u->{userid}"], sub {
+        my $dbh = LJ::get_db_writer() or die "Couldn't get db master";
+        return $dbh->selectrow_array("SELECT password FROM password WHERE userid=?",
+                                     undef, $u->id);
+    });
+    return $u->{_password};
+}
+
+
+sub set_password {
+    my ($u, $password) = @_;
+    return LJ::set_password($u->id, $password);
+}
+
+
+########################################################################
+###  22. Priv-Related Functions
+
+
+sub grant_priv {
+    my ($u, $priv, $arg) = @_;
+    $arg ||= "";
+    my $dbh = LJ::get_db_writer();
+
+    return 1 if LJ::check_priv($u, $priv, $arg);
+
+    my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
+                                       " WHERE privcode = ?", undef, $priv);
+    return 0 unless $privid;
+
+    $dbh->do("INSERT INTO priv_map (userid, prlid, arg) VALUES (?, ?, ?)",
+             undef, $u->id, $privid, $arg);
+    return 0 if $dbh->err;
+
+    undef $u->{'_privloaded'}; # to force reloading of privs later
     return 1;
 }
+
+sub revoke_priv {
+    my ($u, $priv, $arg) = @_;
+    $arg ||="";
+    my $dbh = LJ::get_db_writer();
+
+    return 1 unless LJ::check_priv($u, $priv, $arg);
+
+    my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
+                                       " WHERE privcode = ?", undef, $priv);
+    return 0 unless $privid;
+
+    $dbh->do("DELETE FROM priv_map WHERE userid = ? AND prlid = ? AND arg = ?",
+             undef, $u->id, $privid, $arg);
+    return 0 if $dbh->err;
+
+    undef $u->{'_privloaded'}; # to force reloading of privs later
+    undef $u->{'_priv'};
+    return 1;
+}
+
+sub revoke_priv_all {
+    my ($u, $priv) = @_;
+    my $dbh = LJ::get_db_writer();
+
+    my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
+                                       " WHERE privcode = ?", undef, $priv);
+    return 0 unless $privid;
+
+    $dbh->do("DELETE FROM priv_map WHERE userid = ? AND prlid = ?",
+             undef, $u->id, $privid);
+    return 0 if $dbh->err;
+
+    undef $u->{'_privloaded'}; # to force reloading of privs later
+    undef $u->{'_priv'};
+    return 1;
+}
+
+
+########################################################################
+###  23. SMS-Related Functions
+###   FIXME: Determine which of these are TxtLJ backend (bug 199). All?
+
+
+sub add_sms_quota {
+    my ($u, $qty, $type) = @_;
+
+    return LJ::SMS->add_sms_quota($u, $qty, $type);
+}
+
+
+sub can_use_sms {
+    my $u = shift;
+    return LJ::SMS->can_use_sms($u);
+}
+
+
+sub delete_sms_number {
+    my $u = shift;
+    return LJ::SMS->replace_mapping($u, undef);
+}
+
+
+sub max_sms_bytes {
+    my $u = shift;
+    return LJ::SMS->max_sms_bytes($u);
+}
+
+
+sub max_sms_substr {
+    my ($u, $text, %opts) = @_;
+    return LJ::SMS->max_sms_substr($u, $text, %opts);
+}
+
+
+# opts:
+#   no_quota = don't check user quota or deduct from their quota for sending a message
+sub send_sms {
+    my ($u, $msg, %opts) = @_;
+
+    return 0 unless $u;
+
+    croak "invalid user object for object method"
+        unless LJ::isu($u);
+    croak "invalid LJ::SMS::Message object to send"
+        unless $msg && $msg->isa("LJ::SMS::Message");
+
+    my $ret = $msg->send(%opts);
+
+    return $ret;
+}
+
+
+sub send_sms_text {
+    my ($u, $msgtext, %opts) = @_;
+
+    my $msg = LJ::SMS::Message->new(
+                                    owner => $u,
+                                    to    => $u,
+                                    type  => 'outgoing',
+                                    body_text => $msgtext,
+                                    );
+
+    # if user specified a class_key for send, set it on
+    # the msg object
+    if ($opts{class_key}) {
+        $msg->class_key($opts{class_key});
+    }
+
+    $msg->send(%opts);
+}
+
+
+sub set_sms_number {
+    my ($u, $num, %opts) = @_;
+    my $verified = delete $opts{verified};
+
+    # these two are only checked if $num, because it's possible
+    # to just pass ($u, undef, undef) to delete the mapping
+    if ($num) {
+        croak "invalid number" unless $num =~ /^\+\d+$/;
+        croak "invalid verified flag" unless $verified =~ /^[YN]$/;
+    }
+
+    return LJ::SMS->replace_mapping($u, $num, $verified);
+}
+
+
+sub set_sms_number_verified {
+    my ($u, $verified) = @_;
+
+    return LJ::SMS->set_number_verified($u, $verified);
+}
+
+
+sub set_sms_quota {
+    my ($u, $qty, $type) = @_;
+
+    return LJ::SMS->set_sms_quota($u, $qty, $type);
+}
+
+
+sub sms_active {
+    my $u = shift;
+
+    # active if the user has a verified sms number
+    return LJ::SMS->configured_for_user($u);
+}
+
+
+sub sms_active_number {
+    my $u = shift;
+    return LJ::SMS->uid_to_num($u, verified_only => 1);
+}
+
+
+# this method returns any mapped number for the user,
+# regardless of its verification status
+sub sms_mapped_number {
+    my $u = shift;
+    return LJ::SMS->uid_to_num($u, verified_only => 0);
+}
+
+
+sub sms_message_count {
+    my $u = shift;
+    return LJ::SMS->message_count($u, @_);
+}
+
+
+sub sms_num_instime {
+    my $u = shift;
+
+    return LJ::SMS->num_instime($u->sms_mapped_number);
+}
+
+
+sub sms_pending {
+    my $u = shift;
+
+    # pending if user has an unverified number
+    return LJ::SMS->pending_for_user($u);
+}
+
+
+sub sms_pending_number {
+    my $u = shift;
+    my $num = LJ::SMS->uid_to_num($u, verified_only => 0);
+    return undef unless $num;
+    return $num if LJ::SMS->num_is_pending($num);
+    return undef;
+}
+
+
+sub sms_quota_remaining {
+    my ($u, $type) = @_;
+
+    return LJ::SMS->sms_quota_remaining($u, $type);
+}
+
+
+sub sms_register_time_remaining {
+    my $u = shift;
+
+    return LJ::SMS->num_register_time_remaining($u);
+}
+
+
+sub sms_sent_message_count {
+    my $u = shift;
+    return LJ::SMS->sent_message_count($u, @_);
+}
+
+
+sub subtract_sms_quota {
+    my ($u, $qty, $type) = @_;
+
+    return LJ::SMS->subtract_sms_quota($u, $qty, $type);
+}
+
+
+########################################################################
+###  24. Styles and S2-Related Functions
+
+
+# Check to see if the user can use eboxes at all
+sub can_use_ebox {
+    my $u = shift;
+
+    return ref $LJ::DISABLED{ebox} ? !$LJ::DISABLED{ebox}->($u) : !$LJ::DISABLED{ebox};
+}
+
+
+# Allow users to choose eboxes if:
+# 1. The entire ebox feature isn't disabled AND
+# 2. The option to choose eboxes isn't disabled OR
+# 3. The option to choose eboxes is disabled AND
+# 4. The user already has eboxes turned on
+sub can_use_ebox_ui {
+    my $u = shift;
+    my $allow_ebox = 1;
+
+    if ($LJ::DISABLED{ebox_option}) {
+        $allow_ebox = $u->prop('journal_box_entries');
+    }
+
+    return $u->can_use_ebox && $allow_ebox;
+}
+
+
+sub journal_base {
+    my $u = shift;
+    return LJ::journal_base($u);
+}
+
+
+sub opt_ctxpopup {
+    my $u = shift;
+
+    # if unset, default to on
+    my $prop = $u->raw_prop('opt_ctxpopup') || 'Y';
+
+    return $prop eq 'Y';
+}
+
+
+sub opt_embedplaceholders {
+    my $u = shift;
+
+    my $prop = $u->raw_prop('opt_embedplaceholders');
+
+    if (defined $prop) {
+        return $prop;
+    } else {
+        my $imagelinks = $u->prop('opt_imagelinks');
+        return $imagelinks;
+    }
+}
+
+
+# revert S2 style to the default if the user is using a layout/theme layer that they don't have permission to use
+sub revert_style {
+    my $u = shift;
+
+    # FIXME: this solution is suboptimal
+    # - ensure that these packages are loaded via Class::Autouse by calling a method on them
+    LJ::S2->can("dostuff");
+    LJ::S2Theme->can("dostuff");
+    LJ::Customize->can("dostuff");
+
+    my $current_theme = LJ::Customize->get_current_theme($u);
+    return unless $current_theme;
+    my $default_theme_of_current_layout = LJ::S2Theme->load_default_of($current_theme->layoutid, user => $u);
+    return unless $default_theme_of_current_layout;
+
+    my $default_style = LJ::run_hook('get_default_style', $u) || $LJ::DEFAULT_STYLE;
+    my $default_layout_uniq = exists $default_style->{layout} ? $default_style->{layout} : '';
+    my $default_theme_uniq = exists $default_style->{theme} ? $default_style->{theme} : '';
+
+    my %style = LJ::S2::get_style($u, "verify");
+    my $public = LJ::S2::get_public_layers();
+    my $userlay = LJ::S2::get_layers_of_user($u);
+
+    # check to see if the user is using a custom layout or theme
+    # if so, we want to let them keep using it
+    foreach my $layerid (keys %$userlay) {
+        return if $current_theme->layoutid == $layerid;
+        return if $current_theme->themeid == $layerid;
+    }
+
+    # if the user cannot use the layout or the default theme of that layout, switch to the default style (if it's defined)
+    if (($default_layout_uniq || $default_theme_uniq) && (!LJ::S2::can_use_layer($u, $current_theme->layout_uniq) || !$default_theme_of_current_layout->available_to($u))) {
+        my $new_theme;
+        if ($default_theme_uniq) {
+            $new_theme = LJ::S2Theme->load_by_uniq($default_theme_uniq);
+        } else {
+            my $layoutid = $public->{$default_layout_uniq}->{s2lid} if $public->{$default_layout_uniq} && $public->{$default_layout_uniq}->{type} eq "layout";
+            $new_theme = LJ::S2Theme->load_default_of($layoutid, user => $u) if $layoutid;
+        }
+
+        return unless $new_theme;
+
+        # look for a style that uses the default layout/theme, and use it if it exists
+        my $styleid = $new_theme->get_styleid_for_theme($u);
+        my $style_exists = 0;
+        if ($styleid) {
+            $style_exists = 1;
+            $u->set_prop("s2_style", $styleid);
+
+            my $stylelayers = LJ::S2::get_style_layers($u, $u->prop('s2_style'));
+            foreach my $layer (qw(user i18nc i18n core)) {
+                $style{$layer} = exists $stylelayers->{$layer} ? $stylelayers->{$layer} : 0;
+            }
+        }
+
+        # set the layers that are defined by $default_style
+        while (my ($layer, $name) = each %$default_style) {
+            next if $name eq "";
+            next unless $public->{$name};
+            my $id = $public->{$name}->{s2lid};
+            $style{$layer} = $id if $id;
+        }
+
+        # make sure core was set
+        $style{core} = $new_theme->coreid
+            if $style{core} == 0;
+
+        # make sure the other layers were set
+        foreach my $layer (qw(user i18nc i18n)) {
+            $style{$layer} = 0 unless $style{$layer} || $style_exists;
+        }
+
+        # create the style
+        if ($style_exists) {
+            LJ::Customize->implicit_style_create($u, %style);
+        } else {
+            LJ::Customize->implicit_style_create({ 'force' => 1 }, $u, %style);
+        }
+
+    # if the user can use the layout but not the theme, switch to the default theme of that layout
+    # we know they can use this theme at this point because if they couldn't, the above block would have caught it
+    } elsif (LJ::S2::can_use_layer($u, $current_theme->layout_uniq) && !LJ::S2::can_use_layer($u, $current_theme->uniq)) {
+        $style{theme} = $default_theme_of_current_layout->themeid;
+        LJ::Customize->implicit_style_create($u, %style);
+    }
+
+    return;
+}
+
+
+sub show_control_strip {
+    my $u = shift;
+
+    LJ::run_hook('control_strip_propcheck', $u, 'show_control_strip') unless $LJ::DISABLED{control_strip_propcheck};
+
+    my $prop = $u->raw_prop('show_control_strip');
+    return 0 if $prop =~ /^off/;
+
+    return 'dark' if $prop eq 'forced';
+
+    return $prop;
+}
+
+
+sub view_control_strip {
+    my $u = shift;
+
+    LJ::run_hook('control_strip_propcheck', $u, 'view_control_strip') unless $LJ::DISABLED{control_strip_propcheck};
+
+    my $prop = $u->raw_prop('view_control_strip');
+    return 0 if $prop =~ /^off/;
+
+    return 'dark' if $prop eq 'forced';
+
+    return $prop;
+}
+
+
+########################################################################
+###  25. Subscription, Notifiction, and Messaging Functions
+
+
+# this is the count used to check the maximum subscription count
+sub active_inbox_subscription_count {
+    my $u = shift;
+    return scalar ( grep { $_->active && $_->enabled } $u->find_subscriptions(method => 'Inbox') );
+}
+
+
+sub can_add_inbox_subscription {
+    my $u = shift;
+    return $u->active_inbox_subscription_count >= $u->max_subscriptions ? 0 : 1;
+}
+
+
+# can this user use ESN?
+sub can_use_esn {
+    my $u = shift;
+    return 0 if $LJ::DISABLED{esn};
+    my $disable = $LJ::DISABLED{esn_ui};
+    return 1 unless $disable;
+
+    if (ref $disable eq 'CODE') {
+        return $disable->($u) ? 0 : 1;
+    }
+
+    return $disable ? 0 : 1;
+}
+
+
+# 1/0 if someone can send a message to $u
+sub can_receive_message {
+    my ($u, $sender) = @_;
+
+    my $opt_usermsg = $u->opt_usermsg;
+    return 0 if $opt_usermsg eq 'N' || !$sender;
+    return 0 if $u->has_banned($sender);
+    return 0 if $opt_usermsg eq 'M' && !$u->mutually_trusts($sender);
+    return 0 if $opt_usermsg eq 'F' && !$u->trusts($sender);
+
+    return 1;
+}
+
+
+# delete all of a user's subscriptions
+sub delete_all_subscriptions {
+    my $u = shift;
+    return LJ::Subscription->delete_all_subs($u);
+}
+
+
+# delete all of a user's subscriptions
+sub delete_all_inactive_subscriptions {
+    my $u = shift;
+    my $dryrun = shift;
+    return LJ::Subscription->delete_all_inactive_subs($u, $dryrun);
+}
+
+
+# ensure that this user does not have more than the maximum number of subscriptions
+# allowed by their cap, and enable subscriptions up to their current limit
+sub enable_subscriptions {
+    my $u = shift;
+
+    # first thing, disable everything they don't have caps for
+    # and make sure everything is enabled that should be enabled
+    map { $_->available_for_user($u) ? $_->enable : $_->disable } $u->find_subscriptions(method => 'Inbox');
+
+    my $max_subs = $u->get_cap('subscriptions');
+    my @inbox_subs = grep { $_->active && $_->enabled } $u->find_subscriptions(method => 'Inbox');
+
+    if ((scalar @inbox_subs) > $max_subs) {
+        # oh no, too many subs.
+        # disable the oldest subscriptions that are "tracking" subscriptions
+        my @tracking = grep { $_->is_tracking_category } @inbox_subs;
+
+        # oldest subs first
+        @tracking = sort {
+            return $a->createtime <=> $b->createtime;
+        } @tracking;
+
+        my $need_to_deactivate = (scalar @inbox_subs) - $max_subs;
+
+        for (1..$need_to_deactivate) {
+            my $sub_to_deactivate = shift @tracking;
+            $sub_to_deactivate->deactivate if $sub_to_deactivate;
+        }
+    } else {
+        # make sure all subscriptions are activated
+        my $need_to_activate = $max_subs - (scalar @inbox_subs);
+
+        # get deactivated subs
+        @inbox_subs = grep { $_->active && $_->available_for_user } $u->find_subscriptions(method => 'Inbox');
+
+        for (1..$need_to_activate) {
+            my $sub_to_activate = shift @inbox_subs;
+            $sub_to_activate->activate if $sub_to_activate;
+        }
+    }
+}
+
+
+sub esn_inbox_default_expand {
+    my $u = shift;
+
+    my $prop = $u->raw_prop('esn_inbox_default_expand');
+    return $prop ne 'N';
+}
+
+
+# interim solution while legacy/ESN notifications are both happening:
+# checks possible subscriptions to see if user will get an ESN notification
+# THIS IS TEMPORARY. FIXME. Should only be called by talklib.
+# params: journal, arg1 (entry ditemid), arg2 (comment talkid)
+sub gets_notified {
+    my ($u, %params) = @_;
+
+    $params{event} = "LJ::Event::JournalNewComment";
+    $params{method} = "LJ::NotificationMethod::Email";
+
+    my $has_sub;
+
+    # did they subscribe to the parent comment?
+    $has_sub = LJ::Subscription->find($u, %params);
+    return $has_sub if $has_sub;
+
+    # remove the comment-specific parameter, then check for an entry subscription
+    $params{arg2} = 0;
+    $has_sub = LJ::Subscription->find($u, %params);
+    return $has_sub if $has_sub;
+
+    # remove the entry-specific parameter, then check if they're subscribed to the entire journal
+    $params{arg1} = 0;
+    $has_sub = LJ::Subscription->find($u, %params);
+    return $has_sub;
+}
+
+
+# search for a subscription
+*find_subscriptions = \&has_subscription;
+sub has_subscription {
+    my ($u, %params) = @_;
+    croak "No parameters" unless %params;
+
+    return LJ::Subscription->find($u, %params);
+}
+
+
+sub max_subscriptions {
+    my $u = shift;
+    return $u->get_cap('subscriptions');
+}
+
+
+# return the URL to the send message page
+sub message_url {
+    my $u = shift;
+    croak "invalid user object passed" unless LJ::isu($u);
+
+    return undef if $LJ::DISABLED{user_messaging};
+    return "$LJ::SITEROOT/inbox/compose.bml?user=$u->{'user'}";
+}
+
+
+sub new_message_count {
+    my $u = shift;
+    my $inbox = $u->notification_inbox;
+    my $count = $inbox->unread_count;
+
+    return $count || 0;
+}
+
+
+sub notification_archive {
+    my $u = shift;
+    return LJ::NotificationArchive->new($u);
+}
+
+
+# Returns the NotificationInbox for this user
+*inbox = \&notification_inbox;
+sub notification_inbox {
+    my $u = shift;
+    return LJ::NotificationInbox->new($u);
+}
+
+
+# opt_usermsg options
+# Y - Registered Users
+# F - Trusted Users
+# M - Mutually Trusted Users
+# N - Nobody
+sub opt_usermsg {
+    my $u = shift;
+
+    if ($u->raw_prop('opt_usermsg') =~ /^(Y|F|M|N)$/) {
+        return $u->raw_prop('opt_usermsg');
+    } else {
+        return 'N' if $u->underage || $u->is_child;
+        return 'M' if $u->is_minor;
+        return 'Y';
+    }
+}
+
+
+# subscribe to an event
+sub subscribe {
+    my ($u, %opts) = @_;
+    croak "No subscription options" unless %opts;
+
+    return LJ::Subscription->create($u, %opts);
+}
+
+
+sub subscription_count {
+    my $u = shift;
+    return scalar LJ::Subscription->subscriptions_of_user($u);
+}
+
+
+sub subscriptions {
+    my $u = shift;
+    return LJ::Subscription->subscriptions_of_user($u);
+}
+
+
+########################################################################
+### 26. Syndication-Related Functions
+
+# retrieve hash of basic syndicated info
+sub get_syndicated {
+    my $u = shift;
+
+    return unless $u->is_syndicated;
+    my $memkey = [$u->{'userid'}, "synd:$u->{'userid'}"];
+
+    my $synd = {};
+    $synd = LJ::MemCache::get($memkey);
+    unless ($synd) {
+        my $dbr = LJ::get_db_reader();
+        return unless $dbr;
+        $synd = $dbr->selectrow_hashref("SELECT * FROM syndicated WHERE userid=$u->{'userid'}");
+        LJ::MemCache::set($memkey, $synd) if $synd;
+    }
+
+    return $synd;
+}
+
+
+########################################################################
+###  27. Tag-Related Functions
+
+# can $u add existing tags to $targetu's entries?
+sub can_add_tags_to {
+    my ($u, $targetu) = @_;
+
+    return LJ::Tags::can_add_tags($targetu, $u);
+}
+
+
+sub tags {
+    my $u = shift;
+
+    return LJ::Tags::get_usertags($u);
+}
+
+
+########################################################################
+###  28. Userpic-Related Functions
 
 # <LJFUNC>
 # name: LJ::User::activate_userpics
@@ -2330,214 +4877,148 @@ sub activate_userpics {
     return 1;
 }
 
-# ensure that this user does not have more than the maximum number of subscriptions
-# allowed by their cap, and enable subscriptions up to their current limit
-sub enable_subscriptions {
+
+sub allpics_base {
     my $u = shift;
+    return "$LJ::SITEROOT/allpics.bml?user=" . $u->user;
+}
 
-    # first thing, disable everything they don't have caps for
-    # and make sure everything is enabled that should be enabled
-    map { $_->available_for_user($u) ? $_->enable : $_->disable } $u->find_subscriptions(method => 'Inbox');
 
-    my $max_subs = $u->get_cap('subscriptions');
-    my @inbox_subs = grep { $_->active && $_->enabled } $u->find_subscriptions(method => 'Inbox');
+sub get_userpic_count {
+    my $u = shift or return undef;
+    my $count = scalar LJ::Userpic->load_user_userpics($u);
 
-    if ((scalar @inbox_subs) > $max_subs) {
-        # oh no, too many subs.
-        # disable the oldest subscriptions that are "tracking" subscriptions
-        my @tracking = grep { $_->is_tracking_category } @inbox_subs;
+    return $count;
+}
 
-        # oldest subs first
-        @tracking = sort {
-            return $a->createtime <=> $b->createtime;
-        } @tracking;
 
-        my $need_to_deactivate = (scalar @inbox_subs) - $max_subs;
+# <LJFUNC>
+# name: LJ::User::mogfs_userpic_key
+# class: mogilefs
+# des: Make a mogilefs key for the given pic for the user.
+# args: pic
+# des-pic: Either the userpic hash or the picid of the userpic.
+# returns: 1.
+# </LJFUNC>
+sub mogfs_userpic_key {
+    my $self = shift or return undef;
+    my $pic = shift or croak "missing required arg: userpic";
 
-        for (1..$need_to_deactivate) {
-            my $sub_to_deactivate = shift @tracking;
-            $sub_to_deactivate->deactivate if $sub_to_deactivate;
-        }
+    my $picid = ref $pic ? $pic->{picid} : $pic+0;
+    return "up:$self->{userid}:$picid";
+}
+
+
+sub userpic {
+    my $u = shift;
+    return undef unless $u->{defaultpicid};
+    return LJ::Userpic->new($u, $u->{defaultpicid});
+}
+
+
+sub userpic_quota {
+    my $u = shift or return undef;
+    my $quota = $u->get_cap('userpics');
+
+    return $quota;
+}
+
+
+
+########################################################################
+###  99. Miscellaneous Legacy Items
+###  99A. Underage functions (FIXME: we shouldn't need these)
+
+# returns a true value if the user is underage; or if you give it an argument,
+# will turn on/off that user's underage status.  can also take a second argument
+# when you're setting the flag to also update the underage_status userprop
+# which is used to record if a user was ever marked as underage.
+sub underage {
+    # has no bearing if this isn't on
+    return undef unless LJ::class_bit("underage");
+
+    # now get the args and continue
+    my $u = shift;
+    return LJ::get_cap($u, 'underage') unless @_;
+
+    # now set it on or off
+    my $on = shift() ? 1 : 0;
+    if ($on) {
+        $u->add_to_class("underage");
     } else {
-        # make sure all subscriptions are activated
-        my $need_to_activate = $max_subs - (scalar @inbox_subs);
-
-        # get deactivated subs
-        @inbox_subs = grep { $_->active && $_->available_for_user } $u->find_subscriptions(method => 'Inbox');
-
-        for (1..$need_to_activate) {
-            my $sub_to_activate = shift @inbox_subs;
-            $sub_to_activate->activate if $sub_to_activate;
-        }
-    }
-}
-
-# revert S2 style to the default if the user is using a layout/theme layer that they don't have permission to use
-sub revert_style {
-    my $u = shift;
-
-    # FIXME: this solution sucks
-    # - ensure that these packages are loaded via Class::Autouse by calling a method on them
-    LJ::S2->can("dostuff");
-    LJ::S2Theme->can("dostuff");
-    LJ::Customize->can("dostuff");
-
-    my $current_theme = LJ::Customize->get_current_theme($u);
-    return unless $current_theme;
-    my $default_theme_of_current_layout = LJ::S2Theme->load_default_of($current_theme->layoutid, user => $u);
-    return unless $default_theme_of_current_layout;
-
-    my $default_style = LJ::run_hook('get_default_style', $u) || $LJ::DEFAULT_STYLE;
-    my $default_layout_uniq = exists $default_style->{layout} ? $default_style->{layout} : '';
-    my $default_theme_uniq = exists $default_style->{theme} ? $default_style->{theme} : '';
-
-    my %style = LJ::S2::get_style($u, "verify");
-    my $public = LJ::S2::get_public_layers();
-    my $userlay = LJ::S2::get_layers_of_user($u);
-
-    # check to see if the user is using a custom layout or theme
-    # if so, we want to let them keep using it
-    foreach my $layerid (keys %$userlay) {
-        return if $current_theme->layoutid == $layerid;
-        return if $current_theme->themeid == $layerid;
+        $u->remove_from_class("underage");
     }
 
-    # if the user cannot use the layout or the default theme of that layout, switch to the default style (if it's defined)
-    if (($default_layout_uniq || $default_theme_uniq) && (!LJ::S2::can_use_layer($u, $current_theme->layout_uniq) || !$default_theme_of_current_layout->available_to($u))) {
-        my $new_theme;
-        if ($default_theme_uniq) {
-            $new_theme = LJ::S2Theme->load_by_uniq($default_theme_uniq);
-        } else {
-            my $layoutid = $public->{$default_layout_uniq}->{s2lid} if $public->{$default_layout_uniq} && $public->{$default_layout_uniq}->{type} eq "layout";
-            $new_theme = LJ::S2Theme->load_default_of($layoutid, user => $u) if $layoutid;
-        }
-
-        return unless $new_theme;
-
-        # look for a style that uses the default layout/theme, and use it if it exists
-        my $styleid = $new_theme->get_styleid_for_theme($u);
-        my $style_exists = 0;
-        if ($styleid) {
-            $style_exists = 1;
-            $u->set_prop("s2_style", $styleid);
-
-            my $stylelayers = LJ::S2::get_style_layers($u, $u->prop('s2_style'));
-            foreach my $layer (qw(user i18nc i18n core)) {
-                $style{$layer} = exists $stylelayers->{$layer} ? $stylelayers->{$layer} : 0;
-            }
-        }
-
-        # set the layers that are defined by $default_style
-        while (my ($layer, $name) = each %$default_style) {
-            next if $name eq "";
-            next unless $public->{$name};
-            my $id = $public->{$name}->{s2lid};
-            $style{$layer} = $id if $id;
-        }
-
-        # make sure core was set
-        $style{core} = $new_theme->coreid
-            if $style{core} == 0;
-
-        # make sure the other layers were set
-        foreach my $layer (qw(user i18nc i18n)) {
-            $style{$layer} = 0 unless $style{$layer} || $style_exists;
-        }
-
-        # create the style
-        if ($style_exists) {
-            LJ::Customize->implicit_style_create($u, %style);
-        } else {
-            LJ::Customize->implicit_style_create({ 'force' => 1 }, $u, %style);
-        }
-
-    # if the user can use the layout but not the theme, switch to the default theme of that layout
-    # we know they can use this theme at this point because if they couldn't, the above block would have caught it
-    } elsif (LJ::S2::can_use_layer($u, $current_theme->layout_uniq) && !LJ::S2::can_use_layer($u, $current_theme->uniq)) {
-        $style{theme} = $default_theme_of_current_layout->themeid;
-        LJ::Customize->implicit_style_create($u, %style);
+    # now set their status flag if one was sent
+    my $status = shift();
+    if ($status || $on) {
+        # by default, just records if user was ever underage ("Y")
+        $u->underage_status($status || 'Y');
     }
 
-    return;
-}
+    # add to statushistory
+    if (my $shwhen = shift()) {
+        my $text = $on ? "marked" : "unmarked";
+        my $status = $u->underage_status;
+        LJ::statushistory_add($u, undef, "coppa", "$text; status=$status; when=$shwhen");
+    }
 
-sub uncache_prop {
-    my ($u, $name) = @_;
-    my $prop = LJ::get_prop("user", $name) or die; # FIXME: use exceptions
-    LJ::MemCache::delete([$u->{userid}, "uprop:$u->{userid}:$prop->{id}"]);
-    delete $u->{$name};
+    # now fire off any hooks that are available
+    LJ::run_hooks('set_underage', {
+        u => $u,
+        on => $on,
+        status => $u->underage_status,
+    });
+
+    # return true if no failures
     return 1;
 }
 
-sub set_draft_text {
-    my ($u, $draft) = @_;
-    my $old = $u->draft_text;
 
-    $LJ::_T_DRAFT_RACE->() if $LJ::_T_DRAFT_RACE;
-
-    # try to find a shortcut that makes the SQL shorter
-    my @methods;  # list of [ $subref, $cost ]
-
-    # one method is just setting it all at once.  which incurs about
-    # 75 bytes of SQL overhead on top of the length of the draft,
-    # not counting the escaping
-    push @methods, [ "set", sub { $u->set_prop('entry_draft', $draft); 1 },
-                     75 + length $draft ];
-
-    # stupid case, setting the same thing:
-    push @methods, [ "noop", sub { 1 }, 0 ] if $draft eq $old;
-
-    # simple case: appending
-    if (length $old && $draft =~ /^\Q$old\E(.+)/s) {
-        my $new = $1;
-        my $appending = sub {
-            my $prop = LJ::get_prop("user", "entry_draft") or die; # FIXME: use exceptions
-            my $rv = $u->do("UPDATE userpropblob SET value = CONCAT(value, ?) WHERE userid=? AND upropid=? AND LENGTH(value)=?",
-                            undef, $new, $u->{userid}, $prop->{id}, length $old);
-            return 0 unless $rv > 0;
-            $u->uncache_prop("entry_draft");
-            return 1;
-        };
-        push @methods, [ "append", $appending, 40 + length $new ];
-    }
-
-    # TODO: prepending/middle insertion (the former being just the latter), as well
-    # appending, wihch we could then get rid of
-
-    # try the methods in increasing order
-    foreach my $m (sort { $a->[2] <=> $b->[2] } @methods) {
-        my $func = $m->[1];
-        if ($func->()) {
-            $LJ::_T_METHOD_USED->($m->[0]) if $LJ::_T_METHOD_USED; # for testing
-            return 1;
-        }
-    }
+# return true if we know user is a minor (< 18)
+sub is_minor {
+    my $self = shift;
+    my $age = $self->best_guess_age;
+    return 0 unless $age;
+    return 1 if ($age < 18);
     return 0;
 }
 
-sub draft_text {
-    my ($u) = @_;
-    return $u->prop('entry_draft');
+
+# return true if we know user is a child (< 14)
+sub is_child {
+    my $self = shift;
+    my $age = $self->best_guess_age;
+
+    return 0 unless $age;
+    return 1 if ($age < 14);
+    return 0;
 }
 
-sub notable_interests {
-    my ($u, $n) = @_;
-    $n ||= 20;
 
-    # arrayref of arrayrefs of format [intid, intname, intcount];
-    my $ints = LJ::get_interests($u)
-        or return ();
+# return or set the underage status userprop
+sub underage_status {
+    return undef unless LJ::class_bit("underage");
 
-    my @ints = map { $_->[1] } @$ints;
+    my $u = shift;
 
-    # sorta arrayref inline
-    LJ::AdTargetedInterests->sort_interests(\@ints);
+    # return if they aren't setting it
+    unless (@_) {
+        return $u->prop("underage_status");
+    }
 
-    return @ints[0..$n-1] if @ints > $n;
-    return @ints;
+    # set and return what it got set to
+    $u->set_prop('underage_status', shift());
+    return $u->{underage_status};
 }
+
+
+########################################################################
+###  99B. Ad functions (FIXME: we shouldn't need these)
+
 
 # returns $n number of communities that $u is a member of, sorted by update time (most recent to least recent)
+# Probably ad-related; at any rate, it's broken.
 sub notable_communities {
     my ($u, $n) = @_;
     $n ||= 3;
@@ -2567,364 +5048,209 @@ sub notable_communities {
     return map { $us->{$_} } @ret_commids;
 }
 
-# returns the max capability ($cname) for all the classes
-# the user is a member of
-sub get_cap {
-    my ($u, $cname) = @_;
-    return 1 if $LJ::T_HAS_ALL_CAPS;
-    return LJ::get_cap($u, $cname);
+
+sub age_for_adcall {
+    my $u = shift;
+    croak "Invalid user object" unless LJ::isu($u);
+
+    return undef if $u->underage;
+    return eval {$u->age || $u->init_age};
 }
 
-# tests to see if a user is in a specific named class. class
-# names are site-specific.
-sub in_class {
-    my ($u, $class) = @_;
-    return LJ::caps_in_group($u->{caps}, $class);
-}
 
-sub add_to_class {
-    my ($u, $class) = @_;
-    my $bit = LJ::class_bit($class);
-    die "unknown class '$class'" unless defined $bit;
+sub gender_for_adcall {
+    my $u = shift;
+    croak "Invalid user object" unless LJ::isu($u);
 
-    # call add_to_class hook before we modify the
-    # current $u, so it can make inferences from the
-    # old $u caps vs the new we say we'll be adding
-    if (LJ::are_hooks('add_to_class')) {
-        LJ::run_hooks('add_to_class', $u, $class);
+    my $gender = $u->prop('gender');
+    if ($gender && $gender !~ /^[UO]/i) {
+        return uc(substr($gender, 0, 1)); # M|F
     }
 
-    return LJ::modify_caps($u, [$bit], []);
+    return "unspecified";
 }
 
-sub remove_from_class {
-    my ($u, $class) = @_;
-    my $bit = LJ::class_bit($class);
-    die "unknown class '$class'" unless defined $bit;
 
-    # call remove_from_class hook before we modify the
-    # current $u, so it can make inferences from the
-    # old $u caps vs what we'll be removing
-    if (LJ::are_hooks('remove_from_class')) {
-        LJ::run_hooks('remove_from_class', $u, $class);
+sub notable_interests {
+    my ($u, $n) = @_;
+    $n ||= 20;
+
+    # arrayref of arrayrefs of format [intid, intname, intcount];
+    my $ints = LJ::get_interests($u)
+        or return ();
+
+    my @ints = map { $_->[1] } @$ints;
+
+    # sorta arrayref inline
+    LJ::AdTargetedInterests->sort_interests(\@ints);
+
+    return @ints[0..$n-1] if @ints > $n;
+    return @ints;
+}
+
+
+sub qct_value_for_ads {
+    my $u = shift;
+
+    return 0 unless LJ::is_enabled("content_flag");
+
+    my $adult_content = $u->adult_content_calculated;
+    my $admin_flag = $u->admin_content_flag;
+
+    if ($LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads}) {
+        return $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads};
+    }
+    if ($LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads}) {
+        return $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads};
     }
 
-    return LJ::modify_caps($u, [], [$bit]);
+    return 0;
 }
 
-sub cache {
-    my ($u, $key) = @_;
-    my $val = $u->selectrow_array("SELECT value FROM userblobcache WHERE userid=? AND bckey=?",
-                                  undef, $u->{userid}, $key);
-    return undef unless defined $val;
-    if (my $thaw = eval { Storable::thaw($val); }) {
-        return $thaw;
-    }
-    return $val;
-}
 
-sub set_cache {
-    my ($u, $key, $value, $expr) = @_;
-    my $now = time();
-    $expr ||= $now + 86400;
-    $expr += $now if $expr < 315532800;  # relative to absolute time
-    $value = Storable::nfreeze($value) if ref $value;
-    $u->do("REPLACE INTO userblobcache (userid, bckey, value, timeexpire) VALUES (?,?,?,?)",
-           undef, $u->{userid}, $key, $value, $expr);
-}
-
-# returns array of LJ::Entry objects, ignoring security
-sub recent_entries {
-    my ($u, %opts) = @_;
-    my $remote = delete $opts{'filtered_for'} || LJ::get_remote();
-    my $count  = delete $opts{'count'}        || 50;
-    my $order  = delete $opts{'order'}        || "";
-    die "unknown options" if %opts;
-
-    my $err;
-    my @recent = $u->recent_items(
-        itemshow  => $count,
-        err       => \$err,
-        clusterid => $u->{clusterid},
-        remote    => $remote,
-        order     => $order,
-    );
-    die "Error loading recent items: $err" if $err;
-
-    my @objs;
-    foreach my $ri (@recent) {
-        my $entry = LJ::Entry->new($u, jitemid => $ri->{itemid});
-        push @objs, $entry;
-        # FIXME: populate the $entry with security/posterid/alldatepart/ownerid/rlogtime
-    }
-    return @objs;
-}
-
-# front-end to recent_entries, which forces the remote user to be
-# the owner, so we get everything.
-sub all_recent_entries {
-    my $u = shift;
-    my %opts = @_;
-    $opts{filtered_for} = $u;
-    return $u->recent_entries(%opts);
-}
-
-sub sms_active_number {
-    my $u = shift;
-    return LJ::SMS->uid_to_num($u, verified_only => 1);
-}
-
-sub sms_pending_number {
-    my $u = shift;
-    my $num = LJ::SMS->uid_to_num($u, verified_only => 0);
-    return undef unless $num;
-    return $num if LJ::SMS->num_is_pending($num);
-    return undef;
-}
-
-# this method returns any mapped number for the user,
-# regardless of its verification status
-sub sms_mapped_number {
-    my $u = shift;
-    return LJ::SMS->uid_to_num($u, verified_only => 0);
-}
-
-sub sms_active {
+# returns undef if there shouldn't be an option for this user
+# B = show ads [B]oth to logged-out traffic on the user's journal and on the user's app pages
+# J = show ads only to logged-out traffic on the user's [J]ournal
+# A = show ads only on the user's [A]pp pages
+sub ad_visibility {
     my $u = shift;
 
-    # active if the user has a verified sms number
-    return LJ::SMS->configured_for_user($u);
+    return undef unless LJ::is_enabled("basic_ads") && LJ::run_hook("user_is_basic", $u);
+    return 'J' unless LJ::is_enabled("basic_ad_options") && $u->is_personal;
+
+    my $prop_val = $u->prop("ad_visibility");
+    return $prop_val =~ /^[BJA]$/ ? $prop_val : 'B';
 }
 
-sub sms_pending {
+
+sub wants_ads_on_app {
     my $u = shift;
 
-    # pending if user has an unverified number
-    return LJ::SMS->pending_for_user($u);
+    my $ad_visibility = $u->ad_visibility;
+    return $ad_visibility eq "B" || $ad_visibility eq "A" ? 1 : 0;
 }
 
-sub sms_register_time_remaining {
+
+sub wants_ads_in_journal {
     my $u = shift;
 
-    return LJ::SMS->num_register_time_remaining($u);
+    my $ad_visibility = $u->ad_visibility;
+    return $ad_visibility eq "B" || $ad_visibility eq "J" ? 1 : 0;
 }
 
-sub sms_num_instime {
-    my $u = shift;
 
-    return LJ::SMS->num_instime($u->sms_mapped_number);
+########################################################################
+###  99C. Deprecated (FIXME: we shouldn't need these)
+
+
+# THIS IS DEPRECATED DO NOT USE
+sub email {
+    my ($u, $remote) = @_;
+    return $u->emails_visible($remote);
 }
 
-sub set_sms_number {
-    my ($u, $num, %opts) = @_;
-    my $verified = delete $opts{verified};
-
-    # these two are only checked if $num, because it's possible
-    # to just pass ($u, undef, undef) to delete the mapping
-    if ($num) {
-        croak "invalid number" unless $num =~ /^\+\d+$/;
-        croak "invalid verified flag" unless $verified =~ /^[YN]$/;
-    }
-
-    return LJ::SMS->replace_mapping($u, $num, $verified);
-}
-
-sub set_sms_number_verified {
-    my ($u, $verified) = @_;
-
-    return LJ::SMS->set_number_verified($u, $verified);
-}
-
-sub sms_message_count {
-    my $u = shift;
-    return LJ::SMS->message_count($u, @_);
-}
-
-sub sms_sent_message_count {
-    my $u = shift;
-    return LJ::SMS->sent_message_count($u, @_);
-}
-
-sub delete_sms_number {
-    my $u = shift;
-    return LJ::SMS->replace_mapping($u, undef);
-}
-
-# opts:
-#   no_quota = don't check user quota or deduct from their quota for sending a message
-sub send_sms {
-    my ($u, $msg, %opts) = @_;
-
-    return 0 unless $u;
-
-    croak "invalid user object for object method"
-        unless LJ::isu($u);
-    croak "invalid LJ::SMS::Message object to send"
-        unless $msg && $msg->isa("LJ::SMS::Message");
-
-    my $ret = $msg->send(%opts);
-
-    return $ret;
-}
-
-sub send_sms_text {
-    my ($u, $msgtext, %opts) = @_;
-
-    my $msg = LJ::SMS::Message->new(
-                                    owner => $u,
-                                    to    => $u,
-                                    type  => 'outgoing',
-                                    body_text => $msgtext,
-                                    );
-
-    # if user specified a class_key for send, set it on
-    # the msg object
-    if ($opts{class_key}) {
-        $msg->class_key($opts{class_key});
-    }
-
-    $msg->send(%opts);
-}
-
-sub sms_quota_remaining {
-    my ($u, $type) = @_;
-
-    return LJ::SMS->sms_quota_remaining($u, $type);
-}
-
-sub add_sms_quota {
-    my ($u, $qty, $type) = @_;
-
-    return LJ::SMS->add_sms_quota($u, $qty, $type);
-}
-
-sub set_sms_quota {
-    my ($u, $qty, $type) = @_;
-
-    return LJ::SMS->set_sms_quota($u, $qty, $type);
-}
-
-sub max_sms_bytes {
-    my $u = shift;
-    return LJ::SMS->max_sms_bytes($u);
-}
-
-sub max_sms_substr {
-    my ($u, $text, %opts) = @_;
-    return LJ::SMS->max_sms_substr($u, $text, %opts);
-}
-
-sub subtract_sms_quota {
-    my ($u, $qty, $type) = @_;
-
-    return LJ::SMS->subtract_sms_quota($u, $qty, $type);
-}
-
-sub is_syndicated {
-    my $u = shift;
-    return $u->{journaltype} eq "Y";
-}
-
-sub is_community {
-    my $u = shift;
-    return $u->{journaltype} eq "C";
-}
-*is_comm = \&is_community;
-
-sub is_shared {
-    my $u = shift;
-    return $u->{journaltype} eq "S";
-}
-
-sub is_news {
-    my $u = shift;
-    return $u->{journaltype} eq "N";
-}
-
-sub is_person {
-    my $u = shift;
-    return $u->{journaltype} eq "P";
-}
-*is_personal = \&is_person;
-
-sub is_identity {
-    my $u = shift;
-    return $u->{journaltype} eq "I";
-}
-
-# return the journal type as a name
-sub journaltype_readable {
-    my $u = shift;
-
-    return {
-        R => 'redirect',
-        I => 'identity',
-        P => 'personal',
-        S => 'shared',
-        Y => 'syndicated',
-        N => 'news',
-        C => 'community',
-    }->{$u->{journaltype}};
-}
 
 *has_friend = \&is_friend;
 sub is_friend {
     confess 'LJ::User->is_friend is deprecated';
 }
 
+
 sub is_mutual_friend { confess 'LJ::User->is_mutual_friend is deprecated';
 }
 
-sub who_invited {
+
+sub add_friend {
+    confess 'LJ::User->add_friend deprecated.';
+}
+
+
+sub friend_and_watch {
+    confess 'LJ::User->friend_and_watch deprecated.';
+}
+
+
+sub remove_friend {
+    confess 'LJ::User->remove_friend has been deprecated.';
+}
+
+
+sub fb_push {
     my $u = shift;
-    my $inviterid = LJ::load_rel_user($u, 'I');
-
-    return LJ::load_userid($inviterid);
+    return unless $u && $u->get_cap("fb_account");
+    return Apache::LiveJournal::Interface::FotoBilder::push_user_info( $u->id );
 }
 
-# front-end to LJ::cmd_buffer_add, which has terrible interface
-#   cmd: scalar
-#   args: hashref
-sub cmd_buffer_add {
-    my ($u, $cmd, $args) = @_;
-    $args ||= {};
-    return LJ::cmd_buffer_add($u->{clusterid}, $u->{userid}, $cmd, $args);
-}
 
-sub subscriptions {
+# take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
+# DW doesn't support anything earlier than dversion 8, so this can
+# probably go away at some point.
+
+# returns if this user's polls are clustered
+# DW doesn't support anything earlier than dversion 8, so this can
+# probably go away at some point.
+sub polls_clustered {
     my $u = shift;
-    return LJ::Subscription->subscriptions_of_user($u);
+    return $u->dversion >= 8;
 }
 
-sub subscription_count {
+
+sub upgrade_to_dversion_8 {
     my $u = shift;
-    return scalar LJ::Subscription->subscriptions_of_user($u);
+    my $dbh = shift;
+    my $dbhslo = shift;
+    my $dbcm = shift;
+
+    # If user has been purged, go ahead and update version
+    # Otherwise move their polls
+    my $ok = $u->is_expunged ? 1 : LJ::Poll->make_polls_clustered($u, $dbh, $dbhslo, $dbcm);
+
+    LJ::update_user($u, { 'dversion' => 8 }) if $ok;
+
+    return $ok;
 }
 
-# this is the count used to check the maximum subscription count
-sub active_inbox_subscription_count {
+# FIXME: Needs updating for WTF
+sub opt_showmutualfriends {
     my $u = shift;
-    return scalar ( grep { $_->active && $_->enabled } $u->find_subscriptions(method => 'Inbox') );
+    return $u->raw_prop('opt_showmutualfriends') ? 1 : 0;
 }
 
-sub max_subscriptions {
+# FIXME: Needs updating for WTF
+# only certain journaltypes can show mutual friends
+sub show_mutualfriends {
     my $u = shift;
-    return $u->get_cap('subscriptions');
+
+    return 0 unless $u->journaltype =~ /[PSI]/;
+    return $u->opt_showmutualfriends ? 1 : 0;
 }
 
-sub can_add_inbox_subscription {
+
+# FIXME: Needs updating for our gift shop
+# after that, it goes in section 7
+# returns the gift shop URL to buy a gift for that user
+sub gift_url {
+    my ($u, $opts) = @_;
+    croak "invalid user object passed" unless LJ::isu($u);
+    my $item = $opts->{item} ? delete $opts->{item} : '';
+
+    return "$LJ::SITEROOT/shop/view.bml?item=$item&gift=1&for=$u->{'user'}";
+}
+
+
+# FIXME: Getting Started has been removed; verify this function can go
+sub opt_getting_started {
     my $u = shift;
-    return $u->active_inbox_subscription_count >= $u->max_subscriptions ? 0 : 1;
+
+    # if unset, default to on
+    my $prop = $u->raw_prop('opt_getting_started') || 'Y';
+
+    return $prop;
 }
 
-# subscribe to an event
-sub subscribe {
-    my ($u, %opts) = @_;
-    croak "No subscription options" unless %opts;
 
-    return LJ::Subscription->create($u, %opts);
-}
-
+# FIXME: We're not using TxtLJ, so this can probably go.
+# Came from section 25.
 sub subscribe_entry_comments_via_sms {
     my ($u, $entry) = @_;
     croak "Invalid LJ::Entry passed"
@@ -2949,1967 +5275,1035 @@ sub subscribe_entry_comments_via_sms {
     return 1;
 }
 
-# search for a subscription
-*find_subscriptions = \&has_subscription;
-sub has_subscription {
-    my ($u, %params) = @_;
-    croak "No parameters" unless %params;
 
-    return LJ::Subscription->find($u, %params);
-}
 
-# interim solution while legacy/ESN notifications are both happening:
-# checks possible subscriptions to see if user will get an ESN notification
-# THIS IS TEMPORARY. should only be called by talklib.
-# params: journal, arg1 (entry ditemid), arg2 (comment talkid)
-sub gets_notified {
-    my ($u, %params) = @_;
+########################################################################
+### End LJ::User functions
 
-    $params{event} = "LJ::Event::JournalNewComment";
-    $params{method} = "LJ::NotificationMethod::Email";
-
-    my $has_sub;
-
-    # did they subscribe to the parent comment?
-    $has_sub = LJ::Subscription->find($u, %params);
-    return $has_sub if $has_sub;
-
-    # remove the comment-specific parameter, then check for an entry subscription
-    $params{arg2} = 0;
-    $has_sub = LJ::Subscription->find($u, %params);
-    return $has_sub if $has_sub;
-
-    # remove the entry-specific parameter, then check if they're subscribed to the entire journal
-    $params{arg1} = 0;
-    $has_sub = LJ::Subscription->find($u, %params);
-    return $has_sub;
-}
-
-# delete all of a user's subscriptions
-sub delete_all_subscriptions {
-    my $u = shift;
-    return LJ::Subscription->delete_all_subs($u);
-}
-
-# delete all of a user's subscriptions
-sub delete_all_inactive_subscriptions {
-    my $u = shift;
-    my $dryrun = shift;
-    return LJ::Subscription->delete_all_inactive_subs($u, $dryrun);
-}
-
-# What journals can this user post to?
-sub posting_access_list {
-    my $u = shift;
-
-    my @res;
-
-    my $ids = LJ::load_rel_target($u, 'P');
-    my $us = LJ::load_userids(@$ids);
-    foreach (values %$us) {
-        next unless $_->is_visible;
-        push @res, $_;
-    }
-
-    return sort { $a->{user} cmp $b->{user} } @res;
-}
-
-# can $u post to $targetu?
-sub can_post_to {
-    my ($u, $targetu) = @_;
-
-    return LJ::can_use_journal($u->id, $targetu->user);
-}
-
-sub delete_and_purge_completely {
-    my $u = shift;
-    # TODO: delete from user tables
-    # TODO: delete from global tables
-    my $dbh = LJ::get_db_writer();
-
-    my @tables = qw(user useridmap reluser priv_map infohistory email password);
-    foreach my $table (@tables) {
-        $dbh->do("DELETE FROM $table WHERE userid=?", undef, $u->id);
-    }
-
-    $dbh->do("DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?", undef, $u->id, $u->id);
-    $dbh->do("DELETE FROM reluser WHERE targetid=?", undef, $u->id);
-    $dbh->do("DELETE FROM email_aliases WHERE alias=?", undef, $u->user . "\@$LJ::USER_DOMAIN");
-
-    $dbh->do("DELETE FROM community WHERE userid=?", undef, $u->id)
-        if $u->is_community;
-    $dbh->do("DELETE FROM syndicated WHERE userid=?", undef, $u->id)
-        if $u->is_syndicated;
-    $dbh->do("DELETE FROM content_flag WHERE journalid=? OR reporterid=?", undef, $u->id, $u->id);
-
-    return 1;
-}
-
-# Returns 'rich' or 'plain' depending on user's
-# setting of which editor they would like to use
-# and what they last used
-sub new_entry_editor {
-    my $u = shift;
-
-    my $editor = $u->prop('entry_editor');
-    return 'plain' if $editor eq 'always_plain'; # They said they always want plain
-    return 'rich' if $editor eq 'always_rich'; # They said they always want rich
-    return $editor if $editor =~ /(rich|plain)/; # What did they last use?
-    return $LJ::DEFAULT_EDITOR; # Use config default
-}
-
-# do some internal consistency checks on self.  die if problems,
-# else returns 1.
-sub selfassert {
-    my $u = shift;
-    LJ::assert_is($u->{userid}, $u->{_orig_userid})
-        if $u->{_orig_userid};
-    LJ::assert_is($u->{user}, $u->{_orig_user})
-        if $u->{_orig_user};
-    return 1;
-}
-
-# Returns the NotificationInbox for this user
-*inbox = \&notification_inbox;
-sub notification_inbox {
-    my $u = shift;
-    return LJ::NotificationInbox->new($u);
-}
-
-sub new_message_count {
-    my $u = shift;
-    my $inbox = $u->notification_inbox;
-    my $count = $inbox->unread_count;
-
-    return $count || 0;
-}
-
-sub notification_archive {
-    my $u = shift;
-    return LJ::NotificationArchive->new($u);
-}
-
-# 1/0 if someone can send a message to $u
-sub can_receive_message {
-    my ($u, $sender) = @_;
-
-    my $opt_usermsg = $u->opt_usermsg;
-    return 0 if $opt_usermsg eq 'N' || !$sender;
-    return 0 if $u->has_banned($sender);
-    return 0 if $opt_usermsg eq 'M' && !$u->mutually_trusts($sender);
-    return 0 if $opt_usermsg eq 'F' && !$u->trusts($sender);
-
-    return 1;
-}
-
-# opt_usermsg options
-# Y - Registered Users
-# F - Trusted Users
-# M - Mutually Trusted Users
-# N - Nobody
-sub opt_usermsg {
-    my $u = shift;
-
-    if ($u->raw_prop('opt_usermsg') =~ /^(Y|F|M|N)$/) {
-        return $u->raw_prop('opt_usermsg');
-    } else {
-        return 'N' if $u->underage || $u->is_child;
-        return 'M' if $u->is_minor;
-        return 'Y';
-    }
-}
-
-sub add_friend {
-    confess 'LJ::User->add_friend deprecated.';
-}
-
-sub friend_and_watch {
-    confess 'LJ::User->friend_and_watch deprecated.';
-}
-
-sub remove_friend {
-    confess 'LJ::User->remove_friend has been deprecated.';
-}
-
-sub view_control_strip {
-    my $u = shift;
-
-    LJ::run_hook('control_strip_propcheck', $u, 'view_control_strip') unless $LJ::DISABLED{control_strip_propcheck};
-
-    my $prop = $u->raw_prop('view_control_strip');
-    return 0 if $prop =~ /^off/;
-
-    return 'dark' if $prop eq 'forced';
-
-    return $prop;
-}
-
-sub show_control_strip {
-    my $u = shift;
-
-    LJ::run_hook('control_strip_propcheck', $u, 'show_control_strip') unless $LJ::DISABLED{control_strip_propcheck};
-
-    my $prop = $u->raw_prop('show_control_strip');
-    return 0 if $prop =~ /^off/;
-
-    return 'dark' if $prop eq 'forced';
-
-    return $prop;
-}
-
-# when was this account created?
-# returns unixtime
-sub timecreate {
-    my $u = shift;
-
-    return $u->{_cache_timecreate} if $u->{_cache_timecreate};
-
-    my $memkey = [$u->id, "tc:" . $u->id];
-    my $timecreate = LJ::MemCache::get($memkey);
-    if ($timecreate) {
-        $u->{_cache_timecreate} = $timecreate;
-        return $timecreate;
-    }
-
-    my $dbr = LJ::get_db_reader() or die "No db";
-    my $when = $dbr->selectrow_array("SELECT timecreate FROM userusage WHERE userid=?", undef, $u->id);
-
-    $timecreate = LJ::mysqldate_to_time($when);
-    $u->{_cache_timecreate} = $timecreate;
-    LJ::MemCache::set($memkey, $timecreate, 60*60*24);
-
-    return $timecreate;
-}
-
-# when was last time this account updated?
-# returns unixtime
-sub timeupdate {
-    my $u = shift;
-    my $timeupdate = LJ::get_timeupdate_multi($u->id);
-    return $timeupdate->{$u->id};
-}
-
-# can this user use ESN?
-sub can_use_esn {
-    my $u = shift;
-    return 0 if $LJ::DISABLED{esn};
-    my $disable = $LJ::DISABLED{esn_ui};
-    return 1 unless $disable;
-
-    if (ref $disable eq 'CODE') {
-        return $disable->($u) ? 0 : 1;
-    }
-
-    return $disable ? 0 : 1;
-}
-
-sub can_use_sms {
-    my $u = shift;
-    return LJ::SMS->can_use_sms($u);
-}
-
-sub ajax_auth_token {
-    my $u = shift;
-    return LJ::Auth->ajax_auth_token($u, @_);
-}
-
-sub check_ajax_auth_token {
-    my $u = shift;
-    return LJ::Auth->check_ajax_auth_token($u, @_);
-}
-
-# returns username
-*username = \&user;
-sub user {
-    my $u = shift;
-    return $u->{user};
-}
-
-sub user_url_arg {
-    my $u = shift;
-    return "I,$u->{userid}" if $u->{journaltype} eq "I";
-    return $u->{user};
-}
-
-# returns username for display
-sub display_username {
-    my $u = shift;
-    return $u->display_name if $u->is_identity;
-    return $u->{user};
-}
-
-# returns the user-specified name of a journal exactly as entered
-sub name_orig {
-    my $u = shift;
-    return $u->{name};
-}
-
-# returns the user-specified name of a journal in valid UTF-8
-sub name_raw {
-    my $u = shift;
-    LJ::text_out(\$u->{name});
-    return $u->{name};
-}
-
-# returns the user-specified name of a journal in valid UTF-8
-# and with HTML escaped
-sub name_html {
-    my $u = shift;
-    return LJ::ehtml($u->name_raw);
-}
-
-# userid
-*userid = \&id;
-sub id {
-    return $_[0]->{userid};
-}
-
-sub clusterid {
-    return $_[0]->{clusterid};
-}
-
-# class method, returns { clusterid => [ uid, uid ], ... }
-sub split_by_cluster {
-    my $class = shift;
-
-    my @uids = @_;
-    my $us = LJ::load_userids(@uids);
-
-    my %clusters;
-    foreach my $u (values %$us) {
-        next unless $u;
-        push @{$clusters{$u->clusterid}}, $u->id;
-    }
-
-    return \%clusters;
-}
-
-sub bio {
-    my $u = shift;
-    return LJ::get_bio($u);
-}
-
-# if bio_absent is set to "yes", bio won't be updated
-sub set_bio {
-    my ($u, $text, $bio_absent) = @_;
-    $bio_absent = "" unless $bio_absent;
-
-    my $oldbio = $u->bio;
-    my $newbio = $bio_absent eq "yes" ? $oldbio : $text;
-    my $has_bio = ($newbio =~ /\S/) ? "Y" : "N";
-
-    my %update = (
-        'has_bio' => $has_bio,
-    );
-    LJ::update_user($u, \%update);
-
-    # update their bio text
-    if (($oldbio ne $text) && $bio_absent ne "yes") {
-        if ($has_bio eq "N") {
-            $u->do("DELETE FROM userbio WHERE userid=?", undef, $u->id);
-            $u->dudata_set('B', 0, 0);
-        } else {
-            $u->do("REPLACE INTO userbio (userid, bio) VALUES (?, ?)",
-                   undef, $u->id, $text);
-            $u->dudata_set('B', 0, length($text));
-        }
-        LJ::MemCache::set([$u->id, "bio:" . $u->id], $text);
-    }
-}
-
-sub opt_ctxpopup {
-    my $u = shift;
-
-    # if unset, default to on
-    my $prop = $u->raw_prop('opt_ctxpopup') || 'Y';
-
-    return $prop eq 'Y';
-}
-
-sub opt_embedplaceholders {
-    my $u = shift;
-
-    my $prop = $u->raw_prop('opt_embedplaceholders');
-
-    if (defined $prop) {
-        return $prop;
-    } else {
-        my $imagelinks = $u->prop('opt_imagelinks');
-        return $imagelinks;
-    }
-}
-
-sub opt_showmutualfriends {
-    my $u = shift;
-    return $u->raw_prop('opt_showmutualfriends') ? 1 : 0;
-}
-
-# only certain journaltypes can show mutual friends
-sub show_mutualfriends {
-    my $u = shift;
-
-    return 0 unless $u->journaltype =~ /[PSI]/;
-    return $u->opt_showmutualfriends ? 1 : 0;
-}
-
-sub opt_getting_started {
-    my $u = shift;
-
-    # if unset, default to on
-    my $prop = $u->raw_prop('opt_getting_started') || 'Y';
-
-    return $prop;
-}
-
-sub opt_stylealwaysmine {
-    my $u = shift;
-
-    return 0 unless $u->can_use_stylealwaysmine;
-    return $u->raw_prop('opt_stylealwaysmine') eq 'Y' ? 1 : 0;
-}
-
-sub can_use_stylealwaysmine {
-    my $u = shift;
-    my $ret = 0;
-
-    return 0 if $LJ::DISABLED{stylealwaysmine};
-    $ret = LJ::run_hook("can_use_stylealwaysmine", $u);
-    return $ret;
-}
-
-sub has_enabled_getting_started {
-    my $u = shift;
-
-    return $u->opt_getting_started eq 'Y' ? 1 : 0;
-}
-
-# find what servers a user is logged in to, and send them an IM
-# returns true if sent, false if failure or user not logged on
-# Please do not call from web context
-sub send_im {
-    my ($self, %opts) = @_;
-
-    croak "Can't call in web context" if LJ::is_web_context();
-
-    my $from = delete $opts{from};
-    my $msg  = delete $opts{message} or croak "No message specified";
-
-    croak "No from or bot jid defined" unless $from || $LJ::JABBER_BOT_JID;
-
-    my @resources = keys %{LJ::Jabber::Presence->get_resources($self)} or return 0;
-
-    my $res = $resources[0] or return 0; # FIXME: pick correct server based on priority?
-    my $pres = LJ::Jabber::Presence->new($self, $res) or return 0;
-    my $ip = $LJ::JABBER_SERVER_IP || '127.0.0.1';
-
-    my $sock = IO::Socket::INET->new(PeerAddr => "${ip}:5200")
-        or return 0;
-
-    my $vhost = $LJ::DOMAIN;
-
-    my $to_jid   = $self->user   . '@' . $LJ::DOMAIN;
-    my $from_jid = $from ? $from->user . '@' . $LJ::DOMAIN : $LJ::JABBER_BOT_JID;
-
-    my $emsg = LJ::exml($msg);
-    my $stanza = LJ::eurl(qq{<message to="$to_jid" from="$from_jid"><body>$emsg</body></message>});
-
-    print $sock "send_stanza $vhost $to_jid $stanza\n";
-
-    my $start_time = time();
-
-    while (1) {
-        my $rin = '';
-        vec($rin, fileno($sock), 1) = 1;
-        select(my $rout=$rin, undef, undef, 1);
-        if (vec($rout, fileno($sock), 1)) {
-            my $ln = <$sock>;
-            return 1 if $ln =~ /^OK/;
-        }
-
-        last if time() > $start_time + 5;
-    }
-
-    return 0;
-}
-
-# returns whether or not the user is online on jabber
-sub jabber_is_online {
-    my $u = shift;
-
-    return keys %{LJ::Jabber::Presence->get_resources($u)} ? 1 : 0;
-}
-
-sub esn_inbox_default_expand {
-    my $u = shift;
-
-    my $prop = $u->raw_prop('esn_inbox_default_expand');
-    return $prop ne 'N';
-}
-
-sub rate_log {
-    my ($u, $ratename, $count, $opts) = @_;
-    LJ::rate_log($u, $ratename, $count, $opts);
-}
-
-sub rate_check {
-    my ($u, $ratename, $count, $opts) = @_;
-    LJ::rate_check($u, $ratename, $count, $opts);
-}
-
-sub statusvis {
-    my $u = shift;
-    return $u->{statusvis};
-}
-
-sub statusvisdate {
-    my $u = shift;
-    return $u->{statusvisdate};
-}
-
-sub statusvisdate_unix {
-    my $u = shift;
-    return LJ::mysqldate_to_time($u->{statusvisdate});
-}
-
-# set_statusvis only change statusvis parameter, all accompanied actions are done in set_* methods
-sub set_statusvis {
-    my ($u, $statusvis) = @_;
-
-    croak "Invalid statusvis: $statusvis"
-        unless $statusvis =~ /^(?:
-            V|       # visible
-            D|       # deleted
-            X|       # expunged
-            S|       # suspended
-            L|       # locked
-            M|       # memorial
-            O|       # read-only
-            R        # renamed
-                                )$/x;
-
-    # log the change to userlog
-    $u->log_event('accountstatus', {
-            # remote looked up by log_event
-            old => $u->statusvis,
-            new => $statusvis,
-        });
-
-    # do update
-    return LJ::update_user($u, { statusvis => $statusvis,
-                                 raw => 'statusvisdate=NOW()' });
-}
-
-sub set_visible {
-    my $u = shift;
-    return $u->set_statusvis('V');
-}
-
-sub set_deleted {
-    my $u = shift;
-    my $res = $u->set_statusvis('D');
-
-    # run any account cancellation hooks
-    LJ::run_hooks("account_delete", $u);
-    return $res;
-}
-
-sub set_expunged {
-    my $u = shift;
-    return $u->set_statusvis('X');
-}
-
-sub set_suspended {
-    my ($u, $who, $reason, $errref) = @_;
-    die "Not enough parameters for LJ::User::set_suspended call" unless $who and $reason;
-
-    my $res = $u->set_statusvis('S');
-    unless ($res) {
-        $$errref = "DB error while setting statusvis to 'S'" if ref $errref;
-        return $res;
-    }
-
-    LJ::statushistory_add($u, $who, "suspend", $reason);
-
-    eval { $u->fb_push };
-    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
-
-    LJ::run_hooks("account_cancel", $u);
-
-    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
-        $$errref = $err if ref $errref and $err;
-        return 0;
-    }
-
-    return $res; # success
-}
-
-# sets a user to visible, but also does all of the stuff necessary when a suspended account is unsuspended
-# this can only be run on a suspended account
-sub set_unsuspended {
-    my ($u, $who, $reason, $errref) = @_;
-    die "Not enough parameters for LJ::User::set_unsuspended call" unless $who and $reason;
-
-    unless ($u->is_suspended) {
-        $$errref = "User isn't suspended" if ref $errref;
-        return 0;
-    }
-
-    my $res = $u->set_statusvis('V');
-    unless ($res) {
-        $$errref = "DB error while setting statusvis to 'V'" if ref $errref;
-        return $res;
-    }
-
-    LJ::statushistory_add($u, $who, "unsuspend", $reason);
-
-    eval { $u->fb_push };
-    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
-
-    return $res; # success
-}
-
-sub set_locked {
-    my $u = shift;
-    return $u->set_statusvis('L');
-}
-
-sub set_memorial {
-    my $u = shift;
-    return $u->set_statusvis('M');
-}
-
-sub set_readonly {
-    my $u = shift;
-    return $u->set_statusvis('O');
-}
-
-sub set_renamed {
-    my $u = shift;
-    return $u->set_statusvis('R');
-}
-
-# returns if this user is considered visible
-sub is_visible {
-    my $u = shift;
-    return $u->statusvis eq 'V';
-}
-
-sub is_deleted {
-    my $u = shift;
-    return $u->statusvis eq 'D';
-}
-
-sub is_expunged {
-    my $u = shift;
-    return $u->statusvis eq 'X' || $u->clusterid == 0;
-}
-
-sub is_suspended {
-    my $u = shift;
-    return $u->statusvis eq 'S';
-}
-
-sub is_locked {
-    my $u = shift;
-    return $u->statusvis eq 'L';
-}
-
-sub is_memorial {
-    my $u = shift;
-    return $u->statusvis eq 'M';
-}
-
-sub is_readonly {
-    my $u = shift;
-    return $u->statusvis eq 'O';
-}
-
-sub is_renamed {
-    my $u = shift;
-    return $u->statusvis eq 'R';
-}
-
-sub caps {
-    my $u = shift;
-    return $u->{caps};
-}
-
-*get_post_count = \&number_of_posts;
-sub number_of_posts {
-    my ($u, %opts) = @_;
-
-    # to count only a subset of all posts
-    if (%opts) {
-        $opts{return} = 'count';
-        return $u->get_post_ids(%opts);
-    }
-
-    my $memkey = [$u->{userid}, "log2ct:$u->{userid}"];
-    my $expire = time() + 3600*24*2; # 2 days
-    return LJ::MemCache::get_or_set($memkey, sub {
-        return $u->selectrow_array("SELECT COUNT(*) FROM log2 WHERE journalid=?",
-                                   undef, $u->{userid});
-    }, $expire);
-}
-
-# return the number of posts that the user actually posted themselves
-sub number_of_posted_posts {
-    my $u = shift;
-
-    my $num = $u->number_of_posts;
-    $num-- if LJ::run_hook('user_has_auto_post', $u);
-
-    return $num;
-}
-
-# <LJFUNC>
-# name: LJ::get_post_ids
-# des: Given a user object and some options, return the number of posts or the
-#      posts'' IDs (jitemids) that match.
-# returns: number of matching posts, <strong>or</strong> IDs of
-#          matching posts (default).
-# args: u, opts
-# des-opts: 'security' - [public|private|usemask]
-#           'allowmask' - integer for friends-only or custom groups
-#           'start_date' - UTC date after which to look for match
-#           'end_date' - UTC date before which to look for match
-#           'return' - if 'count' just return the count
-#           TODO: Add caching?
-# </LJFUNC>
-sub get_post_ids {
-    my ($u, %opts) = @_;
-
-    my $query = 'SELECT';
-    my @vals; # parameters to query
-
-    if ($opts{'start_date'} || $opts{'end_date'}) {
-        croak "start or end date not defined"
-            if (!$opts{'start_date'} || !$opts{'end_date'});
-
-        if (!($opts{'start_date'} >= 0) || !($opts{'end_date'} >= 0) ||
-            !($opts{'start_date'} <= $LJ::EndOfTime) ||
-            !($opts{'end_date'} <= $LJ::EndOfTime) ) {
-            return undef;
-        }
-    }
-
-    # return count or jitemids
-    if ($opts{'return'} eq 'count') {
-        $query .= " COUNT(*)";
-    } else {
-        $query .= " jitemid";
-    }
-
-    # from the journal entries table for this user
-    $query .= " FROM log2 WHERE journalid=?";
-    push(@vals, $u->{userid});
-
-    # filter by security
-    if ($opts{'security'}) {
-        $query .= " AND security=?";
-        push(@vals, $opts{'security'});
-        # If friends-only or custom
-        if ($opts{'security'} eq 'usemask' && $opts{'allowmask'}) {
-            $query .= " AND allowmask=?";
-            push(@vals, $opts{'allowmask'});
-        }
-    }
-
-    # filter by date, use revttime as it is indexed
-    if ($opts{'start_date'} && $opts{'end_date'}) {
-        # revttime is reverse event time
-        my $s_date = $LJ::EndOfTime - $opts{'start_date'};
-        my $e_date = $LJ::EndOfTime - $opts{'end_date'};
-        $query .= " AND revttime<?";
-        push(@vals, $s_date);
-        $query .= " AND revttime>?";
-        push(@vals, $e_date);
-    }
-
-    # return count or jitemids
-    if ($opts{'return'} eq 'count') {
-        return $u->selectrow_array($query, undef, @vals);
-    } else {
-        my $jitemids = $u->selectcol_arrayref($query, undef, @vals) || [];
-        die $u->errstr if $u->err;
-        return @$jitemids;
-    }
-}
-
-sub password {
-    my $u = shift;
-    $u->{_password} ||= LJ::MemCache::get_or_set([$u->{userid}, "pw:$u->{userid}"], sub {
-        my $dbh = LJ::get_db_writer() or die "Couldn't get db master";
-        return $dbh->selectrow_array("SELECT password FROM password WHERE userid=?",
-                                     undef, $u->id);
-    });
-    return $u->{_password};
-}
-
-sub journaltype {
-    my $u = shift;
-    return $u->{journaltype};
-}
-
-sub set_password {
-    my ($u, $password) = @_;
-    return LJ::set_password($u->id, $password);
-}
-
-sub set_email {
-    my ($u, $email) = @_;
-    return LJ::set_email($u->id, $email);
-}
-
-
-sub fb_push {
-    my $u = shift;
-    return unless $u && $u->get_cap("fb_account");
-    return Apache::LiveJournal::Interface::FotoBilder::push_user_info( $u->id );
-}
-
-sub grant_priv {
-    my ($u, $priv, $arg) = @_;
-    $arg ||= "";
-    my $dbh = LJ::get_db_writer();
-
-    return 1 if LJ::check_priv($u, $priv, $arg);
-
-    my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
-                                       " WHERE privcode = ?", undef, $priv);
-    return 0 unless $privid;
-
-    $dbh->do("INSERT INTO priv_map (userid, prlid, arg) VALUES (?, ?, ?)",
-             undef, $u->id, $privid, $arg);
-    return 0 if $dbh->err;
-
-    undef $u->{'_privloaded'}; # to force reloading of privs later
-    return 1;
-}
-
-sub revoke_priv {
-    my ($u, $priv, $arg) = @_;
-    $arg ||="";
-    my $dbh = LJ::get_db_writer();
-
-    return 1 unless LJ::check_priv($u, $priv, $arg);
-
-    my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
-                                       " WHERE privcode = ?", undef, $priv);
-    return 0 unless $privid;
-
-    $dbh->do("DELETE FROM priv_map WHERE userid = ? AND prlid = ? AND arg = ?",
-             undef, $u->id, $privid, $arg);
-    return 0 if $dbh->err;
-
-    undef $u->{'_privloaded'}; # to force reloading of privs later
-    undef $u->{'_priv'};
-    return 1;
-}
-
-sub revoke_priv_all {
-    my ($u, $priv) = @_;
-    my $dbh = LJ::get_db_writer();
-
-    my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
-                                       " WHERE privcode = ?", undef, $priv);
-    return 0 unless $privid;
-
-    $dbh->do("DELETE FROM priv_map WHERE userid = ? AND prlid = ?",
-             undef, $u->id, $privid);
-    return 0 if $dbh->err;
-
-    undef $u->{'_privloaded'}; # to force reloading of privs later
-    undef $u->{'_priv'};
-    return 1;
-}
-
-# must be called whenever birthday, location, journal modtime, journaltype, etc.
-# changes.  see LJ/Directory/PackedUserRecord.pm
-sub invalidate_directory_record {
-    my $u = shift;
-
-    # Future: ?
-    # LJ::try_our_best_to("invalidate_directory_record", $u->id);
-    # then elsewhere, map that key to subref.  if primary run fails,
-    # put in schwartz, then have one worker (misc-deferred) to
-    # redo...
-
-    my $dbs = defined $LJ::USERSEARCH_DB_WRITER ? LJ::get_dbh($LJ::USERSEARCH_DB_WRITER) : LJ::get_db_writer();
-    $dbs->do("UPDATE usersearch_packdata SET good_until=0 WHERE userid=?",
-             undef, $u->id);
-}
-
-# Used to promote communities in interest search results
-sub render_promo_of_community {
-    my ($comm, $style) = @_;
-
-    return undef unless $comm;
-
-    $style ||= 'Vertical';
-
-    # get the ljuser link
-    my $commljuser = $comm->ljuser_display;
-
-    # link to journal
-    my $journal_base = $comm->journal_base;
-
-    # get default userpic if any
-    my $userpic = $comm->userpic;
-    my $userpic_html = '';
-    if ($userpic) {
-        my $userpic_url = $userpic->url;
-        $userpic_html = qq { <a href="$journal_base"><img src="$userpic_url" /></a> };
-    }
-
-    my $blurb = $comm->prop('comm_promo_blurb') || '';
-
-    my $join_link = "$LJ::SITEROOT/community/join.bml?comm=$comm->{user}";
-    my $watch_link = "$LJ::SITEROOT/manage/circle/add.bml?user=$comm->{user}&action=subscribe";
-    my $read_link = $comm->journal_base;
-
-    LJ::need_res("stc/lj_base.css");
-
-    # if horizontal, userpic needs to come before everything
-    my $box_class;
-    my $comm_display;
-
-    if (lc $style eq 'horizontal') {
-        $box_class = 'Horizontal';
-        $comm_display = qq {
-            <div class="Userpic">$userpic_html</div>
-            <div class="Title">LJ Community Promo</div>
-            <div class="CommLink">$commljuser</div>
-        };
-    } else {
-        $box_class = 'Vertical';
-        $comm_display = qq {
-            <div class="Title">LJ Community Promo</div>
-            <div class="CommLink">$commljuser</div>
-            <div class="Userpic">$userpic_html</div>
-        };
-    }
-
-
-    my $html = qq {
-        <div class="CommunityPromoBox">
-            <div class="$box_class">
-                $comm_display
-                <div class="Blurb">$blurb</div>
-                <div class="Links"><a href="$join_link">Join</a> | <a href="$watch_link">Watch</a> |
-                    <a href="$read_link">Read</a></div>
-
-                <div class='ljclear'>&nbsp;</div>
-            </div>
-        </div>
-    };
-
-    return $html;
-}
-
-sub can_expunge {
-    my $u = shift;
-
-    # must be already deleted
-    return 0 unless $u->is_deleted;
-
-    # and deleted 30 days ago
-    my $expunge_days = LJ::conf_test($LJ::DAYS_BEFORE_EXPUNGE) || 30;
-    return 0 unless $u->statusvisdate_unix < time() - 86400*$expunge_days;
-
-    my $hook_rv = 0;
-    if (LJ::are_hooks("can_expunge_user", $u)) {
-        $hook_rv = LJ::run_hook("can_expunge_user", $u);
-        return $hook_rv ? 1 : 0;
-    }
-
-    return 1;
-}
-
-# Check to see if the user can use eboxes at all
-sub can_use_ebox {
-    my $u = shift;
-
-    return ref $LJ::DISABLED{ebox} ? !$LJ::DISABLED{ebox}->($u) : !$LJ::DISABLED{ebox};
-}
-
-# Allow users to choose eboxes if:
-# 1. The entire ebox feature isn't disabled AND
-# 2. The option to choose eboxes isn't disabled OR
-# 3. The option to choose eboxes is disabled AND
-# 4. The user already has eboxes turned on
-sub can_use_ebox_ui {
-    my $u = shift;
-    my $allow_ebox = 1;
-
-    if ($LJ::DISABLED{ebox_option}) {
-        $allow_ebox = $u->prop('journal_box_entries');
-    }
-
-    return $u->can_use_ebox && $allow_ebox;
-}
-
-# return hashref with intname => intid
-sub interests {
-    my $u = shift;
-    my $uints = LJ::get_interests($u);
-    my %interests;
-
-    foreach my $int (@$uints) {
-        $interests{$int->[1]} = $int->[0];  # $interests{name} = intid
-    }
-
-    return \%interests;
-}
-
-sub interest_list {
-    my $u = shift;
-
-    return map { $_->[1] } @{ LJ::get_interests($u) };
-}
-
-sub interest_count {
-    my $u = shift;
-
-    # FIXME: fall back to SELECT COUNT(*) if not cached already?
-    return scalar @{LJ::get_interests($u, { justids => 1 })};
-}
-
-sub set_interests {
-    my $u = shift;
-    LJ::set_interests($u, @_);
-}
-
-sub lazy_interests_cleanup {
-    my $u = shift;
-
-    my $dbh = LJ::get_db_writer();
-
-    if ($u->is_community) {
-        $dbh->do("INSERT IGNORE INTO comminterests SELECT * FROM userinterests WHERE userid=?", undef, $u->id);
-        $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $u->id);
-    } else {
-        $dbh->do("INSERT IGNORE INTO userinterests SELECT * FROM comminterests WHERE userid=?", undef, $u->id);
-        $dbh->do("DELETE FROM comminterests WHERE userid=?", undef, $u->id);
-    }
-
-    LJ::memcache_kill($u, "intids");
-    return 1;
-}
-
-# this will return a hash of information about this user.
-# this is useful for JavaScript endpoints which need to dump
-# JSON data about users.
-sub info_for_js {
-    my $u = shift;
-
-    my %ret = (
-               username         => $u->user,
-               display_username => $u->display_username,
-               display_name     => $u->display_name,
-               userid           => $u->userid,
-               url_journal      => $u->journal_base,
-               url_profile      => $u->profile_url,
-               url_allpics      => $u->allpics_base,
-               ljuser_tag       => $u->ljuser_display,
-               is_comm          => $u->is_comm,
-               is_person        => $u->is_person,
-               is_syndicated    => $u->is_syndicated,
-               is_identity      => $u->is_identity,
-               is_shared        => $u->is_shared,
-               );
-    # Without url_message "Send Message" link should not display
-    $ret{url_message} = $u->message_url unless ($u->opt_usermsg eq 'N');
-
-    LJ::run_hook("extra_info_for_js", $u, \%ret);
-
-    my $up = $u->userpic;
-
-    if ($up) {
-        $ret{url_userpic} = $up->url;
-        $ret{userpic_w}   = $up->width;
-        $ret{userpic_h}   = $up->height;
-    }
-
-    return %ret;
-}
-
-sub postreg_completed {
-    my $u = shift;
-
-    return 0 unless $u->bio;
-    return 0 unless $u->interest_count;
-    return 1;
-}
-
-# return if $target is banned from $u's journal
-*has_banned = \&is_banned;
-sub is_banned {
-    my ($u, $target) = @_;
-    return LJ::is_banned($target->userid, $u->userid);
-}
-
-sub ban_user {
-    my ($u, $ban_u) = @_;
-
-    my $remote = LJ::get_remote();
-    $u->log_event('ban_set', { actiontarget => $ban_u->id, remote => $remote });
-
-    return LJ::set_rel($u->id, $ban_u->id, 'B');
-}
-
-sub ban_user_multi {
-    my ($u, @banlist) = @_;
-
-    LJ::set_rel_multi(map { [$u->id, $_, 'B'] } @banlist);
-
-    my $us = LJ::load_userids(@banlist);
-    foreach my $banuid (@banlist) {
-        $u->log_event('ban_set', { actiontarget => $banuid, remote => LJ::get_remote() });
-        LJ::run_hooks('ban_set', $u, $us->{$banuid}) if $us->{$banuid};
-    }
-
-    return 1;
-}
-
-sub unban_user_multi {
-    my ($u, @unbanlist) = @_;
-
-    LJ::clear_rel_multi(map { [$u->id, $_, 'B'] } @unbanlist);
-
-    my $us = LJ::load_userids(@unbanlist);
-    foreach my $banuid (@unbanlist) {
-        $u->log_event('ban_unset', { actiontarget => $banuid, remote => LJ::get_remote() });
-        LJ::run_hooks('ban_unset', $u, $us->{$banuid}) if $us->{$banuid};
-    }
-
-    return 1;
-}
-
-# returns if this user's polls are clustered
-sub polls_clustered {
-    my $u = shift;
-    return $u->dversion >= 8;
-}
-
-sub dversion {
-    my $u = shift;
-    return $u->{dversion};
-}
-
-# take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
-sub upgrade_to_dversion_8 {
-    my $u = shift;
-    my $dbh = shift;
-    my $dbhslo = shift;
-    my $dbcm = shift;
-
-    # If user has been purged, go ahead and update version
-    # Otherwise move their polls
-    my $ok = $u->is_expunged ? 1 : LJ::Poll->make_polls_clustered($u, $dbh, $dbhslo, $dbcm);
-
-    LJ::update_user($u, { 'dversion' => 8 }) if $ok;
-
-    return $ok;
-}
-
-# returns if this user can join an adult community or not
-# adultref will hold the value of the community's adult content flag
-sub can_join_adult_comm {
-    my ($u, %opts) = @_;
-
-    return 1 unless LJ::is_enabled('content_flag');
-
-    my $adultref = $opts{adultref};
-    my $comm = $opts{comm} or croak "No community passed";
-
-    my $adult_content = $comm->adult_content_calculated;
-    $$adultref = $adult_content;
-
-    if ($adult_content eq "concepts" && ($u->is_child || !$u->best_guess_age)) {
-        return 0;
-    } elsif ($adult_content eq "explicit" && ($u->is_minor || !$u->best_guess_age)) {
-        return 0;
-    }
-
-    return 1;
-}
-
-sub is_in_beta {
-    my ($u, $key) = @_;
-    return LJ::BetaFeatures->user_in_beta( $u => $key );
-}
-
-# return the user's timezone based on the prop if it's defined, otherwise best guess
-sub timezone {
-    my $u = shift;
-
-    my $offset = 0;
-    LJ::get_timezone($u, \$offset);
-    return $offset;
-}
-
-# returns a DateTime object corresponding to a user's "now"
-sub time_now {
-    my $u = shift;
-
-    my $now = DateTime->now;
-
-    # if user has timezone, use it!
-    my $tz = $u->prop("timezone");
-    return $now unless $tz;
-
-    $now = eval { DateTime->from_epoch(
-                                       epoch => time(),
-                                       time_zone => $tz,
-                                       );
-              };
-
-    return $now;
-}
-
-sub can_admin_content_flagging {
-    my $u = shift;
-
-    return 0 unless LJ::is_enabled("content_flag");
-    return 1 if $LJ::IS_DEV_SERVER;
-    return LJ::check_priv($u, "siteadmin", "contentflag");
-}
-
-sub can_see_content_flag_button {
-    my $u = shift;
-    my %opts = @_;
-
-    return 0 unless LJ::is_enabled("content_flag");
-
-    my $content = $opts{content};
-
-    # user can't flag any journal they manage nor any entry they posted
-    # user also can't flag non-public entries
-    if (LJ::isu($content)) {
-        return 0 if $u->can_manage($content);
-    } elsif ($content->isa("LJ::Entry")) {
-        return 0 if $u->equals($content->poster);
-        return 0 unless $content->security eq "public";
-    }
-
-    # user can't flag anything if their account isn't at least one month old
-    my $one_month = 60*60*24*30;
-    return 0 unless time() - $u->timecreate >= $one_month;
-
-    return 1;
-}
-
-sub can_flag_content {
-    my $u = shift;
-    my %opts = @_;
-
-    return 0 unless $u->can_see_content_flag_button(%opts);
-    return 0 if LJ::sysban_check("contentflag", $u->user);
-    return 0 unless $u->rate_check("ctflag", 1);
-    return 1;
-}
-
-# sometimes when the app throws errors, we want to display "nice"
-# text to end-users, while allowing admins to view the actual error message
-sub show_raw_errors {
-    my $u = shift;
-
-    return 1 if $LJ::IS_DEV_SERVER;
-    return 1 if $LJ::ENABLE_BETA_TOOLS;
-
-    return 1 if LJ::check_priv($u, "supporthelp");
-    return 1 if LJ::check_priv($u, "supportviewscreened");
-    return 1 if LJ::check_priv($u, "siteadmin");
-
-    return 0;
-}
-
-# defined by the user
-# returns 'none', 'concepts' or 'explicit'
-sub adult_content {
-    my $u = shift;
-
-    my $prop_value = $u->prop('adult_content');
-
-    return $prop_value ? $prop_value : "none";
-}
-
-# defuned by the user
-sub adult_content_reason {
-    my $u = shift;
-
-    return $u->prop('adult_content_reason');
-}
-
-# defined by an admin
-sub admin_content_flag {
-    my $u = shift;
-
-    return $u->prop('admin_content_flag');
-}
-
-# uses both user- and admin-defined props to figure out the adult content level
-sub adult_content_calculated {
-    my $u = shift;
-
-    return "explicit" if $u->admin_content_flag eq "explicit_adult";
-    return $u->adult_content;
-}
-
-# returns who marked the entry as the 'adult_content_calculated' adult content level
-sub adult_content_marker {
-    my $u = shift;
-
-    return "admin" if $u->admin_content_flag eq "explicit_adult";
-    return "journal";
-}
-
-sub can_manage {
-    my ($u, $target) = @_;
-    return LJ::can_manage($u, $target);
-}
-
-sub hide_adult_content {
-    my $u = shift;
-
-    my $prop_value = $u->prop('hide_adult_content');
-
-    if ($u->is_child || !$u->best_guess_age) {
-        return "concepts";
-    }
-
-    if ($u->is_minor && $prop_value ne "concepts") {
-        return "explicit";
-    }
-
-    return $prop_value ? $prop_value : "none";
-}
-
-# returns a number that represents the user's chosen search filtering level
-# 0 = no filtering
-# 1-10 = moderate filtering
-# >10 = strict filtering
-sub safe_search {
-    my $u = shift;
-
-    my $prop_value = $u->prop('safe_search');
-
-    # current user 18+ default is 0
-    # current user <18 default is 10
-    # new user default (prop value is "nu_default") is 10
-    return 0 if $prop_value eq "none";
-    return $prop_value if $prop_value && $prop_value =~ /^\d+$/;
-    return 0 if $prop_value ne "nu_default" && $u->best_guess_age && !$u->is_minor;
-    return 10;
-}
-
-# determine if the user in "for_u" should see $u in a search result
-sub should_show_in_search_results {
-    my $u = shift;
-    my %opts = @_;
-
-    return 1 unless LJ::is_enabled("content_flag") && LJ::is_enabled("safe_search");
-
-    my $adult_content = $u->adult_content_calculated;
-    my $admin_flag = $u->admin_content_flag;
-
-    my $for_u = $opts{for};
-    unless (LJ::isu($for_u)) {
-        return $adult_content ne "none" || $admin_flag ? 0 : 1;
-    }
-
-    my $safe_search = $for_u->safe_search;
-    return 1 if $safe_search == 0;
-
-    my $adult_content_flag_level = $LJ::CONTENT_FLAGS{$adult_content} ? $LJ::CONTENT_FLAGS{$adult_content}->{safe_search_level} : 0;
-    my $admin_flag_level = $LJ::CONTENT_FLAGS{$admin_flag} ? $LJ::CONTENT_FLAGS{$admin_flag}->{safe_search_level} : 0;
-
-    return 0 if $adult_content_flag_level && ($safe_search >= $adult_content_flag_level);
-    return 0 if $admin_flag_level && ($safe_search >= $admin_flag_level);
-    return 1;
-}
-
-sub equals {
-    my ($u, $target) = @_;
-
-    return LJ::u_equals($u, $target);
-}
-
-sub tags {
-    my $u = shift;
-
-    return LJ::Tags::get_usertags($u);
-}
-
-sub newpost_minsecurity {
-    my $u = shift;
-
-    return $u->prop('newpost_minsecurity') || 'public';
-}
-
-sub third_party_notify_list {
-    my $u = shift;
-
-    my $val = $u->prop('third_party_notify_list');
-    my @services = split(',', $val);
-
-    return @services;
-}
-
-# Check if the user's notify list contains a particular service
-sub third_party_notify_list_contains {
-    my $u = shift;
-    my $val = shift;
-
-    return 1 if grep { $_ eq $val } $u->third_party_notify_list;
-
-    return 0;
-}
-
-# Add a service to a user's notify list
-sub third_party_notify_list_add {
-    my $u = shift;
-    my $svc = shift;
-    return 0 unless $svc;
-
-    # Is it already there?
-    return 1 if $u->third_party_notify_list_contains($svc);
-
-    # Create the new list of services
-    my @cur_services = $u->third_party_notify_list;
-    push @cur_services, $svc;
-    my $svc_list = join(',', @cur_services);
-
-    # Trim a service from the list if it is too long
-    if (length $svc_list > 255) {
-        shift @cur_services;
-        $svc_list = join(',', @cur_services)
-    }
-
-    # Set it
-    $u->set_prop('third_party_notify_list', $svc_list);
-    return 1;
-}
-
-# Remove a service to a user's notify list
-sub third_party_notify_list_remove {
-    my $u = shift;
-    my $svc = shift;
-    return 0 unless $svc;
-
-    # Is it even there?
-    return 1 unless $u->third_party_notify_list_contains($svc);
-
-    # Remove it!
-    $u->set_prop('third_party_notify_list',
-                 join(',',
-                      grep { $_ ne $svc } $u->third_party_notify_list
-                      )
-                 );
-    return 1;
-}
-
-# can $u add existing tags to $targetu's entries?
-sub can_add_tags_to {
-    my ($u, $targetu) = @_;
-
-    return LJ::Tags::can_add_tags($targetu, $u);
-}
-
-sub qct_value_for_ads {
-    my $u = shift;
-
-    return 0 unless LJ::is_enabled("content_flag");
-
-    my $adult_content = $u->adult_content_calculated;
-    my $admin_flag = $u->admin_content_flag;
-
-    if ($LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads}) {
-        return $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads};
-    }
-    if ($LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads}) {
-        return $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads};
-    }
-
-    return 0;
-}
-
-sub should_block_robots {
-    my $u = shift;
-
-    return 1 if $u->prop('opt_blockrobots');
-
-    return 0 unless LJ::is_enabled("content_flag");
-
-    my $adult_content = $u->adult_content_calculated;
-    my $admin_flag = $u->admin_content_flag;
-
-    return 1 if $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
-    return 1 if $LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{block_robots};
-    return 0;
-}
-
-# memcache key that holds the number of times a user performed one of the rate-limited actions
-sub rate_memkey {
-    my ($u, $rp) = @_;
-
-    return [$u->id, "rate:" . $u->id . ":$rp->{id}"];
-}
-
-# prepare OpenId part of html-page, if needed
-sub openid_tags {
-    my $u = shift;
-
-    my $head = '';
-
-    # OpenID Server and Yadis
-    if (LJ::OpenID->server_enabled and defined $u) {
-        my $journalbase = $u->journal_base;
-        $head .= qq{<link rel="openid.server" href="$LJ::OPENID_SERVER" />\n};
-        $head .= qq{<meta http-equiv="X-XRDS-Location" content="$journalbase/data/yadis" />\n};
-    }
-
-    return $head;
-}
-
-# return the number of comments a user has posted
-sub num_comments_posted {
-    my $u = shift;
-    my %opts = @_;
-
-    my $dbcr = $opts{dbh} || LJ::get_cluster_reader($u);
-    my $userid = $u->id;
-
-    my $memkey = [$userid, "talkleftct:$userid"];
-    my $count = LJ::MemCache::get($memkey);
-    unless ($count) {
-        my $expire = time() + 3600*24*2; # 2 days;
-        $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talkleft " .
-                                        "WHERE userid=?", undef, $userid);
-        LJ::MemCache::set($memkey, $count, $expire) if defined $count;
-    }
-
-    return $count;
-}
-
-# return the number of comments a user has received
-sub num_comments_received {
-    my $u = shift;
-    my %opts = @_;
-
-    my $dbcr = $opts{dbh} || LJ::get_cluster_reader($u);
-    my $userid = $u->id;
-
-    my $memkey = [$userid, "talk2ct:$userid"];
-    my $count = LJ::MemCache::get($memkey);
-    unless ($count) {
-        my $expire = time() + 3600*24*2; # 2 days;
-        $count = $dbcr->selectrow_array("SELECT COUNT(*) FROM talk2 ".
-                                        "WHERE journalid=?", undef, $userid);
-        LJ::MemCache::set($memkey, $count, $expire) if defined $count;
-    }
-
-    return $count;
-}
-
-# returns undef if there shouldn't be an option for this user
-# B = show ads [B]oth to logged-out traffic on the user's journal and on the user's app pages
-# J = show ads only to logged-out traffic on the user's [J]ournal
-# A = show ads only on the user's [A]pp pages
-sub ad_visibility {
-    my $u = shift;
-
-    return undef unless LJ::is_enabled("basic_ads") && LJ::run_hook("user_is_basic", $u);
-    return 'J' unless LJ::is_enabled("basic_ad_options") && $u->is_personal;
-
-    my $prop_val = $u->prop("ad_visibility");
-    return $prop_val =~ /^[BJA]$/ ? $prop_val : 'B';
-}
-
-sub wants_ads_on_app {
-    my $u = shift;
-
-    my $ad_visibility = $u->ad_visibility;
-    return $ad_visibility eq "B" || $ad_visibility eq "A" ? 1 : 0;
-}
-
-sub wants_ads_in_journal {
-    my $u = shift;
-
-    my $ad_visibility = $u->ad_visibility;
-    return $ad_visibility eq "B" || $ad_visibility eq "J" ? 1 : 0;
-}
-
-# format unixtimestamp according to the user's timezone setting
-sub format_time {
-    my $u = shift;
-    my $time = shift;
-
-    return undef unless $time;
-
-    return eval { DateTime->from_epoch(epoch=>$time, time_zone=>$u->prop("timezone"))->ymd('-') } ||
-                  DateTime->from_epoch(epoch => $time)->ymd('-');
-}
-
-sub support_points_count {
-    my $u = shift;
-
-    my $dbr = LJ::get_db_reader();
-    my $userid = $u->id;
-    my $count;
-
-    $count = $u->{_supportpointsum};
-    return $count if defined $count;
-
-    my $memkey = [$userid, "supportpointsum:$userid"];
-    $count = LJ::MemCache::get($memkey);
-    if (defined $count) {
-        $u->{_supportpointsum} = $count;
-        return $count;
-    }
-
-    $count = $dbr->selectrow_array("SELECT totpoints FROM supportpointsum WHERE userid=?", undef, $userid) || 0;
-    $u->{_supportpointsum} = $count;
-    LJ::MemCache::set($memkey, $count, 60*5);
-
-    return $count;
-}
-
-sub should_show_schools_to {
-    my ($u, $targetu) = @_;
-
-    return 0 unless LJ::is_enabled("schools");
-    return 1 if $u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y';
-    return 1 if $u->{'opt_showschools'} eq 'F' && $u->trusts( $targetu );
-
-    return 0;
-}
-
-sub can_be_text_messaged_by {
-    my ($u, $sender) = @_;
-
-    return 0 unless $u->get_cap("textmessaging");
-
-    my $security = LJ::TextMessage->tm_security($u);
-
-    return 0 if $security eq "none";
-    return 1 if $security eq "all";
-
-    if ($sender) {
-        return 1 if $security eq "reg";
-        return 1 if $security eq "friends" && $u->trusts( $sender );
-    }
-
-    return 0;
-}
-
-# <LJFUNC>
-# name: LJ::User::rename_identity
-# des: Change an identity user's 'identity', update DB,
-#      clear memcache and log change.
-# args: user
-# returns: Success or failure.
-# </LJFUNC>
-sub rename_identity {
-    my $u = shift;
-    return 0 unless ($u && $u->is_identity && $u->is_expunged);
-
-    my $id = $u->identity;
-    return 0 unless $id;
-
-    my $dbh = LJ::get_db_writer();
-
-    # generate a new identity value that looks like ex_oldidvalue555
-    my $tempid = sub {
-        my $ident = shift;
-        my $idtype = shift;
-        my $temp = (length($ident) > 249) ? substr($ident, 0, 249) : $ident;
-        my $exid;
-
-        for (1..10) {
-            $exid = "ex_$temp" . int(rand(999));
-
-            # check to see if this identity already exists
-            unless ($dbh->selectrow_array("SELECT COUNT(*) FROM identitymap WHERE identity=? AND idtype=? LIMIT 1", undef, $exid, $idtype)) {
-                # name doesn't already exist, use this one
-                last;
-            }
-            # name existed, try and get another
-
-            if ($_ >= 10) {
-                return 0;
-            }
-        }
-        return $exid;
-    };
-
-    my $from = $id->value;
-    my $to = $tempid->($id->value, $id->typeid);
-
-    return 0 unless $to;
-
-    $dbh->do("UPDATE identitymap SET identity=? WHERE identity=? AND idtype=?",
-             undef, $to, $from, $id->typeid);
-
-    LJ::memcache_kill($u, "userid");
-
-    LJ::infohistory_add($u, 'identity', $from);
-
-    return 1;
-}
-
-#<LJFUNC>
-# name: LJ::User::get_renamed_user
-# des: Get the actual user of a renamed user
-# args: user
-# returns: user
-# </LJFUNC>
-sub get_renamed_user {
-    my $u = shift;
-    my %opts = @_;
-    my $hops = $opts{hops} || 5;
-
-    # Traverse the renames to the final journal
-    if ($u) {
-        while ($u->{'journaltype'} eq 'R' && $hops-- > 0) {
-            my $rt = $u->prop("renamedto");
-            last unless length $rt;
-            $u = LJ::load_user($rt);
-        }
-    }
-
-    return $u;
-}
-
-sub dismissed_page_notices {
-    my $u = shift;
-
-    my $val = $u->prop("dismissed_page_notices");
-    my @notices = split(",", $val);
-
-    return @notices;
-}
-
-sub has_dismissed_page_notice {
-    my $u = shift;
-    my $notice_string = shift;
-
-    return 1 if grep { $_ eq $notice_string } $u->dismissed_page_notices;
-    return 0;
-}
-
-# add a page notice to a user's dismissed page notices list
-sub dismissed_page_notices_add {
-    my $u = shift;
-    my $notice_string = shift;
-    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
-
-    # is it already there?
-    return 1 if $u->has_dismissed_page_notice($notice_string);
-
-    # create the new list of dismissed page notices
-    my @cur_notices = $u->dismissed_page_notices;
-    push @cur_notices, $notice_string;
-    my $cur_notices_string = join(",", @cur_notices);
-
-    # remove the oldest notice if the list is too long
-    if (length $cur_notices_string > 255) {
-        shift @cur_notices;
-        $cur_notices_string = join(",", @cur_notices);
-    }
-
-    # set it
-    $u->set_prop("dismissed_page_notices", $cur_notices_string);
-
-    return 1;
-}
-
-# remove a page notice from a user's dismissed page notices list
-sub dismissed_page_notices_remove {
-    my $u = shift;
-    my $notice_string = shift;
-    return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
-
-    # is it even there?
-    return 0 unless $u->has_dismissed_page_notice($notice_string);
-
-    # remove it
-    $u->set_prop("dismissed_page_notices", join(",", grep { $_ ne $notice_string } $u->dismissed_page_notices));
-
-    return 1;
-}
-
-# name: LJ::User->get_timeactive
-# des:  retrieve last active time for user from [dbtable[clustertrack2]] or
-#       memcache
-sub get_timeactive {
-    my ($u) = @_;
-    my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
-    my $active;
-    unless (defined($active = LJ::MemCache::get($memkey))) {
-        # TODO: die if unable to get handle? This was left verbatim from
-        # refactored code.
-        my $dbcr = LJ::get_cluster_def_reader($u) or return 0;
-        $active = $dbcr->selectrow_array("SELECT timeactive FROM clustertrack2 ".
-                                         "WHERE userid=?", undef, $u->{userid});
-        LJ::MemCache::set($memkey, $active, 86400);
-    }
-    return $active;
-}
-
-# returns an array of maintainer userids
-sub maintainer_userids {
-    my $u = shift;
-
-    return () unless $u->is_community;
-    return @{LJ::load_rel_user_cache( $u->id, 'A' )};
-}
-
-# returns an array of moderator userids
-sub moderator_userids {
-    my $u = shift;
-
-    return () unless $u->is_community && $u->prop( 'moderated' );
-    return @{LJ::load_rel_user_cache( $u->id, 'M' )};
-}
-
-sub trusts_or_has_member {
-    my ( $u, $target_u ) = @_;
-    $target_u = LJ::want_user( $target_u ) or return 0;
-
-    return $target_u->member_of( $u ) ? 1 : 0
-        if $u->is_community;
-
-    return $u->trusts( $target_u ) ? 1 : 0;
-}
+########################################################################
+### Begin LJ functions
 
 package LJ;
 
 use Carp;
 
-# <LJFUNC>
-# name: LJ::get_authas_list
-# des: Get a list of usernames a given user can authenticate as.
-# returns: an array of usernames.
-# args: u, opts?
-# des-opts: Optional hashref.  keys are:
-#           - type: 'P' to only return users of journaltype 'P'.
-#           - cap:  cap to filter users on.
-# </LJFUNC>
-sub get_authas_list {
-    my ($u, $opts) = @_;
+########################################################################
+### Please keep these categorized and alphabetized for ease of use. 
+### If you need a new category, add it at the end, BEFORE category 99.
+### Categories kinda fuzzy, but better than nothing. Weird numbers are
+### to match the sections above -- please check up there if adding.
+###
+### Categories:
+###  1. Creating and Deleting Accounts
+###  3. Working with All Types of Accounts
+###  4. Login, Session, and Rename Functions
+###  5. Database and Memcache Functions
+###  6. What the App Shows to Users
+###  7. Userprops, Caps, and Displaying Content to Others
+###  8. Formatting Content Shown to Users
+###  9. Logging and Recording Actions
+###  12. Comment-Related Functions
+###  13. Community-Related Functions and Authas
+###  15. Email-Related Functions
+###  16. Entry-Related Functions
+###  17. Interest-Related Functions
+###  19. OpenID and Identity Functions
+###  21. Password Functions
+###  22. Priv-Related Functions
+###  24. Styles and S2-Related Functions
+###  28. Userpic-Related Functions
+###  99. Miscellaneous Legacy Items
 
-    # used to accept a user type, now accept an opts hash
-    $opts = { 'type' => $opts } unless ref $opts;
+########################################################################
+###  1. Creating and Deleting Accounts
 
-    # Two valid types, Personal or Community
-    $opts->{'type'} = undef unless $opts->{'type'} =~ m/^(P|C)$/;
-
-    my $ids = LJ::load_rel_target($u, 'A');
-    return undef unless $ids;
-
-    # load_userids_multiple
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
-
-    return map { $_->{'user'} }
-               grep { ! $opts->{'cap'} || LJ::get_cap($_, $opts->{'cap'}) }
-               grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
-
-               # unless overridden, hide non-visible/non-read-only journals. always display the user's acct
-               grep { $opts->{'showall'} || $_->is_visible || $_->is_readonly || LJ::u_equals($_, $u) }
-
-               # can't work as an expunged account
-               grep { !$_->is_expunged && $_->{clusterid} > 0 }
-               $u,  sort { $a->{'user'} cmp $b->{'user'} } values %users;
-}
 
 # <LJFUNC>
-# name: LJ::get_postto_list
-# des: Get the list of usernames a given user can post to.
-# returns: an array of usernames
-# args: u, opts?
-# des-opts: Optional hashref.  keys are:
-#           - type: 'P' to only return users of journaltype 'P'.
-#           - cap:  cap to filter users on.
+# name: LJ::create_account
+# des: Creates a new basic account.  <strong>Note:</strong> This function is
+#      not really too useful but should be extended to be useful so
+#      htdocs/create.bml can use it, rather than doing the work itself.
+# returns: integer of userid created, or 0 on failure.
+# args: dbarg?, opts
+# des-opts: hashref containing keys 'user', 'name', 'password', 'email', 'caps', 'journaltype'.
 # </LJFUNC>
-sub get_postto_list {
-    my ($u, $opts) = @_;
-
-    # used to accept a user type, now accept an opts hash
-    $opts = { 'type' => $opts } unless ref $opts;
-
-    # only one valid type right now
-    $opts->{'type'} = 'P' if $opts->{'type'};
-
-    my $ids = LJ::load_rel_target($u, 'P');
-    return undef unless $ids;
-
-    # load_userids_multiple
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
-
-    return $u->{'user'}, sort map { $_->{'user'} }
-                         grep { ! $opts->{'cap'} || LJ::get_cap($_, $opts->{'cap'}) }
-                         grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
-                         grep { $_->clusterid > 0 }
-                         grep { $_->is_visible }
-                         values %users;
-}
-
-# <LJFUNC>
-# name: LJ::can_view
-# des: Checks to see if the remote user can view a given journal entry.
-#      <b>Note:</b> This is meant for use on single entries at a time,
-#      not for calling many times on every entry in a journal.
-# returns: boolean; 1 if remote user can see item
-# args: remote, item
-# des-item: Hashref from the 'log' table.
-# </LJFUNC>
-sub can_view
-{
-
-# TODO: fold this into LJ::Entry->visible_to :(
-
+sub create_account {
     &nodb;
-    my $remote = shift;
-    my $item = shift;
+    my $opts = shift;
+    my $u = LJ::User->create(%$opts)
+        or return 0;
 
-    # public is okay
-    return 1 if $item->{'security'} eq "public";
-
-    # must be logged in otherwise
-    return 0 unless $remote;
-
-    my $userid = int($item->{'ownerid'} || $item->{'journalid'});
-    my $remoteid = int($remote->{'userid'});
-
-    # owners can always see their own.
-    return 1 if $userid == $remoteid;
-
-    # other people can't read private
-    return 0 if $item->{'security'} eq "private";
-
-    # should be 'usemask' security from here out, otherwise
-    # assume it's something new and return 0
-    return 0 unless $item->{'security'} eq "usemask";
-
-    # if it's usemask, we have to refuse non-personal journals,
-    # so we have to load the user
-    return 0 unless $remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I';
-
-    # this far down we have to load the user
-    my $u = LJ::want_user( $userid ) or return 0;
-
-    # check if it's a community and they're a member
-    return 1 if $u->is_community &&
-                $remote->member_of( $u );
-
-    # now load allowmask
-    my $allowed = ( $u->trustmask( $remoteid ) & int($item->{'allowmask'}) );
-    return $allowed ? 1 : 0;  # no need to return matching mask
+    return $u->id;
 }
+
+
+# <LJFUNC>
+# name: LJ::new_account_cluster
+# des: Which cluster to put a new account on.  $DEFAULT_CLUSTER if it's
+#      a scalar, random element from [ljconfig[default_cluster]] if it's arrayref.
+#      also verifies that the database seems to be available.
+# returns: clusterid where the new account should be created; 0 on error
+#          (such as no clusters available).
+# </LJFUNC>
+sub new_account_cluster
+{
+    # if it's not an arrayref, put it in an array ref so we can use it below
+    my $clusters = ref $LJ::DEFAULT_CLUSTER ? $LJ::DEFAULT_CLUSTER : [ $LJ::DEFAULT_CLUSTER+0 ];
+
+    # select a random cluster from the set we've chosen in $LJ::DEFAULT_CLUSTER
+    return LJ::random_cluster(@$clusters);
+}
+
+
+# returns the clusterid of a random cluster which is up
+# -- accepts @clusters as an arg to enforce a subset, otherwise
+#    uses @LJ::CLUSTERS
+sub random_cluster {
+    my @clusters = @_ ? @_ : @LJ::CLUSTERS;
+
+    # iterate through the new clusters from a random point
+    my $size = @clusters;
+    my $start = int(rand() * $size);
+    foreach (1..$size) {
+        my $cid = $clusters[$start++ % $size];
+
+        # verify that this cluster is in @LJ::CLUSTERS
+        my @check = grep { $_ == $cid } @LJ::CLUSTERS;
+        next unless scalar(@check) >= 1 && $check[0] == $cid;
+
+        # try this cluster to see if we can use it, return if so
+        my $dbcm = LJ::get_cluster_master($cid);
+        return $cid if $dbcm;
+    }
+
+    # if we get here, we found no clusters that were up...
+    return 0;
+}
+
+
+########################################################################
+###  2. Working with All Types of Accounts
+
+
+# <LJFUNC>
+# name: LJ::canonical_username
+# des: normalizes username.
+# info:
+# args: user
+# returns: the canonical username given, or blank if the username is not well-formed
+# </LJFUNC>
+sub canonical_username
+{
+    my $user = shift;
+    if ($user =~ /^\s*([A-Za-z0-9_\-]{1,25})\s*$/) {
+        # perl 5.8 bug:  $user = lc($1) sometimes causes corruption when $1 points into $user.
+        $user = $1;
+        $user = lc($user);
+        $user =~ s/-/_/g;
+        return $user;
+    }
+    return "";  # not a good username.
+}
+
+
+# <LJFUNC>
+# name: LJ::get_userid
+# des: Returns a userid given a username.
+# info: Results cached in memory.  On miss, does DB call.  Not advised
+#       to use this many times in a row... only once or twice perhaps
+#       per request.  Tons of serialized db requests, even when small,
+#       are slow.  Opposite of [func[LJ::get_username]].
+# args: dbarg?, user
+# des-user: Username whose userid to look up.
+# returns: Userid, or 0 if invalid user.
+# </LJFUNC>
+sub get_userid
+{
+    &nodb;
+    my $user = shift;
+
+    $user = LJ::canonical_username($user);
+
+    if ($LJ::CACHE_USERID{$user}) { return $LJ::CACHE_USERID{$user}; }
+
+    my $userid = LJ::MemCache::get("uidof:$user");
+    return $LJ::CACHE_USERID{$user} = $userid if $userid;
+
+    my $dbr = LJ::get_db_reader();
+    $userid = $dbr->selectrow_array("SELECT userid FROM useridmap WHERE user=?", undef, $user);
+
+    # implicitly create an account if we're using an external
+    # auth mechanism
+    if (! $userid && ref $LJ::AUTH_EXISTS eq "CODE")
+    {
+        $userid = LJ::create_account({ 'user' => $user,
+                                       'name' => $user,
+                                       'password' => '', });
+    }
+
+    if ($userid) {
+        $LJ::CACHE_USERID{$user} = $userid;
+        LJ::MemCache::set("uidof:$user", $userid);
+    }
+
+    return ($userid+0);
+}
+
+
+# <LJFUNC>
+# name: LJ::get_username
+# des: Returns a username given a userid.
+# info: Results cached in memory.  On miss, does DB call.  Not advised
+#       to use this many times in a row... only once or twice perhaps
+#       per request.  Tons of serialized db requests, even when small,
+#       are slow.  Opposite of [func[LJ::get_userid]].
+# args: dbarg?, user
+# des-user: Username whose userid to look up.
+# returns: Userid, or 0 if invalid user.
+# </LJFUNC>
+sub get_username
+{
+    &nodb;
+    my $userid = shift;
+    $userid += 0;
+
+    # Checked the cache first.
+    if ($LJ::CACHE_USERNAME{$userid}) { return $LJ::CACHE_USERNAME{$userid}; }
+
+    # if we're using memcache, it's faster to just query memcache for
+    # an entire $u object and just return the username.  otherwise, we'll
+    # go ahead and query useridmap
+    if (@LJ::MEMCACHE_SERVERS) {
+        my $u = LJ::load_userid($userid);
+        return undef unless $u;
+
+        $LJ::CACHE_USERNAME{$userid} = $u->{'user'};
+        return $u->{'user'};
+    }
+
+    my $dbr = LJ::get_db_reader();
+    my $user = $dbr->selectrow_array("SELECT user FROM useridmap WHERE userid=?", undef, $userid);
+
+    # Fall back to master if it doesn't exist.
+    unless (defined $user) {
+        my $dbh = LJ::get_db_writer();
+        $user = $dbh->selectrow_array("SELECT user FROM useridmap WHERE userid=?", undef, $userid);
+    }
+
+    return undef unless defined $user;
+
+    $LJ::CACHE_USERNAME{$userid} = $user;
+    return $user;
+}
+
+
+# is a user object (at least a hashref)
+sub isu {
+    return unless ref $_[0];
+    return 1 if UNIVERSAL::isa($_[0], "LJ::User");
+
+    if (ref $_[0] eq "HASH" && $_[0]->{userid}) {
+        carp "User HASH objects are deprecated from use." if $LJ::IS_DEV_SERVER;
+        return 1;
+    }
+}
+
+
+# <LJFUNC>
+# name: LJ::load_user
+# des: Loads a user record, from the [dbtable[user]] table, given a username.
+# args: dbarg?, user, force?
+# des-user: Username of user to load.
+# des-force: if set to true, won't return cached user object and will
+#            query a dbh.
+# returns: Hashref, with keys being columns of [dbtable[user]] table.
+# </LJFUNC>
+sub load_user
+{
+    &nodb;
+    my ($user, $force) = @_;
+
+    $user = LJ::canonical_username($user);
+    return undef unless length $user;
+
+    my $get_user = sub {
+        my $use_dbh = shift;
+        my $db = $use_dbh ? LJ::get_db_writer() : LJ::get_db_reader();
+        my $u = _load_user_raw($db, "user", $user)
+            or return undef;
+
+        # set caches since we got a u from the master
+        LJ::memcache_set_u($u) if $use_dbh;
+
+        return _set_u_req_cache($u);
+    };
+
+    # caller is forcing a master, return now
+    return $get_user->("master") if $force || $LJ::_PRAGMA_FORCE_MASTER;
+
+    my $u;
+
+    # return process cache if we have one
+    if ($u = $LJ::REQ_CACHE_USER_NAME{$user}) {
+        $u->selfassert;
+        return $u;
+    }
+
+    # check memcache
+    {
+        my $uid = LJ::MemCache::get("uidof:$user");
+        $u = LJ::memcache_get_u([$uid, "userid:$uid"]) if $uid;
+        return _set_u_req_cache($u) if $u;
+    }
+
+    # try to load from master if using memcache, otherwise from slave
+    $u = $get_user->(scalar @LJ::MEMCACHE_SERVERS);
+    return $u if $u;
+
+    # setup LDAP handler if this is the first time
+    if ($LJ::LDAP_HOST && ! $LJ::AUTH_EXISTS) {
+        require LJ::LDAP;
+        $LJ::AUTH_EXISTS = sub {
+            my $user = shift;
+            my $rec = LJ::LDAP::load_ldap_user($user);
+            return $rec ? $rec : undef;
+        };
+    }
+
+    # if user doesn't exist in the LJ database, it's possible we're using
+    # an external authentication source and we should create the account
+    # implicitly.
+    my $lu;
+    if (ref $LJ::AUTH_EXISTS eq "CODE" && ($lu = $LJ::AUTH_EXISTS->($user)))
+    {
+        my $name = ref $lu eq "HASH" ? ($lu->{'nick'} || $lu->{name} || $user) : $user;
+        if (LJ::create_account({
+            'user' => $user,
+            'name' => $name,
+            'email' => ref $lu eq "HASH" ? $lu->email_raw : "",
+            'password' => "",
+        }))
+        {
+            # this should pull from the master, since it was _just_ created
+            return $get_user->("master");
+        }
+    }
+
+    return undef;
+}
+
+
+# load either a username, or a "I,<userid>" parameter.
+sub load_user_arg {
+    my ($arg) = @_;
+    my $user = LJ::canonical_username($arg);
+    return LJ::load_user($user) if length $user;
+    if ($arg =~ /^I,(\d+)$/) {
+        my $u = LJ::load_userid($1);
+        return $u if $u->is_identity;
+    }
+    return; # undef/()
+}
+
+
+sub load_user_or_identity {
+    my $arg = shift;
+
+    my $user = LJ::canonical_username($arg);
+    return LJ::load_user($user) if $user;
+
+    # return undef if not dot in arg (can't be a URL)
+    return undef unless $arg =~ /\./;
+
+    my $dbh = LJ::get_db_writer();
+    my $url = lc($arg);
+    $url = "http://$url" unless $url =~ m!^http://!;
+    $url .= "/" unless $url =~ m!/$!;
+    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
+                                    undef, 'O', $url);
+    return LJ::load_userid($uid) if $uid;
+    return undef;
+}
+
+
+# <LJFUNC>
+# name: LJ::load_userid
+# des: Loads a user record, from the [dbtable[user]] table, given a userid.
+# args: dbarg?, userid, force?
+# des-userid: Userid of user to load.
+# des-force: if set to true, won't return cached user object and will
+#            query a dbh
+# returns: Hashref with keys being columns of [dbtable[user]] table.
+# </LJFUNC>
+sub load_userid
+{
+    &nodb;
+    my ($userid, $force) = @_;
+    return undef unless $userid;
+
+    my $get_user = sub {
+        my $use_dbh = shift;
+        my $db = $use_dbh ? LJ::get_db_writer() : LJ::get_db_reader();
+        my $u = _load_user_raw($db, "userid", $userid)
+            or return undef;
+
+        LJ::memcache_set_u($u) if $use_dbh;
+        return _set_u_req_cache($u);
+    };
+
+    # user is forcing master, return now
+    return $get_user->("master") if $force || $LJ::_PRAGMA_FORCE_MASTER;
+
+    my $u;
+
+    # check process cache
+    $u = $LJ::REQ_CACHE_USER_ID{$userid};
+    if ($u) {
+        $u->selfassert;
+        return $u;
+    }
+
+    # check memcache
+    $u = LJ::memcache_get_u([$userid,"userid:$userid"]);
+    return _set_u_req_cache($u) if $u;
+
+    # get from master if using memcache
+    return $get_user->("master") if @LJ::MEMCACHE_SERVERS;
+
+    # check slave
+    $u = $get_user->();
+    return $u if $u;
+
+    # if we didn't get a u from the reader, fall back to master
+    return $get_user->("master");
+}
+
+
+# <LJFUNC>
+# name: LJ::load_userids
+# des: Simple interface to [func[LJ::load_userids_multiple]].
+# args: userids
+# returns: hashref with keys ids, values $u refs.
+# </LJFUNC>
+sub load_userids
+{
+    my %u;
+    LJ::load_userids_multiple([ map { $_ => \$u{$_} } @_ ]);
+    return \%u;
+}
+
+
+# <LJFUNC>
+# name: LJ::load_userids_multiple
+# des: Loads a number of users at once, efficiently.
+# info: loads a few users at once, their userids given in the keys of $map
+#       listref (not hashref: can't have dups).  values of $map listref are
+#       scalar refs to put result in.  $have is an optional listref of user
+#       object caller already has, but is too lazy to sort by themselves.
+#       <strong>Note</strong>: The $have parameter is deprecated,
+#       as is $memcache_only; but it is still preserved for now.
+#       Really, this whole API (i.e. LJ::load_userids_multiple) is clumsy.
+#       Use [func[LJ::load_userids]] instead.
+# args: dbarg?, map, have, memcache_only?
+# des-map: Arrayref of pairs (userid, destination scalarref).
+# des-have: Arrayref of user objects caller already has.
+# des-memcache_only: Flag to only retrieve data from memcache.
+# returns: Nothing.
+# </LJFUNC>
+sub load_userids_multiple
+{
+    &nodb;
+    # the $have parameter is deprecated, as is $memcache_only, but it's still preserved for now.
+    # actually this whole API is crap.  use LJ::load_userids() instead.
+    my ($map, undef, $memcache_only) = @_;
+
+    my $sth;
+    my @have;
+    my %need;
+    while (@$map) {
+        my $id = shift @$map;
+        my $ref = shift @$map;
+        next unless int($id);
+        push @{$need{$id}}, $ref;
+
+        if ($LJ::REQ_CACHE_USER_ID{$id}) {
+            push @have, $LJ::REQ_CACHE_USER_ID{$id};
+        }
+    }
+
+    my $satisfy = sub {
+        my $u = shift;
+        next unless ref $u eq "LJ::User";
+
+        # this could change the $u returned to an
+        # existing one we already have loaded in memory,
+        # once it's been upgraded.  then everybody points
+        # to the same one.
+        $u = _set_u_req_cache($u);
+
+        foreach (@{$need{$u->{'userid'}}}) {
+            # check if existing target is defined and not what we already have.
+            if (my $eu = $$_) {
+                LJ::assert_is($u->{userid}, $eu->{userid});
+            }
+            $$_ = $u;
+        }
+
+        delete $need{$u->{'userid'}};
+    };
+
+    unless ($LJ::_PRAGMA_FORCE_MASTER) {
+        foreach my $u (@have) {
+            $satisfy->($u);
+        }
+
+        if (%need) {
+            foreach (LJ::memcache_get_u(map { [$_,"userid:$_"] } keys %need)) {
+                $satisfy->($_);
+            }
+        }
+    }
+
+    if (%need && ! $memcache_only) {
+        my $db = @LJ::MEMCACHE_SERVERS || $LJ::_PRAGMA_FORCE_MASTER ?
+            LJ::get_db_writer() : LJ::get_db_reader();
+
+        _load_user_raw($db, "userid", [ keys %need ], sub {
+            my $u = shift;
+            LJ::memcache_set_u($u);
+            $satisfy->($u);
+        });
+    }
+}
+
+
+# <LJFUNC>
+# name: LJ::make_user_active
+# des:  Record user activity per cluster, on [dbtable[clustertrack2]], to
+#       make per-activity cluster stats easier.
+# args: userid, type
+# des-userid: source userobj ref
+# des-type: currently unused
+# </LJFUNC>
+sub mark_user_active {
+    my ($u, $type) = @_;  # not currently using type
+    return 0 unless $u;   # do not auto-vivify $u
+    my $uid = $u->{userid};
+    return 0 unless $uid && $u->{clusterid};
+
+    # Update the clustertrack2 table, but not if we've done it for this
+    # user in the last hour.  if no memcache servers are configured
+    # we don't do the optimization and just always log the activity info
+    if (@LJ::MEMCACHE_SERVERS == 0 ||
+        LJ::MemCache::add("rate:tracked:$uid", 1, 3600)) {
+
+        return 0 unless $u->writer;
+        my $active = time();
+        $u->do("REPLACE INTO clustertrack2 SET ".
+               "userid=?, timeactive=?, clusterid=?", undef,
+               $uid, $active, $u->{clusterid}) or return 0;
+        my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
+        LJ::MemCache::set($memkey, $active, 86400);
+    }
+    return 1;
+}
+
+
+# <LJFUNC>
+# name: LJ::u_equals
+# des: Compares two user objects to see if they are the same user.
+# args: userobj1, userobj2
+# des-userobj1: First user to compare.
+# des-userobj2: Second user to compare.
+# returns: Boolean, true if userobj1 and userobj2 are defined and have equal userids.
+# </LJFUNC>
+sub u_equals {
+    my ($u1, $u2) = @_;
+    return $u1 && $u2 && $u1->{'userid'} == $u2->{'userid'};
+}
+
+
+# <LJFUNC>
+# name: LJ::want_user
+# des: Returns user object when passed either userid or user object. Useful to functions that
+#      want to accept either.
+# args: user
+# des-user: Either a userid or a user hash with the userid in its 'userid' key.
+# returns: The user object represented by said userid or username.
+# </LJFUNC>
+sub want_user
+{
+    my $uuid = shift;
+    return undef unless $uuid;
+    return $uuid if ref $uuid;
+    return LJ::load_userid($uuid) if $uuid =~ /^\d+$/;
+    Carp::croak("Bogus caller of LJ::want_user with non-ref/non-numeric parameter");
+}
+
+
+# <LJFUNC>
+# name: LJ::want_userid
+# des: Returns userid when passed either userid or the user hash. Useful to functions that
+#      want to accept either. Forces its return value to be a number (for safety).
+# args: userid
+# des-userid: Either a userid, or a user hash with the userid in its 'userid' key.
+# returns: The userid, guaranteed to be a numeric value.
+# </LJFUNC>
+sub want_userid
+{
+    my $uuserid = shift;
+    return ($uuserid->{'userid'} + 0) if ref $uuserid;
+    return ($uuserid + 0);
+}
+
+
+########################################################################
+###  3. Login, Session, and Rename Functions
+
+
+# returns the country that the remote IP address comes from
+# undef is returned if the country cannot be determined from the IP
+sub country_of_remote_ip {
+    if (eval "use IP::Country::Fast; 1;") {
+        my $ip = LJ::get_remote_ip();
+        return undef unless $ip;
+
+        my $reg = IP::Country::Fast->new();
+        my $country = $reg->inet_atocc($ip);
+
+        # "**" is returned if the IP is private
+        return undef if $country eq "**";
+        return $country;
+    }
+
+    return undef;
+}
+
+1;
+
+
+sub get_active_journal
+{
+    return $LJ::ACTIVE_JOURNAL;
+}
+
+# returns either $remote or the authenticated user that $remote is working with
+sub get_effective_remote {
+    my $authas_arg = shift || "authas";
+
+    return undef unless LJ::is_web_context();
+
+    my $remote = LJ::get_remote();
+    return undef unless $remote;
+
+    my $authas = $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas} || $remote->user;
+    return $remote if $authas eq $remote->user;
+
+    return LJ::get_authas_user($authas);
+}
+
+
+# <LJFUNC>
+# name: LJ::get_remote
+# des: authenticates the user at the remote end based on their cookies
+#      and returns a hashref representing them.
+# args: opts?
+# des-opts: 'criterr': scalar ref to set critical error flag.  if set, caller
+#           should stop processing whatever it's doing and complain
+#           about an invalid login with a link to the logout page.
+#           'ignore_ip': ignore IP address of remote for IP-bound sessions
+# returns: hashref containing 'user' and 'userid' if valid user, else
+#          undef.
+# </LJFUNC>
+sub get_remote
+{
+    my $opts = ref $_[0] eq "HASH" ? shift : {};
+    return $LJ::CACHE_REMOTE if $LJ::CACHED_REMOTE && ! $opts->{'ignore_ip'};
+
+    my $no_remote = sub {
+        LJ::User->set_remote(undef);
+        return undef;
+    };
+
+    # can't have a remote user outside of web context
+    my $r = eval { BML::get_request(); };
+    return $no_remote->() unless $r;
+
+    my $criterr = $opts->{criterr} || do { my $d; \$d; };
+    $$criterr = 0;
+
+    $LJ::CACHE_REMOTE_BOUNCE_URL = "";
+
+    # set this flag if any of their ljsession cookies contained the ".FS"
+    # opt to use the fast server.  if we later find they're not logged
+    # in and set it, or set it with a free account, then we give them
+    # the invalid cookies error.
+    my $tried_fast = 0;
+    my $sessobj = LJ::Session->session_from_cookies(tried_fast   => \$tried_fast,
+                                                    redirect_ref => \$LJ::CACHE_REMOTE_BOUNCE_URL,
+                                                    ignore_ip    => $opts->{ignore_ip},
+                                                    );
+
+    my $u = $sessobj ? $sessobj->owner : undef;
+
+    # inform the caller that this user is faking their fast-server cookie
+    # attribute.
+    if ($tried_fast && ! LJ::get_cap($u, "fastserver")) {
+        $$criterr = 1;
+    }
+
+    return $no_remote->() unless $sessobj;
+
+    # renew soon-to-expire sessions
+    $sessobj->try_renew;
+
+    # augment hash with session data;
+    $u->{'_session'} = $sessobj;
+
+    # keep track of activity for the user we just loaded from db/memcache
+    # - if necessary, this code will actually run in Apache's cleanup handler
+    #   so latency won't affect the user
+    if (@LJ::MEMCACHE_SERVERS && ! $LJ::DISABLED{active_user_tracking}) {
+        push @LJ::CLEANUP_HANDLERS, sub { $u->note_activity('A') };
+    }
+
+    LJ::User->set_remote($u);
+    $r->notes->{ljuser} = $u->{user};
+    return $u;
+}
+
+
+sub handle_bad_login
+{
+    my ($u, $ip) = @_;
+    return 1 unless $u;
+
+    $ip ||= LJ::get_remote_ip();
+    return 1 unless $ip;
+
+    # an IP address is permitted such a rate of failures
+    # until it's banned for a period of time.
+    my $udbh;
+    if (! LJ::rate_log($u, "failed_login", 1, { 'limit_by_ip' => $ip }) &&
+        ($udbh = LJ::get_cluster_master($u)))
+    {
+        $udbh->do("REPLACE INTO loginstall (userid, ip, time) VALUES ".
+                  "(?,INET_ATON(?),UNIX_TIMESTAMP())", undef, $u->{'userid'}, $ip);
+    }
+    return 1;
+}
+
+
+sub login_ip_banned
+{
+    my ($u, $ip) = @_;
+    return 0 unless $u;
+
+    $ip ||= LJ::get_remote_ip();
+    return 0 unless $ip;
+
+    my $udbr;
+    my $rateperiod = LJ::get_cap($u, "rateperiod-failed_login");
+    if ($rateperiod && ($udbr = LJ::get_cluster_reader($u))) {
+        my $bantime = $udbr->selectrow_array("SELECT time FROM loginstall WHERE ".
+                                             "userid=$u->{'userid'} AND ip=INET_ATON(?)",
+                                             undef, $ip);
+        if ($bantime && $bantime > time() - $rateperiod) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+# returns URL we have to bounce the remote user to in order to
+# get their domain cookie
+sub remote_bounce_url {
+    return $LJ::CACHE_REMOTE_BOUNCE_URL;
+}
+
+
+sub set_active_journal
+{
+    $LJ::ACTIVE_JOURNAL = shift;
+}
+
+
+sub set_remote {
+    my $remote = shift;
+    LJ::User->set_remote($remote);
+    1;
+}
+
+
+sub unset_remote
+{
+    LJ::User->unset_remote;
+    1;
+}
+
+
+########################################################################
+###  5. Database and Memcache Functions
+
+
+# $dom: 'L' == log, 'T' == talk, 'M' == modlog, 'S' == session,
+#       'R' == memory (remembrance), 'K' == keyword id,
+#       'P' == phone post, 'C' == pending comment
+#       'O' == pOrtal box id, 'V' == 'vgift', 'E' == ESN subscription id
+#       'Q' == Notification Inbox, 'G' == 'SMS messaGe'
+#       'D' == 'moDule embed contents', 'I' == Import data block
+#       'Z' == import status item
+#
+# FIXME: both phonepost and vgift are ljcom.  need hooks. but then also
+#        need a separate namespace.  perhaps a separate function/table?
+sub alloc_user_counter
+{
+    my ($u, $dom, $opts) = @_;
+    $opts ||= {};
+
+    ##################################################################
+    # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZ]$/;              #
+    ##################################################################
+
+    my $dbh = LJ::get_db_writer();
+    return undef unless $dbh;
+
+    my $newmax;
+    my $uid = $u->{'userid'}+0;
+    return undef unless $uid;
+    my $memkey = [$uid, "auc:$uid:$dom"];
+
+    # in a master-master DB cluster we need to be careful that in
+    # an automatic failover case where one cluster is slightly behind
+    # that the same counter ID isn't handed out twice.  use memcache
+    # as a sanity check to record/check latest number handed out.
+    my $memmax = int(LJ::MemCache::get($memkey) || 0);
+
+    my $rs = $dbh->do("UPDATE usercounter SET max=LAST_INSERT_ID(GREATEST(max,$memmax)+1) ".
+                      "WHERE journalid=? AND area=?", undef, $uid, $dom);
+    if ($rs > 0) {
+        $newmax = $dbh->selectrow_array("SELECT LAST_INSERT_ID()");
+
+        # if we've got a supplied callback, lets check the counter
+        # number for consistency.  If it fails our test, wipe
+        # the counter row and start over, initializing a new one.
+        # callbacks should return true to signal 'all is well.'
+        if ($opts->{callback} && ref $opts->{callback} eq 'CODE') {
+            my $rv = 0;
+            eval { $rv = $opts->{callback}->($u, $newmax) };
+            if ($@ or ! $rv) {
+                $dbh->do("DELETE FROM usercounter WHERE " .
+                         "journalid=? AND area=?", undef, $uid, $dom);
+                return LJ::alloc_user_counter($u, $dom);
+            }
+        }
+
+        LJ::MemCache::set($memkey, $newmax);
+        return $newmax;
+    }
+
+    if ($opts->{recurse}) {
+        # We shouldn't ever get here if all is right with the world.
+        return undef;
+    }
+
+    my $qry_map = {
+        # for entries:
+        'log'         => "SELECT MAX(jitemid) FROM log2     WHERE journalid=?",
+        'logtext'     => "SELECT MAX(jitemid) FROM logtext2 WHERE journalid=?",
+        'talk_nodeid' => "SELECT MAX(nodeid)  FROM talk2    WHERE nodetype='L' AND journalid=?",
+        # for comments:
+        'talk'     => "SELECT MAX(jtalkid) FROM talk2     WHERE journalid=?",
+        'talktext' => "SELECT MAX(jtalkid) FROM talktext2 WHERE journalid=?",
+    };
+
+    my $consider = sub {
+        my @tables = @_;
+        foreach my $t (@tables) {
+            my $res = $u->selectrow_array($qry_map->{$t}, undef, $uid);
+            $newmax = $res if $res > $newmax;
+        }
+    };
+
+    # Make sure the counter table is populated for this uid/dom.
+    if ($dom eq "L") {
+        # back in the ol' days IDs were reused (because of MyISAM)
+        # so now we're extra careful not to reuse a number that has
+        # foreign junk "attached".  turns out people like to delete
+        # each entry by hand, but we do lazy deletes that are often
+        # too lazy and a user can see old stuff come back alive
+        $consider->("log", "logtext", "talk_nodeid");
+    } elsif ($dom eq "T") {
+        # just paranoia, not as bad as above.  don't think we've ever
+        # run into cases of talktext without a talk, but who knows.
+        # can't hurt.
+        $consider->("talk", "talktext");
+    } elsif ($dom eq "M") {
+        $newmax = $u->selectrow_array("SELECT MAX(modid) FROM modlog WHERE journalid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "S") {
+        $newmax = $u->selectrow_array("SELECT MAX(sessid) FROM sessions WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "R") {
+        $newmax = $u->selectrow_array("SELECT MAX(memid) FROM memorable2 WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "K") {
+        $newmax = $u->selectrow_array("SELECT MAX(kwid) FROM userkeywords WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "P") {
+        my $userblobmax = $u->selectrow_array("SELECT MAX(blobid) FROM userblob WHERE journalid=? AND domain=?",
+                                              undef, $uid, LJ::get_blob_domainid("phonepost"));
+        my $ppemax = $u->selectrow_array("SELECT MAX(blobid) FROM phonepostentry WHERE userid=?",
+                                         undef, $uid);
+        $newmax = ($ppemax > $userblobmax) ? $ppemax : $userblobmax;
+    } elsif ($dom eq "C") {
+        $newmax = $u->selectrow_array("SELECT MAX(pendid) FROM pendcomments WHERE jid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "O") {
+        $newmax = $u->selectrow_array("SELECT MAX(pboxid) FROM portal_config WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "V") {
+        $newmax = $u->selectrow_array("SELECT MAX(giftid) FROM vgifts WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "E") {
+        $newmax = $u->selectrow_array("SELECT MAX(subid) FROM subs WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "Q") {
+        $newmax = $u->selectrow_array("SELECT MAX(qid) FROM notifyqueue WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "G") {
+        $newmax = $u->selectrow_array("SELECT MAX(msgid) FROM sms_msg WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "D") {
+        $newmax = $u->selectrow_array("SELECT MAX(moduleid) FROM embedcontent WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "I") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(import_data_id) FROM import_data WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "Z") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(import_status_id) FROM import_status WHERE userid=?",
+                                      undef, $uid);
+    } else {
+        die "No user counter initializer defined for area '$dom'.\n";
+    }
+    $newmax += 0;
+    $dbh->do("INSERT IGNORE INTO usercounter (journalid, area, max) VALUES (?,?,?)",
+             undef, $uid, $dom, $newmax) or return undef;
+
+    # The 2nd invocation of the alloc_user_counter sub should do the
+    # intended incrementing.
+    return LJ::alloc_user_counter($u, $dom, { recurse => 1 });
+}
+
+
+sub memcache_get_u
+{
+    my @keys = @_;
+    my @ret;
+    foreach my $ar (values %{LJ::MemCache::get_multi(@keys) || {}}) {
+        my $row = LJ::MemCache::array_to_hash("user", $ar)
+            or next;
+        my $u = LJ::User->new_from_row($row);
+        push @ret, $u;
+    }
+    return wantarray ? @ret : $ret[0];
+}
+
+
+# <LJFUNC>
+# name: LJ::memcache_kill
+# des: Kills a memcache entry, given a userid and type.
+# args: uuserid, type
+# des-uuserid: a userid or u object
+# des-type: memcached key type, will be used as "$type:$userid"
+# returns: results of LJ::MemCache::delete
+# </LJFUNC>
+sub memcache_kill {
+    my ($uuid, $type) = @_;
+    my $userid = LJ::want_userid($uuid);
+    return undef unless $userid && $type;
+
+    return LJ::MemCache::delete([$userid, "$type:$userid"]);
+}
+
+
+sub memcache_set_u
+{
+    my $u = shift;
+    return unless $u;
+    my $expire = time() + 1800;
+    my $ar = LJ::MemCache::hash_to_array("user", $u);
+    return unless $ar;
+    LJ::MemCache::set([$u->{'userid'}, "userid:$u->{'userid'}"], $ar, $expire);
+    LJ::MemCache::set("uidof:$u->{user}", $u->{userid});
+}
+
+
+sub update_user
+{
+    my ($arg, $ref) = @_;
+    my @uid;
+
+    if (ref $arg eq "ARRAY") {
+        @uid = @$arg;
+    } else {
+        @uid = want_userid($arg);
+    }
+    @uid = grep { $_ } map { $_ + 0 } @uid;
+    return 0 unless @uid;
+
+    my @sets;
+    my @bindparams;
+    my $used_raw = 0;
+    while (my ($k, $v) = each %$ref) {
+        if ($k eq "raw") {
+            $used_raw = 1;
+            push @sets, $v;
+        } elsif ($k eq 'email') {
+            set_email($_, $v) foreach @uid;
+        } elsif ($k eq 'password') {
+            set_password($_, $v) foreach @uid;
+        } else {
+            push @sets, "$k=?";
+            push @bindparams, $v;
+        }
+    }
+    return 1 unless @sets;
+    my $dbh = LJ::get_db_writer();
+    return 0 unless $dbh;
+    {
+        local $" = ",";
+        my $where = @uid == 1 ? "userid=$uid[0]" : "userid IN (@uid)";
+        $dbh->do("UPDATE user SET @sets WHERE $where", undef,
+                 @bindparams);
+        return 0 if $dbh->err;
+    }
+    if (@LJ::MEMCACHE_SERVERS) {
+        LJ::memcache_kill($_, "userid") foreach @uid;
+    }
+
+    if ($used_raw) {
+        # for a load of userids from the master after update
+        # so we pick up the values set via the 'raw' option
+        require_master(sub { LJ::load_userids(@uid) });
+    } else {
+        foreach my $uid (@uid) {
+            while (my ($k, $v) = each %$ref) {
+                my $cache = $LJ::REQ_CACHE_USER_ID{$uid} or next;
+                $cache->{$k} = $v;
+            }
+        }
+    }
+
+    # log this updates
+    LJ::run_hooks("update_user", userid => $_, fields => $ref)
+        for @uid;
+
+    return 1;
+}
+
 
 # <LJFUNC>
 # name: LJ::wipe_major_memcache
@@ -4929,6 +6323,310 @@ sub wipe_major_memcache
         LJ::memcache_kill($userid, $key);
     }
 }
+
+# <LJFUNC>
+# name: LJ::_load_user_raw
+# des-db:  $dbh/$dbr
+# des-key:  either "userid" or "user"  (the WHERE part)
+# des-vals: value or arrayref of values for key to match on
+# des-hook: optional code ref to run for each $u
+# returns: last $u found
+sub _load_user_raw
+{
+    my ($db, $key, $vals, $hook) = @_;
+    $hook ||= sub {};
+    $vals = [ $vals ] unless ref $vals eq "ARRAY";
+
+    my $use_isam;
+    unless ($LJ::CACHE_NO_ISAM{user} || scalar(@$vals) > 10) {
+        eval { $db->do("HANDLER user OPEN"); };
+        if ($@ || $db->err) {
+            $LJ::CACHE_NO_ISAM{user} = 1;
+        } else {
+            $use_isam = 1;
+        }
+    }
+
+    my $last;
+
+    if ($use_isam) {
+        $key = "PRIMARY" if $key eq "userid";
+        foreach my $v (@$vals) {
+            my $sth = $db->prepare("HANDLER user READ `$key` = (?) LIMIT 1");
+            $sth->execute($v);
+            my $row = $sth->fetchrow_hashref;
+            if ($row) {
+                my $u = LJ::User->new_from_row($row);
+                $hook->($u);
+                $last = $u;
+            }
+        }
+        $db->do("HANDLER user close");
+    } else {
+        my $in = join(", ", map { $db->quote($_) } @$vals);
+        my $sth = $db->prepare("SELECT * FROM user WHERE $key IN ($in)");
+        $sth->execute;
+        while (my $row = $sth->fetchrow_hashref) {
+            my $u = LJ::User->new_from_row($row);
+            $hook->($u);
+            $last = $u;
+        }
+    }
+
+    return $last;
+}
+
+
+sub _set_u_req_cache {
+    my $u = shift or die "no u to set";
+
+    # if we have an existing user singleton, upgrade it with
+    # the latested data, but keep using its address
+    if (my $eu = $LJ::REQ_CACHE_USER_ID{$u->{'userid'}}) {
+        LJ::assert_is($eu->{userid}, $u->{userid});
+        $eu->selfassert;
+        $u->selfassert;
+
+        $eu->{$_} = $u->{$_} foreach keys %$u;
+        $u = $eu;
+    }
+    $LJ::REQ_CACHE_USER_NAME{$u->{'user'}} = $u;
+    $LJ::REQ_CACHE_USER_ID{$u->{'userid'}} = $u;
+    return $u;
+}
+
+
+########################################################################
+###  6. What the App Shows to Users
+
+# <LJFUNC>
+# name: LJ::get_timezone
+# des: Gets the timezone offset for the user.
+# args: u, offsetref, fakedref
+# des-u: user object.
+# des-offsetref: reference to scalar to hold timezone offset;
+# des-fakedref: reference to scalar to hold whether this timezone was
+#               faked.  0 if it is the timezone specified by the user.
+# returns: nonzero if successful.
+# </LJFUNC>
+sub get_timezone {
+    my ($u, $offsetref, $fakedref) = @_;
+
+    # See if the user specified their timezone
+    if (my $tz = $u->prop('timezone')) {
+        # If the eval fails, we'll fall through to guessing instead
+        my $dt = eval {
+            DateTime->from_epoch(
+                                 epoch => time(),
+                                 time_zone => $tz,
+                                 );
+        };
+
+        if ($dt) {
+            $$offsetref = $dt->offset() / (60 * 60); # Convert from seconds to hours
+            $$fakedref  = 0 if $fakedref;
+
+            return 1;
+        }
+    }
+
+    # Either the user hasn't set a timezone or we failed at
+    # loading it.  We guess their current timezone's offset
+    # by comparing the gmtime of their last post with the time
+    # they specified on that post.
+
+    # first, check request cache
+    my $timezone = $u->{_timezone_guess};
+    if ($timezone) {
+        $$offsetref = $timezone;
+        return 1;
+    }
+
+    # next, check memcache
+    my $memkey = [$u->userid, 'timezone_guess:' . $u->userid];
+    my $memcache_data = LJ::MemCache::get($memkey);
+    if ($memcache_data) {
+        # fill the request cache since it was empty
+        $u->{_timezone_guess} = $memcache_data;
+        $$offsetref = $memcache_data;
+        return 1;
+    }
+
+    # nothing in cache; check db
+    my $dbcr = LJ::get_cluster_def_reader($u);
+    return 0 unless $dbcr;
+
+    $$fakedref = 1 if $fakedref;
+
+    # grab the times on the last post that wasn't backdated.
+    # (backdated is rlogtime == $LJ::EndOfTime)
+    if (my $last_row = $dbcr->selectrow_hashref(
+        qq{
+            SELECT rlogtime, eventtime
+            FROM log2
+            WHERE journalid = ? AND rlogtime <> ?
+            ORDER BY rlogtime LIMIT 1
+        }, undef, $u->{userid}, $LJ::EndOfTime)) {
+        my $logtime = $LJ::EndOfTime - $last_row->{'rlogtime'};
+        my $eventtime = LJ::mysqldate_to_time($last_row->{'eventtime'}, 1);
+        my $hourdiff = ($eventtime - $logtime) / 3600;
+
+        # if they're up to a quarter hour behind, round up.
+        $hourdiff = $hourdiff > 0 ? int($hourdiff + 0.25) : int($hourdiff - 0.25);
+
+        # if the offset is more than 24h in either direction, then the last
+        # entry is probably unreliable. don't use any offset at all.
+        $$offsetref = (-24 < $hourdiff && $hourdiff < 24) ? $hourdiff : 0;
+
+        # set the caches
+        $u->{_timezone_guess} = $$offsetref;
+        my $expire = 60*60*24; # 24 hours
+        LJ::MemCache::set($memkey, $$offsetref, $expire);
+    }
+
+    return 1;
+}
+
+
+# <LJFUNC>
+# class: component
+# name: LJ::ljuser
+# des: Make link to userinfo/journal of user.
+# info: Returns the HTML for a userinfo/journal link pair for a given user
+#       name, just like LJUSER does in BML.  This is for files like cleanhtml.pl
+#       and ljpoll.pl which need this functionality too, but they aren't run as BML.
+# args: user, opts?
+# des-user: Username to link to, or user hashref.
+# des-opts: Optional hashref to control output.  Key 'full' when true causes
+#           a link to the mode=full userinfo.   Key 'type' when 'C' makes
+#           a community link, when 'Y' makes a syndicated account link,
+#           when 'I' makes an identity account link (e.g. OpenID),
+#           when 'N' makes a news account link, otherwise makes a user account
+#           link. If user parameter is a hashref, its 'journaltype' overrides
+#           this 'type'.  Key 'del', when true, makes a tag for a deleted user.
+#           If user parameter is a hashref, its 'statusvis' overrides 'del'.
+#           Key 'no_follow', when true, disables traversal of renamed users.
+# returns: HTML with a little head image & bold text link.
+# </LJFUNC>
+sub ljuser
+{
+    my $user = shift;
+    my $opts = shift;
+
+    my $andfull = $opts->{'full'} ? "?mode=full" : "";
+    my $img = $opts->{'imgroot'} || $LJ::IMGPREFIX;
+    my $profile_url = $opts->{'profile_url'} || '';
+    my $journal_url = $opts->{'journal_url'} || '';
+    my $profile;
+
+    my $make_tag = sub {
+        my ($fil, $url, $x, $y) = @_;
+        $y ||= $x;  # make square if only one dimension given
+        my $strike = $opts->{'del'} ? ' text-decoration: line-through;' : '';
+
+        # Backwards check, because we want it to default to on
+        my $bold = (exists $opts->{'bold'} and $opts->{'bold'} == 0) ? 0 : 1;
+        my $ljusername = $bold ? "<b>$user</b>" : "$user";
+
+        my $link_color = "";
+        # Make sure it's really a color
+        if ($opts->{'link_color'} && $opts->{'link_color'} =~ /^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/) {
+            $link_color = " style='color: " . $opts->{'link_color'} . ";'";
+        }
+
+        $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
+        $url = $journal_url ne '' ? $journal_url : $url;
+
+        return "<span class='ljuser' lj:user='$user' style='white-space: nowrap;$strike'><a href='$profile'><img src='$img/$fil' alt='[info]' width='$x' height='$y' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url'$link_color>$ljusername</a></span>";
+    };
+
+    my $u = isu($user) ? $user : LJ::load_user($user);
+
+    # Traverse the renames to the final journal
+    if ($u && !$opts->{'no_follow'}) {
+        $u = $u->get_renamed_user;
+    }
+
+    # if invalid user, link to dummy userinfo page
+    unless ($u && isu($u)) {
+        $user = LJ::canonical_username($user);
+        $profile = "$LJ::SITEROOT/userinfo.bml?user=$user";
+        return $make_tag->('userinfo.gif', "$LJ::SITEROOT/userinfo.bml?user=$user", 17);
+    }
+
+    $profile = $u->profile_url;
+
+    my $type = $u->{'journaltype'};
+
+    # Mark accounts as deleted that aren't visible, memorial, locked, or read-only
+    $opts->{'del'} = 1 unless $u->is_visible || $u->is_memorial || $u->is_locked || $u->is_readonly;
+    $user = $u->{'user'};
+
+    my $url = $u->journal_base . "/";
+    my $head_size = $opts->{head_size};
+
+    if (my ($icon, $size) = LJ::run_hook("head_icon", $u, head_size => $head_size)) {
+        return $make_tag->($icon, $url, $size || 16) if $icon;
+    }
+
+    if ($type eq 'C') {
+        return $make_tag->("comm_${head_size}.gif", $url, $head_size) if $head_size;
+        return $make_tag->('community.gif', $url, 16);
+    } elsif ($type eq 'Y') {
+        return $make_tag->("syn_${head_size}.gif", $url, $head_size) if $head_size;
+        return $make_tag->('syndicated.gif', $url, 16);
+    } elsif ($type eq 'N') {
+        return $make_tag->("news_${head_size}.gif", $url, $head_size) if $head_size;
+        return $make_tag->('newsinfo.gif', $url, 16);
+    } elsif ($type eq 'I') {
+        return $u->ljuser_display($opts);
+    } else {
+        if ( $u->get_cap( 'staff_headicon' ) == 1 ) {
+            return $make_tag->( "staff_${head_size}.gif", $url, $head_size ) if $head_size;
+            return $make_tag->( 'staffinfo.gif', $url, 17 );
+        }
+        else {
+            return $make_tag->( "user_${head_size}.gif", $url, $head_size ) if $head_size;
+            return $make_tag->( 'userinfo.gif', $url, 17 );
+        }
+    }
+}
+
+
+########################################################################
+###  7. Userprops, Caps, and Displaying Content to Others
+
+# <LJFUNC>
+# name: LJ::get_bio
+# des: gets a user bio, from DB or memcache.
+# args: u, force
+# des-force: true to get data from cluster master.
+# returns: string
+# </LJFUNC>
+sub get_bio {
+    my ($u, $force) = @_;
+    return unless $u && $u->{'has_bio'} eq "Y";
+
+    my $bio;
+
+    my $memkey = [$u->{'userid'}, "bio:$u->{'userid'}"];
+    unless ($force) {
+        my $bio = LJ::MemCache::get($memkey);
+        return $bio if defined $bio;
+    }
+
+    # not in memcache, fall back to disk
+    my $db = @LJ::MEMCACHE_SERVERS || $force ?
+      LJ::get_cluster_def_reader($u) : LJ::get_cluster_reader($u);
+    $bio = $db->selectrow_array("SELECT bio FROM userbio WHERE userid=?",
+                                undef, $u->{'userid'});
+
+    # set in memcache
+    LJ::MemCache::add($memkey, $bio);
+
+    return $bio;
+}
+
 
 # <LJFUNC>
 # name: LJ::load_user_props
@@ -5086,780 +6784,83 @@ sub load_user_props
     }
 }
 
-# <LJFUNC>
-# name: LJ::load_userids
-# des: Simple interface to [func[LJ::load_userids_multiple]].
-# args: userids
-# returns: hashref with keys ids, values $u refs.
-# </LJFUNC>
-sub load_userids
-{
-    my %u;
-    LJ::load_userids_multiple([ map { $_ => \$u{$_} } @_ ]);
-    return \%u;
-}
 
 # <LJFUNC>
-# name: LJ::load_userids_multiple
-# des: Loads a number of users at once, efficiently.
-# info: loads a few users at once, their userids given in the keys of $map
-#       listref (not hashref: can't have dups).  values of $map listref are
-#       scalar refs to put result in.  $have is an optional listref of user
-#       object caller already has, but is too lazy to sort by themselves.
-#       <strong>Note</strong>: The $have parameter is deprecated,
-#       as is $memcache_only; but it is still preserved for now.
-#       Really, this whole API (i.e. LJ::load_userids_multiple) is clumsy.
-#       Use [func[LJ::load_userids]] instead.
-# args: dbarg?, map, have, memcache_only?
-# des-map: Arrayref of pairs (userid, destination scalarref).
-# des-have: Arrayref of user objects caller already has.
-# des-memcache_only: Flag to only retrieve data from memcache.
-# returns: Nothing.
+# name: LJ::modify_caps
+# des: Given a list of caps to add and caps to remove, updates a user's caps.
+# args: uuid, cap_add, cap_del, res
+# des-cap_add: arrayref of bit numbers to turn on
+# des-cap_del: arrayref of bit numbers to turn off
+# des-res: hashref returned from 'modify_caps' hook
+# returns: updated u object, retrieved from $dbh, then 'caps' key modified
+#          otherwise, returns 0 unless all hooks run properly.
 # </LJFUNC>
-sub load_userids_multiple
-{
-    &nodb;
-    # the $have parameter is deprecated, as is $memcache_only, but it's still preserved for now.
-    # actually this whole API is crap.  use LJ::load_userids() instead.
-    my ($map, undef, $memcache_only) = @_;
+sub modify_caps {
+    my ($argu, $cap_add, $cap_del, $res) = @_;
+    my $userid = LJ::want_userid($argu);
+    return undef unless $userid;
 
-    my $sth;
-    my @have;
-    my %need;
-    while (@$map) {
-        my $id = shift @$map;
-        my $ref = shift @$map;
-        next unless int($id);
-        push @{$need{$id}}, $ref;
+    $cap_add ||= [];
+    $cap_del ||= [];
+    my %cap_add_mod = ();
+    my %cap_del_mod = ();
 
-        if ($LJ::REQ_CACHE_USER_ID{$id}) {
-            push @have, $LJ::REQ_CACHE_USER_ID{$id};
+    # convert capnames to bit numbers
+    if (LJ::are_hooks("get_cap_bit")) {
+        foreach my $bit (@$cap_add, @$cap_del) {
+            next if $bit =~ /^\d+$/;
+
+            # bit is a magical reference into the array
+            $bit = LJ::run_hook("get_cap_bit", $bit);
         }
     }
 
-    my $satisfy = sub {
-        my $u = shift;
-        next unless ref $u eq "LJ::User";
+    # get a u object directly from the db
+    my $u = LJ::load_userid($userid, "force");
 
-        # this could change the $u returned to an
-        # existing one we already have loaded in memory,
-        # once it's been upgraded.  then everybody points
-        # to the same one.
-        $u = _set_u_req_cache($u);
+    # add new caps
+    my $newcaps = int($u->{'caps'});
+    foreach (@$cap_add) {
+        my $cap = 1 << $_;
 
-        foreach (@{$need{$u->{'userid'}}}) {
-            # check if existing target is defined and not what we already have.
-            if (my $eu = $$_) {
-                LJ::assert_is($u->{userid}, $eu->{userid});
-            }
-            $$_ = $u;
-        }
-
-        delete $need{$u->{'userid'}};
-    };
-
-    unless ($LJ::_PRAGMA_FORCE_MASTER) {
-        foreach my $u (@have) {
-            $satisfy->($u);
-        }
-
-        if (%need) {
-            foreach (LJ::memcache_get_u(map { [$_,"userid:$_"] } keys %need)) {
-                $satisfy->($_);
-            }
-        }
+        # about to turn bit on, is currently off?
+        $cap_add_mod{$_} = 1 unless $newcaps & $cap;
+        $newcaps |= $cap;
     }
 
-    if (%need && ! $memcache_only) {
-        my $db = @LJ::MEMCACHE_SERVERS || $LJ::_PRAGMA_FORCE_MASTER ?
-            LJ::get_db_writer() : LJ::get_db_reader();
+    # remove deleted caps
+    foreach (@$cap_del) {
+        my $cap = 1 << $_;
 
-        _load_user_raw($db, "userid", [ keys %need ], sub {
-            my $u = shift;
-            LJ::memcache_set_u($u);
-            $satisfy->($u);
-        });
-    }
-}
-
-# des-db:  $dbh/$dbr
-# des-key:  either "userid" or "user"  (the WHERE part)
-# des-vals: value or arrayref of values for key to match on
-# des-hook: optional code ref to run for each $u
-# returns: last $u found
-sub _load_user_raw
-{
-    my ($db, $key, $vals, $hook) = @_;
-    $hook ||= sub {};
-    $vals = [ $vals ] unless ref $vals eq "ARRAY";
-
-    my $use_isam;
-    unless ($LJ::CACHE_NO_ISAM{user} || scalar(@$vals) > 10) {
-        eval { $db->do("HANDLER user OPEN"); };
-        if ($@ || $db->err) {
-            $LJ::CACHE_NO_ISAM{user} = 1;
-        } else {
-            $use_isam = 1;
-        }
+        # about to turn bit off, is it currently on?
+        $cap_del_mod{$_} = 1 if $newcaps & $cap;
+        $newcaps &= ~$cap;
     }
 
-    my $last;
+    # run hooks for modified bits
+    if (LJ::are_hooks("modify_caps")) {
+        $res = LJ::run_hook("modify_caps",
+                            { 'u' => $u,
+                              'newcaps' => $newcaps,
+                              'oldcaps' => $u->{'caps'},
+                              'cap_on_req'  => { map { $_ => 1 } @$cap_add },
+                              'cap_off_req' => { map { $_ => 1 } @$cap_del },
+                              'cap_on_mod'  => \%cap_add_mod,
+                              'cap_off_mod' => \%cap_del_mod,
+                          });
 
-    if ($use_isam) {
-        $key = "PRIMARY" if $key eq "userid";
-        foreach my $v (@$vals) {
-            my $sth = $db->prepare("HANDLER user READ `$key` = (?) LIMIT 1");
-            $sth->execute($v);
-            my $row = $sth->fetchrow_hashref;
-            if ($row) {
-                my $u = LJ::User->new_from_row($row);
-                $hook->($u);
-                $last = $u;
-            }
-        }
-        $db->do("HANDLER user close");
-    } else {
-        my $in = join(", ", map { $db->quote($_) } @$vals);
-        my $sth = $db->prepare("SELECT * FROM user WHERE $key IN ($in)");
-        $sth->execute;
-        while (my $row = $sth->fetchrow_hashref) {
-            my $u = LJ::User->new_from_row($row);
-            $hook->($u);
-            $last = $u;
-        }
+        # hook should return a status code
+        return undef unless defined $res;
     }
 
-    return $last;
-}
+    # update user row
+    return 0 unless LJ::update_user($u, { 'caps' => $newcaps });
 
-sub _set_u_req_cache {
-    my $u = shift or die "no u to set";
-
-    # if we have an existing user singleton, upgrade it with
-    # the latested data, but keep using its address
-    if (my $eu = $LJ::REQ_CACHE_USER_ID{$u->{'userid'}}) {
-        LJ::assert_is($eu->{userid}, $u->{userid});
-        $eu->selfassert;
-        $u->selfassert;
-
-        $eu->{$_} = $u->{$_} foreach keys %$u;
-        $u = $eu;
-    }
-    $LJ::REQ_CACHE_USER_NAME{$u->{'user'}} = $u;
-    $LJ::REQ_CACHE_USER_ID{$u->{'userid'}} = $u;
+    $u->{caps} = $newcaps;
+    $argu->{caps} = $newcaps if ref $argu; # FIXME: temp hack
     return $u;
 }
 
-sub load_user_or_identity {
-    my $arg = shift;
-
-    my $user = LJ::canonical_username($arg);
-    return LJ::load_user($user) if $user;
-
-    # return undef if not dot in arg (can't be a URL)
-    return undef unless $arg =~ /\./;
-
-    my $dbh = LJ::get_db_writer();
-    my $url = lc($arg);
-    $url = "http://$url" unless $url =~ m!^http://!;
-    $url .= "/" unless $url =~ m!/$!;
-    my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
-                                    undef, 'O', $url);
-    return LJ::load_userid($uid) if $uid;
-    return undef;
-}
-
-# load either a username, or a "I,<userid>" parameter.
-sub load_user_arg {
-    my ($arg) = @_;
-    my $user = LJ::canonical_username($arg);
-    return LJ::load_user($user) if length $user;
-    if ($arg =~ /^I,(\d+)$/) {
-        my $u = LJ::load_userid($1);
-        return $u if $u->is_identity;
-    }
-    return; # undef/()
-}
-
-# <LJFUNC>
-# name: LJ::load_user
-# des: Loads a user record, from the [dbtable[user]] table, given a username.
-# args: dbarg?, user, force?
-# des-user: Username of user to load.
-# des-force: if set to true, won't return cached user object and will
-#            query a dbh.
-# returns: Hashref, with keys being columns of [dbtable[user]] table.
-# </LJFUNC>
-sub load_user
-{
-    &nodb;
-    my ($user, $force) = @_;
-
-    $user = LJ::canonical_username($user);
-    return undef unless length $user;
-
-    my $get_user = sub {
-        my $use_dbh = shift;
-        my $db = $use_dbh ? LJ::get_db_writer() : LJ::get_db_reader();
-        my $u = _load_user_raw($db, "user", $user)
-            or return undef;
-
-        # set caches since we got a u from the master
-        LJ::memcache_set_u($u) if $use_dbh;
-
-        return _set_u_req_cache($u);
-    };
-
-    # caller is forcing a master, return now
-    return $get_user->("master") if $force || $LJ::_PRAGMA_FORCE_MASTER;
-
-    my $u;
-
-    # return process cache if we have one
-    if ($u = $LJ::REQ_CACHE_USER_NAME{$user}) {
-        $u->selfassert;
-        return $u;
-    }
-
-    # check memcache
-    {
-        my $uid = LJ::MemCache::get("uidof:$user");
-        $u = LJ::memcache_get_u([$uid, "userid:$uid"]) if $uid;
-        return _set_u_req_cache($u) if $u;
-    }
-
-    # try to load from master if using memcache, otherwise from slave
-    $u = $get_user->(scalar @LJ::MEMCACHE_SERVERS);
-    return $u if $u;
-
-    # setup LDAP handler if this is the first time
-    if ($LJ::LDAP_HOST && ! $LJ::AUTH_EXISTS) {
-        require LJ::LDAP;
-        $LJ::AUTH_EXISTS = sub {
-            my $user = shift;
-            my $rec = LJ::LDAP::load_ldap_user($user);
-            return $rec ? $rec : undef;
-        };
-    }
-
-    # if user doesn't exist in the LJ database, it's possible we're using
-    # an external authentication source and we should create the account
-    # implicitly.
-    my $lu;
-    if (ref $LJ::AUTH_EXISTS eq "CODE" && ($lu = $LJ::AUTH_EXISTS->($user)))
-    {
-        my $name = ref $lu eq "HASH" ? ($lu->{'nick'} || $lu->{name} || $user) : $user;
-        if (LJ::create_account({
-            'user' => $user,
-            'name' => $name,
-            'email' => ref $lu eq "HASH" ? $lu->email_raw : "",
-            'password' => "",
-        }))
-        {
-            # this should pull from the master, since it was _just_ created
-            return $get_user->("master");
-        }
-    }
-
-    return undef;
-}
-
-# <LJFUNC>
-# name: LJ::u_equals
-# des: Compares two user objects to see if they are the same user.
-# args: userobj1, userobj2
-# des-userobj1: First user to compare.
-# des-userobj2: Second user to compare.
-# returns: Boolean, true if userobj1 and userobj2 are defined and have equal userids.
-# </LJFUNC>
-sub u_equals {
-    my ($u1, $u2) = @_;
-    return $u1 && $u2 && $u1->{'userid'} == $u2->{'userid'};
-}
-
-# <LJFUNC>
-# name: LJ::load_userid
-# des: Loads a user record, from the [dbtable[user]] table, given a userid.
-# args: dbarg?, userid, force?
-# des-userid: Userid of user to load.
-# des-force: if set to true, won't return cached user object and will
-#            query a dbh
-# returns: Hashref with keys being columns of [dbtable[user]] table.
-# </LJFUNC>
-sub load_userid
-{
-    &nodb;
-    my ($userid, $force) = @_;
-    return undef unless $userid;
-
-    my $get_user = sub {
-        my $use_dbh = shift;
-        my $db = $use_dbh ? LJ::get_db_writer() : LJ::get_db_reader();
-        my $u = _load_user_raw($db, "userid", $userid)
-            or return undef;
-
-        LJ::memcache_set_u($u) if $use_dbh;
-        return _set_u_req_cache($u);
-    };
-
-    # user is forcing master, return now
-    return $get_user->("master") if $force || $LJ::_PRAGMA_FORCE_MASTER;
-
-    my $u;
-
-    # check process cache
-    $u = $LJ::REQ_CACHE_USER_ID{$userid};
-    if ($u) {
-        $u->selfassert;
-        return $u;
-    }
-
-    # check memcache
-    $u = LJ::memcache_get_u([$userid,"userid:$userid"]);
-    return _set_u_req_cache($u) if $u;
-
-    # get from master if using memcache
-    return $get_user->("master") if @LJ::MEMCACHE_SERVERS;
-
-    # check slave
-    $u = $get_user->();
-    return $u if $u;
-
-    # if we didn't get a u from the reader, fall back to master
-    return $get_user->("master");
-}
-
-sub memcache_get_u
-{
-    my @keys = @_;
-    my @ret;
-    foreach my $ar (values %{LJ::MemCache::get_multi(@keys) || {}}) {
-        my $row = LJ::MemCache::array_to_hash("user", $ar)
-            or next;
-        my $u = LJ::User->new_from_row($row);
-        push @ret, $u;
-    }
-    return wantarray ? @ret : $ret[0];
-}
-
-sub memcache_set_u
-{
-    my $u = shift;
-    return unless $u;
-    my $expire = time() + 1800;
-    my $ar = LJ::MemCache::hash_to_array("user", $u);
-    return unless $ar;
-    LJ::MemCache::set([$u->{'userid'}, "userid:$u->{'userid'}"], $ar, $expire);
-    LJ::MemCache::set("uidof:$u->{user}", $u->{userid});
-}
-
-# <LJFUNC>
-# name: LJ::get_bio
-# des: gets a user bio, from DB or memcache.
-# args: u, force
-# des-force: true to get data from cluster master.
-# returns: string
-# </LJFUNC>
-sub get_bio {
-    my ($u, $force) = @_;
-    return unless $u && $u->{'has_bio'} eq "Y";
-
-    my $bio;
-
-    my $memkey = [$u->{'userid'}, "bio:$u->{'userid'}"];
-    unless ($force) {
-        my $bio = LJ::MemCache::get($memkey);
-        return $bio if defined $bio;
-    }
-
-    # not in memcache, fall back to disk
-    my $db = @LJ::MEMCACHE_SERVERS || $force ?
-      LJ::get_cluster_def_reader($u) : LJ::get_cluster_reader($u);
-    $bio = $db->selectrow_array("SELECT bio FROM userbio WHERE userid=?",
-                                undef, $u->{'userid'});
-
-    # set in memcache
-    LJ::MemCache::add($memkey, $bio);
-
-    return $bio;
-}
-
-# <LJFUNC>
-# name: LJ::journal_base
-# des: Returns URL of a user's journal.
-# info: The tricky thing is that users with underscores in their usernames
-#       can't have some_user.example.com as a hostname, so that's changed into
-#       some-user.example.com.
-# args: uuser, vhost?
-# des-uuser: User hashref or username of user whose URL to make.
-# des-vhost: What type of URL.  Acceptable options: "users", to make a
-#            http://user.example.com/ URL; "tilde" for http://example.com/~user/;
-#            "community" for http://example.com/community/user; or the default
-#            will be http://example.com/users/user.  If unspecified and uuser
-#            is a user hashref, then the best/preferred vhost will be chosen.
-# returns: scalar; a URL.
-# </LJFUNC>
-sub journal_base
-{
-    my ($user, $vhost) = @_;
-
-    if (! isu($user) && LJ::are_hooks("journal_base")) {
-        my $u = LJ::load_user($user);
-        $user = $u if $u;
-    }
-
-    if (isu($user)) {
-        my $u = $user;
-
-        my $hookurl = LJ::run_hook("journal_base", $u, $vhost);
-        return $hookurl if $hookurl;
-
-        $user = $u->{'user'};
-        unless (defined $vhost) {
-            if ($LJ::FRONTPAGE_JOURNAL eq $user) {
-                $vhost = "front";
-            } elsif ($u->{'journaltype'} eq "P") {
-                $vhost = "";
-            } elsif ($u->{'journaltype'} eq "C") {
-                $vhost = "community";
-            }
-
-        }
-    }
-
-    if ($vhost eq "users") {
-        my $he_user = $user;
-        $he_user =~ s/_/-/g;
-        return "http://$he_user.$LJ::USER_DOMAIN";
-    } elsif ($vhost eq "tilde") {
-        return "$LJ::SITEROOT/~$user";
-    } elsif ($vhost eq "community") {
-        return "$LJ::SITEROOT/community/$user";
-    } elsif ($vhost eq "front") {
-        return $LJ::SITEROOT;
-    } elsif ($vhost =~ /^other:(.+)/) {
-        return "http://$1";
-    } else {
-        return "$LJ::SITEROOT/users/$user";
-    }
-}
-
-
-# <LJFUNC>
-# name: LJ::load_user_privs
-# class:
-# des: loads all of the given privs for a given user into a hashref, inside
-#      the user record.  See also [func[LJ::check_priv]].
-# args: u, priv, arg?
-# des-priv: Priv names to load (see [dbtable[priv_list]]).
-# des-arg: Optional argument.  See also [func[LJ::check_priv]].
-# returns: boolean
-# </LJFUNC>
-sub load_user_privs
-{
-    &nodb;
-    my $remote = shift;
-    my @privs = @_;
-    return unless $remote and @privs;
-
-    # return if we've already loaded these privs for this user.
-    @privs = grep { ! $remote->{'_privloaded'}->{$_} } @privs;
-    return unless @privs;
-
-    my $dbr = LJ::get_db_reader();
-    return unless $dbr;
-    foreach (@privs) { $remote->{'_privloaded'}->{$_}++; }
-    @privs = map { $dbr->quote($_) } @privs;
-    my $sth = $dbr->prepare("SELECT pl.privcode, pm.arg ".
-                            "FROM priv_map pm, priv_list pl ".
-                            "WHERE pm.prlid=pl.prlid AND ".
-                            "pl.privcode IN (" . join(',',@privs) . ") ".
-                            "AND pm.userid=$remote->{'userid'}");
-    $sth->execute;
-    while (my ($priv, $arg) = $sth->fetchrow_array) {
-        unless (defined $arg) { $arg = ""; }  # NULL -> ""
-        $remote->{'_priv'}->{$priv}->{$arg} = 1;
-    }
-}
-
-# <LJFUNC>
-# name: LJ::check_priv
-# des: Check to see if a user has a certain privilege.
-# info: Usually this is used to check the privs of a $remote user.
-#       See [func[LJ::get_remote]].  As such, a $u argument of undef
-#       is okay to pass: 0 will be returned, as an unknown user can't
-#       have any rights.
-# args: dbarg?, u, priv, arg?
-# des-priv: Priv name to check for (see [dbtable[priv_list]])
-# des-arg: Optional argument.  If defined, function only returns true
-#          when $remote has a priv of type $priv also with arg $arg, not
-#          just any priv of type $priv, which is the behavior without
-#          an $arg. Arg can be "*", for all args.
-# returns: boolean; true if user has privilege
-# </LJFUNC>
-sub check_priv
-{
-    &nodb;
-    my ($u, $priv, $arg) = @_;
-    return 0 unless $u;
-
-    LJ::load_user_privs($u, $priv)
-        unless $u->{'_privloaded'}->{$priv};
-
-    # no access if they don't have the priv
-    return 0 unless defined $u->{'_priv'}->{$priv};
-
-    # at this point we know they have the priv
-    return 1 unless defined $arg;
-
-    # check if they have the right arguments
-    return 1 if defined $u->{'_priv'}->{$priv}->{$arg};
-    return 1 if defined $u->{'_priv'}->{$priv}->{"*"};
-
-    # don't have the right argument
-    return 0;
-}
-
-#
-#
-# <LJFUNC>
-# name: LJ::remote_has_priv
-# class:
-# des: Check to see if the given remote user has a certain privilege.
-# info: <strong>Deprecated</strong>.  You should
-#       use [func[LJ::load_user_privs]] + [func[LJ::check_priv]], instead.
-# args:
-# des-:
-# returns:
-# </LJFUNC>
-sub remote_has_priv
-{
-    &nodb;
-    my $remote = shift;
-    my $privcode = shift;     # required.  priv code to check for.
-    my $ref = shift;  # optional, arrayref or hashref to populate
-    return 0 unless ($remote);
-
-    ### authentication done.  time to authorize...
-
-    my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare("SELECT pm.arg FROM priv_map pm, priv_list pl WHERE pm.prlid=pl.prlid AND pl.privcode=? AND pm.userid=?");
-    $sth->execute($privcode, $remote->{'userid'});
-
-    my $match = 0;
-    if (ref $ref eq "ARRAY") { @$ref = (); }
-    if (ref $ref eq "HASH") { %$ref = (); }
-    while (my ($arg) = $sth->fetchrow_array) {
-        $match++;
-        if (ref $ref eq "ARRAY") { push @$ref, $arg; }
-        if (ref $ref eq "HASH") { $ref->{$arg} = 1; }
-    }
-    return $match;
-}
-
-# $dom: 'L' == log, 'T' == talk, 'M' == modlog, 'S' == session,
-#       'R' == memory (remembrance), 'K' == keyword id,
-#       'P' == phone post, 'C' == pending comment
-#       'O' == pOrtal box id, 'V' == 'vgift', 'E' == ESN subscription id
-#       'Q' == Notification Inbox, 'G' == 'SMS messaGe'
-#       'D' == 'moDule embed contents', 'I' == Import data block,
-#       'Z' == import status item
-#
-# FIXME: both phonepost and vgift are ljcom.  need hooks. but then also
-#        need a separate namespace.  perhaps a separate function/table?
-sub alloc_user_counter
-{
-    my ($u, $dom, $opts) = @_;
-    $opts ||= {};
-
-    ##################################################################
-    # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZ]$/;              #
-    ##################################################################
-
-    my $dbh = LJ::get_db_writer();
-    return undef unless $dbh;
-
-    my $newmax;
-    my $uid = $u->{'userid'}+0;
-    return undef unless $uid;
-    my $memkey = [$uid, "auc:$uid:$dom"];
-
-    # in a master-master DB cluster we need to be careful that in
-    # an automatic failover case where one cluster is slightly behind
-    # that the same counter ID isn't handed out twice.  use memcache
-    # as a sanity check to record/check latest number handed out.
-    my $memmax = int(LJ::MemCache::get($memkey) || 0);
-
-    my $rs = $dbh->do("UPDATE usercounter SET max=LAST_INSERT_ID(GREATEST(max,$memmax)+1) ".
-                      "WHERE journalid=? AND area=?", undef, $uid, $dom);
-    if ($rs > 0) {
-        $newmax = $dbh->selectrow_array("SELECT LAST_INSERT_ID()");
-
-        # if we've got a supplied callback, lets check the counter
-        # number for consistency.  If it fails our test, wipe
-        # the counter row and start over, initializing a new one.
-        # callbacks should return true to signal 'all is well.'
-        if ($opts->{callback} && ref $opts->{callback} eq 'CODE') {
-            my $rv = 0;
-            eval { $rv = $opts->{callback}->($u, $newmax) };
-            if ($@ or ! $rv) {
-                $dbh->do("DELETE FROM usercounter WHERE " .
-                         "journalid=? AND area=?", undef, $uid, $dom);
-                return LJ::alloc_user_counter($u, $dom);
-            }
-        }
-
-        LJ::MemCache::set($memkey, $newmax);
-        return $newmax;
-    }
-
-    if ($opts->{recurse}) {
-        # We shouldn't ever get here if all is right with the world.
-        return undef;
-    }
-
-    my $qry_map = {
-        # for entries:
-        'log'         => "SELECT MAX(jitemid) FROM log2     WHERE journalid=?",
-        'logtext'     => "SELECT MAX(jitemid) FROM logtext2 WHERE journalid=?",
-        'talk_nodeid' => "SELECT MAX(nodeid)  FROM talk2    WHERE nodetype='L' AND journalid=?",
-        # for comments:
-        'talk'     => "SELECT MAX(jtalkid) FROM talk2     WHERE journalid=?",
-        'talktext' => "SELECT MAX(jtalkid) FROM talktext2 WHERE journalid=?",
-    };
-
-    my $consider = sub {
-        my @tables = @_;
-        foreach my $t (@tables) {
-            my $res = $u->selectrow_array($qry_map->{$t}, undef, $uid);
-            $newmax = $res if $res > $newmax;
-        }
-    };
-
-    # Make sure the counter table is populated for this uid/dom.
-    if ($dom eq "L") {
-        # back in the ol' days IDs were reused (because of MyISAM)
-        # so now we're extra careful not to reuse a number that has
-        # foreign junk "attached".  turns out people like to delete
-        # each entry by hand, but we do lazy deletes that are often
-        # too lazy and a user can see old stuff come back alive
-        $consider->("log", "logtext", "talk_nodeid");
-    } elsif ($dom eq "T") {
-        # just paranoia, not as bad as above.  don't think we've ever
-        # run into cases of talktext without a talk, but who knows.
-        # can't hurt.
-        $consider->("talk", "talktext");
-    } elsif ($dom eq "M") {
-        $newmax = $u->selectrow_array("SELECT MAX(modid) FROM modlog WHERE journalid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "S") {
-        $newmax = $u->selectrow_array("SELECT MAX(sessid) FROM sessions WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "R") {
-        $newmax = $u->selectrow_array("SELECT MAX(memid) FROM memorable2 WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "K") {
-        $newmax = $u->selectrow_array("SELECT MAX(kwid) FROM userkeywords WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "P") {
-        my $userblobmax = $u->selectrow_array("SELECT MAX(blobid) FROM userblob WHERE journalid=? AND domain=?",
-                                              undef, $uid, LJ::get_blob_domainid("phonepost"));
-        my $ppemax = $u->selectrow_array("SELECT MAX(blobid) FROM phonepostentry WHERE userid=?",
-                                         undef, $uid);
-        $newmax = ($ppemax > $userblobmax) ? $ppemax : $userblobmax;
-    } elsif ($dom eq "C") {
-        $newmax = $u->selectrow_array("SELECT MAX(pendid) FROM pendcomments WHERE jid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "O") {
-        $newmax = $u->selectrow_array("SELECT MAX(pboxid) FROM portal_config WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "V") {
-        $newmax = $u->selectrow_array("SELECT MAX(giftid) FROM vgifts WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "E") {
-        $newmax = $u->selectrow_array("SELECT MAX(subid) FROM subs WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "Q") {
-        $newmax = $u->selectrow_array("SELECT MAX(qid) FROM notifyqueue WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "G") {
-        $newmax = $u->selectrow_array("SELECT MAX(msgid) FROM sms_msg WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "D") {
-        $newmax = $u->selectrow_array("SELECT MAX(moduleid) FROM embedcontent WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "I") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(import_data_id) FROM import_data WHERE userid=?",
-                                        undef, $uid);
-    } elsif ($dom eq "Z") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(import_status_id) FROM import_status WHERE userid=?",
-                                        undef, $uid);
-    } else {
-        die "No user counter initializer defined for area '$dom'.\n";
-    }
-    $newmax += 0;
-    $dbh->do("INSERT IGNORE INTO usercounter (journalid, area, max) VALUES (?,?,?)",
-             undef, $uid, $dom, $newmax) or return undef;
-
-    # The 2nd invocation of the alloc_user_counter sub should do the
-    # intended incrementing.
-    return LJ::alloc_user_counter($u, $dom, { recurse => 1 });
-}
-
-# <LJFUNC>
-# name: LJ::make_user_active
-# des:  Record user activity per cluster, on [dbtable[clustertrack2]], to
-#       make per-activity cluster stats easier.
-# args: userid, type
-# des-userid: source userobj ref
-# des-type: currently unused
-# </LJFUNC>
-sub mark_user_active {
-    my ($u, $type) = @_;  # not currently using type
-    return 0 unless $u;   # do not auto-vivify $u
-    my $uid = $u->{userid};
-    return 0 unless $uid && $u->{clusterid};
-
-    # Update the clustertrack2 table, but not if we've done it for this
-    # user in the last hour.  if no memcache servers are configured
-    # we don't do the optimization and just always log the activity info
-    if (@LJ::MEMCACHE_SERVERS == 0 ||
-        LJ::MemCache::add("rate:tracked:$uid", 1, 3600)) {
-
-        return 0 unless $u->writer;
-        my $active = time();
-        $u->do("REPLACE INTO clustertrack2 SET ".
-               "userid=?, timeactive=?, clusterid=?", undef,
-               $uid, $active, $u->{clusterid}) or return 0;
-        my $memkey = [$u->{userid}, "timeactive:$u->{userid}"];
-        LJ::MemCache::set($memkey, $active, 86400);
-    }
-    return 1;
-}
-
-# <LJFUNC>
-# name: LJ::infohistory_add
-# des: Add a line of text to the [[dbtable[infohistory]] table for an account.
-# args: uuid, what, value, other?
-# des-uuid: User id or user object to insert infohistory for.
-# des-what: What type of history is being inserted (15 chars max).
-# des-value: Value for the item (255 chars max).
-# des-other: Optional. Extra information / notes (30 chars max).
-# returns: 1 on success, 0 on error.
-# </LJFUNC>
-sub infohistory_add {
-    my ($uuid, $what, $value, $other) = @_;
-    $uuid = LJ::want_userid($uuid);
-    return unless $uuid && $what && $value;
-
-    # get writer and insert
-    my $dbh = LJ::get_db_writer();
-    my $gmt_now = LJ::mysql_time(time(), 1);
-    $dbh->do("INSERT INTO infohistory (userid, what, timechange, oldvalue, other) VALUES (?, ?, ?, ?, ?)",
-             undef, $uuid, $what, $gmt_now, $value, $other);
-    return $dbh->err ? 0 : 1;
-}
 
 # <LJFUNC>
 # name: LJ::set_userprop
@@ -5972,126 +6973,452 @@ sub set_userprop
     return 1;
 }
 
-# <LJFUNC>
-# name: LJ::get_shared_journals
-# des: Gets an array of shared journals a user has access to.
-# returns: An array of shared journals.
-# args: u
-# </LJFUNC>
-sub get_shared_journals
-{
-    my $u = shift;
-    my $ids = LJ::load_rel_target($u, 'A') || [];
 
-    # have to get usernames;
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
-    return sort map { $_->{'user'} } values %users;
-}
+########################################################################
+###  8. Formatting Content Shown to Users
 
-# <LJFUNC>
-# class: component
-# name: LJ::ljuser
-# des: Make link to userinfo/journal of user.
-# info: Returns the HTML for a userinfo/journal link pair for a given user
-#       name, just like LJUSER does in BML.  This is for files like cleanhtml.pl
-#       and ljpoll.pl which need this functionality too, but they aren't run as BML.
-# args: user, opts?
-# des-user: Username to link to, or user hashref.
-# des-opts: Optional hashref to control output.  Key 'full' when true causes
-#           a link to the mode=full userinfo.   Key 'type' when 'C' makes
-#           a community link, when 'Y' makes a syndicated account link,
-#           when 'I' makes an identity account link (e.g. OpenID),
-#           when 'N' makes a news account link, otherwise makes a user account
-#           link. If user parameter is a hashref, its 'journaltype' overrides
-#           this 'type'.  Key 'del', when true, makes a tag for a deleted user.
-#           If user parameter is a hashref, its 'statusvis' overrides 'del'.
-#           Key 'no_follow', when true, disables traversal of renamed users.
-# returns: HTML with a little head image & bold text link.
-# </LJFUNC>
-sub ljuser
-{
-    my $user = shift;
-    my $opts = shift;
 
-    my $andfull = $opts->{'full'} ? "?mode=full" : "";
-    my $img = $opts->{'imgroot'} || $LJ::IMGPREFIX;
-    my $profile_url = $opts->{'profile_url'} || '';
-    my $journal_url = $opts->{'journal_url'} || '';
-    my $profile;
+# Returns HTML to display user search results
+# Args: %args
+# des-args:
+#           users    => hash ref of userid => u object like LJ::load userids
+#                       returns or array ref of user objects
+#           userids  => array ref of userids to include in results, ignored
+#                       if users is defined
+#           timesort => set to 1 to sort by last updated instead
+#                       of username
+#           perpage  => Enable pagination and how many users to display on
+#                       each page
+#           curpage  => What page of results to display
+#           navbar   => Scalar reference for paging bar
+#           pickwd   => userpic keyword to display instead of default if it
+#                       exists for the user
+#           self_link => Sub ref to generate link to use for pagination
+sub user_search_display {
+    my %args = @_;
 
-    my $make_tag = sub {
-        my ($fil, $url, $x, $y) = @_;
-        $y ||= $x;  # make square if only one dimension given
-        my $strike = $opts->{'del'} ? ' text-decoration: line-through;' : '';
-
-        # Backwards check, because we want it to default to on
-        my $bold = (exists $opts->{'bold'} and $opts->{'bold'} == 0) ? 0 : 1;
-        my $ljusername = $bold ? "<b>$user</b>" : "$user";
-
-        my $link_color = "";
-        # Make sure it's really a color
-        if ($opts->{'link_color'} && $opts->{'link_color'} =~ /^#([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$/) {
-            $link_color = " style='color: " . $opts->{'link_color'} . ";'";
+    my $loaded_users;
+    unless (defined $args{users}) {
+        $loaded_users = LJ::load_userids(@{$args{userids}});
+    } else {
+        if (ref $args{users} eq 'HASH') { # Assume this is direct from LJ::load_userids
+            $loaded_users = $args{users};
+        } elsif (ref $args{users} eq 'ARRAY') { # They did a grep on it or something
+            foreach (@{$args{users}}) {
+                $loaded_users->{$_->{userid}} = $_;
+            }
+        } else {
+            return undef;
         }
+    }
 
-        $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
-        $url = $journal_url ne '' ? $journal_url : $url;
+    # If we're sorting by last updated, we need to load that
+    # info for all users before the sort.  If sorting by
+    # username we can load it for a subset of users later,
+    # if paginating.
+    my $updated;
+    my @display;
 
-        return "<span class='ljuser' lj:user='$user' style='white-space: nowrap;$strike'><a href='$profile'><img src='$img/$fil' alt='[info]' width='$x' height='$y' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url'$link_color>$ljusername</a></span>";
+    if ($args{timesort}) {
+        $updated = LJ::get_timeupdate_multi(keys %$loaded_users);
+        @display = sort { $updated->{$b->{userid}} <=> $updated->{$a->{userid}} } values %$loaded_users;
+    } else {
+        @display = sort { $a->{user} cmp $b->{user} } values %$loaded_users;
+    }
+
+    if (defined $args{perpage}) {
+        my %items = BML::paging(\@display, $args{curpage}, $args{perpage});
+
+        # Fancy paging bar
+        my $opts;
+        $opts->{self_link} = $args{self_link} if $args{self_link};
+        ${$args{navbar}} = LJ::paging_bar($items{'page'}, $items{'pages'}, $opts);
+
+        # Now pull out the set of users to display
+        @display = @{$items{'items'}};
+    }
+
+    # If we aren't sorting by time updated, load last updated time for the
+    # set of users we are displaying.
+    $updated = LJ::get_timeupdate_multi(map { $_->{userid} } @display)
+        unless $args{timesort};
+
+    # Allow caller to specify a custom userpic to use instead
+    # of the user's default all userpics
+    my $get_picid = sub {
+        my $u = shift;
+        return $u->{'defaultpicid'} unless $args{'pickwd'};
+        return LJ::get_picid_from_keyword($u, $args{'pickwd'});
     };
 
-    my $u = isu($user) ? $user : LJ::load_user($user);
+    my $ret;
+    foreach my $u (@display) {
+        # We should always have loaded user objects, but it seems
+        # when the site is overloaded we don't always load the users
+        # we request.
+        next unless LJ::isu($u);
 
-    # Traverse the renames to the final journal
-    if ($u && !$opts->{'no_follow'}) {
-        $u = $u->get_renamed_user;
-    }
+        $ret .= "<div class='user-search-display'>";
+        $ret .= "<table style='height: 105px'><tr>";
 
-    # if invalid user, link to dummy userinfo page
-    unless ($u && isu($u)) {
-        $user = LJ::canonical_username($user);
-        $profile = "$LJ::SITEROOT/userinfo.bml?user=$user";
-        return $make_tag->('userinfo.gif', "$LJ::SITEROOT/userinfo.bml?user=$user", 17);
-    }
-
-    $profile = $u->profile_url;
-
-    my $type = $u->{'journaltype'};
-
-    # Mark accounts as deleted that aren't visible, memorial, locked, or read-only
-    $opts->{'del'} = 1 unless $u->is_visible || $u->is_memorial || $u->is_locked || $u->is_readonly;
-    $user = $u->{'user'};
-
-    my $url = $u->journal_base . "/";
-    my $head_size = $opts->{head_size};
-
-    if (my ($icon, $size) = LJ::run_hook("head_icon", $u, head_size => $head_size)) {
-        return $make_tag->($icon, $url, $size || 16) if $icon;
-    }
-
-    if ($type eq 'C') {
-        return $make_tag->("comm_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('community.gif', $url, 16);
-    } elsif ($type eq 'Y') {
-        return $make_tag->("syn_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('syndicated.gif', $url, 16);
-    } elsif ($type eq 'N') {
-        return $make_tag->("news_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('newsinfo.gif', $url, 16);
-    } elsif ($type eq 'I') {
-        return $u->ljuser_display($opts);
-    } else {
-        if ( $u->get_cap( 'staff_headicon' ) == 1 ) {
-            return $make_tag->( "staff_${head_size}.gif", $url, $head_size ) if $head_size;
-            return $make_tag->( 'staffinfo.gif', $url, 17 );
+        $ret .= "<td style='width: 100px; text-align: center;'>";
+        $ret .= "<a href='/allpics.bml?user=$u->{user}'>";
+        if (my $picid = $get_picid->($u)) {
+            $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/$u->{userid}' alt='$u->{user} userpic' style='border: 1px solid #000;' />";
+        } else {
+            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='no default userpic' style='border: 1px solid #000;' width='100' height='100' />";
         }
-        else {
-            return $make_tag->( "user_${head_size}.gif", $url, $head_size ) if $head_size;
-            return $make_tag->( 'userinfo.gif', $url, 17 );
+        $ret .= "</a>";
+
+        $ret .= "</td><td style='padding-left: 5px;' valign='top'><table>";
+
+        $ret .= "<tr><td class='searchusername' colspan='2' style='text-align: left;'>";
+        $ret .= $u->ljuser_display({ head_size => $args{head_size} });
+        $ret .= "</td></tr><tr>";
+
+        if ($u->{name}) {
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Name:</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
+            $ret .= LJ::ehtml($u->{name});
+            $ret .= "</a>";
+            $ret .= "</td></tr><tr>";
         }
+
+        if (my $jtitle = $u->prop('journaltitle')) {
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Journal:</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
+            $ret .= LJ::ehtml($jtitle) . "</a>";
+            $ret .= "</td></tr>";
+        }
+
+        $ret .= "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
+
+        if ($updated->{$u->{'userid'}} > 0) {
+            $ret .= "Updated ";
+            $ret .= LJ::ago_text(time() - $updated->{$u->{'userid'}});
+        } else {
+            $ret .= "Never updated";
+        }
+
+        $ret .= "</td></tr>";
+
+        $ret .= "</table>";
+        $ret .= "</td></tr>";
+        $ret .= "</table></div>";
     }
+
+    return $ret;
 }
+
+
+########################################################################
+###  9. Logging and Recording Actions
+
+# <LJFUNC>
+# name: LJ::infohistory_add
+# des: Add a line of text to the [[dbtable[infohistory]] table for an account.
+# args: uuid, what, value, other?
+# des-uuid: User id or user object to insert infohistory for.
+# des-what: What type of history is being inserted (15 chars max).
+# des-value: Value for the item (255 chars max).
+# des-other: Optional. Extra information / notes (30 chars max).
+# returns: 1 on success, 0 on error.
+# </LJFUNC>
+sub infohistory_add {
+    my ($uuid, $what, $value, $other) = @_;
+    $uuid = LJ::want_userid($uuid);
+    return unless $uuid && $what && $value;
+
+    # get writer and insert
+    my $dbh = LJ::get_db_writer();
+    my $gmt_now = LJ::mysql_time(time(), 1);
+    $dbh->do("INSERT INTO infohistory (userid, what, timechange, oldvalue, other) VALUES (?, ?, ?, ?, ?)",
+             undef, $uuid, $what, $gmt_now, $value, $other);
+    return $dbh->err ? 0 : 1;
+}
+
+
+# returns 1 if action is permitted.  0 if above rate or fail.
+sub rate_check {
+    my ($u, $ratename, $count, $opts) = @_;
+
+    my $rateperiod = LJ::get_cap($u, "rateperiod-$ratename");
+    return 1 unless $rateperiod;
+
+    my $rp = defined $opts->{'rp'} ? $opts->{'rp'}
+             : LJ::get_prop("rate", $ratename);
+    return 0 unless $rp;
+
+    my $now = defined $opts->{'now'} ? $opts->{'now'} : time();
+    my $beforeperiod = $now - $rateperiod;
+
+    # check rate.  (okay per period)
+    my $opp = LJ::get_cap($u, "rateallowed-$ratename");
+    return 1 unless $opp;
+
+    # check memcache, except in the case of rate limiting by ip
+    my $memkey = $u->rate_memkey($rp);
+    unless ($opts->{limit_by_ip}) {
+        my $attempts = LJ::MemCache::get($memkey);
+        if ($attempts) {
+            my $num_attempts = 0;
+            foreach my $attempt (@$attempts) {
+                next if $attempt->{evttime} < $beforeperiod;
+                $num_attempts += $attempt->{quantity};
+            }
+
+            return $num_attempts + $count > $opp ? 0 : 1;
+        }
+    }
+
+    return 0 unless $u->writer;
+
+    # delete inapplicable stuff (or some of it)
+    $u->do("DELETE FROM ratelog WHERE userid=$u->{'userid'} AND rlid=$rp->{'id'} ".
+           "AND evttime < $beforeperiod LIMIT 1000");
+
+    my $udbr = LJ::get_cluster_reader($u);
+    my $ip = defined $opts->{'ip'}
+             ? $opts->{'ip'}
+             : $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
+    my $sth = $udbr->prepare("SELECT evttime, quantity FROM ratelog WHERE ".
+                             "userid=$u->{'userid'} AND rlid=$rp->{'id'} ".
+                             "AND ip=INET_ATON($ip) ".
+                             "AND evttime > $beforeperiod");
+    $sth->execute;
+
+    my @memdata;
+    my $sum = 0;
+    while (my $data = $sth->fetchrow_hashref) {
+        push @memdata, $data;
+        $sum += $data->{quantity};
+    }
+
+    # set memcache, except in the case of rate limiting by ip
+    unless ($opts->{limit_by_ip}) {
+        LJ::MemCache::set( $memkey => \@memdata || [] );
+    }
+
+    # would this transaction go over the limit?
+    if ($sum + $count > $opp) {
+        # TODO: optionally log to rateabuse, unless caller is doing it themselves
+        # somehow, like with the "loginstall" table.
+        return 0;
+    }
+
+    return 1;
+}
+
+
+# returns 1 if action is permitted.  0 if above rate or fail.
+# action isn't logged on fail.
+#
+# opts keys:
+#   -- "limit_by_ip" => "1.2.3.4"  (when used for checking rate)
+#   --
+sub rate_log
+{
+    my ($u, $ratename, $count, $opts) = @_;
+    my $rateperiod = LJ::get_cap($u, "rateperiod-$ratename");
+    return 1 unless $rateperiod;
+
+    return 0 unless $u->writer;
+
+    my $rp = LJ::get_prop("rate", $ratename);
+    return 0 unless $rp;
+    $opts->{'rp'} = $rp;
+
+    my $now = time();
+    $opts->{'now'} = $now;
+    my $udbr = LJ::get_cluster_reader($u);
+    my $ip = $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
+    $opts->{'ip'} = $ip;
+    return 0 unless LJ::rate_check($u, $ratename, $count, $opts);
+
+    # log current
+    $count = $count + 0;
+    $u->do("INSERT INTO ratelog (userid, rlid, evttime, ip, quantity) VALUES ".
+           "($u->{'userid'}, $rp->{'id'}, $now, INET_ATON($ip), $count)");
+
+    # delete memcache, except in the case of rate limiting by ip
+    unless ($opts->{limit_by_ip}) {
+        LJ::MemCache::delete($u->rate_memkey($rp));
+    }
+
+    return 1;
+}
+
+
+########################################################################
+###  12. Comment-Related Functions
+
+# <LJFUNC>
+# name: LJ::delete_all_comments
+# des: deletes all comments from a post, permanently, for when a post is deleted
+# info: The tables [dbtable[talk2]], [dbtable[talkprop2]], [dbtable[talktext2]],
+#       are deleted from, immediately.
+# args: u, nodetype, nodeid
+# des-nodetype: The thread nodetype (probably 'L' for log items).
+# des-nodeid: The thread nodeid for the given nodetype (probably the jitemid
+#             from the [dbtable[log2]] row).
+# returns: boolean; success value
+# </LJFUNC>
+sub delete_all_comments {
+    my ($u, $nodetype, $nodeid) = @_;
+
+    my $dbcm = LJ::get_cluster_master($u);
+    return 0 unless $dbcm && $u->writer;
+
+    # delete comments
+    my ($t, $loop) = (undef, 1);
+    my $chunk_size = 200;
+    while ($loop &&
+           ($t = $dbcm->selectcol_arrayref("SELECT jtalkid FROM talk2 WHERE ".
+                                           "nodetype=? AND journalid=? ".
+                                           "AND nodeid=? LIMIT $chunk_size", undef,
+                                           $nodetype, $u->{'userid'}, $nodeid))
+           && $t && @$t)
+    {
+        my $in = join(',', map { $_+0 } @$t);
+        return 1 unless $in;
+        foreach my $table (qw(talkprop2 talktext2 talk2)) {
+            $u->do("DELETE FROM $table WHERE journalid=? AND jtalkid IN ($in)",
+                   undef, $u->{'userid'});
+        }
+        # decrement memcache
+        LJ::MemCache::decr([$u->{'userid'}, "talk2ct:$u->{'userid'}"], scalar(@$t));
+        $loop = 0 unless @$t == $chunk_size;
+    }
+    return 1;
+
+}
+
+
+########################################################################
+###  13. Community-Related Functions and Authas
+
+
+sub can_delete_journal_item {
+    return LJ::can_manage(@_);
+}
+
+
+# <LJFUNC>
+# name: LJ::can_manage
+# des: Given a user and a target user, will determine if the first user is an
+#      admin for the target user.
+# returns: bool: true if authorized, otherwise fail
+# args: remote, u
+# des-remote: user object or userid of user to try and authenticate
+# des-u: user object or userid of target user
+# </LJFUNC>
+sub can_manage {
+    my $remote = LJ::want_user(shift);
+    my $u = LJ::want_user(shift);
+    return undef unless $remote && $u;
+
+    # is same user?
+    return 1 if LJ::u_equals($u, $remote);
+
+    # people/syn/rename accounts can only be managed by the one account
+    return undef if $u->{journaltype} =~ /^[PYR]$/;
+
+    # check for admin access
+    return undef unless LJ::check_rel($u, $remote, 'A');
+
+    # passed checks, return true
+    return 1;
+}
+
+
+# <LJFUNC>
+# name: LJ::can_manage_other
+# des: Given a user and a target user, will determine if the first user is an
+#      admin for the target user, but not if the two are the same.
+# args: remote, u
+# des-remote: user object or userid of user to try and authenticate
+# des-u: user object or userid of target user
+# returns: bool: true if authorized, otherwise fail
+# </LJFUNC>
+sub can_manage_other {
+    my ($remote, $u) = @_;
+    return 0 if LJ::want_userid($remote) == LJ::want_userid($u);
+    return LJ::can_manage($remote, $u);
+}
+
+
+# <LJFUNC>
+# name: LJ::get_authas_list
+# des: Get a list of usernames a given user can authenticate as.
+# returns: an array of usernames.
+# args: u, opts?
+# des-opts: Optional hashref.  keys are:
+#           - type: 'P' to only return users of journaltype 'P'.
+#           - cap:  cap to filter users on.
+# </LJFUNC>
+sub get_authas_list {
+    my ($u, $opts) = @_;
+
+    # used to accept a user type, now accept an opts hash
+    $opts = { 'type' => $opts } unless ref $opts;
+
+    # Two valid types, Personal or Community
+    $opts->{'type'} = undef unless $opts->{'type'} =~ m/^(P|C)$/;
+
+    my $ids = LJ::load_rel_target($u, 'A');
+    return undef unless $ids;
+
+    # load_userids_multiple
+    my %users;
+    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
+
+    return map { $_->{'user'} }
+               grep { ! $opts->{'cap'} || LJ::get_cap($_, $opts->{'cap'}) }
+               grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
+
+               # unless overridden, hide non-visible/non-read-only journals. always display the user's acct
+               grep { $opts->{'showall'} || $_->is_visible || $_->is_readonly || LJ::u_equals($_, $u) }
+
+               # can't work as an expunged account
+               grep { !$_->is_expunged && $_->{clusterid} > 0 }
+               $u,  sort { $a->{'user'} cmp $b->{'user'} } values %users;
+}
+
+
+# <LJFUNC>
+# name: LJ::get_postto_list
+# des: Get the list of usernames a given user can post to.
+# returns: an array of usernames
+# args: u, opts?
+# des-opts: Optional hashref.  keys are:
+#           - type: 'P' to only return users of journaltype 'P'.
+#           - cap:  cap to filter users on.
+# </LJFUNC>
+sub get_postto_list {
+    my ($u, $opts) = @_;
+
+    # used to accept a user type, now accept an opts hash
+    $opts = { 'type' => $opts } unless ref $opts;
+
+    # only one valid type right now
+    $opts->{'type'} = 'P' if $opts->{'type'};
+
+    my $ids = LJ::load_rel_target($u, 'P');
+    return undef unless $ids;
+
+    # load_userids_multiple
+    my %users;
+    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
+
+    return $u->{'user'}, sort map { $_->{'user'} }
+                         grep { ! $opts->{'cap'} || LJ::get_cap($_, $opts->{'cap'}) }
+                         grep { ! $opts->{'type'} || $opts->{'type'} eq $_->{'journaltype'} }
+                         grep { $_->clusterid > 0 }
+                         grep { $_->is_visible }
+                         values %users;
+}
+
+
+########################################################################
+###  15. Email-Related Functions
 
 sub set_email {
     my ($userid, $email) = @_;
@@ -6111,243 +7438,159 @@ sub set_email {
     $cache->{'_email'} = $email;
 }
 
-sub set_password {
-    my ($userid, $password) = @_;
 
-    my $dbh = LJ::get_db_writer();
-    if ($LJ::DEBUG{'write_passwords_to_user_table'}) {
-        $dbh->do("UPDATE user SET password=? WHERE userid=?", undef,
-                 $password, $userid);
-    }
-    $dbh->do("REPLACE INTO password (userid, password) VALUES (?, ?)",
-             undef, $userid, $password);
-
-    # update caches
-    LJ::memcache_kill($userid, "userid");
-    LJ::MemCache::delete([$userid, "pw:$userid"]);
-    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
-    $cache->{'_password'} = $password;
-}
-
-sub update_user
-{
-    my ($arg, $ref) = @_;
-    my @uid;
-
-    if (ref $arg eq "ARRAY") {
-        @uid = @$arg;
-    } else {
-        @uid = want_userid($arg);
-    }
-    @uid = grep { $_ } map { $_ + 0 } @uid;
-    return 0 unless @uid;
-
-    my @sets;
-    my @bindparams;
-    my $used_raw = 0;
-    while (my ($k, $v) = each %$ref) {
-        if ($k eq "raw") {
-            $used_raw = 1;
-            push @sets, $v;
-        } elsif ($k eq 'email') {
-            set_email($_, $v) foreach @uid;
-        } elsif ($k eq 'password') {
-            set_password($_, $v) foreach @uid;
-        } else {
-            push @sets, "$k=?";
-            push @bindparams, $v;
-        }
-    }
-    return 1 unless @sets;
-    my $dbh = LJ::get_db_writer();
-    return 0 unless $dbh;
-    {
-        local $" = ",";
-        my $where = @uid == 1 ? "userid=$uid[0]" : "userid IN (@uid)";
-        $dbh->do("UPDATE user SET @sets WHERE $where", undef,
-                 @bindparams);
-        return 0 if $dbh->err;
-    }
-    if (@LJ::MEMCACHE_SERVERS) {
-        LJ::memcache_kill($_, "userid") foreach @uid;
-    }
-
-    if ($used_raw) {
-        # for a load of userids from the master after update
-        # so we pick up the values set via the 'raw' option
-        require_master(sub { LJ::load_userids(@uid) });
-    } else {
-        foreach my $uid (@uid) {
-            while (my ($k, $v) = each %$ref) {
-                my $cache = $LJ::REQ_CACHE_USER_ID{$uid} or next;
-                $cache->{$k} = $v;
-            }
-        }
-    }
-
-    # log this updates
-    LJ::run_hooks("update_user", userid => $_, fields => $ref)
-        for @uid;
-
-    return 1;
-}
+########################################################################
+###  16. Entry-Related Functions
 
 # <LJFUNC>
-# name: LJ::get_timezone
-# des: Gets the timezone offset for the user.
-# args: u, offsetref, fakedref
-# des-u: user object.
-# des-offsetref: reference to scalar to hold timezone offset;
-# des-fakedref: reference to scalar to hold whether this timezone was
-#               faked.  0 if it is the timezone specified by the user.
-# returns: nonzero if successful.
+# name: LJ::can_view
+# des: Checks to see if the remote user can view a given journal entry.
+#      <b>Note:</b> This is meant for use on single entries at a time,
+#      not for calling many times on every entry in a journal.
+# returns: boolean; 1 if remote user can see item
+# args: remote, item
+# des-item: Hashref from the 'log' table.
 # </LJFUNC>
-sub get_timezone {
-    my ($u, $offsetref, $fakedref) = @_;
+sub can_view
+{
 
-    # See if the user specified their timezone
-    if (my $tz = $u->prop('timezone')) {
-        # If the eval fails, we'll fall through to guessing instead
-        my $dt = eval {
-            DateTime->from_epoch(
-                                 epoch => time(),
-                                 time_zone => $tz,
-                                 );
-        };
+# TODO: fold this into LJ::Entry->visible_to :(
 
-        if ($dt) {
-            $$offsetref = $dt->offset() / (60 * 60); # Convert from seconds to hours
-            $$fakedref  = 0 if $fakedref;
+    &nodb;
+    my $remote = shift;
+    my $item = shift;
 
-            return 1;
-        }
-    }
+    # public is okay
+    return 1 if $item->{'security'} eq "public";
 
-    # Either the user hasn't set a timezone or we failed at
-    # loading it.  We guess their current timezone's offset
-    # by comparing the gmtime of their last post with the time
-    # they specified on that post.
+    # must be logged in otherwise
+    return 0 unless $remote;
 
-    # first, check request cache
-    my $timezone = $u->{_timezone_guess};
-    if ($timezone) {
-        $$offsetref = $timezone;
-        return 1;
-    }
+    my $userid = int($item->{'ownerid'} || $item->{'journalid'});
+    my $remoteid = int($remote->{'userid'});
 
-    # next, check memcache
-    my $memkey = [$u->userid, 'timezone_guess:' . $u->userid];
-    my $memcache_data = LJ::MemCache::get($memkey);
-    if ($memcache_data) {
-        # fill the request cache since it was empty
-        $u->{_timezone_guess} = $memcache_data;
-        $$offsetref = $memcache_data;
-        return 1;
-    }
+    # owners can always see their own.
+    return 1 if $userid == $remoteid;
 
-    # nothing in cache; check db
-    my $dbcr = LJ::get_cluster_def_reader($u);
-    return 0 unless $dbcr;
+    # other people can't read private
+    return 0 if $item->{'security'} eq "private";
 
-    $$fakedref = 1 if $fakedref;
+    # should be 'usemask' security from here out, otherwise
+    # assume it's something new and return 0
+    return 0 unless $item->{'security'} eq "usemask";
 
-    # grab the times on the last post that wasn't backdated.
-    # (backdated is rlogtime == $LJ::EndOfTime)
-    if (my $last_row = $dbcr->selectrow_hashref(
-        qq{
-            SELECT rlogtime, eventtime
-            FROM log2
-            WHERE journalid = ? AND rlogtime <> ?
-            ORDER BY rlogtime LIMIT 1
-        }, undef, $u->{userid}, $LJ::EndOfTime)) {
-        my $logtime = $LJ::EndOfTime - $last_row->{'rlogtime'};
-        my $eventtime = LJ::mysqldate_to_time($last_row->{'eventtime'}, 1);
-        my $hourdiff = ($eventtime - $logtime) / 3600;
+    # if it's usemask, we have to refuse non-personal journals,
+    # so we have to load the user
+    return 0 unless $remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I';
 
-        # if they're up to a quarter hour behind, round up.
-        $hourdiff = $hourdiff > 0 ? int($hourdiff + 0.25) : int($hourdiff - 0.25);
+    # this far down we have to load the user
+    my $u = LJ::want_user( $userid ) or return 0;
 
-        # if the offset is more than 24h in either direction, then the last
-        # entry is probably unreliable. don't use any offset at all.
-        $$offsetref = (-24 < $hourdiff && $hourdiff < 24) ? $hourdiff : 0;
+    # check if it's a community and they're a member
+    return 1 if $u->is_community &&
+                $remote->member_of( $u );
 
-        # set the caches
-        $u->{_timezone_guess} = $$offsetref;
-        my $expire = 60*60*24; # 24 hours
-        LJ::MemCache::set($memkey, $$offsetref, $expire);
-    }
-
-    return 1;
+    # now load allowmask
+    my $allowed = ( $u->trustmask( $remoteid ) & int($item->{'allowmask'}) );
+    return $allowed ? 1 : 0;  # no need to return matching mask
 }
 
-# returns undef on error, or otherwise arrayref of arrayrefs,
-# each of format [ year, month, day, count ] for all days with
-# non-zero count.  examples:
-#  [ [ 2003, 6, 5, 3 ], [ 2003, 6, 8, 4 ], ... ]
-#
-sub get_daycounts
+
+########################################################################
+###  17. Interest-Related Functions
+
+# $opts is optional, with keys:
+#    forceids => 1   : don't use memcache for loading the intids
+#    forceints => 1   : don't use memcache for loading the interest rows
+#    justids => 1 : return arrayref of intids only, not names/counts
+# returns otherwise an arrayref of interest rows, sorted by interest name
+sub get_interests
 {
-    my ($u, $remote, $not_memcache) = @_;
-    # NOTE: $remote not yet used.  one of the oldest LJ shortcomings is that
-    # it's public how many entries users have per-day, even if the entries
-    # are protected.  we'll be fixing that with a new table, but first
-    # we're moving everything to this API.
+    my ($u, $opts) = @_;
+    $opts ||= {};
+    return undef unless $u;
 
-    $u = LJ::want_user( $u ) or return undef;
-    my $uid = $u->id;
-
-    my $memkind = 'p'; # public only, changed below
-    my $secwhere = "AND security='public'";
-    my $viewall = 0;
-    if ($remote) {
-        # do they have the viewall priv?
-        my $r = eval { Apache->request; }; # web context
-        my %getargs = $r->args if $r;
-        if (defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and LJ::check_priv($remote, 'canview', '*')) {
-            $viewall = 1;
-            LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                "viewall", "calendar");
+    # first check request cache inside $u
+    if (my $ints = $u->{_cache_interests}) {
+        if ($opts->{justids}) {
+            return [ map { $_->[0] } @$ints ];
         }
+        return $ints;
+    }
 
-        if ($remote->{'userid'} == $uid || $viewall) {
-            $secwhere = "";   # see everything
-            $memkind = 'a'; # all
-        } elsif ($remote->{'journaltype'} eq 'P') {
-            my $gmask = $u->trustmask( $remote );
-            if ($gmask) {
-                $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))";
-                $memkind = 'g' . $gmask; # friends case: allowmask == gmask == 1
+    my $uid = $u->{userid};
+    my $uitable = $u->{'journaltype'} eq 'C' ? 'comminterests' : 'userinterests';
+
+    # load the ids
+    my $ids;
+    my $mk_ids = [$uid, "intids:$uid"];
+    $ids = LJ::MemCache::get($mk_ids) unless $opts->{'forceids'};
+    unless ($ids && ref $ids eq "ARRAY") {
+        $ids = [];
+        my $dbh = LJ::get_db_writer();
+        my $sth = $dbh->prepare("SELECT intid FROM $uitable WHERE userid=?");
+        $sth->execute($uid);
+        push @$ids, $_ while ($_) = $sth->fetchrow_array;
+        LJ::MemCache::add($mk_ids, $ids, 3600*12);
+    }
+
+    # FIXME: set a 'justids' $u cache key in this case, then only return that
+    #        later if 'justids' is requested?  probably not worth it.
+    return $ids if $opts->{'justids'};
+
+    # load interest rows
+    my %need;
+    $need{$_} = 1 foreach @$ids;
+    my @ret;
+
+    unless ($opts->{'forceints'}) {
+        if (my $mc = LJ::MemCache::get_multi(map { [$_, "introw:$_"] } @$ids)) {
+            while (my ($k, $v) = each %$mc) {
+                next unless $k =~ /^introw:(\d+)/;
+                delete $need{$1};
+                push @ret, $v;
             }
         }
     }
 
-    ##
-    ## the first element of array, that is stored in memcache,
-    ## is the time of the creation of the list. The memcache is
-    ## invalid if there are new entries in journal since that time.
-    ##
-    my $memkey = [$uid, "dayct2:$uid:$memkind"];
-    unless ($not_memcache) {
-        my $list = LJ::MemCache::get($memkey);
-        if ($list) {
-            my $list_create_time = shift @$list;
-            return $list if $list_create_time >= $u->timeupdate;
+    if (%need) {
+        my $ids = join(",", map { $_+0 } keys %need);
+        my $dbr = LJ::get_db_reader();
+        my $sth = $dbr->prepare("SELECT intid, interest, intcount FROM interests ".
+                                "WHERE intid IN ($ids)");
+        $sth->execute;
+        my $memc_store = 0;
+        while (my ($intid, $int, $count) = $sth->fetchrow_array) {
+            # minimize latency... only store 25 into memcache at a time
+            # (too bad we don't have set_multi.... hmmmm)
+            my $aref = [$intid, $int, $count];
+            if ($memc_store++ < 25) {
+                # if the count is fairly high, keep item in memcache longer,
+                # since count's not so important.
+                my $expire = $count < 10 ? 3600*12 : 3600*48;
+                LJ::MemCache::add([$intid, "introw:$intid"], $aref, $expire);
+            }
+            push @ret, $aref;
         }
     }
 
-    my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
-    my $sth = $dbcr->prepare("SELECT year, month, day, COUNT(*) ".
-                             "FROM log2 WHERE journalid=? $secwhere GROUP BY 1, 2, 3");
-    $sth->execute($uid);
-    my @days;
-    while (my ($y, $m, $d, $c) = $sth->fetchrow_array) {
-        # we force each number from string scalars (from DBI) to int scalars,
-        # so they store smaller in memcache
-        push @days, [ int($y), int($m), int($d), int($c) ];
-    }
-    LJ::MemCache::add($memkey, [time, @days]);
-    return \@days;
+    @ret = sort { $a->[1] cmp $b->[1] } @ret;
+    return $u->{_cache_interests} = \@ret;
 }
+
+
+sub interest_string_to_list {
+    my $intstr = shift;
+
+    $intstr =~ s/^\s+//;  # strip leading space
+    $intstr =~ s/\s+$//;  # strip trailing space
+    $intstr =~ s/\n/,/g;  # newlines become commas
+    $intstr =~ s/\s+/ /g; # strip duplicate spaces from the interest
+
+    # final list is ,-sep
+    return grep { length } split (/\s*,\s*/, $intstr);
+}
+
 
 # <LJFUNC>
 # name: LJ::set_interests
@@ -6467,6 +7710,7 @@ sub set_interests
     return 1;
 }
 
+
 sub validate_interest_list {
     my $interrors = ref $_[0] eq "ARRAY" ? shift : [];
     my @ints = @_;
@@ -6505,417 +7749,10 @@ sub validate_interest_list {
     }
     return @valid_ints;
 }
-sub interest_string_to_list {
-    my $intstr = shift;
 
-    $intstr =~ s/^\s+//;  # strip leading space
-    $intstr =~ s/\s+$//;  # strip trailing space
-    $intstr =~ s/\n/,/g;  # newlines become commas
-    $intstr =~ s/\s+/ /g; # strip duplicate spaces from the interest
 
-    # final list is ,-sep
-    return grep { length } split (/\s*,\s*/, $intstr);
-}
-
-# $opts is optional, with keys:
-#    forceids => 1   : don't use memcache for loading the intids
-#    forceints => 1   : don't use memcache for loading the interest rows
-#    justids => 1 : return arrayref of intids only, not names/counts
-# returns otherwise an arrayref of interest rows, sorted by interest name
-sub get_interests
-{
-    my ($u, $opts) = @_;
-    $opts ||= {};
-    return undef unless $u;
-
-    # first check request cache inside $u
-    if (my $ints = $u->{_cache_interests}) {
-        if ($opts->{justids}) {
-            return [ map { $_->[0] } @$ints ];
-        }
-        return $ints;
-    }
-
-    my $uid = $u->{userid};
-    my $uitable = $u->{'journaltype'} eq 'C' ? 'comminterests' : 'userinterests';
-
-    # load the ids
-    my $ids;
-    my $mk_ids = [$uid, "intids:$uid"];
-    $ids = LJ::MemCache::get($mk_ids) unless $opts->{'forceids'};
-    unless ($ids && ref $ids eq "ARRAY") {
-        $ids = [];
-        my $dbh = LJ::get_db_writer();
-        my $sth = $dbh->prepare("SELECT intid FROM $uitable WHERE userid=?");
-        $sth->execute($uid);
-        push @$ids, $_ while ($_) = $sth->fetchrow_array;
-        LJ::MemCache::add($mk_ids, $ids, 3600*12);
-    }
-
-    # FIXME: set a 'justids' $u cache key in this case, then only return that
-    #        later if 'justids' is requested?  probably not worth it.
-    return $ids if $opts->{'justids'};
-
-    # load interest rows
-    my %need;
-    $need{$_} = 1 foreach @$ids;
-    my @ret;
-
-    unless ($opts->{'forceints'}) {
-        if (my $mc = LJ::MemCache::get_multi(map { [$_, "introw:$_"] } @$ids)) {
-            while (my ($k, $v) = each %$mc) {
-                next unless $k =~ /^introw:(\d+)/;
-                delete $need{$1};
-                push @ret, $v;
-            }
-        }
-    }
-
-    if (%need) {
-        my $ids = join(",", map { $_+0 } keys %need);
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT intid, interest, intcount FROM interests ".
-                                "WHERE intid IN ($ids)");
-        $sth->execute;
-        my $memc_store = 0;
-        while (my ($intid, $int, $count) = $sth->fetchrow_array) {
-            # minimize latency... only store 25 into memcache at a time
-            # (too bad we don't have set_multi.... hmmmm)
-            my $aref = [$intid, $int, $count];
-            if ($memc_store++ < 25) {
-                # if the count is fairly high, keep item in memcache longer,
-                # since count's not so important.
-                my $expire = $count < 10 ? 3600*12 : 3600*48;
-                LJ::MemCache::add([$intid, "introw:$intid"], $aref, $expire);
-            }
-            push @ret, $aref;
-        }
-    }
-
-    @ret = sort { $a->[1] cmp $b->[1] } @ret;
-    return $u->{_cache_interests} = \@ret;
-}
-
-# <LJFUNC>
-# name: LJ::modify_caps
-# des: Given a list of caps to add and caps to remove, updates a user's caps.
-# args: uuid, cap_add, cap_del, res
-# des-cap_add: arrayref of bit numbers to turn on
-# des-cap_del: arrayref of bit numbers to turn off
-# des-res: hashref returned from 'modify_caps' hook
-# returns: updated u object, retrieved from $dbh, then 'caps' key modified
-#          otherwise, returns 0 unless all hooks run properly.
-# </LJFUNC>
-sub modify_caps {
-    my ($argu, $cap_add, $cap_del, $res) = @_;
-    my $userid = LJ::want_userid($argu);
-    return undef unless $userid;
-
-    $cap_add ||= [];
-    $cap_del ||= [];
-    my %cap_add_mod = ();
-    my %cap_del_mod = ();
-
-    # convert capnames to bit numbers
-    if (LJ::are_hooks("get_cap_bit")) {
-        foreach my $bit (@$cap_add, @$cap_del) {
-            next if $bit =~ /^\d+$/;
-
-            # bit is a magical reference into the array
-            $bit = LJ::run_hook("get_cap_bit", $bit);
-        }
-    }
-
-    # get a u object directly from the db
-    my $u = LJ::load_userid($userid, "force");
-
-    # add new caps
-    my $newcaps = int($u->{'caps'});
-    foreach (@$cap_add) {
-        my $cap = 1 << $_;
-
-        # about to turn bit on, is currently off?
-        $cap_add_mod{$_} = 1 unless $newcaps & $cap;
-        $newcaps |= $cap;
-    }
-
-    # remove deleted caps
-    foreach (@$cap_del) {
-        my $cap = 1 << $_;
-
-        # about to turn bit off, is it currently on?
-        $cap_del_mod{$_} = 1 if $newcaps & $cap;
-        $newcaps &= ~$cap;
-    }
-
-    # run hooks for modified bits
-    if (LJ::are_hooks("modify_caps")) {
-        $res = LJ::run_hook("modify_caps",
-                            { 'u' => $u,
-                              'newcaps' => $newcaps,
-                              'oldcaps' => $u->{'caps'},
-                              'cap_on_req'  => { map { $_ => 1 } @$cap_add },
-                              'cap_off_req' => { map { $_ => 1 } @$cap_del },
-                              'cap_on_mod'  => \%cap_add_mod,
-                              'cap_off_mod' => \%cap_del_mod,
-                          });
-
-        # hook should return a status code
-        return undef unless defined $res;
-    }
-
-    # update user row
-    return 0 unless LJ::update_user($u, { 'caps' => $newcaps });
-
-    $u->{caps} = $newcaps;
-    $argu->{caps} = $newcaps if ref $argu; # temp hack
-    return $u;
-}
-
-# returns 1 if action is permitted.  0 if above rate or fail.
-# action isn't logged on fail.
-#
-# opts keys:
-#   -- "limit_by_ip" => "1.2.3.4"  (when used for checking rate)
-#   --
-sub rate_log
-{
-    my ($u, $ratename, $count, $opts) = @_;
-    my $rateperiod = LJ::get_cap($u, "rateperiod-$ratename");
-    return 1 unless $rateperiod;
-
-    return 0 unless $u->writer;
-
-    my $rp = LJ::get_prop("rate", $ratename);
-    return 0 unless $rp;
-    $opts->{'rp'} = $rp;
-
-    my $now = time();
-    $opts->{'now'} = $now;
-    my $udbr = LJ::get_cluster_reader($u);
-    my $ip = $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
-    $opts->{'ip'} = $ip;
-    return 0 unless LJ::rate_check($u, $ratename, $count, $opts);
-
-    # log current
-    $count = $count + 0;
-    $u->do("INSERT INTO ratelog (userid, rlid, evttime, ip, quantity) VALUES ".
-           "($u->{'userid'}, $rp->{'id'}, $now, INET_ATON($ip), $count)");
-
-    # delete memcache, except in the case of rate limiting by ip
-    unless ($opts->{limit_by_ip}) {
-        LJ::MemCache::delete($u->rate_memkey($rp));
-    }
-
-    return 1;
-}
-
-# returns 1 if action is permitted.  0 if above rate or fail.
-sub rate_check {
-    my ($u, $ratename, $count, $opts) = @_;
-
-    my $rateperiod = LJ::get_cap($u, "rateperiod-$ratename");
-    return 1 unless $rateperiod;
-
-    my $rp = defined $opts->{'rp'} ? $opts->{'rp'}
-             : LJ::get_prop("rate", $ratename);
-    return 0 unless $rp;
-
-    my $now = defined $opts->{'now'} ? $opts->{'now'} : time();
-    my $beforeperiod = $now - $rateperiod;
-
-    # check rate.  (okay per period)
-    my $opp = LJ::get_cap($u, "rateallowed-$ratename");
-    return 1 unless $opp;
-
-    # check memcache, except in the case of rate limiting by ip
-    my $memkey = $u->rate_memkey($rp);
-    unless ($opts->{limit_by_ip}) {
-        my $attempts = LJ::MemCache::get($memkey);
-        if ($attempts) {
-            my $num_attempts = 0;
-            foreach my $attempt (@$attempts) {
-                next if $attempt->{evttime} < $beforeperiod;
-                $num_attempts += $attempt->{quantity};
-            }
-
-            return $num_attempts + $count > $opp ? 0 : 1;
-        }
-    }
-
-    return 0 unless $u->writer;
-
-    # delete inapplicable stuff (or some of it)
-    $u->do("DELETE FROM ratelog WHERE userid=$u->{'userid'} AND rlid=$rp->{'id'} ".
-           "AND evttime < $beforeperiod LIMIT 1000");
-
-    my $udbr = LJ::get_cluster_reader($u);
-    my $ip = defined $opts->{'ip'}
-             ? $opts->{'ip'}
-             : $udbr->quote($opts->{'limit_by_ip'} || "0.0.0.0");
-    my $sth = $udbr->prepare("SELECT evttime, quantity FROM ratelog WHERE ".
-                             "userid=$u->{'userid'} AND rlid=$rp->{'id'} ".
-                             "AND ip=INET_ATON($ip) ".
-                             "AND evttime > $beforeperiod");
-    $sth->execute;
-
-    my @memdata;
-    my $sum = 0;
-    while (my $data = $sth->fetchrow_hashref) {
-        push @memdata, $data;
-        $sum += $data->{quantity};
-    }
-
-    # set memcache, except in the case of rate limiting by ip
-    unless ($opts->{limit_by_ip}) {
-        LJ::MemCache::set( $memkey => \@memdata || [] );
-    }
-
-    # would this transaction go over the limit?
-    if ($sum + $count > $opp) {
-        # TODO: optionally log to rateabuse, unless caller is doing it themselves
-        # somehow, like with the "loginstall" table.
-        return 0;
-    }
-
-    return 1;
-}
-
-
-sub login_ip_banned
-{
-    my ($u, $ip) = @_;
-    return 0 unless $u;
-
-    $ip ||= LJ::get_remote_ip();
-    return 0 unless $ip;
-
-    my $udbr;
-    my $rateperiod = LJ::get_cap($u, "rateperiod-failed_login");
-    if ($rateperiod && ($udbr = LJ::get_cluster_reader($u))) {
-        my $bantime = $udbr->selectrow_array("SELECT time FROM loginstall WHERE ".
-                                             "userid=$u->{'userid'} AND ip=INET_ATON(?)",
-                                             undef, $ip);
-        if ($bantime && $bantime > time() - $rateperiod) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-sub handle_bad_login
-{
-    my ($u, $ip) = @_;
-    return 1 unless $u;
-
-    $ip ||= LJ::get_remote_ip();
-    return 1 unless $ip;
-
-    # an IP address is permitted such a rate of failures
-    # until it's banned for a period of time.
-    my $udbh;
-    if (! LJ::rate_log($u, "failed_login", 1, { 'limit_by_ip' => $ip }) &&
-        ($udbh = LJ::get_cluster_master($u)))
-    {
-        $udbh->do("REPLACE INTO loginstall (userid, ip, time) VALUES ".
-                  "(?,INET_ATON(?),UNIX_TIMESTAMP())", undef, $u->{'userid'}, $ip);
-    }
-    return 1;
-}
-
-# <LJFUNC>
-# name: LJ::userpic_count
-# des: Gets a count of userpics for a given user.
-# args: dbarg?, upics, idlist
-# des-upics: hashref to load pictures into, keys being the picids
-# des-idlist: [$u, $picid] or [[$u, $picid], [$u, $picid], +] objects
-#             also supports deprecated old method, of an array ref of picids.
-# </LJFUNC>
-sub userpic_count {
-    my $u = shift or return undef;
-
-    if ($u->{'dversion'} > 6) {
-        my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
-        return $dbcr->selectrow_array("SELECT COUNT(*) FROM userpic2 " .
-                                      "WHERE userid=? AND state <> 'X'", undef, $u->{'userid'});
-    }
-
-    my $dbh = LJ::get_db_writer() or return undef;
-    return $dbh->selectrow_array("SELECT COUNT(*) FROM userpic " .
-                                 "WHERE userid=? AND state <> 'X'", undef, $u->{'userid'});
-}
-
-# these are deprecated and no longer used
-sub add_friend    { confess 'LJ::add_friend has been deprecated.';    }
-sub remove_friend { confess 'LJ::remove_friend has been deprecated.'; }
-
-# <LJFUNC>
-# name: LJ::memcache_kill
-# des: Kills a memcache entry, given a userid and type.
-# args: uuserid, type
-# des-uuserid: a userid or u object
-# des-type: memcached key type, will be used as "$type:$userid"
-# returns: results of LJ::MemCache::delete
-# </LJFUNC>
-sub memcache_kill {
-    my ($uuid, $type) = @_;
-    my $userid = LJ::want_userid($uuid);
-    return undef unless $userid && $type;
-
-    return LJ::MemCache::delete([$userid, "$type:$userid"]);
-}
-
-# <LJFUNC>
-# name: LJ::delete_all_comments
-# des: deletes all comments from a post, permanently, for when a post is deleted
-# info: The tables [dbtable[talk2]], [dbtable[talkprop2]], [dbtable[talktext2]],
-#       are deleted from, immediately.
-# args: u, nodetype, nodeid
-# des-nodetype: The thread nodetype (probably 'L' for log items).
-# des-nodeid: The thread nodeid for the given nodetype (probably the jitemid
-#             from the [dbtable[log2]] row).
-# returns: boolean; success value
-# </LJFUNC>
-sub delete_all_comments {
-    my ($u, $nodetype, $nodeid) = @_;
-
-    my $dbcm = LJ::get_cluster_master($u);
-    return 0 unless $dbcm && $u->writer;
-
-    # delete comments
-    my ($t, $loop) = (undef, 1);
-    my $chunk_size = 200;
-    while ($loop &&
-           ($t = $dbcm->selectcol_arrayref("SELECT jtalkid FROM talk2 WHERE ".
-                                           "nodetype=? AND journalid=? ".
-                                           "AND nodeid=? LIMIT $chunk_size", undef,
-                                           $nodetype, $u->{'userid'}, $nodeid))
-           && $t && @$t)
-    {
-        my $in = join(',', map { $_+0 } @$t);
-        return 1 unless $in;
-        foreach my $table (qw(talkprop2 talktext2 talk2)) {
-            $u->do("DELETE FROM $table WHERE journalid=? AND jtalkid IN ($in)",
-                   undef, $u->{'userid'});
-        }
-        # decrement memcache
-        LJ::MemCache::decr([$u->{'userid'}, "talk2ct:$u->{'userid'}"], scalar(@$t));
-        $loop = 0 unless @$t == $chunk_size;
-    }
-    return 1;
-
-}
-
-# is a user object (at least a hashref)
-sub isu {
-    return unless ref $_[0];
-    return 1 if UNIVERSAL::isa($_[0], "LJ::User");
-
-    if (ref $_[0] eq "HASH" && $_[0]->{userid}) {
-        carp "User HASH objects are deprecated from use." if $LJ::IS_DEV_SERVER;
-        return 1;
-    }
-}
+########################################################################
+###  19. OpenID and Identity Functions
 
 # create externally mapped user.
 # return uid of LJ user on success, undef on error.
@@ -6970,6 +7807,32 @@ sub create_extuser
     return $uid;
 }
 
+
+# given a LJ userid/u, return a hashref of:
+# type, extuser, extuserid
+# returns undef if user isn't an externally mapped account.
+sub get_extuser_map
+{
+    my $uid = LJ::want_userid(shift);
+    return undef unless $uid;
+
+    my $dbr = LJ::get_db_reader();
+    return undef unless $dbr;
+
+    my $sql = "SELECT * FROM extuser WHERE userid=?";
+    my $ret = $dbr->selectrow_hashref($sql, undef, $uid);
+    return undef unless $ret;
+
+    my $type = 'unknown';
+    foreach ( keys %LJ::EXTERNAL_NAMESPACE ) {
+        $type = $_ if $LJ::EXTERNAL_NAMESPACE{$_}->{id} == $ret->{siteid};
+    }
+
+    $ret->{type} = $type;
+    return $ret;
+}
+
+
 # given an extuserid or extuser, return the LJ uid.
 # return undef if there is no mapping.
 sub get_extuser_uid
@@ -6999,91 +7862,268 @@ sub get_extuser_uid
     return $dbh->selectrow_array($sql, undef, @bind);
 }
 
-# given a LJ userid/u, return a hashref of:
-# type, extuser, extuserid
-# returns undef if user isn't an externally mapped account.
-sub get_extuser_map
-{
-    my $uid = LJ::want_userid(shift);
-    return undef unless $uid;
 
-    my $dbr = LJ::get_db_reader();
-    return undef unless $dbr;
+########################################################################
+###  21. Password Functions
 
-    my $sql = "SELECT * FROM extuser WHERE userid=?";
-    my $ret = $dbr->selectrow_hashref($sql, undef, $uid);
-    return undef unless $ret;
-
-    my $type = 'unknown';
-    foreach ( keys %LJ::EXTERNAL_NAMESPACE ) {
-        $type = $_ if $LJ::EXTERNAL_NAMESPACE{$_}->{id} == $ret->{siteid};
-    }
-
-    $ret->{type} = $type;
-    return $ret;
-}
-
-# <LJFUNC>
-# name: LJ::create_account
-# des: Creates a new basic account.  <strong>Note:</strong> This function is
-#      not really too useful but should be extended to be useful so
-#      htdocs/create.bml can use it, rather than doing the work itself.
-# returns: integer of userid created, or 0 on failure.
-# args: dbarg?, opts
-# des-opts: hashref containing keys 'user', 'name', 'password', 'email', 'caps', 'journaltype'.
-# </LJFUNC>
-sub create_account {
-    &nodb;
+# Checks if they are flagged as having a bad password and redirects
+# to changepassword.bml.  If returl is on it returns the URL to
+# redirect to vs doing the redirect itself.  Useful in non-BML context
+# and for QuickReply links
+sub bad_password_redirect {
     my $opts = shift;
-    my $u = LJ::User->create(%$opts)
-        or return 0;
 
-    return $u->id;
+    my $remote = LJ::get_remote();
+    return undef unless $remote;
+
+    return undef if $LJ::DISABLED{'force_pass_change'};
+
+    return undef unless $remote->prop('badpassword');
+
+    my $redir = "$LJ::SITEROOT/changepassword.bml";
+    unless (defined $opts->{'returl'}) {
+        return BML::redirect($redir);
+    } else {
+        return $redir;
+    }
 }
+
+
+sub set_password {
+    my ($userid, $password) = @_;
+
+    my $dbh = LJ::get_db_writer();
+    if ($LJ::DEBUG{'write_passwords_to_user_table'}) {
+        $dbh->do("UPDATE user SET password=? WHERE userid=?", undef,
+                 $password, $userid);
+    }
+    $dbh->do("REPLACE INTO password (userid, password) VALUES (?, ?)",
+             undef, $userid, $password);
+
+    # update caches
+    LJ::memcache_kill($userid, "userid");
+    LJ::MemCache::delete([$userid, "pw:$userid"]);
+    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
+    $cache->{'_password'} = $password;
+}
+
+
+########################################################################
+###  22. Priv-Related Functions
 
 # <LJFUNC>
-# name: LJ::new_account_cluster
-# des: Which cluster to put a new account on.  $DEFAULT_CLUSTER if it's
-#      a scalar, random element from [ljconfig[default_cluster]] if it's arrayref.
-#      also verifies that the database seems to be available.
-# returns: clusterid where the new account should be created; 0 on error
-#          (such as no clusters available).
+# name: LJ::check_priv
+# des: Check to see if a user has a certain privilege.
+# info: Usually this is used to check the privs of a $remote user.
+#       See [func[LJ::get_remote]].  As such, a $u argument of undef
+#       is okay to pass: 0 will be returned, as an unknown user can't
+#       have any rights.
+# args: dbarg?, u, priv, arg?
+# des-priv: Priv name to check for (see [dbtable[priv_list]])
+# des-arg: Optional argument.  If defined, function only returns true
+#          when $remote has a priv of type $priv also with arg $arg, not
+#          just any priv of type $priv, which is the behavior without
+#          an $arg. Arg can be "*", for all args.
+# returns: boolean; true if user has privilege
 # </LJFUNC>
-sub new_account_cluster
+sub check_priv
 {
-    # if it's not an arrayref, put it in an array ref so we can use it below
-    my $clusters = ref $LJ::DEFAULT_CLUSTER ? $LJ::DEFAULT_CLUSTER : [ $LJ::DEFAULT_CLUSTER+0 ];
+    &nodb;
+    my ($u, $priv, $arg) = @_;
+    return 0 unless $u;
 
-    # select a random cluster from the set we've chosen in $LJ::DEFAULT_CLUSTER
-    return LJ::random_cluster(@$clusters);
-}
+    LJ::load_user_privs($u, $priv)
+        unless $u->{'_privloaded'}->{$priv};
 
-# returns the clusterid of a random cluster which is up
-# -- accepts @clusters as an arg to enforce a subset, otherwise
-#    uses @LJ::CLUSTERS
-sub random_cluster {
-    my @clusters = @_ ? @_ : @LJ::CLUSTERS;
+    # no access if they don't have the priv
+    return 0 unless defined $u->{'_priv'}->{$priv};
 
-    # iterate through the new clusters from a random point
-    my $size = @clusters;
-    my $start = int(rand() * $size);
-    foreach (1..$size) {
-        my $cid = $clusters[$start++ % $size];
+    # at this point we know they have the priv
+    return 1 unless defined $arg;
 
-        # verify that this cluster is in @LJ::CLUSTERS
-        my @check = grep { $_ == $cid } @LJ::CLUSTERS;
-        next unless scalar(@check) >= 1 && $check[0] == $cid;
+    # check if they have the right arguments
+    return 1 if defined $u->{'_priv'}->{$priv}->{$arg};
+    return 1 if defined $u->{'_priv'}->{$priv}->{"*"};
 
-        # try this cluster to see if we can use it, return if so
-        my $dbcm = LJ::get_cluster_master($cid);
-        return $cid if $dbcm;
-    }
-
-    # if we get here, we found no clusters that were up...
+    # don't have the right argument
     return 0;
 }
 
 
+# <LJFUNC>
+# name: LJ::load_user_privs
+# class:
+# des: loads all of the given privs for a given user into a hashref, inside
+#      the user record.  See also [func[LJ::check_priv]].
+# args: u, priv, arg?
+# des-priv: Priv names to load (see [dbtable[priv_list]]).
+# des-arg: Optional argument.  See also [func[LJ::check_priv]].
+# returns: boolean
+# </LJFUNC>
+sub load_user_privs
+{
+    &nodb;
+    my $remote = shift;
+    my @privs = @_;
+    return unless $remote and @privs;
+
+    # return if we've already loaded these privs for this user.
+    @privs = grep { ! $remote->{'_privloaded'}->{$_} } @privs;
+    return unless @privs;
+
+    my $dbr = LJ::get_db_reader();
+    return unless $dbr;
+    foreach (@privs) { $remote->{'_privloaded'}->{$_}++; }
+    @privs = map { $dbr->quote($_) } @privs;
+    my $sth = $dbr->prepare("SELECT pl.privcode, pm.arg ".
+                            "FROM priv_map pm, priv_list pl ".
+                            "WHERE pm.prlid=pl.prlid AND ".
+                            "pl.privcode IN (" . join(',',@privs) . ") ".
+                            "AND pm.userid=$remote->{'userid'}");
+    $sth->execute;
+    while (my ($priv, $arg) = $sth->fetchrow_array) {
+        unless (defined $arg) { $arg = ""; }  # NULL -> ""
+        $remote->{'_priv'}->{$priv}->{$arg} = 1;
+    }
+}
+
+
+########################################################################
+###  24. Styles and S2-Related Functions
+
+
+# returns undef on error, or otherwise arrayref of arrayrefs,
+# each of format [ year, month, day, count ] for all days with
+# non-zero count.  examples:
+#  [ [ 2003, 6, 5, 3 ], [ 2003, 6, 8, 4 ], ... ]
+#
+sub get_daycounts
+{
+    my ($u, $remote, $not_memcache) = @_;
+    # NOTE: $remote not yet used.  one of the oldest LJ shortcomings is that
+    # it's public how many entries users have per-day, even if the entries
+    # are protected.  we'll be fixing that with a new table, but first
+    # we're moving everything to this API.
+
+    $u = LJ::want_user( $u ) or return undef;
+    my $uid = $u->id;
+
+    my $memkind = 'p'; # public only, changed below
+    my $secwhere = "AND security='public'";
+    my $viewall = 0;
+    if ($remote) {
+        # do they have the viewall priv?
+        my $r = eval { Apache->request; }; # web context
+        my %getargs = $r->args if $r;
+        if (defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and LJ::check_priv($remote, 'canview', '*')) {
+            $viewall = 1;
+            LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
+                "viewall", "calendar");
+        }
+
+        if ($remote->{'userid'} == $uid || $viewall) {
+            $secwhere = "";   # see everything
+            $memkind = 'a'; # all
+        } elsif ($remote->{'journaltype'} eq 'P') {
+            my $gmask = $u->trustmask( $remote );
+            if ($gmask) {
+                $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))";
+                $memkind = 'g' . $gmask; # friends case: allowmask == gmask == 1
+            }
+        }
+    }
+
+    ##
+    ## the first element of array, that is stored in memcache,
+    ## is the time of the creation of the list. The memcache is
+    ## invalid if there are new entries in journal since that time.
+    ##
+    my $memkey = [$uid, "dayct2:$uid:$memkind"];
+    unless ($not_memcache) {
+        my $list = LJ::MemCache::get($memkey);
+        if ($list) {
+            my $list_create_time = shift @$list;
+            return $list if $list_create_time >= $u->timeupdate;
+        }
+    }
+
+    my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
+    my $sth = $dbcr->prepare("SELECT year, month, day, COUNT(*) ".
+                             "FROM log2 WHERE journalid=? $secwhere GROUP BY 1, 2, 3");
+    $sth->execute($uid);
+    my @days;
+    while (my ($y, $m, $d, $c) = $sth->fetchrow_array) {
+        # we force each number from string scalars (from DBI) to int scalars,
+        # so they store smaller in memcache
+        push @days, [ int($y), int($m), int($d), int($c) ];
+    }
+    LJ::MemCache::add($memkey, [time, @days]);
+    return \@days;
+}
+
+
+# <LJFUNC>
+# name: LJ::journal_base
+# des: Returns URL of a user's journal.
+# info: The tricky thing is that users with underscores in their usernames
+#       can't have some_user.example.com as a hostname, so that's changed into
+#       some-user.example.com.
+# args: uuser, vhost?
+# des-uuser: User hashref or username of user whose URL to make.
+# des-vhost: What type of URL.  Acceptable options: "users", to make a
+#            http://user.example.com/ URL; "tilde" for http://example.com/~user/;
+#            "community" for http://example.com/community/user; or the default
+#            will be http://example.com/users/user.  If unspecified and uuser
+#            is a user hashref, then the best/preferred vhost will be chosen.
+# returns: scalar; a URL.
+# </LJFUNC>
+sub journal_base
+{
+    my ($user, $vhost) = @_;
+
+    if (! isu($user) && LJ::are_hooks("journal_base")) {
+        my $u = LJ::load_user($user);
+        $user = $u if $u;
+    }
+
+    if (isu($user)) {
+        my $u = $user;
+
+        my $hookurl = LJ::run_hook("journal_base", $u, $vhost);
+        return $hookurl if $hookurl;
+
+        $user = $u->{'user'};
+        unless (defined $vhost) {
+            if ($LJ::FRONTPAGE_JOURNAL eq $user) {
+                $vhost = "front";
+            } elsif ($u->{'journaltype'} eq "P") {
+                $vhost = "";
+            } elsif ($u->{'journaltype'} eq "C") {
+                $vhost = "community";
+            }
+
+        }
+    }
+
+    if ($vhost eq "users") {
+        my $he_user = $user;
+        $he_user =~ s/_/-/g;
+        return "http://$he_user.$LJ::USER_DOMAIN";
+    } elsif ($vhost eq "tilde") {
+        return "$LJ::SITEROOT/~$user";
+    } elsif ($vhost eq "community") {
+        return "$LJ::SITEROOT/community/$user";
+    } elsif ($vhost eq "front") {
+        return $LJ::SITEROOT;
+    } elsif ($vhost =~ /^other:(.+)/) {
+        return "http://$1";
+    } else {
+        return "$LJ::SITEROOT/users/$user";
+    }
+}
+
+
+# FIXME: Update to pull out S1 support.
 # <LJFUNC>
 # name: LJ::make_journal
 # class:
@@ -7519,476 +8559,92 @@ sub make_journal
     confess 'Tried to run S1 journal rendering path.';
 }
 
-# <LJFUNC>
-# name: LJ::canonical_username
-# des: normalizes username.
-# info:
-# args: user
-# returns: the canonical username given, or blank if the username is not well-formed
-# </LJFUNC>
-sub canonical_username
-{
-    my $user = shift;
-    if ($user =~ /^\s*([A-Za-z0-9_\-]{1,25})\s*$/) {
-        # perl 5.8 bug:  $user = lc($1) sometimes causes corruption when $1 points into $user.
-        $user = $1;
-        $user = lc($user);
-        $user =~ s/-/_/g;
-        return $user;
-    }
-    return "";  # not a good username.
-}
+
+########################################################################
+###  28. Userpic-Related Functions
 
 # <LJFUNC>
-# name: LJ::get_userid
-# des: Returns a userid given a username.
-# info: Results cached in memory.  On miss, does DB call.  Not advised
-#       to use this many times in a row... only once or twice perhaps
-#       per request.  Tons of serialized db requests, even when small,
-#       are slow.  Opposite of [func[LJ::get_username]].
-# args: dbarg?, user
-# des-user: Username whose userid to look up.
-# returns: Userid, or 0 if invalid user.
+# name: LJ::userpic_count
+# des: Gets a count of userpics for a given user.
+# args: dbarg?, upics, idlist
+# des-upics: hashref to load pictures into, keys being the picids
+# des-idlist: [$u, $picid] or [[$u, $picid], [$u, $picid], +] objects
+#             also supports deprecated old method, of an array ref of picids.
 # </LJFUNC>
-sub get_userid
-{
-    &nodb;
-    my $user = shift;
+sub userpic_count {
+    my $u = shift or return undef;
 
-    $user = LJ::canonical_username($user);
-
-    if ($LJ::CACHE_USERID{$user}) { return $LJ::CACHE_USERID{$user}; }
-
-    my $userid = LJ::MemCache::get("uidof:$user");
-    return $LJ::CACHE_USERID{$user} = $userid if $userid;
-
-    my $dbr = LJ::get_db_reader();
-    $userid = $dbr->selectrow_array("SELECT userid FROM useridmap WHERE user=?", undef, $user);
-
-    # implicitly create an account if we're using an external
-    # auth mechanism
-    if (! $userid && ref $LJ::AUTH_EXISTS eq "CODE")
-    {
-        $userid = LJ::create_account({ 'user' => $user,
-                                       'name' => $user,
-                                       'password' => '', });
+    if ($u->{'dversion'} > 6) {
+        my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
+        return $dbcr->selectrow_array("SELECT COUNT(*) FROM userpic2 " .
+                                      "WHERE userid=? AND state <> 'X'", undef, $u->{'userid'});
     }
 
-    if ($userid) {
-        $LJ::CACHE_USERID{$user} = $userid;
-        LJ::MemCache::set("uidof:$user", $userid);
-    }
-
-    return ($userid+0);
+    my $dbh = LJ::get_db_writer() or return undef;
+    return $dbh->selectrow_array("SELECT COUNT(*) FROM userpic " .
+                                 "WHERE userid=? AND state <> 'X'", undef, $u->{'userid'});
 }
 
+
+########################################################################
+###  99. Miscellaneous Legacy Items
+
+# FIXME: shared journals are gone. Check what calls this and kill it.
 # <LJFUNC>
-# name: LJ::want_userid
-# des: Returns userid when passed either userid or the user hash. Useful to functions that
-#      want to accept either. Forces its return value to be a number (for safety).
-# args: userid
-# des-userid: Either a userid, or a user hash with the userid in its 'userid' key.
-# returns: The userid, guaranteed to be a numeric value.
+# name: LJ::get_shared_journals
+# des: Gets an array of shared journals a user has access to.
+# returns: An array of shared journals.
+# args: u
 # </LJFUNC>
-sub want_userid
+sub get_shared_journals
 {
-    my $uuserid = shift;
-    return ($uuserid->{'userid'} + 0) if ref $uuserid;
-    return ($uuserid + 0);
+    my $u = shift;
+    my $ids = LJ::load_rel_target($u, 'A') || [];
+
+    # have to get usernames;
+    my %users;
+    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
+    return sort map { $_->{'user'} } values %users;
 }
 
-# <LJFUNC>
-# name: LJ::want_user
-# des: Returns user object when passed either userid or user object. Useful to functions that
-#      want to accept either.
-# args: user
-# des-user: Either a userid or a user hash with the userid in its 'userid' key.
-# returns: The user object represented by said userid or username.
-# </LJFUNC>
-sub want_user
-{
-    my $uuid = shift;
-    return undef unless $uuid;
-    return $uuid if ref $uuid;
-    return LJ::load_userid($uuid) if $uuid =~ /^\d+$/;
-    Carp::croak("Bogus caller of LJ::want_user with non-ref/non-numeric parameter");
-}
+
+# FIXME: these are deprecated and no longer used; check what calls them and kill it.
+sub add_friend    { confess 'LJ::add_friend has been deprecated.';    }
+sub remove_friend { confess 'LJ::remove_friend has been deprecated.'; }
+
 
 # <LJFUNC>
-# name: LJ::get_username
-# des: Returns a username given a userid.
-# info: Results cached in memory.  On miss, does DB call.  Not advised
-#       to use this many times in a row... only once or twice perhaps
-#       per request.  Tons of serialized db requests, even when small,
-#       are slow.  Opposite of [func[LJ::get_userid]].
-# args: dbarg?, user
-# des-user: Username whose userid to look up.
-# returns: Userid, or 0 if invalid user.
+# name: LJ::remote_has_priv
+# class:
+# des: Check to see if the given remote user has a certain privilege.
+# info: <strong>Deprecated</strong>.  You should
+#       use [func[LJ::load_user_privs]] + [func[LJ::check_priv]], instead.
+# FIXME: Check what calls this and kill it.
+# args:
+# des-:
+# returns:
 # </LJFUNC>
-sub get_username
+sub remote_has_priv
 {
     &nodb;
-    my $userid = shift;
-    $userid += 0;
-
-    # Checked the cache first.
-    if ($LJ::CACHE_USERNAME{$userid}) { return $LJ::CACHE_USERNAME{$userid}; }
-
-    # if we're using memcache, it's faster to just query memcache for
-    # an entire $u object and just return the username.  otherwise, we'll
-    # go ahead and query useridmap
-    if (@LJ::MEMCACHE_SERVERS) {
-        my $u = LJ::load_userid($userid);
-        return undef unless $u;
-
-        $LJ::CACHE_USERNAME{$userid} = $u->{'user'};
-        return $u->{'user'};
-    }
-
-    my $dbr = LJ::get_db_reader();
-    my $user = $dbr->selectrow_array("SELECT user FROM useridmap WHERE userid=?", undef, $userid);
-
-    # Fall back to master if it doesn't exist.
-    unless (defined $user) {
-        my $dbh = LJ::get_db_writer();
-        $user = $dbh->selectrow_array("SELECT user FROM useridmap WHERE userid=?", undef, $userid);
-    }
-
-    return undef unless defined $user;
-
-    $LJ::CACHE_USERNAME{$userid} = $user;
-    return $user;
-}
-
-# <LJFUNC>
-# name: LJ::can_manage
-# des: Given a user and a target user, will determine if the first user is an
-#      admin for the target user.
-# returns: bool: true if authorized, otherwise fail
-# args: remote, u
-# des-remote: user object or userid of user to try and authenticate
-# des-u: user object or userid of target user
-# </LJFUNC>
-sub can_manage {
-    my $remote = LJ::want_user(shift);
-    my $u = LJ::want_user(shift);
-    return undef unless $remote && $u;
-
-    # is same user?
-    return 1 if LJ::u_equals($u, $remote);
-
-    # people/syn/rename accounts can only be managed by the one account
-    return undef if $u->{journaltype} =~ /^[PYR]$/;
-
-    # check for admin access
-    return undef unless LJ::check_rel($u, $remote, 'A');
-
-    # passed checks, return true
-    return 1;
-}
-
-# <LJFUNC>
-# name: LJ::can_manage_other
-# des: Given a user and a target user, will determine if the first user is an
-#      admin for the target user, but not if the two are the same.
-# args: remote, u
-# des-remote: user object or userid of user to try and authenticate
-# des-u: user object or userid of target user
-# returns: bool: true if authorized, otherwise fail
-# </LJFUNC>
-sub can_manage_other {
-    my ($remote, $u) = @_;
-    return 0 if LJ::want_userid($remote) == LJ::want_userid($u);
-    return LJ::can_manage($remote, $u);
-}
-
-sub can_delete_journal_item {
-    return LJ::can_manage(@_);
-}
-
-
-# <LJFUNC>
-# name: LJ::get_remote
-# des: authenticates the user at the remote end based on their cookies
-#      and returns a hashref representing them.
-# args: opts?
-# des-opts: 'criterr': scalar ref to set critical error flag.  if set, caller
-#           should stop processing whatever it's doing and complain
-#           about an invalid login with a link to the logout page.
-#           'ignore_ip': ignore IP address of remote for IP-bound sessions
-# returns: hashref containing 'user' and 'userid' if valid user, else
-#          undef.
-# </LJFUNC>
-sub get_remote
-{
-    my $opts = ref $_[0] eq "HASH" ? shift : {};
-    return $LJ::CACHE_REMOTE if $LJ::CACHED_REMOTE && ! $opts->{'ignore_ip'};
-
-    my $no_remote = sub {
-        LJ::User->set_remote(undef);
-        return undef;
-    };
-
-    # can't have a remote user outside of web context
-    my $r = eval { BML::get_request(); };
-    return $no_remote->() unless $r;
-
-    my $criterr = $opts->{criterr} || do { my $d; \$d; };
-    $$criterr = 0;
-
-    $LJ::CACHE_REMOTE_BOUNCE_URL = "";
-
-    # set this flag if any of their ljsession cookies contained the ".FS"
-    # opt to use the fast server.  if we later find they're not logged
-    # in and set it, or set it with a free account, then we give them
-    # the invalid cookies error.
-    my $tried_fast = 0;
-    my $sessobj = LJ::Session->session_from_cookies(tried_fast   => \$tried_fast,
-                                                    redirect_ref => \$LJ::CACHE_REMOTE_BOUNCE_URL,
-                                                    ignore_ip    => $opts->{ignore_ip},
-                                                    );
-
-    my $u = $sessobj ? $sessobj->owner : undef;
-
-    # inform the caller that this user is faking their fast-server cookie
-    # attribute.
-    if ($tried_fast && ! LJ::get_cap($u, "fastserver")) {
-        $$criterr = 1;
-    }
-
-    return $no_remote->() unless $sessobj;
-
-    # renew soon-to-expire sessions
-    $sessobj->try_renew;
-
-    # augment hash with session data;
-    $u->{'_session'} = $sessobj;
-
-    # keep track of activity for the user we just loaded from db/memcache
-    # - if necessary, this code will actually run in Apache's cleanup handler
-    #   so latency won't affect the user
-    if (@LJ::MEMCACHE_SERVERS && ! $LJ::DISABLED{active_user_tracking}) {
-        push @LJ::CLEANUP_HANDLERS, sub { $u->note_activity('A') };
-    }
-
-    LJ::User->set_remote($u);
-    $r->notes->{ljuser} = $u->{user};
-    return $u;
-}
-
-# returns either $remote or the authenticated user that $remote is working with
-sub get_effective_remote {
-    my $authas_arg = shift || "authas";
-
-    return undef unless LJ::is_web_context();
-
-    my $remote = LJ::get_remote();
-    return undef unless $remote;
-
-    my $authas = $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas} || $remote->user;
-    return $remote if $authas eq $remote->user;
-
-    return LJ::get_authas_user($authas);
-}
-
-# returns URL we have to bounce the remote user to in order to
-# get their domain cookie
-sub remote_bounce_url {
-    return $LJ::CACHE_REMOTE_BOUNCE_URL;
-}
-
-sub set_remote {
     my $remote = shift;
-    LJ::User->set_remote($remote);
-    1;
-}
+    my $privcode = shift;     # required.  priv code to check for.
+    my $ref = shift;  # optional, arrayref or hashref to populate
+    return 0 unless ($remote);
 
-sub unset_remote
-{
-    LJ::User->unset_remote;
-    1;
-}
+    ### authentication done.  time to authorize...
 
-sub get_active_journal
-{
-    return $LJ::ACTIVE_JOURNAL;
-}
+    my $dbr = LJ::get_db_reader();
+    my $sth = $dbr->prepare("SELECT pm.arg FROM priv_map pm, priv_list pl WHERE pm.prlid=pl.prlid AND pl.privcode=? AND pm.userid=?");
+    $sth->execute($privcode, $remote->{'userid'});
 
-sub set_active_journal
-{
-    $LJ::ACTIVE_JOURNAL = shift;
-}
-
-# Checks if they are flagged as having a bad password and redirects
-# to changepassword.bml.  If returl is on it returns the URL to
-# redirect to vs doing the redirect itself.  Useful in non-BML context
-# and for QuickReply links
-sub bad_password_redirect {
-    my $opts = shift;
-
-    my $remote = LJ::get_remote();
-    return undef unless $remote;
-
-    return undef if $LJ::DISABLED{'force_pass_change'};
-
-    return undef unless $remote->prop('badpassword');
-
-    my $redir = "$LJ::SITEROOT/changepassword.bml";
-    unless (defined $opts->{'returl'}) {
-        return BML::redirect($redir);
-    } else {
-        return $redir;
+    my $match = 0;
+    if (ref $ref eq "ARRAY") { @$ref = (); }
+    if (ref $ref eq "HASH") { %$ref = (); }
+    while (my ($arg) = $sth->fetchrow_array) {
+        $match++;
+        if (ref $ref eq "ARRAY") { push @$ref, $arg; }
+        if (ref $ref eq "HASH") { $ref->{$arg} = 1; }
     }
+    return $match;
 }
-
-# Returns HTML to display user search results
-# Args: %args
-# des-args:
-#           users    => hash ref of userid => u object like LJ::load userids
-#                       returns or array ref of user objects
-#           userids  => array ref of userids to include in results, ignored
-#                       if users is defined
-#           timesort => set to 1 to sort by last updated instead
-#                       of username
-#           perpage  => Enable pagination and how many users to display on
-#                       each page
-#           curpage  => What page of results to display
-#           navbar   => Scalar reference for paging bar
-#           pickwd   => userpic keyword to display instead of default if it
-#                       exists for the user
-#           self_link => Sub ref to generate link to use for pagination
-sub user_search_display {
-    my %args = @_;
-
-    my $loaded_users;
-    unless (defined $args{users}) {
-        $loaded_users = LJ::load_userids(@{$args{userids}});
-    } else {
-        if (ref $args{users} eq 'HASH') { # Assume this is direct from LJ::load_userids
-            $loaded_users = $args{users};
-        } elsif (ref $args{users} eq 'ARRAY') { # They did a grep on it or something
-            foreach (@{$args{users}}) {
-                $loaded_users->{$_->{userid}} = $_;
-            }
-        } else {
-            return undef;
-        }
-    }
-
-    # If we're sorting by last updated, we need to load that
-    # info for all users before the sort.  If sorting by
-    # username we can load it for a subset of users later,
-    # if paginating.
-    my $updated;
-    my @display;
-
-    if ($args{timesort}) {
-        $updated = LJ::get_timeupdate_multi(keys %$loaded_users);
-        @display = sort { $updated->{$b->{userid}} <=> $updated->{$a->{userid}} } values %$loaded_users;
-    } else {
-        @display = sort { $a->{user} cmp $b->{user} } values %$loaded_users;
-    }
-
-    if (defined $args{perpage}) {
-        my %items = BML::paging(\@display, $args{curpage}, $args{perpage});
-
-        # Fancy paging bar
-        my $opts;
-        $opts->{self_link} = $args{self_link} if $args{self_link};
-        ${$args{navbar}} = LJ::paging_bar($items{'page'}, $items{'pages'}, $opts);
-
-        # Now pull out the set of users to display
-        @display = @{$items{'items'}};
-    }
-
-    # If we aren't sorting by time updated, load last updated time for the
-    # set of users we are displaying.
-    $updated = LJ::get_timeupdate_multi(map { $_->{userid} } @display)
-        unless $args{timesort};
-
-    # Allow caller to specify a custom userpic to use instead
-    # of the user's default all userpics
-    my $get_picid = sub {
-        my $u = shift;
-        return $u->{'defaultpicid'} unless $args{'pickwd'};
-        return LJ::get_picid_from_keyword($u, $args{'pickwd'});
-    };
-
-    my $ret;
-    foreach my $u (@display) {
-        # We should always have loaded user objects, but it seems
-        # when the site is overloaded we don't always load the users
-        # we request.
-        next unless LJ::isu($u);
-
-        $ret .= "<div class='user-search-display'>";
-        $ret .= "<table style='height: 105px'><tr>";
-
-        $ret .= "<td style='width: 100px; text-align: center;'>";
-        $ret .= "<a href='/allpics.bml?user=$u->{user}'>";
-        if (my $picid = $get_picid->($u)) {
-            $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/$u->{userid}' alt='$u->{user} userpic' style='border: 1px solid #000;' />";
-        } else {
-            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='no default userpic' style='border: 1px solid #000;' width='100' height='100' />";
-        }
-        $ret .= "</a>";
-
-        $ret .= "</td><td style='padding-left: 5px;' valign='top'><table>";
-
-        $ret .= "<tr><td class='searchusername' colspan='2' style='text-align: left;'>";
-        $ret .= $u->ljuser_display({ head_size => $args{head_size} });
-        $ret .= "</td></tr><tr>";
-
-        if ($u->{name}) {
-            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Name:</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
-            $ret .= LJ::ehtml($u->{name});
-            $ret .= "</a>";
-            $ret .= "</td></tr><tr>";
-        }
-
-        if (my $jtitle = $u->prop('journaltitle')) {
-            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Journal:</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
-            $ret .= LJ::ehtml($jtitle) . "</a>";
-            $ret .= "</td></tr>";
-        }
-
-        $ret .= "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
-
-        if ($updated->{$u->{'userid'}} > 0) {
-            $ret .= "Updated ";
-            $ret .= LJ::ago_text(time() - $updated->{$u->{'userid'}});
-        } else {
-            $ret .= "Never updated";
-        }
-
-        $ret .= "</td></tr>";
-
-        $ret .= "</table>";
-        $ret .= "</td></tr>";
-        $ret .= "</table></div>";
-    }
-
-    return $ret;
-}
-
-# returns the country that the remote IP address comes from
-# undef is returned if the country cannot be determined from the IP
-sub country_of_remote_ip {
-    if (eval "use IP::Country::Fast; 1;") {
-        my $ip = LJ::get_remote_ip();
-        return undef unless $ip;
-
-        my $reg = IP::Country::Fast->new();
-        my $country = $reg->inet_atocc($ip);
-
-        # "**" is returned if the IP is private
-        return undef if $country eq "**";
-        return $country;
-    }
-
-    return undef;
-}
-
-1;
-
-
