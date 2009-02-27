@@ -2905,13 +2905,14 @@ sub control_strip
     my $r = DW::Request->get;
     my $args = $r->query_string;
     my $querysep = $args ? "?" : "";
+    my $querysep2 = $args ? "&" : "?"; # for the ?style=mine/?format=light options
     my $uri = "http://" . $r->header_in('Host') . $r->uri . $querysep . $args;
-    $uri = LJ::eurl($uri);
+    my $euri = LJ::eurl($uri);
     my $create_link = LJ::run_hook("override_create_link_on_navstrip", $journal) || "<a href='$LJ::SITEROOT/create.bml'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>";
 
     # Build up some common links
     my %links = (
-                 'login'             => "<a href='$LJ::SITEROOT/?returnto=$uri'>$BML::ML{'web.controlstrip.links.login'}</a>",
+                 'login'             => "<a href='$LJ::SITEROOT/?returnto=$euri'>$BML::ML{'web.controlstrip.links.login'}</a>",
                  'post_journal'      => "<a href='$LJ::SITEROOT/update.bml'>$BML::ML{'web.controlstrip.links.post2'}</a>",
                  'home'              => "<a href='$LJ::SITEROOT/'>" . $BML::ML{'web.controlstrip.links.home'} . "</a>",
                  'recent_comments'   => "<a href='$LJ::SITEROOT/tools/recent_comments.bml'>$BML::ML{'web.controlstrip.links.recentcomments'}</a>",
@@ -3172,7 +3173,7 @@ sub control_strip
 
         if ($show_login_form) {
             my $chal = LJ::challenge_generate(300);
-            my $contents = LJ::run_hook('control_strip_userpic_contents', $uri) || "&nbsp;";
+            my $contents = LJ::run_hook('control_strip_userpic_contents', $euri) || "&nbsp;";
             $ret .= <<"LOGIN_BAR";
                 <td id='lj_controlstrip_userpic'>$contents</td>
                 <td id='lj_controlstrip_login' style='background-image: none;' nowrap='nowrap'><form id="login" class="lj_login_form" action="$LJ::SITEROOT/login.bml?ret=1" method="post"><div>
@@ -3196,7 +3197,7 @@ LOGIN_BAR
 
             $ret .= '</div></form></td>';
         } else {
-            my $contents = LJ::run_hook('control_strip_loggedout_userpic_contents', $uri) || "&nbsp;";
+            my $contents = LJ::run_hook('control_strip_loggedout_userpic_contents', $euri) || "&nbsp;";
             $ret .= "<td id='lj_controlstrip_loggedout_userpic'>$contents</td>";
         }
 
@@ -3227,7 +3228,20 @@ LOGIN_BAR
         $ret .= "</td>";
     }
 
-    LJ::run_hooks('add_extra_cells_in_controlstrip', \$ret);
+    # search box and ?style=mine/?format=light options
+    my $view = $r->note( 'view' );
+    my @view_options;
+    push @view_options, "<a href='$uri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
+        if $remote;
+    push @view_options, "<a href='$uri${querysep2}format=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>"
+        if $view eq "entry" || $view eq "reply" || $view eq "tag" || $view eq "month" || ( $view eq "lastn" && $uri =~ /\/tag/ );
+
+    $ret .= "<td id='lj_controlstrip_search'>";
+    $ret .= LJ::Widget::Search->render;
+    $ret .= LJ::Lang::ml( 'web.controlstrip.reloadpage' ) . "&nbsp;&nbsp; "
+        if @view_options;
+    $ret .= join( "&nbsp;&nbsp; ", @view_options );
+    $ret .= "</td>";
 
     return "<table id='lj_controlstrip' cellpadding='0' cellspacing='0'><tr valign='top'>$ret</tr></table>";
 }

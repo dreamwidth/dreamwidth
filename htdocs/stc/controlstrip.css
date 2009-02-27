@@ -87,7 +87,11 @@ html body
 }
 
 /* Make sure all form elements use default colors and control strip fonts */
-#lj_controlstrip select, #lj_controlstrip input#xc_user, #lj_controlstrip input#xc_password, #lj_controlstrip input#xc_remember
+#lj_controlstrip select,
+#lj_controlstrip input#xc_user,
+#lj_controlstrip input#xc_password,
+#lj_controlstrip input#xc_remember,
+#lj_controlstrip input#search
 {
     font-family: Arial, sans-serif;
     font-size: 11px;
@@ -134,6 +138,13 @@ html body
 {
     font-size: 12px;
     font-weight: bold;
+}
+
+/* Fourth cell */
+#lj_controlstrip_search
+{
+    vertical-align: middle;
+    padding: 0 1em 0 1em;
 }
 
 /* Log in form */
