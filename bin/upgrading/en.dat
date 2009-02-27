@@ -3654,11 +3654,17 @@ widget.s2propgroup.presentation.note=Note: Additional options may vary based on 
 
 widget.search.aim=AIM
 
+widget.search.btn.go=Go
+
 widget.search.email=Email
 
 widget.search.existingtitle=Or search for an individual user:
 
+widget.search.faq=FAQ
+
 widget.search.icq=ICQ Number
+
+widget.search.iminfo=IM Info
 
 widget.search.interest=Interest
 
@@ -3674,9 +3680,11 @@ widget.search.note=If you know some information for an existing LiveJournal user
 
 widget.search.region=Region
 
+widget.search.siteuser=Site & User
+
 widget.search.submit=Search existing users
 
-widget.search.title=Search for
+widget.search.title=Search...
 
 widget.search.username=Username
 
