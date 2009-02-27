@@ -224,6 +224,12 @@ body<=
 
      $$body .= "<?hr?>";
 
+     $$body .= qq(
+         <p style="float:right; text-align:right;"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
+         <img alt="$ML{'.cc.imgalt'}" style="border-width: 0;" src="http://i.creativecommons.org/l/by-sa/3.0/us/88x31.png" />
+         </a><br /><a href="$LJ::SITEROOT/site/opensource.bml">$ML{'.cc.licensing'}</a></p>
+     );
+
      if ($categoryname) {
          $$body .= BML::ml('.backfaqcat3', {'aopts' => "href='/support/faqbrowse.bml?faqcat=$backfaqcat'", 'categoryname' => $categoryname}) . "<br />"
             if $backfaqcat && $faqidarg;

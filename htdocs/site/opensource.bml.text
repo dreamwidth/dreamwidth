@@ -1,0 +1,18 @@
+;; -*- coding: utf-8 -*-
+.title=Open Source
+
+.attrib.header=Attribution for Content
+
+.attrib.silk=&bull; In certain places, [[sitenameshort]] uses the <a href="http://www.famfamfam.com/lab/icons/silk/">Silk</a> icon set made by Mark James, which are licensed under a <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>. We are grateful to Mark for creating and sharing these.
+
+.licensing.header=Licensing Information
+
+.licensing.main=Where indicated, our FAQs and Guides are released under the <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution Share-Alike 3.0 license</a>. If you are using our documentation, please credit us as <strong>Dreamwidth Studios, LLC</strong> and provide a link to this <a href="http://www.dreamwidth.org/site/opensource.bml">Open Source</a> page.
+
+.os.dw=[[sitenameshort]] uses the Dreamwidth Studios codebase provided by Dreamwidth Studios, LLC. The source repository is located at <a href="http://hg.dwscoalition.org">Dreamwidth Mercurial Repositories</a>.
+
+.os.header=Open Source
+
+.os.intro=We believe strongly in Open Source and the creative commons. By freely releasing all of our code and documentation, we hope to create a vibrant and thriving community that will constantly improve the product we offer.
+
+.os.lj=The Dreamwidth Studios codebase is built on the Open Source codebase provided by <a href="http://www.livejournal.com">LiveJournal.com</a>. We've extended and expanded upon the codebase, but we remain incredibly thankful to Danga Interactive, Six Apart Ltd, and LiveJournal Inc for their effort over the years
