@@ -77,7 +77,7 @@ body<=
         $ret .= " (<a href='faqbrowse.bml?faqcat=$faqcat'>";
         $ret .= $ML{'.view.all'};
         $ret .= "</a>) h2?>\n";
-        $ret .= "<ul>\n";
+        $ret .= "<ul class='faqlist'>\n";
         foreach my $faqid (sort { $faqq{$a}->sortorder <=> $faqq{$b}->sortorder } grep { $faqq{$_}->faqcat eq $faqcat } keys %faqq)
         {
             my $q = $faqq{$faqid}->question_html;

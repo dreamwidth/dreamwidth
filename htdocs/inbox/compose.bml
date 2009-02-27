@@ -182,7 +182,7 @@ body<=
 
     # Inbox Nav
     $body .= qq{
-        <table style="width: 100%"><tr><td valign="top" style="padding-right: 12px">};
+        <table class='inbox-compose'><tr><td style="padding-right: 12px">};
     $body .= LJ::Widget::InboxFolderNav->render();
     $body .= qq{
         </td>

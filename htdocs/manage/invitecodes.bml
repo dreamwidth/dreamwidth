@@ -25,7 +25,7 @@ body<=
     my @invitecodes = DW::InviteCodes->by_owner( userid => $remote->id );
     
     if ( @invitecodes ) {
-        $ret .= "<table border='1' cellpadding='5'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th>$ML{'.header.sent'}</th></tr>";
+        $ret .= "<table class='invitecodes'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th>$ML{'.header.sent'}</th></tr>";
     
         foreach my $code ( @invitecodes ) {
             $ret .= "<tr>";
