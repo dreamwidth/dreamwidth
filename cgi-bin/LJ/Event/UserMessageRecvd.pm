@@ -48,7 +48,7 @@ sub _as_email {
         inbox           => $inbox,
     };
 
-    my $body = LJ::Lang::get_text($lang, 'esn.email.pm_without_body', undef, $vars) .
+    my $body = LJ::Lang::get_text($lang, 'esn.email.pm_with_body', undef, $vars) .
         $self->format_options($is_html, $lang, $vars,
         {
             'esn.view_profile'    => [ 1, $other_u->profile_url ],

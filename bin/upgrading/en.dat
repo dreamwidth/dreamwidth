@@ -1477,10 +1477,13 @@ esn.edit_groups=[[openlink]]Edit Filters[[closelink]]
 
 esn.email.pm.subject=[[sender]] sent you a message
 
-esn.email.pm_without_body<<
+esn.email.pm_with_body<<
 Hi [[user]],
 
-[[sender]] sent you a message on [[sitenameshort]]: [[subject]].
+[[sender]] sent you a message on [[sitenameshort]].
+
+The message is: [[subject]]
+[[body]]
 
 Go to [[inbox]] to view your new messages.
 
