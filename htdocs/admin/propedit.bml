@@ -82,7 +82,6 @@ body<=
         while ( my $p = $sth->fetchrow_hashref ) {
             my $extra = "<br /><small>$p->{des}</small>";
             my $value = $u->prop($p->{name});
-            next unless $value;
             $value = "<br />" . LJ::html_text({ name => $p->{name}, value => $value, maxlength => '255', size => '100' }) if $can_save;
             $ret .= "<li><strong>$p->{name}</strong>: $value$extra</li><br />";
         }
