@@ -635,7 +635,7 @@ sub edit_trust_group {
     my $dbcm = LJ::get_cluster_master( $u )
         or confess 'unable to connect to user cluster master';
     $dbcm->do( 'REPLACE INTO trust_groups (userid, groupnum, groupname, sortorder, is_public) VALUES (?, ?, ?, ?, ?)',
-               undef, $u->id, $id, $change{groupname}, $change{sortorder}, $change{is_public} );
+               undef, $u->id, $id, $change{groupname}, $change{sortorder} || 50, $change{is_public} || 0 );
     confess $dbcm->errstr if $dbcm->err;
 
     # kill memcache and return
