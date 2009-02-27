@@ -48,7 +48,7 @@ DW::User::Edges::define_edge(
                 type => 'hashref',
                 db_edge => 'T',
                 options => {
-                    mask     => { required => 0, type => 'int',  default => 0 },
+                    mask     => { required => 0, type => 'int'                },
                     nonotify => { required => 0, type => 'bool', default => 0 },
                 },
                 add_sub => \&_add_wt_edge,
@@ -70,14 +70,6 @@ sub _add_wt_edge {
     my $do_trust = $trust_edge ? 1 : 0;
     $trust_edge ||= {};
 
-    # setup the mask, note that it has to be 0 unless the user is trusted,
-    # in which case it is the trust mask with the low bit always on.  also,
-    # bit #61 is on if the user is watched.
-    my $mask = $do_watch ? ( 1 << 61 ) : 0;
-    if ( $do_trust ) {
-        $mask |= ( $trust_edge->{mask}+0 ) | 1;
-    }
-
     # get current record, so we know what to modify
     my $dbh = LJ::get_db_writer();
     my $row = $dbh->selectrow_hashref( 'SELECT fgcolor, bgcolor, groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
@@ -85,21 +77,43 @@ sub _add_wt_edge {
     confess $dbh->errstr if $dbh->err;
     $row ||= { groupmask => 0 };
 
+    # store some existing trust/watch values for use later
+    my $existing_watch = $row->{groupmask} &  ( 1 << 61 );
+    my $existing_trust = $row->{groupmask} & ~( 7 << 61 );
+
     # only matters in the read case, but ...
     my ( $fgcol, $bgcol ) = ( $row->{fgcolor} || LJ::color_todb( '#000000' ),
                               exists $row->{bgcolor} ? $row->{bgcolor} : LJ::color_todb( '#ffffff' ) );
     $fgcol = $watch_edge->{fgcolor} if exists $watch_edge->{fgcolor};
     $bgcol = $watch_edge->{bgcolor} if exists $watch_edge->{bgcolor};
 
-    # set extra bits to keep what the user has already set
-    if ( $do_watch && $do_trust ) {
-        # do nothing, assume we're overriding
-    } elsif ( $do_watch ) {
-        # import the trust values
-        $mask |= ( $row->{groupmask} & ~( 7 << 61 ) );
-    } elsif ( $do_trust ) {
-        # import the watch values
-        $mask |= ( $row->{groupmask} & ( 1 << 61 ) );
+    # calculate the mask we're going to apply to the user; this is somewhat complicated
+    # as we have to account for situations where we're updating only one of the edges, as
+    # well as the situation where we are just updating the trust edge without changing
+    # the user's group memberships.  lots of comments.  start with a mask of 0.
+    my $mask = 0;
+
+    # if they are adding a watch edge, simply turn that bit on
+    $mask |= ( 1 << 61 ) if $do_watch;
+
+    # if they are not adding a watch edge, import the existing watch edge
+    $mask |= $existing_watch unless $do_watch;
+
+    # if they are adding a trust edge, we need to turn bit 1 on
+    $mask |= 1 if $do_trust;
+
+    # now, we have to copy some trustmask, depending on some factors
+    if ( ( $do_watch && ! $do_trust ) ||                   # 1) if we're only updating watch
+         ( $do_trust && ! exists $trust_edge->{mask} ) )   # 2) they're adding a trust edge but don't set a mask
+    {
+        # in these two cases, we want to copy up the trustmask from the database
+        $mask |= $existing_trust;
+    }
+
+    # the final case, they are trusting and have specified a mask; but note we cannot allow
+    # them to set the high bits
+    if ( $do_trust && exists $trust_edge->{mask} ) {
+        $mask |= ( $trust_edge->{mask}+0 & ~( 7 << 61 ) );
     }
 
     # now add the row

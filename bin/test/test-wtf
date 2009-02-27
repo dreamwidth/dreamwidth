@@ -25,6 +25,12 @@ sub rst {
         foreach ( $u1->id, $u2->id );
     $dbh->do( 'DELETE FROM trust_groups WHERE userid = ?', undef, $_ )
         foreach ( $u1->id, $u2->id );
+
+    foreach my $u ( $u1, $u2 ) {
+        foreach my $mc ( qw/ trust_group / ) {
+            LJ::memcache_kill( $u, $mc );
+        }
+    }
 }
 
 # return which bits are on (helper sub)
@@ -103,7 +109,7 @@ push @tests, [ 'mutually trust lists one member', sub
 ################################################################################
 push @tests, [ 'remove from trust list', sub
 {
-    $u1->remove_edge( $u2, qw/ trust / );
+    $u1->remove_edge( $u2, trust => { nonotify => 1 } );
     my $row = $dbh->selectrow_array(
             'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ? AND groupmask = ?',
             undef, $u1->id, $u2->id, 30004 | 1
@@ -162,7 +168,7 @@ push @tests, [ 'trust list reverse one member', sub
 ################################################################################
 push @tests, [ 'get full watch list', sub
 {
-    $u1->add_edge( $u1, trust => {} );
+    $u1->add_edge( $u1, trust => { nonotify => 1 } );
 
     my $hr = $u1->watch_list;
     return scalar( keys %$hr ) == 1 ? 1 : 0;
@@ -221,7 +227,7 @@ push @tests, [ 'get full watch list', sub
 push @tests, [ 'add to trust and watch lists', sub
 {
     rst();
-    $u1->add_edge( $u2, trust => { mask => 30004, nonotify => 1 }, watch => {} );
+    $u1->add_edge( $u2, trust => { mask => 30004, nonotify => 1 }, watch => { nonotify => 1} );
     my $row = $dbh->selectrow_array(
             'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
             undef, $u1->id, $u2->id
@@ -233,7 +239,7 @@ push @tests, [ 'add to trust and watch lists', sub
 ################################################################################
 push @tests, [ 'remove from watch list', sub
 {
-    $u1->remove_edge( $u2, qw/ watch / );
+    $u1->remove_edge( $u2, watch => { nonotify => 1 } );
     my $row = $dbh->selectrow_array(
             'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
             undef, $u1->id, $u2->id
@@ -260,7 +266,7 @@ push @tests, [ 'trust list one member', sub
 push @tests, [ 'add to watch list with colors', sub
 {
     rst();
-    $u1->add_edge( $u2, watch => { fgcolor => 255, bgcolor => 255 } );
+    $u1->add_edge( $u2, watch => { fgcolor => 255, bgcolor => 255, nonotify => 1 } );
     my $row = $dbh->selectrow_array(
             'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
             undef, $u1->id, $u2->id
@@ -280,7 +286,7 @@ push @tests, [ 'validate colors', sub
 ################################################################################
 push @tests, [ 'add to watch list again', sub
 {
-    $u1->add_edge( $u2, watch => {} );
+    $u1->add_edge( $u2, watch => { nonotify => 1 } );
     my $row = $dbh->selectrow_array(
             'SELECT COUNT(*) FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
             undef, $u1->id, $u2->id
@@ -314,7 +320,7 @@ push @tests, [ 'create trust group', sub
 push @tests, [ 'get trust group', sub
 {
     my $grp = $u1->trust_groups;
-    return scalar( %$grp ) > 0 ? 1 : 0;
+    return scalar( keys %$grp ) > 0 ? 1 : 0;
 } ];
 
 ################################################################################
@@ -340,7 +346,7 @@ push @tests, [ 'get trust group again', sub
 push @tests, [ 'validate trustmask == 1', sub
 {
     rst();
-    $u1->add_edge( $u2, trust => {} );
+    $u1->add_edge( $u2, trust => { nonotify => 1 } );
     return ( $u1->trustmask( $u2 ) == 1 ) ? 1 : 0;
 } ];
 
@@ -386,6 +392,21 @@ push @tests, [ 'clear groups', sub
 {
     $u1->edit_trustmask( $u2, set => [] );
     return ( $u1->trustmask( $u2 ) == 1 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'reset, add mask', sub
+{
+    rst();
+    $u1->add_edge( $u2, trust => { mask => 12, nonotify => 1 } );
+    return ( $u1->trustmask( $u2 ) == 13 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'add edge again, test mask', sub
+{
+    $u1->add_edge( $u2, trust => { nonotify => 1 } );
+    return ( $u1->trustmask( $u2 ) == 13 ) ? 1 : 0;
 } ];
 
 ################################################################################
