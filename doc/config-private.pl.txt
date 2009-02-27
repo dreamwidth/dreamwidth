@@ -21,6 +21,12 @@
         allowed_posters  => [ qw/ mark denise / ],
         allowed_ips      => [ qw/ 123.123.123.123 / ],
     );
+
+    # example user account for FAQs. By default, [[username]] in an FAQ answer
+    # will use the username of the logged-in user; however, if the viewer is
+    # not logged in, this username will be used instead. (You should own this
+    # account so that nobody can take it.)
+    $EXAMPLE_USER_ACCOUNT = "username";
 }
 
 {
