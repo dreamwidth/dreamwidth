@@ -152,6 +152,7 @@ sub _add_wt_edge {
     return 1;
 }
 
+
 # internal method to delete an edge
 sub _del_wt_edge {
     my ( $from_u, $to_u, $edges ) = @_;
@@ -227,6 +228,21 @@ sub _del_wt_edge {
             if $do_watch && $watch_notify;
     }
 }
+
+
+# returns the valid version of a group name
+sub valid_group_name {
+    my $name = shift;
+
+    # strip off trailing slash(es)
+    $name =~ s!/+$!!;
+
+    # conform to maxes
+    $name = LJ::text_trim( $name, LJ::BMAX_GRPNAME2, LJ::CMAX_GRPNAME2 );
+
+    return $name;
+}
+
 
 ###############################################################################
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -590,14 +606,13 @@ sub create_trust_group {
     # validate other parameters
     confess 'invalid sortorder (not in range 0..255)'
         if exists $opts{sortorder} && $opts{sortorder} !~ /^\d+$/;
-    confess 'invalid group name'
-        if exists $opts{groupname} && $opts{groupname} !~ /^\w[\w\d\_ ]+?\w$/;
     confess 'invalid is_public (not 1/0)'
         if exists $opts{is_public} && $opts{is_public} !~ /^(?:0|1)$/;
 
     # need a name
+    $opts{groupname} = DW::User::Edges::WatchTrust::valid_group_name( $opts{groupname} );
     confess 'name not provided'
-        unless exists $opts{groupname};
+        unless $opts{groupname};
 
     # now perform an edit with our chosen id
     return $id
@@ -640,8 +655,8 @@ sub edit_trust_group {
         );
     $change{sortorder} = $opts{sortorder}
         if exists $opts{sortorder} && $opts{sortorder} =~ /^\d+$/;
-    $change{groupname} = $opts{groupname}
-        if exists $opts{groupname} && $opts{groupname} =~ /^\w[\w\d\_ ]+?\w$/;
+    $change{groupname} = DW::User::Edges::WatchTrust::valid_group_name( $opts{groupname} )
+        if exists $opts{groupname};
     $change{is_public} = $opts{is_public}
         if exists $opts{is_public} && $opts{is_public} =~ /^(?:0|1)$/;
 

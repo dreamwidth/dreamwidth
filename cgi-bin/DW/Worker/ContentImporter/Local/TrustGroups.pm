@@ -44,44 +44,33 @@ Returns a map of old-id to new-id.
 sub merge_trust_groups {
     my ( $class, $u, $groups ) = @_;
 
-    my $cur_groups = $u->trust_groups || {};
+    # map our existing groups to name->id so we can use this list
+    # later to map groups if we've imported before
     my %name_map;
+    my $cur_groups = $u->trust_groups || {};
     foreach my $id ( keys %$cur_groups ) {
-        if ( defined( $cur_groups->{$id} ) ) {
-            my $name = $cur_groups->{$id}->{groupname};
-
-            # remove disallowed characters!
-            $name =~ s/[^\w\d\_ ]//g;
-            $name =~ s/^[^\w]//g;
-            $name =~ s/[^\w]$//g;
-
-            $name_map{$name} = $id;
-        }
+        $name_map{$cur_groups->{$id}->{groupname}} = $id;
     }
 
+    # now map new groups
     my %map;
+    foreach my $group ( @{ $groups || [] } ) {
 
-    foreach my $group ( @$groups ) {
+        # we assume the incoming group is valid
         my $name = $group->{name};
-
-        # remove disallowed characters!
-        $name =~ s/[^\w\d\_ ]//g;
-        $name =~ s/^[^\w]//g;
-        $name =~ s/[^\w]$//g;
-
         my $sort = $group->{sortorder};
         my $public = $group->{public};
-        my $existing = 0;
+
         my $id = 0;
 
-        if ( defined( $name_map{$name} ) ) {
+        if ( defined $name_map{$name} ) {
             $id = $name_map{$name};
             $u->edit_trust_group( id => $id, groupname => $name, sortorder => $sort, is_public => $public );
         } else {
             $id = $u->create_trust_group( groupname => $name, sortorder => $sort, is_public => $public );
         }
 
-        $map{$group->{id}} = $id;
+        $map{$group->{id}} = $id if $id;
     }
 
     return \%map;
