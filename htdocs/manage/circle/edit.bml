@@ -62,7 +62,7 @@ body<=
             $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th>";
             $ret .= "<th>$ML{'.circle.trust'}</th>" if $u->is_personal;
             $ret .= "<th>$ML{'.circle.watch'}</th></tr>";
-            foreach my $uid ( sort { $us->{$a}->user cmp $us->{$b}->user } keys %$us ) {
+            foreach my $uid ( sort { $us->{$a}->display_name cmp $us->{$b}->display_name } keys %$us ) {
                 my $other_u = $us->{$uid};
                 next unless $other_u;
 
