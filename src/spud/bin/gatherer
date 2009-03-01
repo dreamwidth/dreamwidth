@@ -1,0 +1,440 @@
+#!/usr/bin/perl
+#
+# Danga's Statistics Gatherer
+# Gathers statistics using plugins.
+#
+# Command line options:
+#
+#    --conf STRING    set what config file to use for options
+#    --server STRING  set what server to point at
+#    --port INT       the port of the server to use
+#    --foreground     if present, tell the server to force to the foreground
+#
+# Configuration file format:
+#
+#    server = STRING          location of statistics server
+#    port = INT               port number server listens on
+#
+#    job: plugin(parameter, parameter)
+#    job2: plugin
+#    helperplugin(parameter, parameter)
+#    ...
+#
+# Copyright 2004, Danga Interactive
+#
+# Authors:
+#   Mark Smith <marksmith@danga.com>
+#
+# License:
+#   undecided.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use Getopt::Long;
+use POSIX qw(:sys_wait_h);
+use Danga::Daemon;
+
+# config
+my $path = "$ENV{LJHOME}/bin/spud";
+my $plugins_path = "$path/plugins";
+
+# command line config
+my %opts;
+GetOptions \%opts, qw/ conf=s server=s port=i /;
+
+# reverse mapping; ( pid => job-name )
+my %pids;
+
+# mapping of what we expect to die soon
+my %todie;
+
+# called if we die
+sub fail {
+    foreach my $pid (keys %pids) {
+        kill 15, $pid;
+    }
+    $_[0] ||= 'no reason provided';
+    die "shutdown detected: $_[0]\n";
+}
+
+# now daemonize
+Danga::Daemon::daemonize(
+    \&worker,
+    {
+        interval => 1,
+        listenport => 13500,
+        chdir => $path,
+        shutdowncode => \&fail,
+    },
+);
+
+# ( plugin-name =>
+#    {
+#       modtime => int, # last modified time of plugin file (for reload detection)
+#       children => [ pid, pid, pid, ... ], # pids of workers doing this plugin
+#       file => str, # filename
+#       reload => bool, # if on, reload_plugins() will reload this plugin
+#       registered => bool, # if on, this plugin has registered correctly and is good to go
+#       code => {
+#           register => sub { ... },
+#           worker => sub { ... },
+#       },
+#    }
+# );
+my %plugins;
+
+# ( job-name =>
+#    {
+#       plugin => plugin-name,
+#       respawn_with => plugin-name,
+#       pid => pid,
+#       options => [ option, option, option, ... ], # list of options from config file
+#       reload => bool, # if on, reload_plugins() will reload this job
+#       active => bool, # if on, this is active per the config file
+#    }
+# );
+my %jobs;
+
+# array of plugins that want to help us out; array of [ pluginname, [ opts ] ]
+my @helpers;
+
+# cached socket to our stat server
+my $sock;
+
+sub set {
+    # sends a statistic up to the stat server
+    $sock ||= IO::Socket::INET->new(PeerAddr => $opts{server},
+                                    PeerPort => $opts{port},);
+    fail("can't create socket: $!")
+        unless $sock;
+
+    # send this on up to the server
+    while (scalar(@_) >= 2) {
+        $sock->print("QSET $_[0] $_[1]\r\n");
+        shift @_; shift @_;
+    }
+}
+
+# keeps track of whether or not this is the first worker run
+sub worker {
+    # step 1: check through plugins directory to see what plugins have changed (or are new)
+    check_plugin_modtimes();
+
+    # step 2: check for a changed config file and load/reload as necessary
+    check_config();
+
+    # step 3: now that we know exactly what's changed, call master reloader
+    reload();
+
+    # step 4: run through any defined helpers so they can, well, help
+    foreach my $helpref (@helpers) {
+        my ($plugin, $opts) = @$helpref;
+        next unless $plugins{$plugin} && $plugins{$plugin}->{registered} &&
+                    $plugins{$plugin}->{code}->{helper};
+        eval {
+            $plugins{$plugin}->{code}->{helper}->($opts);
+        };
+        debug($@) if $@;
+    }
+}
+
+sub check_plugin_modtimes {
+    opendir DIR, $plugins_path
+        or fail("Unable to open plugins directory for reading");
+    foreach my $file (readdir(DIR)) {
+        next if $file =~ /^\./;
+        next unless $file =~ /^(.+)\.pl$/;
+        my $plugin = $1;
+
+        # create an empty record if this is the first time we've found this plugin
+        $plugins{$plugin} ||= {
+            modtime => 0,
+            reload => 1,
+            registered => 0,
+            children => [],
+            file => "$plugins_path/$file",
+        };
+
+        # compare modtime and mark for reload if necessary
+        my $mt = (stat($plugins{$plugin}->{file}))[9];
+        $plugins{$plugin}->{reload} = 1
+            if $mt > $plugins{$plugin}->{modtime};
+        $plugins{$plugin}->{modtime} = $mt;
+    }
+    closedir DIR;
+}
+
+sub check_config {
+    fail("Config file not found")
+        unless -e $opts{conf};
+    my $mt = (stat($opts{conf}))[9];
+    $opts{config_modtime} ||= 0;
+    reload_config()
+        if $mt > $opts{config_modtime};
+    $opts{config_modtime} = $mt;
+}
+
+sub reload_config {
+    debug("");
+    debug("configuration file reloading");
+
+    # we mark all jobs as inactive, so they get marked as active below
+    foreach (keys %jobs) {
+        $jobs{$_}->{active} = 0
+            unless $jobs{$_}->{respawn_with};
+    }
+
+    # clear out all helpers, as they should get readded.  they aren't in
+    # separate threads so it doesn't matter if we readd them every time.
+    @helpers = ();
+
+    open FILE, "<$opts{conf}"
+        or fail("Unable to open config file: $!");
+    foreach my $line (<FILE>) {
+        # ignore comments and clean surrounding whitespace
+        next if $line =~ /^\s*#/;
+        $line =~ s/^\s+//;
+        $line =~ s/[\s\r\n]+$//;
+        next unless length $line;
+
+        # shortcut; set some options
+        if ($line =~ /^(\w+)\s*=\s*(.+)$/) {
+            $opts{$1} = $2;
+            next;
+        }
+
+        # extract any options contained in (...) and going to the end of the line
+        my $optionstr;
+        if ($line =~ s/(?:\((.*)\))$//) {
+            $optionstr = $1;
+        }
+        my @options =
+            map { (s/^\s+//, s/\s$//, 1) ? $_ : undef } # now trim whitespace front and back
+            split(/,/, $optionstr);                     # split option string on commas
+
+        # now see if it has a job + plugin left, or just a plugin
+        if ($line =~ /^([-\w:.]+)\s*:\s*(\w+)$/) {
+            # this is a job definition
+            my ($job, $plugin) = ($1, $2);
+            fail("Error adding $job to job list")
+                unless add_job($job, $plugin, \@options);
+
+        } elsif ($line =~ /^(\w+)$/) {
+            # this is just a helper plugin
+            fail("Plugin $1 not defined")
+                unless $plugins{$1};
+
+            # push name of plugin on helper list
+            debug("helper from plugin $1 added");
+            push @helpers, [ $1, \@options ];
+
+        } else {
+            fail("Unknown format: $line($optionstr)");
+        }
+    }
+    close FILE;
+    debug("configuration file reloaded");
+}
+
+# main processor that goes through everything we have and reloads as necessary.  this
+# also handles reaping our children.
+sub reload {
+    # iterate over any dead children we might have picked up
+    while ((my $pid = waitpid(-1, WNOHANG)) > 0) {
+        if (my $job = delete($pids{$pid})) {
+            if ($jobs{$job}->{active}) {
+                debug("[$job] dead; pid = $pid; marking to reload; unexpected!");
+                $jobs{$job}->{reload} = 1;
+                $jobs{$job}->{pid} = 0;
+            } else {
+                debug("[$job] dead; pid = $pid; inactive job, NOT reloading");
+                delete $jobs{$job};
+            }
+        } else {
+            if (delete $todie{$pid}) {
+                debug("child death; pid = $pid; expected death, already reloaded");
+            } else {
+                debug("ERROR: $pid died but we have no record of it");
+            }
+        }
+    }
+
+    # iterate over plugins and reload as necessary
+    foreach my $plugin (sort keys %plugins) {
+        next unless $plugins{$plugin}->{reload};
+        debug("reloading plugin: $plugin");
+
+        # now require the file
+        my $file = $plugins{$plugin}->{file};
+        unless (my $ret = do $file) {
+            if ($@) {
+                warn "couldn't parse $file: $@\n";
+            } elsif (! defined $ret) {
+                warn "couldn't do $file: $!\n";
+            } else {
+                warn "couldn't run $file\n";
+            }
+            next;
+        }
+
+        # now mark any jobs with this plugin to reload
+        foreach my $job (keys %jobs) {
+            $jobs{$job}->{reload} = 1
+                if $jobs{$job}->{plugin} eq $plugin ||
+                   $jobs{$job}->{respawn_with} eq $plugin;
+        }
+    }
+
+    # now that we know all the plugins are loaded, iterate over jobs so we can get
+    # the plugins spawned and doing something
+    foreach my $job (sort keys %jobs) {
+        my $plugin = $plugins{$jobs{$job}->{plugin}};
+        fail("can't add job for plugin with no worker code: job = $job; plugin = $jobs{$job}->{plugin}")
+            unless ref $plugin->{code}->{worker};
+
+        # see if we need to kill off this job
+        unless ($jobs{$job}->{active}) {
+            debug("killing job: $job");
+            if ($jobs{$job}->{pid}) {
+                kill 15, $jobs{$job}->{pid};
+            } else {
+                delete $pids{$jobs{$job}->{pid}};
+                delete $jobs{$job};
+            }
+            next;
+        }
+
+        # now, the following path does a reload of this job if necessary
+        next unless $jobs{$job}->{reload} && $plugin->{registered};
+        debug("reloading job: $job");
+
+        # kill off this child if we had one
+        if ($jobs{$job}->{pid}) {
+            kill 15, $jobs{$job}->{pid};
+            delete $pids{$jobs{$job}->{pid}};
+            $todie{$jobs{$job}->{pid}} = 1;
+            debug("[$job] killing child; pid = $jobs{$job}->{pid}");
+            $jobs{$job}->{pid} = 0;
+        }
+
+        # bust out a child for this job
+        my $pid = fork;
+        fail("can't fork child: $!") if !defined $pid;
+        unless ($pid) {
+            # child path; do some basic setup and then call the worker
+            $0 .= " [$jobs{$job}->{plugin}: $job]";
+            $SIG{INT} = undef; # in case parent is in the foreground
+            $SIG{TERM} = undef; # no special handling for this
+
+            # call the child which should do all the work and return when it's done
+            $plugin->{code}->{worker}->($job, $jobs{$job}->{options});
+
+            # when the above returns, the worker is done, so we exit
+            exit 0;
+        }
+
+        # if we get here we're a parent, which means we need to mark this child as
+        # run and that we don't need to do anything more
+        $jobs{$job}->{pid} = $pid;
+        $jobs{$job}->{reload} = 0;
+        $pids{$pid} = $job;
+    }
+}
+
+# called by plugins to let us know that they want to be active.  they have to provide a
+# certain set of minimum functionality which we use.  we also import some things into
+# their namespace.
+sub register_plugin {
+    my ($plugin, $package, $opts) = @_;
+    return unless $plugin && $package && $plugins{$plugin} && $opts;
+
+    # make sure they gave us enough functions
+    unless (ref $opts->{register} && (ref $opts->{worker} || ref $opts->{helper})) {
+        debug("${plugin} did not provide minimum functionality: register and either worker or helper");
+        return;
+    }
+
+    # now create some aliases in their package so they can get to debug and set
+    eval "*${package}::debug = *main::debug;";
+    eval "*${package}::set = *main::set;";
+    eval "*${package}::add_job = *main::add_job;";
+    eval "*${package}::get_var = *main::get_var;";
+    eval "*${package}::mark_inactive_by_plugin = *main::mark_inactive_by_plugin;";
+
+    # call the plugin's register function so that it knows we've acknowledged its presence
+    unless ($opts->{register}->()) {
+        debug("${plugin}::register() didn't return true");
+        return;
+    }
+
+    # done reloading, mark as reloaded (so we don't reload next time)
+    $plugins{$plugin}->{code} = $opts;
+    $plugins{$plugin}->{reload} = 0;
+    $plugins{$plugin}->{registered} = 1;
+}
+
+# called by us and by helpers to add jobs to the list.  if called by a plugin, $respawn_with
+# must be specified and should be set to the name of the plugin.  otherwise, this job will
+# die the next time the config file is changed.
+sub add_job {
+    my ($job, $plugin, $options, $respawn_with) = @_;
+    fail("Bad input to add_job: job = $job, plugin = $plugin")
+        unless $job && $plugin;
+    $options ||= [];
+
+    # now print out debugging info
+    #debug("found config: $job: $plugin(" . join(', ', @$options) . ")");
+
+    # make sure this plugin exists
+    fail("Plugin $plugin not defined")
+        unless $plugins{$plugin};
+
+    # default %jobs setup
+    $jobs{$job} ||= {
+        plugin => $plugin,
+        pid => 0,
+        reload => 1,
+        options => $options,
+        respawn_with => $respawn_with,
+    };
+    $jobs{$job}->{active} = 1; # on unconditionally
+
+    # now determine if this job needs reloading
+    $jobs{$job}->{reload} = 1 unless $jobs{$job}->{pid};
+    if (scalar(@$options) == scalar(@{$jobs{$job}->{options}})) {
+        # compare options one by one, reload if any have changed
+        for (my $i = 0; $i < scalar(@$options); $i++) {
+            $jobs{$job}->{reload} = 1
+                if $options->[$i] ne $jobs{$job}->{options}->[$i];
+        }
+    } else {
+        # number of options changed, reload them all
+        $jobs{$job}->{reload} = 1;
+    }
+
+    # if reload, copy in new options just in case
+    if ($jobs{$job}->{reload}) {
+        @{$jobs{$job}->{options}} = @$options;
+    }
+
+    return 1;
+}
+
+# called by helpers to mark everything they've spawned as inactive before
+# they begin another round of adding jobs.  this is basically a way to say
+# to the gatherer that a process is dead.  if it's not re-added immediately
+# by the helper, it gets killed off in the next round of reaping.
+sub mark_inactive_by_plugin {
+    my $plugin = shift;
+
+    foreach my $job (keys %jobs) {
+        $jobs{$job}->{active} = 0
+            if $jobs{$job}->{respawn_with} eq $plugin;
+    }
+}
+
+# used by plugins to get access to variables set in the config file
+sub get_var {
+    return $opts{$_[0] || ''};
+}
