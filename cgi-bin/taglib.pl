@@ -668,7 +668,8 @@ sub get_security_breakdown {
 #           as a comma separated list of user-supplied tags which are then canonicalized
 #           and used.  'remote' is the remote user taking the actions (required).
 #           'err_ref' is ref to scalar to return error messages in.  optional, and may
-#           not be set by all error conditions.
+#           not be set by all error conditions.  'ignore_max' if specified will ignore
+#           a user's max tags limit.
 # returns: 1 on success, undef on error
 # </LJFUNC>
 sub update_logtags {
@@ -780,7 +781,7 @@ sub update_logtags {
 
     # at this point we have enough information to determine if they're going to break their
     # max, so let's do that so we can bail early enough to prevent a rollback operation
-    my $max = $u->get_cap('tags_max');
+    my $max = $opts->{ignore_max} ? 0 : $u->get_cap('tags_max');
     if (@to_create && $max && $max > 0) {
         my $total = scalar(keys %$utags) + scalar(@to_create);
         return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max })) if $total > $max;
@@ -1025,7 +1026,8 @@ sub reset_cache {
 # des-opts: Optional; hashref, possible keys being 'display' and value being whether or
 #           not this tag should be a display tag and 'parenttagid' being the tagid of a
 #           parent tag for hierarchy.  'err_ref' optional key should be a ref to a scalar
-#           where we will store text about errors.
+#           where we will store text about errors.  'ignore_max' if set will ignore the
+#           user's max tags limit when creating this tag.
 # returns: undef on error, else a hashref of { keyword => tagid } for each keyword defined
 # </LJFUNC>
 sub create_usertag {
@@ -1049,7 +1051,7 @@ sub create_usertag {
     return undef unless $isvalid;
 
     # check to ensure we don't exceed the max of tags
-    my $max = $u->get_cap('tags_max');
+    my $max = $opts->{ignore_max} ? 0 : $u->get_cap('tags_max');
     if ($max && $max > 0) {
         my $cur = scalar(keys %{ LJ::Tags::get_usertags($u) || {} });
         return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max }))

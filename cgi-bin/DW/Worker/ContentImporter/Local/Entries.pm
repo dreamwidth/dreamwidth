@@ -139,6 +139,7 @@ sub post_event {
             u => $u,
             noauth => 1,
             nonotify => 1,
+            ignore_tags_max => 1,
         }
     );
 

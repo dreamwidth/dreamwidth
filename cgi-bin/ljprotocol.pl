@@ -1465,6 +1465,7 @@ sub postevent
 
         my $logtag_opts = {
             remote => $u,
+            ignore_max => $flags->{ignore_tags_max} ? 1 : 0,
         };
 
         if (ref $taginput eq 'ARRAY') {
