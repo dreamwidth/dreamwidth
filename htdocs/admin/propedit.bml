@@ -73,7 +73,7 @@ body<=
         $ret .= "<strong>Status Vis</strong>: $temp (" . $u->statusvis . ")<br />";
 
         my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare( "SELECT * from userproplist;" );
+        my $sth = $dbr->prepare( "SELECT * from userproplist ORDER BY name;" );
         $sth->execute;
 
         $ret .= "<br />";
