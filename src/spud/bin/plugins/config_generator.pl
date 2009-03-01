@@ -8,6 +8,7 @@
 package ConfigGenPlugin;
 
 use strict;
+use MogileFS::Admin;
 
 # called when we're loaded.  here we can do anything necessary to set ourselves
 # up if we want.  in this case we just load the LJ libraries.
@@ -56,14 +57,14 @@ sub helper {
     }
 
     # mogilefsd
-    if ($opts{mogilefsd} && %LJ::MOGILEFS_CONFIG) {
+    if ($opts{mogilefsd} && $LJ::MOGILEFS_CONFIG{hosts}) {
         foreach my $ipaddr (@{$LJ::MOGILEFS_CONFIG{hosts}}) {
             add_job("mogilefsd.$ipaddr", "mogilefsd", [ $ipaddr, @{$opts{mogilefsd}} ], 'config_generator');
         }
     }
 
     # mogstored
-    if ($opts{mogstored} && %LJ::MOGILEFS_CONFIG) {
+    if ($opts{mogstored} && $LJ::MOGILEFS_CONFIG{hosts}) {
         my $mgd = new MogileFS::Admin(hosts => $LJ::MOGILEFS_CONFIG{hosts});
         if ($mgd) {
             my (%hosthash, %devhash);

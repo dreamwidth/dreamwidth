@@ -36,7 +36,7 @@ use POSIX qw(:sys_wait_h);
 use Danga::Daemon;
 
 # config
-my $path = "$ENV{LJHOME}/bin/spud";
+my $path = "$ENV{LJHOME}/src/spud/bin";
 my $plugins_path = "$path/plugins";
 
 # command line config
