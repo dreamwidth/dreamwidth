@@ -224,22 +224,8 @@
             $body .= "<p><a href='<?siteroot?>/tour/'>$ML{'.createaccount.tour'}</a></p>\n";
             $body .= "</div><!-- end .login-create-account -->\n";
             $body .= "</div><!-- end .columns-2-left -->\n";
-            $body .= "<div class='columns-2-right'>\n";
-            $body .= LJ::get_ads({ location => 'bml.login' }) unless $LJ::IS_SSL;
-            $body .= "</div><!-- end .columns-2-right -->\n";
         }
 
-        $body .= "</td><td valign='top' style='padding-top: 10px'>\n";
-        if ($remote) {
-            my $box = LJ::CProd->full_box_for($remote, width => 300);
-            # because post_login_news is really post_login_ad in ljcom ....
-            # unfortunate hook name  :/
-            if (!$box || LJ::run_hook('should_show_ad', { ctx => "app", })) {
-                $body .= LJ::run_hook('post_login_news');
-                $body .= "<br />\n";
-            }
-            $body .= $box;
-        }
         $body .= "</td></tr></table>";
         return $body;
     };
