@@ -320,11 +320,16 @@ sub delete_and_purge_completely {
 }
 
 
+# checks against the file containing our regular expressions to determine if a
+# given username is disallowed
 sub is_protected_username {
-    my ($class, $username) = @_;
-    foreach my $re (@LJ::PROTECTED_USERNAMES) {
+    my ( $class, $username ) = @_;
+
+    my @res = grep { $_ } split( /\r?\n/, LJ::load_include( 'reserved-usernames' ) );
+    foreach my $re ( @res ) {
         return 1 if $username =~ /$re/;
     }
+
     return 0;
 }
 

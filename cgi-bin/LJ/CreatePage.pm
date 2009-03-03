@@ -57,14 +57,9 @@ sub verify_username {
         }
     }
 
-    foreach my $re ("^system\$", @LJ::PROTECTED_USERNAMES) {
-        next unless ($user =~ /$re/);
-
-        # you can give people sharedjournal priv ahead of time to create
-        # reserved communities:
-        next if LJ::check_priv(LJ::get_remote(), "sharedjournal", $user);
-        $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.reserved');
-    }
+    # don't allow protected usernames
+    $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.reserved')
+        if LJ::User->is_protected_username( $user );
 
     $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.inuse') if $in_use;
 

@@ -60,15 +60,9 @@ SUBMIT:
         $error = "$ML{'error.usernameinvalid'}" if $POST{user} && !$user;
         $error = "$ML{'.error.username.mustenter'}" unless $POST{user};
 
-        foreach my $re ("^system\$", @LJ::PROTECTED_USERNAMES) {
-            next unless $user =~ /$re/;
-
-            # you can give people sharedjournal priv ahead of time to create
-            # reserved communities:
-            next if LJ::check_priv($remote, "sharedjournal", $user);
-
-            $error = "$ML{'.error.username.reserved'}";
-        }
+        # disallow creating communities matched against the deny list
+        $error = "$ML{'.error.username.reserved'}"
+            if LJ::User->is_protected_username( $user );
 
         my $second_submit;
         my $u = LJ::load_user($user);

@@ -343,10 +343,6 @@
                          );
     }
 
-    unless (scalar @PROTECTED_USERNAMES) {
-        @PROTECTED_USERNAMES = ("^ex_", "^ext_", "^s_", "^_", '_$', '__');
-    }
-
     $USERPROP_DEF{'blob_clusterid'} ||= 1;
 
     # setup default limits for mogilefs classes

@@ -34,10 +34,8 @@ body<=
         if ($acct ne "") {
             return $error->($ML{'.invalid.accountname'})
                 if $acct && $acct !~ /^\w{3,20}$/; # This needs to be 5 less then the username limt.
-            foreach my $re ("^system\$", @LJ::PROTECTED_USERNAMES) {
-                next unless ($acct =~ /$re/);
-                return $error->($ML{'.invalid.reserved'});
-            }
+            return $error->( $ML{'.invalid.reserved'} )
+                if LJ::User->is_protected_username( $acct );
             # Postpend _feed here, username should be valid by this point.
             $acct .= "_feed";
         }

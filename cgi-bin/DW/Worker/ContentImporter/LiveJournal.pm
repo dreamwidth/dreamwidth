@@ -273,12 +273,10 @@ sub get_feed_account_from_url {
         return undef unless $acct;
 
         # since we're creating, let's validate this against the deny list
-        foreach my $re ( '^system$', @LJ::PROTECTED_USERNAMES ) {
-            # FIXME: probably need to error nicely here, as we're not creating
-            # the feed that the user is expecting...
-            return undef
-                if $acct =~ /$re/;
-        }
+        # FIXME: probably need to error nicely here, as we're not creating
+        # the feed that the user is expecting...
+        return undef
+            if LJ::User->is_protected_username( $acct );
 
         # append _feed here, username should be valid by this point.
         $acct .= "_feed";

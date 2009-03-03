@@ -757,9 +757,6 @@ add_conf('@MAIL_TRANSPORTS',
 add_conf('%MOGILEFS_CONFIG',
          type => '',
          des => "");
-add_conf('@PROTECTED_USERNAMES',
-         type => '',
-         des => "");
 add_conf('%PORTAL_DEFAULTBOXSTATES',
          type => '',
          des => "");

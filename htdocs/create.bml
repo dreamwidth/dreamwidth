@@ -151,15 +151,10 @@ if ( $LJ::HUMAN_CHECK{create} && $mode eq 'submit' && lc($POST{answer}) eq 'audi
      unless ($POST{'user'}) {
          $errors{'username'} = "$ML{'.error.username.mustenter'}";
      }
-     foreach my $re ("^system\$", @LJ::PROTECTED_USERNAMES) {
-         next unless ($user =~ /$re/);
 
-         # you can give people sharedjournal priv ahead of time to create
-         # reserved communities:
-         next if LJ::check_priv($remote, "sharedjournal", $user);
 
-         $errors{'username'} = "$ML{'.error.username.reserved'}";
-     }
+     $errors{username} = $ML{'.error.username.reserved'}
+        if LJ::User->is_protected_username( $user );
 
      # see if they're confused and entered a valid account code
      # for their username (happens often)
