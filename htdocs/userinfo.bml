@@ -384,7 +384,7 @@ body<=
     # other statistics
     $ret .= q{ <div class='details_links'><p> };
     $ret .= join( ', ', ( $profile->entry_stats, $profile->tag_stats, $profile->memory_stats, $profile->userpic_stats ) );
-    $ret .= q{ </p></div></div></div> };
+    $ret .= q{ </p></div></div></div></div> };
 
 ################################################################################
 ##### BASIC INFORMATION
