@@ -41,6 +41,7 @@ body<=
 <?_code
  use strict;
  use vars qw(%FORM);
+ LJ::need_res( 'stc/support.css' );
 
  LJ::set_active_crumb('supporthelp');
 
@@ -242,7 +243,7 @@ body<=
 
  # start the rest of the table
  my $uri = "$LJ::SITEROOT/support/help.bml?cat=$filtercat&state=$state";
- $ret .= "<p><table cellpadding='4' cellspacing='1' border='1' bgcolor='#ffffff'><tr bgcolor='#d0d0d0'>\n";
+ $ret .= "<p><table class='supporttable'><tr bgcolor='#d0d0d0'>\n";
  $ret .= "<td>&nbsp;<b>X</b></td>\n" if $can_close;
  my @headers = ( id => "ID#", summary => $ML{'.th.summary'}, area => $ML{'.th.problemarea'}, date => $ML{'.th.posted'} );
  while (my ($sorttype, $desc) = splice(@headers, 0, 2)) {

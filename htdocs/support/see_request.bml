@@ -278,7 +278,7 @@ body<=
     ### request info table
 
     my $ret = "";
-    $ret .= "<table>\n";
+    $ret .= "<table class='support-requesttable'>\n";
     $ret .= "<tr><td valign='bottom' align='right'><b>$ML{'.from'}</b></td><td>";
     
     if ($u->{'defaultpicid'} && !$u->is_suspended) {
@@ -568,7 +568,7 @@ body<=
 
             $ret .= "<div style='margin-top: 15px;'>\n";
             $ret .= "<b>$ML{'.original.request'}:</b><br />\n";
-            $ret .= "<div style='border: 3px solid #000000; margin-left: auto; margin-right: auto; padding: 3px;'>\n$message\n</div></div>";
+            $ret .= "<div class='requestdiv'>\n$message\n</div></div>";
             next;
         }
 
@@ -610,14 +610,14 @@ body<=
             $header .= ", <a href='act.bml?close;$sp->{'spid'};$sp->{'authcode'};$le->{'splid'}'><b>$ML{'.credit.fix'}</b></a>";
         }
 
-        my $bordercolor = "#000000";
-        if ($le->{'type'} eq "internal") { $bordercolor = "#ff0000"; }
-        if ($le->{'type'} eq "answer")   { $bordercolor = "#00c000"; }
-        if ($le->{'type'} eq "screened") { $bordercolor = "#afaf00"; }
+        my $bordercolor = "default";
+        if ($le->{'type'} eq "internal") { $bordercolor = "internal"; }
+        if ($le->{'type'} eq "answer")   { $bordercolor = "answer"; }
+        if ($le->{'type'} eq "screened") { $bordercolor = "screened"; }
 
         # reply
         $ret .= "$header<br />\n";
-        $ret .= "<table align='center' style='margin-top: 5px; border: 3px solid $bordercolor;' cellpadding='3' width='100%'>\n";
+        $ret .= "<table class='support-requesttable-$bordercolor'>\n";
         $ret .= "<tr><td align='center'>\n";
         if ($le->{'faqid'}) {
             # faq question
@@ -628,7 +628,7 @@ body<=
             $ret .= "<div style='display: table; padding: 3px; background: <?emcolor?>; border: 1px solid #000000; margin-left: auto; margin-right: auto;'>\n";
             # whitespace between these two DIVs is necessary for proper
             # rendering in IE 5 for Mac OS < X
-            $ret .= "<div style='text-align:center;'>";
+            $ret .= "<div style='text-align:center; padding: 5px;'>";
             $ret .= "<b>$ML{'.faq.reference'}:</b><br /><a href='faqbrowse.bml?faqid=$le->{'faqid'}&view=full'>$faqname</a></div></div>\n";
         }
         $ret .= "<p align='left' style='margin-top: 0px; margin-bottom: 0px;'>$message</p>\n";
@@ -678,7 +678,7 @@ body<=
     $ret .= LJ::html_hidden('spid', $spid, 'auth', $auth) . "\n";
 
     # form
-    $ret .= "<table border='0'>\n";
+    $ret .= "<table class='support-requesttable'>\n";
     $ret .= "<tr valign='middle'><td align='right'>$ML{'.from'}</td><td>";
     
     if ($remote && $remote->{'userid'}) {
@@ -924,7 +924,8 @@ _code?>
     use strict;
     use vars qw(%FORM);
     return '' if $FORM{'find'};
-    
+    LJ::need_res( 'stc/support.css' );
+
     my $spid = $FORM{'id'}+0;
     my $ret;
     
