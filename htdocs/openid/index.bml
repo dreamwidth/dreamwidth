@@ -31,7 +31,7 @@ regEvent(window, "load", initPage);
 
 
 <=head
-title=>OpenID
+windowtitle=>OpenID
 body<=
 
 <div style='background-color: #ffe680; float: right; width: 175px; font-size: 0.8em; border: 1px outset #333; padding: 2px;'>
@@ -45,6 +45,9 @@ body<=
 <?p
 <?_code BML::ml(".main.using_your_openid_here.content", {'sitename' => $LJ::SITENAMESHORT}) _code?>
 p?>
+
+<?p <?_ml .main.using_your_openid_here.email _ml?> p?>
+
 
    <div style='padding: 0.4em; margin-left: 25px; margin-right: 25px; width: auto; text-align: center; background: #ccc; border: #000'>
 <form method='post' action='login.bml' style='display:inline; width:auto'><nobr><b><?_ml .login.openid_url _ml?></b> <input class='sexy' id='openid_url' name="openid_url" size='30' />

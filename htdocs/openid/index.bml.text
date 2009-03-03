@@ -10,6 +10,8 @@
 
 .main.using_your_openid_here.content=If you're not a member of [[sitename]] but want to leave authenticated comments and let people add you as their friend, trust your comments, etc., then you can login either in the form below, or from any comment entry form.  Once you're logged in, you'll also be able to read friends-only posts that [[sitename]] users have indicated you're allowed to read.
 
+.main.using_your_openid_here.email=You can also set and validate an email address to be notified of replies to your comments via email.
+
 .login.openid_url=Your OpenID URL:
 
 .login.submit=Login
