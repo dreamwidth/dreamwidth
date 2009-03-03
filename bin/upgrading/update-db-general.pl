@@ -3184,6 +3184,15 @@ CREATE TABLE import_status (
 )
 EOC
 
+register_tablecreate('email_aliases', <<'EOC');
+CREATE TABLE email_aliases (
+    alias VARCHAR(255) NOT NULL,
+    rcpt VARCHAR(255) NOT NULL,
+
+    PRIMARY KEY (alias)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 
