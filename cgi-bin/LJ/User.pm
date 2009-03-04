@@ -612,6 +612,13 @@ sub is_identity {
 }
 
 
+# return true if the user is either a personal journal or an identity journal
+sub is_individual {
+    my $u = shift;
+    return $u->is_personal || $u->is_identity ? 1 : 0;
+}
+
+
 sub is_news {
     my $u = shift;
     return $u->{journaltype} eq "N";
