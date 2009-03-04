@@ -2998,6 +2998,92 @@ tos.haveread=I have read and agree to the Terms of Service.
 
 tos.mustread=Before continuing you must read and agree to the <a [[aopts]]>Terms of Service.</a>
 
+userlinkbar.addsub=Subscribe
+
+userlinkbar.addsub.title.loggedout=You must be logged in to subscribe to this account
+
+userlinkbar.addsub.title.other=Subscribe to this account
+
+userlinkbar.addsub.title.self=Subscribe to your account
+
+userlinkbar.addtrust=Grant Access
+
+userlinkbar.addtrust.title.other=Grant access to this user
+
+userlinkbar.addtrust.title.loggedout=You must be logged in to grant access to this user
+
+userlinkbar.joincomm=Join
+
+userlinkbar.joincomm.title.cantjoin=You cannot join this community
+
+userlinkbar.joincomm.title.closed=Membership for this community is closed
+
+userlinkbar.joincomm.title.loggedout=You must be logged in to join this community
+
+userlinkbar.joincomm.title.open=Join this community
+
+userlinkbar.leavecomm=Leave
+
+userlinkbar.leavecomm.title=Leave this community
+
+userlinkbar.memories=Memories
+
+userlinkbar.memories.title.other=View this user's memories
+
+userlinkbar.memories.title.self=View your memories
+
+userlinkbar.modifysub=Modify Subscription
+
+userlinkbar.modifysub.title.other=Modify/remove subscription for this account
+
+userlinkbar.modifysub.title.self=Modify/remove subscription for your account
+
+userlinkbar.modifytrust=Modify Access
+
+userlinkbar.modifytrust.title.other=Modify/remove access from this user
+
+userlinkbar.tellafriend=Tell a Friend
+
+userlinkbar.tellafriend.title.other=Tell a friend about this journal
+
+userlinkbar.tellafriend.title.self=Tell a friend about your journal
+
+userlinkbar.post=Post
+
+userlinkbar.post.title=Post to this community
+
+userlinkbar.post.title.cantpost=You cannot post to this community
+
+userlinkbar.post.title.loggedout=You must be logged in to post to this community
+
+userlinkbar.postentry=Post an Entry
+
+userlinkbar.postentry.title=Post to your journal
+
+userlinkbar.sendmessage=Send Message
+
+userlinkbar.sendmessage.title=Send a private message to this user
+
+userlinkbar.sendmessage.title.cantsendmessage=You cannot send a private message to this user
+
+userlinkbar.sendmessage.title.loggedout=You must be logged in to send a private message to this user
+
+userlinkbar.track=Track
+
+userlinkbar.track.title=Receive notifications of updates to this community
+
+userlinkbar.tracksyn=Track Feed
+
+userlinkbar.tracksyn.title=Receive notifications of updates to this feed
+
+userlinkbar.trackuser=Track User
+
+userlinkbar.trackuser.title=Receive notifications of updates from this user
+
+userlinkbar.trackuser.title.cantuseesn=You cannot manage notifications
+
+userlinkbar.trackuser.title.loggedout=You must be logged in to manage notifications
+
 username=Username
 
 userpic.inactive=Inactive

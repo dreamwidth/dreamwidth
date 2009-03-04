@@ -19,7 +19,7 @@
 package DW::Logic::ProfilePage;
 
 use strict;
-
+use DW::Logic::UserLinkBar;
 
 # returns a new profile page object
 sub profile_page {
@@ -40,7 +40,6 @@ sub profile_page {
 *LJ::User::profile_page = \&profile_page;
 *DW::User::profile_page = \&profile_page;
 
-
 # returns array of hashrefs
 #   (
 #       { url => "http://...",
@@ -56,216 +55,10 @@ sub action_links {
     my $self = $_[0];
 
     my $u = $self->{u};
-    my $user = $u->user;
     my $remote = $self->{remote};
-    my @ret;
-
-### JOIN/LEAVE COMMUNITY
-
-    if ( $u->is_community ) {
-        # if logged in and a member of the community $u
-        if ( $remote && $remote->member_of( $u ) ) {
-            push @ret, {
-                url      => "community/leave.bml?comm=$user",
-                title_ml => '.optionlinks.leavecomm.title',
-                image    => 'leave-comm.gif',
-                text_ml  => '.optionlinks.leavecomm',
-                class    => 'profile_leave',
-            };
-
-        # if logged out, OR, not a member
-        } else {
-            my @comm_settings = LJ::get_comm_settings($u);
-
-            my $link = {
-                text_ml => '.optionlinks.joincomm',
-            };
-
-            # if they're not allowed to join at this moment (many reasons)
-            if ($comm_settings[0] eq 'closed' || !$remote || $remote->is_identity || !$u->is_visible) {
-                $link->{title_ml} = $comm_settings[0] eq 'closed' ?
-                                        '.optionlinks.joincomm.title.closed' :
-                                        '.optionlinks.joincomm.title.loggedout';
-                $link->{title_ml} = '.optionlinks.joincomm.title.cantjoin'
-                    if $remote && $remote->is_identity;
-                $link->{image}    = 'join-comm-disabled.gif';
-                $link->{class}    = 'profile_join_disabled';
-
-            # allowed to join
-            } else {
-                $link->{url}      = "community/join.bml?comm=$user";
-                $link->{title_ml} = '.optionlinks.joincomm.title.open';
-                $link->{image}    = 'join-comm.gif';
-                $link->{class}    = 'profile_join';
-            }
-
-            push @ret, $link;
-        }
-    }
-
-### ADD TRUST
-
-    # can add/modify trust for the user if they are a person and not the same as the remote user, and remote is a personal account
-    if ( ( $u->is_personal || $u->is_identity ) && ( !$remote || ( $remote && !$remote->equals( $u ) && $remote->is_personal ) ) ) {
-        my $link = {};
-
-        my $remote_trusts = $remote && $remote->trusts( $u ) ? 1 : 0;
-        $link->{text_ml} = $remote_trusts ? '.optionlinks.modifytrust' : '.optionlinks.addtrust';
-        if ( $remote && ( $remote_trusts || $u->is_visible ) ) {
-            $link->{url} = "manage/circle/add.bml?user=$user&action=access";
-            $link->{title_ml} = $remote_trusts ? '.optionlinks.modifytrust.title.other' : '.optionlinks.addtrust.title.other';
-            $link->{class} = 'profile_addtrust';
-            $link->{image} = 'add-friend.gif';
-        } else {
-            $link->{title_ml} = '.optionlinks.addtrust.title.loggedout';
-            $link->{class} = 'profile_addtrust_disabled';
-            $link->{image} = 'add-friend-disabled.gif';
-        }
-
-        push @ret, $link;
-    }
-
-### ADD WATCH
-
-    {
-        my $link = {};
-
-        my $remote_watches = $remote && $remote->watches( $u ) ? 1 : 0;
-        $link->{text_ml} = $remote_watches ? '.optionlinks.modifysub' : '.optionlinks.addsub';
-        if ( $remote && ( $remote_watches || $u->is_visible ) ) {
-            $link->{url} = "manage/circle/add.bml?user=$user&action=subscribe";
-
-            if ( $remote->equals( $u ) ) {
-                $link->{title_ml} = $remote_watches ? '.optionlinks.modifysub.title.self' : '.optionlinks.addsub.title.self';
-            } else {
-                $link->{title_ml} = $remote_watches ? '.optionlinks.modifysub.title.other' : '.optionlinks.addsub.title.other';
-            }
-
-            if ( $u->is_community ) {
-                $link->{class} = 'profile_addsub_comm';
-                $link->{image} = 'watch-comm.gif';
-            } elsif ( $u->is_syndicated ) {
-                $link->{class} = 'profile_addsub_feed';
-                $link->{image} = 'add-feed.gif';
-            } else {
-                $link->{class} = 'profile_addsub_person';
-                $link->{image} = 'add-friend.gif';
-            }
-        } else {
-            $link->{title_ml} = '.optionlinks.addsub.title.loggedout';
-            if ( $u->is_community ) {
-                $link->{class} = 'profile_addsub_comm_disabled';
-                $link->{image} = 'watch-comm-disabled.gif';
-            } elsif ( $u->is_syndicated ) {
-                $link->{class} = 'profile_addsub_feed_disabled';
-                $link->{image} = 'add-feed-disabled.gif';
-            } else {
-                $link->{class} = 'profile_addsub_person_disabled';
-                $link->{image} = 'add-friend-disabled.gif';
-            }
-        }
-
-        push @ret, $link;
-    }
-
-### POST ENTRY
-
-    if ( $remote && $remote->is_personal && ( $u->is_personal || $u->is_community ) && $remote->can_post_to( $u ) ) {
-        my $link = {
-            url => "update.bml?usejournal=$user",
-            class => 'profile_postentry',
-            image => 'post-entry.gif',
-        };
-
-        if ( $u->is_community ) {
-            $link->{text_ml} = '.optionlinks.post';
-            $link->{title_ml} = '.optionlinks.post.title';
-        } else {
-            $link->{text_ml} = '.optionlinks.postentry';
-            $link->{title_ml} = '.optionlinks.postentry.title';
-        }
-
-        push @ret, $link;
-    } elsif ( $u->is_community ) {
-        push @ret, {
-            text_ml => '.optionlinks.post',
-            title_ml => $remote ? '.optionlinks.post.title.cantpost' : '.optionlinks.post.title.loggedout',
-            class => 'profile_postentry_disabled',
-            image => 'post-entry-disabled.gif',
-        };
-    }
-
-### TRACK
-
-    if ( LJ::is_enabled( 'esn' ) ) {
-        my $link = {
-            text_ml => '.optionlinks.trackuser',
-            title_ml => '.optionlinks.trackuser.title',
-        };
-
-        if ( $remote && $remote->equals( $u ) ) {
-            $link->{text_ml} = '.optionlinks.tracking';
-            $link->{title_ml} = '.optionlinks.tracking.title';
-        } elsif ( $u->is_community ) {
-            $link->{text_ml} = '.optionlinks.track';
-            $link->{title_ml} = '.optionlinks.track.title';
-        } elsif ( $u->is_syndicated ) {
-            $link->{text_ml} = '.optionlinks.tracksyn';
-            $link->{title_ml} = '.optionlinks.tracksyn.title';
-        }
-
-        if ( $remote && $remote->can_use_esn ) {
-            $link->{url} = "manage/subscriptions/user.bml?journal=$user";
-            $link->{class} = 'profile_trackuser';
-            $link->{image} = 'track.gif';
-        } else {
-            $link->{title_ml} = $remote ? '.optionlinks.trackuser.title.cantuseesn' : '.optionlinks.trackuser.title.loggedout';
-            $link->{class} = 'profile_trackuser_disabled';
-            $link->{image} = 'track-disabled.gif';
-        }
-
-        push @ret, $link;
-    }
-
-### PRIVATE MESSAGE
-
-    if ( ( $u->is_personal || $u->is_identity ) && !$u->equals( $remote ) ) {
-        my $link = {
-            text_ml => '.optionlinks.sendmessage',
-            title_ml => '.optionlinks.sendmessage.title',
-        };
-
-        if ( $remote && $u->can_receive_message( $remote ) ) {
-            $link->{url} = "inbox/compose.bml?user=$user";
-            $link->{class} = 'profile_sendmessage';
-            $link->{image} = 'send-message.gif';
-        } else {
-            $link->{title_ml} = $remote ? '.optionlinks.sendmessage.title.cantsendmessage' : '.optionlinks.sendmessage.title.loggedout';
-            $link->{class} = 'profile_sendmessage_disabled';
-            $link->{image} = 'send-message-disabled.gif';
-        }
-
-        push @ret, $link;
-    }
-
-### EXTRA
-
-    # fix up image links and URLs and language
-    foreach my $link ( @ret ) {
-        $link->{image} = "$LJ::IMGPREFIX/profile_icons/$link->{image}"
-            if $link->{image} && $link->{image} !~ /^$LJ::IMGPREFIX/;
-        $link->{url} = "$LJ::SITEROOT/$link->{url}"
-            if $link->{url} && $link->{url} !~ /^$LJ::SITEROOT/;
-
-        if ( my $ml = delete $link->{title_ml} ) {
-            $link->{title} = LJ::Lang::ml( $ml );
-        }
-        if ( my $ml = delete $link->{text_ml} ) {
-            $link->{text} = LJ::Lang::ml( $ml );
-        }
-    }
-
-    return @ret;
+    
+    my $user_link_bar = $u->user_link_bar( $remote, class_prefix => "profile" );
+    my @ret = $user_link_bar->get_links( "manage_membership", "trust", "watch", "post", "track", "message" );
 }
 
 

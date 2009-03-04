@@ -2197,9 +2197,8 @@ sub UserLite
         'link_keyseq' => [ ],
     };
     my $lks = $o->{link_keyseq};
-    push @$lks, qw(add_friend post_entry memories);
-    push @$lks, "tell_friend"  unless $LJ::DISABLED{'tellafriend'};
-    push @$lks, "search"  unless $LJ::DISABLED{'offsite_journal_search'};
+    push @$lks, qw(manage_membership trust watch post_entry track message);
+    push @$lks, 'tell_friend' unless $LJ::DISABLED{tellafriend};
 
     # TODO: Figure out some way to use the userinfo_linkele hook here?
 
@@ -3455,37 +3454,23 @@ sub UserLite__get_link
 {
     my ($ctx, $this, $key) = @_;
 
-    my $u = $this->{_u};
-    my $user = $u->{user};
-    my $remote = LJ::get_remote();
-    my $is_remote = defined($remote) && $remote->{userid} eq $u->{userid};
-    my $has_journal = $u->{journaltype} ne 'I';
+    my $linkbar = $this->{_u}->user_link_bar( LJ::get_remote() );
 
     my $button = sub {
-        return LJ::S2::Link($_[0], $_[1], LJ::S2::Image("$LJ::IMGPREFIX/$_[2]", 22, 20));
+        my $link = $_[0];
+        return undef unless $link;
+
+        return LJ::S2::Link($link->{url}, $link->{title}, LJ::S2::Image($link->{image}, 20, 18));
     };
 
-    if ($key eq 'add_friend' && defined($remote)) {
-        return $button->("$LJ::SITEROOT/manage/circle/add.bml?user=$user", "Add $user to friends list", "btn_addfriend.gif");
-    }
-    if ($key eq 'post_entry') {
-        return undef unless $has_journal and LJ::can_use_journal($remote->{'userid'}, $user);
-
-        my $caption = $is_remote ? "Update your journal" : "Post in $user";
-        return $button->("$LJ::SITEROOT/update.bml?usejournal=$user", $caption, "btn_edit.gif");
-    }
-    if ($key eq 'memories') {
-        my $caption = $is_remote ? "Your memories" : "${user}'s memories";
-        return $button->("$LJ::SITEROOT/tools/memories.bml?user=$user", $caption, "btn_memories.gif");
-    }
-    if ($key eq 'tell_friend' && $has_journal && !$LJ::DISABLED{'tellafriend'}) {
-        my $caption = $is_remote ? "Tell a friend about your journal" : "Tell a friend about $user";
-        return $button->("$LJ::SITEROOT/tools/tellafriend.bml?user=$user", $caption, "btn_tellfriend.gif");
-    }
-    if ($key eq 'search' && $has_journal && !$LJ::DISABLED{'offsite_journal_search'}) {
-        my $caption = $is_remote ? "Search your journal" : "Search $user";
-        return $button->("$LJ::SITEROOT/tools/search.bml?user=$user", $caption, "btn_search.gif");
-    }
+    return $button->( $linkbar->manage_membership ) if $key eq 'manage_membership';
+    return $button->( $linkbar->trust ) if $key eq 'trust';
+    return $button->( $linkbar->watch ) if $key eq 'watch';
+    return $button->( $linkbar->post ) if $key eq 'post_entry';
+    return $button->( $linkbar->message ) if $key eq 'message';    
+    return $button->( $linkbar->track ) if $key eq 'track';
+    return $button->( $linkbar->memories ) if $key eq 'memories';
+    return $button->( $linkbar->tellafriend ) if $key eq 'tell_friend';
 
     # Else?
     return undef;
