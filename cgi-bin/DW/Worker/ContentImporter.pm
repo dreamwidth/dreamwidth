@@ -258,6 +258,11 @@ Temporarily fail this import job, it will get retried if it hasn't failed too ma
 sub temp_fail {
     my ( $class, $imp, $item, $job, $msgt, @args ) = @_;
 
+    # Check if we are out of failures
+    my $max_fails = $class->max_retries;
+    my $this_fail = $job->failures + 1; # Add this failure on.
+    return $class->fail( $imp, $item, $job, $msgt, @args ) if $this_fail >= $max_fails;
+
     my $msg = sprintf( $msgt, @args );
     warn "Temporary failure: $msg\n"
         if $LJ::IS_DEV_SERVER;
