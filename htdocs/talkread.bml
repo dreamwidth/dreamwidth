@@ -328,7 +328,7 @@ my $old_url = 0;
                            );
     }
 
-    $ret .= "<div id='entry' style='margin-left: 30px'>";
+    $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
 
     if (%current)
@@ -645,7 +645,7 @@ my $old_url = 0;
                 $ret .= "<br /><b>$ML{'.posted'}</b>"
                     if $last_talkid == $dtid && $last_jid == $u->{'userid'};
 
-                $ret .= "</td></tr><tr><td class='commentbody'>";
+                $ret .= "</td></tr><tr><td class='commentbody usercontent'>";
 
                 LJ::CleanHTML::clean_comment(\$post->{'body'}, { 'preformatted' => $post->{'props'}->{'opt_preformatted'},
                                                                  'anon_comment' => (!$pu || $pu->{'journaltype'} eq 'I'),

@@ -261,3 +261,51 @@ input.bright {
     font-size: 1.2em;
     margin-top: 10px;
 }
+
+/**
+  * Apply a baseline display to all user-generated content
+  */
+.usercontent h1,
+.usercontent h2,
+.usercontent h3,
+.usercontent h4,
+.usercontent h5,
+.usercontent h6,
+.usercontent strong,
+.usercontent dt {
+    font-weight: bold;
+}
+.usercontent ul,
+.usercontent ol,
+.usercontent dl,
+.usercontent menu,
+.usercontent blockquote {
+    margin: 1em;
+}
+.usercontent ul,
+.usercontent ol,
+.usercontent dl,
+.usercontent menu,
+.usercontent dl dd {
+    margin-left: 2em;
+}
+.usercontent ol li {
+    list-style: decimal outside;
+}
+.usercontent ul li { 
+    list-style: disc outside;
+}
+.usercontent sup {
+    vertical-align: super;
+    font-size: smaller;
+}
+.usercontent sub { 
+    vertical-align: sub;
+    font-size: smaller;
+}
+.usercontent p,
+.usercontent fieldset,
+.usercontent table,
+.usercontent pre { 
+    margin-bottom: 1em;
+}

@@ -435,7 +435,7 @@ body<=
         $ret .= $content_block->(
             section_name    => 'bio',
             section_name_ml => $u->is_person || $u->is_identity ? '.bio.header' : '.about.header',
-            body            => $biobody,
+            body            => "<div class='usercontent'>$biobody</div>",
             links           => $links,
         );
     }

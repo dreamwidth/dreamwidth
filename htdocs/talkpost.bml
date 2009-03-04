@@ -310,7 +310,7 @@ body<=
     $current{'Groups'} = $group_names if $group_names;
 
 
-    $ret .= "<div id='entry' style='margin-left: 30px'>";
+    $ret .= "<div id='entry' class='usercontent' style='margin-left: 30px'>";
 
     ### currents
     if (! $init->{'replyto'} && %current)
