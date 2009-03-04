@@ -56,7 +56,6 @@ use Errno qw(ENOENT);
     'managetags' => ['Manage Tags', '/manage/tags.bml', 'manage'],
     'managelogins' => ['Manage Your Login Sessions', '/manage/logins.bml', 'manage'],
     'manageuserpics' => ['Manage Userpics', '/editpics.bml', 'manage'],
-    'meme' => ['Meme Tracker', '/meme.bml', 'home'],
     'memories' => ['Memorable Posts', '/tools/memories.bml', 'manage'],
     'mobilepost' => ['Mobile Post Settings', '/manage/emailpost.bml', 'manage'],
     'moderate' => ['Community Moderation', '/community/moderate.bml', 'community'],

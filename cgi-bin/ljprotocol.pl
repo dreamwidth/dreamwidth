@@ -1423,15 +1423,6 @@ sub postevent
     }
     #### /embedding
 
-    ### extract links for meme tracking
-    unless ($req->{'security'} eq "usemask" ||
-            $req->{'security'} eq "private")
-    {
-        foreach my $url (LJ::get_urls($event)) {
-            LJ::record_meme($url, $posterid, $ditemid, $ownerid);
-        }
-    }
-
     # record journal's disk usage
     my $bytes = length($event) + length($req->{'subject'});
     $uowner->dudata_set('L', $jitemid, $bytes);

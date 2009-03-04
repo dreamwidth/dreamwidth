@@ -969,6 +969,7 @@ register_tabledrop("weekuserusage");
 register_tabledrop("themedata");
 register_tabledrop("themelist");
 register_tabledrop("style");
+register_tabledrop("meme");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -1083,18 +1084,6 @@ CREATE TABLE acctcode_request (
     timeprocessed   INT UNSIGNED,
 
     INDEX (userid)
-)
-EOC
-
-register_tablecreate("meme", <<'EOC');
-CREATE TABLE meme (
-    url       VARCHAR(150) NOT NULL,
-    posterid  INT UNSIGNED NOT NULL,
-    UNIQUE (url, posterid),
-    ts        TIMESTAMP,
-    itemid    INT UNSIGNED NOT NULL,
-
-    INDEX (ts)
 )
 EOC
 
@@ -3328,12 +3317,6 @@ register_alter(sub {
         do_alter("priv_list",
                  "ALTER TABLE priv_list ".
                  "ADD is_public ENUM('1', '0') DEFAULT '1' NOT NULL");
-    }
-
-    # cluster stuff!
-    if (column_type("meme", "journalid") eq "") {
-        do_alter("meme",
-                 "ALTER TABLE meme ADD journalid INT UNSIGNED NOT NULL AFTER ts");
     }
 
     if (column_type("memorable", "jitemid") eq "") {

@@ -747,34 +747,6 @@ sub get_urls
 }
 
 # <LJFUNC>
-# name: LJ::record_meme
-# des: Records a URL reference from a journal entry to the [dbtable[meme]] table.
-# args: dbarg?, url, posterid, itemid, journalid?
-# des-url: URL to log
-# des-posterid: Userid of person posting
-# des-itemid: Itemid URL appears in.  This is the display itemid,
-#             which is the jitemid*256+anum from the [dbtable[log2]] table.
-# des-journalid: Optional, journal id of item, if item is clustered.  Otherwise
-#                this should be zero or undef.
-# </LJFUNC>
-sub record_meme
-{
-    my ($url, $posterid, $itemid, $jid) = @_;
-    return if $LJ::DISABLED{'meme'};
-
-    $url =~ s!/$!!;  # strip / at end
-    LJ::run_hooks("canonicalize_url", \$url);
-
-    # canonicalize_url hook might just erase it, so
-    # we don't want to record it.
-    return unless $url;
-
-    my $dbh = LJ::get_db_writer();
-    $dbh->do("REPLACE DELAYED INTO meme (url, posterid, journalid, itemid) " .
-             "VALUES (?, ?, ?, ?)", undef, $url, $posterid, $jid, $itemid);
-}
-
-# <LJFUNC>
 # name: LJ::make_auth_code
 # des: Makes a random string of characters of a given length.
 # returns: string of random characters, from an alphabet of 30

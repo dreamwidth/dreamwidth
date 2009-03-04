@@ -300,13 +300,6 @@
         <listitem><simpara>The Schools Directory lets a user search for users
             and communities associated with a specific school from around the world.</simpara></listitem>
       </varlistentry>
-            <varlistentry>
-        <term>meme tracking</term>
-        <listitem><simpara>Users can view a list of &url;s that have been most
-            referenced in journal entries site-wide. Users can also check to see where
-            those &url;s are being referenced. (By some slight alteration, users can
-            also see if anyone on your installation is linking to a specific &url;, and where.)</simpara></listitem>
-      </varlistentry>
       <varlistentry>
         <term>Random feature</term>
         <listitem><simpara>Users can view a random journal from a subset of users who

@@ -79,14 +79,6 @@ $maint{'clean_caches'} = sub
         }
     }
 
-    print "-I- Cleaning meme.\n";
-    do {
-        $sth = $dbh->prepare("DELETE FROM meme WHERE ts < DATE_SUB(NOW(), INTERVAL 7 DAY) LIMIT 250");
-        $sth->execute;
-        if ($dbh->err) { print $dbh->errstr; }
-        print "    deleted ", $sth->rows, "\n";
-    } while ($sth->rows && ! $sth->err);
-
     print "-I- Cleaning old pending comments.\n";
     $count = 0;
     foreach my $c (@LJ::CLUSTERS) {

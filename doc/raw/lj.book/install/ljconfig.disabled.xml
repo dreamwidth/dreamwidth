@@ -78,10 +78,6 @@
       <listitem><simpara>Enable running of maintenance tasks by <filename>ljmaint.pl</filename>.</simpara></listitem>
     </varlistentry>
     <varlistentry>
-      <term>meme</term>
-      <listitem><simpara>Enable the meme-tracking feature for users to view a list of &url;s referenced in journal entries.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
       <term>portal</term>
       <listitem><simpara>Show the <quote>Portal</quote>, which acts as a one-stop-shop of features, for users.</simpara></listitem>
     </varlistentry>

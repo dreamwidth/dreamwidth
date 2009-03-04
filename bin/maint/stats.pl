@@ -13,7 +13,7 @@ $maint{'genstats'} = sub
 {
     my @which = @_ || qw(users countries 
                          states gender clients
-                         pop_interests meme popfaq
+                         pop_interests popfaq
                          schools);
     
     # popular faq items
@@ -77,34 +77,6 @@ $maint{'genstats'} = sub
                },
 
        });
-
-    # popular memes
-    LJ::Stats::register_stat
-        ({ 'type' => "global",
-           'jobname' => "meme",
-           'statname' => "popmeme",
-           'handler' =>
-               sub {
-                   my $db_getter = shift;
-                   return undef unless ref $db_getter eq 'CODE';
-                   my $db = $db_getter->();
-                   return undef unless $db;
-
-                   return {} if $LJ::DISABLED{'meme'};
-
-                   my $sth = $db->prepare("SELECT url, count(*) FROM meme " .
-                                          "GROUP BY 1 ORDER BY 2 DESC LIMIT 100");
-                   $sth->execute;
-                   die $db->errstr if $db->err;
-
-                   my %ret;
-                   while (my ($url, $count) = $sth->fetchrow_array) {
-                       $ret{$url} = $count;
-                   }
-
-                   return \%ret;
-               },
-         });
 
     # clients
     LJ::Stats::register_stat
@@ -542,25 +514,5 @@ $maint{'genstats_weekly'} = sub
     print "-I- Done.\n";
 };
 
-$maint{'memeclean'} = sub
-{
-    my $dbh = LJ::get_db_writer();
-
-    print "-I- Cleaning memes.\n";
-    my $sth = $dbh->prepare("SELECT statkey FROM stats WHERE statcat='popmeme'");
-    $sth->execute;
-    die $dbh->errstr if $dbh->err;
-
-    while (my $url = $sth->fetchrow_array) {
-        my $copy = $url;
-        LJ::run_hooks("canonicalize_url", \$copy);
-        unless ($copy) {
-            my $d = $dbh->quote($url);
-            $dbh->do("DELETE FROM stats WHERE statcat='popmeme' AND statkey=$d");
-            print "    deleting: $url\n";
-        }
-    }
-    print "-I- Done.\n";
-};
 
 1;
