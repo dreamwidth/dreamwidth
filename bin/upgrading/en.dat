@@ -2615,6 +2615,8 @@ setting.entryeditor.option.richtext=Rich Text
 
 setting.gender.error.invalid=Invalid option
 
+setting.gender.error.wrongtype=Only personal or identity journals can have a gender.
+
 setting.gender.question=What's your gender?
 
 setting.graphicpreviews.label=Graphic Previews

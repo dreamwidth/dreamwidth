@@ -148,15 +148,16 @@ body<=
             $ret .= "<?inerr " . BML::ml('.error.invalidname2', {'aopts' => "href='$LJ::SITEROOT/utf8convert.bml'"}) . " inerr?></td></tr>\n";
         }
 
-        # gender
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.gender'}</td><td>";
-        $ret .= LJ::html_select({ 'name' => 'gender', 'selected' => $u->{'gender'} || 'U' },
-                                  'F' => $ML{'.gender.female'},
-                                  'M' => $ML{'.gender.male'},
-                                  'O' => $ML{'.gender.other'},
-                                  'U' => $ML{'.gender.unspecified'}, );
-        $ret .= "</td></tr>\n";
-
+        if ( $u->is_individual ) {
+            # gender
+            $ret .= "<tr><td class='field_name'>$ML{'.fn.gender'}</td><td>";
+            $ret .= LJ::html_select({ name => 'gender', selected => $u->prop( 'gender' ) || 'U' },
+                                      F => $ML{'.gender.female'},
+                                      M => $ML{'.gender.male'},
+                                      O => $ML{'.gender.other'},
+                                      U => $ML{'.gender.unspecified'}, );
+            $ret .= "</td></tr>\n";
+        }
 
         # birthday
         $ret .= "<tr><td class='field_name'>$ML{'.fn.birthday'}</td><td>";
