@@ -1,3 +1,5 @@
+.title=OpenID
+
 .beta.heading=BETA:
 
 .beta.content=Our OpenID consumer support is very new.  That is, external users logging in with their identity here will find some rough edges while we work on smoothing it all out.<br /><br />Our server support is relatively complete, though.
