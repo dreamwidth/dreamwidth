@@ -3,156 +3,123 @@ nocache=>1
 _info?><?page
 title=><?_code return $FORM{'id'} ? "Edit FAQ Item #$FORM{'id'}" : "Add to FAQ"; _code?>
 body<=
+<center>
+<a href="./"><b>(Back to FAQ Index)</b></a>
+</center>
 
-<CENTER>
-<A HREF="./"><B>(Back to FAQ Index)</B></A>
-</CENTER>
-
-
-<FORM ACTION="faqedit_do.bml" METHOD=POST>
+<form action="faqedit_do.bml" method="post">
 <?_code
+    $id = $FORM{'id'} + 0;
+    $ret = "";
 
- $id = $FORM{'id'} + 0;
- $ret = "";
+    my $dbh = LJ::get_db_writer();
 
- my $dbh = LJ::get_db_writer();
+    my $remote = LJ::get_remote();
+    my %ac_edit;
+    my %ac_add;
+    LJ::remote_has_priv( $remote, "faqadd", \%ac_add );
 
- my $remote = LJ::get_remote();
- my %ac_edit;
- my %ac_add;
- LJ::remote_has_priv($remote, "faqadd", \%ac_add);
+    if ( $id ) {
+        LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
+        my $sth = $dbh->prepare( "SELECT question, summary, answer, faqcat, sortorder FROM faq WHERE faqid=$id" );
+        $sth->execute;
+        ($question, $summary, $answer, $faqcat, $sortorder) = $sth->fetchrow_array or
+            return "<b>Error:</b> FAQ #$id does not exist.";
 
- if ($id)
- {
-     LJ::remote_has_priv($remote, "faqedit", \%ac_edit);
-     my $sth = $dbh->prepare("SELECT question, summary, answer, faqcat, sortorder FROM faq WHERE faqid=$id");
-     $sth->execute;
-     ($question, $summary, $answer, $faqcat, $sortorder) = $sth->fetchrow_array or
-         return "<b>Error:</b> FAQ #$id does not exist.";
+        unless ( $ac_edit{'*'} || $ac_edit{$faqcat} ) {
+            if ( %ac_edit ) {
+                return "<b>Error: </b> You do not have access to edit a FAQ question in the \"$faqcat\" category.";
+            } else {
+                return "<b>Error: </b> You do not have access to edit the FAQ.";
+            }
+        }
+    } else {
+        return "<b>Error: </b> You do not have access to add to the FAQ."
+            unless %ac_add;
+    }
 
-     unless ($ac_edit{'*'} || $ac_edit{$faqcat}) {
-         if (%ac_edit) {
-             return "<B>Error: </B> You do not have access to edit a FAQ question in the \"$faqcat\" category.";
-         } else {
-             return "<B>Error: </B> You do not have access to edit the FAQ.";
-         }
-     }
- }
- else
- {
-     unless (%ac_add) {
-         return "<B>Error: </B> You do not have access to add to the FAQ.";
-     }
- }
+    $sortorder += 0;
+    $sortorder ||= 50;
 
+    $ret .= LJ::form_auth();
+    $ret .= LJ::html_hidden( 'id', $id );
+    $ret .= "<p>Category: ";
 
- $sortorder += 0;
- $sortorder ||= 50;
+    my $sth = $dbh->prepare( "SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder" );
+    $sth->execute;
+    my @cats;
+    push @cats, '', '';
+    my $faqd = LJ::Lang::get_dom( "faq" );
 
- $ret .= LJ::form_auth();
- $ret .= LJ::html_hidden('id', $id);
- $ret .= "<p>Category: ";
+    while ( ($fc, $fcname) = $sth->fetchrow_array )
+    {
+        if ( $id ) {
+            next unless $ac_add{'*'} || $ac_add{$fc} || ($fc eq $faqcat);
+        } else {
+            next unless $ac_add{'*'} || $ac_add{$fc};
+        }
 
- my $sth = $dbh->prepare("SELECT faqcat, faqcatname FROM faqcat ORDER BY catorder");
- $sth->execute;
- my @cats;
- push @cats, '';push @cats, '';
- my $faqd = LJ::Lang::get_dom("faq");
+        push @cats, $fc, $fcname;
+    }
 
- while (($fc, $fcname) = $sth->fetchrow_array)
- {
-     if ($id) {
-         next unless ($ac_add{'*'} || $ac_add{$fc} || ($fc eq $faqcat));
-     } else {
-         next unless ($ac_add{'*'} || $ac_add{$fc});
-     }
+    $ret .= LJ::html_select( { name => 'faqcat', selected => $faqcat }, @cats );
 
-     push @cats, $fc;
-     push @cats, $fcname;
- }
+    $ret .= "&nbsp;SortOrder: ";
+    $ret .= LJ::html_text( { name => 'sortorder', value => $sortorder,
+                             size => 5, maxlength => 4 } );
 
- $ret .= LJ::html_select({
-     'name'     => 'faqcat',
-     'selected' => $faqcat,},
-                         @cats);
+    $ret .= "<br><i>(sort order is how to sort within the category.  categories themselves are also sorted.)</i></p>";
 
- $ret .= "&nbsp;SortOrder: ";
- $ret .= LJ::html_text({
-     'name'      => 'sortorder',
-     'value'     => $sortorder,
-     'size'      => 5,
-     'maxlength' => 4,
- });
+    $ret .= "<?h1 Question h1?> <?p (as brief as possible, do not span multiple lines) p?><p>";
 
- $ret .= "<br><i>(sort order is how to sort within the category.  categories themselves are also sorted.)</i></p>";
-
- $ret .= "<?h1 Question h1?> <?p (as brief as possible, do not span multiple lines) p?><p>";
-
- $ret .= LJ::html_textarea({
-     'name'  => 'q',
-     'value' => $question,
-     'rows'  => 2,
-     'cols'  => 70,
-     'wrap'  => 'soft'
-     });
- $ret .= "<br /><i>(erase question to delete FAQ entry)</i></p>";
+    $ret .= LJ::html_textarea( { name => 'q', value => $question,
+                                 rows => 2, cols => 70, wrap => 'soft' } );
+    $ret .= "<br /><i>(erase question to delete FAQ entry)</i></p>";
  
- if ($faqd && $id != 0) {
-     $ret .= "<p><b>Select modification level for question:</b> ";
-     $ret .= LJ::html_select({ 'name' => "sev_question", "selected" => 0 },
-                             0 => "Typo/etc (no notify)",
-                             1 => "Minor (notify translators)",
-                             2 => "Major (require translation updates)");
-     $ret .= "</p>";
- }
+    if ( $faqd && $id != 0 ) {
+        $ret .= "<p><b>Select modification level for question:</b> ";
+        $ret .= LJ::html_select( { name => "sev_question", selected => 0 },
+                                 0 => "Typo/etc (no notify)",
+                                 1 => "Minor (notify translators)",
+                                 2 => "Major (require translation updates)");
+        $ret .= "</p>";
+    }
 
- $ret .= "<?h1 Summary h1?> <?p (should be a shortish paragraph, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
+    $ret .= "<?h1 Summary h1?> <?p (should be a shortish paragraph, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
 
- $ret .= LJ::html_textarea({
-     'name'  => 's',
-     'value' => $summary,
-     'rows'  => '10',
-     'cols'  => '70',
-     'wrap'  => 'soft'
-     });
- $ret .= "</p>";
+    $ret .= LJ::html_textarea( { name => 's', value => $summary,
+                                 rows => '10', cols => '70', wrap => 'soft' } );
+    $ret .= "</p>";
 
- if ($faqd && $id != 0) {
-     $ret .= "<p><b>Select modification level for summary:</b> ";
-     $ret .= LJ::html_select({ 'name' => "sev_summary", "selected" => 0 },
-                             0 => "Typo/etc (no notify)",
-                             1 => "Minor (notify translators)",
-                             2 => "Major (require translation updates)");
-     $ret .= "</p>";
- }
+    if ( $faqd && $id != 0 ) {
+        $ret .= "<p><b>Select modification level for summary:</b> ";
+        $ret .= LJ::html_select( { name => "sev_summary", selected => 0 },
+                                 0 => "Typo/etc (no notify)",
+                                 1 => "Minor (notify translators)",
+                                 2 => "Major (require translation updates)" );
+        $ret .= "</p>";
+    }
 
- $ret .= "<?h1 Answer h1?> <?p (long as you want, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
+    $ret .= "<?h1 Answer h1?> <?p (long as you want, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
 
- $ret .= LJ::html_textarea({
-     'name'  => 'a',
-     'value' => $answer,
-     'rows'  => '15',
-     'cols'  => '70',
-     'wrap'  => 'soft'
-     });
- $ret .= "</p>";
+    $ret .= LJ::html_textarea( { name => 'a', value => $answer,
+                                 rows => '15', cols => '70', wrap => 'soft' } );
+    $ret .= "</p>";
 
- if ($faqd && $id != 0) {
-     $ret .= "<p><b>Select modification level for answer:</b> ";
-     $ret .= LJ::html_select({ 'name' => "sev_answer", "selected" => 0 },
-                             0 => "Typo/etc (no notify)",
-                             1 => "Minor (notify translators)",
-                             2 => "Major (require translation updates)");
-     $ret .= "</p>";
- }
+    if ( $faqd && $id != 0 ) {
+        $ret .= "<p><b>Select modification level for answer:</b> ";
+        $ret .= LJ::html_select( { name => "sev_answer", selected => 0 },
+                                 0 => "Typo/etc (no notify)",
+                                 1 => "Minor (notify translators)",
+                                 2 => "Major (require translation updates)" );
+        $ret .= "</p>";
+    }
 
+    $ret .= "<p>" . LJ::html_submit( '', 'Add/Edit FAQ Item' ) . "</p>";
+    return $ret;
+_code?>
 
- $ret .= "<p>" . LJ::html_submit('', 'Add/Edit FAQ Item') . "</p>";
- return $ret;
-
- _code?>
-
-</FORM>
+</form>
 
 <=body
 page?><?_c <LJDEP>
