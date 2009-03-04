@@ -68,13 +68,26 @@ body<=
         $faqq{$f->faqid} = $f;
     }
 
+    # insert a table of contents
+    $ret .= "<?h2 $ML{'.toc.title'} h2?>";
+    $ret .= "<ul>";
+    foreach my $faqcat ( sort { $faqcat{$a}->{catorder} <=>
+                                $faqcat{$b}->{catorder} } keys %faqcat )
+    {
+        next if $GET{cat} && $GET{cat} ne $faqcat;
+        $ret .= "<li><a href=#$faqcat>";
+        $ret .= LJ::ehtml( $faqcat{$faqcat}->{faqcatname} );
+        $ret .= "</a></li>\n";
+    }
+    $ret .= "</ul><hr>";
+
     foreach my $faqcat (sort { $faqcat{$a}->{'catorder'} <=>
                                    $faqcat{$b}->{'catorder'} } keys %faqcat)
     {
         next if $GET{'cat'} && $GET{'cat'} ne $faqcat;
         $ret .= "<?h2 ";
         $ret .= LJ::ehtml($faqcat{$faqcat}->{'faqcatname'});
-        $ret .= " (<a href='faqbrowse.bml?faqcat=$faqcat'>";
+        $ret .= " (<a href='faqbrowse.bml?faqcat=$faqcat' name='$faqcat'>";
         $ret .= $ML{'.view.all'};
         $ret .= "</a>) h2?>\n";
         $ret .= "<ul class='faqlist'>\n";
