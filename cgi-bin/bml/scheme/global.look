@@ -26,6 +26,9 @@ REQUIREPOST=><?_ml bml.requirepost _ml?>
 
 LOAD_PAGE_INFO<=
 <?_code
+### PLEASE NOTE: This block is deprecated. To print the menu navigation in a scheme,
+###              use the <?menunav?> block.
+
 #line 3
 @sidebar = ({ 'name' => 'Home',
            'uri' => '/',
@@ -268,3 +271,38 @@ BREADCRUMBS<=
     return "<div id='ljbreadcrumbs'>" . join(" : ", @ret) . "</div>";
 _code?>
 <=BREADCRUMBS
+
+# Dreamwidth menu structure
+menunav<=
+<?_code
+{
+    use DW::Logic::MenuNav;
+
+    my $ret;
+
+    $ret .= "<ul>\n";
+
+    my $nav_links = DW::Logic::MenuNav->get_menu_navigation;   # defaults to remote
+
+    foreach my $cathash ( @{ $nav_links } ) {
+        my $cat = $cathash->{name};
+        my @submenu = @{ $cathash->{items} };
+        my @displayed = ();
+        foreach my $item ( @submenu ) {
+            push @displayed, "<li class='subnav'><a href='$item->{url}'>" . BML::ml( "$item->{text}", $item->{text_opts} ) . "</a></li>" if $item->{display};
+        }
+        if ( @displayed ) {   # only display a top-level menu if any of its items are displayed
+            $ret .= "<li id='${cat}_topnav' class='topnav'><a href='$LJ::SITEROOT/nav.bml?cat=$cat'>$ML{\"menunav.$cat\"}</a>\n";
+            $ret .= "<ul id='${cat}_subnav' class='subnav_container'>\n";
+            $ret .= join( "\n", @displayed ) . "\n";
+            $ret .= "</ul>\n";
+            $ret .= "</li>\n";
+        }
+    }
+
+    $ret .= "</ul>\n";
+
+    return $ret;
+}
+_code?>
+<=menunav

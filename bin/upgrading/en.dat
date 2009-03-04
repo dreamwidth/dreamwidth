@@ -2143,6 +2143,58 @@ lynx.nav.siteopts=Browse Options
 
 lynx.nav.update=Update Journal
 
+menunav.create=Create
+
+menunav.create.createaccount=Create Account
+
+menunav.create.createcommunity=Create Community
+
+menunav.create.editjournal=Edit Entries
+
+menunav.create.editprofile=Edit Profile
+
+menunav.create.updatejournal=Update Journal
+
+menunav.create.uploaduserpics=Upload Icons ([[num]] of [[max]])
+
+menunav.explore=Explore
+
+menunav.explore.directorysearch=Directory Search
+
+menunav.explore.faq=FAQ
+
+menunav.organize=Organize
+
+menunav.organize.customizestyle=Customize Style
+
+menunav.organize.manageaccount=Manage Account
+
+menunav.organize.managecommunities=Manage Communities
+
+menunav.organize.managefilters=Manage Filters
+
+menunav.organize.managerelationships=Manage Circle
+
+menunav.organize.managetags=Manage Tags
+
+menunav.organize.selectstyle=Select Style
+
+menunav.read=Read
+
+menunav.read.inbox.nounread=Inbox
+
+menunav.read.inbox.unread=Inbox ([[num]])
+
+menunav.read.profile=Profile
+
+menunav.read.readinglist=Reading Page
+
+menunav.read.recentcomments=Recent Comments
+
+menunav.read.syndicatedfeeds=Syndicated Feeds
+
+menunav.read.tags=Tags
+
 notification_method.email.title=Email
 
 notification_method.im.title=IM
