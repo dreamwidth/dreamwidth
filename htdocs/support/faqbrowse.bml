@@ -56,8 +56,8 @@ body<=
     my $dbr = LJ::get_db_reader();
     if ($faqidarg) {
         # loading single faqid
-        $$title = BML::ml('.title_num', { 'num' => $faqidarg });
         @faqs = (LJ::Faq->load($faqidarg, lang => $lang));
+        $$title = $faqs[0]->question_html;
 
     } elsif ($faqcatarg) {
         # loading entire faqcat
@@ -148,12 +148,12 @@ body<=
         }
 
         # display output
-        $$body .= "<?h1";
         if ($faqcatarg) {
+            $$body .= "<?h1";
             $$body .= " <a style='text-decoration: none;' " .
                       "href='faqbrowse.bml?faqid=$faqid'>&#x00bb;</a>";
+            $$body .= " $question h1?>";
         }
-        $$body .= " $question h1?>";
         $$body .= "<div style='margin-left: 20px;'>";
 
         $$body .= "<div name='summary' id='summary'>$summary</div>";
