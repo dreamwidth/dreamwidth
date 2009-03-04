@@ -2086,11 +2086,22 @@ sub Image_userpic
 
     $picid ||= LJ::get_picid_from_keyword($u, $kw);
 
-    my $pi = LJ::get_userpic_info($u, {load_comments => 1});
-    my $p = $pi->{'pic'}->{$picid};
-    my $k = $pi->{'kw'};
-    my $kwstr = join(', ', ( grep { $k->{$_}{'picid'} eq $picid } (keys %$k) ) );
-    my $alttext = $kwstr;
+    # get the Userpic object
+    my $p = LJ::Userpic->new($u, $picid);
+
+    # load the alttext.  use description by default, keyword as fallback,
+    # and all keywords as final fallback (should be for default icon only).
+    my $description = $p->description;
+    my $alttext;
+
+    if ($description) {
+        $alttext = $description;
+    } elsif ($kw) {
+        $alttext = $kw;
+    } else {
+        my $kwstr = $p->keywords;
+        $alttext = $kwstr;
+    }
 
     return Null("Image") unless $p;
     return {

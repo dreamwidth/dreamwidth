@@ -158,8 +158,8 @@ sub ReplyPage
             return $opts->{handler_return} = 403 if $pu->{statusvis} eq 'S'; # do not show comments by suspended users
             $s2poster = UserLite($pu);
 
-            # FIXME: this is a little heavy:
-            $comment_userpic = Image_userpic($pu, 0, $parpost->{'props'}->{'picture_keyword'});
+            my $pickw = LJ::Entry->userpic_kw_from_props($parpost->{'props'});
+            $comment_userpic = Image_userpic($pu, 0, $pickw);
         }
 
         LJ::CleanHTML::clean_comment(\$parpost->{'body'},

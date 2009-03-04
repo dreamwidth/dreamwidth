@@ -439,8 +439,11 @@ sub EntryPage_entry
     my $stylemine = $get->{'style'} eq "mine" ? "style=mine" : "";
     my $style_set = defined $get->{'s2id'} ? "s2id=" . $get->{'s2id'} : "";
     my $style_arg = ($stylemine ne '' and $style_set ne '') ? ($stylemine . '&' . $style_set) : ($stylemine . $style_set);
-
-    my $userpic = Image_userpic($pu, $entry->userpic ? $entry->userpic->picid : 0);
+    
+    # load the userpic; include the keyword selected by the user 
+    # as a backup for the alttext
+    my $pickw = LJ::Entry->userpic_kw_from_props($entry->props);
+    my $userpic = Image_userpic($pu, $entry->userpic ? $entry->userpic->picid : 0, $pickw);
 
     my $permalink = $entry->url;
     my $readurl = LJ::Talk::talkargs($permalink, $nc, $style_arg);

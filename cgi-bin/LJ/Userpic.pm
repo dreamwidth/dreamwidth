@@ -375,7 +375,7 @@ sub supports_comments {
 }
 
 # class method
-# does this user's dataversion support usepic comments?
+# does this user's dataversion support userpic comments?
 sub userpics_partitioned {
     my ($class, $u) = @_;
     Carp::croak("Not a valid \$u object") unless LJ::isu($u);
@@ -398,7 +398,7 @@ sub load_row {
 
     my $row;
     if (LJ::Userpic->userpics_partitioned($u)) {
-        $row = $u->selectrow_hashref("SELECT userid, picid, width, height, state, fmt, comment, location, url, " .
+        $row = $u->selectrow_hashref("SELECT userid, picid, width, height, state, fmt, comment, description, location, url, " .
                                      "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
                                      "FROM userpic2 WHERE userid=? AND picid=?", undef,
                                      $u->{userid}, $self->{picid});
