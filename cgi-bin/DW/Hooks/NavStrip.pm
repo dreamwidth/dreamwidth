@@ -51,12 +51,7 @@ LJ::register_hook( 'show_control_strip', sub {
 
     if ( $remote ) {
 
-        # TODO: make this default admin-settable from the UI?
-        # Logged-in defaults: on for journals they aren't watching,
-        # comms they aren't members of. Off everywhere else
-        my $display = defined $remote->prop( 'control_strip_display' )
-            ? $remote->prop( 'control_strip_display' )
-            : $pagemask{'community.notbelongto'} | $pagemask{'journal.notwatching'};
+        my $display = $remote->control_strip_display;
         return undef unless $display;
 
         # customized comment pages (both entry and reply)
@@ -84,8 +79,7 @@ LJ::register_hook( 'show_control_strip', sub {
             : $display & $pagemask{'journal.notwatching'};
 
     } else {
-        # Logged-out defaults: off everywhere (empty == off)
-        my $display = $journal->prop( 'control_strip_display' );
+        my $display = $journal->control_strip_display;
         return undef unless $display;
 
         return $r->note( 'view' ) eq 'read'

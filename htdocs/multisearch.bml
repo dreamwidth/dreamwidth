@@ -153,8 +153,7 @@
                 }, undef, $email);
             }
             if (my $u = LJ::load_userid($uid)) {
-                LJ::load_user_props($u, "opt_whatemailshow");
-                if ($u->{'opt_whatemailshow'} eq "A" || $u->{'opt_whatemailshow'} eq "B") {
+                if ($u->opt_whatemailshow eq "A" || $u->opt_whatemailshow eq "B") {
                     if ($output eq "foaf") {
                         return BML::redirect(LJ::journal_base($u) . '/data/foaf');
                     } else {

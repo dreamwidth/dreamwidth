@@ -3,7 +3,7 @@ use base 'LJ::CProd';
 
 sub applicable {
     my ($class, $u) = @_;
-    return 0 if defined $u->prop("control_strip_display");
+    return 0 if defined $u->control_strip_display;
 
     return 1;
 }

@@ -1837,11 +1837,11 @@ LOGIN
         $ret .= "<input type='checkbox' name='do_spellcheck' value='1' id='spellcheck' /> <label for='spellcheck'>$BML::ML{'talk.spellcheck'}</label>";
     }
 
-    if ($journalu->{'opt_logcommentips'} eq "A") {
+    if ($journalu->opt_logcommentips eq "A") {
         $ret .= "<br />$BML::ML{'.logyourip'}";
         $ret .= LJ::help_icon_html("iplogging", " ");
     }
-    if ($journalu->{'opt_logcommentips'} eq "S") {
+    if ($journalu->opt_logcommentips eq "S") {
         $ret .= "<br />$BML::ML{'.loganonip'}";
         $ret .= LJ::help_icon_html("iplogging", " ");
     }
@@ -2595,8 +2595,8 @@ sub enter_comment {
     $talkprop{'picture_keyword'} = $comment->{picture_keyword};
 
     $talkprop{'opt_preformatted'} = $comment->{preformat} ? 1 : 0;
-    if ($journalu->{'opt_logcommentips'} eq "A" ||
-        ($journalu->{'opt_logcommentips'} eq "S" && $comment->{usertype} ne "user"))
+    if ($journalu->opt_logcommentips eq "A" ||
+        ($journalu->opt_logcommentips eq "S" && $comment->{usertype} ne "user"))
     {
         if (LJ::is_web_context()) {
             my $ip = BML::get_remote_ip();
@@ -2875,7 +2875,6 @@ sub init {
     LJ::load_userids_multiple([
                                $item->{'posterid'} => \$init->{entryu},
                                ], [ $journalu ]);
-    LJ::load_user_props($journalu, "opt_logcommentips");
 
     if ($form->{'userpost'} && $form->{'usertype'} ne "user") {
         unless ($form->{'usertype'} eq "cookieuser" &&
@@ -3455,7 +3454,7 @@ sub edit_comment {
     $comment_obj->set_prop_raw( edit_time => "UNIX_TIMESTAMP()" );
 
     # set poster IP separately since it has special conditions
-    my $opt_logcommentips = $comment_obj->journal->prop('opt_logcommentips');
+    my $opt_logcommentips = $comment_obj->journal->opt_logcommentips;
     if ($opt_logcommentips eq "A" || ($opt_logcommentips eq "S" && $comment->{usertype} ne "user")) {
         $comment_obj->set_poster_ip;
     }

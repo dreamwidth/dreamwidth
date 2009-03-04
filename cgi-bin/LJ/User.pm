@@ -258,15 +258,21 @@ sub create_personal {
     # now flag as underage (and set O to mean was old or Y to mean was young)
     $u->underage(1, $opts{ofage} ? 'O' : 'Y', 'account creation') if $opts{underage};
 
-    # For settings that are to be set explicitly
-    # on create, with more private settings for non-adults
-    if ($u->underage || $u->is_child) {
-        $u->set_prop("opt_findbyemail", 'N');
-    } elsif ($u->is_minor) {
-        $u->set_prop("opt_findbyemail", 'H');
-    } else {
-        $u->set_prop("opt_findbyemail", 'Y');
-    }
+    # subscribe to default events
+    $u->subscribe( event => 'OfficialPost', method => 'Inbox' );
+    $u->subscribe( event => 'OfficialPost', method => 'Email' ) if $opts{news};
+    $u->subscribe( event => 'JournalNewComment', journal => $u, method => 'Inbox' );
+    $u->subscribe( event => 'JournalNewComment', journal => $u, method => 'Email' );
+    $u->subscribe( event => 'AddedToCircle', journal => $u, method => 'Inbox' );
+    $u->subscribe( event => 'AddedToCircle', journal => $u, method => 'Email' );
+    # inbox notifications for PMs are on for everyone automatically
+    $u->subscribe( event => 'UserMessageRecvd', journal => $u, method => 'Email' );
+    $u->subscribe( event => 'InvitedFriendJoins', journal => $u, method => 'Inbox' );
+    $u->subscribe( event => 'InvitedFriendJoins', journal => $u, method => 'Email' );
+    $u->subscribe( event => 'CommunityInvite', journal => $u, method => 'Inbox' );
+    $u->subscribe( event => 'CommunityInvite', journal => $u, method => 'Email' );
+    $u->subscribe( event => 'CommunityJoinRequest', journal => $u, method => 'Inbox' );
+    $u->subscribe( event => 'CommunityJoinRequest', journal => $u, method => 'Email' );
 
     return $u;
 }
@@ -2088,6 +2094,55 @@ sub _lazy_migrate_infoshow {
 }
 
 
+sub control_strip_display {
+    my $u = shift;
+
+    # return prop value if it exists and is valid
+    my $prop_val = $u->prop( 'control_strip_display' );
+    return 0 if $prop_val eq 'none';
+    return $prop_val if $prop_val =~ /^\d+$/;
+
+    # otherwise, return the default: all options checked
+    my $ret;
+    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
+    for ( my $i = 0; $i < scalar @pageoptions; $i++ ) {
+        $ret |= 1 << $i;
+    }
+
+    return $ret ? $ret : 0;
+}
+
+
+sub opt_logcommentips {
+    my $u = shift;
+
+    # return prop value if it exists and is valid
+    my $prop_val = $u->prop( 'opt_logcommentips' );
+    return $prop_val if $prop_val =~ /^[NSA]$/;
+
+    # otherwise, return the default: log for all comments
+    return 'A';
+}
+
+
+sub opt_whatemailshow {
+    my $u = shift;
+
+    my $user_email = $LJ::USER_EMAIL && $u->get_cap( 'useremail' ) ? 1 : 0;
+
+    # return prop value if it exists and is valid
+    my $prop_val = $u->prop( 'opt_whatemailshow' );
+    if ( $user_email ) {
+        return $prop_val if $prop_val =~ /^[ALBN]$/;
+    } else {
+        return $prop_val if $prop_val =~ /^[AN]$/;
+    }
+
+    # otherwise, return the default: no email shown
+    return 'N';
+}
+
+
 ########################################################################
 ### 8. Formatting Content Shown to Users
 
@@ -3217,7 +3272,7 @@ sub emails_visible {
     # security controls
     return () unless $u->share_contactinfo($remote);
 
-    my $whatemail = $u->prop("opt_whatemailshow");
+    my $whatemail = $u->opt_whatemailshow;
     my $useremail_cap = LJ::get_cap($u, 'useremail');
 
     # some classes of users we want to have their contact info hidden
@@ -3230,16 +3285,16 @@ sub emails_visible {
         return $active && (time() - $active) > $hide_after * 86400;
     };
 
-    return () if $u->{'opt_whatemailshow'} eq "N" ||
-        $u->{'opt_whatemailshow'} eq "L" && ($u->prop("no_mail_alias") || ! $useremail_cap || ! $LJ::USER_EMAIL) ||
+    return () if $whatemail eq "N" ||
+        $whatemail eq "L" && ($u->prop("no_mail_alias") || ! $useremail_cap || ! $LJ::USER_EMAIL) ||
         $hide_contactinfo->();
 
     my @emails = ($u->email_raw);
-    if ($u->{'opt_whatemailshow'} eq "L") {
+    if ($whatemail eq "L") {
         @emails = ();
     }
     if ($LJ::USER_EMAIL && $useremail_cap) {
-        unless ($u->{'opt_whatemailshow'} eq "A" || $u->prop('no_mail_alias')) {
+        unless ($whatemail eq "A" || $u->prop('no_mail_alias')) {
             push @emails, "$u->{'user'}\@$LJ::USER_DOMAIN";
         }
     }
@@ -8199,10 +8254,6 @@ sub make_journal
     # preload props the view creation code will need later (combine two selects)
     if (ref $LJ::viewinfo{$eff_view}->{'owner_props'} eq "ARRAY") {
         push @needed_props, @{$LJ::viewinfo{$eff_view}->{'owner_props'}};
-    }
-
-    if ($eff_view eq "reply") {
-        push @needed_props, "opt_logcommentips";
     }
 
     $u->preload_props(@needed_props);

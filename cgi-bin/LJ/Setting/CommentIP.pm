@@ -25,7 +25,7 @@ sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
 
-    my $commentip = $class->get_arg($args, "commentip") || $u->prop("opt_logcommentips");
+    my $commentip = $class->get_arg($args, "commentip") || $u->opt_logcommentips;
 
     my @options = (
         N => $class->ml('setting.commentip.option.select.none'),
@@ -47,7 +47,7 @@ sub save {
     my ($class, $u, $args) = @_;
 
     my $val = $class->get_arg($args, "commentip");
-    $val = "N" unless $val =~ /^[NSA]$/;
+    $val = '' unless $val =~ /^[NSA]$/;
 
     $u->set_prop( opt_logcommentips => $val );
 

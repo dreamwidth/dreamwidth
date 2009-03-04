@@ -55,8 +55,7 @@ body<=
     # load user props
     LJ::load_user_props(
         $u, { use_master => 1 },
-        qw/ opt_whatemailshow
-          country state city zip timezone
+        qw/ country state city zip timezone
           icq aolim yahoo msn url jabber
           google_talk skype gizmo
           urlname gender last_fm_user opt_hidefriendofs
@@ -336,7 +335,7 @@ body<=
 
         # opt_whatemailshow
         $ret .= "<br />\n$ML{'.fn.emaildisplay'}: ";
-        my $cur = $u->{'opt_whatemailshow'};
+        my $cur = $u->opt_whatemailshow;
         my @vals = ( ($LJ::USER_EMAIL && LJ::get_cap($u, "useremail"))
                      ? ("A" => BML::ml(".email.opt.prime"),
                         "L" => BML::ml(".email.opt.lj"),

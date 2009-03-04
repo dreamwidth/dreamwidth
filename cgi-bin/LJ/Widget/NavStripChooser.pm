@@ -27,12 +27,9 @@ sub render_body {
     
     my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0..$#pageoptions;
 
-    # TODO: make this default admin-settable from the UI?
     # choose where to display/see it    
-    my $display = defined $u->prop( 'control_strip_display' )
-        ? $u->prop( 'control_strip_display' )
-        : $pagemask{'community.notbelongto'} | $pagemask{'journal.notwatching'};
-   
+    my $display = $u->control_strip_display;
+
     foreach my $pageoption ( @pageoptions ) {
         my $for_html = $pageoption; $for_html =~ tr/\./_/;
         
@@ -183,10 +180,10 @@ sub handle_post {
 
     my %override;
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
-    my ($given_control_strip_color, $given_control_strip_display);
+    my ( $given_control_strip_color, $given_control_strip_display, $props );
     if ($post_fields_of_parent->{reset}) {
         $given_control_strip_color = "";
-        $given_control_strip_display = "";
+        $props->{control_strip_display} = "";
         $override{control_strip_bgcolor} = "";
         $override{control_strip_fgcolor} = "";
         $override{control_strip_bordercolor} = "";
@@ -195,16 +192,14 @@ sub handle_post {
         $given_control_strip_color = $post->{control_strip_color};
         $given_control_strip_display |= $_+0
             foreach split( /\0/, $post->{control_strip_display} );
+        $props->{control_strip_display} = $given_control_strip_display ? $given_control_strip_display : 'none';    
     }
 
     my $color = $given_control_strip_color;
 
-    my $props;
     # we only want to store dark or light in the user props
     $props->{control_strip_color} = $color if $color eq 'light' || $color eq 'dark';
-    # Stringify 0, so it will be stored. Hacky, but it works. 
-    $props->{control_strip_display} = $given_control_strip_display ? $given_control_strip_display : "0 ";
-    
+
     foreach my $uprop ( qw/control_strip_color control_strip_display/ ) {
         $u->set_prop($uprop, $props->{$uprop});
     }

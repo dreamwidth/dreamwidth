@@ -32,7 +32,7 @@ sub _init {
 
     ### load user props.  some don't apply to communities
     {
-        my @props = qw(opt_whatemailshow country state city zip renamedto
+        my @props = qw(country state city zip renamedto
                        journaltitle journalsubtitle public_key
                        url urlname opt_hidefriendofs dont_load_members
                        opt_blockrobots adult_content admin_content_flag

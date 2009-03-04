@@ -144,7 +144,7 @@ body<=
 
     return if LJ::bad_password_redirect();
 
-    my @user_props = ("opt_logcommentips", "opt_whoscreened");
+    my @user_props = ("opt_whoscreened");
     push @user_props, qw( opt_blockrobots adult_content admin_content_flag ) if $u->is_visible;
     $u->preload_props(@user_props);
     if (!$u->is_visible || $u->should_block_robots || ($entry && $entry->should_block_robots)) {

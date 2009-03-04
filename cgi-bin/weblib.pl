@@ -756,8 +756,7 @@ sub create_qr_div {
         $qrhtml .= "</label>";
     }
 
-    LJ::load_user_props($u, 'opt_logcommentips');
-    if ($u->{'opt_logcommentips'} eq 'A') {
+    if ($u->opt_logcommentips eq 'A') {
         $qrhtml .= '<br />';
         $qrhtml .= LJ::deemp(BML::ml('/talkpost.bml.logyourip'));
         $qrhtml .= LJ::help_icon_html("iplogging", " ");

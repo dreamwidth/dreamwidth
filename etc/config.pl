@@ -210,6 +210,7 @@
                  free_create => 1,
                  'interests-findsim' => 0,
                  memories => 0,
+                 opt_findbyemail => 1,
                  'show-talkleft' => 0,
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
@@ -826,6 +827,13 @@
 
     # Pagination for allpics.bml page.  -1 means unlimited.
     # $ALLPICS_PAGESIZE = 20;
+
+    # initial settings for new users
+    %USER_INIT = (
+        opt_whocanreply => 'reg',
+        opt_mangleemail => 'Y',
+        moodthemeid => 7,
+    );
 }
 
 1;
