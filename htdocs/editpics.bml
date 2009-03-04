@@ -353,7 +353,7 @@ use strict;
                 $body .= "<?p " . BML::ml('.uploaddesc.fb', {'aopts' => "href='$LJ::FB_SITEROOT'", 'sitename' => $LJ::FB_SITENAME}) . " p?>\n\n";
             } else {
                 $body .= "<?h1 $ML{'.uploadheader'} h1?>\n";
-                $body .= "<p class='detail'><a href='javascript:void(0)' onclick='toggleElement(\"upload_desc\")' id='upload_desc_link'>About Userpics</a></p>";
+                $body .= "<p class='detail'><a href='javascript:void(0)' onclick='toggleElement(\"upload_desc\")' id='upload_desc_link'>$ML{'.about.icons'}</a></p>";
                 $body .= "<div id='upload_desc'>";
                 $body .= "<?p $ML{'.uploaddesc'} p?>\n";
                 $body .= "</div><!-- end #uploaddesc -->";

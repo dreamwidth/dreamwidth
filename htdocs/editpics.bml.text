@@ -1,5 +1,7 @@
 ;; -*- coding: utf-8 -*-
 
+.about.icons=About Icons
+
 .btn.addfile=Add File
 
 .btn.addurl=Add URL
