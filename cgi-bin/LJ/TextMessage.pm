@@ -1003,7 +1003,7 @@ sub send
     {
         send_mail($self, {
             'to'        => $self->{'number'},
-            'from'      => "LiveJournal",
+            'from'      => $LJ::SITENAMESHORT,
             'body'      => "(f:$msg->{'from'})$msg->{'message'}",
         },$errors);
     }
@@ -1103,7 +1103,7 @@ sub send
             'to'        => "$self->{'number'}\@blsdcs.net",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1377,7 +1377,7 @@ sub send
             'to'        => "$self->{'number'}\@messaging.nextel.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1417,7 +1417,7 @@ sub send
             'to'        => "$self->{'number'}\@pcs.ntelos.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1555,7 +1555,7 @@ sub send
             'to'        => "(f:$msg->{'from'})$self->{'number'}\@qwestmp.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1635,7 +1635,7 @@ sub send
             'to'        => "(f:$msg->{'from'}) $self->{'number'}\@messaging.sprintpcs.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1645,7 +1645,7 @@ sub send
             'to'        => "$self->{'number'}\@sprintpcs.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1701,7 +1701,7 @@ sub send
             'to'        => "$self->{'number'}\@msg.telus.com",
             'from'      => "$msg->{'from'}",
             'body'      => "(f:$msg->{'from'})$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1747,7 +1747,7 @@ sub send
             'to'        => "$self->{'number'}\@t-mobile.uk.net",
             'subject'   => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'from'      => "LJ",
+            'from'      => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1757,7 +1757,7 @@ sub send
             'to'        => "$self->{'number'}\@tmomail.net",
             'subject'   => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'from'      => "LJ",
+            'from'      => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1767,7 +1767,7 @@ sub send
             'to'        => "$self->{'number'}\@tmail.com",
             'subject'   => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'from'      => "LJ",
+            'from'      => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1804,7 +1804,7 @@ sub send
             'to'        => "$self->{'number'}\@vtext.com",
             'from'      => "$msg->{'from'}",
             'body'      => "$msg->{'message'}",
-            'subject'   => "LJ",
+            'subject'   => $LJ::SITENAMEABBREV,
         },$errors);
     }
 
@@ -1850,7 +1850,7 @@ sub send
             'to' => "$self->{'number'}\@vodafone.es",
             'from' => $msg->{'from'},
             'subject' => $msg->{'message'},
-            'body' => "Your LiveJournal Text Message has been placed into the subject line."
+            'body' => "Your $LJ::SITENAMESHORT Text Message has been placed into the subject line."
         },$errors);
     }
 
@@ -1939,7 +1939,7 @@ sub send
             'to' => "$self->{'number'}\@vodafone.net",
             'from' => $msg->{'from'},
             'subject' => $msg->{'message'},
-            'body' => "Your LiveJournal Text Message has been placed into the subject line."
+            'body' => "Your $LJ::SITENAMESHORT Text Message has been placed into the subject line."
         },$errors);
     }
 
