@@ -40,11 +40,10 @@
     # expand the embedded content for reals
     LJ::EmbedModule->expand_entry($u, \$event, preview => 1,);
 
-    my $r = BML::get_request;
+    my $r = BML::get_request();
     my $ctx;
 
     if ($u && $up) {
-        my $r = BML::get_request();
         $r->notes->{_journal} = $u->{user};
         $r->notes->{journalid} = $u->{userid};
 
@@ -61,7 +60,7 @@
                 LJ::run_hooks("force_s1", $u, \$forceflag);
 
                 # check whether to use custom comment pages
-                $ctx = LJ::S2::s2_context($r, $u->{'s2_style'});
+                $ctx = LJ::S2::s2_context( $u->{s2_style} );
                 my $view_entry_disabled = $ctx->[S2::PROPS]->{'view_entry_disabled'} if $ctx;
             
                 return (2, $u->{'s2_style'}) unless $forceflag || $view_entry_disabled;

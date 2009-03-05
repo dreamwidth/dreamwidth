@@ -13,7 +13,7 @@ body<=
 
     # call s2 entry point to talkread in s1shortcomings
     my $styleid = 's1short'; # special virtual styleid
-    my $ctx = LJ::S2::s2_context($r, $styleid);
+    my $ctx = LJ::S2::s2_context( $styleid );
 
     my $entry = LJ::Entry->new($ju, ditemid => 1891);
 

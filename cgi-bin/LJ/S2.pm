@@ -39,8 +39,7 @@ sub make_journal
     my $ret;
     $LJ::S2::ret_ref = \$ret;
 
-    my ($entry, $page);
-    my $con_opts = {};
+    my ( $entry, $page, $use_modtime );
 
     if ($view eq "res") {
 
@@ -55,7 +54,7 @@ sub make_journal
             $styleid = $1;
             $entry = "print_stylesheet()";
             $opts->{'contenttype'} = 'text/css';
-            $con_opts->{'use_modtime'} = 1;
+            $use_modtime = 1;
         } else {
             $opts->{'handler_return'} = 404;
             return;
@@ -64,9 +63,8 @@ sub make_journal
 
     $u->{'_s2styleid'} = $styleid + 0;
 
-    $con_opts->{'u'} = $u;
-    $con_opts->{'style_u'} = $opts->{'style_u'};
-    my $ctx = s2_context($r, $styleid, $con_opts);
+    # try to get an S2 context
+    my $ctx = s2_context( $styleid, use_modtime => $use_modtime, u => $u, style_u => $opts->{style_u} );
     unless ($ctx) {
         $opts->{'handler_return'} = OK;
         return;
@@ -651,18 +649,17 @@ sub get_style
 
 sub s2_context
 {
-    my $r = shift;
-    my $styleid = shift;
-    my $opts = shift || {};
+    my ( $styleid, %opts ) = @_;
 
-    my $u = $opts->{u} || LJ::get_active_journal();
-    my $style_u = $opts->{style_u} || $u;
+    # get arguments we'll use frequently
+    my $r = DW::Request->get;
+    my $u = $opts{u} || LJ::get_active_journal();
+    my $style_u = $opts{style_u} || $u;
 
     # but it doesn't matter if we're using the minimal style ...
     my %style;
     eval {
-        my $r = BML::get_request();
-        if ($r->notes->{use_minimal_scheme}) {
+        if ( $r->notes( 'use_minimal_scheme' ) ) {
             my $public = get_public_layers();
             while (my ($layer, $name) = each %LJ::MINIMAL_STYLE) {
                 next unless $name ne "";
@@ -709,29 +706,25 @@ sub s2_context
     }
     unless ($okay) {
         # load the default style instead, if we just tried to load a real one and failed
-        if ($styleid) { return s2_context($r, 0, $opts); }
+        return s2_context( 0, %opts )
+            if $styleid;
 
         # were we trying to load the default style?
-        $r->content_type("text/html");
-        # FIXME: not necessary in ModPerl 2.0?
-        #$r->send_http_header();
-        $r->print("<b>Error preparing to run:</b> One or more layers required to load the stock style have been deleted.");
+        $r->content_type( 'text/html' );
+        $r->print( '<b>Error preparing to run:</b> One or more layers required to load the stock style have been deleted.' );
         return undef;
     }
 
-    if ($opts->{'use_modtime'})
-    {
-        my $ims = $r->headers_in->{"If-Modified-Since"};
-        my $ourtime = LJ::time_to_http($modtime);
-        if ($ims eq $ourtime) {
+    # if we are supposed to use modtime checking (i.e. for stylesheets) then go
+    # ahead and do that logic now
+    if ( $opts{use_modtime} ) {
+        if ( $r->header_in( 'If-Modified-Since' ) eq LJ::time_to_http( $modtime )) {
             # 304 return; unload non-public layers
             LJ::S2::cleanup_layers(@layers);
-            $r->status_line("304 Not Modified");
-            # FIXME: not necessary in ModPerl 2.0?
-            #$r->send_http_header();
+            $r->status_line( '304 Not Modified' );
             return undef;
         } else {
-            $r->headers_out->{"Last-Modified"} = $ourtime;
+            $r->set_last_modified( $modtime );
         }
     }
 
@@ -755,14 +748,9 @@ sub s2_context
 
     # failure to generate context; unload our non-public layers
     LJ::S2::cleanup_layers(@layers);
-
-    my $err = $@;
-    $r->content_type("text/html");
-    # FIXME: not necessary in ModPerl 2.0 anymore?
-    #$r->send_http_header();
-    $r->print("<b>Error preparing to run:</b> $err");
+    $r->content_type( 'text/html' );
+    $r->print( '<b>Error preparing to run:</b> ' . $@ );
     return undef;
-
 }
 
 sub escape_all_props {
