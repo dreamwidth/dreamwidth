@@ -41,7 +41,7 @@ sub make_feed
     LJ::text_out(\$u->{$_})
         foreach ("name", "url", "urlname");
 
-    # opt_synlevel will default to 'full'
+    # opt_synlevel will default to 'ljcut'
     $u->{'opt_synlevel'} = 'ljcut'
         unless $u->{'opt_synlevel'} =~ /^(?:full|ljcut|summary|title)$/;
 
