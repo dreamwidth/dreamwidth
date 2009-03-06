@@ -56,6 +56,7 @@ use Class::Autouse qw(
                       LJ::EventLogRecord::DeleteComment
                       );
 
+use DW::External::User;
 use DW::Logic::LogItems;
 
 # make Unicode::MapUTF8 autoload:

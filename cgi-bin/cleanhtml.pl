@@ -471,7 +471,30 @@ sub clean
                 my $user = $attr->{'user'} = exists $attr->{'user'} ? $attr->{'user'} :
                                              exists $attr->{'comm'} ? $attr->{'comm'} : undef;
 
-                if (length $user) {
+                # allow external sites
+                if ( my $site = $attr->{site} ) {
+
+                    # try to load this user@site combination
+                    if ( my $ext_u = DW::External::User->new( user => $user, site => $site ) ) {
+
+                        # looks good, render
+                        if ( $opts->{textonly} ) {
+                            # FIXME: need a textonly way of identifying users better?  "user@LJ"?
+                            $newdata .= $user;
+                        } else {
+                            $newdata .= $ext_u->ljuser_display;
+                        }
+
+                    # if we hit the else, then we know that this user doesn't appear
+                    # to be valid at the requested site
+                    } else {
+                        $newdata .= "<b>[Bad username or site: " .
+                                    LJ::ehtml( LJ::no_utf8_flag( $user ) ) . " @ " .
+                                    LJ::ehtml( LJ::no_utf8_flag( $site ) ) . "]</b>";
+                    }
+
+                # failing that, no site, use the local behavior
+                } elsif (length $user) {
                     my $orig_user = $user; # save for later, in case
                     $user = LJ::canonical_username($user);
                     if (length $user) {
