@@ -95,6 +95,28 @@ sub generate {
     return @invitecodes;
 }
 
+=head2 C<< $class->could_be_code( string => $string ) >>
+
+Checks whether $string could possibly be a code. It makes sure that it only
+contains DIGITS and is CODE_LEN long.
+
+=cut
+
+sub could_be_code {
+    my ( $class, %opts ) = @_;
+
+    my $string = uc $opts{string};
+    return 0 unless length $string == CODE_LEN;
+
+    my %valid_digits = map { $_ => 1 } DIGITS;
+    my @string_array = split( //, $string );
+    foreach my $char ( @string_array ) {
+        return 0 unless $valid_digits{$char};
+    }
+
+    return 1;
+}
+
 =head2 C<< $class->check_code( code => $invite [, userid => $recipient] ) >>
 
 Checks whether code $invite is valid before trying to create an account. Takes
@@ -107,7 +129,7 @@ sub check_code {
     my ($class, %opts) = @_;
     my $dbh = LJ::get_db_writer();
 
-    return 0 unless ( length( $opts{code} ) == CODE_LEN );
+    return 0 unless $class->could_be_code( string => $opts{code} );
 
     my ($acid, $auth) = $class->decode( $opts{code} );
     my $ac = $dbh->selectrow_hashref( "SELECT userid, rcptid, auth " .
@@ -117,7 +139,8 @@ sub check_code {
     # invalid account code
     return 0 unless ( $ac && uc($ac->{auth}) eq $auth );
     # code has already been used
-    return 0 if ( $ac->{rcptid} && $ac->{rcptid} != $opts{userid} );
+    my $userid = $opts{userid} || 0;
+    return 0 if ( $ac->{rcptid} && $ac->{rcptid} != $userid );
 
     # is the inviter suspended?
     my $u = LJ::load_userid( $ac->{userid} );
