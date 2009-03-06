@@ -70,6 +70,10 @@ sub _add_wt_edge {
     my $do_trust = $trust_edge ? 1 : 0;
     $trust_edge ||= {};
 
+    # throw errors if we're not allowed
+    return 0 if $do_watch && ! $from_u->can_watch( $to_u );
+    return 0 if $do_trust && ! $from_u->can_trust( $to_u );
+
     # get current record, so we know what to modify
     my $dbh = LJ::get_db_writer();
     my $row = $dbh->selectrow_hashref( 'SELECT fgcolor, bgcolor, groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
