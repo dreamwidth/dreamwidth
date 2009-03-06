@@ -10,6 +10,8 @@ package LJ::MemCache;
 use vars qw($GET_DISABLED);
 $GET_DISABLED = 0;
 
+# NOTE:  if you update the list of values stored in the cache here, you will
+# need to increment the version number, too.
 %LJ::MEMCACHE_ARRAYFMT = (
                           'user' =>
                           [qw[1 userid user caps clusterid dversion email password status statusvis statusvisdate
@@ -21,7 +23,7 @@ $GET_DISABLED = 0;
                           # version #101 because old userpic format in memcached was an arrayref of
                           # [width, height, ...] and widths could have been 1 before, although unlikely
                           'userpic' => [qw[101 width height userid fmt state picdate location flags]],
-                          'userpic2' => [qw[1 picid fmt width height state pictime md5base64 comment flags location url]],
+                          'userpic2' => [qw[2 picid fmt width height state pictime md5base64 comment description flags location url]],
                           'talk2row' => [qw[1 nodetype nodeid parenttalkid posterid datepost state]],
                           'usermsg' => [qw[1 journalid parent_msgid otherid timesent type]],
                           );
