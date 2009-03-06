@@ -442,6 +442,18 @@ push @tests, [ 'add edge again, test mask', sub
 } ];
 
 ################################################################################
+push @tests, [ 'allowed to watch and trust', sub
+{
+    return ( $u1->can_watch && $u2->can_trust ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'allowed to watch and trust the other', sub
+{
+    return ( $u1->can_watch( $u2 ) && $u2->can_trust( $u2 ) ) ? 1 : 0;
+} ];
+
+################################################################################
 $| = 1;
 my $id = 1;
 foreach my $test ( @tests ) {

@@ -851,6 +851,49 @@ sub trust_group_contains {
 *LJ::User::trust_group_contains = \&trust_group_contains;
 
 
+# returns 1/0 depending on if the source is allowed to add a trust edge
+# to the target.  note: if you don't pass a target user, then we return
+# a generic 1/0 meaning "this account is allowed to have a trust edge".
+sub can_trust {
+    my ( $u, $tu ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $tu = LJ::want_user( $tu );
+
+    # only individuals are allowed to trust eachother
+    return 0 if ! $u->is_individual || ( $tu && ! $tu->is_individual );
+
+    # both must be visible
+    return 0 if ! $u->is_visible || ( $tu && ! $tu->is_visible );
+
+    # that was simple...
+    return 1;
+}
+*LJ::User::can_trust = \&can_trust;
+
+
+# returns 1/0 depending on if the source is allowed to add a watch edge
+# to the target.  note: if you don't pass a target user, then we return
+# a generic 1/0 meaning "this account is allowed to have a watch edge".
+sub can_watch {
+    my ( $u, $tu ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $tu = LJ::want_user( $tu );
+
+    # only individuals are allowed to watch
+    return 0 unless $u->is_individual;
+
+    # both must be visible
+    return 0 if ! $u->is_visible || ( $tu && ! $tu->is_visible );
+
+    # and you're not allowed to watch identity accounts (they can't post)
+    return 0 if $tu && $tu->is_identity;
+
+    # that was kinda simple...
+    return 1;
+}
+*LJ::User::can_watch = \&can_watch;
+
+
 
 
 
