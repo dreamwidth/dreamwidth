@@ -208,15 +208,18 @@ body<=
         $ret .= "</td></tr>\n";
 
         # schools
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.schools'}</td><td>";
+        unless ( $LJ::DISABLED{schools} ) {
+            $ret .= "<tr><td class='field_name'>$ML{'.fn.schools'}</td><td>";
 
-        $ret .= "$ML{'.schools'}:  ";
-        $ret .= LJ::html_select({ 'name' => 'opt_showschools',
-                                  'selected' => $u->{'opt_showschools'} },
-                                "Y" => BML::ml(".security.visibility.everybody"),
-                                "F" => BML::ml(".security.visibility.friends"),
-                                "N"  => BML::ml(".security.visibility.nobody") );
-        $ret .= " &nbsp; <a href='$LJ::SITEROOT/schools/manage.bml$getextra'>$ML{'.schools.manage'}</a></td></tr>\n";
+            $ret .= "$ML{'.schools'}:  ";
+            $ret .= LJ::html_select({ name => 'opt_showschools',
+                                    selected => $u->{opt_showschools} },
+                                    Y => BML::ml(".security.visibility.everybody"),
+                                    F => BML::ml(".security.visibility.friends"),
+                                    N => BML::ml(".security.visibility.nobody") );
+            $ret .= " &nbsp; <a href='$LJ::SITEROOT/schools/manage.bml$getextra'>$ML{'.schools.manage'}</a></td></tr>\n";
+        }
+
         $ret .= "</table>\n";
 
         ## COMMUNITY THEME
