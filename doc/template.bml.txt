@@ -27,7 +27,7 @@ body<=
     $title = "A title!";
 
     # for pages that require authentication
-    my $remote = LJ::get_remote;
+    my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
     # allow the remote user to authenticate as another account (community, etc)
