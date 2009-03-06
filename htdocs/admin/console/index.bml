@@ -1,52 +1,78 @@
-<html>
-<head><title>Admin Console</title></head>
-<body>
+<?_c
+#
+# admin/console/index.bml
+#
+# Frontend for the Admin Console, which lets you batch-process jobs with
+# a command-line interface. 
+#
+# Authors:
+#      Denise Paolucci <denise@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
 <?_code
+{
+    use strict;
+    use vars qw/ %POST $title @errors /;
 
- use strict;
- use LJ::Console;
- use vars qw(%POST %cmd);
+    # translated/custom page title can go here
+    $title = $ML{'.title'};
 
- my ($ret, $sth);
- my $commands = $POST{'commands'};
+    # for pages that require authentication
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
 
- my $remote = LJ::get_remote();
- return "<?needlogin?>"
-    unless $remote;
+    my $ret;
+    my $commands = $POST{commands};
 
- if (LJ::did_post()) {
-     return "<b>Error:</b> invalid form submission, please refresh and try again."
-         unless LJ::check_form_auth();
+    if ( LJ::did_post() ) {
+        return $ML{'.error.nopost'} unless LJ::check_form_auth();
 
-     $ret .= "<p>[ console | <a href=\"reference.bml\">reference</a> ]</p>";
+        $ret .= "<p>" . BML::ml( '.description.reference', { aopts => "href='reference.bml'" } ) . "</p>";
+        $ret .= LJ::Console->run_commands_html( $commands );
 
-     $ret .= LJ::Console->run_commands_html($commands);
+    } else {
 
-     $ret .= "<tt>enter commands:</tt><br />";
-     $ret .= "<form method=post>";
-     $ret .= LJ::form_auth();
-     $ret .= "<textarea name=commands rows=3 cols=60 wrap=off></textarea> ";
-     $ret .= "<input type=submit value=\"execute\"></form>\n";
+        $ret .= "<p>$ML{'.description'}</p>";
+        $ret .= "<p>" . BML::ml( '.description.reference', { aopts => "href='reference.bml'" } ) . "</p>";
 
-     return $ret;
+    }
 
- } else {
-     $ret .= "[ console | <A HREF=\"reference.bml\">reference</A> ]<P>";
+        $ret .= "<br /><p>$ML{'.entercommands'}</p>";
 
-     $ret .= "<FORM METHOD=POST>";
-     $ret .= LJ::form_auth();
-     $ret .= "<TABLE WIDTH=400><TR VALIGN=BOTTOM>";
-     $ret .= "<TD><IMG SRC=\"$LJ::IMGPREFIX/nerd_small.jpg\" WIDTH=167 HEIGHT=169 HSPACE=2 VSPACE=2></TD>";
-     $ret .= "<TD><B><TT>command console.</TT></B>";
-     $ret .= "<P>welcome to the livejournal console.  from here administrators can do administrative type things.  you will forget the commands, so there is a <A HREF=\"reference.bml\">reference</A>.</TD>";
-     $ret .= "</TR>";
-     $ret .= "<TR><TD COLSPAN=2>";
-     $ret .= "<P><tt>enter commands:</tt><BR>";
-     $ret .= "<TEXTAREA NAME=commands ROWS=10 COLS=60 WRAP=OFF></TEXTAREA></TD></TR>\n";
-     $ret .= "<TR><TD COLSPAN=2 ALIGN=RIGHT><INPUT TYPE=SUBMIT VALUE=\"execute\"></P></TD></TR></TABLE></FORM>\n";
-     return $ret;
- }
+        $ret .= "<form method='post' action='index.bml'>";
+        $ret .= LJ::form_auth();
+        $ret .= "<div class='console'>";
+        $ret .= LJ::html_textarea({ 
+            name => 'commands', 
+            rows =>'10', 
+            cols => '70', 
+            wrap => 'soft', 
+        });
 
+        $ret .= "</div>";
+
+        $ret .= LJ::html_submit( $ML{'.execute'} );
+        $ret .= "</form>";
+
+        return $ret;
+
+}
 _code?>
-</body>
-</html>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<style type='text/css'>
+  <!--
+    table { margin-bottom: 5px; margin-top: 5px; }
+    table td { padding: 5px; border: 1px groove #000; }
+  -->
+</style>
+<=head
+page?>
