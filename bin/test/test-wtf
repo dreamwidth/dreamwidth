@@ -27,7 +27,7 @@ sub rst {
         foreach ( $u1->id, $u2->id );
 
     foreach my $u ( $u1, $u2 ) {
-        foreach my $mc ( qw/ trust_group / ) {
+        foreach my $mc ( qw/ trust_group wt_list / ) {
             LJ::memcache_kill( $u, $mc );
         }
     }
@@ -80,6 +80,13 @@ push @tests, [ 'trust list one member', sub
 } ];
 
 ################################################################################
+push @tests, [ 'trust_list one member', sub
+{
+    my $ids = $u1->trust_list;
+    return scalar( keys %$ids ) == 1 ? 1 : 0;
+} ];
+
+################################################################################
 push @tests, [ 'mutually trust list empty', sub
 {
     my @ids = $u1->mutually_trusted_userids;
@@ -123,6 +130,13 @@ push @tests, [ 'trust list empty', sub
 {
     my @ids = $u1->trusted_userids;
     return scalar( @ids ) == 0 ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'trust_list empty', sub
+{
+    my $ids = $u1->trust_list;
+    return scalar( keys %$ids ) == 0 ? 1 : 0;
 } ];
 
 ################################################################################
@@ -346,8 +360,19 @@ push @tests, [ 'get trust group again', sub
 push @tests, [ 'validate trustmask == 1', sub
 {
     rst();
+
+    # have to create a group with a known id for these tests
+    $u1->edit_trust_group( id => 1, groupname => 'bar group', _force_create => 1 );
+
     $u1->add_edge( $u2, trust => { nonotify => 1 } );
     return ( $u1->trustmask( $u2 ) == 1 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'validate nobody in group 1', sub
+{
+    my $ids = $u1->trust_group_list( id => 1 );
+    return ( scalar ( keys %$ids ) == 0 ) ? 1 : 0;
 } ];
 
 ################################################################################
@@ -355,6 +380,13 @@ push @tests, [ 'add to group, validate trustmask == 3', sub
 {
     $u1->edit_trustmask( $u2, add => 1 );
     return ( $u1->trustmask( $u2 ) == 3 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'validate in group 1', sub
+{
+    my $ids = $u1->trust_group_list( id => 1 );
+    return ( scalar ( keys %$ids ) == 1 ) ? 1 : 0;
 } ];
 
 ################################################################################

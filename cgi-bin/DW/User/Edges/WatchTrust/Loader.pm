@@ -116,8 +116,33 @@ sub _wt_userids {
 }
 
 
+# helper to filter the _wt_list by a groupmask AND
+sub _filter_wt_list {
+    my ( $mask, $raw ) = @_;
+    return {} unless $mask; # undef/0 = no matches!
+    return undef unless defined $raw && ref $raw eq 'HASH';
+    return $raw unless keys %$raw;
+
+    return
+        {
+            map  { $_ => $raw->{$_}                }
+            grep { $raw->{$_}->{groupmask} & $mask }
+            keys %$raw
+        };
+}
+
+
+# helper, simply passes down to _wt_list_memc and filters
+sub _watch_list_memc       { return _filter_wt_list( 1 << 61, _wt_list_memc( @_ ) ); }
+sub _watch_list_db         { return _filter_wt_list( 1 << 61, _wt_list_db( @_ ) );   }
+sub _trust_list_memc       { return _filter_wt_list( 1,       _wt_list_memc( @_ ) ); }
+sub _trust_list_db         { return _filter_wt_list( 1,       _wt_list_db( @_ ) );   }
+sub _trust_group_list_memc { return _filter_wt_list( shift(), _wt_list_memc( @_ ) ); }
+sub _trust_group_list_db   { return _filter_wt_list( shift(), _wt_list_db( @_ ) );   }
+
+
 # attempt to load a user's watch list from memcache
-sub _watch_list_memc {
+sub _wt_list_memc {
     my $u = $_[0];
 
     # variable setup
@@ -129,7 +154,7 @@ sub _watch_list_memc {
     my @cols    = qw/ to_userid fgcolor bgcolor groupmask showbydefault /;
 
     # first, check memcache
-    my $memkey = [$userid, "watch_list:$userid"];
+    my $memkey = [$userid, "wt_list:$userid"];
     my $memdata = LJ::MemCache::get($memkey);
     return undef unless $memdata;
 
@@ -159,13 +184,13 @@ sub _watch_list_memc {
 
 
 # attempt to load a user's watch list from the database
-sub _watch_list_db {
+sub _wt_list_db {
     my $u = $_[0];
 
     my $userid = $u->id;
     my $dbh = LJ::get_db_writer();
 
-    my $lockname = "get_watch_list:$userid";
+    my $lockname = "get_wt_list:$userid";
     my $release_lock = sub {
         LJ::release_lock($dbh, "global", $lockname);
         return $_[0];
@@ -176,7 +201,7 @@ sub _watch_list_db {
     return {} unless $lock;
 
     # in lock, try memcache
-    my $memc = _watch_list_memc( $u );
+    my $memc = _wt_list_memc( $u );
     return $release_lock->( $memc ) if $memc;
 
     # we are now inside the lock, but memcache was empty, so we must query
@@ -184,7 +209,7 @@ sub _watch_list_db {
 
     # memcache data info
     my $ver     = 2;         # memcache data version
-    my $memkey  = [$userid, "watch_list:$userid"];
+    my $memkey  = [$userid, "wt_list:$userid"];
     my $packfmt = "NH6H6QC"; # pack format
     my $packlen = 19;        # length of $packfmt
 
@@ -195,7 +220,7 @@ sub _watch_list_db {
 
     # try the SQL on the master database
     my $sth = $dbh->prepare( 'SELECT to_userid, fgcolor, bgcolor, groupmask, showbydefault ' .
-                             'FROM wt_edges WHERE from_userid = ? AND groupmask & 1<<61' );
+                             'FROM wt_edges WHERE from_userid = ?' );
     $sth->execute( $userid );
     confess $dbh->errstr if $dbh->err;
 

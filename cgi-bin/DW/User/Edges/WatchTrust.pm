@@ -126,7 +126,7 @@ sub _add_wt_edge {
     LJ::MemCache::delete( [$from_userid, "trustmask:$from_userid:$to_userid"] );
     LJ::memcache_kill( $to_userid, 'wt_edges_rev' );
     LJ::memcache_kill( $from_userid, 'wt_edges' );
-    LJ::memcache_kill( $from_userid, 'watch_list' );
+    LJ::memcache_kill( $from_userid, 'wt_list' );
     LJ::memcache_kill( $from_userid, 'watched' );
     LJ::memcache_kill( $from_userid, 'trusted' );
     LJ::memcache_kill( $to_userid, 'watched_by' );
@@ -204,7 +204,7 @@ sub _del_wt_edge {
     # kill memcaches
     LJ::memcache_kill( $from_u, 'wt_edges' );
     LJ::memcache_kill( $to_u, 'wt_edges_rev' );
-    LJ::memcache_kill( $from_u, 'watch_list' );
+    LJ::memcache_kill( $from_u, 'wt_list' );
     LJ::memcache_kill( $from_u, 'watched' );
     LJ::memcache_kill( $from_u, 'trusted' );
     LJ::memcache_kill( $to_u, 'watched_by' );
@@ -517,6 +517,100 @@ sub mutually_trusted_userids {
     return keys %mutual;
 }
 *LJ::User::mutually_trusted_userids = \&mutually_trusted_userids;
+
+
+# returns hashref;
+#
+#   { userid =>
+#      { groupmask => NNN, fgcolor => '#xxx', bgcolor => '#xxx', showbydefault => NNN }
+#   }
+#
+# one entry in the hashref for everything the given user trusts.  note that fgcolor/bgcolor
+# are only really useful for watched users, so these will be default/empty if the user
+# is only trusted.
+#
+# arguments is a hash of options
+#    memcache_only => 1,     if set, never hit database
+#    force_database => 1,    if set, ALWAYS hit database (DANGER)
+#
+sub trust_list {
+    my ( $u, %args ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    my $memc_only = delete $args{memcache_only} || 0;
+    my $db_only = delete $args{force_database} || 0;
+    confess 'extra/invalid arguments' if %args;
+
+    # special case, we can disable loading friends for a user if there is a site
+    # problem or some other issue with this codebranch
+    return undef if $LJ::FORCE_EMPTY_FRIENDS{ $u->id };
+
+    # attempt memcache if allowed
+    unless ( $db_only ) {
+        my $memc = DW::User::Edges::WatchTrust::Loader::_trust_list_memc( $u );
+        return $memc if $memc;
+    }
+
+    # bail early if we are supposed to only hit memcache, this saves us from a
+    # potentially expensive database call in codepaths that are best-effort
+    return {} if $memc_only;
+
+    # damn you memcache for not having our data
+    return DW::User::Edges::WatchTrust::Loader::_trust_list_db( $u );
+}
+*LJ::User::trust_list = \&trust_list;
+
+
+# returns hashref;
+#
+#   { userid =>
+#      { groupmask => NNN, fgcolor => '#xxx', bgcolor => '#xxx', showbydefault => NNN }
+#   }
+#
+# one entry in the hashref for everything the given user has in a particular trust
+# group.  you can specify the group by id or name.
+#
+# arguments is a hash of options
+#    id => 1,                if set, get members of trust group id 1
+#    name => "Foo Group",    if set, get members of trust group "Foo Group"
+#    memcache_only => 1,     if set, never hit database
+#    force_database => 1,    if set, ALWAYS hit database (DANGER)
+#
+sub trust_group_list {
+    my ( $u, %args ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    my $memc_only = delete $args{memcache_only} || 0;
+    my $db_only = delete $args{force_database} || 0;
+    my $name = delete $args{name};
+    my $id = delete $args{id};
+    confess 'extra/invalid arguments' if %args;
+    confess 'need one of: id, name' unless $id || $name;
+    confess 'do not need both: id, name' if $id && $name;
+
+    # special case, we can disable loading friends for a user if there is a site
+    # problem or some other issue with this codebranch
+    return undef if $LJ::FORCE_EMPTY_FRIENDS{ $u->id };
+
+    # load the user's groups
+    my $grp = $u->trust_groups( id => $id, name => $name );
+    return {} unless $grp;
+
+    # calculate mask to use later
+    my $mask = 1 << $grp->{groupnum};
+
+    # attempt memcache if allowed
+    unless ( $db_only ) {
+        my $memc = DW::User::Edges::WatchTrust::Loader::_trust_group_list_memc( $mask, $u );
+        return $memc if $memc;
+    }
+
+    # bail early if we are supposed to only hit memcache, this saves us from a
+    # potentially expensive database call in codepaths that are best-effort
+    return {} if $memc_only;
+
+    # damn you memcache for not having our data
+    return DW::User::Edges::WatchTrust::Loader::_trust_group_list_db( $mask, $u );
+}
+*LJ::User::trust_group_list = \&trust_group_list;
 
 
 # returns hashref;
