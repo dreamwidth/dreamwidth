@@ -358,15 +358,3 @@ GET
         user
         userid
         viewall
-
-utf8convert.bml 11/25
-GET
-        authas
-        mode
-        area
-        encid
-        forceview
-POST
-        mode
-        area
-        encid
