@@ -86,7 +86,6 @@ sub option {
 
 sub save {
     my ($class, $u, $args) = @_;
-    $class->error_check($u, $args);
 
     my $addr0_val = $class->get_arg($args, "emailposting_addr0");
     my $addr1_val = $class->get_arg($args, "emailposting_addr1");
