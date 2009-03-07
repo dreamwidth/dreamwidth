@@ -752,22 +752,25 @@ sub create_view_foaf {
     }
 
     # check if the user has a "FOAF-knows" group
-    my $groups = LJ::get_friend_group($u->{userid}, { name => 'FOAF-knows' });
-    my $mask = $groups ? 1 << $groups->{groupnum} : 0;
+    my $has_foaf_group = $u->trust_groups( name => 'FOAF-knows' ) ? 1 : 0;
 
     # now information on who you know, limited to a certain maximum number of users
-    my $friends = LJ::get_friends($u->{userid}, $mask);
-    my @ids = keys %$friends;
+    my @ids;
+    if ( $has_foaf_group ) {
+        @ids = keys %{ $u->trust_group_list( name => 'FOAF-knows' ) };
+    } else {
+        @ids = $u->trusted_userids;
+    }
+
     @ids = splice(@ids, 0, $LJ::MAX_FOAF_FRIENDS) if @ids > $LJ::MAX_FOAF_FRIENDS;
 
     # now load
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @ids ], [$u]);
+    my $users = LJ::load_userids( @ids );
 
     # iterate to create data structure
-    foreach my $friendid (@ids) {
-        next if $friendid == $u->{userid};
-        my $fu = $users{$friendid};
+    foreach my $trustid ( @ids ) {
+        next if $trustid == $u->id;
+        my $fu = $users->{$trustid};
         next if $fu->{statusvis} =~ /[DXS]/ || $fu->{journaltype} ne 'P';
 
         my $name = LJ::exml($fu->name_raw);
