@@ -290,13 +290,22 @@ sub trans
             # and also add it to $r->notes
             LJ::UniqCookie->ensure_cookie_value;
 
-              # apply sysban block if applicable
-              if (LJ::UniqCookie->sysban_should_block) {
-                  $r->handler("perl-script");
-                  $r->push_handlers(PerlResponseHandler => \&blocked_bot );
-                  return OK;
-              }
-          }
+            # apply sysban block if applicable
+            if (LJ::UniqCookie->sysban_should_block) {
+                $r->handler("perl-script");
+                $r->push_handlers(PerlResponseHandler => \&blocked_bot );
+                return OK;
+            }
+        }
+
+        # this is a fancy transform - basically, if the file exists with a BML extension,
+        # then assume we're trying to get to it.  (this allows us to write URLs without the
+        # extension...)
+        if ( -e "$LJ::HTDOCS/$uri.bml" ) {
+            $r->uri( $uri = "$uri.bml" );
+            return $bml_handler->( "$LJ::HTDOCS/$uri" );
+        }
+
     } else { # not is_initial_req
         if ($r->status == 404) {
             my $fn = $LJ::PAGE_404 || "404-error.html";
