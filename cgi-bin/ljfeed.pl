@@ -615,8 +615,8 @@ sub create_view_foaf {
 
     # precompute some values
     my $digest = "";
+    my $remote = LJ::get_remote();
     if ($u->is_validated) {
-        my $remote = LJ::get_remote();
         my $email_visible = $u->email_visible($remote);
         $digest = Digest::SHA1::sha1_hex("mailto:$email_visible") if $email_visible;
     }
@@ -631,11 +631,11 @@ sub create_view_foaf {
     # user location
     if ($u->{'country'}) {
         my $ecountry = LJ::eurl($u->{'country'});
-        $ret .= "    <ya:country dc:title=\"$ecountry\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry\"/>\n";
+        $ret .= "    <ya:country dc:title=\"$ecountry\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry\"/>\n" if $u->can_show_location($remote);
         if ($u->{'city'}) {
             my $estate = '';  # FIXME: add state.  Yandex didn't need it.
             my $ecity = LJ::eurl($u->{'city'});
-            $ret .= "    <ya:city dc:title=\"$ecity\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity\"/>\n";
+            $ret .= "    <ya:city dc:title=\"$ecity\" rdf:resource=\"$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity\"/>\n" if $u->can_show_location($remote);
        }
     }
 
