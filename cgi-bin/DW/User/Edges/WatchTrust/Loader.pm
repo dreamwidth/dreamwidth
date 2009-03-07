@@ -143,7 +143,7 @@ sub _trust_group_list_db   { return _filter_wt_list( shift(), _wt_list_db( @_ ) 
 
 # attempt to load a user's watch list from memcache
 sub _wt_list_memc {
-    my $u = $_[0];
+    my ( $u, %args ) = @_;
 
     # variable setup
     my %rows;                 # rows to be returned
@@ -154,7 +154,8 @@ sub _wt_list_memc {
     my @cols    = qw/ to_userid fgcolor bgcolor groupmask showbydefault /;
 
     # first, check memcache
-    my $memkey = [$userid, "wt_list:$userid"];
+    my $key = ( $args{community_okay} && $u->is_community ) ? 'c_wt_list' : 'wt_list';
+    my $memkey = [$userid, "$key:$userid"];
     my $memdata = LJ::MemCache::get($memkey);
     return undef unless $memdata;
 
@@ -185,7 +186,7 @@ sub _wt_list_memc {
 
 # attempt to load a user's watch list from the database
 sub _wt_list_db {
-    my $u = $_[0];
+    my ( $u, %args ) = @_;
 
     my $userid = $u->id;
     my $dbh = LJ::get_db_writer();
@@ -200,8 +201,8 @@ sub _wt_list_db {
     my $lock = LJ::get_lock($dbh, "global", $lockname);
     return {} unless $lock;
 
-    # in lock, try memcache
-    my $memc = _wt_list_memc( $u );
+    # in lock, try memcache first (unless told not to)
+    my $memc = $args{force_database} ? undef : _wt_list_memc( $u, community_okay => $args{community_okay} );
     return $release_lock->( $memc ) if $memc;
 
     # we are now inside the lock, but memcache was empty, so we must query
@@ -209,14 +210,54 @@ sub _wt_list_db {
 
     # memcache data info
     my $ver     = 2;         # memcache data version
-    my $memkey  = [$userid, "wt_list:$userid"];
+    my $key     = ( $args{community_okay} && $u->is_community ) ? 'c_wt_list' : 'wt_list';
+    my $memkey  = [$userid, "$key:$userid"];
     my $packfmt = "NH6H6QC"; # pack format
     my $packlen = 19;        # length of $packfmt
 
     # columns we're selecting
-    my @cols = qw/ to_userid fgcolor bgcolor groupmask showbydefault /;
     my $mempack = $ver; # full packed string to insert into memcache, byte 1 is dversion
     my %rows;           # rows object to be returned, all groupmasks match
+
+    # at this point we branch.  if we're trying to get the list of things the community
+    # watches - for usage in the friends page only - then we change paths.
+    if ( $u->is_community && $args{community_okay} ) {
+        # simply get userids from elsewhen to build %rows
+        foreach my $uid ( $u->member_userids ) {
+            # pack data into list, but only store up to 950k of data before
+            # bailing.  (practical limit of 64k watch list entries.)
+            #
+            # also note that we fake a lot of this, since communities don't actually
+            # have a watch list.
+            my $newpack = pack( $packfmt, ( $uid, '000000', 'ffffff', 1 << 61, '1' ) );
+            last if length($mempack) + length($newpack) > 950*1024;
+
+            $mempack .= $newpack;
+
+            # more faking it for fun and profit
+            $rows{$uid} = {
+                to_userid     => $uid,
+                fgcolor       => '#000000',
+                bgcolor       => '#ffffff',
+                groupmask     => 1 << 61,
+                showbydefault => '1',
+            };
+        }
+
+        # now stuff in memcache and bail
+        LJ::MemCache::set( $memkey, $mempack );
+        return $release_lock->( \%rows );
+    }
+
+    # at this point, if they're not an individual, then throw an empty set of data in memcache
+    # and bail out.  only individuals have watch lists.
+    unless ( $u->is_individual ) {
+        LJ::MemCache::set( $memkey, $mempack );
+        return $release_lock->( \%rows );
+    }
+
+    # actual watching path
+    my @cols = qw/ to_userid fgcolor bgcolor groupmask showbydefault /;
 
     # try the SQL on the master database
     my $sth = $dbh->prepare( 'SELECT to_userid, fgcolor, bgcolor, groupmask, showbydefault ' .
@@ -248,7 +289,7 @@ sub _wt_list_db {
     }
 
     # now stuff in memcache
-    LJ::MemCache::add($memkey, $mempack);
+    LJ::MemCache::set($memkey, $mempack);
 
     # finished with lock, release it
     return $release_lock->( \%rows );

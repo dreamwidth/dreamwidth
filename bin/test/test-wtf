@@ -11,22 +11,27 @@ use Data::Dumper;
 # much time passes ...
 my $u1 = LJ::load_user( 'tester0394' ) or die 'no tester0394';
 my $u2 = LJ::load_user( 'tester0395' ) or die 'no tester0395';
+my $uc = LJ::load_user( 'testcomm' ) or die 'no testcomm';
+$uc->is_community or die 'testcomm not a community :(';
 
 my @tests;
 print "Beginning tests...\n";
 print "    u1 = " . $u1->user . '(' . $u1->id . ")\n";
-print "    u2 = " . $u2->user . '(' . $u2->id . ")\n\n";
+print "    u2 = " . $u2->user . '(' . $u2->id . ")\n";
+print "    uc = " . $uc->user . '(' . $uc->id . ")\n\n";
 
 my $dbh = LJ::get_db_writer();
 
 # reset, delete, etc
 sub rst {
     $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? OR to_userid = ?', undef, $_, $_ )
-        foreach ( $u1->id, $u2->id );
+        foreach ( $u1->id, $u2->id, $uc->id );
     $dbh->do( 'DELETE FROM trust_groups WHERE userid = ?', undef, $_ )
-        foreach ( $u1->id, $u2->id );
+        foreach ( $u1->id, $u2->id, $uc->id );
+    $dbh->do( 'DELETE FROM reluser WHERE userid = ? OR targetid = ?', undef, $_, $_ )
+        foreach ( $u1->id, $u2->id, $uc->id );
 
-    foreach my $u ( $u1, $u2 ) {
+    foreach my $u ( $u1, $u2, $uc ) {
         foreach my $mc ( qw/ trust_group wt_list / ) {
             LJ::memcache_kill( $u, $mc );
         }
@@ -475,6 +480,26 @@ push @tests, [ 'allowed to watch and trust', sub
 push @tests, [ 'allowed to watch and trust the other', sub
 {
     return ( $u1->can_watch( $u2 ) && $u2->can_trust( $u2 ) ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'join community', sub
+{
+    rst();
+    $u1->add_edge( $uc, member => 1 );
+    return ( scalar( $uc->member_userids ) == 1 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'community watch list has zero', sub
+{
+    return ( scalar( keys %{ $uc->watch_list } ) == 0 ) ? 1 : 0;
+} ];
+
+################################################################################
+push @tests, [ 'community watch list has one', sub
+{
+    return ( scalar( keys %{ $uc->watch_list( community_okay => 1 ) } ) == 1 ) ? 1 : 0;
 } ];
 
 ################################################################################

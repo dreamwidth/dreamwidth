@@ -559,7 +559,7 @@ sub trust_list {
     return {} if $memc_only;
 
     # damn you memcache for not having our data
-    return DW::User::Edges::WatchTrust::Loader::_trust_list_db( $u );
+    return DW::User::Edges::WatchTrust::Loader::_trust_list_db( $u, force_database => $db_only );
 }
 *LJ::User::trust_list = \&trust_list;
 
@@ -612,7 +612,7 @@ sub trust_group_list {
     return {} if $memc_only;
 
     # damn you memcache for not having our data
-    return DW::User::Edges::WatchTrust::Loader::_trust_group_list_db( $mask, $u );
+    return DW::User::Edges::WatchTrust::Loader::_trust_group_list_db( $mask, $u, force_database => $db_only );
 }
 *LJ::User::trust_group_list = \&trust_group_list;
 
@@ -634,6 +634,7 @@ sub watch_list {
     $u = LJ::want_user( $u ) or confess 'invalid user object';
     my $memc_only = delete $args{memcache_only} || 0;
     my $db_only = delete $args{force_database} || 0;
+    my $comm_okay = delete $args{community_okay} || 0;
     confess 'extra/invalid arguments' if %args;
 
     # special case, we can disable loading friends for a user if there is a site
@@ -642,7 +643,7 @@ sub watch_list {
 
     # attempt memcache if allowed
     unless ( $db_only ) {
-        my $memc = DW::User::Edges::WatchTrust::Loader::_watch_list_memc( $u );
+        my $memc = DW::User::Edges::WatchTrust::Loader::_watch_list_memc( $u, community_okay => $comm_okay );
         return $memc if $memc;
     }
 
@@ -651,7 +652,11 @@ sub watch_list {
     return {} if $memc_only;
 
     # damn you memcache for not having our data
-    return DW::User::Edges::WatchTrust::Loader::_watch_list_db( $u );
+    return DW::User::Edges::WatchTrust::Loader::_watch_list_db(
+        $u,
+        force_database => $db_only,
+        community_okay => $comm_okay
+    );
 }
 *LJ::User::watch_list = \&watch_list;
 
@@ -794,15 +799,6 @@ sub delete_trust_group {
     my $bit = $grp->{groupnum}+0;
     return 0 unless $bit >= 1 && $bit <= 60;
 
-    # remove the bits for deleted groups from all friends groupmasks
-    my $dbh = LJ::get_db_writer()
-        or return 0;
-    $dbh->do(
-        q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ?},
-        undef, $bit, $u->id
-    );
-    return 0 if $dbh->err;
-
     # remove all posts from allowing that group:
     my @posts_to_clean = @{ $u->selectcol_arrayref(
         q{SELECT jitemid FROM logsec2 WHERE journalid = ? AND allowmask & (1 << ?)},
@@ -832,8 +828,13 @@ sub delete_trust_group {
     # notify the tags system so it can do its thing
     LJ::Tags::deleted_trust_group( $u, $bit );
 
+    # used here down
+    my $dbh = LJ::get_db_writer()
+        or return 0;
+
     # iterate over everybody in this group and remove the bit
-    foreach my $tid ( keys %{ $u->trust_group_list( id => $bit ) || {} } ) {
+    my $tglist = $u->trust_group_list( id => $bit, force_database => 1 );
+    foreach my $tid ( keys %{ $tglist || {} } ) {
         $dbh->do(
             q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},
             undef, $bit, $u->id, $tid

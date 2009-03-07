@@ -120,7 +120,7 @@ sub watch_items
         return undef if $fr_loaded;
 
         # get all friends for this user and groupmask
-        my $friends = $u->watch_list;
+        my $friends = $u->watch_list( community_okay => 1 );
         my %friends_u;
 
         # strip out rows with invalid journal types
