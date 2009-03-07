@@ -24,15 +24,15 @@ _code?>
   <td><?_code BML::ml('.invite.about2', { sitename => $LJ::SITENAMESHORT }); _code?></td>
 </tr>
 <tr>
-  <td class='name'><a href="<?siteroot?>/manage/circle/edit.bml"><?_ml /manage/circle/edit.bml.title _ml?></a></td>
+  <td class='name'><a href="<?siteroot?>/manage/circle/edit.bml"><?_ml /manage/circle/edit.bml.title3 _ml?></a></td>
   <td><?_ml .edit.about _ml?></td>
 </tr>
 <tr>
-  <td class='name'><a href="<?siteroot?>/manage/circle/editfilters.bml"><?_ml /manage/circle/editfilters.bml.title _ml?></a></td>
+  <td class='name'><a href="<?siteroot?>/manage/circle/editfilters.bml"><?_ml /manage/circle/editfilters.bml.title2 _ml?></a></td>
   <td><?_ml .editgroups.about _ml?> <?_ml .filter _ml?></td>
 </tr>
 <tr>
-  <td class='name'><a href="<?siteroot?>/manage/circle/filter.bml"><?_ml /manage/circle/filter.bml.title _ml?></a></td>
+  <td class='name'><a href="<?siteroot?>/manage/circle/filter.bml"><?_ml /manage/circle/filter.bml.title2 _ml?></a></td>
   <td><?_ml .filter.about _ml?></td>
 </tr>
 </table>
