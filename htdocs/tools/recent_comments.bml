@@ -86,7 +86,7 @@ body<=
     $ret .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/manage/comments'>$ML{'.managesettings'}</a>"});
 
     $ret .= "<br />";
-    $ret .= " View [ ";
+    $ret .= " $ML{ '.view.latest' } [ ";
     my @values = qw(10 25 50 100);
     push @values, $count
         unless grep { $count == $_ } @values;
@@ -102,10 +102,10 @@ body<=
             $ret .= " <a href='?show=$val$getextra'>$val</a> ";
         }
     }
-    $ret .= "] Latest Comments </div> standout?>";
+    $ret .= "] $ML{ '.latest.comments' } </div> standout?>";
 
-    $ret .= "<?h1 Latest Received h1?>";
-    $ret .= "<?p " . (%talkids ? "Last $count comments posted in " : "No comments have been posted in ") . LJ::ljuser($u) . " p?>";
+    $ret .= "<?h1 $ML{ '.latest.received' } h1?>";
+    $ret .= "<?p " . (%talkids ? BML::ml('.last.num.posted.in', {num => $count}) : "$ML{ '.no.comments.posted' }") . " " . LJ::ljuser($u) . " p?>";
 
     @recv = sort { $b->{datepostunix} <=> $a->{datepostunix} } @recv;
     my @recv_talkids = map { $_->{'jtalkid'} } @recv;
@@ -158,7 +158,7 @@ body<=
         $ljcmt->{u} = $pu ? $pu->{user} : "";
 
         $ret .= "<tr valign='top' id='ljcmtbar$talkid'><td style='width: 150px; line-height: 1.5em; border-top: 1px solid #999; background-color: $bgcolor' id='cmtbar$talkid'>";
-         $ret .= (LJ::isu($pu) ? LJ::ljuser($pu) : "Anonymous") . "<br />";
+         $ret .= (LJ::isu($pu) ? LJ::ljuser($pu) : $ML{ '.anonymous' }) . "<br />";
 
         $ret .= LJ::ago_text($now - $r->{datepostunix}) . "<br />";
         $ret .= "<div id='state$talkid'>$state</div>" if $r->{state} ne "D";
@@ -193,7 +193,7 @@ body<=
         LJ::CleanHTML::clean_subject(\$subject) if $subject ne "";
 
         $ret .= "<strong style='float: left; text-decoration: underline'>$subject</strong> " if $subject ne "";
-        $ret .= "<strong style='float: right'>(<a href='$ditemid'>Entry Link</a>)</strong>" unless $lrow->{ditemid} == undef;
+        $ret .= "<strong style='float: right'>(<a href='$ditemid'>$ML{ '.entry.link' }</a>)</strong>" unless $lrow->{ditemid} == undef;
         $ret .= "<br /><br />";
         my $subject = LJ::ehtml($comment_text->{$r->{jtalkid}}[0]);
 
@@ -210,16 +210,16 @@ body<=
 
         $ret .= "$comment<br /><br />";
 
-        $ret .= "(<a href='$talkurl'>Comment Link</a>) " unless $r->{state} eq "D" || $lrow->{ditemid} == undef;
+        $ret .= "(<a href='$talkurl'>$ML{ '.comment.link' }</a>) " unless $r->{state} eq "D" || $lrow->{ditemid} == undef;
 
         my $stylemine = 0;
         my $replyurl = LJ::Talk::talkargs($ditemid, "replyto=$talkid", $stylemine);
         if ($lrow->{ditemid} == undef) {
-            $ret .= "<strong>(Post Deleted)</strong>";
+            $ret .= "<strong>($ML{ '.post.deleted' })</strong>";
         } elsif ($r->{'state'} eq 'F') {
             $ret .= "($ML{'talk.frozen'}) ";
         } elsif ($r->{'state'} eq "D") {
-            $ret .= "<strong>(Comment Deleted)</strong>";
+            $ret .= "<strong>($ML{ '.comment.deleted' })</strong>";
         } else {
             $ret .= "(<a href='$replyurl'>$ML{'talk.replytothis'}</a>) ";
         }
@@ -235,13 +235,13 @@ body<=
 
     if ($u->{journaltype} eq "P") {
         $ret .= "<div style='text-align: center; margin-top: 1em'><a name='posted'></a>" .
-            BML::ml('Actionlink', { 'link'=>"<a href='#received'>Latest Received</a>"}) .
-            BML::ml('Actionlink', { 'link' => "Latest Posted"}) . " " .
+            BML::ml('Actionlink', { 'link'=>"<a href='#received'>$ML{ '.latest.received' }</a>"}) .
+            BML::ml('Actionlink', { 'link' => $ML{ '.latest.posted' }}) . " " .
             "</div>";
-        $ret .= "<?h1 Latest Posted h1?><?p Last $count comments " . LJ::ljuser($u) . " has posted. p?>";
+        $ret .= "<?h1 $ML{ '.latest.posted' } h1?><?p " . BML::ml('.last.num.posted.by', {num => $count, user => LJ::ljuser($u) }) . " p?>";
         my %jcount;  # jid -> ct
         $ret .= "<table style='text-align: left'>";
-        $ret .= "<tr><th>Time</th><th>Location</th></tr>";
+        $ret .= "<tr><th>$ML{ '.time' }</th><th>$ML{ '.location' }</th></tr>";
 
         foreach my $r (@posted) {
             $jcount{$r->{'journalid'}}++;
@@ -262,10 +262,10 @@ body<=
                 LJ::CleanHTML::clean_subject(\$subject);
                 $subject = "$subject <a href='$logurl'>(link)</a>";
             } else {
-                $subject = "Post Deleted";
+                $subject = $ML{ '.post.deleted' };
             }
 
-            my $links = "[<a href='$talkurl'>Comment</a>] [<a href='$logurl'>Entry</a>]\n";
+            my $links = "[<a href='$talkurl'>$ML{ '.comment' }</a>] [<a href='$logurl'>$ML{ '.entry' }</a>]\n";
             $ret .= "<tr><td>$hr_ago</td><td>" . LJ::ljuser($ju->{user}) . ": $subject</td></tr>";
         }
         $ret .= "</table>";
