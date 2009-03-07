@@ -25,6 +25,7 @@ use Apache2::Response ();
 use Apache2::RequestRec ();
 use Apache2::RequestUtil ();
 use Apache2::RequestIO ();
+use Apache2::SubProcess ();
 
 use fields (
             'r',         # The Apache2::Request object
@@ -169,6 +170,12 @@ sub read {
 sub OK {
     my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::OK;
+}
+
+# spawn a process for an external program
+sub spawn {
+    my DW::Request::Apache2 $self = shift;
+    return $self->{r}->spawn_proc_prog( @_ );
 }
 
 1;

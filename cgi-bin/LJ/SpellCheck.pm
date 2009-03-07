@@ -17,24 +17,35 @@
 package LJ::SpellCheck;
 
 use strict;
-use FileHandle;
-use IPC::Open2;
-use POSIX ":sys_wait_h";
+use warnings;
+
+use Config;
+use constant PERLIO_IS_ENABLED => $Config{useperlio};
 
 use vars qw($VERSION);
-$VERSION = '1.0';
+$VERSION = '2.0';
 
 # Good spellcommand values:
-#    ispell -a -h  (default)
-#    /usr/local/bin/aspell pipe -H --sug-mode=fast --ignore-case
+#    /usr/bin/ispell -a -h  
+#    /usr/bin/aspell pipe -H --sug-mode=fast --ignore-case
+#
+# Use the full path to the command, not just the command name.
+#
+# If you want to include an external dictionary containing site-specific
+# terms, you can add a "-p /path/to/dictionary" to the program arguments
 
 sub new {
     my ($class, $args) = @_;
     my $self = {};
     bless $self, ref $class || $class;
 
-    $self->{'command'} = $args->{'spellcommand'} || "ispell -a -h";
-    $self->{'color'} = $args->{'color'} || "#FF0000";
+    my $command = $args->{spellcommand} || "/usr/bin/aspell pipe -H --sug-mode=fast --ignore-case";
+    my @command_args = split /\s+/, $command;
+
+    $self->{command} = shift @command_args;
+    $self->{command_args} = \@command_args;
+
+    $self->{color} = $args->{color} || "#FF0000";
     return $self;
 }
 
@@ -45,24 +56,24 @@ sub new {
 sub check_html {
     my $self = shift;
     my $journal = shift;
+
+    my $r = DW::Request->get;
+    my ( $iwrite, $iread ) = $r->spawn( $self->{command}, $self->{command_args} );
     
-    my $iread = new FileHandle;
-    my $iwrite = new FileHandle;
-    my $ierr = new FileHandle;
-    my $pid;
+    my $read_data = sub {
+        my ($fh) = @_;
+        my $data;
+        $data = <$fh> if PERLIO_IS_ENABLED || IO::Select->new($fh)->can_read(10);
+        return defined $data ? $data : '';
+    };
 
-    # work-around for mod_perl
-    my $tie_stdin = tied *STDIN;
-    untie *STDIN if $tie_stdin;
+    # header from aspell/ispell
+    my $banner = $read_data->( $iread );
+    return "<?errorbar Spell checker not set up properly. banner=$banner errorbar?>" unless $banner =~ /^@\(#\)/;
 
-    $iwrite->autoflush(1);
-
-    $pid = open2($iread, $iwrite, $self->{'command'}) || die "spell process failed";
-    die "Couldn't find spell checker\n" unless $pid;
-    my $banner = <$iread>;
-    die "banner=$banner\n" unless ($banner =~ /^@\(\#\)/);
+    # send the command to shell-escape
     print $iwrite "!\n";
-    
+
     my $output = "";
     my $footnotes = "";
     
@@ -76,7 +87,7 @@ sub check_html {
 	
 	my $idata;
 	do {
-	    $idata = <$iread>;
+	    $idata = $read_data->($iread);
 	    chomp($idata);
 	    
 	    if ($idata =~ /^& /) {
@@ -108,11 +119,7 @@ sub check_html {
 
     $iread->close;
     $iwrite->close;
- 
-    $pid = waitpid($pid, 0);
 
-    # return mod_perl to previous state, though not necessary?
-    tie *STDIN, $tie_stdin if $tie_stdin;
 
     return (($mscnt || $other_bad) ? "$output<p><b>Suggestions:</b><table cellpadding=3 border=0>$footnotes</table>" : "");
 }
@@ -147,7 +154,7 @@ The only method on the object is check_html, which takes a reference to the text
 
 =head1 BUGS
 
-Sometimes the opened spell process hangs and eats up tons of CPU.  Fixed now, though... I think.
+Version 1.0 had some logic to do a waitpid, I suspect to fix a problem where sometimes the opened spell process would and eats up tons of CPU. Because this calls aspell in another manner (doesn't return the PID and may not trigger the bug), the waitpid has been removed. If any issues crop up, revisit this.
 
 check_html returns HTML we like.  You may not.  :)
 
@@ -155,5 +162,5 @@ check_html returns HTML we like.  You may not.  :)
 
 Evan Martin, evan@livejournal.com
 Brad Fitzpatrick, bradfitz@livejournal.com
-
+Afuna, coder.dw@afunamatata.com
 =cut

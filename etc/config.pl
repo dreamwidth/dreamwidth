@@ -153,7 +153,7 @@
 
     # command-line to spell checker, or undefined if you don't want spell checking
     #$SPELLER = "/usr/local/bin/ispell -a";
-    #$SPELLER = "/usr/local/bin/aspell pipe --sug-mode=fast --ignore-case";
+    #$SPELLER = "/usr/bin/aspell pipe --mode=html --sug-mode=fast --ignore-case";
 
     # to save bandwidth, should we compress pages before they go out?
     # require Compress::Zlib to be installed
