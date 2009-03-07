@@ -27,11 +27,11 @@
 
 .email.change=Change email
 
-.email.opt.both=Both (primary email + LiveJournal email)
+.email.opt.both=Both (primary email + [[sitenameshort]] email)
 
 .email.opt.dont=Don't display my email address
 
-.email.opt.lj=LiveJournal email only
+.email.opt.site=[[sitenameshort]] email only
 
 .email.opt.no_show=Don't show email address
 
@@ -194,6 +194,8 @@
 .section.interests=Interests
 
 .section.location=Location
+
+.section.usermessaging=[[siteabbrev]] User Messaging
 
 .section.textmsg=Text Messaging
 

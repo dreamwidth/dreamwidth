@@ -342,8 +342,8 @@ body<=
         my $cur = $u->opt_whatemailshow;
         my @vals = ( ($LJ::USER_EMAIL && LJ::get_cap($u, "useremail"))
                      ? ("A" => BML::ml(".email.opt.prime"),
-                        "L" => BML::ml(".email.opt.lj"),
-                        "B" => BML::ml(".email.opt.both"),
+                        "L" => BML::ml(".email.opt.site", { sitenameshort => $LJ::SITENAMESHORT } ),
+                        "B" => BML::ml(".email.opt.both", { sitenameshort => $LJ::SITENAMESHORT } ),
                         "N" => BML::ml(".email.opt.dont"))
                      : ("A" => BML::ml(".email.opt.show"),
                         "N" => BML::ml(".email.opt.no_show")));
@@ -364,7 +364,7 @@ body<=
 
         # opt_usermsg
         unless ($LJ::DISABLED{'user_messaging'}) {
-            $ret .= "<tr><td class='field_name'>LJ User Messaging</td><td>";
+            $ret .= "<tr><td class='field_name'>" . BML::ml('.section.usermessaging', { siteabbrev => $LJ::SITENAMEABBREV } ) ."</td><td>";
             $ret .= LJ::Setting::UserMessaging->as_html($u);
             $ret .= "</td></tr>\n";
         }
