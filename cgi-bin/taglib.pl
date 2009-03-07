@@ -1292,7 +1292,7 @@ sub set_usertag_display {
 }
 
 # <LJFUNC>
-# name: LJ::Tags::deleted_friend_group
+# name: LJ::Tags::deleted_trust_group
 # class: tags
 # des: Called from ljprotocol when a friends group is deleted.
 # args: uobj, bit
@@ -1300,7 +1300,7 @@ sub set_usertag_display {
 # des-bit: The id (1..60) of the friends group being deleted.
 # returns: 1 of success undef on failure.
 # </LJFUNC>
-sub deleted_friend_group {
+sub deleted_trust_group {
     my $u = LJ::want_user(shift);
     my $bit = shift() + 0;
     return undef unless $u && $bit >= 1 && $bit <= 60;

@@ -772,6 +772,95 @@ sub edit_trust_group {
 *LJ::User::edit_trust_group = \&edit_trust_group;
 
 
+# deletes a trust_group, arguments is a hash of options
+#   id => NNN,       delete by id (1..60)
+#   name => "ZZZ",   or delete by name
+#
+# specify either the id or the name.  note that deletion is a rather permanent
+# option that will remove this group from all entries that are secured to it
+# as well as remove this bit from all trustmasks.
+#
+# returns 1/0.
+#
+sub delete_trust_group {
+    my ( $u, %opts ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+
+    # use existing accessor to figure out what group they mean
+    my $grp = $u->trust_groups( id => $opts{id}, name => $opts{name} );
+    return 0 unless $grp;
+
+    # set bit to remove
+    my $bit = $grp->{groupnum}+0;
+    return 0 unless $bit >= 1 && $bit <= 60;
+
+    # remove the bits for deleted groups from all friends groupmasks
+    my $dbh = LJ::get_db_writer()
+        or return 0;
+    $dbh->do(
+        q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ?},
+        undef, $bit, $u->id
+    );
+    return 0 if $dbh->err;
+
+    # remove all posts from allowing that group:
+    my @posts_to_clean = @{ $u->selectcol_arrayref(
+        q{SELECT jitemid FROM logsec2 WHERE journalid = ? AND allowmask & (1 << ?)},
+        undef, $u->id, $bit
+    ) || [] };
+
+    # now clean the posts while we can, this is a loop so we can do it in blocks of twenty
+    # as it's somewhat hard on the database to do this enmasse
+    my $userid = $u->id; # convenience
+    while ( @posts_to_clean ) {
+        my @batch = splice( @posts_to_clean, 0, 50 );
+
+        # actually updates the entries.  note that we do not return an error here because
+        # it's not the end of the world if one of these fails...
+        my $in = join ',', @batch;
+        $u->do("UPDATE log2 SET allowmask=allowmask & ~(1 << $bit) ".
+               "WHERE journalid=$userid AND jitemid IN ($in) AND security='usemask'");
+        $u->do("UPDATE logsec2 SET allowmask=allowmask & ~(1 << $bit) ".
+               "WHERE journalid=$userid AND jitemid IN ($in)");
+
+        foreach my $id (@batch) {
+            LJ::MemCache::delete([$userid, "log2:$userid:$id"]);
+        }
+        LJ::MemCache::delete([$userid, "log2lt:$userid"]);
+    }
+
+    # notify the tags system so it can do its thing
+    LJ::Tags::deleted_trust_group( $u, $bit );
+
+    # iterate over everybody in this group and remove the bit
+    foreach my $tid ( keys %{ $u->trust_group_list( id => $bit ) || {} } ) {
+        $dbh->do(
+            q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},
+            undef, $bit, $u->id, $tid
+        );
+
+        # don't forget memcache
+        LJ::MemCache::delete( [$userid, "trustmask:$userid:$tid"] );
+    }
+
+    # finally remove the trust group, huzzah
+    $dbh->do(
+        q{DELETE FROM trust_groups WHERE userid = ? AND groupnum = ?},
+        undef, $u->id, $bit
+    );
+    return 0 if $dbh->err;
+
+    # invalidate memcache of friends/groups
+    LJ::memcache_kill( $u->id, "trust_group" );
+    LJ::memcache_kill( $u->id, "wt_list" );
+
+    # sister mary of the holy hand grenade says hi and apologies if any of the
+    # above failed.  we think it worked by this point, though.
+    return 1;
+}
+*LJ::User::delete_trust_group = \&delete_trust_group;
+
+
 # alters a trustmask to munge someone's group membership
 #
 #   $u->edit_trustmask( $otheru, ARGUMENTS )

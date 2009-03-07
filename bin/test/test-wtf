@@ -419,6 +419,30 @@ push @tests, [ 'test contains', sub
     return 1;
 } ];
 
+
+################################################################################
+push @tests, [ 'delete trust group 3', sub
+{
+    # have to create a group with a known id for these tests
+    $u1->edit_trust_group( id => 3, groupname => 'bar group 3', _force_create => 1 );
+
+    $u1->trust_group_contains( $u2, 3 ) == 1 or return 0;
+    $u1->trust_group_contains( $u2, 4 ) == 1 or return 0;
+    $u1->trust_group_contains( $u2, 5 ) == 0 or return 0;
+
+    # now delete the group
+    $u1->delete_trust_group( name => 'bar group 3' ) or return 0;
+
+    $u1->trust_group_contains( $u2, 3 ) == 0 or return 0;
+    $u1->trust_group_contains( $u2, 4 ) == 1 or return 0;
+    $u1->trust_group_contains( $u2, 5 ) == 0 or return 0;
+
+    # validate group doesn't fetch
+    $u1->trust_groups( name => 'bar group 3' ) and return 0;
+
+    return 1;
+} ];
+
 ################################################################################
 push @tests, [ 'clear groups', sub
 {
