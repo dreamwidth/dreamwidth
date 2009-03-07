@@ -350,8 +350,10 @@
             'hide_email_after' => 60,
             'userlinks' => 10,
             'maxcomments' => 5000,
-            'rateperiod-lostinfo' => 24*60, # 24 hours
+            'rateperiod-lostinfo' => 60*60*24, # 24 hours
             'rateallowed-lostinfo' => 3,
+            'rateperiod-failed_login' => 60*5, # 5 minutes
+            'rateallowed-failed_login' => 3,
             'staff_headicon' => 0,
             );
 
