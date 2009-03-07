@@ -36,6 +36,9 @@ body<=
     return $print_with_ad->(LJ::bad_input($ML{'.error.badjournaltype'}))
         unless $u->is_person || $u->is_shared || $u->is_identity;
 
+    # used later, load it only once
+    my $watch_list = $u->watch_list;
+
     my $ret;
 
     # no post, show edit form
@@ -73,7 +76,6 @@ body<=
 
                 my ( $u_fg, $u_bg, $t_bg, $w_bg, $t_text, $w_text );
                 if ( $is_watched_userid{$uid} ) {
-                    my $watch_list = $u->watch_list;
                     $u_fg = $watch_list->{$uid}->{fgcolor};
                     $u_bg = $watch_list->{$uid}->{bgcolor};
                 }
@@ -136,7 +138,6 @@ body<=
 
                 my ( $u_fg, $u_bg );
                 if ( $is_watched_userid{$uid} ) {
-                    my $watch_list = $u->watch_list;
                     $u_fg = $watch_list->{$uid}->{fgcolor};
                     $u_bg = $watch_list->{$uid}->{bgcolor};
                 }
