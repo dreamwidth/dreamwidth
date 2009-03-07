@@ -124,12 +124,12 @@ sub get_menu_navigation {
                 {
                     url => "$LJ::SITEROOT/customize/",
                     text => "menunav.organize.selectstyle",
-                    display => $loggedin_hasjournal,
+                    display => $loggedin,
                 },
                 {
                     url => "$LJ::SITEROOT/customize/options.bml",
                     text => "menunav.organize.customizestyle",
-                    display => $loggedin_hasjournal,
+                    display => $loggedin,
                 },
             ],
         },
