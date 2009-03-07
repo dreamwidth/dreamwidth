@@ -156,7 +156,7 @@ body<=
     # setup showlinks
     my $showlinks = "<form method='get' action='/community/sentinvites.bml'>";
     $showlinks .= LJ::html_hidden('authas', $c->{user});
-    $showlinks .= "Filter to: ";
+    $showlinks .= $ML{'.filterto'};
     $showlinks .= LJ::html_select({ name => 'show', selected => $GET{show} }, map { $_, $_ } qw(all accepted outstanding rejected));
     $showlinks .= LJ::html_submit(undef, 'Refresh');
     $showlinks .= "</form>";
@@ -167,16 +167,16 @@ body<=
     $ret .= <<END; 
 <table class='borderedtable' cellpadding='2' cellspacing='0'>
 <tr style="border-bottom: solid 1px black;">
-    <th style='border-right: solid 1px black;'>P</th>
-    <td style='border-bottom: solid 1px black; border-right: solid 1px black;'>Posting Access</td>
-    <th style='border-right: solid 1px black;'>U</th>
-    <td style='border-bottom: solid 1px black;'>Unmoderated</td>
+    <th style='border-right: solid 1px black;'>$ML{'.key.posting.abbrev'}</th>
+    <td style='border-bottom: solid 1px black; border-right: solid 1px black;'>$ML{'.key.posting'}</td>
+    <th style='border-right: solid 1px black;'>$ML{'.key.unmoderated.abbrev'}</th>
+    <td style='border-bottom: solid 1px black;'>$ML{'.key.unmoderated'}</td>
 </tr>
 <tr style="border-bottom: solid 1px black;">
-    <th style='border-right: solid 1px black; border-bottom: none;'>M</th>
-    <td style='border-right: solid 1px black;'>Moderator</td>
-    <th style='border-right: solid 1px black; border-bottom: none;'>A</th>
-    <td>Maintainer</td>
+    <th style='border-right: solid 1px black; border-bottom: none;'>$ML{'.key.moderator.abbrev'}</th>
+    <td style='border-right: solid 1px black;'>$ML{'.key.moderator'}</td>
+    <th style='border-right: solid 1px black; border-bottom: none;'>$ML{'.key.maintainer.abbrev'}</th>
+    <td>$ML{'.key.maintainer'}</td>
 </tr>
 </table>
 <br />

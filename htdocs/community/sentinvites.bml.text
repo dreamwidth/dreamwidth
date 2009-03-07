@@ -3,11 +3,29 @@
 
 .error.notcomm=[[user]] is not a community.
 
+.filterto=Filter to:
+
 .key.date=Date
+
+.key.maintainer.abbrev=A
+
+.key.maintainer=Maintainer
+
+.key.moderator.abbrev=M
+
+.key.moderator=Moderator
+
+.key.posting.abbrev=P
+
+.key.posting=Posting
 
 .key.sentby=Sent By
 
 .key.status=Status
+
+.key.unmoderated.abbrev=U
+
+.key.unmoderated=Unmoderated
 
 .none.body=No invites have been sent in the past 30 days.  If you wish to invite people to this community, please visit the <a [[aopts]]>Members page</a>.
 
