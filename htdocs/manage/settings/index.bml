@@ -61,6 +61,7 @@ body<=
                 LJ::Setting::EntryEditor
                 LJ::Setting::StyleAlwaysMine
                 LJ::Setting::StyleMine
+                LJ::Setting::NavStrip
                 LJ::Setting::CtxPopup
                 LJ::Setting::SiteScheme
                 LJ::Setting::AdultContent

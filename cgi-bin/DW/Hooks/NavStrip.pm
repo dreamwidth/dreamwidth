@@ -20,22 +20,16 @@ package DW::Hooks::NavStrip;
 LJ::register_hook( 'page_control_strip_options', sub {
     # if you add to the middle of the list, existing preferences will *break*
     return qw(
-        journal.own
-        readlist.own
-        community.belongto
-        community.notbelongto
-        journal.watching
-        journal.notwatching
-        comment.custom
-        journal.loggedout
-        readlist.loggedout
+        journal.this
+        journal.withrelationship
+        journal.norelationship
     );
 });
 
 LJ::register_hook( 'show_control_strip', sub {
 
     return undef unless $LJ::USE_CONTROL_STRIP;
-    return undef if $LJ::DISABLED{'control_strip'};
+    return undef unless LJ::is_enabled( 'control_strip' );
 
     my $remote = LJ::get_remote();
     my $r = DW::Request->get;
@@ -54,37 +48,20 @@ LJ::register_hook( 'show_control_strip', sub {
         my $display = $remote->control_strip_display;
         return undef unless $display;
 
-        # customized comment pages (both entry and reply)
-        if ( $r->note('view') eq 'entry' || $r->note('view') eq 'reply' ) {
-            return $display & $pagemask{'comment.custom'};
-        }
+        return $display & $pagemask{'journal.this'} if $remote->equals( $journal );
 
-        # on your journal, all pages except readlist respect journal setting
-        if ( $remote->equals( $journal ) ) {
-            return $r->note( 'view' ) eq 'read'
-                ? $display & $pagemask{'readlist.own'}
-                : $display & $pagemask{'journal.own'};
-        }
+        return $display & $pagemask{'journal.withrelationship'}
+            if ( $journal->is_community && $remote->member_of( $journal) )
+            || $remote->watches( $journal ) || $remote->trusts( $journal );
 
-        if ( $journal->is_community ) {
-            return $remote->member_of( $journal )
-                ? $display & $pagemask{'community.belongto'}
-                : $display & $pagemask{'community.notbelongto'};
-        }
-
-        # all other journal types (personal, openid, syn, news, staff)
-        # readlist is treated by the same rule as all other journal pages
-        return $remote->watches( $journal )
-            ? $display & $pagemask{'journal.watching'}
-            : $display & $pagemask{'journal.notwatching'};
-
-    } else {
+        return $display & $pagemask{'journal.norelationship'};
+            
+    } else {    
         my $display = $journal->control_strip_display;
         return undef unless $display;
 
-        return $r->note( 'view' ) eq 'read'
-            ?  $display & $pagemask{'readlist.loggedout'}
-            : $display & $pagemask{'journal.loggedout'};
+        # logged out users follow journal preferences
+        return $display & $pagemask{'journal.this'};
     }
 
     return undef;

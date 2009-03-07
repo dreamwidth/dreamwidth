@@ -20,28 +20,7 @@ sub render_body {
 
     my $ret = "<fieldset><legend>" . $class->ml('widget.navstripchooser.title') . "</legend>";
     $ret .= "</fieldset>" if $u->prop('stylesys') == 2;
-    $ret .= "<p class='detail'>" . $class->ml('widget.navstripchooser.desc') . " " . LJ::help_icon('navstrip') . "</p>";
-
-    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
-    return undef unless @pageoptions;
-    
-    my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0..$#pageoptions;
-
-    # choose where to display/see it    
-    my $display = $u->control_strip_display;
-
-    foreach my $pageoption ( @pageoptions ) {
-        my $for_html = $pageoption; $for_html =~ tr/\./_/;
-        
-        $ret .= "<p>" . $class->html_check(
-            name => 'control_strip_display',
-            id => $for_html,
-            selected => $display & $pagemask{$pageoption},
-            value => $pagemask{$pageoption},
-        );
-        
-        $ret .= " <label for='$for_html'>" . $class->ml( 'widget.navstripchooser.page.' . $pageoption) . "</label></p>";
-   }
+    $ret .= "<p class='detail'>" . $class->ml( 'widget.navstripchooser.desc', { aopts => "href='/manage/settings/?cat=display'" } ) . " " . LJ::help_icon('navstrip') . "</p>";
 
     $ret .= "<p>" . $class->ml('widget.navstripchooser.colors') . "</p>";
 
@@ -180,19 +159,15 @@ sub handle_post {
 
     my %override;
     my $post_fields_of_parent = LJ::Widget->post_fields_of_widget("CustomizeTheme");
-    my ( $given_control_strip_color, $given_control_strip_display, $props );
+    my ( $given_control_strip_color, $props );
     if ($post_fields_of_parent->{reset}) {
         $given_control_strip_color = "";
-        $props->{control_strip_display} = "";
         $override{control_strip_bgcolor} = "";
         $override{control_strip_fgcolor} = "";
         $override{control_strip_bordercolor} = "";
         $override{control_strip_linkcolor} = "";
     } else {
         $given_control_strip_color = $post->{control_strip_color};
-        $given_control_strip_display |= $_+0
-            foreach split( /\0/, $post->{control_strip_display} );
-        $props->{control_strip_display} = $given_control_strip_display ? $given_control_strip_display : 'none';    
     }
 
     my $color = $given_control_strip_color;
@@ -200,9 +175,7 @@ sub handle_post {
     # we only want to store dark or light in the user props
     $props->{control_strip_color} = $color if $color eq 'light' || $color eq 'dark';
 
-    foreach my $uprop ( qw/control_strip_color control_strip_display/ ) {
-        $u->set_prop($uprop, $props->{$uprop});
-    }
+    $u->set_prop( 'control_strip_color', $props->{control_strip_color} );
 
     if ($color ne "layout_default" && $color ne "custom") {
         $override{custom_control_strip_colors} = "off";
