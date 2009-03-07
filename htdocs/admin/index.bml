@@ -101,6 +101,8 @@ body<=
             }, sub {
                 return ( $LJ::IS_DEV_SERVER, "dev server" );
             } ] ],
+        [ 'sysban.bml',
+            'Sysban Management', 'Set and manage sysbans', [ 'sysban' ] ],
         [ 'userlog.bml',
             'Userlog Viewer', 'Shows you a user\'s logged actions.', [ 'canview:userlog', 'canview:*' ] ],
     );
