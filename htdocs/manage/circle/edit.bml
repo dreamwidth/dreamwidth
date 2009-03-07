@@ -36,30 +36,26 @@ body<=
     return $print_with_ad->(LJ::bad_input($ML{'.error.badjournaltype'}))
         unless $u->is_person || $u->is_shared || $u->is_identity;
 
-    # used later, load it only once
-    my $watch_list = $u->watch_list;
-
     my $ret;
 
     # no post, show edit form
     unless (LJ::did_post()) {
         my @trusted_userids = $u->trusted_userids;
         my %is_trusted_userid = map { $_ => 1 } @trusted_userids;
-        my @watched_userids = $u->watched_userids;
-        my %is_watched_userid = map { $_ => 1 } @watched_userids;
+        my $watch_list = $u->watch_list;
         my @trusted_by_userids = $u->trusted_by_userids;
         my %is_trusted_by_userid = map { $_ => 1 } @trusted_by_userids;
         my @watched_by_userids = $u->watched_by_userids;
         my %is_watched_by_userid = map { $_ => 1 } @watched_by_userids;
 
-        my $us = LJ::load_userids( @trusted_userids, @watched_userids, @trusted_by_userids, @watched_by_userids );
+        my $us = LJ::load_userids( @trusted_userids, keys %$watch_list, @trusted_by_userids, @watched_by_userids );
         my @nonperson_userids;
 
         $ret .= "<form method='post' name='editFriends' action='edit.bml$getextra'>\n";
         $ret .= LJ::form_auth();
 
         # people table
-        if ( @trusted_userids || @watched_userids || @trusted_by_userids || @watched_by_userids ) {
+        if ( @trusted_userids || keys %$watch_list || @trusted_by_userids || @watched_by_userids ) {
             $ret .= "<p>$ML{'.circle.intro.people'}</p>";
             $ret .= "<div align='center'><table class='editfriends'>";
             $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th>";
@@ -75,7 +71,7 @@ body<=
                 }
 
                 my ( $u_fg, $u_bg, $t_bg, $w_bg, $t_text, $w_text );
-                if ( $is_watched_userid{$uid} ) {
+                if ( $watch_list->{$uid} ) {
                     $u_fg = $watch_list->{$uid}->{fgcolor};
                     $u_bg = $watch_list->{$uid}->{bgcolor};
                 }
@@ -119,7 +115,7 @@ body<=
                 $ret .= "<td>" . LJ::html_check({
                     name => "editfriend_edit_${uid}_watch",
                     value => 1,
-                    selected => $is_watched_userid{$uid} ? 1 : 0,
+                    selected => $watch_list->{$uid} ? 1 : 0,
                 }) . "</td>";
                 $ret .= "</tr>";
                 $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );
@@ -137,7 +133,7 @@ body<=
                 next unless $other_u;
 
                 my ( $u_fg, $u_bg );
-                if ( $is_watched_userid{$uid} ) {
+                if ( $watch_list->{$uid} ) {
                     $u_fg = $watch_list->{$uid}->{fgcolor};
                     $u_bg = $watch_list->{$uid}->{bgcolor};
                 }
@@ -148,7 +144,7 @@ body<=
                 $ret .= "<td>" . LJ::html_check({
                     name => "editfriend_edit_${uid}_watch",
                     value => 1,
-                    selected => $is_watched_userid{$uid} ? 1 : 0,
+                    selected => $watch_list->{$uid} ? 1 : 0,
                 }) . "</td>";
                 $ret .= "</tr>";
                 $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );

@@ -95,8 +95,8 @@
         return;
     }
 
-    my @trusted_userids = $u->trusted_userids;
-    my $trusted_us = LJ::load_userids( @trusted_userids );
+    my $trust_list = $u->trust_list;
+    my $trusted_us = LJ::load_userids( keys %$trust_list );
 
     # authas switcher form
     $body .= "<form method='get' action='editfilters.bml'>\n";
@@ -123,13 +123,14 @@
         $body .= "<input type='hidden' name='efg_delete_${i}' value='0' />";
         $body .= "<input type='hidden' name='efg_set_${i}_public' value='$public' />";
     }
-    foreach my $uid ( @trusted_userids ) {
+    foreach my $uid ( keys %$trust_list ) {
         my $trusted_u = $trusted_us->{$uid};
         next unless LJ::isu( $trusted_u );
 
         my $user = $trusted_u->user;
-        my $mask = $u->trustmask( $trusted_u ) || 1;
-        $body .= "<input type='hidden' name='editfriend_groupmask_$user' value='$mask' />";
+        my $groupmask = $trust_list->{$uid}->{groupmask} || 1;
+        my $trustmask = $groupmask & ~( 7 << 61 );
+        $body .= "<input type='hidden' name='editfriend_groupmask_$user' value='$trustmask' />";
 
         if ( $trusted_u->is_identity ) {
             my $dn = $trusted_u->display_name;
