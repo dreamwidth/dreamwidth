@@ -1386,6 +1386,7 @@ sub start_request
     %LJ::_ML_USED_STRINGS = ();       # strings looked up in this web request
     %LJ::REQ_CACHE_USERTAGS = ();     # uid -> { ... }; populated by get_usertags, so we don't load it twice
     $LJ::ADV_PER_PAGE = 0;            # Counts ads displayed on a page
+    $LJ::ACTIVE_RES_GROUP = undef;    # use whatever is current site default
 
     $LJ::CACHE_REMOTE_BOUNCE_URL = undef;
     LJ::Userpic->reset_singletons;
@@ -1420,42 +1421,58 @@ sub start_request
     DW::Request->reset;
 
     # include standard files if this is web-context
-    unless ($LJ::DISABLED{sitewide_includes}) {
-        if ( DW::Request->get ) {
-            # standard site-wide JS and CSS
-            LJ::need_res(qw(
-                            js/core.js
-                            js/dom.js
-                            js/httpreq.js
-                            js/livejournal.js
-                            js/common/AdEngine.js
-                            stc/lj_base.css
-                            ));
+    if ( DW::Request->get ) {
 
-            # esn ajax
-            LJ::need_res(qw(
-                            js/esn.js
-                            stc/esn.css
-                            ))
-                unless LJ::conf_test($LJ::DISABLED{esn_ajax});
+        # note that we're calling need_res and advising that these items
+        # are the new style global items
 
-            # contextual popup JS
-            LJ::need_res(qw(
-                            js/ippu.js
-                            js/lj_ippu.js
-                            js/hourglass.js
-                            js/contextualhover.js
-                            stc/contextualhover.css
-                            ))
-                if $LJ::CTX_POPUP;
+        LJ::need_res( {group=>'jquery'},
+            # jquery library is the big one, load first
+            $LJ::IS_DEV_SERVER ?
+                'js/jquery/jquery-1.3.2.js' :
+                'js/jquery/jquery-1.3.2.min.js',
 
-            # development JS
-            LJ::need_res(qw(
-                            js/devel.js
-                            js/livejournal-devel.js
-                            ))
-                if $LJ::IS_DEV_SERVER;
-        }
+            # the rest of the libraries
+            qw(
+                js/dw/dw-core.js
+            ),
+        );
+
+        # old/standard libraries are below here.
+
+        # standard site-wide JS and CSS
+        LJ::need_res(qw(
+                        js/core.js
+                        js/dom.js
+                        js/httpreq.js
+                        js/livejournal.js
+                        js/common/AdEngine.js
+                        stc/lj_base.css
+                        ));
+
+        # esn ajax
+        LJ::need_res(qw(
+                        js/esn.js
+                        stc/esn.css
+                        ))
+            unless LJ::conf_test($LJ::DISABLED{esn_ajax});
+
+        # contextual popup JS
+        LJ::need_res(qw(
+                        js/ippu.js
+                        js/lj_ippu.js
+                        js/hourglass.js
+                        js/contextualhover.js
+                        stc/contextualhover.css
+                        ))
+            if $LJ::CTX_POPUP;
+
+        # development JS
+        LJ::need_res(qw(
+                        js/devel.js
+                        js/livejournal-devel.js
+                        ))
+            if $LJ::IS_DEV_SERVER;
     }
 
     LJ::run_hooks("start_request");

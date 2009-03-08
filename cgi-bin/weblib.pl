@@ -2062,11 +2062,24 @@ sub js_dumper {
     }
 }
 
+# optional first argument: hashref with options
+# other arguments: resources to include
 sub need_res {
+    my %opts;
+    if ( ref $_[0] eq 'HASH' ) {
+        %opts = %{ shift() };
+    }
+
+    my $group = $opts{group};
+
     foreach my $reskey (@_) {
         die "Bogus reskey $reskey" unless $reskey =~ m!^(js|stc)/!;
-        unless ($LJ::NEEDED_RES{$reskey}++) {
-            push @LJ::NEEDED_RES, $reskey;
+
+        # we put javascript in the 'default' group and CSS in the 'all' group
+        # since we need CSS everywhere and we are switching JS groups
+        my $lgroup = $group || ( $reskey =~ /^js/ ? 'default' : 'all' );
+        unless ($LJ::NEEDED_RES{$lgroup}->{$reskey}++) {
+            push @LJ::NEEDED_RES, [ $lgroup, $reskey ];
         }
     }
 }
@@ -2171,7 +2184,16 @@ sub res_includes {
         $oldest{$type} = $modtime if $modtime > $oldest{$type};
     };
 
-    foreach my $key (@LJ::NEEDED_RES) {
+    foreach my $resrow (@LJ::NEEDED_RES) {
+
+        # determine if this resource is part of the resource group that is active;
+        # or 'default' if no group explicitly active
+        my ( $group, $key ) = @$resrow;
+        next if 
+            $group ne 'all' &&
+            ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
+              ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
+
         my $path;
         my $mtime = _file_modtime($key, $now);
         if ($key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key}) {
@@ -2223,6 +2245,11 @@ sub res_includes {
     $tags->("stcjs",   "<script type=\"text/javascript\" src=\"$statprefix/___\"></script>\n");
     $tags->("wstcjs",  "<script type=\"text/javascript\" src=\"$wstatprefix/___\"></script>\n");
     return $ret;
+}
+
+# called to set the active resource group
+sub set_active_resource_group {
+    $LJ::ACTIVE_RES_GROUP = $_[0];
 }
 
 # Returns HTML of a dynamic tag could given passed in data
