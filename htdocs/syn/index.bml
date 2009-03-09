@@ -70,7 +70,7 @@ body<=
                     $ret .= "<form method='post' action='./'>";
                     $ret .= LJ::html_hidden("userid", $u->{'userid'}, 'synurl', $url);
                     $ret .= "<blockquote>";
-                    $ret .= "<p>$ML{'.account'} <input size='15' maxlength='25' name='acct' />";
+                    $ret .= "<p>$ML{'.account'} <input size='15' maxlength='20' name='acct' />";
                     $ret .= "<p><input name='action:addcustom' type='submit' value='" . LJ::ehtml($ML{'.create'}) . "' />";
                     $ret .= "</blockquote></form>";
                     return $ret;
