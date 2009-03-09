@@ -123,9 +123,8 @@
         $body .= "<input type='hidden' name='efg_delete_${i}' value='0' />";
         $body .= "<input type='hidden' name='efg_set_${i}_public' value='$public' />";
     }
-    foreach my $uid ( keys %$trust_list ) {
+    foreach my $uid ( sort { $trusted_us->{$a}->display_username cmp $trusted_us->{$b}->display_username } keys %$trust_list ) {
         my $trusted_u = $trusted_us->{$uid};
-        next unless LJ::isu( $trusted_u );
 
         my $user = $trusted_u->user;
         my $groupmask = $trust_list->{$uid}->{groupmask} || 1;
