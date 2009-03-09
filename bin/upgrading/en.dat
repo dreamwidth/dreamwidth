@@ -1334,8 +1334,6 @@ error.message.expunged=This message cannot be sent to [[ljuser]] because the jou
 
 error.message.individual=Message can only be sent to individual users, not [[ljuser]].
 
-error.message.yourself=Stop trying to message yourself, we're not that kind of service.
-
 error.nobutton=No button pressed?
 
 error.nocommlogin=Logging in as a community has been disabled.
