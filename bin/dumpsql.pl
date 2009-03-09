@@ -6,7 +6,6 @@
 
 use strict;
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-require "$ENV{'LJHOME'}/cgi-bin/ljviews.pl";
 
 my $dbh = LJ::get_db_writer();
 
