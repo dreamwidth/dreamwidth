@@ -41,10 +41,7 @@ sub _add_m_edge {
         or return;
 
     # error check adding an edge
-    return 0
-        unless $from_u->is_person &&
-               $to_u->is_community &&
-               ! LJ::is_banned( $from_u, $to_u );
+    return 0 unless $from_u->can_join( $to_u );
 
     # simply add the reluser edge
     LJ::set_rel( $to_u, $from_u, 'E' );
@@ -134,6 +131,46 @@ sub member_userids {
     return @{ LJ::load_rel_user( $u, 'E' ) || [] };
 }
 *LJ::User::member_userids = \&member_userids;
+
+
+# returns 1/0 depending on if the source is allowed to add a member edge
+# to the target.  note: if you don't pass a target user, then we return
+# a generic 1/0 meaning "this account is allowed to have a member edge".
+sub can_join {
+    my ( $u, $tu ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $tu = LJ::want_user( $tu );
+
+    # if the user is a maintainer, skip every other check
+    return 1 if $tu && $u->can_manage( $tu );
+
+    # a user must be a personal account
+    return 0 unless $u->is_personal;
+
+    # the user must be visible
+    return 0 unless $u->is_visible;
+
+    if ( $tu ) {
+        # the target must be a community
+        return 0 unless $tu->is_community;
+
+        # the target must be visible
+        return 0 unless $tu->is_visible;
+
+        # the target must not have banned the user
+        return 0 if $tu->has_banned( $u );
+
+        # make sure the user isn't underage and trying to join an adult community
+        return 0 unless $u->can_join_adult_comm( comm => $tu );
+
+        # the community must be open membership
+        return 0 unless $tu->is_open_membership;
+    }
+
+    # okay, good to go!
+    return 1;
+}
+*LJ::User::can_join = \&can_join;
 
 
 1;

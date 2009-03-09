@@ -295,9 +295,9 @@ sub join_community {
     return LJ::error('comm_not_found') unless $u && $cu;
     return LJ::error('comm_not_comm') unless $cu->{journaltype} eq 'C';
 
-    # try to join the community, if this returns 0 something happened
-    return undef
-        unless $u->add_edge( $cu, member => 1 );
+    # try to join the community, and return if it didn't work
+    $u->add_edge( $cu, member => 1 );
+    return undef unless $u->member_of( $cu );
 
     # add edges that effect this relationship... if the user sent a fourth
     # argument, use that as a bool.  else, load commrow and use the postlevel.

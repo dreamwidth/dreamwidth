@@ -1766,6 +1766,25 @@ sub clear_prop {
 }
 
 
+sub control_strip_display {
+    my $u = shift;
+
+    # return prop value if it exists and is valid
+    my $prop_val = $u->prop( 'control_strip_display' );
+    return 0 if $prop_val eq 'none';
+    return $prop_val if $prop_val =~ /^\d+$/;
+
+    # otherwise, return the default: all options checked
+    my $ret;
+    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
+    for ( my $i = 0; $i < scalar @pageoptions; $i++ ) {
+        $ret |= 1 << $i;
+    }
+
+    return $ret ? $ret : 0;
+}
+
+
 # returns the country specified by the user
 sub country {
     my $u = shift;
@@ -1897,6 +1916,18 @@ sub large_journal_icon {
 }
 
 
+sub opt_logcommentips {
+    my $u = shift;
+
+    # return prop value if it exists and is valid
+    my $prop_val = $u->prop( 'opt_logcommentips' );
+    return $prop_val if $prop_val =~ /^[NSA]$/;
+
+    # otherwise, return the default: log for all comments
+    return 'A';
+}
+
+
 sub opt_showcontact {
     my $u = shift;
 
@@ -1941,6 +1972,24 @@ sub opt_showonlinestatus {
     } else {
         return 'F';
     }
+}
+
+
+sub opt_whatemailshow {
+    my $u = shift;
+
+    my $user_email = $LJ::USER_EMAIL && $u->get_cap( 'useremail' ) ? 1 : 0;
+
+    # return prop value if it exists and is valid
+    my $prop_val = $u->prop( 'opt_whatemailshow' );
+    if ( $user_email ) {
+        return $prop_val if $prop_val =~ /^[ALBN]$/;
+    } else {
+        return $prop_val if $prop_val =~ /^[AN]$/;
+    }
+
+    # otherwise, return the default: no email shown
+    return 'N';
 }
 
 
@@ -2107,55 +2156,6 @@ sub _lazy_migrate_infoshow {
     $u->{allow_infoshow} = ' ';
 
     return 1;
-}
-
-
-sub control_strip_display {
-    my $u = shift;
-
-    # return prop value if it exists and is valid
-    my $prop_val = $u->prop( 'control_strip_display' );
-    return 0 if $prop_val eq 'none';
-    return $prop_val if $prop_val =~ /^\d+$/;
-
-    # otherwise, return the default: all options checked
-    my $ret;
-    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
-    for ( my $i = 0; $i < scalar @pageoptions; $i++ ) {
-        $ret |= 1 << $i;
-    }
-
-    return $ret ? $ret : 0;
-}
-
-
-sub opt_logcommentips {
-    my $u = shift;
-
-    # return prop value if it exists and is valid
-    my $prop_val = $u->prop( 'opt_logcommentips' );
-    return $prop_val if $prop_val =~ /^[NSA]$/;
-
-    # otherwise, return the default: log for all comments
-    return 'A';
-}
-
-
-sub opt_whatemailshow {
-    my $u = shift;
-
-    my $user_email = $LJ::USER_EMAIL && $u->get_cap( 'useremail' ) ? 1 : 0;
-
-    # return prop value if it exists and is valid
-    my $prop_val = $u->prop( 'opt_whatemailshow' );
-    if ( $user_email ) {
-        return $prop_val if $prop_val =~ /^[ALBN]$/;
-    } else {
-        return $prop_val if $prop_val =~ /^[AN]$/;
-    }
-
-    # otherwise, return the default: no email shown
-    return 'N';
 }
 
 
@@ -2965,12 +2965,44 @@ sub can_post_to {
 }
 
 
+sub is_closed_membership {
+    my $u = shift;
+
+    return $u->membership_level eq 'closed' ? 1 : 0;
+}
+
+
+sub is_moderated_membership {
+    my $u = shift;
+
+    return $u->membership_level eq 'moderated' ? 1 : 0;
+}
+
+
+sub is_open_membership {
+    my $u = shift;
+
+    return $u->membership_level eq 'open' ? 1 : 0;
+}
+
+
 # returns an array of maintainer userids
 sub maintainer_userids {
     my $u = shift;
 
     return () unless $u->is_community;
     return @{LJ::load_rel_user_cache( $u->id, 'A' )};
+}
+
+
+# returns the membership level of a community
+sub membership_level {
+    my $u = shift;
+
+    return undef unless $u->is_community;
+
+    my ( $membership_level, $post_level ) = LJ::get_comm_settings( $u );
+    return $membership_level || undef;
 }
 
 
