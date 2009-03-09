@@ -3123,7 +3123,7 @@ sub _Comment__get_link
                             LJ::S2::Image("$LJ::IMGPREFIX/btn_edit.gif", 22, 20));
     }
     if ($key eq "expand_comments") {
-        return $null_link unless LJ::run_hook('show_thread_expander');
+        return $null_link unless $u->show_thread_expander( $remote );
         ## show "Expand" link only if 
         ## 1) the comment is collapsed 
         ## 2) any of comment's children are collapsed

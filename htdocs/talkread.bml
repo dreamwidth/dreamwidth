@@ -453,7 +453,7 @@ my $old_url = 0;
     $LJ_cmtinfo{'canAdmin'} = LJ::can_manage($remote, $u) ? 1 : 0;
     $LJ_cmtinfo{'remote'} = $remote ? $remote->{user} : "";
     my $fmt_time_short = "%%hh%%:%%min%% %%a%%m";
-    my $show_thread_expander = LJ::run_hook('show_thread_expander');
+    my $show_thread_expander = $u->show_thread_expander( $remote );
 
     my $recurse_post = sub
     {

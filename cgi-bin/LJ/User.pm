@@ -2072,6 +2072,15 @@ sub should_show_schools_to {
     return 0;
 }
 
+# should show the thread expander for this user/journal
+sub show_thread_expander {
+    my ( $u, $remote ) = @_;
+    
+    return 1 if $remote && $remote->get_cap( 'thread_expander' )
+        || $u->get_cap( 'thread_expander' );
+
+    return 0;
+}
 
 sub _lazy_migrate_infoshow {
     my ($u) = @_;

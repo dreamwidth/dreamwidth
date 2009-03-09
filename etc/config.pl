@@ -355,6 +355,7 @@
             'rateperiod-failed_login' => 60*5, # 5 minutes
             'rateallowed-failed_login' => 3,
             'staff_headicon' => 0,
+            thread_expander => 0,
             );
 
     # capability class limits.
@@ -401,7 +402,8 @@
             'synd_create' => 1,
             'tags_max' => 1000,
             'textmessaging' => 0,
-            'tools_recent_comments_display' => 10,
+            thread_expander => 0,            
+            'tools_recent_comments_display' => 10,            
             'track_defriended' => 0,
             'track_pollvotes' => 0,
             'track_thread' => 0,
@@ -451,6 +453,7 @@
             'synd_create' => 1,
             'tags_max' => 1500,
             'textmessaging' => 1,
+            thread_expander => 1,            
             'tools_recent_comments_display' => 100,
             'track_defriended' => 1,
             'track_pollvotes' => 1,
@@ -499,6 +502,7 @@
             'synd_create' => 1,
             'tags_max' => 2000,
             'textmessaging' => 1,
+            thread_expander => 1,            
             'tools_recent_comments_display' => 150,
             'track_defriended' => 1,
             'track_pollvotes' => 1,
@@ -554,6 +558,7 @@
             'synd_create' => 1,
             'tags_max' => 2000,
             'textmessaging' => 1,
+            thread_expander => 1,            
             'tools_recent_comments_display' => 150,
             'track_defriended' => 1,
             'track_pollvotes' => 1,
@@ -602,6 +607,7 @@
             'synd_create' => 1,
             'tags_max' => 2000,
             'textmessaging' => 1,
+            thread_expander => 1,            
             'tools_recent_comments_display' => 150,
             'track_defriended' => 1,
             'track_pollvotes' => 1,
