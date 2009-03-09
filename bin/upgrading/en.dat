@@ -3178,6 +3178,8 @@ web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
 
+web.controlstrip.btn.inbox=Inbox
+
 web.controlstrip.links.addfeed=Add it to your reading page
 
 web.controlstrip.links.addtocircle=Add them to your circle
@@ -3195,6 +3197,8 @@ web.controlstrip.links.explore=Explore [[sitenameabbrev]]
 web.controlstrip.links.flag=Flag Journal
 
 web.controlstrip.links.home=Home
+
+web.controlstrip.links.inbox=Inbox
 
 web.controlstrip.links.invitefriends=Invite Friends
 

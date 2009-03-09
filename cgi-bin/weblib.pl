@@ -2952,6 +2952,7 @@ sub control_strip
                  );
 
     if ($remote) {
+        $links{'inbox'} = "<a href='$LJ::SITEROOT/inbox'>$BML::ML{'web.controlstrip.links.inbox'}</a>";
         $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         if ($journal->is_syndicated || $journal->is_news) {
@@ -3036,7 +3037,8 @@ sub control_strip
         my $logout = "<input type='submit' value=\"$BML::ML{'web.controlstrip.btn.logout'}\" id='Logout' />";
         $ret .= "$remote_display $logout";
         $ret .= "</div></form>\n";
-        $ret .= "$links{'home'}&nbsp;&nbsp; $links{'post_journal'}&nbsp;&nbsp; $links{'view_friends_page'}";
+        my $unread = $remote->notification_inbox->unread_count;
+        $ret .= "$links{'home'}&nbsp;&nbsp; $links{'post_journal'}&nbsp;&nbsp; $links{'view_friends_page'}&nbsp;&nbsp;$links{'inbox'} ($unread)";
         $ret .= "</td>\n";
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
