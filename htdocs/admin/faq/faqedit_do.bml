@@ -84,7 +84,7 @@ body<=
      }
      $dbh->do("INSERT INTO faq (faqid, question, summary, answer, faqcat, sortorder, lastmoduserid, lastmodtime) VALUES (NULL, $qq, $qs, $qa, $qfaqcat, $sortorder, $remote->{'userid'}, NOW())");
      $id = $dbh->{'mysql_insertid'};
-     $ret .= $dbh->errstr || "Added FAQ item.  All good.";
+     $ret .= $dbh->errstr || "Added FAQ item.  All good.  faqid is <b><a href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=$id'>$id</a></b>";
 
      $opts_question->{'childrenlatest'} = 1; 
      $opts_summary->{'childrenlatest'} = 1; 
