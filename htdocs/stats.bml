@@ -123,7 +123,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  }
 
  {
-     $ret .= "<p>$ML{'.demographics.desc.countries'}</p><ul>";
+     $ret .= "<p>$ML{'.demographics.desc.states'}</p><ul>";
      my $ct;
      foreach my $key (sort { $stat{'state'}->{$b} <=> $stat{'state'}->{$a} } keys %{$stat{'state'}})
      {
