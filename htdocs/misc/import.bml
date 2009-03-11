@@ -59,6 +59,10 @@ body<=
         );
         return "Database error." if $dbh->err;
 
+        # if comments are on, turn entries on
+        $POST{lj_entries} = 1
+            if $POST{lj_comments};
+
         # okay, this is kinda hacky but turn on the right things so we can do
         # a proper entry import...
         if ( $POST{lj_entries} ) {
@@ -74,6 +78,7 @@ body<=
             ['lj_friendgroups', 'ready'],
 #            ['lj_friends',      'init' ],
             ['lj_entries',      'init' ],
+            ['lj_comments',     'init' ],
         );
 
         # schedule userpic, bio, and tag imports
@@ -163,6 +168,7 @@ EOF
 
     # checkbox easier this way
     my %opts = (
+        lj_comments     => [ 0, 'Import all comments.  Implies: entries.' ],
         lj_entries      => [ 0, 'Import all journal entries.  Implies: tags, friendgroups.' ],
         lj_tags         => [ 1, 'Import list of tags.' ],
         lj_userpics     => [ 1, 'Import icons (aka userpics).' ],

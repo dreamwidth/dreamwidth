@@ -99,8 +99,23 @@ sub try_work {
         $log->( '    retrieved %d items and %d left to sync', $hash->{count}, $hash->{total} );
         last if $hash->{count} == $hash->{total};
     }
-    $log->( 'Syncitems finished.' );
+    $log->( 'Syncitems finished with %d items pre-prune.', scalar( keys %sync ) );
 
+    # this is an optimization.  since we never do an edit event (only post!) we will
+    # never get changes anyway.  so let's remove from the list of things to sync any
+    # post that we already know about.  (not that we really care, but it's much nicer
+    # on people we're pulling from.)
+    foreach my $url ( keys %$entry_map ) {
+        unless ( $url =~ m!/(\d+)\.html$! ) {
+            $log->( 'URL %s not of expected format in prune.', $url );
+            next;
+        }
+
+        delete $sync{$1 >> 8};
+    }
+    $log->( 'Syncitems now has %d items post-prune.', scalar( keys %sync ) );
+
+    # simple helper sub
     my $realtime = sub {
         my $id = shift;
         return $sync{$id}->[1] if @{$sync{$id} || []};
@@ -211,6 +226,15 @@ sub try_work {
 
         $log->( '    counted %d entries, lastgrab is now %s.', $count, $lastgrab );
     }
+
+    # mark the comments mode as ready to schedule
+    my $dbh = LJ::get_db_writer();
+    $dbh->do(
+        q{UPDATE import_items SET status = 'ready'
+          WHERE userid = ? AND item IN ('lj_comments')
+          AND import_data_id = ? AND status = 'init'},
+        undef, $u->id, $opts->{import_data_id}        
+    );
 
     return $ok->();
 }

@@ -56,13 +56,14 @@ sub try_work {
 
     my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u, $r->{friendgroups} );
 
-    # mark lj_friends item as able to be scheduled now, and save the map
+    # store the merged map
     $dbh->do(
         q{UPDATE import_data SET groupmap = ?
           WHERE userid = ? AND import_data_id = ?},
         undef, nfreeze( $map ), $u->id, $opts->{import_data_id}
     );
 
+    # mark lj_friends item as able to be scheduled now, and save the map
 # FIXME: what do we do on error case? well, hopefully that will be rare...
     $dbh->do(
         q{UPDATE import_items SET status = 'ready'

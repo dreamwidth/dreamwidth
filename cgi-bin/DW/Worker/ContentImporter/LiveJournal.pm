@@ -203,19 +203,6 @@ sub retry_delay {
     return ( 10, 30, 60, 300, 600 )[$fails];
 }
 
-sub do_authed_fetch {
-    my ( $opts, $mode, $startid, $numitems, $sess ) = @_;
-
-    # hit up the server with the specified information and return the raw content
-    my $ua = LWP::UserAgent->new;
-    my $request = HTTP::Request->new( GET => "http://$opts->{server}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems" );
-    $request->push_header( Cookie => "ljsession=$sess" );
-    my $response = $ua->request( $request );
-    return if $response->is_error;
-    my $xml = $response->content;
-    return $xml if $xml;
-}
-
 ##############################################################################
 # MASON DIXON LINE \o/
 # South of here, these functions have been updated with the changes Mark is
@@ -334,12 +321,14 @@ sub get_remapped_userids {
             unless defined $oid;
     }
 
-    unless ( defined $fid ) {
-        warn "[$$] Remapping feed userid of $data->{hostname}:$user\n";
-        $fid = $class->remap_username_feed( $data, $user );
-        warn "     FEED USERID IS STILL UNDEFINED\n"
-            unless defined $fid;
-    }
+# FIXME: this is temporarily disabled while we hash out exactly how we want
+# this functionality to work.
+#    unless ( defined $fid ) {
+#        warn "[$$] Remapping feed userid of $data->{hostname}:$user\n";
+#        $fid = $class->remap_username_feed( $data, $user );
+#        warn "     FEED USERID IS STILL UNDEFINED\n"
+#            unless defined $fid;
+#    }
 
     $dbh->do( 'REPLACE INTO import_usermap (hostname, username, identity_userid, feed_userid) VALUES (?, ?, ?, ?)',
               undef, $data->{hostname}, $user, $oid, $fid );
@@ -423,18 +412,13 @@ sub remap_lj_user {
 }
 
 sub get_lj_session {
-    my $imp = $_[0];
+    my ( $class, $imp ) = @_;
 
-    my $r = call_xmlrpc( $imp, 'sessiongenerate', { expiration => 'short' } );
+    my $r = $class->call_xmlrpc( $imp, 'sessiongenerate', { expiration => 'short' } );
     return undef
         unless $r && ! $r->{fault};
 
     return $r->{ljsession};
-}
-
-sub d {
-    warn shift(@_) . "\n"
-        if $LJ::IS_DEV_SERVER;
 }
 
 sub xmlrpc_call_helper {
