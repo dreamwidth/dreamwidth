@@ -79,8 +79,17 @@ sub try_work {
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
 
+    # this is a helper sub that steps a MySQL formatted time by some offset
+    # arguments: '2008-01-01 12:03:53', -1 ... returns '2008-01-01 12:03:52'
+    my $step_time = sub {
+        return LJ::mysql_time( LJ::mysqldate_to_time( $_[0] ) + $_[1] );
+    };
+
     # load the syncitems list; but never try to load the same lastsync time twice, just
-    # in case 
+    # in case.  also, we have to do some pretty annoying back-steps and not actually trust
+    # the last synced time because it's possible in some rare cases to lose entries by
+    # just trusting what the remote end is telling you.  (FIXME: link to a writeup of this
+    # somewhere...)
     my ( $lastsync, %tried_syncs, %sync );
     while ( $tried_syncs{$lastsync} < 2 ) {
         $log->( 'Calling syncitems; lastsync = %s.', ( $lastsync || 'undef' ) );
@@ -88,13 +97,22 @@ sub try_work {
         return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
             if ! $hash || $hash->{fault};
 
+        open FILE, ">>/tmp/hashdump";
+        print FILE LJ::D( $hash );
+        close FILE;
+
         foreach my $item ( @{$hash->{syncitems} || []} ) {
             next unless $item->{item} =~ /^L-(\d+)$/;
-            $sync{$1} = [ $item->{action}, $item->{time} ];
-            $lastsync = $item->{time}
-                if !defined $lastsync || $item->{time} gt $lastsync;
-            $tried_syncs{$lastsync}++;
+
+            my $synctime = $step_time->( $item->{time}, -1 );
+
+            $sync{$1} = [ $item->{action}, $synctime ];
+            $lastsync = $synctime
+                if !defined $lastsync || $synctime gt $lastsync;
         }
+
+        # now we can mark this, as we have officially syncd this time
+        $tried_syncs{$lastsync}++;
 
         $log->( '    retrieved %d items and %d left to sync', $hash->{count}, $hash->{total} );
         last if $hash->{count} == $hash->{total};
@@ -132,7 +150,7 @@ sub try_work {
             # $tries, so we can break the 'broken client' logic (note: we assert that we are
             # not broken.)
             my @keys = sort { $sync{$a}->[1] cmp $sync{$b}->[1] } keys %sync;
-            $lastgrab = LJ::mysql_time( LJ::mysqldate_to_time( $sync{$keys[0]}->[1] ) - $tries );
+            $lastgrab = $step_time->( $sync{$keys[0]}->[1], -$tries );
 
             $log->( 'Loading entries; lastsync = %s.', $lastgrab );
             $hash = $class->call_xmlrpc( $data, 'getevents',

@@ -283,7 +283,6 @@ sub try_work {
             # rules we might skip a content with
             next if $comment->{done}; # Skip this comment if it was already imported this round
             next if $jtalkid_map->{$comment->{orig_id}}; # Or on a previous import round
-            next if $comment->{state} eq 'D' && !$comment->{has_children}; # Or if the comment is deleted, and child-less
 
             # now we know this one is going in the database
             $ct++;
