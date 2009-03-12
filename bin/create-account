@@ -6,12 +6,13 @@ require 'ljlib.pl';
 
 use Getopt::Long;
 
-my ( $user, $email );
+my ( $user, $email, $pass );
 GetOptions(
         'user=s' => \$user,
+        'password=s' => \$pass,
         'email=s' => \$email,
     ) or die "usage: $0 -u USERNAME -e EMAIL\n";
-die "usage: $0 -u USERNAME -e EMAIL\n"
+die "usage: $0 -u USERNAME -e EMAIL [-p PASSWORD]\n"
     unless $user && $email;
 
 $user = LJ::canonical_username( $user );
@@ -23,8 +24,11 @@ die "Email invalid\n"
 my $u2 = LJ::load_user( $user )
     and die "User already exists\n";
 
-my $password = '';
-$password .= substr( 'abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ0123456789', int(rand()*62), 1 ) for 1..10;
+my $password = $pass || '';
+unless ( $password ) {
+    $password .= substr( 'abcdefghijklmnopqrstuvwxyzABCEFGHIJKLMNOPQRSTUVWXYZ0123456789', int(rand()*62), 1 ) for 1..10;
+}
+
 my $u = LJ::User->create_personal( user => $user, email => $email, password => $password )
     or die "unable to create account?\n";
 

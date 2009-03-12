@@ -390,15 +390,16 @@ sub remap_username_friend {
 
     } else {
         my $url_prefix = "http://$data->{hostname}/~" . $username;
-        my ( $foaf_items ) = $class->get_foaf_from( $url_prefix )
-            or return undef;
+        my ( $foaf_items ) = $class->get_foaf_from( $url_prefix );
 
-        # if they don't have an identity section (but foaf was successful
-        # or we would have returned undef above), then they are a community
-        # or some other account without.  return 0 to signify this.
-        my $ident = $foaf_items->{identity}->{url}
-            or return 0;
+        # if we get an empty hashref, we know that the foaf data failed
+        # to load.  probably because the account is suspended or something.
+        # in that case, we pretend.
+        my $ident =
+            exists $foaf_items->{identity} ? $foaf_items->{identity}->{url} : undef;
+        $ident ||= "http://$username.$data->{hostname}/";
 
+        # build the identity account (or return it if it exists)
         my $iu = LJ::User::load_identity_user( 'O', $ident, undef )
             or return undef;
         return $iu->id;
