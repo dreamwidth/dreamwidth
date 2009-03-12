@@ -20,6 +20,7 @@ use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use Carp qw/ croak confess /;
+use Encode qw/ encode_utf8 /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::Worker::ContentImporter::Local::Comments;
 
@@ -258,6 +259,11 @@ sub try_work {
         $body =~ s/<.+?-embed-.+?>/[Embedded content removed during import.]/g;
         $body =~ s/<.+?-template-.+?>/[Templated content removed during import.]/g;
         $comment->{body} = $body;
+
+        # now let's do some encoding, just in case the input we get is in some other
+        # character encoding
+        $comment->{body} = encode_utf8( $comment->{body} );
+        $comment->{subject} = encode_utf8( $comment->{subject} );
     }
     
     # variable setup for the database work
