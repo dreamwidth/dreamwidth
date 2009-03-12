@@ -56,9 +56,8 @@ sub option {
     my $val = $class->get_arg( $args, "navstrip" );
     my $navstrip;
     $navstrip |= $_+0 foreach split( /\0/, $val );
-    $navstrip ||= 'none';
 
-    my $display = $navstrip || u->control_strip_display;
+    my $display = $navstrip || $u->control_strip_display;
 
     my $ret = $class->ml( 'setting.navstrip.option' );
     foreach my $pageoption ( @pageoptions ) {
