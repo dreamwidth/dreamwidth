@@ -301,7 +301,7 @@ sub trans
         # this is a fancy transform - basically, if the file exists with a BML extension,
         # then assume we're trying to get to it.  (this allows us to write URLs without the
         # extension...)
-        if ( -e "$LJ::HTDOCS/$uri.bml" ) {
+        if ( $host eq $LJ::DOMAIN_WEB && -e "$LJ::HTDOCS/$uri.bml" ) {
             $r->uri( $uri = "$uri.bml" );
             return $bml_handler->( "$LJ::HTDOCS/$uri" );
         }
