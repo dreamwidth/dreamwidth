@@ -97,10 +97,6 @@ sub try_work {
         return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
             if ! $hash || $hash->{fault};
 
-        open FILE, ">>/tmp/hashdump";
-        print FILE LJ::D( $hash );
-        close FILE;
-
         foreach my $item ( @{$hash->{syncitems} || []} ) {
             next unless $item->{item} =~ /^L-(\d+)$/;
 
