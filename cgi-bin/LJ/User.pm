@@ -1024,12 +1024,9 @@ sub record_login {
     $u->do("DELETE FROM loginlog WHERE userid=? AND logintime < ?",
            undef, $u->{userid}, $too_old);
 
-    my ($ip, $ua);
-    eval {
-        my $r  = BML::get_request();
-        $ip = LJ::get_remote_ip();
-        $ua = $r->header_in('User-Agent');
-    };
+    my $r  = DW::Request->get;
+    my $ip = LJ::get_remote_ip();
+    my $ua = $r->header_in('User-Agent');
 
     return $u->do("INSERT INTO loginlog SET userid=?, sessid=?, logintime=UNIX_TIMESTAMP(), ".
                   "ip=?, ua=?", undef, $u->{userid}, $sessid, $ip, $ua);
