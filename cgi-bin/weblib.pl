@@ -3138,53 +3138,53 @@ sub control_strip
             my $memberof = $remote->member_of( $journal );
             my $haspostingaccess = LJ::check_rel($journal, $remote, 'P');
             if (LJ::can_manage_other($remote, $journal)) {
-                $ret .= "$statustext{'maintainer'}<br />";
+                $ret .= "$statustext{maintainer}<br />";
                 if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
+                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{'edit_community_profile'}&nbsp;&nbsp; $links{'edit_community_invites'}&nbsp;&nbsp; $links{'edit_community_members'}";
+                $ret .= "$links{edit_community_profile}&nbsp;&nbsp; $links{edit_community_invites}&nbsp;&nbsp; $links{edit_community_members}";
             } elsif ($watching && $memberof) {
-                $ret .= "$statustext{'memberwatcher'}<br />";
+                $ret .= "$statustext{memberwatcher}<br />";
                 if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
+                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= $links{'leave_community'};
+                $ret .= $links{leave_community};
             } elsif ($watching) {
-                $ret .= "$statustext{'watcher'}<br />";
+                $ret .= "$statustext{watcher}<br />";
                 if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
+                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{'join_community'}&nbsp;&nbsp; $links{'unwatch_community'}";
+                $ret .= "$links{join_community}&nbsp;&nbsp; $links{unwatch_community}";
             } elsif ($memberof) {
-                $ret .= "$statustext{'member'}<br />";
+                $ret .= "$statustext{member}<br />";
                 if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
+                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{'watch_community'}&nbsp;&nbsp; $links{'leave_community'}";
+                $ret .= "$links{watch_community}&nbsp;&nbsp; $links{'leave_community'}";
             } else {
-                $ret .= "$statustext{'community'}<br />";
+                $ret .= "$statustext{community}<br />";
                 if ($haspostingaccess) {
-                    $ret .= "$links{'post_to_community'}&nbsp;&nbsp; ";
+                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{'join_community'}&nbsp;&nbsp; $links{'watch_community'}";
+                $ret .= "$links{join_community}&nbsp;&nbsp; $links{watch_community}";
             }
         } elsif ($journal->is_syndicated) {
-            $ret .= "$statustext{'syn'}<br />";
+            $ret .= "$statustext{syn}<br />";
             if ( $remote && !$remote->watches( $journal ) ) {
-                $ret .= "$links{'add_friend'}&nbsp;&nbsp; ";
+                $ret .= "$links{add_friend}&nbsp;&nbsp; ";
             } elsif ( $remote && $remote->watches( $journal ) ) {
-                $ret .= "$links{'remove_friend'}&nbsp;&nbsp; ";
+                $ret .= "$links{remove_friend}&nbsp;&nbsp; ";
             }
-            $ret .= $links{'syndicated_list'};
+            $ret .= $links{syndicated_list};
         } elsif ($journal->is_news) {
-            $ret .= "$statustext{'news'}<br />";
+            $ret .= "$statustext{news}<br />";
             if ( $remote && !$remote->watches( $journal ) ) {
-                $ret .= $links{'add_friend'};
+                $ret .= $links{add_friend};
             } else {
                 $ret .= "&nbsp;";
             }
         } else {
-            $ret .= "$statustext{'other'}<br />";
+            $ret .= "$statustext{other}<br />";
             $ret .= "&nbsp;";
         }
 
