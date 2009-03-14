@@ -3154,7 +3154,8 @@ sub control_strip
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{join_community}&nbsp;&nbsp; $links{unwatch_community}";
+                $ret .= "$links{join_community}&nbsp;&nbsp; " unless $remote->is_identity;
+                $ret .= $links{unwatch_community};
             } elsif ($memberof) {
                 $ret .= "$statustext{member}<br />";
                 if ($haspostingaccess) {
@@ -3166,7 +3167,8 @@ sub control_strip
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{join_community}&nbsp;&nbsp; $links{watch_community}";
+                $ret .= "$links{join_community}&nbsp;&nbsp; " unless $remote->is_identity;
+                $ret .= $links{watch_community};
             }
         } elsif ($journal->is_syndicated) {
             $ret .= "$statustext{syn}<br />";
