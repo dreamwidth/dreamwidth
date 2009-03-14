@@ -3124,6 +3124,8 @@ userlinkbar.sendmessage=Send Message
 
 userlinkbar.sendmessage.title=Send a private message to this user
 
+userlinkbar.sendmessage.title.self=Send a private message to yourself
+
 userlinkbar.sendmessage.title.cantsendmessage=You cannot send a private message to this user
 
 userlinkbar.sendmessage.title.loggedout=You must be logged in to send a private message to this user

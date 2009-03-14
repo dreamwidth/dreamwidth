@@ -561,7 +561,7 @@ sub contact_rows {
     my @ret = ();
 
     # private message
-    if ( ( $u->is_personal || $u->is_identity ) && $remote && !$remote->equals( $u ) && $u->can_receive_message( $remote ) ) {
+    if ( ( $u->is_personal || $u->is_identity ) && $remote && $u->can_receive_message( $remote ) ) {
         push @ret, { url => "$LJ::SITEROOT/inbox/compose.bml?user=" . $u->user, text => LJ::Lang::ml( '.contact.pm' ) };
     }
 

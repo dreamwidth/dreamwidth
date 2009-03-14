@@ -358,11 +358,13 @@ sub message {
     my $remote = $self->{remote};
     my $user = $u->user;
 
-    if ( ( $u->is_personal || $u->is_identity ) && !$u->equals( $remote ) ) {
+    if ( $u->is_personal || $u->is_identity ) {
         my $link = {
             text_ml => 'userlinkbar.sendmessage',
             title_ml => 'userlinkbar.sendmessage.title',
         };
+
+        $link->{title_ml} = 'userlinkbar.sendmessage.title.self' if $u->equals( $remote );
 
         if ( $remote && $u->can_receive_message( $remote ) ) {
             $link->{url} = "inbox/compose.bml?user=$user";
