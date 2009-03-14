@@ -8,7 +8,7 @@ sub render {
     my %opts = @_;
     my $GET = $opts{'GET'};
         
-    my $lang = $GET->{'uselang'} || BML::get_language || "en";
+    my $lang = $GET->{'uselang'} || BML::get_language() || "en";
     my $file = $LJ::HOME . $opts{'file'};
     return $opts{'file'} if $lang eq "debug";
     
