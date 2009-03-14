@@ -61,6 +61,8 @@ sub error_check {
     my ($class, $u, $args) = @_;
     my $val = $class->get_arg($args, "sitescheme");
 
+    return 1 unless $val;
+
     my @scheme_names;
     foreach my $scheme (LJ::site_schemes()) {
         push @scheme_names, $scheme->{scheme};
@@ -77,6 +79,7 @@ sub save {
     $class->error_check($u, $args);
 
     my $val = my $cval = $class->get_arg($args, "sitescheme");
+    return 1 unless $val;
     my @bml_schemes = LJ::site_schemes();
 
     # don't set cookie for default scheme
