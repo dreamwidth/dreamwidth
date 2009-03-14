@@ -54,7 +54,7 @@ FORM
     return $err->("Unable to get user cluster reader.")
         unless $dbcr;
 
-    my $sth = $dbcr->prepare('SELECT * FROM userlog WHERE userid = ? ORDER BY logtime DESC LIMIT 1000');
+    my $sth = $dbcr->prepare('SELECT * FROM userlog WHERE userid = ? ORDER BY logtime DESC LIMIT 10000');
     $sth->execute($u->{userid});
     return $err->("Database error: " . $sth->errstr)
         if $sth->err;
