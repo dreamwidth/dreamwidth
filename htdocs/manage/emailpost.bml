@@ -555,7 +555,7 @@ body<=
 
 
     $ret .= "<?standout ";
-    $ret .= LJ::html_submit($ML{'/manage/voicepost.bml.save'});
+    $ret .= LJ::html_submit( $ML{'.save'} );
     $ret .= " standout?>";
     $ret .= "</form>";
     $ret .= LJ::run_hook('sms_footer');
