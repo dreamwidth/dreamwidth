@@ -1336,6 +1336,8 @@ error.message.individual=Message can only be sent to individual users, not [[lju
 
 error.nobutton=No button pressed?
 
+error.nocomm=The community you selected does not exist.
+
 error.nocommlogin=Logging in as a community has been disabled.
 
 error.nodb=Database temporarily unavailable.
@@ -1349,6 +1351,8 @@ error.nojournal=Unknown Journal
 error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
+
+error.person=You must be authenticated as a person.
 
 error.procrequest=There was an error processing your request:
 
@@ -2204,6 +2208,8 @@ number.million=[[number]] million
 number.punctuation=,
 
 number.thousand=[[number]] thousand
+
+optional=(optional)
 
 password=Password
 

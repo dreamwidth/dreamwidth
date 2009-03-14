@@ -7,7 +7,15 @@
 
 .desc=Please use the form below to find the entry you would like to edit.
 
+.edit.this.entry=Edit this Entry
+
 .in=In community:
+
+.no.entries.exist=The selected journal has no entries.
+
+.no.entries.found=No Entries Found
+
+.no.entries.match=No entries match the criteria you specified. Please go back and adjust your search.
 
 .recententries=most recent entries
 

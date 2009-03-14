@@ -30,9 +30,9 @@ body<=
     # are they asking to be authed as someone else?
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
-    return LJ::bad_input("You could not be authenticated as the specified user.")
+    return LJ::bad_input( $ML{'error.invalidauth'} )
         unless $u;
-    return LJ::bad_input("You must be authenticated as a person.")
+    return LJ::bad_input( $ML{'error.person'} )
         unless $u->{'journaltype'} eq 'P';
 
     # are we modify a community post?
@@ -67,7 +67,7 @@ body<=
             $ret .= "<?hr?><table><tr valign='top'><td align='middle'>";
             $ret .= "<form method='post' action='editjournal.bml$getextra'>\n";
             $ret .= LJ::html_hidden('itemid',$ditemid,'mode',"edit");
-            $ret .= LJ::html_submit("itemid-$ditemid",'Edit this Entry');
+            $ret .= LJ::html_submit( "itemid-$ditemid", $ML{'.edit.this.entry'} );
             $ret .= "</form>";
             $ret .= "</td><td>";
 
@@ -113,7 +113,7 @@ body<=
         my $usejournal_u;
         if ($usejournal) {
             $usejournal_u = LJ::load_user($usejournal);
-            return LJ::bad_input("The community you selected does not exist.")
+            return LJ::bad_input( $ML{'error.nocomm'} )
                 unless $usejournal_u;
         }
 
@@ -453,12 +453,12 @@ body<=
         my $ev_count = $res{'events_count'};
         unless ($ev_count) {
             if ($req{'selecttype'} eq 'lastn') {
-                return "<?h1 No Entries Found h1?>\n" .
-                    "<?p The selected journal has no entries. p?>\n";
+                return "<?h1 $ML{'.no.entries.found'} h1?>\n" .
+                    "<?p $ML{'.no.entries.exist'} p?>\n";
             }
 
-            return "<?h1 No Entries Found h1?>\n" .
-                "<?p No entries match the criteria you specified. Please go back and adjust your search. p?>\n";
+            return "<?h1 $ML{'.no.entries.found'}  h1?>\n" .
+                "<?p $ML{'.no.entries.match'} p?>\n";
         }
 
         ### display results
@@ -516,7 +516,7 @@ body<=
         # use journal
         $ret .= "<tr valign=\"top\"><td align='right'>$ML{'.in'}</td>\n<td>\n";
         $ret .= LJ::html_text({ 'name' => 'usejournal', 'size' => '20', 'maxlength' => '25', 'value' => $GET{'usejournal'} }) . " ";
-        $ret .= " (optional)</td></tr>";
+        $ret .= " $ML{'optional'}</td></tr>";
 
         # submit button
         $ret .= "<tr><td>&nbsp;</td><td>" . LJ::html_submit(undef, $ML{'.btn.proceed'}) . "</td></tr>\n";
