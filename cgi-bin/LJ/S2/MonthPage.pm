@@ -59,7 +59,17 @@ sub MonthPage
         if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
             $secwhere = "";   # see everything
         } elsif ($remote->{'journaltype'} eq 'P') {
-            my $gmask = $u->trustmask( $remote );
+
+            # if we're viewing a community, we intuit the security mask from the membership
+            my $gmask = 0;
+            if ( $u->is_community ) {
+                $gmask = 1
+                    if $remote->member_of( $u );
+
+            } else {
+                $gmask = $u->trustmask( $remote );
+            }
+
             $secwhere = "AND (l.security='public' OR (l.security='usemask' AND l.allowmask & $gmask))"
                 if $gmask;
         }
