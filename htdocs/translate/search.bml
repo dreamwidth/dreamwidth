@@ -6,10 +6,10 @@
 
     my $dbr = LJ::get_db_reader();
     my $sth;
- 
+
     my $sql;
 
-    if ($FORM{'search'} eq 'sev') 
+    if ($FORM{'search'} eq 'sev')
     {
         my $what = ">= 1";
         if ($FORM{'stale'} =~ /^(\d+)(\+?)$/) {
@@ -17,8 +17,8 @@
         }
         $sql = "SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l WHERE l.lnid=$l->{'lnid'} AND l.staleness $what AND l.dmid=i.dmid AND l.itid=i.itid ORDER BY i.dmid, i.itcode";
     }
-    
-    if ($FORM{'search'} eq 'txt') 
+
+    if ($FORM{'search'} eq 'txt')
     {
         my $remote = LJ::get_remote();
         return "This search type is restricted to $l->{'lnname'} translators." unless
@@ -32,7 +32,7 @@
         if ($FORM{'searchwhat'} eq "code") {
             $sql = qq{
                 SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l
-                WHERE l.lnid=$l->{'lnid'} AND l.dmid=i.dmid AND i.itid=l.itid 
+                WHERE l.lnid=$l->{'lnid'} AND l.dmid=i.dmid AND i.itid=l.itid
                 $dmidwhere AND LOCATE($qtext, i.itcode)
             };
         } else {
@@ -40,11 +40,23 @@
             if ($FORM{'searchwhat'} eq "parent") { $lnid = $l->{'parentlnid'}; }
             $sql = qq{
                 SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l, ml_text t
-                WHERE l.lnid=$lnid AND l.dmid=i.dmid AND i.itid=l.itid 
+                WHERE l.lnid=$lnid AND l.dmid=i.dmid AND i.itid=l.itid
                 $dmidwhere AND t.dmid=l.dmid AND t.txtid=l.txtid AND LOCATE($qtext, t.text)
                 ORDER BY i.itcode
             };
-        }        
+        }
+    }
+
+    if ($FORM{'search'} eq 'flg') {
+        return "This type of search isn't available for this language."
+            unless $l->{'lncode'} eq $LJ::DEFAULT_LANG || !$l->{'parentlnid'};
+
+        my $whereflags = join ' AND ',
+            map { $FORM{"searchflag$_"} eq 'yes' ? "$_ = 1" : "$_ = 0" }
+                grep { $FORM{"searchflag$_"} ne 'whatev' } qw(proofed updated);
+        $whereflags = "AND $whereflags"
+            if $whereflags ne '';
+        $sql = "SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l WHERE l.lnid=$l->{'lnid'} AND l.dmid=i.dmid AND l.itid=i.itid $whereflags ORDER BY i.dmid, i.itcode";
     }
 
     return "Bogus or unimplemented query type." unless $sql;
@@ -68,10 +80,10 @@
         $addlink->() if @page >= 10;
     }
     $addlink->();
- 
+
     if ($page == 0) { $ret .= "<i>(No matches)</i>"; }
-    
+
     return $ret;
-    
+
 }
 _code?>

@@ -30,8 +30,11 @@
  my $can_delete = LJ::check_priv($remote, "translate", "[itemdelete]");
  my $can_rename = LJ::check_priv($remote, "translate", "[itemrename]");
 
+ # Extra checkboxes for default language and root language (DW: en_DW and en)
+ my $extra_checkboxes = $l->{'lncode'} eq $LJ::DEFAULT_LANG || !defined $lp;
+
  my $mode = {
-     '' => 'view', 
+     '' => 'view',
      'save' => 'save',
  }->{$FORM{'mode'}};
  return "bogus mode" unless $mode;
@@ -41,7 +44,7 @@
  if ($mode eq "view")
  {
      my @load;
-     foreach (split /,/, $FORM{'items'}) 
+     foreach (split /,/, $FORM{'items'})
      {
          next unless /^(\d+):(\d+)$/;
          last if @load >= $MAX_EDIT;
@@ -49,7 +52,7 @@
      }
 
      return "Nothing to show." unless @load;
-     
+
      $ret .= "<form method='post' action='editpage.bml'>";
      $ret .= LJ::html_hidden('lang', $lang,
                              'mode', 'save');
@@ -57,12 +60,12 @@
      # load item info
      my %ml_items;
      my $itwhere = join(" OR ", map { "(dmid=$_->{'dmid'} AND itid=$_->{'itid'})" } @load);
-     $sth = $dbr->prepare("SELECT dmid, itid, itcode, notes FROM ml_items WHERE $itwhere");
+     $sth = $dbr->prepare("SELECT dmid, itid, itcode, proofed, updated, notes FROM ml_items WHERE $itwhere");
      $sth->execute;
-     while (my ($dmid, $itid, $itcode, $notes) = $sth->fetchrow_array) {
-         $ml_items{"$dmid-$itid"} = { 'itcode' => $itcode, 'notes' => $notes };
+     while (my ($dmid, $itid, $itcode, $proofed, $updated, $notes) = $sth->fetchrow_array) {
+         $ml_items{"$dmid-$itid"} = { 'itcode' => $itcode, 'proofed' => $proofed, 'updated' => $updated, 'notes' => $notes };
      }
-     
+
      # getting latest mappings for this lang and parent
      my %ml_text;
      my %ml_latest;
@@ -77,10 +80,10 @@
 
      # load text
      $sth = $dbr->prepare("SELECT dmid, txtid, lnid, itid, text FROM ml_text ".
-                          "WHERE " . join(" OR ", 
-                                          map { "(dmid=$_->[0] AND txtid=$_->[1])" } 
+                          "WHERE " . join(" OR ",
+                                          map { "(dmid=$_->[0] AND txtid=$_->[1])" }
                                           map { [ split(/-/, $_) ] } keys %ml_text));
-     $sth->execute; 
+     $sth->execute;
      while ($_ = $sth->fetchrow_hashref) {
          $ml_text{"$_->{'dmid'}-$_->{'txtid'}"} = $_;
      }
@@ -91,7 +94,7 @@
 
      # show all editing items
      my $ict = 0;
-     foreach my $i (@load) 
+     foreach my $i (@load)
      {
          my ($dmid, $itid) = ($i->{'dmid'}, $i->{'itid'});
          my $ituq = "$dmid-$itid";
@@ -110,7 +113,7 @@
                                  "oldtxtid_$ict", $lat->{'txtid'},
                                  "oldptxtid_$ict", $plat ? $plat->{'txtid'} : 0,
                                  );
-         
+
          # top bar
          $ret .= "<table bgcolor='#c0c0c0' width='100%'><tr><td><b>Code:</b> ";
          if ($dmid != 1) {
@@ -154,7 +157,7 @@
              # if wrong language, why populate it with stuff they'll just have to delete?
              $curtext = "";
          }
-         
+
          $ret .= "<dt><b>$l->{'lnname'}</b>:</b></dt><dd>";
          my $disabled = "disabled='disabled'";
          if ($lat->{'staleness'} >= 3) {
@@ -166,7 +169,10 @@
                                      "sev_$ict", "2",
                                      );
          } else {
-             $ret .= "<input name='ed_$ict' type='checkbox' value='1' id='ed_$ict' onClick='a=document.getElementById(\"newtext_$ict\"); a.disabled=!this.checked; if (this.checked) a.focus();' /><label for='ed_$ict'>Edit Text</label>";
+             my $js = "a=document.getElementById(\"newtext_$ict\"); a.disabled=!this.checked; if (this.checked) a.focus();";
+             $js .= "a=document.getElementById(\"pr_$ict\"); a.disabled=!this.checked; a=document.getElementById(\"up_$ict\"); a.disabled=!this.checked;"
+                 if $extra_checkboxes;
+             $ret .= "<input name='ed_$ict' type='checkbox' value='1' id='ed_$ict' onClick='$js' /><label for='ed_$ict'>Edit Text</label>";
              if ($l->{'children'} && @{$l->{'children'}}) {
                  $ret .= " Severity: ";
                  $ret .= LJ::html_select({ 'name' => "sev_$ict", "selected" => 1 },
@@ -174,8 +180,23 @@
                                          1 => "Minor (notify translators)",
                                          2 => "Major (require translation updates)");
              }
+             $ret .= "<br />" unless $extra_checkboxes;
+         }
+
+         if ( $extra_checkboxes ) {
+             $ret .= " ";
+             $ret .= LJ::html_check( { type => 'checkbox', label => 'Proofed',
+                                       selected => $it->{proofed}, value => 1,
+                                       name => "pr_$ict", id => "pr_$ict",
+                                       disabled => $disabled eq '' ? 0 : 1 } );
+             $ret .= " ";
+             $ret .= LJ::html_check( { type => 'checkbox', label => 'Updated',
+                                       selected => $it->{updated}, value => 1,
+                                       name => "up_$ict", id => "up_$ict",
+                                       disabled => $disabled eq '' ? 0 : 1 } );
              $ret .= "<br />";
          }
+
          if ($use_textarea) {
              $ret .= "<textarea name='newtext_$ict' id='newtext_$ict' $disabled wrap='soft' rows='10' cols='60'>$curtext</textarea>";
          } else {
@@ -193,7 +214,7 @@
          $ret .= "No items to show.  (since been deleted, perhaps?)";
      }
      $ret .= "</form>";
-     
+
      return $ret;
  }
 
@@ -213,21 +234,22 @@
          push @errors, "Nothing saved.";
          $num = 0;
      }
- 
+
      my $saved = 0;  # do any saves?
 
      for (my $i=1; $i<=$num; $i++)
      {
          next unless $FORM{"ed_$i"};
-         my ($dom, $itid, $oldtxtid, $oldptxtid, $sev) = 
-             map { int($FORM{"${_}_$i"}+0) } qw(dom itid oldtxtid oldptxtid sev);
+         my ($dom, $itid, $oldtxtid, $oldptxtid, $sev, $proofed, $updated) =
+             map { int($FORM{"${_}_$i"}+0) }
+                 qw(dom itid oldtxtid oldptxtid sev pr up);
 
          my $itcode = $dbr->selectrow_array("SELECT itcode FROM ml_items WHERE dmid=$dom AND itid=$itid");
          unless (defined $itcode) {
              push @errors, "Bogus dmid/itid: $dom/$itid";
              next;
          }
-         
+
          $dbh ||= LJ::get_db_writer();
          my $lat = $dbh->selectrow_hashref("SELECT * FROM ml_latest WHERE lnid=$l->{'lnid'} AND dmid=$dom AND itid=$itid");
          unless ($lat) {
@@ -264,7 +286,7 @@
              }
              next;
          }
-         
+
          # did anything even change, though?
          my $oldtext = $dbr->selectrow_array("SELECT text FROM ml_text WHERE dmid=$dom AND txtid=$lat->{'txtid'}");
          if ($oldtext eq $text && $lat->{'staleness'} == 2) {
@@ -274,9 +296,9 @@
 
          # keep old txtid if text didn't change.
          my $opts = {};
-         if ($oldtext eq $text) { 
-             $opts->{'txtid'} = $lat->{'txtid'}; 
-             $text = undef; 
+         if ($oldtext eq $text) {
+             $opts->{'txtid'} = $lat->{'txtid'};
+             $text = undef;
              $sev = 0;
          }
 
@@ -292,12 +314,28 @@
          $opts->{'userid'} = $remote->{'userid'};
 
          my ($res, $msg) = LJ::Lang::web_set_text($dom, $l->{'lncode'}, $itcode, $text, $opts);
-         unless ($res) {
-             push @errors, $msg;
-         } else {
+         if ($res) {
              push @info, "OK: $itcode";
              $saved = 1;
+
+             if ( $extra_checkboxes ) {
+                 # Not gonna bother to refactor to LJ::Lang as the whole
+                 # translation system will get thrown away and redone later.
+                 # FIXME: make sure my words don't come back to haunt me.
+                 $dbh->do( "UPDATE ml_items SET proofed = ?, updated = ? " .
+                           "WHERE dmid = ? AND itid = ?", undef, $proofed ? 1 : 0,
+                           $updated ? 1 : 0, $dom, $itid );
+
+                 if ( $dbh->err ) {
+                     push @errors, $dbh->errstr;
+                 } else {
+                     push @info, "OK: $itcode (flags)";
+                 }
+             }
+         } else {
+             push @errors, $msg;
          }
+
          push @info, LJ::run_hook('trans_editpage_bml_postsave', $opts)
              if LJ::are_hooks('trans_editpage_bml_postsave');
      }

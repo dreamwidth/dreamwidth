@@ -3,6 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 </head>
 <body marginwidth='0' marginheight='0'>
+
 <form target='res' action='search.bml' method='get'>
 <input type='hidden' name='lang' value='<?_code $FORM{'lang'} _code?>'>
 <input type='hidden' name='search' value='sev'>
@@ -33,7 +34,7 @@ _code?>
 <input type='hidden' name='lang' value='<?_code $FORM{'lang'} _code?>'>
 <input type='hidden' name='search' value='txt'>
 
-<p>Search 
+<p>Search
 <?_code
  my $ret;
  my $l = LJ::Lang::get_lang($FORM{'lang'});
@@ -46,16 +47,34 @@ _code?>
  $ret .= "<br />Area: ";
  $ret .= LJ::html_select({ 'name' => 'searchdomain' },
                          0, "(all)",
-                         map { $_->{'dmid'}, $_->{'uniq'} }  
+                         map { $_->{'dmid'}, $_->{'uniq'} }
                          sort { $a->{'dmid'} <=> $b->{'dmid'} } LJ::Lang::get_domains());
  return $ret;
 _code?>
     <br />Text: <input name='searchtext' size='15'><input type='submit' value='Search'>
 </p>
-
-
 </form>
 
+<?_code
+ my $l = LJ::Lang::get_lang($FORM{'lang'});
+ return '' unless $l->{'lncode'} eq $LJ::DEFAULT_LANG || !$l->{'parentlnid'};
+
+ my $ret = <<HTML;
+<form target='res' action='search.bml' method='get'>
+<input type='hidden' name='lang' value='$l->{lncode}'>
+<input type='hidden' name='search' value='flg'>
+<p><table><tr><td>Prf:</td>
+<td><input type='radio' name='searchflagproofed' value='whatev'>Both</td>
+<td><input type='radio' name='searchflagproofed' value='yes'>Yes</td>
+<td><input type='radio' name='searchflagproofed' value='no'>No</td></tr>
+<tr><td>Upd:</td>
+<td><input type='radio' name='searchflagupdated' value='whatev'>Both</td>
+<td><input type='radio' name='searchflagupdated' value='yes'>Yes</td>
+<td><input type='radio' name='searchflagupdated' value='no'>No</td></tr></table>
+<input type='submit' value='Search'></p></form>
+HTML
+ return $ret;
+_code?>
 
 </body>
 </html>

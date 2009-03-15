@@ -1285,6 +1285,10 @@ CREATE TABLE ml_items (
     PRIMARY KEY (dmid, itid),
     itcode  VARCHAR(80) NOT NULL,
     UNIQUE  (dmid, itcode),
+    proofed TINYINT NOT NULL DEFAULT 0, -- boolean, really
+    INDEX   (proofed),
+    updated TINYINT NOT NULL DEFAULT 0, -- boolean, really
+    INDEX   (updated),
     notes   MEDIUMTEXT
 ) TYPE=MYISAM
 EOC
@@ -3966,6 +3970,18 @@ register_alter(sub {
         do_alter("poll2",
                  "ALTER TABLE poll2 MODIFY COLUMN whoview ENUM('all','trusted','ofentry','none') NOT NULL default 'all'" );
     }
+
+    unless ( column_type( 'ml_items', 'proofed' ) ) {
+        do_alter( 'ml_items',
+                  "ALTER TABLE ml_items ADD COLUMN proofed TINYINT NOT NULL DEFAULT 0 AFTER itcode" );
+        do_alter( 'ml_items',
+                  "ALTER TABLE ml_items ADD INDEX (proofed)" );
+        do_alter( 'ml_items',
+                  "ALTER TABLE ml_items ADD COLUMN updated TINYINT NOT NULL DEFAULT 0 AFTER proofed" );
+        do_alter( 'ml_items',
+                  "ALTER TABLE ml_items ADD INDEX (updated)" );
+    }
+
 
 });
 
