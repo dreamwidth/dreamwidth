@@ -1723,7 +1723,7 @@ PREVIEW
 
             $$onload .= " changeSubmit('" . BML::ml('entryform.update3') . "', '$defaultjournal');";
             $$onload .= " getUserTags('$defaultjournal');" unless $not_a_journal;
-            $$onload .= " changeSecurityOptions('$defaultjournal');";
+            $$onload .= " changeSecurityOptions('$defaultjournal');" unless $opts->{'security'};
 
             $out .= LJ::html_submit('action:update', BML::ml('entryform.update4'),
                     { 'onclick' => $onclick, 'class' => 'submit', 'id' => 'formsubmit',
