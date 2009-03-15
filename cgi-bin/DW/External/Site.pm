@@ -22,6 +22,9 @@ use strict;
 use Carp qw/ croak /;
 use DW::External::Site::InsaneJournal;
 use DW::External::Site::LiveJournal;
+use DW::External::Site::JournalFen;
+use DW::External::Site::Inksome;
+use DW::External::Site::DeadJournal;
 use DW::External::Site::Unknown;
 
 
@@ -53,6 +56,15 @@ sub new {
         return $obj;
 
     } elsif ( my $obj = DW::External::Site::InsaneJournal->accepts( \@parts ) ) {
+        return $obj;
+
+    } elsif ( my $obj = DW::External::Site::JournalFen->accepts( \@parts ) ) {
+        return $obj;
+
+    } elsif ( my $obj = DW::External::Site::Inksome->accepts( \@parts ) ) {
+        return $obj;
+
+    } elsif ( my $obj = DW::External::Site::DeadJournal->accepts( \@parts ) ) {
         return $obj;
 
     } elsif ( my $obj = DW::External::Site::Unknown->accepts( \@parts ) ) {
