@@ -8130,8 +8130,18 @@ sub get_daycounts
             $secwhere = "";   # see everything
             $memkind = 'a'; # all
         } elsif ($remote->{'journaltype'} eq 'P') {
-            my $gmask = $u->trustmask( $remote );
-            if ($gmask) {
+
+            # if we're viewing a community, we intuit the security mask from the membership
+            my $gmask = 0;
+            if ( $u->is_community ) {
+                $gmask = 1
+                    if $remote->member_of( $u );
+
+            } else {
+                $gmask = $u->trustmask( $remote );
+            }
+
+            if ( $gmask ) {
                 $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))";
                 $memkind = 'g' . $gmask; # friends case: allowmask == gmask == 1
             }
