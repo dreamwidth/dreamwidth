@@ -2073,6 +2073,7 @@ sub Image_userpic
     my ($u, $picid, $kw) = @_;
 
     $picid ||= LJ::get_picid_from_keyword($u, $kw);
+    return Null("Image") unless $picid;
 
     # get the Userpic object
     my $p = LJ::Userpic->new($u, $picid);
@@ -2091,7 +2092,6 @@ sub Image_userpic
         $alttext = $kwstr;
     }
 
-    return Null("Image") unless $p;
     return {
         '_type' => "Image",
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
