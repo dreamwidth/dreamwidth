@@ -105,6 +105,7 @@ sub install_overrides {
             Carp::croak( "$fname defined in both $dpkg and $seen{$fname}" )
                 if $seen{$fname};
             $seen{$fname} = $dpkg;
+            no warnings 'redefine';
             *{"${callpkg}::${fname}"} = \&$subref;
         }
     }
