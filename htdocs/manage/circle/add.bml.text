@@ -44,6 +44,8 @@
 
 .confirm.text1.community2=Adding a community allows you to read the community's public posts on your reading page. If you would like to post to the community and be listed as a member, you'll need to <a [[aopts]]>join the community</a>.
 
+.confirm.text1.community2.openid=Adding a community allows you to read the community's public posts on your reading page.
+
 .confirm.text1.feed=Adding a feed allows you to read new content from the feed on your reading page.
 
 .confirm.text1.news=Adding [[user]] allows you to read new content from it on your reading page.

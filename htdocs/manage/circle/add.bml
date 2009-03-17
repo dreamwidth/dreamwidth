@@ -139,7 +139,11 @@
             $windowtitle = BML::ml('.confirm.title.community', {'user'=> $user });
             $title = BML::ml('.confirm.title.community', {'icon'=> $icon, 'user'=> $user });
             unless ( $remote->member_of( $u ) ) {
-                $body .= "<?p " . BML::ml('.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join.bml?comm=$user'"}) . " p?>";
+                if ( $remote->is_person ) {
+                    $body .= "<?p " . BML::ml( '.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join.bml?comm=$user'"} ) . " p?>";
+                } else {
+                    $body .= "<?p $ML{'.confirm.text1.community2.openid'} p?>";
+                }
             }
         } elsif ($u->{'journaltype'} eq "N") {
             $windowtitle = BML::ml('.confirm.title.news', {'user'=> $user });
