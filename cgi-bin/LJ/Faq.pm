@@ -29,7 +29,8 @@ sub new {
 
     $self->{$_} = delete $opts{$_}
         foreach qw(faqid question summary answer faqcat lastmoduserid sortorder lastmodtime unixmodtime);
-    $self->{lang}     = delete $opts{lang} || $LJ::DEFAULT_LANG;
+    # FIXME: shouldn't that be the root language of the faq domain instead?
+    $self->{lang} = delete $opts{lang} || $LJ::DEFAULT_LANG;
 
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
@@ -62,6 +63,7 @@ sub load {
         or die "Unable to contact global reader";
 
     my $faq;
+    # FIXME: shouldn't that be the root language of the faq domain instead?
     if ($lang eq $LJ::DEFAULT_LANG) {
         my $f = $dbr->selectrow_hashref
             ("SELECT faqid, question, summary, answer, faqcat, lastmoduserid, ".
@@ -70,6 +72,7 @@ sub load {
              "FROM faq WHERE faqid=?",
              undef, $faqid);
         die $dbr->errstr if $dbr->err;
+        return undef unless $f;
         $faq = $class->new(%$f, lang => $lang);
 
     } else { # Don't load fields that lang_update_in_place will overwrite.
@@ -79,6 +82,7 @@ sub load {
              "FROM faq WHERE faqid=?",
              undef, $faqid);
         die $dbr->errstr if $dbr->err;
+        return undef unless $f;
         $faq = $class->new(%$f, lang => $lang);
         $faq->lang_update_in_place;
     }
@@ -132,6 +136,7 @@ sub load_all {
         push @faqs, $class->new(%$f);
     }
 
+    # FIXME: shouldn't that be the root language of the faq domain instead?
     if ($lang ne $LJ::DEFAULT_LANG) {
         $class->lang_update_in_place($lang => @faqs);
     }

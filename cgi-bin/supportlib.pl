@@ -11,6 +11,7 @@ use Digest::MD5 qw(md5_hex);
 
 use lib "$LJ::HOME/cgi-bin";
 require "sysban.pl";
+use LJ::Faq;
 
 # Constants
 my $SECONDS_IN_DAY  = 3600 * 24;
@@ -777,12 +778,12 @@ sub mail_response_to_user
     $splid += 0;
 
     my $res = load_response($splid);
-
+    my $u;
     my $email;
     if ($sp->{'reqtype'} eq "email") {
         $email = $sp->{'reqemail'};
     } else {
-        my $u = LJ::load_userid($sp->{'requserid'});
+        $u = LJ::load_userid($sp->{'requserid'});
         $email = $u->email_raw || $sp->{'reqemail'};
     }
 
@@ -803,6 +804,13 @@ sub mail_response_to_user
     # also, don't send them their own replies:
     return if ($sp->{'requserid'} == $res->{'userid'});
 
+    my $lang;
+    $lang = LJ::Support::prop( $spid, 'language' )
+        if LJ::is_enabled( 'support_request_language' );
+    $lang ||= $u->prop( 'browselang' ) if $u;
+    $lang ||= $LJ::DEFAULT_LANG;
+
+    # FIXME: strip
     my $body = "";
     my $dbh = LJ::get_db_writer();
     my $what = $type eq "answer" ? "an answer to" : "a comment on";
@@ -813,12 +821,17 @@ sub mail_response_to_user
 
     $body .= "="x70 . "\n\n";
     if ($faqid) {
-        my $faqname = "";
-        my $sth = $dbh->prepare("SELECT question FROM faq WHERE faqid=$faqid");
-        $sth->execute;
-        ($faqname) = $sth->fetchrow_array;
-        if ($faqname) {
-            $body .= "FAQ REFERENCE: $faqname\n";
+        # Get requesting username and journal URL, or example user's username
+        # and journal URL
+        my ( $user, $user_url );
+        $u ||= LJ::load_user($LJ::EXAMPLE_USER_ACCOUNT);
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+
+        my $faq = LJ::Faq->load( $faqid, lang => $lang );
+        if ( $faq ) {
+            $faq->render_in_place;
+            $body .= "FAQ REFERENCE: " . $faq->question_raw . "\n";
             $body .= "$LJ::SITEROOT/support/faqbrowse.bml?faqid=$faqid&view=full";
             $body .= "\n\n";
         }

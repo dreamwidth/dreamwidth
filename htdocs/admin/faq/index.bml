@@ -6,6 +6,8 @@ body<=
 
 <?_code
 {
+    use strict;
+
     my $dbh = LJ::get_db_writer();
 
     my $remote = LJ::get_remote();
@@ -20,30 +22,45 @@ body<=
 
     my %faqcat;
     my %faqq;
-    $sth = $dbh->prepare( "SELECT faqcat, faqcatname, catorder FROM faqcat" );
+    my $sth = $dbh->prepare( "SELECT faqcat, faqcatname, catorder FROM faqcat" );
     $sth->execute;
-    $faqcat{ $_->{ faqcat } } = $_
+    $faqcat{$_->{faqcat}} = $_
         while $_ = $sth->fetchrow_hashref;
 
-    $sth = $dbh->prepare( "SELECT faqid, question, sortorder, faqcat, lastmodtime FROM faq" );
-    $sth->execute;
-    $faqq{ $_->{ faqcat } }->{ $_->{ faqid } } = $_
-        while $_ = $sth->fetchrow_hashref;
+    my $dom = LJ::Lang::get_dom( "faq" );
+    my $lang = LJ::Lang::get_root_lang( $dom );
+    my @faqs = LJ::Faq->load_all( lang => $lang->{lncode} );
+    my $user;
+    my $user_url;
 
-    foreach my $faqcat ( sort { $faqcat{ $a }->{ catorder } <=> $faqcat{ $b }->{ catorder } } keys %faqcat ) {
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ( $remote ) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $u = LJ::load_user( $LJ::EXAMPLE_USER_ACCOUNT );
+        $user = $u ? $u->user : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
+    }
+
+    LJ::Faq->render_in_place( { lang => $lang, user => $user, url => $user_url }, @faqs );
+    push @{ $faqq{$_->faqcat} }, $_
+        foreach @faqs;
+
+    foreach my $faqcat ( sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} } keys %faqcat ) {
         $ret .= "<h2><a href='readcat.bml?faqcat=$faqcat'>"
-            . LJ::ehtml( $faqcat{ $faqcat }->{ faqcatname } ) . "</a></h2>\n";
+            . LJ::ehtml( $faqcat{$faqcat}->{faqcatname} ) . "</a></h2>\n";
         $ret .= "<ul>\n";
-        foreach my $faqid ( sort { $faqq{ $faqcat}->{ $a }->{ sortorder } <=> $faqq{ $faqcat }->{ $b }->{ sortorder } } keys %{ $faqq{ $faqcat } } ) {
-            my $fe = $faqq{ $faqcat }->{ $faqid };
-            next unless $fe->{ question };
-            my $q = LJ::ehtml( $fe->{ question } );
+        foreach my $faq ( sort { $a->sortorder <=> $b->sortorder } @{ $faqq{$faqcat} } ) {
+            my $q = $faq->question_html;
+            next unless $q;
             $q =~ s/^\s+//; $q =~ s/\s+$//;
             $q =~ s|\n|<br />|g;
             $ret .= "<li>";
-            $ret .= "<a href='faqedit.bml?id=$faqid'>[edit]</a> ($fe->{'sortorder'}) "
-                if $ac_edit{ '*' } || $ac_edit{ $faqcat };
-            $ret .= "<b>{$faqid}</b> $q</li>\n";
+            $ret .= "<a href='faqedit.bml?id=" . $faq->id . "'>[edit]</a> (" .
+                    $faq->sortorder . ") "
+                if $ac_edit{'*'} || $ac_edit{$faqcat};
+            $ret .= "<b>{" . $faq->faqid . "}</b> $q</li>\n";
         }
         $ret .= "</ul>\n";
     }

@@ -53,27 +53,6 @@ body<=
 
     my @faqs;
 
-    my $dbr = LJ::get_db_reader();
-    if ($faqidarg) {
-        # loading single faqid
-        @faqs = (LJ::Faq->load($faqidarg, lang => $lang));
-        $$title = $faqs[0]->question_html;
-
-    } elsif ($faqcatarg) {
-        # loading entire faqcat
-        my $catname;
-        if ($altlang) {
-            $catname = LJ::Lang::get_text($curlang, "cat.$faqcatarg", $mld->{'dmid'});
-        } else {
-            $catname = $dbr->selectrow_array("SELECT faqcatname FROM faqcat WHERE faqcat=?",
-                                                undef, $faqcatarg);
-            die $dbr->errstr if $dbr->err;
-        }
-
-        $$title = BML::ml('.title_cat', { 'catname' => LJ::ehtml($catname) });
-        @faqs = LJ::Faq->load_all(lang => $lang, cat => $faqcatarg);
-    }
-
     my $remote = LJ::get_remote();
     my $user;
     my $user_url;
@@ -88,7 +67,28 @@ body<=
         $user_url = $u ? $u->journal_base : "<b>[Unknown or undefined example username]</b>";
     }
 
-    LJ::Faq->render_in_place({lang => $lang, user => $user, url => $user_url}, @faqs);
+    my $dbr = LJ::get_db_reader();
+    if ( $faqidarg ) {
+        # loading single faqid
+        @faqs = ( LJ::Faq->load( $faqidarg, lang => $lang ) );
+        $faqs[0]->render_in_place( { user => $user, url => $user_url } );
+        $$title = $faqs[0]->question_html;
+    } elsif ( $faqcatarg ) {
+        # loading entire faqcat
+        my $catname;
+        if ( $altlang ) {
+            $catname = LJ::Lang::get_text( $curlang, "cat.$faqcatarg", $mld->{dmid} );
+        } else {
+            $catname = $dbr->selectrow_array( "SELECT faqcatname FROM faqcat WHERE faqcat=?",
+                                              undef, $faqcatarg );
+            die $dbr->errstr if $dbr->err;
+        }
+
+        $$title = BML::ml( '.title_cat', { catname => LJ::ehtml( $catname ) } );
+        @faqs = LJ::Faq->load_all( lang => $lang, cat => $faqcatarg );
+        LJ::Faq->render_in_place( { lang => $lang, user => $user,
+                                    url => $user_url }, @faqs );
+    }
 
     my $count = 0;
     my $dbh;

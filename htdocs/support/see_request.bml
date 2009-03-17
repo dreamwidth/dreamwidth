@@ -204,6 +204,23 @@ body<=
 
     my $email = $sp->{'reqemail'};
 
+    my $user;
+    my $user_url;
+
+    # Get remote username and journal URL, or example user's username and journal URL
+    if ( $remote ) {
+        $user = $remote->user;
+        $user_url = $remote->journal_base;
+    } else {
+        my $exampleu = LJ::load_user( $LJ::EXAMPLE_USER_ACCOUNT );
+        $user = $exampleu
+            ? $exampleu->user
+            : "<b>[Unknown or undefined example username]</b>";
+        $user_url = $exampleu
+            ? $exampleu->journal_base
+            : "<b>[Unknown or undefined example username]</b>";
+    }
+
     my $u;
     my $clusterdown = 0;
     if ($sp->{'reqtype'} eq "user" && $sp->{'requserid'}) {
@@ -530,6 +547,7 @@ body<=
 
     my @screened;
     my $most_recent_tier = 0;
+    my $curlang = BML::get_language();
 
     ### reply loop
     foreach my $le (@replies)
@@ -619,17 +637,15 @@ body<=
         $ret .= "$header<br />\n";
         $ret .= "<table class='support-requesttable-$bordercolor'>\n";
         $ret .= "<tr><td align='center'>\n";
-        if ($le->{'faqid'}) {
+        if ($le->{faqid}) {
             # faq question
-            my $dbr = LJ::get_db_reader();
-            my $sth = $dbr->prepare("SELECT question FROM faq WHERE faqid=?");
-            $sth->execute($le->{'faqid'});
-            my $faqname = $sth->fetchrow_array;
+            my $faq = LJ::Faq->load( $le->{faqid}, lang => $curlang );
+            $faq->render_in_place;
             $ret .= "<div style='display: table; padding: 3px; background: <?emcolor?>; border: 1px solid #000000; margin-left: auto; margin-right: auto;'>\n";
             # whitespace between these two DIVs is necessary for proper
             # rendering in IE 5 for Mac OS < X
             $ret .= "<div style='text-align:center; padding: 5px;'>";
-            $ret .= "<b>$ML{'.faq.reference'}:</b><br /><a href='faqbrowse.bml?faqid=$le->{'faqid'}&view=full'>$faqname</a></div></div>\n";
+            $ret .= "<b>$ML{'.faq.reference'}:</b><br /><a href='faqbrowse.bml?faqid=$le->{faqid}&view=full'>" . $faq->question_html . "</a></div></div>\n";
         }
         $ret .= "<p align='left' style='margin-top: 0px; margin-bottom: 0px;'>$message</p>\n";
         $ret .= "</td></tr></table>\n";
@@ -696,34 +712,49 @@ body<=
 
         my %faqcat;
         my %faqq;
-        $sth = $dbr->prepare("SELECT faqcat, faqcatname, catorder FROM faqcat WHERE faqcat<>'int-abuse'");
+        # FIXME: must refactor that somewhere
+        my $deflang = BML::get_language_default();
+        my $mll = LJ::Lang::get_lang( $curlang );
+        my $mld = LJ::Lang::get_dom( "faq" );
+        my $altlang = $deflang ne $curlang;
+        $altlang = 0 unless $mld and $mll;
+        if ( $altlang ) {
+            my $sql = qq{SELECT fc.faqcat, t.text, fc.catorder
+                         FROM faqcat fc, ml_text t, ml_latest l, ml_items i
+                         WHERE t.dmid=$mld->{'dmid'} AND l.dmid=$mld->{'dmid'}
+                             AND i.dmid=$mld->{'dmid'} AND l.lnid=$mll->{'lnid'}
+                             AND l.itid=i.itid
+                             AND i.itcode=CONCAT('cat.', fc.faqcat)
+                             AND l.txtid=t.txtid AND fc.faqcat<>'int-abuse'};
+            $sth = $dbr->prepare( $sql );
+        } else {
+            $sth = $dbr->prepare("SELECT faqcat, faqcatname, catorder FROM faqcat ".
+                                 "WHERE faqcat<>'int-abuse'");
+        }
         $sth->execute;
         while ($_ = $sth->fetchrow_hashref) {
             $faqcat{$_->{'faqcat'}} = $_;
         }
 
-        $sth = $dbr->prepare("SELECT faqid, question, sortorder, faqcat, lastmodtime FROM faq WHERE faqcat<>'int-abuse'");
-        $sth->execute;
-        while ($_ = $sth->fetchrow_hashref) {
-            $faqq{$_->{'faqid'}} = $_;
+        foreach my $f ( LJ::Faq->load_all( lang => $curlang ) ) {
+            $f->render_in_place( { user => $user, url => $user_url } );
+            push @{ $faqq{ $f->faqcat } }, $f;
         }
 
         my @faqlist = ('0', "(don't reference FAQ)");
         foreach my $faqcat (sort { $faqcat{$a}->{'catorder'} <=> $faqcat{$b}->{'catorder'} } keys %faqcat)
         {
             push @faqlist, ('0', "[ $faqcat{$faqcat}->{'faqcatname'} ]");
-            foreach my $faqid (sort { $faqq{$a}->{'sortorder'} <=> $faqq{$b}->{'sortorder'} }
-                               grep { $faqq{$_}->{'faqcat'} eq $faqcat } keys %faqq)
-            {
-                next unless ($faqq{$faqid}->{'question'});
-                my $q = "... $faqq{$faqid}->{'question'}";
+            foreach my $faq ( sort { $a->sortorder <=> $b->sortorder }
+                                   @{ $faqq{$faqcat} } ) {
+                my $q = $faq->question_html;
+                next unless $q;
+                $q = "... $q";
                 $q =~ s/^\s+//;
                 $q =~ s/\s+$//;
                 $q =~ s/\n/ /g;
-                if (length($q) > 50) {
-                    $q = substr($q, 0, 50) . "...";
-                }
-                push @faqlist, ($faqid, $q);
+                $q = substr( $q, 0, 50 ) . "..." if length( $q ) > 50;
+                push @faqlist, ( $faq->faqid, $q );
             }
         }
         $ret .= LJ::html_select({ 'name' => 'faqid', 'onchange' => 'updateFaqLink()' }, @faqlist) . "\n";

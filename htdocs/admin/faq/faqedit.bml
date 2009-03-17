@@ -9,8 +9,11 @@ body<=
 
 <form action="faqedit_do.bml" method="post">
 <?_code
-    $id = $FORM{'id'} + 0;
-    $ret = "";
+{
+    use strict;
+
+    my $id = $FORM{id} + 0;
+    my $ret = "";
 
     my $dbh = LJ::get_db_writer();
 
@@ -18,14 +21,20 @@ body<=
     my %ac_edit;
     my %ac_add;
     LJ::remote_has_priv( $remote, "faqadd", \%ac_add );
+    my $faqd = LJ::Lang::get_dom( "faq" );
+    my ( $faqcat, $sortorder, $question, $summary, $answer );
 
-    if ( $id ) {
+    if ( $id != 0 ) {
+        my $lang = LJ::Lang::get_root_lang( $faqd );
         LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
-        my $sth = $dbh->prepare( "SELECT question, summary, answer, faqcat, sortorder FROM faq WHERE faqid=$id" );
-        $sth->execute;
-        ($question, $summary, $answer, $faqcat, $sortorder) = $sth->fetchrow_array or
-            return "<b>Error:</b> FAQ #$id does not exist.";
+        my $faq = LJ::Faq->load( $id, lang => $lang->{lncode} )
+            or return "<b>Error:</b> FAQ #$id does not exist.";
 
+        $faqcat = $faq->faqcat;
+        $sortorder = $faq->sortorder;
+        $question = $faq->question_raw;
+        $summary = $faq->summary_raw;
+        $answer = $faq->answer_raw;
         unless ( $ac_edit{'*'} || $ac_edit{$faqcat} ) {
             if ( %ac_edit ) {
                 return "<b>Error: </b> You do not have access to edit a FAQ question in the \"$faqcat\" category.";
@@ -49,17 +58,11 @@ body<=
     $sth->execute;
     my @cats;
     push @cats, '', '';
-    my $faqd = LJ::Lang::get_dom( "faq" );
 
-    while ( ($fc, $fcname) = $sth->fetchrow_array )
-    {
-        if ( $id ) {
-            next unless $ac_add{'*'} || $ac_add{$fc} || ($fc eq $faqcat);
-        } else {
-            next unless $ac_add{'*'} || $ac_add{$fc};
-        }
-
-        push @cats, $fc, $fcname;
+    while ( my ($fc, $fcname) = $sth->fetchrow_array ) {
+        # $fc can't be NULL/undef
+        push @cats, $fc, $fcname
+            if $ac_add{'*'} || $ac_add{$fc} || ($fc eq $faqcat);
     }
 
     $ret .= LJ::html_select( { name => 'faqcat', selected => $faqcat }, @cats );
@@ -75,13 +78,13 @@ body<=
     $ret .= LJ::html_textarea( { name => 'q', value => $question,
                                  rows => 2, cols => 70, wrap => 'soft' } );
     $ret .= "<br /><i>(erase question to delete FAQ entry)</i></p>";
- 
+
     if ( $faqd && $id != 0 ) {
         $ret .= "<p><b>Select modification level for question:</b> ";
         $ret .= LJ::html_select( { name => "sev_question", selected => 0 },
                                  0 => "Typo/etc (no notify)",
                                  1 => "Minor (notify translators)",
-                                 2 => "Major (require translation updates)");
+                                 2 => "Major (require translation updates)" );
         $ret .= "</p>";
     }
 
@@ -117,6 +120,7 @@ body<=
 
     $ret .= "<p>" . LJ::html_submit( '', 'Add/Edit FAQ Item' ) . "</p>";
     return $ret;
+}
 _code?>
 
 </form>
