@@ -73,8 +73,9 @@ sub import_userpics {
     };
 
     # attempt to import the default userpic first, if they have at least one
-    # slot available
-    $import_userpic->( $default );
+    # slot available, but only if they HAVE a default.
+    $import_userpic->( $default )
+        if $default && $default->{src};
 
     # now bail out if we don't have room for everything
     return @imported
