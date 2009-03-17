@@ -257,16 +257,21 @@ body<=
                 my $watched_nonotify = $u->watches( $other_u ) ? 1 : 0;
                 $userid_processed{$other_u->id} = 1;
 
+                # only modify relationship if at least one of the checkboxes is checked
+                # otherwise, assume that the user was editing colors
+                # and do not remove the existing edges
+                my $edit_color_only = ! ( $POST{"editfriend_add_${num}_trust"} || $POST{"editfriend_add_${num}_watch"} );
+
                 if ( $POST{"editfriend_add_${num}_trust"} ) {
                     $u->add_edge( $other_u, trust => {
                         nonotify => $trusted_nonotify ? 1 : 0,
                     } );
-                } else {
+                } elsif( ! $edit_color_only ) {
                     $u->remove_edge( $other_u, trust => {
                         nonotify => $trusted_nonotify ? 0 : 1,
                     } );
                 }
-                if ( $POST{"editfriend_add_${num}_watch"} ) {
+                if ( $POST{"editfriend_add_${num}_watch"} || $edit_color_only ) {
                     my $fg = LJ::color_todb( $POST{"editfriend_add_${num}_fg"} );
                     my $bg = LJ::color_todb( $POST{"editfriend_add_${num}_bg"} );
                     $u->add_edge( $other_u, watch => {
@@ -274,7 +279,7 @@ body<=
                         bgcolor => $bg,
                         nonotify => $watched_nonotify ? 1 : 0,
                     } );
-                } else {
+                } elsif( ! $edit_color_only ) {
                     $u->remove_edge( $other_u, watch => {
                         nonotify => $watched_nonotify ? 0 : 1,
                     } );
