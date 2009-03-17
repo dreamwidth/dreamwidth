@@ -85,7 +85,8 @@ body<=
         }
 
         $$title = BML::ml( '.title_cat', { catname => LJ::ehtml( $catname ) } );
-        @faqs = LJ::Faq->load_all( lang => $lang, cat => $faqcatarg );
+        @faqs = sort { $a->sortorder <=> $b->sortorder }
+                     LJ::Faq->load_all( lang => $lang, cat => $faqcatarg );
         LJ::Faq->render_in_place( { lang => $lang, user => $user,
                                     url => $user_url }, @faqs );
     }
