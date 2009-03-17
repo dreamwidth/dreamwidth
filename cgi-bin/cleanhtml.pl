@@ -100,7 +100,7 @@ my %tag_substitute = (
 # but some browsers still will interpret it as an opening only tag.
 # This is a list of tags which you can actually close with a trailing
 # slash and get the proper behavior from a browser.
-my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|lj-embed)$/i;
+my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|isindex|link|meta|param|lj-embed|site-embed)$/i;
 
 # <LJFUNC>
 # name: LJ::CleanHTML::clean
@@ -246,6 +246,20 @@ sub clean
         $capturing_during_eat = undef;
     };
 
+    # we now allow users to use new tags that aren't "lj" tags.  this short
+    # stub allows us to "upgrade" the tag.
+    my $update_tag = sub {
+        return {
+            'cut'           => 'lj-cut',
+            'poll-item'     => 'lj-pi',
+            'poll-question' => 'lj-pq',
+            'raw-code'      => 'lj-raw',
+            'site-embed'    => 'lj-embed',
+            'site-template' => 'lj-template',
+            'user'          => 'lj',
+        }->{$_[0]} || $_[0];
+    };
+
   TOKEN:
     while (my $token = $p->get_token)
     {
@@ -258,7 +272,7 @@ sub clean
 
         if ($type eq "S")     # start tag
         {
-            my $tag  = $token->[1];
+            my $tag  = $update_tag->( $token->[1] );
             my $attr = $token->[2];  # hashref
 
             $good_until = length $newdata;
@@ -468,8 +482,9 @@ sub clean
             {
                 # keep <lj comm> working for backwards compatibility, but pretend
                 # it was <lj user> so we don't have to account for it below.
-                my $user = $attr->{'user'} = exists $attr->{'user'} ? $attr->{'user'} :
-                                             exists $attr->{'comm'} ? $attr->{'comm'} : undef;
+                my $user = $attr->{user} = exists $attr->{name} ? $attr->{name} :
+                                           exists $attr->{user} ? $attr->{user} :
+                                           exists $attr->{comm} ? $attr->{comm} : undef;
 
                 # allow external sites
                 if ( my $site = $attr->{site} ) {
@@ -668,7 +683,7 @@ sub clean
                         }
                     }
                     
-                    unless ($hash->{href} =~ s/^lj:(?:\/\/)?(.*)$/ExpandLJURL($1)/ei) {
+                    unless ($hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei) {
                         $hash->{href} = canonical_url($hash->{href}, 1);
                     }
                 }
@@ -815,7 +830,7 @@ sub clean
         # end tag
         elsif ($type eq "E")
         {
-            my $tag = $token->[1];
+            my $tag = $update_tag->( $token->[1] );
             next TOKEN if $tag =~ /[^\w\-:]/;
 
             if (@eatuntil) {
