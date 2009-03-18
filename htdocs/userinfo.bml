@@ -603,9 +603,14 @@ body<=
     my ( @watched_userids, @watched_by_userids, @mutually_watched_userids, @not_mutually_watched_userids, @not_mutually_watched_by_userids );
 
     if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
-        @mutually_trusted_userids = $u->mutually_trusted_userids if $u->is_personal;
-        @not_mutually_trusted_userids = $profile->not_mutually_trusted_userids;
-        @not_mutually_trusted_by_userids = $profile->not_mutually_trusted_by_userids;
+        if ( $u->is_personal ) {
+            @mutually_trusted_userids = $u->mutually_trusted_userids;
+            @not_mutually_trusted_userids = $profile->not_mutually_trusted_userids;
+            @not_mutually_trusted_by_userids = $profile->not_mutually_trusted_by_userids;
+        } else { # $u is identity
+            # no mutual trust lists for identity accounts since they can't trust anyone
+            @trusted_by_userids = $u->trusted_by_userids;
+        }
         @mutually_watched_userids = $u->mutually_watched_userids;
         @not_mutually_watched_userids = $profile->not_mutually_watched_userids;
         @not_mutually_watched_by_userids = $profile->not_mutually_watched_by_userids;
