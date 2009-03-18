@@ -23,8 +23,8 @@ body<=
     use vars qw/ %GET %POST $title $windowtitle @errors @warnings /;
 
     # translated/custom page title can go here
-    $title = "Admin Tools";
-    $windowtitle = "Admin Tools";
+    $title = "<?_ml .admin.title _ml?>";
+    $windowtitle = "<?_ml .admin.title _ml?>";
 
     # for pages that require authentication
     my $remote = LJ::get_remote();
@@ -34,77 +34,77 @@ body<=
 
     my @adminpages = (
         [ 'capedit.bml',
-            'Capability Edit', 'For editing user capabilities.', [ 'admin:capedit', 'admin:*', sub {
-                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            '<?_ml .admin.capability.link _ml?>', '<?_ml .admin.capability.text _ml?>', [ 'admin:capedit', 'admin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'clusterstatus.bml',
-            'Cluster Status', 'Get information on cluster availability.', [ 'supporthelp' ] ],
+            '<?_ml .admin.cluster.link _ml?>', '<?_ml .admin.cluster.text _ml?>', [ 'supporthelp' ] ],
         [ 'console/',
-            'Console', 'For general input; usable by all users to an extent.' ],
+            '<?_ml .admin.console.link _ml?>', '<?_ml .admin.console.text _ml?>' ],
         [ 'schema/',
-            'Database Schema', 'Shows the database schema.', [ 'schemadoc' ] ],
+            '<?_ml .admin.dbschema.link _ml?>', '<?_ml .admin.dbschema.text _ml?>', [ 'schemadoc' ] ],
         [ 'dupkiller.bml',
-            'Duplicate Entry Killer', 'Checks for (and kills) duplicate entries.', [ 'supporthelp' ] ],
+            '<?_ml .admin.dupkiller.link _ml?>', '<?_ml .admin.dupkiller.text _ml?>', [ 'supporthelp' ] ],
         [ 'entryprops.bml',
-            'Entry Properties', 'View the properties set on a particular entry.', [ 'canview:entryprops', 'canview:*', sub {
-                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            '<?_ml .admin.entryprops.link _ml?>', '<?_ml .admin.entryprops.text _ml?>', [ 'canview:entryprops', 'canview:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'faq/',
-            'FAQ Tools', 'Allows you to manipulate the FAQ.', [ 'faqadd', 'faqedit', 'faqcat' ] ],
+            '<?_ml .admin.faq.link _ml?>', '<?_ml .admin.faq.text _ml?>', [ 'faqadd', 'faqedit', 'faqcat' ] ],
         [ 'fileedit/',
-            'File Edit', 'Allows you to edit various include files.', [ 'fileedit' ] ],
+            '<?_ml .admin.file_edit.link _ml?>', 'Allows you to edit various include files.', [ 'fileedit' ] ],
         [ 'invites/requests.bml',
-            'Invite Code Requests', 'Allows you to review requests for invite codes.', [ 'payments' ] ],
+            '<?_ml .admin.invite_requests.link _ml?>', '<?_ml .admin.invite_requests.text _ml?>', [ 'payments' ] ],
         [ 'invites/review.bml',
-            'Review Invite History', 'Allows you to view a user\'s invite history.', [ 'payments' ] ],
+            '<?_ml .admin.invite_review.link _ml?>', '<?_ml .admin.invite_review.text _ml?>', [ 'payments' ] ],
         [ 'invitecodes.bml',
-            'Invite Codes', 'Shows the provenance of an invite code.', [ 'finduser:codetrace', 'finduser:*' ] ],
+            '<?_ml .admin.invite_codes.link _ml?>', '<?_ml .admin.invite_codes.text _ml?>', [ 'finduser:codetrace', 'finduser:*' ] ],
         [ 'logout_user.bml',
-            'Logout User', 'Logs a user out of the site.', [ 'suspend' ] ],
+            '<?_ml .admin.logout_user.link _ml?>', '<?_ml .admin.logout_user.text _ml?>', [ 'suspend' ] ],
         [ 'memcache.bml',
-            'Memcache Overview', 'Shows current memcache conditions.', [ 'siteadmin:memcacheview', 'siteadmin:*' ] ],
+            '<?_ml .admin.memcache.link _ml?>', '<?_ml .admin.memcache.text _ml?>', [ 'siteadmin:memcacheview', 'siteadmin:*' ] ],
         [ 'memcache_view.bml',
-            'Memcache View', 'Shows current memcache details.', [ 'siteadmin:memcacheview', 'siteadmin:*', sub {
-                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            '<?_ml .admin.memcache_view.link _ml?>', '<?_ml .admin.memcache_view.text _ml?>', [ 'siteadmin:memcacheview', 'siteadmin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'mysql_status.bml',
-            'MySQL Status', 'Shows current MySQL status.', [ 'siteadmin:mysqlstatus', 'siteadmin:*' ] ],
+            '<?_ml .admin.mysql.link _ml?>', '<?_ml .admin.mysql.text _ml?>', [ 'siteadmin:mysqlstatus', 'siteadmin:*' ] ],
         [ 'navtag.bml',
-            'Navtag Edit', 'Allows you to tag pages for navigation.', [ 'siteadmin:navtag', 'siteadmin:*' ] ],
+            '<?_ml .admin.navtag.link _ml?>', '<?_ml .admin.navtag.text _ml?>', [ 'siteadmin:navtag', 'siteadmin:*' ] ],
         [ 'pay/',
-            'Payment Managements', 'Review payment details.', [ 'payments' ] ],
+            '<?_ml .admin.pay.link _ml?>', '<?_ml .admin.pay.text _ml?>', [ 'payments' ] ],
         [ 'priv/',
-            'Privilege Management', 'View privs by priv or by user. Some priv lists are private.' ],
+            '<?_ml .admin.priv.link _ml?>', '<?_ml .admin.priv.text _ml?>' ],
         [ 'propedit.bml',
-            'User Property Edit', 'Allows you to view and edit userprops.', [ 'canview:userprops', 'canview:*' ] ],
+            '<?_ml .admin.propedit.link _ml?>', '<?_ml .admin.propedit.text _ml?>', [ 'canview:userprops', 'canview:*' ] ],
         [ 'recent_comments.bml',
-            'Recent Comments', 'Allows you to view a user\'s recent comments.', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
+            '<?_ml .admin.recent_comments.link _ml?>', '<?_ml .admin.recent_comments.text _ml?>', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
         [ 'schools/',
-            'Schools Directory', 'View and manipulate schools data.', [ 'siteadmin:schools', 'siteadmin:*' ] ],
+            '<?_ml .admin.schools.link _ml?>', '<?_ml .admin.schools.text _ml?>', [ 'siteadmin:schools', 'siteadmin:*' ] ],
         [ 'sitemessages/add.bml',
-            'Site Messages - Add', 'Add new site-wide messages.', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
-                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            '<?_ml .admin.sitemessages_add.link _ml?>', '<?_ml .admin.sitemessages_add.text _ml?>', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'sitemessages/manage.bml',
-            'Site Messages - Manage', 'View and manipulate site-wide messages.', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
-                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            '<?_ml .admin.sitemessages_manage.link _ml?>', '<?_ml .admin.sitemessages_manage.text _ml?>', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
+                return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'spamreports.bml',
-            'Spam Reports', 'View and handle reports of spam.', [ 'siteadmin:spamreports', 'siteadmin:*' ] ],
+            '<?_ml .admin.spamreports.link _ml?>', '<?_ml .admin.spamreports.text _ml?>', [ 'siteadmin:spamreports', 'siteadmin:*' ] ],
         [ 'statushistory.bml',
-            'Statushistory', 'Shows you a user\'s statushistory.', [ 'historyview', sub {
-                return ( $LJ::IS_DEV_SERVER, "dev server" );
+            '<?_ml .admin.statushistory.link _ml?>', '<?_ml .admin.statushistory.text _ml?>', [ 'historyview', sub {
+                return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'styleinfo.bml',
-            'Style Info', 'Shows you a user\'s style information.', [ sub {
-                return ( LJ::Support::has_any_support_priv($remote), "any support priv" );
+            '<?_ml .admin.styleinfo.link _ml?>', '<?_ml .admin.styleinfo.text _ml?>', [ sub {
+                return ( LJ::Support::has_any_support_priv($remote), "<?_ml .anysupportpriv _ml?>" );
             }, sub {
-                return ( $LJ::IS_DEV_SERVER, "dev server" );
+                return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'sysban.bml',
-            'Sysban Management', 'Set and manage sysbans', [ 'sysban' ] ],
+            '<?_ml .admin.sysban.link _ml?>', '<?_ml .admin.sysban.text _ml?>', [ 'sysban' ] ],
         [ 'userlog.bml',
-            'Userlog Viewer', 'Shows you a user\'s logged actions.', [ 'canview:userlog', 'canview:*' ] ],
+            '<?_ml .admin.userlog.link _ml?>', '<?_ml .admin.userlog.text _ml?>', [ 'canview:userlog', 'canview:*' ] ],
     );
 
     $ret .= "<ul>\n";
@@ -133,9 +133,9 @@ body<=
             my $needspriv = ( $haspriv ? "" : " needspriv" );
             my $privreason = "";
             if ( @gotprivs || @needsprivs ) {
-                my $oneof = ( @needsprivs > 1 ? " one of" : "" );
+                my $needpriv = ( @needsprivs > 1 ? "<?_ml .needspriv _ml?>" : "<?_ml .needs_one_of _ml?>" );
                 $privreason = ( $haspriv ? "(<b>"  . join( "</b>, <b>", @gotprivs   ) . "</b>)"
-                                         : "(needs$oneof: <b>" . join( "</b>, <b>", @needsprivs ) . "</b>)" );
+                                         : "($needpriv: <b>" . join( "</b>, <b>", @needsprivs ) . "</b>)" );
             }
             $ret .= "<li class='item$needspriv'><div class='itemhead'><a href='$path'>$name</a> <span class='itemprivs'>$privreason</span></div><div class='itemdef'>$description</div></li>\n";
         }
