@@ -23,8 +23,7 @@
     my $pollid = ($FORM{'id'} || $FORM{'pollid'})+0;
 
     unless ($pollid) {
-        $body .= BML::ml('.gotocreate2', {'aopts' => "href='$LJ::SITEROOT/poll/create.bml'"});
-        return;
+        return BML::redirect( "$LJ::SITEROOT/poll/create.bml" );
     }
 
     my $poll = LJ::Poll->new($pollid);
