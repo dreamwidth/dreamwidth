@@ -61,7 +61,7 @@ sub RecentPage
         $p->{'head_content'} .= qq{<meta name="ICBM" content="$icbm" />\n};
     }
 
-    my $itemshow = S2::get_property_value($opts->{'ctx'}, "page_recent_items")+0;
+    my $itemshow = S2::get_property_value($opts->{'ctx'}, "num_items_recent")+0;
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }
 

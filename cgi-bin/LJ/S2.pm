@@ -82,7 +82,7 @@ sub make_journal
     # let layouts disable EntryPage / ReplyPage, using the BML version
     # instead.
     unless ($styleid eq "s1short") {
-        if ($ctx->[S2::PROPS]->{'view_entry_disabled'} && ($view eq "entry" || $view eq "reply")) {
+        if ( ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
@@ -738,6 +738,7 @@ sub s2_context
         $ctx->[S2::SCRATCH] ||= {};
 
         LJ::S2::populate_system_props($ctx);
+        LJ::S2::alias_renamed_props( $ctx );
         S2::set_output(sub {});  # printing suppressed
         S2::set_output_safe(sub {});
         eval { S2::run_code($ctx, "prop_init()"); };
@@ -1231,6 +1232,26 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'SITENAMEABBREV'} = $LJ::SITENAMEABBREV;
     $ctx->[S2::PROPS]->{'IMGDIR'} = $LJ::IMGPREFIX;
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
+}
+
+# renamed some props from core1 => core2. Make sure that S2 still handles these variables correctly when working with a core1 layer
+sub alias_renamed_props
+{
+    my $ctx = shift;
+    $ctx->[S2::PROPS]->{num_items_recent} = $ctx->[S2::PROPS]->{page_recent_items} 
+        if exists $ctx->[S2::PROPS]->{page_recent_items};
+
+    $ctx->[S2::PROPS]->{num_items_reading} = $ctx->[S2::PROPS]->{page_friends_items}
+        if exists $ctx->[S2::PROPS]->{page_friends_items};
+    
+    $ctx->[S2::PROPS]->{reverse_sortorder_day} = $ctx->[S2::PROPS]->{page_day_sortorder} eq 'reverse' ? 1 : 0
+        if exists $ctx->[S2::PROPS]->{page_day_sortorder};
+
+    $ctx->[S2::PROPS]->{reverse_sortorder_year} = $ctx->[S2::PROPS]->{page_year_sortorder} eq 'reverse' ? 1 : 0
+        if exists $ctx->[S2::PROPS]->{page_year_sortorder};
+        
+    $ctx->[S2::PROPS]->{use_journalstyle_entry_page} = ! $ctx->[S2::PROPS]->{view_entry_disabled}
+        if exists $ctx->[S2::PROPS]->{view_entry_disabled};
 }
 
 sub layer_compile_user
@@ -1968,14 +1989,15 @@ sub Page
         'base_url' => $base_url,
         'stylesheet_url' => "$base_url/res/$styleid/stylesheet?$stylemodtime",
         'view_url' => {
-            'recent'   => "$base_url/",
-            'userinfo' => $u->profile_url,
-            'archive'  => "$base_url/calendar",
-            'read'     => "$base_url/read",
-            'tags'     => "$base_url/tag",
+            recent   => "$base_url/",
+            userinfo => $u->profile_url,
+            archive  => "$base_url/calendar",
+            read     => "$base_url/read",
+            tags     => "$base_url/tag",
+            memories => "$LJ::SITEROOT/tools/memories.bml?user=$u->{user}",
         },
         'linklist' => $linklist,
-        'views_order' => [ 'recent', 'archive', 'read', 'userinfo' ],
+        'views_order' => [ 'recent', 'archive', 'read', 'tags', 'memories', 'userinfo' ],
         'global_title' =>  LJ::ehtml($u->{'journaltitle'} || $u->{'name'}),
         'global_subtitle' => LJ::ehtml($u->{'journalsubtitle'}),
         'head_content' => '',
@@ -3391,11 +3413,19 @@ my %dt_vars = (
                'A' => "(\$time->{hour} < 12 ? 'A' : 'P')",
             );
 
+sub _dt_vars_html {
+    my $datecode = shift;
+    
+    return qq{ "/",$dt_vars{yyyy}, "/", $dt_vars{mm}, "/", $dt_vars{dd}, "/" } if $datecode =~ /^(d|dd|dayord)$/;
+    return qq{ "/",$dt_vars{yyyy}, "/", $dt_vars{mm}, "/" } if $datecode =~ /^(m|mm|mon|month)$/;
+    return qq{ "/",$dt_vars{yyyy}, "/" } if $datecode =~ /^(yy|yyyy)$/;
+}
 sub Date__date_format
 {
-    my ($ctx, $this, $fmt) = @_;
+    my ($ctx, $this, $fmt, $as_link) = @_;
     $fmt ||= "short";
-    my $c = \$ctx->[S2::SCRATCH]->{'_code_datefmt'}->{$fmt};
+    # formatted as link is separate from format as not link
+    my $c = \$ctx->[S2::SCRATCH]->{'_code_datefmt'}->{$fmt . $as_link};
     return $$c->($this) if ref $$c eq "CODE";
     if (++$ctx->[S2::SCRATCH]->{'_code_datefmt_count'} > 15) { return "[too_many_fmts]"; }
     my $realfmt = $fmt;
@@ -3404,12 +3434,19 @@ sub Date__date_format
     } elsif ($fmt eq "iso") {
         $realfmt = "%%yyyy%%-%%mm%%-%%dd%%";
     }
+
+
     my @parts = split(/\%\%/, $realfmt);
     my $code = "\$\$c = sub { my \$time = shift; return join('',";
     my $i = 0;
     foreach (@parts) {
-        if ($i % 2) { $code .= $dt_vars{$_} . ","; }
-        else { $_ = LJ::ehtml($_); $code .= "\$parts[$i],"; }
+        if ($i % 2) { 
+            # translate date %%variable%% to value
+            my $link = _dt_vars_html( $_ );
+            $code .= $as_link && $link
+                ? qq{"<a href=\\\"", $link, "\\\">", $dt_vars{$_},"</a>",}
+                : $dt_vars{$_} . ",";
+        } else { $_ = LJ::ehtml( $_ ); $code .= "\$parts[$i],"; }
         $i++;
     }
     $code .= "); };";
@@ -3497,16 +3534,47 @@ sub EntryLite__get_link
 # method for smart converting raw subject to html-link
 sub EntryLite__formatted_subject {
     my ($ctx, $this, $attrs) = @_;
+    my $subject = $this->{subject};
+    
+    if ( $this->{_type} eq 'Entry' ) {
+        # if an entry does not have a subject, and text_nosubject is not set, return nothing
+        return if $subject eq ""  && $ctx->[S2::PROPS]->{text_nosubject} eq "";
 
-    # if subject has html-tags - print raw subject
-    return $this->{subject}
-        if($this->{subject} =~ /[<>]/);
+        # if an entry does not have a subject, text_nosubject is set, and all_entrysubjects, then use text_nosubject as the subject
+        $subject = $ctx->[S2::PROPS]->{text_nosubject}        
+            if $subject eq ""
+                && $ctx->[S2::PROPS]->{text_nosubject} ne "" 
+                && $ctx->[S2::PROPS]->{all_entrysubjects};
+
+        # if an entry does not have a subject, text_nosubject is set, and all_entrysubjects is false, then only return the formatted subject with text_nosubject on the month view
+        $subject = $ctx->[S2::PROPS]->{text_nosubject}
+            if $subject eq ""
+                && $ctx->[S2::PROPS]->{text_nosubject} ne "" 
+                && ! $ctx->[S2::PROPS]->{all_entrysubjects} 
+                && $LJ::S2::CURR_PAGE->{view} eq 'month';
+
+    } elsif ( $this->{_type} eq "Comment" ) {
+        # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is false, then return nothing
+        return if $subject eq "" && $ctx->[S2::PROPS]->{all_commentsubjects} eq "";
+        
+        # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is true, then return the formatted subject with text_nosubject
+        $subject = $ctx->[S2::PROPS]->{text_nosubject}
+            if $subject eq ""
+                && $ctx->[S2::PROPS]->{text_nosubject} ne ""
+                && $ctx->[S2::PROPS]->{all_commentsubjects};
+    }
     
     my $class = $attrs->{class} ? " class=\"".LJ::ehtml($attrs->{class})."\" " : '';
     my $style = $attrs->{style} ? " style=\"".LJ::ehtml($attrs->{style})."\" " : '';
-    
-    return "<a href=\"".$this->{permalink_url}."\"$class$style>".$this->{subject}."</a>";
-    
+
+    # if subject has a link, display raw subject
+    # TODO: how about other HTML tags?
+     if($subject =~ /href/) {
+        return $subject;
+    } else {        
+        return "<a href=\"" . $this->{permalink_url} . "\"$class$style>" 
+            . $subject . "</a>";
+    }   
 }
 
 *Entry__formatted_subject = \&EntryLite__formatted_subject;
@@ -3988,21 +4056,27 @@ sub PalItem
 
 sub YearMonth__month_format
 {
-    my ($ctx, $this, $fmt) = @_;
+    my ($ctx, $this, $fmt, $as_link) = @_;
     $fmt ||= "long";
-    my $c = \$ctx->[S2::SCRATCH]->{'_code_monthfmt'}->{$fmt};
+    my $c = \$ctx->[S2::SCRATCH]->{'_code_monthfmt'}->{$fmt . $as_link};
     return $$c->($this) if ref $$c eq "CODE";
     if (++$ctx->[S2::SCRATCH]->{'_code_timefmt_count'} > 15) { return "[too_many_fmts]"; }
     my $realfmt = $fmt;
     if (defined $ctx->[S2::PROPS]->{"lang_fmt_month_$fmt"}) {
         $realfmt = $ctx->[S2::PROPS]->{"lang_fmt_month_$fmt"};
     }
+
     my @parts = split(/\%\%/, $realfmt);
     my $code = "\$\$c = sub { my \$time = shift; return join('',";
     my $i = 0;
     foreach (@parts) {
-        if ($i % 2) { $code .= $dt_vars{$_} . ","; }
-        else { $_ = LJ::ehtml($_); $code .= "\$parts[$i],"; }
+        if ($i % 2) { 
+            # translate date %%variable%% to value
+            my $link = _dt_vars_html( $_ );
+            $code .= $as_link && $link
+                ? qq{"<a href=\\\"", $link, "\\\">", $dt_vars{$_},"</a>",}
+                : $dt_vars{$_} . ",";
+        } else { $_ = LJ::ehtml( $_ ); $code .= "\$parts[$i],"; }
         $i++;
     }
     $code .= "); };";

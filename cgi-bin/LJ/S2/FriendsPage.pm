@@ -72,7 +72,7 @@ sub FriendsPage
     ## people might not want to be indexed)
     $p->{'head_content'} .= LJ::robot_meta_tags();
 
-    my $itemshow = S2::get_property_value($opts->{'ctx'}, "page_friends_items")+0;
+    my $itemshow = S2::get_property_value($opts->{'ctx'}, "num_items_reading")+0;
     if ($itemshow < 1) { $itemshow = 20; }
     elsif ($itemshow > 50) { $itemshow = 50; }
 

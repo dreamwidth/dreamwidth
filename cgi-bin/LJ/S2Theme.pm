@@ -660,6 +660,9 @@ sub hidden_props {
 # props by category heading
 sub display_option_props {
     qw(
+        num_items_recent
+        num_items_reading
+        use_journalstyle_entry_page
         page_recent_items
         page_friends_items
         view_entry_disabled
