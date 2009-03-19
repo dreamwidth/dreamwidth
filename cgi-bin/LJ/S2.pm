@@ -1978,6 +1978,13 @@ sub Page
     my $linkobj = LJ::Links::load_linkobj($u);
     my $linklist = [ map { UserLink($_) } @$linkobj ];
 
+    my $remote = LJ::get_remote();
+    my $tz_remote;
+    if ($remote) {
+        my $tz = $remote->prop( "timezone" );
+        $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
+    }
+
     my $p = {
         '_type' => 'Page',
         '_u' => $u,
@@ -1986,6 +1993,7 @@ sub Page
         'journal' => User($u),
         'journal_type' => $u->{'journaltype'},
         'time' => DateTime_unix(time),
+        'local_time' => $tz_remote ? DateTime_tz( time, $tz_remote ) : DateTime_unix(time),
         'base_url' => $base_url,
         'stylesheet_url' => "$base_url/res/$styleid/stylesheet?$stylemodtime",
         'view_url' => {
@@ -2009,7 +2017,6 @@ sub Page
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $opts->{'saycharset'} . "\" />\n";
     }
 
-    my $remote = LJ::get_remote();
     if (LJ::are_hooks('s2_head_content_extra')) {
         $p->{head_content} .= LJ::run_hook('s2_head_content_extra', $remote, $opts->{r});
     }
