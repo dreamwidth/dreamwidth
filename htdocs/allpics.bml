@@ -1,5 +1,8 @@
 <?_code
 {
+# This page displays all of the user's userpics along with all user-contributed text
+# FIXME: A lot more of this functionality should be coming from the Userpic.pm class
+
     use strict;
     use vars qw(%GET $title $body $head);
 
@@ -130,6 +133,9 @@
 
     foreach my $pic (@pics) {
 
+        #  load the userpic object for each pic
+        my $userpic = LJ::Userpic->new( $u, $pic->{picid} );
+
         if ($piccount++ == 0) {
             $body .= "<?h1 $ML{'.current'} h1?><?p ";
             if ($can_manage) {
@@ -163,19 +169,19 @@
             $apost = "</a>";
         }
 
-        $body .= "$apre<img src='$LJ::USERPIC_ROOT/$pic->{'picid'}/$u->{'userid'}' ";
-        $body .= "width='$pic->{'width'}' height='$pic->{'height'}' alt='' border='0'/>$apost</td><td class='desc'>";
+        # for each image, we know the picid, get the html imgtag
+        $body .= "$apre" . $userpic->imgtag . $apost . "</td><td class='desc'>";
 
         if ($u->{'defaultpicid'} == $pic->{'picid'}) {
             $body .= "$ML{'.default'}<br />";
         }
 
         if ($view_inactive && $pic->{'state'} eq 'I') {
-            $body .= "<i>[$ML{'userpic.inactive'}]</i>&nbsp;" . LJ::help_icon('userpic_inactive') . "<br />";
+            $body .= "<em>[$ML{'userpic.inactive'}]</em>&nbsp;" . LJ::help_icon('userpic_inactive') . "<br />";
         }
 
         if ($eh_keywords) {
-            $body .= "<b>$ML{'.keywords'}</b> $eh_keywords<br />";
+            $body .= "<strong>$ML{'.keywords'}</strong> $eh_keywords<br />";
         }
 
         # Comments
@@ -188,7 +194,7 @@
                 'mode' => 'deny',
             });
 
-            $body .= "$eh_comments<br />\n";
+            $body .= "<strong>$ML{'.comment'}</strong> $eh_comments<br />\n";
         }
         
         # Descriptions
@@ -201,7 +207,7 @@
                 mode => 'deny',
             });
             
-            $body .= "$eh_descriptions\n";
+            $body .= "<strong>$ML{'.description'}</strong> $eh_descriptions\n";
         }
 
         $body .= "</td>";

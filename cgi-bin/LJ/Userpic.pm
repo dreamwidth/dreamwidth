@@ -4,6 +4,31 @@ use Carp qw(croak);
 use Digest::MD5;
 use Class::Autouse qw (LJ::Event::NewUserpic);
 
+##
+## Potential properties of an LJ::Userpic object
+##
+# picid		: (accessors picid, id) unique identifier for the object, generated 
+# userid	: (accessor userid) the userid  associated with the object
+# state		: state
+# comment	: user submitted descriptive comment
+# description	: user submitted description 
+# keywords	: user submitted keywords (all keywords in a single string)
+# dim		: (accessors width, height, dimensions) array:[width][height] 
+# pictime	: pictime
+# flags		: flags
+# md5base64	: md5sum of of the image bitstream to prevent duplication
+# ext		: file extension, corresponding to mime types
+# location	: whether the image is stored in database or mogile
+
+##
+## virtual accessors
+##
+# url		: returns a URL directly to the userpic
+# fullurl	: returns the URL used at upload time, it if exists
+# altext	: description with keyword fallback; keyword-recently-used dependent
+# u, owner	: return the user object indicated by the userid
+
+# legal image types
 my %MimeTypeMap = (
                    'image/gif'  => 'gif',
                    'G'          => 'gif',
@@ -13,12 +38,16 @@ my %MimeTypeMap = (
                    'P'          => 'png',
                    );
 
-my %singletons;  # userid -> picid -> LJ::Userpic
+# all LJ::Userpics in memory
+# userid -> picid -> LJ::Userpic
+my %singletons;  
 
 sub reset_singletons {
     %singletons = ();
 }
 
+# LJ::Userpic constructor. Returns a LJ::Userpic object.
+# Return existing with userid and picid populated, or make new.
 sub instance {
     my ($class, $u, $picid) = @_;
     my $up;
@@ -28,6 +57,7 @@ sub instance {
         return $up if $up = $us->{$picid};
     }
 
+    # otherwise construct a new one with the given picid
     $up = $class->_skeleton($u, $picid);
     $singletons{$u->{userid}}->{$picid} = $up;
     return $up;
@@ -115,24 +145,38 @@ sub absorb_row {
     return $self;
 }
 
-# accessors
+##
+## accessors
+##
 
-sub id {
+# FIXME: id and picid are identical. Eventually "id"
+# should go.
+
+# returns the picture ID associated with the object
+sub picid {
     return $_[0]->{picid};
 }
 
+*id = \&picid;
+
+#  returns the userid associated with the object
 sub userid {
     return $_[0]->{userid};
 }
 
+# FIXME: u and owner are identical in practice, since the method
+# userid returns the userid data element.  Eventually "owner" should
+# go.
+
+# given a userpic with a known userid, return the user object
 sub u {
-    my $self = shift;
-    return LJ::load_userid($self->userid);
+    return LJ::load_userid($_[0]->userid);
 }
 
+*owner = \&u;
+
 sub inactive {
-    my $self = shift;
-    return $self->state eq 'I';
+    return $_[0]->state eq 'I';
 }
 
 sub state {
@@ -169,20 +213,12 @@ sub height {
     return undef unless @dims;
     return $dims[1];
 }
-
-sub picid {
-    my $self = shift;
-    return $self->{picid};
-}
-
 sub pictime {
-    my $self = shift;
-    return $self->{pictime};
+    return $_[0]->{pictime};
 }
 
 sub flags {
-    my $self = shift;
-    return $self->{flags};
+    return $_[0]->{flags};
 }
 
 sub md5base64 {
@@ -226,11 +262,7 @@ sub max_allowed_bytes {
 }
 
 
-sub owner {
-    my $self = shift;
-    return LJ::load_userid($self->{userid});
-}
-
+# Returns the direct link to the uploaded userpic
 sub url {
     my $self = shift;
 
@@ -241,6 +273,10 @@ sub url {
     return "$LJ::USERPIC_ROOT/$self->{picid}/$self->{userid}";
 }
 
+# Returns original URL used if userpic was originally uploaded
+# via a URL.
+# FIXME: Is this ever used? If not, should be deleted. If so,
+# should be renamed to source_url
 sub fullurl {
     my $self = shift;
     return $self->{url} if $self->{url};
@@ -248,23 +284,55 @@ sub fullurl {
     return $self->{url};
 }
 
-# returns an image tag of this image
+# given a userpic and a keyword, return the alt text
+sub alttext {
+    my ( $self, $kw ) = @_;
+
+    # load the alttext.  use description by default, keyword as fallback,
+    # and all keywords as final fallback (should be for default icon only).
+
+    if ($self->description) {
+        return $self->description;
+    } elsif ($kw) {
+        return $kw;
+    } else {
+        return $self->keywords;
+    }
+
+}
+
+# returns an image tag of this userpic
+# optional parameters (which must be explicitly passed) include
+# width and keyword
 sub imgtag {
     my $self = shift;
     my %opts = @_;
 
+    # if the width and keyword have been passed in  as explicit
+    # parameters, set them. Otherwise, take what ever is set in
+    # the userpic
     my $width = $opts{width}+0 || $self->width;
+    my $keyword = $opts{keyword}+0 || $self->keywords;
+
+    # if no description is available for alttext, try to fall
+    # back to the keyword selected by the user (passed as a
+    # parameter to imgtag). Otherwise, use the entire keyword
+    # string from the userpic.
+
+    my $alttext = $self->alttext($keyword);
 
     return '<img src="' . $self->url . '" width="' . $width .
-        '" alt="' . LJ::ehtml(scalar $self->keywords) . '" class="userpic-img" />';
+        '" alt="' . $alttext . '" class="userpic-img" />';
 }
 
+# FIXME: should have alt text, if it should be kept
 sub imgtag_lite {
     my $self = shift;
     return '<img src="' . $self->url . '" width="' . $self->width . '" height="' . $self->height .
         '" class="userpic-img" />';
 }
 
+# FIXME: should have alt text, if it should be kept
 sub imgtag_nosize {
     my $self = shift;
     return '<img src="' . $self->url . '" class="userpic-img" />';
