@@ -60,7 +60,7 @@ sub FriendsPage
 
     my $ret;
 
-    LJ::load_user_props($remote, "opt_nctalklinks", "opt_stylemine", "opt_imagelinks", "opt_ljcut_disable_friends");
+    LJ::load_user_props( $remote, "opt_nctalklinks", "opt_stylemine", "opt_imagelinks", "opt_imageundef", "opt_ljcut_disable_friends" );
 
     # load options for image links
     my ($maximgwidth, $maximgheight) = (undef, undef);
@@ -230,6 +230,7 @@ sub FriendsPage
                                              'cuturl' => LJ::item_link($friends{$friendid}, $itemid, $item->{'anum'}, $stylemine),
                                              'maximgwidth' => $maximgwidth,
                                              'maximgheight' => $maximgheight,
+                                             'imageplaceundef' => $remote->{'opt_imageundef'},
                                              'ljcut_disable' => $remote->{'opt_ljcut_disable_friends'},
                                              'suspend_msg' => $suspend_msg,
                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });

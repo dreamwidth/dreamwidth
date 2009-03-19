@@ -691,12 +691,13 @@ sub clean
                 if ($tag eq "img")
                 {
                     my $img_bad = 0;
+
                     if (defined $opts->{'maximgwidth'} &&
-                        (! defined $hash->{'width'} ||
-                         $hash->{'width'} > $opts->{'maximgwidth'})) { $img_bad = 1; }
+                         $hash->{width} > $opts->{maximgwidth}) { $img_bad = 1; }
                     if (defined $opts->{'maximgheight'} &&
-                        (! defined $hash->{'height'} ||
-                         $hash->{'height'} > $opts->{'maximgheight'})) { $img_bad = 1; }
+                         $hash->{height} > $opts->{maximgheight}) { $img_bad = 1; }
+                    if (! defined $hash->{width} ||
+                        ! defined $hash->{height}) { $img_bad ||= $opts->{imageplaceundef}; }
                     if ($opts->{'extractimages'}) { $img_bad = 1; }
 
                     $hash->{src} = canonical_url($hash->{src}, 1);
@@ -1307,6 +1308,7 @@ sub clean_event
         'cleancss' => 1,
         'maximgwidth' => $opts->{'maximgwidth'},
         'maximgheight' => $opts->{'maximgheight'},
+        'imageplaceundef' => $opts->{'imageplaceundef'},
         'ljcut_disable' => $opts->{'ljcut_disable'},
         'noearlyclose' => 1,
         'tablecheck' => 1,

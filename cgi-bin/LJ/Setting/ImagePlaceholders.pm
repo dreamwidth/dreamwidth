@@ -26,6 +26,7 @@ sub option {
     my $key = $class->pkgkey;
 
     my $imgplaceholders = $class->get_arg($args, "imgplaceholders") || $u->prop("opt_imagelinks");
+    my $imgplaceundef = $class->get_arg( $args, "imgplaceundef" ) || $u->prop( "opt_imageundef" );
 
     my ($maxwidth, $maxheight) = (0, 0);
     ($maxwidth, $maxheight) = ($1, $2)
@@ -55,7 +56,23 @@ sub option {
         selected => $imgplaceholders,
     }, @options);
 
+    # Option for undefined-size images. Might want to be magicked into only displaying when placeholders are set for other than all/none
+
+    my @optionundef = (
+        0 => $class->ml( 'setting.imageplaceholders.option.undef.small' ),
+        1 => $class->ml( 'setting.imageplaceholders.option.undef.large' )
+    );
+
+    $ret .= "<br /><label for='${key}imgplaceundef'>" . $class->ml( 'setting.imageplaceholders.option.undef' ) . "</label> ";
+    $ret .= LJ::html_select({
+        name => "${key}imgplaceundef",
+        id => "${key}imgplaceundef",
+        selected => $imgplaceundef,
+    }, @optionundef);
+
+
     my $errdiv = $class->errdiv($errs, "imgplaceholders");
+    $errdiv .= $class->errdiv( $errs, "imgplaceundef" );
     $ret .= "<br />$errdiv" if $errdiv;
 
     return $ret;
@@ -77,6 +94,8 @@ sub save {
 
     my $val = $class->get_arg($args, "imgplaceholders");
     $u->set_prop( opt_imagelinks => $val );
+    $val = $class->get_arg( $args, "imgplaceundef" );
+    $u->set_prop( opt_imageundef => $val );
 
     return 1;
 }

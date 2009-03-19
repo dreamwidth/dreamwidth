@@ -2695,6 +2695,12 @@ setting.imageplaceholders.option.select.medium=medium images (over [[width]]x[[h
 
 setting.imageplaceholders.option.select.none=nothing (display all images)
 
+setting.imageplaceholders.option.undef=Treat images with undefined size as
+
+setting.imageplaceholders.option.undef.large=large images (use placeholder)
+
+setting.imageplaceholders.option.undef.small=small images (display image)
+
 setting.interests.desc|notes=There shouldn't be a description unless the page specifies one
 setting.interests.desc=_none
 

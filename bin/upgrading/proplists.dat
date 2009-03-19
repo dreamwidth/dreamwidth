@@ -622,6 +622,14 @@ userproplist.opt_imagelinks:
   multihomed: 0
   prettyname: Use Placeholders on Your Friend's Page
 
+userproplist.opt_imageundef:
+  cldversion: 4
+  datatype: bool
+  des: 0: show image, 1: use placeholder
+  indexed: 0
+  multihomed: 0
+  prettyname: Use Placeholders for Undefined-Size Images
+
 userproplist.opt_ljcut_disable_friends:
   cldversion: 4
   datatype: bool
