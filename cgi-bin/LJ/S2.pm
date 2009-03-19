@@ -3910,7 +3910,7 @@ foreach my $class (qw(RecentPage FriendsPage YearPage MonthPage DayPage EntryPag
 
 sub Page__visible_tag_list
 {
-    my ($ctx, $this) = @_;
+    my ($ctx, $this, $limit) = @_;
     return $this->{'_visible_tag_list'}
         if defined $this->{'_visible_tag_list'};
 
@@ -3928,6 +3928,11 @@ sub Page__visible_tag_list
 
         # create tag object
         push @taglist, LJ::S2::TagDetail($u, $kwid => $tags->{$kwid});
+    }
+
+    if ($limit) {
+        @taglist = sort { $b->{use_count} <=> $a->{use_count} } @taglist;
+        @taglist = splice @taglist, 0, $limit;
     }
 
     @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
