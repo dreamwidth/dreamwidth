@@ -1,0 +1,3 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Core 2 Testing";
+layerinfo redist_uniq = "core2base/layout";

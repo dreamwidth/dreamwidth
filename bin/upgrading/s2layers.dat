@@ -2,6 +2,10 @@
 # base filename         layer type      parent
 
 core1                   core            -
+core2                   core            -
+
+core2base/layout        layout          core2
+core2base/themes        theme+         core2base/layout
 
 # include local file
 s2layers-local.dat      INCLUDE

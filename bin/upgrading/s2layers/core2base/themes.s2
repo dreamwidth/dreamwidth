@@ -1,0 +1,4 @@
+#NEWLAYER: core2base/testing
+layerinfo type = "theme";
+layerinfo name = "Core 2 Testing";
+layerinfo redist_uniq = "core2base/testing";
