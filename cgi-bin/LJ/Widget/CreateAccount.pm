@@ -16,28 +16,21 @@ sub render_body {
     my $from_post = $opts{from_post};
     my $errors = $from_post->{errors};
 
+    my $code = LJ::trim( $get->{code} );
+    my $from = LJ::trim( $get->{from} );
+
     my $error_msg = sub {
-        my $key = shift;
-        my $pre = shift;
-        my $post = shift;
+        my ( $key, $pre, $post ) = @_;
         my $msg = $errors->{$key};
         return unless $msg;
         return "$pre $msg $post";
     };
-    
-    # hooks
-    LJ::run_hook('partners_registration_visited', $get->{from});
 
     my $alt_layout = $opts{alt_layout} ? 1 : 0;
     my $ret;
 
     if ($alt_layout) {
         $ret .= "<div class='signup-container'>";
-    } else {
-        $ret .= "<div class='rounded-box'><div class='rounded-box-tr'><div class='rounded-box-bl'><div class='rounded-box-br'>";
-        $ret .= "<div class='rounded-box'><div class='rounded-box-tr'><div class='rounded-box-bl'><div class='rounded-box-br'>";
-
-        $ret .= "<div class='rounded-box-content'>";
     }
 
     $ret .= $class->start_form(%{$opts{form_attr}});
@@ -49,15 +42,17 @@ sub render_body {
 
     # tip module
     if ($alt_layout) {
-        $ret .= "<script language='javascript'>\n";
+        $ret .= "<script type='text/javascript'>\n";
         $ret .= "CreateAccount.alt_layout = true;\n";
+        $ret .= "CreateAccount.coppa_check = " . ( $LJ::COPPA_CHECK ? "true" : "false" ) . ";\n";
         $ret .= "</script>\n";
     } else {
-        $ret .= "<script language='javascript'>\n";
+        $ret .= "<script type='text/javascript'>\n";
         $ret .= "CreateAccount.birthdate = \"$tip_birthdate\"\n";
         $ret .= "CreateAccount.email = \"$tip_email\"\n";
         $ret .= "CreateAccount.password = \"$tip_password\"\n";
         $ret .= "CreateAccount.username = \"$tip_username\"\n";
+        $ret .= "CreateAccount.coppa_check = " . ( $LJ::COPPA_CHECK ? "true" : "false" ) . ";\n";
         $ret .= "</script>\n";
         $ret .= "<div id='tips_box_arrow'></div>";
         $ret .= "<div id='tips_box'></div>";
@@ -75,13 +70,13 @@ sub render_body {
     } else {
         $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.username') . "</td>\n<td>";
     }
-    # maxlength 16, so if people don't notice that they hit the limit,
+    # maxlength 26, so if people don't notice that they hit the limit,
     # we give them a warning. (some people don't notice/proofread)
     $ret .= $class->html_text(
         name => 'user',
         id => 'create_user',
-        size => $alt_layout ? undef : 15,
-        maxlength => 16,
+        size => $alt_layout ? undef : 20,
+        maxlength => 26,
         raw => 'style="<?loginboxstyle?>"',
         value => $post->{user} || $get->{user},
     );
@@ -260,20 +255,18 @@ sub render_body {
         $ret .= "<p class='terms'>";
 
         ### TOS
-        if ($LJ::TOS_CHECK) {
-            my $tos_string = $class->ml('widget.createaccount.alt_layout.tos', { sitename => $LJ::SITENAMESHORT });
-            if ($tos_string) {
-                $ret .= "$tos_string<br />";
-                $ret .= $class->html_check(
-                    name => 'tos',
-                    id => 'create_tos',
-                    value => '1',
-                    selected => LJ::did_post() ? $post->{tos} : 0,
-                );
-                $ret .= " <label for='create_tos' class='text'>" . $class->ml('widget.createaccount.alt_layout.field.tos') . "</label><br /><br />";
-            } else {
-                $ret .= LJ::html_hidden( tos => 1 );
-            }
+        my $tos_string = $class->ml( 'widget.createaccount.alt_layout.tos', { sitename => $LJ::SITENAMESHORT } );
+        if ( $tos_string ) {
+            $ret .= "$tos_string<br />";
+            $ret .= $class->html_check(
+                name => 'tos',
+                id => 'create_tos',
+                value => '1',
+                selected => LJ::did_post() ? $post->{tos} : 0,
+            );
+            $ret .= " <label for='create_tos' class='text'>" . $class->ml( 'widget.createaccount.alt_layout.field.tos' ) . "</label><br /><br />";
+        } else {
+            $ret .= LJ::html_hidden( tos => 1 );
         }
 
         ### site news
@@ -300,15 +293,22 @@ sub render_body {
         $ret .= "</td></tr>\n";
 
         ### TOS
-        if ($LJ::TOS_CHECK) {
-            $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
-            $ret .= "<p class='tos-blurb'>" . $class->ml('widget.createaccount.field.tos', {
-                    sitename => $LJ::SITENAMESHORT,
-                    aopts1 => "href='$LJ::SITEROOT/legal/tos.bml'",
-                    aopts2 => "href='$LJ::SITEROOT/legal/privacy.bml'",
-            }) . "</p>";
-            $ret .= "</td></tr>\n";
-        }
+        $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+        $ret .= $class->html_check(
+            name => 'tos',
+            id => 'create_tos',
+            value => '1',
+            selected => LJ::did_post() ? $post->{tos} : 0,
+        );
+        $ret .= " <label for='create_tos' class='text'>";
+        $ret .= $class->ml( 'widget.createaccount.field.tos', {
+            sitename => $LJ::SITENAMESHORT,
+            aopts1 => "href='$LJ::SITEROOT/legal/tos.bml'",
+            aopts2 => "href='$LJ::SITEROOT/legal/privacy.bml'",
+        } );
+        $ret .= "</label>";
+        $ret .= $error_msg->( 'tos', '<span class="formitemFlag">', '</span><br />' );
+        $ret .= "</td></tr>\n";
     }
 
     ### submit button
@@ -322,15 +322,13 @@ sub render_body {
 
     $ret .= "</table>\n" unless $alt_layout;
 
+    $ret .= $class->html_hidden( from => $from ) if $from;
+    $ret .= $class->html_hidden( code => $code ) if $LJ::USE_ACCT_CODES;
+
     $ret .= $class->end_form;
 
     if ($alt_layout) {
         $ret .= "</div>";
-    } else {
-        $ret .= "</div>";
-
-        $ret .= "</div></div></div></div>";
-        $ret .= "</div></div></div></div>";
     }
 
     return $ret;
@@ -341,7 +339,6 @@ sub handle_post {
     my $post = shift;
     my %opts = @_;
 
-    my $get = $opts{get};
     my %from_post;
     my $remote = LJ::get_remote();
     my $alt_layout = $opts{alt_layout} ? 1 : 0;
@@ -380,6 +377,22 @@ sub handle_post {
     my $second_submit = 0;
     my $error = LJ::CreatePage->verify_username($post->{user}, post => $post, second_submit_ref => \$second_submit );
     $from_post{errors}->{username} = $error if $error;
+
+    # validate code
+    my $code = LJ::trim( $post->{code} );
+    if ( $LJ::USE_ACCT_CODES ) {
+        my $u = LJ::load_user( $post->{user} );
+        my $userid = $u ? $u->id : 0;
+        if ( DW::InviteCodes->check_code( code => $code, userid => $userid ) ) {
+            $from_post{code_valid} = 1;
+        } else {
+            my $r = DW::Request->get;
+            my $args = $r->query_string;
+            my $querysep = $args ? "?" : "";
+            my $uri = "$LJ::SITEROOT/create.bml" . $querysep . $args;
+            return BML::redirect( $uri );
+        }
+    }
 
     $post->{password1} = LJ::trim($post->{password1});
     $post->{password2} = LJ::trim($post->{password2});
@@ -474,9 +487,7 @@ sub handle_post {
     }
 
     # check TOS agreement
-    if ($LJ::TOS_CHECK && $alt_layout) {
-        $from_post{errors}->{tos} = $class->ml('widget.createaccount.alt_layout.error.tos') unless $post->{tos};
-    }
+    $from_post{errors}->{tos} = $class->ml( 'widget.createaccount.alt_layout.error.tos' ) unless $post->{tos};
 
     # create user and send email as long as the user didn't double-click submit
     # (or they tried to re-create a purged account)
@@ -488,8 +499,8 @@ sub handle_post {
             bdate => $bdate,
             email => $email,
             password => $post->{password1},
-            get_ljnews => $post->{news},
-            inviter => $get->{from},
+            get_news => $post->{news} ? 1 : 0,
+            inviter => $post->{from},
             underage => $is_underage,
             ofage => $ofage,
             extra_props => $opts{extra_props},
@@ -533,7 +544,7 @@ sub handle_post {
             });
         }
 
-        if ($LJ::TOS_CHECK) {
+        if ( $LJ::TOS_CHECK ) {
             my $err = "";
             $nu->tosagree_set(\$err)
                 or return LJ::bad_input($err);
@@ -541,9 +552,11 @@ sub handle_post {
 
         $nu->make_login_session;
 
-        # Default new accounts to Plus level
-        $nu->add_to_class('plus');
-        $nu->set_prop("create_accttype", "plus");
+        # we're all done; mark the invite code as used
+        if ( $LJ::USE_ACCT_CODES && $code ) {
+            my $invitecode = DW::InviteCodes->new( code => $code );
+            $invitecode->use_code( user => $nu );
+        }
 
         my $stop_output;
         my $body;
@@ -560,8 +573,7 @@ sub handle_post {
         $redirect = LJ::run_hook('rewrite_redirect_after_create', $nu);
         return BML::redirect($redirect) if $redirect;
 
-        my $url = LJ::ab_testing_value() == 0 ? "step2a.bml" : "step2b.bml";
-        return BML::redirect("$LJ::SITEROOT/create/$url$opts{getextra}");
+        return BML::redirect( "$LJ::SITEROOT/create/setup.bml" );
     }
 
     return %from_post;

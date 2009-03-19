@@ -10,8 +10,10 @@ sub render_body {
     my $class = shift;
     my %opts = @_;
 
+    my $u = LJ::get_effective_remote();
+
     my $given_step = $opts{step} || 1;
-    my @steps_to_show = LJ::ab_testing_value() == 0 ? (1, 2, 4) : (1..4);
+    my @steps_to_show = $given_step > 1 && $u && $u->get_cap( 'paid' ) ? ( 1, 2, 4 ) : ( 1..4 );
 
     my $ret;
 
@@ -26,8 +28,8 @@ sub render_body {
         my $active = $step == $given_step ? "active" : "inactive";
 
         $ret .= "<td class='step$css_class'>";
-        $ret .= "<img src='$LJ::IMGPREFIX/create/numbers-$active/$count.gif' alt='$count' align='absmiddle' /> ";
-        $ret .= $class->ml("widget.createaccountprogressmeter.step$step");
+        $ret .= "<div class='step-block-$active'>$count</div>";
+        $ret .= "<div class='step-block-text'>" . $class->ml( "widget.createaccountprogressmeter.step$step" ) . "</div>";
         $ret .= "</td>";
 
         $count++;

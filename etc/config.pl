@@ -55,21 +55,6 @@
             cssproxy => 'cssproxy',
         );
 
-    # if you define these, little help bubbles appear next to common
-    # widgets to the URL you define:
-    %HELPURL = (
-                #"accounttype" => "",
-                #"renaming"            => "$SITEROOT/support/faqbrowse.bml?faqid=25",
-                #"security"            => "$SITEROOT/support/faqbrowse.bml?faqid=24",
-                #"noautoformat"        => "$SITEROOT/support/faqbrowse.bml?faqid=26",
-                #"userpics"            => "$SITEROOT/support/faqbrowse.bml?faqid=46",
-                #"iplogging"           => "$SITEROOT/support/faqbrowse.bml?faqid=66",
-                #"s2propoff"           => '$SITEROOT/support/faqbrowse.bml?faqid=145',
-                #"userpic_inactive"    => "$SITEROOT/support/faqbrowse.bml?faqid=46",
-                #"textmessaging_about" => "$SITEROOT/support/faqbrowse.bml?faqid=30",
-                #"linklist_support"    => "$SITEROOT/customize/options.bml?group=linkslist",
-                );
-
 
 
     ###

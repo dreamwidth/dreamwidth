@@ -172,7 +172,7 @@ sub create {
         'userid' => $userid,
         'user'   => $username,
         'code'   => undef,
-        'news'   => $opts{get_ljnews},
+        'news'   => $opts{get_news},
     });
 
     return $u;
@@ -213,19 +213,13 @@ sub create_personal {
     # Set the default style
     LJ::run_hook('set_default_style', $u);
 
-    if (length $opts{inviter}) {
-        if ($opts{inviter} =~ /^partner:/) {
-            LJ::run_hook('partners_registration_done', $u, $opts{inviter});
-        } else {
-            # store inviter, if there was one
-            my $inviter = LJ::load_user($opts{inviter});
-            if ($inviter) {
-                LJ::set_rel($u, $inviter, "I");
-                LJ::statushistory_add($u, $inviter, 'create_from_invite', "Created new account.");
-
-                $u->add_edge( $inviter, watch => {}, trust => {} );
-                LJ::Event::InvitedFriendJoins->new($inviter, $u)->fire;
-            }
+    if ( $opts{inviter} ) {
+        # store inviter, if there was one
+        my $inviter = LJ::load_user( $opts{inviter} );
+        if ( $inviter ) {
+            LJ::set_rel( $u, $inviter, 'I' );
+            LJ::statushistory_add( $u, $inviter, 'create_from_invite', "Created new account." );
+            LJ::Event::InvitedFriendJoins->new( $inviter, $u )->fire;
         }
     }
     # if we have initial friends for new accounts, add them.
@@ -260,7 +254,7 @@ sub create_personal {
 
     # subscribe to default events
     $u->subscribe( event => 'OfficialPost', method => 'Inbox' );
-    $u->subscribe( event => 'OfficialPost', method => 'Email' ) if $opts{news};
+    $u->subscribe( event => 'OfficialPost', method => 'Email' ) if $opts{get_news};
     $u->subscribe( event => 'JournalNewComment', journal => $u, method => 'Inbox' );
     $u->subscribe( event => 'JournalNewComment', journal => $u, method => 'Email' );
     $u->subscribe( event => 'AddedToCircle', journal => $u, method => 'Inbox' );
@@ -3026,6 +3020,101 @@ sub posting_access_list {
     }
 
     return sort { $a->{user} cmp $b->{user} } @res;
+}
+
+
+# gets the relevant communities that the user is a member of
+# used to suggest communities to a person who know the user
+sub relevant_communities {
+    my $u = shift;
+
+    my %comms;
+    my @ids = $u->member_of_userids;
+    my $memberships = LJ::load_userids( @ids );
+
+    # get all communities that $u is a member of that aren't closed membership
+    foreach my $membershipid ( keys %$memberships ) {
+        my $membershipu = $memberships->{$membershipid};
+
+        next unless $membershipu->is_community;
+        next unless $membershipu->is_visible;
+        next if $membershipu->is_closed_membership;
+
+        $comms{$membershipid}->{u} = $membershipu;
+        $comms{$membershipid}->{istatus} = 'normal';
+    }
+
+    # get usage information about comms
+    if ( scalar keys %comms ) {
+        my $comms_times = LJ::get_times_multi( keys %comms );
+        foreach my $commid ( keys %comms ) {
+            if ( $comms_times->{created} && defined $comms_times->{created}->{$commid} ) {
+                $comms{$commid}->{created} = $comms_times->{created}->{$commid};
+            }
+            if ( $comms_times->{updated} && defined $comms_times->{updated}->{$commid} ) {
+                $comms{$commid}->{updated} = $comms_times->{updated}->{$commid};
+            }
+        }
+    }
+
+    # prune the list of communities
+    #
+    # keep a community in the list if:
+    # * it was created in the past 10 days OR
+    # * $u is a maint or mod of it OR
+    # * it was updated in the past 30 days
+    my $over30 = 0;
+    my $now = time();
+
+    COMMUNITY:
+        foreach my $commid ( sort { $comms{$b}->{updated} <=> $comms{$a}->{updated} } keys %comms ) {
+            my $commu = $comms{$commid}->{u};
+
+            if ( $now - $comms{$commid}->{created} <= 60*60*24*10 ) { # 10 days
+                $comms{$commid}->{istatus} = 'new';
+                next COMMUNITY;
+            }
+
+            my @maintainers = $commu->maintainer_userids;
+            my @moderators  = $commu->moderator_userids;
+            foreach my $mid ( @maintainers, @moderators ) {
+                if ( $mid == $u->id ) {
+                    $comms{$commid}->{istatus} = 'mm';
+                    next COMMUNITY;
+                }
+            }
+
+            if ( $over30 ) {
+                delete $comms{$commid};
+                next COMMUNITY;
+            } else {
+                if ( $now - $comms{$commid}->{updated} > 60*60*24*30 ) { # 30 days
+                    delete $comms{$commid};
+
+                    # since we're going through the communities in timeupdate order,
+                    # we know every community in %comms after this one was updated
+                    # more than 30 days ago
+                    $over30 = 1;
+                }
+            }
+        }
+
+    # if we still have more than 20 comms, delete any with fewer than five members
+    # as long as it's not new and $u isn't a maint/mod
+    if ( scalar keys %comms > 20 ) {
+        foreach my $commid ( keys %comms ) {
+            my $commu = $comms{$commid}->{u};
+
+            next unless $comms{$commid}->{istatus} eq 'normal';
+
+            my @ids = $commu->member_userids;
+            if ( scalar @ids < 5 ) {
+                delete $comms{$commid};
+            }
+        }
+    }
+
+    return %comms;
 }
 
 

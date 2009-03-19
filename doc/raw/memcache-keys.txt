@@ -155,3 +155,5 @@ ct_flag_cat_count == hash of content flag counts
 pop_interests == array of interest keywords and counts
 
 poll:<pollid> = arrayref of poll properties, see cgi-bin/LJ/Poll.pm for details (section under "use base 'LJ::MemCacheable'")
+
+invite_code_try_ip:<ip> = stores a value of 1 for the IP address of the person who tried an invalid invite code (for rate limiting)

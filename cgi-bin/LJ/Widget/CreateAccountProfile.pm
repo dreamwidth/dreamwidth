@@ -11,27 +11,19 @@ sub render_body {
     my %opts = @_;
 
     my $u = LJ::get_effective_remote();
+    my $post = $opts{post};
     my $from_post = $opts{from_post};
     my $errors = $from_post->{errors};
-    my $ab_testing_value = LJ::ab_testing_value();
-    my $post;
-    $post = $class->post_fields($opts{post});
     my $loc_post = LJ::Widget->post_fields_of_widget("Location");
 
     my $error_msg = sub {
-        my $key = shift;
-        my $pre = shift;
-        my $post = shift;
+        my ( $key, $pre, $post ) = @_;
         my $msg = $errors->{$key};
         return unless $msg;
         return "$pre $msg $post";
     };
 
     my $ret;
-    $ret .= "<div class='rounded-box'><div class='rounded-box-tr'><div class='rounded-box-bl'><div class='rounded-box-br'>";
-    $ret .= "<div class='rounded-box'><div class='rounded-box-tr'><div class='rounded-box-bl'><div class='rounded-box-br'>";
-
-    $ret .= "<div class='rounded-box-content'>";
     $ret .= "<h2>" . $class->ml('widget.createaccountprofile.title') . "</h2>";
     $ret .= "<p>" . $class->ml('widget.createaccountprofile.info') . "</p>";
 
@@ -56,7 +48,7 @@ sub render_body {
     $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.gender') . "</td>\n<td>";
     $ret .= $class->html_select(
         name => 'gender',
-        selected => $post->{gender} || $u->prop('gender'),
+        selected => $post->{gender} || $u->prop( 'gender' ) || 'U',
         list => [
             F => LJ::Lang::ml('/manage/profile/index.bml.gender.female'),
             M => LJ::Lang::ml('/manage/profile/index.bml.gender.male'),
@@ -67,16 +59,8 @@ sub render_body {
     $ret .= $error_msg->('gender', '<br /><span class="formitemFlag">', '</span>');
     $ret .= "</td></tr>\n";
 
-    ### location
-    my %countries;
-    LJ::load_codes({ "country" => \%countries});
-    my $defalt_country;
-    if ($LJ::USE_IPMAP) {    
-        $defalt_country = LJ::LJcom::get_ipmap()->Resolve(LJ::get_remote_ip());
-        undef $defalt_country unless $countries{$defalt_country};
-    }
     $ret .= "<tr valign='middle'><td class='field-name'>" . $class->ml('widget.createaccountprofile.field.location') . "</td>\n<td>";
-    $ret .= LJ::Widget::Location->render( country => $defalt_country, minimal_display => 1, skip_timezone => 1 , $loc_post);
+    $ret .= LJ::Widget::Location->render( minimal_display => 1, skip_timezone => 1, $loc_post );
     $ret .= "</td></tr>\n";
 
     $ret .= "</table><br />\n";
@@ -160,7 +144,7 @@ sub render_body {
     if (LJ::text_in($u->bio)) {
         $ret .= $class->html_textarea(
             name => 'bio',
-            rows => $ab_testing_value == 0 ? 3 : 7,
+            rows => 7,
             cols => 75,
             wrap => "soft",
             value => $bio,
@@ -173,10 +157,6 @@ sub render_body {
 
     # hidden field to know if JS is on or not
     $ret .= $class->html_hidden({ name => "js_on", value => 0, id => "js_on" });
-    $ret .= "</div>";
-
-    $ret .= "</div></div></div></div>";
-    $ret .= "</div></div></div></div>";
 
     return $ret;
 }

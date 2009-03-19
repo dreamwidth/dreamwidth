@@ -3438,7 +3438,7 @@ widget.createaccount.field.news=Yes, email me [[sitename]] announcements.
 
 widget.createaccount.field.password=Password:
 
-widget.createaccount.field.tos=By creating a [[sitename]] account, you agree to our <a [[aopts1]]>Terms of Service</a> and <a [[aopts2]]>Privacy Policy</a>.
+widget.createaccount.field.tos=I have read and agree to [[sitename]]'s <a [[aopts1]]>Terms of Service</a> and <a [[aopts2]]>Privacy Policy</a>.
 
 widget.createaccount.field.username=Username:
 
@@ -3456,11 +3456,33 @@ widget.createaccount.tip.password=Choose a secure password that is at least 6 ch
 
 widget.createaccount.tip.username=Your username is used in your journal URL. Use lower-case letters (a-z), digits (0-9), and underscores (_).
 
+widget.createaccountentercode.btn.proceed=Proceed...
+
+widget.createaccountentercode.code=Code:
+
+widget.createaccountentercode.error.invalidcode=Invalid code.
+
+widget.createaccountentercode.error.toofast=You are entering codes too quickly; please try again later.
+
+widget.createaccountentercode.info=To create a new account, enter an account creation code:
+
+widget.createaccountentercode.pay=If you do not have an account creation code, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
+
+widget.createaccountinviter.addcomms=Join and watch [[user]] ([[name]]).
+
+widget.createaccountinviter.addcomms.note.mm=[[user]] is a maintainer or moderator of this community.
+
+widget.createaccountinviter.addcomms.note.moderated=This community has moderated membership; you will have to wait for a maintainer to approve your membership.
+
+widget.createaccountinviter.addinviter.trust=Add [[user]] to your access list.
+
+widget.createaccountinviter.addinviter.watch=Add [[user]] to your subscriptions.
+
+widget.createaccountinviter.title=Manage Your Circle
+
 widget.createaccountnextsteps.steps=Now that your account is set up, you're ready to explore the rest of [[sitename]]. Here are some things to get you started:
 
-widget.createaccountnextsteps.steps.customize=Customize your journal further
-
-widget.createaccountnextsteps.steps.explore=Browse [[sitenameabbrev]] by categories
+widget.createaccountnextsteps.steps.customize=Customize your journal
 
 widget.createaccountnextsteps.steps.find=Find others by interests
 
@@ -3511,6 +3533,14 @@ widget.createaccounttheme.info=Choose from more themes later:
 widget.createaccounttheme.preview=Preview
 
 widget.createaccounttheme.title=Select Your Journal's Theme
+
+widget.createaccountupgrade.btn.purchase=Purchase a Paid Account
+
+widget.createaccountupgrade.nextstep=No thanks, I'm not interested at this time.
+
+widget.createaccountupgrade.text=Purchasing a paid account will give you more account features.  It will also help to support [[sitename]], which does not use advertisements to get revenue.  Please read <a [[aopts]]>this FAQ</a> to learn more about our different paid account packages.
+
+widget.createaccountupgrade.title=Upgrade Your Account
 
 widget.currenttheme.desc=[[layout]] by [[designer]]
 

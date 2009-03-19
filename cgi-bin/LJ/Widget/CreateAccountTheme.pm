@@ -15,10 +15,6 @@ sub render_body {
     my $current_theme = LJ::Customize->get_current_theme($u);
 
     my $ret;
-    $ret .= "<div class='rounded-box'><div class='rounded-box-tr'><div class='rounded-box-bl'><div class='rounded-box-br'>";
-    $ret .= "<div class='rounded-box'><div class='rounded-box-tr'><div class='rounded-box-bl'><div class='rounded-box-br'>";
-
-    $ret .= "<div class='rounded-box-content'>";
     $ret .= "<h2>" . $class->ml('widget.createaccounttheme.title') . "</h2>";
     $ret .= "<p>" . $class->ml('widget.createaccounttheme.info') . "</p>";
 
@@ -53,10 +49,6 @@ sub render_body {
         $count++;
     }
     $ret .= "</table>\n";
-    $ret .= "</div>";
-
-    $ret .= "</div></div></div></div>";
-    $ret .= "</div></div></div></div>";
 
     return $ret;
 }

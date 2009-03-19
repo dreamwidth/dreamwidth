@@ -4,9 +4,11 @@ CreateAccount.init = function () {
     if (!$('create_user')) return;
     if (!$('create_email')) return;
     if (!$('create_password1')) return;
-    if (!$('create_bday_mm')) return;
-    if (!$('create_bday_dd')) return;
-    if (!$('create_bday_yyyy')) return;
+    if ( CreateAccount.coppa_check ) {
+        if (!$('create_bday_mm')) return;
+        if (!$('create_bday_dd')) return;
+        if (!$('create_bday_yyyy')) return;
+    }
 
     CreateAccount.bubbleid = "";
 
@@ -14,18 +16,22 @@ CreateAccount.init = function () {
     DOM.addEventListener($('create_email'), "focus", CreateAccount.eventShowTip.bindEventListener("create_email"));
     DOM.addEventListener($('create_password1'), "focus", CreateAccount.eventShowTip.bindEventListener("create_password1"));
     DOM.addEventListener($('create_password2'), "focus", CreateAccount.eventShowTip.bindEventListener("create_password1"));
-    DOM.addEventListener($('create_bday_mm'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
-    DOM.addEventListener($('create_bday_dd'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
-    DOM.addEventListener($('create_bday_yyyy'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+    if ( CreateAccount.coppa_check ) {
+        DOM.addEventListener($('create_bday_mm'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+        DOM.addEventListener($('create_bday_dd'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+        DOM.addEventListener($('create_bday_yyyy'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
+    }
 
     if (CreateAccount.alt_layout) {
         DOM.addEventListener($('create_user'), "blur", CreateAccount.eventHideTip.bindEventListener("create_user"));
         DOM.addEventListener($('create_email'), "blur", CreateAccount.eventHideTip.bindEventListener("create_email"));
         DOM.addEventListener($('create_password1'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
         DOM.addEventListener($('create_password2'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
-        DOM.addEventListener($('create_bday_mm'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
-        DOM.addEventListener($('create_bday_dd'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
-        DOM.addEventListener($('create_bday_yyyy'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+        if ( CreateAccount.coppa_check ) {
+            DOM.addEventListener($('create_bday_mm'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+            DOM.addEventListener($('create_bday_dd'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+            DOM.addEventListener($('create_bday_yyyy'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+        }
     }
 
     if (!$('username_check')) return;
@@ -71,10 +77,10 @@ CreateAccount.showTip = function (id) {
         if (box && box_arr) {
             box.innerHTML = text;
 
-            box.style.top = y - 188 + "px";
+            box.style.top = y - 260 + "px";
             box.style.display = "block";
 
-            box_arr.style.top = y - 183 + "px";
+            box_arr.style.top = y - 255 + "px";
             box_arr.style.display = "block";
         }
     }
