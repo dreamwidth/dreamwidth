@@ -1550,6 +1550,7 @@ sub postevent
     unless ( $flags->{nonotify} ) {
         push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
         push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if (!$LJ::DISABLED{'esn-userevents'} || $LJ::_T_FIRE_USERNEWENTRY);
+        push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;        
     }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 

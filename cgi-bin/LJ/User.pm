@@ -618,6 +618,10 @@ sub is_news {
     return $u->{journaltype} eq "N";
 }
 
+sub is_official {
+    my $u = shift;
+    return $LJ::OFFICIAL_JOURNALS{$u->username} ? 1 : 0;
+}
 
 sub is_person {
     my $u = shift;
