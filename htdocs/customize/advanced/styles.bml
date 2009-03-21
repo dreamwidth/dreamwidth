@@ -128,15 +128,18 @@
         }
 
         # core lid (can't use user core layer)
-        $POST{'core'} ||= $POST{'core_hidden'};
-        $core = defined $POST{'core'} ? $POST{'core'} : $style->{'layer'}->{'core'};
-        unless ($core) { # default to highest numbered core
-            map { $core = $_ if $pub->{$_}->{'type'} eq 'core' && /^\d+$/ && 
-                                $pub->{$_}->{'majorversion'} > $pub->{$core}->{'majorversion'} } keys %$pub;
+        $POST{core} ||= $POST{core_hidden};
+        $core = defined $POST{core} ? $POST{core} : $style->{layer}->{core};
+        my $highest_core;
+        map { $core = $_ if $pub->{$_}->{type} eq 'core' && /^\d+$/ && 
+                $pub->{$_}->{majorversion} > $pub->{$highest_core}->{majorversion} } keys %$pub;
+        unless ( $core ) {
+            $core = $highest_core;
 
             # update in POST to keep things in sync
-            $POST{'core'} = $core;
+            $POST{core} = $highest_core;
         }
+        $style->{layer}->{core} = $highest_core unless $style->{layer}->{core}; 
 
         # layout lid
         $layout = $POST{'action:change'} ? $eff_layer{'layout'} : $style->{'layer'}->{'layout'};
@@ -197,7 +200,7 @@
                     return $err->(BML::ml('.error.layernotpublic', {'layer' => $_})) unless $other_info{$_}->{'is_public'};
                 }
             }
-            
+
             # error check layer modifications
             my $get_layername = sub {
                 my $lid = shift;
@@ -300,7 +303,7 @@
                 $body .= LJ::html_submit('action:edit', $ML{'.btn.edit'}) . " ";
 
                 my $confirm_msg = LJ::ejs(BML::ml('.delete.confirm', {'id' => $styleid}));
-                
+
                 $body .= LJ::html_submit('action:delete', $ML{'.btn.delete'}, 
                                          { 'onclick' => "return confirm('$confirm_msg')", disabled => $noactions }) . " ";
                 $body .= LJ::html_submit('action:usestyle', $ML{'.btn.use'}, { 'disabled' => $styleid == $u->{'s2_style'} || $noactions }),
@@ -334,7 +337,7 @@
 
     # if no id to edit, we're finished
     $body .= "</form>\n", return unless $id;
-# from here on we have $pub, $ulay, and $style filled in
+    # from here on we have $pub, $ulay, and $style filled in
 
     # sub to take a layer type, core, and parent layout
     # and return a list of options to feed to LJ::html_select()
@@ -368,7 +371,7 @@
                         /^\d+$/
                     } keys %$ref;
         };
-        
+
         # public layers
         my $name = $type eq 'core' ? 'majorversion' : 'name';
         push @opts, map { $_, $pub->{$_}->{$name} } $greplist->($pub);
@@ -497,4 +500,3 @@ head<=
 body=><?_code return $body; _code?>
 bodyopts=>onLoad="pageload();"
 page?>
-    
