@@ -362,7 +362,7 @@ sub handle_post {
         LJ::Customize->save_s2_props($u, $style, \%override, reset => 1);
         LJ::Customize->save_language($u, $post->{langcode}, reset => 1) if defined $post->{langcode};
     } else {
-        my %override = map { $_ => 0 } keys %$post;
+        my %override = map { $_ => "" } keys %$post;
         
         # ignore all values after the first true $value
         # only checkboxes have multiple values (forced post of 0, 
