@@ -112,15 +112,12 @@ sub handle {
 
 
     # better logging
-    # Used when logging to statushistory
-    my $sys_u = LJ::load_user('system');
     # only print 200 characters  of error message to log
     # allow some space at the end for error location message
     if (@errs) {
         my $errmsg = join(', ', @errs);
         $errmsg = substr($errmsg, 0, 200) . "... ";
-        LJ::statushistory_add($u->{'userid'}, $sys_u,
-                              "mass_privacy", "Error: $errmsg");
+        LJ::statushistory_add( $u, $u, "mass_privacy", "Error: $errmsg" );
         die $errmsg;
     }
 
@@ -146,11 +143,10 @@ sub handle {
         'body' => $msg,
     });
 
-    LJ::statushistory_add($u->{'userid'}, $sys_u,
-                          "mass_privacy", "Success: $okay_ct " .
-                          $privacy{$opts->{s_security}} . " entries " .
-                          $timeframe . "have now " . "been changed to be " .
-                          $privacy{$opts->{e_security}});
+    LJ::statushistory_add( $u, $u, "mass_privacy", "Success: $okay_ct " .
+                           $privacy{$opts->{s_security}} . " entries " .
+                           $timeframe . "have now " . "been changed to be " .
+                           $privacy{$opts->{e_security}} );
 
     return 1;
 }

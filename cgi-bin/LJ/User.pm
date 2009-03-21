@@ -289,7 +289,7 @@ sub create_syndicated {
     die $dbh->errstr if $dbh->err;
 
     my $remote = LJ::get_remote();
-    LJ::statushistory_add($remote, $u, "synd_create", "acct: " . $u->user);
+    LJ::statushistory_add( $u, $remote, "synd_create", "acct: " . $u->user );
 
     return $u;
 }
