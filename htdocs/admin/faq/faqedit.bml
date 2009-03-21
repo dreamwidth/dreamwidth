@@ -7,10 +7,11 @@ body<=
 <a href="./"><b>(Back to FAQ Index)</b></a>
 </center>
 
-<form action="faqedit_do.bml" method="post">
 <?_code
 {
     use strict;
+
+    # FIXME: add crumb
 
     my $id = $FORM{id} + 0;
     my $ret = "";
@@ -21,13 +22,13 @@ body<=
     my %ac_edit;
     my %ac_add;
     LJ::remote_has_priv( $remote, "faqadd", \%ac_add );
+    LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
     my $faqd = LJ::Lang::get_dom( "faq" );
+    my $rlang = LJ::Lang::get_root_lang( $faqd );
     my ( $faqcat, $sortorder, $question, $summary, $answer );
 
     if ( $id != 0 ) {
-        my $lang = LJ::Lang::get_root_lang( $faqd );
-        LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
-        my $faq = LJ::Faq->load( $id, lang => $lang->{lncode} )
+        my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode} )
             or return "<b>Error:</b> FAQ #$id does not exist.";
 
         $faqcat = $faq->faqcat;
@@ -50,6 +51,65 @@ body<=
     $sortorder += 0;
     $sortorder ||= 50;
 
+    if ( LJ::did_post() ) {
+        if ( $POST{'action:save'} ) { # Save FAQ
+            return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}"
+                unless LJ::check_form_auth();
+
+            my $opts_question = { changeseverity => $FORM{sev_question}+0 };
+            my $opts_summary = { changeseverity => $FORM{sev_summary}+0 };
+            my $opts_answer = { changeseverity => $FORM{sev_answer}+0 };
+            my $do_trans = sub {
+                my $id = shift;
+                return unless $faqd;
+                LJ::Lang::set_text($dbh, $faqd->{dmid}, $rlang->{lncode},
+                                   "$id.1question", $FORM{q}, $opts_question);
+                LJ::Lang::set_text($dbh, $faqd->{dmid}, $rlang->{lncode},
+                                   "$id.3summary", $FORM{s}, $opts_summary);
+                LJ::Lang::set_text($dbh, $faqd->{dmid}, $rlang->{lncode},
+                                   "$id.2answer", $FORM{a}, $opts_answer);
+            };
+
+            if ( $id == 0 ) {
+                return "<b>Error:</b> You did not select a FAQ category."
+                    unless $FORM{faqcat};
+
+                $dbh->do( qq{ INSERT INTO faq
+                              ( faqid, question, summary, answer, faqcat,
+                                sortorder, lastmoduserid, lastmodtime)
+                              VALUES (NULL, ?, ?, ?, ?, ?, ?, NOW()) },
+                          undef, @FORM{qw( q s a faqcat )},
+                          $FORM{sortorder}+0 || 50, $remote->{userid} );
+                $id = $dbh->{mysql_insertid};
+                $ret .= $dbh->errstr || "Added FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=$id'>$id</a></b>";
+
+                $opts_question->{childrenlatest} = 1;
+                $opts_summary->{childrenlatest} = 1;
+                $opts_answer->{childrenlatest} = 1;
+                $do_trans->( $id ) if $id;
+            } elsif ( $FORM{q} =~ /\S/ ) {
+                my $sortorder = $FORM{sortorder}+0 || 50;
+                $dbh->do( qq{ UPDATE faq SET question=?, summary=?, answer=?,
+                                             faqcat=?, lastmoduserid=?,
+                                             lastmodtime=NOW(), sortorder=?
+                                         WHERE faqid=? },
+                          undef, @FORM{qw( q s a faqcat )}, $remote->{userid},
+                          $FORM{sortorder}+0 || 50, $id );
+                $ret .= "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=$id'>$id</a></b>";
+
+                $do_trans->( $id );
+            } else {
+                $dbh->do( "DELETE FROM faq WHERE faqid=?", undef, $id );
+                $ret .= "FAQ item deleted.";
+
+                # FIXME: delete translation from ml_* ?
+            }
+
+            return $ret;
+        }
+    }
+
+    $ret .= "<form action='faqedit.bml' method='post'>";
     $ret .= LJ::form_auth();
     $ret .= LJ::html_hidden( 'id', $id );
     $ret .= "<p>Category: ";
@@ -62,7 +122,7 @@ body<=
     while ( my ($fc, $fcname) = $sth->fetchrow_array ) {
         # $fc can't be NULL/undef
         push @cats, $fc, $fcname
-            if $ac_add{'*'} || $ac_add{$fc} || ($fc eq $faqcat);
+            if $ac_add{'*'} || $ac_add{$fc} || $fc eq $faqcat;
     }
 
     $ret .= LJ::html_select( { name => 'faqcat', selected => $faqcat }, @cats );
@@ -118,12 +178,11 @@ body<=
         $ret .= "</p>";
     }
 
-    $ret .= "<p>" . LJ::html_submit( '', 'Add/Edit FAQ Item' ) . "</p>";
+    $ret .= "<p>" . LJ::html_submit( 'action:save', 'Add/Edit FAQ Item' )
+            . "</p></form>";
     return $ret;
 }
 _code?>
-
-</form>
 
 <=body
 page?><?_c <LJDEP>
