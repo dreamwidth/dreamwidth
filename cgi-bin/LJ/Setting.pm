@@ -5,7 +5,8 @@ use Carp qw(croak);
 use LJ::ModuleLoader;
 
 # Autouse all settings
-LJ::ModuleLoader->autouse_subclasses("LJ::Setting");
+LJ::ModuleLoader->autouse_subclasses( "LJ::Setting" );
+LJ::ModuleLoader->autouse_subclasses( "DW::Setting" );
 
 # ----------------------------------------------------------------------------
 
@@ -45,9 +46,7 @@ sub save {
 
     my %posted;  # class -> key -> value
     while (my ($k, $v) = each %$postargs) {
-        next unless $k =~ /^LJ__Setting__([a-zA-Z0-9]+)_(\w+)$/;
-        my $class = "LJ::Setting::$1";
-        my $key = $2;
+        my ( $class, $key ) = class_from_key( $k );
         $posted{$class}{$key} = $v;
     }
 
@@ -60,6 +59,16 @@ sub save {
 # ----------------------------------------------------------------------------
 
 # Don't override:
+
+# Internal method to do *proper* argument -> class/key mapping.
+sub class_from_key {
+    my ( $val ) = @_;
+
+    my ( $class, $key ) = $val =~ /^((?:[a-zA-Z0-9]+__)+[a-zA-Z0-9]+)_(\w+)$/;
+    $class =~ s/__/::/g if $class;
+
+    return ( $class, $key );
+}
 
 sub pkgkey {
     my $class = shift;
@@ -84,14 +93,14 @@ sub errdiv {
 
 # don't override this.
 sub errors {
-    my ($class, %map) = @_;
+    my ( $class, %map ) = @_;
 
     my $errclass = $class;
-    $errclass =~ s/^LJ::Setting:://;
-    $errclass = "LJ::Error::SettingSave::" . $errclass;
-    eval "\@${errclass}::ISA = ('LJ::Error::SettingSave');";
+    $errclass =~ s/^([a-zA-Z0-9]+)::Setting:://;
+    $errclass = "$1::Error::SettingSave::" . $errclass;
+    eval "\@${errclass}::ISA = ( 'LJ::Error::SettingSave' );";
 
-    my $eo = eval { $errclass->new(map => \%map) };
+    my $eo = eval { $errclass->new( map => \%map ) };
     $eo->log;
     $eo->throw;
 }
@@ -136,15 +145,13 @@ sub error_map {
 # returns any errors and the post args for each setting
 sub save_all {
     shift if $_[0] eq __PACKAGE__;
-    my ($u, $post, $all_settings) = @_;
+    my ( $u, $post, $all_settings ) = @_;
     my %posted;  # class -> key -> value
     my %returns;
 
-    while (my ($k, $v) = each %$post) {
-        next unless $k =~ /^LJ__Setting__([a-zA-Z0-9]+)_(\w+)$/;
-        my $class = "LJ::Setting::$1";
-        my $key = $2;
-        $class =~ s/__/::/g;
+    while ( my ( $k, $v ) = each %$post ) {
+        my ( $class, $key ) = class_from_key( $k );
+        next unless $class;
         $posted{$class}{$key} = $v;
     }
 
