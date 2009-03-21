@@ -65,6 +65,7 @@ body<=
                 LJ::Setting::CtxPopup
                 LJ::Setting::SiteScheme
                 LJ::Setting::AdultContent
+                DW::Setting::AdultContentReason
                 LJ::Setting::ViewingAdultContent
                 LJ::Setting::SafeSearch
                 LJ::Setting::CyrillicServices

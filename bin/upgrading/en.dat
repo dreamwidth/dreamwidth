@@ -2471,6 +2471,8 @@ setting.adultcontent.option.select.none=Everyone
 
 setting.adultcontent.option.self=This journal contains content suitable for
 
+setting.adultcontentreason.label=Adult Content Reason
+
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
 
