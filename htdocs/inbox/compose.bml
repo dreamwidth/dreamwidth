@@ -85,6 +85,12 @@ body<=
                     next;
                 }
 
+                # Can't send to unvalidated users
+                unless ($tou->is_validated) {
+                    push @errors, BML::ml('error.message.unvalidated', { 'ljuser' => $tou->ljuser_display });
+                    next;
+                }
+
                 # Will target user accept messages from sender
                 unless ($tou->can_receive_message($remote)) {
                     push @errors, BML::ml('error.message.canreceive', { 'ljuser' => $tou->ljuser_display });

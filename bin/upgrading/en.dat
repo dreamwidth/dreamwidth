@@ -1334,6 +1334,8 @@ error.message.expunged=This message cannot be sent to [[ljuser]] because the jou
 
 error.message.individual=Message can only be sent to individual users, not [[ljuser]].
 
+error.message.unvalidated=This message cannot be sent to [[ljuser]] because the recipient's email address has not been validated.
+
 error.nobutton=No button pressed?
 
 error.nocomm=The community you selected does not exist.
