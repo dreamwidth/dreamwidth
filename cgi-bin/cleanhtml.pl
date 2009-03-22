@@ -849,9 +849,12 @@ sub clean
                 next TOKEN if @eatuntil;
             }
 
-            if ($eating_ljuser_span && $tag eq "span") {
-                $eating_ljuser_span = 0;
-                $newdata .= $opts->{'textonly'} ? $ljuser_text_node : LJ::ljuser($ljuser_text_node);
+            if ( $eating_ljuser_span ) {
+                if ( $tag eq "span" ) {
+                    $eating_ljuser_span = 0;
+                    $newdata .= $opts->{'textonly'} ? $ljuser_text_node : LJ::ljuser($ljuser_text_node);
+                }
+
                 next TOKEN;
             }
 
