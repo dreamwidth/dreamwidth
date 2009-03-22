@@ -50,6 +50,7 @@ body<=
     foreach my $faqcat ( sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} } keys %faqcat ) {
         $ret .= "<h2><a href='readcat.bml?faqcat=$faqcat'>"
             . LJ::ehtml( $faqcat{$faqcat}->{faqcatname} ) . "</a></h2>\n";
+        next unless $faqq{$faqcat} && @{ $faqq{$faqcat} };
         $ret .= "<ul>\n";
         foreach my $faq ( sort { $a->sortorder <=> $b->sortorder } @{ $faqq{$faqcat} } ) {
             my $q = $faq->question_html;
