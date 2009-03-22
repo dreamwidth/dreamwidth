@@ -52,7 +52,7 @@ sub render_body {
             } else {
                 $row_class = $count % 2 == 0 ? " graybg" : "";
             }
-            $ret .= $class->output_prop($props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme);
+            $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
             $count++;
         }
         $ret .= "</table>";
@@ -70,7 +70,7 @@ sub render_body {
             }
             $header_printed = 1;
             $row_class = $count % 2 == 0 ? " graybg" : "";
-            $ret .= $class->output_prop($props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme);
+            $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
             $count++;
         }
         $ret .= "</table>" if $header_printed;
@@ -117,7 +117,7 @@ sub render_body {
                 }
 
                 $row_class = $count % 2 == 0 ? " graybg" : "";
-                $ret .= $class->output_prop($props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme);
+                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
                 $count++;
             }
             $ret .= "</table>" if $header_printed;
@@ -206,12 +206,45 @@ sub output_prop {
     my $u = shift;
     my $style = shift;
     my $theme = shift;
-
+    my $props = shift;
+    
     # for themes that don't use the linklist_support prop
     my $linklist_tab;
     if (!$prop && $prop_name eq "linklist_support") {
         $linklist_tab = $theme->linklist_support_tab;
     }
+    
+    my $ret;
+    $ret .= "<tr class='prop-row$row_class' width='100%'>";
+
+    if ($linklist_tab) {
+        $ret .= "<td colspan='100%'>" . $class->ml( 'widget.s2propgroup.linkslisttab', {'name' => $linklist_tab} ) . "</td>";
+        $ret .= "</tr>";
+        return $ret;
+    }
+
+    $ret .= "<td class='prop-header'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</td>"
+        unless $prop->{type} eq "Color" || $prop->{type} eq "string[]";
+
+   $ret .= $class->output_prop_element( $prop, $prop_name, $u, $style, $theme, $props );
+
+    my $note = "";
+    $note .= LJ::eall( $prop->{note} ) if $prop->{note};
+    $ret .= "</tr><tr class='prop-row-note$row_class'><td colspan='100%' class='prop-note'>$note</td>" if $note;
+
+    $ret .= "</tr>";
+    return $ret;
+}
+
+sub output_prop_element {
+    my $class = shift;
+    my $prop = shift;
+    my $prop_name = shift;
+    my $u = shift;
+    my $style = shift;
+    my $theme = shift;
+    my $props = shift;
+    my $is_group = shift;
 
     my $name = $prop->{name};
     my $type = $prop->{type};
@@ -227,29 +260,56 @@ sub output_prop {
 
     $existing_display = LJ::eall($existing_display);
 
+    return if $prop->{grouped} && ! $is_group;
+
     my $ret;
-    $ret .= "<tr class='prop-row$row_class' width='100%'>";
+    # visually grouped properties. Allow nesting to only two levels
+    if ( $type eq "string[]" && $is_group < 2 ) {    
 
-    if ($linklist_tab) {
-        $ret .= "<td colspan='100%'>" . $class->ml('widget.s2propgroup.linkslisttab', {'name' => $linklist_tab}) . "</td>";
-        $ret .= "</tr>";
-        return $ret;
-    }
+        if ( $prop->{grouptype} eq "module" ) {
+            my $has_opts;
+            $ret .= "<td class='prop-grouped prop-$prop->{grouptype}' colspan=2>";
+            foreach my $prop_in_group ( @$override ) {
+                if ( $prop_in_group =~ /opts_group$/ ) {
+                    $has_opts = 1;
+                    next;
+                }
+                $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
+            }
+            
+            my $modulename = $prop->{name};
+            $modulename =~ s/_group$//;
+            
+            $ret .= "<label for='${modulename}_show'>" . LJ::eall( $prop->{des} )  ."</label>";
+            
+            $ret .= $class->output_prop_element( $props->{"${modulename}_opts_group"}, "${modulename}_opts_group", $u, $style, $theme, $props, $is_group + 1 ) if $has_opts;
 
-    $ret .= "<td class='prop-header'>" . LJ::eall($prop->{des}) . " " . LJ::help_icon("s2opt_$name") . "</td>"
-        unless $type eq "Color";
-
-    if ($prop->{values}) {
-        $ret .= "<td class='prop-input'>";
+            $ret .= "</td>";
+        } elsif ( $prop->{grouptype} eq "moduleopts" ) {
+            $ret .= "<ul class='prop-moduleopts'>";
+            foreach my $prop_in_group ( @$override ) {
+                $ret .= "<li>" . $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
+            }
+            $ret .= "</ul>";
+        } else {
+            $ret .= "<td class='prop-grouped prop-$prop->{grouptype}' colspan=2><label class='prop-header'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</label>";
+    
+            foreach my $prop_in_group ( @$override ) {
+                $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
+            }
+            $ret .= "</td>";
+        }
+    } elsif ( $prop->{values} ) {
+        $ret .= "<td class='prop-input'>" unless $is_group;
         $ret .= $class->html_select(
             { name => $name,
               disabled => ! $can_use,
               selected => $override, },
             split(/\|/, $prop->{values})
         );
-        $ret .= "</td>";
+        $ret .= "</td>" unless $is_group;
     } elsif ($type eq "int") {
-        $ret .= "<td class='prop-input'>";
+        $ret .= "<td class='prop-input'>" unless $is_group;
         $ret .= $class->html_text(
             name => $name,
             disabled => ! $can_use,
@@ -257,14 +317,15 @@ sub output_prop {
             maxlength => 5,
             size => 7,
         );
-        $ret .= "</td>";
+        $ret .= "</td>" unless $is_group;
     } elsif ($type eq "bool") {
-        $ret .= "<td class='prop-check'>";
+        $ret .= "<td class='prop-check'>" unless $is_group;
         $ret .= $class->html_check(
             name => $name,
             disabled => ! $can_use,
             selected => $override,
-            
+            label => $prop->{label},
+            id => $name,
         );
         
         # force the checkbox to be submitted, if the user unchecked it
@@ -275,13 +336,13 @@ sub output_prop {
             { disabled => ! $can_use }
         );
 
-        $ret .= "</td>";
+        $ret .= "</td>" unless $is_group;
     } elsif ($type eq "string") {
         my ($rows, $cols, $full) = ($prop->{rows}+0,
                                     $prop->{cols}+0,
                                     $prop->{full}+0);
 
-        $ret .= "<td class='prop-input'>";
+        $ret .= "<td class='prop-input'>" unless $is_group;
         if ($full > 0) {
             $ret .= $class->html_textarea(
                 name => $name,
@@ -311,9 +372,9 @@ sub output_prop {
                 size => $size,
             );
         }
-        $ret .= "</td>";
+        $ret .= "</td>" unless $is_group;
     } elsif ($type eq "Color") {
-        $ret .= "<td class='prop-color'>";
+        $ret .= "<td class='prop-color'>" unless $is_group;
         $ret .= $class->html_color(
             name => $name,
             disabled => ! $can_use,
@@ -322,18 +383,13 @@ sub output_prop {
             onchange => "Customize.CustomizeTheme.form_change();",
             no_btn => 1,
         );
-        $ret .= "</td>";
+        $ret .= "</td>" unless $is_group;
         $ret .= "<td>" . LJ::eall($prop->{des}) . " " . LJ::help_icon("s2opt_$name") . "</td>";
     }
-
+    
     my $offhelp = ! $can_use ? LJ::help_icon('s2propoff', ' ') : "";
     $ret .= " $offhelp";
 
-    my $note = "";
-    $note .= LJ::eall($prop->{note}) if $prop->{note};
-    $ret .= "</tr><tr class='prop-row-note$row_class'><td colspan='100%' class='prop-note'>$note</td>" if $note;
-
-    $ret .= "</tr>";
     return $ret;
 }
 

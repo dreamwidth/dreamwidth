@@ -460,8 +460,11 @@ sub save_s2_props {
     $lyr_layout->{'uniq'} = $dbh->selectrow_array("SELECT value FROM s2info WHERE s2lid=? AND infokey=?",
                                               undef, $lyr_layout->{'s2lid'}, "redist_uniq");
 
+    my @grouped_properties = S2::get_properties( $lyr_core->{s2lid} );
+    @grouped_properties = grep { $_->{grouped} == 1 } @grouped_properties;
+
     my %override;
-    foreach my $prop (S2::get_properties($lyr_layout->{'s2lid'}))
+    foreach my $prop ( S2::get_properties( $lyr_layout->{s2lid} ), @grouped_properties )
     {
         $prop = S2::get_property($lyr_core->{'s2lid'}, $prop)
             unless ref $prop;
@@ -542,7 +545,11 @@ sub get_propgroups {
 
     my %prop;  # name hashref, deleted when added to a category
     my @propnames;
-    foreach my $prop (S2::get_properties($lyr_layout->{'s2lid'})) {
+    
+    my @grouped_properties = S2::get_properties( $lyr_core->{s2lid} );
+    @grouped_properties = grep { $_->{grouped} == 1 } @grouped_properties;
+
+    foreach my $prop ( S2::get_properties( $lyr_layout->{s2lid} ), @grouped_properties ) {
         unless (ref $prop) {
             $prop = S2::get_property($lyr_core->{'s2lid'}, $prop);
             next unless ref $prop;

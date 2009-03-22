@@ -950,6 +950,7 @@ propgroup other = "Other";
 propgroup text = "Text";
 propgroup background = "Background";
 propgroup sidebar = "Sidebar";
+propgroup modules = "Modules";
 propgroup appearance = "Appearance";
 propgroup options = "Options";
 propgroup images = "Images";
@@ -998,6 +999,7 @@ property builtin string PALIMGROOT {
     des = "The base URL of palimg files, without a trailing slash.  Example: \"http://www.dreamwidth.com/palimg\".";
 }
 
+
 ##===============================
 ## Display settings - general
 ##===============================
@@ -1017,28 +1019,83 @@ property int num_items_reading {
 set num_items_recent = 20;
 set num_items_reading = 20;
 
+property string[] reverse_sortorder_group {
+    des = "Display entries in reverse-chronological order on my:";
+    grouptype = "viewslist";
+}
+set reverse_sortorder_group = [ "reverse_sortorder_day", "reverse_sortorder_year" ];
 #property bool reverse_sortorder_recent    { des = "Display entries in reverse-chronological order on my recent entries page"; }
-property bool reverse_sortorder_day        { des = "Display entries in reverse-chronological order on my day page"; }
-property bool reverse_sortorder_year       { des = "Display entries in reverse-chronological order on my year archive"; }
+property bool reverse_sortorder_day { 
+    des = "Display entries in reverse-chronological order on my day page";  
+    label = "Day Page";    
+    grouped = 1;
+}
+property bool reverse_sortorder_year { 
+    des = "Display entries in reverse-chronological order on my year archive"; 
+    label = "Year Archive";
+    grouped = 1;
+}
 #property bool reverse_sortorder_reading   { des = "Display entries in reverse-chronological order on my reading page"; }
 #set reverse_sortorder_recent = true;
 set reverse_sortorder_day = false;
 set reverse_sortorder_year = false;
 #set reverse_sortorder_reading = true;
 
-property bool show_userpics_recent      { des = "Display userpics on my recent entries"; }
-property bool show_userpics_reading     { des = "Display userpics on my reading page"; }
-property bool show_userpics_entry       { des = "Display userpics on my entry pages"; }
-property bool show_userpics_comments    { des = "Display userpics on my comments"; }
+property string[] show_userpics_group {
+    des = "Display userpics on my:";
+    grouptype = "viewslist";
+}
+set show_userpics_group = [ "show_userpics_recent", "show_userpics_reading", "show_userpics_entry", "show_userpics_comments" ];
+property bool show_userpics_recent {
+    des = "Display userpics on my recent entries";
+    label = "Recent Entries";
+    grouped = 1;
+}
+property bool show_userpics_reading {
+    des = "Display userpics on my reading page"; 
+    label = "Reading Page";
+    grouped = 1;
+}
+property bool show_userpics_entry {
+    des = "Display userpics on my entry pages";
+    label = "Entry Pages";
+    grouped = 1;
+}
+property bool show_userpics_comments {
+    des = "Display userpics on my comments";
+    label = "Comments";
+    grouped = 1;
+}
 set show_userpics_recent = true;
 set show_userpics_reading = true;
 set show_userpics_entry = true;
 set show_userpics_comments = true;
 
-property bool show_sidebar_recent       { des = "Display my sidebar on my recent entries"; }
-property bool show_sidebar_reading      { des = "Display my sidebar on my reading page"; }
-property bool show_sidebar_entry        { des = "Display my sidebar on my entry pages"; }
-property bool show_sidebar_others       { des = "Display my sidebar on other pages"; }
+property string[] show_sidebar_group {
+    des = "Display my sidebar on my:";
+    grouptype = "viewslist";
+}
+set show_sidebar_group = [ "show_sidebar_recent", "show_sidebar_reading", "show_sidebar_entry", "show_sidebar_others" ];
+property bool show_sidebar_recent {
+    des = "Display my sidebar on my recent entries";
+    label = "Recent Entries";
+    grouped = 1;
+}
+property bool show_sidebar_reading {
+    des = "Display my sidebar on my reading page";
+    label = "Reading Page";
+    grouped = 1;
+}
+property bool show_sidebar_entry {
+    des = "Display my sidebar on my entry pages";
+    label = "Entry Pages";
+    grouped = 1;
+}
+property bool show_sidebar_others {
+    des = "Display my sidebar on other pages";
+    label = "Other Pages";
+    grouped = 1;
+}
 set show_sidebar_recent = true;
 set show_sidebar_reading = true;
 set show_sidebar_entry = true;
@@ -1051,21 +1108,38 @@ set use_journalstyle_entry_page = true;
 property bool use_custom_friend_colors  { des = "Use my custom friend colors"; }
 set use_custom_friend_colors = false;
 
+
+property string[] entry_datetime_format_group {
+    des = "Entry date/time format";
+    grouptype = "datetime";
+}
+set entry_datetime_format_group = ["entry_date_format", "entry_time_format"];
 property string entry_date_format { 
     des = "Entry date format";
     values = "short|2/5/80|med|Feb. 5th, 1980|med_day|Tue, Feb. 5th, 1980|long|February 5th, 1980|long_day|Tuesday, February 5th, 1980";
+    grouped = 1;
 }
 property string entry_time_format {
     des = "Entry time format.";
     values = "short|12:34am";
+    grouped = 1;
 }
+
+
+property string[] comment_datetime_format_group {
+    des = "Comment date/time format";
+    grouptype = "datetime";
+}
+set comment_datetime_format_group = ["comment_date_format", "comment_time_format"];
 property string comment_date_format { 
     des = "Comment date format";
     values = "short|2/5/80|med|Feb. 5th, 1980|med_day|Tue, Feb. 5th, 1980|long|February 5th, 1980|long_day|Tuesday, February 5th, 1980";
+    grouped = 1;
 }
 property string comment_time_format {
     des = "Comment time format.";
     values = "short|12:34am";
+    grouped = 1;
 }
 set entry_date_format = "short";
 set entry_time_format = "short";
@@ -1132,6 +1206,82 @@ property string[][] sidebar_secondary {
 set sidebar_primary = []; # Set in prop_init()
 set sidebar_secondary = []; # Set in prop_init()
 
+##===============================
+## Display settings - modules
+##===============================
+property string[] module_userprofile_group {
+    des = "Basic Journal Info";
+    grouptype = "module";
+}
+set module_userprofile_group = ["module_userprofile_show", "module_userprofile_order", "module_userprofile_opts_group"];
+property bool module_userprofile_show   { grouped = 1; }
+property int  module_userprofile_order  { grouped = 1; }
+
+property string[] module_userprofile_opts_group {
+    grouptype = "moduleopts";
+    grouped = 1;
+}
+set module_userprofile_opts_group = ["module_userprofile_opts_userpic", "module_userprofile_opts_name", "module_userprofile_opts_website"];
+property bool module_userprofile_opts_userpic   { grouped = 1; label = "Default Userpic"; }
+property bool module_userprofile_opts_name      { grouped = 1; label = "Display Name"; }
+property bool module_userprofile_opts_website   { grouped = 1; label = "Website"; }
+
+property string[] module_navlinks_group {
+    des = "Navigation";
+    grouptype = "module";
+}
+set module_navlinks_group = ["module_navlinks_show", "module_navlinks_order"];
+property bool module_navlinks_show    { grouped = 1; }
+property int  module_navlinks_order   { grouped = 1; }
+
+property string[] module_calendar_group {
+    des = "Calendar";
+    grouptype = "module";
+}
+set module_calendar_group = ["module_calendar_show", "module_calendar_order"];
+property bool module_calendar_show    { grouped = 1; }
+property int  module_calendar_order   { grouped = 1; }
+
+property string[] module_pagesummary_group {
+    des = "Page Summary";
+    grouptype = "module";
+}
+set module_pagesummary_group = ["module_pagesummary_show", "module_pagesummary_order"];
+property bool module_pagesummary_show   { grouped = 1; }
+property int  module_pagesummary_order  { grouped = 1; }
+
+property string[] module_tags_group {
+    des = "Tags";
+    grouptype = "module";
+}
+set module_tags_group = ["module_tags_show", "module_tags_order", "module_tags_opts_group"];
+property bool module_tags_show  { grouped = 1; }
+property int  module_tags_order { grouped = 1; }
+
+property string[] module_tags_opts_group {
+    grouptype = "moduleopts";
+    grouped = 1;
+}
+set module_tags_opts_group = ["module_tags_opts_cloud", "module_tags_opts_list", "module_tags_opts_multilevel"];
+property bool module_tags_opts_cloud        { grouped = 1; label = "Cloud"; }
+property bool module_tags_opts_list         { grouped = 1; label = "List"; }
+property bool module_tags_opts_multilevel   { grouped = 1; label = "Multilevel"; }
+
+property string[] module_links_group {
+    des = "Link List";
+    grouptype = "module";
+}
+set module_links_group = ["module_links_show", "module_links_order"];
+property bool module_links_show     { grouped = 1; }
+property int  module_links_order    { grouped = 1; }
+
+property string[] module_syndicate_group {
+    des = "Syndication";
+    grouptype = "module";
+}
+set module_syndicate_group = ["module_syndicate_show", "module_syndicate_order"];
+property bool module_syndicate_show    { grouped = 1; }
+property int  module_syndicate_order   { grouped = 1; }
 
 ##===============================
 ## Journal style - fonts
@@ -1179,19 +1329,56 @@ property string font_module_text {
 ## Journal style - images
 ##===============================
 
-# FIXME: Want URL, tiling, alignment. Width and height?
-property string image_background_url {
+property string[] background_image_group {
     des = "Background";
+    grouptype = "image";
+}
+set background_image_group = [ "background_image_url", "background_image_repeat", "background_image_position" ];
+property string background_image_url {
+    grouped = 1;
+}
+property string background_image_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string background_image_position {
+    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    grouped = 1;
 }
 
-property string image_header_url {
+property string[] header_image_group {
     des = "Header";
+    grouptype = "image";
+}
+set header_image_group = [ "header_image_url", "header_image_repeat", "header_image_position" ];
+property string header_image_url {
+    grouped = 1;
+}
+property string header_image_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string header_image_position {
+    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    grouped = 1;
 }
 
-property string image_separator_url {
+property string[] separator_image_group {
     des = "Separator";
+    grouptype = "image";
 }
-
+set separator_image_group = [ "separator_image_url", "separator_image_repeat", "separator_image_position" ];
+property string separator_image_url {
+    grouped = 1;
+}
+property string separator_image_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string separator_image_position {
+    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    grouped = 1;
+}
 
 ##===============================
 ## Journal style - colors
