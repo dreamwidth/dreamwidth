@@ -9,7 +9,7 @@
         unless (defined LJ::get_active_journal()) {
             LJ::set_active_journal(LJ::load_user($user));
         }
-        $control_strip = LJ::control_strip( user => $user );
+        $control_strip = LJ::control_strip( user => $user, baseuri => $GET{baseuri}, args => $GET{args}, view => $GET{view} );
     }
 
     sleep 1 if $LJ::IS_DEV_SERVER;

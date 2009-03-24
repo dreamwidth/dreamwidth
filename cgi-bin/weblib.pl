@@ -2919,6 +2919,7 @@ sub control_strip
 {
     my %opts = @_;
     my $user = delete $opts{user};
+    my $baseuri = delete $opts{baseuri};
 
     my $journal = LJ::load_user($user);
     my $show_strip = 1;
@@ -2929,10 +2930,13 @@ sub control_strip
     my $remote = LJ::get_remote();
 
     my $r = DW::Request->get;
-    my $args = $r->query_string;
+    my $args = $baseuri ? delete $opts{args} : $r->query_string; # use passed in args if we have a passed in location
+    my $view = delete $opts{view} || $r->note( 'view' );
+
     my $querysep = $args ? "?" : "";
     my $querysep2 = $args ? "&" : "?"; # for the ?style=mine/?format=light options
-    my $uri = "http://" . $r->header_in('Host') . $r->uri . $querysep . $args;
+    my $uri = $baseuri ? "http://$baseuri" : "http://" . $r->header_in('Host') . $r->uri;
+    $uri .= "$querysep$args";
     my $euri = LJ::eurl($uri);
     my $create_link = LJ::run_hook("override_create_link_on_navstrip", $journal) || "<a href='$LJ::SITEROOT/create.bml'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>";
 
@@ -3043,15 +3047,15 @@ sub control_strip
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
         if (LJ::u_equals($remote, $journal)) {
-            if ($r->note('view') eq "read") {
+            if ( $view eq "read" ) {
                 $ret .= $statustext{'yourfriendspage'};
-            } elsif ($r->note('view') eq "network") {
+            } elsif ( $view eq "network" ) {
                 $ret .= $statustext{'yourfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'yourjournal'};
             }
             $ret .= "<br />";
-            if ($r->note('view') eq "read") {
+            if ( $view eq "read" ) {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
                 my %res;
                 # FIXME: Add this in when we have reading filter support!
@@ -3124,9 +3128,9 @@ sub control_strip
                 $ret .= "$statustext{trustedby_watchedby}<br />";
                 $ret .= "$links{manage_friends}";
             } else {
-                if ($r->note('view') eq "read") {
+                if ( $view eq "read" ) {
                     $ret .= $statustext{'personalfriendspage'};
-                } elsif ($r->note('view') eq "network") {
+                } elsif ( $view eq "network" ) {
                     $ret .= $statustext{'personalfriendsfriendspage'};
                 } else {
                     $ret .= $statustext{'personal'};
@@ -3234,9 +3238,9 @@ LOGIN_BAR
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
 
         if ($journal->is_personal || $journal->is_identity) {
-            if ($r->note('view') eq "read") {
+            if ( $view eq "read" ) {
                 $ret .= $statustext{'personalfriendspage'};
-            } elsif ($r->note('view') eq "network") {
+            } elsif ( $view eq "network" ) {
                 $ret .= $statustext{'personalfriendsfriendspage'};
             } else {
                 $ret .= $statustext{'personal'};
@@ -3259,7 +3263,6 @@ LOGIN_BAR
     }
 
     # search box and ?style=mine/?format=light options
-    my $view = $r->note( 'view' );
     my @view_options;
     push @view_options, "<a href='$uri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
         if $remote;
@@ -3293,12 +3296,17 @@ sub control_strip_js_inject
                     js/login.js
                     ));
 
+    my $r = DW::Request->get;
+    my $baseuri = $r->header_in( 'Host' ) . $r->uri;
+    my $args = LJ::eurl( $r->query_string );
+    my $view = $r->note( 'view' );
+
     $ret .= qq{
 <script type='text/javascript'>
     function controlstrip_init() {
         if (! \$('lj_controlstrip') ){
             HTTPReq.getJSON({
-              url: "/$user/__rpc_controlstrip?user=$user",
+              url: "/$user/__rpc_controlstrip?user=$user&baseuri=$baseuri&args=$args&view=$view",
               onData: function (data) {
                   var body = document.getElementsByTagName("body")[0];
                   var div = document.createElement("div");
