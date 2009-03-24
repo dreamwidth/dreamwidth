@@ -199,7 +199,8 @@
         $body .= "<?p &nbsp;<br />";
         $body .= "$ML{'.groups.text1'} " . LJ::help_icon('customgroups', '&nbsp;') . "p?>\n";
         $body .= "<blockquote>\n";
-           foreach my $g ( keys %$trust_groups ) {
+           foreach my $g ( sort { lc $trust_groups->{$a}->{groupname} cmp
+                                  lc $trust_groups->{$b}->{groupname} } keys %$trust_groups ) {
                 my $ck = ( $remote->trustmask( $u ) & (1 << $g) );
 
                 $body .= LJ::html_check({ 'name'     => "bit_$g",
