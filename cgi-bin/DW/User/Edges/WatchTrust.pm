@@ -764,11 +764,9 @@ sub edit_trust_group {
         if exists $opts{is_public} && $opts{is_public} =~ /^(?:0|1)$/;
 
     # update the database
-    my $dbcm = LJ::get_cluster_master( $u )
-        or confess 'unable to connect to user cluster master';
-    $dbcm->do( 'REPLACE INTO trust_groups (userid, groupnum, groupname, sortorder, is_public) VALUES (?, ?, ?, ?, ?)',
-               undef, $u->id, $id, $change{groupname}, $change{sortorder} || 50, $change{is_public} || 0 );
-    confess $dbcm->errstr if $dbcm->err;
+    $u->do( 'REPLACE INTO trust_groups (userid, groupnum, groupname, sortorder, is_public) VALUES (?, ?, ?, ?, ?)',
+            undef, $u->id, $id, $change{groupname}, $change{sortorder} || 50, $change{is_public} || 0 );
+    confess $u->errstr if $u->err;
 
     # kill memcache and return
     LJ::memcache_kill( $u, 'trust_group' );
@@ -845,11 +843,11 @@ sub delete_trust_group {
     }
 
     # finally remove the trust group, huzzah
-    $dbh->do(
+    $u->do(
         q{DELETE FROM trust_groups WHERE userid = ? AND groupnum = ?},
         undef, $u->id, $bit
     );
-    return 0 if $dbh->err;
+    return 0 if $u->err;
 
     # invalidate memcache of friends/groups
     LJ::memcache_kill( $u->id, "trust_group" );
