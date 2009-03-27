@@ -133,7 +133,7 @@ body<=
             my $needspriv = ( $haspriv ? "" : " needspriv" );
             my $privreason = "";
             if ( @gotprivs || @needsprivs ) {
-                my $needpriv = ( @needsprivs > 1 ? "<?_ml .needspriv _ml?>" : "<?_ml .needs_one_of _ml?>" );
+                my $needpriv = ( @needsprivs > 1 ? "<?_ml .needs_one_of _ml?>" : "<?_ml .needspriv _ml?>" );
                 $privreason = ( $haspriv ? "(<b>"  . join( "</b>, <b>", @gotprivs   ) . "</b>)"
                                          : "($needpriv: <b>" . join( "</b>, <b>", @needsprivs ) . "</b>)" );
             }
