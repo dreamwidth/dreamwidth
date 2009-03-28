@@ -2890,9 +2890,11 @@ sub init {
     }
 
     my $cookie_auth;
-    if ($form->{'usertype'} eq "cookieuser") {
+    if (($form->{'usertype'} eq "user") || 
+        ($form->{'usertype'} eq "cookieuser")) {
+        my $userpost = $form->{'userpost'} || $form->{'cookieuser'};
         $bmlerr->("$SC.error.lostcookie")
-            unless ($remote && $remote->{'user'} eq $form->{'cookieuser'});
+            unless $remote && $remote->{'user'} eq $userpost;
         return undef if @$errret;
 
         $cookie_auth = 1;
