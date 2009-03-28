@@ -115,7 +115,7 @@ html body
     vertical-align: middle;
     padding: 0 1em 0 1em;
     white-space: nowrap;
-    width: 18em;
+    width: auto;
 }
 
 /* Third cell */
@@ -125,7 +125,7 @@ html body
     vertical-align: middle;
     padding: 0 1em 0 1em;
     white-space: nowrap;
-    width: 33em;
+    width: auto;
 }
 
 #lj_controlstrip_actionlinks a
@@ -145,6 +145,7 @@ html body
 {
     vertical-align: middle;
     padding: 0 1em 0 1em;
+    white-space: nowrap;
 }
 
 /* Log in form */
