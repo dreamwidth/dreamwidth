@@ -192,7 +192,7 @@ body<=
         next if $watched{$suserid} || !$suser->is_visible;
 
         if ($POST{'action:add'} && $POST{"add_$user"}) {
-            $u->add_edge( $suserid, watch => 1 );
+            $u->add_edge( $suser, watch => {} );
         } else {
             push @pop, [ $user, $url, $count ];
             last if @pop >= 20;
