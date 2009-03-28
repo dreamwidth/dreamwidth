@@ -408,7 +408,7 @@ body<=
             return " (<a href='$LJ::SITEROOT/register.bml?foruser=$u->{user}'>$ML{'.resend.validation.email'}</a>)";
         };
 
-        $ret .= "<br />" . $ML{'.email.validared'};
+        $ret .= "<br />" . $ML{'.email.validated'};
         if ($u->{'status'} eq "A") { $ret .= "<b>$ML{'.yes'}</b>"; }
         if ($u->{'status'} eq "N") { $ret .= "<b>$ML{'.no'}</b>" . $extraval->(); }
         if ($u->{'status'} eq "T") { $ret .= $ML{'.transitioning'} . $extraval->(); }
