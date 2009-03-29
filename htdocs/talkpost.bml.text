@@ -47,10 +47,6 @@
 
 .opt.from=From:
 
-.opt.ljuser=LiveJournal user:
-
-.opt.ljuser2=LiveJournal user
-
 .opt.loggedin=<b>Logged in user:</b> [[username]]
 
 .opt.membersonly=- this community only allows commenting by members. You may comment here if you are a member of [[username]].
@@ -68,6 +64,8 @@
 .opt.noopenidpost=- you must <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> your email address in order to comment.
 
 .opt.preview=Preview
+
+.opt.siteuser=[[sitename]] user
 
 .opt.spellcheck=Spell check entry before posting
 

@@ -1522,11 +1522,11 @@ sub talkform {
         $ret .= "</tr>\n";
     }
 
-    # ( ) LiveJournal user:
+    # ( ) Site user:
     $ret .= "<tr valign='middle' id='otherljuser_row' name='otherljuser_row'>";
     $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/pencil.gif' onclick='handleRadios(2);' /></td><td align='center'><input type='radio' name='usertype' value='user' id='talkpostfromlj'" .
         $whocheck->('ljuser') . "/>";
-    $ret .= "</td><td align='left'><b><label for='talkpostfromlj' onclick='handleRadios(2); return false;'>$BML::ML{'.opt.ljuser2'}</label></b> ";
+    $ret .= "</td><td align='left'><b><label for='talkpostfromlj' onclick='handleRadios(2); return false;'>" . BML::ml( '.opt.siteuser', { sitename => $LJ::SITENAMESHORT } ) . "</label></b> ";
     $ret .= $BML::ML{'.opt.willscreenfriend'} if $screening eq 'F';
     $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A';
     $ret .= "</td></tr>\n";
