@@ -716,7 +716,7 @@ body<=
 
         foreach my $f ( LJ::Faq->load_all( lang => $curlang ) ) {
             $f->render_in_place( { user => $user, url => $user_url } );
-            push @{ $faqq{ $f->faqcat } }, $f;
+            push @{ $faqq{$f->faqcat} ||= [] }, $f;
         }
 
         my @faqlist = ('0', "(don't reference FAQ)");
@@ -724,7 +724,7 @@ body<=
         {
             push @faqlist, ('0', "[ $faqcat{$faqcat}->{'faqcatname'} ]");
             foreach my $faq ( sort { $a->sortorder <=> $b->sortorder }
-                                   @{ $faqq{$faqcat} } ) {
+                                   @{ $faqq{$faqcat} || [] } ) {
                 my $q = $faq->question_html;
                 next unless $q;
                 $q = "... $q";
