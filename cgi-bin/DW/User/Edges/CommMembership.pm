@@ -144,7 +144,7 @@ sub can_join {
     # if the user is a maintainer, skip every other check
     return 1 if $tu && $u->can_manage( $tu );
 
-    # a user must be a personal account
+    # the user must be a personal account
     return 0 unless $u->is_personal;
 
     # the user must be visible

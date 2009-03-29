@@ -174,7 +174,7 @@
    # users that aren't visible can only be removed, not modified
    if ($u->is_visible) {
 
-    if ( !$u->equals( $remote ) && $remote->is_personal && ( $u->is_personal || $u->is_identity ) ) {
+    if ( $remote->can_trust( $u ) ) {
         $body .= LJ::html_check({
             name => "add_trust",
             id => "add_trust",
@@ -183,19 +183,21 @@
         }) . "<br />";
     }
 
-    $body .= LJ::html_check({
-        name => "add_watch",
-        id => "add_watch",
-        selected => $watched || $action eq 'subscribe' ? 1 : 0,
-        label => $ML{'.add.watch'},
-    });
+    if ( $remote->can_watch( $u ) ) {
+        $body .= LJ::html_check({
+            name => "add_watch",
+            id => "add_watch",
+            selected => $watched || $action eq 'subscribe' ? 1 : 0,
+            label => $ML{'.add.watch'},
+        });
+    }
 
     ## let them pick friend groups
     # FIXME: Add support for reading groups once those exist
     my $err;
     my $trust_groups = $remote->trust_groups;
 
-    if ( !$u->equals( $remote ) && ( $u->is_personal || $u->is_identity ) && keys %$trust_groups ) {
+    if ( $remote->can_trust( $u ) && keys %$trust_groups ) {
         $body .= "<?p &nbsp;<br />";
         $body .= "$ML{'.groups.text1'} " . LJ::help_icon('customgroups', '&nbsp;') . "p?>\n";
         $body .= "<blockquote>\n";

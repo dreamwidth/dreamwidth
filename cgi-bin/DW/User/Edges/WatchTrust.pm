@@ -951,13 +951,27 @@ sub can_trust {
     $u = LJ::want_user( $u ) or confess 'invalid user object';
     $tu = LJ::want_user( $tu );
 
-    # only individuals are allowed to trust eachother
-    return 0 if ! $u->is_individual || ( $tu && ! $tu->is_individual );
+    # the user must be an individual
+    return 0 unless $u->is_individual;
 
-    # both must be visible
-    return 0 if ! $u->is_visible || ( $tu && ! $tu->is_visible );
+    # the user must be visible
+    return 0 unless $u->is_visible;
 
-    # that was simple...
+    if ( $tu ) {
+        # the user cannot be the same as the target
+        return 0 if $u->equals( $tu );
+
+        # the target must be an individual
+        return 0 unless $tu->is_individual;
+
+        # the target must not be purged/suspended/locked
+        return 0 if $tu->is_expunged || $tu->is_suspended || $tu->is_locked;
+
+        # the target must not be banned by the user
+        return 0 if $u->has_banned( $tu );
+    }
+
+    # okay, good to go!
     return 1;
 }
 *LJ::User::can_trust = \&can_trust;
@@ -971,16 +985,18 @@ sub can_watch {
     $u = LJ::want_user( $u ) or confess 'invalid user object';
     $tu = LJ::want_user( $tu );
 
-    # only individuals are allowed to watch
+    # the user must be an individual
     return 0 unless $u->is_individual;
 
-    # both must be visible
-    return 0 if ! $u->is_visible || ( $tu && ! $tu->is_visible );
+    # the user must be visible
+    return 0 unless $u->is_visible;
 
-    # and you're not allowed to watch identity accounts (they can't post)
-    return 0 if $tu && $tu->is_identity;
+    if ( $tu ) {
+        # the target must not be purged/suspended/locked
+        return 0 if $tu->is_expunged || $tu->is_suspended || $tu->is_locked;
+    }
 
-    # that was kinda simple...
+    # okay, good to go!
     return 1;
 }
 *LJ::User::can_watch = \&can_watch;
