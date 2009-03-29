@@ -33,16 +33,15 @@ site (Website), and all content, services and products available at or
 through the Website, including but not limited to 
 $LJ::SITEROOT. </p>
 
-<p>The Website is offered subject to your acceptance without 
-modification of all of the terms and conditions contained herein and all 
+<p>The Website is offered subject to your acceptance, without 
+modification, of all of the terms and conditions contained within, along with all 
 other operating rules, policies (including, without limitation, 
 ${LJ::SITENAMESHORT}'s <a href="$LJ::SITEROOT/legal/privacy.bml">Privacy 
 Policy</a>) and procedures that may be published from time to time on 
 this Website by us (collectively, the Agreement).</p>
 
 <p>Please read this Agreement carefully before accessing or using the 
-Website. By accessing or using any part of the web site, you agree to 
-become bound by the terms and conditions of this Agreement. If you do 
+Website. By accessing or using any part of the web site, you agree that you are bound by the terms and conditions of this Agreement. If you do 
 not agree to all the terms and conditions of this Agreement, then you 
 may not access the Website or use any services. If these terms and 
 conditions are considered an offer by $LJ::SITENAME, acceptance is 
@@ -81,7 +80,7 @@ functions, but do not receive access to all extended site features.</li>
 access to all extended site features.</li>
 
 <li><em>Premium Paid Accounts</em> are available for term-based fee and
-receive access to all extended site features at higher limits (for those
+receive access to all extended site features, at higher limits (for those
 features that have limits) than those given to paid accounts.</li>
 
 <li><em>Seed Accounts</em> are reserved for those who have contributed
@@ -110,7 +109,7 @@ located at $LJ::SITEROOT/legal/privacy.bml. </p>
 contractors, its licensors, and their respective directors, officers, 
 employees and agents from and against any and all claims and expenses, 
 including attorneys' fees, arising out of your use of the Website, 
-including but not limited to out of your violation this Agreement.</p>
+including but not limited to out of your violation of this Agreement.</p>
 
 
 <h2>V. Termination</h2>
@@ -124,7 +123,7 @@ time, with or without notice. </p>
 
 <p>If you wish to terminate this Agreement, you may delete your account 
 and cease using the Website. You agree that, upon deletion of your 
-account, we may but are not required to remove any content you have 
+account, we may, but are not required to, remove any content you have 
 provided, at any time past the deletion of your account.</p>
 
 <p>Paid accounts that are terminated for violations of this Agreement will
@@ -141,7 +140,7 @@ liability. </p>
 
 <p>By submitting Content to us for inclusion on the Website, you grant 
 us a world-wide, royalty-free, and non-exclusive license to reproduce, 
-modify, adapt and publish the Content solely for the purpose of 
+modify, adapt and publish the Content, solely for the purpose of 
 displaying, distributing and promoting the contents of your account, 
 including through downloadable clients and external feeds. </p>
 
@@ -179,7 +178,7 @@ discretion.</p>
 
 <p>4. If any Content you have submitted is reported to us as violating 
 this Agreement, you agree that we may call upon you to change, modify, 
-or remove that Content, within a reasonable amount of time as defined by 
+or remove that Content, within a reasonable amount of time, as defined by 
 us. If you do not follow this directive, we may terminate your account. 
 </p>
 
@@ -230,7 +229,7 @@ third party sites, or to further unlawful acts (such as phishing) or
 mislead recipients as to the source of the material (such as 
 spoofing);</p>
 
-<p>3. Impersonate any real person or entity, including but not limited to a 
+<p>3. Maliciously impersonate any real person or entity, including but not limited to a 
 $LJ::SITENAMESHORT staff member or volunteer, or to otherwise misrepresent your 
 affiliation with any person or entity;</p>
 
@@ -328,7 +327,7 @@ suppliers and licensors hereby disclaim all warranties of any kind,
 express or implied, including, without limitation, the warranties of 
 merchantability, fitness for a particular purpose and non-infringement. 
 Neither $LJ::SITECOMPANY, nor its suppliers and licensors, makes 
-any warranty that the Website will be error free or that access thereto 
+any warranty that the Website will be error free or that access to the Website 
 will be continuous or uninterrupted. You agree that any interruptions to the service will not qualify for reimbursement or compensation. You understand that you download 
 from, or otherwise obtain content or services through, the Website at 
 your own discretion and risk.</strong></p>
@@ -347,7 +346,7 @@ negligence, strict liability or other legal or equitable theory for: (i)
 any special, incidental or consequential damages; (ii) the cost of 
 procurement or substitute products or services; (iii) interruption of use 
 or loss or corruption of data; (iv) any statements or conduct of any 
-third party on the service; (v) any unauthorized access to or 
+third party on the service; or (v) any unauthorized access to or 
 alterations of your Content. We shall have no liability for any failure 
 or delay due to matters beyond our reasonable control. </strong></p>
 
@@ -365,9 +364,9 @@ by a written amendment signed by an authorized representative of
 $LJ::SITECOMPANY, or by the posting of a revised version to this 
 location. Except to the extent that applicable law (if any) provides 
 otherwise, any access to or use of the Website will be governed by the 
-laws of the state of Maryland, and the federal laws of the United States 
+laws of the state of Maryland and the federal laws of the United States 
 of America, excluding any conflict of law provisions. You agree to 
-submit to the jursidiction of the state and federal courts located in 
+submit to the jurisdiction of the state and federal courts located in 
 Baltimore City, Maryland for any disputes arising out of or relating to 
 your use of the Website or your acceptance of this Agreement.</p>
 
@@ -384,8 +383,7 @@ have no legal or contractual effect.</p>
 
 <h2>XVIII. Reporting Violations</h2>
 
-<p>Instructions on how to report a violation of this Agreement will be 
-added before account creation opens. </p>
+<p>For instructions on how to report a violation of this Agreement, please see <a href="http://www.dreamwidth.org/support/faqbrowse.bml?faqid=80">How do I report a violation of Dreamwidth's Terms of Service?</a></p>
 
 
 <h2>XIX. Creative Commons</h2>
@@ -397,7 +395,7 @@ Attribution-ShareAlike 2.5 License.</p>
 
 
 
-<p class='note'>Last revised February 3, 2009</p>
+<p class='note'>Last revised March 25, 2009</p>
 PAGE
 
     return $ret;
