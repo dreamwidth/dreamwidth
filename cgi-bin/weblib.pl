@@ -1994,10 +1994,10 @@ sub entry_form_decode
             delete $req->{'prop_current_mood'};
         }
     }
-    
+
     # process site-specific options
     LJ::run_hooks('decode_entry_form', $POST, $req);
-    
+
     return $req;
 }
 
@@ -2188,7 +2188,7 @@ sub res_includes {
         # determine if this resource is part of the resource group that is active;
         # or 'default' if no group explicitly active
         my ( $group, $key ) = @$resrow;
-        next if 
+        next if
             $group ne 'all' &&
             ( ( defined $LJ::ACTIVE_RES_GROUP && $group ne $LJ::ACTIVE_RES_GROUP ) ||
               ( ! defined $LJ::ACTIVE_RES_GROUP && $group ne 'default' ) );
@@ -2428,9 +2428,9 @@ sub email_ads {
     my $age = $to_u->age_for_adcall;
     $adcall{age} = $age if $age;
 
-    my $adparams = LJ::encode_url_string(\%adcall, 
-                                         [ sort { length $adcall{$a} <=> length $adcall{$b} } 
-                                           grep { length $adcall{$_} } 
+    my $adparams = LJ::encode_url_string(\%adcall,
+                                         [ sort { length $adcall{$a} <=> length $adcall{$b} }
+                                           grep { length $adcall{$_} }
                                            keys %adcall ] );
 
     # allow 24 bytes for escaping overhead
@@ -2485,9 +2485,9 @@ sub search_ads {
         $adcall{user} = $remote->id;
     }
 
-    my $adparams = LJ::encode_url_string(\%adcall, 
-                                         [ sort { length $adcall{$a} <=> length $adcall{$b} } 
-                                           grep { length $adcall{$_} } 
+    my $adparams = LJ::encode_url_string(\%adcall,
+                                         [ sort { length $adcall{$a} <=> length $adcall{$b} }
+                                           grep { length $adcall{$_} }
                                            keys %adcall ] );
 
     # allow 24 bytes for escaping overhead
@@ -2750,9 +2750,9 @@ sub ads {
     LJ::run_hook("transform_adcall", \%opts, \%adcall);
 
     # Build up escaped query string of adcall parameters
-    my $adparams = LJ::encode_url_string(\%adcall, 
-                                         [ sort { length $adcall{$a} <=> length $adcall{$b} } 
-                                           grep { length $adcall{$_} } 
+    my $adparams = LJ::encode_url_string(\%adcall,
+                                         [ sort { length $adcall{$a} <=> length $adcall{$b} }
+                                           grep { length $adcall{$_} }
                                            keys %adcall ] );
 
     # ghetto, but allow 24 bytes for escaping overhead
@@ -2801,10 +2801,10 @@ sub ads_wrap {
     my $opts = shift;
     my $adcall = shift;
     my $iframe_url = shift;
-   
+
     my $remote = LJ::get_remote();
     my $adhtml = "\n<div class=\"ljad ljad$adcall->{adunit}\" id=\"\">\n";
-   
+
     $adhtml .= LJ::run_hook('add_advertising_link');
     # For leaderboards, entryboxes, and box ads, show links on the top right
     if ($adcall->{adunit} =~ /^leaderboard/ || $adcall->{adunit} =~ /^entrybox/ || $adcall->{adunit} =~ /^medrect/) {
@@ -2821,7 +2821,7 @@ sub ads_wrap {
 
     $adhtml .= "<div style='clear: both; height: 0; overflow:hidden; font-size:0; line-height:0;'></div>";
     $adhtml .= $inner_block;
-    
+
     # For non-leaderboards, non-entryboxes, and non-box ads, show links on the bottom right
     unless ($adcall->{adunit} =~ /^leaderboard/ || $adcall->{adunit} =~ /^entrybox/ || $adcall->{adunit} =~ /^medrect/) {
         $adhtml .= "<div style='text-align: right; margin-top: 2px; white-space: nowrap;'>\n";
@@ -2838,7 +2838,7 @@ sub ads_wrap {
 }
 
 # this function will filter out blocked interests, as well filter out interests which
-# cause the 
+# cause the
 sub interests_for_adcall {
     my $u = shift;
     my %opts = @_;
@@ -2860,16 +2860,16 @@ sub interests_for_adcall {
         }
     }
 
-    return join(',', 
-                grep { 
+    return join(',',
+                grep {
 
                     # not a blocked interest
-                    ! defined $LJ::AD_BLOCKED_INTERESTS{$_} && 
+                    ! defined $LJ::AD_BLOCKED_INTERESTS{$_} &&
 
                     # and we've not already got over 768 bytes of interests
                     # -- +1 is for comma
                     ($int_len += length($_) + 1) <= $max_len;
-                        
+
                     } @interest_list
                 );
 }
