@@ -2912,6 +2912,49 @@ settings.yearofbirth=Year of Birth
 
 settings.zipcode=ZIP Code
 
+sitescheme.accountlinks.account=Account
+
+sitescheme.accountlinks.btn.login=Log in
+
+sitescheme.accountlinks.btn.logout=Log out
+
+sitescheme.accountlinks.help=Help
+
+sitescheme.accountlinks.inbox=Inbox
+
+sitescheme.accountlinks.invitefriend=Invite a Friend
+
+sitescheme.accountlinks.login.forgotpassword=Forgot password?
+
+sitescheme.accountlinks.login.openid=Log in with OpenID?
+
+sitescheme.accountlinks.login.password=Password:
+
+sitescheme.accountlinks.login.rememberme=Remember me
+
+sitescheme.accountlinks.login.username=Username:
+
+sitescheme.accountlinks.post=Post
+
+sitescheme.accountlinks.readinglist=Reading Page
+
+sitescheme.accountlinks.userpic.alt=Upload Userpics
+
+sitescheme.footer.info=Copyright &copy; 2009 Dreamwidth Studios, LLC. All rights reserved.
+
+sitescheme.footer.legal.abusepolicy=Abuse Policy
+
+sitescheme.footer.legal.diversitystatement=Diversity Statement
+
+sitescheme.footer.legal.guidingprinciples=Guiding Principles
+
+sitescheme.footer.legal.privacypolicy=Privacy Policy
+
+sitescheme.footer.legal.tos=Terms of Service
+
+sitescheme.footer.sitemap=Site Map
+
+
 sorry=Sorry
 
 states.head.defined=(states/regions/territories)

@@ -1,0 +1,605 @@
+/** Blueshift CSS 
+ *
+ *
+ * Authors:
+ *     Emily Ravenwood <ravenwood@alltrees.org>
+ *
+ * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
+ */
+ 
+ /*  Colors: 
+     dkblue=#002A82 (standout border, vlink)
+    medblue=#3960A0 (borders, standout, link)
+    ltblue=#BBCCDD (inactive tabs, evencomment, profile border)
+    vryltblue=#E6ECF9 (active tabs, oddcomment, headerlinks)
+    alt vryltblue=#ECF3FF (menulinks)
+*/
+
+/**
+ * Global
+ */
+
+body {
+    font-family: Arial, Verdana, sans-serif;
+    line-height: 1.25em;
+    background-image: url(/img/blueshift/headerblue.jpg);
+    background-position: top;
+    background-repeat: repeat-x;
+    background-color: #3960A0;
+    color: #111122;
+}
+
+H1, H2, H3, H4 { font-style: italic; 
+    font-weight: normal;
+    padding: 1em 0;
+    }
+H1 { font-size: 175%; }
+H2 { font-size: 150%; }
+H3 { font-size: 125%; }
+H4 { font-size: 100%; }
+
+ul { list-style: circle;
+    margin-left: 1em; }
+
+a:link,
+.link {
+    color: #3960A0;
+}
+a:visited {
+    color: #002A82;
+}
+a:hover,
+a:active,
+.link:hover {
+    text-decoration: none;
+}
+
+#canvas {
+    padding-top: 1px;  /*to ensue margin*/
+    background-color: #f6f9FF;
+    margin-left: 8.25em;
+    margin-top: 100px;
+    border-left: 1px solid #002A82;
+    border-bottom: 1px solid #002A82;
+    min-height: 32em;
+}
+#page {
+    padding-top: 1px;  /*to ensue margin*/
+}
+
+    
+/**
+ * Header
+ */
+#masthead { 
+    position: absolute;
+    top: 30px;
+    right: 1em;
+    }
+    #sitename { font-style: italic; 
+        font-weight: normal; 
+        font-size: 175%;
+        }
+    #sitename a { color: #E6ECF9; }
+    
+#account-links {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100px;
+    padding-top: .5em;
+    text-align: left;
+    font-size: small;
+    color: #ffffff;
+    z-index: 200; /*keep log-in on top of search bar*/
+}
+#account-links ul { list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+        margin-top: 5px;
+        white-space: nowrap; /* to make sure the links don't wrap under short usernames */
+        }
+#account-links li { display: inline; }
+#account-links a {color: #E6ECF9; }
+
+#account-links-text { margin-left: 100px; }
+
+#account-links #login-table { margin-left: 5px; }
+#account-links #login-table td {
+    padding: 3px;
+    text-align: left;
+}
+#account-links #login-table td.input-cell,
+#account-links #login-table td.remember-me-cell {
+    text-align: left;
+}
+#account-links #login_user,
+#account-links #login_password { background-color: #E6ECF9;
+        border: 1px solid #001155; }
+#account-links-userpic { text-align: center;
+    height: 100px;
+    width: 100px;
+    position: absolute;
+    top: 10px;
+    left: 0;
+    }
+    #account-links-userpic img { 
+        border: none; 
+        }
+
+#header-search { position: absolute;
+    top: 100px;
+    right: 0;
+    width: 100%;
+    height: 2.5em;
+    text-align: right;
+    background-color: #3960A0;
+    border-bottom: 1px solid #002A82;
+    }
+    #header-search .appwidget-search {
+        margin-right: .5em;
+        }
+    #header-search #search { background-color: #E6ECF9;
+    border: 1px solid #002A82; }
+    
+/**
+ * Menu 
+ */
+#menu { position: absolute;
+    top: 100px;
+    left: 0;
+    width: 8.25em;
+    background-color: #3960A0;
+    z-index: 100; /*to cover the search-border in the sidebar*/
+    }
+    #menu ul { margin-left: 5px;
+        margin-right: 3px;
+        margin-top: 3em;
+        padding-left: 0;
+        font-size: small;
+        list-style: none;
+        }
+        #menu ul ul { margin-left: 1em; 
+            margin-right: 0;
+            margin-top: 0;
+        }
+    #menu li { padding: .15em 0; }
+    #menu a {color: #ECF3FF; }
+        #menu .topnav a {font-weight: bold;}
+        #menu .subnav a {font-weight: normal; }
+
+
+/**
+ * Footer
+ */
+#footer { 
+    margin: 1em;
+    text-align: center;
+    border-top: 1px solid #002A82;
+    }
+    #footer ul { list-style: none;
+        margin: .25em 0;
+        margin-left: 0;
+        padding-left: 0;
+        }
+    #footer li { display: inline; }
+    #footer p { margin: .25em 0;
+        padding: 0;
+        font-size: small;
+        color: #666666;
+        }
+
+/**
+ * #content 
+ */
+#content { margin: 0;
+    padding: 1px 1em 1em 1.5em;
+    margin-top: 2.5em;
+}
+
+#content p {
+    margin-bottom: 1em;
+}
+#content p.note {
+    font-style: italic;
+    font-size: 0.8em;
+}
+#content ul.bullet-list {
+    list-style: square outside;
+    margin-left: 2em;
+    margin-bottom: 1em;
+}
+
+/* TALKPAGE.CSS AND HARDCODE OVERRIDES*/
+.cmtbar-odd {
+    border-bottom: none !important;
+    border-right: none !important;
+    background-color: #E6ECF9 !important;
+}
+.cmtbar-even {
+    border-bottom: none !important;
+    border-right: none !important;
+    background-color: #BBCCDD !important;
+}
+
+/*insert class of screened comments here*/ {
+    background-color: #EEEEEE; }
+    
+/* PROFILE.CSS OVERRIDES */
+#profile_top {
+    min-width: 0;
+}
+
+.username {
+    border-bottom: 1px solid #BBCCDD !important;
+    border-top: 1px solid #BBCCDD !important;
+    background-color: #E6ECF9 !important;
+}
+
+
+/**
+ * Content Layouts
+ *
+ * Content layouts are determined based on the class assigned to #content. Potential layouts include:
+ * -- wide sidebars
+ * -- thin sidebars
+ * -- equal width/height columns
+ * -- full page (default)
+ *
+ * Columns/rows inside of #content are named primary, secondary, tertiary, etc and
+ * content is placed inside based on order of importance.
+ */
+ 
+ /* ER Note:  Unsure of actual use of these, taking a stab at them anyway, mostly re-measuring width */
+
+/* full page (default) */
+#primary,
+#secondary {
+    margin-bottom: 2em;
+}
+/* 2 column wide right sidebar */
+.layout-wide-right-sidebar #primary {
+    width: 65%;
+    margin-right: 1.25em;
+    float: left;
+    padding: 0;
+}
+.layout-wide-right-sidebar #secondary {
+    float: right;
+    width: 30%;
+    margin: 0;
+    padding: 0;
+    padding-top: 0.5em;
+}
+/**
+ * Panels are generic boxes for divs inside of #content
+ */
+#content #primary .panel,
+#content #secondary .panel {
+    width: 100%;
+    border-width: 1px 0 1px 0;
+    border-color: #ccc;
+    border-style: solid;
+    margin: 0 0 0.166667em 0;
+    overflow: hidden;
+}
+#content #primary .panel h2 {
+    height: 2em;
+    line-height: 2em;
+}
+#content #primary .panel p {
+    clear: both;
+}
+#content #secondary .panel h3 {
+    height: 30px;
+    line-height: 30px;
+}
+/**
+ * Panels have different styles for different content layouts
+ */
+.layout-wide-right-sidebar #primary .panel .sidebar {
+    float: left;
+    width: 30%;
+}
+.layout-wide-right-sidebar #primary .panel .contents {
+    float: left;
+    padding-top: 6px;
+    padding-left: 14px;
+    border-left: 1px solid #ccc;
+    width: 70%;
+    line-height: 1.8;
+}
+.layout-wide-right-sidebar #secondary .panel .contents {
+    margin: 0.5em 0;
+    line-height: 1.8;
+}
+/**
+ * Panels have unique IDs for CSS hooks
+ */
+#panel-quick-update .sidebar p {
+    height: 3em;
+    line-height: 3em;
+}
+#panel-quick-update .contents label {
+    display: block;
+    width: 100%;
+    color: #002A82;
+    font-weight: bold;
+}
+#panel-quick-update .contents input,
+#panel-quick-update .contents textarea {
+    width: 95%;
+}
+#panel-quick-update .contents textarea {
+    height: 120px;
+}
+/* panel-first class is added through js */
+#content .panel-first {
+    border-top: 0 !important;
+}
+
+ 
+/**
+ * Form field styles
+ */
+.dw-field-default {
+    color: #333;
+    font-style: italic;
+}
+.standout {
+    text-align: center;
+}
+.standout .standout-inner {
+    background-color: #3960A0;
+    color: #000;
+    border: 1px solid #002A82;
+    margin-top: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+}
+.standout .standout-inner td {
+    padding: 0.5em;
+}
+
+.standout-inner a:hover, .standout-inner a:active, .standout-inner a:hover {
+    
+}
+
+/** 
+ * Start overriding some classes set in dw-free/htdocs/stc/
+ * Other site scheme designers: use your own colors here
+ * /
+
+/* editpics.css */
+#uploadBox {
+    background-color: #E6ECF9;
+    border: 1px solid #3960A0;
+    margin: 0 20px 0 0;
+}
+
+/* profile.css */
+
+.section, .username, .actions li {
+    background-color: #E6ECF9;
+    border-bottom: 1px solid #BBCCDD;
+    border-top: 1px solid #BBCCDD;
+    color: #002A82;
+} 
+
+.section img, .username img {
+    padding-left: 3px;
+}
+
+/* customize.css */
+
+.theme-current {
+    background-color: #E6ECF9;
+    border: 1px solid #3960A0;
+}
+
+/* widgets/customizetheme.css, themechooser.css, themenav.css, 
+currenttheme.css */
+
+.theme-current h2.widget-header, .layout-item.current {
+    background-color: #E6ECF9;
+    border: 1px solid #3960A0;
+}
+
+h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-item .theme-icons {
+    border: 1px solid #3960A0;
+}
+
+.theme-item .theme-button-disabled, .layout-item .layout-button-disabled {
+    background: #BBCCDD;
+}
+
+.theme-item {
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+.customize-button, .theme-item .theme-button, .layout-item 
+.layout-button {
+    background: #BBCCDD;
+    border: 2px solid #000;
+    border-top: 2px solid #BBCCDD;
+    border-left: 2px solid #BBCCDD;
+}
+
+
+.theme-nav-content, .customize-content {
+    border: 1px solid #3960A0;
+    border-left: none;
+}
+
+.theme-selector-nav {
+    background-color: #E6ECF9;
+}
+
+.theme-nav li a, .theme-nav-small li {
+    border-right: 1px solid #3960A0;
+}
+
+.theme-nav li.on a {
+    border: 1px solid #3960A0;
+    border-right: none;
+}
+
+.theme-nav-separator {
+    border-right: 1px solid #3960A0;
+}
+
+.theme-nav-separator hr {
+    border-top: 1px solid #3960A0;
+}
+
+.customize-content .subheader {
+    background-color: #E6ECF9;
+    border-bottom: 1px solid #3960A0;
+}
+
+.customize-content .subheader.on {
+    background-color: #E6ECF9;
+}
+
+.customize-nav {
+    background-color: #E6ECF9;
+}
+
+.customize-nav li a, .customize-nav li li  {
+    border-right: 1px solid #3960A0;
+}
+
+.customize-nav li.on a, .customize-nav li.on ul {
+    border: 1px solid #3960A0;
+    border-right: none;
+    border-top: none;
+}
+
+.customize-nav li.on {
+    border-top: 1px solid #3960A0;
+}
+
+.moodtheme-preview, .appwidget-linkslist .tips-box {
+    background-color: #E6ECF9;
+    border: 1px solid #3960A0;
+}
+
+.theme-current-links {
+    border-bottom: 1px solid #3960A0;
+    border-right: 1px solid #3960A0;
+}
+
+.theme-nav li a:visited, .customize-nav li a:visited {
+    color: #002A82;
+    font-weight: bold;
+}
+
+/* inbox */
+
+#esn_folder_all {
+    background-color: #E6ECF9 !important;
+}
+
+/* lj_settings.css */
+
+.section_head, table.alternating-rows th, div.username {
+    background-color: #D9D9D3;
+    color: #333;
+    border: none;
+    border-bottom: 1px solid #3960A0;
+}
+
+/* comm_promo.css */
+
+div.CommunityPromoBox {
+    border: 1px solid #3960A0;
+}
+
+/* settings.css */
+
+#settings_save {
+    background: #E6ECF9;
+}
+
+#settings_nav li a {
+    background: #BBCCDD;
+    border: 1px solid #3960A0;
+    border-bottom: none;
+}
+
+#settings_nav li a:hover, #settings_nav li a.active {
+    background: #E6ECF9;
+}
+
+#settings_nav_title p {
+    background: #E6ECF9;
+    border-left: 1px solid #3960A0;
+}
+
+/* cprod.css */
+
+.cprod.h3 {
+    background: #BBCCDD;
+    
+}
+
+.cprod content {
+    border: 1px solid #3960A0;
+}
+
+
+/* allpics styling */
+
+table.allpics {
+    margin-left: 50px;
+}
+
+.allpics td {
+    vertical-align: bottom;
+}
+
+.allpics img {
+    margin-right: 1em;
+    margin-top: 15px;
+}
+
+.allpics blank {
+    width: 50px;
+}
+
+
+/* editfilters styling */
+
+table.editfilters td {
+    padding: 5px;
+}
+
+
+/* FAQ */
+
+.faqlist {
+    list-style: square outside;
+    margin-bottom: 2em;
+}
+
+/* Inbox - Compose */
+
+.inbox-compose {
+    width: 100%;
+}
+
+.inbox-compose td {
+    vertical-align: top;
+}
+
+
+/* manage/invitecodes.bml */
+
+.invitecodes td {
+    padding: 5px;
+}

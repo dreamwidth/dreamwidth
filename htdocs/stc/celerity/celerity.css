@@ -1,0 +1,633 @@
+/** Celerity CSS 
+ *
+ * Authors:
+ *     Emily Ravenwood <ravenwood@alltrees.org>
+ *
+ * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
+ */
+ 
+ /*  Colors: 
+    dkgrn=#999966
+    text dkgrn=#777711
+    ltgrn=#DDDDAA
+    vryltgrn=#EEEECC
+    link ltgrn=#888833
+    link dkgrn=#666611
+ *  Colors for template: 
+    oddcomment=#EEEECC
+    evencomment=#DDDDBB
+*/
+
+/**
+ * pieces from Erik Meyer's CSS Reset Reloaded
+ * @link            http://meyerweb.com/eric/thoughts/2007/05/01/reset-reloaded/
+ */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    margin:          0;
+    padding:         0;
+    border:          0;
+    outline:         0;
+    font-size:       100%;
+    vertical-align:  baseline;
+    background:      transparent;
+}
+
+/* @note    remove default border of linked images */
+a img, :link img, :visited img {
+    border: none;
+}
+
+/**
+ * Global
+ */
+
+body {
+    font-family: Arial, Verdana, sans-serif;
+    line-height: 1.25em;
+    background-color: f9f9f0;
+    color: #222211;
+}
+
+H1, H2, H3, H4 { font-family: "Century Gothic", Verdana, sans-serif; 
+    font-weight: normal;
+    padding: 1em 0;
+    }
+H1 { font-size: 175%; }
+H2 { font-size: 150%; }
+H3 { font-size: 125%; }
+H4 { font-size: 100%; }
+
+ul { list-style: square;
+    margin-left: 1em; }
+
+a:link,
+.link {
+    color: #888833;
+}
+a:visited {
+    color: #666611;
+}
+a:hover,
+a:active,
+.link:hover {
+    text-decoration: none;
+}
+
+#canvas {
+    padding-top: 1px;  /*to ensure margin*/
+}
+#page {
+    margin-bottom: 2em;
+    padding-top: 1px;  /*to ensure margin*/
+}
+/*Scheme specific div to contain sidebar stripes*/
+#page-decoration { background-image: url("/img/celerity/lt-stripe.jpg"); 
+    background-repeat: repeat-x;
+    background-position: top;
+    width: 9em;
+    height: 50px;
+    margin-left: 1em;
+    margin-top: -50px;
+    float: left;
+    display: inline; /* to defeat the IE double-margin bug */ }
+    
+/**
+ * Header
+ */
+#masthead { position: absolute;
+    top: 50px;
+    right: 25px;
+    }
+    #sitename { font-family: "Century Gothic", Verdana, sans-serif; 
+        font-weight: normal; 
+        font-size: 175%;
+        }
+    #sitename a { color: #888844; }
+    
+#account-links {
+     position: absolute;
+    top: 3px;
+    left: 13em;
+    text-align: left;
+    font-size: small;
+}
+#account-links ul { list-style: none;
+        margin-left: 0;
+        padding-left: 0;
+        margin-top: 5px;
+        white-space: nowrap; /* to make sure the links don't wrap under short usernames */
+        }
+#account-links li { display: inline; }
+
+#account-links #login-table td {
+    padding: 3px;
+    text-align: left;
+}
+#account-links #login-table td.input-cell,
+#account-links #login-table td.remember-me-cell {
+    text-align: left;
+}
+
+/*Scheme specific divs to contain header stripes*/
+#header-divider { position: absolute;
+    top: 110px;
+    left: 0;
+    background-color: #999966;
+    background-image: url("/img/celerity/dk-stripe.jpg");
+    background-position: right;
+    background-repeat: repeat-y;
+    width: 100%;
+    }
+    #header-divider-insert { margin-left: 1em;
+        height: 20px;
+        width: 9em;
+        background: url("/img/celerity/stripes.jpg");
+        background-position: center;
+        }
+
+#header-search { position: absolute;
+    top: 140px;
+    right: 22px;
+    text-align: right;
+    }
+    
+/**
+ * Sidebar and Menu 
+ */
+#sidebar { position: absolute;
+    top: 0;
+    left: 1em;
+    width: 9em;
+    background-color: #DDDDAA;
+    }
+    #sidebar ul { margin-left: 5px;
+        margin-right: 3px;
+        margin-top: 40px;
+        padding-left: 0;
+        font-size: small;
+        list-style: none;
+        }
+        #sidebar ul ul { margin-left: 1em; 
+            margin-right: 0;
+            margin-top: 0;
+        }
+    #sidebar li { padding: .15em 0; }
+    #sidebar a {color: #222200; }
+    
+#header-userpic { text-align: center;
+    height: 100px; 
+    background-image: url("/img/celerity/square.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    }
+    #header-userpic img { margin-top: 10px;
+        border: none; 
+        background-color: #DDDDAA; /*so the square doesn't show behind transparent icons */
+        }
+
+/**
+ * Footer
+ */
+#footer { border-top: 4px double #999966;
+    border-bottom: 4px double #999966;
+    margin: 1em;
+    text-align: center;
+    }
+    #footer ul { list-style: none;
+        margin: .25em 0;
+        margin-left: 0;
+        padding-left: 0;
+        }
+    #footer li { display: inline; }
+    #footer p { margin: .25em 0;
+        padding: 0;
+        font-size: small;
+        color: #666666;
+        }
+
+/**
+ * #content 
+ */
+#content {
+    margin-left: 1em;
+    border-left: 9em solid #DDDDAA;
+    margin-top: 170px;
+    padding: 1px 1em 1em 1.5em;
+    min-height: 29em;
+    height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
+      height: 29em;
+}
+
+#content p {
+    margin-bottom: 1em;
+}
+#content p.note {
+    font-style: italic;
+    font-size: 0.8em;
+}
+#content ul.bullet-list {
+    list-style: square outside;
+    margin-left: 2em;
+    margin-bottom: 1em;
+}
+
+/* TALKPAGE.CSS AND HARDCODE OVERRIDES*/
+.cmtbar-odd {
+    border-bottom: none !important;
+    border-right: none !important;
+    background-color: #EEEECC !important;
+}
+.cmtbar-even {
+    border-bottom: none !important;
+    border-right: none !important;
+    background-color: #DDDDBB !important;
+}
+
+/*insert class of screened comments here*/ {
+    background-color: #EEEEEE; }
+    
+/* PROFILE.CSS OVERRIDES */
+#profile_top {
+    min-width: 0;
+}
+
+.username {
+    border-bottom: 1px solid #999966 !important;
+    background-color: #EEEECC !important;
+}
+
+
+/**
+ * Content Layouts
+ *
+ * Content layouts are determined based on the class assigned to #content. Potential layouts include:
+ * -- wide sidebars
+ * -- thin sidebars
+ * -- equal width/height columns
+ * -- full page (default)
+ *
+ * Columns/rows inside of #content are named primary, secondary, tertiary, etc and
+ * content is placed inside based on order of importance.
+ */
+ 
+ /* ER Note:  Unsure of actual use of these, taking a stab at them anyway, mostly re-measuring width */
+
+/* full page (default) */
+#primary,
+#secondary {
+    margin-bottom: 2em;
+}
+/* 2 column wide right sidebar */
+.layout-wide-right-sidebar #primary {
+    width: 65%;
+    margin-right: 1.25em;
+    float: left;
+    padding: 0;
+}
+.layout-wide-right-sidebar #secondary {
+    float: right;
+    width: 30%;
+    margin: 0;
+    padding: 0;
+    padding-top: 0.5em;
+}
+/**
+ * Panels are generic boxes for divs inside of #content
+ */
+#content #primary .panel,
+#content #secondary .panel {
+    width: 100%;
+    border-width: 1px 0 1px 0;
+    border-color: #ccc;
+    border-style: solid;
+    margin: 0 0 0.166667em 0;
+    overflow: hidden;
+}
+#content #primary .panel h2 {
+    height: 2em;
+    line-height: 2em;
+}
+#content #primary .panel p {
+    clear: both;
+}
+#content #secondary .panel h3 {
+    height: 30px;
+    line-height: 30px;
+}
+/**
+ * Panels have different styles for different content layouts
+ */
+.layout-wide-right-sidebar #primary .panel .sidebar {
+    float: left;
+    width: 30%;
+}
+.layout-wide-right-sidebar #primary .panel .contents {
+    float: left;
+    padding-top: 6px;
+    padding-left: 14px;
+    border-left: 1px solid #ccc;
+    width: 70%;
+    line-height: 1.8;
+}
+.layout-wide-right-sidebar #secondary .panel .contents {
+    margin: 0.5em 0;
+    line-height: 1.8;
+}
+/**
+ * Panels have unique IDs for CSS hooks
+ */
+#panel-quick-update .sidebar p {
+    height: 3em;
+    line-height: 3em;
+}
+#panel-quick-update .contents label {
+    display: block;
+    width: 100%;
+    color: #777711;
+    font-weight: bold;
+}
+#panel-quick-update .contents input,
+#panel-quick-update .contents textarea {
+    width: 95%;
+}
+#panel-quick-update .contents textarea {
+    height: 120px;
+}
+/* panel-first class is added through js */
+#content .panel-first {
+    border-top: 0 !important;
+}
+
+ 
+/**
+ * Form field styles
+ */
+.dw-field-default {
+    color: #333;
+    font-style: italic;
+}
+.standout {
+    text-align: center;
+}
+.standout .standout-inner {
+    background-color: #DDDDAA;
+    color: #000;
+    border: 1px solid #999966;
+    margin-top: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+}
+.standout .standout-inner td {
+    padding: 0.5em;
+}
+
+.standout-inner a:hover, .standout-inner a:active, .standout-inner a:hover {
+    
+}
+
+/** 
+ * Start overriding some classes set in dw-free/htdocs/stc/
+ * Other site scheme designers: use your own colors here
+ * /
+
+/* editpics.css */
+#uploadBox {
+    background-color: #EEEECC;
+    border: 1px solid #999966;
+    margin: 0 20px 0 0;
+}
+
+/* profile.css */
+
+.section, .username, .actions li {
+    background-color: #EEEECC;
+    border-bottom: 1px solid #999966;
+    color: #777711;
+} 
+
+.section img, .username img {
+    padding-left: 3px;
+}
+
+/* customize.css */
+
+.theme-current {
+    background-color: #EEEECC;
+    border: 1px solid #999966;
+}
+
+/* widgets/customizetheme.css, themechooser.css, themenav.css, 
+currenttheme.css */
+
+.theme-current h2.widget-header, .layout-item.current {
+    background-color: #EEEECC;
+    border: 1px solid #999966;
+}
+
+h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-item .theme-icons {
+    border: 1px solid #999966;
+}
+
+.theme-item .theme-button-disabled, .layout-item .layout-button-disabled {
+    background: #DDDDAA;
+}
+
+.theme-item {
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+.customize-button, .theme-item .theme-button, .layout-item 
+.layout-button {
+    background: #DDDDAA;
+    border: 2px solid #000;
+    border-top: 2px solid #DDDDAA;
+    border-left: 2px solid #DDDDAA;
+}
+
+
+.theme-nav-content, .customize-content {
+    border: 1px solid #999966;
+    border-left: none;
+}
+
+.theme-selector-nav {
+    background-color: #EEEECC;
+}
+
+.theme-nav li a, .theme-nav-small li {
+    border-right: 1px solid #999966;
+}
+
+.theme-nav li.on a {
+    border: 1px solid #999966;
+    border-right: none;
+}
+
+.theme-nav-separator {
+    border-right: 1px solid #999966;
+}
+
+.theme-nav-separator hr {
+    border-top: 1px solid #DDDDAA;
+}
+
+.customize-content .subheader {
+    background-color: #EEEECC;
+    border-bottom: 1px solid #999966;
+}
+
+.customize-content .subheader.on {
+    background-color: #EEEECC;
+}
+
+.customize-nav {
+    background-color: #EEEECC;
+}
+
+.customize-nav li a, .customize-nav li li  {
+    border-right: 1px solid #999966;
+}
+
+.customize-nav li.on a, .customize-nav li.on ul {
+    border: 1px solid #999966;
+    border-right: none;
+    border-top: none;
+}
+
+.customize-nav li.on {
+    border-top: 1px solid #999966;
+}
+
+.moodtheme-preview, .appwidget-linkslist .tips-box {
+    background-color: #EEEECC;
+    border: 1px solid #999966;
+}
+
+.theme-current-links {
+    border-bottom: 1px solid #999966;
+    border-right: 1px solid #999966;
+}
+
+.theme-nav li a:visited, .customize-nav li a:visited {
+    color: #777711;
+    font-weight: bold;
+}
+
+/* inbox */
+
+#esn_folder_all {
+    background-color: #EEEECC !important;
+}
+
+/* lj_settings.css */
+
+.section_head, table.alternating-rows th, div.username {
+    background-color: #D9D9D3;
+    color: #333;
+    border: none;
+    border-bottom: 1px solid #999966;
+}
+
+/* comm_promo.css */
+
+div.CommunityPromoBox {
+    border: 1px solid #DDDDAA;
+}
+
+/* settings.css */
+
+#settings_save {
+    background: #EEEECC;
+}
+
+#settings_nav li a {
+    background: #DDDDAA;
+    border: 1px solid #999966;
+    border-bottom: none;
+}
+
+#settings_nav li a:hover, #settings_nav li a.active {
+    background: #EEEECC;
+}
+
+#settings_nav_title p {
+    background: #EEEECC;
+    border-left: 1px solid #999966;
+}
+
+/* cprod.css */
+
+.cprod.h3 {
+    background: #DDDDAA;
+    
+}
+
+.cprod content {
+    border: 1px solid #999966;
+}
+
+
+/* allpics styling */
+
+table.allpics {
+    margin-left: 50px;
+}
+
+.allpics td {
+    vertical-align: bottom;
+}
+
+.allpics img {
+    margin-right: 1em;
+    margin-top: 15px;
+}
+
+.allpics blank {
+    width: 50px;
+}
+
+
+/* editfilters styling */
+
+table.editfilters td {
+    padding: 5px;
+}
+
+
+/* FAQ */
+
+.faqlist {
+    list-style: square outside;
+    margin-bottom: 2em;
+}
+
+/* Inbox - Compose */
+
+.inbox-compose {
+    width: 100%;
+}
+
+.inbox-compose td {
+    vertical-align: top;
+}
+
+
+/* manage/invitecodes.bml */
+
+.invitecodes td {
+    padding: 5px;
+}

@@ -1,0 +1,212 @@
+# Celerity Site Scheme
+#
+# Authors:
+#     Emily Ravenwood <ravenwood@alltrees.org>
+#     Denise Paolucci <denise@dreamwidth.org>
+#  Based on Tropospherical Red authored by:
+#     Janine Costanzo <janine@netrophic.com>
+#     Jesse Proulx <jproulx@jproulx.net>
+#     Elizabeth Lubowitz <grrliz@gmail.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+_parent=>global.look
+
+h1=>{D}<h1>%%data%%</h1>
+h2=>{D}<h2>%%data%%</h2>
+p=>{D}<p>%%data%%</p>
+hr=><hr />
+
+de=><p style='font-size: smaller;'>%%data%%</p>
+emailex=><div style='width: 50%; font-family: courier; background-color: #efefef; border: dotted #cdcdcd 2px; padding: 5px;'>%%data%%</div>
+
+standout<=
+{DRps}<div class='standout'><table class='standout-inner'><tr><td>%%data%%</td></tr></table></div>
+<=standout
+
+head<=
+<head>
+    <title>
+    <?_code
+        my $elhash = $_[2];
+        return $elhash->{WINDOWTITLE} || $elhash->{TITLE};
+    _code?>
+    </title>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <?_code
+        LJ::need_res( "stc/lj_base-app.css" );
+        LJ::need_res( "stc/celerity/celerity.css" );
+
+    _code?>
+    <?_code LJ::res_includes(); _code?>
+
+    %%head%%
+</head>
+<=head
+
+logo<=
+<span id='sitename'><a href="<?siteroot?>"><?_code $LJ::SITENAMESHORT _code?></a></span>
+<=logo
+
+accountlinks<=
+<?_code
+{
+    my $remote = LJ::get_remote();
+    my $ret;
+
+    if ( $remote ) {
+        my $inbox = $remote->notification_inbox;
+        my $unread = $inbox->unread_count;
+        my $identity = $remote->is_identity;
+        my $wh = "";
+
+        $ret .= "<div id='account-links-text'>";
+        $ret .= "<form action='$LJ::SITEROOT/logout.bml?ret=1' method='post'>";
+        $ret .= $remote->ljuser_display;
+        $ret .= "<input type='hidden' name='user' value='" . $remote->user . "' />";
+        $ret .= "<input type='hidden' name='sessid' value='$remote->{_session}->{sessid}' />";
+        $ret .= " <input type='submit' value=\"$ML{'sitescheme.accountlinks.btn.logout'}\" />";
+        $ret .= "</form>";
+        $ret .= "<ul>";
+        $ret .= "<li><a href='$LJ::SITEROOT/update.bml'>$ML{'sitescheme.accountlinks.post'}</a>  &bull; </li>" unless $identity;
+        $ret .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'sitescheme.accountlinks.readinglist'}</a> &bull; </li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'sitescheme.accountlinks.inbox'}";
+        $ret .= " ($unread)" if $unread;
+        $ret .= "</a> &bull; </li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/'>$ML{'sitescheme.accountlinks.account'}</a></li> <br />";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/invite.bml'>$ML{'sitescheme.accountlinks.invitefriend'}</a> &bull; </li>" unless $identity;
+        $ret .= "<li><a href='$LJ::SITEROOT/support/'>$ML{'sitescheme.accountlinks.help'}</a></li>";
+        $ret .= "</ul>";
+        $ret .= "</div>";
+    } else {
+        my $chal = LJ::challenge_generate(300);
+
+        $ret .= "<form action='$LJ::SITEROOT/login.bml?ret=1' method='post'>";
+        $ret .= LJ::html_hidden( returnto => $GET{returnto} );
+        $ret .= "<input type='hidden' name='chal' class='lj_login_chal' value='$chal' />\n";
+        $ret .= "<input type='hidden' name='response' class='lj_login_response' value='' />\n";
+        $ret .= "<table id='login-table'>";
+        $ret .= "<tr><td><label for='login_user'>$ML{'sitescheme.accountlinks.login.username'}</label></td>";
+        $ret .= "<td class='input-cell' colspan='2'>" . LJ::html_text({
+            name => "user",
+            id => "login_user",
+            size => 20,
+            maxlength => 27,
+            tabindex => 1,
+        }) . " <a href='$LJ::SITEROOT/openid/'>$ML{'sitescheme.accountlinks.login.openid'}</a></td></tr>";
+        $ret .= "<tr><td><label for='login_password'>$ML{'sitescheme.accountlinks.login.password'}</label></td>";
+        $ret .= "<td class='input-cell' colspan='2'>" . LJ::html_text({
+            type => "password",
+            name => "password",
+            id => "login_password",
+            size => 20,
+            tabindex => 2,
+        }) . " <a href='$LJ::SITEROOT/lostinfo.bml'>$ML{'sitescheme.accountlinks.login.forgotpassword'}</a></td></tr>";
+        $ret .= "<tr><td>&nbsp;</td>";
+        $ret .= "<td class='remember-me-cell'>";
+        $ret .= LJ::html_check({
+            name => "remember_me",
+            id => "login_remember_me",
+            value => 1,
+            tabindex => 3,
+        });
+        $ret .= " <label for='login_remember_me'>$ML{'sitescheme.accountlinks.login.rememberme'}</label></td>";
+        $ret .= "<td>" . LJ::html_submit( login => $ML{'sitescheme.accountlinks.btn.login'}, { tabindex => 4 }) . "</td>";
+        $ret .= "</tr>";
+        $ret .= "</table>";
+        $ret .= "</form>";
+   }
+
+    return $ret;
+}
+_code?>
+<=accountlinks
+
+footer<=
+<ul>
+    <li><a href="<?siteroot?>/legal/privacy.bml"><?_ml sitescheme.footer.legal.privacypolicy _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/tos.bml"><?_ml sitescheme.footer.legal.tos _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/diversity.bml"><?_ml sitescheme.footer.legal.diversitystatement _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/principles.bml"><?_ml sitescheme.footer.legal.guidingprinciples _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/site/"><?_ml sitescheme.footer.sitemap _ml?></a></li>
+</ul>
+<p><?_ml sitescheme.footer.info _ml?></p>
+<=footer
+
+userpic<=
+<?_code
+{
+    my $remote = LJ::get_remote();
+    my $ret;
+
+    $ret .= "<div id='header-userpic'><a href='$LJ::SITEROOT/editpics.bml'>";
+
+    if ( $remote ) {
+        my $userpic = $remote->userpic;
+        if ( $userpic ) {
+            if ( $userpic->width > $userpic->height ) {
+                $wh = 'width="' . ( $userpic->width > 80 ? 80 : $userpic->width ) . '"';
+            } else {
+                $wh = 'height="' . ( $userpic->height > 80 ? 80 : $userpic->height ) . '"';
+            }
+            $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+        } else {
+            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' width='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+        }
+    }
+
+    $ret .= "</a></div>";
+    return $ret;
+}
+_code?>
+<=userpic
+
+page<=
+{Fps}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <?head?>
+    <body %%bodyopts%%>
+        <div id="canvas">
+            <div id="page">
+                <div id="masthead">
+                        <?logo?>
+                </div><!-- end masthead-->
+
+                <div id="content" class="layout-wide-right-sidebar">
+                <h1>%%title%%</h1>
+                %%body%%
+                </div><!--end content-->
+                <div id="page-decoration"></div>
+                </div><!-- end page-->
+                <div id="account-links">
+                    <?accountlinks?>
+                </div><!-- end account links-->
+                <div id="sidebar">
+                    <?userpic?>
+                    <?menunav?>
+                </div>
+                <div id="header-divider"> <div id="header-divider-insert"></div></div>
+                <div id="header-search">
+                    <?_code return LJ::Widget::Search->render; _code?>
+                </div><!-- end header-search--> 
+                <div id="footer">
+                    <?footer?>
+                </div>
+        </div> <!-- end canvas-->
+        <?_code LJ::final_body_html(); _code?>
+
+<?_code
+{
+    my $pagestats_obj = LJ::pagestats_obj();
+    return $pagestats_obj->render;
+}
+_code?>
+    </body>
+</html>
+<=page
