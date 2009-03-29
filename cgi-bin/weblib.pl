@@ -3226,6 +3226,7 @@ LOGIN_BAR
 
             $ret .= "<tr><td valign='top'>";
             $ret .= "<a href='$LJ::SITEROOT/lostinfo.bml'>$BML::ML{'web.controlstrip.login.forgot'}</a>";
+            $ret .= " <a href='$LJ::SITEROOT/openid/'>$BML::ML{'web.controlstrip.login.openid'}</a>";
             $ret .= "</td><td style='font: 10px Arial, Helvetica, sans-serif;' valign='top' colspan='2' align='right'>";
             $ret .= "<input type='checkbox' id='xc_remember' name='remember_me' style='height: 10px; width: 10px;' tabindex='3' />";
             $ret .= "<label for='xc_remember'>$BML::ML{'web.controlstrip.login.remember'}</label>";

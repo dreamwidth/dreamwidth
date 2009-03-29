@@ -3303,7 +3303,9 @@ web.controlstrip.links.viewreadingpage=Reading Page
 
 web.controlstrip.links.watchcomm=Subscribe to this community
 
-web.controlstrip.login.forgot=Forgot your password?
+web.controlstrip.login.forgot=(Forgot it?)
+
+web.controlstrip.login.openid=(OpenID?)
 
 web.controlstrip.login.remember=Remember Me
 
