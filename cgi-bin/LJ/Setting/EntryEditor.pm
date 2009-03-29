@@ -25,7 +25,7 @@ sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
 
-    my $editor = $class->get_arg($args, "entryeditor") || $u->prop("entry_editor");
+    my $editor = $class->get_arg($args, "entryeditor") || $u->prop("entry_editor") || "";
 
     my $ret;
     $ret .= LJ::html_check({

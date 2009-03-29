@@ -25,7 +25,7 @@ sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
 
-    my $embedplaceholders = $class->get_arg($args, "embedplaceholders") || $u->prop("opt_embedplaceholders") eq "Y";
+    my $embedplaceholders = $class->get_arg($args, "embedplaceholders") || ( $u->prop("opt_embedplaceholders") || "" ) eq "Y";
 
     my $ret = LJ::html_check({
         name => "${key}embedplaceholders",

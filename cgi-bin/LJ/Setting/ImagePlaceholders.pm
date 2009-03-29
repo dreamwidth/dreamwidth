@@ -25,8 +25,8 @@ sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
 
-    my $imgplaceholders = $class->get_arg($args, "imgplaceholders") || $u->prop("opt_imagelinks");
-    my $imgplaceundef = $class->get_arg( $args, "imgplaceundef" ) || $u->prop( "opt_imageundef" );
+    my $imgplaceholders = $class->get_arg($args, "imgplaceholders") || $u->prop("opt_imagelinks") || "";
+    my $imgplaceundef = $class->get_arg( $args, "imgplaceundef" ) || $u->prop( "opt_imageundef" ) || "";
 
     my ($maxwidth, $maxheight) = (0, 0);
     ($maxwidth, $maxheight) = ($1, $2)
