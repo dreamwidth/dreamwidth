@@ -49,7 +49,8 @@ body<=
         BML::note_mod_time( $faq->lastmodtime ); 
         $q =~ s/^\s+//; $q =~ s/\s+$//;
         $q =~ s!\n!<br />!g;
-        my $s = $faq->has_summary ? $faq->summary_html : '';
+        my $s = ( LJ::is_enabled( 'faq_summaries') && $faq->has_summary )
+            ? $faq->summary_html : '';
         $s =~ s/^\s+//;
         $s =~ s/\s+$//;
         $s =~ s/\n( +)/"\n" . "&nbsp;&nbsp;"x length( $1 )/eg;

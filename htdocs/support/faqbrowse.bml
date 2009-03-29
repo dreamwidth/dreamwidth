@@ -28,6 +28,7 @@ body<=
 
     # get faqid and redirect to faq.bml if none
     my $faqidarg = $GET{'faqid'} + 0;
+    # FIXME: disallow both faqid and faqcat (or ignore one)
     my $faqcatarg = $GET{'faqcat'};
     
     unless ($faqidarg || $faqcatarg) {
@@ -111,8 +112,22 @@ body<=
         my $summary = $f->summary_raw;
         my $answer = $f->answer_raw;
 
-        # Old FAQs don't have summaries, so show the answer instead
-        $summary = $answer unless $f->has_summary;
+        # What to display?
+        my $display_summary;
+        my $display_answer;
+        if ( $mode eq 'answer' ) { # answer, summary if present
+            $display_answer = 1;
+            $display_summary = $f->has_summary;
+        } else { # summary if there's one, answer if there's no summary
+            $display_summary = $f->has_summary;
+            $display_answer = !$display_summary;
+        }
+
+        # If summaries are disabled, pretend the FAQ doesn't have one.
+        unless ( LJ::is_enabled( 'faq_summaries' ) ) {
+            $display_answer ||= $display_summary;
+            $display_summary = 0;
+        }
 
         # escape question
         my $question = $f->question_html;
@@ -120,9 +135,10 @@ body<=
         $question =~ s/\n/<br \/>/g;
         
         # Clean this as if it were an entry, but don't allow lj-cuts
-        LJ::CleanHTML::clean_event(\$summary, {'ljcut_disable' => 1});
+        LJ::CleanHTML::clean_event(\$summary, {'ljcut_disable' => 1})
+            if $display_summary;
         LJ::CleanHTML::clean_event(\$answer,  {'ljcut_disable' => 1})
-            if $f->has_summary;
+            if $display_answer;
 
         # Highlight search terms
         my $term = sub {
@@ -135,6 +151,8 @@ body<=
             $question =~ s/(\Q$qterm\E)/$term->($1)/ige;
 
             # don't highlight terms in URLs or HTML tags
+            # FIXME: if the search term is present in a tag, should still
+            # highlight occurences outside tags.
             $summary =~ s!((?:https?://[^>]+)?\Q$qterm\E)!$term->($1)!ige
                 unless $summary =~ m!<[^>]*\Q$qterm\E[^>]*>!;
 
@@ -142,11 +160,15 @@ body<=
                 unless $answer =~ m!<[^>]*\Q$qterm\E[^>]*>!;
         }
 
-        if (LJ::are_hooks("faq.$faqid.transform")) {
-           # run hook to transform the text of this FAQ before it's finally rendered
-           LJ::run_hook("faq.$faqid.transform", $remote,
-                        question => \$question, summary => \$summary, answer => \$answer);
-        }
+        # run hook to transform the text of this FAQ before it's rendered
+        # FIXME: hook is responsible for clean-up if it changes $display_*
+        # from false to true. Should that be checked/enforced here instead?
+        # FIXME: do we even need that hook? It looks like LJ only ever used
+        # it to add stuff to LJ Talk FAQs, for Gizmo sponsorship.
+        LJ::run_hook( "faq.$faqid.transform", $remote, question => \$question,
+                      summary => \$summary, display_summary => \$display_summary,
+                      answer => \$answer, display_answer => \$display_answer)
+            if LJ::are_hooks( "faq.$faqid.transform" );
 
         # display output
         if ($faqcatarg) {
@@ -157,32 +179,32 @@ body<=
         }
         $$body .= "<div style='margin-left: 20px;'>";
 
-        $$body .= "<div name='summary' id='summary'>$summary</div>";
-        $$body .= "<br />";
+        if ( $display_summary ) {
+            $$body .= "<div name='summary' id='summary'>$summary</div>";
+            $$body .= "<br />";
 
-        if ($mode eq 'summary' && $f->has_summary) {
-            my $q = "&amp;q=" . LJ::eurl($qterm) if $qterm;
+            unless ( $display_answer ) {
+                my $q = "&amp;q=" . LJ::eurl($qterm) if $qterm;
 
-            $$body .= "<div id='rm' name='rm'>";
-            my $oc = $faqcatarg ? '' : "onclick='return showAnswer();'";
-            $$body .= "<b>(&nbsp;<a $oc href='faqbrowse.bml?faqid=$faqid$q&amp;view=full'>" .
-                "$ML{'.more'}</a>&nbsp;)</b>";
-            $$body .= "</div>";
+                $$body .= "<div id='rm' name='rm'>";
+                my $oc = $faqcatarg ? '' : "onclick='return showAnswer();'";
+                $$body .= "<b>(&nbsp;<a $oc href='faqbrowse.bml?faqid=$faqid$q&amp;view=full'>" .
+                    "$ML{'.more'}</a>&nbsp;)</b>";
+                $$body .= "</div>";
+            }
         }
 
-        if (!$faqcatarg && $f->has_summary) {
-            # If we're just viewing one faq and it has a summary
-            if ($mode eq 'answer') {
-                $$body .= "<div id='answer' name='answer'>$answer</div>";
-            } else {
-                $$body .= "<div id='answer' name='answer' style='display: none'>$answer</div>";
-            }
+        if ( $display_answer ) {
+            $$body .= "<div id='answer' name='answer'>$answer</div>";
+        } else {
+            $$body .= "<div id='answer' name='answer' style='display: none'>$answer</div>";
         }
 
         $$body .= "</div>";
 
         my $lastmodwho = LJ::get_username($f->lastmoduserid);
         if ($lastmodwho) {
+            # FIXME: lastmodtime and lastmodwho should be vars in .lastupdated
             $$body .= "<p align=\"right\"><b>$ML{'.lastupdated'}</b><br />"
                 . $f->lastmodtime . " ($lastmodwho)</p>";
         }

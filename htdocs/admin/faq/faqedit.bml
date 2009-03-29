@@ -25,7 +25,7 @@ body<=
     LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
     my $faqd = LJ::Lang::get_dom( "faq" );
     my $rlang = LJ::Lang::get_root_lang( $faqd );
-    my ( $faqcat, $sortorder, $question, $summary, $answer );
+    my ( $faqcat, $sortorder, $question, $summary, $answer, $has_summary );
 
     if ( $id != 0 ) {
         my $faq = LJ::Faq->load( $id, lang => $rlang->{lncode} )
@@ -36,6 +36,7 @@ body<=
         $question = $faq->question_raw;
         $summary = $faq->summary_raw;
         $answer = $faq->answer_raw;
+        $has_summary = $faq->has_summary;
         unless ( $ac_edit{'*'} || $ac_edit{$faqcat} ) {
             if ( %ac_edit ) {
                 return "<b>Error: </b> You do not have access to edit a FAQ question in the \"$faqcat\" category.";
@@ -62,12 +63,13 @@ body<=
             my $do_trans = sub {
                 my $id = shift;
                 return unless $faqd;
-                LJ::Lang::set_text($dbh, $faqd->{dmid}, $rlang->{lncode},
-                                   "$id.1question", $FORM{q}, $opts_question);
-                LJ::Lang::set_text($dbh, $faqd->{dmid}, $rlang->{lncode},
-                                   "$id.3summary", $FORM{s}, $opts_summary);
-                LJ::Lang::set_text($dbh, $faqd->{dmid}, $rlang->{lncode},
-                                   "$id.2answer", $FORM{a}, $opts_answer);
+                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode},
+                                    "$id.1question", $FORM{q}, $opts_question );
+                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode},
+                                    "$id.3summary", $FORM{s}, $opts_summary )
+                    if LJ::is_enabled( 'faq_summaries' );
+                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode},
+                                    "$id.2answer", $FORM{a}, $opts_answer );
             };
 
             if ( $id == 0 ) {
@@ -89,6 +91,7 @@ body<=
                 $do_trans->( $id ) if $id;
             } elsif ( $FORM{q} =~ /\S/ ) {
                 my $sortorder = $FORM{sortorder}+0 || 50;
+                # FIXME: don't overwrite existing summary if missing in form
                 $dbh->do( qq{ UPDATE faq SET question=?, summary=?, answer=?,
                                              faqcat=?, lastmoduserid=?,
                                              lastmodtime=NOW(), sortorder=?
@@ -148,19 +151,27 @@ body<=
         $ret .= "</p>";
     }
 
-    $ret .= "<?h1 Summary h1?> <?p (should be a shortish paragraph, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
+    if ( LJ::is_enabled( 'faq_summaries' ) || $has_summary ) {
+        # If FAQ has summary and summaries are disabled, leave field in, but
+        # make it read-only to let FAQ editors copy from it.
+        my $readonly = !LJ::is_enabled( 'faq_summaries' );
+        $ret .= "<?h1 Summary h1?> <?p (should be a shortish paragraph, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
 
-    $ret .= LJ::html_textarea( { name => 's', value => $summary,
-                                 rows => '10', cols => '70', wrap => 'soft' } );
-    $ret .= "</p>";
-
-    if ( $faqd && $id != 0 ) {
-        $ret .= "<p><b>Select modification level for summary:</b> ";
-        $ret .= LJ::html_select( { name => "sev_summary", selected => 0 },
-                                 0 => "Typo/etc (no notify)",
-                                 1 => "Minor (notify translators)",
-                                 2 => "Major (require translation updates)" );
+        $ret .= LJ::html_textarea( { name => 's', value => $summary,
+                                     rows => '10', cols => '70',
+                                     wrap => 'soft', disabled => $readonly } );
         $ret .= "</p>";
+
+        if ( $faqd && $id != 0 && !$readonly ) {
+            # If absent, severity will default to 0 (unchanged), which is
+            # the right thing for a readonly field.
+            $ret .= "<p><b>Select modification level for summary:</b> ";
+            $ret .= LJ::html_select( { name => "sev_summary", selected => 0 },
+                                     0 => "Typo/etc (no notify)",
+                                     1 => "Minor (notify translators)",
+                                     2 => "Major (require translation updates)" );
+            $ret .= "</p>";
+        }
     }
 
     $ret .= "<?h1 Answer h1?> <?p (long as you want, urls are automatically linked, same markup as journal entries, no lj-cut) p?><p>";
