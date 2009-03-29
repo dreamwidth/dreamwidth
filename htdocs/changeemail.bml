@@ -148,6 +148,7 @@ warn "send email to old address: $old_email";
         LJ::send_mail({
             'to'      => $old_email,
             'from'    => $LJ::ADMIN_EMAIL,
+            'fromname' => $LJ::SITENAME,
             'charset' => 'utf-8',
             'subject' => $ML{'/editinfo.bml.newemail_old.subject'},
             'body'    => BML::ml('/editinfo.bml.newemail_old.body2',

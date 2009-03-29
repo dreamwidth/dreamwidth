@@ -55,6 +55,7 @@ body<=
          'to' => $u->email_raw,
          'bcc' => $foru ? $remote->email_raw : undef,
          'from' => $LJ::ADMIN_EMAIL,
+         'fromname' => $LJ::SITENAME,
          'charset' => 'utf-8',
          'subject' => $ML{'.email.subject'},
          'body' => BML::ml('.email.body',
