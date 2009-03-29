@@ -379,10 +379,9 @@ body<=
     # comment and support stats
     my $csstats = join( ', ', ( $profile->comment_stats, $profile->support_stats ) );
     $ret .= qq{<p>$csstats</p>};
-    $ret .= q{ </div> };
 
     # other statistics
-    $ret .= q{ <div class='details_links'><p> };
+    $ret .= q{ <p> };
     $ret .= join( ', ', ( $profile->entry_stats, $profile->tag_stats, $profile->memory_stats, $profile->userpic_stats ) );
     $ret .= q{ </p></div></div></div></div> };
 

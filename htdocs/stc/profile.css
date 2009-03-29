@@ -129,11 +129,6 @@
         .details_stats .statusvis_msg {
             font-weight: bold;
         }
-
-.details_links {
-    padding: 12px 0 10px 0;
-}
-        
         
 .user_details p, .user_details_bottom {
     margin: 0;
