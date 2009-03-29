@@ -168,6 +168,7 @@ warn "send email to new address: $POST{'email'}";
         LJ::send_mail({
             'to' => $POST{'email'},
             'from' => $LJ::ADMIN_EMAIL,
+            'fromname' => $LJ::SITENAME,
             'charset' => 'utf-8',
             'subject' => $ML{'/editinfo.bml.newemail.subject'},
             'body' => BML::ml('/editinfo.bml.newemail.body2',
