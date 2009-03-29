@@ -35,6 +35,7 @@ sub default_theme {
 
     my %default_themes = (
         core2base => 'core2base/testing',
+        negatives => 'negatives/black',
     );
 
     my %local_default_themes = eval "use LJ::S2Theme_local; 1;" ? $class->local_default_themes($layout, %opts) : ();

@@ -1,0 +1,5 @@
+#NEWLAYER: negatives/black
+layerinfo type = "theme";
+layerinfo name = "Negatives Black";
+layerinfo redist_uniq = "negatives/black";
+

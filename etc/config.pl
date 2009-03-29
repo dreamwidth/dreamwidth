@@ -609,12 +609,11 @@
     # (16 bit unsigned int ... each bit is capability class flag)
     $NEWUSER_CAPS = 2;
 
-
+    # by default, give users a style
     $DEFAULT_STYLE = {
         'core' => 'core1',
-        'layout' => 'generator/layout',
-        'i18n' => 'generator/en',
-        'theme' => 'generator/nautical',
+        'layout' => 'negatives/layout',
+        'theme' => 'negatives/black',
     };
 
     ### /admin/fileedit setup
