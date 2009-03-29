@@ -1,3 +1,83 @@
 layerinfo "type" = "layout";
 layerinfo "name" = "Core 2 Testing";
 layerinfo redist_uniq = "core2base/layout";
+
+function Page::print_default_stylesheet() {
+    """<style type="text/css">""";
+    start_css();
+    """
+    <!--
+    html body{
+      background-color: #FFF;
+      margin:0 0.8em;
+      padding-left: 15em;
+      padding-right: 0;
+    }
+    
+    #canvas{
+      color: #000;
+      float:left;
+      width:100%;    
+      border-left:15em solid #FFF;
+      border-right:0 solid #FFF;
+      margin-left:-15em;
+      margin-right:0;
+      display:inline; /* So IE plays nice */
+    }
+
+    #header, #footer{
+      margin-left:-15em;
+      margin-right:0;
+      clear:both;
+    }
+
+    #header {
+      border-bottom: 0.1em solid #000;
+    }
+
+    #footer {
+      border-top: 0.1em solid #000;
+    }
+
+
+    #primary {
+      float:left;
+      width:100%;
+      margin-right:-100%;
+    }
+
+    #secondary {
+      float:left;
+      width:15em;
+      margin-left:-15em;
+      position:relative;
+    }
+
+    #tertiary {
+      float:right;
+      width:0;
+      margin-right:0;
+      position:relative;
+    }
+
+    .separator-pre {
+        border-bottom: 1px #000 solid;
+    }
+
+    body, td, th, table, p, div {
+    font-size: 100%;
+    font-family: """;
+    if ($*font_base != "") {
+        "\"$*font_base\"";
+        if ($*font_fallback != "none") {
+            ", ";
+        }
+    }
+    if ($*font_fallback != "none") {
+        print $*font_fallback;
+    }
+    ";\n}\n-->";
+    end_css();
+    "</style>\n";
+
+}

@@ -437,6 +437,9 @@ class Comment extends EntryLite
     function edittime_display (string datefmt, string timefmt) : string "edittime_display, with customized date/time formats.";
 
     function print_edit_text () "Print the text that says when this comment was edited.";
+
+    function print_poster()
+    "Output a line of text which says who posted a comment (just \"user\", or \"user posting in somejournal\")";
 }
 
 ### Userinfo
@@ -585,13 +588,19 @@ class Page
     function builtin print_reply_container(string{} opts) "Prints the area in which the quickreply box will go. Options you may specify are 'target' which will be the target id, and 'class' which will be the CSS class used by the container. If no container is available, quickreply will not work.";
 
     function print_navigation() [fixed] "Print out the page navigation links.";
+
+    function print_module_group_primary
+    "Prints first grouping of modules (such as a sidebar).";
+
+    function print_module_group_secondary
+    "Prints second grouping of modules (such as a sidebar).";
+
+    function print_module_group_tertiary
+    "Prints third grouping of modules (such as a sidebar).";
+
+    function print_module_group_quaternary
+    "Prints fourth grouping of modules (such as a sidebar).";
     
-    function sidebar_primary
-    "Prints primary sidebar.";
-
-    function sidebar_secondary
-    "Prints secondary sidebar.";
-
     function print_stylesheets
     "Prints all defined stylesheets, including default and user-defined ones.";
 
@@ -1189,22 +1198,44 @@ property int tags_module_limit {
 }
 set tags_module_limit = 50;
 
+property string entry_management_links {
+    des = "Select whether entry management links are printed as text or using the available icons";
+    values = "icons|icons|text|text-only|";
+}
+property string comment_management_links {
+    des = "When enabled, comment management links are printed as text instead of using available icons";
+    values = "icons|icons|text|text-only|";
+}
+set entry_management_links = "icons";
+set comment_management_links = "icons";
+
 ##===============================
 ## Display settings - sidebar
 ##===============================
 
 ## FIXME: exposing ordering/display via the wizard to be done
 #  Right now, hardcoded into the layer
-property string[][] sidebar_primary {
+property string[][] module_group_primary {
     des = "Primary sidebar members";
     noui = 1;
 }
-property string[][] sidebar_secondary {
+property string[][] module_group_secondary {
     des = "Secondary sidebar members";
     noui = 1;
 }
-set sidebar_primary = []; # Set in prop_init()
-set sidebar_secondary = []; # Set in prop_init()
+property string[][] module_group_tertiary {
+    des = "Tertiary sidebar members";
+    noui = 1;
+}
+property string[][] module_group_quaternary {
+    des = "Quaternary sidebar members";
+    noui = 1;
+}
+set module_group_primary = []; # Set in prop_init()
+set module_group_secondary = []; # Set in prop_init()
+
+set module_group_tertiary = []; # Set in prop_init()
+set module_group_quaternary = []; # Set in prop_init()
 
 ##===============================
 ## Display settings - modules
@@ -1381,7 +1412,7 @@ property string separator_image_position {
 }
 
 ##===============================
-## Journal style - colors
+## Journal style - basic colors
 ##===============================
 
 property Color color_comment_bar {
@@ -1443,6 +1474,22 @@ property Color theme_linkcolor {
     noui = 1;
 }
 set theme_linkcolor = "";
+
+
+##===============================
+## Journal style - element colors
+##===============================
+property Color entry_link_color         { des = "Entry link color"; }
+property Color entry_link_color_hover   { des = "Entry link color on hover"; }
+property Color entry_link_color_visited { des = "Entry link color when visited"; }
+property Color entry_border             { des = "Color of entry border and comment background"; }
+property Color entry_background         { des = "Entry background color"; }
+
+property Color metadata_color           { des= "Color of metadata (mood/music) text"; }
+
+property Color comments_link_color       { des="Color of comment section links and text"; }
+property Color comments_link_color_hover { des="Color of comment section links when hovered"; }
+
 
 ##===============================
 ## Custom CSS
@@ -2044,18 +2091,24 @@ set lang_dayname_shorter = [ "", "S", "M",  "T", "W",
 function prop_init ()
   "This function is the first thing called and is the place to set properties based on the values of other properties.  It's called before the style system looks at its builtin properties, so if you need to conditionally setup something based on your own custom properties, do it here.  You can't print from this function."
 {
-    $*sidebar_primary = [
+    $*module_group_primary = [
         [ "userprofile", "", "0", "1" ],
         [ "navlinks", "" ],
-        [ "calendar" ],
+        [ "calendar", "" ],
         [ "links", $*text_links ],
         [ "syndicate", $*text_syndicate ],
     ];
 
-    $*sidebar_secondary = [
+    $*module_group_secondary = [
         [ "tags", $*text_tags_section_header, "" ],
         [ "tags", $*text_tags_section_header, "multi" ],
+        [ "tags", $*text_tags_section_header, "cloud" ],
         [ "pagesummary", $*text_page_summary ],
+    ];
+
+    $*module_group_tertiary = [
+        [ "time", "" ],
+        [ "poweredby", "" ],
     ];
 }
 
@@ -2317,11 +2370,15 @@ function UserLite::print_linkbar() {
 }
 
 function UserLite::print_interaction_links() {
+    """<ul class="userlite-interaction-links">""";
     var Link link;
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
-        " $link ";
+        if ($link.url) {
+            """<li class="link $k">$link</li>\n""";
+        }
     }
+    """</ul>""";
 }
 
 function Friend::print() {
@@ -2342,81 +2399,8 @@ function User::print_userpic() [fixed] {
 function Page::print_default_stylesheet() {
     """<style type="text/css">""";
     start_css();
-    """
-    <!--
-    html body{
-      background-color: #FFF;
-      margin:0 0.8em;
-      padding-left: 15em;
-      padding-right: 0;
-    }
-    
-    #canvas{
-      color: #000;
-      float:left;
-      width:100%;    
-      border-left:15em solid #FFF;
-      border-right:0 solid #FFF;
-      margin-left:-15em;
-      margin-right:0;
-      display:inline; /* So IE plays nice */
-    }
-
-    #header, #footer{
-      margin-left:-15em;
-      margin-right:0;
-      clear:both;
-    }
-
-    #header {
-      border-bottom: 0.1em solid #000;
-    }
-
-    #footer {
-      border-top: 0.1em solid #000;
-    }
-
-
-    #primary {
-      float:left;
-      width:100%;
-      margin-right:-100%;
-    }
-
-    #secondary {
-      float:left;
-      width:15em;
-      margin-left:-15em;
-      position:relative;
-    }
-
-    #tertiary {
-      float:right;
-      width:0;
-      margin-right:0;
-      position:relative;
-    }
-
-    .separator-pre {
-        border-bottom: 1px #000 solid;
-    }
-
-    body, td, th, table, p, div {
-    font-size: 100%;
-    font-family: """;
-    if ($*font_base != "") {
-        "\"$*font_base\"";
-        if ($*font_fallback != "none") {
-            ", ";
-        }
-    }
-    if ($*font_fallback != "none") {
-        print $*font_fallback;
-    }
-    ";\n}\n-->";
     end_css();
-    "</style>\n";
-
+    """</style>\n""";
 }
 
 function Page::print_stylesheets() {
@@ -2520,6 +2504,56 @@ function Page::title() [notags] : string {
 
 function server_sig() {
     """<span id="site-branding">$*text_powered_by <a href="$*SITEROOT/">$*SITENAME</a></span>""";
+}
+
+function print_tag_manage_link() "Prints out a link to the tag management page, if the viewer is the owner of the journal in question.  Does not work on community pages."
+{
+    var Page p = get_page();
+    print viewer_is_owner() ? "<div class=\"manage-tags-link\"><a href=\"" + $p.journal->tag_manage_url() + "\">$*text_tags_manage</a></div>" : "";
+}
+
+function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'text_tags_uses' (property name to use for tags use), 'list-class' and 'item-class'"
+{    
+    var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
+    var string item_class = $opts{"item-class"} ? """class="$opts{"item-class"}" """ : "";
+
+    println """<ul $list_class>""";
+    foreach var TagDetail t ($tagslist) {
+            var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
+            println """<li $item_class><a href="$t.url" title="$uses">$t.name</a></li>\n""";
+    }
+    println """</ul>""";
+}
+
+function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags in a cloud. Takes as arguments the taglist and a hash with optional arguments 'text_tags_uses' (property name to use for tags use), 'min_size' (minimum size in ems, times 10), 'maz_size' (maximum size in ems, times 10), 'list-class' and 'item-class'"
+{
+
+    var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
+    var string item_class = $opts{"item-class"} ? """class="$opts{"item-class"}" """ : "";
+
+    var int min_size = $opts{"min_size"} ? int($opts{"maz_size"}) : 9;
+    var int maz_size = $opts{"maz_size"} ? int($opts{"maz_size"}) : 20;
+    var int high_count = 1;
+
+    println """<div $list_class>""";
+    foreach var TagDetail t ($tagslist)
+	{
+	    if ($t.use_count > $high_count) { $high_count = $t.use_count; }
+	}
+
+	foreach var TagDetail t ($tagslist)
+        {
+            var string tag_size = string($min_size);
+	    if ($t.use_count > 1)
+	    {
+                $tag_size = string((($maz_size-$min_size)*$t.use_count)/$high_count + $min_size);
+            }   
+            var string tag_size_em = $tag_size->substr(0,($tag_size->length())-1) + "." + $tag_size->substr(($tag_size->length())-1,1) + "em";
+            var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
+            println """<span $item_class style="font-size: $tag_size_em;"><a href="$t.url" title="$uses">$t.name</a></span> \n""";
+        }
+    println """</div>""";
+
 }
 
 function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of multilevel tags. Takes as arguments the taglist and a hash with optional arguments 'text_tags_uses' (property name to use for tags use), 'list-class' and 'item-class'"
@@ -2784,64 +2818,83 @@ function print_module_pagesummary(string title) {
 function print_module_tags(string title, string tags_type) {
     var Page p = get_page();
     var TagDetail[] tags = $p->visible_tag_list($*tags_module_limit);
-    var string tag_manage_link = viewer_is_owner() ? "<a href=\"" + $p.journal->tag_manage_url() + "\">$*text_tags_manage</a>" : "";
     if (size($tags) < 1) {
         return;
     }
     elseif ($tags_type == "multi") {
         open_module("categories_multilevel", $title, $p.view_url{"tags"});
         print_multilevel_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
-        print $tag_manage_link;
+        print_tag_manage_link();
+        close_module();
+    }
+    elseif ($tags_type == "cloud") {
+        open_module("categories_cloud", $title, $p.view_url{"tags"});
+        print_cloud_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
+        print_tag_manage_link();
         close_module();
     }
     else {
         open_module("categories", $title, $p.view_url{"tags"});
-        var string[] links = [];
-        foreach var TagDetail tag ($tags) {
-            $links[size $links] = """<a href="$tag.url">$tag.name</a>""";
-         }
-         print_module_list($links);
-        print $tag_manage_link;
+        print_list_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
+        print_tag_manage_link();
         close_module();
     }
 }
 
-function print_module_calendar() {
+function print_module_calendar(string calendar_type) {
     var Page p = get_page();
     var YearMonth mon = $p->get_latest_month();
-    open_module("calendar", $mon->month_format("", true), "");
 
-    println """<table summary="Monthly calendar with links to each day's posts">""";
-
-    println "<tr>";
-    foreach var int d (weekdays()) {
-        "<th>"+$*lang_dayname_shorter[$d]+"</th>\n";
+    if ($calendar_type=="horizontal") {
+        open_module("calendar","", "");
+        print $mon->month_format("%%month%%", true);
+        foreach var YearWeek week ($mon.weeks) {
+            foreach var YearDay day ($week.days) {
+                if ($day.num_entries > 0) {
+                    print """<span class="entry-day"> <a href="$day.url">$day.day</a> </span>""";
+                }
+                else {
+                print """<span class="empty-day"> $day.day </span>""";
+                }
+            }
+        }
+        print $mon->month_format("%%yyyy%%", true);
+        close_module();
     }
-    println "</tr>";
+    else {
+        open_module("calendar", $mon->month_format("", true), "");
+        println """<table summary="Monthly calendar with links to each day's posts">""";
 
-    foreach var YearWeek week ($mon.weeks) {
         println "<tr>";
-        foreach var int i (1 .. $week.pre_empty) {
-            print "<td>&nbsp;</td>";
+        foreach var int d (weekdays()) {
+            "<th>"+$*lang_dayname_shorter[$d]+"</th>\n";
+        }
+       println "</tr>";
+
+        foreach var YearWeek week ($mon.weeks) {
+            println "<tr>";
+            foreach var int i (1 .. $week.pre_empty) {
+                print "<td>&nbsp;</td>";
+            }
+
+            foreach var YearDay day ($week.days) {
+                if ($day.num_entries > 0) {
+                    print """<td class="entry-day"><a href="$day.url">$day.day</a></td>""";
+                }
+                else {
+                print """<td class="empty-day">$day.day</td>""";
+                }
+            }
+
+            foreach var int i (1 .. $week.post_empty) {
+                print "<td>&nbsp;</td>";
+            }
+            println "</tr>";
         }
 
-        foreach var YearDay day ($week.days) {
-            print "<td>";
-            if ($day.num_entries > 0) { print """<a href="$day.url">"""; }
-            print $day.day;
-            if ($day.num_entries > 0) { print """</a>"""; }
-            print "</td>";
-        }
-
-        foreach var int i (1 .. $week.post_empty) {
-            print "<td>&nbsp;</td>";
-        }
-        println "</tr>";
+        println """</table>""";
+        close_module();
     }
-
-    println """</table>""";
-
-    close_module();
 }
 function print_module_syndicate(string title) {
     var Page p = get_page();
@@ -2892,7 +2945,7 @@ function print_module_links(string title) {
     }
 }
 
-function handle_sidebar_array(string[][] list) {
+function handle_module_group_array(string[][] list) {
     foreach var string[] item ($list) {
         var string module = $item[0];
         var string title = $item[1];
@@ -2919,7 +2972,8 @@ function handle_sidebar_array(string[][] list) {
             print_module_tags($title, $tags_type);
         }
         elseif ($module == "calendar") {
-            print_module_calendar();
+            var string calendar_type = $item[1];
+            print_module_calendar($calendar_type);
         }
         elseif ($module == "syndicate") {
             print_module_syndicate($title);
@@ -2935,12 +2989,27 @@ function handle_sidebar_array(string[][] list) {
     }
 }
 
-function Page::sidebar_primary() {
-    handle_sidebar_array($*sidebar_primary);
+function Page::print_module_group_primary() {
+    """<div class="module-group-primary">""";
+    handle_module_group_array($*module_group_primary);
+    """</div>""";
 }
-function Page::sidebar_secondary() {
-    handle_sidebar_array($*sidebar_secondary);
+function Page::print_module_group_secondary() {
+    """<div class="module-group-secondary">""";
+    handle_module_group_array($*module_group_secondary);
+    """</div>""";
 }
+function Page::print_module_group_tertiary() {
+    """<div class="module-group-tertiary">""";
+    handle_module_group_array($*module_group_tertiary);
+    """</div>""";
+}
+function Page::print_module_group_quaternary() {
+    """<div class="module-group-quarternary">""";
+    handle_module_group_array($*module_group_quaternary);
+    """</div>""";
+}
+
 
 function Page::print() {
     """<html>\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
@@ -2970,8 +3039,8 @@ function Page::print() {
                     </div></div><!-- end primary and primary>inner -->
                     <div id="secondary"><div class="inner">
                         """;
-                        $this->sidebar_primary();
-                        $this->sidebar_secondary();
+                        $this->print_module_group_primary();
+                        $this->print_module_group_secondary();
     """
                     </div></div><!--  end secondary and secondary>inner -->
                     <div id="tertiary"><div class="inner">
@@ -2990,8 +3059,7 @@ function Page::print() {
             print safe """
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
             """;
-            print_module_time("");
-            print_module_poweredby("");
+            $this->print_module_group_tertiary();
             """
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
@@ -3025,6 +3093,8 @@ function Page::print_time(string datefmt, string timefmt) {
 function Page::print_body() {
     """<h2>No Default Renderer</h2><p>There is no body renderer for viewtype <tt>$.view</tt> defined.</p>""";
 }
+
+function Page::print_navigation() {}
 
 function Page::print_head() {
     print $.head_content;
@@ -3069,6 +3139,14 @@ function Page::print_entry_poster(EntryLite e) {
         }
     }
 }
+
+# For any given comment, print the commentor's name (local, anonymous, or openid)
+function Comment::print_poster() {
+    var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
+    print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n";
+}
+
+
 function Page::print_entry(Entry e) {
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     """<div class="entry-wrapper" id="entry-wrapper-$e.itemid">\n""";
@@ -3096,6 +3174,7 @@ function Page::print_entry(Entry e) {
     if ($this isa EntryPage) {
         "<hr>";
         $e->print_interaction_links("topcomment");
+        $this->print_reply_container({ "target" => "topcomment" });
         "<hr>";
     }
     else {
@@ -3195,6 +3274,7 @@ function Entry::print_tags() [fixed] {
 }
 
 function EntryLite::print_userpic() [fixed] {
+    print "<div class=\"userpic\">";
     if ( defined $this.userpic )
     {
         if ( $this.poster.journal_type == "I" )
@@ -3212,6 +3292,7 @@ function EntryLite::print_userpic() [fixed] {
             print "</a>";
         }
     }
+    println "</div>";
 }
 
 ## Deprecated. Use EntryLite::print_management_links();
@@ -3219,11 +3300,20 @@ function EntryLite::print_linkbar() { $this->print_management_links(); }
 
 function EntryLite::print_management_links() {}
 function Comment::print_management_links() {
+    """<ul class="comment-management-links">""";
     var Link link;
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
-        " $link ";
+        if ($link.url) {
+            if ($*comment_management_links == "text") {
+                """<li class="link $k"><a href="$link.url">$link.caption</a></li>\n""";
+            }
+            else { ## if ($*comment_management_links == "icon")
+                """<li class="link $k">$link</li>\n""";
+            }
+        }
     }
+    """</ul>""";
 }
 
 ## Deprecated. Use EntryLite::print_interaction_links();
@@ -3231,61 +3321,78 @@ function EntryLite::print_item_linkbar() { $this->print_interaction_links(); }
 
 function EntryLite::print_interaction_links() {}
 function Comment::print_interaction_links() {
-if ($this.frozen) {
-        print safe "($*text_comment_frozen) ";
+    """<ul class="comment-interaction-links">""";
+    if ($this.frozen) {
+        print safe """<li class="link frozen">$*text_comment_frozen</li>""";
     } else {
+        """<li class=link reply">""";
         $this->print_reply_link({"linktext" => $*text_comment_reply});
+        """</li>""";
     }
-    if ($this.parent_url != "") { print safe "(<a href='$this.parent_url'>$*text_comment_parent</a>) "; }
+    if ($this.parent_url != "") { print safe """<li class="link parent"><a href="$this.parent_url">$*text_comment_parent</a></li>"""; }
     if ($this.thread_url != "") {
-        print safe "(<a href='$this.thread_url'>$*text_comment_thread</a>) ";
+        print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>""";
         var Link expand_link = $this->get_link("expand_comments");
         if (defined $expand_link) {
+            """<li class=link expand">""";
             $this->print_expand_link();
+            """</li>""";
         }
     }
+    """</ul>""";
 }
 
 function Entry::print_link_next() {
     var Link link = $this->get_link("nav_next");
-    " $link";
+    if ($*entry_management_links == "text") {
+         """<a href="$link.url">$link.caption</a>""";
+    }
+    else {
+        " $link";
+    }
 }
 function Entry::print_link_prev() {
     var Link link = $this->get_link("nav_prev");
-    "$link ";
+    if ($*entry_management_links == "text") {
+         """<a href="$link.url">$link.caption</a>""";
+    }
+    else {
+        " $link";
+    }
 }
 function Entry::print_management_links() {
     ## There's no point in showing previous/next links on pages which show
     ## multiple entries anyway, so we only print them on EntryPage and ReplyPage.
 
     var Page p = get_page();
+    """<ul class="entry-management-links">""";
     var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
     if ($show_interentry) {
+        """<li class="link link_prev">""";
         $this->print_link_prev();
+        """</li>""";
     }
     var Link link;
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
-        " $link ";
+        if ($link.url) {
+            if ($*entry_management_links == "text") {
+                """<li class="link $k"><a href="$link.url">$link.caption</a></li>\n""";
+            }
+            else { ## if ($*entry_management_links == "icon")
+                """<li class="link $k">$link</li>\n""";
+            }
+        }
     }
     if ($show_interentry) {
+        """<li class="link link_next">""";
         $this->print_link_next();
+        """</li>""";
     }
+    """</ul>""";
 }
 function Entry::print_interaction_links() {
-    if ($this.comments.enabled) {
-        """<div style="text-align: right;">\n""";
-        if ($this.comments.show_readlink) {
-            $this.comments->print_readlink();
-        }
-        if ($this.comments.show_postlink and $this.comments.show_readlink) {
-            print $*text_interaction_links_sep;
-        }
-        if ($this.comments.show_postlink) {
-            $this.comments->print_postlink();
-        }
-        "</div>";
-    }
+    $this->print_interaction_links( "" );
 }
 
 ## Deprecated. Use print_interaction_links instead
@@ -3300,10 +3407,10 @@ function Entry::print_interaction_links(string target) {
             var EntryPage ep = $p as EntryPage;
             if ($ep.comment_pages.total_subitems > 0) {
                 $this.comments->print_readlink();
-                " | ";                
+                print $*text_interaction_links_sep;                
             }
-            $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => "$target" });
-            $ep->print_reply_container({ "target" => "$target" });
+            
+            $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
         }
         else {
             $this.comments->print();
@@ -3330,6 +3437,7 @@ function RecentPage::print_body {
     foreach var Entry e ($.entries) {
         # Print the entry
         $this->print_entry($e);
+        print "<hr>";
     }
 
     $this->print_navigation();
@@ -3737,7 +3845,7 @@ function DayPage::print_body() {
                 <div class="inner">
             """;            
             if ($.has_entries) {
-                print "<h3>" + $.date->date_format( "long" ) + "<h3>";
+                print "<h3>" + $.date->date_format( "long" ) + "</h3>";
                 foreach var Entry e ($.entries) {
                     $this->print_entry($e);
                 }
@@ -3798,17 +3906,17 @@ function CommentInfo::print_postlink() {
 }
 function CommentInfo::print() {
     if ($.show_readlink or $.show_postlink) {
-        """<div style="text-align: right;">\n(""";
+        """<div style="text-align: right;">\n""";
         if ($.show_readlink) {
             $this->print_readlink();
         }
         if ($.show_postlink and $.show_readlink) {
-            " | ";
+            print $*text_interaction_links_sep;
         }
         if ($.show_postlink) {
             $this->print_postlink();
         }
-        ")</div>";
+        "</div>";
     }
 }
 
@@ -3862,6 +3970,7 @@ function EntryPage::print_comment_section(Entry e) {
     if ($.comment_pages.total_subitems > 0) {
         "<hr>";
         $e->print_interaction_links("bottomcomment");
+        $this->print_reply_container({ "target" => "bottomcomment" });
         "<hr>";
         $this->print_multiform_actionline();
         $this->print_multiform_end();
@@ -3887,20 +3996,12 @@ function EntryPage::print_comment (Comment c) {
     var Color barlight = $*color_comment_bar->clone();
     $barlight->lightness(($barlight->lightness() + 255) / 2);
     var Color barc = $c.depth % 2 ? $*color_comment_bar : $barlight;
-    var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
-
     "<a name='$c.anchor'></a><div style='background-color: $barc; margin-top: 10px; width: 100%'>";
-    "<table cellpadding='2' cellspacing='0' summary='0' style='width: 100%'><tr valign='top'>";
     $c->print_userpic();
-    "<td><table style='width: 100%'><tr>";
-    "<td align='left' style='width: 50%'>";
-      print "<table>";
-      print safe "<tr><th align='right'>$*text_comment_from</th><td>$poster</td></tr>\n";
-      print safe "<tr><th align='right'>$*text_comment_date</th><td style='white-space: nowrap'>";
+    $c->print_poster();
+      print safe "$*text_comment_date";
       $c->print_time();
-        print "</td></tr>";
-      if ($c.metadata{"poster_ip"}) { print safe "<tr><th align='right'>$*text_comment_ipaddr</th><td>(" + $c.metadata{"poster_ip"} + ")</td></tr>"; }
-    "</table></td>";
+      if ($c.metadata{"poster_ip"}) { print safe "$*text_comment_ipaddr(" + $c.metadata{"poster_ip"} + ")"; }
 
     print "<td align='right' style='width: 50%'>";
     if ($this.multiform_on) {
@@ -3908,9 +4009,7 @@ function EntryPage::print_comment (Comment c) {
         $c->print_multiform_check();
     }
     $c->print_management_links();
-    "</td></tr>";
 
-    print "<tr valign='top'><td style='width: 50%'>";
     if (defined $c.subject_icon or $c.subject != "" or $c.screened) {
         "<h3>$c.subject_icon";
         $c->print_subject();
@@ -3919,10 +4018,9 @@ function EntryPage::print_comment (Comment c) {
         }
         "</h3>\n";
     }
-    print "</td>";
 
-    print safe "<td style='width:50%;' align='right'><strong>(<a href='$c.permalink_url'>$*text_permalink</a>)</strong></td></tr>\n";
-    print "</table></td></tr></table></div>";
+    print safe "<strong>(<a href='$c.permalink_url'>$*text_permalink</a>)</strong>\n";
+    print "</div>";
 
     print "<div style='margin-left: 5px'>"; $c->print_text(); "</div>\n";
     print "<div style='margin-top: 3px; font-size: smaller'>";
@@ -3943,17 +4041,13 @@ function EntryPage::print_comment_partial (Comment c) {
 
 function ItemRange::print() {
     if ($.all_subitems_displayed) { return; }
-    print "<table align='center' border='0' cellpadding='3'>";
-    print "<tr><td align='center' colspan='3'><b>" +
-        lang_page_of_pages($.current, $.total) + "</b>";
-    print "</td></tr>";
+    print "<b>" + lang_page_of_pages($.current, $.total) + "</b>";
     var string url_prev = $this->url_of($.current - 1);
     if ($.current != 1) {
-        print "<tr><td align='center'><a href='$url_prev#comments'>&lt;&lt;</a></td>";
+        print "<a href='$url_prev#comments'>&lt;&lt;</a>";
     } else {
-        print "<tr><td align='center'>&lt;&lt;</td>";
+        print " &lt;&lt; ";
     }
-    print "<td align='center'>";
     foreach var int i (1..$.total) {
         if ($i == $.current) { "<b>[$i]</b> "; }
         else {
@@ -3964,11 +4058,10 @@ function ItemRange::print() {
     print "</td>";
     var string url_next = $this->url_of($.current + 1);
     if ($.current != $.total) {
-        print "<td align='center'><a href='$url_next#comments'>&gt;&gt;</a></td>";
+        print "<a href='$url_next#comments'>&gt;&gt;</a>";
     } else {
-        print "<td align='center'>&gt;&gt;</td>";
+        print " &gt;&gt; ";
     }
-    print "</tr></table>";
 }
 
 function EntryPage::print_body
@@ -3985,13 +4078,10 @@ function ReplyPage::print_body
         return;
     }
 
-    "<table><tr valign='middle'>";
         $.replyto->print_userpic();
-    print "<td>";
     $this->print_entry_poster($.replyto);
     print "<br />";
     $.replyto->print_time();
-    "</td></tr></table>\n";
 
     print "<h2>";
     if ($.replyto isa Entry) {
