@@ -109,12 +109,6 @@ an <acronym>ISO</acronym> language code.</para>
 </listitem>
 </varlistentry>
 
-<varlistentry><term>Underage</term>
-<listitem>
-<para>Status of the underage flag on the user account.</para>
-</listitem>
-</varlistentry>
-
 <varlistentry><term>Support Category</term>
 <listitem>
 <para>To help sort open/pending and closed requests, you can set up categories.

@@ -116,12 +116,6 @@ add_conf('@COOKIE_DOMAIN_RESET',
          STUPID_BECAUSE => "ancient hack for one old specific use",
          );
 
-add_conf('$COPPA_CHECK',
-         required => 0,
-         type => "bool",
-         des => "If set, new users are asked for their birthday for COPPA compliance.",
-         );
-
 add_conf('$DB_LOG_HOST',
          required => 0,
          type => "hostport",
@@ -454,10 +448,6 @@ add_conf('$TALK_MAX_URLS',
 add_conf('$TOOLS_RECENT_COMMENTS_MAX',
          type => 'int',
          des => "Number of recent comments to show on /tools/recent_comments.bml");
-
-add_conf('$UNDERAGE_ERROR',
-         type => 'html',
-         des => "Error message to show underage users.");
 
 add_conf('$USE_ADS',
          type => 'int',

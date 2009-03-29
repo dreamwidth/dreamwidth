@@ -310,7 +310,7 @@ sub _basic_info_display_name {
             text => "<img src='$LJ::IMGPREFIX/xml.gif' width='36' height='14' align='absmiddle' border='0' alt=\"" . LJ::Lang::ml( '.syn.xml' ) . "\" /></a>",
         };
     } else {
-        unless ( $u->underage || $name eq $u->prop( 'journaltitle' ) ) {
+        unless ( $name eq $u->prop( 'journaltitle' ) ) {
             $ret->[0] = LJ::Lang::ml( '.label.name' );
             $ret->[1] = $name;
         }

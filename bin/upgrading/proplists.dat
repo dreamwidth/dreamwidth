@@ -1102,14 +1102,6 @@ userproplist.trusted_s1:
   multihomed: 0
   prettyname: Trusted S1 Styles
 
-userproplist.underage_status:
-  cldversion: 4
-  datatype: char
-  des: Notes about underage status; Y: underage due to birthday; C: underage due to cookie.
-  indexed: 0
-  multihomed: 0
-  prettyname: Underage Status
-
 userproplist.url:
   cldversion: 4
   datatype: char

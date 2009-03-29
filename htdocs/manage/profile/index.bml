@@ -27,10 +27,6 @@ body<=
     my $remote = LJ::get_remote()
         or return $print_with_ad->("<?needlogin?>");
 
-    if ($remote->underage) {
-        return BML::redirect("$LJ::SITEROOT/agecheck/?s=1");
-    }
-
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
     return $print_with_ad->(LJ::bad_input("You could not be authenticated as the specified user."))
@@ -172,23 +168,18 @@ body<=
                                 '', '', map { $_, LJ::Lang::month_long_ml($_) } (1..12)) . " ";
         $ret .= LJ::html_text({ 'name' => 'day', 'value' => $bdpart{'day'}, 'size' => '3', 'maxlength' => '2' }) . " ";
         $ret .= LJ::html_text({ 'name' => 'year', 'value' => $bdpart{'year'}, 'size' => '5', 'maxlength' => '4' });
-        $ret .= "<div class='helper'>$ML{'.birthday.underage'}</div>" if $u->is_child;
 
-        # For children only allow them to update birthdate info if it already exists
         $ret .= "<div style=\"padding-top: .5em;\">\n";
         $ret .= " <label for='opt_sharebday'>$ML{'.share.birthday'}</label>\n";
         my $opt_sharebday = ($u->opt_sharebday =~ m/^(A|F|N|R)$/) ? $u->opt_sharebday : 'F';
         $ret .= LJ::html_select({ 'name' => 'opt_sharebday',
                                   'selected' => $opt_sharebday },
                                   { text => BML::ml(".security.visibility.everybody"),
-                                    value => "A",
-                                    disabled => $u->is_child,},
+                                    value => "A",},
                                   { text => BML::ml(".security.visibility.regusers"),
-                                    value => "R",
-                                    disabled => $u->is_child,},
+                                    value => "R",},
                                   { text => BML::ml(".security.visibility.friends"),
-                                    value => "F",
-                                    disabled => $u->is_child,},
+                                    value => "F",},
                                   { text => BML::ml(".security.visibility.nobody"),
                                     value => "N",});
 
@@ -313,11 +304,9 @@ body<=
         $ret .= LJ::html_select({ 'name' => 'allow_contactshow',
                                       'selected' => $u->opt_showcontact},
                                       { text => BML::ml(".security.visibility.everybody"),
-                                        value => "Y",
-                                        disabled => $u->is_child,},
+                                        value => "Y",},
                                       { text => BML::ml(".security.visibility.regusers"),
-                                        value => "R",
-                                        disabled => $u->is_child,},
+                                        value => "R",},
                                       { text => BML::ml(".security.visibility.friends"),
                                         value => "F",},
                                       { text => BML::ml(".security.visibility.nobody"),
@@ -540,10 +529,6 @@ body<=
             push @errors, $ML{'.error.day.outofrange'};
         }
 
-        if ($u->is_child && $POST{'opt_sharebday'} ne "N") {
-            push @errors, $ML{'.error.bday.child'};
-        }
-
         if (@errors == 0 && $POST{'day'} > LJ::days_in_month($POST{'month'}, $POST{'year'})) {
             push @errors, $ML{'.error.day.notinmonth'};
         }
@@ -565,10 +550,6 @@ body<=
             unless (@errors) {
                 LJ::check_email($POST{'email'}, \@errors);
             }
-        }
-
-        if ($u->is_child && $POST{'allow_contactshow'} =~ /[YR]/) {
-            push @errors, $ML{'.error.contact.child'};
         }
 
         if ($POST{'LJ__Setting__UserMessaging_opt_usermsg'} && !$POST{'LJ__Setting__UserMessaging_opt_usermsg'} =~ /^[MFNY]$/) {

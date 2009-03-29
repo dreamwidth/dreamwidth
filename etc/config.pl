@@ -61,13 +61,6 @@
     ### Policy Options
     ###
 
-    # collect birthdays to mark users as underage (under 13).  note that you will
-    # need to create a new cap class for underage users...
-    $COPPA_CHECK = 0;
-    #$UNDERAGE_BIT = ?;
-    # and then set $UNDERAGE_BIT to be the bit number for the capability class to
-    # put underage users in.  off by default.
-
     $TOS_CHECK = 0;     # require users to agree to TOS
     $UNIQ_COOKIES = 1;  # give users uniq cookies to help fight abuse
 

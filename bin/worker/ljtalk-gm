@@ -304,32 +304,26 @@ sub _avatar_want {
         }
 
         my $vcard_data;
-        if ($u->underage) {
-            # we can't release any info if the user is underage
-            $vcard_data  = qq{<NICKNAME>$u->{user}</NICKNAME>};
-        } else {
-            $u->preload_props(qw(city state zip country url ));
+        $u->preload_props(qw(city state zip country url ));
 
+        $vcard_data  = '<NICKNAME>' . LJ::exml($u->{user}) . '</NICKNAME>';
+        $vcard_data .= '<N><GIVEN>' . LJ::exml($u->{name}) . '</GIVEN></N>' if($u->{name});
+        $vcard_data .= ("<URL>" . ( $u->prop('url') ? LJ::exml($u->prop('url')) : ( $u->journal_base . '/') ) . "</URL>");
 
-            $vcard_data  = '<NICKNAME>' . LJ::exml($u->{user}) . '</NICKNAME>';
-            $vcard_data .= '<N><GIVEN>' . LJ::exml($u->{name}) . '</GIVEN></N>' if($u->{name});
-            $vcard_data .= ("<URL>" . ( $u->prop('url') ? LJ::exml($u->prop('url')) : ( $u->journal_base . '/') ) . "</URL>");
+        if (my $bday = $u->bday_string) {
+            $bday = "0000-$bday" unless $bday =~ /\d\d\d\d/;
+            $vcard_data .= qq{<BDAY>$bday</BDAY>};
+        }
 
-            if (my $bday = $u->bday_string) {
-                $bday = "0000-$bday" unless $bday =~ /\d\d\d\d/;
-                $vcard_data .= qq{<BDAY>$bday</BDAY>};
-            }
+        if ($u->can_show_location &&
+            ($u->prop('city') || $u->prop('state') || $u->prop('country') || $u->prop('zip') )) {
+            $vcard_data .= '<ADR>';
+            $vcard_data .= '<CTRY>' .     LJ::exml($u->prop('country')) . '</CTRY>'     if $u->prop('country');
+            $vcard_data .= '<PCODE>' .    LJ::exml($u->prop('zip'))     . '</PCODE>'    if $u->prop('zip');
+            $vcard_data .= '<REGION>' .   LJ::exml($u->prop('state'))   . '</REGION>'   if $u->prop('state');
+            $vcard_data .= '<LOCALITY>' . LJ::exml($u->prop('city'))    . '</LOCALITY>' if $u->prop('city');
+            $vcard_data .= '</ADR>';
 
-            if ($u->can_show_location &&
-                ($u->prop('city') || $u->prop('state') || $u->prop('country') || $u->prop('zip') )) {
-                $vcard_data .= '<ADR>';
-                $vcard_data .= '<CTRY>' .     LJ::exml($u->prop('country')) . '</CTRY>'     if $u->prop('country');
-                $vcard_data .= '<PCODE>' .    LJ::exml($u->prop('zip'))     . '</PCODE>'    if $u->prop('zip');
-                $vcard_data .= '<REGION>' .   LJ::exml($u->prop('state'))   . '</REGION>'   if $u->prop('state');
-                $vcard_data .= '<LOCALITY>' . LJ::exml($u->prop('city'))    . '</LOCALITY>' if $u->prop('city');
-                $vcard_data .= '</ADR>';
-
-            }
         }
 
         my $vcard = qq{<vCard xmlns='vcard-temp'>

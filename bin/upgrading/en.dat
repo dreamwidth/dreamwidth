@@ -3408,6 +3408,8 @@ widget.createaccount.btn=Create Account
 
 widget.createaccount.error.birthdate.invalid=You must enter a valid birthdate.
 
+widget.createaccount.error.birthdate.underage=You must be over 13 to create an account.
+
 widget.createaccount.error.cannotcreate=There was an error creating your account.
 
 widget.createaccount.error.captcha.invalid=Invalid answer to previous challenge.  Try another.
@@ -3456,7 +3458,7 @@ widget.createaccount.field.username.available=Username available
 
 widget.createaccount.tip.birthdate=Required by law. No worries, you can set privacy on this after you're done creating an account.
 
-widget.createaccount.tip.birthdate2=Required by law. By default, we only display the month and day.
+widget.createaccount.tip.birthdate2=Required by law. You must put your real birthdate (you can change it after account creation if you want to).  By default, we only display the month and day.
 
 widget.createaccount.tip.captcha=If you can't read the text, type "audio" to take a sound test instead.
 

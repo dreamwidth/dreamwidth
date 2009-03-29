@@ -16,8 +16,6 @@ body<=
  $title = $ML{'.title'};
 
  my $remote = LJ::get_remote();
- return BML::redirect("$LJ::SITEROOT/agecheck/?s=1")
-     if $remote && $remote->underage;
 
  return "<?p " . BML::ml('.error.identity_no_email', {'aopts' => "href='$LJ::SITEROOT/changeemail.bml'"}) . " p?>"
      if $remote && $remote->is_identity && !$remote->email_raw;

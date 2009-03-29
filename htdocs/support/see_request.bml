@@ -417,25 +417,6 @@ body<=
         $ret .= "$ML{'.dataversion'}: <b>$u->{dversion}</b>";
         $ret .= "<br />$ML{'.scheme'}: <b>" . ($u->{schemepref} ? $u->{schemepref} : "default") . "</b>; ";
         $ret .= "$ML{'.language'}: <b>" . ($u->{browselang} ? $u->{browselang} : "default") . "</b>";
-        unless ($clusterdown || (LJ::isu($u) && $u->is_expunged)) {
-            $ret .= "<br />$ML{'.underage'}? ";
-            if ($u->underage) {
-                $ret .= "<strong>";
-                $ret .= $ML{'.yesbirthday'} if $u->underage_status eq 'Y';
-                $ret .= $ML{'.yesuniquecookie'} if $u->underage_status eq 'O';
-                $ret .= $ML{'.yesmanualset'} if $u->underage_status eq 'M';
-                $ret .= "</strong>";
-            } else {
-                $ret .= "<strong>$ML{'.no'}";
-                if ($u->underage_status) {
-                    $ret .= "; $ML{'.wasby'} ";
-                    $ret .= $ML{'.birthday'} if $u->underage_status eq 'Y';
-                    $ret .= $ML{'.uniquecookie'} if $u->underage_status eq 'O';
-                    $ret .= $ML{'.manualset'} if $u->underage_status eq 'M';
-                }
-                $ret .= "</strong>";
-            }
-        }
 
         my $view_history = LJ::check_priv($remote, 'historyview');
         my $view_userlog = LJ::check_priv($remote, 'canview', 'userlog') || LJ::check_priv($remote, 'canview', '*');
@@ -656,9 +637,6 @@ body<=
     if ($sp->{'state'} eq "closed") {
         return $ret;
     }
-
-    # underage users can't interact with this
-    return $ret if $remote && $remote->underage;
 
     $ret .= "<p style='margin-bottom: 0px;'><b>$ML{'.post.comment'}:</b></p>\n";
 
@@ -892,7 +870,7 @@ body<=
     }
     # Prefill an e-mail validation nag, if needed.
     my $validationnag;
-    if (!(LJ::isu($u) && ($u->underage && $u->{'status'} eq 'T')) &&
+    if (!(LJ::isu($u) && ($u->{'status'} eq 'T')) &&
         ($u->{'status'} eq "N" || $u->{'status'} eq "T") &&
         $u->{'journaltype'} ne 'I' && ! $is_poster) {
         my $reminder = LJ::load_include('validationreminder');

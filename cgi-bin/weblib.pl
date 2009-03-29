@@ -648,7 +648,6 @@ sub create_qr_div {
     my $u = LJ::want_user($user);
     my $remote = LJ::get_remote();
     return undef unless $u && $remote && $ditemid;
-    return undef if $remote->underage;
 
     $stylemine ||= 0;
     my $qrhtml;

@@ -493,7 +493,7 @@ sub trans
                 # logged in users with defined ages are blocked from content that's above their age level
                 # logged in users without defined ages and logged out users are given confirmation pages (unless they have already confirmed)
                 if ($remote) {
-                    if (($adult_content eq "explicit" && $remote->is_minor) || ($adult_content eq "concepts" && $remote->is_child)) {
+                    if ($adult_content eq "explicit" && $remote->is_minor) {
                         return $bml_handler->(LJ::ContentFlag->adult_interstitial_path(type => "${adult_content}_blocked"));
                     } elsif (!$remote->best_guess_age && !$cookie) {
                         return $bml_handler->(LJ::ContentFlag->adult_interstitial_path(type => $adult_content));

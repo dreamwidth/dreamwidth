@@ -37,16 +37,14 @@ sub render {
     return "<div id='hello-world' style='text-align: left; font-size:0; line-height:0; height:0; overflow:hidden;'>$output</div>";
 }
 
-# method on root object (LJ::PageStats instance) to decide if user has optted-out of page
-# stats tracking, or if it's a bad idea to show one to this user (underage).  but
-# this isn't pagestat-specific logic.  that's in the "should_render" method.
+# method on root object (LJ::PageStats instance) to decide if user has 
+# opted-out of page stats tracking.  Note: this isn't pagestat-specific logic.  
+#  that's in the "should_render" method.
 sub should_do_pagestats {
     my $self = shift;
 
     my $u = $self->get_user;
 
-    # Make sure the user isn't underage or said no to tracking
-    return 0 if $u && $u->underage;
     return 0 if $u && $u->prop('opt_exclude_stats');
     return 1;
 }

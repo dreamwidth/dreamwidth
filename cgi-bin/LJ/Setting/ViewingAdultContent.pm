@@ -36,7 +36,7 @@ sub option {
         {
             value => "explicit",
             text => $class->ml('setting.viewingadultcontent.option.select.explicit'),
-            disabled => $u->is_child || !$u->best_guess_age ? 1 : 0,
+            disabled => !$u->best_guess_age ? 1 : 0,
         },
         {
             value => "concepts",
@@ -74,7 +74,7 @@ sub save {
 
     my $val = $class->get_arg($args, "viewingadultcontent");
 
-    if ($u->is_child || !$u->best_guess_age) {
+    if (!$u->best_guess_age) {
         $val = "concepts";
     } elsif ($u->is_minor) {
         $val = "explicit" unless $val eq "concepts";

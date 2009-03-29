@@ -97,18 +97,6 @@ sub execute {
         $self->info("  User is currently in read-only mode.")
             if $u->readonly;
 
-        if ($u->underage) {
-            my $reason;
-            if ($u->underage_status eq 'M') {
-                $reason = "manual set (see statushistory type set_underage)";
-            } elsif ($u->underage_status eq 'Y') {
-                $reason = "provided birthdate";
-            } elsif ($u->underage_status eq 'O') {
-                $reason = "unique cookie";
-            }
-            $self->info("  User is marked underage due to $reason");
-        }
-
         $self->info("  Last updated: " . ($timeupdate->{$userid} ? LJ::time_to_http($timeupdate->{$userid}) : "Never"))
             if $opt eq 'timeupdate';
 

@@ -165,8 +165,6 @@ and correct, it will be sent to the user. p?>
 
 .unable.connect=(unable to connect to cluster, some data temporarily unavailable)
 
-.underage=underage
-
 .uniquecookie=unique cookie 
 
 .uniq=Uniq:

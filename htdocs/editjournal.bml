@@ -15,10 +15,6 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    if ($remote->underage) {
-        return BML::redirect("$LJ::SITEROOT/agecheck/?s=1");
-    }
-
     my $mode = $GET{'mode'} || $POST{'mode'} || "init";
     if ($GET{'itemid'} || $POST{'itemid'}) { $mode = "edit"; }
 

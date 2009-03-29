@@ -777,10 +777,6 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
 
         'policy_options' => {
             'name' => "Policy Options",
-            'coppa_check' => {
-                    'desc' => "Collect birthdays to mark users as underage (under 13).  To make this work, you first need to create a new capability class for
-                    underage users. Then, set [ljconfig[underage_bit]] to be the bit number for the cap class to put underage users in. Off by default.",
-            },
             'no_password_check' => {
                     'desc' => "Set this option true if you are running an installation using <literal>ljcom</literal> code and if you haven't installed the <package>Crypt::Cracklib</package> perl module. When enabled, the installation will not do strong password checks. Users can use any old dumb password they like.",
             },
@@ -822,14 +818,6 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
                           "The account creation dialog can also check for new instances of the Terms of Service if the Terms of Service text is located in an ".
                           "&svn; managed include file (<filename><parameter>\$<envar>LJHOME</envar></parameter>/htdocs/inc/legal-tos</filename>), ".
                           "and if the include file includes the following line at the top: <programlisting><![CDATA[<!-- \$Revision\$ -->]]></programlisting>",
-            },
-            'underage_bit' => {
-                    'desc' => "Used in conjunction with [ljconfig[coppa_check]].",
-            },
-            'underage_error' => {
-                    'desc' => "Error message to show underage users.",
-                    'default' => "Sorry, your account needs to be &lt;a href='\$SITEROOT/agecheck/'&gt;age verified&lt;/&gt;
-before you can leave any comments.;",
             },
             'use_acct_codes' => {
                     'desc' => "A boolean setting that makes joining the site require an <quote>invite code</quote> before being able to create a new account.  Not all features are implemented in the <literal>livejournal</literal>-only tree. &ljcom; used this for a period until late 2003. Note that this code might&apos;ve bitrotted, so perhaps it should be kept off.",

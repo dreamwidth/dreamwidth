@@ -115,9 +115,6 @@ sub execute_safely {
         return $cmd->error("Your account status prevents you from using the console.")
             if $cmd->requires_remote && !$remote->is_visible;
 
-        return $cmd->error("Underage users are not permitted to use the console.")
-            if $cmd->requires_remote && $remote->underage;
-
         return $cmd->error("You are not authorized to run this command.")
             unless $cmd->can_execute;
 

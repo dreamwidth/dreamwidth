@@ -897,10 +897,9 @@ sub user_can_edit {
     $$errref = LJ::Lang::ml('talk.error.cantedit.invalid');
     return 0 unless $self && $self->valid;
 
-    # comment editing must be enabled and the user can't be underage and must have the cap
+    # comment editing must be enabled and the user must have the cap
     $$errref = LJ::Lang::ml('talk.error.cantedit');
     return 0 unless LJ::is_enabled("edit_comments");
-    return 0 if $u->underage;
     return 0 unless $u->get_cap("edit_comments");
 
     # entry cannot be suspended

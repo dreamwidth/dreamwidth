@@ -56,15 +56,7 @@ sub mask_from_bits {
 sub caps_in_group {
     my ($caps, $class) = @_;
     my $bit = LJ::class_bit($class);
-    unless (defined $bit) {
-        # this site has no underage class?  'underage' is the only
-        # general class.
-        return 0 if $class eq "underage";
-
-        # all other classes are site-defined, so we die on those not existing.
-        die "unknown class '$class'";
-    }
-
+    die "unknown class '$class'" unless defined $bit;
     return ($caps+0 & (1 << $bit)) ? 1 : 0;
 }
 
@@ -198,11 +190,6 @@ sub get_cap
         } else {
             return 1;
         }
-    }
-
-    # underage/coppa check etc
-    if ($cname eq "underage" && $u && $u->in_class("underage")) {
-        return 1;
     }
 
     # is there a hook for this cap name?

@@ -247,11 +247,6 @@ sub create_personal {
 #                   }, \%res, { 'u' => $u, 'noauth' => 1, }
 #                   );
 #
-    $u->set_prop("newpost_minsecurity", "friends") if $u->is_child;
-
-    # now flag as underage (and set O to mean was old or Y to mean was young)
-    $u->underage(1, $opts{ofage} ? 'O' : 'Y', 'account creation') if $opts{underage};
-
     # subscribe to default events
     $u->subscribe( event => 'OfficialPost', method => 'Inbox' );
     $u->subscribe( event => 'OfficialPost', method => 'Email' ) if $opts{get_news};
@@ -1713,7 +1708,6 @@ sub can_show_location {
     croak "invalid user object passed" unless LJ::isu($u);
     my $remote = LJ::get_remote();
 
-    return 0 if $u->underage;
     return 0 if $u->opt_showlocation eq 'N';
     return 0 if $u->opt_showlocation eq 'R' && !$remote;
     return 0 if $u->opt_showlocation eq 'F' && !$u->trusts( $remote );
@@ -1929,7 +1923,6 @@ sub opt_showcontact {
     if ($u->{'allow_contactshow'} =~ /^(N|Y|R|F)$/) {
         return $u->{'allow_contactshow'};
     } else {
-        return 'N' if $u->underage || $u->is_child;
         return 'F' if $u->is_minor;
         return 'Y';
     }
@@ -1948,7 +1941,6 @@ sub opt_showlocation {
     if ($u->raw_prop('opt_showlocation') =~ /^(N|Y|R|F)$/) {
         return $u->raw_prop('opt_showlocation');
     } else {
-        return 'N' if ($u->underage || $u->is_child);
         return 'F' if ($u->is_minor);
         return 'Y';
     }
@@ -2057,7 +2049,7 @@ sub set_prop {
 sub share_contactinfo {
     my ($u, $remote) = @_;
 
-    return 0 if $u->underage || $u->{journaltype} eq "Y";
+    return 0 if $u->{journaltype} eq "Y";
     return 0 if $u->opt_showcontact eq 'N';
     return 0 if $u->opt_showcontact eq 'R' && !$remote;
     return 0 if $u->opt_showcontact eq 'F' && !$u->trusts( $remote );
@@ -2538,7 +2530,6 @@ sub age {
 sub bday_string {
     my $u = shift;
     croak "invalid user object passed" unless LJ::isu($u);
-    return 0 if $u->underage;
 
     my $bdate = $u->{'bdate'};
     my ($year,$mon,$day) = split(/-/, $bdate);
@@ -2577,7 +2568,7 @@ sub can_join_adult_comm {
     my $adult_content = $comm->adult_content_calculated;
     $$adultref = $adult_content;
 
-    if ($adult_content eq "concepts" && ($u->is_child || !$u->best_guess_age)) {
+    if ($adult_content eq "concepts" && (!$u->best_guess_age)) {
         return 0;
     } elsif ($adult_content eq "explicit" && ($u->is_minor || !$u->best_guess_age)) {
         return 0;
@@ -2746,7 +2737,6 @@ sub opt_sharebday {
     if ($u->raw_prop('opt_sharebday') =~ /^(A|F|N|R)$/) {
         return $u->raw_prop('opt_sharebday');
     } else {
-        return 'N' if $u->underage || $u->is_child;
         return 'F' if $u->is_minor;
         return 'A';
     }
@@ -3302,7 +3292,7 @@ sub hide_adult_content {
 
     my $prop_value = $u->prop('hide_adult_content');
 
-    if ($u->is_child || !$u->best_guess_age) {
+    if (!$u->best_guess_age) {
         return "concepts";
     }
 
@@ -4869,7 +4859,6 @@ sub opt_usermsg {
     if ($u->raw_prop('opt_usermsg') =~ /^(Y|F|M|N)$/) {
         return $u->raw_prop('opt_usermsg');
     } else {
-        return 'N' if $u->underage || $u->is_child;
         return 'M' if $u->is_minor;
         return 'Y';
     }
@@ -5125,53 +5114,6 @@ sub userpic_quota {
 
 ########################################################################
 ###  99. Miscellaneous Legacy Items
-###  99A. Underage functions (FIXME: we shouldn't need these)
-
-# returns a true value if the user is underage; or if you give it an argument,
-# will turn on/off that user's underage status.  can also take a second argument
-# when you're setting the flag to also update the underage_status userprop
-# which is used to record if a user was ever marked as underage.
-sub underage {
-    # has no bearing if this isn't on
-    return undef unless LJ::class_bit("underage");
-
-    # now get the args and continue
-    my $u = shift;
-    return LJ::get_cap($u, 'underage') unless @_;
-
-    # now set it on or off
-    my $on = shift() ? 1 : 0;
-    if ($on) {
-        $u->add_to_class("underage");
-    } else {
-        $u->remove_from_class("underage");
-    }
-
-    # now set their status flag if one was sent
-    my $status = shift();
-    if ($status || $on) {
-        # by default, just records if user was ever underage ("Y")
-        $u->underage_status($status || 'Y');
-    }
-
-    # add to statushistory
-    if (my $shwhen = shift()) {
-        my $text = $on ? "marked" : "unmarked";
-        my $status = $u->underage_status;
-        LJ::statushistory_add($u, undef, "coppa", "$text; status=$status; when=$shwhen");
-    }
-
-    # now fire off any hooks that are available
-    LJ::run_hooks('set_underage', {
-        u => $u,
-        on => $on,
-        status => $u->underage_status,
-    });
-
-    # return true if no failures
-    return 1;
-}
-
 
 # return true if we know user is a minor (< 18)
 sub is_minor {
@@ -5180,34 +5122,6 @@ sub is_minor {
     return 0 unless $age;
     return 1 if ($age < 18);
     return 0;
-}
-
-
-# return true if we know user is a child (< 14)
-sub is_child {
-    my $self = shift;
-    my $age = $self->best_guess_age;
-
-    return 0 unless $age;
-    return 1 if ($age < 14);
-    return 0;
-}
-
-
-# return or set the underage status userprop
-sub underage_status {
-    return undef unless LJ::class_bit("underage");
-
-    my $u = shift;
-
-    # return if they aren't setting it
-    unless (@_) {
-        return $u->prop("underage_status");
-    }
-
-    # set and return what it got set to
-    $u->set_prop('underage_status', shift());
-    return $u->{underage_status};
 }
 
 
@@ -5251,7 +5165,6 @@ sub age_for_adcall {
     my $u = shift;
     croak "Invalid user object" unless LJ::isu($u);
 
-    return undef if $u->underage;
     return eval {$u->age || $u->init_age};
 }
 

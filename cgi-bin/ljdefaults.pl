@@ -173,9 +173,6 @@
     # Default to allow all reproxying.
     %REPROXY_DISABLE = () unless %REPROXY_DISABLE;
 
-    # Default error message for age verification needed
-    $UNDERAGE_ERROR ||= "Sorry, your account needs to be <a href='$SITEROOT/agecheck/'>age verified</a> before you can leave any comments.";
-
     # Terms of Service revision requirements
     foreach (
              [ rev   => '0.0' ],

@@ -32,10 +32,6 @@ use strict;
         return;
     }
 
-    if ($remote->underage) {
-        return BML::redirect("$LJ::SITEROOT/agecheck/?s=1");
-    }
-
     LJ::need_res(qw(
                     stc/lj_base.css
                     stc/editpics.css

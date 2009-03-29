@@ -1035,9 +1035,6 @@ sub postevent
                               $u->{'journaltype'} eq "I" ||
                               $u->{'journaltype'} eq "N");
 
-    # underage users can't do this
-    return fail($err,310) if $u->underage;
-
     # suspended users can't post
     return fail($err,305) if ($u->{'statusvis'} eq "S");
 
@@ -1587,9 +1584,6 @@ sub editevent
     my $sth;
 
     my $itemid = $req->{'itemid'}+0;
-
-    # underage users can't do this
-    return fail($err,310) if $u->underage;
 
     # check the journal's read-only bit
     return fail($err,306) if LJ::get_cap($uowner, "readonly");

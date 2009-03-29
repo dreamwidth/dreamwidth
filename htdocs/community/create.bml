@@ -22,9 +22,6 @@ body<=
     return "<?h1 $ML{'Error'} h1?><?p " . BML::ml('.error.notvalidated2', { aopts => "'href='$LJ::SITEROOT/register.bml'" }) . " p?>"
         unless $remote->is_validated;
 
-    return BML::redirect("$LJ::SITEROOT/agecheck/?s=1")
-        if $remote->underage;
-
     # fix up the incoming data (is used in getinfo mode and submit mode so it's here)
     $POST{membership} = 'open'
         unless $POST{membership} =~ m/^(?:open|moderated|closed)$/;

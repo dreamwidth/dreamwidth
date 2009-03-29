@@ -1211,10 +1211,6 @@ sub talkform {
 
     my $pics = LJ::Talk::get_subjecticons();
 
-    # early bail if the user can't be making comments yet
-    return $LJ::UNDERAGE_ERROR
-        if $remote && $remote->underage;
-
     # once we clean out talkpost.bml, this will need to be changed.
     BML::set_language_scope('/talkpost.bml');
 
@@ -3374,12 +3370,6 @@ sub post_comment {
     if ($parent->{state} eq 'S') {
         LJ::Talk::unscreen_comment($journalu, $item->{itemid}, $parent->{talkid});
         $parent->{state} = 'A';
-    }
-
-    # make sure they're not underage
-    if ($comment->{u} && $comment->{u}->underage) {
-        $$errref = $LJ::UNDERAGE_ERROR;
-        return 0;
     }
 
     # check for duplicate entry (double submission)

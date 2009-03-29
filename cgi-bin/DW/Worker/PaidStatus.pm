@@ -92,8 +92,6 @@ EOF
                 password => $pw,
                 get_ljnews => 1,
                 inviter => $pmt->{from_userid} ? LJ::load_userid( $pmt->{from_userid} ) : undef,
-                underage => 0,
-                ofage => 1,
             );
 
         LJ::send_mail( {

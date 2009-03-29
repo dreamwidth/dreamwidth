@@ -44,7 +44,6 @@ sub render_body {
     if ($alt_layout) {
         $ret .= "<script type='text/javascript'>\n";
         $ret .= "CreateAccount.alt_layout = true;\n";
-        $ret .= "CreateAccount.coppa_check = " . ( $LJ::COPPA_CHECK ? "true" : "false" ) . ";\n";
         $ret .= "</script>\n";
     } else {
         $ret .= "<script type='text/javascript'>\n";
@@ -52,7 +51,6 @@ sub render_body {
         $ret .= "CreateAccount.email = \"$tip_email\"\n";
         $ret .= "CreateAccount.password = \"$tip_password\"\n";
         $ret .= "CreateAccount.username = \"$tip_username\"\n";
-        $ret .= "CreateAccount.coppa_check = " . ( $LJ::COPPA_CHECK ? "true" : "false" ) . ";\n";
         $ret .= "</script>\n";
         $ret .= "<div id='tips_box_arrow'></div>";
         $ret .= "<div id='tips_box'></div>";
@@ -149,45 +147,43 @@ sub render_body {
     $ret .= "</td></tr>\n" unless $alt_layout;
 
     ### birthdate
-    if ($LJ::COPPA_CHECK) {
-        if ($alt_layout) {
-            $ret .= "<label for='create_bday_mm' class='label_create'>" . $class->ml('widget.createaccount.field.birthdate') . "</label>";
-            $ret .= "<div class='bubble' id='bubble_bday_mm'>";
-            $ret .= "<div class='bubble-arrow'></div>";
-            $ret .= "<div class='bubble-text'>$tip_birthdate</div>";
-            $ret .= "</div>";
-            $ret .= $class->html_select(
-                name => "bday_mm",
-                id => "create_bday_mm",
-                selected => $post->{bday_mm} || 1,
-                list => [ map { $_, LJ::Lang::month_long_ml( $_ ) } (1..12) ],
-            ) . " ";
-            $ret .= $class->html_text(
-                name => "bday_dd",
-                id => "create_bday_dd",
-                class => 'date',
-                maxlength => '2',
-                value => $post->{bday_dd} || "",
-            );
-            $ret .= $class->html_text(
-                name => "bday_yyyy",
-                id => "create_bday_yyyy",
-                class => 'year',
-                maxlength => '4',
-                value => $post->{bday_yyyy} || "",
-            );
-        } else {
-            $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.birthdate') . "</td>\n<td>";
-            $ret .= $class->html_datetime(
-                name => 'bday',
-                id => 'create_bday',
-                notime => 1,
-                default => sprintf("%04d-%02d-%02d", $post->{bday_yyyy}, $post->{bday_mm}, $post->{bday_dd}),
-            );
-        }
-        $ret .= $error_msg->('bday', '<br /><span class="formitemFlag">', '</span>');
-        $ret .= "</td></tr>\n" unless $alt_layout;
+    if ($alt_layout) {
+        $ret .= "<label for='create_bday_mm' class='label_create'>" . $class->ml('widget.createaccount.field.birthdate') . "</label>";
+        $ret .= "<div class='bubble' id='bubble_bday_mm'>";
+        $ret .= "<div class='bubble-arrow'></div>";
+        $ret .= "<div class='bubble-text'>$tip_birthdate</div>";
+        $ret .= "</div>";
+        $ret .= $class->html_select(
+            name => "bday_mm",
+            id => "create_bday_mm",
+            selected => $post->{bday_mm} || 1,
+            list => [ map { $_, LJ::Lang::month_long_ml( $_ ) } (1..12) ],
+        ) . " ";
+        $ret .= $class->html_text(
+            name => "bday_dd",
+            id => "create_bday_dd",
+            class => 'date',
+            maxlength => '2',
+            value => $post->{bday_dd} || "",
+        );
+        $ret .= $class->html_text(
+            name => "bday_yyyy",
+            id => "create_bday_yyyy",
+            class => 'year',
+            maxlength => '4',
+            value => $post->{bday_yyyy} || "",
+        );
+    } else {
+        $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.birthdate') . "</td>\n<td>";
+        $ret .= $class->html_datetime(
+            name => 'bday',
+            id => 'create_bday',
+            notime => 1,
+            default => sprintf("%04d-%02d-%02d", $post->{bday_yyyy}, $post->{bday_mm}, $post->{bday_dd}),
+        );
     }
+    $ret .= $error_msg->('bday', '<br /><span class="formitemFlag">', '</span>');
+    $ret .= "</td></tr>\n" unless $alt_layout;
 
     ### captcha
     if ($LJ::HUMAN_CHECK{create}) {
@@ -359,12 +355,6 @@ sub handle_post {
     my $email = LJ::trim(lc $post->{email});
 
     # set up global things that can be used to modify the user later
-    my $is_underage = 0; # turn on if the user should be marked as underage
-    my $ofage = 0;       # turn on to note that the user is over 13 in actuality
-                         # (but is_underage might be on which just means
-                         # that their account is being marked as underage
-                         # even if they're old [unique cookie check])
-
     # reject this email?
     return LJ::sysban_block(0, "Create user blocked based on email", {
         new_user => $user,
@@ -420,41 +410,44 @@ sub handle_post {
         $from_post{errors}->{password} = $class->ml('widget.createaccount.error.password.asciionly');
     }
 
-    ### start COPPA_CHECK
     # age checking to determine how old they are
-    if ($LJ::COPPA_CHECK) {
-        my $uniq;
-        if ($LJ::UNIQ_COOKIES) {
-            $uniq = BML::get_request()->notes('uniq');
-            if ($uniq) {
-                my $timeof = $dbh->selectrow_array('SELECT timeof FROM underage WHERE uniq = ?', undef, $uniq);
-                $is_underage = 1 if $timeof && $timeof > 0;
-            }
-        }
-
-        my ($year, $mon, $day) = ( $post->{bday_yyyy}+0, $post->{bday_mm}+0, $post->{bday_dd}+0 );
-        if ($year < 100 && $year > 0) {
-            $post->{bday_yyyy} += 1900;
-            $year += 1900;
-        }
-
-        my $nyear = (gmtime())[5] + 1900;
-
-        # require dates in the 1900s (or beyond)
-        if ($year && $mon && $day && $year >= 1900 && $year < $nyear) {
-            my $age = LJ::calc_age($year, $mon, $day);
-            $is_underage = 1 if $age < 13;
-            $ofage = 1 if $age >= 13;
-        } else {
-            $from_post{errors}->{bday} = $class->ml('widget.createaccount.error.birthdate.invalid');
-        }
-
-        # note this unique cookie as underage (if we have a unique cookie)
-        if ($is_underage && $uniq) {
-            $dbh->do("REPLACE INTO underage (uniq, timeof) VALUES (?, UNIX_TIMESTAMP())", undef, $uniq);
+    my $uniq;
+    my $is_underage = 0;
+    if ($LJ::UNIQ_COOKIES) {
+        $uniq = DW::Request->get->note('uniq');
+        if ($uniq) {
+            my $timeof = $dbh->selectrow_array('SELECT timeof FROM underage WHERE uniq = ?', undef, $uniq);
+            $is_underage = 1 if $timeof && $timeof > 0;
         }
     }
-    ### end COPPA_CHECK
+
+    my ($year, $mon, $day) = ( $post->{bday_yyyy}+0, $post->{bday_mm}+0, $post->{bday_dd}+0 );
+    if ($year < 100 && $year > 0) {
+        $post->{bday_yyyy} += 1900;
+        $year += 1900;
+    }
+
+    my $nyear = (gmtime())[5] + 1900;
+
+    # require dates in the 1900s (or beyond)
+    if ($year && $mon && $day && $year >= 1900 && $year < $nyear) {
+        my $age = LJ::calc_age($year, $mon, $day);
+        $is_underage = 1 if $age < 13;
+    } else {
+        $from_post{errors}->{bday} = $class->ml('widget.createaccount.error.birthdate.invalid');
+    }
+
+    # note this unique cookie as underage (if we have a unique cookie)
+    if ($is_underage && $uniq) {
+        $dbh->do("REPLACE INTO underage (uniq, timeof) VALUES (?, UNIX_TIMESTAMP())", undef, $uniq);
+    }
+
+    if ( $is_underage ) {
+        $from_post{errors}->{bday} = 
+            $class->ml('widget.createaccount.error.birthdate.underage');
+    }
+
+    ### end age check
 
     # check the email address
     my @email_errors;
@@ -501,8 +494,6 @@ sub handle_post {
             password => $post->{password1},
             get_news => $post->{news} ? 1 : 0,
             inviter => $post->{from},
-            underage => $is_underage,
-            ofage => $ofage,
             extra_props => $opts{extra_props},
             status_history => $opts{status_history},
         );
@@ -514,35 +505,33 @@ sub handle_post {
         }
 
         # send welcome mail... unless they're underage
-        unless ($is_underage) {
-            my $aa = LJ::register_authaction($nu->id, "validateemail", $email);
+        my $aa = LJ::register_authaction($nu->id, "validateemail", $email);
 
-            my $body = LJ::Lang::ml('email.newacct5.body', {
-                sitename => $LJ::SITENAME,
-                regurl => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}",
-                journal_base => $nu->journal_base,
-                username => $nu->user,
-                siteroot => $LJ::SITEROOT,
-                sitenameshort => $LJ::SITENAMESHORT,
-                lostinfourl => "$LJ::SITEROOT/lostinfo.bml",
-                editprofileurl => "$LJ::SITEROOT/manage/profile/",
-                searchinterestsurl => "$LJ::SITEROOT/interests.bml",
-                editpicsurl => "$LJ::SITEROOT/editpics.bml",
-                customizeurl => "$LJ::SITEROOT/customize/",
-                postentryurl => "$LJ::SITEROOT/update.bml",
-                setsecreturl => "$LJ::SITEROOT/set_secret.bml",
-                LJ::run_hook('extra_fields_in_postreg_esn'),
-            });
+        my $body = LJ::Lang::ml('email.newacct5.body', {
+            sitename => $LJ::SITENAME,
+            regurl => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}",
+            journal_base => $nu->journal_base,
+            username => $nu->user,
+            siteroot => $LJ::SITEROOT,
+            sitenameshort => $LJ::SITENAMESHORT,
+            lostinfourl => "$LJ::SITEROOT/lostinfo.bml",
+            editprofileurl => "$LJ::SITEROOT/manage/profile/",
+            searchinterestsurl => "$LJ::SITEROOT/interests.bml",
+            editpicsurl => "$LJ::SITEROOT/editpics.bml",
+            customizeurl => "$LJ::SITEROOT/customize/",
+            postentryurl => "$LJ::SITEROOT/update.bml",
+            setsecreturl => "$LJ::SITEROOT/set_secret.bml",
+            LJ::run_hook('extra_fields_in_postreg_esn'),
+        });
 
-            LJ::send_mail({
-                to => $email,
-                from => $LJ::ADMIN_EMAIL,
-                fromname => $LJ::SITENAME,
-                charset => 'utf-8',
-                subject => LJ::Lang::ml('email.newacct.subject', { sitename => $LJ::SITENAME }),
-                body => $body,
-            });
-        }
+        LJ::send_mail({
+            to => $email,
+            from => $LJ::ADMIN_EMAIL,
+            fromname => $LJ::SITENAME,
+            charset => 'utf-8',
+            subject => LJ::Lang::ml('email.newacct.subject', { sitename => $LJ::SITENAME }),
+            body => $body,
+        });
 
         if ( $LJ::TOS_CHECK ) {
             my $err = "";
