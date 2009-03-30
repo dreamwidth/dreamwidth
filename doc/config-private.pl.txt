@@ -27,12 +27,16 @@
     # not logged in, this username will be used instead. (You should own this
     # account so that nobody can take it.)
     $EXAMPLE_USER_ACCOUNT = "username";
-    
+
     # list of official journals, as a list of "'username' => 1" pairs
     # used to determine whether to fire off an OfficialPost notification
     # when an entry is posted; hash instead of array for efficiency
     %OFFICIAL_JOURNALS = (
         news => 1,
+    );
+
+    %SITE_PAGESTAT_CONFIG = (
+    #    google_analytics => ,
     );
 }
 

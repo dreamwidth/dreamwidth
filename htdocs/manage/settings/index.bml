@@ -69,6 +69,7 @@ body<=
                 LJ::Setting::ViewingAdultContent
                 LJ::Setting::SafeSearch
                 LJ::Setting::CyrillicServices
+                DW::Setting::GoogleAnalytics
             )],
         },
         notifications => {

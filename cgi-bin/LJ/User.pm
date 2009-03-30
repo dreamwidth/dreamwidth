@@ -1737,6 +1737,11 @@ sub can_show_onlinestatus {
 }
 
 
+sub can_use_google_analytics {
+    return $_[0]->get_cap( 'google_analytics' ) ? 1 : 0;
+}
+
+
 # <LJFUNC>
 # name: LJ::User::caps_icon
 # des: get the icon for a user's cap.
@@ -1827,6 +1832,19 @@ sub gizmo_account_validated {
     }
 
     return $validated;
+}
+
+
+# get/set the Google Analytics ID
+sub google_analytics {
+    my $u = shift;
+
+    if ( defined $_[0] ) {
+        $u->set_prop( google_analytics => $_[0] );
+        return $_[0];
+    }
+
+    return $u->prop( 'google_analytics' );
 }
 
 
@@ -2111,7 +2129,7 @@ sub should_show_schools_to {
 # should show the thread expander for this user/journal
 sub show_thread_expander {
     my ( $u, $remote ) = @_;
-    
+
     return 1 if $remote && $remote->get_cap( 'thread_expander' )
         || $u->get_cap( 'thread_expander' );
 

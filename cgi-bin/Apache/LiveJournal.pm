@@ -487,6 +487,7 @@ sub trans
                     $cookie = 1 if $BML::COOKIE{LJ::ContentFlag->cookie_name("explicit")};
                 }
 
+                LJ::set_active_journal( $u );
                 $r->pnotes->{'user'} = $u;
                 $r->pnotes->{'entry'} = $entry if $entry;
                 $r->notes->{'returl'} = $returl;

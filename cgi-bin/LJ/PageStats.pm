@@ -25,7 +25,7 @@ sub render {
 
     my $output = '';
     foreach my $plugin ($self->get_active_plugins) {
-        my $class = "LJ::PageStats::$plugin";
+        my $class = $plugin;
         eval "use $class; 1;";
         die "Error loading PageStats '$plugin': $@" if $@;
         my $plugin_obj = $class->new;
@@ -222,7 +222,7 @@ sub campaign_tracking {
 
     my $output = '';
     foreach my $plugin ($self->get_active_plugins) {
-        my $class = "LJ::PageStats::$plugin";
+        my $class = $plugin;
         eval "use $class; 1;";
         die "Error loading PageStats '$plugin': $@" if $@;
         my $plugin_obj = $class->new;

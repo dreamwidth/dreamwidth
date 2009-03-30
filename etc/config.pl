@@ -364,6 +364,7 @@
             'friendsviewupdate' => 0,
             'full_rss' => 1,
             'getselfemail' => 0,
+            google_analytics => 0,
             'inbox_max' => 2000,
             'makepoll' => 0,
             'mass_privacy' => 0,
@@ -415,6 +416,7 @@
             'friendsviewupdate' => 1,
             'full_rss' => 1,
             'getselfemail' => 1,
+            google_analytics => 1,
             'inbox_max' => 4000,
             'makepoll' => 1,
             'mass_privacy' => 1,
@@ -464,6 +466,7 @@
             'friendsviewupdate' => 1,
             'full_rss' => 1,
             'getselfemail' => 1,
+            google_analytics => 1,
             'inbox_max' => 6000,
             'makepoll' => 1,
             'mass_privacy' => 1,
@@ -520,6 +523,7 @@
             'friendsviewupdate' => 1,
             'full_rss' => 1,
             'getselfemail' => 1,
+            google_analytics => 1,
             'inbox_max' => 6000,
             'makepoll' => 1,
             'mass_privacy' => 1,
@@ -569,6 +573,7 @@
             'friendsviewupdate' => 1,
             'full_rss' => 1,
             'getselfemail' => 1,
+            google_analytics => 1,
             'inbox_max' => 6000,
             'makepoll' => 1,
             'mass_privacy' => 1,
@@ -819,6 +824,13 @@
         opt_whocanreply => 'reg',
         opt_mangleemail => 'Y',
         moodthemeid => 7,
+    );
+
+    # Stats
+    %PAGESTATS_PLUGIN_CONF = (
+        '_active' => [
+            'DW::PageStats::GoogleAnalytics',
+        ],
     );
 }
 

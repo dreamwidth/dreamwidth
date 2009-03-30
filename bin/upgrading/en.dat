@@ -2683,6 +2683,8 @@ setting.graphicpreviews.option.comm=Allow viewers to preview external links with
 
 setting.graphicpreviews.option.self=Display a preview of external links when hovering over them
 
+setting.googleanalytics.label=Google Analytics ID
+
 setting.imageplaceholders.error.invalid=Invalid image size.
 
 setting.imageplaceholders.label=Image Placeholders
