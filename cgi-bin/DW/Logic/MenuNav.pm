@@ -142,6 +142,11 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
+                    url => $u ? $u->profile_url : "",
+                    text => "menunav.read.profile",
+                    display => $loggedin,
+                },
+                {
                     url => "$LJ::SITEROOT/syn/",
                     text => "menunav.read.syndicatedfeeds",
                     display => $loggedin,
