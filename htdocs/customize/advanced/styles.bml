@@ -60,7 +60,7 @@
 
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
-    my $getextra_amp = "&authas=$authas" if $getextra;
+    my $getextra_amp = $getextra ? "&authas=$authas" : '';
     if ($noactions) {
         $getextra = "?user=" . $u->user;
         $getextra_amp = "&user=" . $u->user;
