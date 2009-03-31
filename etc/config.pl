@@ -29,7 +29,7 @@
     # where we set the cookies (note the period before the domain)
     # can be one value or an array ref (to accomodate certain old
     # broken browsers)
-    $COOKIE_DOMAIN = ["", ".$DOMAIN"];
+    $COOKIE_DOMAIN = ".$DOMAIN";
     $COOKIE_PATH   = "/";
 
     # email addresses
