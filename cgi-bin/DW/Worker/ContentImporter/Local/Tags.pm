@@ -36,7 +36,7 @@ sub merge_tags {
     my ( $class, $u, $tags ) = @_;
 
     foreach my $tag ( @{ $tags || [] } ) {
-        LJ::Tags::create_usertag( $u, $tag->{name}, { ignore_max => 1 } );
+        LJ::Tags::create_usertag( $u, $tag->{name}, { ignore_max => 1, display => $tag->{display} } );
     }
 }
 
