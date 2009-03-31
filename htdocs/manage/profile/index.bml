@@ -580,7 +580,7 @@ body<=
         my $save_search_index = $POST{'opt_showlocation'} =~ /^[YR]$/;
         LJ::Widget->handle_post(\%POST, 'Location' => {save_search_index => $save_search_index});
 
-        return $print_with_ad->('') if @errors;
+        return LJ::error_list( @errors ) if @errors;
 
         ### no errors
 
