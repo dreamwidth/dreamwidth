@@ -408,7 +408,7 @@ body<=
         # last_fm_user
         $ret .= "<tr><td class='field_name'>$ML{'.fn.last_fm'}</td><td>";
         $ret .= LJ::html_text({ 'name' => 'last_fm_user', 'value' => $u->{'last_fm_user'}, 'size' => '20', 'maxlength' => '255' });
-        $ret .= "<div class='helper'>$ML{'.fn.last_fm.desc'}</div></td></tr>";
+        $ret .= "</td></tr>";
         $ret .= "</td></tr>\n";
 
         } # end is_person check

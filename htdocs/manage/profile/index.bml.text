@@ -113,8 +113,6 @@
 
 .fn.last_fm=Last.fm username 
 
-.fn.last_fm.desc=Enter your last.fm username here and you will be able to automatically fill in Music field with scrobbled music when posting new entry.
-
 .fn.link=Link
 
 .fn.mutualfriends=Mutual friends
