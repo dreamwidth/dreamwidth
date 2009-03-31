@@ -19,6 +19,7 @@ package DW::Worker::ContentImporter::LiveJournal::Userpics;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
+use HTML::Entities;
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
 use DW::Worker::ContentImporter::Local::Userpics;
@@ -49,7 +50,7 @@ sub try_work {
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
 
 # FIXME: URL may not be accurate here for all sites
-    my ( $default, @pics ) = get_lj_userpic_data( "http://$data->{username}.$data->{hostname}/" );
+    my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{username}.$data->{hostname}/", $data );
 
     my $errs = [];
     my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics );
@@ -74,7 +75,7 @@ sub try_work {
 }
 
 sub get_lj_userpic_data {
-    my $url = shift();
+    my ( $class, $url, $data ) = @_;
     $url =~ s/\/$//;
 
     my $ua = LJ::get_useragent(
@@ -90,6 +91,12 @@ sub get_lj_userpic_data {
 
     my ( @upics, $upic, $default_upic, $text_tag );
 
+    my $cleanup_string = sub {
+        # FIXME: If LJ ever fixes their /data/userpics feed to double-escepe, this will cause issues.
+        # Probably need to figure out a way to detect that a double-escape happened and only fix in that case.
+        return HTML::Entities::decode_entities( encode_utf8( $_[0] || "" ) );
+    };
+
     my $upic_handler = sub {
         my $tag = $_[1];
         shift; shift;
@@ -100,7 +107,9 @@ sub get_lj_userpic_data {
         } elsif ( $tag eq 'content' ) {
             $upic->{src} = $temp{src};
         } elsif ( $tag eq 'category' ) {
-            push @{$upic->{keywords}}, encode_utf8( $temp{term} || "" );
+            # keywords get triple-escaped
+            # XML::Parser handles unescaping it once, $cleanup_string second, and then we have to unescape it a third time.
+            push @{$upic->{keywords}}, HTML::Entities::decode_entities( $cleanup_string->( $temp{term} ) );
         } else {
             $text_tag = $tag;
         }
@@ -133,7 +142,8 @@ sub get_lj_userpic_data {
             }
 
             $upic->{keywords} = \@keywords;
-            $upic->{comment} = encode_utf8( $upic->{comment} || "" );
+            my $comment = $cleanup_string->( $upic->{comment} );
+            $upic->{comment} = $class->remap_lj_user( $data, $comment );
             push @upics, $upic;
         }
     };
