@@ -160,6 +160,7 @@ body<=
         <select name='hostname'>
             <option value='livejournal.com'>LiveJournal.com</option>
             <option value='insanejournal.com'>InsaneJournal</option>
+            <option value='journalfen.net'>JournalFen</option>
         </select>
     </td></tr>
     <tr><td colspan='2'>&nbsp;</td></tr>
