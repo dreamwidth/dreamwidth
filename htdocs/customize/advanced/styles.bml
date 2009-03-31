@@ -131,7 +131,7 @@
         $POST{core} ||= $POST{core_hidden};
         $core = defined $POST{core} ? $POST{core} : $style->{layer}->{core};
         my $highest_core;
-        map { $core = $_ if $pub->{$_}->{type} eq 'core' && /^\d+$/ && 
+        map { $highest_core = $_ if $pub->{$_}->{type} eq 'core' && /^\d+$/ && 
                 $pub->{$_}->{majorversion} > $pub->{$highest_core}->{majorversion} } keys %$pub;
         unless ( $core ) {
             $core = $highest_core;
