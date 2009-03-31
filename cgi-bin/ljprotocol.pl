@@ -2514,7 +2514,7 @@ sub login_message
     return $msg->("not_validated")     if ($u->{'status'} eq "N" and not $LJ::EVERYONE_VALID);
     return $msg->("must_revalidate")   if ($u->{'status'} eq "T" and not $LJ::EVERYONE_VALID);
 
-    my $checkpass = LJ::run_hook("bad_password", { 'u' => $u });
+    my $checkpass = LJ::CreatePage->verify_password( u => $u );
     return $msg->("bad_password", { 'pre' => "$checkpass " }) if $checkpass;
 
     return $msg->("old_win32_client")  if $req->{'clientversion'} =~ /^Win32-MFC\/(1.2.[0123456])$/;

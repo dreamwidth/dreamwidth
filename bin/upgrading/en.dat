@@ -2215,8 +2215,6 @@ optional=(optional)
 
 password=Password
 
-password.max30=Passwords may not be longer than 30 characters.
-
 pingback.ljping.comment.text=User <lj user="[[poster]]"> referenced to your post from <a href="[[sourceURI]]">[[subject]]</a> saying: [...] [[context]] [...]
 
 pingback.option.disabled=Disabled
@@ -3469,7 +3467,23 @@ widget.createaccount.error.password.bad=Bad password:
 
 widget.createaccount.error.password.blank=You must enter a password.
 
+widget.createaccount.error.password.common=Password must not be based on a common word.
+
+widget.createaccount.error.password.likeemail=Password must not be similar to your email address.
+
+widget.createaccount.error.password.likename=Password must not be similar to your displayed name.
+
+widget.createaccount.error.password.likeusername=Password must not be similar to your username.
+
+widget.createaccount.error.password.needsmoreuniquechars=Password must contain at least 4 unique characters.
+
+widget.createaccount.error.password.needsnonletter=Password must contain at least one non-letter character (digit or symbol).
+
 widget.createaccount.error.password.nomatch=Passwords do not match.
+
+widget.createaccount.error.password.toolong=Password must not be longer than 30 characters.
+
+widget.createaccount.error.password.tooshort=Password must be at least 6 characters.
 
 widget.createaccount.error.username.inuse=Sorry, this username is already in use.
 

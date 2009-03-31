@@ -66,4 +66,82 @@ sub verify_username {
     return $error;
 }
 
+sub verify_password {
+    my $class = shift;
+    my %opts = @_;
+
+    return undef unless LJ::is_enabled( 'password_check' );
+
+    my ( $password, $username, $email, $name );
+    my $u = $opts{u};
+    if ( LJ::isu( $u ) ) {
+        $password = $u->password;
+        $username = $u->user;
+        $email = $u->email_raw;
+        $name = $u->name_raw;
+    }
+
+    $password = $opts{password};
+    $username = $opts{username};
+    $email = $opts{email};
+    $name = $opts{name};
+
+    # password must exist
+    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.blank' )
+        unless $password;
+
+    # at least 6 characters
+    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.tooshort' )
+        if length $password < 6;
+
+    # no more than 30 characters
+    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.toolong' )
+        if length $password > 30;
+
+    # only ascii characters
+    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.asciionly' )
+        unless LJ::is_ascii( $password );
+
+    # not the same as the username or the reversed username
+    if ( $username ) {
+        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.likeusername' )
+            if lc $password eq lc $username || lc $password eq lc reverse $username;
+    }
+
+    # not the same as either part of the email address
+    if ( $email ) {
+        $email =~ /^(.+)@(.+)\./;
+        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.likeemail' )
+            if lc $password eq lc $1 || lc $password eq lc $2;
+    }
+
+    # not the same as the displayed name or the reversed displayed name
+    if ( $name ) {
+        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.likename' )
+            if lc $password eq lc $name || lc $password eq lc reverse $name;
+    }
+
+    # at least 4 unique characters
+    my %unique_chars = map { $_ => 1 } split( //, $password );
+    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.needsmoreuniquechars' )
+        unless scalar keys %unique_chars > 4;
+
+    # contains at least one digit or symbol
+    return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.needsnonletter' )
+        if $password =~ /^[A-Za-z]+$/;
+
+    # isn't similar to a common password
+    my @common_passwords = grep { $_ } split( /\r?\n/, LJ::load_include( 'common-passwords' ) );
+    foreach my $comm_pass ( $LJ::SITENAMESHORT, @common_passwords ) {
+        # you can have a common password in your password if your password is greater in length
+        # than the sum of the common password's length plus the ceiling of half of its length
+        next if length $password > ( ( length $comm_pass ) + POSIX::ceil( ( length $comm_pass ) / 2 ) );
+
+        return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.common' )
+            if $password =~ /$comm_pass/i;
+    }
+
+    return undef;
+}
+
 1;

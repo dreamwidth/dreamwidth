@@ -387,27 +387,14 @@ sub handle_post {
     $post->{password1} = LJ::trim($post->{password1});
     $post->{password2} = LJ::trim($post->{password2});
 
-    if ($post->{password1} ne $post->{password2}) {
-        $from_post{errors}->{confirmpass} = $class->ml('widget.createaccount.error.password.nomatch');
+    if ( !$post->{password1} ) {
+        $from_post{errors}->{password} = $class->ml( 'widget.createaccount.error.password.blank' );
+    } elsif ( $post->{password1} ne $post->{password2} ) {
+        $from_post{errors}->{confirmpass} = $class->ml( 'widget.createaccount.error.password.nomatch' );
     } else {
-        my $checkpass = LJ::run_hook("bad_password", {
-            user => $user,
-            email => $email,
-            password => $post->{password1},
-        });
-
-        if ($checkpass) {
-            $from_post{errors}->{password} = $class->ml('widget.createaccount.error.password.bad') . " $checkpass";
-        }
-    }
-    if (!$post->{password1}) {
-        $from_post{errors}->{password} = $class->ml('widget.createaccount.error.password.blank');
-    } elsif (length $post->{password1} > 30) {
-        $from_post{errors}->{password} = LJ::Lang::ml('password.max30');
-    }
-
-    unless (LJ::is_ascii($post->{password1})) {
-        $from_post{errors}->{password} = $class->ml('widget.createaccount.error.password.asciionly');
+        my $checkpass = LJ::CreatePage->verify_password( password => $post->{password1}, username => $user, email => $email );
+        $from_post{errors}->{password} = $class->ml( 'widget.createaccount.error.password.bad' ) . " $checkpass"
+            if $checkpass;
     }
 
     # age checking to determine how old they are
@@ -467,7 +454,7 @@ sub handle_post {
                     $post->{'recaptcha_challenge_field'}, $post->{'recaptcha_response_field'}
                 );
 
-               $from_post{errors}->{captcha} = $class->ml('widget.createaccount.error.captcha.invalid') unless $result->{'is_valid'} eq '1';
+                $from_post{errors}->{captcha} = $class->ml('widget.createaccount.error.captcha.invalid') unless $result->{'is_valid'} eq '1';
             } else {
                 $from_post{errors}->{captcha} = $class->ml('widget.createaccount.error.captcha.invalid');
             }
