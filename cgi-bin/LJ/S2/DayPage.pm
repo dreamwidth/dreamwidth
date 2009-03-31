@@ -258,6 +258,9 @@ sub DayPage
     $p->{'next_url'} = defined $next ? ("$u->{'_journalbase'}/$next") : '';
     $p->{'next_date'} = $ndate;
 
+    $p->{head_content} .= qq{<link rel="prev" href="$p->{prev_url}" />\n} if $p->{prev_url};
+    $p->{head_content} .= qq{<link rel="next" href="$p->{next_url}" />\n} if $p->{next_url};
+
     return $p;
 }
 

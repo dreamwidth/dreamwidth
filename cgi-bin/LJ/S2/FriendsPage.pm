@@ -406,6 +406,7 @@ sub FriendsPage
         $nav->{'forward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_count'} = $itemshow;
+        $p->{head_content} .= qq{<link rel="next" href="$nav->{forward_url}" />\n}
     }
 
     ## unless we didn't even load as many as we were expecting on this
@@ -422,6 +423,7 @@ sub FriendsPage
         $nav->{'backward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'backward_skip'} = $newskip;
         $nav->{'backward_count'} = $itemshow;
+        $p->{head_content} .= qq{<link rel="prev" href="$nav->{backward_url}" />\n};
     }
 
     $p->{'nav'} = $nav;

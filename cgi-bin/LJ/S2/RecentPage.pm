@@ -272,6 +272,7 @@ sub RecentPage
                                                                    tag      => (LJ::eurl($get->{tag})      || ""),
                                                                    security => (LJ::eurl($get->{security}) || "") });
         $nav->{'forward_count'} = $itemshow;
+        $p->{head_content} .= qq{<link rel="next" href="$nav->{forward_url}" />\n}
     }
 
     # unless we didn't even load as many as we were expecting on this
@@ -290,6 +291,7 @@ sub RecentPage
                                                                           security => (LJ::eurl($get->{security}) || "") });
             $nav->{'backward_skip'} = $newskip;
         }
+        $p->{head_content} .= qq{<link rel="prev" href="$nav->{backward_url}" />\n};
     }
 
     $p->{'nav'} = $nav;

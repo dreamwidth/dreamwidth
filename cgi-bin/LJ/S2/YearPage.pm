@@ -38,9 +38,18 @@ sub YearPage
 
     $p->{'year'} = $year;
     $p->{'years'} = [];
-    foreach (@years) {
-        push @{$p->{'years'}}, YearYear($_, "$p->{'base_url'}/$_/", $_ == $p->{'year'});
+
+    my $displayed_index;
+    for my $i ( 0..$#years ) {
+        my $year = $years[$i];
+        push @{$p->{'years'}}, YearYear($year, "$p->{'base_url'}/$year/", $year == $p->{'year'});
+        $displayed_index = $i if $year == $p->{year};
     }
+
+    $p->{head_content} .= qq{<link rel="prev" href="$p->{years}->[$displayed_index-1]->{url}" />\n} 
+        if $displayed_index > 0;
+    $p->{head_content} .= qq{<link rel="next" href="$p->{years}->[$displayed_index+1]->{url}" />\n} 
+        if $displayed_index < $#years; 
 
     $p->{'months'} = [];
 

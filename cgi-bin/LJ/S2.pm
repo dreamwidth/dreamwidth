@@ -2032,6 +2032,9 @@ sub Page
     # OpenID information if the caller asked us to include it here.
     $p->{'head_content'} .= $u->openid_tags if $opts && $opts->{'addopenid'};
 
+    # other useful link rels
+    $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
+
     # Control strip
     my $show_control_strip = LJ::run_hook( 'show_control_strip' );
     if ($show_control_strip) {

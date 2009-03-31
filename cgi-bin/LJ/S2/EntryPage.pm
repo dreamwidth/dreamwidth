@@ -48,6 +48,12 @@ sub EntryPage
     if ($LJ::UNICODE) {
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
     }
+    
+    my $prev_url = S2::Builtin::LJ::Entry__get_link( $opts->{ctx}, $s2entry, "nav_prev" )->{url};
+    $p->{head_content} .= qq{<link rel="prev" href="$prev_url" />\n} if $prev_url;
+    
+    my $next_url = S2::Builtin::LJ::Entry__get_link( $opts->{ctx}, $s2entry, "nav_next" )->{url};
+    $p->{head_content} .= qq{<link rel="next" href="$next_url" />\n} if $next_url;
 
     # quickreply js libs
     LJ::need_res(qw(
