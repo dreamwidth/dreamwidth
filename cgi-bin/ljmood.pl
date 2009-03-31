@@ -33,6 +33,14 @@ sub load_mood_theme
         $LJ::CACHE_MOOD_THEME{$themeid}->{$id} = { 'pic' => $pic, 'w' => $w, 'h' => $h };
     }
 
+    my $des_sth = $dbh->prepare("SELECT name, des FROM moodthemes WHERE moodthemeid=?");
+    $des_sth->execute($themeid);
+    return 0 if $dbh->err;
+
+    my ($name, $des) = $des_sth->fetchrow_array;
+    $LJ::CACHE_MOOD_THEME{$themeid}->{name} = $name;
+    $LJ::CACHE_MOOD_THEME{$themeid}->{des}  = $des;
+
     # set in memcache
     LJ::MemCache::set($memkey, $LJ::CACHE_MOOD_THEME{$themeid}, 3600)
         if %{$LJ::CACHE_MOOD_THEME{$themeid} || {}};
@@ -105,6 +113,15 @@ sub mood_name
     LJ::load_moods() unless $LJ::CACHED_MOODS;
     my $m = $LJ::CACHE_MOODS{$moodid};
     return $m ? $m->{'name'} : undef;
+}
+
+# mood id to desc
+sub mood_theme_des
+{
+    my ($themeid) = @_;
+    LJ::load_mood_theme($themeid);
+    my $m = $LJ::CACHE_MOOD_THEME{$themeid};
+    return $m ? $m->{'des'} : undef;
 }
 
 # mood name to id (or undef)

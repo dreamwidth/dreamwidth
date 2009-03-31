@@ -78,6 +78,9 @@ sub render_body {
         }
         $ret .= "<p><a href='$LJ::SITEROOT/moodlist.bml?moodtheme=$preview_moodthemeid'>" . $class->ml('widget.moodthemechooser.viewtheme') . "</a></p>";
         $ret .= "</td></tr></table>";
+        my $mood_des = LJ::mood_theme_des($preview_moodthemeid);
+        LJ::CleanHTML::clean (\$mood_des);
+        $ret .= "<p>".$mood_des."</p>";
         $ret .= "</div>";
     }
 
