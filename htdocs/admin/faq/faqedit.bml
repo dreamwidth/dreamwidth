@@ -73,9 +73,6 @@ body<=
             };
 
             if ( $id == 0 ) {
-                return "<b>Error:</b> You did not select a FAQ category."
-                    unless $FORM{faqcat};
-
                 $dbh->do( qq{ INSERT INTO faq
                               ( faqid, question, summary, answer, faqcat,
                                 sortorder, lastmoduserid, lastmodtime)
