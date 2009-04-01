@@ -44,14 +44,29 @@ _code?>
 %%BODY%%
 
 <hr />
+<?_code
+{
+    my $remote = LJ::get_remote();
+    my $ret;
 
-<p>[ <a href='<?siteroot?>/'><?_ml lynx.nav.home _ml?></a> | <a href='<?siteroot?>/update.bml'><?_ml lynx.nav.update _ml?></a> | <?_code
-   use strict;
-   if (my $u = LJ::get_remote()) {
-        my $baseurl = $u->journal_base();
-        return "<a href='$baseurl/'>$ML{'lynx.nav.recent'}</a> | <a href='$baseurl/read/'>$ML{'lynx.nav.friends'}</a> | ";
-   }
-_code?><a href='<?siteroot?>/login.bml'><?_ml lynx.nav.login _ml?></a>/<a href='<?siteroot?>/logout.bml'><?_ml lynx.nav.logout _ml?></a> | <a href='<?siteroot?>/site/search.bml'><?_ml lynx.nav.search _ml?></a> | <a href='<?siteroot?>/manage/settings/'><?_ml lynx.nav.siteopts _ml?></a> | <a href='<?siteroot?>/site/'><?_ml lynx.nav.sitemap _ml?></a> ]</p>
+    $ret .= "<p>[ <a href='<?siteroot?>/'><?_ml lynx.nav.home _ml?></a> | <a href='<?siteroot?>/update'><?_ml lynx.nav.update _ml?></a> | ";
+
+    if ( $remote ) {
+         my $baseurl = $remote->journal_base();
+         $ret .= "<a href='$baseurl/'>$ML{'lynx.nav.recent'}</a> | <a href='$baseurl/read/'>$ML{'lynx.nav.friends'}</a> | ";
+         $ret .= "<a href='<?siteroot?>/logout'><?_ml lynx.nav.logout _ml?></a> " . $remote->ljuser_display . " | ";
+    } else {
+         $ret .= "<a href='<?siteroot?>/login'><?_ml lynx.nav.login _ml?></a> | ";
+    }
+
+    $ret .= "<a href='<?siteroot?>/site/search'><?_ml lynx.nav.search _ml?></a> | ";
+    $ret .= "<a href='<?siteroot?>/manage/settings/'><?_ml lynx.nav.siteopts _ml?></a> | ";
+    $ret .= "<a href='<?siteroot?>/site/'><?_ml lynx.nav.sitemap _ml?></a> ]</p>";
+
+    return $ret;
+}
+
+_code?>
 <?breadcrumbs?>
 <?_code
 {
