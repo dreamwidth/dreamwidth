@@ -144,7 +144,7 @@ sub import_userpic {
             return 0;
 
         } else {
-            $userpic = eval { LJ::Userpic->create( $u, data => \$data ); };
+            $userpic = eval { LJ::Userpic->create( $u, data => \$data, nonotify => 1 ); };
             unless ( $userpic ) {
                 push @$errors, "Icon '$identifier': " . $@->as_string;
                 return 0;

@@ -571,16 +571,17 @@ sub load_user_userpics {
 
     # set cache if reasonable
     $class->set_cache($u, \@ret);
-    
+
     return map { LJ::Userpic->new_from_row($_) } @ret;
 }
 
 sub create {
-    my ($class, $u, %opts) = @_;
+    my ( $class, $u, %opts ) = @_;
     local $LJ::THROW_ERRORS = 1;
 
-    my $dataref = delete $opts{'data'};
-    my $maxbytesize = delete $opts{'maxbytesize'};
+    my $dataref = delete $opts{data};
+    my $maxbytesize = delete $opts{maxbytesize};
+    my $nonotify = delete $opts{nonotify};
     croak("dataref not a scalarref") unless ref $dataref eq 'SCALAR';
 
     croak("Unknown options: " . join(", ", scalar keys %opts)) if %opts;
@@ -722,10 +723,10 @@ sub create {
     LJ::throw(@errors);
 
     # now that we've created a new pic, invalidate the user's memcached userpic info
-    LJ::Userpic->delete_cache($u);
+    LJ::Userpic->delete_cache( $u );
 
-    my $upic = LJ::Userpic->new($u, $picid) or die "Error insantiating userpic";
-    LJ::Event::NewUserpic->new($upic)->fire unless $LJ::DISABLED{esn};
+    my $upic = LJ::Userpic->new( $u, $picid ) or die "Error insantiating userpic";
+    LJ::Event::NewUserpic->new( $upic )->fire unless $LJ::DISABLED{esn} || $nonotify;
 
     return $upic;
 }
