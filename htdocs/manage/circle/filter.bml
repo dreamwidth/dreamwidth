@@ -28,7 +28,7 @@
             } elsif ($view eq "showcommunities") {
                 $extra = "?show=C&filter=0";
             } elsif ($view eq "showsyndicated") {
-                $extra = "?show=Y&filter=0";
+                $extra = "?show=F&filter=0";
             } elsif ($view =~ /filter:(.+)?/) {
                 $extra = "/$1";
             }

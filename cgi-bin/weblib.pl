@@ -3060,7 +3060,7 @@ sub control_strip
                 if ($r->uri eq "/read" && $r->query_string ne "") {
                     $selected = "showpeople"      if $r->query_string eq "show=P&filter=0";
                     $selected = "showcommunities" if $r->query_string eq "show=C&filter=0";
-                    $selected = "showsyndicated"  if $r->query_string eq "show=Y&filter=0";
+                    $selected = "showsyndicated"  if $r->query_string eq "show=F&filter=0";
                 } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
                     my $filter = $1 || "default view";
                     $selected = "filter:" . LJ::durl(lc($filter));
