@@ -96,9 +96,6 @@ sub member_of {
 
 
 # returns array of userids we're member of
-# you may specify one argument "force => 1" if you are unwilling to take
-# potentially stale data.  otherwise, the results of this method may be up to
-# 30 minutes out of date.
 sub member_of_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or return ();
@@ -106,18 +103,12 @@ sub member_of_userids {
     return ()
         unless $u->is_person;
 
-    return @{ LJ::load_rel_target( $u, 'E' ) || [] }
-        if $args{force};
-
     return @{ LJ::load_rel_target_cache( $u, 'E' ) || [] };
 }
 *LJ::User::member_of_userids = \&member_of_userids;
 
 
 # returns array of userids that are our members
-# you may specify one argument "force => 1" if you are unwilling to take
-# potentially stale data.  otherwise, the results of this method may be up to
-# 30 minutes out of date.
 sub member_userids {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or return ();
@@ -125,10 +116,7 @@ sub member_userids {
     return ()
         unless $u->is_community;
 
-    return @{ LJ::load_rel_user( $u, 'E' ) || [] }
-        if $args{force};
-
-    return @{ LJ::load_rel_user( $u, 'E' ) || [] };
+    return @{ LJ::load_rel_user_cache( $u, 'E' ) || [] };
 }
 *LJ::User::member_userids = \&member_userids;
 
