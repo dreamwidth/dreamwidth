@@ -71,10 +71,10 @@ CreateAccount.showTip = function (id) {
         if (box && box_arr) {
             box.innerHTML = text;
 
-            box.style.top = y - 260 + "px";
+            box.style.top = y - 230 + "px";
             box.style.display = "block";
 
-            box_arr.style.top = y - 255 + "px";
+            box_arr.style.top = y - 225 + "px";
             box_arr.style.display = "block";
         }
     }
