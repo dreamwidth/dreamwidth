@@ -373,8 +373,10 @@ body<=
     $ret .= "<p>$acctype</p>" if $acctype;
 
     # journal creation date
-    my $jcdate = BML::ml( '.details.createdon2', { createdate => LJ::mysql_time( $u->timecreate )  } );
-    $ret .= "<p>$jcdate (#" . $u->id . ')</p>';
+    unless ( $u->is_identity ) {
+        my $jcdate = BML::ml( '.details.createdon2', { createdate => LJ::mysql_time( $u->timecreate )  } );
+        $ret .= "<p>$jcdate (#" . $u->id . ')</p>';
+    }
 
     # comment and support stats
     my $csstats = join( ', ', ( $profile->comment_stats, $profile->support_stats ) );
