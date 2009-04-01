@@ -10,13 +10,13 @@
     # some rules used for error checking
     %RULES = (
               "elements" => {
-                  "max" => 15,             # maximum total number of elements allowed
+                  "max" => 255,             # maximum total number of elements allowed
               },
               "items" => {
                   "min" => 1,             # minimum number of options
                   "start" => 5,             # number of items shown at start
-                  "max" => 15,             # max number of options
-                  "maxlength" =>  500,         # max length of an option's textual value, min is implicitly 0
+                  "max" => 255,             # max number of options
+                  "maxlength" =>  1000,         # max length of an option's textual value, min is implicitly 0
                   "more" => 5,             # number of items to add when requesting more
               },
               "question" => {
@@ -26,8 +26,8 @@
                   "maxlength" => 1000,           # maximum length of poll name allowed
               },
               "text" => {
-                  "size" => 30,             # default size of a text element
-                  "maxlength" => 50,         # default maxlength of a text element
+                  "size" => 50,             # default size of a text element
+                  "maxlength" => 255,        # default maxlength of a text element
               },
               "size" => {
                   "min" => 1,             # minimum allowed size value for a text element
