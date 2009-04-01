@@ -570,8 +570,6 @@ INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES 
 UPDATE priv_list SET des='Allows a user to edit site text in a given language. arg=Unique language code, optionally appended by |domainid.domaincode',is_public='1',privname='Translate/Update Text',scope='general' WHERE privcode='translate';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user adds someone to their Friends list', 'addfriend');
 UPDATE ratelist SET des='Logged when a user adds someone to their Friends list' WHERE name='addfriend';
-INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when user flags content', 'ctflag');
-UPDATE ratelist SET des='Logged when user flags content' WHERE name='ctflag';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when wrong username/password is used.', 'failed_login');
 UPDATE ratelist SET des='Logged when wrong username/password is used.' WHERE name='failed_login';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user sends a free VGift', 'freevgifts');
@@ -917,7 +915,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores database connection and replication info, instead of in the %LJ::DBINFO hash, for easier (web-based) management of LiveJournal installations with many databases.', '0', 'off', NULL, 'dbinfo');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores each database\'s roles and weights. The [dbtable[dbinfo]] table keeps track of which databases exist.', '0', 'off', NULL, 'dbweights');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores external user mappings. Note: extuser/extuserid are expected to sometimes be NULL, even though they are keyed. (Null values are not taken into account when using indexes).', '0', 'off', NULL, 'extuser');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores flagged content metadata. Content can be flagged as adult content, etc.', '0', 'off', NULL, 'content_flag');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores information on syndicated accounts like feed URI, readership, polling, etc.', '0', 'off', NULL, 'syndicated');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores list of ESN notification class types.', '0', 'off', NULL, 'notifytypelist');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores list of different admin privileges that users can have.', '1', 'replace', NULL, 'priv_list');

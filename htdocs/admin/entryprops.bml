@@ -49,8 +49,7 @@ body<=
     $ret .= "(journal wide minsecurity: " . ($entry->journal->prop("newpost_minsecurity") || "public") . ")<br />";
     $ret .= "<strong>User Date/Time</strong>: " . $entry->eventtime_mysql . "<br />";
     $ret .= "<strong>Server Date/Time</strong>: " . $entry->logtime_mysql . "<br />";
-    $ret .= "<strong>Journal Adult Content</strong>: " . ($entry->journal->adult_content || "none")
-        . " (admin setting: " . ($entry->journal->admin_content_flag || "none") . ")<br />";
+    $ret .= "<strong>Journal Adult Content</strong>: " . ( $entry->journal->adult_content || "none" ) . "<br />";
 
     $ret .= "<br />";
 

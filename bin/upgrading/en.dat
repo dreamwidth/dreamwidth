@@ -2005,8 +2005,6 @@ img.editentry=Edit Entry
 
 img.edittags=Edit Tags
 
-img.flag_btn=Flag
-
 img.ins_obj=Insert Image/Object
 
 img.memadd=Add to memories!
@@ -3251,8 +3249,6 @@ web.controlstrip.links.editcommprofile=Edit the Profile
 
 web.controlstrip.links.explore=Explore [[sitenameabbrev]]
 
-web.controlstrip.links.flag=Flag Journal
-
 web.controlstrip.links.home=Home
 
 web.controlstrip.links.inbox=Inbox
@@ -3418,28 +3414,6 @@ widget.commsofuser.title=Communities [[user]] has added
 widget.commsofuser.viewfriendspage=View [[user]]'s Friends page
 
 widget.commsofuser.viewprofile=View [[user]]'s profile
-
-widget.contentflagreport.btn.returnentry=Return to Entry
-
-widget.contentflagreport.btn.returnjournal=Return to Journal
-
-widget.contentflagreport.btn.submit=Submit Report
-
-widget.contentflagreport.confirm=I feel that this content meets the description of <a [[aopts]]>Explicit Adult Content</a>.
-
-widget.contentflagreport.description=Go <a [[confirmaopts]]>here</a> to flag this content as explicitly adult.
-
-widget.contentflagreport.done=Thank you for your report. We will process it as soon as possible and take the appropriate action. Unfortunately, we can't respond individually to each report we receive.
-
-widget.contentflagreport.error.invalidentry=Invalid entry.
-
-widget.contentflagreport.error.invalidurl=Invalid URL.
-
-widget.contentflagreport.error.invalidusername=Invalid username.
-
-widget.contentflagreport.explore=Explore [[sitenameabbrev]]
-
-widget.contentflagreport.note=<span class='note-header'>Note:</span> <span class='note-text'>You have not yet flagged this content. Please review the following options and select the one that best fits your concerns.</span>
 
 widget.createaccount.alt_layout.error.tos=You must agree to the Terms of Service.
 

@@ -7,7 +7,7 @@ use LJ::Constants;
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return !LJ::is_enabled( "content_flag" ) || !$u || $u->is_identity ? 0 : 1;
+    return !LJ::is_enabled( 'adult_content' ) || !$u || $u->is_identity ? 0 : 1;
 }
 
 sub label {

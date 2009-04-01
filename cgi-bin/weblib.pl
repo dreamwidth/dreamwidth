@@ -1498,7 +1498,7 @@ MOODS
             $out .= "<span class='inputgroup-right'>";
 
             # Content Flag
-            if (LJ::is_enabled("content_flag")) {
+            if ( LJ::is_enabled( 'adult_content' ) ) {
                 my @adult_content_menu = (
                     "" => BML::ml('entryform.adultcontent.default'),
                     none => BML::ml('entryform.adultcontent.none'),
@@ -1519,7 +1519,7 @@ MOODS
             $out .= "</span>\n";
             $out .= "</p>\n";
 
-            if (LJ::is_enabled("content_flag")) {
+            if ( LJ::is_enabled( 'adult_content' ) ) {
                  $out .= "<p class='pkg'>";
                  $out .= "<label for='prop_adult_content_reason' class='left options'>" . BML::ml('entryform.adultcontentreason') . "</label>";
                  $out .= LJ::html_text(
@@ -1578,7 +1578,7 @@ PREVIEW
         $out .= "<em>" . BML::ml('entryform.maintainer') . "</em>\n";
         $out .= "</p>\n";
 
-        if (LJ::is_enabled("content_flag")) {
+        if ( LJ::is_enabled( 'adult_content' ) ) {
             $out .= "<p class='pkg'>\n";
             my %poster_adult_content_menu = (
                 "" => BML::ml('entryform.adultcontent.default'),
@@ -1927,7 +1927,7 @@ sub entry_form_decode
     $req->{"prop_opt_noemail"}      ||= $POST->{'comment_settings'} eq "noemail" ? 1 : 0;
     $req->{'prop_opt_backdated'}      = $POST->{'prop_opt_backdated'} ? 1 : 0;
 
-    if (LJ::is_enabled("content_flag")) {
+    if ( LJ::is_enabled( 'adult_content' ) ) {
         $req->{prop_adult_content} = $POST->{prop_adult_content};
         $req->{prop_adult_content} = ""
             unless $req->{prop_adult_content} eq "none" || $req->{prop_adult_content} eq "concepts" || $req->{prop_adult_content} eq "explicit";

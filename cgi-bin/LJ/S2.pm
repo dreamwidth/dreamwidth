@@ -1860,7 +1860,6 @@ sub Entry
     push @$link_keyseq, 'tell_friend' unless $LJ::DISABLED{'tellafriend'};
     push @$link_keyseq, 'watch_comments' unless $LJ::DISABLED{'esn'};
     push @$link_keyseq, 'unwatch_comments' unless $LJ::DISABLED{'esn'};
-    push @$link_keyseq, 'flag' unless LJ::conf_test($LJ::DISABLED{content_flag});
 
     # Note: nav_prev and nav_next are not included in the keyseq anticipating
     #      that their placement relative to the others will vary depending on
@@ -3654,15 +3653,6 @@ sub _Entry__get_link
         return LJ::S2::Link("$LJ::SITEROOT/go.bml?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=next",
                             $ctx->[S2::PROPS]->{"text_entry_next"},
                             LJ::S2::Image("$LJ::IMGPREFIX/btn_next.gif", 22, 20));
-    }
-    if ($key eq "flag") {
-        return $null_link unless LJ::is_enabled("content_flag");
-
-        my $entry = LJ::Entry->new($journalu, ditemid => $this->{itemid});
-        return $null_link unless $remote && $remote->can_see_content_flag_button( content => $entry );
-        return LJ::S2::Link(LJ::ContentFlag->adult_flag_url($entry),
-                            $ctx->[S2::PROPS]->{"text_flag"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/button-flag.gif", 22, 20));
     }
 
     my $etypeid          = 'LJ::Event::JournalNewComment'->etypeid;

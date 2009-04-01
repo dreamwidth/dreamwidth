@@ -599,12 +599,6 @@ sub file_request
     $dbh->do("INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message) ".
              "VALUES (NULL, $spid, UNIX_TIMESTAMP(), 'req', 0, $qrequserid, $qbody)");
 
-    # set the flag on the support request and the support request on the flag
-    if ($o->{flagid}) {
-        LJ::Support::set_prop($spid, "contentflagid", $o->{flagid});
-        LJ::ContentFlag->set_supportid($o->{flagid}, $spid);
-    }
-
     my $body;
     my $miniauth = mini_auth({ 'authcode' => $authcode });
     $url = "$LJ::SITEROOT/support/see_request.bml?id=$spid";

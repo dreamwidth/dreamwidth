@@ -19,7 +19,7 @@
         return;
     }
 
-    $u->preload_props("opt_blockrobots", "adult_content", "admin_content_flag") if $u->is_visible;
+    $u->preload_props("opt_blockrobots", "adult_content") if $u->is_visible;
     if (!$u->is_visible || $u->should_block_robots) {
         $head .= LJ::robot_meta_tags();
     }

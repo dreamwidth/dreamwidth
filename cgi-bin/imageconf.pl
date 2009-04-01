@@ -138,13 +138,6 @@ $img{'track_thread_active'} = {
     'alt' => 'img.track_thread_active',
 };
 
-$img{'flag'} = {
-    'src' => '/button-flag.gif',
-    'width' => 22,
-    'height' => 20,
-    'alt' => 'img.flag_btn',
-};
-
 $img{'editcomment'} = {
     'src' => '/btn_edit.gif',
     'width' => 22,

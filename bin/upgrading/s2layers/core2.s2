@@ -1748,9 +1748,6 @@ set text_watch_comments = "Track This";
 property string text_unwatch_comments { des = "Text to stop tracking events on an entry"; }
 set text_unwatch_comments = "Untrack This";
 
-property string text_flag { des = "Text to flag an entry"; }
-set text_flag = "Flag";
-
 property string text_permalink {
     des = "Text for an entry's permanent link";
     note = "This is displayed when the entry subject contains links";

@@ -1006,18 +1006,10 @@ sub adult_content_reason {
     return $self->prop('adult_content_reason');
 }
 
-# defined by an admin
-sub admin_content_flag {
-    my $self = shift;
-
-    return $self->prop('admin_content_flag');
-}
-
-# uses both poster- and admin-defined props to figure out the adult content level
+# uses both poster- and maintainer-defined props to figure out the adult content level
 sub adult_content_calculated {
     my $self = shift;
 
-    return "explicit" if $self->admin_content_flag eq "explicit_adult";
     return $self->adult_content_maintainer if $self->adult_content_maintainer;
     return $self->adult_content;
 }
@@ -1026,7 +1018,6 @@ sub adult_content_calculated {
 sub adult_content_marker {
     my $self = shift;
 
-    return "admin" if $self->admin_content_flag eq "explicit_adult";
     return "community" if $self->adult_content_maintainer;
     return "poster" if $self->adult_content;
     return $self->journal->adult_content_marker;
@@ -1055,16 +1046,12 @@ sub is_special_qotd_entry {
 sub qct_value_for_ads {
     my $self = shift;
 
-    return 0 unless LJ::is_enabled("content_flag");
+    return 0 unless LJ::is_enabled( 'adult_content' );
 
     my $adult_content = $self->adult_content_calculated;
-    my $admin_flag = $self->admin_content_flag;
 
     if ($LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads}) {
         return $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads};
-    }
-    if ($LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads}) {
-        return $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads};
     }
 
     return 0;
@@ -1075,13 +1062,11 @@ sub should_block_robots {
 
     return 1 if $self->journal->prop('opt_blockrobots');
 
-    return 0 unless LJ::is_enabled("content_flag");
+    return 0 unless LJ::is_enabled( 'adult_content' );
 
     my $adult_content = $self->adult_content_calculated;
-    my $admin_flag = $self->admin_content_flag;
 
     return 1 if $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
-    return 1 if $LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{block_robots};
     return 0;
 }
 

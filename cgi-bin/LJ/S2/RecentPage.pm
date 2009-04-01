@@ -175,8 +175,8 @@ sub RecentPage
                                               'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($u, $ditemid, $remote, \$text);
 
-        $text = LJ::ContentFlag->transform_post(post => $text, journal => $u,
-                                                remote => $remote, entry => $entry_obj);
+        $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $u,
+                                                         remote => $remote, entry => $entry_obj );
 
         my @taglist;
         while (my ($kwid, $kw) = each %{$tags->{"$u->{userid} $itemid"} || {}}) {

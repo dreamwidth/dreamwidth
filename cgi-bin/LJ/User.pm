@@ -59,7 +59,7 @@ use Class::Autouse qw(
 ###  11. Birthdays and Age-Related Functions
 ###  12. Comment-Related Functions
 ###  13. Community-Related Functions and Authas
-###  14. Content Flagging and Adult Content Functions
+###  14. Adult Content Functions
 ###  15. Email-Related Functions
 ###  16. Entry-Related Functions
 ###  17. Interest-Related Functions
@@ -187,7 +187,7 @@ sub create_community {
 
     $u->set_prop("nonmember_posting", $opts{nonmember_posting}+0);
     $u->set_prop("moderated", $opts{moderated}+0);
-    $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled("content_flag");
+    $u->set_prop("adult_content", $opts{journal_adult_settings}) if LJ::is_enabled( 'adult_content' );
 
     my $remote = LJ::get_remote();
     LJ::set_rel($u, $remote, "A");  # maintainer
@@ -309,7 +309,6 @@ sub delete_and_purge_completely {
         if $u->is_community;
     $dbh->do("DELETE FROM syndicated WHERE userid=?", undef, $u->id)
         if $u->is_syndicated;
-    $dbh->do("DELETE FROM content_flag WHERE journalid=? OR reporterid=?", undef, $u->id, $u->id);
 
     return 1;
 }
@@ -2080,13 +2079,11 @@ sub should_block_robots {
 
     return 1 if $u->prop('opt_blockrobots');
 
-    return 0 unless LJ::is_enabled("content_flag");
+    return 0 unless LJ::is_enabled( 'adult_content' );
 
     my $adult_content = $u->adult_content_calculated;
-    my $admin_flag = $u->admin_content_flag;
 
     return 1 if $LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{block_robots};
-    return 1 if $LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{block_robots};
     return 0;
 }
 
@@ -2578,7 +2575,7 @@ sub best_guess_age {
 sub can_join_adult_comm {
     my ($u, %opts) = @_;
 
-    return 1 unless LJ::is_enabled('content_flag');
+    return 1 unless LJ::is_enabled( 'adult_content' );
 
     my $adultref = $opts{adultref};
     my $comm = $opts{comm} or croak "No community passed";
@@ -3210,9 +3207,7 @@ sub trusts_or_has_member {
 
 
 ########################################################################
-### 14. Content Flagging and Adult Content Functions
-###  FIXME: Determine which are by-user and which are admin flagging
-###  (and remove admin flagging as an option)
+### 14. Adult Content Functions
 
 
 # defined by the user
@@ -3226,20 +3221,11 @@ sub adult_content {
 }
 
 
-# uses both user- and admin-defined props to figure out the adult content level
+# uses user-defined prop to figure out the adult content level
 sub adult_content_calculated {
     my $u = shift;
 
-    return "explicit" if $u->admin_content_flag eq "explicit_adult";
     return $u->adult_content;
-}
-
-
-# defined by an admin
-sub admin_content_flag {
-    my $u = shift;
-
-    return $u->prop('admin_content_flag');
 }
 
 
@@ -3247,7 +3233,6 @@ sub admin_content_flag {
 sub adult_content_marker {
     my $u = shift;
 
-    return "admin" if $u->admin_content_flag eq "explicit_adult";
     return "journal";
 }
 
@@ -3257,51 +3242,6 @@ sub adult_content_reason {
     my $u = shift;
 
     return $u->prop('adult_content_reason');
-}
-
-
-sub can_admin_content_flagging {
-    my $u = shift;
-
-    return 0 unless LJ::is_enabled("content_flag");
-    return 1 if $LJ::IS_DEV_SERVER;
-    return LJ::check_priv($u, "siteadmin", "contentflag");
-}
-
-
-sub can_flag_content {
-    my $u = shift;
-    my %opts = @_;
-
-    return 0 unless $u->can_see_content_flag_button(%opts);
-    return 0 if LJ::sysban_check("contentflag", $u->user);
-    return 0 unless $u->rate_check("ctflag", 1);
-    return 1;
-}
-
-
-sub can_see_content_flag_button {
-    my $u = shift;
-    my %opts = @_;
-
-    return 0 unless LJ::is_enabled("content_flag");
-
-    my $content = $opts{content};
-
-    # user can't flag any journal they manage nor any entry they posted
-    # user also can't flag non-public entries
-    if (LJ::isu($content)) {
-        return 0 if $u->can_manage($content);
-    } elsif ($content->isa("LJ::Entry")) {
-        return 0 if $u->equals($content->poster);
-        return 0 unless $content->security eq "public";
-    }
-
-    # user can't flag anything if their account isn't at least one month old
-    my $one_month = 60*60*24*30;
-    return 0 unless time() - $u->timecreate >= $one_month;
-
-    return 1;
 }
 
 
@@ -3346,24 +3286,21 @@ sub should_show_in_search_results {
     my $u = shift;
     my %opts = @_;
 
-    return 1 unless LJ::is_enabled("content_flag") && LJ::is_enabled("safe_search");
+    return 1 unless LJ::is_enabled( 'adult_content' ) && LJ::is_enabled( 'safe_search' );
 
     my $adult_content = $u->adult_content_calculated;
-    my $admin_flag = $u->admin_content_flag;
 
     my $for_u = $opts{for};
     unless (LJ::isu($for_u)) {
-        return $adult_content ne "none" || $admin_flag ? 0 : 1;
+        return $adult_content eq "none" ? 1 : 0;
     }
 
     my $safe_search = $for_u->safe_search;
     return 1 if $safe_search == 0;
 
     my $adult_content_flag_level = $LJ::CONTENT_FLAGS{$adult_content} ? $LJ::CONTENT_FLAGS{$adult_content}->{safe_search_level} : 0;
-    my $admin_flag_level = $LJ::CONTENT_FLAGS{$admin_flag} ? $LJ::CONTENT_FLAGS{$admin_flag}->{safe_search_level} : 0;
 
     return 0 if $adult_content_flag_level && ($safe_search >= $adult_content_flag_level);
-    return 0 if $admin_flag_level && ($safe_search >= $admin_flag_level);
     return 1;
 }
 
@@ -5221,16 +5158,12 @@ sub notable_interests {
 sub qct_value_for_ads {
     my $u = shift;
 
-    return 0 unless LJ::is_enabled("content_flag");
+    return 0 unless LJ::is_enabled( 'adult_content' );
 
     my $adult_content = $u->adult_content_calculated;
-    my $admin_flag = $u->admin_content_flag;
 
     if ($LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads}) {
         return $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads};
-    }
-    if ($LJ::CONTENT_FLAGS{$admin_flag} && $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads}) {
-        return $LJ::CONTENT_FLAGS{$admin_flag}->{qct_value_for_ads};
     }
 
     return 0;
@@ -8322,7 +8255,7 @@ sub make_journal
     my @needed_props = ("stylesys", "s2_style", "url", "urlname", "opt_nctalklinks",
                         "renamedto",  "opt_blockrobots", "opt_usesharedpic", "icbm",
                         "journaltitle", "journalsubtitle", "external_foaf_url",
-                        "adult_content", "admin_content_flag");
+                        "adult_content");
 
     # S2 is more fully featured than S1, so sometimes we get here and $eff_view
     # is reply/month/entry/res and that means it *has* to be S2--S1 defaults to a

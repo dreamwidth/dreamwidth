@@ -146,7 +146,7 @@ body<=
             LJ::set_userprop($cu, 'nonmember_posting', $nonmember_posting);
             LJ::set_userprop($cu, 'moderated', $moderated);
 
-            if (LJ::is_enabled("content_flag")) {
+            if ( LJ::is_enabled( 'adult_content' ) ) {
                 my $adult_content = $POST{'adult_content'};
                 $adult_content eq "none"
                     unless $adult_content eq "explicit" || $adult_content eq "concepts";
@@ -253,7 +253,7 @@ body<=
     $ret .= "</div></fieldset>";
 
     # adult content
-    if (LJ::is_enabled('content_flag')) {
+    if ( LJ::is_enabled( 'adult_content' ) ) {
         my $adult_content = $c ? $c->adult_content : "none";
 
         $ret .= "<fieldset id='adult-content'>";

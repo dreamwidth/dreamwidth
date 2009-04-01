@@ -208,7 +208,7 @@ SUBMIT:
         $ret .= "</div></div></li>";
 
         # adult content options
-        if (LJ::is_enabled("content_flag")) {
+        if ( LJ::is_enabled( 'adult_content' ) ) {
             $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'/community/settings.bml.label.adultcontentheader'} ";
             $ret .= LJ::help_icon("adult_content_flag");
             $ret .= "</div><div class='formitemDesc'>$ML{'/community/settings.bml.label.adultcontenttext'}</div><div><p>";

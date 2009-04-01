@@ -179,8 +179,8 @@
     # turns these from 0 to 1 to disable parts of the site that are
     # CPU & database intensive or that you simply don't want to use
     %DISABLED = (
+                 adult_content => 0,
                  blockwatch => 1,
-                 content_flag => 0,
                  'community-logins' => 0,
                  directory => 0,
                  eventlogrecord => 1,

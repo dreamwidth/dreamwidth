@@ -1346,11 +1346,6 @@ property string text_unwatch_comments {
 }
 set text_unwatch_comments = "Untrack This";
 
-property string text_flag {
-    des = "Text to flag an entry";
-}
-set text_flag = "Flag";
-
 property string text_month_screened_comments {
     des = "Text to indicate there are screened comments";
 }

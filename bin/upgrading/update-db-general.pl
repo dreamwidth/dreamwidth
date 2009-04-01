@@ -2860,27 +2860,6 @@ CREATE TABLE uniqmap (
 )
 EOC
 
-register_tablecreate("content_flag", <<'EOC');
-CREATE TABLE content_flag (
-    flagid INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    journalid INT UNSIGNED NOT NULL,
-    typeid TINYINT UNSIGNED NOT NULL,
-    itemid INT UNSIGNED,
-    catid TINYINT UNSIGNED NOT NULL,
-    reporterid INT UNSIGNED NOT NULL,
-    reporteruniq VARCHAR(15),
-    instime INT UNSIGNED NOT NULL,
-    modtime INT UNSIGNED NOT NULL,
-    status CHAR(1),
-
-    PRIMARY KEY (flagid),
-    INDEX (journalid, typeid, itemid),
-    INDEX (instime),
-    INDEX (reporterid),
-    INDEX (status)
-)
-EOC
-
 # clustered
 register_tablecreate("usermsg", <<'EOC');
 CREATE TABLE usermsg (
@@ -3195,11 +3174,6 @@ register_alter(sub {
 
     my $dbh = shift;
     my $runsql = shift;
-
-    if (column_type("content_flag", "reporteruniq") eq "") {
-        do_alter("content_flag",
-                 "ALTER TABLE content_flag ADD reporteruniq VARCHAR(15) AFTER reporterid");
-    }
 
     if (column_type("supportcat", "is_selectable") eq "") {
         do_alter("supportcat",
@@ -3805,12 +3779,6 @@ register_alter(sub {
                  "ALTER TABLE supportcat ADD " .
                  "user_closeable ENUM('1', '0') NOT NULL DEFAULT '1' " .
                  "AFTER hide_helpers");
-    }
-
-    unless (column_type("content_flag", "supportid")) {
-        do_alter("content_flag",
-                 "ALTER TABLE content_flag " .
-                 "ADD supportid INT(10) UNSIGNED NOT NULL DEFAULT '0'");
     }
 
     # add a status column to polls

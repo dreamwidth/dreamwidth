@@ -3,7 +3,7 @@
 
 use strict;
 package LJ::S2;
-use Class::Autouse qw/LJ::ContentFlag/;
+use Class::Autouse qw/ DW::Logic::AdultContent /;
 
 sub FriendsPage
 {
@@ -236,8 +236,8 @@ sub FriendsPage
                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($friends{$friendid}, $ditemid, $remote, \$text);
 
-        $text = LJ::ContentFlag->transform_post(post => $text, journal => $friends{$friendid},
-                                                remote => $remote, entry => $entry_obj);
+        $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $friends{$friendid},
+                                                         remote => $remote, entry => $entry_obj );
 
         my $userlite_poster = $get_lite->($posterid);
         my $userlite_journal = $get_lite->($friendid);

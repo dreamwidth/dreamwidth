@@ -441,7 +441,7 @@ sub trans
         }
 
         # check if this entry or journal contains adult content
-        if (LJ::is_enabled('content_flag')) {
+        if ( LJ::is_enabled( 'adult_content' ) ) {
             # force remote to be checked
             my $burl = LJ::remote_bounce_url();
             return remote_domsess_bounce() if LJ::remote_bounce_url();
@@ -477,14 +477,14 @@ sub trans
             if ($adult_content ne "none" && $is_journal_page && !$should_show_page) {
                 my $returl = "http://$host" . $r->uri . "$args_wq";
 
-                LJ::ContentFlag->check_adult_cookie($returl, \%BMLCodeBlock::POST, "concepts");
-                LJ::ContentFlag->check_adult_cookie($returl, \%BMLCodeBlock::POST, "explicit");
+                DW::Logic::AdultContent->check_adult_cookie( $returl, \%BMLCodeBlock::POST, "concepts" );
+                DW::Logic::AdultContent->check_adult_cookie( $returl, \%BMLCodeBlock::POST, "explicit" );
 
-                my $cookie = $BML::COOKIE{LJ::ContentFlag->cookie_name($adult_content)};
+                my $cookie = $BML::COOKIE{DW::Logic::AdultContent->cookie_name( $adult_content )};
 
                 # if they've confirmed that they're over 18, then they're over 14 too
                 if ($adult_content eq "concepts" && !$cookie) {
-                    $cookie = 1 if $BML::COOKIE{LJ::ContentFlag->cookie_name("explicit")};
+                    $cookie = 1 if $BML::COOKIE{DW::Logic::AdultContent->cookie_name( "explicit" )};
                 }
 
                 LJ::set_active_journal( $u );
@@ -495,12 +495,12 @@ sub trans
                 # logged in users without defined ages and logged out users are given confirmation pages (unless they have already confirmed)
                 if ($remote) {
                     if ($adult_content eq "explicit" && $remote->is_minor) {
-                        return $bml_handler->(LJ::ContentFlag->adult_interstitial_path(type => "${adult_content}_blocked"));
+                        return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => "${adult_content}_blocked" ) );
                     } elsif (!$remote->best_guess_age && !$cookie) {
-                        return $bml_handler->(LJ::ContentFlag->adult_interstitial_path(type => $adult_content));
+                        return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => $adult_content ) );
                     }
                 } elsif (!$remote && !$cookie) {
-                    return $bml_handler->(LJ::ContentFlag->adult_interstitial_path(type => $adult_content));
+                    return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => $adult_content ) );
                 }
             }
         }
@@ -1224,7 +1224,7 @@ sub journal_content
         my $u = LJ::load_user($RQ{'user'});
         return 404 unless $u;
 
-        $u->preload_props("opt_blockrobots", "adult_content", "admin_content_flag");
+        $u->preload_props("opt_blockrobots", "adult_content");
         $r->content_type("text/plain");
 #        $r->send_http_header();
         my @extra = LJ::run_hook("robots_txt_extra", $u), ();
