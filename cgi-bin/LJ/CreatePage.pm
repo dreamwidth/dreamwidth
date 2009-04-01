@@ -81,10 +81,10 @@ sub verify_password {
         $name = $u->name_raw;
     }
 
-    $password = $opts{password};
-    $username = $opts{username};
-    $email = $opts{email};
-    $name = $opts{name};
+    $password = $opts{password} if $opts{password};
+    $username = $opts{username} if $opts{username};
+    $email = $opts{email} if $opts{email};
+    $name = $opts{name} if $opts{name};
 
     # password must exist
     return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.blank' )
@@ -124,7 +124,7 @@ sub verify_password {
     # at least 4 unique characters
     my %unique_chars = map { $_ => 1 } split( //, $password );
     return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.needsmoreuniquechars' )
-        unless scalar keys %unique_chars > 4;
+        unless scalar keys %unique_chars >= 4;
 
     # contains at least one digit or symbol
     return LJ::Widget::CreateAccount->ml( 'widget.createaccount.error.password.needsnonletter' )
