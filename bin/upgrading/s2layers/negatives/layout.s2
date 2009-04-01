@@ -139,6 +139,7 @@ function print_stylesheet()
         border: 0!important;
         }
     #primary {
+        position: relative;
         float: left;
         font-size: 0.9em;
         padding: 10px;
@@ -148,14 +149,13 @@ function print_stylesheet()
         border-right:5px double $*middle_edge;
         background: $*middle_background;
         color:$*theme_fgcolor;
-        margin-left: 10%;
+        left: 10%;
         width: 70%;
         }
     #secondary {
-        /*position: absolute;*/
+        position: relative;
         float: left;
-        /*top: 40px;*/
-        right: 0px; /* Opera5.02 will show a space at right when there is no scroll bar */
+        left: 10%;
         margin: 0px;
         padding: 10px;
         border: 0px;
