@@ -53,18 +53,8 @@
     padding-right: 10px;
 }
 
-.cmtbar-odd {
-    border-bottom: 1px solid #c1272c;
-    border-right: 1px solid #c1272c;
-}
-
 .cmtbar-odd img, .cmtbar-even img {
     padding-right: 10px;
-}
-
-.cmtbar-even {
-    border-bottom: 1px solid #f4717a;
-    border-right: 1px solid #f4717a;
 }
 
 td .commentbody {

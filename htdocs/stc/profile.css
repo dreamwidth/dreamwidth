@@ -24,7 +24,6 @@
 /* start top box */
 
 #profile_top {
-    min-width: 740px;
     margin: 15px 0 25px 0;
 }
 .userpicdiv {
@@ -44,8 +43,6 @@
     margin: 2px 0 0 0;
     font-size: 1.1em;
     padding: 0;
-    border-bottom: 1px solid #c7e0f6;
-    background-color: #ecf6ff;
     padding: 2px;
 }
 
