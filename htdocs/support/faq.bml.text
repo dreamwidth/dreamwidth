@@ -1,9 +1,9 @@
 ;; -*- coding: utf-8 -*-
-.cannotfind.note=Note that the search feature is still in beta testing and under development, but it just may find you what you're looking for.
-
-.cannotfind=Can't find it? <a [[faqsearch]]>Search the FAQs</a>!
-
 .faq.back.link=Back to <a [[backlink]]>the support area</a>.
+
+.faq.search.btn=Search
+
+.faq.search.text=If you aren't sure where to start looking, use this box to search our documentation.
 
 .faq.title.text=Below are some frequently asked questions, and answers, too!  Oh boy.  Try to read this before you ask a new question.  If you know something we should add to this, let us know.
 
