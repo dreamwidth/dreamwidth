@@ -193,8 +193,8 @@ function print_stylesheet()
         font-size: 0.8em;
         letter-spacing:.3em;
         border-bottom: 5px double #ffffff;
-        padding: 3px 0;
-        position: relative; } /*** IE6 needs this to display the div ***/
+        padding: 0.5em 0;
+    }
     /* Hide from IE5-Mac \*/
     * html .module-group-primary {height: 1%;}
     /* end hide *//*** This hack will make IE5-win display the background color for the nav ***/
