@@ -207,10 +207,9 @@ function print_stylesheet()
         line-height: 1.2em; }
     .module-group-primary ul li {
         font-weight: bold;
-        display: inline-block;
-        padding: 1px 0;
+        display: inline;
+        padding: 0.2em 2em;
         margin: 3px 0;
-        width: 10em;
      }
     .module-group-primary ul li.first {
         margin-left: 0;
