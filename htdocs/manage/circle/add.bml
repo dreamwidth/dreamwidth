@@ -146,11 +146,6 @@
                     $body .= "<?p $ML{'.confirm.text1.community2.openid'} p?>";
                 }
             }
-        } elsif ($u->{'journaltype'} eq "N") {
-            $windowtitle = BML::ml('.confirm.title.news', {'user'=> $user });
-            $title = BML::ml('.confirm.title.news', {'icon'=> $icon, 'user'=> $user });
-            $body .= "<?p " . BML::ml('.confirm.text1.news', {'user' => LJ::ljuser($user)}) . " p?>";
-
         } else {
             if ($u->{'journaltype'} eq "I") {
                $windowtitle = BML::ml('.confirm.title.person', {'user'=> $u->{'name'} });
