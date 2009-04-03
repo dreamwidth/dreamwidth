@@ -1,21 +1,5 @@
 ;; -*- coding: utf-8 -*-
 
-/editinfo.bml.newemail_old.body2<<
-Someone just changed the e-mail address for your [[sitename]] account "[[username]]".
-ip: [[ip]]
-old email: [[old_email]]
-new email: [[new_email]]
-
-You can change your email here: [[email_change_link]],
-or you can to manage your previous addresses here: [[email_manage_link]]
-
-Regards,
-[[sitename]] Team
-[[sitelink]]
-.
-
-/editinfo.bml.newemail_old.subject=E-mail Address Changed
-
 .btn.change=Change email address
 
 .error.invalidemail=Invalid email address.
@@ -41,6 +25,34 @@ Regards,
 .label.password2=[[remote]]'s current password:
 
 .label.username=Username:
+
+.newemail.body2<<
+You have just changed the email address for your [[sitename]] account "[[username]]".  To validate the change, please go to this address:
+
+[[conflink]]
+
+Regards,
+[[sitename]] Team
+[[sitelink]]
+.
+
+.newemail_old.body2<<
+Someone just changed the e-mail address for your [[sitename]] account "[[username]]".
+ip: [[ip]]
+old email: [[old_email]]
+new email: [[new_email]]
+
+You can change your email here: [[email_change_link]],
+or you can to manage your previous addresses here: [[email_manage_link]]
+
+Regards,
+[[sitename]] Team
+[[sitelink]]
+.
+
+.newemail_old.subject=E-mail Address Changed
+
+.newemail.subject=Email Address Changed
 
 .noemail=(None)
 
