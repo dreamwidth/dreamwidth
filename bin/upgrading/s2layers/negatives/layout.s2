@@ -590,6 +590,7 @@ function Page::print()
     <head>""";
         $this->print_head();
         $this->print_stylesheets();
+        $this->print_head_title();
     println "</head>";
 
     println "<body>";
