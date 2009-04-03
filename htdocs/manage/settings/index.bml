@@ -53,7 +53,6 @@ body<=
             form => 1,
             desc => $ML{'.cat.display.desc'},
             settings => [qw(
-                LJ::Setting::Language
                 LJ::Setting::TimeZone
                 LJ::Setting::ImagePlaceholders
                 LJ::Setting::EmbedPlaceholders
@@ -68,7 +67,6 @@ body<=
                 DW::Setting::AdultContentReason
                 LJ::Setting::ViewingAdultContent
                 LJ::Setting::SafeSearch
-                LJ::Setting::CyrillicServices
                 DW::Setting::GoogleAnalytics
             )],
         },
@@ -90,7 +88,6 @@ body<=
             form => 1,
             desc => $ML{'.cat.mobile.desc'},
             settings => [qw(
-                LJ::Setting::VoicePosting
                 LJ::Setting::EmailPosting
                 LJ::Setting::Display::MobileApps
             )],
@@ -121,10 +118,8 @@ body<=
             desc => $ML{'.cat.history.desc'},
             settings => [qw(
                 LJ::Setting::Display::Logins
-                LJ::Setting::Display::Payments
                 LJ::Setting::Display::Emails
                 LJ::Setting::Display::EmailPosts
-                LJ::Setting::Display::GiftCerts
             )],
         },
     );
