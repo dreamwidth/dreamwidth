@@ -328,21 +328,6 @@ function YearPage::print_year_links ()
         }
     }
 }
-#####################################
-#Print entry poster
-function Page::print_entry_poster(EntryLite e) {
-    var Page p = get_page();
-    if ($p isa FriendsPage or $p isa EntryPage or $p isa ReplyPage) {
-        $e.poster->print();
-        if (not $e.poster->equals($e.journal)) {
-            print $*text_posting_in;
-            $e.journal->print();
-        }
-    }
-    else {
-        $e.poster->print();
-    }
-}
 #Print_body
 function Page::print_entry (Entry e)
 {
@@ -571,14 +556,7 @@ function EntryPage::print_comment (Comment c)
     }
     println "";
 
-    if(not $*display_ljtag and defined $c.poster){
-        var string userlink = get_url($c.poster,"recent");
-        println "<a href=\"$userlink\">$c.poster.name</a> (<a href=\"$*SITEROOT/userinfo.bml?user=$c.poster.username&mode=full\">$c.poster.username</a>)";
-    } else {
-        $c->print_poster();
-    }
-
-    print " said: ";
+    $c->print_poster();
     if (defined $c.subject_icon) {
         print "$c.subject_icon";
     }
