@@ -1349,7 +1349,7 @@ sub talkform {
             $ret .= "<tr valign='middle'>";
             $ret .= "<td align='center' width='20'><img src='$LJ::IMGPREFIX/anonymous.gif' /></td>";
             $ret .= "<td align='center'>(  )</td>";
-            $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font>$BML::ML{'.opt.noanonpost.nonpublic'}</td>";
+            $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font> $BML::ML{'.opt.noanonpost.nonpublic'}</td>";
             $ret .= "</tr>\n";
         } else {
             $ret .= "<tr valign='center'>";
@@ -1447,7 +1447,7 @@ sub talkform {
         $ret .= "<td align='center'>(  )</td>";
         $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font>";
         my $stringname = $journalu->is_person ? ".opt.friendsonly" : ".opt.membersonly";
-        $ret .= BML::ml($stringname, {'username'=>"<b>$journalu->{'user'}</b>"});
+        $ret .= " " . BML::ml($stringname, {'username'=>"<b>$journalu->{'user'}</b>"});
         $ret .= "</tr>\n";
 
         ## the if clause is a copy of code from ($journalu->{'opt_whocanreply'} eq 'all')`
