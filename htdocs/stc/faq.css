@@ -1,0 +1,9 @@
+#faq ol li {
+    margin-left: 3em;
+    list-style: decimal;
+}
+
+#faq ul li {
+    margin-left: 3em;
+    list-style: disc;
+}

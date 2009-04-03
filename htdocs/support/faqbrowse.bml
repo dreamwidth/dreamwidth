@@ -26,6 +26,8 @@ body<=
     use strict;
     use vars qw(%GET);
 
+    LJ::need_res( 'stc/faq.css' );
+
     # get faqid and redirect to faq.bml if none
     my $faqidarg = $GET{'faqid'} + 0;
     # FIXME: disallow both faqid and faqcat (or ignore one)
@@ -57,6 +59,8 @@ body<=
     my $remote = LJ::get_remote();
     my $user;
     my $user_url;
+
+    $$body .= "<div id='faq'>";
 
     # Get remote username and journal URL, or example user's username and journal URL
     if ($remote) {
@@ -267,6 +271,8 @@ body<=
 
      # we're dynamic, set title as crumb title
      LJ::set_dynamic_crumb($_[1]->{'title'}, 'faq');
+
+     $$body .= "</div>";
 
      return $_[1]->{'body'};
 }

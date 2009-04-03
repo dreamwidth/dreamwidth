@@ -8,6 +8,7 @@ body<=
     use vars qw(%GET);
 
     LJ::set_active_crumb('faq');
+    LJ::need_res( 'stc/faq.css' );
 
     my $curlang = BML::get_language();
     my $deflang = BML::get_language_default();
@@ -23,6 +24,7 @@ body<=
     my %faqcat; my %faqq;
     my $ret = "";
 
+    $ret .= "<div id='faq'>";
     $ret .= "<?h1 $ML{'.faq.title'} h1?>";
     $ret .= "<?p $ML{'.faq.title.text'} p?>";
 
@@ -104,6 +106,7 @@ body<=
     $ret .= "<?hr?>";
     $ret .= BML::ml('.faq.back.link', {backlink=>'href="./"'});
 
+    $ret .= "</div>";
     return $ret;
 }
 
