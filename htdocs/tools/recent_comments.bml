@@ -231,7 +231,7 @@ body<=
 
     $ret .= "<?p " . BML::ml('/tools/recent_comments.bml.maxnotshown',
                              { 'current' => $max, 'max' => $LJ::TOOLS_RECENT_COMMENTS_MAX }).
-                                 " p?>" unless $max == $LJ::TOOLS_RECENT_COMMENTS_MAX;
+                                 " p?>" unless $max >= $LJ::TOOLS_RECENT_COMMENTS_MAX;
 
     if ($u->{journaltype} eq "P") {
         $ret .= "<div style='text-align: center; margin-top: 1em'><a name='posted'></a>" .
