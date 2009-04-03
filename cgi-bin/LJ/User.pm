@@ -8589,7 +8589,9 @@ sub make_journal
     }
     return $error->("This journal has been deleted and purged.", "410 Gone") if ($u->is_expunged);
 
-    return $error->("This user has no journal here.", "404 Not here") if $u->{'journaltype'} eq "I" && $view ne "read";
+    # FIXME: pretty this up at some point, to maybe auto-redirect to 
+    # the external URL or something, but let's just do this for now
+    return $error->("This user is an OpenID account and does not maintain a journal here. You might be able to see their content at <a href='" . $u->openid_identity . "'>" . $u->openid_identity . "</a>.", "404 Not here") if $u->{'journaltype'} eq "I" && $view ne "read";
 
     $opts->{'view'} = $view;
 
