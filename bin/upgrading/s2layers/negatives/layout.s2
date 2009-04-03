@@ -331,7 +331,7 @@ function YearPage::print_year_links ()
 #Print_body
 function Page::print_entry (Entry e)
 {
-    print "<div class=\"entry\">";
+    print "<div id=\"entry-$e.itemid\" class=\"entry\">";
         $e->print_userpic();
         print "<div class=\"subject\">&raquo;";
             $e->print_metatypes();
