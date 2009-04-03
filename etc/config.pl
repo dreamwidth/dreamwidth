@@ -616,7 +616,7 @@
 
     # by default, give users a style
     $DEFAULT_STYLE = {
-        'core' => 'core1',
+        'core' => 'core2',
         'layout' => 'negatives/layout',
         'theme' => 'negatives/black',
     };
