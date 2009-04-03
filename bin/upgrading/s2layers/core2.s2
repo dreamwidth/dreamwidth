@@ -531,6 +531,8 @@ class Page
     or a date for the day view. Should be overridden in i18n layers. Ideally, layout layers should never override
     this.  See [method[Page.title()]].";
 
+   function print_head_title "Print the title for this particular page, as in print_title, formatted with <title> and the journal username";
+
    function print_global_title;
    function print_global_subtitle;
 
@@ -1824,6 +1826,14 @@ set text_tags_manage = "Manage Tags";
 ## Text - misc strings, not popular enough to expose in wizard
 ##================================================================
 
+property string text_default_separator {
+    des = "Text used to separate items";
+    maxlength = 5;
+    "size" = 5;
+    example = " | ";
+}
+set text_default_separator = " | ";
+
 property string text_view_month {
     des = "Text used to link to a list of subjects for a month";
     maxlength = 20;
@@ -2431,6 +2441,14 @@ function Page::print_stylesheets() {
 function Page::print_title() {
     print """<h2 id="pagetitle"><span>""" + $this->view_title() + """</span></h2>\n""";
 }
+function Page::print_head_title() {
+    if ($this.journal.journal_type == "I") {
+        print """<title>""" + $this.journal.name + $*text_default_separator + $this->view_title() + """</title>\n""";
+    }
+    else {
+        print """<title>""" + $this.journal.username + $*text_default_separator + $this->view_title() + """</title>\n""";
+    }
+}
 function Page::print_global_title() {
     if ($.global_title) {
         """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
@@ -2443,6 +2461,9 @@ function Page::print_global_subtitle() {
 }
 function Page::view_title() [notags] : string {
     return lang_viewname($.view);
+}
+function RecentPage::view_title() : string {
+    return $*text_view_recent;
 }
 function FriendsPage::view_title() : string {
     if ($.friends_mode == "") {
@@ -2493,7 +2514,7 @@ function EntryPage::view_title() : string {
     return $.entry.subject ? $.entry->get_plain_subject() : "";
 }
 function ReplyPage::view_title() : string {
-    return "Post a comment";
+    return $*text_comment_reply;
 }
 function Page::title() [notags] : string {
     return $this->view_title();
@@ -3012,7 +3033,7 @@ function Page::print() {
     """<html>\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
     $this->print_head();
     $this->print_stylesheets();
-    "<title>"+$this->title()+"</title>\n";
+    $this->print_head_title();
     """</head>\n<body class="page-$.view">\n""";
     $this->print_control_strip();
     """
