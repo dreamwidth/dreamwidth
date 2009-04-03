@@ -9,13 +9,21 @@
 
     my $sql;
 
+    # all queries use the visible flag
+    my $vis_flag = '';
+    $vis_flag = 'AND i.visible = 1' unless $LJ::IS_DEV_SERVER;
+
     if ($FORM{'search'} eq 'sev')
     {
         my $what = ">= 1";
         if ($FORM{'stale'} =~ /^(\d+)(\+?)$/) {
             $what = ($2 ? ">=" : "=") . $1;
         }
-        $sql = "SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l WHERE l.lnid=$l->{'lnid'} AND l.staleness $what AND l.dmid=i.dmid AND l.itid=i.itid ORDER BY i.dmid, i.itcode";
+        $sql = qq(
+            SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l
+            WHERE l.lnid=$l->{'lnid'} AND l.staleness $what AND l.dmid=i.dmid AND l.itid=i.itid $vis_flag
+            ORDER BY i.dmid, i.itcode
+        );
     }
 
     if ($FORM{'search'} eq 'txt')
@@ -32,7 +40,7 @@
         if ($FORM{'searchwhat'} eq "code") {
             $sql = qq{
                 SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l
-                WHERE l.lnid=$l->{'lnid'} AND l.dmid=i.dmid AND i.itid=l.itid
+                WHERE l.lnid=$l->{'lnid'} AND l.dmid=i.dmid AND i.itid=l.itid $vis_flag
                 $dmidwhere AND LOCATE($qtext, i.itcode)
             };
         } else {
@@ -41,7 +49,7 @@
             $sql = qq{
                 SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l, ml_text t
                 WHERE l.lnid=$lnid AND l.dmid=i.dmid AND i.itid=l.itid
-                $dmidwhere AND t.dmid=l.dmid AND t.txtid=l.txtid AND LOCATE($qtext, t.text)
+                $dmidwhere AND t.dmid=l.dmid AND t.txtid=l.txtid AND LOCATE($qtext, t.text) $vis_flag
                 ORDER BY i.itcode
             };
         }
@@ -56,7 +64,11 @@
                 grep { $FORM{"searchflag$_"} ne 'whatev' } qw(proofed updated);
         $whereflags = "AND $whereflags"
             if $whereflags ne '';
-        $sql = "SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l WHERE l.lnid=$l->{'lnid'} AND l.dmid=i.dmid AND l.itid=i.itid $whereflags ORDER BY i.dmid, i.itcode";
+        $sql = qq(
+            SELECT i.dmid, i.itid, i.itcode FROM ml_items i, ml_latest l
+            WHERE l.lnid=$l->{lnid} AND l.dmid=i.dmid AND l.itid=i.itid $whereflags $vis_flag
+            ORDER BY i.dmid, i.itcode
+        );
     }
 
     return "Bogus or unimplemented query type." unless $sql;

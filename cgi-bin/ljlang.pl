@@ -676,7 +676,7 @@ sub get_text_multi
 
     my $dbr = LJ::get_db_reader();
     my $bind = join(',', map { '?' } keys %dbload);
-    my $sth = $dbr->prepare("SELECT i.itcode, t.text".
+    my $sth = $dbr->prepare("SELECT i.itcode, t.text, i.visible".
                             " FROM ml_text t, ml_latest l, ml_items i".
                             " WHERE t.dmid=? AND t.txtid=l.txtid".
                             " AND l.dmid=? AND l.lnid=? AND l.itid=i.itid".
@@ -684,9 +684,16 @@ sub get_text_multi
     $sth->execute($dmid, $dmid, $l->{lnid}, $dmid, keys %dbload);
 
     # now replace the empty strings with the defined ones that we got back from the database
-    while (my ($code, $text) = $sth->fetchrow_array) {
+    while (my ($code, $text, $vis) = $sth->fetchrow_array) {
         # some MySQL codes might be mixed-case
         $dbload{ lc($code) } = $text;
+
+        # if not currently visible, then set it
+        unless ( $vis ) {
+            my $dbh = LJ::get_db_writer();
+            $dbh->do( 'UPDATE ml_items SET visible = 1 WHERE itcode = ?',
+                       undef, $code );
+        }
     }
 
     while (my ($code, $text) = each %dbload) {

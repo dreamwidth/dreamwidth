@@ -1289,6 +1289,7 @@ CREATE TABLE ml_items (
     INDEX   (proofed),
     updated TINYINT NOT NULL DEFAULT 0, -- boolean, really
     INDEX   (updated),
+    visible TINYINT NOT NULL DEFAULT 0, -- also boolean
     notes   MEDIUMTEXT
 ) TYPE=MYISAM
 EOC
@@ -3950,6 +3951,10 @@ register_alter(sub {
                   "ALTER TABLE ml_items ADD INDEX (updated)" );
     }
 
+    unless ( column_type( 'ml_items', 'visible' ) ) {
+        do_alter( 'ml_items',
+                  "ALTER TABLE ml_items ADD COLUMN visible TINYINT NOT NULL DEFAULT 0 AFTER updated" );
+    }
 
 });
 
