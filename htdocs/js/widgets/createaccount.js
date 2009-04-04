@@ -49,32 +49,39 @@ CreateAccount.eventHideTip = function () {
 CreateAccount.showTip = function (id) {
     if (!id) return;
 
+    var drop, arrowdrop, text;
     if (CreateAccount.alt_layout) {
         CreateAccount.bubbleid = id.replace(/create/, 'bubble');
         if ($(CreateAccount.bubbleid)) {
             $(CreateAccount.bubbleid).style.visibility = "visible";
         }
     } else {
-        var y = DOM.findPosY($(id)), text;
-
         if (id == "create_bday_mm") {
             text = CreateAccount.birthdate;
+            drop = 40;
+            arrowdrop = 53;
         } else if (id == "create_email") {
             text = CreateAccount.email;
+            drop = 10;
+            arrowdrop = 13;
         } else if (id == "create_password1") {
             text = CreateAccount.password;
+            drop = 20;
+            arrowdrop = 24;
         } else if (id == "create_user") {
             text = CreateAccount.username;
+            drop = 0;
+            arrowdrop = 3;
         }
 
         var box = $('tips_box'), box_arr = $('tips_box_arrow');
         if (box && box_arr) {
             box.innerHTML = text;
 
-            box.style.top = y - 230 + "px";
+            box.style.top = drop + "%";
             box.style.display = "block";
 
-            box_arr.style.top = y - 225 + "px";
+            box_arr.style.top = arrowdrop + "%";
             box_arr.style.display = "block";
         }
     }
