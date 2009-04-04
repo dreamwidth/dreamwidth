@@ -8086,7 +8086,7 @@ sub get_daycounts
         if ($remote->{'userid'} == $uid || $viewall) {
             $secwhere = "";   # see everything
             $memkind = 'a'; # all
-        } elsif ($remote->{'journaltype'} eq 'P') {
+        } elsif ( $remote->is_individual ) {
 
             # if we're viewing a community, we intuit the security mask from the membership
             my $gmask = 0;
