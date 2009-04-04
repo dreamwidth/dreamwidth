@@ -25,10 +25,6 @@
 
 .choice.approve=Approve
 
-.choice.bkapprove=#82dd88
-
-.choice.bkreject=#e08291
-
 .choice.reject=Reject
 
 .choice.mark_as_spam=Reject and mark as spam
