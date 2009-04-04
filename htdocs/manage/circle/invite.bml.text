@@ -27,6 +27,8 @@ The [[sitenameshort]] Team
 
 .error.nooffsitelinksallowed=Links to sites other than [[sitename]] are not allowed in this message.
 
+.error.openid=We're sorry, but users logged in with OpenID can't invite others to join [[sitename]].
+
 .error.overratelimit=It looks like you are inviting a lot of your friends to [[sitename]]. To help us combat SPAM, you may wish to send the rest of your invitations via your own email address. Make sure you include the invite link in your email which you can find <a [[aopts]]>at the top of the page</a>.
 
 .error.useralreadyhasaccount=You are sending this invite to a user that already has an account.

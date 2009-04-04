@@ -42,6 +42,7 @@ to make a new request if they have no unused invite codes, and they have no pend
 
 sub can_request {
     my (%opts)  = @_;
+    return 0 unless $opts{user}->is_person;
     my $userid = $opts{user}->id;
     
     my $unused_count = DW::InviteCodes->unused_count( userid => $userid );

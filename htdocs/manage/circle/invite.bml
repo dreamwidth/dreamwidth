@@ -30,6 +30,12 @@
     
     if ( $LJ::USE_ACCT_CODES )  {
         @invitecodes = DW::InviteCodes->by_owner_unused( userid => $u->id );
+
+        if ( $u->is_identity ) {
+            $body = BML::ml( '.error.openid', { sitename => $LJ::SITENAMESHORT } );
+            return;
+        }
+
         unless ( @invitecodes ) {
             $body = BML::ml('.error.noinvitecodes', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" });
             return;
