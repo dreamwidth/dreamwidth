@@ -2944,6 +2944,7 @@ sub control_strip
 
         $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
+        $links{'edit_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
         if ($journal->is_syndicated || $journal->is_news) {
             $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
             $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
@@ -3086,31 +3087,31 @@ sub control_strip
 
             if ( $mutual_trust && $mutual_watch ) {
                 $ret .= "$statustext{mutualtrust_mutualwatch}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $mutual_trust && $watched ) {
                 $ret .= "$statustext{mutualtrust_watch}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $mutual_trust && $watched_by ) {
                 $ret .= "$statustext{mutualtrust_watchedby}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $trusted && $mutual_watch ) {
                 $ret .= "$statustext{trust_mutualwatch}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $trusted && $watched ) {
                 $ret .= "$statustext{trust_watch}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $trusted && $watched_by ) {
                 $ret .= "$statustext{trust_watchedby}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $trusted_by && $mutual_watch ) {
                 $ret .= "$statustext{trustedby_mutualwatch}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $trusted_by && $watched ) {
                 $ret .= "$statustext{trustedby_watch}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } elsif ( $trusted_by && $watched_by ) {
                 $ret .= "$statustext{trustedby_watchedby}<br />";
-                $ret .= "$links{manage_friends}";
+                $ret .= "$links{edit_friend}";
             } else {
                 if ( $view eq "read" ) {
                     $ret .= $statustext{'personalfriendspage'};

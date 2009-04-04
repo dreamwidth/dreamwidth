@@ -3269,6 +3269,8 @@ web.controlstrip.links.managecomminvites=Manage Invites
 
 web.controlstrip.links.manageentries=Manage Entries
 
+web.controlstrip.links.modifycircle=Modify Relationship
+
 web.controlstrip.links.more=More
 
 web.controlstrip.links.mylj=My [[siteabbrev]]
