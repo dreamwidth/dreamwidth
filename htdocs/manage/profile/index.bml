@@ -540,7 +540,7 @@ body<=
             }
 
             if ($LJ::USER_EMAIL and $POST{'email'} =~ /\@\Q$LJ::USER_DOMAIN\E$/i) {
-                push @errors, BML::ml(".error.email.lj_domain", { 'user' => $u->{'user'}, 'domain' => $LJ::USER_DOMAIN, });
+                push @errors, BML::ml(".error.email.lj_domain2", { 'user' => $remote->{'user'}, 'domain' => $LJ::USER_DOMAIN, 'aopts' => "href='$LJ::SITEROOT/manage/profile/'" });
             }
 
             if ($POST{'email'} =~ /\s/) {

@@ -6,7 +6,7 @@
 
 .error.invalidpassword=Invalid password.
 
-.error.lj_domain=You cannot enter an @[[domain]] email address.  Enter your real address in that field.  If you're a paid user, your [[user]]@[[domain]] address will forward to your real address.  To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option.
+.error.lj_domain2=You cannot enter an @[[domain]] email address.  Enter your real address in that field.  If you're a paid user, your [[user]]@[[domain]] address will forward to your real address.  To choose which email address (or both) is displayed publicly, see the option below the "Show your Contact Information" option on the <a [[aopts]]>Manage Profile</a> page.
 
 .error.nospace=No spaces are allowed in an e-mail address.
 
