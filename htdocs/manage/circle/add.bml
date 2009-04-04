@@ -123,13 +123,15 @@
     my $fgvalue = $watched ? $watch_list->{$userid}->{fgcolor} : "#000000";
     my $bgvalue = $watched ? $watch_list->{$userid}->{bgcolor} : "#FFFFFF";
 
+    my $add = ( $watched || $trusted ) ? "" : ".add";
+
     # return an error if user being added isn't visible
     my $icon = $u->large_journal_icon;
     if ( $u->is_visible ) {
         # was this a syndicated add?
         if ($u->{journaltype} eq 'Y') {
-            $windowtitle = BML::ml('.confirm.syn.title1', {'user'=> $user });
-            $title = BML::ml('.confirm.syn.title1', {'icon'=> $icon, 'user'=> $user });
+            $windowtitle = BML::ml('.confirm.syn.title1'.$add, {'user'=> $user });
+            $title = BML::ml('.confirm.syn.title1'.$add, {'icon'=> $icon, 'user'=> $user });
             $body .= "<?p $ML{'.confirm.text1.feed'} p?>";
 
         # Is this account redirected?
@@ -137,8 +139,8 @@
             return BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->prop('renamedto'));
 
         } elsif ($u->{'journaltype'} eq "C") {
-            $windowtitle = BML::ml('.confirm.title.community', {'user'=> $user });
-            $title = BML::ml('.confirm.title.community', {'icon'=> $icon, 'user'=> $user });
+            $windowtitle = BML::ml('.confirm.title.community'.$add, {'user'=> $user });
+            $title = BML::ml('.confirm.title.community'.$add, {'icon'=> $icon, 'user'=> $user });
             unless ( $remote->member_of( $u ) ) {
                 if ( $remote->is_person ) {
                     $body .= "<?p " . BML::ml( '.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join.bml?comm=$user'"} ) . " p?>";
@@ -148,11 +150,11 @@
             }
         } else {
             if ($u->{'journaltype'} eq "I") {
-               $windowtitle = BML::ml('.confirm.title.person', {'user'=> $u->{'name'} });
-               $title = BML::ml('.confirm.title.person', {'icon'=> $icon, 'user'=> $u->{'name'} });
+               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $u->{'name'} });
+               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $u->{'name'} });
             } else {
-               $windowtitle = BML::ml('.confirm.title.person', {'user'=> $user });
-               $title = BML::ml('.confirm.title.person', {'icon'=> $icon, 'user'=> $user });
+               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $user });
+               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $user });
             }
             $body .= "<?p $ML{'.confirm.text1.person'} p?>";
         }
@@ -438,7 +440,8 @@
    $body .= "<br />\n <?p ";
     # Form submit buttons
     if ($u->is_visible) {
-        $body .= "<input type='submit' value=\"$ML{'.btn.modify'}\"> ";
+        my $btn = ($watched || $trusted) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $user } );
+        $body .= "<input type='submit' value=\"$btn\"> ";
     } else {
         $body .= "<input type='submit' name='action:delete' value=\"$ML{'.btn.remove'}\"> \n";
     }

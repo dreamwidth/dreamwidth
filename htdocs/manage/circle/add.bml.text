@@ -40,6 +40,8 @@
 
 .confirm.syn.title1=Modify [[icon]][[user]]'s subscription?
 
+.confirm.syn.title1.add=Subscribe to [[icon]][[user]]?
+
 .confirm.text=To add <b>[[user]]</b> to your friends list, click the button below.
 
 .confirm.text1.community2=Adding a community allows you to read the community's public posts on your reading page. If you would like to post to the community and be listed as a member, you'll need to <a [[aopts]]>join the community</a>.
@@ -48,17 +50,17 @@
 
 .confirm.text1.feed=Adding a feed allows you to read new content from the feed on your reading page.
 
-.confirm.text1.news=Adding [[user]] allows you to read new content from it on your reading page.
-
 .confirm.text1.notvisible=This account is deleted, purged, or suspended.  You can only remove it from your circle.  Clicking the button below will remove both its access and subscription.
 
 .confirm.text1.person=Choose one or both of the following:
 
 .confirm.title.community=Modify [[icon]][[user]]'s subscription?
 
-.confirm.title.news=Modify [[icon]][[user]]'s subscription?
+.confirm.title.community.add=Subscribe to [[icon]][[user]]?
 
 .confirm.title.person=Modify [[icon]][[user]]'s status in your circle?
+
+.confirm.title.person.add=Add [[icon]][[user]] to your circle?
 
 .disclaimer=This will not allow maintainers or members of the community to view your friends-only posts.
 
