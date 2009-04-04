@@ -758,6 +758,28 @@ sub external_services {
         };
     }
 
+    if ( my $twitter = $u->prop( 'twitter' ) ) {
+        my $twitter = LJ::eurl( $twitter );
+        push @ret, {
+            type => 'twitter',
+            text => LJ::ehtml( $twitter ),
+            url => "http://www.twitter.com/$twitter",
+            image => 'twitter.png',
+            title_ml => '.service.twitter',
+        };
+    }
+
+    if ( my $delicious = $u->prop( 'delicious' ) ) {
+        my $delicious = LJ::eurl( $delicious );
+        push @ret, {
+            type => 'delicious',
+            text => LJ::ehtml( $delicious ),
+            url => "http://www.delicious.com/$delicious",
+            image => 'delicious.png',
+            title_ml => '.service.delicious',
+        };
+    }
+
     return @ret;
 }
 

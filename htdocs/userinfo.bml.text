@@ -394,6 +394,10 @@
 
 .sendmessage.body2=<a [[aopts]]>Send [[user]] a text message</a><br />on his/her cellphone/pager.
 
+.service.delicious=Delicious
+
+.service.twitter=Twitter
+
 .syn.header=Feeds
 
 .syn.last.never=Never

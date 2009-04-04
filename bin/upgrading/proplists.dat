@@ -118,6 +118,14 @@ userproplist.country:
   multihomed: 0
   prettyname: Country
 
+userproplist.delicious:
+  cldversion: 4
+  datatype: char
+  des: Delicious user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Delicious user account name
+
 userproplist.disable_comm_promo:
   cldversion: 4
   datatype: bool
@@ -1101,6 +1109,14 @@ userproplist.trusted_s1:
   indexed: 0
   multihomed: 0
   prettyname: Trusted S1 Styles
+
+userproplist.twitter:
+  cldversion: 4
+  datatype: char
+  des: Twitter user account name
+  indexed: 0
+  multihomed: 0
+  prettyname: Twitter user account name
 
 userproplist.url:
   cldversion: 4

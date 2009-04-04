@@ -54,6 +54,7 @@ body<=
         qw/ country state city zip timezone
           icq aolim yahoo msn url jabber
           google_talk skype gizmo
+          twitter delicious
           urlname gender last_fm_user opt_hidefriendofs
           sidx_bdate sidx_bday sidx_loc
           opt_showmutualfriends opt_showschools
@@ -373,7 +374,10 @@ body<=
                        ["yahoo", $ML{'.chat.yahooid'}, 33], ["msn", $ML{'.chat.msnusername'}, 60],
                        ["jabber", $ML{'.chat.jabber'}, 60], ["google_talk", $ML{'.chat.googletalk'}, 60],
                        ["skype", $ML{'.chat.skype'}, 40],
-                       ["gizmo", $ML{'.chat.gizmo'}, 40])
+                       ["gizmo", $ML{'.chat.gizmo'}, 40],
+                       ["twitter", $ML{ '.services.twitter' }, 40],
+                       ["delicious", $ML{ '.services.delicious' }, 40],
+)
 
         {
             next if $p->[0] eq "ljtalk" && $LJ::DISABLED{ljtalk};
@@ -678,6 +682,7 @@ body<=
               opt_whatemailshow comm_theme
               icq aolim yahoo msn url jabber
               google_talk skype
+              twitter delicious
               urlname gender last_fm_user opt_hidefriendofs
               sidx_bdate sidx_bday
               opt_showmutualfriends opt_showschools
