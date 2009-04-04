@@ -111,6 +111,7 @@ body<=
    <li><?ljuser dw_maintenance ljuser?></li>
    <li><?ljuser dw_lounge ljuser?></li>
    <li><?ljuser dw_suggestions ljuser?></li>
+   <li><a href='/support/faqbrowse.bml?faqid=65'><?_ml .maplinks.official-journals.list _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.gethelp-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
