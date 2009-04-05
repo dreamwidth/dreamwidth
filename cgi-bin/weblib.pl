@@ -745,6 +745,13 @@ sub create_qr_div {
                                  'raw' => 'onclick="if (checkLength()) {submitform();}"'
                                  });
 
+    $qrhtml .="&nbsp;" . LJ::html_submit('submitpview', BML::ml('talk.btn.preview'),
+                               { 'id' => 'submitpview',
+                                 'raw' => 'onclick="preview()"'
+                                 });
+
+    $qrhtml .= LJ::html_hidden('submitpreview', '0');
+
     $qrhtml .= "&nbsp;" . LJ::html_submit('submitmoreopts', BML::ml('/talkread.bml.button.more'),
                                           { 'id' => 'submitmoreopts',
                                             'raw' => 'onclick="if (moreopts()) {submitform();}"'

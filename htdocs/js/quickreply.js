@@ -31,7 +31,7 @@
         var subject = xGetElementById('subject');
 
         // Is this a dumb browser?
-        if( !ptalkid || !rto || !dtid_field || !qr_div || !cur_div || !qr_form || 
+        if( !ptalkid || !rto || !dtid_field || !qr_div || !cur_div || !qr_form ||
             !qr_form_div || !subject) {
             return true;
         }
@@ -116,11 +116,13 @@
    function submitform()
    {
         var submitmore = xGetElementById('submitmoreopts');
+        var submitpview = xGetElementById('submitpview');
         var submit = xGetElementById('submitpost');
         if (!submitmore || !submit) return false;
 
         submit.disabled = true;
         submitmore.disabled = true;
+        submitpview.disabled = true;
 
         // New top-level comments
         var dtid = xGetElementById('dtid');
@@ -134,6 +136,13 @@
 
         // don't do default form action
         return false;
+   }
+
+   function preview()
+   {
+        var qr_form = xGetElementById('qrform');
+        qr_form.submitpreview.value=1;
+        submitform();
    }
 
    function swapnodes (orig, to_swap) {
