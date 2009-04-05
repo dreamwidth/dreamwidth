@@ -146,7 +146,7 @@ body<=
     $ret .= "<form method='post' action='accountstatus.bml$getextra'>\n";
     $ret .= LJ::form_auth();
 
-    $ret .= "<?h1 $ML{'.journalstatus.head'} h1?><?p $ML{'.journalstatus.about'} p?>\n";
+    $ret .= "<?p $ML{'.journalstatus.about'} p?>\n";
 
     $ret .= LJ::run_hook("accountstatus_delete_text", $u);
 

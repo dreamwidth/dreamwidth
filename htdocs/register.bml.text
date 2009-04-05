@@ -3,8 +3,6 @@
 
 .ask.button=Send Validation Email
 
-.ask.header=Validate Email
-
 .ask.select=Select account
 
 .ask.switch=Switch

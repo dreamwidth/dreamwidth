@@ -149,8 +149,6 @@ body<=
      my @authas = LJ::get_authas_list($remote);
      my @list;
 
-     $ret .= "<?h1 $ML{'.ask.header'} h1?>";
-
      if (@authas > 1) {  # only display if they can auth as anyone other than themselves
          foreach (@authas) {
              my $user = LJ::load_user($_);

@@ -24,8 +24,6 @@ body<=
 }
 _code?>
 
-<?h1 <?_ml .h1 _ml?> h1?>
-
 <?_code
 {
     my $remote = LJ::get_remote();

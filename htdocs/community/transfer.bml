@@ -49,7 +49,7 @@
     }
 
     # setup the form to transfer the community
-    $body .= "<?h1 $ML{'.title'} h1?><?p $ML{'.body'} p?>";
+    $body .= "<?p $ML{'.body'} p?>";
     $body .= "<form method='post' action='/community/transfer.bml'>";
     $body .= LJ::form_auth();
     $body .= "<table><tr><td>$ML{'.account'}</td>";
