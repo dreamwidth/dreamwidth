@@ -1,0 +1,149 @@
+<?_c
+#
+# shop.bml
+#
+# This is the main storefront for the shop.  Gives people a page they can browse
+# around looking for something interesting to buy.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title /;
+
+    # this page uses new style JS
+    LJ::need_res( 'stc/widget/shop.css' );
+    LJ::set_active_resource_group( 'jquery' );
+
+    # let's see what they're trying to do
+    my $for = $GET{for};
+    return BML::redirect( "$LJ::SITEROOT/shop" )
+        unless $for && $for =~ /^(?:self|gift|new)$/;
+
+    # ensure they have a user if it's for self
+    my $remote = LJ::get_remote();
+    return 'need a remote boss!'
+        if $for eq 'self' && ! $remote;
+
+    # setup the output
+    my $ret = DW::Widget::ShopCartStatusBar->render( %GET );
+    $ret .= qq{
+<div class="leftybox">Yep, this is the page where you buy a paid account.  We could put some really awesome
+text in this box to tell you what about paid accounts is awesome.</div>
+    };
+
+    # show account status box
+    $ret .= DW::Widget::PaidAccountStatus->render;
+
+    # if they posted...
+    my $try_post = sub {
+        return 'Faiiiiiil'
+            unless LJ::check_form_auth();
+
+        my $at = $POST{accttype};
+        return 'You must select an account type'
+            unless $at && exists $LJ::SHOP{$at};
+
+        # now try to add this item to their list
+        my $cart = DW::Shop->get->cart
+            or return 'Failed to get a shopping cart for you, please try again later.';
+
+        my %who_for;
+        if ( $for eq 'self' ) {
+            my $remote = LJ::get_remote()
+                or return '<?needlogin?>';
+            $who_for{target_userid} = $remote->id;
+
+        } elsif ( $for eq 'gift' ) {
+            # FIXME: try to validate the email address
+            $who_for{target_email} = $POST{str};
+
+        } elsif ( $for eq 'new' ) {
+            my $un = LJ::canonical_username( $POST{str} );
+            return 'Invalid username'
+                unless $un;
+            return 'Username already in use'
+                if LJ::load_user( $un );
+
+            # FIXME: also, we should put a hold on this username to prevent people from
+            # doubling up on a purchase
+            $who_for{target_username} = $un;
+
+        }
+
+        # build a new item and try to toss it in the cart.  this fails if there's a
+        # conflict or something
+        my ( $rv, $err ) = $cart->add_item(
+            DW::Shop::Item::Account->new( type => $at, %who_for )
+        );
+        return $err unless $rv;
+
+        # to make this a gift for another account, simply change what target_userid
+        # is set to
+
+        # to make this something to be emailed to someone, set target_email
+
+        # to make this a purchase of a new account, set target_username
+
+        # since we updated their list, return them to this page
+        return BML::redirect( "$LJ::SITEROOT/shop/account?for=$for" );
+    };
+    if ( LJ::did_post() ) {
+        my $errs = $try_post->();
+        if ( $errs ) {
+            $ret .= qq{<div class="shop-error">$errs</div>};
+        }
+    }
+
+    # all done
+    return $ret;
+}
+_code?>
+
+<div style='clear: both;'></div>
+<form method='post'>
+<?_code return LJ::form_auth(); _code?>
+<table class='shop-table'>
+<tr><td>
+
+<strong>Premium Paid Account</strong><br />
+<input type='radio' name='accttype' id='prem6' value='prem6'><label for='prem6'>6 months for $20 USD</label></input><br />
+<input type='radio' name='accttype' id='prem12' value='prem12'><label for='prem12'>1 year for $40 USD</label></input>
+
+</td><td>
+
+<strong>Paid Account</strong><br />
+<input type='radio' name='accttype' id='paid1' value='paid1'><label for='paid1'>1 month for $3 USD</label></input><br />
+<input type='radio' name='accttype' id='paid2' value='paid2'><label for='paid2'>2 months for $5 USD</label></input><br />
+<input type='radio' name='accttype' id='paid6' value='paid6'><label for='paid6'>6 months for $13 USD</label></input><br />
+<input type='radio' name='accttype' id='paid12' value='paid12'><label for='paid12'>1 year for $25 USD</label></input>
+
+</td><td>
+
+<strong>Seed Account</strong><br />
+<input type='radio' name='accttype' id='seed' value='seed'><label for='seed'>Forever for $200 USD</label></input>
+
+</td></tr>
+</table>
+
+username or email: <input type='text' name='str' /><br />
+<input type='submit' /><br />
+
+<?p Dear Janine, please add the rest of the page here. p?>
+
+
+</form>
+
+<=body
+title=>Buy Paid Time
+page?>

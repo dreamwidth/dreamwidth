@@ -1201,6 +1201,20 @@ sub log2_do {
 }
 
 
+# simple function for getting something from memcache; this assumes that the
+# item being gotten follows the standard format [ $userid, "item:$userid" ]
+sub memc_get {
+    return LJ::MemCache::get( [$_[0]->{userid}, "$_[1]:$_[0]->{userid}"] );
+}
+
+
+# sets a predictably named item. usage:
+#   $u->memc_set( key => 'value', [ $timeout ] );
+sub memc_set {
+    return LJ::MemCache::set( [$_[0]->{userid}, "$_[1]:$_[0]->{userid}"], $_[2], $_[3] || 1800 );
+}
+
+
 sub mysql_insertid {
     my $u = shift;
     if ($u->isa("LJ::User")) {

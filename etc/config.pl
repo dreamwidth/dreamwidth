@@ -351,6 +351,8 @@
             '_name' => 'Free',
             '_visible_name' => 'Free Account',
             '_key' => 'free_user',
+            '_account_type' => 'free',
+            '_account_default' => 1,    # default account for payment system
             'bookmark_max' => 25,
             'checkfriends' => 0,
             'checkfriends_interval' => 0,
@@ -403,6 +405,7 @@
             '_name' => 'Paid',
             '_key' => 'paid_user', # Some things expect that key name
             '_visible_name' => 'Paid Account',
+            '_account_type' => 'paid',
             'bookmark_max' => 500,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -453,6 +456,7 @@
             '_name' => 'Premium Paid',
             '_key' => 'premium_user',
             '_visible_name' => 'Premium Paid Account',
+            '_account_type' => 'premium',
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -510,6 +514,7 @@
             '_name' => 'Permanent',
             '_key' => 'permanent_user',
             '_visible_name' => 'Seed Account',
+            '_account_type' => 'seed',
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,

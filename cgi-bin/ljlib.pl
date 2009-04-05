@@ -2388,7 +2388,7 @@ sub get_secret
 # LJ-generic domains:
 #  $dom: 'S' == style, 'P' == userpic, 'A' == stock support answer
 #        'C' == captcha, 'E' == external user, 'O' == school
-#        'L' == poLL,  'M' == Messaging
+#        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart
 #
 sub alloc_global_counter
 {
@@ -2398,8 +2398,7 @@ sub alloc_global_counter
 
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
-    # Yes, that's a duplicate L in the regex for xtra LOLS
-    unless ($dom =~ /^[MLOLSPACE]$/) {
+    unless ($dom =~ /^[ESLPOAHCM]$/) {
         $dom = LJ::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
@@ -2432,6 +2431,8 @@ sub alloc_global_counter
         $newmax = $dbh->selectrow_array("SELECT MAX(ansid) FROM support_answers");
     } elsif ($dom eq "O") {
         $newmax = $dbh->selectrow_array("SELECT MAX(schoolid) FROM schools");
+    } elsif ($dom eq "H") {
+        $newmax = $dbh->selectrow_array("SELECT MAX(cartid) FROM shop_carts");
     } elsif ($dom eq "L") {
         # pick maximum id from poll and pollowner
         my $max_poll      = $dbh->selectrow_array("SELECT MAX(pollid) FROM poll");

@@ -1,7 +1,24 @@
+#!/usr/bin/perl
+#
+# DW::Pay
+#
+# Core of the payment system.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2008-2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
 package DW::Pay;
 
 use strict;
 
+use Carp qw/ confess /;
 use HTTP::Request;
 use LWP::UserAgent;
 
@@ -280,32 +297,31 @@ sub pp_confirm_order {
 ################################################################################
 # DW::Pay::type_is_valid
 #
-# ARGUMENTS: type
+# ARGUMENTS: typeid
 #
-#   type        required    the id of the type we're checking
+#   typeid      required    the id of the type we're checking
 #
 # RETURN: 1/0 if the type is a valid type
 #
 sub type_is_valid {
     my $type = shift()+0;
-    return 1 if $type >= 1 && $type <= 2;
+    return 1 if $LJ::CAP{$_[0]} && $LJ::CAP{$_[0]}->{_account_type};
     return 0;
 }
 
 ################################################################################
 # DW::Pay::type_name
 #
-# ARGUMENTS: type
+# ARGUMENTS: typeid
 #
-#   type        required    the id of the type we're checking
+#   typeid      required    the id of the type we're checking
 #
-# RETURN: strin name of type, else undef
+# RETURN: string name of type, else undef
 #
 sub type_name {
-    return {
-        1 => 'Basic Paid Account',
-        2 => 'Premium Paid Account',
-    }->{ $_[0] } || 'UNKNOWN/ERROR';
+    confess 'invalid typeid'
+        unless DW::Pay::type_is_valid( $_[0] );
+    return $LJ::CAP{$_[0]}->{_visible_name};
 }
 
 ################################################################################
@@ -347,6 +363,24 @@ sub get_paid_status {
 }
 
 ################################################################################
+# DW::Pay::default_typeid
+#
+# RETURN: typeid of the default account type.
+#
+sub default_typeid {
+    # try to get the default cap class.  note that we confess here because
+    # these errors are bad enough to warrant bailing whoever is calling us.
+    my @defaults = grep { $LJ::CAP{$_}->{_account_default} } keys %LJ::CAP;
+    confess 'must have one %LJ::CAP class set _account_default to use the payment system'
+        if scalar( @defaults ) < 1;
+    confess 'only one %LJ::CAP class can be set as _account_default'
+        if scalar( @defaults ) > 1;
+
+    # There Can Be Only One
+    return $defaults[0];
+}
+
+################################################################################
 # DW::Pay::get_current_account_status
 #
 # ARGUMENTS: uuserid
@@ -356,14 +390,75 @@ sub get_paid_status {
 # RETURN: undef for free, else a typeid of the account type.
 #
 sub get_current_account_status {
-    DW::Pay::clear_error();
-
+    # try to get current paid status
     my $stat = DW::Pay::get_paid_status( @_ );
 
     # free accounts: no row, or expired
-    return undef unless defined $stat;
-    return undef unless $stat->{permanent} || $stat->{expiresin} > 0;
+    return DW::Pay::default_typeid() unless defined $stat;
+    return DW::Pay::default_typeid() unless $stat->{permanent} || $stat->{expiresin} > 0;
+
+    # valid row, return whatever type it is
     return $stat->{typeid};
+}
+
+################################################################################
+# DW::Pay::get_account_expiration_time
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to get paid status of
+#
+# RETURN: -1 for free, 0 for expired paid, else the unix timestamp this
+#         account expires on...
+#
+# yes, this function has a very weird return value.  :(
+#
+sub get_account_expiration_time {
+    # try to get current paid status
+    my $stat = DW::Pay::get_paid_status( @_ );
+
+    # free accounts: no row, or expired
+    return -1 unless defined $stat;
+    return  0 unless $stat->{permanent} || $stat->{expiresin} > 0;
+
+    # valid row, return whatever the expiration time is
+    return time() + $stat->{expiresin};
+}
+
+################################################################################
+# DW::Pay::get_account_type
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to get paid status of
+#
+# RETURN: value defined as _account_type in %LJ::CAP.
+#
+sub get_account_type {
+    my $typeid = DW::Pay::get_current_account_status( @_ );
+    confess 'account has no valid typeid'
+        unless $typeid && $typeid > 0;
+    confess "typeid $typeid not a valid account level"
+        unless $LJ::CAP{$typeid} && $LJ::CAP{$typeid}->{_account_type};
+    return $LJ::CAP{$typeid}->{_account_type};
+}
+
+################################################################################
+# DW::Pay::get_account_type_name
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to get paid status of
+#
+# RETURN: value defined as _visible_name in %LJ::CAP.
+#
+sub get_account_type_name {
+    my $typeid = DW::Pay::get_current_account_status( @_ );
+    confess 'account has no valid typeid'
+        unless $typeid && $typeid > 0;
+    confess "typeid $typeid not a valid account level"
+        unless $LJ::CAP{$typeid} && $LJ::CAP{$typeid}->{_visible_name};
+    return $LJ::CAP{$typeid}->{_visible_name};
 }
 
 ################################################################################
@@ -465,8 +560,8 @@ sub update_paid_status {
         if exists $cols{userid};
     return error( ERR_FATAL, "Permanent must be 0/1." )
         if exists $cols{permanent} && $cols{permanent} !~ /^(?:0|1)$/;
-    return error( ERR_FATAL, "Typeid must be some number." )
-        if exists $cols{typeid} && $cols{typeid} !~ /^(?:\d+)$/;
+    return error( ERR_FATAL, "Typeid must be some number and valid." )
+        if exists $cols{typeid} && !( $cols{typeid} =~ /^(?:\d+)$/ && DW::Pay::type_is_valid( $cols{typeid} ) );
     return error( ERR_FATAL, "Expiretime must be some number." )
         if exists $cols{expiretime} && $cols{expiretime} !~ /^(?:\d+)$/;
     return error( ERR_FATAL, "Lastemail must be 0, 3, or 14." )
@@ -580,35 +675,37 @@ sub pp_do_request {
     }
 }
 
+
+# this internal method takes a user's paid status (which is the accurate record
+# of what caps and things a user should have) and then updates their caps.  i.e.,
+# this method is used to make the user's actual caps reflect reality.
 sub sync_caps {
     my $u = LJ::want_user( shift )
         or return error( ERR_FATAL, "Must provide a user to sync caps for." );
     my $ps = DW::Pay::get_paid_status( $u );
 
+    # calculate list of caps that we care about
+    my @bits = grep { $LJ::CAP{$_}->{_account_type} } keys %LJ::CAP;
+    my $default = DW::Pay::default_typeid();
+
     # either they're free, or they expired (not permanent)
     if ( ! $ps || ( ! $ps->{permanent} && $ps->{expiresin} < 0 ) ) {
-        LJ::modify_caps( $u, [], [ 3, 4, 6, 7 ] );
+        # reset back to the default, and turn off all other bits; then set the
+        # email count to defined-but-0
+        LJ::modify_caps( $u, [ $default ], [ grep { $_ != $default } @bits ] );
         DW::Pay::update_paid_status( $u, lastemail => 0 );
 
     } else {
+        # this is a really bad error we should never have... we can't
+        # handle this user
+        # FIXME: candidate for email-site-admins
         return error( ERR_FATAL, "Unknown typeid." )
-            unless $ps->{typeid} == 1 || $ps->{typeid} == 2;
+            unless DW::Pay::type_is_valid( $ps->{typeid} );
 
+        # simply modify it to use the typeid specified, as typeids are bits... but
+        # turn off any other bits
+        LJ::modify_caps( $u, [ $ps->{typeid} ], [ grep { $_ != $ps->{typeid} } @bits ] );
         DW::Pay::update_paid_status( $u, lastemail => undef );
-
-        if ( $ps->{permanent} ) {
-            if ( $ps->{typeid} == 1 ) {
-                LJ::modify_caps( $u, [ 6 ], [ 3, 4, 7 ] );
-            } elsif ( $ps->{typeid} == 2 ) {
-                LJ::modify_caps( $u, [ 7 ], [ 3, 4, 6 ] );
-            }
-        } else {
-            if ( $ps->{typeid} == 1 ) {
-                LJ::modify_caps( $u, [ 3 ], [ 4, 6, 7 ] );
-            } elsif ( $ps->{typeid} == 2 ) {
-                LJ::modify_caps( $u, [ 4 ], [ 3, 6, 7 ] );
-            }
-        }
     }
 
     return 1;

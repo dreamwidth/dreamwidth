@@ -7,6 +7,7 @@ use LJ::Auth;
 
 # FIXME: don't really need all widgets now
 LJ::ModuleLoader->autouse_subclasses("LJ::Widget");
+LJ::ModuleLoader->autouse_subclasses("DW::Widget");
 
 our $currentId = 1;
 
@@ -96,7 +97,7 @@ sub render {
     my $ret = "<div class='appwidget appwidget-$css_subclass' id='$widget_ele_id'>\n";
 
     my $rv = eval {
-        my $widget = ref $class ? $class : "LJ::Widget::$subclass";
+        my $widget = $class;
 
         # include any resources that this widget declares
         if (defined $opt_hash{stylesheet_override}) {
@@ -124,9 +125,15 @@ sub render {
         LJ::need_res($opt_hash{stylesheet}) if $opt_hash{stylesheet};
 
         return $widget->render_body(@opts);
-    } or $class->handle_error($@);
+    };
 
-    $ret .= $rv;
+    if ( defined $rv && $rv =~ /\w/ ) {
+        $ret .= $rv;
+    } elsif ( $@ ) {
+        $ret .= "<strong>[Error: $@]</strong";
+#        $class->handle_error;
+    }
+
     $ret .= "</div><!-- end .appwidget-$css_subclass -->\n";
 
     return $ret;
@@ -309,7 +316,7 @@ sub subclass {
     my $class = shift;
     $class = ref $class if ref $class;
     return $class unless $class =~ /::/;
-    return ($class =~ /LJ::Widget::([\w:]+)$/)[0];
+    return ($class =~ /(?:LJ|DW)::Widget::([\w:]+)$/)[0];
 }
 
 # wrapper around BML... for now

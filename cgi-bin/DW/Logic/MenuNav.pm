@@ -55,6 +55,7 @@ sub get_menu_navigation {
     my $loggedin_canjoincomms = ( $loggedin && $u->is_person ) ? 1 : 0;   # note the semantic difference
     my $loggedout = $loggedin ? 0 : 1;
     my $always = 1;
+    my $never = 0;
 
     my @nav = (
         {
@@ -181,6 +182,16 @@ sub get_menu_navigation {
                     url => "$LJ::SITEROOT/support/faq.bml",
                     text => "menunav.explore.faq",
                     display => $always,
+                },
+            ],
+        },
+        {
+            name => 'shop',
+            items => [
+                {
+                    url => "$LJ::SITEROOT/shop?for=paidtime",
+                    text => "menunav.shop.paidtime",
+                    display => $never,
                 },
             ],
         },

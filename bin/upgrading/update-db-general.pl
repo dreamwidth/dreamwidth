@@ -3166,6 +3166,23 @@ CREATE TABLE email_aliases (
 )
 EOC
 
+# shopping cart list
+register_tablecreate('shop_carts', <<'EOC');
+CREATE TABLE shop_carts (
+    cartid INT UNSIGNED NOT NULL,
+    starttime INT UNSIGNED NOT NULL,
+    userid INT UNSIGNED,
+    uniq VARCHAR(15) NOT NULL,
+    state INT UNSIGNED NOT NULL,
+
+    cartblob MEDIUMBLOB NOT NULL,
+
+    PRIMARY KEY (cartid),
+    INDEX (userid),
+    INDEX (uniq)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 
