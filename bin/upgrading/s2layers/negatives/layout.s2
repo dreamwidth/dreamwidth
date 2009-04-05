@@ -98,15 +98,15 @@ set text_entry_next = "&raquo;";
 
 function prop_init() {
 
-#initialize $*module_group_primary and $*module_group_secondary and $module_group_tertiary
+#initialize $*module_group_one and $*module_group_two and $module_group_three
     
     #first sidebar prints in-journal navigation links
-    $*module_group_primary = [["navlinks", ""]];
+    $*module_group_one = [["navlinks", ""]];
 
-    $*module_group_secondary = [["tags", $*text_tags_section_header, ""],["links", $*text_links], ["pagesummary", $*text_page_summary],];
+    $*module_group_two = [["tags", $*text_tags_section_header, ""],["links", $*text_links], ["pagesummary", $*text_page_summary],];
 
     #third sidebar prints a horizontal calendar
-    $*module_group_tertiary = [["calendar", "horizontal"]];
+    $*module_group_three = [["calendar", "horizontal"]];
 }
 
 
@@ -188,7 +188,7 @@ function print_stylesheet()
     #secondary .manage-tags-link {
         text-align: center;
     } 
-    .module-group-primary {
+    .module-group-one {
         background-color: $*navigation_background;
         font-size: 0.8em;
         letter-spacing:.3em;
@@ -196,30 +196,30 @@ function print_stylesheet()
         padding: 0.5em 0;
     }
     /* Hide from IE5-Mac \*/
-    * html .module-group-primary {height: 1%;}
+    * html .module-group-one {height: 1%;}
     /* end hide *//*** This hack will make IE5-win display the background color for the nav ***/
-    .module-group-primary ul {
+    .module-group-one ul {
         display: block;
         list-style: none;
         padding: 0;
         margin: 0 0 0 2em;
         text-align: left;
         line-height: 1.2em; }
-    .module-group-primary ul li {
+    .module-group-one ul li {
         font-weight: bold;
         display: inline;
         padding: 0.2em 2em;
         margin: 3px 0;
      }
-    .module-group-primary ul li.first {
+    .module-group-one ul li.first {
         margin-left: 0;
         list-style: none; }
-    .module-group-primary ul li.last {
+    .module-group-one ul li.last {
         border-right: none; }
-    .module-group-primary a, .module-group-primary a:visited {
+    .module-group-one a, .module-group-one a:visited {
         padding: 3px 0;
         color: $*navigation_link; }
-    .module-group-primary a:hover, .module-group-primary a:active {
+    .module-group-one a:hover, .module-group-one a:active {
         color: $*navigation_link_hover; }
     /*test*/
     .userpic{
@@ -277,7 +277,7 @@ function print_stylesheet()
     html>body #module-calendar {
         margin: 0px 190px 0px 100px; /* ie5win fudge ends */
     }
-    .module-group-tertiary {
+    .module-group-three {
         clear:both;
         background-color: $*minical_back;
         border-top:#ffffff double 5px;
@@ -595,7 +595,7 @@ function Page::print()
 
     println "<body>";
         $this->print_control_strip();
-        $this->print_module_group_primary();
+        $this->print_module_group_one();
         
         println "<div id=\"primary\">";
             $this->print_body();
@@ -606,10 +606,10 @@ function Page::print()
             if ($this.view != "archive" and $this.view != "month"){
                 $this->print_navigation();
             }
-            $this->print_module_group_secondary();
+            $this->print_module_group_two();
         println"</div>";
 
-        $this->print_module_group_tertiary();
+        $this->print_module_group_three();
 
     println "</body>";
     println "</html>";
