@@ -970,6 +970,7 @@ register_tabledrop("themedata");
 register_tabledrop("themelist");
 register_tabledrop("style");
 register_tabledrop("meme");
+register_tabledrop("content_flag");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
