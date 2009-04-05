@@ -65,14 +65,15 @@
     }
 
     $title = $ML{'.form.title'};
-    $body = $ML{'.form.header1'};
+    $body = "<?p " . BML::ml( ".form.request", { sitename => $LJ::SITENAMESHORT } ) . " p?>";
+    $body .= "<?p " . $ML{'.form.address'} . " p?>";
     $body .= "<form method='post'>";
     $body .= LJ::form_auth();
     my $dis_site = LJ::ehtml($site);
     $dis_site =~ s!\*\.!<span style='color: red'><i>&lt;anything&gt;</i></span>.!;
 
     $body .= "<div style='overflow: auto; background: #DDD; word-wrap: break-word; color: black; border: 2px solid black; padding: 0.5em; font-size: 13pt'><tt>$dis_site</tt></div>";
-    $body .= $ML{'.form.header2'};
+    $body .= "<?p " . $ML{'.form.passid'} . " p?>";
     $body .= "<table align='center'><tr><td><input type='submit' name='yes:once' value='".$ML{'.form.button.yes_this_time'}."' /> ";
     $body .= "<input type='submit' name='yes:always' value='".$ML{'.form.button.yes_always'}."' /> ";
     $body .= "<input type='submit' name='no' value='".$ML{'.form.button.no'}."' /></td></tr></table>";
