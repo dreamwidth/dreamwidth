@@ -206,6 +206,7 @@
     if ( $LJ::USE_ACCT_CODES ) {
         $body .= "<br />" . LJ::labelfy("code-".$invitecodes[0]->code, $ML{'.form.input.code'});
 
+        my $is_first = 1;
         foreach my $invitecode ( splice( @invitecodes, 0, 5 ) ) {
         
             my $label = $invitecode->code;
@@ -220,7 +221,7 @@
             
             $body .= "<p>";
             $body .= LJ::html_check( { 
-                    selected => $invitecode eq $invitecodes[0] ? 1 : 0,
+                    selected => $is_first,
                     name => "code", 
                     id => "code-".$invitecode->code, 
                     type=> "radio", 
@@ -228,6 +229,7 @@
                     label => $label,
             } );
             $body .= "</p>";
+            $is_first = 0 if $invitecode->code ne $POST{code};
         }
     }
     
