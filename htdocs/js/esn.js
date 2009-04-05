@@ -247,10 +247,6 @@ ESN.toggleSubscription = function (subInfo, evt, btn, sub) {
                 if (info.newentry_subid)
                     DOM.setElementAttribute(btn, "lj_newentry_subid", info.newentry_subid);
 
-                ["journalid", "arg1", "arg2", "etypeid"].forEach(function (param) {
-                    DOM.setElementAttribute(btn, "lj_" + param, 0);
-                });
-
                 DOM.setElementAttribute(btn, "title", 'Untrack This');
 
                 // update subthread tracking icons
@@ -264,10 +260,6 @@ ESN.toggleSubscription = function (subInfo, evt, btn, sub) {
                     DOM.setElementAttribute(btn, "lj_subid", 0);
                 else if (info["event_class"] == "LJ::Event::JournalNewEntry")
                     DOM.setElementAttribute(btn, "lj_newentry_subid", 0);
-
-                ["journalid", "arg1", "arg2", "etypeid"].forEach(function (param) {
-                    DOM.setElementAttribute(btn, "lj_" + param, info[param]);
-                });
 
                 DOM.setElementAttribute(btn, "title", 'Track This');
 
