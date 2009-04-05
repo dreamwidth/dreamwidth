@@ -1112,12 +1112,21 @@ sub _format_mail_both {
 
     my ($k_who, $k_what, $k_reply_edit);
     if ($posteru) {
-        if ($is_html) {
-            my $profile_url = $posteru->profile_url;
-            $who = LJ::ehtml($posteru->{name}) .
-                " (<a href=\"$profile_url\">$posteru->{user}</a>)";
+        if ($posteru->{name} eq $posteru->display_username) {
+            if ($is_html) {
+                my $profile_url = $posteru->profile_url;
+                $who = " <a href=\"$profile_url\">" . $posteru->display_username . "</a>";
+            } else {
+                $who = $posteru->display_username;
+            }
         } else {
-            $who = $posteru->{name} . " (" . $posteru->{user} . ")";
+            if ($is_html) {
+                my $profile_url = $posteru->profile_url;
+                $who = LJ::ehtml($posteru->{name}) .
+                    " (<a href=\"$profile_url\">" . $posteru->display_username . "</a>)";
+            } else {
+                $who = $posteru->{name} . " (" . $posteru->display_username . ")";
+            }
         }
         if (LJ::u_equals($targetu, $posteru)) {
             if ($edited) {
@@ -1155,25 +1164,43 @@ sub _format_mail_both {
             # comment to a post and e-mail is going to be sent to not-AUTHOR of the journal
             my $p_profile_url = $entry->poster->profile_url;
             # pwho - author of the post
-            $pwho = LJ::ehtml($entry->poster->{name}) .
-                " (<a href=\"$p_profile_url\">" . $entry->poster->{user} . "</a>)";
+            # If the user's name hasn't been set (it's the same as display_username), then
+            # don't display both
+            if ($entry->poster->{name} eq $entry->poster->display_username) {
+                $pwho = "<a href=\"$p_profile_url\">" . $entry->poster->display_username . "</a>";
+            } else {
+                $pwho = LJ::ehtml($entry->poster->{name}) .
+                    " (<a href=\"$p_profile_url\">" . $entry->poster->display_username . "</a>)";
+            }
         } elsif ($parent) {
             my $threadu = $parent->poster;
             if ($threadu && ! LJ::u_equals($threadu, $targetu)) {
                 my $p_profile_url = $threadu->profile_url;
-                $pwho = LJ::ehtml($threadu->{name}) .
-                    " (<a href=\"$p_profile_url\">" . $threadu->{user} . "</a>)";
+                if ($threadu->{name} eq $threadu->display_username) {
+                    $pwho = "<a href=\"$p_profile_url\">" . $threadu->display_username . "</a>";
+                } else {
+                    $pwho = LJ::ehtml($threadu->{name}) .
+                        " (<a href=\"$p_profile_url\">" . $threadu->display_username . "</a>)";
+                }
             }
         }
     } else {
         if (! $parent && ! LJ::u_equals($parentu, $targetu)) {
-            $pwho = $entry->poster->{name} .
-                " (" . $entry->poster->{user} . ")";
+            if ($entry->poster->{name} eq $entry->poster->display_username) {
+                $pwho = $entry->poster->display_username;
+            } else {
+                $pwho = $entry->poster->{name} .
+                    " (" . $entry->poster->display_username . ")";
+            }
         } elsif ($parent) {
             my $threadu = $parent->poster;
             if ($threadu && ! LJ::u_equals($threadu, $targetu)) {
-                $pwho = $threadu->{name} .
-                    " (" . $threadu->{user} . ")";
+                if ($threadu->{name} eq $threadu->display_username) {
+                    $pwho = $threadu->display_username;
+                } else {
+                    $pwho = $threadu->{name} .
+                        " (" . $threadu->display_username . ")";
+                }
             }
         }
     }
