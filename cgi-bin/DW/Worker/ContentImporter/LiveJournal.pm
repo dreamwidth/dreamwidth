@@ -408,7 +408,7 @@ sub remap_username_friend {
 
 sub remap_lj_user {
     my ( $class, $data, $event ) = @_;
-    $event =~ s/(<lj.+?(user|comm|syn)=["']?(.+?)["' ]?>)/<lj site="$data->{hostname}" $2="$3">/gi;
+    $event =~ s/(<lj[^>]+?(user|comm|syn)=["']?(.+?)["' ]?>)/<lj site="$data->{hostname}" $2="$3">/gi;
     return $event;
 }
 
