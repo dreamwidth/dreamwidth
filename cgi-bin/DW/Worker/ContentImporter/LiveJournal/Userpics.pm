@@ -19,7 +19,9 @@ package DW::Worker::ContentImporter::LiveJournal::Userpics;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
+use XML::Parser;
 use HTML::Entities;
+use Storable qw/ freeze /;
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
 use DW::Worker::ContentImporter::Local::Userpics;

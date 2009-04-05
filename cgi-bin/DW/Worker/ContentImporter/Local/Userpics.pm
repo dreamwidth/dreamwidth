@@ -48,10 +48,11 @@ sub import_userpics {
     my $count = $u->get_userpic_count;
     my $max = $u->userpic_quota;
     my $left = $max - $count;
+    my $pending = scalar( @{$upics || [] } );
 
     my ( @imported, %skip_ids );
 
-    warn "Content importer: import_userpics: $u->{user}($u->{userid}) has=$count, max=$max, importing=" . scalar(@$upics) . "\n";
+    warn "Content importer: import_userpics: $u->{user}($u->{userid}) has=$count, max=$max, importing=$pending\n";
 
     # but do nothing if we have no room...
     return () if $left <= 0;
@@ -59,13 +60,14 @@ sub import_userpics {
     # import helper
     my $import_userpic = sub {
         my $pic = shift;
-        warn "Attempting to import $pic->{src}\n";
 
         return if $skip_ids{$pic->{id}};
 
+        warn "Attempting to import $pic->{src}\n";
+
         if ( my $ret = $class->import_userpic( $u, $errors, $pic ) ) {
-            $left--
-                if $ret == 1; # 1 == success, new picture created
+            $pending--;
+            $left-- if $ret == 1; # 1 == success, new picture created
             push @imported, $pic->{id};
         }
 
@@ -79,7 +81,7 @@ sub import_userpics {
 
     # now bail out if we don't have room for everything
     return @imported
-        unless $left >= scalar( @{ $upics || [] } );
+        unless $left >= $pending;
 
     # now import the list, or try
     $import_userpic->( $_ )
