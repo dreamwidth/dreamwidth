@@ -88,7 +88,7 @@ sub try_work {
             if $url =~ m!/(\d+)\.html$!;
         $jitemid_map->{$jitemid} = $entry_map->{$url};
     }
-    
+
     # this will take a talk_map (old URL -> new jtalkid) and convert it to a jtalkid map (old jtalkid -> new jtalkid)
     my $talk_map = DW::Worker::ContentImporter::Local::Comments->get_comment_map( $u ) || {};
     $log->( 'Loaded comment map with %d entries.', scalar( keys %$talk_map ) );
@@ -102,9 +102,9 @@ sub try_work {
     }
 
     # parameters for below
-    my ( %meta, @userids, $identity_map );
+    my ( %meta, @userids, $identity_map, $was_external_user );
     my ( $maxid, $server_max_id, $server_next_id, $lasttag ) = ( 0, 0, 1, '' );
-    
+
     # setup our parsing function
     my $meta_handler = sub {
         # this sub actually processes incoming meta information
@@ -126,6 +126,8 @@ sub try_work {
 
             my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $temp{user} );
             $identity_map->{$temp{id}} = $local_oid;
+            $was_external_user->{$temp{id}} = 1
+                if $temp{user} =~ m/^ext_/; # If the remote username starts with ext_ flag it as external
 
             $log->( 'Mapped remote %s(%d) to local userid %d.', $temp{user}, $temp{id}, $local_oid );
         }
@@ -145,7 +147,7 @@ sub try_work {
         $server_max_id = $_[1] + 0 if $lasttag eq 'maxid';
         $server_next_id = $_[1] + 0 if $lasttag eq 'nextid';
     };
-    
+
     # hit up the server for metadata
     while ( defined $server_next_id && $server_next_id =~ /^\d+$/ ) {
         $log->( 'Fetching metadata; max_id = %d, next_id = %d.', $server_max_id || 0, $server_next_id || 0 );
@@ -155,9 +157,9 @@ sub try_work {
         );
         return $temp_fail->( 'Error fetching comment metadata from server.' )
             unless $content;
-    
+
         $server_next_id = undef;
-    
+
         # now we want to XML parse this
         my $parser = new XML::Parser(
             Handlers => {
@@ -201,7 +203,7 @@ sub try_work {
         # that may or may not be in the data stream, and we won't know until we've already
         # gotten some data
     };
-    
+
     # start looping to fetch all of the comment bodies
     while ( $lastid < $server_max_id ) {
         $log->( 'Fetching bodydata; last_id = %d, max_id = %d.', $lastid || 0, $server_max_id || 0 );
@@ -221,13 +223,13 @@ sub try_work {
             }
         );
         $parser->parse( $content );
-    
+
         # the exporter should always return the maximum number of items, so loop again.  of course,
         # this will fail nicely as soon as some site we're importing from reduces the max items
         # they return due to load.  http://community.livejournal.com/changelog/5907095.html
         $lastid += $COMMENTS_FETCH_BODY;
     }
-    
+
     # now iterate over each comment and build the nearly final structure
     foreach my $comment ( values %meta ) {
 
@@ -240,16 +242,19 @@ sub try_work {
             next;
         }
 
+        $comment->{source} = $data->{hostname}
+            if $was_external_user->{$comment->{posterid}};
+
         # basic mappings
         $comment->{posterid} = $identity_map->{$comment->{posterid}};
         $comment->{jitemid} = $jitemid_map->{$comment->{jitemid}};
         $comment->{orig_id} = $comment->{id};
-    
+
         # unresolved comments means we haven't got the parent in the database
         # yet so we can't post this one
         $comment->{unresolved} = 1
             if $comment->{parentid};
-    
+
         # the reverse of unresolved, tell the parent it has visible children
         $meta{$comment->{parentid}}->{has_children} = 1
             if $comment->{parentid} && $comment->{state} ne 'D';
@@ -265,7 +270,7 @@ sub try_work {
         $comment->{body} = encode_utf8( $comment->{body} );
         $comment->{subject} = encode_utf8( $comment->{subject} );
     }
-    
+
     # variable setup for the database work
     my @to_import = sort { ( $a->{id}+0 ) <=> ( $b->{id}+0 ) } values %meta;
     my $had_unresolved = 1;
@@ -342,7 +347,7 @@ sub try_work {
             return $fail->( 'Found unresolvable comment chain.' );
         }
     }
-    
+
     return $ok->();
 }
 

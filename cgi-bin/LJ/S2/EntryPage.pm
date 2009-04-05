@@ -277,6 +277,9 @@ sub EntryPage
                  ($remote->{'userid'} == $entry->posterid ||
                   LJ::can_manage($remote, $u) || $viewall));
 
+            $s2com->{metadata}->{imported_from} = $com->{props}->{imported_from}
+                if $com->{props}->{imported_from};
+
             push @$destlist, $s2com;
 
             $self->($self, $s2com->{'replies'}, $com->{'children'}, $depth+1);

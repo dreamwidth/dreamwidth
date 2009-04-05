@@ -555,6 +555,7 @@ my $old_url = 0;
                 my $cleansubject = LJ::ehtml($post->{'subject'});
                 $ret .= "<span class='commentsubject'><b>$cleansubject</b></span> $icon";
                 $ret .= "<br />$user\n";
+                $ret .= " " . BML::ml( '.from_external', {site=>$post->{props}->{imported_from}} ) if $post->{props}->{imported_from};
                 $ret .= "<br /><span class='datepost'>$datepost</span>\n";
                 if ($post->{'props'}->{'poster_ip'} && $remote &&
                     ($remote->{'user'} eq $up->{'user'} ||

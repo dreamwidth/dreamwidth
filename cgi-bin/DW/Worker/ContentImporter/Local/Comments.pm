@@ -76,6 +76,7 @@ sub insert_comment {
     $errref ||= '';
 
     # load the data we need to make this comment
+    # FIXME: What is the point of this?
     use Data::Dumper;
     warn Dumper( $cmt ) unless $cmt->{jitemid};
 
@@ -103,6 +104,7 @@ sub insert_comment {
 
         props => {
             import_source => $source,
+            imported_from => $cmt->{source},
         },
 
         no_urls => 1,

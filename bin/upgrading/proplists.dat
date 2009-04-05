@@ -1195,8 +1195,13 @@ talkproplist.guest_url:
 
 talkproplist.import_source:
   datatype: char
-  des: Where this entry was imported from
+  des: Where this comment was imported from
   prettyname: Import source
+
+talkproplist.imported_from:
+  datatype: char
+  des: The hostname of the site where this comment was imported from.
+  prettyname: Imported from
 
 talkproplist.opt_preformatted:
   datatype: bool

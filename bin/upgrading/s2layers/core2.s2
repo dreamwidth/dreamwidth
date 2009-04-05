@@ -1957,6 +1957,13 @@ property string text_poster_anonymous {
 }
 set text_poster_anonymous = "(Anonymous)";
 
+property string text_openid_from {
+  des = "Text to indicate which site this OpenID account originally posted a comment on";
+  example = "from";
+  noui = 1;
+}
+set text_openid_from = "from";
+
 property string text_reply_back {
     des = "Text to link back to the single entry view from the read comments page";
     example = "Read Comments";
@@ -3161,6 +3168,8 @@ function Page::print_entry_poster(EntryLite e) {
 # For any given comment, print the commentor's name (local, anonymous, or openid)
 function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
+    if ($this.metadata{"imported_from"}) { $poster = "$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")"; }
+
     print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n";
 }
 

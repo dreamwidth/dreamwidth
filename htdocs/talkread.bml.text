@@ -13,6 +13,8 @@
 
 .edittime=Edited at [[edittime]]
 
+.from_external=(from [[site]])
+
 .fromip=(from [[ip]])
 
 .noreplies=No replies
