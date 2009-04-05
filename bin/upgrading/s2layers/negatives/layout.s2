@@ -66,11 +66,7 @@ set minical_hover = "#ffffff";
 propgroup text {
     property string text_comments_heading   { noui=1; des ="Text for comment section heading"; }
 }
-set text_skiplinks_forward = "Next #";
-set text_skiplinks_back = "Previous #";
 set text_comments_heading = "&laquo;Comments&raquo;";
-set text_view_recent = "Journal";
-set text_view_archive = "Calendar";
 
 propgroup presentation {
     property bool display_ljtag       { noui=1; des="Display lj-user tags instead of displayed name/user name links on entries"; }
@@ -86,8 +82,6 @@ set entry_management_links = "text";
 set comment_management_links = "text";
 
 set text_interaction_links_sep = " ";
-set text_entry_prev = "&laquo;";
-set text_entry_next = "&raquo;";
  
 #######################
 #Functions
