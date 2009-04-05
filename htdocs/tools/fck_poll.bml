@@ -4,8 +4,8 @@
     <title>LiveJournal Poll</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta content="noindex, nofollow" name="robots">
-    <script src="<?_code $LJ::STATPREFIX _code?>/stc/fck/editor/dialog/common/fck_dialog_common.js" type="text/javascript"></script>
-    <script src="<?_code $LJ::STATPREFIX _code?>/js/poll.js" type="text/javascript"></script>
+    <script src="<?_code $LJ::STATPREFIX _code?>/fck/editor/dialog/common/fck_dialog_common.js" type="text/javascript"></script>
+    <script src="<?_code $LJ::JSPREFIX _code?>/poll.js" type="text/javascript"></script>
     <script language="javascript">
 
     //Standard setup stuff (notice the command name used in the property names)
