@@ -4,13 +4,6 @@
 
     use vars qw($body $title $windowtitle %GET %POST);
 
-    my $print_with_ad = sub {
-       my $str = shift;
-
-       my $ad_box = LJ::get_ads({ location => 'bml.friends.add/error', ljadwrapper => 1 });
-       return $ad_box . $str;
-    };
-
     my $head     = \$_[1]->{'head'};
 
     my $action = $GET{action};
@@ -29,14 +22,14 @@
     unless ($remote)
     {
         $title = $ML{'.error1.title'};
-        $body = $print_with_ad->("<?needlogin?>");
+        $body = "<?needlogin?>";
         return;
     }
 
     unless ($user && $userid)
     {
         $title = $ML{'Error'};
-        $body = $print_with_ad->(BML::ml('.error2.text2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/edit.bml'"}));
+        $body = BML::ml('.error2.text2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/edit.bml'"});
         return;
     }
 
@@ -44,19 +37,19 @@
     {
         unless (LJ::did_post()) {
             $title = $ML{'Error'};
-            $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p <?requirepost?> p?>");
+            $body = "<?h1 $ML{'Error'} h1?><?p <?requirepost?> p?>";
             return;
         }
 
         unless (LJ::check_form_auth()) {
             $title = $ML{'Error'};
-            $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>");
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
             return;
         }
 
         unless ($remote->{'userid'} == $POST{'remid'}) {
             $title = $ML{'Error'};
-            $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'.error.sessionchanged'} p?>");
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.error.sessionchanged'} p?>";
             return;
         }
 
@@ -94,11 +87,7 @@
             } );
         }
 
-        $body = LJ::get_ads({
-            location    => 'bml.friends.add/main',
-            ljadwrapper => 1,
-            below_ad    => LJ::CProd->full_box_for($remote, width => 300)
-        });
+        $body = "";
 
         $title = $ML{'.add.title'};
         $body .= "<?h1 $ML{'.add.header'} h1?>";
@@ -455,7 +444,6 @@
 
 
     $body .= "</form>";
-    $body = $print_with_ad->($body);
 
     return;
 }
