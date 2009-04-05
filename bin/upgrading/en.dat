@@ -3295,6 +3295,8 @@ web.controlstrip.links.stylemystyle=View in my style
 
 web.controlstrip.links.styleorigstyle=View in original style
 
+web.controlstrip.links.trackuser=Track this user
+
 web.controlstrip.links.viewreadingpage=Reading Page
 
 web.controlstrip.links.watchcomm=Subscribe to this community

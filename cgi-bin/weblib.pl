@@ -2952,6 +2952,7 @@ sub control_strip
         $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         $links{'edit_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
+        $links{'track_user'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";
         if ($journal->is_syndicated || $journal->is_news) {
             $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
             $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
@@ -3129,6 +3130,7 @@ sub control_strip
                 }
                 $ret .= "<br />$links{'add_friend'}";
             }
+            $ret .= "&nbsp;&nbsp; $links{'track_user'}";
         } elsif ($journal->is_community) {
             my $watching = $remote->watches( $journal );
             my $memberof = $remote->member_of( $journal );
@@ -3178,7 +3180,9 @@ sub control_strip
             $ret .= "$statustext{news}<br />";
             if ( $remote && !$remote->watches( $journal ) ) {
                 $ret .= $links{add_friend};
+                $ret .= "&nbsp;&nbsp; $links{track_user}";
             } else {
+                $ret .= $links{track_user};
                 $ret .= "&nbsp;";
             }
         } else {
