@@ -591,16 +591,16 @@ class Page
 
     function print_navigation() [fixed] "Print out the page navigation links.";
 
-    function print_module_group_primary
+    function print_module_group_one
     "Prints first grouping of modules (such as a sidebar).";
 
-    function print_module_group_secondary
+    function print_module_group_two
     "Prints second grouping of modules (such as a sidebar).";
 
-    function print_module_group_tertiary
+    function print_module_group_three
     "Prints third grouping of modules (such as a sidebar).";
 
-    function print_module_group_quaternary
+    function print_module_group_four
     "Prints fourth grouping of modules (such as a sidebar).";
     
     function print_stylesheets
@@ -1217,27 +1217,27 @@ set comment_management_links = "icons";
 
 ## FIXME: exposing ordering/display via the wizard to be done
 #  Right now, hardcoded into the layer
-property string[][] module_group_primary {
+property string[][] module_group_one {
     des = "Primary sidebar members";
     noui = 1;
 }
-property string[][] module_group_secondary {
+property string[][] module_group_two {
     des = "Secondary sidebar members";
     noui = 1;
 }
-property string[][] module_group_tertiary {
+property string[][] module_group_three {
     des = "Tertiary sidebar members";
     noui = 1;
 }
-property string[][] module_group_quaternary {
+property string[][] module_group_four {
     des = "Quaternary sidebar members";
     noui = 1;
 }
-set module_group_primary = []; # Set in prop_init()
-set module_group_secondary = []; # Set in prop_init()
+set module_group_one = []; # Set in prop_init()
+set module_group_two = []; # Set in prop_init()
 
-set module_group_tertiary = []; # Set in prop_init()
-set module_group_quaternary = []; # Set in prop_init()
+set module_group_three = []; # Set in prop_init()
+set module_group_four = []; # Set in prop_init()
 
 ##===============================
 ## Display settings - modules
@@ -2105,7 +2105,7 @@ set lang_dayname_shorter = [ "", "S", "M",  "T", "W",
 function prop_init ()
   "This function is the first thing called and is the place to set properties based on the values of other properties.  It's called before the style system looks at its builtin properties, so if you need to conditionally setup something based on your own custom properties, do it here.  You can't print from this function."
 {
-    $*module_group_primary = [
+    $*module_group_one = [
         [ "userprofile", "", "0", "1" ],
         [ "navlinks", "" ],
         [ "calendar", "" ],
@@ -2113,14 +2113,14 @@ function prop_init ()
         [ "syndicate", $*text_syndicate ],
     ];
 
-    $*module_group_secondary = [
+    $*module_group_two = [
         [ "tags", $*text_tags_section_header, "" ],
         [ "tags", $*text_tags_section_header, "multi" ],
         [ "tags", $*text_tags_section_header, "cloud" ],
         [ "pagesummary", $*text_page_summary ],
     ];
 
-    $*module_group_tertiary = [
+    $*module_group_three = [
         [ "time", "" ],
         [ "poweredby", "" ],
     ];
@@ -3014,24 +3014,24 @@ function handle_module_group_array(string[][] list) {
     }
 }
 
-function Page::print_module_group_primary() {
-    """<div class="module-group-primary">""";
-    handle_module_group_array($*module_group_primary);
+function Page::print_module_group_one() {
+    """<div class="module-group-one">""";
+    handle_module_group_array($*module_group_one);
     """</div>""";
 }
-function Page::print_module_group_secondary() {
-    """<div class="module-group-secondary">""";
-    handle_module_group_array($*module_group_secondary);
+function Page::print_module_group_two() {
+    """<div class="module-group-two">""";
+    handle_module_group_array($*module_group_two);
     """</div>""";
 }
-function Page::print_module_group_tertiary() {
-    """<div class="module-group-tertiary">""";
-    handle_module_group_array($*module_group_tertiary);
+function Page::print_module_group_three() {
+    """<div class="module-group-three">""";
+    handle_module_group_array($*module_group_three);
     """</div>""";
 }
-function Page::print_module_group_quaternary() {
-    """<div class="module-group-quarternary">""";
-    handle_module_group_array($*module_group_quaternary);
+function Page::print_module_group_four() {
+    """<div class="module-group-four">""";
+    handle_module_group_array($*module_group_four);
     """</div>""";
 }
 
@@ -3064,8 +3064,8 @@ function Page::print() {
                     </div></div><!-- end primary and primary>inner -->
                     <div id="secondary"><div class="inner">
                         """;
-                        $this->print_module_group_primary();
-                        $this->print_module_group_secondary();
+                        $this->print_module_group_one();
+                        $this->print_module_group_two();
     """
                     </div></div><!--  end secondary and secondary>inner -->
                     <div id="tertiary"><div class="inner">
@@ -3084,7 +3084,7 @@ function Page::print() {
             print safe """
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
             """;
-            $this->print_module_group_tertiary();
+            $this->print_module_group_three();
             """
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
