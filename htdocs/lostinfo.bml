@@ -32,7 +32,7 @@ body<=
 
 
         $ret .= "<?h1 $ML{'.lostpassword.title'} h1?>\n";
-        $ret .= "<?p $ML{'.lostpassword.text'} p?>\n";
+        $ret .= "<?p " . BML::ml( ".lostpassword.text", { sitename => $LJ::SITENAMESHORT } ) ." p?>\n";
 
         $ret .= "<div class='form-basic form-fix'><div class='tl'><div class='tr'><div class='br'><div class='bl'>\n";
         $ret .= "<fieldset><label>$ML{'.enter_username'}</label>\n";

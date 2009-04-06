@@ -21,7 +21,7 @@
 
 .error.toofrequent=You are trying to send too many e-mails at once. You may only request five lost information e-mails within twenty-four hours.
 
-.lostpassword.text=If you've lost your password, enter your username and optionally, the email address you'd like the password sent to.  Note that the email address must be one you've used at LiveJournal before and had confirmed at one point.  If you leave the email field blank, it'll be mailed to your current address.
+.lostpassword.text=If you've lost your password, enter your username and optionally, the email address you'd like the password sent to.  Note that the email address must be one you've used at [[sitename]] before and had confirmed at one point.  If you leave the email field blank, it'll be mailed to your current address.
 
 .lostpassword.title=Lost your password?
 
