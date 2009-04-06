@@ -3213,7 +3213,7 @@ sub control_strip
                 <input type='hidden' name='chal' id='login_chal' class='lj_login_chal' value='$chal' />
                 <input type='hidden' name='response' id='login_response' class='lj_login_response' value='' />
                 <table cellspacing="0" cellpadding="0" style="margin-right: 1em;"><tr><td>
-                <label for="xc_user">$BML::ML{'/login.bml.login.username'}</label> <input type="text" name="user" size="7" maxlength="17" tabindex="1" id="xc_user" value="" />
+                <label for="xc_user">$BML::ML{'/login.bml.login.username'}</label> <input type="text" name="user" size="7" maxlength="27" tabindex="1" id="xc_user" value="" />
                 </td><td>
                 <label style="margin-left: 3px;" for="xc_password">$BML::ML{'/login.bml.login.password'}</label> <input type="password" name="password" size="7" tabindex="2" id="xc_password" class='lj_login_password' />
 LOGIN_BAR
