@@ -342,7 +342,7 @@ if (top.canmakepoll == false) {
 }
 
 // Create the toolbar button.
-var oLJPollLink = new FCKToolbarButton('LJPollLink', 'LiveJournal Poll');
+var oLJPollLink = new FCKToolbarButton('LJPollLink', 'Poll');
 oLJPollLink.IconPath = FCKConfig.PluginsPath + 'livejournal/ljpoll.gif' ;
 
 // Register the button to use in the config
