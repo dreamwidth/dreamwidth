@@ -3661,7 +3661,7 @@ widget.friendupdates.viewall=More
 
 widget.inbox.menu.delete.btn=Delete
 
-widget.inbox.menu.delete_all.btn=DeleteAll
+widget.inbox.menu.delete_all.btn=Delete All
 
 widget.inbox.menu.mark_all_read.btn=Mark All Read
 
