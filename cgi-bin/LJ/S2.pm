@@ -4178,7 +4178,7 @@ sub string__replace
 {
     use utf8;
     my ($ctx, $this, $find, $replace) = @_;
-    $this =~ s/\Q$find\E/\Q$replace\E/g;
+    $this =~ s/\Q$find\E/$replace/g;
     return $this;
 }
 
