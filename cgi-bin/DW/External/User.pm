@@ -59,14 +59,15 @@ sub site {
 
 # return the ljuser_display block
 sub ljuser_display {
-    my $self = $_[0];
+    my ( $self, %opts ) = @_;
 
     my $user = $self->user;
     my $profile_url = $self->site->profile_url( $self );
     my $journal_url = $self->site->journal_url( $self );
     my $badge_image_url = $self->site->badge_image_url( $self );
+    my $display_class = $opts{no_ljuser_class} ? "" : "class='ljuser'";
 
-    return "<span class='ljuser' lj:user='$user' style='white-space: nowrap;'><a href='$profile_url'>" .
+    return "<span $display_class lj:user='$user' style='white-space: nowrap;'><a href='$profile_url'>" .
            "<img src='$badge_image_url' alt='[info]' style='vertical-align: bottom; border: 0; padding-right: 1px;' />" .
            "</a><a href='$journal_url'><b>$user</b></a></span>";
 }

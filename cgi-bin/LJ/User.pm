@@ -2256,6 +2256,7 @@ sub ljuser_display {
     my $strike = $opts->{'del'} ? ' text-decoration: line-through;' : '';
     my $profile_url = $opts->{'profile_url'} || '';
     my $journal_url = $opts->{'journal_url'} || '';
+    my $display_class = $opts->{no_ljuser_class} ? "" : "class='ljuser'";
 
     my ($url, $name);
 
@@ -2287,7 +2288,7 @@ sub ljuser_display {
 
         my $profile = $profile_url ne '' ? $profile_url : "$LJ::SITEROOT/userinfo.bml?userid=$u->{userid}&amp;t=I$andfull";
 
-        return "<span class='ljuser' lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'><img src='$imgurl' alt='[info]' width='$width' height='$height' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url' rel='nofollow'><b>$name</b></a></span>";
+        return "<span $display_class lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'><img src='$imgurl' alt='[info]' width='$width' height='$height' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url' rel='nofollow'><b>$name</b></a></span>";
 
     } else {
         return "<b>????</b>";
@@ -6587,13 +6588,13 @@ sub get_timezone {
 # </LJFUNC>
 sub ljuser
 {
-    my $user = shift;
-    my $opts = shift;
+    my ( $user, $opts ) = @_;
 
     my $andfull = $opts->{'full'} ? "?mode=full" : "";
     my $img = $opts->{'imgroot'} || $LJ::IMGPREFIX;
     my $profile_url = $opts->{'profile_url'} || '';
     my $journal_url = $opts->{'journal_url'} || '';
+    my $display_class = $opts->{no_ljuser_class} ? "" : "class='ljuser'";
     my $profile;
 
     my $make_tag = sub {
@@ -6614,7 +6615,7 @@ sub ljuser
         $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
         $url = $journal_url ne '' ? $journal_url : $url;
 
-        return "<span class='ljuser' lj:user='$user' style='white-space: nowrap;$strike'><a href='$profile'><img src='$img/$fil' alt='[info]' width='$x' height='$y' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url'$link_color>$ljusername</a></span>";
+        return "<span $display_class lj:user='$user' style='white-space: nowrap;$strike'><a href='$profile'><img src='$img/$fil' alt='[info]' width='$x' height='$y' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url'$link_color>$ljusername</a></span>";
     };
 
     my $u = isu($user) ? $user : LJ::load_user($user);

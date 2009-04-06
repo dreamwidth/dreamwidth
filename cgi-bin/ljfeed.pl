@@ -208,8 +208,12 @@ sub make_feed
             }
 
             LJ::CleanHTML::clean_event(\$event,
-                                       { 'wordlength' => 0, 'preformatted' => $logprops{$itemid}->{'opt_preformatted'}, 'cuturl' => $u->{'opt_synlevel'} eq 'ljcut' ? "$journalinfo->{link}$ditemid.html" : "" });
-
+                                       { 
+                                        wordlength => 0, 
+                                        preformatted => $logprops{$itemid}->{opt_preformatted}, 
+                                        cuturl => $u->{opt_synlevel} eq 'ljcut' ? "$journalinfo->{link}$ditemid.html" : "", 
+                                        to_external_site => 1,
+                                       });
             # do this after clean so we don't have to about know whether or not
             # the event is preformatted
             if ($u->{'opt_synlevel'} eq 'summary') {

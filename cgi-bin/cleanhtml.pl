@@ -63,6 +63,7 @@ package LJ::CleanHTML;
 #        'transform_embed_wmode' => <value>, # define a wmode value for videos (usually 'transparent' is the value you want)
 #        'blocked_links' => [ qr/evil\.com/, qw/spammer\.com/ ], # list of sites which URL's will be blocked
 #        'blocked_link_substitute' => 'http://domain.com/error.html' # blocked links will be replaced by this URL
+#        'to_external_site' => 0, # flag for when the content is going to be fed to external sites, so it can be special-cased. e.g., feeds
 #     });
 
 sub helper_preload
@@ -143,6 +144,7 @@ sub clean
         ($LJ::BLOCKED_LINK_SUBSTITUTE) ? $LJ::BLOCKED_LINK_SUBSTITUTE : '#';
     my $suspend_msg = $opts->{'suspend_msg'} || 0;
     my $unsuspend_supportid = $opts->{'unsuspend_supportid'} || 0;
+    my $to_external_site = $opts->{to_external_site} || 0;
 
     my @canonical_urls; # extracted links
     my %action = ();
@@ -497,7 +499,7 @@ sub clean
                             # FIXME: need a textonly way of identifying users better?  "user@LJ"?
                             $newdata .= $user;
                         } else {
-                            $newdata .= $ext_u->ljuser_display;
+                            $newdata .= $ext_u->ljuser_display( no_ljuser_class => $to_external_site );
                         }
 
                     # if we hit the else, then we know that this user doesn't appear
@@ -516,7 +518,7 @@ sub clean
                         if ($opts->{'textonly'}) {
                             $newdata .= $user;
                         } else {
-                            $newdata .= LJ::ljuser($user);
+                            $newdata .= LJ::ljuser( $user, { no_ljuser_class => $to_external_site } );
                         }
                     } else {
                         $orig_user = LJ::no_utf8_flag($orig_user);
@@ -852,7 +854,12 @@ sub clean
             if ( $eating_ljuser_span ) {
                 if ( $tag eq "span" ) {
                     $eating_ljuser_span = 0;
-                    $newdata .= $opts->{'textonly'} ? $ljuser_text_node : LJ::ljuser($ljuser_text_node);
+                    
+                    if ( $opts->{textonly} ) {
+                        $newdata .= $ljuser_text_node;
+                    } else {
+                        $newdata .= LJ::ljuser( $ljuser_text_node, { no_ljuser_class => $to_external_site } );
+                    }
                 }
 
                 next TOKEN;
@@ -1325,6 +1332,7 @@ sub clean_event
         'transform_embed_wmode' => $opts->{'transform_embed_wmode'},
         'suspend_msg' => $opts->{'suspend_msg'} ? 1 : 0,
         'unsuspend_supportid' => $opts->{'unsuspend_supportid'},
+        to_external_site => $opts->{to_external_site} ? 1 : 0,
     });
 }
 
