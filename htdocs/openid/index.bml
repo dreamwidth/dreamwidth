@@ -42,7 +42,11 @@ body<=
 <?_code BML::ml(".main.using_your_openid_here.content", {'sitename' => $LJ::SITENAMESHORT}) _code?>
 p?>
 
-<?p <?_ml .main.using_your_openid_here.email _ml?> p?>
+<?p 
+<?_code 
+BML::ml(".main.using_your_openid_here.email2", { 'aopts1' => "href='$LJ::SITEROOT/changeemail.bml'", 'aopts2' => "href='$LJ::SITEROOT/register.bml'" })
+_code?>
+p?>
 
 
    <div style='padding: 0.4em; margin-left: 25px; margin-right: 25px; width: auto; text-align: center; background: #ccc; border: #000'>

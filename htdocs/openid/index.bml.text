@@ -10,6 +10,8 @@
 
 .main.using_your_openid_here.email=You can also set and validate an email address to be notified of replies to your comments via email.
 
+.main.using_your_openid_here.email2=You can also <a [[aopts1]]>set</a> and <a [[aopts2]]>validate</a> an email address to be notified of replies to your comments via email. 
+
 .login.openid_url=Your OpenID URL:
 
 .login.submit=Login
