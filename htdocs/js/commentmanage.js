@@ -511,6 +511,7 @@ function updateLink (ae, resObj, clickTarget) {
     var did_something = 0;
 
     if (clickTarget && clickTarget.src && clickTarget.src == resObj.oldimage) {
+        clickTarget.setAttribute( 'title', resObj.newalt );
         clickTarget.src = resObj.newimage;
         did_something = 1;
     }
@@ -525,7 +526,7 @@ function updateLink (ae, resObj, clickTarget) {
         if (ae && ae.style)
             ae.style.display = 'none';
         if (clickTarget && clickTarget.style)
-            clickTarget.style.dispay = 'none';
+            clickTarget.style.display = 'none';
     }
 
 }
@@ -573,6 +574,7 @@ function createModerationFunction (ae, dItemid) {
                     poofAt(clickPos);
                     updateLink(ae, resObj, imgTarget);
                     tsInProg[dItemid] = 0;
+
                 } else {
                     tsInProg[dItemid] = 0;
                 }

@@ -35,6 +35,9 @@ _info?><?_code
         # flip case of 'un'
         my $newmode = "un$mode";
         $newmode =~ s/^unun//;
+        my $alttext = $newmode;
+        $alttext =~ s/(\w+)/\u\L$1/g;
+
         my $stockimg = {
             'screen' => "btn_scr.gif",
             'unscreen' => "btn_unscr.gif",
@@ -42,7 +45,8 @@ _info?><?_code
             'unfreeze' => "btn_unfreeze.gif",
         };
 
-        my $res = "rpcRes = {\n mode: \"$mode\", id: $dtalkid, \n" .
+        my $res = "rpcRes = {\n mode: \"$mode\", \n" .
+            " newalt: \"$alttext\", id: $dtalkid, \n" .
             " oldimage: \"$LJ::IMGPREFIX/$stockimg->{$mode}\",\n " .
             " newimage: '$LJ::IMGPREFIX/$stockimg->{$newmode}',\n " .
             " newurl: '$LJ::SITEROOT/talkscreen.bml?mode=$newmode&journal=$journal&talkid=$dtalkid' \n" .

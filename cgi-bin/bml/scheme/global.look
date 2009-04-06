@@ -208,7 +208,7 @@ HOTCOLOR=>{S}#ff0000
 EMCOLORLITE=>{S}#e2e2e2
 ALTCOLOR1=>{S}#eeeeee
 ALTCOLOR2=>{S}#dddddd
-screenedbarcolor=>{S}#d0d0d0
+screenedbarcolor=>{S}#707070
 
 CHOICE=>{P}<dt><a href="%%data2%%"><font size="+1"><tt><b>%%data1%%</b></tt></font></a><dd><font size="2">%%data3%%</font>
 
