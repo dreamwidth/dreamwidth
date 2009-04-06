@@ -407,6 +407,9 @@
         profile_design => 1,
         settings_design => 1,
     );
+
+    # default to limit to 2000 results
+    $LJ::MAX_DIR_SEARCH_RESULTS ||= 2000;
 }
 
 # no dependencies.
