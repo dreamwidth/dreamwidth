@@ -837,23 +837,6 @@
             'DW::PageStats::GoogleAnalytics',
         ],
     );
-
-    # remote's safe_search prop value must be greater than or equal to the defined
-    # safe_search_level value in order for users with that level's content flag to be
-    # filtered out of remote's search results
-    #
-    # e.g. remote must have a safe_search prop value of 11 or more in order to not
-    # see any search results that contain adult concepts
-    #
-    # a safe_search value of 0 means that it shouldn't ever be filtered
-    %CONTENT_FLAGS = (
-        explicit => {
-            safe_search_level => 1,
-        },
-        concepts => {
-            safe_search_level => 11,
-        },
-    );
 }
 
 1;
