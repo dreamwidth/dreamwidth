@@ -2385,6 +2385,8 @@ function UserLite::print_linkbar() {
 
 function UserLite::print_interaction_links() {
     """<ul class="userlite-interaction-links">""";
+    # FIXME: HTML is not valid if there are no items inside a list, so there should be a
+    # check that there are user interaction links before opening the ul class.
     var Link link;
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
@@ -2541,13 +2543,14 @@ function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list
 {    
     var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
     var string item_class = $opts{"item-class"} ? """class="$opts{"item-class"}" """ : "";
-
-    println """<ul $list_class>""";
-    foreach var TagDetail t ($tagslist) {
+    if (size $tagslist) {
+        println """<ul $list_class>""";
+        foreach var TagDetail t ($tagslist) {
             var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
             println """<li $item_class><a href="$t.url" title="$uses">$t.name</a></li>\n""";
+        }
+        println """</ul>""";
     }
-    println """</ul>""";
 }
 
 function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags in a cloud. Takes as arguments the taglist and a hash with optional arguments 'text_tags_uses' (property name to use for tags use), 'min_size' (minimum size in ems, times 10), 'maz_size' (maximum size in ems, times 10), 'list-class' and 'item-class'"
@@ -2722,11 +2725,13 @@ function close_module() {
 }
 
 function print_module_list(string[] list) {
-    println """<ul class="module-list">""";
-    foreach var string s ($list) {
-        print safe """<li class="module-list-item">$s</li>""";
+    if (size $list) {
+        println """<ul class="module-list">""";
+        foreach var string s ($list) {
+            print safe """<li class="module-list-item">$s</li>""";
+        }
+        println """</ul>""";
     }
-    println """</ul>""";
 }
 
 function print_module_userprofile(string title, bool show_profile, bool show_userpic) {
@@ -3240,7 +3245,7 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
     if ($this isa Comment) {
         """<div class="comment-title">""";
         print $this->formatted_subject( $opts );
-        "</div";
+        "</div>";
     }
     else {
         """<h3 class="entry-title">""";
@@ -3327,6 +3332,8 @@ function EntryLite::print_linkbar() { $this->print_management_links(); }
 
 function EntryLite::print_management_links() {}
 function Comment::print_management_links() {
+    # FIXME: HTML is not valid if there are no items inside a list, so there should
+    # be a check that there are comment management links before opening the ul class.
     """<ul class="comment-management-links">""";
     var Link link;
     foreach var string k ($.link_keyseq) {
@@ -3352,7 +3359,7 @@ function Comment::print_interaction_links() {
     if ($this.frozen) {
         print safe """<li class="link frozen">$*text_comment_frozen</li>""";
     } else {
-        """<li class=link reply">""";
+        """<li class="link reply">""";
         $this->print_reply_link({"linktext" => $*text_comment_reply});
         """</li>""";
     }
@@ -3361,7 +3368,7 @@ function Comment::print_interaction_links() {
         print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>""";
         var Link expand_link = $this->get_link("expand_comments");
         if (defined $expand_link) {
-            """<li class=link expand">""";
+            """<li class="link expand">""";
             $this->print_expand_link();
             """</li>""";
         }
@@ -3679,15 +3686,17 @@ function YearPage::print_navigation() [fixed] {
 }
 
 function YearPage::print_year_links() {
-    """<ul>\n""";
-    foreach var YearYear y ($.years) {
-        if ($y.displayed) {
-            """<li class="active">$y.year</li>\n""";
-        } else {
-            """<li><a href="$y.url">$y.year</a></li>\n""";
+    if (size $.years) {
+        """<ul>\n""";
+        foreach var YearYear y ($.years) {
+            if ($y.displayed) {
+                """<li class="active">$y.year</li>\n""";
+            } else {
+                """<li><a href="$y.url">$y.year</a></li>\n""";
+            }
         }
+       """</ul>\n""";
     }
-    """</ul>\n""";
 }
 function YearPage::print_month(YearMonth m) {
 
