@@ -100,6 +100,8 @@
 
 .details.lastupdated2=last updated [[timestamp]]
 
+.details.lastupdated3=last updated [[timestamp]] ([[agotext]])
+
 .details.lastupdated.never=Never updated
 
 .details.lastupdated.never2=never updated
