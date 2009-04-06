@@ -947,28 +947,48 @@ sub trust_group_contains {
 # to the target.  note: if you don't pass a target user, then we return
 # a generic 1/0 meaning "this account is allowed to have a trust edge".
 sub can_trust {
-    my ( $u, $tu ) = @_;
+    my ( $u, $tu, %opts ) = @_;
     $u = LJ::want_user( $u ) or confess 'invalid user object';
     $tu = LJ::want_user( $tu );
 
+    my $errref = $opts{errref};
+
     # the user must be an individual
-    return 0 unless $u->is_individual;
+    unless ( $u->is_individual ) {
+        $$errref = LJ::Lang::ml( 'edges.trust.error.usernotindividual' );
+        return 0;
+    }
 
     # the user must be visible
-    return 0 unless $u->is_visible;
+    unless ( $u->is_visible ) {
+        $$errref = LJ::Lang::ml( 'edges.trust.error.usernotvisible' );
+        return 0;
+    }
 
     if ( $tu ) {
         # the user cannot be the same as the target
-        return 0 if $u->equals( $tu );
+        if ( $u->equals( $tu ) ) {
+            $$errref = LJ::Lang::ml( 'edges.trust.error.userequalstarget' );
+            return 0;
+        }
 
         # the target must be an individual
-        return 0 unless $tu->is_individual;
+        unless ( $tu->is_individual ) {
+            $$errref = LJ::Lang::ml( 'edges.trust.error.targetnotindividual' );
+            return 0;
+        }
 
         # the target must not be purged/suspended/locked
-        return 0 if $tu->is_expunged || $tu->is_suspended || $tu->is_locked;
+        if ( $tu->is_expunged || $tu->is_suspended || $tu->is_locked ) {
+            $$errref = LJ::Lang::ml( 'edges.trust.error.targetinvalidstatusvis' );
+            return 0;
+        }
 
         # the target must not be banned by the user
-        return 0 if $u->has_banned( $tu );
+        if ( $u->has_banned( $tu ) ) {
+            $$errref = LJ::Lang::ml( 'edges.trust.error.userbannedtarget' );
+            return 0;
+        }
     }
 
     # okay, good to go!
@@ -981,19 +1001,30 @@ sub can_trust {
 # to the target.  note: if you don't pass a target user, then we return
 # a generic 1/0 meaning "this account is allowed to have a watch edge".
 sub can_watch {
-    my ( $u, $tu ) = @_;
+    my ( $u, $tu, %opts ) = @_;
     $u = LJ::want_user( $u ) or confess 'invalid user object';
     $tu = LJ::want_user( $tu );
 
+    my $errref = $opts{errref};
+
     # the user must be an individual
-    return 0 unless $u->is_individual;
+    unless ( $u->is_individual ) {
+        $$errref = LJ::Lang::ml( 'edges.watch.error.usernotindividual' );
+        return 0;
+    }
 
     # the user must be visible
-    return 0 unless $u->is_visible;
+    unless ( $u->is_visible ) {
+        $$errref = LJ::Lang::ml( 'edges.watch.error.usernotvisible' );
+        return 0;
+    }
 
     if ( $tu ) {
         # the target must not be purged/suspended/locked
-        return 0 if $tu->is_expunged || $tu->is_suspended || $tu->is_locked;
+        if ( $tu->is_expunged || $tu->is_suspended || $tu->is_locked ) {
+            $$errref = LJ::Lang::ml( 'edges.watch.error.targetinvalidstatusvis' );
+            return 0;
+        }
     }
 
     # okay, good to go!

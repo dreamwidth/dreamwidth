@@ -808,6 +808,40 @@ date.month.september.long=September
 
 date.month.september.short=Sep
 
+edges.join.error.targetbanneduser=You have been banned from the community.
+
+edges.join.error.targetnotcommunity=The account being joined must be a community.
+
+edges.join.error.targetnotopen=The community is closed to new members.
+
+edges.join.error.targetnotvisible=The community must be visible.
+
+edges.join.error.usernotpersonal=Your account must be a personal account.
+
+edges.join.error.usernotvisible=Your account must be visible.
+
+edges.join.error.userunderage=You must be 18 or older to join this community.
+
+edges.leave.error.lastmaintainer=You are not allowed to leave this community because you are the sole maintainer. If you wish to leave the community, please appoint another maintainer and then try leaving again.
+
+edges.trust.error.targetinvalidstatusvis=The person who you are granting access to must not be purged, suspended, or locked.
+
+edges.trust.error.targetnotindividual=The account that you are granting access to must be a personal or identity account.
+
+edges.trust.error.userbannedtarget=The person who you are granting access to has been banned by you.
+
+edges.trust.error.userequalstarget=You cannot grant yourself access.
+
+edges.trust.error.usernotindividual=Your account must be a personal or identity account.
+
+edges.trust.error.usernotvisible=Your account must be visible.
+
+edges.watch.error.targetinvalidstatusvis=The person who you are subscribing to must not be purged, suspended, or locked.
+
+edges.watch.error.usernotindividual=Your account must be a personal or identity account.
+
+edges.watch.error.usernotvisible=Your account must be visible.
+
 email=Email
 
 email.invitecoderequest.accept.body<<

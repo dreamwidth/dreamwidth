@@ -9,8 +9,6 @@
 
 .label.infoerror=The specified community information is not valid.
 
-.label.lastmaintainer=You are not allowed to leave this community because you are the sole maintainer.  If you wish to leave the community, please appoint another maintainer and then try leaving again.
-
 .label.logoutfirst2=To leave a community you must first <a [[aopts]]>log in</a>.
 
 .label.removed.stopwatch=You are no longer watching the <a [[aopts]]>[[commname]] Community</a>.

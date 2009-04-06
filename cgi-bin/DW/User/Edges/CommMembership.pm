@@ -125,40 +125,91 @@ sub member_userids {
 # to the target.  note: if you don't pass a target user, then we return
 # a generic 1/0 meaning "this account is allowed to have a member edge".
 sub can_join {
-    my ( $u, $tu ) = @_;
+    my ( $u, $tu, %opts ) = @_;
     $u = LJ::want_user( $u ) or confess 'invalid user object';
     $tu = LJ::want_user( $tu );
+
+    my $errref = $opts{errref};
 
     # if the user is a maintainer, skip every other check
     return 1 if $tu && $u->can_manage( $tu );
 
     # the user must be a personal account
-    return 0 unless $u->is_personal;
+    unless ( $u->is_personal ) {
+        $$errref = LJ::Lang::ml( 'edges.join.error.usernotpersonal' );
+        return 0;
+    }
 
     # the user must be visible
-    return 0 unless $u->is_visible;
+    unless ( $u->is_visible ) {
+        $$errref = LJ::Lang::ml( 'edges.join.error.usernotvisible' );
+        return 0;
+    }
 
     if ( $tu ) {
         # the target must be a community
-        return 0 unless $tu->is_community;
+        unless ( $tu->is_community ) {
+            $$errref = LJ::Lang::ml( 'edges.join.error.targetnotcommunity' );
+            return 0;
+        }
 
         # the target must be visible
-        return 0 unless $tu->is_visible;
+        unless ( $tu->is_visible ) {
+            $$errref = LJ::Lang::ml( 'edges.join.error.targetnotvisible' );
+            return 0;
+        }
 
         # the target must not have banned the user
-        return 0 if $tu->has_banned( $u );
+        if ( $tu->has_banned( $u ) ) {
+            $$errref = LJ::Lang::ml( 'edges.join.error.targetbanneduser' );
+            return 0;
+        }
 
         # make sure the user isn't underage and trying to join an adult community
-        return 0 unless $u->can_join_adult_comm( comm => $tu );
+        unless ( $u->can_join_adult_comm( comm => $tu ) ) {
+            $$errref = LJ::Lang::ml( 'edges.join.error.userunderage' );
+            return 0;
+        }
 
         # the community must be open membership
-        return 0 unless $tu->is_open_membership;
+        unless ( $tu->is_open_membership ) {
+            $$errref = LJ::Lang::ml( 'edges.join.error.targetnotopen' );
+            return 0;
+        }
     }
 
     # okay, good to go!
     return 1;
 }
 *LJ::User::can_join = \&can_join;
+
+
+# returns 1/0 depending on if the source is allowed to remove a member edge
+# from the target.  note: if you don't pass a target user, then we return
+# a generic 1/0 meaning "this account is allowed to not have a member edge".
+sub can_leave {
+    my ( $u, $tu, %opts ) = @_;
+    $u = LJ::want_user( $u ) or confess 'invalid user object';
+    $tu = LJ::want_user( $tu );
+
+    my $errref = $opts{errref};
+
+    # if the user is the last maintainer, they can't leave
+    if ( $tu ) {
+        my @maintids = $tu->maintainer_userids;
+        my $ismaint = grep { $_ == $u->id } @maintids;
+        my $othermaints = grep { $_ != $u->id } @maintids;
+
+        if ( $ismaint && !$othermaints ) {
+            $$errref = LJ::Lang::ml( 'edges.leave.error.lastmaintainer' );
+            return 0;
+        }
+    }
+
+    # okay, good to go!
+    return 1;
+}
+*LJ::User::can_leave = \&can_leave;
 
 
 1;
