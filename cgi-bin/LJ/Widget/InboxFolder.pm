@@ -85,12 +85,12 @@ sub render_body {
                     <td class="actions" colspan="2">
                         <span class="Pages">
                             Page $page of $last_page
-                            <input type="button" id="Page_Prev_$sfx" value="Previous" $prev_disabled />
-                            <input type="button" id="Page_Next_$sfx" value="Next" $next_disabled />
+                            <input type="button" id="Page_Prev_$sfx" value="<?_ml widget.inbox.menu.previous_page.btn _ml?>" $prev_disabled />
+                            <input type="button" id="Page_Next_$sfx" value="<?_ml widget.inbox.menu.next_page.btn _ml?>" $next_disabled />
                         </span>
-                        <input type="submit" name="markRead_$sfx" value="Read" $disabled id="${name}_MarkRead_$sfx" />
-                        <input type="submit" name="markUnread_$sfx" value="Unread" id="${name}_MarkUnread_$sfx" />
-                        <input type="submit" name="delete_$sfx" value="Delete" id="${name}_Delete_$sfx" />
+                        <input type="submit" name="markRead_$sfx" value="<?_ml widget.inbox.menu.mark_read.btn _ml?>" $disabled id="${name}_MarkRead_$sfx" />
+                        <input type="submit" name="markUnread_$sfx" value="<?_ml widget.inbox.menu.mark_unread.btn _ml?>" id="${name}_MarkUnread_$sfx" />
+                        <input type="submit" name="delete_$sfx" value="<?_ml widget.inbox.menu.delete.btn _ml?>" id="${name}_Delete_$sfx" />
                     </td>
             </tr>
         };
@@ -185,8 +185,8 @@ sub render_body {
 
     $messagetable .= qq {
       <div style="text-align: center; margin-top: 20px;">
-        <input type="submit" name="markAllRead" value="Mark All Read" $disabled id="${name}_MarkAllRead" style="margin-right: 5em; width: 12em;" />
-        <input type="submit" name="deleteAll" value="Delete All" $disabled id="${name}_DeleteAll" style="width: 12em;" />
+        <input type="submit" name="markAllRead" value="<?_ml widget.inbox.menu.mark_all_read.btn _ml?>" $disabled id="${name}_MarkAllRead" style="margin-right: 5em; width: 12em;" />
+        <input type="submit" name="deleteAll" value="<?_ml widget.inbox.menu.delete_all.btn _ml?>" $disabled id="${name}_DeleteAll" style="width: 12em;" />
      </div>
     };
 

@@ -3659,6 +3659,20 @@ widget.friendupdates.title=Friend Updates
 
 widget.friendupdates.viewall=More
 
+widget.inbox.menu.delete.btn=Delete
+
+widget.inbox.menu.delete_all.btn=DeleteAll
+
+widget.inbox.menu.mark_all_read.btn=Mark All Read
+
+widget.inbox.menu.mark_read.btn=Mark Read
+
+widget.inbox.menu.mark_unread.btn=Mark Unread
+
+widget.inbox.menu.next_page.btn=Next Page
+
+widget.inbox.menu.previous_page.btn=Previous Page
+
 widget.inboxfolder.confirm.delete=Are you sure you want to delete one or more bookmarked items?
 
 widget.journaltitles.btn=Save
