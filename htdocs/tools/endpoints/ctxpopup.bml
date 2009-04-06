@@ -66,7 +66,8 @@
     # actions to generate auth tokens for
     my @actions = ();
 
-    $ret{url_addfriend} = "$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->{user};
+    $ret{url_addtrust} = "$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->{user} . "&action=access";
+    $ret{url_addwatch} = "$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->{user} . "&action=subscribe";
 
     my $up = $u->userpic;
     if ($up) {
@@ -87,9 +88,11 @@
     }
 
     if ($remote) {
-        $ret{is_friend}    = LJ::is_friend($remote, $u);
-        $ret{is_friend_of} = LJ::is_friend($u, $remote);
-        $ret{is_requester} = LJ::u_equals($remote, $u);
+        $ret{is_trusting}   = $remote->trusts( $u );
+        $ret{is_trusted_by} = $u->trusts( $remote );
+        $ret{is_watching}   = $remote->watches( $u );
+        $ret{is_watched_by} = $u->watches( $remote );
+        $ret{is_requester}  = $remote->equals( $u );
     }
 
     $ret{is_logged_in}  = $remote ? 1 : 0;
@@ -97,14 +100,14 @@
     if ($u->is_comm) {
         $ret{url_joincomm}   = "$LJ::SITEROOT/community/join.bml?comm=" . $u->{user};
         $ret{url_leavecomm}  = "$LJ::SITEROOT/community/leave.bml?comm=" . $u->{user};
-        $ret{is_member} = LJ::is_friend($u, $remote) if $remote;
+        $ret{is_member} = $remote->member_of( $u ) if $remote;
 
         push @actions, 'join', 'leave';
     }
 
     # generate auth tokens
     if ($remote) {
-        push @actions, 'addFriend', 'removeFriend', 'setBan' , 'setUnban';
+        push @actions, 'addTrust', 'addWatch', 'removeTrust', 'removeWatch', 'setBan' , 'setUnban';
         foreach my $action (@actions) {
             $ret{"${action}_authtoken"} = LJ::Auth->ajax_auth_token(
                                                                     $remote,

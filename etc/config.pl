@@ -854,6 +854,9 @@
             safe_search_level => 11,
         },
     );
+
+    # enable contextual hover
+    $CTX_POPUP = 1;
 }
 
 1;

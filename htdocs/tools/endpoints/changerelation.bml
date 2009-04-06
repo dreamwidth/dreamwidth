@@ -32,98 +32,72 @@
 
     my %ret = ();
 
-    if ($action eq 'addFriend') {
-        my $errmsg = "";
-        return $err->($errmsg)
-            unless $remote->can_add_friends(\$errmsg, {friend => $targetu});
+    if ( $action eq 'addTrust' ) {
+        my $error;
+        return $err->( $error )
+            unless $remote->can_trust( $targetu, errref => \$error );
 
-        $success = $remote->friend_and_watch($targetu);
-    } elsif ($action eq 'removeFriend') {
-        $success = $remote->remove_friend($targetu);
-    } elsif ($action eq 'join') {
-        return $err->("Not a community") unless $targetu->is_comm;
+        $success = $remote->add_edge( $targetu, trust => {} );
+    } elsif ( $action eq 'addWatch' ) {
+        my $error;
+        return $err->( $error )
+            unless $remote->can_watch( $targetu, errref => \$error );
 
-        my $ci = LJ::get_community_row($targetu);
-
-        my $adult_content;
-        unless ($remote->can_join_adult_comm( comm => $targetu, adultref => \$adult_content )) {
-            my $join_err;
-            if ($adult_content eq "concepts") {
-                $join_err = BML::ml('/community/join.bml.error.ischild', {'comm' => $targetu->ljuser_display});
-            } elsif ($adult_content eq "explicit") {
-                $join_err = BML::ml('/community/join.bml.error.isminor', {'comm' => $targetu->ljuser_display});
+        $success = $remote->add_edge( $targetu, watch => {} );
+    } elsif ( $action eq 'removeTrust' ) {
+        $success = $remote->remove_edge( $targetu, trust => {} );
+    } elsif ( $action eq 'removeWatch' ) {
+        $success = $remote->remove_edge( $targetu, watch => {} );
+    } elsif ( $action eq 'join' ) {
+        my $error;
+        my $can_join = $remote->can_join( $targetu, errref => \$error ) ? 1 : 0;
+        if ( $can_join ) {
+            $success = LJ::join_community( $remote, $targetu );
+        } else {
+            if ( $error eq LJ::Lang::ml( 'edges.membership.error.targetnotopen' ) && $targetu->is_moderated_membership ) {
+                LJ::comm_join_request( $targetu, $remote );
+                $ret{note} = BML::ml( '/community/join.bml.reqsubmitted.body' );
+            } else {
+                return $err->( $error );
             }
-
-            return $err->($join_err);
         }
+    } elsif ( $action eq 'leave' ) {
+        my $error;
+        return $err->( $error )
+            unless $remote->can_leave( $targetu, errref => \$error );
 
+        # log to userlog if remote is a maintainer
+        $targetu->log_event( 'maintainer_remove', { actiontarget => $remote->id, remote => $remote } )
+            if $remote->can_manage( $targetu );
 
-        # get maintainers
-        my $maintainers = LJ::load_rel_user($targetu->{userid}, 'A') || [];
-        my %userhash;
-        LJ::load_userids_multiple([ map { $_, \$userhash{$_} }
-                                    @$maintainers ]);
-        my @maints = map { LJ::ljuser($_) } values %userhash;
-
-        if ($ci->{membership} eq 'closed') {
-            $ret{note} = BML::ml('/community/join.bml.error.closed', { admins => join(', ', @maints) });
-        } elsif ($ci->{membership} ne 'open') {
-            # submit request
-            LJ::comm_join_request($targetu, $remote);
-
-              $ret{note} = BML::ml('/community/join.bml.reqsubmitted.body') .
-                  join(', ', @maints);
-          } else {
-              my $joined = LJ::join_community($remote, $targetu);
-              $ret{note} = LJ::last_error() unless $joined;
-              $success = $joined;
-          }
-    } elsif ($action eq 'leave') {
-        return $err->("Not a community") unless $targetu->is_comm;
-
-        # error if we're a maintainer and there are no others
-        my $maintids = LJ::load_rel_user($targetu->{userid}, 'A');
-        my $ismaint     = grep { $_ == $remote->{userid} } @$maintids;
-        my $othermaints = grep { $_ != $remote->{userid} } @$maintids;
-        if ($ismaint) {
-            return $err->(BML::ml('/community/leave.bml.label.lastmaintainer')) unless $othermaints;
-
-            # log to userlog
-            $targetu->log_event('maintainer_remove', { actiontarget => $remote->id, remote => $remote });
-        }
-
-        $success = LJ::leave_community($remote, $targetu);
-    } elsif ($action eq 'setBan') {
+        $success = LJ::leave_community( $remote, $targetu );
+    } elsif ( $action eq 'setBan' ) {
         my $list_of_banned = LJ::load_rel_user($remote, 'B') || [ ];
-        
+
         return $err->("Exceeded limit maximum of banned users")
             if @$list_of_banned >= ($LJ::MAX_BANS || 5000);
-        
+
         my $ban_user = LJ::load_user($target);
         $success = $remote->ban_user($ban_user);
         LJ::run_hooks('ban_set', $remote, $ban_user);
 
         #$ret{is_banned} = $remote->is_banned($ban_user) ? 1 : 0;
-        
-    } elsif ($action eq 'setUnban') {    
+    } elsif ( $action eq 'setUnban' ) {
         my $unban_user = LJ::load_user($target);
         $success = $remote->unban_user_multi($unban_user->{userid});
         #$ret{is_banned} = $remote->is_banned($unban_user) ? 1 : 0;
-    
     } else {
         return $err->("Invalid action $action");
     }
 
     sleep 1 if $LJ::IS_DEV_SERVER;
 
-    # we (maybe) just changed the relation. we don't want to return stale
-    # relation status, so force is_friend to use the master
-    local $LJ::_PRAGMA_FORCE_MASTER = 1;
     return JSON::objToJson({
-        success   => $success,
-        is_friend => LJ::is_friend($remote, $targetu),
-        is_member => LJ::is_friend($targetu, $remote),
-        is_banned => $remote->is_banned(LJ::load_user($target)),
+        success     => $success,
+        is_trusting => $remote->trusts( $targetu ),
+        is_watching => $remote->watches( $targetu ),
+        is_member   => $remote->member_of( $targetu ),
+        is_banned   => $remote->has_banned( $targetu ),
         %ret,
     });
 }
