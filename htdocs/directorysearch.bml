@@ -81,7 +81,7 @@ form<=
 <?_ml .updated_in_last _ml?> 
 <select name="ut_days">
 <option value="">-------</option>
-<option value="1"><?_ml .date _ml?></option>
+<option value="1"><?_ml .day _ml?></option>
 <option value="7"><?_ml .week _ml?></option>
 <option value="30"><?_ml .month _ml?></option>
 </select>
@@ -124,18 +124,17 @@ form<=
 <=form
 crit?>
 
-<!---- has friend ----->
+<!---- trust/watch ----->
 <?crit
-name=><?_ml .by_friends _ml?>
+name=><?_ml .by_circle _ml?>
 code=>s_fr
 form<=
 <?_code
-    my $ret = BML::ml('.user_lists_as_a_friend', { 'input' => "<input name=\"fr_user\" size='15' maxlength='25' />" });
-    return $ret;
-_code?>
-<br />
-<?_code
-    my $ret = BML::ml('.lists_user_as_a_friend', { 'input' => "<input name=\"fro_user\" size='15' maxlength='25' />" });
+    my $ret = BML::ml( '.user_trusts', { input => "<input name=\"user_trusts\" size='15' maxlength='25' />" } ) . "<br />";
+    $ret .= BML::ml( '.user_trusted_by', { input => "<input name=\"user_trusted_by\" size='15' maxlength='25' />" } ) . "<br />";
+    $ret .= BML::ml( '.user_watches', { input => "<input name=\"user_watches\" size='15' maxlength='25' />" } ) . "<br />";
+    $ret .= BML::ml( '.user_watched_by', { input => "<input name=\"user_watched_by\" size='15' maxlength='25' />" } );
+
     return $ret;
 _code?>
 <=form

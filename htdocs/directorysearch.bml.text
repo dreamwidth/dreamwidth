@@ -6,7 +6,7 @@
 
 .by_age=By Age
 
-.by_friends=By Friends
+.by_circle=By Circle
 
 .by_gender=By Gender
 
@@ -31,8 +31,6 @@
 .female=Female
 
 .h1=Search Directory
-
-.lists_user_as_a_friend=[[input]] lists user as a friend.
 
 .male=Male
 
@@ -60,7 +58,13 @@
 
 .user_likes=User likes:
 
-.user_lists_as_a_friend=User lists [[input]] as a friend.
+.user_trusted_by=User is granted access by: [[input]]
+
+.user_trusts=User grants access to: [[input]]
+
+.user_watched_by=User is subscribed to by: [[input]]
+
+.user_watches=User is subscribed to: [[input]]
 
 .week=week
 

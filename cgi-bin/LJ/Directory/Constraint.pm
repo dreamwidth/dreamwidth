@@ -9,8 +9,11 @@ use LJ::Directory::SetHandle;
 use LJ::Directory::Constraint::Age;
 use LJ::Directory::Constraint::Interest;
 use LJ::Directory::Constraint::UpdateTime;
-use LJ::Directory::Constraint::HasFriend;
-use LJ::Directory::Constraint::FriendOf;
+use LJ::Directory::Constraint::Trusts;
+use LJ::Directory::Constraint::TrustedBy;
+use LJ::Directory::Constraint::Watches;
+use LJ::Directory::Constraint::WatchedBy;
+use LJ::Directory::Constraint::MemberOf;
 use LJ::Directory::Constraint::Location;
 use LJ::Directory::Constraint::JournalType;
 use LJ::Directory::Constraint::Test;
@@ -19,7 +22,7 @@ sub constraints_from_formargs {
     my ($pkg, $postargs) = @_;
 
     my @ret;
-    foreach my $type (qw(Age Location UpdateTime Interest HasFriend FriendOf JournalType)) {
+    foreach my $type (qw(Age Location UpdateTime Interest Trusts TrustedBy Watches WatchedBy MemberOf JournalType)) {
        my $class = "LJ::Directory::Constraint::$type";
        my $con = eval { $class->new_from_formargs($postargs) };
        if ($con) {

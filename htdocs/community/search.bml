@@ -95,7 +95,7 @@ crit?>
 name=><?_ml .label.hasmember _ml?>
 code=>s_fr
 form<=
-Contains user <input name="fr_user" size='15' maxlength='25' /> as a member.
+Contains user <input name="user_is_member" size='15' maxlength='25' /> as a member.
 <=form
 crit?>
 
