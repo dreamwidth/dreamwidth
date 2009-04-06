@@ -76,7 +76,7 @@ sub make_feed
     ## load the itemids
     my (@itemids, @items);
 
-    # for consistency, we call ditemids "itemid" in user-facing settings 
+    # for consistency, we call ditemids "itemid" in user-facing settings
     my $ditemid = $FORM{itemid}+0;
 
     if ($ditemid) {
@@ -208,10 +208,10 @@ sub make_feed
             }
 
             LJ::CleanHTML::clean_event(\$event,
-                                       { 
-                                        wordlength => 0, 
-                                        preformatted => $logprops{$itemid}->{opt_preformatted}, 
-                                        cuturl => $u->{opt_synlevel} eq 'ljcut' ? "$journalinfo->{link}$ditemid.html" : "", 
+                                       {
+                                        wordlength => 0,
+                                        preformatted => $logprops{$itemid}->{opt_preformatted},
+                                        cuturl => $u->{opt_synlevel} eq 'ljcut' ? "$journalinfo->{link}$ditemid.html" : "",
                                         to_external_site => 1,
                                        });
             # do this after clean so we don't have to about know whether or not
@@ -239,7 +239,7 @@ sub make_feed
 
                 $event =~ s!<lj-poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
-            
+
             my %args = $r->query_string;
             LJ::EmbedModule->expand_entry($u, \$event, expand_full => 1)
                 if %args && $args{'unfold_embed'};
@@ -818,15 +818,15 @@ sub create_view_yadis {
 
     my $view;
     if ($viewchunk eq '') {
-        $view = "recent";    
+        $view = "recent";
     }
     elsif ($viewchunk eq '/read') {
-        $view = "read";    
+        $view = "read";
     }
     else {
         $view = undef;
     }
-    
+
     if ($view eq 'recent') {
         # Only people (not communities, etc) can be OpenID authenticated
         if ($person && LJ::OpenID->server_enabled) {
@@ -964,7 +964,7 @@ sub create_view_userpics {
             $category->setNamespace( $ns );
             $entry_xml->getDocumentElement->appendChild( $category );
         }
-        
+
         if ( $descriptions{$pic->{picid}} ) {
             my $content = $entry_xml->createElement( 'title' );
             $content->setNamespace( $ns );
@@ -994,12 +994,12 @@ sub create_view_comments
         $opts->{handler_return} = 404;
         return 404;
     }
-    
+
     unless ($u->get_cap('latest_comments_rss')) {
         $opts->{handler_return} = 403;
         return;
     }
-    
+
     my $ret;
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
     $ret .= LJ::run_hook("bot_director", "<!-- ", " -->") . "\n";
@@ -1039,7 +1039,7 @@ sub create_view_comments
         my $thread_url = $c->thread_url;
         my $subject = $c->subject_raw;
         LJ::CleanHTML::clean_subject_all(\$subject);
-        
+
         $ret .= "<item>\n";
         $ret .= "  <guid isPermaLink='true'>$thread_url</guid>\n";
         $ret .= "  <pubDate>" . LJ::time_to_http($r->{datepostunix}) . "</pubDate>\n";
