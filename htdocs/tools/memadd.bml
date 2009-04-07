@@ -9,16 +9,9 @@
     $title = $ML{'.title'};
     $body = "";
 
-    my $print_with_ad = sub {
-       my $str = shift;
-
-       my $ad_box = LJ::get_ads({ location => 'bml.tools.memadd/error', ljadwrapper => 1 });
-       return $ad_box . $str;
-    };
-
     my $err = sub {
         $title = "Error";
-        $body = $print_with_ad->(LJ::bad_input(@_));
+        $body = LJ::bad_input(@_);
         return;
     };
 
@@ -30,7 +23,7 @@
 
     my $remote = LJ::get_remote();
     unless ($remote) {
-       $body = $print_with_ad->("<?needlogin?>");
+       $body = "<?needlogin?>";
        return;
     }
 
@@ -94,7 +87,7 @@
 
     unless ($ju && $itemid) {
         $title = $ML{'Error'};
-        $body = $print_with_ad->($ML{'error.nojournal'});
+        $body = $ML{'error.nojournal'};
         return;
     }
 
@@ -119,7 +112,6 @@
             $body .= "</form>\n";
         }
 
-        $body = $print_with_ad->($body);
         return;
     }
     my $subject = LJ::get_logtext2($ju, $itemid)->{$log->{jitemid}}[0];
@@ -148,7 +140,7 @@
     my $exist_kw = LJ::Memories::get_keywords($memoryu);
     unless ($exist_kw) {
         $title = $ML{'Error'};
-        $body = $print_with_ad->("Error fetching existing keywords.");
+        $body = "Error fetching existing keywords.";
         return;
     }
 
@@ -176,7 +168,7 @@
                 LJ::Memories::delete_by_id($memoryu, $memory->{memid});
                 LJ::Memories::updated_keywords($memoryu);
                 $title = $ML{'Error'};
-                $body = $print_with_ad->($ML{'.error.entry_deleted'});
+                $body = $ML{'.error.entry_deleted'};
                 return;
             }
 
@@ -184,7 +176,7 @@
         elsif (!$log || ($jid && $log->{'anum'} != $anum))
         {
             $title = $ML{'Error'};
-            $body = $print_with_ad->($ML{'error.noentry'});
+            $body = $ML{'error.noentry'};
             return;
         }
         else
@@ -260,36 +252,34 @@
         $body .= LJ::html_submit(undef, $ML{'.form.reset'}, {type => 'reset'}) if defined $memory;
         $body .= "</td></tr></table></form>";
 
-        $body = $print_with_ad->($body);
         return;
     }
 
     if ($POST{'mode'} eq "save")
     {
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}") unless LJ::check_form_auth();
+        return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
         my $dbh = LJ::get_db_writer();
 
         if (! $POST{'des'}) {
             # then we're deleting.
             unless (LJ::check_form_auth()) {
-                $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>");
+                $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
                 return;
             }
             if (defined $memory) {
                 LJ::Memories::delete_by_id($memoryu, $memory->{memid});
                 LJ::Memories::updated_keywords($memoryu);
                 $title = $ML{'.title.deleted'};
-                $body = $print_with_ad->("<?h1 $ML{'.error.deleted.title'} h1?><?p " .
+                $body = "<?h1 $ML{'.error.deleted.title'} h1?><?p " .
                         BML::ml(".error.deleted.body", { 'desc' => $memory->{'des'} }) .
-                        "p?>");
+                        "p?>";
                 return;
             } else {
                 $title = $ML{'Error'};
                 $body = "<?h1 $ML{'.error.nodescription.title'} h1?><?p ";
                 $body .= BML::ml('.error.nodescription.body');
                 $body .= " p?>";
-                $body = $print_with_ad->($body);
                 return;
             }
         }
@@ -305,7 +295,7 @@
         }
         if (scalar(@keywords) > 5) {
             $title = $ML{'Error'};
-            $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'.error.fivekeywords'} p?>");
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.error.fivekeywords'} p?>";
             return;
         }
         @keywords = grep { $_ } map { s/\s\s+/ /g; LJ::trim($_); } @keywords;
@@ -316,8 +306,8 @@
         foreach my $kw (@keywords) {
             if (length($kw) > 40) {
                 $title = $ML{'Error'};
-                $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p " .
-                        BML::ml(".error.maxsize", { 'keyword' => LJ::ehtml($kw) }) . "p?>");
+                $body = "<?h1 $ML{'Error'} h1?><?p " .
+                        BML::ml(".error.maxsize", { 'keyword' => LJ::ehtml($kw) }) . "p?>";
                 return;
             }
 
@@ -328,7 +318,7 @@
 
         unless (exists $secopts{$POST{'security'}}) {
             $title = $ML{'Error'};
-            $body = $print_with_ad->($ML{'.error.invalid_security'});
+            $body = $ML{'.error.invalid_security'};
             return;
         }
 
@@ -347,11 +337,6 @@
         LJ::Memories::updated_keywords($memoryu) if $needflush;
 
         $title = $ML{'.title.added'};
-        $body = LJ::get_ads({
-           location    => 'bml.tools.memadd/main',
-           ljadwrapper => 1,
-           below_ad    => LJ::CProd->full_box_for($remote, width => 300),
-        });
         $body .= "<?h1 $ML{'.body.added.header'} h1?>";
         $body .= "<?p $ML{'.body.added.text'} p?>";
 
@@ -368,7 +353,7 @@
     }
 
     $title = $ML{'Error'};
-    $body = $print_with_ad->($ML{'error.unknownmode'});
+    $body = $ML{'error.unknownmode'};
 
     return;
 }
