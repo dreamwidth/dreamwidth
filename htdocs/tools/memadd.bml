@@ -91,9 +91,16 @@
         return;
     }
 
-    my $dbcr = LJ::get_cluster_reader($ju);
-
+    # do access check to see if they can see this entry
     my $log = LJ::get_log2_row($ju, $itemid);
+    if ( $log ) {
+        my $entry = LJ::Entry->new_from_row( %$log );
+        if ( $entry && ! $entry->visible_to( $remote ) ) {
+            $title = $ML{'Error'};
+            $body = "You are not authorized to view this entry.<br/>";
+            return;
+        }
+    }
 
     # check to see if it already is memorable (thus we're editing, not adding);
     my $memory = LJ::Memories::get_by_ditemid($memoryu, $oldstyle ? 0 : $jid, $ditemid);
@@ -114,7 +121,10 @@
 
         return;
     }
+
     my $subject = LJ::get_logtext2($ju, $itemid)->{$log->{jitemid}}[0];
+
+    my $dbcr = LJ::get_cluster_reader($ju);
 
     # if the entry is pre-UTF-8 conversion, the
     # subject may need conversion into UTF-8
