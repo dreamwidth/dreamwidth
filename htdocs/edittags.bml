@@ -116,7 +116,7 @@ body<=
     }
     $ret .= "</td></tr>";
 
-    $ret .= "<tr><td class='l'>$ML{'.users'}</td><td class='curtags'>";
+    $ret .= "<tr><td class='l'>" . BML::ml('.users', { user => $u->user }) . "</td><td class='curtags'>";
 
     if ( scalar keys %$usertags ) {
         $ret .= "<select name='tags' multiple='multiple' class='tagbox_nohist' " .
