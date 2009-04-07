@@ -137,7 +137,7 @@ sub try_work {
 
     # now get the actual events
     while ( scalar( keys %sync ) > 0 ) {
-        my $count = 0;
+        my ( $count, $last_itemid ) = ( 0, undef );
 
         # calculate what time to get entries for
         my ( $tries, $lastgrab, $hash ) = ( 0, undef, undef );
@@ -146,9 +146,10 @@ sub try_work {
             # $tries, so we can break the 'broken client' logic (note: we assert that we are
             # not broken.)
             my @keys = sort { $sync{$a}->[1] cmp $sync{$b}->[1] } keys %sync;
-            $lastgrab = $step_time->( $sync{$keys[0]}->[1], -$tries );
+            $last_itemid = $keys[0];
+            $lastgrab = $step_time->( $sync{$last_itemid}->[1], -($tries+100) );
 
-            $log->( 'Loading entries; lastsync = %s.', $lastgrab );
+            $log->( 'Loading entries; lastsync = %s, itemid = %d.', $lastgrab, $keys[0] );
             $hash = $class->call_xmlrpc( $data, 'getevents',
                 {
                     ver         => 1,
@@ -238,6 +239,12 @@ sub try_work {
             ) if @item_errors;
         }
 
+        # if we get here, we got a good result, which means that the entry we tried to get
+        # should be in the results.  if it's not, to prevent an infinite loop, let's mark
+        # it as retrieved.  FIXME: this causes problems with mass-edited journals
+        delete $sync{$last_itemid} if defined $last_itemid;
+
+        # log some status for later
         $log->( '    counted %d entries, lastgrab is now %s.', $count, $lastgrab );
     }
 
