@@ -147,7 +147,7 @@ sub try_work {
             # not broken.)
             my @keys = sort { $sync{$a}->[1] cmp $sync{$b}->[1] } keys %sync;
             $last_itemid = $keys[0];
-            $lastgrab = $step_time->( $sync{$last_itemid}->[1], -($tries+100) );
+            $lastgrab = $step_time->( $sync{$last_itemid}->[1], -$tries );
 
             $log->( 'Loading entries; lastsync = %s, itemid = %d.', $lastgrab, $keys[0] );
             $hash = $class->call_xmlrpc( $data, 'getevents',
