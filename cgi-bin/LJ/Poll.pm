@@ -961,6 +961,14 @@ sub render {
     }
     $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
                                        'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });
+    $ret .= "<br />\n";
+
+
+    if ( $mode eq 'enter' ) {
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . BML::ml( 'poll.seeresults' ) . "</a> ]  " if $self->can_view( $remote );
+    } elsif ( $mode eq 'results' ) {
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter'>" . BML::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+    }
 
     ## go through all questions, adding to buffer to return
     foreach my $q (@qs) {

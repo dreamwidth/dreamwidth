@@ -2259,6 +2259,8 @@ pingback.public.comment.text=Pingback from <a href="[[sourceURI]]">[[title]]</a>
 
 pingback.sourceuri.default_title=No title
 
+poll.changevote=Change Your Vote
+
 poll.dberror=Database error: [[errmsg]]
 
 poll.dberror.items=Database error inserting items: [[errmsg]]
@@ -2346,6 +2348,8 @@ poll.security.none_remote=Just Me
 poll.security.trusted=Access List
 
 poll.security2=Open to: <b>[[whovote]]</b>, detailed results viewable to: <b>[[whoview]]</b>
+
+poll.seeresults=See Results
 
 poll.submit=Submit Poll
 
