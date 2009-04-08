@@ -45,13 +45,13 @@ sub grab_for { 600 }
 
 sub work {
     my ($class, $job) = @_;
-    my $arg = $job->arg;
+    my %arg = %{$job->arg};
 
     my ($req_uid, $uckey, $ninv, $reason)
-        = map { delete $arg->{$_} } qw( requester searchclass invites reason );
+        = map { delete $arg{$_} } qw( requester searchclass invites reason );
 
-    return $job->permanent_failure( "Unknown keys: " . join( ", ", keys %$arg ))
-        if keys %$arg;
+    return $job->permanent_failure( "Unknown keys: " . join( ", ", keys %arg ))
+        if keys %arg;
     return $job->permanent_failure( "Missing argument" )
         unless defined $req_uid and defined $uckey
                and defined $ninv and defined $reason;
