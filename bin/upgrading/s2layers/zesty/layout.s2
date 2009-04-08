@@ -1798,7 +1798,7 @@ function FriendsPage::lay_build_url(string{} items) : string {
     if ($.friends_mode != "") {
         $url = $url + "/$.friends_mode";
     } else {
-        $url = $url + "/friends";
+        $url = $url + "/read";
     }
 
     # Page might be a friends group.
