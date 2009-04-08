@@ -40,7 +40,7 @@ sub retry_delay {
 
 sub keep_exit_status_for { 86400 } # 24 hours
 
-# TODO: tune value?
+# FIXME: tune value?
 sub grab_for { 600 }
 
 sub work {
@@ -48,7 +48,7 @@ sub work {
     my $arg = $job->arg;
 
     my ($req_uid, $uckey, $ninv, $reason)
-        = map delete $arg->{$_} qw( requester searchclass invites reason );
+        = map { delete $arg->{$_} } qw( requester searchclass invites reason );
 
     return $job->permanent_failure( "Unknown keys: " . join( ", ", keys %$arg ))
         if keys %$arg;
@@ -126,7 +126,7 @@ sub work {
             my $inv_peruser = int( $adj_ninv / $inv_nusers );
             $reqemail_vars->{peruser} = $inv_peruser;
 
-            # TODO: make magic number configurable
+            # FIXME: make magic number configurable
             for (my $start = 0; $start < $inv_nusers; $start += 1000) {
                 my $end = ($start + 999 < $inv_nusers)
                     ? $start + 999
