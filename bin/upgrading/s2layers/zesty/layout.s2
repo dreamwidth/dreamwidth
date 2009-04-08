@@ -1,0 +1,2655 @@
+# -*-s2-*-
+layerinfo "type" = "layout";
+layerinfo "name" = "Zesty";
+layerinfo "lang" = "en";
+layerinfo "author" = "Sam Angove";
+layerinfo "author_email" = "net.rephrase@sam";
+layerinfo "is_public" = 1;
+layerinfo "source_viewable" = 1;
+layerinfo "redist_uniq" = "zesty/layout";
+
+###################################################
+#                                                 #
+#                   [S2] Zesty                    #
+#                                                 #
+#                Table of Contents                #
+#                =================                #
+#                                                 #
+# ~i.   Changelog                                 #
+# ~ii.  License                                   #
+# ~iii. Notes                                     #
+#                                                 #
+# Customization/i18n Properties                   #
+# -----------------------------                   #
+# ~1.  Properties                                 #
+#                                                 #
+# Utility functions                               #
+# -----------------                               #
+# ~2.  Utility functions                          #
+#                                                 #
+# CSS                                             #
+# ---                                             #
+# ~3.  Stylesheet                                 #
+#                                                 #
+# Shared methods                                  #
+# --------------                                  #
+# Methods used on multiple views for getting or   #
+# printing information about entries.             #
+#                                                 #
+# ~4. EntryLite                                   #
+# ~5. CommentInfo                                 #
+# ~6. Entry                                       #
+#                                                 #
+# Global view                                     #
+# -----------                                     #
+# Templates used on all views as well as methods  #
+# overridden by specific views.                   #
+#                                                 #
+# ~7. Page                                        #
+#                                                 #
+# Regular views                                   #
+# -------------                                   #
+# These four views have substantially similar     #
+# logic.                                          #
+#                                                 #
+# ~8.  RecentPage                                 #
+# ~9.  FriendsPage                                #
+# ~10. DayPage                                    #
+# ~11. MonthPage                                  #
+#                                                 #
+# Entry views                                     #
+# -----------                                     #
+# These views require significant extra logic.    #
+# They are not available to free users.           #
+#                                                 #
+# ~12. EntryPage                                  #
+# ~13. ReplyPage                                  #
+#                                                 #
+# Miscellaneous views                             #
+# -------------------                             #
+# These views cannot print entries.               #
+#                                                 #
+# ~14. YearPage                                   #
+# ~15. MessagePage                                #
+# ~16. TagsPage                                   #
+#                                                 #
+###################################################
+
+###################################################
+#      #                                          #
+# ~i.  # ~Changelog                               #
+#      #                                          #
+###################################################
+
+# 2006-07-18 -- I can't remember, but I'm releasing it now. ;)
+# 2006-07-10 -- English stripping
+# 2006-07-09 -- general cleanup, fix footer
+# 2006-07-03 -- initial build
+#
+
+###################################################
+#      #                                          #
+# ~ii. # ~License                                 #
+#      #                                          #
+###################################################
+
+# "Zesty" LiveJournal S2 style
+#
+# Copyright (c) 2006 Sam Angove
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+###################################################
+#      #                                          #
+# ~ii. # ~Notes                                   #
+#      #                                          #
+###################################################
+
+# - The CSS is very messy. Haven't had time to clean it up. Sorry!
+#
+# - Most customization properties are for i18n purposes. Note that many of
+#   them use the `lay_string_placeholders()` function; it's not wholly
+#   satisfactory but it's more flexible than the core.
+#
+# - There are no props for colours, borders etc. It's a huge headache and
+#   I can't be bothered.  Since this isn't a core style, no-one but a paid
+#   user can use it anyway, and they'll be able to edit the CSS directly.
+#
+# - I have deliberately ignored OOP and used
+#      `View::lay_print_obj(Obj o)` over `var Obj o; $o->print()`
+#   wherever possible. It's usually futile to use the latter because
+#   the method needs to be overridable in different views -- different
+#   requirements for entry printing on MonthPage and EntryPage, for example.
+#
+#   Global functions have been avoided for the same reason.
+
+
+###################################################
+#      #                                          #
+# !1.  # !Properties                              #
+#      #                                          #
+###################################################
+
+propgroup Text {
+    property use text_day_next;
+    property use text_day_prev;
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+
+    property use text_permalink;
+    property use text_post_comment;
+    property use text_post_comment_friends;
+
+        set text_permalink = "permalink";
+        set text_post_comment = "reply";
+        set text_post_comment_friends = "reply";
+
+    property use text_nosubject;
+    property use text_poster_anonymous;
+
+        set text_nosubject = "(no subject)";
+        set text_poster_anonymous = "(anonymous)";
+
+    property use text_meta_mood;
+    property use text_meta_music;
+
+        set text_meta_mood = "Mood";
+        set text_meta_music = "Music";
+
+    property use text_view_archive;
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_month;
+    property use text_view_userinfo;
+
+        set text_view_archive = "Calendar";
+        set text_view_recent = "Recent";
+        set text_view_friends = "Read";
+        set text_view_month = "Monthly Archive";
+        set text_view_userinfo = "Profile";
+
+
+    # For these properties I use a format vaguely similar to printf/sprintf.
+    # They're passed to a method which gives them an array of strings.
+    # you can use printf-style %s to insert the strings one at a time, or
+    # use %1, %2 .. %9 to select them by number.
+    #
+    # Example: this string "posted by %1 at %2 on %3" is passed an array
+    # containing the entry poster, the time of posting and the date of
+    # posting.
+    #
+    # %1 will always refer to the poster, so a reformulation might be
+    # something like "at %2 on %3, %1 wrote:".
+    #
+    # It's perfectly okay to ignore some or all of the arguments. That is,
+    # there's nothing wrong with something like "I said on %3".
+
+    property string posted_by_at_on {
+        noui = 1;
+        des = "Posted by [1:poster] at [2:time] on [3:date] string.";
+    }
+        set posted_by_at_on = "posted by %1 at %2 on %3";
+
+    property string posted_by_at_on_in {
+        noui = 1;
+        des = "Posted by [1:poster] at [2:time] on [3:date] under [4:tags] string.";
+    }
+        set posted_by_at_on_in = "posted by %1 at %2 on %3 under %4";
+
+    property string posted_by_at_on_from {
+        noui = 1;
+        des = "Posted by [1:poster] at [2:time] on [3:date] from [4:ip address] string.";
+    }
+        set posted_by_at_on_from = "posted by %1 at %2 on %3 from %4";
+
+    property string poster_in_journal {
+        noui = 1;
+        des = "[1:poster] in [2:journal] string";
+    }
+        set poster_in_journal = "%1 in %2";
+
+    property string posted_time_format {
+        noui = 1;
+        des = "[time] format for from 'posted by [poster] at [time] ...'";
+    }
+        set posted_time_format = "%%hh%%:%%min%%%%a%%m";
+
+    property string posted_date_format {
+        noui = 1;
+        des = "[date] format for 'posted by [poster] at [time] on [date] ...'";
+    }
+        set posted_date_format = "%%dd%%/%%mm%%/%%yyyy%%";
+
+
+    # I want to have links like this:
+    #
+    #   There are <a href="...">2 comments</a> on this entry.
+    #
+    # The HTML can't be part of the property, because S2 "helpfully" escapes
+    # it for me. This ugly hack is used instead, wrapping $*text_a_comment_link
+    # inside $*text_a_comment.
+    #
+    # ('There is <a href="%1">%2 comment</a> on this entry.')
+    property string text_a_comment_link { }
+    property string text_a_comment { }
+        set text_a_comment_link = "%1 comment";
+        set text_a_comment = "There is %1 on this entry.";
+
+    property string text_some_comments_link { }
+    property string text_some_comments { }
+        set text_some_comments_link = "%1 comments";
+        set text_some_comments = "There are %1 on this entry.";
+
+    property string text_some_comments_over_pages { }
+        set text_some_comments_over_pages = "There are %1 over %2 pages.";
+
+    property string text_no_comments {}
+        set text_no_comments = "There are no comments on this entry.";
+
+    property string text_comments_disabled {}
+        set text_comments_disabled = "Comments are disabled.";
+
+    property string text_errorpage_title {
+        des = "Error page title.";
+        noui = 1;
+    }
+        set text_errorpage_title = "Error";
+
+
+    # For some reason the core only provides a message for recent and day pages.
+    #
+    property string error_monthpage_no_entries {
+        noui = 1;
+        des = "Error message shown if no entries are available on a MonthPage";
+    }
+        set error_monthpage_no_entries = "No entries were posted on the selected month.";
+
+    property string error_yearpage_no_entries {
+        noui = 1;
+        des = "Error message shown if no entries are available on a YearPage";
+    }
+        set error_yearpage_no_entries = "No entries were posted on the selected year.";
+
+    property string text_html_title {
+        des = "Title that goes in the HTML <title> element. Is given two parameters, global title and view title.";
+    }
+        set text_html_title = "%2 [%1]";
+
+    property string collapsed_entry_comments_disabled {
+        des = "String shown on a collapsed entry if comments are disabled.";
+    }
+        set collapsed_entry_comments_disabled = "(-)";
+
+    property string collapsed_entry_comments_max_flag {
+        des = "Passed into the comment-count string as %2 if an entry's maximum comments have been reached.";
+    }
+        set collapsed_entry_comments_max_flag = "!";
+    property string collapsed_entry_comments_screened_flag {
+        des = "Passed into the comment-count string as %3 if an entry has screened comments visible to the user.";
+    }
+        set collapsed_entry_comments_screened_flag = "*";
+
+    property string collapsed_entry_comments_count {
+        des = "Comment-count shown on a collapsed entry, not shown if there are no comments.";
+        note = "'%1' will be replaced by the number of comments. If the maximum number of comments
+        has been reached, %2 will contain the max flag. If there are screened comments visible to
+        the user, %3 will contain the screened flag.";
+    }
+        set collapsed_entry_comments_count = "(%1%2%3)";
+
+    property string linklist_default_title {
+        des = "Linklist title.";
+    }
+        set linklist_default_title = "Links";
+
+    property string reply_link_link_text {
+        des = "Text for the reply link.";
+    }
+        set reply_link_link_text = "Reply";
+
+    property string reply_link_text {
+        des = "Non-linked reply link text. %1 is replaced with the link.";
+    }
+    set reply_link_text = "(%1.)";
+
+    property string top_link_text {
+        des = "Text of the link to return to the top of the page.";
+    }
+        set top_link_text = "Top";
+
+    property use text_comment_frozen;
+    property use text_comment_parent;
+    property use text_comment_reply;
+
+        set text_comment_frozen = "thread is frozen";
+        set text_comment_parent = "parent";
+        set text_comment_reply = "reply";
+
+
+    property string text_comment_permalink {
+        des = "Permalink to the comment.";
+    }
+        set text_comment_permalink = "link";
+
+    property string text_comment_poster_is_suspended {
+        des = "Show on comments posted by suspended users.";
+        note = "Due to limitations in S2 this text will only be displayed if the comment is shown directly, i.e. as the focus of the thread.";
+    }
+        set text_comment_poster_is_suspended = "user is suspended";
+
+    property string text_comment_parent_entry {
+        des = "Text for linking to a comment's parent.";
+    }
+        set text_comment_parent_entry = "parent entry";
+}
+
+
+
+propgroup Miscellaneous {
+
+    property string custom_favicon {
+        des = "URL of custom favicon.";
+        example = "http://example.com/favicon.ico";
+        }
+        set custom_favicon = "";
+
+    property use num_items_recent;
+        set num_items_recent = 10;
+
+    property use num_items_reading;
+        set num_items_reading = 20;
+
+    property string default_view_mode {
+        des = "Show entries expanded or collapsed by default. Currently this setting affects the 'friends page' only.";
+        values = "collapsed|Entries collapsed|expanded|Entries expanded";
+        }
+        set default_view_mode = "collapsed";
+}
+
+
+#
+# Yes, tags are enabled.
+#
+set tags_aware = true;
+
+###################################################
+#      #                                          #
+# !2.  # Utility functions.                       #
+#      #                                          #
+###################################################
+
+
+# Converts an associative array to an argument list:
+#
+#   var string var = {"id" => "5", "page" => "b"};
+#   lay_array_to_args($var);
+#
+#       "?id=5&page=b"
+#
+function lay_array_to_args(string{} items) : string
+"Converts an associative array to an argument list, i.e. {\"id\" => \"5\", \"page\" => \"b\"} => ?id=5&page=b"
+{
+    var string args;
+    var bool q = false;
+
+    foreach var string key ($items) {
+        if ($key != "") {
+            if (not $q) {
+                $args = "?";
+                $q = true;
+            } else {
+                $args = $args + "&amp;";
+            }
+            $args = $args + "$key=" + $items{"$key"};
+        }
+    }
+    return $args;
+}
+
+# pushes a string on to the end of an array, assuming that it's
+# indexed naturally from zero.
+#
+function lay_array_push(string[] input, string add) : string[]
+"Pushes a new element on to the end of an array."
+{
+    $input[size $input] = $add;
+    return $input;
+}
+
+# A bit like sprintf, this inserts an array of strings into a string.
+# Knows %s, literal %%, and numbered placeholders %1 .. %9.
+#
+function lay_string_placeholders( string format, string[] args ) : string
+"A bit like sprintf, this inserts an array of strings into a string.
+Handles %s, literal %%, and numbered placeholders %1 .. %9."
+{
+    var string output = "";
+
+    var bool state_found_placeholder = false;
+    var int found_count = 0;
+
+    foreach var string s ($format) {
+        if ( $state_found_placeholder ) {
+            if ( $s == "%" ) {
+                $output = $output + $s;
+            }
+            # string placeholder
+            elseif ( $s == "s" ) {
+                $output = $output + $args[$found_count];
+                $found_count++;
+                $state_found_placeholder = false;
+            }
+            # numbered placeholder
+            elseif ( $s == "1" or $s == "2" or $s == "3" or $s == "4" or $s == "5" or $s == "6" or $s == "7" or $s == "8" or $s == "9" ) {
+                $output = $output + $args[int($s) - 1];
+                $state_found_placeholder = false;
+            }
+        } elseif ( $s == "%" ) {
+            $state_found_placeholder = true;
+        } else {
+            $output = $output + $s;
+        }
+    }
+    return $output;
+}
+
+
+# Returns the current url plus arguments. Needs to be overridden
+# on most views where it's used.
+#
+function Page::lay_build_url(string{} items) : string {
+    return $.base_url + lay_array_to_args($items);
+}
+
+# For paid user override in theme layers
+function lay_print_extra_boxes() : void
+    "Paid users can override this in theme layers to easily add content in the 'extra boxes' section of the footer."
+    { }
+
+###################################################
+#      #                                          #
+# !3.  # Stylesheet.                              #
+#      #                                          #
+###################################################
+
+function print_stylesheet() { """
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, sans-serif;
+}
+
+/* regular links */
+
+a {
+    color: #2452FF;
+}
+a:visited {
+    color: #142D8B;
+}
+a:active, a:hover {
+    color: #178FFF;
+}
+
+img {
+    border: 0px;
+}
+
+
+/* the main header */
+
+#header {
+    background: #eee;
+    padding: 20px 10px 20px 10px;
+    margin: 0px;
+}
+#header h1 {
+    font: normal 4em Georgia, serif;
+    color: #333;
+    margin: 0px;
+    padding: 40px 0 0 0;
+}
+#header p {
+    color: #999;
+    font: 1.2em normal Verdana, sans-serif;
+    margin-top: 5px;
+}
+
+/* the navigation menu */
+
+/*
+This had to be hacked up to work with IE and I haven't gotten around
+to cleaning it up yet. Sorry!
+*/
+
+#navi {
+    float:left;
+    width:100%;
+    background: #fff;
+    line-height:normal;
+    font: normal 0.6em Verdana, sans-serif;
+    color: #666;
+}
+#navi ul {
+    margin:0;
+    padding:0px 10px 0 5px;
+    list-style:none;
+}
+#navi li {
+    display:block;
+    float:left;
+    margin: 0 0 0 0;
+    padding:0;
+    text-align: center;
+    border-top: 1px solid #bbb;
+}
+
+#navi span {
+    float:left;
+    display:block;
+    padding:4px 12px 5px 10px;
+    margin: 0 1px 0 1px;
+}
+#navi a {
+    display: block;
+    color: #666;
+    text-decoration: none;
+    background: #ddd;
+    float: left;
+    padding: 0;
+    margin-right: 1px;
+    border-bottom: 1px solid white;
+}
+
+#navi a:hover,
+#navi a:active {
+    background: #888;
+    color: #fff;
+}
+
+#navi li#tab-current {
+    border-top: 1px solid #eee;
+}
+
+#navi li#tab-current a {
+    display: inline;
+    float: none;
+    background: #eee;
+    border: 0;
+    margin: 0;
+}
+
+#navi li#tab-current span {
+    background: #eee;
+    border-bottom: 1px solid #eee;
+    color: #555;
+}
+
+/* back-and-forward navigation */
+
+.back-forward {
+    width: 100%;
+    float: left;
+    clear: both;
+}
+.back-forward a, .back-forward a:visited {
+    color: #999;
+    text-decoration: none;
+}
+
+.back-forward a:active,
+.back-forward a:hover {
+    color: #333;
+}
+.back-forward .back,
+.back-forward .forward {
+    padding: 10px;
+    font: normal 2em Verdana, sans-serif;
+
+}
+.back-forward .back {
+    float: left;
+    clear: left;
+}
+.back-forward .forward {
+    float: right;
+    clear: right;
+}
+
+
+/* global footer */
+
+#footer {
+    color: #999;
+    font: 0.6em normal Verdana, sans-serif;
+    margin: 0;
+    text-align: right;
+    padding: 10px 5px 5px 5px;
+    background-color: #fff;
+    clear: both;
+}
+
+.top-link {
+    float: left;
+}
+
+/* extra boxes below main content */
+
+.extra-box {
+    float:left;
+    width: 25%;
+    margin: 20px;
+    padding: 10px;
+}
+.extra-box > ul {
+    list-style-type: square;
+    margin: 0;
+    padding: 2px 2px 2px 10px;
+}
+.extra-box .title {
+    color: #3c0;
+    font: normal 1.4em Verdana, sans-serif;
+}
+
+/* entries */
+
+#entries {
+    clear: both;
+    margin: 10px;
+    margin-left: 10px;
+    padding: 10px;
+}
+.entry .left {
+    text-align: center;
+    float: left;
+    width: 120px;
+    padding-top: 10px;
+}
+.entry .right {
+    margin-left: 150px;
+}
+
+
+/* ENTRY */
+
+h2,
+h3 {
+    color: #3c0;
+    font: normal 2em Verdana, sans-serif;
+    letter-spacing: -0.1em;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+.title a {
+    color: #3c0;
+    text-decoration: none;
+}
+.title a:visited {
+    color: #2b0;
+}
+.title a:hover,
+.title a:active {
+    color: #4d1;
+}
+
+/* shared entry and comments */
+
+.tools {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #cde;
+    background: #def;
+    clear: both;
+}
+
+.frozen .tools {
+    border: 1px solid #dee;
+    background: #eff;
+}
+.screened .tools {
+    border: 1px dashed #999;
+    background: #fff;
+}
+.text {
+    font-size: 90%;
+}
+.userpic {
+    margin-bottom: 5px;
+}
+.userpic.empty {
+    height: 100px;
+    margin: 0 10px 5px 10px;
+    border: 1px solid #eee;
+}
+
+
+/* Entries */
+
+.entry {
+    line-height: 1.3em;
+    letter-spacing: 0.01em;
+    margin: 10px 0 40px 0;
+}
+.entry .header {
+    color: #999;
+    padding: 0px 10px 10px 0;
+    margin-bottom: 10px;
+}
+
+.entry .posted {
+    margin-left: 5px;
+}
+
+.entry .datetime {
+    margin-left: 20px;
+}
+.entry .security {
+    margin: 0.5em;
+}
+
+.entry .meta {
+    float: left;
+    clear: both;
+    padding: 5px;
+    margin: 10px;
+    font-size: 80%;
+    color: #333;
+    background-color: #def;
+    border: 1px solid #cde;
+}
+
+.entry .links {
+    color: #999;
+    clear: both;
+}
+
+.entry .meta-label {
+    font-weight: bold;
+}
+
+
+
+.new-day {
+    margin: 2px 0 2px 150px;
+    font: normal 1.4em Verdana, sans-serif;
+    color: #666;
+}
+
+
+/* collapsed entries */
+
+.collapsed-entry {
+    margin-left: 130px;
+
+}
+.collapsed-entry .poster {
+    font-weight: bold;
+    font-size: 0.8em;
+}
+.expand {
+    font: normal 1.4em Verdana, sans-serif;
+}
+.expand a,
+.expand a:visited {
+    color: #ccc;
+    text-decoration: none;
+}
+.expand a:hover,
+.expand a:active {
+    color: #333;
+}
+.collapsed-entry .title {
+    font: normal 1.2em Verdana, sans-serif;
+    letter-spacing: -0.1em;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+
+
+/* Comments */
+
+#comments {
+    clear: both;
+    margin: 10px;
+    margin-left: 10px;
+    padding: 10px;
+}
+
+.nest {
+    margin-left: 20px;
+}
+
+
+.comment {
+    line-height: 1.3em;
+    letter-spacing: 0.01em;
+    margin: 0;
+}
+
+.comment .left {
+    text-align: center;
+    float: left;
+    padding: 5px;
+    width: 120px;
+    margin-top: 15px;
+}
+
+.comment .right {
+    padding: 10px;
+    margin-left: 130px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.comment h2 {
+    color: #3c0;
+    font: normal 1.3em Verdana, sans-serif;
+    letter-spacing: -0.1em;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+.comment.odd {
+    background: #fff;
+}
+.comment.even {
+    background: #fff;
+}
+.comment .header {
+    color: #999;
+    padding: 10px 10px 10px 0;
+    margin-bottom: 10px;
+}
+.comment .posted {
+    margin-left: 5px;
+}
+.comment .datetime {
+    margin-left: 20px;
+}
+.comment .icon {
+    margin: 0.5em;
+}
+
+.comment .meta {
+    float: left;
+    padding: 5px;
+    margin: 10px;
+    font-size: 80%;
+    color: #333;
+    background-color: #def;
+    border: 1px solid #cde;
+}
+
+.comment .links {
+    color: #999;
+    clear: both;
+}
+
+/* Collapsed comments */
+
+.collapsed-comment {
+    margin: 5px;
+}
+.collapsed-comment .title {
+    font: normal 1.2em Verdana, sans-serif;
+    letter-spacing: -0.1em;
+    text-decoration: none;
+    color: #3c0;
+}
+.collapsed-comment .poster {
+    font-size: 0.8em;
+}
+.comment-pagination {
+    clear: both;
+    padding: 10px;
+}
+
+
+
+.entry-comments-bar {
+    background: #eee;
+    clear: both;
+    padding: 10px;
+}
+.entry-comments-bar .comments-title {
+    font: normal 1.5em Georgia, serif;
+    color: #333;
+    padding: 5px;
+    letter-spacing: 0;
+    display: block;
+}
+
+
+#multiform {
+    font-size: 0.8em;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #cde;
+    background: #def;
+}
+
+
+/* YearPage calendar */
+
+#calendar {
+    margin: 10px;
+    padding: 5px;
+}
+
+#calendar .month {
+    margin: 10px;
+    float: left;
+}
+
+#calendar .header a {
+    color: #3c0;
+    text-decoration: none;
+}
+
+.month th.weekday {
+    color: #333;
+}
+
+.month .cell {
+    height: 3em;
+    width: 3em;
+}
+.month .cell.full {
+    background: #def;
+    border: 1px solid #cde;
+}
+.month .cell.empty {
+    border: 1px solid #eee;
+}
+
+.month .day {
+    text-align: left;
+    color: #999;
+    font-size: 0.8em;
+}
+.month .cell.empty .day {
+    color: #ddd;
+}
+.month .count {
+    text-align: center;
+}
+
+.extra-box .month {
+    font-size: 0.5em;
+}
+
+/* Comment quickreply */
+
+.quickreply {
+    padding: 5px;
+}
+.quickreply table {
+    border: 0px !important;
+
+}
+.quickreply span.de {
+    display: block;
+    float: left;
+    font-size: 0.7em;
+    background: #def;
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid #cde;
+}
+.quickreply td[align="right"] {
+    font-size: 0.8em;
+}
+
+
+/* TagsPage tag cloud */
+
+#tag-cloud {
+    margin: 10px;
+    padding: 5px;
+}
+
+#tag-cloud a {
+    color: #3c0;
+    text-decoration: none;
+}
+
+
+
+/* ReplyPage reply box */
+
+#reply {
+    margin: 10px 10px 10px 165px;
+    padding: 5px;
+}
+
+#postform {
+    background: #def;
+    border: 1px solid #cde;
+    padding: 5px;
+    margin-top: 10px;
+    font-size: 0.8em;
+}
+
+
+"""; }
+
+
+
+###################################################
+#      #                                          #
+#  ~4. # EntryLite                                #
+#      #                                          #
+###################################################
+
+# Shared methods used on/for both entries and comments.
+#
+#
+
+
+# Gets the entry or comment's link icons (freeze, add to memories etc.),
+# with the exception of the 'nav_prev' and 'nav_next' which are handled by
+# Page::lay_back_forward().
+#
+function EntryLite::lay_get_linkbar() : string {
+    var string o;
+    var Link link;
+    foreach var string k ($.link_keyseq) {
+        if ( $k != "nav_prev" and $k != "nav_next" ) {
+            $link = $this->get_link($k);
+            if ( defined $link ) {
+                $o = $o + $link->as_string();
+            }
+        }
+    }
+    return $o;
+}
+
+# Returns a comma-separated string of tags.
+#
+function EntryLite::lay_get_tags() : string {
+    var string tags = "";
+    if ($.tags) {
+        foreach var int i (0 .. (size $.tags - 1)) {
+            var Tag t = $.tags[$i];
+
+            $tags = $tags + """<a rel="tag" href="$t.url">$t.name</a>""";
+
+            if ( $i < size $.tags - 1 ) {
+                $tags = $tags + ", ";
+            }
+        }
+    }
+    return $tags;
+}
+
+# Return a string representing the poster of this entry or comment.
+#
+function Page::lay_get_poster(EntryLite e) : string {
+    if ( not defined $e.poster ) {
+        return $*text_poster_anonymous;
+    } elseif ( not $e.poster->equals($e.journal) and $.view == "friends" ) {
+
+        # default: "%1 in %2"
+        return lay_string_placeholders( $*poster_in_journal, [$e.poster->as_string(), $e.journal->as_string()] );
+    } else {
+        return $e.poster->as_string();
+    }
+}
+
+
+
+# Print a string containing any or all of the poster, date, time, tags
+# and ip address of this entry or comment.
+#
+function Page::lay_print_posted_by(EntryLite e) : void {
+    var string format;
+    var string[] args;
+    var string tags;
+
+    # default: "posted by %1 at %2 on %3";
+    $format = $*posted_by_at_on;
+
+    $args = [
+          $this->lay_get_poster($e),
+          $e.time->date_format( $*posted_time_format ),
+          $e.time->date_format( $*posted_date_format )
+          ];
+
+    $tags = $e->lay_get_tags();
+    if ( $tags != "" ) {
+
+        # default: "posted by %1 at %2 on %3 under %4";
+        $format = $*posted_by_at_on_in;
+        lay_array_push($args, $tags);
+
+    } elseif ($e.metadata{"poster_ip"}) {
+
+        # default: "posted by %1 at %2 on %3 from %4";
+        $format = $*posted_by_at_on_from;
+        lay_array_push($args, $e.metadata{"poster_ip"});
+    }
+
+    print lay_string_placeholders( $format, $args );
+}
+
+# Prints an entry or comment's text.
+#
+function Page::lay_print_text(EntryLite e) : void
+"Prints an entry or comment's text."
+{
+    println """<div class="text">""";
+
+    $e->print_text();
+
+    println "</div>";
+}
+
+
+###################################################
+#      #                                          #
+#  ~5. # CommentInfo                              #
+#      #                                          #
+###################################################
+
+# Get details of an entry's comments.
+# show_read_link is included so EntryPage needn't show a link to itself.
+#
+function CommentInfo::lay_get_details(int pages, bool show_read_link) : string {
+    var string link;
+    if ($.count > 0) {
+
+        if ( lang_map_plural($.count) ) {
+            # "%1 comments"
+            $link = lay_string_placeholders($*text_some_comments_link, [string($.count)]);
+
+            if ( $show_read_link ) {
+                $link = """<a href="$.read_url">$link</a>""";
+            }
+
+            if ( $pages > 1 ) {
+                $link = lay_string_placeholders($*text_some_comments_over_pages, [$link, string($pages)]);
+            } else {
+                $link = lay_string_placeholders($*text_some_comments, [$link]);
+            }
+        } else {
+            # "%1 comment"
+            $link = lay_string_placeholders($*text_a_comment_link, [string($.count)]);
+            if ( $show_read_link ) {
+                $link = """<a href="$.read_url">$link</a>""";
+            }
+            $link = lay_string_placeholders($*text_a_comment, [$link]);
+        }
+
+    } else {
+
+        # default: "There are no comments on this entry."
+        $link = $*text_no_comments;
+    }
+
+    if (not $.enabled) {
+
+        # default: "Comments are disabled."
+        $link = $link + " " + $*text_comments_disabled;
+    }
+    return $link;
+}
+
+function Page::lay_print_comment_details(CommentInfo c) : void {
+    print $c->lay_get_details(0, true);
+}
+
+# Prints a link to an entry's ReplyPage.
+#
+function Page::lay_print_entry_reply_link(CommentInfo c) : void {
+    if ($c.show_postlink) {
+        var string link = """<a href="$c.post_url">$*reply_link_link_text</a>""";
+        print " " + lay_string_placeholders( $*reply_link_text, [$link] );
+    }
+}
+
+
+###################################################
+#      #                                          #
+#  ~6. # Entry                                    #
+#      #                                          #
+###################################################
+
+function Page::lay_print_entry_linkbar(Entry e) {
+
+    var string bar = $e->lay_get_linkbar();
+    if ( $bar == "" ) {
+        return;
+    }
+    println """<div class="tools">$bar</div>""";
+}
+
+function Page::lay_print_entry_meta(Entry e) : void {
+    var string o = "";
+    var string caption;
+    var string val;
+    var Image i;
+
+    if (size $e.metadata == 0) {
+        return;
+    }
+
+    """
+    <div class="meta">
+    """;
+
+    foreach var string k ($e.metadata) {
+        $caption = $k;
+        $val = $e.metadata{$k};
+        if ($k == "music") {
+            $caption = $*text_meta_music;
+        } elseif ($k == "mood") {
+            $caption = $*text_meta_mood;
+            if (defined $e.mood_icon) {
+                $i = $e.mood_icon;
+                $val = $i->as_string("'$e.metadata{$k}'")+" "+$val;
+            }
+        }
+        """
+        <div class="meta-item"><span class="meta-label">$caption:</span> $val</div>
+        """;
+    }
+    """
+    </div>
+    """;
+}
+
+
+function Page::lay_print_entry_header(Entry e) {
+    var string subject = ($e.subject != "" ? $e.subject : $*text_nosubject);
+    """
+    <div class="header">
+    <div class="title">
+        <h2 id="entry-$e.itemid"><a href="$e.permalink_url">$subject</a></h2>
+        """;
+        if ($e.security != "") {
+            print """<span class="security"><img src="$e.security_icon.url" alt="[$e.security]" /></span>""";
+        }
+        """
+    </div>
+    <div class="posted">"""; $this->lay_print_posted_by($e); """</div>""";
+    """</div>""";
+}
+
+
+function Page::lay_print_entry_left(Entry e) : void {
+    """
+    <div class="userpic">
+    """;
+    if ($e.userpic) {
+        print $e.userpic->as_string();
+    }
+    """
+    </div>
+    """;
+}
+
+function Page::lay_print_entry_footer(Entry e) {
+    """
+    <div class="links">
+    """;
+    $this->lay_print_comment_details( $e.comments );
+    $this->lay_print_entry_reply_link( $e.comments );
+    """
+    </div>
+    """;
+}
+
+
+function Page::lay_print_entry(Entry e) {
+    """
+    <div class="entry">
+        <div class="left">
+        """;
+            $this->lay_print_entry_left($e);
+        """
+        </div>
+        <div class="right">
+        """;
+            $this->lay_print_entry_header($e);
+            $this->lay_print_text($e);
+            $this->lay_print_entry_meta($e);
+            $this->lay_print_entry_footer($e);
+        """
+        </div>
+    </div>
+    """;
+}
+
+function Page::print_entry(Entry e) {
+    $this->lay_print_entry($e);
+}
+
+###################################################
+#      #                                          #
+# ~6b. # Collapsed Entry                          #
+#      #                                          #
+###################################################
+
+# MonthPage and FriendsPage by default show only a shortened version of an
+# entry. I'm considering the same thing for RecentPage past a threshold --
+# one or two full entries followed by a longer list of previously-posted
+# titles.
+#
+# On FriendsPage these entries can be expanded in-place; on MonthPage
+# the entry text isn't populated so they can only link to the full entry.
+#
+
+# Print "expand" link.
+#
+function Page::lay_print_collapsed_entry_expand(Entry e) : void {
+    var string expand_url = $this->lay_build_url({".id" => string($e.itemid)}) + "#entry-$e.itemid";
+    print """<span class="expand"><a href="$expand_url" title="Expand this entry.">+</a></span>""";
+}
+
+# Entry title.
+#
+function Page::lay_print_collapsed_entry_title(Entry e) : void {
+    var string subject = ($e.subject != "" ? $e.subject : $*text_nosubject);
+    print """<span class="title"><a href="$e.permalink_url" title="View this entry.">$subject</a></span>""";
+}
+
+# Entry security unless public.
+#
+function Page::lay_print_collapsed_entry_security(Entry e) : void {
+    if ($e.security != "") {
+        print """ <span class="security">""" + $e.security_icon->as_string() + "</span>";
+    }
+}
+
+# Entry comment count / "comments disabled" message.
+#
+function Page::lay_print_collapsed_entry_comments(Entry e) : void {
+    var string count = "";
+    var string max = "";
+    var string screened = "";
+    if ($e.comments.count > 0) {
+        if ($e.comments.maxcomments) {
+            # default: "!"
+            $max = $*collapsed_entry_comments_max_flag;
+        }
+        if ($e.comments.screened) {
+            # default "*"
+            $screened = $*collapsed_entry_comments_screened_flag;
+        }
+        # Assuming max and screened comments, default output is "(5000!*)"
+        # Just screened comments is "(343*)" etc.
+        $count = lay_string_placeholders( $*collapsed_entry_comments_count, [string($e.comments.count), $max, $screened] );
+    } elseif (not $e.comments.enabled) {
+        $count = $*collapsed_entry_comments_disabled;
+    }
+    print """ <span class="comments">$count</span>""";
+}
+# Entry poster.
+#
+function Page::lay_print_collapsed_entry_poster(Entry e) : void {
+    if ( $.view == "friends" or not $e.poster->equals($.journal as UserLite) ) {
+        print """ &mdash; <span class="poster">""" + $this->lay_get_poster($e) + "</span>";
+    }
+}
+
+# Print the actual entry.
+#
+function Page::lay_print_collapsed_entry(Entry e) {
+
+    println """<div class="collapsed-entry">""";
+
+    $this->lay_print_collapsed_entry_expand($e);
+    $this->lay_print_collapsed_entry_title($e);
+    $this->lay_print_collapsed_entry_security($e);
+    $this->lay_print_collapsed_entry_comments($e);
+    $this->lay_print_collapsed_entry_poster($e);
+
+    println """</div>""";
+}
+
+
+
+###################################################
+#      #                                          #
+# ~7.  #  Page                                    #
+#      #                                          #
+#      # These methods do nothing, but are        #
+#      # overridden in child layers.              #
+#      #                                          #
+###################################################
+
+# Show the full version of an entry, or the collapsed
+# version?
+function Page::lay_entry_is_expanded(Entry e) : bool {
+    return true;
+}
+
+# Some pages have extra content to print in the footer.
+#
+function Page::lay_print_extra_box() {
+    return;
+}
+
+# Lay back-and-foward navigation. Between pages of
+# entries on RecentPage, between months on MonthPage, etc.
+#
+function Page::lay_back_forward() : void {}
+
+# Returns a combination of page title and view title;
+# only used in the `<title>` element of the HTML output.
+
+function Page::title() : string {
+    var string title = $this.global_title;
+    var string view = $this->view_title();
+
+    return lay_string_placeholders( $*text_html_title, [$title, $view] );
+}
+
+
+# Prints an error page.
+#
+function Page::lay_print_errorpage(string message) {
+    """
+    <div class="error">
+    <h2 class="error-header">$*text_errorpage_title</h2>
+    <p>$message</p>
+    </div>
+    """;
+}
+
+# Print the current tab. Made separate so it can be overridden
+# in FriendsPage.
+#
+function Page::lay_print_navigation_current_tab() : void {
+    println """<li id="tab-current"><span>""" + lang_viewname($.view) + "</span></li>";
+}
+function Page::lay_navigation() {
+    var string nav;
+    var string alt;
+
+    # Time to play "making up for S2's deficiencies"!
+    # No link is supplied to the TagsPage yet.
+    var string{} vu = $.view_url;
+    var string[] vo = $.views_order;
+
+    if ( $vu{"tags"} == "" ) {
+        $vu{"tags"} = $.base_url + "/tag/";
+        $vo[size $vo] = "tags";
+    }
+
+    """
+    <div id="navi">
+    <ul>
+    """;
+    foreach var string v ($vo) {
+        if ($.view == $v) {
+            $this->lay_print_navigation_current_tab();
+        } else {
+            println """<li><a href="$vu{$v}"><span>""" + lang_viewname($v) + "</span></a></li>";
+        }
+    }
+    """
+    </ul>
+    </div>
+    """;
+}
+
+function Page::lay_print_extra_box_open(string title) : void {
+    var string alt = alternate("odd", "even");
+    """
+    <div class="extra-box $alt">
+    <h2 class="title">$title</h3>
+    """;
+}
+
+function Page::lay_print_extra_box_close() : void {
+    print "</div>";
+}
+
+# Prints a linklist. More complicated than it'd normally be because the
+# style splits a list with headings into multiple lists. Sub-lists are
+# not supported because they're not implemented in the core yet and show
+# no signs of ever being so.
+#
+function Page::print_linklist() {
+    if ( size $.linklist == 0 ) {
+        return;
+    }
+    var bool open = false;
+    var UserLink l = $.linklist[0];
+
+    if (not $l.is_heading) {
+        $this->lay_print_extra_box_open( $*linklist_default_title );
+        """
+        <ul class="linklist">
+        """;
+        $open = true;
+    }
+
+    foreach var UserLink l ($.linklist) {
+        if ($l.is_heading) {
+            if ($open) {
+                """
+                </ul>
+                """;
+                $this->lay_print_extra_box_close();
+                $open = false;
+            }
+            $this->lay_print_extra_box_open($l.title);
+            """
+            <ul class="linklist">
+            """;
+            $open = true;
+        } else {
+            """
+            <li><a href="$l.url">$l.title</a></li>
+            """;
+        }
+    }
+
+    if ($open) {
+        """
+        </ul>
+        """;
+        $this->lay_print_extra_box_close();
+    }
+}
+
+
+
+# Print one week in a calendar month.
+#
+function Page::lay_print_week(YearWeek w) : void {
+    """
+    <tr>
+    """;
+    if ($w.pre_empty > 0) {
+        foreach var int i (1..$w.pre_empty) {
+            """
+            <td class="blank cell">&nbsp;</td>
+            """;
+        }
+    }
+    foreach var YearDay d ($w.days) {
+        if ($d.num_entries > 0) {
+            """
+            <td class="full cell">
+                <span class="day">$d.day</span>
+                <div class="count"><a href="$d.url">$d.num_entries</a></div>
+            </td>
+            """;
+        } else {
+            """
+            <td class="empty cell">
+                <span class="day">$d.day</span>
+                <div class="count">&nbsp;</div>
+            </td>
+            """;
+        }
+    }
+    if ($w.post_empty > 0) {
+        foreach var int i (1..$w.post_empty) {
+            """
+            <td class="blank-cell">&nbsp;</td>
+            """;
+        }
+    }
+    """
+    </tr>
+    """;
+}
+
+# Print a calendar month.
+#
+function Page::lay_print_month(YearMonth m) {
+    """
+    <table class="month">
+    <tr>
+    """;
+    foreach var int d (weekdays()) {
+        """<th class="weekday">$*lang_dayname_short[$d]</th>""";
+    }
+    """
+    </tr>
+    """;
+    foreach var YearWeek w ($m.weeks) {
+        $this->lay_print_week($w);
+    }
+    """
+    </table>
+    """;
+}
+
+
+
+function Page::lay_header() {
+    """
+    <div id="header">
+    """;
+
+    var string subtitle;
+    if ($.global_subtitle != "") {
+        $subtitle = $this.global_subtitle + ". " + $this->view_title() + ".";
+    } else {
+        $subtitle = $this->view_title() + ".";
+    }
+    """
+    <h1>$.global_title</h1>
+    <p>$subtitle</p>
+    </div>
+    """;
+}
+
+
+function Page::lay_print_mini_calendar_box() {
+    var YearMonth m = $this->get_latest_month();
+    if ( defined $m and $m.has_entries ) {
+        $this->lay_print_extra_box_open( $m->month_format("%%month%%") );
+        $this->lay_print_month($m);
+        $this->lay_print_extra_box_close();
+    }
+}
+
+function Page::lay_footer() {
+
+    """
+    <div id="extra">
+        """;
+        $this->lay_print_extra_box();
+        $this->print_linklist();
+        $this->lay_print_mini_calendar_box();
+        lay_print_extra_boxes();
+        """
+    </div>
+
+    <div id="footer">
+        <p><span class="top-link"><a href="#header">$*top_link_text</a></span> <a href="http://www.livejournal.com/customize/advanced/layerbrowse.bml?id=6850760">Zesty</a>. """; server_sig(); """</p>
+    </div>
+    """;
+}
+
+
+function Page::print() {
+
+"""
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-loose.dtd">
+       <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>"""+$this->title()+"""</title>
+""";
+    $this->print_head();
+"""
+<link rel="stylesheet" type="text/css" href="$.stylesheet_url" />
+""";
+    if ($*custom_favicon != "") {
+        """<link rel="shortcut icon" href="$*custom_favicon" />""";
+    }
+"""
+</head>
+<body class="$.journal.username-$.view">
+    """;
+    $this->lay_header();
+    $this->lay_navigation();
+
+    $this->print_body();
+
+    $this->lay_footer();
+    """
+</body>
+</html>
+""";
+}
+
+
+###################################################
+#      #                                          #
+# ~8.  # RecentPage                               #
+#      #                                          #
+###################################################
+
+
+function RecentPage::lay_build_url(string{} items) : string {
+    if ($.nav.skip != 0) {
+        $items{"skip"} = string($.nav.skip);
+    }
+    return $.base_url + lay_array_to_args($items);
+}
+
+function RecentPage::lay_back_forward() : void {
+
+    if ($.nav.backward_url == "" and $.nav.forward_url == "") {
+        return;
+    }
+    """
+    <div class="back-forward">
+    """;
+    if ($.nav.backward_url != "") {
+        var string previous = get_plural_phrase($.nav.backward_count, "text_skiplinks_back");
+        """
+        <div class="back">
+            <a href="$.nav.backward_url" title="$previous">&larr;</a>
+        </div>
+        """;
+    }
+    if ($.nav.forward_url != "") {
+        var string next = get_plural_phrase($.nav.forward_count, "text_skiplinks_forward");
+        """
+        <div class="forward">
+            <a href="$.nav.forward_url" title="$next">&rarr;</a>
+        </div>
+        """;
+    }
+    """
+    </div>
+    """;
+}
+
+
+function RecentPage::print_body() {
+    $this->lay_back_forward();
+    """
+    <div id="entries">
+    """;
+    if (size $.entries == 0) {
+        $this->lay_print_errorpage($*text_noentries_recent);
+    } else {
+        foreach var Entry e ($.entries) {
+            $this->print_entry($e);
+        }
+    }
+    """
+    </div>
+    """;
+    $this->lay_back_forward();
+}
+
+
+###################################################
+#      #                                          #
+# ~9.  #  FriendsPage                             #
+#      #                                          #
+###################################################
+
+
+function FriendsPage::lay_build_url(string{} items) : string {
+    var string url = $.base_url;
+
+    # Page might be "friendsfriends".
+    #
+    if ($.friends_mode != "") {
+        $url = $url + "/$.friends_mode";
+    } else {
+        $url = $url + "/friends";
+    }
+
+    # Page might be a friends group.
+    #
+    if ($.filter_active) {
+        $url = $url + "/$.filter_name";
+    }
+
+    if ($.nav.skip != 0) {
+        $items{"skip"} = string($.nav.skip);
+    }
+    return $url + lay_array_to_args($items);
+}
+
+# Is the default view mode for entries "expanded" or "collapsed"?
+# Currently only actually used on the FriendsPage.
+#
+function FriendsPage::lay_get_current_view_mode() : string {
+    var string mode = $*default_view_mode;
+    if ($.args{"mode"} != "" and $mode != $.args{"mode"}) {
+        $mode = $.args{"mode"};
+    }
+    return $mode;
+}
+
+# Returns the opposite of the current view mode for entries.
+#
+function FriendsPage::lay_get_alternate_view_mode() : string {
+    var string current = $this->lay_get_current_view_mode();
+    if ( $current == "expanded" ) {
+        return "collapsed";
+    } else {
+        return "expanded";
+    }
+}
+
+function FriendsPage::lay_entry_is_expanded(Entry e) : bool {
+    var bool expanded = false;
+
+    # We expand entries if they match the `.id=$entry_id` argument, but
+    # there's a problem in that the item id isn't necessarily unique.
+    # Because LJ uses (internally) a composite key of user id and item id,
+    # two different users' posts on the same page could have the same item id.
+    #
+    # I mention it mostly out of interest, since I'm not going to do anything
+    # to stop it happening.
+    #
+    # It's vanishingly unlikely, S2 doesn't expose the user ID (and the
+    # username isn't necessarily unique *or* safe), and even if there's a
+    # clash, what's the damage? But it might still happen at some point.
+    #
+    # It's not quite as simple as the birthday paradox, because low item ids
+    # are exponentially more likely to appear than high ones, and people who
+    # joined the site at the same time and have similar posting habits are
+    # quite likely to stay in the same range of item ids.
+    #
+    # This comment was much too long. Sorry!
+    #
+    if ($.args{"id"} != "" and int($.args{"id"}) == $e.itemid) {
+        $expanded = true;
+    } elseif ($this->lay_get_current_view_mode() == "expanded") {
+        $expanded = true;
+    }
+    return $expanded;
+}
+
+
+
+
+
+# The FriendsPage tab has an extra mode-switching button on it.
+#
+function FriendsPage::lay_print_navigation_current_tab() : void {
+    var string alt = $this->lay_build_url( {".mode" => $this->lay_get_alternate_view_mode()} );
+    println """<li id="tab-current"><span>""" + lang_viewname($.view) + """ <a href="$alt">+</a></span></li>""";
+}
+
+function FriendsPage::print_entry(Entry e) {
+    if ($e.new_day) {
+        print """<div class="new-day">""" + $e.time->date_format($*lang_fmt_date_long) + "</div>";
+    }
+    if ( $this->lay_entry_is_expanded($e) ) {
+        $this->lay_print_entry($e);
+    } else {
+        $this->lay_print_collapsed_entry($e);
+    }
+
+}
+
+
+###################################################
+#      #                                          #
+# ~10. #  DayPage                                 #
+#      #                                          #
+###################################################
+
+function DayPage::lay_back_forward() : void {
+
+    if ($.prev_url == "" and $.next_url == "") {
+        return;
+    }
+    """
+    <div class="back-forward">
+    """;
+    if ($.prev_url != "") {
+        """
+        <div class="back">
+            <a href="$.prev_url" title="$*text_day_prev">&larr;</a>
+        </div>
+        """;
+    }
+    if ($.next_url != "") {
+        """
+        <div class="forward">
+            <a href="$.next_url" title="$*text_day_next">&rarr;</a>
+        </div>
+        """;
+    }
+    """
+    </div>
+    """;
+}
+
+
+function DayPage::print_body() {
+
+    if (not $.has_entries) {
+        $this->lay_print_errorpage($*text_noentries_day);
+    } else {
+        foreach var Entry e ($.entries) {
+            $this->print_entry($e);
+        }
+    }
+
+}
+
+
+###################################################
+#      #                                          #
+# ~11. #  MonthPage                               #
+#      #                                          #
+###################################################
+
+# Can't expand MonthPage entries. Bah humbug.
+#
+function MonthPage::lay_print_collapsed_expand(Entry e) : void {
+    return;
+}
+
+function MonthPage::lay_back_forward() : void {
+
+    if ($.prev_url == "" and $.next_url == "") {
+        return;
+    }
+    """
+    <div class="back-forward">
+    """;
+    if ($.prev_url != "") {
+        """
+        <div class="back">
+            <a href="$.prev_url" title="Previous day.">&larr;</a>
+        </div>
+        """;
+    }
+    if ($.next_url != "") {
+        """
+        <div class="forward">
+            <a href="$.next_url" title="Next day.">&rarr;</a>
+        </div>
+        """;
+    }
+    """
+    </div>
+    """;
+}
+
+# Can't get entry text in this view, so no full entries possible.
+#
+function MonthPage::print_entry(Entry e) : void {
+    return $this->lay_print_collapsed_entry($e);
+}
+
+
+
+# Print a box containing information about other linkable months.
+#
+function MonthPage::lay_print_extra_box() : void {
+    if (size $.months == 0) {
+        return;
+    }
+
+    """
+    <div class="extra-box">
+        <h3 class="title">$.date.year</h3>
+        <ul>
+    """;
+
+    foreach var MonthEntryInfo m ($.months) {
+        if ($.date.year == $m.date.year) {
+            println """<li><a href="$m.url">"""+$m.date->date_format("%%month%%")+"</a></li>";
+        }
+    }
+
+    """
+        </ul>
+    </div>
+    """;
+}
+
+
+
+function MonthPage::print_body {
+    var bool any = false;
+    $this->lay_back_forward();
+    """
+    <div id="entries">
+    """;
+    foreach var MonthDay d ($.days) {
+        if ($d.has_entries) {
+            print """<div class="new-day">""" + $d.date->date_format($*lang_fmt_date_long) + "</div>";
+            foreach var Entry e ($d.entries) {
+                $this->print_entry($e);
+            }
+            $any = true;
+        }
+    }
+    """
+    </div>
+    """;
+    if ( not $any ) {
+        # default: "No entries were posted on the selected month."
+        return $this->lay_print_errorpage( $*error_monthpage_no_entries );
+    }
+    $this->lay_back_forward();
+}
+
+
+
+###################################################
+#      #                                          #
+# ~12. # EntryPage                                #
+#      #                                          #
+###################################################
+
+# TODO: this is broken in the core.
+# Waiting on http://rt.livejournal.org/Ticket/Display.html?id=1266 .
+#
+function EntryPage::lay_comment_poster_is_suspended(Comment c) : bool {
+    return $.viewing_thread and not $c.full and $c.depth == 1;
+}
+
+function EntryPage::lay_print_comment_details(CommentInfo c) : void {
+    print $c->lay_get_details($.comment_pages.total, false);
+}
+
+# "Ideally layouts should never override this"... well how about you
+# actually make it work on all views, then?
+function EntryPage::view_title() : string {
+    var string subject = ($.entry.subject != "" ? $.entry.subject : $*text_nosubject);
+    if ( $.viewing_thread ) {
+        $subject = lay_string_placeholders( "%1 : comments", [$subject] );
+    }
+    return $subject;
+}
+
+function EntryPage::lay_back_forward() : void {
+    var Link prev = $.entry->get_link("nav_prev");
+    var Link next = $.entry->get_link("nav_next");
+
+    if ( isnull $prev and isnull $next ) {
+        return;
+    }
+    """
+    <div class="back-forward">
+    """;
+    if ( defined $prev ) {
+        """
+        <div class="back">
+            <a href="$prev.url" title="$prev.caption">&larr;</a>
+        </div>
+        """;
+    }
+    if ( defined $next ) {
+        """
+        <div class="forward">
+            <a href="$next.url" title="$next.caption">&rarr;</a>
+        </div>
+        """;
+    }
+    """
+    </div>
+    """;
+
+}
+
+
+function EntryPage::lay_print_comment_linkbar(Comment c)
+"Same as Page::lay_print_entry_linkbar except that it also prints
+the multiform checkbox if the multiform is on. "
+{
+    var string bar = $c->lay_get_linkbar();
+
+    if ( $bar == "" and not $.multiform_on ) {
+        return;
+    }
+
+    print """<div class="tools" id="tools$c.talkid">$bar""";
+
+    if ($.multiform_on) {
+        $c->print_multiform_check();
+    }
+
+    print "</div>";
+
+}
+
+function EntryPage::lay_print_comment_links(Comment c) : void {
+
+    println """<div class="links">""";
+
+    if ( $.viewing_thread and $c.depth == 1 ) {
+        """[<a href="$.entry.permalink_url">$*text_comment_parent_entry</a>] """;
+    }
+
+    """[<a href="$c.permalink_url">$*text_comment_permalink</a>] """;
+
+    if ( $c.parent_url != "" ) {
+        """[<a href="$c.parent_url">$*text_comment_parent</a>] """;
+    }
+
+    if ( $c.frozen ) {
+        """[$*text_comment_frozen]""";
+    } elseif ( $this->lay_comment_poster_is_suspended($c) ) {
+        """[$*text_comment_poster_is_suspended]""";
+    } else {
+        """["""; $c->print_reply_link({"linktext" => $*text_comment_reply}); """]""";
+    }
+
+    println """</div>""";
+
+}
+
+function EntryPage::print_comment(Comment c) : void {
+
+    var string class = "comment " + alternate("odd", "even");
+    var string subject = ($c.subject == "") ? $*text_nosubject : $c.subject;
+
+    var string state = "state";
+    if ($c.frozen) {
+        $state = "frozen";
+    } elseif ($c.screened) {
+        $state = "screened";
+    }
+
+    println """<div class="nest">""";
+
+    # This "state" div is a dodgy hack for the JavaScript set_handler stuff.
+    # It'll be changed to "frozen", "screened" etc. if the quick-change buttons
+    # are used.
+    # No apologies. :P
+    """
+    <div class="$state" id="state$c.talkid">
+        <div class="$class" id="$c.dom_id">
+            <div class="left">
+            """;
+            if ($c.userpic) {
+                """<div class="userpic">""";
+                print $c.userpic->as_string();
+                """</div>""";
+            } else {
+                """<div class="userpic empty">&nbsp;</div>""";
+            }
+            $this->lay_print_comment_linkbar($c);
+
+            """
+            </div>
+            <div class="right">
+                <div class="header">
+                    <div class="title">
+                        <h3 id="t$c.talkid"><a href="$c.permalink_url">$subject</a></h2>
+                        """;
+                        if (defined $c.subject_icon) {
+                            print """<span class="icon">""" + $c.subject_icon->as_string() + "</span>";
+                        }
+                        """
+                    </div>
+                    <div class="posted">"""; $this->lay_print_posted_by($c); """</div>
+                </div>
+                """;
+                $this->lay_print_text($c);
+                $this->lay_print_comment_links($c);
+                """
+
+            </div>
+        </div>
+    </div>
+    """;
+    $c->print_reply_container({"class" => "quickreply"});
+    """
+    <div id="c-reply-$c.talkid"></div>
+    """;
+
+    $this->print_comments($c.replies);
+
+    """</div>""";
+}
+
+function EntryPage::print_comment_partial(Comment c) {
+
+    var string poster = defined $c.poster ? $c.poster->as_string() : $*text_poster_anonymous;
+    var string subject = $c.subject != "" ? $c.subject : $*text_nosubject;
+
+    """
+    <div class="nest">
+    <div class="collapsed-comment">
+    """;
+    if ( $c.deleted ) {
+        """<span class="title">(deleted comment)</span>""";
+    } elseif ( $c.screened ) {
+        """
+        <a class="title" href="$c.permalink_url">$subject</a> &mdash; <span class="poster">$poster</span> [screened]
+        """;
+    } else {
+        """
+        <a class="title" href="$c.permalink_url">$subject</a> &mdash; <span class="poster">$poster</span>
+        """;
+    }
+
+
+
+    $this->print_comments($c.replies);
+    """
+    </div>
+    </div>
+    """;
+}
+
+
+function EntryPage::print_comments(Comment[] comments) {
+    if (size $comments == 0) {
+        return;
+    }
+
+    foreach var Comment c ($comments) {
+        if ($c.full) {
+            $this->print_comment($c);
+        }
+        # special case for suspended comments.
+        elseif ( $this->lay_comment_poster_is_suspended($c) ) {
+            $this->print_comment($c);
+        } else {
+            $this->print_comment_partial($c);
+        }
+    }
+}
+
+
+
+function EntryPage::lay_print_entry_left(Entry e) : void {
+    """
+    <div class="userpic">
+    """;
+    if ($e.userpic) {
+        print $e.userpic->as_string();
+    }
+    """
+    </div>
+    """;
+    $this->lay_print_entry_linkbar($.entry);
+}
+function EntryPage::lay_print_entry_footer(Entry e) {
+    return;
+}
+
+function EntryPage::print_entry(Entry e) {
+    $this->lay_print_entry($e);
+}
+
+function EntryPage::lay_comment_pagination() : void {
+
+    # no comments
+    if ($.entry.comments.count == 0) {
+        return;
+    }
+
+    var ItemRange range = $.comment_pages;
+
+    # only one page of comments
+    if ($range.all_subitems_displayed) {
+        return;
+    }
+
+    """
+    <div class="comment-pagination">
+    """;
+
+    if ( $range.url_last != "" ) {
+        """<a href="$range.url_last">&larr;</a>""";
+    }
+    foreach var int page (1 .. $range.total) {
+        if ($range.current != $page) {
+            """ <a href='""" + $range->url_of($page) + """'>$page</a> """;
+        } else {
+            """ $page """;
+        }
+    }
+    if ( $range.url_next != "" ) {
+        """<a href="$range.url_next">&rarr;</a>""";
+    }
+
+    """
+    </div>
+    """;
+}
+
+function EntryPage::lay_print_comments() : void {
+
+    if ( $.entry.comments.enabled and size $.comments > 0 ) {
+
+        # JavaScript voodoo.
+        #
+        #
+        set_handler("screen_comment_#", [
+            [ "set_class", "state#", "screened" ]
+        ]);
+        set_handler("freeze_comment_#", [
+            [ "set_class", "state#", "frozen" ]
+        ]);
+        set_handler("unscreen_comment_#", [
+            [ "set_class", "state#", "state" ]
+        ]);
+        set_handler("unfreeze_comment_#", [
+            [ "set_class", "state#", "state" ]
+        ]);
+
+        """
+        <div id="comments">
+        """;
+
+        if ($.multiform_on) {
+            $this->print_multiform_start();
+        }
+
+        $this->print_comments($.comments);
+
+        if ($.multiform_on) {
+            """
+            <div id="multiform">
+            """;
+            $this->print_multiform_actionline();
+            $this->print_multiform_end();
+            """
+            </div>
+            """;
+        }
+
+        """
+        </div>
+        """;
+    }
+
+}
+
+function EntryPage::lay_print_entry_comments_bar() : void {
+    """
+    <div class="entry-comments-bar">
+        <span class="comments-title">""";
+        $this->lay_print_comment_details( $.entry.comments );
+        $this->lay_print_entry_reply_link( $.entry.comments );
+        """</span>
+    """; $this->lay_comment_pagination(); """
+    </div>
+    """;
+}
+
+function EntryPage::print_body() : void {
+
+    if ( $.viewing_thread ) {
+        return $this->lay_print_comments();
+    }
+
+    $this->lay_back_forward();
+    """
+    <div id="entries">
+        """;
+        $this->print_entry($.entry);
+        """
+    </div>
+    """;
+    $this->lay_back_forward();
+
+    $this->lay_print_entry_comments_bar();
+
+    $this->lay_print_comments();
+
+    # Show comment pagination again if necessary.
+    if ( $.comment_pages.total > 1 ) {
+        $this->lay_print_entry_comments_bar();
+    }
+}
+
+
+
+
+
+
+###################################################
+#      #                                          #
+# ~13. # ReplyPage                                #
+#      #                                          #
+###################################################
+
+
+function ReplyPage::lay_print_comment(EntryLite e) {
+
+    var string subject = ($e.subject != "" ? $e.subject : $*text_nosubject);
+
+    """
+    <div class="comment">
+        <div class="left">
+        <div class="userpic">
+        """;
+        if ($e.userpic) {
+            print $e.userpic->as_string();
+        }
+        """
+        </div>
+        </div>
+        <div class="right">
+            <div class="header">
+                <div class="title">
+                    <h2><a href="$e.permalink_url">$subject</a></h2>
+                </div>
+                <div class="posted">"""; $this->lay_print_posted_by($e); """</div>
+            </div>
+            """;
+            $this->lay_print_text($e);
+            """
+            <div class="links">[<a href="$.entry.permalink_url">parent entry</a>] [<a href="$e.permalink_url">$*text_permalink</a>]</div>
+        </div>
+    </div>
+    """;
+}
+
+function ReplyPage::print_body() : void {
+
+    # replying to a comment, not an entry.
+    #
+    """
+    <div id="entries">
+    """;
+    # replying to an entry?
+    if ( $this.replyto.depth == 0 ) {
+        $this->print_entry($.entry);
+    }
+    # no, it's a comment
+    else {
+        $this->lay_print_comment($.replyto);
+    }
+    """
+    </div>
+    <div id="reply">
+    <h2>Reply</h2>
+    """;
+    $.form->print();
+    """
+    </div>
+    """;
+}
+
+
+###################################################
+#      #                                          #
+# ~14. # YearPage                                 #
+#      #                                          #
+###################################################
+
+# Prints a list of other linkable years.
+#
+function YearPage::lay_print_extra_box() {
+    var string year;
+    if (size $.years < 2) {
+        return;
+    }
+
+    """
+    <div class="extra-box">
+        <h3 class="title">Years</h3>
+        <ul>
+        """;
+        foreach var YearYear y ($.years) {
+            if ($y.displayed) {
+                $year = string($y.year);
+            } else {
+                $year = """<a href="$y.url">$y.year</a>""";
+            }
+            println """<li>$year</li>""";
+        }
+        """
+        </ul>
+    </div>
+    """;
+}
+
+function YearPage::lay_back_forward() : void {
+    if (size $.years < 2) {
+        return;
+    }
+
+    var YearYear next;
+    var YearYear last;
+
+    foreach var YearYear y ($.years) {
+        if ( $y.year == $.year - 1 ) {
+            $last = $y;
+        } elseif ( $y.year == $.year + 1 ) {
+            $next = $y;
+        }
+    }
+
+    """
+    <div class="back-forward">
+    """;
+    if ( defined $last ) {
+        """
+        <div class="back">
+            <a href="$last.url" title="Previous year.">&larr;</a>
+        </div>
+        """;
+    }
+    if ( defined $next ) {
+        """
+        <div class="forward">
+            <a href="$next.url" title="Next year.">&rarr;</a>
+        </div>
+        """;
+    }
+    """
+    </div>
+    """;
+
+}
+
+
+function YearPage::print_month(YearMonth m) {
+    """
+    <div class="calendar-month">
+        <h2 class="title"><a href="$m.url">"""+$m->month_format("%%month%%")+"""</a></h2>
+    """;
+    $this->lay_print_month($m);
+    """
+    </div>
+    """;
+}
+
+
+function YearPage::print_body {
+    if ( size $.months == 0 ) {
+        return $this->lay_print_errorpage( $*error_yearpage_no_entries );
+    }
+
+    $this->lay_back_forward();
+    """
+    <div id="calendar">
+    """;
+    foreach var YearMonth m ($.months) {
+        if ($m.has_entries) {
+            $this->print_month($m);
+        }
+    }
+    """
+    </div>
+    """;
+    $this->lay_back_forward();
+}
+
+###################################################
+#      #                                          #
+# ~15. # MessagePage                              #
+#      #                                          #
+#      # Just a stub. AFAICT it's not used in the #
+#      # core yet, so I can't test it.            #
+#      #                                          #
+###################################################
+
+function MessagePage::print_body() {
+    """
+    <div id="message">
+    <p>"""; $this->print_message(); """</p>
+    </div>
+    """;
+}
+
+###################################################
+#      #                                          #
+# ~16. # TagsPage                                 #
+#      #                                          #
+###################################################
+
+# Weighted tag cloud / heatmap.
+#
+function TagsPage::print_body() {
+    """
+    <div id="tag-cloud">
+    """;
+
+    # font min and max as % values
+    var int fontmin = 80;
+    var int fontmax = 400;
+    var int fontspread = $fontmax - $fontmin;
+
+    var int fontstep = 0;
+
+    # set later
+    var int countspread;
+    var int fontsize;
+    var string font;
+
+    var int highest = 0;
+    var int lowest = 999999;
+    var int count;
+
+    foreach var TagDetail tag ($.tags) {
+        if ($tag.use_count > $highest) {
+            $highest = $tag.use_count;
+        }
+        if ($tag.use_count < $lowest) {
+            $lowest = $tag.use_count;
+        }
+    }
+
+    $countspread = $highest - $lowest;
+
+    if ($countspread > 0) {
+        $fontstep = $fontspread/$countspread;
+    }
+
+    foreach var TagDetail tag ($.tags) {
+        if ($highest == $lowest) {
+            $font = string($fontmin) + "%";
+        } else {
+            $fontsize = $fontmin + (($tag.use_count - $lowest) * $fontstep);
+            $font = string($fontsize) + "%";
+        }
+
+        """
+        <a class="used-$tag.use_count visible-to-$tag.visibility" href="$tag.url" style="font-size: $font;">$tag.name</a>
+        """;
+    }
+
+    """
+    </div>
+    """;
+}

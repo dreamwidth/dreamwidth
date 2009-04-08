@@ -10,5 +10,8 @@ core2base/themes        theme+          core2base/layout
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
 
+zesty/layout            layout          core2
+zesty/themes            theme+          zesty/layout
+
 # include local file
 s2layers-local.dat      INCLUDE
