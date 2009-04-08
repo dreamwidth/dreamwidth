@@ -71,7 +71,7 @@
             unless ( $LJ::USE_ACCT_CODES ) {
                 my $dbh = LJ::get_db_reader();
                 my $ct = $dbh->selectrow_array("SELECT COUNT(*) FROM email WHERE email = ?", undef, $email);
-    
+
                 if ($ct > 0) {
                     my $findfriends_userhasaccount = LJ::run_hook("findfriends_invite_user_has_account");
                     if ($findfriends_userhasaccount) {
@@ -90,9 +90,9 @@
             $bogus->("msg", $ML{'.error.noimagesallowed'});
         }
 
-        foreach ( LJ::get_urls($POST{'msg'}) ) {
-            if ($_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.+)?$!i) {
-                $bogus->("msg", "$_<br />" . BML::ml('.error.nooffsitelinksallowed', {'sitename' => $LJ::SITENAMESHORT}));
+        foreach ( LJ::get_urls( $POST{'msg'} ) ) {
+            if ( $_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.*)?$!i ) {
+                $bogus->( "msg", "$_<br />" . BML::ml( '.error.nooffsitelinksallowed', { sitename => $LJ::SITENAMESHORT } ) );
                 last;
             }
         }
