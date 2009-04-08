@@ -81,7 +81,7 @@
         } elsif ($u->is_identity) {
             $ret{url_userpic} = "$LJ::IMGPREFIX/identity_100x100.png";
         } else {
-            $ret{url_userpic} = "$LJ::IMGPREFIX/ctxpopup-nopic.gif";
+            $ret{url_userpic} = "$LJ::IMGPREFIX/nouserpic.png";
         }
         $ret{userpic_w} = 100;
         $ret{userpic_h} = 100;
