@@ -115,14 +115,15 @@ body<=
          $ret .= "<div class='columns-2-r300'>\n";
          $ret .= "<?warningbar " . BML::ml('.new.bodyuser', {'user'=>LJ::ljuser($u)}) . " warningbar?>";
          $ret .= "<div class='columns-2-left'>";
-         $ret .= "<h2 class='widget-header' style='margin-top: 10px;'>" . BML::ml('.new.101.title', {'sitename' => $LJ::SITENAMESHORT}) . "</h2>";
-         $ret .= "<p><strong>$ML{'.new.101.journal.question'}</strong><br />";
+         $ret .= "<h2 class='widget-header' style='margin-top: 10px;'>" . BML::ml('.new.101.title', {'sitename' => $LJ::SITENAMESHORT}) . "</h2><br />";
+         $ret .= "<p><strong><a href='" . $u->journal_base . "/'>$ML{'.new.101.journal.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.journal.answer'}</p>";
-         $ret .= "<p><strong>$ML{'.new.101.profile.question'}</strong><br />";
+         $ret .= "<p><strong><a href='" . $u->profile_url . "/'>$ML{'.new.101.profile.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.profile.answer'}</p>";
-         $ret .= "<p><strong>$ML{'.new.101.friends.question'}</strong><br />";
+         $ret .= "<p><strong><a href='" . $u->journal_base . "/read/'>$ML{'.new.101.friends.question'}</a></strong><br />";
+
          $ret .= "$ML{'.new.101.friends.answer'}</p>";
-         $ret .= "<p><strong>$ML{'.new.101.community.question'}</strong><br />";
+         $ret .= "<p><strong><a href='$LJ::SITEROOT/community/search.bml'>$ML{'.new.101.community.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.community.answer'}</p>";
          $ret .= "</div>";
          $ret .= "<div class='columns-2-right'>";
