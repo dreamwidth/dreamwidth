@@ -429,7 +429,7 @@
    $body .= "<br />\n <?p ";
     # Form submit buttons
     if ($u->is_visible) {
-        my $btn = ($watched || $trusted) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $user } );
+        my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
         $body .= "<input type='submit' value=\"$btn\"> ";
     } else {
         $body .= "<input type='submit' name='action:delete' value=\"$ML{'.btn.remove'}\"> \n";
