@@ -2293,6 +2293,10 @@ sub UserLite {
 sub start_css {
     my ($ctx) = @_;
     my $sc = $ctx->[S2::SCRATCH];
+
+    # Always increment, but only continue if it was 0
+    return if $sc->{_css_depth}++;
+
     $sc->{_start_css_pout}   = S2::get_output();
     $sc->{_start_css_pout_s} = S2::get_output_safe();
     $sc->{_start_css_buffer} = "";
@@ -2306,6 +2310,9 @@ sub start_css {
 sub end_css {
     my ($ctx) = @_;
     my $sc = $ctx->[S2::SCRATCH];
+
+    # Only decrement _css_depth if it is non-zero, only continue if it becomes zero
+    return unless $sc->{_css_depth} && (--$sc->{_css_depth} == 0);
 
     # restore our printer/safe printer
     S2::set_output($sc->{_start_css_pout});
