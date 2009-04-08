@@ -327,7 +327,7 @@ class EntryLite
 
     var Image userpic "The userpic selected to relate to this entry.";
 
-    var readonly string{} metadata "Post metadata. Keys: 'music', 'mood'";
+    var readonly string{} metadata "Post metadata. Keys: 'music', 'mood', 'location', 'groups'.  Comment metadata.  Key: 'poster_ip'";
 
     var readonly string dom_id "The DOM 'id' attribute you should put on your outer-most element";
 
@@ -336,6 +336,10 @@ class EntryLite
 
     var string[] link_keyseq "An array of keys which you should pass to [method[EntryLite.get_link(string key)]] to produce an entry 'toolbar'. Does not contain nav_next and nav_prev for entries; you should retrieve those separately and put them somewhere appropriate for your layout.";
 
+    function print_wrapper_start() "Start the wrapper for this entry or comment; includes anchor and classes";
+    function print_wrapper_end() "End the wrapper for this entry or comment.";
+    function print_metatypes() "Print the metatype icons for this entry (security, age restriction) or comment (subject icon)";
+    function print_metadata () "Print the metadata associated with this entry or comment";
     function print_text() [fixed]
         "Print the entry text. Doesn't print anything in some contexts, such as on a month view or in a collapsed comment.";
     function builtin get_link (string key) : Link "Get a link to some action related to this entry or comment. You can iterate over [member[EntryLite.link_keyseq]] to get keys to pass in here to produce a 'toolbar' of links.";
@@ -372,14 +376,12 @@ class Entry extends EntryLite
 
     var int itemid "Server stored ID number for this entry";
 
-    function print_metatypes() "Print the metatype (security, age restricion) icons for this entry";
-    function print_metatypes(bool icon, bool info) "Print the metatype (security, age restricion) information for this entry";
+    function print_metatypes(bool icon, bool info) "Print the metatype information for this entry";
 
     function print_item_linkbar(string target) "Print the item link bar for this entry or comment with target. Deprecated. Use print_interaction_links instead.";
     function print_interaction_links(string target) "Print the links to interact with this entry or comment, with target.";
 
     function print_tags() "Print the tags for this entry.";
-    function print_metadata ();
     function builtin plain_subject () : string
         "Return entry's subject as plain text, with all HTML removed.";
 
@@ -3254,6 +3256,30 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
     }
 }
 
+function EntryLite::print_wrapper_start() {
+}
+function Entry::print_wrapper_start() {
+}
+function Comment::print_wrapper_start() {
+    var string alternate = alternate ("comment-wrapper-a", "comment-wrapper-b");
+    var string screened = $this.screened ? "screened" : "visible";
+    var string frozen = $this.frozen ? "frozen" : "";
+    var string poster = defined $this.poster ? "poster-" + $this.poster : "poster-anonymous";
+    """<div class="comment-wrapper $alternate $screened $frozen $poster" id="$this.anchor">\n""";
+    """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
+    """<div class="comment" id="entry-$this.talkid">\n""";
+}
+
+function EntryLite::print_wrapper_end() {
+}
+function Entry::print_wrapper_end() {
+}
+function Comment::print_wrapper_end() {
+    "</div>\n</div>\n";
+}
+
+function EntryLite::print_metadata() {
+}
 function Entry::print_metadata() {
     if (size $.metadata) {
         """<div class="metadata">\n<ul>\n""";
@@ -3267,7 +3293,14 @@ function Entry::print_metadata() {
         "</ul>\n</div>\n";
     }
 }
+function Comment::print_metadata() {
+    if ($.metadata{"poster_ip"}) {
+        print safe "$*text_comment_ipaddr(" + $.metadata{"poster_ip"} + ")";
+    }
+}
 
+function EntryLite::print_metatypes() {
+}
 function Entry::print_metatypes(bool icon, bool info) {
     if ($this.security) {
         """<span class="trust-filter">""";
@@ -3293,6 +3326,12 @@ function Entry::print_metatypes(bool icon, bool info) {
 
 function Entry::print_metatypes() {
     $this->print_metatypes(true, false);
+}
+
+function Comment::print_metatypes() {
+    if (defined $this.subject_icon) {
+        "<h3>$this.subject_icon</h3>";
+    }
 }
 
 function Entry::print_tags() [fixed] {
@@ -3609,11 +3648,11 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
     if ($datefmt != "none" and $timefmt != "none") { $main = $main + " "; }
     if ($timefmt != "none") { $main = $main + $display_time; }
 
-    return "<span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span>";
+    return $*text_comment_date + " <span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span>";
 }
 
 function Comment::print_time (string datefmt, string timefmt) {
-    print $this->time_display($datefmt, $timefmt, false);
+    $this->print_time($datefmt, $timefmt, false);
 }
 
 function Comment::time_display (string datefmt, string timefmt) : string {
@@ -3998,7 +4037,7 @@ function Redirector::end_form ()
 
 function EntryPage::print_comment_section(Entry e) {
    $.comment_pages->print();
-    "<a name='comments'></a>";
+   "<div class='comments'>";
    if ($.comment_pages.total_subitems > 0) {
        $this->print_multiform_start();
    }
@@ -4011,6 +4050,7 @@ function EntryPage::print_comment_section(Entry e) {
         $this->print_multiform_actionline();
         $this->print_multiform_end();
     }
+    "</div>";
 }
 
 function EntryPage::print_comments (Comment[] cs) {
@@ -4029,40 +4069,35 @@ function EntryPage::print_comments (Comment[] cs) {
 }
 
 function EntryPage::print_comment (Comment c) {
-    var Color barlight = $*color_comment_bar->clone();
-    $barlight->lightness(($barlight->lightness() + 255) / 2);
-    var Color barc = $c.depth % 2 ? $*color_comment_bar : $barlight;
-    "<a name='$c.anchor'></a><div style='background-color: $barc; margin-top: 10px; width: 100%'>";
+
+    $c->print_wrapper_start();
+    """<div class="inner">\n""";
+    """<div class="header">\n""";
+    """<div style='margin-top: 10px; width: 100%'>""";
+    $c->print_subject();
+    $c->print_metatypes();
+    $c->print_time();
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
     $c->print_userpic();
     $c->print_poster();
-      print safe "$*text_comment_date";
-      $c->print_time();
-      if ($c.metadata{"poster_ip"}) { print safe "$*text_comment_ipaddr(" + $c.metadata{"poster_ip"} + ")"; }
-
-    print "<td align='right' style='width: 50%'>";
+    $c->print_metadata();
+    """</div>\n""";
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
     if ($this.multiform_on) {
         print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
         $c->print_multiform_check();
     }
+    $c->print_text();
     $c->print_management_links();
-
-    if (defined $c.subject_icon or $c.subject != "" or $c.screened) {
-        "<h3>$c.subject_icon";
-        $c->print_subject();
-        if ($c.screened) {
-            "$*text_screened";
-        }
-        "</h3>\n";
-    }
-
-    print safe "<strong>(<a href='$c.permalink_url'>$*text_permalink</a>)</strong>\n";
-    print "</div>";
-
-    print "<div style='margin-left: 5px'>"; $c->print_text(); "</div>\n";
-    print "<div style='margin-top: 3px; font-size: smaller'>";
     $c->print_interaction_links();
-    "</div>\n";
     $c->print_reply_container();
+    "</div>\n</div>\n</div>\n";
+    $c->print_wrapper_end();
 }
 
 function EntryPage::print_comment_partial (Comment c) {
