@@ -68,7 +68,11 @@ ERRMSG
 
 # make sure ljconfig is setup right (or so we hope)
 die "Please define a 'userpics' class in your \%LJ::MOGILEFS_CONFIG\n"
-    unless defined $LJ::MOGILEFS_CONFIG{classes}->{userpics};
+    unless defined $LJ::MOGILEFS_CONFIG{classes}->{userpics} &&
+                   $LJ::USERPIC_MOGILEFS;
+
+# now make sure we can connect
+LJ::mogclient();
 die "Unable to find MogileFS object (\%LJ::MOGILEFS_CONFIG not setup?)\n"
     unless $LJ::MogileFS;
 
@@ -203,17 +207,33 @@ sub handle_userid {
 
     # get all their photos that aren't in mogile already
     my $picids = $dbcm->selectall_arrayref
-        ("SELECT picid, md5base64, fmt FROM userpic2 WHERE userid = ? AND (location <> 'mogile' OR location IS NULL)",
+        ("SELECT picid, md5base64, fmt, location FROM userpic2 WHERE userid = ? AND (location <> 'mogile' OR location IS NULL)",
          undef, $u->{userid});
     return unless @$picids;
 
     # now we have a userid and picids, get the photos from the blob server
     foreach my $row (@$picids) {
-        my ($picid, $md5, $fmt) = @$row;
+        my ($picid, $md5, $fmt, $loc) = @$row;
         print "\tstarting move for picid $picid\n"
             if $verbose;
+
         my $format = { G => 'gif', J => 'jpg', P => 'png' }->{$fmt};
-        my $data = LJ::Blob::get($u, "userpic", $format, $picid);
+
+        # if the picture is from the blobserver
+        my $data;
+        if ( $loc eq 'blob' ) {
+
+            $data = LJ::Blob::get($u, "userpic", $format, $picid);
+
+        # no target?  then it's in the database
+        } elsif ( ! defined $loc ) {
+
+            ($data) = $dbcm->selectrow_array(
+                'SELECT imagedata FROM userpicblob2 WHERE userid = ? AND picid = ?',
+                undef, $u->{userid}, $picid
+            );
+
+        }
 
         # get length
         my $len = length($data);
@@ -223,7 +243,7 @@ sub handle_userid {
                 if $verbose;
             next;
         }
-        die "Error: data from blob empty ($u->{user}, 'userpic', $format, $picid)\n"
+        die "Error: data from location=$loc empty ($u->{user}, 'userpic', $format, $picid)\n"
             unless $len;
 
         # verify the md5 of this picture with what's in the database
@@ -238,7 +258,7 @@ sub handle_userid {
             unless $md5 eq $blobmd5;
         print "\tverified md5; database=$md5, blobserver=$blobmd5\n"
             if $verbose;
-        
+
         # get filehandle to Mogile and put the file there
         print "\tdata length = $len bytes, uploading to MogileFS...\n"
             if $verbose;
