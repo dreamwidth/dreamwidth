@@ -3037,7 +3037,8 @@ sub control_strip
         $ret .= "$remote_display $logout";
         $ret .= "&nbsp;&nbsp; $links{confirm}" unless $remote->is_validated;
         $ret .= "</div></form>\n";
-        $ret .= "$links{'home'}&nbsp;&nbsp; $links{'post_journal'}&nbsp;&nbsp; $links{'view_friends_page'}&nbsp;&nbsp;$links{'inbox'}";
+        $ret .= "$links{home}&nbsp;&nbsp; $links{post_journal}&nbsp;&nbsp;" unless $remote->is_identity;
+        $ret .= "$links{view_friends_page}&nbsp;&nbsp;$links{inbox}";
         $ret .= "</td>\n";
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
@@ -3140,7 +3141,7 @@ sub control_strip
             if (LJ::can_manage_other($remote, $journal)) {
                 $ret .= "$statustext{maintainer}<br />";
                 if ($haspostingaccess) {
-                    $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
+                    $ret .= "$links{post_to_community}&nbsp;&nbsp; " unless $remote->is_identity;
                 }
                 $ret .= "$links{edit_community_profile}&nbsp;&nbsp; $links{edit_community_invites}&nbsp;&nbsp; $links{edit_community_members}";
             } elsif ($watching && $memberof) {
