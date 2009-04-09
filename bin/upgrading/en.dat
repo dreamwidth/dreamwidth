@@ -3399,6 +3399,10 @@ web.controlstrip.status.trust_watch=You have granted access and subscribe to [[u
 
 web.controlstrip.status.trust_watchedby=You have granted access to [[user]] and they have subscribed to you
 
+web.controlstrip.status.trusted=You have granted [[user]] access to your journal
+
+web.controlstrip.status.trustedby=You have been granted access to [[user]]'s journal
+
 web.controlstrip.status.trustedby_mutualwatch=[[user]] has granted access to you and you and they have mutual subscriptions
 
 web.controlstrip.status.trustedby_watch=[[user]] has granted access to you and you subscribe to them
@@ -3406,6 +3410,10 @@ web.controlstrip.status.trustedby_watch=[[user]] has granted access to you and y
 web.controlstrip.status.trustedby_watchedby=[[user]] has granted access and subscribes to you
 
 web.controlstrip.status.watcher=You are watching [[user]]
+
+web.controlstrip.status.watched=You have subscribed to [[user]]'s journal
+
+web.controlstrip.status.watchedby=[[user]] has subscribed to your journal
 
 web.controlstrip.status.yourjournal=You are viewing your journal
 

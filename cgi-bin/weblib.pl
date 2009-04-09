@@ -2994,6 +2994,10 @@ sub control_strip
                     'memberwatcher'     => BML::ml('web.controlstrip.status.memberwatcher', {'user' => $journal_display}),
                     'watcher'           => BML::ml('web.controlstrip.status.watcher', {'user' => $journal_display}),
                     'member'            => BML::ml('web.controlstrip.status.member', {'user' => $journal_display}),
+                    'trusted'           => BML::ml('web.controlstrip.status.trusted', {'user' => $journal_display}),
+                    'watched'           => BML::ml('web.controlstrip.status.watched', {'user' => $journal_display}),
+                    'trusted_by'        => BML::ml('web.controlstrip.status.trustedby', {'user' => $journal_display}),
+                    'watched_by'        => BML::ml('web.controlstrip.status.watchedby', {'user' => $journal_display}),
                     );
     # Style the status text
     foreach my $key (keys %statustext) {
@@ -3122,6 +3126,18 @@ sub control_strip
                 $ret .= "$links{edit_friend}";
             } elsif ( $trusted_by && $watched_by ) {
                 $ret .= "$statustext{trustedby_watchedby}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted ) {
+                $ret .= "$statustext{trusted}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $trusted_by ) {
+                $ret .= "$statustext{trusted_by}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $watched ) {
+                $ret .= "$statustext{watched}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $watched_by ) {
+                $ret .= "$statustext{watched_by}<br />";
                 $ret .= "$links{edit_friend}";
             } else {
                 if ( $view eq "read" ) {
