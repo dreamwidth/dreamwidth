@@ -42,8 +42,8 @@ sub worker {
     my $dbh = LJ::get_db_writer()
         or die "no global master database handle available";
 
-    my $userid = $dbh->selectrow_array(
-        q{SELECT userid FROM import_items WHERE status = 'ready'
+    my ( $userid, $impid ) = $dbh->selectrow_array(
+        q{SELECT userid, import_data_id FROM import_items WHERE status = 'ready'
           ORDER BY priority DESC
           LIMIT 1}
     );
@@ -56,6 +56,19 @@ sub worker {
         or die "userid $userid doesn't exist\n";
     _log( 'user %s(%d) has stuff to import', $u->user, $u->id );
 
+    # now load up and ensure this is their most recent import group
+    my $maxid = $dbh->selectrow_array(
+        q{SELECT MAX(import_data_id) FROM import_items WHERE userid = ?},
+        undef, $userid
+    );
+    if ( $maxid > $impid ) {
+        _log( 'user %s(%d) had stuff to import but it was aborted', $u->user, $u->id );
+        $dbh->do( q{UPDATE import_items SET status = 'aborted'
+                    WHERE userid = ? AND import_data_id = ? AND status = 'ready'},
+                  undef, $userid, $impid );
+        return;
+    }
+
     my $statusrows = $dbh->selectall_arrayref(
         q{SELECT item, status, created, import_data_id, priority
           FROM import_items WHERE userid=?},
@@ -64,9 +77,10 @@ sub worker {
     die $dbh->errstr . "\n" if $dbh->err;
     die "user had no status rows!\n" unless @{ $statusrows || [] };
 
-    my %status = (
+    my @status = (
         map {
-            $_->[0] => {
+            {
+                item => $_->[0],
                 status => $_->[1],
                 created => $_->[2],
                 impid => $_->[3],
@@ -81,11 +95,11 @@ sub worker {
 # to update later...
 
     # now find the ready jobs, dispatch them
-    foreach my $item ( keys %status ) {
+    foreach my $item ( @status ) {
 
-        next if $status{$item}->{status} ne 'ready';
+        next if $item->{status} ne 'ready';
 
-        _log( 'scheduling %s', $item );
+        _log( 'scheduling %d:%s', $item->{impid}, $item->{item} );
 
         my $class = {
             lj_bio => 'DW::Worker::ContentImporter::LiveJournal::Bio',
@@ -95,28 +109,35 @@ sub worker {
             lj_userpics => 'DW::Worker::ContentImporter::LiveJournal::Userpics',
             lj_friends => 'DW::Worker::ContentImporter::LiveJournal::Friends',
             lj_friendgroups => 'DW::Worker::ContentImporter::LiveJournal::FriendGroups',
-        }->{ $item } || die 'unknown item';
+        }->{ $item->{item} } || die 'unknown item ';
 
         my $sh = LJ::theschwartz()
             or die "no schwartz client\n";
 
         my $job = TheSchwartz::Job->new(
             funcname => $class,
-            uniqkey => join( '-', ( $item, $u->id ) ),
+            uniqkey => join( '-', ( $item->{item}, $u->id ) ),
             arg => {
                 userid         => $u->id,
-                import_data_id => $status{$item}->{impid},
+                import_data_id => $item->{impid},
             }
         ) or die "can't create job\n";
 
-        my $h = $sh->insert( $job )
-            or die "can't insert job (probably duplicate job)\n";
+        my $h = $sh->insert( $job );
+        unless ( $h ) {
+            # best guess is that this is a dupe, so abort it
+            _log( 'looks like they already have %s queued, aborting this one', $item->{item} );
+            $dbh->do( q{UPDATE import_items SET status = 'aborted'
+                      WHERE userid = ? AND import_data_id = ? AND item = ? AND status = 'ready'},
+                      undef, $u->id, $item->{impid}, $item->{item} );
+            return;
+        }
 
-        $u->set_prop( import_job => $status{$item}->{impid} );
+        $u->set_prop( import_job => $item->{impid} );
 
         $dbh->do( "UPDATE import_items SET status = 'queued', last_touch = UNIX_TIMESTAMP() " .
                   "WHERE userid = ? AND item = ? AND import_data_id = ?",
-                  undef, $u->id, $item, $status{$item}->{impid} );
+                  undef, $u->id, $item->{item}, $item->{impid} );
         die $dbh->errstr . "\n" if $dbh->err;
     }
 }
