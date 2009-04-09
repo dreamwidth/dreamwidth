@@ -82,7 +82,7 @@ set entry_management_links = "text";
 set comment_management_links = "text";
 
 set text_interaction_links_sep = " ";
- 
+
 #######################
 #Functions
 #######################
@@ -93,7 +93,7 @@ set text_interaction_links_sep = " ";
 function prop_init() {
 
 #initialize $*module_group_one and $*module_group_two and $module_group_three
-    
+
     #first sidebar prints in-journal navigation links
     $*module_group_one = [["navlinks", ""]];
 
@@ -158,12 +158,12 @@ function print_stylesheet()
         font-size: 0.85em;
         color: #ffffff;
         }
-    #secondary a, #secondary a:visited {
+    #secondary a, #secondary a:visited, #page-navigation-bottom a, #page-navigation-bottom a:visited {
         color:$*linklist_link;
         font-weight:normal;
         padding-bottom:1px;
     }
-    #secondary a:hover, #secondary a:active{
+    #secondary a:hover, #secondary a:active, #page-navigation-bottom a:hover, #page-navigation-bottom a:active {
         color:$*linklist_link_hover;
         background-color:$*linklist_hover_background;
         padding-bottom: 0px;
@@ -181,7 +181,7 @@ function print_stylesheet()
     }
     #secondary .manage-tags-link {
         text-align: center;
-    } 
+    }
     .module-group-one {
         background-color: $*navigation_background;
         font-size: 0.8em;
@@ -247,7 +247,7 @@ function print_stylesheet()
     }
     .comments div, .comments ul, .entry-management-links li,
     .comment-interaction-links li, .comment-management-links li,
-    .entry-title { 
+    .entry-title {
         display: inline;
         padding-left: 0.5em;
     }
@@ -307,6 +307,19 @@ function print_stylesheet()
     q{
         font-style: italic;
     }
+
+    #page-navigation-bottom {
+        position: absolute;
+        right: 0px;
+        bottom: 50px;
+        margin: 0px;
+        padding: 10px;
+        border: 0px;
+        padding-bottom: 10px;
+        width: 15%;
+        font-size: 0.85em;
+        color: #ffffff;
+    }
     """;
 }
 
@@ -330,7 +343,7 @@ function Page::print_entry (Entry e)
         print "<div class=\"subject\">&raquo;";
             $e->print_metatypes();
             $e->print_subject();
-        println "</div>";  
+        println "</div>";
         print "<div class=\"datetime\">(posted by ";
             $this->print_entry_poster($e);
             print " on ";
@@ -344,13 +357,13 @@ function Page::print_entry (Entry e)
         $e->print_metadata();
         $e->print_tags();
     println "</div>";
-    
+
     println "<div class=\"comments\">";
         var string targetted = "qrtlink1";
         $e->print_interaction_links( $targetted );
-        $e->print_management_links();        
+        $e->print_management_links();
     println "</div>";
-    
+
     $this->print_reply_container({"target" => $targetted, "class" => "entry"});
     println "<br />";
 }
@@ -374,7 +387,7 @@ function YearPage::print_body()
             $this->print_month($m);
         }
         println "</center>";
-    
+
     println "</div>";
 }
 
@@ -506,16 +519,16 @@ function ReplyPage::print_body ()
             println " on";
             $.replyto->print_time();
         println "</div>";
-    
+
         print $.replyto.text;
     println "</div>";
-    
+
     println "<div class=\"comments\">";
         println "<a href=\"$.entry.comments.read_url\">&laquo;Comments on this Entry&raquo;</a>";
     println "</div><br />";
-    
+
     println "<div class=\"comments\">&laquo;Post a Reply&raquo;</div>";
-    
+
     println "<div class=\"entry\">";
         $.form->print();
     println "</div>";
@@ -534,7 +547,7 @@ function EntryPage::print_comment (Comment c)
     println "<a name=\"$c.anchor\"></a>";
     $c->print_userpic();
     println "<div class='datetime'><a href='$c.permalink_url' title='Permalink'>";
-    $c->print_time(); 
+    $c->print_time();
     println "</a>";
 
     $c->print_management_links();
@@ -567,11 +580,11 @@ function EntryPage::print_comment (Comment c)
     println "";
     $c->print_text();
     println "</div>";
-    
-    print "<div class=\"comments\">";    
-        $c->print_interaction_links();       
+
+    print "<div class=\"comments\">";
+        $c->print_interaction_links();
     println "</div>";
-    
+
     $c->print_reply_container();
 }
 
@@ -590,18 +603,26 @@ function Page::print()
     println "<body>";
         $this->print_control_strip();
         $this->print_module_group_one();
-        
+
         println "<div id=\"primary\">";
             $this->print_body();
             println "<div class=\"floatclear\">.</div>";
         println "</div>";
 
-        println"<div id=\"secondary\">";
+        println "<div id=\"secondary\">";
             if ($this.view != "archive" and $this.view != "month"){
-                $this->print_navigation();
+                println "<div id='page-navigation-top' class='page-navigation'>";
+                    $this->print_navigation();
+                println "</div>";
             }
             $this->print_module_group_two();
-        println"</div>";
+        println "</div>";
+
+        if ($this.view != "archive" and $this.view != "month"){
+            "<div id='page-navigation-bottom' class='page-navigation'>";
+                $this->print_navigation();
+            "</div>";
+        }
 
         $this->print_module_group_three();
 
