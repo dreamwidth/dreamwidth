@@ -193,7 +193,6 @@
                  'show-talkleft' => 0,
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
-                 'stats-postsbyday' => 1,
                  tellafriend => 0,
                  );
 

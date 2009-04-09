@@ -199,12 +199,6 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  ### graphs!
  $ret .= "<?h1 Pretty Graphs! h1?><?p These are the most fun, aren't they? p?>";
  
- $ret .= "<?h2 Journal entries -- last 60 days h2?><?p How often do people post over the last 60 days? p?>";
- $ret .= "<p align='center'><img src=\"stats/postsbyday.png\" width='520' height='350' /></p>";
-
- $ret .= "<?h2 Journal entries -- by week, ever h2?><?p What's the week-to-week trend? p?>";
- $ret .= "<p align='center'><img src=\"stats/postsbyweek.png\" width='520' height='350' /></p>";
-
  $ret .= "<?h2 New accounts -- last 60 days h2?><?p How fast are we growing? p?>";
  $ret .= "<p align='center'><img src=\"stats/newbyday.png\" width='520' height='350' /></p>";
 
@@ -214,7 +208,4 @@ _code?>
 
 <=body
 title=><?_code return $title; _code?>
-page?><?_c <LJDEP>
-link: htdocs/stats/, htdocs/support/faqbrowse.bml
-img: htdocs/img/bluedot.gif, htdocs/stats/postsbyday.png, htdocs/stats/postsbyweek.png, htdocs/stats/newbyday.png
-</LJDEP> _c?>
+page?>
