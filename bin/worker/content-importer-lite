@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 #
-# content-importer
+# content-importer-lite
 #
-# Dispatches TheSchwartz jobs to actually handle content imports.
+# Dispatches TheSchwartz jobs to actually handle content imports.  This is a
+# trimmed down version that only handles some of the jobs, so we have something
+# running all the time doing quick things we can do easily.
 #
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
@@ -22,8 +24,6 @@ require 'ljlib.pl';
 
 use LJ::Worker::TheSchwartz;
 use DW::Worker::ContentImporter::LiveJournal::Bio;
-use DW::Worker::ContentImporter::LiveJournal::Comments;
-use DW::Worker::ContentImporter::LiveJournal::Entries;
 use DW::Worker::ContentImporter::LiveJournal::FriendGroups;
 use DW::Worker::ContentImporter::LiveJournal::Friends;
 use DW::Worker::ContentImporter::LiveJournal::Tags;
@@ -31,8 +31,6 @@ use DW::Worker::ContentImporter::LiveJournal::Userpics;
 use DW::Worker::ContentImporter::UserPictures;
 
 schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Bio" );
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Comments" );
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Entries" );
 schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::FriendGroups" );
 schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Friends" );
 schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Tags" );

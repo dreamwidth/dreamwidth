@@ -44,6 +44,7 @@ sub try_work {
     # setup
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
+    $0 = sprintf( 'content-importer [friends: %s(%d)]', $u->user, $u->id );
 
     my $r = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
     return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )

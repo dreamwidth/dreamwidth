@@ -75,6 +75,15 @@ sub try_work {
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
     $log->( 'Import begun for %s(%d).', $u->user, $u->userid );
 
+    # title munging
+    my $title = sub {
+        my $msg = sprintf( shift(), @_ );
+        $msg = " $msg" if $msg;
+
+        $0 = sprintf( 'content-importer [entries: %s(%d)%s]', $u->user, $u->id, $msg );
+    };
+    $title->();
+
     # load entry map
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
@@ -110,6 +119,7 @@ sub try_work {
         # now we can mark this, as we have officially syncd this time
         $tried_syncs{$lastsync}++;
 
+        $title->( 'syncitems - %d left', $hash->{title} );
         $log->( '    retrieved %d items and %d left to sync', $hash->{count}, $hash->{total} );
         last if $hash->{count} == $hash->{total};
     }
@@ -128,6 +138,7 @@ sub try_work {
         delete $sync{$1 >> 8};
     }
     $log->( 'Syncitems now has %d items post-prune.', scalar( keys %sync ) );
+    $title->( 'post-prune' );
 
     # simple helper sub
     my $realtime = sub {
@@ -149,6 +160,7 @@ sub try_work {
             $last_itemid = $keys[0];
             $lastgrab = $step_time->( $sync{$last_itemid}->[1], -$tries );
 
+            $title->( 'getevents - lastsync %s', $lastgrab );
             $log->( 'Loading entries; lastsync = %s, itemid = %d.', $lastgrab, $keys[0] );
             $hash = $class->call_xmlrpc( $data, 'getevents',
                 {

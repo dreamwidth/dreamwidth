@@ -77,6 +77,15 @@ sub try_work {
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
     $log->( 'Import begun for %s(%d).', $u->user, $u->userid );
 
+    # title munging
+    my $title = sub {
+        my $msg = sprintf( shift(), @_ );
+        $msg = " $msg" if $msg;
+
+        $0 = sprintf( 'content-importer [comments: %s(%d)%s]', $u->user, $u->id, $msg );
+    };
+    $title->();
+
     # this will take a entry_map (old URL -> new jitemid) and convert it into a jitemid map (old jitemid -> new jitemid)
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
@@ -152,6 +161,7 @@ sub try_work {
     while ( defined $server_next_id && $server_next_id =~ /^\d+$/ ) {
         $log->( 'Fetching metadata; max_id = %d, next_id = %d.', $server_max_id || 0, $server_next_id || 0 );
 
+        $title->( 'meta-fetch from id %d', $server_next_id );
         my $content = $class->do_authed_comment_fetch(
             $data, 'comment_meta', $server_next_id, $COMMENTS_FETCH_META
         );
@@ -208,6 +218,7 @@ sub try_work {
     while ( $lastid < $server_max_id ) {
         $log->( 'Fetching bodydata; last_id = %d, max_id = %d.', $lastid || 0, $server_max_id || 0 );
 
+        $title->( 'body-fetch from id %d', $lastid+1 );
         my $content = $class->do_authed_comment_fetch(
             $data, 'comment_body', $lastid+1, $COMMENTS_FETCH_BODY
         );
@@ -278,6 +289,7 @@ sub try_work {
     # This loop should never need to run through more then once
     # but, it will *if* for some reason a comment comes before its parent
     # which *should* never happen, but I'm handling it anyway, just in case.
+    $title->( 'posting %d comments', scalar( @to_import ) );
     while ( $had_unresolved ) {
 
         # variables, and reset

@@ -45,6 +45,7 @@ sub try_work {
     # setup
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
+    $0 = sprintf( 'content-importer [tags: %s(%d)]', $u->user, $u->id );
 
     # get tags
     my $r = $class->call_xmlrpc( $data, 'getusertags' );

@@ -111,6 +111,7 @@ Permanently fail this import job.
 
 sub fail {
     my ( $class, $imp, $item, $job, $msgt, @args ) = @_;
+    $0 = 'content-importer [bored]';
 
     if ( my $dbh = LJ::get_db_writer() ) {
         $dbh->do( "UPDATE import_items SET status = 'failed', last_touch = UNIX_TIMESTAMP() ".
@@ -138,6 +139,7 @@ Temporarily fail this import job, it will get retried if it hasn't failed too ma
 
 sub temp_fail {
     my ( $class, $imp, $item, $job, $msgt, @args ) = @_;
+    $0 = 'content-importer [bored]';
 
     # Check if we are out of failures
     my $max_fails = $class->max_retries;
@@ -170,6 +172,7 @@ Successfully end this import job.
 
 sub ok {
     my ( $class, $imp, $item, $job ) = @_;
+    $0 = 'content-importer [bored]';
 
     if ( my $dbh = LJ::get_db_writer() ) {
         $dbh->do( "UPDATE import_items SET status = 'succeeded', last_touch = UNIX_TIMESTAMP() " .

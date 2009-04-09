@@ -50,6 +50,7 @@ sub try_work {
     # setup
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
+    $0 = sprintf( 'content-importer [userpics: %s(%d)]', $u->user, $u->id );
 
 # FIXME: URL may not be accurate here for all sites
     my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{username}.$data->{hostname}/", $data );
