@@ -47,15 +47,17 @@ body<=
         my %is_trusted_by_userid = map { $_ => 1 } @trusted_by_userids;
         my @watched_by_userids = $u->watched_by_userids;
         my %is_watched_by_userid = map { $_ => 1 } @watched_by_userids;
+        my @member_of_userids = $u->member_of_userids;
+        my %is_member_of_userid = map { $_ => 1 } @member_of_userids;
 
-        my $us = LJ::load_userids( @trusted_userids, keys %$watch_list, @trusted_by_userids, @watched_by_userids );
+        my $us = LJ::load_userids( @trusted_userids, keys %$watch_list, @trusted_by_userids, @watched_by_userids, @member_of_userids );
         my @nonperson_userids;
 
         $ret .= "<form method='post' name='editFriends' action='edit.bml$getextra'>\n";
         $ret .= LJ::form_auth();
 
         # people table
-        if ( @trusted_userids || keys %$watch_list || @trusted_by_userids || @watched_by_userids ) {
+        if ( @trusted_userids || keys %$watch_list || @trusted_by_userids || @watched_by_userids || @member_of_userids ) {
             $ret .= "<p>$ML{'.circle.intro.people'}</p>";
             $ret .= "<div align='center'><table class='editfriends'>";
             $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th>";
