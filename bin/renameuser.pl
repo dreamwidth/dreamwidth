@@ -23,7 +23,7 @@ my $error;
 
 my $from = shift @ARGV;
 my $to = shift @ARGV;
-usage() unless $from =~ /^\w{1,15}$/ && $to =~ /^\w{1,15}$/;
+usage() unless $from =~ /^\w{1,25}$/ && $to =~ /^\w{1,25}$/;
 
 my $dbh = LJ::get_db_writer();
 
