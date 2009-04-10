@@ -52,10 +52,6 @@ body<=
  my $remote = LJ::get_remote();
  LJ::Support::init_remote($remote);
 
- return $ML{'.interim'} if
-    (!$remote || !$remote->{'_priv'}) &&
-    ($r->headers_in->{Referer} eq "$LJ::SITEROOT/support/" || $r->headers_in->{Referer} eq "$LJ::SITEROOT/support/index.bml" || $r->headers_in->{Referer} eq "$LJ::SITEROOT/support/submit.bml");
-
  my $cats = LJ::Support::load_cats();
 
  my $state = $FORM{'state'};
