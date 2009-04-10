@@ -357,6 +357,7 @@ class EntryLite
     function builtin formatted_subject (string{} opts) : string "formats subject - outputs subject as html-link, gets hash of attributes - class and(or) style ";
     function print_subject () [fixed] "Print the formatted subject for this entry or comment";
     function print_subject (string{} opts) [fixed] "Print the formatted subject for this entry or comment, gets hash of attributes - class and(or) style ";
+    function print_poster () "Print the poster of the entry or comment (user or user in journal, etc)";
 }
 
 class Entry extends EntryLite
@@ -440,8 +441,6 @@ class Comment extends EntryLite
 
     function print_edit_text () "Print the text that says when this comment was edited.";
 
-    function print_poster()
-    "Output a line of text which says who posted a comment (just \"user\", or \"user posting in somejournal\")";
 }
 
 ### Userinfo
@@ -576,7 +575,7 @@ class Page
     and DayPage to change how entries display.";
 
     function print_entry_poster(EntryLite e)
-    "Output a line of text which says who posted an entry (just \"user\", or \"user posting in somejournal\")";
+    "Output a line of text which says who posted an entry (just \"user\", or \"user posting in somejournal\"). Deprecated: use Entry::print_poster()";
 
     function builtin get_latest_month() : YearMonth
     "Returns information about the latest month the user posted (or the current month, if no posts), so that the page may include a mini-calendar or similar features.";
@@ -3156,20 +3155,27 @@ function Page::print_linklist() {
     }
 }
 
+# deprecated: use Entry::print_poster()
 function Page::print_entry_poster(EntryLite e) {
+	$e->print_poster();
+}
+
+function Entry::print_poster {
     var Page p = get_page();
+    print safe "<span class=\"poster entry-poster\">";
     if ($p isa FriendsPage or $p isa EntryPage or $p isa ReplyPage) {
-        $e.poster->print();
-        if (not $e.poster->equals($e.journal)) {
+        $this.poster->print();
+        if (not $this.poster->equals($this.journal)) {
             print $*text_posting_in;
-            $e.journal->print();
+            $this.journal->print();
         }
     }
     else {
-        if (not $e.poster->equals($e.journal)) {
-          $e.poster->print();
+        if (not $this.poster->equals($this.journal)) {
+          $this.poster->print();
         }
     }
+    print safe "</span>";
 }
 
 # For any given comment, print the commentor's name (local, anonymous, or openid)
@@ -3195,7 +3201,7 @@ function Page::print_entry(Entry e) {
     """<div class="contents">\n""";
     """<div class="inner">\n""";
     $e->print_userpic();
-    $this->print_entry_poster($e);
+    $e->print_poster();
     $e->print_text();
     $e->print_metadata();
     """</div>\n""";
@@ -3892,7 +3898,7 @@ function MonthDay::print_subjectlist() {
     var Page p = get_page();
     foreach var Entry e ($.entries) {
         $e->print_time("none", "short");
-        $p->print_entry_poster($e);
+        $e->print_poster();
         $e->print_metatypes();
         $e->print_subject();
         if ($e.comments.count > 0) {
@@ -4149,7 +4155,7 @@ function ReplyPage::print_body
     }
 
         $.replyto->print_userpic();
-    $this->print_entry_poster($.replyto);
+    $.replyto->print_poster();
     print "<br />";
     $.replyto->print_time();
 
@@ -4198,3 +4204,4 @@ function MessagePage::print_links() {
     }
     println """</div>""";
 }
+
