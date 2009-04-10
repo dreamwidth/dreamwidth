@@ -10,8 +10,6 @@
     my $output = lc($POST{'output'}) || lc($GET{'output'});
     my $dbr = LJ::get_db_reader();
 
-    my $ad = LJ::get_ads({ location => 'bml.multisearch', ljadwrapper => 1 });
-
     if ($type eq "nav_and_user" || $type eq "nav") {
         # Some special shortcuts used for easy navigation
         if ($q =~ /^faq (\d+)$/) {
@@ -48,7 +46,7 @@
         my $eq = LJ::ehtml($q);
         if (@dests == 0) {
             $title = "No matches";
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p No site page or username matches your search for <b>$eq</b>. p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p No site page or username matches your search for <b>$eq</b>. p?>";
             return;
         }
         if (@dests == 1) {
@@ -56,7 +54,7 @@
         }
 
         $title = "Choices";
-        $body = $ad . "<?h1 Multiple Choices h1?>";
+        $body = "<?h1 Multiple Choices h1?>";
 
         my @cats = ({
             title => "Site pages",
@@ -129,7 +127,7 @@
             return BML::redirect("$LJ::SITEROOT/interests.bml?int=" . LJ::eurl($int));
         } else {
             $title = $ML{'.nointerest.title'};
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.nointerest.text'} p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.nointerest.text'} p?>";
             return;
         }
     }
@@ -138,7 +136,7 @@
         my $email = lc($q);
         unless ($email) {
             $title = $ML{'.noaddress.title'};
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.noaddress.text'} p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.noaddress.text'} p?>";
             return;
         } else {
             my $uid = $dbr->selectrow_array("SELECT userid FROM user WHERE journaltype='P' AND statusvis='V' ".
@@ -162,7 +160,7 @@
                 }
             }
             $title = $ML{'.nomatch.title'};
-            $body = $ad . "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
+            $body = "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
             return;
         }
     }
@@ -196,7 +194,7 @@
 
         # If we haven't returned already then the search turned up nothing.
         $title = $ML{'.nomatch.title'};
-        $body = $ad . "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
+        $body = "<?h1 $ML{'Sorry'} h1?><?p $ML{'.nomatch.text'} p?>";
         return;
     }
 
@@ -205,7 +203,7 @@
         my @parts = split(/\s*,\s*/, $q);
         if (@parts==0 || @parts>3) {
             $title = $ML{'.formaterror'};
-            $body .= $ad . "<?h1 $ML{'.region.head'} h1?><?p " . BML::ml('.region.bodytext2', {'aopts' => "href='$LJ::SITEROOT/directorysearch.bml'"}) . " p?>";
+            $body .= "<?h1 $ML{'.region.head'} h1?><?p " . BML::ml('.region.bodytext2', {'aopts' => "href='$LJ::SITEROOT/directorysearch.bml'"}) . " p?>";
             return;
         }
 
@@ -240,7 +238,7 @@
             return BML::redirect("$LJ::SITEROOT/support/faqsearch.bml?q=" . LJ::eurl($term));
         } else {
             $title = $ML{'.nofaqsearch.title'};
-            $body = $ad . "<?h1 $ML{'Error'} h1?><?p $ML{'.nofaqsearch.text'} p?>";
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.nofaqsearch.text'} p?>";
             return;
         }
     }

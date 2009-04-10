@@ -8,16 +8,9 @@
     $title = $ML{'.title2'};
     $body = "";
 
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_box = LJ::get_ads({ location => 'bml.friends.editgroups/error', ljadwrapper => 1 });
-        return $ad_box . $str;
-    };
-
     my $err = sub {
         $title = $ML{'Error'};
-        $body = $print_with_ad->(LJ::bad_input(@_));
+        $body = LJ::bad_input(@_);
         return;
     };
 
@@ -28,19 +21,19 @@
     delete $POST{'list_out'};
     
     unless (LJ::text_in(\%POST)) {
-        $body = $print_with_ad->("<?badinput?>");
+        $body = "<?badinput?>";
         return;
     }
     
     my $remote = LJ::get_remote();
     unless ($remote) {
-        $body = $print_with_ad->("<?needlogin?>");
+        $body = "<?needlogin?>";
         return;
     }
 
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
-    return $print_with_ad->($err->($ML{'error.invalidauth'}))
+    return $err->($ML{'error.invalidauth'})
         unless $u;
 
     # extra arguments for get requests
@@ -50,7 +43,7 @@
 
     if ( $POST{mode} eq 'save' ) {
         unless (LJ::check_form_auth()) {
-            $body = $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>");
+            $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
             return;
         }
 
@@ -85,11 +78,6 @@
             } );
         }
 
-        $body .= LJ::get_ads({ 
-            location    => 'bml.friends.editgroups/main', 
-            ljadwrapper => 1,
-            below_ad    => LJ::CProd->full_box_for($remote, width => 300)
-        });
         $body .= "<?h1 $ML{'.saved.header'} h1?><?p $ML{'.saved.text'} p?>";
 
         return;
@@ -460,7 +448,6 @@ END_JS
     $body .= "<?p <input type='submit' value='$ML{'.done.btn'}' /> p?>";
     $body .= "</form>";
 
-    $body = $print_with_ad->($body);
     return;
 }
 _code?><?page

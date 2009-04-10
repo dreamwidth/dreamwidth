@@ -10,29 +10,17 @@ body<=
     LJ::set_active_crumb('editprofile');
     LJ::need_res('stc/lj_base.css', 'stc/lj_settings.css');
 
-    # We only show one ad on a page, so if this
-    # hook returns an ad use that instead of the one
-    # defined by the page
-    my $ad_override = LJ::run_hook('identity_section_ad');
-
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_full_width = LJ::get_ads({ location => 'bml.manage.profile/error', ljadwrapper => 1 });
-        return $ad_override ? $str : $ad_full_width . $str;
-    };
-
-    return $print_with_ad->(LJ::server_down_html()) if $LJ::SERVER_DOWN;
+    return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
     my $remote = LJ::get_remote()
-        or return $print_with_ad->("<?needlogin?>");
+        or return "<?needlogin?>";
 
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
-    return $print_with_ad->(LJ::bad_input("You could not be authenticated as the specified user."))
+    return LJ::bad_input("You could not be authenticated as the specified user.")
         unless $u;
 
-    return $print_with_ad->($LJ::MSG_READONLY_USER) if $u->readonly;
+    return $LJ::MSG_READONLY_USER if $u->readonly;
 
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
@@ -129,7 +117,6 @@ body<=
         $ret .= LJ::help_icon('upic_keywords');
         $ret .= "<?p <a href='$LJ::SITEROOT/editpics.bml$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
-        $ret .= "<td rowspan=5 style='padding-left: 20px'>$ad_override</td>" if $ad_override;
         $ret .= "</tr>\n";
 
         # name
@@ -492,7 +479,7 @@ body<=
         $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.save_button'}) . " standout?>\n";
         $ret .= "</form>\n";
 
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
 
@@ -501,9 +488,9 @@ body<=
     ###
 
     if (LJ::did_post()) {
-        return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>") unless LJ::check_form_auth();
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>" unless LJ::check_form_auth();
 
-        return $print_with_ad->("<?badinput?>") unless LJ::text_in(\%POST);
+        return "<?badinput?>" unless LJ::text_in(\%POST);
 
         # name
         unless (LJ::trim($POST{'name'}) || defined($POST{'name_absent'})) {
@@ -740,12 +727,12 @@ body<=
             my @interrors = ();
 
             # Don't bother validating the interests if there are already too many
-            return $print_with_ad->(LJ::bad_input( BML::ml('error.interest.excessive', { intcount => $intcount }) )) if $intcount > 150;
+            return LJ::bad_input( BML::ml('error.interest.excessive', { intcount => $intcount }) ) if $intcount > 150;
 
             # Clean interests, and make sure they're valid
             my @valid_ints = LJ::validate_interest_list(\@interrors, @ints);
             if (@interrors > 0) {
-                return $print_with_ad->(LJ::bad_input( map { BML::ml(@$_) } @interrors ));
+                return LJ::bad_input( map { BML::ml(@$_) } @interrors );
             }
 
             LJ::set_interests($u, \%interests, \@valid_ints);
@@ -776,8 +763,7 @@ body<=
         # tell the user all is well
         my $base = $u->journal_base;
         my $profile_url = $u->profile_url;
-        my $ad_box = LJ::get_ads({ location => 'bml.manage.profile/main', ljadwrapper => 1, below_ad => LJ::CProd->full_box_for($remote, width => 300) });
-        return $ad_box . "<?h1 $ML{'.success.header'} h1?>\n" .
+        return "<?h1 $ML{'.success.header'} h1?>\n" .
                          "<?p $ML{'.success.text'} p?>" .
                          "<?p $ML{'.success.gonext'} p?>" .
                          "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
@@ -786,7 +772,7 @@ body<=
     }
 
     # should never happen
-    return $print_with_ad->("<?h1 $ML{'Error'} h1?><?p $ML{'error.unknownmode'} p?>");
+    return "<?h1 $ML{'Error'} h1?><?p $ML{'error.unknownmode'} p?>";
 
 }
 _code?>

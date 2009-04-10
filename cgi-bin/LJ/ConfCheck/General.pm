@@ -449,10 +449,6 @@ add_conf('$TOOLS_RECENT_COMMENTS_MAX',
          type => 'int',
          des => "Number of recent comments to show on /tools/recent_comments.bml");
 
-add_conf('$USE_ADS',
-         type => 'int',
-         des => "True value to show banner ads on the site.  STILL IN DEVELOPMENT, DO NOT USE IN PRODUCTION");
-
 add_conf('$USERPIC_ROOT',
          type => 'url',
          no_trailing_slash => 1,

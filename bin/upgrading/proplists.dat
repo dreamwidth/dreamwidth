@@ -6,14 +6,6 @@ userproplist.ad_categories:
   multihomed: 0
   prettyname: Ad Content Categories
 
-userproplist.ad_visibility:
-  cldversion: 4
-  datatype: char
-  des: User-selected ad visibility option
-  indexed: 0
-  multihomed: 0
-  prettyname: Ad Visibility
-
 userproplist.adult_content:
   cldversion: 4
   datatype: char

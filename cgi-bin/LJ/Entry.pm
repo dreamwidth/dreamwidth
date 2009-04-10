@@ -1043,20 +1043,6 @@ sub is_special_qotd_entry {
     return 0;
 }
 
-sub qct_value_for_ads {
-    my $self = shift;
-
-    return 0 unless LJ::is_enabled( 'adult_content' );
-
-    my $adult_content = $self->adult_content_calculated;
-
-    if ($LJ::CONTENT_FLAGS{$adult_content} && $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads}) {
-        return $LJ::CONTENT_FLAGS{$adult_content}->{qct_value_for_ads};
-    }
-
-    return 0;
-}
-
 sub should_block_robots {
     my $self = shift;
 

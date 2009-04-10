@@ -70,9 +70,6 @@
      return;
  }
 
- my $ad = LJ::get_ads({ location => 'bml.tools.memories', ljadwrapper => 1, journalu => $u });
- $body .= "<div class='ad-sidebar'>$ad</div>" if $ad;
-
  # owner if you've authed as them or you administrate them
  my $is_owner = $authasu && $user eq $authasu->{user} ||
                 LJ::can_manage_other($remote, $u);

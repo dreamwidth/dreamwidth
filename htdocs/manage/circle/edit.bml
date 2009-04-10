@@ -8,32 +8,25 @@ body<=
 
     LJ::set_active_crumb('managefriends');
 
-    my $print_with_ad = sub {
-        my $str = shift;
-
-        my $ad_full_width = LJ::get_ads({ location => 'bml.friends.edit/error', ljadwrapper => 1 });
-        return $ad_full_width . $str;
-    };
-
-    return $print_with_ad->(LJ::server_down_html())
+    return LJ::server_down_html()
         if $LJ::SERVER_DOWN;
 
-    return $print_with_ad->("<?badinput?>")
+    return "<?badinput?>"
         unless LJ::text_in(\%POST);
 
     my $remote = LJ::get_remote();
-    return $print_with_ad->("<?needlogin?>")
+    return "<?needlogin?>"
         unless $remote;
 
     my $authas = $GET{'authas'} || $remote->user;
     my $getextra = $authas ne $remote->user ? "?authas=$authas" : '';
 
     my $u = LJ::get_authas_user($authas);
-    return $print_with_ad->(LJ::bad_input($ML{'error.invalidauth'}))
+    return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
     return BML::redirect("$LJ::SITEROOT/community/members.bml?authas=$u->{'user'}")
         if $u->is_community;
-    return $print_with_ad->(LJ::bad_input($ML{'.error.badjournaltype'}))
+    return LJ::bad_input($ML{'.error.badjournaltype'})
         unless $u->is_person || $u->is_shared || $u->is_identity;
 
     my $ret;
@@ -264,13 +257,13 @@ body<=
         $ret .= "<?standout " . LJ::html_submit($ML{'.btn.save'}) . " standout?>\n";
         $ret .= "</form>\n";
 
-        return $print_with_ad->($ret);
+        return $ret;
     }
 
 
     # if they did a post, then process their changes
     if (LJ::did_post()) {
-        return $print_with_ad->(LJ::bad_input($ML{'error.invalidform'}))
+        return LJ::bad_input($ML{'error.invalidform'})
             unless LJ::check_form_auth();
 
         # this hash is used to keep track of who we've processed via the add
@@ -349,11 +342,6 @@ body<=
             }
         }
 
-        $ret = LJ::get_ads({ 
-            location    => 'bml.friends.edit/main', 
-            ljadwrapper => 1,
-            below_ad    => LJ::CProd->full_box_for($remote, width => 300) 
-        });
         $ret .= "<?h1 $ML{'.success.head'} h1?>";
         $ret .= "<?p $ML{'.success.fromhere'} p?>";
         $ret .= "<ul>";
@@ -365,7 +353,7 @@ body<=
         return $ret;
     }
 
-    return $print_with_ad->($ML{'error.unknownmode'});
+    return $ML{'error.unknownmode'};
 }
 _code?>
 <=body

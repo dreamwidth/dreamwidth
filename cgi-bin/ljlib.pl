@@ -36,7 +36,6 @@ use Class::Autouse qw(
                       DW::Request
                       TheSchwartz
                       TheSchwartz::Job
-                      LJ::AdTargetedInterests
                       LJ::Comment
                       LJ::Config
                       LJ::Knob
@@ -1446,7 +1445,6 @@ sub start_request
                         js/dom.js
                         js/httpreq.js
                         js/livejournal.js
-                        js/common/AdEngine.js
                         stc/lj_base.css
                         ));
 
@@ -2230,11 +2228,6 @@ sub procnotify_callback
     # cluster switchovers
     if ($cmd eq 'cluster_switch') {
         $LJ::CLUSTER_PAIR_ACTIVE{ $arg->{'cluster'} } = $arg->{ 'role' };
-        return;
-    }
-
-    if ($cmd eq LJ::AdTargetedInterests->procnotify_key) {
-        LJ::AdTargetedInterests->reload;
         return;
     }
 }

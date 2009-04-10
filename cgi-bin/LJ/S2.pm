@@ -2247,36 +2247,9 @@ sub nth_entry_seen {
     return $LJ::REQ_GLOBAL{'nth_entry_keys'}->{$key} = ++$LJ::REQ_GLOBAL{'nth_entry_ct'};
 }
 
-sub curr_page_supports_ebox {
-    my $u = shift;
-    my $rv = LJ::run_hook('curr_page_supports_ebox', $u, $LJ::S2::CURR_PAGE->{'view'});
-    return $rv if defined $rv;
-    return $LJ::S2::CURR_PAGE->{'view'} =~ /^(?:recent|read|day)$/ ? 1 : 0;
-}
-
-sub current_box_type {
-    my $u = shift;
-
-    # Must be an ad user to see any box
-    return undef unless S2::Builtin::LJ::viewer_sees_ads();
-
-    # Ads between posts are shown if:
-    # 1. eboxes are enabled for the site AND
-    # 2. User has selected the ebox option AND
-    # 3. eboxes are supported by the current page or there is no current page
-    if ($u->can_use_ebox) {
-        my $user_has_chosen_ebox = LJ::run_hook('user_has_chosen_ebox', $u) || $u->prop('journal_box_entries');
-        return "ebox" if $user_has_chosen_ebox && (LJ::S2::curr_page_supports_ebox($u) || !$LJ::S2::CURR_PAGE->{'view'});
-    }
-
-    # Horizontal ads are shown if:
-    # 1. ebox isn't applicable AND
-    # 2. User has S2 style system and selected the hbox option
-    return "hbox" if $u->prop('stylesys') == 2 && $u->prop('journal_box_placement') eq 'h';
-
-    # Otherwise, vbox is the default
-    return "vbox";
-}
+# adectomy
+sub current_box_type {}
+sub curr_page_supports_ebox { 0 }
 
 
 ###############
@@ -2516,140 +2489,17 @@ sub viewer_sees_control_strip
     return LJ::run_hook( 'show_control_strip' );
 }
 
-sub _get_ad_box_args {
-    my $ctx = shift;
-    
-    my $r = BML::get_request();
-    my $journalu = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $journalu;
-    
-    my $colors = _get_colors_for_ad($ctx);
-
-    my $qotd = 0;
-    if ($LJ::S2::CURR_PAGE->{view} eq "entry" || $LJ::S2::CURR_PAGE->{view} eq "reply") {
-        my $entry = LJ::Entry->new($journalu, ditemid => $LJ::S2::CURR_PAGE->{entry}->{itemid});
-        $qotd = $entry->prop("qotdid") if $entry;
-    }
- 
-    return {
-        journalu => $journalu,
-        pubtext  => $LJ::REQ_GLOBAL{text_of_first_public_post},
-        tags     => $LJ::REQ_GLOBAL{tags_of_first_public_post},
-        colors   => $colors,
-        interests_extra => $qotd ? { qotd => $qotd } : {},
-        s2_view  => $LJ::S2::CURR_PAGE->{'view'},
-        total_posts_number => scalar( @{$LJ::S2::CURR_PAGE->{'entries'} || []}),
-    };    
-
-}
-
-sub viewer_sees_vbox
-{
-    my $args = _get_ad_box_args(@_);
-    $args->{location} = 's2.vertical' if $args;
-    return $args ? LJ::should_show_ad($args):0;
-}
-
-sub viewer_sees_hbox_top
-{
-    my $args = _get_ad_box_args(@_);
-    $args->{location} = 's2.top' if $args;
-    return $args ? LJ::should_show_ad($args):0;
-}
-
-sub viewer_sees_hbox_bottom
-{
-    my $args = _get_ad_box_args(@_);
-    $args->{location} = 's2.bottom' if $args;
-    return $args ? LJ::should_show_ad($args):0;
-}
-
-sub viewer_sees_ad_box {
-    my ($ctx, $location) = @_;
-    my $args = _get_ad_box_args($ctx);
-    $args->{location} = $location if $args;
-    return $args ? LJ::should_show_ad($args):0;
-}
-
-sub viewer_sees_ebox {
-    my $r = BML::get_request();
-    my $u = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $u;
-
-    if (LJ::S2::current_box_type($u) eq "ebox") {
-        return 1;
-    }
-
-    return 0;
-}
-
-sub _get_Entry_ebox_args {
-    my ($ctx, $this) = @_;
-
-    my $r = BML::get_request();
-    my $journalu = LJ::load_userid($r->notes->{journalid});
-    return 0 unless $journalu;
-
-    my $curr_entry_ct = LJ::S2::nth_entry_seen($this);
-    my $entries = $LJ::S2::CURR_PAGE->{'entries'} || [];
-    my $total_entry_ct = @$entries;
-
-    $LJ::REQ_GLOBAL{ebox_count} = $LJ::REQ_GLOBAL{ebox_count} > 1 ? $LJ::REQ_GLOBAL{ebox_count} : 1;
-    
-    #return unless (LJ::S2::current_box_type($journalu) eq "ebox");
-    
-    my $colors = _get_colors_for_ad($ctx);
-    my $pubtext;
-    my @tag_names;
-
-    # If this entry is public, get this entry's text and tags
-    # If this entry is non-public, get the first public entry's text and tags
-    if ($this->{security}) { # if non-public
-        $pubtext = $LJ::REQ_GLOBAL{text_of_first_public_post};
-        @tag_names = @{$LJ::REQ_GLOBAL{tags_of_first_public_post} || []};
-    } else { # if public
-        $pubtext = $this->{text};
-        if (@{$this->{tags}}) {
-            @tag_names = map { $_->{name} } @{$this->{tags}};
-        }
-    }
-
-    my $qotd = 0;
-    if ($LJ::S2::CURR_PAGE->{view} eq "entry" || $LJ::S2::CURR_PAGE->{view} eq "reply") {
-        my $entry = LJ::Entry->new($journalu, ditemid => $LJ::S2::CURR_PAGE->{entry}->{itemid});
-        $qotd = $entry->prop("qotdid") if $entry;
-    }
-
-    return {
-        location    => 's2.ebox',       
-        journalu    => $journalu,
-        pubtext     => $pubtext,
-        tags        => \@tag_names,
-        colors      => $colors,
-        position    => $LJ::REQ_GLOBAL{ebox_count},
-        total_entry_ct  => $total_entry_ct,
-        interests_extra => $qotd ? { qotd => $qotd } : {},
-        s2_view        => $LJ::S2::CURR_PAGE->{view},
-        current_post_number => LJ::S2::nth_entry_seen($this),
-        total_posts_number  => scalar( @{$LJ::S2::CURR_PAGE->{'entries'} || []} ),
-    }; 
-}
-
-sub Entry__viewer_sees_ebox {
-    my $args = _get_Entry_ebox_args(@_);
-    return $args ? LJ::should_show_ad($args):0;
-}
-
-sub viewer_sees_ads # deprecated.
-{
-    return 0 unless $LJ::USE_ADS;
-
-    my $r = BML::get_request();
-    return LJ::run_hook('should_show_ad', {
-        ctx  => 'journal',
-        userid => $r->notes->{journalid},
-    });
-}
+# maintained only for compatibility with core1, eventually these can be removed
+# when we've upgraded everybody.  or we keep this cruft until the cows come home
+# as a stolid reminder to our past.
+sub viewer_sees_vbox  { 0 }
+sub viewer_sees_hbox_top { 0 }
+sub viewer_sees_hbox_bottom { 0 }
+sub viewer_sees_ad_box { 0 }
+sub viewer_sees_ebox { 0 }
+sub viewer_sees_ads { 0 }
+sub _get_Entry_ebox_args { 0 }
+sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css
 {
@@ -3810,110 +3660,13 @@ sub Page__print_control_strip
 *ReplyPage__print_control_strip = \&Page__print_control_strip;
 *TagsPage__print_control_strip = \&Page__print_control_strip;
 
-sub Page__print_hbox_top
-{
-    my $args = _get_ad_box_args(@_);
-    return unless $args;
-    $args->{location} = 's2.top';
-    my $ad_html = LJ::get_ads($args);
-    $S2::pout->($ad_html) if $ad_html;
-}
-
-sub Page__print_hbox_bottom
-{
-    my $args = _get_ad_box_args(@_);
-    return unless $args;
-    $args->{location} = 's2.bottom';
-    my $ad_html = LJ::get_ads($args);
-    $S2::pout->($ad_html) if $ad_html;
-}
-
-sub Page__print_vbox {
-    my $args = _get_ad_box_args(@_);
-    return unless $args;
-    $args->{location} = 's2.vertical';
-    my $ad_html = LJ::get_ads($args);
-    $S2::pout->($ad_html) if $ad_html;
-}
-
-sub Page__print_ad_box {
-    my ($ctx, $this, $location) = @_;
-    my $args = _get_ad_box_args($ctx, $this);
-    return unless $args;
-    $args->{location} = $location;
-    my $ad_html = LJ::get_ads($args);
-    $S2::pout->($ad_html) if $ad_html;
-}
-
-sub Entry__print_ebox {
-    my $args = _get_Entry_ebox_args(@_);
-    return unless $args;
-    my $ad_html = LJ::get_ads($args);
-    $LJ::REQ_GLOBAL{ebox_count}++;
-    $S2::pout->($ad_html) if $ad_html;
-}
-
-sub _get_colors_for_ad {
-    my $ctx = shift;
-
-    # Load colors from the layout and remove the # in front of them
-    my ($bgcolor, $fgcolor, $bordercolor, $linkcolor);
-    my $bgcolor_prop = S2::get_property_value($ctx, "theme_bgcolor");
-    my $fgcolor_prop = S2::get_property_value($ctx, "theme_fgcolor");
-    my $bordercolor_prop = S2::get_property_value($ctx, "theme_bordercolor");
-    my $linkcolor_prop = S2::get_property_value($ctx, "theme_linkcolor");
-
-    if ($bgcolor_prop) {
-        $bgcolor = $bgcolor_prop->{as_string};
-        $bgcolor =~ s/^#//;
-    }
-    if ($fgcolor_prop) {
-        $fgcolor = $fgcolor_prop->{as_string};
-        $fgcolor =~ s/^#//;
-    }
-    if ($bordercolor_prop) {
-        $bordercolor = $bordercolor_prop->{as_string};
-        $bordercolor =~ s/^#//;
-    }
-    if ($linkcolor_prop) {
-        $linkcolor = $linkcolor_prop->{as_string};
-        $linkcolor =~ s/^#//;
-    }
-
-    my %colors = (
-        bgcolor     => $bgcolor,
-        fgcolor     => $fgcolor,
-        bordercolor => $bordercolor,
-        linkcolor   => $linkcolor,
-    );
-
-    return \%colors;
-}
-
-# deprecated, should use print_(v|h)box
-sub Page__print_ad
-{
-    my ($ctx, $this, $type) = @_;
-
-    #my $ad = '';
-    #return '' unless $ad;
-    #$S2::pout->($ad);
-}
-
-# map vbox/hbox/ebox methods into *Page classes
-foreach my $class (qw(RecentPage FriendsPage YearPage MonthPage DayPage EntryPage ReplyPage TagsPage)) {
-    foreach my $func (qw(print_ad print_vbox print_hbox_top print_hbox_bottom print_ebox)) {
-        ##
-        ## Oops, years later after this code was written, an error is found:
-        ## the argument string to eval must have an extra \:
-        ##      "*${class}__$func = \\&Page__$func"; 
-        ## eval "*${class}__$func = \&Page__$func";
-        ##
-        ## How did it work all this time?
-        ##
-    }
-}
-
+# removed as part of generic ads removal
+sub Page__print_hbox_top {}
+sub Page__print_hbox_bottom {}
+sub Page__print_vbox {}
+sub Page__print_ad_box {}
+sub Entry__print_ebox {}
+sub Page__print_ad {}
 
 sub Page__visible_tag_list
 {

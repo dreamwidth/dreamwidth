@@ -355,9 +355,9 @@ class Entry extends EntryLite
     function print_link_next() "Print the link to the next entry in this journal.";
     function print_link_prev() "Print the link to the previous entry in this journal.";
     function builtin viewer_sees_ebox() [fixed] : bool
-    "True if opaque horizontal site-specific content boxes between entries should be displayed to the user.";
+    "Does nothing.";
     function builtin print_ebox() [fixed]
-    "Prints a small horizontal bar of site-specific content between entries in a journal.";
+    "Does nothing.";
 }
 
 class Comment extends EntryLite
@@ -504,19 +504,19 @@ class Page
     [method[Page.print_custom_head()]] if you want to supply custom head content.";
 
     function builtin print_hbox_top [fixed]
-    "Prints an horizontal bar of site-specific content at the top of a journal.";
+    "Does nothing.";
 
     function builtin print_hbox_bottom [fixed]
-    "Prints an horizontal bar of site-specific content at the bottom of a journal.";
+    "Does nothing.";
 
     function builtin print_vbox [fixed]
-    "Prints an vertical bar of site-specific content on a journal.";
+    "Does nothing.";
 
     function builtin print_ad_box(string type) [fixed]
-    "Prints an side bar of site-specific content on a journal.";
+    "Does nothing.";
 
     function builtin print_ad(string type) [fixed]
-    "Deprecated function.  Use print_hbox_(top|bottom) or print_vbox from now on.";
+    "Does nothing.";
 
     function builtin print_control_strip [fixed]
     "Prints a control strip for the user's convenience";
@@ -817,22 +817,22 @@ function builtin viewer_is_member() : bool
 "Returns true if the user viewing the page is both logged in, and is a member of the community being viewed. Always returns false for personal journals, since they cannot have members.";
 
 function builtin viewer_sees_ads() [fixed] : bool
-"Deprecated function.  Use viewer_sees_hbox_(top|bottom) or viewer_sees_vbox from now on.";
+"Does nothing.";
 
 function builtin viewer_sees_vbox() [fixed] : bool
-"True if opaque vertical site-specific content box should be displayed to the user.";
+"Does nothing.";
 
 function builtin viewer_sees_hbox_top() [fixed] : bool
-"True if opaque horizontal site-specific content box should be displayed to the user at the top of the page.";
+"Does nothing.";
 
 function builtin viewer_sees_hbox_bottom() [fixed] : bool
-"True if opaque horizontal site-specific content box should be displayed to the user at the bottom of the page.";
+"Does nothing.";
 
 function builtin viewer_sees_ad_box(string type) [fixed] : bool
-"True if opaque sidebar site-specific content box should be displayed to the user.";
+"Does nothing.";
 
 function builtin viewer_sees_ebox() [fixed] : bool
-"True if the user has selected to see opaque content boxes between entries.";
+"Does nothing.";
 
 function builtin viewer_sees_control_strip [fixed] : bool
 "Returns true if reader will see the built in control strip.";

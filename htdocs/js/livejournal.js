@@ -46,7 +46,6 @@ LiveJournal.initPage = function () {
     LiveJournal.initPlaceholders();
     LiveJournal.initLabels();
     LiveJournal.initInboxUpdate();
-    LiveJournal.initAds();
     LiveJournal.initPolls();
 
     // run other hooks
@@ -163,11 +162,6 @@ LiveJournal.labelClickHandler = function (evt) {
     target.click();
 
     return false;
-};
-
-// change drsc to src for ads
-LiveJournal.initAds = function () {
-    AdEngine.init();
 };
 
 // handy utilities to create elements with just text in them
@@ -321,25 +315,6 @@ LiveJournal.addClickHandlerToElementsWithClassName = function (callback, classNa
   items.forEach(function (item) {
     DOM.addEventListener(item, "click", callback);
   })
-};
-
-LiveJournal.insertAdsMulti = function (params) {
-  var i = 0;
-  var containers = [];
-
-  for (i = 0; i < params.length; i++) {
-    if (! params[i].html || params[i].html == "<ul>\n</ul>") continue;
-    AdEngine.insertAdResponse( params[i] );
-    containers.push(document.getElementById(params[i].id));
-  }
-
-    // add the ad box style to the containers
-    containers.forEach(function (container) {
-      if (! container) return;
-
-      DOM.addClassName(container.parentNode, "lj_content_ad");
-      DOM.removeClassName(container.parentNode, "lj_inactive_ad");
-    });
 };
 
 // given a URL, parse out the GET args and return them in a hash
