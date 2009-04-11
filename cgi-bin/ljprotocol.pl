@@ -1415,7 +1415,7 @@ sub postevent
 
             my $pollid = $poll->pollid;
 
-            $event =~ s/<lj-poll-placeholder>/<lj-poll-$pollid>/;
+            $event =~ s/<poll-placeholder>/<poll-$pollid>/;
         }
     }
     #### /embedding

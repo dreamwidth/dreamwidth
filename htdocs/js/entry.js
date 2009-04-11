@@ -542,7 +542,7 @@ InOb.handleInsertEmbed = function () {
     var cb = function (content) {
         var form = $("updateForm");
         if (! form || ! form.event);
-        form.event.value += "\n<lj-embed>\n" + content + "\n</lj-embed>";
+        form.event.value += "\n<site-embed>\n" + content + "\n</site-embed>";
     };
     entry_insert_embed(cb);
 }
@@ -556,7 +556,7 @@ InOb.handleInsertImage = function () {
 InOb.handleInsertVideo = function() {
     var videoUrl = prompt('Please enter a video URL:');
     var draft = $('draft');
-    var video = "<lj-template name=\"video\">" + videoUrl + "</lj-template>";
+    var video = "<site-template name=\"video\">" + videoUrl + "</site-template>";
     draft.value = draft.value + video;
 }
 

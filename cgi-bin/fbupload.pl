@@ -204,7 +204,7 @@ sub make_html
     # insert image links into post body
     my $horiz = $opts->{imglayout} =~ /^horiz/i;
     $html .=
-      "<lj-cut text='$icount "
+      "<cut text='$icount "
       . ( ( $icount == 1 ) ? 'image' : 'images' ) . "'>"
           if $opts->{imgcut} eq 'count';
     $html .= "<table border='0'><tr>" if $horiz;
@@ -217,15 +217,15 @@ sub make_html
         undef $size if $i->{width} <= $width || $i->{height} <= $height;
 
         $html .= "<td>" if $horiz;
-        $html .= "<lj-cut text=\"$title\">" if $opts->{imgcut} eq 'titles';
+        $html .= "<cut text=\"$title\">" if $opts->{imgcut} eq 'titles';
         $html .= "<a href=\"$i->{url}/\">";
         $html .= "<img src=\"$i->{url}$size\" alt=\"$title\" border=\"0\"></a><br />";
         $html .= "$i->{caption}<br />" if $i->{caption};
         $html .= $horiz ? '</td>' : '<br />';
-        $html .= "</lj-cut> " if $opts->{imgcut} eq 'titles';
+        $html .= "</cut> " if $opts->{imgcut} eq 'titles';
     }
     $html .= "</tr></table>" if $horiz;
-    $html .= "</lj-cut>\n" if $opts->{imgcut} eq 'count';
+    $html .= "</cut>\n" if $opts->{imgcut} eq 'count';
 
     return $html;
 }

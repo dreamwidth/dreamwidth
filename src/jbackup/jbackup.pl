@@ -1020,7 +1020,7 @@ sub ehtml {
 # they specify --clean, we will just replace poll tags with links to the poll, and not do much else.
 sub clean_event {
     my $input = shift;
-    $input =~ s!<lj-poll-(\d+)>!<a href="http://$opts{server}/poll/?id=$1">View poll.</a>!g;
+    $input =~ s!<(?:lj-)?poll-(\d+)>!<a href="http://$opts{server}/poll/?id=$1">View poll.</a>!g;
     return $input;
 }
 

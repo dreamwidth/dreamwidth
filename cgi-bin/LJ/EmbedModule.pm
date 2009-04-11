@@ -58,8 +58,8 @@ sub transform_rte_post {
     my ($class, $txt) = @_;
     return $txt unless $txt && $txt =~ /ljembed/i;
     # ghetto... shouldn't use regexes to parse this
-    $txt =~ s/<div\s*class="ljembed"\s*(embedid="(\d+)")?\s*>(((?!<\/div>).)*)<\/div>/<lj-embed id="$2">$3<\/lj-embed>/ig;
-    $txt =~ s/<div\s*(embedid="(\d+)")?\s*class="ljembed"\s*>(((?!<\/div>).)*)<\/div>/<lj-embed id="$2">$3<\/lj-embed>/ig;
+    $txt =~ s/<div\s*class="ljembed"\s*(embedid="(\d+)")?\s*>(((?!<\/div>).)*)<\/div>/<site-embed id="$2">$3<\/site-embed>/ig;
+    $txt =~ s/<div\s*(embedid="(\d+)")?\s*class="ljembed"\s*>(((?!<\/div>).)*)<\/div>/<site-embed id="$2">$3<\/site-embed>/ig;
     return $txt;
 }
 
@@ -68,7 +68,7 @@ sub transform_rte_post {
 sub expand_entry {
     my ($class, $journal, $entryref, %opts) = @_;
 
-    $$entryref =~ s/(<lj\-embed[^>]+\/>)/$class->_expand_tag($journal, $1, $opts{edit}, %opts)/ge;
+    $$entryref =~ s/(<(?:lj|site)\-embed[^>]+\/>)/$class->_expand_tag($journal, $1, $opts{edit}, %opts)/ge;
 }
 
 sub _expand_tag {
@@ -80,14 +80,14 @@ sub _expand_tag {
 
     my %attrs = $tag =~ /(\w+)="?(\-?\d+)"?/g;
 
-    return '[invalid lj-embed, id is missing]' unless $attrs{id};
+    return '[invalid site-embed, id is missing]' unless $attrs{id};
 
     if ($opts{expand_full}){
         return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id);
     } elsif ($edit) {
-        return '<lj-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">\n" .
+        return '<site-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">\n" .
                  $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id) .
-                 "\n<\/lj-embed>";
+                 "\n<\/site-embed>";
     } else {
         @opts{qw /width height/} = @attrs{qw/width height/};
         return $class->module_iframe_tag($journal, $attrs{id}, %opts)

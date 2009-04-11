@@ -61,12 +61,12 @@ Poll.prototype.outputHTML = function () {
     return html;
 }
 
-// Poll method to generate LJ Poll tags
-Poll.prototype.outputLJtags = function (pollID, post) {
+// Poll method to generate Poll tags
+Poll.prototype.outputPolltags = function (pollID, post) {
     var tags = '';
 
     if (post == true) tags += '<div class="LJpoll">';
-    tags+= '<lj-poll name="'+this.name+'" id="poll'+pollID+'" ';
+    tags+= '<poll name="'+this.name+'" id="poll'+pollID+'" ';
     tags+= 'whovote="'+this.whovote+'" whoview="'+this.whoview+'">\n';
 
     for (var i=0; i<this.qa.length; i++) {
@@ -80,18 +80,18 @@ Poll.prototype.outputLJtags = function (pollID, post) {
             extrargs += ' by="'+this.qa[i].by+'"';
         }
 
-        tags += ' <lj-pq type="'+this.qa[i].atype+'"'+extrargs+'>\n';
+        tags += ' <poll-question type="'+this.qa[i].atype+'"'+extrargs+'>\n';
         tags += ' ' + this.qa[i].question + '\n';
         // answer choices for radio, checkbox and drop-down
         if (this.qa[i].atype == "radio" || this.qa[i].atype == "check" || this.qa[i].atype == "drop") {
             for (var j=0; j<this.qa[i].answer.length; j++) {
-                tags += '  <lj-pi>' + this.qa[i].answer[j] + '</lj-pi>\n';
+                tags += '  <poll-item>' + this.qa[i].answer[j] + '</poll-item>\n';
             }
         }
-        tags += ' </lj-pq>\n';
+        tags += ' </poll-question>\n';
     }
 
-    tags += '</lj-poll>';
+    tags += '</poll>';
     if (post == true) tags += '</div>';
 
     return tags;

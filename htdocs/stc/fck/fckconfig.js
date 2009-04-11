@@ -57,17 +57,17 @@ FCKConfig.AutoGrowMax = 400 ;
 /////////////////////////////////
 // LIVEJOURNAL SPECIFIC
 FCKConfig.Plugins.Add('livejournal');
-FCKConfig.ProtectedSource.Add( /<lj user[\s\S]*?\/lj>/gi ); // <lj user>
-FCKConfig.ProtectedSource.Add( /<lj-template name=['"]\w+['"]\S+?<\/lj-template>/gi ); // <lj-template>
-FCKConfig.ProtectedSource.Add( /<lj-template id=['"]?\d+['"]? name=['"]?\w+['"]?>.*?<\/lj-template>/gi ); // <lj-template></lj-template>
-FCKConfig.ProtectedSource.Add( /<lj-template name=['"]?\w+['"]? id=['"]?\d+['"]?>.*?<\/lj-template>/gi ); // <lj-template></lj-template>
-FCKConfig.ProtectedSource.Add( /<lj-template id=['"]?\d+['"]? name=['"]?\w+['"]? \/>/gi ); // <lj-template />
-FCKConfig.ProtectedSource.Add( /<lj-template name=['"]?\w+['"]? id=['"]?\d+['"]? \/>/gi ); // <lj-template />
-FCKConfig.ProtectedSource.Add( /<lj-poll[\s\S]*?<\/lj-poll>/gi ); // lj polls
-FCKConfig.ProtectedSource.Add( /<div.*?><lj-poll-\d+?><\/lj-poll-\d+?><\/div>/gi ); // generated lj polls
+FCKConfig.ProtectedSource.Add( /<(lj )?user[\s\S]*?\/lj>/gi ); // <(lj) user>
+FCKConfig.ProtectedSource.Add( /<(lj|site)-template name=['"]\w+['"]\S+?<\/\1template>/gi ); // <lj/site-template>
+FCKConfig.ProtectedSource.Add( /<(lj|site)-template id=['"]?\d+['"]? name=['"]?\w+['"]?>.*?<\/\1template>/gi ); // <lj/site-template></lj/site-template>
+FCKConfig.ProtectedSource.Add( /<(lj|site)-template name=['"]?\w+['"]? id=['"]?\d+['"]?>.*?<\/\1template>/gi ); // <lj/site-template></lj/site-template>
+FCKConfig.ProtectedSource.Add( /<(lj|site)-template id=['"]?\d+['"]? name=['"]?\w+['"]? \/>/gi ); // <lj/site-template />
+FCKConfig.ProtectedSource.Add( /<(lj|site)-template name=['"]?\w+['"]? id=['"]?\d+['"]? \/>/gi ); // <lj/site-template />
+FCKConfig.ProtectedSource.Add( /<(lj-)?poll[\s\S]*?<\/\1poll>/gi ); // polls
+FCKConfig.ProtectedSource.Add( /<div.*?><(lj-)?poll-\d+?><\/\1poll-\d+?><\/div>/gi ); // generated polls
 //FCKConfig.ProtectedSource.Add( /<lj-pq.+?>.+?<\/lj-pq>/gi ); // lj polls
 //FCKConfig.ProtectedSource.Add( /<lj-pi.+?>.+?<\/lj-pi>/gi ); // lj polls
-FCKConfig.ProtectedSource.Add( /<lj-cut( text=['"]?\S+['"]?)?>\S+?<\/lj-cut>/gi ); // <lj-template>
+FCKConfig.ProtectedSource.Add( /<(lj-)?cut( text=['"]?\S+['"]?)?>\S+?<\/\1cut>/gi ); // cut
 
 // END LJ SPECIFIC
 ///////////////////////////////////

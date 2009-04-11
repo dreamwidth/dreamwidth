@@ -25,7 +25,7 @@
     return $err->("No such user") unless $u;
 
     $ret{ljuser} = LJ::ljuser($u);
-    $ret{userstr} = "<lj user=\"$username\">";
+    $ret{userstr} = "<user name=\"$username\">";
 
     sleep(1.5) if $LJ::IS_DEV_SERVER;
 

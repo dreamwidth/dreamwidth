@@ -564,12 +564,12 @@
             my $ret;
 
             # start out the tag
-            $ret .= "<lj-poll name='" . LJ::ehtml($poll->{'name'}) . "' whovote='" . LJ::ehtml($poll->{'whovote'}) . "' whoview='" . LJ::ehtml($poll->{'whoview'}) . "'>\n";
+            $ret .= "<poll name='" . LJ::ehtml($poll->{'name'}) . "' whovote='" . LJ::ehtml($poll->{'whovote'}) . "' whoview='" . LJ::ehtml($poll->{'whoview'}) . "'>\n";
 
-            # go through and make <lj-pq> tags
+            # go through and make <poll-question> tags
             foreach my $q (0..$poll->{'count'}-1) {
                 my $elem = $poll->{'pq'}->[$q];
-                $ret .= "<lj-pq type='$elem->{'type'}'";
+                $ret .= "<poll-question type='$elem->{'type'}'";
 
                 # fill in attributes
                 if ($elem->{'type'} eq 'text') {
@@ -585,16 +585,16 @@
                 $ret .= $elem->{'question'} . "\n" if $elem->{'question'};
 
                 if ($elem->{'type'} =~ /^(radio|drop|check)$/) {
-                    # make <lj-pi> tags
+                    # make <poll-item> tags
                     foreach my $o (0..$elem->{'opts'}) {
-                        $ret .= "<lj-pi>$elem->{'opt'}->[$o]</lj-pi>\n" if $elem->{'opt'}->[$o] ne '';
+                        $ret .= "<poll-item>$elem->{'opt'}->[$o]</poll-item>\n" if $elem->{'opt'}->[$o] ne '';
                     }
                 }
-                $ret .= "</lj-pq>\n";
+                $ret .= "</poll-question>\n";
             }
 
             # close off the poll
-            $ret .= "</lj-poll>";
+            $ret .= "</poll>";
 
             # escape html on this because it'll currently be sent to user so they can copy/paste
             return $ret;

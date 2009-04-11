@@ -159,9 +159,20 @@ lj-poll {
     border: #000000 1px dotted;
     background-color: #d2d2d2;
 }
+poll {
+    display: block;
+    border: #000000 1px dotted;
+    background-color: #d2d2d2;
+}
 lj-pq {
     display: block;
 }
+poll-question {
+    display: block;
+}
 lj-pi {
+    display: inline;
+}
+poll-item {
     display: inline;
 }

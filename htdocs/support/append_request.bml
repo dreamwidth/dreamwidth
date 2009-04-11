@@ -185,7 +185,7 @@ body<=
         my @email_errors;
         foreach my $email (@form_emails) {
 
-            # see if it's a valid lj username
+            # see if it's a valid username
             unless ($email =~ /\@/) {
                 my $eu = LJ::load_user($email); # $email is a username
                 $email = $eu->email_raw if $eu;

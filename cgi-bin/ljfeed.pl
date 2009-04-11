@@ -227,7 +227,7 @@ sub make_feed
                 }
             }
 
-            while ($event =~ /<lj-poll-(\d+)>/g) {
+            while ($event =~ /<(?:lj-)?poll-(\d+)>/g) {
                 my $pollid = $1;
 
                 my $name = LJ::Poll->new($pollid)->name;
@@ -237,7 +237,7 @@ sub make_feed
                     $name = "#$pollid";
                 }
 
-                $event =~ s!<lj-poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
+                $event =~ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: $name</a></div>!g;
             }
 
             my %args = $r->query_string;

@@ -350,7 +350,7 @@ body<=
             return $poll->preview;
         };
 
-        $event =~ s/<lj-poll-placeholder>/$poll_preview->()/eg;
+        $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
         LJ::CleanHTML::clean_event(\$event, {'preformatted' => $req->{'props'}->{'opt_preformatted'},
                                              'cutpreview' => 1,
                                              'cuturl' => '#',

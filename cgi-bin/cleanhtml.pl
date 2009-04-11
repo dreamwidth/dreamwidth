@@ -253,6 +253,7 @@ sub clean
     my $update_tag = sub {
         return {
             'cut'           => 'lj-cut',
+            'poll'          => 'lj-poll',
             'poll-item'     => 'lj-pi',
             'poll-question' => 'lj-pq',
             'raw-code'      => 'lj-raw',

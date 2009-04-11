@@ -182,7 +182,7 @@ sub clean_poll {
 
 sub contains_new_poll {
     my ($class, $postref) = @_;
-    return ($$postref =~ /<lj-poll\b/i);
+    return ($$postref =~ /<(?:lj-)?poll\b/i);
 }
 
 # parses poll tags and returns whatever polls were parsed out
@@ -250,8 +250,8 @@ sub new_from_html {
 
             ######## Begin poll tag
 
-            if ($tag eq "lj-poll") {
-                return $err->('poll.error.nested', { 'tag' => 'lj-poll' })
+            if ($tag eq "lj-poll" || $tag eq "poll") {
+                return $err->('poll.error.nested', { 'tag' => 'poll' })
                     if $popen;
 
                 $popen = 1;
@@ -290,9 +290,9 @@ sub new_from_html {
 
             ######## Begin poll question tag
 
-            elsif ($tag eq "lj-pq")
+            elsif ($tag eq "lj-pq" || $tag eq "poll-question")
             {
-                return $err->('poll.error.nested', { 'tag' => 'lj-pq' })
+                return $err->('poll.error.nested', { 'tag' => 'poll-question' })
                     if $qopen;
 
                 return $err->('poll.error.missingljpoll')
@@ -371,10 +371,10 @@ sub new_from_html {
 
             ######## Begin poll item tag
 
-            elsif ($tag eq "lj-pi")
+            elsif ($tag eq "lj-pi" || $tag eq "poll-item")
             {
                 if ($iopen) {
-                    return $err->('poll.error.nested', { 'tag' => 'lj-pi' });
+                    return $err->('poll.error.nested', { 'tag' => 'poll-item' });
                 }
                 if (! $qopen) {
                     return $err->('poll.error.missingljpq');
@@ -410,8 +410,8 @@ sub new_from_html {
 
             ##### end POLL
 
-            if ($tag eq "lj-poll") {
-                return $err->('poll.error.tagnotopen', { 'tag' => 'lj-poll' })
+            if ($tag eq "lj-poll" || $tag eq "poll") {
+                return $err->('poll.error.tagnotopen', { 'tag' => 'poll' })
                     unless $popen;
 
                 $popen = 0;
@@ -427,13 +427,13 @@ sub new_from_html {
                 $pollobj->absorb_row(\%popts);
                 push @polls, $pollobj;
 
-                $append .= "<lj-poll-placeholder>";
+                $append .= "<poll-placeholder>";
             }
 
             ##### end QUESTION
 
-            elsif ($tag eq "lj-pq") {
-                return $err->('poll.error.tagnotopen', { 'tag' => 'lj-pq' })
+            elsif ($tag eq "lj-pq" || $tag eq "poll-question") {
+                return $err->('poll.error.tagnotopen', { 'tag' => 'poll-question' })
                     unless $qopen;
 
                 unless ($qopts{'type'} eq "scale" ||
@@ -456,8 +456,8 @@ sub new_from_html {
 
             ##### end ITEM
 
-            elsif ($tag eq "lj-pi") {
-                return $err->('poll.error.tagnotopen', { 'tag' => 'lj-pi' })
+            elsif ($tag eq "lj-pi" || $tag eq "poll-item") {
+                return $err->('poll.error.tagnotopen', { 'tag' => 'poll-item' })
                     unless $iopen;
 
                 $iopts{'item'} =~ s/^\s+//;
@@ -511,9 +511,9 @@ sub new_from_html {
 
     }
 
-    if ($popen) { return $err->('poll.error.unlockedtag', { 'tag' => 'lj-poll' }); }
-    if ($qopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'lj-pq' }); }
-    if ($iopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'lj-pi' }); }
+    if ($popen) { return $err->('poll.error.unlockedtag', { 'tag' => 'poll' }); }
+    if ($qopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'poll-question' }); }
+    if ($iopen) { return $err->('poll.error.unlockedtag', { 'tag' => 'poll-item' }); }
 
     $$postref = $newdata;
     return @polls;
@@ -1333,7 +1333,7 @@ package LJ::Poll;
 use strict;
 use Carp qw (croak);
 
-# takes a scalarref to entry text and expands lj-poll tags into the polls
+# takes a scalarref to entry text and expands (lj-)poll tags into the polls
 sub expand_entry {
     my ($class, $entryref) = @_;
 
@@ -1348,7 +1348,7 @@ sub expand_entry {
         return $poll->render;
     };
 
-    $$entryref =~ s/<lj-poll-(\d+)>/$expand->($1)/eg;
+    $$entryref =~ s/<(?:lj-)?poll-(\d+)>/$expand->($1)/eg;
 }
 
 sub process_submission {
