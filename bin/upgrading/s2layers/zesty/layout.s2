@@ -372,10 +372,10 @@ propgroup Miscellaneous {
         set num_items_reading = 20;
 
     property string default_view_mode {
-        des = "Show entries expanded or collapsed by default. Currently this setting affects the 'friends page' only.";
+        des = "Show entries expanded or collapsed by default. Currently this setting affects the reading page only.";
         values = "collapsed|Entries collapsed|expanded|Entries expanded";
         }
-        set default_view_mode = "collapsed";
+        set default_view_mode = "expanded";
 }
 
 
