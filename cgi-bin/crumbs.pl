@@ -32,7 +32,6 @@ use Errno qw(ENOENT);
     'editsettings' => ['Viewing Options', '/manage/profile/', 'manage'],
     'editstyle' => ['Edit Style', '/styles/edit.bml', 'modify'],
     'emailmanage' => ['Email Management', '/tools/emailmanage.bml', 'manage'],
-    'encodings' => ['About Encodings', '/support/encodings.bml', 'support'],
     'export' => ['Export Journal', '/export.bml', 'home'],
     'faq' => ['Frequently Asked Questions', '/support/faq.bml', 'support'],
     'feedstersearch' => ['Search a Journal', '/tools/search.bml', 'home'],

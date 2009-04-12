@@ -2181,7 +2181,7 @@ sub getevents
             foreach (keys %{$evt->{'props'}}) {
                 $evt->{'props'}->{$_} = LJ::text_convert($evt->{'props'}->{$_}, $uowner, \$error);
             }
-            return fail($err,208,"Cannot display this post. Please see $LJ::SITEROOT/support/encodings.bml for more information.")
+            return fail($err,208,"Cannot display this post.")
                 if $error;
         }
 
