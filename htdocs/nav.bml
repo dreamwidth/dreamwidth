@@ -1,0 +1,53 @@
+<?_c
+#
+# nav.bml
+#
+# Page that shows the sub-level navigation links given the top-level navigation header
+#
+# Authors:
+#     Janine Costanzo <janine@netrophic.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title $headextra @errors @warnings);
+
+    use DW::Logic::MenuNav;
+
+    $title = $ML{'.title'};
+
+    my $cat = $GET{cat};
+    return $ML{'.error.nocat'} unless $cat;
+
+    my $nav_links = DW::Logic::MenuNav->get_menu_navigation;
+    my $ret;
+
+    my @links_html;
+    foreach my $cathash ( @{ $nav_links } ) {
+        next if $cathash->{name} ne $cat;
+        foreach my $item ( @{ $cathash->{items} } ) {
+            push @links_html, "<a href='$item->{url}'>" . BML::ml( "$item->{text}", $item->{text_opts} ) . "</a>" if $item->{display};
+        }
+    }
+    return $ML{'.error.invalidcat'} unless @links_html;
+    
+    $title = $ML{"menunav.$cat"};
+    $ret .= join( "<br />", @links_html );
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>
