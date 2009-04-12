@@ -54,7 +54,7 @@
         if ( $can_join ) {
             $success = LJ::join_community( $remote, $targetu );
         } else {
-            if ( $error eq LJ::Lang::ml( 'edges.membership.error.targetnotopen' ) && $targetu->is_moderated_membership ) {
+            if ( $error eq LJ::Lang::ml( 'edges.join.error.targetnotopen' ) && $targetu->is_moderated_membership ) {
                 LJ::comm_join_request( $targetu, $remote );
                 $ret{note} = BML::ml( '/community/join.bml.reqsubmitted.body' );
             } else {

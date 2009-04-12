@@ -486,7 +486,7 @@ push @tests, [ 'allowed to watch and trust the other', sub
 push @tests, [ 'join community', sub
 {
     rst();
-    $u1->add_edge( $uc, member => 1 );
+    $u1->add_edge( $uc, member => {} );
     return ( scalar( $uc->member_userids ) == 1 ) ? 1 : 0;
 } ];
 

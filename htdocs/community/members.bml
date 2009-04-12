@@ -239,7 +239,7 @@ body<=
         foreach my $uid ( keys %{ $delete{member} || {} } ) {
             my $temp_u = LJ::load_userid( $uid )
                 or next;
-            $temp_u->remove_edge( $cid, member => 1 );
+            $temp_u->remove_edge( $cid, member => {} );
         }
 
         # create a closure to send a notification email to a user if they are

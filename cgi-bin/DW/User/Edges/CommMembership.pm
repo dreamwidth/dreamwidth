@@ -23,8 +23,11 @@ use Carp qw/ confess /;
 DW::User::Edges::define_edge(
         member =>
             {
-                type => 'bool',
+                type => 'hashref',
                 db_edge => 'E',
+                options => {
+                    moderated_add => { required => 0, type => 'bool', default => 0 },
+                },
                 add_sub => \&_add_m_edge,
                 del_sub => \&_del_m_edge,
             }
@@ -37,11 +40,11 @@ sub _add_m_edge {
     # bail unless there is a membership edge; note that we have to remove
     # the edge, as per the Edges specification.  (if we don't, we will get
     # called over and over...)
-    delete $edges->{member}
+    my $member_edge = delete $edges->{member}
         or return;
 
     # error check adding an edge
-    return 0 unless $from_u->can_join( $to_u );
+    return 0 unless $from_u->can_join( $to_u, moderated_add => $member_edge->{moderated_add} ? 1 : 0 );
 
     # simply add the reluser edge
     LJ::set_rel( $to_u, $from_u, 'E' );
@@ -130,6 +133,7 @@ sub can_join {
     $tu = LJ::want_user( $tu );
 
     my $errref = $opts{errref};
+    my $moderated_add = $opts{moderated_add} ? 1 : 0;
 
     # if the user is a maintainer, skip every other check
     return 1 if $tu && $u->can_manage( $tu );
@@ -171,8 +175,8 @@ sub can_join {
             return 0;
         }
 
-        # the community must be open membership
-        unless ( $tu->is_open_membership ) {
+        # the community must be open membership or we must be adding to a moderated community
+        unless ( $tu->is_open_membership || $opts{moderated_add} ) {
             $$errref = LJ::Lang::ml( 'edges.join.error.targetnotopen' );
             return 0;
         }

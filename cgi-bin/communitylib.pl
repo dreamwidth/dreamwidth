@@ -157,7 +157,7 @@ sub accept_comm_invite {
 
     # valid invite.  let's accept it as far as the community listing us goes.
     # 1, 0 means add comm to user's friends list, but don't auto-add P edge.
-    LJ::join_community($u, $cu, 1, 0) if $args->{member};
+    LJ::join_community( $u, $cu, 1, 0, moderated_add => 1 ) if $args->{member};
 
     # now grant necessary abilities
     my %edgelist = (
@@ -261,7 +261,7 @@ sub leave_community {
 
     # remove community membership
     return undef
-        unless $u->remove_edge( $cu, member => 1 );
+        unless $u->remove_edge( $cu, member => {} );
 
     # clear edges that effect this relationship
     foreach my $edge (qw(P N A M)) {
@@ -288,7 +288,7 @@ sub leave_community {
 #          comm, db error, etc)
 # </LJFUNC>
 sub join_community {
-    my ($uuid, $ucid, $watch, $canpost) = @_;
+    my ( $uuid, $ucid, $watch, $canpost, %opts ) = @_;
     my $u = LJ::want_user($uuid);
     my $cu = LJ::want_user($ucid);
     $watch = $watch ? 1 : 0;
@@ -296,7 +296,9 @@ sub join_community {
     return LJ::error('comm_not_comm') unless $cu->{journaltype} eq 'C';
 
     # try to join the community, and return if it didn't work
-    $u->add_edge( $cu, member => 1 );
+    $u->add_edge( $cu, member => {
+        moderated_add => $opts{moderated_add} ? 1 : 0,
+    } );
     return undef unless $u->member_of( $cu );
 
     # add edges that effect this relationship... if the user sent a fourth
@@ -405,7 +407,7 @@ sub approve_pending_member {
 
     # step 2, make user join the community
     # 1 means "add community to user's friends list"
-    return unless LJ::join_community($u->{userid}, $cu->{userid}, 1);
+    return unless LJ::join_community( $u, $cu, 1, undef, moderated_add => 1 );
 
     # step 3, email the user
     my %params = (event => 'CommunityJoinApprove', journal => $u);
