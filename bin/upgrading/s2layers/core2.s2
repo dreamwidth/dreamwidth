@@ -3270,7 +3270,7 @@ function Comment::print_wrapper_start() {
     var string alternate = alternate ("comment-wrapper-a", "comment-wrapper-b");
     var string screened = $this.screened ? "screened" : "visible";
     var string frozen = $this.frozen ? "frozen" : "";
-    var string poster = defined $this.poster ? "poster-" + $this.poster : "poster-anonymous";
+    var string poster = defined $this.poster ? "poster-" + $this.poster.username : "poster-anonymous";
     """<div class="comment-wrapper $alternate $screened $frozen $poster" id="$this.anchor">\n""";
     """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
     """<div class="comment" id="entry-$this.talkid">\n""";
