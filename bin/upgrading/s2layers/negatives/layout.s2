@@ -8,6 +8,10 @@ layerinfo lang = "en";
 #######################
 #Properties
 
+property use num_items_recent;
+property use num_items_reading;
+property use use_journalstyle_entry_page;
+
 propgroup colors {
 
     property Color middle_background        { noui=1; des="Background of middle section, behind entry boxes"; }
