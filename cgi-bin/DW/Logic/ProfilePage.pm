@@ -646,7 +646,7 @@ sub interests {
             my $eint = LJ::eurl( $intname );
             if ( $intcount > 1 ) {
                 if ( $remote ) {
-                    my %remote_intids = map { $_ => 1 } LJ::get_interests( $remote, { justids => 1 } );
+                    my %remote_intids = map { $_ => 1 } @{ LJ::get_interests( $remote, { justids => 1 } ) };
                     $intname = "<strong>$intname</strong>" if $remote_intids{$intid};
                 }
                 push @ret, { url => "$LJ::SITEROOT/interests.bml?int=$eint", text => $intname };
