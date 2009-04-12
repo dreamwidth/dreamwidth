@@ -326,11 +326,11 @@ body<=
 ################################################################################
 ##### JOURNAL TITLES
 
-    my $title = $u->{journaltitle} ?
-                    LJ::ehtml( $u->{journaltitle} ) :
+    my $title = $u->prop( "journaltitle" ) ?
+                    LJ::ehtml( $u->prop( "journaltitle" ) ) :
                     BML::ml( '.details.title', { user => $u->display_username } );
-    my $subtitle = LJ::ehtml( $u->{journalsubtitle} )
-        if $u->{journalsubtitle};
+    my $subtitle = LJ::ehtml( $u->prop( "journalsubtitle" ) )
+        if $u->prop( "journalsubtitle" );
 
     $ret .= qq{
         <div class="details_journal">
