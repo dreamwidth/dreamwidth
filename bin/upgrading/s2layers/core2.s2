@@ -3208,11 +3208,7 @@ function Comment::print_poster() {
 
 function Page::print_entry(Entry e) {
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
-    """<div class="entry-wrapper" id="entry-wrapper-$e.itemid">\n""";
-    """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
-    """<div class="entry" id="entry-$e.itemid">\n""";
-    """<div class="inner">\n""";
-    """<div class="header">\n""";
+    $e->print_wrapper_start();
     $e->print_subject();
     $e->print_metatypes();
     $e->print_time();
@@ -3240,8 +3236,8 @@ function Page::print_entry(Entry e) {
         $e->print_interaction_links();
     }
     "</div>\n</div>\n";
-    "</div>\n</div>\n";
-    "</div>\n</div>\n";
+    $e->print_wrapper_end();
+
 }
 function Comment::print_edit_text() {
     if ($this.edited) {
@@ -3284,6 +3280,24 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
 function EntryLite::print_wrapper_start() {
 }
 function Entry::print_wrapper_start() {
+# FIXME: need to ensure that calling the alternate function doesn't interfere with the printing of comments or the printing of module groups.
+    var string alternate = alternate ("entry-wrapper-a", "entry-wrapper-b");
+    var string security = $this.security ? $this.security : "public";
+    var string age_restriction = $this.age_restriction ? $this.age_restriction : "no-restriction";
+    var string journal_type = "journal-type-$this.journal.journal_type";
+    var string poster;
+    var string journal;
+    if ($this.journal.journal_type != "I") {
+        $poster = "poster-$this.poster.username";
+    }
+    if ($this.journal.journal_type == "C") {
+        $journal = "journal-$this.journal.username";
+    }
+    """<div class="entry-wrapper $alternate $security $age_restriction $journal_type $poster $journal" id="entry-wrapper-$this.itemid">\n""";
+    """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
+    """<div class="entry" id="entry-$this.itemid">\n""";
+    """<div class="inner">\n""";
+    """<div class="header">\n""";
 }
 function Comment::print_wrapper_start() {
     var string alternate = alternate ("comment-wrapper-a", "comment-wrapper-b");
@@ -3298,6 +3312,8 @@ function Comment::print_wrapper_start() {
 function EntryLite::print_wrapper_end() {
 }
 function Entry::print_wrapper_end() {
+    "</div>\n</div>\n";
+    "</div>\n</div>\n";
 }
 function Comment::print_wrapper_end() {
     "</div>\n</div>\n";
