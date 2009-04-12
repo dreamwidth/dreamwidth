@@ -4,10 +4,8 @@ body<=
 <?_code
 {
     use strict;
-    use vars qw(%POST $headextra);
-
-    $headextra = LJ::need_res('stc/restore.css');
-
+    use vars qw(%POST);
+    
     use Class::Autouse qw( Captcha::reCAPTCHA );
     use POSIX qw(strftime);
 
