@@ -8213,16 +8213,6 @@ sub make_journal
 
         my $get_styleinfo = sub {
 
-            my $get_s1_styleid = sub {
-                my $id = $u->{$s1prop};
-                LJ::run_hooks("s1_style_select", {
-                    'styleid' => \$id,
-                    'u' => $u,
-                    'view' => $view,
-                });
-                return $id;
-            };
-
             # forced s2 style id
             if ($geta->{'s2id'}) {
 
@@ -8269,8 +8259,8 @@ sub make_journal
                     return (2, $remote->{'s2_style'});
                 }
 
-                # remote using s1
-                return (1, $get_s1_styleid->());
+                # return stylesys 2; will fall back on default style
+                return ( 2, undef );
             }
 
             # resource URLs have the styleid in it
@@ -8286,8 +8276,8 @@ sub make_journal
                 return (2, $u->{'s2_style'});
             }
 
-            # no special case and not s2, fall through to s1
-            return (1, $get_s1_styleid->());
+            # no special case, let it fall back on the default
+            return ( 2, undef );
         };
 
         ($stylesys, $styleid) = $get_styleinfo->();
