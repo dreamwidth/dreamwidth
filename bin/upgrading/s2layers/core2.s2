@@ -546,6 +546,10 @@ class Page
     "Return a relevant combination of [member[Page.global_title]] and [method[Page.view_title()]].  May be
     overridden in layout layers or left untouched for the core layer to handle.";
 
+    function print_wrapper_start() "Start the body wrapper for this page; includes default classes";
+    function print_wrapper_start(string{} opts) "Start the body wrapper for this page; includes default classes and takes a hash using the key 'class'";
+    function print_wrapper_end() "End the body wrapper for this entry or comment.";
+
     function print_time
     "Print the time when the page was created.";
 
@@ -2530,6 +2534,20 @@ function Page::title() [notags] : string {
     return $this->view_title();
 }
 
+function Page::print_wrapper_start() {
+    $this->print_wrapper_start( { "" => "" } );
+}
+
+function Page::print_wrapper_start(string{} opts) {
+# FIXME: this should also print classes that identify the layout/style and other options like the number of columns.
+    var string class = $opts{"class"} ? """class="$opts{"class"}" """ : "";
+    """<body class="page-$.view $class">\n""";
+}
+
+function Page::print_wrapper_end() {
+    """</body>""";
+}
+
 function server_sig() {
     """<span id="site-branding">$*text_powered_by <a href="$*SITEROOT/">$*SITENAME</a></span>""";
 }
@@ -3047,7 +3065,7 @@ function Page::print() {
     $this->print_head();
     $this->print_stylesheets();
     $this->print_head_title();
-    """</head>\n<body class="page-$.view">\n""";
+    $this->print_wrapper_start();
     $this->print_control_strip();
     """
     <div id="canvas">
@@ -3097,8 +3115,8 @@ function Page::print() {
     
     </div> <!-- end canvas -->
     """;
-    
-    """</body></html>""";
+    $this->print_wrapper_end();
+    """</html>""";
 }
 
 function Page::print_time() {
