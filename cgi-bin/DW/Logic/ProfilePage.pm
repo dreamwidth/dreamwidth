@@ -678,7 +678,7 @@ sub external_services {
             text => LJ::ehtml( $aol ),
             image => 'aim.gif',
             title_ml => '.im.aol',
-            status_image => "http://big.oscar.aol.com/$eaol?on_url=http://www.aol.com/aim/gr/online.gif&amp;off_url=http://www.aol.com/aim/gr/offline.gif",
+            status_image => "http://big.oscar.aol.com/$eaol?on_url=http://cdn.aim.com/remote/gr/MNB_online.gif&amp;off_url=http://cdn.aim.com/remote/gr/MNB_offline.gif",
             status_title_ml => '.im.aol.status',
             status_width => 11,
             status_height => 13,
