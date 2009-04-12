@@ -155,7 +155,7 @@ body<=
 
 <table>
     <tr><td>Username:</td><td><input type='text' name='username' maxlength='15'></td></tr>
-    <tr><td>Password:</td><td><input type='password' name='password' maxlength='25'></td></tr>
+    <tr><td>Password:</td><td><input type='password' name='password' maxlength='50'></td></tr>
     <tr><td></td><td>
         <select name='hostname'>
             <option value='livejournal.com'>LiveJournal.com</option>

@@ -46,7 +46,7 @@ sub load_config {
         or die "Unable to read YAML formatted config: $fn\n";
 
     my $hostname = `hostname`;
-    $hostname =~ s/^([^.]+)\..+\r?\n$/$1/;
+    $hostname =~ s/^([^.]+)(?:\..+)?\r?\n$/$1/;
     die "Unable to get current hostname\n"
         unless $hostname;
 
