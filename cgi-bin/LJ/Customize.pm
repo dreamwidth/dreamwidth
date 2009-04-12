@@ -567,7 +567,7 @@ sub get_propgroups {
         if ($gname eq "misc" || $gname eq "other") { $misc_group = $gname; }
         foreach my $pname (S2::get_property_group_props($lyr_layout->{'s2lid'}, $gname)) {
             my $prop = $prop{$pname};
-            next if ! $prop || $propgroup{$pname};
+            next if ! $prop || $prop->{noui} || $propgroup{$pname};
             $propgroup{$pname} = $gname;
             push @{$groupprops{$gname}}, $pname;
         }
@@ -577,7 +577,7 @@ sub get_propgroups {
         my @unsorted;
         foreach my $pname (@propnames) {
             my $prop = $prop{$pname};
-            next if ! $prop || $propgroup{$pname};
+            next if ! $prop || $prop->{noui} || $prop->{grouped} || $propgroup{$pname};
             push @unsorted, $pname;
         }
         if (@unsorted) {
