@@ -170,7 +170,7 @@ sub RecentPage
         my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
                                               'cuturl' => LJ::item_link($u, $itemid, $item->{'anum'}),
-                                              'ljcut_disable' => $remote->{"opt_ljcut_disable_lastn"},
+                                              'ljcut_disable' => $remote ? $remote->prop("opt_ljcut_disable_lastn") : undef,
                                               'suspend_msg' => $suspend_msg,
                                               'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($u, $ditemid, $remote, \$text);
@@ -190,7 +190,7 @@ sub RecentPage
         }
 
         my $nc = "";
-        $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
+        $nc .= "nc=$replycount" if $replycount && $remote && $remote->prop('opt_nctalklinks');
 
         my $permalink = "$journalbase/$ditemid.html";
         my $readurl = $permalink;
@@ -198,7 +198,7 @@ sub RecentPage
         my $posturl = $permalink . "?mode=reply";
 
         my $comments_enabled = ($u->{'opt_showtalklinks'} eq "Y" && ! $logprops{$itemid}->{'opt_nocomments'}) ? 1 : 0;
-        my $has_screened = ($logprops{$itemid}->{'hasscreened'} && ($remote->{'user'} eq $u->{'user'}|| LJ::can_manage($remote, $u))) ? 1 : 0;
+        my $has_screened = ($logprops{$itemid}->{'hasscreened'} && LJ::can_manage($remote, $u)) ? 1 : 0;
 
         my $comments = CommentInfo({
             'read_url' => $readurl,
