@@ -301,10 +301,13 @@ body<=
     if ($u->{'defaultpicid'} && !$u->is_suspended) {
         my %pic;
         my $picid = $u->{'defaultpicid'};
+        # FIXME: this repetitive load will be fixed in bug
+        # 513. For now, memcache keeps this from hitting the
+        # db twice.
         LJ::load_userpics(\%pic, [ $u, $picid ]);
+        my $userpic_obj = LJ::Userpic->new( $u, $picid );
         $ret .= "<a href='$LJ::SITEROOT/allpics.bml?user=$u->{'user'}'>";
-        $ret .= "<img align='baseline' src='$LJ::USERPIC_ROOT/$picid/$u->{'userid'}' width='$pic{$picid}->{'width'}' ".
-            "height='$pic{$picid}->{'height'}' align='absmiddle' hspace='3' border='0' alt='$u->{'user'}' />";
+        $ret .= $userpic_obj->imgtag;
         $ret .= "</a>";
     }
     

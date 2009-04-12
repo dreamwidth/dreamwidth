@@ -319,30 +319,9 @@ body<=
 ################################################################################
 ##### USERPIC
 
-    $ret .= q{ <div class='user_details'><div class='userpicdiv'> };
-
-    my $up = $profile->userpic;
-    if ( $up->{userpic_url} ) {
-        $ret .= qq(
-            <a href="$up->{userpic_url}">
-                <img src="$up->{userpic}" class="user_pic" alt="$ML{'.userpic.alt'}" />
-            </a>
-        );
-    } else {
-        $ret .= qq(
-            <img src="$up->{userpic}" class="user_pic" alt="$ML{'.userpic.alt'}" />
-        );
-    }
-    if ( $up->{caption_text} ) {
-        $ret .= qq(
-            <br />
-            <span class="user_pic_caption">
-                [<a href="$up->{caption_url}">$up->{caption_text}</a>]
-            </span>
-        );
-    }
-
-    $ret .= q{ </div><div class='user_details_inner'> };
+    $ret .= "<div class='user_details'><div class='userpicdiv'>" .
+            $profile->userpic->{imgtag} .
+            "</div><div class='user_details_inner'>";
 
 ################################################################################
 ##### JOURNAL TITLES

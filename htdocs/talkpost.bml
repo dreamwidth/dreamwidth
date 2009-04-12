@@ -214,14 +214,7 @@ body<=
 
     my %userpics;
     if ($userpic) {
-        # not auto-vivifying $ur here because $picid is based
-        # on $ur existing in the first place
-        my $alt = $ur->{'name'};
-        $alt .= ": $pickw" if $pickw;
-        $alt = LJ::ehtml($alt);
-        my ($w, $h) = $userpic->dimensions;
-        $ret .= "<td class='userpic' valign='bottom'><img src='" . $userpic->url . "' width='$w' height='$h' " .
-                "align='absmiddle' hspace='3' title='$alt' alt='' /></td>";
+        $ret .= "<td class='userpic' valign='bottom'>" .  $userpic->imgtag . "</td>";
     }
 
     $ret .= "<td class='attrib' valign='bottom'>";

@@ -1286,9 +1286,9 @@ sub journal_content
     }
 
 
-    # LJ::make_journal() will set this flag if the user's
-    # style system is unable to handle the requested
-    # view (S1 can't do EntryPage or MonthPage), in which
+    # LJ::make_journal() will set this flag if the pages are
+    # viewed without using S2 (e.g. lynx, format=light, which
+    # can't do EntryPage or MonthPage), in which
     # case it's our job to invoke the legacy BML page.
     my $handle_with_bml = 0;
 

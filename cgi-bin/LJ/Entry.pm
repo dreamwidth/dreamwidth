@@ -28,6 +28,8 @@ use Carp qw/ croak confess /;
 #    posterid:   if _loaded_row
 #    comments:   arrayref of comment objects on this entry
 
+#    userpic
+
 #    _loaded_text:     loaded subject/text
 #    _loaded_row:      loaded log2 row
 #    _loaded_props:    loaded props

@@ -150,7 +150,7 @@ body<=
                 my $friend = shift @friends;
                 my $pic = "";
                 if (my $up = $friend->userpic) {
-                    $pic .= $up->imgtag_lite . "<br />\n";
+                    $pic .= $up->imgtag . "<br />\n";
                 } elsif ($friend->is_syndicated) {
                     $pic .= "<img src='$LJ::IMGPREFIX/feed-userpic.gif' width='100' height='100' class='userpic-img' /><br />\n";
                 } else {

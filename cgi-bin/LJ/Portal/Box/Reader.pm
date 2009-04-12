@@ -134,6 +134,11 @@ sub generate_content {
             my $width = $picinfo->{'width'} ? "width=\"" . int($picinfo->{'width'} / 2) . '"' : '';
             my $height = $picinfo->{'height'} ? "height=\"" . int($picinfo->{'height'} / 2) . '"' : '';
 
+            # FIXME: This functionality is untested, because I
+            # don't believe this module is currently functional.
+            # Replace the pichtml assignment with the one below
+            # once this code is operational and testable. 
+            # $pichtml .= $picinfo->imgtag;
             $pichtml .= "<img src='$LJ::USERPIC_ROOT/$picinfo->{'picid'}/$posteru->{'userid'}' $width $height align='absmiddle' />";
         }
 

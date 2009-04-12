@@ -68,8 +68,10 @@ sub action_links {
 #     userpic_url  => 'http://...',    # OPTIONAL
 #     caption_text => 'Edit',          # OPTIONAL
 #     caption_url  => 'http://...',    # OPTIONAL
+#     imgtag       => HTML to display
 #  }
 sub userpic {
+
     my $self = $_[0];
 
     my $u = $self->{u};
@@ -79,38 +81,59 @@ sub userpic {
 
     # syndicated accounts have a very simple thing
     if ( $u->is_syndicated ) {
-        return {
-            userpic => "$LJ::IMGPREFIX/profile_icons/feed.gif",
-        };
-    }
-
-    # determine what picture URL to use
-    if ( my $up = $u->userpic ) {
-        $ret->{userpic} = $up->url;
-    } elsif ( $u->is_personal ) {
-        $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/user.gif";
-    } elsif ( $u->is_community ) {
-        $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/comm.gif";
-    } elsif ( $u->is_identity ) {
-        $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/openid.gif";
-    }
-
-    # now determine what caption text to show
-    if ( $remote && $remote->can_manage( $u ) ) {
-        if ( LJ::userpic_count( $u ) ) {
-            $ret->{userpic_url} = "$LJ::SITEROOT/allpics.bml?user=$user";
-            $ret->{caption_text} = LJ::Lang::ml( '.section.edit' );
-            $ret->{caption_url} = "$LJ::SITEROOT/editpics.bml?authas=$user"
-        } else {
-            $ret->{userpic_url} = "$LJ::SITEROOT/editpics.bml?authas=$user";
-            $ret->{caption_text} = LJ::Lang::ml( '.userpic.upload' );
-            $ret->{caption_url} = "$LJ::SITEROOT/editpics.bml?authas=$user"
-        }
+        $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/feed.gif";
     } else {
-        if ( LJ::userpic_count( $u ) ) {
-            $ret->{userpic_url} = "$LJ::SITEROOT/allpics.bml?user=$user";
+
+        # determine what picture URL to use
+        if ( my $up = $u->userpic ) {
+            $ret->{userpic} = $up->url;
+        } elsif ( $u->is_personal ) {
+            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/user.gif";
+        } elsif ( $u->is_community ) {
+            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/comm.gif";
+        } elsif ( $u->is_identity ) {
+            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/openid.gif";
+        }
+    
+        # now determine what caption text to show
+        if ( $remote && $remote->can_manage( $u ) ) {
+            if ( LJ::userpic_count( $u ) ) {
+                $ret->{userpic_url} = "$LJ::SITEROOT/allpics.bml?user=$user";
+                $ret->{caption_text} = LJ::Lang::ml( '.section.edit' );
+                $ret->{caption_url} = "$LJ::SITEROOT/editpics.bml?authas=$user"
+            } else {
+                $ret->{userpic_url} = "$LJ::SITEROOT/editpics.bml?authas=$user";
+                $ret->{caption_text} = LJ::Lang::ml( '.userpic.upload' );
+                $ret->{caption_url} = "$LJ::SITEROOT/editpics.bml?authas=$user"
+            }
+        } else {
+            if ( LJ::userpic_count( $u ) ) {
+                $ret->{userpic_url} = "$LJ::SITEROOT/allpics.bml?user=$user";
+            }
         }
     }
+
+    # build the HTML tag
+    my $userpic_obj = LJ::Userpic->new( $u, $u->{defaultpicid} );
+
+    #  Set the wrapper materials to surrounded the  userpic image
+    my ( $apre, $apost );
+    if ( $ret->{userpic_url} ) {
+        $apre = "<a href='" . LJ::ehtml($ret->{userpic_url}) . "'>";
+        $apost = "</a>";
+    }
+
+    # Set the HTML to display the userpic
+    if ( $ret->{caption_text} ) {
+        $apost .= qq(
+            <br />
+            <span class="user_pic_caption">
+                [<a href="$ret->{caption_url}">$ret->{caption_text}</a>]
+            </span>
+        );
+    }
+
+    $ret->{imgtag} =  $apre . $userpic_obj->imgtag . $apost;
 
     return $ret;
 }

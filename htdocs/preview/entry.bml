@@ -103,15 +103,7 @@
             my $pic   = $upics->{'pic'}->{$picid};
 
             if ($pic) {
-                my $alt = $up->{'name'};
-                if ($req{'prop_picture_keyword'}) {
-                    $alt .= ": $req{'prop_picture_keyword'}";
-                }
-                LJ::text_out(\$alt);
-                $alt = LJ::ehtml($alt);
-                $ret .= "<td><img src='$LJ::USERPIC_ROOT/$picid/$u->{'userid'}' width='$pic->{'width'}' ".
-                    "height='$pic->{'height'}' align='absmiddle' ".
-                    "hspace='3' title='$alt' alt=''></td>";
+            $ret .= "<td>" . $pic->imgtag . "</td>";   
             }
 
             $ret .= "<td>";

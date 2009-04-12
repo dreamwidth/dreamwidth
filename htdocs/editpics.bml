@@ -505,7 +505,7 @@ use strict;
             my $pid = $pic->id;
             
             $body .= "<div class='pkg userpic_wrapper'>";
-            $body .= "<span class='EditPicsUserpic'><img src='$LJ::USERPIC_ROOT/$pid/$u->{'userid'}' width='$pic->{'width'}' height='$pic->{'height'}' /></span>\n";
+            $body .= "<span class='EditPicsUserpic'>" .  $pic->imgtag . "</span>\n";
 
             # TODO: if no keywords then light grey text and empty out when you click in it
             my $keywords = $pic->keywords;

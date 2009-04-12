@@ -107,8 +107,12 @@ body<=
         if ($u->{'defaultpicid'}) {
             my $picid = $u->{'defaultpicid'};
             my %userpics = ();
+            # FIXME: this repetitive load will be fixed in bug
+            # 513. For now, memcache keeps this from hitting the
+            # db twice.
             LJ::load_userpics(\%userpics, [ $u, $picid ]);
-            $ret .= "<img src=\"$LJ::USERPIC_ROOT/$picid/$u->{'userid'}\" width='$userpics{$picid}->{'width'}' height='$userpics{$picid}->{'height'}' alt='$u->{'user'}' border='0'>";
+            my $userpic_obj = LJ::Userpic->new( $u, $picid );
+            $ret .= $userpic_obj->imgtag;
         } else {
             $ret .= "<br /><i>($ML{'.userpic.none'})</i>";
         }

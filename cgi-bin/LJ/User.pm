@@ -3157,12 +3157,20 @@ sub render_promo_of_community {
     my $journal_base = $comm->journal_base;
 
     # get default userpic if any
+    # FIXME:  this code is untested because this method appears
+    # to be currently nonfunctional.
+    # Replace the userpic_html assignment with the one below
+    # once this method is operational and testable. 
     my $userpic = $comm->userpic;
     my $userpic_html = '';
     if ($userpic) {
         my $userpic_url = $userpic->url;
         $userpic_html = qq { <a href="$journal_base"><img src="$userpic_url" /></a> };
     }
+#    my $apre = '<a href="$journal_base">';
+#    my $apost = "</a>";
+#    $userpic_html = $apre .  $userpic->imgtag . $apost
+#        if ( $userpic );
 
     my $blurb = $comm->prop('comm_promo_blurb') || '';
 

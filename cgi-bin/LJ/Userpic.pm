@@ -305,14 +305,15 @@ sub alttext {
 # optional parameters (which must be explicitly passed) include
 # width and keyword
 sub imgtag {
+    #warn("stack in $opts{keyword}\n");
     my $self = shift;
     my %opts = @_;
 
     # if the width and keyword have been passed in  as explicit
     # parameters, set them. Otherwise, take what ever is set in
     # the userpic
-    my $width = $opts{width}+0 || $self->width;
-    my $keyword = $opts{keyword}+0 || $self->keywords;
+    my $width = $opts{width} || $self->width;
+    my $keyword = $opts{keyword} || $self->keywords;
 
     # if no description is available for alttext, try to fall
     # back to the keyword selected by the user (passed as a

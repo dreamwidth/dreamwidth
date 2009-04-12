@@ -30,7 +30,7 @@ body<=
 
     my $uri = BML::get_uri();
     my $itemid;
-my $old_url = 0;
+    my $old_url = 0;
 
     if ($uri =~ m!/(\d+)\.html$!) {
         $itemid = $1;
@@ -89,17 +89,22 @@ my $old_url = 0;
     # now check for init->error, since we know the account wasn't renamed
     return "<?h1 $ML{'Error'} h1?><?p $init->{'error'} p?>" if $init->{'error'};
 
+    # FIXME: Only gets past here if handle_with_bml has been set
+    # to 1. (eg. format=light, lynx site scheme)
+
     $r->notes->{journalid} = $u->{userid};
 
     my $thread = $init->{'thread'};
     my $dthread = $init->{'dthread'};
     $itemid = $init->{'itemid'}+0;
 
+    # Get format/style parameters to pass to the URL later
     my $stylemine = $init->{'style'} eq "mine" ? "style=mine" : "";
     my $formatlight = $GET{'format'} eq 'light' ? 'format=light' : '';
 
     my $item = LJ::Talk::get_journal_item($u, $itemid);
 
+    # translate from old to new url styles
     if ($init->{'oldurl'} && $item) {
         $init->{'anum'} = $item->{'anum'};
         $init->{'ditemid'} = $init->{'itemid'}*256 + $item->{'anum'};
@@ -129,6 +134,7 @@ my $old_url = 0;
 
     LJ::text_out(\$u->{'name'});
 
+    # get currently logged in user
     my $remote = LJ::get_remote();
 
     my $tz_remote;
@@ -137,6 +143,10 @@ my $old_url = 0;
         my $tz = $remote->prop("timezone");
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
     }
+
+    #
+    # Lots of logic to determine permissions for what can be viewed
+    #
 
     # set viewall/viewsome
     my $viewall = 0;
@@ -172,6 +182,11 @@ my $old_url = 0;
     my $props = $item->{'props'};
     my $nocomments = $viewall                         ? 0 :
                      $u->{'opt_showtalklinks'} eq "N" ? 1 : $props->{'opt_nocomments'};
+
+
+    #
+    # End of permissions logic
+    #
 
     # See if we should inject QuickReply javascript
     LJ::load_user_props($remote, "opt_no_quickreply");
@@ -234,17 +249,14 @@ my $old_url = 0;
     my $userpic = $entry->userpic;
     LJ::run_hook('notify_event_displayed', $entry);
 
+    # Build the userpic image tag for the entry's userpic
     my %userpics;
     if ($userpic) {
-        my $alt = $up->{'name'};
-        if ($props->{'picture_keyword'}) {
-            $alt .= ": $props->{'picture_keyword'}";
-        }
-        LJ::text_out(\$alt);
-        $alt = LJ::ehtml($alt);
-        my ($w, $h) = $userpic->dimensions;
-        $ret .= "<td class='userpic' valign='bottom'><img src='" . $userpic->url . "' width='$w' height='$h' " .
-            "hspace='3' title='$alt' alt=''></td>";
+        my $apre = "<td class='userpic' valign='bottom'>";
+        my $apost = "</td>";
+
+        # for each image, get the html imgtag
+        $ret .= "$apre" . $userpic->imgtag . $apost;
     }
 
     $ret .= "<td class='attrib' valign='bottom'>";
@@ -447,6 +459,9 @@ my $old_url = 0;
     my $fmt_time_short = "%%hh%%:%%min%% %%a%%m";
     my $show_thread_expander = $u->show_thread_expander( $remote );
 
+    #
+    # Recurse through a thread and display each comment
+    #
     my $recurse_post = sub
     {
         my ($self_sub, $post, $opts) = @_;
@@ -474,6 +489,7 @@ my $old_url = 0;
             $bgcolor = BML::get_template_def("altcolor1");
         }
 
+        # Gather information about the comment poster
         my $pu = $post->{'posterid'} ? $user{$post->{'posterid'}} : undef;
         $LJci->{u} = $pu->{user} if $pu;
 
@@ -533,15 +549,20 @@ my $old_url = 0;
                 $ret .= "<a name='t$dtid'></a><span id='ljcmt$dtid'><table width='100%' class='talk-comment'><tbody><tr>";
                 $ret .= "<td rowspan='2'><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td id='cmtbar$dtid' class='cmtbar-$level' style='background-color: $bgcolor' width='100%'>";
-                if (my $picid = $post->{'picid'}) {
-                    my $alt = $pu->{'name'};
-                    if ($post->{'props'}->{'picture_keyword'}) {
-                        $alt .= ": $post->{'props'}->{'picture_keyword'}";
-                    }
-                    $alt = LJ::ehtml($alt);
-                    my ($w, $h) = ($userpics{$picid}->{'width'}, $userpics{$picid}->{'height'});
-                    $ret .= "<img align='left' hspace='3' src='$LJ::USERPIC_ROOT/$picid/$post->{'posterid'}'";
-                    $ret .= " width='$w' title='$alt' alt='' height='$h' />";
+
+                # Build the image tag for the comment's userpic, if there is one
+                if ($post->{picid}) {
+
+                   # get the userpic object
+                   my $postpic = LJ::Userpic->new( $pu, $post->{picid} );
+
+                   # get the picture keyword from the comment properties
+                   my %kwopts = ( 
+                      keyword => $post->{props}->{'picture_keyword'}
+                   );
+
+                   # build the imgtag for the userpic associated with the keyword
+                   $ret .= $postpic->imgtag( %kwopts );
                 }
 
                 my $cleansubject = LJ::ehtml($post->{'subject'});
@@ -717,6 +738,9 @@ my $old_url = 0;
         }
     };
 
+    # 
+    # Display comment threads and commenting UI
+    #
     unless ($nocomments)
     {
         $ret .= "<div id='Comments'>";
@@ -728,6 +752,9 @@ my $old_url = 0;
             $readlink = "(<a href='$readurl#comments'>$T{'readcomments'}</a>) - ";
         }
 
+        #
+        # Commenting UI
+        #
         my $posturl = LJ::Talk::talkargs($talkurl, "mode=reply", $stylemine, $formatlight);
 
         $ret .= "<form style='display: inline' method='post' action='$LJ::SITEROOT/talkmulti.bml' name='multiform' id='multiform' >";
@@ -753,6 +780,9 @@ my $old_url = 0;
 
         my $stylemine = $GET{'style'} eq 'mine' ? 1 : 0;
 
+        #
+        # Comment thread display
+        #
         my $viewing_thread;
         if (defined $GET{'thread'}) {
             $viewing_thread = $GET{'thread'};
