@@ -305,7 +305,6 @@ sub alttext {
 # optional parameters (which must be explicitly passed) include
 # width and keyword
 sub imgtag {
-    #warn("stack in $opts{keyword}\n");
     my $self = shift;
     my %opts = @_;
 
@@ -320,7 +319,7 @@ sub imgtag {
     # parameter to imgtag). Otherwise, use the entire keyword
     # string from the userpic.
 
-    my $alttext = $self->alttext($keyword);
+    my $alttext = LJ::ehtml( $self->alttext( $keyword ) );
 
     return '<img src="' . $self->url . '" width="' . $width .
         '" alt="' . $alttext . '" class="userpic-img" />';

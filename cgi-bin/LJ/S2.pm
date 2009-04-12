@@ -2127,7 +2127,7 @@ sub Image_userpic
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
         'width' => $p->{'width'},
         'height' => $p->{'height'},
-        'alttext' => $alttext,
+        'alttext' => LJ::ehtml( $alttext ),
     };
 }
 
