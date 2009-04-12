@@ -64,7 +64,7 @@ body<=
     }
 
     # Retrieve posted
-    if ($u->{journaltype} eq "P") {
+    if ($u->is_individual) {
         $sth = $dbcr->prepare("SELECT posttime, journalid, nodetype, nodeid, jtalkid, publicitem ".
                               "FROM talkleft ".
                               "WHERE userid=?  ORDER BY posttime DESC LIMIT $count");
@@ -80,9 +80,9 @@ body<=
 
     $ret .= "<?standout <div style='text-align: center'>";
     $ret .= "<a name='received'></a>";
-    $ret .= BML::ml('Actionlink', { 'link' => "Latest Received"}) . " ";
-    $ret .= BML::ml('Actionlink', { 'link' => "<a href='#posted'>Latest Posted</a>"}) . " "
+    $ret .= BML::ml('Actionlink', { 'link' => "Latest Received"}) . " "
         if $u->is_person;
+    $ret .= BML::ml('Actionlink', { 'link' => "<a href='#posted'>Latest Posted</a>"}) . " ";
     $ret .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/manage/comments'>$ML{'.managesettings'}</a>"});
 
     $ret .= "<br />";
@@ -233,7 +233,7 @@ body<=
                              { 'current' => $max, 'max' => $LJ::TOOLS_RECENT_COMMENTS_MAX }).
                                  " p?>" unless $max >= $LJ::TOOLS_RECENT_COMMENTS_MAX;
 
-    if ($u->{journaltype} eq "P") {
+    if ($u->is_individual) {
         $ret .= "<div style='text-align: center; margin-top: 1em'><a name='posted'></a>" .
             BML::ml('Actionlink', { 'link'=>"<a href='#received'>$ML{ '.latest.received' }</a>"}) .
             BML::ml('Actionlink', { 'link' => $ML{ '.latest.posted' }}) . " " .
