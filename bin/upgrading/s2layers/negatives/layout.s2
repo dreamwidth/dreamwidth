@@ -85,8 +85,6 @@ set font_fallback = "serif";
 set entry_management_links = "text";
 set comment_management_links = "text";
 
-set text_interaction_links_sep = " ";
-
 #######################
 #Functions
 #######################
@@ -251,7 +249,7 @@ function print_stylesheet()
     }
     .comments div, .comments ul, .entry-management-links li,
     .comment-interaction-links li, .comment-management-links li,
-    .entry-title {
+    .entry-interaction-links li, .entry-title {
         display: inline;
         padding-left: 0.5em;
     }

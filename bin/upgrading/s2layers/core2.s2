@@ -1706,14 +1706,9 @@ property string text_read_comments {
     format = "plurals";
     example = "1 comment // # comments";
 }
-property string text_interaction_links_sep {
-    des = "Text to separate interaction links";
-    example = " | ";
-}
 set text_post_comment = "Leave a comment";
 set text_max_comments = "Maximum comments reached";
 set text_read_comments = "1 comment // # comments";
-set text_interaction_links_sep =  " | ";
 
 property string text_post_comment_friends {
     des = "Link text to leave a comment on friends view entry";
@@ -1761,7 +1756,7 @@ property string text_permalink {
     maxlength = 50;
     size = 20;
 }
-set text_permalink = "[link]";
+set text_permalink = "Link";
 
 ##===============================
 ## Text - comment actions
@@ -3516,21 +3511,24 @@ function Entry::print_item_linkbar( string target ) {
 
 function Entry::print_interaction_links(string target) {
     var Page p = get_page();
-    if ($this.comments.enabled) {
         if ($p isa EntryPage) {
+        """<ul class="entry-interaction-links">""";
             var EntryPage ep = $p as EntryPage;
-            if ($ep.comment_pages.total_subitems > 0) {
+        if ($.comments.enabled and $ep.comment_pages.total_subitems > 0) {
+            """<li class="entry-readlink">""";
                 $this.comments->print_readlink();
-                print $*text_interaction_links_sep;                
+            "</li>";
             }
-            
+        if ($.comments.enabled) {
+            """<li class="entry-postlink">""";
             $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
+            "</li>";
         }
-        else {
+        "</ul>";
+    } else {
             $this.comments->print();
         }
     }
-}
 
 ### RecentPage and related functions
 
@@ -4007,7 +4005,7 @@ function DayPage::print_navigation() [fixed] {
 
 function CommentInfo::print_readlink {
     var Page p = get_page();
-    print safe "<a href=\"$.read_url\">"+
+    print safe "<a href=\"$.read_url#comments\">"+
         get_plural_phrase($.count, $p.view == "read" ?
                           "text_read_comments_friends" : "text_read_comments")+
     "</a>";
@@ -4021,19 +4019,20 @@ function CommentInfo::print_postlink() {
     }
 }
 function CommentInfo::print() {
-    if ($.show_readlink or $.show_postlink) {
-        """<div style="text-align: right;">\n""";
+        """<ul class="entry-interaction-links">\n""";
         if ($.show_readlink) {
+            """<li class="entry-readlink">""";
             $this->print_readlink();
+	    "</li>";
+        } else {
+	    """<li class="entry-permalink"><a href="$.read_url">$*text_permalink</a></li>""";
         }
-        if ($.show_postlink and $.show_readlink) {
-            print $*text_interaction_links_sep;
-        }
-        if ($.show_postlink) {
+        if ($.show_postlink and $.enabled) {
+            """<li class="entry-postlink">""";
             $this->print_postlink();
+	    "</li>";
         }
-        "</div>";
-    }
+        "</ul>";
 }
 
 
@@ -4239,4 +4238,5 @@ function MessagePage::print_links() {
     }
     println """</div>""";
 }
+
 
