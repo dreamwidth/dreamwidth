@@ -144,6 +144,7 @@
         adminemail => $LJ::ADMIN_EMAIL,
     });
 
+    my $code_sent;
     if (LJ::did_post() && $validate_form->()) {
 
         if (LJ::rate_log($u, 'invitefriend', 1)) {
@@ -172,6 +173,9 @@
                 $invite_obj->send_code;
 
                 $body .= "<?standout " . BML::ml('.success.code', { email  => $POST{email}, invitecode => $code }) . " standout?>";
+
+                $code_sent = 1;
+
             } else {
                 $body .= "<?standout " . BML::ml('.success', { email => $POST{email}}) . " standout?>";
             }
@@ -211,7 +215,7 @@
         
             my $label = $invitecode->code;
             
-            if ( $invitecode->code eq $POST{code} ) {
+            if ( $invitecode->code eq $POST{code} && $code_sent ) {
                 $label .= " - " . $ML{'.form.codelist.justsent'};
             } elsif ( $invitecode->timesent ) {
                 $label .= " - " . BML::ml( '.form.codelist.alreadysent', { 
