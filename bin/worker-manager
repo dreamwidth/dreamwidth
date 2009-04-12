@@ -11,6 +11,7 @@
 
 use strict;
 use POSIX qw/ :sys_wait_h /;
+use YAML;
 
 # daemonize ourselves unless debugging
 my $debug = $ARGV[0] eq '--debug' ? 1 : 0;
@@ -41,14 +42,18 @@ sub load_config {
     my $fn = "$ENV{LJHOME}/etc/workers.conf";
     return unless -e $fn;
 
+    my $conf = YAML::LoadFile( $fn )
+        or die "Unable to read YAML formatted config: $fn\n";
+
+    my $hostname = `hostname`;
+    $hostname =~ s/^([^.]+)\..+\r?\n$/$1/;
+    die "Unable to get current hostname\n"
+        unless $hostname;
+
     my %jobs;
 
-    open FILE, "<$fn" or return;
-    foreach my $line (<FILE>) {
-        $line =~ s/\#.*$//;
-        next unless $line =~ /^(.+?)\s+(\d+)/;
-
-        my ($path, $ct) = ($1, $2);
+    foreach my $job ( keys %{ $conf->{all} || {} }, keys %{ $conf->{$hostname} || {} } ) {
+        my ( $path, $ct ) = ( $job, $conf->{$hostname}->{$job} || $conf->{all}->{$job} );
         my @fns = ( $path, "$ENV{LJHOME}/$path", "$ENV{LJHOME}/bin/worker/$path" );
         foreach my $ffn ( @fns ) {
             if ( -e $ffn ) {
@@ -57,8 +62,7 @@ sub load_config {
                 last;
             }
         }
-    }   
-    close FILE;
+    }
 
     return \%jobs;
 }
