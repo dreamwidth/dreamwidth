@@ -322,6 +322,8 @@ function print_stylesheet()
         font-size: 0.85em;
         color: #ffffff;
     }
+    
+    .entry h3 { display: inline; }
     """;
 }
 
@@ -541,11 +543,8 @@ function ReplyPage::print_body ()
 function EntryPage::print_comment (Comment c)
 {
     println "<div class=\"entry\">";
-    var string sub_icon;
-    if (defined $c.subject_icon and $*enable_subjecticons)
-    {
-        $sub_icon = $c.subject_icon->as_string();
-    }
+    $c->print_wrapper_start();
+
     println "<a name=\"$c.anchor\"></a>";
     $c->print_userpic();
     println "<div class='datetime'><a href='$c.permalink_url' title='Permalink'>";
@@ -560,15 +559,12 @@ function EntryPage::print_comment (Comment c)
     {
         println " &raquo; ";
     }
-    if ($c.metadata{"poster_ip"}) {
-        println " (" + $c.metadata{"poster_ip"} + ")";
-    }
+    $c->print_metadata();
+
     println "";
 
     $c->print_poster();
-    if (defined $c.subject_icon) {
-        print "$c.subject_icon";
-    }
+    $c->print_metatypes();
 
     $c->print_subject();
 
@@ -588,6 +584,7 @@ function EntryPage::print_comment (Comment c)
     println "</div>";
 
     $c->print_reply_container();
+    $c->print_wrapper_end();
 }
 
 ####################################
@@ -631,3 +628,4 @@ function Page::print()
     println "</body>";
     println "</html>";
 }
+
