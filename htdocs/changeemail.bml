@@ -171,7 +171,7 @@ warn "send email to new address: $POST{'email'}";
             'from' => $LJ::ADMIN_EMAIL,
             'fromname' => $LJ::SITENAME,
             'charset' => 'utf-8',
-            'subject' => $ML{'/.newemail.subject'},
+            'subject' => $ML{'.newemail.subject'},
             'body' => BML::ml('.newemail.body2',
                               { username => $u->display_username,
                                 sitename => $LJ::SITENAME,
