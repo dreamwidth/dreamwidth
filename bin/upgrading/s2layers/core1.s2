@@ -1722,6 +1722,11 @@ set theme_linkcolor = "";
 
 ###[ global function implementations ]
 
+function modules_init() 
+{
+    # does nothing in core1. Placeholder, to prevent breakage
+}
+
 function prop_init ()
   "This function is the first thing called and is the place to set properties based on the values of other properties.  It's called before the style system looks at its builtin properties, so if you need to conditionally setup something based on your own custom properties, do it here.  You can't print from this function."
 {
