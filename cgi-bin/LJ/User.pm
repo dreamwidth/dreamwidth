@@ -4222,6 +4222,13 @@ sub set_password {
 ###  22. Priv-Related Functions
 
 
+sub has_priv {
+    my ( $u, $priv, $arg ) = @_;
+
+    # FIXME: migrate check_priv here and have users call this instead
+    return LJ::check_priv( $u, $priv, $arg );
+}
+
 sub grant_priv {
     my ($u, $priv, $arg) = @_;
     $arg ||= "";

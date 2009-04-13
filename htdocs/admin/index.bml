@@ -103,6 +103,8 @@ body<=
             } ] ],
         [ 'sysban.bml',
             '<?_ml .admin.sysban.link _ml?>', '<?_ml .admin.sysban.text _ml?>', [ 'sysban' ] ],
+        [ 'theschwartz.bml',
+            '<?_ml .admin.theschwartz.link _ml?>', '<?_ml .admin.theschwartz.text _ml?>', [ 'siteadmin:theschwartz' ] ],
         [ 'userlog.bml',
             '<?_ml .admin.userlog.link _ml?>', '<?_ml .admin.userlog.text _ml?>', [ 'canview:userlog', 'canview:*' ] ],
     );
