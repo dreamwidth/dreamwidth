@@ -3106,7 +3106,7 @@ register_tablecreate("import_items", <<'EOC');
 CREATE TABLE import_items (
     userid INT UNSIGNED NOT NULL,
     item VARCHAR(255) NOT NULL,
-    status ENUM('init', 'ready', 'queued', 'failed', 'succeeded') NOT NULL DEFAULT 'init',
+    status ENUM('init', 'ready', 'queued', 'failed', 'succeeded', 'aborted') NOT NULL DEFAULT 'init',
     created INT UNSIGNED NOT NULL,
     last_touch INT UNSIGNED NOT NULL,
     import_data_id INT UNSIGNED NOT NULL,
@@ -3972,6 +3972,13 @@ register_alter(sub {
     unless ( column_type( 'ml_items', 'visible' ) ) {
         do_alter( 'ml_items',
                   "ALTER TABLE ml_items ADD COLUMN visible TINYINT NOT NULL DEFAULT 0 AFTER updated" );
+    }
+
+    unless ( column_type( 'import_items', 'status' ) =~ /aborted/ ) {
+        do_alter( 'import_items',
+                  q{ALTER TABLE import_items MODIFY COLUMN
+                    status ENUM('init', 'ready', 'queued', 'failed', 'succeeded', 'aborted')
+                    NOT NULL DEFAULT 'init'} );
     }
 
 });

@@ -59,6 +59,15 @@ body<=
         );
         return "Database error." if $dbh->err;
 
+        # this is a hack, but we use it until we get a better frontend.  we abort all
+        # existing import jobs if they schedule a new one.  this won't actually stop any
+        # TheSchwartz jobs thateare in progress, of course, but that should be okay
+        $dbh->do(
+            q{UPDATE import_items SET status = 'aborted'
+              WHERE userid = ? AND status IN ('init', 'ready', 'queued')},
+            undef, $u->id
+        );
+
         # if comments are on, turn entries on
         $POST{lj_entries} = 1
             if $POST{lj_comments};
@@ -96,12 +105,12 @@ body<=
         return BML::redirect( "$LJ::SITEROOT/misc/import.bml" );
     }
 
-    # load up their most recent ten imports
+    # load up their most recent (active) import
     my $dbh = LJ::get_db_writer()
         or return "No database.";
     my $imps = $dbh->selectall_arrayref(
         'SELECT import_data_id, hostname, username, password_md5 FROM import_data WHERE userid = ? ' .
-        'ORDER BY import_data_id DESC LIMIT 3',
+        'ORDER BY import_data_id DESC LIMIT 1',
         undef, $u->id
     );
 
