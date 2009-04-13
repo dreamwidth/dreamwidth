@@ -151,7 +151,7 @@ sub render_body {
             props => $groups{props},
             propgroup => "presentation",
             groupprops => $groups{groupprops}->{presentation},
-            show_lang_chooser => 1,
+            show_lang_chooser => 0,
         );
         $ret .= "</div>";
 

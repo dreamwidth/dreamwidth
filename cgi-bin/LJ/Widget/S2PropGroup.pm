@@ -74,6 +74,61 @@ sub render_body {
             $count++;
         }
         $ret .= "</table>" if $header_printed;
+    } elsif ( $propgroup eq "modules" ) {
+
+        my %prop_values = LJ::Customize->get_s2_prop_values( "module_layout_sections", $u, $style );
+        my $layout_sections_values = $prop_values{override};
+        my @layout_sections_order = split( /\|/, $layout_sections_values );
+
+        my %subheaders = @layout_sections_order;
+        $subheaders{none} = "Unassigned";
+        
+        # use the module section order as defined by the layout
+        my $i=0;
+        @layout_sections_order = grep { $i++ % 2 == 0; } @layout_sections_order;
+
+        my %prop_in_subheader;
+        foreach my $prop_name ( @$groupprops ) {
+            next unless $prop_name =~ /_group$/;
+            
+            my $prop_name_section = $prop_name;
+            $prop_name_section =~ s/(.*)_group$/\1_section/;
+
+            # populate section dropdown values with the layout's list of available sections, if not already set
+            $props->{$prop_name_section}->{values} ||= $layout_sections_values;
+
+            # put this property under the proper subheader
+            my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+            # force it to the "none" section, if property value is not a valid subheader
+            my $subheader = $subheaders{$prop_values{override}} ? $prop_values{override} : "none";
+            $prop_in_subheader{$subheader} ||= [];
+            push @{$prop_in_subheader{$subheader}}, $prop_name;
+        }
+
+        my $subheader_counter = 1; 
+        foreach my $subheader ( @layout_sections_order ) {
+            my $header_printed = 0;
+            foreach my $prop_name ( @{$prop_in_subheader{$subheader}} ) {
+                next if $class->skip_prop( $props->{$prop_name}, $prop_name, theme => $theme, user => $u, style => $style );
+
+                unless ($header_printed) {
+                    my $prop_list_class = " first" if $subheader_counter == 1;
+
+                    $ret .= "<div class='subheader subheader-modules on' id='subheader__modules__${subheader}'>$subheaders{$subheader}</div>";
+                    $ret .= "<table cellspacing='0' class='prop-list$prop_list_class' id='proplist__modules__${subheader}'>";
+                    $header_printed = 1;
+                    $subheader_counter++;
+                    $count = 1; # reset counter
+                }
+
+                $row_class = $count % 2 == 0 ? " graybg" : "";
+
+                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
+                $count++;
+            }
+            $ret .= "</table>" if $header_printed;
+        }
+
     } else {
         my %subheaders = LJ::Customize->get_propgroup_subheaders;
 
@@ -178,6 +233,7 @@ sub skip_prop {
     }
 
     return 1 if $prop->{noui};
+    return 1 if $prop->{grouped};
 
     return 1 if $props_to_skip && $props_to_skip->{$prop_name};
 
@@ -260,8 +316,6 @@ sub output_prop_element {
 
     $existing_display = LJ::eall($existing_display);
 
-    return if $prop->{grouped} && ! $is_group;
-
     my $ret;
     # visually grouped properties. Allow nesting to only two levels
     if ( $type eq "string[]" && $is_group < 2 ) {    
@@ -307,6 +361,7 @@ sub output_prop_element {
               selected => $override, },
             split(/\|/, $prop->{values})
         );
+        $ret .= " <label>" . LJ::eall( $prop->{des} ) . "</label>" if $is_group && $prop->{des};
         $ret .= "</td>" unless $is_group;
     } elsif ($type eq "int") {
         $ret .= "<td class='prop-input'>" unless $is_group;
@@ -317,6 +372,7 @@ sub output_prop_element {
             maxlength => 5,
             size => 7,
         );
+        $ret .= " <label>" . LJ::eall( $prop->{des} ) . "</label>" if $is_group && $prop->{des};
         $ret .= "</td>" unless $is_group;
     } elsif ($type eq "bool") {
         $ret .= "<td class='prop-check'>" unless $is_group;
@@ -428,6 +484,7 @@ sub handle_post {
                 $override{$key} ||= $value;
             }
         }
+
         LJ::Customize->save_s2_props($u, $style, \%override);
         LJ::Customize->save_language($u, $post->{langcode}) if defined $post->{langcode};
     }

@@ -741,6 +741,7 @@ sub s2_context
         S2::set_output(sub {});  # printing suppressed
         S2::set_output_safe(sub {});
         eval { S2::run_code($ctx, "prop_init()"); };
+        eval { S2::run_code( $ctx, "modules_init()" ); };
         escape_all_props($ctx, \@layers);
 
         return $ctx unless $@;

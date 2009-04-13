@@ -12,6 +12,41 @@ property use num_items_recent;
 property use num_items_reading;
 property use use_journalstyle_entry_page;
 
+property use num_items_recent;
+property use num_items_reading;
+property use use_journalstyle_entry_page;
+
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    #property use module_customtext_group;
+    property use module_calendar_group;
+    property use module_pagesummary_group;
+    property use module_tags_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+}
+
+
+set module_layout_sections = "none|(none)|one|Sidebar|two|Header|three|Footer";
+
+set module_navlinks_section = "two";
+
+set module_userprofile_section = "one";
+set module_customtext_section = "one";
+set module_pagesummary_section = "one";
+set module_tags_section = "one";
+set module_links_section = "one";
+set module_syndicate_section = "one";
+
+set module_calendar_section = "three";
+set module_calendar_opts_type = "horizontal";
+
+set module_time_section = "none";
+set module_poweredby_section = "none";
+
 propgroup colors {
 
     property Color middle_background        { noui=1; des="Background of middle section, behind entry boxes"; }
@@ -88,23 +123,6 @@ set comment_management_links = "text";
 #######################
 #Functions
 #######################
-
-########################
-#Prop_init
-
-function prop_init() {
-
-#initialize $*module_group_one and $*module_group_two and $module_group_three
-
-    #first sidebar prints in-journal navigation links
-    $*module_group_one = [["navlinks", ""]];
-
-    $*module_group_two = [["tags", $*text_tags_section_header, ""],["links", $*text_links], ["pagesummary", $*text_page_summary],];
-
-    #third sidebar prints a horizontal calendar
-    $*module_group_three = [["calendar", "horizontal"]];
-}
-
 
 ########################
 #Prints the stylesheet
@@ -184,7 +202,7 @@ function print_stylesheet()
     #secondary .manage-tags-link {
         text-align: center;
     }
-    .module-group-one {
+    .module-section-two {
         background-color: $*navigation_background;
         font-size: 0.8em;
         letter-spacing:.3em;
@@ -192,30 +210,30 @@ function print_stylesheet()
         padding: 0.5em 0;
     }
     /* Hide from IE5-Mac \*/
-    * html .module-group-one {height: 1%;}
+    * html .module-section-two {height: 1%;}
     /* end hide *//*** This hack will make IE5-win display the background color for the nav ***/
-    .module-group-one ul {
+    .module-section-two ul {
         display: block;
         list-style: none;
         padding: 0;
         margin: 0 0 0 2em;
         text-align: left;
         line-height: 1.2em; }
-    .module-group-one ul li {
+    .module-section-two ul li {
         font-weight: bold;
         display: inline;
         padding: 0.2em 2em;
         margin: 3px 0;
      }
-    .module-group-one ul li.first {
+    .module-section-two ul li.first {
         margin-left: 0;
         list-style: none; }
-    .module-group-one ul li.last {
+    .module-section-two ul li.last {
         border-right: none; }
-    .module-group-one a, .module-group-one a:visited {
+    .module-section-two a, .module-section-two a:visited {
         padding: 3px 0;
         color: $*navigation_link; }
-    .module-group-one a:hover, .module-group-one a:active {
+    .module-section-two a:hover, .module-section-two a:active {
         color: $*navigation_link_hover; }
     /*test*/
     .userpic{
@@ -273,7 +291,7 @@ function print_stylesheet()
     html>body #module-calendar {
         margin: 0px 190px 0px 100px; /* ie5win fudge ends */
     }
-    .module-group-three {
+    .module-section-three {
         clear:both;
         background-color: $*minical_back;
         border-top:#ffffff double 5px;
@@ -601,7 +619,7 @@ function Page::print()
 
     println "<body>";
         $this->print_control_strip();
-        $this->print_module_group_one();
+        $this->print_module_section("two");
 
         println "<div id=\"primary\">";
             $this->print_body();
@@ -614,7 +632,7 @@ function Page::print()
                     $this->print_navigation();
                 println "</div>";
             }
-            $this->print_module_group_two();
+            $this->print_module_section("one");
         println "</div>";
 
         if ($this.view != "archive" and $this.view != "month"){
@@ -623,7 +641,7 @@ function Page::print()
             "</div>";
         }
 
-        $this->print_module_group_three();
+        $this->print_module_section("three");
 
     println "</body>";
     println "</html>";

@@ -2,6 +2,21 @@ layerinfo "type" = "layout";
 layerinfo "name" = "Core 2 Testing";
 layerinfo redist_uniq = "core2base/layout";
 
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    #property use module_customtext_group;
+    property use module_calendar_group;
+    property use module_pagesummary_group;
+    property use module_tags_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+}
+# explicitly define what sections the layout has available
+set module_layout_sections = "none|(none)|one|Sideabr|two|Footer";
+
 function Page::print_default_stylesheet() {
     """<style type="text/css">""";
     start_css();

@@ -608,6 +608,9 @@ class Page
     function print_module_group_four
     "Prints fourth grouping of modules (such as a sidebar).";
     
+    function print_module_section( string section_name )
+    "Prints a module section, given a group name";
+
     function print_stylesheets
     "Prints all defined stylesheets, including default and user-defined ones.";
 
@@ -1200,11 +1203,6 @@ property bool linklist_support {
 }
 set linklist_support = true;
 
-property int tags_module_limit {
-    des = "Maximum number of tags to display in the tags module, sorted according to number of uses. For no limit, use '0'";
-}
-set tags_module_limit = 50;
-
 property string entry_management_links {
     des = "Select whether entry management links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
@@ -1238,11 +1236,18 @@ property string[][] module_group_four {
     des = "Quaternary sidebar members";
     noui = 1;
 }
-set module_group_one = []; # Set in prop_init()
-set module_group_two = []; # Set in prop_init()
 
-set module_group_three = []; # Set in prop_init()
-set module_group_four = []; # Set in prop_init()
+property string module_layout_sections {
+    des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
+    example = "none|(none)|one|Header|two|Sidebar|three|Footer";
+    noui = 1;
+}
+set module_layout_sections = "none|(none)|one|Sidebar|two|Footer";
+
+property string[][]{} module_sections {
+    des = "Build up a list of module sections and the ordering within them";
+    noui = 1;
+}
 
 ##===============================
 ## Display settings - modules
@@ -1251,9 +1256,10 @@ property string[] module_userprofile_group {
     des = "Basic Journal Info";
     grouptype = "module";
 }
-set module_userprofile_group = ["module_userprofile_show", "module_userprofile_order", "module_userprofile_opts_group"];
+set module_userprofile_group = ["module_userprofile_show", "module_userprofile_order", "module_userprofile_section", "module_userprofile_opts_group"];
 property bool module_userprofile_show   { grouped = 1; }
 property int  module_userprofile_order  { grouped = 1; }
+property string module_userprofile_section { grouped = 1; }
 
 property string[] module_userprofile_opts_group {
     grouptype = "moduleopts";
@@ -1264,63 +1270,141 @@ property bool module_userprofile_opts_userpic   { grouped = 1; label = "Default 
 property bool module_userprofile_opts_name      { grouped = 1; label = "Display Name"; }
 property bool module_userprofile_opts_website   { grouped = 1; label = "Website"; }
 
+set module_userprofile_show = true;
+set module_userprofile_order = 1;
+set module_userprofile_section = "one";
+set module_userprofile_opts_userpic = true;
+set module_userprofile_opts_name = true;
+set module_userprofile_opts_website = true;
+
 property string[] module_navlinks_group {
     des = "Navigation";
     grouptype = "module";
 }
-set module_navlinks_group = ["module_navlinks_show", "module_navlinks_order"];
+set module_navlinks_group = ["module_navlinks_show", "module_navlinks_order", "module_navlinks_section"];
 property bool module_navlinks_show    { grouped = 1; }
 property int  module_navlinks_order   { grouped = 1; }
+property string module_navlinks_section { grouped = 1; }
+
+set module_navlinks_show = true;
+set module_navlinks_order = 2;
+set module_navlinks_section = "one";
 
 property string[] module_calendar_group {
     des = "Calendar";
     grouptype = "module";
 }
-set module_calendar_group = ["module_calendar_show", "module_calendar_order"];
+set module_calendar_group = ["module_calendar_show", "module_calendar_order", "module_calendar_section", "module_calendar_opts_group"];
 property bool module_calendar_show    { grouped = 1; }
 property int  module_calendar_order   { grouped = 1; }
+property string module_calendar_section { grouped = 1; }
+property string[] module_calendar_opts_group {
+    grouptype = "moduleopts";
+    grouped = 1;
+}
+set module_calendar_opts_group = ["module_calendar_opts_type"];
+property string module_calendar_opts_type         { grouped = 1; values = "|Table|horizontal|Horizontal"; des = "Type of calendar display"; }
+
+set module_calendar_show = true;
+set module_calendar_order = 3;
+set module_calendar_section = "one";
 
 property string[] module_pagesummary_group {
     des = "Page Summary";
     grouptype = "module";
 }
-set module_pagesummary_group = ["module_pagesummary_show", "module_pagesummary_order"];
+set module_pagesummary_group = ["module_pagesummary_show", "module_pagesummary_order", "module_pagesummary_section"];
 property bool module_pagesummary_show   { grouped = 1; }
 property int  module_pagesummary_order  { grouped = 1; }
+property string module_pagesummary_section { grouped = 1; }
+
+set module_pagesummary_show = true;
+set module_pagesummary_order = 7;
+set module_pagesummary_section = "one";
 
 property string[] module_tags_group {
     des = "Tags";
     grouptype = "module";
 }
-set module_tags_group = ["module_tags_show", "module_tags_order", "module_tags_opts_group"];
+set module_tags_group = ["module_tags_show", "module_tags_order", "module_tags_section", "module_tags_opts_group"];
 property bool module_tags_show  { grouped = 1; }
 property int  module_tags_order { grouped = 1; }
+property string module_tags_section { grouped = 1; }
 
 property string[] module_tags_opts_group {
     grouptype = "moduleopts";
     grouped = 1;
 }
-set module_tags_opts_group = ["module_tags_opts_cloud", "module_tags_opts_list", "module_tags_opts_multilevel"];
-property bool module_tags_opts_cloud        { grouped = 1; label = "Cloud"; }
-property bool module_tags_opts_list         { grouped = 1; label = "List"; }
-property bool module_tags_opts_multilevel   { grouped = 1; label = "Multilevel"; }
+set module_tags_opts_group = ["module_tags_opts_limit","module_tags_opts_type"];
+property string module_tags_opts_type       { grouped = 1; des = "Type of tags display"; values="|List|cloud|Cloud|multi|Multilevel"; }
+property int module_tags_opts_limit         { grouped = 1; des = "Limit display to these popular tags. '0' for unlimited"; }
+
+set module_tags_show = true;
+set module_tags_order = 6;
+set module_tags_section = "one";
+set module_tags_opts_type = "";
+set module_tags_opts_limit = 50;
 
 property string[] module_links_group {
     des = "Link List";
     grouptype = "module";
 }
-set module_links_group = ["module_links_show", "module_links_order"];
+set module_links_group = ["module_links_show", "module_links_order", "module_links_section"];
 property bool module_links_show     { grouped = 1; }
 property int  module_links_order    { grouped = 1; }
+property string module_links_section { grouped = 1; }
+
+set module_links_show = true;
+set module_links_order = 4;
+set module_links_section = "one";
 
 property string[] module_syndicate_group {
     des = "Syndication";
     grouptype = "module";
 }
-set module_syndicate_group = ["module_syndicate_show", "module_syndicate_order"];
+set module_syndicate_group = ["module_syndicate_show", "module_syndicate_order", "module_syndicate_section"];
 property bool module_syndicate_show    { grouped = 1; }
 property int  module_syndicate_order   { grouped = 1; }
+property string module_syndicate_section { grouped = 1; }
 
+set module_syndicate_show = true;
+set module_syndicate_order = 5;
+set module_syndicate_section = "one";
+
+property string[] module_time_group {
+    des = "Time Loaded";
+    grouptype = "module";
+}
+set module_time_group = ["module_time_show", "module_time_order", "module_time_section"];
+property bool module_time_show      { grouped = 1; }
+property int  module_time_order     { grouped = 1; }
+property string module_time_section { grouped = 1; }
+
+set module_time_show = true;
+set module_time_order = 11;
+set module_time_section = "two";
+
+property string[] module_poweredby_group {
+    des = "Powered By";
+    grouptype = "module";
+}
+set module_poweredby_group = ["module_poweredby_show", "module_poweredby_order", "module_poweredby_section"];
+property bool module_poweredby_show    { grouped = 1; }
+property int  module_poweredby_order   { grouped = 1; }
+property string module_poweredby_section { grouped = 1; }
+
+set module_poweredby_show = true;
+set module_poweredby_order = 12;
+set module_poweredby_section = "two";
+
+property string[] module_customtext_group {
+    des = "Custom Text";
+    grouptype = "module";
+}
+set module_customtext_group = ["module_customtext_show", "module_customtext_order", "module_customtext_section"];
+property bool module_customtext_show    { grouped = 1; }
+property int  module_customtext_order   { grouped = 1; }
+property string module_customtext_section { grouped = 1; }
 ##===============================
 ## Journal style - fonts
 ##===============================
@@ -1657,37 +1741,37 @@ set text_tags = "Tags:";
 ## Text - module headings
 ##===============================
 
-property string text_links {
+property string text_module_links {
     des = "Text used  for the heading of the links list";
     maxlength = 50;
     size = 20;
     example = "Links";
 }
-set text_links = "Links";
+set text_module_links = "Links";
 
-property string text_page_summary {
+property string text_module_pagesummary {
     des = "Text used for the heading for the Page Summary navigation section";
     maxlength = 100;
     size = 30;
     example = "Entries on This Page";
 }
-set text_page_summary = "Page Summary";
+set text_module_pagesummary = "Page Summary";
 
-property string text_syndicate {
+property string text_module_syndicate {
     des = "Text used for the heading for the Syndication navigation section";
     maxlength = 50;
     size = 20;
     example = "Subscribe to my feeds";
 }
-set text_syndicate = "Syndicate";
+set text_module_syndicate = "Syndicate";
 
-property string text_tags_section_header {
+property string text_module_tags {
     des = "Text for the 'Tags' heading in the navigation area";
     maxlength = 50;
     size = 20;
     example = "My tags";
 }
-set text_tags_section_header = "Tags";
+set text_module_tags = "Tags";
 
 ##===============================
 ## Text - entry comment-related
@@ -2109,21 +2193,28 @@ function prop_init ()
         [ "userprofile", "", "0", "1" ],
         [ "navlinks", "" ],
         [ "calendar", "" ],
-        [ "links", $*text_links ],
-        [ "syndicate", $*text_syndicate ],
-    ];
-
-    $*module_group_two = [
-        [ "tags", $*text_tags_section_header, "" ],
-        [ "tags", $*text_tags_section_header, "multi" ],
-        [ "tags", $*text_tags_section_header, "cloud" ],
-        [ "pagesummary", $*text_page_summary ],
     ];
 
     $*module_group_three = [
         [ "time", "" ],
         [ "poweredby", "" ],
     ];
+}
+
+function modules_init()
+"This function sets up the modules. It is called immediately after prop_init."
+{
+    if ( $*module_userprofile_show ) { $*module_sections{$*module_userprofile_section}[$*module_userprofile_order]=["userprofile"]; }
+    if ( $*module_navlinks_show ) { $*module_sections{$*module_navlinks_section}[$*module_navlinks_order]=["navlinks"]; }
+    if ( $*module_calendar_show ) { $*module_sections{$*module_calendar_section}[$*module_calendar_order]=["calendar"]; }
+    if ( $*module_links_show ) { $*module_sections{$*module_links_section}[$*module_links_order]=["links"]; }
+    if ( $*module_syndicate_show ) { $*module_sections{$*module_syndicate_section}[$*module_syndicate_order]=["syndicate"]; }
+    if ( $*module_tags_show ) { $*module_sections{$*module_tags_section}[$*module_tags_order]=["tags"]; }
+    if ( $*module_pagesummary_show ) { $*module_sections{$*module_pagesummary_section}[$*module_pagesummary_order]=["pagesummary"]; }
+    if ( $*module_time_show ) { $*module_sections{$*module_time_section}[$*module_time_order]=["time"]; }
+    if ( $*module_poweredby_show ) { $*module_sections{$*module_poweredby_section}[$*module_poweredby_order]=["poweredby"]; }
+    
+    #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
 
 function print_stylesheet ()
@@ -2748,18 +2839,26 @@ function print_module_list(string[] list) {
     }
 }
 
-function print_module_userprofile(string title, bool show_profile, bool show_userpic) {
+function print_module_userprofile() {
     var Page p = get_page();
-    if ($show_userpic) {
+    var string title = "";
+
+    if ($*module_userprofile_opts_userpic) {
         if (defined $p.journal.default_pic) {
             open_module("photo", $title, $p.journal.userpic_listing_url);
             $p.journal->print_userpic();
             close_module();
         }
     }
-    if ($show_profile) {
-        open_module("about", $title, $p.view_url{"userinfo"});
-        println "<p>"+$p.journal.name+"</p>"; # TODO: Display more stuff such as website link
+    if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
+        open_module("about", $title, $p.view_url{"userinfo"}, true);
+        if ($*module_userprofile_opts_name) {
+            println "<p>"+$p.journal.name+"</p>";
+        }
+        if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
+            var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
+            println "<p><a href='$p.journal.website_url'>$website_name</a></p>";
+        }
         close_module(true);
     }
     open_module("user-links", $title, "");
@@ -2767,9 +2866,9 @@ function print_module_userprofile(string title, bool show_profile, bool show_use
     close_module();
 }
 
-function print_module_navlinks(string title) {
+function print_module_navlinks() {
     var Page p = get_page();
-    open_module("navlinks", $title, "");
+    open_module("navlinks", "", "");
     var string[] links = [];
     foreach var string k ($p.views_order) {
         $links[size $links] = """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""";
@@ -2778,22 +2877,23 @@ function print_module_navlinks(string title) {
     close_module();
 }
 
-function print_module_time(string title) {
+function print_module_time() {
     var Page p = get_page();
-    open_module("time", $title, "");
+    open_module("time", "", "");
     $p->print_time();
     close_module();
 }
 
-function print_module_poweredby(string title) {
+function print_module_poweredby() {
     var Page p = get_page();
-    open_module("powered", $title, "");
+    open_module("powered", "", "");
     server_sig();
     close_module();
 }
 
-function print_module_pagesummary(string title) {
+function print_module_pagesummary() {
     var Page p = get_page();
+    var string title = $*text_module_pagesummary;
 
     var string[] links = [];
     if ($p isa EntryPage) {
@@ -2859,19 +2959,20 @@ function print_module_pagesummary(string title) {
     print_module_list($links);
     close_module();
 }
-function print_module_tags(string title, string tags_type) {
+function print_module_tags() {
     var Page p = get_page();
-    var TagDetail[] tags = $p->visible_tag_list($*tags_module_limit);
+    var string title = $*text_module_tags;
+    var TagDetail[] tags = $p->visible_tag_list($*module_tags_opts_limit);
     if (size($tags) < 1) {
         return;
     }
-    elseif ($tags_type == "multi") {
+    elseif ($*module_tags_opts_type == "multi") {
         open_module("categories_multilevel", $title, $p.view_url{"tags"});
         print_multilevel_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
         print_tag_manage_link();
         close_module();
     }
-    elseif ($tags_type == "cloud") {
+    elseif ($*module_tags_opts_type == "cloud") {
         open_module("categories_cloud", $title, $p.view_url{"tags"});
         print_cloud_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
         print_tag_manage_link();
@@ -2885,11 +2986,11 @@ function print_module_tags(string title, string tags_type) {
     }
 }
 
-function print_module_calendar(string calendar_type) {
+function print_module_calendar() {
     var Page p = get_page();
     var YearMonth mon = $p->get_latest_month();
 
-    if ($calendar_type=="horizontal") {
+    if ($*module_calendar_opts_type=="horizontal") {
         open_module("calendar","", "");
         print $mon->month_format("%%month%%", true);
         foreach var YearWeek week ($mon.weeks) {
@@ -2940,10 +3041,11 @@ function print_module_calendar(string calendar_type) {
         close_module();
     }
 }
-function print_module_syndicate(string title) {
+function print_module_syndicate() {
     var Page p = get_page();
+
     if ((size $p.data_links_order) < 1) { return; }
-    open_module("syndicate", $title, "");
+    open_module("syndicate", $*text_module_syndicate, "");
 
     foreach var string k ($p.data_links_order) {
         print " $p.data_link{$k} ";
@@ -2957,14 +3059,14 @@ function print_module_customtext(string title, string text, string titlelink_url
     print safe $text;
     close_module();
 }
-function print_module_links(string title) {
+function print_module_links() {
     var Page p = get_page();
     var UserLink[] links = $p.linklist;
     if (size($links) < 1 or not $*linklist_support) { return; }
 
     var bool box_open = false;
     if (not $links[0].is_heading) {
-        open_module("typelist", $title, "");
+        open_module("typelist", $*text_module_links, "");
         $box_open = true;
     }
 
@@ -2992,43 +3094,43 @@ function print_module_links(string title) {
 function handle_module_group_array(string[][] list) {
     foreach var string[] item ($list) {
         var string module = $item[0];
-        var string title = $item[1];
 
-        if ($module == "userprofile") {
-            var bool show_profile = (int($item[2]) != 0 ? true : false);
-            var bool show_userpic = (int($item[3]) != 0 ? true : false);
-            print_module_userprofile($title, $show_profile, $show_userpic);
+        # we can have blank modulenames because the ordering will not necessarily be consecutive
+        if ($module == "") {
+            continue;
+        }
+        elseif ($module == "userprofile") {
+            print_module_userprofile();
         }
         elseif ($module == "navlinks") {
-            print_module_navlinks($title);
+            print_module_navlinks();
         }
         elseif ($module == "time") {
-            print_module_time($title);
+            print_module_time();
         }
         elseif ($module == "poweredby") {
-            print_module_poweredby($title);
+            print_module_poweredby();
         }
         elseif ($module == "pagesummary") {
-            print_module_pagesummary($title);
+            print_module_pagesummary();
         }
         elseif ($module == "tags") {
-            var string tags_type = $item[2];
-            print_module_tags($title, $tags_type);
+            print_module_tags();
         }
         elseif ($module == "calendar") {
-            var string calendar_type = $item[1];
-            print_module_calendar($calendar_type);
+            print_module_calendar();
         }
         elseif ($module == "syndicate") {
-            print_module_syndicate($title);
+            print_module_syndicate();
         }
         elseif ($module == "customtext") {
+            var string title = $item[1];
             var string text = $item[2];
             var string titlelink_url = $item[3];
             print_module_customtext($title, $text, $titlelink_url);
         }
         elseif ($module == "links") {
-            print_module_links($title);
+            print_module_links();
         }
     }
 }
@@ -3053,7 +3155,11 @@ function Page::print_module_group_four() {
     handle_module_group_array($*module_group_four);
     """</div>""";
 }
-
+function Page::print_module_section ( string section_name ) {
+    """<div class="module-section-$section_name">""";
+    handle_module_group_array( $*module_sections{$section_name} );
+    """</div>""";
+}
 
 function Page::print() {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
@@ -3084,8 +3190,7 @@ function Page::print() {
                     </div></div><!-- end primary and primary>inner -->
                     <div id="secondary"><div class="inner">
                         """;
-                        $this->print_module_group_one();
-                        $this->print_module_group_two();
+                        $this->print_module_section("one");
     """
                     </div></div><!--  end secondary and secondary>inner -->
                     <div id="tertiary"><div class="inner">
@@ -3104,7 +3209,7 @@ function Page::print() {
             print safe """
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
             """;
-            $this->print_module_group_three();
+            #$this->print_module_section("two");
             """
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
