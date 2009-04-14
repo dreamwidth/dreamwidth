@@ -3300,7 +3300,7 @@ function Entry::print_poster {
 # For any given comment, print the commentor's name (local, anonymous, or openid)
 function Comment::print_poster() {
     var string poster = defined $this.poster ? $this.poster->as_string() : "<span class=\"anonymous\">$*text_poster_anonymous</span>";
-    if ($this.metadata{"imported_from"}) { $poster = "$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")"; }
+    if ($this.metadata{"imported_from"}) { $poster = "<span class=\"imported-from\">$poster ($*text_openid_from " + $this.metadata{"imported_from"} + ")</span>"; }
 
     print safe "<span class=\"poster comment-poster\">$*text_comment_from $poster</span>\n";
 }
@@ -3327,10 +3327,10 @@ function Page::print_entry(Entry e) {
     $e->print_tags();
     $e->print_management_links();
     if ($this isa EntryPage) {
-        "<hr>";
+        "<hr />";
         $e->print_interaction_links("topcomment");
         $this->print_reply_container({ "target" => "topcomment" });
-        "<hr>";
+        "<hr />";
     }
     else {
         $e->print_interaction_links();
@@ -3425,18 +3425,18 @@ function Entry::print_metadata() {
     if (size $.metadata) {
         """<div class="metadata">\n<ul>\n""";
         foreach var string m ($.metadata) {
-            "<li>$m: ";
+            """<li><span class="metadata-label metadata-label-$m">$m: </span>""";
             if ($m == "mood") {
                 " $.mood_icon ";
             }
-            print $.metadata{$m}; "</li>\n";
+            """<span class="metadata-item metadata-item-$m">$.metadata{$m}</span></li>\n""";
         }
         "</ul>\n</div>\n";
     }
 }
 function Comment::print_metadata() {
     if ($.metadata{"poster_ip"}) {
-        print safe "$*text_comment_ipaddr(" + $.metadata{"poster_ip"} + ")";
+        print safe "<span class=\"poster-ip\">$*text_comment_ipaddr(" + $.metadata{"poster_ip"} + ")</span>";
     }
 }
 
@@ -3654,7 +3654,7 @@ function RecentPage::print_body {
     foreach var Entry e ($.entries) {
         # Print the entry
         $this->print_entry($e);
-        print "<hr>";
+        print "<hr />";
     }
 
     $this->print_navigation();
@@ -4062,14 +4062,14 @@ function DayPage::print_body() {
             """
             <div class="day">
                 <div class="inner">
-            """;            
+            """;
+            print "<h3>" + $.date->date_format( "long" ) + "</h3>";
             if ($.has_entries) {
-                print "<h3>" + $.date->date_format( "long" ) + "</h3>";
                 foreach var Entry e ($.entries) {
                     $this->print_entry($e);
                 }
             } else {
-                print safe "$*text_noentries_day";
+                print safe "<div class=\"text_noentries text_noentries_day\">$*text_noentries_day</div>";
             }
 
             """
@@ -4182,16 +4182,16 @@ function Redirector::end_form ()
 
 function EntryPage::print_comment_section(Entry e) {
    $.comment_pages->print();
-   "<div class='comments'>";
+   "<div id='comments'>";
    if ($.comment_pages.total_subitems > 0) {
        $this->print_multiform_start();
    }
    $this->print_comments($.comments);
     if ($.comment_pages.total_subitems > 0) {
-        "<hr>";
+        "<hr />";
         $e->print_interaction_links("bottomcomment");
         $this->print_reply_container({ "target" => "bottomcomment" });
-        "<hr>";
+        "<hr />";
         $this->print_multiform_actionline();
         $this->print_multiform_end();
     }
@@ -4218,7 +4218,6 @@ function EntryPage::print_comment (Comment c) {
     $c->print_wrapper_start();
     """<div class="inner">\n""";
     """<div class="header">\n""";
-    """<div style='margin-top: 10px; width: 100%'>""";
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
@@ -4241,7 +4240,7 @@ function EntryPage::print_comment (Comment c) {
     $c->print_management_links();
     $c->print_interaction_links();
     $c->print_reply_container();
-    "</div>\n</div>\n</div>\n";
+    "</div>\n</div>\n";
     $c->print_wrapper_end();
 }
 
