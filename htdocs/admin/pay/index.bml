@@ -8,7 +8,11 @@
     use vars qw(%GET %POST);
 
     my $remote = LJ::get_remote();
-    return "You don't have access to do that.\n"
+    my @displayprivs = ( "payments" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $remote; 
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, 'payments');
 
     my $body = '<h1>Payment Manager</h1>';

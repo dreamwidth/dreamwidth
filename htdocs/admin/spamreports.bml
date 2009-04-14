@@ -32,11 +32,14 @@
     };
     # login check
     my $remote = LJ::get_remote();
-    return $error->("You must be logged in to be here.")
+    return $error->("<?needlogin?>")
         unless $remote;
     
     # priv check
-    return $error->("You do not have the necessary privilege to be here.")
+    my @displayprivs = ( "siteadmin:spamreports", "siteadmin:*" );
+    my $numprivs = @displayprivs;
+
+    return $error->(BML::ml("admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} ))
         unless LJ::check_priv($remote, 'siteadmin', 'spamreports');
 
     # show the top 10 spam reports by IP

@@ -7,8 +7,11 @@
     use vars qw(%GET %POST);
     my $ret;
     my $remote = LJ::get_remote();
+    my @displayprivs = ( "siteadmin:commentview", "siteadmin:*" );
+    my $numprivs = @displayprivs;
 
-    return "<b>Error:</b> You don't have access to viewing recent comments."
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, "siteadmin", "commentview");
 
     my $user = $GET{'user'};

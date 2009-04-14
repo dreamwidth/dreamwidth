@@ -8,8 +8,12 @@
     use Time::HiRes ();
 
     my $u = LJ::get_remote();
-    return "You must be logged in to view this tool." unless $u;
-    return "You don't have 'siteadmin' priv." unless LJ::check_priv($u, "siteadmin", "memcacheview");
+    my @displayprivs = ( "siteadmin:memcacheview", "siteadmin:*" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $u;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless LJ::check_priv($u, "siteadmin", "memcacheview");
 
     my $prev_hits = $u ? LJ::MemCache::get([$u->{'userid'},"mcrate:$u->{'userid'}"]) : undef;
 

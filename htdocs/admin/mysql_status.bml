@@ -3,8 +3,12 @@
  my $format = $FORM{'format'} || "html";
 
  my $remote = LJ::get_remote();
- return"<b>Error:</b> You don't have access to administer databases."
- unless (LJ::check_priv($remote, "siteadmin", "mysqlstatus"));
+ my @displayprivs = ( "siteadmin:mysqlstatus", "siteadmin:*" );
+ my $numprivs = @displayprivs;
+
+ return "<?needlogin?>" unless $remote;
+ return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+     unless (LJ::check_priv($remote, "siteadmin", "mysqlstatus"));
 
  my $dbh = LJ::get_db_writer();
 

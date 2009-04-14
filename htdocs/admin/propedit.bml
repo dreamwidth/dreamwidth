@@ -21,7 +21,13 @@ body<=
     my $remote = LJ::get_remote();
     my $is_admin = LJ::check_priv( $remote, "canview", "userprops" );
     my $can_save = LJ::check_priv( $remote, "siteadmin", "propedit" );
-    return BML::redirect( "$LJ::SITEROOT" ) unless $is_admin;
+
+    my @displayprivs = ( "canview:userprops", "canview:*" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless $is_admin;
 
     $ret .= "<form method='POST'>";
     $ret .= "View properties for username: ";

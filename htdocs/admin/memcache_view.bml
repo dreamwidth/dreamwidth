@@ -10,8 +10,11 @@
 
 
  my $remote = LJ::get_remote();
+ my @displayprivs = ( "siteadmin:memcacheview", "siteadmin:*" );
+ my $numprivs = @displayprivs;
 
- return "<b>Error:</b> You don't have access to viewing memcache info."
+ return "<?needlogin?>" unless $remote;
+ return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
      unless (LJ::check_priv($remote, "siteadmin", "memcacheview") || $LJ::IS_DEV_SERVER);
 
  return "<b>Error:</b> No memcache servers defined."

@@ -9,8 +9,13 @@ body<=
     my $err = sub { return "<?h1 Error h1?><?p $_[0] p?>"; };
 
     my $remote = LJ::get_remote();
-    return $err->("Please login") unless $remote;
-    return $err->("No access") unless LJ::check_priv($remote, 'suspend');
+    my @displayprivs = ( "suspend" );
+    my $numprivs = @displayprivs;
+
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless LJ::check_priv($remote, 'suspend');
 
     my $ret = "";
     

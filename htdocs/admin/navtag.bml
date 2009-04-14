@@ -13,10 +13,13 @@
     use vars qw(%GET %POST);
 
     my $remote = LJ::get_remote();
+    my @displayprivs = ( "siteadmin:navtag", "siteadmin:*" );
+    my $numprivs = @displayprivs;
+
     return "<?needlogin?>" unless $remote;
 
-    return "You do not have the privs to use this tool"
-	unless LJ::check_priv($remote, 'siteadmin', 'navtag');
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless LJ::check_priv($remote, 'siteadmin', 'navtag');
 
     do "LJ/NavTag.pm";
     #use LJ::NavTag;

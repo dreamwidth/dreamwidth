@@ -7,11 +7,13 @@ body<=
     use Class::Autouse qw( LJ::QotD );
 
     my $remote = LJ::get_remote();
+    my @displayprivs = ( "siteadmin:qotd", "siteadmin:*" );
+    my $numprivs = @displayprivs;
 
     return "<?needlogin?>"
         unless $remote;
 
-    return "You are not allowed to view this page"
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, 'siteadmin', 'qotd') || $LJ::IS_DEV_SERVER;
 
     my $ret = "";

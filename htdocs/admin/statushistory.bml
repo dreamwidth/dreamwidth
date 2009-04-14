@@ -10,9 +10,12 @@
 
     # check privs
     my $remote = LJ::get_remote();
-    unless (LJ::check_priv($remote, "historyview") || $LJ::IS_DEV_SERVER) {
-        return "Sorry, you don't have access to view this page.";
-    }
+    my @displayprivs =( "historyview" );
+    my $numprivs = @displayprivs;
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+        unless (LJ::check_priv($remote, "historyview") || $LJ::IS_DEV_SERVER);
 
     my $ret;
 

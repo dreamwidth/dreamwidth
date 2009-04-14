@@ -11,7 +11,10 @@ body<=
     return "<?needlogin?>"
         unless $remote;
 
-    return "You are not allowed to view this page"
+    my @displayprivs = ( "siteadmin:sitemessages", "siteadmin:*" );
+    my $numprivs = @displayprivs;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, 'siteadmin', 'sitemessages') || $LJ::IS_DEV_SERVER;
 
     my $ret = "";

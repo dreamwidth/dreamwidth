@@ -9,15 +9,15 @@ body<=
  my $sth;
 
  my $remote = LJ::get_remote();
+ my @displayprivs = ( "schemadoc" );
+ my $numprivs = @displayprivs;
 
+ return "<?needlogin?>" unless $remote;
  my $can_doc = 0;
  if (LJ::remote_has_priv($remote, "schemadoc")) { $can_doc = 1; }
- unless ($can_doc) {
-     my $url = "/doc/server/ljp.dbschema.ref.html";
-     $body = "This page is for editing <a href=\"$url\">schema documentation</a>, ";
-     $body .= "but you don't have the 'schemadoc' priv.";
-     return $body;
- }
+ return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
+     unless ($can_doc); 
+ 
 
  sub magic_links
  {

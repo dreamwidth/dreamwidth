@@ -7,9 +7,11 @@ body<=
     use vars qw($ret %POST);
 
     my $remote = LJ::get_remote();
-    my $is_admin = LJ::check_priv($remote, "canview", "entryprops");
-    return BML::redirect("$LJ::SITEROOT/editjournal.bml")
-        unless $is_admin || $LJ::IS_DEV_SERVER;
+    my @display_privs = ( "canview:entryprops", "canview:*" );
+    my $numprivs = @display_privs;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless $LJ::IS_DEV_SERVER || LJ::check_priv($remote, "canview", "entryprops");
 
     $ret .= "<form method='POST'>";
     $ret .= "View properties for URL: ";

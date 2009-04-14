@@ -30,7 +30,10 @@ body<=
         return "<?h1 Error h1?><?p $_[0] p?>";
     };
 
-    return $err->("You do not have the necessary privilege to view this page.")
+    my @displayprivs = ( "canview:userlog", "canview:*" );
+    my $numprivs = @displayprivs;
+
+    return BML::ml("admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, 'canview', 'userlog') ||
                LJ::check_priv($remote, 'canview', '*');
 

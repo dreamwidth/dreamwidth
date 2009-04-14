@@ -37,7 +37,10 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    return $err->("You do not have the necessary privilege to view this page.")
+    my @displayprivs = ( "sysban" );
+    my $numprivs = @displayprivs;
+
+    return BML::ml("admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv( $remote, $priv );
 
     LJ::load_user_privs($remote, $priv)
@@ -232,4 +235,3 @@ FORM
 _code?>
 <=body
 page?>
-

@@ -6,9 +6,12 @@ body<=
     use strict;
 
     my $remote = LJ::get_remote();
+    my @display_privs = ( "supporthelp" );
+    my $numprivs = @display_privs;
+
     return "<?needlogin?>" unless $remote;
-    return "<?h1 Error h1?><?p You do not have the necessary privilege (supporthelp) to use this page. p?>"
-        unless LJ::check_priv($remote, 'supporthelp');
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join (", ", @display_privs) . "</b>" } )
+        unless LJ::check_priv($remote, "supporthelp");
 
     my $ret;
     foreach my $cid (@LJ::CLUSTERS) {

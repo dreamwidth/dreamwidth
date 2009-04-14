@@ -9,11 +9,13 @@ body<=
     return LJ::server_down_html if ( $LJ::SERVER_DOWN );
     
     my $remote = LJ::get_remote;
+    my @displayprivs = ( "finduser:codetrace", "finduser:*" );
+    my $numprivs = @displayprivs;
     
     return "<?needlogin?>"
         unless $remote;
 
-    return BML::redirect( "$LJ::SITEROOT/manage/invitecodes.bml" )
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv( $remote, "finduser", "codetrace" );    
 
     my $ret;

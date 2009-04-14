@@ -7,9 +7,12 @@
     my $ret;
     my $remote = LJ::get_remote();
 
-    return "Not logged in" unless $remote;
-    return "<b>Error:</b> You don't have access to do this."
-	unless LJ::check_priv($remote, "supporthelp");
+    my @display_privs = ( "supporthelp" );
+    my $numprivs = @display_privs;
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless LJ::check_priv($remote, "supporthelp");
 
     unless (LJ::did_post()) {
 	$ret .= "<h1>duplicate entry killer</h1>\n";

@@ -12,7 +12,7 @@ body<=
     use strict;
 
     # FIXME: add crumb
-
+    
     my $id = $FORM{id} + 0;
     my $ret = "";
 
@@ -21,6 +21,15 @@ body<=
     my $remote = LJ::get_remote();
     my %ac_edit;
     my %ac_add;
+
+    my @display_privs = ( "faqadd", "faqedit" );
+    my $numprivs =  @display_privs;
+
+    return "<?needlogin?>" unless $remote;
+    
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless LJ::check_priv($remote, "faqadd") || LJ::check_priv($remote, "faqedit");
+
     LJ::remote_has_priv( $remote, "faqadd", \%ac_add );
     LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
     my $faqd = LJ::Lang::get_dom( "faq" );

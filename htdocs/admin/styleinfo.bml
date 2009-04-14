@@ -7,7 +7,12 @@ body<=
     use vars qw(%POST %GET);
 
     my $remote = LJ::get_remote();
-    BML::redirect("$LJ::SITEROOT/customize/")
+
+    return "<?needlogin?>" unless $remote;
+
+    my @displayprivs = ( "any support privilege" );
+    my $numprivs = @displayprivs;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::Support::has_any_support_priv($remote) || $LJ::IS_DEV_SERVER;
 
     my $ret;

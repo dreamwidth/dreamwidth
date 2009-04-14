@@ -15,7 +15,10 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    return $err->('You do not have access to use this tool.')
+    my @displayprivs = ( "siteadmin:school", "siteadmin:*" );
+    my $numprivs = @displayprivs;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, 'siteadmin', 'school');
 
     $ret .= "<?p [ <a href='index.bml'>&lt;&lt; Back to Admin Index</a> ] p?>";

@@ -11,6 +11,13 @@ body<=
     my $dbh = LJ::get_db_writer();
 
     my $remote = LJ::get_remote();
+    my @display_privs = ( "faqadd", "faqedit" );
+    my $numprivs = @display_privs;
+
+    return "<?needlogin?>" unless $remote;
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
+        unless LJ::check_priv($remote, "faqadd") || LJ::check_priv($remote, "faqedit");
+
     my %ac_add;
     my %ac_edit;
     LJ::remote_has_priv( $remote, "faqadd", \%ac_add );

@@ -2,6 +2,8 @@
 
 actionlink=[[[link]]]
 
+admin.noprivserror=Sorry, your account does not have the necessary [[?numprivs|privilege|privileges]] ([[?numprivs||one of ]][[needprivs]]) to use this tool.
+
 backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
 
 birthday.link=birthdays

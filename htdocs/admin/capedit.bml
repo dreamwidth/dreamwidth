@@ -7,9 +7,12 @@
  my $mode = $FORM{'mode'};
 
  my $remote = LJ::get_remote();
- return "<b>Error:</b> not logged in" unless $remote;
- return "<b>Error:</b> no access"
-    unless $LJ::IS_DEV_SERVER || LJ::check_priv($remote, "admin", "*");
+ my @display_privs = ( "admin:capedit", "admin:*" );
+ my $numprivs = @display_privs;
+
+ return "<?needlogin?>" unless $remote;
+ return BML::ml ( "admin.noprivserror", { numpriv => $numprivs, needprivs => "<b>"  . join(", ", @display_privs) . "</b>"} )
+   unless $LJ::IS_DEV_SERVER || LJ::check_priv($remote, "admin", "*");
 
  $mode ||= $FORM{'user'} ? "viewuser" : "intro";
 
