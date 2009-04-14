@@ -440,7 +440,7 @@ sub clean
                     if ($attr->{'text'}) {
                         $text = $attr->{'text'};
                         if ($text =~ /[^\x01-\x7f]/) {
-                            $text = pack('C*', unpack('C*', $text));
+                            $text = LJ::no_utf8_flag ( $text );
                         }
                         $text =~ s/</&lt;/g;
                         $text =~ s/>/&gt;/g;

@@ -1736,7 +1736,7 @@ sub xmlrpc_method {
     if (ref $req eq "HASH") {
         foreach my $key ('subject', 'event') {
             # get rid of the UTF8 flag in scalars
-            $req->{$key} = pack('C*', unpack('C*', $req->{$key}))
+            $req->{$key} = LJ::no_utf8_flag ( $req->{$key} )
                 if $req->{$key};
         }
     }

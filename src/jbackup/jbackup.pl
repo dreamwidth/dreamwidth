@@ -419,7 +419,8 @@ sub save_event {
     # DO NOT SET REALTIME HERE.  It is set by syncitems.
     foreach (qw(subject anum event eventtime security allowmask poster)) {
         next unless $data->{$_};
-        my $tmp = pack('C*', unpack('C*', $data->{$_}));
+        use bytes;
+        my $tmp = substr($data->{$_}, 0);
         $bak{"event:$_:$id"} = $tmp;
     }
     my @props;
@@ -463,7 +464,8 @@ sub save_comment {
         next unless $data->{$_};
         # GDBM doesn't deal with UTF-8, it only wants a string of bytes, so let's do that
         # by clearing the UTF-8 flag on our input scalars.
-        my $tmp = pack('C*', unpack('C*', $data->{$_}));
+        use bytes;
+        my $tmp = substr($data->{$_}, 0);
         $bak{"comment:$_:$data->{id}"} = $tmp;
     }
 }

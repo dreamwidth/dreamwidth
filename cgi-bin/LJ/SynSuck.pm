@@ -241,7 +241,7 @@ sub process_content {
         # for us behind our back in random places all over
         # http://zilla.livejournal.org/show_bug.cgi?id=1037
         foreach my $attr (qw(id subject text link)) {
-            $it->{$attr} = pack('C*', unpack('C*', $it->{$attr}));
+            $it->{$attr} = LJ::no_utf8_flag ( $it->{$attr} );
         }
 
         my $dig = LJ::md5_struct($it)->b64digest;

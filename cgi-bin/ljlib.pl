@@ -2275,7 +2275,7 @@ sub md5_struct
         # see http://zilla.livejournal.org/show_bug.cgi?id=851
         eval { $md5->add($st); };
         if ($@) {
-            $st = pack('C*', unpack('C*', $st));
+            $st = LJ::no_utf8_flag ( $st );
             $md5->add($st);
         }
         return $md5;
@@ -2677,8 +2677,14 @@ sub assert_is {
                caller => [caller()])->throw;
 }
 
+# no_utf8_flag previously used pack('C*',unpack('C*', $_[0]))
+# but that stopped working in Perl 5.10; see
+# http://bugs.dwscoalition.org/show_bug.cgi?id=640
 sub no_utf8_flag {
-    return pack('C*', unpack('C*', $_[0]));
+    # tell Perl to ignore the SvUTF8 flag in this scope.
+    use bytes;
+    # make a copy of the input string that doesn't have the flag at all.
+    return substr($_[0], 0);
 }
 
 # return true if root caller is a test file
