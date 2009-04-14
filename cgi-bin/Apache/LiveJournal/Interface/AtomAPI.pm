@@ -72,7 +72,6 @@ HTML
     $type = $mime{$type} || 'text/html';
     $r->status_line("$status $msgs{$status}");
     $r->content_type($type);
-    $r->send_http_header();
     $r->print($out);
     return OK;
 };
@@ -553,7 +552,8 @@ sub handle_feed {
 # authentication, calls the appropriate method handler, and
 # prints the response.
 sub handle {
-    my $r = shift;
+    # FIXME: Move this up to caller(s).
+    my $r = DW::Request->get;
 
     return respond($r, 404, "This server does not support the Atom API.")
         unless LJ::ModuleCheck->have_xmlatom;
