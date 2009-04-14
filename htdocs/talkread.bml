@@ -562,7 +562,8 @@ body<=
                    );
 
                    # build the imgtag for the userpic associated with the keyword
-                   $ret .= $postpic->imgtag( %kwopts );
+                   $ret .= "<div style=\"float:left\">" .$postpic->imgtag( %kwopts ) . "</div>";
+
                 }
 
                 my $cleansubject = LJ::ehtml($post->{'subject'});
