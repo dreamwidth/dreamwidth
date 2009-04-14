@@ -178,12 +178,12 @@ function print_stylesheet()
         font-size: 0.85em;
         color: #ffffff;
         }
-    #secondary a, #secondary a:visited, #page-navigation-bottom a, #page-navigation-bottom a:visited {
+    #secondary a, #secondary a:visited {
         color:$*linklist_link;
         font-weight:normal;
         padding-bottom:1px;
     }
-    #secondary a:hover, #secondary a:active, #page-navigation-bottom a:hover, #page-navigation-bottom a:active {
+    #secondary a:hover, #secondary a:active {
         color:$*linklist_link_hover;
         background-color:$*linklist_hover_background;
         padding-bottom: 0px;
@@ -326,19 +326,6 @@ function print_stylesheet()
     }
     q{
         font-style: italic;
-    }
-
-    #page-navigation-bottom {
-        position: absolute;
-        right: 0px;
-        bottom: 50px;
-        margin: 0px;
-        padding: 10px;
-        border: 0px;
-        padding-bottom: 10px;
-        width: 15%;
-        font-size: 0.85em;
-        color: #ffffff;
     }
     
     .entry h3 { display: inline; }
@@ -634,12 +621,6 @@ function Page::print()
             }
             $this->print_module_section("one");
         println "</div>";
-
-        if ($this.view != "archive" and $this.view != "month"){
-            "<div id='page-navigation-bottom' class='page-navigation'>";
-                $this->print_navigation();
-            "</div>";
-        }
 
         $this->print_module_section("three");
 
