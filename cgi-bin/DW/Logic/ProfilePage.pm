@@ -645,7 +645,8 @@ sub interests {
             LJ::text_out( \$intname );
             my $eint = LJ::eurl( $intname );
             if ( $intcount > 1 ) {
-                if ( $remote ) {
+                # bold shared interests on all profiles except your own
+                if ( $remote && !$remote->equals( $u ) ) {
                     my %remote_intids = map { $_ => 1 } @{ LJ::get_interests( $remote, { justids => 1 } ) };
                     $intname = "<strong>$intname</strong>" if $remote_intids{$intid};
                 }
