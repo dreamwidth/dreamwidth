@@ -12,10 +12,6 @@ property use num_items_recent;
 property use num_items_reading;
 property use use_journalstyle_entry_page;
 
-property use num_items_recent;
-property use num_items_reading;
-property use use_journalstyle_entry_page;
-
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
@@ -108,6 +104,10 @@ propgroup text {
 set text_comments_heading = "&laquo;Comments&raquo;";
 
 propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+
     property bool display_ljtag       { noui=1; des="Display lj-user tags instead of displayed name/user name links on entries"; }
     property bool enable_subjecticons { noui=1; des = "Enable comment subject icons?"; }
 }
