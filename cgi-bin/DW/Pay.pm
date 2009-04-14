@@ -579,6 +579,52 @@ sub update_paid_status {
     return 1;
 }
 
+################################################################################
+# DW::Pay::num_permanent_accounts_available
+#
+# ARGUMENTS: none
+#
+# RETURN: number of permanent accounts that are still available for purchase
+#         -1 if there is no limit on how many permanent accounts can be
+#         purchased
+#
+sub num_permanent_accounts_available {
+    return 0 unless $LJ::PERMANENT_ACCOUNT_LIMIT;
+    return -1 if $LJ::PERMANENT_ACCOUNT_LIMIT < 0;
+
+    # FIXME: we need to figure out the best way to do this, which is probably
+    # to have some counter that is incremented (or decremented) whenever someone
+    # finishes the check out process with a permanent account in their cart
+    my $num_bought = 0;
+    my $num_available = $LJ::PERMANENT_ACCOUNT_LIMIT - $num_bought;
+
+    return $num_available > 0 ? $num_available : 0;
+}
+
+################################################################################
+# DW::Pay::num_permanent_accounts_available_estimated
+#
+# ARGUMENTS: none
+#
+# RETURN: estimated number of permanent accounts that are still available for
+#         purchase
+#         -1 if there is no limit on how many permanent accounts can be
+#         purchased
+#
+sub num_permanent_accounts_available_estimated {
+    my $num_available = DW::Pay::num_permanent_accounts_available();
+    return $num_available if $num_available < 1;
+
+    return 10  if $num_available <= 10;
+    return 25  if $num_available <= 25;
+    return 50  if $num_available <= 50;
+    return 100 if $num_available <= 100;
+    return 150 if $num_available <= 150;
+    return 200 if $num_available <= 200;
+    return 300 if $num_available <= 300;
+    return 400 if $num_available <= 400;
+    return 500;
+}
 
 ################################################################################
 ################################################################################

@@ -143,17 +143,31 @@ sub save {
 }
 
 
+# returns the number of items in this cart
+sub num_items {
+    my $self = $_[0];
+
+    return scalar @{ $self->{items} || [] };
+}
+
+
 # returns 1/0 if this cart has any items in it
 sub has_items {
     my $self = $_[0];
 
-    return scalar( @{ $self->{items} || [] } ) > 0 ? 1 : 0;
+    return $self->num_items > 0 ? 1 : 0;
 }
 
 
 # add an item to the shopping cart, returns 1/0
 sub add_item {
     my ( $self, $item ) = @_;
+
+    # make sure this item is allowed to be added
+    my $error;
+    unless ( $item->can_be_added( errref => \$error ) ) {
+        return ( 0, $error );
+    }
 
     # iterate over existing items to see if any conflict
     foreach my $it ( @{$self->items} ) {

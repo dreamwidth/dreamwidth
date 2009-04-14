@@ -7,6 +7,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -21,41 +22,30 @@ body<=
     use strict;
     use vars qw/ %GET %POST $title /;
 
+    # WE ARE NOT OPEN FOR BUSINESS
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless $LJ::IS_DEV_SERVER;
+
     # this page uses new style JS
-    LJ::need_res( 'stc/widget/shop.css' );
+    LJ::need_res( 'stc/shop.css' );
     LJ::set_active_resource_group( 'jquery' );
 
-    # the basic shop page is a collection of widgets!  thanks Janine :)
-    return DW::Widget::ShopCartStatusBar->render( %GET, minimal => 1 );
+    $title = BML::ml( '.title', { sitename => $LJ::SITENAMESHORT } );
+
+    my $ret;
+
+    $ret .= DW::Widget::ShopCartStatusBar->render( %GET );
+    $ret .= "<p>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT } ) . "</p>";
+
+    $ret .= DW::Widget::ShopItemGroupDisplay->render( group => 'paidaccounts' );
+
+    $ret .= "<div class='shopbox'>";
+    $ret .= "<p>" . BML::ml( '.sideblurb', { sitename => $LJ::SITENAMESHORT, aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ). "</p>";
+    $ret .= "</div>";
+
+    return $ret;
 }
 _code?>
-
-
-<?p Welcome to the Dreamwidth store!  If you are interested in supporting Dreamwidth Studios
-or are just looking for more features for your account, you have come to the right place. 
-I admit this page is pretty ugly and hope that someone will fix it. p?>
-
-<div id='left' class='shopbox'>
-    <?p If you are looking for a paid account, you pretty much have three options... p?>
-    <ul>
-        <li><a href='<?siteroot?>/shop/account?for=self'>...for yourself</a></li>
-        <li><a href='<?siteroot?>/shop/account?for=gift'>...for a gift</a></li>
-        <li><a href='<?siteroot?>/shop/account?for=new'>...a new account</a></li>
-    </ul>
-</div>
-
-<div id='right' class='shopbox'>
-    <?p This box has some information about Dreamwidth, a promotional blurb or
-    some other thing to tell you about us. p?>
-    <?p There is likely going to be a really compelling bunch of text here, but darn
-    if someone else has to write it. (And English strip it.) p?>
-    <?p Well, please enjoy Dreamwidth! p?>
-</div>
-
-
-
-
-
 <=body
-title=><?_ml .title _ml?>
+title=><?_code return $title; _code?>
 page?>

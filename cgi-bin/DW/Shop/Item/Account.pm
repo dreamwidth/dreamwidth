@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -26,29 +27,30 @@ sub new {
     my $type = delete $args{type};
     return undef unless exists $LJ::SHOP{$type};
 
-    # at this point, there needs to be only one argument, and it needs to be one
-    # of the target types
-    return undef unless
-        scalar( keys %args ) == 1 &&
-            ( $args{target_username} || $args{target_userid} || $args{target_email} );
+    # from_userid will be 0 if the sender isn't logged in
+    return undef unless $args{from_userid} == 0 || LJ::load_userid( $args{from_userid} );
 
     # now do validation.  since new is only called when the item is being added
     # to the shopping cart, then we are comfortable doing all of these checks
     # on things at the time this item is put together
-    if ( my $un = $args{target_username} ) {
-        # username needs to be valid and not exist
-        return undef unless $un = LJ::canonical_username( $un );
-        return undef if LJ::load_user( $un );
-
-        $args{target_username} = $un;
-
-    } elsif ( my $uid = $args{target_userid} ) {
+    if ( my $uid = $args{target_userid} ) {
         # userid needs to exist
         return undef unless LJ::load_userid( $uid );
-
     } elsif ( my $email = $args{target_email} ) {
-        # FIXME: validate email address
+        # email address must be valid
+        my @email_errors;
+        LJ::check_email( $email, \@email_errors );
+        return undef if @email_errors;
+    } else {
+        return undef;
+    }
 
+    if ( $args{deliverydate} ) {
+        return undef unless $args{deliverydate} =~ /^\d\d\d\d-\d\d-\d\d$/;
+    }
+
+    if ( $args{anonymous} ) {
+        return undef unless $args{anonymous} == 1;
     }
 
     # looks good
@@ -93,6 +95,22 @@ sub unapply {
 }
 
 
+# returns 1 if this item is allowed to be added to the shopping cart
+sub can_be_added {
+    my ( $self, %opts ) = @_;
+
+    my $errref = $opts{errref};
+
+    # check to see if we're over the permanent account limit
+    if ( $self->permanent && DW::Pay::num_permanent_accounts_available() < 1 ) {
+        $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.noperms' );
+        return 0;
+    }
+
+    return 1;
+}
+
+
 # given another item, see if that item conflicts with this item (i.e.,
 # if you can't have both in your shopping cart at the same time).
 #
@@ -101,20 +119,20 @@ sub conflicts {
     my ( $self, $item ) = @_;
 
     # first see if we're talking about the same target
-    # FIXME: maybe not include email here, what happens if they want to buy 3 paid accounts
-    # and send them to the same email address?
+    # note that we're not checking email here because they may want to buy
+    # multiple paid accounts and send them to all to the same email address
+    # (so they can can create multiple new paid accounts)
     return if
-        ( $self->t_userid   && $self->t_userid   != $item->t_userid   ) ||
-        ( $self->t_email    && $self->t_email    != $item->t_email    ) ||
-        ( $self->t_username && $self->t_username != $item->t_username );
+        ( $self->t_userid && ( $self->t_userid != $item->t_userid ) ) ||
+        ( $self->t_email                                            );
 
-    # target same, if either is permanent, then fail because
+    # target same, if both are permanent, then fail because
     # THERE CAN BE ONLY ONE
-    return 'Already purchasing a permanent account for this target.'
-        if $self->permanent || $item->permanent;
+    return LJ::Lang::ml( 'shop.item.account.conflicts.multipleperms' )
+        if $self->permanent && $item->permanent;
 
     # otherwise ensure that the classes are the same
-    return 'Already chose to upgrade to a ' . $self->class . ', do not do both!'
+    return LJ::Lang::ml( 'shop.item.account.conflicts.differentpaid' )
         if $self->class ne $item->class;
 
     # guess we allow it
@@ -132,18 +150,29 @@ sub t_html {
             if $u;
         return "<strong>invalid userid $uid</strong>";
 
-    } elsif ( my $user = $self->t_username ) {
-        my $u = LJ::load_user( $user );
-        return $u->ljuser_display
-            if $u;
-        return "<strong>$user</strong>";
-
     } elsif ( my $email = $self->t_email ) {
         return "<strong>$email</strong>";
 
     }
 
     return "<strong>invalid/unknown target</strong>";
+}
+
+
+# render the item name as a string
+sub name_html {
+    my $self = $_[0];
+
+    my $name = "invalid name";
+    foreach my $cap ( keys %LJ::CAP ) {
+        if ( $LJ::CAP{$cap} && $LJ::CAP{$cap}->{_account_type} eq $self->class ) {
+            $name = $LJ::CAP{$cap}->{_visible_name};
+            last;
+        }
+    }
+
+    return $name if $self->permanent;
+    return LJ::Lang::ml( 'shop.item.account.name', { name => $name, num => $self->months } );
 }
 
 
@@ -155,14 +184,16 @@ sub id {
 
 
 # simple accessors
-sub applied    { return $_[0]->{applied};         }
-sub cost       { return $_[0]->{cost};            }
-sub months     { return $_[0]->{months};          }
-sub class      { return $_[0]->{class};           }
-sub t_userid   { return $_[0]->{target_userid};   }
-sub t_email    { return $_[0]->{target_email};    }
-sub t_username { return $_[0]->{target_username}; }
-sub permanent  { return $_[0]->months == 99;      }
+sub applied      { return $_[0]->{applied};         }
+sub cost         { return $_[0]->{cost};            }
+sub months       { return $_[0]->{months};          }
+sub class        { return $_[0]->{class};           }
+sub t_userid     { return $_[0]->{target_userid};   }
+sub t_email      { return $_[0]->{target_email};    }
+sub permanent    { return $_[0]->months == 99;      }
+sub from_userid  { return $_[0]->{from_userid};     }
+sub deliverydate { return $_[0]->{deliverydate};    }
+sub anonymous    { return $_[0]->{anonymous};       }
 
 
 1;

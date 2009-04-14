@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -21,44 +22,28 @@ body<=
     use vars qw/ %GET %POST $title /;
 
     # this page uses new style JS
-    LJ::need_res( 'stc/widget/shop.css' );
+    LJ::need_res( 'stc/shop.css' );
     LJ::set_active_resource_group( 'jquery' );
 
-    # build a cart
-    my $cart = DW::Shop->get->cart
-        or return 'Failed to get a shopping cart for you, please try again later.';
+    $title = $ML{'.title'};
 
-    # if they want us to remove...
-    my $cartid = $GET{cartid}+0;
-    my $itemid = $GET{itemid}+0;
-    my $action = $GET{action};
+    my $ret;
 
-    # remove the item then render the current cart
-    if ( $action eq 'remove' ) {
-        return 'Invalid cartid'
-            if $cart->id != $cartid;
-        return 'Failed to remove item'
-            unless $cart->remove_item( $itemid );
+    if ( LJ::did_post() ) {
+        my %from_post = LJ::Widget->handle_post( \%POST, ( 'ShopCart' ) );
+        $ret .= "<div class='shop-error'>$from_post{error}</div>"
+            if $from_post{error};
     }
 
-    # setup the output
-    my $ret = DW::Widget::ShopCartStatusBar->render( %GET );
+    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a></p>";
 
-    # now render the contents of the cart
-    $ret .= '<ul>';
-    foreach my $item ( @{$cart->items} ) {
-        # FIXME: should require a POST to remove items
-        $ret .= '<li>[' . $item->id . ", <a href='$LJ::SITEROOT/shop/cart?cartid=" . $cart->id . "&itemid=";
-        $ret .= $item->id . "&action=remove'>remove</a>] ";
-        $ret .= $item->permanent ? '(permanent)' : ( '(' . $item->months . ' months)' );
-        $ret .= ' ' . $item->class . ' account for ' . $item->t_html;
-    }
-    $ret .= '</ul>';
+    $ret .= LJ::Widget::ShopCart->render;
 
-    # all done
+    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a></p>";
+
     return $ret;
 }
 _code?>
 <=body
-title=>Your Shopping Cart
+title=><?_code return $title; _code?>
 page?>

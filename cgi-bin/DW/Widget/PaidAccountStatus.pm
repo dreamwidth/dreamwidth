@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -23,10 +24,8 @@ use Carp qw/ croak /;
 use DW::Pay;
 use DW::Shop;
 
-# general purpose shop CSS used by the entire shop system
-sub need_res { qw( stc/widgets/shop.css ) }
+sub need_res { qw( stc/shop.css ) }
 
-# main renderer for this particular thingy
 sub render_body {
     my ( $class, %opts ) = @_;
 
@@ -36,15 +35,13 @@ sub render_body {
     my $account_type = DW::Pay::get_account_type_name( $remote );
     my $expires_at = DW::Pay::get_account_expiration_time( $remote );
     my $expires_on = $expires_at > 0
-                     ? 'Your paid time expires: ' . LJ::mysql_time( $expires_at )
+                     ? "<br />" . $class->ml( 'widget.paidaccountstatus.expiretime' ) . " " . LJ::mysql_time( $expires_at )
                      : '';
 
-    my $ret = qq{
-<div class='shop-account-status'>
-    Your current account type is: <strong>$account_type</strong><br />
-    $expires_on
-</div>
-    };
+    my $ret = "<div class='shop-account-status'>";
+    $ret .= $class->ml( 'widget.paidaccountstatus.accounttype' ) . " ";
+    $ret .= "<strong>$account_type</strong>$expires_on";
+    $ret .= "</div>";
 
     return $ret;
 }

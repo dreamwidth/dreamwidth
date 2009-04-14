@@ -1,4 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.title=The Store
 
+.intro=Welcome to the [[sitename]] shop!  If you are interested in supporting [[sitename]] or are just looking for more features for your account, you have come to the right place.
 
+.sideblurb=You can learn about paid accounts <a [[aopts]]>here</a>.
+
+.title=[[sitename]] Shop

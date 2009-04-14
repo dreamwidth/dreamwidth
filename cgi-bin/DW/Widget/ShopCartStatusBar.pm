@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -22,10 +23,8 @@ use Carp qw/ croak /;
 
 use DW::Shop;
 
-# general purpose shop CSS used by the entire shop system
-sub need_res { qw( stc/widgets/shop.css ) }
+sub need_res { qw( stc/shop.css ) }
 
-# main renderer for this particular thingy
 sub render_body {
     my ( $class, %opts ) = @_;
 
@@ -37,19 +36,21 @@ sub render_body {
     # old cart is gone with the wind ...
     my $cart = $opts{newcart} ? DW::Shop::Cart->new_cart( $u ) : $shop->cart;
 
-    # if minimal, and the cart is empty, bail
-    return if $opts{minimal} && ! $cart->has_items;
+    # if the cart is empty, bail
+    return unless $cart->has_items;
 
     # render out information about this cart
-    my $ret = '[ ';
-    $ret .= 'Shopping Cart for ' . ( $u ? $u->ljuser_display : 'anonymous user' );
-    $ret .= '; cartid = ' . $cart->id;
-    $ret .= ' created ' . LJ::ago_text( $cart->age );
-    $ret .= '; total = $' . $cart->display_total;
-    $ret .= '; <a href="/shop?newcart=1">make new cart</a>';
-    $ret .= '; <a href="/shop/cart">view cart</a>';
-    $ret .= '; <a href="/shop/checkout">checkout</a>';
-    $ret .= ' ]';
+    my $ret = "<div class='shop-cart-status'>";
+    $ret .= "<strong>" . $class->ml( 'widget.shopcartstatusbar.header' ) . "</strong><br />";
+    $ret .= $class->ml( 'widget.shopcartstatusbar.itemcount', { num => $cart->num_items, price => '$' . $cart->display_total . " USD" } );
+    $ret .= "<br />";
+
+    $ret .= "<ul>";
+    $ret .= "<li><a href='$LJ::SITEROOT/shop/cart'><strong>" . $class->ml( 'widget.shopcartstatusbar.viewcart' ) . "</strong></a></li>";
+    $ret .= "<li><a href='$LJ::SITEROOT/shop?newcart=1'><strong>" . $class->ml( 'widget.shopcartstatusbar.newcart' ) . "</strong></a></li>";
+    $ret .= "</ul>";
+
+    $ret .= "</div>";
 
     return $ret;
 }

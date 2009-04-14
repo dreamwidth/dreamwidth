@@ -2946,6 +2946,14 @@ settings.yearofbirth=Year of Birth
 
 settings.zipcode=ZIP Code
 
+shop.item.account.canbeadded.noperms=There are no more seed accounts available for purchase at this time.
+
+shop.item.account.conflicts.differentpaid=You cannot purchase two different types of paid accounts for the same person.
+
+shop.item.account.conflicts.multipleperms=You cannot purchase more than one seed account for the same person.
+
+shop.item.account.name=[[name]] ([[num]] [[?num|month|months]])
+
 sitescheme.accountlinks.account=Account
 
 sitescheme.accountlinks.btn.login=Log in
@@ -3855,6 +3863,10 @@ widget.navstripchooser.upgradetos2=<a [[aopts]]><strong>Switch to S2</strong></a
 
 widget.pagenotice.dismiss=Dismiss
 
+widget.paidaccountstatus.accounttype=Your current account type is:
+
+widget.paidaccountstatus.expiretime=Your paid time expires:
+
 widget.popularinterests.viewall=view all popular interests
 
 widget.qotd.answer=Answer
@@ -3966,6 +3978,76 @@ widget.search.title=Search...
 widget.search.username=Username
 
 widget.search.yahoo=Yahoo! ID
+
+widget.shopcart.anonymous=Anonymous
+
+widget.shopcart.btn.checkout=Check Out
+
+widget.shopcart.btn.discard=Discard Entire Cart
+
+widget.shopcart.btn.removeselected=Remove Selected Items
+
+widget.shopcart.deliverydate.today=Today
+
+widget.shopcart.error.nocart=Unable to get a shopping cart for you.  Please try again later.
+
+widget.shopcart.error.noitems=You have no items in your shopping cart.
+
+widget.shopcart.header.deliverydate=Delivery Date
+
+widget.shopcart.header.from=From
+
+widget.shopcart.header.item=Item
+
+widget.shopcart.header.price=Price
+
+widget.shopcart.header.remove=Remove?
+
+widget.shopcart.header.to=To
+
+widget.shopcart.paymentmethod=Payment Method:
+
+widget.shopcart.paymentmethod.checkmoneyorder=Check/Money Order
+
+widget.shopcart.paymentmethod.paypal=PayPal
+
+widget.shopcart.total=Total:
+
+widget.shopcartstatusbar.header=Shopping Cart
+
+widget.shopcartstatusbar.itemcount=[[num]] [[?num|item|items]] for a total of [[price]]
+
+widget.shopcartstatusbar.newcart=Discard Cart
+
+widget.shopcartstatusbar.viewcart=View Cart
+
+widget.shopitemgroupdisplay.paidaccounts.header=Buy a Paid Account
+
+widget.shopitemgroupdisplay.paidaccounts.item.differentaccount=<a [[aopts]]>For a different existing account</a>
+
+widget.shopitemgroupdisplay.paidaccounts.item.exisitingaccount=<a [[aopts]]>For an existing account</a>
+
+widget.shopitemgroupdisplay.paidaccounts.item.newaccount=<a [[aopts]]>For a new account</a>
+
+widget.shopitemgroupdisplay.paidaccounts.item.self=<a [[aopts]]>For yourself</a> ([[user]])
+
+widget.shopitemoptions.error.invalidusername=The username you entered is invalid or the user does not exist.
+
+widget.shopitemoptions.error.nocart=Unable to get a shopping cart for you.  Please try again later.
+
+widget.shopitemoptions.error.notloggedin=You must be logged in as a personal account in order to purchase paid time for yourself.
+
+widget.shopitemoptions.header.paid=Paid Account
+
+widget.shopitemoptions.header.prem=Premium Paid Account
+
+widget.shopitemoptions.header.seed=Seed Account
+
+widget.shopitemoptions.highlight.seed=- Fewer than [[num]] remaining!
+
+widget.shopitemoptions.price=[[num]] [[?num|month|months]] for [[price]]
+
+widget.shopitemoptions.price.seed=Forever for [[price]]
 
 widget.support.submit.button=Submit Request
 
