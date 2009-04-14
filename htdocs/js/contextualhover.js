@@ -486,8 +486,9 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         }
 
         // ban / unban
+
         var ban;
-        if (data.is_logged_in && ! data.is_requester) {
+        if (data.is_logged_in && ! data.is_requester && ! data.is_syndicated) {
             ban = document.createElement("span");
 
             if(!data.is_banned) {
