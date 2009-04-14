@@ -140,6 +140,7 @@ sub post_event {
             noauth => 1,
             nonotify => 1,
             ignore_tags_max => 1,
+            allow_inactive => 1,
         }
     );
 

@@ -962,13 +962,6 @@ sub common_event_validation
             return fail($err,205,$pname);
         }
 
-        # This is a system logprop
-        # fail with unknown metadata here?
-        if ( $p->{ownership} eq 'system' ) {
-            $pname =~ s/[^\w]//g;
-            return fail($err,205,$pname);
-        }
-
         # don't validate its type if it's 0 or undef (deleting)
         next unless ($req->{'props'}->{$pname});
 
@@ -984,6 +977,16 @@ sub common_event_validation
         if ($pname eq "current_coords" && ! eval { LJ::Location->new(coords => $val) }) {
             return fail($err,204,"Property \"current_coords\" has invalid value");
         }
+    }
+
+    # check props for inactive userpic
+    if ( ( my $pickwd = $req->{'props'}->{'picture_keyword'} ) and !$flags->{allow_inactive}) {
+        my $pic = LJ::get_pic_from_keyword($flags->{'u'}, $pickwd);
+
+        # need to make sure they aren't trying to post with an inactive keyword, but also
+        # we don't want to allow them to post with a keyword that has no pic at all to prevent
+        # them from deleting the keyword, posting, then adding it back with editpics.bml
+        delete $req->{'props'}->{'picture_keyword'} if ! $pic || $pic->{'state'} eq 'I';
     }
 
     # validate incoming list of tags
