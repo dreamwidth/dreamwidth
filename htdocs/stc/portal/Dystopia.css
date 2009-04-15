@@ -5,7 +5,7 @@
  
 .DropDownMenu {
 	background-color: #FFF;
-	border: 2px solid #003366;
+	border: 2px solid #c1272c;
 	}
 	
 .BoxDescription {
@@ -21,7 +21,7 @@
 	}
 	
 .PortalFenster {
-	border: 2px solid #003366;
+	border: 2px solid #c1272c;
 	background-color: #fff;
 	}
 	
@@ -84,7 +84,7 @@
 	}
 	
 #AddPortalMenuButton:hover {
-    background-color: #003366 !important;
+    background-color: #c1272c !important;
     }
 
 #PortalResetAllButton {
@@ -116,7 +116,7 @@
  	}
   
 .PortalBoxContent a:hover {
-	color: #003366;
+	color: #c1272c;
 	}
 	
 
@@ -175,7 +175,7 @@
 /*----------------------- Recent Comments ----------------------*/
  
  .RecentCommentTitle {
- 	color: #003366;
+ 	color: #c1272c;
  	}
  	
  .RecentCommentDate {
@@ -184,7 +184,7 @@
  	
  .RecentCommentItem {
  	background-color: #fff;
- 	color: #003366;
+ 	color: #c1272c;
  	border: 1px solid #dfecfa;
  	}
  	

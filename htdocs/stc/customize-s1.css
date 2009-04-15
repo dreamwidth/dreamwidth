@@ -4,14 +4,14 @@
 }
 #Tabs {
     margin: 0; padding: 0;
-    border-bottom: 2em solid #69c;
+    border-bottom: 2em solid #f4717a 
     display: block;
     list-style-type: none;
     clear: right;
 }
 #Tabs li {
     font-size: 1em;
-    border: 2px solid #69c;
+    border: 2px solid #f4717a 
     margin: 0 0.2em -2em 0.8em;
     padding: 0.25em 0.25em 0em 0.25em;
     background: #ddd;
@@ -19,7 +19,7 @@
     white-space: nowrap;
 }
 #Tabs li.SelectedTab {
-    background-color: #69c;
+    background-color: #f4717a 
     font-weight: bold;
 }
 #Tabs li a {
@@ -34,7 +34,7 @@
 }
 #CurrentTab {
     margin-top: 0;
-    border: 1px solid #69c;
+    border: 1px solid #f4717a 
     padding: .5em;
 }
 #CurrentTabMain {

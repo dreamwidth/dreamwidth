@@ -47,10 +47,10 @@ input.create-account {
     font-size: 110%;
     color: #fff;
     margin: 0;
-    background: #559A40;
-    border: 2px solid #76AE65;
-    border-bottom: 2px solid #447C33;
-    border-right: 2px solid #447C33;
+    background: #f4717a;
+    border: 2px solid #f6828b;
+    border-bottom: 2px solid #c1272d;
+    border-right: 2px solid #c1272d;
 }
 
 .detail {
@@ -72,7 +72,7 @@ ul.detail li {
 hr.hr {
     border: 0;
     width: 100%;
-    color: #8FC3F7; background-color: #8FC3F7;
+    color: #c1272d; background-color: #c1272d;
     height: 1px;
 }
 /* generic class for removing styling from ul */
@@ -85,8 +85,8 @@ ul.nostyle {
 /* tables where rows alternate colors */
 table.alternating-rows th {
     text-align: left;
-    border-top: 1px solid #8FC3F7;
-    border-bottom: 1px solid #8FC3F7;
+    border-top: 1px solid #c1272d;
+    border-bottom: 1px solid #c1272d;
     background-color: #C5DFF9;
     padding: 6px 4px;
 }
@@ -171,7 +171,7 @@ div.columns-2-r300 .columns-2-right {
 }
 
 .standout-border {
-    border: 1px solid #8fc3f7;
+    border: 1px solid #c1272d;
     padding: 6px;
 }
 .standout-background {
@@ -184,7 +184,7 @@ div.right-sidebar {
     width: 300px;
     color: #000000;
     background-color: #c5dff9;
-    border: 1px solid #8fc3f7;
+    border: 1px solid #c1272d;
     margin: 10px;
     padding: 10px;
 }
@@ -194,7 +194,7 @@ div.ad-sidebar {
 }
 
 .textbutton { 
-    color: #0000CC;
+    color: #c1272c;
     cursor: pointer;
 }
 

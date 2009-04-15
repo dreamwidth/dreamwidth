@@ -59,7 +59,7 @@ body<=
     $selected_folder = qq(
         <style>#esn_folder_$selected_folder {
         font-weight: bold;
-        background-color: #C7E0F6;
+        background-color: #ffd8d8;
         border: 1px solid #bbb;
         }</style>
         );

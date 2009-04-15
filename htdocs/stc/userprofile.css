@@ -3,7 +3,7 @@
     }
 
 h1 a {
-	color: #036;
+	color: #c1272c; 
 	font-size: 1em;
 	}
 
@@ -59,14 +59,14 @@ h1 a {
 			
 	#beta .module fieldset legend {
 		background: #fff;
-		color: #036;
+		color: #c1272c; 
 		font-weight: bold;
 		display: block;
 		}
 		
 		#beta .module legend a {
 		    text-decoration: none;
-		    color: #036;
+		    color: #c1272c; 
 			}
 			
 			#beta .module legend .edit a {
@@ -82,7 +82,7 @@ h1 a {
 	    display: table;
 	    width: 100%;
 		position: relative;
-		background: #69c;
+		background: #f4717a 
 		margin: 0;
 		padding: .2em;
 		font-size: 1em;

@@ -29,10 +29,10 @@ dt { font-weight: bold; font-style: italic; margin-top: 7px; }
 dl { margin-left: 40px; }
 
 h2 {
-   border-top: 2px solid #8fc3f7;
-   border-left: 2px solid #8fc3f7;
+   border-top: 2px solid #c1272d;
+   border-left: 2px solid #c1272d;
    padding: 3px;
-   background: #69c;
+   background: #f4717a 
 }
 h3 {
    border-bottom: 2px dotted #a84510;
@@ -47,7 +47,7 @@ hr { display: none; }
 div.navheader
 { 
   width: 100%;
-  background-color: #036;
+  background-color: #c1272c; 
   color: #fff;
   border-top-style: solid;
   border-top-width: 1px;
@@ -56,7 +56,7 @@ div.navheader
 /* FIXME: make bottom bar prettier */
 div.navfooter
 {
-  border-top: 1px solid #036;
+  border-top: 1px solid #c1272c; 
 }
 
 div.navheader a, div.navheader a:visited {

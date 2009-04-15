@@ -18,7 +18,7 @@
     min-width: 625px;
 }
 #settings_save {
-    background: #c7e0f6;
+    background: #ffd8d8;
     padding: 5px 7px;
 }
 
@@ -39,12 +39,12 @@
     margin-right: 5px;
     padding: 2px 7px;
     font-weight: bold;
-    border-color: #c7e0f6;
+    border-color: #ffd8d8;
     border-width: 2px 2px 0 2px;
     border-style: solid;
 }
 #settings_nav li a:hover, #settings_nav li a.active {
-    background: #c7e0f6;
+    background: #ffd8d8;
 }
 #settings_nav li.disabled {
     color: #999;
@@ -59,7 +59,7 @@
 }
 #settings_nav_title p {
     clear: left;
-    background: #c7e0f6;
+    background: #ffd8d8;
     padding: 4px 10px;
     display: block;
     margin: 0;

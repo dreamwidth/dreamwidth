@@ -59,7 +59,7 @@
         display: block;
         padding: 3px 5px;
         list-style: none;
-        border-bottom: 1px solid #c7e0f6;
+        border-bottom: 1px solid #ffd8d8;
         background-color: #ecf6ff;
         line-height: 18px;
     }
@@ -145,7 +145,7 @@
 .section {
     font-size: 1.1em;
     font-weight: bold;
-    border-bottom: 1px solid #c7e0f6;
+    border-bottom: 1px solid #ffd8d8;
     background-color: #ecf6ff;
     margin: 10px 0 10px 0;
     padding: 2px;

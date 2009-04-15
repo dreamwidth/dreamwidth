@@ -21,7 +21,7 @@
 .theme-nav-content {
     margin: 0 0 15px 134px;
     position: relative;
-    border: 1px solid #C7E0F6;
+    border: 1px solid #ffd8d8;
     border-left: none;
 }
 .theme-selector-nav {
@@ -34,21 +34,21 @@
     text-decoration: none;
     display: block;
     padding: 3px 6px;
-    border-right: 1px solid #C7E0F6;
+    border-right: 1px solid #ffd8d8;
 }
 .theme-nav li a:hover,
 .theme-nav-small li a:hover {
     text-decoration: underline;
 }
 .theme-nav li.on a {
-    border: 1px solid #C7E0F6;
+    border: 1px solid #ffd8d8;
     border-right: none;
     font-weight: bold;
     background: #fff url(/img/customize/nav-on-arrow.gif) no-repeat right 50%;
 }
 .theme-nav li a:visited,
 .theme-nav-small a:visited {
-    color: #00c;
+    color: #c1272c;
 }
 * html .theme-nav li a,
 * html .theme-nav-small li a {
@@ -56,7 +56,7 @@
     width: 123px;
 }
 .theme-nav-separator {
-    border-right: 1px solid #C7E0F6;
+    border-right: 1px solid #ffd8d8;
     padding: 5px 0;
 }
 * html .theme-nav-separator {
@@ -66,7 +66,7 @@
     margin: 0 5px;
     height: 1px;
     width: 120px;
-    border-top: 1px solid #C7E0F6;
+    border-top: 1px solid #ffd8d8;
 }
 .theme-nav-small li.last a {
     padding-bottom: 15px !important;

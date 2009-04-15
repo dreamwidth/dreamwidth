@@ -19,7 +19,7 @@ div.ContextualPopup div.Inner {
     left: -2px;
     background-color: #fff !important;
     color: #000 !important;
-    border: 1px solid #036;
+    border: 1px solid #c1272c; 
     padding: 0px;
     width: 20em;
     }
@@ -69,5 +69,5 @@ div.ContextualPopup .Userpic {
    div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
         text-decoration: underline !important;
         font-weight: bold;
-        color: #00C !important;
+        color: #c1272c !important;
         }

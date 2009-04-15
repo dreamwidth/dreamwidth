@@ -29,7 +29,7 @@
     margin: -8px 0 8px 0 !important;
     position: relative; 
     line-height: 1.4em;
-    border: 1px solid #8FC3F7;
+    border: 1px solid #c1272d;
     padding: 11px 14px 14px 14px;
     font-size: 95% !important;
 }
@@ -66,5 +66,5 @@
 }
 .cprod .alllink a:hover {
     text-decoration: underline;
-    color: #00C;
+    color: #c1272c;
 }
