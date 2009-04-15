@@ -44,6 +44,11 @@ sub try_work {
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
     my $begin_time = [ gettimeofday() ];
 
+    # we know that we can potentially take a while, so budget a few hours for
+    # the import job before someone else comes in to snag it
+    $job->grabbed_until( time() + 3600*12 );
+    $job->save;
+
     # failure wrappers for convenience
     my $fail      = sub { return $class->fail( $data, 'lj_comments', $job, @_ ); };
     my $ok        = sub { return $class->ok( $data, 'lj_comments', $job ); };
