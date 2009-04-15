@@ -2368,7 +2368,7 @@ sub url {
 
     my $url;
 
-    if ($u->{'journaltype'} eq "I" && ! $u->{url}) {
+    if ( $u->{journaltype} eq 'I' && ! $u->prop( 'url' ) ) {
         my $id = $u->identity;
         if ($id && $id->typeid eq 'O') {
             $url = $id->value;
@@ -2377,7 +2377,7 @@ sub url {
     }
 
     # not openid, what does their 'url' prop say?
-    $url ||= $u->prop('url');
+    $url ||= $u->prop( 'url' );
     return undef unless $url;
 
     $url = "http://$url" unless $url =~ m!^http://!;
