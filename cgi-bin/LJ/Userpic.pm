@@ -291,6 +291,9 @@ sub alttext {
     # load the alttext.  use description by default, keyword as fallback,
     # and all keywords as final fallback (should be for default icon only).
 
+    # NOTE: This returns the alttext raw, and relies on the callers (usually
+    # but not always Userpic->imgtag) to strip any special characters.
+
     if ($self->description) {
         return $self->description;
     } elsif ($kw) {

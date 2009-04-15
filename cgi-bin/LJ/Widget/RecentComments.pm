@@ -53,6 +53,10 @@ sub render_body {
 
         # print the comment
         $ret .= "<p class='pkg $class_name'>";
+        # FIXME: this widget is only used in the portal, I believe.
+        # If this code is ever used in the future, uncomment the
+        # following line to replace the line that follows it, and then test.
+        #$ret .= $entry->imgtag;
         $ret .= $comment->poster_userpic;
         $ret .= $class->ml('widget.recentcomments.commentheading', {'poster' => $poster, 'entry' => "<a href='" . $entry->url . "'>"});
         $ret .= $entry->subject_text ? $entry->subject_text : $class->ml('widget.recentcomments.nosubject');

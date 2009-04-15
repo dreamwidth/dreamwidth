@@ -439,6 +439,7 @@ UserpicSelect.userpics = "\
                            lj_ups:picid='[#= picid #]' id='ups_cell[#= picid #]'> \
               <div class='ups_container'> \
               <img src='[#= pic.url #]' width='[#= finiteInt(pic.width/imgScale) #]' \
+                 alt='[#= pic.alt #]' \
                  height='[#= finiteInt(pic.height/imgScale) #]' id='ups_upicimg[#= picid #]' class='ups_upic' /> \
                </div> \
 \

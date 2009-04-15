@@ -967,7 +967,7 @@ sub entry_form {
     my $remote = $opts->{'remote'};
     my $altlogin = $opts->{'altlogin'};
     my $userpic_display = $altlogin ? 'none' : 'block';
-    my ($moodlist, $moodpics, $userpics);
+    my ($moodlist, $moodpics, $userpics, $altcode);
 
     # usejournal has no point if you're trying to use the account you're logged in as,
     # so disregard it so we can assume that if it exists, we're trying to post to an
@@ -1013,10 +1013,16 @@ sub entry_form {
             if (!$altlogin && ($res && ref $res->{'pickws'} eq 'ARRAY' && scalar @{$res->{'pickws'}} > 0)) {
                 my @pickws = map { ($_, $_) } @{$res->{'pickws'}};
                 my $num = 0;
-                $userpics .= "    userpics[$num] = \"$res->{'defaultpicurl'}\";\n";
+                $userpics .= "    userpics[$num] = \"$res->{defaultpicurl}\";\n";
+                $altcode .= "     alttext[$num] = \"" . BML::ml('entryform.opt.defpic') . "\";\n";
                 foreach (@{$res->{'pickwurls'}}) {
                     $num++;
                     $userpics .= "    userpics[$num] = \"$_\";\n";
+                }
+                $num = 0;
+                foreach ( @{$res->{pickws}} ) {
+                    $num++;
+                    $altcode .= "     alttext[$num] = \"$_\";\n";
                 }
                 $$onload .= " userpic_preview();";
 
@@ -1027,7 +1033,9 @@ sub entry_form {
                     <script type="text/javascript" language="JavaScript"><!--
                         if (document.getElementById) {
                             var userpics = new Array();
+                            var alttext = new Array();
                             $userpics
+                            $altcode
                             function userpic_preview() {
                                 if (! document.getElementById) return false;
                                 var userpic_select          = document.getElementById('prop_picture_keyword');
@@ -1047,6 +1055,7 @@ sub entry_form {
                                         \$('userpic_msg').style.display = 'none';
                                     }
                                     userpic_preview_image.src = userpics[userpic_select.selectedIndex];
+                                    userpic_preview_image.alt = alttext[userpic_select.selectedIndex];
                                 } else {
                                     userpic_preview.className += " userpic_preview_border";
                                     userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/editpics.bml"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
