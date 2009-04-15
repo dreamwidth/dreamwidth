@@ -79,12 +79,16 @@ body<=
             $POST{lj_friendgroups} = 1;
         }
 
+        # everybody needs a verifier
+        $POST{lj_verify} = 1;
+
         # default job status
         my @jobs = (
-            ['lj_userpics',     'ready'],
-            ['lj_bio',          'ready'],
-            ['lj_tags',         'ready'],
-            ['lj_friendgroups', 'ready'],
+            ['lj_verify',       'ready'],
+            ['lj_userpics',     'init'],
+            ['lj_bio',          'init'],
+            ['lj_tags',         'init'],
+            ['lj_friendgroups', 'init'],
 #            ['lj_friends',      'init' ],
             ['lj_entries',      'init' ],
             ['lj_comments',     'init' ],

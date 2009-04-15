@@ -41,6 +41,7 @@ sub new {
         lj_friends      => 4,
         lj_friendgroups => 5,
         lj_userpics     => 6,
+        lj_verify       => 7,
 
         # other import types ...
     }->{$type};
@@ -87,6 +88,7 @@ sub as_html {
         4 => 'friends have',
         5 => 'friend groups have',
         6 => 'usericons have',
+        7 => 'import has',
     }->{$self->arg1} || 'ERROR, INVALID TYPE';
 
     # now success message

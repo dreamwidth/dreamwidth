@@ -109,6 +109,7 @@ sub worker {
             lj_userpics => 'DW::Worker::ContentImporter::LiveJournal::Userpics',
             lj_friends => 'DW::Worker::ContentImporter::LiveJournal::Friends',
             lj_friendgroups => 'DW::Worker::ContentImporter::LiveJournal::FriendGroups',
+            lj_verify => 'DW::Worker::ContentImporter::LiveJournal::Verify',
         }->{ $item->{item} } || die 'unknown item ';
 
         my $sh = LJ::theschwartz()

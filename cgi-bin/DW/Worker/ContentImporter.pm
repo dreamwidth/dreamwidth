@@ -164,14 +164,14 @@ sub temp_fail {
     return;
 }
 
-=head2 C<< $class->ok( $import_data, $item, $job )>>
+=head2 C<< $class->ok( $import_data, $item, $job, $show )>>
 
 Successfully end this import job.
 
 =cut
 
 sub ok {
-    my ( $class, $imp, $item, $job ) = @_;
+    my ( $class, $imp, $item, $job, $show ) = @_;
     $0 = 'content-importer [bored]';
 
     if ( my $dbh = LJ::get_db_writer() ) {
@@ -182,7 +182,8 @@ sub ok {
     }
 
     # advise the user this finished
-    LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'ok' } )->fire;
+    LJ::Event::ImportStatus->new( $imp->{userid}, $item, { type => 'ok' } )->fire
+        unless defined $show && $show == 0;
 
     $job->completed;
     return;
