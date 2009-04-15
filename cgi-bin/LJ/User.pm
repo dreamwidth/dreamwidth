@@ -1215,6 +1215,13 @@ sub memc_set {
 }
 
 
+# deletes a predictably named item. usage:
+#   $u->memc_delete( key );
+sub memc_delete {
+    return LJ::MemCache::delete( [$_[0]->{userid}, "$_[1]:$_[0]->{userid}"] );
+}
+
+
 sub mysql_insertid {
     my $u = shift;
     if ($u->isa("LJ::User")) {
