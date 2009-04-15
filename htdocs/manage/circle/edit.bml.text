@@ -18,6 +18,8 @@
 
 .circle.intro.nonpeople=Here are the communities and feeds in your circle:
 
+.circle.member=Member
+
 .circle.na=N/A
 
 .circle.name=Name
@@ -31,6 +33,10 @@
 .circle.watch=Subscribe?
 
 .circle.watched_by=Subscribes to you?
+
+.comm.join=Join
+
+.comm.leave=Leave
 
 .editfriends.friend=Friend?
 

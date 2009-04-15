@@ -133,7 +133,7 @@ body<=
         if ( @nonperson_userids ) {
             $ret .= "<p>$ML{'.circle.intro.nonpeople'}</p>";
             $ret .= "<div align='center'><table class='editfriends'>";
-            $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.watch'}</th></tr>";
+            $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.member'}</th><th>$ML{'.circle.watch'}</th></tr>";
             foreach my $uid ( @nonperson_userids ) { # no need to sort because we inserted them into the array in order
                 my $other_u = $us->{$uid};
                 next unless $other_u;
@@ -147,6 +147,28 @@ body<=
                 $ret .= "<tr>";
                 $ret .= "<td>" . $other_u->ljuser_display . "</td>";
                 $ret .= "<td style='color: $u_fg; background-color: $u_bg;'>" . $other_u->name_html . "</td>";
+
+                if ( $other_u->is_community ) { #check membership
+
+                    my ( $m_text, $jl_url, $jl_text );
+
+                    if ( $is_member_of_userid{$uid} ) {
+                        $m_text = "Y";
+                        $jl_url = "community/leave.bml";
+                        $jl_text = $ML{'.comm.leave'};
+                    } else {
+                        $m_text = "N";
+                        $jl_url = "community/join.bml";                                                     
+                        $jl_text = $ML{'.comm.join'};
+                     }
+
+                    $ret .= "<td>$m_text 
+                             [<a href='$LJ::SITEROOT/$jl_url?comm=" . $other_u->user . "'>$jl_text</a>]
+                             </td>";
+
+                } else {
+                    $ret .= "<td>&nbsp;</td>";
+                }
 
                 if ( $u->can_watch( $other_u ) ) {
                     $ret .= "<td>" . LJ::html_check({
