@@ -2101,13 +2101,17 @@ sub Image_std
 
 sub Image_userpic
 {
-    my ($u, $picid, $kw) = @_;
+    my ( $u, $picid, $kw, $width, $height ) = @_;
 
     $picid ||= LJ::get_picid_from_keyword($u, $kw);
     return Null("Image") unless $picid;
 
     # get the Userpic object
     my $p = LJ::Userpic->new($u, $picid);
+
+    #  load the dimensions, unless they have been passed in explicitly
+    $width ||= $p->{width};
+    $height ||= $p->{height};
 
     # load the alttext.  use description by default, keyword as fallback,
     # and all keywords as final fallback (should be for default icon only).
@@ -2126,8 +2130,8 @@ sub Image_userpic
     return {
         '_type' => "Image",
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
-        'width' => $p->{'width'},
-        'height' => $p->{'height'},
+        'width' => $width,
+        'height' => $height,
         'alttext' => LJ::ehtml( $alttext ),
     };
 }

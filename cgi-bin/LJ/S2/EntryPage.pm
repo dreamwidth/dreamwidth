@@ -172,8 +172,8 @@ sub EntryPage
                     $height = $height / 2;
                 }
 
-                $comment_userpic = Image( "$LJ::USERPIC_ROOT/$com->{'picid'}/$pic->{'userid'}",
-                                         $width, $height );
+                $comment_userpic = Image_userpic( $com->{upost}, $com->{picid}, $com->{props}->{picture_keyword}, 
+                                                  $width, $height );
             }
 
             my $reply_url = LJ::Talk::talkargs($permalink, "replyto=$dtalkid", $style_arg);

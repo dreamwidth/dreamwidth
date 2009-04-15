@@ -460,12 +460,17 @@ sub load_row {
     my $u = $self->owner;
     return if $u->is_expunged;
 
-    my $cache = LJ::Userpic->get_cache($u);
-    if ($cache) {
-        foreach my $curr (@$cache) {
+    # Load all of the userpics from cache, or load them from the database and write them to cache
+    my @cache = LJ::Userpic->load_user_userpics($u);
+
+    if (@cache) {
+        foreach my $curr (@cache) {
             return $self->absorb_row($curr) if $curr->{picid} eq $self->picid;
         }
     }
+
+    # If you get past this conditional something is wrong
+    # load_user_userpics  always returns a value
 
     my $row;
     if (LJ::Userpic->userpics_partitioned($u)) {
