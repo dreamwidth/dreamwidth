@@ -830,6 +830,8 @@ class ReplyPage extends Page
     var Entry entry "The journal entry for this talk page";
     var EntryLite replyto "The object which is being replied to, either the entry or a comment";
     var ReplyForm form "The reply form.";
+
+    function print_comment(Comment comment) "Prints a full comment";
 }
 
 class PalItem
@@ -4213,7 +4215,37 @@ function EntryPage::print_comments (Comment[] cs) {
     }
 }
 
+function ReplyPage::print_comment (Comment c) {
+# ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_comment.  Layout authors can also choose to override separately for different structures.
+# Note that there is no multiform check on the ReplyPage.
+
+    $c->print_wrapper_start();
+    """<div class="inner">\n""";
+    """<div class="header">\n""";
+    $c->print_subject();
+    $c->print_metatypes();
+    $c->print_time();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="contents">\n""";
+    """<div class="inner">\n""";
+    $c->print_userpic();
+    $c->print_poster();
+    $c->print_metadata();
+    $c->print_text();
+    """</div>\n""";
+    """</div>\n""";
+    """<div class="footer">\n""";
+    """<div class="inner">\n""";
+    $c->print_management_links();
+    $c->print_interaction_links();
+    $c->print_reply_container();
+    "</div>\n</div>\n";
+    $c->print_wrapper_end();   
+}
+
 function EntryPage::print_comment (Comment c) {
+# ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_entry.  Layout authors can also choose to override separately for different structures.
 
     $c->print_wrapper_start();
     """<div class="inner">\n""";
@@ -4292,22 +4324,14 @@ function ReplyPage::print_body
         return;
     }
 
-        $.replyto->print_userpic();
-    $.replyto->print_poster();
-    print "<br />";
-    $.replyto->print_time();
-
-    print "<h2>";
     if ($.replyto isa Entry) {
-        var Entry en = $.replyto as Entry;
-        $en->print_metatypes();
+        var Entry e = $.replyto as Entry;
+        $this->print_entry($e);
     }
-    $.replyto->print_subject();
-    print "</h2>";
-    print "<div>"; $.replyto->print_text(); "</div>";
-
-    print "\n<hr />\n";
-    print safe """(<a href="$.entry.permalink_url">$*text_reply_back</a>)""";
+    elseif ($.replyto isa Comment) {
+        var Comment c = $.replyto as Comment;
+        $this->print_comment($c);
+    }
     $.form->print();
 }
 
