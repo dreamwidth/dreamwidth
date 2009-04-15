@@ -60,6 +60,7 @@ sub render_body {
         $ret .= "<li><a href='$LJ::SITEROOT/customize/options.bml$getextra'>" . $class->ml('widget.currenttheme.options.change') . "</a></li>";
     }
     if (! $no_layer_edit && $theme->is_custom && $theme->available_to($u)) {
+        $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced'>" . $class->ml( 'widget.currenttheme.options.advancedcust' ) . "</a></li>";
         if ($theme->layoutid && !$theme->layout_uniq) {
             $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->layoutid . "'>" . $class->ml('widget.currenttheme.options.editlayoutlayer') . "</a></li>";
         }

@@ -3659,6 +3659,8 @@ widget.currenttheme.options.editlayoutlayer=Edit your layout layer
 
 widget.currenttheme.options.editthemelayer=Edit your theme layer
 
+widget.currenttheme.options.advancedcust=Advanced Customization
+
 widget.currenttheme.options.layout=Change page setup
 
 widget.currenttheme.options.newtheme=Select a different theme
