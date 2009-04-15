@@ -299,8 +299,8 @@ sub render_body {
         $ret .= " <label for='create_tos' class='text'>";
         $ret .= $class->ml( 'widget.createaccount.field.tos', {
             sitename => $LJ::SITENAMESHORT,
-            aopts1 => "href='$LJ::SITEROOT/legal/tos.bml'",
-            aopts2 => "href='$LJ::SITEROOT/legal/privacy.bml'",
+            aopts1 => "href='$LJ::SITEROOT/legal/tos.bml' target='_new'",
+            aopts2 => "href='$LJ::SITEROOT/legal/privacy.bml' target='_new'",
         } );
         $ret .= "</label>";
         $ret .= $error_msg->( 'tos', '<span class="formitemFlag">', '</span><br />' );
