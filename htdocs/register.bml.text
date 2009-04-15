@@ -32,9 +32,15 @@ Sincerely,
 
 .error.invalidcode=Invalid validation code. The link in the email may have expired. Please <a [[aopts]]>request a new verification email</a>.
 
+.error.noaccess=You do not have access to send email validation requests to other people.
+
 .error.useralreadyvalidated=The email address for [[user]] has already been validated.
 
+.error.usernonexistent=User does not exist.
+
 .error.usernotfound=User not found.
+
+.error.valid=That user's email address is already validated.
 
 .new.101.community.answer=Discussion groups built around every topic imaginable. From music to ninjas, there's something here for you.
 

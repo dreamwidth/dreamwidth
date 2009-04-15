@@ -25,13 +25,13 @@ body<=
  if ($foruser) {
      $foru = LJ::load_user($foruser);
 
-     return "<?p User does not exist. p?>"
+     return "<?p $ML{'.error.usernonexistent'} p?>"
          unless $foru;
 
-     return "<?p You do not have access to send email validation requests to other people. p?>"
+     return "<?p $ML{'.error.noaccess'} p?>"
          unless (LJ::check_priv($remote, "siteadmin", "users") || LJ::check_priv($remote, "siteadmin", "*"));
 
-     return "<?p That user's email address is already validated. p?>"
+     return "<?p $ML{'.error.valid'} p?>"
          if $foru->is_validated;
  }
 
@@ -183,7 +183,4 @@ _code?>
 <=body
 head=><?_code     LJ::need_res('stc/lj_base.css', 'stc/lj_settings.css'); _code?>
 title=><?_code return $title; _code?>
-page?><?_c <LJDEP>
-link: htdocs/login.bml, htdocs/manage/profile/index.bml
-link: htdocs/update.bml
-</LJDEP> _c?>
+page?>
