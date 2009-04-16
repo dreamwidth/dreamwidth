@@ -2,6 +2,46 @@ layerinfo "type" = "layout";
 layerinfo "name" = "Core 2 Testing";
 layerinfo redist_uniq = "core2base/layout";
 
+##===============================
+## Display settings - general
+##===============================
+
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+}
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors {
+
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_title;
+
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_border;
+    property use color_module_link;
+    property use color_module_title;
+
+    property use color_entry_link;
+    property use color_entry_border;
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_title;
+    property use color_entry_interaction_links;
+
+}
+
+##===============================
+## Display settings - modules
+##===============================
+
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
@@ -14,8 +54,44 @@ propgroup modules {
     property use module_time_group;
     property use module_poweredby_group;
 }
+
 # explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Sideabr|two|Footer";
+set module_layout_sections = "none|(none)|one|Sidebar|two|Footer";
+
+##===============================
+## Custom CSS
+##===============================
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+##===============================
+## Text - main navigation
+##===============================
+
+##===============================
+## Text - entry comment-related
+##===============================
+
+propgroup text {
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_friends_comm;
+    property use text_view_friends_filter;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+}
 
 function Page::print_default_stylesheet() {
     """<style type="text/css">""";
@@ -23,37 +99,31 @@ function Page::print_default_stylesheet() {
     """
     <!--
     html body{
-      background-color: #FFF;
       margin:0 0.8em;
       padding-left: 15em;
       padding-right: 0;
     }
     
     #canvas{
-      color: #000;
       float:left;
-      width:100%;    
-      border-left:15em solid #FFF;
-      border-right:0 solid #FFF;
+      width:100%;
+"""; print ( ( defined $*color_page_background ) ? """border-left:15em solid $*color_page_background;""" : "border-left:15em solid transparent;");"""      
+    1.20-      """; print ( ( defined $*color_page_background ) ? """border-right:0 solid $*color_page_background;""" : "border-right:0 solid transparent;");"""
+
       margin-left:-15em;
       margin-right:0;
       display:inline; /* So IE plays nice */
     }
 
-    #header, #footer{
+    #header, #footer {
       margin-left:-15em;
       margin-right:0;
       clear:both;
     }
 
     #header {
-      border-bottom: 0.1em solid #000;
+      """; print ( ( $*header_image_url != "" ) ? """background: url("$*header_image_url") $*header_image_repeat $*header_image_position;""" : "");"""      
     }
-
-    #footer {
-      border-top: 0.1em solid #000;
-    }
-
 
     #primary {
       float:left;
@@ -75,10 +145,6 @@ function Page::print_default_stylesheet() {
       position:relative;
     }
 
-    .separator-pre {
-        border-bottom: 1px #000 solid;
-    }
-
     body, td, th, table, p, div {
     font-size: 100%;
     font-family: """;
@@ -91,7 +157,70 @@ function Page::print_default_stylesheet() {
     if ($*font_fallback != "none") {
         print $*font_fallback;
     }
-    ";\n}\n-->";
+      """
+    }
+    body {
+          """; print ( ( defined $*color_page_background ) ? """background-color: $*color_page_background;""" : "");"""
+          """; print ( ( defined $*color_page_text ) ? """color: $*color_page_text;""" : "");"""
+      """; print ( ( $*background_image_url != "" ) ? """background: url("$*background_image_url") $*background_image_repeat $*background_image_position;""" : "");"""      
+    }
+    body a {
+          """; print ( ( defined $*color_page_link ) ? """color: $*color_page_link;""" : "");"""
+    }
+    #header h1 {
+          """; print ( ( defined $*color_page_title ) ? """color: $*color_page_title;""" : "");"""      
+    }
+    
+    .module {
+          """; print ( ( defined $*color_module_background ) ? """background-color: color_module_background;""" : "");"""
+          """; print ( ( defined $*color_module_text ) ? """color: color_module_text;""" : "");"""
+          """; print ( ( defined $*color_module_border ) ? """border: solid 1px $*color_module_border;""" : "");"""
+          margin-bottom: 0.8em;
+    }
+    .module a {
+          """; print ( ( defined $*color_module_link ) ? """color: $*color_module_link;""" : "");"""
+    }
+    .module_title {
+          """; print ( ( defined $*color_module_title ) ? """color: $*color_module_title;""" : "");"""
+
+    }
+
+    .entry, .comment {
+          """; print ( ( defined $*color_entry_background ) ? """background-color: $*color_entry_background;""" : "");"""
+          """; print ( ( defined $*color_entry_text ) ? """color: $*color_entry_text;""" : "");"""
+          """; print ( ( defined $*color_entry_border ) ? """border: solid 1px $*color_entry_border;""" : "");"""
+          margin: 0 1em 1em;
+          padding: 1em;
+    }
+
+    .entry a, .comment a {
+          """; print ( ( defined $*color_entry_link ) ? """color: $*color_entry_link;""" : "");"""
+    }
+    .entry_title {
+          """; print ( ( defined $*color_entry_title ) ? """color: $*color_entry_title;""" : "");"""
+    }
+    .entry_interaction_links {
+          """; print ( ( defined $*color_entry_interaction_links ) ? """color: $*color_entry_interaction_links;""" : "");"""
+    }
+
+    .userlite-interaction-links ul, .entry-management-links ul, .comment-management-links ul{
+        list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+    }
+    
+    .userlite-interaction-links li, .entry-management-links li, .comment-management-links li{
+        display: inline;
+	padding: 0 .15em;
+    }
+
+    hr {
+        display: none;
+    }
+
+
+    -->""";
+
     end_css();
     "</style>\n";
 

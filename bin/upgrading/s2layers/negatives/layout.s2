@@ -5,12 +5,65 @@ layerinfo author_name = "phoenix";
 layerinfo des = "Highly customisable div-based layout";
 layerinfo lang = "en";
 
-#######################
-#Properties
 
-property use num_items_recent;
-property use num_items_reading;
-property use use_journalstyle_entry_page;
+##===============================
+## Display settings - general
+##===============================
+
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+}
+
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors {
+
+    property use color_page_background;
+    property use color_page_text;
+
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_border;
+    property use color_module_link;
+    property use color_module_title;
+
+    property use color_entry_link;
+    property use color_entry_border;
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_title;
+    property use color_entry_interaction_links;
+
+}
+
+set color_page_background = "#000000";
+set color_page_text = "#ffffff";
+
+set color_entry_link = "#000000";
+set color_entry_link_hover = "#cccccc";
+set color_entry_link_visited = "#000000";
+set color_entry_border = "#000000";
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_title = "#000000";
+set color_entry_interaction_links = "#ffffff";
+
+set color_module_background = "#000000";
+set color_module_text = "#cccccc";
+set color_module_border = "#aaaaaa";
+set color_module_title = "#cccccc";
+set color_module_link = "#cccccc";
+set color_module_link_active = "#222222";
+set color_module_link_hover = "#ffffff";
+
+##===============================
+## Display settings - modules
+##===============================
 
 propgroup modules {
     property use module_userprofile_group;
@@ -41,79 +94,43 @@ set module_calendar_section = "three";
 set module_calendar_opts_type = "horizontal";
 
 set module_time_section = "none";
-set module_poweredby_section = "none";
+set module_poweredby_section = "one";
 
-propgroup colors {
 
-    property Color middle_background        { noui=1; des="Background of middle section, behind entry boxes"; }
+##===============================
+## Custom CSS
+##===============================
 
-#########
-#Linklist
-    property Color linklist_link {
-        noui=1;
-        des="Color of linklist link text";
-        note="Should be readable on Page Background color";
-    }
-    property Color linklist_link_hover       { noui=1; des="Color of linklist links when hovered over"; }
-    property Color linklist_hover_background { noui=1; des="Color of linklist link background when hovered over"; }
-    property Color linklist_hover_underline  { noui=1; des="Color of linklist link underline"; }
-
-###############
-#Top Navigation
-    property Color navigation_background    { noui=1; des="Background color of top navigation links"; }
-    property Color navigation_link          { noui=1; des="Color of top navigation links; should be readable on navigation background color"; }
-    property Color navigation_link_hover    { noui=1; des="Color of top navigation links when hovered"; }
-
-##############
-#Mini-calendar
-    property Color minical_color            { noui=1; des="Mini-calendar link/text color"; }
-    property Color minical_hover            { noui=1; des="Mini-calendar link hover color"; }
-    property Color minical_back             { noui=1; des="Background colour of mini-calendar"; }
-
-########
-#Border Color
-    property Color middle_edge              { noui=1; des="Color of middle section border"; }
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
 }
 
-set theme_bgcolor = "#000000";
-set theme_fgcolor = "#000000";
-set entry_link_color = "#000000";
-set entry_link_color_hover = "#cccccc";
-set entry_link_color_visited = "#000000";
-set entry_border="#000000";
-set linklist_link = "#cccccc";
-set linklist_link_hover = "#ffffff";
-set linklist_hover_background = "#222222";
-set linklist_hover_underline ="#ffffff";
-set navigation_background ="#000000";
-set navigation_link = "#dddddd";
-set navigation_link_hover = "#ffffff";
-set middle_background = "#ffffff";
-set middle_edge = "#aaaaaa";
-set entry_background = "#ffffff";
-set comments_link_color = "#cccccc";
-set comments_link_color_hover="#ffffff";
-set metadata_color = "#cccccc";
-set minical_color="#cccccc";
-set minical_back = "";
-set minical_hover = "#ffffff";
+##===============================
+## Text - main navigation
+##===============================
+
+##===============================
+## Text - entry comment-related
+##===============================
 
 propgroup text {
-    property string text_comments_heading   { noui=1; des ="Text for comment section heading"; }
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_friends_comm;
+    property use text_view_friends_filter;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
 }
-set text_comments_heading = "&laquo;Comments&raquo;";
-
-propgroup presentation {
-    property use num_items_recent;
-    property use num_items_reading;
-    property use use_journalstyle_entry_page;
-
-    property bool display_ljtag       { noui=1; des="Display lj-user tags instead of displayed name/user name links on entries"; }
-    property bool enable_subjecticons { noui=1; des = "Enable comment subject icons?"; }
-}
-
-set display_ljtag = false;
-set enable_subjecticons = true;
 
 set font_base ="Georgia";
 set font_fallback = "serif";
@@ -130,28 +147,47 @@ function print_stylesheet()
 {
 
 """
+    * {
+        font-size: 101%;
+    }
     body {
         margin: 0;
         padding: 0;
         font-family: $*font_base, $*font_fallback;
-        font-size: 101%;
-        background-color: $*theme_bgcolor;
+        font-size: 0.9em;
+        background-color: $*color_page_background;
+        color:$*color_page_text;
         }
     a {
         text-decoration: none;
         font-weight: bold;
-        color:  $*entry_link_color;
+        color:  $*color_entry_link;
         outline: none;
         }
     a:visited, a:active {
-        color: $*entry_link_color_visited;
+        color: $*color_entry_link_active;
         }
     a:hover {
-        color: $*entry_link_color_hover;
+        color: $*color_entry_link_hover;
         }
     img, img a {
         border: 0!important;
         }
+    #header {
+    }
+    .module-section-two {
+        border-top: 0!important;
+        background-color: $*color_module_background;
+        border-bottom: 5px double $*color_module_border;
+    }
+    .module-section-three {
+        border-bottom: 0!important;
+        background-color: $*color_module_background;
+        border-top: 5px double $*color_module_border;
+    }
+    #footer {
+        clear:both;
+    }
     #primary {
         position: relative;
         float: left;
@@ -159,10 +195,8 @@ function print_stylesheet()
         padding: 10px;
         padding-bottom: 5px;
         border: 0px;
-        border-left:5px double $*middle_edge;
-        border-right:5px double $*middle_edge;
-        background: $*middle_background;
-        color:$*theme_fgcolor;
+        border-left:5px double $*color_module_border;
+        border-right:5px double $*color_module_border;
         left: 10%;
         width: 70%;
         }
@@ -175,101 +209,102 @@ function print_stylesheet()
         border: 0px;
         padding-bottom: 10px;
         width: 15%;
-        font-size: 0.85em;
-        color: #ffffff;
+        font-size: 0.80em;
+        background-color: $*color_module_background;
+        color: $*color_module_text;
         }
     #secondary a, #secondary a:visited {
-        color:$*linklist_link;
+        color:$*color_module_link;
         font-weight:normal;
         padding-bottom:1px;
     }
     #secondary a:hover, #secondary a:active {
-        color:$*linklist_link_hover;
-        background-color:$*linklist_hover_background;
+        background-color:$*color_module_link_active;
         padding-bottom: 0px;
-        border-bottom:1px solid $*linklist_hover_underline;
     }
     #secondary .module-header {
-        border-bottom:1px solid #ffffff;
+        border-bottom:1px solid $*color_module_border;
         font-weight:bold;
         letter-spacing:.3em;
-        font-size: 1em;
+        font-size: 1.1em;
         text-align: right;
     }
     #secondary .module-header a {
-        color: #ffffff;
+        color: $*color_module_title;
     }
     #secondary .manage-tags-link {
         text-align: center;
     }
-    .module-section-two {
-        background-color: $*navigation_background;
-        font-size: 0.8em;
+    .module {
+        background-color: $*color_module_background;
         letter-spacing:.3em;
-        border-bottom: 5px double #ffffff;
         padding: 0.5em 0;
     }
     /* Hide from IE5-Mac \*/
-    * html .module-section-two {height: 1%;}
+    * html .module {height: 1%;}
     /* end hide *//*** This hack will make IE5-win display the background color for the nav ***/
-    .module-section-two ul {
-        display: block;
-        list-style: none;
-        padding: 0;
-        margin: 0 0 0 2em;
-        text-align: left;
-        line-height: 1.2em; }
-    .module-section-two ul li {
-        font-weight: bold;
-        display: inline;
-        padding: 0.2em 2em;
-        margin: 3px 0;
-     }
-    .module-section-two ul li.first {
-        margin-left: 0;
-        list-style: none; }
-    .module-section-two ul li.last {
-        border-right: none; }
-    .module-section-two a, .module-section-two a:visited {
+    .module a, .module a:visited {
         padding: 3px 0;
-        color: $*navigation_link; }
-    .module-section-two a:hover, .module-section-two a:active {
-        color: $*navigation_link_hover; }
+        color: $*color_module_link; }
+    .module a:hover, .module a:active {
+        color: $*color_module_link_hover; }
     /*test*/
     .userpic{
         float:right;}
-    .mood,.music{
-        color: $*metadata_color;
-        font-size:0.8em;}
-    .entry{
+    .entry, .entry-wrapper, .comment, .comment-wrapper {
         min-height: 110px;
-        border:5px solid $*entry_border;
-        padding:5px;
-        background-color: $*entry_background;
+        border:5px solid $*color_entry_border;
+        padding: 5px;
+        background-color: $*color_entry_background;
+        color: $*color_entry_text;
     }
-    .comments{
-        width:100%;
-        background-color: $*entry_border;
-        text-align:center;
-        padding-bottom:5px;
-        font-size:0.7em;
-        letter-spacing:.3em;
-        color: $*comments_link_color_hover;
+    .bottomcomment {
+        border: 15px double $*color_entry_border;
+        padding: 5px;
+        margin-top: 5px;
+        background-color: $*color_entry_background;
+        color: #000000;
     }
-    .comments a, .comments a:visited{
-        color: $*comments_link_color;
-    }
-    .comments a:hover, .comments a:active{
-        color: $*comments_link_color_hover;
+    .entry-wrapper .footer {
+        background-color: $*color_page_background;
     }
     .comment-poster .anonymous {
         font-weight: bold;
     }
-    .comments div, .comments ul, .entry-management-links li,
-    .comment-interaction-links li, .comment-management-links li,
-    .entry-interaction-links li, .entry-title {
+    .entry-title, .userlite-interaction-links li,
+    .entry-management-links li, .entry-interaction-links li,
+    .comment-interaction-links li, .comment-management-links li {
         display: inline;
         padding-left: 0.5em;
+    }
+    .entry-title {
+        color: $*color_entry_title;
+    }
+    .entry-management-links, .entry-management-links a,
+    .entry-interaction-links, .entry-interaction-links a,
+    .comment-interaction-links, .comment-interaction-links a {
+        background-color: $*color_page_background;
+        color: $*color_entry_interaction_links;
+        padding: 0.5em;
+        text-align: center;
+    }
+    .comment-management-links {
+    }
+    .userlite-interaction-links ul, .entry-management-links ul, .comment-management-links ul {
+        list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+    }
+   .module-navlinks ul, .module-navlinks li {
+        font-weight: bold;
+        display: inline;
+        padding: 0.2em 2em;
+     }
+    .module-photo {
+        text-align: center;
+    }
+    .module ul {
+        list-style-position: inside;
     }
     .datetime{
         margin-bottom:10px;
@@ -280,8 +315,8 @@ function print_stylesheet()
         font-size:1.1em;
     }
     .module-calendar{
-        font-size: .80em;
         text-align: center;
+        font-size: 0.8em;
         padding:5px;
         margin: -20px 200px 0px 110px; /* ie5win fudge begins */
         voice-family: "\\"}\\"";
@@ -291,16 +326,15 @@ function print_stylesheet()
     html>body #module-calendar {
         margin: 0px 190px 0px 100px; /* ie5win fudge ends */
     }
-    .module-section-three {
-        clear:both;
-        background-color: $*minical_back;
-        border-top:#ffffff double 5px;
+    .module-calendar {
+        color: $*color_module_text;
     }
-    .module-calendar, .module-calendar a{
-        color: $*minical_color;
+    .module-calendar a{
+        color: $*color_module_link;
     }
     .module-calendar a:hover{
-        color: $*minical_hover;
+        color: $*color_module_link_hover;
+        border-bottom: 1px solid $*color_module_link_hover;
     }
 
     /*Holly Hack*/
@@ -329,58 +363,37 @@ function print_stylesheet()
     }
     
     .entry h3 { display: inline; }
+
     """;
 }
 
-########################## View-spec - YearPage ########################
-# define the YearPage navigation links!
-function YearPage::print_year_links ()
-{
-    foreach var YearYear y ($.years) {
-        if ($y.displayed) {
-            println "&raquo; <b>$y.year</b> ";
-        } else {
-            println "&raquo; <a href=\"$y.url\">$y.year</a>";
-        }
-    }
-}
 #Print_body
 function Page::print_entry (Entry e)
 {
-    print "<div id=\"entry-$e.itemid\" class=\"entry\">";
-        $e->print_userpic();
-        print "<div class=\"subject\">&raquo;";
+    $e->print_wrapper_start();
+    $e->print_userpic();
+print "<div class=\"subject\">&raquo;";
             $e->print_metatypes();
             $e->print_subject();
         println "</div>";
         print "<div class=\"datetime\">(posted by ";
-            $this->print_entry_poster($e);
+            $e->print_poster();
             print " on ";
             $e->print_time();
             print ")";
         println "</div>";
 
-        print "<div>";
-            $e->print_text();
-        print "</div>";
-        $e->print_metadata();
-        $e->print_tags();
+    $e->print_text();
+    $e->print_metadata();
+    $e->print_tags();
+    println "<div class=\"footer\">";
+    $e->print_interaction_links( "topcomment" );
+    $e->print_management_links();
+    $this->print_reply_container({"target" => "topcomment" });
     println "</div>";
-
-    println "<div class=\"comments\">";
-        var string targetted = "qrtlink1";
-        $e->print_interaction_links( $targetted );
-        $e->print_management_links();
-    println "</div>";
-
-    $this->print_reply_container({"target" => $targetted, "class" => "entry"});
-    println "<br />";
+    $e->print_wrapper_end();
 }
-function RecentPage::print_body() {
-    foreach var Entry e ($.entries) {
-        $this->print_entry($e);
-    }
-}
+
 #######################################
 #Year Page
 function YearPage::print_body()
@@ -402,8 +415,8 @@ function YearPage::print_body()
 
 function YearPage::print_month(YearMonth m) {
     if (not $m.has_entries) { return; }
-    """<br /><div style="border: 5px solid $*entry_border"><table style="width: 100%; border-collapse: collapse;">\n
-       <tr><th class="comments" colspan="7" style="text-align: center; font-size: 85%">""";
+    """<br /><div class="entry"><table style="width: 100%; border-collapse: collapse;">\n
+       <tr><th class="comments" colspan="7" style="text-align: center;">""";
     print $m->month_format();
     """</th></tr>\n""";
     foreach var int d (weekdays()) {
@@ -413,7 +426,7 @@ function YearPage::print_month(YearMonth m) {
     foreach var YearWeek w ($m.weeks) {
         $w->print();
     }
-    """<tr><td class="comments" colspan="7" style="text-align: center; font-size: 85%">
+    """<tr><td class="comments" colspan="7" style="text-align: center;">
         &laquo; <a href="$m.url">$*text_view_month</a> &raquo;</td></tr>\n""";
     "</table></div>";
 }
@@ -426,7 +439,7 @@ function YearWeek::print() {
         """<td class="emptyday" colspan="$.pre_empty">&nbsp;</td>\n""";
        }
     foreach var YearDay d ($.days) {
-        """<td style="border: 1px solid $*theme_fgcolor;" width="14%">\n""";
+        """<td class="entry" width="14%">\n""";
         """<div style="text-align: right;">$d.day</div>\n""";
         if ($d.num_entries > 0) {
             """<div style="text-align: center;"><a href="$d.url">$d.num_entries</a></div>\n""";
@@ -484,86 +497,20 @@ function DayPage::print_body()
     }
 }
 
-function EntryPage::print_body ()
-{
-    var Entry e = $.entry;
-    var Page p;
-    $this->print_entry($e);
-    if ($.entry.comments.enabled and $.comment_pages.total_subitems > 0) {
-        $this->print_multiform_start();
-        println "<div class=\"comments\">$*text_comments_heading</div>";
-        if ($.comment_pages.total_subitems > 0) {
-            println "<div class=\"entry\">";
-            $.comment_pages->print();
-            $this->print_comments($.comments);
-        }
-        println "</div>";
-        println "<div class=\"comments\">";
-        var string targetted = "qrtlink2";
-        $e->print_interaction_links( $targetted );
-        $e->print_management_links();
-        println "</div>";
-        $p->print_reply_container({"target" => $targetted, "class" => "entry"});
-        if ($this.multiform_on) {
-            println "<div class=\"entry\" style=\"min-height: 0;\"><div class=\"subject\">Mass Action</div>";
-            $this->print_multiform_actionline();
-            $this->print_multiform_end();
-            println "</div>";
-        }
-    }
-}
 
-
-function ReplyPage::print_body ()
-{
-    print "<div class=\"entry\">";
-        $.replyto->print_userpic();
-        print "<div class=\"subject\">&raquo;";
-            $.entry->print_metatypes();
-            $.entry->print_subject();
-        print "</div>";
-
-        print "<div class=\"datetime\">(posted by ";
-            $this->print_entry_poster($.replyto);
-            println " on";
-            $.replyto->print_time();
-        println "</div>";
-
-        print $.replyto.text;
-    println "</div>";
-
-    println "<div class=\"comments\">";
-        println "<a href=\"$.entry.comments.read_url\">&laquo;Comments on this Entry&raquo;</a>";
-    println "</div><br />";
-
-    println "<div class=\"comments\">&laquo;Post a Reply&raquo;</div>";
-
-    println "<div class=\"entry\">";
-        $.form->print();
-    println "</div>";
-}
 #####################################
 #Comment Links
 
 function EntryPage::print_comment (Comment c)
 {
-    println "<div class=\"entry\">";
     $c->print_wrapper_start();
-
-    println "<a name=\"$c.anchor\"></a>";
     $c->print_userpic();
     println "<div class='datetime'><a href='$c.permalink_url' title='Permalink'>";
     $c->print_time();
     println "</a>";
-
-    $c->print_management_links();
-
     print "</div>";
 
-    if ($c.subject and $c.metadata{"poster_ip"})
-    {
-        println " &raquo; ";
-    }
+    $c->print_management_links();
     $c->print_metadata();
 
     println "";
@@ -579,12 +526,11 @@ function EntryPage::print_comment (Comment c)
         $c->print_multiform_check();
         println "";
     }
-    print "<br />";
-    println "";
-    $c->print_text();
-    println "</div>";
 
-    print "<div class=\"comments\">";
+    println "";
+
+    $c->print_text();
+    println "<div class=\"footer\">";
         $c->print_interaction_links();
     println "</div>";
 
@@ -606,8 +552,9 @@ function Page::print()
 
     println "<body>";
         $this->print_control_strip();
+        println "<div id=\"header\">";
         $this->print_module_section("two");
-
+        println "</div>";
         println "<div id=\"primary\">";
             $this->print_body();
             println "<div class=\"floatclear\">.</div>";
@@ -621,8 +568,9 @@ function Page::print()
             }
             $this->print_module_section("one");
         println "</div>";
-
+        println "<div id=\"footer\">";
         $this->print_module_section("three");
+        println "<div>";
 
     println "</body>";
     println "</html>";

@@ -1018,6 +1018,8 @@ property builtin string PALIMGROOT {
 ## Display settings - general
 ##===============================
 
+# FIXME: Not all of these properties are hooked into the appropriate functions, so setting them does not yet work.
+
 property int num_items_recent {
     des = "Number of journal entries to show on recent entries page";
     doc_flags = "[construct]";
@@ -1038,7 +1040,7 @@ property string[] reverse_sortorder_group {
     grouptype = "viewslist";
 }
 set reverse_sortorder_group = [ "reverse_sortorder_day", "reverse_sortorder_year" ];
-#property bool reverse_sortorder_recent    { des = "Display entries in reverse-chronological order on my recent entries page"; }
+property bool reverse_sortorder_recent    { des = "Display entries in reverse-chronological order on my recent entries page"; }
 property bool reverse_sortorder_day { 
     des = "Display entries in reverse-chronological order on my day page";  
     label = "Day Page";    
@@ -1049,11 +1051,11 @@ property bool reverse_sortorder_year {
     label = "Year Archive";
     grouped = 1;
 }
-#property bool reverse_sortorder_reading   { des = "Display entries in reverse-chronological order on my reading page"; }
-#set reverse_sortorder_recent = true;
+property bool reverse_sortorder_reading   { des = "Display entries in reverse-chronological order on my reading page"; }
+set reverse_sortorder_recent = true;
 set reverse_sortorder_day = false;
 set reverse_sortorder_year = false;
-#set reverse_sortorder_reading = true;
+set reverse_sortorder_reading = true;
 
 property string[] show_userpics_group {
     des = "Display userpics on my:";
@@ -1085,40 +1087,11 @@ set show_userpics_reading = true;
 set show_userpics_entry = true;
 set show_userpics_comments = true;
 
-property string[] show_sidebar_group {
-    des = "Display my sidebar on my:";
-    grouptype = "viewslist";
-}
-set show_sidebar_group = [ "show_sidebar_recent", "show_sidebar_reading", "show_sidebar_entry", "show_sidebar_others" ];
-property bool show_sidebar_recent {
-    des = "Display my sidebar on my recent entries";
-    label = "Recent Entries";
-    grouped = 1;
-}
-property bool show_sidebar_reading {
-    des = "Display my sidebar on my reading page";
-    label = "Reading Page";
-    grouped = 1;
-}
-property bool show_sidebar_entry {
-    des = "Display my sidebar on my entry pages";
-    label = "Entry Pages";
-    grouped = 1;
-}
-property bool show_sidebar_others {
-    des = "Display my sidebar on other pages";
-    label = "Other Pages";
-    grouped = 1;
-}
-set show_sidebar_recent = true;
-set show_sidebar_reading = true;
-set show_sidebar_entry = true;
-set show_sidebar_others = true;
-
 # was !view_entry_disabled
 property bool use_journalstyle_entry_page  { des = "Show entry pages in my journal style rather than the app style"; }
 set use_journalstyle_entry_page = true;
 
+# this may be changed to default to true later; however, none of of the styles use custom colours, so it's not of much help.
 property bool use_custom_friend_colors  { des = "Use my custom friend colors"; }
 set use_custom_friend_colors = false;
 
@@ -1177,13 +1150,11 @@ set reg_firstdayofweek = "sunday";
 property bool use_shared_pic {
     des = "Use community userpics instead of poster's userpic.";
 }
-set use_shared_pic = false;
 
 property bool tags_aware {
     des = "When enabled, style is responsible for handling tags.  When disabled, tags are automatically inserted into entry bodies.";
     noui = 1;
 }
-set tags_aware = true;
 
 property string comment_userpic_style {
    des = "Userpic display style for comments";
@@ -1191,12 +1162,10 @@ property string comment_userpic_style {
    doc_flags = "[construct]";
    values = "|Full|small|Small|off|Off";
 }
-set comment_userpic_style = "";
 
 property bool linklist_support {
     des = "Display link list";
 }
-set linklist_support = true;
 
 property string entry_management_links {
     des = "Select whether entry management links are printed as text or using the available icons";
@@ -1206,31 +1175,17 @@ property string comment_management_links {
     des = "When enabled, comment management links are printed as text instead of using available icons";
     values = "icons|icons|text|text-only|";
 }
+
+set use_shared_pic = false;
+set tags_aware = true;
+set comment_userpic_style = "";
+set linklist_support = true;
 set entry_management_links = "icons";
 set comment_management_links = "icons";
 
 ##===============================
 ## Display settings - sidebar
 ##===============================
-
-## FIXME: exposing ordering/display via the wizard to be done
-#  Right now, hardcoded into the layer
-property string[][] module_group_one {
-    des = "Primary sidebar members";
-    noui = 1;
-}
-property string[][] module_group_two {
-    des = "Secondary sidebar members";
-    noui = 1;
-}
-property string[][] module_group_three {
-    des = "Tertiary sidebar members";
-    noui = 1;
-}
-property string[][] module_group_four {
-    des = "Quaternary sidebar members";
-    noui = 1;
-}
 
 property string module_layout_sections {
     des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
@@ -1504,78 +1459,66 @@ property string separator_image_position {
 property Color color_comment_bar {
    des = "Color of comment bar header";
 }
+
 set color_comment_bar = "#d0d0ff";
-
-property string custom_control_strip_colors {
-    des = "Navigation strip colors";
-    values = "off|Do not use custom colors|on_gradient|Use custom colors with a background gradient|on_no_gradient|Use custom colors without a background gradient";
-    note = "Custom colors can be set in the \"Colors\" section.";
-}
-set custom_control_strip_colors = "off";
-
-property Color control_strip_bgcolor {
-    des = "Background color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-set control_strip_bgcolor = "";
-
-property Color control_strip_fgcolor {
-    des = "Text color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-set control_strip_fgcolor = "";
-
-property Color control_strip_bordercolor {
-    des = "Border color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-set control_strip_bordercolor = "";
-
-property Color control_strip_linkcolor {
-    des = "Link color of navigation strip";
-    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
-}
-set control_strip_linkcolor = "";
-
-property Color theme_bgcolor {
-    des = "Background color set by theme";
-    noui = 1;
-}
-set theme_bgcolor = "";
-
-property Color theme_fgcolor {
-    des = "Text color set by theme";
-    noui = 1;
-}
-set theme_bgcolor = "";
-
-property Color theme_bordercolor {
-    des = "Border color set by theme";
-    noui = 1;
-}
-set theme_bordercolor = "";
-
-property Color theme_linkcolor {
-    des = "Link color set by theme";
-    noui = 1;
-}
-set theme_linkcolor = "";
 
 
 ##===============================
 ## Journal style - element colors
 ##===============================
-property Color entry_link_color         { des = "Entry link color"; }
-property Color entry_link_color_hover   { des = "Entry link color on hover"; }
-property Color entry_link_color_visited { des = "Entry link color when visited"; }
-property Color entry_border             { des = "Color of entry border and comment background"; }
-property Color entry_background         { des = "Entry background color"; }
+property Color color_entry_link         { des = "Entry link color"; }
+property Color color_entry_link_active  { des = "Entry active link color"; }
+property Color color_entry_link_hover   { des = "Entry hover link color"; }
+property Color color_entry_link_visited { des = "Entry visited link color"; }
+property Color color_entry_border       { des = "Entry border color"; }
+property Color color_entry_background   { des = "Entry background color"; }
+property Color color_entry_text   { des = "Entry foreground color"; }
+property Color color_entry_title        { des = "Entry title color"; }
+property Color color_entry_interaction_links { des = "Color of interaction links and text"; }
 
-property Color metadata_color           { des= "Color of metadata (mood/music) text"; }
+set color_entry_link = "";
+set color_entry_link_active = "";
+set color_entry_link_hover = "";
+set color_entry_link_visited = "";
+set color_entry_border = "";
+set color_entry_background = "";
+set color_entry_text = "";
+set color_entry_title = "";
+set color_entry_interaction_links = "";
 
-property Color comments_link_color       { des="Color of comment section links and text"; }
-property Color comments_link_color_hover { des="Color of comment section links when hovered"; }
+##===============================
+## Journal style - element colors
+##===============================
 
+property Color color_page_background { des = "Page background color"; }
+property Color color_page_text { des = "Page foreground/text color"; }
+property Color color_page_link { des = "Page link color"; }
+property Color color_page_link_active { des = "Page active link color"; }
+property Color color_page_link_hover { des = "Page hover link color"; }
+property Color color_page_link_visited { des = "Page visited link color"; }
+property Color color_page_title { des = "Page title color"; }
+
+property Color color_module_background { des = "Module background color"; }
+property Color color_module_text { des = "Module foreground color"; }
+property Color color_module_border { des = "Module border color"; }
+property Color color_module_link { des = "Module link color"; }
+property Color color_module_link_active { des = "Module active link color"; }
+property Color color_module_link_hover { des = "Module hover link color"; }
+property Color color_module_link_visited { des = "Module visited link color"; }
+property Color color_module_title { des = "Module title color"; }
+
+set color_page_background = "";
+set color_page_text = "";
+set color_page_link = "";
+set color_page_title = "";
+set color_module_background = "";
+set color_module_text = "";
+set color_module_border = "";
+set color_module_link = "";
+set color_module_link_active = "";
+set color_module_link_hover = "";
+set color_module_link_visited = "";
+set color_module_title = "";
 
 ##===============================
 ## Custom CSS
@@ -1586,19 +1529,16 @@ property bool external_stylesheet {
     note = "If true, a stylesheet link element will point to a file containing the layout's CSS data.";
     noui = 1;
 }
-set external_stylesheet = false;
 
 property bool include_default_stylesheet {
     des = "Use layout's stylesheet(s)";
     note = "Disable this only if you want to re-style this layout completely from scratch using a custom stylesheet.";
 }
-set include_default_stylesheet = true;
 
 property string linked_stylesheet {
     des = "Use an external stylesheet";
     note = "If you have a custom external stylesheet that you'd like to use, enter its URL here.";
 }
-set linked_stylesheet = "";
 
 property string custom_css {
     des = "Use embedded CSS";
@@ -1607,6 +1547,10 @@ property string custom_css {
     rows = 20;
     string_mode = "css";
 }
+
+set external_stylesheet = false;
+set include_default_stylesheet = true;
+set linked_stylesheet = "";
 set custom_css = "";
 
 ##===============================
@@ -1620,34 +1564,34 @@ property string text_view_recent {
     example = "Recent Posts";
 }
 property string text_view_friends {
-    des = "Text used to link to the 'Friends' view";
+    des = "Text used to link to the 'Reading' view";
     maxlength = 20;
     "size" = 15;
-    example = "My Friends' Entries";
+    example = "My Reading Page";
 }
 property string text_view_friends_comm {
-    des = "Text used to link to the 'Friends' view for a community";
+    des = "Text used to link to the 'Reading' view for a community";
     maxlength = 20;
     "size" = 15;
     example = "Members' Journals";
 }
 property string text_view_friendsfriends {
-    des = "Title of the 'Friends of Friends' view";
+    des = "Title of the 'Network' view";
     maxlength = 20;
     "size" = 15;
-    example = "Friends of Friends";
+    example = "Network";
 }
 property string text_view_friends_filter {
     des = "Title of a Friends page with an unnamed filter in effect";
     maxlength = 20;
     "size" = 15;
-    example = "Friends (Custom filter)";
+    example = "Subscriptions (Custom filter)";
 }
 property string text_view_friendsfriends_filter {
-    des = "Title of a Friends of Friends page with an unnamed filter in effect";
+    des = "Title of a Network page with an unnamed filter in effect";
     maxlength = 20;
     "size" = 15;
-    example = "Friends of Friends (Custom filter)";
+    example = "Network (Custom filter)";
 }
 property string text_view_archive {
     des = "Text used to link to the 'Archive' view";
@@ -1742,7 +1686,6 @@ property string text_module_links {
     size = 20;
     example = "Links";
 }
-set text_module_links = "Links";
 
 property string text_module_pagesummary {
     des = "Text used for the heading for the Page Summary navigation section";
@@ -1750,7 +1693,6 @@ property string text_module_pagesummary {
     size = 30;
     example = "Entries on This Page";
 }
-set text_module_pagesummary = "Page Summary";
 
 property string text_module_syndicate {
     des = "Text used for the heading for the Syndication navigation section";
@@ -1758,7 +1700,6 @@ property string text_module_syndicate {
     size = 20;
     example = "Subscribe to my feeds";
 }
-set text_module_syndicate = "Syndicate";
 
 property string text_module_tags {
     des = "Text for the 'Tags' heading in the navigation area";
@@ -1766,6 +1707,10 @@ property string text_module_tags {
     size = 20;
     example = "My tags";
 }
+
+set text_module_links = "Links";
+set text_module_pagesummary = "Page Summary";
+set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
 
 ##===============================
@@ -1806,28 +1751,20 @@ set text_read_comments_friends = "1 comment // # comments";
 ##===============================
 
 property string text_entry_prev { des = "Text to link to the previous entry"; }
-set text_entry_prev = "Previous Entry";
 
 property string text_entry_next { des = "Text to link to the next entry"; }
-set text_entry_next = "Next Entry";
 
 property string text_edit_entry { des = "Text to edit an entry"; }
-set text_edit_entry = "Edit Entry";
 
 property string text_edit_tags { des = "Text to edit tags for an entry"; }
-set text_edit_tags = "Edit Tags";
 
 property string text_tell_friend { des = "Text to tell a friend about an entry"; }
-set text_tell_friend = "Tell a Friend";
 
 property string text_mem_add { des = "Text to add an entry into memories"; }
-set text_mem_add = "Add to Memories";
 
 property string text_watch_comments { des = "Text to track events on an entry"; }
-set text_watch_comments = "Track This";
 
 property string text_unwatch_comments { des = "Text to stop tracking events on an entry"; }
-set text_unwatch_comments = "Untrack This";
 
 property string text_permalink {
     des = "Text for an entry's permanent link";
@@ -1835,6 +1772,15 @@ property string text_permalink {
     maxlength = 50;
     size = 20;
 }
+
+set text_entry_prev = "Previous Entry";
+set text_entry_next = "Next Entry";
+set text_edit_entry = "Edit Entry";
+set text_edit_tags = "Edit Tags";
+set text_tell_friend = "Tell a Friend";
+set text_mem_add = "Add to Memories";
+set text_watch_comments = "Track This";
+set text_unwatch_comments = "Untrack This";
 set text_permalink = "Link";
 
 ##===============================
@@ -1880,25 +1826,26 @@ property string text_tags_page_header {
     des = "Text for the header of the Tags page";
     example = "Visible Tags";
 }
-set text_tags_page_header = "Visible Tags";
 
 property string text_tag_uses {
     des = "Text to show how many times a tag has been used";
     format = "plurals";
     example = "1 use // # uses";
 }
-set text_tag_uses = "1 use // # uses";
 
 property string text_tagsmultilevel_delimiter {
     des = "Text to use as a delimiter for multi-level tags";
     example = ":";
 }
-set text_tagsmultilevel_delimiter = ":";
 
 property string text_tags_manage {
     des = "Text to use to link to this journal's tags management page.";
     example = "Manage Tags";
 }
+
+set text_tags_page_header = "Visible Tags";
+set text_tag_uses = "1 use // # uses";
+set text_tagsmultilevel_delimiter = ":";
 set text_tags_manage = "Manage Tags";
 
 ##================================================================
@@ -1911,7 +1858,6 @@ property string text_default_separator {
     "size" = 5;
     example = " | ";
 }
-set text_default_separator = " | ";
 
 property string text_view_month {
     des = "Text used to link to a list of subjects for a month";
@@ -1919,23 +1865,20 @@ property string text_view_month {
     "size" = 15;
     example = "View Subjects";
 }
-set text_view_month = "View Subjects";
 
 property string text_generated_on {
     noui = 1;
     des = "Text used to describe at what time the page was generated";
     example = "Generated on";
 }
-set text_generated_on = "Page generated";
 
 property string text_powered_by { noui = 1; des = "Text to describe what site hosts the journal"; }
-set text_powered_by = "Powered by";
 
 property string text_posting_in {
     des = "Text when user is posting in a community";
     example = "posting in ";
 }
-set text_posting_in = " posting in ";
+
 
 property string text_nosubject {
     des = "Text to replace a subject line when no subject is specified";
@@ -1944,6 +1887,12 @@ property string text_nosubject {
     example = "No Subject";
     note = "This only appears in places where a subject line is required, such as on a month view.";
 }
+
+set text_default_separator = " | ";
+set text_view_month = "View Subjects";
+set text_generated_on = "Page generated";
+set text_powered_by = "Powered by";
+set text_posting_in = " posting in ";
 set text_nosubject = "(no subject)";
 
 property bool all_entrysubjects {
@@ -1951,39 +1900,40 @@ property bool all_entrysubjects {
     note = "If set, all entries will display the text_nosubject where no subject is specified.  Otherwise, it only appears in places where a subject line is required, such as on a month view.";
     noui = 1;
 }
-set all_entrysubjects = true;
 
 property bool all_commentsubjects {
     des = "For all comments, display the replacement text when no subject is specified";
     note = "If set, comments will display the text_nosubject where no subject is specified.";
     noui = 1;
 }
-set all_commentsubjects = false;
 
 property string text_noentries_recent {
     des = "Text to display when there are no entries on the recent or friends views";
     maxlength = 255;
     size = 50;
 }
-set text_noentries_recent = "There are no entries to display.";
 
 property string text_noentries_day {
     des = "Text to display when there are no entries on the day view";
     maxlength = 255;
     size = 50;
 }
-set text_noentries_day = "There were no entries on this day.";
 
 property string text_month_screened_comments { des = "Text to indicate there are screened comments"; }
-set text_month_screened_comments = "w/ Screened";
 
 property string text_month_form_btn { des = "Text used for Submit button in MonthPage selector"; }
-set text_month_form_btn = "View";
 
 property string text_replyform_header { des = "Text for the heading above the form on the reply page"; }
-set text_replyform_header = "Comment Form";
 
 property string text_comment_posted { des = "Text to display when a comment has just been posted by the user"; }
+
+set all_entrysubjects = true;
+set all_commentsubjects = false;
+set text_noentries_recent = "There are no entries to display.";
+set text_noentries_day = "There were no entries on this day.";
+set text_month_screened_comments = "w/ Screened";
+set text_month_form_btn = "View";
+set text_replyform_header = "Comment Form";
 set text_comment_posted = "Comment successfully posted.";
 
 property string text_day_prev {
@@ -2028,43 +1978,44 @@ property string text_screened {
    des = "The text used when a comment is screened";
    example = "(screened)";
 }
-set text_screened = "screened";
 
 property string text_poster_anonymous {
     des = "The placeholder used when something is posted by an anonymous user";
     example = "(Anonymous)";
 }
-set text_poster_anonymous = "(Anonymous)";
 
 property string text_openid_from {
   des = "Text to indicate which site this OpenID account originally posted a comment on";
   example = "from";
   noui = 1;
 }
-set text_openid_from = "from";
 
 property string text_reply_back {
     des = "Text to link back to the single entry view from the read comments page";
     example = "Read Comments";
     maxlength = "50";
 }
-set text_reply_back = "Read Comments";
 
 property string text_reply_nocomments_header {
     des = "Heading text that explains that comments are disabled";
     example = "Comments Disabled:";
     maxlength = "50";
 }
-set text_reply_nocomments_header = "Comments Disabled:";
 
 property string text_reply_nocomments {
     des = "Text that explains that comments are not allowed for this post.";
     example = "Comments have been disabled for this post.";
     maxlength = "100";
 }
-set text_reply_nocomments = "Comments have been disabled for this post.";
 
 property string text_website_default_name { noui = 1; des = "If an account's website is specified, but there's no website name, use this text instead"; }
+
+set text_screened = "screened";
+set text_poster_anonymous = "(Anonymous)";
+set text_openid_from = "from";
+set text_reply_back = "Read Comments";
+set text_reply_nocomments_header = "Comments Disabled:";
+set text_reply_nocomments = "Comments have been disabled for this post.";
 set text_website_default_name = "My Website";
 
 property string text_icon_alt_protected { noui = 1; des = "Alternative text for icons of friends-only entries"; }
@@ -2079,49 +2030,50 @@ set text_icon_alt_14_plus = "[14+]";
 set text_icon_alt_18_plus = "[18+]";
 
 property string text_multiform_check { des = "Text beside a comment multi-action checkbox"; }
-set text_multiform_check = "Select:";
 
 property string text_multiform_des { des = "Text on the multiform action line."; }
-set text_multiform_des = "Mass action on selected comments:";
 
 property string text_multiform_btn { des = "Text on the multiform action button."; }
-set text_multiform_btn = "Perform Action";
 
 property string text_multiform_opt_unscreen { des = "Text for the comment unscreening action"; }
-set text_multiform_opt_unscreen = "Unscreen";
 
 property string text_multiform_opt_unscreen_to_reply { des = "Text for the comment unscreening action it's showed instead of reply-link for screened comments"; }
-set text_multiform_opt_unscreen_to_reply = "Unscreen to reply";
-    
+   
 property string text_multiform_opt_screen { des = "Text for the comment screening action"; }
-set text_multiform_opt_screen = "Screen";
 
 property string text_multiform_opt_unscreen_to_reply { des = "Text for the comment unscreening action it's showed instead of reply-link for screened comments"; }
-set text_multiform_opt_unscreen_to_reply = "Unscreen to reply";
 
 property string text_multiform_opt_unfreeze { des = "Text for the comment unfreezing action"; }
-set text_multiform_opt_unfreeze = "Unfreeze";
 
 property string text_multiform_opt_freeze { des = "Text for the comment freezing action"; }
-set text_multiform_opt_freeze = "Freeze";
 
 property string text_multiform_opt_delete { des = "Text for the comment delete action"; }
-set text_multiform_opt_delete = "Delete";
 
 property string text_multiform_opt_deletespam { des = "Text for the comment delete and mark as spam action"; }
-set text_multiform_opt_deletespam = "Delete as Spam";
 
 property string text_multiform_conf_delete { des = "Text for the confirming mass-delete action"; }
-set text_multiform_conf_delete = "Delete selected comments?";
 
 property string text_multiform_opt_track { des = "Text for the comment tracking action"; }
-set text_multiform_opt_track = "Track This";
 
 property string text_multiform_opt_untrack { des = "Text for the comment untracking action"; }
-set text_multiform_opt_untrack = "Untrack This";
 
 property string text_multiform_opt_edit { des = "Text for the comment editing action"; }
+
+set text_multiform_conf_delete = "Delete selected comments?";
+set text_multiform_opt_track = "Track This";
+set text_multiform_opt_untrack = "Untrack This";
 set text_multiform_opt_edit = "Edit";
+set text_multiform_check = "Select:";
+set text_multiform_des = "Mass action on selected comments:";
+set text_multiform_btn = "Perform Action";
+set text_multiform_opt_unscreen = "Unscreen";
+set text_multiform_opt_unscreen_to_reply = "Unscreen to reply";
+set text_multiform_opt_screen = "Screen";
+set text_multiform_opt_unscreen_to_reply = "Unscreen to reply";
+set text_multiform_opt_unfreeze = "Unfreeze";
+set text_multiform_opt_freeze = "Freeze";
+set text_multiform_opt_delete = "Delete";
+set text_multiform_opt_deletespam = "Delete as Spam";
 
 ##===============================
 ## Language defaults (noui)
@@ -2130,70 +2082,63 @@ property string lang_current { noui = 1; des = "Current language code.  So layou
 set lang_current = "en";  # core is English.
 
 property string lang_fmt_date_short { noui = 1; des = "Short date format.  All numeric."; }
-set lang_fmt_date_short = "%%m%%/%%d%%/%%yy%%";
 
 property string lang_fmt_date_med { noui = 1; des = "Medium date format.  Abbreviated month name, no day of the week."; }
-set lang_fmt_date_med = "%%mon%%. %%dayord%%, %%yyyy%%";
 
 property string lang_fmt_date_med_day { noui = 1; des = "Medium date format with day of week.  Abbreviated month name and abbreviated day of the week."; }
-set lang_fmt_date_med_day = "%%da%%, %%mon%%. %%dayord%%, %%yyyy%%";
 
 property string lang_fmt_date_long { noui = 1; des = "Long date format.  With full month name, but no day of the week."; }
-set lang_fmt_date_long = "%%month%% %%dayord%%, %%yyyy%%";
 
 property string lang_fmt_date_long_day { noui = 1; des = "Long date format.  With full month name and full day of the week."; }
-set lang_fmt_date_long_day = "%%day%%, %%month%% %%dayord%%, %%yyyy%%";
 
 property string lang_fmt_time_short { noui = 1; des = "Time format."; }
-set lang_fmt_time_short = "%%hh%%:%%min%% %%a%%m";
 
 property string lang_fmt_month_short { noui = 1; des = "Short month format."; }
-set lang_fmt_month_short = "%%m%%/%%yy%%";
 
 property string lang_fmt_month_med { noui = 1; des = "Medium month format."; }
-set lang_fmt_month_med = "%%mon%% %%yyyy%%";
 
 property string lang_fmt_month_long { noui = 1; des = "Long month format."; }
+
+set lang_fmt_date_short = "%%m%%/%%d%%/%%yy%%";
+set lang_fmt_date_med = "%%mon%%. %%dayord%%, %%yyyy%%";
+set lang_fmt_date_med_day = "%%da%%, %%mon%%. %%dayord%%, %%yyyy%%";
+set lang_fmt_date_long = "%%month%% %%dayord%%, %%yyyy%%";
+set lang_fmt_date_long_day = "%%day%%, %%month%% %%dayord%%, %%yyyy%%";
+set lang_fmt_time_short = "%%hh%%:%%min%% %%a%%m";
+set lang_fmt_month_short = "%%m%%/%%yy%%";
+set lang_fmt_month_med = "%%mon%% %%yyyy%%";
 set lang_fmt_month_long = "%%month%% %%yyyy%%";
 
 property string[] lang_monthname_long { noui = 1; des = "Months of the year.  Indexed from 1 (January) to 12 (December)."; }
+
+property string[] lang_monthname_short { noui = 1; des = "Months of the year, in their short forms.  Indexed from 1 (Jan) to 12 (Dec)."; }
+
+property string[] lang_dayname_long { noui = 1; des = "Days of the week.  Indexed from 1 (Sunday) to 7 (Saturday)."; }
+
+property string[] lang_dayname_short { noui = 1; des = "Days of the week, in their short forms.  Indexed from 1 (Sun) to 7 (Sat)."; }
+
+property string[] lang_dayname_shorter { noui = 1; des = "Days of the week, in their one letter forms.  Indexed from 1 (S) to 7 (S)."; }
+
 set lang_monthname_long = [ "", "January",  "February", "March",
                             "April", "May", "June",
                             "July", "August", "September",
                             "October", "November", "December" ];
-
-property string[] lang_monthname_short { noui = 1; des = "Months of the year, in their short forms.  Indexed from 1 (Jan) to 12 (Dec)."; }
 set lang_monthname_short = [ "", "Jan",  "Feb", "Mar",
                              "Apr", "May", "Jun",
                              "Jul", "Aug", "Sep",
                              "Oct", "Nov", "Dec" ];
-
-property string[] lang_dayname_long { noui = 1; des = "Days of the week.  Indexed from 1 (Sunday) to 7 (Saturday)."; }
 set lang_dayname_long = [ "", "Sunday", "Monday",  "Tuesday", "Wednesday",
                           "Thursday", "Friday", "Saturday" ];
-
-property string[] lang_dayname_short { noui = 1; des = "Days of the week, in their short forms.  Indexed from 1 (Sun) to 7 (Sat)."; }
 set lang_dayname_short = [ "", "Sun", "Mon",  "Tue", "Wed",
                            "Thu", "Fri", "Sat" ];
-
-property string[] lang_dayname_shorter { noui = 1; des = "Days of the week, in their one letter forms.  Indexed from 1 (S) to 7 (S)."; }
 set lang_dayname_shorter = [ "", "S", "M",  "T", "W",
                              "T", "F", "S" ];
+
 ###[ global function implementations ]
 
 function prop_init ()
   "This function is the first thing called and is the place to set properties based on the values of other properties.  It's called before the style system looks at its builtin properties, so if you need to conditionally setup something based on your own custom properties, do it here.  You can't print from this function."
 {
-    $*module_group_one = [
-        [ "userprofile", "", "0", "1" ],
-        [ "navlinks", "" ],
-        [ "calendar", "" ],
-    ];
-
-    $*module_group_three = [
-        [ "time", "" ],
-        [ "poweredby", "" ],
-    ];
 }
 
 function modules_init()
@@ -2216,98 +2161,6 @@ function print_stylesheet ()
   "Prints a stylesheet, the URL of which can be referenced by [member[Page.stylesheet_url]].  This is another S2 entry point, in addition to [method[Page.print()]]. If you want to hardcode a stylesheet into your layout, override this function."
 {
 }
-
-function print_custom_control_strip_css ()
-  "Prints the CSS for custom control strip colors, if the option is enabled. This should be called by print_stylesheet().  If you override this function, you will be changing the design  of what is effectively site navigation, so proceed with caution."
-{
-    if ($*custom_control_strip_colors != "off") {
-        var bool bgcolor = $*control_strip_bgcolor.as_string != "";
-        var bool fgcolor = $*control_strip_fgcolor.as_string != "";
-        var bool bordercolor = $*control_strip_bordercolor.as_string != "";
-        var bool linkcolor = $*control_strip_linkcolor.as_string != "";
-        var string bgimage = "";
-
-        if ($*custom_control_strip_colors == "on_gradient" and $bgcolor and $fgcolor) {
-            var Color blended_color = $*control_strip_bgcolor->blend($*control_strip_fgcolor, 25); # Make the background color 25% like the text color
-            $bgimage = palimg_tint("controlstrip/bg.gif", $*control_strip_bgcolor, $blended_color);
-        }
-
-        if ($bgcolor) {
-"""
-
-#lj_controlstrip {
-    background-color: $*control_strip_bgcolor;
-""";
-if ($bgimage == "") {
-    """    background-image: none;""";
-} else {
-    """    background-image: url($bgimage);""";
-}
-"""
-}""";
-        }
-
-        if ($fgcolor or $bordercolor) {
-"""
-
-#lj_controlstrip td {
-""";
-if ($fgcolor) {
-    """    color: $*control_strip_fgcolor;""";
-}
-if ($fgcolor and $bordercolor) {
-    "\n";
-}
-if ($bordercolor) {
-    """    border-bottom: 1px solid $*control_strip_bordercolor;""";
-}
-"""
-}""";
-        }
-
-        if ($fgcolor) {
-"""
-
-#lj_controlstrip_statustext {
-    color: $*control_strip_fgcolor;
-}""";
-        }
-
-        if ($linkcolor) {
-"""
-
-#lj_controlstrip a {
-    color: $*control_strip_linkcolor;
-}""";
-        }
-
-        if ($bordercolor) {
-"""
-
-#lj_controlstrip_user,
-#lj_controlstrip_actionlinks,
-#lj_controlstrip_search,
-#lj_controlstrip_login,
-#lj_controlstrip_loggedout_userpic {
-    border-right: 1px solid $*control_strip_bordercolor;
-}
-
-#lj_controlstrip_login td {
-    border-bottom: 0;
-}
-
-#lj_controlstrip td td {
-    border-bottom: 0;
-}""";
-        }
-
-        if ($bgcolor and $fgcolor) {
-            print control_strip_logged_out_userpic_css();
-            print control_strip_logged_out_full_userpic_css();
-        }
-    }
-}
-
 
 ### Language
 
@@ -2891,6 +2744,9 @@ function print_module_userprofile() {
             close_module();
         }
     }
+    open_module("user-links", $title, "");
+    $p.journal->print_interaction_links();
+    close_module();
     if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
         open_module("about", $title, $p.view_url{"userinfo"}, true);
         if ($*module_userprofile_opts_name) {
@@ -2902,9 +2758,6 @@ function print_module_userprofile() {
         }
         close_module(true);
     }
-    open_module("user-links", $title, "");
-    $p.journal->print_interaction_links();
-    close_module();
 }
 
 function print_module_navlinks() {
@@ -3176,26 +3029,7 @@ function handle_module_group_array(string[][] list) {
     }
 }
 
-function Page::print_module_group_one() {
-    """<div class="module-group-one">""";
-    handle_module_group_array($*module_group_one);
-    """</div>""";
-}
-function Page::print_module_group_two() {
-    """<div class="module-group-two">""";
-    handle_module_group_array($*module_group_two);
-    """</div>""";
-}
-function Page::print_module_group_three() {
-    """<div class="module-group-three">""";
-    handle_module_group_array($*module_group_three);
-    """</div>""";
-}
-function Page::print_module_group_four() {
-    """<div class="module-group-four">""";
-    handle_module_group_array($*module_group_four);
-    """</div>""";
-}
+
 function Page::print_module_section ( string section_name ) {
     """<div class="module-section-$section_name">""";
     handle_module_group_array( $*module_sections{$section_name} );
@@ -3390,9 +3224,11 @@ function Comment::print_edit_text() {
 
 function EntryLite::print_text() [fixed] {
     if ($this isa Comment) {
+        """<div class="comment-content">""";
         print $.text;
         var Comment c = $this as Comment;
         $c->print_edit_text();
+        """</div>""";
     }
     else {
         """<div class="entry-content">""";
@@ -3683,19 +3519,20 @@ function RecentPage::print_body {
     <div id="entries" class="hfeed">
         <div class="inner">
             """;
-            $this->print_navigation();
-            """
-        </div><!-- entries>inner-->
-    </div><!-- inner -->
-    """;
+        $this->print_navigation();
 
     foreach var Entry e ($.entries) {
         # Print the entry
         $this->print_entry($e);
-        print "<hr />";
     }
 
-    $this->print_navigation();
+            $this->print_navigation();
+            """
+        </div><!-- entries>inner-->
+    </div><!-- entries -->
+    """;
+
+
 }
 
 function RecentPage::print_navigation() [fixed] {
@@ -4219,20 +4056,22 @@ function Redirector::end_form ()
 ### EntryPage functions
 
 function EntryPage::print_comment_section(Entry e) {
-   $.comment_pages->print();
    "<div id='comments'>";
+   $.comment_pages->print();
    if ($.comment_pages.total_subitems > 0) {
        $this->print_multiform_start();
    }
    $this->print_comments($.comments);
     if ($.comment_pages.total_subitems > 0) {
-        "<hr />";
+        "<div class='bottomcomment'>";
+        $e->print_management_links();
         $e->print_interaction_links("bottomcomment");
         $this->print_reply_container({ "target" => "bottomcomment" });
-        "<hr />";
         $this->print_multiform_actionline();
         $this->print_multiform_end();
+        "</div>";
     }
+   $.comment_pages->print();
     "</div>";
 }
 
@@ -4290,12 +4129,13 @@ function EntryPage::print_comment (Comment c) {
     $c->print_metatypes();
     $c->print_time();
     """</div>\n""";
+    """</div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
     $c->print_userpic();
     $c->print_poster();
     $c->print_metadata();
-    """</div>\n""";
+    $c->print_text();
     """</div>\n""";
     """</div>\n""";
     """<div class="footer">\n""";
@@ -4304,7 +4144,6 @@ function EntryPage::print_comment (Comment c) {
         print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
         $c->print_multiform_check();
     }
-    $c->print_text();
     $c->print_management_links();
     $c->print_interaction_links();
     $c->print_reply_container();
