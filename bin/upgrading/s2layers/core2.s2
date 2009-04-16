@@ -284,7 +284,6 @@ class UserLite
     function builtin get_link(string key) : Link "Returns a link based on the given key, or null if the link is unavailable";
     function base_url () : string "Returns URL of user's journal.";
     function tag_manage_url () : string "Returns URL to user's tag management page.";
-    function print_linkbar() "Print the link bar for this user/journal. Deprecated, use print_interaction_links.";
     function print_interaction_links() "Print the interaction links for this user/journal.";
     function as_string() : string;
     function print ();
@@ -346,8 +345,6 @@ class EntryLite
     function builtin get_plain_subject () : string "For Entries that can contain HTML subjects, this returns the subject without HTML.  Comments can't have HTML in subjects, so this is equivalent to just using \$.subject.  The returned 'plain' subject may still contain HTML entities, so don't do substring chops on it either.";
     function builtin get_tags_text () : string "Returns a string containing a div of class 'ljtags' with the tags for the entry.  If there are no tags on the entry, returns a blank string.  The string is formatted according to the 'text_tags' property.";
     function print_userpic() [fixed] "Print the userpic for this entry or comment";
-    function print_linkbar() "Print the link bar for this entry or comment. Deprecated. Use print_management_links()";
-    function print_item_linkbar() "Print the item link bar for this entry or comment. Deprecated. Use print_interaction_links()";
     function print_management_links() "Print the links to manage this entry or comment. (Screen, freeze, track, etc)";
     function print_interaction_links() "Print the links to interact with this entry or comment. (Post a comment etc)";
     function print_time () [fixed] "Print the time of this post, with most useful information for user, and with tooltip for more.";
@@ -379,7 +376,6 @@ class Entry extends EntryLite
 
     function print_metatypes(bool icon, bool info) "Print the metatype information for this entry";
 
-    function print_item_linkbar(string target) "Print the item link bar for this entry or comment with target. Deprecated. Use print_interaction_links instead.";
     function print_interaction_links(string target) "Print the links to interact with this entry or comment, with target.";
 
     function print_tags() "Print the tags for this entry.";
@@ -577,9 +573,6 @@ class Page
     function print_entry(Entry e)
     "Output a journal entry. Layouts should override this and the inherited versions in RecentPage, FriendsPage
     and DayPage to change how entries display.";
-
-    function print_entry_poster(EntryLite e)
-    "Output a line of text which says who posted an entry (just \"user\", or \"user posting in somejournal\"). Deprecated: use Entry::print_poster()";
 
     function builtin get_latest_month() : YearMonth
     "Returns information about the latest month the user posted (or the current month, if no posts), so that the page may include a mini-calendar or similar features.";
@@ -2220,11 +2213,12 @@ function modules_init()
 }
 
 function print_stylesheet ()
-  "Prints a stylesheet, the URL of which can be referenced by [member[Page.stylesheet_url]].  This is another S2 entry point, in addition to [method[Page.print()]]." {
+  "Prints a stylesheet, the URL of which can be referenced by [member[Page.stylesheet_url]].  This is another S2 entry point, in addition to [method[Page.print()]]. If you want to hardcode a stylesheet into your layout, override this function."
+{
 }
 
 function print_custom_control_strip_css ()
-  "Prints the CSS for custom control strip colors, if the option is enabled. This should be called by print_stylesheet()."
+  "Prints the CSS for custom control strip colors, if the option is enabled. This should be called by print_stylesheet().  If you override this function, you will be changing the design  of what is effectively site navigation, so proceed with caution."
 {
     if ($*custom_control_strip_colors != "off") {
         var bool bgcolor = $*control_strip_bgcolor.as_string != "";
@@ -2317,16 +2311,22 @@ if ($bordercolor) {
 
 ### Language
 
-function lang_map_plural (int n) : int {
+function lang_map_plural (int n) : int 
+"This function defines plurals for different languages. Use this if you are writing a language layer that needs customization for its plurals."
+{
     if ($n == 1) { return 0; } # singular
     return 1;             # plural
 }
 
-function lang_page_of_pages (int pg, int pgs) [notags] : string {
+function lang_page_of_pages (int pg, int pgs) [notags] : string
+"This function returns the current page number as well as number of available pages. Override for language layers."
+{
     return "Page $pg of $pgs";
 }
 
-function lang_user_wrote(UserLite u) : string "Returns text describing that the user wrote something. i18nc layers should override this." {
+function lang_user_wrote(UserLite u) : string
+"Returns text describing that the user wrote something. This function is deprecated in favor of print_poster. Override for # language layers, but even better, use print_poster."
+{
     if (defined $u) {
         return $u->as_string()+" wrote";
     }
@@ -2335,12 +2335,14 @@ function lang_user_wrote(UserLite u) : string "Returns text describing that the 
     }
 }
 
-function lang_at_datetime(DateTime d) : string "Returns a string saying \"at {the data and time given}\". Used in the core implementation of EntryPage and ReplyPage. i18nc layers should override this." {
+function lang_at_datetime(DateTime d) : string
+"Returns a string saying \"at {the data and time given}\". Used in the core implementation of EntryPage and ReplyPage. i18nc layers should override this."
+{
     return "on " + $d->date_format("long") + " at " + $d->time_format();
 }
 
 function lang_ordinal(int num) [notags] : string
-"Make an ordinal number from a cardinal number"
+"Make an ordinal number from a cardinal number. Override only for language layers."
 {
     if ($num % 100 >= 4 and $num % 100 <= 20) { return $num+"th"; }
     if ($num % 10 == 1) { return $num+"st"; }
@@ -2357,7 +2359,7 @@ function lang_ordinal(string num) [notags, fixed] : string
 
 
 function lang_viewname(string viewid) [notags] : string
-"Get some words representing a view"
+"Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout. Sets strings according to layer or wizard supplied string properties."
 {
     if ($viewid == "recent") { return $*text_view_recent; }
     if ($viewid == "archive") { return $*text_view_archive; }
@@ -2373,7 +2375,7 @@ function lang_viewname(string viewid) [notags] : string
 }
 
 function lang_metadata_title(string which) [fixed] : string
-"Get a human-readable caption for a metadata key. Layers shouldn't override this, but should instead set the relevant string properties."
+"Get a human-readable caption for a metadata key. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout. Sets strings according to layer or wizard supplied string properties."
 {
     if ($which == "music") {
         return $*text_meta_music;
@@ -2397,7 +2399,9 @@ function lang_metadata_title(string which) [fixed] : string
 
 ### Image Manipulation
 
-function Image::as_string(string{} opts) [fixed] : string {
+function Image::as_string(string{} opts) [fixed] : string 
+"You most likely want to use Image::print instead.  Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     var string img = "";
     if ($opts{"href"} != "") { $img = $img + "<a href=\"" + eurl($opts{"href"}) + "\" $opts{"a_attr"}>"; }
     $img = $img + $this->as_string($opts{"alt"});
@@ -2406,33 +2410,42 @@ function Image::as_string(string{} opts) [fixed] : string {
     return $img;
 }
 
-function Image::as_string(string alttext) [fixed] : string {
+function Image::as_string(string alttext) [fixed] : string
+"You most likely want to use Image::print instead.  Prints HTML for the image with a given alttext. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     return "<img src=\"$.url\" title=\"\" alt=\"" + ehtml($alttext) + "\"" +
         htmlattr("height", $.height) +
         htmlattr("width", $.width) + " />";
 }
 
-function Image::as_string() [fixed] : string {
+function Image::as_string() [fixed] : string
+"You most likely want to use Image::print instead.  Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     return $this->as_string($this.alttext);
 }
 
 function Image::print (string{} opts)
+"Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     # must do safe here because opts could have the 'a_attr' key set
     print safe $this->as_string($opts);
 }
 
 function Image::print (string alttext)
+"Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     print $this->as_string($alttext);
 }
 
 function Image::print
+"Prints HTML for the image. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     print $this->as_string($this.alttext);
 }
 
-function userinfoicon(UserLite user) : Image {
+function userinfoicon(UserLite user) : Image
+"Prints the user icon identifying an account link's type. Be aware that overriding this function will allow you to change an image which contains semantically meaningful information used for site navigation, so override with caution."
+{
     var Image uimage;
     $uimage.width = 16;
     $uimage.height = 16;
@@ -2455,28 +2468,33 @@ function userinfoicon(UserLite user) : Image {
 
 ### UserLite functions
 
-function UserLite::base_url() [fixed] : string {
+function UserLite::base_url() [fixed] : string
+"Returns a link to the user's journal."
+{
     return userlite_base_url($this);
 }
 
-function UserLite::tag_manage_url() [fixed] : string {
+function UserLite::tag_manage_url() [fixed] : string
+"Returns a link to the user's tag management page. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     return "$*SITEROOT/manage/tags.bml?authas=$.username";
 }
 
-function UserLite::as_string() [fixed] : string {
+function UserLite::as_string() [fixed] : string
+"Use UserLite::print instead in most cases. Returns a DW user tag for the user. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     return $this->ljuser();
 }
 
-function UserLite::print() {
+function UserLite::print() 
+"Print a DW user tag for the user. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     print $this->as_string();
 }
 
-## Deprecated. Use UserLite::print_interaction_links instead
-function UserLite::print_linkbar() {
-    $this->print_interaction_links();
-}
-
-function UserLite::print_interaction_links() {
+function UserLite::print_interaction_links()
+"This function prints the \"subscribe to journal, add user to access list, post to community, track journal, etc, etc\" items, and wraps them in a standarized class."
+{
     """<ul class="userlite-interaction-links">""";
     # FIXME: HTML is not valid if there are no items inside a list, so there should be a
     # check that there are user interaction links before opening the ul class.
@@ -2505,14 +2523,18 @@ function User::print_userpic() [fixed] {
 
 ### Generic Page Functions
 
-function Page::print_default_stylesheet() {
+function Page::print_default_stylesheet()
+"Adds CSS to all themes on your layout. Very likely to be overridden for most layouts."
+{
     """<style type="text/css">""";
     start_css();
     end_css();
     """</style>\n""";
 }
 
-function Page::print_stylesheets() {
+function Page::print_stylesheets()
+"If you have specific CSS to code onto all themes using this layout, override print_default_stylesheet.  If you have specific CSS to code into this theme, set the external_stylesheet property or override the print_stylesheet function. An end user can choose to link to an off-site stylesheet using the linked_stylesheet property and/or use the custom_css property.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     if ($*include_default_stylesheet) {
         $this->print_default_stylesheet();
         if ($*external_stylesheet) {
@@ -2540,10 +2562,15 @@ function Page::print_stylesheets() {
     }
 }
 
-function Page::print_title() {
+function Page::print_title() 
+"Using standard CSS, print the page title. If you want to change the way this looks, modify the CSS."
+{
     print """<h2 id="pagetitle"><span>""" + $this->view_title() + """</span></h2>\n""";
 }
-function Page::print_head_title() {
+
+function Page::print_head_title() 
+"Using standard CSS, print the journal title. If you want to change the way this looks, modify the CSS."
+{
     if ($this.journal.journal_type == "I") {
         print """<title>""" + $this.journal.name + $*text_default_separator + $this->view_title() + """</title>\n""";
     }
@@ -2622,21 +2649,29 @@ function Page::title() [notags] : string {
     return $this->view_title();
 }
 
-function Page::print_wrapper_start() {
+function Page::print_wrapper_start() 
+"This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     $this->print_wrapper_start( { "" => "" } );
 }
 
-function Page::print_wrapper_start(string{} opts) {
+function Page::print_wrapper_start(string{} opts) 
+"This function adds standard classes to the body of a page.  Pass extra options to it if necessary.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
 # FIXME: this should also print classes that identify the layout/style and other options like the number of columns.
     var string class = $opts{"class"} ? """class="$opts{"class"}" """ : "";
     """<body class="page-$.view $class">\n""";
 }
 
-function Page::print_wrapper_end() {
+function Page::print_wrapper_end() 
+"This function concludes the wrapper to the page.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+{
     """</body>""";
 }
 
-function server_sig() {
+function server_sig()
+"Provides the site branding for each page."
+{
     """<span id="site-branding">$*text_powered_by <a href="$*SITEROOT/">$*SITENAME</a></span>""";
 }
 
@@ -2805,7 +2840,9 @@ function print_multilevel_tags(TagDetail[] tagslist) "Prints out a list of multi
 }
 
 
-function open_module(string intname, string title, string headlink_url, bool nocontent) {
+function open_module(string intname, string title, string headlink_url, bool nocontent)
+"Opens up a module for printing, using the appropriate HTML/CSS."
+{
     print safe """<div class="module-$intname module">""";
     if ($title != "") {
         """<h2 class="module-header">""";
@@ -2824,7 +2861,9 @@ function close_module(bool nocontent) {
     if (not $nocontent) { println "</div>"; }
 }
 
-function open_module(string intname, string title, string headlink_url) {
+function open_module(string intname, string title, string headlink_url) 
+"Opens up a module for printing, using the appropriate HTML/CSS."
+{
     open_module($intname, $title, $headlink_url, false);
 }
 function close_module() {
@@ -3163,7 +3202,9 @@ function Page::print_module_section ( string section_name ) {
     """</div>""";
 }
 
-function Page::print() {
+function Page::print()
+"The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
+{
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
     $this->print_head();
     $this->print_stylesheets();
@@ -3276,11 +3317,7 @@ function Page::print_linklist() {
     }
 }
 
-# deprecated: use Entry::print_poster()
-function Page::print_entry_poster(EntryLite e) {
-	$e->print_poster();
-}
-
+# Prints the name of the account which posted the entry
 function Entry::print_poster {
     var Page p = get_page();
     print safe "<span class=\"poster entry-poster\">";
@@ -3308,7 +3345,9 @@ function Comment::print_poster() {
 }
 
 
-function Page::print_entry(Entry e) {
+function Page::print_entry(Entry e) 
+"The meat of each new layout. Describes how each page will look. In nearly all cases, the logic and decision-making processes should come from pre-existing functions in core2, and should not get written here. If you limit the structure of the page to HTML, function calls, and attached CSS, then you will be able to pick up all of the enhancements  and accessibility requirements managed by core2."
+{
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     $e->print_wrapper_start();
     $e->print_subject();
@@ -3509,11 +3548,10 @@ function EntryLite::print_userpic() [fixed] {
     println "</div>";
 }
 
-## Deprecated. Use EntryLite::print_management_links();
-function EntryLite::print_linkbar() { $this->print_management_links(); }
-
 function EntryLite::print_management_links() {}
-function Comment::print_management_links() {
+function Comment::print_management_links()
+"Prints comment management links, aka delete/screen/freeze/track."
+{
     # FIXME: HTML is not valid if there are no items inside a list, so there should
     # be a check that there are comment management links before opening the ul class.
     """<ul class="comment-management-links">""";
@@ -3532,11 +3570,10 @@ function Comment::print_management_links() {
     """</ul>""";
 }
 
-## Deprecated. Use EntryLite::print_interaction_links();
-function EntryLite::print_item_linkbar() { $this->print_interaction_links(); }
-
 function EntryLite::print_interaction_links() {}
-function Comment::print_interaction_links() {
+function Comment::print_interaction_links() 
+"Prints comment interaction links, aka reply/thread/parent/expand."
+{
     """<ul class="comment-interaction-links">""";
     if ($this.frozen) {
         print safe """<li class="link frozen">$*text_comment_frozen</li>""";
@@ -3576,7 +3613,9 @@ function Entry::print_link_prev() {
         " $link";
     }
 }
-function Entry::print_management_links() {
+function Entry::print_management_links() 
+"Prints entry management links, aka prev/edit/tag/memory/tag/next, with standarized CSS."
+{
     ## There's no point in showing previous/next links on pages which show
     ## multiple entries anyway, so we only print them on EntryPage and ReplyPage.
 
@@ -3611,12 +3650,9 @@ function Entry::print_interaction_links() {
     $this->print_interaction_links( "" );
 }
 
-## Deprecated. Use print_interaction_links instead
-function Entry::print_item_linkbar( string target ) {
-    $this->print_interaction_links( $target );
-}
-
-function Entry::print_interaction_links(string target) {
+function Entry::print_interaction_links(string target) 
+"Prints entry interaction links, aka # comments/leave a comment, with standardized CSS."
+{
     var Page p = get_page();
         if ($p isa EntryPage) {
         """<ul class="entry-interaction-links">""";
