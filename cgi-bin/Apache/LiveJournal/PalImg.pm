@@ -147,7 +147,11 @@ sub send_file
     }
 
     $r->print($palette) if $palette; # when palette modified.
-    $r->send_fd($fh); # sends remaining data (or all of it) quickly
+
+    # now read the rest of the file, but let's max on a 1MB image for sanity
+    read $fh, my $buf, 1024*1024;
+    $r->print( $buf ) if $buf;
+    
     $fh->close();
     return OK;
 }
