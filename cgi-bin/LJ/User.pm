@@ -8498,14 +8498,13 @@ sub make_journal
         if ($securityfilter =~ /^(?:public|friends|private)$/i) {
             $opts->{'securityfilter'} = lc($securityfilter);
 
+        # see if they want to filter by a custom group
         } elsif ($securityfilter =~ /^group:(.+)$/i) {
-            confess 'broken logic, please fix';
-# TODO(mark): fix this for WTF
-            my $groupres = LJ::get_friend_group($u, { 'name' => $1});
-
-            if ($groupres && (LJ::u_equals($u, $remote)
-                              || LJ::get_groupmask($u, $remote) & (1 << $groupres->{groupnum}))) {
-                $opts->{securityfilter} = $groupres->{groupnum};
+            my $tf = $u->trust_groups( name => $1 );
+            if ( $tf && ( $u->equals( $remote ) ||
+                          $u->trustmask( $remote ) & ( 1 << $tf->{groupnum} ) ) ) {
+                # let them filter the results page by this group
+                $opts->{securityfilter} = $tf->{groupnum};
             }
         }
 
