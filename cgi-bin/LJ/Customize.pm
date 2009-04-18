@@ -667,60 +667,6 @@ sub get_cats {
             main => 1,
             order => 4,
         },
-        sup => {
-            text => LJ::Lang::ml('customize.cats.sup'),
-        },
-        animals => {
-            text => LJ::Lang::ml('customize.cats.animals'),
-        },
-        clean => {
-            text => LJ::Lang::ml('customize.cats.clean'),
-        },
-        cool => {
-            text => LJ::Lang::ml('customize.cats.cool'),
-        },
-        warm => {
-            text => LJ::Lang::ml('customize.cats.warm'),
-        },
-        cute => {
-            text => LJ::Lang::ml('customize.cats.cute'),
-        },
-        dark => {
-            text => LJ::Lang::ml('customize.cats.dark'),
-        },
-        food => {
-            text => LJ::Lang::ml('customize.cats.food'),
-        },
-        hobbies => {
-            text => LJ::Lang::ml('customize.cats.hobbies'),
-        },
-        illustrated => {
-            text => LJ::Lang::ml('customize.cats.illustrated'),
-        },
-        media => {
-            text => LJ::Lang::ml('customize.cats.media'),
-        },
-        modern => {
-            text => LJ::Lang::ml('customize.cats.modern'),
-        },
-        nature => {
-            text => LJ::Lang::ml('customize.cats.nature'),
-        },
-        occasions => {
-            text => LJ::Lang::ml('customize.cats.occasions'),
-        },
-        pattern => {
-            text => LJ::Lang::ml('customize.cats.pattern'),
-        },
-        tech => {
-            text => LJ::Lang::ml('customize.cats.tech'),
-        },
-        travel => {
-            text => LJ::Lang::ml('customize.cats.travel'),
-        },
-        writing => {
-            text => LJ::Lang::ml('customize.cats.writing'),
-        },
     );
 
     LJ::run_hooks("modify_cat_list", \@categories, user => $u,);
