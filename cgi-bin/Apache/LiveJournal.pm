@@ -477,30 +477,26 @@ sub trans
             if ($adult_content ne "none" && $is_journal_page && !$should_show_page) {
                 my $returl = "http://$host" . $r->uri . "$args_wq";
 
-                DW::Logic::AdultContent->check_adult_cookie( $returl, \%BMLCodeBlock::POST, "concepts" );
-                DW::Logic::AdultContent->check_adult_cookie( $returl, \%BMLCodeBlock::POST, "explicit" );
-
-                my $cookie = $BML::COOKIE{DW::Logic::AdultContent->cookie_name( $adult_content )};
-
-                # if they've confirmed that they're over 18, then they're over 14 too
-                if ($adult_content eq "concepts" && !$cookie) {
-                    $cookie = 1 if $BML::COOKIE{DW::Logic::AdultContent->cookie_name( "explicit" )};
-                }
-
                 LJ::set_active_journal( $u );
-                $r->pnotes->{'user'} = $u;
-                $r->pnotes->{'entry'} = $entry if $entry;
-                $r->notes->{'returl'} = $returl;
-                # logged in users with defined ages are blocked from content that's above their age level
-                # logged in users without defined ages and logged out users are given confirmation pages (unless they have already confirmed)
-                if ($remote) {
-                    if ($adult_content eq "explicit" && $remote->is_minor) {
-                        return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => "${adult_content}_blocked" ) );
-                    } elsif (!$remote->best_guess_age && !$cookie) {
-                        return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => $adult_content ) );
+                $r->pnotes->{user} = $u;
+                $r->pnotes->{entry} = $entry if $entry;
+                $r->notes->{returl} = $returl;
+
+                unless ( DW::Logic::AdultContent->user_confirmed_page( user => $remote, journal => $u, entry => $entry, adult_content => $adult_content ) ) {
+                    # logged in users with a defined age of under 18 are blocked from explicit adult content
+                    # logged in users with a defined age of under 18 are given a confirmation page for adult concepts depending on their settings
+                    # logged in users with a defined age of 18 or older are given confirmation pages for adult content depending on their settings
+                    # logged in users without defined ages and logged out users are given confirmation pages for all adult content
+                    if ( $adult_content eq "explicit" && $remote && $remote->is_minor ) {
+                        return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'explicit_blocked' ) );
+                    } else {
+                        my $hide_adult_content = $remote ? $remote->hide_adult_content : "concepts";
+                        if ( $adult_content eq "explicit" && $hide_adult_content ne "none" ) {
+                            return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'explicit' ) );
+                        } elsif ( $adult_content eq "concepts" && $hide_adult_content eq "concepts" ) {
+                            return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => 'concepts' ) );
+                        }
                     }
-                } elsif (!$remote && !$cookie) {
-                    return $bml_handler->( DW::Logic::AdultContent->adult_interstitial_path( type => $adult_content ) );
                 }
             }
         }

@@ -319,7 +319,7 @@ sub FriendsPage
             'dateparts' => $alldatepart,
             'system_dateparts' => $item->{'system_alldatepart'},
             'security' => $security,
-            'age_restriction' => $eobj->adult_content_calculated,
+            'adult_content_level' => $eobj->adult_content_calculated || $friends{$friendid}->adult_content_calculated,
             'allowmask' => $allowmask,
             'props' => $logprops{$datakey},
             'itemid' => $ditemid,

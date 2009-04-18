@@ -175,7 +175,7 @@ sub MonthPage
             'dateparts' => $alldatepart,
             'system_dateparts' => $item->{system_alldatepart},
             'security' => $security,
-            'age_restriction' => $entry_obj->adult_content_calculated,
+            'adult_content_level' => $entry_obj->adult_content_calculated || $u->adult_content_calculated,
             'allowmask' => $allowmask,
             'props' => $logprops{$itemid},
             'itemid' => $ditemid,

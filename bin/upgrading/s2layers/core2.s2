@@ -363,8 +363,8 @@ class Entry extends EntryLite
     var readonly string security "The security level of the entry ('private', 'protected'), or blank if public.";
     var Image security_icon "A little icon which should be displayed somewhere on an entry to represent the security setting";
 
-    var readonly string age_restriction "The minimum age restriction ('14', '18'), or blank if unrestricted.";
-    var Image age_restriction_icon "A little icon which should be displayed somewhere on an entry to represent the minimum age restriction setting";
+    var readonly string adult_content_level "The adult content level ('NSFW', '18'), or blank if unrestricted.";
+    var Image adult_content_icon "A little icon which should be displayed somewhere on an entry to represent the adult content level";
 
     var Image mood_icon "Mood icon, or null.";
     var CommentInfo comments "Comment information on this entry";
@@ -2021,13 +2021,13 @@ set text_website_default_name = "My Website";
 property string text_icon_alt_protected { noui = 1; des = "Alternative text for icons of friends-only entries"; }
 property string text_icon_alt_private   { noui = 1; des = "Alternative text for icons of private entries"; }
 property string text_icon_alt_groups    { noui = 1; des = "Alternative text for icons of custom friends group entries"; }
-property string text_icon_alt_14_plus   { noui = 1; des = "Alternative text for icons of 14+ entries"; }
-property string text_icon_alt_18_plus   { noui = 1; des = "Alternative text for icons of 18+ entries"; }
+property string text_icon_alt_nsfw      { noui = 1; des = "Alternative text for icons of NSFW entries"; }
+property string text_icon_alt_18        { noui = 1; des = "Alternative text for icons of 18+ entries"; }
 set text_icon_alt_protected = "[protected post]";
 set text_icon_alt_private = "[private post]";
 set text_icon_alt_groups = "[custom friends groups post]";
-set text_icon_alt_14_plus = "[14+]";
-set text_icon_alt_18_plus = "[18+]";
+set text_icon_alt_nsfw = "[NSFW]";
+set text_icon_alt_18 = "[18+]";
 
 property string text_multiform_check { des = "Text beside a comment multi-action checkbox"; }
 
@@ -3330,13 +3330,13 @@ function Entry::print_metatypes(bool icon, bool info) {
         }
         """</span>\n""";
     }
-    if ($this.age_restriction) {
+    if ($this.adult_content_level) {
         """<span class="restrictions">""";
         if ($icon) {
-            $this.age_restriction_icon->print($this.age_restriction);
+            $this.adult_content_icon->print($this.adult_content_level);
         }
         if ($info) {
-            print $this.age_restriction;
+            print $this.adult_content_level;
         }
         """</span>\n""";
     }

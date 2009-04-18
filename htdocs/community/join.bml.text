@@ -9,8 +9,6 @@
 
 .error.closed=This community is closed to new members.  If you wish to join, please contact one of the following maintainers: [[admins]]
 
-.error.ischild=The maintainers of [[comm]] require that all members be over the age of 14.
-
 .error.isminor=The maintainers of [[comm]] require that all members be over the age of 18.
 
 .error.setage=<a [[aopts]]>Edit your profile</a> to register your age.

@@ -138,30 +138,87 @@ sub interstitial_reason {
     }
 
     if ( $reason_exists ) {
-        $ret = "<tr><td colspan=\"2\">\n$ret\n</td></tr>\n";
+        $ret = "<p>$ret</p>";
     }
 
     return $ret;
 }
 
-sub check_adult_cookie {
-    my ( $class, $returl, $postref, $type ) = @_;
 
-    my $cookiename = __PACKAGE__->cookie_name( $type );
-    return undef unless $cookiename;
+################################################################################
+# These methods are for holding/retrieving data in memcache that states whether
+# a particular user has confirmed seeing an adult journal or entry.  The
+# structure of the hash in memcache is as follows:
+#
+# {
+#     explicit => {
+#       journalid => [ entryid, entryid, ... ],
+#       journalid => [ entryid, entryid, ... ],
+#     },
+#     concepts => {
+#       journalid => [ entryid, entryid, ... ],
+#       journalid => [ entryid, entryid, ... ],
+#     },
+# }
+#
+# Note that an entryid of 0 means that the journal itself has been confirmed.
+################################################################################
 
-    my $has_seen = $BML::COOKIE{$cookiename};
-    my $adult_check = $postref->{adult_check};
+sub _memcache_key {
+    my ( $class, $u ) = @_;
 
-    BML::set_cookie( $cookiename => '1', 0 ) if $adult_check;
-    return $has_seen || $adult_check ? $returl : undef;
+    my $confirm_id = LJ::isu( $u ) ? $u->id : LJ::UniqCookie->current_uniq;
+    return [ $confirm_id, "confirmedadult:$confirm_id" ];
 }
 
-sub cookie_name {
-    my ( $class, $type ) = @_;
+sub confirmed_pages {
+    my ( $class, $u ) = @_;
 
-    return "" unless $type eq "concepts" || $type eq "explicit";
-    return "adult_$type";
+    my $memkey = $class->_memcache_key( $u );
+    return LJ::MemCache::get( $memkey ) || {};
+}
+
+sub set_confirmed_pages {
+    my ( $class, %opts ) = @_;
+
+    my $u = $opts{user};
+    my $journalid = $opts{journalid}+0;
+    my $entryid = $opts{entryid}+0;
+    my $adult_content = $opts{adult_content};
+
+    my $confirmed_pages = $class->confirmed_pages( $u );
+    if ( $entryid && $journalid ) {
+        push @{$confirmed_pages->{$adult_content}->{$journalid}}, $entryid;
+    } elsif ( $journalid ) {
+        push @{$confirmed_pages->{$adult_content}->{$journalid}}, 0;
+    }
+
+    my $memkey = $class->_memcache_key( $u );
+    return LJ::MemCache::set( $memkey, $confirmed_pages, 60*30 );
+}
+
+sub user_confirmed_page {
+    my ( $class, %opts ) = @_;
+
+    my $u = $opts{user};
+    my $journal = $opts{journal};
+    my $entry = $opts{entry};
+    my $adult_content = $opts{adult_content};
+
+    my $confirmed_pages = DW::Logic::AdultContent->confirmed_pages( $u );
+    my $page_confirmed = 0;
+
+    if ( $confirmed_pages && $confirmed_pages->{$adult_content} && $confirmed_pages->{$adult_content}->{$journal->id} ) {
+        if ( defined $entry && defined $journal ) {
+            $page_confirmed = 1
+                if grep { $_ == $entry->ditemid } @{$confirmed_pages->{$adult_content}->{$journal->id}};
+        } elsif ( defined $journal ) {
+            $page_confirmed = 1
+                if grep { $_ == 0 } @{$confirmed_pages->{$adult_content}->{$journal->id}};
+        }
+    }
+
+    return $page_confirmed;
 }
 
 1;

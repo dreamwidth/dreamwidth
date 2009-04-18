@@ -134,12 +134,7 @@ body<=
 
             my $adult_content;
             unless ($target->can_join_adult_comm( comm => $c, adultref => \$adult_content )) {
-                if ($adult_content eq "concepts") {
-                    push @add_errors, BML::ml('.error.ischild',
-                                              { 'user' => $target_disp });
-
-                    next;
-                } elsif ($adult_content eq "explicit") {
+                if ( $adult_content eq "explicit" ) {
                     push @add_errors, BML::ml('.error.isminor',
                                               { 'user' => $target_disp });
 

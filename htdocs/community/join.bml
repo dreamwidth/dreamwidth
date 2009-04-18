@@ -47,9 +47,7 @@ body<=
     my $adult_content;
     unless ($remote->can_join_adult_comm( comm => $cu, adultref => \$adult_content )) {
         my $adult_err;
-        if ($adult_content eq "concepts") {
-            $adult_err = BML::ml('.error.ischild', {'comm' => $cu->ljuser_display});
-        } elsif ($adult_content eq "explicit") {
+        if ( $adult_content eq "explicit" ) {
             $adult_err = BML::ml('.error.isminor', {'comm' => $cu->ljuser_display});
         }
 

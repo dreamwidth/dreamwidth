@@ -271,7 +271,7 @@ body<=
             type => 'radio', id => 'adultconcepts', name => 'adult_content',
             value => 'concepts', selected => $adult_content eq "concepts" ? 1 : 0,
         });
-        $ret .= " <label for='adultconcepts'>" . BML::ml('.label.adultcontentconcepts2', { age => 14 }) . "</label></p>";
+        $ret .= " <label for='adultconcepts'>$ML{'.label.adultcontentconcepts2'}</label></p>";
 
         $ret .= "<p class='input-wrapper'>";
         $ret .= LJ::html_check({

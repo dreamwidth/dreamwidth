@@ -20,19 +20,19 @@
 
 .error.samenames=Maintainer account and community account cannot be the same.
 
-.label.adultcontentheader=Age Limits
+.label.adultcontentconcepts=Users should be warned that the content in this community should be viewed with discretion.
 
-.label.adultcontentconcepts=Age 14 and over
+.label.adultcontentconcepts2=<b>Viewing Discretion Advised</b><br />Users will be warned that the content in this community should be viewed with discretion.
+
+.label.adultcontentexplicit=Users under the age of 18 should not be able to join this community or view its entries.
+
+.label.adultcontentexplicit2=<b>Explicit Adult Content</b><br />Users under the age of [[age]] will be not be able to join this community or view its entries.
+
+.label.adultcontentheader=Age Limits
 
 .label.adultcontentheader2=Adult Content Setting
 
-.label.adultcontentexplicit=Age 18 and over
-
-.label.adultcontentconcepts2=<b>Adult Concepts</b><br />Users under the age of [[age]] will be not be able to join this community or view its entries.
-
-.label.adultcontentnone=No age limits
-
-.label.adultcontentexplicit2=<b>Explicit Adult Content</b><br />Users under the age of [[age]] will be not be able to join this community or view its entries.
+.label.adultcontentnone=No adult content.
 
 .label.adultcontentnone2=<b>No Adult Content</b>
 

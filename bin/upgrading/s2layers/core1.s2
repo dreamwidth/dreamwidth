@@ -337,8 +337,8 @@ class Entry extends EntryLite
     var readonly string security "The security level of the entry ('private', 'protected'), or blank if public.";
     var Image security_icon "A little icon which should be displayed somewhere on an entry to represent the security setting";
 
-    var readonly string age_restriction "The minimum age restriction ('14', '18'), or blank if unrestricted.";
-    var Image age_restriction_icon "A little icon which should be displayed somewhere on an entry to represent the minimum age restriction setting";
+    var readonly string adult_content_level "The adult content level ('NSFW', '18'), or blank if unrestricted.";
+    var Image adult_content_icon "A little icon which should be displayed somewhere on an entry to represent the adult content level";
 
     var Image mood_icon "Mood icon, or null.";
     var CommentInfo comments "Comment information on this entry";
@@ -1589,19 +1589,19 @@ property string text_icon_alt_groups {
     des = "Alternative text for icons of custom friends group entries";
     noui = 1;
 }
-property string text_icon_alt_14_plus {
-    des = "Alternative text for icons of 14+ entries";
+property string text_icon_alt_nsfw {
+    des = "Alternative text for icons of NSFW entries";
     noui = 1;
 }
-property string text_icon_alt_18_plus {
+property string text_icon_alt_18 {
     des = "Alternative text for icons of 18+ entries";
     noui = 1;
 }
 set text_icon_alt_protected = "[protected post]";
 set text_icon_alt_private = "[private post]";
 set text_icon_alt_groups = "[custom friends groups post]";
-set text_icon_alt_14_plus = "[14+]";
-set text_icon_alt_18_plus = "[18+]";
+set text_icon_alt_nsfw = "[NSFW]";
+set text_icon_alt_18 = "[18+]";
 
 property bool use_shared_pic {
     des = "Use community userpics instead of poster's userpic.";

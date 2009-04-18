@@ -38,17 +38,11 @@ cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.
 
-contentflag.viewingconcepts=You are about to view content that may not be appropriate for minors.
+contentflag.viewingconcepts.bycommunity=You are about to view content that a community maintainer has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.byadmin=You are about to view content that has been marked as possibly inappropriate for anyone under the age of 14.
+contentflag.viewingconcepts.byjournal=You are about to view content that the journal owner has advised should be viewed with discretion.
 
-contentflag.viewingconcepts.bycommunity=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 14.
-
-contentflag.viewingconcepts.byjournal=You are about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 14.
-
-contentflag.viewingconcepts.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 14.
-
-contentflag.viewingexplicit.byadmin=You are about to view content that has been marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingconcepts.byposter=You are about to view content that the poster has advised should be viewed with discretion.
 
 contentflag.viewingexplicit.bycommunity=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 18.
 
@@ -1120,21 +1114,21 @@ Enjoy!
 
 entryform.adultcontent=Adult Content:
 
-entryform.adultcontent.concepts=Age 14 and over
+entryform.adultcontent.concepts=Advise Viewing Discretion
 
 entryform.adultcontent.default=Journal Default
 
-entryform.adultcontent.explicit=Age 18 and over
+entryform.adultcontent.explicit=Restrict to People 18 or Older
 
-entryform.adultcontent.maintainer=Age Filter:
+entryform.adultcontent.maintainer=Adult Content:
 
-entryform.adultcontent.none=No Age Filter
+entryform.adultcontent.none=Suitable for Everyone
 
 entryform.adultcontent.poster=Poster's Setting ([[setting]])
 
-entryform.adultcontentreason=Reason for Age Filter:
+entryform.adultcontentreason=Reason for Adult Content:
 
-entryform.adultcontentreason.maintainer=Reason for Age Filter:
+entryform.adultcontentreason.maintainer=Reason for Adult Content:
 
 entryform.backdated=Entry is Backdated:
 
@@ -2457,15 +2451,15 @@ setting.adultcontent.error.invalid=Invalid adult content setting.
 
 setting.adultcontent.label=Adult Content
 
-setting.adultcontent.option.comm=This community contains content suitable for
+setting.adultcontent.option.comm=This community contains content that
 
-setting.adultcontent.option.select.concepts=Ages 14+
+setting.adultcontent.option.select.concepts=should be viewed with discretion
 
-setting.adultcontent.option.select.explicit=Ages 18+
+setting.adultcontent.option.select.explicit=should be restricted to people 18 or older
 
-setting.adultcontent.option.select.none=Everyone
+setting.adultcontent.option.select.none=is suitable for everyone
 
-setting.adultcontent.option.self=This journal contains content suitable for
+setting.adultcontent.option.self=This journal contains content that
 
 setting.adultcontentreason.label=Adult Content Reason
 
@@ -2751,9 +2745,9 @@ setting.safesearch.error.invalid=Invalid safe search setting.
 
 setting.safesearch.label=Safe Search Filter
 
-setting.safesearch.option.select.concepts=Exclude 18+
+setting.safesearch.option.select.concepts=Exclude content that should be viewed with discretion
 
-setting.safesearch.option.select.explicit=Exclude 14+
+setting.safesearch.option.select.explicit=Exclude content that is restricted to people 18 or older
 
 setting.safesearch.option.select.none=Exclude nothing
 
@@ -2811,13 +2805,13 @@ setting.viewingadultcontent.error.invalid=Invalid viewing adult content setting.
 
 setting.viewingadultcontent.label=Viewing Adult Content
 
-setting.viewingadultcontent.option=Collapse
+setting.viewingadultcontent.option=Collapse and show interstitial warnings for
 
-setting.viewingadultcontent.option.select.concepts=14+
+setting.viewingadultcontent.option.select.concepts=content that should be viewed with discretion
 
-setting.viewingadultcontent.option.select.explicit=18+
+setting.viewingadultcontent.option.select.explicit=content that is restricted to people 18 or older
 
-setting.viewingadultcontent.option.select.none=nothing
+setting.viewingadultcontent.option.select.none=nothing (display all content)
 
 settings.city=City
 

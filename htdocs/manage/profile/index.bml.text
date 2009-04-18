@@ -37,11 +37,7 @@
 
 .email.opt.show=Show email address
 
-.error.bday.child=Users under the age of 14 cannot display their birthday.
-
 .error.bio.toolong=Your user bio is too long.
-
-.error.contact.child=Users under the age of 14 cannot publically share their contact information.
 
 .error.day.notinmonth=Invalid day for that month.
 

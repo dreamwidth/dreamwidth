@@ -128,9 +128,9 @@
 
 .details.viewlinkssep=, 
 
-.details.warning.concepts=This journal may contain adult concepts.
+.details.warning.concepts=This journal should be viewed with discretion.
 
-.details.warning.explicit=This journal may contain explicit adult content.
+.details.warning.explicit=This journal is restricted to people 18 or older.
 
 .error.deleted.purgenotification=If you're interested in renaming your account to this username, <a [[aopts]]>set up your notifications</a> to be notified when the account is purged.
 

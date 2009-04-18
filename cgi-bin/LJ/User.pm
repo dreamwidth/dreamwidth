@@ -2605,11 +2605,7 @@ sub can_join_adult_comm {
     my $adult_content = $comm->adult_content_calculated;
     $$adultref = $adult_content;
 
-    if ($adult_content eq "concepts" && (!$u->best_guess_age)) {
-        return 0;
-    } elsif ($adult_content eq "explicit" && ($u->is_minor || !$u->best_guess_age)) {
-        return 0;
-    }
+    return 0 if $adult_content eq "explicit" && ( $u->is_minor || !$u->best_guess_age );
 
     return 1;
 }

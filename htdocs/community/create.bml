@@ -209,9 +209,9 @@ SUBMIT:
 
         # adult content options
         if ( LJ::is_enabled( 'adult_content' ) ) {
-            $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'/community/settings.bml.label.adultcontentheader'} ";
+            $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'/community/settings.bml.label.adultcontentheader2'} ";
             $ret .= LJ::help_icon("adult_content_flag");
-            $ret .= "</div><div class='formitemDesc'>$ML{'/community/settings.bml.label.adultcontenttext'}</div><div><p>";
+            $ret .= "</div><div class='formitemDesc'>$ML{'/community/settings.bml.label.adultcontenttext2'}</div><div><p>";
             $ret .= LJ::html_check({ type => 'radio', name => 'journal_adult_settings', id => 'adultnone',
                     value => 'none', selected => ($POST{journal_adult_settings} eq 'none' ? 1 : 0)});
             $ret .= "<label for='adultnone'> $ML{'/community/settings.bml.label.adultcontentnone'}</label></p><p>";

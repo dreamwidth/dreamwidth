@@ -242,7 +242,7 @@
     $body .= $inerr->('form_auth');
 
     $body .= "<p>$ML{'.form.input.message'}</p>" . $inerr->("msg", "<br />");
-    $body .= "<div style='color: #000; background-color: #eee; border: 1px solid #000; margin-bottom: 15px; padding: 15px;'>";
+    $body .= "<div style='color: #000; background-color: #eee; border: 1px solid #000; margin-bottom: 15px; padding: 15px; word-wrap: break-word;'>";
     $body .= "<p style='margin-top: 0;'><strong>$ML{'.msg_subject.header'}</strong> $msg_subject_display</p>";
     $body .= "<p><strong>$ML{'.msg.header'}</strong></p>";
     $body .= "<div style='margin-left: 15px;'>";

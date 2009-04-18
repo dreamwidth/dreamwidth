@@ -7,8 +7,6 @@
 
 .error.invaliduser=Cannot add community or syndicated account: [[user]]
 
-.error.ischild=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 14 years old.
-
 .error.isminor=Sorry, but [[user]] cannot be invited to this community because they do not have a registered birthday that is at least 18 years old.
 
 .error.limit=Unable to invite [[user]], the outstanding invitation limit for this community has been exceeded.

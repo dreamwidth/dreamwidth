@@ -1883,13 +1883,13 @@ sub Entry
         $e->{'security_icon'} = Image_std("security-private");
     }
 
-    $e->{'age_restriction'} = "";
-    if ($arg->{'age_restriction'} eq "explicit") {
-        $e->{'age_restriction'} = "18";
-        $e->{'age_restriction_icon'} = Image_std("age-18");
-    } elsif ($arg->{'age_restriction'} eq "concepts") {
-        $e->{'age_restriction'} = "14";
-        $e->{'age_restriction_icon'} = Image_std("age-14");
+    $e->{adult_content_level} = "";
+    if ($arg->{adult_content_level} eq "explicit") {
+        $e->{adult_content_level} = "18";
+        $e->{adult_content_icon} = Image_std("adult-18");
+    } elsif ($arg->{adult_content_level} eq "concepts") {
+        $e->{adult_content_level} = "NSFW";
+        $e->{adult_content_icon} = Image_std("adult-nsfw");
     } else {
         # do nothing.
     }
@@ -2092,8 +2092,8 @@ sub Image_std
             'security-protected' => Image("$LJ::IMGPREFIX/icon_protected.gif", 14, 15, $ctx->[S2::PROPS]->{'text_icon_alt_protected'}),
             'security-private' => Image("$LJ::IMGPREFIX/icon_private.gif", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_private'}),
             'security-groups' => Image("$LJ::IMGPREFIX/icon_groups.gif", 19, 16, $ctx->[S2::PROPS]->{'text_icon_alt_groups'}),
-            'age-14' => Image("$LJ::IMGPREFIX/icon_14.gif", 14, 15, $ctx->[S2::PROPS]->{'text_icon_alt_14_plus'}),
-            'age-18' => Image("$LJ::IMGPREFIX/icon_18.gif", 14, 15, $ctx->[S2::PROPS]->{'text_icon_alt_18_plus'}),
+            'adult-nsfw' => Image("$LJ::IMGPREFIX/icon_nsfw.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_nsfw'}),
+            'adult-18' => Image("$LJ::IMGPREFIX/icon_18.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_18'}),
         };
     }
     return $LJ::S2::RES_CACHE->{$name};
