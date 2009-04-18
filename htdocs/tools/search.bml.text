@@ -1,0 +1,12 @@
+;; -*- coding: utf-8 -*-
+.commsearch=<a [[aopts]]>Community Search</a>
+
+.commsearch.desc=Search for communities.
+
+.directory=<a [[aopts]]>Directory Search</a>
+
+.directory.desc=Search for users.
+
+.intro=Search [[sitename]] using the box below, or use one of our advanced search options.
+
+.title=Search [[sitename]]

@@ -59,7 +59,7 @@ _code?>
          $ret .= "<a href='<?siteroot?>/login'><?_ml lynx.nav.login _ml?></a> | ";
     }
 
-    $ret .= "<a href='<?siteroot?>/site/search'><?_ml lynx.nav.search _ml?></a> | ";
+    $ret .= "<a href='<?siteroot?>/tools/search.bml'><?_ml lynx.nav.search _ml?></a> | ";
     $ret .= "<a href='<?siteroot?>/manage/settings/'><?_ml lynx.nav.siteopts _ml?></a> | ";
     $ret .= "<a href='<?siteroot?>/site/'><?_ml lynx.nav.sitemap _ml?></a> ]</p>";
 
