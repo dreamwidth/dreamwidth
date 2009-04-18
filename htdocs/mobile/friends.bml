@@ -24,16 +24,16 @@
 
     # Filter first to a "Mobile View" friends group if they have one,
     # then fall back to "Default View", and then just show them everything
-    my $filter;
+#    my $filter;
     my $groupname = "All friends";
 
-    foreach ("Mobile View", "Default View") {
-        if (my $grp = LJ::get_friend_group($u, { 'name' => $_ })) {
-            $groupname = $_;
-            $filter = 1 << $grp->{'groupnum'};
-            last;
-        }
-    }
+#    foreach ("Mobile View", "Default View") {
+#        if (my $grp = LJ::get_friend_group($u, { 'name' => $_ })) {
+#            $groupname = $_;
+#            $filter = 1 << $grp->{'groupnum'};
+#            last;
+#        }
+#    }
 
     $ret = qq {
             <a href='./'>&lt;&lt; Back</a> to LiveJournal Mobile.
@@ -45,15 +45,15 @@
         };
 
 
-    my @entries = LJ::get_friend_items({
-        'remoteid'          => $u->{'userid'},
+    my @entries = $u->watch_items(
+        'remote'            => $u->{'userid'},
         'itemshow'          => $itemsperpage,
         'skip'              => $skip,
         'showtypes'         => 'PYC',
         'u'                 => $u,
         'userid'            => $u->{'userid'},
-        'filter'            => $filter,
-    });
+#        'filter'            => $filter,
+    );
 
     # how many characters to truncate entry at
     my $max_entry_length = 400;
