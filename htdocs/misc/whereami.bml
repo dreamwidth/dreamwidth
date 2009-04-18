@@ -1,0 +1,46 @@
+<?_c
+#
+# misc/whereami.bml
+#
+# User facing "nifty" page to let users see what cluster they're on.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+
+    # for pages that require authentication
+    my $remote = LJ::get_remote()
+        or return '<?needlogin?>';
+
+    # allow the remote user to authenticate as another account (community, etc)
+    my $authas = $GET{authas} || $remote->user;
+    my $u = LJ::get_authas_user( $authas );
+    return LJ::bad_input( $ML{'error.invalidauth'} )
+        unless $u;
+
+    # okay, now print out the useful information
+    my $cname = $LJ::CLUSTER_NAME{$u->clusterid} || $ML{'.cluster.unknown'};
+
+    my $ret = '<?p <?_ml .intro _ml?> p?>';
+    $ret .= "<form method='get' id='userpic_authas' action='$LJ::SITEROOT/misc/whereami.bml'>\n";
+    $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} }) . "\n";
+    $ret .= "</form><br /><?p ";
+    $ret .= BML::ml( '.cluster', { cluster => $cname, user => $u->ljuser_display } );
+    $ret .= ' p?>';
+    return $ret;
+}
+_code?>
+<=body
+title=><?_ml .title _ml?>
+page?>
