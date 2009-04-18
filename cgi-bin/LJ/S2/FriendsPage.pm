@@ -328,17 +328,12 @@ sub FriendsPage
             'comments' => $comments,
             'new_day' => 0,  # setup below
             'end_day' => 0,  # setup below
-            'userpic' => undef,
+            'userpic' => Image_userpic( $picu, $picid, $eobj->userpic_kw_from_props( $logprops{$datakey} ) ),
             'tags' => \@taglist,
             'permalink_url' => $permalink,
             'moodthemeid' => $moodthemeid,
         });
         $entry->{'_ymd'} = join('-', map { $entry->{'time'}->{$_} } qw(year month day));
-
-        if ($picid && $picu) {
-            push @userpic_load, [ $picu, $picid ];
-            push @{$objs_of_picid{$picid}}, \$entry->{'userpic'};
-        }
 
         push @{$p->{'entries'}}, $entry;
         $eventnum++;
@@ -360,18 +355,6 @@ sub FriendsPage
             $p->{'entries'}->[$last]->{'end_day'} = 1;
             $i = $last;
         }
-    }
-
-    # load the pictures that were referenced, then retroactively populate
-    # the userpic fields of the Entries above
-    my %userpics;
-    LJ::load_userpics(\%userpics, \@userpic_load);
-
-    foreach my $picid (keys %userpics) {
-        my $up = Image("$LJ::USERPIC_ROOT/$picid/$userpics{$picid}->{'userid'}",
-                       $userpics{$picid}->{'width'},
-                       $userpics{$picid}->{'height'});
-        foreach (@{$objs_of_picid{$picid}}) { $$_ = $up; }
     }
 
     # make the skip links
