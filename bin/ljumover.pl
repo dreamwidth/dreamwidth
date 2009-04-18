@@ -931,8 +931,8 @@ sub start {
         $self->message( "Unlocking %d remaining users.", values %{$self->{userThreads}} );
 
         foreach my $thread ( values %{$self->{userThreads}} ) {
-            $thread->unlock;
             LJ::disconnect_dbs();
+            $thread->unlock;
             my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
             $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
                       undef, $thread->userid )
@@ -962,8 +962,8 @@ sub reapChildren {
         $self->{fakeMovedUsers}{$thread->userid} = 1 if $thread->testingMode;
         delete $self->{userThreads}{$thread->userid};
 
-        $thread->unlock;
         LJ::disconnect_dbs();
+        $thread->unlock;
         my $dbh = LJ::get_db_writer() or die "Couldn't get a db_writer.";
         $dbh->do( "DELETE FROM clustermove_inprogress WHERE userid = ?",
                   undef, $thread->userid )
@@ -1236,6 +1236,7 @@ sub new {
     my ( $user, $userid, $src, $dest ) = @_;
 
     # Lock the user
+    LJ::disconnect_dbs();
     LJ::update_user( $userid, {raw => "caps=caps|(1<<$ReadOnlyBit)"} );
 
     return bless {
