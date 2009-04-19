@@ -112,13 +112,14 @@ sub try_work {
             if ! $hash || $hash->{fault};
 
         foreach my $item ( @{$hash->{syncitems} || []} ) {
-            next unless $item->{item} =~ /^L-(\d+)$/;
-
+            # ensure we always step the sync time forward
             my $synctime = $step_time->( $item->{time}, -1 );
-
-            $sync{$1} = [ $item->{action}, $synctime ];
             $lastsync = $synctime
                 if !defined $lastsync || $synctime gt $lastsync;
+
+            # but only store it in %sync if it's an entry
+            $sync{$1} = [ $item->{action}, $synctime ]
+                if $item->{item} =~ /^L-(\d+)$/;
         }
 
         # now we can mark this, as we have officially syncd this time
