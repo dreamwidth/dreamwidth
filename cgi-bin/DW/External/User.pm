@@ -33,7 +33,7 @@ sub new {
         if %opts;
 
     # site is required, or bail
-    my $ext = DW::External::Site->new( site => $site )
+    my $ext = DW::External::Site->get_site( site => $site )
         or return undef;
 
     my $self = {

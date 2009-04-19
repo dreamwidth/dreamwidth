@@ -381,6 +381,7 @@
                        jobstatus      => "tools/endpoints/jobstatus.bml",
                        widget         => "tools/endpoints/widget.bml",
                        multisearch    => "tools/endpoints/multisearch.bml",
+                       extacct_auth   => "tools/endpoints/extacct_auth.bml",
                        );
 
     foreach my $src (keys %ajaxmapping) {

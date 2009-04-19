@@ -28,6 +28,7 @@ body<=
         mobile
         privacy
         history
+        othersites
     );
 
     # the different navigation categories and their settings
@@ -121,6 +122,17 @@ body<=
                 LJ::Setting::Display::Emails
                 LJ::Setting::Display::EmailPosts
             )],
+        },
+        othersites => {
+            name => $ML{'.cat.othersites'},
+            visible => 1,
+            disabled => !$u || $u->is_community ? 1 : 0,
+            form => 1,
+            desc => $ML{'.cat.othersites.desc'},
+            settings => [qw(
+                DW::Setting::XPostAccounts
+             )],
+                
         },
     );
 

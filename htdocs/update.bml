@@ -426,7 +426,59 @@
                     my $juser = $ju->{'user'};
                     my ($itemid, $anum) = ($res{'itemid'}, $res{'anum'});
                     $itemlink = LJ::item_link($ju, $itemid, $anum);
+                    my $orig_itemid = $itemid;
                     $itemid = $itemid * 256 + $anum;
+
+                    my $edititemlink = "/editjournal.bml?journal=$juser&itemid=$itemid";
+
+                    #crosspost if necessary
+                    if ($POST{prop_xpost} || $GET{prop_xpost}) {
+                        my @xpost_success;
+                        my @xpost_errors;
+
+                        # get the accounts for the user
+                        my @accounts = DW::External::Account->get_external_accounts($remote);
+                        foreach my $acct(@accounts) {
+                            my $acctid = $acct->acctid;
+                            # see if we said to xpost to this account
+                            if ($POST{"prop_xpost_$acctid"} || $GET{"prop_xpost_$acctid"}) {
+                                # xpost to this account.
+                                my $result = {};
+                                my %auth;
+                                if ($POST{"prop_xpost_resp_$acctid"} || $GET{"prop_xpost_resp_$acctid"}) {
+                                    $auth{auth_response} = $POST{"prop_xpost_resp_$acctid"} || $GET{"prop_xpost_resp_$acctid"};
+                                    $auth{auth_challenge} = $POST{"prop_xpost_chal_$acctid"} || $GET{"prop_xpost_chal_$acctid"};
+                                } else {
+                                    $auth{password} = $POST{"prop_xpost_password_$acctid"} || $GET{"prop_xpost_password_$acctid"};
+                                }
+                                # send this to theschwartz to crosspost
+                                my $sclient = LJ::theschwartz();
+                                my $job = TheSchwartz::Job->new_from_array(
+                                    'DW::Worker::XPostWorker', { 
+                                        'uid' => $remote->userid, 
+                                        'ditemid' => $itemid, 
+                                        'accountid' => $acctid, 
+                                        'password' => $auth{password}, 
+                                        'auth_challenge' => $auth{auth_challenge}, 
+                                        'auth_response' => $auth{auth_response} });
+                                # if we have a client and job, then request 
+                                # the crosspost
+                                if ($sclient && $job && $sclient->insert($job)) {
+                                    push @xpost_success, "<li>" . BML::ml('xpost.request.success', {'account' => $acct->displayname}) . "</li>";
+                                } else {
+                                    # one of them didn't work.
+                                    push @xpost_success, "<li>" . BML::ml('xpost.request.success', {'account' => $acct->displayname}) . "</li>";
+                                    push @xpost_errors, "<li><div style='color: red;'><strong>" . BML::ml('xpost.request.failed', {'account' => $acct->displayname}, 'editurl' => $edititemlink)  . " </strong></div></li>";
+                                }
+                            }
+                        }
+
+                        $$body .= "<ul>\n";
+                        $$body .= join ("\n", @xpost_success);
+                        $$body .= join ("\n", @xpost_errors);
+                        $$body .= "</ul>\n";
+                        $$body .= "<br/>";
+                    }
 
                     my $writersblocklink = '';
 
@@ -439,7 +491,7 @@
 
                     $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
                         "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" .
-                        "<li><a href=\"/editjournal.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.edit'}</a></li>" .
+                        "<li><a href=\"$edititemlink\">$ML{'.success.links.edit'}</a></li>" .
                         "<li><a href=\"/tools/memadd.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
                         "<li><a href=\"/edittags.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
                         $after_entry_post_extra_options .
@@ -485,6 +537,7 @@ head<=
                     js/entry.js
                     js/poll.js
                     js/browserdetect.js
+                    js/xpost.js
                     ));
 
     # draft autosave and restore

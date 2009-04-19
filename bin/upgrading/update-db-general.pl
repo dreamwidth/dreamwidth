@@ -3184,6 +3184,22 @@ CREATE TABLE shop_carts (
 )
 EOC
 
+register_tablecreate('externalaccount', << 'EOC');
+CREATE table externalaccount (
+    userid int unsigned NOT NULL,
+    acctid int unsigned NOT NULL,
+    username varchar(64) NOT NULL,
+    password varchar(64),
+    siteid int unsigned,
+    servicename varchar(128),
+    servicetype varchar(32),
+    serviceurl varchar(128),
+    xpostbydefault enum('1','0') NOT NULL default '0',
+    primary key (userid, acctid),
+    index (userid)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 

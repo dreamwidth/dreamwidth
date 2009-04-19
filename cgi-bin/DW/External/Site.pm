@@ -27,9 +27,38 @@ use DW::External::Site::Inksome;
 use DW::External::Site::DeadJournal;
 use DW::External::Site::Unknown;
 
+my %domaintosite;
+my %idtosite;
 
+# static initializers
+$domaintosite{"livejournal.com"} = DW::External::Site->new("2", "www.livejournal.com", "livejournal.com", "LiveJournal", "lj");
+$domaintosite{"insanejournal.com"} = DW::External::Site->new("3", "www.insanejournal.com", "insanejournal.com", "InsaneJournal", "lj");
+$domaintosite{"deadjournal.com"} = DW::External::Site->new("4", "www.deadjournal.com", "deadjournal.com", "DeadJournal", "lj");
+$domaintosite{"inksome.com"} = DW::External::Site->new("5", "www.inksome.com", "inksome.com", "Inksome", "lj");
+$domaintosite{"journalfen.net"} = DW::External::Site->new("6", "www.journalfen.net", "journalfen.net", "JournalFen", "lj");
+
+foreach my $value (values %domaintosite) {
+    $idtosite{$value->{siteid}} = $value;
+}
+
+# now on to the class definition
+
+# creates a new Site.  should only get called by the static initializer
 sub new {
-    my ( $class, %opts ) = @_;
+    my ( $class, $siteid, $hostname, $domain, $sitename, $servicetype ) = @_;
+
+    return bless {
+        siteid => $siteid,
+        hostname => $hostname,
+        domain => $domain,
+        sitename => $sitename,
+        servicetype => $servicetype
+    }
+}
+
+# returns the appropriate site for this sitename.
+sub get_site {
+    my ( $class, %opts) = @_;
 
     my $site = delete $opts{site}
         or croak 'site argument required';
@@ -46,49 +75,66 @@ sub new {
                 map { lc $_ }
                 split( /\./, $site );
 
-    # FIXME: rewrite this in terms of LJ::ModuleLoader or some better
-    # functionality so that daughter sites can add new external sites
-    # without having to modify this file directly.
-    
-    # now we see who's going to accept this... when editing, try to put
-    # common ones towards the top as this is likely to be run a bunch
-    if ( my $obj = DW::External::Site::LiveJournal->accepts( \@parts ) ) {
-        return $obj;
-
-    } elsif ( my $obj = DW::External::Site::InsaneJournal->accepts( \@parts ) ) {
-        return $obj;
-
-    } elsif ( my $obj = DW::External::Site::JournalFen->accepts( \@parts ) ) {
-        return $obj;
-
-    } elsif ( my $obj = DW::External::Site::Inksome->accepts( \@parts ) ) {
-        return $obj;
-
-    } elsif ( my $obj = DW::External::Site::DeadJournal->accepts( \@parts ) ) {
-        return $obj;
-
-    } elsif ( my $obj = DW::External::Site::Unknown->accepts( \@parts ) ) {
-        # the Unknown class tries to fake it by emulating the general defaults
-        # we expect most sites to use.  if it doesn't work, someone should submit a
-        # patch to help us figure out what site they're using.
-        #
-        # do log the site though, so we can look at the logs later and maybe do it
-        # ourselves.
-        warn "Unknown site " . join( '.', @parts ) . " in DW::External::Site.\n";
-        return $obj;
-
-    }
-
-    # can't handle this in any way
-    return undef;
+    return $domaintosite{"$parts[-2].$parts[-1]"} || DW::External::Site::Unknown->accepts( \@parts ) || undef;
 }
 
 
-# these methods are expected to be implemented by the subclasses
-sub accepts         { croak 'unimplemented call to accepts';         }
-sub journal_url     { croak 'unimplemented call to journal_url';     }
-sub profile_url     { croak 'unimplemented call to profile_url';     }
-sub badge_image_url { croak 'unimplemented call to badge_image_url'; }
+# returns a list of all supported sites
+sub get_sites {
+    my ($class) = @_;
+
+    return values %domaintosite;
+}
+
+# returns the appropriate site by site_id
+sub get_site_by_id {
+    my ($class, $siteid) = @_;
+
+    return $idtosite{$siteid};
+}
+
+# returns this object if we accept the given domain, or 0 if not.
+sub accepts {
+    my ( $self, $parts ) = @_;
+
+    # allows anything at this sitename
+    return 0 unless $parts->[-1] eq $self->{tld} &&
+                    $parts->[-2] eq $self->{domain};
+
+    return $self;
+}
+
+# returns the journal_url for this user on this site.
+sub journal_url {
+    my ( $self, $u ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+# FIXME: this should do something like $u->is_person to determine what kind
+# of thing to setup...
+    return 'http://' . $self->{hostname} . '/users/' . $u->user . '/';
+}
+
+
+# returns the profile_url for this user on this site.
+sub profile_url {
+    my ( $self, $u ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+# FIXME: same as above
+    return 'http://' . $self->{hostname} . '/users/' . $u->user . '/profile';
+
+}
+# returns the badge_image_url for this user on this site.
+sub badge_image_url {
+    my ( $self, $u ) = @_;
+    croak 'need a DW::External::User'
+        unless $u && ref $u eq 'DW::External::User';
+
+# FIXME: same as above
+    return 'http://' . $self->{hostname} . '/img/userinfo.gif';
+}
 
 
 1;

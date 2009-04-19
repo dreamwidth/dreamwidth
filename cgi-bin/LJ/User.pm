@@ -6064,7 +6064,7 @@ sub unset_remote
 #       'O' == pOrtal box id, 'V' == 'vgift', 'E' == ESN subscription id
 #       'Q' == Notification Inbox, 'G' == 'SMS messaGe'
 #       'D' == 'moDule embed contents', 'I' == Import data block
-#       'Z' == import status item
+#       'Z' == import status item, 'X' == eXternal account
 #
 # FIXME: both phonepost and vgift are ljcom.  need hooks. but then also
 #        need a separate namespace.  perhaps a separate function/table?
@@ -6075,7 +6075,7 @@ sub alloc_user_counter
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZ]$/;              #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZX]$/;             #
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -6195,6 +6195,9 @@ sub alloc_user_counter
                                       undef, $uid);
     } elsif ($dom eq "Z") {
         $newmax = $dbh->selectrow_array("SELECT MAX(import_status_id) FROM import_status WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "X") {
+        $newmax = $u->selectrow_array("SELECT MAX(acctid) FROM externalaccount WHERE userid=?",
                                       undef, $uid);
     } else {
         die "No user counter initializer defined for area '$dom'.\n";

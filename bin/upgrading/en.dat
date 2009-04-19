@@ -1276,6 +1276,10 @@ entryform.userpics=User Picture Icon:
 
 error=Error
 
+entryform.xpost=Crosspost this entry
+
+entryform.xpost.manage=Manage accounts
+
 error.badpassword=Incorrect Password.
 
 error.code.comm_not_comm=Account is not a community
@@ -1948,6 +1952,16 @@ event.user_new_entry.user=[[user]] posts a new entry anywhere.
 event.userpic_upload.me=One of the accounts I subscribe to uploads a new userpic
 
 event.userpic_upload.user=[[user]] uploads a new userpic
+
+event.xpost.failure.content=Crosspost to [[accountname]] failed.
+
+event.xpost.failure.title=Crosspost of <a href = "[[entryurl]]">[[entrydesc]]</a> to [[accountname]] action failed.
+
+event.xpost.nosubject=an entry
+
+event.xpost.success.content=Crosspost to [[accountname]] successful.
+
+event.xpost.success.title=Crosspost of <a href = "[[entryurl]]">[[entrydesc]]</a> to [[accountname]] action successful.
 
 fckland.ljimage=Insert/Edit Image
 
@@ -2812,6 +2826,38 @@ setting.viewingadultcontent.option.select.concepts=content that should be viewed
 setting.viewingadultcontent.option.select.explicit=content that is restricted to people 18 or older
 
 setting.viewingadultcontent.option.select.none=nothing (display all content)
+
+setting.xpost.btn.add=Add New Account
+
+setting.xpost.label=Crossposting
+
+setting.xpost.message.usage=Current accounts configured:  <b>[[current]] of [[max]]</b>
+
+setting.xpost.message.create=Successfully created account [[username]]@[[servername]].
+
+setting.xpost.message.update=Successfully updated account [[username]]@[[servername]].
+
+setting.xpost.option=Configure accounts for crossposting.
+
+setting.xpost.option.change=Change
+
+setting.xpost.option.delete=Delete
+
+setting.xpost.option.disablecomments=Disable comments on crossposts made to other sites
+
+setting.xpost.option.password=Password
+
+setting.xpost.option.server=Server
+
+setting.xpost.option.username=Username
+
+setting.xpost.option.xpostbydefault=Crosspost by Default
+
+setting.xpost.noaccounts=No accounts configured
+
+setting.xpostcomments.about=When Crossposting to LJ-based accounts, disable comments on the other posts.
+
+setting.xpostcomments.label=Disable Comments
 
 settings.city=City
 
@@ -4094,4 +4140,33 @@ widget.themenav.filteravailable=Only show themes available to me
 widget.themenav.switchtos1=Switch to old style system (S1)
 
 widget.themenav.title=2. Select a New Theme
+
+xpost.delete.error=Error deleting crossposted entry at [[username]]@[[server]]:  [[error]]
+
+xpost.delete.success=Crossposted entry at [[username]]@[[server]] deleted.
+
+xpost.edit.error=Failed to update crossposted entry at [[username]]@[[server]]:  [[error]]
+
+xpost.edit.success=Update of crosspost at [[username]]@[[server]] successful.  You can view this edited entry <a href = "[[xpostlink]]">here</a>.
+
+xpost.error=Failed to crosspost entry to [[username]]@[[server]]:  [[error]]
+
+xpost.error.connection=Failed to connect to [[url]].
+
+xpost.error.invalidprotocol=Missing or invalid posting protocol.
+
+xpost.password=Password:
+
+xpost.poll.view=View poll: [[name]]
+
+xpost.redirect=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a></span>
+
+xpost.redirect.comment=<span style="font-size: smaller;">This entry was originally posted at <a href = "[[postlink]]">[[postlink]]</a>. Please comment there using OpenID.</span>
+
+xpost.request.success=Crosspost requested to [[account]].  You will be notified when this attempt has completed.
+
+xpost.request.failed=Failed to crosspost to [[account]].  You may go to [[editurl]] to attempt to crosspost this entry again.
+
+xpost.success=Crosspost to [[username]]@[[server]] successful.  You can view this entry <a href = "[[xpostlink]]">here</a>.
+
 

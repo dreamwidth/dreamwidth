@@ -838,6 +838,14 @@ userproplist.opt_whoscreened:
   multihomed: 0
   prettyname: Screening comments
 
+userproplist.opt_xpost_disable_comments:
+  cldversion: 4
+  datatype: bool
+  des: 1: disable comments on crossposts, 0: keep default on crossposts
+  indexed: 0
+  multihomed: 0
+  prettyname: Disable Comments on Crosspost
+
 userproplist.opt_show_captcha_to:
   cldversion: 4
   datatype: char
@@ -1428,6 +1436,13 @@ logproplist.useragent:
   des: Name of web/mobile/sip/etc client used to post
   prettyname: User Agent
   sortorder: 103
+  ownership: user
+
+logproplist.xpost:
+  datatype: char
+  des: Maps to crossposts of this entry on other sites
+  prettyname: Crosspost
+  sortorder: 105
   ownership: user
 
 usermsgproplist.userpic:

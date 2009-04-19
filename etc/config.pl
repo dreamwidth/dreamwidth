@@ -333,6 +333,7 @@
             'rateallowed-failed_login' => 3,
             'staff_headicon' => 0,
             thread_expander => 0,
+            'xpost_accounts' => 0,
             );
 
     # capability class limits.
@@ -395,6 +396,7 @@
             'userpicselect' => 0,
             'viewmailqueue' => 0,
             'weblogscom' => 0,
+            'xpost_accounts' => 1,
         },
         '2' => {  # 0x04
             '_name' => 'UNUSED2',
@@ -448,6 +450,7 @@
             'userpicselect' => 1,
             'viewmailqueue' => 1,
             'weblogscom' => 1,
+            'xpost_accounts' => 3,
             'paid' => 1,
             'fastserver' => 1,
         },
@@ -499,6 +502,7 @@
             'userpicselect' => 1,
             'viewmailqueue' => 1,
             'weblogscom' => 1,
+            'xpost_accounts' => 5,
             'paid' => 1,
             'fastserver' => 1,
         },
@@ -607,6 +611,7 @@
             'userpicselect' => 1,
             'viewmailqueue' => 1,
             'weblogscom' => 1,
+            'xpost_accounts' => 9,
             'paid' => 1,
             'fastserver' => 1,
             'staff_headicon' => 1,

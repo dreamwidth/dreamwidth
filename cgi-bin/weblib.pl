@@ -1553,8 +1553,92 @@ MOODS
                  $out .= "</p>";
             }
 
-            $out .= "<p class='pkg'>\n";
-            $out .= "<span class='inputgroup-left'></span>";
+            # crosspost
+            my @accounts = DW::External::Account->get_external_accounts($remote);
+            
+            # populate the per-account html first, so that we only have to 
+            # go through them once.
+            my $accthtml = "";
+            my $xpostbydefault = 0;
+            my $xpost_tabindex = $tabindex->();
+            if (scalar @accounts) {
+                my $xpoststring = $opts->{prop_xpost};
+                my $xpost_selected = DW::External::Account->xpost_string_to_hash($xpoststring);
+                foreach my $acct (@accounts) {
+                    # print the checkbox for each account
+                    my $acctid = $acct->acctid;
+                    my $acctname = $acct->displayname;
+                    my $selected;
+                    if ($xpoststring) {
+                        $selected = $xpost_selected->{$acct->acctid} ? "1" : "0";
+                    } else {
+                        $selected = $acct->xpostbydefault;
+                    }
+                    $accthtml .= "<tr><td><label for='prop_xpost_$acctid' class='left options'>$acctname</label></td>\n";
+                    $accthtml .= "<td>" . LJ::html_check({
+                        'type'     => 'checkbox',
+                        'name'     => "prop_xpost_$acctid",
+                        'id'       => "prop_xpost_$acctid",
+                        'class'    => 'check xpost_acct_checkbox',
+                        'value'    => '1',
+                        'selected' => $selected,
+                        'tabindex'  => $tabindex->(),
+                    }) . "</td>\n";
+                    $xpostbydefault = 1 if $selected;
+
+                    # accounts with no password are disabled for now.
+                    #$accthtml .= "<td>";
+                    #unless ($acct->password) {
+                        # password field if no password
+                    #    $accthtml .= "<label for='prop_xpost_password_$acctid'>" . BML::ml('xpost.password') . "</label>";
+                    #    $accthtml .= LJ::html_text({
+                    #        'name' => "prop_xpost_password_$acctid",
+                    #        'id' => "prop_xpost_password_$acctid",
+                    #        'value' => "",
+                    #        'disabled' => 0,
+                    #        'size' => 40,
+                    #        'maxlength' => 80,
+                    #        'type' => 'password'
+                    #    });
+                    #}
+                    #$accthtml .= "</td>\n";
+                    # do a challenge/response if available.
+                    #my $challenge = eval { $acct->challenge; };
+                    #if ($challenge) {
+                    #$accthtml .= "<input type='hidden' name='prop_xpost_chal_$acctid' id='prop_xpost_chal_$acctid' class='xpost_chal' value='$challenge' />";
+                    #$accthtml .= "<input type='hidden' name='prop_xpost_chal_$acctid' id='prop_xpost_chal_$acctid' class='xpost_chal' value='$acctid' />";
+                    #$accthtml .= "<input type='hidden' name='prop_xpost_resp_$acctid' id='prop_xpost_resp_$acctid'/>";
+                    #}
+                    $accthtml .= "</tr>\n";
+                }
+            }
+
+            $out .= "<p><label for='prop_xpost' class='left options'>" . BML::ml('entryform.xpost') . "</label>";
+            $out .= LJ::html_check({
+                'type'     => 'checkbox',
+                'name'     => 'prop_xpost',
+                'id'       => 'prop_xpost',
+                'class'    => 'check',
+                'value'    => '1',
+                'selected' => $xpostbydefault,
+                'disabled' => (scalar @accounts) ? '0' : '1',
+                'tabindex' => $xpost_tabindex,
+                'onchange' => 'LiveJournal.xpostButtonUpdated();',
+                                   });
+            $out .= LJ::help_icon_html('prop_xpost');
+            $out .= "<a href = '/manage/settings/?cat=othersites'>" . BML::ml('entryform.xpost.manage') . "</a>";
+            $out .= "</p>\n<table>";
+            $out .= $accthtml;
+            $out .= "</table>\n";
+
+            # disable choices if no xpost selected by default.
+            $out .= qq [ 
+              <script type="javascript">
+                LiveJournal.xpostButtonUpdated();
+              </script>
+              <p class='pkg'>
+              <span class='inputgroup-left'></span>
+                       ];
 
             ### Other Posting Options
             $out .= LJ::run_hook('add_extra_entryform_fields', { opts => $opts, tabindex => $tabindex });

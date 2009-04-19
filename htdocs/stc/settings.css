@@ -67,24 +67,24 @@
 }
 
 /* Shared Content */
-.account table, .display table, .mobile table, .privacy table, .history table, .advertising table {
+.account table, .display table, .mobile table, .privacy table, .history table, .advertising table, .othersites table {
     width: 100%;
 }
-.account td, .display td, .mobile td, .privacy td, .history td, .advertising td {
+.account td, .display td, .mobile td, .privacy td, .history td, .advertising td, .othersites td {
     border-bottom: 1px #ccc solid;
     padding: 10px 10px 10px 5px;
 }
-.account td.last, .display td.last, .mobile td.last, .privacy td.last, .history td.last, .advertising td.last {
+.account td.last, .display td.last, .mobile td.last, .privacy td.last, .history td.last, .advertising td.last, .othersites td.last {
     border-bottom: none;
 }
-.account td.help, .display td.help, .mobile td.help, .privacy td.help, .history td.help, .advertising td.help {
+.account td.help, .display td.help, .mobile td.help, .privacy td.help, .history td.help, .advertising td.help, .othersites td.help {
     width: 14px;
     text-align: right;
 }
-.account_label, .display_label, .mobile_label, .privacy_label, .history_label {
+.account_label, .display_label, .mobile_label, .privacy_label, .history_label, .othersites_label {
     font-weight: bold;
 }
-.display_option, .mobile_option, .privacy_option {
+.display_option, .mobile_option, .privacy_option, .othersites_option {
     color: #000;
 }
 
@@ -161,4 +161,12 @@
     padding-left: 1px;
     margin-bottom: 10px;
     margin-left: 20px;
+}
+
+.othersites table.setting_table td.checkbox {
+    text-align: center;
+}
+
+.xpost_add {
+    text-align: center;
 }

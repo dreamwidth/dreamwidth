@@ -55,6 +55,7 @@ use Class::Autouse qw(
                       LJ::EventLogRecord::DeleteComment
                       );
 
+use DW::External::Account;
 use DW::External::User;
 use DW::Logic::LogItems;
 
@@ -99,7 +100,7 @@ sub END { LJ::end_request(); }
                     "pollresult2", "pollsubmission2",
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
                     "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
-                    "logprop_history", "import_status",
+                    "logprop_history", "import_status", "externalaccount",
                     );
 
 # keep track of what db locks we have out

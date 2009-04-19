@@ -38,6 +38,10 @@
 
 .cat.notifications.desc=Notification and subscription tracking options
 
+.cat.othersites=Other Sites
+
+.cat.othersites.desc=Configure interactions with external sites
+
 .cat.privacy=Privacy
 
 .cat.privacy.desc=Journal privacy options
