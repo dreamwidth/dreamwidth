@@ -11,7 +11,7 @@ _info?><?_code
     };
 
     $u = LJ::get_remote()
-	or return $err->("You must <a href='login.bml'>log in</a> before posting.");
+	or return $err->( BML::ml( ".post.login", { aopts => "href='login.bml'" } ) );
 
     $res = LJ::Protocol::do_request("login", {
 	"ver" => $LJ::PROTOCOL_VER,
@@ -23,7 +23,7 @@ _info?><?_code
     });
 
     return "" unless LJ::did_post();
-    return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
+    return "<b>$ML{'.post.error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
     my $event = LJ::Util::blogger_deserialize($POST{'event'});
     my $journal = $POST{'usejournal'};
@@ -51,15 +51,15 @@ _info?><?_code
     my $errcode;
     my $res = LJ::Protocol::do_request("postevent", $req, \$errcode);
     if ($errcode) {
-	return $err->("Error posting: " . LJ::Protocol::error_message($errcode));
+	return $err->( "<?_ml .post.error_posting _ml?>: " . LJ::Protocol::error_message($errcode) );
     }
 
     my $url = $res->{url};
 
     BML::finish();
     my $ret = "";
-    $ret .= "<a href='./'>&lt;&lt; Back</a> to LiveJournal Mobile.</a><h1>Success!</h1>";
-    $ret .= "Posted.  Available <a href='$url'>here</a>.";
+    $ret .= BML::ml( ".post.back", { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } ) . "<h1>" . BML::ml( ".post.success.header" ) . "</h1>";
+    $ret .= BML::ml( ".post.success.text", { aopts => "href='$url'" } );
     return $ret;
 }
 _code?>
@@ -68,29 +68,29 @@ _code?>
 <meta name="viewport" content="width = 320" />
 <style>
 </style>
-
+<title><?_ml .page.title _ml?></title>
 </head>
 <body>
-<a href="./">&lt;&lt; Back</a> to LiveJournal Mobile.
-<h1>Post</h1>
+<?_code BML::ml( ".post.back", { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } ) _code?>
+<h1><?_ml .form.header _ml?></h1>
 
 <form method='post' action='/mobile/post.bml'>
 <?_code { return LJ::form_auth(); } _code?>
-Subject:<br />
+<?_ml .form.subject _ml?>:<br />
 <input name='subject' size='50' style='width: 90%' /><br />
-Post:<br />
+<?_ml .form.post _ml?>:<br />
 <textarea rows='10' cols='40' name='event' wrap='virtual' style='width: 90%'></textarea><br />
 
-  Security: <?_code {
+  <?_ml .form.security _ml?>: <?_code {
       my @secs = ("public", BML::ml('label.security.public'), "private", BML::ml('label.security.private'),
-		  "friends", BML::ml('label.security.friends'));
+		  "friends", BML::ml('label.security.accesslist'));
       return LJ::html_select({ 'name' => 'security',
 			       'selected' => "public" }, @secs);
 } _code?><br />
 
 <hr />
 <center>
-<input type='submit' value="Post" /> to <?_code
+<input type='submit' value="<?_ml .form.button _ml?>" /> <?_ml .form.post_to _ml?> <?_code
 {
     return LJ::html_select({ 'name' => 'usejournal', },
 			   "", $u->{'user'},

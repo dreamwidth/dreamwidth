@@ -1,0 +1,25 @@
+.basic.header=Insecure basic login
+
+.basic.text=This sends your password unprotected, probably over the air. Not a good idea on Wifi. Probably okay over a mobile carrier's data network.
+
+.form.button=Login
+
+.form.password=Password
+
+.form.username=Username
+
+.login.back=<a [[aopts]]>&lt;&lt; Back</a> to [[sitename]] Mobile.
+
+.login.badpass=Bad password
+
+.login.header=Login
+
+.login.invalid_username=Invalid username
+
+.login.ip_banned=Your IP address is temporarily banned for exceeding the login failure rate.
+
+.page.title=Login
+
+.ssl.header=SSL secure login
+
+.ssl.text=Secure using SSL, but may not work on all mobile devices:

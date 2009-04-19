@@ -1,0 +1,26 @@
+.form.button=Post
+
+.form.header=Post
+
+.form.post=Post
+
+.form.post_to=to
+
+.form.security=Security
+
+.form.subject=Subject
+
+.page.title=Post to journal
+
+.post.back=<a [[aopts]]>&lt;&lt; Back</a> to [[sitename]] Mobile.
+
+.post.error=Error
+
+.post.error_posting=Error posting
+
+.post.login=You must <a [[aopts]]>log in</a> before posting.
+
+.post.success.header=Success!
+
+.post.success.text=Posted. Available <a [[aopts]]>here</a>.
+
