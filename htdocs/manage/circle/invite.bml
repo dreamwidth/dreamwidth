@@ -115,22 +115,18 @@
     my $msg_custom = $ML{'.msg_custom'};
 
     my $msg_subject_display = $msg_subject;
-    $msg_subject_display =~ s/ /&nbsp;/g;
     $msg_subject_display =~ s/\n/<br \/>/g;
 
     my $msg_body_top_display = $msg_body_top;
-    $msg_body_top_display =~ s/ /&nbsp;/g;
     $msg_body_top_display =~ s/\n/<br \/>/g;
 
     my $msg_body_bottom_display = $msg_body_bottom;
-    $msg_body_bottom_display =~ s/ /&nbsp;/g;
     $msg_body_bottom_display =~ s/\n/<br \/>/g;
     # the code shown will be the code last posted, not the code that will be sent
     # so just wipe it out, to prevent any confusion
     $msg_body_bottom_display =~ s/(&code=).{20}/$1xxxxxxxxxxxxx/;
 
     my $msg_sig_display = $msg_sig;
-    $msg_sig_display =~ s/ /&nbsp;/g;
     $msg_sig_display =~ s/\n/<br \/>/g;
 
     my $msg_custom_display = $msg_custom;
@@ -242,7 +238,7 @@
     $body .= $inerr->('form_auth');
 
     $body .= "<p>$ML{'.form.input.message'}</p>" . $inerr->("msg", "<br />");
-    $body .= "<div style='color: #000; background-color: #eee; border: 1px solid #000; margin-bottom: 15px; padding: 15px; word-wrap: break-word;'>";
+    $body .= "<div style='color: #000; background-color: #eee; border: 1px solid #000; margin-bottom: 15px; padding: 15px; width: 95%'>";
     $body .= "<p style='margin-top: 0;'><strong>$ML{'.msg_subject.header'}</strong> $msg_subject_display</p>";
     $body .= "<p><strong>$ML{'.msg.header'}</strong></p>";
     $body .= "<div style='margin-left: 15px;'>";
@@ -251,8 +247,8 @@
         name => "msg",
         value => LJ::did_post() ? $POST{msg} : $msg_custom_display,
         class => "text",
-        rows => 3,
-        cols => 100,
+        rows => 5,
+        cols => 70,
     });
     $body .= "<p>$msg_body_bottom_display</p>";
     $body .= "</div>";
