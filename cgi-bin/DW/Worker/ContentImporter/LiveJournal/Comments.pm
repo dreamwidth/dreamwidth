@@ -355,14 +355,15 @@ sub try_work {
             $comment->{done} = 1;
         }
 
-        # Sanity check. This *really* should never happen.
-        # This is here to prevent an endless loop, just in case.
-        # The only way I can see this firing is if a comment is just
-        # totally missing.
+        # sanity check.  this happens from time to time when, for example, a comment
+        # is deleted but the chain of comments underneath it is never actually removed.
+        # given that the codebase doesn't use foreign keys and transactions, this can
+        # happen and we have to deal with it gracefully.  log it.
         if ( $ct == $ct_unresolved && $had_unresolved ) {
-            $log->( 'The unthinkable happened!  We hit an iceberg!!!' );
-            $log->( 'The above error: %d == %d && %d (had_unresolved).', $ct, $ct_unresolved, $had_unresolved );
-            return $fail->( 'Found unresolvable comment chain.' );
+            $log->( 'WARNING: User had %d unresolvable comments.', $ct_unresolved );
+
+            # set this to false so that we fall out of the main loop.
+            $had_unresolved = 0;
         }
     }
 
