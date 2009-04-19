@@ -3260,7 +3260,7 @@ function Entry::print_wrapper_start() {
 # FIXME: need to ensure that calling the alternate function doesn't interfere with the printing of comments or the printing of module groups.
     var string alternate = alternate ("entry-wrapper-a", "entry-wrapper-b");
     var string security = $this.security ? $this.security : "public";
-    var string age_restriction = $this.age_restriction ? $this.age_restriction : "no-restriction";
+    var string adult_content_level = $this.adult_content_level ? $this.adult_content_level : "no-adult-content-level";
     var string journal_type = "journal-type-$this.journal.journal_type";
     var string poster;
     var string journal;
@@ -3270,7 +3270,7 @@ function Entry::print_wrapper_start() {
     if ($this.journal.journal_type == "C") {
         $journal = "journal-$this.journal.username";
     }
-    """<div class="entry-wrapper $alternate $security $age_restriction $journal_type $poster $journal" id="entry-wrapper-$this.itemid">\n""";
+    """<div class="entry-wrapper $alternate $security $adult_content_level $journal_type $poster $journal" id="entry-wrapper-$this.itemid">\n""";
     """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
     """<div class="entry" id="entry-$this.itemid">\n""";
     """<div class="inner">\n""";
