@@ -273,7 +273,8 @@ sub try_work {
 
         # the reverse of unresolved, tell the parent it has visible children
         $meta{$comment->{parentid}}->{has_children} = 1
-            if $comment->{parentid} && $comment->{state} ne 'D';
+            if exists $meta{$comment->{parentid}} &&
+               $comment->{parentid} && $comment->{state} ne 'D';
 
         # remap content (user links) then remove embeds/templates
         my $body = $class->remap_lj_user( $data, $comment->{body} );
@@ -283,8 +284,8 @@ sub try_work {
 
         # now let's do some encoding, just in case the input we get is in some other
         # character encoding
-        $comment->{body} = encode_utf8( $comment->{body} );
-        $comment->{subject} = encode_utf8( $comment->{subject} );
+        $comment->{body} = encode_utf8( $comment->{body} || '' );
+        $comment->{subject} = encode_utf8( $comment->{subject} || '' );
     }
 
     # variable setup for the database work
