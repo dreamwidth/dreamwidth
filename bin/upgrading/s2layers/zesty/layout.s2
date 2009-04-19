@@ -1707,6 +1707,7 @@ function Page::print() {
 </head>
 <body class="$.journal.username-$.view">
     """;
+    $this->print_control_strip();
     $this->lay_header();
     $this->lay_navigation();
 
