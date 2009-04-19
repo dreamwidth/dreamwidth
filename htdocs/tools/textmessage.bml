@@ -46,13 +46,13 @@ body<=
     }
 
     unless (LJ::get_cap($u, "textmessaging")) {
-        $ret .= "$ML{'.error.unavailable.head'} h1?><?p $ML{'.error.unavailable.notpermitted'} p?>";
+        $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p $ML{'.error.unavailable.notpermitted'} p?>";
         return add_footer( $ret );
     }
 
     unless ($tminfo) {
         $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p ".
-            BML::ml('.error.unavailable.notsetup', { sitenameshort => $LJ::SITENAMESHORT }) . " p?>";
+            BML::ml('.error.unavailable.notsetup', { user => $user, sitenameshort => $LJ::SITENAMESHORT }) . " p?>";
         return add_footer( $ret );
     }
 

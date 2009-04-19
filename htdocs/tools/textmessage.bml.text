@@ -29,7 +29,7 @@
 
 .error.unavailable.notpermitted=This user's account type does not permit text messaging.
 
-.error.unavailable.notsetup=This user has not setup their text messaging information at [[sitenameshort]], or they've turned it off.
+.error.unavailable.notsetup=[[user]] has not setup their text messaging information at [[sitenameshort]], or they've turned it off.
 
 .footer.disclaimer.text=<B>Disclaimer:</B> The reliability of text messaging should not be trusted in dealing with emergencies.
 
