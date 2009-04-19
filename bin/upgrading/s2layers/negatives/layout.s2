@@ -25,6 +25,7 @@ propgroup colors {
 
     property use color_page_background;
     property use color_page_text;
+    property use color_page_link;
 
     property use color_module_background;
     property use color_module_text;
@@ -43,6 +44,7 @@ propgroup colors {
 
 set color_page_background = "#000000";
 set color_page_text = "#ffffff";
+set color_page_link = "#cccccc";
 
 set color_entry_link = "#000000";
 set color_entry_link_hover = "#cccccc";
@@ -161,7 +163,7 @@ function print_stylesheet()
     a {
         text-decoration: none;
         font-weight: bold;
-        color:  $*color_entry_link;
+        color:  $*color_page_link;
         outline: none;
         }
     a:visited, a:active {
@@ -264,6 +266,9 @@ function print_stylesheet()
     .partial .comment-title {
         display: inline;
     }
+    .entry a, .comment a {
+        color: $*color_entry_link;
+    }
     .bottomcomment {
         border: 15px double $*color_entry_border;
         padding: 5px;
@@ -283,7 +288,7 @@ function print_stylesheet()
         display: inline;
         padding-left: 0.5em;
     }
-    .entry-title {
+    .entry-title a {
         color: $*color_entry_title;
     }
     .entry-management-links, .entry-management-links a,
