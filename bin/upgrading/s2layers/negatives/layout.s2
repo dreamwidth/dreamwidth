@@ -258,6 +258,12 @@ function print_stylesheet()
         background-color: $*color_entry_background;
         color: $*color_entry_text;
     }
+    .comment-wrapper.partial , .partial .comment { 
+        min-height: 0;
+    }
+    .partial .comment-title {
+        display: inline;
+    }
     .bottomcomment {
         border: 15px double $*color_entry_border;
         padding: 5px;

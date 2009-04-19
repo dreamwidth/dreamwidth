@@ -3424,26 +3424,32 @@ sub EntryLite__formatted_subject {
                 && $LJ::S2::CURR_PAGE->{view} eq 'month';
 
     } elsif ( $this->{_type} eq "Comment" ) {
-        # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is false, then return nothing
-        return if $subject eq "" && $ctx->[S2::PROPS]->{all_commentsubjects} eq "";
-        
-        # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is true, then return the formatted subject with text_nosubject
-        $subject = $ctx->[S2::PROPS]->{text_nosubject}
-            if $subject eq ""
-                && $ctx->[S2::PROPS]->{text_nosubject} ne ""
-                && $ctx->[S2::PROPS]->{all_commentsubjects};
-    }
-    
-    my $class = $attrs->{class} ? " class=\"".LJ::ehtml($attrs->{class})."\" " : '';
-    my $style = $attrs->{style} ? " style=\"".LJ::ehtml($attrs->{style})."\" " : '';
+        if ( $this->{full} ) {
+            # if a comment does not have a subject, and all_commentsubjects is false, then return nothing
+            return if $subject eq "" && $ctx->[S2::PROPS]->{all_commentsubjects} eq "";
 
-    # if subject has a link, display raw subject
+            # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is true, 
+            # then return the formatted subject with text_nosubject
+            $subject = $ctx->[S2::PROPS]->{text_nosubject}
+                if $subject eq ""
+                    && $ctx->[S2::PROPS]->{text_nosubject} ne ""
+                    && $ctx->[S2::PROPS]->{all_commentsubjects};
+        } else {
+            # if collapsed, always show a subject
+            $subject ||= $ctx->[S2::PROPS]->{text_nosubject};
+        }
+    }
+
+    # if subject has a link and is not collapsed display raw subject
     # TODO: how about other HTML tags?
-     if($subject =~ /href/) {
+    if ( $subject =~ /href/ && $this->{full} ) {
         return $subject;
-    } else {        
-        return "<a href=\"" . $this->{permalink_url} . "\"$class$style>" 
-            . $subject . "</a>";
+
+    } else {
+        my $class = $attrs->{class} ? " class=\"" . LJ::ehtml( $attrs->{class} ) . "\" " : '';
+        my $style = $attrs->{style} ? " style=\"" . LJ::ehtml( $attrs->{style} ) . "\" " : '';
+
+        return "<a href=\"$this->{permalink_url}\"$class$style>$subject</a>";
     }   
 }
 

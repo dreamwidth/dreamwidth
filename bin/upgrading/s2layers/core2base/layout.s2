@@ -199,6 +199,9 @@ function Page::print_default_stylesheet() {
     .entry_title {
           """; print ( ( defined $*color_entry_title ) ? """color: $*color_entry_title;""" : "");"""
     }
+    .partial .comment-title {
+        display: inline;
+    }
     .entry_interaction_links {
           """; print ( ( defined $*color_entry_interaction_links ) ? """color: $*color_entry_interaction_links;""" : "");"""
     }
