@@ -40,35 +40,47 @@ $errors is an arrayref that errors will be appended to.
 =cut
 
 sub import_userpics {
-    my ( $class, $u, $errors, $default, $upics ) = @_;
+    my ( $class, $u, $errors, $default, $upics, $log ) = @_;
     $u = LJ::want_user( $u )
         or croak 'invalid user object';
     $errors ||= [];
+    $log ||= sub { undef };
 
     my $count = $u->get_userpic_count;
     my $max = $u->userpic_quota;
     my $left = $max - $count;
     my $pending = scalar( @{$upics || [] } );
 
-    my ( @imported, %skip_ids );
-
-    warn "Content importer: import_userpics: $u->{user}($u->{userid}) has=$count, max=$max, importing=$pending\n";
+    $log->( 'User has=%d, max=%d, importing=%d', $count, $max, $pending );
 
     # but do nothing if we have no room...
-    return () if $left <= 0;
+    if ( $left <= 0 ) {
+        $log->( 'User has no room left, bailing.' );
+        return ();
+    }
+
+    my ( @imported, %skip_ids );
 
     # import helper
     my $import_userpic = sub {
         my $pic = shift;
 
-        return if $skip_ids{$pic->{id}};
+        return $log->( 'Userpic %d is present in skip list.', $pic->{id} )
+            if $skip_ids{$pic->{id}};
 
-        warn "Attempting to import $pic->{src}\n";
+        $log->( 'Attempting to import %d: %s', $pic->{id}, $pic->{src} );
 
         if ( my $ret = $class->import_userpic( $u, $errors, $pic ) ) {
             $pending--;
-            $left-- if $ret == 1; # 1 == success, new picture created
             push @imported, $pic->{id};
+
+            if ( $ret == 1 ) {
+                $left--;
+                $log->( 'Userpic is new, created.' );
+
+            } else {
+                $log->( 'Userpic already present, not created.' );
+            }
         }
 
         $skip_ids{$pic->{id}} = 1;
@@ -86,6 +98,8 @@ sub import_userpics {
     # now import the list, or try
     $import_userpic->( $_ )
         foreach @{ $upics || [] };
+
+    $log->( 'Local userpic import complete.' );
 
     return @imported;
 }
