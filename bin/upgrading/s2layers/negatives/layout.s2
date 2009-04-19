@@ -395,8 +395,8 @@ print "<div class=\"subject\">&raquo;";
     println "<div class=\"footer\">";
     $e->print_interaction_links( "topcomment" );
     $e->print_management_links();
-    $this->print_reply_container({"target" => "topcomment" });
     println "</div>";
+    $this->print_reply_container({"target" => "topcomment" });
     $e->print_wrapper_end();
 }
 
