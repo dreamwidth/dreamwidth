@@ -306,6 +306,7 @@ sub try_work {
         foreach my $comment ( @to_import ) {
             next if $comment->{skip};
 
+            $title->( 'posting %d/%d comments', $comment->{orig_id}, scalar( @to_import ) );
             $log->( "Attempting to import remote id %d, parentid %d, state %s.",
                     $comment->{orig_id}, $comment->{parentid}, $comment->{state} );
 
