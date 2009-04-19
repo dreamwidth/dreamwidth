@@ -1,12 +1,19 @@
 package LJ::PageStats;
 use strict;
 
+my $all_modules;
+
 # loads a page stat tracker
 sub new {
     my ($class) = @_;
 
+    unless ( defined $all_modules ) {
+        $all_modules = [ LJ::ModuleLoader::module_subclasses( 'DW::PageStats' ) ];
+    }
     my $self = {
-        conf    => \%LJ::PAGESTATS_PLUGIN_CONF,
+        conf    => {
+            _active => $all_modules,
+        },
         ctx     => '',
     };
 

@@ -36,7 +36,7 @@
     );
 
     %SITE_PAGESTAT_CONFIG = (
-    #    google_analytics => ,
+    #    google_analytics => '',
     );
 }
 

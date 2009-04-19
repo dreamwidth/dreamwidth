@@ -3493,6 +3493,10 @@ sub final_body_html {
     my $before_body_close = "";
     LJ::run_hooks('insert_html_before_body_close', \$before_body_close);
 
+    my $pagestats_obj = LJ::pagestats_obj();
+    $before_body_close .= $pagestats_obj->render
+        if $pagestats_obj;
+
     return $before_body_close;
 }
 

@@ -835,13 +835,6 @@
         moodthemeid => 7,
     );
 
-    # Stats
-    %PAGESTATS_PLUGIN_CONF = (
-        '_active' => [
-            'DW::PageStats::GoogleAnalytics',
-        ],
-    );
-
     # remote's safe_search prop value must be greater than or equal to the defined
     # safe_search_level value in order for users with that level's content flag to be
     # filtered out of remote's search results

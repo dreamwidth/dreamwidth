@@ -200,13 +200,6 @@ page<=
                 </div>
         </div> <!-- end canvas-->
         <?_code LJ::final_body_html(); _code?>
-
-<?_code
-{
-    my $pagestats_obj = LJ::pagestats_obj();
-    return $pagestats_obj->render;
-}
-_code?>
     </body>
 </html>
 <=page

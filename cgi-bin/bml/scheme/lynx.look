@@ -68,12 +68,6 @@ _code?>
 
 _code?>
 <?breadcrumbs?>
-<?_code
-{
-    my $pagestats_obj = LJ::pagestats_obj();
-    $pagestats_obj->render;
-}
-_code?>
 <?_code LJ::final_body_html() _code?>
 </body>
 </html>
