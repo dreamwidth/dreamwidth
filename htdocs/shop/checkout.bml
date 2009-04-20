@@ -1,0 +1,53 @@
+<?_c
+#
+# shop/checkout.bml
+#
+# Checkout page for letting the user initiate a checkout process.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST /;
+
+    # this page uses new style JS
+    LJ::need_res( 'stc/shop.css' );
+    LJ::set_active_resource_group( 'jquery' );
+
+    # get their shop/cart
+    my $cart = DW::Shop->get->cart;
+    return "you don't have a shopping cart"
+        unless $cart;
+    return "your cart has nothing in it"
+        unless $cart->has_items;
+
+    # FIXME: if they have a $0 cart, we don't support that yet
+    return "sorry, we don't support \$0 carts yet"
+        if $cart->total == 0.00;
+
+    # establish the engine they're trying to use
+    my $eng = DW::Shop::Engine->get( $GET{method}, $cart );
+    return 'payment method not supported'
+        unless $eng;
+
+    # at this point, we have $eng, and we don't care what the
+    # actual payment backend is
+    my $url = $eng->checkout_url;
+    return $eng->errstr
+        unless $url;
+    return BML::redirect( $url );
+}
+_code?>
+<=body
+title=>Checkout
+page?>

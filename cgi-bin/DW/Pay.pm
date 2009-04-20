@@ -77,8 +77,8 @@ sub pp_get_checkout_url {
         if defined $tgt_uname && $tgt_u;
 
     my $res = DW::Pay::pp_do_request( 'SetExpressCheckout',
-            returnurl => "$LJ::SITEROOT/paidaccounts/confirm.bml",
-            cancelurl => "$LJ::SITEROOT/paidaccounts/",
+            returnurl => "$LJ::SITEROOT/shop/pp_confirm",
+            cancelurl => "$LJ::SITEROOT/shop/cancel",
             paymentaction => 'Sale',
             amt => sprintf( '%0.2f', $amt ),
             desc => "$LJ::SITENAME Account",

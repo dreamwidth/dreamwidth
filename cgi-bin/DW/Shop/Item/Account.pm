@@ -163,16 +163,40 @@ sub t_html {
 sub name_html {
     my $self = $_[0];
 
-    my $name = "invalid name";
-    foreach my $cap ( keys %LJ::CAP ) {
-        if ( $LJ::CAP{$cap} && $LJ::CAP{$cap}->{_account_type} eq $self->class ) {
-            $name = $LJ::CAP{$cap}->{_visible_name};
-            last;
-        }
-    }
-
+    my $name = $self->class_name;
     return $name if $self->permanent;
     return LJ::Lang::ml( 'shop.item.account.name', { name => $name, num => $self->months } );
+}
+
+
+sub class_name {
+    my $self = $_[0];
+
+    foreach my $cap ( keys %LJ::CAP ) {
+        return $LJ::CAP{$cap}->{_visible_name}
+            if $LJ::CAP{$cap} && $LJ::CAP{$cap}->{_account_type} eq $self->class;
+    }
+
+    return 'Invalid Account Class';
+}
+
+
+# returns a short string talking about what this is
+sub short_desc {
+    my $self = $_[0];
+
+    # does not contain HTML, I hope
+    my $desc = $self->name_html;
+
+    my $for = $self->t_email;
+    unless ( $for ) {
+        my $u = LJ::load_userid( $self->t_userid );
+        $for = $u->user
+            if $u;
+    }
+
+    # FIXME: english strip
+    return "$desc for $for";
 }
 
 

@@ -1,4 +1,22 @@
-<?page
+<?_c
+
+#
+# shop/receipt.bml
+#
+# Serves up a simple receipt for the user to view the status of the order and
+# print out and save if they want.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+_c?><?page
 title=>Paid Account Receipt
 body<=
 <?_code
@@ -18,7 +36,7 @@ body<=
             ### FORMAT RECEIPT HERE
             my $ret = "<p>This is your receipt for $LJ::SITENAME paid services. Please bookmark this URL for your own records.</p><table style='width: 450px'>";
             my %status = (
-                          'pending'        => 'Pending, <a href="/paidaccounts/confirm.bml?token='.$order->{'token'}.'">awaiting confirmation</a>',
+                          'pending'        => "Pending, <a href='$LJ::SITEROOT/shop/pp_confirm?token=$order->{token}'>awaiting confirmation</a>",
                           'processing'     => 'Processing',
                           'paid-pending'   => 'Payment is complete, thanks for your support!',
                           'paid-completed' => 'Payment is complete, thanks for your support!', 

@@ -84,6 +84,27 @@ sub get {
 }
 
 
+# returns a new cart given a cartid
+sub get_from_cartid {
+    my ( $class, $cartid ) = @_;
+    return undef
+        unless defined $cartid && $cartid > 0;
+
+    # see if they had one in the database
+    my $dbh = LJ::get_db_writer()
+        or return undef;
+    my $dbcart = $dbh->selectrow_hashref(
+        qq{SELECT userid, cartid, starttime, uniq, state, cartblob
+           FROM shop_carts WHERE cartid = ?},
+        undef, $cartid
+    );
+    return undef unless $dbcart;
+
+    # if we got something, thaw the blob and return
+    return $class->_build( thaw( $dbcart->{cartblob} ) );
+}
+
+
 # creating a new cart implicitly activates.  just so you know.  this function
 # will build a new empty cart for the user.  but user is optional and we will
 # build a cart for the current uniq.

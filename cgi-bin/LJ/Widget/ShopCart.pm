@@ -27,16 +27,18 @@ sub render_body {
 
     my $ret;
 
-    my $cart = DW::Shop->get->cart
+    my $cart = $opts{cart} || DW::Shop->get->cart
         or return $class->ml( 'widget.shopcart.error.nocart' );
 
     return $class->ml( 'widget.shopcart.error.noitems' )
         unless @{$cart->items};
 
-    $ret .= $class->start_form;
+    $ret .= $class->start_form
+        unless $opts{receipt};
 
     $ret .= "<table class='shop-cart'>";
-    $ret .= "<tr><th>" . $class->ml( 'widget.shopcart.header.remove' ) . "</th>";
+    $ret .= "<tr><th>" . $class->ml( 'widget.shopcart.header.remove' ) . "</th>"
+        unless $opts{receipt};
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.item' ) . "</th>";
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.deliverydate' ) . "</th>";
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.to' ) . "</th>";
@@ -46,7 +48,8 @@ sub render_body {
         my $from_u = LJ::load_userid( $item->from_userid );
 
         $ret .= "<tr>";
-        $ret .= "<td>" . $class->html_check( name => 'remove_' . $item->id, value => 1 ) . "</td>";
+        $ret .= "<td>" . $class->html_check( name => 'remove_' . $item->id, value => 1 ) . "</td>"
+            unless $opts{receipt};
         $ret .= "<td>" . $item->name_html . "</td>";
         $ret .= "<td>" . ( $item->deliverydate ? $item->deliverydate : $class->ml( 'widget.shopcart.deliverydate.today' ) ) . "</td>";
         $ret .= "<td>" . $item->t_html . "</td>";
@@ -57,27 +60,29 @@ sub render_body {
     $ret .= "<tr><td colspan='6' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " \$" . $cart->display_total . " USD</td></tr>";
     $ret .= "</table>";
 
-    $ret .= "<div class='shop-cart-btn'>";
+    unless ( $opts{receipt} ) {
+        $ret .= "<div class='shop-cart-btn'>";
 
-    $ret .= "<p>" . $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " ";
-    $ret .= $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
+        $ret .= "<p>" . $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " ";
+        $ret .= $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
 
-    my @paypal_option = ( paypal => $class->ml( 'widget.shopcart.paymentmethod.paypal' ) )
-        if keys %LJ::PAYPAL_CONFIG;
-    $ret .= "<p>" . $class->ml( 'widget.shopcart.paymentmethod' ) . " ";
-    $ret .= $class->html_select(
-        name => 'paymentmethod',
-        selected => keys %LJ::PAYPAL_CONFIG ? 'paypal' : 'checkmoneyorder',
-        list => [
-            @paypal_option,
-            checkmoneyorder => $class->ml( 'widget.shopcart.paymentmethod.checkmoneyorder' ),
-        ],
-    ) . " ";
-    $ret .= $class->html_submit( checkout => $class->ml( 'widget.shopcart.btn.checkout' ) ) . "</p>";
+        my @paypal_option = ( paypal => $class->ml( 'widget.shopcart.paymentmethod.paypal' ) )
+            if keys %LJ::PAYPAL_CONFIG;
+        $ret .= "<p>" . $class->ml( 'widget.shopcart.paymentmethod' ) . " ";
+        $ret .= $class->html_select(
+            name => 'paymentmethod',
+            selected => keys %LJ::PAYPAL_CONFIG ? 'paypal' : 'checkmoneyorder',
+            list => [
+                @paypal_option,
+                checkmoneyorder => $class->ml( 'widget.shopcart.paymentmethod.checkmoneyorder' ),
+            ],
+        ) . " ";
+        $ret .= $class->html_submit( checkout => $class->ml( 'widget.shopcart.btn.checkout' ) ) . "</p>";
 
-    $ret .= "</div>";
+        $ret .= "</div>";
 
-    $ret .= $class->end_form;
+        $ret .= $class->end_form
+    }
 
     return $ret;
 }

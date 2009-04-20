@@ -21,6 +21,7 @@ use strict;
 use Carp qw/ croak confess /;
 
 use DW::Shop::Cart;
+use DW::Shop::Engine;
 use DW::Shop::Item::Account;
 
 # variables we maintain
