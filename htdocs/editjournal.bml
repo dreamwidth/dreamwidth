@@ -236,7 +236,7 @@ body<=
                 my $journalu = $usejournal ? $usejournal_u : $u;
                 my $j_base = $journalu->journal_base;
                 my $entry_url = LJ::item_link($journalu, $itemid, $res{anum});
-                my $edititemlink = "/editjournal.bml?journal=$journalu&itemid=$ditemid";
+                my $edititemlink = "/editjournal.bml?itemid=$ditemid";
 
                 # update crossposts
                 my $xpost_result = '';
@@ -325,7 +325,7 @@ body<=
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
                 $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
                 $result .= "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
-                $result .= "<li><a href='$edititemlink'>$ML{'.success.fromhere.manageentries'}</a></li>";
+                $result .= "<li><a href='$LJ::SITEROOT/editjournal.bml'>$ML{'.success.fromhere.manageentries'}</a></li>";
                 $result .= "</ul></div>";
                 $result .= "</td>";
 
