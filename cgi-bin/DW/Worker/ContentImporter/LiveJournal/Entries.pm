@@ -136,6 +136,13 @@ sub try_work {
     # post that we already know about.  (not that we really care, but it's much nicer
     # on people we're pulling from.)
     foreach my $url ( keys %$entry_map ) {
+
+        # but first, let's skip anything that isn't from the server we are importing
+        # from.  this assumes URLs never have other hostnames, so if someone were to
+        # register testlivejournal.com and do an import, they will have trouble
+        # importing.  if they want to do that to befunge this logic, more power to them.
+        next unless $url =~ /\Q$data->{hostname}\E/;
+
         unless ( $url =~ m!/(\d+)\.html$! ) {
             $log->( 'URL %s not of expected format in prune.', $url );
             next;

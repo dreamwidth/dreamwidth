@@ -98,6 +98,9 @@ sub try_work {
     # now backfill into jitemid_map
     my $jitemid_map = {};
     foreach my $url ( keys %$entry_map ) {
+        # this works, see the Entries importer for more information
+        next unless $url =~ /\Q$data->{hostname}\E/;
+
         my $jitemid = $1 >> 8
             if $url =~ m!/(\d+)\.html$!;
         $jitemid_map->{$jitemid} = $entry_map->{$url};
