@@ -525,10 +525,9 @@ sub get_cache {
     return \@ret;
 }
 
+# $class->memkey( $u )
 sub memkey {
-    my $class = shift;
-    my $u = shift;
-    return [ $u, "userpic2:" . $u->id ];
+    return [ $_[1]->id, "userpic2:" . $_[1]->id ];
 }
 
 sub set_cache {
