@@ -64,7 +64,7 @@ sub render_body {
         $num = 0;
         foreach ( @{$res->{pickws}} ) {
            $num++;
-           $altcode .= "     alttext[$num] = \"$_\";\n";
+           $altcode .= "     alttext[$num] = \"" . LJ::ejs($_) . "\";\n";
         }
 
         my $userpic_link_text;

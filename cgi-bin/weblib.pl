@@ -1022,7 +1022,7 @@ sub entry_form {
                 $num = 0;
                 foreach ( @{$res->{pickws}} ) {
                     $num++;
-                    $altcode .= "     alttext[$num] = \"$_\";\n";
+                    $altcode .= "     alttext[$num] = \"" . LJ::ejs($_) . "\";\n";
                 }
                 $$onload .= " userpic_preview();";
 
