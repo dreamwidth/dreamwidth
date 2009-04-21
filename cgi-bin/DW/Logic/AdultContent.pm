@@ -167,8 +167,12 @@ sub interstitial_reason {
 sub _memcache_key {
     my ( $class, $u ) = @_;
 
-    my $confirm_id = LJ::isu( $u ) ? $u->id : LJ::UniqCookie->current_uniq;
-    return [ $confirm_id, "confirmedadult:$confirm_id" ];
+    my $key = "confirmedadult:";
+
+    return [ $u->id, $key . $u->id ]
+        if LJ::isu( $u );
+
+    return $key . LJ::UniqCookie->current_uniq;
 }
 
 sub confirmed_pages {
