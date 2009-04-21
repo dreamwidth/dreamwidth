@@ -589,18 +589,6 @@ class Page
 
     function print_navigation() [fixed] "Print out the page navigation links.";
 
-    function print_module_group_one
-    "Prints first grouping of modules (such as a sidebar).";
-
-    function print_module_group_two
-    "Prints second grouping of modules (such as a sidebar).";
-
-    function print_module_group_three
-    "Prints third grouping of modules (such as a sidebar).";
-
-    function print_module_group_four
-    "Prints fourth grouping of modules (such as a sidebar).";
-    
     function print_module_section( string section_name )
     "Prints a module section, given a group name";
 
