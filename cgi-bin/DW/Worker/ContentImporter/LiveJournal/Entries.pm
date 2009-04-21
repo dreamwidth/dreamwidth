@@ -25,11 +25,13 @@ use DW::Worker::ContentImporter::Local::Entries;
 
 sub work {
     my ( $class, $job ) = @_;
+    my $opts = $job->arg;
+    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
-    eval { try_work( $class, $job ); };
-    if ( $@ ) {
-        warn "Failure running job: $@\n";
-        return $class->temp_fail( $job, 'Failure running job: %s', $@ );
+    eval { try_work( $class, $job, $opts, $data ); };
+    if ( my $msg = $@ ) {
+        $msg =~ s/\r?\n/ /gs;
+        return $class->temp_fail( $data, 'lj_entries', $job, 'Failure running job: %s', $msg );
     }
 
     # FIXME: temporary hack to reclaim memory when we have imported entries
@@ -37,9 +39,7 @@ sub work {
 }
 
 sub try_work {
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
+    my ( $class, $job, $opts, $data ) = @_;
     my $begin_time = [ gettimeofday() ];
 
     # we know that we can potentially take a while, so budget a few hours for

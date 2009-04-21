@@ -24,18 +24,18 @@ use Carp qw/ croak confess /;
 
 sub work {
     my ( $class, $job ) = @_;
+    my $opts = $job->arg;
+    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
 
-    eval { try_work( $class, $job ); };
-    if ( $@ ) {
-        warn "Failure running job: $@\n";
-        return $class->temp_fail( $job, 'Failure running job: %s', $@ );
+    eval { try_work( $class, $job, $opts, $data ); };
+    if ( my $msg = $@ ) {
+        $msg =~ s/\r?\n/ /gs;
+        return $class->temp_fail( $data, 'lj_verify', $job, 'Failure running job: %s', $msg );
     }
 }
 
 sub try_work {
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
+    my ( $class, $job, $opts, $data ) = @_;
 
     # failure wrappers for convenience
     my $fail      = sub { return $class->fail( $data, 'lj_verify', $job, @_ ); };
