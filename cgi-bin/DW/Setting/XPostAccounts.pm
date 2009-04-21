@@ -3,7 +3,7 @@ use base 'LJ::Setting';
 use strict;
 use warnings;
 
-use Digest::MD5 qw(md5_hex);  
+use Digest::MD5 qw(md5_hex);
 
 sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault) }
 
@@ -29,7 +29,7 @@ sub label {
 }
 
 # option. this is where all of the entered info is displayed.  in this case,
-# shows both the existing configured ExternalAccounts, as well as the UI for 
+# shows both the existing configured ExternalAccounts, as well as the UI for
 # adding new accounts.
 sub option {
     my ($class, $u, $errs, $args, %opts) = @_;
@@ -79,7 +79,7 @@ sub option {
                 id       => "${key}xpostbydefault[${acctid}]",
                 selected => $externalacct->xpostbydefault
             }) . "</td>";
-            $ret .= "<td style='text-align: center;'><a href = '../externalaccount.bml?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
+            $ret .= "<td style='text-align: center;'><a href='$LJ::SITEROOT/manage/externalaccount.bml?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
             $ret .= "<td class='checkbox'>" . LJ::html_check({
                 name     => "${key}delete[${acctid}]",
                 value    => 1,
@@ -92,14 +92,14 @@ sub option {
         $ret .= "<tr><td>" . $class->ml('setting.xpost.noaccounts') . "</td></tr>\n";
     }
     $ret .= "</table>\n";
-    
+
     # show account usage.
     my $max_accounts = LJ::get_cap($u, "xpost_accounts");
     $ret .= "<p style='text-align: center;'>" . $class->ml('setting.xpost.message.usage', { current => scalar @accounts, max => $max_accounts });
 
     # add account
     if (scalar @accounts < $max_accounts) {
-        $ret .= "<div class='xpost_add'><a href = '../externalaccount.bml'><button>" . $class->ml('setting.xpost.btn.add') . "</button></a></div>\n";
+        $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount.bml'>" . $class->ml('setting.xpost.btn.add') . "</a></div>\n";
     }
 
     # disable comments on crosspost
@@ -142,7 +142,7 @@ sub save {
 
     # reset disable comments
     $u->set_prop( opt_xpost_disable_comments => $class->get_arg($args, "xpostdisablecomments") ? "1" : "0");
-    
+
     return 1;
 }
 
