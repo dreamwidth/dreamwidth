@@ -1,0 +1,17 @@
+.title=[[sitename]] Mobile
+
+.intro.header=[[sitename]] Mobile
+
+.intro.hello=Hello, [[user]]!
+
+.intro.text=Welcome to the mobile version of [[sitename]].
+
+.options.header=Options
+
+.options.login_prompt=<a [[aopts]]>Log in</a> -- required
+
+.options.logged_in=<a [[aopts]]>Log in</a> -- you're currently logged in as 
+
+.options.post=<a [[aopts]]>Post to [[sitename]]</a>
+
+.options.readingpage=<a [[aopts]]>Your reading page</a>
