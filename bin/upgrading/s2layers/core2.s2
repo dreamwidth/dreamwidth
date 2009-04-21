@@ -3184,9 +3184,11 @@ function Page::print_entry(Entry e)
 {
     ## For most styles, this will be overridden by FriendsPage::print_entry and such.
     $e->print_wrapper_start();
+    """<div class="header">\n""";
     $e->print_subject();
     $e->print_metatypes();
     $e->print_time();
+    """</div>\n""";
     """<div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
@@ -3274,7 +3276,6 @@ function Entry::print_wrapper_start() {
     """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
     """<div class="entry" id="entry-$this.itemid">\n""";
     """<div class="inner">\n""";
-    """<div class="header">\n""";
 }
 function Comment::print_wrapper_start() {
     var string alternate = alternate ("comment-wrapper-a", "comment-wrapper-b");
@@ -3289,8 +3290,7 @@ function Comment::print_wrapper_start() {
 function EntryLite::print_wrapper_end() {
 }
 function Entry::print_wrapper_end() {
-    "</div>\n</div>\n";
-    "</div>\n</div>\n";
+    "</div>\n</div>\n</div>\n";
 }
 function Comment::print_wrapper_end() {
     "</div>\n</div>\n";

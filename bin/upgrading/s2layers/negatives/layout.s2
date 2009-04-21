@@ -382,8 +382,9 @@ function print_stylesheet()
 function Page::print_entry (Entry e)
 {
     $e->print_wrapper_start();
+    print "<div class=\"header\">";
     $e->print_userpic();
-print "<div class=\"subject\">&raquo;";
+    print "<div class=\"subject\">&raquo;";
             $e->print_metatypes();
             $e->print_subject();
         println "</div>";
@@ -393,7 +394,7 @@ print "<div class=\"subject\">&raquo;";
             $e->print_time();
             print ")";
         println "</div>";
-
+    println "</div>";
     $e->print_text();
     $e->print_metadata();
     $e->print_tags();
