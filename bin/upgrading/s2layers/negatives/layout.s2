@@ -296,7 +296,8 @@ function print_stylesheet()
     .comment-interaction-links, .comment-interaction-links a {
         background-color: $*color_page_background;
         color: $*color_entry_interaction_links;
-        padding: 0.5em;
+        padding: 0 0.5em;
+        font-weight: normal;
         text-align: center;
     }
     .comment-management-links {
