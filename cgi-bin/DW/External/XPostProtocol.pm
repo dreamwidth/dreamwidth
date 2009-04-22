@@ -54,7 +54,13 @@ sub crosspost {
 sub clean_entry_text {
     my ($self, $entry) = @_;
 
-    return $self->scrub_polls($entry->event_text);
+    my $event_text = $entry->event_text;
+    
+    # clean up any embedded objects
+    LJ::EmbedModule->expand_entry($entry->journal, \$event_text, expand_full => 1);
+    
+    # remove polls, then return the text
+    return $self->scrub_polls($event_text);
 }
 
 # replaces <poll> tags with a link to the original poll

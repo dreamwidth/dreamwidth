@@ -111,6 +111,7 @@ sub crosspost {
     $req->{auth_method} = 'challenge';
     $req->{auth_challenge} = $challenge;
     $req->{auth_response} = $response;
+    $req->{ver} = 1;
 
     # get the correct itemid for edit
     $req->{itemid} = $itemid if $itemid;
@@ -198,6 +199,12 @@ sub entry_to_req {
     # only bring over these properties
     for my $entrykey (qw ( adult_content current_coords current_location current_mood current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening picture_keyword qotdid taglist used_rte pingback )) {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
+    }
+    # the current_mood above handles custom moods; for standard moods we
+    # use current_moodid
+    if ($entryprops->{current_moodid}) {
+        my $mood = LJ::mood_name($entryprops->{current_moodid});
+        $req->{props}->{current_mood} = $mood if $mood;
     }
 
     # and set the useragent - FIXME put this somewhere else?
