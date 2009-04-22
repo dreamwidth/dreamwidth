@@ -431,6 +431,30 @@ CREATE TABLE schematables (
 )
 EOC
 
+register_tablecreate("statkeylist", <<'EOC');
+CREATE TABLE statkeylist (
+    statkeyid  int unsigned NOT NULL auto_increment,
+    name       varchar(255) default NULL,
+
+    PRIMARY KEY (statkeyid),
+    UNIQUE KEY (name)
+)
+EOC
+
+register_tablecreate("site_stats", <<'EOC');
+CREATE TABLE site_stats (
+    category_id INT UNSIGNED NOT NULL,
+    key_id INT UNSIGNED NOT NULL,
+    insert_time INT UNSIGNED NOT NULL,
+    value INT UNSIGNED NOT NULL,
+
+    -- FIXME: This is good for retrieving data for a single category+key, but
+    -- maybe not as good if we want all keys for the category, with a limit on
+    -- time (ie, last 5 entries, or last 2 weeks). Do we need an extra index?
+    INDEX (category_id, key_id, insert_time) 
+)
+EOC
+
 register_tablecreate("stats", <<'EOC');
 CREATE TABLE stats (
     statcat varchar(30) NOT NULL,
