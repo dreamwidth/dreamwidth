@@ -228,6 +228,19 @@ sub remove_item {
 }
 
 
+# get/set state
+sub state {
+    my ( $self, $newstate ) = @_;
+
+    return $self->{state}
+        unless defined $newstate;
+
+    $self->{state} = $newstate;
+    $self->save;
+
+    return $self->{state};
+}
+
 ################################################################################
 ## read-only accessor methods
 ################################################################################
@@ -237,7 +250,6 @@ sub id     { $_[0]->{cartid}             }
 sub userid { $_[0]->{userid}             }
 sub age    { time() - $_[0]->{starttime} }
 sub items  { $_[0]->{items} ||= []       }
-sub state  { $_[0]->{state}              }
 sub uniq   { $_[0]->{uniq}               }
 sub total  { $_[0]->{total}+0.00         }
 

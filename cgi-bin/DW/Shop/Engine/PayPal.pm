@@ -41,8 +41,8 @@ sub new_from_token {
     my $dbh = DW::Pay::get_db_writer()
         or die "Database temporarily unavailable.\n"; # no object yet
 
-    my ( $ppid, $itime, $ttime, $cartid, $status ) =
-        $dbh->selectrow_array( 'SELECT ppid, inittime, touchtime, cartid, status FROM pp_tokens WHERE token = ?', undef, $token );
+    my ( $ppid, $itime, $ttime, $cartid ) =
+        $dbh->selectrow_array( 'SELECT ppid, inittime, touchtime, cartid FROM pp_tokens WHERE token = ?', undef, $token );
     return undef
         unless $cartid;
 
@@ -55,7 +55,34 @@ sub new_from_token {
         inittime => $itime,
         touchtime => $ttime,
         token => $token,
-        status => $status,
+        cart => $cart,
+    }, $class;
+}
+
+
+# new_from_cart( $cart )
+#
+# constructs an engine from a given cart.
+sub new_from_cart {
+    my ( $class, $cart ) = @_;
+
+    my $dbh = DW::Pay::get_db_writer()
+        or die "Database temporarily unavailable.\n"; # no object yet
+
+    my ( $ppid, $itime, $ttime, $cartid, $token ) =
+        $dbh->selectrow_array( 'SELECT ppid, inittime, touchtime, cartid, token FROM pp_tokens WHERE cartid = ?', undef, $cart->id );
+
+    # if they have no row in the database, then this is a new cart that hasn't
+    # yet really been through the PayPal flow?
+    return bless { cart => $cart }, $class
+        unless $cartid;
+
+    # it HAS, we have a row, so populate with all of the data we have
+    return bless {
+        ppid => $ppid,
+        inittime => $itime,
+        touchtime => $ttime,
+        token => $token,
         cart => $cart,
     }, $class;
 }
@@ -119,8 +146,8 @@ sub checkout_url {
 
     # now store this in the db
     $dbh->do(
-        q{INSERT INTO pp_tokens (ppid, inittime, touchtime, cartid, token, status)
-          VALUES (NULL, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), ?, ?, 'init')},
+        q{INSERT INTO pp_tokens (ppid, inittime, touchtime, cartid, token)
+          VALUES (NULL, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), ?, ?)},
         undef, $cart->id, $res->{token}
     );
     return $self->error( 'dberr', errstr => $dbh->errstr )
@@ -134,17 +161,19 @@ sub checkout_url {
 # confirm_order()
 #
 # does the final capture process to tell PayPal that we want to charge the
-# user for their payment.
+# user for their payment.  returns 1 on "money is ours yay" and 2 for
+# "money is pending".
 sub confirm_order {
     my $self = $_[0];
 
-    # ensure status is 'init'
+    # ensure the cart is in checkout state.  if it's still open or paid
+    # or something, we can't touch it.
     return $self->error( 'paypal.engbadstate' )
-        unless $self->status eq 'init';
+        unless $self->cart->state == $DW::Shop::STATE_CHECKOUT;
 
-    # now ensure we can get jobs sent off
-    my $sh = LJ::theschwartz()
-        or return $self->temp_error( 'paypal.noschwartz' );
+    # ensure we have db
+    my $dbh = DW::Pay::get_db_writer()
+        or return $self->temp_error( 'nodb' );
 
     # now we have to call out to PayPal to get some details on this order
     # and make sure that the user has finished the process and isn't just
@@ -162,19 +191,56 @@ sub confirm_order {
     $self->lastname( $res->{lastname} );
     $self->email( $res->{email} );
 
-    # okay, schedule the job to actually do the right thing
-    my $job = TheSchwartz::Job->new(
-        funcname => 'DW::Worker::Payment',
-        arg => { ppid => $self->ppid }
+    # and now try to capture the payment
+    my $res = $self->_pp_req(
+        'DoExpressCheckoutPayment',
+        token         => $self->token,
+        payerid       => $self->payerid,
+        amt           => $self->cart->display_total,
+        paymentaction => 'Sale',
     );
-    my $h = $sh->insert( $job );
-    return $self->temp_error( 'paypal.schwartzinsert' )
-        unless $h;
+    return $self->temp_error( 'paypal.generic' )
+        unless $res && $res->{transactionid};
 
-    # and mark this paypal item as processing
-    $self->status( 'queued' );
+    # okay, so we got something from them.  have to record this in the
+    # transaction table.  siiiimple, sure.
+    $dbh->do(
+        q{INSERT INTO pp_trans (ppid, cartid, transactionid, transactiontype, paymenttype, ordertime,
+            amt, currencycode, feeamt, settleamt, taxamt, paymentstatus, pendingreason, reasoncode,
+            ack, timestamp, build)
+          VALUES (?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?)},
 
-    return 1;
+        undef, $self->ppid, $self->cart->id,
+        map { $res->{$_} } qw/ transactionid transactiontype paymenttype ordertime
+            amt currencycode feeamt settleamt taxamt paymentstatus pendingreason reasoncode
+            ack timestamp build /
+    );
+
+    # if there's a db error above, that's very disturbing and alarming
+    # FIXME: add $eng->send_alarm or something so that we can have the Management
+    # take a stab at fixing manually in exotic cases?
+    warn "Failure to save pp_trans: " . $dbh->errstr . "\n"
+        if $dbh->err;
+
+    # if this order is Complete (i.e., we have the money) then we note that
+    if ( $res->{paymentstatus} eq 'Completed' ) {
+        $self->cart->state( $DW::Shop::STATE_PAID );
+        return 1;
+    }
+
+    # okay, so it's pending... sad days
+    $self->cart->state( $DW::Shop::STATE_PEND_PAID );
+    return 2;
+}
+
+
+# called when something terrible has happened and we need to fully fail out
+# a transaction for some reason.  (payment not valid, etc.)
+sub fail_transaction {
+    my $self = $_[0];
+
+    # step 1) mark statuses
+#    $self->cart->
 }
 
 
@@ -249,7 +315,6 @@ sub touchtime { $_[0]->{touchtime} }
 
 
 # mutable accessors
-sub status { _getset( $_[0], 'status', $_[1] ) }
 sub payerid { _getset( $_[0], 'payerid', $_[1] ) }
 sub firstname { _getset( $_[0], 'firstname', $_[1] ) }
 sub lastname { _getset( $_[0], 'lastname', $_[1] ) }

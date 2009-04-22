@@ -1348,6 +1348,24 @@ error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
 
+error.pay.dberr=Database error: [[errstr]].  Please try again later.
+
+error.pay.nodb=Failed to connect to database.  Please try again later.
+
+error.pay.paypal.connection=Temporary failure connecting to PayPal.  Please try again later.
+
+error.pay.paypal.engbadstate=Payment engine is in a bad state.  Please contact site administrators.
+
+error.pay.paypal.flownotfinished=PayPal order flow not finished.  Please try again later.
+
+error.pay.paypal.generic=PayPal error.  Please try again later.
+
+error.pay.paypal.noschwartz=Unable to contact job queue system.  Please try again later.
+
+error.pay.paypal.notoken=PayPal did not give us a token.  Please try again later.
+
+error.pay.paypal.schwartzinsert=Failed inserting job into queue system.  Please try again later.
+
 error.person=You must be authenticated as a person.
 
 error.procrequest=There was an error processing your request:

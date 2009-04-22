@@ -20,6 +20,8 @@ use strict;
 use base qw/ LJ::Widget /;
 use Carp qw/ croak /;
 
+use DW::Shop;
+
 sub need_res { qw( stc/shop.css ) }
 
 sub render_body {
@@ -32,6 +34,11 @@ sub render_body {
 
     return $class->ml( 'widget.shopcart.error.noitems' )
         unless @{$cart->items};
+
+    # if the cart is not in state OPEN, mark this as a receipt load
+    # no matter where we are
+    $opts{receipt} = 1
+        unless $cart->state == $DW::Shop::STATE_OPEN;
 
     $ret .= $class->start_form
         unless $opts{receipt};

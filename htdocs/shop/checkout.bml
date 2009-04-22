@@ -45,6 +45,9 @@ body<=
     my $url = $eng->checkout_url;
     return $eng->errstr
         unless $url;
+
+    # before redirecting, make sure we mark the cart as done
+    $cart->state( $DW::Shop::STATE_CHECKOUT );
     return BML::redirect( $url );
 }
 _code?>

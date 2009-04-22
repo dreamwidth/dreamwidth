@@ -32,9 +32,9 @@ body<=
     return 'sorry, invalid token'
         unless $eng;
 
-    # if status is not 'init', send to the receipt page
+    # cart must be in checkout state
     return BML::redirect( "$LJ::SITEROOT/shop/pp_receipt?token=" . $eng->token )
-        unless $eng->status eq 'init';
+        unless $eng->cart->state == $DW::Shop::STATE_CHECKOUT;
 
     # if they didn't post, give them a form
     unless ( LJ::did_post() ) {
@@ -58,14 +58,25 @@ body<=
     return 'invalid form auth'
         unless LJ::check_form_auth();
 
+    # and now set the state, this has been checked out...
+    $eng->cart->state( $DW::Shop::STATE_CHECKOUT );
+
     # they want to pay us, yippee!
+    my $rv = $eng->confirm_order;
     return $eng->errstr
-        unless $eng->confirm_order;
+        unless $rv;
 
     # advise them the order has been placed and to watch their email
-    return '<?p Your order has been successfully placed.  Within the next few minutes PayPal should ' .
-           'finish processing and we will activate your order.  Watch your email! p?><?p ' .
-           "<a href='$LJ::SITEROOT/shop/pp_receipt?token=$token'>View Receipt</a> p?>";
+    if ( $rv == 1 ) {
+        return '<?p Your order has been successfully placed.  Within the next few minutes PayPal should ' .
+               'finish processing and we will activate your order.  Watch your email! p?><?p ' .
+               "<a href='$LJ::SITEROOT/shop/pp_receipt?token=$token'>View Receipt</a> p?>";
+
+    } elsif ( $rv == 2 ) {
+        return '<?p Your order has been successfully placed, but PayPal says it will take some time for ' .
+               'your payment to finish processing.  As soon as it does, we will email you. p?><?p ' .
+               "<a href='$LJ::SITEROOT/shop/pp_receipt?token=$token'>View Receipt</a> p?>";
+    }
 }
 _code?>
 <=body

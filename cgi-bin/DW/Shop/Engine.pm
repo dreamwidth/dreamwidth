@@ -79,4 +79,13 @@ sub err_is_temporary {
 }
 
 
+# fail_transaction()
+#
+# this is a 'something bad has happened, consider this cart and transaction
+# to be dead' sort of thing
+sub fail_transaction {
+    die "Please implement $_[0]->fail_transaction.\n";
+}
+
+
 1;

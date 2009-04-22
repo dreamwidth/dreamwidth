@@ -995,6 +995,10 @@ register_tabledrop("themelist");
 register_tabledrop("style");
 register_tabledrop("meme");
 register_tabledrop("content_flag");
+register_tabledrop("dw_payments");
+register_tabledrop("dw_pp_details");
+register_tabledrop("dw_pp_log");
+register_tabledrop("dw_pp_notify_log");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -2988,40 +2992,6 @@ CREATE TABLE embedcontent_preview (
 ) TYPE=InnoDB
 EOC
 
-register_tablecreate("dw_payments", <<'EOC');
-CREATE TABLE dw_payments (
-    paymentid int unsigned NOT NULL auto_increment,
-    paydate int unsigned NOT NULL,
-    pp_token varchar(20) NOT NULL,
-    from_userid int unsigned,
-    target_userid int unsigned,
-    target_username varchar(25),
-    typeid smallint unsigned NOT NULL,
-    duration smallint unsigned NOT NULL,
-    amount smallint unsigned NOT NULL,
-    status varchar(20) NOT NULL,
-
-    PRIMARY KEY (paymentid),
-    INDEX (paydate, pp_token),
-    INDEX (from_userid),
-    INDEX (target_userid),
-    INDEX (status)
-)
-EOC
-
-register_tablecreate("dw_pp_details", <<'EOC');
-CREATE TABLE dw_pp_details (
-    paymentid int unsigned NOT NULL,
-
-    email varchar(255),
-    firstname varchar(255),
-    lastname varchar(255),
-    payerid varchar(255),
-
-    PRIMARY KEY (paymentid)
-)
-EOC
-
 register_tablecreate("dw_paidstatus", <<'EOC');
 CREATE TABLE dw_paidstatus (
     userid int unsigned NOT NULL,
@@ -3032,25 +3002,6 @@ CREATE TABLE dw_paidstatus (
 
     PRIMARY KEY (userid),
     INDEX (expiretime)
-)
-EOC
-
-register_tablecreate("dw_pp_log", <<'EOC');
-CREATE TABLE dw_pp_log (
-    paymentid int unsigned NOT NULL,
-    transdate int unsigned NOT NULL,
-    pp_log varchar(3000) NOT NULL,
-
-    INDEX (paymentid)
-)
-EOC
-
-register_tablecreate("dw_pp_notify_log", <<'EOC');
-CREATE TABLE dw_pp_notify_log (
-    transdate int unsigned NOT NULL,
-    pp_log varchar(3000) NOT NULL,
-
-    INDEX (transdate)
 )
 EOC
 
@@ -3223,6 +3174,64 @@ CREATE table externalaccount (
     index (userid)
 )
 EOC
+
+register_tablecreate('pp_tokens', <<'EOC');
+CREATE TABLE pp_tokens (
+    ppid int unsigned not null auto_increment,
+    inittime int unsigned not null,
+    touchtime int unsigned not null,
+    cartid int unsigned not null,
+    status varchar(20) not null,
+
+    token varchar(20) not null,
+    email varchar(255),
+    firstname varchar(255),
+    lastname varchar(255),
+    payerid varchar(255),
+
+    primary key (ppid),
+    unique (cartid),
+    index (token)
+);
+EOC
+
+register_tablecreate('pp_log', <<'EOC');
+CREATE TABLE pp_log (
+    ppid int unsigned not null,
+    transtime int unsigned not null,
+    req_content text not null,
+    res_content text not null,
+
+    index (ppid)
+);
+EOC
+
+register_tablecreate('pp_trans', <<'EOC');
+CREATE TABLE pp_trans (
+    ppid int unsigned not null,
+    cartid int unsigned not null,
+
+    transactionid varchar(19),
+    transactiontype varchar(15),
+    paymenttype varchar(7),
+    ordertime int unsigned,
+    amt decimal(10,2),
+    currencycode varchar(3),
+    feeamt decimal(10,2),
+    settleamt decimal(10,2),
+    taxamt decimal(10,2),
+    paymentstatus varchar(20),
+    pendingreason varchar(20),
+    reasoncode varchar(20),
+    ack varchar(20),
+    timestamp int unsigned,
+    build varchar(20),
+
+    index (ppid),
+    index (cartid)
+);
+EOC
+
 
 # NOTE: new table declarations go ABOVE here ;)
 
@@ -3943,11 +3952,6 @@ register_alter(sub {
     unless ( column_type( 'expunged_users', 'user' ) =~ /25/ ) {
         do_alter( 'expunged_users',
                   "ALTER TABLE expunged_users MODIFY COLUMN user VARCHAR(25) NOT NULL" );
-    }
-
-    unless ( column_type( 'dw_payments', 'target_username' ) =~ /25/ ) {
-        do_alter( 'dw_payments',
-                  "ALTER TABLE dw_payments MODIFY COLUMN target_username VARCHAR(25)" );
     }
 
     unless ( column_type( "acctcode", "timegenerate" ) =~ /^\Qint(10) unsigned\E/ ) {
