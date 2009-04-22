@@ -3192,7 +3192,7 @@ CREATE TABLE pp_tokens (
     primary key (ppid),
     unique (cartid),
     index (token)
-);
+)
 EOC
 
 register_tablecreate('pp_log', <<'EOC');
@@ -3203,7 +3203,7 @@ CREATE TABLE pp_log (
     res_content text not null,
 
     index (ppid)
-);
+)
 EOC
 
 register_tablecreate('pp_trans', <<'EOC');
@@ -3229,7 +3229,7 @@ CREATE TABLE pp_trans (
 
     index (ppid),
     index (cartid)
-);
+)
 EOC
 
 
