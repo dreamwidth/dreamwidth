@@ -253,7 +253,7 @@ sub help_icon_html {
     my $pre = shift || "";
     my $post = shift || "";
     # FIXME: use LJ::img() here, not hard-coding width/height
-    return "$pre<a href=\"$url\" class=\"helplink\" target=\"_blank\"><img src=\"$LJ::IMGPREFIX/help.gif\" alt=\"Help\" title=\"Help\" width='14' height='14' border='0' /></a>$post";
+    return "$pre<a href=\"$url\" class=\"helplink\" target=\"_blank\"><img src=\"$LJ::IMGPREFIX/silk/site/help.png\" alt=\"Help\" title=\"Help\" width='14' height='14' border='0' /></a>$post";
 }
 
 # <LJFUNC>
@@ -3311,7 +3311,7 @@ sub subscribe_interface {
         # show blurb if not tracking anything
         if ($cat_empty && $is_tracking_category) {
             my $blurb = "<?p <strong>" . LJ::Lang::ml('subscribe_interface.nosubs.title') . "</strong><br />";
-            $blurb .= LJ::Lang::ml('subscribe_interface.nosubs.text', { img => "<img src='$LJ::SITEROOT/img/btn_track.gif' width='22' height='20' align='absmiddle' alt='$ui_notify' />" }) . " p?>";
+            $blurb .= LJ::Lang::ml('subscribe_interface.nosubs.text', { img => "<img src='$LJ::SITEROOT/img/silk/entry/track.png' width='16' height='16' align='absmiddle' alt='$ui_notify' />" }) . " p?>";
 
             $cat_html .= "<td colspan='$cols'>$blurb</td>";
         }

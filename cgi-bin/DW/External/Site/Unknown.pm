@@ -65,9 +65,8 @@ sub badge_image_url {
     croak 'need a DW::External::User'
         unless $u && ref $u eq 'DW::External::User';
 
-    # since we don't know what site this is, let's give them a LJ head icon...
-# FIXME: come up with an 'unknown' icon?
-    return 'http://p-stat.livejournal.com/img/userinfo.gif';
+    # since we don't know what site this is, they can have an "unknown" icon
+    return "$LJ::IMGPREFIX/silk/identity/user_other.png";
 }
 
 

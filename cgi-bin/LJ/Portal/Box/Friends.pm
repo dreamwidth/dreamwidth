@@ -38,7 +38,7 @@ sub generate_content {
     my $pboxid = $self->{'pboxid'};
     my $u = $self->{'u'};
 
-    my $usericonguy = "<img src=\"$LJ::SITEROOT/img/userinfo.gif\" />";
+    my $usericonguy = "<img src=\"$LJ::SITEROOT/img/silk/identity/user.png\" />";
 
     my $content;
 
@@ -137,7 +137,7 @@ sub generate_content {
         }
         $content .= qq {
             <div class="FriendsList">
-                <img src="$LJ::SITEROOT/img/community.gif" /> ($commcount): <br />
+                <img src="$LJ::SITEROOT/img/silk/identity/community.png" /> ($commcount): <br />
                 $commlist
             </div>
         };
@@ -171,7 +171,7 @@ sub generate_content {
         }
         $content .= qq {
             <div class="FriendsList">
-                <img src="$LJ::SITEROOT/img/syndicated.gif" /> ($syncount): <br />
+                <img src="$LJ::SITEROOT/img/silk/identity/feed.png" /> ($syncount): <br />
                 $synlist
             </div>
         };

@@ -39,10 +39,10 @@ _info?><?_code
         $alttext =~ s/(\w+)/\u\L$1/g;
 
         my $stockimg = {
-            'screen' => "btn_scr.gif",
-            'unscreen' => "btn_unscr.gif",
-            'freeze' => "btn_freeze.gif",
-            'unfreeze' => "btn_unfreeze.gif",
+            'screen' => "silk/comments/screen.png",
+            'unscreen' => "silk/comments/unscreen.png",
+            'freeze' => "silk/comments/freeze.png",
+            'unfreeze' => "silk/comments/unfreeze.png",
         };
 
         my $res = "rpcRes = {\n mode: \"$mode\", \n" .

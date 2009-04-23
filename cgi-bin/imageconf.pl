@@ -27,79 +27,79 @@ $img{'btn_down'} = {
 };
 
 $img{'btn_del'} = {
-    'src' => '/btn_del.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/comments/delete.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.btn_del',
 };
 
 $img{'btn_freeze'} = {
-    'src' => '/btn_freeze.gif',
+    'src' => '/silk/comments/freeze.png',
     'width' => 22,
     'height' => 20,
     'alt' => 'img.btn_freeze',
 };
 
 $img{'btn_unfreeze'} = {
-    'src' => '/btn_unfreeze.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/comments/unfreeze.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.btn_unfreeze',
 };
 
 $img{'btn_scr'} = {
-    'src' => '/btn_scr.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/comments/screen.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.btn_scr',
 };
 
 $img{'btn_unscr'} = {
-    'src' => '/btn_unscr.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/comments/unscreen/png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.btn_unscr',
 };
 
 $img{'prev_entry'} = {
-    'src' => '/btn_prev.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/previous.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.prev_entry',
 };
 
 $img{'next_entry'} = {
-    'src' => '/btn_next.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/next.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.next_entry',
 };
 
 $img{'memadd'} = {
-    'src' => '/memadd.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/memories_add.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.memadd',
 };
 
 $img{'editentry'} = {
-    'src' => '/btn_edit.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/edit.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.editentry',
 };
 
 $img{'edittags'} = {
-    'src' => '/btn_edittags.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/tag_edit.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.edittags',
 };
 
 $img{'tellfriend'} = {
-    'src' => '/btn_tellfriend.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/tellafriend.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.tellfriend',
 };
 
@@ -118,30 +118,30 @@ $img{'xml'} = {
 };
 
 $img{'track'} = {
-    'src' => '/btn_track.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/track.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.track',
 };
 
 $img{'track_active'} = {
-    'src' => '/btn_tracking.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/untrack.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.track_active',
 };
 
 $img{'track_thread_active'} = {
-    'src' => '/btn_tracking_thread.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/entry/untrack.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.track_thread_active',
 };
 
 $img{'editcomment'} = {
-    'src' => '/btn_edit.gif',
-    'width' => 22,
-    'height' => 20,
+    'src' => '/silk/comments/edit.png',
+    'width' => 16,
+    'height' => 16,
     'alt' => 'img.editcomment',
 };
 

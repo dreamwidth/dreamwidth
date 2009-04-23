@@ -3,8 +3,8 @@
 # <LJDEP>
 # link: htdocs/userinfo.bml, htdocs/go.bml, htdocs/tools/memadd.bml, htdocs/editjournal.bml
 # link: htdocs/tools/tellafriend.bml
-# img: htdocs/img/btn_prev.gif, htdocs/img/memadd.gif, htdocs/img/btn_edit.gif
-# img: htdocs/img/btn_next.gif, htdocs/img/btn_tellafriend.gif
+# img: htdocs/img/silk/entry/previous.png, htdocs/img/silk/entry/memories_add.png, htdocs/img/silk/entry/edit.png
+# img: htdocs/img/silk/entry/next.png, htdocs/img/btn_tellafriend.gif
 # </LJDEP>
 
 use strict;
@@ -1327,11 +1327,11 @@ sub talkform {
         my $logged_in = LJ::ehtml($remote->display_name);
 
         if (LJ::is_banned($remote, $journalu)) {
-            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/userinfo.gif' /></td>";
+            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/user.png' /></td>";
             $ret .= "<td align='center'>( )</td>";
             $ret .= "<td align='left'><span class='ljdeem'>" . BML::ml(".opt.loggedin", {'username'=>"<i>$logged_in</i>"}) . "</font>" . BML::ml(".opt.bannedfrom", {'journal'=>$journalu->{'user'}}) . "</td>";
         } else {
-            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/userinfo.gif'  onclick='handleRadios(1);' /></td>";
+            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/user.png'  onclick='handleRadios(1);' /></td>";
             $ret .= "<td align='left'><label for='talkpostfromremote'>" . BML::ml(".opt.loggedin", {'username'=>"<i>$logged_in</i>"}) . "</label>\n";
 
             $ret .= "<input type='hidden' name='usertype' value='cookieuser' />";
@@ -1367,7 +1367,7 @@ sub talkform {
             # Logged in
             if (defined $oid_identity) {
                 $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
-                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/openid-profile.gif' onclick='handleRadios(4);' /></td><td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'" .
+                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(4);' /></td><td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'" .
                     $whocheck->('openid_cookie') . "/>";
                 $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>OpenID identity:</label></b> ";
 
@@ -1378,7 +1378,7 @@ sub talkform {
             } else {
                 # logged out
                 $ret .= "<tr valign='middle' id='oidlo' name='oidlo'>";
-                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/openid-profile.gif' onclick='handleRadios(3);' /></td><td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'" .
+                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(3);' /></td><td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'" .
                     $whocheck->('openid') . "/>";
                 $ret .= "</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>OpenID</label></b> ";
 
@@ -1412,11 +1412,11 @@ sub talkform {
                 my $logged_in = LJ::ehtml($remote->display_name);
                 $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
                 if (LJ::is_banned($remote, $journalu)) {
-                    $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/openid-profile.gif' /></td>";
+                    $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' /></td>";
                     $ret .= "<td align='center'>( )</td>";
                     $ret .= "<td align='left'><span class='ljdeem'>" . BML::ml(".opt.loggedin", {'username'=>"<i>$logged_in</i>"}) . "</font>" . BML::ml(".opt.bannedfrom", {'journal'=>$journalu->{'user'}}) . "</td>";
                 } else {
-                    $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/openid-profile.gif' onclick='handleRadios(4);' /></td><td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'" .
+                    $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(4);' /></td><td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'" .
                         $whocheck->('openid_cookie') . "/>";
                     $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>OpenID identity:</label></b> ";
 
@@ -1428,7 +1428,7 @@ sub talkform {
             } else {
                 # logged out or no validated email
                 $ret .= "<tr valign='middle'>";
-                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/openid-profile.gif' onclick='handleRadios(3);' /></td>";
+                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(3);' /></td>";
                 $ret .= "<td align='center'>(  )</td>";
                 $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>OpenID</b></font>";
                 $ret .= BML::ml('.opt.noopenidpost', { aopts1 => "href='$LJ::SITEROOT/changeemail.bml'", aopts2 => "href='$LJ::SITEROOT/register.bml'" })
@@ -1456,7 +1456,7 @@ sub talkform {
             # Logged in
             if (defined $oid_identity) {
                 $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
-                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/openid-profile.gif' onclick='handleRadios(4);' /></td><td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'" .
+                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(4);' /></td><td align='center'><input type='radio' name='usertype' value='openid_cookie' id='talkpostfromoidli'" .
                     $whocheck->('openid_cookie') . "/>";
                 $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>OpenID identity:</label></b> ";
 
@@ -1467,7 +1467,7 @@ sub talkform {
             } else {
                 # logged out
                 $ret .= "<tr valign='middle' id='oidlo' name='oidlo'>";
-                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/openid-profile.gif' onclick='handleRadios(3);' /></td><td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'" .
+                $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(3);' /></td><td align='center'><input type='radio' name='usertype' value='openid' id='talkpostfromoidlo'" .
                     $whocheck->('openid') . "/>";
                 $ret .= "</td><td align='left'><b><label for='talkpostfromoidlo' onclick='handleRadios(3);return false;'>OpenID</label></b> ";
 
@@ -1496,11 +1496,11 @@ sub talkform {
         my $other_user = "<script language='JavaScript'>if (document.getElementById) {document.write(\"&nbsp;<a href='#' onClick='otherLJUser();return false;'>[other]</a>\");}</script>";
 
         if (LJ::is_banned($remote, $journalu)) {
-            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/userinfo.gif' /></td>";
+            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/user.png' /></td>";
             $ret .= "<td align='center'>( )</td>";
             $ret .= "<td align='left'><span class='ljdeem'>" . BML::ml(".opt.loggedin", {'username'=>"<i>$logged_in</i>"}) . "</font>" . BML::ml(".opt.bannedfrom", {'journal'=>$journalu->{'user'}}) . $other_user . "</td>";
         } else {
-            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/userinfo.gif'  onclick='handleRadios(1);' /></td><td align='center'><input type='radio' name='usertype' value='cookieuser' id='talkpostfromremote'" .
+            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/user.png'  onclick='handleRadios(1);' /></td><td align='center'><input type='radio' name='usertype' value='cookieuser' id='talkpostfromremote'" .
                      $whocheck->('remote') .
                      " /></td>";
             $ret .= "<td align='left'><label for='talkpostfromremote'>" . BML::ml(".opt.loggedin", {'username'=>"<i>$logged_in</i>"}) . "</label>\n";
@@ -1555,7 +1555,7 @@ sub talkform {
     $ret .= "<table><tr><td>";
     $ret .= "$BML::ML{'Username'}:</td><td>";
     $ret .= "<input class='textbox' name='userpost' size='13' maxlength='25' id='username' value='$ljuser_def' onclick='this.value=\"\"' ";
-    $ret .= "style='background: url($LJ::IMGPREFIX/userinfo.gif) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;'/>";
+    $ret .= "style='background: url($LJ::IMGPREFIX/silk/identity/user.png) no-repeat; background-color: #fff; background-position: 0px 1px; padding-left: 18px; color: #00C; font-weight: bold;'/>";
 
     $ret .= "</td></tr><tr><td>";
     $ret .= "$BML::ML{'Password'}:</td><td>";

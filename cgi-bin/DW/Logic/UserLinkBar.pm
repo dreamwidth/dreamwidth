@@ -101,7 +101,7 @@ sub get_links {
 
 sub fix_link {
     my ( $self, $link ) = @_;
-    $link->{image} = "$LJ::IMGPREFIX/profile_icons/$link->{image}"
+    $link->{image} = "$LJ::IMGPREFIX/silk/profile/$link->{image}"
         if $link->{image} && $link->{image} !~ /^$LJ::IMGPREFIX/;
     $link->{url} = "$LJ::SITEROOT/$link->{url}"
         if $link->{url} && $link->{url} !~ /^$LJ::SITEROOT/;
@@ -138,7 +138,7 @@ sub manage_membership {
             return $self->fix_link( {
                 url      => "community/leave.bml?comm=$user",
                 title_ml => 'userlinkbar.leavecomm.title',
-                image    => 'leave-comm.gif',
+                image    => 'community_leave.png',
                 text_ml  => 'userlinkbar.leavecomm',
                 class    => "leave",
             } );
@@ -158,14 +158,14 @@ sub manage_membership {
                                         'userlinkbar.joincomm.title.loggedout';
                 $link->{title_ml} = 'userlinkbar.joincomm.title.cantjoin'
                     if $remote && $remote->is_identity;
-                $link->{image}    = 'join-comm-disabled.gif';
+                $link->{image}    = 'community_join_disabled.png';
                 $link->{class}    = "join_disabled";
 
             # allowed to join
             } else {
                 $link->{url}      = "community/join.bml?comm=$user";
                 $link->{title_ml} = 'userlinkbar.joincomm.title.open';
-                $link->{image}    = 'join-comm.gif';
+                $link->{image}    = 'community_join.png';
                 $link->{class}    = "join";
             }
 
@@ -197,11 +197,11 @@ sub trust {
             $link->{url} = "manage/circle/add.bml?user=$user&action=access";
             $link->{title_ml} = $remote_trusts ? 'userlinkbar.modifytrust.title.other' : 'userlinkbar.addtrust.title.other';
             $link->{class} = "addtrust";
-            $link->{image} = 'add-friend.gif';
+            $link->{image} = 'access_grant.png';
         } else {
             $link->{title_ml} = 'userlinkbar.addtrust.title.loggedout';
             $link->{class} = "addtrust_disabled";
-            $link->{image} = 'add-friend-disabled.gif';
+            $link->{image} = 'access-grant-disabled.png';
         }
 
         return $self->fix_link( $link );
@@ -236,25 +236,25 @@ sub watch {
 
         if ( $u->is_community ) {
             $link->{class} = "addsub_comm";
-            $link->{image} = 'watch-comm.gif';
+            $link->{image} = 'subscription_add.png';
         } elsif ( $u->is_syndicated ) {
             $link->{class} = "addsub_feed";
-            $link->{image} = 'add-feed.gif';
+            $link->{image} = 'subscription_add.png';
         } else {
             $link->{class} = "addsub_person";
-            $link->{image} = 'add-friend.gif';
+            $link->{image} = 'subscription_add.png';
         }
     } else {
         $link->{title_ml} = 'userlinkbar.addsub.title.loggedout';
         if ( $u->is_community ) {
             $link->{class} = "addsub_comm_disabled";
-            $link->{image} = 'watch-comm-disabled.gif';
+            $link->{image} = 'subscription_add_disabled.png';
         } elsif ( $u->is_syndicated ) {
             $link->{class} = "addsub_feed_disabled";
-            $link->{image} = 'add-feed-disabled.gif';
+            $link->{image} = 'subscription_add_disabled.png';
         } else {
             $link->{class} = "addsub_person_disabled";
-            $link->{image} = 'add-friend-disabled.gif';
+            $link->{image} = 'subscription_add_disabled.png';
         }
     }
 
@@ -279,7 +279,7 @@ sub post {
         my $link = {
             url => "update.bml?usejournal=$user",
             class => "postentry",
-            image => 'post-entry.gif',
+            image => 'post.png',
         };
 
         if ( $u->is_community ) {
@@ -296,7 +296,7 @@ sub post {
             text_ml => 'userlinkbar.post',
             title_ml => $remote ? 'userlinkbar.post.title.cantpost' : 'userlinkbar.post.title.loggedout',
             class => "postentry_disabled",
-            image => 'post-entry-disabled.gif',
+            image => 'post_disabled.png',
         } );
     }
 }
@@ -334,11 +334,11 @@ sub track {
         if ( $remote && $remote->can_use_esn ) {
             $link->{url} = "manage/subscriptions/user.bml?journal=$user";
             $link->{class} = "trackuser";
-            $link->{image} = 'track.gif';
+            $link->{image} = 'track.png';
         } else {
             $link->{title_ml} = $remote ? 'userlinkbar.trackuser.title.cantuseesn' : 'userlinkbar.trackuser.title.loggedout';
             $link->{class} = "trackuser_disabled";
-            $link->{image} = 'track-disabled.gif';
+            $link->{image} = 'track_disabled.png';
         }
 
         return $self->fix_link( $link );
@@ -369,11 +369,11 @@ sub message {
         if ( $remote && $u->can_receive_message( $remote ) ) {
             $link->{url} = "inbox/compose.bml?user=$user";
             $link->{class} = "sendmessage";
-            $link->{image} = 'send-message.gif';
+            $link->{image} = 'message.png';
         } else {
             $link->{title_ml} = $remote ? 'userlinkbar.sendmessage.title.cantsendmessage' : 'userlinkbar.sendmessage.title.loggedout';
             $link->{class} = "sendmessage_disabled";
-            $link->{image} = 'send-message-disabled.gif';
+            $link->{image} = 'message_disabled.png';
         }
 
         return $self->fix_link( $link );
@@ -397,7 +397,7 @@ sub tellafriend {
     {
         my $link = {
             url => "tools/tellafriend.bml?user=$user",
-            image => "$LJ::IMGPREFIX/btn_tellfriend.gif", # this button doesn't fit in
+            image => "$LJ::IMGPREFIX/silk/profile/tellafriend.png",
             text_ml => 'userlinkbar.tellafriend',
             class => 'tellafriend',
         };
@@ -422,7 +422,7 @@ sub memories {
 
     my $link = {
         url => "tools/memories.bml?user=$user",
-        image => 'memories.gif',
+        image => 'memories.png',
         text_ml => 'userlinkbar.memories',
         class => 'memories',
     };

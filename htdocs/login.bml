@@ -149,7 +149,7 @@
             }
 
             $body .= "<div style='float: left; padding: 5px 10px 0px 10px'>";
-            $body .= "<img src='/img/userinfo.gif'></div>\n";
+            $body .= "<img src='/img/silk/identity/user.png'></div>\n";
             $body .= "<div style='margin-left: 36px'>";
             $body .= "<?h2 <a href='$base/read/'>";
             $body .= "$ML{'.loggedin.suggesthead2'}</a> h2?>\n";

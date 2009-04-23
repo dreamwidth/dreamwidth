@@ -1957,15 +1957,15 @@ function userinfoicon(UserLite user) : Image {
     $uimage.height = 16;
 
     if ($user.journal_type == "C") {
-        $uimage->set_url("$*IMGDIR/community.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/community.png");
     } elseif ($user.journal_type == "Y") {
-        $uimage->set_url("$*IMGDIR/syndicated.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/feed.png");
     } elseif ($user.journal_type == "N") {
-        $uimage->set_url("$*IMGDIR/newsinfo.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/news.png");
     } elseif ($user.journal_type == "I") {
-        $uimage->set_url("$*IMGDIR/openid-profile.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/openid.png");
     } else {
-        $uimage->set_url("$*IMGDIR/userinfo.gif");
+        $uimage->set_url("$*IMGDIR/silk/identity/user.png");
         $uimage.width = 17;
         $uimage.height = 17;
     }

@@ -1926,7 +1926,7 @@ sub large_journal_icon {
         unless LJ::isu($u);
 
     my $wrap_img = sub {
-        return "<img src='$LJ::IMGPREFIX/$_[0]' border='0' height='24' " .
+        return "<img src='$LJ::IMGPREFIX/silk/24x24/$_[0]' border='0' height='24' " .
             "width='24' style='padding: 0px 2px 0px 0px' />";
     };
 
@@ -1936,19 +1936,19 @@ sub large_journal_icon {
     return $wrap_img->($hook_img) if $hook_img;
 
     if ($u->is_comm) {
-        return $wrap_img->("community24x24.gif");
+        return $wrap_img->("community.png");
     }
 
     if ($u->is_syndicated) {
-        return $wrap_img->("syndicated24x24.gif");
+        return $wrap_img->("feed.png");
     }
 
     if ($u->is_identity) {
-        return $wrap_img->("openid24x24.gif");
+        return $wrap_img->("openid.png");
     }
 
     # personal, news, or unknown fallthrough
-    return $wrap_img->("userinfo24x24.gif");
+    return $wrap_img->("user.png");
 }
 
 
@@ -2293,7 +2293,7 @@ sub ljuser_display {
             $width = $head_size;
             $height = $head_size;
         } else {
-            $imgurl = "$img/openid-profile.gif";
+            $imgurl = "$img/silk/identity/openid.png";
             $width = 16;
             $height = 16;
         }
@@ -6574,7 +6574,7 @@ sub ljuser
     unless ($u && isu($u)) {
         $user = LJ::canonical_username($user);
         $profile = "$LJ::SITEROOT/userinfo.bml?user=$user";
-        return $make_tag->('userinfo.gif', "$LJ::SITEROOT/userinfo.bml?user=$user", 17);
+        return $make_tag->('silk/identity/user.png', "$LJ::SITEROOT/userinfo.bml?user=$user", 17);
     }
 
     $profile = $u->profile_url;
@@ -6594,23 +6594,23 @@ sub ljuser
 
     if ($type eq 'C') {
         return $make_tag->("comm_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('community.gif', $url, 16);
+        return $make_tag->('silk/identity/community.png', $url, 16);
     } elsif ($type eq 'Y') {
         return $make_tag->("syn_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('syndicated.gif', $url, 16);
+        return $make_tag->('silk/identity/feed.png', $url, 16);
     } elsif ($type eq 'N') {
         return $make_tag->("news_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('newsinfo.gif', $url, 16);
+        return $make_tag->('silk/identity/news.png', $url, 16);
     } elsif ($type eq 'I') {
         return $u->ljuser_display($opts);
     } else {
         if ( $u->get_cap( 'staff_headicon' ) == 1 ) {
             return $make_tag->( "staff_${head_size}.gif", $url, $head_size ) if $head_size;
-            return $make_tag->( 'staffinfo.gif', $url, 17 );
+            return $make_tag->( 'silk/identity/user_staff.png', $url, 17 );
         }
         else {
             return $make_tag->( "user_${head_size}.gif", $url, $head_size ) if $head_size;
-            return $make_tag->( 'userinfo.gif', $url, 17 );
+            return $make_tag->( 'silk/identity/user.png', $url, 17 );
         }
     }
 }

@@ -103,7 +103,7 @@ sub get_faq_link {
     my $faqkey = shift;
 
     return qq {
-        <a href="$LJ::HELPURL{$faqkey}"><img src="$LJ::IMGPREFIX/help.gif" class="PortalFaqLink" title="Help" /></a>
+        <a href="$LJ::HELPURL{$faqkey}"><img src="$LJ::IMGPREFIX/silk/site/help.png" class="PortalFaqLink" title="Help" /></a>
     };
 }
 

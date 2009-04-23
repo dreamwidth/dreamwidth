@@ -68,7 +68,7 @@ sub generate_content {
     # link to friends' page
     my $friendspageurl = $u->journal_base . '/read/';
 
-    $content .= "<div class=\"FriendsPageTitle\"><img src='$LJ::SITEROOT/img/userinfo.gif' /> <a href=\"$friendspageurl\">Latest Friends page $entrytext: $frpagefaqbtn</a></div>";
+    $content .= "<div class=\"FriendsPageTitle\"><img src='$LJ::SITEROOT/img/silk/identity/user.png' /> <a href=\"$friendspageurl\">Latest Friends page $entrytext: $frpagefaqbtn</a></div>";
 
     my $entriescontent;
 
