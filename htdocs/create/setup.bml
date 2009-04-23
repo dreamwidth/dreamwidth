@@ -39,8 +39,9 @@ body<=
 
         # next page unless errors
         unless ( keys %{ $from_post{errors} } ) {
-            return BML::redirect( "$LJ::SITEROOT/create/confirm.bml" ) if $remote->get_cap( 'paid' );
-            return BML::redirect( "$LJ::SITEROOT/create/upgrade.bml" );
+            return BML::redirect( "$LJ::SITEROOT/create/upgrade.bml" )
+                if LJ::is_enabled( 'payments' ) && !$remote->is_paid;
+            return BML::redirect( "$LJ::SITEROOT/create/confirm.bml" );
         }
     }
 

@@ -68,8 +68,11 @@ sub render_body {
     $ret .= LJ::html_hidden( ssl => $get->{ssl} ) if $get->{ssl};
     $ret .= "</form>";
 
-    # FIXME: fill in the proper URL for the payment page when we know it
-    $ret .= "<p style='margin-top: 10px;'>" . $class->ml( 'widget.createaccountentercode.pay', { aopts => "href='#'", sitename => $LJ::SITENAMESHORT } ) . "</p>";
+    if ( LJ::is_enabled( 'payments' ) ) {
+        $ret .= "<p style='margin-top: 10px;'>";
+        $ret .= $class->ml( 'widget.createaccountentercode.pay', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
+        $ret .= "</p>";
+    }
 
     return $ret;
 }

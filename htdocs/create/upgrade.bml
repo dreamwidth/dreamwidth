@@ -28,7 +28,7 @@ body<=
     return "<?needlogin?>" unless $remote;
 
     return BML::redirect( "$LJ::SITEROOT/" )
-        unless $remote->is_personal && !$remote->get_cap( 'paid' );
+        unless LJ::is_enabled( 'payments' ) && $remote->is_personal && !$remote->is_paid;
 
     if ( LJ::did_post() ) {
         LJ::Widget->handle_post( \%POST, ( 'CreateAccountUpgrade' ) );

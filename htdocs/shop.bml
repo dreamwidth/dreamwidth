@@ -22,9 +22,8 @@ body<=
     use strict;
     use vars qw/ %GET %POST $title /;
 
-    # WE ARE NOT OPEN FOR BUSINESS
     return BML::redirect( "$LJ::SITEROOT/" )
-        unless $LJ::IS_DEV_SERVER;
+        unless LJ::is_enabled( 'payments' );
 
     # this page uses new style JS
     LJ::need_res( 'stc/shop.css' );

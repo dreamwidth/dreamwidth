@@ -219,7 +219,7 @@ sub addcomment
     my $u = $flags->{'u'};
 
     # some additional checks
-    return fail($err,314) unless $u->get_cap('paid');
+    return fail($err,314) unless $u->is_paid;
     return fail($err,214) if LJ::Comment->is_text_spam( \ $req->{body} );
 
     # create

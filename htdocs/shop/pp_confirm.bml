@@ -24,6 +24,9 @@ body<=
     use strict;
     use vars qw(%GET %POST);
 
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
     my ( $token, $payerid ) = ( $GET{token}, $GET{PayerID} );
     return 'sorry, need token at least'
         unless $token;

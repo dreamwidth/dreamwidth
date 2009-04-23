@@ -13,7 +13,7 @@ sub render_body {
     my $u = LJ::get_effective_remote();
 
     my $given_step = $opts{step} || 1;
-    my @steps_to_show = $given_step > 1 && $u && $u->get_cap( 'paid' ) ? ( 1, 2, 4 ) : ( 1..4 );
+    my @steps_to_show = !LJ::is_enabled( 'payments' ) || ( $given_step > 1 && $u && $u->is_paid ) ? ( 1, 2, 4 ) : ( 1..4 );
 
     my $ret;
 

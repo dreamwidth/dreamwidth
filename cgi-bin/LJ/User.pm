@@ -612,10 +612,19 @@ sub is_news {
     return $u->{journaltype} eq "N";
 }
 
+
 sub is_official {
     my $u = shift;
     return $LJ::OFFICIAL_JOURNALS{$u->username} ? 1 : 0;
 }
+
+
+sub is_paid {
+    my $u = shift;
+    return 0 if $u->is_identity || $u->is_syndicated;
+    return DW::Pay::get_account_type( $u ) ne 'free' ? 1 : 0;
+}
+
 
 sub is_person {
     my $u = shift;

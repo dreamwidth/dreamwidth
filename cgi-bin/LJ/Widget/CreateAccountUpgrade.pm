@@ -41,8 +41,7 @@ sub handle_post {
     my $post = shift;
     my %opts = @_;
 
-    # FIXME: fill in the proper URL for the payment page when we know it
-    return BML::redirect( "$LJ::SITEROOT/" );
+    return BML::redirect( "$LJ::SITEROOT/shop/account?for=self" );
 }
 
 1;

@@ -23,6 +23,9 @@ body<=
     use strict;
     use vars qw(%GET %POST);
 
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
     # FIXME: cancel order ;)
     return "FIXME: cancel order";
 }

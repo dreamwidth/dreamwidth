@@ -19,6 +19,9 @@
     use strict;
     use vars qw( %FORM );
 
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
     DW::Pay::pp_log_notify( \%FORM );
 
     return "notified";

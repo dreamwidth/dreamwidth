@@ -20,6 +20,9 @@ body<=
     use strict;
     use vars qw/ %GET %POST /;
 
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
     # this page uses new style JS
     LJ::need_res( 'stc/shop.css' );
     LJ::set_active_resource_group( 'jquery' );
