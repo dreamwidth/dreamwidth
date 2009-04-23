@@ -1155,12 +1155,16 @@ property bool linklist_support {
     des = "Display link list";
 }
 
+property string userlite_interaction_links {
+    des = "Select whether user interaction links are printed as text or using the available icons";
+    values = "icons|icons|text|text-only|";
+}
 property string entry_management_links {
     des = "Select whether entry management links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
 }
 property string comment_management_links {
-    des = "When enabled, comment management links are printed as text instead of using available icons";
+    des = "Select whether comment management links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
 }
 
@@ -1168,6 +1172,7 @@ set use_shared_pic = false;
 set tags_aware = true;
 set comment_userpic_style = "";
 set linklist_support = true;
+set userlite_interaction_links = "icons";
 set entry_management_links = "icons";
 set comment_management_links = "icons";
 
@@ -2343,7 +2348,12 @@ function UserLite::print_interaction_links()
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
         if ($link.url) {
-            """<li class="link $k">$link</li>\n""";
+            if ($*userlite_interaction_links == "text") {
+                """<li class="link $k"><a href="$link.url">$link.caption</a></li>\n""";
+            }
+            else { ## if ($*userlite_interaction_links == "icon")
+                """<li class="link $k">$link</li>\n""";
+            }
         }
     }
     """</ul>""";
