@@ -41,7 +41,7 @@ Policy</a>) and procedures that may be published from time to time on
 this Website by us (collectively, the Agreement).</p>
 
 <p>Please read this Agreement carefully before accessing or using the 
-Website. By accessing or using any part of the web site, you agree that you are bound by the terms and conditions of this Agreement. If you do 
+Website. By accessing or using any part of the Website, you agree that you are bound by the terms and conditions of this Agreement. If you do 
 not agree to all the terms and conditions of this Agreement, then you 
 may not access the Website or use any services. If these terms and 
 conditions are considered an offer by $LJ::SITENAME, acceptance is 
@@ -87,7 +87,7 @@ features that have limits) than those given to paid accounts.</li>
 significantly to the $LJ::SITENAME project, at our discretion. They
 receive all features available to premium paid accounts, at those
 limits, for as long as $LJ::SITENAME continues to operate, without need
-for future payment.</li>
+for future payment.</li></ul>
 
 <p>Payments to $LJ::SITENAME, for account services or for any other
 purpose, are refundable or transferable solely at ${LJ::SITENAMESHORT}'s
@@ -363,7 +363,9 @@ concerning your use of the Website. This Agreement may only be modified
 by a written amendment signed by an authorized representative of 
 $LJ::SITECOMPANY, or by the posting of a revised version to this 
 location. Except to the extent that applicable law (if any) provides 
-otherwise, any access to or use of the Website will be governed by the 
+otherwise, any dispute arising between you and $LJ::SITECOMPANY 
+regarding these Terms of Service and/or your use or access of the 
+Website will be governed by the 
 laws of the state of Maryland and the federal laws of the United States 
 of America, excluding any conflict of law provisions. You agree to 
 submit to the jurisdiction of the state and federal courts located in 
@@ -395,7 +397,7 @@ Attribution-ShareAlike 2.5 License.</p>
 
 
 
-<p class='note'>Last revised March 25, 2009</p>
+<p class='note'>Last revised April 23, 2009</p>
 PAGE
 
     return $ret;
