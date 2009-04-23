@@ -15,7 +15,7 @@ sub FriendsPage
 
     my $p = Page($u, $opts);
     $p->{'_type'} = "FriendsPage";
-    $p->{'view'} = "friends";
+    $p->{view} = "read";
     $p->{'entries'} = [];
     $p->{'friends'} = {};
     $p->{'friends_title'} = LJ::ehtml($u->{'friendspagetitle'});
