@@ -35,9 +35,9 @@ body<=
     return 'sorry, invalid token'
         unless $eng;
 
-    # cart must be in checkout state
+    # cart must be in open state
     return BML::redirect( "$LJ::SITEROOT/shop/pp_receipt?token=" . $eng->token )
-        unless $eng->cart->state == $DW::Shop::STATE_CHECKOUT;
+        unless $eng->cart->state == $DW::Shop::STATE_OPEN;
 
     # if they didn't post, give them a form
     unless ( LJ::did_post() ) {

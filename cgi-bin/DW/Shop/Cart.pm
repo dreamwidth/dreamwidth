@@ -126,6 +126,14 @@ sub new_cart {
         total     => 0.00,
     };
 
+    # now, delete any old carts we don't need
+    my $dbh = LJ::get_db_writer()
+        or return undef;
+    $dbh->do(
+        q{UPDATE shop_carts SET state = ? WHERE (userid = ? OR uniq = ?) AND state = ?},
+        undef, $DW::Shop::STATE_CLOSED, $cart->{userid}, $cart->{uniq}, $DW::Shop::STATE_OPEN
+    );
+
     # build this into an object and activate it
     $cart = $class->_build( $cart );
 
