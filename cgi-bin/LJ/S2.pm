@@ -3566,7 +3566,7 @@ sub _Entry__get_link
 
         return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_watch_comments"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/track.png",162, 16, 'Track This',
+                            LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This',
                                           'lj_journalid'        => $journalu->id,
                                           'lj_etypeid'          => $etypeid,
                                           'lj_subid'            => 0,
