@@ -836,6 +836,11 @@
         moodthemeid => 7,
     );
 
+    # initial userprop settings for new users
+    %USERPROP_INIT = (
+        opt_showmutualfriends => 1,
+    );
+
     # remote's safe_search prop value must be greater than or equal to the defined
     # safe_search_level value in order for users with that level's content flag to be
     # filtered out of remote's search results
