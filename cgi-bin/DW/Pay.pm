@@ -323,16 +323,23 @@ sub update_paid_status {
 #         purchased
 #
 sub num_permanent_accounts_available {
+    DW::Pay::clear_error();
+
     return 0 unless $LJ::PERMANENT_ACCOUNT_LIMIT;
     return -1 if $LJ::PERMANENT_ACCOUNT_LIMIT < 0;
 
-    # FIXME: we need to figure out the best way to do this, which is probably
-    # to have some counter that is incremented (or decremented) whenever someone
-    # finishes the check out process with a permanent account in their cart
-    my $num_bought = 0;
-    my $num_available = $LJ::PERMANENT_ACCOUNT_LIMIT - $num_bought;
+    # try memcache first
+    my $ct = LJ::MemCache::get( 'numpermaccts' );
+    return $ct if defined $ct;
 
-    return $num_available > 0 ? $num_available : 0;
+    # not in memcache, so let's hit the database
+    # FIXME: add ddlockd so we don't hit the db in waves every 60 seconds
+    my $dbh = DW::Pay::get_db_writer()
+        or return error( ERR_TEMP, "Unable to get db writer." );
+    my $ct = $dbh->selectrow_array( 'SELECT COUNT(*) FROM dw_paidstatus WHERE permanent = 1' )+0;
+    LJ::MemCache::set( 'numpermaccts', $ct, 60 );
+
+    return $ct;
 }
 
 ################################################################################
