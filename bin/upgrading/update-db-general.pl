@@ -3146,10 +3146,12 @@ EOC
 register_tablecreate('shop_carts', <<'EOC');
 CREATE TABLE shop_carts (
     cartid INT UNSIGNED NOT NULL,
+    authcode VARCHAR(20) NOT NULL,
     starttime INT UNSIGNED NOT NULL,
     userid INT UNSIGNED,
     uniq VARCHAR(15) NOT NULL,
     state INT UNSIGNED NOT NULL,
+    nextscan INT UNSIGNED NOT NULL DEFAULT 0,
 
     cartblob MEDIUMBLOB NOT NULL,
 
@@ -4023,6 +4025,16 @@ register_alter(sub {
                   q{ALTER TABLE import_items MODIFY COLUMN
                     status ENUM('init', 'ready', 'queued', 'failed', 'succeeded', 'aborted')
                     NOT NULL DEFAULT 'init'} );
+    }
+
+    unless ( column_type( 'shop_carts', 'nextscan' ) =~ /int/ ) {
+        do_alter( 'shop_carts',
+                  q{ALTER TABLE shop_carts ADD COLUMN nextscan INT UNSIGNED NOT NULL DEFAULT 0 AFTER state} );
+    }
+
+    unless ( column_type( 'shop_carts', 'authcode' ) =~ /varchar/ ) {
+        do_alter( 'shop_carts',
+                  q{ALTER TABLE shop_carts ADD COLUMN authcode VARCHAR(20) NOT NULL AFTER nextscan} );
     }
 
 });

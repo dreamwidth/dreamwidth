@@ -61,7 +61,7 @@ sub get {
     my $dbh = LJ::get_db_writer()
         or return undef;
     my $dbcart = $dbh->selectrow_hashref(
-        qq{SELECT userid, cartid, starttime, uniq, state, cartblob
+        qq{SELECT userid, cartid, starttime, uniq, state, cartblob, nextscan, authcode
            FROM shop_carts
            WHERE $sql AND state = ?
            ORDER BY starttime DESC
@@ -94,7 +94,7 @@ sub get_from_cartid {
     my $dbh = LJ::get_db_writer()
         or return undef;
     my $dbcart = $dbh->selectrow_hashref(
-        qq{SELECT userid, cartid, starttime, uniq, state, cartblob
+        qq{SELECT userid, cartid, starttime, uniq, state, cartblob, nextscan, authcode
            FROM shop_carts WHERE cartid = ?},
         undef, $cartid
     );
@@ -102,6 +102,27 @@ sub get_from_cartid {
 
     # if we got something, thaw the blob and return
     return $class->_build( thaw( $dbcart->{cartblob} ) );
+}
+
+
+# returns a new cart given an ordernum
+sub get_from_ordernum {
+    my ( $class, $ordernum ) = @_;
+
+    my ( $cartid, $authcode ) = ( $1+0, $2 )
+        if $ordernum =~ /^(\d+)-(.+)$/;
+    return undef
+        unless $cartid && $cartid > 0;
+    return undef
+        unless $authcode && length( $authcode ) == 20;
+
+    # see if they had one in the database
+    my $cart = $class->get_from_cartid( $cartid );
+    return undef
+        unless $cart && $cart->authcode eq $authcode;
+
+    # all matches, so return this cart
+    return $cart;
 }
 
 
@@ -124,6 +145,8 @@ sub new_cart {
         state     => $DW::Shop::STATE_OPEN,
         items     => [],
         total     => 0.00,
+        nextscan  => 0,
+        authcode  => LJ::make_auth_code( 20 ),
     };
 
     # now, delete any old carts we don't need
@@ -154,9 +177,9 @@ sub save {
     my $dbh = LJ::get_db_writer()
         or return undef;
     $dbh->do(
-        q{REPLACE INTO shop_carts (userid, cartid, starttime, uniq, state, cartblob)
-          VALUES (?, ?, ?, ?, ?, ?)},
-        undef, ( map { $self->{$_} } qw/ userid cartid starttime uniq state / ), nfreeze( $self )
+        q{REPLACE INTO shop_carts (userid, cartid, starttime, uniq, state, nextscan, authcode, cartblob)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)},
+        undef, ( map { $self->{$_} } qw/ userid cartid starttime uniq state nextscan authcode / ), nfreeze( $self )
     );
 
     # bail if error
@@ -254,15 +277,20 @@ sub state {
 ################################################################################
 
 
-sub id     { $_[0]->{cartid}             } 
-sub userid { $_[0]->{userid}             }
-sub age    { time() - $_[0]->{starttime} }
-sub items  { $_[0]->{items} ||= []       }
-sub uniq   { $_[0]->{uniq}               }
-sub total  { $_[0]->{total}+0.00         }
+sub id       { $_[0]->{cartid}             } 
+sub userid   { $_[0]->{userid}             }
+sub age      { time() - $_[0]->{starttime} }
+sub items    { $_[0]->{items} ||= []       }
+sub uniq     { $_[0]->{uniq}               }
+sub nextscan { $_[0]->{nextscan}           }
+sub authcode { $_[0]->{authcode}           }
+sub total    { $_[0]->{total}+0.00         }
 
 # returns the total in a displayed format
 sub display_total { sprintf( '%0.2f', $_[0]->total ) }
+
+# and our order number
+sub ordernum { $_[0]->{cartid} . '-' . $_[0]->{authcode} }
 
 
 ################################################################################

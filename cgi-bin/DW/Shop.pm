@@ -120,6 +120,8 @@ sub anonymous {
 
 package LJ::User;
 
+use Carp qw/ confess /;
+
 # returns the shop on a user
 sub shop {
     return $_[0]->{_shop}

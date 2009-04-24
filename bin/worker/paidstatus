@@ -1,13 +1,194 @@
 #!/usr/bin/perl
+#
+# bin/worker/paidstatus
+#
+# Worker job that loops and looks for shopping carts that are in the need of
+# processing.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 
+use Time::HiRes qw/ gettimeofday tv_interval /;
+
 require 'ljlib.pl';
+require 'ljmail.pl';
+require 'ljlang.pl';
+use DW::Shop;
+use DW::Shop::Cart;
 
-use LJ::Worker::TheSchwartz;
-use DW::Worker::PaidStatus;
 
-schwartz_decl( "DW::Worker::PaidStatus" );
+################################################################################
+## main setup
+################################################################################
 
-schwartz_work();
+
+# setup logging routine
+my $begin_time = [ gettimeofday() ];
+my ( $logfile, $last_log_time );
+my $log = sub {
+    $last_log_time ||= [ gettimeofday() ];
+
+    unless ( $logfile ) {
+        open $logfile, ">>$LJ::HOME/logs/paidstatus.log"
+            or die "Internal server error creating log.\n";
+        print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time( gmtime() ) . ".\n";
+    }
+
+    my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
+    my $msg = sprintf( $fmt, tv_interval( $last_log_time ), tv_interval( $begin_time ), @_ );
+
+    # now log to both the file and STDERR if we're foregrounded
+    print $logfile $msg;
+    print STDERR $msg;
+
+    $last_log_time = [ gettimeofday() ];
+};
+
+# setup alert routine, this sends a mail to some configurable alert address
+my $alert = sub {
+    LJ::send_mail(
+        {
+            to => $LJ::PAYPAL_CONFIG{email},
+            from => $LJ::BOGUS_EMAIL,
+            subject => "$LJ::SITENAME Payment System Alert",
+            body => shift(),
+        }
+    );
+    return undef;
+};
+
+while ( 1 ) {
+    $log->( 'Main loop beginning...' );
+
+    # do this in a sub so it can return on error
+    main_loop();
+
+    # now we sleep to the next five minute boundary, and if we're taking more
+    # than five minutes to run, we fire off an alert
+    my $sleep_time = 300 - ( tv_interval( $begin_time ) % 300 );
+    if ( $sleep_time < 0 ) {
+        $alert->( 'Warning: main loop is taking longer than five minutes.' );
+        $sleep_time = 60;
+    }
+    $log->( 'Sleeping for %0.2f seconds.', $sleep_time );
+    select undef, undef, undef, $sleep_time;
+
+    $log->( 'Main loop ended.' );
+}
+
+
+################################################################################
+## main loop
+################################################################################
+
+
+sub main_loop {
+    # disconnect dbs
+    LJ::disconnect_dbs();
+
+    # now get a db or die
+    my $dbh = LJ::get_db_writer()
+        or return $log->( 'Unable to get database writer handle.' );
+
+    # dig up carts that are in state paid and scannable
+    my $cartids = $dbh->selectcol_arrayref(
+        q{SELECT cartid FROM shop_carts WHERE state = ? AND nextscan < UNIX_TIMESTAMP()},
+        undef, $DW::Shop::STATE_PAID
+    );
+    return $log->( 'Database error: %s', $dbh->errstr )
+        if $dbh->err;
+    return $log->( 'Invalid response looking for scannable carts.' )
+        unless $cartids && ref $cartids eq 'ARRAY';
+
+    $log->( 'Found %d scannable carts.', scalar( @$cartids ) );
+
+    # now iterate over these and do something with them
+    scan_cart( $dbh, $_ ) foreach @$cartids;
+}
+
+
+sub scan_cart {
+    my $dbh = shift;
+    my $cartid = shift() + 0;
+
+    # easy sub for setting nextscan on this cart
+    my $nextscan = sub {
+        $dbh->do(
+            q{UPDATE shop_carts SET nextscan = UNIX_TIMESTAMP() + ? WHERE cartid = ?},
+            undef, shift() || 3600, $cartid
+        );
+        $log->( 'Database error: %s', $dbh->errstr )
+            if $dbh->err;
+        return 1;
+    };
+
+    # setup a failure sub, this will log and alert on errors plus mark the cart as
+    # not being scannable for another hour
+    my $fail = sub {
+        my $msg = 'scan_cart(%d): ' . shift();
+        $msg = sprintf( $msg, $cartid, @_ );
+
+        $log->( $msg );
+        $alert->( $msg );
+
+        return undef;
+    };
+
+    # prepend our logging function with useful information
+    my $log = sub {
+        $log->( 'scan_cart(%d): ' . shift(), $cartid, @_ );
+    };
+
+    $log->( '-' x 60 );
+
+    my $cart = DW::Shop::Cart->get_from_cartid( $cartid );
+    return $fail->( 'Failed creating cart.' )
+        unless $cart && ref $cart eq 'DW::Shop::Cart';
+
+    # error check this cart
+    return $fail->( 'Cart not in a valid state.' )
+        unless $cart->state == $DW::Shop::STATE_PAID;
+    return $fail->( 'Cart has no items.' )
+        unless $cart->has_items;
+
+    # try to apply each item
+    my $unapplied = 0;
+    $log->( 'Iterating over items.' );
+    foreach my $item ( @{ $cart->items } ) {
+        $log->( 'Found item %s.', $item->short_desc );
+        if ( $item->applied ) {
+            $log->( 'Item already applied.' );
+            next;
+        }
+
+        # try to apply it
+        my $rv = $item->apply;
+        if ( $rv ) {
+            $log->( 'Successfully applied item.' );
+        } else {
+            $log->( 'Failed to apply item.' );
+            $unapplied = 1;
+        }
+    }
+
+    # once we get here, MAKE SURE THE CART IS SAVED
+    $cart->save;
+
+    # two possible results: we have items still unapplied or we did
+    # get everything applied.  try again in 1-2 hours.
+    if ( $unapplied ) {
+        $nextscan->( 3600 + int( rand() * 3600 ) );
+        $log->( 'One or more items not applied, will retry later.' );
+        return;
+    }
+}

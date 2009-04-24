@@ -101,6 +101,10 @@ sub checkout_url {
     die "Constraints not met: cart && cart->has_items && cart->has_total > 0.00.\n"
         unless $cart && $cart->has_items && $cart->total > 0.00;
 
+    # and, just in case something terrible happens, make sure our state is good
+    die "Cart not in valid state!\n"
+        unless $cart->state == $DW::Shop::STATE_OPEN;
+
     # we have to have this later
     my $dbh = DW::Pay::get_db_writer()
         or return $self->temp_error( 'nodb' );
@@ -125,7 +129,7 @@ sub checkout_url {
         returnurl     => "$LJ::SITEROOT/shop/pp_confirm",
 
         # custom data we send to reference this cart
-        custom        => join( '-', ( $cart->id, $cart->display_total ) ),
+        custom        => join( ';', ( $cart->ordernum, $cart->display_total ) ),
     );
 
     # now we have to stick in data for each of the items in the cart
@@ -143,6 +147,13 @@ sub checkout_url {
     my $res = $self->_pp_req( 'SetExpressCheckout', @req );
     return $self->error( 'paypal.notoken' )
         unless defined $res && exists $res->{token};
+
+    # remove any pp_tokens entries that reference this cart.  since our cart
+    # is asserted to be in the OPEN state, and you can never transitionb back
+    # to the OPEN state, this is safe.
+    $dbh->do( 'DELETE FROM pp_tokens WHERE cartid = ?', undef, $cart->id );
+    return $self->error( 'dberr', errstr => $dbh->errstr )
+        if $dbh->err;
 
     # now store this in the db
     $dbh->do(
