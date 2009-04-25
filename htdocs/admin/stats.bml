@@ -1,0 +1,90 @@
+<?_c
+#
+# admin/stats.bml
+#
+# Admin-level statistics
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use warnings;
+    use vars qw/ $title /;
+
+    # translated/custom page title can go here
+    $title = $ML{'/admin/index.bml.admin.stats.link'};
+
+    my $remote = LJ::get_remote();
+    my @display_privs = ( "payments" );
+    my $numprivs = @display_privs;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join( ", ", @display_privs ) . "</b>"} )
+        unless $LJ::IS_DEV_SERVER || LJ::check_priv( $remote, "payments" );
+
+    my $ret;
+    
+    use DW::StatStore;
+    use DW::StatData;
+    LJ::ModuleLoader::autouse_subclasses( 'DW::StatData' );
+
+    # number of accounts, total
+    my $accounts_by_type = DW::StatData::AccountsByType->load_latest( DW::StatStore->get( "accounts" ) );
+    $ret .= "<h2>Number of accounts</h2>";
+    $ret .= "<ul>";
+    $ret .= "<li><label>Total</label>: " . $accounts_by_type->value( "total" ) . "</li>";
+    $ret .= "<li><label>Personal</label>: " . $accounts_by_type->value( "personal" ) . "</li>";
+    $ret .= "<li><label>OpenID</label>: " . $accounts_by_type->value( "identity" ) . "</li>";
+    $ret .= "</ul>";
+    
+    # number of accounts, active
+    
+    
+    
+<<COMMENT;
+
+FIXME: remove this when you have implemented them all 
+
+* Number of accounts, total
+* Number of accounts active
+* Number of paid accounts (by payment level)
+  -- as a percentage of total accounts
+  -- as a percentage of active accounts
+  -- number of active paid accounts
+  -- number of inactive paid accounts
+* Number of payments in last 1d/2d/5d/7d/1m/3m/1y
+  -- broken down by which payment level/payment item chosen
+  -- and divided into new payments vs. renewals
+  -- and expressed as a dollar amount taken in during that time
+* Number of lapsed paid accounts in last 1d/2d/5d/7d/1m/3m/1y
+  -- and renewed within 7d/14d/1m
+  -- and not renewed within 7d/14d/1m
+  -- and as a percentage of total paid accounts
+* Percent churn over last 7d/1m/3m/1y
+ -- (churn formula: total lapsed paid accounts that don't renew within 7d/total
+paid accounts * 100)
+* Number of paid accounts that were created via payment (no code)
+* Number of paid accounts that were created via code, then paid
+  -- within 1d/2d/5d/7d/1m/3m/1y of creation
+* Total refunds issued within last 7d/1m/3m/1y
+  -- with dollar amount refunded
+  -- with fees added to dollar amount refunded
+* Total chargebacks/PayPal refunds within last 7d/1m/3m/1y
+  -- with dollar amount charged back
+  -- with fees added to dollar amount charged back
+COMMENT
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+page?>
