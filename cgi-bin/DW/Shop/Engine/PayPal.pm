@@ -138,8 +138,8 @@ sub checkout_url {
         push @req, "L_NAME$cur"   => $item->class_name,
                    "L_NUMBER$cur" => $cart->id . $item->id,
                    "L_DESC$cur"   => $item->short_desc,
-                   "L_AMT$cur"    => $item->cost;
-                   "L_QTY$cur"    => 1,
+                   "L_AMT$cur"    => $item->cost,
+                   "L_QTY$cur"    => 1;
         $cur++;
     }
 
