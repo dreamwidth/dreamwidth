@@ -136,10 +136,10 @@ sub checkout_url {
     my $cur = 0;
     foreach my $item ( @{ $cart->items } ) {
         push @req, "L_NAME$cur"   => $item->class_name,
+                   "L_NUMBER$cur" => $cart->id . $item->id,
                    "L_DESC$cur"   => $item->short_desc,
-                   "L_NUMBER$cur" => $cart->id . "-" . $item->id,
-                   "L_QTY$cur"    => 1,
                    "L_AMT$cur"    => $item->cost;
+                   "L_QTY$cur"    => 1,
         $cur++;
     }
 
@@ -301,12 +301,13 @@ sub _pp_req {
         # already done the PayPal logic and failing on logging could lead to us
         # taking money but not crediting accounts, etc ...
         if ( ref $self && ( my $ppid = $self->ppid ) ) {
-            my $dbh = DW::Pay::get_db_writer();
-            if ( my $dbh ) {
+            if ( my $dbh = DW::Pay::get_db_writer() ) {
                 $dbh->do( q{
                         INSERT INTO pp_log (ppid, transtime, req_content, res_content)
-                        VALUES (?, UNIX_TIMESTAMP(), ?)
+                        VALUES (?, UNIX_TIMESTAMP(), ?, ?)
                     }, undef, $ppid, $reqct, $res->content );
+                warn $dbh->errstr
+                    if $dbh->err;
             }
         }
 
@@ -314,6 +315,25 @@ sub _pp_req {
     } else {
         return $self->temp_error( 'paypal.connection' );
     }
+}
+
+
+# called by someone who gets an IPN from PayPal
+sub process_ipn {
+    my ( $class, $form ) = @_;
+
+    # FIXME: we have to do more than just log it :-)
+    my $dbh = DW::Pay::get_db_writer()
+        or die "failed, please retry later\n";
+    $dbh->do(
+        q{INSERT INTO pp_log (ppid, transtime, req_content, res_content)
+          VALUES (0, UNIX_TIMESTAMP(), ?, '')},
+        undef, nfreeze( $form )
+    );
+    die "failed to insert\n"
+        if $dbh->err;
+
+    return 1;
 }
 
 
