@@ -328,18 +328,24 @@ sub num_permanent_accounts_available {
     return 0 unless $LJ::PERMANENT_ACCOUNT_LIMIT;
     return -1 if $LJ::PERMANENT_ACCOUNT_LIMIT < 0;
 
+    # 1. figure out how many permanent accounts have been purchased
+
     # try memcache first
     my $ct = LJ::MemCache::get( 'numpermaccts' );
-    return $ct if defined $ct;
 
-    # not in memcache, so let's hit the database
-    # FIXME: add ddlockd so we don't hit the db in waves every 60 seconds
-    my $dbh = DW::Pay::get_db_writer()
-        or return error( ERR_TEMP, "Unable to get db writer." );
-    my $ct = $dbh->selectrow_array( 'SELECT COUNT(*) FROM dw_paidstatus WHERE permanent = 1' )+0;
-    LJ::MemCache::set( 'numpermaccts', $ct, 60 );
+    unless ( defined $ct ) {
+        # not in memcache, so let's hit the database
+        # FIXME: add ddlockd so we don't hit the db in waves every 60 seconds
+        my $dbh = DW::Pay::get_db_writer()
+            or return error( ERR_TEMP, "Unable to get db writer." );
+        $ct = $dbh->selectrow_array( 'SELECT COUNT(*) FROM dw_paidstatus WHERE permanent = 1' )+0;
+        LJ::MemCache::set( 'numpermaccts', $ct, 60 );
+    }
 
-    return $ct;
+    # 2. figure out how many are left to purchase
+
+    my $num_available = $LJ::PERMANENT_ACCOUNT_LIMIT - $ct;
+    return $num_available > 0 ? $num_available : 0;
 }
 
 ################################################################################
