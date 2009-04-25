@@ -563,7 +563,7 @@ function Page::print()
         $this->print_head_title();
     println "</head>";
 
-    println "<body>";
+        $this->print_wrapper_start();
         $this->print_control_strip();
         println "<div id=\"header\">";
         $this->print_module_section("two");
@@ -585,7 +585,7 @@ function Page::print()
         $this->print_module_section("three");
         println "<div>";
 
-    println "</body>";
+    $this->print_wrapper_end();
     println "</html>";
 }
 
