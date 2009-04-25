@@ -1105,7 +1105,7 @@ function EntryLite::lay_get_tags() : string {
 function Page::lay_get_poster(EntryLite e) : string {
     if ( not defined $e.poster ) {
         return $*text_poster_anonymous;
-    } elseif ( not $e.poster->equals($e.journal) and $.view == "friends" ) {
+    } elseif ( not $e.poster->equals($e.journal) and $.view == "read" ) {
 
         # default: "%1 in %2"
         return lay_string_placeholders( $*poster_in_journal, [$e.poster->as_string(), $e.journal->as_string()] );
@@ -1405,7 +1405,7 @@ function Page::lay_print_collapsed_entry_comments(Entry e) : void {
 # Entry poster.
 #
 function Page::lay_print_collapsed_entry_poster(Entry e) : void {
-    if ( $.view == "friends" or not $e.poster->equals($.journal as UserLite) ) {
+    if ( $.view == "read" or not $e.poster->equals($.journal as UserLite) ) {
         print """ &mdash; <span class="poster">""" + $this->lay_get_poster($e) + "</span>";
     }
 }
