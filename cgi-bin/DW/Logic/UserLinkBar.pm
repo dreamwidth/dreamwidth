@@ -201,7 +201,7 @@ sub trust {
         } else {
             $link->{title_ml} = 'userlinkbar.addtrust.title.loggedout';
             $link->{class} = "addtrust_disabled";
-            $link->{image} = 'access-grant-disabled.png';
+            $link->{image} = 'access_grant_disabled.png';
         }
 
         return $self->fix_link( $link );
