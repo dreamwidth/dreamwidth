@@ -1352,6 +1352,8 @@ error.pay.dberr=Database error: [[errstr]].  Please try again later.
 
 error.pay.nodb=Failed to connect to database.  Please try again later.
 
+error.pay.cmo.engbadstate=Payment engine is in a bad state.  Please try your order again.
+
 error.pay.paypal.connection=Temporary failure connecting to PayPal.  Please try again later.
 
 error.pay.paypal.engbadstate=Payment engine is in a bad state.  Please contact site administrators.

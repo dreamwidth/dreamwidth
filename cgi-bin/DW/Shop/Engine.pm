@@ -17,6 +17,7 @@
 package DW::Shop::Engine;
 
 use strict;
+use DW::Shop::Engine::CheckMoneyOrder;
 use DW::Shop::Engine::PayPal;
 
 # get( $method, $cart )
@@ -24,6 +25,7 @@ use DW::Shop::Engine::PayPal;
 # returns the proper subclass for the given payment method, if one exists
 sub get {
     return DW::Shop::Engine::PayPal->new( $_[2] ) if $_[1] eq 'paypal';
+    return DW::Shop::Engine::CheckMoneyOrder->new( $_[2] ) if $_[1] eq 'checkmoneyorder';
 
     warn "Payment method '$_[1]' not supported.\n";
     return undef;
