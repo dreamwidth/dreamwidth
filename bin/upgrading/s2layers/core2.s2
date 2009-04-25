@@ -1455,6 +1455,37 @@ property Color color_comment_bar {
 
 set color_comment_bar = "#d0d0ff";
 
+property string custom_control_strip_colors {
+    des = "Navigation strip colors";
+    values = "off|Do not use custom colors|on_gradient|Use custom colors with a background gradient|on_no_gradient|Use custom colors without a background gradient";
+    note = "Custom colors can be set in the \"Colors\" section.";
+}
+set custom_control_strip_colors = "off";
+
+property Color control_strip_bgcolor {
+    des = "Background color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_bgcolor = "";
+
+property Color control_strip_fgcolor {
+    des = "Text color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_fgcolor = "";
+
+property Color control_strip_bordercolor {
+    des = "Border color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_bordercolor = "";
+
+property Color control_strip_linkcolor {
+    des = "Link color of navigation strip";
+    note = "If you don't enable custom navigation strip colors in the \"Presentation\" section, this won't have any effect.";
+}
+set control_strip_linkcolor = "";
+
 
 ##===============================
 ## Journal style - element colors
@@ -2154,6 +2185,98 @@ function print_stylesheet ()
   "Prints a stylesheet, the URL of which can be referenced by [member[Page.stylesheet_url]].  This is another S2 entry point, in addition to [method[Page.print()]]. If you want to hardcode a stylesheet into your layout, override this function."
 {
 }
+
+function print_custom_control_strip_css ()
+  "Prints the CSS for custom control strip colors, if the option is enabled. This should be called by print_stylesheet().  If you override this function, you will be changing the design  of what is effectively site navigation, so proceed with caution."
+{
+    if ($*custom_control_strip_colors != "off") {
+        var bool bgcolor = $*control_strip_bgcolor.as_string != "";
+        var bool fgcolor = $*control_strip_fgcolor.as_string != "";
+        var bool bordercolor = $*control_strip_bordercolor.as_string != "";
+        var bool linkcolor = $*control_strip_linkcolor.as_string != "";
+        var string bgimage = "";
+
+        if ($*custom_control_strip_colors == "on_gradient" and $bgcolor and $fgcolor) {
+            var Color blended_color = $*control_strip_bgcolor->blend($*control_strip_fgcolor, 25); # Make the background color 25% like the text color
+            $bgimage = palimg_tint("controlstrip/bg.gif", $*control_strip_bgcolor, $blended_color);
+        }
+
+        if ($bgcolor) {
+"""
+
+#lj_controlstrip {
+    background-color: $*control_strip_bgcolor;
+""";
+if ($bgimage == "") {
+    """    background-image: none;""";
+} else {
+    """    background-image: url($bgimage);""";
+}
+"""
+}""";
+        }
+
+        if ($fgcolor or $bordercolor) {
+"""
+
+#lj_controlstrip td {
+""";
+if ($fgcolor) {
+    """    color: $*control_strip_fgcolor;""";
+}
+if ($fgcolor and $bordercolor) {
+    "\n";
+}
+if ($bordercolor) {
+    """    border-bottom: 1px solid $*control_strip_bordercolor;""";
+}
+"""
+}""";
+        }
+
+        if ($fgcolor) {
+"""
+
+#lj_controlstrip_statustext {
+    color: $*control_strip_fgcolor;
+}""";
+        }
+
+        if ($linkcolor) {
+"""
+
+#lj_controlstrip a {
+    color: $*control_strip_linkcolor;
+}""";
+        }
+
+        if ($bordercolor) {
+"""
+
+#lj_controlstrip_user,
+#lj_controlstrip_actionlinks,
+#lj_controlstrip_search,
+#lj_controlstrip_login,
+#lj_controlstrip_loggedout_userpic {
+    border-right: 1px solid $*control_strip_bordercolor;
+}
+
+#lj_controlstrip_login td {
+    border-bottom: 0;
+}
+
+#lj_controlstrip td td {
+    border-bottom: 0;
+}""";
+        }
+
+        if ($bgcolor and $fgcolor) {
+            print control_strip_logged_out_userpic_css();
+            print control_strip_logged_out_full_userpic_css();
+        }
+    }
+}
+
 
 ### Language
 
