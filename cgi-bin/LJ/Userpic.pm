@@ -64,6 +64,22 @@ sub instance {
 }
 *new = \&instance;
 
+# LJ::Userpic accessor. Returns a LJ::Userpic object indicated by $picid, or
+# undef if userpic doesn't exist in the db.
+sub get {
+    my ($class, $u, $picid) = @_;
+
+    my @cache = LJ::Userpic->load_user_userpics($u);
+
+    if (@cache) {
+        foreach my $curr (@cache) {
+            return LJ::Userpic->new( $u, $curr->{picid} ) if $curr->{picid};
+        }
+    }
+
+    return undef;
+}
+
 sub _skeleton {
     my ($class, $u, $picid) = @_;
     # starts out as a skeleton and gets loaded in over time, as needed:

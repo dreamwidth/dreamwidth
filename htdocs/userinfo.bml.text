@@ -460,13 +460,19 @@
 
 .userpic.choose=Choose userpic
 
+.userpic.comm.alt=Community Userpic
+
 .userpic.none=no default userpic
 
 .userpic.none2=(no userpics)
 
 .userpic.none3=No Userpics
 
+.userpic.openid.alt=OpenID Userpic
+
 .userpic.upload=Upload Userpic
+
+.userpic.user.alt=Generic Userpic
 
 .userpic.viewall=View All Userpics
 

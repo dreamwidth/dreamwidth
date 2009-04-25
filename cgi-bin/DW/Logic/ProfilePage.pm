@@ -89,10 +89,19 @@ sub userpic {
             $ret->{userpic} = $up->url;
         } elsif ( $u->is_personal ) {
             $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/user.gif";
+            $ret->{alt_text} = LJ::Lang::ml( '.userpic.user.alt' );
+            $ret->{width} = 100;
+            $ret->{height} = 100;
         } elsif ( $u->is_community ) {
             $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/comm.gif";
+            $ret->{alt_text} = LJ::Lang::ml( '.userpic.comm.alt' );
+            $ret->{width} = 100;
+            $ret->{height} = 100;
         } elsif ( $u->is_identity ) {
             $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/openid.gif";
+            $ret->{alt_text} = LJ::Lang::ml( '.userpic.openid.alt' );
+            $ret->{width} = 100;
+            $ret->{height} = 100;
         }
     
         # now determine what caption text to show
@@ -114,7 +123,18 @@ sub userpic {
     }
 
     # build the HTML tag
-    my $userpic_obj = LJ::Userpic->new( $u, $u->{defaultpicid} );
+    my $userpic_obj = LJ::Userpic->get( $u, $u->{defaultpicid} );
+    my $imgtag_conditional;
+    if ( $userpic_obj ) {
+      $imgtag_conditional = $userpic_obj->imgtag;
+    } else {
+      $imgtag_conditional = '<img src="' . $ret->{userpic} .
+                            '" height=' . $ret->{height} .
+                            ' width=' . $ret->{width} .
+                            ' alt="' . $ret->{alt_text} .
+                            '" />';
+    }
+   
 
     #  Set the wrapper materials to surrounded the  userpic image
     my ( $apre, $apost );
@@ -133,7 +153,7 @@ sub userpic {
         );
     }
 
-    $ret->{imgtag} =  $apre . $userpic_obj->imgtag . $apost;
+    $ret->{imgtag} =  $apre . $imgtag_conditional . $apost;
 
     return $ret;
 }
