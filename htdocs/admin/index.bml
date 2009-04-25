@@ -91,6 +91,8 @@ body<=
             } ] ],
         [ 'spamreports.bml',
             '<?_ml .admin.spamreports.link _ml?>', '<?_ml .admin.spamreports.text _ml?>', [ 'siteadmin:spamreports', 'siteadmin:*' ] ],
+        [ 'stats.bml',
+            '<?_ml .admin.stats.link _ml?>', '<?_ml .admin.stats.text _ml?>', [ 'payments' ] ],
         [ 'statushistory.bml',
             '<?_ml .admin.statushistory.link _ml?>', '<?_ml .admin.statushistory.text _ml?>', [ 'historyview', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );

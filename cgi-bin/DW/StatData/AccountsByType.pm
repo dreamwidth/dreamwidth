@@ -61,14 +61,15 @@ sub collect {
     return \%data;
 }
 
-=head2 C<< $class->data >>
+=head2 C<< $self->data >>
  
 =cut
 
 sub data {
     my $self = shift;
-    my $data = $self->data;
-    $data{total} += $data{$_} foreach keys $data;
+    my $data = $self->{data};
+    $data->{total} = 0;
+    $data->{total} += $data->{$_} foreach keys %$data;
     return $data;
 }
 

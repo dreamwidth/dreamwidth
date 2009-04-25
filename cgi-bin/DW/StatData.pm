@@ -19,13 +19,29 @@ DW::StatData - Abstract superclass for statistics modules
 
 =head1 SYNOPSIS
 
-  # examples of function usage
+    use DW::StatStore;  # to retrieve stored statistics from the database
+    use DW::StatData;   # to serve as an API for gathering the data
+    # load all the available DW::StatData::* submodules
+    LJ::ModuleLoader::autouse_subclasses( 'DW::StatData' );
+
+    # get the latest set of pony statistics
+    my $ponies = DW::StatData::Ponies->load_latest( DW::StatStore->get( "ponies" ) );
+
+    # how many ponies are currently sparkly?
+    $ret .= $ponies->value( "sparkly" );
+
+    # load statistics for ponies over the past 30 days
+    my $ponies_history = DW::StatData::Ponies->load( DW::StatStore->get( "ponies", 30 ) );
+    
+    # get the number of sparkly ponies 15 days ago
+    $ret .= $ponies_history->{15}->value( "sparkly" );
 
 =cut
 
 use strict;
 use warnings;
 use Carp qw( confess );
+use POSIX qw( floor );
 
 use fields qw( data );
 
@@ -99,17 +115,66 @@ sub collect {
     confess "'collect' should be implemented by subclass"; 
 }
 
-=head2 C<< $class->new( $category, $name, $key1 => $value, ... ) >>
+=head2 C<< $class->new( $key1 => $value, ... ) >>
 
-Initialize
+Initialize this row of stat data, given a hash of statkey-value pairs
 
 =cut
 
 sub new {
-    return fields::new( $_[0] );
+    my ( $self, %data ) = @_;
+    
+    unless ( ref $self ) {
+        $self = fields::new( $self );
+    }
+    while ( my ( $k, $v ) = each %data ) {
+        $self->{$k} = $v;
+    }
+
+    return $self;
+}
+
+=head2 C<< $class->load( { $timestampA => { $key1 => $value1, ... }, $timestampB => ... } ) >>
+
+Given a hashref of timestamps mapped to data rows, returns a hashref of DW::StatData::* objects. Input timestamps are time that row of statistics was collected; returned hash keys are how many days ago this data was collected.
+
+=cut
+
+sub load {
+    my ( $class, $rows ) = @_;
+    my $days_ago = sub {
+        my $timestamp = $_[0];
+        return floor( ( time() - $timestamp ) / ( 24 * 60 * 60 ) );
+    };
+
+    my $ret;
+    while ( my ( $timestamp, $data )  = each %$rows ) {
+        # does not protect against multiple versions of the data collected on the same day?
+        $ret->{$days_ago->( $timestamp )} = $class->new( data => $data );
+    }
+    return $ret;
+}
+
+=head2 C<< $class->load_latest( ... ) >>
+
+Accepts the same arguments as $class->load, but returns only the latest row
+
+=cut
+sub load_latest {
+    my $self = shift;
+    my $rows = $self->load( @_ );
+    my @sorted;
+    if ( %$rows ) {
+        @sorted = sort { $a <=> $b } keys %$rows;
+        return $rows->{$sorted[0]};
+    }
+
+    return undef;
 }
 
 =head1 BUGS
+
+Multiple versions of the data collected on the same day will be collapsed into one day.
 
 =head1 AUTHORS
 
