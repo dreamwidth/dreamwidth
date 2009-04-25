@@ -141,7 +141,9 @@ sub try_work {
         # from.  this assumes URLs never have other hostnames, so if someone were to
         # register testlivejournal.com and do an import, they will have trouble
         # importing.  if they want to do that to befunge this logic, more power to them.
-        next unless $url =~ /\Q$data->{hostname}\E/;
+        $url =~ s/-/_/g; # makes \b work below
+        next unless $url =~ /\Q$data->{hostname}\E/ &&
+                    $url =~ /\b$data->{username}\b/;
 
         unless ( $url =~ m!/(\d+)\.html$! ) {
             $log->( 'URL %s not of expected format in prune.', $url );
