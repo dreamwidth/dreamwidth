@@ -63,7 +63,7 @@ propgroup modules {
 }
 
 # explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Sidebar|two|Sidebar-Two|three|Footer";
+set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
 
 ##===============================
 ## Custom CSS
@@ -105,132 +105,325 @@ function Page::print_default_stylesheet() {
     start_css();
     """
     <!--
-    html body{
-      margin:0 0.8em;
-      padding-left: 15em;
-      padding-right: 0;
-    }
-    
-    #canvas{
-      float:left;
-      width:100%;
-"""; print ( ( defined $*color_page_background ) ? """border-left:15em solid $*color_page_background;""" : "border-left:15em solid transparent;");"""      
-    1.20-      """; print ( ( defined $*color_page_background ) ? """border-right:0 solid $*color_page_background;""" : "border-right:0 solid transparent;");"""
+H1, H2, H3 { 
+	margin: .25em 0;
+	padding: .25em 0; 
+}
 
-      margin-left:-15em;
-      margin-right:0;
-      display:inline; /* So IE plays nice */
-    }
+img { 
+	border: none; 
+}
 
-    #header, #footer {
-      margin-left:-15em;
-      margin-right:0;
-      clear:both;
-    }
+hr {
+	display: none;
+}
+.entry-content hr,
+.comment-content hr {
+	display: block;
+	margin: 1em 10%;
+}
 
-    #header {
-      """; print ( ( $*header_image_url != "" ) ? """background: url("$*header_image_url") $*header_image_repeat $*header_image_position;""" : "");"""      
-    }
+body {
+	font-family: ;
+	font-size: 100%;
+	padding: 0;
+}
 
-    #primary {
-      float:left;
-      width:100%;
-      margin-right:-100%;
-    }
+body.two-columns-left,
+body.three-columns-sides { padding-left: $*sidebar_width; }
+body.two-columns-right,
+body.three-columns-sides { padding-right: $*sidebar_width; }
+body.three-columns-left { padding-left: $*sidebar_width_doubled; }
+body.three-columns-right { padding-right: $*sidebar_width_doubled; }
 
-    #secondary {
-      float:left;
-      width:15em;
-      margin-left:-15em;
-      position:relative;
-    }
+#canvas { 
+	float: left;
+	width: 100%;
+	border: none;
+	margin: 0;
+    display: inline; /* So IE plays nice */
+}
 
-    #tertiary {
-      float:right;
-      width:0;
-      margin-right:0;
-      position:relative;
-    }
+.one-column #canvas { float: none; }
+.two-columns-left #canvas,
+.three-columns-sides #canvas { 
+	border-left: $*sidebar_width solid transparent;
+	margin-left: -$*sidebar_width;
+}
+.two-columns-right #canvas,
+.three-columns-sides #canvas {
+	border-right: $*sidebar_width solid transparent;
+	margin-right: -$*sidebar_width;
+}
+.three-columns-left #canvas {
+	border-left: $*sidebar_width_doubled solid transparent;
+	margin-left: -$*sidebar_width_doubled;
+}
+.three-columns-right #canvas {
+	border-right: $*sidebar_width_doubled solid transparent;
+	margin-right: -$*sidebar_width_doubled;
+}
 
-    body, td, th, table, p, div {
-    font-size: 100%;
-    font-family: """;
-    if ($*font_base != "") {
-        "\"$*font_base\"";
-        if ($*font_fallback != "none") {
-            ", ";
-        }
-    }
-    if ($*font_fallback != "none") {
-        print $*font_fallback;
-    }
-      """
-    }
-    body {
-          """; print ( ( defined $*color_page_background ) ? """background-color: $*color_page_background;""" : "");"""
-          """; print ( ( defined $*color_page_text ) ? """color: $*color_page_text;""" : "");"""
-      """; print ( ( $*background_image_url != "" ) ? """background: url("$*background_image_url") $*background_image_repeat $*background_image_position;""" : "");"""      
-    }
-    body a {
-          """; print ( ( defined $*color_page_link ) ? """color: $*color_page_link;""" : "");"""
-    }
-    #header h1 {
-          """; print ( ( defined $*color_page_title ) ? """color: $*color_page_title;""" : "");"""      
-    }
-    
-    .module {
-          """; print ( ( defined $*color_module_background ) ? """background-color: color_module_background;""" : "");"""
-          """; print ( ( defined $*color_module_text ) ? """color: color_module_text;""" : "");"""
-          """; print ( ( defined $*color_module_border ) ? """border: solid 1px $*color_module_border;""" : "");"""
-          margin-bottom: 0.8em;
-    }
-    .module a {
-          """; print ( ( defined $*color_module_link ) ? """color: $*color_module_link;""" : "");"""
-    }
-    .module_title {
-          """; print ( ( defined $*color_module_title ) ? """color: $*color_module_title;""" : "");"""
+#header, #footer { 
+	margin: 0;
+    clear: both;
+	padding: .5em;
+}
 
-    }
+.two-columns-right #header,
+.two-columns-right #footer,
+.three-columns-sides #header,
+.three-columns-sides #footer {margin-right: -$*sidebar_width;}
+.two-columns-left #header,
+.two-columns-left #footer,
+.three-columns-sides #header,
+.three-columns-sides #footer {margin-left: -$*sidebar_width;}
+.three-columns-right #header,
+.three-columns-right #footer {margin-right: -$*sidebar_width_doubled;}
+.three-columns-left #header,
+.three-columns-left #footer {margin-left: -$*sidebar_width_doubled;}
 
-    .entry, .comment {
-          """; print ( ( defined $*color_entry_background ) ? """background-color: $*color_entry_background;""" : "");"""
-          """; print ( ( defined $*color_entry_text ) ? """color: $*color_entry_text;""" : "");"""
-          """; print ( ( defined $*color_entry_border ) ? """border: solid 1px $*color_entry_border;""" : "");"""
-          margin: 0 1em 1em;
-          padding: 1em;
-    }
+#primary {
+	float: left;
+	width:100%;
+	margin-right:-100%;
+	margin-left: 0;
+}
 
-    .entry a, .comment a {
-          """; print ( ( defined $*color_entry_link ) ? """color: $*color_entry_link;""" : "");"""
-    }
-    .entry_title {
-          """; print ( ( defined $*color_entry_title ) ? """color: $*color_entry_title;""" : "");"""
-    }
-    .partial .comment-title {
-        display: inline;
-    }
-    .entry_interaction_links {
-          """; print ( ( defined $*color_entry_interaction_links ) ? """color: $*color_entry_interaction_links;""" : "");"""
-    }
+.one-column #primary { float: none; }
 
-    .userlite-interaction-links ul, .entry-management-links ul, .comment-management-links ul{
-        list-style: none;
+#primary > .inner:first-child {
+	padding: 1em;
+}
+	
+#secondary { 
+	position: relative;
+}
+.one-column #secondary { width: $*sidebar_width; }
+.two-columns-left #secondary,
+.three-columns-sides #secondary { 
+	float: left;
+	width: $*sidebar_width;
+	margin-left: -$*sidebar_width; 
+}
+.two-columns-right #secondary { 
+	float: right; 
+	width: $*sidebar_width;
+	margin-right: -$*sidebar_width;
+}
+.three-columns-left #secondary { 
+	float: left;
+	width: $*sidebar_width;
+	margin-left: -$*sidebar_width_doubled; 
+}
+.three-columns-right #secondary { 
+	float: right;
+	width: $*sidebar_width;
+	margin-right: -$*sidebar_width; 
+}
+
+#secondary > .inner:first-child {
+	padding: 1em;
+}
+#tertiary {
+	position: relative;
+}
+
+.one-column #tertiary { width: $*sidebar_width; }
+.two-columns-left #tertiary,
+.two-columns-right #tertiary {
+    clear: both;
+}
+.two-columns-left #tertiary { margin-left: -$*sidebar_width; }
+.two-columns-right #tertiary { margin-right: -$*sidebar_width; }
+.two-columns-left #tertiary .module,
+.two-columns-right #tertiary .module {
+    float: left;
+    width: $*sidebar_width;
+}
+.three-columns-left #tertiary { 
+	float: left;
+	width: $*sidebar_width;
+	margin-left: -$*sidebar_width; 
+}
+.three-columns-right #tertiary {
+	float: right;
+	width: $*sidebar_width;
+	margin-right: -$*sidebar_width_doubled;
+}
+.three-columns-sides #tertiary { 
+	float: right;
+	width: $*sidebar_width;
+	margin-right: -$*sidebar_width; 
+}
+
+#tertiary > .inner:first-child {
+	padding: 1em;
+}
+
+.navigation ul { 
+	list-style: none;
 	margin-left: 0;
 	padding-left: 0;
-    }
-    
-    .userlite-interaction-links li, .entry-management-links li, .comment-management-links li{
-        display: inline;
-	padding: 0 .15em;
-    }
+}
+.navigation li { 
+	display: inline;
+	padding: 0 .5em; 
+}
 
-    hr {
-        display: none;
-    }
+/* entries */
+
+.metadata ul { 
+	display: inline;
+	list-style: none;
+	margin-left: .5em;
+	padding-left: 0;
+}
+.metadata li { 
+	margin-bottom: .5em;
+}
+
+.tag ul { 
+	display: inline;
+	list-style: none;
+	margin-left: .5em;
+	padding-left: 0; 
+}
+.tag ul li {
+	display: inline;
+	padding: .25em; 
+} /* same for month view */
+
+ul.entry-management-links {
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+}
+ul.entry-management-links li { 
+	display: inline;
+	padding: 0 .25em;
+}
+
+ul.entry-interaction-links {
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+	text-align: right;
+}
+ul.entry-interaction-links li { 
+	display: inline;
+	padding: 0 .25em;
+}
+
+/* comments */
+
+.comment-wrapper { 
+	padding: .5em 0;
+}
+
+ul.comment-management-links {
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+	text-align: right;
+}
+ul.comment-management-links li { 
+	display: inline;
+	padding: 0 .25em;
+}
+
+ul.comment-interaction-links {
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+}
+ul.comment-interaction-links li { 
+	display: inline;
+	padding: 0 .25em;
+}
+
+textarea#commenttext { 
+	width: 100%; /* fix for FF form width glitch */
+}
 
 
-    -->""";
+/* archive */
 
+table.month { 
+	margin: 0 auto;
+	border-collapse: collapse; 
+}
+table.month td,
+table.month th { 
+	border: 1px solid; /* ? */
+	padding: 3px; 
+}
+table.month td p { 
+	margin: 0;
+	padding: 3px; 
+}
+
+.month dl dt { 
+	font-weight: bold; 
+}
+.month dl span.time { 
+	padding-right: .5em; 
+}
+.month dl h3 { 
+	display: inline;
+	font-size: medium; 
+}
+.month dl .tag ul { 
+	margin-top: 0; 
+}
+
+
+/* modules */
+
+.module-content ul { 
+	list-style: outside;
+	margin-left: 1em; 
+	padding-left: 0;
+}
+.module-content li { 
+	margin: .5em 0;
+}
+
+.module-photo .module-content { 
+	text-align: center;
+}
+
+.module-user-links .module-content { 
+	text-align: center;
+}
+ul.userlite-interaction-links {
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+}
+ul.userlite-interaction-links li { 
+	display: inline;
+	padding: 0 .20em; 
+}
+
+.module-calendar .module-content { 
+	text-align: center;
+}
+.module-calendar table { 
+	margin: 0 auto;
+}
+.module-calendar td { 
+	padding: 1px; 
+}
+.module-calendar td a { 
+	display: block;
+	padding: 2px;
+}
+
+.module-syndicate  .module-content { 
+	text-align: center;
+}    --->
+    """;
     end_css();
     "</style>\n";
 

@@ -1204,10 +1204,10 @@ set sidebar_width = "";
 
 property string module_layout_sections {
     des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
-    example = "none|(none)|one|Header|two|Sidebar|three|Footer";
+    example = "none|(none)|one|Left Sidebar|two|Right Sidebar";
     noui = 1;
 }
-set module_layout_sections = "none|(none)|one|Sidebar|two|Footer";
+set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
 
 property string[][]{} module_sections {
     des = "Build up a list of module sections and the ordering within them";
@@ -3217,6 +3217,7 @@ function Page::print()
                     </div></div><!--  end secondary and secondary>inner -->
                     <div id="tertiary"><div class="inner">
                         """;
+                        $this->print_module_section("two");
     """
                     </div></div><!-- end tertiary and tertiary>inner -->
                 </div><!-- end content>inner -->
@@ -3230,9 +3231,6 @@ function Page::print()
             """;
             print safe """
                 <div class="page-top"><a href="#">$*text_page_top</a></div>
-            """;
-            #$this->print_module_section("two");
-            """
         </div><!-- end footer>inner -->
     </div><!-- end footer -->
     
@@ -3503,7 +3501,7 @@ function Comment::print_metatypes() {
 
 function Entry::print_tags() [fixed] {
     if ($this.tags) {
-        """<div class="tag">$*text_tags<ul>""";
+        """<div class="tag"><span class="tag-text">$*text_tags</span><ul>""";
         foreach var Tag t ($this.tags) {
             """<li><a rel="tag" href="$t.url">$t.name</a></li>""";
         }
