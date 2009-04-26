@@ -83,9 +83,12 @@ sub try_work {
 
     my $errs = [];
     my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics, $log );
-    $status->( text => "Your usericon import had some errors:\n\n" . join("\n", map { " * $_" } @$errs) )
-        if @$errs;
+    my $num_imported = scalar( @imported );
+    my $to_import = scalar( @pics );
 
+    # FIXME: Uncomment when "select userpics later is implemented"
+    #my $has_backup = 0;
+    # There's nothing the user can do at this point if Mogile is not available, and any error relating to that will likely confuse them.
     if ( scalar( @imported ) != scalar( @pics ) ) {
         my $mog = LJ::mogclient();
         if ( $mog ) {
@@ -95,11 +98,23 @@ sub try_work {
                 pics => \@pics,
             };
             $mog->store_content( 'import_upi:' . $u->id, 'temp', $data );
-        } else {
-            return $fail->( 'Userpic import failed and MogileFS not available for backup.' );
+            # FIXME: Uncomment when "select userpics later is implemented"
+            #$has_backup = 1;
         }
     }
 
+    # FIXME: Link to "select userpics later" (once it is created) if we have the backup.
+    my $message = "$num_imported out of $to_import usericon" . ( $num_imported == 1 ? "" : "s" ) . " successfully imported.";
+    $message = "None of your usericons imported successfully." if $num_imported == 0;
+
+    my $text;
+    if ( @$errs ) {
+        $text = "The following usericons failed to import:\n\n" . join( "\n", map { " * $_" } @$errs ) . "\n\n$message";
+    } elsif ( scalar( @imported ) != scalar( @pics ) ) {
+        $text = "You did not have enough room to import all your usericons.\n\n$message";
+    }
+
+    $status->( text => $text );
     return $ok->();
 }
 

@@ -17,7 +17,6 @@
 
 package DW::Worker::ContentImporter::Local::Userpics;
 use strict;
-
 use Carp qw/ croak /;
 
 =head1 NAME
@@ -139,7 +138,7 @@ sub import_userpic {
 
     my $resp = $ua->get( $upic->{src} );
     unless ( $resp && $resp->is_success ) {
-        push @$errors, "Icon '$identifier': unable to download from server.";
+        push @$errors, $identifier; # unable to download from server.
         return 0;
     }
 
@@ -162,7 +161,7 @@ sub import_userpic {
         } else {
             $userpic = eval { LJ::Userpic->create( $u, data => \$data, nonotify => 1 ); };
             unless ( $userpic ) {
-                push @$errors, "Icon '$identifier': " . $@->as_string;
+                push @$errors, $identifier;
                 return 0;
             }
         }
