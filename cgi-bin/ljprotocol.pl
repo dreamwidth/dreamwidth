@@ -2688,77 +2688,74 @@ sub check_altusage
 
 sub authenticate
 {
-    my ($req, $err, $flags) = @_;
+    my ( $req, $err, $flags ) = @_;
 
-    my $username = $req->{'username'};
-    return fail($err,200) unless $username;
-    return fail($err,100) unless LJ::canonical_username($username);
+    my $username = $req->{username};
+    return fail( $err, 200 ) unless $username;
+    return fail( $err, 100 ) unless LJ::canonical_username($username);
 
-    my $u = $flags->{'u'};
-    unless ($u) {
-        my $dbr = LJ::get_db_reader();
-        return fail($err,502) unless $dbr;
-        $u = LJ::load_user($username);
+    my $u = $flags->{u};
+    unless ( $u ) {
+        my $dbr = LJ::get_db_reader()
+            or return fail( $err, 502 );
+        $u = LJ::load_user( $username );
     }
 
-    return fail($err,100) unless $u;
-    return fail($err,100) if ($u->{'statusvis'} eq "X");
-    return fail($err,505) unless $u->{'clusterid'};
+    return fail( $err, 100 ) unless $u;
+    return fail( $err, 100 ) if $u->{statusvis} eq 'X';
+    return fail( $err, 505 ) unless $u->{clusterid};
 
-    my $r = eval { BML::get_request() };
-    my $ip;
-    if ($r) {
-        $r->notes->{ljuser} = $u->{'user'}
-            unless $r->notes->{ljuser};
-        $r->notes->{journalid} = $u->{'userid'}
-            unless $r->notes->{journalid};
-        $ip = LJ::get_remote_ip();
+    my $r = DW::Request->get;
+    my $ip = LJ::get_remote_ip();
+
+    if ( $r ) {
+        $r->note( ljuser => $u->user )
+            unless $r->note( 'ljuser' );
+        $r->note( journalid => $u->id )
+            unless $r->note( 'journalid' );
     }
 
     my $ip_banned = 0;
     my $chal_expired = 0;
     my $auth_check = sub {
 
-        my $auth_meth = $req->{'auth_method'} || "clear";
-        if ($auth_meth eq "clear") {
-            return LJ::auth_okay($u,
-                                 $req->{'password'},
-                                 $req->{'hpassword'},
-                                 $u->password,
-                                 \$ip_banned);
+        my $auth_meth = $req->{auth_method} || 'clear';
+        if ( $auth_meth eq 'clear' ) {
+            return LJ::auth_okay(
+                $u, $req->{password}, $req->{hpassword}, $u->password, \$ip_banned
+            );
         }
-        if ($auth_meth eq "challenge") {
+        if ( $auth_meth eq 'challenge' ) {
             my $chal_opts = {};
-            my $chall_ok = LJ::challenge_check_login($u,
-                                                     $req->{'auth_challenge'},
-                                                     $req->{'auth_response'},
-                                                     \$ip_banned,
-                                                     $chal_opts);
+            my $chall_ok = LJ::challenge_check_login(
+                $u, $req->{auth_challenge}, $req->{auth_response}, \$ip_banned, $chal_opts
+            );
             $chal_expired = 1 if $chal_opts->{expired};
             return $chall_ok;
         }
-        if ($auth_meth eq "cookie") {
-            return unless $r && $r->header_in("X-LJ-Auth") eq "cookie";
+        if ( $auth_meth eq 'cookie' ) {
+            return unless $r && $r->header_in( 'X-LJ-Auth' ) eq 'cookie';
+
             my $remote = LJ::get_remote();
-            return $remote && $remote->{'user'} eq $username ? 1 : 0;
+            return $remote && $remote->user eq $username ? 1 : 0;
         }
     };
 
-    unless ($flags->{'nopassword'} ||
-            $flags->{'noauth'} ||
-            $auth_check->() )
+    unless ( $flags->{nopassword} ||
+             $flags->{noauth} ||
+             $auth_check->() )
     {
-        return fail($err,402) if $ip_banned;
-        return fail($err,105) if $chal_expired;
-        return fail($err,101);
+        return fail( $err, 402 ) if $ip_banned;
+        return fail( $err, 105 ) if $chal_expired;
+        return fail( $err, 101 );
     }
 
     # if there is a require TOS revision, check for it now
-    return fail($err, 156, LJ::tosagree_str('protocol' => 'text'))
+    return fail( $err, 156, LJ::tosagree_str( protocol => 'text' ) )
         unless $u->tosagree_verify;
 
     # remember the user record for later.
-    $flags->{'u'} = $u;
+    $flags->{u} = $u;
     return 1;
 }
 
