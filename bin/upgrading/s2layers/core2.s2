@@ -2886,7 +2886,9 @@ function print_module_navlinks() {
     open_module("navlinks", "", "");
     var string[] links = [];
     foreach var string k ($p.views_order) {
-        $links[size $links] = """<a href="$p.view_url{$k}">"""+lang_viewname($k)+"""</a>""";
+	var string css = "";
+	if ($p.view == $k) { $css = """ class="current" """; }
+        $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
     }
     print_module_list($links);
     close_module();
@@ -3325,10 +3327,10 @@ function Page::print_entry(Entry e)
     $e->print_tags();
     $e->print_management_links();
     if ($this isa EntryPage) {
-        "<hr />";
+        """<hr class="above-entry-interaction-links" />""";
         $e->print_interaction_links("topcomment");
         $this->print_reply_container({ "target" => "topcomment" });
-        "<hr />";
+        """<hr class="below-reply-container" />""";
     }
     else {
         $e->print_interaction_links();
@@ -3393,7 +3395,9 @@ function Entry::print_wrapper_start() {
     if ($this.journal.journal_type == "C") {
         $journal = "journal-$this.journal.username";
     }
-    """<div class="entry-wrapper $alternate $security $adult_content_level $journal_type $poster $journal" id="entry-wrapper-$this.itemid">\n""";
+    var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
+
+    """<div class="entry-wrapper $alternate $security $adult_content_level $journal_type $poster $journal $userpic" id="entry-wrapper-$this.itemid">\n""";
     """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
     """<div class="entry" id="entry-$this.itemid">\n""";
     """<div class="inner">\n""";
@@ -3403,9 +3407,11 @@ function Comment::print_wrapper_start() {
     var string screened = $this.screened ? "screened" : "visible";
     var string frozen = $this.frozen ? "frozen" : "";
     var string poster = defined $this.poster ? "poster-" + $this.poster.username : "poster-anonymous";
-    """<div class="comment-wrapper $alternate $screened $frozen $poster" id="$this.anchor">\n""";
+    var string full = $this.full ? "full" : "partial";
+    var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
+    """<div class="comment-wrapper $alternate $screened $frozen $poster $full $userpic" id="$this.anchor">\n""";
     """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
-    """<div class="comment" id="entry-$this.talkid">\n""";
+    """<div class="comment" id="comment-$this.dom_id">\n""";
 }
 
 function EntryLite::print_wrapper_end() {
@@ -3469,7 +3475,7 @@ function Entry::print_metatypes() {
 
 function Comment::print_metatypes() {
     if (defined $this.subject_icon) {
-        "<h3>$this.subject_icon</h3>";
+        """<h3 class="comment-subjecticon">$this.subject_icon</h3>""";
     }
 }
 
@@ -3727,6 +3733,8 @@ function Entry::time_display(string datefmt, string timefmt) : string {
     if ($datefmt != "none" and $timefmt != "none") { $ret = $ret + " "; }
     if ($timefmt != "none") { $ret = $ret + """<span class="time">""" + $this.time->time_format($timefmt) + "</span>"; }
 
+    if ($ret != "") { $ret = """<span class="datetime">$ret</span>"""; }
+
     return $ret;
 }
 
@@ -3788,7 +3796,7 @@ function Comment::time_display (string datefmt, string timefmt, bool edittime) :
     if ($datefmt != "none" and $timefmt != "none") { $main = $main + " "; }
     if ($timefmt != "none") { $main = $main + $display_time; }
 
-    return $*text_comment_date + " <span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span>";
+    return "<span class=\"datetime\">" + $*text_comment_date + " <span title=\"" + ehtml($tooltip) + "\">" + ehtml($main) + "</span></span>";
 }
 
 function Comment::print_time (string datefmt, string timefmt) {
@@ -4262,8 +4270,10 @@ function EntryPage::print_comment (Comment c) {
     """<div class="footer">\n""";
     """<div class="inner">\n""";
     if ($this.multiform_on) {
+        """<span class="multiform-checkbox">""";
         print safe " <label for='ljcomsel_$c.talkid'>$*text_multiform_check</label> ";
         $c->print_multiform_check();
+	"</span>";
     }
     $c->print_management_links();
     $c->print_interaction_links();
@@ -4273,6 +4283,7 @@ function EntryPage::print_comment (Comment c) {
 }
 
 function EntryPage::print_comment_partial (Comment c) {
+    $c->print_wrapper_start();
     var string poster = defined $c.poster ? $c.poster->as_string() : "<i>$*text_poster_anonymous</i>";
     $c->print_subject();
     print safe " - $poster";
@@ -4280,10 +4291,12 @@ function EntryPage::print_comment_partial (Comment c) {
     if ($c.thread_url != "" and defined $expand_link) {
         " "; $c->print_expand_link();
     }
+    $c->print_wrapper_end();
 }
 
 function ItemRange::print() {
     if ($.all_subitems_displayed) { return; }
+    """<div class="comment-pages">""";
     print "<b>" + lang_page_of_pages($.current, $.total) + "</b>";
     var string url_prev = $this->url_of($.current - 1);
     if ($.current != 1) {
@@ -4304,6 +4317,7 @@ function ItemRange::print() {
     } else {
         print " &gt;&gt; ";
     }
+    "</div>";
 }
 
 function EntryPage::print_body
