@@ -389,9 +389,9 @@ function Page::print_entry (Entry e)
             $e->print_metatypes();
             $e->print_subject();
         println "</div>";
-        print "<div class=\"datetime\">(posted by ";
+        print "<div class=\"datetime\">(";
             $e->print_poster();
-            print " on ";
+            print " ";
             $e->print_time();
             print ")";
         println "</div>";
