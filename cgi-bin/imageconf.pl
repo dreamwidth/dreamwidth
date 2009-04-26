@@ -55,7 +55,7 @@ $img{'btn_scr'} = {
 };
 
 $img{'btn_unscr'} = {
-    'src' => '/silk/comments/unscreen/png',
+    'src' => '/silk/comments/unscreen.png',
     'width' => 16,
     'height' => 16,
     'alt' => 'img.btn_unscr',
