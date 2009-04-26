@@ -681,8 +681,9 @@ sub get_layouts {
         '2r'   => LJ::Lang::ml('customize.layouts.2r'),
         '2lnh' => LJ::Lang::ml('customize.layouts.2lnh'),
         '2rnh' => LJ::Lang::ml('customize.layouts.2rnh'),
-        '3l'   => LJ::Lang::ml('customize.layouts.3l'),
-        '3m'   => LJ::Lang::ml('customize.layouts.3m'),
+        '3l'   => LJ::Lang::ml( 'customize.layouts.3l' ),
+        '3r'   => LJ::Lang::ml( 'customize.layouts.3r' ),
+        '3'    => LJ::Lang::ml( 'customize.layouts.3' ),
     );
 }
 

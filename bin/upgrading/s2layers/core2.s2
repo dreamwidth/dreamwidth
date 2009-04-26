@@ -1180,6 +1180,28 @@ set comment_management_links = "icons";
 ## Display settings - sidebar
 ##===============================
 
+# FIXME: Not sure if none is a sensible value, but need something appropriate as a default for designers who are not using this option.
+# In order to use layout_type on /customize/ in official layouts, the associated S2Theme file needs to be edited, and then changing the layout type will select a different wizard-layer.  Non-official layouts can use this property on the /customize/options.bml page.  Both methods will add the layout_type to <body> in the Page::print-wrapper to allow CSS to be written accordingly.
+
+property string layout_type {
+        des = "Layout Type";
+        values = "|none|one-column|One column|two-columns-left|Two columns (Sidebar on Left)|two-columns-right|Two columns (Sidebar on Right)|three-columns-sides|Three columns (Sidebars on either side)|three-columns-left|Three column (Sidebars on Left)|three-columns-right|Three column (Sidebars on Right)";
+    }
+
+property string sidebar_width {
+    des = "Set the width of any sidebars.  Ensure that the value is given in em or px.";
+    example = "15em";
+}
+
+property string sidebar_width_doubled {
+    des = "Enter in a value twice that of any sidebars.  Also ensure that the value is given in em or px.";
+    example = "30em";
+}
+
+set layout_type = "";
+set sidebar_width = "";
+set sidebar_width = "";
+
 property string module_layout_sections {
     des = "Map module sections to user-friendly names for the wizard. Layouts may want to override this";
     example = "none|(none)|one|Header|two|Sidebar|three|Footer";
@@ -2634,7 +2656,7 @@ function Page::print_wrapper_start(string{} opts)
 {
 # FIXME: this should also print classes that identify the layout/style and other options like the number of columns.
     var string class = $opts{"class"} ? """class="$opts{"class"}" """ : "";
-    """<body class="page-$.view $class">\n""";
+    """<body class="page-$.view $*layout_type $class">\n""";
 }
 
 function Page::print_wrapper_end() 

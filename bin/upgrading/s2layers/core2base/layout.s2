@@ -10,7 +10,14 @@ propgroup presentation {
     property use num_items_recent;
     property use num_items_reading;
     property use use_journalstyle_entry_page;
+    property use layout_type;
+    property use sidebar_width;
+    property use sidebar_width_doubled;
 }
+
+set sidebar_width = "15em";
+set sidebar_width_doubled = "30em";
+set layout_type = "one-column";
 
 ##===============================
 ## Journal style - colors
@@ -56,7 +63,7 @@ propgroup modules {
 }
 
 # explicitly define what sections the layout has available
-set module_layout_sections = "none|(none)|one|Sidebar|two|Footer";
+set module_layout_sections = "none|(none)|one|Sidebar|two|Sidebar-Two|three|Footer";
 
 ##===============================
 ## Custom CSS
