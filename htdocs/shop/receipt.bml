@@ -3,11 +3,10 @@
 #
 # shop/receipt.bml
 #
-# Serves up a simple receipt for the user to view the status of the order and
-# print out and save if they want.
+# This page shows your receipt for your order.
 #
 # Authors:
-#      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -16,53 +15,61 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-_c?><?page
-title=>Paid Account Receipt
-body<=
+_c?>
 <?_code
 {
     use strict;
-    use vars qw(%GET);
 
     return BML::redirect( "$LJ::SITEROOT/" )
         unless LJ::is_enabled( 'payments' );
 
-    my $payment_id = $GET{'payment_id'};
-    my $email = $GET{'email'};
+    my $ordernum = $GET{ordernum};
 
-    my $payment = DW::Pay::get_payment_details($payment_id);
+    my $cart = DW::Shop::Cart->get_from_ordernum( $ordernum );
+    return $ML{'.error.invalidordernum'}
+        unless $cart;
 
-    if ($payment) {
-        my $order = DW::Pay::pp_get_order_details($payment_id);
-        if ($order->{'email'} eq $GET{'email'}) {
+    my $state = $cart->state;
+    my $paymentmethod = $cart->paymentmethod;
 
-            ### FORMAT RECEIPT HERE
-            my $ret = "<p>This is your receipt for $LJ::SITENAME paid services. Please bookmark this URL for your own records.</p><table style='width: 450px'>";
-            my %status = (
-                          'pending'        => "Pending, <a href='$LJ::SITEROOT/shop/pp_confirm?token=$order->{token}'>awaiting confirmation</a>",
-                          'processing'     => 'Processing',
-                          'paid-pending'   => 'Payment is complete, thanks for your support!',
-                          'paid-completed' => 'Payment is complete, thanks for your support!', 
-                          );
-            $ret .= '<tr><th style="text-align: left">Status:</th>';
-            $ret .= '<td style="text-align: right">'.$status{$payment->{'status'}}.'</td></tr>';
-            $ret .= '<tr><th style="text-align: left">Account Type:</th>';
-            $ret .= '<td style="text-align: right">'.DW::Pay::type_name($payment->{'typeid'}).'</td></tr>';
-            $ret .= '<tr><th style="text-align: left">Duration:</th>';
-            $ret .= '<td style="text-align: right">'.($payment->{'duration'} == 99 ? 'Permanent' : $payment->{'duration'}.' months').'</td></tr>';
-            $ret .= '<tr><th style="text-align: left">Total:</th><td style="text-align: right">$'.$payment->{'amount'}.' USD</td></tr>';
-            $ret .= '</table>';
+    # cart cannot be in open, closed, or checkout state
+    return BML::redirect( "$LJ::SITEROOT/shop/cart" )
+        if $state == $DW::Shop::STATE_OPEN || $state == $DW::Shop::STATE_CLOSED || $state == $DW::Shop::STATE_CHECKOUT;
 
-            $ret .='<?p A receipt for your purchase has been emailed to you. You may log into your account at <a href="http://www.paypal.com/">www.paypal.com</a> to view details of this transaction. p?>';
+    my $title = BML::ml( '.title', { num => $cart->id } );
 
-            return $ret;
-        } else {
-            return "You are not verified to view this receipt";
+    my $ret;
+    $ret .= qq{
+        <html>
+        <head>
+        <style type='text/css'>
+        table {
+            border: 1px solid #000;
+            border-spacing: 0;
         }
-    } else {
-        return "That order could not be found.";
+        table td, table th {
+            border: 1px solid #000;
+            padding: 5px;
+        }
+        table td.total {
+            font-weight: bold;
+            text-align: right;
+        }
+        </style>
+        <title>$title</title>
+        </head>
+        <body>
+    };
+    $ret .= "<h1>$title</h1>";
+    $ret .= "<p>" . BML::ml( '.cart.status', { status => $ML{".cart.status.$state"} } ) . "<br />";
+    $ret .= BML::ml( '.cart.paymentmethod', { paymentmethod => $ML{".cart.paymentmethod.$paymentmethod"} } ) . "</p>";
+    if ( $paymentmethod eq 'checkmoneyorder' ) {
+        my $address = "<p>$LJ::SITECOMPANY<br />Order #" . $cart->id . "<br />$LJ::SITEADDRESS</p>";
+        $ret .= "<p>" . BML::ml( ".cart.paymentmethod.$paymentmethod.extra", { address => $address } ) . "</p>";
     }
+    $ret .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
+    $ret .= "</body></html>";
+
+    return $ret;
 }
 _code?>
-<=body
-page?>

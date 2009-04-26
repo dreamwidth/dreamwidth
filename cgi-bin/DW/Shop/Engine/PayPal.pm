@@ -125,8 +125,8 @@ sub checkout_url {
         allownote     => 0,
 
         # where PayPal can send people back to
-        cancelurl     => "$LJ::SITEROOT/shop/pp_cancel",
-        returnurl     => "$LJ::SITEROOT/shop/pp_confirm",
+        cancelurl     => "$LJ::SITEROOT/shop/cancel",
+        returnurl     => "$LJ::SITEROOT/shop/confirm",
 
         # custom data we send to reference this cart
         custom        => join( ';', ( $cart->ordernum, $cart->display_total ) ),
@@ -233,15 +233,50 @@ sub confirm_order {
     warn "Failure to save pp_trans: " . $dbh->errstr . "\n"
         if $dbh->err;
 
+    my $u = LJ::load_userid( $self->cart->userid );
+
     # if this order is Complete (i.e., we have the money) then we note that
     if ( $res->{paymentstatus} eq 'Completed' ) {
         $self->cart->state( $DW::Shop::STATE_PAID );
+
+        # delete cart from memcache
+        $u->memc_delete( 'cart' ) if LJ::isu( $u );
+
         return 1;
     }
 
     # okay, so it's pending... sad days
     $self->cart->state( $DW::Shop::STATE_PEND_PAID );
+
+    # delete cart from memcache
+    $u->memc_delete( 'cart' ) if LJ::isu( $u );
+
     return 2;
+}
+
+
+# cancel_order()
+#
+# cancels the order and doesn't send any money
+sub cancel_order {
+    my $self = $_[0];
+
+    # ensure the cart is in open state
+    return $self->error( 'paypal.engbadstate' )
+        unless $self->cart->state == $DW::Shop::STATE_OPEN;
+
+    # ensure we have db
+    my $dbh = DW::Pay::get_db_writer()
+        or return $self->temp_error( 'nodb' );
+
+    $dbh->do(
+        q{DELETE FROM pp_tokens WHERE token = ?},
+        undef, $self->token
+    );
+    return $self->error( 'dberr', errstr => $dbh->errstr )
+        if $dbh->err;
+
+    return 1;
 }
 
 

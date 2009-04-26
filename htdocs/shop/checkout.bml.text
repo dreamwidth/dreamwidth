@@ -1,0 +1,11 @@
+;; -*- coding: utf-8 -*-
+
+.error.emptycart=Your cart is empty.
+
+.error.invalidpaymentmethod=The payment method you chose is not currently supported.
+
+.error.nocart=You do not have a shopping cart.
+
+.error.zerocart=Sorry, we don't support $0 carts yet.
+
+.title=Check Out

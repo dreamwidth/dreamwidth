@@ -3,10 +3,10 @@
 #
 # shop/cancel.bml
 #
-# Cancels an outstanding order.
+# This page cancels the given order.
 #
 # Authors:
-#      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -16,7 +16,6 @@
 #
 
 _c?><?page
-title=>Cancel Order
 body<=
 <?_code
 {
@@ -26,8 +25,43 @@ body<=
     return BML::redirect( "$LJ::SITEROOT/" )
         unless LJ::is_enabled( 'payments' );
 
-    # FIXME: cancel order ;)
-    return "FIXME: cancel order";
+    my ( $ordernum, $token, $payerid ) = ( $GET{ordernum}, $GET{token}, $GET{PayerID} );
+    my ( $cart, $eng );
+
+    # use ordernum if we have it, otherwise use token/payerid
+    if ( $ordernum ) {
+        $cart = DW::Shop::Cart->get_from_ordernum( $ordernum );
+        return $ML{'.error.invalidordernum'}
+            unless $cart;
+
+        my $paymentmethod = $cart->paymentmethod;
+        my $paymentmethod_class = 'DW::Shop::Engine::' . $DW::Shop::PAYMENTMETHODS{$paymentmethod}->{class};
+        $eng = $paymentmethod_class->new_from_cart( $cart );
+        return $ML{'.error.invalidcart'}
+            unless $eng;
+    } else {
+        return $ML{'.error.needtoken'}
+            unless $token;
+
+        # we can assume paypal is the engine if we have a token
+        $eng = DW::Shop::Engine::PayPal->new_from_token( $token );
+        return $ML{'.error.invalidtoken'}
+            unless $eng;
+
+        $cart = $eng->cart;
+        $ordernum = $cart->ordernum;
+    }
+
+    # cart must be in open state
+    return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=$ordernum" )
+        unless $cart->state == $DW::Shop::STATE_OPEN;
+
+    # cancel payment and discard cart
+    if ( $eng->cancel_order ) {
+        return BML::redirect( "$LJ::SITEROOT/shop?newcart=1" );
+    }
+
+    return $ML{'.error.cantcancel'};
 }
 _code?>
 <=body

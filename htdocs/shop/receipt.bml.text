@@ -1,0 +1,34 @@
+;; -*- coding: utf-8 -*-
+
+.cart.status=<strong>Current Order Status:</strong> [[status]]
+
+.cart.status.1|note=This status should never be possible on the receipt page!
+.cart.status.1=Open
+
+.cart.status.2|note=This status should never be possible on the receipt page!
+.cart.status.2=Checked out
+
+.cart.status.3=Waiting for payment
+
+.cart.status.4=Payment received
+
+.cart.status.5=Processed and completed
+
+.cart.status.6=Refund approved and pending
+
+.cart.status.7=Refunded
+
+.cart.status.8|note=This status should never be possible on the receipt page!
+.cart.status.8=Closed before completion
+
+.cart.paymentmethod=<strong>Payment Method:</strong> [[paymentmethod]]
+
+.cart.paymentmethod.checkmoneyorder=Check/Money Order
+
+.cart.paymentmethod.checkmoneyorder.extra=Please mail your check or money order to: [[address]]
+
+.cart.paymentmethod.paypal=PayPal
+
+.error.invalidordernum=Your order number is invalid.
+
+.title=Order #[[num]]

@@ -189,9 +189,9 @@ sub get_menu_navigation {
             name => 'shop',
             items => [
                 {
-                    url => "$LJ::SITEROOT/shop?for=paidtime",
+                    url => "$LJ::SITEROOT/shop",
                     text => "menunav.shop.paidtime",
-                    display => $never,
+                    display => LJ::is_enabled( 'payments' ) ? 1 : 0,
                 },
             ],
         },

@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -18,10 +19,12 @@ body<=
 <?_code
 {
     use strict;
-    use vars qw/ %GET %POST /;
+    use vars qw/ %GET %POST $title /;
 
     return BML::redirect( "$LJ::SITEROOT/" )
         unless LJ::is_enabled( 'payments' );
+
+    $title = $ML{'.title'};
 
     # this page uses new style JS
     LJ::need_res( 'stc/shop.css' );
@@ -29,22 +32,24 @@ body<=
 
     # get their shop/cart
     my $cart = DW::Shop->get->cart;
-    return "you don't have a shopping cart"
+    return $ML{'.error.nocart'}
         unless $cart;
-    return "your cart has nothing in it"
+    return $ML{'.error.emptycart'}
         unless $cart->has_items;
 
     # FIXME: if they have a $0 cart, we don't support that yet
-    return "sorry, we don't support \$0 carts yet"
+    return $ML{'.error.zerocart'}
         if $cart->total == 0.00;
 
     # establish the engine they're trying to use
     my $eng = DW::Shop::Engine->get( $GET{method}, $cart );
-    return 'payment method not supported'
+    return $ML{'.error.invalidpaymentmethod'}
         unless $eng;
 
-    # at this point, we have $eng, and we don't care what the
-    # actual payment backend is
+    # set the payment method on the cart
+    $cart->paymentmethod( $GET{method} );
+
+    # redirect to checkout url
     my $url = $eng->checkout_url;
     return $eng->errstr
         unless $url;
@@ -52,5 +57,5 @@ body<=
 }
 _code?>
 <=body
-title=>Checkout
+title=><?_code return $title; _code?>
 page?>

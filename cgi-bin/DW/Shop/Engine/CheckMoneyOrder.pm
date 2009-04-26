@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -59,7 +60,7 @@ sub checkout_url {
 
     # the cart is in a good state, so just send them to the confirmation page which
     # gives them instructions on where to send it
-    return "$LJ::SITEROOT/shop/cmo_confirm";
+    return "$LJ::SITEROOT/shop/confirm?ordernum=" . $cart->ordernum;
 }
 
 
@@ -76,7 +77,26 @@ sub confirm_order {
 
     # now set it pending
     $self->cart->state( $DW::Shop::STATE_PEND_PAID );
+
+    # delete cart from memcache
+    my $u = LJ::load_userid( $self->cart->userid );
+    $u->memc_delete( 'cart' ) if LJ::isu( $u );
+
     return 2;
+}
+
+
+# cancel_order()
+#
+# cancels the order, but all it has to do is check the cart state
+sub cancel_order {
+    my $self = $_[0];
+
+    # ensure the cart is in open state
+    return $self->error( 'paypal.engbadstate' )
+        unless $self->cart->state == $DW::Shop::STATE_OPEN;
+
+    return 1;
 }
 
 

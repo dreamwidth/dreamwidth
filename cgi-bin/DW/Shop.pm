@@ -65,6 +65,21 @@ our $STATE_CLOSED      = 8;    # carts can go from OPEN -> CLOSED
 # any other state transition is hereby considered null and void.
 
 
+# keys are the names of the various payment methods as passed by the cart widget drop-down
+# values are hashrefs with id (the integer value that is stored in the 'paymentmethod'
+# field in the db) and class (the name of the DW::Shop::Engine class)
+our %PAYMENTMETHODS = (
+    paypal => {
+        id => 1,
+        class => 'PayPal',
+    },
+    checkmoneyorder => {
+        id => 2,
+        class => 'CheckMoneyOrder',
+    },
+);
+
+
 # called to return an instance of the shop; auto-determines if we have a
 # remote user and uses that, else, just returns an anonymous shop
 sub get {

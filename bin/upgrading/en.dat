@@ -2187,6 +2187,10 @@ menunav.read.syndicatedfeeds=Syndicated Feeds
 
 menunav.read.tags=Tags
 
+menunav.shop=Shop
+
+menunav.shop.paidtime=Buy a Paid Account
+
 notification_method.email.title=Email
 
 notification_method.im.title=IM
@@ -2580,6 +2584,10 @@ setting.display.emails.option=View past email addresses
 setting.display.logins.label=Logins
 
 setting.display.logins.option=Manage login sessions
+
+setting.display.orders.label=Orders
+
+setting.display.orders.option=View order history
 
 setting.display.password.actionlink=Change
 

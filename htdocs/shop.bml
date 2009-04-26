@@ -39,7 +39,9 @@ body<=
     $ret .= DW::Widget::ShopItemGroupDisplay->render( group => 'paidaccounts' );
 
     $ret .= "<div class='shopbox'>";
-    $ret .= "<p>" . BML::ml( '.sideblurb', { sitename => $LJ::SITENAMESHORT, aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ). "</p>";
+    $ret .= "<p>" . BML::ml( '.sideblurb', { sitename => $LJ::SITENAMESHORT, aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</p>";
+    $ret .= "<p>" . BML::ml( '.viewhistory', { aopts => "href='$LJ::SITEROOT/shop/history.bml'" } ). "</p>"
+        if LJ::get_remote();
     $ret .= "</div>";
 
     return $ret;

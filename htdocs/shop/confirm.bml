@@ -1,0 +1,111 @@
+<?_c
+
+#
+# shop/confirm.bml
+#
+# The page used to confirm a user's order before we finally bill them.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw(%GET %POST $title);
+
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
+    $title = $ML{'.title'};
+
+    my ( $ordernum, $token, $payerid ) = ( $GET{ordernum}, $GET{token}, $GET{PayerID} );
+    my ( $cart, $eng, $paymentmethod );
+
+    # use ordernum if we have it, otherwise use token/payerid
+    if ( $ordernum ) {
+        $cart = DW::Shop::Cart->get_from_ordernum( $ordernum );
+        return $ML{'.error.invalidordernum'}
+            unless $cart;
+
+        $paymentmethod = $cart->paymentmethod;
+        my $paymentmethod_class = 'DW::Shop::Engine::' . $DW::Shop::PAYMENTMETHODS{$paymentmethod}->{class};
+        $eng = $paymentmethod_class->new_from_cart( $cart );
+        return $ML{'.error.invalidcart'}
+            unless $eng;
+    } else {
+        return $ML{'.error.needtoken'}
+            unless $token;
+
+        # we can assume paypal is the engine if we have a token
+        $eng = DW::Shop::Engine::PayPal->new_from_token( $token );
+        return $ML{'.error.invalidtoken'}
+            unless $eng;
+
+        $cart = $eng->cart;
+        $ordernum = $cart->ordernum;
+        $paymentmethod = $cart->paymentmethod;
+    }
+
+    # cart must be in open state
+    return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=$ordernum" )
+        unless $cart->state == $DW::Shop::STATE_OPEN;
+
+    # if they didn't post, give them a form
+    unless ( LJ::did_post() ) {
+        # set the payerid for later
+        $eng->payerid( $payerid )
+            if $payerid;
+
+        my $ret = '';
+        $ret .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
+        $ret .= "<form method='post' action='$LJ::SITEROOT/shop/confirm?ordernum=$ordernum'>\n";
+        $ret .= LJ::form_auth();
+        $ret .= "<?p " . BML::ml( '.confirm', { sitename => $LJ::SITENAME, total => '<strong>$' . $cart->display_total . ' USD</strong>' } ) . " p?>";
+        $ret .= "<?p $ML{\".confirm.$paymentmethod\"} p?>";
+        $ret .= "<?p " . LJ::html_submit( confirm => $ML{'.btn.confirm'} );
+        $ret .= " <a href='$LJ::SITEROOT/shop/cancel?ordernum=$ordernum'>$ML{'.btn.cancel'}</a> p?>";
+        $ret .= '</form>';
+        return $ret;
+    }
+
+    # okay, they posted, verify the auth code
+    return $ML{'error.invalidauth'}
+        unless LJ::check_form_auth();
+
+    # and now set the state, this has been checked out...
+    $cart->state( $DW::Shop::STATE_CHECKOUT );
+
+    # they want to pay us, yippee!
+    my $rv = $eng->confirm_order;
+    return $eng->errstr
+        unless $rv;
+
+    my $ret;
+
+    # advise them the order has been placed and to watch their email
+    if ( $rv == 1 ) {
+        $ret .= "<?p $ML{\".success.$paymentmethod.immediate\"} p?>";
+    } elsif ( $rv == 2 ) {
+        my $address = "<?p $LJ::SITECOMPANY<br />Order #" . $cart->id . "<br />$LJ::SITEADDRESS p?>";
+        $ret .= "<?p " . BML::ml( ".success.$paymentmethod.processing", { address => $address } ) . " p?>";
+    }
+
+    $ret .= "<?p <a href='$LJ::SITEROOT/shop/receipt?ordernum=$ordernum'>$ML{'.btn.viewreceipt'}</a><br />";
+    $ret .= "<a href='$LJ::SITEROOT/shop'>$ML{'.btn.back'}</a> p?>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+page?>

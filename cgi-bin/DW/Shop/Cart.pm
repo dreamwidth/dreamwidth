@@ -7,6 +7,7 @@
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -61,7 +62,7 @@ sub get {
     my $dbh = LJ::get_db_writer()
         or return undef;
     my $dbcart = $dbh->selectrow_hashref(
-        qq{SELECT userid, cartid, starttime, uniq, state, cartblob, nextscan, authcode
+        qq{SELECT cartblob
            FROM shop_carts
            WHERE $sql AND state = ?
            ORDER BY starttime DESC
@@ -94,7 +95,7 @@ sub get_from_cartid {
     my $dbh = LJ::get_db_writer()
         or return undef;
     my $dbcart = $dbh->selectrow_hashref(
-        qq{SELECT userid, cartid, starttime, uniq, state, cartblob, nextscan, authcode
+        qq{SELECT cartblob
            FROM shop_carts WHERE cartid = ?},
         undef, $cartid
     );
@@ -147,6 +148,7 @@ sub new_cart {
         total     => 0.00,
         nextscan  => 0,
         authcode  => LJ::make_auth_code( 20 ),
+        paymentmethod => 0, # we don't have a payment method yet
     };
 
     # now, delete any old carts we don't need
@@ -169,17 +171,44 @@ sub new_cart {
 }
 
 
+# returns all carts that the given user has ever had
+# can pass 'finished' opt which will omit carts in the OPEN, CLOSED, or
+# CHECKOUT states
+sub get_all {
+    my ( $class, $u, %opts ) = @_;
+    $u = LJ::want_user( $u );
+
+    my $extra_sql = " AND state <> $DW::Shop::STATE_OPEN AND state <> $DW::Shop::STATE_CLOSED AND state <> $DW::Shop::STATE_CHECKOUT"
+        if $opts{finished};
+
+    my $dbh = LJ::get_db_writer()
+        or return undef;
+    my $sth = $dbh->prepare( "SELECT cartblob FROM shop_carts WHERE userid = ?$extra_sql" );
+    $sth->execute( $u->id );
+
+    my @carts = ();
+    while ( my $cart = $sth->fetchrow_hashref ) {
+        push @carts, $class->_build( thaw( $cart->{cartblob} ) );
+    }
+
+    return @carts;
+}
+
+
 # saves the current cart to the database, returns 1/0
 sub save {
     my $self = $_[0];
+
+    # we store the payment method id in the db
+    my $paymentmethod_id = $DW::Shop::PAYMENTMETHODS{$self->paymentmethod}->{id} || 0;
 
     # toss in the database
     my $dbh = LJ::get_db_writer()
         or return undef;
     $dbh->do(
-        q{REPLACE INTO shop_carts (userid, cartid, starttime, uniq, state, nextscan, authcode, cartblob)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)},
-        undef, ( map { $self->{$_} } qw/ userid cartid starttime uniq state nextscan authcode / ), nfreeze( $self )
+        q{REPLACE INTO shop_carts (userid, cartid, starttime, uniq, state, nextscan, authcode, paymentmethod, cartblob)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)},
+        undef, ( map { $self->{$_} } qw/ userid cartid starttime uniq state nextscan authcode / ), $paymentmethod_id, nfreeze( $self )
     );
 
     # bail if error
@@ -272,6 +301,20 @@ sub state {
     return $self->{state};
 }
 
+
+# get/set payment method
+sub paymentmethod {
+    my ( $self, $newpaymentmethod ) = @_;
+
+    return $self->{paymentmethod}
+        unless defined $newpaymentmethod;
+
+    $self->{paymentmethod} = $newpaymentmethod;
+    $self->save;
+
+    return $self->{paymentmethod};
+}
+
 ################################################################################
 ## read-only accessor methods
 ################################################################################
@@ -279,6 +322,7 @@ sub state {
 
 sub id       { $_[0]->{cartid}             } 
 sub userid   { $_[0]->{userid}             }
+sub starttime{ $_[0]->{starttime}          }
 sub age      { time() - $_[0]->{starttime} }
 sub items    { $_[0]->{items} ||= []       }
 sub uniq     { $_[0]->{uniq}               }
