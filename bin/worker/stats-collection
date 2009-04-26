@@ -40,20 +40,27 @@ sub work {
     my %module_categories;
     foreach my $module ( LJ::ModuleLoader::module_subclasses( 'DW::StatData' ) ) {
         eval "use $module";
-        $module_categories{$module->category} = [ $module, $module->keylist ];
+        die "use $module: $@" if $@;
+        $module_categories{$module->category} = $module;
+        $class->cond_debug( "Module $module is category " . $module->category );
     }
     
     foreach my $job ( keys %{$conf} ) {
-        my $module = $module_categories{$job}->[0];
-        my $keylist = $module_categories{$job}->[1];
+        my $module = $module_categories{$job};
 
-        unless ( $module_categories{$job}->[0] ) {
+        unless ( $module ) {
             warn "stats-collection: No stat data module matching '$job'\n";
             next;
         }
 
-        $keylist = $conf->{$job} eq '*' ? $module->keylist : $conf->{$job};
+        my $keylist = $conf->{$job} eq '*' ? $module->keylist : $conf->{$job};
+
+        $class->cond_debug( "Category $job, module $module, requested keys "
+                            . join( ", ", @$keylist ) );
+
         my $data = $module->collect( @$keylist );
+        $class->cond_debug( join( ", ", map { "$_=$data->{$_}" }
+                                            keys %$data ) );
         DW::StatStore->add( $job, %$data )
             or warn "stats-collection: can't store data collected for $job\n";
     }
