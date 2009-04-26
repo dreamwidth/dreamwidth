@@ -640,57 +640,23 @@ customize.layouts.3=3 Column (sidebars on either side)
 
 customize.layouts_for_dropdown.choose=(Choose a Layout)
 
-customize.propgroup_subheaders.calendar=Calendar
+customize.propgroup_subheaders.archive=Archive
 
-customize.propgroup_subheaders.caption_bar=Caption Bar
+customize.propgroup_subheaders.comment=Comment
 
-customize.propgroup_subheaders.comment=Comments
+customize.propgroup_subheaders.entry=Entry
 
-customize.propgroup_subheaders.component=Components
-
-customize.propgroup_subheaders.custom=Custom
-
-customize.propgroup_subheaders.entry=Entries
-
-customize.propgroup_subheaders.free_text_sidebox=Free Text Sidebox
+customize.propgroup_subheaders.footer=Footer
 
 customize.propgroup_subheaders.header=Header
 
-customize.propgroup_subheaders.header_bar=Header Bar
-
-customize.propgroup_subheaders.hotspot_area=Hotspot Area
-
-customize.propgroup_subheaders.icon=Icon
-
-customize.propgroup_subheaders.links_sidebox=Links Sidebox
-
-customize.propgroup_subheaders.multisearch_sidebox=Multisearch Sidebox
+customize.propgroup_subheaders.module=Module
 
 customize.propgroup_subheaders.navigation=Navigation
 
-customize.propgroup_subheaders.navigation_box=Navigation Box
-
-customize.propgroup_subheaders.ordering=Ordering
-
 customize.propgroup_subheaders.page=Page
 
-customize.propgroup_subheaders.setup=Setup
-
-customize.propgroup_subheaders.sidebar=Sidebar
-
-customize.propgroup_subheaders.sidebox=Sidebox
-
-customize.propgroup_subheaders.tabs_and_headers=Tabs and Headers
-
-customize.propgroup_subheaders.tags_sidebox=Tags Sidebox
-
-customize.propgroup_subheaders.text=Text
-
-customize.propgroup_subheaders.title=Title
-
-customize.propgroup_subheaders.title_box=Title Box
-
-customize.propgroup_subheaders.top_bar=Top Bar
+customize.propgroup_subheaders.unsorted=Options
 
 date.day.friday.long=Friday
 

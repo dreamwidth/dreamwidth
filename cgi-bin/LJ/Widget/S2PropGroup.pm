@@ -132,12 +132,12 @@ sub render_body {
     } else {
         my %subheaders = LJ::Customize->get_propgroup_subheaders;
 
-        # props under the "Page" subheader include all props in the group that aren't under any of the other subheaders
-        my %page_props = map { $_ => 1 } @$groupprops;
+        # props under the unsorted subheader include all props in the group that aren't under any of the other subheaders
+        my %unsorted_props = map { $_ => 1 } @$groupprops;
         foreach my $subheader (keys %subheaders) {
             my @subheader_props = eval "\$theme->${subheader}_props";
             foreach my $prop_name (@subheader_props) {
-                delete $page_props{$prop_name} if $page_props{$prop_name};
+                delete $unsorted_props{$prop_name} if $unsorted_props{$prop_name};
             }
         }
 
@@ -146,8 +146,8 @@ sub render_body {
             my $header_printed = 0;
 
             my @subheader_props;
-            if ($subheader eq "page") {
-                @subheader_props = keys %page_props;
+            if ( $subheader eq "unsorted" ) {
+                @subheader_props = keys %unsorted_props;
             } else {
                 @subheader_props = eval "\$theme->${subheader}_props";
             }

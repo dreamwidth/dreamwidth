@@ -673,30 +673,113 @@ sub display_option_props {
         linklist_support
     )
 }
-sub navigation_props { () }
-sub navigation_box_props { () }
-sub text_props { () }
-sub title_props { () }
-sub title_box_props { () }
-sub top_bar_props { () }
-sub header_props { () }
-sub tabs_and_headers_props { () }
-sub header_bar_props { () }
-sub icon_props { () }
-sub sidebar_props { () }
-sub caption_bar_props { () }
-sub entry_props { () }
-sub comment_props { () }
-sub sidebox_props { () }
-sub links_sidebox_props { () }
-sub tags_sidebox_props { () }
-sub multisearch_sidebox_props { () }
-sub free_text_sidebox_props { () }
-sub hotspot_area_props { () }
-sub calendar_props { () }
-sub component_props { () }
-sub setup_props { () }
-sub ordering_props { () }
-sub custom_props { () }
+
+sub module_props {
+    qw (
+        text_module_links
+        text_module_pagesummary
+        text_module_syndicate
+        text_module_tags
+        text_generated_on
+        text_tags_manage
+        text_tag_uses
+        color_module_background
+        color_module_text
+        color_module_border
+        color_module_link
+        color_module_link_active
+        color_module_link_hover
+        color_module_link_visited
+        color_module_title
+    )
+}
+
+sub navigation_props { 
+    qw (
+        text_view_archive
+        text_view_friends
+        text_view_friends_comm
+        text_view_friends_filter
+        text_view_memories
+        text_view_recent
+        text_view_userinfo
+    ) 
+}
+
+sub header_props {
+    qw (
+        text_tags_page_header
+        color_header_background
+        
+    )
+}
+
+sub entry_props {
+    qw (
+        text_edit_entry
+        text_edit_tags
+        text_mem_add
+        text_post_comment
+        text_read_comments
+        text_entry_prev
+        text_entry_next
+        text_tell_friend
+        text_meta_mood
+        text_meta_music
+        text_meta_groups
+        text_meta_location
+        text_nosubject
+        text_watch_comments
+        text_unwatch_comments
+        text_tags
+        color_entry_link
+        color_entry_link_active
+        color_entry_link_hover
+        color_entry_link_visited
+        color_entry_border
+        color_entry_background
+        color_entry_text
+        color_entry_title
+        color_entry_interaction_links
+    )
+}
+
+sub comment_props {
+    qw (
+        text_comment_date
+        text_comment_edittime
+        text_comment_expand
+        text_comment_from
+        text_comment_frozen
+        text_comment_ipaddr
+        text_comment_parent
+        text_comment_posted
+        text_comment_reply
+        text_comment_thread
+        color_comment_bar
+    )
+}
+
+sub archive_props {
+    qw (
+        text_day_next
+        text_day_prev
+        text_view_month
+    )
+}
+
+sub page_props {
+    qw (
+        color_page_background
+        color_page_text
+        color_page_link
+        color_page_link_active
+        color_page_link_hover
+        color_page_link_visited
+        color_page_title
+    )
+}
+
+sub footer_props {}
 
 1;

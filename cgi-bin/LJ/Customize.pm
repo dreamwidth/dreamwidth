@@ -689,63 +689,33 @@ sub get_layouts {
 
 sub get_propgroup_subheaders {
     return (
-        page => LJ::Lang::ml('customize.propgroup_subheaders.page'),
-        navigation => LJ::Lang::ml('customize.propgroup_subheaders.navigation'),
-        navigation_box => LJ::Lang::ml('customize.propgroup_subheaders.navigation_box'),
-        text => LJ::Lang::ml('customize.propgroup_subheaders.text'),
-        title => LJ::Lang::ml('customize.propgroup_subheaders.title'),
-        title_box => LJ::Lang::ml('customize.propgroup_subheaders.title_box'),
-        top_bar => LJ::Lang::ml('customize.propgroup_subheaders.top_bar'),
-        header => LJ::Lang::ml('customize.propgroup_subheaders.header'),
-        tabs_and_headers => LJ::Lang::ml('customize.propgroup_subheaders.tabs_and_headers'),
-        header_bar => LJ::Lang::ml('customize.propgroup_subheaders.header_bar'),
-        icon => LJ::Lang::ml('customize.propgroup_subheaders.icon'),
-        sidebar => LJ::Lang::ml('customize.propgroup_subheaders.sidebar'),
-        caption_bar => LJ::Lang::ml('customize.propgroup_subheaders.caption_bar'),
-        entry => LJ::Lang::ml('customize.propgroup_subheaders.entry'),
-        comment => LJ::Lang::ml('customize.propgroup_subheaders.comment'),
-        sidebox => LJ::Lang::ml('customize.propgroup_subheaders.sidebox'),
-        links_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.links_sidebox'),
-        tags_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.tags_sidebox'),
-        multisearch_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.multisearch_sidebox'),
-        free_text_sidebox => LJ::Lang::ml('customize.propgroup_subheaders.free_text_sidebox'),
-        hotspot_area => LJ::Lang::ml('customize.propgroup_subheaders.hotspot_area'),
-        calendar => LJ::Lang::ml('customize.propgroup_subheaders.calendar'),
-        component => LJ::Lang::ml('customize.propgroup_subheaders.component'),
-        setup => LJ::Lang::ml('customize.propgroup_subheaders.setup'),
-        ordering => LJ::Lang::ml('customize.propgroup_subheaders.ordering'),
-        custom => LJ::Lang::ml('customize.propgroup_subheaders.custom'),
+        page => LJ::Lang::ml( 'customize.propgroup_subheaders.page' ),
+        module => LJ::Lang::ml( 'customize.propgroup_subheaders.module' ),
+        navigation => LJ::Lang::ml( 'customize.propgroup_subheaders.navigation' ),
+        header => LJ::Lang::ml( 'customize.propgroup_subheaders.header' ),
+        entry => LJ::Lang::ml( 'customize.propgroup_subheaders.entry' ),
+        comment => LJ::Lang::ml( 'customize.propgroup_subheaders.comment' ),
+        archive => LJ::Lang::ml( 'customize.propgroup_subheaders.archive' ),
+        footer => LJ::Lang::ml( 'customize.propgroup_subheaders.footer' ),
+
+        unsorted => LJ::Lang::ml( 'customize.propgroup_subheaders.unsorted' ),
     );
 }
 
 sub get_propgroup_subheaders_order {
-    return qw(
+    return ( 
+    qw (
         page
+        module
         navigation
-        navigation_box
-        text
-        title
-        title_box
-        top_bar
         header
-        tabs_and_headers
-        header_bar
-        icon
-        sidebar
-        caption_bar
+        footer
         entry
         comment
-        sidebox
-        links_sidebox
-        tags_sidebox
-        multisearch_sidebox
-        free_text_sidebox
-        hotspot_area
-        calendar
-        component
-        setup
-        ordering
-        custom
+        archive
+        unsorted
+    )
+
     );
 }
 
