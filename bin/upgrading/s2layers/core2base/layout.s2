@@ -28,21 +28,84 @@ propgroup colors {
     property use color_page_background;
     property use color_page_text;
     property use color_page_link;
+    property use color_page_link_active;
+    property use color_page_link_hover;
+    property use color_page_link_visited;
+    property use color_page_border;
     property use color_page_title;
 
     property use color_module_background;
     property use color_module_text;
-    property use color_module_border;
     property use color_module_link;
+    property use color_module_link_active;
+    property use color_module_link_hover;
+    property use color_module_link_visited;
+    property use color_module_border;
     property use color_module_title;
 
-    property use color_entry_link;
-    property use color_entry_border;
     property use color_entry_background;
     property use color_entry_text;
+    property use color_entry_link;
+    property use color_entry_link_active;
+    property use color_entry_link_hover;
+    property use color_entry_link_visited;
+    property use color_entry_border;
     property use color_entry_title;
     property use color_entry_interaction_links;
 
+}
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "";
+set color_page_text = "";
+set color_page_link = "";
+set color_page_link_active = "";
+set color_page_link_hover = "";
+set color_page_link_visited = "";
+set color_page_border = "";
+set color_page_title = "";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "";
+set color_entry_text = "";
+set color_entry_link = "";
+set color_entry_link_active = "";
+set color_entry_link_hover = "";
+set color_entry_link_visited = "";
+set color_entry_border = "";
+set color_entry_title = "";
+set color_entry_interaction_links = "";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "";
+set color_module_text = "";
+set color_module_link = "";
+set color_module_link_active = "";
+set color_module_link_hover = "";
+set color_module_link_visited = "";
+set color_module_title = "";
+set color_module_border = "";
+
+##===============================
+## Display settings - images
+##===============================
+
+propgroup images {
+    property use image_background_page_group;
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property use image_background_entry_group;
+    property use image_background_module_group;
 }
 
 ##===============================
@@ -101,13 +164,48 @@ propgroup text {
 }
 
 function Page::print_default_stylesheet() {
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, new Color);
+    if ($*image_background_header_height > 0) {
+        $header_background = """
+            $header_background
+            height: """ + $*image_background_header_height + """px;""";
+    }
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
+
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
+
+    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
+    var string entry_title_colors = generate_color_css($*color_entry_title, new Color, new Color);
+    var string module_title_colors = generate_color_css($*color_module_title, new Color, new Color);
+
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string entry_link_colors = generate_color_css($*color_entry_link, new Color, new Color);
+    var string entry_link_active_colors = generate_color_css($*color_entry_link_active, new Color, new Color);
+    var string entry_link_hover_colors = generate_color_css($*color_entry_link_hover, new Color, new Color);
+    var string entry_link_visited_colors = generate_color_css($*color_entry_link_visited, new Color, new Color);
+    var string entry_interaction_link_colors = generate_color_css($*color_entry_interaction_links, new Color, new Color);
+
+    var string module_link_colors = generate_color_css($*color_module_link, new Color, new Color);
+    var string module_link_active_colors = generate_color_css($*color_module_link_active, new Color, new Color);
+    var string module_link_hover_colors = generate_color_css($*color_module_link_hover, new Color, new Color);
+    var string module_link_visited_colors = generate_color_css($*color_module_link_visited, new Color, new Color);
+
+    
     """<style type="text/css">""";
     start_css();
     """
     <!--
 H1, H2, H3 { 
 	margin: .25em 0;
-	padding: .25em 0; 
+	padding: .25em 0;
 }
 
 img { 
@@ -127,7 +225,14 @@ body {
 	font-family: ;
 	font-size: 100%;
 	padding: 0;
+    $page_background
+    $page_colors
 }
+
+a { $page_link_colors }
+a:active { $page_link_active_colors }
+a:hover { $page_link_hover_colors }
+a:visited { $page_link_visited_colors }
 
 body.two-columns-left,
 body.three-columns-sides { padding-left: $*sidebar_width; }
@@ -182,6 +287,11 @@ body.three-columns-right { padding-right: $*sidebar_width_doubled; }
 .three-columns-right #footer {margin-right: -$*sidebar_width_doubled;}
 .three-columns-left #header,
 .three-columns-left #footer {margin-left: -$*sidebar_width_doubled;}
+
+#header {
+    $header_background
+    $page_title_colors
+}
 
 #primary {
 	float: left;
@@ -272,6 +382,20 @@ body.three-columns-right { padding-right: $*sidebar_width_doubled; }
 }
 
 /* entries */
+.entry {
+    $entry_background
+    $entry_colors
+}
+
+.entry h3 {
+    $entry_title_colors
+}
+
+.entry a { $entry_link_colors }
+.entry a:active { $entry_link_active_colors }
+.entry a:hover { $entry_link_hover_colors }
+.entry a:visited { $entry_link_visited_colors }
+
 
 .metadata ul { 
 	display: inline;
@@ -310,6 +434,9 @@ ul.entry-interaction-links {
 	padding-left: 0;
 	text-align: right;
 }
+
+.entry-interaction-links a { $entry_interaction_link_colors }
+
 ul.entry-interaction-links li { 
 	display: inline;
 	padding: 0 .25em;
@@ -379,6 +506,20 @@ table.month td p {
 
 
 /* modules */
+
+.module {
+    $module_background
+    $module_colors
+}
+
+.module a { $module_link_colors }
+.module a:active { $module_link_active_colors }
+.module a:hover { $module_link_hover_colors }
+.module a:visited { $module_link_visited_colors }
+
+.module h3 {
+    $module_title_colors
+}
 
 .module-content ul { 
 	list-style: outside;

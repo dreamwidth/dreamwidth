@@ -1416,36 +1416,75 @@ property string font_module_text {
 ## Journal style - images
 ##===============================
 
-property string[] background_image_group {
-    des = "Background";
+property string[] image_background_page_group {
+    des = "Background image";
     grouptype = "image";
 }
-set background_image_group = [ "background_image_url", "background_image_repeat", "background_image_position" ];
-property string background_image_url {
+set image_background_page_group = [ "image_background_page_url", "image_background_page_repeat", "image_background_page_position" ];
+property string image_background_page_url {
     grouped = 1;
 }
-property string background_image_repeat {
+property string image_background_page_repeat {
     values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
     grouped = 1;
 }
-property string background_image_position {
+property string image_background_page_position {
     values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
     grouped = 1;
 }
 
-property string[] header_image_group {
-    des = "Header";
+property string[] image_background_header_group {
+    des = "Header image";
     grouptype = "image";
 }
-set header_image_group = [ "header_image_url", "header_image_repeat", "header_image_position" ];
-property string header_image_url {
+set image_background_header_group = [ "image_background_header_url", "image_background_header_repeat", "image_background_header_position" ];
+property string image_background_header_url {
     grouped = 1;
 }
-property string header_image_repeat {
+property string image_background_header_repeat {
     values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
     grouped = 1;
 }
-property string header_image_position {
+property string image_background_header_position {
+    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    grouped = 1;
+}
+# FIXME: This should be grouped, but then it doesn't get a label.
+property int image_background_header_height {
+    des = "The height of your header, in pixels.  Use 0 for default.";
+    example = "50";
+    size = 6;    
+}
+property string[] image_background_entry_group {
+    des = "Entry background image";
+    grouptype = "image";
+}
+set image_background_entry_group = [ "image_background_entry_url", "image_background_entry_repeat", "image_background_entry_position" ];
+property string image_background_entry_url {
+    grouped = 1;
+}
+property string image_background_entry_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_entry_position {
+    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    grouped = 1;
+}
+
+property string[] image_background_module_group {
+    des = "Module background image";
+    grouptype = "image";
+}
+set image_background_module_group = [ "image_background_module_url", "image_background_module_repeat", "image_background_module_position" ];
+property string image_background_module_url {
+    grouped = 1;
+}
+property string image_background_module_repeat {
+    values = "repeat|tile image|no-repeat|don't tile|repeat-x|tile horizontally|repeat-y|tile vertically";
+    grouped = 1;
+}
+property string image_background_module_position {
     values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
     grouped = 1;
 }
@@ -1512,23 +1551,24 @@ set control_strip_linkcolor = "";
 ##===============================
 ## Journal style - element colors
 ##===============================
+
+property Color color_entry_background   { des = "Entry background color"; }
+property Color color_entry_text         { des = "Entry text color"; }
 property Color color_entry_link         { des = "Entry link color"; }
 property Color color_entry_link_active  { des = "Entry active link color"; }
 property Color color_entry_link_hover   { des = "Entry hover link color"; }
 property Color color_entry_link_visited { des = "Entry visited link color"; }
 property Color color_entry_border       { des = "Entry border color"; }
-property Color color_entry_background   { des = "Entry background color"; }
-property Color color_entry_text   { des = "Entry foreground color"; }
 property Color color_entry_title        { des = "Entry title color"; }
 property Color color_entry_interaction_links { des = "Color of interaction links and text"; }
 
+set color_entry_background = "";
+set color_entry_text = "";
 set color_entry_link = "";
 set color_entry_link_active = "";
 set color_entry_link_hover = "";
 set color_entry_link_visited = "";
 set color_entry_border = "";
-set color_entry_background = "";
-set color_entry_text = "";
 set color_entry_title = "";
 set color_entry_interaction_links = "";
 
@@ -1537,34 +1577,40 @@ set color_entry_interaction_links = "";
 ##===============================
 
 property Color color_page_background { des = "Page background color"; }
-property Color color_page_text { des = "Page foreground/text color"; }
+property Color color_page_text { des = "Page text color"; }
 property Color color_page_link { des = "Page link color"; }
 property Color color_page_link_active { des = "Page active link color"; }
 property Color color_page_link_hover { des = "Page hover link color"; }
 property Color color_page_link_visited { des = "Page visited link color"; }
+property Color color_page_border { des = "Page border color"; }
 property Color color_page_title { des = "Page title color"; }
-
-property Color color_module_background { des = "Module background color"; }
-property Color color_module_text { des = "Module foreground color"; }
-property Color color_module_border { des = "Module border color"; }
-property Color color_module_link { des = "Module link color"; }
-property Color color_module_link_active { des = "Module active link color"; }
-property Color color_module_link_hover { des = "Module hover link color"; }
-property Color color_module_link_visited { des = "Module visited link color"; }
-property Color color_module_title { des = "Module title color"; }
 
 set color_page_background = "";
 set color_page_text = "";
 set color_page_link = "";
+set color_page_link_active = "";
+set color_page_link_hover = "";
+set color_page_link_visited = "";
+set color_page_border = "";
 set color_page_title = "";
+
+property Color color_module_background { des = "Module background color"; }
+property Color color_module_text { des = "Module text color"; }
+property Color color_module_link { des = "Module link color"; }
+property Color color_module_link_active { des = "Module active link color"; }
+property Color color_module_link_hover { des = "Module hover link color"; }
+property Color color_module_link_visited { des = "Module visited link color"; }
+property Color color_module_border { des = "Module border color"; }
+property Color color_module_title { des = "Module title color"; }
+
 set color_module_background = "";
 set color_module_text = "";
-set color_module_border = "";
 set color_module_link = "";
 set color_module_link_active = "";
 set color_module_link_hover = "";
 set color_module_link_visited = "";
 set color_module_title = "";
+set color_module_border = "";
 
 ##===============================
 ## Custom CSS
@@ -2556,6 +2602,46 @@ function Page::print_stylesheets()
         end_css();
         println """</style>""";
     }
+}
+
+function generate_background_css (
+    string background_image, 
+    string background_image_repeat, 
+    string background_image_position,
+    Color background_color
+) : string 
+"Take the values for the properties in a background image group and output the appropriate
+line of CSS for inclusion in your stylesheet."
+{
+    if (not defined $background_color) {
+        $background_color = "auto";
+    }
+
+    var string background_css = "background: $background_color";
+
+    if ($background_image != "") {
+        $background_css = $background_css + " url($background_image) $background_image_repeat $background_image_position";
+    }
+
+    $background_css = $background_css + ";";
+
+    return $background_css;
+}
+
+function generate_color_css (Color text_color, Color background_color, Color border_color) : string 
+"Take the color property values and return the appropriate lines of CSS for your style sheet."
+{
+    var string color_css = "";
+    if ($text_color.as_string != "") {
+        $color_css = $color_css + "color: $text_color;\n";
+    }
+    if ($background_color.as_string != "") {
+        $color_css = $color_css + "background-color: $background_color;\n";
+    }
+    if ($border_color.as_string != "") {
+        $color_css = $color_css + "border: solid 1px $border_color;\n";
+    }
+    return $color_css;
 }
 
 function Page::print_title() 
