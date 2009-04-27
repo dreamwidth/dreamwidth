@@ -84,6 +84,7 @@ while ( 1 ) {
     select undef, undef, undef, $sleep_time;
 
     $log->( 'Main loop ended.' );
+    $begin_time = [ gettimeofday() ];
 }
 
 
@@ -100,6 +101,8 @@ sub main_loop {
     my $dbh = LJ::get_db_writer()
         or return $log->( 'Unable to get database writer handle.' );
 
+## PHASE 1) PROCESS PAYMENTS
+
     # dig up carts that are in state paid and scannable
     my $cartids = $dbh->selectcol_arrayref(
         q{SELECT cartid FROM shop_carts WHERE state = ? AND nextscan < UNIX_TIMESTAMP()},
@@ -114,6 +117,101 @@ sub main_loop {
 
     # now iterate over these and do something with them
     scan_cart( $dbh, $_ ) foreach @$cartids;
+
+## PHASE 2) PROCESS EXPIRATIONS
+
+    # dig up who has expired ... accounts
+    my $uids = $dbh->selectcol_arrayref(
+        q{SELECT userid FROM dw_paidstatus
+          WHERE permanent = 0 AND (expiretime IS NOT NULL AND expiretime <= UNIX_TIMESTAMP())}
+    );
+    return $log->( 'Database error: %s', $dbh->errstr )
+        if $dbh->err;
+
+    $log->( 'Found %d expired users.', scalar( @$uids ) );
+
+    # now expire the user
+    expire_user( $dbh, $_ ) foreach @$uids;
+
+## PHASE 3) PROCESS EXPIRATION WARNING MAILS
+
+    # dig up who expire soon
+    my $rows = $dbh->selectall_arrayref(
+        q{SELECT userid, lastemail, expiretime - UNIX_TIMESTAMP()
+          FROM dw_paidstatus
+          WHERE permanent = 0 AND
+               (expiretime IS NOT NULL AND
+                expiretime > UNIX_TIMESTAMP() AND
+                expiretime < ( UNIX_TIMESTAMP() + 14*86400 )
+              )}
+    );
+    return $log->( 'Database error: %s', $dbh->errstr )
+        if $dbh->err;
+
+    $log->( 'Found %d users expiring soon.', scalar( @$rows ) );
+
+    # now expire the user
+    warn_user( $dbh, $_ ) foreach @$rows;
+
+}
+
+
+sub expire_user {
+    my ( $dbh, $uid ) = @_;
+
+    my $u = LJ::load_userid( $uid )
+        or return 0;
+
+    $log->( 'Expiring %s(%d).', $u->user, $u->id );
+
+    # aw, send them a mail :(
+    LJ::send_mail( {
+        to => $u->email_raw,
+        fromname => $LJ::SITENAME,
+        from => $LJ::ACCOUNTS_EMAIL,
+        subject => LJ::Lang::ml( "shop.expiration.0.subject", { sitename => $LJ::SITENAME } ),
+        body => LJ::Lang::ml( "shop.expiration.0.body", { sitename => $LJ::SITENAME, account => $u->user } ),
+    } );
+
+    # this is pretty easy, we just tell DW::Pay to do it
+    return DW::Pay::expire_user( $uid );
+}
+
+
+sub warn_user {
+    my ( $dbh, $row ) = @_;
+    my ( $uid, $lastmail, $timeleft ) = @$row;
+
+    my $u = LJ::load_userid( $uid )
+        or return 0;
+
+    my $mail;
+    if ( $timeleft < 86400*3 && ( ! defined $lastmail || $lastmail == 14 ) ) {
+        $log->( 'Sending 3-day expiration mail to %s(%d).', $u->user, $u->id );
+        $mail = '3';
+
+    } elsif ( $timeleft < 86400*14 && ! defined $lastmail ) {
+        $log->( 'Sending 14-day expiration mail to %s(%d).', $u->user, $u->id );
+        $mail = '14';
+    }
+
+    return 1 unless defined $mail;
+
+    LJ::send_mail( {
+        to => $u->email_raw,
+        fromname => $LJ::SITENAME,
+        from => $LJ::ACCOUNTS_EMAIL,
+        subject => LJ::Lang::ml( "shop.expiration.$mail.subject", { sitename => $LJ::SITENAME } ),
+        body => LJ::Lang::ml( "shop.expiration.$mail.body", { sitename => $LJ::SITENAME, account => $u->user } ),
+    } );
+
+    # now update the db
+    $dbh->do( 'UPDATE dw_paidstatus SET lastemail = ? WHERE userid = ?',
+              undef, $mail+0, $u->id );
+    return 0
+        if $dbh->err;
+
+    return 1;
 }
 
 

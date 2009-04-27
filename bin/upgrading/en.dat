@@ -3008,6 +3008,47 @@ Regards,
 The [[sitename]] Team
 .
 
+shop.expiration.0.subject=[[sitename]] Account Expired
+
+shop.expiration.0.body<<
+Dear [[account]],
+
+Your paid account has expired.
+
+
+Regards
+The [[sitename]] Team
+.
+
+shop.expiration.14.subject=[[sitename]] Account Expiration
+
+shop.expiration.14.body<<
+Dear [[account]],
+
+This is a friendly notice letting you know that your account is set to expire
+in approximately two weeks.
+
+
+Regards
+The [[sitename]] Team
+.
+
+shop.expiration.3.subject=[[sitename]] Account Expiration
+
+shop.expiration.3.body<<
+Dear [[account]],
+
+This is a friendly notice letting you know that your account is set to expire
+in approximately three days.
+
+This is the last notice you will get.  Your account will revert to free status
+automatically three days from now.
+
+
+Regards
+The [[sitename]] Team
+.
+
 shop.item.account.canbeadded.noperms=There are no more seed accounts available for purchase at this time.
 
 shop.item.account.conflicts.differentpaid=You cannot purchase two different types of paid accounts for the same person.

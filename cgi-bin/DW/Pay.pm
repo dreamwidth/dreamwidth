@@ -247,6 +247,41 @@ sub get_current_paid_userids {
 
 
 ################################################################################
+# DW::Pay::expire_user
+#
+# ARGUMENTS: uuserid
+#
+#   uuserid     required    user object or userid to set paid status for
+#
+# RETURN: undef on error, else 1 on success.
+#
+# This is a low level function that expires a user if they need to be.  It's a
+# no-op if the user is not supposed to be expired, but don't call it if you know
+# that's the case.
+#
+sub expire_user {
+    DW::Pay::clear_error();
+
+    my $u = LJ::want_user( shift() )
+        or return error( ERR_FATAL, "Invalid/not a user object." );
+
+    my $ps = DW::Pay::get_paid_status( $u );
+    return 1 unless $ps; # free already
+    return error( ERR_FATAL, "Cannot expire a permanent account." )
+        if $ps->{permanent};
+    return error( ERR_FATAL, "Account not ready for expiration." )
+        if $ps->{expiresin} > 0;
+
+    # so we have to update their status now
+    DW::Pay::update_paid_status( $u, _expire => 1 );
+    DW::Pay::sync_caps( $u );
+
+    # happy times
+    return 1;
+}
+
+
+################################################################################
 # DW::Pay::add_paid_time
 #
 # ARGUMENTS: uuserid, class, months
@@ -406,6 +441,13 @@ sub update_paid_status {
     return error( ERR_FATAL, "Lastemail must be 0, 3, or 14." )
         if exists $cols{lastemail} && defined $cols{lastemail} && $cols{lastemail} !~ /^(?:0|3|14)$/;
 
+    if ( delete $cols{_expire} ) {
+        $cols{typeid} = DW::Pay::default_typeid();
+        $cols{lastemail} = undef;
+        $cols{expiretime} = undef;
+        $cols{permanent} = 0; # has to be!
+    }
+
     my $cols = join( ', ', map { "$_ = ?" } sort keys %cols );
     my @bind = map { $cols{$_} } sort keys %cols;
 
@@ -425,7 +467,7 @@ sub update_paid_status {
         $dbh->do(
             q{INSERT INTO dw_paidstatus (userid, typeid, expiretime, permanent, lastemail)
               VALUES (?, ?, ?, ?, ?)},
-            undef, $u->id, $cols{typeid}, $cols{expiretime}+0, $cols{permanent}+0, $cols{lastemail}+0
+            undef, $u->id, $cols{typeid}, $cols{expiretime}, $cols{permanent}+0, $cols{lastemail}
         );
         return error( ERR_FATAL, "Database error: " . $dbh->errstr )
             if $dbh->err;
