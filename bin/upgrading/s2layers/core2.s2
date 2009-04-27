@@ -3262,9 +3262,9 @@ function handle_module_group_array(string[][] list) {
 
 
 function Page::print_module_section ( string section_name ) {
-    """<div class="module-section-$section_name">""";
+    """<div class="module-wrapper"><div class="separator separator-before"><div class="inner"></div></div>\n<div class="module-section-$section_name">\n<div class="inner">""";
     handle_module_group_array( $*module_sections{$section_name} );
-    """</div>""";
+    """</div>\n</div><div class="separator separator-after"><div class="inner"></div></div>\n</div>""";
 }
 
 function Page::print()
@@ -3489,44 +3489,48 @@ function EntryLite::print_wrapper_start() {
 }
 function Entry::print_wrapper_start() {
 # FIXME: need to ensure that calling the alternate function doesn't interfere with the printing of comments or the printing of module groups.
-    var string alternate = alternate ("entry-wrapper-a", "entry-wrapper-b");
+    var string alternate = alternate ("entry-wrapper-odd", "entry-wrapper-even");
     var string security = $this.security ? $this.security : "public";
-    var string adult_content_level = $this.adult_content_level ? $this.adult_content_level : "no-adult-content-level";
+    var string adult_content_level = $this.adult_content_level ? $this.adult_content_level : "none";
     var string journal_type = "journal-type-$this.journal.journal_type";
     var string poster;
     var string journal;
     if ($this.journal.journal_type != "I") {
         $poster = "poster-$this.poster.username";
-    }
-    if ($this.journal.journal_type == "C") {
-        $journal = "journal-$this.journal.username";
+        if ($this.journal.journal_type != "Y") {
+            $journal = "journal-$this.journal.username";
+        }
     }
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
 
-    """<div class="entry-wrapper $alternate $security $adult_content_level $journal_type $poster $journal $userpic" id="entry-wrapper-$this.itemid">\n""";
-    """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
+    """<div class="entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="entry-wrapper-$this.itemid">\n""";
+    """<div class="separator separator-before"><div class="inner"></div></div>\n""";
     """<div class="entry" id="entry-$this.itemid">\n""";
     """<div class="inner">\n""";
 }
 function Comment::print_wrapper_start() {
-    var string alternate = alternate ("comment-wrapper-a", "comment-wrapper-b");
+    var string alternate = alternate ("comment-wrapper-odd", "comment-wrapper-even");
     var string screened = $this.screened ? "screened" : "visible";
+    var string deletedstate = "deleted";
     var string frozen = $this.frozen ? "frozen" : "";
     var string poster = defined $this.poster ? "poster-" + $this.poster.username : "poster-anonymous";
     var string full = $this.full ? "full" : "partial";
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
-    """<div class="comment-wrapper $alternate $screened $frozen $poster $full $userpic" id="$this.anchor">\n""";
-    """<div class="separator separator-pre"><div class="inner"></div></div>\n""";
+    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $poster $full $userpic" id="$this.anchor">\n""";
+    """<div class="separator separator-before"><div class="inner"></div></div>\n""";
     """<div class="comment" id="comment-$this.dom_id">\n""";
+    """<div class="inner">\n""";
 }
 
 function EntryLite::print_wrapper_end() {
 }
 function Entry::print_wrapper_end() {
+    """<div class="separator separator-after"><div class="inner"></div></div>\n""";
     "</div>\n</div>\n</div>\n";
 }
 function Comment::print_wrapper_end() {
-    "</div>\n</div>\n";
+    """<div class="separator separator-after"><div class="inner"></div></div>\n""";
+    "</div>\n</div>\n</div>\n";
 }
 
 function EntryLite::print_metadata() {
@@ -3554,7 +3558,7 @@ function EntryLite::print_metatypes() {
 }
 function Entry::print_metatypes(bool icon, bool info) {
     if ($this.security) {
-        """<span class="trust-filter">""";
+        """<span class="access-filter">""";
         if ($icon) {
             $this.security_icon->print($this.security);
         }
@@ -3732,7 +3736,7 @@ function Entry::print_interaction_links(string target)
             "</li>";
             }
         if ($.comments.enabled) {
-            """<li class="entry-postlink">""";
+            """<li class="entry-replylink">""";
             $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
             "</li>";
         }
@@ -3998,7 +4002,7 @@ function YearPage::print_month(YearMonth m) {
     var string month_label = $m->month_format();
     """
     <div class="month-wrapper">
-        <div class="separator separator-pre"><div class="inner"></div></div>
+        <div class="separator separator-before"><div class="inner"></div></div>
         <div class="month">
             <div class="inner">
                 <div class="header">
@@ -4032,7 +4036,7 @@ function YearPage::print_month(YearMonth m) {
                 </div><!-- footer -->
             </div><!-- month>inner -->
         </div><!-- month -->
-        <div class="separator separator-post"><div class="inner"></div></div>
+        <div class="separator separator-after"><div class="inner"></div></div>
     </div><!-- month-wrapper -->
     """;
 }
@@ -4117,7 +4121,7 @@ function MonthPage::print_navigation() [fixed] {
 
             $.redir->print_hiddens();
             
-            if ($.prev_url != "") { "<li>[<a href='$.prev_url'>&lt;&lt;&lt;</a>]</li>\n"; }
+            if ($.prev_url != "") { "<li class='month-back'>[<a href='$.prev_url'>&lt;&lt;&lt;</a>]</li>\n"; }
 
             if (size $.months > 1) {
                 "<li><select name='redir_key'>\n";
@@ -4131,7 +4135,7 @@ function MonthPage::print_navigation() [fixed] {
                 "</select>\n<input type='submit' value='View' /></li>";
             }
 
-            if ($.next_url != "") { "\n<li>[<a href='$.next_url'>&gt;&gt;&gt;</a>]</li>\n"; }
+            if ($.next_url != "") { "\n<li class='month-forward'>[<a href='$.next_url'>&gt;&gt;&gt;</a>]</li>\n"; }
 
             """
             </form>
@@ -4165,7 +4169,7 @@ function MonthDay::print_subjectlist() {
 
 function DayPage::print_body() {
     """
-    <div id="archive-day">
+    <div id="archive-day entries">
         <div class="inner">
             """;
             $this->print_navigation();
@@ -4243,7 +4247,7 @@ function CommentInfo::print() {
 	    """<li class="entry-permalink"><a href="$.read_url">$*text_permalink</a></li>""";
         }
         if ($.show_postlink and $.enabled) {
-            """<li class="entry-postlink">""";
+            """<li class="entry-replylink">""";
             $this->print_postlink();
 	    "</li>";
         }
@@ -4291,7 +4295,7 @@ function Redirector::end_form ()
 ### EntryPage functions
 
 function EntryPage::print_comment_section(Entry e) {
-   "<div id='comments'>";
+   "<div id='comments'><div class='inner'>";
    $.comment_pages->print();
    if ($.comment_pages.total_subitems > 0) {
        $this->print_multiform_start();
@@ -4307,7 +4311,7 @@ function EntryPage::print_comment_section(Entry e) {
         "</div>";
     }
    $.comment_pages->print();
-    "</div>";
+    "</div></div>";
 }
 
 function EntryPage::print_comments (Comment[] cs) {
@@ -4330,18 +4334,18 @@ function ReplyPage::print_comment (Comment c) {
 # Note that there is no multiform check on the ReplyPage.
 
     $c->print_wrapper_start();
-    """<div class="inner">\n""";
     """<div class="header">\n""";
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
     """</div>\n""";
-    """</div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
     $c->print_userpic();
+    """<div class="poster-information">\n""";
     $c->print_poster();
     $c->print_metadata();
+    """</div>\n""";
     $c->print_text();
     """</div>\n""";
     """</div>\n""";
@@ -4358,12 +4362,10 @@ function EntryPage::print_comment (Comment c) {
 # ReplyPage and EntryPage work nicest if they output the same structure for printing comments and entries, but this requires to manually change both ReplyPage::print_comment and EntryPage::print_entry.  Layout authors can also choose to override separately for different structures.
 
     $c->print_wrapper_start();
-    """<div class="inner">\n""";
     """<div class="header">\n""";
     $c->print_subject();
     $c->print_metatypes();
     $c->print_time();
-    """</div>\n""";
     """</div>\n""";
     """<div class="contents">\n""";
     """<div class="inner">\n""";
