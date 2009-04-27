@@ -1,0 +1,128 @@
+/*
+ * htdocs/stc/importer.css
+ *
+ * Stylesheet for the importer frontent (htdocs/misc/import.bml)
+ *
+ * Authors:
+ *     Adam Roe <adam@sinkingpuppies.com>
+ *
+ * Copyright (c) 2009 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
+ */
+
+/* Heading with gradient background */
+h1.gradient, h2.gradient, h3.gradient, h4.gradient, h5.gradient {
+    background-image: url(/img/fffccc-gradient.gif);
+    border: 1px solid #666;
+    font-size: 1.0em !important;
+    font-weight: bold !important;
+    padding: 5px 9px !important;
+    font-family: Verdana, Helvetica, Arial, sans-serif !important;
+    margin-bottom: 10px !important;
+    margin-top: 10px !important;
+}
+
+p.intro {
+    padding-bottom: 10px;
+}
+
+/* Styles specific to /misc/import.bml */
+.importer p {
+    margin: auto 10px;
+}
+
+.importer .importoptions {
+    margin-bottom: 30px;
+}
+
+.importer .importoption {
+    border: 1px solid #666;
+    margin-top: -1px;
+    padding: 5px 10px;
+    background-color: #EFEFEF;
+}
+
+.importer .importoption label {
+    font-weight: bold;
+}
+
+.importer .importoption p {
+    padding: 0 0 0 22px !important; margin: 0 !important;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.importer .sites {
+    margin-left: 20px;
+    padding-bottom: 10px;
+}
+
+.importer .sites strong {
+    margin-left: -10px;
+}
+
+.importer .credentials {
+    border-top: 1px solid #CCC;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.importer .credentials input {
+    position: absolute;
+    left: 200px;
+    margin-top: -1px;
+}
+
+.importer .credentials label {
+    font-weight: bold;
+}
+
+.importer .credentials div {
+    margin-bottom: 5px;
+}
+
+.importer .submit {
+    border: 1px solid #951D22;
+    padding: 10px;
+    margin: 0 auto;
+    width: 55px;
+    background-color: #C1272D;
+}
+
+.importer .importantnote {
+    color: #666;
+    font-size: 0.9em;
+    padding: 10px;
+    border-top: 1px solid #CCC;
+    margin-top: 20px;
+}
+
+.importer-status {
+    margin-bottom: 30px;
+    border: 1px solid #CCC;
+}
+
+.importer-status .table-header {
+    background-color: #CCC;
+    padding: 3px;
+    font-weight: bold;
+}
+
+.importer-status td {
+    padding: 3px;
+    font-size: 0.9em;
+    border-bottom: 1px solid #CCC;
+}
+
+.importer-status td .odd {
+    background-color: #CCC;
+}
+
+.queueanother {
+    display: block;
+    margin-top: -10px;
+    margin-bottom: 10px !important;
+}

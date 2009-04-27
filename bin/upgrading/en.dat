@@ -3777,6 +3777,106 @@ widget.friendupdates.title=Friend Updates
 
 widget.friendupdates.viewall=More
 
+widget.importchoosedata.btn.continue=Continue &rarr;
+
+widget.importchoosedata.error.noitemsselected=You did not select any content to import.
+
+widget.importchoosedata.header=What would you like to import?
+
+widget.importchoosedata.item.lj_bio.desc=This includes your basic info, bio, and interests.
+
+widget.importchoosedata.item.lj_comments.desc=Imports <em>all</em> comments on your entries. This will automatically import your entries.
+
+widget.importchoosedata.item.lj_entries.desc=Imports <em>all</em> your journal entries, whether they're friends-only, private or public. This will automatically import your tags and custom security groups.
+
+widget.importchoosedata.item.lj_friendgroups.desc=Imports your friend groups as [[sitename]] access filters.
+
+widget.importchoosedata.item.lj_tags.desc=Imports the tags used to categorize your entries.
+
+widget.importchoosedata.item.lj_userpics.desc=Imports your icons (userpics). If you have more icons to be imported than your current [[sitename]] account level allows, only your default icon will be imported.
+
+widget.importchoosesource.btn.continue=Continue &rarr;
+
+widget.importchoosesource.error.nocredentials=Please provide a username and password for the service that you selected.
+
+widget.importchoosesource.error.nohostname=Please select a service to import data from.
+
+widget.importchoosesource.header=Where would you like to import from?
+
+widget.importchoosesource.intro=Please choose a service and type in the <strong>username and password for the acccount on that service</strong> that you wish to import content from.  Do not type in your [[sitename]] username and password.  At the moment, we only support some LiveJournal-based hosts.
+
+widget.importchoosesource.password=Password on other service
+
+widget.importchoosesource.service=Choose a service to import from:
+
+widget.importchoosesource.username=Username on other service
+
+widget.importchoosesource.warning=Warning: You have another import currently in progress. Setting up a new import will abort your current import!
+
+widget.importconfirm.btn.import=Start Import
+
+widget.importconfirm.destination=<strong>Importing to:</strong><br />[[user]] at [[host]]
+
+widget.importconfirm.header=Confirm Import
+
+widget.importconfirm.intro=By clicking the button below, your import task will be started. Make sure you are happy with the choices you have made.
+
+widget.importconfirm.items=<strong>Data that you are importing:</strong><br />[[items]]
+
+widget.importconfirm.source=<strong>Importing from:</strong><br />[[user]] at [[host]]
+
+widget.importconfirm.warning=Warning: Once confirmed, you cannot stop or reverse an import!
+
+widget.importstatus.btn.importanother=Start Another Import
+
+widget.importstatus.createtime=created [[timeago]]
+
+widget.importstatus.header=Import Status
+
+widget.importstatus.importanother=If you'd like, you can queue another import. However, keep in mind that setting up another import will abort any imports that you still have in progress.
+
+widget.importstatus.item.lj_bio=Profile data
+
+widget.importstatus.item.lj_comments=Journal comments
+
+widget.importstatus.item.lj_entries=Journal entries
+
+widget.importstatus.item.lj_friendgroups=Custom security groups
+
+widget.importstatus.item.lj_tags=Tags
+
+widget.importstatus.item.lj_userpics=Icons
+
+widget.importstatus.item.lj_verify=Verifying username/password
+
+widget.importstatus.refresh=Refresh
+
+widget.importstatus.status.failed=Failed
+
+widget.importstatus.status.init.lj_bio=Waiting for verification to finish
+
+widget.importstatus.status.init.lj_comments=Waiting for entries to finish
+
+widget.importstatus.status.init.lj_entries=Waiting for tags and groups to finish
+
+widget.importstatus.status.init.lj_friendgroups=Waiting for verification to finish
+
+widget.importstatus.status.init.lj_tags=Waiting for verification to finish
+
+widget.importstatus.status.init.lj_userpics=Waiting for verification to finish
+
+widget.importstatus.status.init.lj_verify=Waiting for another import to finish
+
+widget.importstatus.status.queued=Waiting in the queue
+
+widget.importstatus.status.ready=Ready to be entered into the queue
+
+widget.importstatus.status.succeeded=Finished successfully
+
+widget.importstatus.statusasof=[[status]] as of [[timeago]]
+
+widget.importstatus.whichaccount=Import from [[user]] at [[host]]
+
 widget.inbox.menu.delete.btn=Delete
 
 widget.inbox.menu.delete_all.btn=Delete All

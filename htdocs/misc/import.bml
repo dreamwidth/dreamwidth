@@ -1,12 +1,14 @@
 <?page
 
 #
-# import.bml
+# htdocs/misc/import.bml
 #
-# Little import helper tool.
+# Step-by-step wizard that helps a person import content into their journal.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
+#      Adam Roe <adam@sinkingpuppies.com>
+#      Janine Costanzo <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -22,195 +24,41 @@ body<=
     use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
     use Digest::MD5 qw/ md5_hex /;
 
-    # translated/custom page title can go here
-    $title = "Import Helper";
+    if ( $LJ::USE_SSL && !$LJ::IS_SSL && $GET{ssl} ne 'no' ) {
+        return BML::redirect( "$LJ::SSLROOT/misc/import" );
+    }
 
-    # for pages that require authentication
+    LJ::need_res( 'stc/importer.css' );
+
+    $title = $ML{'.title'};
+
     my $remote = LJ::get_remote()
         or return "<?needlogin?>";
 
-    # allow the remote user to authenticate as another account (community, etc)
-    my $authas = $GET{authas} || $remote->user;
-    my $u = LJ::get_authas_user( $authas );
-    return LJ::bad_input( $ML{'error.invalidauth'} )
-        unless $u;
+    return $ML{'.error.notperson'}
+        unless $remote->is_person;
 
-    # verify that the beta is still happening
-    return "Beta has ended, sorry!"
-        unless $LJ::ENABLE_BETA_TOOLS;
-
-    # if post, do something
     if ( LJ::did_post() ) {
-        return "Invalid form."
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
             unless LJ::check_form_auth();
 
-        my $un = $POST{username};
-        my $pw = $POST{password};
-        my $hn = $POST{hostname};
-        return "Please provide a username and password."
-            unless $un && $pw && $hn;
-
-        my $dbh = LJ::get_db_writer()
-            or return "Unable to connect to database.";
-        my $id = LJ::alloc_user_counter( $u, "I" ) or die "can't get id for import data\n";
-        $dbh->do(
-            "INSERT INTO import_data (userid, import_data_id, hostname, username, password_md5) VALUES (?, ?, ?, ?, ?)",
-            undef, $u->id, $id, $hn, $un, md5_hex( $pw )
-        );
-        return "Database error." if $dbh->err;
-
-        # this is a hack, but we use it until we get a better frontend.  we abort all
-        # existing import jobs if they schedule a new one.  this won't actually stop any
-        # TheSchwartz jobs thateare in progress, of course, but that should be okay
-        $dbh->do(
-            q{UPDATE import_items SET status = 'aborted'
-              WHERE userid = ? AND status IN ('init', 'ready', 'queued')},
-            undef, $u->id
-        );
-
-        # if comments are on, turn entries on
-        $POST{lj_entries} = 1
-            if $POST{lj_comments};
-
-        # okay, this is kinda hacky but turn on the right things so we can do
-        # a proper entry import...
-        if ( $POST{lj_entries} ) {
-            $POST{lj_tags} = 1;
-            $POST{lj_friendgroups} = 1;
-        }
-
-        # everybody needs a verifier
-        $POST{lj_verify} = 1;
-
-        # default job status
-        my @jobs = (
-            ['lj_verify',       'ready'],
-            ['lj_userpics',     'init'],
-            ['lj_bio',          'init'],
-            ['lj_tags',         'init'],
-            ['lj_friendgroups', 'init'],
-#            ['lj_friends',      'init' ],
-            ['lj_entries',      'init' ],
-            ['lj_comments',     'init' ],
-        );
-
-        # schedule userpic, bio, and tag imports
-        foreach my $item ( @jobs ) {
-            next unless $POST{$item->[0]};
-
-            $dbh->do(
-                "INSERT INTO import_items (userid, item, status, created, import_data_id, priority) " .
-                "VALUES (?, ?, ?, UNIX_TIMESTAMP(), ?, UNIX_TIMESTAMP())",
-                undef, $u->id, $item->[0], $item->[1], $id
-            );
-            return "Database error." if $dbh->err;
-        }
-
-        return BML::redirect( "$LJ::SITEROOT/misc/import.bml" );
-    }
-
-    # load up their most recent (active) import
-    my $dbh = LJ::get_db_writer()
-        or return "No database.";
-    my $imps = $dbh->selectall_arrayref(
-        'SELECT import_data_id, hostname, username, password_md5 FROM import_data WHERE userid = ? ' .
-        'ORDER BY import_data_id DESC LIMIT 1',
-        undef, $u->id
-    );
-
-    # put the data together
-    my %s;
-    foreach my $imp ( @$imps ) {
-        my ( $impid, $host, $un, $pw ) = @$imp;
-        $s{$impid} = { host => $host, user => $un, pw => $pw, items => {} };
-
-        my $nr = $dbh->selectall_arrayref(
-            'SELECT item, status, created, last_touch, priority FROM import_items WHERE userid = ? AND import_data_id = ?',
-            undef, $u->id, $impid
-        );
-        foreach my $h ( @$nr ) {
-            $s{$impid}->{items}->{$h->[0]} = {
-                status => $h->[1], created => $h->[2], last_touch => $h->[3], priority => $h->[4]
-            };
+        my %from_post = LJ::Widget->handle_post( \%POST, qw( ImportStatus ImportChooseSource ImportChooseData ImportConfirm ) );
+        if ( $from_post{notloggedin} ) {
+            return "<?needlogin?>";
+        } elsif ( $from_post{refresh} ) {
+            return BML::redirect( "$LJ::SITEROOT/misc/import" );
+        } elsif ( $from_post{ret} ) {
+            return "<div class='importer'>$from_post{ret}</div>";
         }
     }
 
-    # now dump the data out in a rather unattractive fashion
-    my $refresh = "[<a href='$LJ::SITEROOT/misc/import.bml'>Refresh</a>]";
-    my $ret = "<?p This page helps you import data from another site to test the importer. p?>";
-    if ( scalar keys %s ) {
-        $ret .= "<?h2 Import Status h2?><table width='98%'>";
-        foreach my $impid ( sort { $b <=> $a } keys %s ) {
-            my $h = $s{$impid};
-            $ret .= "<tr><td colspan='4'>&nbsp;</td></tr>";
-            $ret .= "<tr><td colspan='4' style='background-color: #cccccc;'>$refresh <strong>$h->{host}</strong> | $h->{user}</td></tr>";
-            foreach my $item ( sort keys %{$h->{items}} ) {
-                my $i = $h->{items}->{$item};
-                $ret .= "<tr><td><em>$item</em></td>";
-                my $col = { init => '#333333', ready => '#3333aa', queued => '#33aa33', failed => '#aa3333', succeeded => '#00ff00' }->{$i->{status}};
-                $ret .= "<td><span style='color: $col;'>$i->{status}</span> as of " . LJ::ago_text(time() - ($i->{last_touch} || time())) . "</td>";
-                $ret .= "<td>created " . LJ::ago_text(time() - $i->{created}) . "</td>";
-                $ret .= "<td>priority $i->{priority}</td></tr>";
-            }
-        }
-        $ret .= "</table><br /><br />";
+    my $ret = "<p class='intro'>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT, user => $remote->ljuser_display } ) . "</p>";
+
+    if ( LJ::Widget::ImportStatus->should_render ) {
+        $ret .= LJ::Widget::ImportStatus->render;
+    } else {
+        $ret .= "<div class='importer'>" . LJ::Widget::ImportChooseSource->render . "</div>";
     }
-
-    # now let them do the rest...
-    my $authas = LJ::make_authas_select( $remote, { authas => $u->user } );
-    $authas = "<?p <form method='get'>$authas</form> p?><br />"
-        if $authas =~ /select/i;
-
-    # give selection table
-    $ret .= "<?h2 Start Import Job h2?>$authas";
-    $ret .= "<form method='post'>" . LJ::form_auth();;
-    $ret .= <<EOF;
-
-<table>
-    <tr><td>Username:</td><td><input type='text' name='username' maxlength='15'></td></tr>
-    <tr><td>Password:</td><td><input type='password' name='password' maxlength='50'></td></tr>
-    <tr><td></td><td>
-        <select name='hostname'>
-            <option value='livejournal.com'>LiveJournal.com</option>
-            <option value='insanejournal.com'>InsaneJournal</option>
-            <option value='journalfen.net'>JournalFen</option>
-        </select>
-    </td></tr>
-    <tr><td colspan='2'>&nbsp;</td></tr>
-
-EOF
-
-    # checkbox easier this way
-    my %opts = (
-        lj_comments     => [ 0, 'Import all comments.  Implies: entries.' ],
-        lj_entries      => [ 0, 'Import all journal entries.  Implies: tags, friendgroups.' ],
-        lj_tags         => [ 1, 'Import list of tags.' ],
-        lj_userpics     => [ 1, 'Import icons (aka userpics).' ],
-        lj_bio          => [ 1, 'Import bio field for profile.' ],
-#        lj_friends      => [ 0, 'Import friends as OpenID/feed accounts.' ],
-        lj_friendgroups => [ 1, 'Import friend groups as trust groups.' ],
-    );
-
-    foreach my $key ( sort keys %opts ) {
-        $ret .= "<tr><td></td><td>" .
-                LJ::html_check( { name => $key, id => $key, label => $opts{$key}->[1], selected => $opts{$key}->[0] } ) .
-                "</td></tr>\n";
-    }
-
-    $ret .= <<EOF;
-    <tr><td colspan='2'>&nbsp;</td></tr>
-</table>
-
-<?p
-    This will immediately kick off some jobs to import the selected items.  Please make sure
-    you are okay with this data being imported.  You will be able to watch status by checking
-    your site inbox to look for messages.  <em>This action is not reversible.</em>
-p?>
-
-<?p <input type='submit' value='Import' /> p?>
-
-</form>
-EOF
 
     return $ret;
 }
