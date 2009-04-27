@@ -19,6 +19,7 @@ _c?>
 <?_code
 {
     use strict;
+    use vars qw/ %POST /;
 
     return BML::redirect( "$LJ::SITEROOT/" )
         unless LJ::is_enabled( 'payments' );
@@ -68,6 +69,21 @@ _c?>
         $ret .= "<p>" . BML::ml( ".cart.paymentmethod.$paymentmethod.extra", { address => $address } ) . "</p>";
     }
     $ret .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
+
+    # if we're in beta, allow them to confirm the cart, if needed
+    if ( $LJ::ENABLE_BETA_TOOLS && $cart->state == $DW::Shop::STATE_PEND_PAID ) {
+        if ( LJ::did_post() && $POST{setpaid } ) {
+            return "invalid form post\n"
+                unless LJ::check_form_auth();
+            $cart->state( $DW::Shop::STATE_PAID );
+            return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum );
+        }
+
+        $ret .= "<br /><form method='post'><input type='hidden' name='setpaid' value='1' />";
+        $ret .= LJ::form_auth();
+        $ret .= "<input type='submit' value='DEBUG: Set Payment Received' /></form>";
+    }
+
     $ret .= "</body></html>";
 
     return $ret;
