@@ -41,6 +41,10 @@ body<=
     return $ML{'.error.invalidself'}
         if $for eq 'self' && ( !$remote || !$remote->is_personal );
 
+    my $account_type = DW::Pay::get_account_type( $remote );
+    return $ML{'.error.invalidself.perm'}
+        if $for eq 'self' && $account_type eq 'seed';
+
     my $ret = DW::Widget::ShopCartStatusBar->render( %GET );
 
     $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";
@@ -79,10 +83,10 @@ body<=
     $ret .= "<div style='clear: both;'></div>";
     $ret .= "<form method='post'>";
     $ret .= LJ::form_auth();
-    $ret .= "<table class='shop-table'><tr><td>";
-    $ret .= LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'prem' );
-    $ret .= "</td><td>";
-    $ret .= LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid' );
+    $ret .= "<table class='shop-table'><tr>";
+    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'prem' ) . "</td>";
+    $ret .= "<td>" . LJ::Widget::ShopItemOptions->render( option_name => 'accttype', item => 'paid' ) . "</td>"
+        unless $for eq 'self' && $account_type eq 'premium';
     $ret .= "</tr>";
 
     if ( DW::Pay::num_permanent_accounts_available() > 0 ) {

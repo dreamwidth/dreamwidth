@@ -6,6 +6,8 @@
 
 .error.invalidself=You must be logged in as a personal account in order to purchase paid time for yourself.
 
+.error.invalidself.perm=You cannot purchase any paid time for yourself because you have a Seed Account.
+
 .error.noselection=You must select an item to add to your cart.
 
 .giftfor.anonymous=Anonymous gift?

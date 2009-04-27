@@ -31,7 +31,7 @@ sub render_body {
     if ( $opts{group} eq 'paidaccounts' ) {
         $ret .= "<h2>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.header' ) . "</h2>";
         $ret .= "<ul>";
-        if ( $remote && $remote->is_personal ) {
+        if ( $remote && $remote->is_personal && DW::Pay::get_account_type( $remote ) ne 'seed' ) {
             $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.self', { aopts => "href='$LJ::SITEROOT/shop/account?for=self'", user => $remote->ljuser_display } ) . "</li>";
             $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.differentaccount', { aopts => "href='$LJ::SITEROOT/shop/account?for=gift'" } ) . "</li>";
         } else {
