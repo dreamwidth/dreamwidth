@@ -1,7 +1,7 @@
 <?page
 
 #
-# htdocs/misc/import.bml
+# htdocs/tools/importer.bml
 #
 # Step-by-step wizard that helps a person import content into their journal.
 #
@@ -25,7 +25,7 @@ body<=
     use Digest::MD5 qw/ md5_hex /;
 
     if ( $LJ::USE_SSL && !$LJ::IS_SSL && $GET{ssl} ne 'no' ) {
-        return BML::redirect( "$LJ::SSLROOT/misc/import" );
+        return BML::redirect( "$LJ::SSLROOT/tools/importer" );
     }
 
     LJ::need_res( 'stc/importer.css' );
@@ -46,7 +46,7 @@ body<=
         if ( $from_post{notloggedin} ) {
             return "<?needlogin?>";
         } elsif ( $from_post{refresh} ) {
-            return BML::redirect( "$LJ::SITEROOT/misc/import" );
+            return BML::redirect( "$LJ::SITEROOT/tools/importer" );
         } elsif ( $from_post{ret} ) {
             return "<div class='importer'>$from_post{ret}</div>";
         }

@@ -123,6 +123,11 @@ sub get_menu_navigation {
                     display => $loggedin_canjoincomms,
                 },
                 {
+                    url => "$LJ::SITEROOT/tools/importer",
+                    text => "menunav.organize.importcontent",
+                    display => $loggedin_hasjournal,
+                },
+                {
                     url => "$LJ::SITEROOT/customize/",
                     text => "menunav.organize.selectstyle",
                     display => $loggedin,

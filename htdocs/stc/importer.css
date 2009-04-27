@@ -1,7 +1,7 @@
 /*
  * htdocs/stc/importer.css
  *
- * Stylesheet for the importer frontent (htdocs/misc/import.bml)
+ * Stylesheet for the importer frontent (htdocs/tools/importer.bml)
  *
  * Authors:
  *     Adam Roe <adam@sinkingpuppies.com>
@@ -29,7 +29,7 @@ p.intro {
     padding-bottom: 10px;
 }
 
-/* Styles specific to /misc/import.bml */
+/* Styles specific to /tools/importer.bml */
 .importer p {
     margin: auto 10px;
 }

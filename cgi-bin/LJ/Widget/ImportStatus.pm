@@ -41,7 +41,7 @@ sub render_body {
             my $import_item = $items->{$importid};
 
             $ret .= "<tr><td colspan='4' class='table-header'>" . $class->ml( 'widget.importstatus.whichaccount', { user => $import_item->{user}, host => $import_item->{host} } ) . " | ";
-            $ret .= "<a href='$LJ::SITEROOT/misc/import'>" . $class->ml( 'widget.importstatus.refresh' ) . "</a></td></tr>";
+            $ret .= "<a href='$LJ::SITEROOT/tools/importer'>" . $class->ml( 'widget.importstatus.refresh' ) . "</a></td></tr>";
             foreach my $item ( sort keys %{$import_item->{items}} ) {
                 my $i = $import_item->{items}->{$item};
                 my $color = { init => '#333333', ready => '#3333aa', queued => '#33aa33', failed => '#aa3333', succeeded => '#00ff00' }->{$i->{status}};
