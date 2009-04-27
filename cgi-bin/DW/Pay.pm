@@ -38,7 +38,6 @@ use constant ERR_TEMP => 2;
 # RETURN: 1/0 if the type is a valid type
 #
 sub type_is_valid {
-    my $type = shift()+0;
     return 1 if $LJ::CAP{$_[0]} && $LJ::CAP{$_[0]}->{_account_type};
     return 0;
 }
@@ -246,6 +245,101 @@ sub get_current_paid_userids {
     return $uids;
 }
 
+
+################################################################################
+# DW::Pay::add_paid_time
+#
+# ARGUMENTS: uuserid, class, months
+#
+#   uuserid     required    user object or userid to set paid status for
+#   class       required    type of account to be using (_account_type)
+#   months      required    how many months to grant, 99 = perm
+#
+# RETURN: undef on error, else 1 on success.
+#
+# This is a low level function, you better be logging!
+#
+sub add_paid_time {
+    DW::Pay::clear_error();
+
+    my $u = LJ::want_user( shift() )
+        or return error( ERR_FATAL, "Invalid/not a user object." );
+
+    my $type = shift();
+    my ($typeid) = grep { $LJ::CAP{$_}->{_account_type} eq $type } keys %LJ::CAP;
+    return error( ERR_FATAL, 'Invalid type, no typeid found.' )
+        unless $typeid;
+
+    my $months = shift();
+    return error( ERR_FATAL, 'Invalid value for months.' )
+        unless $months > 0 && $months <= 12 || $months == 99;
+
+    # okay, let's see what the user is right now to decide what to do
+    my ( $newtypeid, $amonths, $asecs ) = ( $typeid, $months, 0 );
+    my $permanent = $months == 99 ? 1 : 0;
+
+    # if they have a $ps hashref, they have or had paid time at some point
+    if ( my $ps = DW::Pay::get_paid_status( $u ) ) {
+        # easy bail if they're permanent
+        return error( ERR_FATAL, 'User is already permanent, cannot apply more time.' )
+            if $ps->{permanent};
+
+        # not permanent, but do they have at least a minute left?
+        if ( $ps->{expiresin} > 60 ) {
+
+            # if it's the same type as what we've got, we just carry it forward by
+            # however much time they have left
+            if ( $ps->{typeid} == $typeid ) {
+                $asecs = $ps->{expiresin};
+
+            # but if they're going permanent...
+            } elsif ( $permanent ) {
+                $amonths = 0;
+
+            # but the types are different...
+            } else {
+                # FIXME: this needs to not be dw-nonfree logic
+                my $from_type = $LJ::CAP{$ps->{typeid}}->{_account_type};
+                my $to_type = $LJ::CAP{$typeid}->{_account_type};
+
+                # paid->premium, we convert at a rate of 0.7
+                if ( $from_type eq 'paid' && $to_type eq 'premium' ) {
+                    $asecs = int( $ps->{expiresin} * 0.7 );
+
+                # premium->paid, upgrade the new buy to premium.  we give them 21.28
+                # days of premium time for every month of paid time they were buying.
+                } elsif ( $from_type eq 'premium' && $to_type eq 'paid' ) {
+                    $newtypeid = $ps->{typeid};
+                    $asecs = $ps->{expiresin} + ( $amonths * 21 * 86400 );
+                    $amonths = 0;
+
+                } else {
+                    return error( ERR_FATAL, 'Invalid conversion.' )
+                }
+            }
+        }
+
+        # at this point we can ignore whatever they have in $ps, as we're going
+        # overwrite it with our own stuff
+    }
+
+    # so at this point, we can do whatever we're supposed to do
+    my $rv = DW::Pay::update_paid_status( $u,
+        typeid => $newtypeid,
+        permanent => $permanent,
+        _set_months => $amonths,
+        _add_secs => $asecs,
+    );
+
+    # and make sure caps are always in sync
+    DW::Pay::sync_caps( $u )
+        if $rv;
+
+    # all good, we hope :-)
+    return $rv;
+}
+
+
 ################################################################################
 # DW::Pay::update_paid_status
 #
@@ -264,7 +358,8 @@ sub get_current_paid_userids {
 # NOTE: you can set special keys if you want to extend time by months, use
 # _set_months to set expiretime to now + N months, and _add_months to append
 # that many months.  This is more than likely only useful for such things as
-# TODO complete that sentence.
+# admin tools.  You may also specify _add_secs if you really want to dig in
+# and get an exact expiration time.
 #
 sub update_paid_status {
     DW::Pay::clear_error();
@@ -277,17 +372,27 @@ sub update_paid_status {
     my $dbh = DW::Pay::get_db_writer()
         or return error( ERR_TEMP, "Unable to get db writer." );
 
-    if ( $cols{_set_months} ) {
+    # don't let them add months if the user expired, convert it to set months
+    if ( $cols{_add_months} ) {
+        my $row = DW::Pay::get_paid_status( $u );
+        if ( $row && $row->{expiresin} > 0 ) {
+            my $time = $dbh->selectrow_array( "SELECT UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME($row->{expiretime}), " .
+                                              "INTERVAL $cols{_add_months} MONTH))" );
+            $cols{expiretime} = $time;
+            delete $cols{_add_months};
+
+        } else {
+            $cols{_set_months} = delete $cols{_add_months};
+        }
+    }
+
+    if ( exists $cols{_set_months} ) {
         $cols{expiretime} = $dbh->selectrow_array( "SELECT UNIX_TIMESTAMP(DATE_ADD(NOW(), INTERVAL $cols{_set_months} MONTH))" );
         delete $cols{_set_months};
     }
 
-    if ( $cols{_add_months} ) {
-        my $row = DW::Pay::get_paid_status( $u );
-        my $time = $dbh->selectrow_array( "SELECT UNIX_TIMESTAMP(DATE_ADD(FROM_UNIXTIME($row->{expiretime}), " .
-                                          "INTERVAL $cols{_add_months} MONTH))" );
-        $cols{expiretime} = $time;
-        delete $cols{_add_months};
+    if ( exists $cols{_add_secs} ) {
+        $cols{expiretime} += delete $cols{_add_secs};
     }
 
     return error( ERR_FATAL, "Can't change the userid!" )
@@ -304,11 +409,27 @@ sub update_paid_status {
     my $cols = join( ', ', map { "$_ = ?" } sort keys %cols );
     my @bind = map { $cols{$_} } sort keys %cols;
 
-    $dbh->do( qq{
+    my $ct = $dbh->do( qq{
             UPDATE dw_paidstatus SET $cols WHERE userid = ?
-        }, undef, @bind, $u->{userid} );
+        }, undef, @bind, $u->id );
     return error( ERR_FATAL, "Database error: " . $dbh->errstr )
         if $dbh->err;
+
+    # if we got 0 rows edited, we have to insert a new row
+    if ( $ct == 0 ) {
+        # fail if we don't have some valid values
+        return error( ERR_FATAL, "Typeid must be some number and valid." )
+            unless $cols{typeid} =~ /^(?:\d+)$/ && DW::Pay::type_is_valid( $cols{typeid} );
+
+        # now try the insert
+        $dbh->do(
+            q{INSERT INTO dw_paidstatus (userid, typeid, expiretime, permanent, lastemail)
+              VALUES (?, ?, ?, ?, ?)},
+            undef, $u->id, $cols{typeid}, $cols{expiretime}+0, $cols{permanent}+0, $cols{lastemail}+0
+        );
+        return error( ERR_FATAL, "Database error: " . $dbh->errstr )
+            if $dbh->err;
+    }
 
     return 1;
 }

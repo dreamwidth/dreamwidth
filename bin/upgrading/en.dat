@@ -2946,6 +2946,68 @@ settings.yearofbirth=Year of Birth
 
 settings.zipcode=ZIP Code
 
+shop.email.email.anon.subject=[[sitename]] Account Purchase
+
+shop.email.email.anon.body<<
+Dear [[email]],
+
+Someone has chosen to purchase a [[sitename]] account for you.  You can
+use the following link to go create your account:
+
+    [[createurl]]
+
+We look forward to having you on the site!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.email.subject=[[sitename]] Account Purchase
+
+shop.email.email.body<<
+Dear [[email]],
+
+[[fromuser]] has chosen to purchase a [[sitename]] account for you.  You
+can use the following link to go create your account:
+
+    [[createurl]]
+
+We look forward to having you on the site!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.user.anon.subject=[[sitename]] Account Purchase
+
+shop.email.user.anon.body<<
+Dear [[touser]],
+
+Someone anonymous has chosen to upgrade your [[sitename]] account.
+
+Congratulations on your paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.user.subject=[[sitename]] Account Purchase
+
+shop.email.user.body<<
+Dear [[touser]],
+
+[[fromuser]] has chosen to upgrade your [[sitename]] account.
+
+Congratulations on your paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.item.account.canbeadded.noperms=There are no more seed accounts available for purchase at this time.
 
 shop.item.account.conflicts.differentpaid=You cannot purchase two different types of paid accounts for the same person.

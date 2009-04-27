@@ -172,17 +172,17 @@ sub scan_cart {
         }
 
         # try to apply it
-        my $rv = $item->apply;
+        my $rv = eval { $item->apply };
         if ( $rv ) {
             $log->( 'Successfully applied item.' );
         } else {
-            $log->( 'Failed to apply item.' );
+            $log->( 'Failed to apply item: %s', DW::Pay::error_text() || $@ || 'unknown error' );
             $unapplied = 1;
         }
-    }
 
-    # once we get here, MAKE SURE THE CART IS SAVED
-    $cart->save;
+        # yes, we save the cart a lot... oh well
+        $cart->save;
+    }
 
     # two possible results: we have items still unapplied or we did
     # get everything applied.  try again in 1-2 hours.
@@ -191,4 +191,11 @@ sub scan_cart {
         $log->( 'One or more items not applied, will retry later.' );
         return;
     }
+
+    # everything in this order has been applyed, restate it
+    $cart->state( $DW::Shop::STATE_PROCESSED );
+    $cart->save;
+
+    # main loop done!
+    $log->( 'Cart->state is now PROCESSED.' );
 }

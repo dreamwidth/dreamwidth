@@ -178,7 +178,7 @@ sub get_all {
     my ( $class, $u, %opts ) = @_;
     $u = LJ::want_user( $u );
 
-    my $extra_sql = " AND state <> $DW::Shop::STATE_OPEN AND state <> $DW::Shop::STATE_CLOSED AND state <> $DW::Shop::STATE_CHECKOUT"
+    my $extra_sql = " AND state NOT IN ($DW::Shop::STATE_OPEN, $DW::Shop::STATE_CLOSED, $DW::Shop::STATE_CHECKOUT)"
         if $opts{finished};
 
     my $dbh = LJ::get_db_writer()
@@ -243,6 +243,9 @@ sub has_items {
 # add an item to the shopping cart, returns 1/0
 sub add_item {
     my ( $self, $item ) = @_;
+
+    # tell teh item who we are
+    $item->cartid( $self->id );
 
     # make sure this item is allowed to be added
     my $error;

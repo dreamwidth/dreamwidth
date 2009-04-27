@@ -3162,6 +3162,18 @@ CREATE TABLE shop_carts (
 )
 EOC
 
+# invite code->shopping cart list
+register_tablecreate('shop_codes', <<'EOC');
+CREATE TABLE shop_codes (
+    acid INT UNSIGNED NOT NULL,
+    cartid INT UNSIGNED NOT NULL,
+    itemid INT UNSIGNED NOT NULL,
+
+    PRIMARY KEY (acid),
+    UNIQUE (cartid, itemid)
+)
+EOC
+
 register_tablecreate('externalaccount', << 'EOC');
 CREATE table externalaccount (
     userid int unsigned NOT NULL,

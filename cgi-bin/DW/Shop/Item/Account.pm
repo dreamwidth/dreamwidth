@@ -18,6 +18,8 @@
 package DW::Shop::Item::Account;
 
 use strict;
+use DW::InviteCodes;
+use DW::Pay;
 
 
 # instantiates an account to be purchased of some sort
@@ -64,6 +66,7 @@ sub new {
         # internal things we use to track the state of this item
         type    => 'account',
         applied => 0,
+        cartid  => 0,
     }, $class;
 }
 
@@ -72,13 +75,152 @@ sub new {
 # update ourselves, but it's up to the cart to make sure that it saves.
 sub apply {
     my $self = $_[0];
-    return if $self->applied;
+    return 1 if $self->applied;
 
-    # do the application process now, and if it succeeds...
+    # 1) deliverydate must be present/past
+    if ( my $ddate = $self->deliverydate ) {
+        my $cur = LJ::mysql_time();
+        $cur =~ s/^(\d\d\d\d-\d\d-\d\d).+$/$1/;
+
+        return 0
+            unless $ddate le $cur;
+    }
+
+    # application variability
+    return $self->_apply_email  if $self->t_email;
+    return $self->_apply_userid if $self->t_userid;
+
+    # something weird, just kill this item!
     $self->{applied} = 1;
-    warn "$self->{class} applied $self->{months} months\n";
-
     return 1;
+}
+
+
+# internal application sub, do not call
+sub _apply_userid {
+    my $self = $_[0];
+    return 1 if $self->applied;
+
+    # will need this later
+    my $fu = LJ::load_userid( $self->from_userid );
+    unless ( $self->anonymous || $fu ) {
+        warn "Failed to apply: NOT anonymous and no from_user!\n";
+        return 0;
+    }
+
+    # need this user
+    my $u = LJ::load_userid( $self->t_userid )
+        or return 0;
+
+    # try to add the paid time to the user
+    DW::Pay::add_paid_time( $u, $self->class, $self->months )
+        or return 0;
+
+    # we're applied now, regardless of what happens with the email
+    $self->{applied} = 1;
+
+    # now we have to mail this code
+    my ( $body, $subj );
+    if ( $self->anonymous ) {
+        $subj = LJ::Lang::ml( 'shop.email.user.anon.subject', { sitename => $LJ::SITENAME } );
+        $body = LJ::Lang::ml( 'shop.email.user.anon.body',
+            {
+                touser    => $u->user,
+                email     => $self->t_email,
+                sitename  => $LJ::SITENAME,
+            }
+        );
+    } else {
+        $subj = LJ::Lang::ml( 'shop.email.user.subject', { sitename => $LJ::SITENAME } );
+        $body = LJ::Lang::ml( 'shop.email.user.body',
+            {
+                touser    => $u->user,
+                email     => $self->t_email,
+                sitename  => $LJ::SITENAME,
+                fromuser  => $fu->user,
+            }
+        );
+    }
+
+    # send the email to the user
+    LJ::send_mail( {
+        to => $u->email_raw,
+        from => $LJ::ACCOUNTS_EMAIL,
+        fromname => $LJ::SITENAME,
+        subject => $subj,
+        body => $body
+    } );
+
+    # tell the caller we're happy
+    return 1;
+}
+
+
+# internal application sub, do not call
+sub _apply_email {
+    my $self = $_[0];
+    return 1 if $self->applied;
+
+    # will need this later
+    my $fu = LJ::load_userid( $self->from_userid );
+    unless ( $self->anonymous || $fu ) {
+        warn "Failed to apply: NOT anonymous and no from_user!\n";
+        return 0;
+    }
+
+    my $reason = join ':', 'payment', $self->class, $self->months;
+    my ($code) = DW::InviteCodes->generate( reason => $reason );
+    my ($acid) = DW::InviteCodes->decode( $code );
+
+    # store in the db
+    my $dbh = LJ::get_db_writer()
+        or return 0;
+    $dbh->do( 'INSERT INTO shop_codes (acid, cartid, itemid) VALUES (?, ?, ?)',
+              undef, $acid, $self->cartid, $self->id );
+    return 0
+        if $dbh->err;
+
+    # now we have to mail this code
+    my ( $body, $subj );
+    if ( $self->anonymous ) {
+        $subj = LJ::Lang::ml( 'shop.email.email.anon.subject', { sitename => $LJ::SITENAME } );
+        $body = LJ::Lang::ml( 'shop.email.email.anon.body',
+            {
+                email     => $self->t_email,
+                sitename  => $LJ::SITENAME,
+                createurl => "$LJ::SITEROOT/create?code=$code",
+            }
+        );
+    } else {
+        $subj = LJ::Lang::ml( 'shop.email.email.subject', { sitename => $LJ::SITENAME } );
+        $body = LJ::Lang::ml( 'shop.email.email.body',
+            {
+                email     => $self->t_email,
+                sitename  => $LJ::SITENAME,
+                createurl => "$LJ::SITEROOT/create?code=$code&from=" . $fu->user,
+                fromuser  => $fu->user,
+            }
+        );
+    }
+
+    # send the email to the user
+    my $rv = LJ::send_mail( {
+        to => $self->t_email,
+        from => $LJ::ACCOUNTS_EMAIL,
+        fromname => $LJ::SITENAME,
+        subject => $subj,
+        body => $body
+    } );
+
+    # if this worked, then we're applied! yay!
+    if ( $rv ) {
+        $self->{applied} = 1;
+        return 1;
+    }
+
+    # else ... something naughty happened :(
+    warn "Failed to send email!\n";
+    return 0;
 }
 
 
@@ -204,6 +346,13 @@ sub short_desc {
 sub id {
     return $_[0]->{id} unless defined $_[1];
     return $_[0]->{id} = $_[1];
+}
+
+
+# gets/sets
+sub cartid {
+    return $_[0]->{cartid} unless defined $_[1];
+    return $_[0]->{cartid} = $_[1];
 }
 
 
