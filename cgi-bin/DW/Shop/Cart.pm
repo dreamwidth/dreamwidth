@@ -197,7 +197,9 @@ sub get_all {
 
 # saves the current cart to the database, returns 1/0
 sub save {
-    my $self = $_[0];
+    my ( $self, %opts ) = @_;
+
+    my $memcache_data = $opts{no_memcache} ? 0 : 1;
 
     # we store the payment method id in the db
     my $paymentmethod_id = $DW::Shop::PAYMENTMETHODS{$self->paymentmethod}->{id} || 0;
@@ -215,7 +217,8 @@ sub save {
     return 0 if $dbh->err;
 
     # also toss this in memcache
-    if ( my $u = LJ::load_userid( $self->{userid} ) ) {
+    my $u = LJ::load_userid( $self->{userid} );
+    if ( $memcache_data && LJ::isu( $u ) ) {
         $u->memc_set( cart => $self );
     }
 

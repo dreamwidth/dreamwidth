@@ -249,6 +249,21 @@ sub can_be_added {
         return 0;
     }
 
+    # check to make sure the target user's current account type doesn't conflict with the item
+    my $target_u = LJ::load_userid( $self->t_userid );
+    if ( LJ::isu( $target_u ) ) {
+        my $account_type = DW::Pay::get_account_type( $target_u );
+        if ( $account_type eq 'seed' ) {
+            # no paid time can be purchased for seed accounts
+            $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.alreadyperm' );
+            return 0;
+        } elsif ( $account_type eq 'premium' && $self->class eq 'paid' ) {
+            # premium accounts can't get normal paid time
+            $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.nopaidforpremium' );
+            return 0;
+        }
+    }
+
     return 1;
 }
 

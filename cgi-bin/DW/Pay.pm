@@ -141,7 +141,7 @@ sub get_current_account_status {
 #
 #   uuserid     required    user object or userid to get paid status of
 #
-# RETURN: -1 for free, 0 for expired paid, else the unix timestamp this
+# RETURN: -1 for free or perm, 0 for expired paid, else the unix timestamp this
 #         account expires on...
 #
 # yes, this function has a very weird return value.  :(
@@ -151,8 +151,9 @@ sub get_account_expiration_time {
     my $stat = DW::Pay::get_paid_status( @_ );
 
     # free accounts: no row, or expired
-    return -1 unless defined $stat;
-    return  0 unless $stat->{permanent} || $stat->{expiresin} > 0;
+    # perm accounts: no expiration
+    return -1 if !defined $stat || $stat->{permanent};
+    return  0 unless $stat->{expiresin} > 0;
 
     # valid row, return whatever the expiration time is
     return time() + $stat->{expiresin};

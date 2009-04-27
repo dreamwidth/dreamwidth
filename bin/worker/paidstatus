@@ -279,7 +279,7 @@ sub scan_cart {
         }
 
         # yes, we save the cart a lot... oh well
-        $cart->save;
+        $cart->save( no_memcache => 1 );
     }
 
     # two possible results: we have items still unapplied or we did
@@ -292,7 +292,7 @@ sub scan_cart {
 
     # everything in this order has been applyed, restate it
     $cart->state( $DW::Shop::STATE_PROCESSED );
-    $cart->save;
+    $cart->save( no_memcache => 1 );
 
     # main loop done!
     $log->( 'Cart->state is now PROCESSED.' );
