@@ -103,7 +103,8 @@
             my $pic   = $upics->{'pic'}->{$picid};
 
             if ($pic) {
-            $ret .= "<td>" . $pic->imgtag . "</td>";   
+                my $userpic = LJ::Userpic->new( $u, $picid );
+                $ret .= "<td>" . $userpic->imgtag . "</td>";   
             }
 
             $ret .= "<td>";
