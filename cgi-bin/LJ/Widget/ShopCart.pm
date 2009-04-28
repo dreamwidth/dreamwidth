@@ -33,7 +33,7 @@ sub render_body {
         or return $class->ml( 'widget.shopcart.error.nocart' );
 
     return $class->ml( 'widget.shopcart.error.noitems' )
-        unless @{$cart->items};
+        unless $cart->has_items;
 
     # if the cart is not in state OPEN, mark this as a receipt load
     # no matter where we are

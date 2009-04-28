@@ -64,6 +64,8 @@
 
 .date.never=<i>Never.</i>
 
+.details.accounttype.expireson=[[type]], expires on [[date]]
+
 .details.comments.posted=[[num]] [[?num|comment|comments]] posted
 
 .details.comments.posted2=[[num_comma]] [[?num_raw|comment|comments]] posted

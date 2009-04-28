@@ -127,6 +127,31 @@ sub get_from_ordernum {
 }
 
 
+# returns a new cart given an invite code
+# if scalar ref 'itemidref' is passed, store the itemid for the invite code in it
+sub get_from_invite {
+    my ( $class, $code, %opts ) = @_;
+
+    my $itemidref = $opts{itemidref};
+
+    my ( $acid ) = DW::InviteCodes->decode( $code );
+    return undef
+        unless defined $acid && $acid > 0;
+
+    my $dbh = LJ::get_db_writer()
+        or return undef;
+    my $dbret = $dbh->selectrow_hashref(
+        qq{SELECT cartid, itemid
+           FROM shop_codes WHERE acid = ?},
+        undef, $acid
+    );
+    return undef unless $dbret;
+
+    $$itemidref = $dbret->{itemid} if ref $itemidref eq 'SCALAR';
+    return $class->get_from_cartid( $dbret->{cartid} );
+}
+
+
 # creating a new cart implicitly activates.  just so you know.  this function
 # will build a new empty cart for the user.  but user is optional and we will
 # build a cart for the current uniq.
@@ -294,15 +319,27 @@ sub remove_item {
 }
 
 
+# given an itemid that's in this cart, return it
+sub get_item {
+    my ( $self, $id ) = @_;
+
+    foreach my $it ( @{$self->items} ) {
+        return $it if $it->id == $id;
+    }
+
+    return undef;
+}
+
+
 # get/set state
 sub state {
-    my ( $self, $newstate ) = @_;
+    my ( $self, $newstate, %opts ) = @_;
 
     return $self->{state}
         unless defined $newstate;
 
     $self->{state} = $newstate;
-    $self->save;
+    $self->save( no_memcache => $opts{no_memcache} );
 
     return $self->{state};
 }
@@ -310,13 +347,13 @@ sub state {
 
 # get/set payment method
 sub paymentmethod {
-    my ( $self, $newpaymentmethod ) = @_;
+    my ( $self, $newpaymentmethod, %opts ) = @_;
 
     return $self->{paymentmethod}
         unless defined $newpaymentmethod;
 
     $self->{paymentmethod} = $newpaymentmethod;
-    $self->save;
+    $self->save( no_memcache => $opts{no_memcache} );
 
     return $self->{paymentmethod};
 }

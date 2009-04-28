@@ -2948,13 +2948,40 @@ settings.yearofbirth=Year of Birth
 
 settings.zipcode=ZIP Code
 
-shop.email.email.anon.subject=[[sitename]] Account Purchase
+shop.email.accounttype=[[type]] for [[nummonths]] [[?nummonths|month|months]]
+
+shop.email.accounttype.permanent=[[type]]
 
 shop.email.email.anon.body<<
 Dear [[email]],
 
-Someone has chosen to purchase a [[sitename]] account for you.  You can
-use the following link to go create your account:
+Someone has chosen to purchase a [[sitename]] account for you.  The account type
+that was purchased is:
+
+    [[accounttype]]
+
+You can use the following link to create your account:
+
+    [[createurl]]
+
+We look forward to having you on the site!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.email.anon.subject=[[sitename]] Account Purchase
+
+shop.email.email.body<<
+Dear [[email]],
+
+[[fromuser]] has chosen to purchase a [[sitename]] account for you.  The account
+that was purchased is:
+
+    [[accounttype]]
+
+You can use the following link to create your account:
 
     [[createurl]]
 
@@ -2967,15 +2994,15 @@ The [[sitename]] Team
 
 shop.email.email.subject=[[sitename]] Account Purchase
 
-shop.email.email.body<<
-Dear [[email]],
+shop.email.user.anon.body<<
+Dear [[touser]],
 
-[[fromuser]] has chosen to purchase a [[sitename]] account for you.  You
-can use the following link to go create your account:
+Someone has chosen to upgrade your [[sitename]] account.  The account that was
+purchased is:
 
-    [[createurl]]
+    [[accounttype]]
 
-We look forward to having you on the site!
+Congratulations on your paid time!
 
 
 Regards,
@@ -2984,10 +3011,13 @@ The [[sitename]] Team
 
 shop.email.user.anon.subject=[[sitename]] Account Purchase
 
-shop.email.user.anon.body<<
+shop.email.user.other.body<<
 Dear [[touser]],
 
-Someone anonymous has chosen to upgrade your [[sitename]] account.
+[[fromuser]] has chosen to upgrade your [[sitename]] account.  The account that
+was purchased is:
+
+    [[accounttype]]
 
 Congratulations on your paid time!
 
@@ -2996,14 +3026,33 @@ Regards,
 The [[sitename]] Team
 .
 
-shop.email.user.subject=[[sitename]] Account Purchase
+shop.email.user.other.subject=[[sitename]] Account Purchase
 
-shop.email.user.body<<
+shop.email.user.self.body<<
 Dear [[touser]],
 
-[[fromuser]] has chosen to upgrade your [[sitename]] account.
+Your [[sitename]] account has been upgraded.  The account that was purchased
+is:
+
+    [[accounttype]]
 
 Congratulations on your paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.user.self.subject=[[sitename]] Account Purchase
+
+shop.expiration.0.body<<
+Dear [[account]],
+
+Your paid account has expired.
+
+If you wish, you can purchase more paid time here:
+
+    [[shopurl]]
 
 
 Regards,
@@ -3012,44 +3061,42 @@ The [[sitename]] Team
 
 shop.expiration.0.subject=[[sitename]] Account Expired
 
-shop.expiration.0.body<<
+shop.expiration.14.body<<
 Dear [[account]],
 
-Your paid account has expired.
+This is a friendly notice letting you know that your paid account is set to
+expire in approximately two weeks.
+
+If you wish, you can add more paid time to your account here:
+
+    [[shopurl]]
 
 
-Regards
+Regards,
 The [[sitename]] Team
 .
 
 shop.expiration.14.subject=[[sitename]] Account Expiration
 
-shop.expiration.14.body<<
+shop.expiration.3.body<<
 Dear [[account]],
 
-This is a friendly notice letting you know that your account is set to expire
-in approximately two weeks.
+This is a friendly notice letting you know that your account is set to expire in
+approximately three days.
+
+This is the last notice you will get.  Your account will automatically revert to
+free status three days from now.
+
+If you wish, you can add more paid time to your account here:
+
+    [[shopurl]]
 
 
-Regards
+Regards,
 The [[sitename]] Team
 .
 
 shop.expiration.3.subject=[[sitename]] Account Expiration
-
-shop.expiration.3.body<<
-Dear [[account]],
-
-This is a friendly notice letting you know that your account is set to expire
-in approximately three days.
-
-This is the last notice you will get.  Your account will revert to free status
-automatically three days from now.
-
-
-Regards
-The [[sitename]] Team
-.
 
 shop.item.account.canbeadded.alreadyperm=The person that you are trying to purchase an account for has a Seed Account, so they cannot receive any additional paid time.
 
@@ -3649,6 +3696,10 @@ widget.createaccount.field.confirmpassword=Confirm Password:
 widget.createaccount.field.email=Email Address:
 
 widget.createaccount.field.news=Yes, email me [[sitename]] announcements.
+
+widget.createaccount.field.paidaccount=<strong>Note:</strong> This account will be a [[type]] for [[nummonths]] [[?nummonths|month|months]].
+
+widget.createaccount.field.paidaccount.permanent=<strong>Note:</strong> This account will be a [[type]].
 
 widget.createaccount.field.password=Password:
 

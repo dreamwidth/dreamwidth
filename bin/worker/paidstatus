@@ -170,7 +170,7 @@ sub expire_user {
         fromname => $LJ::SITENAME,
         from => $LJ::ACCOUNTS_EMAIL,
         subject => LJ::Lang::ml( "shop.expiration.0.subject", { sitename => $LJ::SITENAME } ),
-        body => LJ::Lang::ml( "shop.expiration.0.body", { sitename => $LJ::SITENAME, account => $u->user } ),
+        body => LJ::Lang::ml( "shop.expiration.0.body", { sitename => $LJ::SITENAME, account => $u->user, shopurl => "$LJ::SITEROOT/shop/account?for=self" } ),
     } );
 
     # this is pretty easy, we just tell DW::Pay to do it
@@ -202,7 +202,7 @@ sub warn_user {
         fromname => $LJ::SITENAME,
         from => $LJ::ACCOUNTS_EMAIL,
         subject => LJ::Lang::ml( "shop.expiration.$mail.subject", { sitename => $LJ::SITENAME } ),
-        body => LJ::Lang::ml( "shop.expiration.$mail.body", { sitename => $LJ::SITENAME, account => $u->user } ),
+        body => LJ::Lang::ml( "shop.expiration.$mail.body", { sitename => $LJ::SITENAME, account => $u->user, shopurl => "$LJ::SITEROOT/shop/account?for=self" } ),
     } );
 
     # now update the db
@@ -291,8 +291,7 @@ sub scan_cart {
     }
 
     # everything in this order has been applyed, restate it
-    $cart->state( $DW::Shop::STATE_PROCESSED );
-    $cart->save( no_memcache => 1 );
+    $cart->state( $DW::Shop::STATE_PROCESSED, no_memcache => 1 );
 
     # main loop done!
     $log->( 'Cart->state is now PROCESSED.' );

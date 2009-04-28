@@ -230,6 +230,28 @@ sub create_personal {
         $u->add_edge( $friendid, watch => {} );
     }
 
+    # apply any paid time that this account should get
+    if ( $LJ::USE_ACCT_CODES && $opts{code} ) {
+        my $itemidref;
+        if ( my $cart = DW::Shop::Cart->get_from_invite( $opts{code}, itemidref => \$itemidref ) ) {
+            my $item = $cart->get_item( $itemidref );
+            if ( $item && $item->isa( 'DW::Shop::Item::Account' ) ) {
+                # first update the item's target user and the cart
+                $item->t_userid( $u->id );
+                $cart->save( no_memcache => 1 );
+
+                # now add paid time to the user
+                my $from_u = $item->from_userid ? LJ::load_userid( $item->from_userid ) : undef;
+                if ( DW::Pay::add_paid_time( $u, $item->class, $item->months ) ) {
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Created new '" . $item->class . "' account." );
+                } else {
+                    my $paid_error = DW::Pay::error_text() || $@ || 'unknown error';
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Failed to create new '" . $item->class . "' account: $paid_error" );
+                }
+            }
+        }
+    }
+
     # populate some default friends groups
     # TODO(mark): this should probably be removed or refactored, especially since
     #             editfriendgroups is dying/dead

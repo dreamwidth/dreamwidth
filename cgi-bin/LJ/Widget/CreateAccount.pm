@@ -307,6 +307,22 @@ sub render_body {
         $ret .= "</td></tr>\n";
     }
 
+    if ( $LJ::USE_ACCT_CODES ) {
+        my $itemidref;
+        if ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
+            my $item = $cart->get_item( $itemidref );
+            if ( $item && $item->isa( 'DW::Shop::Item::Account' ) ) {
+                $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+                if ( $item->permanent ) {
+                    $ret .= $class->ml( 'widget.createaccount.field.paidaccount.permanent', { type => "<strong>" . $item->class_name . "</strong>" } );
+                } else {
+                    $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $item->class_name . "</strong>", nummonths => $item->months } );
+                }
+                $ret .= "</td></tr>";
+            }
+        }
+    }
+
     ### submit button
     if ($alt_layout) {
         $ret .= $class->html_submit( submit => $class->ml('widget.createaccount.btn'), { class => "login-button" }) . "\n";
@@ -483,6 +499,7 @@ sub handle_post {
             inviter => $post->{from},
             extra_props => $opts{extra_props},
             status_history => $opts{status_history},
+            code => $code,
         );
         return $class->ml('widget.createaccount.error.cannotcreate') unless $nu;
 

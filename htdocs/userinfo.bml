@@ -348,8 +348,15 @@ body<=
     $ret .= "<span class='$_->{class}'>$_->{text}</span>" foreach $profile->warnings;
 
     # account type
-    my $acctype = LJ::name_caps( $u->caps);
-    $ret .= "<p>$acctype</p>" if $acctype;
+    my $accttype = DW::Pay::get_account_type_name( $u );
+    if ( $accttype ) {
+        my $expiretime = DW::Pay::get_account_expiration_time( $u )
+            if $remote && $remote->can_manage( $u );
+
+        $ret .= "<p>";
+        $ret .= $expiretime > 0 ? BML::ml( '.details.accounttype.expireson', { type => $accttype, date => DateTime->from_epoch( epoch => $expiretime )->date } ) : $accttype;
+        $ret .= "</p>";
+    }
 
     # journal creation date, journal update time
     unless ( $u->is_identity ) {

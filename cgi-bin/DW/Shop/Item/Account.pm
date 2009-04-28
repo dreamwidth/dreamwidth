@@ -121,6 +121,10 @@ sub _apply_userid {
 
     # now we have to mail this code
     my ( $body, $subj );
+    my $accounttype_string = $self->permanent ?
+        LJ::Lang::ml( 'shop.email.accounttype.permanent', { type => $self->class_name } ) :
+        LJ::Lang::ml( 'shop.email.accounttype', { type => $self->class_name, nummonths => $self->months } );
+
     if ( $self->anonymous ) {
         $subj = LJ::Lang::ml( 'shop.email.user.anon.subject', { sitename => $LJ::SITENAME } );
         $body = LJ::Lang::ml( 'shop.email.user.anon.body',
@@ -128,16 +132,20 @@ sub _apply_userid {
                 touser    => $u->user,
                 email     => $self->t_email,
                 sitename  => $LJ::SITENAME,
+                accounttype => $accounttype_string,
             }
         );
     } else {
-        $subj = LJ::Lang::ml( 'shop.email.user.subject', { sitename => $LJ::SITENAME } );
-        $body = LJ::Lang::ml( 'shop.email.user.body',
+        my $string_insert = $u->equals( $fu ) ? 'self' : 'other';
+
+        $subj = LJ::Lang::ml( "shop.email.user.$string_insert.subject", { sitename => $LJ::SITENAME } );
+        $body = LJ::Lang::ml( "shop.email.user.$string_insert.body",
             {
-                touser    => $u->user,
+                touser    => $u->display_name,
                 email     => $self->t_email,
                 sitename  => $LJ::SITENAME,
-                fromuser  => $fu->user,
+                fromuser  => $fu->display_name,
+                accounttype => $accounttype_string,
             }
         );
     }
@@ -182,6 +190,10 @@ sub _apply_email {
 
     # now we have to mail this code
     my ( $body, $subj );
+    my $accounttype_string = $self->permanent ?
+        LJ::Lang::ml( 'shop.email.accounttype.permanent', { type => $self->class_name } ) :
+        LJ::Lang::ml( 'shop.email.accounttype', { type => $self->class_name, nummonths => $self->months } );
+
     if ( $self->anonymous ) {
         $subj = LJ::Lang::ml( 'shop.email.email.anon.subject', { sitename => $LJ::SITENAME } );
         $body = LJ::Lang::ml( 'shop.email.email.anon.body',
@@ -189,6 +201,7 @@ sub _apply_email {
                 email     => $self->t_email,
                 sitename  => $LJ::SITENAME,
                 createurl => "$LJ::SITEROOT/create?code=$code",
+                accounttype => $accounttype_string,
             }
         );
     } else {
@@ -198,7 +211,8 @@ sub _apply_email {
                 email     => $self->t_email,
                 sitename  => $LJ::SITENAME,
                 createurl => "$LJ::SITEROOT/create?code=$code&from=" . $fu->user,
-                fromuser  => $fu->user,
+                fromuser  => $fu->display_name,
+                accounttype => $accounttype_string,
             }
         );
     }
@@ -371,12 +385,18 @@ sub cartid {
 }
 
 
+# gets/sets
+sub t_userid {
+    return $_[0]->{target_userid} unless defined $_[1];
+    return $_[0]->{target_userid} = $_[1];
+}
+
+
 # simple accessors
 sub applied      { return $_[0]->{applied};         }
 sub cost         { return $_[0]->{cost};            }
 sub months       { return $_[0]->{months};          }
 sub class        { return $_[0]->{class};           }
-sub t_userid     { return $_[0]->{target_userid};   }
 sub t_email      { return $_[0]->{target_email};    }
 sub permanent    { return $_[0]->months == 99;      }
 sub from_userid  { return $_[0]->{from_userid};     }
