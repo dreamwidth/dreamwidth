@@ -23,6 +23,10 @@ use Carp qw/ croak confess /;
 use DW::Worker::ContentImporter::Local::Bio;
 
 sub work {
+
+    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
+    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
+
     my ( $class, $job ) = @_;
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );

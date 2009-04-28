@@ -24,6 +24,10 @@ use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::Worker::ContentImporter::Local::Entries;
 
 sub work {
+
+    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
+    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
+
     my ( $class, $job ) = @_;
     my $opts = $job->arg;
     my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
