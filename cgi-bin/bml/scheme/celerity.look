@@ -142,6 +142,7 @@ footer<=
 userpic<=
 <?_code
 {
+    my $imgprefix = $LJ::IS_SSL ? $LJ::SSLIMGPREFIX : $LJ::IMGPREFIX;
     my $remote = LJ::get_remote();
     my $ret;
 
@@ -149,7 +150,7 @@ userpic<=
 
     if ( $remote ) {
         my $userpic = $remote->userpic;
-        if ( $userpic ) {
+        if ( $userpic && !$LJ::IS_SSL ) {
             if ( $userpic->width > $userpic->height ) {
                 $wh = 'width="' . ( $userpic->width > 80 ? 80 : $userpic->width ) . '"';
             } else {
@@ -157,7 +158,7 @@ userpic<=
             }
             $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         } else {
-            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' width='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+            $ret .= "<img src='$imgprefix/nouserpic.png' width='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         }
     }
 
