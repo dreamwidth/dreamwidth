@@ -99,9 +99,10 @@ sub try_work {
     my $jitemid_map = {};
     foreach my $url ( keys %$entry_map ) {
         # this works, see the Entries importer for more information
-        $url =~ s/-/_/g; # makes \b work below
-        next unless $url =~ /\Q$data->{hostname}\E/ &&
-                    $url =~ /\b$data->{username}\b/;
+        my $turl = $url;
+        $turl =~ s/-/_/g; # makes \b work below
+        next unless $turl =~ /\Q$data->{hostname}\E/ &&
+                    $turl =~ /\b$data->{username}\b/;
 
         my $jitemid = $1 >> 8
             if $url =~ m!/(\d+)\.html$!;
