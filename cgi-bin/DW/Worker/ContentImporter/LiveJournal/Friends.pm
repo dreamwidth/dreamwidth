@@ -56,6 +56,9 @@ sub try_work {
         # if we have no type, or type is identity, allow it
         next if $friend->{type} && $friend->{type} ne 'identity';
 
+        # must be visible
+        next if $friend->{status};
+
         # remap into a local OpenID userid and feed if we can
         my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $friend->{username} );
 
