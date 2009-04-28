@@ -235,6 +235,8 @@ sub try_work {
     while ( $lastid < $server_max_id ) {
         $log->( 'Fetching bodydata; last_id = %d, max_id = %d.', $lastid || 0, $server_max_id || 0 );
 
+        my ( $reset_lastid, $reset_curid ) = ( $lastid, $curid );
+
         $title->( 'body-fetch from id %d', $lastid+1 );
         my $content = $class->do_authed_comment_fetch(
             $data, 'comment_body', $lastid+1, $COMMENTS_FETCH_BODY
@@ -250,7 +252,36 @@ sub try_work {
                 End   => $body_closer
             }
         );
-        $parser->parse( $content );
+
+        # have to do this in an eval
+        eval {
+            $parser->parse( $content );
+        };
+        if ( $@ ) {
+            # this error typically means the encoding is bad.  not sure how this happens,
+            # it's probably just on a very, very old comment?
+            if ( $@ =~ /token/ ) {
+
+                # reset for another body pass
+                ( $lastid, $curid ) = ( $reset_lastid, $reset_curid );
+                @tags = ();
+
+                # reset all text so we don't get it double posted
+                foreach my $cmt ( values %meta ) {
+                    delete $cmt->{$_}
+                        foreach qw/ subject body date /;
+                }
+
+                # and now filter.  note that we're assuming this is ISO-8859-1, as that's a
+                # very likely guess.  if it's not that, we have problems.
+                $content = LJ::ConvUTF8->to_utf8( 'ISO-8859-1', $content );
+                $parser->parse( $content );
+
+            } else {
+                # can't handle, pass it up
+                die $@;
+            }
+        }
 
         # the exporter should always return the maximum number of items, so loop again.  of course,
         # this will fail nicely as soon as some site we're importing from reduces the max items
