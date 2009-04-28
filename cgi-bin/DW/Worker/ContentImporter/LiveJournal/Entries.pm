@@ -188,7 +188,7 @@ sub try_work {
 
             # if we are unable to determine a good groupmask, then fall back to making
             # the entry private and mark the error.
-            if ( $allowmask != 1 && $newmask == 1 ) { 
+            if ( $allowmask != 1 && $newmask == 1 ) {
                 $newmask = 0;
                 push @item_errors, "Could not determine groups to post to.";
             }
@@ -259,13 +259,25 @@ SYNC:   while ( $tries++ <= 10 ) {
             if ( $hash && $hash->{fault} && $hash->{faultString} =~ /broken/ ) {
                 $log->( '    repeated requests error, falling back to manual advance.' );
 
-                # okay, manual advance, let's calculate when we can stop advancing.  we have
-                # to advance by $tries + 10 to actually do 10 seconds.
-                my $stop_after = $step_time->( $lastgrab, $tries + 10 );
-                $log->( 'Manual advance will stop at %s.', $stop_after );
+                # figure out which items we should try to get, based on the logic that we
+                # should get at least 10 seconds or 20 items, whichever is more.  the former
+                # for the case where mass privacy breaks us, the latter for the case where
+                # the Howard Predicament* bites us.
+                #
+                # * the Howard Predicament has only been observed in the wild once.  the
+                #   noted behavior is that, no matter what lastsync value we send, the
+                #   remote server chooses to tell us we're broken.  this should not be
+                #   possible, but it happened to my friend Howard, and I couldn't solve
+                #   it through any other means than bypassing lastsync.  sigh.
+                #
 
-                # and now that we know wheen to stop
-                my @keys = grep { $sync{$_}->[1] le $stop_after } keys %sync;
+                my $stop_after = $step_time->( $lastgrab, $tries + 10 );
+                $log->( 'Manual advance will stop at %s or 20 entries, whichever is more.', $stop_after );
+
+                my @keys = sort { $sync{$a}->[1] cmp $sync{$b}->[1] } keys %sync;
+                pop @keys
+                    while scalar( @keys ) > 20 && $sync{$keys[-1]}->[1] gt $stop_after;
+
                 $log->( 'Found %d entries to grab manually.', scalar( @keys ) );
 
                 # now get them, one at a time
@@ -286,7 +298,16 @@ SYNC:   while ( $tries++ <= 10 ) {
                     # if we get an error, then we have to abort the import
                     return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
                         if ! $hash || $hash->{fault};
-                    
+
+                    # another observed oddity: sometimes the remote server swears that
+                    # an entry exists, but we can't get it.  even asking for it by name.
+                    # if there was no error, and no entry returned, skip it.
+                    if ( scalar( @{ $hash->{events} || [] } ) == 0 ) {
+                        $log->( 'Itemid %d seems to be a phantom.', $itemid );
+                        delete $sync{$itemid};
+                        next;
+                    }
+
                     # good, import this event
                     $process_entry->( $_ )
                         foreach @{ $hash->{events} || [] };
@@ -327,7 +348,7 @@ SYNC:   while ( $tries++ <= 10 ) {
         q{UPDATE import_items SET status = 'ready'
           WHERE userid = ? AND item IN ('lj_comments')
           AND import_data_id = ? AND status = 'init'},
-        undef, $u->id, $opts->{import_data_id}        
+        undef, $u->id, $opts->{import_data_id}
     );
 
     return $ok->();
