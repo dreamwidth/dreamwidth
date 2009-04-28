@@ -42,6 +42,12 @@ sub render_body {
             selected => 0,
         },
         {
+            name => 'lj_friends',
+            display_name => $class->ml( 'widget.importstatus.item.lj_friends' ),
+            desc => $class->ml( 'widget.importchoosedata.item.lj_friends.desc' ),
+            selected => 0,
+        },
+        {
             name => 'lj_comments',
             display_name => $class->ml( 'widget.importstatus.item.lj_comments' ),
             desc => $class->ml( 'widget.importchoosedata.item.lj_comments.desc' ),
@@ -121,6 +127,10 @@ sub handle_post {
         $post->{lj_tags} = 1;
         $post->{lj_friendgroups} = 1;
     }
+
+    # if friends are on, turn on groups
+    $post->{lj_friendgroups} = 1
+        if $post->{lj_friends};
 
     # everybody needs a verifier
     $post->{lj_verify} = 1;

@@ -39,11 +39,6 @@ sub retry_delay {
     return ( 10, 30, 60, 300, 600 )[$fails];
 }
 
-##############################################################################
-# MASON DIXON LINE \o/
-# South of here, these functions have been updated with the changes Mark is
-# making to the importer.  Upwards they have not, and don't work.
-##############################################################################
 
 sub remap_groupmask {
     my ( $class, $data, $allowmask ) = @_;

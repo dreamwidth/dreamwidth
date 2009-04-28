@@ -71,6 +71,7 @@ sub handle_post {
         ['lj_bio',          'init'],
         ['lj_tags',         'init'],
         ['lj_friendgroups', 'init'],
+        ['lj_friends',      'init'],
         ['lj_entries',      'init'],
         ['lj_comments',     'init'],
     );

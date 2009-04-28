@@ -3838,6 +3838,8 @@ widget.importchoosedata.item.lj_entries.desc=Imports <em>all</em> your journal e
 
 widget.importchoosedata.item.lj_friendgroups.desc=Imports your friend groups as [[sitename]] access filters.
 
+widget.importchoosedata.item.lj_friends.desc=Imports your friends as OpenID accounts and puts them in your imported access filters. This will automatically import your custom security groups.
+
 widget.importchoosedata.item.lj_tags.desc=Imports the tags used to categorize your entries.
 
 widget.importchoosedata.item.lj_userpics.desc=Imports your icons (userpics). If you have more icons to be imported than your current [[sitename]] account level allows, only your default icon will be imported.
@@ -3890,6 +3892,8 @@ widget.importstatus.item.lj_entries=Journal entries
 
 widget.importstatus.item.lj_friendgroups=Custom security groups
 
+widget.importstatus.item.lj_friends=Friends
+
 widget.importstatus.item.lj_tags=Tags
 
 widget.importstatus.item.lj_userpics=Icons
@@ -3907,6 +3911,8 @@ widget.importstatus.status.init.lj_comments=Waiting for entries to finish
 widget.importstatus.status.init.lj_entries=Waiting for tags and groups to finish
 
 widget.importstatus.status.init.lj_friendgroups=Waiting for verification to finish
+
+widget.importstatus.status.init.lj_friends=Waiting for groups to finish
 
 widget.importstatus.status.init.lj_tags=Waiting for verification to finish
 
