@@ -26,14 +26,17 @@ propgroup colors {
     property use color_page_background;
     property use color_page_text;
     property use color_page_link;
+    property use color_page_link_hover;
 
     property use color_module_background;
     property use color_module_text;
     property use color_module_border;
     property use color_module_link;
+    property use color_module_link_hover;
     property use color_module_title;
 
     property use color_entry_link;
+    property use color_entry_link_hover;
     property use color_entry_border;
     property use color_entry_background;
     property use color_entry_text;
@@ -45,6 +48,7 @@ propgroup colors {
 set color_page_background = "#000000";
 set color_page_text = "#ffffff";
 set color_page_link = "#cccccc";
+set color_page_link_hover = "#ffffff";
 
 set color_entry_link = "#000000";
 set color_entry_link_hover = "#cccccc";
@@ -170,7 +174,7 @@ function print_stylesheet()
         color: $*color_entry_link_active;
         }
     a:hover {
-        color: $*color_entry_link_hover;
+        color: $*color_page_link_hover;
         }
     img, img a {
         border: 0!important;
@@ -221,7 +225,7 @@ function print_stylesheet()
         padding-bottom:1px;
     }
     #secondary a:hover, #secondary a:active {
-        background-color:$*color_module_link_active;
+        color:$*color_module_link_hover;
         padding-bottom: 0px;
     }
     #secondary .module-header {
@@ -245,11 +249,6 @@ function print_stylesheet()
     /* Hide from IE5-Mac \*/
     * html .module {height: 1%;}
     /* end hide *//*** This hack will make IE5-win display the background color for the nav ***/
-    .module a, .module a:visited {
-        padding: 3px 0;
-        color: $*color_module_link; }
-    .module a:hover, .module a:active {
-        color: $*color_module_link_hover; }
     /*test*/
     .userpic{
         float:right;}
@@ -268,6 +267,9 @@ function print_stylesheet()
     }
     .entry a, .comment a {
         color: $*color_entry_link;
+    }
+    .entry a:hover, .comment a:hover {
+        color: $*color_entry_link_hover;
     }
     .bottomcomment {
         border: 15px double $*color_entry_border;
@@ -291,6 +293,9 @@ function print_stylesheet()
     .entry-title a {
         color: $*color_entry_title;
     }
+    .entry-title a:hover {
+        color: $*color_entry_link_hover;
+    }
     .entry-management-links, .entry-management-links a,
     .entry-interaction-links, .entry-interaction-links a,
     .comment-interaction-links, .comment-interaction-links a {
@@ -300,7 +305,9 @@ function print_stylesheet()
         font-weight: normal;
         text-align: center;
     }
-    .comment-management-links {
+    .entry-management-links a:hover .comment-management-links a:hover, 
+    .entry-interaction-links a:hover .comment-interaction-links a:hover{
+        color: $*color_entry_link_hover;
     }
     .userlite-interaction-links ul, .entry-management-links ul, .comment-management-links ul {
         list-style: none;
@@ -346,7 +353,6 @@ function print_stylesheet()
     }
     .module-calendar a:hover{
         color: $*color_module_link_hover;
-        border-bottom: 1px solid $*color_module_link_hover;
     }
 
     /*Holly Hack*/
