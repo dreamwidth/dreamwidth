@@ -295,7 +295,7 @@ sub add_item {
     $item->id( $#{$self->items} );
 
     # save to db and return
-    $self->save;
+    $self->save || return( 0, 'Unable to save cart.' );
     return 1;
 }
 
