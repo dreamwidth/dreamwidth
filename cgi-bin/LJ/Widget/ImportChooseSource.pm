@@ -52,7 +52,7 @@ sub render_body {
 
     $ret .= "<h2 class='gradient'>" . $class->ml( 'widget.importchoosesource.header' ) . "</h2>";
     $ret .= "<p><strong>" . $class->ml( 'widget.importchoosesource.warning' ) . "</strong></p>"
-        if $opts{warning};
+        if $opts{import_in_progress};
     $ret .= "<p>" . $class->ml( 'widget.importchoosesource.intro', { sitename => $LJ::SITENAMESHORT } ) . "</p>";
 
     $ret .= $class->start_form;

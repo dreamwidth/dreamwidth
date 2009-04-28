@@ -37,6 +37,7 @@ sub render_body {
         $ret .= "<h2 class='gradient'>" . $class->ml( 'widget.importstatus.header' ) . "</h2>";
         $ret .= "<table width='100%' class='importer-status'>";
 
+        my $import_in_progress = 0;
         foreach my $importid ( sort { $b <=> $a } keys %$items ) {
             my $import_item = $items->{$importid};
 
@@ -61,6 +62,8 @@ sub render_body {
                 $ret .= "</td>";
                 $ret .= "<td>" . $class->ml( 'widget.importstatus.createtime', { timeago => LJ::ago_text( time() - $i->{created} ) } ) . "</td>";
                 $ret .= "</tr>";
+
+                $import_in_progress = 1 if $i->{status} =~ /^(?:init|ready|queued)$/;
             }
         }
 
@@ -68,6 +71,7 @@ sub render_body {
         $ret .= "<p class='queueanother'>" . $class->ml( 'widget.importstatus.importanother' ) . "</p>";
 
         $ret .= $class->start_form;
+        $ret .= $class->html_hidden( import_in_progress => $import_in_progress );
         $ret .= $class->html_submit( import => $class->ml( 'widget.importstatus.btn.importanother' ) );
         $ret .= $class->end_form;
     }
@@ -88,7 +92,7 @@ sub should_render {
 sub handle_post {
     my ( $class, $post, %opts ) = @_;
 
-    return ( ret => LJ::Widget::ImportChooseSource->render( warning => 1 ) );
+    return ( ret => LJ::Widget::ImportChooseSource->render( import_in_progress => $post->{import_in_progress} ) );
 }
 
 1;
