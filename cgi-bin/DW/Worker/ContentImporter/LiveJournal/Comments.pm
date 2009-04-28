@@ -116,6 +116,12 @@ sub try_work {
     # now reverse it as above
     my $jtalkid_map = {};
     foreach my $url ( keys %$talk_map ) {
+        # this works, see the Entries importer for more information
+        my $turl = $url;
+        $turl =~ s/-/_/g; # makes \b work below
+        next unless $turl =~ /\Q$data->{hostname}\E/ &&
+                    $turl =~ /\b$data->{username}\b/;
+
         my $jtalkid = $1 >> 8
             if $url =~ m!thread=(\d+)$!;
         $jtalkid_map->{$jtalkid} = $talk_map->{$url};
