@@ -97,7 +97,7 @@ body<=
         $ret .= "<?p $ML{\".success.$paymentmethod.immediate\"} p?>";
     } elsif ( $rv == 2 ) {
         my $address = "<?p $LJ::SITECOMPANY<br />Order #" . $cart->id . "<br />$LJ::SITEADDRESS p?>";
-        $ret .= "<?p " . BML::ml( ".success.$paymentmethod.processing", { address => $address } ) . " p?>";
+        $ret .= "<?p " . BML::ml( ".success.$paymentmethod.processing", { sitecompany => "<strong>$LJ::SITECOMPANY</strong>", address => $address } ) . " p?>";
     }
 
     $ret .= "<?p <a href='$LJ::SITEROOT/shop/receipt?ordernum=$ordernum'>$ML{'.btn.viewreceipt'}</a><br />";

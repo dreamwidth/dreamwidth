@@ -66,7 +66,7 @@ _c?>
     $ret .= BML::ml( '.cart.paymentmethod', { paymentmethod => $ML{".cart.paymentmethod.$paymentmethod"} } ) . "</p>";
     if ( $paymentmethod eq 'checkmoneyorder' ) {
         my $address = "<p>$LJ::SITECOMPANY<br />Order #" . $cart->id . "<br />$LJ::SITEADDRESS</p>";
-        $ret .= "<p>" . BML::ml( ".cart.paymentmethod.$paymentmethod.extra", { address => $address } ) . "</p>";
+        $ret .= "<p>" . BML::ml( ".cart.paymentmethod.$paymentmethod.extra", { sitecompany => "<strong>$LJ::SITECOMPANY</strong>", address => $address } ) . "</p>";
     }
     $ret .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
 

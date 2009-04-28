@@ -25,7 +25,7 @@
 
 .cart.paymentmethod.checkmoneyorder=Check/Money Order
 
-.cart.paymentmethod.checkmoneyorder.extra=Please mail your check or money order to: [[address]]
+.cart.paymentmethod.checkmoneyorder.extra=Please make your check or money order out to: [[sitecompany]]</p><p>Mail it to: [[address]]
 
 .cart.paymentmethod.paypal=PayPal
 

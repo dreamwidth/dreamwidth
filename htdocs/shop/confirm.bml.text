@@ -10,7 +10,7 @@
 
 .confirm=Please confirm your payment to [[sitename]] in the amount of [[total]].
 
-.confirm.checkmoneyorder=Once confirmed, you must mail a check or money order for the above amount to us.
+.confirm.checkmoneyorder=Once confirmed, you must mail a check or money order for the above amount to us. Information on where to send it will be on the next page.
 
 .confirm.paypal=Once confirmed, we will process your purchase as soon as PayPal notifies us of a successful transaction.
 
@@ -22,7 +22,7 @@
 
 .error.needtoken=You did not provide an order number or token.
 
-.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. Please mail it to: [[address]] p?><?p <strong>Be sure to include the apartment and order numbers!</strong>
+.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. p?><?p Please make it out to [[sitecompany]] and mail it to: [[address]] p?><?p <strong>Be sure to include the apartment and order numbers!</strong>
 
 .success.paypal.immediate=Your order has been successfully placed.  Within the next few minutes PayPal should finish processing and we will activate your order.  Watch your email!
 
