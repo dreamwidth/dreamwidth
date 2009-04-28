@@ -135,6 +135,11 @@ sub get_feed_account_from_url {
 sub get_remapped_userids {
     my ( $class, $data, $user ) = @_;
 
+    # some users we can't map, because the process of loading their FOAF data or journal
+    # does really weird things (DNS!)
+    return ( undef, undef )
+        if $user eq 'status';
+
     return @{ $MAPS{$data->{hostname}}->{$user} }
         if exists $MAPS{$data->{hostname}}->{$user};
 

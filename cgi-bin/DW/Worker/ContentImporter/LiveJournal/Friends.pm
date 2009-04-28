@@ -52,6 +52,11 @@ sub try_work {
 
     my ( @friends, @feeds );
     foreach my $friend (@{ $r->{friends} || [] }) {
+
+        # if we have no type, or type is identity, allow it
+        next if $friend->{type} && $friend->{type} ne 'identity';
+
+        # remap into a local OpenID userid and feed if we can
         my ( $local_oid, $local_fid ) = $class->get_remapped_userids( $data, $friend->{username} );
 
         push @friends, {
