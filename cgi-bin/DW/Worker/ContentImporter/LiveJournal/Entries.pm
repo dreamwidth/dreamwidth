@@ -165,49 +165,10 @@ sub try_work {
     while ( scalar( keys %sync ) > 0 ) {
         my ( $count, $last_itemid ) = ( 0, undef );
 
-        # calculate what time to get entries for
-        my ( $tries, $lastgrab, $hash ) = ( 0, undef, undef );
-        while ( $tries++ <= 10 ) {
-            # calculate the oldest entry we haven't retrieved yet, and offset that time by
-            # $tries, so we can break the 'broken client' logic (note: we assert that we are
-            # not broken.)
-            my @keys = sort { $sync{$a}->[1] cmp $sync{$b}->[1] } keys %sync;
-            $last_itemid = $keys[0];
-            $lastgrab = $step_time->( $sync{$last_itemid}->[1], -$tries );
+        # this is a useful helper sub we use in both import modes: lastsync and one
+        my $process_entry = sub {
+            my $evt = shift;
 
-            $title->( 'getevents - lastsync %s', $lastgrab );
-            $log->( 'Loading entries; lastsync = %s, itemid = %d.', $lastgrab, $keys[0] );
-            $hash = $class->call_xmlrpc( $data, 'getevents',
-                {
-                    ver         => 1,
-                    lastsync    => $lastgrab,
-                    selecttype  => 'syncitems',
-                    lineendings => 'unix',
-                }
-            );
-
-            # sometimes LJ doesn't like us on large imports, so try a few times to hush
-            # up the error.
-            if ( $hash && $hash->{fault} && $hash->{faultString} =~ /broken/ ) {
-                $log->( '    repeated requests error, retrying.' );
-                next;
-            }
-
-            # bail if we get a different error
-            return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
-                if ! $hash || $hash->{fault};
-
-            # if we get here we're probably in good shape, bail out
-            last;
-        }
-
-        # there is a slight chance we will get here if we run out of 'broken' retries
-        # so check for that
-        return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
-            if ! $hash || $hash->{fault};
-
-        # iterate over events and import them
-        foreach my $evt ( @{$hash->{events} || []} ) {
             $count++;
 
             $evt->{realtime} = $realtime->( $evt->{itemid} );
@@ -216,7 +177,7 @@ sub try_work {
             # skip this if we've already dealt with it before
             $log->( '    %d %s %s; mapped = %d.', $evt->{itemid}, $evt->{url}, $evt->{realtime}, $entry_map->{$evt->{key}} );
             my $sync = delete $sync{$evt->{itemid}};
-            next if $entry_map->{$evt->{key}} || !defined $sync;
+            return if $entry_map->{$evt->{key}} || !defined $sync;
 
             # clean up event for LJ
             my @item_errors;
@@ -264,7 +225,92 @@ sub try_work {
                 post_res   => $res,
                 errors     => \@item_errors,
             ) if @item_errors;
+
+        };
+
+        # calculate what time to get entries for
+        my ( $tries, $lastgrab, $hash ) = ( 0, undef, undef );
+SYNC:   while ( $tries++ <= 10 ) {
+
+            # calculate the oldest entry we haven't retrieved yet, and offset that time by
+            # $tries, so we can break the 'broken client' logic (note: we assert that we are
+            # not broken.)
+            my @keys = sort { $sync{$a}->[1] cmp $sync{$b}->[1] } keys %sync;
+            $last_itemid = $keys[0];
+            $lastgrab = $step_time->( $sync{$last_itemid}->[1], -$tries );
+
+            $title->( 'getevents - lastsync %s', $lastgrab );
+            $log->( 'Loading entries; lastsync = %s, itemid = %d.', $lastgrab, $keys[0] );
+            $hash = $class->call_xmlrpc( $data, 'getevents',
+                {
+                    ver         => 1,
+                    lastsync    => $lastgrab,
+                    selecttype  => 'syncitems',
+                    lineendings => 'unix',
+                }
+            );
+
+            # sometimes LJ doesn't like us on large imports or imports where the user has
+            # used the mass privacy tool in the past.  so, if we run into the 'you are broken'
+            # error, let's grab some older entries.  the goal here is mainly to advance
+            # the clock by at least 10 seconds.  this means we may end up downloading only
+            # one or two entries manually, but in some cases it means we may end up doing
+            # hundreds of entries.  depends on what kind of state the user is in.
+            if ( $hash && $hash->{fault} && $hash->{faultString} =~ /broken/ ) {
+                $log->( '    repeated requests error, falling back to manual advance.' );
+
+                # okay, manual advance, let's calculate when we can stop advancing.  we have
+                # to advance by $tries + 10 to actually do 10 seconds.
+                my $stop_after = $step_time->( $lastgrab, $tries + 10 );
+                $log->( 'Manual advance will stop at %s.', $stop_after );
+
+                # and now that we know wheen to stop
+                my @keys = grep { $sync{$_}->[1] le $stop_after } keys %sync;
+                $log->( 'Found %d entries to grab manually.', scalar( @keys ) );
+
+                # now get them, one at a time
+                my @events;
+                foreach my $itemid ( @keys ) {
+                    $log->( 'Fetching itemid %d.', $itemid );
+
+                    # try to get it from the remote server
+                    $hash = $class->call_xmlrpc( $data, 'getevents',
+                        {
+                            ver         => 1,
+                            itemid      => $itemid,
+                            selecttype  => 'one',
+                            lineendings => 'unix',
+                        }
+                    );
+
+                    # if we get an error, then we have to abort the import
+                    return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
+                        if ! $hash || $hash->{fault};
+                    
+                    # good, import this event
+                    $process_entry->( $_ )
+                        foreach @{ $hash->{events} || [] };
+                }
+
+                next SYNC;
+            }
+
+            # bail if we get a different error
+            return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
+                if ! $hash || $hash->{fault};
+
+            # if we get here we're probably in good shape, bail out
+            last;
         }
+
+        # there is a slight chance we will get here if we run out of 'broken' retries
+        # so check for that
+        return $temp_fail->( 'XMLRPC failure: ' . $hash->{faultString} )
+            if ! $hash || $hash->{fault};
+
+        # iterate over events and import them
+        $process_entry->( $_ )
+            foreach @{$hash->{events} || []};
 
         # if we get here, we got a good result, which means that the entry we tried to get
         # should be in the results.  if it's not, to prevent an infinite loop, let's mark
