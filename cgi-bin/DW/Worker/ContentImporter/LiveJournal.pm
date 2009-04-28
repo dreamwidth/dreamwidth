@@ -262,8 +262,18 @@ sub xmlrpc_call_helper {
     # helper function that makes life easier on folks that call xmlrpc stuff.  this handles
     # running the actual request and checking for errors, as well as handling the cases where
     # we hit a problem and need to do something about it.  (abort or retry.)
-    my ( $class, $opts, $xmlrpc, $method, $req, $mode, $hash ) = @_;
+    my ( $class, $opts, $xmlrpc, $method, $req, $mode, $hash, $depth ) = @_;
 
+    # bail if depth is 4, obviously something is going terribly wrong
+    if ( $depth >= 4 ) {
+        return 
+            {
+                fault => 1,
+                faultString => 'Exceeded XMLRPC recursion limit.',
+            };
+    }
+
+    # call out
     my $res;
     eval { $res = $xmlrpc->call($method, $req); };
     if ( $res && $res->fault ) {
@@ -275,7 +285,7 @@ sub xmlrpc_call_helper {
     }
 
     # typically this is timeouts
-    return $class->call_xmlrpc( $opts, $mode, $hash )
+    return $class->call_xmlrpc( $opts, $mode, $hash, $depth+1 )
         unless $res;
 
     return $res->result;
@@ -285,7 +295,7 @@ sub call_xmlrpc {
     # also a way to help people do xmlrpc stuff easily.  this method actually does the
     # challenge response stuff so we never send the user's password or md5 digest over
     # the internet.
-    my ( $class, $opts, $mode, $hash ) = @_;
+    my ( $class, $opts, $mode, $hash, $depth ) = @_;
 
     my $xmlrpc = XMLRPC::Lite->new;
     $xmlrpc->proxy( "http://" . ( $opts->{server} || $opts->{hostname} ) . "/interface/xmlrpc" );
@@ -304,7 +314,7 @@ sub call_xmlrpc {
         auth_challenge => $chal,
         auth_response  => $response,
         %{ $hash || {} },
-    }, $mode, $hash );
+    }, $mode, $hash, $depth );
 
     return $res;
 }
