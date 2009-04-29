@@ -3433,6 +3433,18 @@ userlinkbar.addtrust.title.other=Grant access to this user
 
 userlinkbar.addtrust.title.loggedout=You must be logged in to grant access to this user
 
+userlinkbar.buyaccount.comm=Gift Paid Account
+
+userlinkbar.buyaccount.other=Gift Paid Account
+
+userlinkbar.buyaccount.self=Upgrade Account
+
+userlinkbar.buyaccount.title.comm=Purchase paid time as a gift for this community
+
+userlinkbar.buyaccount.title.other=Purchase paid time as a gift for this user
+
+userlinkbar.buyaccount.title.self=Purchase paid time for yourself
+
 userlinkbar.joincomm=Join
 
 userlinkbar.joincomm.title.cantjoin=You cannot join this community

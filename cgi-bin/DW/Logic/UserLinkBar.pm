@@ -432,6 +432,44 @@ sub memories {
     return $self->fix_link( $link );
 }
 
+=head2 C<< $obj->buyaccount >>
+
+Returns a hashref with the appropriate icon/link/text for buying this user a paid account.
+
+=cut
+
+sub buyaccount {
+    my $self = $_[0];
+
+    my $u = $self->{u};
+    my $remote = $self->{remote};
+    my $user = $u->user;
+
+    # if payments are enabled:
+    # show link on personal journals and communities that aren't seed accounts
+    # as long as they have less than a year's worth of paid time
+    if (
+        ( LJ::is_enabled( 'payments' ) ) &&
+        ( $u->is_personal || $u->is_community ) &&
+        ( DW::Pay::get_account_type( $u ) ne 'seed' ) &&
+        ( ( DW::Pay::get_account_expiration_time( $u ) - time() ) < 86400*30 )
+    ) {
+        my $remote_is_u = $remote && $remote->equals( $u ) ? 1 : 0;
+        my $type = $remote_is_u ? 'self' : 'other';
+        $type = 'comm' if $u->is_community;
+
+        my $link = {
+            url => $remote_is_u ? "shop/account?for=self" : "shop/account?for=gift&user=$user",
+            image => 'buy_account.png',
+            text_ml => "userlinkbar.buyaccount.$type",
+            title_ml => "userlinkbar.buyaccount.title.$type",
+            class => 'buyaccount',
+        };
+
+        return $self->fix_link( $link );
+    }
+}
+
 =head1 BUGS
 
 =head1 AUTHORS
