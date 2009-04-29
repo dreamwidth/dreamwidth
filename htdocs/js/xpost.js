@@ -1,9 +1,30 @@
 LiveJournal.xpostButtonUpdated = function () {
-  var xpost_button = document.getElementById("prop_xpost");
+  var xpost_button = document.getElementById("prop_xpost_check");
   var xpost_checkboxes = DOM.getElementsByTagAndClassName(document, "input", "xpost_acct_checkbox") || [];
   for (var i=0; i < xpost_checkboxes.length; i++) {
     xpost_checkboxes[i].disabled = ! xpost_button.checked;
   }
+}
+
+LiveJournal.updateXpostFromJournal = function (user) {
+  // only allow crossposts to the user's own journal
+  var journal = document.updateForm.usejournal.value;
+  var allowXpost = (journal == '' || user == journal);
+
+  var xpost_button = document.getElementById("prop_xpost_check");
+  xpost_button.disabled = ! allowXpost;
+  var xpost_checkboxes = DOM.getElementsByTagAndClassName(document, "input", "xpost_acct_checkbox") || [];
+  for (var i=0; i < xpost_checkboxes.length; i++) {
+    xpost_checkboxes[i].disabled = ! allowXpost;
+  }
+
+  var xpostdiv = document.getElementById('xpostdiv');
+  if (allowXpost) {
+    xpostdiv.style.display = 'block';
+  } else {
+    xpostdiv.style.display = 'none';
+  }
+
 }
 
 

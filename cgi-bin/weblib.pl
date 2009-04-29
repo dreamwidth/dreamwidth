@@ -1185,12 +1185,13 @@ sub entry_form {
                 $out .= "<label for='usejournal' class='left'>" . BML::ml('entryform.postto') . "</label>\n";
                 $out .= LJ::html_select({ 'name' => 'usejournal', 'id' => 'usejournal', 'selected' => $usejournal,
                                     'tabindex' => $tabindex->(), 'class' => 'select',
-                                    "onchange" => "changeSubmit('".$submitprefix."','".$remote->{'user'}."'); getUserTags('$remote->{user}'); changeSecurityOptions('$remote->{user}');" },
+                                    "onchange" => "changeSubmit('".$submitprefix."','".$remote->{'user'}."'); getUserTags('$remote->{user}'); changeSecurityOptions('$remote->{user}'); LiveJournal.updateXpostFromJournal('$remote->{user}');" },
                                     "", $remote->{'user'},
                                     map { $_, $_ } @{$res->{'usejournals'}}) . "\n";
                 $out .= "</p>\n";
             }
         }
+        $$onload .= " LiveJournal.updateXpostFromJournal('$remote->{user}');";
 
         # Authentication box
         $out .= "<p class='update-errors'><?inerr $errors->{'auth'} inerr?></p>\n" if $errors->{'auth'};
@@ -1614,11 +1615,12 @@ MOODS
                     }
                 }
 
-                $out .= "<p><label for='prop_xpost' class='left options'>" . BML::ml('entryform.xpost') . "</label>";
+                $out .= "<div id='xpostdiv'>\n";
+                $out .= "<p><label for='prop_xpost_check' class='left options'>" . BML::ml('entryform.xpost') . "</label>";
                 $out .= LJ::html_check({
                     'type'     => 'checkbox',
-                    'name'     => 'prop_xpost',
-                    'id'       => 'prop_xpost',
+                    'name'     => 'prop_xpost_check',
+                    'id'       => 'prop_xpost_check',
                     'class'    => 'check',
                     'value'    => '1',
                     'selected' => $xpostbydefault,
@@ -1626,12 +1628,13 @@ MOODS
                     'tabindex' => $xpost_tabindex,
                     'onchange' => 'LiveJournal.xpostButtonUpdated();',
                                        });
-                $out .= LJ::help_icon_html('prop_xpost');
+                $out .= LJ::help_icon_html('prop_xpost_check');
                 $out .= "<a href = '/manage/settings/?cat=othersites'>" . BML::ml('entryform.xpost.manage') . "</a>";
                 $out .= "</p>\n<table>";
                 $out .= $accthtml;
                 $out .= "</table>\n";
                 
+                $out .= "</div>\n";
                 # disable choices if no xpost selected by default.
                 $out .= qq [ 
               <script type="javascript">

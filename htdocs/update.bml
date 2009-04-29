@@ -431,8 +431,9 @@
 
                     my $edititemlink = "/editjournal.bml?journal=$juser&itemid=$itemid";
 
-                    #crosspost if necessary
-                    if ($POST{prop_xpost} || $GET{prop_xpost}) {
+                    # crosspost if we're posting to our own journal and have
+                    # selected crosspost.
+                    if ($ju == $remote && ($POST{prop_xpost_check} || $GET{prop_xpost_check})) {
                         my @xpost_success;
                         my @xpost_errors;
 

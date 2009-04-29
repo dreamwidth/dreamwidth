@@ -238,10 +238,10 @@ body<=
                 my $entry_url = LJ::item_link($journalu, $itemid, $res{anum});
                 my $edititemlink = "/editjournal.bml?itemid=$ditemid";
 
-                # update crossposts
+                # update crosspost if we're posting to our own journal and have
+                # selected crosspost.
                 my $xpost_result = '';
-
-                if ($POST{prop_xpost} || $GET{prop_xpost}) {
+                if ($journalu == $remote && ($POST{prop_xpost_check} || $GET{prop_xpost_check})) {
                     my @xpost_success;
                     my @xpost_errors;
 
