@@ -1191,7 +1191,6 @@ sub entry_form {
                 $out .= "</p>\n";
             }
         }
-        $$onload .= " LiveJournal.updateXpostFromJournal('$remote->{user}');";
 
         # Authentication box
         $out .= "<p class='update-errors'><?inerr $errors->{'auth'} inerr?></p>\n" if $errors->{'auth'};
@@ -1556,6 +1555,7 @@ MOODS
 
             if ($remote) {
                 # crosspost
+                $$onload .= " LiveJournal.updateXpostFromJournal('$remote->{user}');";
                 my @accounts = DW::External::Account->get_external_accounts($remote);
                 
                 # populate the per-account html first, so that we only have to 
