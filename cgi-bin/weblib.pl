@@ -1570,7 +1570,7 @@ MOODS
                         my $acctid = $acct->acctid;
                         my $acctname = $acct->displayname;
                         my $selected;
-                        if ($xpoststring) {
+                        if ($opts->{mode} eq 'edit') {
                             $selected = $xpost_selected->{$acct->acctid} ? "1" : "0";
                         } else {
                             $selected = $acct->xpostbydefault;
