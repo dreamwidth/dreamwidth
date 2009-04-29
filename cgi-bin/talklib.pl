@@ -2881,7 +2881,9 @@ sub init {
     }
 
     my $cookie_auth;
-    if (($form->{'usertype'} eq "user") || 
+    # either we are posting from the comment email notification form 
+    # or we are posting from talkpost, as currently logged-in user
+    if ( ( $form->{usertype} eq "user" && exists $form->{ecphash} ) || 
         ($form->{'usertype'} eq "cookieuser")) {
         my $userpost = $form->{'userpost'} || $form->{'cookieuser'};
         $bmlerr->("$SC.error.lostcookie")
