@@ -101,7 +101,7 @@ body<=
         $ret .= "<table class='shop-table-gift'>";
 
         if ( $for eq 'gift' ) {
-            $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username' } ) . "</td></tr>";
+            $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $GET{user} ) } ) . "</td></tr>";
         } else { # $for eq 'new'
             $ret .= "<tr><td>$ML{'.giftfor.email'}</td><td>" . LJ::html_text( { name => 'email' } ) . "</td></tr>";
         }

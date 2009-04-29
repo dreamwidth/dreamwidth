@@ -2952,6 +2952,57 @@ shop.email.accounttype=[[type]] for [[nummonths]] [[?nummonths|month|months]]
 
 shop.email.accounttype.permanent=[[type]]
 
+shop.email.comm.anon.body<<
+Dear [[touser]],
+
+Someone has chosen to upgrade your [[sitename]] community [[commname]].  The
+account that was purchased is:
+
+    [[accounttype]]
+
+Congratulations on your community's paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.comm.anon.subject=[[sitename]] Account Purchase
+
+shop.email.comm.other.body<<
+Dear [[touser]],
+
+[[fromuser]] has chosen to upgrade your [[sitename]] community [[commname]].
+The account that was purchased is:
+
+    [[accounttype]]
+
+Congratulations on your community's paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.comm.other.subject=[[sitename]] Account Purchase
+
+shop.email.comm.self.body<<
+Dear [[touser]],
+
+Your [[sitename]] community [[commname]] has been upgraded.  The account that
+was purchased is:
+
+    [[accounttype]]
+
+Congratulations on your community's paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.comm.self.subject=[[sitename]] Account Purchase
+
 shop.email.email.anon.body<<
 Dear [[email]],
 
@@ -2973,7 +3024,7 @@ The [[sitename]] Team
 
 shop.email.email.anon.subject=[[sitename]] Account Purchase
 
-shop.email.email.body<<
+shop.email.email.other.body<<
 Dear [[email]],
 
 [[fromuser]] has chosen to purchase a [[sitename]] account for you.  The account
@@ -2992,7 +3043,7 @@ Regards,
 The [[sitename]] Team
 .
 
-shop.email.email.subject=[[sitename]] Account Purchase
+shop.email.email.other.subject=[[sitename]] Account Purchase
 
 shop.email.user.anon.body<<
 Dear [[touser]],
@@ -3045,8 +3096,61 @@ The [[sitename]] Team
 
 shop.email.user.self.subject=[[sitename]] Account Purchase
 
-shop.expiration.0.body<<
-Dear [[account]],
+shop.expiration.comm.0.body<<
+Dear [[touser]],
+
+Your community [[commname]]'s paid account has expired.
+
+If you wish, you can purchase more paid time here:
+
+    [[shopurl]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.comm.0.subject=[[sitename]] Account Expired
+
+shop.expiration.comm.14.body<<
+Dear [[touser]],
+
+This is a friendly notice letting you know that your community [[commname]]'s
+paid account is set to expire in approximately two weeks.
+
+If you wish, you can add more paid time to your community here:
+
+    [[shopurl]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.comm.14.subject=[[sitename]] Account Expiration
+
+shop.expiration.comm.3.body<<
+Dear [[touser]],
+
+This is a friendly notice letting you know that your community [[commname]]'s
+paid account is set to expire in approximately three days.
+
+This is the last notice you will get.  Your community will automatically revert
+to free status three days from now.
+
+If you wish, you can add more paid time to your community here:
+
+    [[shopurl]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.comm.3.subject=[[sitename]] Account Expiration
+
+shop.expiration.user.0.body<<
+Dear [[touser]],
 
 Your paid account has expired.
 
@@ -3059,10 +3163,10 @@ Regards,
 The [[sitename]] Team
 .
 
-shop.expiration.0.subject=[[sitename]] Account Expired
+shop.expiration.user.0.subject=[[sitename]] Account Expired
 
-shop.expiration.14.body<<
-Dear [[account]],
+shop.expiration.user.14.body<<
+Dear [[touser]],
 
 This is a friendly notice letting you know that your paid account is set to
 expire in approximately two weeks.
@@ -3076,13 +3180,13 @@ Regards,
 The [[sitename]] Team
 .
 
-shop.expiration.14.subject=[[sitename]] Account Expiration
+shop.expiration.user.14.subject=[[sitename]] Account Expiration
 
-shop.expiration.3.body<<
-Dear [[account]],
+shop.expiration.user.3.body<<
+Dear [[touser]],
 
-This is a friendly notice letting you know that your account is set to expire in
-approximately three days.
+This is a friendly notice letting you know that your paid account is set to
+expire in approximately three days.
 
 This is the last notice you will get.  Your account will automatically revert to
 free status three days from now.
@@ -3096,7 +3200,7 @@ Regards,
 The [[sitename]] Team
 .
 
-shop.expiration.3.subject=[[sitename]] Account Expiration
+shop.expiration.user.3.subject=[[sitename]] Account Expiration
 
 shop.item.account.canbeadded.alreadyperm=The person that you are trying to purchase an account for has a Seed Account, so they cannot receive any additional paid time.
 

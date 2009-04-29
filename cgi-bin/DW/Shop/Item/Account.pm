@@ -125,39 +125,55 @@ sub _apply_userid {
         LJ::Lang::ml( 'shop.email.accounttype.permanent', { type => $self->class_name } ) :
         LJ::Lang::ml( 'shop.email.accounttype', { type => $self->class_name, nummonths => $self->months } );
 
-    if ( $self->anonymous ) {
-        $subj = LJ::Lang::ml( 'shop.email.user.anon.subject', { sitename => $LJ::SITENAME } );
-        $body = LJ::Lang::ml( 'shop.email.user.anon.body',
-            {
-                touser    => $u->user,
-                email     => $self->t_email,
-                sitename  => $LJ::SITENAME,
-                accounttype => $accounttype_string,
-            }
-        );
+    if ( $u->is_community ) {
+        my $maintus = LJ::load_userids( $u->maintainer_userids );
+        foreach my $maintu ( values %$maintus ) {
+            my $emailtype = $maintu->equals( $fu ) ? 'self' : 'other';
+            $emailtype = 'anon' if $self->anonymous;
+
+            $subj = LJ::Lang::ml( "shop.email.comm.$emailtype.subject", { sitename => $LJ::SITENAME } );
+            $body = LJ::Lang::ml( "shop.email.comm.$emailtype.body",
+                {
+                    touser      => $maintu->display_name,
+                    fromuser    => $fu->display_name,
+                    commname    => $u->display_name,
+                    accounttype => $accounttype_string,
+                    sitename    => $LJ::SITENAME,
+                }
+            );
+
+            # send the email to the maintainer
+            LJ::send_mail( {
+                to => $maintu->email_raw,
+                from => $LJ::ACCOUNTS_EMAIL,
+                fromname => $LJ::SITENAME,
+                subject => $subj,
+                body => $body
+            } );
+        }
     } else {
-        my $string_insert = $u->equals( $fu ) ? 'self' : 'other';
+        my $emailtype = $u->equals( $fu ) ? 'self' : 'other';
+        $emailtype = 'anon' if $self->anonymous;
 
-        $subj = LJ::Lang::ml( "shop.email.user.$string_insert.subject", { sitename => $LJ::SITENAME } );
-        $body = LJ::Lang::ml( "shop.email.user.$string_insert.body",
+        $subj = LJ::Lang::ml( "shop.email.user.$emailtype.subject", { sitename => $LJ::SITENAME } );
+        $body = LJ::Lang::ml( "shop.email.user.$emailtype.body",
             {
-                touser    => $u->display_name,
-                email     => $self->t_email,
-                sitename  => $LJ::SITENAME,
-                fromuser  => $fu->display_name,
+                touser      => $u->display_name,
+                fromuser    => $fu->display_name,
                 accounttype => $accounttype_string,
+                sitename    => $LJ::SITENAME,
             }
         );
-    }
 
-    # send the email to the user
-    LJ::send_mail( {
-        to => $u->email_raw,
-        from => $LJ::ACCOUNTS_EMAIL,
-        fromname => $LJ::SITENAME,
-        subject => $subj,
-        body => $body
-    } );
+        # send the email to the user
+        LJ::send_mail( {
+            to => $u->email_raw,
+            from => $LJ::ACCOUNTS_EMAIL,
+            fromname => $LJ::SITENAME,
+            subject => $subj,
+            body => $body
+        } );
+    }
 
     # tell the caller we're happy
     return 1;
@@ -194,28 +210,18 @@ sub _apply_email {
         LJ::Lang::ml( 'shop.email.accounttype.permanent', { type => $self->class_name } ) :
         LJ::Lang::ml( 'shop.email.accounttype', { type => $self->class_name, nummonths => $self->months } );
 
-    if ( $self->anonymous ) {
-        $subj = LJ::Lang::ml( 'shop.email.email.anon.subject', { sitename => $LJ::SITENAME } );
-        $body = LJ::Lang::ml( 'shop.email.email.anon.body',
-            {
-                email     => $self->t_email,
-                sitename  => $LJ::SITENAME,
-                createurl => "$LJ::SITEROOT/create?code=$code",
-                accounttype => $accounttype_string,
-            }
-        );
-    } else {
-        $subj = LJ::Lang::ml( 'shop.email.email.subject', { sitename => $LJ::SITENAME } );
-        $body = LJ::Lang::ml( 'shop.email.email.body',
-            {
-                email     => $self->t_email,
-                sitename  => $LJ::SITENAME,
-                createurl => "$LJ::SITEROOT/create?code=$code&from=" . $fu->user,
-                fromuser  => $fu->display_name,
-                accounttype => $accounttype_string,
-            }
-        );
-    }
+    my $emailtype = $self->anonymous ? 'anon' : 'other';
+
+    $subj = LJ::Lang::ml( "shop.email.email.$emailtype.subject", { sitename => $LJ::SITENAME } );
+    $body = LJ::Lang::ml( "shop.email.email.$emailtype.body",
+        {
+            email       => $self->t_email,
+            fromuser    => $fu->display_name,
+            accounttype => $accounttype_string,
+            createurl   => "$LJ::SITEROOT/create?code=$code",
+            sitename    => $LJ::SITENAME,
+        }
+    );
 
     # send the email to the user
     my $rv = LJ::send_mail( {

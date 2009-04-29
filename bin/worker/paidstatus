@@ -150,7 +150,7 @@ sub main_loop {
 
     $log->( 'Found %d users expiring soon.', scalar( @$rows ) );
 
-    # now expire the user
+    # now warn the user
     warn_user( $dbh, $_ ) foreach @$rows;
 
 }
@@ -164,14 +164,36 @@ sub expire_user {
 
     $log->( 'Expiring %s(%d).', $u->user, $u->id );
 
-    # aw, send them a mail :(
-    LJ::send_mail( {
-        to => $u->email_raw,
-        fromname => $LJ::SITENAME,
-        from => $LJ::ACCOUNTS_EMAIL,
-        subject => LJ::Lang::ml( "shop.expiration.0.subject", { sitename => $LJ::SITENAME } ),
-        body => LJ::Lang::ml( "shop.expiration.0.body", { sitename => $LJ::SITENAME, account => $u->user, shopurl => "$LJ::SITEROOT/shop/account?for=self" } ),
-    } );
+    if ( $u->is_community ) {
+        # send an email to every maintainer
+        my $maintus = LJ::load_userids( $u->maintainer_userids );
+        foreach my $maintu ( values %$maintus ) {
+            LJ::send_mail( {
+                to => $maintu->email_raw,
+                fromname => $LJ::SITENAME,
+                from => $LJ::ACCOUNTS_EMAIL,
+                subject => LJ::Lang::ml( "shop.expiration.comm.0.subject", { sitename => $LJ::SITENAME } ),
+                body => LJ::Lang::ml( "shop.expiration.comm.0.body", {
+                    touser   => $maintu->display_name,
+                    commname => $u->display_name,
+                    shopurl  => "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user,
+                    sitename => $LJ::SITENAME,
+                } ),
+            } );
+        }
+    } else {
+        LJ::send_mail( {
+            to => $u->email_raw,
+            fromname => $LJ::SITENAME,
+            from => $LJ::ACCOUNTS_EMAIL,
+            subject => LJ::Lang::ml( "shop.expiration.user.0.subject", { sitename => $LJ::SITENAME } ),
+            body => LJ::Lang::ml( "shop.expiration.user.0.body", {
+                touser   => $u->display_name,
+                shopurl  => "$LJ::SITEROOT/shop/account?for=self",
+                sitename => $LJ::SITENAME,
+            } ),
+        } );
+    }
 
     # this is pretty easy, we just tell DW::Pay to do it
     return DW::Pay::expire_user( $uid );
@@ -197,13 +219,36 @@ sub warn_user {
 
     return 1 unless defined $mail;
 
-    LJ::send_mail( {
-        to => $u->email_raw,
-        fromname => $LJ::SITENAME,
-        from => $LJ::ACCOUNTS_EMAIL,
-        subject => LJ::Lang::ml( "shop.expiration.$mail.subject", { sitename => $LJ::SITENAME } ),
-        body => LJ::Lang::ml( "shop.expiration.$mail.body", { sitename => $LJ::SITENAME, account => $u->user, shopurl => "$LJ::SITEROOT/shop/account?for=self" } ),
-    } );
+    if ( $u->is_community ) {
+        # send an email to every maintainer
+        my $maintus = LJ::load_userids( $u->maintainer_userids );
+        foreach my $maintu ( values %$maintus ) {
+            LJ::send_mail( {
+                to => $maintu->email_raw,
+                fromname => $LJ::SITENAME,
+                from => $LJ::ACCOUNTS_EMAIL,
+                subject => LJ::Lang::ml( "shop.expiration.comm.$mail.subject", { sitename => $LJ::SITENAME } ),
+                body => LJ::Lang::ml( "shop.expiration.comm.$mail.body", {
+                    touser   => $maintu->display_name,
+                    commname => $u->display_name,
+                    shopurl  => "$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user,
+                    sitename => $LJ::SITENAME,
+                } ),
+            } );
+        }
+    } else {
+        LJ::send_mail( {
+            to => $u->email_raw,
+            fromname => $LJ::SITENAME,
+            from => $LJ::ACCOUNTS_EMAIL,
+            subject => LJ::Lang::ml( "shop.expiration.user.$mail.subject", { sitename => $LJ::SITENAME } ),
+            body => LJ::Lang::ml( "shop.expiration.user.$mail.body", {
+                touser => $u->display_name,
+                shopurl => "$LJ::SITEROOT/shop/account?for=self",
+                sitename => $LJ::SITENAME,
+            } ),
+        } );
+    }
 
     # now update the db
     $dbh->do( 'UPDATE dw_paidstatus SET lastemail = ? WHERE userid = ?',
