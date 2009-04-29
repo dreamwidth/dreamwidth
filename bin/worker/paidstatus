@@ -75,9 +75,9 @@ while ( 1 ) {
 
     # now we sleep to the next five minute boundary, and if we're taking more
     # than five minutes to run, we fire off an alert
-    my $sleep_time = 300 - ( tv_interval( $begin_time ) % 300 );
+    my $sleep_time = 60 - ( tv_interval( $begin_time ) % 60 );
     if ( $sleep_time < 0 ) {
-        $alert->( 'Warning: main loop is taking longer than five minutes.' );
+        $alert->( 'Warning: main loop is taking longer than a minute.' );
         $sleep_time = 60;
     }
     $log->( 'Sleeping for %0.2f seconds.', $sleep_time );

@@ -64,7 +64,7 @@ body<=
   <dd><ul>
    <li><a href='/manage/settings'><?_ml .maplinks.manage-settings _ml?></a></li>
    <li><a href='/inbox'><?_ml .maplinks.inbox _ml?></a></li>
-   <li><a href='/paidaccounts'><?_ml .maplinks.upgrade _ml?></a></li>
+   <li><a href='/shop'><?_ml .maplinks.upgrade _ml?></a></li>
    <li><a href='/changepassword.bml'><?_ml .maplinks.changepassword _ml?></a></li>
    <li><a href='/accountstatus.bml'><?_ml .maplinks.changestatus _ml?></a></li>
   </ul></dd>
