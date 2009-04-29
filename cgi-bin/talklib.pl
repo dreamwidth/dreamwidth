@@ -2890,7 +2890,7 @@ sub init {
             unless $remote && $remote->{'user'} eq $userpost;
         return undef if @$errret;
 
-        $cookie_auth = 1;
+        $cookie_auth = 1 unless exists $form->{ecphash};
         $form->{'userpost'} = $remote->{'user'};
         $form->{'usertype'} = "user";
     }
