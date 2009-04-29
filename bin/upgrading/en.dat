@@ -4543,7 +4543,7 @@ xpost.redirect.comment=<span style="font-size: smaller;">This entry was original
 
 xpost.request.success=Crosspost requested to [[account]].  You will be notified when this attempt has completed.
 
-xpost.request.failed=Failed to crosspost to [[account]].  You may go to [[editurl]] to attempt to crosspost this entry again.
+xpost.request.failed=Failed to crosspost to [[account]].  You may go <a href = "[[editurl]]">here</a> to attempt to crosspost this entry again.
 
 xpost.success=Crosspost to [[username]]@[[server]] successful.  You can view this entry <a href = "[[xpostlink]]">here</a>.
 

@@ -276,8 +276,7 @@ body<=
                                 push @xpost_success, "<li>" . BML::ml('xpost.request.success', {'account' => $acct->displayname}) . "</li>";
                             } else {
                                 # one of them didn't work.
-                                push @xpost_success, "<li>" . BML::ml('xpost.request.success', {'account' => $acct->displayname}) . "</li>";
-                                push @xpost_errors, "<li><div style='color: red;'><strong>" . BML::ml('xpost.request.failed', {'account' => $acct->displayname}, 'editurl' => $edititemlink)  . " </strong></div></li>";
+                                push @xpost_errors, "<li><div style='color: red;'><strong>" . BML::ml('xpost.request.failed', { 'account' => $acct->displayname, 'editurl' => $edititemlink })  . " </strong></div></li>";
                             }
                         }
                     }
