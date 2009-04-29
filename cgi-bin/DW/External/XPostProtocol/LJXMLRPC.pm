@@ -180,10 +180,16 @@ sub entry_to_req {
         'security' => $entry->security,
     };
 
-    # if set to usemask, we really can only go general friends-lock,
-    # since it's not like our friends groups will match
-    $req->{allowmask} = "1" if $req->{security} eq 'usemask';
-
+    # usemask is either full access list, or custom groups.
+    if ($req->{security} eq 'usemask') {
+        # if allowmask is 1, then it means full access list
+        if ($entry->allowmask == 1) {
+            $req->{allowmask} = "1";
+        } else {
+            # otherwise, it's a custom group.  just make it private for now.
+            $req->{security} = "private";
+        }
+    }
     # set the date.
     my $eventtime = $entry->eventtime_mysql;
     $eventtime =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d)/;
