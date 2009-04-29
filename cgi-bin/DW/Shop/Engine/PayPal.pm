@@ -318,7 +318,7 @@ sub _pp_req {
     my $reqct = join( '&', @req );
     $req->content( $reqct );
 
-    my $ua = LJ::get_useragent( role => 'paypal', timeout => 20 );
+    my $ua = LJ::get_useragent( role => 'paypal', timeout => 60 );
     $ua->agent( 'DW-PayPal-Engine/1.0' );
 
     my $res = $ua->request( $req );
