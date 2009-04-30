@@ -54,19 +54,21 @@ sub render_body {
 
     $ret .= "<br />";
 
-    foreach my $month_value ( sort { $a <=> $b } @month_values ) {
+    foreach my $month_value ( sort { $b <=> $a } @month_values ) {
         my $full_item = $given_item . $month_value;
         if ( ref $LJ::SHOP{$full_item} eq 'ARRAY' ) {
             my $price_string = $class->ml( "widget.shopitemoptions.price.$full_item", { price => "\$$LJ::SHOP{$full_item}->[0] USD" } );
             $price_string = $class->ml( 'widget.shopitemoptions.price', { num => $month_value, price => "\$$LJ::SHOP{$full_item}->[0] USD" } )
                 if $price_string eq 'ShopItemOptions';
 
+            my $footnote = " *"
+                if $month_value == 12 || $month_value == 6;
             $ret .= $class->html_check(
                 type => 'radio',
                 name => $option_name,
                 id => $full_item,
                 value => $full_item,
-            ) . " <label for='$full_item'>$price_string</label><br />";
+            ) . " <label for='$full_item'>$price_string$footnote</label><br />";
         }
     }
 

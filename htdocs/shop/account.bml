@@ -127,6 +127,8 @@ body<=
     $ret .= "<p>" . LJ::html_submit( $ML{'.btn.addtocart'} ) . "</p>";
     $ret .= "</form>";
 
+    $ret .= "<p class='shop-footnote'>* " . BML::ml( '.footnote.prices', { discount => "\$10 USD", paid => "\$35 USD", prem => "\$50 USD" } ) . "</p>";
+
     $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";
 
     return $ret;
