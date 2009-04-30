@@ -81,24 +81,24 @@ sub userpic {
 
     # syndicated accounts have a very simple thing
     if ( $u->is_syndicated ) {
-        $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/feed.gif";
+        $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/feed.png";
     } else {
 
         # determine what picture URL to use
         if ( my $up = $u->userpic ) {
             $ret->{userpic} = $up->url;
         } elsif ( $u->is_personal ) {
-            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/user.gif";
+            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/user.png";
             $ret->{alt_text} = LJ::Lang::ml( '.userpic.user.alt' );
             $ret->{width} = 100;
             $ret->{height} = 100;
         } elsif ( $u->is_community ) {
-            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/comm.gif";
+            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/comm.png";
             $ret->{alt_text} = LJ::Lang::ml( '.userpic.comm.alt' );
             $ret->{width} = 100;
             $ret->{height} = 100;
         } elsif ( $u->is_identity ) {
-            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/openid.gif";
+            $ret->{userpic} = "$LJ::IMGPREFIX/profile_icons/openid.png";
             $ret->{alt_text} = LJ::Lang::ml( '.userpic.openid.alt' );
             $ret->{width} = 100;
             $ret->{height} = 100;
