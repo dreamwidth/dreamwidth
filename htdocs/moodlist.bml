@@ -2,6 +2,9 @@
 title=><?_code return BML::ml('.title', {'sitename' => $LJ::SITENAMESHORT}); _code?>
 head<=
 <style>
+ul ul {
+    margin: 0 0 0.2em 2em;
+}
 .lj_moodlist_link {
   text-decoration: none;
 }
