@@ -97,6 +97,10 @@
 
 .information.status.about=Set your account's activation status
 
+.invites.manage.about=Manage your invite codes
+
+.invites.manage=Manage Your Invite Codes
+
 .login2=The following links will navigate you to pages where your login information is required. To save yourself some time, you can <a [[aopts]]>log in</a> beforehand.
 
 .manage.logins=Manage Logins
