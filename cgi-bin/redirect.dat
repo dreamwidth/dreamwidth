@@ -43,3 +43,5 @@
 /manage/subscriptions/              /manage/settings/?cat=notifications
 /manage/subscriptions/index.bml     /manage/settings/?cat=notifications
 /mobile/friends.bml                 /mobile/read
+/misc/import                        /tools/importer
+/misc/import.bml                    /tools/importer
