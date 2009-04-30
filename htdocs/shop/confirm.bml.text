@@ -12,6 +12,10 @@
 
 .confirm.checkmoneyorder=Once confirmed, you must mail a check or money order for the above amount to us. Information on where to send it will be on the next page.
 
+.confirm.email=Additionally, please provide us with your email address so that we can send you an email confirmation of your order.
+
+.confirm.email.label=Email Address:
+
 .confirm.paypal=Once confirmed, we will process your purchase as soon as PayPal notifies us of a successful transaction.
 
 .error.invalidcart=Your cart is invalid.
@@ -22,10 +26,10 @@
 
 .error.needtoken=You did not provide an order number or token.
 
-.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. p?><?p Please make it out to [[sitecompany]] and mail it to: [[address]] p?><?p <strong>Be sure to include the apartment and order numbers!</strong>
+.success.checkmoneyorder.processing=Your order has been successfully placed. It will be processed once we receive your check or money order. p?><?p Please make it out to [[sitecompany]] and mail it to: [[address]] p?><?p <strong>Be sure to include the apartment and order numbers!</strong> p?><?p Thank you for your purchase!
 
-.success.paypal.immediate=Your order has been successfully placed.  Within the next few minutes PayPal should finish processing and we will activate your order.  Watch your email!
+.success.paypal.immediate=Your order has been successfully placed. We will process your order shortly. Thank you for your purchase!
 
-.success.paypal.processing=Your order has been successfully placed, but PayPal says it will take some time for your payment to finish processing.  As soon as it does, we will email you.
+.success.paypal.processing=Your order has been successfully placed, but PayPal says it will take some time for your payment to finish processing. As soon as it does, PayPal will email you and we will process your order. Thank you for your purchase!
 
 .title=Confirm Your Payment

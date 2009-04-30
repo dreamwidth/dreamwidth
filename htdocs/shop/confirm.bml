@@ -72,6 +72,13 @@ body<=
         $ret .= LJ::form_auth();
         $ret .= "<?p " . BML::ml( '.confirm', { sitename => $LJ::SITENAME, total => '<strong>$' . $cart->display_total . ' USD</strong>' } ) . " p?>";
         $ret .= "<?p $ML{\".confirm.$paymentmethod\"} p?>";
+
+        # get their email address if they're not logged in
+        unless ( $cart->userid ) {
+            $ret .= "<?p $ML{'.confirm.email'} p?>";
+            $ret .= "<?p $ML{'.confirm.email.label'} " . LJ::html_text( { name => 'email' } ) . " p?>";
+        }
+
         $ret .= "<?p " . LJ::html_submit( confirm => $ML{'.btn.confirm'} );
         $ret .= " <a href='$LJ::SITEROOT/shop/cancel?ordernum=$ordernum'>$ML{'.btn.cancel'}</a> p?>";
         $ret .= '</form>';
@@ -81,6 +88,17 @@ body<=
     # okay, they posted, verify the auth code
     return $ML{'error.invalidauth'}
         unless LJ::check_form_auth();
+
+    if ( $cart->userid ) {
+        my $u = LJ::load_userid( $cart->userid );
+        $cart->email( $u->email_raw );
+    } else {
+        my @email_errors;
+        LJ::check_email( $POST{email}, \@email_errors );
+        return join( ", ", @email_errors ) if @email_errors;
+
+        $cart->email( $POST{email} );
+    }
 
     # and now set the state, this has been checked out...
     $cart->state( $DW::Shop::STATE_CHECKOUT );

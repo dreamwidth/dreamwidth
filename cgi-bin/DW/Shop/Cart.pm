@@ -174,6 +174,7 @@ sub new_cart {
         nextscan  => 0,
         authcode  => LJ::make_auth_code( 20 ),
         paymentmethod => 0, # we don't have a payment method yet
+        email     => undef, # we don't have an email yet
     };
 
     # now, delete any old carts we don't need
@@ -233,9 +234,9 @@ sub save {
     my $dbh = LJ::get_db_writer()
         or return undef;
     $dbh->do(
-        q{REPLACE INTO shop_carts (userid, cartid, starttime, uniq, state, nextscan, authcode, paymentmethod, cartblob)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)},
-        undef, ( map { $self->{$_} } qw/ userid cartid starttime uniq state nextscan authcode / ), $paymentmethod_id, nfreeze( $self )
+        q{REPLACE INTO shop_carts (userid, cartid, starttime, uniq, state, nextscan, authcode, email, paymentmethod, cartblob)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)},
+        undef, ( map { $self->{$_} } qw/ userid cartid starttime uniq state nextscan authcode email / ), $paymentmethod_id, nfreeze( $self )
     );
 
     # bail if error
@@ -356,6 +357,20 @@ sub paymentmethod {
     $self->save( no_memcache => $opts{no_memcache} );
 
     return $self->{paymentmethod};
+}
+
+
+# get/set email address
+sub email {
+    my ( $self, $newemail, %opts ) = @_;
+
+    return $self->{email}
+        unless defined $newemail;
+
+    $self->{email} = $newemail;
+    $self->save( no_memcache => $opts{no_memcache} );
+
+    return $self->{email};
 }
 
 ################################################################################

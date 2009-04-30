@@ -177,10 +177,12 @@ sub checkout_url {
 sub confirm_order {
     my $self = $_[0];
 
+    my $cart = $self->cart;
+
     # ensure the cart is in checkout state.  if it's still open or paid
     # or something, we can't touch it.
     return $self->error( 'paypal.engbadstate' )
-        unless $self->cart->state == $DW::Shop::STATE_CHECKOUT;
+        unless $cart->state == $DW::Shop::STATE_CHECKOUT;
 
     # ensure we have db
     my $dbh = DW::Pay::get_db_writer()
@@ -207,7 +209,7 @@ sub confirm_order {
         'DoExpressCheckoutPayment',
         token         => $self->token,
         payerid       => $self->payerid,
-        amt           => $self->cart->display_total,
+        amt           => $cart->display_total,
         paymentaction => 'Sale',
     );
     return $self->temp_error( 'paypal.generic' )
@@ -221,7 +223,7 @@ sub confirm_order {
             ack, timestamp, build)
           VALUES (?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?)},
 
-        undef, $self->ppid, $self->cart->id,
+        undef, $self->ppid, $cart->id,
         map { $res->{$_} } qw/ transactionid transactiontype paymenttype ordertime
             amt currencycode feeamt settleamt taxamt paymentstatus pendingreason reasoncode
             ack timestamp build /
@@ -233,11 +235,25 @@ sub confirm_order {
     warn "Failure to save pp_trans: " . $dbh->errstr . "\n"
         if $dbh->err;
 
-    my $u = LJ::load_userid( $self->cart->userid );
+    my $u = LJ::load_userid( $cart->userid );
 
     # if this order is Complete (i.e., we have the money) then we note that
     if ( $res->{paymentstatus} eq 'Completed' ) {
-        $self->cart->state( $DW::Shop::STATE_PAID );
+        $cart->state( $DW::Shop::STATE_PAID );
+
+        # send an email to the user who placed the order
+        LJ::send_mail( {
+            to => $cart->email,
+            from => $LJ::ACCOUNTS_EMAIL,
+            fromname => $LJ::SITENAME,
+            subject => LJ::Lang::ml( 'shop.email.confirm.paypal.subject', { sitename => $LJ::SITENAME } ),
+            body => LJ::Lang::ml( 'shop.email.confirm.paypal.body', {
+                touser => LJ::isu( $u ) ? $u->display_name : $cart->email,
+                receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
+                statustext => LJ::Lang::ml( 'shop.email.confirm.paypal.body.status.immediate' ),
+                sitename => $LJ::SITENAME,
+            } ),
+        } );
 
         # delete cart from memcache
         $u->memc_delete( 'cart' ) if LJ::isu( $u );
@@ -246,7 +262,21 @@ sub confirm_order {
     }
 
     # okay, so it's pending... sad days
-    $self->cart->state( $DW::Shop::STATE_PEND_PAID );
+    $cart->state( $DW::Shop::STATE_PEND_PAID );
+
+    # send an email to the user who placed the order
+    LJ::send_mail( {
+        to => $cart->email,
+        from => $LJ::ACCOUNTS_EMAIL,
+        fromname => $LJ::SITENAME,
+        subject => LJ::Lang::ml( 'shop.email.confirm.paypal.subject', { sitename => $LJ::SITENAME } ),
+        body => LJ::Lang::ml( 'shop.email.confirm.paypal.body', {
+            touser => LJ::isu( $u ) ? $u->display_name : $cart->email,
+            receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
+            statustext => LJ::Lang::ml( 'shop.email.confirm.paypal.body.status.processing' ),
+            sitename => $LJ::SITENAME,
+        } ),
+    } );
 
     # delete cart from memcache
     $u->memc_delete( 'cart' ) if LJ::isu( $u );

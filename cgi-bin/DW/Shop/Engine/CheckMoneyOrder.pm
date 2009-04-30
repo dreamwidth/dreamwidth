@@ -70,16 +70,37 @@ sub checkout_url {
 sub confirm_order {
     my $self = $_[0];
 
+    my $cart = $self->cart;
+
     # ensure the cart is in checkout state.  if it's still open or paid
     # or something, we can't touch it.
     return $self->error( 'cmo.engbadstate' )
-        unless $self->cart->state == $DW::Shop::STATE_CHECKOUT;
+        unless $cart->state == $DW::Shop::STATE_CHECKOUT;
 
     # now set it pending
-    $self->cart->state( $DW::Shop::STATE_PEND_PAID );
+    $cart->state( $DW::Shop::STATE_PEND_PAID );
+
+    # send an email to the user who placed the order
+    my $u = LJ::load_userid( $cart->userid );
+    my $linebreak = "\n    ";
+    my $address = $LJ::SITEADDRESS;
+    $address =~ s/<br \/>/$linebreak/g;
+    LJ::send_mail( {
+        to => $cart->email,
+        from => $LJ::ACCOUNTS_EMAIL,
+        fromname => $LJ::SITENAME,
+        subject => LJ::Lang::ml( 'shop.email.confirm.checkmoneyorder.subject', { sitename => $LJ::SITENAME } ),
+        body => LJ::Lang::ml( 'shop.email.confirm.checkmoneyorder.body', {
+            touser => LJ::isu( $u ) ? $u->display_name : $cart->email,
+            receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
+            total => '$' . $cart->total . ' USD',
+            payableto => $LJ::SITECOMPANY,
+            address => "$LJ::SITECOMPANY${linebreak}Order #" . $cart->id . "$linebreak$address",
+            sitename => $LJ::SITENAME,
+        } ),
+    } );
 
     # delete cart from memcache
-    my $u = LJ::load_userid( $self->cart->userid );
     $u->memc_delete( 'cart' ) if LJ::isu( $u );
 
     return 2;

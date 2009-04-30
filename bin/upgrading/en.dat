@@ -3003,6 +3003,58 @@ The [[sitename]] Team
 
 shop.email.comm.self.subject=[[sitename]] Account Purchase
 
+shop.email.confirm.checkmoneyorder.body<<
+Dear [[touser]],
+
+This email confirms your purchase from the [[sitename]] shop.  You can view your
+receipt here:
+
+    [[receipturl]]
+
+Your order will not be processed until we receive your check or money order as
+described below:
+
+    Amount Due: [[total]]
+    Payable To: [[payableto]]
+
+    Mail To:
+    [[address]]
+
+Please remember to include the order and apartment numbers in the mailing
+address.
+
+Thank you for your purchase!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.confirm.checkmoneyorder.subject=[[sitename]] Purchase Confirmation
+
+shop.email.confirm.paypal.body<<
+Dear [[touser]],
+
+This email confirms your purchase from the [[sitename]] shop.  You can view your
+receipt here:
+
+    [[receipturl]]
+
+[[statustext]]
+
+Thank you for your purchase!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.confirm.paypal.body.status.immediate=We will process your order shortly.
+
+shop.email.confirm.paypal.body.status.processing=We will process your order as soon as PayPal processes your payment.
+
+shop.email.confirm.paypal.subject=[[sitename]] Purchase Confirmation
+
 shop.email.email.anon.body<<
 Dear [[email]],
 

@@ -3148,6 +3148,7 @@ CREATE TABLE shop_carts (
     cartid INT UNSIGNED NOT NULL,
     starttime INT UNSIGNED NOT NULL,
     userid INT UNSIGNED,
+    email VARCHAR(255),
     uniq VARCHAR(15) NOT NULL,
     state INT UNSIGNED NOT NULL,
     paymentmethod INT UNSIGNED NOT NULL,
@@ -4053,6 +4054,11 @@ register_alter(sub {
     unless ( column_type( 'shop_carts', 'paymentmethod' ) =~ /int/ ) {
         do_alter( 'shop_carts',
                   q{ALTER TABLE shop_carts ADD COLUMN paymentmethod INT UNSIGNED NOT NULL AFTER state} );
+    }
+
+    unless ( column_type( 'shop_carts', 'email' ) =~ /varchar/ ) {
+        do_alter( 'shop_carts',
+                  q{ALTER TABLE shop_carts ADD COLUMN email VARCHAR(255) AFTER userid} );
     }
 
 });
