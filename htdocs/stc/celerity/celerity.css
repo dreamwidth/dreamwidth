@@ -631,3 +631,19 @@ table.editfilters td {
 .invitecodes td {
     padding: 5px;
 }
+
+
+/* shop pages */
+
+/* this is so the main shop page does not look like toasted ass */
+.shopbox, .appwidget-shopitemgroupdisplay {
+    min-width: 20em;
+    min-height: 10em;
+    float: none;
+}
+
+.shopbox, .appwidget-shopitemgroupdisplay,
+.shop-account-status, .shop-error, .shop-cart-status,
+.shop-cart td, .shop-cart th, .shop-item-highlight {
+    border: 1px solid #999966;
+}
