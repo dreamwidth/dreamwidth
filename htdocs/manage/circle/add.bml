@@ -13,7 +13,7 @@
     my $user = $POST{'user'} || $GET{'user'};
     my $u = LJ::load_user($user);
     my $userid = $u->{userid};
-    my $username = $u->name_html;
+
     $body = "";
 
     LJ::need_res(qw(js/core.js js/dom.js js/colorpicker.js));
@@ -32,6 +32,8 @@
         $body = BML::ml('.error2.text2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/edit.bml'"});
         return;
     }
+
+    my $username = $u->name_html;
 
     if ($POST{'mode'} eq "add")
     {
