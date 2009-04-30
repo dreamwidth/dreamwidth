@@ -126,3 +126,11 @@ p.intro {
     margin-top: -10px;
     margin-bottom: 10px !important;
 }
+
+.importer-queue {
+    max-width: 30em;
+    border: solid 1px black;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+}

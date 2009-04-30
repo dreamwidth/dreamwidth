@@ -53,6 +53,7 @@ body<=
     }
 
     my $ret = "<p class='intro'>" . BML::ml( '.intro', { sitename => $LJ::SITENAMESHORT, user => $remote->ljuser_display } ) . "</p>";
+    $ret .= LJ::Widget::ImportQueueStatus->render;
 
     if ( LJ::Widget::ImportStatus->should_render ) {
         $ret .= LJ::Widget::ImportStatus->render;
