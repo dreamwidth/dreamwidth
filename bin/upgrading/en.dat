@@ -3202,9 +3202,13 @@ The [[sitename]] Team
 
 shop.expiration.user.3.subject=[[sitename]] Account Expiration
 
-shop.item.account.canbeadded.alreadyperm=The person that you are trying to purchase an account for has a Seed Account, so they cannot receive any additional paid time.
+shop.item.account.canbeadded.alreadyperm=[[user]] has a Seed Account, so they cannot receive any additional paid time.
 
-shop.item.account.canbeadded.nopaidforpremium=The person that you are trying to purchase an account for has a Premium Paid Account, so they cannot receive a Paid Account.
+shop.item.account.canbeadded.invalidjournaltype=You can only send paid time to a personal journal or community account.
+
+shop.item.account.canbeadded.invaliduser=The username that you entered is invalid or does not exist.
+
+shop.item.account.canbeadded.nopaidforpremium=[[user]] has a Premium Paid Account, so they cannot receive a Paid Account.
 
 shop.item.account.canbeadded.noperms=There are no more seed accounts available for purchase at this time.
 
