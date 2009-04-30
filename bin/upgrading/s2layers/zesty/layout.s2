@@ -1681,7 +1681,7 @@ function Page::lay_footer() {
     </div>
 
     <div id="footer">
-        <p><span class="top-link"><a href="#header">$*top_link_text</a></span> <a href="http://www.livejournal.com/customize/advanced/layerbrowse.bml?id=6850760">Zesty</a>. """; server_sig(); """</p>
+        <p><span class="top-link"><a href="#header">$*top_link_text</a></span> <a href="http://www.dreamwidth.org/customize/advanced/layerbrowse.bml?id=zesty/layout">Zesty</a>. """; server_sig(); """</p>
     </div>
     """;
 }
