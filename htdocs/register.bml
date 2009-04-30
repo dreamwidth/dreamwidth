@@ -118,7 +118,7 @@ body<=
          $ret .= "<h2 class='widget-header' style='margin-top: 10px;'>" . BML::ml('.new.101.title', {'sitename' => $LJ::SITENAMESHORT}) . "</h2><br />";
          $ret .= "<p><strong><a href='" . $u->journal_base . "/'>$ML{'.new.101.journal.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.journal.answer'}</p>";
-         $ret .= "<p><strong><a href='" . $u->profile_url . "/'>$ML{'.new.101.profile.question'}</a></strong><br />";
+         $ret .= "<p><strong><a href='" . $u->profile_url . "'>$ML{'.new.101.profile.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.profile.answer'}</p>";
          $ret .= "<p><strong><a href='" . $u->journal_base . "/read/'>$ML{'.new.101.friends.question'}</a></strong><br />";
 
