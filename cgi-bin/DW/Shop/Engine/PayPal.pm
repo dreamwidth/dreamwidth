@@ -212,7 +212,11 @@ sub confirm_order {
         amt           => $cart->display_total,
         paymentaction => 'Sale',
     );
-    return $self->temp_error( 'paypal.generic' )
+    return $self->temp_error(
+        'paypal.generic',
+        shorterr => ( $res->{l_shortmessage0} || 'none/unknown error' ),
+        longerr => ( $res->{l_longmessage0} || 'none/unknown error' ),
+    )
         unless $res && $res->{transactionid};
 
     # okay, so we got something from them.  have to record this in the

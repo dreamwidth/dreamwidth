@@ -1328,7 +1328,7 @@ error.pay.paypal.engbadstate=Payment engine is in a bad state.  Please contact s
 
 error.pay.paypal.flownotfinished=PayPal order flow not finished.  Please try again later.
 
-error.pay.paypal.generic=PayPal error.  Please try again later.
+error.pay.paypal.generic=PayPal error.  Please try again later.<br /><br />Short error: [[shorterr]]<br />Long error: [[longerr]]
 
 error.pay.paypal.noschwartz=Unable to contact job queue system.  Please try again later.
 
