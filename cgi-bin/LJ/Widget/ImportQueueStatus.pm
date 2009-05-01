@@ -47,7 +47,7 @@ sub render_body {
             my $ct = $dbr->selectrow_array(
                 q{SELECT COUNT(*) FROM job
                   WHERE funcid = ?
-                    AND ( run_after IS NULL OR run_after < UNIX_TIMESTAMP() )},
+                    AND run_after < UNIX_TIMESTAMP()},
                 undef, $tmpmap->{$map}
             )+0;
 
