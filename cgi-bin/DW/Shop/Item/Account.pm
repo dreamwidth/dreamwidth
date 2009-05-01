@@ -263,13 +263,9 @@ sub can_be_added {
 
     my $errref = $opts{errref};
     my $target_u = LJ::load_userid( $self->t_userid );
-    unless ( LJ::isu( $target_u ) ) {
-        $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.invaliduser' );
-        return 0;
-    }
 
     # the receiving user must be a personal or community account
-    unless ( $target_u->is_personal || $target_u->is_community ) {
+    if ( LJ::isu( $target_u ) && !$target_u->is_personal && !$target_u->is_community ) {
         $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.invalidjournaltype' );
         return 0;
     }
@@ -281,15 +277,17 @@ sub can_be_added {
     }
 
     # check to make sure the target user's current account type doesn't conflict with the item
-    my $account_type = DW::Pay::get_account_type( $target_u );
-    if ( $account_type eq 'seed' ) {
-        # no paid time can be purchased for seed accounts
-        $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.alreadyperm', { user => $target_u->ljuser_display } );
-        return 0;
-    } elsif ( $account_type eq 'premium' && $self->class eq 'paid' ) {
-        # premium accounts can't get normal paid time
-        $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.nopaidforpremium', { user => $target_u->ljuser_display } );
-        return 0;
+    if ( LJ::isu( $target_u ) ) {
+        my $account_type = DW::Pay::get_account_type( $target_u );
+        if ( $account_type eq 'seed' ) {
+            # no paid time can be purchased for seed accounts
+            $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.alreadyperm', { user => $target_u->ljuser_display } );
+            return 0;
+        } elsif ( $account_type eq 'premium' && $self->class eq 'paid' ) {
+            # premium accounts can't get normal paid time
+            $$errref = LJ::Lang::ml( 'shop.item.account.canbeadded.nopaidforpremium', { user => $target_u->ljuser_display } );
+            return 0;
+        }
     }
 
     return 1;
