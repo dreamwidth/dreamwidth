@@ -62,7 +62,7 @@ sub render_body {
                 if $price_string eq 'ShopItemOptions';
 
             my $footnote = " *"
-                if $month_value == 12 || $month_value == 6;
+                if $month_value =~ /^(?:12|6|2)$/;
             $ret .= $class->html_check(
                 type => 'radio',
                 name => $option_name,
