@@ -48,7 +48,7 @@ sub render_body {
                 q{SELECT COUNT(*) FROM job
                   WHERE funcid = ?
                     AND run_after < UNIX_TIMESTAMP()},
-                undef, $tmpmap->{$map}
+                undef, $tmpmap->{$map}->{funcid}
             )+0;
 
             $map =~ s/^.+::(\w+)$/$1/;
