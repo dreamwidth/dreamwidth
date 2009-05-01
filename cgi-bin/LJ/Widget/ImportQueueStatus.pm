@@ -52,7 +52,7 @@ sub render_body {
             )+0;
 
             $map =~ s/^.+::(\w+)$/$1/;
-            $cts{$map} = $ct;
+            $cts{lc $map} = $ct;
         }
 
         LJ::MemCache::set( 'importer_queue_depth', \%cts, 300 );
