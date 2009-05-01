@@ -21,6 +21,7 @@ die "Username invalid\n"
 die "Email invalid\n"
     unless $email && $email =~ /^[^@]+@[^@]+\.\w+$/;
 
+LJ::MemCache::delete( 'uidof:' . $user );
 my $u2 = LJ::load_user( $user )
     and die "User already exists\n";
 
