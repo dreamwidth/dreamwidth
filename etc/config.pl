@@ -189,7 +189,7 @@
                  'interests-findsim' => 0,
                  memories => 0,
                  opt_findbyemail => 1,
-                 payments => 1,
+                 payments => 0,
                  schools => 1,
                  'show-talkleft' => 0,
                  'stats-recentupdates' => 0,
