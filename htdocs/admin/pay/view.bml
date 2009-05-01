@@ -67,7 +67,7 @@
                 $hr->{$_} = '<em>redacted</em>'
                     if exists $hr->{$_};
             }
-            return join( '<br />', map { "<strong>$_:</strong> $hr->{$_}" } sort keys %$hr );
+            return "<br />-----------<br />" . join( '<br />', map { "<strong>$_:</strong> $hr->{$_}" } sort keys %$hr );
         };
 
         my $dbh = LJ::get_db_writer();
@@ -79,7 +79,7 @@
 
         my $rows = [];
         push @$rows, $_
-            foreach $sth->fetchrow_hashref;
+            while $_ = $sth->fetchrow_hashref;
         return $body .= "<p>No records found.</p>"
             unless $rows && @$rows;
 
