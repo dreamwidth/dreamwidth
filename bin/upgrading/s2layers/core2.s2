@@ -1850,7 +1850,7 @@ property string text_edit_entry { des = "Text to edit an entry"; }
 
 property string text_edit_tags { des = "Text to edit tags for an entry"; }
 
-property string text_tell_friend { des = "Text to tell a friend about an entry"; }
+property string text_tell_friend { des = "Text to tell someone about an entry"; }
 
 property string text_mem_add { des = "Text to add an entry into memories"; }
 
@@ -1869,7 +1869,7 @@ set text_entry_prev = "Previous Entry";
 set text_entry_next = "Next Entry";
 set text_edit_entry = "Edit Entry";
 set text_edit_tags = "Edit Tags";
-set text_tell_friend = "Tell a Friend";
+set text_tell_friend = "Tell Someone";
 set text_mem_add = "Add to Memories";
 set text_watch_comments = "Track This";
 set text_unwatch_comments = "Untrack This";

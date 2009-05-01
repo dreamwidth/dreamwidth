@@ -1327,9 +1327,9 @@ property string text_edit_tags {
 set text_edit_tags = "Edit Tags";
 
 property string text_tell_friend {
-    des = "Text to tell a friend about an entry";
+    des = "Text to tell someone about an entry";
 }
-set text_tell_friend = "Tell a Friend";
+set text_tell_friend = "Tell Someone";
 
 property string text_mem_add {
     des = "Text to add an entry into memories";
