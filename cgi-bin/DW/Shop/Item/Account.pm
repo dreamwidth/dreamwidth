@@ -128,14 +128,14 @@ sub _apply_userid {
     if ( $u->is_community ) {
         my $maintus = LJ::load_userids( $u->maintainer_userids );
         foreach my $maintu ( values %$maintus ) {
-            my $emailtype = $maintu->equals( $fu ) ? 'self' : 'other';
+            my $emailtype = $fu && $maintu->equals( $fu ) ? 'self' : 'other';
             $emailtype = 'anon' if $self->anonymous;
 
             $subj = LJ::Lang::ml( "shop.email.comm.$emailtype.subject", { sitename => $LJ::SITENAME } );
             $body = LJ::Lang::ml( "shop.email.comm.$emailtype.body",
                 {
                     touser      => $maintu->display_name,
-                    fromuser    => $fu->display_name,
+                    fromuser    => $fu ? $fu->display_name : '',
                     commname    => $u->display_name,
                     accounttype => $accounttype_string,
                     sitename    => $LJ::SITENAME,
@@ -152,14 +152,14 @@ sub _apply_userid {
             } );
         }
     } else {
-        my $emailtype = $u->equals( $fu ) ? 'self' : 'other';
+        my $emailtype = $fu && $u->equals( $fu ) ? 'self' : 'other';
         $emailtype = 'anon' if $self->anonymous;
 
         $subj = LJ::Lang::ml( "shop.email.user.$emailtype.subject", { sitename => $LJ::SITENAME } );
         $body = LJ::Lang::ml( "shop.email.user.$emailtype.body",
             {
                 touser      => $u->display_name,
-                fromuser    => $fu->display_name,
+                fromuser    => $fu ? $fu->display_name : '',
                 accounttype => $accounttype_string,
                 sitename    => $LJ::SITENAME,
             }
@@ -216,7 +216,7 @@ sub _apply_email {
     $body = LJ::Lang::ml( "shop.email.email.$emailtype.body",
         {
             email       => $self->t_email,
-            fromuser    => $fu->display_name,
+            fromuser    => $fu ? $fu->display_name : '',
             accounttype => $accounttype_string,
             createurl   => "$LJ::SITEROOT/create?code=$code",
             sitename    => $LJ::SITENAME,
