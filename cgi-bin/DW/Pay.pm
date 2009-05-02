@@ -263,17 +263,21 @@ sub get_current_paid_userids {
 sub expire_user {
     DW::Pay::clear_error();
 
-    my $u = LJ::want_user( shift() )
+    my ( $u, %opts ) = @_;
+    $u = LJ::want_user( $u )
         or return error( ERR_FATAL, "Invalid/not a user object." );
 
-    my $ps = DW::Pay::get_paid_status( $u );
-    return 1 unless $ps; # free already
-    return error( ERR_FATAL, "Cannot expire a permanent account." )
-        if $ps->{permanent};
-    return error( ERR_FATAL, "Account not ready for expiration." )
-        if $ps->{expiresin} > 0;
+    unless ( $opts{force} ) {
+        my $ps = DW::Pay::get_paid_status( $u );
+        return 1 unless $ps; # free already
+        return error( ERR_FATAL, "Cannot expire a permanent account." )
+            if $ps->{permanent};
+        return error( ERR_FATAL, "Account not ready for expiration." )
+            if $ps->{expiresin} > 0;
+    }
 
     # so we have to update their status now
+    LJ::statushistory_add( $u, undef, 'paidstatus', 'Expiring account; forced=' . ( $opts{force} ? 1 : 0 ) . '.' );
     DW::Pay::update_paid_status( $u, _expire => 1 );
     DW::Pay::sync_caps( $u );
 

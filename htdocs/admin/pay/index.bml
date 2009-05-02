@@ -17,6 +17,40 @@
 
     my $body = '<h1>Payment Manager</h1>';
 
+    if ( LJ::did_post() ) {
+        return "failed auth"
+            unless LJ::check_form_auth();
+
+        if ( $POST{givetime} ) {
+            my ( $who, $type, $months ) = ( $POST{user}, $POST{type}, $POST{months} );
+            my $u = LJ::load_user( $who )
+                or return "invalid user";
+            return "invalid type"
+                unless $type =~ /^(?:seed|premium|paid|expire)$/;
+            $months = 99 if $type eq 'seed';
+
+            if ( $type eq 'expire' ) {
+                my $rv = DW::Pay::expire_user( $u, force => 1 );
+                if ( $rv ) {
+                    LJ::statushistory_add( $u, $remote, 'paidstatus',
+                                           "Admin override: expired account." );
+                    return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
+                }
+                    
+            } else {
+                my $rv = DW::Pay::add_paid_time( $u, $type, $months );
+                if ( $rv ) {
+                    LJ::statushistory_add( $u, $remote, 'paidstatus',
+                                           "Admin override: gave paid time to user: months=$months type=$type" );
+                    return BML::redirect( "$LJ::SITEROOT/admin/pay/index?view=$u->{user}" );
+                }
+            }
+            return "Error: " . DW::Pay::error_text() . "\n";
+        }
+
+        return "invalid option";
+    }
+
     if ($GET{view}) {
         $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
 
@@ -42,18 +76,32 @@
 
                 } else {
                     $body .= '; <strong>expired</strong>.';
-
                 }
             }
-
         } else {
             $body .= '<p>User has never had a paid account of any kind.</p>';
-
         }
 
-        $body .= qq|<p><a href="/admin/statushistory.bml?user=$u->{user}">View statushistory for user.</a></p>|;
-
-        $body .= "<h2>View Carts</h2>";
+        # give the box for adding paid time to the user
+        my $auth = LJ::form_auth();
+        $body .= <<EOF;
+<br /><br />
+    <form method="post"><input type="hidden" name="givetime" value="1">
+    <input type="hidden" name="user" value="$u->{user}">$auth
+Give Paid Time:
+    <select name="type">
+        <option value="paid">Paid Account</option>
+        <option value="premium">Paid Premium Account</option>
+        <option value="seed">Seed Account</option>
+        <option value="blank"></option>
+        <option value="expire">FORCE EXPIRATION</option>
+    </select>
+    for <input type="text" name="months" maxlength="2" size="3" /> months
+    <input type="submit" value="Give!" />
+</form>
+<p><a href="/admin/statushistory.bml?user=$u->{user}">View statushistory for user.</a></p>
+<h2>View Carts</h2>
+EOF
 
         my @carts = DW::Shop::Cart->get_all( $u );
 
