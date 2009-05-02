@@ -129,7 +129,7 @@ sub rename_user
         return 0;
     }
 
-    foreach my $table (qw(user useridmap overrides style))
+    foreach my $table (qw(user useridmap))
     {
         $dbh->do("UPDATE $table SET user=$qto WHERE user=$qfrom");
         if ($dbh->err) {
