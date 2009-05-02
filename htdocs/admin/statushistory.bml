@@ -22,8 +22,8 @@
     $ret .= "Fill in at least one field below:";
     $ret .= "<form method='post' action='statushistory.bml'>\n";
     $ret .= LJ::html_hidden('orderby', $FORM{'orderby'}, 'flow', $FORM{'flow'}) . "\n";
-    $ret .= "User: " . LJ::html_text({ 'name' => 'user', 'size' => '15', 'maxlength' => '25' }) . "\n";
-    $ret .= "Admin: " . LJ::html_text({ 'name' => 'admin', 'size' => '15', 'maxlength' => '25' }) . "\n";
+    $ret .= "User: " . LJ::html_text({ 'name' => 'user', 'size' => '25', 'maxlength' => '25' }) . "\n";
+    $ret .= "Admin: " . LJ::html_text({ 'name' => 'admin', 'size' => '25', 'maxlength' => '25' }) . "\n";
     $ret .= "Type: " . LJ::html_text({ 'name' => 'type', 'size' => '20', 'maxlength' => '20' }) . "\n";
     $ret .= LJ::html_submit('query_submit', 'Search');
     $ret .= "</form>\n\n";

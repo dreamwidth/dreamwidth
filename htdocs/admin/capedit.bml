@@ -24,7 +24,7 @@
  {
      $ret .= "<h1>capability class management</h1>\n";
      $ret .= "<form method='get'>";
-     $ret .= "Modify capabilities for user: <input name='user' size='15'> <input type='submit' value=\"Load\">";
+     $ret .= "Modify capabilities for user: <input name='user' maxlength='25' size='25'> <input type='submit' value=\"Load\">";
      $ret .= "</form>";
 
      return $ret;

@@ -18,7 +18,7 @@
 	$ret .= "<h1>duplicate entry killer</h1>\n";
 	$ret .= "<form method='post'>";
         $ret .= LJ::form_auth();
-	$ret .= "Kill duplicates for user: <input name='user' size='15'> <input type='submit' value=\"Kill\">";
+	$ret .= "Kill duplicates for user: <input name='user' maxlength='25' size='25'> <input type='submit' value=\"Kill\">";
 	$ret .= "</form>";
 	return $ret;
     }

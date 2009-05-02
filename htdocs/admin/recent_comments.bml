@@ -23,7 +23,7 @@
     }
     unless ($u) {
         return "<form method='GET'>Username or (#userid) to view comments of: ".
-            "<input name='user' size='15' /><input type='submit' value='Load' /></form>";
+            "<input name='user' maxlength='25' size='25' /><input type='submit' value='Load' /></form>";
     }
     $user = $u->{'user'};
     $ret .= "<a href='recent_comments.bml'>&lt;&lt;</a> <b>Recent comments of " . LJ::ljuser($u) . "</b> (\#$u->{userid})<br />\n";
