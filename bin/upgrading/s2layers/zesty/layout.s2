@@ -265,7 +265,7 @@ propgroup Text {
         des = "Error page title.";
         noui = 1;
     }
-        set text_errorpage_title = "Error";
+        set text_errorpage_title = "No content";
 
 
     # For some reason the core only provides a message for recent and day pages.
