@@ -305,10 +305,28 @@ sub scan_cart {
         unless $cart->has_items;
 
     # try to apply each item
-    my $unapplied = 0;
+    my ( $unapplied, %saw_ids ) = ( 0 );
     $log->( 'Iterating over items.' );
     foreach my $item ( @{ $cart->items } ) {
-        $log->( 'Found item %s.', $item->short_desc );
+        $log->( 'Found item [%d] %s.', $item->id, $item->short_desc );
+
+        # rare case where we've found the cart generating items with the same
+        # id, leading to failures in sending invite codes
+        while ( exists $saw_ids{$item->id} ) {
+            if ( $item->applied ) {
+                $log->( 'Item id duplicate, but item safely applied.  Ignoring dupe id.' );
+                next;
+            }
+
+            # this item has NOT been applied, so renumber it
+            $item->id( $item->id + 1 );
+            $log->( 'Item id already found, renumbering to %d.', $item->id );
+        }
+
+        # record the id in our list so we know we've seen it
+        $saw_ids{$item->id} = 1;
+
+        # this is the normal 'bail' point for already applied items
         if ( $item->applied ) {
             $log->( 'Item already applied.' );
             next;
