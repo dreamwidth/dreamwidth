@@ -39,6 +39,8 @@ sub render_body {
     # no matter where we are
     $opts{receipt} = 1
         unless $cart->state == $DW::Shop::STATE_OPEN;
+    $opts{receipt} = 1
+        if $opts{admin};
 
     $ret .= $class->start_form
         unless $opts{receipt};
@@ -50,7 +52,9 @@ sub render_body {
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.deliverydate' ) . "</th>";
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.to' ) . "</th>";
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.from' ) . "</th>";
-    $ret .= "<th>" . $class->ml( 'widget.shopcart.header.price' ) . "</th></tr>";
+    $ret .= "<th>" . $class->ml( 'widget.shopcart.header.price' ) . "</th>";
+    $ret .= "<th>ADMIN</th>" if $opts{admin};
+    $ret .= "</tr>";
     foreach my $item ( @{$cart->items} ) {
         my $from_u = LJ::load_userid( $item->from_userid );
 
@@ -62,6 +66,28 @@ sub render_body {
         $ret .= "<td>" . $item->t_html . "</td>";
         $ret .= "<td>" . ( $item->anonymous || !LJ::isu( $from_u ) ? $class->ml( 'widget.shopcart.anonymous' ) : $from_u->ljuser_display ) . "</td>";
         $ret .= "<td>\$" . $item->cost . " USD</td>";
+        if ( $opts{admin} ) {
+            $ret .= "<td>";
+            if ( $item->t_email ) {
+                my $dbh = LJ::get_db_writer();
+                my $acid = $dbh->selectrow_array( 'SELECT acid FROM shop_codes WHERE cartid = ? AND itemid = ?',
+                                                  undef, $cart->id, $item->id );
+                if ( $acid ) {
+                    my ( $auth, $rcptid ) = $dbh->selectrow_array( 'SELECT auth, rcptid FROM acctcode WHERE acid = ?', undef, $acid );
+                    $ret .= DW::InviteCodes->encode( $acid, $auth );
+                    if ( my $ru = LJ::load_userid( $rcptid ) ) {
+                        $ret .= ' (' . $ru->ljuser_display . ", <a href='$LJ::SITEROOT/admin/pay/index?view=" . $ru->user . "'>edit</a>)";
+                    } else {
+                        $ret .= " (unused, <a href='$LJ::SITEROOT/admin/pay/view?striptimefrom=$acid'>strip</a>)";
+                    }
+                } else {
+                    $ret .= 'no code yet or code was stripped';
+                }
+            } else {
+                $ret .= '--';
+            }
+            $ret .= "</td>";
+        }
         $ret .= "</tr>";
     }
     $ret .= "<tr><td colspan='6' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " \$" . $cart->display_total . " USD</td></tr>";

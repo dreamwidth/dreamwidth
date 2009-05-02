@@ -15,6 +15,31 @@
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, 'payments');
 
+    # FIXME: there should be a better page for this or something
+    if ( my $acid = $GET{striptimefrom} ) {
+        if ( LJ::did_post() && LJ::check_form_auth() ) {
+            my $dbh = LJ::get_db_writer();
+            my $ct = $dbh->do( 'DELETE FROM shop_codes WHERE acid = ?',
+                               undef, $acid );
+            return $dbh->errstr if $dbh->err;
+            return "Failed to strip the code, already stripped?"
+                unless $ct > 0;
+            return "Okay, code stripped.";
+        }
+
+        my $auth = LJ::form_auth();
+        return <<EOF;
+<h1>Payment Manager - Strip Code</h1>
+<p><strong>This action strips the paid time from an invite code.  The code will still be
+usable, but it will no longer grant the user with any paid time.  Please confirm you wish
+to do this by clicking the button below.</strong></p>
+<form method='post' action='$LJ::SITEROOT/admin/pay/view?striptimefrom=$acid'>
+$auth
+<input type='submit' value='Strip that code!' />
+</form>
+EOF
+    }
+
     my $body = '<h1>Payment Manager - View Cart</h1>';
     $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
 
@@ -46,7 +71,7 @@
 
     $body .= "<h3>Items</h3>";
     if ( $cart->has_items ) {
-        $body .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
+        $body .= LJ::Widget::ShopCart->render( admin => 1, cart => $cart );
     }
     else {
         $body .= "<p>This cart has no items in it.</p>";
