@@ -13,6 +13,8 @@
 
 .error.postrequired=POST required.
 
+.error.ratelimited=You have exceeded the maximum number of communities you can create in a week.  Please try again later.
+
 .error.username.inuse=Account name already in use; please select a different one.
 
 .error.username.mustenter=You must enter an account name.

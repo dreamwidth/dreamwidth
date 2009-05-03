@@ -570,6 +570,8 @@ INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES 
 UPDATE priv_list SET des='Allows a user to edit site text in a given language. arg=Unique language code, optionally appended by |domainid.domaincode',is_public='1',privname='Translate/Update Text',scope='general' WHERE privcode='translate';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user adds someone to their Friends list', 'addfriend');
 UPDATE ratelist SET des='Logged when a user adds someone to their Friends list' WHERE name='addfriend';
+INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user creates a community.', 'commcreate');
+UPDATE ratelist SET des='Logged when a user creates a community.' WHERE name='commcreate';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when wrong username/password is used.', 'failed_login');
 UPDATE ratelist SET des='Logged when wrong username/password is used.' WHERE name='failed_login';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user sends a free VGift', 'freevgifts');

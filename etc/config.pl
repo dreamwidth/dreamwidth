@@ -332,6 +332,8 @@
             'rateallowed-lostinfo' => 3,
             'rateperiod-failed_login' => 60*5, # 5 minutes
             'rateallowed-failed_login' => 3,
+            'rateperiod-commcreate' => 86400*7, # 7 days / 1 week
+            'rateallowed-commcreate' => 3,
             'staff_headicon' => 0,
             thread_expander => 0,
             'xpost_accounts' => 0,
