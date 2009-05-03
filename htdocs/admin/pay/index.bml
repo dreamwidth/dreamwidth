@@ -150,6 +150,11 @@ EOF
       <input type="text" name="cartid" /> <input type="submit" value="Go" />
       </form>
     </li>
+    <li>View invite code:
+      <form method="get" action="/admin/pay/view">
+      <input type="text" name="code" /> <input type="submit" value="Go" />
+      </form>
+    </li>
 </ul>
 
 EOF

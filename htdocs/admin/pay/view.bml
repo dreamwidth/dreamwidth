@@ -40,6 +40,21 @@ $auth
 EOF
     }
 
+    if ( my $code = $GET{code} ) {
+        my ( $acid ) = DW::InviteCodes->decode( $code );
+        return "Code seems invalid"
+            unless $acid;
+
+        my $dbh = LJ::get_db_writer();
+        my $cartid = $dbh->selectrow_array( 'SELECT cartid FROM shop_codes WHERE acid = ?', undef, $acid );
+        return $dbh->errstr if $dbh->err;
+
+        return "Code does not appear to have any paid time on it."
+            unless $acid;
+
+        return BML::redirect( "$LJ::SITEROOT/admin/pay/view?cartid=$cartid" );
+    }
+
     my $body = '<h1>Payment Manager - View Cart</h1>';
     $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
 
