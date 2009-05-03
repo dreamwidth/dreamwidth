@@ -281,6 +281,12 @@ sub expire_user {
     DW::Pay::update_paid_status( $u, _expire => 1 );
     DW::Pay::sync_caps( $u );
 
+    # inactivate userpics (yes, this method does inactivation too)
+    $u->activate_userpics;
+
+    # disable email alias
+    $u->delete_email_alias;
+
     # happy times
     return 1;
 }
@@ -374,6 +380,12 @@ sub add_paid_time {
     # and make sure caps are always in sync
     DW::Pay::sync_caps( $u )
         if $rv;
+
+    # activate userpics
+    $u->activate_userpics;
+
+    # enable email alias
+    $u->update_email_alias;
 
     # all good, we hope :-)
     return $rv;

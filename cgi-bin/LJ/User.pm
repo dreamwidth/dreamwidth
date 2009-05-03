@@ -3366,6 +3366,20 @@ sub should_show_in_search_results {
 ###  15. Email-Related Functions
 
 
+sub delete_email_alias {
+    my $u = shift;
+
+    return if exists $LJ::FIXED_ALIAS{$u->{user}};
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do( "DELETE FROM email_aliases WHERE alias=?",
+              undef, "$u->{user}\@$LJ::USER_DOMAIN" );
+
+    return 0 if $dbh->err;
+    return 1;
+}
+
+
 sub email_for_feeds {
     my $u = shift;
 
