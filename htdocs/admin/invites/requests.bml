@@ -30,21 +30,62 @@ body<=
     my @outstanding = DW::InviteCodeRequests->outstanding;
     my @userids = map { $_->userid } @outstanding;
     my $users = LJ::load_userids( @userids );
-    
+
+    # count invites the user has
+    my %cts;
+    foreach my $u ( values %$users ) {
+        $cts{$u->id} = DW::InviteCodes->unused_count( userid => $u->id );
+    }
+
+    my $authed = undef;
+
+    $ret .= "<form method='post'>";
+    $ret .= LJ::form_auth();
     $ret .= "<table>";
-    $ret .= "<tr><th>User</th><th>Time Generated</th><th>Reason</th></tr>";
+    $ret .= "<tr><th>User</th><th>Time Generated</th><th>Ct</th><th>Give</th><th>Reason</th></tr>";
     foreach my $outstanding ( @outstanding ) {
         my $u = $users->{$outstanding->userid};
         $ret .= "<tr>";
         $ret .= "<td>" . $u->ljuser_display . "</td>";
         $ret .= "<td>" . LJ::time_to_http( $outstanding->timegenerate ) . "</td>";
-        
+        $ret .= "<td>" . $cts{$u->id} . "</td>";
+
+        # if we posted...
+        if ( LJ::did_post() ) {
+            unless ( defined $authed ) {
+                die "Failed form auth\n"
+                    unless LJ::check_form_auth();
+                $authed = 1;
+            }
+
+            my $ct = $POST{'ct_' . $outstanding->id};
+            if ( defined $ct && $ct =~ /^\d\d?$/ ) {
+                $ret .= '<td>';
+                if ( $ct > 0 ) {
+                    $outstanding->accept( num_invites => $ct+0 );
+                    $ret .= 'GAVE: ' . $ct;
+                } else {
+                    $outstanding->reject;
+                    $ret .= 'DENIED';
+                }
+                $ret .= '</td>';
+            } else {
+                $ret .= '<td>---</td>';
+            }
+        } else {
+            $ret .= "<td><input type='text' name='ct_" . $outstanding->id . "' size='2' maxlength='2' /></td>";
+        }
+
         my $reason = $outstanding->reason || "( no reason given )";
         $ret .= "<td><a href='review.bml?user=$u->{user}'>$reason</a></td>";
         $ret .= "</tr>";
     }
-    
-    $ret .= "</table>";
+
+    $ret .= "</table><br />";
+    unless ( LJ::did_post() ) {
+        $ret .= "<input type='submit' value='Give/Reject' /><br /><br />";
+        $ret .= "This will give codes to people you have put a number in, and reject people who have 0 given.";
+    }
     return $ret;
 }
 _code?>
@@ -52,5 +93,8 @@ _code?>
 title=><?_code return $title; _code?>
 head<=
 <?_code return $headextra; _code?>
+<style type="text/css">
+td, th { padding: 2px; }
+</style>
 <=head
 page?>
