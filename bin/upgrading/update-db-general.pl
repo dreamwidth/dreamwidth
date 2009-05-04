@@ -3175,6 +3175,17 @@ CREATE TABLE shop_codes (
 )
 EOC
 
+# received check/money order payment info
+register_tablecreate('shop_cmo', <<'EOC');
+CREATE TABLE shop_cmo (
+    cartid INT UNSIGNED NOT NULL,
+    paymentmethod VARCHAR(255) NOT NULL,
+    notes TEXT DEFAULT NULL,
+
+    PRIMARY KEY (cartid)
+)
+EOC
+
 register_tablecreate('externalaccount', << 'EOC');
 CREATE table externalaccount (
     userid int unsigned NOT NULL,

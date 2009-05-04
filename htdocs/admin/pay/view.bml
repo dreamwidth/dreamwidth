@@ -66,6 +66,27 @@ EOF
         or return "Sorry, invalid cart/cart not found in the database!";
 
     $cartid = $cart->id;   # get a normalised value back
+
+    if ( LJ::did_post() && LJ::check_form_auth() && $POST{record_cmo} ) {
+        my $received_method = $POST{paymentmethod};
+        my $received_notes = LJ::ehtml( $POST{notes} );
+        return "You must select a valid method of payment that was received."
+            unless $received_method =~ /^(?:cash|check|moneyorder|other)$/;
+        return "You must enter notes for this payment."
+            if ( $received_method eq 'check' || $received_method eq 'other' ) && !$received_notes;
+
+        # record payment
+        my $dbh = LJ::get_db_writer();
+        $dbh->do( "INSERT INTO shop_cmo (cartid, paymentmethod, notes) VALUES (?, ?, ?)",
+                  undef, $cartid, $received_method, $received_notes );
+        return $dbh->errstr if $dbh->err;
+
+        # mark cart as paid
+        $cart->state( $DW::Shop::STATE_PAID );
+
+        return BML::redirect( "$LJ::SITEROOT/admin/pay/view?cartid=$cartid" );
+    }
+
     my $state = $cart->state;
     my $u = LJ::load_userid( $cart->userid );
     my $from = ( defined $u ? $u->ljuser_display : "Logged-out user with uniq: " . $cart->uniq );
@@ -165,13 +186,14 @@ EOF
         $body .= "<table border='1'>";
         $body .= "<tr><th>Email Address:</th><td>" . $cart->email . "</td></tr>";
         $body .= "</table>";
-    }
 
-    if ( $state == $DW::Shop::STATE_PEND_PAID ) {
-        $body .= <<HTML;
+        if ( $state == $DW::Shop::STATE_PEND_PAID ) {
+            my $auth = LJ::form_auth();
+            $body .= <<HTML;
 <h2>Mark as Payment Received</h2>
 
-<form method="post" action="/admin/pay/mark-received">
+<form method="post" action="$LJ::SITEROOT/admin/pay/view?cartid=$cartid">
+$auth
 <p>
 <label for="paymentmethod">Payment method:</label>
 <select id="paymentmethod" name="paymentmethod">
@@ -183,15 +205,32 @@ EOF
 </p>
 
 <p>
-<label for="notes">Payment notes (check no, address, etc):</label><br>
-<textarea rows="5" cols="40" name="notes" id="notes"></textarea>
+<label for="notes">Payment notes (check number, address, etc.):</label><br />
+<textarea rows="5" cols="40" name="notes" id="notes"></textarea><br />
+<small>(required if method is "check" or "other")</small>
 </p>
 
 <p>
-<input type="submit" value="Mark as Received">
+<input type="submit" name="record_cmo" value="Mark as Received">
 </p>
 </form>
 HTML
+        } else {
+            $body .= "<h2>Payment Details</h2>";
+
+            my $dbh = LJ::get_db_writer();
+            my $info = $dbh->selectrow_hashref(
+                "SELECT paymentmethod, notes FROM shop_cmo WHERE cartid = ?",
+                undef, $cartid
+            );
+            return $dbh->errstr if $dbh->err;
+
+            my $notes = $info->{notes} || "<em>(no notes given)</em>";
+            $body .= "<table border='1'>";
+            $body .= "<tr><th>Payment Method</th><td>$info->{paymentmethod}</td></tr>";
+            $body .= "<tr><th>Notes</th><td>$notes</td></tr>";
+            $body .= "</table>";
+        }
     }
 
     return $body;
