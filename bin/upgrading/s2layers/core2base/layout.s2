@@ -517,7 +517,7 @@ table.month td p {
 .module a:hover { $module_link_hover_colors }
 .module a:visited { $module_link_visited_colors }
 
-.module h3 {
+.module h2 {
     $module_title_colors
 }
 
