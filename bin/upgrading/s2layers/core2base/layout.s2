@@ -387,7 +387,7 @@ body.three-columns-right { padding-right: $*sidebar_width_doubled; }
     $entry_colors
 }
 
-.entry h3 {
+.entry .entry-title h3 {
     $entry_title_colors
 }
 
