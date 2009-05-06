@@ -488,7 +488,8 @@ sub moveUser {
     }
 
     if ($opts->{expungedel} && $u->{'statusvis'} eq "D" &&
-        LJ::mysqldate_to_time($u->{'statusvisdate'}) < time() - 86400*31) {
+        LJ::mysqldate_to_time($u->{'statusvisdate'}) < time() - 86400*31 &&
+        !$u->is_identity) {
 
         print "Expunging user '$u->{'user'}'\n";
         $dbh->do("INSERT INTO clustermove (userid, sclust, dclust, timestart, timedone) ".
