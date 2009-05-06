@@ -526,7 +526,7 @@ sub clean
                         $newdata .= "<b>[Bad username: " . LJ::ehtml($orig_user) . "]</b>";
                     }
                 } else {
-                    $newdata .= "<b>[Unknown LJ tag]</b>";
+                    $newdata .= "<b>[Unknown site tag]</b>";
                 }
             }
             elsif ($tag eq "lj-raw")
