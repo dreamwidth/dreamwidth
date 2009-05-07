@@ -2956,7 +2956,7 @@ function print_module_list(string[] list) {
     if (size $list) {
         println """<ul class="module-list">""";
         foreach var string s ($list) {
-            print safe """<li class="module-list-item">$s</li>""";
+            print safe """<li class="module-list-item">$s</li> """;
         }
         println """</ul>""";
     }
