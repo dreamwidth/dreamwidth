@@ -2722,7 +2722,7 @@ function YearPage::view_title() : string {
     return string($.year);
 }
 function EntryPage::view_title() : string {
-    return $.entry.subject ? $.entry->get_plain_subject() : "";
+    return $.entry.subject ? $.entry->get_plain_subject() : $*text_nosubject;
 }
 function ReplyPage::view_title() : string {
     return $*text_comment_reply;
