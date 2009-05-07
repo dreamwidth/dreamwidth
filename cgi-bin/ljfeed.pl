@@ -41,9 +41,9 @@ sub make_feed
     LJ::text_out(\$u->{$_})
         foreach ("name", "url", "urlname");
 
-    # opt_synlevel will default to 'ljcut'
-    $u->{'opt_synlevel'} = 'ljcut'
-        unless $u->{'opt_synlevel'} =~ /^(?:full|ljcut|summary|title)$/;
+    # opt_synlevel will default to 'cut'
+    $u->{'opt_synlevel'} = 'cut'
+        unless $u->{'opt_synlevel'} =~ /^(?:full|cut|summary|title)$/;
 
     # some data used throughout the channel
     my $journalinfo = {
@@ -211,7 +211,7 @@ sub make_feed
                                        {
                                         wordlength => 0,
                                         preformatted => $logprops{$itemid}->{opt_preformatted},
-                                        cuturl => $u->{opt_synlevel} eq 'ljcut' ? "$journalinfo->{link}$ditemid.html" : "",
+                                        cuturl => $u->{opt_synlevel} eq 'cut' ? "$journalinfo->{link}$ditemid.html" : "",
                                         to_external_site => 1,
                                        });
             # do this after clean so we don't have to about know whether or not
@@ -565,7 +565,7 @@ sub create_view_atom
             $content->appendTextNode( $it->{'event'} );
             $entry_xml->getDocumentElement->appendChild( $content );
         };
-        if ($u->{'opt_synlevel'} eq 'full' || $u->{'opt_synlevel'} eq 'ljcut') {
+        if ( $u->{'opt_synlevel'} eq 'full' || $u->{'opt_synlevel'} eq 'cut' ) {
             # Do this manually for now, until XML::Atom supports new
             # content type classifications.
             $make_content->('content');

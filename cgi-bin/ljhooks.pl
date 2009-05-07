@@ -109,8 +109,8 @@ sub register_setter
 
 register_setter('synlevel', sub {
     my ($u, $key, $value, $err) = @_;
-    unless ($value =~ /^(title|ljcut|summary|full)$/) {
-        $$err = "Illegal value.  Must be 'title', 'ljcut', 'summary', or 'full'";
+    unless ($value =~ /^(title|cut|summary|full)$/) {
+        $$err = "Illegal value.  Must be 'title', 'cut', 'summary', or 'full'";
         return 0;
     }
 
