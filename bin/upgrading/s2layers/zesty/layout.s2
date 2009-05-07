@@ -142,6 +142,15 @@ layerinfo "redist_uniq" = "zesty/layout";
 #      #                                          #
 ###################################################
 
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+}
+
+set num_items_recent = 10;
+set num_items_reading = 20;
+
 propgroup Text {
     property use text_day_next;
     property use text_day_prev;
@@ -364,13 +373,7 @@ propgroup Miscellaneous {
         example = "http://example.com/favicon.ico";
         }
         set custom_favicon = "";
-
-    property use num_items_recent;
-        set num_items_recent = 10;
-
-    property use num_items_reading;
-        set num_items_reading = 20;
-
+    
     property string default_view_mode {
         des = "Show entries expanded or collapsed by default. Currently this setting affects the reading page only.";
         values = "collapsed|Entries collapsed|expanded|Entries expanded";
