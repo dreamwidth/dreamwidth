@@ -40,12 +40,13 @@ $auth
 EOF
     }
 
+    my $dbh = LJ::get_db_writer();
+
     if ( my $code = $GET{code} ) {
         my ( $acid ) = DW::InviteCodes->decode( $code );
         return "Code seems invalid"
             unless $acid;
 
-        my $dbh = LJ::get_db_writer();
         my $cartid = $dbh->selectrow_array( 'SELECT cartid FROM shop_codes WHERE acid = ?', undef, $acid );
         return $dbh->errstr if $dbh->err;
 
@@ -59,13 +60,20 @@ EOF
     $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
 
     return "Must provide cartid."
-        unless $GET{cartid} && $GET{cartid} > 0;
+        unless $GET{cartid};
+    my $cartid = $GET{cartid};
 
-    my $cartid = $GET{cartid} + 0;
+    # try loading it if it's a cart, or a txnid
+    if ( $cartid !~ /^\d+$/ ) {
+        $cartid = $dbh->selectrow_array( 'SELECT cartid FROM pp_trans WHERE transactionid = ?', undef, $cartid );
+        return "Sorry, invalid transactionid or not found in database!"
+            unless $cartid && $cartid > 0;
+    }
     my $cart = DW::Shop::Cart->get_from_cartid( $cartid )
         or return "Sorry, invalid cart/cart not found in the database!";
 
-    $cartid = $cart->id;   # get a normalised value back
+    # we have to normalize this back, might have been a txnid
+    $cartid = $cart->id;
 
     if ( LJ::did_post() && LJ::check_form_auth() && $POST{record_cmo} ) {
         my $received_method = $POST{paymentmethod};

@@ -145,7 +145,7 @@ EOF
       <input type="text" name="view" /> <input type="submit" value="Go" />
       </form>
     </li>
-    <li>View cart/order ID:
+    <li>View cart/order ID (or PayPal transaction ID):
       <form method="get" action="/admin/pay/view">
       <input type="text" name="cartid" /> <input type="submit" value="Go" />
       </form>
