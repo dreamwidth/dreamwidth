@@ -2110,8 +2110,8 @@ sub Image_userpic
     my $p = LJ::Userpic->new($u, $picid);
 
     #  load the dimensions, unless they have been passed in explicitly
-    $width ||= $p->{width};
-    $height ||= $p->{height};
+    $width ||= $p->width;
+    $height ||= $p->height;
 
     # load the alttext.  use description by default, keyword as fallback,
     # and all keywords as final fallback (should be for default icon only).
