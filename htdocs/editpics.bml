@@ -269,6 +269,7 @@ use strict;
                 } else {
                     my $userpic = eval { LJ::Userpic->create($u, data => $current_upload{image}); };
                     if (!$userpic) {
+                        $@ = $@->as_html if $@->isa('LJ::Error');
                         push @info, $message_prefix . "$@";
                         $no_errors = 0;
                     } else {
