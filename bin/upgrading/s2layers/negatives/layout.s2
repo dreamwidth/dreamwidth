@@ -284,6 +284,10 @@ function print_stylesheet()
     .comment-poster .anonymous {
         font-weight: bold;
     }
+    .comment-management-links {
+        display: inline;
+        padding-left: 0;
+    }
     .entry-title, .userlite-interaction-links li,
     .entry-management-links li, .entry-interaction-links li,
     .comment-interaction-links li, .comment-management-links li {
@@ -529,7 +533,17 @@ function EntryPage::print_comment (Comment c)
     println "</a>";
     print "</div>";
 
+    if ($this.multiform_on)
+    {
+        """<span class="multiform-checkbox">""";
+        println "<label for='ljcomsel_$c.talkid'>$*text_multiform_check</label>";
+        $c->print_multiform_check();
+        "</span>";
+    }
+
     $c->print_management_links();
+    println "<br />";
+
     $c->print_metadata();
 
     println "";
@@ -539,14 +553,7 @@ function EntryPage::print_comment (Comment c)
 
     $c->print_subject();
 
-    if ($this.multiform_on)
-    {
-        println " <br /><label for='ljcomsel_$c.talkid'>$*text_multiform_check</label>";
-        $c->print_multiform_check();
-        println "";
-    }
-
-    println "";
+    println "<br />";
 
     $c->print_text();
     println "<div class=\"footer\">";
