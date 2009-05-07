@@ -357,6 +357,7 @@ body<=
      $ret .= "</form>";
  }
  $ret .= "<?hr?>";
+ $ret .= "<p>".BML::ml('.notifylink', {url=>'href="./changenotify.bml"'})."</p>";
  $ret .= "<p>".BML::ml('.backlink', {backurl=>'href="./"'})."</p>";
 
 

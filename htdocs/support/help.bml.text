@@ -5,6 +5,8 @@
 
 .cat.all=All
 
+.notifylink=Receive <a [[url]]>notifications</a> of support activity.
+
 .requests.type=requests of type
 
 .showonlyhelp=Show only 
