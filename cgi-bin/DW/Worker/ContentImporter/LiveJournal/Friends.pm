@@ -69,7 +69,7 @@ sub try_work {
         push @friends, {
             userid => $local_oid,
             groupmask => $class->remap_groupmask( $data, $friend->{groupmask} ),
-        } if $local_oid;
+        } if $local_oid && $local_oid != $data->{userid};
 
 # We aren't doing feeds right now / maybe not ever, when we solve the
 # authenticated feed reading problem.  (which we're on track for)
