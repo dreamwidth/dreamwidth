@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Friends Page</title>
+<title><?_ml .page.title _ml?></title>
 <meta name="viewport" content="width = 320" />
 </head>
 <body>
@@ -9,7 +9,7 @@
     use vars qw (%GET);
 
     my $u = LJ::User->remote
-        or return "You must <a href='login.bml'>log in</a> to read your friends page.";
+        or return BML::ml( '.read.login', { aopts => "href='login.bml'" } );
 
     my $itemsperpage = 50;
 
@@ -19,8 +19,8 @@
 
     my $prevcount = $skip + $itemsperpage;
     my $nextcount = $skip ? $skip - $itemsperpage : -1;
-    my $nextlink  = $nextcount != -1 ? " | <a href='?skip=$nextcount'>Next $itemsperpage &gt;&gt;</a>" : '';
-    my $prevlink  = "<a href='?skip=$prevcount'>&lt;&lt; Previous $itemsperpage</a>";
+    my $nextlink  = $skip ? BML::ml( '.items.next', { aopts => "href='?skip=$nextcount'", items => $itemsperpage } ) : '';
+    my $prevlink  = BML::ml( '.items.previous', { aopts => "href='?skip=$prevcount'", items => $itemsperpage } );
 
     # Filter first to a "Mobile View" friends group if they have one,
     # then fall back to "Default View", and then just show them everything
@@ -35,15 +35,11 @@
 #        }
 #    }
 
-    $ret = qq {
-            <a href='./'>&lt;&lt; Back</a> to LiveJournal Mobile.
-            <div style="font-size: 16pt; font-weight: bold; margin: 0.8em;">Friends Page</div>
-            <div style="margin: 1em;">
-              <div style="font-weight: bold;">Viewing: $groupname</div>
-              <div>$prevlink$nextlink</div><br/>
-            </div>
-        };
-
+    $ret .= BML::ml( '.read.back', { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } );
+    $ret .= qq(<div style="font-size: 16pt; font-weight: bold; margin: 0.8em;">);
+    $ret .= qq($ML{'.page.title'}</div><div style="margin: 1em;"><div style="font-weight: bold;">);
+    $ret .= BML::ml( '.read.groupname', { groupname => $groupname } );
+    $ret .= qq(</div><div>$prevlink$nextlink</div><br/></div>);
 
     my @entries = $u->watch_items(
         'remote'            => $u->{'userid'},
