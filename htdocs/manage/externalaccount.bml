@@ -6,7 +6,7 @@ use strict;
     use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
     
     if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{ssl} ne "no") {
-        my $getextra = $GET{auth} ? "?auth=$GET{auth}" : "";
+        my $getextra = $GET{acctid} ? "?acctid=" . LJ::eurl($GET{acctid}) : "";
         return BML::redirect("$LJ::SSLROOT/manage/externalaccount.bml$getextra");
     }
 
@@ -16,15 +16,11 @@ use strict;
     LJ::set_active_crumb('manage');
 
     my $remote = LJ::get_remote();
-    my $authas;
-    my $u;
 
-    if ($remote) {
-        $authas = $GET{authas} || $remote->user;
-        $u = LJ::get_authas_user($authas);
-        return LJ::bad_input($ML{'error.invalidauth'})
-            unless $u;
-    }
+    my $u = $remote ? LJ::want_user($remote->userid) : undef;
+
+    return "<?needlogin?>" unless $u;
+
     my $max_accts = LJ::get_cap($u, "xpost_accounts");
 
     my %errs;
