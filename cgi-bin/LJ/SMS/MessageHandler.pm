@@ -22,9 +22,7 @@ sub handle {
 
     # this is the master switch, not a code ref... if it's set we
     # won't even attempt to save/process SMS messages
-    if ($LJ::DISABLED{sms}) {
-        die "SMS globally disabled\n";
-    }
+    die "SMS globally disabled\n" unless LJ::is_enabled('sms');
 
     # save msg to the db
     $msg->save_to_db

@@ -130,7 +130,7 @@ sub link_bar
     $$headref .= "<link href='$LJ::SITEROOT/go.bml?${jargent}itemid=$itemid&amp;dir=prev' rel='Previous' />\n";
 
     # memories
-    unless ($LJ::DISABLED{'memories'}) {
+    if ( LJ::is_enabled('memories') ) {
         push @linkele, $mlink->("$LJ::SITEROOT/tools/memadd.bml?${jargent}itemid=$itemid", "memadd");
     }
 
@@ -144,13 +144,13 @@ sub link_bar
     }
 
     # edit tags
-    unless ($LJ::DISABLED{tags}) {
+    if ( LJ::is_enabled('tags') ) {
         if (defined $remote && LJ::Tags::can_add_tags($u, $remote)) {
             push @linkele, $mlink->("$LJ::SITEROOT/edittags.bml?${jargent}itemid=$itemid", "edittags");
         }
     }
 
-    unless ($LJ::DISABLED{'tellafriend'}) {
+    if ( LJ::is_enabled('tellafriend') ) {
         push @linkele, $mlink->("$LJ::SITEROOT/tools/tellafriend.bml?${jargent}itemid=$itemid", "tellfriend")
             if ($entry->can_tellafriend($remote));
     }
@@ -2658,13 +2658,13 @@ sub enter_comment {
     LJ::Talk::update_commentalter($journalu, $itemid);
 
     # fire events
-    unless ($LJ::DISABLED{esn}) {
+    if ( LJ::is_enabled('esn') ) {
         my $cmtobj = LJ::Comment->new($journalu, jtalkid => $jtalkid);
         my @jobs;
 
         push @jobs, LJ::Event::JournalNewComment->new($cmtobj)->fire_job;
         push @jobs, LJ::Event::UserNewComment->new($cmtobj)->fire_job
-            if $cmtobj->poster && ! $LJ::DISABLED{'esn-userevents'};
+            if $cmtobj->poster && LJ::is_enabled('esn-userevents');
         push @jobs, LJ::EventLogRecord::NewComment->new($cmtobj)->fire_job;
 
         my $sclient = LJ::theschwartz();
@@ -3458,12 +3458,12 @@ sub edit_comment {
     LJ::mark_user_active($comment_obj->poster, 'comment');
 
     # fire events
-    unless ($LJ::DISABLED{esn}) {
+    if ( LJ::is_enabled('esn') ) {
         my @jobs;
 
         push @jobs, LJ::Event::JournalNewComment->new($comment_obj)->fire_job;
         push @jobs, LJ::Event::UserNewComment->new($comment_obj)->fire_job
-            if $comment_obj->poster && ! $LJ::DISABLED{'esn-userevents'};
+            if $comment_obj->poster && LJ::is_enabled('esn-userevents');
         push @jobs, LJ::EventLogRecord::NewComment->new($comment_obj)->fire_job;
 
         my $sclient = LJ::theschwartz();

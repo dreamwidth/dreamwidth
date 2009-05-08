@@ -220,7 +220,7 @@ sub parse_module_embed {
 sub module_iframe_tag {
     my ($class, $u, $moduleid, %opts) = @_;
 
-    return '' if $LJ::DISABLED{embed_module};
+    return '' unless LJ::is_enabled('embed_module');
 
     my $journalid = $u->userid;
     $moduleid += 0;
@@ -372,7 +372,7 @@ sub module_content {
     LJ::text_uncompress(\$content) if $content =~ s/^C-//;
 
     # clean js out of content
-    unless ($LJ::DISABLED{'embedmodule-cleancontent'}) {
+    if ( LJ::is_enabled('embedmodule-cleancontent') ) {
         LJ::CleanHTML::clean(\$content, {
             addbreaks => 0,
             tablecheck => 0,

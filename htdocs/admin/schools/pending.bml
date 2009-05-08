@@ -10,7 +10,7 @@ body<=
     my $err = sub { return "<?h1 Error h1?><?p $_[0] p?>"; };
 
     return $err->('The Schools Directory is currently disabled due to maintenance.')
-        if $LJ::DISABLED{'schools'};
+        unless LJ::is_enabled('schools');
 
     my %ierr;
     my $bogus = sub {

@@ -14,7 +14,7 @@ body<=
     my $u = LJ::load_user($remote->{'user'});
 
     return "This feature is currently disabled."
-        if $LJ::DISABLED{mass_privacy};
+        unless LJ::is_enabled('mass_privacy');
 
     unless ($u->get_cap('mass_privacy')) {
         return "<?standout $ML{'.unable'} standout?>";

@@ -25,7 +25,7 @@
 
  my $sth;
 
- if ($LJ::DISABLED{'tellafriend'}) {
+ unless ( LJ::is_enabled('tellafriend') ) {
      $body .= BML::ml( ".error.disabled" );
      return;
  }

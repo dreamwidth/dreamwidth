@@ -55,7 +55,7 @@ $maint{'genstats'} = sub
                    my $db = $db_getter->();
                    return undef unless $db;
 
-                   return {} if $LJ::DISABLED{'interests-popular'};
+                   return {} unless LJ::is_enabled('interests-popular');
 
                    # see what the previous min was, then subtract 20% of max from it
                    my ($prev_min, $prev_max) = $db->selectrow_array("SELECT MIN(statval), MAX(statval) " .
@@ -90,7 +90,7 @@ $maint{'genstats'} = sub
                    my $db = $db_getter->();
                    return undef unless $db;
 
-                   return {} if $LJ::DISABLED{'clientversionlog'};
+                   return {} unless LJ::is_enabled('clientversionlog');
 
                    my $usertotal = $db->selectrow_array("SELECT MAX(userid) FROM user");
                    my $blocks = LJ::Stats::num_blocks($usertotal);

@@ -201,7 +201,7 @@ sub render_body {
                        userpic_preview();
                  };
         $$picform .= "insertViewThumbs()"
-            if (!$LJ::DISABLED{userpicselect} && $u->get_cap('userpicselect'));
+            if LJ::is_enabled('userpicselect') && $u->get_cap('userpicselect');
         $$picform .= "</script>\n";
 
     } elsif (!$u)  {

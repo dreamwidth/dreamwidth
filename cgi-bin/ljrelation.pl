@@ -189,7 +189,7 @@ sub load_rel_target_cache
 # </LJFUNC>
 sub _get_rel_memcache {
     return undef unless @LJ::MEMCACHE_SERVERS;
-    return undef if $LJ::DISABLED{memcache_reluser};
+    return undef unless LJ::is_enabled('memcache_reluser');
 
     my ($userid, $targetid, $type) = @_;
     return undef unless $userid && $targetid && defined $type;

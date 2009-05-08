@@ -8,7 +8,7 @@ body<=
 
     $title = 'Manage Message Settings';
 
-    return "Not ready" if $LJ::DISABLED{'esn'};
+    return "Not ready" unless LJ::is_enabled('esn');
 
     use Class::Autouse qw(LJ::NotificationMethod LJ::Event);
 

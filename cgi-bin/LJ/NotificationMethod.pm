@@ -108,7 +108,7 @@ sub all_available_methods {
     croak "all_classes is a class method" unless $class;
 
     return grep {
-        ! $LJ::DISABLED{$_} &&
+        LJ::is_enabled($_) &&
         $_->configured
     } @LJ::NOTIFY_TYPES;
 }

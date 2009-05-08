@@ -105,7 +105,7 @@ body<=
         $dbh ||= LJ::get_db_writer();
 
         # log this faq view
-        if ($remote && ! $LJ::DISABLED{faquses}) {
+        if ( $remote && LJ::is_enabled('faquses') ) {
             $dbh->do("REPLACE INTO faquses (faqid, userid, dateview) ".
                      "VALUES (?, ?, NOW())", undef, $faqid,
                      $remote->{'userid'});

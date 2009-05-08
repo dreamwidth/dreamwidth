@@ -470,7 +470,7 @@ sub clean
             elsif ($tag eq "style") {
                 my $style = $p->get_text("/style");
                 $p->get_tag("/style");
-                unless ($LJ::DISABLED{'css_cleaner'}) {
+                if ( LJ::is_enabled('css_cleaner') ) {
                     my $cleaner = LJ::CSS::Cleaner->new;
                     $style = $cleaner->clean($style);
                     LJ::run_hook('css_cleaner_transform', \$style);
@@ -648,7 +648,7 @@ sub clean
                             }
                         }
 
-                        if ($opts->{'clean_js_css'} && ! $LJ::DISABLED{'css_cleaner'}) {
+                        if ( $opts->{'clean_js_css'} && LJ::is_enabled('css_cleaner') ) {
                             # and then run it through a harder CSS cleaner that does a full parse
                             my $css = LJ::CSS::Cleaner->new;
                             $hash->{style} = $css->clean_property($hash->{style});

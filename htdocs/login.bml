@@ -294,7 +294,7 @@
             } else {
                 push @errors, [ purged_user => "$ML{'error.purged.text'}" ] if $u->is_expunged;
                 push @errors, [ community_disabled_login => "$ML{'error.nocommlogin'}" ]
-                    if $u->{'journaltype'} eq 'C' && $LJ::DISABLED{'community-logins'};
+                    if $u->{'journaltype'} eq 'C' && ! LJ::is_enabled('community-logins');
             }
 
             if (LJ::get_cap($u, "readonly")) {

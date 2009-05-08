@@ -316,7 +316,7 @@ sub _get_memcache_keyword_counts {
 
     # Loop over our memcache results, get counts and total them as we go
     my (%output_counts, @missing_keys);
-    my $memcache_counts = $LJ::DISABLED{'memkwcnt_memcaching'} ? {} : LJ::MemCache::get_multi(map { [$userid, $_] } @memcache_keys);
+    my $memcache_counts = LJ::is_enabled('memkwcnt_memcaching') ? LJ::MemCache::get_multi(map { [$userid, $_] } @memcache_keys) : {};
     foreach my $memcache_key (@memcache_keys) {
         my $counts = $memcache_counts->{$memcache_key};
         if ($counts) { # Add these memcache counts to totals

@@ -129,7 +129,7 @@ sub handler
         }
 
         # reload libraries that might've changed
-        if ($LJ::IS_DEV_SERVER && !$LJ::DISABLED{'module_reload'}) {
+        if ( $LJ::IS_DEV_SERVER && LJ::is_enabled('module_reload') ) {
             my %to_reload;
             while (my ($file, $mod) = each %LJ::LIB_MOD_TIME) {
                 my $cur_mod = (stat($file))[9];
@@ -675,9 +675,9 @@ sub trans
                 or return 404;
 
             my ($type, $nodeid) =
-                $LJ::DISABLED{'named_permalinks'} ? () :
+                LJ::is_enabled('named_permalinks') ?
                 $u->selectrow_array("SELECT nodetype, nodeid FROM urimap WHERE journalid=? AND uri=?",
-                                    undef, $u->{userid}, $key);
+                                    undef, $u->{userid}, $key) : ();
             if ($type eq "L") {
                 $ljentry = LJ::Entry->new($u, ditemid => $nodeid);
                 if ($GET{'mode'} eq "reply" || $GET{'replyto'} || $GET{'edit'}) {

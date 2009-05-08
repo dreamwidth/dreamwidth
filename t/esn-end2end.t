@@ -10,7 +10,7 @@ use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
 
-if ($LJ::DISABLED{esn}) {
+unless ( LJ::is_enabled('esn') ) {
     plan skip_all => "ESN is disabled: set $LJ::DISABLED{esn}=0 to run this test.";
     exit 0;
 }

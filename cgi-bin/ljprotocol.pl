@@ -460,7 +460,7 @@ sub sendmessage
 {
     my ($req, $err, $flags) = @_;
 
-    return fail($err, 315) if $LJ::DISABLED{user_messaging};
+    return fail($err, 315) unless LJ::is_enabled('user_messaging');
 
     return undef unless authenticate($req, $err, $flags);
     my $u = $flags->{'u'};
@@ -625,7 +625,7 @@ sub login
 
     ## update or add to clientusage table
     if ($req->{'clientversion'} =~ /^\S+\/\S+$/ &&
-        ! $LJ::DISABLED{'clientversionlog'})
+        LJ::is_enabled('clientversionlog'))
     {
         my $client = $req->{'clientversion'};
 
@@ -1500,8 +1500,8 @@ sub postevent
     my @jobs;  # jobs to add into TheSchwartz
 
     # notify weblogs.com of post if necessary
-    if (!$LJ::DISABLED{'weblogs_com'} && $u->{'opt_weblogscom'} && LJ::get_cap($u, "weblogscom") &&
-        $security eq "public" && !$req->{'props'}->{'opt_backdated'}) {
+    if ( LJ::is_enabled('weblogs_com') && $u->{'opt_weblogscom'} && LJ::get_cap($u, "weblogscom") &&
+        ($security eq "public") && !$req->{'props'}->{'opt_backdated'} ) {
         push @jobs, TheSchwartz::Job->new_from_array("LJ::Worker::Ping::WeblogsCom", {
             'user' => $u->{'user'},
             'title' => $u->{'journaltitle'} || $u->{'name'},
@@ -1539,7 +1539,7 @@ sub postevent
     # but still fire the logging events
     unless ( $flags->{nonotify} ) {
         push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
-        push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if (!$LJ::DISABLED{'esn-userevents'} || $LJ::_T_FIRE_USERNEWENTRY);
+        push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if ( LJ::is_enabled('esn-userevents') || $LJ::_T_FIRE_USERNEWENTRY );
         push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;        
     }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
@@ -2000,7 +2000,7 @@ sub getevents
     }
     elsif ($req->{'selecttype'} eq "syncitems")
     {
-        return fail($err,506) if $LJ::DISABLED{'syncitems'};
+        return fail($err,506) unless LJ::is_enabled('syncitems');
         my $date = $req->{'lastsync'} || "0000-00-00 00:00:00";
         return fail($err,203,"Invalid syncitems date format")
             unless ($date =~ /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/);
@@ -2386,7 +2386,7 @@ sub syncitems
     my ($req, $err, $flags) = @_;
     return undef unless authenticate($req, $err, $flags);
     return undef unless check_altusage($req, $err, $flags);
-    return fail($err,506) if $LJ::DISABLED{'syncitems'};
+    return fail($err,506) unless LJ::is_enabled('syncitems');
 
     my $ownerid = $flags->{'ownerid'};
     my $uowner = $flags->{'u_owner'} || $flags->{'u'};

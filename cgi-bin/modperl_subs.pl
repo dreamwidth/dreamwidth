@@ -178,7 +178,7 @@ DirectoryIndex index.html index.bml
 });
     }
 
-    unless ($LJ::DISABLED{ignore_htaccess}) {
+    if ( LJ::is_enabled('ignore_htaccess') ) {
         LJ::ModPerl::add_httpd_config(qq{
 
 <Directory />

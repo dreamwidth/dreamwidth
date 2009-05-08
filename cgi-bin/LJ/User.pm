@@ -995,7 +995,7 @@ sub note_activity {
     return undef unless @LJ::MEMCACHE_SERVERS;
 
     # Also disable via config flag
-    return undef if $LJ::DISABLED{active_user_tracking};
+    return undef unless LJ::is_enabled('active_user_tracking');
 
     my $now    = time();
     my $uid    = $u->{userid}; # yep, lazy typist w/ rsi
@@ -1276,7 +1276,7 @@ sub note_transition {
     my ($u, $what, $from, $to) = @_;
     croak "invalid user object" unless LJ::isu($u);
 
-    return 1 if $LJ::DISABLED{user_transitions};
+    return 1 unless LJ::is_enabled('user_transitions');
 
     # we don't want to insert if the requested transition is already
     # the last noted one for this user... in that case there has been
@@ -1575,7 +1575,7 @@ sub can_use_stylealwaysmine {
     my $u = shift;
     my $ret = 0;
 
-    return 0 if $LJ::DISABLED{stylealwaysmine};
+    return 0 unless LJ::is_enabled('stylealwaysmine');
     $ret = LJ::run_hook("can_use_stylealwaysmine", $u);
     return $ret;
 }
@@ -2187,7 +2187,7 @@ sub show_thread_expander {
 
 sub _lazy_migrate_infoshow {
     my ($u) = @_;
-    return 1 if $LJ::DISABLED{infoshow_migrate};
+    return 1 unless LJ::is_enabled('infoshow_migrate');
 
     # 1) column exists, but value is migrated
     # 2) column has died from 'user')
@@ -4537,7 +4537,7 @@ sub can_use_ebox_ui {
     my $u = shift;
     my $allow_ebox = 1;
 
-    if ($LJ::DISABLED{ebox_option}) {
+    unless ( LJ::is_enabled('ebox_option') ) {
         $allow_ebox = $u->prop('journal_box_entries');
     }
 
@@ -4668,7 +4668,7 @@ sub revert_style {
 sub show_control_strip {
     my $u = shift;
 
-    LJ::run_hook('control_strip_propcheck', $u, 'show_control_strip') unless $LJ::DISABLED{control_strip_propcheck};
+    LJ::run_hook('control_strip_propcheck', $u, 'show_control_strip') if LJ::is_enabled('control_strip_propcheck');
 
     my $prop = $u->raw_prop('show_control_strip');
     return 0 if $prop =~ /^off/;
@@ -4682,7 +4682,7 @@ sub show_control_strip {
 sub view_control_strip {
     my $u = shift;
 
-    LJ::run_hook('control_strip_propcheck', $u, 'view_control_strip') unless $LJ::DISABLED{control_strip_propcheck};
+    LJ::run_hook('control_strip_propcheck', $u, 'view_control_strip') if LJ::is_enabled('control_strip_propcheck');
 
     my $prop = $u->raw_prop('view_control_strip');
     return 0 if $prop =~ /^off/;
@@ -4854,7 +4854,7 @@ sub message_url {
     my $u = shift;
     croak "invalid user object passed" unless LJ::isu($u);
 
-    return undef if $LJ::DISABLED{user_messaging};
+    return undef unless LJ::is_enabled('user_messaging');
     return "$LJ::SITEROOT/inbox/compose.bml?user=$u->{'user'}";
 }
 
@@ -6019,7 +6019,7 @@ sub get_remote
     # keep track of activity for the user we just loaded from db/memcache
     # - if necessary, this code will actually run in Apache's cleanup handler
     #   so latency won't affect the user
-    if (@LJ::MEMCACHE_SERVERS && ! $LJ::DISABLED{active_user_tracking}) {
+    if ( @LJ::MEMCACHE_SERVERS && LJ::is_enabled('active_user_tracking') ) {
         push @LJ::CLEANUP_HANDLERS, sub { $u->note_activity('A') };
     }
 
@@ -7935,7 +7935,7 @@ sub bad_password_redirect {
     my $remote = LJ::get_remote();
     return undef unless $remote;
 
-    return undef if $LJ::DISABLED{'force_pass_change'};
+    return undef unless LJ::is_enabled('force_pass_change');
 
     return undef unless $remote->prop('badpassword');
 
@@ -8497,7 +8497,7 @@ sub make_journal
 
         # error if disabled
         return $error->("Sorry, the tag system is currently disabled.", "404 Not Found")
-            if $LJ::DISABLED{tags};
+            unless LJ::is_enabled('tags');
 
         # throw an error if we're rendering in S1, but not for renamed accounts
         return $error->("Sorry, tag filtering is not supported within S1 styles.", "404 Not Found")

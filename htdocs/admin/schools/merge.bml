@@ -12,7 +12,7 @@ body<=
     };
 
     return $err->('The Schools Directory is currently disabled due to maintenance.')
-        if $LJ::DISABLED{'schools'};
+        unless LJ::is_enabled('schools');
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;

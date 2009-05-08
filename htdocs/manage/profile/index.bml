@@ -30,8 +30,8 @@ body<=
 
     # The settings used on this page
     my @settings = ();
-    push @settings, "LJ::Setting::UserMessaging" unless $LJ::DISABLED{'user_messaging'};
-    push @settings, "LJ::Setting::FindByEmail" unless $LJ::DISABLED{'opt_findbyemail'};
+    push @settings, "LJ::Setting::UserMessaging" if LJ::is_enabled('user_messaging');
+    push @settings, "LJ::Setting::FindByEmail" if LJ::is_enabled('opt_findbyemail');
 
     my $dbr = LJ::get_db_reader();
     my $sth;
@@ -191,7 +191,7 @@ body<=
         $ret .= "</td></tr>\n";
 
         # schools
-        unless ( $LJ::DISABLED{schools} ) {
+        if ( LJ::is_enabled('schools') ) {
             $ret .= "<tr><td class='field_name'>$ML{'.fn.schools'}</td><td>";
 
             $ret .= "$ML{'.schools'}:  ";
@@ -336,7 +336,7 @@ body<=
         if ($u->is_person) {
 
         # opt_findbyemail
-        unless ($LJ::DISABLED{'opt_findbyemail'}) {
+        if ( LJ::is_enabled('opt_findbyemail') ) {
             $ret .= "<tr><td class='field_name'>" .
                     LJ::Setting::FindByEmail->label . "</td><td>";
             $ret .= LJ::Setting::FindByEmail->as_html($u);
@@ -344,7 +344,7 @@ body<=
         }
 
         # opt_usermsg
-        unless ($LJ::DISABLED{'user_messaging'}) {
+        if ( LJ::is_enabled('user_messaging') ) {
             $ret .= "<tr><td class='field_name'>" . BML::ml('.section.usermessaging', { siteabbrev => $LJ::SITENAMEABBREV } ) ."</td><td>";
             $ret .= LJ::Setting::UserMessaging->as_html($u);
             $ret .= "</td></tr>\n";
@@ -371,7 +371,7 @@ body<=
 )
 
         {
-            next if $p->[0] eq "ljtalk" && $LJ::DISABLED{ljtalk};
+            next if $p->[0] eq "ljtalk" && ! LJ::is_enabled('ljtalk');
 
             $ret .= "<tr><td class='field_name'>$p->[1]</td><td>";
             unless ($p->[0] eq "ljtalk") {

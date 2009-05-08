@@ -47,21 +47,21 @@ sub render_body {
     $message_button = qq{
         <form action="./compose.bml" method="GET">
         <input type="submit" value="<?_ml inbox.menu.new_message.btn _ml?>" style="width: 100%">
-        </form>} unless $LJ::DISABLED{user_messaging};
+        </form>} if LJ::is_enabled('user_messaging');
 
 
     $body .= qq{
             $message_button
             <div class="folders"><p>
             <a href="." id="esn_folder_all"><?_ml inbox.menu.all _ml?>$unread_all</a>};
-    $body .= qq{<a href=".?view=usermsg_recvd" class="subs" id="esn_folder_usermsg_recvd"><?_ml inbox.menu.messages _ml?>$unread_usermsg_recvd</a>} unless $LJ::DISABLED{user_messaging};
+    $body .= qq{<a href=".?view=usermsg_recvd" class="subs" id="esn_folder_usermsg_recvd"><?_ml inbox.menu.messages _ml?>$unread_usermsg_recvd</a>} if LJ::is_enabled('user_messaging');
     $body .= qq{<a href=".?view=friendplus" class="subs" id="esn_folder_friendplus"><?_ml inbox.menu.friend_updates _ml?>$unread_friend</a>
             <a href=".?view=birthday" class="subsubs" id="esn_folder_birthday"><?_ml inbox.menu.birthdays _ml?></a>
             <a href=".?view=befriended" class="subsubs" id="esn_folder_befriended"><?_ml inbox.menu.new_friends _ml?></a><a href=".?view=entrycomment" class="subs" id="esn_folder_entrycomment"><?_ml inbox.menu.entries_and_comments _ml?>$unread_entrycomment</a>
             <span class="subs">---</span>
             <a href=".?view=bookmark" class="subs" id="esn_folder_bookmark"><?_ml inbox.menu.bookmarks _ml?> <img src="$LJ::IMGPREFIX/flag_on.gif" width="12" height="14" border="0" /></a>};
-    $body .= qq{<a href=".?view=usermsg_sent" class="subs" id="esn_folder_usermsg_sent"><?_ml inbox.menu.sent _ml?>$unread_usermsg_sent</a>\n} unless $LJ::DISABLED{user_messaging};
-    $body .= qq{<a href=".?view=archived" class="subs" id="esn_folder_archived"><?_ml inbox.menu.archive _ml?></a>\n} unless $LJ::DISABLED{esn_archive};
+    $body .= qq{<a href=".?view=usermsg_sent" class="subs" id="esn_folder_usermsg_sent"><?_ml inbox.menu.sent _ml?>$unread_usermsg_sent</a>\n} if LJ::is_enabled('user_messaging');
+    $body .= qq{<a href=".?view=archived" class="subs" id="esn_folder_archived"><?_ml inbox.menu.archive _ml?></a>\n} if LJ::is_enabled('esn_archive');
     $body .= qq{
             </p></div>&nbsp;<br />
     };

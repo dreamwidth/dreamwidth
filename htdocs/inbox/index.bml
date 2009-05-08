@@ -51,7 +51,7 @@ body<=
 
     # Take a supplied filter but default it to undef unless it is valid
     my $view = $POST{view} || $GET{view} || undef;
-    $view = undef if ($view eq 'archive' && $LJ::DISABLED{esn_archive});
+    $view = undef if ($view eq 'archive' && ! LJ::is_enabled('esn_archive'));
     $view = undef if ($view && !LJ::NotificationInbox->can("${view}_items"));
 
     # Bolds the selected View/Folder

@@ -133,7 +133,7 @@ sub valid_stylesheet_url {
 
     my $cleanit = sub {
         # allow tag, if we're doing no css cleaning
-        return 1 if $LJ::DISABLED{'css_cleaner'};
+        return 1 unless LJ::is_enabled('css_cleaner');
 
         # remove tag, if we have no CSSPROXY configured
         return 0 unless $LJ::CSSPROXY;
@@ -1152,7 +1152,7 @@ sub entry_form {
                                 stc/ups.css
                                 js/datasource.js
                                 js/selectable_table.js
-                                )) if ! $LJ::DISABLED{userpicselect} && $remote->get_cap('userpicselect');
+                                )) if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
 
                 $out .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
                 $out .= "\n";
@@ -1247,7 +1247,7 @@ sub entry_form {
                                         @pickws) . "\n";
                 $out .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
                 # userpic browse button
-                $$onload .= " insertViewThumbs();" if ! $LJ::DISABLED{userpicselect} && $remote->get_cap('userpicselect');
+                $$onload .= " insertViewThumbs();" if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
                 $out .= LJ::help_icon_html("userpics", "", " ") . "\n";
                 $out .= "</p>\n\n";
 
@@ -1301,7 +1301,7 @@ sub entry_form {
     $out .= "<li class='image'><a href='javascript:void(0);' onclick='InOb.handleInsertImage();' title='"
         . BML::ml('fckland.ljimage') . "'>" . BML::ml('entryform.insert.image2') . "</a></li>\n";
     $out .= "<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='Embed Media'>"
-        . "Embed Media</a></li>\n" unless $LJ::DISABLED{embed_module};
+        . "Embed Media</a></li>\n" if LJ::is_enabled('embed_module');
     $out .= "</ul>\n";
     my $format_selected = $opts->{'prop_opt_preformatted'} || $opts->{'event_format'} ? "checked='checked'" : "";
     $out .= "<span id='linebreaks'><input type='checkbox' class='check' value='preformatted' name='event_format' id='event_format' $format_selected  />
@@ -1376,7 +1376,7 @@ RTE
         ### Options
 
             # Tag labeling
-            unless ($LJ::DISABLED{tags}) {
+            if ( LJ::is_enabled('tags') ) {
                 $out .= "<p class='pkg'>";
                 $out .= "<label for='prop_taglist' class='left options'>" . BML::ml('entryform.tags') . "</label>";
                 $out .= LJ::html_text(
@@ -1943,7 +1943,7 @@ sub entry_form_security_widget {
 sub entry_form_tags_widget {
     my $ret = '';
 
-    return '' if $LJ::DISABLED{tags};
+    return '' unless LJ::is_enabled('tags');
 
     $ret .= LJ::html_text({
                               'name'      => 'prop_taglist',

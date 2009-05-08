@@ -18,7 +18,7 @@ use strict;
 #          return value of LJ::Tags::get_usertags -- undef on failure
 # </LJFUNC>
 sub get_usertagsmulti {
-    return {} if $LJ::DISABLED{tags};
+    return {} unless LJ::is_enabled('tags');
 
     # options if provided
     my $opts = {};
@@ -263,7 +263,7 @@ sub _get_usertagsmulti {
 # returns: Hashref; key being tag id, value being a large hashref (FIXME: document)
 # </LJFUNC>
 sub get_usertags {
-    return {} if $LJ::DISABLED{tags};
+    return {} unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift)
         or return undef;
@@ -319,7 +319,7 @@ TAG:    foreach my $tagid (keys %$res) {
 # returns: Hashref; { jitemid => { tagid => tagname, tagid => tagname, ... }, ... }
 # </LJFUNC>
 sub get_logtags {
-    return {} if $LJ::DISABLED{tags};
+    return {} unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     return undef unless $u;
@@ -350,7 +350,7 @@ sub get_logtags {
 #          { tagid => tagname, ... }
 # </LJFUNC>
 sub get_logtagsmulti {
-    return {} if $LJ::DISABLED{tags};
+    return {} unless LJ::is_enabled('tags');
 
     # get parameter (only one!)
     my $idsbycluster = shift;
@@ -456,7 +456,7 @@ sub get_logtagsmulti {
 # returns: 1 if allowed, 0 if not, undef on error
 # </LJFUNC>
 sub can_add_tags {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my $remote = LJ::want_user(shift);
@@ -481,7 +481,7 @@ sub can_add_tags {
 # returns: 1 if allowed, 0 if not, undef on error
 # </LJFUNC>
 sub can_control_tags {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my $remote = LJ::want_user(shift);
@@ -535,7 +535,7 @@ sub _remote_satisfies_permission {
 # </LJFUNC>
 sub get_permission_levels {
     return { add => 'none', control => 'none' }
-        if $LJ::DISABLED{tags};
+        unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     return undef unless $u;
@@ -673,7 +673,7 @@ sub get_security_breakdown {
 # returns: 1 on success, undef on error
 # </LJFUNC>
 sub update_logtags {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my $jitemid = shift() + 0;
@@ -970,7 +970,7 @@ sub update_logtags {
 # returns: undef on error; 1 on success
 # </LJFUNC>
 sub delete_logtags {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my $jitemid = shift() + 0;
@@ -993,7 +993,7 @@ sub delete_logtags {
 # returns: undef on error; 1 on success
 # </LJFUNC>
 sub reset_cache {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     while (my ($u, $jitemid) = splice(@_, 0, 2)) {
         next unless
@@ -1031,7 +1031,7 @@ sub reset_cache {
 # returns: undef on error, else a hashref of { keyword => tagid } for each keyword defined
 # </LJFUNC>
 sub create_usertag {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my $kw = shift;
@@ -1111,7 +1111,7 @@ sub validate_tag {
 # returns: undef on error, 1 for success, 0 for tag not found
 # </LJFUNC>
 sub delete_usertag {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     return undef unless $u;
@@ -1181,7 +1181,7 @@ sub delete_usertag {
 # returns: undef on error, 1 for success, 0 for tag not found
 # </LJFUNC>
 sub rename_usertag {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     # FIXME/TODO: make this function do merging?
 
@@ -1266,7 +1266,7 @@ sub rename_usertag {
 # returns: 1 on success, undef on error
 # </LJFUNC>
 sub set_usertag_display {
-    return undef if $LJ::DISABLED{tags};
+    return undef unless LJ::is_enabled('tags');
 
     my $u = LJ::want_user(shift);
     my ($type, $var, $val) = @_;

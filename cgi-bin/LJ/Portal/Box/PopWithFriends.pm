@@ -57,9 +57,7 @@ sub generate_content {
 
     my $LIMIT=300;
 
-    if ($LJ::DISABLED{'friendspopwithfriends'}) {
-        return 'Sorry, this feature is disabled.';
-    }
+    return 'Sorry, this feature is disabled.' unless LJ::is_enabled('friendspopwithfriends');
 
     unless (LJ::get_cap($u, "friendspopwithfriends")) {
         return BML::ml("portal.popwithfriends.accttype");

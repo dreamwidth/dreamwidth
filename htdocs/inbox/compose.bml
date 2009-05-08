@@ -11,7 +11,7 @@ body<=
                           LJ::JSUtil
                           );
 
-    return "User messaging is currently disabled" if $LJ::DISABLED{user_messaging};
+    return "User messaging is currently disabled" unless LJ::is_enabled('user_messaging');
 
     my $remote = LJ::get_remote() or return "<?needlogin?>";
     my $remote_id = $remote->{'userid'};

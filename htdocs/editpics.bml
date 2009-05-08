@@ -105,7 +105,7 @@ use strict;
             my $error;
 
             # act like the factory is disabled if no mogile
-            my $factory_disabled = $LJ::DISABLED{'userpicfactory'} || !LJ::mogclient();
+            my $factory_disabled = !LJ::is_enabled('userpicfactory') || !LJ::mogclient();
             my $mogcli = LJ::mogclient();
 
             # just return an error immediately if there's no mogile and the upload

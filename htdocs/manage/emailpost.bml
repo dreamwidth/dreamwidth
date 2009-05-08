@@ -226,7 +226,7 @@ body<=
             },
         );
 
-        if ($LJ::FB_SITEROOT && %LJ::FOTOBILDER_IP && ! $LJ::DISABLED{fb_email_docs}) {
+        if ( $LJ::FB_SITEROOT && %LJ::FOTOBILDER_IP && LJ::is_enabled('fb_email_docs') ) {
             $subject = "$ML{'.help.subject_images'}<br /><br />";
             $body    = $ML{'.help.body_images'};
             splice @topics, -1, 0,

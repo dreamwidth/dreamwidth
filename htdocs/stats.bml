@@ -78,7 +78,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
      ret => \$ret,
  });
 
- unless ($LJ::DISABLED{'stats-recentupdates'}) 
+ if ( LJ::is_enabled('stats-recentupdates') ) 
  { 
      $ret .= "<h1>$ML{'.recent.header'}</h1>";
      $ret .= "<p>$ML{'.recent.desc'}</p><ul>";
@@ -93,7 +93,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
      $ret .= "</ul> \n";
  }
 
- unless ($LJ::DISABLED{'stats-newjournals'}) 
+ if ( LJ::is_enabled('stats-newjournals') ) 
  {
      $ret .= "<h1>$ML{'.new.header'}</h1>";
      $ret .= "<p>$ML{'.new.desc'}</p><ul>";
@@ -156,7 +156,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  }
 
  # clients (if enabled)
- unless ($LJ::DISABLED{'clientversionlog'}) {
+ if ( LJ::is_enabled('clientversionlog') ) {
 
      ### sum up clients over different versions
      foreach my $c (keys %{$stat{'client'}}) {

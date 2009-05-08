@@ -29,7 +29,7 @@ body<=
     my $table = sub { $_[0]->{'journaltype'} eq 'C' ? 'comminterests' : 'userinterests' };
 
     if (!$did_post && $GET{'view'} eq "popular") {
-        return $ML{'.popular.disabled'} if $LJ::DISABLED{'interests-popular'};
+        return $ML{'.popular.disabled'} unless LJ::is_enabled('interests-popular');
         my $ret = '';
         $ret .= "<?h1 $ML{'.popular.head'} h1?><?p $ML{'.popular.text'} ";
 
@@ -127,7 +127,7 @@ body<=
     }
 
     if (!$did_post && $GET{'mode'} eq "findsim_do") {
-        return $ML{'error.tempdisabled'} if $LJ::DISABLED{'interests-findsim'};
+        return $ML{'error.tempdisabled'} unless LJ::is_enabled('interests-findsim');
 
         return $ML{'.findsim_do.account.notallowed'} unless LJ::get_cap($remote, "findsim");
 
@@ -519,7 +519,7 @@ body<=
     $ret .= "<?p $ML{'.interests.text'} p?>";
     $ret .= "<table cellspacing='5' style='margin-top: 10px; margin-left: 30px; margin-bottom: 10px;'>";
 
-    unless ($LJ::DISABLED{'interests-popular'}) {
+    if ( LJ::is_enabled('interests-popular') ) {
         $ret .= "<tr valign='top'><td colspan='2'>";
         $ret .= "<a href=\"interests.bml?view=popular\">$ML{'.interests.viewpop'}</a></td></tr>";
     }
@@ -530,7 +530,7 @@ body<=
     $ret .= LJ::html_submit(undef, $ML{'.interested.btn.find'});
     $ret .= "</form></td></tr>";
 
-    if (!$LJ::DISABLED{'interests-findsim'} && $remote && LJ::get_cap($remote, "findsim")) {
+    if ( LJ::is_enabled('interests-findsim') && $remote && LJ::get_cap($remote, 'findsim') ) {
         $ret .= "<tr valign='top'><td>$ML{'.interests.findsim'}</td><td><form method='get' action='interests.bml'>";
         $ret .= LJ::html_hidden('mode', 'findsim_do');
         $ret .= LJ::html_text({name => 'user', value => $remote->{'user'}, size => 20}) . "&nbsp;";

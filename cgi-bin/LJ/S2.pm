@@ -1856,10 +1856,10 @@ sub Entry
     $e->{'depth'} = 0;  # Entries are always depth 0.  Comments are 1+.
 
     my $link_keyseq = $e->{'link_keyseq'};
-    push @$link_keyseq, 'mem_add' unless $LJ::DISABLED{'memories'};
-    push @$link_keyseq, 'tell_friend' unless $LJ::DISABLED{'tellafriend'};
-    push @$link_keyseq, 'watch_comments' unless $LJ::DISABLED{'esn'};
-    push @$link_keyseq, 'unwatch_comments' unless $LJ::DISABLED{'esn'};
+    push @$link_keyseq, 'mem_add' if LJ::is_enabled('memories');
+    push @$link_keyseq, 'tell_friend' if LJ::is_enabled('tellafriend');
+    push @$link_keyseq, 'watch_comments' if LJ::is_enabled('esn');
+    push @$link_keyseq, 'unwatch_comments' if LJ::is_enabled('esn');
 
     # Note: nav_prev and nav_next are not included in the keyseq anticipating
     #      that their placement relative to the others will vary depending on
@@ -2232,7 +2232,7 @@ sub UserLite
     };
     my $lks = $o->{link_keyseq};
     push @$lks, qw(manage_membership trust watch post_entry track message);
-    push @$lks, 'tell_friend' unless $LJ::DISABLED{tellafriend};
+    push @$lks, 'tell_friend' if LJ::is_enabled('tellafriend');
 
     # TODO: Figure out some way to use the userinfo_linkele hook here?
 
@@ -2923,7 +2923,7 @@ sub _Comment__get_link
 
     
     if ($key eq "watch_thread" || $key eq "unwatch_thread" || $key eq "watching_parent") {
-        return $null_link if $LJ::DISABLED{'esn'};
+        return $null_link unless LJ::is_enabled('esn');
         return $null_link unless $remote && $remote->can_use_esn;
 
         if ($key eq "unwatch_thread") {
@@ -3123,7 +3123,7 @@ sub _print_quickreply_link
     }
 
     $onclick = "" unless $page->{'_type'} eq 'EntryPage';
-    $onclick = "" if $LJ::DISABLED{'s2quickreply'};
+    $onclick = "" unless LJ::is_enabled('s2quickreply');
 
     # See if we want to force them to change their password
     my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
@@ -3498,7 +3498,7 @@ sub _Entry__get_link
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/tag_edit.png", 16, 16));
     }
     if ($key eq "tell_friend") {
-        return $null_link if $LJ::DISABLED{'tellafriend'};
+        return $null_link unless LJ::is_enabled('tellafriend');
         my $entry = LJ::Entry->new($journalu->{'userid'}, ditemid => $this->{'itemid'});
         return $null_link unless $entry->can_tellafriend($remote);
         return LJ::S2::Link("$LJ::SITEROOT/tools/tellafriend.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
@@ -3506,7 +3506,7 @@ sub _Entry__get_link
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/tellafriend.png", 16, 16));
     }
     if ($key eq "mem_add") {
-        return $null_link if $LJ::DISABLED{'memories'};
+        return $null_link unless LJ::is_enabled('memories');
         return LJ::S2::Link("$LJ::SITEROOT/tools/memadd.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_mem_add"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/memories_add.png", 16, 16));
@@ -3547,7 +3547,7 @@ sub _Entry__get_link
     }
 
     if ($key eq "watch_comments") {
-        return $null_link if $LJ::DISABLED{'esn'};
+        return $null_link unless LJ::is_enabled('esn');
         return $null_link unless $remote && $remote->can_use_esn;
         return $null_link if $remote->has_subscription(
                                                        journal => LJ::load_user($journal),
@@ -3578,7 +3578,7 @@ sub _Entry__get_link
                                           'class'               => 'TrackButton'));
     }
     if ($key eq "unwatch_comments") {
-        return $null_link if $LJ::DISABLED{'esn'};
+        return $null_link unless LJ::is_enabled('esn');
         return $null_link unless $remote && $remote->can_use_esn;
         my @subs = $remote->has_subscription(
                                              journal => LJ::load_user($journal),

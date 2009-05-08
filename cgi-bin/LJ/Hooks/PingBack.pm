@@ -4,8 +4,8 @@ use LJ::PingBack;
 
 sub has_pingback {
     my $u = shift;
-    return 0 if $LJ::DISABLED{'pingback'};
-    return 0 unless $u->is_in_beta("pingback");
+    return 0 unless LJ::is_enabled('pingback');
+    return 0 unless $u->is_in_beta('pingback');
     return 1;
 }
 

@@ -170,7 +170,7 @@ body<=
 
         my $add_message = '';
 
-        unless ($LJ::DISABLED{'secret_question'}) {
+        if ( LJ::is_enabled('secret_question') ) {
             my ($redir, $ml_key, $param) = LJ::run_hook('use_secret', $u);
             return BML::redirect($redir) if $redir ne '';
 

@@ -234,7 +234,7 @@ sub process_fired_events {
 # are no subscriptions for the event.
 sub fire {
     my $self = shift;
-    return 0 if $LJ::DISABLED{'esn'};
+    return 0 unless LJ::is_enabled('esn');
 
     my $sclient = LJ::theschwartz( { role => $self->schwartz_role } );
     return 0 unless $sclient;
@@ -251,7 +251,7 @@ sub fire {
 # return undef.
 sub fire_job {
     my $self = shift;
-    return if $LJ::DISABLED{'esn'};
+    return unless LJ::is_enabled('esn');
 
     if (my $val = $LJ::DEBUG{'firings'}) {
         if (ref $val eq "CODE") {

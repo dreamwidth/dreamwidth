@@ -851,7 +851,7 @@ sub send {
     };
 
     # is SMS disabled?
-    return $err->("SMS is disabled") if $LJ::DISABLED{sms};
+    return $err->("SMS is disabled") unless LJ::is_enabled('sms');
 
     # verify type of this message
     $self->type('outgoing');
@@ -863,7 +863,7 @@ sub send {
 
     # do not send a message to a user with no quota remaining
     return $err->("no quota remaining")
-        unless $LJ::DISABLED{sms_quota_check} || $opts{no_quota} || $to_u->sms_quota_remaining || $LJ::_T_NO_SMS_QUOTA;
+        unless ! LJ::is_enabled('sms_quota_check') || $opts{no_quota} || $to_u->sms_quota_remaining || $LJ::_T_NO_SMS_QUOTA;
 
     # do not send message to this user unless they are confirmed and active
     return $err->("sms not active for user: $to_u->{user}")

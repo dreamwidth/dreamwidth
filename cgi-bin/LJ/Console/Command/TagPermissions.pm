@@ -22,7 +22,7 @@ sub execute {
     my ($self, @args) = @_;
 
     return $self->error("Sorry, the tag system is currently disabled.")
-        if $LJ::DISABLED{tags};
+        unless LJ::is_enabled('tags');
 
     return $self->error("This command takes either two or four arguments. Consult the reference.")
         unless scalar(@args) == 2 || scalar(@args) == 4;

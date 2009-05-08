@@ -712,7 +712,7 @@ sub create_view_foaf {
 
     # user schools
     if ($u->{'journaltype'} ne 'Y' &&
-        !$LJ::DISABLED{'schools'}  &&
+        LJ::is_enabled('schools')  &&
         ($u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y')) {
 
         my $schools = LJ::Schools::get_attended($u);

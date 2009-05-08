@@ -119,7 +119,7 @@ sub send_comm_invite {
     }
 
     # Fire community invite event
-    LJ::Event::CommunityInvite->new($u, $mu, $cu)->fire unless $LJ::DISABLED{esn};
+    LJ::Event::CommunityInvite->new($u, $mu, $cu)->fire if LJ::is_enabled('esn');
 
     # step 7: error check database work
     return LJ::error('db') if $u->err || $cu->err;
@@ -414,7 +414,7 @@ sub approve_pending_member {
     unless ($u->has_subscription(%params)) {
         $u->subscribe(%params, method => 'Email');
     }
-    LJ::Event::CommunityJoinApprove->new($u, $cu)->fire unless $LJ::DISABLED{esn};
+    LJ::Event::CommunityJoinApprove->new($u, $cu)->fire if LJ::is_enabled('esn');
 
     return 1;
 }
@@ -445,7 +445,7 @@ sub reject_pending_member {
     unless ($u->has_subscription(%params)) {
         $u->subscribe(%params, method => 'Email');
     }
-    LJ::Event::CommunityJoinReject->new($u, $cu)->fire unless $LJ::DISABLED{esn};
+    LJ::Event::CommunityJoinReject->new($u, $cu)->fire if LJ::is_enabled('esn');
 
     return 1;
 }

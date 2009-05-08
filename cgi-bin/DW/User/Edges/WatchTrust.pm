@@ -138,7 +138,7 @@ sub _add_wt_edge {
 
     # fire notifications if we have theschwartz
     if ( my $sclient = LJ::theschwartz() ) {
-        my $notify = !$LJ::DISABLED{esn} &&
+        my $notify = LJ::is_enabled('esn') &&
             !$from_u->equals( $to_u ) &&
             $from_u->is_visible &&
             ( $from_u->is_personal || $from_u->is_identity ) &&
@@ -217,7 +217,7 @@ sub _del_wt_edge {
 
     # fire notifications if we have theschwartz
     if ( my $sclient = LJ::theschwartz() ) {
-        my $notify = !$LJ::DISABLED{esn} &&
+        my $notify = LJ::is_enabled('esn') &&
             !$from_u->equals( $to_u ) &&
             $from_u->is_visible &&
             ( $from_u->is_personal || $from_u->is_identity ) &&

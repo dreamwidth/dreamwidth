@@ -546,7 +546,7 @@ sub process {
     # pass along debugging information from the schwartz job
     $note->{_debug_headers} = $self->{_debug_headers} if $LJ::DEBUG{esn_email_headers};
 
-    return 1 if $self->etypeid == LJ::Event::OfficialPost->etypeid && $LJ::DISABLED{"officialpost_esn"};
+    return 1 if $self->etypeid == LJ::Event::OfficialPost->etypeid && ! LJ::is_enabled('officialpost_esn');
 
     # significant events (such as SecurityAttributeChanged) must be processed even for inactive users.
     return 1

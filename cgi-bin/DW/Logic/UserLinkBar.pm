@@ -393,7 +393,7 @@ sub tellafriend {
     my $remote = $self->{remote};
     my $user = $u->user;
 
-    if ( $remote && $u->{journaltype} ne 'I' && ! $LJ::DISABLED{tellafriend} )
+    if ( $remote && $u->{journaltype} ne 'I' && LJ::is_enabled('tellafriend') )
     {
         my $link = {
             url => "tools/tellafriend.bml?user=$user",

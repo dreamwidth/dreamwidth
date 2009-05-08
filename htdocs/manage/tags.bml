@@ -9,7 +9,7 @@ body<=
     LJ::set_active_crumb('managetags');
 
     return "<?h1 $ML{'Error'} h1?><?p $ML{'/edittags.bml.disabled'} p?>"
-        if $LJ::DISABLED{tags};
+        unless LJ::is_enabled('tags');
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;

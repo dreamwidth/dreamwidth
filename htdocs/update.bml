@@ -203,7 +203,7 @@
             'remote' => $remote,
             'spellcheck_html' => $spellcheck_html,
             'clientversion' => "WebUpdate/2.0.0",
-            'richtext' => $LJ::DISABLED{'richtext'} ? 0 : 1,
+            'richtext' => LJ::is_enabled('richtext'),
             'richtext_default' => $remote ? $remote->new_entry_editor eq 'rich' ? 1 : 0  # User setting
                                           : $LJ::DEFAULT_EDITOR       eq 'rich' ? 1 : 0, # Site default
             'include_insert_object' => $GET{'insobj'},
@@ -554,7 +554,7 @@ head<=
     # Setup draft saving and try to restore from a draft
     # unless we did a post action
     my $initDraft = '';
-    if ($remote && !$LJ::DISABLED{'update_draft'}) {
+    if ( $remote && LJ::is_enabled('update_draft') ) {
         # While transforms aren't considered posts, we don't want to
         # prompt the user to restore from a draft on a transform
         if (!LJ::did_post()) {

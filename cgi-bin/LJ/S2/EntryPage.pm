@@ -71,7 +71,7 @@ sub EntryPage
                     stc/lj_base.css
                     js/datasource.js
                     js/selectable_table.js
-                    )) if ! $LJ::DISABLED{userpicselect} && $remote && $remote->get_cap('userpicselect');
+                    )) if LJ::is_enabled('userpicselect') && $remote && $remote->get_cap('userpicselect');
 
     LJ::need_res(qw(
                     js/x_core.js
@@ -263,10 +263,10 @@ sub EntryPage
             my $link_keyseq = $s2com->{'link_keyseq'};
             push @$link_keyseq, $s2com->{'screened'} ? 'unscreen_comment' : 'screen_comment';
             push @$link_keyseq, $s2com->{'frozen'} ? 'unfreeze_thread' : 'freeze_thread';
-            push @$link_keyseq, "watch_thread" unless $LJ::DISABLED{'esn'};
-            push @$link_keyseq, "unwatch_thread" unless $LJ::DISABLED{'esn'};
-            push @$link_keyseq, "watching_parent" unless $LJ::DISABLED{'esn'};
-            unshift @$link_keyseq, "edit_comment" if LJ::is_enabled("edit_comments");
+            push @$link_keyseq, "watch_thread" if LJ::is_enabled('esn');
+            push @$link_keyseq, "unwatch_thread" if LJ::is_enabled('esn');
+            push @$link_keyseq, "watching_parent" if LJ::is_enabled('esn');
+            unshift @$link_keyseq, "edit_comment" if LJ::is_enabled('edit_comments');
 
             $s2com->{'thread_url'} = LJ::Talk::talkargs($permalink, "thread=$dtalkid", $style_arg) . "#t$dtalkid";
 
