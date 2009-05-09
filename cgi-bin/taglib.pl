@@ -788,7 +788,8 @@ sub update_logtags {
     }
 
     # now we can create the new tags, since we know we're safe
-    LJ::Tags::create_usertag($u, $_, { display => 1 }) foreach @to_create;
+    # We still need to propagate ignore_max, as create_usertag does some checks of it's own.
+    LJ::Tags::create_usertag( $u, $_, { display => 1, ignore_max => $opts->{ignore_max} } ) foreach @to_create;
 
     # %add and %delete are accurate, but we need to track necessary
     # security updates; this is a hash of keyword ids and a modification
