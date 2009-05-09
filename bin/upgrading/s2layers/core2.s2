@@ -2613,11 +2613,8 @@ function generate_background_css (
 "Take the values for the properties in a background image group and output the appropriate
 line of CSS for inclusion in your stylesheet."
 {
-    if (not defined $background_color) {
-        $background_color = "auto";
-    }
-
-    var string background_css = "background: $background_color";
+    var string color = ($background_color.as_string != "") ? $background_color.as_string : "transparent";
+    var string background_css = "background: $color";
 
     if ($background_image != "") {
         $background_css = $background_css + " url($background_image) $background_image_repeat $background_image_position";
