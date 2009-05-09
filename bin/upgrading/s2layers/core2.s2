@@ -2881,7 +2881,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
                 }
                 else {
                     # There have already been tiers added at this level
-                    println """</li><li $item_class>$tier_code""";
+                    println """</li>\n<li $item_class>$tier_code""";
                 }
             }
             else {
@@ -2953,7 +2953,7 @@ function print_module_list(string[] list) {
     if (size $list) {
         println """<ul class="module-list">""";
         foreach var string s ($list) {
-            print safe """<li class="module-list-item">$s</li> """;
+            print safe """<li class="module-list-item">$s</li>\n """;
         }
         println """</ul>""";
     }
@@ -3590,7 +3590,7 @@ function Entry::print_tags() [fixed] {
     if ($this.tags) {
         """<div class="tag"><span class="tag-text">$*text_tags</span><ul>""";
         foreach var Tag t ($this.tags) {
-            """<li><a rel="tag" href="$t.url">$t.name</a></li>""";
+            """<li><a rel="tag" href="$t.url">$t.name</a></li>\n""";
         }
         "</ul></div>";
     }
@@ -3646,20 +3646,20 @@ function Comment::print_interaction_links()
 {
     """<ul class="comment-interaction-links">""";
     if ($this.frozen) {
-        print safe """<li class="link frozen">$*text_comment_frozen</li>""";
+        print safe """<li class="link frozen">$*text_comment_frozen</li>\n""";
     } else {
         """<li class="link reply">""";
         $this->print_reply_link({"linktext" => $*text_comment_reply});
-        """</li>""";
+        """</li>\n""";
     }
-    if ($this.parent_url != "") { print safe """<li class="link parent"><a href="$this.parent_url">$*text_comment_parent</a></li>"""; }
+    if ($this.parent_url != "") { print safe """<li class="link parent"><a href="$this.parent_url">$*text_comment_parent</a></li>\n"""; }
     if ($this.thread_url != "") {
-        print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>""";
+        print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>\n""";
         var Link expand_link = $this->get_link("expand_comments");
         if (defined $expand_link) {
             """<li class="link expand">""";
             $this->print_expand_link();
-            """</li>""";
+            """</li>\n""";
         }
     }
     """</ul>""";
@@ -3695,7 +3695,7 @@ function Entry::print_management_links()
     if ($show_interentry) {
         """<li class="link link_prev">""";
         $this->print_link_prev();
-        """</li>""";
+        """</li>\n""";
     }
     var Link link;
     foreach var string k ($.link_keyseq) {
@@ -3712,7 +3712,7 @@ function Entry::print_management_links()
     if ($show_interentry) {
         """<li class="link link_next">""";
         $this->print_link_next();
-        """</li>""";
+        """</li>\n""";
     }
     """</ul>""";
 }
@@ -3730,12 +3730,12 @@ function Entry::print_interaction_links(string target)
         if ($.comments.enabled and $ep.comment_pages.total_subitems > 0) {
             """<li class="entry-readlink">""";
                 $this.comments->print_readlink();
-            "</li>";
+            "</li>\n";
             }
         if ($.comments.enabled) {
             """<li class="entry-replylink">""";
             $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
-            "</li>";
+            "</li>\n";
         }
         "</ul>";
     } else {
@@ -3778,10 +3778,10 @@ function RecentPage::print_navigation() [fixed] {
 
     if ( not $empty ) { "<ul>"; }
     if ( $.nav.backward_url != "" ) {
-        print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>";
+        print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
     }
     if ( $.nav.forward_url != "" ) {
-        print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>";
+        print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
     }
     if ( not $empty ) { "</ul>"; }
     """
@@ -4129,7 +4129,7 @@ function MonthPage::print_navigation() [fixed] {
                     }
                     "<option value='$mei.redir_key'$sel>" + $mei.date->date_format($*lang_fmt_month_long) + "</option>";
                 }
-                "</select>\n<input type='submit' value='View' /></li>";
+                "</select>\n<input type='submit' value='View' /></li>\n";
             }
 
             if ($.next_url != "") { "\n<li class='month-forward'>[<a href='$.next_url'>&gt;&gt;&gt;</a>]</li>\n"; }
@@ -4204,10 +4204,10 @@ function DayPage::print_navigation() [fixed] {
     
     if ( not $empty ) { "<ul>"; }
     if ( $.prev_url != "" ) {
-        print safe """<li class="page-back"><a href="$.prev_url">$*text_day_prev</a></li>""";
+        print safe """<li class="page-back"><a href="$.prev_url">$*text_day_prev</a></li>\n""";
     }
     if ( $.next_url != "" ) {
-        print safe """<li class="page-forward"><a href="$.next_url">$*text_day_next</a></li>""";
+        print safe """<li class="page-forward"><a href="$.next_url">$*text_day_next</a></li>\n""";
     }
     if ( not $empty ) { "</ul>"; }
 
@@ -4239,14 +4239,14 @@ function CommentInfo::print() {
         if ($.show_readlink) {
             """<li class="entry-readlink">""";
             $this->print_readlink();
-	    "</li>";
+	    "</li>\n";
         } else {
-	    """<li class="entry-permalink"><a href="$.read_url">$*text_permalink</a></li>""";
+	    """<li class="entry-permalink"><a href="$.read_url">$*text_permalink</a></li>\n""";
         }
         if ($.show_postlink and $.enabled) {
             """<li class="entry-replylink">""";
             $this->print_postlink();
-	    "</li>";
+	    "</li>\n";
         }
         "</ul>";
 }
