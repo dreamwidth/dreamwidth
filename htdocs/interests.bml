@@ -426,26 +426,26 @@ body<=
         ### communities
         my $LIMIT = 500;
 
+        my $int_query = sub {
+            my $i = shift;  # comminterests or userinterests
+            my $q = "SELECT $i.userid FROM $i, userusage
+                     WHERE $i.intid = ? AND $i.userid = userusage.userid
+                     ORDER BY userusage.timeupdate DESC LIMIT $LIMIT";
+            my $uref = $dbr->selectall_arrayref( $q, undef, $intid );
+            return LJ::load_userids( map { $_->[0] } @$uref );
+            # can't trust LJ::load_userids to maintain sort order
+        };
+ 
         my $should_show = sub {
             my $u = shift;
-
             return $u->should_show_in_search_results( for => $remote );
         };
 
-        unless ($LJ::DISABLED{'interests-community'}) {
-            my @uids;
-            $sth = $dbr->prepare("SELECT userid FROM comminterests WHERE intid=? LIMIT $LIMIT");
-            $sth->execute($intid);
-            push @uids, $_ while $_ = $sth->fetchrow_array;
-            my @other_uids = LJ::run_hook("get_other_interested_comms", $interest, $remote);
-            foreach my $uid (@other_uids) {
-                push @uids, $uid;
-            }
-
-            my $updated = LJ::get_timeupdate_multi(@uids);
-            my $us = LJ::load_userids(@uids);
+        if ( LJ::is_enabled( 'interests-community' ) ) {
+            my $us = $int_query->( "comminterests" );
+            my $updated = LJ::get_timeupdate_multi( keys %$us );
             my @cl = sort { $updated->{$b->id} <=> $updated->{$a->id} || $a->user cmp $b->user }
-                     grep { $_ && $_->is_visible && $should_show->($_) } values %$us;
+                     grep { $_ && $_->is_visible && $should_show->( $_ ) } values %$us;
 
             my $count = @cl;
             my $list;
@@ -486,11 +486,7 @@ body<=
         }
         $ret .= " " . BML::ml('.morestuff2', {'aopts' => "href='$LJ::SITEROOT/interests.bml'"}) . "</p>";
 
-        my @uids;
-        $sth = $dbr->prepare("SELECT userid FROM userinterests WHERE intid=? LIMIT $LIMIT");
-        $sth->execute($intid);
-        push @uids, $_ while $_ = $sth->fetchrow_array;
-        my $us = LJ::load_userids(@uids);
+        my $us = $int_query->( "userinterests" );
         my @ul = grep { $_
                             && $_->is_visible              # visible users
                             && !$_->is_community           # that aren't communities
