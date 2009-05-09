@@ -1,5 +1,5 @@
 layerinfo "type" = "layout";
-layerinfo "name" = "Core 2 Testing";
+layerinfo "name" = "Tabula Rasa";
 layerinfo redist_uniq = "core2base/layout";
 
 ##===============================

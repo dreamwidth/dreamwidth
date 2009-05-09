@@ -1,4 +1,6 @@
 #NEWLAYER: core2base/testing
 layerinfo type = "theme";
-layerinfo name = "Core 2 Testing";
+layerinfo name = "Tabula Rasa Plain";
 layerinfo redist_uniq = "core2base/testing";
+
+## Plain Tabula Rasa, with only the most basic CSS applied
