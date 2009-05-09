@@ -211,7 +211,7 @@ body<=
                        stc/lj_base.css
                        js/datasource.js
                        js/selectable_table.js
-                       )) unless $LJ::DISABLED{userpicselect} || ! $remote->get_cap('userpicselect');
+                       )) if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
 
          LJ::need_res(qw(
                          js/x_core.js
@@ -798,14 +798,7 @@ body<=
         {
             $recurse_post->($recurse_post, $_, { "depth" => 0 }) foreach (@comments);
 
-            my $do_commentmanage_js = 1;
-            if ($LJ::DISABLED{'commentmanage'}) {
-                if (ref $LJ::DISABLED{'commentmanage'} eq "CODE") {
-                    $do_commentmanage_js = $LJ::DISABLED{'commentmanage'}->($remote);
-                } else {
-                    $do_commentmanage_js = 0;
-                }
-            }
+            my $do_commentmanage_js = LJ::is_enabled('commentmanage', $remote);
 
             if ($do_commentmanage_js) {
                LJ::need_res('js/commentmanage.js');

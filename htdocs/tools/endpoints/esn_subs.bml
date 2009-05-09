@@ -18,7 +18,7 @@
         });
     };
 
-    return $err->("Sorry async ESN is not enabled") if LJ::conf_test($LJ::DISABLED{esn_ajax});
+    return $err->("Sorry async ESN is not enabled") unless LJ::is_enabled('esn_ajax');
 
     # get user
     my $remote = LJ::get_remote()

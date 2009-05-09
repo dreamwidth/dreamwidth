@@ -2004,7 +2004,7 @@ sub opt_showlocation {
     $u->_lazy_migrate_infoshow;
 
     # see comments for opt_showbday
-    if ($LJ::DISABLED{infoshow_migrate} && $u->{allow_infoshow} ne ' ') {
+    unless ( LJ::is_enabled('infoshow_migrate') || $u->{allow_infoshow} eq ' ' ) {
         return $u->{allow_infoshow} eq 'Y' ? undef : 'N';
     }
     if ($u->raw_prop('opt_showlocation') =~ /^(N|Y|R|F)$/) {
@@ -2779,7 +2779,7 @@ sub opt_showbday {
     #    fall through and show their prop value
     # -- if user not migrated yet, we'll synthesize a prop
     #    value from infoshow without writing it
-    if ($LJ::DISABLED{infoshow_migrate} && $u->{allow_infoshow} ne ' ') {
+    unless ( LJ::is_enabled('infoshow_migrate') || $u->{allow_infoshow} eq ' ' ) {
         return $u->{allow_infoshow} eq 'Y' ? undef : 'N';
     }
     if ($u->raw_prop('opt_showbday') =~ /^(D|F|N|Y)$/) {
@@ -3970,7 +3970,7 @@ sub show_ljtalk {
 
     # Fail if the user wants to hide the LJ Talk field on their profile,
     # or doesn't even have the ability to show it.
-    return 0 if $u->opt_showljtalk eq 'N' || $LJ::DISABLED{'ljtalk'} || !$u->is_person;
+    return 0 unless $u->opt_showljtalk eq 'Y' && LJ::is_enabled('ljtalk') && $u->is_person;
 
     # User either decided to show LJ Talk field or has left it at the default.
     return 1 if $u->opt_showljtalk eq 'Y';
@@ -4523,8 +4523,7 @@ sub subtract_sms_quota {
 # Check to see if the user can use eboxes at all
 sub can_use_ebox {
     my $u = shift;
-
-    return ref $LJ::DISABLED{ebox} ? !$LJ::DISABLED{ebox}->($u) : !$LJ::DISABLED{ebox};
+    return LJ::is_enabled('ebox', $u);
 }
 
 
@@ -4713,15 +4712,8 @@ sub can_add_inbox_subscription {
 # can this user use ESN?
 sub can_use_esn {
     my $u = shift;
-    return 0 if $LJ::DISABLED{esn};
-    my $disable = $LJ::DISABLED{esn_ui};
-    return 1 unless $disable;
-
-    if (ref $disable eq 'CODE') {
-        return $disable->($u) ? 0 : 1;
-    }
-
-    return $disable ? 0 : 1;
+    return 0 unless LJ::is_enabled('esn');
+    return LJ::is_enabled('esn_ui', $u);
 }
 
 

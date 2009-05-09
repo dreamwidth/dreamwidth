@@ -195,8 +195,8 @@ _code?>
     return '' if $u->{'journaltype'} eq 'I';
 
     my $authas = ref $u ? "?authas=$u->{user}" : "";
-    return $LJ::DISABLED{tags} ? "" :
-           "<li><a href='/manage/tags.bml$authas' title='<?_ml .entries.tags.about _ml?>'><?_ml .entries.tags.header _ml?></a></li>";
+    return '' unless LJ::is_enabled('tags');
+    return "<li><a href='/manage/tags.bml$authas' title='<?_ml .entries.tags.about _ml?>'><?_ml .entries.tags.header _ml?></a></li>";
 
 _code?>
 <=list

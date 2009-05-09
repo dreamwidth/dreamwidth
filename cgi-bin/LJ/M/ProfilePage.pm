@@ -117,11 +117,11 @@ sub header_bar_links {
         push @ret, "<a href='$LJ::SITEROOT/tools/memories.bml?user=$user'><img src='$LJ::IMGPREFIX/silk/profile/memories.png' width='16' height='16' alt='$label' title='$label' align='middle' border='0' /></a>";
     }
 
-     unless ($LJ::DISABLED{'tellafriend'} || $pm->{u}->is_identity) {
+     if ( LJ::is_enabled('tellafriend') && !$pm->{u}->is_identity ) {
          push @ret, "<a href='$LJ::SITEROOT/tools/tellafriend.bml?user=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/silk/profile/tellafriend.png' width='16' height='16' alt='$BML::ML{'.tellafriend'}' title='$BML::ML{'.tellafriend'}' border='0' /></a>";
      }
 
-     unless ($LJ::DISABLED{'offsite_journal_search'} || ! $pm->has_journal) {
+     if ( LJ::is_enabled('offsite_journal_search') && $pm->has_journal ) {
          push @ret, "<a href='$LJ::SITEROOT/tools/search.bml?journal=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/btn_search.gif' width='22' height='20' alt='$BML::ML{'.label.searchjournal'}' title='$BML::ML{'.label.searchjournal'}' border='0' /></a>";
      }
 

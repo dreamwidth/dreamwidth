@@ -35,7 +35,7 @@ sub render_body {
 
     my $u = $user;
     return "" unless $u;
-    return "" if $LJ::DISABLED{userpicselect} && ! $u->get_cap('userpicselect');
+    return "" unless LJ::is_enabled('userpicselect') || $u->get_cap('userpicselect');
 
     my $res;
     $res = LJ::Protocol::do_request("login", {
@@ -176,7 +176,7 @@ sub render_body {
             });
             // ]]>
             </script>
-        } unless $LJ::DISABLED{userpicselect} || ! $u->get_cap('userpicselect');
+        } if LJ::is_enabled('userpicselect') && $u->get_cap('userpicselect');
 
         $$pic .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
         $$pic .= "\n";

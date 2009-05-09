@@ -450,7 +450,7 @@ body<=
             my $count = @cl;
             my $list;
 
-            my $show_comm_promos = !LJ::conf_test($LJ::DISABLED{"community_themes"});
+            my $show_comm_promos = LJ::is_enabled('community_themes');
 
             foreach (@cl) {
                 my $name = $_->{name};

@@ -22,7 +22,7 @@
     BML::noparse();
 
     return $err->("Sorry widget AJAX is not enabled")
-        if LJ::conf_test($LJ::DISABLED{widget_ajax});
+        unless LJ::is_enabled('widget_ajax');
 
     my $remote = LJ::get_remote();
 

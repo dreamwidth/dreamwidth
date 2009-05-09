@@ -460,7 +460,7 @@ sub template_file_for {
     my $self = shift;
     my %opts = @_;
 
-    return if LJ::conf_test($LJ::DISABLED{template_files});
+    return unless LJ::is_enabled('template_files');
 
     my $section      = $opts{section};
     my $lang         = $opts{lang} || 'default';

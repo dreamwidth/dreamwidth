@@ -4,20 +4,12 @@
     use vars qw(%FORM $head $body);
     use LJ::Portal::Config;
 
-    my $disabled =  $LJ::DISABLED{'portal'};
-
     my $remote = LJ::get_remote();
 
-    if (ref $disabled eq "CODE") {
-        $disabled = $disabled->($remote);
-    }
-
-    if ($disabled) {
+    unless ( LJ::is_enabled('portal', $remote) ) {
         $body = 'Sorry, the portal is disabled at this time.';
         return;
     }
-
-    my $remote = LJ::get_remote;
 
     # browser caching causes lots of issues
     $head = '<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">';
@@ -55,7 +47,7 @@
 
     # fading special effects?
     my $doFadeDefault = 1;
-    my $doFade = $LJ::DISABLED{'portal_fade'} ? 0 : $doFadeDefault;
+    my $doFade = LJ::is_enabled('portal_fade') && $doFadeDefault;
 
     # parameters for portal.js
     $head .= qq{

@@ -176,7 +176,7 @@ sub box_is_disabled {
     my LJ::Portal::Box $self = shift;
 
     my $type = $self->box_class;
-    return $LJ::DISABLED{"portal-$type"} || 0;
+    return ! LJ::is_enabled("portal-$type");
 }
 
 # getter and setter

@@ -213,7 +213,7 @@ sub is_disabled {
     my $uniq   = $class->current_uniq;
 
     return 1 unless $LJ::UNIQ_COOKIES;
-    return LJ::conf_test($LJ::DISABLED{uniq_mapping}, $remote, $uniq);
+    return ! LJ::is_enabled('uniq_mapping', $remote, $uniq);
 }
 
 sub guess_remote {

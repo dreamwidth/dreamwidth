@@ -290,14 +290,7 @@ sub EntryPage
 
     # prepare the javascript data structure to put in the top of the page
     # if the remote user is a manager of the comments
-    my $do_commentmanage_js = $p->{'multiform_on'};
-    if ($LJ::DISABLED{'commentmanage'}) {
-        if (ref $LJ::DISABLED{'commentmanage'} eq "CODE") {
-            $do_commentmanage_js = $LJ::DISABLED{'commentmanage'}->($remote);
-        } else {
-            $do_commentmanage_js = 0;
-        }
-    }
+    my $do_commentmanage_js = $p->{'multiform_on'} && LJ::is_enabled('commentmanage', $remote);
 
     # print comment info
     {

@@ -305,23 +305,8 @@ sub enqueue_as_incoming {
 # -- $u can be undef, passed opaquely to coderef if sms_ui is coderef
 sub can_use_sms {
     my ($class, $u) = @_;
-
-    # global flag, can't be coderef, turns e'rthang off
-    return 0 if $LJ::DISABLED{sms};
-
-    # ui disabling can be coderef or not... if there is
-    # no config setting at all, it must be enabled for everyone
-    my $disable = $LJ::DISABLED{sms_ui};
-    return 1 unless $disable;
-
-    # if a coderef, ask it if this given $u (can be undef)
-    # can use SMS
-    if (ref $disable eq 'CODE') {
-        return $disable->($u) ? 0 : 1;
-    }
-
-    # sms_ui is a simple flag?
-    return $disable ? 0 : 1;
+    return 0 unless LJ::is_enabled('sms');
+    return LJ::is_enabled('sms_ui', $u);
 }
 
 # is sms sending configured?

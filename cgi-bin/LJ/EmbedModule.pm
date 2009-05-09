@@ -103,7 +103,7 @@ sub parse_module_embed {
 
     return unless $postref && $$postref;
 
-    return if LJ::conf_test($LJ::DISABLED{embed_module});
+    return unless LJ::is_enabled('embed_module');
 
     # fast track out if we don't have to expand anything
     return unless $$postref =~ /lj\-embed|embed|object/i;

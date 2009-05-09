@@ -990,7 +990,7 @@ sub create_view_comments
 {
     my ($journalinfo, $u, $opts) = @_;
 
-    if (LJ::conf_test($LJ::DISABLED{latest_comments_rss}, $u)) {
+    unless ( LJ::is_enabled('latest_comments_rss', $u) ) {
         $opts->{handler_return} = 404;
         return 404;
     }

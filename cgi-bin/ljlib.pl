@@ -233,7 +233,7 @@ sub get_blob_domainid
 }
 
 sub _using_blockwatch {
-    if (LJ::conf_test($LJ::DISABLED{blockwatch})) {
+    unless ( LJ::is_enabled('blockwatch') ) {
         # Config override to disable blockwatch.
         return 0;
     }
@@ -1454,7 +1454,7 @@ sub start_request
                         js/esn.js
                         stc/esn.css
                         ))
-            unless LJ::conf_test($LJ::DISABLED{esn_ajax});
+            if LJ::is_enabled('esn_ajax');
 
         # contextual popup JS
         LJ::need_res(qw(
