@@ -728,7 +728,7 @@ body<=
             push @faqlist, ('0', "[ $faqcat{$faqcat}->{'faqcatname'} ]");
             foreach my $faq ( sort { $a->sortorder <=> $b->sortorder }
                                    @{ $faqq{$faqcat} || [] } ) {
-                my $q = $faq->question_html;
+                my $q = $faq->question_raw;
                 next unless $q;
                 $q = "... $q";
                 $q =~ s/^\s+//;
