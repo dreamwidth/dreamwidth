@@ -164,7 +164,7 @@ sub load_latest {
     my $self = shift;
     my $rows = $self->load( @_ );
     my @sorted;
-    if ( %$rows ) {
+    if ( defined $rows && %$rows ) {
         @sorted = sort { $a <=> $b } keys %$rows;
         return $rows->{$sorted[0]};
     }

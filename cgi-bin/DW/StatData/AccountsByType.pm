@@ -75,6 +75,8 @@ sub data {
 
 =head1 BUGS
 
+Total is sometimes double-counted, maybe when you have multiple runs per collection period
+
 =head1 AUTHORS
 
 Afuna <coder.dw@afunamatata.com>
