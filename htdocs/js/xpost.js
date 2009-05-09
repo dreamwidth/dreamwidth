@@ -27,6 +27,25 @@ LiveJournal.updateXpostFromJournal = function (user) {
 
 }
 
+LiveJournal.confirmDelete = function (confMessage, xpostConfMessage) {
+  // basic confirm
+  var conf = confirm(confMessage);
+  if (conf) {
+    // check to see if we have any crossposts selected
+    var xpost_button = document.getElementById("prop_xpost_check");
+    if (xpost_button != null && xpost_button.checked) {
+      var xpost_checkboxes = DOM.getElementsByTagAndClassName(document, "input", "xpost_acct_checkbox") || [];
+      var showconf2 = false;
+      for (var i=0; ! showconf2 && i < xpost_checkboxes.length; i++) {
+        showconf2 = xpost_checkboxes[i].checked;
+      }
+      if (showconf2) {
+        conf = confirm(xpostConfMessage);
+      }
+    }
+  }
+  return conf;
+}
 
 // NOTE:  this functionality is disabled; for now, we're requiring passwords
 // for external accounts.

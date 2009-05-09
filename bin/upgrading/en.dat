@@ -1136,6 +1136,8 @@ entryform.delete=Delete Entry
 
 entryform.delete.confirm=Are you sure you want to delete this entry?
 
+entryform.delete.xposts.confirm=This will also delete the selected crossposts.  Are you sure?
+
 entryform.deletespam=Delete and Mark as Spam
 
 entryform.deletespam.confirm=Are you sure you want to delete this entry and mark it as spam?

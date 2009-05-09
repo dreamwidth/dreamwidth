@@ -1835,10 +1835,13 @@ PREVIEW
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
             }
 
+            # do a double-confirm on delete if we have crossposts that
+            # would also get removed
+            my $delete_onclick = "return LiveJournal.confirmDelete('" . LJ::ejs(BML::ml('entryform.delete.confirm')) . "', '" . LJ::ejs(BML::ml('entryform.delete.xposts.confirm')) . "')";
             $out .= LJ::html_submit('action:delete', BML::ml('entryform.delete'), {
                 'disabled' => $opts->{'disabled_delete'},
                 'tabindex' => $tabindex->(),
-                'onclick' => "return confirm('" . LJ::ejs(BML::ml('entryform.delete.confirm')) . "')" }) . "&nbsp;\n";
+                'onclick' => $delete_onclick }) . "&nbsp;\n";
 
             if (!$opts->{'disabled_spamdelete'}) {
                 $out .= LJ::html_submit('action:deletespam', BML::ml('entryform.deletespam'), {
