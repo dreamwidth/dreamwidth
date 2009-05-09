@@ -80,7 +80,11 @@ sub work {
     if ($result->{success}) {
         $sclient->insert_jobs(LJ::Event::XPostSuccess->new($u, $acctid, $ditemid)->fire_job );
     } else {
-        $sclient->insert_jobs(LJ::Event::XPostFailure->new($u, $acctid, $ditemid)->fire_job );
+        $sclient->insert_jobs(
+            LJ::Event::XPostFailure->new(
+                $u, $acctid, $ditemid, ( $result->{error} || 'Unknown error message.' )
+            )->fire_job
+        );
     }
     
     $job->completed;

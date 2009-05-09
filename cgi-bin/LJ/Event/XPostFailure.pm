@@ -6,6 +6,7 @@
 #
 # Authors:
 #      Allen Petersen <allen@suberic.net>
+#      Mark Smith <mark@dreamwidth.org>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #
@@ -16,12 +17,32 @@
 package LJ::Event::XPostFailure;
 use strict;
 use base 'LJ::Event';
-use Carp qw(croak);
+use Carp qw/ croak /;
+use Storable qw/ nfreeze thaw /;
 
 sub new {
-    my ($class, $u, $ditemid, $acctid) = @_;
-    croak 'Not an LJ::User' unless LJ::isu($u);
-    return $class->SUPER::new($u, $ditemid, $acctid);
+    my ( $class, $u, $acctid, $ditemid, $errmsg ) = @_;
+    $u = LJ::want_user( $u )
+        or croak 'Invalid LJ::User object passed.';
+
+    # we're overloading the import_status table.  they won't notice.
+    my $sid = LJ::alloc_user_counter( $u, 'Z' );
+    if ( $sid ) {
+        # build the ref we'll store
+        my $optref = {
+            ditemid => $ditemid+0,
+            acctid => $acctid+0,
+            errmsg => $errmsg,
+        };
+
+        # now attempt to store it
+        $u->do( 'INSERT INTO import_status (userid, import_status_id, status) VALUES (?, ?, ?)',
+                undef, $u->id, $sid, nfreeze( $optref ) );
+        return $class->SUPER::new( $u, $sid );
+    }
+
+    # we failed somewhere
+    return undef;
 }
 
 # for this to be on for all users
@@ -35,10 +56,13 @@ sub is_significant { 1 }
 sub always_checked { 1 }
 
 
-# FIXME make this more useful, like include the failure message
 sub content {
-    my ($self) = @_;
-    return BML::ml('event.xpost.failure.content', { accountname => $self->account->displayname });
+    my $self = $_[0];
+    return BML::ml( 'event.xpost.failure.content',
+            {
+                accountname => $self->account->displayname,
+                errmsg => $self->errmsg,
+            } );
 }
 
 # the main title for the event
@@ -95,28 +119,52 @@ sub get_subscriptions {
     return $self->SUPER::get_subscriptions($u, $subid);
 }
 
+
 sub acctid {
-    return $_[0]->arg1;
+    return $_[0]->_optsref->{acctid};
 }
 
+
 sub ditemid {
-    return $_[0]->arg2;
+    return $_[0]->_optsref->{ditemid};
 }
+
+
+sub errmsg {
+    return $_[0]->_optsref->{errmsg};
+}
+
 
 # the account crossposted to
 sub account {
-    my ($self) = @_;
-    return $_[0]->{account} if $_[0]->{account};
-    $_[0]->{account} = DW::External::Account->get_external_account($self->u, $self->acctid);
-    return $_[0]->{account};
+    my $self = $_[0];
+    return $self->{account} ||=
+        DW::External::Account->get_external_account( $self->u, $self->acctid );
 }
+
 
 # the entry crossposted
 sub entry {
-    my ($self) = @_;
-    return $self->{entry} if $self->{entry};
-    $_[0]->{entry} = LJ::Entry->new($self->u, ( ditemid => $self->ditemid ));
-    return $self->{entry};
+    my $self = $_[0];
+    return $self->{entry} ||= LJ::Entry->new( $self->u, ditemid => $self->ditemid );
+}
+
+
+# load our options hashref which contains most of the information we
+# are actually interested in
+sub _optsref {
+    my $self = $_[0];
+    return $self->{_optsref} if $self->{_optsref};
+
+    my $u = $self->u;
+    my $item = $u->selectrow_array(
+        'SELECT status FROM import_status WHERE userid = ? AND import_status_id = ?',
+        undef, $u->id, $self->arg1
+    );
+    return undef
+        if $u->err || ! $item;
+
+    return $self->{_optsref} = thaw( $item );
 }
 
 
