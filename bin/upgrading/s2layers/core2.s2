@@ -3194,7 +3194,7 @@ function print_module_links() {
 
     var string[] items = [];
     foreach var UserLink link ($links) {
-        if ($link.is_heading) {
+        if ($link.is_heading and $link.title != "") {
             if ($box_open) {
                 print_module_list($items);
                 close_module();
@@ -3202,6 +3202,10 @@ function print_module_links() {
             }
             open_module("typelist", $link.title, "");
             $box_open = true;
+        }
+        if ($link.title == "") {
+             print_module_list($items);
+             $items = [];
         }
         if (not $link.is_heading and $link.title != "") {
             $items[size $items] = """<a href="$link.url">$link.title</a>""";
