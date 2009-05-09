@@ -366,7 +366,7 @@ use strict;
                                           'class' => 'radio', 'value' => 'file', 'selected' => '1', 
                                           'accesskey' => $ML{'.fromfile.key'} }) . "\n";
                 $body .= "<label for='radio_file'>$ML{'.fromfile'}</label><br />\n";
-                $body .= "<input type='file' class='file' name='userpic_0' size='22' style='margin: 0em 0em 0.5em 2em;' />\n";
+                $body .= "<input type='file' class='file' name='userpic_0' size='18' style='margin: 0em 0em 0.5em 2em;' />\n";
                 $body .= "</p>\n";
                 $body .= "<p class='pkg'>\n";
                 $body .= LJ::html_check({ 'type' => 'radio', 'name' => 'src', 'value' => 'url',
