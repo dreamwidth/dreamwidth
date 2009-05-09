@@ -208,6 +208,25 @@ body<=
     $ret .= "<form method='post' action='./'>";
     $ret .= LJ::html_hidden("userid", $u->{'userid'});
 
+    $ret .= "<?h1 $ML{'.add.byurl.title'} h1?><?p $ML{'.add.byurl.text'} p?>";
+    unless (LJ::get_cap($u, "synd_create")) {
+        my $inline;
+        if ($inline .= LJ::run_hook("cprod_inline", $u, 'Syn')) {
+            $ret .= $inline;
+        } else {
+            $ret .= "<p>".BML::ml('cprod.syn.text.v1')."</p>";
+        }
+    }
+    $ret .= "<blockquote>";
+    $ret .= "<p>$ML{'.feed.url'} <input size='40' maxlength='255' name='synurl' />";
+    $ret .= "<p><input name='action:addcustom' type='submit' value='" . LJ::ehtml($ML{'.add'}) . "' />";
+    $ret .= "</blockquote>";
+
+    $ret .= "</form>";
+
+    $ret .= "<form method='post' action='./'>";
+    $ret .= LJ::html_hidden("userid", $u->{'userid'});
+
     if (@pop) {
         $ret .= "<?h1 $ML{'.add.pop.title'} h1?><?p $ML{'.add.pop.text'} p?>";
         $ret .= "<p><table cellpadding='3' style='margin-bottom: 10px; width: 80%;'>";
@@ -235,23 +254,6 @@ body<=
         $ret .= "</td></tr>";
         $ret .= "</table>";
     }
-
-    $ret .= "</form><form method='post' action='./'>";
-    $ret .= LJ::html_hidden("userid", $u->{'userid'});
-
-    $ret .= "<?h1 $ML{'.add.byurl.title'} h1?><?p $ML{'.add.byurl.text'} p?>";
-    unless (LJ::get_cap($u, "synd_create")) {
-        my $inline;
-        if ($inline .= LJ::run_hook("cprod_inline", $u, 'Syn')) {
-            $ret .= $inline;
-        } else {
-            $ret .= "<p>".BML::ml('cprod.syn.text.v1')."</p>";
-        }
-    }
-    $ret .= "<blockquote>";
-    $ret .= "<p>$ML{'.feed.url'} <input size='40' maxlength='255' name='synurl' />";
-    $ret .= "<p><input name='action:addcustom' type='submit' value='" . LJ::ehtml($ML{'.add'}) . "' />";
-    $ret .= "</blockquote>";
 
     $ret .= "</form>";
 
