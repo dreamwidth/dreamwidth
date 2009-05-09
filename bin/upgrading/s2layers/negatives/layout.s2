@@ -17,6 +17,8 @@ propgroup presentation {
     property use layout_type;
 }
 
+set layout_type = "two-columns-right";
+
 ##===============================
 ## Journal style - colors
 ##===============================
