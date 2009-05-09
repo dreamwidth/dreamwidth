@@ -1,4 +1,22 @@
 ;; -*- coding: utf-8 -*-
+.email.add.body1=You have just been added as a maintainer of the community [[comm]] by one of the current maintainers. As the maintainer, you have the ability to control and manage the community. If you do not wish to take on this responsibility, you can remove your maintainership or transfer your community to another user.
+
+.email.add.body2.html=To manage your communities please visit <a [[aopts]]>your community management page.</a>
+
+.email.add.body2.plain=To manage your communities please visit the following URL:
+
+.email.add.subject=You have been added as a maintainer of [[comm]]
+
+.email.close=Regards,
+
+.email.del.body=[[admin]] has removed you as a maintainer of the community [[comm]].
+
+.email.del.subject=Maintainership removal: [[comm]]
+
+.email.hello=Dear [[site]] user [[user]],
+
+.email.signed=[[site]] Team
+
 .error.adding=[[user]] has banned this community from sending them invitations.
 
 .error.alreadyadded=[[user]] was not added because they already have access to this community.
@@ -16,6 +34,8 @@
 .error.noattr=No attributes selected for user: [[user]]
 
 .error.nocomm=Community not found.
+
+.error.nomaint=Your community, [[comm]], must have at least one maintainer. Please <a [[aopts]]>go back</a> and add a maintainer.
 
 .error.notactive=Account is not active: <b>[[user]]</b>
 
