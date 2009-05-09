@@ -147,7 +147,8 @@
                $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $user });
                $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $user });
             }
-            $body .= "<?p $ML{'.confirm.text1.person'} p?>";
+            $body .= "<?p $ML{'.confirm.text1.person'} p?>"
+                if $remote->can_trust( $u ) && $remote->can_watch( $u );
         }
     } elsif ( $trusted || $watched ) {
         $windowtitle = BML::ml( '.confirm.title.person', { user => $user } );
