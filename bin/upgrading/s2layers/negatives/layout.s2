@@ -70,6 +70,18 @@ set color_module_link_active = "#222222";
 set color_module_link_hover = "#ffffff";
 
 ##===============================
+## Journal style - images
+##===============================
+
+propgroup images {
+    property use image_background_page_group;
+    property use image_background_header_group;
+    property use image_background_header_height;
+    property use image_background_entry_group;
+    property use image_background_module_group;
+}
+
+##===============================
 ## Display settings - modules
 ##===============================
 
@@ -153,7 +165,13 @@ set comment_management_links = "text";
 #Prints the stylesheet
 function print_stylesheet()
 {
-
+    var string page_background = generate_background_css($*image_background_page_url,$*image_background_page_repeat,$*image_background_page_position,$*color_page_background);
+    var string header_background = generate_background_css($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, new Color);
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position,$*color_entry_background);
+    var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position,$*color_module_background);
+    if ($*image_background_header_height > 0) {
+        $header_background = $header_background + "\n        height: " + $*image_background_header_height + "px;";
+    }
 """
     * {
         font-size: 101%;
@@ -163,7 +181,7 @@ function print_stylesheet()
         padding: 0;
         font-family: $*font_base, $*font_fallback;
         font-size: 0.9em;
-        background-color: $*color_page_background;
+        $page_background
         color:$*color_page_text;
         }
     a {
@@ -182,15 +200,14 @@ function print_stylesheet()
         border: 0!important;
         }
     #header {
+        border-top: 0!important;
+        border-bottom: 5px double $*color_module_border;
+        $header_background
     }
     .module-section-two {
-        border-top: 0!important;
-        background-color: $*color_module_background;
-        border-bottom: 5px double $*color_module_border;
     }
     .module-section-three {
         border-bottom: 0!important;
-        background-color: $*color_module_background;
         border-top: 5px double $*color_module_border;
     }
     #footer {
@@ -218,7 +235,7 @@ function print_stylesheet()
         padding-bottom: 10px;
         width: 15%;
         font-size: 0.80em;
-        background-color: $*color_module_background;
+        $module_background
         color: $*color_module_text;
         }
     #secondary a, #secondary a:visited {
@@ -244,7 +261,6 @@ function print_stylesheet()
         text-align: center;
     }
     .module {
-        background-color: $*color_module_background;
         letter-spacing:.3em;
         padding: 0.5em 0;
     }
@@ -258,7 +274,7 @@ function print_stylesheet()
         min-height: 110px;
         border:5px solid $*color_entry_border;
         padding: 5px;
-        background-color: $*color_entry_background;
+        $entry_background;
         color: $*color_entry_text;
     }
     .comment-wrapper.partial , .partial .comment { 
