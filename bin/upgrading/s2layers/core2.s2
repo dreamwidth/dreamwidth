@@ -1800,10 +1800,18 @@ property string text_module_tags {
     example = "My tags";
 }
 
+property string text_module_popular_tags {
+    des = "Text for the 'Most Popular Tags' heading in the navigation area (used when there are more tags than shown)";
+    maxlength = 50;
+    size = 20;
+    example = "Most Popular Tags";
+}
+
 set text_module_links = "Links";
 set text_module_pagesummary = "Page Summary";
 set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
+set text_module_popular_tags = "Most Popular Tags";
 
 ##===============================
 ## Text - entry comment-related
@@ -3083,8 +3091,14 @@ function print_module_pagesummary() {
 }
 function print_module_tags() {
     var Page p = get_page();
-    var string title = $*text_module_tags;
+    var string title = "";
     var TagDetail[] tags = $p->visible_tag_list($*module_tags_opts_limit);
+    if ($*module_tags_opts_limit == 0) {
+       $title = $*text_module_tags;
+    }
+    else {
+       $title = $*text_module_popular_tags;
+    }
     if (size($tags) < 1) {
         return;
     }
