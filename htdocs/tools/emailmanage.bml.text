@@ -29,6 +29,8 @@ attacker's email address.
 
 .desc.title=Description
 
+.in_use_since=is in use since [[time]] 
+
 .log.deleted=Deleted: [[email]] @ [[time]]
 
 .log.deleted.title=Changes Saved

@@ -31,10 +31,17 @@ body<=
         AND oldvalue=?
     }, undef, $u->{'userid'}, $u->email_raw);
 
-    my $lastdate = $dbh->selectrow_array(qq{
+    my $lastdate_email = $dbh->selectrow_array(qq{
         SELECT MAX(timechange) FROM infohistory
-        WHERE userid=? AND (what='email' OR what='emaildeleted')
+        WHERE userid=? AND (what='email' OR what='emaildeleted' AND length(other)<=2)
     }, undef, $u->{'userid'});
+
+    my $lastdate_deleted = $dbh->selectrow_array(qq{
+        SELECT MAX(SUBSTRING(other FROM 3)) FROM infohistory
+        WHERE userid=? AND what='emaildeleted'
+    }, undef, $u->{'userid'});
+
+    my $lastdate = defined $lastdate_deleted ? ($lastdate_email gt $lastdate_deleted ? $lastdate_email : $lastdate_deleted) : $lastdate_email;
 
     # current address was set more, than 6 months ago?
     my $six_month_case = time() - str2time($lastdate) > 182 * 24 * 3600; # half year
@@ -55,8 +62,8 @@ body<=
                                        { 'email' => $email,
                                          'time' => $time });
 
-                $dbh->do("UPDATE infohistory SET what='emaildeleted' WHERE what='email' " .
-                         "AND userid=? AND timechange=? AND oldvalue=?",
+                $dbh->do("UPDATE infohistory SET what='emaildeleted', other=CONCAT(other, ';', timechange), timechange = NOW() " .
+                         "WHERE what='email' AND userid=? AND timechange=? AND oldvalue=?",
                          undef, $u->{'userid'}, $time, $email);
             }            
         }
@@ -85,7 +92,10 @@ body<=
     # current address
     $ret .= "<?h1 $ML{'.address.current.title'} h1?>\n";
     $ret .= "<div style='margin: 20px 0 20px 30px;'><b>";
-    $ret .= $u->email_raw . "</b></div>\n";
+    $ret .= $u->email_raw . "</b>";
+    $ret .= " " . BML::ml('.in_use_since', { 'time' => $lastdate })
+        if $lastdate;
+    $ret .= "</div>\n";
 
     # old addresses
     $ret .= "<?h1 $ML{'.address.old.title'} h1?>\n";
