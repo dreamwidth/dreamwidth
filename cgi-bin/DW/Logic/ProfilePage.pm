@@ -377,7 +377,16 @@ sub _basic_info_birthday {
         my $bdate = $u->prop( 'bdate' );
         if ( $bdate && $bdate ne "0000-00-00" ) {
             $ret->[0] = LJ::Lang::ml( '.label.birthdate' );
-            $ret->[1] = $u->bday_string;
+            my ($year, $mon, $day) = split /-/, $bdate;
+            my $moname = LJ::Lang::month_short_ml( $mon );
+            $day += 0;
+            if ( $u->bday_string =~ /\d+-\d+-\d+/ ) {
+                $ret->[1] = "$moname $day, $year";
+            } elsif ( $u->bday_string =~ /\d+-\d+/ ) {
+                $ret->[1] = "$moname $day";
+            } else {
+                $ret->[1] = $u->bday_string;
+            }
         }
     }
 
