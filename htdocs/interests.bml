@@ -503,6 +503,7 @@ body<=
 
         $ret .= "<div style='text-align: center'>$navbar</div><br />";
         $ret .= $results;
+        $ret .= "<div style='text-align: center; clear: both'>$navbar</div><br />";
 
         return $ret;
     }
