@@ -61,16 +61,23 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  $ret .= "<h1>$ML{'.gender.header'}</h1>";
  $ret .= "<p>$ML{'.gender.desc'}</p><ul>";
  {
-     my $male = $stat{'gender'}->{'M'}+0;
-     my $female = $stat{'gender'}->{'F'}+0;
-     my $other = $stat{'gender'}->{'O'}+0;
-     my $tot = $male+$female+$other;
-     $tot ||= 1;
-     $ret .= "<li><b>$ML{'.gender.female'} </b> $female (" . sprintf("%0.1f", $female*100/($tot||1)) . "%)</li>";
-     $ret .= "<li><b>$ML{'.gender.male'} </b> $male (" . sprintf("%0.1f", $male*100/($tot||1)) . "%)</li>";
-     $ret .= "<li><b>$ML{'.gender.other'} </b> $other (" . sprintf("%0.1f", $other*100/($tot||1)) . "%)</li>";
+     my $male   = $stat{ gender }->{ M } + 0;
+     my $female = $stat{ gender }->{ F } + 0;
+     my $other  = $stat{ gender }->{ O } + 0;
+     my $unspec = $stat{ gender }->{ U } + 0;
+
+     my $tot = ($male + $female + $other + $unspec) || 1;
+
+     my $fpc = sprintf( "%0.1f", $female * 100 / $tot );
+     my $mpc = sprintf( "%0.1f", $male   * 100 / $tot );
+     my $opc = sprintf( "%0.1f", $other  * 100 / $tot );
+     my $upc = sprintf( "%0.1f", $unspec * 100 / $tot );
+
+     $ret .= "<li><b>$ML{'.gender.female'} </b> $female ($fpc%)</li>";
+     $ret .= "<li><b>$ML{'.gender.male'} </b> $male ($mpc%)</li>";
+     $ret .= "<li><b>$ML{'.gender.other'} </b> $other ($opc%)</li>";
+     $ret .= "<li><b>$ML{'.gender.unspecified'} </b> $unspec ($upc%)</li>";
  }
-     $ret .= "<li><b>$ML{'.gender.unspecified'} </b> " . ($stat{'gender'}->{'U'}+0) . "</li>";
      $ret .= "</ul>\n";
 
  LJ::run_hook('statspage', {
