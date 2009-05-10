@@ -98,7 +98,10 @@ sub handle_post {
     return ( ret => $class->ml( 'widget.importchoosesource.error.nohostname' ) )
         unless $hn;
 
-    my $un = $post->{username};
+    # be sure to sanitize the username
+    my $un = lc $post->{username};
+    $un =~ s/-/_/g;
+
     my $pw = $post->{password};
     return ( ret => $class->ml( 'widget.importchoosesource.error.nocredentials' ) )
         unless $un && $pw;
