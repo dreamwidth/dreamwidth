@@ -144,11 +144,13 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  # ages
  my %age = ();
  my $maxage = 1;
+ my $lowage = 13;
+ my $highage = 119;  # given db floor of 1890 (as of 2009)
  foreach my $key (keys %{$stat{'age'}}) {
      $age{$key} = $stat{'age'}->{$key};
-     if ($stat{'age'}->{$key} > $maxage) { $maxage = $stat{'age'}->{$key}; }
+     $maxage = $age{$key} if $age{$key} > $maxage;
  }
- my @ages = grep { $_ >= 13  && $_ <= 55 } sort { $a <=> $b } sort keys %age;
+ my @ages = grep { $_ >= $lowage  && $_ <= $highage } sort { $a <=> $b } keys %age;
  if (@ages) {
      $ret .= "<h1>$ML{'.age.header'}</h1>";
      $ret .= "<p>$ML{'.age.desc'}</p>";
@@ -156,7 +158,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
      my $lastage = 0;
      foreach my $age (@ages) {
          my $width = int(400 * $age{$age}/$maxage);
-         $ret .= "<tr><td align='right'><b>$age</b></td><td>$age{$age}</td><td><img src=\"/img/bluedot.gif\" height='10' width='$width' /></td></tr>\n";
+         $ret .= "<tr><td align='right'><b>$age&nbsp;</b></td><td>$age{$age}&nbsp;</td><td><img src=\"/img/bluedot.gif\" height='10' width='$width' /></td></tr>\n";
          $lastage = $_;
      }
      $ret .= "</table>\n";
