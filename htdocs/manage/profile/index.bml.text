@@ -99,6 +99,8 @@
 
 .fn.friendof="Friend of" list
 
+.fn.subscriberof=Subscriber list
+
 .fn.gender=Gender
 
 .fn.imservices2=Instant Messaging
@@ -136,6 +138,8 @@
 .fn.zip=ZIP Code
 
 .friendof=Show other users who have friended you, but you have not friended
+
+.subscriberof=Show subscribers of the community
 
 .gender.female=Female
 
@@ -180,6 +184,8 @@
 .section.description=Community Description
 
 .section.friends=Friends
+
+.section.members=Members
 
 .section.id=Identity
 

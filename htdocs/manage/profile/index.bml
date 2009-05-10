@@ -459,21 +459,38 @@ body<=
         }
 
         ## FRIENDS
-        $ret .= "<div class='section_head'>$ML{'.section.friends'}</div>\n";
+        if ($u->is_community) {
+            $ret .= "<div class='section_head'>$ML{'.section.members'}</div>\n";
+        }
+        else {
+            $ret .= "<div class='section_head'>$ML{'.section.friends'}</div>\n";
+        }
 
         $ret .= "<table class='field_block'>\n";
 
         # opt_showmutualfriends
-        $ret .= "<tr><td class='field_name'><label for='opt_showmutualfriends'>$ML{'.fn.mutualfriends'}</label></td><td>";
-        $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_showmutualfriends', 'id' => 'opt_showmutualfriends',
+        unless ($u->is_community) {
+            $ret .= "<tr><td class='field_name'><label for='opt_showmutualfriends'>$ML{'.fn.mutualfriends'}</label></td><td>";
+            $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_showmutualfriends', 'id' => 'opt_showmutualfriends',
                                  'selected' => $u->{'opt_showmutualfriends'} });
-        $ret .= " <label for='opt_showmutualfriends'>$ML{'.mutualfriends'}</label></td></tr>\n";
+            $ret .= " <label for='opt_showmutualfriends'>$ML{'.mutualfriends'}</label></td></tr>\n";
+       } 
 
         # opt_hidefriendofs
-        $ret .= "<tr><td class='field_name'><label for='opt_hidefriendofs'>$ML{'.fn.friendof'}</label></td><td>";
+        if ($u->is_community) {
+            $ret .= "<tr><td class='field_name'><label for='opt_hidefriendofs'>$ML{'.fn.subscriberof'}</label></td><td>";
+        }
+        else {
+            $ret .= "<tr><td class='field_name'><label for='opt_hidefriendofs'>$ML{'.fn.friendof'}</label></td><td>";
+        }
         $ret .= LJ::html_check({ 'type' => 'check', 'name' => 'opt_hidefriendofs', 'id' => 'opt_hidefriendofs',
                                  'selected' => ! $u->{'opt_hidefriendofs'} });
-        $ret .= " <label for='opt_hidefriendofs'>$ML{'.friendof'}</label></td></tr>\n";
+        if ($u->is_community) {
+            $ret .= " <label for='opt_hidefriendofs'>$ML{'.subscriberof'}</label></td></tr>\n";
+        }
+        else { 
+            $ret .= " <label for='opt_hidefriendofs'>$ML{'.friendof'}</label></td></tr>\n";
+        }
 
         $ret .= "</table>\n";
 
