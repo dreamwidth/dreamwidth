@@ -70,6 +70,9 @@ sub RecentPage
     if ($skip < 0) { $skip = 0; }
     if ($skip > $maxskip) { $skip = $maxskip; }
 
+    # honor ?style=mine
+    my $mine = $get->{'style'} eq "mine" ? "mine" : "";
+
     # do they want to view all entries, regardless of security?
     my $viewall = 0;
     my $viewsome = 0;
@@ -189,13 +192,12 @@ sub RecentPage
             $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
         }
 
-        my $nc = "";
-        $nc .= "nc=$replycount" if $replycount && $remote && $remote->prop('opt_nctalklinks');
-
         my $permalink = "$journalbase/$ditemid.html";
-        my $readurl = $permalink;
-        $readurl .= "?$nc" if $nc;
+        my $nc = $replycount if $replycount && $remote && $remote->prop('opt_nctalklinks');
         my $posturl = $permalink . "?mode=reply";
+        my $readurl = LJ::make_link( $permalink, { style => $mine,
+                                                   s2id  => LJ::eurl( $get->{s2id} ) || "",
+                                                   nc    => $nc || "" } );
 
         my $comments_enabled = ($u->{'opt_showtalklinks'} eq "Y" && ! $logprops{$itemid}->{'opt_nocomments'}) ? 1 : 0;
         my $has_screened = ($logprops{$itemid}->{'hasscreened'} && LJ::can_manage($remote, $u)) ? 1 : 0;
@@ -268,9 +270,12 @@ sub RecentPage
         my $newskip = $skip - $itemshow;
         $newskip = 0 if $newskip <= 0;
         $nav->{'forward_skip'} = $newskip;
-        $nav->{'forward_url'} = LJ::make_link("$p->{base_url}/", { skip     => ($newskip                   || ""),
-                                                                   tag      => (LJ::eurl($get->{tag})      || ""),
-                                                                   security => (LJ::eurl($get->{security}) || "") });
+        $nav->{'forward_url'} = LJ::make_link( "$p->{'base_url'}/",
+                                { skip     => $newskip                        || "",
+                                  style    => $mine                           || "",
+                                  s2id     => LJ::eurl( $get->{s2id} )        || "",
+                                  tag      => LJ::eurl( $get->{tag} )         || "",
+                                  security => LJ::eurl( $get->{security} )    || "" } );
         $nav->{'forward_count'} = $itemshow;
         $p->{head_content} .= qq{<link rel="next" href="$nav->{forward_url}" />\n}
     }
@@ -286,9 +291,12 @@ sub RecentPage
             $nav->{'backward_url'} = "$p->{'base_url'}/$date_slashes";
         } else {
             my $newskip = $skip + $itemshow;
-            $nav->{'backward_url'} = LJ::make_link("$p->{'base_url'}/", { skip     => ($newskip                   || ""),
-                                                                          tag      => (LJ::eurl($get->{tag})      || ""),
-                                                                          security => (LJ::eurl($get->{security}) || "") });
+            $nav->{'backward_url'} = LJ::make_link( "$p->{'base_url'}/",
+                                     { skip     => $newskip                        || "",
+                                       style    => $mine                           || "",
+                                       s2id     => LJ::eurl( $get->{s2id} )        || "",
+                                       tag      => LJ::eurl( $get->{tag} )         || "",
+                                       security => LJ::eurl( $get->{security} )    || "" } );
             $nav->{'backward_skip'} = $newskip;
         }
         $p->{head_content} .= qq{<link rel="prev" href="$nav->{backward_url}" />\n};
