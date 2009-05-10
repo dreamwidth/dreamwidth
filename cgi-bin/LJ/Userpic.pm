@@ -73,7 +73,7 @@ sub get {
 
     if (@cache) {
         foreach my $curr (@cache) {
-            return LJ::Userpic->new( $u, $curr->{picid} ) if $curr->{picid};
+            return LJ::Userpic->new( $u, $curr->{picid} ) if $curr->{picid} == $picid;
         }
     }
 
