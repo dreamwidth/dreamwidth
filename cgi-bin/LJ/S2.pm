@@ -2188,7 +2188,6 @@ sub User
     my $o = UserLite($u);
     $o->{'_type'} = "User";
     $o->{'default_pic'} = Image_userpic($u, $u->{'defaultpicid'});
-    $o->{'userpic_listing_url'} = "$LJ::SITEROOT/allpics.bml?user=".$u->{'user'};
     $o->{'website_url'} = LJ::ehtml($u->{'url'});
     $o->{'website_name'} = LJ::ehtml($u->{'urlname'});
     return $o;
@@ -2222,6 +2221,7 @@ sub UserLite
         'username' => LJ::ehtml($u->display_name),
         'name' => LJ::ehtml($u->{'name'}),
         'journal_type' => $u->{'journaltype'},
+        'userpic_listing_url' => "$LJ::SITEROOT/allpics.bml?user=".$u->{'user'},
         'data_link' => {
             'foaf' => Link("$LJ::SITEROOT/users/" . LJ::ehtml($u->{'user'}) . '/data/foaf',
                            "FOAF",
