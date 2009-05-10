@@ -39,7 +39,7 @@ body<=
         $ret .= " p?>";
 
         my $rows = LJ::Stats::get_popular_interests();
-        return "Sorry, interest data currently unavailable." unless @$rows;
+        return $ML{'.error.nodata'} unless @$rows;
 
         my %interests;
         foreach my $int_array (@$rows)
@@ -380,7 +380,7 @@ body<=
 
         my $check_int = $GET{int} || $interest;
         if (LJ::run_hook("interest_search_ignore", query => $check_int, intid => $intid)) {
-            return "<?h1 $ML{'Error'} h1?><?p Sorry, we're unable to help you find users matching the interests you've provided. p?>";
+            return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.ignored'} p?>";
         }
 
         my $e_int = LJ::ehtml($GET{int});
@@ -402,17 +402,14 @@ body<=
         $ret .= "</table>";
 
         # no results
-        return qq{
-            $ret
-                <?h1 Relevant communities h1?>
-                <?p There are no communities interested in <b>"$e_int</b>." You can
-                <a href="$LJ::SITEROOT/community/create.bml"> create one</a>! p?>
-
-                <?h1 Interested users h1?>
-                <?p There are no users interested in <b>$e_int</b>. If you are interested in this 
-                and would like to be added to this list, <a href='$LJ::SITEROOT/manage/profile/'>click here</a>. 
-                More fun stuff can be found on the <a href='$LJ::SITEROOT/interests.bml'>interests page</a>. p?>
-        } unless $interest;
+        unless ( $interest ) {
+            $ret .= "<?h1 $ML{'.nocomms.header'} h1?><?p ";
+            $ret .= BML::ml( '.nocomms.text', { 'int' => $e_int, 'aopts' => qq(href="$LJ::SITEROOT/community/create.bml") } );
+            $ret .= " p?><?h1 $ML{'.nousers.header'} h1?><?p ";
+            $ret .= BML::ml( '.nousers.text', { 'int' => $e_int, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests.bml'" } );
+            $ret .= "p?>";
+            return $ret;
+        } 
 
         $intid += 0;
 
@@ -459,10 +456,9 @@ body<=
 
                 $list .= " <small class='lastupdated'>(";
                 if ($updated->{$_->id} > 0) {
-                    $list .= "Updated ";
-                    $list .= LJ::ago_text(time() - $updated->{$_->id});
+                    $list .= BML::ml( '.lastupdated.true', { 'time' => LJ::ago_text( time() - $updated->{$_->id} ) } );
                 } else {
-                    $list .= "Never updated";
+                    $list .= BML::ml( '.lastupdated.false' );
                 }
                 $list .= ")</small>";
 
