@@ -17,9 +17,7 @@
 .clear_left {
     clear: left;
 }
-.tooltip {
-    border-bottom: 1px dotted #000;
-}
+
 
 /* start top box */
 
@@ -44,6 +42,7 @@
     font-size: 1.1em;
     padding: 0;
     padding: 2px;
+	background: #eee;
 }
 
 .actions {
@@ -59,8 +58,6 @@
         display: block;
         padding: 3px 5px;
         list-style: none;
-        border-bottom: 1px solid #ffd8d8;
-        background-color: #ecf6ff;
         line-height: 18px;
     }
     .actions a {
@@ -81,7 +78,6 @@
     .profile_addtrust_disabled, .profile_addsub_comm_disabled,
     .profile_addsub_feed_disabled, .profile_addsub_person_disabled,
     .profile_trackuser_disabled {
-        color: #999;
         font-weight: bold;
     }
 .user_details {
@@ -109,15 +105,11 @@
 }
     .details_stats p {
         font-size: 0.75em;
-        color: #666;
         font-weight: normal;
     }
     .details_stats a {
         font-weight: normal;
         font-size: 1em;
-    }
-    .details_stats .account_level {
-        color: #000;
     }
     .details_stats .journal_warnings {
         margin-top: 5px;
@@ -145,23 +137,19 @@
 .section {
     font-size: 1.1em;
     font-weight: bold;
-    border-bottom: 1px solid #ffd8d8;
-    background-color: #ecf6ff;
     margin: 10px 0 10px 0;
     padding: 2px;
-    color: #222;
     clear: both;
+	background: #eee;
 }
     .section span.section_link {
         font-size: 0.75em;
         font-weight: normal;
-        color: #000;
     }
 .section_body {
     padding: 0 20px 10px 20px;
 }
     .section_body .inner_section_header {
-        color: #444;
         font-weight: bold;
         margin: 10px 0 0 0;
     }
@@ -191,7 +179,6 @@ span.expandcollapse {
 }
 
 .section_body_title {
-    color: #444;
     font-weight: bold;
     margin: 0;
     padding: 0;
@@ -207,7 +194,6 @@ span.expandcollapse {
 }
 
 .userinfo th {
-    color: #444;
     font-weight: bold;
     text-align: right;
     padding-right: 0.3em;

@@ -7,7 +7,7 @@
     font-size: 11px;
 }
 .disabled {
-    color: #666;
+    color: #999;
 }
 
 /* Layout */
@@ -18,7 +18,7 @@
     min-width: 625px;
 }
 #settings_save {
-    background: #ffd8d8;
+    background: #eee;
     padding: 5px 7px;
 }
 
@@ -35,31 +35,30 @@
     color: #000;
     text-decoration: none;
     display: block;
-    background: #ecf6ff;
     margin-right: 5px;
     padding: 2px 7px;
     font-weight: bold;
-    border-color: #ffd8d8;
-    border-width: 2px 2px 0 2px;
-    border-style: solid;
+    background: #ddd;
+	border: 1px solid #ccc;
+	border-bottom: none;
 }
 #settings_nav li a:hover, #settings_nav li a.active {
-    background: #ffd8d8;
+    background: #eee;
 }
 #settings_nav li.disabled {
-    color: #999;
     display: block;
-    background: #efefef;
     margin-right: 5px;
     padding: 2px 7px;
     font-weight: bold;
-    border-color: #ccc;
-    border-width: 2px 2px 0 2px;
-    border-style: solid;
+    color: #999;
+    background: #efefef;
+    border: 1px solid #ccc;
+	border-bottom: none;
 }
 #settings_nav_title p {
     clear: left;
-    background: #ffd8d8;
+    background: #eee;
+	border-left: 1px solid #ccc;
     padding: 4px 10px;
     display: block;
     margin: 0;
@@ -96,7 +95,7 @@
     text-align: right;
 }
 .account_stats {
-    background: #eee;
+    /*background: #eee;*/
     padding: 5px 10px;
     line-height: 18px;
 }
@@ -123,7 +122,7 @@
 }
 .mobile td.setting_label {
     text-align: right;
-    color: #000;
+    /*color: #000;*/
 }
 .mobile_label, .mobile .help {
     vertical-align: top;

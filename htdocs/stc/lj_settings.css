@@ -1,5 +1,4 @@
 .cat_head {
-    background-color: #ddd;
     padding: 1px 5px 3px 5px;
 }
 
@@ -18,17 +17,12 @@
     white-space: nowrap;
     font-size: .9em;
     font-weight: bold;
-    color: #333;
     text-align: right;
-    background-color: #eee;
     width: 145px;
+	background: #eee;
 }
 .field_block .field_name {
     padding-top: .6em;
-}
-
-.field_desc {
-    color: #505050;
 }
 
 .helper {
@@ -52,16 +46,13 @@
     font-weight: bold;
     margin-top: 10px;
     padding: 5px;
-    color: #c1272c; 
-    background-color: #c5dff9;
-    border: 1px solid #c1272d;
+	background: #ccc;
 }
 
 .view_options {
     margin-left: 20px;
     font-size: .7em;
     font-weight: bold;
-    color: #333;
 }
 
 #contextual_help {

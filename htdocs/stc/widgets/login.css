@@ -18,7 +18,7 @@
     width: 160px;
 }
 .appwidget-login #user {
-    background: #fff url(/img/silk/identity/user.png) no-repeat 1px 50%;
+    background: #fff url(/img/userinfo.gif) no-repeat 1px 50%;
     padding-left: 18px;
     font-weight: bold;
     color: #c1272c;

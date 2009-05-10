@@ -25,9 +25,8 @@ hr {
     float: left;
     width: 300px;
     margin: 0 15px 0 0;
-    background-color: #c5dff9;
-    border: 1px solid #c1272d;
-}
+	background: #eee; }
+	
 #uploadBox-inner  {
     padding: 6px 12px;
 }

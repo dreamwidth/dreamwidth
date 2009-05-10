@@ -4,7 +4,6 @@
 .theme-selector-content h3 {
     font-style: normal;
     font-weight: normal;
-    color: #777;
     font-size: 22px;
 }
 .theme-item {
@@ -13,17 +12,11 @@
     width: 156px;
     text-align: center;
     padding: 8px;
-    border: 1px solid #fff;
     font-size: 11px;
     overflow: auto;
     height: 205px;
 }
-.theme-item.current {
-    border: 1px solid #ffd8d8;
-    background-color: #ECF6FF;
-}
 .theme-item img.theme-preview {
-    border: 1px solid #ffd8d8;
     padding: 1px;
     width: 150px;
     height: 114px;
@@ -66,36 +59,19 @@
 }
 .theme-item .theme-button {
     font-size: 11px;
-    color: #fff;
-    background: #f4717a;
-    border: 2px solid #f6828b;
-    border-bottom: 2px solid #c1272d;
-    border-right: 2px solid #c1272d;
-}
-.theme-item .theme-button-disabled {
-    background: #88CD73;
 }
 .theme-item .theme-icons {
     position: absolute;
     left: 13px;
-    border: 1px solid #ffd8d8;
-    background-color: #fff;
-    padding: 2px 5px;
     top: 99px;
 }
-.theme-item.upgrade h4,
-.theme-item.upgrade .theme-desc {
-    color: #777;
-}
+
 .theme-item.upgrade .theme-preview {
     filter:alpha(opacity=35);
     -moz-opacity:.35;
     opacity:.35;
 }
-.theme-time,
-.theme-upgrade-icon {
-    color: #333 !important;
-}
+
 .theme-upgrade-icon .theme-upgrade-level,
 .theme-time span.theme-availability {
     display: none;
@@ -116,7 +92,6 @@
 .theme-upgrade-icon:hover .theme-upgrade-level,
 .theme-time:hover span.theme-availability {
     display: block;
-    background-color: #fff;
 }
 .theme-paging {
     font-size: 11px;
@@ -131,9 +106,7 @@
 .theme-paging a {
     text-decoration: none;
 }
-.theme-paging a:visited {
-    color: #c1272c;
-}
+
 .theme-paging form {
     display: inline;
 }

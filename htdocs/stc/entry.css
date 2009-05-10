@@ -84,19 +84,14 @@
 #lj_userpicselect {
     float: left;
     font-size: 85%;
-    color: #c1272c;
     margin: 4px 0px 0px 5px;
     position: relative;
     font-size: 85%;
 }
 #lj_userpicselect_img {
     display: block;
-    border: 1px solid #fff;
     height: 100px;
     position: relative;
-}
-#lj_userpicselect_img:hover {
-    border: 1px solid #c1272c;
 }
 #lj_userpicselect_img img {
     display: block;
@@ -114,18 +109,13 @@
     text-align: center;
     left: 0;
     top: 38px; 
-    color: #c1272c !important;
     cursor: pointer;
     width: 100%;
 }
 #userpic_preview {
     width: 102px;
 }
-#userpic_preview_image.userpic_loggedout {
-    border: 1px solid #c1272c;
-}
 .userpic_preview_border {
-    border: 1px solid #ccc;
     text-align: center;
     height: 70px;
     padding-top: 30px;
@@ -151,7 +141,6 @@
     padding-left: 7.5em;
 }
 #infobox {
-    border-left: 1px solid #000;
     padding-left: 10px;
     float: right;
     margin-bottom: 10px;
@@ -168,7 +157,7 @@
     padding: 0px;
     margin: 0px;
     position: relative;
-    background: url(/img/entry-tab-bg.gif) repeat-x 0 bottom;
+	border-bottom: 1px solid #ccc;
 }
 #entry p {
     margin: 0 !important;
@@ -187,17 +176,22 @@
 #entry ul li a {
     display: block;
     padding: 8px 10px;
-    background-color: #fff;
     float: left;
     outline: none;
-    border: 1px solid #f4717a;
+	border: 1px solid #ccc;
     border-bottom: none;
 }
 #entry ul li.on {
+	
 }
 #entry ul li.on a {
     font-weight: bold;
     padding-bottom: 9px;
+	margin-bottom: -2px;
+	background: #fff;
+}
+#entry ul li.on a {
+	border-bottom: 1px solid #fff;
 }
 #metainfo, #metainfo label, #metainfo input.text, #metainfo strong {
     font-size: 14px;
@@ -212,13 +206,11 @@
     margin-bottom: 4px;
 }
 #draft-container {
-    border-left: 1px solid #bbb;
-    border-right: 1px solid #bbb;
-    border-bottom: 1px solid #bbb;
-    border-top: none;
     margin-bottom: 4px;
     position: relative;
     padding: 0px 4px 2px 4px;
+	border: 1px solid #ccc;
+    border-top: none;
 }
 * html #draft-container {
     padding: 0; 
@@ -247,7 +239,6 @@
     display: block;
     margin-bottom: 4px;
     width: 100%;
-    background-color: #fff;
 }
 .errorbar {
     margin-bottom: 10px !important;
@@ -256,10 +247,8 @@
     margin: 0 0 0 15px !important;
 }
 #spellcheck-results {
-    border: 1px solid #f4717a;
     border-top: none;
     font-size: 95%;
-    background-color: #ffffdd;
     padding: 4px 6px;
 }
 #spellcheck-results p {
@@ -268,9 +257,10 @@
 #htmltools {
     padding: 2px 2px 2px 1px;
     position: relative;
-    border-right: 1px solid #bbb;
-    border-left: 1px solid #bbb;
     margin: 0;
+	background: #fff;
+	border-right: 1px solid #ccc;
+    border-left: 1px solid #ccc;
 }
 * html #htmltools ul {
     height: 20px;
@@ -279,8 +269,8 @@
     list-style: none;
     margin: 0;
     padding: 5px 2px 5px 2px;
-    border-bottom: 1px solid #8D8D8D;
     min-height: 18px;
+	border-bottom: 1px solid #8D8D8D;
 }
 #htmltools ul li {
     float: left;
@@ -331,16 +321,14 @@
     margin: 0 !important;
 }
 #options, #public {
-    border: 1px solid #bbb;
-    background-color: #eee;
     padding: 10px;
+	background: #ddd;
 }
 #public {
     margin-top: 10px;
     position: relative;
     padding-left: 34px;
     font-size: .85em;
-    color:#666;
 }
 
 #public INPUT {
@@ -428,12 +416,11 @@
     line-height: 0;
 }
 #submitbar {
-    background-color: #ddd;
-    border: 1px solid #aaa;    
     padding: 7px 10px;
     margin-top: 10px;
     text-align: center;
     position: relative;
+	background: #eee;
 }
 #security_container {
     width: 600px;

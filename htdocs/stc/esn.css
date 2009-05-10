@@ -11,22 +11,6 @@
     clear: both;
     }
 
-.Subscribe tr.Inactive {
-    color: #aaa;
-}
-
-.Subscribe tr.Disabled {
-    background-color: #eee;
-}
-
-.Subscribe tr.altrow {
-    background-color: #f1f1f1;
-}
-
-.Subscribe tr.Inactive a {
-    color: #aaa;
-}
-
 .Subscribe td {
     padding: .3em;
 }
@@ -40,9 +24,11 @@
 }
 
 .Subscribe td p {
-    color: #666;
-    background: #fff;
     cursor: default !important;
+}
+
+.Subscribe tr.altrow {
+    background-color: #f1f1f1;
 }
 
 .CategoryRow .Caption {
@@ -56,7 +42,6 @@
 
 .CategoryRow td {
     vertical-align: middle;
-    border-bottom: 1px solid #ddd;
     padding: 2em .4em .2em .4em;
 }
 
@@ -88,19 +73,13 @@
     padding-left: .5em;
     padding-right: .5em;
 }
-#Subscriptions tr.lighter {
-    background-color: #cff;
-}
-#Subscriptions tr.darker {
-    background-color: #9cc;
-}
+
 div.argOptsContainer {
     display: none;
 }
 
 #SubscribeSaveButtons {
     text-align: center;
-    border: 1px solid #333;
     width: 150px;
     margin-left: auto;
     margin-right: auto;
@@ -129,19 +108,6 @@ div.argOptsContainer {
 .NotificationTable {
     width: 100%;
 }
-
-.NotificationTable tr.Selected {
-    background-color: #cee0fb;
-}
-
-.NotificationTable tr.Selected td {
-    border-top: 1px solid #ccc;
-}
-
-.NotificationTable td {
-    border-top: 1px solid #ddd;
-}
-
 
 #NotificationSidebar {
 
@@ -177,16 +143,15 @@ div.argOptsContainer {
 .NotificationTable .inbox {
     padding: 0;
     margin: 0em 0 0em 0;
-    border-top: 1px solid #ddd;
 }
 
 .inbox .header {
     width: 100%;
     margin: 0;
-    background: #ddd;
     vertical-align: middle;
     border: 0;
     padding: 3px;
+	background: #eee;
 }
 
 .actions {
@@ -218,31 +183,12 @@ span.Pages input {
     font-weight: bold;
     }
 
-.InboxItem_Read {
-    color: #888;
-}
-
-span.InboxItem_Read:hover {
-    color: #000;
-}
-
-span.InboxItem_Read a {
-    color: #999 !important;
-}
-span.InboxItem_Read:hover a {
-    color: inherit !important;
-}
-
 .InboxItem_Meta {
 
 }
 
 .InboxItem_Meta td {
     padding: 0 0 0 0;
-}
-
-.inbox .alt {
-    background: #f6f6f6;
 }
 
 .inbox .alt td {
@@ -258,7 +204,6 @@ span.InboxItem_Read:hover a {
     font-size: 3em;
     text-align: center;
     padding: 1em;
-    color: #ddd;
     cursor: default !important;
 }
 
@@ -275,7 +220,6 @@ span.InboxItem_Read:hover a {
 .inbox td.time {
     width: 8.5em;
     font-size: .8em;
-    color: #555;
     vertical-align: top;
     padding-top: .4em;
 }
@@ -305,11 +249,12 @@ span.InboxItem_Read:hover a {
 .folders a {
     white-space: nowrap;
     text-decoration: none;
-    color: #000;
     display: block;
     margin: 0px;
     padding: 0px 0px 1px 2px;
-    border: 1px solid #fff;
+}
+.folders a:hover {
+    background-color: #eee;
 }
 .folders a.subs {
     padding-left: 1em;
@@ -320,22 +265,11 @@ span.InboxItem_Read:hover a {
 .folders a.subsubs {
     padding-left: 2em;
 }
-.folders a:visited, .folders a:link {
-    color: #000;
-}
-.folders a:hover {
-    border: 1px solid #bbb;
-    background-color: #eee;
-}
+
 
 /**** ESN AJAX ****/
-.ippu {
-    color: #000000
-}
-
 .ippu .track_title {
     font-weight: bold;
-    color: #CC6644;
     margin: 4px;
 }
 
