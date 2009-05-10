@@ -195,6 +195,7 @@
                  'stats-recentupdates' => 0,
                  'stats-newjournals' => 0,
                  tellafriend => 0,
+                 esn_archive => 1,
                  );
 
     # turn $SERVER_DOWN on while you do any maintenance
