@@ -15,6 +15,7 @@ propgroup presentation {
     property use num_items_reading;
     property use use_journalstyle_entry_page;
     property use layout_type;
+    property use tags_page_type;
 }
 
 set layout_type = "two-columns-right";

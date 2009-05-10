@@ -1023,6 +1023,12 @@ property int num_items_reading {
 set num_items_recent = 20;
 set num_items_reading = 20;
 
+property string tags_page_type { 
+    des = "Type of tags display on tags page"; 
+    values="list|List|cloud|Cloud|multi|Multilevel"; 
+}
+set tags_page_type = "";
+
 property string[] reverse_sortorder_group {
     des = "Display entries in reverse-chronological order on my:";
     grouptype = "viewslist";
@@ -4508,7 +4514,18 @@ function TagsPage::print_body
 {
     print safe "<h2>$*text_tags_page_header</h2>";
 
-    print_multilevel_tags($.tags, { "list-class" => "ljtaglist", "text_uses" => "text_tag_uses" });
+    if ($*tags_page_type == "multi") {
+        print_multilevel_tags($.tags, { "list-class" => "ljtaglist", "text_uses" => "text_tag_uses" });
+        print_tag_manage_link();
+    }
+    elseif ($*tags_page_type == "cloud") {
+        print_cloud_tags($.tags, { "list-class" => "ljtaglist" });
+        print_tag_manage_link();
+    }
+    else {
+        print_list_tags($.tags, { "list-class" => "ljtaglist" });
+        print_tag_manage_link();
+    }
 }
 
 ### MessagePage functions

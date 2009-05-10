@@ -146,6 +146,7 @@ propgroup presentation {
     property use num_items_recent;
     property use num_items_reading;
     property use use_journalstyle_entry_page;
+    property use tags_page_type;
 }
 
 set num_items_recent = 10;
