@@ -3,6 +3,8 @@
     use strict;
     use vars qw(%GET);
 
+    return $ML{'.error.referer'} unless LJ::check_referer('/tools/userpicfactory.bml');
+
     my $remote = LJ::get_remote();
     return LJ::error_noremote() unless $remote;
 
@@ -15,7 +17,7 @@
 
     my $upf = LJ::get_upf_scaled(size => $size, userid => $u->id, mogkey => "upf_$GET{index}:$u->{userid}");
 
-    return "Error retreiving image." unless $upf;
+    return $ML{'.error.image'} unless $upf;
 
     my $blob = $upf->[0];
     my $mime = $upf->[1];
