@@ -22,7 +22,10 @@
     my $selminiclass = $GET{c};   # classname without LJ::Setting::
     my $selclass = $selminiclass ? "LJ::Setting::$selminiclass" : "";
 
-    my @settings = map { s!.+cgi-bin/!!; s!/!::!g; s/\.pm$//; $_ } ( glob "$LJ::HOME/cgi-bin/LJ/Setting/*.pm", glob "$LJ::HOME/cgi-bin/DW/Setting/*.pm" );
+    my @settings = (
+        LJ::ModuleLoader->module_subclasses( "LJ::Setting" ),
+        LJ::ModuleLoader->module_subclasses( "DW::Setting" )
+    );
 
     my $tag = lc $GET{tag};
     my %tags = ();
