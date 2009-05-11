@@ -857,7 +857,7 @@ sub common_event_validation
         $req->{'year'} < 1970 ||    # before unix time started = bad
         $req->{'year'} > 2037)      # after unix time ends = worse!  :)
     {
-        return fail($err,203,"Invalid year value.");
+        return fail($err,203,"Invalid year value (must be in the range 1970-2037).");
     }
     if ($req->{'mon'} !~ /^\d{1,2}$/ ||
         $req->{'mon'} < 1 ||
