@@ -58,7 +58,7 @@ a img, :link img, :visited img {
 body {
     font-family: Arial, Verdana, sans-serif;
     line-height: 1.25em;
-    background-color: f9f9f0;
+    background-color: #f9f9f0;
     color: #222211;
 }
 
@@ -228,9 +228,9 @@ a:active,
     border-left: 9em solid #DDDDAA;
     margin-top: 170px;
     padding: 1px 1em 1em 1.5em;
-    min-height: 45em;
+    min-height: 50em;
     height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
-      height: 45em;
+      height: 50em;
 }
 
 #content p {
