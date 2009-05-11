@@ -340,8 +340,7 @@ sub can_delete {
 sub can_screen {
     my ($remote, $u, $up, $userpost) = @_;
     return 0 unless $remote;
-    return 1 if $remote->{'user'} eq $u->{'user'} ||
-                $remote->{'user'} eq (ref $up ? $up->{'user'} : $up) ||
+    return 1 if $remote->{'user'} eq (ref $up ? $up->{'user'} : $up) ||
                 LJ::can_manage($remote, $u);
     return 0;
 }
@@ -978,8 +977,7 @@ sub load_comments
             my $should_show = $post->{'state'} eq 'D' ? 0 : 1;
             unless ($viewall) {
                 $should_show = 0 if
-                    $post->{'state'} eq "S" && ! ($remote && ($remote->{'userid'} == $u->{'userid'} ||
-                                                              $remote->{'userid'} == $uposterid ||
+                    $post->{'state'} eq "S" && ! ($remote && ($remote->{'userid'} == $uposterid ||
                                                               $remote->{'userid'} == $post->{'posterid'} ||
                                                               LJ::can_manage($remote, $u) ));
             }

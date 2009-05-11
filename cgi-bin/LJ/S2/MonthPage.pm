@@ -149,8 +149,7 @@ sub MonthPage
             'count' => $replycount,
             'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
             'enabled' => ($u->{'opt_showtalklinks'} eq "Y" && ! $logprops{$itemid}->{'opt_nocomments'}) ? 1 : 0,
-            'screened' => ($logprops{$itemid}->{'hasscreened'} && $remote &&
-                           ($remote->{'user'} eq $u->{'user'} || LJ::can_manage($remote, $u))) ? 1 : 0,
+            'screened' => ($logprops{$itemid}->{'hasscreened'} && $remote && LJ::can_manage($remote, $u)) ? 1 : 0,
         });
 
         my $userlite_poster = $userlite_journal;

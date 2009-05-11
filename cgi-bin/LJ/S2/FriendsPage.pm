@@ -285,8 +285,7 @@ sub FriendsPage
             'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
             'enabled' => ($friends{$friendid}->{'opt_showtalklinks'} eq "Y" &&
                           ! $logprops{$datakey}->{'opt_nocomments'}) ? 1 : 0,
-            'screened' => ($logprops{$datakey}->{'hasscreened'} && $remote &&
-                           ($remote->{'user'} eq $fr->{'user'} || LJ::can_manage($remote, $fr))) ? 1 : 0,
+            'screened' => ($logprops{$datakey}->{'hasscreened'} && $remote && LJ::can_manage($remote, $fr)) ? 1 : 0,
         });
         $comments->{show_postlink} = $comments->{enabled};
         $comments->{show_readlink} = $comments->{enabled} && ($replycount || $comments->{screened});

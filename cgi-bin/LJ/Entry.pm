@@ -821,10 +821,7 @@ sub comments_manageable_by {
     return 0 unless $self->valid;
     return 0 unless $remote;
     my $u = $self->{u};
-    return
-        $remote->{userid} == $u->{userid} ||
-        $remote->{userid} == $self->posterid ||
-        LJ::can_manage($remote, $u);
+    return $remote->{userid} == $self->posterid || LJ::can_manage($remote, $u);
 }
 
 # instance method:  returns bool, if remote user can view this entry

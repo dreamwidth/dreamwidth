@@ -457,8 +457,7 @@ sub EntryPage_entry
         'count' => $replycount,
         'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
         'enabled' => ($viewall || ($u->{'opt_showtalklinks'} eq "Y" && !$entry->prop("opt_nocomments"))) ? 1 : 0,
-        'screened' => ($entry->prop("hasscreened") && $remote &&
-                       ($remote->{'user'} eq $u->{'user'} || LJ::can_manage($remote, $u))) ? 1 : 0,
+        'screened' => ($entry->prop("hasscreened") && $remote && LJ::can_manage($remote, $u)) ? 1 : 0,
     });
     $comments->{show_postlink} = $comments->{enabled} && $get->{mode} ne 'reply';
     $comments->{show_readlink} = $comments->{enabled} && ($replycount || $comments->{screened}) && $get->{mode} eq 'reply';

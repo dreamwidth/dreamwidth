@@ -219,10 +219,7 @@ body<=
                          ));
     }
 
-    my $showmultiform = $remote &&
-       ($remote->{'user'} eq $u->{'user'} ||
-        $remote->{'user'} eq $up->{'user'} ||
-        LJ::can_manage($remote, $u));
+    my $showmultiform = $remote && ( $remote->{'user'} eq $up->{'user'} || LJ::can_manage($remote, $u) );
     my $multiform_selects = 0;  # are there select boxes?  don't show form if not.
 
     my $event = $item->{'event'};
