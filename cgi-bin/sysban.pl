@@ -152,7 +152,16 @@ sub sysban_check {
         # see if this domain is banned
         my @domains = split(/\./, $1);
         return 0 unless scalar @domains >= 2;
-        return 1 if $check->('email_domain', "$domains[-2].$domains[-1]");
+        my $domain = "$domains[-2].$domains[-1]";
+        return 1 if $check->('email_domain', $domain);
+        
+        # account for GMail troll tricks
+        if ( $domain eq "gmail.com" ) {
+        	my ($user) = ($value =~ /^(.+)@/);
+        	$user =~ s/\.//g;    # strip periods
+        	$user =~ s/\+.*//g;  # strip plus tags
+        	return 1 if $check->('email', "$user\@$domain");
+        }
 
         # must not be banned
         return 0;
