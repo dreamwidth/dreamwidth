@@ -1720,6 +1720,13 @@ property string text_view_memories {
     example = "My Memories";
 }
 
+property string text_view_tags {
+    des = "Text used to link to the Tags page";
+    maxlength = 20;
+    "size" = 15;
+    example = "My Tags";
+}
+
 set text_view_recent = "Recent Entries";
 set text_view_friends = "Reading";
 set text_view_friends_comm = "Reading";
@@ -1729,6 +1736,7 @@ set text_view_friendsfriends_filter = "Network (Custom filter)";
 set text_view_archive = "Archive";
 set text_view_userinfo = "Profile";
 set text_view_memories = "Memories";
+set text_view_tags = "Tags";
 
 property string text_skiplinks_back {
     des = "Text to show in a link to skip back through entries";
@@ -2429,7 +2437,7 @@ function lang_viewname(string viewid) [notags] : string
     if ($viewid == "userinfo") { return $*text_view_userinfo; }
     if ($viewid == "entry") { return "Read Comments"; }
     if ($viewid == "reply") { return "Post Comment"; }
-    if ($viewid == "tags") { return "Tags"; }
+    if ($viewid == "tags") { return "$*text_view_tags"; }
     if ($viewid == "memories") { return $*text_view_memories; }
     return "Unknown View";
 }

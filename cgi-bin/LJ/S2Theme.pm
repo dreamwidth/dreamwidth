@@ -703,6 +703,7 @@ sub navigation_props {
         text_view_memories
         text_view_recent
         text_view_userinfo
+        text_view_tags
     ) 
 }
 
@@ -721,6 +722,9 @@ sub entry_props {
         text_mem_add
         text_post_comment
         text_read_comments
+        text_post_comment_friends
+        text_read_comments_friends
+        text_permalink
         text_entry_prev
         text_entry_next
         text_tell_friend
