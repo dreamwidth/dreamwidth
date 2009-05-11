@@ -2295,6 +2295,7 @@ sub ljuser_display {
     my $profile_url = $opts->{'profile_url'} || '';
     my $journal_url = $opts->{'journal_url'} || '';
     my $display_class = $opts->{no_ljuser_class} ? "" : "class='ljuser'";
+    my $type = $u->journaltype_readable;
 
     my ($url, $name);
 
@@ -2326,7 +2327,7 @@ sub ljuser_display {
 
         my $profile = $profile_url ne '' ? $profile_url : "$LJ::SITEROOT/userinfo.bml?userid=$u->{userid}&amp;t=I$andfull";
 
-        return "<span $display_class lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'><img src='$imgurl' alt='[info]' width='$width' height='$height' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url' rel='nofollow'><b>$name</b></a></span>";
+        return "<span $display_class lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'><img src='$imgurl' alt='[info] - $type' width='$width' height='$height' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url' rel='nofollow'><b>$name</b></a></span>";
 
     } else {
         return "<b>????</b>";
@@ -6571,13 +6572,15 @@ sub ljuser
     my $profile;
 
     my $make_tag = sub {
-        my ($fil, $url, $x, $y) = @_;
+        my ($fil, $url, $x, $y, $type) = @_;
         $y ||= $x;  # make square if only one dimension given
         my $strike = $opts->{'del'} ? ' text-decoration: line-through;' : '';
 
         # Backwards check, because we want it to default to on
         my $bold = (exists $opts->{'bold'} and $opts->{'bold'} == 0) ? 0 : 1;
         my $ljusername = $bold ? "<b>$user</b>" : "$user";
+
+        my $alttext = $type ? " - $type" : "";
 
         my $link_color = "";
         # Make sure it's really a color
@@ -6588,7 +6591,7 @@ sub ljuser
         $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
         $url = $journal_url ne '' ? $journal_url : $url;
 
-        return "<span $display_class lj:user='$user' style='white-space: nowrap;$strike'><a href='$profile'><img src='$img/$fil' alt='[info]' width='$x' height='$y' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url'$link_color>$ljusername</a></span>";
+        return "<span $display_class lj:user='$user' style='white-space: nowrap;$strike'><a href='$profile'><img src='$img/$fil' alt='[info]$alttext' width='$x' height='$y' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url'$link_color>$ljusername</a></span>";
     };
 
     my $u = isu($user) ? $user : LJ::load_user($user);
@@ -6608,6 +6611,7 @@ sub ljuser
     $profile = $u->profile_url;
 
     my $type = $u->{'journaltype'};
+    my $type_readable = $u->journaltype_readable;
 
     # Mark accounts as deleted that aren't visible, memorial, locked, or read-only
     $opts->{'del'} = 1 unless $u->is_visible || $u->is_memorial || $u->is_locked || $u->is_readonly;
@@ -6620,25 +6624,25 @@ sub ljuser
         return $make_tag->($icon, $url, $size || 16) if $icon;
     }
 
-    if ($type eq 'C') {
-        return $make_tag->("comm_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('silk/identity/community.png', $url, 16);
-    } elsif ($type eq 'Y') {
-        return $make_tag->("syn_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('silk/identity/feed.png', $url, 16);
-    } elsif ($type eq 'N') {
-        return $make_tag->("news_${head_size}.gif", $url, $head_size) if $head_size;
-        return $make_tag->('silk/identity/news.png', $url, 16);
-    } elsif ($type eq 'I') {
+    if ( $type eq 'C' ) {
+        return $make_tag->( "comm_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
+        return $make_tag->( 'silk/identity/community.png', $url, 16, '', $type_readable );
+    } elsif ( $type eq 'Y' ) {
+        return $make_tag->( "syn_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
+        return $make_tag->( 'silk/identity/feed.png', $url, 16, , $type_readable );
+    } elsif ( $type eq 'N' ) {
+        return $make_tag->( "news_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
+        return $make_tag->( 'silk/identity/news.png', $url, 16, '', $type_readable );
+    } elsif ( $type eq 'I' ) {
         return $u->ljuser_display($opts);
     } else {
         if ( $u->get_cap( 'staff_headicon' ) == 1 ) {
-            return $make_tag->( "staff_${head_size}.gif", $url, $head_size ) if $head_size;
-            return $make_tag->( 'silk/identity/user_staff.png', $url, 17 );
+            return $make_tag->( "staff_${head_size}.gif", $url, $head_size, '', 'staff' ) if $head_size;
+            return $make_tag->( 'silk/identity/user_staff.png', $url, 17, '', 'staff' );
         }
         else {
-            return $make_tag->( "user_${head_size}.gif", $url, $head_size ) if $head_size;
-            return $make_tag->( 'silk/identity/user.png', $url, 17 );
+            return $make_tag->( "user_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
+            return $make_tag->( 'silk/identity/user.png', $url, 17, '', $type_readable );
         }
     }
 }
