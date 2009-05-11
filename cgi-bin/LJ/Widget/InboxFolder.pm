@@ -133,10 +133,15 @@ sub render_body {
         });
 
         # HTML for displaying bookmark flag
-        my $bookmark = $inbox->is_bookmark($qid)
-            ? "on"
-            : "off";
-        $bookmark = "<a href='$LJ::SITEROOT/inbox/?page=$page&bookmark_$bookmark=$qid'><img src='$LJ::IMGPREFIX/flag_$bookmark.gif' width='16' height='18' class='InboxItem_Bookmark' border='0' /></a>";
+        my ( $bookmark, $bookmark_alt );
+        if ( $inbox->is_bookmark($qid) ) {
+            $bookmark = "on";
+            $bookmark_alt = "<?_ml widget.inbox.notification.rem_bookmark _ml?>";
+        } else {
+            $bookmark = "off";
+            $bookmark_alt = "<?_ml widget.inbox.notification.add_bookmark _ml?>";
+        }
+        $bookmark = "<a href='$LJ::SITEROOT/inbox/?page=$page&bookmark_$bookmark=$qid'><img src='$LJ::IMGPREFIX/flag_$bookmark.gif' width='16' height='18' class='InboxItem_Bookmark' border='0' alt='$bookmark_alt' /></a>";
 
         my $when = LJ::ago_text(time() - $inbox_item->when_unixtime);
         my $contents = $inbox_item->as_html || '';
@@ -153,10 +158,19 @@ sub render_body {
             $expanded ||= $remote->prop('esn_inbox_default_expand');
             $expanded = 0 if $inbox_item->read;
 
-            my $img = $expanded ? "expand.gif" : "collapse.gif";
+            my ( $expand_img, $expand_alt );
+            if ( $expanded ) {
+                $expand_img = "expand.gif";
+                $expand_alt = "<?_ml widget.inbox.notification.expanded _ml?>";
+            } else {
+                $expand_img = "collapse.gif";
+                $expand_alt = "<?_ml widget.inbox.notification.collapsed _ml?>";
+            }
+            my $expand_img = $expanded ? "expand.gif" : "collapse.gif";
+            my $expand_img = $expanded ? "expand.gif" : "collapse.gif";
 
             $expandbtn = qq {
-                <a href="$LJ::SITEROOT/inbox/?page=$page&expand=$qid"><img src="$LJ::IMGPREFIX/$img" class="InboxItem_Expand" border="0" /></a>
+                <a href="$LJ::SITEROOT/inbox/?page=$page&expand=$qid"><img src="$LJ::IMGPREFIX/$expand_img" class="InboxItem_Expand" border="0" alt="$expand_alt" /></a>
                 };
 
             my $display = $expanded ? "block" : "none";

@@ -116,17 +116,21 @@ ESN_Inbox.toggleExpand = function (button, state) {
         if (state == "expand") {
             contentContainer.style.display = "none";
             button.src = Site.imgprefix + "/collapse.gif";
+            button.alt = collapsed;
         } else {
             contentContainer.style.display = "block";
             button.src = Site.imgprefix + "/expand.gif";
+            button.alt = expanded;
         }
     } else {
         if (contentContainer.style.display == "none") {
             contentContainer.style.display = "block";
             button.src = Site.imgprefix + "/expand.gif";
+            button.alt = expanded;
         } else {
             contentContainer.style.display = "none";
             button.src = Site.imgprefix + "/collapse.gif";
+            button.alt = collapsed;
         }
     }
     return false;
@@ -288,9 +292,15 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
 
         var bookmarks = DOM.getElementsByClassName(rowElement, "InboxItem_Bookmark") || [];
         for (var i=0; i<bookmarks.length; i++) {
-            bookmarks[i].src = bookmarked ? Site.imgprefix + "/flag_on.gif" :
-                                Site.imgprefix + "/flag_off.gif";
-            ESN_Inbox.bookmarked[qid] = bookmarked ? true : false;
+            if ( bookmarked ) {
+                bookmarks[i].src = Site.imgprefix + "/flag_on.gif";
+                bookmarks[i].alt = rem_bookmark;
+                ESN_Inbox.bookmarked[qid] = true;
+            } else {
+                bookmarks[i].src = Site.imgprefix + "/flag_off.gif";
+                bookmarks[i].alt = add_bookmark;
+                ESN_Inbox.bookmarked[qid] = false;
+            }
         }
 
         if (deleted) {

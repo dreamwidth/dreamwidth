@@ -4167,6 +4167,14 @@ widget.inbox.menu.next_page.btn=Next Page
 
 widget.inbox.menu.previous_page.btn=Previous Page
 
+widget.inbox.notification.expanded=Collapse
+
+widget.inbox.notification.collapsed=Expand
+
+widget.inbox.notification.add_bookmark=Bookmark This
+
+widget.inbox.notification.rem_bookmark=Remove Bookmark
+
 widget.inboxfolder.confirm.delete=Are you sure you want to delete one or more bookmarked items?
 
 widget.journaltitles.btn=Save

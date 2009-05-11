@@ -162,6 +162,15 @@ body<=
         </td></tr></table>
     };
 
+    # send the i18n variables to the js page context
+    $body .= "<script type='text/javascript'>\n";
+    $body .= "expanded = '$ML{'widget.inbox.notification.expanded'}';\n";
+    $body .= "collapsed = '$ML{'widget.inbox.notification.collapsed'}';\n";
+    $body .= "add_bookmark = '$ML{'widget.inbox.notification.add_bookmark'}';\n";
+    $body .= "rem_bookmark = '$ML{'widget.inbox.notification.rem_bookmark'}';\n";
+    $body .="</script>\n"; $body .= "</p>\n";
+
+
     return $body;
 }
  _code?>
