@@ -19,6 +19,9 @@ div.ContextualPopup div.Inner {
     left: -2px;
     padding: 0px;
     width: 20em;
+	background-color: #fff;
+    color: #000;
+    border: 1px solid #000; 
     }
 
 * html div.ContextualPopup div.Inner {
