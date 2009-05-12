@@ -78,8 +78,9 @@ sub badge_image_url {
 sub pre_crosspost_hook {
     my ( $self, $req ) = @_;
 
-    # this causes DeadJournal to choke with an "unknown metadata" error
+    # avoid "unknown metadata" error
     delete $req->{props}->{useragent};
+    delete $req->{props}->{adult_content};
 
     return $req;
 }

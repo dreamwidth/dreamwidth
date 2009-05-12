@@ -73,5 +73,15 @@ sub badge_image_url {
     return 'http://www.insanejournal.com/img/userinfo.gif';
 }
 
+# argument: request hash
+# returns: modified request hash
+sub pre_crosspost_hook {
+    my ( $self, $req ) = @_;
+
+    # avoid "unknown metadata" error
+    delete $req->{props}->{adult_content};
+
+    return $req;
+}
 
 1;
