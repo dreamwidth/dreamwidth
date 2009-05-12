@@ -50,12 +50,12 @@ body<=
     $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";
 
     if ( $for eq 'self' ) {
-        $ret .= "<div class='leftybox'>" . BML::ml( '.intro.self', { user => $remote->ljuser_display } ) . "</div>";
+        $ret .= "<div class='leftybox'>" . BML::ml( '.intro.self', { user => $remote->ljuser_display, aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</div>";
         $ret .= DW::Widget::PaidAccountStatus->render;
     } elsif ( $for eq 'gift' ) {
-        $ret .= "<p>$ML{'.intro.gift'}</p>";
+        $ret .= "<p>" . BML::ml( '.intro.gift', { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</p>";
     } else { # $for eq 'new'
-        $ret .= "<p>$ML{'.intro.new'}</p>";
+        $ret .= "<p>" . BML::ml( '.intro.new', { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</p>";
     }
 
     if ( LJ::did_post() ) {
