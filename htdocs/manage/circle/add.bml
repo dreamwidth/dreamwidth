@@ -181,27 +181,30 @@
         });
     }
 
-    ## extra add and cancel buttons
-    $body .= "<br /><br />";
-    if ($u->is_visible) {
-        my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
-        $body .= "<input type='submit' value=\"$btn\"> ";
-    } else {
-        $body .= "<input type='submit' name='action:delete' value=\"$ML{'.btn.remove'}\"> \n";
-    }
+    my $trust_groups = $remote->trust_groups;
 
-    my $cancel_btn = LJ::ejs($ML{'.btn.cancel'});
+    ## extra add and cancel buttons only if there are filters to list
+    if ( keys %$trust_groups ) {
+        $body .= "<br /><br />";
+        if ($u->is_visible) {
+            my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
+            $body .= "<input type='submit' value=\"$btn\"> ";
+        } else {
+            $body .= "<input type='submit' name='action:delete' value=\"$ML{'.btn.remove'}\"> \n";
+        }
 
-    $body .= "<script type='text/javascript' language='Javascript'> \n <!-- \n
+        my $cancel_btn = LJ::ejs($ML{'.btn.cancel'});
+
+        $body .= "<script type='text/javascript' language='Javascript'> \n <!-- \n
        document.write(\"<input type='button' value='$cancel_btn' onclick='history.go(-1); return false;'>\");
         \n // -->\n ";
-    $body .= '</script>';
+        $body .= '</script>';
+    }
 
 
     ## let them pick friend groups
     # FIXME: Add support for reading groups once those exist
     my $err;
-    my $trust_groups = $remote->trust_groups;
 
     if ( $remote->can_trust( $u ) && keys %$trust_groups ) {
         $body .= "<?p &nbsp;<br />";
