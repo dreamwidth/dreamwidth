@@ -7,7 +7,7 @@
  my $mode = $FORM{'mode'};
 
  my $remote = LJ::get_remote();
- my @display_privs = ( "admin:capedit", "admin:*" );
+ my @display_privs = ( "admin:*" );
  my $numprivs = @display_privs;
 
  return "<?needlogin?>" unless $remote;

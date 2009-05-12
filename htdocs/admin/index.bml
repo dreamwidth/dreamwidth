@@ -34,7 +34,7 @@ body<=
 
     my @adminpages = (
         [ 'capedit.bml',
-            '<?_ml .admin.capability.link _ml?>', '<?_ml .admin.capability.text _ml?>', [ 'admin:capedit', 'admin:*', sub {
+            '<?_ml .admin.capability.link _ml?>', '<?_ml .admin.capability.text _ml?>', [ 'admin:*', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
         [ 'clusterstatus.bml',
