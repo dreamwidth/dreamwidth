@@ -140,28 +140,45 @@ propgroup customcss {
     property use custom_css;
 }
 
+propgroup text {
 ##===============================
 ## Text - main navigation
 ##===============================
 
-##===============================
-## Text - entry comment-related
-##===============================
-
-propgroup text {
     property use text_view_recent;
     property use text_view_friends;
-    property use text_view_friends_comm;
-    property use text_view_friends_filter;
     property use text_view_archive;
     property use text_view_userinfo;
     property use text_view_memories;
+    property use text_view_tags;
+
+##===============================
+## Text - entry comment-related
+##===============================
 
     property use text_post_comment;
     property use text_max_comments;
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+    property use text_meta_music; 
+    property use text_meta_mood; 
+    property use text_meta_location; 
+    property use text_tags; 
+
+    property use text_entry_prev;
+    property use text_entry_next; 
+    property use text_edit_entry; 
+    property use text_edit_tags; 
+    property use text_tell_friend; 
+    property use text_mem_add; 
+    property use text_watch_comments; 
+    property use text_unwatch_comments; 
+    property use text_permalink;
+
 }
 
 function Page::print_default_stylesheet() {
@@ -570,3 +587,4 @@ ul.userlite-interaction-links li {
     "</style>\n";
 
 }
+
