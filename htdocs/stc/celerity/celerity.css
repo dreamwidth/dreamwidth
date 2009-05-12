@@ -940,7 +940,7 @@ input.bright {
 }
 
 .Subscribe tr.Disabled {
-    background-color: #eee;
+    background-color: #ddd;
 }
 
 .Subscribe tr.altrow {
@@ -956,21 +956,21 @@ input.bright {
 }
 
 .CategoryRow td {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ccb;
 }
 
 #Subscriptions tr.lighter {
-	background-color: #EEEECC;
+	background-color: #eed;
 }
 #Subscriptions tr.darker {
-	background-color: #DDDDAA;
+	background-color: #ccb;
 }
 #SubscribeSaveButtons {
     border: 1px solid #333;
     }
     
 .NotificationTable tr.Selected {
-    background-color: #DDDDAA;
+    background-color: #eee;
 }
 
 .NotificationTable tr.Selected td {
@@ -985,19 +985,19 @@ input.bright {
 }
 
 .NotificationTable .inbox .header .checkbox {
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
-	border-left: 1px solid #ddd;
+	border-top: 1px solid #ccb;
+	border-bottom: 1px solid #ccb;
+	border-left: 1px solid #ccb;
 }
 
 .NotificationTable .inbox .header .actions {
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	border-top: 1px solid #ccb;
+	border-bottom: 1px solid #ccb;
+	border-right: 1px solid #ccb;
 }
 
 .inbox .header {
-    background: #EEEECC;
+    background: #eed;
 }
 
 .InboxItem_Read {
@@ -1031,8 +1031,8 @@ span.InboxItem_Read:hover a {
     color: #000;
 }
 .folders a:hover {
-    border: 1px solid #bbb;
-    background-color: #EEEECC;
+    border: 1px solid #ccb;
+    background-color: #eed;
 }
 
 .ippu {
@@ -1065,12 +1065,11 @@ span.InboxItem_Read:hover a {
     border-left: 1px solid #000;
 }
 #entry {
-    /*background: url("/img/celerity/celgrn-borderpixel.gif") repeat-x 0 bottom;*/
-	border-bottom: 1px solid #bbb;
+    border-bottom: 1px solid #bbb;
 }
 #entry ul li a {
     background-color: #fff;
-    border: 1px solid #999966;
+    border: 1px solid #bbb;
 	border-bottom: none;
 }
 #entry ul li.on a {
