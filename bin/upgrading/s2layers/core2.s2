@@ -3151,19 +3151,19 @@ function print_module_tags() {
         return;
     }
     elseif ($*module_tags_opts_type == "multi") {
-        open_module("categories_multilevel", $title, $p.view_url{"tags"});
+        open_module("tags_multilevel", $title, $p.view_url{"tags"});
         print_multilevel_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
         print_tag_manage_link();
         close_module();
     }
     elseif ($*module_tags_opts_type == "cloud") {
-        open_module("categories_cloud", $title, $p.view_url{"tags"});
+        open_module("tags_cloud", $title, $p.view_url{"tags"});
         print_cloud_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
         print_tag_manage_link();
         close_module();
     }
     else {
-        open_module("categories", $title, $p.view_url{"tags"});
+        open_module("tags_list", $title, $p.view_url{"tags"});
         print_list_tags($tags, { "list-class" => "module-list", "item-class" => "module-list-item" });
         print_tag_manage_link();
         close_module();
