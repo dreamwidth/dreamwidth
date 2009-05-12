@@ -215,6 +215,9 @@ sub entry_to_req {
 
     # and set the useragent - FIXME put this somewhere else?
     $req->{props}->{useragent} = "Dreamwidth Crossposter";
+    
+    # do any per-site preprocessing
+    $req = $extacct->externalsite->pre_crosspost_hook( $req );
 
     return $req;
 }

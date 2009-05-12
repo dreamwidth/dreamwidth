@@ -73,5 +73,15 @@ sub badge_image_url {
     return 'http://www.deadjournal.com/img/userinfo.gif';
 }
 
+# argument: request hash
+# returns: modified request hash
+sub pre_crosspost_hook {
+    my ( $self, $req ) = @_;
+
+    # this causes DeadJournal to choke with an "unknown metadata" error
+    delete $req->{props}->{useragent};
+
+    return $req;
+}
 
 1;

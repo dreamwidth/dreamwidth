@@ -53,7 +53,7 @@ sub new {
         domain => $domain,
         sitename => $sitename,
         servicetype => $servicetype
-    }
+    }, $class."::".$sitename
 }
 
 # returns the appropriate site for this sitename.
@@ -136,5 +136,9 @@ sub badge_image_url {
     return 'http://' . $self->{hostname} . '/img/userinfo.gif';
 }
 
+# adjust the request for any per-site limitations
+sub pre_crosspost_hook {
+    return $_[1];
+}
 
 1;
