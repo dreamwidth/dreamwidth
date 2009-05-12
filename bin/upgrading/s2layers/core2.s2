@@ -1027,7 +1027,7 @@ property string tags_page_type {
     des = "Type of tags display on tags page"; 
     values="list|List|cloud|Cloud|multi|Multilevel"; 
 }
-set tags_page_type = "";
+set tags_page_type = "multi";
 
 property string[] reverse_sortorder_group {
     des = "Display entries in reverse-chronological order on my:";
