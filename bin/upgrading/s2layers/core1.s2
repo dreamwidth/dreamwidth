@@ -1242,11 +1242,11 @@ property string text_view_month {
     example = "View Subjects";
 }
 set text_view_recent = "Recent Entries";
-set text_view_friends = "Friends";
-set text_view_friends_comm = "Members";
-set text_view_friends_filter = "Friends (Custom filter)";
-set text_view_friendsfriends = "Friends of Friends";
-set text_view_friendsfriends_filter = "Friends of Friends (Custom filter)";
+set text_view_friends = "Reading";
+set text_view_friends_comm = "Reading";
+set text_view_friends_filter = "Reading (Custom filter)";
+set text_view_friendsfriends = "Network";
+set text_view_friendsfriends_filter = "Network (Custom filter)";
 set text_view_archive = "Archive";
 set text_view_userinfo = "User Info";
 set text_view_memories = "Memories";
