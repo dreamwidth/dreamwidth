@@ -33,6 +33,7 @@ our $STATE_PROCESSED   = 5;    # we have received payment for this cart
 our $STATE_PEND_REFUND = 6;    # refund is approved but unissued
 our $STATE_REFUNDED    = 7;    # we have refunded this cart and reversed it
 our $STATE_CLOSED      = 8;    # carts can go from OPEN -> CLOSED
+our $STATE_DECLINED    = 9;    # payment entity declined the fundage
 
 # documentation of valid state transitions...
 #
@@ -62,6 +63,9 @@ our $STATE_CLOSED      = 8;    # carts can go from OPEN -> CLOSED
 #                        cart.  i.e., it hasn't been touched in a while so we
 #                        decide the user isn't coming back.
 #
+#   PEND_PAID -> DECLINED  happens when we try to capture funds from a remote
+#                          entity and they decline for some reason.
+#
 # any other state transition is hereby considered null and void.
 
 
@@ -76,6 +80,10 @@ our %PAYMENTMETHODS = (
     checkmoneyorder => {
         id => 2,
         class => 'CheckMoneyOrder',
+    },
+    creditcardpp => {
+        id => 3,
+        class => 'CreditCardPP',
     },
 );
 

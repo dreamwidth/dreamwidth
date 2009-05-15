@@ -4457,7 +4457,9 @@ widget.shopcart.paymentmethod=Payment Method:
 
 widget.shopcart.paymentmethod.checkmoneyorder=Check/Money Order
 
-widget.shopcart.paymentmethod.paypal=PayPal/Credit Card
+widget.shopcart.paymentmethod.creditcardpp=Credit Card
+
+widget.shopcart.paymentmethod.paypal=PayPal Account
 
 widget.shopcart.total=Total:
 

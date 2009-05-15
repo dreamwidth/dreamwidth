@@ -99,7 +99,10 @@ sub render_body {
         $ret .= "<p>" . $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " ";
         $ret .= $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
 
-        my @paypal_option = ( paypal => $class->ml( 'widget.shopcart.paymentmethod.paypal' ) )
+        my @paypal_option = (
+            paypal => $class->ml( 'widget.shopcart.paymentmethod.paypal' ),
+            creditcardpp => $class->ml( 'widget.shopcart.paymentmethod.creditcardpp' ),
+        )
             if keys %LJ::PAYPAL_CONFIG;
         $ret .= "<p>" . $class->ml( 'widget.shopcart.paymentmethod' ) . " ";
         $ret .= $class->html_select(
@@ -124,12 +127,8 @@ sub handle_post {
     my ( $class, $post, %opts ) = @_;
 
     # check out
-    if ( $post->{checkout} ) {
-        my $method = 'paypal';
-        $method = 'checkmoneyorder' if $post->{paymentmethod} eq 'checkmoneyorder' || !keys %LJ::PAYPAL_CONFIG;
-
-        return BML::redirect( "$LJ::SITEROOT/shop/checkout?method=$method" );
-    }
+    return BML::redirect( "$LJ::SITEROOT/shop/checkout?method=$post->{paymentmethod}" )
+        if $post->{checkout};
 
     # remove selected items
     if ( $post->{removeselected} ) {

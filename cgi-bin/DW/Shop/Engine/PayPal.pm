@@ -372,9 +372,9 @@ sub _pp_req {
         if ( ref $self && ( my $ppid = $self->ppid ) ) {
             if ( my $dbh = DW::Pay::get_db_writer() ) {
                 $dbh->do( q{
-                        INSERT INTO pp_log (ppid, transtime, req_content, res_content)
-                        VALUES (?, UNIX_TIMESTAMP(), ?, ?)
-                    }, undef, $ppid, $reqct, $res->content );
+                        INSERT INTO pp_log (ppid, ip, transtime, req_content, res_content)
+                        VALUES (?, ?, UNIX_TIMESTAMP(), ?, ?)
+                    }, undef, $ppid, BML::get_remote_ip(), $reqct, $res->content );
                 warn $dbh->errstr
                     if $dbh->err;
             }
@@ -395,12 +395,31 @@ sub process_ipn {
     my $dbh = DW::Pay::get_db_writer()
         or die "failed, please retry later\n";
     $dbh->do(
-        q{INSERT INTO pp_log (ppid, transtime, req_content, res_content)
-          VALUES (0, UNIX_TIMESTAMP(), ?, '')},
-        undef, nfreeze( $form )
+        q{INSERT INTO pp_log (ppid, ip, transtime, req_content, res_content)
+          VALUES (0, ?, UNIX_TIMESTAMP(), ?, '')},
+        undef, BML::get_remote_ip(), nfreeze( $form )
     );
     die "failed to insert\n"
         if $dbh->err;
+
+    # if this is a confirmation of a payment from a CC/other button type payment, then
+    # mark the item as being paid
+    if ( $form->{payment_status} eq 'Completed' && $form->{transaction_subject} =~ /Order #(\d+)$/ ) {
+        my $cart = DW::Shop::Cart->get_from_cartid( $1 );
+
+        # we must have a cart, and it must be in the right state and
+        # actually a credit card cart, and the price must match to prevent
+        # someone trying to spoof our button
+        return 1
+            unless $cart &&
+                   $cart->state == $DW::Shop::STATE_PEND_PAID &&
+                   $cart->paymentmethod eq 'creditcardpp';
+                   $cart->display_total == $form->{payment_gross};
+
+        # looks good, mark it paid
+        $cart->paymentmethod( 'creditcardpp' );
+        $cart->state( $DW::Shop::STATE_PAID );
+    }
 
     return 1;
 }

@@ -27,7 +27,9 @@
 
 .cart.paymentmethod.checkmoneyorder.extra=Please make your check or money order out to: [[sitecompany]]</p><p>Mail it to: [[address]]
 
-.cart.paymentmethod.paypal=PayPal
+.cart.paymentmethod.creditcardpp=Credit Card
+
+.cart.paymentmethod.paypal=PayPal Account
 
 .error.invalidordernum=Your order number is invalid.
 

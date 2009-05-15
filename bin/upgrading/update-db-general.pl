@@ -3225,6 +3225,7 @@ EOC
 register_tablecreate('pp_log', <<'EOC');
 CREATE TABLE pp_log (
     ppid int unsigned not null,
+    ip varchar(15) not null,
     transtime int unsigned not null,
     req_content text not null,
     res_content text not null,
@@ -4070,6 +4071,11 @@ register_alter(sub {
     unless ( column_type( 'shop_carts', 'email' ) =~ /varchar/ ) {
         do_alter( 'shop_carts',
                   q{ALTER TABLE shop_carts ADD COLUMN email VARCHAR(255) AFTER userid} );
+    }
+
+    unless ( column_type( 'pp_log', 'ip' ) =~ /varcahr/ ) {
+        do_alter( 'pp_log',
+                  q{ALTER TABLE pp_log ADD COLUMN ip VARCHAR(15) NOT NULL AFTER ppid} );
     }
 
 });

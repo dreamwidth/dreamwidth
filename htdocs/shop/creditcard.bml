@@ -1,0 +1,94 @@
+<?_c
+#
+# shop/creditcard.bml
+#
+# Generates HTML for a PayPal "Buy Now" button... maybe in the future this will
+# do something far more amazing, with super robot powers.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title /;
+
+    return BML::redirect( "$LJ::SITEROOT/" )
+        unless LJ::is_enabled( 'payments' );
+
+    $title = $ML{'.title'};
+
+    # this page uses new style JS
+    LJ::need_res( 'stc/shop.css' );
+    LJ::set_active_resource_group( 'jquery' );
+
+    # get their shop/cart
+    my $cart = DW::Shop->get->cart;
+    return $ML{'.error.nocart'}
+        unless $cart;
+    return $ML{'.error.emptycart'}
+        unless $cart->has_items;
+
+    # if state is NOT open, then just redirect them to the wait page,
+    # which will do the Right Thing.  this typically is used in the case
+    # that the user double clicks on the form, or hits back and clicks
+    # submit again...
+    return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum )
+        unless $cart->state == $DW::Shop::STATE_OPEN;
+
+    # FIXME: if they have a $0 cart, we don't support that yet
+    return $ML{'.error.zerocart'}
+        if $cart->total == 0.00;
+
+    # looks good, set the payment method and state
+    $cart->paymentmethod( 'creditcardpp' );
+    $cart->state( $DW::Shop::STATE_PEND_PAID );
+
+    # values we need
+    my $cartid = $cart->id;
+    my $cost = $cart->display_total;
+
+    # okay, render out the button :-)
+    return qq|
+<?p <?_ml .info _ml?> p?>
+
+<form action="$LJ::PAYPAL_CONFIG{cc_url}" method="post"> 
+
+<!-- Identify your business so that you can collect the payments. --> 
+<input type="hidden" name="business" value="$LJ::PAYPAL_CONFIG{account}" />
+
+<!-- Specify a Buy Now button. --> 
+<input type="hidden" name="cmd" value="_xclick" />
+<input type="hidden" name="bn" value="${LJ::SITENAMESHORT}_BuyNow_WPS_US" />
+<input type="hidden" name="notify_url" value="$LJ::SITEROOT/shop/pp_notify" />
+
+<!-- Specify details about the item that buyers will purchase. --> 
+<input type="hidden" name="item_name" value="$LJ::SITECOMPANY Order #$cartid" />
+<input type="hidden" name="amount" value="$cost" />
+<input type="hidden" name="currency_code" value="USD" /> 
+<input type="hidden" name="invoice" value="$cartid" />
+
+<!-- Other configuration -->
+<input type="hidden" name="no_shipping" value="1" />
+<input type="hidden" name="no_note" value="1" />
+
+<!-- Display the payment button. --> 
+<input type="image" name="submit" border="0" src="https://www.paypal.com/en_US/i/btn/btn_buynow_LG.gif"
+    alt="PayPal - The safer, easier way to pay online" /> 
+<img alt="" border="0" width="1" height="1" src="https://www.paypal.com/en_US/i/scr/pixel.gif" /> 
+
+</form>
+    |;
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+page?>
