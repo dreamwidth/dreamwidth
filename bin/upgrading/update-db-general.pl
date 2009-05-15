@@ -4073,7 +4073,7 @@ register_alter(sub {
                   q{ALTER TABLE shop_carts ADD COLUMN email VARCHAR(255) AFTER userid} );
     }
 
-    unless ( column_type( 'pp_log', 'ip' ) =~ /varcahr/ ) {
+    unless ( column_type( 'pp_log', 'ip' ) =~ /varchar/ ) {
         do_alter( 'pp_log',
                   q{ALTER TABLE pp_log ADD COLUMN ip VARCHAR(15) NOT NULL AFTER ppid} );
     }
