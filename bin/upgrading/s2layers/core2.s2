@@ -1845,7 +1845,7 @@ property string text_module_customtext_content {
     des = "Text for the 'Custom text' box";
     cols = 50;
     rows = 10;
-    string_mode = "plain";
+    string_mode = "html";
 }
 
 property string text_module_customtext_url {
