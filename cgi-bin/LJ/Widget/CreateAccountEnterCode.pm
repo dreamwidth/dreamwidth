@@ -71,7 +71,10 @@ sub render_body {
     if ( LJ::is_enabled( 'payments' ) ) {
         $ret .= "<p style='margin-top: 10px;'>";
         $ret .= $class->ml( 'widget.createaccountentercode.pay', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
+        my $remote = LJ::get_remote(); 
         $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create.bml'" } );
+        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout', { aopts => "href='$LJ::SITEROOT/community/create.bml'" } ) unless $remote;
+        
         $ret .= "</p>";
     }
 

@@ -3907,7 +3907,9 @@ widget.createaccountentercode.error.invalidcode=Invalid code.
 
 widget.createaccountentercode.error.toofast=You are entering codes too quickly; please try again later.
 
-widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a community</a> instead, you don't need an invite code.
+widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a community</a> instead, you don't need an account creation code.
+
+widget.createaccountentercode.comm.loggedout=You should create or log into a personal account to be the maintainer. If you don't have a personal account yet, you will need a code to create that account, but you don't need one for the community itself.
 
 widget.createaccountentercode.info=To create a new account, enter an account creation code:
 
