@@ -20,7 +20,7 @@ body<=
     }
 
     BML::set_language_scope( "/misc/adult_content.bml" );
-    $windowtitle = $ML{'.title'};
+    $windowtitle = $ML{'.title.18.blocked'};
     my $ret = '';
 
     my $markedby;

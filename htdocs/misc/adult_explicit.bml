@@ -8,7 +8,7 @@ body<=
     my $r = DW::Request->get;
 
     BML::set_language_scope( "/misc/adult_content.bml" );
-    $windowtitle = $ML{'.title'};
+    $windowtitle = $ML{'.title.18'};
     my $ret = '';
     my $returl = $r->note( 'returl' ) || $POST{ret} || $GET{ret};
 

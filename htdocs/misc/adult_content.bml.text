@@ -43,3 +43,9 @@
 .setage=<a [[aopts]]>Edit your profile</a> to register your age.
 
 .title=Adult Content Notice
+
+.title.NSFW=Discretion Advised
+
+.title.18=Discretion Advised: 18+ Content
+
+.title.18.blocked=Adult Content: Restricted to 18+
