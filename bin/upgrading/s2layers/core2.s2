@@ -3875,6 +3875,9 @@ function RecentPage::print_navigation() [fixed] {
     if ( $.nav.backward_url != "" ) {
         print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
     }
+    if ( $.nav.backward_url != "" and $.nav.forward_url != "" ) {
+        print safe """<li class="page-separator">|</li>""";
+    }
     if ( $.nav.forward_url != "" ) {
         print safe """<li class="page-forward"><a href="$.nav.forward_url">""" + get_plural_phrase( $.nav.forward_count, "text_skiplinks_forward" ) + "</a></li>\n";
     }
