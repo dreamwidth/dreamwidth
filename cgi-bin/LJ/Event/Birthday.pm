@@ -53,7 +53,7 @@ sub as_html {
 sub as_html_actions {
     my ($self) = @_;
 
-    my $gifturl = $self->bdayuser->gift_url({ item => 'vgift' });
+    my $gifturl = $self->bdayuser->gift_url;
     my $ret .= "<div class='actions'>";
     $ret .= " <a href='$gifturl'>Send a Gift</a>";
     $ret .= "</div>";

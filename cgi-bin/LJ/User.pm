@@ -5279,11 +5279,7 @@ sub show_mutualfriends {
 # after that, it goes in section 7
 # returns the gift shop URL to buy a gift for that user
 sub gift_url {
-    my ($u, $opts) = @_;
-    croak "invalid user object passed" unless LJ::isu($u);
-    my $item = $opts->{item} ? delete $opts->{item} : '';
-
-    return "$LJ::SITEROOT/shop/view.bml?item=$item&gift=1&for=$u->{'user'}";
+    return "$LJ::SITEROOT/shop/account?for=gift";
 }
 
 
