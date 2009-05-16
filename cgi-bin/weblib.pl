@@ -1264,7 +1264,7 @@ sub entry_form {
         }
 
         ### Subject
-        $out .= "<div id='entry' class='pkg'>\n";
+        $out .= "<div id='compose-entry' class='pkg'>\n";
 
         if ($opts->{prop_qotdid} && !$opts->{richtext}) {
             my $qotd = LJ::QotD->get_single_question($opts->{prop_qotdid});

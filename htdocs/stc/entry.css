@@ -152,28 +152,28 @@
 #infobox ul {
     list-style: none;
 }
-#entry {
+#compose-entry {
     clear: both;
     padding: 0px;
     margin: 0px;
     position: relative;
 	border-bottom: 1px solid #ccc;
 }
-#entry p {
+#compose-entry p {
     margin: 0 !important;
 }
-#entry ul {
+#compose-entry ul {
     float: right;
     clear: right;
     list-style: none;
     margin: 0;
     padding: 0;
 }
-#entry ul li {
+#compose-entry ul li {
     float: left;
     margin: 0 4px 0 0;
 }
-#entry ul li a {
+#compose-entry ul li a {
     display: block;
     padding: 8px 10px;
     float: left;
@@ -181,16 +181,16 @@
 	border: 1px solid #ccc;
     border-bottom: none;
 }
-#entry ul li.on {
+#compose-entry ul li.on {
 	
 }
-#entry ul li.on a {
+#compose-entry ul li.on a {
     font-weight: bold;
     padding-bottom: 9px;
 	margin-bottom: -2px;
 	background: #fff;
 }
-#entry ul li.on a {
+#compose-entry ul li.on a {
 	border-bottom: 1px solid #fff;
 }
 #metainfo, #metainfo label, #metainfo input.text, #metainfo strong {
