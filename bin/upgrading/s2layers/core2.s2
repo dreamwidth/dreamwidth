@@ -2089,6 +2089,18 @@ set text_month_form_btn = "View";
 set text_replyform_header = "Comment Form";
 set text_comment_posted = "Comment successfully posted.";
 
+property string comment_page_prev {
+    des = "Text to link the previous comment page";
+    example = "Previous Comment Page";
+}
+property string comment_page_next {
+    des = "Text to link the previous comment page";
+    example = "Previous Comment Page";
+}
+set comment_page_prev = "&lt;&lt";
+set comment_page_next = "&gt;&gt";
+
+
 property string text_day_prev {
     des = "Text to link to the previous day";
     example = "Previous Day";
@@ -3034,29 +3046,28 @@ function print_module_list(string[] list) {
 
 function print_module_userprofile() {
     var Page p = get_page();
-    var string title = "";
+    var string title = "Profile";
+
+    open_module("userprofile", $title, "");
 
     if ($*module_userprofile_opts_userpic) {
         if (defined $p.journal.default_pic) {
-            open_module("photo", $title, $p.journal.userpic_listing_url);
+            """<div class="userpic">""";
             $p.journal->print_userpic();
-            close_module();
+             """</div>""";
         }
     }
-    open_module("user-links", $title, "");
-    $p.journal->print_interaction_links();
-    close_module();
     if ($*module_userprofile_opts_name or $*module_userprofile_opts_website) {
-        open_module("about", $title, $p.view_url{"userinfo"}, true);
         if ($*module_userprofile_opts_name) {
-            println "<p>"+$p.journal.name+"</p>";
+            println "<div class='journal-name'>"+$p.journal.name+"</div>";
         }
         if ($*module_userprofile_opts_website and $p.journal.website_url != "") {
             var string website_name = ( $p.journal.website_name != "" ) ? $p.journal.website_name : $*text_website_default_name;
-            println "<p><a href='$p.journal.website_url'>$website_name</a></p>";
+            println "<div class='journal-website-name'><a href='$p.journal.website_url'>$website_name</a></div>";
         }
-        close_module(true);
     }
+    $p.journal->print_interaction_links();
+    close_module(); 
 }
 
 function print_module_navlinks() {
@@ -3613,7 +3624,7 @@ function Entry::print_wrapper_start() {
 function Comment::print_wrapper_start() {
     var string alternate = alternate ("comment-wrapper-odd", "comment-wrapper-even");
     var string screened = $this.screened ? "screened" : "visible";
-    var string deletedstate = "deleted";
+    var string deletedstate = $this.deleted ? "deleted" : "";
     var string frozen = $this.frozen ? "frozen" : "";
     var string poster = defined $this.poster ? "poster-" + $this.poster.username : "poster-anonymous";
     var string full = $this.full ? "full" : "partial";
@@ -3627,12 +3638,14 @@ function Comment::print_wrapper_start() {
 function EntryLite::print_wrapper_end() {
 }
 function Entry::print_wrapper_end() {
+    "</div>\n</div>\n";
     """<div class="separator separator-after"><div class="inner"></div></div>\n""";
-    "</div>\n</div>\n</div>\n";
+     "</div>\n";  
 }
 function Comment::print_wrapper_end() {
+    "</div>\n</div>\n"; 
     """<div class="separator separator-after"><div class="inner"></div></div>\n""";
-    "</div>\n</div>\n</div>\n";
+    "</div>\n";
 }
 
 function EntryLite::print_metadata() {
@@ -3653,7 +3666,7 @@ function Entry::print_metadata() {
 }
 function Comment::print_metadata() {
     if ($.metadata{"poster_ip"}) {
-        print safe "<span class=\"poster-ip\">$*text_comment_ipaddr(" + $.metadata{"poster_ip"} + ")</span>";
+        print safe "<span class=\"poster-ip\">$*text_comment_ipaddr (" + $.metadata{"poster_ip"} + ")</span>";
     }
 }
 
@@ -4412,7 +4425,9 @@ function EntryPage::print_comment_section(Entry e) {
 function EntryPage::print_comments (Comment[] cs) {
     if (size $cs == 0) { return; }
     foreach var Comment c ($cs) {
+        var string parity = $c.depth % 2 ? "odd" : "even";
         var int indent = ($c.depth - 1) * 25;
+        "<div class='comment-thread comment-depth-$parity comment-depth-$c.depth'>\n";
         "<div id='$c.dom_id' style='margin-left: ${indent}px; margin-top: 5px'>\n";
         if ($c.full) {
             $this->print_comment($c);
@@ -4421,6 +4436,7 @@ function EntryPage::print_comments (Comment[] cs) {
         }
         "</div>";
         $this->print_comments($c.replies);
+        "</div>"; 
     }
 }
 
@@ -4503,9 +4519,9 @@ function ItemRange::print() {
     print "<b>" + lang_page_of_pages($.current, $.total) + "</b>";
     var string url_prev = $this->url_of($.current - 1);
     if ($.current != 1) {
-        print "<a href='$url_prev#comments'>&lt;&lt;</a>";
-    } else {
-        print " &lt;&lt; ";
+        print " <a href='$url_prev#comments'>$*comment_page_prev</a> ";
+    } else {  
+        print " $*comment_page_prev "; 
     }
     foreach var int i (1..$.total) {
         if ($i == $.current) { "<b>[$i]</b> "; }
@@ -4516,9 +4532,9 @@ function ItemRange::print() {
     }
     var string url_next = $this->url_of($.current + 1);
     if ($.current != $.total) {
-        print "<a href='$url_next#comments'>&gt;&gt;</a>";
-    } else {
-        print " &gt;&gt; ";
+         print " <a href='$url_next#comments'>$*comment_page_next</a> ";  
+    } else { 
+         print " $*comment_page_next ";
     }
     "</div>";
 }
