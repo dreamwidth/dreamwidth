@@ -1132,11 +1132,11 @@ set text_max_comments = "Maximum comments reached";
 set text_read_comments = "1 comment // # comments";
 
 property string text_post_comment_friends {
-    des = "Link text to leave a comment on friends view entry";
+    des = "Link text to leave a comment from your reading page";
     example = "Leave a comment";
 }
 property string text_read_comments_friends {
-    des = "Link text to read comments on a friends view entry";
+    des = "Link text to read comments from your reading page";
     format = "plurals";
     example = "1 comment // # comments";
 }
