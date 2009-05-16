@@ -16,6 +16,7 @@
     ltgrn=#DDDDAA
     vryltgrn=#EEEECC
 	grygrn=#EEEEDD
+	dkgrygrn=#DDDDCC
     link ltgrn=#888833
     link dkgrn=#666611
  *  Colors for template: 
@@ -228,9 +229,9 @@ a:active,
     border-left: 9em solid #DDDDAA;
     margin-top: 170px;
     padding: 1px 1em 1em 1.5em;
-    min-height: 50em;
+    min-height: 55em;
     height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
-      height: 50em;
+      height: 55em;
 }
 
 #content p {
@@ -935,6 +936,9 @@ input.bright {
 
 
 /* esn.css */
+
+.inbox_newitems { padding-bottom: .5em;}
+
 .Subscribe tr.Inactive {
     color: #aaa;
 }
@@ -956,14 +960,14 @@ input.bright {
 }
 
 .CategoryRow td {
-    border-bottom: 1px solid #ccb;
+    border-bottom: 1px solid #ddd;
 }
 
 #Subscriptions tr.lighter {
-	background-color: #eed;
+	background-color: #eee;
 }
 #Subscriptions tr.darker {
-	background-color: #ccb;
+	background-color: #ddd;
 }
 #SubscribeSaveButtons {
     border: 1px solid #333;
@@ -978,26 +982,26 @@ input.bright {
 }
 
 .NotificationTable td {
-    padding: 2px;
+    padding: .25em;
 }
 .NotificationTable .inbox {
     
 }
 
 .NotificationTable .inbox .header .checkbox {
-	border-top: 1px solid #ccb;
-	border-bottom: 1px solid #ccb;
-	border-left: 1px solid #ccb;
+	border-top: 1px solid #DDDDCC;
+	border-bottom: 1px solid #DDDDCC;
+	border-left: 1px solid #DDDDCC;
 }
 
 .NotificationTable .inbox .header .actions {
-	border-top: 1px solid #ccb;
-	border-bottom: 1px solid #ccb;
-	border-right: 1px solid #ccb;
+	border-top: 1px solid #DDDDCC;
+	border-bottom: 1px solid #DDDDCC;
+	border-right: 1px solid #DDDDCC;
 }
 
 .inbox .header {
-    background: #eed;
+    background: #EEEEDD;
 }
 
 .InboxItem_Read {
@@ -1031,8 +1035,8 @@ span.InboxItem_Read:hover a {
     color: #000;
 }
 .folders a:hover {
-    border: 1px solid #ccb;
-    background-color: #eed;
+    border: 1px solid #DDDDCC;
+    background-color: #EEEEDD;
 }
 
 .ippu {
@@ -1094,17 +1098,14 @@ span.InboxItem_Read:hover a {
 #htmltools ul {
     border-bottom: 1px solid #8D8D8D;
 }
-#options, #public {
-    border: 1px solid #999966;
-    background-color: #EEEECC;
+#options, #public, #submitbar {
+    border: 1px solid #DDDDCC;
+    background-color: #EEEEDD;
 }
 #public {
     /*color:#666;*/
 }
-#submitbar {
-    background-color: #DDDDAA;
-    border: 1px solid #999966; 
-}
+
 
 /* contextualhover.css */
 div.ContextualPopup div.Inner {
