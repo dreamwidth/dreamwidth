@@ -71,6 +71,7 @@ sub render_body {
     if ( LJ::is_enabled( 'payments' ) ) {
         $ret .= "<p style='margin-top: 10px;'>";
         $ret .= $class->ml( 'widget.createaccountentercode.pay', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
+        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create.bml'" } );
         $ret .= "</p>";
     }
 

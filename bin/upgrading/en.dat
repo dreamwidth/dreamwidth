@@ -3907,6 +3907,8 @@ widget.createaccountentercode.error.invalidcode=Invalid code.
 
 widget.createaccountentercode.error.toofast=You are entering codes too quickly; please try again later.
 
+widget.createaccountentercode.comm=If you'd like to <a [[aopts]]>create a community</a> instead, you don't need an invite code.
+
 widget.createaccountentercode.info=To create a new account, enter an account creation code:
 
 widget.createaccountentercode.pay=If you do not have an account creation code, you can <a [[aopts]]>purchase a [[sitename]] account</a>.
