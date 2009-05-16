@@ -3120,19 +3120,20 @@ function print_module_pagesummary() {
         foreach var Entry e ( $cp.entries ) {
             $poster = $e.poster->ljuser();
             $subject = ($e.subject != "" ? striphtml($e.subject) : "<em>$*text_nosubject</em>");
+            var string module_comment_text = get_plural_phrase($e.comments.count, "text_read_comments_friends");
             var string comment_display;
             if ($*module_pagesummary_opts_comments_tooltip) {
-                $comment_display = "title='$e.comments.count comments'>$subject";
+                $comment_display = "title='$module_comment_text'>$subject</a>";
                }
             else {
-               $comment_display = ">$subject</a> +$e.comments.count comments";
+               $comment_display = ">$subject</a> +$module_comment_text";
                }
             
             if (not $e.poster->equals($e.journal)) {
-                $links[size $links] = """$poster in $e.journal - <a href="#entry-$e.itemid" $comment_display</a>""";
+                $links[size $links] = """$poster in $e.journal - <a href="#entry-$e.itemid" $comment_display""";
             }
             else {
-                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display</a>""";
+                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
             }
         }
     }
@@ -3142,20 +3143,21 @@ function print_module_pagesummary() {
         var string poster;
         foreach var Entry e ( $cp.entries ) {
             $subject = ($e.subject != "" ? striphtml($e.subject) : "<em>$*text_nosubject</em>");
+            var string module_comment_text = get_plural_phrase($e.comments.count, "text_read_comments");
             var string comment_display;
             if ($*module_pagesummary_opts_comments_tooltip) {
-                $comment_display = "title='$e.comments.count comments'>$subject";
+                $comment_display = "title='$module_comment_text'>$subject</a>";
                }
             else {
-               $comment_display = ">$subject</a> +$e.comments.count comments";
+               $comment_display = ">$subject</a> +$module_comment_text";
                }
             
             if (not $e.poster->equals($e.journal)) {
                 $poster = $e.poster->ljuser();
-                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display</a>""";
+                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
             }
             else {
-                $links[size $links] = """<a href="#entry-$e.itemid" $comment_display</a>""";
+                $links[size $links] = """<a href="#entry-$e.itemid" $comment_display""";
             }
         }
     }
@@ -3166,21 +3168,21 @@ function print_module_pagesummary() {
         var string poster;
         foreach var Entry e ( $cp.entries ) {
             $subject = ($e.subject != "" ? striphtml($e.subject) : "<em>$*text_nosubject</em>");
-            
+            var string module_comment_text = get_plural_phrase($e.comments.count, "text_read_comments");
             var string comment_display;
             if ($*module_pagesummary_opts_comments_tooltip) {
-                $comment_display = "title='$e.comments.count comments'>$subject";
+                $comment_display = "title='$module_comment_text'>$subject</a>";
                }
             else {
-               $comment_display = ">$subject</a> +$e.comments.count comments";
+               $comment_display = ">$subject</a> +$module_comment_text";
                }
 
             if (not $e.poster->equals($e.journal)) {
                 $poster = $e.poster->ljuser();
-                $links[size $links] = """$poster - <a href="#entry-$e.itemid" title="$e.comments.count comments">$subject</a>""";
+                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
             }
             else {
-                $links[size $links] = """<a href="#entry-$e.itemid" title="$e.comments.count comments">$subject</a>""";
+                $links[size $links] = """<a href="#entry-$e.itemid" $comment_display""";
             }
         }
     }
@@ -3189,6 +3191,7 @@ function print_module_pagesummary() {
     print_module_list($links);
     close_module();
 }
+
 
 function print_module_tags() {
     var Page p = get_page();
