@@ -1159,9 +1159,6 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
             'fix_usercounter_enabled' => {
                     'desc' => "<emphasis role='strong'>Old historic baggage: Do not use.</emphasis> This boolean enables the <filename>fix_usercounter.bml</filename> tool at \$SITEROOT/admin. The tool reset user counters to resolve <quote>duplicate key error</quote> issues with journals. A better way to address the problem was found, making this tool redundant.",
             },
-            'new_entry_cleanup_hack' => {
-                    'desc' => "<emphasis role='strong'>Old historic baggage: Do not use.</emphasis>  There used to be a bug where only parts of entries got deleted, then there was another bug with per-user number allocation.  Together, they forced this option to be made for awhile, where new entries (when this is on) would blow away any old data if part of it was still there but wasn't supposed to be.  This includes deleting comments tied to those old entries. Off by default.",
-            },
         },
 
         'site_maintenance' => {

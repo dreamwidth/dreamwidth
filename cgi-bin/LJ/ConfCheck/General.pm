@@ -322,11 +322,6 @@ add_conf('$NEWUSER_CAPS',
          des => "Bitmask of capability classes that new users begin their accounts with.  By default users aren't in any capability classes and get only the default site-wide capabilities.  See also \%CAP.",
          );
 
-add_conf('$NEW_ENTRY_CLEANUP_HACK',
-         type => "bool",
-         des => "OLD HISTORIC BAGGAGE: Do not use!  There used to be a bug where only parts of entries got deleted, then there was another bug with per-user number allocation.  Together, they forced this option to be made for awhile, where new entries (when this is on) would blow away any old data if part of it was still there but wasn't supposed to be.  This includes deleting comments tied to those old entries.",
-         );
-
 add_conf('$QBUFFERD_DELAY',
          type => 'int',
          des => "Time to sleep between runs of qbuffered tasks.  Default is 15 seconds.",

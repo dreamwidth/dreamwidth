@@ -24,10 +24,6 @@ use lib "$LJ::HOME/cgi-bin";
 
 require "taglib.pl";
 
-# have to do this else mailgate will croak with email posting, but only want
-# to do it if the site has enabled the hack
-require "talklib.pl" if $LJ::NEW_ENTRY_CLEANUP_HACK;
-
 #### New interface (meta handler) ... other handlers should call into this.
 package LJ::Protocol;
 
@@ -1357,10 +1353,6 @@ sub postevent
     LJ::Entry->can("dostuff");
     LJ::replycount_do($uowner, $jitemid, "init");
 
-    # remove comments and logprops on new entry ... see comment by this sub for clarification
-    LJ::Protocol::new_entry_cleanup_hack($u, $jitemid) if $LJ::NEW_ENTRY_CLEANUP_HACK;
-    my $verb = $LJ::NEW_ENTRY_CLEANUP_HACK ? 'REPLACE' : 'INSERT';
-
     my $dberr;
     $uowner->log2_do(\$dberr, "INSERT INTO log2 (journalid, jitemid, posterid, eventtime, logtime, security, ".
                      "allowmask, replycount, year, month, day, revttime, rlogtime, anum) ".
@@ -1417,7 +1409,7 @@ sub postevent
     my $bytes = length($event) + length($req->{'subject'});
     $uowner->dudata_set('L', $jitemid, $bytes);
 
-    $uowner->do("$verb INTO logtext2 (journalid, jitemid, subject, event) ".
+    $uowner->do("INSERT INTO logtext2 (journalid, jitemid, subject, event) ".
                 "VALUES ($ownerid, $jitemid, ?, ?)", undef, $req->{'subject'},
                 LJ::text_compress($event));
     if ($uowner->err) {
@@ -2767,43 +2759,6 @@ sub fail
     $code .= ":$des" if $des;
     $$err = $code if (ref $err eq "SCALAR");
     return undef;
-}
-
-# PROBLEM: a while back we used auto_increment fields in our tables so that we could have
-# automatically incremented itemids and such.  this was eventually phased out in favor of
-# the more portable alloc_user_counter function which uses the 'counter' table.  when the
-# counter table has no data, it finds the highest id already in use in the database and adds
-# one to it.
-#
-# a problem came about when users who last posted before alloc_user_counter went
-# and deleted all their entries and posted anew.  alloc_user_counter would find no entries,
-# this no ids, and thus assign id 1, thinking it's all clean and new.  but, id 1 had been
-# used previously, and now has comments attached to it.
-#
-# the comments would happen because there was an old bug that wouldn't delete comments when
-# an entry was deleted.  this has since been fixed.  so this all combines to make this
-# a necessity, at least until no buggy data exist anymore!
-#
-# this code here removes any comments that happen to exist for the id we're now using.
-sub new_entry_cleanup_hack {
-    my ($u, $jitemid) = @_;
-
-    # sanitize input
-    $jitemid += 0;
-    return unless $jitemid;
-    my $ownerid = LJ::want_userid($u);
-    return unless $ownerid;
-
-    # delete logprops
-    $u->do("DELETE FROM logprop2 WHERE journalid=$ownerid AND jitemid=$jitemid");
-
-    # delete comments
-    my $ids = LJ::Talk::get_talk_data($u, 'L', $jitemid);
-    return unless ref $ids eq 'HASH' && %$ids;
-    my $list = join ',', map { $_+0 } keys %$ids;
-    $u->do("DELETE FROM talk2 WHERE journalid=$ownerid AND jtalkid IN ($list)");
-    $u->do("DELETE FROM talktext2 WHERE journalid=$ownerid AND jtalkid IN ($list)");
-    $u->do("DELETE FROM talkprop2 WHERE journalid=$ownerid AND jtalkid IN ($list)");
 }
 
 sub un_utf8_request {
