@@ -54,7 +54,7 @@
 
 .updated_in_last=Updated in last
 
-.use_this_dir=Use this directory to search for LiveJournal users. If you fill in more than one blank, the directory will display results that match all your criteria. (i.e user lives in "San Francisco" AND lists "music" as an interest.). Check out our <a [[aopts]]>community search</a> page to find new and interesting communities.
+.use_this_dir2=Use this directory to search for [[sitename]] users. If you fill in more than one blank, the directory will display results that match all your criteria. (e.g. user lives in "San Francisco" AND lists "music" as an interest.) Check out our <a [[aopts]]>community search</a> page to find new and interesting communities.
 
 .user_likes=User likes:
 

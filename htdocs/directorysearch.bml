@@ -38,7 +38,7 @@ _code?>
 
 <?p 
 <?_code
-    my $ret = BML::ml('.use_this_dir', { 'aopts' => "href='/community/search.bml'" });
+    my $ret = BML::ml('.use_this_dir2', { 'aopts' => "href='$LJ::SITEROOT/community/search.bml'", sitename => $LJ::SITENAMESHORT });
     return $ret;
 _code?>
  p?>
