@@ -327,9 +327,6 @@ body.three-columns-right { padding-right: $*sidebar_width_doubled; }
 	padding: 1em;
 }
 	
-#secondary { 
-	position: relative;
-}
 .one-column #secondary { width: $*sidebar_width; }
 .two-columns-left #secondary,
 .three-columns-sides #secondary { 
@@ -355,9 +352,6 @@ body.three-columns-right { padding-right: $*sidebar_width_doubled; }
 
 #secondary > .inner:first-child {
 	padding: 1em;
-}
-#tertiary {
-	position: relative;
 }
 
 .one-column #tertiary { width: $*sidebar_width; }
