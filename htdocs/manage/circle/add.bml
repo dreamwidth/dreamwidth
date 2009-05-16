@@ -183,8 +183,13 @@
 
     my $trust_groups = $remote->trust_groups;
 
-    ## extra add and cancel buttons only if there are filters to list
-    if ( keys %$trust_groups ) {
+    ## let them pick friend groups
+    # FIXME: Add support for reading groups once those exist
+    my $err;
+
+    if ( $remote->can_trust( $u ) && keys %$trust_groups ) {
+
+        ## extra add and cancel buttons
         $body .= "<br /><br />";
         if ($u->is_visible) {
             my $btn = ( $watched || $trusted ) ? $ML{'.btn.modify'} :  BML::ml( '.btn.add', { user => $u->display_name } );
@@ -199,14 +204,7 @@
        document.write(\"<input type='button' value='$cancel_btn' onclick='history.go(-1); return false;'>\");
         \n // -->\n ";
         $body .= '</script>';
-    }
 
-
-    ## let them pick friend groups
-    # FIXME: Add support for reading groups once those exist
-    my $err;
-
-    if ( $remote->can_trust( $u ) && keys %$trust_groups ) {
         $body .= "<?p &nbsp;<br />";
         $body .= "$ML{'.groups.text1'} " . LJ::help_icon('customgroups', '&nbsp;') . "p?>\n";
         $body .= "<blockquote>\n";
