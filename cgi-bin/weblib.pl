@@ -2548,6 +2548,7 @@ sub control_strip
             $links{'edit_community_profile'} = "<a href='$LJ::SITEROOT/manage/profile/?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommprofile'}</a>";
             $links{'edit_community_invites'} = "<a href='$LJ::SITEROOT/community/sentinvites.bml?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
             $links{'edit_community_members'} = "<a href='$LJ::SITEROOT/community/members.bml?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
+            $links{'track_community'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
         }
     }
     my $journal_display = LJ::ljuser($journal);
@@ -2747,6 +2748,7 @@ sub control_strip
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
                 $ret .= $links{leave_community};
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
             } elsif ($watching) {
                 $ret .= "$statustext{watcher}<br />";
                 if ($haspostingaccess) {
@@ -2754,12 +2756,14 @@ sub control_strip
                 }
                 $ret .= "$links{join_community}&nbsp;&nbsp; " unless $remote->is_identity;
                 $ret .= $links{unwatch_community};
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
             } elsif ($memberof) {
                 $ret .= "$statustext{member}<br />";
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
                 $ret .= "$links{watch_community}&nbsp;&nbsp; $links{'leave_community'}";
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
             } else {
                 $ret .= "$statustext{community}<br />";
                 if ($haspostingaccess) {
@@ -2767,6 +2771,7 @@ sub control_strip
                 }
                 $ret .= "$links{join_community}&nbsp;&nbsp; " unless $remote->is_identity;
                 $ret .= $links{watch_community};
+                $ret .= "&nbsp;&nbsp;" . $links{track_community};
             }
         } elsif ($journal->is_syndicated) {
             $ret .= "$statustext{syn}<br />";
