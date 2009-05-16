@@ -88,7 +88,7 @@ propgroup images {
 propgroup modules {
     property use module_userprofile_group;
     property use module_navlinks_group;
-    #property use module_customtext_group;
+    property use module_customtext_group;
     property use module_calendar_group;
     property use module_pagesummary_group;
     property use module_tags_group;
@@ -115,7 +115,6 @@ set module_calendar_opts_type = "horizontal";
 
 set module_time_section = "none";
 set module_poweredby_section = "one";
-
 
 ##===============================
 ## Custom CSS
@@ -173,6 +172,10 @@ propgroup text {
     property use text_watch_comments; 
     property use text_unwatch_comments; 
     property use text_permalink;
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
 }
 
 set font_base ="Georgia";

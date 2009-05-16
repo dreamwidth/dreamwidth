@@ -1385,6 +1385,10 @@ set module_customtext_group = ["module_customtext_show", "module_customtext_orde
 property bool module_customtext_show    { grouped = 1; }
 property int  module_customtext_order   { grouped = 1; }
 property string module_customtext_section { grouped = 1; }
+
+set module_customtext_show = false;
+set module_customtext_order = 13;
+set module_customtext_section = "one";
 ##===============================
 ## Journal style - fonts
 ##===============================
@@ -1830,11 +1834,37 @@ property string text_module_popular_tags {
     example = "Most Popular Tags";
 }
 
+property string text_module_customtext {
+    des = "Text for the 'Custom text' heading";
+    maxlength = 50;
+    size = 20;
+    example = "Custom text";
+}
+
+property string text_module_customtext_content {
+    des = "Text for the 'Custom text' box";
+    cols = 50;
+    rows = 10;
+    string_mode = "plain";
+}
+
+property string text_module_customtext_url {
+    des = "URL for 'Custom text' header link";
+    maxlenght = 100;
+    size = 20;
+    example = "http://www.dreamwidth.org";
+}
+
+
 set text_module_links = "Links";
 set text_module_pagesummary = "Page Summary";
 set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
 set text_module_popular_tags = "Most Popular Tags";
+
+set text_module_customtext = "Custom text";
+set text_module_customtext_content = "";
+set text_module_customtext_url = "";
 
 ##===============================
 ## Text - entry comment-related
@@ -2276,6 +2306,9 @@ function modules_init()
     if ( $*module_pagesummary_show ) { $*module_sections{$*module_pagesummary_section}[$*module_pagesummary_order]=["pagesummary"]; }
     if ( $*module_time_show ) { $*module_sections{$*module_time_section}[$*module_time_order]=["time"]; }
     if ( $*module_poweredby_show ) { $*module_sections{$*module_poweredby_section}[$*module_poweredby_order]=["poweredby"]; }
+    if ( $*module_customtext_show ) { $*module_sections{$*module_customtext_section}[$*module_customtext_order]=["customtext"]; }
+     
+
     
     #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
@@ -3246,10 +3279,10 @@ function print_module_syndicate() {
 
     close_module();
 }
-function print_module_customtext(string title, string text, string titlelink_url) {
+function print_module_customtext() {
     var Page p = get_page();
-    open_module("customtext", $title, $titlelink_url);
-    print safe $text;
+    open_module("customtext", $*text_module_customtext, $*text_module_customtext_url);
+    print safe $*text_module_customtext_content;
     close_module();
 }
 function print_module_links() {
@@ -3321,10 +3354,7 @@ function handle_module_group_array(string[][] list) {
             print_module_syndicate();
         }
         elseif ($module == "customtext") {
-            var string title = $item[1];
-            var string text = $item[2];
-            var string titlelink_url = $item[3];
-            print_module_customtext($title, $text, $titlelink_url);
+            print_module_customtext();
         }
         elseif ($module == "links") {
             print_module_links();
