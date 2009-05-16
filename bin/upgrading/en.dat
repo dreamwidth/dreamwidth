@@ -2153,6 +2153,8 @@ menunav.create.uploaduserpics=Upload Icons ([[num]] of [[max]])
 
 menunav.explore=Explore
 
+menunav.explore.interests=Interests
+
 menunav.explore.directorysearch=Directory Search
 
 menunav.explore.faq=FAQ
@@ -2194,6 +2196,8 @@ menunav.read.tags=Tags
 menunav.shop=Shop
 
 menunav.shop.paidtime=Buy a Paid Account
+
+menunav.shop.history=Payment History
 
 notification_method.email.title=Email
 

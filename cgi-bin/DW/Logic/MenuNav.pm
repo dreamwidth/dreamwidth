@@ -178,6 +178,10 @@ sub get_menu_navigation {
         {
             name => 'explore',
             items => [
+		{ url => "$LJ::SITEROOT/interests.bml",
+		  text => "menunav.explore.interests",
+		  display => $always,
+		},
                 {
                     url => "$LJ::SITEROOT/directorysearch.bml",
                     text => "menunav.explore.directorysearch",
@@ -198,6 +202,11 @@ sub get_menu_navigation {
                     text => "menunav.shop.paidtime",
                     display => LJ::is_enabled( 'payments' ) ? 1 : 0,
                 },
+		{
+		    url => "$LJ::SITEROOT/shop/history.bml",
+		    text => "menunav.shop.history",
+		    display => LJ::is_enabled( 'payments' ) && $loggedin ? 1 : 0,
+		},
             ],
         },
     );
