@@ -221,7 +221,6 @@
             $body .= "<li>$ML{'.createaccount.whylogin.benefit4'}</li>";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit5'}</li>";
             $body .= "</ul>\n";
-            $body .= "<p><a href='<?siteroot?>/tour/'>$ML{'.createaccount.tour'}</a></p>\n";
             $body .= "</div><!-- end .login-create-account -->\n";
             $body .= "</div><!-- end .columns-2-left -->\n";
         }
