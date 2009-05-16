@@ -141,7 +141,7 @@ body<=
     @users = @{$items{items}};
 
     # output starts here
-    $ret .= "<form method='post' action='pending.bml?authas=$cname'>";
+    $ret .= "<form method='post' action='pending.bml?authas=$cname' name='pending_member_form'>";
     $ret .= LJ::form_auth();
 
     # jump to user
@@ -156,14 +156,14 @@ body<=
     $ret .= "<br /><div align='center'><table class='userslist-table' cellspacing='0' cellpadding='2'>\n<tr><th>";
     $ret .= LJ::html_check({ id => 'all', name => 'all', checked => 'checked', 
 	onchange =>
-		"var inputs = document.getElementById('content-wrapper').getElementsByTagName('input');
+		"var inputs = document.pending_member_form.getElementsByTagName('input');
 		for (var i = 0; i < inputs.length; i++) {
 			if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
 				inputs[i].checked = this.checked;
 			}
 		}", 
 	onclick =>
-		"var inputs = document.getElementById('content-wrapper').getElementsByTagName('input');
+		"var inputs = document.pending_member_form.getElementsByTagName('input');
 		for (var i = 0; i < inputs.length; i++) {
 			if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
 				inputs[i].checked = this.checked;

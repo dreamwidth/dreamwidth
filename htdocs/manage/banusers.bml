@@ -75,7 +75,7 @@ body<=
 
     $ret .= "<div style='margin-top: 20px;'>$submit_msg</div>";
 
-    $ret .= "<form action='$LJ::SITEROOT/manage/banusers.bml$getextra' method='post'>";
+    $ret .= "<form action='$LJ::SITEROOT/manage/banusers.bml$getextra' method='post' name='ban_users_form'>";
     $ret .= LJ::form_auth();
 
     # ban users
@@ -96,14 +96,14 @@ body<=
         $ret .= $u->is_community ? "<p>$ML{'.intro.unban.comm'}</p>" : "<p>$ML{'.intro.unban.self'}</p>";
         $ret .= "<table class='userslist-table' cellspacing=0 cellpadding=0><tr><th>";
         $ret .= LJ::html_check({ id => 'all', name => 'all', onchange =>
-                "var inputs=document.getElementById('content-wrapper').getElementsByTagName('input');
+                "var inputs=document.ban_users_form.getElementsByTagName('input');
                 for (var i = 0; i < inputs.length; i++) {
                     if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
                         inputs[i].checked = this.checked;                  
                     } 
                 }",
 	            onclick=>
-                "var inputs=document.getElementById('content-wrapper').getElementsByTagName('input');
+                "var inputs=document.ban_users_form.getElementsByTagName('input');
                 for (var i = 0; i < inputs.length; i++) {
                     if (inputs[i].type == 'checkbox' && inputs[i].getAttribute('id') !== 'all') {
                         inputs[i].checked = this.checked;                  
