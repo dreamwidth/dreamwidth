@@ -45,10 +45,6 @@ SUBMIT:
         # Note: If a captcha check is added, then form auth would be redundant
         return "<b>$ML{'Error'}</b>: $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
-        # rate limit
-        return "<b>$ML{'Error'}</b>: $ML{'.error.ratelimited'}"
-            unless $remote->rate_log( 'commcreate', 1 );
-
         my $user = LJ::canonical_username($POST{user});
         my $title = $POST{title} || $user;
 
@@ -79,6 +75,10 @@ SUBMIT:
         }
 
         last SUBMIT if $error;
+
+        # rate limit
+        return "<b>$ML{'Error'}</b>: $ML{'.error.ratelimited'}"
+            unless $remote->rate_log( 'commcreate', 1 );
 
         unless ($second_submit) {
             $u = LJ::User->create_community(
