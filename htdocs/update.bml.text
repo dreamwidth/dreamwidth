@@ -51,6 +51,8 @@
 
 .htmlokay.rte_nosupport=(Sorry, your browser does not currently support the rich text environment.)
 
+.link.view_thumbnails=View Thumbnails
+
 .localtime=Local time:
 
 .loggedinas2=You are currently logged in as [[user]].<br />To post as another user, <a [[aopts]]>click here</a>.

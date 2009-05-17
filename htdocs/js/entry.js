@@ -173,7 +173,7 @@ function defaultDate() {
 
 function insertViewThumbs() {
     var lj_userpicselect = $('lj_userpicselect');
-    lj_userpicselect.innerHTML = 'View Thumbnails';
+    lj_userpicselect.innerHTML = ml.viewthumbnails_link;
 }
 
 function mood_preview() {

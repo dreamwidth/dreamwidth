@@ -603,6 +603,14 @@ head<=
     </script>^;
 
     $ret .= (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : "";
+
+    $ret .= <<HEAD;
+<script type="text/javascript">
+    var ml = new Object();
+    ml.viewthumbnails_link = "$ML{'.link.view_thumbnails'}";
+</script>
+HEAD
+
     return $ret;
 }
 _code?>
