@@ -64,7 +64,7 @@ sub save {
 sub class_from_key {
     my ( $val ) = @_;
 
-    my ( $class, $key ) = $val =~ /^((?:[a-zA-Z0-9]+__)+[a-zA-Z0-9]+)_([^_]+)$/;
+    my ( $class, $key ) = $val =~ /^((?:[a-zA-Z0-9]+__)+[a-zA-Z0-9]+)_(\w+)$/;
     $class =~ s/__/::/g if $class;
 
     return ( $class, $key );
