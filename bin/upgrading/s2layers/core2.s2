@@ -2749,15 +2749,6 @@ function Page::view_title() [notags] : string {
 function RecentPage::view_title() : string {
     return $*text_view_recent;
 }
-
-function FriendsPage::print_global_title() {
-    if ($.friends_title) {
-        """<h1 id="title"><span>""" + $.friends_title + """</span></h1>""";
-    }
-}
-function FriendsPage::print_global_subtitle() {
-}
-
 function FriendsPage::view_title() : string {
     if ($.friends_mode == "") {
         if ($.filter_active) {
