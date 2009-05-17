@@ -23,9 +23,25 @@
 
 .intro=Use this page to review and edit tags you have defined.
 
+.label.counts=counts and security
+
+.label.filters=filters
+
+.label.notapplicable=n/a
+
+.label.private=private
+
+.label.public=public
+
+.label.security=security
+
 .label.settings=Tag Settings
 
 .label.tags=Tag Properties
+
+.label.total=total
+
+.label.trusted=trusted
 
 .label.yours=Your Tags
 

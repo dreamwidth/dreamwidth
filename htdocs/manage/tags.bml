@@ -1,10 +1,9 @@
 <?page
-title=><?_code return $ML{'.title2'}; _code?>
 body<=
 <?_code
 {
     use strict;
-    use vars qw(%POST %GET);
+    use vars qw(%POST %GET $headextra);
 
     LJ::set_active_crumb('managetags');
 
@@ -15,6 +14,23 @@ body<=
     return "<?needlogin?>" unless $remote;
 
     LJ::need_res("stc/tags.css", "js/tags.js");
+
+   $headextra = <<HEAD;
+<script type="text/javascript">
+    var ml = new Object();
+
+    ml.counts_label = "$ML{'.label.counts'}";
+    ml.public_label = "$ML{'.label.public'}";
+    ml.private_label = "$ML{'.label.private'}";
+    ml.trusted_label = "$ML{'.label.trusted'}";
+    ml.filters_label = "$ML{'.label.filters'}";
+    ml.total_label = "$ML{'.label.total'}";
+    ml.security_label = "$ML{'.label.security'}";
+    ml.na_label = "$ML{'.label.notapplicable'}";
+    ml.rename_btn = "$ML{'.button.rename'}";
+
+</script>
+HEAD
 
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u = LJ::get_authas_user($authas);
@@ -315,4 +331,8 @@ body<=
 } _code?>
 <=body
 bodyopts=>onLoad="initTagPage()"
+title=><?_code return $ML{'.title2'}; _code?>
+head<=
+<?_code return $headextra; _code?>
+<=head
 page?>

@@ -59,7 +59,7 @@ function tagselect(list)
     // no selections
     if (! selected_num) {
         toggle_actions(false);
-        rename_btn.value = "Rename";
+        rename_btn.value = ml.rename_btn;
         show_props(tagprops);
     } else {
         toggle_actions(true);
@@ -67,7 +67,7 @@ function tagselect(list)
 
         // exactly one selection
         if (selected_num == 1) {
-            rename_btn.value = "Rename";
+            rename_btn.value = ml.rename_btn;
             show_props(tagprops, selected_id);
         }
 
@@ -117,16 +117,16 @@ function show_props(div, id)
     var tag = tags[id];
     var out;
 
-    if (! tag) tag = [ 'n/a', 'n/a', '-', '-', '-', '-', '-' ];
+    if (! tag) tag = [ ml.na_label, ml.na_label, '-', '-', '-', '-', '-' ];
 
     var secimg = '&nbsp; <img align="middle" src="/img/';
-    if (tag[1] == "public") {
+    if (tag[1] == ml.public_label) {
         secimg = secimg + "silk/identity/user.png";
     }
-    else if (tag[1] == "private") {
+    else if (tag[1] == ml.private_label) {
         secimg = secimg + "silk/entry/private.png";
     }
-    else if (tag[1] == "friends") {
+    else if (tag[1] == ml.trusted_label) {
         secimg = secimg + "silk/entry/locked.png";
     } 
     else {
@@ -136,13 +136,13 @@ function show_props(div, id)
     if (tag[1] == "n/a") secimg = "";
 
     out = "<table class='proptbl' cellspacing='0'>";
-    out = out + "<tr><td class='h' colspan='2'>counts and security</td></tr>";
-    out = out + "<tr><td class='t'>public</td><td class='c'>" + tag[2] + "</td></tr>";
-    out = out + "<tr><td class='t'>private</td><td class='c'>" + tag[3] + "</td></tr>";
-    out = out + "<tr><td class='t'>friends</td><td class='c'>" + tag[4] + "</td></tr>";
-    out = out + "<tr><td class='t'>custom groups</td><td class='c'>" + tag[5] + "</td></tr>";
-    out = out + "<tr><td class='r'>total</td><td class='rv'>" + tag[6] + "</td></tr>";
-    out = out + "<tr><td class='r' style='height: 16px'>security</td><td class='rv' align='middle'>" + tag[1] + secimg + "</td></tr>";
+    out = out + "<tr><td class='h' colspan='2'>" + ml.counts_label + "</td></tr>";
+    out = out + "<tr><td class='t'>" + ml.public_label + "</td><td class='c'>" + tag[2] + "</td></tr>";
+    out = out + "<tr><td class='t'>" + ml.private_label + "</td><td class='c'>" + tag[3] + "</td></tr>";
+    out = out + "<tr><td class='t'>" + ml.trusted_label + "</td><td class='c'>" + tag[4] + "</td></tr>";
+    out = out + "<tr><td class='t'>" + ml.filters_label + "</td><td class='c'>" + tag[5] + "</td></tr>";
+    out = out + "<tr><td class='r'>" + ml.total_label + "</td><td class='rv'>" + tag[6] + "</td></tr>";
+    out = out + "<tr><td class='r' style='height: 16px'>" + ml.security_label + "</td><td class='rv' align='middle'>" + tag[1] + secimg + "</td></tr>";
     out = out + "</table>";
 
     div.innerHTML = out;
