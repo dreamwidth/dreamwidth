@@ -12,11 +12,13 @@
  */
  
  /*  Colors: 
-     dkblue=#002A82 (standout border, vlink)
-    medblue=#3960A0 (borders, standout, link)
-    ltblue=#BBCCDD (inactive tabs, evencomment, profile border)
-    vryltblue=#E6ECF9 (active tabs, oddcomment, headerlinks)
-    alt vryltblue=#ECF3FF (menulinks)
+    dkblue=#002A82 (page borders)
+	vlink=#002A92
+    medblue=#3960A0 (borders)
+	link=#3960C0
+    ltblue=#D6DCE9 (inactive tabs, evencomment, profile border, standout border)
+    vryltblue=#E6ECF9 (active tabs, oddcomment, headerlinks, standout)
+    alt vryltblue=#EFF6FF (menulinks, search box bg)
 */
 
 /**
@@ -31,6 +33,8 @@ body {
     background-repeat: repeat-x;
     background-color: #3960A0;
     color: #111122;
+	margin: 0;
+	padding: 0;
 }
 
 H1, H2, H3, H4 { font-style: italic; 
@@ -39,6 +43,7 @@ H1, H2, H3, H4 { font-style: italic;
     }
 H1 { font-size: 175%; }
 H2 { font-size: 150%; }
+#content H2 { font-size: 125%; }
 H3 { font-size: 125%; }
 H4 { font-size: 100%; }
 
@@ -47,10 +52,10 @@ ul { list-style: circle;
 
 a:link,
 .link {
-    color: #3960A0;
+    color: #3960C0;
 }
 a:visited {
-    color: #002A82;
+    color: #002A92;
 }
 a:hover,
 a:active,
@@ -60,12 +65,12 @@ a:active,
 
 #canvas {
     padding-top: 1px;  /*to ensue margin*/
-    background-color: #f6f9FF;
-    margin-left: 8.25em;
+    background-color: #f9fcFF;
+	margin-left: 9.25em;
     margin-top: 100px;
     border-left: 1px solid #002A82;
     border-bottom: 1px solid #002A82;
-    min-height: 32em;
+    min-height: 55em;
 }
 #page {
     padding-top: 1px;  /*to ensue margin*/
@@ -143,7 +148,7 @@ a:active,
     #header-search .appwidget-search {
         margin-right: .5em;
         }
-    #header-search #search { background-color: #E6ECF9;
+    #header-search #search { background-color: #EFF6FF;
     border: 1px solid #002A82; }
     
 /**
@@ -152,7 +157,7 @@ a:active,
 #menu { position: absolute;
     top: 100px;
     left: 0;
-    width: 8.25em;
+    width: 9.25em;
     background-color: #3960A0;
     z-index: 100; /*to cover the search-border in the sidebar*/
     }
@@ -168,7 +173,7 @@ a:active,
             margin-top: 0;
         }
     #menu li { padding: .15em 0; }
-    #menu a {color: #ECF3FF; }
+    #menu a {color: #EFF6FF; }
         #menu .topnav a {font-weight: bold;}
         #menu .subnav a {font-weight: normal; }
 
@@ -223,7 +228,7 @@ a:active,
 .cmtbar-even {
     border-bottom: none !important;
     border-right: none !important;
-    background-color: #BBCCDD !important;
+    background-color: #D6DCE9 !important;
 }
 
 /*insert class of screened comments here*/ {
@@ -235,10 +240,19 @@ a:active,
 }
 
 .username {
-    border-bottom: 1px solid #BBCCDD !important;
-    border-top: 1px solid #BBCCDD !important;
+    border-bottom: 1px solid #D6DCE9 !important;
+    border-top: 1px solid #D6DCE9 !important;
     background-color: #E6ECF9 !important;
 }
+
+/* layer tables */
+table.table_layerbrowse,
+table#table_yourlayers { border-collapse: collapse; }
+
+table.table_layerbrowse,
+table.table_layerbrowse td,
+table#table_yourlayers,
+table#table_yourlayers td { border: 1px solid #333333; }
 
 
 /**
@@ -354,9 +368,9 @@ a:active,
     text-align: center;
 }
 .standout .standout-inner {
-    background-color: #3960A0;
+    background-color: #E6ECF9;
     color: #000;
-    border: 1px solid #002A82;
+    border: 1px solid #D6DCE9;
     margin-top: 0.5em;
     margin-left: auto;
     margin-right: auto;
@@ -385,8 +399,8 @@ a:active,
 
 .section, .username, .actions li {
     background-color: #E6ECF9;
-    border-bottom: 1px solid #BBCCDD;
-    border-top: 1px solid #BBCCDD;
+    border-bottom: 1px solid #D6DCE9;
+    border-top: 1px solid #D6DCE9;
     color: #002A82;
 } 
 
@@ -414,7 +428,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 }
 
 .theme-item .theme-button-disabled, .layout-item .layout-button-disabled {
-    background: #BBCCDD;
+    background: #D6DCE9;
 }
 
 .theme-item {
@@ -424,10 +438,10 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 .customize-button, .theme-item .theme-button, .layout-item 
 .layout-button {
-    background: #BBCCDD;
+    background: #D6DCE9;
     border: 2px solid #000;
-    border-top: 2px solid #BBCCDD;
-    border-left: 2px solid #BBCCDD;
+    border-top: 2px solid #D6DCE9;
+    border-left: 2px solid #D6DCE9;
 }
 
 
@@ -499,6 +513,128 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     font-weight: bold;
 }
 
+
+/* more, detailed by page*/
+/*customizetheme.css*/
+.customize-button {    
+    color: #fff;
+    background: #D6DCE9;
+    border: 2px solid #3960A0;
+}
+.customize-inner-wrapper {
+    background: url("/img/celerity/celgrn-borderpixel.gif") repeat-y scroll 134px 50%;
+}
+.customize-content .subheader {
+    background-image: url("/img/celerity/celgrn-arrow-right.gif");
+	background-position: left center;
+	background-repeat: no-repeat;
+    border-bottom: 1px solid #E6ECF9;
+}
+.customize-content .subheader.on {
+    background-image: url("/img/celerity/celgrn-arrow-down.gif");
+	background-position: left center ;
+	background-repeat: no-repeat;
+}
+.customize-nav li.on a,
+.customize-nav li.on ul {
+    background: #fff;
+}
+.customize-nav li.on a {
+    border-right: 1px solid #FFFFFF;
+}
+.customize-nav li.on li a {
+    background: #fff;
+    border-right: 1px solid #FFFFFF;
+}
+.customize-nav li.on li {
+    border-right: 1px solid #fff;
+}
+.customize-nav li a:visited {
+    color: #3960A0;
+}
+
+
+/*themenav.css*/
+.theme-nav-inner-wrapper {
+    background: url("/img/celerity/celgrn-borderpixel.gif") repeat-y scroll 134px 50%;
+}
+.theme-selector-nav {
+    background-color: #E6ECF9;
+}
+.theme-nav li.on a {
+    background-color: #fff ;
+}
+.theme-nav li a:visited {
+    color: #3960A0;
+}
+.theme-nav-separator {
+    border-right: 1px solid #E6ECF9;
+}
+.theme-nav-separator hr {
+    border-top: 1px solid #E6ECF9;
+}
+
+/*currentheme.css*/
+.theme-current h2.widget-header {
+    background-color: #E6ECF9;
+	background-image: none;
+}
+.theme-current-content h3 {
+    color: #000;
+}
+.theme-current-image {
+     border: 1px solid #fff;
+}
+.theme-current-links {
+    background-color: #fff;
+    border-right: 1px solid #D6DCE9;
+    border-bottom: 1px solid #D6DCE9;
+    padding: 3px 5px;
+}
+.theme-current ul li {
+    background: url("/img/customize/arrow.gif") no-repeat 0 5px;
+}
+
+/*themechooser*/
+.theme-item {
+    border: 1px solid #fff;
+}
+.theme-item.current {
+    border: 1px solid #D6DCE9;
+    background-color: #E6ECF9;
+}
+.theme-item img.theme-preview {
+    border: 1px solid #E6ECF9;
+}
+.theme-item.special h4,
+.theme-item.special .theme-desc {
+    background-color: #EFF6FF;
+}
+.theme-item .theme-button {
+    color: #222;
+    background: #D6DCE9;
+    border: 2px solid #3960A0;
+}
+.theme-item .theme-button-disabled {
+    background: #999;
+}
+.theme-item .theme-icons {
+    border: 1px solid #E6ECF9;
+    background-color: #fff;
+}
+.theme-time,
+.theme-upgrade-icon {
+    color: #333 !important;
+}
+.theme-upgrade-icon:hover .theme-upgrade-level,
+.theme-time:hover span.theme-availability {
+    background-color: #fff;
+}
+.theme-paging a:visited {
+    color: #3960A0;
+}
+
+
 /* inbox */
 
 #esn_folder_all {
@@ -508,10 +644,9 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 /* lj_settings.css */
 
 .section_head, table.alternating-rows th, div.username {
-    background-color: #D9D9D3;
-    color: #333;
-    border: none;
-    border-bottom: 1px solid #3960A0;
+    background-color: #E6ECF9;
+    border-top: 1px solid #D6DCE9;
+	border-bottom: 1px solid #D6DCE9;
 }
 
 /* comm_promo.css */
@@ -527,7 +662,7 @@ div.CommunityPromoBox {
 }
 
 #settings_nav li a {
-    background: #BBCCDD;
+    background: #D6DCE9;
     border: 1px solid #3960A0;
     border-bottom: none;
 }
@@ -544,7 +679,7 @@ div.CommunityPromoBox {
 /* cprod.css */
 
 .cprod.h3 {
-    background: #BBCCDD;
+    background: #D6DCE9;
     
 }
 
@@ -602,4 +737,460 @@ table.editfilters td {
 
 .invitecodes td {
     padding: 5px;
+}
+
+
+/* shop pages */
+
+/* this is so the main shop page does not look like toasted ass */
+.shopbox, .appwidget-shopitemgroupdisplay {
+    min-width: 20em;
+    min-height: 10em;
+    float: none;
+}
+
+.shopbox, .appwidget-shopitemgroupdisplay,
+.shop-account-status, .shop-error, .shop-cart-status,
+.shop-cart td, .shop-cart th, .shop-item-highlight {
+    border: 1px solid #3960A0;
+}
+
+/* create flow */
+
+.create-form td {
+    padding: 5px;
+}
+
+.appwidget-createaccount .create-button {
+    color: #222;
+    background-color: #D6DCE9;
+}
+
+.appwidget-createaccountprogressmeter .step-block-active {
+    color: #fff;
+    background-color: #3960A0;
+}
+
+.appwidget-createaccountprogressmeter .step-block-inactive {
+    color: #fff;
+    background-color: #D6DCE9;
+}
+
+.appwidget-createaccountprogressmeter .step-selected {
+    color: #3960A0;
+}
+
+.appwidget-createaccountprogressmeter .step-previous {
+    color: #D6DCE9;
+}
+
+.appwidget-createaccountprogressmeter .step-next {
+    color: #222;
+}
+
+.appwidget-createaccountprofile .header {
+    color: #3960A0;
+}
+
+.appwidget-createaccountprofile .field-name {
+    background-color: #e0e0e0;
+}
+
+
+/* Site Map, override page-level style */
+dd ul li {list-style: circle !important; 
+	margin-left: 2em !important; }
+dt {font-weight: bold !important; 
+	margin-top: 10px !important;}
+#maplinks-left {margin-right: 2% !important; 
+	width: 48% !important; 
+	float: left !important;}
+#maplinks-right {margin-left: 2% !important; 
+	width: 48% !important; 
+	float: right !important;}
+
+/* lj_base-app.css */
+hr.hr {
+	color: #3960A0; 
+	background-color: #3960A0;
+}
+
+input.create-account {
+    background: #D6DCE9;
+    border: 2px solid #3960A0;
+}
+input.text,
+textarea.text,
+select.select {
+    background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;
+    border: 1px solid #bbb;
+    border-top: 1px solid #999;
+    border-left: 1px solid #999;
+}
+.detail {
+    
+}
+h2.widget-header {
+    
+}
+
+table.alternating-rows th {
+    border-top: 1px solid #3960A0;
+    border-bottom: 1px solid #3960A0;
+    background-color: #E6ECF9;
+}
+table.alternating-rows tr.altrow1 {
+    background-color: #fff;
+}
+table.alternating-rows tr.altrow2 {
+    background-color: #eee;
+}
+table.alternating-rows td {
+    border-bottom: 1px solid #ccc;
+}
+
+.appwidget .more-link {
+    color: #3960A0 !important;
+    background: url('/img/arrow-double-black.gif') no-repeat 0 60%;
+}
+
+.arrow-link,
+.more-link {
+    background: url('/img/arrow-double-black.gif') no-repeat 0 50%;
+}
+
+.message {
+    border: 5px solid #eee;
+}
+.message blockquote {
+    border: 1px solid #aaa;
+}
+
+.standout-border {
+    border: 1px solid #3960A0;
+}
+.standout-background {
+    background-color: #D6DCE9;
+}
+
+div.right-sidebar {
+    color: #000000;
+    background-color: #D6DCE9;
+    border: 1px solid #3960A0;
+}
+.textbutton { 
+    color: #3960A0;
+}
+/*NOTE: corner.gif is white*/
+h2.solid-neutral {
+	background-color: #D6DCE9;
+    color: #222;
+}
+h2.solid-blue { /*which is now solid not-blue*/
+	background-color: #D6DCE9;
+    color: #222;
+}
+.solid-neutral {
+    background: #ededed;
+}
+input.bright {
+    background-color: #D6DCE9;
+    border: 1px solid #3960A0;
+}
+.helper {
+    /*color: #666;*/
+}
+.rounded-box {
+    background: no-repeat;
+    zoom: 1;
+}
+.rounded-box .rounded-box-tr {
+    background: 100% 0 no-repeat;
+}
+.rounded-box .rounded-box-bl {
+    background: 0 100% no-repeat;
+}
+.rounded-box .rounded-box-br {
+    background: 100% 100% no-repeat;
+    padding: 2px; /* border width */
+}
+
+
+/* esn.css */
+.Subscribe tr.Inactive {
+    color: #aaa;
+}
+
+.Subscribe tr.Disabled {
+    background-color: #ddd;
+}
+
+.Subscribe tr.altrow {
+    background-color: #f1f1f1;
+}
+
+.Subscribe tr.Inactive a {
+    color: #aaa;
+}
+.Subscribe td p {
+    color: #666;
+    background: #fff;
+}
+
+.CategoryRow td {
+    border-bottom: 1px solid #D6DCE9;
+}
+
+#Subscriptions tr.lighter {
+	background-color: #E6ECF9;
+}
+#Subscriptions tr.darker {
+	background-color: #D6DCE9;
+}
+#SubscribeSaveButtons {
+    border: 1px solid #333;
+    }
+    
+.NotificationTable tr.Selected {
+    background-color: #eee;
+}
+
+.NotificationTable tr.Selected td {
+    border-top: 1px solid #ccc;
+}
+.NotificationTable #all_Body > .Selected:first-child td {
+	border-top: none;
+}
+
+.NotificationTable td {
+    padding: 2px;
+}
+.NotificationTable .inbox {
+    
+}
+
+.NotificationTable .inbox .header .checkbox {
+	border-top: 1px solid #D6DCE9;
+	border-bottom: 1px solid #D6DCE9;
+	border-left: 1px solid #D6DCE9;
+}
+
+.NotificationTable .inbox .header .actions {
+	border-top: 1px solid #D6DCE9;
+	border-bottom: 1px solid #D6DCE9;
+	border-right: 1px solid #D6DCE9;
+}
+
+.inbox .header {
+    background: #E6ECF9;
+}
+
+.InboxItem_Read {
+    color: #888;
+}
+span.InboxItem_Read:hover {
+    color: #000;
+}
+span.InboxItem_Read a {
+    color: #999 !important;
+}
+span.InboxItem_Read:hover a {
+    color: inherit !important;
+}
+
+.inbox .alt {
+    background: #f6f6f6;
+}
+.inbox td.NoItems {
+    color: #ddd;
+}
+.inbox td.time {
+    color: #555;
+}
+
+.folders a {
+    color: #000;
+    border: 1px solid #fff;
+}
+.folders a:visited, .folders a:link {
+    color: #000;
+}
+.folders a:hover {
+    border: 1px solid #D6DCE9;
+    background-color: #E6ECF9;
+}
+
+.ippu {
+    color: #000000
+}
+.ippu .track_title {
+	color: #D6DCE9;
+}
+
+/* entry.css */
+#lj_userpicselect {
+    color: #3960A0;
+}
+#lj_userpicselect_img {
+    border: 1px solid #fff;
+}
+#lj_userpicselect_img:hover {
+    border: 1px solid #3960A0;
+}
+#lj_userpicselect_img_txt {
+    color: #3960A0 !important;
+}
+#userpic_preview_image.userpic_loggedout {
+    border: 1px solid #3960A0;
+}
+.userpic_preview_border {
+    border: 1px solid #ccc;
+}
+#infobox {
+    border-left: 1px solid #000;
+}
+#entry {
+    border-bottom: 1px solid #bbb;
+}
+#entry ul li a {
+    background-color: #fff;
+    border: 1px solid #bbb;
+	border-bottom: none;
+}
+#entry ul li.on a {
+	border-bottom: 1px solid #fff;
+}
+#draft-container {
+    border: 1px solid #bbb;
+	border-top: none;
+}
+#draftstatus {
+    background-color: #fff;
+}
+#spellcheck-results {
+    border: 1px solid #D6DCE9;
+    background-color: #fff; 
+}
+#htmltools {
+    border-right: 1px solid #bbb;
+    border-left: 1px solid #bbb;
+	background: #fff;
+}
+#htmltools ul {
+    border-bottom: 1px solid #8D8D8D;
+}
+#options, #public, #submitbar {
+    border: 1px solid #D6DCE9;
+    background-color: #E6ECF9;
+}
+#public {
+    /*color:#666;*/
+}
+
+
+/* contextualhover.css */
+div.ContextualPopup div.Inner {
+    background-color: #EFF6FF !important;
+    color: #000 !important;
+    border: 1px solid #D6DCE9; 
+    }
+div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
+        color: #3960A0 !important;
+        }
+
+/* profile.css */
+
+.section, .username, .actions li {
+    background-color: #E6ECF9;
+    border-bottom: 1px solid #D6DCE9;
+	border-top: 1px solid #D6DCE9;
+} 
+
+.section img, .username img {
+    padding-left: 3px;
+}
+
+.tooltip {
+    border-bottom: 1px dotted #000;
+}
+.profile_join_disabled, .profile_postentry_disabled, 
+    .profile_sendvgift_disabled, .profile_sendmessage_disabled, 
+    .profile_addtrust_disabled, .profile_addsub_comm_disabled,
+    .profile_addsub_feed_disabled, .profile_addsub_person_disabled,
+    .profile_trackuser_disabled {
+        color: #999;
+    }
+.details_stats p {
+        color: #666;
+    }
+.details_stats .account_level {
+        color: #000;
+    }
+.section span.section_link {
+        color: #000;
+    }
+.section_body .inner_section_header {
+        
+    }
+.section_body_title {
+    
+}
+.userinfo th {
+    
+}
+
+/* tags.css */
+#selected_tags
+{
+    color: #777;
+}
+.tagsort
+{
+    
+}
+.tagfield {
+	color: #777;
+	border: 1px solid #CCC;
+}
+.tagfield:focus
+{
+	color: #000;
+    border: 1px solid #999;
+}
+.tagfield_error
+{
+    border: 1px solid red;
+    background-color: #ecd7d7;
+}
+.proptbl .t
+{
+    
+    background-color: #fbfbfb;
+    border-right: 1px solid #cdcdcd;
+}
+.proptbl .r
+{
+    
+    background-color: #fbfbfb;
+    border-right: 1px solid #cdcdcd;
+}
+.proptbl .rv
+{
+    background-color: #eee;
+}
+.edittbl .l, .lsep
+{
+    border-right: 1px solid;
+}
+.edittbl .sep
+{
+    border-top: 1px solid;
+}
+.curtags
+{
+    
+}
+.tagbox_nohist
+{
+    background-color: #eee;
 }
