@@ -37,6 +37,101 @@ sub _skeleton {
     };
 }
 
+# internal xml-rpc call method.
+# FIXME we should probably combine this with the similar method in
+# DW::Worker::ContentImporter::LiveJournal, and move it to a general
+# LJ-XMLRPC library class.
+sub _call_xmlrpc {
+    my ($self, $xmlrpc, $mode, $req) = @_;
+    
+    my $result = eval { $xmlrpc->call("LJ.XMLRPC.$mode", $req) };
+    
+    if ($result) {
+        if ($result->fault) {
+            # error from server
+            return {
+                success => 0,
+                error => $result->faultstring
+            }
+        } else {
+            # success
+            return {
+                success => 1,
+                result => $result->result
+            }
+        }
+    } else {
+        # connection error
+        return {
+            success => 0,
+            error => LJ::Lang::ml("xpost.error.connection", { url => $xmlrpc->get_proxy })
+        } 
+    }
+}
+
+# does the authentication call.
+# FIXME we should probably combine this with the similar method in
+# DW::Worker::ContentImporter::LiveJournal, and move it to a general
+# LJ-XMLRPC library class.
+sub do_auth {
+    my ($self, $xmlrpc, $auth) = @_;
+    
+    # challenge/response for user validation
+    if ($auth->{auth_challenge} && $auth->{auth_response}) {
+        # if we already have them, just return.
+        return {
+            username       => $auth->{username},
+            auth_challenge => $auth->{auth_challenge},
+            auth_response =>  $auth->{auth_response},
+            success => 1
+        };
+    } else {
+        my $challengecall = $self->_call_xmlrpc($xmlrpc, 'getchallenge', {});
+        if ($challengecall->{success}) {
+            my $challenge = $challengecall->{result}->{challenge};
+            return {
+                username       => $auth->{username},
+                auth_challenge => $challenge,
+                auth_response  => md5_hex($challenge . $auth->{encrypted_password}),
+                success        => 1
+            };
+        } else {
+            # just return the result hashref (with error)
+            return $challengecall;
+        }
+    }
+}
+
+# public xml-rpc call method.
+# FIXME we should probably combine this with the similar method in
+# DW::Worker::ContentImporter::LiveJournal, and move it to a general
+# LJ-XMLRPC library class.
+sub call_xmlrpc {
+    my ($self, $proxyurl, $mode, $req, $auth) = @_;
+    
+    my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl); };
+    # connection error if no proxy
+    return {
+        success => 0,
+        error => LJ::Lang::ml("xpost.error.connection", { url => $proxyurl })
+    } unless $xmlrpc;
+
+    # get the auth information
+    my $authresp = $self->do_auth($xmlrpc, $auth);
+    # fail if no auth available
+    return $authresp unless $authresp->{success};
+
+    # return the results of the call
+    return $self->_call_xmlrpc($xmlrpc, $mode, {
+        ver            => 1,
+        auth_method    => 'challenge',
+        username       => $authresp->{username},
+        auth_challenge => $authresp->{auth_challenge},
+        auth_response  => $authresp->{auth_response},
+        %{ $req || {} }
+    });
+}
+
 # does a crosspost using the LJ XML-RPC protocol.  returns a hashref
 # with success => 1 and url => the new url on success, or success => 0
 # and error => the error message on failure.
@@ -46,55 +141,14 @@ sub crosspost {
     # get the xml-rpc proxy and start the connection.
     # use the custom serviceurl if available, or the default using the hostname
     my $proxyurl = $extacct->serviceurl || "http://" . $extacct->serverhost . "/interface/xmlrpc";
-    
 
-    my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl); };
-    # connection error if no proxy
-    return {
-        success => 0,
-        error => LJ::Lang::ml("xpost.error.connection", { url => $proxyurl })
-    } unless $xmlrpc;
-
-    # challenge/response for user validation
-    my $challenge;
-    my $response;
-    if ($auth->{auth_challenge} && $auth->{auth_response}) {
-        # just use these.
-        $challenge = $auth->{auth_challenge};
-        $response = $auth->{auth_response};
-    } else {
-        my $challengecall = eval { $xmlrpc->call("LJ.XMLRPC.getchallenge"); };
-
-        if ($challengecall) {
-            if ($challengecall->fault) {
-                # error from the server
-                return {
-                    success => 0,
-                    error => $challengecall->faultstring
-                }
-            } else {
-                # success
-                $challenge = $challengecall->result->{challenge};
-            }
-        } else {
-            # connection error
-            return {
-                success => 0,
-                error => LJ::Lang::ml("xpost.error.connection", { url => $proxyurl })
-            } 
-        }
-    
-        # create the response to the challenge
-        $response = md5_hex($challenge . $auth->{encrypted_password});  
-    }
-    
     # load up the req.  if it's a delete, just set event as blank
     my $req;
     if ($delete) {
         $req = { event => '' };
     } else {
         # if it's a post or edit, fully populate the request.
-        $req = $self->entry_to_req($entry, $extacct);
+        $req = $self->entry_to_req($entry, $extacct, $auth);
         # handle disable comments
         if ($extacct->owner->prop('opt_xpost_disable_comments')) {
             if ($req->{props}->{opt_nocomments}) {
@@ -106,42 +160,38 @@ sub crosspost {
         }
     }
     
-    # update the message with the appropriate remote settings
-    $req->{username} = $extacct->username;
-    $req->{auth_method} = 'challenge';
-    $req->{auth_challenge} = $challenge;
-    $req->{auth_response} = $response;
-    $req->{ver} = 1;
-
     # get the correct itemid for edit
     $req->{itemid} = $itemid if $itemid;
 
     # crosspost, update, or delete
-    my $xpostcall = eval { $xmlrpc->call($itemid ? 'LJ.XMLRPC.editevent' : 'LJ.XMLRPC.postevent', $req) };
-
-    if ($xpostcall) {
-        if ($xpostcall->fault) {
-            # error from server
-            return {
-                success => 0,
-                error => $xpostcall->faultstring
-            }
-        } else {
-            # success
-            return {
-                success => 1,
-                url => $xpostcall->result->{url},
-                reference => $xpostcall->result->{itemid}
-            }
+    my $xpost_result = $self->call_xmlrpc($proxyurl, $itemid ? 'editevent' : 'postevent', $req, $auth);
+    if ($xpost_result->{success}) {
+        return {
+            success => 1,
+            url =>$xpost_result->{result}->{url},
+            reference => $xpost_result->{result}->{itemid}
         }
     } else {
-        # connection error
-        return {
-            success => 0,
-            error => LJ::Lang::ml("xpost.error.connection", { url => $proxyurl })
-        } 
+        return $xpost_result;
     }
+}
 
+# returns a hash of friends groups.
+sub get_friendgroups {
+    my ($self, $extacct, $auth) = @_;
+
+    # use the custom serviceurl if available, or the default using the hostname
+    my $proxyurl = $extacct->serviceurl || "http://" . $extacct->serverhost . "/interface/xmlrpc";
+
+    my $xpost_result = $self->call_xmlrpc($proxyurl, 'getfriendgroups', {}, $auth);
+    if ($xpost_result->{success}) {
+        return {
+            success => 1,
+            friendgroups => $xpost_result->{result}->{friendgroups},
+        }
+    } else {
+        return $xpost_result;
+    }
 }
 
 # validates that the given server is running a LJ XML-RPC server.
@@ -171,7 +221,7 @@ sub validate_server {
 
 # translates at Entry object into a request for crossposting
 sub entry_to_req {
-    my ($self, $entry, $extacct) = @_;
+    my ($self, $entry, $extacct, $auth) = @_;
 
     # basic parts of the request
     my $req = {
@@ -186,10 +236,15 @@ sub entry_to_req {
         if ($entry->allowmask == 1) {
             $req->{allowmask} = "1";
         } else {
-            # otherwise, it's a custom group.  just make it private for now.
-            $req->{security} = "private";
+            my $allowmask = $self->translate_allowmask($extacct, $auth, $entry);
+            if ($allowmask) {
+                $req->{allowmask} = $allowmask;
+            } else {
+                $req->{security} = "private";
+            }
         }
     }
+
     # set the date.
     my $eventtime = $entry->eventtime_mysql;
     $eventtime =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d)/;
@@ -220,6 +275,43 @@ sub entry_to_req {
     $req = $extacct->externalsite->pre_crosspost_hook( $req );
 
     return $req;
+}
+
+# translates the given allowmask to 
+sub translate_allowmask {
+    my ($self, $extacct, $auth, $entry) = @_;
+ 
+    my $result = $self->get_friendgroups($extacct, $auth);
+    return 0 unless $result->{success};
+
+    # make a name/id map for the extgroups.
+    my %namemap;
+    foreach my $extgroup ( @{ $result->{friendgroups} || [] } ) {
+        $namemap{$extgroup->{name}} = $extgroup->{id};
+    }
+
+    # get the trusted group id list from the given allowmask
+    my %selected_group_ids = ( map { $_ => 1 } grep { $entry->allowmask & ( 1 << $_ ) } 1..60 );
+    return 0 unless keys %selected_group_ids;
+
+    # get all of the available groups for the poster
+    my $groups = $entry->poster->trust_groups || {};
+    return 0 unless keys %$groups;
+
+    # now try to map them
+    my $extmask = 0;
+    foreach my $groupid ( keys %$groups ) {
+        # skip the groups not selected for this entry
+        next unless $selected_group_ids{$groupid};
+
+        # if there is a matching group name on the external
+        # account, then add its group id to the mask.
+        if ( my $id = $namemap{$groups->{$groupid}->{groupname}} ) {
+            $extmask |= ( 1 << $id );
+        }
+    }
+
+    return $extmask;
 }
 
 # cleans the entry text for crossposting

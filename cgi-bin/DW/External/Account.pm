@@ -250,6 +250,8 @@ sub crosspost {
             # include the (encrypted) current password.
             $auth->{encrypted_password} = $self->password;
         }
+        # add the username to the auth object
+        $auth->{username} = $self->username;
 
         # see if we're posting or editing
         my $xpost_mapping = $self->xpost_string_to_hash($entry->prop('xpost'));
@@ -301,6 +303,8 @@ sub delete_entry {
             # include the (encrypted) current password.
             $auth->{encrypted_password} = $self->password;
         }
+        # add the username to the auth object
+        $auth->{username} = $self->username;
 
         # get the associated post
         my $xpost_mapping = $self->xpost_string_to_hash($entry->prop('xpost'));
