@@ -168,6 +168,7 @@ sub new_cart {
         starttime => time(),
         userid    => $u ? $u->id : undef,
         uniq      => LJ::UniqCookie->current_uniq,
+        ip        => BML::get_remote_ip(),
         state     => $DW::Shop::STATE_OPEN,
         items     => [],
         total     => 0.00,
@@ -383,6 +384,7 @@ sub userid   { $_[0]->{userid}             }
 sub starttime{ $_[0]->{starttime}          }
 sub age      { time() - $_[0]->{starttime} }
 sub items    { $_[0]->{items} ||= []       }
+sub ip       { $_[0]->{ip}                 }
 sub uniq     { $_[0]->{uniq}               }
 sub nextscan { $_[0]->{nextscan}           }
 sub authcode { $_[0]->{authcode}           }
