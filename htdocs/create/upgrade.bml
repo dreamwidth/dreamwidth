@@ -22,7 +22,7 @@ body<=
     use strict;
     use vars qw(%GET %POST $title $headextra @errors @warnings);
 
-    $title = BML::ml( '/create.bml.title', { sitename => $LJ::SITENAMESHORT } );
+    $title = BML::ml( '/create.bml.title.upgrade', { sitename => $LJ::SITENAMESHORT } );
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
