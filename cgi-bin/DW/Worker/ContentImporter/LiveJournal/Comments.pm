@@ -101,10 +101,12 @@ sub try_work {
 
     # now backfill into jitemid_map
     my $jitemid_map = {};
+    $log->( 'Filtering parameters: hostname=[%s], username=[%s].', $data->{hostname}, $data->{username} );
     foreach my $url ( keys %$entry_map ) {
         # this works, see the Entries importer for more information
         my $turl = $url;
         $turl =~ s/-/_/g; # makes \b work below
+        $log->( 'Filtering entry URL: %s', $turl );
         next unless $turl =~ /\Q$data->{hostname}\E/ &&
                     $turl =~ /\b$data->{username}\b/;
 
@@ -123,6 +125,7 @@ sub try_work {
         # this works, see the Entries importer for more information
         my $turl = $url;
         $turl =~ s/-/_/g; # makes \b work below
+        $log->( 'Filtering comment URL: %s', $turl );
         next unless $turl =~ /\Q$data->{hostname}\E/ &&
                     $turl =~ /\b$data->{username}\b/;
 
