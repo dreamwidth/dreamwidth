@@ -60,6 +60,10 @@
             $ret{auth_token} = $auth_token;
         }
     } elsif ($action eq 'addsub') {
+
+        return $err->("Reached limit of " . $remote->get_cap('subscriptions') . " active subscriptions")
+            unless $remote->can_add_inbox_subscription;
+
         my %subparams = ();
 
         return $err->("Invalid subscription parameters") unless (defined $POST{journalid}) && $POST{etypeid}+0;
