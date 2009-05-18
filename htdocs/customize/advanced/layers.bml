@@ -174,7 +174,7 @@
     # show list of layers
     $body .= "<?h1 $ML{'.yourlayers.header'} h1?>\n";
     if (%$ulay) {
-        $body .= "<table id="table_yourlayers" style='margin-bottom: 10px' cellpadding='3' border='1'>\n";
+        $body .= "<table id='table_yourlayers' style='margin-bottom: 10px' cellpadding='3' border='1'>\n";
         $body .= "<tr><td><b>$ML{'.yourlayers.table.layerid'}</b></td><td><b>$ML{'.yourlayers.table.type'}</b></td><td><b>$ML{'.yourlayers.table.name'}</b></td><td><b>$ML{'.yourlayers.table.actions'}</b></td></tr>\n";
         my $lastbase = 0;
         foreach my $lid (sort { $ulay->{$a}->{'b2lid'} <=> $ulay->{$b}->{'b2lid'} || $a <=> $b } 
