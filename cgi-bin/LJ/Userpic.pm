@@ -322,7 +322,7 @@ sub alttext {
 
 # returns an image tag of this userpic
 # optional parameters (which must be explicitly passed) include
-# width and keyword
+# width, keyword, and user (object)
 sub imgtag {
     my $self = shift;
     my %opts = @_;
@@ -340,8 +340,19 @@ sub imgtag {
 
     my $alttext = LJ::ehtml( $self->alttext( $keyword ) );
 
+    # if we passed in a user, format as if for entries or comments
+    # otherwise, print out keywords for additional context
+    my $title = "";
+    if ( $opts{user} ) {
+        $title = $opts{user}->display_name;
+        $title .= $opts{keyword} ? ": $opts{keyword}" : ": (default)";
+    } else {
+        $title = $keyword;
+    }    
+    $title = LJ::ehtml( $title );
+
     return '<img src="' . $self->url . '" width="' . $width .
-        '" alt="' . $alttext . '" class="userpic-img" />';
+        '" alt="' . $alttext . '" title="' . $title . '" class="userpic-img" />';
 }
 
 # FIXME: should have alt text, if it should be kept

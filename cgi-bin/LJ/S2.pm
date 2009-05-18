@@ -2127,12 +2127,16 @@ sub Image_userpic
         $alttext = $kwstr;
     }
 
+    my $title = $u->display_name;
+    $title .= $kw ? ": $kw" : ": (default)";
+    
     return {
         '_type' => "Image",
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
         'width' => $width,
         'height' => $height,
         'alttext' => LJ::ehtml( $alttext ),
+        'extra' => { title => LJ::ehtml( $title ) },
     };
 }
 

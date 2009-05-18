@@ -253,7 +253,7 @@ body<=
         my $apost = "</td>";
 
         # for each image, get the html imgtag
-        $ret .= $apre . $userpic->imgtag( keyword => $props->{picture_keyword} ) . $apost;
+        $ret .= $apre . $userpic->imgtag( keyword => $props->{picture_keyword}, user => $up ) . $apost;
     }
 
     $ret .= "<td class='attrib' valign='bottom'>";
@@ -554,8 +554,10 @@ body<=
                    my $postpic = LJ::Userpic->new( $pu, $post->{picid} );
 
                    # get the picture keyword from the comment properties
+                   # get the comment poster as well
                    my %kwopts = (
-                      keyword => $post->{props}->{'picture_keyword'}
+                      keyword => $post->{props}->{picture_keyword},
+                      user => $upost,
                    );
 
                    # build the imgtag for the userpic associated with the keyword

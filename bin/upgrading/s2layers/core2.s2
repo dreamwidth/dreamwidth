@@ -2535,7 +2535,7 @@ function Image::as_string(string{} opts) [fixed] : string
 function Image::as_string(string alttext) [fixed] : string
 "You most likely want to use Image::print instead.  Prints HTML for the image with a given alttext. Using meaningful alttext is strongly recommended to improve the accessibility of your layout. Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
-    return "<img src=\"$.url\" title=\"\" alt=\"" + $alttext + "\"" +
+    return "<img src=\"$.url\" title=\"$.extra{"title"}\" alt=\"$alttext\"" +
         htmlattr("height", $.height) +
         htmlattr("width", $.width) + " />";
 }
