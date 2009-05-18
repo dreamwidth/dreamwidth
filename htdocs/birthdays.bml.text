@@ -1,7 +1,7 @@
 ;; -*- coding: utf-8 -*-
-.description=Below are the birthdays for everyone that you list as a friend.
+.description=Below are the birthdays for everyone that is in your circle.
 
-.description.others=Below are the birthdays for everyone that [[user]] lists as a friend.
+.description.others=Below are the birthdays for everyone that is in [[user]]'s circle.
 
 .error.badstatus=[[user]] is not a currently active account.
 
@@ -9,7 +9,7 @@
 
 .findothers=If you would like to see the birthdays of the friends of another user, or of the members of a community, enter a username below:
 
-.nobirthdays=There are no birthdays to display. This happens when a user doesn't have anyone added to their Friends list, or if none of the user's friends list their birthday publically.
+.nobirthdays=<b>There are no birthdays to display.</b> This happens when a user doesn't have anyone added to their access or subscription lists, or if no one in the user's circle has made their birthday public.
 
 .title=Birthdays
 
