@@ -176,34 +176,29 @@ sub command_list_html {
 sub command_reference_html {
     my $pkg = shift;
 
-    my $ret = "<dl>";
+    my $ret;
 
     foreach my $cmd (sort keys %cmd2class) {
         my $class = $cmd2class{$cmd};
         next if $class->is_hidden;
         next unless $class->can_execute;
 
-        $ret .= "<a name='cmd.$cmd'><dt><p><table width=100% cellpadding=2><tr><td bgcolor=#d0d0d0>";
-
-        $ret .= "<tt><a style='text-decoration: none' href='#cmd.$cmd'><b>$cmd</b></a> ";
+        $ret .= "<a name='cmd.$cmd'><h2><code><b>$cmd</b></a> ";
         $ret .= LJ::ehtml($class->usage);
-        $ret .= "</tt></td></tr></table>";
+        $ret .= "</code></h2>\n";
 
-        $ret .= "</dt><dd><p>" . $class->desc;
+        $ret .= $class->desc;
 
         if ($class->args_desc) {
             my $args = $class->args_desc;
-            $ret .= "<p><dl>";
+            $ret .= "<dl>";
             while (my ($arg, $des) = splice(@$args, 0, 2)) {
-                $ret .= "<dt><b><i>$arg</i></b></dt><dd>$des</dd>";
+                $ret .= "<dt><strong><em>$arg</em></strong></dt><dd>$des</dd>\n";
             }
             $ret .= "</dl>";
         }
-
-        $ret .= "</dd></a>";
     }
 
-    $ret .= "</dl>";
 
     return $ret;
 }
