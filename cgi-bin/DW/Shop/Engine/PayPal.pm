@@ -259,9 +259,6 @@ sub confirm_order {
             } ),
         } );
 
-        # delete cart from memcache
-        $u->memc_delete( 'cart' ) if LJ::isu( $u );
-
         return 1;
     }
 
@@ -281,9 +278,6 @@ sub confirm_order {
             sitename => $LJ::SITENAME,
         } ),
     } );
-
-    # delete cart from memcache
-    $u->memc_delete( 'cart' ) if LJ::isu( $u );
 
     return 2;
 }
@@ -413,11 +407,10 @@ sub process_ipn {
         return 1
             unless $cart &&
                    $cart->state == $DW::Shop::STATE_PEND_PAID &&
-                   $cart->paymentmethod eq 'creditcardpp';
+                   $cart->paymentmethod eq 'creditcardpp' &&
                    $cart->display_total == $form->{payment_gross};
 
-        # looks good, mark it paid
-        $cart->paymentmethod( 'creditcardpp' );
+        # looks good, mark it paid so it gets processed
         $cart->state( $DW::Shop::STATE_PAID );
     }
 

@@ -100,9 +100,6 @@ sub confirm_order {
         } ),
     } );
 
-    # delete cart from memcache
-    $u->memc_delete( 'cart' ) if LJ::isu( $u );
-
     return 2;
 }
 

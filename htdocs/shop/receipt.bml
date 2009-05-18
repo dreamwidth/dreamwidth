@@ -75,7 +75,7 @@ _c?>
         if ( LJ::did_post() && $POST{setpaid } ) {
             return "invalid form post\n"
                 unless LJ::check_form_auth();
-            $cart->state( $DW::Shop::STATE_PAID, no_memcache => 1 );
+            $cart->state( $DW::Shop::STATE_PAID );
             return BML::redirect( "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum );
         }
 

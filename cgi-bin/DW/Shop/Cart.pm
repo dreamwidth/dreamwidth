@@ -36,8 +36,6 @@ sub get {
         my $uniq = LJ::UniqCookie->current_uniq
             or return undef;
 
-        # FIXME: we should memcache carts for people who aren't logged in
-
         $sql = 'uniq = ? AND userid IS NULL';
         @bind = ( $uniq );
 
@@ -47,11 +45,6 @@ sub get {
 
         # return this cart if loaded already
         return $u->{_cart} if $u->{_cart};
-
-        # see if this user has an active cart in memcache
-        my $cart = $u->memc_get( 'cart' );
-        return $u->{_cart} = $cart
-            if $cart;
 
         # faaail, have to load it
         $sql = 'userid = ?';
@@ -75,7 +68,6 @@ sub get {
         my $cart = $class->_build( thaw( $dbcart->{cartblob} ) );
         if ( $u ) {
             $u->{_cart} = $cart;
-            $u->memc_set( cart => $cart );
         }
         return $cart;
     }
@@ -226,8 +218,6 @@ sub get_all {
 sub save {
     my ( $self, %opts ) = @_;
 
-    my $memcache_data = $opts{no_memcache} ? 0 : 1;
-
     # we store the payment method id in the db
     my $paymentmethod_id = $DW::Shop::PAYMENTMETHODS{$self->paymentmethod}->{id} || 0;
 
@@ -242,14 +232,6 @@ sub save {
 
     # bail if error
     return 0 if $dbh->err;
-
-    # also toss this in memcache
-    my $u = LJ::load_userid( $self->{userid} );
-    if ( $memcache_data && LJ::isu( $u ) ) {
-        $u->memc_set( cart => $self );
-    }
-
-    # success!
     return 1;
 }
 
@@ -335,13 +317,13 @@ sub get_item {
 
 # get/set state
 sub state {
-    my ( $self, $newstate, %opts ) = @_;
+    my ( $self, $newstate ) = @_;
 
     return $self->{state}
         unless defined $newstate;
 
     $self->{state} = $newstate;
-    $self->save( no_memcache => $opts{no_memcache} );
+    $self->save;
 
     return $self->{state};
 }
@@ -349,13 +331,13 @@ sub state {
 
 # get/set payment method
 sub paymentmethod {
-    my ( $self, $newpaymentmethod, %opts ) = @_;
+    my ( $self, $newpaymentmethod ) = @_;
 
     return $self->{paymentmethod}
         unless defined $newpaymentmethod;
 
     $self->{paymentmethod} = $newpaymentmethod;
-    $self->save( no_memcache => $opts{no_memcache} );
+    $self->save;
 
     return $self->{paymentmethod};
 }
@@ -363,13 +345,13 @@ sub paymentmethod {
 
 # get/set email address
 sub email {
-    my ( $self, $newemail, %opts ) = @_;
+    my ( $self, $newemail ) = @_;
 
     return $self->{email}
         unless defined $newemail;
 
     $self->{email} = $newemail;
-    $self->save( no_memcache => $opts{no_memcache} );
+    $self->save;
 
     return $self->{email};
 }
