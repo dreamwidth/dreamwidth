@@ -36,7 +36,7 @@ my $sev3 = 1000; my $sev3_color = 'red';
 require "$ENV{LJHOME}/etc/config-private.pl";
 my %hostinfo = %LJ::PERLBAL_SERVERS;
 die "\%LJ::PERLBAL_SERVERS not found, please check config" unless %hostinfo;
-my @servers = sort keys %LJ::PERLBAL_SERVERS;
+my @servers = sort keys %hostinfo;
 
 ### INITIALIZE NETWORK VARIABLES ###
 my %tcp; my %s1; my %s2;
@@ -45,6 +45,7 @@ foreach (@servers)
     $tcp{$_} = new Net::Telnet (Timeout => $timeout, Telnetmode => 0);
     my ($host, $port) = split ':', $hostinfo{$_};
     $tcp{$_}->host($host); $tcp{$_}->port($port);
+    $tcp{$_}->errmode('return'); # don't die on connfail
     $tcp{$_}->prompt('/\.$/'); # Perlbal end-of-data marker
     $tcp{$_}->open(); # should stay open
 }
@@ -55,8 +56,15 @@ until (0 > 1)
     my $timestr = time2str("%a %b %d %T %Y", time);
     foreach my $server (@servers)
     {
-        my $bh_xfer=0; my $bh_wait=0; my $backend=0;
         my @states = $tcp{$server}->cmd('states');
+        unless (@states)
+        {
+            $s1{$server} = 'DWN';
+            $s2{$server} = 'DOWN';
+            $tcp{$server}->open(); # try to reopen
+            next;
+        }
+        my $bh_xfer = 0; my $bh_wait = 0; my $backend = 0;
         foreach (@states)
         {
             $bh_xfer = $1 if /Perlbal::BackendHTTP xfer_res (\d+)/;
@@ -69,7 +77,7 @@ until (0 > 1)
     print "$timestr: ";
     foreach (@servers)
     {
-        my $n = $s2{$_};
+        my $n = ($s2{$_} eq 'DOWN') ? $sev3 * 10 : $s2{$_};
         print color $sev4_color if ($n > $sev3);
         print color $sev3_color if ($n > $sev2 && $n <= $sev3);
         print color $sev2_color if ($n > $sev1 && $n <= $sev2);
