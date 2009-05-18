@@ -64,7 +64,7 @@ body<=
  my $ret; 
  
  $ret .= $navbar;
- $ret .= "<table>";
+ $ret .= "<table id='support-highscores'>";
  my $count = 0;
  foreach (@rows)
  {
