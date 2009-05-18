@@ -81,6 +81,7 @@ sub pre_crosspost_hook {
     # avoid "unknown metadata" error
     delete $req->{props}->{useragent};
     delete $req->{props}->{adult_content};
+    delete $req->{props}->{current_location};
 
     return $req;
 }
