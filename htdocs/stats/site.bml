@@ -1,0 +1,109 @@
+<?_c
+#
+# stats/site.bml
+#
+# New public statistics
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#      Pau Amma <pauamma@cpan.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+
+<?_code
+{
+    use strict;
+    use warnings;
+    use vars qw/ $title /;
+
+    use DW::StatStore;
+    use DW::StatData;
+
+    LJ::ModuleLoader::autouse_subclasses( 'DW::StatData' );
+
+    LJ::need_res( 'stc/sitestats.css' );
+    LJ::set_active_crumb( 'sitestats' );
+
+    $title = BML::ml( '.title', { sitenameshort => $LJ::SITENAMESHORT } );
+
+    # number of accounts (total+by type)
+    my $accounts_by_type = DW::StatData::AccountsByType->load_latest( DW::StatStore->get( "accounts" ) );
+    my $total; # Used in paid account stats below
+    my $ret = "<h2>$ML{'.accounts.title'}</h2>";
+ 
+    if ( defined $accounts_by_type ) {
+        $ret .= "<ul>";
+        $ret .= "<li>" . $ML{".accounts.bytype.$_"} . " "
+                . $accounts_by_type->value( $_ ) . "</li>"
+            foreach qw/ total personal identity /;
+        $ret .= "</ul>";
+        $total = $accounts_by_type->value( 'total' );
+    } else {
+        $ret .= $ML{'.error.notavailable'};
+    }
+    
+    # number of active accounts (by time since last active)
+    my $active_accounts = DW::StatData::ActiveAccounts->load_latest( DW::StatStore->get( "active" ) );
+    my $active; # Used in paid account stats below
+    $ret .= "<h2>$ML{'.active.title'}</h2><p>$ML{'.active.desc'}</p>";
+ 
+    if ( defined $active_accounts ) {
+        $ret .= "<ul>";
+        $ret .= "<li>" . $ML{".active.bytime.$_"} . " "
+                . $active_accounts->value( $_ ) . "</li>"
+            foreach qw/ active_1d active_7d active_30d /;
+        $ret .= "</ul>";
+        $active = $active_accounts->value( 'active_30d' );
+    } else {
+        $ret .= $ML{'.error.notavailable'};
+    }
+ 
+    # Paid accounts (by level), with % of total and active
+    my $paid = DW::StatData::PaidAccounts->load_latest( DW::StatStore->get( "paid" ) );
+    $ret .= "<h2>$ML{'.paid.title'}</h2>";
+ 
+    if ( defined $paid ) {
+        $ret .= "<table><tr>";
+        $ret .= "<th>" . $ML{".paid.colhdr.$_"} . "</th>"
+            foreach qw/ level number pct_total pct_active /;
+        $ret .= "</tr>\n";
+        foreach my $level ( qw( paid premium seed ) ) {
+            $ret .= "<tr><th>" . $ML{".paid.rowhdr.$level"} . "</th>";
+            my $n = $paid->value( $level );
+            $ret .= "<td class='stats'>$n</td>";
+            $ret .= "<td class='stats'>"
+                    . ( defined $total ? int( 100 * $n / $total ) : "" )
+                    . "</td>";
+            $ret .= "<td class='stats'>"
+                    . ( defined $active ? int( 100 * $n / $active ) : "" )
+                    . "</td></tr>\n";
+        }
+        $ret .= "</table>";
+    } else {
+        $ret .= $ML{'.error.notavailable'};
+    }
+    
+# FIXME: remove this when you have implemented them all 
+#  
+# * Number of accounts, total DONE
+# * Number of accounts active DONE
+# * Number of paid accounts (by payment level) DONE
+#   -- as a percentage of total accounts DONE
+#   -- as a percentage of active accounts DONE
+#   -- xxx number of active paid accounts
+#   -- xxx number of inactive paid accounts
+
+    return $ret;
+}
+_code?>
+
+<=body
+title=><?_code return $title; _code?>
+page?>

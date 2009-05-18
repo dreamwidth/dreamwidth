@@ -576,6 +576,8 @@ crumb.setpgpkey=Public Key
 
 crumb.siteopts=Browse Preferences
 
+crumb.sitestats=Site Statistics
+
 crumb.stats=Statistics
 
 crumb.styles=Styles

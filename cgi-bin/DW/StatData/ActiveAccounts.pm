@@ -20,8 +20,10 @@ DW::StatData::ActiveAccounts - Active accounts, by #days since last active
 
 =head1 SYNOPSIS
 
-  my $data = DW::StatData::ActiveAccounts->collect( @keys ); # See list below
   my $stats_obj = DW::StatData::ActiveAccounts->new( %$data );
+
+  # Don't use in web context.
+  my $data = DW::StatData::ActiveAccounts->collect( @keys ); # See list below
 
 An account is counted as active when it logs in, when it posts an entry (when
 posting to a community, both the poster and the community are marked active),

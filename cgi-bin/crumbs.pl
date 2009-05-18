@@ -71,6 +71,7 @@ use Errno qw(ENOENT);
     'searchregion' => ['Search By Region', '/directory.bml', 'search'],
     'seeoverrides' => ['View User Overrides', '', 'support'],
     'setpgpkey' => ['Public Key', '/manage/pubkey.bml', 'manage'],
+    'sitestats' => ['Site Statistics', '/stats/site.bml', 'about'],
     'stats' => ['Statistics', '/stats.bml', 'about'],
     'styles' => ['Styles', '/styles/', 'modify'],
     'support' => ['Support', '/support/', 'home'],

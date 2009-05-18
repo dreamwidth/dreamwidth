@@ -1,0 +1,39 @@
+;; -*- coding: utf-8 -*-
+
+.accounts.bytype.total=Total:
+
+.accounts.bytype.personal=Personal (users):
+
+.accounts.bytype.identity=External identity (OpenID, etc.):
+
+.accounts.title=Number of accounts
+
+.active.bytime.active_1d=Last 24 hours:
+
+.active.bytime.active_7d=Last 7 days:
+
+.active.bytime.active_30d=Last 30 days:
+
+.active.desc=These are accounts who logged in, posted an entry, commented, or edited a comment during the period indicated. For entries posted to communities, both the poster and the community are counted.
+
+.active.title=Active accounts
+
+.error.notavailable=(Sorry, those statistics aren't available right now.)
+
+.paid.colhdr.level=Level
+
+.paid.colhdr.number=Number
+
+.paid.colhdr.pct_total=% of total accounts
+
+.paid.colhdr.pct_active=% of active accounts
+
+.paid.rowhdr.paid=Paid
+
+.paid.rowhdr.premium=Premium
+
+.paid.rowhdr.seed=Seed
+
+.paid.title=Paid accounts
+
+.title=[[sitenameshort]] Site Statistics
