@@ -77,6 +77,9 @@ body<=
     $ret .= "</div>";
 
     $ret .= "</div>";
+	
+	#add element to clear floated divs
+	$ret .= "<div class='clear-floats'></div>";
 
     return $ret;
 

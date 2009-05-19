@@ -248,3 +248,6 @@ input.bright {
 .usercontent pre { 
     margin-bottom: 1em;
 }
+
+/* clearing element at the foot of Support index */
+.clear-floats { clear: both; }
