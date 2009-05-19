@@ -293,3 +293,6 @@ span.Pages input {
     font-weight: bold;
 }
 
+td#table_inbox_folders { vertical-align: top; }
+
+.folders { margin-top: 1em; }
