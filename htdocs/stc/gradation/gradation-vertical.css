@@ -294,6 +294,11 @@ table.table_layerbrowse td,
 table#table_yourlayers,
 table#table_yourlayers td { border: 1px solid #888888; }
 
+table#table_layerbrowse_classes,
+table#table_layerbrowse_classes td {border: none; }
+
+table.table_layerbrowse td,
+table#table_yourlayers td { padding: .15em .25em; }
 
 /**
  * Content Layouts
@@ -568,16 +573,16 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     border: 2px solid #888888;
 }
 .customize-inner-wrapper {
-    background: url("/img/celerity/celgrn-borderpixel.gif") repeat-y scroll 134px 50%;
+    background: url("/img/gradation/gradgray-borderpixel.gif") repeat-y scroll 134px 50%;
 }
 .customize-content .subheader {
-    background-image: url("/img/celerity/celgrn-arrow-right.gif");
+    background-image: url("/img/gradation/gradgray-arrow-right.gif");
 	background-position: left center;
 	background-repeat: no-repeat;
     border-bottom: 1px solid #666666;
 }
 .customize-content .subheader.on {
-    background-image: url("/img/celerity/celgrn-arrow-down.gif");
+    background-image: url("/img/gradation/gradgray-arrow-down.gif");
 	background-position: left center ;
 	background-repeat: no-repeat;
 }
@@ -602,7 +607,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 /*themenav.css*/
 .theme-nav-inner-wrapper {
-    background: url("/img/celerity/celgrn-borderpixel.gif") repeat-y scroll 134px 50%;
+    background: url("/img/gradation/gradgray-borderpixel.gif") repeat-y scroll 134px 50%;
 }
 .theme-selector-nav {
     background-color: #444444;

@@ -252,8 +252,13 @@ table#table_yourlayers { border-collapse: collapse; }
 table.table_layerbrowse,
 table.table_layerbrowse td,
 table#table_yourlayers,
-table#table_yourlayers td { border: 1px solid #333333; }
+table#table_yourlayers td { border: 1px solid #999; }
 
+table#table_layerbrowse_classes,
+table#table_layerbrowse_classes td {border: none; }
+
+table.table_layerbrowse td,
+table#table_yourlayers td { padding: .15em .25em; }
 
 /**
  * Content Layouts
@@ -522,16 +527,16 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     border: 2px solid #3960A0;
 }
 .customize-inner-wrapper {
-    background: url("/img/celerity/celgrn-borderpixel.gif") repeat-y scroll 134px 50%;
+    background: url("/img/blueshift/blueshift-borderpixel.gif") repeat-y scroll 134px 50%;
 }
 .customize-content .subheader {
-    background-image: url("/img/celerity/celgrn-arrow-right.gif");
+    background-image: url("/img/blueshift/blueshift-arrow-right.gif");
 	background-position: left center;
 	background-repeat: no-repeat;
     border-bottom: 1px solid #E6ECF9;
 }
 .customize-content .subheader.on {
-    background-image: url("/img/celerity/celgrn-arrow-down.gif");
+    background-image: url("/img/blueshift/blueshift-arrow-down.gif");
 	background-position: left center ;
 	background-repeat: no-repeat;
 }
@@ -556,7 +561,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 /*themenav.css*/
 .theme-nav-inner-wrapper {
-    background: url("/img/celerity/celgrn-borderpixel.gif") repeat-y scroll 134px 50%;
+    background: url("/img/blueshift/blueshift-borderpixel.gif") repeat-y scroll 134px 50%;
 }
 .theme-selector-nav {
     background-color: #E6ECF9;
