@@ -120,17 +120,22 @@ function show_props(div, id)
     if (! tag) tag = [ ml.na_label, ml.na_label, '-', '-', '-', '-', '-' ];
 
     var secimg = '&nbsp; <img align="middle" src="/img/';
+    var seclabel;
     if (tag[1] == "public") {
         secimg = secimg + "silk/identity/user.png";
+        seclabel = ml.public_label;
     }
     else if (tag[1] == "private") {
         secimg = secimg + "silk/entry/private.png";
+        seclabel = ml.private_label;
     }
     else if (tag[1] == "friends") {
         secimg = secimg + "silk/entry/locked.png";
+        seclabel = ml.trusted_label;
     } 
     else {
         secimg = secimg + "silk/entry/locked.png";
+        seclabel = tag[1];
     }
     secimg = secimg + '" />';
     if (tag[1] == "n/a") secimg = "";
@@ -142,7 +147,7 @@ function show_props(div, id)
     out = out + "<tr><td class='t'>" + ml.trusted_label + "</td><td class='c'>" + tag[4] + "</td></tr>";
     out = out + "<tr><td class='t'>" + ml.filters_label + "</td><td class='c'>" + tag[5] + "</td></tr>";
     out = out + "<tr><td class='r'>" + ml.total_label + "</td><td class='rv'>" + tag[6] + "</td></tr>";
-    out = out + "<tr><td class='r' style='height: 16px'>" + ml.security_label + "</td><td class='rv' align='middle'>" + tag[1] + secimg + "</td></tr>";
+    out = out + "<tr><td class='r' style='height: 16px'>" + ml.security_label + "</td><td class='rv' align='middle'>" + seclabel + secimg + "</td></tr>";
     out = out + "</table>";
 
     div.innerHTML = out;
