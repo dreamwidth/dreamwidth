@@ -99,7 +99,7 @@ sub handle_post {
         unless $hn;
 
     # be sure to sanitize the username
-    my $un = lc $post->{username};
+    my $un = LJ::trim( lc $post->{username} );
     $un =~ s/-/_/g;
 
     my $pw = $post->{password};
