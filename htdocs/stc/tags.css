@@ -1,6 +1,6 @@
-#tagform table { width: 96%; } /*weirdly variable; table id would be better */
+table#table_managetags { width: 96%; } 
 
-#tagform table td { vertical-align: top;
+table#table_managetags td { vertical-align: top;
 	padding: 1%; }
 
 fieldset

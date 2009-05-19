@@ -69,7 +69,8 @@ H1, H2, #content H2, H3, H4 { font-family: "Century Gothic", Verdana, sans-serif
 	line-height: 1.5;
     }
 H1 { font-size: 175%; }
-H2, #content H2 { font-size: 150%; }
+H2 { font-size: 150%; }
+#content H2 { font-size: 125%; }
 H3 { font-size: 125%; }
 H4 { font-size: 100%; }
 
@@ -272,6 +273,20 @@ a:active,
     background-color: #EEEECC !important;
 }
 
+/* layer tables */
+table.table_layerbrowse,
+table#table_yourlayers { border-collapse: collapse; }
+
+table.table_layerbrowse,
+table.table_layerbrowse td,
+table#table_yourlayers,
+table#table_yourlayers td { border: 1px solid #999; }
+
+table#table_layerbrowse_classes,
+table#table_layerbrowse_classes td {border: none; }
+
+table.table_layerbrowse td,
+table#table_yourlayers td { padding: .15em .25em; }
 
 /**
  * Content Layouts
@@ -979,6 +994,10 @@ input.bright {
 
 .NotificationTable tr.Selected td {
     border-top: 1px solid #ccc;
+}
+
+.NotificationTable #all_Body > .Selected:first-child td {
+	border-top: none !important;
 }
 
 .NotificationTable td {
