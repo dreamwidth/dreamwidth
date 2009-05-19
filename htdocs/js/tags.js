@@ -120,13 +120,13 @@ function show_props(div, id)
     if (! tag) tag = [ ml.na_label, ml.na_label, '-', '-', '-', '-', '-' ];
 
     var secimg = '&nbsp; <img align="middle" src="/img/';
-    if (tag[1] == ml.public_label) {
+    if (tag[1] == "public") {
         secimg = secimg + "silk/identity/user.png";
     }
-    else if (tag[1] == ml.private_label) {
+    else if (tag[1] == "private") {
         secimg = secimg + "silk/entry/private.png";
     }
-    else if (tag[1] == ml.trusted_label) {
+    else if (tag[1] == "friends") {
         secimg = secimg + "silk/entry/locked.png";
     } 
     else {
