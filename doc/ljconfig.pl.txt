@@ -1,21 +1,7 @@
-#!/usr/bin/perl
-# -*-perl-*-
-
-# LiveJournal configuration file.  Copy this out of the documentation
-# directory to etc/ljconfig.pl and edit as necessary.  The reason
-# it's not in the etc directory already is to protect it from
-# getting clobbered when you upgrade to the newest LiveJournal code in
-# the future.
+# old way of doing configuration, since broken down 
+# into separate files. Keeping it around as a placeholder
+# until we have updated the documentantion which points here
 #
-# You should not have to edit this file unless you add more config files
-# to your installation.
-
-{
-    package LJ;
-
-    do "$LJ::HOME/etc/config-private.pl";
-    do "$LJ::HOME/etc/config-local.pl";
-    do "$LJ::HOME/etc/config.pl";
-}
-
-1;
+# For the complete list of configuration 
+# files which are loaded in your installation, see:
+#   cgi-bin/LJ/Config.pm

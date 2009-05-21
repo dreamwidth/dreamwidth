@@ -1,17 +1,20 @@
 #!/usr/bin/perl
 # -*-perl-*-
 
-# LiveJournal configuration file.  Copy this out of the documentation
+# Dreamwidth configuration file.  Copy this out of the documentation
 # directory to etc/config-local.pl and edit as necessary.  The reason
 # it's not in the etc directory already is to protect it from
-# getting clobbered when you upgrade to the newest LiveJournal code in
+# getting clobbered when you upgrade to the newest Dreamwidth code in
 # the future.
 
-# This should be the only file you need to change to get the
-# LiveJournal code to run on your site. Use the checkconfig.pl
-# utility to find any other config variables that might not
-# be documented here. You should be able to set config values
-# here and have the LJ code run; if you have to modify the
+# This, and config-private.pl should be the only files you need to 
+# change to get the Dreamwidth code to run on your site. Variables
+# which are set by $DW::PRIVATE::... should be configured in 
+# config-private.pl instead.
+
+# Use the  checkconfig.pl utility to find any other config variables 
+# that might not be documented here. You should be able to set config 
+# values here and have the DW code run; if you have to modify the
 # code itself, it's a bug and you should report it.
 
 {
@@ -24,7 +27,6 @@
     $HOME = $ENV{'LJHOME'};
 
     # the base domain of your site.
-    # CHANGE THIS
     $DOMAIN = $DW::PRIVATE::DOMAIN;
 
     # human readable name of this site as well as shortened versions
@@ -44,7 +46,8 @@
     #$MAIL_TO_THESCHWARTZ = 1;
 
     # database info.  only the master is necessary.
-    # you should probably CHANGE THIS
+    # you may need to CHANGE THIS
+    # passwords should be kept in config-private.pl
     %DBINFO = (
                'master' => {  # master must be named 'master'
                    'host' => "localhost",

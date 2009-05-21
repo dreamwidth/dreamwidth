@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
-# LiveJournal configuration file.  Copy this out of the documentation
+# Dreamwidth configuration file.  Copy this out of the documentation
 # directory to etc/config-private.pl and edit as necessary.  The reason
 # it's not in the etc directory already is to protect it from
-# getting clobbered when you upgrade to the newest LiveJournal code in
+# getting clobbered when you upgrade to the newest Dreamwidth code in
 # the future.
 #
 # This is where you define private, site-specific configs (e.g. passwords).
@@ -35,6 +35,7 @@
         news => 1,
     );
 
+    # configuration for statistics trackers on www (non-journal) pages
     %SITE_PAGESTAT_CONFIG = (
     #    google_analytics => '',
     );

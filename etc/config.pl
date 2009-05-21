@@ -110,8 +110,6 @@
     #             );
 
     # require new free acounts to be referred by an existing user?
-    # NOTE: mostly ljcom-specific.  some features unimplemented in
-    # the livejournal-only tree.
     $USE_ACCT_CODES = 1;
 
     #$EVERYONE_VALID = 1; # are all users validated by default?
