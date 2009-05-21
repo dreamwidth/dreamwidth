@@ -4329,7 +4329,7 @@ function DayPage::print_body() {
 }
 
 function DayPage::print_navigation() [fixed] {
-    var bool empty = $.prev_url == "" and $.prev_url == "";    
+    var bool empty = $.prev_url == "" and $.next_url == "";
     """
     <div class="navigation">
         <div class="inner">
