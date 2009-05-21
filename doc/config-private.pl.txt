@@ -35,9 +35,10 @@
         news => 1,
     );
 
-    # configuration for statistics trackers on www (non-journal) pages
+    # configuration/ID for statistics tracker modules which apply to
+    # site pages (www, non-journal)
     %SITE_PAGESTAT_CONFIG = (
-    #    google_analytics => '',
+    #    google_analytics => 'UA-xxxxxx-x',
     );
 }
 
