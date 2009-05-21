@@ -5,6 +5,16 @@
 
 .filterto=Filter to:
 
+.filterto.btn.refresh=Refresh
+
+.filterto.opts.accepted=accepted
+
+.filterto.opts.all=all
+
+.filterto.opts.outstanding=outstanding
+
+.filterto.opts.rejected=rejected
+
 .key.date=Date
 
 .key.maintainer.abbrev=A

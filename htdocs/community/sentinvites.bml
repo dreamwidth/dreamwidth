@@ -157,8 +157,8 @@ body<=
     my $showlinks = "<form method='get' action='/community/sentinvites.bml'>";
     $showlinks .= LJ::html_hidden('authas', $c->{user});
     $showlinks .= $ML{'.filterto'};
-    $showlinks .= LJ::html_select({ name => 'show', selected => $GET{show} }, map { $_, $_ } qw(all accepted outstanding rejected));
-    $showlinks .= LJ::html_submit(undef, 'Refresh');
+    $showlinks .= LJ::html_select( { name => 'show', selected => $GET{show} }, all => $ML{'.filterto.opts.all'}, accepted => $ML{'.filterto.opts.accepted'}, rejected => $ML{'.filterto.opts.rejected'}, outstanding => $ML{'.filterto.opts.outstanding'} );
+    $showlinks .= LJ::html_submit( undef, $ML{'.filterto.btn.refresh'} );
     $showlinks .= "</form>";
 
     my $filter = "&show=$GET{show}" if $GET{show};
