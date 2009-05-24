@@ -1345,13 +1345,13 @@ sub talkform {
 
         if ($entry && $entry->security ne "public") {
             $ret .= "<tr valign='middle'>";
-            $ret .= "<td align='center' width='20'><img src='$LJ::IMGPREFIX/anonymous.gif' /></td>";
+            $ret .= "<td align='center' width='20'><img src='$LJ::IMGPREFIX/silk/identity/anonymous.png' /></td>";
             $ret .= "<td align='center'>(  )</td>";
             $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font> $BML::ML{'.opt.noanonpost.nonpublic'}</td>";
             $ret .= "</tr>\n";
         } else {
             $ret .= "<tr valign='center'>";
-            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/anonymous.gif' onclick='handleRadios(0);'/></td>";
+            $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/anonymous.png' onclick='handleRadios(0);'/></td>";
             $ret .= "<td align='center'><input type='radio' name='usertype' value='anonymous' id='talkpostfromanon'" .
                     $whocheck->('anonymous') .
                     " /></td>";
@@ -1399,7 +1399,7 @@ sub talkform {
 
     if ($journalu->{'opt_whocanreply'} eq "reg") {
         $ret .= "<tr valign='middle'>";
-        $ret .= "<td align='center' width='20'><img src='$LJ::IMGPREFIX/anonymous.gif' /></td>";
+        $ret .= "<td align='center' width='20'><img src='$LJ::IMGPREFIX/silk/identity/anonymous.png' /></td>";
         $ret .= "<td align='center'>(  )</td>";
         $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font>$BML::ML{'.opt.noanonpost'}</td>";
         $ret .= "</tr>\n";
@@ -1441,7 +1441,7 @@ sub talkform {
 
     if ($journalu->{'opt_whocanreply'} eq 'friends') {
         $ret .= "<tr valign='middle'>";
-        $ret .= "<td align='center' width='20'><img src='$LJ::IMGPREFIX/anonymous.gif' /></td>";
+        $ret .= "<td align='center' width='20'><img src='$LJ::IMGPREFIX/silk/identity/anonymous.png' /></td>";
         $ret .= "<td align='center'>(  )</td>";
         $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>$BML::ML{'.opt.anonymous'}</b></font>";
         my $stringname = $journalu->is_person ? ".opt.friendsonly" : ".opt.membersonly";
@@ -1517,7 +1517,7 @@ sub talkform {
 
     # ( ) Site user:
     $ret .= "<tr valign='middle' id='otherljuser_row' name='otherljuser_row'>";
-    $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/pencil.gif' onclick='handleRadios(2);' /></td><td align='center'><input type='radio' name='usertype' value='user' id='talkpostfromlj'" .
+    $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/user.png' onclick='handleRadios(2);' /></td><td align='center'><input type='radio' name='usertype' value='user' id='talkpostfromlj'" .
         $whocheck->('ljuser') . "/>";
     $ret .= "</td><td align='left'><b><label for='talkpostfromlj' onclick='handleRadios(2); return false;'>" . BML::ml( '.opt.siteuser', { sitename => $LJ::SITENAMESHORT } ) . "</label></b> ";
     $ret .= $BML::ML{'.opt.willscreenfriend'} if $screening eq 'F';
