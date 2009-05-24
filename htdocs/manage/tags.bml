@@ -64,7 +64,9 @@ HEAD
             $new_tag =~ s/,.*//;
 
             # FIXME: merge support later
-            LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag );
+            my $tagerr = "";
+            my $rv = LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag, \$tagerr );
+            return LJ::bad_input($tagerr) unless $rv;
         }
 
         if ($POST{'show posts'}) {

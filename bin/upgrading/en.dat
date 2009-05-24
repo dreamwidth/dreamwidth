@@ -3361,6 +3361,10 @@ subscribe_interface.save=Save
 
 subscribe_interface.special_subs.note=These notification options are only available by email and will not show in your [[sitenameabbrev]] Inbox.
 
+taglib.error.invalid=The following tag name is invalid: [[tagname]]
+
+taglib.error.nomerge=The tag name '[[tagname]]' is already in use.  Merging tags is not supported at this time.
+
 taglib.error.toomany=This would make you exceed your maximum of [[max]] tags.  Please remove some and try again.
 
 talk.anonwrote=Someone wrote,

@@ -722,7 +722,7 @@ sub update_logtags {
         # now validate the string, if we have one
         if ($opts->{"${verb}_string"}) {
             $opts->{$verb} = [];
-            return undef
+            return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $opts->{"${verb}_string"} ) } ) )
                 unless LJ::Tags::is_valid_tagstring($opts->{"${verb}_string"}, $opts->{$verb});
         }
 
@@ -1048,8 +1048,8 @@ sub create_usertag {
     };
 
     my $tags = [];
-    my $isvalid = LJ::Tags::is_valid_tagstring($kw, $tags);
-    return undef unless $isvalid;
+    return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $kw ) } ) )
+        unless LJ::Tags::is_valid_tagstring($kw, $tags);
 
     # check to ensure we don't exceed the max of tags
     my $max = $opts->{ignore_max} ? 0 : $u->get_cap('tags_max');
@@ -1173,12 +1173,13 @@ sub delete_usertag {
 # name: LJ::Tags::rename_usertag
 # class: tags
 # des: Deletes a tag for a user, and all mappings.
-# args: uobj, type, tag, newname
+# args: uobj, type, tag, newname, error_ref (optional)
 # des-uobj: User object to delete tag on.
 # des-type: Either 'id' or 'name', indicating the type of the third parameter.
 # des-tag: If type is 'id', this is the tag id (kwid).  If type is 'name', this is the name of the
 #          tag that we want to rename for the user.
 # des-newname: The new name of this tag.
+# des-error_ref: (optional) ref to scalar to return error messages in.
 # returns: undef on error, 1 for success, 0 for tag not found
 # </LJFUNC>
 sub rename_usertag {
@@ -1189,24 +1190,33 @@ sub rename_usertag {
     my $u = LJ::want_user(shift);
     return undef unless $u;
 
-    my ($type, $val, $newname) = @_;
-    return undef unless $type && $val && $newname;
+    my ($type, $oldkw, $newkw, $ref) = @_;
+    return undef unless $type && $oldkw && $newkw;
+
+    # setup error stuff
+    my $err = sub {
+        my $fake = "";
+        my $err_ref = $ref && ref $ref eq 'SCALAR' ? $ref : \$fake;
+        $$err_ref = shift() || "Unspecified error";
+        return undef;
+    };
 
     # validate new tag
-    $newname = LJ::Tags::validate_tag($newname);
-    return undef unless $newname;
+    my $newname = LJ::Tags::validate_tag($newkw);
+    return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $newkw ) } ) )
+        unless $newname;
 
     # get a list of keyword ids to operate on
     my $kwid;
     if ($type eq 'name') {
-        $val = LJ::Tags::validate_tag($val);
-        return undef unless $val;
-
+        my $val = LJ::Tags::validate_tag($oldkw);
+        return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $oldkw ) } ) )
+            unless $val;
         $kwid = LJ::get_keyword_id($u, $val, 0);
     } elsif ($type eq 'id') {
-        $kwid = $val + 0;
+        $kwid = $oldkw + 0;
     }
-    return undef unless $kwid;
+    return $err->() unless $kwid;
 
     # see if this is already a keyword
     my $newkwid = LJ::get_keyword_id($u, $newname);
@@ -1215,7 +1225,8 @@ sub rename_usertag {
     # see if the tag we're renaming TO already exists as a keyword,
     # if so, don't allow the rename because we don't do merging (yet)
     my $tags = LJ::Tags::get_usertags($u);
-    return undef if $tags->{$newkwid};
+    return $err->( LJ::Lang::ml( 'taglib.error.nomerge', { tagname => $newname } ) )
+        if $tags->{$newkwid};
 
     # escape sub
     my $rollback = sub {
