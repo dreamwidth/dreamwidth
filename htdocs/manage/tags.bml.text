@@ -13,6 +13,8 @@
 
 .error.invalidsettings=Invalid selection for tag permission settings.
 
+.error.rename.multiple=You cannot rename a tag to multiple tags. Please go back and remove any commas from the new tag name.
+
 .hint.create=You can create multiple tags by separating them with commas.
 
 .hint.delete=Remove all references to the selected tag(s).

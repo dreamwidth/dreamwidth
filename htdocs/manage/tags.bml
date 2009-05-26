@@ -61,7 +61,8 @@ HEAD
         if ($POST{rename}) {
             my @tagnames = map { s/\d+_//; $_; } split /\0/, $POST{tags};
             my $new_tag = LJ::trim($POST{rename_field});
-            $new_tag =~ s/,.*//;
+            return LJ::bad_input( $ML{'.error.rename.multiple'} )
+                if $new_tag =~ /,/;
 
             # FIXME: merge support later
             my $tagerr = "";
