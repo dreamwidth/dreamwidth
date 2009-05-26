@@ -45,13 +45,13 @@ body<=
             unless LJ::check_form_auth();
 
         if ($mode eq 'send') {
-            # strip HTML from subject and test encoding
-            my $msg_subject_text = LJ::strip_html($POST{'msg_subject'});
+            # test encoding
+            my $msg_subject_text = $POST{'msg_subject'};
             push @errors, "Invalid text encoding for message subject"
                 unless LJ::text_in($msg_subject_text);
 
-            # strip HTML from body and test encoding and length
-            my $msg_body_text = LJ::strip_html($POST{'msg_body'});
+            # test encoding and length
+            my $msg_body_text = $POST{'msg_body'};
             push @errors, "Invalid text encoding for message body"
                 unless LJ::text_in($msg_body_text);
             my ($msg_len_b, $msg_len_c) = LJ::text_length($msg_body_text);

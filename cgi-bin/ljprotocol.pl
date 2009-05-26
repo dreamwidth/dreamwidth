@@ -452,6 +452,7 @@ sub setmessageread {
 
 }
 
+# Sends a private message from one account to another
 sub sendmessage
 {
     my ($req, $err, $flags) = @_;
@@ -467,12 +468,13 @@ sub sendmessage
 
     my @errors;
 
-    my $subject_text = LJ::strip_html($req->{'subject'});
+    # test encoding and length
+    my $subject_text = $req->{'subject'};
     return fail($err, 208, 'subject')
         unless LJ::text_in($subject_text);
 
-    # strip HTML from body and test encoding and length
-    my $body_text = LJ::strip_html($req->{'body'});
+    # test encoding and length
+    my $body_text = $req->{'body'};
     return fail($err, 208, 'body')
         unless LJ::text_in($body_text);
 
