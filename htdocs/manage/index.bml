@@ -178,6 +178,8 @@ _code?>
 <=list
 block?>
 
+</td><td>
+
 <?block
 header=><?_ml .entries.header _ml?>
 about=><?_ml .entries        _ml?>
@@ -190,19 +192,17 @@ list<=
 _code?>
 
 <li><a href="/tools/memories.bml<?authas?>" title="<?_ml .entries.memories.about _ml?>"><?_ml /tools/memories.bml.title.memorable _ml?></a></li>
+
 <?_code
     my $u = $BMLCodeBlock::u;
     return '' if $u->{'journaltype'} eq 'I';
-
-    my $authas = ref $u ? "?authas=$u->{user}" : "";
     return '' unless LJ::is_enabled('tags');
-    return "<li><a href='/manage/tags.bml$authas' title='<?_ml .entries.tags.about _ml?>'><?_ml .entries.tags.header _ml?></a></li>";
+    my $authas = $BMLCodeBlock::authas;
+    return qq(<li><a href="/manage/tags.bml$authas" title="<?_ml .entries.tags.about _ml?>"><?_ml /manage/tags.bml.title2 _ml?></a></li>);
 
 _code?>
 <=list
 block?>
-
-</td><td>
 
 <?_code 
 {
