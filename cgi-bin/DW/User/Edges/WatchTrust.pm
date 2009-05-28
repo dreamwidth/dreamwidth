@@ -429,6 +429,28 @@ sub trusted_users {
 *LJ::User::trusted_users = \&trusted_users;
 
 
+# return users you watch
+sub watched_users {
+    my $u = shift;
+    my @watchids = $u->watched_userids;
+    my $users = LJ::load_userids(@watchids);
+    return values %$users if wantarray;
+    return $users;
+}
+*LJ::User::watched_users = \&watched_users;
+
+
+# return users you watch and/or trust
+sub circle_users {
+    my $u = shift;
+    my @circleids = $u->circle_userids;
+    my $users = LJ::load_userids(@circleids);
+    return values %$users if wantarray;
+    return $users;
+}
+*LJ::User::circle_users = \&circle_users;
+
+
 # returns array of trusted by uids.  by default, limited at 50,000 items.
 sub trusted_by_userids {
     my ( $u, %args ) = @_;
@@ -483,6 +505,18 @@ sub watched_userids {
         );
 }
 *LJ::User::watched_userids = \&watched_userids;
+
+
+# returns array of watched and/or trusted uids.
+sub circle_userids {
+    my ( $u, %args ) = @_;
+    $u = LJ::want_user( $u ) or confess 'not a valid user object';
+    my %circle;  # using a hash avoids duplicate elements
+    map { $circle{$_}++ }
+        ( $u->watched_userids( %args ), $u->trusted_userids( %args ) );
+    return keys %circle;
+}
+*LJ::User::circle_userids = \&circle_userids;
 
 
 # returns array of mutually watched userids.  by default, limit at 50k.
