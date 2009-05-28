@@ -75,6 +75,8 @@
 
 .information.changepass.about=Change your account's password
 
+.information.comments=Manage Comment Settings
+
 .information.comments.about=Change your comment settings
 
 .information.editinfo.about=Edit your account information and various options
@@ -107,7 +109,9 @@
 
 .manage.logins=Manage Logins
 
-.manage.subscriptions=Manage Subscriptions
+.manage.subscriptions=Manage Message Settings
+
+.manage.subscriptions.about=Manage notifications and subscriptions
 
 .mobile.settings=Mobile Settings
 

@@ -106,7 +106,7 @@ header=><?_ml .settings_pref _ml?>
 about=><?_ml .information _ml?>
 list<=
 <li><a href="/manage/profile/<?authas?>" title="<?_ml .information.editinfo.about _ml?>"><?_ml /manage/profile/index.bml.title _ml?></a></li>
-<li><a href="/manage/comments/<?authas?>" title="<?_ml .information.comments.about _ml?>"><?_ml /manage/comments/index.bml.title2 _ml?></a></li>
+<li><a href="/manage/comments/<?authas?>" title="<?_ml .information.comments.about _ml?>"><?_ml .information.comments _ml?></a></li>
 <li><a href="/manage/settings/<?authas?>" title="<?_ml .information.settings.about _ml?>"><?_ml /manage/settings/index.bml.title _ml?></a></li>
 
 <?_code
@@ -133,7 +133,7 @@ _code?>
     my $remote = LJ::get_remote();
 
     if ($remote && $remote->can_use_esn) {
-        return '<li><a href="/manage/subscriptions/" title="<?_ml .manage.subscriptions _ml?>"><?_ml /manage/subscriptions/index.bml.title _ml?></a></li>';
+        return '<li><a href="/manage/subscriptions/" title="<?_ml .manage.subscriptions.about _ml?>"><?_ml .manage.subscriptions _ml?></a></li>';
     } else {
         return '';
     }
