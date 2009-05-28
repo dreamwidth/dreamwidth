@@ -37,27 +37,7 @@ body<=
     $body .= LJ::html_submit(undef, $ML{'.view'});
     $body .= "</form>";
 
-    # merge watched_userids & trusted_userids
-    my %friends;  # using a hash avoids duplicate elements
-    map { $friends{$_}++ } ($u->watched_userids, $u->trusted_userids);
-    my $nb = LJ::User->next_birthdays( keys %friends );
-    # returns ref to hash of form (userid => date)
-    my $uids = LJ::load_userids( keys %$nb );
-    # returns ref to hash of form (userid => user object)
-
-    my %timedata;
-    while ( my ($id, $u) = each %$uids ) {
-        next unless $u->is_personal && $u->can_show_bday;
-        my $date = $nb->{$id} or next;
-        # need numeric month and day
-        my @lt = localtime( $date );
-        my $month = $lt[4] + 1;
-        my $day = $lt[3];
-        $timedata{"$date.$id"} = [$month, $day, $u];
-    }
-
-    # hash slice for array sorted by date
-    my @bdays = @timedata{ sort keys %timedata };
+    my @bdays = $u->get_birthdays( full => 1 );
     my $lastmon = 0;
 
     foreach my $bday (@bdays) {

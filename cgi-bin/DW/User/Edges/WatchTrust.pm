@@ -337,8 +337,6 @@ sub trustmask {
 # returns: arrayref of [ month, day, user ] arrayrefs
 sub get_birthdays {
 
-    confess 'get_birthdays not updated yet';
-
     my $u = LJ::want_user( shift )
         or return undef;
 
@@ -350,37 +348,25 @@ sub get_birthdays {
     my $now = $u->time_now;
     my ($mnow, $dnow) = ($now->month, $now->day);
 
-    my $bday_sort = sub {
-        # first we sort them normally...
-        my @bdays = sort {
-            ($a->[0] <=> $b->[0]) || # month sort
-            ($a->[1] <=> $b->[1])    # day sort
-        } @_;
-
-        # fast path out if we're getting all birthdays.
-        return @bdays if $full;
-
-        # then we need to push some stuff to the end. consider "three months ahead"
-        # from november ... we'd get data from january, which would appear at the
-        # head of the list.
-        my $nowstr = sprintf("%02d-%02d", $mnow, $dnow);
-        my $i = 0;
-        while ($i++ < @bdays && sprintf("%02d-%02d", @{ $bdays[0] }) lt $nowstr) {
-            push @bdays, shift @bdays;
-        }
-
-        return @bdays;
-    };
-
     my $memkey = [$u->userid, 'bdays:' . $u->userid . ':' . ($full ? 'full' : $months_ahead)];
     my $cached_bdays = LJ::MemCache::get($memkey);
-    return $bday_sort->(@$cached_bdays) if $cached_bdays;
+    # we cached the sorted data, don't need to re-sort
+    return @$cached_bdays if $cached_bdays;
 
-    my @friends = $u->friends;
-    my @bdays;
+    my $nb = LJ::User->next_birthdays( $u->circle_userids );
+    # returns ref to hash of form (userid => date)
+    my $uids = LJ::load_userids( keys %$nb );
+    # returns ref to hash of form (userid => user object)
+    my %timedata;
 
-    foreach my $friend (@friends) {
-        my ($year, $month, $day) = split('-', $friend->{bdate});
+    while ( my ( $id, $u ) = each %$uids ) {
+        next unless $u->is_personal && $u->can_show_bday;
+        my $date = $nb->{$id} or next;
+
+        # need numeric month and day
+        my @lt = localtime( $date );
+        my $month = $lt[4] + 1;
+        my $day = $lt[3];
         next unless $month > 0 && $day > 0;
 
         # skip over unless a few months away (except in full mode)
@@ -405,15 +391,16 @@ sub get_birthdays {
             next if ($month == $mnow && $day < $dnow);
         }
 
-        if ($friend->can_show_bday) {
-            push @bdays, [ $month, $day, $friend->user ];
-        }
+        $timedata{"$date.$id"} = [$month, $day, $u];
     }
+
+    # hash slice for array sorted by date
+    my @bdays = @timedata{ sort keys %timedata };
 
     # set birthdays in memcache for later
     LJ::MemCache::set($memkey, \@bdays, 86400);
 
-    return $bday_sort->(@bdays);
+    return @bdays;
 }
 *LJ::User::get_birthdays = \&get_birthdays;
 
