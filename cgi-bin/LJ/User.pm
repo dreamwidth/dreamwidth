@@ -4713,6 +4713,7 @@ sub can_add_inbox_subscription {
 # can this user use ESN?
 sub can_use_esn {
     my $u = shift;
+    return 0 if $u->is_community || $u->is_syndicated;
     return 0 unless LJ::is_enabled('esn');
     return LJ::is_enabled('esn_ui', $u);
 }
