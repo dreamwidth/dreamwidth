@@ -72,7 +72,7 @@ sub ljuser_display {
     my $domain = $self->site->{domain} ? $self->site->{domain} : $self->site->{hostname};
 
     return "<span $display_class style='white-space: nowrap;'><a href='$profile_url'>" .
-           "<img src='$badge_image_url' alt='[info] - $domain' style='vertical-align: bottom; border: 0; padding-right: 1px;' />" .
+           "<img src='$badge_image_url' alt='[info - $domain]' style='vertical-align: bottom; border: 0; padding-right: 1px;' />" .
            "</a><a href='$journal_url'><b>$user</b></a></span>";
 }
 
