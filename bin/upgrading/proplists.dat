@@ -270,6 +270,14 @@ userproplist.esn_inbox_default_expand:
   multihomed: 0
   prettyname: Default ESN inbox expanded state
 
+userproplist.exclude_from_own_stats:
+  cldversion: 4
+  datatype: bool
+  des: Exclude yourself from your own journal stats
+  indexed: 0
+  multihomed: 0
+  prettyname: Exclude from self journal stats
+
 userproplist.external_foaf_url:
   cldversion: 4
   datatype: char

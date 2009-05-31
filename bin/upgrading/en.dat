@@ -2681,6 +2681,10 @@ setting.entryeditor.option.plaintext=HTML
 
 setting.entryeditor.option.richtext=Rich Text
 
+setting.excludeownstats.label=Journal Statistics
+
+setting.excludeownstats.option=Do not include me in my own statistics
+
 setting.gender.error.invalid=Invalid option
 
 setting.gender.error.wrongtype=Only personal or identity journals can have a gender.

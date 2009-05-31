@@ -1792,6 +1792,10 @@ sub can_use_google_analytics {
     return $_[0]->get_cap( 'google_analytics' ) ? 1 : 0;
 }
 
+# Check if the user can use *any* page statistic module for their own journal.
+sub can_use_page_statistics {
+    return $_[0]->can_use_google_analytics;
+}
 
 # <LJFUNC>
 # name: LJ::User::caps_icon
@@ -1832,17 +1836,26 @@ sub control_strip_display {
 
 # returns the country specified by the user
 sub country {
-    my $u = shift;
-    return $u->prop('country');
+    return $_[0]->prop( 'country' );
 }
 
+sub exclude_from_own_stats {
+    my $u = shift;
+
+    if ( defined $_[0] && $_[0] =~ /[01]/ ) {
+        $u->set_prop( exclude_from_own_stats => $_[0] );
+        return $_[0];
+    }
+
+    return $u->prop( 'exclude_from_own_stats' ) eq "1" ? 1 : 0;
+}
 
 # returns the max capability ($cname) for all the classes
 # the user is a member of
 sub get_cap {
-    my ($u, $cname) = @_;
+    my ( $u, $cname ) = @_;
     return 1 if $LJ::T_HAS_ALL_CAPS;
-    return LJ::get_cap($u, $cname);
+    return LJ::get_cap( $u, $cname );
 }
 
 
