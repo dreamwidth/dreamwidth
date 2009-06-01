@@ -133,9 +133,9 @@ function show_props(div, id)
         secimg = secimg + "silk/entry/locked.png";
         seclabel = ml.trusted_label;
     } 
-    else {
-        secimg = secimg + "silk/entry/locked.png";
-        seclabel = tag[1];
+    else if (tag[1] == "group") {
+        secimg = secimg + "silk/entry/filtered.png";
+        seclabel = ml.filters_label;
     }
     secimg = secimg + '" />';
     if (tag[1] == "n/a") secimg = "";
