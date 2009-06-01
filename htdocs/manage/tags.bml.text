@@ -45,7 +45,7 @@
 
 .label.trusted=trusted
 
-.label.yours=Your Tags
+.label.yours=Your Tags ([[tagnum]] defined, [[tagmax]] maximum)
 
 .none=You haven't created any tags yet.
 

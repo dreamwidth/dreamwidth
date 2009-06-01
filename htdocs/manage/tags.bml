@@ -180,9 +180,9 @@ HEAD
     <table id="table_managetags" cellpadding="0" cellspacing="0" align="center">
     <tr><td valign="top">
         <fieldset>
-            <legend>$ML{'.label.yours'}</legend>
-            <div style="padding-top: 6px;">
-    };
+            <legend>};
+    $ret .= BML::ml( '.label.yours', { tagnum => $tagcount, tagmax => $u->get_cap('tags_max') } );
+    $ret .= qq(</legend>\n            <div style="padding-top: 6px;">);
 
     my $tagsort = sub {
         $GET{sort} eq 'use' ?
@@ -203,7 +203,7 @@ HEAD
             $ret .= "<option class='level$tag->{histogram_group}' ";
             $ret .= "value='$value'>$etag</option>";
         }
-        $ret .= "</select>";
+        $ret .= "</select>\n                ";
         $ret .= "<div class='tagsort'>";
         $ret .= $GET{sort} eq 'use' ? BML::ml('.sort.a', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=alpha'" }) :
                                       BML::ml('.sort.b', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=use'" });
@@ -229,8 +229,8 @@ HEAD
                     onClick='return validate_input(this, \"add_field\", \"$add_text\")'>";
 
     $ret .= '
-        </div>
-        </div>
+                </div>
+            </div>
         </fieldset>
     </td>
     <td valign="top">';
