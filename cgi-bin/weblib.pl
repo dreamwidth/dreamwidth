@@ -2708,19 +2708,19 @@ sub control_strip
                 $ret .= "$links{edit_friend}";
             } elsif ( $trusted_by && $watched_by ) {
                 $ret .= "$statustext{trustedby_watchedby}<br />";
-                $ret .= "$links{edit_friend}";
+                $ret .= "$links{add_friend}";
             } elsif ( $trusted ) {
                 $ret .= "$statustext{trusted}<br />";
                 $ret .= "$links{edit_friend}";
             } elsif ( $trusted_by ) {
                 $ret .= "$statustext{trusted_by}<br />";
-                $ret .= "$links{edit_friend}";
+                $ret .= "$links{add_friend}";
             } elsif ( $watched ) {
                 $ret .= "$statustext{watched}<br />";
                 $ret .= "$links{edit_friend}";
             } elsif ( $watched_by ) {
                 $ret .= "$statustext{watched_by}<br />";
-                $ret .= "$links{edit_friend}";
+                $ret .= "$links{add_friend}";
             } else {
                 if ( $view eq "read" ) {
                     $ret .= $statustext{'personalfriendspage'};
