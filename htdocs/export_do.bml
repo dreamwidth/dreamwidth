@@ -68,8 +68,7 @@
             $opts->{'format'} = "csv";
             $r->content_type("text/plain");
             my $filename = "$u->{user}-$year-$month.csv";
-            $r->header_out('Content-Disposition' => "attachment; filename=$filename");
-            $r->send_http_header();
+            $r->headers_out->{'Content-Disposition'} = "attachment; filename=$filename";
             if ($POST{'header'}) {
                 $r->print(join(",",@fields) . "\n");
             }
@@ -78,7 +77,6 @@
             $opts->{'format'} = "xml";
             my $lenc = lc($encoding);
             $r->content_type("text/xml; charset=$lenc");
-            $r->send_http_header();
             $r->print("<?xml version=\"1.0\" encoding='$lenc'?>\n");
             $r->print("<livejournal>\n");
         }
