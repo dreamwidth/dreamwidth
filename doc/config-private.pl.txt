@@ -40,6 +40,13 @@
     %SITE_PAGESTAT_CONFIG = (
     #    google_analytics => 'UA-xxxxxx-x',
     );
+
+    # Path (e.g. /bots) at which a informational page about your acceptable bot
+    # policies are documented.  This URI is excluded from anti-bot measures, so
+    # make sure it's as permissive as possible to allow humans in who may be
+    # lazy in their typing.  For example, leave off the trailing slash (/bots
+    # instead of /bots/) if your URI is a directory.
+    #$BLOCKED_BOT_URI = '/bots';
 }
 
 {

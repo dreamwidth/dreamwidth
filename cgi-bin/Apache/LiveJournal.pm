@@ -351,17 +351,19 @@ sub trans
     }
 
     # check for sysbans on ip address
-    foreach my $ip (@req_hosts) {
-        if (LJ::sysban_check('ip', $ip) && index($uri, $LJ::BLOCKED_BOT_URI) != 0) {
-            $r->handler("perl-script");
-            $r->push_handlers(PerlResponseHandler => \&blocked_bot );
+    unless ( $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0 ) {
+        foreach my $ip (@req_hosts) {
+            if ( LJ::sysban_check( 'ip', $ip ) ) {
+                $r->handler( "perl-script" );
+                $r->push_handlers( PerlResponseHandler => \&blocked_bot );
+                return OK;
+            }
+        }
+        if ( LJ::run_hook( "forbid_request", $r ) {
+            $r->handler( "perl-script" );
+            $r->push_handlers( PerlResponseHandler => \&blocked_bot );
             return OK;
         }
-    }
-    if (LJ::run_hook("forbid_request", $r) && index($uri, $LJ::BLOCKED_BOT_URI) != 0) {
-        $r->handler("perl-script");
-        $r->push_handlers(PerlResponseHandler => \&blocked_bot );
-        return OK;
     }
 
     # see if we should setup a minimal scheme based on the initial part of the
