@@ -1151,11 +1151,16 @@ property bool tags_aware {
 }
 
 property string comment_userpic_style {
-   des = "Userpic display style for comments";
-   doc = "Userpic display style for comments.  Either '' for full, 'small' for small, or 'off' for none.";
+   des = "User icon display style for comments";
+   doc = "User icon display style for comments.  Either '' for full, 'small' for small, or 'off' for none.";
    doc_flags = "[construct]";
    values = "|Full|small|Small|off|Off";
 }
+
+property string userpics_position {
+   des = "Place icons on left or right of entry";
+   values = "left|Left|right|Right";
+   }
 
 property bool linklist_support {
     des = "Display link list";
@@ -1185,6 +1190,7 @@ property string module_tags_opts_count_type {
 set use_shared_pic = false;
 set tags_aware = true;
 set comment_userpic_style = "";
+set userpics_position = "left";
 set linklist_support = true;
 set userlite_interaction_links = "icons";
 set entry_management_links = "icons";
