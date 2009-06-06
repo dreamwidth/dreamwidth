@@ -1065,9 +1065,13 @@ sub entry_form {
                     //--></script>
                     };
 
+                my $thumbnail_text = BML::ml( '/update.bml.link.view_thumbnails' );
                 $$head .= qq {
                     <script type="text/javascript" language="JavaScript">
                     // <![CDATA[
+                        var ml = new Object();
+                        ml.viewthumbnails_link = "$thumbnail_text";
+
                         DOM.addEventListener(window, "load", function (evt) {
                         // attach userpicselect code to userpicbrowse button
                             var ups_btn = \$("lj_userpicselect");
