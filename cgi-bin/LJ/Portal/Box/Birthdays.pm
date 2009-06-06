@@ -19,7 +19,7 @@ our $_box_name = "Friends' Birthdays";
 sub generate_content {
     my $self = shift;
     my $u = $self->{'u'};
-    my @bdays = $u->get_friends_birthdays
+    my @bdays = $u->get_birthdays
         or return "(No upcoming friends' birthdays.)";
 
     my $content = '';

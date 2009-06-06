@@ -64,10 +64,8 @@ sub generate_content {
     }
 
     # load user's friends
-    my $fr = LJ::get_friends($u);
-    return 'No friends found.' unless $fr;
-
-    my @ids = keys %$fr;
+    my @ids = $u->circle_userids or return 'No friends found.';
+    my %fr = map { $_ => 1 } @ids;
     splice(@ids, 0, $LIMIT) if @ids > $LIMIT;
 
     my $fus = LJ::load_userids(@ids);
@@ -83,10 +81,8 @@ sub generate_content {
     my $start = time();
     while (@ids && time() < $start + $MAX_DELAY) {
         my $fid = shift @ids;
-
-        my $fr = LJ::get_friends($fid);
-        next unless $fr;
-        $count{$_}++  foreach (keys %$fr);
+        my $fu = $fus->{$fid} or next;
+        $count{$_}++ foreach ($fu->circle_userids);
     }
 
     my @pop = (sort { $count{$b} <=> $count{$a} } keys %count);
@@ -102,7 +98,7 @@ sub generate_content {
         next if ($popid eq $u->{'userid'});
 
         # don't show own friends if option set
-        next if ($fr->{$popid} && !$showown);
+        next if ($fr{$popid} && !$showown);
 
         my $fofu = $fofus->{$popid};
 
@@ -118,7 +114,7 @@ sub generate_content {
 
         $rows .= "<tr><td>" . LJ::ljuser($fofu) . " - " . LJ::ehtml($fofu->{name}) .
             "</td><td align='right'>$friendcount</td>";
-        $rows .= "<td><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$fofu->{user}\"><img src=\"$LJ::IMGPREFIX/btn_addfriend.gif\" alt=\"Add this user as a friend\" /></a></td>" if !$fr->{$fofu->{userid}};
+        $rows .= "<td><a href=\"$LJ::SITEROOT/manage/circle/add.bml?user=$fofu->{user}\"><img src=\"$LJ::IMGPREFIX/btn_addfriend.gif\" alt=\"Add this user as a friend\" /></a></td>" if !$fr{$fofu->{userid}};
         $rows .= "</tr>\n";
     }
 

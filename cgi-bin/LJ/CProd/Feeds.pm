@@ -6,7 +6,7 @@ sub applicable {
 
     my $popsyn = LJ::Syn::get_popular_feeds();
 
-    my $friends = LJ::get_friends($u) || {};
+    my %friends = map { $_ => 1 } $u->watched_userids;
 
     my @pop;
     for (0 .. 99) {
@@ -14,7 +14,7 @@ sub applicable {
         my ($user, $name, $suserid, $url, $count) = @{ $popsyn->[$_] };
 
         my $suser = LJ::load_userid($suserid);
-        return 0 if ($friends->{$suserid} || $suser->{'statusvis'} ne "V");
+        return 0 if ($friends{$suserid} || $suser->{'statusvis'} ne "V");
     }
     return 1;
 }

@@ -47,17 +47,13 @@ sub generate_content {
     my $maxshow= $self->get_prop('maxshow');
 
     # display current friends of u
-    my $friends = LJ::get_friends($u->{'userid'});
+    my $friends_u = $u->circle_users;
     my $friendcount = 0;
     my $foundfriends = 0;
     my $friendlist;
     my $displaying;
-    my @friendids = keys %$friends;
-    my $friends_u = {};
 
-    if (keys %$friends) {
-        $friends_u = LJ::load_userids(@friendids);
-
+    if ($friends_u) {
         grep { $friendcount++ if $friends_u->{$_}->{'journaltype'} eq 'P'; } keys %$friends_u;
         my @sortedfriends = sort { $friends_u->{$a}->{'user'} cmp $friends_u->{$b}->{'user'} } keys %$friends_u;
 
@@ -113,7 +109,7 @@ sub generate_content {
     my $commcount=0, my $commlist;
 
     if ($showcomm) {
-        if ($friends) {
+        if ($friends_u) {
             grep { $commcount++ if $friends_u->{$_}->{'journaltype'} eq 'C'; } keys %$friends_u;
             my @sortedfriends = sort { $friends_u->{$a}->{'user'} cmp $friends_u->{$b}->{'user'} } keys %$friends_u;
 
@@ -147,7 +143,7 @@ sub generate_content {
     my $syncount=0, my $synlist;
 
     if ($showsyn) {
-        if ($friends) {
+        if ($friends_u) {
             grep { $syncount++ if $friends_u->{$_}->{'journaltype'} eq 'Y'; } keys %$friends_u;
             my @sortedfriends = sort { $friends_u->{$a}->{'user'} cmp $friends_u->{$b}->{'user'} } keys %$friends_u;
 
