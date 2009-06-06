@@ -353,7 +353,8 @@ sub get_birthdays {
     # we cached the sorted data, don't need to re-sort
     return @$cached_bdays if $cached_bdays;
 
-    my $nb = LJ::User->next_birthdays( $u->circle_userids );
+    my @circle = $u->is_community ? $u->member_userids : $u->circle_userids;
+    my $nb = LJ::User->next_birthdays( @circle );
     # returns ref to hash of form (userid => date)
     my $uids = LJ::load_userids( keys %$nb );
     # returns ref to hash of form (userid => user object)
