@@ -308,18 +308,15 @@ sub render_body {
     }
 
     if ( $LJ::USE_ACCT_CODES ) {
-        my $itemidref;
-        if ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
-            my $item = $cart->get_item( $itemidref );
-            if ( $item && $item->isa( 'DW::Shop::Item::Account' ) ) {
-                $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
-                if ( $item->permanent ) {
-                    $ret .= $class->ml( 'widget.createaccount.field.paidaccount.permanent', { type => "<strong>" . $item->class_name . "</strong>" } );
-                } else {
-                    $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $item->class_name . "</strong>", nummonths => $item->months } );
-                }
-                $ret .= "</td></tr>";
+        my $item = DW::InviteCodes->paid_status( code => $code );
+        if ( $item ) {
+            $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+            if ( $item->permanent ) {
+                $ret .= $class->ml( 'widget.createaccount.field.paidaccount.permanent', { type => "<strong>" . $item->class_name . "</strong>" } );
+            } else {
+                $ret .= $class->ml( 'widget.createaccount.field.paidaccount', { type => "<strong>" . $item->class_name . "</strong>", nummonths => $item->months } );
             }
+            $ret .= "</td></tr>";
         }
     }
 
