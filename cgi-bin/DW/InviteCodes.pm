@@ -160,6 +160,28 @@ sub check_code {
     return 1;
 }
 
+=head2 C<< $class->paid_status( code => $code ) >>
+
+Checks whether this code comes loaded with a paid account. Returns a DW::Shop::Item::Account 
+if yes; undef if not
+
+=cut
+
+sub paid_status {
+    my ($class, %opts) = @_;    
+    my $code = $opts{code};
+
+    return undef unless DW::InviteCodes->check_code( code => $code );
+    
+    my $itemidref;
+    if ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
+        my $item = $cart->get_item( $itemidref );
+        return $item if $item && $item->isa( 'DW::Shop::Item::Account' );
+    }
+
+    return undef;
+}
+
 =head2 C<< $object->use_code( user => $recipient ) >>
 
 Marks an invite code as having been used to create the $recipient account.

@@ -35,18 +35,20 @@ body<=
 
     my %from_post;
     my $code_valid = $LJ::USE_ACCT_CODES ? 0 : 1;
+    my $code;
     if ( LJ::did_post() ) {
         LJ::Widget->use_specific_form_fields( post => \%POST, widget => "CreateAccount", fields => [ qw( recaptcha_response_field recaptcha_challenge_field ) ] )
             if $LJ::HUMAN_CHECK{create} && LJ::is_enabled( 'recaptcha' );
         %from_post = LJ::Widget->handle_post( \%POST, ( 'CreateAccount' ) );
     } elsif ( $LJ::USE_ACCT_CODES ) {
-        $code_valid = DW::InviteCodes->check_code( code => LJ::trim( $GET{code} ) );
+        $code = LJ::trim( $GET{code} );
+        $code_valid = DW::InviteCodes->check_code( code => $code );
     }
 
     my $ret;
 
     $ret .= "<div id='create-page'>";
-    $ret .= LJ::Widget::CreateAccountProgressMeter->render( step => 1 );
+    $ret .= LJ::Widget::CreateAccountProgressMeter->render( step => 1, code => $code );
     if ( !$code_valid && !$from_post{code_valid} ) {
         $ret .= LJ::Widget::CreateAccountEnterCode->render( get => \%GET );
     } else {
