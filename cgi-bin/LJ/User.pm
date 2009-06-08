@@ -4943,7 +4943,7 @@ sub get_syndicated {
         my $dbr = LJ::get_db_reader();
         return unless $dbr;
         $synd = $dbr->selectrow_hashref("SELECT * FROM syndicated WHERE userid=$u->{'userid'}");
-        LJ::MemCache::set($memkey, $synd) if $synd;
+        LJ::MemCache::set($memkey, $synd, 60 * 30) if $synd;
     }
 
     return $synd;
