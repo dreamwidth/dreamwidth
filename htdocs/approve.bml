@@ -34,7 +34,7 @@ body<=
 
         # add to community
         if ($arg->{'member'}) {
-            LJ::add_friend($aa->{userid}, $targetid);
+            LJ::join_community( $targetid, $aa->{userid}, 0, undef, moderated_add => 1 );
         }
 
         # set up rels with this community
