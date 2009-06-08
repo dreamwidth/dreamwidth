@@ -157,7 +157,8 @@ sub accept_comm_invite {
 
     # valid invite.  let's accept it as far as the community listing us goes.
     # 1, 0 means add comm to user's friends list, but don't auto-add P edge.
-    LJ::join_community( $u, $cu, 1, 0, moderated_add => 1 ) if $args->{member};
+    LJ::join_community( $u, $cu, 1, 0, moderated_add => 1 ) or return undef
+        if $args->{member};
 
     # now grant necessary abilities
     my %edgelist = (
@@ -298,8 +299,7 @@ sub join_community {
     # try to join the community, and return if it didn't work
     $u->add_edge( $cu, member => {
         moderated_add => $opts{moderated_add} ? 1 : 0,
-    } );
-    return undef unless $u->member_of( $cu );
+    } ) or return LJ::error('db');
 
     # add edges that effect this relationship... if the user sent a fourth
     # argument, use that as a bool.  else, load commrow and use the postlevel.

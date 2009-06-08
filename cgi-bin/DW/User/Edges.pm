@@ -177,7 +177,8 @@ sub add_edge {
 
         # simply calls an add_sub to handle the edge.  we expect them to remove the
         # edge from the hashref if they process it.
-        $DW::User::Edges::VALID_EDGES{$key}->{add_sub}->( $from_u, $to_u, \%edges );
+        my $success = $DW::User::Edges::VALID_EDGES{$key}->{add_sub}->( $from_u, $to_u, \%edges );
+        return 0 unless $success;
     }
 
     # all good
@@ -208,7 +209,8 @@ sub remove_edge {
 
         # simply calls an add_sub to handle the edge.  we expect them to remove the
         # edge from the hashref if they process it.
-        $DW::User::Edges::VALID_EDGES{$key}->{del_sub}->( $from_u, $to_u, \%edges );
+        my $success = $DW::User::Edges::VALID_EDGES{$key}->{del_sub}->( $from_u, $to_u, \%edges );
+        return 0 unless $success;
     }
 
     # all good

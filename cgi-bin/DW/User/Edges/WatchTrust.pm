@@ -231,6 +231,8 @@ sub _del_wt_edge {
         $sclient->insert_jobs( LJ::Event::RemovedFromCircle->new( $to_u, $from_u, 2 )->fire_job )
             if $do_watch && $watch_notify;
     }
+
+    return 1;
 }
 
 
