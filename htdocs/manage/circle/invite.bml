@@ -197,7 +197,7 @@
 
     $body .= "<div style='margin: 20px 0 20px 20px;'>";
     $body .= "<label for='email'>$ML{'.form.input.email'}</label> ";
-    $body .= LJ::html_text({ name => "email", id => "email", class => 'text', value => $email }) . " ";
+    $body .= LJ::html_text({ name => "email", id => "email", class => 'text', autocomplete => 'off', value => $email }) . " ";
     $body .= LJ::html_submit($ML{'.btn.invite2'});
     if ($inerr->("email")) {
         $body .= "<br />" . $inerr->("email");
