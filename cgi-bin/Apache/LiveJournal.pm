@@ -359,7 +359,7 @@ sub trans
                 return OK;
             }
         }
-        if ( LJ::run_hook( "forbid_request", $r ) {
+        if ( LJ::run_hook( "forbid_request", $r ) ) {
             $r->handler( "perl-script" );
             $r->push_handlers( PerlResponseHandler => \&blocked_bot );
             return OK;

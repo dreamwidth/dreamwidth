@@ -440,7 +440,7 @@ sub sysban_should_block {
 
     my $r = BML::get_request();
     my $uri = $r->uri;
-    return 0 if ( $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0 );
+    return 0 if $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0;
 
     # if cookie exists, check for sysban
     if (my @cookieparts = $class->parts_from_cookie) {
