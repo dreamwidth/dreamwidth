@@ -168,6 +168,7 @@ sub add_edge {
     # now we try to add these edges.  note that we do this in this way so that
     # multiple edges can be consumed by one add sub.
     my @to_add = keys %edges;
+    my $ok = 1;
     while ( my $key = shift @to_add ) {
 
         # some modules will define multiple edges, and so one call to add_sub might
@@ -178,11 +179,11 @@ sub add_edge {
         # simply calls an add_sub to handle the edge.  we expect them to remove the
         # edge from the hashref if they process it.
         my $success = $DW::User::Edges::VALID_EDGES{$key}->{add_sub}->( $from_u, $to_u, \%edges );
-        return 0 unless $success;
+        $ok &&= $success;  # will zero out if any edges fail
     }
 
     # all good
-    return 1;
+    return $ok;
 }
 
 # removes an edge between two users
@@ -200,6 +201,7 @@ sub remove_edge {
     # now we try to remove these edges.  note that we do this in this way so that
     # multiple edges can be consumed by one remove sub.
     my @to_del = keys %edges;
+    my $ok = 1;
     while ( my $key = shift @to_del ) {
 
         # some modules will define multiple edges, and so one call to add_sub might
@@ -210,11 +212,11 @@ sub remove_edge {
         # simply calls an add_sub to handle the edge.  we expect them to remove the
         # edge from the hashref if they process it.
         my $success = $DW::User::Edges::VALID_EDGES{$key}->{del_sub}->( $from_u, $to_u, \%edges );
-        return 0 unless $success;
+        $ok &&= $success;  # will zero out if any edges fail
     }
 
     # all good
-    return 1;
+    return $ok;
 }
 
 # and now we link these into the LJ::User namespace for backwards compatibility
