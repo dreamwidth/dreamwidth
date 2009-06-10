@@ -173,9 +173,7 @@ sub watch_items
         return undef if $fr_loaded;
 
         # get journal's friends
-        my $friends = LJ::get_friends($userid) || {};
-        return undef unless %$friends;
-
+        my $friends = $u->watch_list;
         my %friends_u;
 
         # fill %allfriends with all friendids and cut $friends
@@ -200,7 +198,8 @@ sub watch_items
         my %ffriends = ();
         foreach my $fid (sort { $f_tu->{$b} <=> $f_tu->{$a} } keys %$friends) {
             last if $ffct > 50;
-            my $ff = LJ::get_friends($fid, undef, "memcache_only") || {};
+            my $fu = $friends_u{$fid};
+            my $ff = $fu->watch_list( community_okay => 1, memcache_only => 1 );
             my $ct = 0;
             while (my $ffid = each %$ff) {
                 last if $ct > 100;
