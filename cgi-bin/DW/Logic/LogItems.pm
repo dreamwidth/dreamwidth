@@ -173,7 +173,7 @@ sub watch_items
         return undef if $fr_loaded;
 
         # get journal's friends
-        my $friends = $u->watch_list;
+        my $friends = $u->watch_list or return undef;
         my %friends_u;
 
         # fill %allfriends with all friendids and cut $friends
