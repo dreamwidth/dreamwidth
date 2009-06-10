@@ -20,7 +20,7 @@ sub render_body {
 
     my $limit = defined $opts{limit} ? $opts{limit} : 5;
 
-    my @bdays = $u->get_friends_birthdays( months_ahead => 1 );
+    my @bdays = $u->get_birthdays( months_ahead => 1 );
     @bdays = @bdays[0..$limit-1]
         if @bdays > $limit;
 
