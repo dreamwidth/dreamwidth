@@ -550,9 +550,9 @@ sub login
     ## report what shared journals this user may post in
     $res->{'usejournals'} = list_usejournals($u);
 
-    ## return their trust groups
-    $res->{'friendgroups'} = list_trustgroups($u);
-    return fail($err, 502, "Error loading trust groups") unless $res->{'friendgroups'};
+    ## return their friend groups
+    $res->{'friendgroups'} = list_friendgroups($u);
+    return fail($err, 502, "Error loading friend groups") unless $res->{'friendgroups'};
     if ($ver >= 1) {
         foreach (@{$res->{'friendgroups'}}) {
             LJ::text_out(\$_->{'name'});
@@ -655,8 +655,8 @@ sub getfriendgroups
     return undef unless authenticate($req, $err, $flags);
     my $u = $flags->{'u'};
     my $res = {};
-    $res->{'friendgroups'} = list_trustgroups($u);
-    return fail($err, 502, "Error loading trust groups") unless $res->{'friendgroups'};
+    $res->{'friendgroups'} = list_friendgroups($u);
+    return fail($err, 502, "Error loading friend groups") unless $res->{'friendgroups'};
     if ($req->{'ver'} >= 1) {
         foreach (@{$res->{'friendgroups'} || []}) {
             LJ::text_out(\$_->{'name'});
@@ -687,8 +687,8 @@ sub getfriends
     my $u = $flags->{'u'};
     my $res = {};
     if ($req->{'includegroups'}) {
-        $res->{'friendgroups'} = list_trustgroups($u);
-        return fail($err, 502, "Error loading trust groups") unless $res->{'friendgroups'};
+        $res->{'friendgroups'} = list_friendgroups($u);
+        return fail($err, 502, "Error loading friend groups") unless $res->{'friendgroups'};
         if ($req->{'ver'} >= 1) {
             foreach (@{$res->{'friendgroups'} || []}) {
                 LJ::text_out(\$_->{'name'});
@@ -2509,12 +2509,19 @@ sub login_message
     return $msg->("hello_test")        if grep { $u->{user} eq $_ } @LJ::TESTACCTS;
 }
 
-sub list_trustgroups
+sub list_friendgroups
 {
     my $u = shift;
 
+    warn "ljprotocol.pl: list_friendgroups called.\n";
+    return [];
+
+# TODO(mark): this needs updating to determine if we should send trust groups?
+#             answer is yes, but we also need to move this to list_trustgroups
+#             so clients don't think those are friend groups.
+
     # get the groups for this user, return undef if error
-    my $groups = $u->trust_groups;
+    my $groups = LJ::get_friend_group($u);
     return undef unless $groups;
 
     # we got all of the groups, so put them into an arrayref sorted by the
