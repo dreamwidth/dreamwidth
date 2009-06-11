@@ -21,7 +21,7 @@
     }
 
     my %ierr;
-    my $email = $POST{email} || '';
+    my $email = $POST{invite_email} || '';
     my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT) . "/create.bml?from=$u->{user}";
 
     
@@ -159,22 +159,22 @@
                 extra => $email,
             });
 
-            # Blank email so the form is redisplayed for a new
-            # recipient, but with the same message
-            $email = '';
-
             if ( $LJ::USE_ACCT_CODES ) {
                 # mark an invite code as sent
                 my $invite_obj = DW::InviteCodes->new( code => $code );
                 $invite_obj->send_code;
 
-                $body .= "<?standout " . BML::ml('.success.code', { email  => $POST{email}, invitecode => $code }) . " standout?>";
+                $body .= "<?standout " . BML::ml('.success.code', { email  => $email, invitecode => $code }) . " standout?>";
 
                 $code_sent = 1;
 
             } else {
-                $body .= "<?standout " . BML::ml('.success', { email => $POST{email}}) . " standout?>";
+                $body .= "<?standout " . BML::ml('.success', { email => $email }) . " standout?>";
             }
+
+            # Blank email so the form is redisplayed for a new
+            # recipient, but with the same message
+            $email = '';
 
        # Over rate limit
        } else {
@@ -197,7 +197,7 @@
 
     $body .= "<div style='margin: 20px 0 20px 20px;'>";
     $body .= "<label for='email'>$ML{'.form.input.email'}</label> ";
-    $body .= LJ::html_text({ name => "email", id => "email", class => 'text', autocomplete => 'off', value => $email }) . " ";
+    $body .= LJ::html_text({ name => "invite_email", id => "email", class => 'text', value => $email }) . " ";
     $body .= LJ::html_submit($ML{'.btn.invite2'});
     if ($inerr->("email")) {
         $body .= "<br />" . $inerr->("email");
