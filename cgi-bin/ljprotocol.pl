@@ -2513,7 +2513,7 @@ sub list_friendgroups
 {
     my $u = shift;
 
-    warn "ljprotocol.pl: list_friendgroups called.\n";
+#    warn "ljprotocol.pl: list_friendgroups called.\n";
     return [];
 
 # TODO(mark): this needs updating to determine if we should send trust groups?
