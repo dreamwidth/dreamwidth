@@ -336,7 +336,7 @@ sub trustmask {
 # name: LJ::User::get_birthdays
 # des: get the upcoming birthdays for friends of a user. shows birthdays 3 months away by default
 #      pass in full => 1 to get all friends' birthdays.
-# returns: arrayref of [ month, day, user ] arrayrefs
+# returns: arrayref of [ month, day, username ] arrayrefs
 sub get_birthdays {
 
     my $u = LJ::want_user( shift )
@@ -394,7 +394,7 @@ sub get_birthdays {
             next if ($month == $mnow && $day < $dnow);
         }
 
-        $timedata{"$date.$id"} = [$month, $day, $u];
+        $timedata{"$date.$id"} = [$month, $day, $u->user];
     }
 
     # hash slice for array sorted by date

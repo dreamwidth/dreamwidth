@@ -41,7 +41,8 @@ body<=
     my $lastmon = 0;
 
     foreach my $bday (@bdays) {
-        my ($mymon, $myday, $u) = @$bday;
+        my ($mymon, $myday, $user) = @$bday;
+        my $u = LJ::load_user( $user );
         my $name = $u->name_html;
 
         if ( $mymon != $lastmon ) {
@@ -51,7 +52,7 @@ body<=
         }
 
         $body .= sprintf( "<b><tt>%02d</tt></b>: ", $myday );
-        $body .= LJ::ljuser( $u ) . " - $name<br />\n";
+        $body .= $u->ljuser_display . " - $name<br />\n";
     }
 
     if (@bdays) {
