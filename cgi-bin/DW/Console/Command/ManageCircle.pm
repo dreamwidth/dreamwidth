@@ -57,8 +57,6 @@ sub execute {
 
     if ( $cmd eq 'add_read' ) {
         $remote->add_edge( $to_u, watch => {
-            fgcolor => int(rand()*16777216),
-            bgcolor => int(rand()*16777216),
             nonotify => $remote->watches( $to_u ) ? 1 : 0,
         } );
 
