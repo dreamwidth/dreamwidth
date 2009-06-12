@@ -126,7 +126,7 @@
                 self_link => sub { BML::get_uri() . "?page=$_[0]&" . $querystring }, });
             $start_index = $page_size * ($page -1);
         }
-        @pics = @allpics[$start_index..$start_index + $page_size - 1];
+        @pics = splice( @allpics, $start_index, $start_index + $page_size - 1 );
     } else {
         @pics = @allpics;
     }
