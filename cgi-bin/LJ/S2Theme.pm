@@ -614,9 +614,14 @@ sub get_preview_styleid {
     my %style = LJ::S2::get_style($u);
     my $i18n_layer = $self->get_custom_i18n_layer_for_theme($u);
     my $user_layer = $self->get_custom_user_layer_for_theme($u);
+    
+    # for the i18nc layer, match the user's preferences if they're not switching cores
+    # if they are switching cores, we don't know what the equivalent should be
+    my $i18nc_layer = ( $self->coreid == $style{core} ) ? $style{i18nc} : undef;
+    
     my %layers = (
-        core   => $style{core},
-        i18nc  => $style{i18nc},
+        core   => $self->coreid,
+        i18nc  => $i18nc_layer,
         layout => $self->layoutid,
         i18n   => $i18n_layer,
         theme  => $self->themeid,
