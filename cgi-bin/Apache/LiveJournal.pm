@@ -353,6 +353,34 @@ sub trans
         return redir($r, $url);
     }
 
+    # handle alternate domains
+    if ( $host ne $LJ::DOMAIN && $host ne $LJ::DOMAIN_WEB ) {
+        my $which_alternate_domain = undef;
+        foreach my $other_host ( @LJ::ALTERNATE_DOMAINS ) {
+            $which_alternate_domain = $other_host
+                if $host =~ m/\Q$other_host\E$/i;
+        }
+
+        if ( defined $which_alternate_domain ) {
+            my $root = $is_ssl ? "https://" : "http://";
+            $host =~ s/\Q$which_alternate_domain\E$/$LJ::DOMAIN/i;
+
+            # do $LJ::DOMAIN -> $LJ::DOMAIN_WEB here, to save a redirect.
+            if ( $LJ::DOMAIN_WEB && $host eq $LJ::DOMAIN ) {
+                $host = $LJ::DOMAIN_WEB;
+            }
+            $root .= "$host/";
+
+            if ( $r->method eq "GET" ) {
+                my $url = "$root$uri";
+                $url .= "?" . $args if $args;
+                return redir( $r, $url );
+            } else {
+                return redir( $r, $root );
+            }
+        }
+    }
+
     # check for sysbans on ip address
     unless ( $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0 ) {
         foreach my $ip (@req_hosts) {

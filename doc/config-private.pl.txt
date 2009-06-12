@@ -35,6 +35,14 @@
         news => 1,
     );
 
+    # list of alternate domains that point to your site.
+    @ALTERNATE_DOMAINS = (
+        'ljsite.org',
+        'ljsite.net',
+        'ljsite.co.uk',
+        'ljsite.tld',
+    );
+
     # configuration/ID for statistics tracker modules which apply to
     # site pages (www, non-journal)
     %SITE_PAGESTAT_CONFIG = (
