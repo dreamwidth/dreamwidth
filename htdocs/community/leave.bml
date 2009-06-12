@@ -61,12 +61,15 @@
         $body .= " p?>";
     } else {
         # show a confirmation form
-        $body .= "<?h1 $ML{'.sure'} h1?><?p ";
+        $body .= "<?h1 $ML{'.sure'} h1?>";
+        $body .= "<p>" . BML::ml( '.label.lastmaintainer.deletedcomm' ) . "</p>" if $cu->is_deleted;
+        $body .= "<?p ";
         if ($watching && !$memberof) {
             $body .= BML::ml('.label.buttontostopwatch', { commname => $ecname });
         } else {
             $body .= BML::ml('.label.buttontoleave', { commname => $ecname });
         }
+        
         $body .= " p?>";
         $body .= '<form method="post" action="leave.bml">';
         $body .= LJ::form_auth();

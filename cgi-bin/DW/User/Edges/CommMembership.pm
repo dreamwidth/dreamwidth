@@ -205,8 +205,13 @@ sub can_leave {
         my $othermaints = grep { $_ != $u->id } @maintids;
 
         if ( $ismaint && !$othermaints ) {
-            $$errref = LJ::Lang::ml( 'edges.leave.error.lastmaintainer' );
-            return 0;
+            if ( $tu->is_deleted ) {
+                # one exception: maintainer can remove themselves from a deleted community
+                return 1;
+            } else {
+                $$errref = LJ::Lang::ml( 'edges.leave.error.lastmaintainer' );
+                return 0;
+            }
         }
     }
 

@@ -9,6 +9,8 @@
 
 .label.infoerror=The specified community information is not valid.
 
+.label.lastmaintainer.deletedcomm=You are the last maintainer for this deleted community. If you leave now, it will not be possible to restore the community, should you change your mind in the future.
+
 .label.logoutfirst2=To leave a community you must first <a [[aopts]]>log in</a>.
 
 .label.removed.stopwatch=You are no longer watching the <a [[aopts]]>[[commname]] Community</a>.
