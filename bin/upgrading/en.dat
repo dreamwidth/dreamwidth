@@ -1252,7 +1252,7 @@ entryform.xpost=Crosspost this entry
 
 entryform.xpost.manage=Manage accounts
 
-error.badpassword=Incorrect Password.
+error.badpassword2=You typed the wrong password. If you make too many wrong login attempts in a row, your account access will be temporarily blocked, so you may want to <a [[aopts]]>reset your password</a> if you aren't sure what it is.
 
 error.code.comm_not_comm=Account is not a community
 

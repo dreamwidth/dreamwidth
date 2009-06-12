@@ -324,7 +324,7 @@
                 if ($chal_opts->{'expired'}) {
                     push @errors, [ expired_challenge => $ML{'error.expiredchal'}];
                 } else {
-                    push @errors, [ bad_password => $ML{'error.badpassword'} ];
+                    push @errors, [ bad_password => BML::ml( 'error.badpassword2', { aopts => "href='$LJ::SITEROOT/lostinfo.bml'" } ) ];
                 }
             }
 
