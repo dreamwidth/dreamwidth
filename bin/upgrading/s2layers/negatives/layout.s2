@@ -315,6 +315,9 @@ function print_stylesheet()
     .entry a:hover, .comment a:hover {
         color: $*color_entry_link_hover;
     }
+    .tag { margin: 10px 0; }
+    .tag ul { display: inline; margin: 0; padding: 0; }
+    .tag li { display: inline; }
     .bottomcomment {
         border: 15px double $*color_entry_border;
         padding: 5px;

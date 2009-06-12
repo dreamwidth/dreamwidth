@@ -2011,10 +2011,16 @@ property string text_tags_manage {
     example = "Manage Tags";
 }
 
+property string text_tags_item_sep {
+    des = "Text to separate items in a list of tags";
+    example = ",";
+}
+
 set text_tags_page_header = "Visible Tags";
 set text_tag_uses = "1 use // # uses";
 set text_tagsmultilevel_delimiter = ":";
 set text_tags_manage = "Manage Tags";
+set text_tags_item_sep = ",";
 
 ##================================================================
 ## Text - misc strings, not popular enough to expose in wizard
@@ -3735,9 +3741,13 @@ function Comment::print_metatypes() {
 
 function Entry::print_tags() [fixed] {
     if ($this.tags) {
-        """<div class="tag"><span class="tag-text">$*text_tags</span><ul>""";
+        var int tag_count = 0;
+        """<div class="tag"><span class="tag-text">$*text_tags</span><ul>\n""";
         foreach var Tag t ($this.tags) {
-            """<li><a rel="tag" href="$t.url">$t.name</a></li>\n""";
+            """<li><a rel="tag" href="$t.url">$t.name</a>""";
+            $tag_count++;
+            if ($tag_count < size $.tags) { print $*text_tags_item_sep; }
+            "</li>\n";
         }
         "</ul></div>";
     }
