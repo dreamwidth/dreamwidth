@@ -4501,6 +4501,8 @@ widget.shopitemgroupdisplay.paidaccounts.item.newaccount=<a [[aopts]]>For a new 
 
 widget.shopitemgroupdisplay.paidaccounts.item.self=<a [[aopts]]>For yourself</a> ([[user]])
 
+widget.shopitemoptions.error.banned=You are restricted from making purchases for this journal.
+
 widget.shopitemoptions.error.invalidusername=The username you entered is invalid or the user does not exist.
 
 widget.shopitemoptions.error.nocart=Unable to get a shopping cart for you.  Please try again later.

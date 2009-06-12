@@ -95,11 +95,15 @@ sub handle_post {
         }
     } elsif ( $post->{for} eq 'gift' ) {
         my $target_u = LJ::load_user( $post->{username} );
-        if ( LJ::isu( $target_u ) ) {
-            $item_data{target_userid} = $target_u->id;
-        } else {
-            return ( error => $class->ml( 'widget.shopitemoptions.error.invalidusername' ) );
-        }
+
+        return ( error => $class->ml( 'widget.shopitemoptions.error.invalidusername' ) )
+            unless LJ::isu( $target_u );
+
+        return ( error => $class->ml( 'widget.shopitemoptions.error.banned' ) )
+            if $remote && $target_u->has_banned( $remote );
+
+        $item_data{target_userid} = $target_u->id;
+
     } elsif ( $post->{for} eq 'new' ) {
         my @email_errors;
         LJ::check_email( $post->{email}, \@email_errors );
