@@ -243,8 +243,9 @@
 
         $title = "Close Reports";
         $body .= "<?p [ <a href=\"spamreports.bml\">&lt;&lt; Front Page</a> ] $backlink p?>\n";
+
         my $s = $count == 1 ? '' : 's';
-        $body .= "Closed $count report$s.\n";
+        $body .= $count > 0 ? "Closed $count report$s.\n" : "Reports were already closed.";
 
     } else {
         # standard
