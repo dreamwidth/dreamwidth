@@ -14,6 +14,8 @@
 
 .error.friendsonly=Only friends of [[user]] may post in this journal.
 
+.error.invalidform=Invalid form submission. You may have left the reply form open too long, or logged out since you opened the page. Please try posting again.
+
 .error.membersonly=Only members of [[user]] can post in this community.
 
 .error.lostcookie=Your login cookie seems to have disappeared?
