@@ -3370,7 +3370,7 @@ sub UserLite__get_link
         my $link = $_[0];
         return undef unless $link;
 
-        return LJ::S2::Link($link->{url}, $link->{title}, LJ::S2::Image($link->{image}, 20, 18));
+        return LJ::S2::Link( $link->{url}, $link->{title}, LJ::S2::Image( $link->{image}, $link->{width} || 20, $link->{height} || 18 ) );
     };
 
     return $button->( $linkbar->manage_membership ) if $key eq 'manage_membership';

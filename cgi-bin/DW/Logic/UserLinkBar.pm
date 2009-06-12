@@ -116,6 +116,9 @@ sub fix_link {
     $link->{class} = $self->{class_prefix} . "_" . $link->{class} 
         if $self->{class_prefix} && $link->{class};
 
+    $link->{width} ||= 20;
+    $link->{height} ||= 18;
+
     return $link;
 }
 
@@ -398,6 +401,8 @@ sub tellafriend {
         my $link = {
             url => "tools/tellafriend.bml?user=$user",
             image => "$LJ::IMGPREFIX/silk/profile/tellafriend.png",
+            width => 16,
+            height => 16,
             text_ml => 'userlinkbar.tellafriend',
             class => 'tellafriend',
         };

@@ -297,18 +297,21 @@ body<=
     $ret .= q{ <div class='actions'><ul> };
 
     foreach my $link ( $profile->action_links ) {
+        my $width = $link->{width} ? "width=\"$link->{width}\"" : "";
+        my $height = $link->{height} ? "height=\"$link->{height}\"" : "";
+
         if ( $link->{url} ) {
             $ret .= qq(
                 <li class="$link->{class}" title="$link->{title}">
                     <a href="$link->{url}">
-                        <img src="$link->{image}" alt="" />$link->{text}
+                        <img src="$link->{image}" $width $height alt="" />$link->{text}
                     </a>
                 </li>
             );
         } else {
             $ret .= qq(
                 <li class="$link->{class}" title="$link->{title}">
-                    <img src="$link->{image}" alt="" />$link->{text}
+                    <img src="$link->{image}" $width $height alt="" />$link->{text}
                 </li>
             );
         }
