@@ -29,7 +29,7 @@ sub args_desc {
     [
         'command' => 'Subcommand: add_read, del_read, add_access, del_access.',
         'username' => 'Username to act on.',
-        'groups' => 'If using add_access, a comma separated list of trust group ids.',
+        'groups' => 'If using add_access, a comma separated list of trust group ids. Will add to the list of groups this user is already in.',
     ]
 }
 sub usage { '<subcommand> <username> [groups]' }
@@ -70,6 +70,10 @@ sub execute {
     } elsif ( $cmd eq 'add_access' ) {
         my $mask = 0;
         $mask += ( 1 << $_ ) foreach @groups;
+        
+        my $existing_mask = $remote->trustmask( $to_u );
+        $mask |= $existing_mask;
+
         $remote->add_edge( $to_u, trust => {
             mask => $mask,
             nonotify => $remote->trusts( $to_u ) ? 1 : 0,
