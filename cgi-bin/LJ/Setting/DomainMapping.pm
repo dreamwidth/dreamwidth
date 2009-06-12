@@ -12,9 +12,12 @@ sub save {
 
     # sanitize POST value
 
-    my $domainname = $args->{journaldomain};
+    my $domainname = lc( $args->{journaldomain} );
+
     $domainname =~ s!^(http://)?(www\.)?!!;
-    $domainname = lc($domainname);
+
+    # Strip off trailing '.', and any path or port the user might have entered.
+    $domainname =~ s!\.([:/].+)?$!!;
 
     my $dbh = LJ::get_db_writer();
 

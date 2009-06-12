@@ -245,7 +245,10 @@ sub trans
     my $args = $r->args;
     my $args_wq = $args ? "?$args" : "";
     my $host = $r->headers_in->{"Host"};
-    my $hostport = ($host =~ s/:\d+$//) ? $& : "";
+    my $hostport = ( $host =~ s/:\d+$// ) ? $& : "";
+
+    # Allow hosts ending in . to work properly.
+    $host =~ s/\.$//;
 
     # disable TRACE (so scripts on non-LJ domains can't invoke
     # a trace to get the LJ cookies in the echo)
