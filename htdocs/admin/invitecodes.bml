@@ -57,7 +57,7 @@ body<=
 sub display_codes {
     my ($account, @codes) = @_;
 
-    my $ret = "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date sent</th><th>Date used</th></tr>";
+    my $ret = "<table border='1' cellpadding='5'><tr><th>Code</th><th>Owner</th><th>Recipient</th><th>Reason</th><th>Date generated</th><th>Date sent</th><th>Date used</th><th>Email</th></tr>";
 
     foreach my $code ( @codes ) {
         my $owner = $code->owner == $account->id ? $account : LJ::load_userid( $code->owner );
@@ -70,6 +70,7 @@ sub display_codes {
         $ret .= "<td>" . LJ::time_to_http( $code->timegenerate). "</td>";
         $ret .= "<td>" . ( $code->timesent ? LJ::time_to_http( $code->timesent ) : "" ) . "</td>";
         $ret .= "<td>" . ( $code->is_used ? LJ::time_to_http( $recipient->timecreate ) : "" ) . "</td>";
+        $ret .= "<td>" . $code->email . "</td>";
         $ret .= "</tr>";
     }
     $ret .= "</table>";

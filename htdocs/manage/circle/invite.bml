@@ -162,7 +162,7 @@
             if ( $LJ::USE_ACCT_CODES ) {
                 # mark an invite code as sent
                 my $invite_obj = DW::InviteCodes->new( code => $code );
-                $invite_obj->send_code;
+                $invite_obj->send_code( email => $email );
 
                 $body .= "<?standout " . BML::ml('.success.code', { email  => $email, invitecode => $code }) . " standout?>";
 

@@ -25,7 +25,7 @@ body<=
     my @invitecodes = DW::InviteCodes->by_owner( userid => $remote->id );
     
     if ( @invitecodes ) {
-        $ret .= "<table class='invitecodes'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th>$ML{'.header.sent'}</th></tr>";
+        $ret .= "<table class='invitecodes'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th width='200'>$ML{'.header.sent'}</th><th>$ML{'.header.email'}</th></tr>";
     
         foreach my $code ( @invitecodes ) {
             $ret .= "<tr>";
@@ -45,6 +45,10 @@ body<=
             
             $ret .= "<td>";
             $ret .= LJ::time_to_http( $code->timesent ) if $code->timesent;
+            $ret .= "</td>";
+            
+            $ret .= "<td>";
+            $ret .= $code->email;
             $ret .= "</td>";
             
             $ret .= "</tr>";

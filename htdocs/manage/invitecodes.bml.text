@@ -15,8 +15,11 @@
 
 .noinvitecodes=You have no invite codes.
 
-.header.code=Code
+.header.code=Code:
 
-.header.recipient=Recipient
+.header.email=Sent to email:
 
-.header.sent=Sent on
+.header.recipient=Recipient:
+
+.header.sent=Sent on:
+

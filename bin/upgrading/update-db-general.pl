@@ -1096,6 +1096,7 @@ CREATE TABLE acctcode (
     auth    CHAR(13) NOT NULL,
     timegenerate INT UNSIGNED NOT NULL,
     timesent INT UNSIGNED,
+    email   VARCHAR(255),
     reason  VARCHAR(255),
 
     INDEX (userid),
@@ -4076,6 +4077,11 @@ register_alter(sub {
     unless ( column_type( 'pp_log', 'ip' ) =~ /varchar/ ) {
         do_alter( 'pp_log',
                   q{ALTER TABLE pp_log ADD COLUMN ip VARCHAR(15) NOT NULL AFTER ppid} );
+    }
+
+    unless ( column_type( 'acctcode', 'email' ) ) {
+        do_alter( 'acctcode',
+                  q{ALTER TABLE acctcode ADD COLUMN email VARCHAR(255) AFTER timesent} );
     }
 
 });
