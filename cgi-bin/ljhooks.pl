@@ -120,16 +120,27 @@ register_setter('synlevel', sub {
 
 register_setter("newpost_minsecurity", sub {
     my ($u, $key, $value, $err) = @_;
-    unless ($value =~ /^(public|friends|private)$/) {
-        $$err = "Illegal value.  Must be 'public', 'friends', or 'private'";
+    unless ($value =~ /^(public|access|members|private|friends)$/) {
+        $$err = "Illegal value.  Must be 'public', 'access' (for personal journals), 'members' (for communities), or 'private'";
         return 0;
     }
-    # Don't let commmunities be private
-    if ($u->{'journaltype'} eq "C" && $value eq "private") {
-        $$err = "newpost_minsecurity cannot be private for communities";
+    # Don't let commmunities be private or access-locked
+    if ( $u->is_community ) {
+        if ( $value eq "private" ) {
+            $$err = "newpost_minsecurity cannot be private for communities";
+            return 0;
+        } elsif ( $value eq "access" ) {
+            $$err = "newpost_minsecurity cannot be access-locked for communities (use 'members' instead)";
+            return 0;
+        }
+    }
+    if ( $u->is_individual && $value eq "members" ) {
+        $$err = "newpost_minsecurity members not applicable to non-community journals. (use 'access' instead)";
         return 0;
     }
+    
     $value = "" if $value eq "public";
+    $value = "friends" if $value eq "access" || $value eq "members";
 
     $u->set_prop("newpost_minsecurity", $value);
     return 1;
