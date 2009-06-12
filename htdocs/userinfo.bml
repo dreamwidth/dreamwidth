@@ -135,7 +135,7 @@ body<=
         if ( $u->is_deleted ) {
             BML::set_status(404); # 404 Not Found
             $title = $ML{'error.deleted.title'};
-            my $del_body = "<?h1 $ML{'error.deleted.name'} h1?><?p " . BML::ml( 'error.deleted.text', { user => $u->user } ) . " p?>";
+            my $del_body = "<?h1 $ML{'error.deleted.name'} h1?><?p " . BML::ml( 'error.deleted.text', { user => $u->display_name } ) . " p?>";
             $del_body .= BML::ml( '.error.deleted.purgenotification', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=" . $u->user . "'" } )
                 unless LJ::User->is_protected_username( $u->user );
             return $del_body;
