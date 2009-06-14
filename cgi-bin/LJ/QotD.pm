@@ -6,7 +6,7 @@ use List::Util qw(shuffle);
 sub get_domains {
     my $class = shift;
 
-    return ( homepage => "Homepage", map { $_->name, $_->display_name } LJ::Widget::VerticalContentControl->verticals_remote_can_moderate );
+    return ( homepage => "Homepage" );
 }
 
 sub is_valid_domain {
