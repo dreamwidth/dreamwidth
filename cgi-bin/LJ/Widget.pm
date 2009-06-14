@@ -25,6 +25,10 @@ sub need_res {
     return ();
 }
 
+sub need_res_opts {
+    return ();
+}
+
 sub render_body {
     return "";
 }
@@ -99,6 +103,8 @@ sub render {
     my $rv = eval {
         my $widget = $class;
 
+        my $opts = { $widget->need_res_opts };
+
         # include any resources that this widget declares
         if (defined $opt_hash{stylesheet_override}) {
             LJ::need_res($opt_hash{stylesheet_override}) if $opt_hash{stylesheet_override};
@@ -107,19 +113,19 @@ sub render {
             foreach my $file ($widget->need_res) {
                 if ($file =~ m!^[^/]+\.(js|css)$!i) {
                     next if $1 eq 'css';
-                    LJ::need_res("js/widgets/$subclass/$file");
+                    LJ::need_res( $opts, "js/widgets/$subclass/$file" );
                     next;
                 }
-                LJ::need_res($file) unless $file =~ /\.css$/i;
+                LJ::need_res( $opts, $file ) unless $file =~ /\.css$/i;
             }
         } else {
             foreach my $file ($widget->need_res) {
                 if ($file =~ m!^[^/]+\.(js|css)$!i) {
                     my $prefix = $1 eq 'js' ? "js" : "stc";
-                    LJ::need_res("$prefix/widgets/$subclass/$file");
+                    LJ::need_res( $opts, "$prefix/widgets/$subclass/$file" );
                     next;
                 }
-                LJ::need_res($file);
+                LJ::need_res( $opts, $file );
             }
         }
         LJ::need_res($opt_hash{stylesheet}) if $opt_hash{stylesheet};
@@ -741,6 +747,10 @@ widget and returns the results of that POST to C<render>.
 
 Returns a list of paths to static files that should be included on the page that
 the widget is called on (i.e. CSS and JS).  Can be subclassed.
+
+=item C<need_res_opts>
+
+Returns a hash of opts that can be passed to need_res -- for example, ( group => 'jquery' ). Can be subclassed.
 
 =item C<post_fields_by_widget>
 
