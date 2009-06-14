@@ -31,9 +31,9 @@
 
 .error.noentries.body<<
 This could be because: <ol>
-<li>the user hasn't defined any memorable events,</li>
-<li>the user's memorable events are protected and you don't have access to view them, or</li>
-<li>the user doesn't have any memories that match your filter criteria.</li></ol>
+<li>[[username]] hasn't defined any memorable events,</li>
+<li>[[username]]'s memorable events are protected and you don't have access to view them, or</li>
+<li>[[username]] doesn't have any memories that match your filter criteria.</li></ol>
 .
 
 .error.noentries.title=No memories found.

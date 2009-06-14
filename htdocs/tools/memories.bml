@@ -268,7 +268,7 @@
  $body .= "</form>";
 
  unless (@sortedrows) {
-     $body .= "<?h1 $ML{'.error.noentries.title'} h1?><?p $ML{'.error.noentries.body'} p?>";
+     $body .= "<?h1 $ML{'.error.noentries.title'} h1?><?p " . BML::ml( '.error.noentries.body', { username => $u->display_name } ) . " p?>";
  } else {
      $body .= "<ul>";
      foreach my $row (@sortedrows) {
