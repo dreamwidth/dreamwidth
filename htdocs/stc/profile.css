@@ -95,6 +95,7 @@
     .details_journal .journal_title {
         font-size: 1em;
         font-weight: bold;
+        font-size: larger;
     }
     .details_journal .journal_subtitle {
         font-style: italic;
