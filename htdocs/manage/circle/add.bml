@@ -141,18 +141,18 @@
             }
         } else {
             if ($u->{'journaltype'} eq "I") {
-               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $u->{'name'} });
-               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $u->{'name'} });
+               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $u->display_name });
+               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $u->display_name });
             } else {
-               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $user });
-               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $user });
+               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $u->display_name });
+               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $u->display_name });
             }
             $body .= "<?p $ML{'.confirm.text1.person'} p?>"
                 if $remote->can_trust( $u ) && $remote->can_watch( $u );
         }
     } elsif ( $trusted || $watched ) {
-        $windowtitle = BML::ml( '.confirm.title.person', { user => $user } );
-        $title = BML::ml( '.confirm.title.person', { icon => $icon, user => $user } );
+        $windowtitle = BML::ml( '.confirm.title.person', { user => $u->display_name } );
+        $title = BML::ml( '.confirm.title.person', { icon => $icon, user => $u->display_name } );
         $body .= "<?p $ML{'.confirm.text1.notvisible'} p?>";
     } else {
         $title = $ML{'Error'};
