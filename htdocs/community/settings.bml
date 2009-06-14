@@ -100,7 +100,6 @@ body<=
         # proceed.
         unless (%errors) {
             my $dbh = LJ::get_db_writer();
-            my $cid = $cu->id;
 
             my $qmembership = $POST{membership};
             $qmembership = "closed" unless $qmembership =~ /^(?:open|moderated|closed)$/;
@@ -119,9 +118,13 @@ body<=
             if ($mode eq 'create') {
                 LJ::set_rel($cu, $remote, 'A');
 
-                # delete existing friends
-                my $friends = LJ::get_friends($cid, undef, undef, 'force') || {};
-                LJ::remove_friend($cid, [ keys %$friends ]);
+                # delete existing watchlist & trustlist
+                foreach ( $cu->watched_users ) {
+                    $cu->remove_edge( $_, watch => {} );
+                }
+                foreach ( $cu->trusted_users ) {
+                    $cu->remove_edge( $_, trust => {} );
+                }
 
                 # log this to statushistory
                 my $msg = "account '" . $cu->user . "' converted to community";
