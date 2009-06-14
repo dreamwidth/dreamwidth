@@ -100,6 +100,7 @@ div.insobjOuter p.wintitle {
 #formcontent { 
     padding: 5px 10px 0px 10px;
     margin: 0px;
+    min-height: 160px;
 }
 * html #formcontent {
     padding-top: 0px;

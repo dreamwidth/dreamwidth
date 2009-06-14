@@ -13,8 +13,9 @@
 
     LJ::need_res('stc/lj_base-app.css',
                  'stc/imgupload.css',
-                 'stc/display_none.css',
-                 'js/photobucket_jw.js');
+                 'stc/display_none.css');
+
+    LJ::need_res( 'js/photobucket_jw.js' ) if $LJ::PHOTOBUCKET_JWIDGET_ID;
 
     if ($GET{upload_count} || LJ::did_post()) {
         my $js = "";
@@ -53,13 +54,10 @@
     }
 
     my $step = 1;
-    my $fbenabled = LJ::get_cap($u, 'fb_account') && LJ::get_cap($u, 'fb_can_upload');
     my $ret = '';
 
-    $$head .= qq{
+    $$head .= qq~
         <script type="text/javascript">
-            var fileaction = '$LJ::FB_SITEROOT/interface/webupload';
-            var fbroot     = '$LJ::SITEROOT/__using/$LJ::FB_DOMAIN';
             var urlaction  = 'imgupload.bml';
 
             function onCancel () {
@@ -71,18 +69,23 @@
                 \$(tab).className = 'on';
             }
             function clearTabs() {
-                \$('tabInsert').className = '';
-                \$('tabPhotobucket').className = '';
+                \$('tabInsert').className = '';~;
+    $$head .= qq~ 
+                \$('tabPhotobucket').className = '';~
+                    if $LJ::PHOTOBUCKET_JWIDGET_ID;
+    $$head .= qq~
             }
         </script>
-        };
+        ~;
 
     $ret .= "<div class='insob-wrapper'>";
     $ret .= "<div class='insobjOuter' id='insobjOuter'>";
     $ret .= "<form id='insobjform' enctype='multipart/form-data' action='imgupload.bml' method='post' onsubmit='return window.parent.InOb.onSubmit()' >";
     $ret .= "<div class='tabs'><ul><li id='tabInsert' class='on'><a href='javascript: void(0);' onclick='window.parent.InOb.showSelectorPage();setTab(\"tabInsert\");return false;'>Insert Image</a></li>";
-    $ret .= "<li id='tabPhotobucket'><a href='javascript: void(0);' onclick='window.parent.InOb.photobucket(seedurl,pb_affsite_id);setTab(\"tabPhotobucket\");return false;'>Photobucket</a></li></ul></div>";
-    $ret .= "<div id='close'><a href='#close' onclick='onCancel();return false;'>close</a></div>";
+
+    $ret .= "<li id='tabPhotobucket'><a href='javascript: void(0);' onclick='window.parent.InOb.photobucket(seedurl,pb_affsite_id);setTab(\"tabPhotobucket\");return false;'>Photobucket</a></li>" if $LJ::PHOTOBUCKET_JWIDGET_ID;
+
+    $ret .= "</ul></div><div id='close'><a href='#close' onclick='onCancel();return false;'>close</a></div>";
 
     # content
     $ret .= "<div class='insobjContent' id='img_iframe_holder' style='display: none; margin: 0px 0px 0px 0px;'></div><div id='img_fromwhere' class='insobjContent'>";
@@ -113,50 +116,6 @@
     $ret .= "</p>";
     $ret .= "<p class='ex'><strong>Example:</strong> http://www.example.com/some-picture.jpg</p>";
 
-    # from file
-    $ret .= "<p class='inputs pkg'>";
-    $ret .= LJ::html_check({
-        'type'     => 'radio',
-        'name'     => 'method',
-        'id'       => 'fromfile',
-        'class'    => 'check',
-        'value'    => 'file',
-        'disabled' => $fbenabled ? 0 : 1,
-    });
-    $ret .= " <label for='fromfile' class='left'>Image from file:</label>";
-    $ret .= LJ::html_hidden('redir_to_auth_base', '1', 'sec1', '255');
-
-    my $disabled = $fbenabled ? '' : "disabled='1'";
-
-    $ret .= "<span class='inputcontainer'>";
-    $ret .= "<span id='filediv'><input type='file' name='file1' id='fromfileentry' size='50' $disabled /></span>";
-    $ret .= "</span>";
-    $ret .= "</p>";
-    if ($u) {
-        my $msg = LJ::run_hook('update_insobj_fb', $fbenabled) || "Upload a file from your computer";
-        $ret .= "<p class='ex'>$msg</p>";
-    } else {
-        $ret .= "<?warningbar $ML{'.login.message2'} warningbar?>";
-    }
-
-    # from Fotobilder
-    if ($fbenabled) {
-        $ret .= "<p class='inputs pkg'>";
-        $ret .= LJ::html_check({
-            'type'     => 'radio',
-            'name'     => 'method',
-            'id'       => 'fromfb',
-            'class'    => 'check',
-            'value'    => 'fb',
-        });
-
-        $ret .= " <label for='fromfb' class='left extended'>$ML{'.gallery.label'}</label>";
-        $ret .= "</p>";
-    }
-
-    if ($u) {
-        $ret .= "<p class='ex extended'>$ML{'.size'}</p>\n";
-    }
     $ret .= "</div><!-- end #formcontent -->";
     $ret .= "<div class='insobjNav' id='insobjNav'>";
     $ret .= "<input type='button' name='btn:prev' id='btnPrev' style='display:none' value='&lt;-- Back' />";
@@ -167,8 +126,10 @@
 
     $$body = $ret;
 
-    $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb.bml';";
-    $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
+    if ( $LJ::PHOTOBUCKET_JWIDGET_ID ) {
+        $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb.bml';";
+        $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
+    }
     $$head .= LJ::res_includes();
     return;
 }

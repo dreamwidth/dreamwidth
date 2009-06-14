@@ -39,11 +39,11 @@ dialog.AddTab( 'Info', FCKLang.DlgImgInfoTab ) ;
 if ( !bImageButton && !FCKConfig.ImageDlgHideLink )
 	dialog.AddTab( 'Link', FCKLang.DlgImgLinkTab ) ;
 
-if ( FCKConfig.ImageUpload )
+if ( FCKConfig.ImageUpload && top.SiteConfig.ImageUpload )
 	dialog.AddTab( 'Upload', FCKLang.DlgLnkUpload ) ;
 
 // LJ SPECIFIC
-if ( FCKConfig.ImagePhotobucket)
+if ( FCKConfig.ImagePhotobucket && top.SiteConfig.ImagePhotobucket )
     dialog.AddTab( 'Photobucket', 'Photobucket' ) ;
 
 if ( !FCKConfig.ImageDlgHideAdvanced )

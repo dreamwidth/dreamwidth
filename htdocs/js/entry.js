@@ -613,7 +613,8 @@ InOb.selectRadio = function (which) {
 
     if (which != 'fromfile') {
         var filediv = currentPopupWindow.document.getElementById('filediv');
-        filediv.innerHTML = filediv.innerHTML;
+        if (filediv)
+            filediv.innerHTML = filediv.innerHTML;
     }
 
     // focus and change next button
