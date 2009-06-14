@@ -45,6 +45,10 @@ body<=
     $ret .= "<tr><th>User</th><th>Time Generated</th><th>Ct</th><th>Give</th><th>Reason</th></tr>";
     foreach my $outstanding ( @outstanding ) {
         my $u = $users->{$outstanding->userid};
+        
+        # don't include in table if they're sysbanned
+        next if DW::InviteCodeRequests->invite_sysbanned( user => $u );
+
         $ret .= "<tr>";
         $ret .= "<td>" . $u->ljuser_display . "</td>";
         $ret .= "<td>" . LJ::time_to_http( $outstanding->timegenerate ) . "</td>";

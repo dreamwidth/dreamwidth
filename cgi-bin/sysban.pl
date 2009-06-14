@@ -473,6 +473,8 @@ sub sysban_validate {
                'lostpassword' => 'user',
                'talk_ip_test' => 'ip',
                'contentflag' => 'user',
+               'invite_user' => 'user',
+               'invite_email' => 'email',
                );
 
     while (my ($new, $existing) = splice(@map, 0, 2)) {

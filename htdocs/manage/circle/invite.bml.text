@@ -21,8 +21,6 @@ The [[sitenameshort]] Team
 
 .error.noimagesallowed=Images are not allowed in this message.
 
-.error.noinvitecodes=You have no invite codes available. Please go to <a [[aopts]]>your manage invite codes page</a> to request new ones.
-
 .error.noname=Please enter your friend's name.
 
 .error.nooffsitelinksallowed=Links to sites other than [[sitename]] are not allowed in this message.
@@ -93,6 +91,10 @@ Awesomely Yours,
 The [[sitename]] Team
 [[siteroot]]
 .
+
+.msg.noinvitecodes=You don't have any invite codes available.
+
+.msg.noinvitecodes.requestmore=You can request more on your <a [[aopts]]>Manage Invite Codes</a> page.
 
 .msg_subject=[[username]] has invited you to join [[sitenameshort]]!
 

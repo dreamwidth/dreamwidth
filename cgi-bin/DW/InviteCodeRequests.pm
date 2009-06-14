@@ -188,6 +188,23 @@ sub outstanding {
     return @outstanding;
 }
 
+=head2 C<< $class->invite_sysbanned( user => $u ) >>
+
+Return whether this user is sysbanned from the invite codes system.
+Accepts a user object.
+
+=cut
+
+sub invite_sysbanned {
+    my ( $class, %opts ) = @_;
+    my $u = $opts{user};
+
+    return 1 if LJ::sysban_check( "invite_user", $u->user );
+    return 1 if LJ::sysban_check( "invite_email", $u->email_raw );
+
+    return 0;
+}
+
 =head2 C<< $object->accept( [num_invites => $num_invites ] ) >>
 
 Accept this request.

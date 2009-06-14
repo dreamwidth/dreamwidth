@@ -37,7 +37,9 @@
         }
 
         unless ( @invitecodes ) {
-            $body = BML::ml('.error.noinvitecodes', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" });
+            $body = $ML{'.msg.noinvitecodes'};
+            $body .= " " . BML::ml( '.msg.noinvitecodes.requestmore', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" } )
+                if DW::BusinessRules::InviteCodeRequests::can_request( user => $u );
             return;
         }
 

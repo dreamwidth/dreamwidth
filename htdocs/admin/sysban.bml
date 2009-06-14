@@ -32,7 +32,8 @@ body<=
     my $priv = 'sysban';
     my @all_sb_args = qw( ip uniq email email_domain user pay_cc msisdn 
                           pay_user pay_email pay_uniq support_user 
-                          support_uniq lostpassword  talk_ip_test contentflag );
+                          support_uniq lostpassword  talk_ip_test contentflag
+                          invite_user invite_email );
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;

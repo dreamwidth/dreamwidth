@@ -23,10 +23,11 @@ use lib "$LJ::HOME/cgi-bin";
 package DW::Worker::DistributeInvites;
 use base 'TheSchwartz::Worker';
 use DW::InviteCodes;
+use DW::InviteCodeRequests;
 use DW::BusinessRules::InviteCodes;
 use LJ::User;
 
-BEGIN { require "ljlang.pl"; require "ljmail.pl"; }
+BEGIN { require "ljlang.pl"; require "ljmail.pl"; require "sysban.pl"; }
 
 sub schwartz_capabilities { return ('DW::Worker::DistributeInvites'); }
 
@@ -102,24 +103,7 @@ sub work {
     } else {
         my $adj_ninv
             = DW::BusinessRules::InviteCodes::adj_invites( $ninv, $inv_nusers );
-
-        if ($adj_ninv == 0) {
-            $reqemail_body = 'cantadjust';
-            $reqemail_vars = { numusers => $inv_nusers };
-        } elsif ( $adj_ninv < $ninv ) {
-            $reqemail_body = 'adjustdown';
-            $reqemail_vars = { actinvites => $adj_ninv,
-                               remainder => $ninv - $adj_ninv,
-                               numusers => $inv_nusers };
-        } elsif ( $adj_ninv > $ninv ) {
-            $reqemail_body = 'adjustup';
-            $reqemail_vars = { actinvites => $adj_ninv,
-                               additional => $adj_ninv - $ninv,
-                               numusers => $inv_nusers };
-        } else {
-            $reqemail_body = 'keptsame';
-            $reqemail_vars = { numusers => $inv_nusers };
-        }
+        my $num_sysbanned = 0;
 
         if ( $adj_ninv > 0 ) {
             # Here, we know we'll be generating invites, so get cracking.
@@ -133,6 +117,13 @@ sub work {
                     : $inv_nusers - 1;
                 my $inv_uhash = LJ::load_userids( @{$inv_uids}[$start..$end] );
                 foreach my $inv_user (values %$inv_uhash) {
+
+                    # skip sysbanned users; we may send a few less invites than we thought we could
+                    if ( DW::InviteCodeRequests->invite_sysbanned( user => $inv_user ) ) {
+                        $num_sysbanned++;
+                        next;
+                    }
+
                     my @ics = DW::InviteCodes->generate( count => $inv_peruser,
                                                          owner => $inv_user,
                                                          reason => $reason );
@@ -167,6 +158,29 @@ sub work {
                         or $job->debug( "Can't email " . $inv_user->user );
                 }
             }
+        }
+
+        # adjust the numbers to reflect how many we actually managed to distribute
+        # accounting for sysbanned users (which we only know post-distribution)
+        $inv_nusers -= $num_sysbanned;
+        $adj_ninv -=  $num_sysbanned * $reqemail_vars->{peruser};
+
+        if ( $adj_ninv == 0 ) {
+            $reqemail_body = 'cantadjust';
+            $reqemail_vars = { numusers => $inv_nusers };
+        } elsif ( $adj_ninv < $ninv ) {
+            $reqemail_body = 'adjustdown';
+            $reqemail_vars = { actinvites => $adj_ninv,
+                               remainder => $ninv - $adj_ninv,
+                               numusers => $inv_nusers };
+        } elsif ( $adj_ninv > $ninv ) {
+            $reqemail_body = 'adjustup';
+            $reqemail_vars = { actinvites => $adj_ninv,
+                               additional => $adj_ninv - $ninv,
+                               numusers => $inv_nusers };
+        } else {
+            $reqemail_body = 'keptsame';
+            $reqemail_vars = { numusers => $inv_nusers };
         }
     }
 

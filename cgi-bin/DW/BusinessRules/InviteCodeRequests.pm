@@ -36,7 +36,8 @@ DW::BusinessRules::InviteCodeRequests - business rules for invite code requests 
 =head2 C<< DW::BusinessRules::InviteCodeRequests::can_request( user => $u ) >> 
 
 Return whether the user can make a request for more invite codes. Default implementation allows the user
-to make a new request if they have no unused invite codes, and they have no pending requests for review.
+to make a new request if they have no unused invite codes, they have no pending requests for review, and
+are not sysbanned from using the invites system.
 
 =cut
 
@@ -44,13 +45,15 @@ sub can_request {
     my (%opts)  = @_;
     return 0 unless $opts{user}->is_person;
     my $userid = $opts{user}->id;
-    
+
     my $unused_count = DW::InviteCodes->unused_count( userid => $userid );
     return 0 if $unused_count;
 
     my $outstanding_count = DW::InviteCodeRequests->outstanding_count( userid => $userid );
     return 0 if $outstanding_count;
-    
+
+    return 0 if DW::InviteCodeRequests->invite_sysbanned( user => $opts{user} );
+
     return 1;
 }
 
