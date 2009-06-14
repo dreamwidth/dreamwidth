@@ -30,26 +30,26 @@ sub get_subjecticons
     my %subjecticon;
     $subjecticon{'types'} = [ 'sm', 'md' ];
     $subjecticon{'lists'}->{'md'} = [
-            { img => "md01_alien.gif",          w => 32,        h => 32 },
-            { img => "md02_skull.gif",          w => 32,        h => 32 },
-            { img => "md05_sick.gif",           w => 25,        h => 25 },
-            { img => "md06_radioactive.gif",    w => 20,        h => 20 },
-            { img => "md07_cool.gif",           w => 20,        h => 20 },
-            { img => "md08_bulb.gif",           w => 17,        h => 23 },
-            { img => "md09_thumbdown.gif",      w => 25,        h => 19 },
-            { img => "md10_thumbup.gif",        w => 25,        h => 19 }
+            { img => "md01_alien.gif",          w => 32,        h => 32,         alt => "Smiling Alien" },
+            { img => "md02_skull.gif",          w => 32,        h => 32,         alt => "Skull and Crossbones" },
+            { img => "md05_sick.gif",           w => 25,        h => 25,         alt => "Sick Face" },
+            { img => "md06_radioactive.gif",    w => 20,        h => 20,         alt => "Radioactive Symbol" },
+            { img => "md07_cool.gif",           w => 20,        h => 20,         alt => "Cool Smiley" },
+            { img => "md08_bulb.gif",           w => 17,        h => 23,         alt => "Lightbulb" },
+            { img => "md09_thumbdown.gif",      w => 25,        h => 19,         alt => "Red Thumbs Down" },
+            { img => "md10_thumbup.gif",        w => 25,        h => 19,         alt => "Green Thumbs Up" }
     ];
     $subjecticon{'lists'}->{'sm'} = [
-            { img => "sm01_smiley.gif",         w => 15,        h => 15 },
-            { img => "sm02_wink.gif",           w => 15,        h => 15 },
-            { img => "sm03_blush.gif",          w => 15,        h => 15 },
-            { img => "sm04_shock.gif",          w => 15,        h => 15 },
-            { img => "sm05_sad.gif",            w => 15,        h => 15 },
-            { img => "sm06_angry.gif",          w => 15,        h => 15 },
-            { img => "sm07_check.gif",          w => 15,        h => 15 },
-            { img => "sm08_star.gif",           w => 20,        h => 18 },
-            { img => "sm09_mail.gif",           w => 14,        h => 10 },
-            { img => "sm10_eyes.gif",           w => 24,        h => 12 }
+            { img => "sm01_smiley.gif",         w => 15,        h => 15,         alt => "Smiley" },
+            { img => "sm02_wink.gif",           w => 15,        h => 15,         alt => "Winking Smiley" },
+            { img => "sm03_blush.gif",          w => 15,        h => 15,         alt => "Blushing Smiley" },
+            { img => "sm04_shock.gif",          w => 15,        h => 15,         alt => "Shocked Smiley" },
+            { img => "sm05_sad.gif",            w => 15,        h => 15,         alt => "Sad Smiley" },
+            { img => "sm06_angry.gif",          w => 15,        h => 15,         alt => "Angry Smiley" },
+            { img => "sm07_check.gif",          w => 15,        h => 15,         alt => "Checkmark" },
+            { img => "sm08_star.gif",           w => 20,        h => 18,         alt => "Gold Star" },
+            { img => "sm09_mail.gif",           w => 14,        h => 10,         alt => "Envelope" },
+            { img => "sm10_eyes.gif",           w => 24,        h => 12,         alt => "Shifty Eyes" }
     ];
 
     # assemble ->{'id'} portion of hash.  the part of the imagename before the _
@@ -80,16 +80,14 @@ sub talkargs {
 }
 
 # Returns HTML to display an image, given the image id as an argument.
-sub show_image
+sub show_image {
 {
-    my $pics = shift;
-    my $id = shift;
-    my $extra = shift;
-    return unless defined $pics->{'pic'}->{$id};
-    my $p = $pics->{'pic'}->{$id};
-    my $pfx = "$LJ::IMGPREFIX/talk";
-    return "<img src='$pfx/$p->{'img'}' border='0' ".
-        "width='$p->{'w'}' height='$p->{'h'}' valign='middle' $extra />";
+    my ( $pics, $id, $extra ) = @_;
+    return unless defined $pics->{pic}->{$id};
+
+    my $p = $pics->{pic}->{$id};
+    return "<img src='$LJ::IMGPREFIX/talk/$p->{img}' border='0' ".
+           "width='$p->{w}' height='$p->{h}' alt='$p->{alt}' valign='middle' $extra />";
 }
 
 # Returns 'none' icon.
@@ -1634,7 +1632,7 @@ sub talkform {
                 $ret .= "document.write(\"";
                 $ret .= "<td valign='middle' align='center'>";
                 $ret .= LJ::Talk::show_none_image(
-                        "id='none' onclick='subjectIconChange(this);' style='cursor:pointer;cursor:hand' title='No subject icon'");
+                        "id='none' onclick='subjectIconChange(this);' style='cursor:pointer;cursor:hand' title='No subject icon' alt='No subject icon'");
                 $ret .= "</td>\");\n";
             }
 
