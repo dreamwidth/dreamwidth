@@ -1438,9 +1438,11 @@ sub postevent
         # slightly misnamed, the taglist is/was normally a string, but now can also be an arrayref.
         my $taginput = $req->{props}->{taglist};
 
+        my $tagerr = "";
         my $logtag_opts = {
             remote => $u,
             ignore_max => $flags->{ignore_tags_max} ? 1 : 0,
+            err_ref => \$tagerr,
         };
 
         if (ref $taginput eq 'ARRAY') {
@@ -1451,6 +1453,7 @@ sub postevent
         }
 
         my $rv = LJ::Tags::update_logtags($uowner, $jitemid, $logtag_opts);
+        return fail($err,157,$tagerr) unless $rv;
     }
 
     # meta-data
