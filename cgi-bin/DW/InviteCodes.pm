@@ -195,7 +195,7 @@ sub use_code {
 
     $self->{rcptid} = $opts{user}->{userid};
 
-    $dbh->do( "UPDATE acctcode SET rcptid=? WHERE acid=?",
+    $dbh->do( "UPDATE acctcode SET email=NULL, rcptid=? WHERE acid=?",
         undef, $opts{user}->{userid}, $self->{acid} );
 
     return 1; # 1 means success? Needs error return in that case.
