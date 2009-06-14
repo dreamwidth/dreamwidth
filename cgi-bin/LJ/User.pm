@@ -341,6 +341,11 @@ sub delete_and_purge_completely {
 sub is_protected_username {
     my ( $class, $username ) = @_;
 
+    # site admins (people with siteadmin:usernames) can override this check and
+    # create any account they want
+    my $remote = LJ::get_remote();
+    return 0 if $remote && $remote->has_priv( siteadmin => 'usernames' );
+
     my @res = grep { $_ } split( /\r?\n/, LJ::load_include( 'reserved-usernames' ) );
     foreach my $re ( @res ) {
         return 1 if $username =~ /$re/;
