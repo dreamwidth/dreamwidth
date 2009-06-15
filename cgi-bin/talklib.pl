@@ -80,7 +80,7 @@ sub talkargs {
 }
 
 # Returns HTML to display an image, given the image id as an argument.
-sub show_image {
+sub show_image
 {
     my ( $pics, $id, $extra ) = @_;
     return unless defined $pics->{pic}->{$id};
