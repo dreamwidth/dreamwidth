@@ -192,7 +192,10 @@ sub handle_post {
 
     # count interests
     my $intcount = scalar @ints;
-    $from_post{errors}->{interests} = LJ::Lang::ml('error.interest.excessive', { intcount => $intcount }) if $intcount > 150;
+    my $maxinterests = $u->get_cap( 'interests' );
+
+    $from_post{errors}->{interests} = LJ::Lang::ml('error.interest.excessive2', { intcount => $intcount, maxinterests => $maxinterests })
+        if $intcount > $maxinterests;
 
     # clean interests, and make sure they're valid
     my @interrors;

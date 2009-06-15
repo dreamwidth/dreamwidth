@@ -46,11 +46,13 @@ sub handle_post {
         $deleted = 1;
     }
     if (@toadd) {
-        if ($intcount + scalar @toadd > 150) {
+        my $maxinterests = $u->get_cap( 'interests' );
+
+        if ($intcount + scalar @toadd > $maxinterests) {
             if ($deleted) {
-                die BML::ml('/interests.bml.results.del_and_toomany', {'intcount' => 150});
+                die BML::ml('/interests.bml.results.del_and_toomany', {'intcount' => $maxinterests});
             } else {
-                die BML::ml('/interests.bml.results.toomany', {'intcount' => 150});
+                die BML::ml('/interests.bml.results.toomany', {'intcount' => $maxinterests});
             }
         } else {
             my $dbh = LJ::get_db_writer();

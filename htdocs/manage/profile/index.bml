@@ -743,12 +743,14 @@ body<=
 
         # update interests
         unless ($POST{'interests_absent'}) {
+            my $maxinterests = $u->get_cap( 'interests' );
+
             my @ints = LJ::interest_string_to_list($POST{'interests'});
             my $intcount = scalar(@ints);
             my @interrors = ();
 
             # Don't bother validating the interests if there are already too many
-            return LJ::bad_input( BML::ml('error.interest.excessive', { intcount => $intcount }) ) if $intcount > 150;
+            return LJ::bad_input( BML::ml('error.interest.excessive2', { intcount => $intcount, maxinterests => $maxinterests } ) ) if $intcount > $maxinterests;
 
             # Clean interests, and make sure they're valid
             my @valid_ints = LJ::validate_interest_list(\@interrors, @ints);

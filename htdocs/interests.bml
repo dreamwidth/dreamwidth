@@ -26,6 +26,8 @@ body<=
 
     my $remote = LJ::get_remote();
 
+    my $maxinterests = $remote->get_cap( 'interests' );
+
     my $table = sub { $_[0]->{'journaltype'} eq 'C' ? 'comminterests' : 'userinterests' };
 
     if (!$did_post && $GET{'view'} eq "popular") {
@@ -103,8 +105,8 @@ body<=
         # account for the case where we bypass the POST due to the referer
         return $ML{'error.invalidform'} unless !$did_post || LJ::check_form_auth();
 
-        if ($count >= 150) {
-            $ret .= "<?h1 $ML{'.add.toomany.head'} h1?><?p " .BML::ml(".add.toomany.text", {'maxinterests' => "150"}) ." p?>";
+        if ($count >= $maxinterests) {
+            $ret .= "<?h1 $ML{'.add.toomany.head'} h1?><?p " .BML::ml(".add.toomany.text", {'maxinterests' => $maxinterests}) ." p?>";
             return $ret;
         }
 
@@ -171,7 +173,7 @@ body<=
         }
 
         my @matches = sort { $magic{$b} <=> $magic{$a} } keys %magic;
-        if (@matches > 150) { @matches = @matches[0..149]; }
+        if (@matches > $maxinterests) { @matches = @matches[0..( $maxinterests - 1 )]; }
         my $sth = $dbr->prepare("SELECT userid, user FROM useridmap WHERE userid IN (" . join(",",@matches) . ")");
         $sth->execute;
         my %username;
@@ -323,7 +325,7 @@ body<=
             $deleted = 1;
         }
         if (@toadd) {
-            if ($intcount + scalar @toadd > 150) {
+            if ($intcount + scalar @toadd > $maxinterests) {
                 $toomany = 1;
             } else {
                 my $dbh = LJ::get_db_writer();
@@ -346,11 +348,11 @@ body<=
         my $ret = "<?h1 $ML{'.results.header'} h1?><?p ";
         if ($deleted) {
             $ret .= $added   ? $ML{'.results.both'}
-                  : $toomany ? BML::ml('.results.del_and_toomany', {'intcount' => 150})
+                  : $toomany ? BML::ml('.results.del_and_toomany', {'intcount' => $maxinterests})
                   : $ML{'.results.deleted'};
         } else {
             $ret .= $added   ? $ML{'.results.added'}
-                  : $toomany ? BML::ml('.results.toomany', {'intcount' => 150})
+                  : $toomany ? BML::ml('.results.toomany', {'intcount' => $maxinterests})
                   : $ML{'.results.nothing'};
         }
 

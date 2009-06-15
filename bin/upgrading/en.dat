@@ -1276,7 +1276,7 @@ error.interest.bytes.chars=Sorry, you have listed an interest with [[bytes]] byt
 
 error.interest.chars=Sorry, you have listed an interest with [[chars]] characters.  Each interest has a limit of [[chars_max]] characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
 
-error.interest.excessive=Sorry, you have listed too many interests.  The limit is 150, but you have listed [[intcount]].  Any changes you made to your interests were not saved.  Go back and remove some interests.
+error.interest.excessive2=Sorry, you have listed too many interests.  The limit for your account type is [[maxinterests]], but you have listed [[intcount]].  Any changes you made to your interests were not saved.  Go back and remove some interests.
 
 error.interest.invalid=Sorry, you have listed an interest with invalid characters.  Any changes you made to your interests were not saved.  Go back and remove, or modify "[[int]]".
 
