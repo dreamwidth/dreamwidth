@@ -3739,7 +3739,7 @@ web.controlstrip.status.other=You are viewing [[user]]
 
 web.controlstrip.status.personal=You are viewing [[user]]'s journal
 
-web.controlstrip.status.personalneworkpage=You are viewing [[user]]'s nework page
+web.controlstrip.status.personalnetworkpage=You are viewing [[user]]'s network page
 
 web.controlstrip.status.personalreadingpage=You are viewing [[user]]'s reading page
 
