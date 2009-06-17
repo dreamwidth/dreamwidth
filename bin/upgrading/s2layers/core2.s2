@@ -3155,10 +3155,15 @@ function print_module_pagesummary() {
             var string comment_display;
             if ($*module_pagesummary_opts_comments_tooltip) {
                 $comment_display = "title='$module_comment_text'>$subject</a>";
-               }
+            }
             else {
-               $comment_display = ">$subject</a> +$module_comment_text";
-               }
+                 if ($e.comments.count != 0) {
+                     $comment_display = ">$subject</a> +$module_comment_text";
+                 }
+                 else {
+                     $comment_display = ">$subject</a>";
+                 }
+            }
             
             if (not $e.poster->equals($e.journal)) {
                 $links[size $links] = """$poster in $e.journal - <a href="#entry-$e.itemid" $comment_display""";
@@ -3178,10 +3183,15 @@ function print_module_pagesummary() {
             var string comment_display;
             if ($*module_pagesummary_opts_comments_tooltip) {
                 $comment_display = "title='$module_comment_text'>$subject</a>";
-               }
+            }
             else {
-               $comment_display = ">$subject</a> +$module_comment_text";
-               }
+                 if ($e.comments.count != 0) {
+                     $comment_display = ">$subject</a> +$module_comment_text";
+                 }
+                 else {
+                     $comment_display = ">$subject</a>";
+                 }
+            }
             
             if (not $e.poster->equals($e.journal)) {
                 $poster = $e.poster->ljuser();
@@ -3203,10 +3213,15 @@ function print_module_pagesummary() {
             var string comment_display;
             if ($*module_pagesummary_opts_comments_tooltip) {
                 $comment_display = "title='$module_comment_text'>$subject</a>";
-               }
+            }
             else {
-               $comment_display = ">$subject</a> +$module_comment_text";
-               }
+                 if ($e.comments.count != 0) {
+                     $comment_display = ">$subject</a> +$module_comment_text";
+                 }
+                 else {
+                     $comment_display = ">$subject</a>";
+                 }
+            }
 
             if (not $e.poster->equals($e.journal)) {
                 $poster = $e.poster->ljuser();
