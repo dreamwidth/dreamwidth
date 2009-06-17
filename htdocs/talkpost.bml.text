@@ -43,7 +43,7 @@
 
 .opt.edit=Edit Comment
 
-.opt.friendsonly=- this user has disabled anonymous and non-friend posting.  You may post here if [[username]] lists you as a friend.
+.opt.friendsonly=- you may post here only if [[username]] has given you access; posting by non-Access List accounts has been disabled.
 
 .opt.from=From:
 
