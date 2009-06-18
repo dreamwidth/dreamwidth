@@ -3106,8 +3106,8 @@ function print_module_navlinks() {
     open_module("navlinks", "", "");
     var string[] links = [];
     foreach var string k ($p.views_order) {
-	var string css = "";
-	if ($p.view == $k) { $css = """ class="current" """; }
+        var string css = """ class="$k" """;
+        if ($p.view == $k) { $css = """ class="current $k" """; }
         $links[size $links] = """<a href="$p.view_url{$k}"$css>"""+lang_viewname($k)+"""</a>""";
     }
     print_module_list($links);
