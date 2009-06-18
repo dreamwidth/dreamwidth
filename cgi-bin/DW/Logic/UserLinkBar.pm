@@ -200,7 +200,11 @@ sub trust {
             $link->{url} = "manage/circle/add.bml?user=$user&action=access";
             $link->{title_ml} = $remote_trusts ? 'userlinkbar.modifytrust.title.other' : 'userlinkbar.addtrust.title.other';
             $link->{class} = "addtrust";
-            $link->{image} = 'access_grant.png';
+            if ( $remote_trusts ) {
+                $link->{image} = 'access_remove.png';
+            } else {
+                $link->{image} = 'access_grant.png';
+            }
         } else {
             $link->{title_ml} = 'userlinkbar.addtrust.title.loggedout';
             $link->{class} = "addtrust_disabled";
@@ -239,13 +243,25 @@ sub watch {
 
         if ( $u->is_community ) {
             $link->{class} = "addsub_comm";
-            $link->{image} = 'subscription_add.png';
+            if ( $remote_watches ) {
+                $link->{image} = 'subscription_remove.png';
+            } else {
+                $link->{image} = 'subscription_add.png';
+            }
         } elsif ( $u->is_syndicated ) {
             $link->{class} = "addsub_feed";
-            $link->{image} = 'subscription_add.png';
+            if ( $remote_watches ) {
+                $link->{image} = 'subscription_remove.png';
+            } else {
+                $link->{image} = 'subscription_add.png';
+            }
         } else {
             $link->{class} = "addsub_person";
-            $link->{image} = 'subscription_add.png';
+            if ( $remote_watches ) {
+                $link->{image} = 'subscription_remove.png';
+            } else {
+                $link->{image} = 'subscription_add.png';
+            }
         }
     } else {
         $link->{title_ml} = 'userlinkbar.addsub.title.loggedout';
