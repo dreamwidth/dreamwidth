@@ -93,6 +93,8 @@
         $ret{is_watching}   = $remote->watches( $u );
         $ret{is_watched_by} = $u->watches( $remote );
         $ret{is_requester}  = $remote->equals( $u );
+        $ret{other_is_identity} = $u->is_identity;
+        $ret{self_is_identity} = $remote->is_identity;
     }
 
     $ret{is_logged_in}  = $remote ? 1 : 0;

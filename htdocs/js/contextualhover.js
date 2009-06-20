@@ -372,7 +372,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 var addTrustLink = document.createElement("a");
                 addTrustLink.href = data.url_addtrust;
 
-                if (data.is_person) {
+                if (data.is_person || data.other_is_identity) {
                     trust = document.createElement("span");
                     addTrustLink.innerHTML = "Grant access";
                 }
@@ -395,7 +395,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 var removeTrustLink = document.createElement("a");
                 removeTrustLink.href = data.url_addtrust;
 
-                if (data.is_person) {
+                if (data.is_person || data.other_is_identity) {
                     trust = document.createElement("span");
                     removeTrustLink.innerHTML = "Remove access";
                 }
@@ -413,7 +413,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                     trust.appendChild(removeTrust);
             }
 
-            if (!data.is_watching) {
+            if (!data.is_watching && !data.other_is_identity) {
                 // add watch link
                 var addWatch = document.createElement("span");
                 var addWatchLink = document.createElement("a");
@@ -433,7 +433,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 }
 
                 watch.appendChild(addWatch);
-            } else {
+            } else if (data.is_watching) {
                 // remove watch link
                 var removeWatch = document.createElement("span");
                 var removeWatchLink = document.createElement("a");
