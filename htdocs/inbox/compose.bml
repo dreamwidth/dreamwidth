@@ -27,6 +27,7 @@ body<=
     my $body = '';
 
     my $reply_to; # User replying to
+    my $reply_u; # User replying to
     my $disabled_to = 0; # disable To field if sending a reply message
     my $msg_subject = ''; # reply subject
     my $msg_body = ''; # reply body
@@ -161,6 +162,7 @@ body<=
         }
 
         $reply_to = $msg->other_u->user;
+        $reply_u = $msg->other_u;
         $disabled_to = 1;
         $msg_subject = $msg->subject || "(no subject)";
         $msg_subject = "Re: " . $msg_subject
@@ -203,7 +205,7 @@ body<=
     $body .= '<p class="pkg"><label class="left">To:</label> ';
 
     if ($disabled_to) {
-        $body .= "$reply_to";
+        $body .= $reply_u->ljuser_display;
         $body .= LJ::html_hidden({
                     name      => 'msg_to',
                     value     => "$reply_to",
