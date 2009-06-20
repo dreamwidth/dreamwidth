@@ -67,6 +67,11 @@ sub get_menu_navigation {
                     display => $loggedout,
                 },
                 {
+                    url => "$LJ::SITEROOT/manage/settings/?cat=display",
+                    text => "menunav.create.displayprefs",
+                    display => $loggedout,
+                },
+                {
                     url => "$LJ::SITEROOT/update.bml",
                     text => "menunav.create.updatejournal",
                     display => $loggedin_hasjournal,

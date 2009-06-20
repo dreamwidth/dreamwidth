@@ -2145,6 +2145,8 @@ menunav.create.createaccount=Create Account
 
 menunav.create.createcommunity=Create Community
 
+menunav.create.displayprefs=Display Preferences
+
 menunav.create.editjournal=Edit Entries
 
 menunav.create.editprofile=Edit Profile
