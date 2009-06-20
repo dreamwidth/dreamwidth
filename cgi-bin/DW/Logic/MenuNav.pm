@@ -183,13 +183,23 @@ sub get_menu_navigation {
         {
             name => 'explore',
             items => [
-		{ url => "$LJ::SITEROOT/interests.bml",
-		  text => "menunav.explore.interests",
-		  display => $always,
-		},
+                {   url => "$LJ::SITEROOT/interests.bml",
+                    text => "menunav.explore.interests",
+                    display => $always,
+                },
                 {
                     url => "$LJ::SITEROOT/directorysearch.bml",
                     text => "menunav.explore.directorysearch",
+                    display => $always,
+                },
+                {
+                    url => "$LJ::SITEROOT/random.bml",
+                    text => "menunav.explore.randomjournal",
+                    display => $always,
+                },
+                {
+                    url => "$LJ::SITEROOT/community/random.bml",
+                    text => "menunav.explore.randomcommunity",
                     display => $always,
                 },
                 {
