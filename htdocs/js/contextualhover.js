@@ -323,26 +323,31 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         // member of community
         if (data.is_logged_in && data.is_comm) {
             var membership      = document.createElement("span");
-            var membershipLink  = document.createElement("a");
 
-            var membership_action = data.is_member ? "leave" : "join";
+            if (!data.is_closed_membership || data.is_member) {
+                var membershipLink  = document.createElement("a");
 
-            if (data.is_member) {
-                membershipLink.href = data.url_leavecomm;
-                membershipLink.innerHTML = "Leave";
+                var membership_action = data.is_member ? "leave" : "join";
+
+                if (data.is_member) {
+                    membershipLink.href = data.url_leavecomm;
+                    membershipLink.innerHTML = "Leave";
+                } else {
+                    membershipLink.href = data.url_joincomm;
+                    membershipLink.innerHTML = "Join community";
+                }
+
+                if (!ContextualPopup.disableAJAX) {
+                    DOM.addEventListener(membershipLink, "click", function (e) {
+                        Event.prep(e);
+                        Event.stop(e);
+                        return ContextualPopup.changeRelation(data, ctxPopupId, membership_action, e); });
+                }
+
+                membership.appendChild(membershipLink);
             } else {
-                membershipLink.href = data.url_joincomm;
-                membershipLink.innerHTML = "Join community";
+                membership.innerHTML = "Community closed";
             }
-
-            if (!ContextualPopup.disableAJAX) {
-                DOM.addEventListener(membershipLink, "click", function (e) {
-                    Event.prep(e);
-                    Event.stop(e);
-                    return ContextualPopup.changeRelation(data, ctxPopupId, membership_action, e); });
-            }
-
-            membership.appendChild(membershipLink);
             content.appendChild(membership);
         }
 

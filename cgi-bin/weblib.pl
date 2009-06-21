@@ -2544,7 +2544,8 @@ sub control_strip
             $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
         }
         if ($journal->is_community) {
-            $links{'join_community'}   = "<a href='$LJ::SITEROOT/community/join.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.joincomm'}</a>";
+            $links{'join_community'}   = "<a href='$LJ::SITEROOT/community/join.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.joincomm'}</a>"
+                unless $journal->is_closed_membership;
             $links{'leave_community'}  = "<a href='$LJ::SITEROOT/community/leave.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.leavecomm'}</a>";
             $links{'watch_community'}  = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.watchcomm'}</a>";
             $links{'unwatch_community'}   = "<a href='$LJ::SITEROOT/community/leave.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.removecomm'}</a>";
@@ -2740,6 +2741,7 @@ sub control_strip
             my $watching = $remote->watches( $journal );
             my $memberof = $remote->member_of( $journal );
             my $haspostingaccess = LJ::check_rel($journal, $remote, 'P');
+            my $isclosedcommunity = $journal->is_closed_membership;
             if (LJ::can_manage_other($remote, $journal)) {
                 $ret .= "$statustext{maintainer}<br />";
                 if ($haspostingaccess) {
@@ -2758,7 +2760,13 @@ sub control_strip
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{join_community}&nbsp;&nbsp; " unless $remote->is_identity;
+                unless ($remote->is_identity) {
+                    if ($isclosedcommunity) {
+                        $ret .= "This is a closed community&nbsp;&nbsp; ";
+                    } else {
+                        $ret .= "$links{join_community}&nbsp;&nbsp; ";
+                    }
+                }
                 $ret .= $links{unwatch_community};
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
             } elsif ($memberof) {
@@ -2773,7 +2781,13 @@ sub control_strip
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                $ret .= "$links{join_community}&nbsp;&nbsp; " unless $remote->is_identity;
+                unless ($remote->is_identity) {
+                    if ($isclosedcommunity) {
+                        $ret .= "This is a closed community&nbsp;&nbsp; ";
+                    } else {
+                        $ret .= "$links{join_community}&nbsp;&nbsp; ";
+                    }
+                }
                 $ret .= $links{watch_community};
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
             }

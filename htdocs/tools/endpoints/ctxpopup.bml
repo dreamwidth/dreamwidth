@@ -103,6 +103,7 @@
         $ret{url_joincomm}   = "$LJ::SITEROOT/community/join.bml?comm=" . $u->{user};
         $ret{url_leavecomm}  = "$LJ::SITEROOT/community/leave.bml?comm=" . $u->{user};
         $ret{is_member} = $remote->member_of( $u ) if $remote;
+        $ret{is_closed_membership} = $u->is_closed_membership;
 
         push @actions, 'join', 'leave';
     }
