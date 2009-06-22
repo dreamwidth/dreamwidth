@@ -641,9 +641,11 @@ body<=
         return $ret;
     }
 
-    $ret .= "<p style='margin-bottom: 0px;'><b>$ML{'.post.comment'}:</b></p>\n";
-
-    unless ($remote || $is_poster) {
+    if ($is_poster) {
+        $ret .= "<p style='margin-bottom: 0px;'><b>$ML{'.post.moreinformation'}:</b></p>\n";
+    } elsif ($remote) {
+        $ret .= "<p style='margin-bottom: 0px;'><b>$ML{'.post.comment'}:</b></p>\n";
+    } else {
         $ret .= BML::ml('.mast.login', {loginlink=>"href='$LJ::SITEROOT/login.bml?ret=1'"});
         $ret .= "\n";
         return $ret;
@@ -921,7 +923,11 @@ body<=
     $ret .= LJ::html_textarea({ 'rows' => '12', 'cols' => '80', 'wrap' => 'virtual', 'id' => 'body', 'name' => 'body', 'value' => $validationnag }) . "<br />";
     $ret .= "<div style='float: right; font-size: smaller;'><a href='javascript://' onClick='doClearMessage();' onFocus='doClearFocus();'>$ML{'.clear'}</a></div>";
     $ret .= "<?de $ML{'.no.html.allowed'} de?><br />";
-    $ret .= LJ::html_submit('submitpost', $ML{'.postbutton'}, { id => 'submitpost' });
+    if ($is_poster) {
+        $ret .= LJ::html_submit('submitpost', $ML{'.postbuttoninfo'}, { id => 'submitpost' });
+    } else {
+        $ret .= LJ::html_submit('submitpost', $ML{'.postbutton'}, { id => 'submitpost' });
+    }
     $ret .= "</td></tr></table>\n";
 
     $ret .= "</form>\n";

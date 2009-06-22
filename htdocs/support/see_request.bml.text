@@ -101,7 +101,11 @@ and correct, it will be sent to the user. p?>
 
 .post.comment=Post a comment or solution
 
+.post.moreinformation=Include more information
+
 .postbutton=Post Comment/Solution
+
+.postbuttoninfo=Submit More Information
 
 .posted=Posted
 
