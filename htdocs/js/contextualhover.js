@@ -321,7 +321,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         }
 
         // member of community
-        if (data.is_logged_in && data.is_comm) {
+        if (data.is_logged_in && data.is_comm && !data.self_is_identity) {
             var membership      = document.createElement("span");
 
             if (!data.is_closed_membership || data.is_member) {
@@ -463,7 +463,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         }
 
         // add a bar between stuff if we have community actions
-        if ((data.is_logged_in && data.is_comm) || (message && (trust || watch)))
+        if ((data.is_logged_in && data.is_comm && !data.self_is_identity) || (message && (trust || watch)))
             content.appendChild(document.createElement("br"));
 
         if (trust)
