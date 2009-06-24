@@ -140,7 +140,7 @@
 
             unless ( $remote->is_identity ) {
                 $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
-                $body .= "<img src='/img/pencil.gif'></div>\n";
+                $body .= "<img src='/img/silk/profile/post.png'</div>\n";
                 $body .= "<div style='margin-left: 36px;'>";
                 $body .= "<?h2 <a href='$LJ::SITEROOT/update.bml'>";
                 $body .= "$ML{'.loggedin.suggesthead1'}</a> h2?>\n";
