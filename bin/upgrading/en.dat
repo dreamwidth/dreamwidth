@@ -2191,6 +2191,8 @@ menunav.read.inbox.nounread=Inbox
 
 menunav.read.inbox.unread=Inbox ([[num]])
 
+menunav.read.network=Network Page
+
 menunav.read.profile=Profile
 
 menunav.read.readinglist=Reading Page
