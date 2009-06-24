@@ -2541,7 +2541,7 @@ sub control_strip
         $links{'track_user'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";
         if ($journal->is_syndicated || $journal->is_news) {
             $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
-            $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
+            $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=remove'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
         }
         if ($journal->is_community) {
             $links{'join_community'}   = "<a href='$LJ::SITEROOT/community/join.bml?comm=$journal->{user}'>$BML::ML{'web.controlstrip.links.joincomm'}</a>"
