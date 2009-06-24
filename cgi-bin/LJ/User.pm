@@ -8443,12 +8443,12 @@ sub make_journal
         $opts->{'badargs'} = 1; # Output a generic 'bad URL' message if available
         return "<h1>Notice</h1><p>This account isn't a community journal.</p>";
     }
-    if ($view eq "friendsfriends" && ! LJ::get_cap($u, "friendsfriendsview")) {
+    if ($view eq "network" && ! LJ::get_cap($u, "friendsfriendsview")) {
         my $inline;
         if ($inline .= LJ::run_hook("cprod_inline", $u, 'FriendsFriendsInline')) {
             return $inline;
         } else {
-            return BML::ml('cprod.friendsfriendsinline.text.v1');
+            return BML::ml('cprod.friendsfriendsinline.text3.v1');
         }
     }
 
