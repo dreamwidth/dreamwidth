@@ -199,14 +199,11 @@ function print_stylesheet()
         $header_background = $header_background + "\n        height: " + $*image_background_header_height + "px;";
     }
 """
-    * {
-        font-size: 101%;
-    }
     body {
         margin: 0;
         padding: 0;
         font-family: $*font_base, $*font_fallback;
-        font-size: 0.9em;
+        font-size: 1em;
         $page_background
         color:$*color_page_text;
         }
