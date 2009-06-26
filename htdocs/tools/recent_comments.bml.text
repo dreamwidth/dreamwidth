@@ -8,6 +8,10 @@
 
 .comment=Comment
 
+.delete=Delete
+
+.delete.link=delete
+
 .entry.link=Entry Link
 
 .entry=Entry

@@ -241,7 +241,7 @@ body<=
         $ret .= "<?h1 $ML{ '.latest.posted' } h1?><?p " . BML::ml('.last.num.posted.by', {num => $count, user => LJ::ljuser($u) }) . " p?>";
         my %jcount;  # jid -> ct
         $ret .= "<table style='text-align: left'>";
-        $ret .= "<tr><th>$ML{ '.time' }</th><th>$ML{ '.location' }</th></tr>";
+        $ret .= "<tr><th>$ML{ '.time' }</th><th>&nbsp;$ML{ '.location' }</th><th>&nbsp;$ML{ '.delete' }</th</tr>";
 
         foreach my $r (@posted) {
             $jcount{$r->{'journalid'}}++;
@@ -256,17 +256,18 @@ body<=
 
             my $hr_ago = LJ::ago_text($now - $r->{'posttime'});
             my $subject;
+            my $delete;
             if (defined $lrow->{ditemid}) {
                 $hr_ago = "<a href='$talkurl'>$hr_ago</a>";
                 $subject = $log_text->{"$r->{journalid} $r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject(\$subject);
                 $subject = "$subject <a href='$logurl'>(link)</a>";
+                $delete = "&nbsp;<a href='$LJ::SITEROOT/delcomment.bml?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
             } else {
                 $subject = $ML{ '.post.deleted' };
             }
 
-            my $links = "[<a href='$talkurl'>$ML{ '.comment' }</a>] [<a href='$logurl'>$ML{ '.entry' }</a>]\n";
-            $ret .= "<tr><td>$hr_ago</td><td>" . LJ::ljuser($ju->{user}) . ": $subject</td></tr>";
+            $ret .= "<tr><td>$hr_ago</td><td>" . LJ::ljuser($ju->{user}) . ": $subject</td><td>$delete</td></tr>";
         }
         $ret .= "</table>";
     }
