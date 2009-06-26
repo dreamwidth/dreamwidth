@@ -2507,7 +2507,6 @@ sub control_strip
     my $view = delete $opts{view} || $r->note( 'view' );
 
     my $querysep = $args ? "?" : "";
-    my $querysep2 = $args ? "&" : "?"; # for the ?style=mine/?format=light options
     my $uri = $baseuri ? "http://$baseuri" : "http://" . $r->header_in('Host') . $r->uri;
     $uri .= "$querysep$args";
     my $euri = LJ::eurl($uri);
@@ -2884,9 +2883,41 @@ LOGIN_BAR
 
     # search box and ?style=mine/?format=light options
     my @view_options;
-    push @view_options, "<a href='$uri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
-        if $remote;
-    push @view_options, "<a href='$uri${querysep2}format=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>"
+    #determine whether style is "mine", and define new uri variable to manipulate
+    #note: all expressions case-insensitive
+    my $currentstylemine = ($uri =~ m/style=mine/i);
+    my $newuri = $uri;
+    #manipulate destination URI for the style links
+    if ($currentstylemine) {
+        #if last character before style=mine is a &, it can be deleted together with style=mine, 
+        #since a ? will still be in front of the other arguments in the string
+        if ($newuri =~ m/\&style=mine/i) {
+            $newuri =~ s/\&style=mine//i;
+        } else {
+            #else the last character before style=mine was a "?" and should not be deleted.
+            #also, delete "&" after style=mine if there is one
+            $newuri =~ s/style=mine\&?//i;
+        }
+        #delete any trailing character - for example
+        #trailing "?" if only "?style=mine" was present in the first place
+        $newuri =~ s/\W$//;
+    }
+    my $querysep2;
+    #check whether newuri still has arguments to determine whether "?" or "&" needs to be used for next argument added
+    if ($newuri =~ m/\?/) {
+        $querysep2 = "&";
+    } else {
+        $querysep2 = "?";
+    }
+    #appropriate links depending on whether style is "mine" and whether format=light is possible on this type of content
+    if ($remote) {
+        if ($currentstylemine) {
+            push @view_options, "<a href='$newuri'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle' ) . "</a>"
+        } else {
+            push @view_options, "<a href='$newuri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
+        }
+    }
+    push @view_options, "<a href='$newuri${querysep2}format=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>"
         if $view eq "entry" || $view eq "reply" || $view eq "tag" || $view eq "month" || ( $view eq "lastn" && $uri =~ /\/tag/ );
 
     $ret .= "<td id='lj_controlstrip_search'>";

@@ -3717,6 +3717,8 @@ web.controlstrip.reloadpage.lightstyle=light style
 
 web.controlstrip.reloadpage.mystyle=my style
 
+web.controlstrip.reloadpage.origstyle=original style
+
 web.controlstrip.select.friends.all=All Subscriptions
 
 web.controlstrip.select.friends.communities=Communities Only
