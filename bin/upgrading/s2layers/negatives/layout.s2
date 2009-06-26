@@ -268,7 +268,6 @@ function print_stylesheet()
     }
     #secondary a:hover, #secondary a:active {
         color:$*color_module_link_hover;
-        padding-bottom: 0px;
     }
     #secondary .module-header {
         border-bottom:1px solid $*color_module_border;
