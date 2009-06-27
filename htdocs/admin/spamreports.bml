@@ -233,8 +233,7 @@
         $in = "'$in'";
 
         if ($POST{'sysban_ip'} && !LJ::sysban_validate("talk_ip_test", $POST{'sysban_ip'})) {
-            LJ::sysban_create('what' => 'talk_ip_test', value => $POST{'sysban_ip'},
-                              'banlength' => 0, note => "anonymous spamreports");
+            LJ::sysban_create('what' => 'talk_ip_test', 'value' => $POST{'sysban_ip'}, 'bandays' => 0, 'note' => 'anonymous spamreports');
         }
 
         $count = $dbh->do("UPDATE spamreports SET state='closed' WHERE srid IN($in) AND state='open'");
