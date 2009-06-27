@@ -241,7 +241,7 @@ sub thread_url {
     my $entry   = $self->entry;
     my $url     = $entry->url;
 
-    return "$url?thread=$dtalkid";
+    return "$url?thread=$dtalkid#t$dtalkid";
 }
 
 sub parent_url {
