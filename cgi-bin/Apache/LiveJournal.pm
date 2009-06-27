@@ -491,9 +491,13 @@ sub trans
             }
 
             # we should show the page (no interstitial) if:
+            # the viewed user is deleted / suspended OR
             # the remote user owns the journal we're viewing OR
             # the remote user posted the entry we're viewing
-            my $should_show_page = $remote && ($remote->can_manage($u) || ($entry && $remote->equals($poster)));
+            my $should_show_page = ! $u->is_visible || 
+                                   ( $remote && 
+                                       ( $remote->can_manage( $u ) || ( $entry && $remote->equals( $poster ) ) )
+                                   );
 
             my %journal_pages = (
                 read => 1,
