@@ -36,6 +36,7 @@ HEAD
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
+    my $ret;
 
     # do user requested changes
     my $add_text = $ML{'.addnew'};
@@ -47,7 +48,7 @@ HEAD
         if ($POST{add} or ($POST{'add_field'} && $POST{'add_field'} ne $add_text)) {
             my $tagerr = "";
             my $rv = LJ::Tags::create_usertag($u, $POST{'add_field'}, { display => 1, err_ref => \$tagerr });
-            return LJ::bad_input($tagerr) unless $rv;
+            $ret .= "<?errorbar $tagerr errorbar?>" unless $rv;
         }
 
         # Deleting tags
@@ -61,13 +62,14 @@ HEAD
         if ($POST{rename}) {
             my @tagnames = map { s/\d+_//; $_; } split /\0/, $POST{tags};
             my $new_tag = LJ::trim($POST{rename_field});
-            return LJ::bad_input( $ML{'.error.rename.multiple'} )
-                if $new_tag =~ /,/;
-
-            # FIXME: merge support later
-            my $tagerr = "";
-            my $rv = LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag, \$tagerr );
-            return LJ::bad_input($tagerr) unless $rv;
+            if ( $new_tag =~ /,/ ) {
+                $ret .= "<?errorbar $ML{'.error.rename.multiple'} errorbar?>";
+            } else {
+                # FIXME: merge support later
+                my $tagerr = "";
+                my $rv = LJ::Tags::rename_usertag( $u, 'name', $tagnames[0], $new_tag, \$tagerr );
+                $ret .= "<?errorbar $tagerr errorbar?>" unless $rv;
+            }
         }
 
         if ($POST{'show posts'}) {
@@ -81,7 +83,7 @@ HEAD
             my $add = $POST{"add_level"};
             my $control = $POST{"control_level"};
 
-            return LJ::bad_input($ML{'.error.invalidsettings'})
+            $ret .= "<?errorbar $ML{'.error.invalidsettings'} errorbar?>"
                unless $add =~ /^(?:private|public|friends|group:\d+)$/ &&
                $control =~ /^(?:private|public|friends|group:\d+)$/;
 
@@ -145,7 +147,6 @@ HEAD
     };
 
     my $sp = '&nbsp;&nbsp;';
-    my $ret;
 
     # user switcher
     $ret .= "<form method='GET'>\n";
