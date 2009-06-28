@@ -1434,7 +1434,7 @@ sub postevent
     }
 
     # Entry tags
-    if ($req->{props} && defined $req->{props}->{taglist}) {
+    if ( $req->{props} && defined $req->{props}->{taglist} && $req->{props}->{taglist} ne '' ) {
         # slightly misnamed, the taglist is/was normally a string, but now can also be an arrayref.
         my $taginput = $req->{props}->{taglist};
 

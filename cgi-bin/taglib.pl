@@ -704,7 +704,8 @@ sub update_logtags {
     my $can_add = $can_control || LJ::Tags::can_add_tags($u, $remote);
 
     # bail out early if we can't do any actions
-    return undef unless $can_add || $opts->{force};
+    return $err->( LJ::Lang::ml( 'taglib.error.access' ) )
+        unless $can_add || $opts->{force};
 
     # load the user's tags
     my $utags = LJ::Tags::get_usertags($u);
