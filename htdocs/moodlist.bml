@@ -101,7 +101,9 @@ body<=
             # Output each of the displayed moods
             foreach my $mood (@show_moods) {
                 if (LJ::get_mood_picture($theme->{'moodthemeid'}, LJ::mood_id($mood), \ my %pic)) {
-                    $ret .= "<td align='center'><img align='absmiddle' alt='$theme->{name}' src=\"$pic{'pic'}\" width='$pic{'w'}' height='$pic{'h'}' hspace='2' vspace='2' />" .
+                    $ret .= "<td align='center'><img align='absmiddle' alt='" .
+                        LJ::ehtml( $theme->{name} . ": " . $mood ) .
+                        "' src=\"$pic{'pic'}\" width='$pic{'w'}' height='$pic{'h'}' hspace='2' vspace='2' />" .
                         "</td>\n";
                 } else {
                     $ret .= "<td></td>\n";
