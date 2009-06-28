@@ -15,9 +15,11 @@ propgroup presentation {
     property use use_journalstyle_entry_page;
     property use layout_type;
     property use tags_page_type;
+    property use use_custom_friend_colors;
 }
 
 set layout_type = "two-columns-right";
+set custom_colors_template = "%%new%% div.footer, %%new%% div.footer ul, %%new%% div.footer ul a {background-color: %%background%%} %%new%% {border: 5px solid %%background%%;} %%new%% div.footer a, %%new%% div.footer {color: %%foreground%%;}";
 
 ##===============================
 ## Journal style - colors

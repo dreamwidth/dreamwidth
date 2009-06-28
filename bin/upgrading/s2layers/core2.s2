@@ -1085,8 +1085,8 @@ set show_userpics_comments = true;
 property bool use_journalstyle_entry_page  { des = "Show entry pages in my journal style rather than the app style"; }
 set use_journalstyle_entry_page = true;
 
-# this may be changed to default to true later; however, none of of the styles use custom colours, so it's not of much help.
-property bool use_custom_friend_colors  { des = "Use my custom friend colors"; }
+# Defaults to false, but layouts can set it to true to switch on custom colors for different posters on reading list.
+property bool use_custom_friend_colors  { des = "Use my custom reading list colors"; }
 set use_custom_friend_colors = false;
 
 
@@ -1645,6 +1645,31 @@ set color_module_link_hover = "";
 set color_module_link_visited = "";
 set color_module_title = "";
 set color_module_border = "";
+
+# Initialize custom colors, these properties can be selected or overwritten by layout layers, but should not normally be exposed in the wizard.
+
+property string custom_foreground_element {
+    des = "Part of entry that will display foreground color, if you have custom colors enabled";
+    values = "subject|Entry title|userpic_border|Icon border|postername|Posted by|entry|Entry text|metadata|Mood/music/location|bottom_links|Comment links|custom|Custom template";
+    noui = 1;
+    }
+property string custom_background_element {
+    des = "Part of entry that will display background color, if you have custom colors enabled";
+    values = "subject|Entry header background|userpic_background|Icon background|entry_border|Entry border|metadata_background|Mood/music/location section|footer_border|Entry footer|custom|Custom template";
+    noui = 1;
+    }
+property string custom_colors_template {
+    des = "Your own CSS to use for custom color";
+    doc = "Enter a CSS statement with the class or id of CSS elements you want to use for foreground and background, and any CSS instructions.
+           Use %%foreground%% for the custom foreground color, and %%background%% for the custom background color
+           Each CSS rule should begin with %%new%%";
+    example = "%%new%% div.special {border: 1px dotted %%background%%; font-size: 120%; color: %%foreground%%}";
+    noui = 1;
+    }
+
+set custom_foreground_element = "";
+set custom_background_element = "";
+set custom_colors_template = "";
 
 ##===============================
 ## Custom CSS
@@ -2699,6 +2724,64 @@ function Page::print_stylesheets()
         end_css();
         println """</style>""";
     }
+}
+
+function FriendsPage::print_stylesheets() {
+#This creates entry-specific CSS to allow custom colors on reading page. Rather than override this, layouts should change custom_foreground_element, custom_background_element (and custom_colors_template for advanced options) instead
+    $super->print_stylesheets();
+
+    if ($*use_custom_friend_colors) {
+        println """<style type="text/css">""";
+        start_css();
+
+        foreach var Entry e ($this.entries) {
+            var Color bg;
+            var Color fg;
+
+            $bg = $.friends{$e.journal.username}.bgcolor;
+            $fg = $.friends{$e.journal.username}.fgcolor;
+
+            var string{} custom_foreground_location;
+            var string{} custom_background_location;
+
+            $custom_foreground_location = {
+                "subject" => "h3.entry-title a {color:",
+                "userpic_border" => "div.userpic a img {border: solid; border-color:",
+                "postername" => "span.entry-poster a {color:",
+                "entry" => "div.entry-content {color:",
+                "metadata" => ".metadata {color:",
+                "bottom_links" => ".footer a {color:"
+                };
+
+            $custom_background_location = {
+                "subject" => "h3.entry-title {background-color:",
+                "userpic_background" => "div.userpic a img {padding: 2px; background-color:",
+                "entry_border" => "div.entry-content {border: solid; border-color:",
+                "metadata_background" => ".metadata {background-color:",
+                "footer_border" => "div.footer {border: solid; border-color:"
+                };
+
+            var string custom_foreground_css = "";
+            var string custom_background_css = "";
+            $custom_foreground_css = """.journal-$e.journal.username $custom_foreground_location{$*custom_foreground_element} $fg; } \n""";
+            $custom_background_css = """.journal-$e.journal.username $custom_background_location{$*custom_background_element} $bg; } \n\n""";
+
+            var string custom_colors_css;
+            if ($*custom_colors_template != ""){
+            var string foreground = $fg;
+            var string background = $bg;
+            $custom_colors_css = $*custom_colors_template->replace("%%foreground%%", $foreground);
+            $custom_colors_css = $custom_colors_css->replace("%%background%%", $background);
+            $custom_colors_css = $custom_colors_css->replace("%%new%%", ".journal-$e.journal.username");
+            $custom_colors_css = $custom_colors_css + "\n\n";
+            }
+            else {$custom_colors_css = $custom_foreground_css + $custom_background_css;}
+            print $custom_colors_css;
+            }
+
+        end_css();
+        println """</style>""";
+        }
 }
 
 function generate_background_css (
@@ -4661,5 +4744,3 @@ function MessagePage::print_links() {
     }
     println """</div>""";
 }
-
-

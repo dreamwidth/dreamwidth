@@ -14,11 +14,15 @@ propgroup presentation {
     property use tags_page_type;
     property use sidebar_width;
     property use sidebar_width_doubled;
+    property use use_custom_friend_colors;
 }
 
 set sidebar_width = "15em";
 set sidebar_width_doubled = "30em";
 set layout_type = "one-column";
+set use_custom_friend_colors = false;
+set custom_foreground_element = "userpic_border";
+set custom_background_element = "userpic_background";
 
 ##===============================
 ## Journal style - colors
