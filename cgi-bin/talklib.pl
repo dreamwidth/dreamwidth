@@ -2967,8 +2967,10 @@ sub init {
             } else {
                 $err->(BML::ml("$SC.error.badusername2", {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/lostinfo.bml'"}));
             }
+        } elsif ($journalu->{'opt_whocanreply'} eq "all") {
+            $err->(BML::ml("$SC.error.nousername", {'sitename' => $LJ::SITENAMESHORT}));
         } else {
-            $bmlerr->("$SC.error.nousername");
+            $err->(BML::ml("$SC.error.nousername.noanon", {'sitename' => $LJ::SITENAMESHORT}));
         }
     }
 

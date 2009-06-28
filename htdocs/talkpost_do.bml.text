@@ -42,7 +42,9 @@
 
 .error.notamember=Sorry, you are not a member of <b>[[user]]</b>, and commenting is restricted to members only.
 
-.error.nousername=You did not enter your LiveJournal username.  You can choose to post as "Anonymous" if you don't have a LiveJournal user account.
+.error.nousername=You did not enter your [[sitename]] username.  You can choose to post as "Anonymous" if you don't have a [[sitename]] user account.
+
+.error.nousername.noanon=You did not enter your [[sitename]] username and this user does not allow anonymous commenting. Please go back and enter your [[sitename]] username and password to comment.
 
 .error.noverify2=Sorry, you aren't allowed to post comments until your email address has been validated. If you've lost the confirmation email to do this, you can <a [[aopts]]>have it re-sent</a>.
 
