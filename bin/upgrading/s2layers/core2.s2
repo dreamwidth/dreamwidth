@@ -4421,7 +4421,7 @@ function DayPage::print_body() {
             <div class="day">
                 <div class="inner">
             """;
-            print "<h3>" + $.date->date_format( "long" ) + "</h3>";
+            print "<h3 class='day-date'>" + $.date->date_format( "long" ) + "</h3>";
             if ($.has_entries) {
                 foreach var Entry e ($.entries) {
                     $this->print_entry($e);
