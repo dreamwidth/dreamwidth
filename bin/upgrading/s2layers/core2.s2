@@ -3896,7 +3896,7 @@ function Comment::print_interaction_links()
         $this->print_reply_link({"linktext" => $*text_comment_reply});
         """</li>\n""";
     }
-    if ($this.parent_url != "") { print safe """<li class="link parent"><a href="$this.parent_url">$*text_comment_parent</a></li>\n"""; }
+    if ($this.parent_url != "") { print safe """<li class="link commentparent"><a href="$this.parent_url">$*text_comment_parent</a></li>\n"""; }
     if ($this.thread_url != "") {
         print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>\n""";
         var Link expand_link = $this->get_link("expand_comments");
