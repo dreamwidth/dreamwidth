@@ -8421,10 +8421,11 @@ sub make_journal
     my $error = sub {
         my $msg = shift;
         my $status = shift;
+        my $header = shift || 'Error';
         $opts->{'status'} = $status if $status;
 
         return qq{
-            <h1>Error</h1>
+            <h1>$header</h1>
             <p>$msg</p>
         }.("<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 50);
     };
@@ -8570,15 +8571,14 @@ sub make_journal
 
     unless ($geta->{'viewall'} && LJ::check_priv($remote, "canview", "suspended") ||
             $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) { # don't check style sheets
-        if ($u->is_deleted){
-            my $warning = LJ::Lang::get_text(LJ::Lang::get_effective_lang(),
-                                    'journal.deleted', undef, {username => $u->username})
-                       || LJ::Lang::get_text($LJ::DEFAULT_LANG,
-                                    'journal.deleted', undef, {username => $u->username});
-            return $error->($warning, "404 Not Found");
-
+        if ( $u->is_deleted ) {
+            my $warning = BML::ml( 'error.deleted.text', { user => $u->display_name } );
+            return $error->( $warning, "404 Not Found", BML::ml( 'error.deleted.name' ) );
         }
-        return $error->("This journal has been suspended.", "403 Forbidden") if ($u->is_suspended);
+        if ( $u->is_suspended ) {
+        	my $warning = BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
+            return $error->($warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
+        }
 
         my $entry = $opts->{ljentry};
         return $error->("This entry has been suspended. You can visit the journal <a href='" . $u->journal_base . "/'>here</a>.", "403 Forbidden")
