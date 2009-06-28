@@ -208,7 +208,7 @@ function _RGBtoHSV(p,dat) {
     for (var i = 1; i <= 3; i++) {
         if (rgb[i] > max) {
             max = rgb[i];
-            hi = 1;
+            hi = i;
         }
         if (rgb[i] < min) {
             min = rgb[i];
