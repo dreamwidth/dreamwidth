@@ -800,7 +800,7 @@ sub external_services {
 
     if ( my $lastfm = $u->prop( 'last_fm_user' ) ) {
         my $elastfm = LJ::eurl( $lastfm );
-        my $lastfm_url = $LJ::LAST_FM_USER_URL;
+        my $lastfm_url = 'http://www.last.fm/user/%username%';
         $lastfm_url =~ s/%username%/$elastfm/g;
         push @ret, {
             type => 'lastfm',
