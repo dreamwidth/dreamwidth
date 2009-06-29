@@ -232,11 +232,11 @@
                 'screened' => 0,
             });
 
-        # build tag objects, faking kwid as '0'
+        # build tag objects, faking kwid as '-1'
         # * invalid tags will be stripped by is_valid_tagstring()
         my @taglist = ();
         LJ::Tags::is_valid_tagstring($POST{prop_taglist}, \@taglist);
-        @taglist = map { LJ::S2::Tag($u, 0, $_) } @taglist;
+        @taglist = map { LJ::S2::Tag($u, -1, $_) } @taglist;
 
         # format it
         my $raw_subj = $req{'subject'};
@@ -248,7 +248,7 @@
             'security' => $req{'security'},
             'allowmask' => $req{'allowmask'},
             'props' => $req{'props'},
-            'itemid' => 0,
+            'itemid' => -1,
             'comments' => $comments,
             'journal' => $userlite_journal,
             'poster' => $userlite_poster,
