@@ -188,6 +188,7 @@ sub ReplyPage
             'screened' => $parpost->{'state'} eq "S" ? 1 : 0,
             'frozen' => $parpost->{'state'} eq "F" ? 1 : 0,
             'deleted' => $parpost->{'state'} eq "D" ? 1 : 0,
+            'full' => 1,
         };
 
         # Conditionally add more links to the keyseq
