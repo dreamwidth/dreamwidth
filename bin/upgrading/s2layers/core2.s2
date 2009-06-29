@@ -2658,14 +2658,17 @@ function UserLite::print_interaction_links()
     # FIXME: HTML is not valid if there are no items inside a list, so there should be a
     # check that there are user interaction links before opening the ul class.
     var Link link;
+    var int count;
+    $count = 0;
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
         if ($link.url) {
+            $count ++;
             if ($*userlite_interaction_links == "text") {
-                """<li class="link $k"><a href="$link.url">$link.caption</a></li>\n""";
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
             }
             else { ## if ($*userlite_interaction_links == "icon")
-                """<li class="link $k">$link</li>\n""";
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """">$link</li>\n""";
             }
         }
     }
@@ -3870,14 +3873,17 @@ function Comment::print_management_links()
     # be a check that there are comment management links before opening the ul class.
     """<ul class="comment-management-links">""";
     var Link link;
+    var int count;
+    $count = 0;
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
         if ($link.url) {
+            $count ++;
             if ($*comment_management_links == "text") {
-                """<li class="link $k"><a href="$link.url">$link.caption</a></li>\n""";
+                """<li class="link $k""" + ( ($count == 1) ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
             }
             else { ## if ($*comment_management_links == "icon")
-                """<li class="link $k">$link</li>\n""";
+                """<li class="link $k""" + ( ($count == 1) ? " first-item" : "" ) + """">$link</li>\n""";
             }
         }
     }
@@ -3890,9 +3896,9 @@ function Comment::print_interaction_links()
 {
     """<ul class="comment-interaction-links">""";
     if ($this.frozen) {
-        print safe """<li class="link frozen">$*text_comment_frozen</li>\n""";
+        print safe """<li class="link frozen first-item">$*text_comment_frozen</li>\n""";
     } else {
-        """<li class="link reply">""";
+        """<li class="link reply first-item">""";
         $this->print_reply_link({"linktext" => $*text_comment_reply});
         """</li>\n""";
     }
@@ -3934,10 +3940,13 @@ function Entry::print_management_links()
     ## multiple entries anyway, so we only print them on EntryPage and ReplyPage.
 
     var Page p = get_page();
+    var int count;
+    $count = 0;
     """<ul class="entry-management-links">""";
     var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
     if ($show_interentry) {
-        """<li class="link link_prev">""";
+        $count ++;
+        """<li class="link link_prev first-item">""";
         $this->print_link_prev();
         """</li>\n""";
     }
@@ -3945,11 +3954,12 @@ function Entry::print_management_links()
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
         if ($link.url) {
+            $count ++;
             if ($*entry_management_links == "text") {
-                """<li class="link $k"><a href="$link.url">$link.caption</a></li>\n""";
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
             }
             else { ## if ($*entry_management_links == "icon")
-                """<li class="link $k">$link</li>\n""";
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """">$link</li>\n""";
             }
         }
     }
@@ -3968,16 +3978,20 @@ function Entry::print_interaction_links(string target)
 "Prints entry interaction links, aka # comments/leave a comment, with standardized CSS."
 {
     var Page p = get_page();
+    var int count;
+    $count = 0;
         if ($p isa EntryPage) {
         """<ul class="entry-interaction-links">""";
             var EntryPage ep = $p as EntryPage;
         if ($.comments.enabled and $ep.comment_pages.total_subitems > 0) {
-            """<li class="entry-readlink">""";
+            $count ++;
+            """<li class="entry-readlink first-item">""";
                 $this.comments->print_readlink();
             "</li>\n";
             }
         if ($.comments.enabled) {
-            """<li class="entry-replylink">""";
+            $count ++;
+            """<li class="entry-replylink""" + ( $count == 1 ? " first-item" : "" ) + """">""";
             $ep->print_reply_link({ "linktext" => $*text_post_comment, "target" => $target });
             "</li>\n";
         }
@@ -4484,11 +4498,11 @@ function CommentInfo::print_postlink() {
 function CommentInfo::print() {
         """<ul class="entry-interaction-links">\n""";
         if ($.show_readlink) {
-            """<li class="entry-readlink">""";
+            """<li class="entry-readlink first-item">""";
             $this->print_readlink();
 	    "</li>\n";
         } else {
-	    """<li class="entry-permalink"><a href="$.read_url">$*text_permalink</a></li>\n""";
+	    """<li class="entry-permalink first-item"><a href="$.read_url">$*text_permalink</a></li>\n""";
         }
         if ($.show_postlink and $.enabled) {
             """<li class="entry-replylink">""";
