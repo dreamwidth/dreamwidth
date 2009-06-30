@@ -51,11 +51,13 @@ body<=
 
         # people table
         if ( @trusted_userids || keys %$watch_list || @trusted_by_userids || @watched_by_userids || @member_of_userids ) {
-            $ret .= "<p>$ML{'.circle.intro.people'}</p>";
-            $ret .= "<div align='center'><table class='editfriends'>";
-            $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th>";
-            $ret .= "<th>$ML{'.circle.trust'}</th>";
-            $ret .= "<th>$ML{'.circle.watch'}</th></tr>";
+            my $first = 1;
+            my $tableheader = "";
+            $tableheader .= "<p>$ML{'.circle.intro.people'}</p>";
+            $tableheader .= "<div align='center'><table class='editfriends'>";
+            $tableheader .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th>";
+            $tableheader .= "<th>$ML{'.circle.trust'}</th>";
+            $tableheader .= "<th>$ML{'.circle.watch'}</th></tr>";
             foreach my $uid ( sort { $us->{$a}->display_name cmp $us->{$b}->display_name } keys %$us ) {
                 my $other_u = $us->{$uid};
                 next unless $other_u;
@@ -63,6 +65,11 @@ body<=
                 if ( $other_u->is_community || $other_u->is_syndicated ) {
                     push @nonperson_userids, $uid;
                     next;
+                }
+
+                if ( $first ) {
+                    $ret .= $tableheader;
+                    $first = 0;
                 }
 
                 my ( $u_fg, $u_bg, $t_bg, $w_bg, $t_text, $w_text );
@@ -126,7 +133,7 @@ body<=
                 $ret .= "</tr>";
                 $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );
             }
-            $ret .= "</table></div>";
+            $ret .= "</table></div>" unless $first;
         }
 
         # non-people table
