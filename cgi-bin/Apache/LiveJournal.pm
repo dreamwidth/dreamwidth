@@ -494,7 +494,7 @@ sub trans
             # the viewed user is deleted / suspended OR
             # the remote user owns the journal we're viewing OR
             # the remote user posted the entry we're viewing
-            my $should_show_page = ! $u->is_visible || 
+            my $should_show_page = ( $u && ! $u->is_visible ) || 
                                    ( $remote && 
                                        ( $remote->can_manage( $u ) || ( $entry && $remote->equals( $poster ) ) )
                                    );
