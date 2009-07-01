@@ -97,10 +97,10 @@ sub check_html {
 		$ofs -= 1; # because ispell reports "1" for first character
 		
 		$output .= LJ::ehtml(substr($inline, $srcidx, $ofs-$srcidx));
-		$output .= "<font color=\"$self->{'color'}\">".LJ::ehtml($word)."</font>";
+		$output .= "<font color=\"$self->{'color'}\">" . LJ::ehtml($word)."</font>";
 		
-		$footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>".LJ::ehtml($word).
-                              "</font></td><td>".LJ::ehtml($idata)."</td></tr>";
+		$footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>" . LJ::ehtml($word).
+                              "&nbsp;</font></td><td>".LJ::ehtml($idata)."</td></tr>";
 		
 		$srcidx = $ofs + length($word);
 	    } elsif ($idata =~ /^\# /) {
@@ -109,7 +109,7 @@ sub check_html {
 		my ($word, $ofs) = ($1, $2);
 		$ofs -= 1; # because ispell reports "1" for first character
 		$output .= LJ::ehtml(substr($inline, $srcidx, $ofs-$srcidx));
-		$output .= "<font color=\"$self->{'color'}\">".LJ::ehtml($word)."</font>";
+		$output .= "&nbsp;<font color=\"$self->{'color'}\">".LJ::ehtml($word)."</font>&nbsp;";
 		$srcidx = $ofs + length($word);
 	    }
 	} while ($idata ne "");
