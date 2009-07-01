@@ -1773,8 +1773,8 @@ sub get_itemid_near2
     if ($remote) {
         if ($remote->{'userid'} == $u->{'userid'}) {
             $secwhere = "";   # see everything
-        } elsif ($remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I') {
-            my $gmask = $u->trustmask( $remote );
+        } elsif ( $remote->is_individual ) {
+            my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );
             $secwhere = "AND (security='public' OR (security='usemask' AND allowmask & $gmask))"
                 if $gmask;
         }
