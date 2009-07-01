@@ -22,7 +22,7 @@ use warnings;
 use Config;
 use constant PERLIO_IS_ENABLED => $Config{useperlio};
 
-use vars qw($VERSION);
+use vars qw( $VERSION );
 $VERSION = '2.0';
 
 # Good spellcommand values:
@@ -61,9 +61,9 @@ sub check_html {
     my ( $iwrite, $iread ) = $r->spawn( $self->{command}, $self->{command_args} );
     
     my $read_data = sub {
-        my ($fh) = @_;
+        my ( $fh ) = @_;
         my $data;
-        $data = <$fh> if PERLIO_IS_ENABLED || IO::Select->new($fh)->can_read(10);
+        $data = <$fh> if PERLIO_IS_ENABLED || IO::Select->new( $fh )->can_read( 10 );
         return defined $data ? $data : '';
     };
 
@@ -77,51 +77,51 @@ sub check_html {
     my $output = "";
     my $footnotes = "";
     
-    my ($srcidx, $lineidx, $mscnt, $other_bad);
+    my ( $srcidx, $lineidx, $mscnt, $other_bad );
     $lineidx = 1;
     $mscnt = 0;
-    foreach my $inline (split(/\n/, $$journal)) {
-	$srcidx = 0;
-	chomp($inline);
-	print $iwrite "^$inline\n";
-	
-	my $idata;
-	do {
-	    $idata = $read_data->($iread);
-	    chomp($idata);
-	    
-	    if ($idata =~ /^& /) {
-		$idata =~ s/^& (\S+) (\d+) (\d+): //;
-		$mscnt++;
-		my ($word, $sugcount, $ofs) = ($1, $2, $3);
-		$ofs -= 1; # because ispell reports "1" for first character
-		
-		$output .= LJ::ehtml(substr($inline, $srcidx, $ofs-$srcidx));
-		$output .= "<font color=\"$self->{'color'}\">" . LJ::ehtml($word)."</font>";
-		
-		$footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>" . LJ::ehtml($word).
-                              "&nbsp;</font></td><td>".LJ::ehtml($idata)."</td></tr>";
-		
-		$srcidx = $ofs + length($word);
-	    } elsif ($idata =~ /^\# /) {
-		$other_bad = 1;
-		$idata =~ /^\# (\S+) (\d+)/;
-		my ($word, $ofs) = ($1, $2);
-		$ofs -= 1; # because ispell reports "1" for first character
-		$output .= LJ::ehtml(substr($inline, $srcidx, $ofs-$srcidx));
-		$output .= "&nbsp;<font color=\"$self->{'color'}\">".LJ::ehtml($word)."</font>&nbsp;";
-		$srcidx = $ofs + length($word);
-	    }
-	} while ($idata ne "");
-	$output .= LJ::ehtml(substr($inline, $srcidx, length($inline)-$srcidx)) . "<br>\n";
-	$lineidx++;
+    foreach my $inline ( split( /\n/, $$journal ) ) {
+        $srcidx = 0;
+        chomp( $inline );
+        print $iwrite "^$inline\n";
+        
+        my $idata;
+        do {
+            $idata = $read_data->( $iread );
+            chomp( $idata );
+            
+            if ( $idata =~ /^& / ) {
+                $idata =~ s/^& (\S+) (\d+) (\d+): //;
+                $mscnt++;
+                my ( $word, $sugcount, $ofs ) = ( $1, $2, $3 );
+                $ofs -= 1; # because ispell reports "1" for first character
+                
+                $output .= LJ::ehtml( substr( $inline, $srcidx, $ofs - $srcidx ) );
+                $output .= "<font color=\"$self->{'color'}\">" . LJ::ehtml( $word ) . "</font>";
+                
+                $footnotes .= "<tr valign=top><td align=right><font color=$self->{'color'}>" . LJ::ehtml( $word ) .
+                              "&nbsp;</font></td><td>" . LJ::ehtml( $idata ) . "</td></tr>";
+                
+                $srcidx = $ofs + length( $word );
+            } elsif ($idata =~ /^\# /) {
+                $other_bad = 1;
+                $idata =~ /^\# (\S+) (\d+)/;
+                my ( $word, $ofs ) = ( $1, $2 );
+                $ofs -= 1; # because ispell reports "1" for first character
+                $output .= LJ::ehtml( substr( $inline, $srcidx, $ofs - $srcidx ) );
+                $output .= "&nbsp;<font color=\"$self->{'color'}\">" . LJ::ehtml( $word ) . "</font>&nbsp;";
+                $srcidx = $ofs + length( $word );
+            }
+        } while ( $idata ne "" );
+            $output .= LJ::ehtml( substr( $inline, $srcidx, length( $inline ) - $srcidx ) ) . "<br>\n";
+            $lineidx++;
     }
 
     $iread->close;
     $iwrite->close;
 
 
-    return (($mscnt || $other_bad) ? "$output<p><b>Suggestions:</b><table cellpadding=3 border=0>$footnotes</table>" : "");
+    return ( ( $mscnt || $other_bad ) ? "$output<p><b>Suggestions:</b><table cellpadding=3 border=0>$footnotes</table>" : "" );
 }
 
 1;
@@ -135,8 +135,8 @@ LJ::SpellCheck - let users check spelling on web pages
 
   use LJ::SpellCheck;
   my $s = new LJ::SpellCheck { 'spellcommand' => 'ispell -a -h',
-			       'color' => '#ff0000',
-			   };
+                   'color' => '#ff0000',
+               };
 
   my $text = "Lets mispell thigns!";
   my $correction = $s->check_html(\$text);
