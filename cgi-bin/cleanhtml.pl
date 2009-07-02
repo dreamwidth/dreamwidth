@@ -490,7 +490,8 @@ sub clean
                                            exists $attr->{comm} ? $attr->{comm} : undef;
 
                 # allow external sites
-                if ( my $site = $attr->{site} ) {
+                # do not use link to an external site if site attribute is current domain
+                if ( (my $site = $attr->{site}) && ($attr->{site} ne $LJ::DOMAIN) ) {
 
                     # try to load this user@site combination
                     if ( my $ext_u = DW::External::User->new( user => $user, site => $site ) ) {
@@ -511,7 +512,7 @@ sub clean
                                     LJ::ehtml( LJ::no_utf8_flag( $site ) ) . "]</b>";
                     }
 
-                # failing that, no site, use the local behavior
+                # failing that, no site or local site, use the local behavior
                 } elsif (length $user) {
                     my $orig_user = $user; # save for later, in case
                     $user = LJ::canonical_username($user);

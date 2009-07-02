@@ -25,6 +25,7 @@ use DW::External::Site::LiveJournal;
 use DW::External::Site::JournalFen;
 use DW::External::Site::Inksome;
 use DW::External::Site::DeadJournal;
+use DW::External::Site::Dreamwidth;
 use DW::External::Site::Unknown;
 
 my %domaintosite;
@@ -36,6 +37,8 @@ $domaintosite{"insanejournal.com"} = DW::External::Site->new("3", "www.insanejou
 $domaintosite{"deadjournal.com"} = DW::External::Site->new("4", "www.deadjournal.com", "deadjournal.com", "DeadJournal", "lj");
 $domaintosite{"inksome.com"} = DW::External::Site->new("5", "www.inksome.com", "inksome.com", "Inksome", "lj");
 $domaintosite{"journalfen.net"} = DW::External::Site->new("6", "www.journalfen.net", "journalfen.net", "JournalFen", "lj");
+$domaintosite{"dreamwidth.org"} = DW::External::Site->new("7", "www.dreamwidth.org", "dreamwidth.org", "Dreamwidth", "lj");
+
 
 foreach my $value (values %domaintosite) {
     $idtosite{$value->{siteid}} = $value;
