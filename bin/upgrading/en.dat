@@ -2863,6 +2863,16 @@ setting.xpost.option.delete=Delete
 
 setting.xpost.option.disablecomments=Disable comments on crossposts made to other sites
 
+setting.xpost.option.footer=Text of the footer to add on other sites. If you leave it blank, the default will display. To include a link to the post locally, use "%%url%%".
+
+setting.xpost.option.footer.when=Add the footer to the post on the other site:
+
+setting.xpost.option.footer.when.always=Always
+
+setting.xpost.option.footer.when.disabled=When Comments Disabled
+
+setting.xpost.option.footer.when.never=Never
+
 setting.xpost.option.password=Password
 
 setting.xpost.option.server=Server

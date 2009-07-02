@@ -110,6 +110,22 @@ userproplist.country:
   multihomed: 0
   prettyname: Country
 
+userproplist.crosspost_footer_append:
+  cldversion: 4
+  datatype: char
+  des: N: never, A: always add to remote, D: only add when comments disabled on remote site
+  indexed: 0
+  multihomed: 0
+  prettyname: When and where to add the crossposted text footer
+
+userproplist.crosspost_footer_text:
+  cldversion: 4
+  datatype: char
+  des: Custom footer for crossposted entries
+  indexed: 0
+  multihomed: 0
+  prettyname: Custom footer for crossposted entries
+
 userproplist.delicious:
   cldversion: 4
   datatype: char

@@ -136,6 +136,7 @@ sub call_xmlrpc {
 # with success => 1 and url => the new url on success, or success => 0
 # and error => the error message on failure.
 sub crosspost {
+
     my ($self, $extacct, $auth, $entry, $itemid, $delete) = @_;
 
     # get the xml-rpc proxy and start the connection.
@@ -149,17 +150,57 @@ sub crosspost {
     } else {
         # if it's a post or edit, fully populate the request.
         $req = $self->entry_to_req($entry, $extacct, $auth);
-        # handle disable comments
-        if ($extacct->owner->prop('opt_xpost_disable_comments')) {
-            if ($req->{props}->{opt_nocomments}) {
-                $req->{event} = $req->{event} . "\n\n" . LJ::Lang::ml("xpost.redirect", { postlink => $entry->url });
+
+        # are we disabling comments?
+        my $disabling_comments  = $extacct->owner->prop( 'opt_xpost_disable_comments' ) ? 1 : 0;
+        $req->{props}->{opt_nocomments} = 1 if $disabling_comments;
+
+        # are we adding a footer?
+        my ( $adding_footer, $footer_text );
+        $footer_text = $extacct->owner->prop( 'crosspost_footer_text' );
+
+        if ( $extacct->owner->prop( 'crosspost_footer_append' ) eq "A" ) {
+            # we are always adding a footer, but we need to 
+            # make some adjustments based on whether it's a custom
+            # footer, whether comments are disabled, etc
+
+            $adding_footer = 1;
+            if ( $footer_text ) {
+                my $url = $entry->url;
+                $footer_text =~ s/%%url%%/$url/gi;
+                $footer_text = "\n\n" . $footer_text;
             } else {
-                $req->{event} = $req->{event} . "\n\n" . LJ::Lang::ml("xpost.redirect.comment", { postlink => $entry->url });
-                $req->{props}->{opt_nocomments} = 1;
+                if ( $disabling_comments ) {
+                    $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect", { postlink => $entry->url } );
+                } else {
+                    $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect.comment", { postlink => $entry->url } );
+                }
             }
+
+        } elsif ( $extacct->owner->prop( 'crosspost_footer_append' ) eq "D" && $disabling_comments ) {
+            # we are only adding a footer if comments are disabled
+            # (and they are)
+
+            $adding_footer = 1;
+            if ( $footer_text ) {
+                my $url = $entry->url;
+                $footer_text =~ s/%%url%%/$url/gi;
+                $footer_text = "\n\n" . $footer_text;
+            } else {
+                $footer_text = "\n\n" . LJ::Lang::ml( 'xpost.redirect', { postlink => $entry->url } );
+            }
+        } else {
+            # we aren't adding a footer
+            $adding_footer = 0;
         }
+
+        # now that we have all of that settled, let's assemble it 
+        # together into the post-in-progress:
+
+        $req->{event} = $req->{event} . $footer_text if $adding_footer;
+
     }
-    
+
     # get the correct itemid for edit
     $req->{itemid} = $itemid if $itemid;
 

@@ -5,7 +5,7 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);
 
-sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault) }
+sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault crosspost_footer_append crosspost_footer_text) }
 
 # show this setting editor
 sub should_render {
@@ -103,13 +103,39 @@ sub option {
     }
 
     # disable comments on crosspost
-    $ret .= "<p><label for='${key}xpostdisablecomments'>" . $class->ml('setting.xpost.option.disablecomments') . "</label>";
+    $ret .= "<br /><p><label for='${key}xpostdisablecomments'>" . $class->ml('setting.xpost.option.disablecomments') . "</label>";
     $ret .= LJ::html_check({
         name     => "${key}xpostdisablecomments",
         value    => 1,
         id       => "${key}xpostdisablecomments",
         selected => $u->prop('opt_xpost_disable_comments')
         }) .  "</p>";
+
+    # define custom footer
+    $ret .= "<p><label for='${key}crosspost_footer_text'>" . $class->ml( 'setting.xpost.option.footer' ) . "</label>";
+    my $footer_text = $u->prop('crosspost_footer_text');
+
+    $ret .= LJ::html_text({
+        name      => "${key}crosspost_footer_text",
+        id        => "${key}crosspost_footer_text",
+        size      => "70",
+        maxlength => "255",
+        value     => $footer_text
+    }) . "</p>";
+
+    # When should the footer be displayed?
+    $ret .= "<p><label for='${key}crosspost_footer_append'>" . $class->ml( 'setting.xpost.option.footer.when' ) . "</label> ";
+    my $append_when = $u->prop('crosspost_footer_append');
+
+    $ret .= LJ::html_select({
+        name      => "${key}crosspost_footer_append",
+        id        => "${key}crosspost_footer_append",
+        class     => "select",
+        selected  => $append_when || 'D' },
+        'A'       => $class->ml( 'setting.xpost.option.footer.when.always' ),
+        'D'       => $class->ml( 'setting.xpost.option.footer.when.disabled' ),
+        'N'       => $class->ml( 'setting.xpost.option.footer.when.never' )
+    );
 
     return $ret;
 }
@@ -142,6 +168,13 @@ sub save {
 
     # reset disable comments
     $u->set_prop( opt_xpost_disable_comments => $class->get_arg($args, "xpostdisablecomments") ? "1" : "0");
+
+    # change footer text
+    $u->set_prop( crosspost_footer_text => $class->get_arg( $args, "crosspost_footer_text" ) );
+
+    # change footer display
+    $u->set_prop( crosspost_footer_append => $class->get_arg( $args, "crosspost_footer_append" ) );
+
 
     return 1;
 }
