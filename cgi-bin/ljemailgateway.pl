@@ -423,7 +423,7 @@ sub process {
         }
     } elsif ($lj_headers{security}) { # Assume a friendgroup if unknown security mode.
         # Get the mask for the requested friends group, or default to private.
-        my $group = LJ::get_friend_group($u, { 'name'=>$lj_headers{security} });
+        my $group = $u->trust_groups( 'name' => $lj_headers{security} );
         if ($group) {
             $amask = (1 << $group->{groupnum});
             $lj_headers{security} = 'usemask';
