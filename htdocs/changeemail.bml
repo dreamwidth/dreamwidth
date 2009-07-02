@@ -142,7 +142,6 @@ body<=
 
         LJ::update_user($u, $tochange);
 
-warn "send email to old address: $old_email";
         # send letter to old email address
         my @date = localtime(time);
         LJ::send_mail({
@@ -162,22 +161,37 @@ warn "send email to old address: $old_email";
                                 sitelink          => $LJ::SITEROOT,
                                 datetime          => sprintf("%02d:%02d %02d/%02d/%04d", @date[2,1], $date[3], $date[4]+1, $date[5]+1900),
                               }),
-        });
-warn "send email to new address: $POST{'email'}";
+        }) unless $is_identity_no_email;
+
         # send validation mail
         my $aa = LJ::register_authaction($u->{'userid'}, "validateemail", $POST{'email'});
-        LJ::send_mail({
+        if ($is_identity_no_email) {
+            LJ::send_mail({
             'to' => $POST{'email'},
             'from' => $LJ::ADMIN_EMAIL,
             'fromname' => $LJ::SITENAME,
             'charset' => 'utf-8',
-            'subject' => $ML{'.newemail.subject'},
-            'body' => BML::ml('.newemail.body2',
+            'subject' => $ML{'.newemail.subject.openid'},
+            'body' => BML::ml('.newemail.body.openid',
                               { username => $u->display_username,
                                 sitename => $LJ::SITENAME,
                                 sitelink => $LJ::SITEROOT,
                                 conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
-        });
+            });
+        } else {
+            LJ::send_mail({
+                'to' => $POST{'email'},
+                'from' => $LJ::ADMIN_EMAIL,
+                'fromname' => $LJ::SITENAME,
+                'charset' => 'utf-8',
+                'subject' => $ML{'.newemail.subject'},
+                'body' => BML::ml('.newemail.body2',
+                                  { username => $u->display_username,
+                                    sitename => $LJ::SITENAME,
+                                    sitelink => $LJ::SITEROOT,
+                                    conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
+            });
+        }
 
         $body = "<?h1 $ML{'.success.header'} h1?><?p $ML{'.success.text'} p?>";
     } else {
