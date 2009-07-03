@@ -736,7 +736,7 @@ sub external_services {
             url => "http://profiles.yahoo.com/$eyahoo",
             image => 'yahoo.gif',
             title_ml => '.im.yim',
-            status_image => 'http://opi.yahoo.com/online?u=$yim&amp;m=g&amp;t=0',
+            status_image => "http://opi.yahoo.com/online?u=$yahoo&amp;m=g&amp;t=0",
             status_title_ml => '.im.yim.status',
             status_width => 12,
             status_height => 12,
