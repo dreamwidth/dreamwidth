@@ -1557,7 +1557,7 @@ MOODS
                  $out .= "</p>";
             }
 
-            if ($remote) {
+            if ( $remote && ! $altlogin ) {
                 # crosspost
                 $$onload .= " LiveJournal.updateXpostFromJournal('$remote->{user}');";
                 my @accounts = DW::External::Account->get_external_accounts($remote);
