@@ -21,7 +21,7 @@ h2=>{D}<h2>%%data%%</h2>
 p=>{D}<p>%%data%%</p>
 hr=><hr />
 
-de=><p style='font-size: smaller;'>%%data%%</p>
+de=><span style='font-size: smaller;'>%%data%%</span>
 emailex=><div style='width: 50%; font-family: courier; background-color: #efefef; border: dotted #cdcdcd 2px; padding: 5px;'>%%data%%</div>
 
 standout<=
