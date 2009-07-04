@@ -66,16 +66,16 @@ body<=
         $ret .= "<div>$ML{'.label.oldemail'}<br />\n";
         $ret .= "<b>" . $old_email . "</b></div><br/>\n";
         $ret .= "<div>$ML{'.label.newemail'}<br />\n";
-        $ret .= "<input type='text' name='email' size='50' maxlength='50' /></div><br />\n";
+        $ret .= "<input type='text' name='email' size='50' maxlength='50' tabindex='1' /></div><br />\n";
         unless ($u->is_identity) {
             $ret .= "<div>" . BML::ml('.label.password2', { remote => LJ::ljuser($remote) }) . "<br />\n";
-            $ret .= "<input type='password' name='password' size='50' maxlength='50' /></div>\n";
+            $ret .= "<input type='password' name='password' size='50' maxlength='50' tabindex='2' /></div>\n";
         }
 
         $ret .= "standout?>\n";
         $ret .= "<br />\n";
         $ret .= "<?standout\n";
-        $ret .= "<input type='submit' value=\"$ML{'.btn.change'}\" />\n";
+        $ret .= "<input type='submit' tabindex='3' value=\"$ML{'.btn.change'}\" />\n";
         $ret .= "standout?>\n";
         $ret .= "</form>\n";
         return $ret;
