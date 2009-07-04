@@ -567,11 +567,24 @@ sub check_referer {
 
     # get referer and check
     return 1 unless $referer;
-    return 1 if $LJ::SITEROOT   && $referer =~ m!^$LJ::SITEROOT$uri!;
-    return 1 if $LJ::DOMAIN     && $referer =~ m!^http://$LJ::DOMAIN$uri!;
-    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^http://$LJ::DOMAIN_WEB$uri!;
-    return 1 if $LJ::USER_VHOSTS && $referer =~ m!^http://([A-Za-z0-9_\-]{1,25})\.$LJ::DOMAIN$uri!;
-    return 1 if $uri =~ m!^http://! && $referer eq $uri;
+
+    my ( $origuri, $origreferer ) = ( $uri, $referer );
+
+    # escape any regex characters, like the '.' in '.bml'
+    $uri = quotemeta( $uri );
+
+    # allow us to properly check URIs without .bml extensions
+    if ( $origuri =~ /\.bml($|\?)/ ) {
+      my $checkend = ( $1 eq '?' ? '' : '(?:$|\\?)' );
+      $uri     =~ s/\\.bml($|\\\?)/$1$checkend/;
+      $referer =~ s/\.bml($|\?)/$1/;
+    }
+
+    return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
+    return 1 if $LJ::DOMAIN     && $referer =~ m!^http://\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^http://\Q$LJ::DOMAIN_WEB\E$uri!;
+    return 1 if $LJ::USER_VHOSTS && $referer =~ m!^http://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
+    return 1 if $origuri =~ m!^http://! && $origreferer eq $origuri;
     return undef;
 }
 
