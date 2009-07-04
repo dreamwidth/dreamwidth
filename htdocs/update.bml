@@ -191,6 +191,12 @@
         $getextra .= "qotd=" . LJ::eurl($GET{qotd}) . "&" if $GET{'qotd'};
         chop $getextra;
 
+        # if crossposter values were checked, remember them
+        my %xpost_vals;
+        foreach ( grep { /^prop_xpost_/ } ( keys %POST, keys %GET ) ) {
+            $xpost_vals{ $_ } = $POST{ $_ } || $GET{ $_ };
+        }
+
         my $entry = {
             'mode' => "update",
             'auth_as_remote' => $auth_as_remote,
@@ -210,6 +216,8 @@
             'prop_qotdid' => $qid,
             'altlogin' => $GET{altlogin} ? 1 : 0,
             'prop_opt_preformatted' => $opt_preformatted ? 1 : 0,
+            
+            %xpost_vals,
         };
 
         if ($remote) {

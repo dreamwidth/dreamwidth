@@ -1567,6 +1567,7 @@ MOODS
                 my $accthtml = "";
                 my $xpostbydefault = 0;
                 my $xpost_tabindex = $tabindex->();
+                my $did_spellcheck = $opts->{ spellcheck_html } ? 1 : 0;
                 if (scalar @accounts) {
                     my $xpoststring = $opts->{prop_xpost};
                     my $xpost_selected = DW::External::Account->xpost_string_to_hash($xpoststring);
@@ -1577,6 +1578,8 @@ MOODS
                         my $selected;
                         if ($opts->{mode} eq 'edit') {
                             $selected = $xpost_selected->{$acct->acctid} ? "1" : "0";
+                        } elsif ( $did_spellcheck ) {
+                            $selected = $opts->{ "prop_xpost_$acctid" };
                         } else {
                             $selected = $acct->xpostbydefault;
                         }

@@ -57,6 +57,8 @@ sub check_html {
     my $self = shift;
     my $journal = shift;
 
+    return "" unless $$journal;
+
     my $r = DW::Request->get;
     my ( $iwrite, $iread ) = $r->spawn( $self->{command}, $self->{command_args} );
     
