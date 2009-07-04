@@ -59,7 +59,7 @@ body<=
                 LJ::Setting::EmbedPlaceholders
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
-                LJ::Setting::StyleAlwaysMine
+                LJ::Setting::NCTalkLinks
                 LJ::Setting::StyleMine
                 LJ::Setting::NavStrip
                 LJ::Setting::CtxPopup

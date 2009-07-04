@@ -2003,6 +2003,16 @@ sub opt_logcommentips {
     return 'A';
 }
 
+sub opt_nctalklinks {
+    my ( $u, $val ) = @_;
+
+    if ( defined $val && $val =~ /^[01]$/ ) {
+        $u->set_prop( opt_nctalklinks => $val );
+        return $val;
+    }
+
+    return $u->prop( 'opt_nctalklinks' ) eq "1" ? 1 : 0;
+}
 
 sub opt_showcontact {
     my $u = shift;

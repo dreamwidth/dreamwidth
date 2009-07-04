@@ -2765,6 +2765,10 @@ setting.navstrip.option.journal.withrelationship=journals in your circle
 
 setting.navstrip.option.journal.norelationship=journals not in your circle
 
+setting.nctalklinks.option=Adds the comment count to entry links. Your browser should display links in a different color if there are new comments since your last visit.
+
+setting.nctalklinks.header=New Comment Link Indicator
+
 setting.notifyweblogs.label=Notify Weblogs.com
 
 setting.notifyweblogs.option.comm=Notify Weblogs.com subscribers when new public entries are posted to my community
