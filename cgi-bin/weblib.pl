@@ -1588,7 +1588,8 @@ MOODS
                             'class'    => 'check xpost_acct_checkbox',
                             'value'    => '1',
                             'selected' => $selected,
-                            'tabindex'  => $tabindex->(),
+                            'tabindex' => $tabindex->(),
+                            'onchange' => 'LiveJournal.xpostAcctUpdated();',
                                                              }) . "</td>\n";
                         $xpostbydefault = 1 if $selected;
                         
@@ -1641,8 +1642,8 @@ MOODS
                 $out .= "</div>\n";
                 # disable choices if no xpost selected by default.
                 $out .= qq [ 
-              <script type="javascript">
-                LiveJournal.xpostButtonUpdated();
+              <script type="text/javascript">
+                LiveJournal.xpostAcctUpdated();
               </script>
               <p class='pkg'>
               <span class='inputgroup-left'></span>

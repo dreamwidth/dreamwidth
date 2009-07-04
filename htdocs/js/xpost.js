@@ -6,16 +6,29 @@ LiveJournal.xpostButtonUpdated = function () {
   }
 }
 
+LiveJournal.xpostAcctUpdated = function () {
+  var xpost_button = document.getElementById("prop_xpost_check");
+  var xpost_checkboxes = DOM.getElementsByTagAndClassName(document, "input", "xpost_acct_checkbox") || [];
+  var allunchecked = true;
+  for (var i=0; i < xpost_checkboxes.length; i++) {
+    allunchecked = allunchecked && ! xpost_checkboxes[i].checked;
+  }
+  xpost_button.checked = ! allunchecked;
+  xpost_button.disabled = allunchecked;
+}
+
 LiveJournal.updateXpostFromJournal = function (user) {
   // only allow crossposts to the user's own journal
   var journal = document.updateForm.usejournal.value;
   var allowXpost = (journal == '' || user == journal);
 
   var xpost_button = document.getElementById("prop_xpost_check");
-  xpost_button.disabled = ! allowXpost;
+  // preserve existing disabled state if xpost allowed
+  xpost_button.disabled = (! allowXpost) || xpost_button.disabled;
   var xpost_checkboxes = DOM.getElementsByTagAndClassName(document, "input", "xpost_acct_checkbox") || [];
   for (var i=0; i < xpost_checkboxes.length; i++) {
-    xpost_checkboxes[i].disabled = ! allowXpost;
+    // preserve existing disabled state if xpost allowed
+    xpost_checkboxes[i].disabled = (! allowXpost) || xpost_checkboxes[i].disabled;
   }
 
   var xpostdiv = document.getElementById('xpostdiv');
