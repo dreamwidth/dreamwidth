@@ -2845,6 +2845,8 @@ setting.viewingadultcontent.option.select.explicit=content that is restricted to
 
 setting.viewingadultcontent.option.select.none=nothing (display all content)
 
+setting.viewingadultcontent.reason=(To change this option, you must <a [[aopts]]>set your birthdate</a> first.)
+
 setting.xpost.btn.add=Add New Account
 
 setting.xpost.label=Crossposting

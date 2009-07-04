@@ -31,12 +31,12 @@ sub option {
         {
             value => "none",
             text => $class->ml('setting.viewingadultcontent.option.select.none'),
-            disabled => $u->is_minor || !$u->best_guess_age ? 1 : 0,
+            disabled => $u->is_minor || ! $u->best_guess_age ? 1 : 0,
         },
         {
             value => "explicit",
             text => $class->ml('setting.viewingadultcontent.option.select.explicit'),
-            disabled => !$u->best_guess_age ? 1 : 0,
+            disabled => ! $u->best_guess_age ? 1 : 0,
         },
         {
             value => "concepts",
@@ -51,6 +51,11 @@ sub option {
         id => "${key}viewingadultcontent",
         selected => $viewingadultcontent,
     }, @options);
+
+    if ( ! $u->best_guess_age ) {
+        $ret .= "<br /><span style='font-size: smaller;'> " . LJ::Lang::ml( 'setting.viewingadultcontent.reason', { aopts => "href='$LJ::SITEROOT/manage/profile'" } ) . "</span>";
+
+    }
 
     my $errdiv = $class->errdiv($errs, "viewingadultcontent");
     $ret .= "<br />$errdiv" if $errdiv;
