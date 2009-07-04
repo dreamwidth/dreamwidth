@@ -1385,7 +1385,7 @@ sub process_submission {
     if ($poll->is_unique) {
         # make sure their email address is validated
         unless ($remote->is_validated) {
-            $$error = LJ::Lang::ml('poll.error.notvalidated', { aopts => "href='$LJ::HELPURL{validate_email}'" });
+            $$error = LJ::Lang::ml('poll.error.notvalidated2', { aopts => "href='$LJ::SITEROOT/register.bml'" });
             return 0;
         }
 
