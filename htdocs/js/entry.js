@@ -132,30 +132,32 @@ function altlogin (e) {
     var mood_preview = $('mood_preview');
     mood_preview.style.display = 'none';
 
-    f = document.updateForm;
-    if (! f) return false;
-    f.action = 'update.bml?altlogin=1';
-    
-    var custom_boxes = $('custom_boxes');
-    if (! custom_boxes) return false;
-    custom_boxes.style.display = 'none';
-    if (f.security) {
-        f.security.options[3] = null;
-    }
-    
-    f.security.selectedIndex = 0;
-
-    if (e) {
-        e.cancelBubble = true;
-        if (e.stopPropagation) e.stopPropagation();
-    }
-
     changeSubmit('Post to Journal');
+
+    $('xpostdiv').style.display = 'none';
 
     if ($('usejournal_username')) {
         changeSecurityOptions($('usejournal_username').value);
     } else {
         changeSecurityOptions('');
+    }
+
+    f = document.updateForm;
+    if (! f) return false;
+    f.action = 'update.bml?altlogin=1';
+    
+    if (f.security) {
+        f.security.options[3] = null;
+        f.security.selectedIndex = 0;
+    }
+
+    var custom_boxes = $('custom_boxes');
+    if (! custom_boxes) return false;
+    custom_boxes.style.display = 'none';
+
+    if (e) {
+        e.cancelBubble = true;
+        if (e.stopPropagation) e.stopPropagation();
     }
 
     return false;    
