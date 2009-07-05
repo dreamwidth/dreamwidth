@@ -246,6 +246,8 @@
 
 .label.last_fm_user2=Last.fm user:
 
+.label.linking=Linking
+
 .label.location=Location:
 
 .label.maintainers=Maintainers ([[num]]):
@@ -309,6 +311,12 @@
 .label.website=Website:
 
 .label.yahooid=Yahoo! ID:
+
+.linking.about=To link to this user, copy this code:
+
+.linking.local=On [[sitename]]:
+
+.linking.anywhere=Elsewhere:
 
 .members.header=Members
 

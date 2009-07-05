@@ -922,6 +922,40 @@ body<=
     }
 
 ################################################################################
+##### LINKING MODULE
+
+    if ( $u->is_individual || $u->is_community ) {
+
+        my $local_link .= "<user name=\"" . $u->username . "\">";
+        my $remote_link .= $u->ljuser_display;
+
+
+        my $link_body = "<div style='font-style:italic;'>" . BML::ml( '.linking.about' ) . "</div>";
+        $link_body .= BML::ml( '.linking.local', { sitename => $LJ::SITENAMESHORT }) . LJ::html_text({
+                             name      => 'local',
+                             id        => 'local',
+                             size      => 50,
+                             maxlength => 100,
+                             value     => $local_link,
+                             }) . "<br />";
+        $link_body .= "$ML{'.linking.anywhere'} " . LJ::html_text({
+                             name      => 'local',
+                             id        => 'local',
+                             size      => 50,
+                             maxlength => 550,
+                             value     => $remote_link,
+                             }) . "<br />";
+
+        $ret .=  $content_block->(
+            section_name   => 'linking',
+            section_name_ml => '.label.linking',
+            body           => $link_body,
+            hidable        => 1,
+         );
+    }
+
+
+################################################################################
 ##### END
 
     $ret .= q{ <div class='ljclear'></div> };
