@@ -293,8 +293,17 @@ sub check_viewable
     };
 
     unless (LJ::can_view($remote, $item)) {
+        my $journal = LJ::load_userid( $item->{ownerid} );
+        my $journalname = $journal->username;
+
         if (defined $remote) {
-            return $err->(BML::ml('talk.error.notauthorised'));
+            if ( $journal->is_community && ! $journal->is_closed_membership && $remote ) {
+                return $err->( BML::ml( 'talk.error.notauthorised.comm.open', { aopts => "href='$LJ::SITEROOT/community/join.bml?comm=$journalname'" } ) );
+            } elsif ( $journal->is_community && $journal->is_closed_membership ) {
+                return $err->( BML::ml( 'talk.error.notauthorised.comm.closed' ) );
+            } else {
+                return $err->( BML::ml( 'talk.error.notauthorised' ) );
+            }
         } else {
             my $r = BML::get_request();
             my $host = $r->headers_in->{Host};

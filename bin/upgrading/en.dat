@@ -3459,6 +3459,10 @@ talk.error.nosuchjournal=No such journal
 
 talk.error.notauthorised=You are not authorized to view this protected entry.
 
+talk.error.notauthorised.comm.open=This protected entry is viewable by community members only. Would you like to <a [[aopts]]>join the community</a>?
+
+talk.error.notauthorised.comm.closed=This protected entry is viewable by community members only. Membership to this community is closed.
+
 talk.error.purged=This journal has been deleted and purged.
 
 talk.error.readonly_journal=This journal is read-only. You cannot comment in it.
