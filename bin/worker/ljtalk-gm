@@ -57,7 +57,7 @@ sub ljtalk_connection_closing {
     if ($@) {
         warn "EVAL failure deleting resource $user/$resource: $@" if ($@);
     } else {
-        warn "Delete of resource $user/$resource = $rv\n";
+        warn "Delete of resource $user/$resource = $rv\n" if $LJ::IS_DEV_SERVER;
     }
 
     return "OK";
@@ -115,7 +115,7 @@ sub ljtalk_initial_presence {
     my $count = LJ::Jabber::Presence->delete($u, $resource);
     if ($count) {
         # Should we disconnect the users from the other clusters when this happens?
-        warn "Deleted $count matching presence entries.";
+        warn "Deleted $count matching presence entries." if $LJ::IS_DEV_SERVER;
     }
 
     LJ::Jabber::Presence->create(resource => $resource,
