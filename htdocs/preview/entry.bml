@@ -76,6 +76,8 @@ body<=
         $stylesys = 1; $styleid = 0;
     }
 
+    # TODO: clean up this codepath/logic
+    # "stylesys == 1" in here means that you're viewing a BML page, not customized comemnts
     if ($stylesys == 1) {
         # pre-load common strings for little speed and less typing later
         # (we're doing this *after* set_language_scope is called, because
