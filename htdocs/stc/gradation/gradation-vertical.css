@@ -1258,3 +1258,13 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 {
     background-color: #444444;
 }
+
+/* manage/settings */
+
+.display_label {
+    color: #fff;
+}
+
+.display_option {
+    color: #fff;
+}
