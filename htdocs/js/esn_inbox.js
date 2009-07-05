@@ -190,6 +190,12 @@ ESN_Inbox.deleteItems = function (evt, folder) {
     if (has_bookmark && msg && !confirm(msg)) return false;
 
     ESN_Inbox.updateItems('delete', evt, folder, '');
+
+    // uncheck the checkbox after deleting anything
+    for (var i=1; i<=2; i++) {
+        $(folder + "_CheckAll_" + i).checked = false;
+    }
+
     return false;
 };
 
