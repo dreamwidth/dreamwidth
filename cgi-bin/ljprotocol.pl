@@ -1260,6 +1260,10 @@ sub postevent
             return fail($err, 408) if $modcount >= LJ::get_cap($uowner, "mod_queue_per_poster");
 
             $req->{'_moderate'}->{'authcode'} = LJ::make_auth_code(15);
+
+            # create tag <lj-embed> from HTML-tag <embed>
+            LJ::EmbedModule->parse_module_embed($u, \$req->{event});
+
             my $fr = $dbcm->quote(Storable::freeze($req));
             return fail($err, 409) if length($fr) > 600_000;
 

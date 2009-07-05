@@ -355,6 +355,10 @@ body<=
                                              'cutpreview' => 1,
                                              'cuturl' => '#',
                                          });
+
+        # create iframe from <lj-embed> tag
+        LJ::EmbedModule->expand_entry($up, \$event);
+
         BML::ebml(\$event);
 
         $ret .= "<p>";
