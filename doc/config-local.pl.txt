@@ -115,6 +115,9 @@
         paidaccountinfo => "#",
     );
 
+    # additional domain from which to serve the iframes for embedded content
+    # for security reasons, we strongly recommend that this not be on your $DOMAIN
+    $EMBED_MODULE_DOMAIN = "embed.my-other-domain.net";
 }
 
 1;
