@@ -1710,63 +1710,63 @@ set custom_css = "";
 
 property string text_view_recent {
     des = "Text used to link to the 'Recent Entries' view";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "Recent Posts";
 }
 property string text_view_friends {
     des = "Text used to link to the 'Reading' view";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "My Reading Page";
 }
 property string text_view_friends_comm {
     des = "Text used to link to the 'Reading' view for a community";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "Members' Journals";
 }
 property string text_view_friendsfriends {
     des = "Title of the 'Network' view";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "Network";
 }
 property string text_view_friends_filter {
     des = "Title of a Friends page with an unnamed filter in effect";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "Subscriptions (Custom filter)";
 }
 property string text_view_friendsfriends_filter {
     des = "Title of a Network page with an unnamed filter in effect";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "Network (Custom filter)";
 }
 property string text_view_archive {
     des = "Text used to link to the 'Archive' view";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "Journal Archive";
 }
 property string text_view_userinfo {
     des = "Text used to link to the 'User Information' view";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "My Profile";
 }
 
 property string text_view_memories {
     des = "Text used to link to the 'Memories' view";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "My Memories";
 }
 
 property string text_view_tags {
     des = "Text used to link to the Tags page";
-    maxlength = 20;
+    maxlength = 40;
     "size" = 15;
     example = "My Tags";
 }
