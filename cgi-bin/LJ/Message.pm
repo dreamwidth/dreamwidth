@@ -91,10 +91,9 @@ sub save_to_db {
     my $r_rv = $rcpt_u->begin_work unless $same_cluster;
 
     # Write to DB
-    my $orig_write = $self->_save_sender_message;
-
+    my $rcpt_write = $self->_save_recipient_message;
     # Already inserted in _save_sender_message, when sending to yourself
-    my $rcpt_write = $orig_u->equals( $rcpt_u ) ? 1 : $self->_save_recipient_message;
+    my $orig_write = $orig_u->equals( $rcpt_u ) ? 1 : $self->_save_sender_message;
 
     if ($orig_write && $rcpt_write) {
         $orig_u->commit;
