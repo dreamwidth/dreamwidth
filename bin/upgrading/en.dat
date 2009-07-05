@@ -1260,6 +1260,8 @@ error.code.comm_not_found=Community not found
 
 error.code.comm_not_member=User is not a member of this community
 
+error.console.notpermitted=You are not permitted to run this command.
+
 error.dberror=A database error occurred:
 
 error.deleted.name=Deleted

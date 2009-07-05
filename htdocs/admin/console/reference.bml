@@ -32,4 +32,13 @@ _code?>
 
 <=body
 title=><?_code return $ML{'.title'};  _code?>
+head<=
+<style type='text/css'>
+<!--
+dd {margin-left: 2em; }
+dt {margin-top: 10px;}
+.disabled {color: #A0A0A0; margin-left: 3em;} 
+-->
+</style>
+<=head
 page?>

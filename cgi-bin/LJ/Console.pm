@@ -180,12 +180,12 @@ sub command_reference_html {
 
     foreach my $cmd (sort keys %cmd2class) {
         my $class = $cmd2class{$cmd};
-        next if $class->is_hidden;
-        next unless $class->can_execute;
+        my $style = $class->can_execute ? "enabled" : "disabled";
 
-        $ret .= "<a name='cmd.$cmd'><h2><code><b>$cmd</b></a> ";
+        $ret .= "<hr /><div class='$style'><a name='cmd.$cmd'><h2><code><b>$cmd</b></a> ";
         $ret .= LJ::ehtml($class->usage);
         $ret .= "</code></h2>\n";
+        $ret .= "<p><em><?_ml error.console.notpermitted _ml?></em></p>" unless $class->can_execute;
 
         $ret .= $class->desc;
 
@@ -197,6 +197,7 @@ sub command_reference_html {
             }
             $ret .= "</dl>";
         }
+        $ret .= "</div>";
     }
 
 
