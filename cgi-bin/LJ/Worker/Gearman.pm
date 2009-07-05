@@ -140,26 +140,29 @@ sub gearman_work {
     };
 
     while (1) {
-          $periodic_checks->();
-          warn "waiting for work...\n" if $opt_verbose;
+        $periodic_checks->();
+        warn "waiting for work...\n" if $opt_verbose;
 
-          # do the actual work
-          $worker->work(
-                        stop_if     => sub { $_[0] },
-                        on_complete => $complete_cb,
-                        on_fail     => $fail_cb,
-                        on_start    => $start_cb,
-                        );
+        # do the actual work
+        eval {
+            $worker->work(
+                stop_if     => sub { $_[0] },
+                on_complete => $complete_cb,
+                on_fail     => $fail_cb,
+                on_start    => $start_cb,
+            );
+        };
+        warn $@ if $@;
 
-          if ($idle_handler) {
-              eval { 
-                  LJ::start_request();
-                  $idle_handler->();
-                  LJ::end_request();
-              };
-              warn $@ if $@;
-          }
-      }
+        if ($idle_handler) {
+            eval { 
+                LJ::start_request();
+                $idle_handler->();
+                LJ::end_request();
+            };
+            warn $@ if $@;
+        }
+    }
 }
 
 # --------------
