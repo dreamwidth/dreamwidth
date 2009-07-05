@@ -126,6 +126,14 @@ userproplist.crosspost_footer_text:
   multihomed: 0
   prettyname: Custom footer for crossposted entries
 
+userproplist.delete_reason:
+  cldversion: 4
+  datatype: char
+  des: Reason why user is deleting journal
+  indexed: 0
+  multihomed: 0
+  prettyname: The reason why you're deleting your journal
+
 userproplist.delicious:
   cldversion: 4
   datatype: char

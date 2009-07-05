@@ -64,6 +64,8 @@ body<=
         if ($POST{'statusvis'} eq 'D') {
             
             $res = $u->set_deleted;
+
+            $u->set_prop( delete_reason => $POST{'reason'} ? $POST{'reason'} : "" );
             
             if($res) {
                 # sending ESN status was changed
@@ -76,6 +78,8 @@ body<=
         } elsif ($POST{'statusvis'} eq 'V') {
             
             $res = $u->set_visible;
+
+            $u->set_prop( delete_reason => "" );
             
             if($res) {
                 LJ::Event::SecurityAttributeChanged->new($u ,  { 
@@ -153,7 +157,17 @@ body<=
     $ret .= "<div style='margin-left: 30px'>$ML{'.journalstatus.select.head'}\n";
     $ret .= LJ::html_select({ 'name' => 'statusvis', 'selected' => $u->statusvis },
                               map { $_, $statusvis{$_} }
-                              reverse sort keys %statusvis) . "\n";
+                              reverse sort keys %statusvis) . "<br /><br />\n";
+
+    $ret .= "$ML{'.reason.head'} " . LJ::html_text({ 
+                            name => 'reason', 
+                            id => 'reason', 
+                            class => 'text', 
+                            value => $u->prop( 'delete_reason' ),
+                            size => 50,
+                            maxlength => 255,
+                         }) . "<br />";
+    $ret .= "<span style='font-size:smaller; font-style:italic;'>$ML{'.reason.about'}<br /><br />\n";
 
     $ret .= LJ::html_submit(undef, $ML{'.btn.status'},
                             { 'disabled' => $u->is_suspended }) . "\n";

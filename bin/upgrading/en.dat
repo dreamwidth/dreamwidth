@@ -1268,6 +1268,8 @@ error.deleted.name=Deleted
 
 error.deleted.text=This journal has been deleted.  If you are [[user]], you have a period of 30 days from the deletion time to undelete the journal.  After 30 days we will delete all content permanently from our servers.
 
+error.deleted.text.withreason=This journal has been deleted by [[user]], with a reason of: "[[reason]]".  If you are [[user]], you have a period of 30 days from the deletion time to undelete the journal.  After 30 days we will delete all content permanently from our servers.
+
 error.deleted.title=Deleted Account
 
 error.expiredchal=Login window expired.  Please try again.

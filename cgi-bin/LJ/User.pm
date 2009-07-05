@@ -8585,7 +8585,14 @@ sub make_journal
     unless ($geta->{'viewall'} && LJ::check_priv($remote, "canview", "suspended") ||
             $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) { # don't check style sheets
         if ( $u->is_deleted ) {
-            my $warning = BML::ml( 'error.deleted.text', { user => $u->display_name } );
+            my $warning;
+
+            if ( $u->prop( 'delete_reason' ) ) {
+                $warning = BML::ml( 'error.deleted.text.withreason', { user => $u->display_name, reason => $u->prop( 'delete_reason' ) } );
+            } else {
+                $warning = BML::ml( 'error.deleted.text', { user => $u->display_name } );
+            }
+
             return $error->( $warning, "404 Not Found", BML::ml( 'error.deleted.name' ) );
         }
         if ( $u->is_suspended ) {
