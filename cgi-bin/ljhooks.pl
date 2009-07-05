@@ -187,27 +187,6 @@ register_setter("disable_quickreply", sub {
     return 1;
 });
 
-register_setter("trusted_s1", sub {
-    my ($u, $key, $value, $err) = @_;
-
-    unless ($value =~ /^(\d+,?)+$/) {
-        $$err = "Illegal value. Must be a comma separated list of style ids";
-        return 0;
-    }
-
-    # guard against accidentally nuking an existing value.
-    my $propval = $u->prop("trusted_s1");
-    if ($value && $propval) {
-        $$err = "You already have this property set to '$propval'. To overwrite this value,\n" .
-            "first clear the property ('set trusted_s1 0'). Then, set the new value or store\n".
-            "multiple values (with 'set trusted_s1 $propval,$value').";
-        return 0;
-    }
-
-    $u->set_prop("trusted_s1", $value);
-    return 1;
-});
-
 register_setter("icbm", sub {
     my ($u, $key, $value, $err) = @_;
     my $loc = eval { LJ::Location->new(coords => $value); };
