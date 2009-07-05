@@ -14,7 +14,7 @@
 
     if ($u) {
         LJ::load_user_props($u, "stylesys");
-        $u->{'stylesys'} ||= 1;
+        $u->{'stylesys'} ||= 2;
     }
 
     $BMLCodeBlock::u = $u;

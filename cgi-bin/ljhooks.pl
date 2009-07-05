@@ -146,17 +146,6 @@ register_setter("newpost_minsecurity", sub {
     return 1;
 });
 
-register_setter("stylesys", sub {
-    my ($u, $key, $value, $err) = @_;
-    unless ($value =~ /^[sS]?(1|2)$/) {
-        $$err = "Illegal value.  Must be S1 or S2.";
-        return 0;
-    }
-    $value = $1 + 0;
-    $u->set_prop("stylesys", $value);
-    return 1;
-});
-
 register_setter("maximagesize", sub {
     my ($u, $key, $value, $err) = @_;
     unless ($value =~ m/^(\d+)[x,|](\d+)$/) {
