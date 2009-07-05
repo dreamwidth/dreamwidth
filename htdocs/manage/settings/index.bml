@@ -101,6 +101,7 @@ body<=
             form => 1,
             desc => $ML{'.cat.privacy.desc'},
             settings => [qw(
+                DW::Setting::EmailAlias
                 LJ::Setting::MinSecurity
                 LJ::Setting::SearchInclusion
                 LJ::Setting::NotifyWeblogs

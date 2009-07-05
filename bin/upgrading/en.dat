@@ -2633,6 +2633,10 @@ setting.display.username.option.list=See what else is available.
 
 setting.display.username.option.openidusername=(internal username: [[user]])
 
+setting.emailalias.label=Email Alias
+
+setting.emailalias.option=Receive email sent to [[user]]@[[domain]]
+
 setting.emailformat.error.invalid=Invalid email format.
 
 setting.emailformat.label=Email Format
