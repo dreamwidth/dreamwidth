@@ -1,3 +1,5 @@
+<?page
+body<=
 <?_code
 {
     use strict;
@@ -310,3 +312,5 @@
     return $ret;
 }
 _code?>
+<=body
+page?>
