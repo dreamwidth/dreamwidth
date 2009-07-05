@@ -313,7 +313,8 @@ sub entry_to_req {
     $req->{props}->{useragent} = "Dreamwidth Crossposter";
     
     # do any per-site preprocessing
-    $req = $extacct->externalsite->pre_crosspost_hook( $req );
+    $req = $extacct->externalsite->pre_crosspost_hook( $req )
+            if $extacct->externalsite;
 
     return $req;
 }
