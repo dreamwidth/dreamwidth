@@ -35,10 +35,6 @@ body<=
 
     my $editid = $POST{editid};
 
-    # Set the title to be for an error, it will be changed later
-    # upon sucess
-    $title = $ML{'Error'};
-
     # OpenID support
     # openid is a bit of hackery but we'll check to make sure they're
     # coming back from the identity server and then recreate their
