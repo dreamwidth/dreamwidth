@@ -393,7 +393,15 @@ sub get_foaf_from {
     return undef unless ( $r && $r->is_success );
 
     my $parser = new XML::Parser( Handlers => { Start => $foaf_handler, Char => $foaf_content, End => $foaf_closer } );
-    $parser->parse( $r->content );
+
+    # work around a bug in the schools system that can lead to malformed wide characters
+    # getting put into the feed, breaking XML::Parser.  we just strip out all of the school
+    # entries.  if we ever need that data, we'll have to figure out how to fix the problem
+    # in a more sane fashion...
+    my $content = $r->content;
+    $content =~ s!<ya:school.+</foaf:Person>!</foaf:Person>!s;
+
+    $parser->parse( $content );
 
     return ( \%items, \@interests, \@schools );
 }
