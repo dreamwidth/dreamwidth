@@ -261,6 +261,16 @@ function s2buildReference()
 	s2buildClasses();
 	s2buildFunctions();
 	s2buildProperties();
+	
+	if (window.name)
+	{
+		setTimeout(function() {
+			var pos = window.name.split(':'), textarea = s2getCodeArea();
+			textarea.scrollTop = +pos[0] || 0;
+			nxpositionCursor(textarea, pos[1] || 0)
+			window.name = '';
+		}, 1)
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -448,4 +458,11 @@ function s2initDrag()
 	}
 		
 	return true;
+}
+
+function s2submit()
+{
+	// save position textarea, where reload page
+	var textarea = s2getCodeArea();
+	window.name = textarea.scrollTop + ':' + nxgetPositionCursor(textarea);
 }
