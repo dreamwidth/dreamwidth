@@ -51,7 +51,6 @@ body<=
                expand          talk.expandlink
                replythis       talk.replytothis
                unscreentoreply talk.unscreentoreply
-               screened        talk.screened
                frozen          talk.frozen
                link            talk.commentpermlink
                deleted         .subjectdeleted
@@ -686,12 +685,8 @@ body<=
                         $ret .= "(<a href='$bp'>$T{'replythis'}</a>) ";
                     } else {
                        if ($post->{state} eq 'S') {
-                           if ( LJ::can_manage( $remote, $u ) ) {
-                               # show unscreen to reply link id comment screened
-                               $ret .= "(<a href='$LJ::SITEROOT/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$dtid'>$T{'unscreentoreply'}</a>) ";
-                           } else {
-                               $ret .= "($T{ 'screened' })";
-                           }
+                           # show unscreen to reply link id comment screened
+                           $ret .= "(<a href='$LJ::SITEROOT/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$dtid'>$T{'unscreentoreply'}</a>) ";
                        } else {
                            $ret .= "(" . LJ::make_qr_link($dtid, $post->{'subject'}, $T{'replythis'}, $replyurl) .  ") ";
                        }

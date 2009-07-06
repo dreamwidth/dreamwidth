@@ -146,14 +146,18 @@
 // -->
 </script>
 
-$includes
-
 <!--[if IE]>
 <style type="text/css">
     html {
         overflow: hidden;
     }
+</style>
+<![endif]-->
 
+$includes
+
+<!--[if IE]>
+<style type="text/css">
     div.reference {
         height: expression(xGetElementById('statusbar').offsetTop - (42 + 9 + 10) + "px");
     }
@@ -195,9 +199,9 @@ $includes
 
 </head>
 <body onMouseMove="s2processDrag(event)" onMouseUp="s2endDrag(event)">
-    <form method="post" name="s2" action="" onsubmit="return s2submit()">
-    $formauth
-    <input type="hidden" name="action" value="compile" />
+        <form method="post">
+        $formauth
+        <input type="hidden" name="action" value="compile" />
 
     <div class="header">
         <h1>$title</h1>
@@ -274,9 +278,14 @@ $includes
         <div class="gutter"> </div>
         <div id="status">Ready.</div>
     </div>
-    
-    </form>
 
+<script type="text/javascript">
+    if (navigator.userAgent.indexOf('Safari') > -1) {
+        xGetElementById('main').style.width = '100%';
+    }
+
+        s2init();
+</script>
 
 </body>
 </html>
