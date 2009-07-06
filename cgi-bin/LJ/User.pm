@@ -2443,7 +2443,7 @@ sub url {
     $url ||= $u->prop( 'url' );
     return undef unless $url;
 
-    $url = "http://$url" unless $url =~ m!^http://!;
+    $url = "http://$url" unless $url =~ m!^https?://!;
 
     return $url;
 }
