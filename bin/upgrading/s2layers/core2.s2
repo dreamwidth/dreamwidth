@@ -4427,30 +4427,34 @@ function MonthDay::print_subjectlist() {
 
 function DayPage::print_body() {
     """
-    <div id="archive-day entries">
+    <div id="archive-day">
         <div class="inner">
-            """;
-            $this->print_navigation();
-            """
-            <div class="day">
+            <div id="entries">
                 <div class="inner">
-            """;
-            print "<h3 class='day-date'>" + $.date->date_format( "long" ) + "</h3>";
-            if ($.has_entries) {
-                foreach var Entry e ($.entries) {
-                    $this->print_entry($e);
-                }
-            } else {
-                print safe "<div class=\"text_noentries text_noentries_day\">$*text_noentries_day</div>";
-            }
-
-            """
-                </div><!-- day>inner -->
-            </div><!-- day -->
-            """;
-
-            $this->print_navigation();
-            """
+                    """;
+                    $this->print_navigation();
+                    """
+                    <div class="day">
+                        <div class="inner">
+                    """;
+                    print "<h3 class='day-date'>" + $.date->date_format( "long" ) + "</h3>";
+                    if ($.has_entries) {
+                        foreach var Entry e ($.entries) {
+                            $this->print_entry($e);
+                        }
+                    } else {
+                        print safe "<div class=\"text_noentries text_noentries_day\">$*text_noentries_day</div>";
+                    }
+        
+                    """
+                        </div><!-- day>inner -->
+                    </div><!-- day -->
+                    """;
+        
+                    $this->print_navigation();
+                    """
+                </div> <!-- entries>inner -->
+            </div> <!-- entries -->
         </div> <!-- archive-day>inner -->
     </div><!-- archive-day -->
     """;
