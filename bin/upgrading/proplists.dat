@@ -742,6 +742,14 @@ userproplist.opt_no_quickreply:
   multihomed: 0
   prettyname: Disable QuickReply
 
+userproplist.opt_profileemail:
+  cldversion: 4
+  datatype: char
+  des: Email address to show on the profile
+  indexed: 0
+  multihomed: 0
+  prettyname: Displayed Email
+
 userproplist.opt_sharebday:
   cldversion: 4
   datatype: char
@@ -857,7 +865,7 @@ userproplist.opt_weblogscom:
 userproplist.opt_whatemailshow:
   cldversion: 4
   datatype: char
-  des: N: none, A: actual, L: livejournal, B: both
+  des: N: none, A: actual, L: local, B: both actual + local, D: display email, V: both display + local
   indexed: 1
   multihomed: 0
   prettyname: Which email address to display

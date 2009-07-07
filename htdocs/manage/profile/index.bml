@@ -311,22 +311,28 @@ body<=
         $ret .= "</td></tr>\n";
 
         # email
-        $ret .= "<tr><td class='field_name'>$ML{'.fn.email'}</td><td>\n";
-        if ($LJ::EMAIL_CHANGE_REQUIRES_PASSWORD) {
-            $ret .= "<b>" . $u->email_raw . "</b> &nbsp; <a href='$LJ::SITEROOT/changeemail.bml$getextra'>$ML{'.email.change'}</a>";
-        } else {
-            $ret .= LJ::html_text({ 'name' => 'email', 'value' => $u->email_raw, 'size' => '40', 'maxlength' => '50' });
-        }
+
+        $ret .= "<tr><td class='field_name'> $ML{'.fn.email.system'}</td><td>\n";
+        $ret .= "<b>" . $u->email_raw . "</b> &nbsp; <a href='$LJ::SITEROOT/changeemail.bml$getextra'>$ML{'.email.change.system'}</a></td></tr>";
+
+        $ret .= "<tr><td class='field_name'> $ML{'.fn.email.display'}</td><td>\n";
+
+        my $emailsettingurl = $getextra ? "<a href='$LJ::SITEROOT/manage/settings/$getextra&cat=privacy'>" : "<a href='$LJ::SITEROOT/manage/settings/?cat=privacy'>";
+
+        $ret .= "<b>" . $u->prop( 'opt_profileemail' ) . "</b> &nbsp; " . $emailsettingurl . "$ML{'.email.change.display'}</a></td></tr>";
 
         # opt_whatemailshow
-        $ret .= "<br />\n$ML{'.fn.emaildisplay'}: ";
+        $ret .= "<tr><td class='field_name'> $ML{'.fn.emaildisplay'}</td><td> ";
         my $cur = $u->opt_whatemailshow;
         my @vals = ( ($LJ::USER_EMAIL && LJ::get_cap($u, "useremail"))
-                     ? ("A" => BML::ml(".email.opt.prime"),
+                     ? ("A" => BML::ml(".email.opt.actual"),
+                        "D" => BML::ml(".email.opt.display"),
                         "L" => BML::ml(".email.opt.site", { sitenameshort => $LJ::SITENAMESHORT } ),
-                        "B" => BML::ml(".email.opt.both", { sitenameshort => $LJ::SITENAMESHORT } ),
-                        "N" => BML::ml(".email.opt.dont"))
-                     : ("A" => BML::ml(".email.opt.show"),
+                        "B" => BML::ml(".email.opt.both.actual", { sitenameshort => $LJ::SITENAMESHORT } ),
+                        "V" => BML::ml(".email.opt.both.display", { sitenameshort => $LJ::SITENAMESHORT } ),
+                        "N" => BML::ml(".email.opt.none"))
+                     : ("A" => BML::ml(".email.opt.actual"),
+                        "D" => BML::ml(".email.opt.display"),
                         "N" => BML::ml(".email.opt.no_show")));
         $ret .= LJ::html_select({ 'name' => 'opt_whatemailshow', 'selected' => $cur }, @vals) . "\n";
 
@@ -545,25 +551,6 @@ body<=
             push @errors, $ML{'.error.day.notinmonth'};
         }
 
-        # email
-        unless ($LJ::EMAIL_CHANGE_REQUIRES_PASSWORD) {
-            if (!$POST{'email'}) {
-                push @errors, $ML{'.error.email.none'};
-            }
-
-            if ($LJ::USER_EMAIL and $POST{'email'} =~ /\@\Q$LJ::USER_DOMAIN\E$/i) {
-                push @errors, BML::ml(".error.email.lj_domain2", { 'user' => $remote->{'user'}, 'domain' => $LJ::USER_DOMAIN, 'aopts' => "href='$LJ::SITEROOT/manage/profile/'" });
-            }
-
-            if ($POST{'email'} =~ /\s/) {
-                push @errors, $ML{'.error.email.no_space'};
-            }
-
-            unless (@errors) {
-                LJ::check_email($POST{'email'}, \@errors);
-            }
-        }
-
         if ($POST{'LJ__Setting__UserMessaging_opt_usermsg'} && !$POST{'LJ__Setting__UserMessaging_opt_usermsg'} =~ /^[MFNY]$/) {
             push @errors, BML::ml(".error.usermessaging");
         }
@@ -598,20 +585,6 @@ body<=
 
         my $dbh = LJ::get_db_writer();
 
-        my $email_changed = (($u->email_raw ne $POST{'email'}) && !$LJ::EMAIL_CHANGE_REQUIRES_PASSWORD);
-        if ($email_changed) {
-            # record old email address;
-            LJ::infohistory_add($u, 'email', $u->email_raw, $u->{status});
-
-            $u->log_event('email_change', { remote => $remote, new => $POST{'email'} });
-
-            LJ::run_hook('post_email_change',
-                         {
-                             user     => $u,
-                             newemail => $POST{'email'},
-                         });
-          }
-
         $POST{'url'} =~ s/\s+$//; $POST{'url'} =~ s/^\s+//;
         if ($POST{'url'} && $POST{'url'} !~ /^https?:\/\//) {
             $POST{'url'} =~ s/^http\W*//;
@@ -629,13 +602,10 @@ body<=
         my %update = (
                       'name' => $newname,
                       'bdate' => sprintf("%04d-%02d-%02d", $POST{'year'}, $POST{'month'}, $POST{'day'}),
-                      'status' => ($email_changed && $u->{'status'} eq "A") ? "T" : $u->{'status'},
                       'has_bio' => $has_bio,
                       'allow_getljnews' => $POST{'allow_getljnews'} ? "Y" : "N",
                       'txtmsg_status' => $txtmsg_status,
                       );
-
-        $update{'email'} = $POST{'email'} unless $LJ::EMAIL_CHANGE_REQUIRES_PASSWORD;
 
         if ($POST{'allow_contactshow'}) {
             $update{'allow_contactshow'} = $POST{'allow_contactshow'} if $POST{'allow_contactshow'} =~ m/^(N|R|Y|F)$/;
@@ -759,25 +729,6 @@ body<=
             }
 
             LJ::set_interests($u, \%interests, \@valid_ints);
-        }
-
-        # actions if email changed
-        if ($email_changed) {
-            my $aa = {};
-            $aa = LJ::register_authaction($u->{'userid'},
-                                          "validateemail", $POST{'email'});
-
-            LJ::send_mail({
-                'to' => $POST{'email'},
-                'from' => $LJ::ADMIN_EMAIL,
-                'charset' => 'utf-8',
-                'subject' => $ML{'/changeemail.bml.newemail.subject'},
-                'body' => BML::ml('/changeemail.bml.newemail.body2',
-                                  { username => $u->{user},
-                                    sitename => $LJ::SITENAME,
-                                    sitelink => $LJ::SITEROOT,
-                                    conflink => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
-            });
         }
 
         LJ::run_hooks('profile_save', $u);

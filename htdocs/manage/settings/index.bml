@@ -111,6 +111,7 @@ body<=
                 LJ::Setting::CommentCaptcha
                 LJ::Setting::CommentIP
                 LJ::Setting::Display::BanUsers
+                DW::Setting::ProfileEmail
             )],
         },
         history => {

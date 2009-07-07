@@ -23,19 +23,21 @@
 
 .email=Email
 
-.email.change=Change email
+.email.change.system=Change email used by system
 
-.email.opt.both=Both (primary email + [[sitenameshort]] email)
+.email.change.display=Change email shown on profile
 
-.email.opt.dont=Don't display my email address
+.email.opt.actual=Show actual email address
+
+.email.opt.both.actual=Show actual email + [[sitenameshort]] email
+
+.email.opt.both.display=Show display email + [[sitenameshort]] email
+
+.email.opt.display=Show display email address
+
+.email.opt.none=Don't show any email address
 
 .email.opt.site=[[sitenameshort]] email only
-
-.email.opt.no_show=Don't show email address
-
-.email.opt.prime=Primary email only
-
-.email.opt.show=Show email address
 
 .error.bio.toolong=Your user bio is too long.
 
@@ -93,7 +95,9 @@
 
 .fn.country=Country
 
-.fn.email=Primary email
+.fn.email.display=Profile email
+
+.fn.email.system=System email
 
 .fn.emaildisplay=Display
 

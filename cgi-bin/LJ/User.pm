@@ -2067,9 +2067,9 @@ sub opt_whatemailshow {
     # return prop value if it exists and is valid
     my $prop_val = $u->prop( 'opt_whatemailshow' );
     if ( $user_email ) {
-        return $prop_val if $prop_val =~ /^[ALBN]$/;
+        return $prop_val if $prop_val =~ /^[ALBNDV]$/;
     } else {
-        return $prop_val if $prop_val =~ /^[AN]$/;
+        return $prop_val if $prop_val =~ /^[AND]$/;
     }
 
     # otherwise, return the default: no email shown
@@ -2089,6 +2089,19 @@ sub profile_url {
         $url .= "?mode=full" if $opts{full};
     }
     return $url;
+}
+
+
+# get/set the displayed email on profile (if user has specified)
+sub profile_email {
+    my ( $u, $email ) = @_;
+
+    if ( defined $email ) {
+        $u->set_prop( opt_profileemail => $email );
+        return $email;
+    }
+
+    return $u->prop( 'opt_profileemail' );
 }
 
 
@@ -3449,6 +3462,12 @@ sub email_visible {
     return scalar $u->emails_visible($remote);
 }
 
+# returns an array of emails based on the user's display prefs
+# A: actual email address
+# D: display email address
+# L: local email address
+# B: both actual + local email address
+# V: both display + local email address
 
 sub emails_visible {
     my ($u, $remote) = @_;
@@ -3475,13 +3494,17 @@ sub emails_visible {
         $whatemail eq "L" && ($u->prop("no_mail_alias") || ! $useremail_cap || ! $LJ::USER_EMAIL) ||
         $hide_contactinfo->();
 
-    my @emails = ($u->email_raw);
-    if ($whatemail eq "L") {
-        @emails = ();
-    }
+    my @emails = ();
+
+    if ( $u->prop( 'opt_whatemailshow' ) eq "A" || $u->prop( 'opt_whatemailshow' ) eq "B" ) {
+        push @emails, $u->email_raw;
+    } elsif ( $u->prop( 'opt_whatemailshow' ) eq "D" || $u->prop( 'opt_whatemailshow' ) eq "V" ) {
+        push @emails, $u->prop( 'opt_profileemail' );
+    } 
+
     if ($LJ::USER_EMAIL && $useremail_cap) {
-        unless ($whatemail eq "A" || $u->prop('no_mail_alias')) {
-            push @emails, "$u->{'user'}\@$LJ::USER_DOMAIN";
+        if ($whatemail eq "B" || $whatemail eq "V" || $whatemail eq "L") {
+            push @emails, "$u->{'user'}\@$LJ::USER_DOMAIN" unless $u->prop('no_mail_alias');
         }
     }
     return wantarray ? @emails : $emails[0];

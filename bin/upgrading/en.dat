@@ -2785,6 +2785,8 @@ setting.notifyweblogs.option.self=Notify Weblogs.com subscribers when I post new
 
 setting.prod.display.title=New Setting!
 
+setting.profileemail.label=Email to display on your profile
+
 setting.safesearch.error.invalid=Invalid safe search setting.
 
 setting.safesearch.label=Safe Search Filter
