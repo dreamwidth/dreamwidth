@@ -835,8 +835,8 @@ sub trans
 
     # custom used-specified domains
     if ($LJ::OTHER_VHOSTS && !$skip_domain_checks &&
-        $host ne $LJ::DOMAIN_WEB &&
-        $host ne $LJ::DOMAIN && $host =~ /\./ &&
+        $host !~ /$LJ::DOMAIN$/ &&
+        $host =~ /\./ &&
         $host =~ /[^\d\.]/)
     {
         my $dbr = LJ::get_db_reader();

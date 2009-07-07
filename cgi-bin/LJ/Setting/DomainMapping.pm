@@ -27,6 +27,7 @@ sub save {
     }
 
     $class->errors(domainname => "Bogus domain name") if $domainname =~ /\s+/;
+    $class->errors(domainname => "Can't point to a domain on this site") if $domainname =~ /$LJ::DOMAIN\b/;
 
     # Blank domain = delete mapping
     if ($domainname eq "") {

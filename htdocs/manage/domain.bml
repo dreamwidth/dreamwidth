@@ -59,6 +59,8 @@ body<=
             # Strip off trailing '.', and any path or port the user might have entered.
             $dom =~ s!\.([:/].+)?$!!;
 
+            return LJ::bad_input( $ML{'.error.samedomainalias'} ) if $dom =~ /$LJ::DOMAIN\b/;
+
             if ( ( $dom_cap && !$dom ) || ( !$dom_cap && $POST{journaldomain_del} ) ) {
                 $dbh->do( "DELETE FROM domains WHERE userid=?", undef, $u->{userid} );
             } else {
