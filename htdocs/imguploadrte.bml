@@ -143,6 +143,7 @@
                 <span fckLang="DlgLnkURL">URL</span><br />
                 <input id="txtLnkUrl" style="WIDTH: 100%" type="text" onblur="UpdatePreview();" />
                 </div>
+                <div>This link will wrap around the image you have inserted.</div>
                 <div id="divLnkBrowseServer" align="right">
                 <input type="button" value="Browse Server" fckLang="DlgBtnBrowseServer" onclick="LnkBrowseServer();" />
                 </div>
