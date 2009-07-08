@@ -288,10 +288,6 @@ function print_stylesheet()
         letter-spacing:.3em;
         padding: 0.5em 0;
     }
-    /* Hide from IE5-Mac \*/
-    * html .module {height: 1%;}
-    /* end hide *//*** This hack will make IE5-win display the background color for the nav ***/
-    /*test*/
     .userpic{
         float:right;}
     .entry, .entry-wrapper, .comment, .comment-wrapper {
@@ -386,9 +382,6 @@ function print_stylesheet()
         text-align: center;
         font-size: 0.8em;
         padding:5px;
-        margin: -20px 200px 0px 110px; /* ie5win fudge begins */
-        voice-family: "\\"}\\"";
-        voice-family:inherit;
         margin: 0px 190px 0px 100px;
     }
     html>body #module-calendar {
@@ -403,13 +396,6 @@ function print_stylesheet()
     .module-calendar a:hover{
         color: $*color_module_link_hover;
     }
-
-    /*Holly Hack*/
-    /* Hides from IE-mac \*/
-
-    * html .entry {height: 1%;}
-    * html #primary {height: 1%;}
-    /* End hide from IE-mac */
 
     .floatclear {
         visibility: hidden;
