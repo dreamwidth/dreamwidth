@@ -39,7 +39,7 @@ body<=
     }
 
     # make sure it is a comm
-    unless ($c->is_comm || $c->is_shared || $c->is_news) {
+    unless ($c->is_comm || $c->is_shared ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
         $ret .= BML::ml( '.error.notcomm', { user => LJ::ljuser($c) } );
         $ret .= " p?>";

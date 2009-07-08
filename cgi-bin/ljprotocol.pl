@@ -1018,13 +1018,12 @@ sub postevent
     return fail($err,306) unless $dbh && $dbcm && $uowner->writer;
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
-    ### make sure community, shared, or news journals don't post
-    ### note: shared and news journals are deprecated.  every shared journal
+    ### make sure community or shared journals don't post
+    ### note: shared journals are deprecated.  every shared journal
     ##        should one day be a community journal, of some form.
     return fail($err,150) if ($u->{'journaltype'} eq "C" ||
                               $u->{'journaltype'} eq "S" ||
-                              $u->{'journaltype'} eq "I" ||
-                              $u->{'journaltype'} eq "N");
+                              $u->{'journaltype'} eq "I");
 
     # suspended users can't post
     return fail($err,305) if ($u->{'statusvis'} eq "S");
@@ -2364,7 +2363,6 @@ sub list_friends
         $r->{"type"} = {
             'C' => 'community',
             'Y' => 'syndicated',
-            'N' => 'news',
             'S' => 'shared',
             'I' => 'identity',
         }->{$u->{'journaltype'}} if $u->{'journaltype'} ne 'P';

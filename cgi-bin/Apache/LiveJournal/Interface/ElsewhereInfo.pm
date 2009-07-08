@@ -50,7 +50,7 @@ sub handle {
     # find what node type we're dealing with
     my $node_type;
     my $node_ident = $u->user;
-    if ($u->is_community || $u->is_shared || $u->is_news) {
+    if ($u->is_community || $u->is_shared ) {
         $node_type = 'group';
     } elsif ($u->is_person) {
         $node_type = 'person';

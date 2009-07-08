@@ -2555,7 +2555,7 @@ sub control_strip
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         $links{'edit_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
         $links{'track_user'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";
-        if ($journal->is_syndicated || $journal->is_news) {
+        if ($journal->is_syndicated ) {
             $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
             $links{'remove_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$journal->{user}&action=remove'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
         }
@@ -2582,7 +2582,6 @@ sub control_strip
                     'personalfriendsfriendspage' => BML::ml('web.controlstrip.status.personalnetworkpage', {'user' => $journal_display}),
                     'community'         => BML::ml('web.controlstrip.status.community', {'user' => $journal_display}),
                     'syn'               => BML::ml('web.controlstrip.status.syn', {'user' => $journal_display}),
-                    'news'              => BML::ml('web.controlstrip.status.news', {'user' => $journal_display, 'sitename' => $LJ::SITENAMESHORT}),
                     'other'             => BML::ml('web.controlstrip.status.other', {'user' => $journal_display}),
                     'mutualtrust_mutualwatch' => BML::ml('web.controlstrip.status.mutualtrust_mutualwatch', {'user' => $journal_display}),
                     'mutualtrust_watch' => BML::ml('web.controlstrip.status.mutualtrust_watch', {'user' => $journal_display}),
@@ -2815,15 +2814,6 @@ sub control_strip
                 $ret .= "$links{remove_friend}&nbsp;&nbsp; ";
             }
             $ret .= $links{syndicated_list};
-        } elsif ($journal->is_news) {
-            $ret .= "$statustext{news}<br />";
-            if ( $remote && !$remote->watches( $journal ) ) {
-                $ret .= $links{add_friend};
-                $ret .= "&nbsp;&nbsp; $links{track_user}";
-            } else {
-                $ret .= $links{track_user};
-                $ret .= "&nbsp;";
-            }
         } else {
             $ret .= "$statustext{other}<br />";
             $ret .= "&nbsp;";
@@ -2885,8 +2875,6 @@ LOGIN_BAR
             $ret .= $statustext{'community'};
         } elsif ($journal->is_syndicated) {
             $ret .= $statustext{'syn'};
-        } elsif ($journal->is_news) {
-            $ret .= $statustext{'news'};
         } else {
             $ret .= $statustext{'other'};
         }

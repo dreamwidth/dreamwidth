@@ -552,8 +552,6 @@ crumb.moodeditor=Custom Mood Theme Editor
 
 crumb.moodlist=Mood Viewer
 
-crumb.news=News
-
 crumb.phonepostsettings=Phone Post
 
 crumb.popfaq=Popular FAQs
@@ -3774,8 +3772,6 @@ web.controlstrip.status.mutualtrust_mutualwatch=[[user]] and you have mutual acc
 web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to them
 
 web.controlstrip.status.mutualtrust_watchedby=[[user]] and you have mutual access and they subscribe to you
-
-web.controlstrip.status.news=You are viewing the site news account [[user]]
 
 web.controlstrip.status.other=You are viewing [[user]]
 

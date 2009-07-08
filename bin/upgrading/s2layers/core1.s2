@@ -1960,8 +1960,6 @@ function userinfoicon(UserLite user) : Image {
         $uimage->set_url("$*IMGDIR/silk/identity/community.png");
     } elseif ($user.journal_type == "Y") {
         $uimage->set_url("$*IMGDIR/silk/identity/feed.png");
-    } elseif ($user.journal_type == "N") {
-        $uimage->set_url("$*IMGDIR/silk/identity/news.png");
     } elseif ($user.journal_type == "I") {
         $uimage->set_url("$*IMGDIR/silk/identity/openid.png");
     } else {

@@ -634,12 +634,6 @@ sub is_individual {
 }
 
 
-sub is_news {
-    my $u = shift;
-    return $u->{journaltype} eq "N";
-}
-
-
 sub is_official {
     my $u = shift;
     return $LJ::OFFICIAL_JOURNALS{$u->username} ? 1 : 0;
@@ -688,7 +682,6 @@ sub journaltype_readable {
         P => 'personal',
         S => 'shared',
         Y => 'syndicated',
-        N => 'news',
         C => 'community',
     }->{$u->{journaltype}};
 }
@@ -1987,7 +1980,7 @@ sub large_journal_icon {
         return $wrap_img->("openid.png");
     }
 
-    # personal, news, or unknown fallthrough
+    # personal or unknown fallthrough
     return $wrap_img->("user.png");
 }
 
@@ -6604,7 +6597,7 @@ sub get_timezone {
 #           a link to the mode=full userinfo.   Key 'type' when 'C' makes
 #           a community link, when 'Y' makes a syndicated account link,
 #           when 'I' makes an identity account link (e.g. OpenID),
-#           when 'N' makes a news account link, otherwise makes a user account
+#           otherwise makes a user account
 #           link. If user parameter is a hashref, its 'journaltype' overrides
 #           this 'type'.  Key 'del', when true, makes a tag for a deleted user.
 #           If user parameter is a hashref, its 'statusvis' overrides 'del'.
@@ -6681,9 +6674,6 @@ sub ljuser
     } elsif ( $type eq 'Y' ) {
         return $make_tag->( "syn_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
         return $make_tag->( 'silk/identity/feed.png', $url, 16, , $type_readable );
-    } elsif ( $type eq 'N' ) {
-        return $make_tag->( "news_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
-        return $make_tag->( 'silk/identity/news.png', $url, 16, '', $type_readable );
     } elsif ( $type eq 'I' ) {
         return $u->ljuser_display($opts);
     } else {

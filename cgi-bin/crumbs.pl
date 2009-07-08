@@ -60,7 +60,6 @@ use Errno qw(ENOENT);
     'moderate' => ['Community Moderation', '/community/moderate.bml', 'community'],
     'moodeditor' => ['Custom Mood Theme Editor', '/manage/moodthemes.bml', 'manage'],
     'moodlist' => ['Mood Viewer', '/moodlist.bml', 'manage'],
-    'news' => ['News', '/news.bml', 'home'],
     'popfaq' => ['Popular FAQs', '/support/popfaq.bml', 'faq'],
     'postentry' => ['Post an Entry', '/update.bml', 'home'],
     'register' => ['Validate Email', '/register.bml', 'home'],

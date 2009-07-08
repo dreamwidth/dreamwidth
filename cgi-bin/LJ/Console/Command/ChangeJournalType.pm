@@ -10,8 +10,8 @@ sub desc { "Change a journal's type." }
 
 sub args_desc { [
                  'journal' => "The username of the journal that type is changing.",
-                 'type' => "Either 'person', 'community', or 'news'.",
-                 'owner' => "The person to become the maintainer of the community/news journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
+                 'type' => "Either 'person' or 'community'.",
+                 'owner' => "The person to become the maintainer of the community journal. If changing to type 'person', the account will adopt the email address and password of the owner.",
                  'force' => "Specify this to create a community from a non-empty journal. The maintainer of the community will be the owner of the journal's entries."
                  ] }
 
@@ -29,8 +29,8 @@ sub execute {
     return $self->error("This command takes from three to four arguments. Consult the reference.")
         unless $user && $type && $owner && (@args==0 || @args==1 && $args[0] eq 'force' && $type eq 'community');
 
-    return $self->error("Type argument must be 'person', 'community', or 'news'.")
-        unless $type =~ /^(?:person|community|news)$/;
+    return $self->error("Type argument must be 'person' or 'community'.")
+        unless $type =~ /^(?:person|community)$/;
 
     my $u = LJ::load_user($user);
     return $self->error("Invalid user: $user")
@@ -39,13 +39,13 @@ sub execute {
     return $self->error("Account cannot be converted while not active.")
         unless $u->is_visible;
 
-    return $self->error("Account is not a personal, community, or news journal.")
-        unless $u->journaltype =~ /[PCN]/;
+    return $self->error("Account is not a personal or community journal.")
+        unless $u->journaltype =~ /[PC]/;
 
     return $self->error("You cannot convert your own account.")
         if LJ::u_equals($remote, $u);
 
-    my $typemap = { 'community' => 'C', 'person' => 'P', 'news' => 'N' };
+    my $typemap = { 'community' => 'C', 'person' => 'P' };
     return $self->error("This account is already a $type account")
         if $u->journaltype eq $typemap->{$type};
 
@@ -71,7 +71,7 @@ sub execute {
         return $self->error("Account contains $count entries posted by other users and cannot be converted.")
             if $count;
 
-    # going to a community, shared, news. do they have any entries posted by themselves?
+    # going to a community. do they have any entries posted by themselves?
     # if so, make the new owner of the community to be the owner of these entries
     } else {
         my $dbcr = LJ::get_cluster_def_reader($u);
