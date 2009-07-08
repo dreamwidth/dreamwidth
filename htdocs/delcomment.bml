@@ -166,7 +166,7 @@ _info?><?_code
 
     if ($can_manage) {
         my $msg = BML::ml('.changeoptions', { 'link' =>
-            "<a href='/manage/comments/?authas=$u->{'user'}'>$ML{'/manage/comments/index.bml.title'}</a>" });
+            "<a href='/manage/settings/?cat=privacy&authas=$u->{'user'}'>$ML{'/manage/settings/index.bml.title.self'}</a>" });
         $body .= "<?p $msg p?>";
     }
 
