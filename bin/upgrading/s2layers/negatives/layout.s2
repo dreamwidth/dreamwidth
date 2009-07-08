@@ -378,15 +378,16 @@ function print_stylesheet()
         font-weight:bold;
         font-size:1.1em;
     }
-    .module-calendar{
+    .module-section-two .module-calendar,
+    .module-section-three .module-calendar {
         text-align: center;
         font-size: 0.8em;
         padding:5px;
         margin: 0px 190px 0px 100px;
     }
-    html>body #module-calendar {
-        margin: 0px 190px 0px 100px; /* ie5win fudge ends */
-    }
+    .module-calendar table {
+        letter-spacing: 0.2em;
+        text-align: center;
     .module-calendar {
         color: $*color_module_text;
     }
