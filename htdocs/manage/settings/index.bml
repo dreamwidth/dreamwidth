@@ -103,6 +103,7 @@ body<=
             settings => [qw(
                 DW::Setting::EmailAlias
                 LJ::Setting::MinSecurity
+                DW::Setting::SynLevel
                 LJ::Setting::SearchInclusion
                 LJ::Setting::NotifyWeblogs
                 LJ::Setting::FacebookBeacon

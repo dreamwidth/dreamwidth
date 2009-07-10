@@ -2839,6 +2839,22 @@ setting.stylemine.label=Comment Pages
 
 setting.stylemine.option=View comment pages from my Friends page in my own style
 
+setting.synlevel.error.invalid=Invalid syndication level.
+
+setting.synlevel.label=Syndication Level
+
+setting.synlevel.option=Display the following level of content in my journal's feed: 
+
+setting.synlevel.option.note=(Feed links: <a [[aopts_atom]]>Atom</a> <a [[aopts_rss]]>RSS</a>)
+
+setting.synlevel.option.select.cut=Cut Tag
+
+setting.synlevel.option.select.full=Full Text
+
+setting.synlevel.option.select.summary=Brief Summary
+
+setting.synlevel.option.select.title=Title Only
+
 setting.timezone.error.invalid=Invalid time zone.
 
 setting.timezone.label=Time Zone
