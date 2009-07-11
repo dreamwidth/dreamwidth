@@ -357,7 +357,7 @@ body<=
                                          });
 
         # create iframe from <lj-embed> tag
-        LJ::EmbedModule->expand_entry($up, \$event);
+        LJ::EmbedModule->expand_entry($c, \$event);
 
         BML::ebml(\$event);
 

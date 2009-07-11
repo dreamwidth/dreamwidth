@@ -1261,7 +1261,7 @@ sub postevent
             $req->{'_moderate'}->{'authcode'} = LJ::make_auth_code(15);
 
             # create tag <lj-embed> from HTML-tag <embed>
-            LJ::EmbedModule->parse_module_embed($u, \$req->{event});
+            LJ::EmbedModule->parse_module_embed($uowner, \$req->{event});
 
             my $fr = $dbcm->quote(Storable::freeze($req));
             return fail($err, 409) if length($fr) > 600_000;
