@@ -2573,6 +2573,14 @@ setting.display.accountstatus.option.readonly=Read-Only
 
 setting.display.accountstatus.option.suspended=Suspended
 
+setting.display.accounttype.label=Account Type
+
+setting.display.accounttype.addmore=Extend Account
+
+setting.display.accounttype.upgrade=Upgrade
+
+setting.display.accounttype.status=[[status]], expiring [[exptime]]
+
 setting.display.banusers.label=Ban and Unban Users
 
 setting.display.banusers.option.comm=Ban and unban users from commenting in my community

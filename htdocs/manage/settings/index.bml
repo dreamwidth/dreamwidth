@@ -40,7 +40,7 @@ body<=
             form => 0,
             desc => $ML{'.cat.account.desc'},
             settings => [qw(
-                LJ::Setting::Display::AccountLevel
+                DW::Setting::Display::AccountLevel
                 LJ::Setting::Display::AccountStatus
                 LJ::Setting::Display::Email
                 LJ::Setting::Display::Password
