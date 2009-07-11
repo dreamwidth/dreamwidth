@@ -168,6 +168,7 @@ body<=
         $msg_subject = "Re: " . $msg_subject
             unless $msg_subject =~ /Re: /;
         $msg_body = $msg->body;
+        $msg_body =~ s/(.{70}[^\s]*)\s+/$1\n/g;
         $msg_body =~ s/(^.*)/\> $1/gm;
         $msg_body = "\n\n--- $reply_to wrote:\n" . $msg_body;
         $msg_parent .= LJ::html_hidden({
