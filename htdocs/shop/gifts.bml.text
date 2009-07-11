@@ -1,0 +1,17 @@
+;; -*- coding: utf-8 -*-
+
+.about=Are you looking for a gift for a birthday or a holiday? Is one of the people in your Circle such a compelling writer that you want to find a way to say a quick "thank you for being so awesome"? Give the gift of a paid [[sitename]] account!
+
+.buy=Buy gift
+
+.free.about=These are the people in your Circle who have free accounts and might appreciate the chance to try out some of our <a [[aopts]]>paid features</a>: 
+
+.free.header=Free Accounts
+
+.none.text=None of the people in your Circle have free accounts or have paid accounts that are expiring within the next month! You can still buy someone a gift in the <a [[aopts]]>[[sitename]] Shop</a>.
+
+.paid.about=These are the people in your Circle who have paid accounts that are expiring within the next month:
+
+.paid.header=Expiring Soon
+
+.title=Give the Gift of [[sitename]]

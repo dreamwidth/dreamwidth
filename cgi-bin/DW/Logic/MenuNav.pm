@@ -223,11 +223,16 @@ sub get_menu_navigation {
                     text => "menunav.shop.paidtime",
                     display => LJ::is_enabled( 'payments' ) ? 1 : 0,
                 },
-		{
-		    url => "$LJ::SITEROOT/shop/history.bml",
-		    text => "menunav.shop.history",
-		    display => LJ::is_enabled( 'payments' ) && $loggedin ? 1 : 0,
-		},
+		        {
+                    url => "$LJ::SITEROOT/shop/history.bml",
+                    text => "menunav.shop.history",
+                    display => LJ::is_enabled( 'payments' ) && $loggedin ? 1 : 0,
+		        },
+		        {
+                    url => "$LJ::SITEROOT/shop/gifts.bml",
+                    text => "menunav.shop.gifts",
+                    display => LJ::is_enabled( 'payments' ) && $loggedin ? 1 : 0,
+                },
             ],
         },
     );
