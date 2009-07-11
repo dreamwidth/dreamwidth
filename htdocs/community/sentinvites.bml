@@ -59,6 +59,23 @@ body<=
 
     $ret .= LJ::maintainer_linkbar($c, "invites");
 
+    # Process revoked invitations
+    if ($POST{'action:revoke'}) {
+        # validate form auth
+        return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
+            unless LJ::check_form_auth();
+
+        my @userids;
+        foreach (grep { /^revoke_invite/ } keys %POST) {
+            push @userids, $POST{$_};
+        }
+        if (LJ::revoke_invites($c, @userids)) {
+            $ret .= "<div class='warningbar'> " .
+                    BML::ml('.invites.cancelled', { num => scalar @userids }) .
+                    "</div>";
+        }
+    }
+
     # columns of our table, excluding username
     my @attribs = ('post');
     my @titleattribs = ('P');
@@ -189,6 +206,10 @@ END
     $ret .= "<th><a href='${sortlink}status'>$ML{'.key.status'}</a></th>";
     $ret .= "</tr>\n";
 
+    $ret .= "<form method='post'>";
+    $ret .= LJ::form_auth();
+    my $can_revoke = 0;
+
     # checkboxes and such
     my $yes = '<img src="/img/check.gif" width="15" height="15" border="0">';
     my $no = '-';
@@ -205,11 +226,30 @@ END
         }
         $ret .= "<td>" . LJ::ljuser($_->{maintainer}, { type => 'P' }) . "</td>";
         $ret .= "<td>$_->{date}</td>";
-        $ret .= "<td>$_->{status}</td>";
+
+        # display checkbox for outstanding invites so they can be revoked
+        # also set flag indicating there are invitations that can be revoked
+        if ($_->{status} eq 'outstanding') {
+            $can_revoke = 1;
+            $ret .= "<td>$_->{status} " .
+                    LJ::html_check({ 'type' => 'checkbox',
+                                     'name' => 'revoke_invite_' . $_->{userid},
+                                     'value' => $_->{userid} }) .
+                    " </td>";
+        } else {
+            $ret .= "<td>$_->{status}</td>";
+        }
+
+
         $ret .= "</tr>\n";
     }
 
     $ret .= "</table>\n";
+    $ret .= "<p>" . LJ::html_submit( 'action:revoke', $ML{'.cancel'}) .  "</p>"
+        if $can_revoke;
+    $ret .= "</form>";
+
+
     $ret .= "<br /><a href='/community/members.bml?authas=$c->{user}'>$ML{'.send'}</a>";
     $ret .= "</div>\n\n";
     $ret .= $navbar;

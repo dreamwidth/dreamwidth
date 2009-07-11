@@ -1,4 +1,7 @@
 ;; -*- coding: utf-8 -*-
+
+.cancel=Cancel Invitations
+
 .date=Date Sent
 
 .error.notcomm=[[user]] is not a community.
@@ -14,6 +17,8 @@
 .filterto.opts.outstanding=outstanding
 
 .filterto.opts.rejected=rejected
+
+.invites.cancelled=[[num]] [[?num|invitation|invitations]] cancelled.
 
 .key.date=Date
 

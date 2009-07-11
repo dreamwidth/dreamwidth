@@ -243,6 +243,42 @@ sub get_pending_invites {
 }
 
 # <LJFUNC>
+# name: LJ::revoke_invites
+# des: Revokes a list of outstanding invitations to a community.
+# args: cuserid, userids
+# des-cuserid: a userid or u object of the community.
+# des-ruserids: userids to revoke invitations from.
+# returns: 1 if success, undef if error
+# </LJFUNC>
+sub revoke_invites {
+    my $cu = shift;
+    my @uids = @_;
+    $cu = LJ::want_user($cu);
+    return undef unless ($cu && @uids);
+
+    foreach my $uid (@uids) {
+        return undef unless int($uid) > 0;
+    }
+    my $in = join(',', @uids);
+
+    return LJ::error('db') unless $cu->writer;
+    $cu->do("DELETE FROM invitesent WHERE commid = ? AND " .
+            "userid IN ($in)", undef, $cu->{userid});
+    return LJ::error('db') if $cu->err;
+
+    # remove from inviterecv also,
+    # otherwise invite cannot be resent for over 30 days
+    foreach my $uid (@uids) {
+        my $u =  LJ::want_user($uid);
+        $u->do("DELETE FROM inviterecv WHERE userid = ? AND " .
+               "commid = ?", undef, $uid, $cu->{userid});
+    }
+
+    # success
+    return 1;
+}
+
+# <LJFUNC>
 # name: LJ::leave_community
 # des: Makes a user leave a community.  Takes care of all [special[reluserdefs]] and friend stuff.
 # args: uuserid, ucommid, defriend
