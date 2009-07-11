@@ -58,9 +58,11 @@ body<=
          'fromname' => $LJ::SITENAME,
          'charset' => 'utf-8',
          'subject' => $ML{'.email.subject'},
-         'body' => BML::ml('.email.body',
+         'body' => BML::ml('.email.body2',
                            { 'sitename' => $LJ::SITENAME,
                              'siteroot' => $LJ::SITEROOT,
+                             'email' => $u->email_raw,
+                             'username' => $u->display_name,
                              'conflink' => "$LJ::SITEROOT/confirm/$aa->{'aaid'}.$aa->{'authcode'}" }),
      });
 
@@ -113,7 +115,7 @@ body<=
      } else {
          $title = BML::ml('.new.title', {'sitename' => $LJ::SITENAMESHORT});
          $ret .= "<div class='columns-2-r300'>\n";
-         $ret .= "<?warningbar " . BML::ml('.new.bodyuser', {'user'=>LJ::ljuser($u)}) . " warningbar?>";
+         $ret .= "<?warningbar " . BML::ml('.new.bodyuser2', {'user'=>LJ::ljuser($u), 'address' => $u->email_raw }) . " warningbar?>";
          $ret .= "<div class='columns-2-left'>";
          $ret .= "<h2 class='widget-header' style='margin-top: 10px;'>" . BML::ml('.new.101.title', {'sitename' => $LJ::SITENAMESHORT}) . "</h2><br />";
          $ret .= "<p><strong><a href='" . $u->journal_base . "/'>$ML{'.new.101.journal.question'}</a></strong><br />";

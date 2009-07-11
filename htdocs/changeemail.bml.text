@@ -26,14 +26,18 @@
 
 .label.username=Username:
 
-.newemail.body2<<
-You have just changed the email address for your [[sitename]] account "[[username]]".  To validate the change, please go to this address:
+.newemail.body3<<
+You have changed the address for your [[sitename]] account "[[username]]" to this address: [[email]].
 
-[[conflink]]
+To finish confirming your email address, please visit this URL:
 
-Regards,
+    [[conflink]]
+
+You may have to copy and paste this link into your browser's window.
+
+Sincerely,
 [[sitename]] Team
-[[sitelink]]
+[[siteroot]]
 .
 
 .newemail.body.openid<<

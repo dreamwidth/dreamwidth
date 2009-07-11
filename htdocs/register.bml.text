@@ -11,16 +11,17 @@
 
 .asterisk.name=* [[journal]]
 
-.email.body<<
-This is the validation email you have requested.
-To complete validating your account, please visit this URL:
+.email.body2<<
+You have changed the address for your [[sitename]] account "[[username]]" to this address: [[email]].
+
+To finish confirming your email address, please visit this URL:
 
     [[conflink]]
 
 You may have to copy and paste this link into your browser's window.
 
 Sincerely,
-[[sitename]]
+[[sitename]] Team
 [[siteroot]]/
 .
 
@@ -60,7 +61,7 @@ Sincerely,
 
 .new.101.title=[[sitename]] 101
 
-.new.bodyuser=Thanks!  The email address for [[user]] has now been verified.  Now that you're registered, what to do first?
+.new.bodyuser2=Thanks!  The email address [[address]] for [[user]] has now been verified.  Now that you're registered, what to do first?
 
 .new.title=Welcome to [[sitename]]
 
