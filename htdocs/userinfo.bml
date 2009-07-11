@@ -28,6 +28,10 @@ body<=
 
     $title = $ML{'.title'};
 
+    # Used in comparisons so much that useful to have
+    # as a number
+    my $is_full = $GET{mode} eq 'full' ? 1 : 0;
+
 ################################################################################
 ##### INITIALIZE PROFILE PAGE
 
@@ -86,7 +90,7 @@ body<=
     my $domain = BML::get_client_header( "Host" );
     if ( $LJ::ONLY_USER_VHOSTS && !$u->is_identity ) {
         my $url = $u->journal_base . "/profile";
-        $url .= '?mode=full' if $GET{mode};
+        $url .= '?mode=full' if $is_full;
 
         my $good_domain = $url;
         $good_domain =~ s!^http://!!;
@@ -104,7 +108,7 @@ body<=
     # renamed?
     my $renamed_u = $u->get_renamed_user;
     unless ( $u->equals( $renamed_u ) ) {
-        my $extra = $GET{mode} eq 'full' ? "&mode=full" : '';
+        my $extra = $is_full ? "&mode=full" : '';
         return BML::redirect( "$LJ::SITEROOT/userinfo.bml?user=" . $renamed_u->user . "$extra" );
     }
 
@@ -200,6 +204,17 @@ body<=
         return $linkify->( $r->[0] );
     };
 
+    # Returns true if the given user should be struck out on the profile
+    my $strikeuser = sub {
+        return $_[0]->is_deleted || $_[0]->is_expunged || $_[0]->is_suspended;
+    };
+
+    # Returns true if the user is not struck out or if mode is full
+    my $includeuser = sub {
+        # I've repeated the logic in strikeuser so we don't do another function call
+        return ! ( $_[0]->is_deleted || $_[0]->is_expunged || $_[0]->is_suspended ) || $is_full;
+    };
+
     my $listusers = sub {
         my $users = $_[0];
         my @linked_users;
@@ -207,7 +222,7 @@ body<=
         foreach my $u ( @$users ) {
             my $linked_u = $linkify->( { url => $u->profile_url, text => $u->display_name } );
             $linked_u = "<strike>$linked_u</strike>"
-                if $u->is_deleted || $u->is_expunged || $u->is_suspended;
+                if $strikeuser->( $u );
 
             push @linked_users, $linked_u;
         }
@@ -654,7 +669,9 @@ body<=
 
         if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
             if ( $u->is_personal ) {
-                my @mutually_trusted_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @mutually_trusted_userids;
+                my @mutually_trusted_list = sort { $a->display_name cmp $b->display_name }
+                     grep { $_->is_personal || $_->is_identity }
+                     map { $us->{$_} } @mutually_trusted_userids;
                 my $mutually_trusted_body_name_ml = @mutually_trusted_list ?
                     { ml => '.people.mutually_trusted.some', opts => { num => scalar @mutually_trusted_list } } :
                     '.people.mutually_trusted.none';
@@ -665,7 +682,9 @@ body<=
                     body            => $listusers->( \@mutually_trusted_list ),
                 );
 
-                my @not_mutually_trusted_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @not_mutually_trusted_userids;
+                my @not_mutually_trusted_list = sort { $a->display_name cmp $b->display_name }
+                    grep { $_->is_personal || $_->is_identity }
+                    map { $us->{$_} } @not_mutually_trusted_userids;
                 my $not_mutually_trusted_body_name_ml = @not_mutually_trusted_list ?
                     { ml => '.people.not_mutually_trusted.some', opts => { num => scalar @not_mutually_trusted_list } } :
                     '.people.not_mutually_trusted.none';
@@ -675,7 +694,9 @@ body<=
                     body            => $listusers->( \@not_mutually_trusted_list ),
                 );
 
-                my @not_mutually_trusted_by_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @not_mutually_trusted_by_userids;
+                my @not_mutually_trusted_by_list = sort { $a->display_name cmp $b->display_name }
+                    grep { $_->is_personal || $_->is_identity }
+                    map { $us->{$_} } @not_mutually_trusted_by_userids;
                 my $not_mutually_trusted_by_body_name_ml = @not_mutually_trusted_by_list ?
                     { ml => '.people.not_mutually_trusted_by.some', opts => { num => scalar @not_mutually_trusted_by_list } } :
                     '.people.not_mutually_trusted_by.none';
@@ -686,7 +707,9 @@ body<=
                     hidable         => 1,
                 );
             } else {
-                my @trusted_by_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @trusted_by_userids;
+                my @trusted_by_list = sort { $a->display_name cmp $b->display_name }
+                    grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
+                    map { $us->{$_} } @trusted_by_userids;
                 my $trusted_by_body_name_ml = @trusted_by_list ?
                     { ml => '.people.trusted_by.some', opts => { num => scalar @trusted_by_list } } :
                     '.people.trusted_by.none';
@@ -699,7 +722,9 @@ body<=
                 );
             }
 
-            my @mutually_watched_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @mutually_watched_userids;
+            my @mutually_watched_list = sort { $a->display_name cmp $b->display_name }
+                grep { $_->is_personal || $_->is_identity }
+                map { $us->{$_} } @mutually_watched_userids;
             my $mutually_watched_body_name_ml = @mutually_watched_list ?
                 { ml => '.people.mutually_watched.some', opts => { num => scalar @mutually_watched_list } } :
                 '.people.mutually_watched.none';
@@ -709,7 +734,9 @@ body<=
                 body            => $listusers->( \@mutually_watched_list ),
             );
 
-            my @not_mutually_watched_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @not_mutually_watched_userids;
+            my @not_mutually_watched_list = sort { $a->display_name cmp $b->display_name }
+                grep { $_->is_personal || $_->is_identity }
+                map { $us->{$_} } @not_mutually_watched_userids;
             my $not_mutually_watched_body_name_ml = @not_mutually_watched_list ?
                 { ml => '.people.not_mutually_watched.some', opts => { num => scalar @not_mutually_watched_list } } :
                 '.people.not_mutually_watched.none';
@@ -719,7 +746,9 @@ body<=
                 body            => $listusers->( \@not_mutually_watched_list ),
             );
 
-            my @not_mutually_watched_by_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @not_mutually_watched_by_userids;
+            my @not_mutually_watched_by_list = sort { $a->display_name cmp $b->display_name }
+                grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
+                map { $us->{$_} } @not_mutually_watched_by_userids;
             my $not_mutually_watched_by_body_name_ml = @not_mutually_watched_by_list ?
                 { ml => '.people.not_mutually_watched_by.some', opts => { num => scalar @not_mutually_watched_by_list } } :
                 '.people.not_mutually_watched_by.none';
@@ -731,7 +760,9 @@ body<=
             );
         } else {
             if ( $u->is_personal ) {
-                my @trusted_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @trusted_userids;
+                my @trusted_list = sort { $a->display_name cmp $b->display_name }
+                    grep { $_->is_personal || $_->is_identity }
+                    map { $us->{$_} } @trusted_userids;
                 my $trusted_body_name_ml = @trusted_list ?
                     { ml => '.people.trusted.some', opts => { num => scalar @trusted_list } } :
                     '.people.trusted.none';
@@ -744,7 +775,9 @@ body<=
             }
 
             if ( $u->is_personal || $u->is_identity ) {
-                my @trusted_by_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @trusted_by_userids;
+                my @trusted_by_list = sort { $a->display_name cmp $b->display_name }
+                    grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
+                    map { $us->{$_} } @trusted_by_userids;
                 my $trusted_by_body_name_ml = @trusted_by_list ?
                     { ml => '.people.trusted_by.some', opts => { num => scalar @trusted_by_list } } :
                     '.people.trusted_by.none';
@@ -756,7 +789,9 @@ body<=
                     hidable         => 1,
                 );
 
-                my @watched_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @watched_userids;
+                my @watched_list = sort { $a->display_name cmp $b->display_name }
+                    grep { $_->is_personal || $_->is_identity }
+                    map { $us->{$_} } @watched_userids;
                 my $watched_body_name_ml = @watched_list ?
                     { ml => '.people.watched.some', opts => { num => scalar @watched_list } } :
                     '.people.watched.none';
@@ -769,7 +804,8 @@ body<=
             }
 
             if ( $u->is_community ) {
-                my @members_list = sort { $a->display_name cmp $b->display_name } map { $us->{$_} } @members_userids;
+                my @members_list = sort { $a->display_name cmp $b->display_name }
+                    map { $us->{$_} } @members_userids;
                 my $members_body_name_ml = @members_list ?
                     { ml => '.people.members.some', opts => { num => scalar @members_list } } :
                     '.people.members.none';
@@ -780,7 +816,8 @@ body<=
                     body            => $listusers->( \@members_list ),
                 );
 
-                my @posting_access_from_list = sort { $a->display_name cmp $b->display_name } map { $us->{$_} } @posting_access_from_userids;
+                my @posting_access_from_list = sort { $a->display_name cmp $b->display_name }
+                    map { $us->{$_} } @posting_access_from_userids;
                 my $posting_access_from_body_name_ml = @posting_access_from_list ?
                     { ml => '.people.posting_access_from.some', opts => { num => scalar @posting_access_from_list } } :
                     '.people.posting_access_from.none';
@@ -792,7 +829,9 @@ body<=
                 );
             }
 
-            my @watched_by_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_personal || $_->is_identity } map { $us->{$_} } @watched_by_userids;
+            my @watched_by_list = sort { $a->display_name cmp $b->display_name }
+                grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
+                map { $us->{$_} } @watched_by_userids;
             my $watched_by_body_name_ml = @watched_by_list ?
                 { ml => '.people.watched_by.some', opts => { num => scalar @watched_by_list } } :
                 '.people.watched_by.none';
@@ -834,7 +873,8 @@ body<=
         my ( $member_of_body, $posting_access_to_body, $watched_body );
 
         if ( $u->is_personal ) {
-            my @member_of_list = sort { $a->display_name cmp $b->display_name } map { $us->{$_} } @member_of_userids;
+            my @member_of_list = sort { $a->display_name cmp $b->display_name }
+                map { $us->{$_} } @member_of_userids;
             my $member_of_body_name_ml = @member_of_list ?
                 { ml => '.comms.member_of.some', opts => { num => scalar @member_of_list } } :
                 '.comms.member_of.none';
@@ -846,7 +886,8 @@ body<=
                 hidable         => 1,
             );
 
-            my @posting_access_to_list = sort { $a->display_name cmp $b->display_name } map { $us->{$_} } @posting_access_to_userids;
+            my @posting_access_to_list = sort { $a->display_name cmp $b->display_name }
+                map { $us->{$_} } @posting_access_to_userids;
             my $posting_access_to_body_name_ml = @posting_access_to_list ?
                 { ml => '.comms.posting_access_to.some', opts => { num => scalar @posting_access_to_list } } :
                 '.comms.posting_access_to.none';
@@ -858,7 +899,9 @@ body<=
             );
         }
 
-        my @watched_list = sort { $a->display_name cmp $b->display_name } grep { $_->is_community } map { $us->{$_} } @watched_userids;
+        my @watched_list = sort { $a->display_name cmp $b->display_name }
+            grep { $_->is_community }
+            map { $us->{$_} } @watched_userids;
         my $watched_body_name_ml = @watched_list ?
             { ml => '.comms.watched.some', opts => { num => scalar @watched_list } } :
             '.comms.watched.none';
