@@ -27,6 +27,7 @@ body<=
     if (LJ::did_post() && LJ::check_referer('/accountstatus.bml')) {
         my $ret;
 
+        my $statusvis = $POST{'statusvis'};
         my $ok = sub {
             return "<?h1 $ML{'.header.success'} h1?>\n<?p " . $_[0] . " p?>";
         };
@@ -48,11 +49,11 @@ body<=
 
         # invalid statusvis
         return LJ::bad_input($ML{'.error.invalid'})
-            unless $POST{'statusvis'} eq 'D' || $POST{'statusvis'} eq 'V';
+            unless $statusvis eq 'D' || $statusvis eq 'V';
 
         # no need to change?
-        return $ok->(BML::ml('.message.nochange', {'statusvis' => $statusvis{$POST{'statusvis'}} }))
-            if $u->statusvis eq $POST{'statusvis'};
+        return $ok->(BML::ml('.message.nochange', {'statusvis' => $statusvis{$statusvis} }))
+            if $u->statusvis eq $statusvis;
 
         my $res = 0;
 
@@ -61,7 +62,7 @@ body<=
         my @date = localtime(time);
         my $date = sprintf("%02d:%02d %02d/%02d/%04d", @date[2,1], $date[3], $date[4]+1, $date[5]+1900);
 
-        if ($POST{'statusvis'} eq 'D') {
+        if ($statusvis eq 'D') {
             
             $res = $u->set_deleted;
 
@@ -75,9 +76,21 @@ body<=
                     datetime => $date,
                 })->fire;
             }
-        } elsif ($POST{'statusvis'} eq 'V') {
-            
-            $res = $u->set_visible;
+        } elsif ($statusvis eq 'V') {
+            ## Restore previous statusvis of journal. It may be different
+            ## from 'V', it may be read-only, or locked, or whatever.
+            my @previous_status = grep { $_ ne 'D' } $u->get_previous_statusvis;
+            my $new_status = $previous_status[0] || 'V';
+            my $method = {
+                V => 'set_visible',
+                L => 'set_locked',
+                M => 'set_memorial',
+                O => 'set_readonly',
+                R => 'set_renamed',
+            }->{$new_status};
+            return $dberr->("Can't set status '$new_status'") unless $method;
+ 
+            $res = $u->$method;
 
             $u->set_prop( delete_reason => "" );
             
@@ -95,9 +108,9 @@ body<=
             unless $res;
 
         # success
-        $ret .= $ok->(BML::ml('.message.success', {'statusvis' => $statusvis{$POST{'statusvis'}} }));
+        $ret .= $ok->(BML::ml('.message.success', {'statusvis' => $statusvis{$statusvis} }));
 
-        if ($POST{statusvis} eq 'D') {
+        if ($statusvis eq 'D') {
             $ret .= "<?p $ML{'.message.deleted'} p?>";
 
             if ( $u->is_person ) {

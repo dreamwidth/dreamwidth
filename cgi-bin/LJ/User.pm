@@ -376,6 +376,20 @@ sub who_invited {
 ########################################################################
 ###  2. Statusvis and Account Types
 
+sub get_previous_statusvis {
+    my $u = shift;
+    
+    my $extra = $u->selectcol_arrayref(
+        "SELECT extra FROM userlog WHERE userid=? AND action='accountstatus' ORDER BY logtime DESC",
+        undef, $u->{userid});
+    my @statusvis;
+    foreach my $e (@$extra) {
+        my %fields;
+        LJ::decode_url_string($e, \%fields, []);
+        push @statusvis, $fields{old};
+    }
+    return @statusvis;
+}
 
 sub is_deleted {
     my $u = shift;
