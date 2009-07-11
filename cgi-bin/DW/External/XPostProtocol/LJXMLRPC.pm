@@ -153,7 +153,7 @@ sub crosspost {
 
         # are we disabling comments?
         my $disabling_comments  = $extacct->owner->prop( 'opt_xpost_disable_comments' ) ? 1 : 0;
-        $req->{props}->{opt_nocomments} = 1 if $disabling_comments;
+        $req->{props}->{opt_nocomments} = $disabling_comments || $req->{props}->{opt_nocomments} || 0;
 
         # are we adding a footer?
         my ( $adding_footer, $footer_text );
