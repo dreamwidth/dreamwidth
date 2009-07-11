@@ -71,6 +71,9 @@ body<=
     );
     $ret .= "</div><!-- end .customize-wrapper -->";
 
+    $ret .= "<h2 class='widget-header'><?_ml .advanced _ml?></h2>";
+    $ret .= "<a href='advanced/'><?_ml .advanced _ml?></a>";
+
     return $ret;
 }
 _code?>
