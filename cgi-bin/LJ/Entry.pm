@@ -939,37 +939,6 @@ sub can_tellafriend {
     return 1;
 }
 
-sub search_index_id {
-    my $entry = shift;
-
-    return 'entry_' . $entry->journalid . '_'  . $entry->jitemid;
-}
-
-sub search_document {
-    my $entry = shift;
-
-    my $content = $entry->subject_text . ' ' . $entry->event_text;
-
-    # append log metadata to end of content
-    my $metadata = '';
-
-    my $mood = $entry->prop('current_mood') || LJ::mood_name($entry->prop('current_moodid')) || '';
-    $content .= "\n$mood\n";
-
-    # add location and music
-    $content .= join("\n", map { $entry->prop($_) } qw/current_location current_music/);
-
-    my $doc = LJ::Search->document(
-                                   id          => $entry->search_index_id,
-                                   content     => $content,
-                                   date        => $entry->logtime_unix,
-                                   );
-
-    $doc->stored('id', 1); # store the id field and index it
-
-    return $doc;
-}
-
 # defined by the entry poster
 sub adult_content {
     my $self = shift;
