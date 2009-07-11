@@ -56,6 +56,8 @@ sub save {
 
     my $val = $class->get_arg( $args, "emailalias" );
     $u->set_prop( "no_mail_alias" => ! $val );
+    # our selection value is the opposite of what no_mail_alias expects
+    $val ? $u->update_email_alias : $u->delete_email_alias;
 
     return 1;
 }

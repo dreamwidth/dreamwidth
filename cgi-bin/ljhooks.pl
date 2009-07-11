@@ -207,16 +207,9 @@ register_setter("no_mail_alias", sub {
         return 0;
     }
 
-    my $dbh = LJ::get_db_writer();
-    if ($value) {
-        $dbh->do("DELETE FROM email_aliases WHERE alias=?", undef,
-                 "$u->{'user'}\@$LJ::USER_DOMAIN");
-    } elsif ($u->{'status'} eq "A" && LJ::get_cap($u, "useremail")) {
-        $dbh->do("REPLACE INTO email_aliases (alias, rcpt) VALUES (?,?)",
-                 undef, "$u->{'user'}\@$LJ::USER_DOMAIN", $u->email_raw);
-    }
+    $u->set_prop( "no_mail_alias", $value );
+    $value ? $u->delete_email_alias : $u->update_email_alias;
 
-    $u->set_prop("no_mail_alias", $value);
     return 1;
 });
 
