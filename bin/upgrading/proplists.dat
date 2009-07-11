@@ -1,11 +1,3 @@
-userproplist.ad_categories:
-  cldversion: 4
-  datatype: char
-  des: User selectable Ad categories
-  indexed: 0
-  multihomed: 0
-  prettyname: Ad Content Categories
-
 userproplist.adult_content:
   cldversion: 4
   datatype: char
@@ -366,14 +358,6 @@ userproplist.hide_adult_content:
   multihomed: 0
   prettyname: Hide adult content on journals
 
-userproplist.howhear:
-  cldversion: 4
-  datatype: char
-  des: How the user heard about LiveJournal
-  indexed: 0
-  multihomed: 0
-  prettyname: How heard about LiveJouranl
-
 userproplist.icbm:
   cldversion: 4
   datatype: char
@@ -702,14 +686,6 @@ userproplist.opt_maxpicwidth:
   multihomed: 0
   prettyname: Max Picture Width
 
-userproplist.opt_maxwordlength:
-  cldversion: 0
-  datatype: 
-  des: Maxium word length before forced word breaks.  0: for no max
-  indexed: 1
-  multihomed: 0
-  prettyname: Max Word Length
-
 userproplist.opt_nctalklinks:
   cldversion: 4
   datatype: bool
@@ -942,46 +918,6 @@ userproplist.rssparseerror:
   multihomed: 0
   prettyname: Syndication Parse Error
 
-userproplist.s1_calendar_style:
-  cldversion: 4
-  datatype: num
-  des: The style ID# of the S1 style for the calendar view.
-  indexed: 0
-  multihomed: 0
-  prettyname: Calendar View StyleID
-
-userproplist.s1_confirmed:
-  cldversion: 4
-  datatype: num
-  des: Unix time at which the user confirmed that they want to use S1 instead of S2.
-  indexed: 0
-  multihomed: 0
-  prettyname: S1 Confirmed
-
-userproplist.s1_day_style:
-  cldversion: 4
-  datatype: num
-  des: The style ID# of the S1 style for the day view view.
-  indexed: 0
-  multihomed: 0
-  prettyname: Day View StyleID
-
-userproplist.s1_friends_style:
-  cldversion: 4
-  datatype: num
-  des: The style ID# of the S1 style for the friends view page.
-  indexed: 0
-  multihomed: 0
-  prettyname: Friends View StyleID
-
-userproplist.s1_lastn_style:
-  cldversion: 4
-  datatype: num
-  des: The style ID# of the S1 style for the recent entries view.
-  indexed: 0
-  multihomed: 0
-  prettyname: Recent View StyleID
-
 userproplist.s2_style:
   cldversion: 4
   datatype: num
@@ -1142,14 +1078,6 @@ userproplist.timezone:
   multihomed: 0
   prettyname: Timezone
 
-userproplist.trusted_s1:
-  cldversion: 0
-  datatype: char
-  des: User's trusted S1 style ids
-  indexed: 0
-  multihomed: 0
-  prettyname: Trusted S1 Styles
-
 userproplist.twitter:
   cldversion: 4
   datatype: char
@@ -1207,31 +1135,6 @@ talkproplist.deleted_poster:
   datatype: char
   des: If the comment poster's account is deleted, this field gets added to all of their posts, so the UI can show something besides 'anonymous' when posterid gets set to 0
   prettyname: Username of deleted poster
-
-talkproplist.guest_auth:
-  datatype: bool
-  des: true if auth'd, false if not
-  prettyname: URL of Guest Poster
-
-talkproplist.guest_email:
-  datatype: char
-  des: Anonymous comments with an email attached
-  prettyname: Email of Guest Poster
-
-talkproplist.guest_mangle_email:
-  datatype: bool
-  des: If true, mangle guest email
-  prettyname: URL of Guest Poster
-
-talkproplist.guest_name:
-  datatype: char
-  des: Anonymous comments with a name attached
-  prettyname: Name of Guest Poster
-
-talkproplist.guest_url:
-  datatype: char
-  des: Anonymous comments with a URL attached
-  prettyname: Website of Guest Poster
 
 talkproplist.import_source:
   datatype: char
