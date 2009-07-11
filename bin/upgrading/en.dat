@@ -3515,6 +3515,8 @@ talk.readsimilar=Read similar journal entries:
 
 talk.replytothis=Reply to this
 
+talk.screened=Comment screened
+
 talk.somebodywrote=[[realname]] ([[userlink]]) wrote,
 
 talk.somebodywrote_comm=[[realname]] ([[userlink]]) wrote in [[commlink]],
