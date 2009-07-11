@@ -379,6 +379,12 @@ sub clean_lj_tags {
     my $p = HTML::TokeParser->new($entry_text_ref);
     my $newdata = "";
 
+    my %update_tags = (
+        'cut' => 'lj-cut',
+        'site-template' => 'lj-template',
+        'raw-code' => 'lj-raw'
+    );
+
     # this is mostly gakked from cgi-bin/cleanhtml.pl
 
     # go throught each token.
@@ -393,8 +399,8 @@ sub clean_lj_tags {
             my $attrs = $token->[3]; # attribute names, in original order
 
             # we need to rewrite cut tags as lj-cut
-            if ($tag eq "cut") {
-                $tag = "lj-cut";
+            if ($update_tags{$tag}) {
+                $tag = $update_tags{$tag};
                 
                 # for tags like <name/>, pretend it's <name> and reinsert the slash later
                 my $slashclose = 0;   # If set to 1, use XML-style empty tag marker
@@ -452,8 +458,8 @@ sub clean_lj_tags {
             }
         }
         elsif ($type eq "E") {
-            if ($token->[1] eq "cut") {
-                $newdata .= "</lj-cut>";
+            if ($update_tags{$token->[1]}) {
+                $newdata .= "</" . $update_tags{$token->[1]} . ">";
             } else {
                 $newdata .= $token->[2];
             }
