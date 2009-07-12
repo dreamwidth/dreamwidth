@@ -76,6 +76,7 @@ body<=
 
 <p>By choosing to make any personally-identifying information public, you recognize and accept that other people, not affiliated with us, may use this data to contact you. We can't be responsible for the use of any information you post publicly.</p>
 
+<p>From time to time, we may allow you to provide us with your login credentials for a site that is not owned and operated by us in order to allow you to integrate data from that external service to your $LJ::SITENAMESHORT account. Examples of this include the journal import feature and the entry crosspost feature. Providing us this information is completely optional. Your login credentials are only used for the purposes of these features, and are not used for any other purpose.</p>
 
 <h2>Disclosure of personally-identifying information</h2>
 
@@ -135,7 +136,7 @@ body<=
 
 <p>Our current business vendors are:</p>
 
-<ul class='bullet-list'><li><a href='http://www.google.com/services/'>Google Business Services</a>: We use Google Business Services for their Google Analytics and Google Checkout services. For information on how Google Business Services may use your information, see <a href='http://www.google.com/intl/en_ALL/privacy.html'>Google's Privacy Center</a>. Google Analytics collects aggregate data on site usage, such as browser type and the navigational paths our users use, which helps us make decisions about how to improve the site. To opt out of your site use being included in our Google Analytics report, you can use a browser plugin to block the JavaScript being served by google-analytics.com. Google Checkout is a method by which users can make payments for their accounts. To opt out of using Google Checkout, you can decline to make a payment for your account, or use an alternate payment method.</li>
+<ul class='bullet-list'><li><a href='http://www.google.com/services/'>Google Business Services</a>: We use Google Business Services for their Google Analytics service. For information on how Google Business Services may use your information, see <a href='http://www.google.com/intl/en_ALL/privacy.html'>Google's Privacy Center</a>. Google Analytics collects aggregate data on site usage, such as browser type and the navigational paths our users use, which helps us make decisions about how to improve the site. Some users may also have added Google Analytics code to their journals. To opt out of your site use being included in our Google Analytics report, you can use a browser plugin to block the JavaScript being served by google-analytics.com. </li>
 
 <li><a href='https://www.paypal.com/us/'>PayPal Merchant Processing</a>: We use PayPal to allow users to make payments for their accounts. For information on how PayPal may use your information, see <a href='https://www.paypal.com/us/cgi-bin/webscr?cmd=p/gen/ua/policy_privacy-outside'>PayPal's Privacy Policy</a>. To opt out of using PayPal Merchant Processing, you can decline to make a payment for your account, or use an alternate payment method.
 </ul>
