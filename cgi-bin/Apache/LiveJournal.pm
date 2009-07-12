@@ -354,7 +354,8 @@ sub trans
     }
 
     # handle alternate domains
-    if ( $host ne $LJ::DOMAIN && $host ne $LJ::DOMAIN_WEB ) {
+    if ( $host ne $LJ::DOMAIN && $host ne $LJ::DOMAIN_WEB && 
+           !( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ ) ) {
         my $which_alternate_domain = undef;
         foreach my $other_host ( @LJ::ALTERNATE_DOMAINS ) {
             $which_alternate_domain = $other_host
@@ -369,7 +370,7 @@ sub trans
             if ( $LJ::DOMAIN_WEB && $host eq $LJ::DOMAIN ) {
                 $host = $LJ::DOMAIN_WEB;
             }
-            $root .= "$host/";
+            $root .= "$host";
 
             if ( $r->method eq "GET" ) {
                 my $url = "$root$uri";
