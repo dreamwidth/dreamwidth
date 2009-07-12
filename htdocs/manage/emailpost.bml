@@ -443,14 +443,16 @@ body<=
         {
             "ver" => ( $LJ::UNICODE ? "1" : "0" ),
             "username"     => $u->{'user'},
-            "friendgroups" => 1,
+#            "friendgroups" => 1,
             "getpickws"    => 1,
         },
         undef,
         { "noauth" => 1, }
     );
 
-    my @groups = map { $_->{'name'} } @{ $res->{'friendgroups'} };
+    my $trusted = $u->trust_groups;
+    my @groups = map { $trusted->{$_}->{'groupname'} }
+        sort { $trusted->{$a}->{'sortorder'} <=> $trusted->{$b}->{'sortorder'} } keys %$trusted;
     my @userpics = @{ $res->{'pickws'} };
     
     $ret .= "<?p " . BML::ml('.intro', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'"}) . " p?><br />";
