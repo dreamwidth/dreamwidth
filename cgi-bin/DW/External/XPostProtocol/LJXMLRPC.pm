@@ -178,11 +178,12 @@ sub crosspost {
                 $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect.comment", { postlink => $entry->url } );
             }
 
-        } elsif ( $xpostfootprop eq "D" && $disabling_comments ) {
+        } elsif ( $xpostfootprop eq "D" ) {
+
+            $adding_footer = 1 if $disabling_comments;
             # we are only adding a footer if comments are disabled
             # (and they are)
 
-            $adding_footer = 1;
             if ( $footer_text ) {
                 my $url = $entry->url;
                 $footer_text =~ s/%%url%%/$url/gi;
