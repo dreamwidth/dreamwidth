@@ -10,6 +10,7 @@ DOM.addEventListener(window, "load", function (evt) {
       ESN_Inbox.initTableSelection(folder);
       ESN_Inbox.initContentExpandButtons(folder);
       ESN_Inbox.initInboxBtns(folder, cur_folder);
+      ESN_Inbox.initActionLinks(folder);
   }
 });
 
@@ -165,6 +166,26 @@ ESN_Inbox.initInboxBtns = function (folder, cur_folder) {
     
     DOM.addEventListener($(folder + "_MarkAllRead"), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder) });
     DOM.addEventListener($(folder + "_DeleteAll"), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder) });
+};
+
+// set up action links
+ESN_Inbox.initActionLinks = function (folder) {
+    var actions = DOM.getElementsByClassName($(folder), "actions") || [];
+    for (var i=0; i < actions.length; i++) {
+        var links = actions[i].getElementsByTagName("a");
+        for (var j=0; j < links.length; j++) {
+            DOM.addEventListener(links[j], "click", function(e) { ESN_Inbox.markLinkedItemRead(e, folder) });
+        }
+    }
+};
+
+ESN_Inbox.markLinkedItemRead = function (evt, folder) {
+    Event.stop(evt);
+    var row = DOM.getFirstAncestorByClassName(evt.target, "InboxItem_Row");
+    var qid = row.getAttribute("lj_qid");
+    ESN_Inbox.updateItems('mark_read', evt, folder, qid);
+    window.open(evt.target.href);
+    return false;
 };
 
 ESN_Inbox.markRead = function (evt, folder) {
