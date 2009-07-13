@@ -48,8 +48,11 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
 
     my $paidstatus = DW::Pay::get_paid_status( $u );
-    my $paidtype = "<strong>" . $paidstatus ? DW::Pay::type_name( $paidstatus->{typeid} ) : "" . "</strong>";
-    my $expiretime = LJ::mysql_time( $paidstatus->{expiretime} );
+    my $typeid = $paidstatus ? $paidstatus->{typeid} : DW::Pay::default_typeid();
+    my $expiretime = "(never)";
+
+    my $paidtype = "<strong>" . DW::Pay::type_name( $typeid ) . "</strong>";
+    $expiretime = LJ::mysql_time( $paidstatus->{expiretime} ) if $paidstatus && ! $paidstatus->{permanent};
 
     if ( $paidstatus && $paidstatus->{expiresin} > 0 && ! $paidstatus->{permanent} ) {
         return BML::ml( 'setting.display.accounttype.status', { status => $paidtype, exptime => $expiretime } );
