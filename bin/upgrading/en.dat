@@ -3425,6 +3425,8 @@ subscribe_interface.special_subs.note=These notification options are only availa
 
 taglib.error.access=You are not allowed to tag entries in this journal.
 
+subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] active subscriptions.
+
 taglib.error.invalid=The following tag name is invalid: [[tagname]]
 
 taglib.error.nomerge=The tag name '[[tagname]]' is already in use.  Merging tags is not supported at this time.

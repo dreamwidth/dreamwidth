@@ -2998,7 +2998,8 @@ sub subscribe_interface {
     my $catid = 0;
 
     my %shown_subids = ();
-
+    # ( LJ::NotificationMethod::Inbox => {active => x, total => y }, LJ::NotificationMethod::Email => ...)
+    my %num_subs_by_type = ();
     foreach my $cat_hash (@categories) {
         my ($category, $cat_events) = %$cat_hash;
 
@@ -3214,6 +3215,15 @@ sub subscribe_interface {
             }
 
             $shown_subids{$pending_sub->id}++ unless $pending_sub->pending;
+            # for the inbox
+            # "total" includes default subs (those at the top) which are active
+            #   and any subs for tracking an entry/comment, whether active or inactive
+            # "active" only counts subs which are selected
+            # don't count disabled, even if they're checked, because they don't count against your limit
+            if ( ! $disabled &&  ( $is_tracking_category || $selected ) ) {
+                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{total}++;
+                $num_subs_by_type{"LJ::NotificationMethod::Inbox"}->{active}++ if $selected;
+            }
 
             $cat_empty = 0;
 
@@ -3273,6 +3283,18 @@ sub subscribe_interface {
                         value => (scalar @subs) ? 1 : 0,
                     });
                 }
+
+                # for other notification methods
+                # "total" includes default subs (those at the top) which are active,
+                #   and any subs for tracking an entry/comment, where the sub is active
+                #   (because inbox is selected, revealing the notification checkbox)
+                # "active" only counts subs which are selected
+                # don't count disabled, even if they're checked, because they don't count against your limit
+                if ( ! $disabled && ! $hidden && ( $is_tracking_category || $note_selected ) ) {
+                    $num_subs_by_type{$note_class}->{total}++;
+                    $num_subs_by_type{$note_class}->{active}++ if $note_selected;
+                }
+
             }
 
             $cat_html .= "</tr>";
@@ -3309,10 +3331,44 @@ sub subscribe_interface {
         'value' => join(',', map { $_->ntypeid } LJ::NotificationMethod->all_classes),
     });
 
+    my $subscription_stats = "";
+    if ( $settings_page ) {
+        # show how many subscriptions we have active / inactive
+        # there's a bit of a trick here: each row counts as a maximum of one subscription.
+        # However, forced subscriptions don't count (e.g., "Someone sends me a message" for inbox)
+        # Also, if we activate an inbox subscription but not its email, the total number of subs
+        # per notification method goes out of sync.
+        # Regardless, once we hit the limit for *any* method, we get a warning. So we take
+        # whichever method has the most total / active and use that figure in our message.
+
+        my $max_active_method = 0;
+        my $max_total_method = 0;
+
+        foreach my $method_class ( keys %num_subs_by_type ) {
+            $max_active_method = $num_subs_by_type{$method_class}->{active}
+                if $num_subs_by_type{$method_class}->{active} > $max_active_method;
+            $max_total_method = $num_subs_by_type{$method_class}->{total}
+                if $num_subs_by_type{$method_class}->{total} > $max_total_method;
+        }
+
+        my $paid_max = LJ::get_cap( 'paid', 'subscriptions' );
+        my $u_max  = $u->max_subscriptions;
+        # max for total number of subscriptions (generally it is $paid_max)
+        my $system_max  = $u_max > $paid_max ? $u_max : $paid_max;
+
+        $subscription_stats .= "<div class='subscription_stats'>" . LJ::Lang::ml( 'subscribe_interface.subs.total',  {
+                            active =>  $max_active_method,
+                            max_active => $u_max,
+                            total => $max_total_method,
+                            max_total => $system_max,
+                    } ) . "</div>";
+    }
+    
     $ret .= qq {
         $ntypeids
             $catids
             $events_table
+            $subscription_stats
         };
 
     $ret .= LJ::html_hidden({name => 'mode', value => 'save_subscriptions'});
