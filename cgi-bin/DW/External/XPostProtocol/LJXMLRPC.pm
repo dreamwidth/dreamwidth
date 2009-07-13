@@ -151,15 +151,16 @@ sub crosspost {
         # if it's a post or edit, fully populate the request.
         $req = $self->entry_to_req($entry, $extacct, $auth);
 
-        # are we disabling comments?
+        # are we disabling comments on the remote entry?
         my $disabling_comments  = $extacct->owner->prop( 'opt_xpost_disable_comments' ) ? 1 : 0;
         $req->{props}->{opt_nocomments} = $disabling_comments || $req->{props}->{opt_nocomments} || 0;
 
         # are we adding a footer?
         my ( $adding_footer, $footer_text );
         $footer_text = $extacct->owner->prop( 'crosspost_footer_text' );
+        my $xpostfootprop = $extacct->owner->prop( 'crosspost_footer_append' ) ? $extacct->owner->prop( 'crosspost_footer_append' ) : "D"; # assume old behavior if undefined
 
-        if ( $extacct->owner->prop( 'crosspost_footer_append' ) eq "A" ) {
+        if ( $xpostfootprop eq "A" ) {
             # we are always adding a footer, but we need to 
             # make some adjustments based on whether it's a custom
             # footer, whether comments are disabled, etc
@@ -170,14 +171,14 @@ sub crosspost {
                 $footer_text =~ s/%%url%%/$url/gi;
                 $footer_text = "\n\n" . $footer_text;
             } else {
-                if ( $disabling_comments ) {
-                    $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect", { postlink => $entry->url } );
-                } else {
-                    $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect.comment", { postlink => $entry->url } );
-                }
+                # FIXME: this should check if comments are disabled
+                # on the local site and do the right thing, but 
+                # that's not working for now, so let's get this 
+                # committed. :/
+                $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect.comment", { postlink => $entry->url } );
             }
 
-        } elsif ( $extacct->owner->prop( 'crosspost_footer_append' ) eq "D" && $disabling_comments ) {
+        } elsif ( $xpostfootprop eq "D" && $disabling_comments ) {
             # we are only adding a footer if comments are disabled
             # (and they are)
 
@@ -187,11 +188,25 @@ sub crosspost {
                 $footer_text =~ s/%%url%%/$url/gi;
                 $footer_text = "\n\n" . $footer_text;
             } else {
-                $footer_text = "\n\n" . LJ::Lang::ml( 'xpost.redirect', { postlink => $entry->url } );
+                # FIXME: this should check if comments are disabled
+                # on the local site and do the right thing, but 
+                # that's not working for now, so let's get this 
+                # committed. :/
+                $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect.comment", { postlink => $entry->url } );
             }
-        } else {
+        } elsif ( $xpostfootprop eq "N" ) {
             # we aren't adding a footer
+
             $adding_footer = 0;
+        } else {
+            # fallthrough. shouldn't get here, but in case we do for
+            # some crazy reason, let's assume the old behavior.
+            # FIXME: this should check if comments are disabled
+            # on the local site and do the right thing, but 
+            # that's not working for now, so let's get this 
+            # committed. :/
+            $adding_footer = 1;
+            $footer_text = "\n\n" . LJ::Lang::ml( "xpost.redirect.comment", { postlink => $entry->url } );
         }
 
         # now that we have all of that settled, let's assemble it 
