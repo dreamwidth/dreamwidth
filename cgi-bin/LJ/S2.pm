@@ -1923,8 +1923,11 @@ sub Entry
     my $r = BML::get_request();
 
     # custom friend groups
-    my $entry = LJ::Entry->new($e->{journal}->{_u}, ditemid => $e->{itemid});
-    my $group_names = $entry->group_names;
+    my $group_names = $arg->{group_names};
+    unless ( $group_names ) {
+        my $entry = LJ::Entry->new($e->{journal}->{_u}, ditemid => $e->{itemid});
+        $group_names = $entry->group_names;
+    }
     $e->{metadata}->{groups} = $group_names if $group_names;
 
     # TODO: Populate this field more intelligently later, but for now this will
