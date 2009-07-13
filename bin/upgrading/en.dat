@@ -1757,6 +1757,8 @@ esn.removedfromcircle.watched.subject=[[who]] has unsubscribed from your journal
 
 esn.reply_at_webpage=[[openlink]]Reply[[closelink]] at the webpage
 
+esn.reply_to_message=[[openlink]]Reply to this message[[closelink]]
+
 esn.screened=This comment was screened.
 
 esn.security_attribute_changed.account_activated.email_subject=Your account has been activated

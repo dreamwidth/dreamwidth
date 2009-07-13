@@ -33,6 +33,7 @@ sub _as_email {
 
     my $lang        = $u->prop('browselang');
     my $msg         = $self->load_message;
+    my $replyurl    = "$LJ::SITEROOT/inbox/compose?mode=reply&msgid=" . $msg->msgid;
     my $other_u     = $msg->other_u;
     my $sender      = $other_u->user;
     my $inbox       = "$LJ::SITEROOT/inbox/";
@@ -51,10 +52,11 @@ sub _as_email {
     my $body = LJ::Lang::get_text($lang, 'esn.email.pm_with_body', undef, $vars) .
         $self->format_options($is_html, $lang, $vars,
         {
-            'esn.view_profile'    => [ 1, $other_u->profile_url ],
-            'esn.read_journal'    => [ 2, $other_u->journal_base ],
-            'esn.add_watch'       => [ $u->watches( $other_u ) ? 0 : 3,
-                                            "$LJ::SITEROOT/manage/circle/add.bml?user=$sender&action=subscribe" ],
+            'esn.reply_to_message' => [ 1, $replyurl ],
+            'esn.view_profile'     => [ 2, $other_u->profile_url ],
+            'esn.read_journal'     => [ 3, $other_u->journal_base ],
+            'esn.add_watch'        => [ $u->watches( $other_u ) ? 0 : 4,
+                                             "$LJ::SITEROOT/manage/circle/add?user=$sender&action=subscribe" ],
         }
     );
 
@@ -108,10 +110,10 @@ sub as_html_actions {
     my $u = LJ::want_user($msg->journalid);
 
     my $ret = "<div class='actions'>";
-    $ret .= " <a href='$LJ::SITEROOT/inbox/compose.bml?mode=reply&msgid=$msgid'>Reply</a>";
-    $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add.bml?user=". $msg->other_u->user ."&action=subscribe'>Add to reading list</a>"
+    $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
+    $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Add to reading list</a>"
         unless $u->watches( $msg->other_u );
-    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam.bml?msgid=". $msg->msgid ."'>Mark as Spam</a>";
+    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>";
     $ret .= "</div>";
 
     return $ret;
