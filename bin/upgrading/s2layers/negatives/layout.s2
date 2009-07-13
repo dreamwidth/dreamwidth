@@ -370,6 +370,9 @@ function print_stylesheet()
     .module ul {
         list-style-position: inside;
     }
+    .module-section-one ul { padding-left: 0.3em }
+    .navigation ul { padding-left: 0em; list-style-type: none; }
+    .navigation li { padding-left: 0.3em; display: inline; }
     .datetime{
         margin-bottom:10px;
         font-style:italic;
@@ -388,6 +391,7 @@ function print_stylesheet()
     .module-calendar table {
         letter-spacing: 0.2em;
         text-align: center;
+    }
     .module-calendar {
         color: $*color_module_text;
     }
