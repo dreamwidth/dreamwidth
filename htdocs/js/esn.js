@@ -142,7 +142,17 @@ ESN.trackBtnClickHandler = function (evt) {
         commentsTrackBtn = TrackCheckbox("someone replies in this comment thread", 1);
     } else {
         // entry tracking button
-        newEntryTrackBtn = TrackCheckbox(LJ_cmtinfo["journal"] + " posts a new entry", trackingNewEntries);
+        var journal; 
+        
+        if ( typeof LJ_cmtinfo !== 'undefined' ) {
+            journal = LJ_cmtinfo["journal"];
+        } else if ( typeof Site !== 'undefined' ) {
+            journal = Site.currentJournal;
+        }
+
+        if ( journal ) {
+            newEntryTrackBtn = TrackCheckbox( journal + " posts a new entry", trackingNewEntries );
+        }
         commentsTrackBtn = TrackCheckbox("someone comments on this post", trackingNewComments);
     }
 
