@@ -1,5 +1,3 @@
-<?page
-body<=
 <?_code
 {
     use strict;
@@ -97,6 +95,9 @@ body<=
             # it works, as bytes >= chars:
             $subject = LJ::text_trim($subject, 0, length($req{'subject'}) || 40);
         }
+
+        $ret .= "<?page\n";
+        $ret .= "body<=\n";
 
         $ret .= "<p>";
 
@@ -241,6 +242,10 @@ body<=
         $ret .= "</div>";
 
         $ret .= "<br clear='all' /><hr width='100%' size='2' align='center' />";
+        
+        $ret .= "\n<=body";
+        $ret .= "\npage?>";
+
     } else {
         $LJ::S2::ret_ref = \$ret;
         my $opts;
@@ -379,5 +384,3 @@ body<=
     return $ret;
 }
 _code?>
-<=body
-page?>
