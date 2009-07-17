@@ -69,7 +69,7 @@ sub make_journal
         return;
     }
 
-    my $lang = 'en';
+    my $lang = $remote && $remote->prop( "browselang" );
     LJ::run_hook('set_s2bml_lang', $ctx, \$lang);
 
     # note that's it's very important to pass LJ::Lang::get_text here explicitly
