@@ -259,39 +259,20 @@ a:active { $page_link_active_colors }
 a:hover { $page_link_hover_colors }
 a:visited { $page_link_visited_colors }
 
-.two-columns-left #canvas,
-.three-columns-sides #canvas { padding-left: $*sidebar_width; }
-.two-columns-right #canvas,
-.three-columns-sides #canvas { padding-right: $*sidebar_width; }
-.three-columns-left #canvas { padding-left: $*sidebar_width_doubled; }
-.three-columns-right #canvas { padding-right: $*sidebar_width_doubled; }
-
-#content { 
-	float: left;
-	width: 100%;
-	border: none;
-	margin: 0;
-    display: inline; /* So IE plays nice */
-}
-
 .one-column #content { float: none; }
 .two-columns-left #content,
 .three-columns-sides #content { 
 	border-left: $*sidebar_width solid transparent;
-	margin-left: -$*sidebar_width;
 }
 .two-columns-right #content,
 .three-columns-sides #content {
 	border-right: $*sidebar_width solid transparent;
-	margin-right: -$*sidebar_width;
 }
 .three-columns-left #content {
 	border-left: $*sidebar_width_doubled solid transparent;
-	margin-left: -$*sidebar_width_doubled;
 }
 .three-columns-right #content {
 	border-right: $*sidebar_width_doubled solid transparent;
-	margin-right: -$*sidebar_width_doubled;
 }
 
 #header, #footer { 
@@ -299,19 +280,6 @@ a:visited { $page_link_visited_colors }
     clear: both;
 	padding: .5em;
 }
-
-.two-columns-right #header,
-.two-columns-right #footer,
-.three-columns-sides #header,
-.three-columns-sides #footer {margin-right: -$*sidebar_width;}
-.two-columns-left #header,
-.two-columns-left #footer,
-.three-columns-sides #header,
-.three-columns-sides #footer {margin-left: -$*sidebar_width;}
-.three-columns-right #header,
-.three-columns-right #footer {margin-right: -$*sidebar_width_doubled;}
-.three-columns-left #header,
-.three-columns-left #footer {margin-left: -$*sidebar_width_doubled;}
 
 #header {
     $header_background
