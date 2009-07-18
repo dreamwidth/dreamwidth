@@ -219,10 +219,15 @@ body<=
         my $users = $_[0];
         my @linked_users;
 
-        foreach my $u ( @$users ) {
-            my $linked_u = $linkify->( { url => $u->profile_url, text => $u->display_name } );
-            $linked_u = "<strike>$linked_u</strike>"
-                if $strikeuser->( $u );
+        foreach my $user ( @$users ) {
+            my $linked_u = $linkify->( { url => $user->profile_url, text => $user->display_name } );
+            $linked_u = "<strike>$linked_u</strike>" if $strikeuser->( $user );
+            #if user is logged in and not looking at own profile, use appropiate highlighting for users they have in common
+            if ( $remote && ( $remote != $u ) ) {
+                $linked_u = "<em>$linked_u</em>" if $remote->watches( $user );
+                $linked_u = "<strong>$linked_u</strong>"
+                    if ( $user->is_community ? $remote->member_of( $user ) : $remote->trusts( $user ) );
+            }
 
             push @linked_users, $linked_u;
         }
