@@ -446,6 +446,23 @@ sub load_layers {
     return $maxtime;
 }
 
+sub is_public_internal_layer {
+    my $layerid = shift;
+
+    my $pub = get_public_layers();
+    while ($layerid) {
+        # doesn't exist, probably private
+        return 0 unless defined $pub->{$layerid};
+        my $internal = $pub->{$layerid}->{is_internal};
+
+        return 1 if defined $internal && $internal;
+        return 0 if defined $internal && ! $internal;
+
+        $layerid = $pub->{$layerid}->{b2lid};
+    }
+    return 0;
+}
+
 # find existing re-distributed layers that are in the database
 # and their styleids.
 sub get_public_layers
@@ -459,7 +476,7 @@ sub get_public_layers
     }
 
     $sysid ||= LJ::get_userid("system");
-    my $layers = get_layers_of_user($sysid, "is_system", [qw(des note author author_name author_email)]);
+    my $layers = get_layers_of_user($sysid, "is_system", [qw(des note author author_name author_email is_internal)]);
 
     $LJ::CACHED_PUBLIC_LAYERS = $layers if $layers;
     LJ::MemCache::set("s2publayers", $layers, 60*10) if $layers;

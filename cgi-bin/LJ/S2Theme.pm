@@ -272,6 +272,7 @@ sub load_all {
     foreach my $layer (keys %$pub) {
         next unless $layer =~ /^\d+$/;
         next unless $pub->{$layer}->{type} eq "theme";
+        next if LJ::S2::is_public_internal_layer($layer);
         push @themes, $class->new( themeid => $layer );
     }
 
