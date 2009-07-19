@@ -45,6 +45,7 @@ sub _as_email {
         body            => $is_html ? $msg->body : $msg->body_raw,
         sender          => $is_html ? ($other_u->ljuser_display) : ($other_u->user),
         postername      => $other_u->user,
+        journal         => $other_u->user,
         sitenameshort   => $LJ::SITENAMESHORT,
         inbox           => $inbox,
     };
