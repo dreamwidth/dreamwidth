@@ -194,7 +194,7 @@
         my @taglist = ();
         LJ::Tags::is_valid_tagstring( $POST{prop_taglist}, \@taglist );
         if ( @taglist ) {
-            my $base = $u->journal_base;
+            my $base = $u ? $u->journal_base : "";
             $current{Tags} = join( ', ',
                                    map { "<a href='$base/tag/" . LJ::eurl( $_ ) . "'>" . LJ::ehtml( $_ ) . "</a>" }
                                    @taglist
