@@ -218,7 +218,7 @@ sub create_personal {
         my $inviter = LJ::load_user( $opts{inviter} );
         if ( $inviter ) {
             LJ::set_rel( $u, $inviter, 'I' );
-            LJ::statushistory_add( $u, $inviter, 'create_from_invite', BML::ml( 'create.success' ) );
+            LJ::statushistory_add( $u, $inviter, 'create_from_invite', "Created new account." );
             LJ::Event::InvitedFriendJoins->new( $inviter, $u )->fire;
         }
     }
@@ -243,10 +243,10 @@ sub create_personal {
                 # now add paid time to the user
                 my $from_u = $item->from_userid ? LJ::load_userid( $item->from_userid ) : undef;
                 if ( DW::Pay::add_paid_time( $u, $item->class, $item->months ) ) {
-                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', BML::ml( 'create.paid.success', { level => $item->class } ) );
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Created new '" . $item->class . "' account." );
                 } else {
-                    my $paid_error = DW::Pay::error_text() || $@ || BML::ml( 'error.unknown' );
-                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', BML::ml( 'create.paid.error', { level => $item->class, error => $paid_error } ) );
+                    my $paid_error = DW::Pay::error_text() || $@ || 'unknown error';
+                    LJ::statushistory_add( $u, $from_u, 'paid_from_invite', "Failed to create new '" . $item->class . "' account: $paid_error" );
                 }
             }
         }
@@ -480,6 +480,32 @@ sub set_renamed {
 }
 
 
+sub set_suspended {
+    my ($u, $who, $reason, $errref) = @_;
+    die "Not enough parameters for LJ::User::set_suspended call" unless $who and $reason;
+
+    my $res = $u->set_statusvis('S');
+    unless ($res) {
+        $$errref = "DB error while setting statusvis to 'S'" if ref $errref;
+        return $res;
+    }
+
+    LJ::statushistory_add($u, $who, "suspend", $reason);
+
+    eval { $u->fb_push };
+    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
+
+    LJ::run_hooks("account_cancel", $u);
+
+    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
+        $$errref = $err if ref $errref and $err;
+        return 0;
+    }
+
+    return $res; # success
+}
+
+
 # set_statusvis only change statusvis parameter, all accompanied actions are done in set_* methods
 sub set_statusvis {
     my ($u, $statusvis) = @_;
@@ -509,46 +535,20 @@ sub set_statusvis {
 }
 
 
-sub set_suspended {
-    my ($u, $who, $reason, $errref) = @_;
-    die "Not enough parameters for LJ::User::set_suspended call" unless $who and $reason;
-
-    my $res = $u->set_statusvis('S');
-    unless ($res) {
-        $$errref = BML::ml( 'statusvis.dberr', { status => 'S' } ) if ref $errref;
-        return $res;
-    }
-
-    LJ::statushistory_add($u, $who, "suspend", $reason);
-
-    eval { $u->fb_push };
-    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
-
-    LJ::run_hooks("account_cancel", $u);
-
-    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
-        $$errref = $err if ref $errref and $err;
-        return 0;
-    }
-
-    return $res; # success
-}
-
-
 # sets a user to visible, but also does all of the stuff necessary when a suspended account is unsuspended
 # this can only be run on a suspended account
 sub set_unsuspended {
     my ($u, $who, $reason, $errref) = @_;
     die "Not enough parameters for LJ::User::set_unsuspended call" unless $who and $reason;
 
-    unless ( $u->is_suspended ) {
-        $$errref = BML::ml( 'error.notsuspended' ) if ref $errref;
+    unless ($u->is_suspended) {
+        $$errref = "User isn't suspended" if ref $errref;
         return 0;
     }
 
     my $res = $u->set_statusvis('V');
     unless ($res) {
-        $$errref = BML::ml( 'statusvis.dberr', { status => 'V' } ) if ref $errref;
+        $$errref = "DB error while setting statusvis to 'V'" if ref $errref;
         return $res;
     }
 
@@ -1280,7 +1280,7 @@ sub mysql_insertid {
 
 sub nodb_err {
     my $u = shift;
-    return BML::ml( 'error.nodbhandle', { user => $u->user, cluster => $u->clusterid } );
+    return "Database handle unavailable (user: " . $u->user . "; cluster: " . $u->clusterid . ")";
 }
 
 
@@ -1678,7 +1678,7 @@ sub tosagree_set
     return undef unless $u;
 
     unless (-f "$LJ::HOME/htdocs/inc/legal-tos") {
-        $$err = BML::ml( 'tos.notfound' );
+        $$err = "TOS include file could not be found";
         return undef;
     }
 
@@ -1695,7 +1695,7 @@ sub tosagree_set
     # if the required version of the tos is not available, error!
     my $rev_req = $LJ::REQUIRED_TOS{rev};
     if ($rev_req > 0 && $rev ne $rev_req) {
-        $$err = BML::ml ( 'tos.version', { rev_req => $rev_req, rev => $rev } );
+        $$err = "Required Terms of Service revision is $rev_req, but system version is $rev.";
         return undef;
     }
 
@@ -7176,8 +7176,7 @@ sub user_search_display {
         if (my $picid = $get_picid->($u)) {
             $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/$u->{userid}' alt='$u->{user} userpic' style='border: 1px solid #000;' />";
         } else {
-            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='" . BML::ml( 'search.user.nopic' );
-            $ret .= "' style='border: 1px solid #000;' width='100' height='100' />";
+            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='no default userpic' style='border: 1px solid #000;' width='100' height='100' />";
         }
         $ret .= "</a>";
 
@@ -7188,26 +7187,25 @@ sub user_search_display {
         $ret .= "</td></tr><tr>";
 
         if ($u->{name}) {
-            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>" . BML::ml( 'search.user.name' );
-            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Name:</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
             $ret .= LJ::ehtml($u->{name});
             $ret .= "</a>";
             $ret .= "</td></tr><tr>";
         }
 
         if (my $jtitle = $u->prop('journaltitle')) {
-            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>" . BML::ml( 'search.user.journal' );
-            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Journal:</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
             $ret .= LJ::ehtml($jtitle) . "</a>";
             $ret .= "</td></tr>";
         }
 
         $ret .= "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
 
-        if ( $updated->{$u->userid} > 0 ) {
-            $ret .= BML::ml( 'search.user.update.last', { time => LJ::ago_text( time() - $updated->{$u->userid} ) } );
+        if ($updated->{$u->{'userid'}} > 0) {
+            $ret .= "Updated ";
+            $ret .= LJ::ago_text(time() - $updated->{$u->{'userid'}});
         } else {
-            $ret .= BML::ml( 'search.user.update.never' );
+            $ret .= "Never updated";
         }
 
         $ret .= "</td></tr>";
@@ -8473,17 +8471,18 @@ sub make_journal
     };
     if ($LJ::USER_VHOSTS && $opts->{'vhost'} eq "users" && $u->{'journaltype'} ne 'R' &&
         ! LJ::get_cap($u, "userdomain")) {
-        return $notice->( BML::ml( 'error.vhost.nodomain', { user_domain => $LJ::USER_DOMAIN } ) );
+        return $notice->("URLs like <nobr><b>http://<i>username</i>.$LJ::USER_DOMAIN/" .
+                         "</b></nobr> are not available for this user's account type.");
     }
     if ($opts->{'vhost'} =~ /^other:/ && ! LJ::get_cap($u, "domainmap")) {
-        return $notice->( BML::ml( 'error.vhost.noalias' ) );
+        return $notice->("This user's account type doesn't permit domain aliasing.");
     }
     if ($opts->{'vhost'} eq "customview" && ! LJ::get_cap($u, "styles")) {
-        return $notice->( BML::ml( 'error.vhost.nostyle' ) );
+        return $notice->("This user's account type is not permitted to create and embed styles.");
     }
-    if ($opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/) {
+    if ($opts->{'vhost'} eq "community" && $u->{'journaltype'} !~ /[CR]/) {
         $opts->{'badargs'} = 1; # Output a generic 'bad URL' message if available
-        return $notice->( BML::ml( 'error.vhost.nocomm' ) );
+        return "<h1>Notice</h1><p>This account isn't a community journal.</p>";
     }
     if ($view eq "network" && ! LJ::get_cap($u, "friendsfriendsview")) {
         my $inline;
@@ -8545,20 +8544,20 @@ sub make_journal
     # now, if there's a GET argument for tags, split those out
     if (exists $opts->{getargs}->{tag}) {
         my $tagfilter = $opts->{getargs}->{tag};
-        return $error->( BML::ml( 'error.tag.noarg' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
+        return $error->("You must provide tags to filter by.", "404 Not Found")
             unless $tagfilter;
 
         # error if disabled
-        return $error->( BML::ml( 'error.tag.disabled' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
+        return $error->("Sorry, the tag system is currently disabled.", "404 Not Found")
             unless LJ::is_enabled('tags');
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        return $error->( BML::ml( 'error.tag.s1' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
+        return $error->("Sorry, tag filtering is not supported within S1 styles.", "404 Not Found")
             if $stylesys == 1 && $view ne 'data' && $u->{journaltype} ne 'R';
 
         # overwrite any tags that exist
         $opts->{tags} = [];
-        return $error->( BML::ml( 'error.tag.invalid' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
+        return $error->("Sorry, the tag list specified is invalid.", "404 Not Found")
             unless LJ::Tags::is_valid_tagstring($tagfilter, $opts->{tags}, { omit_underscore_check => 1 });
 
         # get user's tags so we know what remote can see, and setup an inverse mapping
@@ -8568,7 +8567,7 @@ sub make_journal
         my %kwref = ( map { $tags->{$_}->{name} => $_ } keys %{$tags || {}} );
 
         foreach (@{$opts->{tags}}) {
-            return $error->( BML::ml( 'error.tag.undef' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
+            return $error->("Sorry, one or more specified tags do not exist.", "404 Not Found")
                 unless $kwref{$_};
             push @{$opts->{tagids}}, $kwref{$_};
         }
@@ -8577,19 +8576,19 @@ sub make_journal
     # validate the security filter
     if (exists $opts->{getargs}->{security}) {
         my $securityfilter = $opts->{getargs}->{security};
-        return $error->( BML::ml( 'error.security.noarg' ), "404 Not Found", BML::ml( 'error.security.name' ) )
+        return $error->("You must provide a security level to filter by.", "404 Not Found")
             unless $securityfilter;
 
-        return $error->( BML::ml( 'error.security.nocap' ), "403 Forbidden", BML::ml( 'error.security.name' ) )
+        return $error->("This feature is not available for your account level.", "403 Forbidden")
             unless LJ::get_cap($remote, "security_filter") || LJ::get_cap($u, "security_filter");
 
         # error if disabled
-        return $error->( BML::ml( 'error.security.disabled' ), "404 Not Found", BML::ml( 'error.security.name' ) )
+        return $error->("Sorry, the security-filtering system is currently disabled.", "404 Not Found")
             unless LJ::is_enabled("security_filter");
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        return $error->( BML::ml( 'error.security.s1' ), "404 Not Found", BML::ml( 'error.security.name' ) )
-            if $stylesys == 1 && $view ne 'data' && $u->journaltype ne 'R';
+        return $error->("Sorry, security filtering is not supported within S1 styles.", "404 Not Found")
+            if $stylesys == 1 && $view ne 'data' && !$u->is_redirect;
 
         # check the filter itself
         if ($securityfilter =~ /^(?:public|friends|private)$/i) {
@@ -8605,7 +8604,7 @@ sub make_journal
             }
         }
 
-        return $error->( BML::ml( 'error.security.invalid' ), "404 Not Found", BML::ml( 'error.security.name' ) )
+        return $error->("You have specified an invalid security setting, the friends group you specified does not exist, or you are not a member of that group.", "404 Not Found")
             unless defined $opts->{securityfilter};
 
     }
@@ -8624,24 +8623,19 @@ sub make_journal
             return $error->( $warning, "404 Not Found", BML::ml( 'error.deleted.name' ) );
         }
         if ( $u->is_suspended ) {
-            my $warning = BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
-            return $error->( $warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
+        	my $warning = BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
+            return $error->($warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
         }
 
         my $entry = $opts->{ljentry};
-        if ( $entry && $entry->is_suspended_for( $remote ) ) {
-            my $warning = BML::ml( 'error.suspended.entry', { aopts => "href='$u->journal_base/'" } );
-            return $error->( $warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
-        }
+        return $error->("This entry has been suspended. You can visit the journal <a href='" . $u->journal_base . "/'>here</a>.", "403 Forbidden")
+            if $entry && $entry->is_suspended_for($remote);
     }
-    return $error->( BML::ml( 'error.purged.text' ), "410 Gone", BML::ml( 'error.purged.name' ) ) if $u->is_expunged;
+    return $error->("This journal has been deleted and purged.", "410 Gone") if ($u->is_expunged);
 
     # FIXME: pretty this up at some point, to maybe auto-redirect to 
     # the external URL or something, but let's just do this for now
-    if ( $u->is_identity && $view ne "read" ) {
-        my $warning = BML::ml( 'error.nojournal.openid', { aopts => "href='$u->openid_identity'", id => $u->openid_identity } );
-        return $error->( $warning, "404 Not here" );
-    }
+    return $error->("This user is an OpenID account and does not maintain a journal here. You might be able to see their content at <a href='" . $u->openid_identity . "'>" . $u->openid_identity . "</a>.", "404 Not here") if $u->{'journaltype'} eq "I" && $view ne "read";
 
     $opts->{'view'} = $view;
 
