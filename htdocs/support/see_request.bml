@@ -305,7 +305,7 @@ body<=
         # db twice.
         LJ::load_userpics(\%pic, [ $u, $picid ]);
         my $userpic_obj = LJ::Userpic->new( $u, $picid );
-        $ret .= "<a href='$LJ::SITEROOT/allpics.bml?user=$u->{'user'}'>";
+        $ret .= "<a href='" . $u->allpics_base . "'>";
         $ret .= $userpic_obj->imgtag;
         $ret .= "</a>";
     }

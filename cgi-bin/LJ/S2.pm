@@ -2245,7 +2245,7 @@ sub UserLite
         'username' => LJ::ehtml($u->display_name),
         'name' => LJ::ehtml($u->{'name'}),
         'journal_type' => $u->{'journaltype'},
-        'userpic_listing_url' => "$LJ::SITEROOT/allpics.bml?user=".$u->{'user'},
+        'userpic_listing_url' => $u->allpics_base,
         'data_link' => {
             'foaf' => Link("$LJ::SITEROOT/users/" . LJ::ehtml($u->{'user'}) . '/data/foaf',
                            "FOAF",

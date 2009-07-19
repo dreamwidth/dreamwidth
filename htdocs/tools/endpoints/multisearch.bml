@@ -32,7 +32,7 @@
         if ($user) {
             if (my $u = LJ::load_user($user)) {
                 if ($what eq "pics") {
-                    $url = "$LJ::SITEROOT/allpics.bml?user=$user";
+                    $url = $u->allpics_base;
                 } elsif ($output eq "foaf") {
                     $url = LJ::journal_base($user) . '/data/foaf';
                 } else {

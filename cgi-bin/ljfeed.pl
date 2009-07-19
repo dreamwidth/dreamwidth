@@ -896,7 +896,7 @@ sub create_view_userpics {
     $feed->title( "$u->{user}'s userpics" );
 
     $feed->author( $author );
-    $feed->add_link( $make_link->( 'alternate', 'text/html', "$LJ::SITEROOT/allpics.bml?user=$u->{user}" ) );
+    $feed->add_link( $make_link->( 'alternate', 'text/html', $u->allpics_base ) );
     $feed->add_link( $make_link->( 'self', 'text/xml', $u->journal_base() . "/data/userpics" ) );
 
     # now start building all the userpic data

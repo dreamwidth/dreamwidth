@@ -186,6 +186,9 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                      # within journal styles.
                      "des" => "Update Journal",
                  },
+                 "icons" => {
+                    "des" => "Icons",
+                 }
                  );
 
 ## we want to set this right away, so when we get a HUP signal later

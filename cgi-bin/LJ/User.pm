@@ -5156,7 +5156,7 @@ sub activate_userpics {
 
 sub allpics_base {
     my $u = shift;
-    return "$LJ::SITEROOT/allpics.bml?user=" . $u->user;
+    return $u->journal_base . "/icons";;
 }
 
 
@@ -7172,7 +7172,7 @@ sub user_search_display {
         $ret .= "<table style='height: 105px'><tr>";
 
         $ret .= "<td style='width: 100px; text-align: center;'>";
-        $ret .= "<a href='/allpics.bml?user=$u->{user}'>";
+        $ret .= "<a href='" . $u->allpics_base . "'>";
         if (my $picid = $get_picid->($u)) {
             $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/$u->{userid}' alt='$u->{user} userpic' style='border: 1px solid #000;' />";
         } else {

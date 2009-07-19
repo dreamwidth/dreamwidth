@@ -107,7 +107,7 @@ sub userpic {
         # now determine what caption text to show
         if ( $remote && $remote->can_manage( $u ) ) {
             if ( LJ::userpic_count( $u ) ) {
-                $ret->{userpic_url} = "$LJ::SITEROOT/allpics.bml?user=$user";
+                $ret->{userpic_url} = $u->allpics_base;
                 $ret->{caption_text} = LJ::Lang::ml( '.section.edit' );
                 $ret->{caption_url} = "$LJ::SITEROOT/editpics.bml?authas=$user"
             } else {
@@ -117,7 +117,7 @@ sub userpic {
             }
         } else {
             if ( LJ::userpic_count( $u ) ) {
-                $ret->{userpic_url} = "$LJ::SITEROOT/allpics.bml?user=$user";
+                $ret->{userpic_url} = $u->allpics_base;
             }
         }
     }
@@ -294,7 +294,7 @@ sub userpic_stats {
     push @ret, LJ::Lang::ml( '.details.userpics', {
         num_raw => $ct,
         num_comma => LJ::commafy( $ct ),
-        aopts => "href='$LJ::SITEROOT/allpics.bml?user=" . $u->user . "'",
+        aopts => "href='" . $u->allpics_base . "'",
     } )
         unless $u->is_syndicated;
     

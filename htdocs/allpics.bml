@@ -6,10 +6,20 @@
     use strict;
     use vars qw(%GET $title $body $head);
 
+    BML::set_language_scope( '/allpics.bml' );
+
     $title = "$ML{'.title'}";
     $body = "";
     $head = "";
- 
+
+    my $r = BML::get_request();
+
+    # if new-style URLs, get the GET{user} arg from the request notes,
+    # which was set by LiveJournal.pm
+    unless ( $GET{user} ) {
+        $GET{user} = $r->notes->{_journal};
+    }
+
     my $user = LJ::canonical_username($GET{'user'});
     my $remote = LJ::get_remote();
     my $u = ! $user || $remote && $remote->{'user'} eq $user ? $remote : LJ::load_user($user);
@@ -17,6 +27,19 @@
     unless ($u) {
         $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noparam'} p?>";
         return;
+    }
+
+    # redirect /icons to their subdomain urls
+    my $domain = BML::get_client_header( "Host" );
+    if ( $LJ::ONLY_USER_VHOSTS ) {
+        my $url = $u->journal_base . "/icons";
+
+        my $good_domain = $url;
+        $good_domain =~ s!^http://!!;
+        $good_domain =~ s!/.*!!;
+        if ( $domain ne $good_domain ) {
+            return BML::redirect( $url );
+        }
     }
 
     $u->preload_props("opt_blockrobots", "adult_content") if $u->is_visible;
