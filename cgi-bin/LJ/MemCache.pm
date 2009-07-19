@@ -121,7 +121,7 @@ sub get       {
     $memc->get(@_);
 }
 sub get_multi {
-    return {} if $GET_DISABLED;
+    return {} if $GET_DISABLED || ! @_;
     $memc->get_multi(@_);
 }
 
