@@ -432,6 +432,12 @@ cprod.userpic.text.v4=
 
 cprod.userpic.text.v5=
 
+create.paid.error=Failed to create new [[level]] account: [[error]]
+
+create.paid.success=Created new [[level]] account.
+
+create.success=Created new account.
+
 crumb.acctstatus=Account Status
 
 crumb.addfriend=Add Friend
@@ -1312,15 +1318,21 @@ error.nocommlogin=Logging in as a community has been disabled.
 
 error.nodb=Database temporarily unavailable.
 
+error.nodbhandle=Database handle unavailable (user: [[user]]; cluster: [[cluster]])
+
 error.nodbmaintenance=This part of the database is temporarily down for maintenance.  Try again in a few minutes.
 
 error.noentry=No such journal entry.
 
 error.nojournal=Unknown Journal
 
+error.nojournal.openid=This user is an OpenID account and does not maintain a journal here. You might be able to see their content at <a [[aopts]]>[[id]]</a>.
+
 error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
+
+error.notsuspended=User isn't suspended.
 
 error.pay.dberr=Database error: [[errstr]].  Please try again later.
 
@@ -1352,13 +1364,41 @@ error.purged.text=This journal has been deleted and purged.
 
 error.purged.title=Purged Account
 
+error.security.disabled=Sorry, the security-filtering system is currently disabled.
+
+error.security.invalid=You have specified an invalid security setting, the access group you specified does not exist, or you are not a member of that group.
+
+error.security.name=Security Error
+
+error.security.noarg=You must provide a security level to filter by.
+
+error.security.nocap=This feature is not available for your account level.
+
+error.security.s1=Sorry, security filtering is not supported within S1 styles.
+
+error.suspended.entry=This entry has been suspended. You can visit the journal <a [[aopts]]>here</a>.
+
 error.suspended.name=Suspended
 
 error.suspended.text=This journal has been either temporarily or permanently suspended by [[sitename]] for policy violation.  If you are [[user]], contact us for more information.
 
 error.suspended.title=Suspended Account
 
+error.tag.disabled=Sorry, the tag system is currently disabled.
+
+error.tag.invalid=Sorry, the tag list specified is invalid.
+
+error.tag.name=Tag Error
+
+error.tag.noarg=You must provide tags to filter by.
+
+error.tag.s1=Sorry, tag filtering is not supported within S1 styles.
+
+error.tag.undef=Sorry, one or more specified tags do not exist.
+
 error.tempdisabled=This is disabled temporarily.
+
+error.unknown=Unknown error.
 
 error.unknownmode=Unknown mode.
 
@@ -1367,6 +1407,14 @@ error.username_notfound=Username not found.
 error.usernameinvalid=Username contains invalid characters.
 
 error.usernamelong=Username is too long; cannot exceed 15 characters.
+
+error.vhost.noalias=This user's account type doesn't permit domain aliasing.
+
+error.vhost.nocomm=This account isn't a community journal.
+
+error.vhost.nodomain=URLs like <nobr><b>http://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
+
+error.vhost.nostyle=This user's account type is not permitted to create and embed styles.
 
 esn.add_friend_community=[[openlink]]Add community "[[community]]" to your reading page[[closelink]]
 
@@ -2477,6 +2525,16 @@ s2theme.themename.default=(Unnamed - [[themeid]])
 
 s2theme.themename.notheme=(Layout Default)
 
+search.user.journal=Journal:
+
+search.user.name=Name:
+
+search.user.nopic=no default userpic
+
+search.user.update.last=Updated [[time]]
+
+search.user.update.never=Never updated
+
 setting.adultcontent.error.invalid=Invalid adult content setting.
 
 setting.adultcontent.label=Adult Content
@@ -3387,6 +3445,8 @@ sorry=Sorry
 
 states.head.defined=(states/regions/territories)
 
+statusvis.dberr=DB error while setting statusvis to '[[status]]'
+
 statusvis_message.locked=This journal is locked. New entries and comments cannot be posted to it.
 
 statusvis_message.memorial=This journal is a memorial. New entries cannot be posted to it.
@@ -3558,6 +3618,10 @@ tos.error=You must read and agree to the terms of service.
 tos.haveread=I have read and agree to the Terms of Service.
 
 tos.mustread=Before continuing you must read and agree to the <a [[aopts]]>Terms of Service.</a>
+
+tos.notfound=TOS include file could not be found.
+
+tos.version=Required Terms of Service revision is [[rev_req]], but system version is [[rev]].
 
 userlinkbar.addsub=Subscribe
 
