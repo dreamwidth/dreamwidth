@@ -3,19 +3,17 @@
     use strict;
     use vars qw(%POST %GET $title $body);
 
+    my ($u, $opts) = @_; # type, authas, label, button
+
     my $dbh = LJ::get_db_writer();
 
     my $remote = LJ::get_remote();
     return "<?h1 $ML{'.login.required'} h1?><?p " . BML::ml('.login.first', {'url'=>"href='/login.bml?ret=1'"}) . " p?>"
         unless $remote;
 
-    my @journals = ($remote->{'user'});
-    push @journals, LJ::get_shared_journals($remote);
-    my $journal = $GET{'journal'} || $remote->{'user'};
-    unless (grep { $_ eq $journal } @journals) {  return BML::redirect("/customize/");  }
+    my $authas = $GET{authas} || $remote->{user};
+    my $u = LJ::get_authas_user($authas);
 
-    my $u = $remote;
-    $u = LJ::load_user($journal) unless $journal eq $remote->{'user'};
     my $userid = $u->{'userid'};
 
     LJ::load_user_props($u, "stylesys", "s2_style");
@@ -23,17 +21,11 @@
     $body = "";
     $title = $ML{".user.layer"};
 
-    if (@journals > 1) {
-        $body .= "<form method='get' action='viewuser.bml'>";
-        $body .= $ML{'.work.with.journal'};
-        $body .= LJ::html_select({
-            'name' => 'journal',
-            'selected' => $journal,
-        }, map { $_, $_ } @journals);
-        $body .= " <input type='submit' value='$ML{'.switch'}'> </form>";
-    }
+    $body .= "<form method='get' action='viewuser.bml'>\n";
+    $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
+    $body .= "</form>\n\n";
 
-    $body .= "&lt;&lt; <a href='/customize/?journal=$journal'>$ML{'.customize'}</a><p>";
+    $body .= "&lt;&lt; <a href='/customize/?journal=$authas'>$ML{'.customize'}</a><p>";
 
     my $err = sub {
         $title = $ML{"Error"};
@@ -98,8 +90,8 @@
     # load the language and layout choices for core.
     LJ::S2::load_layer_info(\%layerinfo, \@layerids);
    
-    $body .= "<a href='viewuser.bml?journal=$journal'>$ML{'.raw'}</a> | ";
-    $body .= "<a href='viewuser.bml?journal=$journal&as=theme'>$ML{'.as.theme'}</a>\n";
+    $body .= "<a href='viewuser.bml?journal=$authas'>$ML{'.raw'}</a> | ";
+    $body .= "<a href='viewuser.bml?journal=$authas&as=theme'>$ML{'.as.theme'}</a>\n";
 
     $body .= "<p><textarea rows='40' cols='60' wrap='off'>";
     

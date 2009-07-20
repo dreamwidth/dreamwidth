@@ -1022,7 +1022,6 @@ sub postevent
     ### note: shared journals are deprecated.  every shared journal
     ##        should one day be a community journal, of some form.
     return fail($err,150) if ($u->{'journaltype'} eq "C" ||
-                              $u->{'journaltype'} eq "S" ||
                               $u->{'journaltype'} eq "I");
 
     # suspended users can't post
@@ -1926,8 +1925,7 @@ sub getevents
 
     # if this is on, we sort things different (logtime vs. posttime)
     # to avoid timezone issues
-    my $is_community = ($uowner->{'journaltype'} eq "C" ||
-                        $uowner->{'journaltype'} eq "S");
+    my $is_community = ($uowner->{journaltype} eq "C");
 
     # in some cases we'll use the master, to ensure there's no
     # replication delay.  useful cases: getting one item, use master

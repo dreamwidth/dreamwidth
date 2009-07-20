@@ -50,11 +50,11 @@ sub handle {
     # find what node type we're dealing with
     my $node_type;
     my $node_ident = $u->user;
-    if ($u->is_community || $u->is_shared ) {
+    if ( $u->is_community ) {
         $node_type = 'group';
-    } elsif ($u->is_person) {
+    } elsif ( $u->is_person ) {
         $node_type = 'person';
-    } elsif ($u->is_identity) {
+    } elsif ( $u->is_identity ) {
         $node_type = 'openid';
         $node_ident = $u->url; # should be identity type O
     } else {

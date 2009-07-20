@@ -45,7 +45,7 @@
 
 .friends.head=Friends View
 
-.friends.opt.usesharedpic.about=This option controls what picture you see on your friends page when a user posts in a shared or community journal.  If you check it, then you'll see the community's icon.  If you leave it unchecked, then you'll see the person that's actually posting's personal user icon.
+.friends.opt.usesharedpic.about=This option controls what picture you see on your friends page when a user posts in a community journal.  If you check it, then you'll see the community's icon.  If you leave it unchecked, then you'll see the person that's actually posting's personal user icon.
 
 .friends.opt.usesharedpic.head=Use shared journal pictures instead of poster's user picture
 

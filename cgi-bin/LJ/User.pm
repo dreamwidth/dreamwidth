@@ -609,7 +609,6 @@ sub info_for_js {
                is_person        => $u->is_person,
                is_syndicated    => $u->is_syndicated,
                is_identity      => $u->is_identity,
-               is_shared        => $u->is_shared,
                );
     # Without url_message "Send Message" link should not display
     $ret{url_message} = $u->message_url unless ($u->opt_usermsg eq 'N');
@@ -668,12 +667,6 @@ sub is_person {
 *is_personal = \&is_person;
 
 
-sub is_shared {
-    my $u = shift;
-    return $u->{journaltype} eq "S";
-}
-
-
 sub is_syndicated {
     my $u = shift;
     return $u->{journaltype} eq "Y";
@@ -694,7 +687,6 @@ sub journaltype_readable {
         R => 'redirect',
         I => 'identity',
         P => 'personal',
-        S => 'shared',
         Y => 'syndicated',
         C => 'community',
     }->{$u->{journaltype}};
@@ -8702,25 +8694,6 @@ sub userpic_count {
 
 ########################################################################
 ###  99. Miscellaneous Legacy Items
-
-# FIXME: shared journals are gone. Check what calls this and kill it.
-# <LJFUNC>
-# name: LJ::get_shared_journals
-# des: Gets an array of shared journals a user has access to.
-# returns: An array of shared journals.
-# args: u
-# </LJFUNC>
-sub get_shared_journals
-{
-    my $u = shift;
-    my $ids = LJ::load_rel_target($u, 'A') || [];
-
-    # have to get usernames;
-    my %users;
-    LJ::load_userids_multiple([ map { $_, \$users{$_} } @$ids ], [$u]);
-    return sort map { $_->{'user'} } values %users;
-}
-
 
 # FIXME: these are deprecated and no longer used; check what calls them and kill it.
 sub add_friend    { confess 'LJ::add_friend has been deprecated.';    }

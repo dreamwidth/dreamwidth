@@ -48,7 +48,7 @@
 
 .error.noverify2=Sorry, you aren't allowed to post comments until your email address has been validated. If you've lost the confirmation email to do this, you can <a [[aopts]]>have it re-sent</a>.
 
-.error.postshared=You can't post as a shared or community account.  Shared accounts represent groups of people, not individual people.
+.error.postshared=You can't post as a community account.
 
 .error.purged=Your journal has been deleted and purged.  You can't post messages.
 

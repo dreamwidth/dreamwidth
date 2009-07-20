@@ -27,7 +27,7 @@ body<=
     return BML::redirect("$LJ::SITEROOT/community/members.bml?authas=$u->{'user'}")
         if $u->is_community;
     return LJ::bad_input($ML{'.error.badjournaltype'})
-        unless $u->is_person || $u->is_shared || $u->is_identity;
+        unless $u->is_person || $u->is_identity;
 
     my $ret;
 

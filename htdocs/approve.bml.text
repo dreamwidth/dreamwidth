@@ -22,12 +22,5 @@ other options for this user.
 
 .error.unknownactiontype=Unknown action type
 
-.shared.success=Success
-
-.shared.text<<
-You have been given posting access to [[shared]].
-Click <a [[aopts]]>here</a> to add the shared journal to your friends list.
-.
-
 .title=Action Approval
 

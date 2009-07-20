@@ -60,26 +60,6 @@ body<=
                ' p?>';
     }
 
-    # invite users to shared journals
-    if ($aa->{'action'} eq 'shared_invite') {
-        my $dbh = LJ::get_db_writer();
-
-        my $targetid = $arg->{'targetid'};
-        return LJ::bad_input($ML{'.error.internerr.invalidaction'}) unless $targetid;
-
-        LJ::set_rel($aa->{'userid'}, $targetid, 'P');
-
-        # mark this authaction as used
-        $dbh->do("UPDATE authactions SET used='Y' WHERE aaid=?", undef, $aa->{'aaid'});
-
-        my $username = LJ::get_username($aa->{'userid'});
-        return "<?h1 $ML{'.shared.success'} h1?>".
-               '<?p '.BML::ml('.shared.text',
-               {'shared'=>LJ::ljuser($username),
-                'aopts'=>'href="'.$LJ::SITEROOT.'/manage/circle/add.bml?user='.$username.'&action=subscribe"'}).
-               ' p?>';
-    }
-
     # approve someone joining a community
     if ($aa->{action} eq 'comm_join_request') {
         my $dbh = LJ::get_db_writer();

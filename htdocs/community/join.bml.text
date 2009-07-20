@@ -41,7 +41,7 @@
 
 .label.closed=This community is closed.  If you're interested in joining it, please contact one of its maintainers. Below is the list of maintainers for this community: [[admins]]
 
-.label.commlogged=You're logged in as a shared/community account, not your personal account.
+.label.commlogged=You're logged in as a community account, not your personal account.
 
 .label.errorcomminfo=The specified community information is not valid.
 

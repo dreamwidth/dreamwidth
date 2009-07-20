@@ -645,60 +645,6 @@ sub get_authas_user {
     return $u;
 }
 
-
-# <LJFUNC>
-# name: LJ::shared_member_request
-# des: Registers an authaction to add a user to a
-#      shared journal and sends an approval e-mail.
-# returns: Hashref; output of LJ::register_authaction()
-#          includes datecreate of old row if no new row was created.
-# args: ju, u, attr?
-# des-ju: Shared journal user object
-# des-u: User object to add to shared journal
-# </LJFUNC>
-sub shared_member_request {
-    my ($ju, $u) = @_;
-    return undef unless ref $ju && ref $u;
-
-    my $dbh = LJ::get_db_writer();
-
-    # check for duplicates
-    my $oldaa = $dbh->selectrow_hashref("SELECT aaid, authcode, datecreate FROM authactions " .
-                                        "WHERE userid=? AND action='shared_invite' AND used='N' " .
-                                        "AND NOW() < datecreate + INTERVAL 1 HOUR " .
-                                        "ORDER BY 1 DESC LIMIT 1",
-                                        undef, $ju->{'userid'});
-    return $oldaa if $oldaa;
-
-    # insert authactions row
-    my $aa = LJ::register_authaction($ju->{'userid'}, 'shared_invite', "targetid=$u->{'userid'}");
-    return undef unless $aa;
-
-    # if there are older duplicates, invalidate any existing unused authactions of this type
-    $dbh->do("UPDATE authactions SET used='Y' WHERE userid=? AND aaid<>? " .
-             "AND action='shared_invite' AND used='N'",
-             undef, $ju->{'userid'}, $aa->{'aaid'});
-
-    my $body = "The maintainer of the $ju->{'user'} shared journal has requested that " .
-        "you be given posting access.\n\n" .
-        "If you do not wish to be added to this journal, just ignore this email.  " .
-        "However, if you would like to accept posting rights to $ju->{'user'}, click " .
-        "the link below to authorize this action.\n\n" .
-        "     $LJ::SITEROOT/approve/$aa->{'aaid'}.$aa->{'authcode'}\n\n" .
-        "Regards\n$LJ::SITENAME Team\n";
-
-    LJ::send_mail({
-        'to' => $u->email_raw,
-        'from' => $LJ::ADMIN_EMAIL,
-        'fromname' => $LJ::SITENAME,
-        'charset' => 'utf-8',
-        'subject' => "Community Membership: $ju->{'name'}",
-        'body' => $body
-        });
-
-    return $aa;
-}
-
 # <LJFUNC>
 # name: LJ::is_valid_authaction
 # des: Validates a shared secret (authid/authcode pair)
