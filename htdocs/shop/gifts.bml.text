@@ -8,6 +8,10 @@
 
 .free.header=Free Accounts
 
+.free.header.personal=Journals
+
+.free.header.communities=Communities
+
 .none.text=None of the people in your Circle have free accounts or have paid accounts that are expiring within the next month! You can still buy someone a gift in the <a [[aopts]]>[[sitename]] Shop</a>.
 
 .paid.about=These are the people in your Circle who have paid accounts that are expiring within the next month:

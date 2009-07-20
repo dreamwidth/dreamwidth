@@ -60,11 +60,19 @@ body<=
     # and we've got our lists. the only thing left is to format them
     # for human display, so we:
 
-    # build a list of expiring-soon users in the circle, formatted with
+    # build a list of free users in the circle, formatted with
     # the display username and a buy-a-gift link:
+    # sort into two lists depending on whether it's a personal or community account
     my $freeusers;
+    my $freecommunities;
     foreach my $person ( @free ) {
-        $freeusers .= "<li>" . $person->ljuser_display . ": " . $person->name_html . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $person->user . "'>" . BML::ml( '.buy' ) . "</a>]</li>\n";
+        my $linked = "<li>" . $person->ljuser_display . ": " . $person->name_html . " [<a href='$LJ::SITEROOT/shop/account?for=gift&user=" 
+            . $person->user . "'>" . BML::ml( '.buy' ) . "</a>]</li>\n";
+        if ( $person->is_personal ) {
+            $freeusers .= $linked;
+        } else {
+            $freecommunities .= $linked;
+        }
     }
 
     # build a list of expiring-soon users in the circle, formatted with
@@ -77,10 +85,20 @@ body<=
     # and, now we build the page.
     $ret .= "<p>" . BML::ml( '.about', { 'sitename' => $LJ::SITENAMESHORT } ) . "</p>";
 
-    if ( $freeusers ) {
+    if ( $freeusers || $freecommunities ) {
         $ret .= "<h2>" . BML::ml( '.free.header' ) . "</h2>\n";
         $ret .= "<p>" . BML::ml( '.free.about', { 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=153'" } ) . "</p>";
-        $ret .= "<ul> " . $freeusers . "</ul>";
+
+        #build different lists for personal and community accounts
+        if ( $freeusers ) {
+            $ret .= "<h3>" . BML::ml( '.free.header.personal' ) . "</h3>\n";
+            $ret .= "<ul> " . $freeusers . "</ul><br />";
+        }
+        if ( $freecommunities ){
+            $ret .= "<h3>" . BML::ml( '.free.header.communities' ) . "</h3>\n";
+            $ret .= "<ul> " . $freecommunities . "</ul>";
+        }
+        $ret .= "<br />";
     }
 
     if ( $expusers ) {
@@ -89,7 +107,7 @@ body<=
         $ret .= "<ul> " . $expusers . "</ul>";
     }
 
-    unless ( $freeusers || $expusers ) {
+    unless ( $freeusers || $freecommunities || $expusers ) {
         $ret .= "<p>" . BML::ml( '.none.text', { 'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/shop/'" } ) . "</p>";
     }
 
