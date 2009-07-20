@@ -142,4 +142,24 @@ sub get_moods
     return \%LJ::CACHE_MOODS;
 }
 
+# given a local moodid or mood and an external siteid, return that mood's id on that site
+sub get_external_site_moodid {
+    my %opts = @_;
+
+    my $siteid = $opts{siteid};
+    my $moodid = $opts{moodid};
+    my $mood = $opts{mood};
+
+    return 0 unless $siteid;
+    return 0 unless $moodid || $mood;
+
+    my $mood_text = $mood ? $mood : LJ::mood_name( $moodid );
+
+    # determine which moodid on the external site corresponds to the given $mood_text
+    my $dbr = LJ::get_db_reader();
+    my ( $external_moodid ) = $dbr->selectrow_array( "SELECT moodid FROM external_site_moods WHERE siteid = ? AND LOWER( mood ) = ?", undef, $siteid, lc $mood_text );
+
+    return $external_moodid ? $external_moodid : 0;
+}
+
 1;

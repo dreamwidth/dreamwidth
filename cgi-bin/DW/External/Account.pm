@@ -341,6 +341,11 @@ sub supports_challenge {
 }
 
 #accessors
+
+sub siteid {
+    return $_[0]->{siteid};
+}
+
 sub acctid {
     return $_[0]->{acctid};
 }

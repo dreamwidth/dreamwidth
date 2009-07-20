@@ -3261,6 +3261,16 @@ CREATE TABLE pp_trans (
 )
 EOC
 
+register_tablecreate('external_site_moods', <<'EOC');
+CREATE TABLE external_site_moods (
+    siteid int unsigned not null,
+    mood varchar(40) not null,
+    moodid int(10) unsigned not null default '0',
+
+    PRIMARY KEY (siteid, mood)
+)
+EOC
+
 
 # NOTE: new table declarations go ABOVE here ;)
 

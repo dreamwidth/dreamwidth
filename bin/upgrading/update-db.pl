@@ -229,6 +229,7 @@ sub populate_database {
     ($su, $made_system) = vivify_system_user();
 
     populate_moods();
+    populate_external_moods();
     # we have a flag to disable population of s1/s2 if the user requests
     unless ($opt_nostyles) {
         populate_s2();
@@ -568,6 +569,34 @@ sub populate_proplist_file {
     }
     $insert->();
     close($fh);
+}
+
+sub populate_external_moods {
+    my $moodfile = "$ENV{'LJHOME'}/bin/upgrading/moods-external.dat";
+
+    if ( open MOODFILE, "<$moodfile" ) {
+        print "Populating mood data for external sites.\n";
+
+        # $siteid => { $mood => { siteid => $siteid, mood => $mood, moodid => $moodid } }
+        my $moods = $dbh->selectall_hashref( "SELECT siteid, mood, moodid FROM external_site_moods", [ 'siteid', 'mood' ] );
+
+        foreach my $line ( <MOODFILE> ) {
+            chomp $line;
+
+            if ( $line =~ /^(\d+)\s+(\d+)\s+(.+)$/ ) {
+                my ( $siteid, $moodid, $mood ) = ( $1, $2, $3 );
+
+                unless ( $moods->{$siteid} && $moods->{$siteid}->{$mood} && $moods->{$siteid}->{$mood}->{moodid} eq $moodid ) {
+                    $dbh->do(
+                        "REPLACE INTO external_site_moods ( siteid, mood, moodid ) VALUES ( ?, ?, ? )",
+                        undef, $siteid, $mood, $moodid
+                    );
+                }
+            }
+        }
+
+        close MOODFILE;
+    }
 }
 
 sub populate_moods {

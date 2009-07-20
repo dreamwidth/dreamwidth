@@ -315,15 +315,43 @@ sub entry_to_req {
     my $entryprops = $entry->props;
     $req->{props} = {};
     # only bring over these properties
-    for my $entrykey (qw ( adult_content current_coords current_location current_mood current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening picture_keyword qotdid taglist used_rte pingback )) {
+    for my $entrykey (qw ( adult_content current_coords current_location current_music opt_backdated opt_nocomments opt_noemail opt_preformatted opt_screening picture_keyword qotdid taglist used_rte pingback )) {
         $req->{props}->{$entrykey} = $entryprops->{$entrykey} if defined $entryprops->{$entrykey};
     }
-    # the current_mood above handles custom moods; for standard moods we
-    # use current_moodid
-    if ($entryprops->{current_moodid}) {
-        my $mood = LJ::mood_name($entryprops->{current_moodid});
-        $req->{props}->{current_mood} = $mood if $mood;
+
+    # figure out what current_moodid and current_mood to pass to the crossposted entry
+    my ( $siteid, $moodid, $mood ) = ( $extacct->siteid, $entryprops->{current_moodid}, $entryprops->{current_mood} );
+    my $external_moodid;
+    if ( $moodid && $mood ) {
+        # use the mood text that was given
+        $req->{props}->{current_mood} = $mood;
+
+        # try these in order:
+        # 1. use the mood icon that matches the given mood id
+        # 2. use the mood icon that matches the given mood text
+        # 3. don't use an icon
+        $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, moodid => $moodid );
+        unless ( $external_moodid ) {
+            $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, mood => $mood );
+        }
+    } elsif ( $moodid ) {
+        # try these in order:
+        # 1. use the mood icon that matches the given mood id
+        # 2. use the mood text that matches the given mood id (no icon)
+        $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, moodid => $moodid );
+        unless ( $external_moodid ) {
+            $req->{props}->{current_mood} = LJ::mood_name( $moodid );
+        }
+    } elsif ( $mood ) {
+        # try these in order:
+        # 1. use the mood icon that matches the given mood text
+        # 2. use the mood text that was given (no icon)
+        $external_moodid = LJ::get_external_site_moodid( siteid => $siteid, mood => $mood );
+        unless ( $external_moodid ) {
+            $req->{props}->{current_mood} = $mood;
+        }
     }
+    $req->{props}->{current_moodid} = $external_moodid if $external_moodid;
 
     # and set the useragent - FIXME put this somewhere else?
     $req->{props}->{useragent} = "Dreamwidth Crossposter";
