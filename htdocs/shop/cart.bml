@@ -38,11 +38,11 @@ body<=
             if $from_post{error};
     }
 
-    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a></p>";
+    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a> &bull; <a href='$LJ::SITEROOT/shop/gifts'>$ML{'.gift'}</a></p>";
 
     $ret .= LJ::Widget::ShopCart->render;
 
-    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a></p>";
+    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a> &bull; <a href='$LJ::SITEROOT/shop/gifts'>$ML{'.gift'}</a></p>";
 
     return $ret;
 }
