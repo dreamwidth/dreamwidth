@@ -33,9 +33,9 @@ sub work {
     my $u = LJ::load_userid($uid)
         or die "no userid";
 
-    # fotobilder won't autovivify communities/shared, so it won't accept
+    # fotobilder won't autovivify communities so it won't accept
     # friends update pushes.
-    if ($u->is_community || $u->is_shared) {
+    if ( $u->is_community ) {
         $job->completed;
         return;
     }

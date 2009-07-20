@@ -1018,9 +1018,7 @@ sub postevent
     return fail($err,306) unless $dbh && $dbcm && $uowner->writer;
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
-    ### make sure community or shared journals don't post
-    ### note: shared journals are deprecated.  every shared journal
-    ##        should one day be a community journal, of some form.
+    ### make sure community or identity journals don't post
     return fail($err,150) if ($u->{'journaltype'} eq "C" ||
                               $u->{'journaltype'} eq "I");
 
@@ -2360,7 +2358,6 @@ sub list_friends
         $r->{"type"} = {
             'C' => 'community',
             'Y' => 'syndicated',
-            'S' => 'shared',
             'I' => 'identity',
         }->{$u->{'journaltype'}} if $u->{'journaltype'} ne 'P';
 
