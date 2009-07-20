@@ -1087,13 +1087,15 @@ sub work {
     if ($type eq 'new') {
         $body = "A $LJ::SITENAME support request has been submitted regarding the following:\n\n";
         $body .= "Category: $sp->{_cat}{catname}\n";
-        $body .= "Subject:  $sp->{subject}\n\n";
-        $body .= "You can track its progress or add information here:\n\n";
+        $body .= "Subject:  $sp->{subject}\n";
+        $body .= "URL: $LJ::SITEROOT/support/see_request.bml?id=$spid\n";
+        $body .= "Text:\n\n  $sp->{body}";
+        $body .= "\n\n" . "="x4 . "\n\n";
+        $body .= "You can view this request here:\n\n";
         $body .= "$LJ::SITEROOT/support/see_request.bml?id=$spid";
-        $body .= "\n\nIf you do not wish to receive notifications of incoming support requests, you may change your notification settings here:\n\n";
+        $body .= "\n\nYou are receiving this email because you've requested notifications of new support requests. You may change this notification setting here:\n\n";
         $body .= "$LJ::SITEROOT/support/changenotify.bml";
-        $body .= "\n\n" . "="x70 . "\n\n";
-        $body .= $sp->{body};
+
 
         foreach my $u (values %$userids) {
             next unless $u->is_visible;
@@ -1109,12 +1111,17 @@ sub work {
                                   undef, $sp->{spid}, $a->{splid}+0);
 
         # build body
-        $body = "A follow-up to the request regarding \"$sp->{subject}\" has ";
-        $body .= "been submitted.  You can track its progress or add ";
-        $body .= "information here:\n\n  ";
+        $body = "A follow-up to the following $LJ::SITENAME support request has been submitted:\n\n";
+        $body .= "Category: $sp->{_cat}{catname}\n";
+        $body .= "Subject:  $sp->{subject}\n";
+        $body .= "URL: $LJ::SITEROOT/support/see_request.bml?id=$spid\n";
+        $body .= "Text:\n\n  $resp";
+        $body .= "\n\n" . "="x4 . "\n\n";
+        $body .= "You can view this request here:\n\n";
         $body .= "$LJ::SITEROOT/support/see_request.bml?id=$spid";
-        $body .= "\n\n" . "="x70 . "\n\n";
-        $body .= $resp;
+        $body .= "\n\nYou are receiving this email because you've requested notifications of changes to support requests. You may change this notification setting here:\n\n";
+        $body .= "$LJ::SITEROOT/support/changenotify.bml";
+
 
         # now see who this should be sent to
         foreach my $u (values %$userids) {
