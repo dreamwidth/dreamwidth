@@ -35,7 +35,7 @@ body<=
 
     foreach my $target ( values %$circle ) {
 
-        if ( $target->is_person || $target->is_community ) {
+        if ( ( $target->is_person || $target->is_community ) && $target->is_visible ) {
             my $paidstatus = DW::Pay::get_paid_status( $target );
 
             # account is free if it has no paidstatus, if it's not permanent,
