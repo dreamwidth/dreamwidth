@@ -2787,7 +2787,7 @@ LOGIN_BAR
         $ret .= "</td>";
     }
 
-    # search box and ?style=mine/?format=light options
+    # search box and ?style=mine/?style=light options
     my @view_options;
     #determine whether style is "mine", and define new uri variable to manipulate
     #note: all expressions case-insensitive
@@ -2815,7 +2815,7 @@ LOGIN_BAR
     } else {
         $querysep2 = "?";
     }
-    #appropriate links depending on whether style is "mine" and whether format=light is possible on this type of content
+    #appropriate links depending on whether style is "mine" and whether style=light is possible on this type of content
     if ($remote) {
         if ($currentstylemine) {
             push @view_options, "<a href='$newuri'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle' ) . "</a>"
@@ -2823,7 +2823,7 @@ LOGIN_BAR
             push @view_options, "<a href='$newuri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
         }
     }
-    push @view_options, "<a href='$newuri${querysep2}format=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>"
+    push @view_options, "<a href='$newuri${querysep2}style=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>"
         if $view eq "entry" || $view eq "reply" || $view eq "tag" || $view eq "month" || ( $view eq "lastn" && $uri =~ /\/tag/ );
 
     $ret .= "<td id='lj_controlstrip_search'>";
