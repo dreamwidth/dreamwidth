@@ -191,7 +191,7 @@ sub init
     $init->{'dthread'} = $init->{'thread'};
     $init->{'clustered'} = 0;
     $init->{'replyto'} = $form->{'replyto'}+0;
-    $init->{'style'} = $form->{'style'} ? "mine" : undef;
+    $init->{'style'} = $form->{'style'} || undef;
 
     if ($journal) {
         # they specified a journal argument, which indicates new style.
