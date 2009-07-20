@@ -388,6 +388,11 @@ sub has_children {
     return $self->children ? 1 : 0;
 }
 
+sub has_nondeleted_children {
+    my $nondeleted_children = grep { ! $_->is_deleted } $_[0]->children;
+    return $nondeleted_children ? 1 : 0;
+}
+
 # returns true if entry currently exists.  (it's possible for a given
 # $u, to make a fake jitemid and that'd be a valid skeleton LJ::Entry
 # object, even though that jitemid hasn't been created yet, or was
@@ -934,8 +939,8 @@ sub user_can_edit {
         return 0;
     }
 
-    # comment cannot have any replies
-    if ($self->has_children) {
+    # comment cannot have any replies; deleted comments don't count
+    if ($self->has_nondeleted_children) {
         $$errref = LJ::Lang::ml('talk.error.cantedit.haschildren');
         return 0;
     }
