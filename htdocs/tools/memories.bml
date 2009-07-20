@@ -290,7 +290,4 @@ head=><?_code return $head; _code?>
 body<=
 <?_code return $body; _code?>
 <=body
-page?><?_c <LJDEP>
-link: htdocs/tools/memories.bml, htdocs/tools/memadd.bml, htdocs/talkread.bml
-form: htdocs/tools/memories.bml
-</LJDEP> _c?>
+page?>

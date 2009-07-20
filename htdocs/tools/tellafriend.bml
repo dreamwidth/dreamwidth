@@ -217,8 +217,4 @@
 _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-lib: cgi-bin/emailcheck.pl
-link: htdocs/login.bml, htdocs/lostinfo.bml, htdocs/users, htdocs/talkread.bml
-form: htdocs/tools/tellafriend.bml
-</LJDEP> _c?>
+page?>

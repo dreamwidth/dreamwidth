@@ -6,7 +6,4 @@ body<=
     return BML::ml('.main2', {'aopts' => "href='$LJ::SITEROOT/community/create.bml'", 'sitename' => $LJ::SITENAMESHORT});
 _code?>
 <=body
-page?><?_c <LJDEP>
-# NONE
-</LJDEP> _c?>
-
+page?>

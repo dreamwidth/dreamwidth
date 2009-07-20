@@ -106,6 +106,4 @@ HTMLBLOCK
 }
 _code?>
 <=body
-page?><?_c <LJDEP>
-post: htdocs/export_do.bml
-</LJDEP> _c?>
+page?>

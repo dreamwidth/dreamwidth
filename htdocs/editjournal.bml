@@ -629,8 +629,4 @@ _code?>
 
 
 <=head
-page?><?_c <LJDEP>
-post: htdocs/editjournal.bml
-link: htdocs/lostinfo.bml
-</LJDEP> _c?>
-
+page?>

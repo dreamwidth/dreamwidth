@@ -203,8 +203,4 @@ body<=
 }
 _code?>
     <=body
-    page?><?_c <LJDEP>
-post: htdocs/changepassword.bml
-lib: Digest::MD5
-hook: post_changepassword
-    </LJDEP> _c?>
+    page?>

@@ -162,5 +162,4 @@
     # all done
     $r->print("</livejournal>\n");
 }
-_code?><?_c <LJDEP>
-</LJDEP> _c?>
+_code?>

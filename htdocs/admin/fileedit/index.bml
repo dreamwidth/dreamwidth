@@ -150,8 +150,4 @@
 
  return "unknown mode";
 
-_code?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-form: htdocs/admin/fileedit/index.bml
-post: htdocs/admin/fileedit/index.bml
-</LJDEP> _c?>
+_code?>

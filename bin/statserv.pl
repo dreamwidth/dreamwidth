@@ -2,10 +2,7 @@
 # LiveJournal statistics server. Sits on a UDP port and journals
 # information on the incoming hit rate, manages site bans, etc.
 # Loosely based on the ljrpcd code to save typing ;)
-# <LJDEP>
-# lib: IO::Socket Proc::ProcessTable IO::Handle DBI
 #
-# </LJDEP>
 
 use strict;
 use IO::Socket;

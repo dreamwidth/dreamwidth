@@ -105,6 +105,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/admin/priv/index.bml, htdocs/support/index.bml
-</LJDEP> _c?>
+page?>

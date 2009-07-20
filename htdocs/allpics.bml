@@ -269,6 +269,4 @@ _code?><?page
 title=><?_code return $title; _code?>
 head=><?_code return $head; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-link: htdocs/editpics.bml
-</LJDEP> _c?>
+page?>

@@ -1,9 +1,5 @@
 #!/usr/bin/perl
 #
-# <LJDEP>
-# lib: Fcntl::, cgi-bin/ljlib.pl
-# file: bin/maint/taskinfo.txt, bin/maint/taskinfo-local.txt
-# </LJDEP>
 
 use strict;
 use vars qw(%maint %maintinfo $VERBOSE);

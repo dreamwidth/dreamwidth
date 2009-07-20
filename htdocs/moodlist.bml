@@ -297,7 +297,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-form: htdocs/moodlist.bml
-link: htdocs/customize/
-</LJDEP> _c?>
+page?>

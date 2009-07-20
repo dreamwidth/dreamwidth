@@ -149,9 +149,4 @@ body<=
 }
 _code?>
 <=body
-page?><?_c <LJDEP>
-lib: LJ::TextMessage
-link: htdocs/login.bml, htdocs/support/faqbrowse.bml
-form: htdocs/tools/textmessage.bml
-post: htdocs/tools/textmessage.bml
-</LJDEP> _c?>
+page?>

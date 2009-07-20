@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 #
-# <LJDEP>
-# lib: Proc::ProcessTable, cgi-bin/ljlib.pl
-# </LJDEP>
 
 use strict;
 use Getopt::Long

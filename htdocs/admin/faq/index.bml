@@ -78,7 +78,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-link: htdocs/admin/faq/readcat.bml, htdocs/admin/faq/faqedit.bml
-</LJDEP> _c?>
+page?>

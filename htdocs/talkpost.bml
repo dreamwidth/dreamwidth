@@ -409,8 +409,4 @@ head<=
 <?_code return (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : ""; _code?>
 <=head
 windowtitle=><?_ml /talkpost.bml.title _ml?>
-page?><?_c <LJDEP>
-post: htdocs/talkpost_do.bml
-link: htdocs/talkread.bml, htdocs/allpics.bml, htdocs/create.bml
-</LJDEP> _c?>
-
+page?>

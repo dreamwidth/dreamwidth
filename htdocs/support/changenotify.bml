@@ -102,7 +102,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/login.bml
-post: htdocs/support/changenotify.bml
-</LJDEP> _c?>
+page?>

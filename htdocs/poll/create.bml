@@ -728,11 +728,4 @@
  _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c
-<LJDEP>
-lib: LJ::img, cgi-bin/htmlcontrols.pl, cgi-bin/ljpoll.pl
-link: htdocs/support/faqbrowse.bml, htdocs/login.bml
-img: img::btn_up, img::btn_down, img::btn_del
-post: htdocs/poll/create.bml, htdocs/update.bml
-</LJDEP>
-_c?>
+page?>

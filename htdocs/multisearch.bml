@@ -257,9 +257,4 @@
 _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-link: htdocs/talkread.bml, htdocs/allpics.bml, htdocs/userinfo.bml, htdocs/random.bml
-link: htdocs/interests.bml, htdocs/directorysearch.bml, htdocs/directory.bml
-hook: multisearch_custom_search_redirect
-</LJDEP> _c?>
-
+page?>

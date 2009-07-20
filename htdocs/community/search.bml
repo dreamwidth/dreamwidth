@@ -145,6 +145,3 @@ bar?>
 
 <=body
 page?>
-<?_c <LJDEP>
-form: htdocs/directory.bml
-</LJDEP> _c?>

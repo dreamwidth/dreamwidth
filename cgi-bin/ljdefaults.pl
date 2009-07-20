@@ -409,8 +409,4 @@
     $LJ::MAX_DIR_SEARCH_RESULTS ||= 2000;
 }
 
-# no dependencies.
-# <LJDEP>
-# </LJDEP>
-
 return 1;

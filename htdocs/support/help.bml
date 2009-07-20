@@ -366,8 +366,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/support/help.bml, htdocs/support/see_request.bml
-link: htdocs/support/index.bml
-form: htdocs/support/help.bml
-</LJDEP> _c?>
+page?>

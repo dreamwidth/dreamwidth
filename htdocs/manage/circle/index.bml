@@ -44,7 +44,4 @@ _code?>
   <li><?_ml .security.custom _ml?></li>
 </ul>
 <=body
-page?><?_c <LJDEP>
-link: htdocs/manage/circle/edit.bml, htdocs/manage/circle/editfilters.bml
-link: htdocs/manage/circle/filter.bml, htdocs/download/index.bml
-</LJDEP> _c?>
+page?>

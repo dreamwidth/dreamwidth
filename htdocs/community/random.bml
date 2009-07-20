@@ -9,6 +9,4 @@
 }
 _code?><?_info
 noheaders=>1
-_info?><?_c <LJDEP>
-link: htdocs/users
-</LJDEP> _c?>
+_info?>

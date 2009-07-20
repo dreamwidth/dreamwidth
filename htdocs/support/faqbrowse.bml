@@ -279,6 +279,4 @@ body<=
 _code?>
 <=body
 title=><?_code return $_[1]->{'title'}; _code?>
-page?><?_c <LJDEP>
-link: htdocs/support/index.bml, htdocs/support/faq.bml
-</LJDEP> _c?>
+page?>

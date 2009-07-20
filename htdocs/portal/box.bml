@@ -17,5 +17,4 @@
 
  return "<html><head>$head<title>$title</title><body marginwidth=0 marginheight=0 $bodyopts><base target=_content>$body</body></html>";
 
-_code?><?_c <LJDEP>
-</LJDEP> _c?>
+_code?>

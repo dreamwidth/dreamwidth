@@ -547,8 +547,4 @@ body<=
 }
 _code?>
 <=body
-page?><?_c <LJDEP>
-link: htdocs/interests.bml, htdocs/manage/profile/index.bml
-post: htdocs/interests.bml
-form: htdocs/interests.bml
-</LJDEP> _c?>
+page?>

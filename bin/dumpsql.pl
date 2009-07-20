@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 #
-# <LJDEP>
-# lib: cgi-bin/ljlib.pl
-# </LJDEP>
 
 use strict;
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";

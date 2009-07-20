@@ -71,7 +71,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-link: htdocs/admin/faq/index.bml
-</LJDEP> _c?>
+page?>

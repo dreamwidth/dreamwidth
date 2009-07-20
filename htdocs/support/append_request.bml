@@ -339,7 +339,4 @@ _code?>
 <?_code return BML::ml('.back.support2', {'aopts' => "href='$LJ::SITEROOT/support/'"}); _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/login.bml, htdocs/support/see_request.bml, htdocs/support/help.bml
-link: htdocs/support/index.bml
-</LJDEP> _c?>
+page?>

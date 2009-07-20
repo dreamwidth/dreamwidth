@@ -298,7 +298,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-post: htdocs/admin/faq/faqedit_do.bml
-</LJDEP> _c?>
+page?>

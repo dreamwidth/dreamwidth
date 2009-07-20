@@ -176,7 +176,4 @@ _info?><?_code
 _code?><?page
 title=><?_ml .title _ml?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-link: htdocs/manage/comments/index.bml
-post: htdocs/delcomment.bml
-</LJDEP> _c?>
+page?>

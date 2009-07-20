@@ -103,8 +103,4 @@
 
  return "Unknown mode.";
 
-_code?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl
-form: htdocs/admin/capedit.bml
-post: htdocs/admin/capedit.bml
-</LJDEP _c?>
+_code?>

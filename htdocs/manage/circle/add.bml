@@ -476,8 +476,4 @@ head<=
 <?_code return $_[1]->{'head'}; _code?>
 <=head
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-link: htdocs/login.bml, htdocs/create.bml, htdocs/manage/circle/edit.bml, htdocs/users
-img: htdocs/img/dot.gif
-post: htdocs/manage/circle/add.bml
-</LJDEP> _c?>
+page?>

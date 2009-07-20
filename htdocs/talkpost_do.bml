@@ -272,8 +272,4 @@ title=><?_code return $title _code?>
 head<=
 <?_code return (! $LJ::REQ_HEAD_HAS{'chalresp_js'}++) ? $LJ::COMMON_CODE{'chalresp_js'} : ""; _code?>
 <=head
-page?><?_c <LJDEP>
-lib: LJ::SpellCheck
-link: htdocs/lostinfo.bml, htdocs/userinfo.bml, htdocs/talkread.bml
-post: htdocs/talkpost_do.bml
-</LJDEP> _c?>
+page?>

@@ -356,5 +356,4 @@ _code?>
     <=head
     bodyopts=><?_code return $bodyopts; _code?>
     body=><?_code return $body; _code?>
-    page?><?_c <LJDEP>
-    </LJDEP> _c?>
+    page?>

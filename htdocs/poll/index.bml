@@ -113,8 +113,4 @@
 _code?><?page
 title=><?_code return $title; _code?>
 body=><?_code return $body; _code?>
-page?><?_c <LJDEP>
-lib: cgi-bin/ljlib.pl, cgi-bin/cleanhtml.pl
-link: htdocs/poll/index.bml, htdocs/talkread.bml, htdocs/support/faqbrowse.bml, htdocs/poll/create.bml
-</LJDEP> _c?>
-
+page?>

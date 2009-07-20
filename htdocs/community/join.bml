@@ -160,7 +160,4 @@ body<=
 _code?>
 
 <=body
-page?><?_c <LJDEP>
-link: htdocs/login.bml, htdocs/userinfo.bml
-post: htdocs/community/join.bml
-</LJDEP> _c?>
+page?>
