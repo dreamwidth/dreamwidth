@@ -137,6 +137,11 @@ body<=
     my $talkurl = LJ::journal_base($u) . "/$ditemid.html";
     my $entry = LJ::Entry->new($u, ditemid => $ditemid);
 
+    # canonical link to the entry or comment thread
+    my $canonical_url = $entry->url;
+    $canonical_url .= "?thread=$GET{replyto}#t$GET{replyto}" if $GET{replyto};
+    $head .= qq{<link rel="canonical" href="$canonical_url" />\n};
+
     $parpost ||= $item;  # if there's no parent post, remote is reply to top-level item
 
     my ($up, $ur);  # $up = user posted journal item; $ur = user remote is replying to
