@@ -217,7 +217,7 @@ sub display_pic {
     my ( $userpic_src, $userpic_alt );
     if ( $pic ) {
         $userpic_src = $pic->url;
-        $userpic_alt = $pic->alttext;
+        $userpic_alt = LJ::ehtml( $pic->alttext( $msg->userpic ) );
     } else {
         $userpic_src = "$LJ::IMGPREFIX/nouserpic.png";
         $userpic_alt = "";

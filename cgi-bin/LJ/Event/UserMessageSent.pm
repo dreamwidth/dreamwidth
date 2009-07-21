@@ -115,10 +115,19 @@ sub display_pic {
         $pic = $u->userpic;
     }
 
+    # Get the image URL and the alternative text. Don't set
+    # alternative text if there isn't any userpic.
+    my ( $userpic_src, $userpic_alt );
+    if ( $pic ) {
+        $userpic_src = $pic->url;
+        $userpic_alt = LJ::ehtml( $pic->alttext( $msg->userpic ) );
+    } else {
+        $userpic_src = "$LJ::IMGPREFIX/nouserpic.png";
+        $userpic_alt = "";
+    }
+
     my $ret;
-    $ret .= '<img src="';
-    $ret .= $pic ? $pic->url : "$LJ::IMGPREFIX/nouserpic.png";
-    $ret .= '" width="50" align="top" />';
+    $ret .= '<img src="' . $userpic_src . '" alt="' .  $userpic_alt . '" width="50" align="top" />';
 
     return $ret;
 }
