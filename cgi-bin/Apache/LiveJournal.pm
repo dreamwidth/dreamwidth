@@ -310,7 +310,7 @@ sub trans
 
     } else { # not is_initial_req
         if ($r->status == 404) {
-            my $fn = $LJ::PAGE_404 || "404-error.html";
+            my $fn = $LJ::PAGE_404 || "404-error.bml";
             return $bml_handler->("$LJ::HOME/htdocs/" . $fn);
         }
     }

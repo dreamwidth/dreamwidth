@@ -137,7 +137,7 @@ sub setup_restart {
     LJ::ModPerl::add_httpd_config(q{
 
 # User-friendly error messages
-ErrorDocument 404 /404-error.html
+ErrorDocument 404 /404-error.bml
 ErrorDocument 500 /500-error.html
 
 # This interferes with LJ's /~user URI, depending on the module order
