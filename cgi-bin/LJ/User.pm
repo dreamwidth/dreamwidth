@@ -5714,13 +5714,32 @@ sub load_user_or_identity {
     # return undef if not dot in arg (can't be a URL)
     return undef unless $arg =~ /\./;
 
-    my $dbh = LJ::get_db_writer();
     my $url = lc($arg);
     $url = "http://$url" unless $url =~ m!^http://!;
     $url .= "/" unless $url =~ m!/$!;
+
+    # get from memcache
+    {
+        # overload the uidof memcache key to accept both display name and name
+        my $uid = LJ::MemCache::get( "uidof:$url" );
+        my $u = LJ::memcache_get_u( [ $uid, "userid:$uid" ] ) if $uid;
+        return _set_u_req_cache( $u ) if $u;
+    }
+
+    my $dbh = LJ::get_db_writer();
     my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
                                     undef, 'O', $url);
-    return LJ::load_userid($uid) if $uid;
+
+    my $u = LJ::load_userid($uid) if $uid;
+
+    # set user in memcache
+    if ( $u ) {
+        # memcache URL-to-userid for identity users
+        LJ::MemCache::set( "uidof:$url", $uid, 1800 );
+        LJ::memcache_set_u( $u );
+        return _set_u_req_cache( $u );
+    }
+
     return undef;
 }
 
