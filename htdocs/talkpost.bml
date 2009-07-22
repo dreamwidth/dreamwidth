@@ -113,11 +113,7 @@ body<=
     my $itemid = $init->{'itemid'};
 
     my $formatlight = ( ( $GET{format} eq 'light' ) || ( $GET{style} eq 'light' ) ) ? 'style=light' : '';
-    my $stylemine = "";
-
-    # FIXME: $init->{style} returns 'mine' even if style=format is used instead of style=mine
-    # if that is fixed, this can be adjusted
-    $stylemine = ( $init->{style} eq "mine" ) ? "style=mine" : "" unless $formatlight;
+    my $stylemine = $init->{style} eq "mine" ? "style=mine" : "";
 
     ## load the journal item
     my $item = LJ::Talk::get_journal_item($u, $itemid);
