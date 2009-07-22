@@ -579,6 +579,10 @@ sub maintainer_linkbar {
         $page eq "members" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</strong>" :
             "<a href='$LJ::SITEROOT/community/members.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
+        $page eq "queue" ?
+            "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</strong>" :
+            "<a href='$LJ::SITEROOT/community/moderate.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
+
     );
 
     my $ret .= "<strong>" . LJ::Lang::ml('/community/manage.bml.managelinks', { user => $comm->ljuser_display }) . "</strong> ";

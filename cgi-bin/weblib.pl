@@ -2444,6 +2444,7 @@ sub control_strip
                  'learn_more'        => LJ::run_hook('control_strip_learnmore_link') || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
                  'explore'           => "<a href='$LJ::SITEROOT/explore/'>" . BML::ml('web.controlstrip.links.explore', { sitenameabbrev => $LJ::SITENAMEABBREV }) . "</a>",
                  'confirm'           => "<a href='$LJ::SITEROOT/register.bml'>$BML::ML{'web.controlstrip.links.confirm'}</a>",
+                 'queue'             => "<a href='$LJ::SITEROOT/community/moderate.bml'>$BML::ML{'web.controlstrip.links.queue'}</a>",
                  );
 
     if ($remote) {
@@ -2663,7 +2664,14 @@ sub control_strip
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; " unless $remote->is_identity;
                 }
-                $ret .= "$links{edit_community_profile}&nbsp;&nbsp; $links{edit_community_invites}&nbsp;&nbsp; $links{edit_community_members}";
+
+                if ( $journal->prop( 'moderated' ) ) {
+                    $ret .= "$links{queue}&nbsp;&nbsp;";
+                } else {
+                    $ret .= "$links{edit_community_profile}&nbsp;&nbsp;";
+                }
+
+                $ret .= "$links{edit_community_invites}&nbsp;&nbsp;$links{edit_community_members}";
             } elsif ($watching && $memberof) {
                 $ret .= "$statustext{memberwatcher}<br />";
                 if ($haspostingaccess) {

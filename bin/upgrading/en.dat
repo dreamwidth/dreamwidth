@@ -3743,6 +3743,8 @@ web.controlstrip.links.post2=Post
 
 web.controlstrip.links.postcomm=Post to this community
 
+web.controlstrip.links.queue=Queue
+
 web.controlstrip.links.random=Random Journal
 
 web.controlstrip.links.recentcomments=View Recent Comments

@@ -28,6 +28,8 @@
 
 .commlist.post=Post
 
+.commlist.queue=Queue
+
 .commlist.text=Here are the communities that you manage or co-manage:
 
 .commlist.title=<b>Title</b>

@@ -51,7 +51,7 @@ body<=
             return $ret;
         }
 
-        $ret .= LJ::maintainer_linkbar($c);
+        $ret .= LJ::maintainer_linkbar($c, "queue");
 
         # use dbcm to read to minimize collisions between moderators due to replication lag
         my $entry = $dbcm->selectrow_hashref("SELECT * FROM modlog WHERE journalid=? AND modid=?",
@@ -200,7 +200,7 @@ body<=
         return $ret;
     }
 
-    $ret .= LJ::maintainer_linkbar($c) unless LJ::did_post() && ($mode eq 'approve_do' || $mode eq 'reject_do');
+    $ret .= LJ::maintainer_linkbar($c, "queue") unless LJ::did_post() && ($mode eq 'approve_do' || $mode eq 'reject_do');
 
     my $formauth = LJ::form_auth();
 
