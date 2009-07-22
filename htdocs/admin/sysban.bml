@@ -30,9 +30,9 @@ body<=
         return "<?h1 Error h1?><?p $_[0] p?><?p $main_return p?>";
      };
     my $priv = 'sysban';
-    my @all_sb_args = qw( ip uniq email email_domain user pay_cc msisdn 
+    my @all_sb_args = qw( ip uniq email email_domain user pay_cc 
                           pay_user pay_email pay_uniq support_user 
-                          support_uniq lostpassword  talk_ip_test contentflag
+                          support_uniq lostpassword  talk_ip_test 
                           invite_user invite_email );
 
     my $remote = LJ::get_remote();

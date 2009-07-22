@@ -40,10 +40,6 @@
       <term><varname>uniq</varname></term>
       <listitem><para>Blocked if value of unique cookie (from <uri>/admin/userlog.bml</uri>) matches.</para></listitem>
     </varlistentry>
-    <varlistentry>
-      <term><varname>contentflag</varname></term>
-      <listitem><para>Blocked if value (username) matches.</para></listitem>
-    </varlistentry>
   </variablelist>
 
 <formalpara><title>Ban management tool usage:</title><para>

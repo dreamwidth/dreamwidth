@@ -2062,17 +2062,6 @@ sub procnotify_callback
         return;
     }
 
-    # contentflag key bans
-    if ($cmd eq "ban_contentflag") {
-        $LJ::CONTENTFLAG_BANNED{$arg->{'username'}} = $arg->{'exptime'};
-        return;
-    }
-
-    if ($cmd eq "unban_contentflag") {
-        delete $LJ::CONTENTFLAG_BANNED{$arg->{'username'}};
-        return;
-    }
-
     # cluster switchovers
     if ($cmd eq 'cluster_switch') {
         $LJ::CLUSTER_PAIR_ACTIVE{ $arg->{'cluster'} } = $arg->{ 'role' };

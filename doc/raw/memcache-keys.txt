@@ -63,7 +63,6 @@
 
 sysban:ip == hashref of ip => unix expiration time
 sysban:uniq == hashref of uniq => unix expiration time
-sysban:contentflag == hashref of username => unix expiration time
 
 <uid> userpic2:<uid> == arrayref of hashrefs of userpic2 rows
 

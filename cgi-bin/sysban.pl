@@ -87,41 +87,6 @@ sub sysban_check {
         return $LJ::UNIQ_BANNED{$value};
     }
 
-    # cache if contentflag ban
-    if ($what eq 'contentflag') {
-
-        # check memcache first if not loaded
-        unless ($LJ::CONTENTFLAG_BANNED_LOADED) {
-            my $memval = LJ::MemCache::get("sysban:contentflag");
-            if ($memval) {
-                *LJ::CONTENTFLAG_BANNED = $memval;
-                $LJ::CONTENTFLAG_BANNED_LOADED++;
-            }
-        }
-
-        # is it already cached in memory?
-        if ($LJ::CONTENTFLAG_BANNED_LOADED) {
-            return (defined $LJ::CONTENTFLAG_BANNED{$value} &&
-                    ($LJ::CONTENTFLAG_BANNED{$value} == 0 ||     # forever
-                     $LJ::CONTENTFLAG_BANNED{$value} > time())); # not-expired
-        }
-
-        # set this now before the query
-        $LJ::CONTENTFLAG_BANNED_LOADED++;
-
-        LJ::sysban_populate(\%LJ::CONTENTFLAG_BANNED, "contentflag")
-            or return undef $LJ::CONTENTFLAG_BANNED_LOADED;
-
-        # set in memcache
-        my $exp = 60*15; # 15 minutes
-        LJ::MemCache::set("sysban:contentflag", \%LJ::CONTENTFLAG_BANNED, $exp);
-
-        # return value to user
-        return (defined $LJ::CONTENTFLAG_BANNED{$value} &&
-                ($LJ::CONTENTFLAG_BANNED{$value} == 0 ||     # forever
-                 $LJ::CONTENTFLAG_BANNED{$value} > time())); # not-expired
-    }
-
     # need the db below here
     my $dbr = LJ::get_db_reader();
     return undef unless $dbr;
@@ -377,11 +342,6 @@ sub sysban_create {
         LJ::MemCache::delete("sysban:uniq");
     }
 
-    if ($opts{'what'} eq 'contentflag') {
-        LJ::procnotify_add("ban_contentflag", { 'username' => $opts{'value'}, exptime => $exptime});
-        LJ::MemCache::delete("sysban:contentflag");
-    }
-
     # log in statushistory
     my $remote = LJ::get_remote();
     $banuntil = $opts{'bandays'} ? LJ::mysql_time($exptime) : "forever";
@@ -472,7 +432,6 @@ sub sysban_validate {
                'support_uniq' => 'uniq',
                'lostpassword' => 'user',
                'talk_ip_test' => 'ip',
-               'contentflag' => 'user',
                'invite_user' => 'user',
                'invite_email' => 'email',
                );
