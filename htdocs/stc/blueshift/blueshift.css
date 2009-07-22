@@ -1,4 +1,4 @@
-/** Blueshift CSS 
+/** Blueshift CSS
  *
  *
  * Authors:
@@ -10,12 +10,12 @@
  * the same terms as Perl itself.  For a copy of the license, please reference
  * 'perldoc perlartistic' or 'perldoc perlgpl'.
  */
- 
- /*  Colors: 
+
+ /*  Colors:
     dkblue=#002A82 (page borders)
-	vlink=#002A92
+    vlink=#002A92
     medblue=#3960A0 (borders)
-	link=#3960C0
+    link=#3960C0
     ltblue=#D6DCE9 (inactive tabs, evencomment, profile border, standout border)
     vryltblue=#E6ECF9 (active tabs, oddcomment, headerlinks, standout)
     alt vryltblue=#EFF6FF (menulinks, search box bg)
@@ -33,11 +33,11 @@ body {
     background-repeat: repeat-x;
     background-color: #3960A0;
     color: #111122;
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
-H1, H2, H3, H4 { font-style: italic; 
+H1, H2, H3, H4 { font-style: italic;
     font-weight: normal;
     padding: 1em 0;
     }
@@ -66,7 +66,7 @@ a:active,
 #canvas {
     padding-top: 1px;  /*to ensue margin*/
     background-color: #f9fcFF;
-	margin-left: 9.25em;
+    margin-left: 9.25em;
     margin-top: 100px;
     border-left: 1px solid #002A82;
     border-bottom: 1px solid #002A82;
@@ -76,21 +76,21 @@ a:active,
     padding-top: 1px;  /*to ensue margin*/
 }
 
-    
+
 /**
  * Header
  */
-#masthead { 
+#masthead {
     position: absolute;
     top: 30px;
     right: 1em;
     }
-    #sitename { font-style: italic; 
-        font-weight: normal; 
+    #sitename { font-style: italic;
+        font-weight: normal;
         font-size: 175%;
         }
     #sitename a { color: #E6ECF9; }
-    
+
 #account-links {
     position: absolute;
     top: 0;
@@ -132,8 +132,8 @@ a:active,
     top: 10px;
     left: 0;
     }
-    #account-links-userpic img { 
-        border: none; 
+    #account-links-userpic img {
+        border: none;
         }
 
 #header-search { position: absolute;
@@ -150,9 +150,9 @@ a:active,
         }
     #header-search #search { background-color: #EFF6FF;
     border: 1px solid #002A82; }
-    
+
 /**
- * Menu 
+ * Menu
  */
 #menu { position: absolute;
     top: 100px;
@@ -168,7 +168,7 @@ a:active,
         font-size: small;
         list-style: none;
         }
-        #menu ul ul { margin-left: 1em; 
+        #menu ul ul { margin-left: 1em;
             margin-right: 0;
             margin-top: 0;
         }
@@ -181,7 +181,7 @@ a:active,
 /**
  * Footer
  */
-#footer { 
+#footer {
     margin: 1em;
     text-align: center;
     border-top: 1px solid #002A82;
@@ -199,7 +199,7 @@ a:active,
         }
 
 /**
- * #content 
+ * #content
  */
 #content { margin: 0;
     padding: 1px 1em 1em 1.5em;
@@ -233,7 +233,7 @@ a:active,
 
 /*insert class of screened comments here*/ {
     background-color: #EEEEEE; }
-    
+
 /* PROFILE.CSS OVERRIDES */
 #profile_top {
     min-width: 0;
@@ -272,7 +272,7 @@ table#table_yourlayers td { padding: .15em .25em; }
  * Columns/rows inside of #content are named primary, secondary, tertiary, etc and
  * content is placed inside based on order of importance.
  */
- 
+
  /* ER Note:  Unsure of actual use of these, taking a stab at them anyway, mostly re-measuring width */
 
 /* full page (default) */
@@ -361,7 +361,7 @@ table#table_yourlayers td { padding: .15em .25em; }
     border-top: 0 !important;
 }
 
- 
+
 /**
  * Form field styles
  */
@@ -385,10 +385,10 @@ table#table_yourlayers td { padding: .15em .25em; }
 }
 
 .standout-inner a:hover, .standout-inner a:active, .standout-inner a:hover {
-    
+
 }
 
-/** 
+/**
  * Start overriding some classes set in dw-free/htdocs/stc/
  * Other site scheme designers: use your own colors here
  * /
@@ -407,7 +407,7 @@ table#table_yourlayers td { padding: .15em .25em; }
     border-bottom: 1px solid #D6DCE9;
     border-top: 1px solid #D6DCE9;
     color: #002A82;
-} 
+}
 
 .section img, .username img {
     padding-left: 3px;
@@ -420,7 +420,7 @@ table#table_yourlayers td { padding: .15em .25em; }
     border: 1px solid #3960A0;
 }
 
-/* widgets/customizetheme.css, themechooser.css, themenav.css, 
+/* widgets/customizetheme.css, themechooser.css, themenav.css,
 currenttheme.css */
 
 .theme-current h2.widget-header, .layout-item.current {
@@ -441,7 +441,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     overflow-y: visible;
 }
 
-.customize-button, .theme-item .theme-button, .layout-item 
+.customize-button, .theme-item .theme-button, .layout-item
 .layout-button {
     background: #D6DCE9;
     border: 2px solid #000;
@@ -521,7 +521,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 /* more, detailed by page*/
 /*customizetheme.css*/
-.customize-button {    
+.customize-button {
     color: #fff;
     background: #D6DCE9;
     border: 2px solid #3960A0;
@@ -531,14 +531,14 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 }
 .customize-content .subheader {
     background-image: url("/img/blueshift/blueshift-arrow-right.gif");
-	background-position: left center;
-	background-repeat: no-repeat;
+    background-position: left center;
+    background-repeat: no-repeat;
     border-bottom: 1px solid #E6ECF9;
 }
 .customize-content .subheader.on {
     background-image: url("/img/blueshift/blueshift-arrow-down.gif");
-	background-position: left center ;
-	background-repeat: no-repeat;
+    background-position: left center ;
+    background-repeat: no-repeat;
 }
 .customize-nav li.on a,
 .customize-nav li.on ul {
@@ -582,7 +582,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 /*currentheme.css*/
 .theme-current h2.widget-header {
     background-color: #E6ECF9;
-	background-image: none;
+    background-image: none;
 }
 .theme-current-content h3 {
     color: #000;
@@ -651,7 +651,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 .section_head, table.alternating-rows th, div.username {
     background-color: #E6ECF9;
     border-top: 1px solid #D6DCE9;
-	border-bottom: 1px solid #D6DCE9;
+    border-bottom: 1px solid #D6DCE9;
 }
 
 /* comm_promo.css */
@@ -685,7 +685,7 @@ div.CommunityPromoBox {
 
 .cprod.h3 {
     background: #D6DCE9;
-    
+
 }
 
 .cprod content {
@@ -803,21 +803,21 @@ table.editfilters td {
 
 
 /* Site Map, override page-level style */
-dd ul li {list-style: circle !important; 
-	margin-left: 2em !important; }
-dt {font-weight: bold !important; 
-	margin-top: 10px !important;}
-#maplinks-left {margin-right: 2% !important; 
-	width: 48% !important; 
-	float: left !important;}
-#maplinks-right {margin-left: 2% !important; 
-	width: 48% !important; 
-	float: right !important;}
+dd ul li {list-style: circle !important;
+    margin-left: 2em !important; }
+dt {font-weight: bold !important;
+    margin-top: 10px !important;}
+#maplinks-left {margin-right: 2% !important;
+    width: 48% !important;
+    float: left !important;}
+#maplinks-right {margin-left: 2% !important;
+    width: 48% !important;
+    float: right !important;}
 
 /* lj_base-app.css */
 hr.hr {
-	color: #3960A0; 
-	background-color: #3960A0;
+    color: #3960A0;
+    background-color: #3960A0;
 }
 
 input.create-account {
@@ -833,10 +833,10 @@ select.select {
     border-left: 1px solid #999;
 }
 .detail {
-    
+
 }
 h2.widget-header {
-    
+
 }
 
 table.alternating-rows th {
@@ -883,16 +883,16 @@ div.right-sidebar {
     background-color: #D6DCE9;
     border: 1px solid #3960A0;
 }
-.textbutton { 
+.textbutton {
     color: #3960A0;
 }
 /*NOTE: corner.gif is white*/
 h2.solid-neutral {
-	background-color: #D6DCE9;
+    background-color: #D6DCE9;
     color: #222;
 }
 h2.solid-blue { /*which is now solid not-blue*/
-	background-color: #D6DCE9;
+    background-color: #D6DCE9;
     color: #222;
 }
 .solid-neutral {
@@ -947,15 +947,15 @@ input.bright {
 }
 
 #Subscriptions tr.lighter {
-	background-color: #E6ECF9;
+    background-color: #E6ECF9;
 }
 #Subscriptions tr.darker {
-	background-color: #D6DCE9;
+    background-color: #D6DCE9;
 }
 #SubscribeSaveButtons {
     border: 1px solid #333;
     }
-    
+
 .NotificationTable tr.Selected {
     background-color: #eee;
 }
@@ -964,26 +964,26 @@ input.bright {
     border-top: 1px solid #ccc;
 }
 .NotificationTable #all_Body > .Selected:first-child td {
-	border-top: none;
+    border-top: none;
 }
 
 .NotificationTable td {
     padding: 2px;
 }
 .NotificationTable .inbox {
-    
+
 }
 
 .NotificationTable .inbox .header .checkbox {
-	border-top: 1px solid #D6DCE9;
-	border-bottom: 1px solid #D6DCE9;
-	border-left: 1px solid #D6DCE9;
+    border-top: 1px solid #D6DCE9;
+    border-bottom: 1px solid #D6DCE9;
+    border-left: 1px solid #D6DCE9;
 }
 
 .NotificationTable .inbox .header .actions {
-	border-top: 1px solid #D6DCE9;
-	border-bottom: 1px solid #D6DCE9;
-	border-right: 1px solid #D6DCE9;
+    border-top: 1px solid #D6DCE9;
+    border-bottom: 1px solid #D6DCE9;
+    border-right: 1px solid #D6DCE9;
 }
 
 .inbox .header {
@@ -1029,7 +1029,7 @@ span.InboxItem_Read:hover a {
     color: #000000
 }
 .ippu .track_title {
-	color: #D6DCE9;
+    color: #D6DCE9;
 }
 
 /* entry.css */
@@ -1060,26 +1060,26 @@ span.InboxItem_Read:hover a {
 #entry ul li a {
     background-color: #fff;
     border: 1px solid #bbb;
-	border-bottom: none;
+    border-bottom: none;
 }
 #entry ul li.on a {
-	border-bottom: 1px solid #fff;
+    border-bottom: 1px solid #fff;
 }
 #draft-container {
     border: 1px solid #bbb;
-	border-top: none;
+    border-top: none;
 }
 #draftstatus {
     background-color: #fff;
 }
 #spellcheck-results {
     border: 1px solid #D6DCE9;
-    background-color: #fff; 
+    background-color: #fff;
 }
 #htmltools {
     border-right: 1px solid #bbb;
     border-left: 1px solid #bbb;
-	background: #fff;
+    background: #fff;
 }
 #htmltools ul {
     border-bottom: 1px solid #8D8D8D;
@@ -1097,7 +1097,7 @@ span.InboxItem_Read:hover a {
 div.ContextualPopup div.Inner {
     background-color: #EFF6FF !important;
     color: #000 !important;
-    border: 1px solid #D6DCE9; 
+    border: 1px solid #D6DCE9;
     }
 div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
         color: #3960A0 !important;
@@ -1108,8 +1108,8 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 .section, .username, .actions li {
     background-color: #E6ECF9;
     border-bottom: 1px solid #D6DCE9;
-	border-top: 1px solid #D6DCE9;
-} 
+    border-top: 1px solid #D6DCE9;
+}
 
 .section img, .username img {
     padding-left: 3px;
@@ -1118,13 +1118,12 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 .tooltip {
     border-bottom: 1px dotted #000;
 }
-.profile_join_disabled, .profile_postentry_disabled, 
-    .profile_sendvgift_disabled, .profile_sendmessage_disabled, 
-    .profile_addtrust_disabled, .profile_addsub_comm_disabled,
-    .profile_addsub_feed_disabled, .profile_addsub_person_disabled,
-    .profile_trackuser_disabled {
-        color: #999;
-    }
+li.profile_join_disabled, li.profile_addtrust_disabled,
+li.profile_addsub_comm_disabled, li.profile_addsub_feed_disabled,
+li.profile_addsub_person_disabled, li.profile_postentry_disabled,
+li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
+    color: #999;
+}
 .details_stats p {
         color: #666;
     }
@@ -1135,13 +1134,13 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
         color: #000;
     }
 .section_body .inner_section_header {
-        
+
     }
 .section_body_title {
-    
+
 }
 .userinfo th {
-    
+
 }
 
 /* tags.css */
@@ -1151,15 +1150,15 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 }
 .tagsort
 {
-    
+
 }
 .tagfield {
-	color: #777;
-	border: 1px solid #CCC;
+    color: #777;
+    border: 1px solid #CCC;
 }
 .tagfield:focus
 {
-	color: #000;
+    color: #000;
     border: 1px solid #999;
 }
 .tagfield_error
@@ -1169,13 +1168,13 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 }
 .proptbl .t
 {
-    
+
     background-color: #fbfbfb;
     border-right: 1px solid #cdcdcd;
 }
 .proptbl .r
 {
-    
+
     background-color: #fbfbfb;
     border-right: 1px solid #cdcdcd;
 }
@@ -1193,7 +1192,7 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 }
 .curtags
 {
-    
+
 }
 .tagbox_nohist
 {

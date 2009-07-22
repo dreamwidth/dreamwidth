@@ -1,4 +1,4 @@
-/** Gradation Vertical CSS 
+/** Gradation Vertical CSS
  *
  * Authors:
  *     Emily Ravenwood <ravenwood@alltrees.org>
@@ -9,8 +9,8 @@
  * the same terms as Perl itself.  For a copy of the license, please reference
  * 'perldoc perlartistic' or 'perldoc perlgpl'.
  */
- 
- /*  Colors: 
+
+ /*  Colors:
      vrylt=#888888 (borders)
     dk=#333333 (standout, hover ul)
     vrydk=#222222 (hover a)
@@ -99,21 +99,21 @@ a:active,
     padding-top: 1px;  /*to ensue margin*/
 }
 
-    
+
 /**
  * Header
  */
-#masthead { 
+#masthead {
     position: absolute;
     top: 30px;
     right: 1em;
     }
-    #sitename { 
-        font-weight: bold; 
+    #sitename {
+        font-weight: bold;
         font-size: 175%;
         }
     #sitename a { color: #ffffff; }
-    
+
 #account-links {
     position: absolute;
     top: 0;
@@ -154,8 +154,8 @@ a:active,
     top: 10px;
     left: 0;
     }
-    #account-links-userpic img { 
-        border: none; 
+    #account-links-userpic img {
+        border: none;
         }
 
 #header-search { position: absolute;
@@ -173,9 +173,9 @@ a:active,
         margin-top: .25em;
         }
     #header-search #search {  }
-    
+
 /**
- * Menu 
+ * Menu
  */
 
 body {
@@ -203,7 +203,7 @@ body {
         font-size: small;
         list-style: none;
         }
-#menu ul ul { 
+#menu ul ul {
             margin-top: 0;  /* undo the above*/
         }
 #menu li {  }
@@ -220,7 +220,7 @@ body {
 /**
  * Footer
  */
-#footer { 
+#footer {
     margin: 1em;
     text-align: center;
     border-top: 1px solid #555555;
@@ -238,7 +238,7 @@ body {
         }
 
 /**
- * #content 
+ * #content
  */
 #content { margin: 0;
     padding: 1px 1em 1em 1.5em;
@@ -278,7 +278,7 @@ body {
 
 /*insert class of screened comments here*/ {
     background-color: #333333; }
-    
+
 /* PROFILE.CSS OVERRIDES */
 #profile_top {
     min-width: 0;
@@ -312,7 +312,7 @@ table#table_yourlayers td { padding: .15em .25em; }
  * Columns/rows inside of #content are named primary, secondary, tertiary, etc and
  * content is placed inside based on order of importance.
  */
- 
+
  /* ER Note:  Unsure of actual use of these, taking a stab at them anyway, mostly re-measuring width */
 
 /* full page (default) */
@@ -401,7 +401,7 @@ table#table_yourlayers td { padding: .15em .25em; }
     border-top: 0 !important;
 }
 
- 
+
 /**
  * Form field styles
  */
@@ -425,10 +425,10 @@ table#table_yourlayers td { padding: .15em .25em; }
 }
 
 .standout-inner a:hover, .standout-inner a:active, .standout-inner a:hover {
-    
+
 }
 
-/** 
+/**
  * Start overriding some classes set in dw-free/htdocs/stc/
  * Other site scheme designers: use your own colors here
  * /
@@ -447,7 +447,7 @@ table#table_yourlayers td { padding: .15em .25em; }
     border-bottom: 1px solid #888888;
     border-top: 1px solid #888888;
     color: #eee;
-} 
+}
 
 .section img, .username img {
     padding-left: 3px;
@@ -464,7 +464,7 @@ table#table_yourlayers td { padding: .15em .25em; }
     border: 1px solid #888888;
 }
 
-/* widgets/customizetheme.css, themechooser.css, themenav.css, 
+/* widgets/customizetheme.css, themechooser.css, themenav.css,
 currenttheme.css */
 
 .layout-item.current {
@@ -485,7 +485,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     overflow-y: visible;
 }
 
-.customize-button, .theme-item .theme-button, .layout-item 
+.customize-button, .theme-item .theme-button, .layout-item
 .layout-button {
     background: #444444;
     border: 2px solid #888888;
@@ -567,7 +567,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 /* more, detailed by page*/
 /*customizetheme.css*/
-.customize-button {    
+.customize-button {
     color: #fff;
     background: #444444;
     border: 2px solid #888888;
@@ -577,14 +577,14 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 }
 .customize-content .subheader {
     background-image: url("/img/gradation/gradgray-arrow-right.gif");
-	background-position: left center;
-	background-repeat: no-repeat;
+    background-position: left center;
+    background-repeat: no-repeat;
     border-bottom: 1px solid #666666;
 }
 .customize-content .subheader.on {
     background-image: url("/img/gradation/gradgray-arrow-down.gif");
-	background-position: left center ;
-	background-repeat: no-repeat;
+    background-position: left center ;
+    background-repeat: no-repeat;
 }
 .customize-nav li.on a,
 .customize-nav li.on ul {
@@ -601,7 +601,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     border-right: 1px solid #111111;
 }
 .customize-nav li a:visited {
-    
+
 }
 
 
@@ -616,7 +616,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     background-color: #111111 ;
 }
 .theme-nav li a:visited {
-    
+
 }
 .theme-nav-separator {
     border-right: 1px solid #666666;
@@ -677,7 +677,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
     background-color: #111111;
 }
 .theme-paging a:visited {
-    
+
 }
 
 /*s2propgroup.css */
@@ -733,7 +733,7 @@ div.CommunityPromoBox {
 
 .cprod.h3 {
     background: #444444;
-    
+
 }
 
 .cprod content {
@@ -851,21 +851,21 @@ table.editfilters td {
 
 
 /* Site Map, override page-level style */
-dd ul li {list-style: circle !important; 
-	margin-left: 2em !important; }
-dt {font-weight: bold !important; 
-	margin-top: 10px !important;}
-#maplinks-left {margin-right: 2% !important; 
-	width: 48% !important; 
-	float: left !important;}
-#maplinks-right {margin-left: 2% !important; 
-	width: 48% !important; 
-	float: right !important;}
+dd ul li {list-style: circle !important;
+    margin-left: 2em !important; }
+dt {font-weight: bold !important;
+    margin-top: 10px !important;}
+#maplinks-left {margin-right: 2% !important;
+    width: 48% !important;
+    float: left !important;}
+#maplinks-right {margin-left: 2% !important;
+    width: 48% !important;
+    float: right !important;}
 
 /* lj_base-app.css */
 hr.hr {
-	color: #888888; 
-	background-color: #888888;
+    color: #888888;
+    background-color: #888888;
 }
 
 input.create-account {
@@ -877,21 +877,21 @@ input.text,
 textarea.text,
 select.select {
     /*background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;*/
-	background-color: #222;
+    background-color: #222;
     border: 1px solid #666666;
     border-top: 1px solid #888888;
     border-left: 1px solid #888888;
-	color: #fff;
+    color: #fff;
 }
 textarea,
 input { background-color: #222 !important;
 color: #fff !important;
 border: 1px solid #888 !important; }
 .detail {
-    
+
 }
 h2.widget-header {
-    
+
 }
 
 table.alternating-rows th {
@@ -938,16 +938,16 @@ div.right-sidebar {
     background-color: #444444;
     border: 1px solid #888888;
 }
-.textbutton { 
+.textbutton {
     color: #888888;
 }
 /*NOTE: corner.gif is white*/
 h2.solid-neutral {
-	background-color: #444444;
+    background-color: #444444;
     color: #fff;
 }
 h2.solid-blue { /*which is now solid not-blue*/
-	background-color: #444444;
+    background-color: #444444;
     color: #fff;
 }
 .solid-neutral {
@@ -1003,15 +1003,15 @@ input.bright {
 }
 
 #Subscriptions tr.lighter {
-	background-color: #666666;
+    background-color: #666666;
 }
 #Subscriptions tr.darker {
-	background-color: #444444;
+    background-color: #444444;
 }
 #SubscribeSaveButtons {
     border: 1px solid #888888;
     }
-    
+
 .NotificationTable tr.Selected {
     background-color: #444444;
 }
@@ -1020,26 +1020,26 @@ input.bright {
     border-top: 1px solid #888888;
 }
 .NotificationTable #all_Body > .Selected:first-child td {
-	border-top: none;
+    border-top: none;
 }
 
 .NotificationTable td {
     padding: 2px;
 }
 .NotificationTable .inbox {
-    
+
 }
 
 /*.NotificationTable .inbox .header .checkbox {
-	border-top: 1px solid #888888;
-	border-bottom: 1px solid #888888;
-	border-left: 1px solid #888888;
+    border-top: 1px solid #888888;
+    border-bottom: 1px solid #888888;
+    border-left: 1px solid #888888;
 }
 
 .NotificationTable .inbox .header .actions {
-	border-top: 1px solid #888888;
-	border-bottom: 1px solid #888888;
-	border-right: 1px solid #888888;
+    border-top: 1px solid #888888;
+    border-bottom: 1px solid #888888;
+    border-right: 1px solid #888888;
 }*/
 
 .inbox .header {
@@ -1085,7 +1085,7 @@ span.InboxItem_Read:hover a {
     color: #eee
 }
 .ippu .track_title {
-	color: #444444;
+    color: #444444;
 }
 
 /* entry.css */
@@ -1116,27 +1116,27 @@ span.InboxItem_Read:hover a {
 #entry ul li a {
     background-color: #222;
     border: 1px solid #bbb;
-	border-bottom: none;
+    border-bottom: none;
 }
 #entry ul li.on a {
-	background-color: #222;
-	border-bottom: 1px solid #222;
+    background-color: #222;
+    border-bottom: 1px solid #222;
 }
 #draft-container {
     border: 1px solid #bbb;
-	border-top: none;
+    border-top: none;
 }
 #draftstatus {
     background-color: #222;
 }
 #spellcheck-results {
     border: 1px solid #444444;
-    background-color: #222; 
+    background-color: #222;
 }
 #htmltools {
     border-right: 1px solid #bbb;
     border-left: 1px solid #bbb;
-	background: #222;
+    background: #222;
 }
 #htmltools ul {
     border-bottom: 1px solid #8D8D8D;
@@ -1154,7 +1154,7 @@ span.InboxItem_Read:hover a {
 div.ContextualPopup div.Inner {
     background-color: #444444 !important;
     color: #fff !important;
-    border: 1px solid #888888; 
+    border: 1px solid #888888;
     }
 div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
         color: #ccc !important;
@@ -1164,9 +1164,9 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 
 .section, .username, .actions li {
     background-color: #444444 !important;
-	border: none;
+    border: none;
     color: #fff;
-} 
+}
 
 .actions li { border-top: 1px solid #888888; }
 
@@ -1177,13 +1177,12 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 .tooltip {
     border-bottom: 1px dotted #fff;
 }
-.profile_join_disabled, .profile_postentry_disabled, 
-    .profile_sendvgift_disabled, .profile_sendmessage_disabled, 
-    .profile_addtrust_disabled, .profile_addsub_comm_disabled,
-    .profile_addsub_feed_disabled, .profile_addsub_person_disabled,
-    .profile_trackuser_disabled {
-        color: #999;
-    }
+li.profile_join_disabled, li.profile_addtrust_disabled,
+li.profile_addsub_comm_disabled, li.profile_addsub_feed_disabled,
+li.profile_addsub_person_disabled, li.profile_postentry_disabled,
+li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
+    color: #999;
+}
 .details_stats p {
         color: #aaa;
     }
@@ -1194,13 +1193,13 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
         color: #ccc;
     }
 .section_body .inner_section_header {
-        
+
     }
 .section_body_title {
-    
+
 }
 .userinfo th {
-    
+
 }
 
 /* tags.css */
@@ -1210,15 +1209,15 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 }
 .tagsort
 {
-    
+
 }
 .tagfield {
-	color: #999;
-	border: 1px solid #888888;
+    color: #999;
+    border: 1px solid #888888;
 }
 .tagfield:focus
 {
-	color: #fff;
+    color: #fff;
     border: 1px solid #888888;
 }
 .tagfield_error
@@ -1228,13 +1227,13 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 }
 .proptbl .t
 {
-    
+
     background-color: #333;
     border-right: 1px solid #888888;
 }
 .proptbl .r
 {
-    
+
     background-color: #333;
     border-right: 1px solid #888888;
 }
@@ -1252,7 +1251,7 @@ div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
 }
 .curtags
 {
-    
+
 }
 .tagbox_nohist
 {
