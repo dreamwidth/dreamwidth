@@ -306,7 +306,6 @@ sub trans
         # extension...)
         if ( $host eq $LJ::DOMAIN_WEB && -e "$LJ::HTDOCS/$uri.bml" ) {
             $r->uri( $uri = "$uri.bml" );
-            return $bml_handler->( "$LJ::HTDOCS/$uri" );
         }
 
     } else { # not is_initial_req
