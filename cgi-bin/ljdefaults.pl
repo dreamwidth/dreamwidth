@@ -405,6 +405,8 @@
         settings_design => 1,
     );
 
+    $LJ::USERSEARCH_METAFILE_PATH ||= "$HOME/var/usersearch.data";
+
     # default to limit to 2000 results
     $LJ::MAX_DIR_SEARCH_RESULTS ||= 2000;
 }
