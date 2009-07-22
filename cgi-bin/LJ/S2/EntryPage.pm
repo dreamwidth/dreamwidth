@@ -55,6 +55,12 @@ sub EntryPage
     my $next_url = S2::Builtin::LJ::Entry__get_link( $opts->{ctx}, $s2entry, "nav_next" )->{url};
     $p->{head_content} .= qq{<link rel="next" href="$next_url" />\n} if $next_url;
 
+    # canonical link to the entry or comment thread
+    my $canonical_url = $permalink;
+    my $threadid = $get->{thread} + 0;
+    $canonical_url .= "?thread=$threadid#t$threadid" if $threadid;
+    $p->{head_content} .= qq{<link rel="canonical" href="$canonical_url" />\n};
+
     # quickreply js libs
     LJ::need_res(qw(
                     js/core.js

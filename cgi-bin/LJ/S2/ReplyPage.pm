@@ -42,6 +42,13 @@ sub ReplyPage
     return if $opts->{'handler_return'};
     return if $opts->{'redir'};
     my $ditemid = $entry->ditemid;
+
+    # canonical link to the entry or comment thread
+    my $canonical_url = $entry->url;
+    my $replytoid = $get->{replyto} ? $get->{replyto} + 0 : 0;
+    $canonical_url .= "?thread=$replytoid#t$replytoid" if $replytoid;
+    $p->{head_content} .= qq{<link rel="canonical" href="$canonical_url" />\n};
+
     $p->{'head_content'} .= $LJ::COMMON_CODE{'chalresp_js'};
 
     LJ::need_res('stc/display_none.css');
@@ -56,7 +63,6 @@ sub ReplyPage
     # setup the replying item
     my $replyto = $s2entry;
     my $editid = $get->{edit} ? $get->{edit} : 0;
-    my $replytoid = $get->{replyto} ? $get->{replyto} : 0;
     my $parpost;
 
     my $comment;
