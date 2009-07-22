@@ -63,7 +63,7 @@ sub get_menu_navigation {
             name => 'create',
             items => [
                 {
-                    url => "$LJ::SITEROOT/create.bml",
+                    url => "$LJ::SITEROOT/create",
                     text => "menunav.create.createaccount",
                     display => $loggedout,
                 },
@@ -73,12 +73,12 @@ sub get_menu_navigation {
                     display => $loggedout,
                 },
                 {
-                    url => "$LJ::SITEROOT/update.bml",
+                    url => "$LJ::SITEROOT/update",
                     text => "menunav.create.updatejournal",
                     display => $loggedin_hasjournal,
                 },
                 {
-                    url => "$LJ::SITEROOT/editjournal.bml",
+                    url => "$LJ::SITEROOT/editjournal",
                     text => "menunav.create.editjournal",
                     display => $loggedin_hasjournal,
                 },
@@ -88,13 +88,13 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/editpics.bml",
+                    url => "$LJ::SITEROOT/editpics",
                     text => "menunav.create.uploaduserpics",
                     text_opts => { num => $userpic_count, max => $userpic_max },
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/community/create.bml",
+                    url => "$LJ::SITEROOT/community/create",
                     text => "menunav.create.createcommunity",
                     display => $loggedin_canjoincomms,
                 },
@@ -109,22 +109,22 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/manage/circle/edit.bml",
+                    url => "$LJ::SITEROOT/manage/circle/edit",
                     text => "menunav.organize.managerelationships",
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/manage/circle/editfilters.bml",
+                    url => "$LJ::SITEROOT/manage/circle/editfilters",
                     text => "menunav.organize.managefilters",
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/manage/tags.bml",
+                    url => "$LJ::SITEROOT/manage/tags",
                     text => "menunav.organize.managetags",
                     display => $loggedin_hasjournal,
                 },
                 {
-                    url => "$LJ::SITEROOT/community/manage.bml",
+                    url => "$LJ::SITEROOT/community/manage",
                     text => "menunav.organize.managecommunities",
                     display => $loggedin_canjoincomms,
                 },
@@ -139,7 +139,7 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/customize/options.bml",
+                    url => "$LJ::SITEROOT/customize/options",
                     text => "menunav.organize.customizestyle",
                     display => $loggedin,
                 },
@@ -174,7 +174,7 @@ sub get_menu_navigation {
                     display => $loggedin_hasnetwork,
                 },
                 {
-                    url => "$LJ::SITEROOT/tools/recent_comments.bml",
+                    url => "$LJ::SITEROOT/tools/recent_comments",
                     text => "menunav.read.recentcomments",
                     display => $loggedin,
                 },
@@ -189,27 +189,27 @@ sub get_menu_navigation {
         {
             name => 'explore',
             items => [
-                {   url => "$LJ::SITEROOT/interests.bml",
+                {   url => "$LJ::SITEROOT/interests",
                     text => "menunav.explore.interests",
                     display => $always,
                 },
                 {
-                    url => "$LJ::SITEROOT/directorysearch.bml",
+                    url => "$LJ::SITEROOT/directorysearch",
                     text => "menunav.explore.directorysearch",
                     display => $always,
                 },
                 {
-                    url => "$LJ::SITEROOT/random.bml",
+                    url => "$LJ::SITEROOT/random",
                     text => "menunav.explore.randomjournal",
                     display => $always,
                 },
                 {
-                    url => "$LJ::SITEROOT/community/random.bml",
+                    url => "$LJ::SITEROOT/community/random",
                     text => "menunav.explore.randomcommunity",
                     display => $always,
                 },
                 {
-                    url => "$LJ::SITEROOT/support/faq.bml",
+                    url => "$LJ::SITEROOT/support/faq",
                     text => "menunav.explore.faq",
                     display => $always,
                 },
@@ -224,12 +224,12 @@ sub get_menu_navigation {
                     display => LJ::is_enabled( 'payments' ) ? 1 : 0,
                 },
 		        {
-                    url => "$LJ::SITEROOT/shop/history.bml",
+                    url => "$LJ::SITEROOT/shop/history",
                     text => "menunav.shop.history",
                     display => LJ::is_enabled( 'payments' ) && $loggedin ? 1 : 0,
 		        },
 		        {
-                    url => "$LJ::SITEROOT/shop/gifts.bml",
+                    url => "$LJ::SITEROOT/shop/gifts",
                     text => "menunav.shop.gifts",
                     display => LJ::is_enabled( 'payments' ) && $loggedin ? 1 : 0,
                 },
