@@ -394,15 +394,18 @@
                 $update_message = LJ::auto_linkify(LJ::ehtml($res{'message'}));
             }
 
-            # report results
-            $$body .= "<?p <strong>$ML{'.updating'}</strong> ";
-
             if ($res{'success'} ne 'OK') {
                 # update failed?
+                $$body .= "<?p <strong>$ML{'.update.status.failed'}</strong> ";
+
                 $$body .= "<br /><?errorbar <strong>$ML{'.error.update'}</strong> ";
                 $$body .= LJ::ehtml($res{'errmsg'}) . " errorbar?>";
                 $$body .= "<br /> p?>";
             } else {
+
+                # update succeeded
+                $$body .= "<?p <strong>$ML{'.update.status.succeeded'}</strong> ";
+
                 # Clear out a draft
                 $remote->set_prop('entry_draft', '')
                     if $remote;
