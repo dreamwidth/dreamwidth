@@ -588,6 +588,7 @@ class Page
     function builtin print_reply_container(string{} opts) "Prints the area in which the quickreply box will go. Options you may specify are 'target' which will be the target id, and 'class' which will be the CSS class used by the container. If no container is available, quickreply will not work.";
 
     function print_navigation() [fixed] "Print out the page navigation links.";
+    function print_navigation(string{} opts) "Print out the page navigation links. Accepts 'class', an additional CSS class for this container.";
 
     function print_module_section( string section_name )
     "Prints a module section, given a group name";
@@ -3596,7 +3597,8 @@ function Page::print_body() {
     """<h2>No Default Renderer</h2><p>There is no body renderer for viewtype <tt>$.view</tt> defined.</p>""";
 }
 
-function Page::print_navigation() {}
+function Page::print_navigation() { $this->print_navigation( { "" => "" } ); }
+function Page::print_navigation( string{} opts ) {}
 
 function Page::print_head() {
     print $.head_content;
@@ -4009,14 +4011,14 @@ function RecentPage::print_body {
     <div id="entries" class="hfeed">
         <div class="inner">
             """;
-        $this->print_navigation();
+        $this->print_navigation( { "class" => "topnav" } );
 
     foreach var Entry e ($.entries) {
         # Print the entry
         $this->print_entry($e);
     }
 
-            $this->print_navigation();
+            $this->print_navigation( { "class" => "bottomnav" } );
             """
         </div><!-- entries>inner-->
     </div><!-- entries -->
@@ -4025,10 +4027,10 @@ function RecentPage::print_body {
 
 }
 
-function RecentPage::print_navigation() [fixed] {
-    var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "";    
+function RecentPage::print_navigation( string{} opts ) [fixed] {
+    var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "";
     """
-    <div class="navigation">
+    <div class="navigation $opts{"class"}">
         <div class="inner">
     """;
 
@@ -4205,7 +4207,7 @@ function YearPage::print_body {
     <div id="archive-year">
         <div class="inner">
             """;
-            $this->print_navigation();
+            $this->print_navigation( { "class" => "topnav" } );
             """
             <div class="year">
                 <div class="inner">
@@ -4217,16 +4219,16 @@ function YearPage::print_body {
                 </div><!-- year>inner -->
             </div><!-- year -->
             """;
-            $this->print_navigation();
+            $this->print_navigation( { "class" => "bottomnav" } );
             """
         </div><!-- archive-year>inner -->
     </div><!-- archive-year -->
     """;
 }
 
-function YearPage::print_navigation() [fixed] {
+function YearPage::print_navigation( string{} opts ) [fixed] {
     """
-    <div class="navigation">
+    <div class="navigation $opts{"class"}">
         <div class="inner">
     """;
 
@@ -4334,7 +4336,7 @@ function MonthPage::print_body {
     <div id="archive-month">
         <div class="inner">
     """;
-    $this->print_navigation();
+    $this->print_navigation( { "class" => "topnav" } );
 
     """
             <div class="month">
@@ -4359,7 +4361,7 @@ function MonthPage::print_body {
         </div><!-- month -->
     """;
     
-    $this->print_navigation();
+    $this->print_navigation( { "class" => "bottomnav" } );
     
     """
         </div><!-- archive-month>inner -->
@@ -4367,9 +4369,9 @@ function MonthPage::print_body {
     """;
 }
 
-function MonthPage::print_navigation() [fixed] {
+function MonthPage::print_navigation( string{} opts ) [fixed] {
     """
-    <div class="navigation">
+    <div class="navigation $opts{"class"}">
         <div class="inner"> 
             <ul>
             <form method='post' action='$.redir.url'>
@@ -4430,7 +4432,7 @@ function DayPage::print_body() {
             <div id="entries">
                 <div class="inner">
                     """;
-                    $this->print_navigation();
+                    $this->print_navigation( { "class" => "topnav" } );
                     """
                     <div class="day">
                         <div class="inner">
@@ -4449,7 +4451,7 @@ function DayPage::print_body() {
                     </div><!-- day -->
                     """;
         
-                    $this->print_navigation();
+                    $this->print_navigation( { "class" => "bottomnav" } );
                     """
                 </div> <!-- entries>inner -->
             </div> <!-- entries -->
@@ -4458,10 +4460,10 @@ function DayPage::print_body() {
     """;
 }
 
-function DayPage::print_navigation() [fixed] {
+function DayPage::print_navigation( string{} opts ) [fixed] {
     var bool empty = $.prev_url == "" and $.next_url == "";
     """
-    <div class="navigation">
+    <div class="navigation $opts{"class"}">
         <div class="inner">
     """;
     
