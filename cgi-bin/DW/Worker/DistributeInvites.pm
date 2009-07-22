@@ -167,20 +167,20 @@ sub work {
 
         if ( $adj_ninv == 0 ) {
             $reqemail_body = 'cantadjust';
-            $reqemail_vars = { numusers => $inv_nusers };
+            $reqemail_vars->{numusers} = $inv_nusers;
         } elsif ( $adj_ninv < $ninv ) {
             $reqemail_body = 'adjustdown';
-            $reqemail_vars = { actinvites => $adj_ninv,
-                               remainder => $ninv - $adj_ninv,
-                               numusers => $inv_nusers };
+            $reqemail_vars->{actinvites} = $adj_ninv;
+            $reqemail_vars->{remainder} = $ninv - $adj_ninv;
+            $reqemail_vars->{numusers} = $inv_nusers;
         } elsif ( $adj_ninv > $ninv ) {
             $reqemail_body = 'adjustup';
-            $reqemail_vars = { actinvites => $adj_ninv,
-                               additional => $adj_ninv - $ninv,
-                               numusers => $inv_nusers };
+            $reqemail_vars->{actinvites} = $adj_ninv;
+            $reqemail_vars->{additional} = $adj_ninv - $ninv;
+            $reqemail_vars->{numusers} = $inv_nusers;
         } else {
             $reqemail_body = 'keptsame';
-            $reqemail_vars = { numusers => $inv_nusers };
+            $reqemail_vars->{numusers} = $inv_nusers;
         }
     }
 
