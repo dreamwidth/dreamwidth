@@ -232,8 +232,11 @@ sub create_personal {
 
     # apply any paid time that this account should get
     if ( $LJ::USE_ACCT_CODES && $opts{code} ) {
+        my $code = $opts{code};
         my $itemidref;
-        if ( my $cart = DW::Shop::Cart->get_from_invite( $opts{code}, itemidref => \$itemidref ) ) {
+        if ( DW::InviteCodes->is_promo_code( code => $code ) ) {
+            LJ::statushistory_add( $u, undef, 'create_from_promo', "Created new account from promo code '$code'." );
+        } elsif ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
             my $item = $cart->get_item( $itemidref );
             if ( $item && $item->isa( 'DW::Shop::Item::Account' ) ) {
                 # first update the item's target user and the cart

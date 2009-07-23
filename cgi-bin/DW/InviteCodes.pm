@@ -129,6 +129,35 @@ sub could_be_code {
     return 1;
 }
 
+=head2 C<< $class->is_promo_code( code => $code ) >>
+
+Returns if the given code is a promo code or not.
+
+=cut
+
+sub is_promo_code {
+    my ( $class, %opts ) = @_;
+
+    my $promo_code_info = $class->get_promo_code_info( code => $opts{code} );
+
+    return ref $promo_code_info ? 1 : 0;
+}
+
+=head2 C<< $class->get_promo_code_info( code => $code ) >>
+
+Return the info for this promo code in a hashref.
+
+=cut
+
+sub get_promo_code_info {
+    my ( $class, %opts ) = @_;
+    my $dbh = LJ::get_db_writer();
+    my $code = $opts{code};
+
+    return undef unless $code =~ /^[a-z0-9]+$/i; # make sure the code is valid first
+    return $dbh->selectrow_hashref( "SELECT * FROM acctcode_promo WHERE code = ?", undef, $code );
+}
+
 =head2 C<< $class->check_code( code => $invite [, userid => $recipient] ) >>
 
 Checks whether code $invite is valid before trying to create an account. Takes
@@ -140,10 +169,19 @@ if the form is double-submitted.
 sub check_code {
     my ($class, %opts) = @_;
     my $dbh = LJ::get_db_writer();
+    my $code = $opts{code};
 
-    return 0 unless $class->could_be_code( string => $opts{code} );
+    # check if this code is a promo code first
+    # if it is, make sure it's active and we're not over the creation limit for the code
+    my $promo_code_info = $class->get_promo_code_info( code => $code );
+    if ( ref $promo_code_info ) {
+        return 0 unless $promo_code_info->{active} && ( $promo_code_info->{current_count} < $promo_code_info->{max_count} );
+        return 1;
+    }
 
-    my ($acid, $auth) = $class->decode( $opts{code} );
+    return 0 unless $class->could_be_code( string => $code );
+
+    my ($acid, $auth) = $class->decode( $code );
     my $ac = $dbh->selectrow_hashref( "SELECT userid, rcptid, auth " .
                                       "FROM acctcode WHERE acid=?",
                                       undef, $acid);
@@ -199,6 +237,24 @@ sub use_code {
         undef, $opts{user}->{userid}, $self->{acid} );
 
     return 1; # 1 means success? Needs error return in that case.
+}
+
+=head2 C<< $class->use_promo_code
+
+Increments the current_count on the given promo code.
+
+=cut
+
+sub use_promo_code {
+    my ( $class, %opts ) = @_;
+    my $dbh = LJ::get_db_writer();
+    my $code = $opts{code};
+
+    return 0 unless $class->is_promo_code( code => $code );
+
+    $dbh->do( "UPDATE acctcode_promo SET current_count = current_count + 1 WHERE code = ?", undef, $code );
+
+    return 1;
 }
 
 =head2 C<< $object->send_code ( [ email => $email ] ) >>

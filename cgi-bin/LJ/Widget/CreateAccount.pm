@@ -307,7 +307,7 @@ sub render_body {
         $ret .= "</td></tr>\n";
     }
 
-    if ( $LJ::USE_ACCT_CODES ) {
+    if ( $LJ::USE_ACCT_CODES && !DW::InviteCodes->is_promo_code( code => $code ) ) {
         my $item = DW::InviteCodes->paid_status( code => $code );
         if ( $item ) {
             $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
@@ -544,8 +544,12 @@ sub handle_post {
 
         # we're all done; mark the invite code as used
         if ( $LJ::USE_ACCT_CODES && $code ) {
-            my $invitecode = DW::InviteCodes->new( code => $code );
-            $invitecode->use_code( user => $nu );
+            if ( DW::InviteCodes->is_promo_code( code => $code ) ) {
+                DW::InviteCodes->use_promo_code( code => $code );
+            } else {
+                my $invitecode = DW::InviteCodes->new( code => $code );
+                $invitecode->use_code( user => $nu );
+            }
         }
 
         my $stop_output;

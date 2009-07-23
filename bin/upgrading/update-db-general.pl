@@ -3271,6 +3271,17 @@ CREATE TABLE external_site_moods (
 )
 EOC
 
+register_tablecreate('acctcode_promo', <<'EOC');
+CREATE TABLE acctcode_promo (
+    code varchar(20) not null,
+    max_count int(10) unsigned not null default 0,
+    current_count int(10) unsigned not null default 0,
+    active enum('1','0') not null default 1,
+
+    PRIMARY KEY ( code )
+)
+EOC
+
 
 # NOTE: new table declarations go ABOVE here ;)
 
