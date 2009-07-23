@@ -29,6 +29,8 @@ directory usage, be sure that you are logged in and then try again.
 
 .new_community_search=Communities Only
 
+.new_identity_search=OpenIDs Only
+
 .new_user_search=Users Only
 
 .no_results=No Results Found!

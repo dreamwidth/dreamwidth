@@ -194,45 +194,34 @@ body<=
     };
 
 
-    my ($uri, $args) = (BML::get_uri(), BML::get_query_string());
-    my $filter_url;
+    my ( $uri, $args ) = ( BML::get_uri(), BML::get_query_string() );
 
     $args =~ s/(\?|\&)page=\d*//gi;
-    $args =~ s/(\?|\&)journaltype=(C|P)?//gi;
+    $args =~ s/(\?|\&)journaltype=[CPI]?//gi;
     $args =~ s/(\?|\&)start_search=\d*//gi;
     $uri .= '?' . $args if $args;
 
+    my $filter_url = LJ::ehtml( $LJ::SITEROOT . $uri );
+    $filter_url .= ($args ? "&" : "?") . 'start_search=1';
+
     my $all_search = "$ML{'.new_all_search'}";
+    $all_search = "<a href='$filter_url'>$all_search</a>"
+        if uc( $GET{journaltype} ) =~ /^[CPI]$/;
+
     my $community_search = "$ML{'.new_community_search'}";
+    $community_search = "<a href='$filter_url&journaltype=C'>$community_search</a>"
+        unless uc( $GET{journaltype} ) eq 'C';
+
     my $user_search = "$ML{'.new_user_search'}";
+    $user_search = "<a href='$filter_url&journaltype=P'>$user_search</a>"
+        unless uc( $GET{journaltype} ) eq 'P';
 
-    # All search
-    if ('C' eq uc($GET{journaltype}) || 'P' eq uc($GET{journaltype}))
-    {
-        $filter_url = LJ::ehtml($LJ::SITEROOT . $uri);
-        $filter_url .= ($args ? "&" : "?") . 'start_search=1';
-        $all_search = "<a href='$filter_url'>$all_search</a>";
-    }
+    my $identity_search = "$ML{ '.new_identity_search' }";
+    $identity_search = "<a href='$filter_url&journaltype=I'>$identity_search</a>"
+        unless uc( $GET{journaltype} ) eq 'I';
 
-    # Community search
-    if ('C' ne uc($GET{journaltype}))
-    {
-        $filter_url = LJ::ehtml($LJ::SITEROOT . $uri);
-        $filter_url .= ($args ? "&" : "?") . 'journaltype=C&start_search=1';
-        $community_search = "<a href='$filter_url'>$community_search</a>";
-    }
-
-    # Users search
-    if ('P' ne uc($GET{journaltype}))
-    {
-        $filter_url = LJ::ehtml($LJ::SITEROOT . $uri);
-        $filter_url .= ($args ? "&" : "?") . 'journaltype=P&start_search=1';
-        $user_search = "<a href='$filter_url'>$user_search</a>";
-    }
-
-    $ret .= qq {
-        <div id="FilterSearch">$ML{'.new_search_show'}&nbsp;$all_search&nbsp;|&nbsp;$community_search&nbsp;|&nbsp;$user_search</div>
-    };
+    $ret .= qq {\n<div id="FilterSearch">$ML{'.new_search_show'}&nbsp;$all_search&nbsp;|&nbsp;};
+    $ret .= qq {$community_search&nbsp;|&nbsp;$user_search&nbsp;|&nbsp;$identity_search</div>\n};
 
     if (LJ::run_hook("interest_search_ignore", query => $GET{int_like})) {
         $ret .= $ML{'.unable_find_users'};
