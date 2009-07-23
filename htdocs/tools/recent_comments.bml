@@ -165,21 +165,26 @@ body<=
 
         unless ($r->{state} eq "D")
         {
-            $ret .= "<a href='/delcomment.bml?${jargent}id=$talkid'>" . LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+            $ret .= "<a href='/delcomment.bml?${jargent}id=$talkid'>";
+            $ret .= LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
             if ($r->{'state'} ne 'F') {
-                $ret .= "<a href='/talkscreen.bml?mode=freeze&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                $ret .= "<a href='/talkscreen.bml?mode=freeze&amp;${jargent}talkid=$talkid'>";
+                $ret .= LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
             }
 
             if ($r->{'state'} eq 'F') {
-                $ret .= "<a href='/talkscreen.bml?mode=unfreeze&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+                $ret .= "<a href='/talkscreen.bml?mode=unfreeze&amp;${jargent}talkid=$talkid'>";
+                $ret .= LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
             }
 
             if ($r->{'state'} ne 'S') {
-                $ret .= "<a href='/talkscreen.bml?mode=screen&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                $ret .= "<a href='/talkscreen.bml?mode=screen&amp;${jargent}talkid=$talkid'>";
+                $ret .= LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
             }
 
             if ($r->{'state'} eq 'S') {
-                 $ret .= "<a href='/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$talkid'>" . LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                 $ret .= "<a href='/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$talkid'>";
+                 $ret .= LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
              }
          }
 
@@ -187,7 +192,8 @@ body<=
         #$ret .= " <nobr><input type='checkbox' name='selected_$r->{jtalkid}' id='s$r->{jtalkid}' />";
         #$ret .= " <label for='s$r->{jtalkid}'>$ML{'/talkread.bml.select'}</label></nobr>";
 
-        $ret .= "</td><td id='ljcmt$talkid' style='text-align: left; border-top: 1px solid #999; border-left: 1px solid #999'>";
+        $ret .= "</td><td id='" . LJ::Talk::comment_htmlid( $talkid );
+        $ret .= "' style='text-align: left; border-top: 1px solid #999; border-left: 1px solid #999'>";
 
         my $subject = $log_text->{"$u->{userid} $r->{nodeid}"}[0];
         LJ::CleanHTML::clean_subject(\$subject) if $subject ne "";

@@ -508,17 +508,19 @@ body<=
             $user = $ML{'.anonuser'};
         }
 
+        my $htmlid = LJ::Talk::comment_htmlid( $dtid );
+
         if ($post->{'state'} eq "D") {
-            $ret .= "<p><a name='t$dtid'></a><table class='delcomment'><tr>";
+            $ret .= "<p><a name='$htmlid'></a><table class='delcomment'><tr>";
             $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.deletedpost'}</td></tr></table>\n";
         } elsif ($post->{'state'} eq "S" && !$post->{'_loaded'} && !$post->{'_show'}) {
-            $ret .= "<p><a name='t$dtid'></a><table class='screenedcomment'><tr>";
+            $ret .= "<p><a name='$htmlid'></a><table class='screenedcomment'><tr>";
             $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             my $screenedtext = $ML{'.screenedpost'};
             $ret .= "<td>$screenedtext</td></tr></table>\n";
         } elsif ($pu && $pu->is_suspended && !$viewsome) {
-            $ret .= "<p><a name='t$dtid'></a><table class='suspendedcomment'><tr>";
+            $ret .= "<p><a name='$htmlid'></a><table class='suspendedcomment'><tr>";
             $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
             $ret .= "<td>$ML{'.replysuspended'}";
             if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
@@ -550,7 +552,7 @@ body<=
                         ($tz_remote ? " (local)" : " UTC");
                 }
 
-                $ret .= "<a name='t$dtid'></a><span id='ljcmt$dtid'><table width='100%' class='talk-comment'><tbody><tr>";
+                $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table width='100%' class='talk-comment'><tbody><tr>";
                 $ret .= "<td rowspan='2'><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td id='cmtbar$dtid' class='cmtbar-$level' style='background-color: $bgcolor' width='100%'>";
 
@@ -584,7 +586,9 @@ body<=
                     $ret .= BML::ml('.fromip', {'ip'=>$post->{'props'}->{'poster_ip'}});
                 }
 
-                $ret .= " <span class='talkargs'>(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dtid", $formatlight) . "#t$dtid'>$T{'link'}</a>)</span>";
+                $ret .= " <span class='talkargs'>(<a href='";
+                $ret .= LJ::Talk::talkargs( $talkurl, "thread=$dtid", $formatlight );
+                $ret .= LJ::Talk::comment_anchor( $dtid ) . "'>$T{'link'}</a>)</span>";
 
                 if ($comment->remote_can_edit) {
                     $ret .= "<a href='" . LJ::Talk::talkargs($comment->edit_url, $stylemine, $formatlight) . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
@@ -709,10 +713,11 @@ body<=
                 my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'};
                 if ($parentid != 0) {
                     my $dpid = $parentid * 256 + $init->{'anum'};
-                    $ret .= "(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dpid", $stylemine, $formatlight) . "#t$dpid'>$T{'parent'}</a>)";
+                    $ret .= "(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dpid", $stylemine, $formatlight);
+                    $ret .= LJ::Talk::comment_anchor( $dpid ) . "'>$T{'parent'}</a>)";
                 }
                 if ($post->{'children'} && @{$post->{'children'}}) {
-                    my $url = LJ::Talk::talkargs($talkurl, "thread=$dtid", $stylemine, $formatlight) . "#t$dtid";
+                    my $url = LJ::Talk::talkargs($talkurl, "thread=$dtid", $stylemine, $formatlight) . LJ::Talk::comment_anchor( $dtid );
                     $ret .= "(<a href='$url'>$T{'thread'}</a>)";
 
                     if ((grep {! $_->{_loaded} and !($_->{state} eq "D")} @{$post->{'children'}}) && $show_thread_expander) {
@@ -728,10 +733,10 @@ body<=
             } else {
                 # link to message
 
-                $ret .= "<a name='t$dtid'></a><span id='ljcmt$dtid'><table ><tbody><tr>";
+                my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $stylemine, $formatlight ) . LJ::Talk::comment_anchor( $dtid );
+                $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table ><tbody><tr>";
                 $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
-                $ret .= "<td><a href='" . LJ::Talk::talkargs($talkurl, "thread=$dtid", $stylemine, $formatlight) . "#t$dtid'>" . LJ::ehtml($post->{'subject'} || $T{'nosubject'}) . "</a> - $user, <i>$datepost</i>";
-                my $url = LJ::Talk::talkargs($talkurl, "thread=$dtid", $stylemine, $formatlight) . "#t$dtid";
+                $ret .= "<td><a href='$url'>" . LJ::ehtml($post->{'subject'} || $T{'nosubject'}) . "</a> - $user, <i>$datepost</i>";
                 $ret .= qq[ (<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)] if $show_thread_expander;
 
                 # Comment Posted Notice

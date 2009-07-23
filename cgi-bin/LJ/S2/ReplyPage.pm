@@ -184,7 +184,7 @@ sub ReplyPage
             'poster' => $s2poster,
             'journal' => $s2entry->{'journal'},
             'metadata' => {},
-            'permalink_url' => $u->{'_journalbase'} . "/$ditemid.html?view=$dtalkid#t$dtalkid",
+            'permalink_url' => $u->{'_journalbase'} . "/$ditemid.html?view=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid ),
             'depth' => 1,
             'time' => $datetime,
             'system_time' => $datetime,

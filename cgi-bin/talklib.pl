@@ -2110,6 +2110,16 @@ sub get_replycount {
     return $count;
 }
 
+sub comment_htmlid {
+    my $id = shift or return '';
+    return "ljcmt$id";
+}
+
+sub comment_anchor {
+    my $id = shift or return '';
+    return "#ljcmt$id";
+}
+
 package LJ::Talk::Post;
 
 use Text::Wrap;

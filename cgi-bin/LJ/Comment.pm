@@ -221,8 +221,9 @@ sub url {
     my $entry   = $self->entry;
     my $url     = $entry->url;
 
-    return "$url?thread=$dtalkid#t$dtalkid";
+    return "$url?thread=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid );
 }
+*thread_url = \&url;
 
 sub reply_url {
     my $self    = shift;
@@ -232,16 +233,6 @@ sub reply_url {
     my $url     = $entry->url;
 
     return "$url?replyto=$dtalkid";
-}
-
-sub thread_url {
-    my $self    = shift;
-
-    my $dtalkid = $self->dtalkid;
-    my $entry   = $self->entry;
-    my $url     = $entry->url;
-
-    return "$url?thread=$dtalkid#t$dtalkid";
 }
 
 sub parent_url {

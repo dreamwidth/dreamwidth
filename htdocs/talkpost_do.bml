@@ -219,12 +219,8 @@ body<=
     # Allow style=mine for QR redirects
     my $stylemine = $POST{'stylemine'} ? 'style=mine' : '';
 
-    my $commentlink;
-    if ($POST{'viewing_thread'} eq '') {
-        $commentlink = LJ::Talk::talkargs($talkurl, "view=$dtalkid", $stylemine) . "#t$dtalkid";
-    } else {
-        $commentlink = LJ::Talk::talkargs($talkurl, "thread=$POST{viewing_thread}", $stylemine) . "#t$dtalkid";
-    }
+    my $cthread = $POST{'viewing_thread'} ? "thread=$POST{viewing_thread}" : "view=$dtalkid";
+    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $stylemine ) . LJ::Talk::comment_anchor( $dtalkid );
 
     my $ret = "";
     $ret .= "<?h1 $ML{'.success.title'} h1?>";

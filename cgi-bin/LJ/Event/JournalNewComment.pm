@@ -200,11 +200,12 @@ sub content {
     my $comment_body = $comment->body_html;
     my $buttons = $comment->manage_buttons;
     my $dtalkid = $comment->dtalkid;
+    my $htmlid  = LJ::Talk::comment_htmlid( $dtalkid );
 
     $comment_body =~ s/\n/<br \/>/g;
 
     my $ret = qq {
-        <div id="ljcmt$dtalkid" class="JournalNewComment">
+        <div id="$htmlid" class="JournalNewComment">
             <div class="ManageButtons">$buttons</div>
             <div class="Body">$comment_body</div>
         </div>

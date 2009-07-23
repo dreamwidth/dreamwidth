@@ -107,7 +107,7 @@ _info?><?_code
     my $ditemid = $qitemid*256 + $anum;
 
     my $itemlink = LJ::journal_base($u) . "/$ditemid.html";
-    my $commentlink = "$itemlink?view=$dtalkid#t$dtalkid";
+    my $commentlink = "$itemlink?view=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid );
 
     if ($mode eq 'screen') {
         my $can_screen = LJ::Talk::can_screen($remote, $u, $up, $post->{'userpost'});

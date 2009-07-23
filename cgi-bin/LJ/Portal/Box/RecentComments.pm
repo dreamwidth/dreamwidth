@@ -129,16 +129,17 @@ sub generate_content {
 
         # print out comment w/ links
         my $posturl  = "$root/$lrow->{ditemid}.html";
-        my $replyurl = LJ::Talk::talkargs($posturl, "replyto=$talkid");
-        my $talkurl  = "$root/$lrow->{ditemid}.html?thread=$talkid\#t$talkid";
+        my $replyurl = LJ::Talk::talkargs( $posturl, "replyto=$talkid" );
+        my $talkurl  = LJ::Talk::talkargs( $posturl, "thread=$talkid" ) . LJ::Talk::comment_anchor( $talkid );
         my $userlink = LJ::isu($pu) ? LJ::ljuser($pu) : "<i>(Anonymous)</i>";
+        my $htmlid   = LJ::Talk::comment_htmlid( $talkid );
 
         # clean comment subject/text
         LJ::CleanHTML::clean_subject_all(\$subject);
         LJ::CleanHTML::clean_comment(\$body);
 
         $content .= qq {
-            <tr id="ljcmt$talkid">
+            <tr id="$htmlid">
                 <td>
 
                   <span class="RecentCommentTitle">$userlink </span>

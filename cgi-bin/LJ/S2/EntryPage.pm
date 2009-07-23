@@ -193,7 +193,7 @@ sub EntryPage
 
             if ($com->{'parenttalkid'}) {
                 my $dparent = ($com->{'parenttalkid'} << 8) + $entry->anum;
-                $par_url = LJ::Talk::talkargs($permalink, "thread=$dparent", $style_arg) . "#t$dparent";
+                $par_url = LJ::Talk::talkargs($permalink, "thread=$dparent", $style_arg) . LJ::Talk::comment_anchor( $dparent );
             }
 
             my $poster;
@@ -222,7 +222,7 @@ sub EntryPage
                 'metadata' => {
                     'picture_keyword' => $com->{'props'}->{'picture_keyword'},
                 },
-                'permalink_url' => "$permalink?thread=$dtalkid#t$dtalkid",
+                'permalink_url' => "$permalink?thread=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid ),
                 'reply_url' => $reply_url,
                 'poster' => $poster,
                 'replies' => [],
@@ -242,8 +242,8 @@ sub EntryPage
                 'frozen' => $com->{'state'} eq "F" ? 1 : 0,
                 'deleted' => $com->{'state'} eq "D" ? 1 : 0,
                 'link_keyseq' => [ 'delete_comment' ],
-                'anchor' => "t$dtalkid",
-                'dom_id' => "ljcmt$dtalkid",
+                'anchor' => LJ::Talk::comment_htmlid( $dtalkid ),
+                'dom_id' => LJ::Talk::comment_htmlid( $dtalkid ),
                 'comment_posted' => $commentposted,
                 'edited' => $edited ? 1 : 0,
                 'time_remote' => $datetime_remote,
@@ -274,7 +274,7 @@ sub EntryPage
             push @$link_keyseq, "watching_parent" if LJ::is_enabled('esn');
             unshift @$link_keyseq, "edit_comment" if LJ::is_enabled('edit_comments');
 
-            $s2com->{'thread_url'} = LJ::Talk::talkargs($permalink, "thread=$dtalkid", $style_arg) . "#t$dtalkid";
+            $s2com->{'thread_url'} = LJ::Talk::talkargs($permalink, "thread=$dtalkid", $style_arg) . LJ::Talk::comment_anchor( $dtalkid );
 
             # add the poster_ip metadata if remote user has
             # access to see it.
