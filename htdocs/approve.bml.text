@@ -1,11 +1,6 @@
 ;; -*- coding: utf-8 -*-
 .comm.success=Success
 
-.comm.text<<
-You have been added to [[comm]].
-Click <a [[aopts]]>here</a> to add the community to your friends list.
-.
-
 .commjoin.text<<
 You have approved the membership request of [[user]] in [[comm]].
 Click <a [[aopts]]>here</a> to visit the member list for this community to set
