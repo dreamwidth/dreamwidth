@@ -271,6 +271,7 @@ sub make_feed
             tags       => [ values %{$logtags->{$itemid} || {}} ],
             security   => $it->{security},
             posterid   => $it->{posterid},
+            replycount => $logprops{$itemid}->{'replycount'},
         };
         push @cleanitems, $cleanitem;
         push @entries,    $entry_obj;
@@ -355,6 +356,7 @@ sub create_view_rss
         $ret .= "  <lj:mood>" . LJ::exml($it->{mood}) . "</lj:mood>\n" if $it->{mood};
         $ret .= "  <lj:security>" . LJ::exml($it->{security}) . "</lj:security>\n" if $it->{security};
         $ret .= "  <lj:poster>" . LJ::exml($poster->user) . "</lj:poster>\n" unless LJ::u_equals($u, $poster);
+        $ret .= "  <lj:reply-count>$it->{replycount}</lj:reply-count>\n";
         $ret .= "</item>\n";
     }
 
