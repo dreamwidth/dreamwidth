@@ -7,6 +7,9 @@ core2                   core            -
 core2base/layout        layout          core2
 core2base/themes        theme+          core2base/layout
 
+drifting/layout         layout          core2
+drifting/themes         theme+          drifting/layout
+
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
 

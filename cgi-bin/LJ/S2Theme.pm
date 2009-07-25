@@ -35,6 +35,7 @@ sub default_theme {
 
     my %default_themes = (
         core2base => 'core2base/testing',
+        drifting => 'drifting/blue',
         negatives => 'negatives/black',
         zesty => 'zesty/white',
     );

@@ -1,0 +1,5 @@
+#NEWLAYER: drifting/blue
+layerinfo type = "theme";
+layerinfo name = "Drifting Blue";
+layerinfo redist_uniq = "drifting/blue";
+
