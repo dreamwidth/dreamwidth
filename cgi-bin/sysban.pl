@@ -305,6 +305,12 @@ sub sysban_create {
             message => "Wrong arguments passed; should be a hash\n",
         }, 'ERROR';
     }
+    
+    if ( $opts{note} && length( $opts{note} ) > 255 ) {
+        return bless {
+            message => "Note too long; must be less than 256 characters\n",
+        }, 'ERROR';
+    }
 
 
     my $dbh = LJ::get_db_writer();
@@ -463,6 +469,12 @@ sub sysban_modify {
         return bless {
             message => "Arguments must be passed as a hash; ban ID and 
                         old expiry are required\n",
+        }, 'ERROR';
+    }
+    
+    if ( $opts{note} && length( $opts{note} ) > 255 ) {
+        return bless {
+            message => "Note too long; must be less than 256 characters\n",
         }, 'ERROR';
     }
 
