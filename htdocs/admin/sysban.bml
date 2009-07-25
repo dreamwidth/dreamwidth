@@ -117,7 +117,7 @@ QUERYFORM
 </select>
 </td>
 <td>
-<textarea name='note' rows='2' cols='40'>$note</textarea> 
+<textarea name='note' rows='3' cols='80'>$note</textarea> 
 </td>
 <td><input type='submit' name='modify' value='modify'>
 </td>
@@ -190,7 +190,7 @@ Duration: <select name='bandays'>
 <option value='30'>1 month</option>
 <option value='0'>forever</option>
 </select>
-Note (required): <textarea name='note' rows='5' cols='80'></textarea> 
+Note (required): <textarea name='note' rows='3' cols='80'></textarea> 
 <br />
 <input type='submit' name='add' value='Add'>
 </form>
