@@ -1982,6 +1982,11 @@ sub delete_entry
     # delete all comments
     LJ::delete_all_comments($u, 'L', $jitemid);
 
+    # fired to delete the post from the Sphinx search database
+    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
+    }
+
     return 1;
 }
 

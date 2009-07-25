@@ -1540,6 +1540,11 @@ sub postevent
     }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 
+    # update the sphinx search engine
+    if ( @LJ::SPHINX_SEARCHD ) {
+        push @jobs, TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $uowner->id } );
+    }
+
     my $sclient = LJ::theschwartz();
     if ($sclient && @jobs) {
         my @handles = $sclient->insert_jobs(@jobs);
@@ -1887,6 +1892,12 @@ sub editevent
 
     my $entry = LJ::Entry->new($ownerid, jitemid => $itemid);
     LJ::EventLogRecord::EditEntry->new($entry)->fire;
+
+    # fired to copy the post over to the Sphinx search database
+    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $ownerid } ) );
+    }
+
     LJ::run_hooks("editpost", $entry);
 
     return $res;

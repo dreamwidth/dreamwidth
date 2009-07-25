@@ -3633,6 +3633,10 @@ userlinkbar.postentry=Post an Entry
 
 userlinkbar.postentry.title=Post to your journal
 
+userlinkbar.search=Search for Entries
+
+userlinkbar.search.title=Search for entries in this account
+
 userlinkbar.sendmessage=Send Message
 
 userlinkbar.sendmessage.title=Send a private message to this user

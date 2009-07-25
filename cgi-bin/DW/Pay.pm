@@ -490,6 +490,12 @@ sub update_paid_status {
             if $dbh->err;
     }
 
+    # and now, at this last step, we kick off a job to check if this user
+    # needs to have their search index setup/messed with.
+    if ( @LJ::SPHINX_SEARCHD && ( my $sclient = LJ::theschwartz() ) ) {
+        $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $u->id } ) );
+    }
+
     return 1;
 }
 

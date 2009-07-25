@@ -38,6 +38,7 @@ DW::Logic::UserLinkBar - This module provides logic for rendering the user link 
   $link = $user_link_bar->message;
   $link = $user_link_bar->tellafriend;
   $link = $user_link_bar->memories;
+  $link = $user_link_bar->search;
 
 =cut
 
@@ -449,6 +450,36 @@ sub memories {
     };
 
     $link->{title_ml} = $u->equals( $remote ) ? 'userlinkbar.memories.title.self' : 'userlinkbar.memories.title.other';
+
+    return $self->fix_link( $link );
+}
+
+=head2 C<< $obj->search >>
+
+Returns a hashref with the appropriate icon/link/text for searching this journal.
+
+=cut
+
+sub search {
+    my $self = $_[0];
+
+    my $u = $self->{u};
+    my $remote = $self->{remote};
+    my $user = $u->user;
+
+    # don't show if search is disabled
+    return undef unless
+        @LJ::SPHINX_SEARCHD &&
+        ( $u->is_community || ( $u->equals( $remote ) ) ) &&
+        $u->is_paid;
+
+    my $link = {
+        url => 'search' . ( $u->is_community ? "?search_user=" . $u->user : '' ),
+        image => 'search.png',
+        text_ml => "userlinkbar.search",
+        title_ml => "userlinkbar.search.title",
+        class => 'search',
+    };
 
     return $self->fix_link( $link );
 }
