@@ -56,10 +56,7 @@ sub EntryPage
     $p->{head_content} .= qq{<link rel="next" href="$next_url" />\n} if $next_url;
 
     # canonical link to the entry or comment thread
-    my $canonical_url = $permalink;
-    my $threadid = $get->{thread} + 0;
-    $canonical_url .= "?thread=$threadid#t$threadid" if $threadid;
-    $p->{head_content} .= qq{<link rel="canonical" href="$canonical_url" />\n};
+    $p->{head_content} .= LJ::canonical_link( $permalink, $get->{thread} );
 
     # quickreply js libs
     LJ::need_res(qw(

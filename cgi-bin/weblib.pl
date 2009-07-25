@@ -3604,4 +3604,14 @@ sub statusvis_message_js {
     return "<script>Site.StatusvisMessage=\"" . LJ::Lang::ml("statusvis_message.$statusvis_full") . "\";</script>";
 }
 
+# returns canonical link for use in header of journal pages
+sub canonical_link {
+    my ( $url, $tid ) = @_;
+    if ( $tid += 0 ) {  # sanitize input
+        $url .= "?thread=$tid" . LJ::Talk::comment_anchor( $tid );
+    }
+    return qq{<link rel="canonical" href="$url" />\n};
+
+}
+
 1;

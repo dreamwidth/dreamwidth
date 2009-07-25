@@ -115,10 +115,7 @@ body<=
     my $entry = LJ::Entry->new($u, ditemid => $ditemid);
 
     # canonical link to the entry or comment thread
-    my $canonical_url = $entry->url;
-    my $threadid = $GET{thread} + 0;
-    $canonical_url .= "?thread=$threadid#t$threadid" if $threadid;
-    $$head .= qq{<link rel="canonical" href="$canonical_url" />\n};
+    $$head .= LJ::canonical_link( $entry->url, $GET{thread} );
 
     $u->preload_props("opt_blockrobots", "adult_content") if $u->is_visible;
     if (!$u->is_visible || $u->should_block_robots || ($entry && $entry->should_block_robots)) {
