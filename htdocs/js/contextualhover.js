@@ -502,8 +502,13 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 var setBanLink = document.createElement("a");
                 
                 setBanLink.href = window.Site.siteroot + '/manage/banusers.bml';
-                setBanLink.innerHTML = 'Ban user';
                 
+                if (data.is_comm) {
+                    setBanLink.innerHTML = 'Ban community';
+                } else {
+                    setBanLink.innerHTML = 'Ban user';
+                }
+
                 setBan.appendChild(setBanLink);
 
                 DOM.addClassName(setBan, "SetBan");
