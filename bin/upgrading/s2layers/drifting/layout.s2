@@ -353,9 +353,9 @@ function print_stylesheet()
 
     .header-left {
         background-image: url($*image_header_left);
+        background-repeat: no-repeat;
         height: 4.7em;
         float: left;
-        width: 239px;
     }
 
     .header-right {
