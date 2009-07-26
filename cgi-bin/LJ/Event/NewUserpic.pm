@@ -111,6 +111,11 @@ sub content {
     return $up->imgtag;
 }
 
+# short enough that we can just use this the normal content as the summary
+sub content_summary {
+    return $_[0]->content( @_ );
+}
+
 sub as_email_subject {
     my $self = shift;
     return sprintf "%s uploaded a new userpic!", $self->event_journal->display_username;

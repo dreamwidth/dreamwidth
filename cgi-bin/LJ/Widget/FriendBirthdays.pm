@@ -28,7 +28,7 @@ sub render_body {
 
     my $ret;
     $ret .= "<h2><span>" . $class->ml('widget.friendbirthdays.title') . "</span></h2>";
-    $ret .= "<a href='$LJ::SITEROOT/birthdays.bml' class='more-link'>" . $class->ml('widget.friendbirthdays.viewall') . "</a></p>";
+    $ret .= "<a href='$LJ::SITEROOT/birthdays' class='more-link'>" . $class->ml('widget.friendbirthdays.viewall') . "</a></p>";
     $ret .= "<div class='indent_sm'><table>";
 
     foreach my $bday (@bdays) {
@@ -43,14 +43,14 @@ sub render_body {
         $ret .= "<tr>";
         $ret .= "<td>" . $u->ljuser_display . "</td>";
         $ret .= "<td>" . $class->ml('widget.friendbirthdays.userbirthday', {'month' => LJ::Lang::month_short($month), 'day' => $day}) . "</td>";
-        $ret .= "<td><a href='$LJ::SITEROOT/shop/view.bml?item=paidaccount&gift=1&for=" . $u->user . "' class='gift-link'>";
+        $ret .= "<td><a href='$LJ::SITEROOT/shop/account?for=gift&user=" . $u->user . "' class='gift-link'>";
         $ret .= $class->ml('widget.friendbirthdays.gift') . "</a></td>";
         $ret .= "</tr>";
     }
 
     $ret .= "</table></div>";
 
-    $ret .= "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/birthdays.bml'>" .
+    $ret .= "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/birthdays'>" .
             $class->ml('widget.friendbirthdays.friends_link') .
             "</a></p>" if $opts{friends_link};
     $ret .= "<p class='indent_sm'>&raquo; <a href='$LJ::SITEROOT/paidaccounts/friends.bml'>" .

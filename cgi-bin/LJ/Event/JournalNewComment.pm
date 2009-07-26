@@ -185,15 +185,21 @@ sub as_sms {
     return $msg . $self->comment->body_text;
 }
 
+sub _can_view_content {
+    my ( $self, $comment, $target ) = @_;
+
+    return undef unless $comment && $comment->valid;
+    return undef unless $comment->entry && $comment->entry->valid;
+    return undef unless $comment->visible_to( $target );
+    return undef if $comment->is_deleted;
+
+    return 1;
+}
 sub content {
     my ($self, $target) = @_;
 
     my $comment = $self->comment;
-
-    return undef unless $comment && $comment->valid;
-    return undef unless $comment->entry && $comment->entry->valid;
-    return undef unless $comment->visible_to($target);
-    return undef if $comment->is_deleted;
+    return undef unless $self->_can_view_content( $comment, $target );
 
     LJ::need_res('js/commentmanage.js');
 
@@ -233,6 +239,20 @@ sub content {
     $ret .= qq {
         </script>
         };
+    $ret .= $self->as_html_actions;
+
+    return $ret;
+}
+
+sub content_summary {
+    my ( $self, $target ) = @_;
+
+    my $comment = $self->comment;
+    return undef unless $self->_can_view_content( $comment, $target );
+
+    my $body_summary = $comment->body_html_summary( 300 );
+    my $ret = $body_summary;
+    $ret .= "..." if $comment->body_html ne $body_summary;
     $ret .= $self->as_html_actions;
 
     return $ret;

@@ -3863,6 +3863,22 @@ web.postto.btn=Switch
 
 web.postto.label=Post to:
 
+widget.accountstatistics.expires_on=[[type]], expiring [[date]]
+
+widget.accountstatistics.comments=[[num_received]] [[?num_received|comment|comments]] received; [[num_posted]] [[?num_received|comment|comments]] posted
+
+widget.accountstatistics.entries=[[num]] [[?num|entry|entries]]
+
+widget.accountstatistics.last_updated=Last updated [[date]]
+
+widget.accountstatistics.member_since=Member since [[date]]
+
+widget.accountstatistics.memories=[[num]] <a [[aopts]]>Memories</a>
+
+widget.accountstatistics.tags=[[num]] <a [[aopts]]>Tags</a>
+
+widget.accountstatistics.title=Account Stats
+
 widget.addqotd.extratext=Extra Text (optional):
 
 widget.addqotd.extratext.note=HTML allowed
@@ -4123,7 +4139,7 @@ widget.feeds.title=Feeds
 
 widget.feeds.viewall=view all
 
-widget.friendbirthdays.friends_link=View all friends' birthdays
+widget.friendbirthdays.friends_link=View birthdays for everyone in your circle
 
 widget.friendbirthdays.gift=Gift
 
@@ -4293,6 +4309,22 @@ widget.journaltitles.title=1. Edit Titles
 
 widget.journaltitles.title_nonum=Edit Titles
 
+widget.latestinbox.links.compose=Create New Message
+
+widget.latestinbox.links.inbox=View More Messages
+
+widget.latestinbox.links.manage=Manage Settings
+
+widget.latestinbox.title=Inbox
+
+widget.latestnews.comments=[[num_comments]] [[?num_comments|comment|comments]]
+
+widget.latestnews.more=(Read more...)
+
+widget.latestnews.subscribe=<a [[aopts]]>Add</a> [[news]] to your reading list
+
+widget.latestnews.title=[[sitename]] News
+
 widget.layoutchooser.layout.apply=Apply Layout
 
 widget.layoutchooser.title=3. Choose a Page Setup
@@ -4451,6 +4483,28 @@ widget.qotdresponses.read.your.friends.page=Read your Friends Page
 
 widget.qotdresponses.there.are.no.answers=There are no answers to this Writer's Block.
 
+widget.quickupdate.entry=Entry
+
+widget.quickupdate.moreopts=More Options
+
+widget.quickupdate.subject=Subject
+
+widget.quickupdate.title=Quick Update
+
+widget.quickupdate.update=Update Journal
+
+widget.readinglist.breakdown.communities=[[num]] communities
+
+widget.readinglist.breakdown.feeds=[[num]] feeds
+
+widget.readinglist.breakdown.header=You are currently reading:
+
+widget.readinglist.breakdown.personal=[[num]] personal journals
+
+widget.readinglist.readpage=Check out recent updates on your <a [[aopts]]>reading list</a>!
+
+widget.readinglist.title=Reading List
+
 widget.recentcomments.anon=Somebody
 
 widget.recentcomments.commentheading=[[poster]] in [[entry]]
@@ -4599,6 +4653,8 @@ widget.shopitemoptions.price=[[num]] [[?num|month|months]] for [[price]]
 
 widget.shopitemoptions.price.seed=Forever for [[price]]
 
+widget.sitemessages.title=[[sitename]] Plugs In
+
 widget.support.submit.button=Submit Request
 
 widget.support.submit.captcha=Prove You're Human
@@ -4684,6 +4740,8 @@ widget.themenav.filteravailable=Only show themes available to me
 widget.themenav.switchtos1=Switch to old style system (S1)
 
 widget.themenav.title=2. Select a New Theme
+
+widget.usertagcloud.title=Tag Cloud
 
 xpost.delete.error=Error deleting crossposted entry at [[username]]@[[server]]:  [[error]]
 

@@ -85,6 +85,13 @@ sub as_html {
     return eval { $self->event->content($self->u) } || $@;
 }
 
+sub as_html_summary {
+    my $self = shift;
+    croak "Too many args passed to NotificationItem->as_html_summary" if scalar @_;
+    return "(Invalid event)" unless $self->event; 
+    return eval { $self->event->content_summary( $self->u ) } || $@;
+}
+
 # returns the event that this item refers to
 sub event {
     my $self = shift;

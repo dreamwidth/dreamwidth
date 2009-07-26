@@ -792,6 +792,12 @@ sub body_html {
     return $body;
 }
 
+# comement body, but trimmed to $char_max
+sub body_html_summary {
+    my ( $self, $char_max ) = @_;
+    return LJ::html_trim( $self->body_html, $char_max );
+}
+
 # comment body, plaintext
 sub body_text {
     my $self = shift;

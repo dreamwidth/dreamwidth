@@ -64,6 +64,17 @@ sub content {
     return $body;
 }
 
+sub content_summary {
+    my $msg = $_[0]->load_message;
+    my $body = $msg->body;
+    my $body_summary = LJ::html_trim( $body, 300 );
+
+    my $ret = LJ::html_newlines( $body_summary );
+    $ret .= "..." if $body ne $body_summary;
+    $ret .= $_[0]->as_html_actions;
+    return $ret;
+}
+
 # override parent class sbuscriptions method to always return
 # a subscription object for the user
 sub subscriptions {

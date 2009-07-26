@@ -54,14 +54,35 @@ sub matches_filter {
     return LJ::u_equals($subscr->journal, $evtju);
 }
 
+sub _can_view_content {
+    my ( $self, $entry, $target ) = @_;
+    
+    return undef unless $entry && $entry->valid;
+    return undef unless $entry->visible_to( $target );
+
+    return 1;
+}
+
 sub content {
     my ($self, $target) = @_;
     my $entry = $self->entry;
-
-    return undef unless $entry && $entry->valid;
-    return undef unless $entry->visible_to($target);
+    return undef unless $self->_can_view_content( $entry, $target );
 
     return $entry->event_html . $self->as_html_actions;
+}
+
+sub content_summary {
+    my ( $self, $target ) = @_;
+    
+    my $entry = $self->entry;
+    return undef unless $self->_can_view_content( $entry, $target );
+
+    my $event_summary = $entry->event_html_summary( 300 );
+    my $ret = $event_summary;
+    $ret .= "..." if $event_summary ne $entry->event_html;
+    $ret .= $self->as_html_actions;
+
+    return $ret;
 }
 
 sub as_string {

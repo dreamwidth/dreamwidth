@@ -307,54 +307,42 @@ table#table_yourlayers td { padding: .15em .25em; }
     overflow: hidden;
 }
 #content #primary .panel h2 {
-    height: 2em;
     line-height: 2em;
+    border-style: none;
 }
 #content #primary .panel p {
     clear: both;
 }
-#content #secondary .panel h3 {
-    height: 30px;
+#content #secondary .panel h2 {
     line-height: 30px;
+    border-style: none;
+}
+#content .panel .sidebar ul {
+     list-style: none;
+     margin-left: 0;
+}
+#content .panel ul {
+    list-style: circle;
+    margin-left: 1em;
 }
 /**
  * Panels have different styles for different content layouts
  */
 .layout-wide-right-sidebar #primary .panel .sidebar {
     float: left;
-    width: 30%;
+    width: 22%;
 }
 .layout-wide-right-sidebar #primary .panel .contents {
     float: left;
     padding-top: 6px;
     padding-left: 14px;
     border-left: 1px solid #ccc;
-    width: 70%;
+    width: 75%;
     line-height: 1.8;
 }
 .layout-wide-right-sidebar #secondary .panel .contents {
     margin: 0.5em 0;
     line-height: 1.8;
-}
-/**
- * Panels have unique IDs for CSS hooks
- */
-#panel-quick-update .sidebar p {
-    height: 3em;
-    line-height: 3em;
-}
-#panel-quick-update .contents label {
-    display: block;
-    width: 100%;
-    color: #002A82;
-    font-weight: bold;
-}
-#panel-quick-update .contents input,
-#panel-quick-update .contents textarea {
-    width: 95%;
-}
-#panel-quick-update .contents textarea {
-    height: 120px;
 }
 /* panel-first class is added through js */
 #content .panel-first {

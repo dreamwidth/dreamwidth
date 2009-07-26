@@ -134,6 +134,11 @@ sub content {
     return '';
 }
 
+# short enough that we can just use this the normal content as the summary
+sub content_summary {
+    return $_[0]->content( @_ );
+}
+
 # load our options hashref
 sub _optsref {
     my $self = $_[0];

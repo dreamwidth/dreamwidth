@@ -34,6 +34,9 @@
     %OFFICIAL_JOURNALS = (
         news => 1,
     );
+    
+    # the "news" journal, to be specially displayed on the front page, etc
+    $NEWS_JOURNAL = "news";
 
     # list of alternate domains that point to your site.
     @ALTERNATE_DOMAINS = (

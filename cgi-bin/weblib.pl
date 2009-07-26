@@ -1891,7 +1891,7 @@ sub entry_form_subject_widget {
     if ($class) {
         $class = qq { class="$class" };
     }
-    return qq { <input name="subject" $class/> };
+    return qq { <input name="subject" id="subject" $class/> };
 }
 
 # entry form hidden date field
@@ -1916,7 +1916,7 @@ sub entry_form_entry_widget {
         $class = qq { class="$class" };
     }
 
-    return qq { <textarea cols=50 rows=10 name="event" $class></textarea> };
+    return qq { <textarea cols=50 rows=10 name="event" id="event" $class></textarea> };
 }
 
 
@@ -1947,19 +1947,19 @@ sub entry_form_postto_widget {
     push @journals, $remote->{'user'};
     push @journals, $remote->{'user'};
     @journals = sort @journals;
-    $ret .= LJ::html_select({ 'name' => 'usejournal', 'selected' => $remote->{'user'}}, @journals) . "\n";
+    $ret .= LJ::html_select( { name => 'usejournal', id => 'usejournal', selected => $remote->user }, @journals ) . "\n";
     return $ret;
 }
 
 sub entry_form_security_widget {
     my $ret = '';
 
-    my @secs = ("public", BML::ml('label.security.public'),
-                "private", BML::ml('label.security.private'),
-                "friends", BML::ml('label.security.friends'));
+    my @secs = ( "public", BML::ml( 'label.security.public2' ),
+                 "friends", BML::ml( 'label.security.accesslist' ),
+                 "private", BML::ml( 'label.security.private2' ) );
 
-    $ret .= LJ::html_select({ 'name' => 'security'},
-                            @secs);
+    $ret .= LJ::html_select( { name => 'security', id => 'security' },
+                            @secs );
 
     return $ret;
 }
@@ -1971,11 +1971,71 @@ sub entry_form_tags_widget {
 
     $ret .= LJ::html_text({
                               'name'      => 'prop_taglist',
+                              'id'        => 'prop_taglist',
                               'size'      => '35',
                               'maxlength' => '255',
                           });
     $ret .= LJ::help_icon('addtags');
 
+    return $ret;
+}
+
+sub entry_form_usericon_widget {
+    my $remote = shift;
+    return undef unless LJ::isu( $remote );
+
+    my $ret;
+
+    my %res;
+    LJ::do_request({ mode => "login",
+                     ver => $LJ::PROTOCOL_VER,
+                     user => $remote->user,
+                     getpickws => 1, },
+                     \%res, { noauth => 1, userid => $remote->userid }
+                   );
+
+    if ($res{pickw_count}) {
+
+        my @icons;
+        for ( my $i = 1; $i <= $res{pickw_count}; $i++ ) {
+            push @icons, $res{"pickw_$i"};
+        }
+
+        @icons = sort { lc( $a ) cmp lc( $b ) } @icons;
+        $ret .= LJ::html_select( { name => 'prop_picture_keyword',
+                                   id => 'prop_picture_keyword' },
+                                   ( "", BML::ml( 'entryform.opt.defpic' ),
+                                     map { ( $_, $_ ) } @icons )
+                                );
+    }
+    return $ret;
+}
+
+sub entry_form_xpost_widget {
+    my ( $remote ) = @_;
+    return unless $remote;
+
+    my $ret;
+    my @accounts = DW::External::Account->get_external_accounts( $remote );
+    @accounts = grep { $_->xpostbydefault } @accounts;
+
+    if ( @accounts ) {
+        $ret .= LJ::html_hidden( {
+            name => 'prop_xpost_check', 
+            id => 'prop_xpost_check',
+            value => 1,
+        } );
+
+        foreach my $acct ( @accounts ) {
+            my $acctid = $acct->acctid;
+            $ret .= LJ::html_hidden( {
+                    name => "prop_xpost_$acctid",
+                    id => "prop_xpost_$acctid",
+                    value => 1,
+                } );
+        }
+    }
+    
     return $ret;
 }
 

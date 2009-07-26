@@ -22,6 +22,16 @@ sub content {
     return $self->entry->event_html;
 }
 
+sub content_summary {
+    my $entry = $_[0]->entry;
+    my $entry_summary = $entry->event_html_summary( 300 );
+
+    my $ret = $entry_summary;
+    $ret .= "..." if $entry->event_html ne $entry_summary;
+
+    return $ret;
+}
+
 sub is_common { 1 }
 
 sub zero_journalid_subs_means { 'all' }

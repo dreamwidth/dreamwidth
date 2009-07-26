@@ -106,6 +106,8 @@ sub always_checked { 0 }
 
 # Override this with HTML containing the actual event
 sub content { '' }
+# Override this with HTML containing a summary of the event text (may be left blank)
+sub content_summary { '' }
 
 # Override this to provide details, method for XMLRPC::getinbox
 sub raw_info {

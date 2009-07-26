@@ -40,6 +40,11 @@ sub content {
     return BML::ml('event.xpost.success.content', { accountname => $self->account->displayname });
 }
 
+# short enough that we can just use this the normal content as the summary
+sub content_summary {
+    return $_[0]->content( @_ );
+}
+
 # the main title for the event
 sub as_html {
     my $self = $_[0];
