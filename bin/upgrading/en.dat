@@ -744,6 +744,8 @@ edges.join.error.targetnotvisible=The community must be visible.
 
 edges.join.error.usernotpersonal=Your account must be a personal account.
 
+edges.join.error.usernotindividual=Your account must be a personal or identity account.
+
 edges.join.error.usernotvisible=Your account must be visible.
 
 edges.join.error.userunderage=You must be 18 or older to join this community.

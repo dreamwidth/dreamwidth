@@ -86,9 +86,9 @@ sub member_of {
     $from_u = LJ::want_user( $from_u ) or return 0;
     $to_u = LJ::want_user( $to_u ) or return 0;
 
-    # person->comm
+    # individual->comm
     return 0
-        unless $from_u->is_person &&
+        unless $from_u->is_individual &&
                $to_u->is_community;
 
     # check it
@@ -104,7 +104,7 @@ sub member_of_userids {
     $u = LJ::want_user( $u ) or return ();
 
     return ()
-        unless $u->is_person;
+        unless $u->is_individual;
 
     return @{ LJ::load_rel_target_cache( $u, 'E' ) || [] };
 }
@@ -138,9 +138,9 @@ sub can_join {
     # if the user is a maintainer, skip every other check
     return 1 if $tu && $u->can_manage( $tu );
 
-    # the user must be a personal account
-    unless ( $u->is_personal ) {
-        $$errref = LJ::Lang::ml( 'edges.join.error.usernotpersonal' );
+    # the user must be a personal account or identity account
+    unless ( $u->is_individual ) {
+        $$errref = LJ::Lang::ml( 'edges.join.error.usernotindividual' );
         return 0;
     }
 

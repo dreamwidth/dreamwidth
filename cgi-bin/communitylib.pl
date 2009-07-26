@@ -293,8 +293,8 @@ sub leave_community {
     my $u = LJ::want_user($uuid);
     my $cu = LJ::want_user($ucid);
     $defriend = $defriend ? 1 : 0;
-    return LJ::error('comm_not_found') unless $u && $cu;
-    return LJ::error('comm_not_comm') unless $cu->{journaltype} =~ /[CS]/;
+    return LJ::error( 'comm_not_found' ) unless $u && $cu;
+    return LJ::error( 'comm_not_comm' ) unless $cu->is_community;
 
     # remove community membership
     return undef
@@ -329,8 +329,8 @@ sub join_community {
     my $u = LJ::want_user($uuid);
     my $cu = LJ::want_user($ucid);
     $watch = $watch ? 1 : 0;
-    return LJ::error('comm_not_found') unless $u && $cu;
-    return LJ::error('comm_not_comm') unless $cu->{journaltype} eq 'C';
+    return LJ::error( 'comm_not_found' ) unless $u && $cu;
+    return LJ::error( 'comm_not_comm' ) unless $cu->is_community;
 
     # try to join the community, and return if it didn't work
     $u->add_edge( $cu, member => {
@@ -340,13 +340,17 @@ sub join_community {
     # add edges that effect this relationship... if the user sent a fourth
     # argument, use that as a bool.  else, load commrow and use the postlevel.
     my $addpostacc = 0;
-    if (defined $canpost) {
-        $addpostacc = $canpost ? 1 : 0;
-    } else {
-        my $crow = LJ::get_community_row($cu);
-        $addpostacc = $crow->{postlevel} eq 'members' ? 1 : 0;
+    # only person users can post
+    if ( $u->is_personal ) {
+        if ( defined $canpost ) {
+            $addpostacc = $canpost ? 1 : 0;
+        } else {
+            my $crow = LJ::get_community_row( $cu );
+            $addpostacc = $crow->{postlevel} eq 'members' ? 1 : 0;
+        }
     }
-    LJ::set_rel($cu->{userid}, $u->{userid}, 'P') if $addpostacc;
+
+    LJ::set_rel( $cu->{userid}, $u->{userid}, 'P' ) if $addpostacc;
 
     # user should watch comm?
     return 1 unless $watch;

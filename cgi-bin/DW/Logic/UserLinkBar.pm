@@ -156,12 +156,10 @@ sub manage_membership {
             };
 
             # if they're not allowed to join at this moment (many reasons)
-            if ($comm_settings[0] eq 'closed' || !$remote || $remote->is_identity || !$u->is_visible) {
+            if ($comm_settings[0] eq 'closed' || !$remote || !$u->is_visible) {
                 $link->{title_ml} = $comm_settings[0] eq 'closed' ?
                                         'userlinkbar.joincomm.title.closed' :
                                         'userlinkbar.joincomm.title.loggedout';
-                $link->{title_ml} = 'userlinkbar.joincomm.title.cantjoin'
-                    if $remote && $remote->is_identity;
                 $link->{image}    = 'community_join_disabled.png';
                 $link->{class}    = "join_disabled";
 

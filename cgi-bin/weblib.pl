@@ -2684,13 +2684,8 @@ sub control_strip
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                unless ($remote->is_identity) {
-                    if ($isclosedcommunity) {
-                        $ret .= "This is a closed community&nbsp;&nbsp; ";
-                    } else {
-                        $ret .= "$links{join_community}&nbsp;&nbsp; ";
-                    }
-                }
+                $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
+                     "$links{join_community}&nbsp;&nbsp; ";
                 $ret .= $links{unwatch_community};
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
             } elsif ($memberof) {
@@ -2705,13 +2700,8 @@ sub control_strip
                 if ($haspostingaccess) {
                     $ret .= "$links{post_to_community}&nbsp;&nbsp; ";
                 }
-                unless ($remote->is_identity) {
-                    if ($isclosedcommunity) {
-                        $ret .= "This is a closed community&nbsp;&nbsp; ";
-                    } else {
-                        $ret .= "$links{join_community}&nbsp;&nbsp; ";
-                    }
-                }
+                $ret .= $isclosedcommunity ? "This is a closed community&nbsp;&nbsp; " :
+                    "$links{join_community}&nbsp;&nbsp; ";
                 $ret .= $links{watch_community};
                 $ret .= "&nbsp;&nbsp;" . $links{track_community};
             }

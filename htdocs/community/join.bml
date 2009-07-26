@@ -19,7 +19,7 @@ body<=
 
     # make sure a community doesn't join a community
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.commlogged'} p?>"
-        unless $remote->{'journaltype'} eq "P";
+        unless $remote->is_individual;
 
     # get info about the community
 
@@ -29,11 +29,13 @@ body<=
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.errorcomminfo'} p?>"
         unless $cu;
 
+    # can only join communities, not other journal types
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.notcomm'} p?>"
-        unless $cu->{journaltype} eq "C";
+        unless $cu->is_community;
 
+    # makes sure this community accepts new members
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.locked'} p?>"
-        if $cu->{statusvis} eq "L";
+        if $cu->is_locked;
 
     # ensure this user isn't banned
     return "<?h1 $ML{'Sorry'} h1?><?p $ML{'.label.banned'} p?>"
