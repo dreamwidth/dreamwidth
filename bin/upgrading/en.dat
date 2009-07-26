@@ -4311,6 +4311,8 @@ widget.journaltitles.title=1. Edit Titles
 
 widget.journaltitles.title_nonum=Edit Titles
 
+widget.latestinbox.empty=No items in your Inbox.
+
 widget.latestinbox.links.compose=Create New Message
 
 widget.latestinbox.links.inbox=View More Messages

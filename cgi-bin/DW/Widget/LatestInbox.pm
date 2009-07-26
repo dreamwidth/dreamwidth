@@ -52,7 +52,6 @@ sub render_body {
         my @inbox_items = reverse $inbox->all_items;
 
         if ( @inbox_items ) {
-            # TODO: summary mode?
             foreach my $item ( splice( @inbox_items, 0, $limit ) ) {
                 $ret .= "<div class='item'>";
                 $ret .= "<div class='title'>" . $item->title . "</div>";
@@ -63,8 +62,7 @@ sub render_body {
                 $ret .= "</div>";
             }
         } else {
-            # TODO: test this
-            $ret .= $class->ml( 'widget.latestinbox.empty' );
+            $ret .= "<div class='item'>" . $class->ml( 'widget.latestinbox.empty' ) . "</div>";
         }
     }
 
