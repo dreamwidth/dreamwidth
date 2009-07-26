@@ -63,13 +63,8 @@ sub work {
     die $dbto->errstr if $dbto->err;
 
     # now get the times for all of their posts from the database (inactive if possible)
-    my $dbfrom;
-    if ( $LJ::CLUSTER_PAIR_ACTIVE{$u->clusterid} ) {
-        $dbfrom = LJ::DBUtil->get_inactive_db( $u->clusterid );
-    }
-    $dbfrom ||= LJ::get_cluster_reader( $u->clusterid );
-    die "No dbfrom available.\n"
-        unless $dbfrom;
+    my $dbfrom = LJ::get_cluster_master( $u->clusterid );
+    die "No dbfrom available.\n" unless $dbfrom;
 
     # okay, we're actually getting the times now
     my $db_times = $dbfrom->selectall_hashref(
