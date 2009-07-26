@@ -3,7 +3,7 @@
 # LJ::Setting::Display::Orders - shows a link to the user's payment history page
 #
 # Authors:
-#      Janine Costanzo <janine@netrophic.com>
+#      Janine Smith <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #

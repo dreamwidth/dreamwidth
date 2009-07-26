@@ -5,7 +5,7 @@
 # Renders the status of the user's current import jobs.
 #
 # Authors:
-#      Janine Costanzo <janine@netrophic.com>
+#      Janine Smith <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #

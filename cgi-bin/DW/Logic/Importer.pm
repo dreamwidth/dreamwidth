@@ -5,7 +5,7 @@
 # This module provides logic for various importer front-end functions.
 #
 # Authors:
-#      Janine Costanzo <janine@netrophic.com>
+#      Janine Smith <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #

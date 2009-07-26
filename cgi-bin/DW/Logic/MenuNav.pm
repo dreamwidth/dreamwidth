@@ -2,7 +2,7 @@
 # Menu navigation logic
 #
 # Authors:
-#     Janine Costanzo <janine@netrophic.com>
+#     Janine Smith <janine@netrophic.com>
 #     Sophie Hamilton <dw-bugzilla@theblob.org>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.

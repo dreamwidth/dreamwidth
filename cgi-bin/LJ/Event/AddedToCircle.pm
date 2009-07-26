@@ -5,7 +5,7 @@
 # This is the event that's fired when someone adds another user to their circle.
 #
 # Authors:
-#      Janine Costanzo <janine@netrophic.com>
+#      Janine Smith <janine@netrophic.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
 #

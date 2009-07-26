@@ -3,7 +3,7 @@
 # DW::Logic::UserLinkBar - This module provides logic for rendering the user link bar on various pages.
 #
 # Authors:
-#      Janine Costanzo <janine@netrophic.com>
+#      Janine Smith <janine@netrophic.com>
 #      Afuna <coder.dw@afunamatata.com>
 #
 # Copyright (c) 2009 by Dreamwidth Studios, LLC.
@@ -526,7 +526,7 @@ sub buyaccount {
 
 =head1 AUTHORS
 
-Janine Costanzo <janine@netrophic.com>
+Janine Smith <janine@netrophic.com>
 Afuna <coder.dw@afunamatata.com>
 
 =head1 COPYRIGHT AND LICENSE
