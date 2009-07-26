@@ -24,6 +24,9 @@ _c?>
     return BML::redirect( "$LJ::SITEROOT/" )
         unless LJ::is_enabled( 'payments' );
 
+    my $err = DW::Shop->remote_sysban_check;
+    return $err if $err;
+
     my $ordernum = $GET{ordernum};
 
     my $cart = DW::Shop::Cart->get_from_ordernum( $ordernum );

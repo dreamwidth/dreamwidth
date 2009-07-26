@@ -28,6 +28,9 @@ body<=
 
     $title = $ML{'.title'};
 
+    my $err = DW::Shop->remote_sysban_check;
+    return $err if $err;
+
     my ( $ordernum, $token, $payerid ) = ( $GET{ordernum}, $GET{token}, $GET{PayerID} );
     my ( $cart, $eng, $paymentmethod );
 

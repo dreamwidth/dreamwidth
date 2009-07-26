@@ -30,6 +30,9 @@ body<=
     LJ::need_res( 'stc/shop.css' );
     LJ::set_active_resource_group( 'jquery' );
 
+    my $err = DW::Shop->remote_sysban_check;
+    return $err if $err;
+
     # get their shop/cart
     my $cart = DW::Shop->get->cart;
     return $ML{'.error.nocart'}

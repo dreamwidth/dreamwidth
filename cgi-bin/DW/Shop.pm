@@ -137,6 +137,25 @@ sub anonymous {
 }
 
 
+# returns a text error string if the remote is not allowed to use the
+# shop/payment system, undef means they're allowed
+sub remote_sysban_check {
+
+    # do sysban checks:
+    if ( LJ::sysban_check( 'pay_uniq', LJ::UniqCookie->current_uniq ) ) {
+        return BML::ml( '/shop.bml.paymentblock', { blocktype => "computer", email => $LJ::ACCOUNTS_EMAIL } );
+    } elsif ( my $remote = LJ::get_remote() ) {
+        if ( LJ::sysban_check( 'pay_user', $remote->user ) ) {
+            return BML::ml( '/shop.bml.paymentblock', { blocktype => "account", email => $LJ::ACCOUNTS_EMAIL } );
+        } elsif ( LJ::sysban_check( 'pay_email', $remote->email_raw ) ) {
+            return BML::ml( '/shop.bml.paymentblock', { blocktype => "email address", email => $LJ::ACCOUNTS_EMAIL } );
+        }
+    }
+
+    # looks good
+    return undef;
+}
+
 ################################################################################
 ## LJ::User methods
 ################################################################################

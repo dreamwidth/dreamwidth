@@ -2,6 +2,8 @@
 
 .intro=Welcome to the [[sitename]] shop!  If you are interested in supporting [[sitename]] or are just looking for more features for your account, you have come to the right place.</p><p>To purchase something from our shop, build your order and then select your preferred method of payment. If you select PayPal/Credit Card, you'll be forwarded to PayPal, our merchant processor. If you select Check/Money Order, you will be provided instructions on where to send it after you confirm your order.
 
+.paymentblock=We're sorry, but your [[blocktype]] has been blocked from making payments. For more information about this block, please contact [[email]].
+
 .sideblurb=You can learn about paid accounts <a [[aopts]]>here</a>.
 
 .title=[[sitename]] Shop

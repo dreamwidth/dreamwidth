@@ -31,6 +31,9 @@ body<=
 
     $title = BML::ml( '.title', { sitename => $LJ::SITENAMESHORT } );
 
+    my $err = DW::Shop->remote_sysban_check;
+    return $err if $err;
+
     my $ret;
 
     $ret .= DW::Widget::ShopCartStatusBar->render( %GET );

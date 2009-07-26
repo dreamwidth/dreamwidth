@@ -41,6 +41,9 @@ body<=
     return $ML{'.error.invalidself'}
         if $for eq 'self' && ( !$remote || !$remote->is_personal );
 
+    my $err = DW::Shop->remote_sysban_check;
+    return $err if $err;
+
     my $account_type = DW::Pay::get_account_type( $remote );
     return $ML{'.error.invalidself.perm'}
         if $for eq 'self' && $account_type eq 'seed';

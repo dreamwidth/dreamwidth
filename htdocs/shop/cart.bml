@@ -30,6 +30,9 @@ body<=
 
     $title = $ML{'.title'};
 
+    my $err = DW::Shop->remote_sysban_check;
+    return $err if $err;
+
     my $ret;
 
     if ( LJ::did_post() ) {
