@@ -1278,6 +1278,9 @@ sub postevent
                 return fail($err, 501);
             }
 
+            # expire mod_queue_count memcache
+            $uowner->memc_delete( 'mqcount' );
+
             # alert moderator(s)
             my $mods = LJ::load_rel_user($dbh, $ownerid, 'M') || [];
             if (@$mods) {

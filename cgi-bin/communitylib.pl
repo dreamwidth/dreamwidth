@@ -634,5 +634,22 @@ sub set_comm_settings {
     return;
 }
 
-1;
+sub get_mod_queue_count {
+    my $cu = LJ::want_user( shift );
+    return 0 unless $cu->is_community;
 
+    my $mqcount = $cu->memc_get( 'mqcount' );
+    return $mqcount if defined $mqcount;
+
+    # if it's not in memcache, hit the db
+    my $dbr = LJ::get_cluster_reader( $cu );
+    my $sql = "SELECT COUNT(*) FROM modlog WHERE journalid=" . $cu->id;
+    $mqcount = $dbr->selectrow_array( $sql ) || 0;
+
+    # store in memcache for 10 minutes
+    $cu->memc_set( 'mqcount' => $mqcount, 600 );
+    return $mqcount;
+}
+
+
+1;

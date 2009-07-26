@@ -164,6 +164,9 @@ body<=
             $c->do("DELETE FROM modblob WHERE journalid=? AND modid=?",
                    undef, $c->{'userid'}, $modid);
 
+            # expire mod_queue_count memcache
+            $c->memc_delete( 'mqcount' );
+
         # FALL THROUGH to showing the list of entries in this community
         } else {
             $ret .= "<p>";

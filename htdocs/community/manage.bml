@@ -47,15 +47,12 @@ body<=
        my $sth = $dbr->prepare("SELECT userid, membership FROM community ".
                                "WHERE userid IN ($in)");
        $sth->execute;
-       my $udbr;
        while (my ($uid, $membership) = $sth->fetchrow_array) {
            my $cu = $us->{$uid};
            next unless $cu && $cu->{statusvis} eq "V" || $cu->is_readonly;
            $names{$uid} = [ $cu->{user}, $cu->{name}, -1 ];
            if ($mods{$uid}) {
-               $udbr = LJ::get_cluster_reader($cu);
-               my $sql = "SELECT COUNT(*) FROM modlog WHERE journalid=$uid";
-               $modcount{$uid} = $names{$uid}[2] = $udbr->selectrow_array($sql) || 0;
+               $modcount{$uid} = $names{$uid}[2] = LJ::get_mod_queue_count( $uid );
            }
            if ($membership eq 'moderated') {
                my $ids = LJ::get_pending_members($uid) || [];
