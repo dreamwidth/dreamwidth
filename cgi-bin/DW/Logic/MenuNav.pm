@@ -54,6 +54,7 @@ sub get_menu_navigation {
     my $loggedin_hasjournal = ( $loggedin && !$u->is_identity ) ? 1 : 0;
     my $loggedin_canjoincomms = ( $loggedin && $u->is_person ) ? 1 : 0;   # note the semantic difference
     my $loggedin_hasnetwork = ( $loggedin && LJ::get_cap($u, "friendsfriendsview") ) ? 1 : 0;
+    my $loggedin_ispaid = ( $loggedin && $u->is_paid ) ? 1 : 0;
     my $loggedout = $loggedin ? 0 : 1;
     my $always = 1;
     my $never = 0;
@@ -197,6 +198,11 @@ sub get_menu_navigation {
                     url => "$LJ::SITEROOT/directorysearch",
                     text => "menunav.explore.directorysearch",
                     display => $always,
+                },
+                {
+                    url => "$LJ::SITEROOT/search",
+                    text => "menunav.explore.journalsearch",
+                    display => $loggedin_ispaid && @LJ::SPHINX_SEARCHD ? 1 : 0,
                 },
                 {
                     url => "$LJ::SITEROOT/random",
