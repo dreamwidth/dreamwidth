@@ -495,9 +495,6 @@ sub set_suspended {
 
     LJ::statushistory_add($u, $who, "suspend", $reason);
 
-    eval { $u->fb_push };
-    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
-
     LJ::run_hooks("account_cancel", $u);
 
     if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
@@ -556,9 +553,6 @@ sub set_unsuspended {
     }
 
     LJ::statushistory_add($u, $who, "unsuspend", $reason);
-
-    eval { $u->fb_push };
-    warn "Error running fb_push: $@\n" if $@ && $LJ::IS_DEV_SERVER;
 
     return $res; # success
 }
@@ -5278,13 +5272,6 @@ sub friend_and_watch {
 
 sub remove_friend {
     confess 'LJ::User->remove_friend has been deprecated.';
-}
-
-
-sub fb_push {
-    my $u = shift;
-    return unless $u && $u->get_cap("fb_account");
-    return Apache::LiveJournal::Interface::FotoBilder::push_user_info( $u->id );
 }
 
 

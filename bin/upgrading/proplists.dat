@@ -302,14 +302,6 @@ userproplist.external_foaf_url:
   multihomed: 0
   prettyname: FOAF address
 
-userproplist.fb_num_pubpics:
-  cldversion: 4
-  datatype: num
-  des: Number of Public Fotobilder Pictures
-  indexed: 0
-  multihomed: 0
-  prettyname: Num FB Pics
-
 userproplist.friendspagetitle:
   cldversion: 4
   datatype: char

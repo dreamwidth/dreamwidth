@@ -36,7 +36,7 @@ sub _init {
                        journaltitle journalsubtitle public_key
                        url urlname opt_hidefriendofs dont_load_members
                        opt_blockrobots adult_content
-                       opt_showmutualfriends fb_num_pubpics opt_showschools);
+                       opt_showmutualfriends opt_showschools);
         if ($u->is_community) {
             push @props, qw(moderated comm_theme);
         } elsif ($u->is_syndicated) {

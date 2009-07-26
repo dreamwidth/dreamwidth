@@ -63,16 +63,6 @@
         if ($POST{ret} && $POST{ret} != 1) {
             my $redir_host = $1 if $POST{ret} =~ m#^http://([\.:\w-]+)#i;
         
-            # if the redirect is going to FotoBilder, and they don't have the fb_account cap,
-            # then we don't redirect them, but keep them here and display an error message
-            my $u = LJ::load_user($user);
-            if ($redir_host =~ /$LJ::FB_DOMAIN/ && ! LJ::get_cap($u, 'fb_account')) {
-                return 1 if $want_fail_redirect->("fotobilder_denied");
-
-                $body = LJ::bad_input("Your account type does not allow logins to remote FotoBilder sites");
-                return 1;
-            }
-        
             if ($LJ::REDIRECT_ALLOWED{$redir_host} || $redir_host eq $LJ::DOMAIN_WEB) {
                 LJ::run_hook('login_redirect_extra', $redir_host);
                 BML::redirect($POST{ret});

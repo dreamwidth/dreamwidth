@@ -161,9 +161,6 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                  "res" => {
                      "des" => "S2-specific resources (stylesheet)",
                  },
-                 "pics" => {
-                     "des" => "FotoBilder pics (root gallery)",
-                 },
                  "info" => {
                      # just a redirect to userinfo.bml for now.
                      # in S2, will be a real view.
@@ -226,7 +223,6 @@ sub get_blob_domainid
         "phonepost" => 2,
         "captcha_audio" => 3,
         "captcha_image" => 4,
-        "fotobilder" => 5,
     }->{$name};
     # FIXME: add hook support, so sites can't define their own
     # general code gets priority on numbers, say, 1-200, so verify

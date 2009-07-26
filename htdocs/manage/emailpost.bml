@@ -226,95 +226,6 @@ body<=
             },
         );
 
-        if ( $LJ::FB_SITEROOT && %LJ::FOTOBILDER_IP && LJ::is_enabled('fb_email_docs') ) {
-            $subject = "$ML{'.help.subject_images'}<br /><br />";
-            $body    = $ML{'.help.body_images'};
-            splice @topics, -1, 0,
-            {
-                name  => 'images',
-                title => $ML{'.help.images.header'},
-                url   => '?mode=help&type=images', 
-                subject => 
-                body =>
-                text  => qq{
-                    <?h1 $ML{'.help.images.header'} h1?><br />
-
-                    <?p } . BML::ml('.help.images.text', {'aopts1' => "href='$LJ::FB_SITEROOT'", 'scrapbook' => 'ScrapBook', 'dimensions' => "320x240", 'aopts2' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=75'", 'aopts3' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help&amp;type=headers'"}) . qq{ p?><br />
-
-                    <fieldset><legend>$ML{'.help.images.gallery.header'}</legend>
-                    <?p } . BML::ml('.help.images.gallery.text', {'header' => "<b>lj-gallery</b>", 'name' => "LJ_emailpost"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-gallery:</b> $ML{'.help.images.gallery.example'}<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.security.header'}</legend>
-                    <?p } . BML::ml('.help.images.security.text1', {'header' => "<b>lj-imgsecurity</b>"}) . qq{ p?>
-                    <?p } . BML::ml('.help.images.security.text2', {'option1' => "private", 'option2' => "regusers", 'option3' => "friends"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imgsecurity:</b> private<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.size.header'}</legend>
-                    <?p } . BML::ml('.help.images.size.text1', {'maxsize' => "640x480", 'defaultsize' => "320x240" , 'header' => "<b>lj-imgsize</b>", 'ljcutsize' => "320x240", 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=75'"}) . qq{ p?>
-                    <?p } . BML::ml('.help.images.size.text2', {'size1' => "100x100", 'size2' => "320x240", 'size3' => "640x480"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imgsize:</b> 640x480<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.layout.header'}</legend>
-                    <?p } . BML::ml('.help.images.layout.text1', {'header' => "<b>lj-imglayout</b>"}) . qq{ <br /><br />
-                    $ML{'.help.images.layout.text2'}<br />
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'><br />
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'><br />
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'><br />
-                    <br />
-
-                    } . BML::ml('.help.images.layout.text3', {'horizontal' => "horizontal"}) . qq{ p?>
-                    <span style='white-space: nowrap;'>
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'> 
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'> 
-                    <img src='$LJ::IMGPREFIX/imageplaceholder3.png' width='35' height='35'>
-                    </span>
-                    <br /><br />
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imglayout:</b> horizontal<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                    <fieldset><legend>$ML{'.help.images.ljcut.header'}</legend>
-                    <?p } . BML::ml('.help.images.ljcut.text', {'ljcutsize' => "320x240", 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=75'", 'header' => "<b>lj-imgcut</b>", 'count' => "count", 'titles' => "titles"}) . qq{ p?>
-                    <?emailex
-                    $to_pin
-                    $from
-                    $subject
-                    <b>lj-imgcut:</b> titles<br />
-                    <br />
-                    $body
-                    emailex?></fieldset>
-
-                }
-            };
-        }
-
         # index by name, record order
         my %topics_by_name;
         my $ct = 0;
@@ -514,43 +425,6 @@ body<=
                             'noemail' => $ML{'.settings.entry.comments.select.noemail'},
                             'off' => $ML{'.settings.entry.comments.select.off'});
     $ret .= "</td></tr>";
-
-    if ($LJ::FB_SITEROOT && %LJ::FOTOBILDER_IP && LJ::get_cap($u, 'fb_account')) {
-        $ret .= "<tr><td colspan='2'>&nbsp;</td></tr>";
-        $ret .= "<tr><td colspan='2'><?h2 $ML{'.settings.image.header'} h2?></td></tr>";
-
-        $ret .= "<tr><td>$ML{'.settings.image.galname'}</td><td>";
-        $ret .= LJ::html_text({ name=> 'emailpost_gallery',
-                    value => $u->{'emailpost_gallery'} || 'LJ_emailpost' });
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.security'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imgsecurity', selected => $u->{'emailpost_imgsecurity'} },
-                            'default' => $ML{'.settings.image.security.select.default'},
-                            'public' => $ML{'.settings.image.security.select.public'},
-                            'regusers' => $ML{'.settings.image.security.select.regusers'},
-                            'friends' => $ML{'.settings.image.security.select.friends'},
-                            'private' => $ML{'.settings.image.security.select.private'});
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.size'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imgsize', selected => $u->{'emailpost_imgsize'} },
-                            'default' => $ML{'.settings.image.size.select.default'},
-                            '100x100' => $ML{'.settings.image.size.select.100x100'},
-                            '320x240' => $ML{'.settings.image.size.select.320x240'},
-                            '640x480' => $ML{'.settings.image.size.select.640x480'});
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.layout'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imglayout', selected => $u->{'emailpost_imglayout'} },
-                            'default' => $ML{'.settings.image.layout.select.default'},
-                            'horizontal' => $ML{'.settings.image.layout.select.horizontal'},
-                            'vertical' => $ML{'.settings.image.layout.select.vertical'});
-        $ret .= "</td></tr>";
-        $ret .= "<tr><td>$ML{'.settings.image.cut'}</td><td>";
-        $ret .= LJ::html_select({ name=> 'emailpost_imgcut', selected => $u->{'emailpost_imgcut'} },
-                            'default' => $ML{'.settings.image.cut.select.default'},
-                            'count' => $ML{'.settings.image.cut.select.count'},
-                            'titles' => $ML{'.settings.image.cut.select.titles'});
-        $ret .= "</td></tr>";
-    }
 
     $ret .= "</table>";
     $ret .= '</div><br />';

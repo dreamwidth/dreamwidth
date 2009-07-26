@@ -50,15 +50,6 @@ use strict;
 
     my $returl = LJ::CleanHTML::canonical_url($POST{'ret'});
     my $picurl = LJ::CleanHTML::canonical_url($POST{'urlpic'});
-    my $fotobilder = index($returl, $LJ::FB_SITEROOT) == 0 &&
-        $picurl =~ m!^$LJ::FB_SITEROOT/~?$remote->{'user'}/pic/!;
-
-    if ($fotobilder &&
-        (LJ::check_referer($returl) || LJ::check_referer('/editpics.bml'))) {
-
-        return $err->('Invalid referring site or redirection not allowed')
-            unless $returl =~ /$LJ::FB_DOMAIN/ && LJ::get_cap($u, 'fb_account');
-    }
 
     if (LJ::get_cap($u, "readonly")) {
         $title = "Read-only mode";
@@ -304,7 +295,7 @@ use strict;
         }
 
         # now fall through to edit page and show the updated userpic info
-        # redirect back to ourselves/fotobilder
+        # redirect back to ourselves
         $returl = LJ::CleanHTML::canonical_url($POST{'ret'});
         if ($returl) {
             my $redir_host = $1 if $returl =~ m!^http://([\.:\w-]+)!i;
@@ -312,16 +303,10 @@ use strict;
         }
     }
 
-    if ($fotobilder && $POST{'md5sum'}) {
-        $fotobilder = 0 if LJ::Userpic->new_from_md5($u, $POST{'md5sum'});
-    }
-
-    if (!$fotobilder) {
-        # authas switcher form
-        $body .= "<form method='get' id='userpic_authas' action='editpics$suffix.bml'>\n";
-        $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
-        $body .= "</form>\n\n";
-    }
+    # authas switcher form
+    $body .= "<form method='get' id='userpic_authas' action='editpics$suffix.bml'>\n";
+    $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
+    $body .= "</form>\n\n";
 
     # if we're disabling media, say so
     $body .= "<?warningbar $ML{'error.mediauploadsdisabled'} warningbar?>"
@@ -345,38 +330,29 @@ use strict;
                     <form enctype="multipart/form-data" action="editpics$suffix.bml$getextra" method='post' id='uploadPic'>
                     <input type="hidden" id="go_to" name="go_to" value="editpics$suffix.bml$getextra" />
             };
-            if ($fotobilder) {
-                $body .= "<?h1 $ML{'.uploadheader.fb'} h1?>\n";
-                $body .= "<?p " . BML::ml('.uploaddesc.fb', {'aopts' => "href='$LJ::FB_SITEROOT'", 'sitename' => $LJ::FB_SITENAME}) . " p?>\n\n";
-            } else {
-                $body .= "<?h1 $ML{'.uploadheader'} h1?>\n";
-                $body .= "<p class='detail'><a href='javascript:void(0)' onclick='toggleElement(\"upload_desc\")' id='upload_desc_link'>$ML{'.about.icons'}</a></p>";
-                $body .= "<div id='upload_desc'>";
-                $body .= "<?p $ML{'.uploaddesc'} p?>\n";
-                $body .= "</div><!-- end #uploaddesc -->";
-            }
-            if ($fotobilder) {
-                $body .= "<img src='$picurl' />";
-                my $url = LJ::CleanHTML::canonical_url($POST{'url'});
-                $body .= LJ::html_hidden('src', 'url', 'urlpic', $picurl, 'url', $url, 'ret' => $returl);
-            } else {
-                $body .= "<div id='upload_wrapper' class='pkg'>\n";
-                $body .= "<p class='pkg'>\n";
-                $body .= LJ::html_check({ 'type' => 'radio', 'name' => 'src', 'id' => 'radio_file',
-                                          'class' => 'radio', 'value' => 'file', 'selected' => '1', 
-                                          'accesskey' => $ML{'.fromfile.key'} }) . "\n";
-                $body .= "<label for='radio_file'>$ML{'.fromfile'}</label><br />\n";
-                $body .= "<input type='file' class='file' name='userpic_0' size='18' style='margin: 0em 0em 0.5em 2em;' />\n";
-                $body .= "</p>\n";
-                $body .= "<p class='pkg'>\n";
-                $body .= LJ::html_check({ 'type' => 'radio', 'name' => 'src', 'value' => 'url',
-                                          'id' => 'radio_url', 'class' => 'radio', 'accesskey' => $ML{'.fromurl.key'} }) . "\n";
-                $body .= "<label for='radio_url'>$ML{'.fromurl'}</label><br />\n";
-                $body .= LJ::html_text({ 'name' => 'urlpic_0', class => 'text', style => 'margin: 0em 0em 0.5em 2em;' }) . "\n";
-                $body .= "</p>\n";
-                $body .= "<p class='detail'>$ML{'.label.formats.desc'}</p>\n";
-                $body .= "</div>\n";
-            }
+
+            $body .= "<?h1 $ML{'.uploadheader'} h1?>\n";
+            $body .= "<p class='detail'><a href='javascript:void(0)' onclick='toggleElement(\"upload_desc\")' id='upload_desc_link'>$ML{'.about.icons'}</a></p>";
+            $body .= "<div id='upload_desc'>";
+            $body .= "<?p $ML{'.uploaddesc'} p?>\n";
+            $body .= "</div><!-- end #uploaddesc -->";
+
+            $body .= "<div id='upload_wrapper' class='pkg'>\n";
+            $body .= "<p class='pkg'>\n";
+            $body .= LJ::html_check({ 'type' => 'radio', 'name' => 'src', 'id' => 'radio_file',
+                                      'class' => 'radio', 'value' => 'file', 'selected' => '1', 
+                                      'accesskey' => $ML{'.fromfile.key'} }) . "\n";
+            $body .= "<label for='radio_file'>$ML{'.fromfile'}</label><br />\n";
+            $body .= "<input type='file' class='file' name='userpic_0' size='18' style='margin: 0em 0em 0.5em 2em;' />\n";
+            $body .= "</p>\n";
+            $body .= "<p class='pkg'>\n";
+            $body .= LJ::html_check({ 'type' => 'radio', 'name' => 'src', 'value' => 'url',
+                                      'id' => 'radio_url', 'class' => 'radio', 'accesskey' => $ML{'.fromurl.key'} }) . "\n";
+            $body .= "<label for='radio_url'>$ML{'.fromurl'}</label><br />\n";
+            $body .= LJ::html_text({ 'name' => 'urlpic_0', class => 'text', style => 'margin: 0em 0em 0.5em 2em;' }) . "\n";
+            $body .= "</p>\n";
+            $body .= "<p class='detail'>$ML{'.label.formats.desc'}</p>\n";
+            $body .= "</div>\n";
 
             $body .= "<hr class='hr' />";
 
@@ -392,7 +368,7 @@ use strict;
             if (LJ::Userpic->user_supports_comments($u)) {
                 $body .= "<p class='pkg'>\n";
                 $body .= "<label class='left' for='comments_0'>$ML{'.label.comment'}</label>\n";
-                my $comments = $POST{'comments'} if $fotobilder;
+                my $comments = $POST{'comments'};
                 $body .= "<span class='input-wrapper'>";
                 $body .= LJ::html_text({ 'name' => 'comments_0', 'class' => 'text', id => 'comments_0', 'maxlength' => LJ::CMAX_UPIC_COMMENT, 'value', $comments }) . "\n";
                 $body .= LJ::help_icon_html('upic_comments') . "\n";
@@ -403,7 +379,7 @@ use strict;
 
             $body .= "<p class='pkg'>\n";
             $body .= "<label class='left' for='descriptions_0'>$ML{'.label.description'}</label>\n";
-            my $descriptions = $POST{'descriptions'} if $fotobilder;
+            my $descriptions = $POST{'descriptions'};
             $body .= "<span class='input-wrapper'>";
             $body .= LJ::html_text( { name => 'descriptions_0', class => 'text', id => 'descriptions_0', 'maxlength' => LJ::CMAX_UPIC_DESCRIPTION, value => $descriptions } ) . "\n";
             $body .= LJ::help_icon_html('upic_descriptions') . "\n";
@@ -479,7 +455,7 @@ use strict;
     $emit_upload_box->();
 
     # print out each pic and editing fields
-    if (scalar @userpics && !$fotobilder) {
+    if ( scalar @userpics ) {
         $body .= "<div id='current_userpics'>";
         $body .= "<form method='post' action='editpics$suffix.bml$getextra'>";
         $body .= LJ::form_auth();
@@ -582,7 +558,7 @@ use strict;
         $body .= "editpicsInit();\n";
         $body .= "</script>\n";
 
-    } elsif (!$fotobilder) {
+    } else {
         $body .= qq {
                 <?h1 $ML{'.nopics'} h1?>
                 <?p $ML{'.noneupload2'} p?>

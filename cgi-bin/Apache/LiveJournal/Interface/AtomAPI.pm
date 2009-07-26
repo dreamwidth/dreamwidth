@@ -12,7 +12,6 @@ use Class::Autouse qw(
                       );
 
 require 'parsefeed.pl';
-require 'fbupload.pl';
 
 # for Class::Autouse (so callers can 'ping' this method to lazy-load this class)
 sub load { 1 }
@@ -103,58 +102,7 @@ sub handle_upload
     return respond($r, 400, "Unsupported MIME type: $mime") unless $mime_area;
 
     if ($mime_area eq 'image') {
-
-        return respond($r, 400, "Unable to upload media. Your account doesn't have the required access.")
-            unless LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
-
-        my $err;
-        LJ::load_user_props(
-            $u,
-            qw/ emailpost_gallery emailpost_imgsecurity /
-        );
-
-        my $summary = LJ::trim( $entry->summary() );
-
-        my $fb = LJ::FBUpload::do_upload(
-            $u, \$err,
-            {
-                path    => $entry->title(),
-                rawdata => \$entry->content()->body(),
-                imgsec  => $u->{emailpost_imgsecurity},
-                caption => $summary,
-                galname => $u->{emailpost_gallery} || 'Mobile',
-            }
-        );
-
-        return respond($r, 500, "There was an error uploading the media: $err")
-            if $err || ! $fb;
-
-        if (ref $fb && $fb->{Error}->{code}) {
-            my $errstr = $fb->{Error}->{content};
-            return respond($r, 500, "There was an error uploading the media: $errstr");
-        }
-
-        my $atom_reply = XML::Atom::Entry->new();
-        $atom_reply->title( $fb->{Title} );
-
-        if ($standalone) {
-            $atom_reply->summary('Media post');
-            my $id = "atom:$u->{user}:$fb->{PicID}";
-            $fb->{Summary} = $summary;
-
-            $u->set_cache("lifeblog_fb:$fb->{PicID}", $fb);
-
-            $atom_reply->id( "urn:fb:$LJ::FB_DOMAIN:$id" );
-        }
-
-        my $link = XML::Atom::Link->new();
-        $link->type('text/html');
-        $link->rel('alternate');
-        $link->href( $fb->{URL} );
-        $atom_reply->add_link($link);
-
-        $r->header_out("Location", $fb->{URL});
-        return respond($r, 201, \$atom_reply->as_xml(), 'atom');
+        return respond( $r, 400, "Unable to upload media." );
     }
 }
 
@@ -238,37 +186,6 @@ sub handle_post {
         }
     }
 
-    # Retrieve fotobilder media links from clients that embed via
-    # standalone tags or service.upload transfers.  Add to post entry
-    # body.
-    my $body  = $entry->content()->body();
-    my @links = $entry->link();
-    my (@images, $link_count);
-    foreach my $link (@links) {
-        # $link is now a valid XML::Atom::Link object
-        my $rel  = $link->get('rel');
-        my $type = $link->get('type');
-        my $id   = $link->get('href');
-
-        next unless $rel eq 'related' && check_mime($type) &&
-            $id =~ /^urn:fb:\Q$LJ::FB_DOMAIN\E:atom:\w+:(\d+)$/;
-
-        my $fb_picid = $1;
-
-        my $fb = $u->cache("lifeblog_fb:$fb_picid");
-        next unless $fb;
-
-        push @images, {
-            url     => $fb->{URL},
-            width   => $fb->{Width},
-            height  => $fb->{Height},
-            caption => $fb->{Summary},
-            title   => $fb->{Title}
-        };
-    }
-
-    $body .= LJ::FBUpload::make_html( $u, \@images );
-
     my $preformatted = $entry->get
         ("http://sixapart.com/atom/post#", "convertLineBreaks") eq 'false' ? 1 : 0;
 
@@ -279,7 +196,7 @@ sub handle_post {
         'username'    => $u->{'user'},
         'lineendings' => 'unix',
         'subject'     => $entry->title(),
-        'event'       => $body,
+        'event'       => $entry->content()->body(),
         'props'       => { opt_preformatted => $preformatted, taglist => \@tags },
         'tz'          => 'guess',
         %$security_opts,
@@ -607,8 +524,6 @@ sub handle {
         foreach my $subservice (qw/ post edit feed categories /) {
             $add_link->($subservice);
         }
-
-        $add_link->('upload') if LJ::get_cap($u, 'fb_can_upload') && $LJ::FB_SITEROOT;
 
         my $link = XML::Atom::Link->new();
         $link->title($title);

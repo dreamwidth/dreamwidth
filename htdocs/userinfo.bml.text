@@ -90,10 +90,6 @@
 
 .details.flag.self=Set this journal as mature/adult.
 
-.details.fotobilder=[[num]] files in <a [[aopts]]>FotoBilder</a>
-
-.details.fotobilder2=[[num]] <a [[aopts]]>FotoBilder Files</a>
-
 .details.id=LJ User No.: [[id]]
 
 .details.joined=Joined: [[createdate]]
@@ -137,10 +133,6 @@
 .error.deleted.purgenotification=If you're interested in renaming your account to this username, <a [[aopts]]>set up your notifications</a> to be notified when the account is purged.
 
 .error.malfname=Malformed username.
-
-.fbpictures.lessthan=less than [[count]] public
-
-.fbpictures.over=over [[count]] public
 
 .feeds.header=Feeds
 
@@ -207,8 +199,6 @@
 .label.dateupdated=Date updated:
 
 .label.email=Email:
-
-.label.fbpictures=Pictures:
 
 .label.frcommunity=Communities
 

@@ -121,13 +121,9 @@
 
 .uploaddesc=Use the form below to upload a new picture.
 
-.uploaddesc.fb=Upload a thumbnail of an image hosted on your <a [[aopts]]>[[sitename]]</a> account as a new user picture.
-
 .uploaddesc.userpicfactory=Upload a JPG image of any size and we'll send you to the Userpic Factory where you can easily crop and resize it.
 
 .uploadheader=Upload a New Picture
-
-.uploadheader.fb=Upload a New Picture From ScrapBook
 
 .uploadsuccessful=Image has been successfully uploaded
 

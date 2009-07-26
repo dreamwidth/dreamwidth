@@ -240,14 +240,6 @@ sub domsess_cookie_string {
     return $value;
 }
 
-# this is just a wrapper around domsess
-sub fb_cookie_string {
-
-    # FIXME: can we just use domsess's function like this?
-    #        might be more differences so we need to write a new one?
-    return domsess_cookie_string(@_);
-}
-
 # sets new ljmastersession cookie given the session object
 sub update_master_cookie {
     my ($sess) = @_;
@@ -298,16 +290,6 @@ sub update_master_cookie {
                    domain          => $LJ::DOMAIN,
                    path            => '/',
                    delete          => 1);
-    }
-
-    # set fb global cookie
-    if ($LJ::FB_SITEROOT) {
-        my $fb_cookie = fb_cookie();
-        set_cookie($fb_cookie    => $sess->fb_cookie_string($fb_cookie),
-                   domain        => $LJ::DOMAIN,
-                   path          => '/',
-                   http_only     => 1,
-                   @expires,);
     }
 
     return;
@@ -484,13 +466,6 @@ sub url_owner {
     return LJ::canonical_username($user);
 }
 
-sub fb_cookie {
-    my ($class) = @_;
-
-    # where $subdomain is actually a username:
-    return "ljsession";
-}
-
 # CLASS METHOD
 #  -- frontend to session_from_domain_cookie and session_from_master_cookie below
 sub session_from_cookies {
@@ -552,17 +527,6 @@ sub session_from_domain_cookie {
     }
 
     return $no_session->("no valid cookie");
-}
-
-sub session_from_fb_cookie {
-    my $class = shift;
-
-    my $domcook  = LJ::Session->fb_cookie;
-    my $fbcookie = $BML::COOKIE{$domcook};
-    return undef unless $fbcookie;
-
-    my $sess = valid_fb_cookie($domcook, $fbcookie);
-    return $sess;
 }
 
 
@@ -724,15 +688,6 @@ sub clear_master_cookie {
                domain          => $LJ::DOMAIN,
                path            => '/',
                delete          => 1);
-
-    # set fb global cookie
-    if ($LJ::FB_SITEROOT) {
-        my $fb_cookie = fb_cookie();
-        set_cookie($fb_cookie    => "",
-                   domain        => $LJ::DOMAIN,
-                   path          => '/',
-                   delete        => 1);
-    }
 }
 
 
@@ -820,13 +775,6 @@ sub domsess_signature {
     my $data = join("-", $sess->{auth}, $domcook, $u->{userid}, $sess->{sessid}, $time);
     my $sig  = hmac_sha1_hex($data, $secret);
     return $sig;
-}
-
-# same logic as domsess_signature, so just a wrapper
-sub fb_signature {
-    my ($time, $sess, $fbcook) = @_;
-
-    return domsess_signature($time, $sess, $fbcook);
 }
 
 # function or instance method.
@@ -956,15 +904,6 @@ sub valid_domain_cookie {
     return $not_valid->("signature wrong") unless $correct_sig eq $sig;
 
     return $sess;
-}
-
-sub valid_fb_cookie {
-    my ($domcook, $val) = @_;
-    my $opts = {
-        ignore_age     => 1,
-        ignore_li_cook => 1,
-    };
-    return valid_domain_cookie($domcook, $val, undef, $opts);
 }
 
 sub valid_destination {

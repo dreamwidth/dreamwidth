@@ -209,17 +209,6 @@ add_conf('$EXAMPLE_USER_ACCOUNT',
          des => "The username of the example user account, for use in Support and documentation.  Must be an actual account on the site.",
          );
 
-add_conf('$FB_DOMAIN',
-         type => 'hostname',
-         des => "Domain name for cooperating Fotobilder (media hosting/cataloging) installation",
-         );
-
-add_conf('$FB_SITEROOT',
-         type => 'url',
-         no_trailing_slash => 1,
-         des => "URL prefix to cooperating Fotobilder installation, without trailing slash.  For instance, http://pics.foo.com",
-         );
-
 add_conf('$HOME',
          type => 'directory',
          no_trailing_slash => 1,
@@ -687,9 +676,6 @@ add_conf('$FIX_USERCOUNTER_ENABLED',
 add_conf('%USERPROP_INIT',
          type => '',
          des => "");
-add_conf('$FB_SITENAME',
-         type => '',
-         des => "");
 add_conf('$SYND_CAPS',
          type => '',
          des => "");
@@ -801,9 +787,6 @@ add_conf('%HUMAN_CHECK',
 add_conf('%DBINFO',
          type => '',
          des => "");
-add_conf('%FOTOBILDER_IP',
-         type => '',
-         des => "");
 add_conf('@QBUFFERD_ISOLATE',
          type => '',
          des => "");
@@ -852,7 +835,6 @@ my %bools = (
              "DONT_LOG_IMAGES" => "Don't log requests for images.",
              "DO_GZIP" => "Compress text content sent to browsers.  Cuts bandwidth by over 50%.",
              "EVERYONE_VALID" => "Users don't need to validate their email addresses.",
-             "FB_QUOTA_NOTIFY" => "Do RPC requests to Fotobilder to inform it of disk quota changes.",
              "IS_DEV_SERVER" => "This is a development installation only, and not used for production.  A lot of debug info and intentional security holes for convenience are introduced when this is enabled.",
              "LOG_GTOP" => "Log per-request CPU and memory usage, using gtop libraries.",
              "NO_PASSWORD_CHECK" => "Don't do strong password checks.  Users can use any old dumb password they'd like.",

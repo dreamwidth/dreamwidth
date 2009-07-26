@@ -42,9 +42,6 @@ BEGIN {
 
     require "ljlib.pl";
     require "ljprotocol.pl";
-    if (%LJ::FOTOBILDER_IP) {
-        use Apache::LiveJournal::Interface::FotoBilder;
-    }
 }
 
 my %RQ;       # per-request data
@@ -674,10 +671,6 @@ sub trans
             } elsif ($mode eq 'rss') {
                 # code 301: moved permanently, update your links.
                 return redir($r, LJ::journal_base($user) . "/data/rss$args_wq", 301);
-            } elsif ($mode eq 'pics' && $LJ::REDIRECT_ALLOWED{$LJ::FB_DOMAIN}) {
-                # redirect to a user's gallery
-                my $url = "$LJ::FB_SITEROOT/$user";
-                return redir($r, $url);
             } elsif ($mode eq 'tag') {
 
                 # tailing slash on here to prevent a second redirect after this one
@@ -920,11 +913,6 @@ sub trans
     if ($uri =~ m!^/(?:interface/(\w+))|cgi-bin/log\.cgi!) {
         my $int = $1 || "flat";
         $r->handler("perl-script");
-        if ($int eq "fotobilder") {
-            return 403 unless $LJ::FOTOBILDER_IP{$r->connection->remote_ip};
-            $r->push_handlers(PerlResponseHandler => \&Apache::LiveJournal::Interface::FotoBilder::handler);
-            return OK;
-        }
         if ($int =~ /^flat|xmlrpc|blogger|elsewhere_info|atom(?:api)?$/) {
             $RQ{'interface'} = $int;
             $RQ{'is_ssl'} = $is_ssl;
