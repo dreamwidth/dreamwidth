@@ -514,18 +514,16 @@ sub clean
                     }
 
                 # failing that, no site or local site, use the local behavior
-                } elsif (length $user) {
-                    my $orig_user = $user; # save for later, in case
-                    $user = LJ::canonical_username($user);
-                    if (length $user) {
-                        if ($opts->{'textonly'}) {
-                            $newdata .= $user;
+                } elsif ( length $user ) {
+                    if ( my $u = LJ::load_user_or_identity( $user ) ) {
+                        if ( $opts->{textonly} ) {
+                            $newdata .= $u->display_name;
                         } else {
-                            $newdata .= LJ::ljuser( $user, { no_ljuser_class => $to_external_site } );
+                            $newdata .= $u->ljuser_display( { no_ljuser_class => $to_external_site } );
                         }
                     } else {
-                        $orig_user = LJ::no_utf8_flag($orig_user);
-                        $newdata .= "<b>[Bad username: " . LJ::ehtml($orig_user) . "]</b>";
+                        $user = LJ::no_utf8_flag( $user );
+                        $newdata .= "<b>[Bad username or unknown identity: " . LJ::ehtml( $user ) . "]</b>";
                     }
                 } else {
                     $newdata .= "<b>[Unknown site tag]</b>";
