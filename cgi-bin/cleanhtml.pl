@@ -521,6 +521,8 @@ sub clean
                         } else {
                             $newdata .= $u->ljuser_display( { no_ljuser_class => $to_external_site } );
                         }
+                    } elsif ( my $username = LJ::canonical_username( $user ) ) {
+                        $newdata .= LJ::ljuser( $user, { no_ljuser_class => $to_external_site } );
                     } else {
                         $user = LJ::no_utf8_flag( $user );
                         $newdata .= "<b>[Bad username or unknown identity: " . LJ::ehtml( $user ) . "]</b>";
