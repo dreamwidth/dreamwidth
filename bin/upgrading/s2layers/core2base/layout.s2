@@ -38,6 +38,13 @@ propgroup colors {
     property use color_page_link_visited;
     property use color_page_border;
     property use color_page_title;
+    
+    property use color_header_background;
+    property use color_footer_background;
+    property use color_footer_link;
+    property use color_footer_link_active;
+    property use color_footer_link_hover;
+    property use color_footer_link_visited;
 
     property use color_module_background;
     property use color_module_text;
@@ -47,6 +54,7 @@ propgroup colors {
     property use color_module_link_visited;
     property use color_module_border;
     property use color_module_title;
+    property use color_module_title_background;
 
     property use color_entry_background;
     property use color_entry_text;
@@ -56,7 +64,10 @@ propgroup colors {
     property use color_entry_link_visited;
     property use color_entry_border;
     property use color_entry_title;
+    property use color_entry_title_background;
     property use color_entry_interaction_links;
+    
+    property use color_comment_title_background;
 
 }
 
@@ -75,6 +86,17 @@ set color_page_border = "";
 set color_page_title = "";
 
 ##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "";
+set color_footer_background = "";
+set color_footer_link = "";
+set color_footer_link_active = "";
+set color_footer_link_hover = "";
+set color_footer_link_visited = "";
+
+##===============================
 ## Entry Colors
 ##===============================
 
@@ -86,7 +108,14 @@ set color_entry_link_hover = "";
 set color_entry_link_visited = "";
 set color_entry_border = "";
 set color_entry_title = "";
+set color_entry_title_background = "";
 set color_entry_interaction_links = "";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title_background = "";
 
 ##===============================
 ## Module Colors
@@ -99,6 +128,7 @@ set color_module_link_active = "";
 set color_module_link_hover = "";
 set color_module_link_visited = "";
 set color_module_title = "";
+set color_module_title_background = "";
 set color_module_border = "";
 
 ##===============================
@@ -190,12 +220,19 @@ propgroup text {
 
 function Page::print_default_stylesheet() {
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
-    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, new Color);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
         $header_background = """
             $header_background
             height: """ + $*image_background_header_height + """px;""";
     }
+    
+    var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
+    var string footer_link_colors = generate_color_css( $*color_footer_link, new Color, new Color );
+    var string footer_link_active_colors = generate_color_css( $*color_footer_link_active, new Color, new Color );
+    var string footer_link_hover_colors = generate_color_css( $*color_footer_link_hover, new Color, new Color );
+    var string footer_link_visited_colors = generate_color_css( $*color_footer_link_visited, new Color, new Color );
+
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
 
@@ -204,8 +241,9 @@ function Page::print_default_stylesheet() {
     var string module_colors = generate_color_css($*color_module_text, $*color_module_background, $*color_module_border);
 
     var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
-    var string entry_title_colors = generate_color_css($*color_entry_title, new Color, new Color);
-    var string module_title_colors = generate_color_css($*color_module_title, new Color, new Color);
+    var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
+    var string comment_title_colors = generate_color_css(new Color, $*color_comment_title_background, new Color);
+    var string module_title_colors = generate_color_css($*color_module_title, $*color_module_title_background, new Color);
 
     var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
     var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
@@ -285,6 +323,15 @@ a:visited { $page_link_visited_colors }
     $header_background
     $page_title_colors
 }
+
+#footer {
+    $footer_background
+}
+
+#footer a { $footer_link_colors }
+#footer a:active { $footer_link_active_colors }
+#footer a:hover { $footer_link_hover_colors }
+#footer a:visited { $footer_link_visited_colors }
 
 #primary {
 	float: left;
@@ -374,7 +421,7 @@ a:visited { $page_link_visited_colors }
     $entry_colors
 }
 
-.entry .entry-title h3 {
+.entry .entry-title, .entry .entry-title a {
     $entry_title_colors
 }
 
@@ -433,6 +480,10 @@ ul.entry-interaction-links li {
 
 .comment-wrapper { 
 	padding: .5em 0;
+}
+
+.comment .comment-title {
+    $comment_title_colors
 }
 
 ul.comment-management-links {

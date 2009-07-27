@@ -1595,6 +1595,7 @@ property Color color_entry_link_hover   { des = "Entry hover link color"; }
 property Color color_entry_link_visited { des = "Entry visited link color"; }
 property Color color_entry_border       { des = "Entry border color"; }
 property Color color_entry_title        { des = "Entry title color"; }
+property Color color_entry_title_background { des = "Entry title background color"; }
 property Color color_entry_interaction_links { des = "Color of interaction links and text"; }
 
 set color_entry_background = "";
@@ -1605,7 +1606,16 @@ set color_entry_link_hover = "";
 set color_entry_link_visited = "";
 set color_entry_border = "";
 set color_entry_title = "";
+set color_entry_title_background = "";
 set color_entry_interaction_links = "";
+
+##===============================
+## Journal style - element colors
+##===============================
+
+property Color color_comment_title_background { des = "Comment title background color"; }
+
+set color_comment_title_background = "";
 
 ##===============================
 ## Journal style - element colors
@@ -1629,6 +1639,20 @@ set color_page_link_visited = "";
 set color_page_border = "";
 set color_page_title = "";
 
+property Color color_header_background { des = "Page header background color";}
+property Color color_footer_background { des = "Page footer background color"; }
+property Color color_footer_link { des = "Page footer link color"; }
+property Color color_footer_link_active { des = "Page footer active link color"; }
+property Color color_footer_link_hover { des = "Page footer hover link color"; }
+property Color color_footer_link_visited { des = "Page footer visited link color"; }
+
+set color_header_background = "";
+set color_footer_background = "";
+set color_footer_link = "";
+set color_footer_link_active = "";
+set color_footer_link_hover = "";
+set color_footer_link_visited = "";
+
 property Color color_module_background { des = "Module background color"; }
 property Color color_module_text { des = "Module text color"; }
 property Color color_module_link { des = "Module link color"; }
@@ -1637,6 +1661,7 @@ property Color color_module_link_hover { des = "Module hover link color"; }
 property Color color_module_link_visited { des = "Module visited link color"; }
 property Color color_module_border { des = "Module border color"; }
 property Color color_module_title { des = "Module title color"; }
+property Color color_module_title_background { des = "Module title background color"; }
 
 set color_module_background = "";
 set color_module_text = "";
@@ -1645,6 +1670,7 @@ set color_module_link_active = "";
 set color_module_link_hover = "";
 set color_module_link_visited = "";
 set color_module_title = "";
+set color_module_title_background = "";
 set color_module_border = "";
 
 # Initialize custom colors, these properties can be selected or overwritten by layout layers, but should not normally be exposed in the wizard.

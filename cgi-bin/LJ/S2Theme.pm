@@ -698,6 +698,7 @@ sub module_props {
         color_module_link_hover
         color_module_link_visited
         color_module_title
+        color_module_title_background
     )
 }
 
@@ -718,7 +719,16 @@ sub header_props {
     qw (
         text_tags_page_header
         color_header_background
-        
+    )
+}
+
+sub footer_props {
+    qw (
+        color_footer_background
+        color_footer_link
+        color_footer_link_active
+        color_footer_link_hover
+        color_footer_link_visited
     )
 }
 
@@ -751,6 +761,7 @@ sub entry_props {
         color_entry_background
         color_entry_text
         color_entry_title
+        color_entry_title_background
         color_entry_interaction_links
     )
 }
@@ -767,7 +778,7 @@ sub comment_props {
         text_comment_posted
         text_comment_reply
         text_comment_thread
-        color_comment_bar
+        color_comment_title_background
     )
 }
 
@@ -788,9 +799,8 @@ sub page_props {
         color_page_link_hover
         color_page_link_visited
         color_page_title
+        color_page_border
     )
 }
-
-sub footer_props {}
 
 1;
