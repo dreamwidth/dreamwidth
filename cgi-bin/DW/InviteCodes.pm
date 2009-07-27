@@ -154,7 +154,7 @@ sub get_promo_code_info {
     my $dbh = LJ::get_db_writer();
     my $code = $opts{code};
 
-    return undef unless $code =~ /^[a-z0-9]+$/i; # make sure the code is valid first
+    return undef unless $code && $code =~ /^[a-z0-9]+$/i; # make sure the code is valid first
     return $dbh->selectrow_hashref( "SELECT * FROM acctcode_promo WHERE code = ?", undef, $code );
 }
 
