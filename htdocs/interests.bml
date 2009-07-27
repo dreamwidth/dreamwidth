@@ -26,7 +26,7 @@ body<=
 
     my $remote = LJ::get_remote();
 
-    my $maxinterests = $remote->get_cap( 'interests' );
+    my $maxinterests = $remote ? $remote->get_cap( 'interests' ) : 0;
 
     my $table = sub { $_[0]->{'journaltype'} eq 'C' ? 'comminterests' : 'userinterests' };
 
