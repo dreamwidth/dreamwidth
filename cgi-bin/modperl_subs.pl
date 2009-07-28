@@ -9,6 +9,9 @@ package LJ;
 
 use Apache2::ServerUtil ();
 
+use LJ::Config;
+BEGIN { LJ::Config->load; }
+
 use Apache::LiveJournal;
 use Apache::BML;
 use Apache::SendStats;
@@ -42,12 +45,10 @@ use Class::Autouse qw(
                       MogileFS::Client
                       DDLockClient
                       LJ::BetaFeatures
-                      LJ::Config
                       DW::InviteCodes
                       DW::InviteCodeRequests
                       );
 
-LJ::Config->load;
 
 # force XML::Atom::* to be brought in (if we have it, it's optional),
 # unless we're in a test.
