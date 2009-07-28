@@ -141,6 +141,7 @@ propgroup presentation
     property use use_custom_friend_colors;
 }
 
+set layout_type            = "two-columns-left";
 set show_userpics_recent   = true;
 set num_items_recent       = 20;
 set num_items_reading      = 20;
