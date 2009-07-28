@@ -32,9 +32,9 @@ sub render_body {
     my $ret = "<h2>" . $class->ml( 'widget.readinglist.title' ) . "</h2>";
     $ret .= "<p>" . $class->ml( 'widget.readinglist.readpage', { aopts => "href='" . $remote->journal_base. "/read'" } ) . "</p>";
     $ret .= "<p>" . $class->ml( 'widget.readinglist.breakdown.header' ) . "</p>";
-    $ret .= "<ul><li>" . $class->ml( 'widget.readinglist.breakdown.personal', { num => $count{personal} } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.communities', { num => $count{community} } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.feeds', { num => $count{syndicated} } ) . "</li></ul>";
+    $ret .= "<ul><li>" . $class->ml( 'widget.readinglist.breakdown.personal', { num => $count{personal} + 0 } ) . "</li>";
+    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.communities', { num => $count{community} + 0 } ) . "</li>";
+    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.feeds', { num => $count{syndicated} + 0 } ) . "</li></ul>";
 
     return $ret;
 }
