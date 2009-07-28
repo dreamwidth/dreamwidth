@@ -248,7 +248,7 @@ register_tablecreate("moodthemedata", <<'EOC');
 CREATE TABLE moodthemedata (
     moodthemeid int(10) unsigned NOT NULL default '0',
     moodid int(10) unsigned NOT NULL default '0',
-    picurl varchar(100) default NULL,
+    picurl varchar(200) default NULL,
     width tinyint(3) unsigned NOT NULL default '0',
     height tinyint(3) unsigned NOT NULL default '0',
 
@@ -3454,6 +3454,12 @@ register_alter(sub {
         do_alter("keywords",
                  "ALTER TABLE keywords ".
                  "MODIFY keyword VARCHAR(80) BINARY NOT NULL");
+    }
+
+    #allow longer moodtheme pic URLs
+    if (column_type("moodthemedata", "picurl") eq "varchar(100)") {
+        do_alter("moodthemedata",
+                 "ALTER TABLE moodthemedata MODIFY picurl VARCHAR(200)");
     }
 
     # change interest.interest key to being unique, if it's not already

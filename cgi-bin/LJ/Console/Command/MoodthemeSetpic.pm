@@ -45,6 +45,8 @@ sub execute {
     if (!$picurl || $width == 0 || $height == 0) {
         $dbh->do("DELETE FROM moodthemedata WHERE moodthemeid = ? AND moodid= ?", undef, $themeid, $moodid);
         $self->print("Data deleted for theme #$themeid, mood #$moodid.");
+    } elsif ( length($picurl) > 200 ) {
+        $self->error("Moodpic URLs cannot exceed 200 characters.");
     } else {
         $dbh->do("REPLACE INTO moodthemedata (moodthemeid, moodid, picurl, width, height) VALUES (?, ?, ?, ?, ?)",
                  undef, $themeid, $moodid, $picurl, $width, $height);
