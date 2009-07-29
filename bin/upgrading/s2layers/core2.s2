@@ -3795,7 +3795,7 @@ function Comment::print_wrapper_start() {
     if (not isnull $ep and defined $this.poster and $this.poster.username == $ep.entry.poster.username) {
         $entryauthor = "entry-author";
     }
-    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $poster $entryauthor $full $userpic" id="$this.anchor">\n""";
+    """<div class="comment-wrapper $alternate $screened $frozen $deletedstate $poster $entryauthor $full $userpic">\n""";
     """<div class="separator separator-before"><div class="inner"></div></div>\n""";
     """<div class="comment" id="comment-$this.dom_id">\n""";
     """<div class="inner">\n""";
