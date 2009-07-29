@@ -42,11 +42,16 @@ sub render_body {
     my $ret = "<h2>" . $class->ml( 'widget.accountstatistics.title' ) . "</h2>";
     $ret .= "<ul>";
     $ret .= "<li>" . $class->ml( 'widget.accountstatistics.member_since', { date => LJ::mysql_time( $remote->timecreate ) } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.entries', { num => LJ::commafy( $remote->number_of_posts ) } ) . "</li>";
+    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.entries2', { num_raw => $remote->number_of_posts, num_comma => LJ::commafy( $remote->number_of_posts ) } ) . "</li>";
     $ret .= "<li>" . $class->ml( 'widget.accountstatistics.last_updated', { date =>         LJ::mysql_time( $remote->timeupdate ) } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.comments', { num_received => LJ::commafy( $remote->num_comments_received ), num_posted => LJ::commafy( $remote->num_comments_posted ) } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.memories', { num => LJ::commafy( $memories_count ), aopts => "href='$LJ::SITEROOT/tools/memories.bml?user=" . $remote->user . "'", } );
-    $ret .= ", " . $class->ml( 'widget.accountstatistics.tags', { num => $tags_count, aopts => 'href="' . $remote->journal_base . '/tag/"' } ) . "</li>";
+    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.comments2', {
+        num_received_raw => $remote->num_comments_received,
+        num_received_comma => LJ::commafy( $remote->num_comments_received ),
+        num_posted_raw => $remote->num_comments_posted,
+        num_posted_comma => LJ::commafy( $remote->num_comments_posted )
+        } ) . "</li>";
+    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.memories2', { num_raw => $memories_count, num_comma => LJ::commafy( $memories_count ), aopts => "href='$LJ::SITEROOT/tools/memories.bml?user=" . $remote->user . "'", } );
+    $ret .= ", " . $class->ml( 'widget.accountstatistics.tags2', { num_raw => $tags_count, num_comma => LJ::commafy( $tags_count ), aopts => 'href="' . $remote->journal_base . '/tag/"' } ) . "</li>";
     $ret .= "<li>" . $accttype_string . "</li>";
     $ret .= "</ul>";
     

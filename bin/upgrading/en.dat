@@ -3867,17 +3867,17 @@ web.postto.label=Post to:
 
 widget.accountstatistics.expires_on=[[type]], expiring [[date]]
 
-widget.accountstatistics.comments=[[num_received]] [[?num_received|comment|comments]] received; [[num_posted]] [[?num_received|comment|comments]] posted
+widget.accountstatistics.comments2=[[num_received_comma]] [[?num_received_raw|comment|comments]] received; [[num_posted_comma]] [[?num_posted_raw|comment|comments]] posted
 
-widget.accountstatistics.entries=[[num]] [[?num|entry|entries]]
+widget.accountstatistics.entries2=[[num_comma]] [[?num_raw|entry|entries]]
 
 widget.accountstatistics.last_updated=Last updated [[date]]
 
 widget.accountstatistics.member_since=Member since [[date]]
 
-widget.accountstatistics.memories=[[num]] <a [[aopts]]>Memories</a>
+widget.accountstatistics.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|Memories]]</a>
 
-widget.accountstatistics.tags=[[num]] <a [[aopts]]>Tags</a>
+widget.accountstatistics.tags2=[[num_comma]] <a [[aopts]]>[[?num_raw|Tag|Tags]]</a>
 
 widget.accountstatistics.title=Account Stats
 
