@@ -2947,7 +2947,8 @@ function Page::print_wrapper_start(string{} opts)
 {
 # FIXME: this should also print classes that identify the layout/style and other options like the number of columns.
     var string class = $opts{"class"} ? """class="$opts{"class"}" """ : "";
-    """<body class="page-$.view $*layout_type $class">\n""";
+    var string control_strip = viewer_sees_control_strip() ? "has-navstrip" : "no-navstrip";
+    """<body class="page-$.view $*layout_type $class $control_strip">\n""";
 }
 
 function Page::print_wrapper_end() 
