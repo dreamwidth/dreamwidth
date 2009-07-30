@@ -2504,7 +2504,6 @@ sub control_strip
                  'learn_more'        => LJ::run_hook('control_strip_learnmore_link') || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
                  'explore'           => "<a href='$LJ::SITEROOT/explore/'>" . BML::ml('web.controlstrip.links.explore', { sitenameabbrev => $LJ::SITENAMEABBREV }) . "</a>",
                  'confirm'           => "<a href='$LJ::SITEROOT/register.bml'>$BML::ML{'web.controlstrip.links.confirm'}</a>",
-                 'queue'             => "<a href='$LJ::SITEROOT/community/moderate.bml'>$BML::ML{'web.controlstrip.links.queue'}</a>",
                  );
 
     if ($remote) {
@@ -2532,6 +2531,7 @@ sub control_strip
             $links{'edit_community_invites'} = "<a href='$LJ::SITEROOT/community/sentinvites.bml?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
             $links{'edit_community_members'} = "<a href='$LJ::SITEROOT/community/members.bml?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
             $links{'track_community'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
+            $links{'queue'} = "<a href='$LJ::SITEROOT/community/moderate?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.queue'}</a>";
         }
     }
     my $journal_display = LJ::ljuser($journal);
@@ -2726,7 +2726,7 @@ sub control_strip
                 }
 
                 if ( $journal->prop( 'moderated' ) ) {
-                    $ret .= "$links{queue}&nbsp;&nbsp;";
+                    $ret .= "$links{queue} [" . LJ::get_mod_queue_count( $journal ) . "]&nbsp;&nbsp;";
                 } else {
                     $ret .= "$links{edit_community_profile}&nbsp;&nbsp;";
                 }
