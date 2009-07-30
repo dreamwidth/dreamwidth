@@ -40,7 +40,7 @@ body<=
     }
 
     # make sure it is a comm
-    unless ($c->{'journaltype'} eq 'C') {
+    unless ( $c->is_community ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
         $ret .= BML::ml('.error.notcomm', { 'user' => LJ::ljuser($c) });
         $ret .= " p?>";

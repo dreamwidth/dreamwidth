@@ -40,7 +40,7 @@ sub execute {
         unless $u->is_visible;
 
     return $self->error("Account is not a personal or community journal.")
-        unless $u->journaltype =~ /[PC]/;
+        unless $u->is_person || $u->is_community;
 
     return $self->error("You cannot convert your own account.")
         if LJ::u_equals($remote, $u);

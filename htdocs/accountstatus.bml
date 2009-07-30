@@ -49,7 +49,7 @@ body<=
 
         # invalid statusvis
         return LJ::bad_input($ML{'.error.invalid'})
-            unless $statusvis eq 'D' || $statusvis eq 'V';
+            unless $u->is_deleted || $u->is_visible;
 
         # no need to change?
         return $ok->(BML::ml('.message.nochange', {'statusvis' => $statusvis{$statusvis} }))
@@ -62,7 +62,7 @@ body<=
         my @date = localtime(time);
         my $date = sprintf("%02d:%02d %02d/%02d/%04d", @date[2,1], $date[3], $date[4]+1, $date[5]+1900);
 
-        if ($statusvis eq 'D') {
+        if ( $u->is_deleted ) {
             
             $res = $u->set_deleted;
 
@@ -76,7 +76,7 @@ body<=
                     datetime => $date,
                 })->fire;
             }
-        } elsif ($statusvis eq 'V') {
+        } elsif ( $u->is_visible ) {
             ## Restore previous statusvis of journal. It may be different
             ## from 'V', it may be read-only, or locked, or whatever.
             my @previous_status = grep { $_ ne 'D' } $u->get_previous_statusvis;
@@ -110,7 +110,7 @@ body<=
         # success
         $ret .= $ok->(BML::ml('.message.success', {'statusvis' => $statusvis{$statusvis} }));
 
-        if ($statusvis eq 'D') {
+        if ( $u->is_deleted ) {
             $ret .= "<?p $ML{'.message.deleted'} p?>";
 
             if ( $u->is_person ) {

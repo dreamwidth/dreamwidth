@@ -36,7 +36,7 @@ body<=
 
     my @errors;
 
-    push @errors, $ML{'.suspended.cannot.send'} if $remote->statusvis eq 'S';
+    push @errors, $ML{'.suspended.cannot.send'} if $remote->is_suspended;
 
     # Submitted message
     if (LJ::did_post()) {

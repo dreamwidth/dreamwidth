@@ -10,7 +10,7 @@
     return "<?needlogin?>" unless $remote;
 
     # bad statusvis?
-    unless ($remote->{statusvis} eq 'V') {
+    unless ( $remote->is_visible ) {
         $body = "<?h1 $ML{'.badstatus.title'} h1?><?p $ML{'.badstatus.body'} p?>";
         return;
     }
@@ -25,8 +25,8 @@
         # the rest of the errors assume a community exists
         if ($cu) {
             # status/type errors
-            $errors{username} = $ML{'.error.notcomm'} unless $cu->{journaltype} eq 'C';
-            $errors{username} = $ML{'.error.badstatus'} if !%errors && $cu->{statusvis} !~ /[VD]/;
+            $errors{username} = $ML{'.error.notcomm'} unless $cu->is_community;
+            $errors{username} = $ML{'.error.badstatus'} unless %errors || $cu->is_visible || $cu->is_deleted;
 
             # are they already a maintainer?
             $errors{username} = $ML{'.error.alreadyadmin'} if !%errors && LJ::can_manage($remote, $cu);

@@ -11,7 +11,7 @@ sub find_path
 {
     my ($fu, $tu, $timeout) = @_;
     return () unless $fu && $tu;
-    return () unless $fu->{journaltype} eq "P" && $tu->{journaltype} eq "P";
+    return () unless $fu->is_individual && $tu->is_individual;
 
     $LJ::SixDegrees::MEMC_EXPIRE ||= 86400;
 
@@ -178,7 +178,7 @@ sub link_fetch
     my @clean_list;  # visible users, not communities
     foreach my $uid (@$listref) {
 	my $u = $cache->{$uid};
-	next unless $u && $u->{'statusvis'} eq "V" && $u->{'journaltype'} eq "P";
+	next unless $u && $u->is_visible && $u->is_individual;
 	push @clean_list, $uid;
     }
 

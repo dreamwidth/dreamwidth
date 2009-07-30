@@ -2071,7 +2071,7 @@ sub Page
     }
 
     # Identity (type I) accounts only have read views
-    $p->{'views_order'} = [ 'read', 'userinfo' ] if $u->{'journaltype'} eq 'I';
+    $p->{'views_order'} = [ 'read', 'userinfo' ] if $u->is_identity;
 
     return $p;
 }
@@ -2493,7 +2493,7 @@ sub viewer_is_friend
     return 0 unless defined($LJ::S2::CURR_PAGE);
 
     my $ju = $LJ::S2::CURR_PAGE->{'_u'};
-    return 0 if $ju->{journaltype} eq 'C';
+    return 0 if $ju->is_community;
     return $ju->trusts( $remote );
 }
 

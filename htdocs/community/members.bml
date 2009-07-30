@@ -104,7 +104,7 @@ body<=
 
             my $target_disp = LJ::ljuser($target);
 
-            unless ($target->{statusvis} eq 'V') {
+            unless ( $target->is_visible ) {
                 push @add_errors, BML::ml( '.error.notactive',
                                            { user => $target_disp } );
                 next;
@@ -118,7 +118,7 @@ body<=
                 next;
             }
 
-            unless ($target->{'journaltype'} eq 'P') {
+            unless ( $target->is_person ) {
                 push @add_errors, BML::ml( '.error.invaliduser',
                                            { user => $target_disp,
                                              type => $target->{'journaltype'} } );

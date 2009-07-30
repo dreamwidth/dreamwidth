@@ -57,7 +57,7 @@ body<=
     return $LJ::MSG_READONLY_USER if $LJ::CLUSTER_DOWN{0} || ! $dbcr;
 
     # redirect if account was renamed
-    if ($u->{'journaltype'} eq "R") {
+    if ( $u->is_redirect ) {
         LJ::load_user_props($u, "renamedto");
         if ($u->{'renamedto'} ne "") {
             my $id = $FORM{'itemid'}+0;
@@ -185,7 +185,7 @@ body<=
         if $parpost->{'state'} eq "F";
 
     # don't allow anonymous comments on syndicated items
-    if ($u->{'journaltype'} eq "Y" && $u->{'opt_whocanreply'} eq "all") {
+    if ( $u->is_syndicated && $u->{'opt_whocanreply'} eq "all" ) {
         $u->{'opt_whocanreply'} = "reg";
     }
 

@@ -876,7 +876,7 @@ body<=
     my $validationnag;
     if (!(LJ::isu($u) && ($u->{'status'} eq 'T')) &&
         ($u->{'status'} eq "N" || $u->{'status'} eq "T") &&
-        $u->{'journaltype'} ne 'I' && ! $is_poster) {
+        ! $u->is_identity && ! $is_poster) {
         my $reminder = LJ::load_include('validationreminder');
         $validationnag .= "\n\n$reminder" if $reminder;
     }

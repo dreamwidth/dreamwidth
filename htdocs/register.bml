@@ -85,8 +85,8 @@ body<=
              BML::ml('.error.emailchanged', { aopts => "href='$LJ::SITEROOT/register.bml'" }) . " p?>";
      }
 
-     ## if the user is OpenID, prove that he is human
-     if ($u->{journaltype} eq 'I' && LJ::is_enabled("recaptcha")) {
+     ## if the user is OpenID, prove that he or she is human
+     if ( $u->is_identity && LJ::is_enabled("recaptcha") ) {
         require Captcha::reCAPTCHA;
         my $c = Captcha::reCAPTCHA->new;
         if ($POST{recaptcha_response_field}) {

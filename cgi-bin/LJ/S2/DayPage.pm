@@ -138,7 +138,7 @@ sub DayPage
         }
 
         # don't show posts from suspended users or suspended posts
-        next ENTRY if $apu{$posterid} && $apu{$posterid}->{'statusvis'} eq 'S' && ! $viewsome;
+        next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && ! $viewsome;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {

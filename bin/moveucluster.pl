@@ -680,8 +680,8 @@ sub moveUser {
                       "random_user_set" => 1, # "
                       );
 
-    $skip_table{'inviterecv'} = 1 if $u->{journaltype} ne 'P'; # non-person, skip invites received
-    $skip_table{'invitesent'} = 1 if $u->{journaltype} ne 'C'; # not community, skip invites sent
+    $skip_table{'inviterecv'} = 1 unless $u->is_person; # if not person, skip invites received
+    $skip_table{'invitesent'} = 1 unless $u->is_community; # if not community, skip invites sent
 
     # we had a concern at the time of writing this dependency optization
     # that we might use "log3" and "talk3" tables in the future with the
@@ -740,8 +740,7 @@ sub moveUser {
         next if $skip_table{$table};
 
         # people accounts don't have moderated posts
-        next if $u->{'journaltype'} eq "P" && ($table eq "modlog" ||
-                                               $table eq "modblob");
+        next if $u->is_person && ($table eq "modlog" || $table eq "modblob");
 
         # don't waste time looking at dependent tables with empty parents
         next if $dep{$table} && $was_empty{$dep{$table}};

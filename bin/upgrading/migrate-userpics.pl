@@ -161,7 +161,7 @@ sub handle_userid {
     # if they're expunged, they might have data somewhere if they were
     # copy-moved from A to B, then expunged on B.  now we're on A and
     # need to delete it ourselves (if purge-old is on)
-    if ($u->{clusterid} == 0 && $u->{statusvis} eq "X") {
+    if ( $u->{clusterid} == 0 && $u->is_expunged ) {
         return unless $purge;
         # if we get here, the user has indicated they want data purged, get handle
         my $to_purge_dbcm = get_db_handle($cid);

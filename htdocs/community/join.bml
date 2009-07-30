@@ -15,7 +15,7 @@ body<=
 
     # bad statusvis?
     return "<?h1 $ML{'.error.statusvis.title'} h1?><?p $ML{'.error.statusvis.body'} p?>"
-        unless $remote->{statusvis} eq 'V';
+        unless $remote->is_visible;
 
     # make sure a community doesn't join a community
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.label.commlogged'} p?>"

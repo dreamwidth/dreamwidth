@@ -38,7 +38,7 @@ while ($loop) {
         die "Can't find userid: $uid" unless $u;
 
         # sometimes expunges don't expunge all the way.
-        if ($u->{'statusvis'} eq "X") {
+        if ( $u->is_expunged ) {
             $db->do("DELETE FROM userpicblob2 WHERE userid=$uid AND picid=$picid");
             next;
         }

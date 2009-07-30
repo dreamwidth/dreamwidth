@@ -26,7 +26,7 @@
 
     # error check
     return $error->($ML{'.label.infoerror'})
-        unless $cu && $cu->{journaltype} =~ /[CS]/;
+        unless $cu && $cu->is_community;
 
     # used in both paths below
     my $ecname = LJ::ehtml($cu->{'name'});

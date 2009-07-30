@@ -97,8 +97,7 @@ sub RecentPage
         security      => $opts->{securityfilter},
         itemids       => \@itemids,
         dateformat    => 'S2',
-        order         => ( $u->{journaltype} eq 'C' || $u->{journaltype} eq 'Y' )  # community or syndicated
-                          ? 'logtime' : '',
+        order         => ( $u->is_community || $u->is_syndicated ) ? 'logtime' : '',
         err           => \$err,
     );
 
@@ -153,7 +152,7 @@ sub RecentPage
         $itemnum++;
 
         # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
-        next ENTRY if $apu{$posterid} && $apu{$posterid}->{'statusvis'} eq 'S' && !$viewsome;
+        next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && !$viewsome;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {

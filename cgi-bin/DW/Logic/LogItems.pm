@@ -97,8 +97,8 @@ sub watch_items
         # delete u objects based on 'showtypes'
         foreach my $fid ( keys %$friends_u ) {
             my $fu = $friends_u->{$fid};
-            if ($fu->{statusvis} ne 'V' ||
-                $valid_types && index(uc($valid_types), $fu->{journaltype}) == -1)
+            if ( ! $fu->is_visible ||
+                 $valid_types && index(uc($valid_types), $fu->{journaltype}) == -1 )
             {
                 delete $friends_u->{$fid};
                 delete $friends->{$fid};

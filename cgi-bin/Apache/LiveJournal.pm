@@ -730,7 +730,7 @@ sub trans
         # journals. This ensures redirects work sensibly for all valid paths
         # under a given username, without sprinkling redirects everywhere.
         my $u = LJ::load_user($user);
-        if ($u && $u->{'journaltype'} eq 'R' && $u->{'statusvis'} eq 'R') {
+        if ( $u && $u->is_redirect && $u->is_renamed ) {
             LJ::load_user_props($u, 'renamedto');
             my $renamedto = $u->{'renamedto'};
             if ($renamedto ne '') {
@@ -1076,7 +1076,7 @@ sub userpic_content
 
     # Load the user object and pic and make sure the picture is viewable
     my $u = LJ::load_userid($userid);
-    return NOT_FOUND unless $u && $u->{'statusvis'} !~ /[XS]/;
+    return NOT_FOUND unless $u && ! ( $u->is_expunged || $u->is_suspended );
 
     my %upics;
     LJ::load_userpics(\%upics, [ $u, $picid ]);
@@ -1358,7 +1358,7 @@ sub journal_content
         {
             my $u = LJ::load_user($RQ{'user'});
             my $base = "$LJ::SITEROOT/users/$RQ{'user'}";
-            $base = "$LJ::SITEROOT/community/$RQ{'user'}" if $u && $u->{'journaltype'} eq "C";
+            $base = "$LJ::SITEROOT/community/$RQ{'user'}" if $u && $u->is_community;
             return redir($r, "$base$uri$args_wq");
         }
 

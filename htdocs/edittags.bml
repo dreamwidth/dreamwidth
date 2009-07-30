@@ -23,7 +23,7 @@ body<=
     my $u = LJ::load_user($journal);
     return $err->($ML{'.invalid.journal'}) unless $u;
     return $err->($ML{'.readonly.journal'}) if $u->is_readonly;
-    return $err->($ML{'.invalid.journal'}) unless $u->{statusvis} eq 'V';
+    return $err->($ML{'.invalid.journal'}) unless $u->is_visible;
 
     my $ditemid = ($GET{itemid} || $POST{itemid})+0;
     my $anum = $ditemid % 256;
@@ -42,7 +42,7 @@ body<=
 
         unless ($remote->can_manage($u) && !$pu->is_suspended) {
             return $err->($ML{'.readonly.poster'}) if $pu->is_readonly;
-            return $err->($ML{'.invalid.journal'}) if $pu->{statusvis} ne 'V';
+            return $err->($ML{'.invalid.journal'}) unless $pu->is_visible;
         }
     }
 

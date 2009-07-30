@@ -80,7 +80,7 @@ body<=
     }
 
     # redirect if account was renamed
-    if ($u->{'journaltype'} eq "R") {
+    if ( $u->is_redirect ) {
         LJ::load_user_props($u, "renamedto");
         if ($u->{'renamedto'} ne "") {
             return BML::redirect(LJ::journal_base($u->{'renamedto'}) . "/$ditemid.html");
@@ -670,7 +670,7 @@ body<=
                 $ret .= "</td></tr><tr><td class='commentbody usercontent'>";
 
                 LJ::CleanHTML::clean_comment(\$post->{'body'}, { 'preformatted' => $post->{'props'}->{'opt_preformatted'},
-                                                                 'anon_comment' => (!$pu || $pu->{'journaltype'} eq 'I'),
+                                                                 'anon_comment' => ( !$pu || $pu->is_identity ),
                                                              });
                 BML::ebml(\$post->{'body'});
                 my $event = $post->{'body'};

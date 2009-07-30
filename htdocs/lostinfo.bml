@@ -105,11 +105,11 @@ body<=
             return "<?h1 $title h1?>\n<?p $msg p?>";
         };
 
-        if ($u->{'journaltype'} eq 'Y') {
+        if ( $u->is_syndicated ) {
             return $err->( $ML{'.error.syndicated'} );
         }
 
-        if ($u->{'journaltype'} eq 'C' && !length $u->password) {
+        if ( $u->is_community && ! length $u->password ) {
             # community with no password
             return $err->( $ML{'.error.commnopassword'} );
         }

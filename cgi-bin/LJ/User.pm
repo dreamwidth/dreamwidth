@@ -405,6 +405,10 @@ sub is_expunged {
     return $u->statusvis eq 'X' || $u->clusterid == 0;
 }
 
+sub is_inactive {
+    my $u = shift;
+    return $u->statusvis eq 'D' || $u->statusvis eq 'X' || $u->statusvis eq 'S';
+}
 
 sub is_locked {
     my $u = shift;
@@ -662,6 +666,12 @@ sub is_person {
     return $u->{journaltype} eq "P";
 }
 *is_personal = \&is_person;
+
+
+sub is_redirect {
+    my $u = shift;
+    return $u->{journaltype} eq "R";
+}
 
 
 sub is_syndicated {

@@ -43,7 +43,7 @@ body<=
 
     my (@recv, @posted, %talkids);
     my %need_userid;
-    $need_userid{$u->{userid}} = 1 if $u->{'journaltype'} eq 'C'; # Need to load the community for logtext
+    $need_userid{$u->{userid}} = 1 if $u->is_community; # Need to load the community for logtext
     my %logrow;  # "jid nodeid" -> $logrow
     my %need_logids;  # hash of "journalid jitemid" => [journalid, jitemid]
 
@@ -133,7 +133,7 @@ body<=
         next if $r->{state} eq "D";
 
         my $pu = $us->{$r->{posterid}};
-        next if $pu->{statusvis} =~ /[XS]/;
+        next if $pu->is_expunged || $pu->is_suspended;
 
         $r->{'props'} = $props{$r->{'jtalkid'}};
 

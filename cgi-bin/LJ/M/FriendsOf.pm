@@ -113,11 +113,10 @@ sub _mutual_friends {
     my $us = LJ::load_userids(@ids);
     return $fom->{mutual_friends} = [
                                      sort { $a->display_name cmp $b->display_name }
-                                     grep { $_->{statusvis} =~ /[VML]/ &&
-                                           ($_->{journaltype} eq "P" || $_->{journaltype} eq "I") }
+                                     grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
                                      map  { $us->{$_} ? ($us->{$_}) : () }
                                      @ids
-                                     ];
+                                    ];
 }
 
 # returns arrayref of mutual friendids.  sorted by username
@@ -174,19 +173,11 @@ sub _friend_ofs {
 
     my $us = LJ::load_userids(@to_load);
     return $fom->{_friendof_us} = [
-                                    sort {
-                                        $a->display_name cmp $b->display_name
-                                    }
-                                    grep {
-                                        $_->{statusvis} =~ /[VML]/ &&
-                                            ($_->{journaltype} eq "P" ||
-                                             $_->{journaltype} eq "I")
-                                        }
-                                    map {
-                                        $us->{$_} ? ($us->{$_}) : ()
-                                        }
-                                    @to_load
-                                    ];
+                                   sort { $a->display_name cmp $b->display_name }
+                                   grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
+                                   map { $us->{$_} ? ($us->{$_}) : () }
+                                   @to_load
+                                  ];
 
 }
 
@@ -206,19 +197,11 @@ sub _member_of {
 
     my $us = LJ::load_userids(@to_load);
     return $fom->{_member_of_us} = [
-                                    sort {
-                                        $a->display_name cmp $b->display_name
-                                    }
-                                    grep {
-                                        $_->{statusvis} eq 'V' &&
-                                            ($_->{journaltype} eq "C" ||
-                                             $_->{journaltype} eq "S")
-                                        }
-                                    map {
-                                        $us->{$_} ? ($us->{$_}) : ()
-                                        }
+                                    sort { $a->display_name cmp $b->display_name }
+                                    grep { $_->is_visible && $_->is_community }
+                                    map { $us->{$_} ? ($us->{$_}) : () }
                                     @to_load
-                                    ];
+                                   ];
 
 }
 

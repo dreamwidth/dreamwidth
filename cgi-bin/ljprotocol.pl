@@ -462,7 +462,7 @@ sub sendmessage
     return undef unless authenticate($req, $err, $flags);
     my $u = $flags->{'u'};
 
-    return fail($err, 305) if $u->statusvis eq 'S'; # suspended cannot send private messages
+    return fail($err, 305) if $u->is_suspended; # suspended cannot send private messages
 
     my $msg_limit = LJ::get_cap($u, "usermessage_length");
 
@@ -541,7 +541,7 @@ sub login
         if $ver>=1 and not $LJ::UNICODE;
 
     # do not let locked people log in
-    return fail($err, 308) if $u->{statusvis} eq 'L';
+    return fail($err, 308) if $u->is_locked;
 
     ## return a message to the client to be displayed (optional)
     login_message($req, $res, $flags);
@@ -925,7 +925,7 @@ sub common_event_validation
             # only people should have unknown8bit entries.
             my $uowner = $flags->{u_owner} || $flags->{u};
             return fail($err,207,'Posting in a community with international or special characters require a Unicode-capable LiveJournal client.  Download one at http://www.livejournal.com/download/.')
-                if $uowner->{journaltype} ne 'P';
+                if ! $uowner->is_person;
 
             # so rest of site can change chars to ? marks until
             # default user's encoding is set.  (legacy support)
@@ -1019,17 +1019,16 @@ sub postevent
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
     ### make sure community or identity journals don't post
-    return fail($err,150) if ($u->{'journaltype'} eq "C" ||
-                              $u->{'journaltype'} eq "I");
+    return fail($err,150) if $u->is_community || $u->is_identity;
 
     # suspended users can't post
-    return fail($err,305) if ($u->{'statusvis'} eq "S");
+    return fail($err,305) if $u->is_suspended;
 
     # memorials can't post
-    return fail($err,309) if $u->{statusvis} eq 'M';
+    return fail($err,309) if $u->is_memorial;
 
     # locked accounts can't post
-    return fail($err,308) if $u->{statusvis} eq 'L';
+    return fail($err,308) if $u->is_locked;
 
     # check the journal's read-only bit
     return fail($err,306) if LJ::get_cap($uowner, "readonly");
@@ -1047,7 +1046,7 @@ sub postevent
     return fail($err,317) if $uowner->is_readonly;
 
     # can't post to deleted/suspended community
-    return fail($err,307) unless $uowner->{'statusvis'} eq "V";
+    return fail($err,307) unless $uowner->is_visible;
 
     # must have a validated email address to post to a community
     # unless this is approved from the mod queue (we'll error out initially, but in case they change later)
@@ -1117,7 +1116,7 @@ sub postevent
     }
 
     # are they trying to post back in time?
-    if ($posterid == $ownerid && $u->{'journaltype'} ne 'Y' &&
+    if ($posterid == $ownerid && !$u->is_syndicated &&
         !$time_was_faked && $u->{'newesteventtime'} &&
         $eventtime lt $u->{'newesteventtime'} &&
         !$req->{'props'}->{'opt_backdated'}) {
@@ -1162,7 +1161,7 @@ sub postevent
     # don't allow backdated posts in communities
     return fail($err,152) if
         ($req->{'props'}->{"opt_backdated"} &&
-         $uowner->{'journaltype'} ne "P");
+         ! $uowner->is_person);
 
     # do processing of embedded polls (doesn't add to database, just
     # does validity checking)
@@ -1171,7 +1170,7 @@ sub postevent
     {
         return fail($err,301,"Your account type doesn't permit creating polls.")
             unless (LJ::get_cap($u, "makepoll")
-                    || ($uowner->{'journaltype'} eq "C"
+                    || ($uowner->is_community
                         && LJ::get_cap($uowner, "makepoll")));
 
         my $error = "";
@@ -1239,7 +1238,7 @@ sub postevent
     };
 
     # if posting to a moderated community, store and bail out here
-    if ($uowner->{'journaltype'} eq 'C' && $uowner->{'moderated'} && !$flags->{'nomod'}) {
+    if ($uowner->is_community && $uowner->{'moderated'} && !$flags->{'nomod'}) {
         # don't moderate admins, moderators & pre-approved users
         my $dbh = LJ::get_db_writer();
         my $relcount = $dbh->selectrow_array("SELECT COUNT(*) FROM reluser ".
@@ -1346,7 +1345,7 @@ sub postevent
     $getlock->(); return $res if $res_done;
 
     # do rate-checking
-    if ($u->{'journaltype'} ne "Y" && ! LJ::rate_log($u, "post", 1)) {
+    if ( ! $u->is_syndicated && ! LJ::rate_log($u, "post", 1) ) {
         return $fail->($err,405);
     }
 
@@ -1586,7 +1585,7 @@ sub editevent
     return fail($err,306) if LJ::get_cap($uowner, "readonly");
 
     # can't edit in deleted/suspended community
-    return fail($err,307) unless $uowner->{'statusvis'} eq "V" || $uowner->is_readonly;
+    return fail($err,307) unless $uowner->is_visible || $uowner->is_readonly;
 
     my $dbcm = LJ::get_cluster_master($uowner);
     return fail($err,306) unless $dbcm;
@@ -1699,7 +1698,7 @@ sub editevent
     # don't allow backdated posts in communities
     return fail($err,152) if
         ($req->{'props'}->{"opt_backdated"} &&
-         $uowner->{'journaltype'} ne "P");
+         ! $uowner->is_person);
 
     # make year/mon/day/hour/min optional in an edit event,
     # and just inherit their old values
@@ -1926,7 +1925,7 @@ sub getevents
     return fail($err,502) unless $dbcr && $dbr;
 
     # can't pull events from deleted/suspended journal
-    return fail($err,307) unless $uowner->{'statusvis'} eq "V" || $uowner->is_readonly;
+    return fail($err,307) unless $uowner->is_visible || $uowner->is_readonly;
 
     my $reject_code = $LJ::DISABLE_PROTOCOL{getevents};
     if (ref $reject_code eq "CODE") {
@@ -1937,7 +1936,7 @@ sub getevents
 
     # if this is on, we sort things different (logtime vs. posttime)
     # to avoid timezone issues
-    my $is_community = ($uowner->{journaltype} eq "C");
+    my $is_community = $uowner->is_community;
 
     # in some cases we'll use the master, to ensure there's no
     # replication delay.  useful cases: getting one item, use master
@@ -2290,7 +2289,7 @@ sub sessiongenerate {
     };
 
     # do not let locked people do this
-    return fail($err, 308) if $u->{statusvis} eq 'L';
+    return fail($err, 308) if $u->is_locked;
 
     my $sess = LJ::Session->create($u, %$sess_opts);
 
@@ -2337,7 +2336,7 @@ sub list_friends
                    grep { $us->{$_->[0]} } @frow)
     {
         my $u = $us->{$f->[0]};
-        next if $opts->{'friendof'} && $u->{'statusvis'} ne 'V';
+        next if $opts->{'friendof'} && ! $u->is_visible;
 
         my $r = {
             'username' => $u->{'user'},
@@ -2373,13 +2372,13 @@ sub list_friends
             'C' => 'community',
             'Y' => 'syndicated',
             'I' => 'identity',
-        }->{$u->{'journaltype'}} if $u->{'journaltype'} ne 'P';
+        }->{$u->journaltype} unless $u->is_person;
 
         $r->{"status"} = {
             'D' => "deleted",
             'S' => "suspended",
             'X' => "purged",
-        }->{$u->{'statusvis'}} if $u->{'statusvis'} ne 'V';
+        }->{$u->statusvis} unless $u->is_visible;
 
         push @$res, $r;
         # won't happen for zero limit (which means no limit)
@@ -2709,7 +2708,7 @@ sub authenticate
     }
 
     return fail( $err, 100 ) unless $u;
-    return fail( $err, 100 ) if $u->{statusvis} eq 'X';
+    return fail( $err, 100 ) if $u->is_expunged;
     return fail( $err, 505 ) unless $u->{clusterid};
 
     my $r = DW::Request->get;

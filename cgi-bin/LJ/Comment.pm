@@ -857,7 +857,7 @@ sub visible_to {
                    || LJ::u_equals($u, $self->entry->poster )); # posted the entry
 
     # comments from suspended users aren't visible
-    return 0 if $self->poster && $self->poster->{statusvis} eq 'S';
+    return 0 if $self->poster && $self->poster->is_suspended;
 
     return 1;
 }

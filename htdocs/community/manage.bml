@@ -20,7 +20,7 @@ body<=
     }
 
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.badaccounttype'} p?>"
-       unless $remote->{journaltype} eq 'P';
+       unless $remote->is_person;
 
     $ret .= "<?p $ML{'.commlist.text'} p?>";
     $ret .= "<div style='margin: 15px 0'>";
@@ -49,7 +49,7 @@ body<=
        $sth->execute;
        while (my ($uid, $membership) = $sth->fetchrow_array) {
            my $cu = $us->{$uid};
-           next unless $cu && $cu->{statusvis} eq "V" || $cu->is_readonly;
+           next unless $cu && ( $cu->is_visible || $cu->is_readonly );
            $names{$uid} = [ $cu->{user}, $cu->{name}, -1 ];
            if ($mods{$uid}) {
                $modcount{$uid} = $names{$uid}[2] = LJ::get_mod_queue_count( $uid );

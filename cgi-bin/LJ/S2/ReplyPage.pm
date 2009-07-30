@@ -159,7 +159,7 @@ sub ReplyPage
         my $comment_userpic;
         if ($parpost->{'posterid'}) {
             $pu = LJ::load_userid($parpost->{'posterid'});
-            return $opts->{handler_return} = 403 if $pu->{statusvis} eq 'S'; # do not show comments by suspended users
+            return $opts->{handler_return} = 403 if $pu->is_suspended; # do not show comments by suspended users
             $s2poster = UserLite($pu);
 
             my $pickw = LJ::Entry->userpic_kw_from_props($parpost->{'props'});
@@ -169,7 +169,7 @@ sub ReplyPage
         LJ::CleanHTML::clean_comment(\$parpost->{'body'},
                                      {
                                          'preformatted' => $parpost->{'props'}->{'opt_preformatted'},
-                                         'anon_comment' => !$parpost->{posterid} || $pu->{'journaltype'} eq 'I',
+                                         'anon_comment' => !$parpost->{posterid} || $pu->is_identity,
                                      });
 
 

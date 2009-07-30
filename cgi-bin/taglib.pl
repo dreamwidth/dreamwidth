@@ -461,7 +461,7 @@ sub can_add_tags {
     my $u = LJ::want_user(shift);
     my $remote = LJ::want_user(shift);
     return undef unless $u && $remote;
-    return undef unless $remote->{journaltype} eq 'P';
+    return undef unless $remote->is_person;
     return undef if LJ::is_banned($remote, $u);
 
     # get permission hashref and check it; note that we fall back to the control
@@ -486,7 +486,7 @@ sub can_control_tags {
     my $u = LJ::want_user(shift);
     my $remote = LJ::want_user(shift);
     return undef unless $u && $remote;
-    return undef unless $remote->{journaltype} eq 'P';
+    return undef unless $remote->is_person;
     return undef if LJ::is_banned($remote, $u);
 
     # get permission hashref and check it
@@ -545,10 +545,10 @@ sub get_permission_levels {
 
     # return defaults for accounts
     unless ($u->{opt_tagpermissions}) {
-        if ($u->{journaltype} eq 'C') {
+        if ( $u->is_community ) {
             # communities are members (friends) add, private (maintainers) control
             return { add => 'friends', control => 'private' };
-        } elsif ($u->{journaltype} eq 'P') {
+        } elsif ( $u->is_person ) {
             # people let friends add, self control
             return { add => 'private', control => 'private' };
         } else {

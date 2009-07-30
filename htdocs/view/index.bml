@@ -44,7 +44,7 @@
         return;
     }
 
-    if ($u->{'journaltype'} eq "R") {
+    if ( $u->is_redirect ) {
         LJ::load_user_props($u, "renamedto");
         if ($u->{'renamedto'}) {
             return BML::redirect(sprintf(LJ::journal_base($u->{'renamedto'}) . "/%04d/%02d/", $FORM{'y'}, $FORM{'m'}));
@@ -94,7 +94,7 @@
     if ($remote) {
         if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
             $secwhere = "";   # see everything
-        } elsif ($remote->{'journaltype'} eq 'P') {
+        } elsif ( $remote->is_person ) {
             my $gmask = $u->trustmask( $remote );
             $secwhere = "AND (l.security='public' OR (l.security='usemask' AND l.allowmask & $gmask))"
                 if $gmask;
@@ -113,7 +113,7 @@
     $title = $monlang;
     $title .= ", $year - $u->{'user'}";
 
-    my $is_person = $u->{'journaltype'} eq "P";
+    my $is_person = $u->is_person;
     if ($is_person) {
         $body .= "<?h1 Month View h1?><?p Here are the subjects of all posts by user " . LJ::ljuser($u->{'user'}) . " in $monlang, $year. p?>";
     } else {

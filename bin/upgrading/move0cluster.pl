@@ -123,7 +123,7 @@ if ($opt_prelocked) {
     }
 }
 
-if ($opt_expungedel && $u->{'statusvis'} eq "D" &&
+if ($opt_expungedel && $u->is_deleted &&
     LJ::mysqldate_to_time($u->{'statusvisdate'}) < time() - 86400*31) {
 
     print "Expunging user '$u->{'user'}'\n";
@@ -512,7 +512,7 @@ elsif ($sclust > 0)
 
     # manual moving (dumb copies)
     foreach my $table (@manual_move, @local_tables) {
-	next if ($table eq "modlog" || $table eq "modblob") && $u->{journaltype} eq "P";
+	next if ($table eq "modlog" || $table eq "modblob") && $u->is_person;
         print "  moving $table ...\n" if $optv > 1;
         my @cols;
         my $sth = $dbo->prepare("DESCRIBE $table");

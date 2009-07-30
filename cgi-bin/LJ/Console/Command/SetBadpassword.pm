@@ -34,8 +34,8 @@ sub execute {
     return $self->error("Cannot set bad password flag for a purged account.")
         if $u->is_expunged;
 
-    return $self->error("Account is not a personal or shared journal.")
-        unless $u->journaltype =~ /[PS]/;
+    return $self->error("Account is not a personal journal.")
+        unless $u->is_person;
 
     return $self->error("Second argument must be 'on' or 'off'.")
         unless $state =~ /^(?:on|off)/;

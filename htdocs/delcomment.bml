@@ -48,7 +48,7 @@ _info?><?_code
 
     # can't delete if you're suspended
     return $bad_input->($ML{'.error.suspended'})
-        if $remote->{statusvis} eq 'S';
+        if $remote->is_suspended;
 
     return $error->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
 
@@ -84,7 +84,7 @@ _info?><?_code
 
     # can $remote delete this comment?
     unless (LJ::Talk::can_delete($remote, $u, $jposter, $tp->{'userpost'})) {
-        my $err = $u->{'journaltype'} eq 'C' ? $ML{'.error.cantdelete.comm'} : $ML{'.error.cantdelete'};
+        my $err = $u->is_community ? $ML{'.error.cantdelete.comm'} : $ML{'.error.cantdelete'};
         return $error->($err);
     }
 

@@ -80,7 +80,7 @@
     }
 
     # redirect renamed users
-    if ($u->{'journaltype'} eq "R") {
+    if ( $u->is_redirect ) {
         LJ::load_user_props($u, "renamedto");
         return BML::redirect("$LJ::SITEROOT/allpics.bml?user=$u->{'renamedto'}")
             if $u->{'renamedto'};

@@ -842,10 +842,10 @@ sub visible_to
     # can't see anything unless the journal is visible
     # unless you have viewsome. then, other restrictions apply
     if (!$viewsome) {
-        return 0 if $self->journal->{statusvis} =~ m/[DSX]/;
+        return 0 if $self->journal->is_inactive;
 
         # can't see anything by suspended users
-        return 0 if $self->poster->{statusvis} eq 'S';
+        return 0 if $self->poster->is_suspended;
 
         # can't see suspended entries
         return 0 if $self->is_suspended_for($remote);
@@ -872,7 +872,7 @@ sub visible_to
 
     # if it's usemask, we have to refuse non-personal journals,
     # so we have to load the user
-    return 0 unless $remote->{'journaltype'} eq 'P' || $remote->{'journaltype'} eq 'I';
+    return 0 unless $remote->is_individual;
 
     # check if it's a community and they're a member
     return 1 if $self->journal->is_community &&
@@ -1669,7 +1669,7 @@ sub get_log2_recent_user
         next if $item->{'security'} eq 'private'
             and $item->{'journalid'} != $remote->{'userid'};
         if ($item->{'security'} eq 'usemask') {
-            next unless $remote->{'journaltype'} eq "P" || $remote->{'journaltype'} eq 'I';
+            next unless $remote->is_individual;
             my $permit = ($item->{'journalid'} == $remote->{'userid'});
             unless ($permit) {
                 # $mask for $item{journalid} should always be the same since get_log2_recent_log
@@ -1730,7 +1730,7 @@ sub get_itemid_near2
 
     my $dbr = LJ::get_cluster_reader($u);
     my $jid = $u->{'userid'}+0;
-    my $field = $u->{'journaltype'} eq "P" ? "revttime" : "rlogtime";
+    my $field = $u->is_person ? "revttime" : "rlogtime";
 
     my $stime = $dbr->selectrow_array("SELECT $field FROM log2 WHERE ".
                                       "journalid=$jid AND jitemid=$jitemid");

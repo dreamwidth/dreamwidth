@@ -88,7 +88,7 @@ sub generate_content {
         last unless $commentcount++ < $maxshow;
 
         my $pu = $us->{$r->{posterid}};
-        next if $pu && $pu->{statusvis} =~ /[XS]/;
+        next if $pu && ( $pu->is_suspended || $pu->is_expunged) ;
         my $jtalkid = $r->{'jtalkid'};
 
         # get entry info for linking

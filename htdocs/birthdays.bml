@@ -17,7 +17,7 @@ body<=
         return BML::ml('.error.invaliduser', { user => LJ::ehtml($GET{user}) })
             unless $u;
         return BML::ml('.error.badstatus', { user => LJ::ljuser($u->{user}) })
-            if $u->{statusvis} ne 'V';
+            unless $u->is_visible;
     }
 
     my $body;

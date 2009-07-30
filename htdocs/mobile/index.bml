@@ -25,7 +25,7 @@
         $ret .= "<li>" . BML::ml( ".options.logged_in", { aopts => "href='login'" } );
         $ret .= $u->display_name . "</li>";
         $ret .= "<li>" . BML::ml( ".options.post", { aopts => "href='post'", sitename => $LJ::SITENAMESHORT } ). "</li>"
-            unless $u->{'journaltype'} eq 'I';
+            unless $u->is_identity;
         $ret .= "<li>" . BML::ml( ".options.readingpage", { aopts => "href='read'" } ) . "</li>";
     }
 

@@ -604,7 +604,7 @@ sub session_from_master_cookie {
         }
 
         # locked accounts can't be logged in
-        if ($u->{statusvis} eq 'L') {
+        if ( $u->is_locked ) {
             $err->("User account is locked.");
             next COOKIE;
         }

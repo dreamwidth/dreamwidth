@@ -130,7 +130,7 @@ sub getUsersBlogs {
     my $us = LJ::load_userids(@$ids);
     my @list = ($u);
     foreach (sort { $a->{user} cmp $b->{user} } values %$us) {
-        next unless $_->{'statusvis'} eq "V";
+        next unless $_->is_visible;
         push @list, $_;
     }
 

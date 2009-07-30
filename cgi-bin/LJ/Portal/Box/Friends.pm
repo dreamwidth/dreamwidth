@@ -54,12 +54,12 @@ sub generate_content {
     my $displaying;
 
     if ($friends_u) {
-        grep { $friendcount++ if $friends_u->{$_}->{'journaltype'} eq 'P'; } keys %$friends_u;
+        grep { $friendcount++ if $friends_u->{$_}->is_person; } keys %$friends_u;
         my @sortedfriends = sort { $friends_u->{$a}->{'user'} cmp $friends_u->{$b}->{'user'} } keys %$friends_u;
 
         foreach my $fid (@sortedfriends) {
             my $fu = $friends_u->{$fid};
-            next if $fu->{'journaltype'} ne 'P';
+            next unless $fu->is_person;
 
             unless ($foundfriends < $maxshow) {
                 chop $friendlist;
@@ -110,13 +110,13 @@ sub generate_content {
 
     if ($showcomm) {
         if ($friends_u) {
-            grep { $commcount++ if $friends_u->{$_}->{'journaltype'} eq 'C'; } keys %$friends_u;
+            grep { $commcount++ if $friends_u->{$_}->is_community; } keys %$friends_u;
             my @sortedfriends = sort { $friends_u->{$a}->{'user'} cmp $friends_u->{$b}->{'user'} } keys %$friends_u;
 
             foreach my $fid (@sortedfriends) {
                 my $fu = $friends_u->{$fid};
 
-                next if $fu->{'journaltype'} ne 'C';
+                next unless $fu->is_community;
 
                 my $journallink = $fu->journal_base();
                 $commlist .= "<a href=\"$journallink\">$fu->{user}</a>, ";
@@ -144,13 +144,13 @@ sub generate_content {
 
     if ($showsyn) {
         if ($friends_u) {
-            grep { $syncount++ if $friends_u->{$_}->{'journaltype'} eq 'Y'; } keys %$friends_u;
+            grep { $syncount++ if $friends_u->{$_}->is_syndicated; } keys %$friends_u;
             my @sortedfriends = sort { $friends_u->{$a}->{'user'} cmp $friends_u->{$b}->{'user'} } keys %$friends_u;
 
             foreach my $fid (@sortedfriends) {
                 my $fu = $friends_u->{$fid};
 
-                next if $fu->{'journaltype'} ne 'Y';
+                next unless $fu->is_syndicated;
 
                 my $journallink = $fu->journal_base();
                 $synlist .= "<a href=\"$journallink\">$fu->{user}</a>, ";

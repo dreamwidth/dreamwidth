@@ -122,7 +122,7 @@ sub MonthPage
 
         # don't show posts from suspended users or suspended posts
         next unless $pu{$posterid};
-        next ENTRY if $pu{$posterid}->{'statusvis'} eq 'S' && !$viewsome;
+        next ENTRY if $pu{$posterid}->is_suspended && !$viewsome;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
 	if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {

@@ -134,7 +134,7 @@ sub EntryPage
                 $text =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
             }
             LJ::CleanHTML::clean_comment(\$text, { 'preformatted' => $com->{'props'}->{'opt_preformatted'},
-                                                   'anon_comment' => (!$pu || $pu->{'journaltype'} eq 'I'),
+                                                   'anon_comment' => (!$pu || $pu->is_identity),
                                                });
 
             # local time in mysql format to gmtime
@@ -254,7 +254,7 @@ sub EntryPage
             # don't show info from suspended users
             # FIXME: ideally the load_comments should only return these
             # items if there are children, otherwise they should be hidden entirely
-            if ($pu && $pu->{'statusvis'} eq "S" && !$viewsome) {
+            if ($pu && $pu->is_suspended && !$viewsome) {
                 $s2com->{'text'} = "";
                 $s2com->{'subject'} = "";
                 $s2com->{'full'} = 0;
@@ -427,7 +427,7 @@ sub EntryPage_entry
         }
     }
 
-    if (($pu && $pu->{'statusvis'} eq 'S') && !$viewsome) {
+    if ( $pu && $pu->is_suspended && ! $viewsome ) {
         $opts->{'suspendeduser'} = 1;
         return;
     }

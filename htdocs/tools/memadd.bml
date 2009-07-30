@@ -38,7 +38,7 @@
                     'friends' => $ML{'label.security.friends'},
                     'private' => $ML{'label.security.private'}, );
 
-    if ($memoryu->{'journaltype'} eq "C") {
+    if ( $memoryu->is_community ) {
         $secopts{'private'} = $ML{'label.security.maintainers'};
         $secopts{'friends'} = $ML{'label.security.members'};
     }
@@ -253,7 +253,7 @@
         $body .= "<tr><th align='right' valign='top'>$ML{'.security'}</th><td>";
         $body .= LJ::html_select({name => 'security', selected => defined $memory ? $memory->{'security'} : undef},
                                  map { ($_, $secopts{$_}) } qw(public friends private));
-        if ($memoryu->{'journaltype'} eq "C") {
+        if ( $memoryu->is_community ) {
             $body .= "<br /><small>$ML{'.whocansee.comm'}</small></td></tr><tr><th></th><td>\n";
         } else {
             $body .= "<br /><small>$ML{'.whocansee'}</small></td></tr><tr><th></th><td>\n";

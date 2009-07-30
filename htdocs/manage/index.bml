@@ -111,7 +111,7 @@ list<=
 
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
     return '<li><a href="/changepassword.bml" title="<?_ml .information.changepass.about _ml?>"><?_ml .information.changepass _ml?></a></li>';
 _code?>
@@ -122,7 +122,7 @@ _code?>
 
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
     return '<li><a href="./emailpost.bml" title="<?_ml .information.mobilepost.about _ml?>"><?_ml .information.mobilepost _ml?></a></li>';
 _code?>
@@ -186,7 +186,7 @@ about=><?_ml .entries        _ml?>
 list<=
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
     return '<li><a href="/editjournal.bml" title="<?_ml .entries.edit.about _ml?>"><?_ml /editjournal.bml.title _ml?></a></li>';
 _code?>
@@ -195,7 +195,7 @@ _code?>
 
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
     return '' unless LJ::is_enabled('tags');
     my $authas = $BMLCodeBlock::authas;
     return qq(<li><a href="/manage/tags.bml$authas" title="<?_ml .entries.tags.about _ml?>"><?_ml /manage/tags.bml.title2 _ml?></a></li>);
@@ -233,7 +233,7 @@ block?>
 
 <?_code
     my $u = $BMLCodeBlock::u;
-    return '' if $u->{'journaltype'} eq 'I';
+    return '' if $u->is_identity;
 
     return qq(
 <?block

@@ -1211,7 +1211,7 @@ sub talkform {
 
     # make sure journal isn't locked
     return "Sorry, this journal is locked and comments cannot be posted to it or edited at this time."
-        if $journalu->{statusvis} eq 'L';
+        if $journalu->is_locked;
 
     # check max comments only if posting a new comment (not when editing)
     unless ($editid) {
@@ -2844,7 +2844,7 @@ sub init {
     return $bmlerr->('talk.error.nojournal') unless $journalu;
     return $err->($LJ::MSG_READONLY_USER) if LJ::get_cap($journalu, "readonly");
 
-    return $err->("Account is locked, unable to post or edit a comment.") if $journalu->{statusvis} eq 'L';
+    return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
 
     my $r = BML::get_request();
     $r->notes->{journalid} = $journalu->{'userid'}
@@ -2941,8 +2941,7 @@ sub init {
                     $bmlerr->("$SC.error.noopenid");
                 }
 
-                unless ($up->{'journaltype'} eq "P" ||
-                        ($up->{'journaltype'} eq "I" && $cookie_auth)) {
+                unless ( $up->is_person || ( $up->is_identity && $cookie_auth ) ) {
                     $bmlerr->("$SC.error.postshared");
                 }
 
@@ -3124,7 +3123,7 @@ sub init {
     $init->{parpost} = $parpost;
 
     # don't allow anonymous comments on syndicated items
-    if ($journalu->{'journaltype'} eq "Y" && $journalu->{'opt_whocanreply'} eq "all") {
+    if ( $journalu->is_syndicated && $journalu->{'opt_whocanreply'} eq "all" ) {
         $journalu->{'opt_whocanreply'} = "reg";
     }
 
@@ -3139,16 +3138,13 @@ sub init {
     }
 
     if ($up) {
-        if ($up->{'status'} eq "N" && $up->{'journaltype'} ne "I" && !LJ::run_hook("journal_allows_unvalidated_commenting", $journalu)) {
+        if ($up->{'status'} eq "N" && !$up->is_identity && !LJ::run_hook("journal_allows_unvalidated_commenting", $journalu)) {
             $err->(BML::ml("$SC.error.noverify2", {'aopts' => "href='$LJ::SITEROOT/register.bml'"}));
         }
-        if ($up->{'statusvis'} eq "D") {
-            $bmlerr->("$SC.error.deleted");
-        } elsif ($up->{'statusvis'} eq "S") {
-            $bmlerr->("$SC.error.suspended");
-        } elsif ($up->{'statusvis'} eq "X") {
-            $bmlerr->("$SC.error.purged");
-        }
+
+        $bmlerr->("$SC.error.purged")    if $up->is_expunged;
+        $bmlerr->("$SC.error.deleted")   if $up->is_deleted;
+        $bmlerr->("$SC.error.suspended") if $up->is_suspended;
     }
 
     if ($journalu->{'opt_whocanreply'} eq "friends") {
@@ -3590,7 +3586,7 @@ sub check_rate {
     return 1 unless @LJ::MEMCACHE_SERVERS;
 
     # return right away if the account is suspended
-    return 0 if $remote && $remote->{'statusvis'} =~ /[SD]/;
+    return 0 if $remote && ( $remote->is_suspended || $remote->is_deleted );
 
     # allow some users to be very aggressive commenters and authors. i.e. our bots.
     return 1 if $remote 

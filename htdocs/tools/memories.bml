@@ -76,7 +76,7 @@
 
  my $userid = $u->{'userid'};
 
- if ($u->{'journaltype'} eq "R") {
+ if ( $u->is_redirect ) {
     LJ::load_user_props($u, "renamedto");
     return BML::redirect("/tools/memories.bml?user=$u->{'renamedto'}$authasarg");
  }
@@ -164,7 +164,7 @@
  if ($authasu) {
      if ($is_owner) {
          $securities = [];
-     } elsif ($authasu->{'journaltype'} eq 'P' && $u->trusts_or_has_member( $authasu )) {
+     } elsif ( $authasu->is_person && $u->trusts_or_has_member( $authasu ) ) {
          $securities = ['public', 'friends'];
      }
  }

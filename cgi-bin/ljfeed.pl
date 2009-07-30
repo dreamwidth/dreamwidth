@@ -62,7 +62,7 @@ sub make_feed
     # for syndicated accounts, redirect to the syndication URL
     # However, we only want to do this if the data we're returning
     # is similar. (Not FOAF, for example)
-    if ($u->{'journaltype'} eq 'Y') {
+    if ( $u->is_syndicated ) {
         my $synurl = $dbr->selectrow_array("SELECT synurl FROM syndicated WHERE userid=$u->{'userid'}");
         unless ($synurl) {
             return 'No syndication URL available.';
@@ -175,7 +175,7 @@ sub make_feed
         my $ditemid = $itemid*256 + $it->{'anum'};
         my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
 
-        next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->{'statusvis'} eq 'S';
+        next ENTRY if $posteru{$it->{'posterid'}} && $posteru{$it->{'posterid'}}->is_suspended;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
         if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
@@ -589,12 +589,12 @@ sub create_view_atom
 # create a FOAF page for a user
 sub create_view_foaf {
     my ($journalinfo, $u, $opts) = @_;
-    my $comm = ($u->{journaltype} eq 'C');
+    my $comm = $u->is_community;
 
     my $ret;
 
     # return nothing if we're not a user
-    unless ($u->{journaltype} eq 'P' || $comm) {
+    unless ( $u->is_person || $comm ) {
         $opts->{handler_return} = 404;
         return undef;
     }
@@ -713,12 +713,12 @@ sub create_view_foaf {
     }
 
     # user schools
-    if ($u->{'journaltype'} ne 'Y' &&
+    if (!$u->is_syndicated &&
         LJ::is_enabled('schools')  &&
         ($u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y')) {
 
         my $schools = LJ::Schools::get_attended($u);
-        if ($u->{'journaltype'} ne 'C' && $schools && %$schools ) {
+        if ( ! $u->is_community && $schools && %$schools ) {
              my @links;
              foreach my $sid (sort { $schools->{$a}->{year_start} <=> $schools->{$b}->{year_start} } keys %$schools) {
                  my $link = "$LJ::SITEROOT/schools/" .
@@ -777,7 +777,7 @@ sub create_view_foaf {
     foreach my $trustid ( @ids ) {
         next if $trustid == $u->id;
         my $fu = $users->{$trustid};
-        next if $fu->{statusvis} =~ /[DXS]/ || $fu->{journaltype} ne 'P';
+        next if $fu->is_inactive || ! $fu->is_person;
 
         my $name = LJ::exml($fu->name_raw);
         my $tagline = LJ::exml($fu->prop('journaltitle') || '');
@@ -805,7 +805,7 @@ sub create_view_foaf {
 # YADIS capability discovery
 sub create_view_yadis {
     my ($journalinfo, $u, $opts) = @_;
-    my $person = ($u->{journaltype} eq 'P');
+    my $person = $u->is_person;
 
     my $ret = "";
 

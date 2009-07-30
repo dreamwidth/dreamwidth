@@ -246,7 +246,7 @@ sub FriendsPage
         my $po = $posters{$posterid} || $friends{$posterid};
 
         # don't allow posts from suspended users or suspended posts
-        if ($po->{'statusvis'} eq 'S' || ($entry_obj && $entry_obj->is_suspended_for($remote))) {
+        if ($po->is_suspended || ($entry_obj && $entry_obj->is_suspended_for($remote))) {
             $hiddenentries++; # Remember how many we've skipped for later
             next ENTRY;
         }

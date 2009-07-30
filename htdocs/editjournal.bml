@@ -29,7 +29,7 @@ body<=
     return LJ::bad_input( $ML{'error.invalidauth'} )
         unless $u;
     return LJ::bad_input( $ML{'error.person'} )
-        unless $u->{'journaltype'} eq 'P';
+        unless $u->is_person;
 
     # are we modify a community post?
     my $usejournal = $GET{'usejournal'} || $POST{'usejournal'} || $GET{'journal'};

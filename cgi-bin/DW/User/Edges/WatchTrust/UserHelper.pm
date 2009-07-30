@@ -147,8 +147,7 @@ sub _mutually_trusted_users {
     my $us = LJ::load_userids(@ids);
     return $fom->{t_mut_users} = [
                                   sort { $a->display_name cmp $b->display_name }
-                                  grep { $_->{statusvis} =~ /[VML]/ &&
-                                        ($_->{journaltype} eq "P" || $_->{journaltype} eq "I") }
+                                  grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
                                   map  { $us->{$_} ? ($us->{$_}) : () }
                                   @ids
                                  ];
@@ -164,8 +163,7 @@ sub _mutually_watched_users {
     my $us = LJ::load_userids(@ids);
     return $fom->{w_mut_users} = [
                                   sort { $a->display_name cmp $b->display_name }
-                                  grep { $_->{statusvis} =~ /[VML]/ &&
-                                        ($_->{journaltype} eq "P" || $_->{journaltype} eq "I") }
+                                  grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
                                   map  { $us->{$_} ? ($us->{$_}) : () }
                                   @ids
                                  ];
@@ -245,19 +243,11 @@ sub _trusted_by_users {
 
     my $us = LJ::load_userids(@to_load);
     return $fom->{_trusted_by_users} = [
-                                    sort {
-                                        $a->display_name cmp $b->display_name
-                                    }
-                                    grep {
-                                        $_->{statusvis} =~ /[VML]/ &&
-                                            ($_->{journaltype} eq "P" ||
-                                             $_->{journaltype} eq "I")
-                                        }
-                                    map {
-                                        $us->{$_} ? ($us->{$_}) : ()
-                                        }
-                                    @to_load
-                                    ];
+                                        sort { $a->display_name cmp $b->display_name }
+                                        grep { $_->statusvis =~ /[VML]/ && $_->is_individual }
+                                        map  { $us->{$_} ? ($us->{$_}) : () }
+                                        @to_load
+                                       ];
 
 }
 

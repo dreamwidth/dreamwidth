@@ -3643,12 +3643,11 @@ sub statusvis_message_js {
 
     return "" unless $u;
 
-    my $statusvis = $u->statusvis;
-    return "" unless $statusvis =~ /^[LMO]$/;
+    return "" unless $u->is_locked || $u->is_memorial || $u->is_readonly;
 
-    my $statusvis_full = "locked" if $statusvis eq "L";
-    $statusvis_full = "memorial" if $statusvis eq "M";
-    $statusvis_full = "readonly" if $statusvis eq "O";
+    my $statusvis_full = "locked" if $u->is_locked;
+    $statusvis_full = "memorial" if $u->is_memorial;
+    $statusvis_full = "readonly" if $u->is_readonly;
 
     LJ::need_res("js/statusvis_message.js");
     return "<script>Site.StatusvisMessage=\"" . LJ::Lang::ml("statusvis_message.$statusvis_full") . "\";</script>";

@@ -51,7 +51,7 @@ FORM
         unless $u;
 
     return $err->("User is deleted and purged.")
-        if $u->statusvis eq "X";
+        if $u->is_expunged;
 
     my $dbcr = LJ::get_cluster_reader($u);
     return $err->("Unable to get user cluster reader.")

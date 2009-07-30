@@ -41,7 +41,7 @@ body<=
         return $ret;
     }
 
-    unless ($remote->{'journaltype'} eq 'P') {
+    unless ( $remote->is_person ) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.maintainertype'} p?>";
         return $ret;
     }
@@ -92,7 +92,7 @@ body<=
         }
 
         # if it's already a community, don't let them turn it into a community
-        if ($mode eq 'create' && !%errors && $cu->{journaltype} eq 'C') {
+        if ( $mode eq 'create' && !%errors && $cu->is_community ) {
             $errors{'username'} = $ML{'.error.alreadycomm'};
         }
         
@@ -206,7 +206,7 @@ body<=
             return BML::redirect("$LJ::SITEROOT/community/manage.bml");
         }
 
-        unless ($c->{'journaltype'} eq 'C') {
+        unless ( $c->is_community ) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.notcomm'} p?>";
             return $ret;
         } 

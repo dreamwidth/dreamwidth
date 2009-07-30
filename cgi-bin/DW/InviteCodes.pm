@@ -194,7 +194,7 @@ sub check_code {
 
     # is the inviter suspended?
     my $u = LJ::load_userid( $ac->{userid} );
-    return 0 if ( $u && $u->{statusvis} eq "S" );
+    return 0 if ( $u && $u->is_suspended );
 
     return 1;
 }

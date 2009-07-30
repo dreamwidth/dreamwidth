@@ -14,7 +14,7 @@ sub applicable {
         my ($user, $name, $suserid, $url, $count) = @{ $popsyn->[$_] };
 
         my $suser = LJ::load_userid($suserid);
-        return 0 if ($friends{$suserid} || $suser->{'statusvis'} ne "V");
+        return 0 if ( $friends{$suserid} || ! $suser->is_visible );
     }
     return 1;
 }

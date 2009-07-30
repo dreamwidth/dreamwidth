@@ -28,7 +28,7 @@ body<=
 
     my $maxinterests = $remote ? $remote->get_cap( 'interests' ) : 0;
 
-    my $table = sub { $_[0]->{'journaltype'} eq 'C' ? 'comminterests' : 'userinterests' };
+    my $table = sub { $_[0]->is_community ? 'comminterests' : 'userinterests' };
 
     if (!$did_post && $GET{'view'} eq "popular") {
         return $ML{'.popular.disabled'} unless LJ::is_enabled('interests-popular');
@@ -120,7 +120,7 @@ body<=
         }
 
         # if a community, remove any old rows from userinterests
-        if ($remote->{'journaltype'} eq 'C') {
+        if ( $remote->is_community ) {
             $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $remote->{'userid'});
         }
 
@@ -340,7 +340,7 @@ body<=
         }
 
         # if a community, remove any old rows from userinterests
-        if ($u->{'journaltype'} eq 'C') {
+        if ( $u->is_community ) {
             my $dbh = LJ::get_db_writer();
             $dbh->do("DELETE FROM userinterests WHERE userid=?", undef, $u->{'userid'});
         }

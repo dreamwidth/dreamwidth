@@ -134,9 +134,7 @@ sub search_class {
 
     while (my $row = $sth->fetchrow_hashref) {
         push @uids, $row->{userid}
-            if $row->{journaltype} eq 'P'
-               && $row->{status} eq 'A'
-               && $row->{statusvis} eq 'V';
+            if $row->is_person && $row->{status} eq 'A' && $row->is_visible;
         $max_nusers--;
     }
 
@@ -151,9 +149,7 @@ sub search_class {
 
     while (my $row = $sth->fetchrow_hashref) {
         push @uids, $row->{userid}
-            if $row->{journaltype} eq 'P'
-               && $row->{status} eq 'A'
-               && $row->{statusvis} eq 'V';
+            if $row->is_person && $row->{status} eq 'A' && $row->is_visible;
         $max_nusers--;
     }
 
