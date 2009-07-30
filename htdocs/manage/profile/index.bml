@@ -333,7 +333,7 @@ body<=
                         "N" => BML::ml(".email.opt.none"))
                      : ("A" => BML::ml(".email.opt.actual"),
                         "D" => BML::ml(".email.opt.display"),
-                        "N" => BML::ml(".email.opt.no_show")));
+                        "N" => BML::ml(".email.opt.none")));
         $ret .= LJ::html_select({ 'name' => 'opt_whatemailshow', 'selected' => $cur }, @vals) . "\n";
 
         $ret .= "</td></tr>\n";
