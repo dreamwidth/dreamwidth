@@ -3080,7 +3080,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
 
             # $prev_tags has fewer tiers than current tag.
             if ($prev_tags[$pos] == "") {
-                println """<ul $list_class><li $item_class>$tier_code""";
+                print """\n<ul $list_class><li $item_class>$tier_code""";
                 $closing_html[$pos] = "</li></ul>";
             }
             elseif (($tags[$pos] != $prev_tags[$pos]) or ($show_lower_tiers)) {
@@ -3091,7 +3091,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
                     var int i = size $closing_html;
                     foreach var string html ($closing_html) {
                         if ($i > $pos) {
-                            println $closing_html[$i];
+                            print $closing_html[$i];
                             $closing_html[$i] = "";
                         }
                         $i--;
@@ -3104,12 +3104,12 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
 
                 if ($closing_html[$pos] == "") {
                     # This is the first tier at this level, so open list.
-                    println """<ul $list_class><li $item_class>$tier_code""";
+                    print """\n<ul $list_class><li $item_class>$tier_code""";
                     $closing_html[$pos] = "</li></ul>";
                 }
                 else {
                     # There have already been tiers added at this level
-                    println """</li>\n<li $item_class>$tier_code""";
+                    print """</li>\n<li $item_class>$tier_code""";
                 }
             }
             else {
