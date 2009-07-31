@@ -189,7 +189,8 @@
     if ($findfriends_intro) {
         $body .= $findfriends_intro;
     } elsif ( $LJ::USE_ACCT_CODES ) {
-        $body .= "<?p " . BML::ml('.intro.code', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" } ) . " p?>";
+        my $unusedinvites = DW::InviteCodes->unused_count( userid => $u->id );
+        $body .= "<?p " . BML::ml('.intro.code2', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" , num => $unusedinvites } ) . " p?>";
     } else {
         $body .= "<?p " . BML::ml('.intro', { aopts => "href='$create_link'", createlink => $create_link} ) . " p?>";
     }

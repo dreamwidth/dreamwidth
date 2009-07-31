@@ -49,7 +49,11 @@ The [[sitenameshort]] Team
 
 .intro=Use this form as often as you like, or just cut and paste this link and send from your own email account: <strong><a [[aopts]]>[[createlink]]</a></strong>
 
-.intro.code=Use this form as often as you like, or grab a set of links at once from <a [[aopts]]>your complete list of invite codes</a>. Note that invite codes which have been sent but not yet redeemed are still counted as unused.
+.intro.code2<<
+You can use this form as often as you'd like. Invite codes that you've sent, but haven't been used to create accounts yet, are counted as unused.<br /><br />
+
+You currently have <strong>[[num]]</strong> unused invite codes available. The first five are displayed here. For the full list, or to get multiple codes at once, see <a [[aopts]]>your complete list of invite codes</a>. 
+.
 
 .msg<<
 [[display_username]] has invited you to join [[sitenameshort]].
