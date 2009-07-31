@@ -134,6 +134,7 @@ jabclusterid:<id> == address of server
 
 <uid> commsettings:<cid> == [membership, postlevel] - Membership and Posting Access for a community
 <uid> pendingmemct:<cid> == number of pending membership requests
+<uid> mqcount:<cid> == number of moderation queue requests
 
 <uid> synd:<uid> == hash of basic syndication info
 
