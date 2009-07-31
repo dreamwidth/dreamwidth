@@ -133,6 +133,7 @@ jabclusterid:<id> == address of server
 <uid> timezone_guess:<uid> == guess of the user's timezone offset based on time of their most recent entry
 
 <uid> commsettings:<cid> == [membership, postlevel] - Membership and Posting Access for a community
+<uid> pendingmemct:<cid> == number of pending membership requests
 
 <uid> synd:<uid> == hash of basic syndication info
 

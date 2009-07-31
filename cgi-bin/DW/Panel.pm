@@ -64,7 +64,7 @@ sub init {
         "DW::Widget::AccountStatistics",
         "LJ::Widget::SiteMessages",
         "DW::Widget::UserTagCloud",
-        # "DW::Widget::CommunityManagement",
+        "DW::Widget::CommunityManagement",
         "LJ::Widget::CurrentTheme",
     ];
 

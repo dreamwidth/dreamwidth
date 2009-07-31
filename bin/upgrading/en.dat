@@ -3915,6 +3915,18 @@ widget.commsofuser.viewfriendspage=View [[user]]'s Friends page
 
 widget.commsofuser.viewprofile=View [[user]]'s profile
 
+widget.communitymanagement.nopending=No communities require action.
+
+widget.communitymanagement.pending=Pending:
+
+widget.communitymanagement.pending.entry=[[num]] [[?num|entry|entries]]
+
+widget.communitymanagement.pending.header=The following communities require action:
+
+widget.communitymanagement.pending.member=[[num]] [[?num|member|members]]
+
+widget.communitymanagement.title=Community Management
+
 widget.createaccount.alt_layout.error.tos=You must agree to the Terms of Service.
 
 widget.createaccount.alt_layout.field.captcha=Enter the text below to help verify the authenticity of this account:

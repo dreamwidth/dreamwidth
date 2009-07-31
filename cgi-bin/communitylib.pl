@@ -420,6 +420,7 @@ sub get_pending_members {
     foreach (@$args) {
         push @list, $1+0 if $_ =~ /^targetid=(\d+)$/;
     }
+
     return \@list;
 }
 
@@ -456,6 +457,8 @@ sub approve_pending_member {
     }
     LJ::Event::CommunityJoinApprove->new($u, $cu)->fire if LJ::is_enabled('esn');
 
+    $cu->memc_delete( "pendingmemct" );
+
     return 1;
 }
 
@@ -486,6 +489,8 @@ sub reject_pending_member {
         $u->subscribe(%params, method => 'Email');
     }
     LJ::Event::CommunityJoinReject->new($u, $cu)->fire if LJ::is_enabled('esn');
+
+    $cu->memc_delete( "pendingmemct" );
 
     return 1;
 }
@@ -549,6 +554,8 @@ sub comm_join_request {
 
         LJ::Event::CommunityJoinRequest->new($au, $u, $comm)->fire;
     }
+
+    $comm->memc_delete( 'pendingmemct' );
 
     return $aa;
 }
@@ -655,5 +662,20 @@ sub get_mod_queue_count {
     return $mqcount;
 }
 
+sub get_pending_members_count {
+    my $cu = LJ::want_user( shift );
+    return 0 unless $cu->is_community;
+
+    my $pending_count = $cu->memc_get( 'pendingmemct' );
+    return $pending_count if defined $pending_count;
+
+    # seems to be doing some additional parsing, which would make this
+    # number potentially incorrect if you just do SELECT COUNT
+    # so grab the parsed list and count it
+    $pending_count = scalar @{ LJ::get_pending_members( $cu ) };
+    $cu->memc_set( 'pendingmemct' => $pending_count, 600 );
+
+    return $pending_count;
+}
 
 1;
