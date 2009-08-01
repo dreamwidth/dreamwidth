@@ -108,9 +108,17 @@ sub load_all {
 
     my %opts = @_;
     my $lang = delete $opts{lang} || $LJ::DEFAULT_LANG;
-    my $faqcat = delete $opts{"cat"};
-    my $wherecat = "faqcat "
-        . (length $faqcat ? "= " . $dbr->quote($faqcat) : "!= ''");
+    my $faqcat = delete $opts{cat};
+    my $allow_no_cat = delete $opts{allow_no_cat} || 0;
+    
+    my $wherecat = "";
+    if ( $allow_no_cat ) {
+        $wherecat = "WHERE faqcat = " . $dbr->quote($faqcat) if defined $faqcat;
+    } else {
+        $wherecat = "WHERE faqcat "
+            . (length $faqcat ? "= " . $dbr->quote($faqcat) : "!= ''");
+    }
+
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
 
@@ -120,13 +128,13 @@ sub load_all {
             ("SELECT faqid, question, summary, answer, faqcat, lastmoduserid, ".
              "DATE_FORMAT(lastmodtime, '%M %D, %Y') AS lastmodtime, ".
              "UNIX_TIMESTAMP(lastmodtime) AS unixmodtime, sortorder ".
-             "FROM faq WHERE $wherecat");
+             "FROM faq $wherecat");
 
     } else { # Don't load fields that lang_update_in_place will overwrite.
         $sth = $dbr->prepare
             ("SELECT faqid, faqcat, ".
              "UNIX_TIMESTAMP(lastmodtime) AS unixmodtime, sortorder ".
-             "FROM faq WHERE $wherecat");
+             "FROM faq $wherecat");
     }
     $sth->execute;
     die $sth->errstr if $sth->err;

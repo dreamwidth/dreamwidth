@@ -16,16 +16,19 @@ body<=
 
     my $ret = "";
 
-    my $faqcat = $FORM{faqcat};
-    my $sth = $dbh->prepare( "SELECT faqcatname FROM faqcat WHERE faqcat=?" );
-    $sth->execute( $faqcat );
-    my ( $faqcatname ) = $sth->fetchrow_array;
-    return "Unknown FAQ cat $faqcat" unless defined $faqcatname;
+    my $faqcatname = "<No Category>";
+    my $faqcat = $FORM{faqcat} || '';
+    if ( $faqcat ne '' ) {
+        my $sth = $dbh->prepare( "SELECT faqcatname FROM faqcat WHERE faqcat=?" );
+        $sth->execute( $faqcat );
+        ( $faqcatname ) = $sth->fetchrow_array;
+        return "Unknown FAQ cat $faqcat" unless defined $faqcatname;
+    }
  
     my $remote = LJ::get_remote();
     my $dom = LJ::Lang::get_dom( "faq" );
     my $lang = LJ::Lang::get_root_lang( $dom );
-    my @faqs = LJ::Faq->load_all( lang => $lang->{lncode}, cat => $faqcat );
+    my @faqs = LJ::Faq->load_all( lang => $lang->{lncode}, cat => $faqcat, allow_no_cat => 1  );
     my $user;
     my $user_url;
 

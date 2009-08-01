@@ -36,7 +36,7 @@ body<=
 
     my $dom = LJ::Lang::get_dom( "faq" );
     my $lang = LJ::Lang::get_root_lang( $dom );
-    my @faqs = LJ::Faq->load_all( lang => $lang->{lncode} );
+    my @faqs = LJ::Faq->load_all( lang => $lang->{lncode}, allow_no_cat => 1 );
     my $user;
     my $user_url;
 
@@ -54,7 +54,17 @@ body<=
     push @{ $faqq{$_->faqcat} }, $_
         foreach @faqs;
 
-    foreach my $faqcat ( sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} } keys %faqcat ) {
+    # Ensure 'no category' is last.
+    my @sorted_cats = sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} } keys %faqcat;
+    
+    $faqcat{''} = {
+        faqcat => '',
+        faqcatname => '<No Category>',
+    };
+    
+    push @sorted_cats, '';
+    
+    foreach my $faqcat ( @sorted_cats ) {
         $ret .= "<h2><a href='readcat.bml?faqcat=$faqcat'>"
             . LJ::ehtml( $faqcat{$faqcat}->{faqcatname} ) . "</a></h2>\n";
         next unless $faqq{$faqcat} && @{ $faqq{$faqcat} };
