@@ -152,6 +152,7 @@ set num_items_reading      = 20;
 set linklist_support       = true;
 set entry_management_links = "text";
 set comment_management_links = "text";
+set userlite_interaction_links = "text";
 set custom_colors_template = "%%new%% .friends-color-wrapper {background-color: %%background%%} %%new%% .friends-color-wrapper a {color: %%foreground%%}";
 
 # CUSTOM CSS
@@ -419,31 +420,40 @@ function print_stylesheet()
         font-weight: bold;
     }
 
-    .module-navlinks .module-list {
-        list-style: none;
-        padding-left: 20px;
-    }
-
-    /* Page Summary
+    /* Module Lists
     ***************************************************************************/
-    .module-pagesummary .module-list {
+    #secondary .userlite-interaction-links,
+    #secondary .module-list {
         list-style: none;
         padding-left: 20px;
         font-size: 0.8em;
         padding-right: 5px;
     }
 
-    /* Link List
-    ***************************************************************************/
-    .module-typelist .module-list {
-        list-style: none;
-        padding-left: 20px;
+    #secondary .manage-tags-link {
         font-size: 0.8em;
-        padding-right: 5px;
+        margin-bottom: 1em;
+        text-align: center;
     }
 
     /* Userpics
     ***************************************************************************/
+    .module-userprofile .userpic {
+        border: 1px solid $*color_module_border;
+        border-bottom: none;
+        margin: 0 auto;
+        padding: 10px 10px 0;
+        width: 100px;
+    }
+
+    .module-userprofile .journal-name {
+        border: 1px solid $*color_module_border;
+        border-top: none;
+        text-align: center;
+        margin: 0 auto;
+        width: 120px;
+    }
+
     .friends-color-wrapper,
     .comment-userpic {
         float: right;
