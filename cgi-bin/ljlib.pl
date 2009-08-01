@@ -737,6 +737,8 @@ sub load_props
         $dbr ||= LJ::get_db_reader();
         my $sth = $dbr->prepare("SELECT * FROM $tablename");
         $sth->execute;
+        # check error in case table does not exist
+        warn "Error loading $tablename: $sth->errstr" and next if $sth->err;
         while (my $p = $sth->fetchrow_hashref) {
             $p->{'id'} = $p->{$keyname{$t}};
             $LJ::CACHE_PROP{$t}->{$p->{'name'}} = $p;
@@ -768,7 +770,7 @@ sub get_prop
     }
 
     unless ($LJ::CACHE_PROP{$table}) {
-        warn "Prop table does not exist: $table" if $LJ::IS_DEV_SERVER;
+        warn "Prop table has no data: $table" if $LJ::IS_DEV_SERVER;
         return undef;
     }
 
