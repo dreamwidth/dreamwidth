@@ -690,6 +690,9 @@ sub module_props {
         text_generated_on
         text_tags_manage
         text_tag_uses
+        text_module_customtext
+        text_module_customtext_content
+        text_module_customtext_url
         color_module_background
         color_module_text
         color_module_border
