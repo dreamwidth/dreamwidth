@@ -361,6 +361,7 @@ function print_stylesheet()
         background-repeat: no-repeat;
         height: 4.7em;
         float: left;
+        width: 60%;
     }
 
     .header-right {
