@@ -747,8 +747,7 @@ sub load_random_user {
 
 
 sub preload_props {
-    my $u = shift;
-    LJ::load_user_props($u, @_);
+    LJ::load_user_props( @_ );
 }
 
 
@@ -906,8 +905,7 @@ sub kill_session {
 
 
 sub kill_sessions {
-    my $u = shift;
-    return LJ::Session->destroy_sessions($u, @_);
+    return LJ::Session->destroy_sessions( @_ );
 }
 
 
@@ -1039,16 +1037,9 @@ sub note_activity {
 }
 
 
-sub rate_check {
-    my ($u, $ratename, $count, $opts) = @_;
-    LJ::rate_check($u, $ratename, $count, $opts);
-}
+sub rate_check { LJ::rate_check( @_ ); }
 
-
-sub rate_log {
-    my ($u, $ratename, $count, $opts) = @_;
-    LJ::rate_log($u, $ratename, $count, $opts);
-}
+sub rate_log { LJ::rate_log( @_ ); }
 
 
 sub record_login {
@@ -1333,8 +1324,7 @@ sub prepare {
 
 
 sub quote {
-    my $u = shift;
-    my $text = shift;
+    my ( $u, $text ) = @_;
 
     my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
         or croak $u->nodb_err;
@@ -2317,9 +2307,7 @@ sub display_username {
 
 
 sub equals {
-    my ($u, $target) = @_;
-
-    return LJ::u_equals($u, $target);
+    return LJ::u_equals( @_ );
 }
 
 
@@ -2544,9 +2532,7 @@ sub dudata_set {
 
 # log a line to our userlog
 sub log_event {
-    my $u = shift;
-
-    my ($type, $info) = @_;
+    my ( $u, $type, $info ) = @_;
     return undef unless $type;
     $info ||= {};
 
@@ -2696,10 +2682,9 @@ sub can_join_adult_comm {
 # Birthday logic -- can any of the birthday info be shown
 # This will return true if any birthday info can be shown
 sub can_share_bday {
-    my $u = shift;
+    my ( $u, %opts ) = @_;
     croak "invalid user object passed" unless LJ::isu($u);
 
-    my %opts = @_;
     my $with_u = $opts{with} || LJ::get_remote();
 
     return 0 if $u->opt_sharebday eq 'N';
@@ -2712,7 +2697,7 @@ sub can_share_bday {
 # Birthday logic -- show appropriate string based on opt_showbday
 # This will return true if the actual birthday can be shown
 sub can_show_bday {
-    my ($u, %opts) = @_;
+    my ( $u, %opts ) = @_;
     croak "invalid user object passed" unless LJ::isu($u);
 
     my $to_u = $opts{to} || LJ::get_remote();
@@ -2725,10 +2710,9 @@ sub can_show_bday {
 
 # This will return true if the actual birth year can be shown
 sub can_show_bday_year {
-    my $u = shift;
+    my ( $u, %opts ) = @_;
     croak "invalid user object passed" unless LJ::isu($u);
 
-    my %opts = @_;
     my $to_u = $opts{to} || LJ::get_remote();
 
     return 0 unless $u->can_share_bday( with => $to_u );
@@ -2739,10 +2723,9 @@ sub can_show_bday_year {
 
 # This will return true if month, day, and year can be shown
 sub can_show_full_bday {
-    my $u = shift;
+    my ( $u, %opts ) = @_;
     croak "invalid user object passed" unless LJ::isu($u);
 
-    my %opts = @_;
     my $to_u = $opts{to} || LJ::get_remote();
 
     return 0 unless $u->can_share_bday( with => $to_u );
@@ -3052,8 +3035,7 @@ sub num_comments_received {
 
 
 sub can_manage {
-    my ($u, $target) = @_;
-    return LJ::can_manage($u, $target);
+    return LJ::can_manage( @_ );
 }
 
 
@@ -3593,8 +3575,7 @@ sub validated_mbox_sha1sum {
 # front-end to recent_entries, which forces the remote user to be
 # the owner, so we get everything.
 sub all_recent_entries {
-    my $u = shift;
-    my %opts = @_;
+    my ( $u, %opts ) = @_;
     $opts{filtered_for} = $u;
     return $u->recent_entries(%opts);
 }
@@ -3819,8 +3800,7 @@ sub third_party_notify_list {
 
 # Add a service to a user's notify list
 sub third_party_notify_list_add {
-    my $u = shift;
-    my $svc = shift;
+    my ( $u, $svc ) = @_;
     return 0 unless $svc;
 
     # Is it already there?
@@ -3845,8 +3825,7 @@ sub third_party_notify_list_add {
 
 # Check if the user's notify list contains a particular service
 sub third_party_notify_list_contains {
-    my $u = shift;
-    my $val = shift;
+    my ( $u, $val ) = @_;
 
     return 1 if grep { $_ eq $val } $u->third_party_notify_list;
 
@@ -3856,8 +3835,7 @@ sub third_party_notify_list_contains {
 
 # Remove a service to a user's notify list
 sub third_party_notify_list_remove {
-    my $u = shift;
-    my $svc = shift;
+    my ( $u, $svc ) = @_;
     return 0 unless $svc;
 
     # Is it even there?
@@ -3924,8 +3902,7 @@ sub lazy_interests_cleanup {
 
 
 sub set_interests {
-    my $u = shift;
-    LJ::set_interests($u, @_);
+    LJ::set_interests( @_ );
 }
 
 
@@ -4189,8 +4166,7 @@ sub rename_identity {
 
     # generate a new identity value that looks like ex_oldidvalue555
     my $tempid = sub {
-        my $ident = shift;
-        my $idtype = shift;
+        my ( $ident, $idtype ) = @_;
         my $temp = (length($ident) > 249) ? substr($ident, 0, 249) : $ident;
         my $exid;
 
@@ -4242,8 +4218,8 @@ sub dismissed_page_notices {
 
 # add a page notice to a user's dismissed page notices list
 sub dismissed_page_notices_add {
-    my $u = shift;
-    my $notice_string = shift;
+    my ( $u, $notice_string ) = @_;
+
     return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
 
     # is it already there?
@@ -4269,8 +4245,8 @@ sub dismissed_page_notices_add {
 
 # remove a page notice from a user's dismissed page notices list
 sub dismissed_page_notices_remove {
-    my $u = shift;
-    my $notice_string = shift;
+    my ( $u, $notice_string ) = @_;
+
     return 0 unless $notice_string && $LJ::VALID_PAGE_NOTICES{$notice_string};
 
     # is it even there?
@@ -4284,8 +4260,7 @@ sub dismissed_page_notices_remove {
 
 
 sub has_dismissed_page_notice {
-    my $u = shift;
-    my $notice_string = shift;
+    my ( $u, $notice_string ) = @_;
 
     return 1 if grep { $_ eq $notice_string } $u->dismissed_page_notices;
     return 0;
@@ -4420,14 +4395,12 @@ sub delete_sms_number {
 
 
 sub max_sms_bytes {
-    my $u = shift;
-    return LJ::SMS->max_sms_bytes($u);
+    return LJ::SMS->max_sms_bytes( @_ );
 }
 
 
 sub max_sms_substr {
-    my ($u, $text, %opts) = @_;
-    return LJ::SMS->max_sms_substr($u, $text, %opts);
+    return LJ::SMS->max_sms_substr( @_ );
 }
 
 
@@ -4551,9 +4524,7 @@ sub sms_pending_number {
 
 
 sub sms_quota_remaining {
-    my ($u, $type) = @_;
-
-    return LJ::SMS->sms_quota_remaining($u, $type);
+    return LJ::SMS->sms_quota_remaining( @_ );
 }
 
 
@@ -4795,16 +4766,13 @@ sub can_receive_message {
 
 # delete all of a user's subscriptions
 sub delete_all_subscriptions {
-    my $u = shift;
-    return LJ::Subscription->delete_all_subs($u);
+    return LJ::Subscription->delete_all_subs( @_ );
 }
 
 
 # delete all of a user's subscriptions
 sub delete_all_inactive_subscriptions {
-    my $u = shift;
-    my $dryrun = shift;
-    return LJ::Subscription->delete_all_inactive_subs($u, $dryrun);
+    return LJ::Subscription->delete_all_inactive_subs( @_ );
 }
 
 
@@ -5299,10 +5267,7 @@ sub polls_clustered {
 
 
 sub upgrade_to_dversion_8 {
-    my $u = shift;
-    my $dbh = shift;
-    my $dbhslo = shift;
-    my $dbcm = shift;
+    my ( $u, $dbh, $dbhslo, $dbcm ) = @_;
 
     # If user has been purged, go ahead and update version
     # Otherwise move their polls
@@ -5493,15 +5458,13 @@ sub random_cluster {
 # </LJFUNC>
 sub canonical_username
 {
-    my $user = shift;
-    if ($user =~ /^\s*([A-Za-z0-9_\-]{1,25})\s*$/) {
-        # perl 5.8 bug:  $user = lc($1) sometimes causes corruption when $1 points into $user.
+    my $input = lc( $_[0] );
+    my $user = "";
+    if ( $input =~ /^\s*([a-z0-9_\-]{1,25})\s*$/ ) {  # good username
         $user = $1;
-        $user = lc($user);
         $user =~ s/-/_/g;
-        return $user;
     }
-    return "";  # not a good username.
+    return $user;
 }
 
 
@@ -5519,9 +5482,7 @@ sub canonical_username
 sub get_userid
 {
     &nodb;
-    my $user = shift;
-
-    $user = LJ::canonical_username($user);
+    my $user = LJ::canonical_username( $_[0] );
 
     if ($LJ::CACHE_USERID{$user}) { return $LJ::CACHE_USERID{$user}; }
 
@@ -5563,8 +5524,7 @@ sub get_userid
 sub get_username
 {
     &nodb;
-    my $userid = shift;
-    $userid += 0;
+    my $userid = $_[0] + 0;
 
     # Checked the cache first.
     if ($LJ::CACHE_USERNAME{$userid}) { return $LJ::CACHE_USERNAME{$userid}; }
@@ -6660,7 +6620,10 @@ sub ljuser
         $profile = $profile_url ne '' ? $profile_url : $profile . $andfull;
         $url = $journal_url ne '' ? $journal_url : $url;
 
-        return "<span $display_class lj:user='$user' style='white-space: nowrap;$strike'><a href='$profile'><img src='$img/$fil' alt='[info$alttext] ' width='$x' height='$y' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url'$link_color>$ljusername</a></span>";
+        return "<span $display_class lj:user='$user' style='white-space: nowrap;$strike'>" .
+            "<a href='$profile'><img src='$img/$fil' alt='[info$alttext] ' width='$x' height='$y'" .
+            " style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a>" .
+            "<a href='$url'$link_color>$ljusername</a></span>";
     };
 
     my $u = isu($user) ? $user : LJ::load_user($user);
@@ -7578,8 +7541,7 @@ sub can_view
 # TODO: fold this into LJ::Entry->visible_to :(
 
     &nodb;
-    my $remote = shift;
-    my $item = shift;
+    my ( $remote, $item ) = @_;
 
     # public is okay
     return 1 if $item->{'security'} eq "public";
@@ -8084,8 +8046,7 @@ sub check_priv
 sub load_user_privs
 {
     &nodb;
-    my $remote = shift;
-    my @privs = @_;
+    my ( $remote, @privs ) = @_;
     return unless $remote and @privs;
 
     # return if we've already loaded these privs for this user.
@@ -8282,7 +8243,7 @@ sub make_journal
     my $u = $opts->{'u'} || LJ::load_user($user);
     unless ($u) {
         $opts->{'baduser'} = 1;
-        return "<h1>Error</h1>No such user <b>$user</b>";
+        return "<!-- No such user -->";  # return value ignored
     }
     LJ::set_active_journal($u);
 
@@ -8463,9 +8424,8 @@ sub make_journal
         }.("<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 50);
     };
     my $error = sub {
-        my $msg = shift;
-        my $status = shift;
-        my $header = shift || 'Error';
+        my ( $msg, $status, $header ) = @_;
+        $header ||= 'Error';
         $opts->{'status'} = $status if $status;
 
         return qq{
