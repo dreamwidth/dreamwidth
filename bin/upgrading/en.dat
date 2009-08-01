@@ -2319,6 +2319,8 @@ poll.error.whovote=whovote must be 'all' or 'friends'.
 
 poll.isclosed=This poll is closed.
 
+poll.participants=, participants: [[total]]
+
 poll.pollnum=Poll #[[num]]
 
 poll.scaleanswers=<b>Mean:</b> [[mean]] <b>Median:</b> [[median]] <b>Std. Dev</b> [[stddev]]

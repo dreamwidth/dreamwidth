@@ -961,21 +961,36 @@ sub render {
     }
     $ret .= LJ::Lang::ml('poll.security2', { 'whovote' => LJ::Lang::ml('poll.security.'.$self->whovote),
                                        'whoview' => LJ::Lang::ml('poll.security.'.$whoview) });
-    $ret .= "<br />\n";
 
-
-    if ( $mode eq 'enter' ) {
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . BML::ml( 'poll.seeresults' ) . "</a> ]  " if $self->can_view( $remote );
+    if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
+        $ret .= "<br />\n";
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . BML::ml( 'poll.seeresults' ) . "</a> ]  ";
     } elsif ( $mode eq 'results' ) {
+        #include number of participants
+        my $sth = "";
+        if ($self->is_clustered) {
+            $sth = $self->journal->prepare("SELECT count(DISTINCT userid) FROM pollresult2 WHERE pollid=? AND journalid=?");
+            $sth->execute($pollid, $self->journalid);
+        } else {
+            $sth = $dbr->prepare("SELECT count(DISTINCT userid) FROM pollresult WHERE pollid=?");
+            $sth->execute($pollid);
+        }
+        my ($participants) = $sth->fetchrow_array;
+        $ret .= LJ::Lang::ml('poll.participants', { 'total' => $participants });
+        $ret .= "<br />\n";
+        # change vote link
         $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter'>" . BML::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+    } else {
+        $ret .= "<br />\n";
     }
 
+    my $results_table = "";
     ## go through all questions, adding to buffer to return
     foreach my $q (@qs) {
         my $qid = $q->pollqid;
         my $text = $q->text;
         LJ::Poll->clean_poll(\$text);
-        $ret .= "<p>$text</p><div style='margin: 10px 0 10px 40px'>";
+        $results_table .= "<p>$text</p><div style='margin: 10px 0 10px 40px'>";
 
         ### get statistics, for scale questions
         my ($valcount, $valmean, $valstddev, $valmedian);
@@ -1027,7 +1042,7 @@ sub render {
         if ($mode eq "results") {
             ### to see individual's answers
             my $posterid = $self->posterid;
-            $ret .= qq {
+            $results_table .= qq {
                 <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;qid=$qid&amp;mode=ans'
                      class='LJ_PollAnswerLink' lj_pollid='$pollid' lj_qid='$qid' lj_posterid='$posterid' lj_page='0' lj_pagesize="$pagesize"
                      id="LJ_PollAnswerLink_${pollid}_$qid">
@@ -1063,7 +1078,7 @@ sub render {
         if ($q->type eq "text" && $do_form) {
             my ($size, $max) = split(m!/!, $q->opts);
 
-            $ret .= LJ::html_text({ 'size' => $size, 'maxlength' => $max,
+            $results_table .= LJ::html_text({ 'size' => $size, 'maxlength' => $max,
                                     'name' => "pollq-$qid", 'value' => $preval{$qid} });
         } elsif ($q->type eq 'drop' && $do_form) {
             #### drop-down list
@@ -1074,7 +1089,7 @@ sub render {
                 LJ::Poll->clean_poll(\$item);
                 push @optlist, ($itid, $item);
             }
-            $ret .= LJ::html_select({ 'name' => "pollq-$qid",
+            $results_table .= LJ::html_select({ 'name' => "pollq-$qid",
                                       'selected' => $preval{$qid} }, @optlist);
         } elsif ($q->type eq "scale" && $do_form) {
             #### scales (from 1-10) questions
@@ -1086,17 +1101,17 @@ sub render {
             # few opts, display radios
             if ($do_radios) {
 
-                $ret .= "<table><tr valign='top' align='center'>";
+                $results_table .= "<table><tr valign='top' align='center'>";
 
                 for (my $at=$from; $at<=$to; $at+=$by) {
-                    $ret .= "<td style='text-align: center;'>";
-                    $ret .= LJ::html_check({ 'type' => 'radio', 'name' => "pollq-$qid",
+                    $results_table .= "<td style='text-align: center;'>";
+                    $results_table .= LJ::html_check({ 'type' => 'radio', 'name' => "pollq-$qid",
                                              'value' => $at, 'id' => "pollq-$pollid-$qid-$at",
                                              'selected' => (defined $preval{$qid} && $at == $preval{$qid}) });
-                    $ret .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
+                    $results_table .= "<br /><label for='pollq-$pollid-$qid-$at'>$at</label></td>";
                 }
 
-                $ret .= "</tr></table>\n";
+                $results_table .= "</tr></table>\n";
 
             # many opts, display select
             # but only if displaying form
@@ -1106,7 +1121,7 @@ sub render {
                 for (my $at=$from; $at<=$to; $at+=$by) {
                     push @optlist, ($at, $at);
                 }
-                $ret .= LJ::html_select({ 'name' => "pollq-$qid", 'selected' => $preval{$qid} }, @optlist);
+                $results_table .= LJ::html_select({ 'name' => "pollq-$qid", 'selected' => $preval{$qid} }, @optlist);
             }
 
         } else {
@@ -1116,10 +1131,10 @@ sub render {
             if ($q->type eq "scale") { # implies ! do_form
                 my $stddev = sprintf("%.2f", $valstddev);
                 my $mean = sprintf("%.2f", $valmean);
-                $ret .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
-                $ret .= "<br />\n";
+                $results_table .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
+                $results_table .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
                 $do_table = 1;
-                $ret .= "<table>";
+                $results_table .= "<table>";
             }
 
             my @items = $self->question($qid)->items;
@@ -1142,10 +1157,10 @@ sub render {
 
                 # displaying a radio or checkbox
                 if ($do_form) {
-                    $ret .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid",
-                                             'value' => $itid, 'id' => "pollq-$pollid-$qid-$itid",
-                                             'selected' => ($preval{$qid} =~ /\b$itid\b/) });
-                    $ret .= " <label for='pollq-$pollid-$qid-$itid'>$item</label><br />";
+                    $results_table .= LJ::html_check({ 'type' => $q->type, 'name' => "pollq-$qid",
+                                              'value' => $itid, 'id' => "pollq-$pollid-$qid-$itid",
+                                              'selected' => ($preval{$qid} =~ /\b$itid\b/) });
+                    $results_table .= " <label for='pollq-$pollid-$qid-$itid'>$item</label><br />";
                     next;
                 }
 
@@ -1155,28 +1170,30 @@ sub render {
                 my $width = 20+int(($count/$maxitvotes)*380);
 
                 if ($do_table) {
-                    $ret .= "<tr valign='middle'><td align='right'>$item</td>";
-                    $ret .= "<td><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' width='7' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
-                    $ret .= "<b>$count</b> ($percent%)</td></tr>";
+                    $results_table .= "<tr valign='middle'><td align='right'>$item</td>";
+                    $results_table .= "<td><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' width='7' alt='' />";
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
+                    $results_table .= "<b>$count</b> ($percent%)</td></tr>";
                 } else {
-                    $ret .= "<p>$item<br />";
-                    $ret .= "<span style='white-space: nowrap'><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
-                    $ret .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
-                    $ret .= "<b>$count</b> ($percent%)</span></p>";
+                    $results_table .= "<p>$item<br />";
+                    $results_table .= "<span style='white-space: nowrap'><img src='$LJ::IMGPREFIX/poll/leftbar.gif' style='vertical-align:middle' height='14' alt='' />";
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/mainbar.gif' style='vertical-align:middle' height='14' width='$width' alt='' />";
+                    $results_table .= "<img src='$LJ::IMGPREFIX/poll/rightbar.gif' style='vertical-align:middle' height='14' width='7' alt='' /> ";
+                    $results_table .= "<b>$count</b> ($percent%)</span></p>";
                 }
             }
 
             if ($do_table) {
-                $ret .= "</table>";
+                $results_table .= "</table>";
             }
 
         }
 
-        $ret .= "</div>";
+        $results_table .= "</div>";
     }
+
+    $ret .= $results_table;
 
     if ($do_form) {
         $ret .= LJ::html_submit(
