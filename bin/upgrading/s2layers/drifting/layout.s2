@@ -99,6 +99,10 @@ propgroup text
     {
         des = "Text for the navigation header";
     }
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
 }
 
 set text_navigation_header = "Navigation";
