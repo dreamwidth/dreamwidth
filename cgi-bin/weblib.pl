@@ -1800,7 +1800,7 @@ PREVIEW
                     $out .= LJ::help_icon("security", "<span id='security-help'>\n", "\n</span>\n");
                     $out .= "<div id='custom_boxes' class='pkg' style='display: $display;'>\n";
                     $out .= "<ul id='custom_boxes_list'>";
-                    foreach my $fg ( keys %$trust_groups ) {
+                    foreach my $fg ( sort { $trust_groups->{$a}->{sortorder} <=> $trust_groups->{$b}->{sortorder} } keys %$trust_groups ) {
                         $out .= "<li>";
                         $out .= LJ::html_check({ 'name' => "custom_bit_$fg",
                                                  'id' => "custom_bit_$fg",
