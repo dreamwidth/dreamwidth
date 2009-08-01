@@ -387,7 +387,7 @@ sub helper_url {
     my $u = LJ::get_remote();
     unless ($u) {
         LJ::Session->clear_master_cookie;
-        return BML::redirect($dest);
+        return $dest;
     }
 
     my $domcook = LJ::Session->domain_cookie($dest) or
