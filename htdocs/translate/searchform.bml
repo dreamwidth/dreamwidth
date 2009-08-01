@@ -4,7 +4,7 @@
 </head>
 <body marginwidth='0' marginheight='0'>
 
-<form target='res' action='search.bml' method='get'>
+<form target='res' action='search' method='get'>
 <input type='hidden' name='lang' value='<?_code $FORM{'lang'} _code?>'>
 <input type='hidden' name='search' value='sev'>
 
@@ -16,7 +16,7 @@
  return "<b>" . ($l ? $l->{'lnname'} : "Invalid language") . "</b>";
 _code?>
 
-<p>By Severity: (<a href='help-severity.bml' target='main'>help</a>)<br /><select name='stale'>
+<p>By Severity: (<a href='help-severity' target='main'>help</a>)<br /><select name='stale'>
 <option value="0">0</option>
 <option value="0+">0+</option>
 <option value="1">1</option>
@@ -30,7 +30,7 @@ _code?>
 </p>
 </form>
 
-<form target='res' action='search.bml' method='get'>
+<form target='res' action='search' method='get'>
 <input type='hidden' name='lang' value='<?_code $FORM{'lang'} _code?>'>
 <input type='hidden' name='search' value='txt'>
 
@@ -60,7 +60,7 @@ _code?>
  return '' unless $l->{'lncode'} eq $LJ::DEFAULT_LANG || !$l->{'parentlnid'};
 
  my $ret = <<HTML;
-<form target='res' action='search.bml' method='get'>
+<form target='res' action='search' method='get'>
 <input type='hidden' name='lang' value='$l->{lncode}'>
 <input type='hidden' name='search' value='flg'>
 <p><table><tr><td>Prf:</td>

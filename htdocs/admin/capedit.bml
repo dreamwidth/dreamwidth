@@ -74,7 +74,7 @@
 
  if ($mode eq "viewuser")
  {
-     $ret .= "<h1><a href='capedit.bml'>&lt;&lt;</a> edit user '$user'</h1>\n";
+     $ret .= "<h1><a href='capedit'>&lt;&lt;</a> edit user '$user'</h1>\n";
 
      unless ($u) {
          $ret .= "Unknown user.\n";

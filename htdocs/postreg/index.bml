@@ -34,7 +34,7 @@ body<=
     if (LJ::did_post()) {
         # redirect to the next page without saving if the user clicked that button
         if ($POST{skip}) {
-            return BML::redirect("$LJ::SITEROOT/postreg/find.bml");
+            return BML::redirect("$LJ::SITEROOT/postreg/find");
         }
 
         # Save all of the settings
@@ -43,7 +43,7 @@ body<=
         $save_rv = LJ::Setting->save_all($remote, \%POST, \@settings);
 
         # redirect to the next page if there's no errors
-        return BML::redirect("$LJ::SITEROOT/postreg/find.bml") 
+        return BML::redirect("$LJ::SITEROOT/postreg/find") 
             unless LJ::Setting->save_had_errors($save_rv);
     }
 
@@ -65,7 +65,7 @@ body<=
     $ret .= "</div>";
     $ret .= LJ::Widget::FriendInterests->render( user => $remote, from => $remote->who_invited );
     $ret .= "<p class='submit-wrapper'>" . LJ::html_submit('save', $ML{'.btn.save'}) . "</p>";
-    $ret .= "<p class='skip'><a href='<?siteroot?>/postreg/find.bml'>$ML{'.skip_step_title'} &raquo;</a></p>";
+    $ret .= "<p class='skip'><a href='<?siteroot?>/postreg/find'>$ML{'.skip_step_title'} &raquo;</a></p>";
     $ret .= "</form>";
 
     return $ret;

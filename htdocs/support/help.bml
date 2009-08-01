@@ -72,7 +72,7 @@ body<=
  my $append;
  if ($state eq "closed") {
      $ret .= "<?h1 $ML{'.state.closed.title'} h1?>";
-     $ret .= "<?p ". BML::ml(".state.closed.text", {"clickurl"=>"$LJ::SITEROOT/support/help.bml?cat=$filtercat"} ) ." p?>";
+     $ret .= "<?p ". BML::ml(".state.closed.text", {"clickurl"=>"$LJ::SITEROOT/support/help?cat=$filtercat"} ) ." p?>";
  } elsif ($state eq "youreplied") {
      return "<?h1 $ML{'.state.youreplied.rem.title'} h1?>  <?p $ML{'.state.youreplied.rem.text'} p?>"
         unless $remote;
@@ -80,7 +80,7 @@ body<=
      $ret .= "<?p $ML{'.state.youreplied.text'} p?>";
  } else {
      $ret .= "<?h1 $ML{'.state.else.title'} h1?>";
-     $ret .=  BML::ml('.state.else.text', {'statelink'=>"href=\"$LJ::SITEROOT/support/help.bml?state=closed&amp;cat=$filtercat\""}) ;
+     $ret .=  BML::ml('.state.else.text', {'statelink'=>"href=\"$LJ::SITEROOT/support/help?state=closed&amp;cat=$filtercat\""}) ;
      $append = 1;
  }
 
@@ -198,7 +198,7 @@ body<=
  }
 
  # filter line:
- $ret .= "<form method='get' action='help.bml'>$ML{'.showonlyhelp'}";
+ $ret .= "<form method='get' action='help'>$ML{'.showonlyhelp'}";
  $ret .= "<input type='hidden' name='sort' value='$sort' />";
  $ret .= "<select name='state'>";
  {
@@ -235,10 +235,10 @@ body<=
  # /filter line
 
  # mass closing table
- $ret .= "<form method='post' action='/support/actmulti.bml'>" . LJ::form_auth() if $can_close && $rct;
+ $ret .= "<form method='post' action='/support/actmulti'>" . LJ::form_auth() if $can_close && $rct;
 
  # start the rest of the table
- my $uri = "$LJ::SITEROOT/support/help.bml?cat=$filtercat&state=$state";
+ my $uri = "$LJ::SITEROOT/support/help?cat=$filtercat&state=$state";
  $ret .= "<p><table class='supporttable'><tr bgcolor='#d0d0d0'>\n";
  $ret .= "<td>&nbsp;<b>X</b></td>\n" if $can_close;
  my @headers = ( id => "ID#", summary => $ML{'.th.summary'}, area => $ML{'.th.problemarea'}, date => $ML{'.th.posted'} );
@@ -325,7 +325,7 @@ body<=
                  "<input type='hidden' name='c$sp->{spid}' id='c$sp->{spid}' value='$barbg' /></td>\n";
          $js = "onclick='return doClick($sp->{spid});'";
      }
-     $ret .= "<td><b><a href=\"$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}\" $js>$sp->{'spid'}</a></b></td>";
+     $ret .= "<td><b><a href=\"$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}\" $js>$sp->{'spid'}</a></b></td>";
      $ret .= "<td><b>$summary</b>$des</td>\n";
      $ret .= "<td>$probarea</td>\n";
      $ret .= "<td nowrap='nowrap'><font size='-1'>$age</font></td>\n";
@@ -340,7 +340,7 @@ body<=
      my $time = time();
      $ret .= LJ::html_hidden('ids', join(':', map { $_->{spid} } @support_log),
                              'spcatid', $fcat->{spcatid},
-                             'ret', "/support/help.bml?state=$state&cat=$filtercat&time=$time");
+                             'ret', "/support/help?state=$state&cat=$filtercat&time=$time");
      $ret .= "<br />";
      $ret .= LJ::html_submit('action:move', 'Move Marked Requests');
      $ret .= " to ";
@@ -357,7 +357,7 @@ body<=
      $ret .= "</form>";
  }
  $ret .= "<?hr?>";
- $ret .= "<p>".BML::ml('.notifylink', {url=>'href="./changenotify.bml"'})."</p>";
+ $ret .= "<p>".BML::ml('.notifylink', {url=>'href="./changenotify"'})."</p>";
  $ret .= "<p>".BML::ml('.backlink', {backurl=>'href="./"'})."</p>";
 
 

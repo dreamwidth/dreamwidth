@@ -13,10 +13,10 @@
     if ($type eq "nav_and_user" || $type eq "nav") {
         # Some special shortcuts used for easy navigation
         if ($q =~ /^faq (\d+)$/) {
-            return BML::redirect("$LJ::SITEROOT/support/faqbrowse.bml?faqid=$1&view=full");
+            return BML::redirect("$LJ::SITEROOT/support/faqbrowse?faqid=$1&view=full");
         }
         if ($q =~ /^req(uest)? (\d+)$/) {
-            return BML::redirect("$LJ::SITEROOT/support/see_request.bml?id=$2");
+            return BML::redirect("$LJ::SITEROOT/support/see_request?id=$2");
         }
         if ($q =~ m!(.+)/(pics|full)!) {
             if (my $u = LJ::load_user($1)) {
@@ -104,7 +104,7 @@
         if ($user) {
             my $url;
             if ($what eq "pics") {
-                $url = "$LJ::SITEROOT/allpics.bml?user=$user";
+                $url = "$LJ::SITEROOT/allpics?user=$user";
             } elsif ($output eq "foaf") {
                 $url = LJ::journal_base($user) . '/data/foaf';
             } else {
@@ -112,19 +112,19 @@
                     $url = $u->profile_url;
                     $url .= "?mode=full" if $what eq 'full';
                 } else {
-                    $url = "$LJ::SITEROOT/userinfo.bml?user=$user";
+                    $url = "$LJ::SITEROOT/userinfo?user=$user";
                 }
             }
             return BML::redirect($url);
         } else {
-            return BML::redirect("$LJ::SITEROOT/random.bml");
+            return BML::redirect("$LJ::SITEROOT/random");
         }
     }
 
     if ($type eq "int") {
         my $int = lc($q);
         if ($int) {
-            return BML::redirect("$LJ::SITEROOT/interests.bml?int=" . LJ::eurl($int));
+            return BML::redirect("$LJ::SITEROOT/interests?int=" . LJ::eurl($int));
         } else {
             $title = $ML{'.nointerest.title'};
             $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.nointerest.text'} p?>";
@@ -203,7 +203,7 @@
         my @parts = split(/\s*,\s*/, $q);
         if (@parts==0 || @parts>3) {
             $title = $ML{'.formaterror'};
-            $body .= "<?h1 $ML{'.region.head'} h1?><?p " . BML::ml('.region.bodytext2', {'aopts' => "href='$LJ::SITEROOT/directorysearch.bml'"}) . " p?>";
+            $body .= "<?h1 $ML{'.region.head'} h1?><?p " . BML::ml('.region.bodytext2', {'aopts' => "href='$LJ::SITEROOT/directorysearch'"}) . " p?>";
             return;
         }
 
@@ -229,13 +229,13 @@
             }
         }
         ($city, $state, $country) = map { LJ::eurl($_); } ($city, $state, $country);
-        return BML::redirect("$LJ::SITEROOT/directory.bml?s_loc=1&loc_cn=$country&loc_st=$state&loc_ci=$city&opt_sort=ut&opt_format=pics&opt_pagesize=50");
+        return BML::redirect("$LJ::SITEROOT/directory?s_loc=1&loc_cn=$country&loc_st=$state&loc_ci=$city&opt_sort=ut&opt_format=pics&opt_pagesize=50");
     }
 
     if ($type eq "faq") {
         my $term = lc($q);
         if ($term) {
-            return BML::redirect("$LJ::SITEROOT/support/faqsearch.bml?q=" . LJ::eurl($term));
+            return BML::redirect("$LJ::SITEROOT/support/faqsearch?q=" . LJ::eurl($term));
         } else {
             $title = $ML{'.nofaqsearch.title'};
             $body = "<?h1 $ML{'Error'} h1?><?p $ML{'.nofaqsearch.text'} p?>";

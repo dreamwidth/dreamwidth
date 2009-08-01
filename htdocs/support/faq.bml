@@ -29,7 +29,7 @@ body<=
 
     # FAQ search
     $ret .= "<?p $ML{'.faq.search.text'} p?>";
-    $ret .= "<form method='GET' action='$LJ::SITEROOT/support/faqsearch.bml'>";
+    $ret .= "<form method='GET' action='$LJ::SITEROOT/support/faqsearch'>";
     $ret .= "<input type='text' name='q' size='30' />&nbsp;<input type='submit' value='$ML{'.faq.search.btn'}'>";
     $ret .= "</form>";
 
@@ -87,7 +87,7 @@ body<=
         next if $GET{'cat'} && $GET{'cat'} ne $faqcat;
         $ret .= "<?h2 ";
         $ret .= LJ::ehtml($faqcat{$faqcat}->{'faqcatname'});
-        $ret .= " (<a href='faqbrowse.bml?faqcat=$faqcat' name='$faqcat'>";
+        $ret .= " (<a href='faqbrowse?faqcat=$faqcat' name='$faqcat'>";
         $ret .= $ML{'.view.all'};
         $ret .= "</a>) h2?>\n";
         $ret .= "<ul class='faqlist'>\n";
@@ -98,7 +98,7 @@ body<=
             BML::note_mod_time($faqq{$faqid}->unixmodtime);
             $q =~ s/^\s+//; $q =~ s/\s+$//;
             $q =~ s!\n!<br />!g;
-            $ret .= "<li><a href='faqbrowse.bml?faqid=$faqid'>$q</a></li>\n";
+            $ret .= "<li><a href='faqbrowse?faqid=$faqid'>$q</a></li>\n";
         }
         $ret .= "</ul>\n";
     }

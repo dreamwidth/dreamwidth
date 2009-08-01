@@ -54,7 +54,7 @@ body<=
     $ret .= "<br />";
 
     $ret .= "<div align='center'>";
-    $ret .= "<form method='POST' action='$LJ::SITEROOT/misc/adult_concepts.bml'>";
+    $ret .= "<form method='POST' action='$LJ::SITEROOT/misc/adult_concepts'>";
     $ret .= LJ::form_auth();
     $ret .= LJ::html_hidden( ret => $returl, journalid => $journal->id, entryid => defined $entry ? $entry->ditemid : 0 );
     $ret .= LJ::html_submit( adult_check => $ML{'.btn.viewconfirm'} ) . " ";

@@ -479,7 +479,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
             var vgift = document.createElement("span");
 
             var sendvgift = document.createElement("a");
-            sendvgift.href = window.Site.siteroot + "/shop/vgift.bml?to=" + data.username;
+            sendvgift.href = window.Site.siteroot + "/shop/vgift?to=" + data.username;
             sendvgift.innerHTML = "Send a virtual gift";
 
             vgift.appendChild(sendvgift);
@@ -501,7 +501,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 var setBan = document.createElement("span");
                 var setBanLink = document.createElement("a");
                 
-                setBanLink.href = window.Site.siteroot + '/manage/banusers.bml';
+                setBanLink.href = window.Site.siteroot + '/manage/banusers';
                 
                 if (data.is_comm) {
                     setBanLink.innerHTML = 'Ban community';
@@ -528,7 +528,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
                 // if use banned - show unban link
                 var setUnban = document.createElement("span");
                 var setUnbanLink = document.createElement("a");
-                setUnbanLink.href = window.Site.siteroot + '/manage/banusers.bml';
+                setUnbanLink.href = window.Site.siteroot + '/manage/banusers';
                 setUnbanLink.innerHTML = 'Unban user';
                 setUnban.appendChild(setUnbanLink);
 

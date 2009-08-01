@@ -34,7 +34,7 @@ body<=
     my $faqcatarg = $GET{'faqcat'};
     
     unless ($faqidarg || $faqcatarg) {
-        return BML::redirect("faq.bml");
+        return BML::redirect("faq");
     }
     
     # make title and body references to BML scratch area
@@ -178,7 +178,7 @@ body<=
         if ($faqcatarg) {
             $$body .= "<?h1";
             $$body .= " <a style='text-decoration: none;' " .
-                      "href='faqbrowse.bml?faqid=$faqid'>&#x00bb;</a>";
+                      "href='faqbrowse?faqid=$faqid'>&#x00bb;</a>";
             $$body .= " $question h1?>";
         }
         $$body .= "<div style='margin-left: 20px;'>";
@@ -192,7 +192,7 @@ body<=
 
                 $$body .= "<div id='rm' name='rm'>";
                 my $oc = $faqcatarg ? '' : "onclick='return showAnswer();'";
-                $$body .= "<b>(&nbsp;<a $oc href='faqbrowse.bml?faqid=$faqid$q&amp;view=full'>" .
+                $$body .= "<b>(&nbsp;<a $oc href='faqbrowse?faqid=$faqid$q&amp;view=full'>" .
                     "$ML{'.more'}</a>&nbsp;)</b>";
                 $$body .= "</div>";
             }
@@ -217,7 +217,7 @@ body<=
         if (LJ::check_priv($remote, "faqedit", "*") ||
             LJ::check_priv($remote, "faqedit", $backfaqcat))
         {
-            $$body .= "<p align=\"right\"><a href=\"/admin/faq/faqedit.bml?id=$faqid\">$ML{'.edit.faq'}</a></p>";
+            $$body .= "<p align=\"right\"><a href=\"/admin/faq/faqedit?id=$faqid\">$ML{'.edit.faq'}</a></p>";
         }
 
         # this is incredibly ugly. i'm sorry.
@@ -226,7 +226,7 @@ body<=
             push @itids, LJ::Lang::get_itemid($mld->{'dmid'}, "$faqid.$_")
                 foreach qw(1question 3summary 2answer);
             my $items = join(",", map { $mld->{'dmid'} . ":" . $_ } @itids);
-            $$body .= "<p align=\"right\"><a href=\"/translate/editpage.bml?lang=$curlang&amp;items=$items\">";
+            $$body .= "<p align=\"right\"><a href=\"/translate/editpage?lang=$curlang&amp;items=$items\">";
             $$body .= "$ML{'.translate.faq'}</a></p>";
         }
 
@@ -254,19 +254,19 @@ body<=
      $$body .= qq(
          <p style="float:right; text-align:right;"><a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">
          <img alt="$ML{'.cc.imgalt'}" style="border-width: 0;" src="http://i.creativecommons.org/l/by-sa/3.0/us/88x31.png" />
-         </a><br /><a href="$LJ::SITEROOT/site/opensource.bml">$ML{'.cc.licensing'}</a></p>
+         </a><br /><a href="$LJ::SITEROOT/site/opensource">$ML{'.cc.licensing'}</a></p>
      );
 
      if ($categoryname) {
-         $$body .= BML::ml('.backfaqcat3', {'aopts' => "href='/support/faqbrowse.bml?faqcat=$backfaqcat'", 'categoryname' => $categoryname}) . "<br />"
+         $$body .= BML::ml('.backfaqcat3', {'aopts' => "href='/support/faqbrowse?faqcat=$backfaqcat'", 'categoryname' => $categoryname}) . "<br />"
             if $backfaqcat && $faqidarg;
      } else {
-         $$body .= BML::ml('.backfaqcat2', {'aopts' => "href='/support/faqbrowse.bml?faqcat=$backfaqcat'"}) . "<br />"
+         $$body .= BML::ml('.backfaqcat2', {'aopts' => "href='/support/faqbrowse?faqcat=$backfaqcat'"}) . "<br />"
             if $backfaqcat && $faqidarg;
      }
 
-     $$body .= BML::ml('.backfaq2', { 'aopts' => 'href="faq.bml"' }) . "<br />";
-     $$body .= BML::ml('.backsearch', { 'aopts' => 'href="/support/faqsearch.bml"' }) . "<br />";
+     $$body .= BML::ml('.backfaq2', { 'aopts' => 'href="faq"' }) . "<br />";
+     $$body .= BML::ml('.backsearch', { 'aopts' => 'href="/support/faqsearch"' }) . "<br />";
      $$body .= BML::ml('.backsupport2', { 'aopts' => 'href="/support/"' });
 
      # we're dynamic, set title as crumb title

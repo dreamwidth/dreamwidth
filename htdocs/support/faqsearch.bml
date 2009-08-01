@@ -93,7 +93,7 @@
 	my $ueq = LJ::eurl($q);
         my $ul = $GET{'lang'} ne $curr ? "&amp;lang=".$GET{'lang'} : '';
 
-	$body .= "<li><a href='/support/faqbrowse.bml?faqid="
+	$body .= "<li><a href='/support/faqbrowse?faqid="
             . $f->faqid . "&amp;q=$ueq$ul'>$dq</a></li>";
     }
     $body .= "</ul>";

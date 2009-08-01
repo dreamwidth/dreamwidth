@@ -36,7 +36,7 @@ body<=
         } else {
             $ret .= BML::ml
                 ('tos.mustread',
-                 { aopts => "target='_new' href='$LJ::SITEROOT/legal/tos.bml'" });
+                 { aopts => "target='_new' href='$LJ::SITEROOT/legal/tos'" });
         }
 
         return $ret;
@@ -57,14 +57,14 @@ body<=
     my $auth_arg = $FORM{'auth'} ? "&amp;auth=$FORM{'auth'}" : "";
     my $successlinks = BML::ml('.successlinks2',
         {   'number'    => $sp->{'spid'},
-            'aopts1'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}$auth_arg'",
-            'aopts2'    => "href='$LJ::SITEROOT/support/help.bml'",
-            'aopts3'    => "href='$LJ::SITEROOT/support/help.bml?cat=$scat->{'catkey'}'",
-            'aopts8'    => "href='$LJ::SITEROOT/support/help.bml?cat=$scat->{'catkey'}&amp;state=green'",
-            'aopts4'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=prev'",
-            'aopts5'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=next'",
-            'aopts6'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cprev'",
-            'aopts7'    => "href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cnext'",
+            'aopts1'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}$auth_arg'",
+            'aopts2'    => "href='$LJ::SITEROOT/support/help'",
+            'aopts3'    => "href='$LJ::SITEROOT/support/help?cat=$scat->{'catkey'}'",
+            'aopts8'    => "href='$LJ::SITEROOT/support/help?cat=$scat->{'catkey'}&amp;state=green'",
+            'aopts4'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=prev'",
+            'aopts5'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=next'",
+            'aopts6'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=cprev'",
+            'aopts7'    => "href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=cnext'",
         });
 
     ### insert record
@@ -219,7 +219,7 @@ body<=
             'fromname' => $sp->{'reqname'},
             'headers' => { 'X-Bounced-By' => $remote->{'user'} },
             'subject' => "$sp->{'subject'} (support request #$sp->{'spid'})",
-            'body' => "$message\n\n$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}",
+            'body' => "$message\n\n$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}",
         });
 
         # close request, nobody gets credited

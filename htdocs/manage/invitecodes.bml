@@ -82,7 +82,7 @@ body<=
                 $ret .= $u->ljuser_display;
             } else {
                 my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT)
-                    . "/create.bml?from=$remote->{user}&code=".$code->code;
+                    . "/create?from=$remote->{user}&code=".$code->code;
                 $ret .= BML::ml( '.code.use', { aopts => "href='$create_link'" } );
             }        
 

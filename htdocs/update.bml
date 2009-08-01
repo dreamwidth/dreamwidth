@@ -163,7 +163,7 @@
         if ($altlogin_display eq 'none') {
             $auth.= "<p id='remotelogin' class='pkg'>\n";
             $auth .= "<label for='current_username' class='left'>" . BML::ml('entryform.postas') . "</label>\n";
-            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> <a href='$LJ::SITEROOT/update.bml?altlogin=1' id='remotelogin_content' class='small'>$ML{'entryform.switchuser'}</a>\n";
+            $auth .= "<strong id='current_username'>" . $remote->{user} . "</strong> <a href='$LJ::SITEROOT/update?altlogin=1' id='remotelogin_content' class='small'>$ML{'entryform.switchuser'}</a>\n";
             $auth .= "</p>\n\n";
         }
         # table with username/password fields
@@ -261,7 +261,7 @@
             $$body .= " warningbar?><br /></div>";
         }
 
-        $$body .= "\n\n<form method='post' action='update.bml$getextra' id='updateForm' name='updateForm'>\n\n";
+        $$body .= "\n\n<form method='post' action='update$getextra' id='updateForm' name='updateForm'>\n\n";
         $$body .= LJ::form_auth();
 
         if ($opts->{require_tos}){
@@ -440,7 +440,7 @@
                     my $orig_itemid = $itemid;
                     $itemid = $itemid * 256 + $anum;
 
-                    my $edititemlink = "/editjournal.bml?journal=$juser&itemid=$itemid";
+                    my $edititemlink = "/editjournal?journal=$juser&itemid=$itemid";
 
                     # crosspost if we're posting to our own journal and have
                     # selected crosspost.
@@ -494,7 +494,7 @@
                     my $writersblocklink = '';
 
                     if ($qid && LJ::run_hook('show_qotd_extra_text', $remote)) {
-                        $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid\">View answers to Writer's Block</a></li>";
+                        $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd?qid=$qid\">View answers to Writer's Block</a></li>";
                     }
 
                     my @after_entry_post_extra_options = LJ::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
@@ -503,8 +503,8 @@
                     $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
                         "<li><a href=\"$itemlink\">$ML{'.success.links.view'}</a></li>" .
                         "<li><a href=\"$edititemlink\">$ML{'.success.links.edit'}</a></li>" .
-                        "<li><a href=\"/tools/memadd.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
-                        "<li><a href=\"/edittags.bml?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
+                        "<li><a href=\"/tools/memadd?journal=$juser&itemid=$itemid\">$ML{'.success.links.memories'}</a></li>" .
+                        "<li><a href=\"/edittags?journal=$juser&itemid=$itemid\">$ML{'.success.links.tags'}</a></li>" .
                         $after_entry_post_extra_options .
                         "</ul>";
                 }

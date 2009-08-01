@@ -206,8 +206,8 @@ HEAD
         }
         $ret .= "</select>\n                ";
         $ret .= "<div class='tagsort'>";
-        $ret .= $GET{sort} eq 'use' ? BML::ml('.sort.a', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=alpha'" }) :
-                                      BML::ml('.sort.b', { aopts => "href='$LJ::SITEROOT/manage/tags.bml?authas=$u->{user}&sort=use'" });
+        $ret .= $GET{sort} eq 'use' ? BML::ml('.sort.a', { aopts => "href='$LJ::SITEROOT/manage/tags?authas=$u->{user}&sort=alpha'" }) :
+                                      BML::ml('.sort.b', { aopts => "href='$LJ::SITEROOT/manage/tags?authas=$u->{user}&sort=use'" });
         $ret .= '</div>';
     } else {
         $ret .= "<div class='taginfo'>$ML{'.none'}</div>"

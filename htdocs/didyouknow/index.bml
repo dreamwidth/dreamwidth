@@ -4,7 +4,7 @@
     use vars qw($title $body %POST);
 
     my $u = LJ::get_remote()
-        or return BML::redirect("$LJ::SITEROOT/login.bml");
+        or return BML::redirect("$LJ::SITEROOT/login");
 
     $title = $ML{'.title'};
     $body = "";

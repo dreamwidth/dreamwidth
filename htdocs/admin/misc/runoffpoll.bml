@@ -32,7 +32,7 @@ body<=
 
     my $body = '';
 
-    $body .= '<form action="runoffpoll.bml" method="POST">';
+    $body .= '<form action="runoffpoll" method="POST">';
     $body .= LJ::form_auth();
     $body .= "Enter the poll ID: ";
     $body .= LJ::html_text({

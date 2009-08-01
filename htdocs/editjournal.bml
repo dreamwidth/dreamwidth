@@ -61,7 +61,7 @@ body<=
             my $ditemid = $itemid * 256 + $res{"events_${i}_anum"};
 
             $ret .= "<?hr?><table><tr valign='top'><td align='middle'>";
-            $ret .= "<form method='post' action='editjournal.bml$getextra'>\n";
+            $ret .= "<form method='post' action='editjournal$getextra'>\n";
             $ret .= LJ::html_hidden('itemid',$ditemid,'mode',"edit");
             $ret .= LJ::html_submit( "itemid-$ditemid", $ML{'.edit.this.entry'} );
             $ret .= "</form>";
@@ -236,7 +236,7 @@ body<=
                 my $journalu = $usejournal ? $usejournal_u : $u;
                 my $j_base = $journalu->journal_base;
                 my $entry_url = LJ::item_link($journalu, $itemid, $res{anum});
-                my $edititemlink = "/editjournal.bml?itemid=$ditemid";
+                my $edititemlink = "/editjournal?itemid=$ditemid";
 
                 # update crosspost if we're posting to our own journal and have
                 # selected crosspost.
@@ -313,18 +313,18 @@ body<=
 
                         if ($spid) {
                             $entry_obj->set_prop( unsuspend_supportid => $spid );
-                            my $url = "$LJ::SITEROOT/support/see_request.bml?id=$spid";
+                            my $url = "$LJ::SITEROOT/support/see_request?id=$spid";
                             $result .= "<?p " . BML::ml('.success.editedunsuspend', { url => "<a href='$url'>$url</a>" }) . " p?>";
                         }
                     } elsif ($POST{'action:save'} && $entry_obj->is_suspended && !$entry_obj->prop("unsuspend_supportid")) {
-                        $result .= "<?p " . BML::ml('.success.editedstillsuspended', { aopts => "href='$LJ::SITEROOT/abuse/report.bml'" }) . " p?>";
+                        $result .= "<?p " . BML::ml('.success.editedstillsuspended', { aopts => "href='$LJ::SITEROOT/abuse/report'" }) . " p?>";
                     }
                 }
 
                 $result .= "<div id='fromhere'>$ML{'.success.fromhere'}<ul>";
                 $result .= "<li><a href='$entry_url'>$ML{'.success.fromhere.viewentry'}</a></li>" unless $deleted;
                 $result .= "<li><a href='$j_base'>$ML{'.success.fromhere.viewentries'}</a></li>";
-                $result .= "<li><a href='$LJ::SITEROOT/editjournal.bml'>$ML{'.success.fromhere.manageentries'}</a></li>";
+                $result .= "<li><a href='$LJ::SITEROOT/editjournal'>$ML{'.success.fromhere.manageentries'}</a></li>";
                 $result .= "</ul></div>";
                 $result .= "</td>";
 
@@ -369,7 +369,7 @@ body<=
             # start edit form
             my $ret; my $js;
             $ret .= "<table><tr><td>";
-            $ret .= "<div style='width: 100%; float: left;'><form method='post' action='editjournal.bml$getextra' id='updateForm' name='updateForm'>";
+            $ret .= "<div style='width: 100%; float: left;'><form method='post' action='editjournal$getextra' id='updateForm' name='updateForm'>";
             $ret .= LJ::form_auth();
             $ret .= LJ::html_hidden('itemid', $ditemid,'mode','edit','edited',1) . "\n";
 
@@ -425,7 +425,7 @@ body<=
             # -- shove into \$head which is a reference into $_[1]->{head} and will
             #    be placed in the correct BML head portion later
             # -- this is a hack, should be done by weblib and pushed into \$$head above
-            #    in a way which is compatible with both this page and update.bml
+            #    in a way which is compatible with both this page and update
             $$head .= qq{
     <script type="text/javascript">
     //<![CDATA[
@@ -448,7 +448,7 @@ body<=
 
         ### already authenticated from above
 
-        return BML::redirect("$LJ::SITEROOT/editjournal.bml")
+        return BML::redirect("$LJ::SITEROOT/editjournal")
             unless LJ::did_post();
 
         my %res;
@@ -490,7 +490,7 @@ body<=
         if ($res{'events_count'} == 1) {
             my $ditemid = ($res{'events_1_itemid'} << 8) + $res{'events_1_anum'};
             my $ditemid_get = $getextra ? "$getextra&itemid=$ditemid" : "?itemid=$ditemid";
-            return BML::redirect("$LJ::SITEROOT/editjournal.bml$ditemid_get");
+            return BML::redirect("$LJ::SITEROOT/editjournal$ditemid_get");
         }
 
         # how many results did we get?
@@ -513,17 +513,17 @@ body<=
         $ret .= "<table style='width: 100%;'><tr><td>";
 
         # user switcher
-        $ret .= "<form action='editjournal.bml' method='get'>\n";
+        $ret .= "<form action='editjournal' method='get'>\n";
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'}, 'type' => 'P' });
         $ret .= "</form>\n\n";
 
         # header
         $ret .= "<?p " . BML::ml('.desc',
-                                {'aopts' => "href='$LJ::SITEROOT/editprivacy.bml'"})
+                                {'aopts' => "href='$LJ::SITEROOT/editprivacy'"})
                  . " p?>\n";
 
         # edit form
-        $ret .= "<form action='editjournal.bml$getextra' method='post'>\n";
+        $ret .= "<form action='editjournal$getextra' method='post'>\n";
         $ret .= LJ::html_hidden("mode","edit");
         $ret .= "<?standout <table>\n";
 

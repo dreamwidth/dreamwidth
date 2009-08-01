@@ -17,7 +17,7 @@ body<=
             $ret .= LJ::bad_input(@errors);
         } else {
             # refresh the page after saving so that the user will see activated features immediately
-            return BML::redirect("$LJ::SITEROOT/betafeatures.bml");
+            return BML::redirect("$LJ::SITEROOT/betafeatures");
         }
     }
 

@@ -45,7 +45,7 @@ body<=
             return "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>"
                 unless LJ::check_form_auth();
 
-            return BML::redirect("$LJ::SITEROOT/customize/options.bml$getextra");
+            return BML::redirect("$LJ::SITEROOT/customize/options$getextra");
         }
         my @errors = LJ::Widget->handle_post(\%POST, qw(JournalTitles ThemeChooser ThemeNav LayoutChooser AdLayout));
         $ret .= LJ::bad_input(@errors) if @errors;

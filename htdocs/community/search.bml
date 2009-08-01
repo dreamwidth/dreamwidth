@@ -39,7 +39,7 @@ _code?>
 
 <center>
 
-<form action="/directory.bml">
+<form action="/directory">
 
 <table cellpadding='4' cellspacing='0' border='0'>
 

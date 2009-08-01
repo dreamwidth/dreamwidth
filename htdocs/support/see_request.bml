@@ -63,7 +63,7 @@ head<=
         else
         {
             faqUrl.style.display = 'inline';
-            faqUrl.href = 'faqbrowse.bml?faqid=' + faqDropdown.value + '&view=full';
+            faqUrl.href = 'faqbrowse?faqid=' + faqDropdown.value + '&view=full';
         }
         return false;
     }
@@ -189,9 +189,9 @@ body<=
         my ($foundspid) = $dbr->selectrow_array("SELECT spid FROM support WHERE state='open' $spcatand $clause ".
                                                 "ORDER BY spid $sort LIMIT 1");
         if ($foundspid) {
-            return BML::redirect("see_request.bml?id=$foundspid");
+            return BML::redirect("see_request?id=$foundspid");
         } else {
-            my $goback = BML::ml('.goback.text', {request_link=>"href='see_request.bml?id=$spid'", spid=>$spid}) if $sp;
+            my $goback = BML::ml('.goback.text', {request_link=>"href='see_request?id=$spid'", spid=>$spid}) if $sp;
             my $what = $find eq 'next' || $find eq 'cnext' ? $ML{'.next'} : $ML{'.previous'};
             my $cat = $ML{'.incat'}  if $find eq 'cnext' || $find eq 'cprev';
             return "<?h1 $ML{'.error'} h1?>".BML::ml('.error.text2', {what=>$what, cat=>$cat})." $goback";
@@ -332,11 +332,11 @@ body<=
 
         if ($show_history{user} || $show_history{email}) {
             $ret .= $sp->{reqtype} eq 'user' && $show_history{user} ?
-                    "$ename <a href=\"history.bml?user=$u->{user}\">" . LJ::ehtml($u->{name}) . "</a>" :
+                    "$ename <a href=\"history?user=$u->{user}\">" . LJ::ehtml($u->{name}) . "</a>" :
                     "$ename";
 
             my $email_string = " ($visemail)" if $has_vs || $has_sh;
-            $email_string = " (<a href=\"history.bml?email=" . LJ::eurl($email) . "\">$email</a>)" if $show_history{email};
+            $email_string = " (<a href=\"history?email=" . LJ::eurl($email) . "\">$email</a>)" if $show_history{email};
             $ret .= $email_string;
         } else {
             # default view
@@ -385,7 +385,7 @@ body<=
                         $ret .= "$lay: none, ";
                         next;
                     }
-                    $ret .= "$lay: <a href='$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$lid'>";
+                    $ret .= "$lay: <a href='$LJ::SITEROOT/customize/advanced/layerbrowse?id=$lid'>";
                     $ret .= (defined $pub->{$lid} ? 'public' : 'custom') . "</a>, ";
                 }
             } else {
@@ -407,7 +407,7 @@ body<=
         my $extraval = sub {
             return '' unless LJ::check_priv($remote, 'siteadmin', 'users') ||
                              LJ::check_priv($remote, 'siteadmin', '*');
-            return " (<a href='$LJ::SITEROOT/register.bml?foruser=$u->{user}'>$ML{'.resend.validation.email'}</a>)";
+            return " (<a href='$LJ::SITEROOT/register?foruser=$u->{user}'>$ML{'.resend.validation.email'}</a>)";
         };
 
         $ret .= "<br />" . $ML{'.email.validated'};
@@ -425,9 +425,9 @@ body<=
 
         if ($view_history || $view_userlog) {
             $ret .= "<br />$ML{'.view'}: ";
-            $ret .= "<a href='$LJ::SITEROOT/admin/statushistory.bml?user=$u->{user}'>$ML{'.statushistory'}</a> "
+            $ret .= "<a href='$LJ::SITEROOT/admin/statushistory?user=$u->{user}'>$ML{'.statushistory'}</a> "
                 if $view_history;
-            $ret .= "<a href='$LJ::SITEROOT/admin/userlog.bml?user=$u->{user}'>userlog</a> "
+            $ret .= "<a href='$LJ::SITEROOT/admin/userlog?user=$u->{user}'>userlog</a> "
                 if $view_userlog;
         }
 
@@ -436,9 +436,9 @@ body<=
 
     $ret .= "<tr><td align='right' nowrap='nowrap'><b>$ML{'.supportcategory'}:</b></td><td>";
     if (LJ::Support::can_read_cat($sp->{_cat}, $remote)) {
-        $ret .= "<a href='$LJ::SITEROOT/support/help.bml?cat=$sp->{_cat}->{'catkey'}'>$problemarea</a>";
-        $ret .= " [<a href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cprev'>$ML{'.previous'}</a>|";
-        $ret .= "<a href='$LJ::SITEROOT/support/see_request.bml?id=$sp->{'spid'}&amp;find=cnext'>$ML{'.next'}</a>]";
+        $ret .= "<a href='$LJ::SITEROOT/support/help?cat=$sp->{_cat}->{'catkey'}'>$problemarea</a>";
+        $ret .= " [<a href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=cprev'>$ML{'.previous'}</a>|";
+        $ret .= "<a href='$LJ::SITEROOT/support/see_request?id=$sp->{'spid'}&amp;find=cnext'>$ML{'.next'}</a>]";
     } else {
         $ret .= $problemarea;
     }
@@ -492,15 +492,15 @@ body<=
     $ret .= "<tr><td align='right'><b>$ML{'.status'}:</b></td><td>$state";
     if ($can_close || $can_reopen) {
         if ($sp->{'state'} eq "open" && $can_close) {
-            $ret .= ", <a href='act.bml?close;$sp->{'spid'};$sp->{'authcode'}'><b>$ML{'.close.without.credit'}</b></a>";
+            $ret .= ", <a href='act?close;$sp->{'spid'};$sp->{'authcode'}'><b>$ML{'.close.without.credit'}</b></a>";
         } elsif ($sp->{state} eq 'closed') {
             my $permastatus = LJ::Support::is_locked($sp);
             $ret .= $sp->{'state'} eq "closed" && !$permastatus ?
-                    ", <a href='act.bml?touch;$sp->{'spid'};$sp->{'authcode'}'><b>$ML{'.reopen.this.request'}</b></a>" : "";
+                    ", <a href='act?touch;$sp->{'spid'};$sp->{'authcode'}'><b>$ML{'.reopen.this.request'}</b></a>" : "";
             if (LJ::Support::can_lock($sp, $remote)) {
                 $ret .= $permastatus ?
-                    ", <a href='act.bml?unlock;$sp->{spid};$sp->{authcode}'><b>$ML{'.unlock.request'}</b></a>" :
-                    ", <a href='act.bml?lock;$sp->{spid};$sp->{authcode}'><b>$ML{'.lock.request'}</b></a>";
+                    ", <a href='act?unlock;$sp->{spid};$sp->{authcode}'><b>$ML{'.unlock.request'}</b></a>" :
+                    ", <a href='act?lock;$sp->{spid};$sp->{authcode}'><b>$ML{'.lock.request'}</b></a>";
             }
         }
     }
@@ -597,7 +597,7 @@ body<=
         elsif ($le->{'type'} eq "comment") { $what = $ML{".comment"}; }
         elsif ($le->{'type'} eq "screened") { $what = $ML{'.screened.response'}; }
 
-        my $link = "<a href='$LJ::SITEROOT/support/see_request.bml?id=$spid#e$le->{splid}'>#$le->{splid}</a>";
+        my $link = "<a href='$LJ::SITEROOT/support/see_request?id=$spid#e$le->{splid}'>#$le->{splid}</a>";
         $header .= "<span style='font-size: 0.9em;'><b>$what</b> ($link)</span><br />";
         if (LJ::is_enabled("support_response_tier") && $can_see_tier && $le->{type} eq "answer") {
             # show the answer's tier level, or if there is no tier level, show the tier level at the time of posting
@@ -608,7 +608,7 @@ body<=
         my $age = LJ::ago_text($le->{'age'});
         $header .= "<b>$ML{'.posted'}:</b> $timehelped ($age)";
         if ($can_close && $sp->{'state'} eq "open" && $le->{'type'} eq "answer") {
-            $header .= ", <a href='act.bml?close;$sp->{'spid'};$sp->{'authcode'};$le->{'splid'}'><b>$ML{'.credit.fix'}</b></a>";
+            $header .= ", <a href='act?close;$sp->{'spid'};$sp->{'authcode'};$le->{'splid'}'><b>$ML{'.credit.fix'}</b></a>";
         }
 
         my $bordercolor = "default";
@@ -628,7 +628,7 @@ body<=
             # whitespace between these two DIVs is necessary for proper
             # rendering in IE 5 for Mac OS < X
             $ret .= "<div style='text-align:center; padding: 5px;'>";
-            $ret .= "<b>$ML{'.faq.reference'}:</b><br /><a href='faqbrowse.bml?faqid=$le->{faqid}&view=full'>" . $faq->question_html . "</a></div></div>\n";
+            $ret .= "<b>$ML{'.faq.reference'}:</b><br /><a href='faqbrowse?faqid=$le->{faqid}&view=full'>" . $faq->question_html . "</a></div></div>\n";
         }
         $ret .= "<p align='left' style='margin-top: 0px; margin-bottom: 0px;'>$message</p>\n";
         $ret .= "</td></tr></table>\n";
@@ -645,7 +645,7 @@ body<=
     } elsif ($remote) {
         $ret .= "<p style='margin-bottom: 0px;'><b>$ML{'.post.comment'}:</b></p>\n";
     } else {
-        $ret .= BML::ml('.mast.login', {loginlink=>"href='$LJ::SITEROOT/login.bml?ret=1'"});
+        $ret .= BML::ml('.mast.login', {loginlink=>"href='$LJ::SITEROOT/login?ret=1'"});
         $ret .= "\n";
         return $ret;
     }
@@ -663,14 +663,14 @@ body<=
     {
         $ret .= BML::ml('.important.notes.text', {
                 sitenameshort=>$LJ::SITENAMESHORT,
-                supportlink=>"href='$LJ::SITEROOT/doc/guide/support.bml'",
+                supportlink=>"href='$LJ::SITEROOT/doc/guide/support'",
             });
         $ret .= "\n";
     }
 
     # append_request form
 
-    $ret .= "<br /><form method='post' action='append_request.bml' name='supportForm'>\n";
+    $ret .= "<br /><form method='post' action='append_request' name='supportForm'>\n";
 
     # hidden values
     $ret .= LJ::html_hidden('spid', $spid, 'auth', $auth) . "\n";
@@ -690,7 +690,7 @@ body<=
     {
         my $dbr = LJ::get_db_reader();
         # FAQ reference
-        $ret .= "<tr valign='middle'><td align='right'>$ML{'.reference'} <a href='faq.bml'>$ML{'.faq'}</a>:</td><td colspan='2'>\n";
+        $ret .= "<tr valign='middle'><td align='right'>$ML{'.reference'} <a href='faq'>$ML{'.faq'}</a>:</td><td colspan='2'>\n";
 
         my %faqcat;
         my %faqq;
@@ -742,7 +742,7 @@ body<=
         $ret .= LJ::html_select({ 'name' => 'faqid', 'onchange' => 'updateFaqLink()' }, @faqlist) . "\n";
         $ret .= qq(<script language="JavaScript"><!--
             if (document.getElementById)
-                document.write("<a href='faq.bml' id='faqlink'>View FAQ</a>");
+                document.write("<a href='faq' id='faqlink'>View FAQ</a>");
         //--></script>);
         $ret .= "</td></tr>\n";
     }
@@ -889,7 +889,7 @@ body<=
                                             undef, $stock_spcatid);
 
         if ($rows && @$rows) {
-            $ret .= "<tr valign='top'><td align='right'><a href='$LJ::SITEROOT/support/stock_answers.bml?spcatid=$stock_spcatid'>Stock answers</a>:</td><td colspan='2'>\n";
+            $ret .= "<tr valign='top'><td align='right'><a href='$LJ::SITEROOT/support/stock_answers?spcatid=$stock_spcatid'>Stock answers</a>:</td><td colspan='2'>\n";
             $ret .= "<script type='text/javascript'>\n";
             $ret .= "var Iarr = new Array();\n";
             my $i = 0;
@@ -946,8 +946,8 @@ _code?>
     my $spid = $FORM{'id'}+0;
     my $ret;
     
-    $ret .= BML::ml('.see.preview', {preview_link=>"href='$LJ::SITEROOT/support/see_request.bml?id=$spid&amp;find=prev'"});
-    $ret .= BML::ml('.see.next', {next_link=>"href='$LJ::SITEROOT/support/see_request.bml?id=$spid&amp;find=next'"});
+    $ret .= BML::ml('.see.preview', {preview_link=>"href='$LJ::SITEROOT/support/see_request?id=$spid&amp;find=prev'"});
+    $ret .= BML::ml('.see.next', {next_link=>"href='$LJ::SITEROOT/support/see_request?id=$spid&amp;find=next'"});
     
     return $ret; 
 }
@@ -956,7 +956,7 @@ _code?>
 <?_code
 {
     my $ret;
-    $ret .= BML::ml('.help.link', {helplink=>'href="help.bml"'});
+    $ret .= BML::ml('.help.link', {helplink=>'href="help"'});
     $ret .= BML::ml('.back.link', {backlink=>'href="./"'});
 
     return $ret;

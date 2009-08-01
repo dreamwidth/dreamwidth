@@ -94,7 +94,7 @@
         # postto switcher form
         # If remote can make polls, show all communities they have posting access to
         # If remote can't make polls, show only paid communities they maintain
-        $body .= "<form method='get' action='create.bml'>\n";
+        $body .= "<form method='get' action='create'>\n";
         if ($remote_can_make_polls) {
             $body .= LJ::make_postto_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
         } else {
@@ -385,7 +385,7 @@
 
         ### Form Header
 
-        $ret .= "<form method='post' action='create.bml$getextra'>\n";
+        $ret .= "<form method='post' action='create$getextra'>\n";
         $ret .= LJ::html_hidden('count', $poll->{'count'});
 
         $ret .= "<div style='margin: 10px 0 20px 40px'><b>$ML{'.haserrors'}</b></div>\n"
@@ -657,7 +657,7 @@
         $ret .= "<div align='center'>\n";
 
         # edit poll
-        $ret .= "<form method='post' action='create.bml$getextra' style='display: inline'>\n";
+        $ret .= "<form method='post' action='create$getextra' style='display: inline'>\n";
         $ret .= $poll_hidden->($poll);
         $ret .= LJ::html_submit('edit_poll', undef, { 'raw' => "value='&larr; $ML{'.button.editpoll'}'" }) . "\n";
 
@@ -671,7 +671,7 @@
 
         # submit button / form
         my $usejournal = $getextra ? "?usejournal=$authas" : '';
-        $ret .= "<form method='post' action='$LJ::SITEROOT/update.bml$usejournal' style='display: inline'>\n";
+        $ret .= "<form method='post' action='$LJ::SITEROOT/update$usejournal' style='display: inline'>\n";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden('event', $code) . "\n";
         $ret .= LJ::html_submit('showform', undef, { 'raw' => "value='$ML{'.button.postpoll'} &rarr;'" }) . "\n";

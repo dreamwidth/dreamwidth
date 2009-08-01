@@ -81,7 +81,7 @@ body<=
 
                 # print out this request row
                 $ret .= '<tr>';
-                $ret .= "<td><a href=\"see_request.bml?id=$reqs{$id}->{spid}\">$reqs{$id}->{subject}</a></td>\n";
+                $ret .= "<td><a href=\"see_request?id=$reqs{$id}->{spid}\">$reqs{$id}->{subject}</a></td>\n";
                 $ret .= "<td align='center'>$reqs{$id}->{state}</td>\n";
                 $ret .= '<td align="center">';
                 if ($reqs{$id}->{state} eq 'closed' && $reqs{$id}->{winner}) {
@@ -102,7 +102,7 @@ body<=
     }
 
     $ret .= "<table><tr><th colspan='2'>Search for Requests</th></tr>";
-    $ret .= "<form method='get' action='history.bml'>";
+    $ret .= "<form method='get' action='history'>";
     $ret .= "<tr><td>By Email:</td><td><input type='text' name='email'></td></tr>";
     $ret .= "<tr><td>By Username:</td><td><input type='text' name='user'></td></tr>";
     $ret .= "<tr><td>By Userid:</td><td><input type='text' name='userid'></td></tr>";

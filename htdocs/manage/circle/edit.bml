@@ -24,7 +24,7 @@ body<=
     my $u = LJ::get_authas_user($authas);
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
-    return BML::redirect("$LJ::SITEROOT/community/members.bml?authas=$u->{'user'}")
+    return BML::redirect("$LJ::SITEROOT/community/members?authas=$u->{'user'}")
         if $u->is_community;
     return LJ::bad_input($ML{'.error.badjournaltype'})
         unless $u->is_person || $u->is_identity;
@@ -46,7 +46,7 @@ body<=
         my $us = LJ::load_userids( @trusted_userids, keys %$watch_list, @trusted_by_userids, @watched_by_userids, @member_of_userids );
         my @nonperson_userids;
 
-        $ret .= "<form method='post' name='editFriends' action='edit.bml$getextra'>\n";
+        $ret .= "<form method='post' name='editFriends' action='edit$getextra'>\n";
         $ret .= LJ::form_auth();
 
         # people table
@@ -161,11 +161,11 @@ body<=
 
                     if ( $is_member_of_userid{$uid} ) {
                         $m_text = "Y";
-                        $jl_url = "community/leave.bml";
+                        $jl_url = "community/leave";
                         $jl_text = $ML{'.comm.leave'};
                     } else {
                         $m_text = "N";
-                        $jl_url = "community/join.bml";                                                     
+                        $jl_url = "community/join";                                                     
                         $jl_text = $ML{'.comm.join'};
                      }
 
@@ -195,7 +195,7 @@ body<=
 
         ### add friends
         $ret .= "<?h2 $ML{'.addrelationships.head'} h2?>\n";
-        $ret .= "<?p " . BML::ml('.addrelationships.text', { sitename => $LJ::SITENAMESHORT, aopts => "href='$LJ::SITEROOT/manage/circle/invite.bml'" }) . " p?>";
+        $ret .= "<?p " . BML::ml('.addrelationships.text', { sitename => $LJ::SITENAMESHORT, aopts => "href='$LJ::SITEROOT/manage/circle/invite'" }) . " p?>";
 
         $ret .= "<br />";
         $ret .= "<div align='center'><table id='addfriends'>\n";
@@ -375,8 +375,8 @@ body<=
         $ret .= "<?p $ML{'.success.fromhere'} p?>";
         $ret .= "<ul>";
         $ret .= "<li><a href='" . $u->journal_base . "/read'>$ML{'.success.friendspage'}</a></li>";
-        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit.bml'>$ML{'.success.editfriends'}</a></li>";
-        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editfilters.bml'>$ML{'.success.editgroups'}</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/edit'>$ML{'.success.editfriends'}</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/editfilters'>$ML{'.success.editgroups'}</a></li>";
         $ret .= "</ul>";
 
         return $ret;

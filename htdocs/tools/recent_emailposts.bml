@@ -60,7 +60,7 @@ body<=
     $ret .= '<?p This page displays up to the last 50 emailposts to your account,
         and their individual status. p?>';
     if ( $admin ) {
-        $ret .= "<form action=\"$LJ::SITEROOT/tools/recent_emailposts.bml\" method=\"POST\">";
+        $ret .= "<form action=\"$LJ::SITEROOT/tools/recent_emailposts\" method=\"POST\">";
         $ret .= "Username to view: ";
         $ret .= LJ::html_text(
             {

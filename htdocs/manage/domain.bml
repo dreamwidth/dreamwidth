@@ -95,7 +95,7 @@ body<=
     my $ret;
 
     # user switcher
-    $ret .= "<form action='$LJ::SITEROOT/manage/domain.bml' method='get'>\n";
+    $ret .= "<form action='$LJ::SITEROOT/manage/domain' method='get'>\n";
     $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
     $ret .= "</form>\n\n";
 
@@ -103,7 +103,7 @@ body<=
     ### JOURNAL DOMAIN OPTIONS
     ###
 
-    $ret .= "<form method='post' action='/manage/domain.bml?authas=$authas'>\n";
+    $ret .= "<form method='post' action='/manage/domain?authas=$authas'>\n";
     $ret .= LJ::form_auth();
 
     my $has_cap = LJ::get_cap($u, 'domainmap');

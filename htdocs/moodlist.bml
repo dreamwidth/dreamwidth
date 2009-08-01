@@ -112,12 +112,12 @@ body<=
 
             $ret .= "<td align='center'>";
             $ret .= BML::ml('Actionlink', {
-                'link' => "<a href='$LJ::SITEROOT/moodlist.bml?moodtheme=$theme->{moodthemeid}'>$ML{'.nav.viewall'}</a>"
+                'link' => "<a href='$LJ::SITEROOT/moodlist?moodtheme=$theme->{moodthemeid}'>$ML{'.nav.viewall'}</a>"
             });
             $ret .= "</td>";
         };
 
-        $ret .= "<form action='moodlist.bml' method='get'>\n";
+        $ret .= "<form action='moodlist' method='get'>\n";
         $ret .= LJ::html_hidden("page", $items{page});
         $ret .= "<table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td></td>";
 
@@ -156,7 +156,7 @@ body<=
     # Determine the action depending on the GET arguments, or lack thereof
     if (defined $GET{'moodtheme'}) {
         $ret .= BML::ml('Backlink', {
-                'link'=>"$LJ::SITEROOT/moodlist.bml",
+                'link'=>"$LJ::SITEROOT/moodlist",
                 'text'=>$ML{'.back2'},
             }). "<br />";
 
@@ -196,11 +196,11 @@ body<=
                         (@user_themes ? (0, "---") : ()),
                         (map {$_->{moodthemeid}, $_->{name}} @user_themes));
 
-                $ret .= "<div style='margin-bottom:15px'><form action='moodlist.bml' method='GET'>";
+                $ret .= "<div style='margin-bottom:15px'><form action='moodlist' method='GET'>";
                 $ret .= LJ::html_select({'name' => "moodtheme", 'selected' => "$themeid"},
                                         @opts);
                 $ret .= "&nbsp;<input type='submit' value=\"$ML{'.btn.view'}\" /></form>";
-                $ret .= "<a href='/moodlist.bml?moodtheme=$themeid&mode=tree'>$ML{'.view.tree'}</a></div></td></tr>";
+                $ret .= "<a href='/moodlist?moodtheme=$themeid&mode=tree'>$ML{'.view.tree'}</a></div></td></tr>";
             }
 
             # Output all the moods
@@ -268,13 +268,13 @@ body<=
                 my @opts = ((map {$_->{moodthemeid}, $_->{name}} @themes),
                    (@user_themes ? (0, "---") : ()),
                             (map {$_->{moodthemeid}, $_->{name}} @user_themes));
-                $ret .= "<div style='margin-bottom:15px; margin-top:30px' align='center'><form action='moodlist.bml' method='GET'>";
+                $ret .= "<div style='margin-bottom:15px; margin-top:30px' align='center'><form action='moodlist' method='GET'>";
                 $ret .= LJ::html_select({'name' => "moodtheme", 'selected' => "$GET{moodtheme}"},
                                         @opts);
                 $ret .= "&nbsp;<input type='submit' value=\"$ML{'.btn.view'}\" />";
                 $ret .= LJ::html_hidden('mode' => 'tree');
                 $ret .= "</form>";
-                $ret .= "<a href='/moodlist.bml?moodtheme=$theme->{moodthemeid}'>$ML{'.view.table'}</a></div>";
+                $ret .= "<a href='/moodlist?moodtheme=$theme->{moodthemeid}'>$ML{'.view.table'}</a></div>";
             }
             $ret .= "<ul>\n";
 

@@ -14,7 +14,7 @@
     my $remote = LJ::get_remote();
 
     my $id = $GET{'id'};
-    return BML::redirect('layerbrowse.bml') unless $id =~ /^\d+$/;
+    return BML::redirect('layerbrowse') unless $id =~ /^\d+$/;
 
     my $lay = defined $pub->{$id} ? $pub->{$id} : LJ::S2::load_layer($id);
     return $err->($ML{'/customize/advanced/layerbrowse.bml.error.layerdoesntexist'})

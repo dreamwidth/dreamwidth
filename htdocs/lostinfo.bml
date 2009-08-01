@@ -20,7 +20,7 @@ body<=
 #        $ret .= "<?h1 $ML{'.title'} h1?>\n";
         $ret .= "<?h1 $ML{'.recaptcha.title'} h1?>\n";
 
-        $ret .= "<form action='lostinfo.bml' method='post'>\n";
+        $ret .= "<form action='lostinfo' method='post'>\n";
 
         if (LJ::is_enabled("recaptcha")) {
             my $c = Captcha::reCAPTCHA->new;
@@ -149,11 +149,11 @@ body<=
         # register an auth action for them to reset their password
         my $aa = LJ::register_authaction($u->{'userid'}, "reset_password", $email);
         $body = BML::ml('/lostinfo_do.bml.lostpasswordmail.reset', {
-                            lostinfolink => "$LJ::SITEROOT/lostinfo.bml",
+                            lostinfolink => "$LJ::SITEROOT/lostinfo",
                             sitename => $LJ::SITENAME,
                             username => $u->{user},
                             emailadr => $u->email_raw,
-                            resetlink => "$LJ::SITEROOT/changepassword.bml?auth=$aa->{aaid}.$aa->{authcode}",
+                            resetlink => "$LJ::SITEROOT/changepassword?auth=$aa->{aaid}.$aa->{authcode}",
                         });
         $body .= "\n\n" .BML::ml('/lostinfo_do.bml.lostpasswordmail.part3',
                         { 'remoteip' => BML::get_remote_host() . " (" . BML::get_remote_ip() . ")" });

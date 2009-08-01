@@ -20,7 +20,7 @@
     my $ret;
 
     $ret .= "Fill in at least one field below:";
-    $ret .= "<form method='post' action='statushistory.bml'>\n";
+    $ret .= "<form method='post' action='statushistory'>\n";
     $ret .= LJ::html_hidden('orderby', $FORM{'orderby'}, 'flow', $FORM{'flow'}) . "\n";
     $ret .= "User: " . LJ::html_text({ 'name' => 'user', 'size' => '25', 'maxlength' => '25' }) . "\n";
     $ret .= "Admin: " . LJ::html_text({ 'name' => 'admin', 'size' => '25', 'maxlength' => '25' }) . "\n";
@@ -78,7 +78,7 @@
     $ret .= "</b></p>\n";
     $ret .= "<table border='1' cellpadding='5' width='100%'>\n<tr>";
     foreach (qw(user admin shtype shdate notes)) {
-        my $link = "statushistory.bml?user=$FORM{'user'}&admin=$FORM{'admin'}&type=$FORM{'type'}&orderby=$_";
+        my $link = "statushistory?user=$FORM{'user'}&admin=$FORM{'admin'}&type=$FORM{'type'}&orderby=$_";
         $link .= $FORM{'orderby'} eq $_ && $FORM{'flow'} eq 'asc' ? "&flow=desc" : "&flow=asc";
         $ret .= "<td><b><a href='$link'>$_</a></b></td>";
     }

@@ -48,7 +48,7 @@
             my $typedes = " ($lay->{'type'}" . (! $is_child ? ": <b>$lid</b>" : '') . ")";
 
             # show link to detailed view
-            $body .= "<li><a href='layerbrowse.bml?id=$lay->{'uniq'}'>" . LJ::ehtml($layerinfo{$lid}->{'name'});
+            $body .= "<li><a href='layerbrowse?id=$lay->{'uniq'}'>" . LJ::ehtml($layerinfo{$lid}->{'name'});
             $body .= "</a>$typedes</li>\n";
 
             # done unless there are children to recurse through
@@ -61,7 +61,7 @@
                     my $is_active = LJ::run_hook("layer_is_active", $pub->{$child}->{uniq});
                     $num_children++ if !defined $is_active || $is_active;
                 }
-                $body .= "<ul><li>[<a href='layerbrowse.bml?expand=$lid'>";
+                $body .= "<ul><li>[<a href='layerbrowse?expand=$lid'>";
                 $body .= BML::ml('.layerchildren', {'numchildren' => $num_children}) . "</a>]</li></ul>";
                 return;
             }
@@ -145,22 +145,22 @@
     $body .= "<br />";
     # link to layer list if this is a public layer, otherwise user's layer list
     if (defined $pub->{$id}) {
-        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layerbrowse.bml", 'text' => $ML{'.nav.publiclayers'} }) . "\n";
+        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layerbrowse", 'text' => $ML{'.nav.publiclayers'} }) . "\n";
     } else {
-        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layers.bml", 'text' => $ML{'.nav.yourlayers'} }) . "\n";
-        $body .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=$id'>$ML{'.nav.editlayer'}</a>" }) . "\n";
+        $body .= BML::ml('Backlink', { 'link' => "$LJ::SITEROOT/customize/advanced/layers", 'text' => $ML{'.nav.yourlayers'} }) . "\n";
+        $body .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/customize/advanced/layeredit?id=$id'>$ML{'.nav.editlayer'}</a>" }) . "\n";
     }
 
 
     if ($layer->{'b2lid'}) {
-        $body .= BML::ml('Actionlink', { 'link' => "<a href=\"$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$layer->{'b2lid'}\">$ML{'.nav.parentlayer'}</a>" }) . "\n";
+        $body .= BML::ml('Actionlink', { 'link' => "<a href=\"$LJ::SITEROOT/customize/advanced/layerbrowse?id=$layer->{'b2lid'}\">$ML{'.nav.parentlayer'}</a>" }) . "\n";
     }
     if (defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
             $srcview == 1 ||
             LJ::can_manage($remote, $layer->{'userid'}) ||
             $isadmin) {
 
-        $body .= BML::ml('Actionlink', { 'link' => "$ML{'.nav.viewsource'} <a href=\"$LJ::SITEROOT/customize/advanced/layersource.bml?id=$id\">$ML{'.nav.viewsource.raw'}</a> | <a href=\"$LJ::SITEROOT/customize/advanced/layersource.bml?id=$id&fmt=html\">$ML{'.nav.viewsource.highlighted'}</a>" }) . "\n";
+        $body .= BML::ml('Actionlink', { 'link' => "$ML{'.nav.viewsource'} <a href=\"$LJ::SITEROOT/customize/advanced/layersource?id=$id\">$ML{'.nav.viewsource.raw'}</a> | <a href=\"$LJ::SITEROOT/customize/advanced/layersource?id=$id&fmt=html\">$ML{'.nav.viewsource.highlighted'}</a>" }) . "\n";
     }
 
     # layerinfo

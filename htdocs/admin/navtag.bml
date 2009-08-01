@@ -69,10 +69,10 @@
     }
 
     if ($view eq 'tag') {
-	$body .= "<a href='navtag.bml'><< Home</a><br />";
+	$body .= "<a href='navtag'><< Home</a><br />";
 	$body .= by_tag($viewtag);
     } elsif ($view eq 'dest') {
-	$body .= "<a href='navtag.bml'><< Home</a><br />";
+	$body .= "<a href='navtag'><< Home</a><br />";
 	$body .= by_url($viewdest);
     } else {
 	$body .= current_tags();
@@ -87,7 +87,7 @@
 	my $ret;
 
 
-	$ret .= "<form action='navtag.bml' method='POST'>";
+	$ret .= "<form action='navtag' method='POST'>";
         $ret .= LJ::form_auth();
 	$ret .= "<br /><?h1 JFTI! h1?>";
 
@@ -121,7 +121,7 @@
 
 	foreach my $tag (keys %$tags) {
 	    $cloud{$tag} = {
-		url   => "navtag.bml?view=tag&tag=" . LJ::eurl($tag),
+		url   => "navtag?view=tag&tag=" . LJ::eurl($tag),
 		value => $tags->{$tag},
 	    };
 	}
@@ -135,7 +135,7 @@
         my $url = shift;
         my $ret;
 
-        $ret .= "<form action='navtag.bml' method='POST'>";
+        $ret .= "<form action='navtag' method='POST'>";
         $ret .= LJ::form_auth();
         $ret .= "<?h1 Tags Pointing At " . LJ::ehtml($url) . " h1?>";
 
@@ -148,7 +148,7 @@
         my @tags = LJ::NavTag->tags_of_dest($dest);
 
         foreach my $tag (@tags) {
-            $ret .= "<tr><td><a href='navtag.bml?view=tag&tag=" . LJ::eurl($tag) . "'>";
+            $ret .= "<tr><td><a href='navtag?view=tag&tag=" . LJ::eurl($tag) . "'>";
             $ret .=  LJ::ehtml($tag) . "</a></td>";
 
             $ret .= "<td>" . LJ::html_submit("del_${tag}_PAGE:$url", 'X') . "</td>";
@@ -175,11 +175,11 @@
 	    $ret .= "<tr><td>" . LJ::ehtml($dest->title) . "</td>";
 
 	    if (my $lju = $dest->ljuser) {
-		$ret .= "<td><a href='navtag.bml?view=dest&dest=";
-		$ret .= LJ::eurl("$LJ::SITEROOT/userinfo.bml?user=$lju->{user}") . "'>";
+		$ret .= "<td><a href='navtag?view=dest&dest=";
+		$ret .= LJ::eurl("$LJ::SITEROOT/userinfo?user=$lju->{user}") . "'>";
 		$ret .= "$lju->{user}</a> (" . $lju->ljuser_display . ")</td>";
 	    } elsif (my $url = $dest->url) {
-		$ret .= "<td><a href='navtag.bml?view=dest&dest=" . LJ::eurl($url) . "'>";
+		$ret .= "<td><a href='navtag?view=dest&dest=" . LJ::eurl($url) . "'>";
                 $ret .= LJ::ehtml($url) . "</a> (<a href='$url'>view</a>)</td>";
 	    }
 

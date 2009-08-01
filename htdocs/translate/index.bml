@@ -29,7 +29,7 @@ body<=
     my @cols = (['lncode', $ML{'.table.code'}],
                 ['lnname', $ML{'.table.langname'}, sub {
                     my $r = shift;
-                    "<td><a href='edit.bml?lang=$r->{'lncode'}'>$r->{'lnname'}</a></td>";
+                    "<td><a href='edit?lang=$r->{'lncode'}'>$r->{'lnname'}</a></td>";
                 }],
                 ['percent', $ML{'.table.done'}, sub {
                     my $r = shift;
@@ -47,7 +47,7 @@ body<=
     my $ret;
     my $sorter = sub { $a->{$sortcol} cmp $b->{$sortcol} };
 
-    $ret .= BML::ml('.text', {'aopts' => "href='$LJ::SITEROOT/translate/teams.bml'"});
+    $ret .= BML::ml('.text', {'aopts' => "href='$LJ::SITEROOT/translate/teams'"});
 
     $ret .= "<p><table border='1' cellspacing='1' cellpadding='3'><tr>";
     foreach (@cols) {

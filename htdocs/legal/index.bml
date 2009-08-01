@@ -27,9 +27,9 @@ body<=
 
     my $ret = <<PAGE; 
 
-<div class='itemhead'><a href="tos.bml"><?_ml .tos-header _ml?></a></div>
+<div class='itemhead'><a href="tos"><?_ml .tos-header _ml?></a></div>
 <div class='itemdef'><?_ml .tos _ml?></div>
-<div class='itemhead'><a href="privacy.bml"><?_ml .privacy-header _ml?></a></div>
+<div class='itemhead'><a href="privacy"><?_ml .privacy-header _ml?></a></div>
 <div class='itemdef'><?_ml .privacy _ml?></div>
 
 PAGE

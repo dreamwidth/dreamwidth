@@ -49,7 +49,7 @@ $questions
 
     $ret .= "<?p $ML{'.intro'} p?>";
 
-    $ret .= "<form action='suggest_qotd.bml' method='post'>";
+    $ret .= "<form action='suggest_qotd' method='post'>";
     $ret .= LJ::form_auth();
     $ret .= "<div style='padding: 10px; margin-left: 20px;'>";
 

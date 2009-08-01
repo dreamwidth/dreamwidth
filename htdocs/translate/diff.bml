@@ -60,7 +60,7 @@ ins {
         if ($_ eq $view_change) {
             $ret .= "<b>[Change $_]</b>\n";
         } else {
-            $ret .= "<a href='diff.bml?lang=$lang&it=$GET{'it'}&change=$_'>[Change $_]</a>\n";
+            $ret .= "<a href='diff?lang=$lang&it=$GET{'it'}&change=$_'>[Change $_]</a>\n";
         }
     }
     $ret .= "<hr>";

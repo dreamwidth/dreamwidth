@@ -39,9 +39,9 @@ body<=
 
         # next page unless errors
         unless ( keys %{ $from_post{errors} } ) {
-            return BML::redirect( "$LJ::SITEROOT/create/upgrade.bml" )
+            return BML::redirect( "$LJ::SITEROOT/create/upgrade" )
                 if LJ::is_enabled( 'payments' ) && !$remote->is_paid;
-            return BML::redirect( "$LJ::SITEROOT/create/confirm.bml" );
+            return BML::redirect( "$LJ::SITEROOT/create/confirm" );
         }
     }
 
@@ -50,7 +50,7 @@ body<=
     $ret .= "<div id='create-page'>";
     $ret .= LJ::Widget::CreateAccountProgressMeter->render( step => 2 );
 
-    $ret .= "<form method='post' action='$LJ::SITEROOT/create/setup.bml'>";
+    $ret .= "<form method='post' action='$LJ::SITEROOT/create/setup'>";
     $ret .= LJ::form_auth();
 
     $ret .= LJ::Widget::CreateAccountProfile->render(

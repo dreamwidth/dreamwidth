@@ -81,7 +81,7 @@
     my $addlink = sub {
         return unless @page;
         $page++;
-        my $link = "editpage.bml?lang=$lang&amp;items=" . LJ::eurl(join(",",map{"$_->[0]:$_->[1]"}@page));
+        my $link = "editpage?lang=$lang&amp;items=" . LJ::eurl(join(",",map{"$_->[0]:$_->[1]"}@page));
         $ret .= "<b><a target='main' href='$link'>Page $page</a></b><br /><span style='font-size:8pt'>\n";
         $ret .= "$page[0]->[2]<br />\n";
         $ret .= "$page[-1]->[2]<br /></span>\n";

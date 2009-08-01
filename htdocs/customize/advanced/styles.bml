@@ -9,7 +9,7 @@
 
     # authas switcher form
     my $authasform = sub {
-        $body .= "<form method='get' action='styles.bml'>\n";
+        $body .= "<form method='get' action='styles'>\n";
         $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
         $body .= "</form>\n\n";
     };
@@ -83,7 +83,7 @@
         'text' => $ML{'.back2'},
     }) . "\n";
     $body .= BML::ml("Actionlink", {
-        'link' => "<a href='$LJ::SITEROOT/customize/advanced/layers.bml$getextra'>$ML{'.nav.yourlayers'}</a>",
+        'link' => "<a href='$LJ::SITEROOT/customize/advanced/layers$getextra'>$ML{'.nav.yourlayers'}</a>",
     }) . "\n";
 
     # edit mode
@@ -105,7 +105,7 @@
             LJ::set_userprop($u, "stylesys", '2');
             LJ::set_userprop($u, "s2_style", $id);
             LJ::run_hooks('apply_theme', $u);
-            return BML::redirect("styles.bml$getextra");
+            return BML::redirect("styles$getextra");
         }
 
         # get public layers
@@ -163,7 +163,7 @@
 
         # set up start of output
         $title = $ML{'.editstyle.title'};
-        $body .= "<br />" . BML::ml('Backlink', { 'text' => $ML{'.back2styles'}, 'link' => "$LJ::SITEROOT/customize/advanced/styles.bml$getextra" }) . "\n";
+        $body .= "<br />" . BML::ml('Backlink', { 'text' => $ML{'.back2styles'}, 'link' => "$LJ::SITEROOT/customize/advanced/styles$getextra" }) . "\n";
 
         ### process edit actions
 
@@ -172,7 +172,7 @@
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
             LJ::S2::delete_user_style($u, $id);
             undef $id; # don't show form below
-            return BML::redirect("styles.bml$getextra");
+            return BML::redirect("styles$getextra");
         }
 
         # save changes
@@ -257,7 +257,7 @@
             LJ::S2::set_style_layers($u, $style->{'styleid'}, @layers);
 
             # redirect if they clicked the bottom button
-            return BML::redirect("styles.bml$getextra") if $POST{'action:savechanges'};
+            return BML::redirect("styles$getextra") if $POST{'action:savechanges'};
         }
 
     # no style id, process actions for non-edit mode
@@ -277,7 +277,7 @@
             my $styleid = LJ::S2::create_style($u, $POST{'stylename'});
             return $err->($ML{'.error.cantcreatestyle'}) unless $styleid;
 
-            return BML::redirect("styles.bml?id=$styleid$getextra_amp");
+            return BML::redirect("styles?id=$styleid$getextra_amp");
         }
 
         # load style currently in use
@@ -293,7 +293,7 @@
         if (%$ustyle) {
             my $journalbase = LJ::journal_base($u);
             foreach my $styleid (sort { $ustyle->{$a} cmp $ustyle->{$b} || $a <=> $b} keys %$ustyle) {
-                $body .= "<tr><td><form style='display:inline' method='post' action='styles.bml?id=$styleid$getextra_amp'>";
+                $body .= "<tr><td><form style='display:inline' method='post' action='styles?id=$styleid$getextra_amp'>";
                 $body .= $formauth;
                 my @b = $styleid == $u->{'s2_style'} ? "<b>" : "</b>";
                 $body .= $b[0];
@@ -320,7 +320,7 @@
 
     my $extra = $id ? "?id=$id" : '';
     $extra .= $extra ? $getextra_amp : $getextra;
-    $body .= "<form name='styleForm' method='post' action='styles.bml$extra'>";
+    $body .= "<form name='styleForm' method='post' action='styles$extra'>";
     $body .= $formauth;
 
     # create a new style, or change the name of the style currently being edited

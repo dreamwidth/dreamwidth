@@ -19,7 +19,7 @@ body<=
         unless $remote->is_person;
     return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.notactive'} p?>"
         unless $remote->is_visible;
-    return "<?h1 $ML{'Error'} h1?><?p " . BML::ml('.error.notvalidated2', { aopts => "'href='$LJ::SITEROOT/register.bml'" }) . " p?>"
+    return "<?h1 $ML{'Error'} h1?><?p " . BML::ml('.error.notvalidated2', { aopts => "'href='$LJ::SITEROOT/register'" }) . " p?>"
         unless $remote->is_validated;
 
     # fix up the incoming data (is used in getinfo mode and submit mode so it's here)
@@ -134,7 +134,7 @@ SUBMIT:
         }
 
         $ret .= "<?p $ML{'.create.text'} p?>" unless $error;
-        $ret .= "<form action=\"create.bml\" method=\"post\">\n";
+        $ret .= "<form action=\"create\" method=\"post\">\n";
         $ret .= LJ::html_hidden(mode => 'submit', ssl => $FORM{'ssl'});
         $ret .= LJ::form_auth();
 
@@ -146,7 +146,7 @@ SUBMIT:
         $ret .= "<p class='formitemFlag'>$error</p>";
         $ret .= "<div class='formitemDesc'>" . BML::ml(".username.text", { sitename => $LJ::SITENAME }) . "</div>";
         $ret .= LJ::html_text({'name' => 'user', 'size' => 15, 'maxlength' => 25, 'value' => $v, raw => 'style="<?commloginboxstyle?>"' });
-        $ret .= "<br />" . BML::ml('.person', { aopts => "href='$LJ::SITEROOT/create.bml'" });
+        $ret .= "<br />" . BML::ml('.person', { aopts => "href='$LJ::SITEROOT/create'" });
         $ret .= "<div class='formitemNote'>$ML{'.username.charsallowed'}</div>";
         $ret .= "</div></li>";
 

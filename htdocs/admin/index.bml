@@ -33,19 +33,19 @@ body<=
     my $ret;
 
     my @adminpages = (
-        [ 'capedit.bml',
+        [ 'capedit',
             '<?_ml .admin.capability.link _ml?>', '<?_ml .admin.capability.text _ml?>', [ 'admin:*', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
-        [ 'clusterstatus.bml',
+        [ 'clusterstatus',
             '<?_ml .admin.cluster.link _ml?>', '<?_ml .admin.cluster.text _ml?>', [ 'supporthelp' ] ],
         [ 'console/',
             '<?_ml .admin.console.link _ml?>', '<?_ml .admin.console.text _ml?>' ],
         [ 'schema/',
             '<?_ml .admin.dbschema.link _ml?>', '<?_ml .admin.dbschema.text _ml?>', [ 'schemadoc' ] ],
-        [ 'dupkiller.bml',
+        [ 'dupkiller',
             '<?_ml .admin.dupkiller.link _ml?>', '<?_ml .admin.dupkiller.text _ml?>', [ 'supporthelp' ] ],
-        [ 'entryprops.bml',
+        [ 'entryprops',
             '<?_ml .admin.entryprops.link _ml?>', '<?_ml .admin.entryprops.text _ml?>', [ 'canview:entryprops', 'canview:*', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
@@ -53,61 +53,61 @@ body<=
             '<?_ml .admin.faq.link _ml?>', '<?_ml .admin.faq.text _ml?>', [ 'faqadd', 'faqedit', 'faqcat' ] ],
         [ 'fileedit/',
             '<?_ml .admin.file_edit.link _ml?>', 'Allows you to edit various include files.', [ 'fileedit' ] ],
-        [ 'invites/requests.bml',
+        [ 'invites/requests',
             '<?_ml .admin.invite_requests.link _ml?>', '<?_ml .admin.invite_requests.text _ml?>', [ 'payments' ] ],
-        [ 'invites/review.bml',
+        [ 'invites/review',
             '<?_ml .admin.invite_review.link _ml?>', '<?_ml .admin.invite_review.text _ml?>', [ 'payments' ] ],
-        [ 'invitecodes.bml',
+        [ 'invitecodes',
             '<?_ml .admin.invite_codes.link _ml?>', '<?_ml .admin.invite_codes.text _ml?>', [ 'finduser:codetrace', 'finduser:*' ] ],
-        [ 'logout_user.bml',
+        [ 'logout_user',
             '<?_ml .admin.logout_user.link _ml?>', '<?_ml .admin.logout_user.text _ml?>', [ 'suspend' ] ],
-        [ 'memcache.bml',
+        [ 'memcache',
             '<?_ml .admin.memcache.link _ml?>', '<?_ml .admin.memcache.text _ml?>', [ 'siteadmin:memcacheview', 'siteadmin:*' ] ],
-        [ 'memcache_view.bml',
+        [ 'memcache_view',
             '<?_ml .admin.memcache_view.link _ml?>', '<?_ml .admin.memcache_view.text _ml?>', [ 'siteadmin:memcacheview', 'siteadmin:*', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
-        [ 'mysql_status.bml',
+        [ 'mysql_status',
             '<?_ml .admin.mysql.link _ml?>', '<?_ml .admin.mysql.text _ml?>', [ 'siteadmin:mysqlstatus', 'siteadmin:*' ] ],
-        [ 'navtag.bml',
+        [ 'navtag',
             '<?_ml .admin.navtag.link _ml?>', '<?_ml .admin.navtag.text _ml?>', [ 'siteadmin:navtag', 'siteadmin:*' ] ],
         [ 'pay/',
             '<?_ml .admin.pay.link _ml?>', '<?_ml .admin.pay.text _ml?>', [ 'payments' ] ],
         [ 'priv/',
             '<?_ml .admin.priv.link _ml?>', '<?_ml .admin.priv.text _ml?>' ],
-        [ 'propedit.bml',
+        [ 'propedit',
             '<?_ml .admin.propedit.link _ml?>', '<?_ml .admin.propedit.text _ml?>', [ 'canview:userprops', 'canview:*' ] ],
-        [ 'recent_comments.bml',
+        [ 'recent_comments',
             '<?_ml .admin.recent_comments.link _ml?>', '<?_ml .admin.recent_comments.text _ml?>', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
         [ 'schools/',
             '<?_ml .admin.schools.link _ml?>', '<?_ml .admin.schools.text _ml?>', [ 'siteadmin:schools', 'siteadmin:*' ] ],
-        [ 'sitemessages/add.bml',
+        [ 'sitemessages/add',
             '<?_ml .admin.sitemessages_add.link _ml?>', '<?_ml .admin.sitemessages_add.text _ml?>', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
-        [ 'sitemessages/manage.bml',
+        [ 'sitemessages/manage',
             '<?_ml .admin.sitemessages_manage.link _ml?>', '<?_ml .admin.sitemessages_manage.text _ml?>', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
-        [ 'spamreports.bml',
+        [ 'spamreports',
             '<?_ml .admin.spamreports.link _ml?>', '<?_ml .admin.spamreports.text _ml?>', [ 'siteadmin:spamreports', 'siteadmin:*' ] ],
-        [ 'stats.bml',
+        [ 'stats',
             '<?_ml .admin.stats.link _ml?>', '<?_ml .admin.stats.text _ml?>', [ 'payments' ] ],
-        [ 'statushistory.bml',
+        [ 'statushistory',
             '<?_ml .admin.statushistory.link _ml?>', '<?_ml .admin.statushistory.text _ml?>', [ 'historyview', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
-        [ 'styleinfo.bml',
+        [ 'styleinfo',
             '<?_ml .admin.styleinfo.link _ml?>', '<?_ml .admin.styleinfo.text _ml?>', [ sub {
                 return ( LJ::Support::has_any_support_priv($remote), "<?_ml .anysupportpriv _ml?>" );
             }, sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );
             } ] ],
-        [ 'sysban.bml',
+        [ 'sysban',
             '<?_ml .admin.sysban.link _ml?>', '<?_ml .admin.sysban.text _ml?>', [ 'sysban' ] ],
-        [ 'theschwartz.bml',
+        [ 'theschwartz',
             '<?_ml .admin.theschwartz.link _ml?>', '<?_ml .admin.theschwartz.text _ml?>', [ 'siteadmin:theschwartz' ] ],
-        [ 'userlog.bml',
+        [ 'userlog',
             '<?_ml .admin.userlog.link _ml?>', '<?_ml .admin.userlog.text _ml?>', [ 'canview:userlog', 'canview:*' ] ],
     );
 

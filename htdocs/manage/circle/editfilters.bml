@@ -87,12 +87,12 @@
     my $trusted_us = LJ::load_userids( keys %$trust_list );
 
     # authas switcher form
-    $body .= "<form method='get' action='editfilters.bml'>\n";
+    $body .= "<form method='get' action='editfilters'>\n";
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $body .= "</form>\n\n";
 
     $body .= "<?p $ML{'.text'} p?><?p $ML{'.text.sec'} p?><p>";
-    $body .= "<form method='post' name='fg' action='editfilters.bml$getextra'>";
+    $body .= "<form method='post' name='fg' action='editfilters$getextra'>";
     $body .= LJ::form_auth();
     $body .= "<input type='hidden' name='mode' value='save' />";
     for ( my $i = 1; $i <= 60; $i++ ) {

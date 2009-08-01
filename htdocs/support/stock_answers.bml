@@ -46,7 +46,7 @@ body<=
     my $ansid = ($GET{ansid} || 0) + 0;
 
     my $ret = "<?h1 $ML{'.stock.answers'} h1?>";
-    my $self = "$LJ::SITEROOT/support/stock_answers.bml";
+    my $self = "$LJ::SITEROOT/support/stock_answers";
 
     if ($POST{'action:delete'}) {
         my $dbh = LJ::get_db_writer();

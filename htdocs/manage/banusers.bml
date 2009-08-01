@@ -69,13 +69,13 @@ body<=
 
     my $ret;
 
-    $ret .= "<form action='$LJ::SITEROOT/manage/banusers.bml' method='get'>";
+    $ret .= "<form action='$LJ::SITEROOT/manage/banusers' method='get'>";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
     $ret .= "</form>";
 
     $ret .= "<div style='margin-top: 20px;'>$submit_msg</div>";
 
-    $ret .= "<form action='$LJ::SITEROOT/manage/banusers.bml$getextra' method='post' name='ban_users_form'>";
+    $ret .= "<form action='$LJ::SITEROOT/manage/banusers$getextra' method='post' name='ban_users_form'>";
     $ret .= LJ::form_auth();
 
     # ban users

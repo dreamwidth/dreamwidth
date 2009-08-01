@@ -52,7 +52,7 @@
     }
 
     if ($GET{view}) {
-        $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
+        $body .= '<p>[ <a href="/admin/pay/index">&lt;&lt; Back to Index</a> ]</p>';
 
         # allow editing a user's paid status
         my $u = LJ::load_user( $GET{view} );
@@ -99,7 +99,7 @@ Give Paid Time:
     for <input type="text" name="months" maxlength="2" size="3" /> months
     <input type="submit" value="Give!" />
 </form>
-<p><a href="/admin/statushistory.bml?user=$u->{user}">View statushistory for user.</a></p>
+<p><a href="/admin/statushistory?user=$u->{user}">View statushistory for user.</a></p>
 <h2>View Carts</h2>
 EOF
 

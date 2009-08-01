@@ -21,7 +21,7 @@ body<=
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
         unless LJ::check_priv($remote, 'siteadmin', 'school');
 
-    $ret .= "<?p [ <a href='index.bml'>&lt;&lt; Back to Admin Index</a> ] p?>";
+    $ret .= "<?p [ <a href='index'>&lt;&lt; Back to Admin Index</a> ] p?>";
 
     if (LJ::did_post()) {
         my $check = sub {
@@ -99,7 +99,7 @@ body<=
     };
 
     # simply dump the form
-    $ret .= "<form method='post' action='rename.bml'>";
+    $ret .= "<form method='post' action='rename'>";
     $ret .= LJ::form_auth();
     $ret .= "<?p Rename this location: p?>";
     $ret .= $dump->("from");

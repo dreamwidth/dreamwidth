@@ -17,7 +17,7 @@
     $ret .= "<h2><?_ml .options.header _ml?></h2><ul>";
 
     unless ($u) {
-        $ret .= "<li>" . BML::ml( ".options.login_prompt", { aopts => "href='login.bml'"  } ) . "</li>";
+        $ret .= "<li>" . BML::ml( ".options.login_prompt", { aopts => "href='login'"  } ) . "</li>";
     }
 
 

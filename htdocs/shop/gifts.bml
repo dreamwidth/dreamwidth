@@ -87,7 +87,7 @@ body<=
 
     if ( $freeusers || $freecommunities ) {
         $ret .= "<h2>" . BML::ml( '.free.header' ) . "</h2>\n";
-        $ret .= "<p>" . BML::ml( '.free.about', { 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=153'" } ) . "</p>";
+        $ret .= "<p>" . BML::ml( '.free.about', { 'aopts' => "href='$LJ::SITEROOT/support/faqbrowse?faqid=153'" } ) . "</p>";
 
         #build different lists for personal and community accounts
         if ( $freeusers ) {

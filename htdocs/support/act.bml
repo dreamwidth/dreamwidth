@@ -38,7 +38,7 @@ body<=
      LJ::Support::touch_request($spid)
        or return "<?h1 $ML{'.error'} h1?><?p $ML{'.touch.failed'} p?>";
 
-     return BML::redirect("$LJ::SITEROOT/support/see_request.bml?id=$spid")
+     return BML::redirect("$LJ::SITEROOT/support/see_request?id=$spid")
          if LJ::Support::can_close($sp, $remote);
 
      $ret .= ("<?h1 $ML{'.touched'} h1?><?p $ML{'.your.request'} " .
@@ -46,7 +46,7 @@ body<=
                                         : $ML{'.has.been.reopened'}) .
               $ML{'.please.comment'} . " p?>");
 
-     $ret .= '<br /><form method="post" action="append_request.bml">';
+     $ret .= '<br /><form method="post" action="append_request">';
      # hidden values
      $ret .= "<input type=\"hidden\" name=\"spid\" value=\"$spid\" />\n";
      $ret .= "<input type=\"hidden\" name=\"auth\" value=\"$auth\" />\n";
@@ -89,7 +89,7 @@ body<=
          remote => $remote,
          type => 'internal',
      });
-     return "<?h1 $ML{'.success'} h1?><?p " . BML::ml('.request.has.been.locked', {'requestlink'=>"href='/support/see_request.bml?id=$sp->{spid}'"}) . " p?>";
+     return "<?h1 $ML{'.success'} h1?><?p " . BML::ml('.request.has.been.locked', {'requestlink'=>"href='/support/see_request?id=$sp->{spid}'"}) . " p?>";
  }
 
  if ($action eq 'unlock') {
@@ -105,7 +105,7 @@ body<=
          remote => $remote,
          type => 'internal',
      });
-     return "<?h1 $ML{'.success'} h1?><?p ".BML::ml('.request.has.been.unlocked', {"requestlink"=>"href='/support/see_request.bml?id=$sp->{spid}'"})." p?>";
+     return "<?h1 $ML{'.success'} h1?><?p ".BML::ml('.request.has.been.unlocked', {"requestlink"=>"href='/support/see_request?id=$sp->{spid}'"})." p?>";
  }
 
  if ($action eq "close") {
@@ -144,15 +144,15 @@ body<=
          $sth->execute;
          my $next = $sth->fetchrow_array;
          if ($next) {
-             return BML::redirect("$LJ::SITEROOT/support/see_request.bml?id=$next");
+             return BML::redirect("$LJ::SITEROOT/support/see_request?id=$next");
          } else {
              return "<?h1 $ML{'.closed'} h1?>
 <ul>
-   <li>" . BML::ml('.go.back.to.request', {'back.req.url'=>"href='see_request.bml?id=$sp->{'spid'}'", 'spid'=>$sp->{'spid'}}) ."</li>
-   <li>" . BML::ml('.go.back.to.open.request', {"url"=>"href='help.bml'"}) . "</li>
-   <li>" . BML::ml('.go.back.to.category', {"url"=>"'help.bml?cat=$sp->{'_cat'}->{'catkey'}'"}) . "</li>
-   <li>" . BML::ml('.go.to.previous.next.request', {"prev.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=prev'", "next.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=next'"}) . "</li>
-   <li>" . BML::ml('.go.to.previous.next.req.cat', {"prev.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=cprev'", "next.url"=>"href='see_request.bml?id=$sp->{'spid'}&amp;find=cnext'"}) . "</li>
+   <li>" . BML::ml('.go.back.to.request', {'back.req.url'=>"href='see_request?id=$sp->{'spid'}'", 'spid'=>$sp->{'spid'}}) ."</li>
+   <li>" . BML::ml('.go.back.to.open.request', {"url"=>"href='help'"}) . "</li>
+   <li>" . BML::ml('.go.back.to.category', {"url"=>"'help?cat=$sp->{'_cat'}->{'catkey'}'"}) . "</li>
+   <li>" . BML::ml('.go.to.previous.next.request', {"prev.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=prev'", "next.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=next'"}) . "</li>
+   <li>" . BML::ml('.go.to.previous.next.req.cat', {"prev.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=cprev'", "next.url"=>"href='see_request?id=$sp->{'spid'}&amp;find=cnext'"}) . "</li>
 </ul>";
          }
      } 

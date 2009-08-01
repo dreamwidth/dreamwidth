@@ -144,7 +144,7 @@ function altlogin (e) {
 
     f = document.updateForm;
     if (! f) return false;
-    f.action = 'update.bml?altlogin=1';
+    f.action = 'update?altlogin=1';
     
     if (f.security) {
         f.security.options[3] = null;
@@ -217,7 +217,7 @@ function mood_preview() {
 function entryPreview(entryForm) {
     var f=entryForm;
     var action=f.action;
-    f.action='/preview/entry.bml'; 
+    f.action='/preview/entry'; 
     f.target='preview';
     window.open('','preview','width=760,height=600,resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes');
     f.submit(); 
@@ -354,7 +354,7 @@ function getUserTags(defaultjournal) {
     }
 
     HTTPReq.getJSON({
-        url: "/tools/endpoints/gettags.bml?user=" + user,
+        url: "/tools/endpoints/gettags?user=" + user,
         method: "GET",
         onData: function (data) {
             // disable any InputComplete objects that are already on the tag field
@@ -392,7 +392,7 @@ function changeSecurityOptions(defaultjournal) {
     }
 
     HTTPReq.getJSON({
-        url: "/tools/endpoints/getsecurityoptions.bml?user=" + user,
+        url: "/tools/endpoints/getsecurityoptions?user=" + user,
         method: "GET",
         onData: function (data) {
             if ($('security')) {
@@ -524,7 +524,7 @@ InOb.handleInsertSelect = function () {
     if (selected == 0) {
         return true;
     } else if (selected == 1) {
-        include = 'imgupload.bml';
+        include = 'imgupload';
     } else {
         alert('Unknown index selected');
         return false;
@@ -551,7 +551,7 @@ InOb.handleInsertEmbed = function () {
 
 InOb.handleInsertImage = function () {
     var include;
-    include = '/imgupload.bml';
+    include = '/imgupload';
     onInsertObject(include);
     return true;
 }
@@ -892,7 +892,7 @@ LJDraft.save = function (drafttext, cb) {
 
     HTTPReq.getJSON({
       method: "POST",
-      url: "/tools/endpoints/draft.bml",
+      url: "/tools/endpoints/draft",
       onData: finished,
       onError: function () { LJDraft.saveInProg = false; },
       data: HTTPReq.formEncoded({"saveDraft": drafttext})

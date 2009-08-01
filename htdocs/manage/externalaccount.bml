@@ -7,7 +7,7 @@ use strict;
     
     if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{ssl} ne "no") {
         my $getextra = $GET{acctid} ? "?acctid=" . LJ::eurl($GET{acctid}) : "";
-        return BML::redirect("$LJ::SSLROOT/manage/externalaccount.bml$getextra");
+        return BML::redirect("$LJ::SSLROOT/manage/externalaccount$getextra");
     }
 
     BML::set_language_scope('/manage/externalaccount.bml');
@@ -53,7 +53,7 @@ use strict;
 
     my $body .= qq {
       <div id='settings_page'>
-        <form action="/manage/externalaccount.bml" method="post" id="createacct">
+        <form action="/manage/externalaccount" method="post" id="createacct">
           <div id='xpost_add'>
             <table class='setting_table'>
     };

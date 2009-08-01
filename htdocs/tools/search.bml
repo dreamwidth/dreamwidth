@@ -32,9 +32,9 @@ body<=
     $ret .= LJ::Widget::Search->render;
 
     $ret .="<ul>\n<li>";
-    $ret .= BML::ml( ".directory", { aopts => "href='$LJ::SITEROOT/directorysearch.bml'" } );
+    $ret .= BML::ml( ".directory", { aopts => "href='$LJ::SITEROOT/directorysearch'" } );
     $ret .= " &mdash; <?_ml .directory.desc _ml?> </li>\n<li>";
-    $ret .= BML::ml( ".commsearch", { aopts => "href='$LJ::SITEROOT/community/search.bml'" } );
+    $ret .= BML::ml( ".commsearch", { aopts => "href='$LJ::SITEROOT/community/search'" } );
     $ret .= " &mdash; <?_ml .commsearch.desc _ml?> </li>\n</ul>\n";
 
     return $ret

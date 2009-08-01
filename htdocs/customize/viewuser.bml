@@ -8,7 +8,7 @@
     my $dbh = LJ::get_db_writer();
 
     my $remote = LJ::get_remote();
-    return "<?h1 $ML{'.login.required'} h1?><?p " . BML::ml('.login.first', {'url'=>"href='/login.bml?ret=1'"}) . " p?>"
+    return "<?h1 $ML{'.login.required'} h1?><?p " . BML::ml('.login.first', {'url'=>"href='/login?ret=1'"}) . " p?>"
         unless $remote;
 
     my $authas = $GET{authas} || $remote->{user};
@@ -21,7 +21,7 @@
     $body = "";
     $title = $ML{".user.layer"};
 
-    $body .= "<form method='get' action='viewuser.bml'>\n";
+    $body .= "<form method='get' action='viewuser'>\n";
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $body .= "</form>\n\n";
 
@@ -90,8 +90,8 @@
     # load the language and layout choices for core.
     LJ::S2::load_layer_info(\%layerinfo, \@layerids);
    
-    $body .= "<a href='viewuser.bml?journal=$authas'>$ML{'.raw'}</a> | ";
-    $body .= "<a href='viewuser.bml?journal=$authas&as=theme'>$ML{'.as.theme'}</a>\n";
+    $body .= "<a href='viewuser?journal=$authas'>$ML{'.raw'}</a> | ";
+    $body .= "<a href='viewuser?journal=$authas&as=theme'>$ML{'.as.theme'}</a>\n";
 
     $body .= "<p><textarea rows='40' cols='60' wrap='off'>";
     

@@ -21,13 +21,13 @@ body<=
 
     # old GET arg
     if ($GET{comm}) {
-        return BML::redirect("$LJ::SITEROOT/community/members.bml?authas=$GET{comm}");
+        return BML::redirect("$LJ::SITEROOT/community/members?authas=$GET{comm}");
     }
 
     my $cname = $GET{authas};
-    return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+    return BML::redirect("$LJ::SITEROOT/community/manage") unless $cname;
 
-    $ret .= "<form action='members.bml' method='GET'>\n";
+    $ret .= "<form action='members' method='GET'>\n";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
     $ret .= "</form>\n\n";
 
@@ -346,7 +346,7 @@ body<=
                         # if it succeeded, push the reinvited information
                         push @msgs, BML::ml('.reinvited2',
                             { user => LJ::ljuser($u),
-                              aopts => "href='$LJ::SITEROOT/manage/invites.bml'" });
+                              aopts => "href='$LJ::SITEROOT/manage/invites'" });
                     }
                 }
             }
@@ -363,7 +363,7 @@ body<=
             my $mailusername = $newmaintu->{user};
             my $mailusercname = $c->{name};
             my $mailclink = LJ::journal_base($c, ['community']);
-            my $mailcommanlink = "$LJ::SITEROOT/community/manage.bml";
+            my $mailcommanlink = "$LJ::SITEROOT/community/manage";
 
             my $html;
 
@@ -422,7 +422,7 @@ body<=
         if (@invited) {
             $ret .= "<?p ";
             $ret .= BML::ml('.success.invited2',
-                            { aopts => "href='$LJ::SITEROOT/manage/invites.bml'" });
+                            { aopts => "href='$LJ::SITEROOT/manage/invites'" });
             $ret .= " p?><ul>";
             foreach my $row (@invited) {
                 $ret .= "<li>" . LJ::ljuser($row->[0]) . ": ";
@@ -503,7 +503,7 @@ body<=
     # how to make links back to this page
     my $self_link = sub {
         my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
-        return "members.bml?authas=$cname&page=$_[0]$sort";
+        return "members?authas=$cname&page=$_[0]$sort";
     };
 
     my %items = BML::paging(\@users, $jumppage || $GET{'page'}, $page_size);
@@ -515,7 +515,7 @@ body<=
     $ret .= BML::ml('.intro', { aopts1 => "href='$LJ::HELPURL{maintainership}'", aopts2 => "href='$LJ::HELPURL{add_to_comm}'" }) . "<br /><br />";
     $ret .= $ML{'.intro.invite'};
 
-    $ret .= "<form method='post' action='members.bml?authas=$cname'>";
+    $ret .= "<form method='post' action='members?authas=$cname'>";
     $ret .= LJ::form_auth();
 
     # jump to user

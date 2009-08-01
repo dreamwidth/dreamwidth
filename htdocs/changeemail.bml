@@ -27,7 +27,7 @@ body<=
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
 
     if ($LJ::USE_SSL && ! $LJ::IS_SSL && $FORM{'ssl'} ne "no") {
-        return BML::redirect("$LJ::SSLROOT/changeemail.bml$getextra");
+        return BML::redirect("$LJ::SSLROOT/changeemail$getextra");
     }
 
     my $crumb = $LJ::IS_SSL ? 'securechangeemail' : 'changeemail';
@@ -44,7 +44,7 @@ body<=
             $ret .= '<?p ' . BML::ml('.instructions', { sitename => $LJ::SITENAMESHORT }) . ' p?>';
         }
 
-        $ret .= "<form action='changeemail.bml$getextra' method='post'>\n";
+        $ret .= "<form action='changeemail$getextra' method='post'>\n";
         $ret .= LJ::html_hidden(mode => 'submit',
                                 ssl => $FORM{'ssl'});
 
@@ -155,8 +155,8 @@ body<=
                                 ip                => BML::get_remote_ip(),
                                 old_email         => $old_email,
                                 new_email         => $POST{'email'},
-                                email_change_link => $LJ::SITEROOT.'/changeemail.bml',
-                                email_manage_link => $LJ::SITEROOT.'/tools/emailmanage.bml',
+                                email_change_link => $LJ::SITEROOT.'/changeemail',
+                                email_manage_link => $LJ::SITEROOT.'/tools/emailmanage',
                                 sitename          => $LJ::SITENAME,
                                 sitelink          => $LJ::SITEROOT,
                                 datetime          => sprintf("%02d:%02d %02d/%02d/%04d", @date[2,1], $date[3], $date[4]+1, $date[5]+1900),

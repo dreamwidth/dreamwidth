@@ -20,7 +20,7 @@ body<=
     use strict;
     use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
 
-    return BML::redirect( "$LJ::SITEROOT/create.bml" );
+    return BML::redirect( "$LJ::SITEROOT/create" );
 }
 _code?>
 <=body

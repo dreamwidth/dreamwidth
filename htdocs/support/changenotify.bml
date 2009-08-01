@@ -14,7 +14,7 @@ body<=
  my $mode = $FORM{'mode'} || "modify";
 
  unless ($remote) {
-     push @errors, BML::ml('.mustlogin', {login=>"href=\"/login.bml?ret=1\""});
+     push @errors, BML::ml('.mustlogin', {login=>"href=\"/login?ret=1\""});
  }
  if ($mode eq "save" && ! LJ::did_post) {
      push @errors, "<?requirepost?>";
@@ -28,7 +28,7 @@ body<=
  if ($mode eq "modify")
  {
      my $ret = "";
-     $ret .= "<form method='post' action='changenotify.bml'>\n";
+     $ret .= "<form method='post' action='changenotify'>\n";
      $ret .= "<input type='hidden' name='mode' value='save' />\n";
 
      $ret .= "<?h1 $ML{'.chagenotify.title'} h1?>";

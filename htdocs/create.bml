@@ -30,7 +30,7 @@ body<=
     my $getextra = '?' . join( '&', @getargs ) if @getargs;
 
     if ( $LJ::USE_SSL && !$LJ::IS_SSL && $GET{ssl} ne 'no' ) {
-        return BML::redirect( "$LJ::SSLROOT/create.bml$getextra" );
+        return BML::redirect( "$LJ::SSLROOT/create$getextra" );
     }
 
     my %from_post;

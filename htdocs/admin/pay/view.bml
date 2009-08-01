@@ -57,7 +57,7 @@ EOF
     }
 
     my $body = '<h1>Payment Manager - View Cart</h1>';
-    $body .= '<p>[ <a href="/admin/pay/index.bml">&lt;&lt; Back to Index</a> ]</p>';
+    $body .= '<p>[ <a href="/admin/pay/index">&lt;&lt; Back to Index</a> ]</p>';
 
     return "Must provide cartid."
         unless $GET{cartid};

@@ -35,7 +35,7 @@ body<=
         my $ret = '';
         $ret .= "<?h1 $ML{'.popular.head'} h1?><?p $ML{'.popular.text'} ";
 
-        $ret .= BML::ml('.popular.textmode', { 'aopts' => "href='$LJ::SITEROOT/interests.bml?view=popular&mode=text'" })
+        $ret .= BML::ml('.popular.textmode', { 'aopts' => "href='$LJ::SITEROOT/interests?view=popular&mode=text'" })
             unless $GET{mode} eq 'text';
 
         $ret .= " p?>";
@@ -50,7 +50,7 @@ body<=
             $interests{$int} = {
                                 int   => $int,
                                 eint  => LJ::ehtml($int),
-                                url   => "/interests.bml?int=" . LJ::eurl($int),
+                                url   => "/interests?int=" . LJ::eurl($int),
                                 value => $count,
                                 };
         }
@@ -79,19 +79,19 @@ body<=
             return $ret;
         }
 
-        # force them to either come from the interests.bml page, or have posted the request.
+        # force them to either come from the interests page, or have posted the request.
         # if both fail, ask them to confirm with a post form.
 
         my $dbr = LJ::get_db_reader();
 
-        unless ($did_post || BML::get_client_header('Referer') =~ /^\Q$LJ::SITEROOT\E\/interests\.bml\?/)
+        unless ($did_post || BML::get_client_header('Referer') =~ /^\Q$LJ::SITEROOT\E\/interests\?/)
         {
             my ($int) = $dbr->selectrow_array("SELECT interest FROM interests WHERE intid=?", undef, $intid);
             LJ::text_out(\$int);
 
             $ret .= "<?h1 $ML{'.add.confirm.head'} h1?>";
             $ret .= "<?p " . BML::ml(".add.confirm.text", {'interest' => $int});
-            $ret .= "<form method='post' action='interests.bml'><div align='center'>";
+            $ret .= "<form method='post' action='interests'><div align='center'>";
             $ret .= LJ::html_hidden('mode' => 'add', 'intid' => $intid);
             $ret .= LJ::html_submit(undef, BML::ml(".add.btn.text", {'interest' => $int}));
             $ret .= LJ::form_auth();
@@ -227,10 +227,10 @@ body<=
 
         return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nointerests'} p?>" unless %fromint;
 
-        my $ret = "<?p <form method='get' action='interests.bml'>";
+        my $ret = "<?p <form method='get' action='interests'>";
         $ret .= LJ::html_hidden(mode => 'enmasse', fromuser => $fromu->{'user'});
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
-        $ret .= "</form> p?><form method='post' action='interests.bml$getextra'>";
+        $ret .= "</form> p?><form method='post' action='interests$getextra'>";
         $ret .= "<?h1 $ML{'.enmasse.header'} h1?><?p ";
 
         if ($u->{'userid'} == $fromu->{'userid'}) {
@@ -391,12 +391,12 @@ body<=
 
         $ret .= "<table>";
         $ret .= "<tr valign='middle'><td class='findandmodify'>$ML{'.interested.in'}</td>";
-        $ret .= "<td class='findandmodify'><form method='get' action='interests.bml'>";
+        $ret .= "<td class='findandmodify'><form method='get' action='interests'>";
         $ret .= LJ::html_text({name => 'int', size => 20, value => $interest || $e_int}) . "&nbsp;";
         $ret .= LJ::html_submit(undef, $ML{'.interested.btn.find'});
         $ret .= "</form></td></tr>";
         $ret .= "<tr valign='middle'><td class='findandmodify'>$ML{'.enmasse.intro'}</td>";
-        $ret .= "<td class='findandmodify'><form method='get' action='interests.bml'>";
+        $ret .= "<td class='findandmodify'><form method='get' action='interests'>";
         $ret .= LJ::html_text({name => 'fromuser', size => 20}) . "&nbsp;";
         $ret .= LJ::html_submit(undef, $ML{'.enmasse.btn'});
         $ret .= LJ::html_hidden('mode', 'enmasse');
@@ -406,9 +406,9 @@ body<=
         # no results
         unless ( $interest ) {
             $ret .= "<?h1 $ML{'.nocomms.header'} h1?><?p ";
-            $ret .= BML::ml( '.nocomms.text', { 'int' => $e_int, 'aopts' => qq(href="$LJ::SITEROOT/community/create.bml") } );
+            $ret .= BML::ml( '.nocomms.text', { 'int' => $e_int, 'aopts' => qq(href="$LJ::SITEROOT/community/create") } );
             $ret .= " p?><?h1 $ML{'.nousers.header'} h1?><?p ";
-            $ret .= BML::ml( '.nousers.text', { 'int' => $e_int, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests.bml'" } );
+            $ret .= BML::ml( '.nousers.text', { 'int' => $e_int, 'aopts_manage' => "href='$LJ::SITEROOT/manage/profile/'", 'aopts_int' => "href='$LJ::SITEROOT/interests'" } );
             $ret .= "p?>";
             return $ret;
         } 
@@ -480,9 +480,9 @@ body<=
 
         $ret .= "<h1>" . BML::ml(".users.header", {'interest' => $interest}) . "</h1>\n<p class='interestinfo'>";
         if ($remote) {
-            $ret .= " " . BML::ml('.addint2', {'aopts' => "href='$LJ::SITEROOT/interests.bml?mode=add&amp;intid=$intid'"});
+            $ret .= " " . BML::ml('.addint2', {'aopts' => "href='$LJ::SITEROOT/interests?mode=add&amp;intid=$intid'"});
         }
-        $ret .= " " . BML::ml('.morestuff2', {'aopts' => "href='$LJ::SITEROOT/interests.bml'"}) . "</p>";
+        $ret .= " " . BML::ml('.morestuff2', {'aopts' => "href='$LJ::SITEROOT/interests'"}) . "</p>";
 
         my $us = $int_query->( "userinterests" );
         my @ul = grep { $_
@@ -516,17 +516,17 @@ body<=
 
     if ( LJ::is_enabled('interests-popular') ) {
         $ret .= "<tr valign='top'><td colspan='2'>";
-        $ret .= "<a href=\"interests.bml?view=popular\">$ML{'.interests.viewpop'}</a></td></tr>";
+        $ret .= "<a href=\"interests?view=popular\">$ML{'.interests.viewpop'}</a></td></tr>";
     }
 
     $ret .= "<tr valign='top'><td align='left'>$ML{'.interested.in'}</td>";
-    $ret .= "<td><form method='get' action='interests.bml'>";
+    $ret .= "<td><form method='get' action='interests'>";
     $ret .= LJ::html_text({name => 'int', size => 20}) . "&nbsp;";
     $ret .= LJ::html_submit(undef, $ML{'.interested.btn.find'});
     $ret .= "</form></td></tr>";
 
     if ( LJ::is_enabled('interests-findsim') && $remote && LJ::get_cap($remote, 'findsim') ) {
-        $ret .= "<tr valign='top'><td>$ML{'.interests.findsim'}</td><td><form method='get' action='interests.bml'>";
+        $ret .= "<tr valign='top'><td>$ML{'.interests.findsim'}</td><td><form method='get' action='interests'>";
         $ret .= LJ::html_hidden('mode', 'findsim_do');
         $ret .= LJ::html_text({name => 'user', value => $remote->{'user'}, size => 20}) . "&nbsp;";
         $ret .= LJ::html_submit(undef, $ML{'.interested.btn.find'});
@@ -534,7 +534,7 @@ body<=
     }
 
     $ret .= "<tr valign='top'><td>$ML{'.enmasse.intro'}</td>";
-    $ret .= "<td><form method='get' action='interests.bml'>";
+    $ret .= "<td><form method='get' action='interests'>";
     $ret .= LJ::html_text({name => 'fromuser', size => 20}) . "&nbsp;";
     $ret .= LJ::html_submit(undef, $ML{'.enmasse.btn'});
     $ret .= LJ::html_hidden('mode', 'enmasse');

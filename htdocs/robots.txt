@@ -1,5 +1,6 @@
 User-Agent: *
 Disallow: /directory.bml
+Disallow: /directory
 
 #
 # Blocked journals aren't listed here because robots.txt files

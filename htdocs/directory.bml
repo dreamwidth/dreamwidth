@@ -116,7 +116,7 @@ body<=
             next unless ($count{'stateus'}->{$state});
             my $shape = "poly";
             if ($coords =~ /^[^,]+,[^,]+,[^,]+,[^,]+$/) { $shape = "RECTANGLE"; }
-            $ret .= "<area shape='$shape' alt='$state' coords=\"$coords\" href=\"/directory.bml?s_loc=1&amp;loc_cn=US&amp;loc_st=$state&amp;opt_sort=ut\" onmouseover=\"Directory.updateStatus('";
+            $ret .= "<area shape='$shape' alt='$state' coords=\"$coords\" href=\"/directory?s_loc=1&amp;loc_cn=US&amp;loc_st=$state&amp;opt_sort=ut\" onmouseover=\"Directory.updateStatus('";
             $ret .= BML::eall($state{$state});
             $ret .= " - ";
             $ret .= ($count{'stateus'}->{$state}+0);
@@ -146,7 +146,7 @@ body<=
         foreach (sort { $country{$a} cmp $country{$b} } keys %{$count{'country'}})
         {
             $count++;
-            $ret .= "<li><a href=\"/directory.bml?s_loc=1&amp;loc_cn=$_&amp;opt_sort=ut\">$country{$_}</a> <i>($count{'country'}->{$_})</i></li>\n";
+            $ret .= "<li><a href=\"/directory?s_loc=1&amp;loc_cn=$_&amp;opt_sort=ut\">$country{$_}</a> <i>($count{'country'}->{$_})</i></li>\n";
             if ($col==0 && $count > ($total/2)) { $ret .= "</ul></td><td align='left'><ul>"; $col = 1; }
         }
         $ret .= "</ul></td></tr></table></div>";
@@ -181,8 +181,8 @@ body<=
     # Do the actual search
 
     my $url = "$LJ::SITEROOT/";
-    $url .= $GET{journaltype} && $GET{journaltype} eq "C" ? "community/search.bml"
-                                                          : "directorysearch.bml";
+    $url .= $GET{journaltype} && $GET{journaltype} eq "C" ? "community/search"
+                                                          : "directorysearch";
     $ret .= qq {
         <div id="NewSearch">
             <a href="$url"><< $ML{'.new_search'}</a>

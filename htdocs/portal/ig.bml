@@ -28,7 +28,7 @@
     }
 
     if (!$remote) {
-        return $returncontent->("Sorry, you must be <a href=\"$LJ::SITEROOT/login.bml\">logged in</a> and have cookies enabled to use your modules.");
+        return $returncontent->("Sorry, you must be <a href=\"$LJ::SITEROOT/login\">logged in</a> and have cookies enabled to use your modules.");
     }
 
     my $portalconfig = LJ::Portal::Config->new($remote);
@@ -50,7 +50,7 @@
     return qq {<?xml version="1.0"?>
 <Module>
 <ModulePrefs title="$title" />
-<Content type="url" href="$LJ::SITEROOT/portal/get.bml?pboxid=$pboxid" />
+<Content type="url" href="$LJ::SITEROOT/portal/get?pboxid=$pboxid" />
 </Module>
     };
 

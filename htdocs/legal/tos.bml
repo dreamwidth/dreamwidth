@@ -23,7 +23,7 @@ body<=
 
     $ret .= <<PAGE;
 <p>We hate legalese, so we've tried to make ours readable. If you've got 
-any questions, feel free to <a href='$LJ::SITEROOT/support/submit.bml'>ask us</a>, and we'll do our best to answer.</p>
+any questions, feel free to <a href='$LJ::SITEROOT/support/submit'>ask us</a>, and we'll do our best to answer.</p>
 
 <h2>Terms of Service</h2>
 
@@ -36,7 +36,7 @@ $LJ::SITEROOT. </p>
 <p>The Website is offered subject to your acceptance, without 
 modification, of all of the terms and conditions contained within, along with all 
 other operating rules, policies (including, without limitation, 
-${LJ::SITENAMESHORT}'s <a href="$LJ::SITEROOT/legal/privacy.bml">Privacy 
+${LJ::SITENAMESHORT}'s <a href="$LJ::SITEROOT/legal/privacy">Privacy 
 Policy</a>) and procedures that may be published from time to time on 
 this Website by us (collectively, the Agreement).</p>
 
@@ -100,7 +100,7 @@ of account or the features available to it at any time.</p>
 <h2>III. Privacy Policy</h2>
 
 <p>Your use of the Website is governed by the Privacy Policy, currently 
-located at $LJ::SITEROOT/legal/privacy.bml. </p>
+located at $LJ::SITEROOT/legal/privacy. </p>
 
 
 <h2>IV. Indemnity</h2>
@@ -385,7 +385,7 @@ have no legal or contractual effect.</p>
 
 <h2>XVIII. Reporting Violations</h2>
 
-<p>For instructions on how to report a violation of this Agreement, please see <a href="http://www.dreamwidth.org/support/faqbrowse.bml?faqid=80">How do I report a violation of Dreamwidth's Terms of Service?</a></p>
+<p>For instructions on how to report a violation of this Agreement, please see <a href="http://www.dreamwidth.org/support/faqbrowse?faqid=80">How do I report a violation of Dreamwidth's Terms of Service?</a></p>
 
 
 <h2>XIX. Creative Commons</h2>

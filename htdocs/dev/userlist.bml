@@ -41,19 +41,19 @@ body<=
     # sort bar
     my $pagearg = $GET{'page'} > 1 ? "&amp;page=$GET{'page'}" : "";
     my $pagearg2 = $GET{'page'} > 1 ? "?page=$GET{'page'}" : "";
-    $ret .= "<?p <strong>Sort by:</strong> [<a href='userlist.bml$pagearg2'> User ID
-        </a>|<a href='userlist.bml?sort=user$pagearg'> Username
-        </a>|<a href='userlist.bml?sort=jt$pagearg'> Journal Type
-        </a>|<a href='userlist.bml?sort=sv$pagearg'> Status Vis
+    $ret .= "<?p <strong>Sort by:</strong> [<a href='userlist$pagearg2'> User ID
+        </a>|<a href='userlist?sort=user$pagearg'> Username
+        </a>|<a href='userlist?sort=jt$pagearg'> Journal Type
+        </a>|<a href='userlist?sort=sv$pagearg'> Status Vis
         </a>] p?>";
 
     # page bar
     my $next = $page + 2;
     $pagearg = $page > 1 ? "&amp;page=$page" : "";
     $ret .= "<?p [" if $page || !$islastpage;
-    $ret .= "<a href='userlist.bml?sort=$GET{'sort'}$pagearg'> Previous Page </a>" if $page;
+    $ret .= "<a href='userlist?sort=$GET{'sort'}$pagearg'> Previous Page </a>" if $page;
     $ret .= "|" if $page && !$islastpage;
-    $ret .= "<a href='userlist.bml?sort=$GET{'sort'}&amp;page=$next'> Next Page </a>" if !$islastpage;
+    $ret .= "<a href='userlist?sort=$GET{'sort'}&amp;page=$next'> Next Page </a>" if !$islastpage;
     $ret .= "] p?>" if $page || !$islastpage;
 
     $ret .= "<br /><br /> <table width='100%' border='1'>

@@ -24,7 +24,7 @@ body<=
     LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
 
     my $ret = "";
-    $ret .= "<a href='faqedit.bml'>[Add to FAQ]</a>\n"
+    $ret .= "<a href='faqedit'>[Add to FAQ]</a>\n"
         if %ac_add;
 
     my %faqcat;
@@ -65,7 +65,7 @@ body<=
     push @sorted_cats, '';
     
     foreach my $faqcat ( @sorted_cats ) {
-        $ret .= "<h2><a href='readcat.bml?faqcat=$faqcat'>"
+        $ret .= "<h2><a href='readcat?faqcat=$faqcat'>"
             . LJ::ehtml( $faqcat{$faqcat}->{faqcatname} ) . "</a></h2>\n";
         next unless $faqq{$faqcat} && @{ $faqq{$faqcat} };
         $ret .= "<ul>\n";
@@ -75,7 +75,7 @@ body<=
             $q =~ s/^\s+//; $q =~ s/\s+$//;
             $q =~ s|\n|<br />|g;
             $ret .= "<li>";
-            $ret .= "<a href='faqedit.bml?id=" . $faq->id . "'>[edit]</a> (" .
+            $ret .= "<a href='faqedit?id=" . $faq->id . "'>[edit]</a> (" .
                     $faq->sortorder . ") "
                 if $ac_edit{'*'} || $ac_edit{$faqcat};
             $ret .= "<b>{" . $faq->faqid . "}</b> $q</li>\n";

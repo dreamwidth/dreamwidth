@@ -34,29 +34,29 @@ body<=
 <div id='maplinks-left'>
  <dl><dt><?_code return BML::ml('.maplinks.manage-journal-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/update.bml'><?_ml .maplinks.post-entry _ml?></a></li>
-   <li><a href='/editjournal.bml'><?_ml .maplinks.edit-entries _ml?></a></li>
-   <li><a href='/tools/recent_comments.bml'><?_ml .maplinks.manage-comments _ml?></a></li>
-   <li><a href='/manage/tags.bml'><?_ml .maplinks.manage-tags _ml?></a></li>
-   <li><a href='/tools/memories.bml'><?_ml .maplinks.manage-memories _ml?></a></li>
+   <li><a href='/update'><?_ml .maplinks.post-entry _ml?></a></li>
+   <li><a href='/editjournal'><?_ml .maplinks.edit-entries _ml?></a></li>
+   <li><a href='/tools/recent_comments'><?_ml .maplinks.manage-comments _ml?></a></li>
+   <li><a href='/manage/tags'><?_ml .maplinks.manage-tags _ml?></a></li>
+   <li><a href='/tools/memories'><?_ml .maplinks.manage-memories _ml?></a></li>
    <li><a href='/manage/profile'><?_ml .maplinks.manage-profile _ml?></a></li>
-   <li><a href='/editpics.bml'><?_ml .maplinks.manage-userpics _ml?></a></li>
-   <li><a href='/poll/create.bml'><?_ml .maplinks.create-poll _ml?></a></li>
+   <li><a href='/editpics'><?_ml .maplinks.manage-userpics _ml?></a></li>
+   <li><a href='/poll/create'><?_ml .maplinks.create-poll _ml?></a></li>
   </ul></dd>
  </dt></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.manage-readlist-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
    <li><a href='/manage/circle/'><?_ml .maplinks.manage-readlist _ml?></a></li>
-   <li><a href='/manage/circle/editfilters.bml'><?_ml .maplinks.manage-groups _ml?></a></li>
-   <li><a href='/manage/circle/filter.bml'><?_ml .maplinks.filter-readlist  _ml?></a></li>
+   <li><a href='/manage/circle/editfilters'><?_ml .maplinks.manage-groups _ml?></a></li>
+   <li><a href='/manage/circle/filter'><?_ml .maplinks.filter-readlist  _ml?></a></li>
    <li><a href='/syn'><?_ml .maplinks.synfeeds _ml?></a></li>
   </ul></dd>
  </dt></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.manage-invite-friend-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/manage/circle/invite.bml'><?_ml .maplinks.invite-friend _ml?></a></li>
+   <li><a href='/manage/circle/invite'><?_ml .maplinks.invite-friend _ml?></a></li>
   </ul></dd>
  </dt></dl>
 
@@ -65,29 +65,29 @@ body<=
    <li><a href='/manage/settings'><?_ml .maplinks.manage-settings _ml?></a></li>
    <li><a href='/inbox'><?_ml .maplinks.inbox _ml?></a></li>
    <li><a href='/shop'><?_ml .maplinks.upgrade _ml?></a></li>
-   <li><a href='/changepassword.bml'><?_ml .maplinks.changepassword _ml?></a></li>
-   <li><a href='/accountstatus.bml'><?_ml .maplinks.changestatus _ml?></a></li>
+   <li><a href='/changepassword'><?_ml .maplinks.changepassword _ml?></a></li>
+   <li><a href='/accountstatus'><?_ml .maplinks.changestatus _ml?></a></li>
   </ul></dd>
  </dt></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.customize-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
    <li><a href='/customize'><?_ml .maplinks.selectstyle _ml?></a></li>
-   <li><a href='/customize/options.bml'><?_ml .maplinks.customizestyle _ml?></a></li>
-   <li><a href='/customize/options.bml?group=linkslist'><?_ml .maplinks.manage-linkslist _ml?></a></li>
-   <li><a href='/support/faqbrowse.bml?faqcat=styles'><?_ml .maplinks.about-customizing _ml?></a></li>
+   <li><a href='/customize/options'><?_ml .maplinks.customizestyle _ml?></a></li>
+   <li><a href='/customize/options?group=linkslist'><?_ml .maplinks.manage-linkslist _ml?></a></li>
+   <li><a href='/support/faqbrowse?faqcat=styles'><?_ml .maplinks.about-customizing _ml?></a></li>
    <li><a href='/customize/advanced/'><?_ml .maplinks.advanced-customization _ml?></a></li>
-   <li><a href='/customize/advanced/layerbrowse.bml'><?_ml .maplinks.layer-browser _ml?></a></li>
+   <li><a href='/customize/advanced/layerbrowse'><?_ml .maplinks.layer-browser _ml?></a></li>
    <li><a href='/doc/s2'><?_ml .maplinks.s2-manual _ml?></a></li>
   </ul></dd>
  </dt></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.community-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/community/create.bml'><?_ml .maplinks.create-comm _ml?></a></li>
-   <li><a href='/community/manage.bml'><?_ml .maplinks.manage-comm _ml?></a></li>
-   <li><a href='/manage/invites.bml'><?_ml .maplinks.manage-invites _ml?></a></li>
-   <li><a href='/community/search.bml'><?_ml .maplinks.search-comm _ml?></a></li>
+   <li><a href='/community/create'><?_ml .maplinks.create-comm _ml?></a></li>
+   <li><a href='/community/manage'><?_ml .maplinks.manage-comm _ml?></a></li>
+   <li><a href='/manage/invites'><?_ml .maplinks.manage-invites _ml?></a></li>
+   <li><a href='/community/search'><?_ml .maplinks.search-comm _ml?></a></li>
   </ul></dd></dl>
 
 </div>
@@ -95,14 +95,14 @@ body<=
 
  <dl><dt><?_code return BML::ml('.maplinks.learn-site-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/support/faqbrowse.bml?faqcat=about'><?_ml .maplinks.aboutus _ml?></a></li>
-   <li><a href='/legal/tos.bml'><?_ml .maplinks.tos _ml?></a></li>
-   <li><a href='/legal/privacy.bml'><?_ml .maplinks.privacy _ml?></a></li>
-   <li><a href='/legal/principles.bml'><?_ml .maplinks.principles _ml?></a></li>
-   <li><a href='/legal/diversity.bml'><?_ml .maplinks.diversity _ml?></a></li>
+   <li><a href='/support/faqbrowse?faqcat=about'><?_ml .maplinks.aboutus _ml?></a></li>
+   <li><a href='/legal/tos'><?_ml .maplinks.tos _ml?></a></li>
+   <li><a href='/legal/privacy'><?_ml .maplinks.privacy _ml?></a></li>
+   <li><a href='/legal/principles'><?_ml .maplinks.principles _ml?></a></li>
+   <li><a href='/legal/diversity'><?_ml .maplinks.diversity _ml?></a></li>
    <li><a href='/legal/'><?_ml .maplinks.legal _ml?></a></li>
-   <li><a href='/stats.bml'><?_ml .maplinks.sitestats _ml?></a></li>
-   <li><a href='staff.bml'><?_ml .maplinks.staff _ml?></a></li>
+   <li><a href='/stats'><?_ml .maplinks.sitestats _ml?></a></li>
+   <li><a href='staff'><?_ml .maplinks.staff _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.official-journals-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
@@ -111,31 +111,31 @@ body<=
    <li><?ljuser dw_maintenance ljuser?></li>
    <li><?ljuser dw_lounge ljuser?></li>
    <li><?ljuser dw_suggestions ljuser?></li>
-   <li><a href='/support/faqbrowse.bml?faqid=65'><?_ml .maplinks.official-journals.list _ml?></a></li>
+   <li><a href='/support/faqbrowse?faqid=65'><?_ml .maplinks.official-journals.list _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.gethelp-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/support/faq.bml'><?_ml .maplinks.faq _ml?></a></li>
-   <li><a href='/support/faqsearch.bml'><?_ml .maplinks.faqsearch _ml?></a></li>
+   <li><a href='/support/faq'><?_ml .maplinks.faq _ml?></a></li>
+   <li><a href='/support/faqsearch'><?_ml .maplinks.faqsearch _ml?></a></li>
    <li><a href='/support/'><?_ml .maplinks.support _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.explore-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/directorysearch.bml'><?_ml .maplinks.directory _ml?></a></li>
-   <li><a href='/community/search.bml'><?_ml .maplinks.search-comm _ml?></a></li>
+   <li><a href='/directorysearch'><?_ml .maplinks.directory _ml?></a></li>
+   <li><a href='/community/search'><?_ml .maplinks.search-comm _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.toys-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
-   <li><a href='/birthdays.bml'><?_ml .maplinks.birthdays _ml?></a></li>
+   <li><a href='/birthdays'><?_ml .maplinks.birthdays _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.advanced-tools-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
   <dd><ul>
    <li><a href='/admin/console'><?_ml .maplinks.console _ml?></a></li>
-   <li><a href='/admin/console/reference.bml'><?_ml .maplinks.console-reference _ml?></a></li>
+   <li><a href='/admin/console/reference'><?_ml .maplinks.console-reference _ml?></a></li>
   </ul></dd></dl>
 
 </div>

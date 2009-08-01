@@ -45,7 +45,7 @@ body<=
     });
     $ret .= " p?> <?p ";
     $ret .= BML::ml('.info.upload', {
-        aopts => 'href="/manage/pubkey.bml"',
+        aopts => 'href="/manage/pubkey"',
     });
     $ret .= " p?>";
     return $ret;

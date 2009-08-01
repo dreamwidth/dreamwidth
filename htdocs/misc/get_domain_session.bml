@@ -2,7 +2,7 @@
 {
     use strict;
     use vars qw(%GET);
-    return BML::redirect(LJ::Session->helper_url($GET{'return'}) || "$LJ::SITEROOT/login.bml");
+    return BML::redirect(LJ::Session->helper_url($GET{'return'}) || "$LJ::SITEROOT/login");
 }
 _code?>
 

@@ -61,7 +61,7 @@ body<=
 
         # redirect to standard identity url
         if ( $u && $u->is_identity ) {
-            return BML::redirect("$LJ::SITEROOT/userinfo.bml?userid=$u->{'userid'}&t=I");
+            return BML::redirect("$LJ::SITEROOT/userinfo?userid=$u->{'userid'}&t=I");
         }
     } elsif ( $remote ) {
         $u = $remote;
@@ -109,7 +109,7 @@ body<=
     my $renamed_u = $u->get_renamed_user;
     unless ( $u->equals( $renamed_u ) ) {
         my $extra = $is_full ? "&mode=full" : '';
-        return BML::redirect( "$LJ::SITEROOT/userinfo.bml?user=" . $renamed_u->user . "$extra" );
+        return BML::redirect( "$LJ::SITEROOT/userinfo?user=" . $renamed_u->user . "$extra" );
     }
 
     # figure out the page title
@@ -148,7 +148,7 @@ body<=
             }            
 
             $del_body .= " p?>";
-            $del_body .= BML::ml( '.error.deleted.purgenotification', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=" . $u->user . "'" } )
+            $del_body .= BML::ml( '.error.deleted.purgenotification', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=" . $u->user . "'" } )
                 unless LJ::User->is_protected_username( $u->user );
             return $del_body;
         }
@@ -310,7 +310,7 @@ body<=
     $ret .= q{ <div class='username'> } . $u->ljuser_display;
     if ( $u->{public_key} ) {
         $ret .= qq( 
-            <a href='$LJ::SITEROOT/pubkey.bml?user=$user'>
+            <a href='$LJ::SITEROOT/pubkey?user=$user'>
                 <img src='$LJ::IMGPREFIX/key.gif' width='16' height='16' border='0'
                      alt="$ML{'.pubkey.alt'}" title="$ML{'.pubkey.alt'}"
                      style='vertical-align: middle; border: 0;' />
@@ -489,7 +489,7 @@ body<=
             push @$links, { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#interests", text => $ML{'.section.edit'} }
                 if $remote->can_manage( $u );
 
-            my $enmasse_link = "$LJ::SITEROOT/interests.bml?mode=enmasse";
+            my $enmasse_link = "$LJ::SITEROOT/interests?mode=enmasse";
             my $enmasse_text;
             if ( $remote->equals( $u ) ) {
                 $enmasse_text .= $ML{'.label.interests.removesome2'};
@@ -562,7 +562,7 @@ body<=
     if ( $schoolslist ) {
         my $new_schools_margin = " style='margin-top: 0;'" unless $intlist;
         $connectbody .= qq{ <div class="schools"$new_schools_margin> };
-        my $links = [ { url => "$LJ::SITEROOT/schools/manage.bml?authas=" . $u->user, text => $ML{'.schools.manage'} } ]
+        my $links = [ { url => "$LJ::SITEROOT/schools/manage?authas=" . $u->user, text => $ML{'.schools.manage'} } ]
             if $remote && $remote->can_manage( $u );
         $connectbody .= $content_inner_block->(
             section_name_ml => '.schools.header',
@@ -614,7 +614,7 @@ body<=
         }
 
         if ( $maintbody || $modbody ) {
-            my $links = [ { url => "$LJ::SITEROOT/community/members.bml?authas=" . $u->user, text => $ML{'.section.edit'} } ]
+            my $links = [ { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} } ]
                 if $remote && $remote->can_manage( $u );
             $ret .= $content_block->(
                 section_name    => 'admins',
@@ -851,11 +851,11 @@ body<=
         if ( $trusted_body || $trusted_by_body || $watched_body || $watched_by_body || $members_body || $posting_access_from_body ) {
             my $links = [];
             if ( $u->is_community ) {
-                push @$links, { url => "$LJ::SITEROOT/community/members.bml?authas=" . $u->user, text => $ML{'.section.edit'} }
+                push @$links, { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} }
                     if $remote && $remote->can_manage( $u );
                 push @$links, { url => $u->journal_base . "/read", text => $ML{'.people.viewentries'} };
             } else {
-                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit.bml", text => $ML{'.section.edit'} }
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} }
                     if $remote && $remote->can_manage( $u );
                 push @$links, { url => $u->journal_base . "/read?show=P", text => $ML{'.people.viewentries'} };
             }
@@ -919,7 +919,7 @@ body<=
         if ( $member_of_body || $posting_access_to_body || $watched_body ) {
             my $links = [];
             if ( $remote && $remote->can_manage( $u ) ) {
-                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit.bml", text => $ML{'.section.edit'} };
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} };
             }
             push @$links, { url => $u->journal_base . "/read?show=C", text => $ML{'.comms.viewentries'} };
 
@@ -954,7 +954,7 @@ body<=
         if ( $watched_body ) {
             my $links = [];
             if ( $remote && $remote->can_manage( $u ) ) {
-                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit.bml", text => $ML{'.section.edit'} };
+                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} };
             }
             push @$links, { url => $u->journal_base . "/read?show=Y", text => $ML{'.feeds.viewentries'} };
 

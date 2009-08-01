@@ -134,7 +134,7 @@ body<=
                 unless (@errors) {
                     $body .= "Your message has been sent successfully.";
                     $body .= "<?p From here you can:<ul>";
-                    $body .= "<li><a href='$LJ::SITEROOT/inbox/compose.bml'>Send a new message</a></li>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/compose'>Send a new message</a></li>";
                     $body .= "<li><a href='$LJ::SITEROOT/inbox/'>Return to Inbox</a></li>";
                     $body .= "<li><a href='$LJ::SITEROOT/'>Return Home</a></li>";
                     $body .= "</ul> p?>\n";
@@ -193,7 +193,7 @@ body<=
         <td valign="top" style="padding-left: 10px; width: 100%;">
     };
 
-    $body .= '<form action="./compose.bml" method="POST" id="compose">';
+    $body .= '<form action="./compose" method="POST" id="compose">';
 
     $body .= LJ::form_auth();
     my $pic = ''; # displays chosen/default pic

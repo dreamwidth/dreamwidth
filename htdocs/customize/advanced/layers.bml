@@ -9,7 +9,7 @@
 
     # authas switcher form
     my $authasform = sub {
-        $body .= "<form method='get' action='layers.bml'>\n";
+        $body .= "<form method='get' action='layers'>\n";
         $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
         $body .= "</form>\n\n";
     };
@@ -76,7 +76,7 @@
     }) . "\n";
     my $styles_arg = $noactions ? "?user=" . $u->user : "?authas=" . $u->user;
     $body .= BML::ml("Actionlink", {
-        'link' => "<a href='$LJ::SITEROOT/customize/advanced/styles.bml$styles_arg'>$ML{'.nav.yourstyles'}</a>",
+        'link' => "<a href='$LJ::SITEROOT/customize/advanced/styles$styles_arg'>$ML{'.nav.yourstyles'}</a>",
     }) . "\n";
 
 
@@ -125,7 +125,7 @@
         }
 
         # redirect so they can't refresh and create a new layer again
-        return BML::redirect("layers.bml?authas=$authas");
+        return BML::redirect("layers?authas=$authas");
     }
 
     # delete
@@ -149,10 +149,10 @@
             $title = BML::ml('.delete.title', {'name' => $name});
             $body .= "<br /> ";
             $body .= BML::ml("Backlink", {
-                'link' => "$LJ::SITEROOT/customize/advanced/layers.bml?authas=$authas",
+                'link' => "$LJ::SITEROOT/customize/advanced/layers?authas=$authas",
                 'text' => $ML{'.back2layers'},
             }) . "\n";
-            $body .= "<form method='post' action='layers.bml?authas=$authas'>";
+            $body .= "<form method='post' action='layers?authas=$authas'>";
             $body .= $formauth;
             $body .= LJ::html_hidden('action:del', '1', 'id', $id);
               
@@ -163,7 +163,7 @@
         }
 
         LJ::S2::delete_layer($u, $id);
-        return BML::redirect("layers.bml?authas=$authas");
+        return BML::redirect("layers?authas=$authas");
     }
 
     # authas switcher form
@@ -185,16 +185,16 @@
                 $lastbase = $bid;
                 my $parlay = $ulay->{$bid} || $pub->{$bid};
                 my $pname = LJ::ehtml($parlay->{'name'});
-                $body .= "<tr><td colspan='4'><small>" . BML::ml('.yourlayers.childof', {'aopts' => "href='$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$bid'", 'layerid' => $bid, 'name' => $pname}) . "</small></td></tr>\n";
+                $body .= "<tr><td colspan='4'><small>" . BML::ml('.yourlayers.childof', {'aopts' => "href='$LJ::SITEROOT/customize/advanced/layerbrowse?id=$bid'", 'layerid' => $bid, 'name' => $pname}) . "</small></td></tr>\n";
             }
             my $lay = $ulay->{$lid};
             my $name = LJ::ehtml($lay->{'name'}) || "<i>$ML{'.yourlayers.noname'}</i>";
-            $body .= "<tr><td><a href='layerbrowse.bml?id=$lid'>$lid</a></td><td>$lay->{'type'}</td><td>$name</td><td>";
-            $body .= "<form method='post' style='display:inline' action='layeredit.bml?id=$lid'>";
+            $body .= "<tr><td><a href='layerbrowse?id=$lid'>$lid</a></td><td>$lay->{'type'}</td><td>$name</td><td>";
+            $body .= "<form method='post' style='display:inline' action='layeredit?id=$lid'>";
             $body .= LJ::html_submit('action:edit', $ML{'.btn.edit'}, { disabled => $noactions });
             $body .= "</form>";
 
-            $body .= "<form method='post' style='display:inline' action='layers.bml?authas=$authas'>";
+            $body .= "<form method='post' style='display:inline' action='layers?authas=$authas'>";
             $body .= $formauth;
             $body .= LJ::html_hidden('id', $lid);
             $body .= LJ::html_submit('action:del', $ML{'.btn.delete2'}, { disabled => $noactions });
@@ -214,7 +214,7 @@
 
     $body .= "<div style='margin-top: 10px;'>\n";
     $body .= "<?h2 $ML{'.createlayer.toplevel'} h2?>\n";
-    $body .= "<form method='post' action='layers.bml?authas=$authas'>\n";
+    $body .= "<form method='post' action='layers?authas=$authas'>\n";
     
     $body .= "$ML{'.createlayer.toplevel.label.type'} " . LJ::html_select({ 'name' => 'type' },
                                           "" => "",
@@ -240,7 +240,7 @@
     $body .= "</div>\n\n";
 
     $body .= "<?h2 $ML{'.createlayer.layoutspecific'} h2?>\n";
-    $body .= "<form method='post' action='layers.bml?authas=$authas'>\n";
+    $body .= "<form method='post' action='layers?authas=$authas'>\n";
     $body .= $formauth;
 
     $body .= "$ML{'.createlayer.layoutspecific.label.type'} " . LJ::html_select({ 'name' => 'type' },

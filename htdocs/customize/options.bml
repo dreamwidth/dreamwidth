@@ -44,7 +44,7 @@ body<=
         $ret .= "<div class='beta-feedback'><a href='$LJ::CUSTOMIZE_FEEDBACK_LINK'>$ML{'.customize.feedback'}</a></div>";
     }
 
-    $ret .= "<form action='$LJ::SITEROOT/customize/options.bml' method='get' class='theme-switcher'>";
+    $ret .= "<form action='$LJ::SITEROOT/customize/options' method='get' class='theme-switcher'>";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, label => $ML{'.switcher.label'}, button => $ML{'.switcher.btn'} });
     $ret .= "</form>";
 

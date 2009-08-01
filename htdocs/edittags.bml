@@ -91,7 +91,7 @@ body<=
     $ret .= "<tr><td class='l'>$ML{'.subject'}</td><td>$subj</td></tr>" if $subj;
 
     $ret .= "<tr><td class='l'>$ML{'.current'}</td>";
-    $ret .= '<form method="POST" action="/edittags.bml" id="edit_tagform">';
+    $ret .= '<form method="POST" action="/edittags" id="edit_tagform">';
     $ret .= LJ::form_auth();
     $ret .= "<td class='sep'>";
     if ( LJ::Tags::can_add_tags($u, $remote) ) {

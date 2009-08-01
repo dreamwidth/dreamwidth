@@ -89,7 +89,7 @@ body<=
             return "Unable to delete primary school"
                 unless $rv;
 
-            return BML::redirect("pending.bml$getextra");
+            return BML::redirect("pending$getextra");
         } elsif ($primary_act eq 'approve') {
             my $country = $POST{country};
             my $city = $POST{city};
@@ -155,12 +155,12 @@ body<=
                 LJ::Schools::reject_pending($approve_sids);
             }
 
-            return BML::redirect("pending.bml$getextra");
+            return BML::redirect("pending$getextra");
 
         # Someday we may do more in the ignore action, but for now
         # it is just a redirect
         } elsif ($primary_act eq 'ignore') {
-            return BML::redirect("pending.bml$getextra");
+            return BML::redirect("pending$getextra");
         }
 
         return $ret;
@@ -185,10 +185,10 @@ body<=
         push @locextra, "city="    . LJ::eurl($city)    if defined $city;
         $getextra = '?' . join('&', @locextra) if @locextra;
 
-        $ret .= "<a href='pending.bml$getextra'>Give me a different school!</a><br /><br />";
+        $ret .= "<a href='pending$getextra'>Give me a different school!</a><br /><br />";
 
         $ret .= "<?h2 Primary School Record h2?>";
-        $ret .= "<form method='post' action='pending.bml'>";
+        $ret .= "<form method='post' action='pending'>";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden('uct', $country) if $country;
         $ret .= LJ::html_hidden('ust', $state) if $state;

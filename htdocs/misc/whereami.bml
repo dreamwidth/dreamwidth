@@ -33,7 +33,7 @@ body<=
     my $cname = $LJ::CLUSTER_NAME{$u->clusterid} || $ML{'.cluster.unknown'};
 
     my $ret = '<?p <?_ml .intro _ml?> p?>';
-    $ret .= "<form method='get' id='userpic_authas' action='$LJ::SITEROOT/misc/whereami.bml'>\n";
+    $ret .= "<form method='get' id='userpic_authas' action='$LJ::SITEROOT/misc/whereami'>\n";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} }) . "\n";
     $ret .= "</form><br /><?p ";
     $ret .= BML::ml( '.cluster', { cluster => $cname, user => $u->ljuser_display } );

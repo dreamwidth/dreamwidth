@@ -59,7 +59,7 @@ body<=
     die $dbh->errstr if $dbh->err;
 
     $ret = $u->ljuser_display . " has been expired... wait for the email!<br /><br />";
-    $ret .= '<a href="/misc/downgrader.bml">That was fun, expire some more!</a>';
+    $ret .= '<a href="/misc/downgrader">That was fun, expire some more!</a>';
     return $ret;
 }
 _code?>

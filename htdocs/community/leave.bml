@@ -71,7 +71,7 @@
         }
         
         $body .= " p?>";
-        $body .= '<form method="post" action="leave.bml">';
+        $body .= '<form method="post" action="leave">';
         $body .= LJ::form_auth();
         $body .= LJ::html_hidden("comm", $cu->{user}, "confirm", 1) . "<p align='center'>";
         if ($watching && !$memberof) {

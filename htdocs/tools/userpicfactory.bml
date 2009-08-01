@@ -32,7 +32,7 @@
         ($w, $h) = ($upf->[2], $upf->[3]) if ($upf && $upf->[2]);
     }
 
-    my $picpath = $LJ::SITEROOT . "/misc/mogupic.bml?size=$scaledSizeMax&authas=$GET{authas}&index=$GET{index}";
+    my $picpath = $LJ::SITEROOT . "/misc/mogupic?size=$scaledSizeMax&authas=$GET{authas}&index=$GET{index}";
 
     $head .= qq {
         <script>
@@ -165,7 +165,7 @@ if ($GET{successcount}) {
 }
 
 $body .= qq {
-    <a href="/editpics$sfx.bml"><< Edit Userpics</a>
+    <a href="/editpics$sfx"><< Edit Userpics</a>
     <noscript><p><b>
 You need JavaScript in order to use the
 Userpic Factory. Since you have JavaScript disabled, you will be unable
@@ -177,7 +177,7 @@ Create Userpic button.</b></p>
 
 
 my $upload_form = qq {
-        <form enctype="multipart/form-data" action="/editpics$sfx.bml"
+        <form enctype="multipart/form-data" action="/editpics$sfx"
         method='post'>
       From File: <input type="file" name="userpic" /><br/>
       <small>JPEG only.</small>
@@ -211,7 +211,7 @@ $body .= qq {
       <div id="picContainer" style="float: left; margin-bottom: 15px; width: ${scaledSizeMax}px; height: ${scaledSizeMax}px; border: 2px solid #EEEEEE; padding: 2px;"> <img src="$picpath" id="userpic" style="display: none;" /></div>
 
       <?standout <div style='float: right;'>
-      <form action="$LJ::SITEROOT/editpics$sfx.bml?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
+      <form action="$LJ::SITEROOT/editpics$sfx?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
       <table cellpadding="4"><tr>
       <td style='whitespace: nowrap'>
         <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />

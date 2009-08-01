@@ -54,7 +54,7 @@ body<=
 
             LJ::modify_caps( $u, @$caps );
 
-            return BML::redirect( "$LJ::SITEROOT/misc/beta.bml?authas=" . $u->user );
+            return BML::redirect( "$LJ::SITEROOT/misc/beta?authas=" . $u->user );
         }
 
         return "Not sure what you want me to do!";

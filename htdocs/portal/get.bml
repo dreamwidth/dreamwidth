@@ -15,7 +15,7 @@
     $head = '<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">';
 
     if (!$remote) {
-        $body = "Sorry, you must be <a href=\"$LJ::SITEROOT/login.bml\">logged in</a> and have cookies enabled to use your modules.";
+        $body = "Sorry, you must be <a href=\"$LJ::SITEROOT/login\">logged in</a> and have cookies enabled to use your modules.";
         return;
     }
 
@@ -55,7 +55,7 @@
             var Site;
         if (!Site)
             Site = new Object();
-        Site.postUrl = "$LJ::SITEROOT/portal/index.bml";
+        Site.postUrl = "$LJ::SITEROOT/portal/index";
         Site.doFade = $doFade;
         Site.doAnimate = 1;
         Site.imgprefix = "$LJ::IMGPREFIX";

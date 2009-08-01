@@ -119,7 +119,7 @@ body<=
         $ret .= "</div><div style='margin-left: 110px'>\n";
         $ret .= "<span class='helper'>$ML{'.userpic'}</span>";
         $ret .= LJ::help_icon('upic_keywords');
-        $ret .= "<?p <a href='$LJ::SITEROOT/editpics.bml$getextra'>$ML{'.userpic.change'}</a> p?>\n";
+        $ret .= "<?p <a href='$LJ::SITEROOT/editpics$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
         $ret .= "</tr>\n";
 
@@ -133,7 +133,7 @@ body<=
             $ret .= "</td></tr>\n";
         } else {
             $ret .= "<td>" . LJ::html_hidden('name_absent', 'yes');
-            $ret .= "<?inerr " . BML::ml('.error.invalidname2', {'aopts' => "href='$LJ::SITEROOT/utf8convert.bml'"}) . " inerr?></td></tr>\n";
+            $ret .= "<?inerr " . BML::ml('.error.invalidname2', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"}) . " inerr?></td></tr>\n";
         }
 
         if ( $u->is_individual ) {
@@ -200,7 +200,7 @@ body<=
                                     Y => BML::ml(".security.visibility.everybody"),
                                     F => BML::ml(".security.visibility.friends"),
                                     N => BML::ml(".security.visibility.nobody") );
-            $ret .= " &nbsp; <a href='$LJ::SITEROOT/schools/manage.bml$getextra'>$ML{'.schools.manage'}</a></td></tr>\n";
+            $ret .= " &nbsp; <a href='$LJ::SITEROOT/schools/manage$getextra'>$ML{'.schools.manage'}</a></td></tr>\n";
         }
 
         $ret .= "</table>\n";
@@ -257,7 +257,7 @@ body<=
             $ret .= "</table>\n";
         } else {
             $ret .= LJ::html_hidden('bio_absent', 'yes');
-            $ret .= "<?p <?inerr " . BML::ml('.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert.bml'"}) . " inerr?> p?>\n";
+            $ret .= "<?p <?inerr " . BML::ml('.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"}) . " inerr?> p?>\n";
         }
 
         $ret .= "<div class='section_head'>$ML{'.section.web'}</div>\n";
@@ -313,7 +313,7 @@ body<=
         # email
 
         $ret .= "<tr><td class='field_name'> $ML{'.fn.email.system'}</td><td>\n";
-        $ret .= "<b>" . $u->email_raw . "</b> &nbsp; <a href='$LJ::SITEROOT/changeemail.bml$getextra'>$ML{'.email.change.system'}</a></td></tr>";
+        $ret .= "<b>" . $u->email_raw . "</b> &nbsp; <a href='$LJ::SITEROOT/changeemail$getextra'>$ML{'.email.change.system'}</a></td></tr>";
 
         $ret .= "<tr><td class='field_name'> $ML{'.fn.email.display'}</td><td>\n";
 
@@ -456,7 +456,7 @@ body<=
                                           @opts);
             }
 
-            $ret .= " " . BML::ml('.txt.details', {'aopts' => "href='$LJ::SITEROOT/tools/textmessage.bml?mode=details'"}) . "</td></tr>\n";
+            $ret .= " " . BML::ml('.txt.details', {'aopts' => "href='$LJ::SITEROOT/tools/textmessage?mode=details'"}) . "</td></tr>\n";
             $ret .= "<tr><td class='field_name'>$ML{'.fn.txtnum'}</td><td>";
             $ret .= LJ::html_text({ 'name' => 'txtmsg_number',  'value' => $tminfo->{'number'},
                                     'size' => '15', 'maxlength' => '40' });
@@ -742,7 +742,7 @@ body<=
                          "<?p $ML{'.success.gonext'} p?>" .
                          "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
                          "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/editpics.bml$getextra'>$ML{'.success.editpics'}</a></li></ul>";
+                         "<li><a href='$LJ::SITEROOT/editpics$getextra'>$ML{'.success.editpics'}</a></li></ul>";
     }
 
     # should never happen

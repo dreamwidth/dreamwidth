@@ -58,7 +58,7 @@ body<=
         foreach my $lay (sort { $a cmp $b } keys %{$s2style->{'layer'}}) {
             my $lid = $s2style->{'layer'}->{$lay};
             if ($lid) {
-                $ret .= "<li>$lay: <a href='$LJ::SITEROOT/customize/advanced/layerbrowse.bml?id=$lid'>";
+                $ret .= "<li>$lay: <a href='$LJ::SITEROOT/customize/advanced/layerbrowse?id=$lid'>";
                 $ret .= (defined $pub->{$lid} ? 'public' : 'custom') . "</a> (#$lid)</li>";
             } else {
                 $ret .= "<li>$lay: none</li>";

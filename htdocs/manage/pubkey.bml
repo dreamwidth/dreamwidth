@@ -55,7 +55,7 @@ body<=
 
             # This page shows them their key saved
             # eventually add a confirmation bar on it
-            return BML::redirect('/pubkey.bml');
+            return BML::redirect('/pubkey');
         }
     }
 
@@ -65,8 +65,8 @@ body<=
     my $ret;
     $ret .= "<?p ";
     $ret .= BML::ml('.info', {
-        aoptsinfo => "href='/userinfo.bml'",
-        aoptshelp => "href='emailpost.bml?mode=help&type=advanced\#pgp'",
+        aoptsinfo => "href='/userinfo'",
+        aoptshelp => "href='emailpost?mode=help&type=advanced\#pgp'",
     });
     $ret .= " p?>";
     $ret .= "<?p ";
@@ -77,7 +77,7 @@ body<=
     $ret .= " p?>";
 
     $ret .= "<?h1 $ML{'.header'} <img src='/img/key.gif' height='16' width='16'> h1?>";
-    $ret .= "<form method='post' action='pubkey.bml'>\n";
+    $ret .= "<form method='post' action='pubkey'>\n";
     $ret .= LJ::form_auth();
     $ret .= $error if $error;
     $ret .= "<?p $ML{'.pastekey'} p?>\n";

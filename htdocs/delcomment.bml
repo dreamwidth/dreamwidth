@@ -138,7 +138,7 @@ _info?><?_code
 
 #    $body .= "<?h1 $ML{'.confirm.head'} h1?>";
 #    $body .= "<?p $ML{'.confirm.body'} p?>";
-    $body .= "<form method='post' action='delcomment.bml?";
+    $body .= "<form method='post' action='delcomment?";
     $body .= "journal=$u->{'user'}&id=$GET{'id'}'>\n";
     $body .= LJ::form_auth();
     $body .= "<?standout ";

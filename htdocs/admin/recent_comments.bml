@@ -26,7 +26,7 @@
             "<input name='user' maxlength='25' size='25' /><input type='submit' value='Load' /></form>";
     }
     $user = $u->{'user'};
-    $ret .= "<a href='recent_comments.bml'>&lt;&lt;</a> <b>Recent comments of " . LJ::ljuser($u) . "</b> (\#$u->{userid})<br />\n";
+    $ret .= "<a href='recent_comments'>&lt;&lt;</a> <b>Recent comments of " . LJ::ljuser($u) . "</b> (\#$u->{userid})<br />\n";
 
     my $dbcr = LJ::get_cluster_reader($u);
     return "Error: can't get DB for user" unless $dbcr;

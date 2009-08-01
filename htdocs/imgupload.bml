@@ -58,7 +58,7 @@
 
     $$head .= qq~
         <script type="text/javascript">
-            var urlaction  = 'imgupload.bml';
+            var urlaction  = 'imgupload';
 
             function onCancel () {
                 window.parent.InOb.onClosePopup();
@@ -80,7 +80,7 @@
 
     $ret .= "<div class='insob-wrapper'>";
     $ret .= "<div class='insobjOuter' id='insobjOuter'>";
-    $ret .= "<form id='insobjform' enctype='multipart/form-data' action='imgupload.bml' method='post' onsubmit='return window.parent.InOb.onSubmit()' >";
+    $ret .= "<form id='insobjform' enctype='multipart/form-data' action='imgupload' method='post' onsubmit='return window.parent.InOb.onSubmit()' >";
     $ret .= "<div class='tabs'><ul><li id='tabInsert' class='on'><a href='javascript: void(0);' onclick='window.parent.InOb.showSelectorPage();setTab(\"tabInsert\");return false;'>Insert Image</a></li>";
 
     $ret .= "<li id='tabPhotobucket'><a href='javascript: void(0);' onclick='window.parent.InOb.photobucket(seedurl,pb_affsite_id);setTab(\"tabPhotobucket\");return false;'>Photobucket</a></li>" if $LJ::PHOTOBUCKET_JWIDGET_ID;
@@ -127,7 +127,7 @@
     $$body = $ret;
 
     if ( $LJ::PHOTOBUCKET_JWIDGET_ID ) {
-        $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb.bml';";
+        $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb';";
         $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
     }
     $$head .= LJ::res_includes();

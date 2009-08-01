@@ -17,7 +17,7 @@ body<=
 
  my $remote = LJ::get_remote();
 
- return "<?p " . BML::ml('.error.identity_no_email', {'aopts' => "href='$LJ::SITEROOT/changeemail.bml'"}) . " p?>"
+ return "<?p " . BML::ml('.error.identity_no_email', {'aopts' => "href='$LJ::SITEROOT/changeemail'"}) . " p?>"
      if $remote && $remote->is_identity && !$remote->email_raw;
 
  my $foruser = $GET{foruser};
@@ -38,7 +38,7 @@ body<=
  my $show_validate = sub {
     my $user = shift;
     return "<?p " . BML::ml('.ask.body', {'email' => $user->email_raw}) . " p?>" .
-           "<form action='register.bml' method='post'>" .
+           "<form action='register' method='post'>" .
            LJ::html_hidden('authas', $user->{'user'}) .
            "<blockquote>" . LJ::html_submit("action:send", "$ML{'.ask.button'}") .
            "</blockquote></form>";
@@ -74,7 +74,7 @@ body<=
 
      unless ($aa) {
          return "<?h1 $ML{'Error'} h1?><?p " .
-             BML::ml('.error.invalidcode', { aopts => "href='$LJ::SITEROOT/register.bml'" }) . " p?>";
+             BML::ml('.error.invalidcode', { aopts => "href='$LJ::SITEROOT/register'" }) . " p?>";
      }
 
      my $u = LJ::load_userid($aa->{'userid'});
@@ -82,7 +82,7 @@ body<=
      # verify their email hasn't subsequently changed
      unless ($u->email_raw eq $aa->{arg1}) {
          return "<?h1 $ML{'Error'} h1?><?p " .
-             BML::ml('.error.emailchanged', { aopts => "href='$LJ::SITEROOT/register.bml'" }) . " p?>";
+             BML::ml('.error.emailchanged', { aopts => "href='$LJ::SITEROOT/register'" }) . " p?>";
      }
 
      ## if the user is OpenID, prove that he or she is human
@@ -98,7 +98,7 @@ body<=
         }
         else {
             my $ret = "<?h1 $ML{'.validate.human.title'} h1?>";
-            $ret .= "<form method='POST' action='$LJ::SITEROOT/register.bml'><input type='hidden' name='qs' value='$qs'>";
+            $ret .= "<form method='POST' action='$LJ::SITEROOT/register'><input type='hidden' name='qs' value='$qs'>";
             $ret .= $c->get_options_setter({ theme => 'white' });
             $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) );
             $ret .= "<input type='submit' value='$ML{'.validate.human.submit'}' ></form>";
@@ -125,7 +125,7 @@ body<=
          $ret .= "<p><strong><a href='" . $u->journal_base . "/read/'>$ML{'.new.101.reading.question'}</a></strong><br />";
 
          $ret .= "$ML{'.new.101.reading.answer'}</p>";
-         $ret .= "<p><strong><a href='$LJ::SITEROOT/community/search.bml'>$ML{'.new.101.community.question'}</a></strong><br />";
+         $ret .= "<p><strong><a href='$LJ::SITEROOT/community/search'>$ML{'.new.101.community.question'}</a></strong><br />";
          $ret .= "$ML{'.new.101.community.answer'}</p>";
          $ret .= "</div>";
          $ret .= "<div class='columns-2-right'>";
@@ -163,7 +163,7 @@ body<=
              }
          }
 
-         $ret .= "<form method='get' action='register.bml'>\n";
+         $ret .= "<form method='get' action='register'>\n";
          $ret .= $ML{'.ask.select'} . ": ";
          $ret .= LJ::html_select({ 'name' => 'authas', selected => $GET{'authas'} || $remote->{user} }, @list) . " ";
          $ret .= LJ::html_submit(undef, $ML{'.ask.switch'});

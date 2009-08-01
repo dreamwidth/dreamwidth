@@ -53,7 +53,7 @@
 
      return "Nothing to show." unless @load;
 
-     $ret .= "<form method='post' action='editpage.bml'>";
+     $ret .= "<form method='post' action='editpage'>";
      $ret .= LJ::html_hidden('lang', $lang,
                              'mode', 'save');
 
@@ -123,11 +123,11 @@
 
          my $difflink;
          if ($lat->{'staleness'}) {
-             $difflink = "($plat->{'chgtime'}, <a target='_new' href='diff.bml?it=$i->{'dmid'}:$i->{'itid'}&lang=$lp->{'lncode'}'>diff</a>)";
+             $difflink = "($plat->{'chgtime'}, <a target='_new' href='diff?it=$i->{'dmid'}:$i->{'itid'}&lang=$lp->{'lncode'}'>diff</a>)";
          }
 
          $ret .= "$it->{'itcode'} $difflink</td>";
-         $ret .= "<td align='right'><b><a target='_new' href='help-severity.bml'>Sev</a>:</b> $lat->{'staleness'}</td>";
+         $ret .= "<td align='right'><b><a target='_new' href='help-severity'>Sev</a>:</b> $lat->{'staleness'}</td>";
          $ret .= "</tr></table>";
 
          $ret .= "<dl>";

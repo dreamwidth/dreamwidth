@@ -9,7 +9,7 @@
     use vars qw (%GET);
 
     my $u = LJ::User->remote
-        or return BML::ml( '.read.login', { aopts => "href='login.bml'" } );
+        or return BML::ml( '.read.login', { aopts => "href='login'" } );
 
     my $itemsperpage = 50;
 

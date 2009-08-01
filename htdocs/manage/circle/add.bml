@@ -29,7 +29,7 @@
     unless ($user && $userid)
     {
         $title = $ML{'Error'};
-        $body = BML::ml('.error2.text2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/edit.bml'"});
+        $body = BML::ml('.error2.text2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/edit'"});
         return;
     }
 
@@ -96,11 +96,11 @@
 
         $body .= "<?p " . BML::ml('.add.text2', { 'ljuser' => LJ::ljuser($u) }) . " p?>";
         $body .= "<ul><li><a href='" . $remote->journal_base . "/read'>$ML{'.add.next.friends'}</a></li>";
-        $body .= "<li><a href='$LJ::SITEROOT/manage/circle/edit.bml'>$ML{'.add.next.modify'}</a></ul>";
+        $body .= "<li><a href='$LJ::SITEROOT/manage/circle/edit'>$ML{'.add.next.modify'}</a></ul>";
         return;
     }
 
-    $body .= "<form method='post' name='editFriends' action='add.bml'>\n";
+    $body .= "<form method='post' name='editFriends' action='add'>\n";
     $body .= LJ::form_auth();
     $body .= LJ::html_hidden(mode  => 'add',
                              user  => $user,
@@ -127,14 +127,14 @@
 
         # Is this account redirected?
         } elsif ( $u->is_redirect && $u->prop('renamedto') ) {
-            return BML::redirect("$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->prop('renamedto'));
+            return BML::redirect("$LJ::SITEROOT/manage/circle/add?user=" . $u->prop('renamedto'));
 
         } elsif ( $u->is_community ) {
             $windowtitle = BML::ml('.confirm.title.community'.$add, {'user'=> $user });
             $title = BML::ml('.confirm.title.community'.$add, {'icon'=> $icon, 'user'=> $user });
             unless ( $remote->member_of( $u ) ) {
                 if ( $remote->is_person ) {
-                    $body .= "<?p " . BML::ml( '.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join.bml?comm=$user'"} ) . " p?>";
+                    $body .= "<?p " . BML::ml( '.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join?comm=$user'"} ) . " p?>";
                 } else {
                     $body .= "<?p $ML{'.confirm.text1.community2.openid'} p?>";
                 }

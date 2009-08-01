@@ -50,7 +50,7 @@
     
     
     unless ($res{'frgrp_maxnum'}) {
-        $body = "<?h1 $ML{'.error.nogroups.header'} h1?><?p " . BML::ml('.error.nogroups2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/editfilters.bml'"}) . " p?>";
+        $body = "<?h1 $ML{'.error.nogroups.header'} h1?><?p " . BML::ml('.error.nogroups2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/editfilters'"}) . " p?>";
         return;
     }
     
@@ -65,7 +65,7 @@
     }
     
     $body .= "<?h1 $ML{'.select.header'} h1?><?p $ML{'.select'} p?>";
-    $body .= "<form method='post' style='display: inline' action='filter.bml'>\n";
+    $body .= "<form method='post' style='display: inline' action='filter'>\n";
     $body .= LJ::html_hidden("user", $remote->{'user'},
                              "mode", "view",
                              "type", "mergefilters");
@@ -79,7 +79,7 @@
 
     $body .= LJ::html_submit($ML{'.submit'});
     $body .= " <input type='reset' value=\"$ML{'.reset'}\"></div>";
-    $body .= "<?p " . BML::ml('.editgroups', { 'link' => "<a href='editfilters.bml'>$ML{'/manage/circle/editfilters.bml.title'}</a>" }) . " p?>";
+    $body .= "<?p " . BML::ml('.editgroups', { 'link' => "<a href='editfilters'>$ML{'/manage/circle/editfilters.bml.title'}</a>" }) . " p?>";
     $body .= "</form>";
     
     return;

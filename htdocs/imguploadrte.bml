@@ -123,7 +123,7 @@
                        <td><span fckLang="DlgImgPreview">Preview</span></td></tr>
                        <tr>
                        <td valign="top">
-                       <iframe class="ImagePreviewArea" src="$LJ::SITEROOT/imgpreview.bml" frameborder="no" marginheight="0" marginwidth="0"></iframe>
+                       <iframe class="ImagePreviewArea" src="$LJ::SITEROOT/imgpreview" frameborder="no" marginheight="0" marginwidth="0"></iframe>
                        </td></tr>
                        </table></td></tr>
                        </table></td></tr>
@@ -216,7 +216,7 @@
                     </div>
                 };
     
-            $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb.bml';";
+            $$head .= "<script type='text/javascript'>var seedurl='$LJ::SITEROOT/photobucket_cb';";
             $$head .= "var pb_affsite_id = $LJ::PHOTOBUCKET_JWIDGET_ID;</script>\n";
         }
     

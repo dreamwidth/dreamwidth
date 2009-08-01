@@ -16,14 +16,14 @@ body<=
 
     # old GET arg
     if ($GET{comm}) {
-        return BML::redirect("$LJ::SITEROOT/community/pending.bml?authas=$GET{comm}");
+        return BML::redirect("$LJ::SITEROOT/community/pending?authas=$GET{comm}");
     }
 
     my $cname = $GET{authas};
-    return BML::redirect("$LJ::SITEROOT/community/manage.bml") unless $cname;
+    return BML::redirect("$LJ::SITEROOT/community/manage") unless $cname;
 
     my $ret;
-    $ret .= "<form action='pending.bml' method='GET'>\n";
+    $ret .= "<form action='pending' method='GET'>\n";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => 'C' });
     $ret .= "</form>\n\n";
 
@@ -132,7 +132,7 @@ body<=
 
     # how to make links back to this page
     my $self_link = sub {
-        return "pending.bml?authas=$cname&page=$_[0]";
+        return "pending?authas=$cname&page=$_[0]";
     };
 
     my %items = BML::paging(\@users, $jumppage || $GET{page}, $page_size);
@@ -141,7 +141,7 @@ body<=
     @users = @{$items{items}};
 
     # output starts here
-    $ret .= "<form method='post' action='pending.bml?authas=$cname' name='pending_member_form'>";
+    $ret .= "<form method='post' action='pending?authas=$cname' name='pending_member_form'>";
     $ret .= LJ::form_auth();
 
     # jump to user
@@ -193,7 +193,7 @@ body<=
     $ret .= $navbar;
 
     $ret .= BML::ml('Backlink', {
-        'link' => '/community/manage.bml',
+        'link' => '/community/manage',
         'text' => $ML{'/community/members.bml.manage2'},
     });
 

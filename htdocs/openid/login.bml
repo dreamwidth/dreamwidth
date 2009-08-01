@@ -17,7 +17,7 @@
     return $err->($ML{'.error.no_support'})
         unless LJ::OpenID::consumer_enabled();
 
-    my $return_to = "$LJ::SITEROOT/openid/login.bml";
+    my $return_to = "$LJ::SITEROOT/openid/login";
 
     my $remote = LJ::get_remote();
     if ($remote) {
@@ -63,7 +63,7 @@
         $u->make_login_session($sess_opts->{'exptype'}, $sess_opts->{'ipfixed'});
         LJ::set_remote($u);
 
-        return BML::redirect("$LJ::SITEROOT/login.bml");
+        return BML::redirect("$LJ::SITEROOT/login");
     }
 
 

@@ -81,7 +81,7 @@ body<=
                                 { aopts => "href='" . $u->journal_base() . "/calendar/'" })
                 . " p?>\n";;
 
-        $ret .= "<form method='post' action='./editprivacy.bml'>";
+        $ret .= "<form method='post' action='./editprivacy'>";
         $ret .= "<?h1 $ML{'.timeframe'} h1?>";
         $ret .= "<table><tr><td>\n";
         $ret .= LJ::html_check({ 'type' => 'radio', 'name' => 'time',
@@ -139,7 +139,7 @@ body<=
 
         my ($posts, $s_unixtime, $e_unixtime);
         my $form_root = $more_public ? $LJ::SSLROOT : ".";
-        my $body = "<form method='post' action='$form_root/editprivacy.bml'>";
+        my $body = "<form method='post' action='$form_root/editprivacy'>";
 
         $body .= LJ::bad_input(@errors) if @errors;
         $body .= "<p>Change \"$security{$POST{'s_security'}}[1]\" posts to \"$security{$POST{'e_security'}}[2]\"";
@@ -208,7 +208,7 @@ body<=
                                                        e_security => $security{$POST{e_security}}[0],
                                                        s_unixtime => $POST{s_unixtime},
                                                        e_unixtime => $POST{e_unixtime} } );
-                return BML::redirect("$LJ::SITEROOT/editprivacy.bml?mode=secured");
+                return BML::redirect("$LJ::SITEROOT/editprivacy?mode=secured");
             }
         }
 

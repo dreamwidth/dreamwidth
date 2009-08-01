@@ -22,7 +22,7 @@
 
     my %ierr;
     my $email = $POST{invite_email} || '';
-    my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT) . "/create.bml?from=$u->{user}";
+    my $create_link = ($LJ::USE_SSL ? $LJ::SSLROOT : $LJ::SITEROOT) . "/create?from=$u->{user}";
 
     
     my @invitecodes;
@@ -180,7 +180,7 @@
 
        # Over rate limit
        } else {
-           $body = BML::ml('.error.overratelimit', {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/manage/circle/invite.bml'"});
+           $body = BML::ml('.error.overratelimit', {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/manage/circle/invite'"});
            return;
        }
     }
@@ -190,7 +190,7 @@
         $body .= $findfriends_intro;
     } elsif ( $LJ::USE_ACCT_CODES ) {
         my $unusedinvites = DW::InviteCodes->unused_count( userid => $u->id );
-        $body .= "<?p " . BML::ml('.intro.code2', { aopts => "href='$LJ::SITEROOT/manage/invitecodes.bml'" , num => $unusedinvites } ) . " p?>";
+        $body .= "<?p " . BML::ml('.intro.code2', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" , num => $unusedinvites } ) . " p?>";
     } else {
         $body .= "<?p " . BML::ml('.intro', { aopts => "href='$create_link'", createlink => $create_link} ) . " p?>";
     }

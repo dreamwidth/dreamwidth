@@ -20,14 +20,14 @@ body<=
     # no authentication needs to be done on this page, it's just a form anyway
 
     # user switcher
-    $ret .= "<form action='export.bml' method='get'>\n";
+    $ret .= "<form action='export' method='get'>\n";
     $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'}, 'showall' => 1 });
     $ret .= "</form>\n\n";
 
     $ret .= "<?h1 <?_ml .title _ml?> h1?>\n";
     $ret .= "<?p <?_ml .description _ml?> p?>\n";
 
-    $ret .= "<form action='export_do.bml?authas=$authas' method='post'>\n";
+    $ret .= "<form action='export_do?authas=$authas' method='post'>\n";
    
     # main form
     $ret .= <<'HTMLBLOCK';
@@ -101,7 +101,7 @@ standout?>
 <?h1 <?_ml lostinfo.head _ml?> h1?>
 HTMLBLOCK
 
-    $ret .= "<?p " . BML::ml('lostinfo.text2', {'aopts' => "href='$LJ::SITEROOT/lostinfo.bml'"}) . " p?>";
+    $ret .= "<?p " . BML::ml('lostinfo.text2', {'aopts' => "href='$LJ::SITEROOT/lostinfo'"}) . " p?>";
 
 }
 _code?>

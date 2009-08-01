@@ -25,7 +25,7 @@
     }
     $mode ||= "overview";
 
-    $ret .= "<div class='topbar'>[<a href='memcache.bml'>Overview</a>]\n";
+    $ret .= "<div class='topbar'>[<a href='memcache'>Overview</a>]\n";
 
     if ($mode eq "overview") {
 	$ret .= <<"END_TOP";
@@ -89,7 +89,7 @@ END_TOP
 	my $hit_rate = sprintf("%0.02f%%", $stat{''}{'get_hits'}/($stat{''}{'get_hits'}+$stat{''}{'get_misses'}||1)*100);
 
 	if ($mode eq "overview") {
-	    $ret .= "<tr><td><a href='memcache.bml?host=$host'>$host</a></td>\n";
+	    $ret .= "<tr><td><a href='memcache?host=$host'>$host</a></td>\n";
 	    $ret .= "<td>$hit_rate";
 	    if ($prev_hits && $prev_hits->{$host}) {
 		my $nh = $now_hits{$host};
@@ -134,7 +134,7 @@ END_TOP
 	}
 
 	if ($mode eq "host" && $host eq $GET{'host'}) {
-	    $ret .= "[<a href='memcache.bml?host=$host&amp;mode=raw'>Raw Data</a>]</div>";
+	    $ret .= "[<a href='memcache?host=$host&amp;mode=raw'>Raw Data</a>]</div>";
 	    $ret .= "<h1>Details for $host</h1>";
 
 	    $ret .= "<h2>Slab classes</h2>";
@@ -155,7 +155,7 @@ END_TOP
 	}
 
 	if ($mode eq "raw" && $host eq $GET{'host'}) {
-	    $ret .= "[<a href='memcache.bml?host=$host'>Host Stats</a>]</div>";
+	    $ret .= "[<a href='memcache?host=$host'>Host Stats</a>]</div>";
 	    $ret .= "<h1>Raw data for $host</h1>";
 	    $ret .= "<pre>$log</pre>";
 	}

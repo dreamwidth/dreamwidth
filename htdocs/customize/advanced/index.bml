@@ -18,13 +18,13 @@ body<=
 <?p <?_ml .documentation.text _ml?> p?>
 <ul>
 <li><a href="<?siteroot?>/doc/s2/"><?_ml .s2doc.link _ml?></a> -- <?_ml .s2doc.desc _ml?></li>
-<li><a href="<?siteroot?>/customize/advanced/layerbrowse.bml"><?_ml .publiclayers.link _ml?></a> -- <?_ml .publiclayers.desc _ml?></li>
+<li><a href="<?siteroot?>/customize/advanced/layerbrowse"><?_ml .publiclayers.link _ml?></a> -- <?_ml .publiclayers.desc _ml?></li>
 </ul>
 
 <?h1 <?_ml .advancedoptions.header _ml?> h1?>
 <ul>
-<li><a href="<?siteroot?>/customize/advanced/layers.bml"><?_ml .yourlayers.link _ml?></a> -- <?_ml .yourlayers.desc _ml?></li>
-<li><a href="<?siteroot?>/customize/advanced/styles.bml"><?_ml .yourstyles.link _ml?></a> -- <?_ml .yourstyles.desc _ml?></li>
+<li><a href="<?siteroot?>/customize/advanced/layers"><?_ml .yourlayers.link _ml?></a> -- <?_ml .yourlayers.desc _ml?></li>
+<li><a href="<?siteroot?>/customize/advanced/styles"><?_ml .yourstyles.link _ml?></a> -- <?_ml .yourstyles.desc _ml?></li>
 </ul>';
 _code?>
 

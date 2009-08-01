@@ -156,7 +156,7 @@ body<=
     return LJ::bad_input($ML{'error.invalidauth'})
         unless $u;
 
-    my $self_uri = "/manage/moodthemes.bml";
+    my $self_uri = "/manage/moodthemes";
     $self_uri .= "?authas=$authas" if $authas ne $remote->{'user'};
 
     # Populated with all the moods later in editform
@@ -388,7 +388,7 @@ body<=
     } else { # Show the first form to select user, which one to edit, or create a new one
 
         # user switcher
-        $ret .= "<form action='/manage/moodthemes.bml' method='get'>\n";
+        $ret .= "<form action='/manage/moodthemes' method='get'>\n";
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
         $ret .= "</form>\n\n";
 
@@ -432,10 +432,10 @@ body<=
 
                     my $use_dis = 0;
                     if ($tid == $u->{'moodthemeid'}) {
-                        $ret .= "<tr><td><b><a href='/moodlist.bml?moodtheme=$tid&ownerid=$u->{'userid'}'>$ename</a></b></td>";
+                        $ret .= "<tr><td><b><a href='/moodlist?moodtheme=$tid&ownerid=$u->{'userid'}'>$ename</a></b></td>";
                         $use_dis = 1;
                     } else {
-                        $ret .= "<tr><td><a href='/moodlist.bml?moodtheme=$tid&ownerid=$u->{'userid'}'>$ename</a></td>";
+                        $ret .= "<tr><td><a href='/moodlist?moodtheme=$tid&ownerid=$u->{'userid'}'>$ename</a></td>";
                     }
 
                     my @head_moods = (15, 25, 2); # happy, sad, angry

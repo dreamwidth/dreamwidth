@@ -214,7 +214,7 @@ body<=
                     <a name="pgp"></a>
                     <fieldset><legend>$ML{'.help.advanced.pgp.header'} <img src="/img/key.gif" width="16" height="16"></legend>
                     <?p } . BML::ml('.help.advanced.pgp.text1', {'pgp' => "<b>PGP</b>"}) . qq{ p?>
-                    <?p } . BML::ml('.help.advanced.pgp.text2', {'aopts' => "href='$LJ::SITEROOT/manage/pubkey.bml'"}) . qq{ p?>
+                    <?p } . BML::ml('.help.advanced.pgp.text2', {'aopts' => "href='$LJ::SITEROOT/manage/pubkey'"}) . qq{ p?>
                     <?emailex
                     $to_pgp
                     $from_pgp
@@ -253,7 +253,7 @@ body<=
             }
             $ret .= '</li>';
         }
-        $ret .= "<li><a href='emailpost.bml'>$ML{'.help.manage.header'}</a></li>";
+        $ret .= "<li><a href='emailpost'>$ML{'.help.manage.header'}</a></li>";
         $ret .= '</ul>';
         $ret .= '<hr /><br />' if $type;
 
@@ -333,7 +333,7 @@ body<=
         my $ret;
         $ret .= "<?h1 $ML{'.success.header'} h1?>";
         $ret .= "<?p $ML{'.success.saved'} p?>";
-        $ret .= "<?p " . BML::ml('.success.info', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'"}) . " p?>";
+        $ret .= "<?p " . BML::ml('.success.info', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
         if ($LJ::HELPURL{emailpost}) {
             $ret .= "<?h1 $ML{'.instructions.header'} h1?>";
             $ret .= "<?p FIXME: link to helpurl p?>";
@@ -366,7 +366,7 @@ body<=
         sort { $trusted->{$a}->{'sortorder'} <=> $trusted->{$b}->{'sortorder'} } keys %$trusted;
     my @userpics = @{ $res->{'pickws'} };
     
-    $ret .= "<?p " . BML::ml('.intro', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'"}) . " p?><br />";
+    $ret .= "<?p " . BML::ml('.intro', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?><br />";
 
     unless (LJ::get_cap($u, 'emailpost')) {
         $ret .= $ML{'.sorry.acct'};
@@ -375,7 +375,7 @@ body<=
 
     $ret .= "<?h1 $ML{'.addresses.header'} h1?>";
     $ret .= "<?p $ML{'.addresses.text'} p?>";
-    $ret .= "<form method='post' action='emailpost.bml'>\n";
+    $ret .= "<form method='post' action='emailpost'>\n";
     $ret .= LJ::form_auth();
     $ret .= "<div style='margin-left:40px;'>";
     $ret .= "<table border=\"0\"><tr><td>$ML{'.addresses.table.address'}</td><td>$ML{'.addresses.table.errors'}</td></tr>";
@@ -400,7 +400,7 @@ body<=
     $ret .= '</div><br />';
 
     $ret .= "<?h1 $ML{'.settings.header'} h1?>";
-    $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'"}) . " p?>";
+    $ret .= "<?p " . BML::ml('.settings.text', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?>";
     $ret .= "<div style='margin-left:40px;'>";
     $ret .= "<table cellspacing='0' class='settings'>";
 

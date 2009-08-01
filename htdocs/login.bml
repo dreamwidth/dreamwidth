@@ -50,7 +50,7 @@
     my $want_success_redirect = sub {
         if ($POST{returnto}) {
             # this passes in the URI of the page to redirect to on success, eg:
-            # /manage/profile/index.bml?authas=test or whatever
+            # /manage/profile/index?authas=test or whatever
             my $uri = $POST{returnto};
             if ($uri =~ /^\//) {
                 $uri = $LJ::SITEROOT . $uri;
@@ -103,7 +103,7 @@
             $body .= "</div>\n";
 
         } elsif (LJ::did_post() && $POST{'action:logout'}) {
-            my $url = $old_remote ? "$LJ::SITEROOT/logout.bml?user=" . $old_remote->user : "$LJ::SITEROOT/logout.bml";
+            my $url = $old_remote ? "$LJ::SITEROOT/logout?user=" . $old_remote->user : "$LJ::SITEROOT/logout";
             return BML::redirect($url);
         }
 
@@ -124,7 +124,7 @@
             $body .= "<?p " . BML::ml(".loggedin.text2",
                                       { 'username' => LJ::ljuser($remote)} ) . " p?>\n";
             if ($remote->is_identity && !$remote->is_validated) {
-                $body .= "<?warningbar " . BML::ml('.loggedin.openidemail', { aopts1 => "href='$LJ::SITEROOT/changeemail.bml'", aopts2 => "href='$LJ::SITEROOT/register.bml'" }) . " warningbar?>";
+                $body .= "<?warningbar " . BML::ml('.loggedin.openidemail', { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" }) . " warningbar?>";
             }
             $body .= "<br />\n";
 
@@ -132,7 +132,7 @@
                 $body .= "<div style='float: left; padding: 5px 10px 0px 10px;'>";
                 $body .= "<img src='/img/silk/profile/post.png'></div>\n";
                 $body .= "<div style='margin-left: 36px;'>";
-                $body .= "<?h2 <a href='$LJ::SITEROOT/update.bml'>";
+                $body .= "<?h2 <a href='$LJ::SITEROOT/update'>";
                 $body .= "$ML{'.loggedin.suggesthead1'}</a> h2?>\n";
                 $body .= "$ML{'.loggedin.suggest1'}<br />&nbsp;\n";
                 $body .= "</div>\n";
@@ -146,7 +146,7 @@
             $body .= "$ML{'.loggedin.suggest2'}<br />&nbsp;</div>\n";
             $body .= "<br />\n";
 
-            $body .= "<form action='login.bml$getextra' method='post' id='login'>\n";
+            $body .= "<form action='login$getextra' method='post' id='login'>\n";
             $body .= LJ::form_auth();
             $body .= "<?h2 $ML{'.login.changelog'} h2?>";
             $body .= "<table cellpadding='3' style='width: 300px; background-color: #ededed; border: 1px solid #aaa'>\n";
@@ -203,7 +203,7 @@
             $body .= "<div class='login-create-account'>\n";
             $body .= "<hr class='hr' />\n";
             $body .= "<h4>$ML{'.createaccount.header'}</h4>\n";
-            $body .= "<form action='<?siteroot?>/create.bml' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='create-account' /></form>\n";
+            $body .= "<form action='<?siteroot?>/create' method='get'><input type='submit' value='$ML{'.createaccount.button'}' class='create-account' /></form>\n";
             $body .= "<ul>\n";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit1'}</li>";
             $body .= "<li>$ML{'.createaccount.whylogin.benefit2'}</li>";
@@ -278,7 +278,7 @@
 
             if (! $u) {
                 my $euser = LJ::eurl($user);
-                push @errors, [ unknown_user => BML::ml('.error.notuser', { 'aopts' => "href='$LJ::SITEROOT/create.bml?user=$euser'" })]
+                push @errors, [ unknown_user => BML::ml('.error.notuser', { 'aopts' => "href='$LJ::SITEROOT/create?user=$euser'" })]
                     unless $u;
             } else {
                 push @errors, [ purged_user => "$ML{'error.purged.text'}" ] if $u->is_expunged;
@@ -314,7 +314,7 @@
                 if ($chal_opts->{'expired'}) {
                     push @errors, [ expired_challenge => $ML{'error.expiredchal'}];
                 } else {
-                    push @errors, [ bad_password => BML::ml( 'error.badpassword2', { aopts => "href='$LJ::SITEROOT/lostinfo.bml'" } ) ];
+                    push @errors, [ bad_password => BML::ml( 'error.badpassword2', { aopts => "href='$LJ::SITEROOT/lostinfo'" } ) ];
                 }
             }
 

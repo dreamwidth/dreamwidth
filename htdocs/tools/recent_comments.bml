@@ -37,7 +37,7 @@ body<=
     my $count = $GET{show} || ($max > 25 ? 25 : $max);
 
     # authas switcher form
-    $ret .= "<form method='get' action='/tools/recent_comments.bml'>\n";
+    $ret .= "<form method='get' action='/tools/recent_comments'>\n";
     $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $ret .= "</form>\n\n";
 
@@ -165,25 +165,25 @@ body<=
 
         unless ($r->{state} eq "D")
         {
-            $ret .= "<a href='/delcomment.bml?${jargent}id=$talkid'>";
+            $ret .= "<a href='/delcomment?${jargent}id=$talkid'>";
             $ret .= LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
             if ($r->{'state'} ne 'F') {
-                $ret .= "<a href='/talkscreen.bml?mode=freeze&amp;${jargent}talkid=$talkid'>";
+                $ret .= "<a href='/talkscreen?mode=freeze&amp;${jargent}talkid=$talkid'>";
                 $ret .= LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
             }
 
             if ($r->{'state'} eq 'F') {
-                $ret .= "<a href='/talkscreen.bml?mode=unfreeze&amp;${jargent}talkid=$talkid'>";
+                $ret .= "<a href='/talkscreen?mode=unfreeze&amp;${jargent}talkid=$talkid'>";
                 $ret .= LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
             }
 
             if ($r->{'state'} ne 'S') {
-                $ret .= "<a href='/talkscreen.bml?mode=screen&amp;${jargent}talkid=$talkid'>";
+                $ret .= "<a href='/talkscreen?mode=screen&amp;${jargent}talkid=$talkid'>";
                 $ret .= LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
             }
 
             if ($r->{'state'} eq 'S') {
-                 $ret .= "<a href='/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$talkid'>";
+                 $ret .= "<a href='/talkscreen?mode=unscreen&amp;${jargent}talkid=$talkid'>";
                  $ret .= LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
              }
          }
@@ -268,7 +268,7 @@ body<=
                 $subject = $log_text->{"$r->{journalid} $r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject(\$subject);
                 $subject = "$subject <a href='$logurl'>(link)</a>";
-                $delete = "&nbsp;<a href='$LJ::SITEROOT/delcomment.bml?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
+                $delete = "&nbsp;<a href='$LJ::SITEROOT/delcomment?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
             } else {
                 $subject = $ML{ '.post.deleted' };
             }

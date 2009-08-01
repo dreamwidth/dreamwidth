@@ -60,7 +60,7 @@ body<=
     $ret .= "<br />";
 
     $ret .= "<div align='center'>";
-    $ret .= "<form method='POST' action='$LJ::SITEROOT/misc/adult_explicit.bml'>";
+    $ret .= "<form method='POST' action='$LJ::SITEROOT/misc/adult_explicit'>";
     $ret .= LJ::form_auth();
     $ret .= LJ::html_hidden( ret => $returl, journalid => $journal->id, entryid => defined $entry ? $entry->ditemid : 0 );
     if ( $remote && $remote->best_guess_age ) {

@@ -70,7 +70,7 @@
             {
                 return BML::redirect($POST{ret_fail} . LJ::eurl('incorrect_sessid'));
             }
-            $body .= "<form action='logout.bml' method='post'>";
+            $body .= "<form action='logout' method='post'>";
             $body .= LJ::html_hidden('ret', $GET{'ret'}) if $GET{'ret'};
             $body .= LJ::html_hidden("user", $u->{'user'},
                                      "sessid", $u->{'_session'}->{'sessid'});
@@ -90,7 +90,7 @@
                                                      "userid=$u->{'userid'} AND timeexpire > UNIX_TIMESTAMP() ".
                                                      "AND sessid <> $curid");
             if (@$sessions) {
-                $body .= "<form method='post' action='logout.bml'>";
+                $body .= "<form method='post' action='logout'>";
                 $body .= LJ::html_hidden("action:killall", '1');
                 $body .= "<?h1 $ML{'.killall.head'} h1?><?p $ML{'.killall.text'} ";
                 $body .= "<blockquote><input type='submit' value='$ML{'.killall.btn'}'></blockquote> p?></form>";

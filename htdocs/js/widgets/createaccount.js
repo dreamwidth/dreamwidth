@@ -101,7 +101,7 @@ CreateAccount.checkUsername = function () {
     if ($('create_user').value == "") return;
 
     HTTPReq.getJSON({
-        url: "/tools/endpoints/checkforusername.bml?user=" + $('create_user').value,
+        url: "/tools/endpoints/checkforusername?user=" + $('create_user').value,
         method: "GET",
         onData: function (data) {
             if (data.error) {

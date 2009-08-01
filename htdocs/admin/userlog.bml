@@ -40,7 +40,7 @@ body<=
     my $user = LJ::canonical_username($POST{user} || $GET{user});
 
     my $ret = <<FORM;
-<form method='post' action='userlog.bml'>
+<form method='post' action='userlog'>
 Username: <input type='text' name='user' value='$user' maxlength='25' size='25' /> <input type='submit' value='View' />
 </form>
 FORM

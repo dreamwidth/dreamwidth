@@ -49,7 +49,7 @@ _info?><?_code
             " newalt: \"$alttext\", id: $dtalkid, \n" .
             " oldimage: \"$LJ::IMGPREFIX/$stockimg->{$mode}\",\n " .
             " newimage: '$LJ::IMGPREFIX/$stockimg->{$newmode}',\n " .
-            " newurl: '$LJ::SITEROOT/talkscreen.bml?mode=$newmode&journal=$journal&talkid=$dtalkid' \n" .
+            " newurl: '$LJ::SITEROOT/talkscreen?mode=$newmode&journal=$journal&talkid=$dtalkid' \n" .
             "};\n";
         BML::finish();
         return $res;
@@ -116,7 +116,7 @@ _info?><?_code
             $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
         } else {
             $body .= "<?h1 $ML{'.screen.sure.title'} h1?><?p $ML{'.screen.sure.body'} p?>";
-            $body .= "<p><form method='POST' action='talkscreen.bml'><center>\n";
+            $body .= "<p><form method='POST' action='talkscreen'><center>\n";
             $body .= LJ::form_auth();
             $body .= LJ::html_hidden(mode => 'screen', 'talkid' => $talkid,
                                     journal => $u->{user}, confirm => 'Y');
@@ -141,7 +141,7 @@ _info?><?_code
             $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
      } else {
          $body .= "<?h1 $ML{'.unscreen.sure.title'} h1?><?p $ML{'.unscreen.sure.body'} p?>";
-         $body .= "<p><form method='POST' action='talkscreen.bml'><center>\n";
+         $body .= "<p><form method='POST' action='talkscreen'><center>\n";
          $body .= LJ::form_auth();
          $body .= LJ::html_hidden(mode => 'unscreen', 'talkid' => $talkid,
                                  journal => $u->{user}, confirm => 'Y');
@@ -170,7 +170,7 @@ _info?><?_code
             $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
      } else {
          $body .= "<?h1 $ML{'.freeze.sure.title'} h1?><?p $ML{'.freeze.sure.body'} p?>";
-         $body .= "<p><form method='post' action='talkscreen.bml'><center>\n";
+         $body .= "<p><form method='post' action='talkscreen'><center>\n";
          $body .= LJ::form_auth();
          $body .= LJ::html_hidden(mode => 'freeze', 'talkid' => $talkid,
                                  journal => $u->{user}, confirm => 'Y');
@@ -198,7 +198,7 @@ _info?><?_code
             $error->($ML{'error.invalidform'}) unless LJ::check_form_auth();
      } else {
          $body .= "<?h1 $ML{'.unfreeze.sure.title'} h1?><?p $ML{'.unfreeze.sure.body'} p?>";
-         $body .= "<p><form method='post' action='talkscreen.bml'><center>\n";
+         $body .= "<p><form method='post' action='talkscreen'><center>\n";
          $body .= LJ::form_auth();
          $body .= LJ::html_hidden(mode => 'unfreeze', 'talkid' => $talkid,
                                  journal => $u->{user}, confirm => 'Y');

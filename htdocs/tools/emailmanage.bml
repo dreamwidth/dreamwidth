@@ -72,7 +72,7 @@ body<=
     my $ret;
     
     # authas switcher form
-    $ret .= "<form method='get' action='emailmanage.bml'>\n";
+    $ret .= "<form method='get' action='emailmanage'>\n";
     $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $ret .= "</form>\n\n";
 
@@ -85,7 +85,7 @@ body<=
 
     unless ($u->{'status'} eq "A") {
         $ret .= "<?h1 $ML{'.notvalidated.title'} h1?>\n";
-        $ret .= "<?p " . BML::ml('.notvalidated.text2', {'email' => $u->email_raw, 'aopts' => "href='$LJ::SITEROOT/register.bml'"}) . " p?>";
+        $ret .= "<?p " . BML::ml('.notvalidated.text2', {'email' => $u->email_raw, 'aopts' => "href='$LJ::SITEROOT/register'"}) . " p?>";
         return $ret;
     }
 
@@ -116,7 +116,7 @@ body<=
 
     if ($rows) {
         my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
-        $ret .= "<form method='post' action='emailmanage.bml$getextra'>";
+        $ret .= "<form method='post' action='emailmanage$getextra'>";
         $ret .= LJ::form_auth();
         $ret .= "<table border='1' cellpadding='2' style='margin-bottom: 3px;'>\n";
         $ret .= $rows;

@@ -3,7 +3,7 @@ var FriendInterests = new Object();
 FriendInterests.init = function () {
     FriendInterests.user = $('from_user').value;
     HTTPReq.getJSON({
-        url: "/tools/endpoints/getinterests.bml?user=" + FriendInterests.user,
+        url: "/tools/endpoints/getinterests?user=" + FriendInterests.user,
         onData: FriendInterests.gotInterests,
         onError: function (msg) { }
     });

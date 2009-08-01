@@ -44,13 +44,13 @@ p?>
 
 <?p 
 <?_code 
-BML::ml(".main.using_your_openid_here.email2", { 'aopts1' => "href='$LJ::SITEROOT/changeemail.bml'", 'aopts2' => "href='$LJ::SITEROOT/register.bml'" })
+BML::ml(".main.using_your_openid_here.email2", { 'aopts1' => "href='$LJ::SITEROOT/changeemail'", 'aopts2' => "href='$LJ::SITEROOT/register'" })
 _code?>
 p?>
 
 
    <div style='padding: 0.4em; margin-left: 25px; margin-right: 25px; width: auto; text-align: center; background: #ccc; border: #000'>
-<form method='post' action='login.bml' style='display:inline; width:auto'><nobr><b><?_ml .login.openid_url _ml?></b> <input class='sexy' id='openid_url' name="openid_url" size='30' />
+<form method='post' action='login' style='display:inline; width:auto'><nobr><b><?_ml .login.openid_url _ml?></b> <input class='sexy' id='openid_url' name="openid_url" size='30' />
 <input style='background: #ff6200; color: #fff;' type='submit' value='<?_ml .login.submit _ml?>' /></nobr><br /><?_ml .login.example _ml?></form></div>
 
 <?h1 <?_ml .main.openid_other_sites _ml?> h1?>

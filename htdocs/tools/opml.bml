@@ -7,7 +7,7 @@
     # if we don't have a current user but somebody is logged in, redirect
     # them to their own OPML page
     if ( $remote && $GET{user} eq "" ) {
-        return BML::redirect( "$LJ::SITEROOT/tools/opml.bml?user=$remote->{user}" );
+        return BML::redirect( "$LJ::SITEROOT/tools/opml?user=$remote->{user}" );
     }
 
     return "No 'user' argument" unless $GET{user};

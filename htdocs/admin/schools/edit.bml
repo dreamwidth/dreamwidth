@@ -51,7 +51,7 @@ body<=
 
         $school = $school->{$sid};
 
-        $ret .= "<form method='post' action='edit.bml'>";
+        $ret .= "<form method='post' action='edit'>";
         $ret .= LJ::form_auth();
         $ret .= LJ::html_hidden('sid', $sid, 'save', 1);
         $ret .= "<table><tr><td>";
@@ -113,7 +113,7 @@ body<=
         $ret .= '<?h1 Success h1?><?p School data edited or deleted p?>';
         return $ret;
     } else {
-        $ret .= "<form method='GET' action='edit.bml'>";
+        $ret .= "<form method='GET' action='edit'>";
         $ret .= "School ID to edit: " . LJ::html_text({name => 'sid', size => 10});
         $ret .= ' ' . LJ::html_submit();
         $ret .= "</form>";

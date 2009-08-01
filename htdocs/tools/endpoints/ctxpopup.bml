@@ -66,8 +66,8 @@
     # actions to generate auth tokens for
     my @actions = ();
 
-    $ret{url_addtrust} = "$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->{user} . "&action=access";
-    $ret{url_addwatch} = "$LJ::SITEROOT/manage/circle/add.bml?user=" . $u->{user} . "&action=subscribe";
+    $ret{url_addtrust} = "$LJ::SITEROOT/manage/circle/add?user=" . $u->{user} . "&action=access";
+    $ret{url_addwatch} = "$LJ::SITEROOT/manage/circle/add?user=" . $u->{user} . "&action=subscribe";
 
     my $up = $u->userpic;
     if ($up) {
@@ -100,8 +100,8 @@
     $ret{is_logged_in}  = $remote ? 1 : 0;
 
     if ($u->is_comm) {
-        $ret{url_joincomm}   = "$LJ::SITEROOT/community/join.bml?comm=" . $u->{user};
-        $ret{url_leavecomm}  = "$LJ::SITEROOT/community/leave.bml?comm=" . $u->{user};
+        $ret{url_joincomm}   = "$LJ::SITEROOT/community/join?comm=" . $u->{user};
+        $ret{url_leavecomm}  = "$LJ::SITEROOT/community/leave?comm=" . $u->{user};
         $ret{is_member} = $remote->member_of( $u ) if $remote;
         $ret{is_closed_membership} = $u->is_closed_membership;
 

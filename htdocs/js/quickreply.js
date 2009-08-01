@@ -131,7 +131,7 @@
         }
 
         var qr_form = xGetElementById('qrform');
-        qr_form.action = Site.siteroot + '/talkpost_do.bml';
+        qr_form.action = Site.siteroot + '/talkpost_do';
         qr_form.submit();
 
         // don't do default form action

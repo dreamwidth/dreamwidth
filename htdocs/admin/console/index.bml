@@ -34,19 +34,19 @@ body<=
     if ( LJ::did_post() ) {
         return $ML{'.error.nopost'} unless LJ::check_form_auth();
 
-        $ret .= "<p>" . BML::ml( '.description.reference', { aopts => "href='reference.bml'" } ) . "</p>";
+        $ret .= "<p>" . BML::ml( '.description.reference', { aopts => "href='reference'" } ) . "</p>";
         $ret .= LJ::Console->run_commands_html( $commands );
 
     } else {
 
         $ret .= "<p>$ML{'.description'}</p>";
-        $ret .= "<p>" . BML::ml( '.description.reference', { aopts => "href='reference.bml'" } ) . "</p>";
+        $ret .= "<p>" . BML::ml( '.description.reference', { aopts => "href='reference'" } ) . "</p>";
 
     }
 
         $ret .= "<br /><p>$ML{'.entercommands'}</p>";
 
-        $ret .= "<form method='post' action='index.bml'>";
+        $ret .= "<form method='post' action='index'>";
         $ret .= LJ::form_auth();
         $ret .= "<div class='console'>";
         $ret .= LJ::html_textarea({ 

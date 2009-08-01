@@ -101,25 +101,25 @@ body<=
            $ret .= "<tr class='$rstyle'><td><?ljcomm $user ljcomm?></td><td>" . LJ::eall($name) . "</td><td nowrap='nowrap'>";
            if ($admin{$id}) {
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/update.bml?usejournal=$user'>$ML{'.commlist.post'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/update?usejournal=$user'>$ML{'.commlist.post'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= LJ::run_hook('community_manage_actionlink', $user);
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='/manage/profile/?authas=$user'>$ML{'.commlist.actinfo2'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='$LJ::SITEROOT/customize/?authas=$user'>$ML{'.commlist.customize2'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/community/settings.bml?authas=$user'>$ML{'.commlist.actsettings2'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/community/settings?authas=$user'>$ML{'.commlist.actsettings2'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/community/sentinvites.bml?authas=$user'>$ML{'.commlist.actinvites'}</a>"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/community/sentinvites?authas=$user'>$ML{'.commlist.actinvites'}</a>"}) . "&nbsp;&nbsp;";
                my $pend = $pending{$id} ? BML::ml('.commlist.actpending', { num => $pending{$id},
-                                                  aopts => "href=\"/community/pending.bml?authas=$user\"" }) : '';
+                                                  aopts => "href=\"/community/pending?authas=$user\"" }) : '';
                $ret .= BML::ml('Actionlink', {
-                   'link'=>"<a href='/community/members.bml?authas=$user'>$ML{'.commlist.actmembers2'}</a>$pend"}) . "&nbsp;&nbsp;";
+                   'link'=>"<a href='/community/members?authas=$user'>$ML{'.commlist.actmembers2'}</a>$pend"}) . "&nbsp;&nbsp;";
            }
            $ret .= "</td><td align='center'>";
            if ($mods{$id}) {
                my $num = $modcount{$id} || "0"; # relying on this to be <b>-wrapped
-               $ret .= BML::ml('.commlist.moderation.num2', {'aopts' => "href='$LJ::SITEROOT/community/moderate.bml?authas=$user'", 'num' => $num});
+               $ret .= BML::ml('.commlist.moderation.num2', {'aopts' => "href='$LJ::SITEROOT/community/moderate?authas=$user'", 'num' => $num});
            } else {
                $ret .= "&nbsp";
            }
@@ -151,7 +151,7 @@ body<=
     # form for setting email option
     $ret .= "<?h1 $ML{'.joinmail.title'} h1?>\n";
     $ret .= "<?p " . BML::ml('.joinmail.body2', { aopts=>"href='$LJ::SITEROOT/manage/subscriptions/'" }). " p?>\n";
-    $ret .= "<form method='post' action='manage.bml'>\n";
+    $ret .= "<form method='post' action='manage'>\n";
     $ret .= LJ::form_auth();
     # options for getting moderation emails
     $ret .= "<?p $ML{'.modemail.body'} p?>";
@@ -171,10 +171,10 @@ body<=
     $ret .= "<div class='columns-2-right'>";
 
     $ret .= "<?h1 $ML{'.create.header'} h1?>";
-    $ret .= "<?p " . BML::ml('.create.text2', {'aopts' => "href='$LJ::SITEROOT/community/create.bml'"}) . " p?>";
+    $ret .= "<?p " . BML::ml('.create.text2', {'aopts' => "href='$LJ::SITEROOT/community/create'"}) . " p?>";
 
     $ret .= "<?h1 $ML{'/manage/invites.bml.title'} h1?>";
-    $ret .= "<?p <a href=\"/manage/invites.bml\"><?_ml /manage/invites.bml.title _ml?></a> p?>";
+    $ret .= "<?p <a href=\"/manage/invites\"><?_ml /manage/invites.bml.title _ml?></a> p?>";
     $ret .= "</div><!-- end .columns-2-right -->";
     $ret .= "</div><!-- end .columns-2 -->";
     return $ret;

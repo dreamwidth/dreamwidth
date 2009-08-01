@@ -42,7 +42,7 @@ body<=
                '<?p ' . BML::ml('.commreject.text', {
                            user => LJ::ljuser($username),
                            comm => LJ::ljuser($commname),
-                           aopts => "href=\"$LJ::SITEROOT/community/members.bml?authas=$commname\"",
+                           aopts => "href=\"$LJ::SITEROOT/community/members?authas=$commname\"",
                         }) . ' p?>';
     }
 

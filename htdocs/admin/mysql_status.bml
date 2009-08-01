@@ -36,7 +36,7 @@
      }
  }
  if ($format eq "html") {
-     $ret .= "<p>Or, view <a href=\"mysql_status.bml?mode=$mode&format=text\">as text</a>.<p>";
+     $ret .= "<p>Or, view <a href=\"mysql_status?mode=$mode&format=text\">as text</a>.<p>";
  }
 
  if ($mode eq "status")

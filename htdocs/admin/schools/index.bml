@@ -3,10 +3,10 @@ title=>School Manage Page
 body<=
 <?h1 Links h1?>
 <ul>
-    <li><a href="edit.bml">Edit School</a>
-    <li><a href="pending.bml">Pending Schools</a></li>
-    <li><a href="merge.bml">Merge Schools</a></li>
-    <li><a href="rename.bml">Rename City/State</a></li>
+    <li><a href="edit">Edit School</a>
+    <li><a href="pending">Pending Schools</a></li>
+    <li><a href="merge">Merge Schools</a></li>
+    <li><a href="rename">Rename City/State</a></li>
 </ul>
 
 <?h1 Stats h1?>

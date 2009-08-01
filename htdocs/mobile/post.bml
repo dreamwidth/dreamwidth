@@ -11,7 +11,7 @@ _info?><?_code
     };
 
     $u = LJ::get_remote()
-	or return $err->( BML::ml( ".post.login", { aopts => "href='login.bml'" } ) );
+	or return $err->( BML::ml( ".post.login", { aopts => "href='login'" } ) );
 
     $res = LJ::Protocol::do_request("login", {
 	"ver" => $LJ::PROTOCOL_VER,
@@ -74,7 +74,7 @@ _code?>
 <?_code BML::ml( ".post.back", { aopts => "href='./'", sitename => $LJ::SITENAMESHORT } ) _code?>
 <h1><?_ml .form.header _ml?></h1>
 
-<form method='post' action='/mobile/post.bml'>
+<form method='post' action='/mobile/post'>
 <?_code { return LJ::form_auth(); } _code?>
 <?_ml .form.subject _ml?>:<br />
 <input name='subject' size='50' style='width: 90%' /><br />

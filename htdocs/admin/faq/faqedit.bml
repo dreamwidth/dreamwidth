@@ -102,7 +102,7 @@ body<=
                           undef, $question, $summary, $answer, $faqcat,
                           $sortorder, $remote->{userid} );
                 $id = $dbh->{mysql_insertid};
-                $ret .= $dbh->errstr || "Added FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=$id'>$id</a></b>";
+                $ret .= $dbh->errstr || "Added FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
                 $opts_question->{childrenlatest} = 1;
                 $opts_summary->{childrenlatest} = 1;
@@ -118,7 +118,7 @@ body<=
                                          WHERE faqid=? },
                           undef, $question, $summary, $answer, $faqcat,
                           $remote->{userid}, $sortorder, $id );
-                $ret .= "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse.bml?faqid=$id'>$id</a></b>";
+                $ret .= "Updated FAQ item. All good. FAQ id is <b><a href='$LJ::SITEROOT/support/faqbrowse?faqid=$id'>$id</a></b>";
 
                 $do_trans->( $id );
             } else {
@@ -210,7 +210,7 @@ body<=
         # Fall through to form
     }
 
-    $ret .= "<form action='faqedit.bml' method='post'>";
+    $ret .= "<form action='faqedit' method='post'>";
     $ret .= LJ::form_auth();
     $ret .= LJ::html_hidden( 'id', $id );
     $ret .= "<p>Category: ";

@@ -49,7 +49,7 @@ body<=
     my $mode = "modify";
     $mode = "create" if $GET{'mode'} eq 'create';
 
-    $ret .= "<form action='$LJ::SITEROOT/community/settings.bml' method='get'>";
+    $ret .= "<form action='$LJ::SITEROOT/community/settings' method='get'>";
     $ret .= LJ::make_authas_select($remote, { authas => $GET{authas}, type => "C" });
     $ret .= "</form>";
 
@@ -173,7 +173,7 @@ body<=
 
             $ret .= "<?p $ML{'.label.rellinks'} <ul><li><a href='" . $cu->journal_base . "'>$ML{'.label.commsite'}</a></li>";
             $ret .= "<li><a href='" . $cu->profile_url() . "'>$ML{'.label.comminfo'}</a></li><li>"
-                . BML::ml('.label.managepage', { 'aopts' => 'href="/community/manage.bml"' }) . "</li></ul> p?>";
+                . BML::ml('.label.managepage', { 'aopts' => 'href="/community/manage"' }) . "</li></ul> p?>";
 
             return $ret;
         }
@@ -197,13 +197,13 @@ body<=
     if ($mode eq 'modify') {
         if ($GET{comm}) {
             # old GET arg
-            return BML::redirect("$LJ::SITEROOT/community/settings.bml?authas=$GET{comm}");
+            return BML::redirect("$LJ::SITEROOT/community/settings?authas=$GET{comm}");
         }
         $cname = LJ::canonical_username($GET{'authas'});
         $c = LJ::load_user($cname);
         unless ($c) {
-            # if no community was specified, redirect to manage.bml
-            return BML::redirect("$LJ::SITEROOT/community/manage.bml");
+            # if no community was specified, redirect to manage
+            return BML::redirect("$LJ::SITEROOT/community/manage");
         }
 
         unless ( $c->is_community ) {
@@ -218,15 +218,15 @@ body<=
         $info{'moderated'} = $c->{'moderated'} ? 1 : 0;
     }
 
-    $ret .= "<form method='post' action='settings.bml?mode=$mode'>";
+    $ret .= "<form method='post' action='settings?mode=$mode'>";
     $ret .= LJ::form_auth();
 
     if ($mode eq 'create') {
         LJ::set_active_crumb('createcommunity');
           $ret .= "<?h2 $ML{'.label.commheader'} h2?>" .
-              ($mode eq 'modify' ? "<?p $ML{'.label.commchange'} p?>" : "<?p " . BML::ml('.label.commcreate2', {'aopts' => "href='$LJ::SITEROOT/create.bml'"}) . " p?>");
+              ($mode eq 'modify' ? "<?p $ML{'.label.commchange'} p?>" : "<?p " . BML::ml('.label.commcreate2', {'aopts' => "href='$LJ::SITEROOT/create'"}) . " p?>");
           $ret .= "<?standout <table width='350' cellpadding='7'><tr valign='top'><td><b>$ML{'.label.maintainer'}</b></td>";
-          $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login2', {'aopts' => "href='$LJ::SITEROOT/login.bml?ret=1'"}) . "</td></tr>";
+          $ret .= "<td><?ljuser $remote->{'user'} ljuser?><br />" . BML::ml('.label.maintainer.login2', {'aopts' => "href='$LJ::SITEROOT/login?ret=1'"}) . "</td></tr>";
           $ret .= "<tr valign='top'><td><b>$ML{'.label.community'}</b></td>";
           $ret .= "<td>$ML{'.label.username'}<br /><input name='cuser' maxlength='25' value='$cname' /><br />";
           $ret .= "<?inerr $errors{'username'} inerr?><br />";

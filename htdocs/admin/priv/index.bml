@@ -52,7 +52,7 @@
  unless ($mode)
  {
      $ret .= "<h1>Privilege Management</h1>\n";
-     $ret .= "<form method='get' action='index.bml'>";
+     $ret .= "<form method='get' action='index'>";
      $ret .= "<p>View all privileges of user <input name='user' size='25' maxlength='25' /> <input type='submit' value=\"Load\" /></p></form>";
 
      $ret .= "<p>Or, show all users with privilege:</p><dl>";

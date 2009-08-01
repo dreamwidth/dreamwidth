@@ -24,7 +24,7 @@ body<=
     use strict;
     use vars qw(%GET %POST);
 
-    my $main_return = '<p><form method="post" action="sysban.bml">
+    my $main_return = '<p><form method="post" action="sysban">
         <input type="submit" value="Return to Sysban page"></form></p>';
     my $err = sub {
         return "<?h1 Error h1?><?p $_[0] p?><?p $main_return p?>";
@@ -65,7 +65,7 @@ body<=
 
     my $bantype = $POST{'bantype'};
 
-    my $ret = "<form method='post' action='sysban.bml'>";
+    my $ret = "<form method='post' action='sysban'>";
     $ret   .= LJ::form_auth();
     $ret   .= "<select name='bantype'>";
     foreach my $type ( @sysban_privs ) {
@@ -103,7 +103,7 @@ QUERYFORM
             $note =~ s/^'(.*)'$/\1/;
 
             $ret .= "<tr>\n <td>$value</td><td>" . localtime($expire) . "</td>";
-            $ret .= "<form method='post' action='sysban.bml'>" . 
+            $ret .= "<form method='post' action='sysban'>" . 
                     LJ::form_auth();
             $ret .= <<QUERYFORM;
 <td>
@@ -157,7 +157,7 @@ QUERYFORM
         my $auth = LJ::form_auth();
         $ret = <<RETURN;
 Ban modified.
-<p><form method="post" action="sysban.bml">
+<p><form method="post" action="sysban">
 $auth
 <input type='hidden' name='bantype' value=$bantype>
 <input type='submit' name='query' value='Return to updated query listing'>
@@ -172,7 +172,7 @@ RETURN
         return $err->("Requires post") unless LJ::did_post();
         return $err->("Invalid form") unless LJ::check_form_auth();
 
-        $ret = "<form method='post' action='sysban.bml'> " . LJ::form_auth() . 
+        $ret = "<form method='post' action='sysban'> " . LJ::form_auth() . 
                 "<select name='bantype'>";
         foreach my $type ( @sysban_privs ) {
             if ( $type eq $bantype ) {

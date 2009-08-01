@@ -587,7 +587,7 @@ function createModerationFunction (ae, dItemid) {
 
         xtr.onreadystatechange = state_callback;
 
-        var postUrl = ae.href.replace(/.+talkscreen\.bml/, "/" + LJ_cmtinfo.journal + "/__rpc_talkscreen");
+        var postUrl = ae.href.replace(/.+talkscreen/, "/" + LJ_cmtinfo.journal + "/__rpc_talkscreen");
 
         //var postUrl = ae.href;
         xtr.open("POST", postUrl + "&jsmode=1", true);
@@ -605,10 +605,10 @@ function setupAjax () {
     var ct = document.links.length;
     for (var i=0; i<ct; i++) {
         var ae = document.links[i];
-        if (ae.href.indexOf("talkscreen.bml") != -1) {
+        if (ae.href.indexOf("talkscreen") != -1) {
             ae.onclick = createModerationFunction(ae, dItemid);
 
-        } else if (ae.href.indexOf("delcomment.bml") != -1) {
+        } else if (ae.href.indexOf("delcomment") != -1) {
 
             var findIDre = /id=(\d+)/;
             var reMatch = findIDre.exec(ae.href);

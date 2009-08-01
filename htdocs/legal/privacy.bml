@@ -22,7 +22,7 @@ body<=
     my $ret;
 
     $ret .= <<PAGE;
-<p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='$LJ::SITEROOT/support/submit.bml'>ask us</a>, and we'll do our best to answer.</p>
+<p>We hate legalese, so we've tried to make ours readable. If you've got any questions, feel free to <a href='$LJ::SITEROOT/support/submit'>ask us</a>, and we'll do our best to answer.</p>
 
 <p>This privacy statement ("Privacy Policy") covers all websites (such as $LJ::DOMAIN_WEB) owned and operated by $LJ::SITECOMPANY ("we", "us", "our") and all associated services.</p>
 

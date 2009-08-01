@@ -110,7 +110,7 @@
         $body = "The entry that this memory references has been deleted.<br/>";
 
         if ($memoryu->{user} eq $authas && defined $memory) {
-            $body .= "<br /><form action='memadd.bml$authextra' method='POST'>";
+            $body .= "<br /><form action='memadd$authextra' method='POST'>";
             $body .= LJ::form_auth();
             $body .= LJ::html_hidden(journal => $GET{journal}) if $GET{journal};
             $body .= LJ::html_hidden(itemid => $GET{itemid});
@@ -204,7 +204,7 @@
         # already then wants to add it to community c, when u clicks the "add memory"
         # link on p, u gets the "edit entry" page and they need to be able to switch
         # to c.
-        $body .= "<form method='get' action='memadd.bml'>\n";
+        $body .= "<form method='get' action='memadd'>\n";
         $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
         $body .= LJ::html_hidden(journal => $GET{journal}) if $GET{journal};
         $body .= LJ::html_hidden(itemid => $GET{itemid});
@@ -224,7 +224,7 @@
         # we still need to pass the dbitemid and not the itemid to ourself.
         $getextra .= "&amp;journal=$journal" unless $oldstyle;
 
-        $body .= "<form method='post' action='memadd.bml$getextra'>";
+        $body .= "<form method='post' action='memadd$getextra'>";
         $body .= LJ::form_auth();
         $body .= LJ::html_hidden(mode => "save");
 
@@ -353,7 +353,7 @@
         my $entry = LJ::Entry->new($ju, jitemid => $itemid);
         $body .= "<ul>";
         $body .= "<li><a href='" . $entry->url . "'>$ML{'.body.added.next.entry'}</a></li>";
-        $body .= "<li><a href='$LJ::SITEROOT/tools/memories.bml?user=" . $memoryu->user . "'>"
+        $body .= "<li><a href='$LJ::SITEROOT/tools/memories?user=" . $memoryu->user . "'>"
                . "$ML{'.body.added.next.view'}</a></li>";
         $body .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'.body.added.next.friends'}</a></li>";
         $body .= "<li>" . BML::ml(".body.added.next.journal", { 'user' => $ju->ljuser_display }) . "</li>";

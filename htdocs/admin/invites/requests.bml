@@ -81,7 +81,7 @@ body<=
         }
 
         my $reason = $outstanding->reason || "( no reason given )";
-        $ret .= "<td><a href='review.bml?user=$u->{user}'>$reason</a></td>";
+        $ret .= "<td><a href='review?user=$u->{user}'>$reason</a></td>";
         $ret .= "</tr>";
     }
 

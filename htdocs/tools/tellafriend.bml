@@ -116,7 +116,7 @@
 
  my @warn;
  # Display form with info filled in
- $body .= "<form method='post' action='tellafriend.bml'>";
+ $body .= "<form method='post' action='tellafriend'>";
  $body .= LJ::html_hidden({ name => 'mode', value => 'mail' });
  $body .= "<table cellpadding=3 border=0>";
 
