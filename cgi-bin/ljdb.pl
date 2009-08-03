@@ -212,7 +212,7 @@ package LJ;
 
 use Carp qw(croak);
 
-# when calling a supported function (currently: LJ::load_user() or LJ::load_userid*), LJ::SMS::load_mapping()
+# when calling a supported function (currently: LJ::load_user() or LJ::load_userid*)
 # ignores in-process request cache, memcache, and selects directly
 # from the global master
 #

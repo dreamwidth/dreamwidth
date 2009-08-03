@@ -72,8 +72,6 @@ sub title {
         return eval { $self->event->as_html($self->u) } || $@;
     } elsif ($mode eq "im") {
         return eval { $self->event->as_im($self->u) } || $@;
-    } elsif ($mode eq "sms") {
-        return eval { $self->event->as_sms($self->u) } || $@;
     }
 }
 

@@ -125,14 +125,6 @@ sub as_string {
                    $self->comm->display_username);
 }
 
-sub as_sms {
-    my $self = shift;
-
-    return sprintf("%s sent you an invitation to join the community %s. Visit the invitation page to accept",
-                   $self->inviter->display_username,
-                   $self->comm->display_username);
-}
-
 sub subscription_as_html {
     my ($class, $subscr) = @_;
     return BML::ml('event.comm_invite'); # "I receive an invitation to join a community";

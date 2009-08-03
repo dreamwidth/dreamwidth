@@ -113,10 +113,6 @@ sub test_post {
         ok($u2e1, "made a post$suffix");
         is($@, "", "no errors");
 
-        # make sure we got notification
-        $email = $got_notified->($u1);
-        ok($email, "got the sms $state");
-
         # S1 failing case:
         # post an entry on $u1, where nobody's subscribed
         my $u1e1 = eval { $u1->t_post_fake_entry(%opts) };

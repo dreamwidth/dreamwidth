@@ -93,8 +93,6 @@ sub END { LJ::end_request(); }
                     "user_schools", "portal_config", "portal_box_prop",
                     "loginlog", "active_user", "userblobcache",
                     "notifyqueue", "cprod", "urimap",
-                    "sms_msg", "sms_msgprop", "sms_msgack",
-                    "sms_msgtext", "sms_msgerror",
                     "jabroster", "jablastseen", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2",
@@ -335,26 +333,6 @@ sub theschwartz {
     $LJ::SchwartzClient{$role} = TheSchwartz->new(databases => \@dbs);
 
     return $LJ::SchwartzClient{$role};
-}
-
-sub sms_gateway {
-    my $conf_key = shift;
-
-    # effective config key is 'default' if one wasn't specified or nonexistent
-    # config was specified, meaning fall back to default
-    unless ($conf_key && $LJ::SMS_GATEWAY_CONFIG{$conf_key}) {
-        $conf_key = 'default';
-    }
-
-    return $LJ::SMS_GATEWAY{$conf_key} ||= do {
-        my $class = "DSMS::Gateway" .
-            ($LJ::SMS_GATEWAY_TYPE ? "::$LJ::SMS_GATEWAY_TYPE" : "");
-
-        eval "use $class";
-        die "unable to use $class: $@" if $@;
-
-        $class->new(config => $LJ::SMS_GATEWAY_CONFIG{$conf_key});
-    };
 }
 
 sub gtop {
@@ -1317,8 +1295,6 @@ sub start_request
     %LJ::REQ_CACHE_USER_ID = ();      # users by id
     %LJ::REQ_CACHE_REL = ();          # relations from LJ::check_rel()
     %LJ::REQ_LANGDATFILE = ();        # caches language files
-    %LJ::SMS::REQ_CACHE_MAP_UID = (); # cached calls to LJ::SMS::num_to_uid()
-    %LJ::SMS::REQ_CACHE_MAP_NUM = (); # cached calls to LJ::SMS::uid_to_num()
     %LJ::S2::REQ_CACHE_STYLE_ID = (); # styleid -> hashref of s2 layers for style
     %LJ::S2::REQ_CACHE_LAYER_ID = (); # layerid -> hashref of s2 layer info (from LJ::S2::load_layer)
     %LJ::S2::REQ_CACHE_LAYER_INFO = (); # layerid -> hashref of s2 layer info (from LJ::S2::load_layer_info)

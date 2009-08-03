@@ -563,22 +563,6 @@ Please see &lt;a href='http://status.example.com/'&gt;&hellip;&lt;/a&gt; for sta
             },
         },
 
-        'messaging_related' => {
-            'name' => "Messaging Related",
-            'sms_domain' => {
-                    'desc' => "Base domain for SMS service. Defaults to value of [ljconfig[domain]]. You might use this in message footers you send to users.",
-            },
-            'sms_shortcode' => {
-                    'desc' => "Number of your SMS service for users to send to and receive from.",
-                    'example' => "55512",
-            },
-            'sms_title' => {
-                    'desc' => "The name of your <acronym>SMS</acronym> service. Used on <acronym>SMS</acronym> communications and site pages.",
-                    'default' => '$SITENAMESHORT SMS',
-                    'example' => 'TXT$SITENAMEABBREV',
-            },
-        },
-
         'misc' => {
             'name' => "Miscellaneous settings",
             'bml_deny_config' => {

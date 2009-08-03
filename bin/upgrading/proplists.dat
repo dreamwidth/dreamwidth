@@ -974,62 +974,6 @@ userproplist.skype:
   multihomed: 1
   prettyname: Skype ID
 
-userproplist.sms_carrier:
-  cldversion: 4
-  datatype: char
-  des: SMS carrier
-  indexed: 0
-  multihomed: 0
-  prettyname: SMS carrier
-
-userproplist.sms_enabled:
-  cldversion: 4
-  datatype: char
-  des: If the user has activated and confirmed their SMS settings
-  indexed: 0
-  multihomed: 0
-  prettyname: SMS enabled status
-
-userproplist.sms_friend_group:
-  cldversion: 4
-  datatype: char
-  des: Default SMS friends page display
-  indexed: 0
-  multihomed: 0
-  prettyname: SMS friends page group
-
-userproplist.sms_perday_notif_limit:
-  cldversion: 4
-  datatype: num
-  des: Notification limit per day by SMS
-  indexed: 0
-  multihomed: 0
-  prettyname: SMS notification limit per day
-
-userproplist.sms_perpost_notif_limit:
-  cldversion: 4
-  datatype: num
-  des: Notification limit per post per day by SMS
-  indexed: 0
-  multihomed: 0
-  prettyname: SMS notification limit per post per day
-
-userproplist.sms_post_notify:
-  cldversion: 4
-  datatype: char
-  des: Does the user want notification of replies to posts made via SMS
-  indexed: 0
-  multihomed: 0
-  prettyname: Auto-subscribe to comments posted via SMS
-
-userproplist.sms_yes_means:
-  cldversion: 4
-  datatype: char
-  des: What a "yes" SMS message from the user means
-  indexed: 0
-  multihomed: 0
-  prettyname: What "yes" SMS message means
-
 userproplist.state:
   cldversion: 4
   datatype: char
@@ -1309,13 +1253,6 @@ logproplist.revtime:
   prettyname: Revision time
   sortorder: 99
   ownership: system
-
-logproplist.sms_msgid:
-  datatype: num
-  des: SMS Message ID of the message which led to this journal entry
-  prettyname: SMS Message ID
-  sortorder: 99
-  ownership: user
 
 logproplist.statusvis:
   datatype: char

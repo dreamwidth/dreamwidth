@@ -189,13 +189,6 @@ sub subscription_as_html {
     return $class . " arg1: $arg1 arg2: $arg2 user: $user";
 }
 
-sub as_sms {
-    my $self = shift;
-    my $str = $self->as_string;
-    return $str if length $str <= 160;
-    return substr($str, 0, 157) . "...";
-}
-
 # override in subclasses
 sub subscription_applicable {
     my ($class, $subscr) = @_;

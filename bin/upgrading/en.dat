@@ -1701,8 +1701,6 @@ esn.officialpost.html=There is <a href="[[url]]">a new announcement</a> in [[use
 
 esn.officialpost.nosubject=[[sitenameshort]] Announcement: New [[username]] announcement
 
-esn.officialpost.sms=There is a new [[sitename]] announcement in [[username]] Reply with READ [[username]] to read it. Standard rates apply.
-
 esn.officialpost.string=There is a new announcement in [[username]] at [[url]]
 
 esn.officialpost.subject=[[sitenameshort]] Announcement: [[subject]]
@@ -1808,8 +1806,6 @@ esn.someone_must_unscreen=Someone else must unscreen it before you can reply to 
 esn.supofficialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
 
 esn.supofficialpost.nosubject=[[sitenameshort]] Announcement: New [[username]] announcement
-
-esn.supofficialpost.sms=There is a new [[sitename]] announcement in [[username]] Reply with READ [[username]] to read it. Standard rates apply.
 
 esn.supofficialpost.string=There is a new announcement in [[username]] at [[url]]
 
@@ -2225,8 +2221,6 @@ notification_method.im.title=IM
 
 notification_method.inbox.title=Inbox
 
-notification_method.sms.title=TxtLJ
-
 number.million=[[number]] million
 
 number.punctuation=,
@@ -2637,10 +2631,6 @@ setting.display.secretquestion.actionlink.set=Set
 
 setting.display.secretquestion.label=Secret Question
 
-setting.display.smshistory.label=Text Messages
-
-setting.display.smshistory.option=View [[sms_title]] history
-
 setting.display.username.actionlink=Rename
 
 setting.display.username.label=Username
@@ -2826,28 +2816,6 @@ setting.selfcommentemail.option=I comment in someone's journal, on any entry
 setting.sitescheme.error.invalid=Invalid site scheme.
 
 setting.sitescheme.label=Site Scheme
-
-setting.sms.error.carrier.invalid=Invalid carrier selection.
-
-setting.sms.error.carrier.none=You must select a carrier in order to register.
-
-setting.sms.error.phone.failed=The number [[number]] could not be registered.
-
-setting.sms.error.phone.inuse=That number is currently in use by another user.
-
-setting.sms.error.phone.invalid=You must enter a valid U.S. 10-digit phone number.
-
-setting.sms.error.phone.ratelimit=You have tried to register a number too many times in one day. Please wait and try again.
-
-setting.sms.option=Receive updates and interact with LiveJournal by text message.
-
-setting.sms.option.advanced=advanced setup options
-
-setting.sms.option.carrier=Mobile Carrier:
-
-setting.sms.option.carrier.selectone=(Select Carrier)
-
-setting.sms.option.phone=Mobile Number:
 
 setting.stylealwaysmine.label=Other Journals
 

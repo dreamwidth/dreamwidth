@@ -28,8 +28,6 @@ use DW::Logic::ProfilePage;
 
 use Class::Autouse qw(
                       LJ::Subscription
-                      LJ::SMS
-                      LJ::SMS::Message
                       LJ::Identity
                       LJ::Auth
                       LJ::Jabber::Presence
@@ -68,7 +66,6 @@ use Class::Autouse qw(
 ###  20. Page Notices Functions
 ###  21. Password Functions
 ###  22. Priv-Related Functions
-###  23. SMS-Related Functions
 ###  24. Styles and S2-Related Functions
 ###  25. Subscription, Notifiction, and Messaging Functions
 ###  26. Syndication-Related Functions
@@ -4371,184 +4368,6 @@ sub revoke_priv_all {
 
 
 ########################################################################
-###  23. SMS-Related Functions
-###   FIXME: Determine which of these are TxtLJ backend (bug 199). All?
-
-
-sub add_sms_quota {
-    my ($u, $qty, $type) = @_;
-
-    return LJ::SMS->add_sms_quota($u, $qty, $type);
-}
-
-
-sub can_use_sms {
-    my $u = shift;
-    return LJ::SMS->can_use_sms($u);
-}
-
-
-sub delete_sms_number {
-    my $u = shift;
-    return LJ::SMS->replace_mapping($u, undef);
-}
-
-
-sub max_sms_bytes {
-    return LJ::SMS->max_sms_bytes( @_ );
-}
-
-
-sub max_sms_substr {
-    return LJ::SMS->max_sms_substr( @_ );
-}
-
-
-# opts:
-#   no_quota = don't check user quota or deduct from their quota for sending a message
-sub send_sms {
-    my ($u, $msg, %opts) = @_;
-
-    return 0 unless $u;
-
-    croak "invalid user object for object method"
-        unless LJ::isu($u);
-    croak "invalid LJ::SMS::Message object to send"
-        unless $msg && $msg->isa("LJ::SMS::Message");
-
-    my $ret = $msg->send(%opts);
-
-    return $ret;
-}
-
-
-sub send_sms_text {
-    my ($u, $msgtext, %opts) = @_;
-
-    my $msg = LJ::SMS::Message->new(
-                                    owner => $u,
-                                    to    => $u,
-                                    type  => 'outgoing',
-                                    body_text => $msgtext,
-                                    );
-
-    # if user specified a class_key for send, set it on
-    # the msg object
-    if ($opts{class_key}) {
-        $msg->class_key($opts{class_key});
-    }
-
-    $msg->send(%opts);
-}
-
-
-sub set_sms_number {
-    my ($u, $num, %opts) = @_;
-    my $verified = delete $opts{verified};
-
-    # these two are only checked if $num, because it's possible
-    # to just pass ($u, undef, undef) to delete the mapping
-    if ($num) {
-        croak "invalid number" unless $num =~ /^\+\d+$/;
-        croak "invalid verified flag" unless $verified =~ /^[YN]$/;
-    }
-
-    return LJ::SMS->replace_mapping($u, $num, $verified);
-}
-
-
-sub set_sms_number_verified {
-    my ($u, $verified) = @_;
-
-    return LJ::SMS->set_number_verified($u, $verified);
-}
-
-
-sub set_sms_quota {
-    my ($u, $qty, $type) = @_;
-
-    return LJ::SMS->set_sms_quota($u, $qty, $type);
-}
-
-
-sub sms_active {
-    my $u = shift;
-
-    # active if the user has a verified sms number
-    return LJ::SMS->configured_for_user($u);
-}
-
-
-sub sms_active_number {
-    my $u = shift;
-    return LJ::SMS->uid_to_num($u, verified_only => 1);
-}
-
-
-# this method returns any mapped number for the user,
-# regardless of its verification status
-sub sms_mapped_number {
-    my $u = shift;
-    return LJ::SMS->uid_to_num($u, verified_only => 0);
-}
-
-
-sub sms_message_count {
-    my $u = shift;
-    return LJ::SMS->message_count($u, @_);
-}
-
-
-sub sms_num_instime {
-    my $u = shift;
-
-    return LJ::SMS->num_instime($u->sms_mapped_number);
-}
-
-
-sub sms_pending {
-    my $u = shift;
-
-    # pending if user has an unverified number
-    return LJ::SMS->pending_for_user($u);
-}
-
-
-sub sms_pending_number {
-    my $u = shift;
-    my $num = LJ::SMS->uid_to_num($u, verified_only => 0);
-    return undef unless $num;
-    return $num if LJ::SMS->num_is_pending($num);
-    return undef;
-}
-
-
-sub sms_quota_remaining {
-    return LJ::SMS->sms_quota_remaining( @_ );
-}
-
-
-sub sms_register_time_remaining {
-    my $u = shift;
-
-    return LJ::SMS->num_register_time_remaining($u);
-}
-
-
-sub sms_sent_message_count {
-    my $u = shift;
-    return LJ::SMS->sent_message_count($u, @_);
-}
-
-
-sub subtract_sms_quota {
-    my ($u, $qty, $type) = @_;
-
-    return LJ::SMS->subtract_sms_quota($u, $qty, $type);
-}
-
-
-########################################################################
 ###  24. Styles and S2-Related Functions
 
 
@@ -5310,33 +5129,6 @@ sub opt_getting_started {
     my $prop = $u->raw_prop('opt_getting_started') || 'Y';
 
     return $prop;
-}
-
-
-# FIXME: We're not using TxtLJ, so this can probably go.
-# Came from section 25.
-sub subscribe_entry_comments_via_sms {
-    my ($u, $entry) = @_;
-    croak "Invalid LJ::Entry passed"
-        unless $entry && $entry->isa("LJ::Entry");
-
-    # don't subscribe if user is over subscription limit
-    return unless $u->can_add_inbox_subscription;
-
-    my %sub_args =
-        ( event   => "LJ::Event::JournalNewComment",
-          journal => $u,
-          arg1    => $entry->ditemid, );
-
-    $u->subscribe
-        ( method  => "LJ::NotificationMethod::SMS",
-          %sub_args, );
-
-    $u->subscribe
-        ( method  => "LJ::NotificationMethod::Inbox",
-          %sub_args, );
-
-    return 1;
 }
 
 
@@ -6129,7 +5921,7 @@ sub unset_remote
 #       'R' == memory (remembrance), 'K' == keyword id,
 #       'P' == phone post, 'C' == pending comment
 #       'O' == pOrtal box id, 'V' == 'vgift', 'E' == ESN subscription id
-#       'Q' == Notification Inbox, 'G' == 'SMS messaGe'
+#       'Q' == Notification Inbox, 
 #       'D' == 'moDule embed contents', 'I' == Import data block
 #       'Z' == import status item, 'X' == eXternal account
 #
@@ -6250,9 +6042,6 @@ sub alloc_user_counter
                                       undef, $uid);
     } elsif ($dom eq "Q") {
         $newmax = $u->selectrow_array("SELECT MAX(qid) FROM notifyqueue WHERE userid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "G") {
-        $newmax = $u->selectrow_array("SELECT MAX(msgid) FROM sms_msg WHERE userid=?",
                                       undef, $uid);
     } elsif ($dom eq "D") {
         $newmax = $u->selectrow_array("SELECT MAX(moduleid) FROM embedcontent WHERE userid=?",

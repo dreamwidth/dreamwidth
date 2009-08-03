@@ -160,31 +160,6 @@ sub as_string {
     }
 }
 
-sub as_sms {
-    my ($self, $u) = @_;
-
-    my $user = $self->comment->poster ? $self->comment->poster->display_username : '(Anonymous user)';
-    my $edited = $self->comment->is_edited;
-
-    my $msg;
-
-    if ($self->comment->parent) {
-        if ($edited) {
-            $msg = LJ::u_equals($self->comment->parent->poster, $u) ? "$user edited a reply to your comment: " : "$user edited a reply to a comment: ";
-        } else {
-            $msg = LJ::u_equals($self->comment->parent->poster, $u) ? "$user replied to your comment: " : "$user replied to a comment: ";
-        }
-    } else {
-        if ($edited) {
-            $msg = LJ::u_equals($self->comment->entry->poster, $u) ? "$user edited a reply to your post: " : "$user edited a reply to a post: ";
-        } else {
-            $msg = LJ::u_equals($self->comment->entry->poster, $u) ? "$user replied to your post: " : "$user replied to a post: ";
-        }
-    }
-
-    return $msg . $self->comment->body_text;
-}
-
 sub _can_view_content {
     my ( $self, $comment, $target ) = @_;
 

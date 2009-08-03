@@ -16,7 +16,7 @@ use Class::Autouse qw(
                       LJ::ModuleCheck
                       );
 @ISA = qw(Exporter);
-@EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed alloc_sms_num fake_apache);
+@EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache);
 
 my @temp_userids;  # to be destroyed later
 END {
@@ -181,18 +181,6 @@ sub memcache_stress (&) {
     LJ::MemCache::set_memcache($pre_mem);
 }
 
-sub alloc_sms_num {
-    my $sms_num;
-
-    for (1..100) {
-        $sms_num = '+1';
-        $sms_num .= int(rand(10)) foreach (1..10);
-        return $sms_num unless LJ::SMS->num_to_uid($sms_num);
-    }
-
-    die "Unable to allocate SMS number after 100 tries";
-}
-
 package LJ::Test::FakeMemCache;
 # duck-typing at its finest!
 # this is a fake Cache::Memcached object which implements the
@@ -287,28 +275,6 @@ sub forget_dead_hosts {}
 
 
 package LJ::User;
-
-# set the user up for sms
-sub t_activate_sms {
-    my ($u) = @_;
-    $u->set_sms_number(
-                       LJ::Test::alloc_sms_num(),
-                       verified => 'Y'
-                       );
-}
-
-# pretend the user sent us an SMS
-sub t_receive_sms {
-    my ($u, $message) = @_;
-
-    my $msg = LJ::SMS::Message->new(
-                                    owner => $u,
-                                    from => $u,
-                                    body_text => $message,
-                                    );
-
-    LJ::SMS::MessageHandler->handle($msg);
-}
 
 # post a fake entry in a community journal
 sub t_post_fake_comm_entry {

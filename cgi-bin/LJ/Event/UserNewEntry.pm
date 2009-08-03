@@ -99,19 +99,6 @@ sub as_string {
                    $self->poster->{name});
 }
 
-sub as_sms {
-    my $self = shift;
-
-    my $entry = $self->entry;
-    my $where = "in their journal";
-    unless ($entry->posterid == $entry->journalid) {
-        $where = "in '" . $entry->journal->{user} . "'";
-    }
-
-    return sprintf("User '%s' posted $where", $self->poster->{user});
-
-}
-
 sub as_html {
     my $self = shift;
 

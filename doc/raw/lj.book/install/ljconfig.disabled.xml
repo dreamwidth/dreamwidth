@@ -283,22 +283,6 @@
       <listitem><simpara>Allow QuickReply to be built in to S2 layers.</simpara></listitem>
     </varlistentry>
    <varlistentry>
-      <term>sms</term>
-      <listitem><simpara>Global flag to enable the <acronym>SMS</acronym> messaging feature (and its user-interface) for users.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>sms_post_auto_subscribe</term>
-      <listitem><simpara>Show the <quote>Subscribe me to my <acronym>SMS</acronym> posts via <acronym>SMS</acronym></quote> button to users.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>sms_quota_check</term>
-      <listitem><simpara>Enable checking for how many <acronym>SMS</acronym> messages a user has sent out of their quota.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>sms_ui</term>
-      <listitem><simpara>Enable <acronym>SMS</acronym> user-interface for users. This enables links and management pages.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
       <term>syncitems</term>
       <listitem><simpara>Enable the <literal>syncitems</literal> client protocol mode, without restarting &apache;.</simpara></listitem>
     </varlistentry>

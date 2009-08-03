@@ -125,7 +125,6 @@ so the search-updater worker works correctly.
 For example:
 <informalexample>
 <programlisting>localhost / process-esn = 1
-localhost / process-sms = 1
 localhost / send-email  = 1</programlisting></informalexample></para>
         
 <para>You need to configure <systemitem class="daemon">gearmand</systemitem> servers in <filename>ljconfig.pl</filename>,

@@ -130,14 +130,6 @@ sub as_string {
         });
 }
 
-sub as_sms {
-    my $self = shift;
-    my $entry = $self->entry or return "(Invalid entry)";
-    return sprintf("There is a new $LJ::SITENAMEABBREV announcement in %s. " .
-                   "Reply with READ %s to read it. Standard rates apply.",
-                   $entry->journal->display_username, $entry->journal->display_username);
-}
-
 sub subscription_as_html {
     my ($class, $subscr) = @_;
     return BML::ml('event.officialpost', { sitename => $LJ::SITENAME }); # $LJ::SITENAME makes a new announcement

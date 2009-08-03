@@ -4,13 +4,12 @@ use Carp qw/ croak /;
 
 use Class::Autouse qw (LJ::Typemap
                        LJ::NotificationMethod::Email
-                       LJ::NotificationMethod::SMS
                        LJ::NotificationMethod::Inbox
                        LJ::NotificationMethod::IM
                        LJ::NotificationMethod::DebugLog
                        );
 
-# this mofo is basically just an interface
+# this is basically just an interface
 # Mischa's contribution:  "straight up"
 sub new    { croak "can't instantiate base LJ::NotificationMethod" }
 sub notify { croak "can't call notification on LJ::NotificationMethod base class" }

@@ -133,14 +133,6 @@ sub as_email_html {
     return _as_email($self, $u, 1);
 }
 
-sub as_sms {
-    my $self = shift;
-
-    return sprintf("%s requests membership in %s. Visit community settings to approve.",
-                   $self->requestor->display_username,
-                   $self->comm->display_username);
-}
-
 sub subscription_as_html {
     my ($class, $subscr) = @_;
     return BML::ml('event.community_join_requst'); # Someone requests membership in a community I maintain';

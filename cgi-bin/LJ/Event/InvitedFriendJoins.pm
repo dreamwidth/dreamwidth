@@ -109,11 +109,6 @@ sub as_string {
     return sprintf "A friend you invited has created the journal %s.", $self->friend->user;
 }
 
-sub as_sms {
-    my $self = shift;
-    return $self->as_string;
-}
-
 sub friend {
     my $self = shift;
     return LJ::load_userid($self->arg1);

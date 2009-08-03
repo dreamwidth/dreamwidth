@@ -25,13 +25,6 @@ sub as_html {
     return $self->event_journal->ljuser_display . " has uploaded a new <a href='" . $up->url . "'>userpic</a>.";
 }
 
-sub as_sms {
-    my $self = shift;
-
-    return $self->event_journal->display_username . " has uploaded a new userpic. You can view it at: " .
-        $self->userpic->url;
-}
-
 sub as_email_string {
     my ($self, $u) = @_;
     return unless $self->userpic && $self->userpic->valid;

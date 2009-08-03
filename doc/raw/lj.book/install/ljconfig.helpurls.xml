@@ -44,10 +44,6 @@
       <listitem><simpara>Explains how to choose a secure password</simpara></listitem>
     </varlistentry>
     <varlistentry>
-      <term>sms_about</term>
-      <listitem><simpara>Explains what the <acronym>SMS</acronym> feature is and how it works</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
       <term>userpic_inactive</term>
       <listitem><simpara>Explains why a userpic might become inactive, and how to make the userpic active again</simpara></listitem>
     </varlistentry>

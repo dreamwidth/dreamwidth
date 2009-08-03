@@ -69,13 +69,6 @@ test_subscription(sub {
                                           journal => $u2,
                                           );
         ok(!$foundsubs, "Couldn't find bogus subscription");
-        $foundsubs = $u1->has_subscription(
-                                          event   => "JournalNewComment",
-                                          method  => "SMS",
-                                          journal => $u2,
-                                          );
-        ok(!$foundsubs, "Couldn't find bogus subscription");
-    }
 
     # look for more general matches
     {

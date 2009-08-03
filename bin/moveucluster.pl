@@ -517,7 +517,6 @@ sub moveUser {
             $dbh->do("DELETE FROM syndicated WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM supportnotify WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM reluser WHERE userid = ?", undef, $u->id);
-            $dbh->do("DELETE FROM smsusermap WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM friends WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM phonepostlogin WHERE userid = ?", undef, $u->id);
 

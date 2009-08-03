@@ -130,15 +130,6 @@ sub as_string {
     return $ret;
 }
 
-sub as_sms {
-    my $self = shift;
-
-    my $subject = $self->load_message->subject;
-    my $other_u = $self->load_message->other_u;
-    return sprintf("You've received a new message \"%s\" from %s",
-                   $subject, $other_u->user);
-}
-
 sub subscription_as_html {
     my ($class, $subscr) = @_;
     my $journal = $subscr->journal or croak "No user";
