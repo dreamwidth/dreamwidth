@@ -1700,7 +1700,7 @@ sub get_log2_recent_user
             my $logtime = LJ::mysql_time($LJ::EndOfTime - $item->{rlogtime}, 1);
             $item->{'system_alldatepart'} = LJ::alldatepart_s2($logtime);
         } else {
-            $item->{'alldatepart'} = LJ::alldatepart_s1($item->{'eventtime'});
+            confess "We removed S1 support, sorry.";
         }
         push @$ret, $item;
     }

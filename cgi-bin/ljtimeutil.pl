@@ -151,42 +151,6 @@ sub mysql_time
 }
 
 # <LJFUNC>
-# name: LJ::alldatepart_s1
-# des: Gets date in MySQL format, produces s1dateformat.
-# class: time
-# args:
-# des-:
-# info: s1 dateformat is: "%a %W %b %M %y %Y %c %m %e %d %D %p %i %l %h %k %H"
-#       Sample string: Tue Tuesday Sep September 03 2003 9 09 30 30 30th AM 22 9 09 9 09.
-#       Thu Thursday Oct October 03 2003 10 10 2 02 2nd AM 33 9 09 9 09
-# returns:
-# </LJFUNC>
-sub alldatepart_s1
-{
-    my $time = shift;
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday) =
-        gmtime(LJ::mysqldate_to_time($time, 1));
-    my $ret = "";
-
-    $ret .= LJ::Lang::day_short($wday+1) . " " .
-      LJ::Lang::day_long($wday+1) . " " .
-      LJ::Lang::month_short($mon+1) . " " .
-      LJ::Lang::month_long($mon+1) . " " .
-      sprintf("%02d %04d %d %02d %d %02d %d%s ",
-              $year % 100, $year + 1900, $mon+1, $mon+1,
-              $mday, $mday, $mday, LJ::Lang::day_ord($mday));
-    $ret .= $hour < 12 ? "AM " : "PM ";
-    $ret .= sprintf("%02d %d %02d %d %02d", $min,
-                    ($hour+11)%12 + 1,
-                    ($hour+ 11)%12 +1,
-                    $hour,
-                    $hour);
-
-    return $ret;
-}
-
-
-# <LJFUNC>
 # name: LJ::alldatepart_s2
 # des: Gets date in MySQL format, produces s2dateformat.
 # class: time
