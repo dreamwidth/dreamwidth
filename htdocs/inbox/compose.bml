@@ -66,6 +66,7 @@ body<=
             # Get recipient list without duplicates
             my %to_hash = map { lc($_), 1 } split(",", $to_field);
             my @to_list = keys %to_hash;
+            push @to_list, $remote->username if $POST{'cc_msg'};
             my @msg_list;
 
             # must be at least one username
@@ -232,7 +233,16 @@ body<=
     $body .= LJ::JSUtil::autocomplete(field => 'msg_to', list => \@flist);
 
     # The drop-down userpic menu
-    $body .= $picform . "</div>";
+    $body .= $picform;
+
+    # Are we sending a copy of the message to the user?
+    $body .= LJ::html_check( {
+        name     => 'cc_msg',
+        id       => 'cc_msg',
+        value    => 1,
+        selected => 0,
+    } );
+    $body .= " <label for='cc_msg' style='font-weight: normal; font-size: smaller; font-style:italic;'>" . BML::ml( '.form.label.cc' ) . "</label></div>";
 
     $body .= "<div class='inbox_formmes'><p><label class='subj-l'>Subject:</label> ";
     $body .= LJ::html_text({

@@ -1,3 +1,5 @@
 ;; -*- coding: utf-8 -*-
 
+.form.label.cc=Send me a copy of my own message
+
 .suspended.cannot.send=Suspended accounts are not allowed to send private messages
