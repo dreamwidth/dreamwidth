@@ -31,6 +31,13 @@ body<=
 <h1><?_ml .attrib.header _ml?></h1>
 
 <p><?_code return BML::ml ('.attrib.silk', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
+
+<h1><?_ml .development.header _ml?></h1>
+
+<p><?_ml .development.main _ml?></p>
+
+<p><?_ml .development.directions _ml?></p>
+
 <=body
 windowtitle=><?_ml .title _ml?>
 page?>
