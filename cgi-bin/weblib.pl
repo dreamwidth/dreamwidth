@@ -3476,36 +3476,6 @@ sub placeholder_link {
         };
 }
 
-# Returns replacement for lj-replace tags
-sub lj_replace {
-    my $key = shift;
-    my $attr = shift;
-
-    # Return hook if hook output not undef
-    if (LJ::are_hooks("lj-replace_$key")) {
-        my $replace = LJ::run_hook("lj-replace_$key");
-        return $replace if defined $replace;
-    }
-
-    # Return value of coderef if key defined
-    my %valid_keys = ( 'first_post' => \&lj_replace_first_post );
-
-    if (my $cb = $valid_keys{$key}) {
-        die "$cb is not a valid coderef" unless ref $cb eq 'CODE';
-        return $cb->($attr);
-    }
-
-    return undef;
-}
-
-# Replace for lj-replace name="first_post"
-sub lj_replace_first_post {
-    return unless LJ::is_web_context();
-    return BML::ml('web.lj-replace.first_post', {
-                   'update_link' => "href='$LJ::SITEROOT/update.bml'",
-                   });
-}
-
 # this returns the right max length for a VARCHAR(255) database
 # column.  but in HTML, the maxlength is characters, not bytes, so we
 # have to assume 3-byte chars and return 80 instead of 255.  (80*3 ==

@@ -3859,10 +3859,6 @@ web.controlstrip.userpic.alt=Userpic
 
 web.controlstrip.userpic.title=Edit Userpics
 
-web.lj-replace.first_post=Your journal currently has no entries. Start by <a [[update_link]]>Posting an Entry</a>.
-
-web.lj-replace.first_post.subject=Welcome to [[sitename]]
-
 web.postto.btn=Switch
 
 web.postto.label=Post to:
