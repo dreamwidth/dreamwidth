@@ -131,17 +131,6 @@ sub error_class
     return $e{$code} && ref $e{$code} ? $e{$code}->[0] : undef;
 }
 
-sub error_is_transient
-{
-    my $class = error_class($_[0]);
-    return defined $class ? ! $class+0 : undef;
-}
-
-sub error_is_permanent
-{
-    return error_class($_[0]);
-}
-
 sub error_message
 {
     my $code = shift;

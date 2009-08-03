@@ -566,49 +566,5 @@ sub html_newlines
     return $text;
 }
 
-# given HTML, returns an arrayref of URLs to images that are in the HTML
-sub html_get_img_urls {
-    my $htmlref = shift;
-    my %opts = @_;
-
-    my $exclude_site_imgs = $opts{exclude_site_imgs} || 0;
-
-    my @image_urls;
-    my $p = HTML::TokeParser->new($htmlref);
-
-    while (my $token = $p->get_token) {
-        if ($token->[1] eq "img") {
-            my $attrs = $token->[2];
-            foreach my $attr (keys %$attrs) {
-                push @image_urls, $attrs->{$attr} if
-                    $attr eq "src" &&
-                    ($exclude_site_imgs ? $attrs->{$attr} !~ /^$LJ::IMGPREFIX/ : 1);
-            }
-        }
-    }
-
-    return \@image_urls;
-}
-
-# given HTML, returns an arrayref of link URLs that are in the HTML
-sub html_get_link_urls {
-    my $htmlref = shift;
-    my %opts = @_;
-
-    my @link_urls;
-    my $p = HTML::TokeParser->new($htmlref);
-
-    while (my $token = $p->get_token) {
-        if ($token->[0] eq "S" && $token->[1] eq "a") {
-            my $attrs = $token->[2];
-            foreach my $attr (keys %$attrs) {
-                push @link_urls, $attrs->{$attr} if $attr eq "href";
-            }
-        }
-    }
-
-    return \@link_urls;
-}
-
 1;
 

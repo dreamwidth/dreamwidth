@@ -151,11 +151,6 @@ sub dbh_by_name {
 
 }
 
-sub dbh_by_fdsn {
-    my $fdsn = shift;
-    return $LJ::DBIRole->get_dbh_conn($fdsn);
-}
-
 sub root_dbh_by_name {
     my $name = shift;
     my $dbh = dbh_by_role("master")
@@ -427,31 +422,6 @@ sub get_lock
 
     # successfully got a lock
     $LJ::LOCK_OUT{$dbrole} = $curr_sub;
-    return 1;
-}
-
-# <LJFUNC>
-# name: LJ::may_lock
-# des: see if we <strong>could</strong> get a MySQL lock on
-#       a given key/dbrole combination, but don't actually get it.
-# returns: undef if called improperly, true on success, die() on failure
-# args: db, dbrole
-# des-dbrole: the role this lock should be gotten on, either 'global' or 'user'.
-# </LJFUNC>
-sub may_lock
-{
-    my ($db, $dbrole) = @_;
-    return undef unless $db && ($dbrole eq 'global' || $dbrole eq 'user');
-
-    # die if somebody already has a lock
-    if ($LJ::LOCK_OUT{$dbrole}) {
-        my $curr_sub = (caller 1)[3]; # caller of current sub
-        die "LOCK ERROR: $curr_sub; can't get lock from $LJ::LOCK_OUT{$dbrole}\n";
-    }
-
-    # see if a lock is already out
-    return undef if exists $LJ::LOCK_OUT{$dbrole};
-
     return 1;
 }
 

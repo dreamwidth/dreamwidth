@@ -14,25 +14,6 @@ LJ::Config->load;
 
 package LJ;
 
-# <LJFUNC>
-# name: LJ::strip_bad_code
-# class: security
-# des: Removes malicious/annoying HTML.
-# info: This is just a wrapper function around [func[LJ::CleanHTML::clean]].
-# args: textref
-# des-textref: Scalar reference to text to be cleaned.
-# returns: Nothing.
-# </LJFUNC>
-sub strip_bad_code
-{
-    my $data = shift;
-    LJ::CleanHTML::clean($data, {
-        'eat' => [qw[layer iframe script object embed]],
-        'mode' => 'allow',
-        'keepcomments' => 1, # Allows CSS to work
-    });
-}
-
 # attempt to mangle an email address for printing out to HTML.  this is
 # kind of futile, but we try anyway.
 sub mangle_email_address {

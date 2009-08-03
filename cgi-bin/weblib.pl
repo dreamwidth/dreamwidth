@@ -3585,27 +3585,6 @@ sub site_schemes {
     return @schemes;
 }
 
-# returns a random value between 0 and $num_choices-1 for a particular uniq
-# if no uniq available, just returns a random value between 0 and $num_choices-1
-sub ab_testing_value {
-    my %opts = @_;
-
-    return $LJ::DEBUG{ab_testing_value} if defined $LJ::DEBUG{ab_testing_value};
-
-    my $num_choices = $opts{num_choices} || 2;
-    my $uniq = LJ::UniqCookie->current_uniq;
-
-    my $val;
-    if ($uniq) {
-        $val = unpack("I", $uniq);
-        $val %= $num_choices;
-    } else {
-        $val = int(rand($num_choices));
-    }
-
-    return $val;
-}
-
 # sets up appropriate js for journals that need a special statusvis message at the top
 # returns some js that must be added onto the journal page's head
 sub statusvis_message_js {
