@@ -423,10 +423,6 @@ sub sysban_validate {
                 0 : "Format: xxxx-xxxx (first four-last four)";
 
         },
-        'msisdn' => sub {
-            my $num = shift;
-            return $num =~ /\d{10}/ ? 0 : 'Format: 10 digit MSISDN';
-        },
     };
 
     # aliases to handlers above
