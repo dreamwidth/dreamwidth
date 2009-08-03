@@ -216,16 +216,6 @@ sub init_cvsprefixes {
     $cvspfx_local ||= "";
 }
 
-sub cvsprefix_shared {
-    init_cvsprefixes();
-    return $cvspfx_shared;
-}
-
-sub cvsprefix_local {
-    init_cvsprefixes();
-    return $cvspfx_local;
-}
-
 sub langdat_file_of_lang_itcode
 {
     my ($lang, $itcode, $want_cvs) = @_;

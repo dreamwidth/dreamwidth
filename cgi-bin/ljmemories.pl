@@ -391,38 +391,38 @@ sub get_keywordids {
 #              you want to update the memory to have.
 # returns: 1 on success, undef on error
 # </LJFUNC>
-sub update_memory {
-    my ($u, $memid, $upd) = @_;
-    $u = LJ::want_user($u);
-    $memid += 0;
-    return unless $u && $memid && %{$upd || {}};
-
-    # get database handle
-    my ($db, $table) = $u->{dversion} > 5 ?
-                       ($u, '2') :
-                       (LJ::get_db_writer(), '');
-    return undef unless $db;
-
-    # construct update lines... only valid things we can update are des and security
-    my @updates;
-    my $security_updated;
-    foreach my $what (keys %$upd) {
-        next unless $what =~ m/^(?:des|security)$/;
-        $security_updated = 1 if $what eq 'security';
-        push @updates, "$what=" . $db->quote($upd->{$what});
-    }
-    my $updstr = join ',', @updates;
-
-    # now perform update
-    $db->do("UPDATE memorable$table SET $updstr WHERE userid = ? AND memid = ?",
-            undef, $u->{userid}, $memid);
-    return undef if $db->err;
-
-    # Delete memcache entries if the security of the memory was updated
-    clear_memcache($u) if $security_updated;
-
-    return 1;
-}
+# sub update_memory {
+#     my ($u, $memid, $upd) = @_;
+#     $u = LJ::want_user($u);
+#     $memid += 0;
+#     return unless $u && $memid && %{$upd || {}};
+# 
+#     # get database handle
+#     my ($db, $table) = $u->{dversion} > 5 ?
+#                        ($u, '2') :
+#                        (LJ::get_db_writer(), '');
+#     return undef unless $db;
+# 
+#     # construct update lines... only valid things we can update are des and security
+#     my @updates;
+#     my $security_updated;
+#     foreach my $what (keys %$upd) {
+#         next unless $what =~ m/^(?:des|security)$/;
+#         $security_updated = 1 if $what eq 'security';
+#         push @updates, "$what=" . $db->quote($upd->{$what});
+#     }
+#     my $updstr = join ',', @updates;
+# 
+#     # now perform update
+#     $db->do("UPDATE memorable$table SET $updstr WHERE userid = ? AND memid = ?",
+#             undef, $u->{userid}, $memid);
+#     return undef if $db->err;
+# 
+#     # Delete memcache entries if the security of the memory was updated
+#     clear_memcache($u) if $security_updated;
+# 
+#     return 1;
+# }
 
 # this messy function gets memories based on an options hashref.  this is an
 # API API and isn't recommended for use by BML etc... add to the API and have
@@ -537,13 +537,13 @@ sub _memory_getter {
 # des-memids: The rest of the memory ids.  Array.  (Pass them in as individual parameters...)
 # returns: Hashref of memories with keys being memid; undef on error.
 # </LJFUNC>
-sub get_by_id {
-    my $u = shift;
-    return {} unless @_; # make sure they gave us some ids
-
-    # pass to getter to get by id
-    return LJ::Memories::_memory_getter($u, { byid => [ map { $_+0 } @_ ] });
-}
+# sub get_by_id {
+#     my $u = shift;
+#     return {} unless @_; # make sure they gave us some ids
+# 
+#     # pass to getter to get by id
+#     return LJ::Memories::_memory_getter($u, { byid => [ map { $_+0 } @_ ] });
+# }
 
 # <LJFUNC>
 # name: LJ::Memories::get_by_ditemid
@@ -576,10 +576,10 @@ sub get_by_ditemid {
 # des-uuobj: User id or user object to get memories for.
 # returns: Hashref of memories with keys being memid; undef on error.
 # </LJFUNC>
-sub get_by_user {
-    # simply passes through to _memory_getter
-    return LJ::Memories::_memory_getter(@_);
-}
+# sub get_by_user {
+#     # simply passes through to _memory_getter
+#     return LJ::Memories::_memory_getter(@_);
+# }
 
 # <LJFUNC>
 # name: LJ::Memories::get_by_keyword
