@@ -221,7 +221,7 @@
     # but the first item in the array is the default scheme
     # 'title' is the printed name, while 'scheme' is the scheme name.
     @SCHEMES = (
-                { scheme => 'bluewhite', title => 'Blue White' },
+                { scheme => 'blueshift', title => 'Blueshift' },
                );
 
     # supported languages (defaults to qw(en) if none given)
