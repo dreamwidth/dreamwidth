@@ -75,7 +75,6 @@ require "weblib.pl";
 require "imageconf.pl";
 require "propparse.pl";
 require "supportlib.pl";
-require "supportstatslib.pl";
 require "cleanhtml.pl";
 require "talklib.pl";
 require "ljfeed.pl";
