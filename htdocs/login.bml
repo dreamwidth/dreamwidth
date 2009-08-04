@@ -319,7 +319,7 @@
             }
 
             push @errors, [ account_locked => 'This account is locked and cannot be logged in to at this time.' ]
-                if $u->is_locked;
+                if $u && $u->is_locked;
 
             if (@errors) {
                 $login_html->();
