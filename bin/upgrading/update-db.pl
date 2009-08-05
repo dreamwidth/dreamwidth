@@ -421,7 +421,7 @@ sub populate_s2 {
     if ($LJ::IS_DEV_SERVER) {
         # now, delete any system layers that don't below (from previous imports?)
         my @del_ids;
-        my $sth = $dbh->prepare("SELECT s2lid FROM s2layers WHERE userid=?");
+        my $sth = $dbh->prepare("SELECT s2lid FROM s2layers WHERE userid=? AND NOT type='user'");
         $sth->execute($sysid);
         while (my $id = $sth->fetchrow_array) {
             next if $known_id{$id};
