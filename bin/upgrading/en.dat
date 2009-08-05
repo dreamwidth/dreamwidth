@@ -3871,12 +3871,6 @@ widget.browse.findusers.school=School
 
 widget.browse.title=Browse [[sitenameabbrev]]
 
-widget.commsofuser.title=Communities [[user]] has added
-
-widget.commsofuser.viewfriendspage=View [[user]]'s Friends page
-
-widget.commsofuser.viewprofile=View [[user]]'s profile
-
 widget.communitymanagement.nopending=No communities require action.
 
 widget.communitymanagement.pending=Pending:

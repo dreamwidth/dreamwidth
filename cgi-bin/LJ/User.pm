@@ -4983,43 +4983,7 @@ sub is_minor {
 
 
 ########################################################################
-###  99B. Ad functions (FIXME: we shouldn't need these)
-
-
-# returns $n number of communities that $u is a member of, sorted by update time (most recent to least recent)
-# Probably ad-related; at any rate, it's broken.
-sub notable_communities {
-    my ($u, $n) = @_;
-    $n ||= 3;
-
-    confess 'horribly broken please fix';
-
-    my $friends = $u->friends;
-
-    my $fro_m = LJ::M::FriendsOf->new(
-        $u,
-        sloppy => 1, # approximate if no summary info
-        friends => { map {$_ => 1} keys %$friends },
-    );
-
-    my $update_times = LJ::get_timeupdate_multi( map { $_->id } $fro_m->member_of );
-
-    my @ret_commids;
-    my $count = 1;
-    foreach my $commid (sort {$update_times->{$b} <=> $update_times->{$a}} keys %$update_times) {
-        last if $count > $n;
-        push @ret_commids, $commid;
-        $count++;
-    }
-
-    my $us = LJ::load_userids(@ret_commids);
-
-    return map { $us->{$_} } @ret_commids;
-}
-
-
-########################################################################
-###  99C. Deprecated (FIXME: we shouldn't need these)
+###  99B. Deprecated (FIXME: we shouldn't need these)
 
 
 # THIS IS DEPRECATED DO NOT USE
