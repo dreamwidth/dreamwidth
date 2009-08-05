@@ -151,6 +151,9 @@ sub crosspost {
         # if it's a post or edit, fully populate the request.
         $req = $self->entry_to_req($entry, $extacct, $auth);
 
+        # FIXME: temporary hack to limit crossposts to one level, avoiding an infinite loop
+        $req->{xpost} = 0;
+
         # are we disabling comments on the remote entry?
         my $disabling_comments  = $extacct->owner->prop( 'opt_xpost_disable_comments' ) ? 1 : 0;
         $req->{props}->{opt_nocomments} = $disabling_comments || $req->{props}->{opt_nocomments} || 0;
