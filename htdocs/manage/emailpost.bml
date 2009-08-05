@@ -173,33 +173,33 @@ body<=
                     $to_pin
                     $from
                     $subject
-                    <b>lj-userpic:</b> $ML{'.help.headers.options.userpic.example'}<br />
-                    <b>lj-tags:</b> $ML{'.help.headers.options.tags.example'}<br />
-                    <b>lj-mood:</b> $ML{'.help.headers.options.mood.example'}<br />
-                    <b>lj-music:</b> $ML{'.help.headers.options.music.example'}<br />
-                    <b>lj-comments:</b> } . BML::ml('.help.headers.options.comments.example', {'off' => 'off', 'noemail' => 'noemail'}) . qq{<br />
+                    <b>post-userpic:</b> $ML{'.help.headers.options.userpic.example'}<br />
+                    <b>post-tags:</b> $ML{'.help.headers.options.tags.example'}<br />
+                    <b>post-mood:</b> $ML{'.help.headers.options.mood.example'}<br />
+                    <b>post-music:</b> $ML{'.help.headers.options.music.example'}<br />
+                    <b>post-comments:</b> } . BML::ml('.help.headers.options.comments.example', {'off' => 'off', 'noemail' => 'noemail'}) . qq{<br />
                     <br />
                     $body
                     emailex?></fieldset>
 
                     <fieldset><legend>$ML{'.help.headers.security.header'}</legend>
-                    <?p } . BML::ml('.help.headers.security.text', {'header' => 'lj-security'}) . qq{ p?>
+                    <?p } . BML::ml('.help.headers.security.text', {'header' => 'post-security'}) . qq{ p?>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> public<br />
+                    <b>post-security:</b> public<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.public.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> private<br />
+                    <b>post-security:</b> private<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.private.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> friends<br />
+                    <b>post-security:</b> friends<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.friends.desc'}</div><br />
                     </div>
                     <div style="margin-left:40px">
-                    <b>lj-security:</b> $ML{'.help.headers.security.group.word'}<br />
+                    <b>post-security:</b> $ML{'.help.headers.security.group.word'}<br />
                     <div style="margin-left:40px">$ML{'.help.headers.security.group.desc'}
-                    <br />} . BML::ml('.help.headers.security.group.example', {'header' => 'lj-security:'}) . qq{</div><br />
+                    <br />} . BML::ml('.help.headers.security.group.example', {'header' => 'post-security:'}) . qq{</div><br />
                     </div></fieldset>
                 }
             },

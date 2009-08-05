@@ -65,7 +65,7 @@
 
 .help.headers.options.tags.example=greyhounds, potato, wool
 
-.help.headers.options.text=Most journal specific features can be set via "lj-headers" in the body of your message. The lj-headers should be at the top of your message, separated by a newline. All lj-headers are completely optional, and simply override your journal defaults.
+.help.headers.options.text=Most journal specific features can be set via "post-headers" in the body of your message. The post-headers should be at the top of your message, separated by a newline. All post-headers are completely optional, and simply override your journal defaults.
 
 .help.headers.options.userpic.example=userpic keywords
 
@@ -84,7 +84,7 @@
 
 .help.headers.security.public.desc=The post is posted publicly.
 
-.help.headers.security.text=Security options are set via the lj-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security is specified, the entry is posted according to your default journal security.
+.help.headers.security.text=Security options are set via the post-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security is specified, the entry is posted according to your default journal security.
 
 .help.manage.header=Manage your emailpost settings
 
@@ -208,7 +208,7 @@
 
 .settings.image.size.select.default=default
 
-.settings.text=These settings apply to all journal updates via email. You can leave these options alone to let your journal defaults take over, or override on a per message basis using lj-headers. These settings (and lj-header overrides) are described <a [[aopts]]>here</a>.
+.settings.text=These settings apply to all journal updates via email. You can leave these options alone to let your journal defaults take over, or override on a per message basis using post-headers. These settings (and post-header overrides) are described <a [[aopts]]>here</a>.
 
 .sorry.acct=Sorry, updating your journal via email is not available for your account type.
 
