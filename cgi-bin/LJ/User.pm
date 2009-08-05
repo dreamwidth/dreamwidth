@@ -8169,18 +8169,17 @@ sub make_journal
     };
     if ($LJ::USER_VHOSTS && $opts->{'vhost'} eq "users" && $u->{'journaltype'} ne 'R' &&
         ! LJ::get_cap($u, "userdomain")) {
-        return $notice->("URLs like <nobr><b>http://<i>username</i>.$LJ::USER_DOMAIN/" .
-                         "</b></nobr> are not available for this user's account type.");
+        return $notice->( BML::ml( 'error.vhost.nodomain', { user_domain => $LJ::USER_DOMAIN } ) );
     }
     if ($opts->{'vhost'} =~ /^other:/ && ! LJ::get_cap($u, "domainmap")) {
-        return $notice->("This user's account type doesn't permit domain aliasing.");
+        return $notice->( BML::ml( 'error.vhost.noalias' ) );
     }
     if ($opts->{'vhost'} eq "customview" && ! LJ::get_cap($u, "styles")) {
-        return $notice->("This user's account type is not permitted to create and embed styles.");
+        return $notice->( BML::ml( 'error.vhost.nostyle' ) );
     }
-    if ($opts->{'vhost'} eq "community" && $u->{'journaltype'} !~ /[CR]/) {
+    if ($opts->{'vhost'} eq "community" && $u->journaltype !~ /[CR]/) {
         $opts->{'badargs'} = 1; # Output a generic 'bad URL' message if available
-        return "<h1>Notice</h1><p>This account isn't a community journal.</p>";
+        return $notice->( BML::ml( 'error.vhost.nocomm' ) );
     }
     if ($view eq "network" && ! LJ::get_cap($u, "friendsfriendsview")) {
         my $inline;
@@ -8241,20 +8240,20 @@ sub make_journal
     # now, if there's a GET argument for tags, split those out
     if (exists $opts->{getargs}->{tag}) {
         my $tagfilter = $opts->{getargs}->{tag};
-        return $error->("You must provide tags to filter by.", "404 Not Found")
+        return $error->( BML::ml( 'error.tag.noarg' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
             unless $tagfilter;
 
         # error if disabled
-        return $error->("Sorry, the tag system is currently disabled.", "404 Not Found")
+        return $error->( BML::ml( 'error.tag.disabled' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
             unless LJ::is_enabled('tags');
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        return $error->("Sorry, tag filtering is not supported within S1 styles.", "404 Not Found")
+        return $error->( BML::ml( 'error.tag.s1' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
             if $stylesys == 1 && $view ne 'data' && $u->{journaltype} ne 'R';
 
         # overwrite any tags that exist
         $opts->{tags} = [];
-        return $error->("Sorry, the tag list specified is invalid.", "404 Not Found")
+        return $error->( BML::ml( 'error.tag.invalid' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
             unless LJ::Tags::is_valid_tagstring($tagfilter, $opts->{tags}, { omit_underscore_check => 1 });
 
         # get user's tags so we know what remote can see, and setup an inverse mapping
@@ -8264,7 +8263,7 @@ sub make_journal
         my %kwref = ( map { $tags->{$_}->{name} => $_ } keys %{$tags || {}} );
 
         foreach (@{$opts->{tags}}) {
-            return $error->("Sorry, one or more specified tags do not exist.", "404 Not Found")
+            return $error->( BML::ml( 'error.tag.undef' ), "404 Not Found", BML::ml( 'error.tag.name' ) )
                 unless $kwref{$_};
             push @{$opts->{tagids}}, $kwref{$_};
         }
@@ -8273,19 +8272,19 @@ sub make_journal
     # validate the security filter
     if (exists $opts->{getargs}->{security}) {
         my $securityfilter = $opts->{getargs}->{security};
-        return $error->("You must provide a security level to filter by.", "404 Not Found")
+        return $error->( BML::ml( 'error.security.noarg' ), "404 Not Found", BML::ml( 'error.security.name' ) )
             unless $securityfilter;
 
-        return $error->("This feature is not available for your account level.", "403 Forbidden")
+        return $error->( BML::ml( 'error.security.nocap' ), "403 Forbidden", BML::ml( 'error.security.name' ) )
             unless LJ::get_cap($remote, "security_filter") || LJ::get_cap($u, "security_filter");
 
         # error if disabled
-        return $error->("Sorry, the security-filtering system is currently disabled.", "404 Not Found")
+        return $error->( BML::ml( 'error.security.disabled' ), "404 Not Found", BML::ml( 'error.security.name' ) )
             unless LJ::is_enabled("security_filter");
 
         # throw an error if we're rendering in S1, but not for renamed accounts
-        return $error->("Sorry, security filtering is not supported within S1 styles.", "404 Not Found")
-            if $stylesys == 1 && $view ne 'data' && !$u->is_redirect;
+        return $error->( BML::ml( 'error.security.s1' ), "404 Not Found", BML::ml( 'error.security.name' ) )
+            if $stylesys == 1 && $view ne 'data' && $u->journaltype ne 'R';
 
         # check the filter itself
         if ($securityfilter =~ /^(?:public|friends|private)$/i) {
@@ -8301,7 +8300,7 @@ sub make_journal
             }
         }
 
-        return $error->("You have specified an invalid security setting, the friends group you specified does not exist, or you are not a member of that group.", "404 Not Found")
+        return $error->( BML::ml( 'error.security.invalid' ), "404 Not Found", BML::ml( 'error.security.name' ) )
             unless defined $opts->{securityfilter};
 
     }
@@ -8320,19 +8319,24 @@ sub make_journal
             return $error->( $warning, "404 Not Found", BML::ml( 'error.deleted.name' ) );
         }
         if ( $u->is_suspended ) {
-        	my $warning = BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
-            return $error->($warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
+            my $warning = BML::ml( 'error.suspended.text', { user => $u->ljuser_display, sitename => $LJ::SITENAME } );
+            return $error->( $warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
         }
 
         my $entry = $opts->{ljentry};
-        return $error->("This entry has been suspended. You can visit the journal <a href='" . $u->journal_base . "/'>here</a>.", "403 Forbidden")
-            if $entry && $entry->is_suspended_for($remote);
+        if ( $entry && $entry->is_suspended_for( $remote ) ) {
+            my $warning = BML::ml( 'error.suspended.entry', { aopts => "href='$u->journal_base/'" } );
+            return $error->( $warning, "403 Forbidden", BML::ml( 'error.suspended.name' ) );
+        }
     }
-    return $error->("This journal has been deleted and purged.", "410 Gone") if ($u->is_expunged);
+    return $error->( BML::ml( 'error.purged.text' ), "410 Gone", BML::ml( 'error.purged.name' ) ) if $u->is_expunged;
 
     # FIXME: pretty this up at some point, to maybe auto-redirect to 
     # the external URL or something, but let's just do this for now
-    return $error->("This user is an OpenID account and does not maintain a journal here. You might be able to see their content at <a href='" . $u->openid_identity . "'>" . $u->openid_identity . "</a>.", "404 Not here") if $u->{'journaltype'} eq "I" && $view ne "read";
+    if ( $u->is_identity && $view ne "read" ) {
+        my $warning = BML::ml( 'error.nojournal.openid', { aopts => "href='$u->openid_identity'", id => $u->openid_identity } );
+        return $error->( $warning, "404 Not here" );
+    }
 
     $opts->{'view'} = $view;
 

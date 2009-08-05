@@ -1320,6 +1320,8 @@ error.noentry=No such journal entry.
 
 error.nojournal=Unknown Journal
 
+error.nojournal.openid=This user is an OpenID account and does not maintain a journal here. You might be able to see their content at <a [[aopts]]>[[id]]</a>.
+
 error.noschwartz=TheSchwartz not installed or not configured properly.
 
 error.notloggedin=You have to <a [[aopts]]>log in</a> in order to use this page.
@@ -1354,11 +1356,37 @@ error.purged.text=This journal has been deleted and purged.
 
 error.purged.title=Purged Account
 
+error.security.disabled=Sorry, the security-filtering system is currently disabled.
+
+error.security.invalid=You have specified an invalid security setting, the access group you specified does not exist, or you are not a member of that group.
+
+error.security.name=Security Error
+
+error.security.noarg=You must provide a security level to filter by.
+
+error.security.nocap=This feature is not available for your account level.
+
+error.security.s1=Sorry, security filtering is not supported within S1 styles.
+
+error.suspended.entry=This entry has been suspended. You can visit the journal <a [[aopts]]>here</a>.
+
 error.suspended.name=Suspended
 
 error.suspended.text=This journal has been either temporarily or permanently suspended by [[sitename]] for policy violation.  If you are [[user]], contact us for more information.
 
 error.suspended.title=Suspended Account
+
+error.tag.disabled=Sorry, the tag system is currently disabled.
+
+error.tag.invalid=Sorry, the tag list specified is invalid.
+
+error.tag.name=Tag Error
+
+error.tag.noarg=You must provide tags to filter by.
+
+error.tag.s1=Sorry, tag filtering is not supported within S1 styles.
+
+error.tag.undef=Sorry, one or more specified tags do not exist.
 
 error.tempdisabled=This is disabled temporarily.
 
@@ -1369,6 +1397,14 @@ error.username_notfound=Username not found.
 error.usernameinvalid=Username contains invalid characters.
 
 error.usernamelong=Username is too long; cannot exceed 15 characters.
+
+error.vhost.noalias=This user's account type doesn't permit domain aliasing.
+
+error.vhost.nocomm=This account isn't a community journal.
+
+error.vhost.nodomain=URLs like <nobr><b>http://<i>username</i>.[[user_domain]]/</b></nobr> are not available for this user's account type.
+
+error.vhost.nostyle=This user's account type is not permitted to create and embed styles.
 
 esn.add_friend_community=[[openlink]]Add community "[[community]]" to your reading page[[closelink]]
 
