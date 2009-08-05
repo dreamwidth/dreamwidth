@@ -205,7 +205,6 @@ body<=
                             'user' => $u->{'user'},
                             'usejournal' => $usejournal,
                             'itemid' => $itemid,
-                            'xpost' => '0'
                             );
                 LJ::entry_form_decode(\%req, \%POST);
 
@@ -243,31 +242,46 @@ body<=
                 # selected crosspost.
                 my $xpost_result = '';
                 if ($journalu == $remote && ($POST{prop_xpost_check} || $GET{prop_xpost_check})) {
-                    my ($xpost_successes, $xpost_failures) =
-                        LJ::Protocol::schedule_xposts($remote, $ditemid, $deleted,
-                                                      sub {
-                                                          my $acctid = (shift)->acctid;
-                                                          ($POST{"prop_xpost_$acctid"} || $GET{"prop_xpost_$acctid"},
-                                                           {password => $POST{"prop_xpost_password_$acctid"}
-                                                                        || $GET{"prop_xpost_password_$acctid"},
-                                                            auth_challenge => $POST{"prop_xpost_chal_$acctid"}
-                                                                              || $GET{"prop_xpost_chal_$acctid"},
-                                                            auth_response => $POST{"prop_xpost_resp_$acctid"}
-                                                                             || $GET{"prop_xpost_resp_$acctid"}})
-                                                      });
-                    $xpost_result .= join("\n",
-                                          map {"<li>"
-                                               . BML::ml('xpost.request.success',
-                                                         {account => $_->displayname})
-                                               . "</li>"}
-                                              @{$xpost_successes});
-                    $xpost_result .= join("\n",
-                                          map {"<li><div style='color: red;'><strong>"
-                                               . BML::ml('xpost.request.failed',
-                                                         {account => $_->displayname,
-                                                          'editurl' => $edititemlink})
-                                               . " </strong></div></li>"}
-                                              @{$xpost_failures});
+                    my @xpost_success;
+                    my @xpost_errors;
+
+                    # get the accounts for the user
+                    my @accounts = DW::External::Account->get_external_accounts($remote);
+                    foreach my $acct(@accounts) {
+                        my $acctid = $acct->acctid;
+                        # see if we said to xpost to this account
+                        if ($POST{"prop_xpost_$acctid"} || $GET{"prop_xpost_$acctid"}) {
+                            # get the auth information
+                            my %auth;
+                            if ($POST{"prop_xpost_resp_$acctid"} || $GET{"prop_xpost_resp_$acctid"}) {
+                                $auth{auth_response} = $POST{"prop_xpost_resp_$acctid"} || $GET{"prop_xpost_resp_$acctid"};
+                                $auth{auth_challenge} = $POST{"prop_xpost_chal_$acctid"} || $GET{"prop_xpost_chal_$acctid"};
+                            } else {
+                                $auth{password} = $POST{"prop_xpost_password_$acctid"} || $GET{"prop_xpost_password_$acctid"};
+                            }
+                            # send this to theschwartz to crosspost
+                            my $sclient = LJ::theschwartz();
+                            my $job = TheSchwartz::Job->new_from_array(
+                                'DW::Worker::XPostWorker', { 
+                                    'uid' => $remote->userid, 
+                                    'ditemid' => $ditemid, 
+                                    'accountid' => $acctid, 
+                                    'password' => $auth{password}, 
+                                    'auth_challenge' => $auth{auth_challenge}, 
+                                    'auth_response' => $auth{auth_response},
+                                    'delete' => $deleted } );
+                            # if we have a client and job, then request 
+                            # the crosspost
+                            if ($sclient && $job && $sclient->insert($job)) {
+                                push @xpost_success, "<li>" . BML::ml('xpost.request.success', {'account' => $acct->displayname}) . "</li>";
+                            } else {
+                                # one of them didn't work.
+                                push @xpost_errors, "<li><div style='color: red;'><strong>" . BML::ml('xpost.request.failed', { 'account' => $acct->displayname, 'editurl' => $edititemlink })  . " </strong></div></li>";
+                            }
+                        }
+                    }
+                    $xpost_result .= join ("\n", @xpost_success);
+                    $xpost_result .= join ("\n", @xpost_errors);
                 }
 
                 my $result = "<?h1 $ML{'.success.head'} h1?>";

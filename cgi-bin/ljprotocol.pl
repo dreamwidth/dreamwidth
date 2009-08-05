@@ -984,32 +984,6 @@ sub common_event_validation
     return 1;
 }
 
-sub schedule_xposts
-{
-    my ($u, $ditemid, $deletep, $fn) = @_;
-    my @successes;
-    my @failures;
-    my @accounts = DW::External::Account->get_external_accounts($u);
-    foreach my $acct (@accounts) {
-        my ($xpostp, $info) = $fn->($acct);
-        if ($xpostp) {
-            my $sclient = LJ::theschwartz();
-            my $info = {uid => $u->userid,
-                        accountid => $acct->acctid,
-                        ditemid => $ditemid,
-                        delete => $deletep,
-                        %{$info}};
-            my $job = TheSchwartz::Job->new_from_array('DW::Worker::XPostWorker', $info);
-            if ($sclient && $job && $sclient->insert($job)) {
-                push @successes, $acct;
-            } else {
-                push @failures, $acct;
-            }
-        }
-    }
-    return (\@successes, \@failures);
-}
-
 sub postevent
 {
     my ($req, $err, $flags) = @_;
@@ -1524,10 +1498,6 @@ sub postevent
 
     my $entry = LJ::Entry->new($uowner, jitemid => $jitemid, anum => $anum);
 
-    if (LJ::u_equals($u, $uowner) && $req->{xpost} ne '0') {
-        schedule_xposts($u, $ditemid, 0, sub { ((shift)->xpostbydefault, {}) });
-    }
-
     # run local site-specific actions
     LJ::run_hooks("postpost", {
         'itemid'    => $jitemid,
@@ -1578,8 +1548,6 @@ sub postevent
 sub editevent
 {
     my ($req, $err, $flags) = @_;
-    my $res;
-    my $deleted = 0;
     un_utf8_request($req);
 
     return undef unless authenticate($req, $err, $flags);
@@ -1636,8 +1604,6 @@ sub editevent
          "compressed, security, allowmask, year, month, day, ".
          "rlogtime, anum FROM log2 WHERE journalid=$ownerid AND jitemid=$itemid");
 
-    my $ditemid = $itemid * 256 + $oldevent->{anum};
-
     ($oldevent->{subject}, $oldevent->{event}) = $dbcm->selectrow_array
         ("SELECT subject, event FROM logtext2 ".
          "WHERE journalid=$ownerid AND jitemid=$itemid");
@@ -1683,8 +1649,6 @@ sub editevent
     # simple logic for deleting an entry
     if (!$flags->{'use_old_content'} && $req->{'event'} !~ /\S/)
     {
-        $deleted = 1;
-
         # if their newesteventtime prop equals the time of the one they're deleting
         # then delete their newesteventtime.
         if ($u->{'userid'} == $uowner->{'userid'}) {
@@ -1700,7 +1664,7 @@ sub editevent
         # delete is initiated.
         $uowner->log_event('delete_entry', {
                 remote => $u,
-                actiontarget => $ditemid,
+                actiontarget => ($req->{itemid} * 256 + $oldevent->{anum}),
                 method => 'protocol',
             })
             unless $flags->{noauth};
@@ -1711,8 +1675,9 @@ sub editevent
         # what they just deleted.  (or something... probably rare.)
         LJ::set_userprop($u, "dupsig_post", undef);
 
-        $res = {itemid => $itemid, anum => $oldevent->{anum}};
-        goto END;
+        my $res = { 'itemid' => $itemid,
+                    'anum' => $oldevent->{'anum'} };
+        return $res;
     }
 
     # now make sure the new entry text isn't $CannotBeShown
@@ -1829,7 +1794,7 @@ sub editevent
                        LJ::mysqldate_to_time($eventtime, 1),
                        LJ::mysqldate_to_time($oldevent->{'logtime'}, 1),
                        $sec,
-                       $ditemid);
+                       $itemid*256 + $oldevent->{'anum'});
 
         LJ::MemCache::set([$ownerid, "log2:$ownerid:$itemid"], $row);
 
@@ -1910,7 +1875,7 @@ sub editevent
 
     LJ::memcache_kill($ownerid, "dayct2");
 
-    $res = {itemid => $itemid};
+    my $res = { 'itemid' => $itemid };
     if (defined $oldevent->{'anum'}) {
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = LJ::item_link($uowner, $itemid, $oldevent->{'anum'});
@@ -1926,13 +1891,6 @@ sub editevent
 
     LJ::run_hooks("editpost", $entry);
 
- END:
-    my $xpost_string = $curprops{$itemid}->{xpost};
-    if ($xpost_string && LJ::u_equals($u, $uowner) && $req->{xpost} ne '0') {
-        my $xpost_info = DW::External::Account->xpost_string_to_hash($xpost_string);
-        schedule_xposts($u, $ditemid, $deleted,
-                        sub { ($xpost_info->{(shift)->acctid}, {}) });
-    }
     return $res;
 }
 
