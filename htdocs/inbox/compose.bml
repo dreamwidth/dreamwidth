@@ -11,7 +11,7 @@ body<=
                           LJ::JSUtil
                           );
 
-    return "User messaging is currently disabled" unless LJ::is_enabled('user_messaging');
+    return $ML{'.messaging.disabled'} unless LJ::is_enabled( 'user_messaging' );
 
     my $remote = LJ::get_remote() or return "<?needlogin?>";
     my $remote_id = $remote->{'userid'};
@@ -48,16 +48,17 @@ body<=
         if ($mode eq 'send') {
             # test encoding
             my $msg_subject_text = $POST{'msg_subject'};
-            push @errors, "Invalid text encoding for message subject"
+            push @errors, $ML{'.error.text.encoding.subject'}
                 unless LJ::text_in($msg_subject_text);
 
             # test encoding and length
             my $msg_body_text = $POST{'msg_body'};
-            push @errors, "Invalid text encoding for message body"
+            push @errors, $ML{'.error.text.encoding.text'}
                 unless LJ::text_in($msg_body_text);
             my ($msg_len_b, $msg_len_c) = LJ::text_length($msg_body_text);
-            push @errors, "Message body is too long (" . LJ::commafy($msg_len_c)
-                . " characters). It should not exceed " . LJ::commafy($msg_limit) . " characters."
+            push @errors, BML::ml( ".error.message.length",
+                  { msg_length => LJ::commafy( $msg_len_c ),
+                  => msg_limit -> LJ::commafy( $msg_limit ) } )
                 unless ($msg_len_c <= $msg_limit);
 
             # Get list of recipients
@@ -70,32 +71,34 @@ body<=
             my @msg_list;
 
             # must be at least one username
-            push @errors, "Please enter a valid username" unless (scalar(@to_list) > 0);
+            push @errors, $ML{'.error.no.username'} unless ( scalar( @to_list ) > 0 );
 
             # Check each user being sent a message
             foreach my $to (@to_list) {
                 # Check the To field
                 my $tou = LJ::load_user($to);
                 unless ($tou) {
-                    push @errors, "\"$to\" is not a valid username";
+                    push @errors, BML::ml( '.error.invalid.username',
+                                    { to => $to } );
                     next;
                 }
 
                 # Can only send to other individual users
                 unless ($tou->is_person || $tou->is_identity || $tou->is_renamed) {
-                    push @errors, BML::ml('error.message.individual', { 'ljuser' => $tou->ljuser_display });
+                    push @errors, BML::ml( 'error.message.individual', { ljuser => $tou->ljuser_display } );
                     next;
                 }
 
                 # Can't send to unvalidated users
                 unless ($tou->is_validated) {
-                    push @errors, BML::ml('error.message.unvalidated', { 'ljuser' => $tou->ljuser_display });
+                    push @errors, BML::ml( 'error.message.unvalidated',
+                      { ljuser => $tou->ljuser_display } );
                     next;
                 }
 
                 # Will target user accept messages from sender
                 unless ($tou->can_receive_message($remote)) {
-                    push @errors, BML::ml('error.message.canreceive', { 'ljuser' => $tou->ljuser_display });
+                    push @errors, BML::ml( 'error.message.canreceive', { ljuser => $tou->ljuser_display } );
                     next;
                 }
 
@@ -115,7 +118,7 @@ body<=
                 my $up;
                 $up = LJ::run_hook('upgrade_message', $remote, 'message');
                 $up = "<br />$up" if ($up);
-                push @errors, "This message will exceed your limit and cannot be sent.$up"
+                push @errors, BML::ml( ".error.rate.limit", { up => $up } )
                     unless LJ::Message::ratecheck_multi(userid => $remote_id, msg_list => \@msg_list)
             }
 
@@ -133,11 +136,11 @@ body<=
                 }
 
                 unless (@errors) {
-                    $body .= "Your message has been sent successfully.";
-                    $body .= "<?p From here you can:<ul>";
-                    $body .= "<li><a href='$LJ::SITEROOT/inbox/compose'>Send a new message</a></li>";
-                    $body .= "<li><a href='$LJ::SITEROOT/inbox/'>Return to Inbox</a></li>";
-                    $body .= "<li><a href='$LJ::SITEROOT/'>Return Home</a></li>";
+                    $body .= $ML{'.message.sent'};
+                    $body .= "<?p $ML{'.message.sent.options'} <ul>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/compose'>$ML{'.link.send.message'}</a></li>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'.link.inbox'}</a><li>";
+                    $body .= "<li><a href='$LJ::SITEROOT/'>$ML{'.link.home'}</a></li>";
                     $body .= "</ul> p?>\n";
                     return $body;
                 }
@@ -154,7 +157,7 @@ body<=
         next unless $msgid;
 
         my $msg = LJ::Message->load({msgid => $msgid, journalid => $remote_id});
-        push @errors, "You cannot reply to this message"
+        push @errors, $ML{'.error.cannot.reply'}
             unless ($msg->can_reply($msgid, $remote_id));
 
         if (@errors) {
