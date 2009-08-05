@@ -117,7 +117,7 @@ QUERYFORM
 </select>
 </td>
 <td>
-<textarea name='note' rows='3' cols='80'>$note</textarea> 
+<textarea name='note' rows='3' cols='60'>$note</textarea> 
 </td>
 <td><input type='submit' name='modify' value='modify'>
 </td>
