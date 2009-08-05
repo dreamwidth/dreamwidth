@@ -50,7 +50,7 @@ sub render_body {
         num_posted_raw => $remote->num_comments_posted,
         num_posted_comma => LJ::commafy( $remote->num_comments_posted )
         } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.memories2', { num_raw => $memories_count, num_comma => LJ::commafy( $memories_count ), aopts => "href='$LJ::SITEROOT/tools/memories.bml?user=" . $remote->user . "'", } );
+    $ret .= "<li>" . $class->ml( 'widget.accountstatistics.memories2', { num_raw => $memories_count, num_comma => LJ::commafy( $memories_count ), aopts => "href='$LJ::SITEROOT/tools/memories?user=" . $remote->user . "'", } );
     $ret .= ", " . $class->ml( 'widget.accountstatistics.tags2', { num_raw => $tags_count, num_comma => LJ::commafy( $tags_count ), aopts => 'href="' . $remote->journal_base . '/tag/"' } ) . "</li>";
     $ret .= "<li>" . $accttype_string . "</li>";
     $ret .= "</ul>";

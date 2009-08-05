@@ -299,8 +299,8 @@ sub render_body {
         $ret .= " <label for='create_tos' class='text'>";
         $ret .= $class->ml( 'widget.createaccount.field.tos', {
             sitename => $LJ::SITENAMESHORT,
-            aopts1 => "href='$LJ::SITEROOT/legal/tos.bml' target='_new'",
-            aopts2 => "href='$LJ::SITEROOT/legal/privacy.bml' target='_new'",
+            aopts1 => "href='$LJ::SITEROOT/legal/tos' target='_new'",
+            aopts2 => "href='$LJ::SITEROOT/legal/privacy' target='_new'",
         } );
         $ret .= "</label>";
         $ret .= $error_msg->( 'tos', '<span class="formitemFlag">', '</span><br />' );
@@ -392,7 +392,7 @@ sub handle_post {
             my $r = DW::Request->get;
             my $args = $r->query_string;
             my $querysep = $args ? "?" : "";
-            my $uri = "$LJ::SITEROOT/create.bml" . $querysep . $args;
+            my $uri = "$LJ::SITEROOT/create" . $querysep . $args;
             return BML::redirect( $uri );
         }
     }
@@ -515,13 +515,13 @@ sub handle_post {
             username => $nu->user,
             siteroot => $LJ::SITEROOT,
             sitenameshort => $LJ::SITENAMESHORT,
-            lostinfourl => "$LJ::SITEROOT/lostinfo.bml",
+            lostinfourl => "$LJ::SITEROOT/lostinfo",
             editprofileurl => "$LJ::SITEROOT/manage/profile/",
-            searchinterestsurl => "$LJ::SITEROOT/interests.bml",
-            editpicsurl => "$LJ::SITEROOT/editpics.bml",
+            searchinterestsurl => "$LJ::SITEROOT/interests",
+            editpicsurl => "$LJ::SITEROOT/editpics",
             customizeurl => "$LJ::SITEROOT/customize/",
-            postentryurl => "$LJ::SITEROOT/update.bml",
-            setsecreturl => "$LJ::SITEROOT/set_secret.bml",
+            postentryurl => "$LJ::SITEROOT/update",
+            setsecreturl => "$LJ::SITEROOT/set_secret",
             LJ::run_hook('extra_fields_in_postreg_esn'),
         });
 
@@ -567,7 +567,7 @@ sub handle_post {
         $redirect = LJ::run_hook('rewrite_redirect_after_create', $nu);
         return BML::redirect($redirect) if $redirect;
 
-        return BML::redirect( "$LJ::SITEROOT/create/setup.bml" );
+        return BML::redirect( "$LJ::SITEROOT/create/setup" );
     }
 
     return %from_post;

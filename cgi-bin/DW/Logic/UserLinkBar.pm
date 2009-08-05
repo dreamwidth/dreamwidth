@@ -140,7 +140,7 @@ sub manage_membership {
         # if logged in and a member of the community $u
         if ( $remote && $remote->member_of( $u ) ) {
             return $self->fix_link( {
-                url      => "community/leave.bml?comm=$user",
+                url      => "community/leave?comm=$user",
                 title_ml => 'userlinkbar.leavecomm.title',
                 image    => 'community_leave.png',
                 text_ml  => 'userlinkbar.leavecomm',
@@ -165,7 +165,7 @@ sub manage_membership {
 
             # allowed to join
             } else {
-                $link->{url}      = "community/join.bml?comm=$user";
+                $link->{url}      = "community/join?comm=$user";
                 $link->{title_ml} = 'userlinkbar.joincomm.title.open';
                 $link->{image}    = 'community_join.png';
                 $link->{class}    = "join";
@@ -196,7 +196,7 @@ sub trust {
         my $remote_trusts = $remote && $remote->trusts( $u ) ? 1 : 0;
         $link->{text_ml} = $remote_trusts ? 'userlinkbar.modifytrust' : 'userlinkbar.addtrust';
         if ( $remote && ( $remote_trusts || $u->is_visible ) ) {
-            $link->{url} = "manage/circle/add.bml?user=$user&action=access";
+            $link->{url} = "manage/circle/add?user=$user&action=access";
             $link->{title_ml} = $remote_trusts ? 'userlinkbar.modifytrust.title.other' : 'userlinkbar.addtrust.title.other';
             $link->{class} = "addtrust";
             if ( $remote_trusts ) {
@@ -232,7 +232,7 @@ sub watch {
     my $remote_watches = $remote && $remote->watches( $u ) ? 1 : 0;
     $link->{text_ml} = $remote_watches ? 'userlinkbar.modifysub' : 'userlinkbar.addsub';
     if ( $remote && ( $remote_watches || $u->is_visible ) ) {
-        $link->{url} = "manage/circle/add.bml?user=$user&action=subscribe";
+        $link->{url} = "manage/circle/add?user=$user&action=subscribe";
 
         if ( $remote->equals( $u ) ) {
             $link->{title_ml} = $remote_watches ? 'userlinkbar.modifysub.title.self' : 'userlinkbar.addsub.title.self';
@@ -295,7 +295,7 @@ sub post {
 
     if ( $remote && $remote->is_personal && ( $u->is_personal || $u->is_community ) && $remote->can_post_to( $u ) ) {
         my $link = {
-            url => "update.bml?usejournal=$user",
+            url => "update?usejournal=$user",
             class => "postentry",
             image => 'post.png',
         };
@@ -350,7 +350,7 @@ sub track {
         }
 
         if ( $remote && $remote->can_use_esn ) {
-            $link->{url} = "manage/subscriptions/user.bml?journal=$user";
+            $link->{url} = "manage/subscriptions/user?journal=$user";
             $link->{class} = "trackuser";
             $link->{image} = 'track.png';
         } else {
@@ -385,7 +385,7 @@ sub message {
         $link->{title_ml} = 'userlinkbar.sendmessage.title.self' if $u->equals( $remote );
 
         if ( $remote && $u->can_receive_message( $remote ) ) {
-            $link->{url} = "inbox/compose.bml?user=$user";
+            $link->{url} = "inbox/compose?user=$user";
             $link->{class} = "sendmessage";
             $link->{image} = 'message.png';
         } else {
@@ -414,7 +414,7 @@ sub tellafriend {
     if ( $remote && ! $u->is_identity && LJ::is_enabled('tellafriend') )
     {
         my $link = {
-            url => "tools/tellafriend.bml?user=$user",
+            url => "tools/tellafriend?user=$user",
             image => "$LJ::IMGPREFIX/silk/profile/tellafriend.png",
             width => 16,
             height => 16,
@@ -441,7 +441,7 @@ sub memories {
     my $user = $u->user;
 
     my $link = {
-        url => "tools/memories.bml?user=$user",
+        url => "tools/memories?user=$user",
         image => 'memories.png',
         text_ml => 'userlinkbar.memories',
         class => 'memories',

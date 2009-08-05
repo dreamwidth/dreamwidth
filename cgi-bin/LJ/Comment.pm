@@ -252,7 +252,7 @@ sub unscreen_url {
     my $journal = $entry->journal->{user};
 
     return
-        "$LJ::SITEROOT/talkscreen.bml" .
+        "$LJ::SITEROOT/talkscreen" .
         "?mode=unscreen&journal=$journal" .
         "&talkid=$dtalkid";
 }
@@ -265,7 +265,7 @@ sub delete_url {
     my $journal = $entry->journal->{user};
 
     return
-        "$LJ::SITEROOT/delcomment.bml" .
+        "$LJ::SITEROOT/delcomment" .
         "?journal=$journal&id=$dtalkid";
 }
 
@@ -990,22 +990,22 @@ sub manage_buttons {
     }
 
     if (LJ::Talk::can_delete($remote, $self->journal, $self->entry->poster, $poster)) {
-        $managebtns .= "<a href='$LJ::SITEROOT/delcomment.bml?${jargent}id=$dtalkid'>" . LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+        $managebtns .= "<a href='$LJ::SITEROOT/delcomment?${jargent}id=$dtalkid'>" . LJ::img("btn_del", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
     }
 
     if (LJ::Talk::can_freeze($remote, $self->journal, $self->entry->poster, $poster)) {
         unless ($self->is_frozen) {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen.bml?mode=freeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=freeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_freeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
         } else {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen.bml?mode=unfreeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_unfreeze", "", { align => 'absmiddle', hspace => 2, vspace => }) . "</a>";
         }
     }
 
     if (LJ::Talk::can_screen($remote, $self->journal, $self->entry->poster, $poster)) {
         unless ($self->is_screened) {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen.bml?mode=screen&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=screen&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_scr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
         } else {
-            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen.bml?mode=unscreen&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+            $managebtns .= "<a href='$LJ::SITEROOT/talkscreen?mode=unscreen&amp;${jargent}talkid=$dtalkid'>" . LJ::img("btn_unscr", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
         }
     }
 
@@ -1390,7 +1390,7 @@ sub _format_mail_both {
     my $want_form = $is_html && ($self->is_active || $can_unscreen);  # this should probably be a preference, or maybe just always off.
     if ($want_form) {
         $body .= LJ::Lang::get_text($lang, 'esn.if_suport_form', undef) . "\n";
-        $body .= "<blockquote><form method='post' target='ljreply' action=\"$LJ::SITEROOT/talkpost_do.bml\">\n";
+        $body .= "<blockquote><form method='post' target='ljreply' action=\"$LJ::SITEROOT/talkpost_do\">\n";
 
         $body .= LJ::html_hidden
             ( usertype     =>  "user",
@@ -1468,7 +1468,7 @@ sub _format_template_mail {
     $t->param(unscreen_url  => $self->unscreen_url) if $can_unscreen;
     $t->param(delete_url    => $self->delete_url) if $self->user_can_delete($targetu);
     $t->param(want_form     => ($self->is_active || $can_unscreen));
-    $t->param(form_action   => "$LJ::SITEROOT/talkpost_do.bml");
+    $t->param(form_action   => "$LJ::SITEROOT/talkpost_do");
     $t->param(hidden_fields => LJ::html_hidden
                                     ( usertype     =>  "user",
                                       parenttalkid =>  $self->jtalkid,

@@ -1030,9 +1030,9 @@ sub clean
         my $link_style = "color: #00c; text-decoration: underline; background: transparent; border: 0;";
 
         if ($unsuspend_supportid) {
-            $msg .= LJ::Lang::ml('cleanhtml.suspend_msg_with_supportid', { aopts => "href='$LJ::SITEROOT/support/see_request.bml?id=$unsuspend_supportid' style='$link_style'" });
+            $msg .= LJ::Lang::ml('cleanhtml.suspend_msg_with_supportid', { aopts => "href='$LJ::SITEROOT/support/see_request?id=$unsuspend_supportid' style='$link_style'" });
         } else {
-            $msg .= LJ::Lang::ml('cleanhtml.suspend_msg', { aopts => "href='$LJ::SITEROOT/abuse/report.bml' style='$link_style'" });
+            $msg .= LJ::Lang::ml('cleanhtml.suspend_msg', { aopts => "href='$LJ::SITEROOT/abuse/report' style='$link_style'" });
         }
 
         $msg .= "</div>";
@@ -1142,31 +1142,31 @@ sub ExpandLJURL
          'faq' => sub {
              my $id = shift()+0;
              if ($id) {
-                 return "support/faqbrowse.bml?faqid=$id";
+                 return "support/faqbrowse?faqid=$id";
              } else {
-                 return "support/faq.bml";
+                 return "support/faq";
              }
          },
          'memories' => sub {
              my $user = LJ::canonical_username(shift);
              if ($user) {
-                 return "memories.bml?user=$user";
+                 return "memories?user=$user";
              } else {
-                 return "memories.bml";
+                 return "memories";
              }
          },
          'pubkey' => sub {
              my $user = LJ::canonical_username(shift);
              if ($user) {
-                 return "pubkey.bml?user=$user";
+                 return "pubkey?user=$user";
              } else {
-                 return "pubkey.bml";
+                 return "pubkey";
              }
          },
          'support' => sub {
              my $id = shift()+0;
              if ($id) {
-                 return "support/see_request.bml?id=$id";
+                 return "support/see_request?id=$id";
              } else {
                  return "support/";
              }
@@ -1175,23 +1175,23 @@ sub ExpandLJURL
              my $user = LJ::canonical_username(shift);
              return "" if grep { /[\"\'\<\>\n\&]/ } @_;
              return $_[0] eq 'profile' ?
-                 "userinfo.bml?user=$user" :
+                 "userinfo?user=$user" :
                  "users/$user/" . join("", map { "$_/" } @_ );
          },
          'userinfo' => sub {
              my $user = LJ::canonical_username(shift);
              if ($user) {
-                 return "userinfo.bml?user=$user";
+                 return "userinfo?user=$user";
              } else {
-                 return "userinfo.bml";
+                 return "userinfo";
              }
          },
          'userpics' => sub {
              my $user = LJ::canonical_username(shift);
              if ($user) {
-                 return "allpics.bml?user=$user";
+                 return "allpics?user=$user";
              } else {
-                 return "allpics.bml";
+                 return "allpics";
              }
          },
         );

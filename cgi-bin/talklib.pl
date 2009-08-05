@@ -118,12 +118,12 @@ sub link_bar
     my $entry = LJ::Entry->new($u, ditemid => $itemid);
 
     # << Previous
-    push @linkele, $mlink->("$LJ::SITEROOT/go.bml?${jargent}itemid=$itemid&amp;dir=prev", "prev_entry");
-    $$headref .= "<link href='$LJ::SITEROOT/go.bml?${jargent}itemid=$itemid&amp;dir=prev' rel='Previous' />\n";
+    push @linkele, $mlink->("$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=prev", "prev_entry");
+    $$headref .= "<link href='$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=prev' rel='Previous' />\n";
 
     # memories
     if ( LJ::is_enabled('memories') ) {
-        push @linkele, $mlink->("$LJ::SITEROOT/tools/memadd.bml?${jargent}itemid=$itemid", "memadd");
+        push @linkele, $mlink->("$LJ::SITEROOT/tools/memadd?${jargent}itemid=$itemid", "memadd");
     }
 
     # edit entry - if we have a remote, and that person can manage
@@ -132,31 +132,31 @@ sub link_bar
     if (defined $remote && (LJ::can_manage($remote, $u) ||
                             (LJ::u_equals($remote, $up) && LJ::can_use_journal($up->{userid}, $u->{user}, {}))))
     {
-        push @linkele, $mlink->("$LJ::SITEROOT/editjournal.bml?${jargent}itemid=$itemid", "editentry");
+        push @linkele, $mlink->("$LJ::SITEROOT/editjournal?${jargent}itemid=$itemid", "editentry");
     }
 
     # edit tags
     if ( LJ::is_enabled('tags') ) {
         if (defined $remote && LJ::Tags::can_add_tags($u, $remote)) {
-            push @linkele, $mlink->("$LJ::SITEROOT/edittags.bml?${jargent}itemid=$itemid", "edittags");
+            push @linkele, $mlink->("$LJ::SITEROOT/edittags?${jargent}itemid=$itemid", "edittags");
         }
     }
 
     if ( LJ::is_enabled('tellafriend') ) {
-        push @linkele, $mlink->("$LJ::SITEROOT/tools/tellafriend.bml?${jargent}itemid=$itemid", "tellfriend")
+        push @linkele, $mlink->("$LJ::SITEROOT/tools/tellafriend?${jargent}itemid=$itemid", "tellfriend")
             if ($entry->can_tellafriend($remote));
     }
 
     if ($remote && $remote->can_use_esn) {
         my $img_key = $remote->has_subscription(journal => $u, event => "JournalNewComment", arg1 => $itemid, require_active => 1) ?
             "track_active" : "track";
-        push @linkele, $mlink->("$LJ::SITEROOT/manage/subscriptions/entry.bml?${jargent}itemid=$itemid", $img_key);
+        push @linkele, $mlink->("$LJ::SITEROOT/manage/subscriptions/entry?${jargent}itemid=$itemid", $img_key);
     }
 
 
     ## >>> Next
-    push @linkele, $mlink->("$LJ::SITEROOT/go.bml?${jargent}itemid=$itemid&amp;dir=next", "next_entry");
-    $$headref .= "<link href='$LJ::SITEROOT/go.bml?${jargent}itemid=$itemid&amp;dir=next' rel='Next' />\n";
+    push @linkele, $mlink->("$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=next", "next_entry");
+    $$headref .= "<link href='$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=next' rel='Next' />\n";
 
     if (@linkele) {
         $ret .= BML::fill_template("standout", {
@@ -293,7 +293,7 @@ sub check_viewable
 
         if (defined $remote) {
             if ( $journal->is_community && ! $journal->is_closed_membership && $remote ) {
-                return $err->( BML::ml( 'talk.error.notauthorised.comm.open', { aopts => "href='$LJ::SITEROOT/community/join.bml?comm=$journalname'" } ) );
+                return $err->( BML::ml( 'talk.error.notauthorised.comm.open', { aopts => "href='$LJ::SITEROOT/community/join?comm=$journalname'" } ) );
             } elsif ( $journal->is_community && $journal->is_closed_membership ) {
                 return $err->( BML::ml( 'talk.error.notauthorised.comm.closed' ) );
             } else {
@@ -1223,7 +1223,7 @@ sub talkform {
     if (!$editid && $parpost->{'state'} eq "S") {
         $ret .= "<div class='ljwarnscreened'>$BML::ML{'.warnscreened'}</div>";
     }
-    $ret .= "<form method='post' action='$LJ::SITEROOT/talkpost_do.bml' id='postform'>";
+    $ret .= "<form method='post' action='$LJ::SITEROOT/talkpost_do' id='postform'>";
     $ret .= LJ::form_auth();
 
     # Login challenge/response
@@ -1431,7 +1431,7 @@ sub talkform {
                 $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(3);' /></td>";
                 $ret .= "<td align='center'>(  )</td>";
                 $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>OpenID</b></font>";
-                $ret .= BML::ml('.opt.noopenidpost', { aopts1 => "href='$LJ::SITEROOT/changeemail.bml'", aopts2 => "href='$LJ::SITEROOT/register.bml'" })
+                $ret .= BML::ml('.opt.noopenidpost', { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" })
                     if defined $oid_identity;
 
                 $ret .= LJ::help_icon_html("openid", " ");
@@ -1568,7 +1568,7 @@ sub talkform {
     if (!$create_link && (!$remote || defined $oid_identity)) {
         $ret .= "<tr valign='middle' align='left'>";
         $ret .= "<td colspan='2'></td><td><span style='font-size: 8pt; font-style: italic;'>";
-        $ret .= BML::ml('.noaccount', {'aopts' => "href='$LJ::SITEROOT/create.bml'"});
+        $ret .= BML::ml('.noaccount', {'aopts' => "href='$LJ::SITEROOT/create'"});
         $ret .= "</span></td>";
         $ret .= "</tr>\n";
     }
@@ -2886,7 +2886,7 @@ sub init {
 
     # anonymous/cookie users cannot authenticate with ecphash
     if ($form->{'ecphash'} && $form->{'usertype'} ne "user") {
-        $err->(BML::ml("$SC.error.badusername2", {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/lostinfo.bml'"}));
+        $err->(BML::ml("$SC.error.badusername2", {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/lostinfo'"}));
         return undef;
     }
 
@@ -2958,7 +2958,7 @@ sub init {
                         {
                             $used_ecp = 1;
                         } else {
-                            $err->(BML::ml("$SC.error.badpassword2", {'aopts' => "href='$LJ::SITEROOT/lostinfo.bml'"}));
+                            $err->(BML::ml("$SC.error.badpassword2", {'aopts' => "href='$LJ::SITEROOT/lostinfo'"}));
                         }
 
                     # otherwise authenticate on username/password
@@ -2969,7 +2969,7 @@ sub init {
                         } else {
                             $ok = LJ::auth_okay($up, $form->{'password'}, $form->{'hpassword'});
                         }
-                        $err->(BML::ml("$SC.error.badpassword2", {'aopts' => "href='$LJ::SITEROOT/lostinfo.bml'"})) unless $ok;
+                        $err->(BML::ml("$SC.error.badpassword2", {'aopts' => "href='$LJ::SITEROOT/lostinfo'"})) unless $ok;
                     }
                 }
 
@@ -2978,7 +2978,7 @@ sub init {
                     $init->{didlogin} = $up->make_login_session($exptype, $ipfixed);
                 }
             } else {
-                $err->(BML::ml("$SC.error.badusername2", {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/lostinfo.bml'"}));
+                $err->(BML::ml("$SC.error.badusername2", {'sitename' => $LJ::SITENAMESHORT, 'aopts' => "href='$LJ::SITEROOT/lostinfo'"}));
             }
         } elsif ($journalu->{'opt_whocanreply'} eq "all") {
             $err->(BML::ml("$SC.error.nousername", {'sitename' => $LJ::SITENAMESHORT}));
@@ -3021,7 +3021,7 @@ sub init {
 
             unless ($claimed_id) {
                 return $err->("You can't use a $LJ::SITENAMESHORT OpenID account on $LJ::SITENAME &mdash; ".
-                                 "just <a href='/login.bml'>go login</a> with your actual $LJ::SITENAMESHORT account.") if $$tried_local_ref;
+                                 "just <a href='/login'>go login</a> with your actual $LJ::SITENAMESHORT account.") if $$tried_local_ref;
                 return $err->("No claimed id: ".$csr->err);
             }
 
@@ -3048,7 +3048,7 @@ sub init {
             $err->($journalu->errstr) if $journalu->err;
 
             my $check_url = $claimed_id->check_url(
-                                                   return_to      => "$LJ::SITEROOT/talkpost_do.bml?jid=$journalu->{'userid'}&pendcid=$pendcid",
+                                                   return_to      => "$LJ::SITEROOT/talkpost_do?jid=$journalu->{'userid'}&pendcid=$pendcid",
                                                    trust_root     => "$LJ::SITEROOT",
                                                    delayed_return => 1,
                                                    );
@@ -3139,7 +3139,7 @@ sub init {
 
     if ($up) {
         if ($up->{'status'} eq "N" && !$up->is_identity && !LJ::run_hook("journal_allows_unvalidated_commenting", $journalu)) {
-            $err->(BML::ml("$SC.error.noverify2", {'aopts' => "href='$LJ::SITEROOT/register.bml'"}));
+            $err->(BML::ml("$SC.error.noverify2", {'aopts' => "href='$LJ::SITEROOT/register'"}));
         }
 
         $bmlerr->("$SC.error.purged")    if $up->is_expunged;

@@ -57,15 +57,15 @@ sub render_body {
     if ($no_theme_chooser) {
         $ret .= "<li><a href='$LJ::SITEROOT/customize/$getextra'>" . $class->ml('widget.currenttheme.options.newtheme') . "</a></li>";
     } else {
-        $ret .= "<li><a href='$LJ::SITEROOT/customize/options.bml$getextra'>" . $class->ml('widget.currenttheme.options.change') . "</a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.currenttheme.options.change') . "</a></li>";
     }
     if (! $no_layer_edit && $theme->is_custom && $theme->available_to($u)) {
         $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced'>" . $class->ml( 'widget.currenttheme.options.advancedcust' ) . "</a></li>";
         if ($theme->layoutid && !$theme->layout_uniq) {
-            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->layoutid . "'>" . $class->ml('widget.currenttheme.options.editlayoutlayer') . "</a></li>";
+            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->layoutid . "'>" . $class->ml('widget.currenttheme.options.editlayoutlayer') . "</a></li>";
         }
         if ($theme->themeid && !$theme->uniq) {
-            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->themeid . "'>" . $class->ml('widget.currenttheme.options.editthemelayer') . "</a></li>";
+            $ret .= "<li><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->themeid . "'>" . $class->ml('widget.currenttheme.options.editthemelayer') . "</a></li>";
         }
     }
 

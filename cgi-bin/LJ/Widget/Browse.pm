@@ -24,13 +24,13 @@ sub render_body {
     $ret .= "<div class='browse-findby'>";
     $ret .= "<p><strong>" . $class->ml('widget.browse.findusers') . "</strong><br />";
     $ret .= "&raquo; <a href='$LJ::SITEROOT/schools/'>" . $class->ml('widget.browse.findusers.school') . "</a><br />";
-    $ret .= "&raquo; <a href='$LJ::SITEROOT/directory.bml'>" . $class->ml('widget.browse.findusers.location') . "</a></p>";
+    $ret .= "&raquo; <a href='$LJ::SITEROOT/directory'>" . $class->ml('widget.browse.findusers.location') . "</a></p>";
     $ret .= "</div>";
 
     $ret .= "<div class='browse-directorysearch'>";
     $ret .= "<p><strong>" . $class->ml('widget.browse.directorysearch') . "</strong><br />";
-    $ret .= "&raquo; <a href='$LJ::SITEROOT/directorysearch.bml'>" . $class->ml('widget.browse.directorysearch.users') . "</a><br />";
-    $ret .= "&raquo; <a href='$LJ::SITEROOT/community/search.bml'>" . $class->ml('widget.browse.directorysearch.communities') . "</a></p>";
+    $ret .= "&raquo; <a href='$LJ::SITEROOT/directorysearch'>" . $class->ml('widget.browse.directorysearch.users') . "</a><br />";
+    $ret .= "&raquo; <a href='$LJ::SITEROOT/community/search'>" . $class->ml('widget.browse.directorysearch.communities') . "</a></p>";
     $ret .= "</div>";
 
     $ret .= "</div>";
@@ -39,7 +39,7 @@ sub render_body {
     $ret .= "<div class='browse-extras'>";
     $ret .= "<div class='browse-randomuser'>";
     $ret .= "<img src='$LJ::IMGPREFIX/explore/randomuser.jpg' alt='' />";
-    $ret .= "<p><a href='$LJ::SITEROOT/random.bml'><strong>" . $class->ml('widget.browse.extras.random') . "</strong></a><br />";
+    $ret .= "<p><a href='$LJ::SITEROOT/random'><strong>" . $class->ml('widget.browse.extras.random') . "</strong></a><br />";
     $ret .= $class->ml('widget.browse.extras.random.desc') . "</p>";
     $ret .= "</div>";
     $ret .= LJ::run_hook('browse_widget_extras');

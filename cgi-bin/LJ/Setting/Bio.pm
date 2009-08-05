@@ -22,7 +22,7 @@ sub as_html {
         $ret .= "<p class='detail'>" . $class->ml('.setting.bio.note') . "</p>";
     } else {
         $ret .= LJ::html_hidden("${key}bio_absent", 'yes');
-        $ret .= "<?p <?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert.bml'"}) . " inerr?> p?>";
+        $ret .= "<?p <?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidbio', {'aopts' => "href='$LJ::SITEROOT/utf8convert'"}) . " inerr?> p?>";
     }
     $ret .= $class->errdiv($errs, "bio");
 

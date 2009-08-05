@@ -176,7 +176,7 @@ sub _weblogscom {
                 ->call('weblogUpdates.ping', # xml-rpc method call
                        LJ::ehtml($a->{'title'}) . " \@ $LJ::SITENAMESHORT",
                        $a->{'url'},
-                       "$LJ::SITEROOT/misc/weblogs-change.bml?user=$a->{'user'}");
+                       "$LJ::SITEROOT/misc/weblogs-change?user=$a->{'user'}");
         }
     };
 

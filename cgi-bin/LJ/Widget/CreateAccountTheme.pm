@@ -32,7 +32,7 @@ sub render_body {
         $ret .= "<td class='theme-box'>";
         $ret .= "<div class='theme-box-inner'>";
         $ret .= "<label for='theme_$image_class'><img src='" . $theme->preview_imgurl . "' width='90' height='68' class='theme-image' alt='$name' title='$name' /></label><br />";
-        $ret .= "<a href='$LJ::SITEROOT/customize/preview_redirect.bml?themeid=" . $theme->themeid . "' target='_blank' onclick='window.open(href, \"theme_preview\", \"resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes\"); return false;' class='theme-preview-link' title='" . $class->ml('widget.createaccounttheme.preview') . "'>";
+        $ret .= "<a href='$LJ::SITEROOT/customize/preview_redirect?themeid=" . $theme->themeid . "' target='_blank' onclick='window.open(href, \"theme_preview\", \"resizable=yes,status=yes,toolbar=no,location=no,menubar=no,scrollbars=yes\"); return false;' class='theme-preview-link' title='" . $class->ml('widget.createaccounttheme.preview') . "'>";
         $ret .= "<img src='$LJ::IMGPREFIX/customize/preview-theme.gif' class='theme-preview-image' /></a>";
         $ret .= $class->html_check(
             name => 'theme',

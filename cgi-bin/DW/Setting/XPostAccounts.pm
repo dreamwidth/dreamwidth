@@ -79,7 +79,7 @@ sub option {
                 id       => "${key}xpostbydefault[${acctid}]",
                 selected => $externalacct->xpostbydefault
             }) . "</td>";
-            $ret .= "<td style='text-align: center;'><a href='$LJ::SITEROOT/manage/externalaccount.bml?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
+            $ret .= "<td style='text-align: center;'><a href='$LJ::SITEROOT/manage/externalaccount?acctid=${acctid}'>" . $class->ml('setting.xpost.option.change') . "</a></td>\n";
             $ret .= "<td class='checkbox'>" . LJ::html_check({
                 name     => "${key}delete[${acctid}]",
                 value    => 1,
@@ -99,7 +99,7 @@ sub option {
 
     # add account
     if (scalar @accounts < $max_accounts) {
-        $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount.bml'>" . $class->ml('setting.xpost.btn.add') . "</a></div>\n";
+        $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount'>" . $class->ml('setting.xpost.btn.add') . "</a></div>\n";
     }
 
     # disable comments on crosspost

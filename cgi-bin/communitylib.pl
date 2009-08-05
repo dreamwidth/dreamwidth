@@ -583,16 +583,16 @@ sub maintainer_linkbar {
             "<a href='$LJ::SITEROOT/customize/?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.customize2') . "</a>",
         $page eq "settings" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/settings.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</a>",
+            "<a href='$LJ::SITEROOT/community/settings?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actsettings2') . "</a>",
         $page eq "invites" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/sentinvites.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
+            "<a href='$LJ::SITEROOT/community/sentinvites?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actinvites') . "</a>",
         $page eq "members" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/members.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
+            "<a href='$LJ::SITEROOT/community/members?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.actmembers2') . "</a>",
         $page eq "queue" ?
             "<strong>" . LJ::Lang::ml('/community/manage.bml.commlist.queue') . "</strong>" :
-            "<a href='$LJ::SITEROOT/community/moderate.bml?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
+            "<a href='$LJ::SITEROOT/community/moderate?authas=$username'>" . LJ::Lang::ml('/community/manage.bml.commlist.queue' ) . "</a>",
 
     );
 

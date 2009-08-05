@@ -510,7 +510,7 @@ sub session_from_domain_cookie {
         my $reason = shift;
         my $rr = $opts->{redirect_ref};
         if ($rr) {
-            $$rr = "$LJ::SITEROOT/misc/get_domain_session.bml?return=" . LJ::eurl(_current_url());
+            $$rr = "$LJ::SITEROOT/misc/get_domain_session?return=" . LJ::eurl(_current_url());
         }
         return undef;
     };

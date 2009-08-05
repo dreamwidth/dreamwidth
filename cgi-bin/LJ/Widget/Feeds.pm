@@ -15,7 +15,7 @@ sub render_body {
     my $cart = $get->{'cart'} || $BML::COOKIE{cart};
     my $body;
     $body .= "<h2 class='solid-neutral'>" . $class->ml('widget.feeds.title') . "</h2>";
-    $body .= "<a href='$LJ::SITEROOT/syn/list.bml' class='more-link'>" .
+    $body .= "<a href='$LJ::SITEROOT/syn/list' class='more-link'>" .
              $class->ml('widget.feeds.viewall') . "</a>";
 
     # get user IDs of most popular feeds

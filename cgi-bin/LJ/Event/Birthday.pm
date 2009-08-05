@@ -119,7 +119,7 @@ sub _as_email {
         }) .
         $self->format_options($is_html, $lang, undef,
             {
-                'esn.post_happy_bday'   => [ 1, "$LJ::SITEROOT/update.bml" ],
+                'esn.post_happy_bday'   => [ 1, "$LJ::SITEROOT/update" ],
             },
             LJ::run_hook('birthday_notif_extra_' . ($is_html ? 'html' : 'plaintext'), $u)
         );

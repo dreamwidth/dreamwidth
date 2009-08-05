@@ -62,11 +62,11 @@ sub _as_email {
     return LJ::Lang::get_text($lang, 'esn.invited_friend_joins.email', undef, $vars) .
         $self->format_options($is_html, $lang, $vars,
         {
-            'esn.add_trust'             => [ 1, "$LJ::SITEROOT/manage/circle/add.bml?user=$newusername&action=access" ],
-            'esn.add_watch'             => [ 2, "$LJ::SITEROOT/manage/circle/add.bml?user=$newusername&action=subscribe" ],
+            'esn.add_trust'             => [ 1, "$LJ::SITEROOT/manage/circle/add?user=$newusername&action=access" ],
+            'esn.add_watch'             => [ 2, "$LJ::SITEROOT/manage/circle/add?user=$newusername&action=subscribe" ],
             'esn.read_journal'          => [ 3, $newuser_url ],
             'esn.view_profile'          => [ 4, $newuser_profile ],
-            'esn.invite_another_friend' => [ 5, "$LJ::SITEROOT/manage/circle/invite.bml" ],
+            'esn.invite_another_friend' => [ 5, "$LJ::SITEROOT/manage/circle/invite" ],
         }
     );
 }

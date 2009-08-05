@@ -33,7 +33,7 @@ sub option {
 
     my $pin = $class->get_arg($args, "emailposting_pin") || $u->prop("emailpost_pin");
 
-    my $ret .= "<p>" . $class->ml('setting.emailposting.option', { domain => $LJ::EMAIL_POST_DOMAIN, aopts => "href='$LJ::SITEROOT/manage/emailpost.bml?mode=help'" }) . " $upgrade_link</p>";
+    my $ret .= "<p>" . $class->ml('setting.emailposting.option', { domain => $LJ::EMAIL_POST_DOMAIN, aopts => "href='$LJ::SITEROOT/manage/emailpost?mode=help'" }) . " $upgrade_link</p>";
 
     $ret .= "<table class='setting_table' cellspacing='5' cellpadding='0'>";
 
@@ -76,7 +76,7 @@ sub option {
 
     if ($can_emailpost) {
         $ret .= "<tr><td>&nbsp;</td>";
-        $ret .= "<td><a href='$LJ::SITEROOT/manage/emailpost.bml'>" . $class->ml('setting.emailposting.option.advanced') . "</a></td></tr>";
+        $ret .= "<td><a href='$LJ::SITEROOT/manage/emailpost'>" . $class->ml('setting.emailposting.option.advanced') . "</a></td></tr>";
     }
 
     $ret .= "</table>";

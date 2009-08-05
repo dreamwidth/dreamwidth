@@ -197,7 +197,7 @@ sub _trackable_button {
 sub _trackable_link_url {
     my ($class, $href, $goodclick, $version) = @_;
     $version ||= 0;
-    return "$LJ::SITEROOT/misc/cprod.bml?class=$class&g=$goodclick&version=$version&to=" . LJ::eurl($href);
+    return "$LJ::SITEROOT/misc/cprod?class=$class&g=$goodclick&version=$version&to=" . LJ::eurl($href);
 }
 
 sub clickthru_button {

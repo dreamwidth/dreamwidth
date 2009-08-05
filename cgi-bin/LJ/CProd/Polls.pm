@@ -11,7 +11,7 @@ sub applicable {
     return $used_polls ? 0 : 1;
 }
 
-sub link { "$LJ::SITEROOT/poll/create.bml" }
+sub link { "$LJ::SITEROOT/poll/create" }
 sub button_text { "Poll wizard" }
 sub ml { 'cprod.polls.text' }
 

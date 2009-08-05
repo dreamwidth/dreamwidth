@@ -37,7 +37,7 @@ sub server {
                                     },
                                     is_trusted   => \&LJ::OpenID::is_trusted,
 
-                                    setup_url    => "$LJ::SITEROOT/openid/approve.bml",
+                                    setup_url    => "$LJ::SITEROOT/openid/approve",
 
                                     server_secret => \&LJ::OpenID::server_secret,
                                     secret_gen_interval => 3600,

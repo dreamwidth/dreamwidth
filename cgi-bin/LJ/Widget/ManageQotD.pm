@@ -26,7 +26,7 @@ sub render_body {
         $month = $time[4]+1;
     }
 
-    $ret .= "<?p (<a href='$LJ::SITEROOT/admin/qotd/add.bml'>Add a question</a>) p?>";
+    $ret .= "<?p (<a href='$LJ::SITEROOT/admin/qotd/add'>Add a question</a>) p?>";
     $ret .= "<?p Select a month to view all questions that are starting and running during that month. p?>";
 
     # TODO: supported way for widgets to do GET forms?
@@ -122,7 +122,7 @@ sub table_display {
         $ret .= "<td>" . $start_date->strftime("%F %r %Z")  . "</td>";
         $ret .= "<td>" . $end_date->strftime("%F %r %Z")  . "</td>";
         $ret .= $class->get_active_text($row->{qid}, $row->{active});
-        $ret .= "<td>(<a href='$LJ::SITEROOT/admin/qotd/add.bml?qid=$row->{qid}'>edit</a>)</td>";
+        $ret .= "<td>(<a href='$LJ::SITEROOT/admin/qotd/add?qid=$row->{qid}'>edit</a>)</td>";
         $ret .= "</tr>";
     }
     $ret .= "</table>";

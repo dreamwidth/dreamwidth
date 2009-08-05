@@ -41,7 +41,7 @@ sub authurl {
 
 sub as_html {
     my $self = shift;
-    return sprintf("The user %s has <a href=\"$LJ::SITEROOT/community/pending.bml?authas=%s\">requested to join</a> the community %s.",
+    return sprintf("The user %s has <a href=\"$LJ::SITEROOT/community/pending?authas=%s\">requested to join</a> the community %s.",
                    $self->requestor->ljuser_display, $self->comm->user,
                    $self->comm->ljuser_display);
 }
@@ -51,7 +51,7 @@ sub as_html_actions {
 
     my $ret .= "<div class='actions'>";
     $ret .= " <a href='" . $self->requestor->profile_url . "'>View Profile</a>";
-    $ret .= " <a href='$LJ::SITEROOT/community/pending.bml?authas=" . $self->comm->user . "'>Manage Members</a>";
+    $ret .= " <a href='$LJ::SITEROOT/community/pending?authas=" . $self->comm->user . "'>Manage Members</a>";
     $ret .= "</div>";
 
     return $ret;
@@ -117,8 +117,8 @@ sub _as_email {
         {
             'esn.manage_request_approve'  => [ 1, $auth_url ],
             'esn.manage_request_reject'   => [ 2, $rej_url ],
-            'esn.manage_membership_reqs'  => [ 3, "$LJ::SITEROOT/community/pending.bml?authas=$communityname&jumpto=$user" ],
-            'esn.manage_community'        => [ 4, "$LJ::SITEROOT/community/manage.bml" ],
+            'esn.manage_membership_reqs'  => [ 3, "$LJ::SITEROOT/community/pending?authas=$communityname&jumpto=$user" ],
+            'esn.manage_community'        => [ 4, "$LJ::SITEROOT/community/manage" ],
         }
     );
 }

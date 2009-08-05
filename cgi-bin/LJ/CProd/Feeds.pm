@@ -32,7 +32,7 @@ sub render {
 }
 
 sub ml { "cprod.feeds.text" }
-sub link { "$LJ::SITEROOT/syn/list.bml" }
+sub link { "$LJ::SITEROOT/syn/list" }
 sub button_text { "View feeds" }
 
 1;

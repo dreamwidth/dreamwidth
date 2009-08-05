@@ -128,7 +128,7 @@ sub handle {
               "been changed to be " . $privacy{$opts->{e_security}} . ".\n\n" .
               "If you made this change by mistake, or if you want to change " .
               "the security on more of your entries, you can do so at " .
-              "$LJ::SITEROOT/editprivacy.bml\n\n" .
+              "$LJ::SITEROOT/editprivacy\n\n" .
               "Thanks!\n\n" .
               "$LJ::SITENAME Team\n" .
               "$LJ::SITEROOT";

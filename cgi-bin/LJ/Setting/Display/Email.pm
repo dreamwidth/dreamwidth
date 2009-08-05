@@ -19,7 +19,7 @@ sub actionlink {
     my ($class, $u) = @_;
 
     my $text = $u->is_identity && !$u->email_raw ? $class->ml('setting.display.email.actionlink.set') : $class->ml('setting.display.email.actionlink.change');
-    return "<a href='$LJ::SITEROOT/changeemail.bml?authas=" . $u->user . "'>$text</a>";
+    return "<a href='$LJ::SITEROOT/changeemail?authas=" . $u->user . "'>$text</a>";
 }
 
 sub label {
@@ -38,7 +38,7 @@ sub option {
     } elsif ($u->email_status eq "A") {
         return "$email " . $class->ml('setting.display.email.option.validated');
     } else {
-        return "$email " . $class->ml('setting.display.email.option.notvalidated', { aopts => "href='$LJ::SITEROOT/register.bml?authas=" . $u->user . "'" });
+        return "$email " . $class->ml('setting.display.email.option.notvalidated', { aopts => "href='$LJ::SITEROOT/register?authas=" . $u->user . "'" });
     }
 }
 

@@ -29,14 +29,14 @@ sub render_body {
         $interests{$int} = {
                             int   => $int,
                             eint  => LJ::ehtml($int),
-                            url   => "/interests.bml?int=" . LJ::eurl($int),
+                            url   => "/interests?int=" . LJ::eurl($int),
                             value => $count,
                             };
     }
 
     $body .= "<p>" . LJ::tag_cloud(\%interests, {'font_size_range' => 16}) . "</p>";
 
-    $body .= "<p class='viewall'>&raquo; <a href='$LJ::SITEROOT/interests.bml?view=popular'>" .
+    $body .= "<p class='viewall'>&raquo; <a href='$LJ::SITEROOT/interests?view=popular'>" .
              $class->ml('widget.popularinterests.viewall') . "</a></p>";
 
     return $body;

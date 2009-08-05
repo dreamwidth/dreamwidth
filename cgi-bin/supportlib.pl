@@ -601,7 +601,7 @@ sub file_request
 
     my $body;
     my $miniauth = mini_auth({ 'authcode' => $authcode });
-    $url = "$LJ::SITEROOT/support/see_request.bml?id=$spid";
+    $url = "$LJ::SITEROOT/support/see_request?id=$spid";
     $urlauth = "$url&auth=$miniauth";
 
     $body = "Your $LJ::SITENAME support request regarding \"$o->{'subject'}\" has been filed and will be answered as soon as possible.  Your request tracking number is $spid.\n\n";
@@ -610,7 +610,7 @@ sub file_request
 
     if ($scat->{user_closeable}) {
         $body .= "If you figure out the problem before somebody gets back to you, please cancel your request by clicking this:\n\n  ";
-        $body .= "$LJ::SITEROOT/support/act.bml?close;$spid;$authcode";
+        $body .= "$LJ::SITEROOT/support/act?close;$spid;$authcode";
     }
 
     # disable auto-replies for the entire category, or per request
@@ -811,7 +811,7 @@ sub mail_response_to_user
     $body .= "Below is $what your support question regarding \"$sp->{'subject'}\"\n";
 
     my $miniauth = mini_auth($sp);
-    $body .= "($LJ::SITEROOT/support/see_request.bml?id=$spid&auth=$miniauth).\n\n";
+    $body .= "($LJ::SITEROOT/support/see_request?id=$spid&auth=$miniauth).\n\n";
 
     $body .= "="x70 . "\n\n";
     if ($faqid) {
@@ -826,7 +826,7 @@ sub mail_response_to_user
         if ( $faq ) {
             $faq->render_in_place;
             $body .= "FAQ REFERENCE: " . $faq->question_raw . "\n";
-            $body .= "$LJ::SITEROOT/support/faqbrowse.bml?faqid=$faqid&view=full";
+            $body .= "$LJ::SITEROOT/support/faqbrowse?faqid=$faqid&view=full";
             $body .= "\n\n";
         }
     }
@@ -835,9 +835,9 @@ sub mail_response_to_user
 
     if ($sp->{_cat}->{user_closeable}) {
         $body .= "Did this answer your question?\nYES:\n";
-        $body .= "$LJ::SITEROOT/support/act.bml?close;$spid;$sp->{'authcode'}";
+        $body .= "$LJ::SITEROOT/support/act?close;$spid;$sp->{'authcode'}";
         $body .= ";$splid" if $type eq "answer";
-        $body .= "\nNO:\n$LJ::SITEROOT/support/see_request.bml?id=$spid&auth=$miniauth\n\n";
+        $body .= "\nNO:\n$LJ::SITEROOT/support/see_request?id=$spid&auth=$miniauth\n\n";
     }
 
     $body .= "If you are having problems using any of the links in this email, please try copying and pasting the *entire* link into your browser's address bar rather than clicking on it.";
@@ -1088,13 +1088,13 @@ sub work {
         $body = "A $LJ::SITENAME support request has been submitted regarding the following:\n\n";
         $body .= "Category: $sp->{_cat}{catname}\n";
         $body .= "Subject:  $sp->{subject}\n";
-        $body .= "URL: $LJ::SITEROOT/support/see_request.bml?id=$spid\n";
+        $body .= "URL: $LJ::SITEROOT/support/see_request?id=$spid\n";
         $body .= "Text:\n\n  $sp->{body}";
         $body .= "\n\n" . "="x4 . "\n\n";
         $body .= "You can view this request here:\n\n";
-        $body .= "$LJ::SITEROOT/support/see_request.bml?id=$spid";
+        $body .= "$LJ::SITEROOT/support/see_request?id=$spid";
         $body .= "\n\nYou are receiving this email because you've requested notifications of new support requests. You may change this notification setting here:\n\n";
-        $body .= "$LJ::SITEROOT/support/changenotify.bml";
+        $body .= "$LJ::SITEROOT/support/changenotify";
 
 
         foreach my $u (values %$userids) {
@@ -1114,13 +1114,13 @@ sub work {
         $body = "A follow-up to the following $LJ::SITENAME support request has been submitted:\n\n";
         $body .= "Category: $sp->{_cat}{catname}\n";
         $body .= "Subject:  $sp->{subject}\n";
-        $body .= "URL: $LJ::SITEROOT/support/see_request.bml?id=$spid\n";
+        $body .= "URL: $LJ::SITEROOT/support/see_request?id=$spid\n";
         $body .= "Text:\n\n  $resp";
         $body .= "\n\n" . "="x4 . "\n\n";
         $body .= "You can view this request here:\n\n";
-        $body .= "$LJ::SITEROOT/support/see_request.bml?id=$spid";
+        $body .= "$LJ::SITEROOT/support/see_request?id=$spid";
         $body .= "\n\nYou are receiving this email because you've requested notifications of changes to support requests. You may change this notification setting here:\n\n";
-        $body .= "$LJ::SITEROOT/support/changenotify.bml";
+        $body .= "$LJ::SITEROOT/support/changenotify";
 
 
         # now see who this should be sent to

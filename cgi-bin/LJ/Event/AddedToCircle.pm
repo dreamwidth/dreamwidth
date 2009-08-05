@@ -87,22 +87,22 @@ sub _as_email {
         return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.email_text', undef, $vars ) .
             $self->format_options( $is_html, $lang, $vars,
             {
-                'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add.bml?user=$postername&action=access" ],
+                'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
                 'esn.read_journal'    => [ 2, $journal_url ],
                 'esn.view_profile'    => [ 3, $journal_profile ],
-                'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit.bml" ],
-                'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters.bml" ],
+                'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
+                'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
             }
         );
     } else { # watched
         return LJ::Lang::get_text( $lang, 'esn.addedtocircle.watched.email_text', undef, $vars ) .
             $self->format_options( $is_html, $lang, $vars,
             {
-                'esn.add_watch'       => [ $u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add.bml?user=$postername&action=subscribe" ],
+                'esn.add_watch'       => [ $u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe" ],
                 'esn.read_journal'    => [ 2, $journal_url ],
                 'esn.view_profile'    => [ 3, $journal_profile ],
-                'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit.bml" ],
-                'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters.bml" ],
+                'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
+                'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
             }
         );
     }
@@ -158,11 +158,11 @@ sub as_html_actions {
     if ( $self->trusted ) {
         $ret .= $u->trusts( $fromuser ) ?
             " <a href='" . $fromuser->profile_url . "'>View Profile</a>" :
-            " <a href='$LJ::SITEROOT/manage/circle/add.bml?user=" . $fromuser->user . "&action=access'>Grant Access</a>";
+            " <a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "&action=access'>Grant Access</a>";
     } else { # watched
         $ret .= $u->watches( $fromuser ) ?
             " <a href='" . $fromuser->profile_url . "'>View Profile</a>" :
-            " <a href='$LJ::SITEROOT/manage/circle/add.bml?user=" . $fromuser->user . "&action=subscribe'>Subscribe</a>";
+            " <a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "&action=subscribe'>Subscribe</a>";
     }
     $ret .= "</div>";
 

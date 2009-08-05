@@ -33,7 +33,7 @@ sub render_body {
     my $root = $LJ::IS_SSL ? $LJ::SSLROOT : $LJ::SITEROOT;
     my $form_class = LJ::run_hook("login_form_class_name_$opts{mode}");
     $form_class = "lj_login_form pkg" unless $form_class;
-    $ret .= "<form action='$root/login.bml$getextra' method='post' class='$form_class'>\n";
+    $ret .= "<form action='$root/login$getextra' method='post' class='$form_class'>\n";
     $ret .= LJ::form_auth();
 
     my $chal = LJ::challenge_generate(300); # 5 minute auth token
@@ -66,14 +66,14 @@ sub render_body {
         $ret .= "</fieldset>\n";
         $ret .= "<fieldset class='pkg nostyle'>\n";
         $ret .= "<label for='lj_loginwidget_password' class='left'>" . LJ::Lang::ml('/login.bml.login.password') . "</label>\n";
-        $ret .= "<input type='password' id='lj_loginwidget_password' name='password' class='lj_login_password text' size='20' maxlength='30' /><a href='$LJ::SITEROOT/lostinfo.bml' class='small-link'>" . LJ::Lang::ml('/login.bml.login.forget2') . "</a>\n";
+        $ret .= "<input type='password' id='lj_loginwidget_password' name='password' class='lj_login_password text' size='20' maxlength='30' /><a href='$LJ::SITEROOT/lostinfo' class='small-link'>" . LJ::Lang::ml('/login.bml.login.forget2') . "</a>\n";
         $ret .= "</fieldset>\n";
         $ret .= "<p><input type='checkbox' name='remember_me' id='remember_me' value='1' tabindex='4' /> <label for='remember_me'>Remember me</label></p>";
 
         # standard/secure links removed for now
         my $secure = "<p>";
         $secure .= "<img src='$LJ::IMGPREFIX/padlocked.gif' class='secure-image' width='20' height='16' alt='secure login' />";
-        $secure .= LJ::Lang::ml('/login.bml.login.secure') . " | <a href='$LJ::SITEROOT/login.bml?nojs=1'>" . LJ::Lang::ml('/login.bml.login.standard') . "</a></p>";
+        $secure .= LJ::Lang::ml('/login.bml.login.secure') . " | <a href='$LJ::SITEROOT/login?nojs=1'>" . LJ::Lang::ml('/login.bml.login.standard') . "</a></p>";
 
         $ret .= "<p><input name='action:login' type='submit' value='" . LJ::Lang::ml('/login.bml.login.btn.login') . "' /> <a href='$LJ::SITEROOT/openid/' class='small-link'>" . LJ::Lang::ml('/login.bml.login.openid') . "</a></p>";
 
@@ -86,18 +86,18 @@ sub render_body {
                 # noscript to SSL
                 $ret .= "<script type='text/javascript' language='Javascript'>\n";
                 $ret .= "<!-- \n document.write(\"<p style='padding-bottom: 5px'><img src='$LJ::IMGPREFIX/unpadlocked.gif' width='20' height='16' alt='secure login' align='middle' />" .
-                    LJ::ejs(" <a href='$LJ::SITEROOT/login.bml'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>") .
+                    LJ::ejs(" <a href='$LJ::SITEROOT/login'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>") .
                     "\"); \n // -->\n </script>\n";
                 if ($LJ::USE_SSL) {
                     $ret .= "<noscript>";
-                    $ret .= "<p style='padding-bottom: 5px'><img src='$LJ::IMGPREFIX/unpadlocked.gif' width='20' height='16' alt='secure login' align='middle' /> <a href='$LJ::SSLROOT/login.bml'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>";
+                    $ret .= "<p style='padding-bottom: 5px'><img src='$LJ::IMGPREFIX/unpadlocked.gif' width='20' height='16' alt='secure login' align='middle' /> <a href='$LJ::SSLROOT/login'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>";
                     $ret .= "</noscript>";
                 }
             } else {
                 # insecure now, and not because it was forced, so javascript doesn't work.
                 # only way to get to secure now is via SSL, so link there
                 $ret .= "<p><img src='$LJ::IMGPREFIX/unpadlocked.gif' width='20' height='16' class='secure-image' alt='secure login' />";
-                $ret .= " <a href='$LJ::SSLROOT/login.bml'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>\n"
+                $ret .= " <a href='$LJ::SSLROOT/login'>" . LJ::Lang::ml('/login.bml.login.secure') . "</a> | " . LJ::Lang::ml('/login.bml.login.standard') . "</p>\n"
                     if $LJ::USE_SSL;
 
             }

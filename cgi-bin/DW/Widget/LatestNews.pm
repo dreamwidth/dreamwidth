@@ -51,7 +51,7 @@ sub render_body {
     $ret .= "<div class='sidebar'>";
     $ret .= "<p><a href='" . $entry->url . "#comments'>" . $class->ml( 'widget.latestnews.comments', { num_comments => $entry->reply_count } ) . "</a></p>";
     $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe', { 
-        aopts => "href='$LJ::SITEROOT/manage/circle/add.bml?user=" . $news_journal->user. "&action=subscribe'",
+        aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user. "&action=subscribe'",
         news => LJ::ljuser( $news_journal ) } ) . "</p>";
     $ret .= "</div>";
 

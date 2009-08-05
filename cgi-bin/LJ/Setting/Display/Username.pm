@@ -33,7 +33,7 @@ sub option {
     if ($u->is_identity) {
         return $u->display_username . " " . $class->ml('setting.display.username.option.openidusername', { user => $u->user });
     } else {
-        return $u->user . " <a href='$LJ::SITEROOT/misc/expunged_list.bml' class='smaller'>" . $class->ml('setting.display.username.option.list') . "</a>";
+        return $u->user . " <a href='$LJ::SITEROOT/misc/expunged_list' class='smaller'>" . $class->ml('setting.display.username.option.list') . "</a>";
     }
 }
 

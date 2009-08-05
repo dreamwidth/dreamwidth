@@ -26,7 +26,7 @@ sub render_body {
         $month = $time[4]+1;
     }
 
-    $ret .= "<?p (<a href='$LJ::SITEROOT/admin/sitemessages/add.bml'>Add a site message</a>) p?>";
+    $ret .= "<?p (<a href='$LJ::SITEROOT/admin/sitemessages/add'>Add a site message</a>) p?>";
     $ret .= "<?p Select a month to view all messages that started during that month. p?>";
 
     # TODO: supported way for widgets to do GET forms?
@@ -55,7 +55,7 @@ sub render_body {
         $ret .= "<td>" . $start_date->strftime("%F %r %Z")  . "</td>";
         $ret .= "<td>" . $end_date->strftime("%F %r %Z")  . "</td>";
         $ret .= $class->get_active_text($row->{mid}, $row->{active});
-        $ret .= "<td>(<a href='$LJ::SITEROOT/admin/sitemessages/add.bml?mid=$row->{mid}'>edit</a>)</td>";
+        $ret .= "<td>(<a href='$LJ::SITEROOT/admin/sitemessages/add?mid=$row->{mid}'>edit</a>)</td>";
         $ret .= "</tr>";
     }
     $ret .= "</table>";

@@ -112,7 +112,7 @@ sub qotd_display_embed {
             my $between_text = $from_text && $extra_text ? "<br />" : "";
 
             my $qid = $q->{qid};
-            my $answers_link = "<a href=\"$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid\">" . $class->ml('widget.qotd.view.other.answers') . "</a>";
+            my $answers_link = "<a href=\"$LJ::SITEROOT/misc/latestqotd?qid=$qid\">" . $class->ml('widget.qotd.view.other.answers') . "</a>";
 
             my $answer_link = "";
             unless ($opts{no_answer_link}) {
@@ -144,7 +144,7 @@ sub qotd_display_archive {
         LJ::CleanHTML::clean_event(\$text);
 
         my $qid = $q->{qid};
-        my $answers_link = "<a href='$LJ::SITEROOT/misc/latestqotd.bml?qid=$qid'>" . $class->ml('widget.qotd.viewanswers') . "</a>";
+        my $answers_link = "<a href='$LJ::SITEROOT/misc/latestqotd?qid=$qid'>" . $class->ml('widget.qotd.viewanswers') . "</a>";
 
         my $answer_link = "";
         unless ($opts{no_answer_link}) {
@@ -193,9 +193,9 @@ sub qotd_display {
             $ret .= "<table><tr><td>";
             my $viewanswers;
             if ($opts{small_view_link}) {
-                $viewanswers .= " <a class='small-view-link' href=\"$LJ::SITEROOT/misc/latestqotd.bml?qid=$q->{qid}\">" . $class->ml('widget.qotd.view.more') . "</a>";
+                $viewanswers .= " <a class='small-view-link' href=\"$LJ::SITEROOT/misc/latestqotd?qid=$q->{qid}\">" . $class->ml('widget.qotd.view.more') . "</a>";
             } else {
-                $viewanswers .= " <br /><a href=\"$LJ::SITEROOT/misc/latestqotd.bml?qid=$q->{qid}\">" . $class->ml('widget.qotd.viewanswers') . "</a>";
+                $viewanswers .= " <br /><a href=\"$LJ::SITEROOT/misc/latestqotd?qid=$q->{qid}\">" . $class->ml('widget.qotd.viewanswers') . "</a>";
             }
 
             $ret .= $text;
@@ -212,8 +212,8 @@ sub qotd_display {
             }
             $ret .= "</td></tr></table>";
 
-            my $archive = "<a href='$LJ::SITEROOT/misc/qotdarchive.bml'>" . $class->ml('widget.qotd.archivelink') . "</a>";
-            my $suggest = "<a href='$LJ::SITEROOT/misc/suggest_qotd.bml'>" . $class->ml('widget.qotd.suggestions') . "</a>";
+            my $archive = "<a href='$LJ::SITEROOT/misc/qotdarchive'>" . $class->ml('widget.qotd.archivelink') . "</a>";
+            my $suggest = "<a href='$LJ::SITEROOT/misc/suggest_qotd'>" . $class->ml('widget.qotd.suggestions') . "</a>";
             $ret .= "<p class='detail'><span class='suggestions'>$archive | $suggest</span>$from_text<br />" . $class->impression_img($q) . "</p>";
         }
 
@@ -246,7 +246,7 @@ sub answer_url {
     my $question = shift;
     my %opts = @_;
 
-    return "$LJ::SITEROOT/update.bml?qotd=$question->{qid}";
+    return "$LJ::SITEROOT/update?qotd=$question->{qid}";
 }
 
 sub subject_text {

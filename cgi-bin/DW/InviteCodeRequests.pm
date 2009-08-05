@@ -230,7 +230,7 @@ sub accept {
         fromname => $LJ::SITENAME,
         charset => $u->mailencoding,
         subject => LJ::Lang::ml( 'email.invitecoderequest.accept.subject' ),
-        body => LJ::Lang::ml( 'email.invitecoderequest.accept.body', { invitesurl => "$LJ::SITEROOT/manage/invitecodes.bml"} ),
+        body => LJ::Lang::ml( 'email.invitecoderequest.accept.body', { invitesurl => "$LJ::SITEROOT/manage/invitecodes"} ),
     });
 }
 

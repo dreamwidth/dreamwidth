@@ -18,7 +18,7 @@ sub label {
 sub option {
     my ($class, $u, $errs, $args) = @_;
 
-    return "<a href='$LJ::SITEROOT/manage/logins.bml'>" . $class->ml('setting.display.logins.option') . "</a>";
+    return "<a href='$LJ::SITEROOT/manage/logins'>" . $class->ml('setting.display.logins.option') . "</a>";
 }
 
 1;

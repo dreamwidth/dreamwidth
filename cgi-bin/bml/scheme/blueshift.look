@@ -74,7 +74,7 @@ accountlinks<=
             }
         }
 
-        $ret .= "<div id='account-links-userpic'><a href='$LJ::SITEROOT/editpics.bml'>";
+        $ret .= "<div id='account-links-userpic'><a href='$LJ::SITEROOT/editpics'>";
         if ( $userpic ) {
             $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         } else {
@@ -82,27 +82,27 @@ accountlinks<=
         }
         $ret .= "</a></div>";
         $ret .= "<div id='account-links-text'>";
-        $ret .= "<form action='$LJ::SITEROOT/logout.bml?ret=1' method='post'>";
+        $ret .= "<form action='$LJ::SITEROOT/logout?ret=1' method='post'>";
         $ret .= $remote->ljuser_display;
         $ret .= "<input type='hidden' name='user' value='" . $remote->user . "' />";
         $ret .= "<input type='hidden' name='sessid' value='$remote->{_session}->{sessid}' />";
         $ret .= " <input type='submit' value=\"$ML{'sitescheme.accountlinks.btn.logout'}\" />";
         $ret .= "</form>";
         $ret .= "<ul>";
-        $ret .= "<li><a href='$LJ::SITEROOT/update.bml'>$ML{'sitescheme.accountlinks.post'}</a>  &bull; </li>" unless $identity;
+        $ret .= "<li><a href='$LJ::SITEROOT/update'>$ML{'sitescheme.accountlinks.post'}</a>  &bull; </li>" unless $identity;
         $ret .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'sitescheme.accountlinks.readinglist'}</a> &bull; </li>";
         $ret .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'sitescheme.accountlinks.inbox'}";
         $ret .= " ($unread)" if $unread;
         $ret .= "</a> &bull; </li>";
         $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/'>$ML{'sitescheme.accountlinks.account'}</a></li> <br />";
-        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/invite.bml'>$ML{'sitescheme.accountlinks.invitefriend'}</a> &bull; </li>" unless $identity;
+        $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/invite'>$ML{'sitescheme.accountlinks.invitefriend'}</a> &bull; </li>" unless $identity;
         $ret .= "<li><a href='$LJ::SITEROOT/support/'>$ML{'sitescheme.accountlinks.help'}</a></li>";
         $ret .= "</ul>";
         $ret .= "</div>";
     } else {
         my $chal = LJ::challenge_generate(300);
 
-        $ret .= "<form action='$LJ::SITEROOT/login.bml?ret=1' method='post'>";
+        $ret .= "<form action='$LJ::SITEROOT/login?ret=1' method='post'>";
         $ret .= LJ::html_hidden( returnto => $GET{returnto} );
         $ret .= "<input type='hidden' name='chal' class='lj_login_chal' value='$chal' />\n";
         $ret .= "<input type='hidden' name='response' class='lj_login_response' value='' />\n";
@@ -122,7 +122,7 @@ accountlinks<=
             id => "login_password",
             size => 20,
             tabindex => 2,
-        }) . " <a href='$LJ::SITEROOT/lostinfo.bml'>$ML{'sitescheme.accountlinks.login.forgotpassword'}</a></td></tr>";
+        }) . " <a href='$LJ::SITEROOT/lostinfo'>$ML{'sitescheme.accountlinks.login.forgotpassword'}</a></td></tr>";
         $ret .= "<tr><td>&nbsp;</td>";
         $ret .= "<td class='remember-me-cell'>";
         $ret .= LJ::html_check({
@@ -145,10 +145,10 @@ _code?>
 
 footer<=
 <ul>
-    <li><a href="<?siteroot?>/legal/privacy.bml"><?_ml sitescheme.footer.legal.privacypolicy _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/legal/tos.bml"><?_ml sitescheme.footer.legal.tos _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/legal/diversity.bml"><?_ml sitescheme.footer.legal.diversitystatement _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/legal/principles.bml"><?_ml sitescheme.footer.legal.guidingprinciples _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/privacy"><?_ml sitescheme.footer.legal.privacypolicy _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/tos"><?_ml sitescheme.footer.legal.tos _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/diversity"><?_ml sitescheme.footer.legal.diversitystatement _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/legal/principles"><?_ml sitescheme.footer.legal.guidingprinciples _ml?></a> &bull; </li>
     <li><a href="<?siteroot?>/site/"><?_ml sitescheme.footer.sitemap _ml?></a></li>
 </ul>
 <p><?_ml sitescheme.footer.info _ml?></p>

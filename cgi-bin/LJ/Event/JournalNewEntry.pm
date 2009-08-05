@@ -231,11 +231,11 @@ sub _as_email {
                 'esn.read_recent_entries'   => [ $self->entry->journal->is_comm ? 2 : 0,
                                                     $journal_url ],
                 'esn.join_community'        => [ ($self->entry->journal->is_comm && !$u->member_of( $self->entry->journal )) ? 3 : 0,
-                                                    "$LJ::SITEROOT/community/join.bml?comm=$journal_user" ],
+                                                    "$LJ::SITEROOT/community/join?comm=$journal_user" ],
                 'esn.read_user_entries'     => [ ($self->entry->journal->is_comm) ? 0 : 4,
                                                     $journal_url ],
                 'esn.add_watch'             => [ $u->watches( $self->entry->journal ) ? 0 : 5,
-                                                    "$LJ::SITEROOT/manage/circle/add.bml?user=$journal_user&action=subscribe" ],
+                                                    "$LJ::SITEROOT/manage/circle/add?user=$journal_user&action=subscribe" ],
             });
 
     return $email;

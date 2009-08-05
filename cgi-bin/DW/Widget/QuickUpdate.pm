@@ -32,7 +32,7 @@ sub render_body {
     $ret .= "<div class='contents'>";
 
     # not using the LJ::Widget form of the HTML methods, because we're directing this to update.bml
-    $ret .= $class->start_form( action => "/update.bml" );
+    $ret .= $class->start_form( action => "/update" );
     $ret .= LJ::entry_form_date_widget();
     $ret .= LJ::entry_form_xpost_widget( $remote );
 

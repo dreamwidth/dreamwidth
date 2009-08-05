@@ -25,11 +25,11 @@ sub actionlink {
     my ($class, $u) = @_;
 
     if ($u->is_deleted) {
-        return "<a href='$LJ::SITEROOT/accountstatus.bml?authas=" . $u->user . "'>" . $class->ml('setting.display.accountstatus.actionlink.undelete') . "</a>";
+        return "<a href='$LJ::SITEROOT/accountstatus?authas=" . $u->user . "'>" . $class->ml('setting.display.accountstatus.actionlink.undelete') . "</a>";
     } elsif ($u->is_suspended || $u->is_readonly) {
-        return $class->ml('setting.display.accountstatus.actionlink.contactabuse', { aopts => "href='$LJ::SITEROOT/abuse/report.bml'" });
+        return $class->ml('setting.display.accountstatus.actionlink.contactabuse', { aopts => "href='$LJ::SITEROOT/abuse/report'" });
     } elsif ($u->is_visible) {
-        return "<a href='$LJ::SITEROOT/accountstatus.bml?authas=" . $u->user . "'>" . $class->ml('setting.display.accountstatus.actionlink.delete') . "</a>";
+        return "<a href='$LJ::SITEROOT/accountstatus?authas=" . $u->user . "'>" . $class->ml('setting.display.accountstatus.actionlink.delete') . "</a>";
     }
 
     return "";

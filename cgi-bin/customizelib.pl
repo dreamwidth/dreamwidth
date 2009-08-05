@@ -205,10 +205,10 @@ sub js_redirect
     my %opts = @_;
 
     my %redirect = (
-                    "display_index" => "index.bml",
-                    "display_style" => "style.bml",
-                    "display_options" => "options.bml",
-                    "display_advanced" => "advanced.bml",
+                    "display_index" => "index",
+                    "display_style" => "style",
+                    "display_options" => "options",
+                    "display_advanced" => "advanced",
                     );
 
     if ($POST->{"action:redir"} ne "" && $redirect{$POST->{"action:redir"}}) {
@@ -310,7 +310,7 @@ sub html_tablinks
         if ($page eq $tab) {
             $ret .= "<li class='SelectedTab'>$strings{$tab}</li>";
         } else {
-            $ret .= "<li><a id='display_$tab' href='$tab.bml$getextra'>$strings{$tab}</a></li>";
+            $ret .= "<li><a id='display_$tab' href='$tab$getextra'>$strings{$tab}</a></li>";
         }
     }
     $ret .= "</ul>";

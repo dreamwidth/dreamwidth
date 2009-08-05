@@ -27,7 +27,7 @@ sub option {
     my $remote = LJ::get_remote();
     my $getextra = $remote && $remote->user ne $u->user ? "?authas=" . $u->user : "";
 
-    my $ret = "<a href='$LJ::SITEROOT/manage/banusers.bml$getextra'>";
+    my $ret = "<a href='$LJ::SITEROOT/manage/banusers$getextra'>";
     $ret .= $u->is_community ? $class->ml('setting.display.banusers.option.comm') : $class->ml('setting.display.banusers.option.self');
     $ret .= "</a>";
 

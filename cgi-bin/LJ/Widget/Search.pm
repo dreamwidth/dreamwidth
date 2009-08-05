@@ -32,7 +32,7 @@ sub render_body {
         $search_btn = LJ::html_submit( $class->ml( 'widget.search.btn.go' ) );
     }
 
-    $ret .= "<form action='$LJ::SITEROOT/multisearch.bml' method='post'>\n";
+    $ret .= "<form action='$LJ::SITEROOT/multisearch' method='post'>\n";
     $ret .= LJ::html_text( { name => 'q', id => 'search', class => 'text', title => $class->ml( 'widget.search.title' ), size => 20 } ) . " ";
     $ret .= $select_box;
     $ret .= $search_btn;

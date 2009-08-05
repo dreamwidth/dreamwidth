@@ -45,7 +45,7 @@ sub render_body {
     my $unread_usermsg_sent = $unread_html->($inbox->usermsg_sent_event_count);
     my $message_button = "";
     $message_button = qq{
-        <form action="./compose.bml" method="GET">
+        <form action="./compose" method="GET">
         <input type="submit" value="<?_ml inbox.menu.new_message.btn _ml?>" style="width: 100%">
         </form>} if LJ::is_enabled('user_messaging');
 

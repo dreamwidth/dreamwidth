@@ -44,7 +44,7 @@ sub execute {
     my $body = "The password for your $LJ::SITENAME account '$username' has been reset to:\n\n";
     $body .= "     $newpass\n\n";
     $body .= "Please change it immediately by going to:\n\n";
-    $body .= "     $LJ::SITEROOT/changepassword.bml\n\n";
+    $body .= "     $LJ::SITEROOT/changepassword\n\n";
     $body .= "Regards,\n$LJ::SITENAME Team\n\n$LJ::SITEROOT/\n";
 
     LJ::send_mail({

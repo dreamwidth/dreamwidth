@@ -47,7 +47,7 @@ sub render_body {
 
     # form entry
     my $ret =
-        "<?p (<a href='$LJ::SITEROOT/admin/sitemessages/manage.bml'>" . 
+        "<?p (<a href='$LJ::SITEROOT/admin/sitemessages/manage'>" . 
         "Manage site messages</a>) p?>" . 
         "<?p Enter a new site message. p?>";
 

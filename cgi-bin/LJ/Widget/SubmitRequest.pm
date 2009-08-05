@@ -29,7 +29,7 @@ sub render_body {
 
     unless ($remote && $remote->email_raw) {
         unless ($remote) {
-            $ret .= "<?p <em>" . $class->ml('widget.support.submit.login.note', {sitename=>$LJ::SITENAMESHORT, loginlink=>"href='$LJ::SITEROOT/login.bml?ret=1'"}) . "</em> p?>";
+            $ret .= "<?p <em>" . $class->ml('widget.support.submit.login.note', {sitename=>$LJ::SITENAMESHORT, loginlink=>"href='$LJ::SITEROOT/login?ret=1'"}) . "</em> p?>";
 
             $ret .= "<p><b>" . $class->ml('widget.support.submit.yourname') . "</b><br />";
             $ret .= "<div style='margin-left: 30px'>";
@@ -134,7 +134,7 @@ sub text_done {
 
     my $spid = $opts{spid};
     my $auth = LJ::Support::mini_auth(LJ::Support::load_request($spid, undef, {'db_force' => 1}));
-    my $url = "$LJ::SITEROOT/support/see_request.bml?id=$spid&amp;auth=$auth";
+    my $url = "$LJ::SITEROOT/support/see_request?id=$spid&amp;auth=$auth";
 
     return $class->ml('widget.support.submit.complete.text', {'url'=>$url});
 }

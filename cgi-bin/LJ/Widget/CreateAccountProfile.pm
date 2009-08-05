@@ -39,7 +39,7 @@ sub render_body {
         );
     } else {
         $ret .= $class->html_hidden( name_absent => "yes" );
-        $ret .= "<?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidname2', { aopts => "href='$LJ::SITEROOT/utf8convert.bml'" }) . " inerr?>";
+        $ret .= "<?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidname2', { aopts => "href='$LJ::SITEROOT/utf8convert'" }) . " inerr?>";
     }
     $ret .= $error_msg->('name', '<br /><span class="formitemFlag">', '</span>');
     $ret .= "</td></tr>\n";
@@ -151,7 +151,7 @@ sub render_body {
         );
     } else {
         $ret .= $class->html_hidden( bio_absent => "yes" );
-        $ret .= "<?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidbio', { aopts => "href='$LJ::SITEROOT/utf8convert.bml'" }) . " inerr?>";
+        $ret .= "<?inerr " . LJ::Lang::ml('/manage/profile/index.bml.error.invalidbio', { aopts => "href='$LJ::SITEROOT/utf8convert'" }) . " inerr?>";
     }
     $ret .= $error_msg->('bio', '<br /><span class="formitemFlag">', '</span>');
 

@@ -23,9 +23,9 @@ sub actionlink {
     my $upgrade_link = LJ::run_hook("upgrade_link", $u, "plus") || "";
 
     if ($u->get_cap('domainmap')) {
-        return "<a href='$LJ::SITEROOT/manage/domain.bml?authas=" . $u->user . "'>" . $class->ml('setting.display.domainmapping.actionlink') . "</a>";
+        return "<a href='$LJ::SITEROOT/manage/domain?authas=" . $u->user . "'>" . $class->ml('setting.display.domainmapping.actionlink') . "</a>";
     } elsif ($has_domain) {
-        return "<a href='$LJ::SITEROOT/manage/domain.bml?authas=" . $u->user . "'>" . $class->ml('setting.display.domainmapping.actionlink.remove') . "</a> $upgrade_link";
+        return "<a href='$LJ::SITEROOT/manage/domain?authas=" . $u->user . "'>" . $class->ml('setting.display.domainmapping.actionlink.remove') . "</a> $upgrade_link";
     } elsif ($upgrade_url) {
         return "<a href='$upgrade_url'>" . $class->ml('setting.display.domainmapping.actionlink') . "</a> $upgrade_link";
     }

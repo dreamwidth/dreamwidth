@@ -18,7 +18,7 @@ sub render {
 }
 
 sub ml { 'cprod.birthday.text' }
-sub link { "$LJ::SITEROOT/birthdays.bml" }
+sub link { "$LJ::SITEROOT/birthdays" }
 sub button_text { "Birthdays" }
 
 1;

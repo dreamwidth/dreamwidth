@@ -2021,7 +2021,7 @@ sub Page
             archive  => "$base_url/calendar",
             read     => "$base_url/read",
             tags     => "$base_url/tag",
-            memories => "$LJ::SITEROOT/tools/memories.bml?user=$u->{user}",
+            memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
         'linklist' => $linklist,
         'views_order' => [ 'recent', 'archive', 'read', 'tags', 'memories', 'userinfo' ],
@@ -2903,35 +2903,35 @@ sub _Comment__get_link
 
     if ($key eq "delete_comment") {
         return $null_link unless LJ::Talk::can_delete($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/delcomment.bml?journal=$u->{'user'}&amp;id=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/delcomment?journal=$u->{'user'}&amp;id=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_delete"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/comments/delete.png", 16, 16));
     }
     if ($key eq "freeze_thread") {
         return $null_link if $this->{'frozen'};
         return $null_link unless LJ::Talk::can_freeze($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=freeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=freeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_freeze"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/comments/freeze.png", 16, 16));
     }
     if ($key eq "unfreeze_thread") {
         return $null_link unless $this->{'frozen'};
         return $null_link unless LJ::Talk::can_unfreeze($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=unfreeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=unfreeze&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_unfreeze"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/comments/unfreeze.png", 16, 16));
     }
     if ($key eq "screen_comment") {
         return $null_link if $this->{'screened'};
         return $null_link unless LJ::Talk::can_screen($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=screen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=screen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_screen"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/comments/screen.png", 16, 16));
     }
     if ($key eq "unscreen_comment") {
         return $null_link unless $this->{'screened'};
         return $null_link unless LJ::Talk::can_unscreen($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=unscreen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=unscreen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_unscreen"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/comments/unscreen.png", 16, 16));
     }
@@ -2940,7 +2940,7 @@ sub _Comment__get_link
     if ($key eq "unscreen_to_reply") {
         #return $null_link unless $this->{'screened'};
         #return $null_link unless LJ::Talk::can_unscreen($remote, $u, $post_user, $com_user);
-        return LJ::S2::Link("$LJ::SITEROOT/talkscreen.bml?mode=unscreen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/talkscreen?mode=unscreen&amp;journal=$u->{'user'}&amp;talkid=$this->{'talkid'}",
                             $ctx->[S2::PROPS]->{"text_multiform_opt_unscreen_to_reply"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/comments/unscreen.png", 16, 16));
     }
@@ -2965,7 +2965,7 @@ sub _Comment__get_link
 
             my $etypeid = 'LJ::Event::JournalNewComment'->etypeid;
 
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments.bml?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
+            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_untrack"},
                                 LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack this',
                                               'lj_etypeid'    => $etypeid,
@@ -3020,12 +3020,12 @@ sub _Comment__get_link
         $btn_params{'id'}            = "lj_track_btn_" . $dtalkid;
 
         if ($key eq "watch_thread" && !$watching_parent) {
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments.bml?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
                                 LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This', %btn_params));
         }
         if ($key eq "watching_parent" && $watching_parent) {
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments.bml?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
                                 LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack This', %btn_params));
         }
@@ -3511,13 +3511,13 @@ sub _Entry__get_link
         return $null_link unless $remote && ($remote->{'user'} eq $journal ||
                                         $remote->{'user'} eq $poster ||
                                         LJ::can_manage($remote, LJ::load_user($journal)));
-        return LJ::S2::Link("$LJ::SITEROOT/editjournal.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_edit_entry"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/edit.png", 16, 16));
     }
     if ($key eq "edit_tags") {
         return $null_link unless $remote && LJ::Tags::can_add_tags(LJ::load_user($journal), $remote);
-        return LJ::S2::Link("$LJ::SITEROOT/edittags.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/edittags?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_edit_tags"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/tag_edit.png", 16, 16));
     }
@@ -3525,23 +3525,23 @@ sub _Entry__get_link
         return $null_link unless LJ::is_enabled('tellafriend');
         my $entry = LJ::Entry->new($journalu->{'userid'}, ditemid => $this->{'itemid'});
         return $null_link unless $entry->can_tellafriend($remote);
-        return LJ::S2::Link("$LJ::SITEROOT/tools/tellafriend.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/tools/tellafriend?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_tell_friend"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/tellafriend.png", 16, 16));
     }
     if ($key eq "mem_add") {
         return $null_link unless LJ::is_enabled('memories');
-        return LJ::S2::Link("$LJ::SITEROOT/tools/memadd.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/tools/memadd?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_mem_add"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/memories_add.png", 16, 16));
     }
     if ($key eq "nav_prev") {
-        return LJ::S2::Link("$LJ::SITEROOT/go.bml?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=prev",
+        return LJ::S2::Link("$LJ::SITEROOT/go?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=prev",
                             $ctx->[S2::PROPS]->{"text_entry_prev"},
                             LJ::S2::Image("$LJ::IMGPREFIX//silk/entry/previous.png", 16, 16));
     }
     if ($key eq "nav_next") {
-        return LJ::S2::Link("$LJ::SITEROOT/go.bml?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=next",
+        return LJ::S2::Link("$LJ::SITEROOT/go?journal=$journal&amp;itemid=$this->{'itemid'}&amp;dir=next",
                             $ctx->[S2::PROPS]->{"text_entry_next"},
                             LJ::S2::Image("$LJ::IMGPREFIX//silk/entry/next.png", 16, 16));
     }
@@ -3588,7 +3588,7 @@ sub _Entry__get_link
                                                    arg1      => $this->{itemid},
                                                    );
 
-        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_watch_comments"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This',
                                           'lj_journalid'        => $journalu->id,
@@ -3618,7 +3618,7 @@ sub _Entry__get_link
                                                    subid  => $subscr->id,
                                                    action => 'delsub');
 
-        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry.bml?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_unwatch_comments"},
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack this',
                                           'lj_journalid'        => $journalu->id,
@@ -3670,7 +3670,7 @@ sub EntryPage__print_multiform_start
 {
     my ($ctx, $this) = @_;
     return unless $this->{'multiform_on'};
-    $S2::pout->("<form style='display: inline' method='post' action='$LJ::SITEROOT/talkmulti.bml' name='multiform'>\n" .
+    $S2::pout->("<form style='display: inline' method='post' action='$LJ::SITEROOT/talkmulti' name='multiform'>\n" .
                 LJ::html_hidden("ditemid", $this->{'entry'}->{'itemid'},
                                 "journal", $this->{'entry'}->{'journal'}->{'username'}) . "\n");
 }

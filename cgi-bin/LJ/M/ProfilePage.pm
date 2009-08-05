@@ -97,7 +97,7 @@ sub header_bar_links {
     my $label = $pm->{u}->is_community ? $BML::ML{'.monitor.comm2'} : $BML::ML{'.monitor.user'};
 
     my $user = $pm->{u}->user;
-    push @ret, "<a href='$LJ::SITEROOT/manage/circle/add.bml?user=$user'><img src='$LJ::IMGPREFIX/silk/profile/subscription_add.png' width='16' height='16' alt='$label' title='$label' align='middle' border='0' /></a>";
+    push @ret, "<a href='$LJ::SITEROOT/manage/circle/add?user=$user'><img src='$LJ::IMGPREFIX/silk/profile/subscription_add.png' width='16' height='16' alt='$label' title='$label' align='middle' border='0' /></a>";
 
     my $remote = LJ::get_remote();
 
@@ -109,24 +109,24 @@ sub header_bar_links {
         }
 
         $label = LJ::ehtml($label);
-        push @ret, "<a href='$LJ::SITEROOT/update.bml?usejournal=$user'><img src='$LJ::IMGPREFIX/silk/profile/post.png' width='16' height='16' alt='$label' title='$label' align='middle' border='0' /></a>";
+        push @ret, "<a href='$LJ::SITEROOT/update?usejournal=$user'><img src='$LJ::IMGPREFIX/silk/profile/post.png' width='16' height='16' alt='$label' title='$label' align='middle' border='0' /></a>";
     }
 
     unless ($pm->{u}->is_identity || $pm->{u}->is_syndicated) {
         $label = LJ::ehtml($BML::ML{'.label.memories'});
-        push @ret, "<a href='$LJ::SITEROOT/tools/memories.bml?user=$user'><img src='$LJ::IMGPREFIX/silk/profile/memories.png' width='16' height='16' alt='$label' title='$label' align='middle' border='0' /></a>";
+        push @ret, "<a href='$LJ::SITEROOT/tools/memories?user=$user'><img src='$LJ::IMGPREFIX/silk/profile/memories.png' width='16' height='16' alt='$label' title='$label' align='middle' border='0' /></a>";
     }
 
      if ( LJ::is_enabled('tellafriend') && !$pm->{u}->is_identity ) {
-         push @ret, "<a href='$LJ::SITEROOT/tools/tellafriend.bml?user=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/silk/profile/tellafriend.png' width='16' height='16' alt='$BML::ML{'.tellafriend'}' title='$BML::ML{'.tellafriend'}' border='0' /></a>";
+         push @ret, "<a href='$LJ::SITEROOT/tools/tellafriend?user=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/silk/profile/tellafriend.png' width='16' height='16' alt='$BML::ML{'.tellafriend'}' title='$BML::ML{'.tellafriend'}' border='0' /></a>";
      }
 
      if ( LJ::is_enabled('offsite_journal_search') && $pm->has_journal ) {
-         push @ret, "<a href='$LJ::SITEROOT/tools/search.bml?journal=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/btn_search.gif' width='22' height='20' alt='$BML::ML{'.label.searchjournal'}' title='$BML::ML{'.label.searchjournal'}' border='0' /></a>";
+         push @ret, "<a href='$LJ::SITEROOT/tools/search?journal=$user'><img align='middle' hspace='2' vspace='2' src='$LJ::IMGPREFIX/btn_search.gif' width='22' height='20' alt='$BML::ML{'.label.searchjournal'}' title='$BML::ML{'.label.searchjournal'}' border='0' /></a>";
      }
 
      if ($remote && !$pm->{u}->is_syndicated && $remote->can_use_esn) {
-         push @ret, "<a href='$LJ::SITEROOT/manage/subscriptions/user.bml?journal=$user'>" .
+         push @ret, "<a href='$LJ::SITEROOT/manage/subscriptions/user?journal=$user'>" .
              LJ::img("track", "", { 'align' => 'middle' }) . "</a>";
      }
 

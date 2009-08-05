@@ -31,7 +31,7 @@ sub render_body {
     $ret .= $class->start_form;
     $ret .= $class->html_submit( submit => $class->ml( 'widget.createaccountupgrade.btn.purchase' ) );
     $ret .= $class->end_form;
-    $ret .= "<p style='margin-top: 10px;'><a href='$LJ::SITEROOT/create/confirm.bml'>" . $class->ml( 'widget.createaccountupgrade.nextstep' ) . "</a></p>";
+    $ret .= "<p style='margin-top: 10px;'><a href='$LJ::SITEROOT/create/confirm'>" . $class->ml( 'widget.createaccountupgrade.nextstep' ) . "</a></p>";
 
     return $ret;
 }

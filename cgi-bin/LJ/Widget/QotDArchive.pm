@@ -33,11 +33,11 @@ sub render_body {
 
     $ret .= "<p class='skiplinks'>" if $show_page_back || $show_page_forward;
     if ($show_page_back) {
-        $ret .= "<a href='$LJ::SITEROOT/misc/qotdarchive.bml?page=$page_back'>&lt; " . $class->ml('widget.qotdarchive.skip.previous') . "</a>";
+        $ret .= "<a href='$LJ::SITEROOT/misc/qotdarchive?page=$page_back'>&lt; " . $class->ml('widget.qotdarchive.skip.previous') . "</a>";
     }
     $ret .= " | " if $show_page_back && $show_page_forward;
     if ($show_page_forward) {
-        my $url = $page_forward == 1 ? "$LJ::SITEROOT/misc/qotdarchive.bml" : "$LJ::SITEROOT/misc/qotdarchive.bml?page=$page_forward";
+        my $url = $page_forward == 1 ? "$LJ::SITEROOT/misc/qotdarchive" : "$LJ::SITEROOT/misc/qotdarchive?page=$page_forward";
         $ret .= "<a href='$url'>" . $class->ml('widget.qotdarchive.skip.next') . " &gt;</a>";
     }
     $ret .= "</p>" if $show_page_back || $show_page_forward;

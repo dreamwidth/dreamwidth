@@ -1308,8 +1308,8 @@ sub postevent
                             modid       => $modid,
                             siteroot    => $LJ::SITEROOT,
                             sitename    => $LJ::SITENAME,
-                            moderateurl => "$LJ::SITEROOT/community/moderate.bml?authas=$uowner->{'user'}&modid=$modid",
-                            viewurl     => "$LJ::SITEROOT/community/moderate.bml?authas=$uowner->{'user'}",
+                            moderateurl => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}&modid=$modid",
+                            viewurl     => "$LJ::SITEROOT/community/moderate?authas=$uowner->{'user'}",
                         });
 
                     my $subject = LJ::Lang::get_text($to->{'browselang'},'esn.moderated_submission.subject');
@@ -2186,7 +2186,7 @@ sub getevents
                 if ($req->{'selecttype'} eq 'day') {
                     $t->[0] = $t->[1] = $CannotBeShown;
                 } else {
-                    return fail($err,207,"Cannot display/edit a Unicode post with a non-Unicode client. Please see $LJ::SITEROOT/support/encodings.bml for more information.");
+                    return fail($err,207,"Cannot display/edit a Unicode post with a non-Unicode client. Please see $LJ::SITEROOT/support/encodings for more information.");
                 }
             }
         }
@@ -2560,7 +2560,7 @@ sub hash_menus
                   'url' => "$LJ::SITEROOT/users/$user/read", },
                 { 'text' => "-", },
                 { 'text' => "Your Profile",
-                  'url' => "$LJ::SITEROOT/userinfo.bml?user=$user", },
+                  'url' => "$LJ::SITEROOT/userinfo?user=$user", },
                 { 'text' => "-", },
                 { 'text' => "Change Settings",
                   'sub' => [ { 'text' => "Personal Info",

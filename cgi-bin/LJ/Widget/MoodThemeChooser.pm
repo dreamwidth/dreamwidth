@@ -45,8 +45,8 @@ sub render_body {
 
     my $journalarg = $getextra ? "?journal=" . $u->user : "";
     $ret .= "<ul class='moodtheme-links nostyle'>";
-    $ret .= "<li><a href='$LJ::SITEROOT/moodlist.bml$journalarg'>" . $class->ml('widget.moodthemechooser.links.allthemes') . "</a></li>";
-    $ret .= "<li><a href='$LJ::SITEROOT/manage/moodthemes.bml$getextra'>" . $class->ml('widget.moodthemechooser.links.customthemes') . "</a></li>";
+    $ret .= "<li><a href='$LJ::SITEROOT/moodlist$journalarg'>" . $class->ml('widget.moodthemechooser.links.allthemes') . "</a></li>";
+    $ret .= "<li><a href='$LJ::SITEROOT/manage/moodthemes$getextra'>" . $class->ml('widget.moodthemechooser.links.customthemes') . "</a></li>";
     $ret .= "</ul>";
     $ret .= "</div>";
 
@@ -76,7 +76,7 @@ sub render_body {
         } else {
             $ret .= "<td>";
         }
-        $ret .= "<p><a href='$LJ::SITEROOT/moodlist.bml?moodtheme=$preview_moodthemeid'>" . $class->ml('widget.moodthemechooser.viewtheme') . "</a></p>";
+        $ret .= "<p><a href='$LJ::SITEROOT/moodlist?moodtheme=$preview_moodthemeid'>" . $class->ml('widget.moodthemechooser.viewtheme') . "</a></p>";
         $ret .= "</td></tr></table>";
         my $mood_des = LJ::mood_theme_des($preview_moodthemeid);
         LJ::CleanHTML::clean (\$mood_des);

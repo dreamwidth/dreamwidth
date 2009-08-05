@@ -18,7 +18,7 @@ sub label {
 sub option {
     my ($class, $u, $errs, $args) = @_;
 
-    return "<a href='$LJ::SITEROOT/tools/emailmanage.bml'>" . $class->ml('setting.display.emails.option') . "</a>";
+    return "<a href='$LJ::SITEROOT/tools/emailmanage'>" . $class->ml('setting.display.emails.option') . "</a>";
 }
 
 1;

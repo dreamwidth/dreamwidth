@@ -109,11 +109,11 @@ sub userpic {
             if ( LJ::userpic_count( $u ) ) {
                 $ret->{userpic_url} = $u->allpics_base;
                 $ret->{caption_text} = LJ::Lang::ml( '.section.edit' );
-                $ret->{caption_url} = "$LJ::SITEROOT/editpics.bml?authas=$user"
+                $ret->{caption_url} = "$LJ::SITEROOT/editpics?authas=$user"
             } else {
-                $ret->{userpic_url} = "$LJ::SITEROOT/editpics.bml?authas=$user";
+                $ret->{userpic_url} = "$LJ::SITEROOT/editpics?authas=$user";
                 $ret->{caption_text} = LJ::Lang::ml( '.userpic.upload' );
-                $ret->{caption_url} = "$LJ::SITEROOT/editpics.bml?authas=$user"
+                $ret->{caption_url} = "$LJ::SITEROOT/editpics?authas=$user"
             }
         } else {
             if ( LJ::userpic_count( $u ) ) {
@@ -275,7 +275,7 @@ sub memory_stats {
     push @ret, LJ::Lang::ml( '.details.memories2', {
         num_raw => $ct,
         num_comma => LJ::commafy( $ct ),
-        aopts => "href='$LJ::SITEROOT/tools/memories.bml?user=" . $u->user . "'",
+        aopts => "href='$LJ::SITEROOT/tools/memories?user=" . $u->user . "'",
     } )
         unless $u->is_syndicated;
     
@@ -414,7 +414,7 @@ sub _basic_info_location {
             LJ::load_codes( { country => \%countries } );
 
             $country_ret = LJ::is_enabled( 'directory' ) ?
-                { url => "$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry", text => $countries{ $country } } :
+                { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry", text => $countries{ $country } } :
                 $countries{ $country };
         }
 
@@ -427,14 +427,14 @@ sub _basic_info_location {
             $state = $states{$state} if $states_type && $states{$state};
             $estate = LJ::eurl( $state );
             $state_ret = $country && LJ::is_enabled( 'directory' ) ?
-                { url => "$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate", text => LJ::ehtml( $state ) } :
+                { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate", text => LJ::ehtml( $state ) } :
                 LJ::ehtml( $state );
         }
 
         if ( $city ) {
             $city = LJ::ehtml( $city );
             $city_ret = $country && LJ::is_enabled( 'directory' ) ?
-                { url => "$LJ::SITEROOT/directory.bml?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity", text => $city } :
+                { url => "$LJ::SITEROOT/directory?opt_sort=ut&amp;s_loc=1&amp;loc_cn=$ecountry&amp;loc_st=$estate&amp;loc_ci=$ecity", text => $city } :
                 $city;
         }
 
@@ -612,7 +612,7 @@ sub contact_rows {
 
     # private message
     if ( ( $u->is_personal || $u->is_identity ) && $remote && $u->can_receive_message( $remote ) ) {
-        push @ret, { url => "$LJ::SITEROOT/inbox/compose.bml?user=" . $u->user, text => LJ::Lang::ml( '.contact.pm' ) };
+        push @ret, { url => "$LJ::SITEROOT/inbox/compose?user=" . $u->user, text => LJ::Lang::ml( '.contact.pm' ) };
     }
 
     # email
@@ -625,7 +625,7 @@ sub contact_rows {
 
     # text message
     if ( !$u->is_syndicated && $u->can_be_text_messaged_by( $remote ) ) {
-        push @ret, { url => "$LJ::SITEROOT/tools/textmessage.bml?user=" . $u->user, text => LJ::Lang::ml( '.contact.txtmsg' ) };
+        push @ret, { url => "$LJ::SITEROOT/tools/textmessage?user=" . $u->user, text => LJ::Lang::ml( '.contact.txtmsg' ) };
     }
 
     return @ret;
@@ -677,7 +677,7 @@ sub interests {
                     my %remote_intids = map { $_ => 1 } @{ LJ::get_interests( $remote, { justids => 1 } ) };
                     $intname = "<strong>$intname</strong>" if $remote_intids{$intid};
                 }
-                push @ret, { url => "$LJ::SITEROOT/interests.bml?int=$eint", text => $intname };
+                push @ret, { url => "$LJ::SITEROOT/interests?int=$eint", text => $intname };
             } else {
                 push @ret, $intname;
             }

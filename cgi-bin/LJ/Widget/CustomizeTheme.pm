@@ -57,7 +57,7 @@ sub render_body {
     ### Navigation ###
 
     $ret .= "<ul class='customize-nav nostyle' id='customize_theme_nav_links'>";
-    $ret .= "<li" . $nav_class->("display") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra'>" . $class->ml('widget.customizetheme.nav.display') . "</a>";
+    $ret .= "<li" . $nav_class->("display") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.customizetheme.nav.display') . "</a>";
     $ret .= "<ul>";
     $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.moodthemes') . "</li>";
     $ret .= "<li>" . $class->ml('widget.customizetheme.nav.display.navstrip') . "</li>";
@@ -82,7 +82,7 @@ sub render_body {
     }
 
     if ($print_style_header) {
-        $ret .= "<li" . $nav_class->("style") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=style'>" . $class->ml('widget.customizetheme.nav.style') . "</a>";
+        $ret .= "<li" . $nav_class->("style") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=style'>" . $class->ml('widget.customizetheme.nav.style') . "</a>";
         $ret .= "<ul>";
 
         foreach my $g (@style_groups_order) {
@@ -102,14 +102,14 @@ sub render_body {
         next if $g eq "customcss";
 
         my $name = LJ::Customize->propgroup_name($g, $u, $style);
-        $ret .= "<li" . $nav_class->($g) . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=$g'>$name</a></li>";
+        $ret .= "<li" . $nav_class->($g) . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=$g'>$name</a></li>";
     }
 
-    $ret .= "<li" . $nav_class->("linkslist") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=linkslist'>" . $class->ml('widget.customizetheme.nav.linkslist') . "</a></li>";
+    $ret .= "<li" . $nav_class->("linkslist") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=linkslist'>" . $class->ml('widget.customizetheme.nav.linkslist') . "</a></li>";
 
     if ($has_group{customcss}) {
         my $name = LJ::Customize->propgroup_name("customcss", $u, $style);
-        $ret .= "<li" . $nav_class->("customcss") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options.bml$getextra${getsep}group=customcss'>$name</a></li>";
+        $ret .= "<li" . $nav_class->("customcss") . "><a class='customize-nav-group' href='$LJ::SITEROOT/customize/options$getextra${getsep}group=customcss'>$name</a></li>";
     }
 
     $ret .= "</ul>";

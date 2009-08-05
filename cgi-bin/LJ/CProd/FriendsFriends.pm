@@ -21,7 +21,7 @@ sub render {
 sub ml { 'cprod.friendsfriends.text2' }
 sub link {
     my $remote = LJ::get_remote()
-        or return "$LJ::SITEROOT/login.bml";
+        or return "$LJ::SITEROOT/login";
     return $remote->friendsfriends_url . "/";
 }
 sub button_text { "Friends of Friends" }

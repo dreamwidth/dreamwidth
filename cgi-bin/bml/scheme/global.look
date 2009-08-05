@@ -35,12 +35,12 @@ LOAD_PAGE_INFO<=
            'match' => "^/(index\\.bml)?(\\?.*)?\$",
            'children' => [
                   { 'name' => 'Create Journal',
-                'uri' => '/create.bml', },
+                'uri' => '/create', },
                   { 'name' => 'Update',
-                'uri' => '/update.bml',
+                'uri' => '/update',
 #                'children' => [
 #                           { 'name' => 'Full Update',
-#                         'uri' => '/update.bml?mode=full', }
+#                         'uri' => '/update?mode=full', }
 #                           ],
                 },
                   ],
@@ -48,13 +48,13 @@ LOAD_PAGE_INFO<=
          { 'name' => 'Find Users',
            'children' => [
                          { 'name' => 'Random!',
-                'uri' => '/random.bml', },
+                'uri' => '/random', },
                          { 'name' => 'By Region',
-                'uri' => '/directory.bml', },
+                'uri' => '/directory', },
                          { 'name' => 'By Interest',
-                'uri' => '/interests.bml', },
+                'uri' => '/interests', },
                               { 'name' => 'Search',
-                'uri' => '/directorysearch.bml', }
+                'uri' => '/directorysearch', }
                   ], },
          { 'name' => 'Manage ...',
            uri => '/manage/',
@@ -64,13 +64,13 @@ LOAD_PAGE_INFO<=
                   { 'name' => 'Your Style',
                 'uri' => '/customize/', },
                   { 'name' => 'Your Friends',
-                'uri' => '/manage/circle/edit.bml', },
+                'uri' => '/manage/circle/edit', },
                   { 'name' => 'Your Entries',
-                'uri' => '/editjournal.bml', },
+                'uri' => '/editjournal', },
                   { 'name' => 'Your Pictures',
-                'uri' => '/editpics.bml', },
+                'uri' => '/editpics', },
                   { 'name' => 'Your Password',
-                'uri' => '/changepassword.bml', },
+                'uri' => '/changepassword', },
                   ],
        },
          { 'name' => 'Developer Area',
@@ -79,21 +79,21 @@ LOAD_PAGE_INFO<=
            'recursematch' => "^/developer/",
            'children' => [
                   { 'name' => 'Style System',
-                'uri' => '/developer/styles.bml',
+                'uri' => '/developer/styles',
                 'children' => [
                            { 'name' => 'View Types',
-                         'uri' => '/developer/views.bml', },
+                         'uri' => '/developer/views', },
                            { 'name' => 'Variable List',
-                         'uri' => '/developer/varlist.bml', },
+                         'uri' => '/developer/varlist', },
                            ],
                 },
                   { 'name' => 'Embedding',
-                'uri' => '/developer/embedding.bml', },
+                'uri' => '/developer/embedding', },
                   { 'name' => 'Protocol',
-                'uri' => '/developer/protocol.bml',
+                'uri' => '/developer/protocol',
                 'children' => [
                            { 'name' => 'Mode List',
-                         'uri' => '/developer/modelist.bml', }
+                         'uri' => '/developer/modelist', }
                            ],
                 },
                   ],
@@ -101,9 +101,9 @@ LOAD_PAGE_INFO<=
          { 'name' => 'Need Help?',
            'children' => [
                   { 'name' => 'Lost Password?',
-                'uri' => '/lostinfo.bml', },
+                'uri' => '/lostinfo', },
                   { 'name' => 'FAQ / Guide',
-                'uri' => '/support/faq.bml', },
+                'uri' => '/support/faq', },
                   { 'name' => 'Support Area',
                 'uri' => '/support/', },
                   ],
@@ -113,7 +113,7 @@ LOAD_PAGE_INFO<=
  my $remote = LJ::get_remote();
  my $remuser = $remote ? $remote->{'user'} : "";
  my $uri = BML::get_uri();
- if ($remuser ne "" && $uri ne "/logout.bml")
+ if ($remuser ne "" && $uri ne "/logout")
  {
      my $subdomain = $remuser;
      $subdomain =~ s/_/-/g;
@@ -127,21 +127,21 @@ LOAD_PAGE_INFO<=
                                'uri' => "/users/$remuser/calendar", },
                              { 'name' => 'Friends',
                                'uri' => "/users/$remuser/read",
-                               'extra' => "/friend/filter.bml",
+                               'extra' => "/friend/filter",
                                },
                              ],
                       },
                     { 'name' => 'User Info',
-                      'uri' => "/userinfo.bml?user=$remuser", },
+                      'uri' => "/userinfo?user=$remuser", },
                     { 'name' => 'Memories',
-                      'uri' => "/tools/memories.bml?user=$remuser", },
+                      'uri' => "/tools/memories?user=$remuser", },
                     { 'name' => 'Logout',
-                      'uri' => '/logout.bml', },
+                      'uri' => '/logout', },
                     ]
                     };
- } elsif ($uri ne "/login.bml") {
+ } elsif ($uri ne "/login") {
      unshift @sidebar, { 'name' => "Log In",
-             'uri' => '/login.bml', }
+             'uri' => '/login', }
  }
 
 return "";
@@ -292,7 +292,7 @@ menunav<=
             push @displayed, "<li class='subnav'><a href='$item->{url}'>" . BML::ml( "$item->{text}", $item->{text_opts} ) . "</a></li>" if $item->{display};
         }
         if ( @displayed ) {   # only display a top-level menu if any of its items are displayed
-            $ret .= "<li id='${cat}_topnav' class='topnav'><a href='$LJ::SITEROOT/nav.bml?cat=$cat'>$ML{\"menunav.$cat\"}</a>\n";
+            $ret .= "<li id='${cat}_topnav' class='topnav'><a href='$LJ::SITEROOT/nav?cat=$cat'>$ML{\"menunav.$cat\"}</a>\n";
             $ret .= "<ul id='${cat}_subnav' class='subnav_container'>\n";
             $ret .= join( "\n", @displayed ) . "\n";
             $ret .= "</ul>\n";

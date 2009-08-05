@@ -18,7 +18,7 @@ sub helpurl {
 sub actionlink {
     my ($class, $u) = @_;
 
-    return "<a href='$LJ::SITEROOT/changepassword.bml'>" . $class->ml('setting.display.password.actionlink') . "</a>";
+    return "<a href='$LJ::SITEROOT/changepassword'>" . $class->ml('setting.display.password.actionlink') . "</a>";
 }
 
 sub label {

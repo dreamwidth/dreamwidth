@@ -147,13 +147,13 @@ sub render_body {
             my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
 
             $theme_class .= " current";
-            $theme_options .= "<strong><a href='$LJ::SITEROOT/customize/options.bml$getextra'>" . $class->ml('widget.themechooser.theme.customize') . "</a></strong>";
+            $theme_options .= "<strong><a href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.themechooser.theme.customize') . "</a></strong>";
             if (! $no_layer_edit && $theme->is_custom && !$theme_types{upgrade}) {
                 if ($theme->layoutid && !$theme->layout_uniq) {
-                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->layoutid . "'>" . $class->ml('widget.themechooser.theme.editlayoutlayer') . "</a></strong>";
+                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->layoutid . "'>" . $class->ml('widget.themechooser.theme.editlayoutlayer') . "</a></strong>";
                 }
                 if ($theme->themeid && !$theme->uniq) {
-                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit.bml?id=" . $theme->themeid . "'>" . $class->ml('widget.themechooser.theme.editthemelayer') . "</a></strong>";
+                    $theme_options .= "<br /><strong><a href='$LJ::SITEROOT/customize/advanced/layeredit?id=" . $theme->themeid . "'>" . $class->ml('widget.themechooser.theme.editthemelayer') . "</a></strong>";
                 }
             }
         }
@@ -178,9 +178,9 @@ sub render_body {
 
         my $preview_redirect_url;
         if ($theme->themeid) {
-            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect.bml$getextra${getsep}themeid=" . $theme->themeid;
+            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect$getextra${getsep}themeid=" . $theme->themeid;
         } else {
-            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect.bml$getextra${getsep}layoutid=" . $theme->layoutid;
+            $preview_redirect_url = "$LJ::SITEROOT/customize/preview_redirect$getextra${getsep}layoutid=" . $theme->layoutid;
         }
         $ret .= "<a href='$preview_redirect_url' target='_blank' class='theme-preview-link' title='" . $class->ml('widget.themechooser.theme.preview') . "'>";
 

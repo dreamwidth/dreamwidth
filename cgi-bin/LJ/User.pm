@@ -2075,7 +2075,7 @@ sub profile_url {
 
     my $url;
     if ($u->{journaltype} eq "I") {
-        $url = "$LJ::SITEROOT/userinfo.bml?userid=$u->{'userid'}&t=I";
+        $url = "$LJ::SITEROOT/userinfo?userid=$u->{'userid'}&t=I";
         $url .= "&mode=full" if $opts{full};
     } else {
         $url = $u->journal_base . "/profile";
@@ -2360,7 +2360,7 @@ sub ljuser_display {
             $imgurl = $site->icon_url;
         }
 
-        my $profile = $profile_url ne '' ? $profile_url : "$LJ::SITEROOT/userinfo.bml?userid=$u->{userid}&amp;t=I$andfull";
+        my $profile = $profile_url ne '' ? $profile_url : "$LJ::SITEROOT/userinfo?userid=$u->{userid}&amp;t=I$andfull";
 
         return "<span $display_class lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'><img src='$imgurl' alt='[info - $type] ' width='$width' height='$height' style='vertical-align: bottom; border: 0; padding-right: 1px;' /></a><a href='$url' rel='nofollow'><b>$name</b></a></span>";
 
@@ -3238,8 +3238,8 @@ sub render_promo_of_community {
 
     my $blurb = $comm->prop('comm_promo_blurb') || '';
 
-    my $join_link = "$LJ::SITEROOT/community/join.bml?comm=$comm->{user}";
-    my $watch_link = "$LJ::SITEROOT/manage/circle/add.bml?user=$comm->{user}&action=subscribe";
+    my $join_link = "$LJ::SITEROOT/community/join?comm=$comm->{user}";
+    my $watch_link = "$LJ::SITEROOT/manage/circle/add?user=$comm->{user}&action=subscribe";
     my $read_link = $comm->journal_base;
 
     LJ::need_res("stc/lj_base.css");
@@ -4696,7 +4696,7 @@ sub message_url {
     croak "invalid user object passed" unless LJ::isu($u);
 
     return undef unless LJ::is_enabled('user_messaging');
-    return "$LJ::SITEROOT/inbox/compose.bml?user=$u->{'user'}";
+    return "$LJ::SITEROOT/inbox/compose?user=$u->{'user'}";
 }
 
 
@@ -6425,8 +6425,8 @@ sub ljuser
     # if invalid user, link to dummy userinfo page
     unless ($u && isu($u)) {
         $user = LJ::canonical_username($user);
-        $profile = "$LJ::SITEROOT/userinfo.bml?user=$user";
-        return $make_tag->('silk/identity/user.png', "$LJ::SITEROOT/userinfo.bml?user=$user", 17);
+        $profile = "$LJ::SITEROOT/userinfo?user=$user";
+        return $make_tag->('silk/identity/user.png', "$LJ::SITEROOT/userinfo?user=$user", 17);
     }
 
     $profile = $u->profile_url;
@@ -7752,7 +7752,7 @@ sub bad_password_redirect {
 
     return undef unless $remote->prop('badpassword');
 
-    my $redir = "$LJ::SITEROOT/changepassword.bml";
+    my $redir = "$LJ::SITEROOT/changepassword";
     unless (defined $opts->{'returl'}) {
         return BML::redirect($redir);
     } else {

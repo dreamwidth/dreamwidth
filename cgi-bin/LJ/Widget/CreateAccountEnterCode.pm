@@ -54,7 +54,7 @@ sub render_body {
 
     $ret .= "<p>" . $class->ml( 'widget.createaccountentercode.info' ) . "</p>";
 
-    $ret .= "<form method='get' action='$LJ::SITEROOT/create.bml'>";
+    $ret .= "<form method='get' action='$LJ::SITEROOT/create'>";
     $ret .= "<?standout " . $class->ml( 'widget.createaccountentercode.code' ) . " ";
     $ret .= LJ::html_text( {
         name => 'code',
@@ -72,8 +72,8 @@ sub render_body {
         $ret .= "<p style='margin-top: 10px;'>";
         $ret .= $class->ml( 'widget.createaccountentercode.pay', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'", sitename => $LJ::SITENAMESHORT } );
         my $remote = LJ::get_remote(); 
-        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create.bml'" } );
-        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout', { aopts => "href='$LJ::SITEROOT/community/create.bml'" } ) unless $remote;
+        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm', { aopts => "href='$LJ::SITEROOT/community/create'" } );
+        $ret .= " " . $class->ml( 'widget.createaccountentercode.comm.loggedout', { aopts => "href='$LJ::SITEROOT/community/create'" } ) unless $remote;
         
         $ret .= "</p>";
     }

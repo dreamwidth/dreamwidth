@@ -73,7 +73,7 @@
     # this option can be a boolean or a URL, but internally we want a URL
     # (which can also be a boolean)
     if ($LJ::OPENID_SERVER && $LJ::OPENID_SERVER == 1) {
-        $LJ::OPENID_SERVER = "$LJ::SITEROOT/openid/server.bml";
+        $LJ::OPENID_SERVER = "$LJ::SITEROOT/openid/server";
     }
 
     # set default capability limits if the site maintainer hasn't.
@@ -359,29 +359,29 @@
     # "RPC" URI mappings
     # add default URI handler mappings
     my %ajaxmapping = (
-                       delcomment     => "delcomment.bml",
-                       talkscreen     => "talkscreen.bml",
-                       controlstrip   => "tools/endpoints/controlstrip.bml",
-                       ctxpopup       => "tools/endpoints/ctxpopup.bml",
-                       changerelation => "tools/endpoints/changerelation.bml",
-                       userpicselect  => "tools/endpoints/getuserpics.bml",
-                       esn_inbox      => "tools/endpoints/esn_inbox.bml",
-                       esn_subs       => "tools/endpoints/esn_subs.bml",
-                       trans_save     => "tools/endpoints/trans_save.bml",
-                       dirsearch      => "tools/endpoints/directorysearch.bml",
-                       poll           => "tools/endpoints/poll.bml",
-                       jobstatus      => "tools/endpoints/jobstatus.bml",
-                       widget         => "tools/endpoints/widget.bml",
-                       multisearch    => "tools/endpoints/multisearch.bml",
-                       extacct_auth   => "tools/endpoints/extacct_auth.bml",
+                       delcomment     => "delcomment",
+                       talkscreen     => "talkscreen",
+                       controlstrip   => "tools/endpoints/controlstrip",
+                       ctxpopup       => "tools/endpoints/ctxpopup",
+                       changerelation => "tools/endpoints/changerelation",
+                       userpicselect  => "tools/endpoints/getuserpics",
+                       esn_inbox      => "tools/endpoints/esn_inbox",
+                       esn_subs       => "tools/endpoints/esn_subs",
+                       trans_save     => "tools/endpoints/trans_save",
+                       dirsearch      => "tools/endpoints/directorysearch",
+                       poll           => "tools/endpoints/poll",
+                       jobstatus      => "tools/endpoints/jobstatus",
+                       widget         => "tools/endpoints/widget",
+                       multisearch    => "tools/endpoints/multisearch",
+                       extacct_auth   => "tools/endpoints/extacct_auth",
                        );
 
     foreach my $src (keys %ajaxmapping) {
         $LJ::AJAX_URI_MAP{$src} ||= $ajaxmapping{$src};
     }
-    $LJ::AJAX_URI_MAP{load_state_codes} = 'tools/endpoints/load_state_codes.bml';
-    $LJ::AJAX_URI_MAP{profileexpandcollapse} = 'tools/endpoints/profileexpandcollapse.bml';
-    $LJ::AJAX_URI_MAP{dismisspagenotice} = 'tools/endpoints/dismisspagenotice.bml';
+    $LJ::AJAX_URI_MAP{load_state_codes} = 'tools/endpoints/load_state_codes';
+    $LJ::AJAX_URI_MAP{profileexpandcollapse} = 'tools/endpoints/profileexpandcollapse';
+    $LJ::AJAX_URI_MAP{dismisspagenotice} = 'tools/endpoints/dismisspagenotice';
 
     # List all countries that have states listed in 'codes' table in DB
     # These countries will be displayed with drop-down menu on Profile edit page
