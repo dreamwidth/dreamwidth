@@ -319,7 +319,7 @@ sub process {
     # verizon crap.  remove paragraphs of text.
     $body =~ s/This message was sent using.+?Verizon.+?faster download\.//s;
 
-    # virgin mobile adds text to the *top* of the message, killing lj-headers.
+    # virgin mobile adds text to the *top* of the message, killing post-headers.
     # Kill this silly (and grammatically incorrect) string.
     if ($return_path && $return_path =~ /vmpix\.com$/) {
         $body =~ s/^This is an? MMS message\.\s+//ms;
@@ -380,9 +380,15 @@ sub process {
 
     # Find and set entry props.
     my $props = {};
-    my (%lj_headers, $amask);
+    my (%post_headers, $amask);
+    # first look for old style lj headers
     while ($body =~ s/^lj-(.+?):\s*(.+?)\n//is) {
-        $lj_headers{lc($1)} = LJ::trim($2);
+        $post_headers{lc($1)} = LJ::trim($2);
+    }
+    # next look for new style post headers
+    # so if both are specified, this value will be retained
+    while ($body =~ s/^post-(.+?):\s*(.+?)\n//is) {
+        $post_headers{lc($1)} = LJ::trim($2);
     }
     $body =~ s/^\s*//;
 
@@ -394,51 +400,51 @@ sub process {
           emailpost_imgsecurity /
     );
 
-    # Get post options, using lj-headers first, and falling back
+    # Get post options, using post-headers first, and falling back
     # to user props.  If neither exist, the regular journal defaults
     # are used.
-    $props->{taglist} = $lj_headers{tags};
-    $props->{picture_keyword} = $lj_headers{'userpic'} ||
+    $props->{taglist} = $post_headers{tags};
+    $props->{picture_keyword} = $post_headers{'userpic'} ||
                                 $u->{'emailpost_userpic'};
-    if (my $id = LJ::mood_id($lj_headers{'mood'})) {
+    if (my $id = LJ::mood_id($post_headers{'mood'})) {
         $props->{current_moodid}   = $id;
     } else {
-        $props->{current_mood}     = $lj_headers{'mood'};
+        $props->{current_mood}     = $post_headers{'mood'};
     }
-    $props->{current_music}    = $lj_headers{'music'};
-    $props->{current_location} = $lj_headers{'location'};
+    $props->{current_music}    = $post_headers{'music'};
+    $props->{current_location} = $post_headers{'location'};
     $props->{opt_nocomments} = 1
-      if $lj_headers{comments}      =~ /off/i
+      if $post_headers{comments}    =~ /off/i
       || $u->{'emailpost_comments'} =~ /off/i;
     $props->{opt_noemail} = 1
-      if $lj_headers{comments}      =~ /noemail/i
+      if $post_headers{comments}    =~ /noemail/i
       || $u->{'emailpost_comments'} =~ /noemail/i;
 
-    $lj_headers{security} = lc($lj_headers{security}) || $u->{'emailpost_security'};
-    if ($lj_headers{security} =~ /^(public|private|friends)$/) {
+    $post_headers{security} = lc($post_headers{security}) || $u->{'emailpost_security'};
+    if ($post_headers{security} =~ /^(public|private|friends)$/) {
         if ($1 eq 'friends') {
-            $lj_headers{security} = 'usemask';
+            $post_headers{security} = 'usemask';
             $amask = 1;
         }
-    } elsif ($lj_headers{security}) { # Assume a friendgroup if unknown security mode.
+    } elsif ($post_headers{security}) { # Assume a friendgroup if unknown security mode.
         # Get the mask for the requested friends group, or default to private.
-        my $group = $u->trust_groups( 'name' => $lj_headers{security} );
+        my $group = $u->trust_groups( 'name' => $post_headers{security} );
         if ($group) {
             $amask = (1 << $group->{groupnum});
-            $lj_headers{security} = 'usemask';
+            $post_headers{security} = 'usemask';
         } else {
-            $err->("Friendgroup \"$lj_headers{security}\" not found.  Your journal entry was posted privately.",
+            $err->("Friendgroup \"$post_headers{security}\" not found.  Your journal entry was posted privately.",
                    { nolog => 1 });
-            $lj_headers{security} = 'private';
+            $post_headers{security} = 'private';
         }
     }
 
     # if they specified a imgsecurity header but it isn't valid, default
     # to private.  Otherwise, set to what they specified.
-    $lj_headers{'imgsecurity'} = lc($lj_headers{'imgsecurity'}) ||
-                                 $u->{'emailpost_imgsecurity'}  || 'public';
-    $lj_headers{'imgsecurity'} = 'private'
-      unless $lj_headers{'imgsecurity'} =~ /^(private|regusers|friends|public)$/;
+    $post_headers{'imgsecurity'} = lc($post_headers{'imgsecurity'}) ||
+                                   $u->{'emailpost_imgsecurity'}  || 'public';
+    $post_headers{'imgsecurity'} = 'private'
+      unless $post_headers{'imgsecurity'} =~ /^(private|regusers|friends|public)$/;
 
     # upload picture attachments to fotobilder.
     # undef return value? retry posting for later.
@@ -446,14 +452,14 @@ sub process {
 #         $entity, $u,
 #         \$fb_upload_errstr,
 #         {
-#             imgsec  => $lj_headers{'imgsecurity'},
-#             galname => $lj_headers{'gallery'} || $u->{'emailpost_gallery'}
+#             imgsec  => $post_headers{'imgsecurity'},
+#             galname => $post_headers{'gallery'} || $u->{'emailpost_gallery'}
 #         }
 #       ) || return $err->( $fb_upload_errstr, { retry => 1 } );
 # 
 #     # if we found and successfully uploaded some images...
 #     if (ref $fb_upload eq 'ARRAY') {
-#         my $fb_html = LJ::FBUpload::make_html( $u, $fb_upload, \%lj_headers );
+#         my $fb_html = LJ::FBUpload::make_html( $u, $fb_upload, \%post_headers );
 #         ##
 #         ## A problem was here: 
 #         ## $body is utf-8 text without utf-8 flag (see Unicode::MapUTF8::to_utf8),
@@ -489,7 +495,7 @@ sub process {
         'username' => $user,
         'event' => $body,
         'subject' => $subject,
-        'security' => $lj_headers{security},
+        'security' => $post_headers{security},
         'allowmask' => $amask,
         'props' => $props,
         'tz'    => 'guess',
