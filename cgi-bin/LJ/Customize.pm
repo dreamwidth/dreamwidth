@@ -252,7 +252,6 @@ sub get_layouts_for_dropdown {
            $tmp =~ /^\d+$/ &&
                $pub->{$tmp}->{'type'} eq "layout" &&
                $pub->{$tmp}->{'uniq'} ne "s1shortcomings/layout" &&
-               $pub->{$tmp}->{'uniq'} ne "hostedcomments/layout" &&
                (!defined $is_active || $is_active) &&
                ($_ = $tmp)
            } keys %$pub;
