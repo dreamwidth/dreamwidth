@@ -1458,38 +1458,6 @@ sub get_cluster_description {
 }
 
 # <LJFUNC>
-# name: LJ::do_to_cluster
-# des: Given a subref, this function will pick a random cluster and run the subref,
-#      passing it the cluster id.  If the subref returns a 1, this function will exit
-#      with a 1.  Else, the function will call the subref again, with the next cluster.
-# args: subref
-# des-subref: Reference to a sub to call; @_ = (clusterid)
-# returns: 1 if the subref returned a 1 at some point, undef if it didn't ever return
-#          success and we tried every cluster.
-# </LJFUNC>
-sub do_to_cluster {
-    my $subref = shift;
-
-    # start at some random point and iterate through the clusters one by one until
-    # $subref returns a true value
-    my $size = @LJ::CLUSTERS;
-    my $start = int(rand() * $size);
-    my $rval = undef;
-    my $tries = $size > 15 ? 15 : $size;
-    foreach (1..$tries) {
-        # select at random
-        my $idx = $start++ % $size;
-
-        # get subref value
-        $rval = $subref->($LJ::CLUSTERS[$idx]);
-        last if $rval;
-    }
-
-    # return last rval
-    return $rval;
-}
-
-# <LJFUNC>
 # name: LJ::cmd_buffer_add
 # des: Schedules some command to be run sometime in the future which would
 #      be too slow to do synchronously with the web request.  An example
@@ -1645,20 +1613,6 @@ sub get_interest {
          undef, $intid);
 
     return wantarray() ? ($int, $intcount) : $int;
-}
-
-sub get_interest_id {
-    my $int = shift
-        or return undef;
-
-    # FIXME: caching!
-
-    my $dbr = LJ::get_db_reader();
-    my ($intid, $intcount) = $dbr->selectrow_array
-        ("SELECT intid, intcount FROM interests WHERE interest=?",
-         undef, $int);
-
-    return wantarray() ? ($intid, $intcount) : $intid;
 }
 
 # <LJFUNC>
@@ -1925,44 +1879,6 @@ sub color_todb
     my $c = shift;
     return undef unless $c =~ /^\#[0-9a-f]{6,6}$/i;
     return hex(substr($c, 1, 6));
-}
-
-
-# <LJFUNC>
-# name: LJ::event_register
-# des: Logs a subscribable event, if anybody is subscribed to it.
-# args: dbarg?, dbc, etype, ejid, eiarg, duserid, diarg
-# des-dbc: Cluster master of event
-# des-etype: One character event type.
-# des-ejid: Journalid event occurred in.
-# des-eiarg: 4 byte numeric argument
-# des-duserid: Event doer's userid
-# des-diarg: Event's 4 byte numeric argument
-# returns: boolean; 1 on success; 0 on fail.
-# </LJFUNC>
-sub event_register
-{
-    &nodb;
-    my ($dbc, $etype, $ejid, $eiarg, $duserid, $diarg) = @_;
-    my $dbr = LJ::get_db_reader();
-
-    # see if any subscribers first of all (reads cheap; writes slow)
-    return 0 unless $dbr;
-    my $qetype = $dbr->quote($etype);
-    my $qejid = $ejid+0;
-    my $qeiarg = $eiarg+0;
-    my $qduserid = $duserid+0;
-    my $qdiarg = $diarg+0;
-
-    my $has_sub = $dbr->selectrow_array("SELECT userid FROM subs WHERE etype=$qetype AND ".
-                                        "ejournalid=$qejid AND eiarg=$qeiarg LIMIT 1");
-    return 1 unless $has_sub;
-
-    # so we're going to need to log this event
-    return 0 unless $dbc;
-    $dbc->do("INSERT INTO events (evtime, etype, ejournalid, eiarg, duserid, diarg) ".
-             "VALUES (NOW(), $qetype, $qejid, $qeiarg, $qduserid, $qdiarg)");
-    return $dbc->err ? 0 : 1;
 }
 
 # <LJFUNC>
@@ -2251,40 +2167,6 @@ sub alloc_global_counter
     $dbh->do("INSERT IGNORE INTO counter (journalid, area, max) VALUES (?,?,?)",
              undef, $uid, $dom, $newmax) or return LJ::errobj($dbh)->cond_throw;
     return LJ::alloc_global_counter($dom, 1);
-}
-
-sub system_userid {
-    return $LJ::CACHE_SYSTEM_ID if $LJ::CACHE_SYSTEM_ID;
-    my $u = LJ::load_user("system")
-        or die "No 'system' user available for LJ::system_userid()";
-    return $LJ::CACHE_SYSTEM_ID = $u->{userid};
-}
-
-sub blobcache_replace {
-    my ($key, $value) = @_;
-
-    die "invalid key: $key" unless length $key;
-
-    my $dbh = LJ::get_db_writer()
-        or die "Unable to contact global master";
-
-    return $dbh->do("REPLACE INTO blobcache SET bckey=?, dateupdate=NOW(), value=?",
-                    undef, $key, $value);
-}
-
-sub blobcache_get {
-    my $key = shift;
-
-    die "invalid key: $key" unless length $key;
-
-    my $dbr = LJ::get_db_reader()
-        or die "Unable to contact global reader";
-
-    my ($value, $timeupdate) =
-        $dbr->selectrow_array("SELECT value, UNIX_TIMESTAMP(dateupdate) FROM blobcache WHERE bckey=?",
-                              undef, $key);
-
-    return wantarray() ? ($value, $timeupdate) : $value;
 }
 
 sub note_recent_action {
