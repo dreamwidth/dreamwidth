@@ -2,7 +2,7 @@
 title=><?_code return BML::ml('.title', {'sitename' => $LJ::SITENAMESHORT}); _code?>
 head<=
 <style>
-ul ul {
+#content ul ul {
     margin: 0 0 0.2em 2em;
 }
 .lj_moodlist_link {
@@ -114,7 +114,7 @@ body<=
             $ret .= BML::ml('Actionlink', {
                 'link' => "<a href='$LJ::SITEROOT/moodlist?moodtheme=$theme->{moodthemeid}'>$ML{'.nav.viewall'}</a>"
             });
-            $ret .= "</td>";
+            $ret .= "</td></tr>";
         };
 
         $ret .= "<form action='moodlist' method='get'>\n";
