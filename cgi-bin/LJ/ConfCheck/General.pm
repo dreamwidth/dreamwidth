@@ -523,24 +523,6 @@ add_conf('$LDAP_UID',
 add_conf('$LDAP_BASE',
          type => '',
          des => "");
-add_conf('$PORTAL_TYPEMAP',
-         type => '',
-         des => "");
-add_conf('%PORTAL_TYPEMAP',
-         type => '',
-         des => "");
-add_conf('$PORTAL_DEBUG_CONTENT',
-         type => '',
-         des => "");
-add_conf('$PORTAL_BOX_PROFILE_START',
-         type => '',
-         des => "");
-add_conf('%PORTAL_PROFILED_BOX',
-         type => '',
-         des => "");
-add_conf('$PORTAL_BOX_PROFILE_END',
-         type => '',
-         des => "");
 add_conf('%COMMON_CODE',
          type => '',
          des => "");
@@ -602,18 +584,6 @@ add_conf('%POST_WITHOUT_AUTH',
          type => '',
          des => "");
 add_conf('$ALLOW_PICS_OVER_QUOTA',
-         type => '',
-         des => "");
-add_conf('@PORTAL_COLS',
-         type => '',
-         des => "");
-add_conf('$PORTAL_LOGGED_IN',
-         type => '',
-         des => "");
-add_conf('$PORTAL_LOGGED_OUT',
-         type => '',
-         des => "");
-add_conf('$PORTAL_URI',
          type => '',
          des => "");
 add_conf('$SYSBAN_IP_REFRESH',
@@ -724,9 +694,6 @@ add_conf('@MAIL_TRANSPORTS',
 add_conf('%MOGILEFS_CONFIG',
          type => '',
          des => "");
-add_conf('%PORTAL_DEFAULTBOXSTATES',
-         type => '',
-         des => "");
 add_conf('%SUPPORT_ABSTRACTS',
          type => '',
          des => "");
@@ -734,9 +701,6 @@ add_conf('%MINIMAL_STYLE',
          type => '',
          des => "");
 add_conf('%USERPROP_DEF',
-         type => '',
-         des => "");
-add_conf('@PORTAL_BOXES_HIDDEN',
          type => '',
          des => "");
 add_conf('@RBL_LIST',
@@ -752,9 +716,6 @@ add_conf('%DISABLED',
          type => '',
          des => "");
 add_conf('%HELPURL',
-         type => '',
-         des => "");
-add_conf('@PORTAL_BOXES',
          type => '',
          des => "");
 add_conf('@INITIAL_OPTIONAL_FRIENDS',

@@ -854,14 +854,6 @@ userproplist.opt_show_captcha_to:
   multihomed: 0
   prettyname: Show CAPTHCHA on commenting
 
-userproplist.portalinit:
-  cldversion: 4
-  datatype: num
-  des: Has the user had their portal initialized yet?
-  indexed: 0
-  multihomed: 0
-  prettyname: Portal Init
-
 userproplist.profile_collapsed_headers:
   cldversion: 4
   datatype: char

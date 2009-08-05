@@ -92,11 +92,6 @@ includefile:<name> == text of BML include file
 
 <uid>   lastcomm:<uid> -- id of the last comment the user posted via quickreply
 
-<uid>    prtcfg:<uid>   -- arrayref of the portal box configuration for this userid
-<uid>    prtbox:<uid>:<pboxid>  --  arrayref of the state of a LJ::Portal::Box object
-<uid>    prtconu:<uid>:<pboxid>  --  [etag, maxtime, html] - per-user box content caching
-<typeid> prtcong:<typeid> -- [etag, maxtime, html] - global box content caching
-
 <uid> saui:<uid> == { schoolid => { year_start => .., year_end => .. } }
 <schoolid> saal:<schoolid> == [ userid, ... ]; userids at a school
 <schoolid> saaly:<schoolid>:<year> == [ userid, ... ]; userids at a school in this year

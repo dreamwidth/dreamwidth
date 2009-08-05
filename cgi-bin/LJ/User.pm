@@ -5866,7 +5866,7 @@ sub unset_remote
 # $dom: 'L' == log, 'T' == talk, 'M' == modlog, 'S' == session,
 #       'R' == memory (remembrance), 'K' == keyword id,
 #       'P' == phone post, 'C' == pending comment
-#       'O' == pOrtal box id, 'V' == 'vgift', 'E' == ESN subscription id
+#       'V' == 'vgift', 'E' == ESN subscription id
 #       'Q' == Notification Inbox, 
 #       'D' == 'moDule embed contents', 'I' == Import data block
 #       'Z' == import status item, 'X' == eXternal account
@@ -5976,9 +5976,6 @@ sub alloc_user_counter
         $newmax = ($ppemax > $userblobmax) ? $ppemax : $userblobmax;
     } elsif ($dom eq "C") {
         $newmax = $u->selectrow_array("SELECT MAX(pendid) FROM pendcomments WHERE jid=?",
-                                      undef, $uid);
-    } elsif ($dom eq "O") {
-        $newmax = $u->selectrow_array("SELECT MAX(pboxid) FROM portal_config WHERE userid=?",
                                       undef, $uid);
     } elsif ($dom eq "V") {
         $newmax = $u->selectrow_array("SELECT MAX(giftid) FROM vgifts WHERE userid=?",

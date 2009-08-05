@@ -213,11 +213,6 @@ Terms, definitions, and insight.</para>
     </glossentry>
 
     <glossentry>
-    <glossterm>Portlets</glossterm>
-    <glossdef><para>Portal boxes/widgets, only more cutely named.</para></glossdef>
-    </glossentry>
-
-    <glossentry>
     <glossterm>Scheme</glossterm>
     <glossdef><para>A collection of &bml; templates that comprise a unique layout.</para></glossdef>
     </glossentry>

@@ -778,10 +778,6 @@ sub trans
 
             return $bml_handler->("$LJ::HOME/htdocs/extcss/index.bml");
 
-        } elsif ($func eq 'portal') {
-            # if this is a "portal" subdomain then prepend the portal URL
-            return redir($r, "$LJ::SITEROOT/portal/");
-
         } elsif ($func eq 'support') {
             return redir($r, "$LJ::SITEROOT/support/");
 

@@ -506,34 +506,6 @@
     </row>
     <row>
         <entry>uid</entry>
-        <entry>prtcfg:&lt;uid&gt;</entry>
-        <entry>arrayref of the portal box configuration for this userid</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>uid</entry>
-        <entry>prtbox:&lt;uid&gt;:&lt;pboxid&gt;</entry>
-        <entry>arrayref of the state of a LJ::Portal::Box object</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>uid</entry>
-        <entry>prtconu:&lt;uid&gt;:&lt;pboxid&gt;</entry>
-        <entry>[etag, maxtime, html] - per-user box content caching</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>typeid</entry>
-        <entry>prtcong:&lt;typeid&gt;</entry>
-        <entry>[etag, maxtime, html] - global box content caching</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>uid</entry>
         <entry>saui:&lt;uid&gt;</entry>
         <entry>{ schoolid =&gt; { year_start =&gt; &hellip;, year_end =&gt; &hellip; } }</entry>
         <entry>livejournal</entry>

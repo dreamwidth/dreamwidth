@@ -25,7 +25,6 @@ use Time::HiRes ();
 use Image::Size ();
 use POSIX ();
 
-use LJ::Portal ();
 use LJ::Blob;
 use LJ::Captcha;
 use LJ::Faq;
@@ -117,7 +116,6 @@ sub setup_start {
         }
         DBI->install_driver("mysql");
         LJ::CleanHTML::helper_preload();
-        LJ::Portal->load_portal_boxes;
     }
 
     # set this before we fork

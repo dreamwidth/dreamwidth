@@ -78,10 +78,6 @@
       <listitem><simpara>Enable running of maintenance tasks by <filename>ljmaint.pl</filename>.</simpara></listitem>
     </varlistentry>
     <varlistentry>
-      <term>portal</term>
-      <listitem><simpara>Show the <quote>Portal</quote>, which acts as a one-stop-shop of features, for users.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
       <term>qbufferd_jobs</term>
       <listitem><simpara>Enable query buffering for high-load sites, by <filename>qbufferd.pl</filename>.</simpara></listitem>
     </varlistentry>
@@ -269,10 +265,6 @@
    <varlistentry>
       <term>offsite_journal_search</term>
       <listitem><simpara>Allow custom-defined offsite journal search, created through a hook of the same name. This is in addition to <quote>feedster_search</quote>, which can still be separately disabled.</simpara></listitem>
-    </varlistentry>
-   <varlistentry>
-      <term>portal_fade</term>
-      <listitem><simpara>Use a fade-in/fade-out effect on Portal boxes.</simpara></listitem>
     </varlistentry>
    <varlistentry>
       <term>rte_buttons</term>
