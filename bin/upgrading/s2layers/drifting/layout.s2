@@ -227,7 +227,7 @@ function prop_init()
 
 # Prints out the stylesheet for Drifting
 ################################################################################
-function print_stylesheet()
+function Page::print_default_stylesheet()
 {
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_module_title);
@@ -268,6 +268,8 @@ function print_stylesheet()
         $title_font_string = "$title_font_string $*title_font_fallback";
     }
 
+    """<style type="text/css">""";
+    start_css();
 """
     /* Main layout
     ***************************************************************************/
@@ -823,6 +825,8 @@ function print_stylesheet()
         padding-left: 10px;
     }
 """;
+    end_css();
+    "</style>\n";
 }
 
 # NavLinks Module, Need to override this so the title gets printed.

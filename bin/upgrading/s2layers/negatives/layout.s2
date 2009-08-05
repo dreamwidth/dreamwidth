@@ -191,7 +191,7 @@ set comment_management_links = "text";
 
 ########################
 #Prints the stylesheet
-function print_stylesheet()
+function Page::print_default_stylesheet()
 {
     var string page_background = generate_background_css($*image_background_page_url,$*image_background_page_repeat,$*image_background_page_position,$*color_page_background);
     var string header_background = generate_background_css($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, new Color);
@@ -200,6 +200,9 @@ function print_stylesheet()
     if ($*image_background_header_height > 0) {
         $header_background = $header_background + "\n        height: " + $*image_background_header_height + "px;";
     }
+
+    """<style type="text/css">""";
+    start_css();
 """
     body {
         margin: 0;
@@ -423,6 +426,8 @@ function print_stylesheet()
     .entry h3 { display: inline; }
 
     """;
+    end_css();
+    "</style>\n";
 }
 
 #Print_body
