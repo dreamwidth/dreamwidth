@@ -774,14 +774,6 @@ userproplist.opt_showschools:
   multihomed: 0
   prettyname: Show School Information on Userinfo
 
-userproplist.opt_stylealwaysmine:
-  cldversion: 4
-  datatype: char
-  des: 1: always use user journal style when viewing any journal
-  indexed: 0
-  multihomed: 0
-  prettyname: Always my Style
-
 userproplist.opt_stylemine:
   cldversion: 4
   datatype: bool

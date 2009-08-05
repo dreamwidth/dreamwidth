@@ -1569,16 +1569,6 @@ sub writer {
 ########################################################################
 ### 6. What the App Shows to Users
 
-sub can_use_stylealwaysmine {
-    my $u = shift;
-    my $ret = 0;
-
-    return 0 unless LJ::is_enabled('stylealwaysmine');
-    $ret = LJ::run_hook("can_use_stylealwaysmine", $u);
-    return $ret;
-}
-
-
 # format unixtimestamp according to the user's timezone setting
 sub format_time {
     my $u = shift;
@@ -1601,14 +1591,6 @@ sub has_enabled_getting_started {
 sub is_in_beta {
     my ($u, $key) = @_;
     return LJ::BetaFeatures->user_in_beta( $u => $key );
-}
-
-
-sub opt_stylealwaysmine {
-    my $u = shift;
-
-    return 0 unless $u->can_use_stylealwaysmine;
-    return $u->raw_prop('opt_stylealwaysmine') eq 'Y' ? 1 : 0;
 }
 
 
@@ -8116,8 +8098,7 @@ sub make_journal
             }
 
             # style=mine passed in GET?
-            if ( $remote && ( lc( $geta->{'style'} ) eq 'mine' ||
-                             $remote->opt_stylealwaysmine ) ) {
+            if ( $remote && ( lc( $geta->{'style'} ) eq 'mine' ) ) {
 
                 # get remote props and decide what style remote uses
                 $remote->preload_props("stylesys", "s2_style");
@@ -8262,8 +8243,7 @@ sub make_journal
         # if we are in this path, and they have style=mine set, it means
         # they either think they can get a S2 styled page but their account
         # type won't let them, or they really want this to fallback to bml
-        if ($remote && ( $geta->{'style'} eq 'mine' ||
-                         $remote->opt_stylealwaysmine ) ) {
+        if ( $remote && ( $geta->{'style'} eq 'mine' ) ) {
             $fallback = 'bml';
         }
 

@@ -86,8 +86,6 @@
 
 .fn.public=Publicity
 
-.fn.stylealwaysmine=Other Journals
-
 .fn.viewingadult=Viewing Age Limited Content
 
 .fn.weblogs=Weblogs.com
@@ -180,10 +178,6 @@ as well.
 .security.visibility.friends=Friends only
 
 .security.visibility.nobody=Nobody
-
-.stylealwaysmine=View all journals and communities in your own style
-
-.stylealwaysmine.text=When you visit any journal or community, it will be displayed in your own journal style.
 
 .success=You have successfully saved your account settings.
 
