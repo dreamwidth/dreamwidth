@@ -9,8 +9,6 @@
 
 .error.invalidemail=Invalid email address: [[email]]
 
-.error.invalidimagesize=Image size must be [[size]] or less to disable the lj-cut.
-
 .error.invalidpin=Your PIN is currently limited to alphabet characters and numbers, and needs to be at least [[num]] [[?num|character|characters]] long.
 
 .error.invalidpinaccount=This PIN is invalid. You should change it to something that does <b>NOT</b> have anything to do with your [[sitename]] account.
@@ -87,40 +85,6 @@
 .help.headers.security.public.desc=The post is posted publicly.
 
 .help.headers.security.text=Security options are set via the lj-header "[[header]]". If the security type specified is unknown, the journal entry defaults to private. If no security is specified, the entry is posted according to your default journal security.
-
-.help.images.gallery.example=vacation photos
-
-.help.images.gallery.header=Choosing a gallery
-
-.help.images.gallery.text=You can specify what photo gallery you want your attachments uploaded into using the [[header]] header. If unspecified, the default gallery is '[[name]]'. If you decide to move your images into different galleries in the future, the images posted in your journal will still work correctly.
-
-.help.images.header=Image attachments
-
-.help.images.layout.header=Changing image layout
-
-.help.images.layout.text1=If you attach multiple images, you can change the way they appear in your journal via the [[header]] header.
-
-.help.images.layout.text2=By default, multiple images will be placed in a vertical layout:
-
-.help.images.layout.text3=Currently, the only other option is "[[horizontal]]".
-
-.help.images.ljcut.header=lj-cut behavior
-
-.help.images.ljcut.text=By default, images [[ljcutsize]] or smaller are placed in your journal without an <a [[aopts]]>lj-cut</a>. You can change this behavior using the [[header]] header. Valid options are "[[count]]" and "[[titles]]". Using "[[count]]", if you attached 3 images in your email message, the lj-cut would read, "( 3 images )". Setting the [[header]] header to "[[titles]]" changes the cut caption to the title of the filename, one cut per image. "( emo.jpg ) ( pict002.jpg ) ( me_and_bob.jpg )"
-
-.help.images.security.header=Image security
-
-.help.images.security.text1=Images are publicly viewable by default. Use the [[header]] header to change this behavior. Please note that image security is separate from your journal entry security! For example, you can have a journal entry that is private, while the pictures within it are public. This feature only changes the security on the images themselves - not the journal entry.
-
-.help.images.security.text2=Valid options are "[[option1]]", "[[option2]]", and "[[option3]]".
-
-.help.images.size.header=Changing the image display size
-
-.help.images.size.text1=You may attach images of any size. They will be displayed in your journal at a maximum size of [[maxsize]]. The default size is [[defaultsize]]. You may specify a size using the [[header]] header. Images larger than [[ljcutsize]] will be automatically placed behind an <a [[aopts]]>lj-cut</a>.
-
-.help.images.size.text2=Valid sizes are "[[size1]]", "[[size2]]", and "[[size3]]".
-
-.help.images.text=If you have <a [[aopts1]]>[[scrapbook]]</a> access (and enough disk quota), any image you attach to your email message will be automatically uploaded to your [[scrapbook]] account and displayed in your journal entry. All images above [[dimensions]] in size are displayed under an <a [[aopts2]]>lj-cut</a>. Using <a [[aopts3]]>lj-headers</a>, you can change the way the images look in your journal, as well as set various image attributes.
 
 .help.manage.header=Manage your emailpost settings
 

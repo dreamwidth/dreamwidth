@@ -307,13 +307,6 @@ body<=
             $addrcount++;
         }
 
-        if ( $POST{'emailpost_imgcut'} eq 'default' &&
-             $POST{'email_imgsize'} ne 'default' ) {
-            my ($w, $h) = split 'x', $POST{'emailpost_imgsize'};
-            push @errors, BML::ml('.error.invalidimagesize', {'size' => "320x240"})
-                if $w > 320 || $h > 240;
-        }
-
         return LJ::bad_input(@errors) if @errors;
 
         LJ::Emailpost::set_allowed_senders($u, \%allowed);
