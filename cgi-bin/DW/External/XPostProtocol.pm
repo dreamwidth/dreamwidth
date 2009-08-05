@@ -85,6 +85,26 @@ sub scrub_polls {
     return $entry_text;
 }
 
+# creates the footer text
+sub create_footer_text {
+    my ($self, $entry, $footer_text) = @_;
+
+    my $url = $entry->url;
+    my $comment_url = $entry->url( anchor => "comments" );
+    my $reply_url = $entry->reply_url;
+    my $comment_image = $entry->comment_imgtag;
+
+    # note:  if you change any of these, be sure to change the preview
+    # javascript in DW/Setting/XPostAccounts.pm, too.
+    $footer_text =~ s/%%url%%/$url/gi;
+    $footer_text =~ s/%%reply_url%%/$reply_url/gi;
+    $footer_text =~ s/%%comment_url%%/$comment_url/gi;
+    $footer_text =~ s/%%comment_image%%/$comment_image/gi;
+    $footer_text = "\n\n" . $footer_text;
+    
+    return $footer_text;
+}
+
 # validates that the given server is running the appropriate protocol.
 # must be run in an eval block.  returns 1 on success, 0 on failure
 sub validate_server { 1 }

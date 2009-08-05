@@ -2893,7 +2893,15 @@ setting.viewingadultcontent.option.select.none=nothing (display all content)
 
 setting.viewingadultcontent.reason=(To change this option, you must <a [[aopts]]>set your birthdate</a> first.)
 
+setting.xpost.accounts=Accounts
+
 setting.xpost.btn.add=Add New Account
+
+setting.xpost.comments=Comments
+
+setting.xpost.footer=Footer
+
+setting.xpost.footer.default.label=System default footer:
 
 setting.xpost.label=Crossposting
 
@@ -2911,7 +2919,14 @@ setting.xpost.option.delete=Delete
 
 setting.xpost.option.disablecomments=Disable comments on crossposts made to other sites
 
-setting.xpost.option.footer=Text of the footer to add on other sites. If you leave it blank, the default will display. To include a link to the post locally, use "%%url%%".
+setting.xpost.option.footer=Text of the footer to add on other sites. If you leave it blank, the system default footer will display.
+
+setting.xpost.option.footer.vars=The following variables may be used:
+setting.xpost.option.footer.vars.url=link to the original post
+setting.xpost.option.footer.vars.reply_url=link to the reply form on the original post
+setting.xpost.option.footer.vars.comment_url=link to view the comments on the original post
+setting.xpost.option.footer.vars.comment_image=image tag that dynamically displays the comment count on the original post
+setting.xpost.option.footer.vars.comment_image.alttext=comment count unavailable
 
 setting.xpost.option.footer.when=Add the footer to the post on the other site:
 
@@ -2930,6 +2945,10 @@ setting.xpost.option.username=Username
 setting.xpost.option.xpostbydefault=Crosspost by Default
 
 setting.xpost.noaccounts=No accounts configured
+
+setting.xpost.preview=Preview
+
+setting.xpost.settings=Crosspost Settings
 
 setting.xpostcomments.about=When Crossposting to LJ-based accounts, disable comments on the other posts.
 

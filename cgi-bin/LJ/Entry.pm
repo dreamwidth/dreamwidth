@@ -225,6 +225,24 @@ sub url {
     return $url;
 }
 
+# returns a url that will display the number of comments on the entry
+# as an image
+sub comment_image_url {
+    my $self = shift;
+    my $u = $self->{u};
+
+    return "$LJ::SITEROOT/tools/commentcount?uid=" . $self->journalid . "&ditemid=" .  $self->ditemid;
+}
+
+# returns a pre-generated comment img tag using the comment_image_url
+sub comment_imgtag {
+    my $self = shift;
+
+    my $alttext = LJ::Lang::ml('setting.xpost.option.footer.vars.comment_image.alttext');
+    
+    return '<img src="' . $self->comment_image_url . '" alt="' . $alttext . '" style="vertical-align: middle;"/>';
+}
+
 sub anum {
     my $self = shift;
     return $self->{anum} if defined $self->{anum};

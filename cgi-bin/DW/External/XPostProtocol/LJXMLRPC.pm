@@ -167,9 +167,7 @@ sub crosspost {
 
             $adding_footer = 1;
             if ( $footer_text ) {
-                my $url = $entry->url;
-                $footer_text =~ s/%%url%%/$url/gi;
-                $footer_text = "\n\n" . $footer_text;
+                $footer_text = $self->create_footer_text($entry, $footer_text);
             } else {
                 # FIXME: this should check if comments are disabled
                 # on the local site and do the right thing, but 
@@ -185,9 +183,7 @@ sub crosspost {
             # (and they are)
 
             if ( $footer_text ) {
-                my $url = $entry->url;
-                $footer_text =~ s/%%url%%/$url/gi;
-                $footer_text = "\n\n" . $footer_text;
+                $footer_text = $self->create_footer_text($entry, $footer_text);
             } else {
                 # FIXME: this should check if comments are disabled
                 # on the local site and do the right thing, but 

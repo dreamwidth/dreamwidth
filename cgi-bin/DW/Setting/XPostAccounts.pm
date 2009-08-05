@@ -57,6 +57,7 @@ sub option {
 
     # be sure to add your style info in htdocs/stc/settings.css or this won't
     # look very good.
+    $ret .= "<h2>" . $class->ml('setting.xpost.accounts') ."</h2><br/>"; 
     $ret .= "<table class='setting_table'>\n";
     if (scalar @accounts) {
         $ret .= "<tr>\n";
@@ -102,29 +103,20 @@ sub option {
         $ret .= "<div class='xpost_add'><a href='$LJ::SITEROOT/manage/externalaccount'>" . $class->ml('setting.xpost.btn.add') . "</a></div>\n";
     }
 
+    $ret .= "<h2>" . $class->ml('setting.xpost.settings') . "</h2>";
     # disable comments on crosspost
-    $ret .= "<br /><p><label for='${key}xpostdisablecomments'>" . $class->ml('setting.xpost.option.disablecomments') . "</label>";
+    $ret .= "<table><tr>";
+    $ret .= "<td><b>" . $class->ml('setting.xpost.comments') . "</b></td><td><label for='${key}xpostdisablecomments'>" . $class->ml('setting.xpost.option.disablecomments') . "</label></td><td>";
     $ret .= LJ::html_check({
         name     => "${key}xpostdisablecomments",
         value    => 1,
         id       => "${key}xpostdisablecomments",
         selected => $u->prop('opt_xpost_disable_comments')
         }) .  "</p>";
-
-    # define custom footer
-    $ret .= "<p><label for='${key}crosspost_footer_text'>" . $class->ml( 'setting.xpost.option.footer' ) . "</label>";
-    my $footer_text = $u->prop('crosspost_footer_text');
-
-    $ret .= LJ::html_text({
-        name      => "${key}crosspost_footer_text",
-        id        => "${key}crosspost_footer_text",
-        size      => "70",
-        maxlength => "255",
-        value     => $footer_text
-    }) . "</p>";
-
+    $ret .= "</td></tr>";
+    
     # When should the footer be displayed?
-    $ret .= "<p><label for='${key}crosspost_footer_append'>" . $class->ml( 'setting.xpost.option.footer.when' ) . "</label> ";
+    $ret .= "<tr><td><b>" . $class->ml('setting.xpost.footer') . "</b></td><td><label for='${key}crosspost_footer_append'>" . $class->ml( 'setting.xpost.option.footer.when' ) . "</label></td><td>";
     my $append_when = $u->prop('crosspost_footer_append');
 
     $ret .= LJ::html_select({
@@ -136,7 +128,52 @@ sub option {
         'D'       => $class->ml( 'setting.xpost.option.footer.when.disabled' ),
         'N'       => $class->ml( 'setting.xpost.option.footer.when.never' )
     );
+    $ret .= "</td></tr>";
 
+    # define custom footer
+    $ret .= "<tr><td>&nbsp</td><td colspan='2'><label for='${key}crosspost_footer_text'>" . $class->ml( 'setting.xpost.option.footer' ) . "</label><br/>";
+
+    my $footer_text = $u->prop('crosspost_footer_text');
+
+    $ret .= LJ::html_textarea({
+        name      => "${key}crosspost_footer_text",
+        id        => "${key}crosspost_footer_text",
+        rows      => 3,
+        cols      => 80,
+        maxlength => "512",
+        onkeyup   => "javascript:updatePreview()",
+        value     => $footer_text
+    }) . "<br/><br/>";
+
+    $ret .= "" . $class->ml('setting.xpost.preview') . "\n";
+
+    my $baseurl = $LJ::SITEROOT;
+    my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alttext');
+    my $default_comment = $class->ml('xpost.redirect.comment', { postlink => "%%url%%" });
+
+    $ret .= qq [
+      <div id='footer_preview' class='xpost_footer_preview'></div>
+      <script type="text/javascript">
+        function updatePreview() {
+          var previewString = \$('${key}crosspost_footer_text').value;
+          if (! previewString) {
+            previewString = '$default_comment';
+          }
+          previewString = previewString.replace(/%%url%%/, '$baseurl/12345.html');
+          previewString = previewString.replace(/%%reply_url%%/, '$baseurl/12345.html?mode=reply');
+          previewString = previewString.replace(/%%comment_url%%/, '$baseurl/12345.html#comments');
+          previewString = previewString.replace(/%%comment_image%%/, '<img src="$baseurl/tools/commentcount?samplecount=23" alt="$alttext" style="vertical-align: middle;"/>');
+          \$('footer_preview').innerHTML = previewString;
+        }
+        updatePreview();
+      </script>
+    ];
+    $ret .= "<p style='font-size: smaller;'>" . $class->ml('setting.xpost.option.footer.vars') . "<br/>";
+    foreach my $var qw (url reply_url comment_url comment_image) {
+        $ret .= "<b>%%$var%%</b>: " . $class->ml("setting.xpost.option.footer.vars.$var") . "<br/>\n";
+    }
+    $ret .= "<br/>" . $class->ml("setting.xpost.footer.default.label") .  "<br/>" . LJ::ehtml($default_comment) . "\n";
+    $ret .= "</td></tr></table>\n";
     return $ret;
 }
 

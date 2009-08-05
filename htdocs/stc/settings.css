@@ -169,3 +169,10 @@
 .xpost_add {
     text-align: center;
 }
+
+.xpost_footer_preview {
+    border: 1px solid #000000;
+    width: 100%;
+    background: #EEEEEE;
+    padding: 10px 5px 10px 5px;
+}
