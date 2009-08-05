@@ -55,7 +55,7 @@ body<=
         my $q = LJ::strip_html( LJ::trim( $POST{query} ) );
         return "Query must be shorter than 255 characters, sorry!\n"
             if length( $q ) > 255;
-        return "Please enter a search query.\n"
+        return "Please enter a search query. <a href='$LJ::SITEROOT/search'>Search again.</a>\n"
             unless $q;
 
         # if an offset, less than 1000 please
