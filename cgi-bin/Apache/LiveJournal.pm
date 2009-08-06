@@ -657,7 +657,7 @@ sub trans
 
         } elsif ($uuri =~ m!
                  /([a-z\_]+)?           # optional /<viewname>
-                 (.*)                   # path extra: /FriendGroup, for example
+                 (.*)                   # path extra: /ReadingFilter, for example
                  !x && ($1 eq "" || defined $LJ::viewinfo{$1}))
         {
             ($mode, $pe) = ($1, $2);
@@ -1402,16 +1402,16 @@ sub journal_content
     {
         # give a real 404 to the journal owner
         if ($remote && $remote->{'user'} eq $user) {
-            $status = "404 Friend group does not exist";
+            $status = "404 Reading filter does not exist";
             $html = "<h1>Not Found</h1>" .
-                    "<p>The friend group you are trying to access does not exist.</p>";
+                    "<p>The reading filter you are trying to access does not exist.</p>";
 
         # otherwise be vague with a 403
         } else {
             # send back a 403 and don't reveal if the group existed or not
-            $status = "403 Friend group does not exist, or is not public";
+            $status = "403 Reading filter does not exist, or is not public";
             $html = "<h1>Denied</h1>" .
-                    "<p>Sorry, the friend group you are trying to access does not exist " .
+                    "<p>Sorry, the reading filter you are trying to access does not exist " .
                     "or is not public.</p>\n";
 
             $html .= "<p>You're not logged in.  If you're the owner of this journal, " .
