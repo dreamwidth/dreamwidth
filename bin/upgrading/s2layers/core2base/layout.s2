@@ -394,6 +394,7 @@ a:visited { $page_link_visited_colors }
 	float: right;
 	width: $*sidebar_width;
 	margin-right: -$*sidebar_width_doubled;
+	margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
 }
 .three-columns-sides #tertiary { 
 	float: right;
