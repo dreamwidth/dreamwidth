@@ -85,9 +85,9 @@ sub _expand_tag {
     if ($opts{expand_full}){
         return $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id);
     } elsif ($edit) {
-        return '<site-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">\n" .
+        return '<site-embed ' . join(' ', map {"$_=\"$attrs{$_}\""} keys %attrs) . ">" .
                  $class->module_content(moduleid  => $attrs{id}, journalid => $journal->id) .
-                 "\n<\/site-embed>";
+                 "<\/site-embed>";
     } else {
         @opts{qw /width height/} = @attrs{qw/width height/};
         return $class->module_iframe_tag($journal, $attrs{id}, %opts)
@@ -106,7 +106,7 @@ sub parse_module_embed {
     return unless LJ::is_enabled('embed_module');
 
     # fast track out if we don't have to expand anything
-    return unless $$postref =~ /lj\-embed|embed|object/i;
+    return unless $$postref =~ /(lj|site)\-embed|embed|object/i;
 
     # do we want to replace with the lj-embed tags or iframes?
     my $expand = $opts{expand};
@@ -139,7 +139,7 @@ sub parse_module_embed {
         my $reconstructed = $class->reconstruct($token);
 
         if ($state == REGULAR) {
-            if ($tag eq 'lj-embed' && $type eq 'S' && ! $attr->{'/'}) {
+            if (($tag eq 'lj-embed' || $tag eq 'site-embed') && $type eq 'S' && ! $attr->{'/'}) {
                 # <lj-embed ...>, not self-closed
                 # switch to EXPLICIT state
                 $newstate = EXPLICIT;
@@ -180,7 +180,7 @@ sub parse_module_embed {
 
         } elsif ($state == EXPLICIT) {
 
-            if ($tag eq 'lj-embed' && $type eq 'E') {
+            if (($tag eq 'lj-embed' || $tag eq 'site-embed') && $type eq 'E') {
                 # </lj-embed> - that's the end of explicit embed block, switch to REGULAR
                 $newstate = REGULAR;
             } else {
@@ -202,7 +202,7 @@ sub parse_module_embed {
                 preview => $preview,
             );
 
-            $newtxt .= "<lj-embed " . join(' ', map { exists $embed_attrs{$_} ? "$_=\"$embed_attrs{$_}\"" : () } qw / id width height /) . "/>";
+            $newtxt .= "<site-embed " . join(' ', map { exists $embed_attrs{$_} ? "$_=\"$embed_attrs{$_}\"" : () } qw / id width height /) . "/>";
 
             $embed = '';
             %embed_attrs = ();
