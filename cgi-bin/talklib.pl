@@ -2161,13 +2161,19 @@ my @_ml_strings_en = (
 );
 
 sub _format_headers {
-    my ($lang, $encoding, $comment, $u, $edited, $parent, $paru) = @_;
+    my ( $lang, $encoding, $comment, $u, $edited, $parent, $paru, $entry ) = @_;
 
     my $vars = {
         user            => $comment->{u} ? $comment->{u}->display_username : '',
         sitenameabbrev  => $LJ::SITENAMEABBREV,
         sitenameshort   => $LJ::SITENAMESHORT,
     };
+
+    my $entry_obj = LJ::Entry->new( $entry->{journalid}, ditemid => $entry->{ditemid} );
+    my $entry_details = '';
+    if ( $entry_obj && $entry_obj->journal ) {
+        $entry_details = ' [ ' . $entry_obj->journal->display_name . ' - ' . $entry_obj->ditemid . ' ]';
+    }
 
     my ($headersubject, $fromname);
     unless ($headersubject = $comment->{subject}) {
@@ -2187,6 +2193,8 @@ sub _format_headers {
         }
         $headersubject = LJ::Lang::get_text($lang, $key, undef, $vars);
     }
+
+    $headersubject .= $entry_details;
 
     if ($comment->{u}) {
         # external users has lj-logins as 'ext_*', so
@@ -2311,7 +2319,7 @@ sub mail_comments {
                 # Now we going to send email to '$paru'.
                 $lang = $paru->prop('browselang');
 
-                ($headersubject, $fromname) = _format_headers($lang, $encoding, $comment, $paru, $edited, $parent, $paru);
+                ($headersubject, $fromname) = _format_headers( $lang, $encoding, $comment, $paru, $edited, $parent, $paru, $item );
 
                 my $msg =  new MIME::Lite ('From' => "\"$fromname\" <$LJ::BOGUS_EMAIL>",
                                            'To' => $paru->email_raw,
@@ -2374,7 +2382,7 @@ sub mail_comments {
         # Now we going to send email to '$entryu'.
         $lang = $entryu->prop('browselang');
         $encoding = $entryu->mailencoding || "UTF-8";
-        ($headersubject, $fromname) = _format_headers($lang, $encoding, $comment, $entryu, $edited, $parent, $paru);
+        ($headersubject, $fromname) = _format_headers( $lang, $encoding, $comment, $entryu, $edited, $parent, $paru, $item );
 
         my $msg =  new MIME::Lite ('From' => "\"$fromname\" <$LJ::BOGUS_EMAIL>",
                                    'To' => $entryu->email_raw,
@@ -2445,7 +2453,7 @@ sub mail_comments {
         # Now we going to send email to '$u'.
         $lang = $u->prop('browselang');
         $encoding = $u->mailencoding || "UTF-8";
-        ($headersubject, $fromname) = _format_headers($lang, $encoding, $comment, $u, $edited, $parent, $paru);
+        ($headersubject, $fromname) = _format_headers( $lang, $encoding, $comment, $u, $edited, $parent, $paru, $item );
 
         my $msg = new MIME::Lite ('From' => "\"$fromname\" <$LJ::BOGUS_EMAIL>",
                                   'To' => $u->email_raw,

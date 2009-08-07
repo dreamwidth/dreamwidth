@@ -85,17 +85,22 @@ sub as_email_subject {
     my $edited = $self->comment->is_edited;
     my $lang = $u->prop('browselang');
 
+    my $entry_details = '';
+    if ( $self->comment->journal && $self->comment->entry ) {
+        $entry_details = ' [ ' . $self->comment->journal->display_name . ' - ' . $self->comment->entry->ditemid . ' ]';
+    }
+
     my $filename = $self->template_file_for(section => 'subject', lang => $lang);
     if ($filename) {
         # Load template file into template processor
         my $t = LJ::HTML::Template->new(filename => $filename);
-        $t->param(subject => $self->comment->subject_html);
+        $t->param( subject => $self->comment->subject_html . $entry_details );
         return $t->output;
     }
 
     my $key = 'esn.mail_comments.subject.';
     if ($self->comment->subject_orig) {
-        return LJ::strip_html($self->comment->subject_orig);
+        return LJ::strip_html( $self->comment->subject_orig . $entry_details );
     } elsif (LJ::u_equals($self->comment->poster, $u)) {
         $key .= $edited ? 'comment_you_edited' : 'comment_you_posted';
     } elsif ($self->comment->parent) {
@@ -111,7 +116,8 @@ sub as_email_subject {
             $key .= LJ::u_equals($self->comment->entry->poster, $u) ? 'reply_to_your_entry' : 'reply_to_an_entry';
         }
     }
-    return LJ::Lang::get_text($lang, $key);
+
+    return LJ::Lang::get_text( $lang, $key ) . $entry_details;
 }
 
 sub as_email_string {
