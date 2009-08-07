@@ -46,7 +46,7 @@ sub render_body {
         $ret .= "<tr><td>";
         $ret .= $class->html_text(
             name => "link_${ct}_ordernum",
-            size => 2,
+            size => 4,
             value => $ct * $order_step,
         );
         $ret .= "</td><td>";
