@@ -97,8 +97,13 @@ my $slashclose_tags = qr/^(?:area|base|basefont|br|col|embed|frame|hr|img|input|
 sub clean
 {
     my $data = shift;
+    return undef unless defined $$data;
+
     my $opts = shift;
-    my $newdata;
+
+    # this has to be an empty string because otherwise we might never actually append
+    # anything to it if $$data contains only invalid content
+    my $newdata = '';
 
     # remove the auth portion of any see_request.bml links
     $$data =~ s/(see_request\.bml\S+?)auth=\w+/$1/ig;
