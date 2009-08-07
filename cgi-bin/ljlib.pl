@@ -42,7 +42,6 @@ use Class::Autouse qw(
                       LJ::ExternalSite
                       LJ::ExternalSite::Vox
                       LJ::Message
-                      LJ::EventLogSink
                       LJ::PageStats
                       LJ::AccessLogSink
                       LJ::ConvUTF8

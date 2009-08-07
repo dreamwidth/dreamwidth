@@ -3,7 +3,6 @@ package LJ::EventLogRecord;
 
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw(LJ::EventLogSink);
 use TheSchwartz;
 
 use LJ::ModuleLoader;
@@ -89,10 +88,6 @@ sub work {
     my $evt_class = delete $params{_event_class} or die "No event_class specified";
 
     my $evt = LJ::EventLogRecord::new($evt_class, %params);
-
-    foreach my $sink (LJ::EventLogSink->sinks) {
-        $sink->log($evt) if $sink->should_log($evt);
-    }
 
     $job->completed;
 }

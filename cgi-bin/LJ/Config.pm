@@ -38,7 +38,6 @@ sub reload {
         $LJ::DBIRole->set_sources(\%LJ::DBINFO);
         LJ::MemCache::reload_conf();
         LJ::ExternalSite->forget_site_objs;
-        LJ::EventLogSink->forget_sink_objs;
         LJ::AccessLogSink->forget_sink_objs;
 
         # reload MogileFS config
