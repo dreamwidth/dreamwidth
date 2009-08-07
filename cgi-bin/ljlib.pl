@@ -370,7 +370,7 @@ sub get_timeupdate_multi {
     my ($opt, @uids) = @_;
 
     # allow optional opt hashref as first argument
-    unless (ref $opt eq 'HASH') {
+    if ( $opt && ref $opt ne 'HASH' ) {
         push @uids, $opt;
         $opt = {};
     }
