@@ -484,29 +484,6 @@ sub set_renamed {
 }
 
 
-sub set_suspended {
-    my ($u, $who, $reason, $errref) = @_;
-    die "Not enough parameters for LJ::User::set_suspended call" unless $who and $reason;
-
-    my $res = $u->set_statusvis('S');
-    unless ($res) {
-        $$errref = "DB error while setting statusvis to 'S'" if ref $errref;
-        return $res;
-    }
-
-    LJ::statushistory_add($u, $who, "suspend", $reason);
-
-    LJ::run_hooks("account_cancel", $u);
-
-    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
-        $$errref = $err if ref $errref and $err;
-        return 0;
-    }
-
-    return $res; # success
-}
-
-
 # set_statusvis only change statusvis parameter, all accompanied actions are done in set_* methods
 sub set_statusvis {
     my ($u, $statusvis) = @_;
@@ -533,6 +510,29 @@ sub set_statusvis {
     # do update
     return LJ::update_user($u, { statusvis => $statusvis,
                                  raw => 'statusvisdate=NOW()' });
+}
+
+
+sub set_suspended {
+    my ($u, $who, $reason, $errref) = @_;
+    die "Not enough parameters for LJ::User::set_suspended call" unless $who and $reason;
+
+    my $res = $u->set_statusvis('S');
+    unless ($res) {
+        $$errref = "DB error while setting statusvis to 'S'" if ref $errref;
+        return $res;
+    }
+
+    LJ::statushistory_add($u, $who, "suspend", $reason);
+
+    LJ::run_hooks("account_cancel", $u);
+
+    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
+        $$errref = $err if ref $errref and $err;
+        return 0;
+    }
+
+    return $res; # success
 }
 
 
@@ -6895,7 +6895,8 @@ sub user_search_display {
         if (my $picid = $get_picid->($u)) {
             $ret .= "<img src='$LJ::USERPIC_ROOT/$picid/$u->{userid}' alt='$u->{user} userpic' style='border: 1px solid #000;' />";
         } else {
-            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='no default userpic' style='border: 1px solid #000;' width='100' height='100' />";
+            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' alt='" . BML::ml( 'search.user.nopic' );
+            $ret .= "' style='border: 1px solid #000;' width='100' height='100' />";
         }
         $ret .= "</a>";
 
@@ -6906,25 +6907,26 @@ sub user_search_display {
         $ret .= "</td></tr><tr>";
 
         if ($u->{name}) {
-            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Name:</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>" . BML::ml( 'search.user.name' );
+            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->profile_url . "'>";
             $ret .= LJ::ehtml($u->{name});
             $ret .= "</a>";
             $ret .= "</td></tr><tr>";
         }
 
         if (my $jtitle = $u->prop('journaltitle')) {
-            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>Journal:</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
+            $ret .= "<td width='1%' style='font-size: smaller' valign='top'>" . BML::ml( 'search.user.journal' );
+            $ret .= "</td><td style='font-size: smaller'><a href='" . $u->journal_base . "'>";
             $ret .= LJ::ehtml($jtitle) . "</a>";
             $ret .= "</td></tr>";
         }
 
         $ret .= "<tr><td colspan='2' style='text-align: left; font-size: smaller' class='lastupdated'>";
 
-        if ($updated->{$u->{'userid'}} > 0) {
-            $ret .= "Updated ";
-            $ret .= LJ::ago_text(time() - $updated->{$u->{'userid'}});
+        if ( $updated->{$u->userid} > 0 ) {
+            $ret .= BML::ml( 'search.user.update.last', { time => LJ::ago_text( time() - $updated->{$u->userid} ) } );
         } else {
-            $ret .= "Never updated";
+            $ret .= BML::ml( 'search.user.update.never' );
         }
 
         $ret .= "</td></tr>";

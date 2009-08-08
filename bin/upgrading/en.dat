@@ -2411,6 +2411,16 @@ s2theme.themename.default=(Unnamed - [[themeid]])
 
 s2theme.themename.notheme=(Layout Default)
 
+search.user.journal=Journal:
+
+search.user.name=Name:
+
+search.user.nopic=no default userpic
+
+search.user.update.last=Updated [[time]]
+
+search.user.update.never=Never updated
+
 setting.adultcontent.error.invalid=Invalid adult content setting.
 
 setting.adultcontent.label=Adult Content
