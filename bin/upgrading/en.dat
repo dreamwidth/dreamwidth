@@ -2569,12 +2569,6 @@ setting.display.password.actionlink=Change
 
 setting.display.password.label=Password
 
-setting.display.secretquestion.actionlink.change=Change
-
-setting.display.secretquestion.actionlink.set=Set
-
-setting.display.secretquestion.label=Secret Question
-
 setting.display.username.actionlink=Rename
 
 setting.display.username.label=Username
