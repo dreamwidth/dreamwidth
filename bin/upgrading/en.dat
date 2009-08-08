@@ -2741,6 +2741,8 @@ setting.randompaidgifts.option.paid=If your paid account expires, include yourse
 
 setting.randompaidgifts.option.note=You may receive a paid account from someone you do not know.
 
+setting.profileemail.error.email.invalid=Invalid email address entered.
+
 setting.safesearch.error.invalid=Invalid safe search setting.
 
 setting.safesearch.label=Safe Search Filter

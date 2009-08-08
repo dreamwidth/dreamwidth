@@ -57,7 +57,17 @@ sub save {
     my $email = $class->get_arg( $args, "email" );
     $email = LJ::trim( $email || "" );
 
-    $u->profile_email( $email );
+    # ensure a valid email address is given.
+    my @errors;
+    if ( $email ) {
+        LJ::check_email( $email, \@errors );
+    }
+
+    if ( @errors ) {
+        $class->errors( "email" => $class->ml( 'setting.profileemail.error.email.invalid' ) ) ;
+    } else {
+        $u->profile_email( $email );
+    }
 
     return 1;
 }
