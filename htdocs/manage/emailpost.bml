@@ -162,10 +162,10 @@ body<=
 
             {
                 name  => 'headers',
-                title => BML::ml('.help.headers.header', {'sitenameabbrev' => $LJ::SITENAMEABBREV}),
+                title => BML::ml( '.help.headers.header2' ),
                 url   => '?mode=help&type=headers',
                 text  => qq{
-                    <?h1 } . BML::ml('.help.headers.header', {'sitenameabbrev' => $LJ::SITENAMEABBREV}) . qq{ h1?><br />
+                    <?h1 } . BML::ml( '.help.headers.header2' ) . qq{ h1?><br />
 
                     <fieldset><legend>$ML{'.help.headers.options.header'}</legend>
                     <?p $ML{'.help.headers.options.text'} p?>
@@ -201,6 +201,10 @@ body<=
                     <div style="margin-left:40px">$ML{'.help.headers.security.group.desc'}
                     <br />} . BML::ml('.help.headers.security.group.example', {'header' => 'post-security:'}) . qq{</div><br />
                     </div></fieldset>
+
+                    <fieldset><legend>$ML{'.help.headers.compat.header'}</legend>
+                    <?p } . BML::ml( '.help.headers.compat.text', { 'sitename' => $LJ::SITENAME } ) . qq{ p?>
+                    </fieldset>
                 }
             },
 
