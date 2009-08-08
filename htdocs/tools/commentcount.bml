@@ -8,10 +8,10 @@
     # the given post.
 
     my $ditemid = $GET{ditemid};
-    my $uid = $GET{uid};
+    my $uid = LJ::get_userid( $GET{user} );
 
     # get the value to display
-    my $count = $GET{samplecount} || LJ::Entry->new( $uid, ditemid => $ditemid )->reply_count;
+    my $count = $GET{samplecount} || eval { LJ::Entry->new( $uid, ditemid => $ditemid )->reply_count } || 0;
 
     # create an image
     my $image = Image::Magick->new;

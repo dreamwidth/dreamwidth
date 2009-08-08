@@ -231,7 +231,7 @@ sub comment_image_url {
     my $self = shift;
     my $u = $self->{u};
 
-    return "$LJ::SITEROOT/tools/commentcount?uid=" . $self->journalid . "&ditemid=" .  $self->ditemid;
+    return "$LJ::SITEROOT/tools/commentcount?user=" . $self->journal->user . "&ditemid=" .  $self->ditemid;
 }
 
 # returns a pre-generated comment img tag using the comment_image_url
