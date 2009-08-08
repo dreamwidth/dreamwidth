@@ -5,6 +5,8 @@ layerinfo author_name = "phoenix";
 layerinfo des = "Highly customisable div-based layout";
 layerinfo lang = "en";
 
+set layout_authors = [ { "name" => "phoenix", "type" => "user" } ];
+
 ##===============================
 ## Display settings - general
 ##===============================
@@ -98,6 +100,7 @@ propgroup modules {
     property use module_syndicate_group;
     property use module_time_group;
     property use module_poweredby_group;
+    property use module_credit_group;
 }
 
 
@@ -111,6 +114,7 @@ set module_pagesummary_section = "one";
 set module_tags_section = "one";
 set module_links_section = "one";
 set module_syndicate_section = "one";
+set module_credit_section = "one";
 
 set module_calendar_section = "three";
 set module_calendar_opts_type = "horizontal";
@@ -403,6 +407,15 @@ function Page::print_default_stylesheet()
     }
     .module-calendar a:hover{
         color: $*color_module_link_hover;
+    }
+    .module-credit dt, .module-credit dd {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+    .module-credit dt {
+        font-weight: bold;
+        margin-right: 0.5em;
     }
 
     .floatclear {

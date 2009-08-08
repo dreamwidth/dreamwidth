@@ -8,13 +8,16 @@ layerinfo "type"        = "layout";
 layerinfo "name"        = "Drifting";
 layerinfo "redist_uniq" = "drifting/layout";
 layerinfo "author_name" = "Jennie Griner";
-layerinfo "autor_email" = "jennielynn1127@livejournal.com";
+layerinfo "author_email" = "jennielynn1127@livejournal.com";
 layerinfo "des"         = "Based on the Drifting v1.0 design at OSWD by Pat Heard";
 layerinfo "lang"        = "en";
 
 ################################################################################
 # Properties
 ################################################################################
+
+set layout_authors             = [ { "name" => "Jennie Griner"} ];
+set layout_resources           = [ { "name" => "OSWD design", "url" => "http://www.oswd.org/design/information/id/1955" } ];
 
 # COLOURS
 ################################################################################
@@ -179,6 +182,7 @@ propgroup modules
     property use module_syndicate_group;
     property use module_userprofile_group;
     property use module_time_group;
+    property use module_credit_group;
 }
 
 set module_layout_sections     = "none|(none)|one|Sidebar|two|Footer";
@@ -193,6 +197,7 @@ set module_tags_section        = "none";
 set module_syndicate_section   = "none";
 set module_userprofile_section = "none";
 set module_time_section        = "none";
+set module_credit_section      = "one";
 
 set module_calendar_order      = 1;
 set module_navlinks_order      = 2;
@@ -518,6 +523,22 @@ function Page::print_default_stylesheet()
     .module-calendar td.entry-day {
         border-right: 1px solid $*color_module_border;
         border-bottom: 1px solid $*color_module_border;
+    }
+
+    /* Credit
+    ***************************************************************************/
+    .module-credit dl {
+        padding: 0 0 0 20px;
+        font-size: 0.8em;
+    }
+    .module-credit dt, .module-credit dd {
+        display: inline;
+        margin: 0;
+        padding: 0;
+    }
+    .module-credit dt {
+        font-weight: bold;
+        margin-right: 0.5em;
     }
 
     /* Reply

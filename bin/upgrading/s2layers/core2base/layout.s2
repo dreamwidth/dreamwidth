@@ -158,6 +158,7 @@ propgroup modules {
     property use module_syndicate_group;
     property use module_time_group;
     property use module_poweredby_group;
+    property use module_credit_group;
 }
 
 # explicitly define what sections the layout has available
@@ -599,7 +600,15 @@ ul.userlite-interaction-links li {
 	display: block;
 	padding: 2px;
 }
-
+.module-credit dt, .module-credit dd {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+.module-credit dt {
+    font-weight: bold;
+    margin-right: 0.5em;
+}
 .module-syndicate  .module-content { 
 	text-align: center;
 }    --->

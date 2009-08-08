@@ -1405,6 +1405,26 @@ property string module_customtext_section { grouped = 1; }
 set module_customtext_show = false;
 set module_customtext_order = 13;
 set module_customtext_section = "one";
+
+property string[] module_credit_group {
+    des = "Layout Credit";
+    grouptype = "module";
+}
+set module_credit_group = ["module_credit_show", "module_credit_order", "module_credit_section"];
+property bool module_credit_show    { grouped = 1; }
+property int module_credit_order    { grouped = 1; }
+property string module_credit_section { grouped = 1; }
+
+set module_credit_show = true;
+set module_credit_order = 14;
+set module_credit_section = "one";
+
+property string{}[] layout_authors { noui = 1;  des = "The layout author (or authors). Accepts 'name', 'url', 'type'"; }
+property string{}[] layout_resources { noui = 1; des = "Resources used in the layout. Accepts 'name', 'url'"; }
+
+set layout_authors = [];
+set layout_resources = [];
+
 ##===============================
 ## Journal style - fonts
 ##===============================
@@ -1917,17 +1937,24 @@ property string text_module_customtext_content {
 
 property string text_module_customtext_url {
     des = "URL for 'Custom text' header link";
-    maxlenght = 100;
+    maxlength = 100;
     size = 20;
     example = "http://www.dreamwidth.org";
 }
 
+property string text_module_credit {
+    des = "Text for the 'Layout Credit' module heading";
+    maxlength = 50;
+    size = 20;
+    example = "Layout Credit";
+}
 
 set text_module_links = "Links";
 set text_module_pagesummary = "Page Summary";
 set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
 set text_module_popular_tags = "Most Popular Tags";
+set text_module_credit = "Layout Credit";
 
 set text_module_customtext = "Custom text";
 set text_module_customtext_content = "";
@@ -2100,6 +2127,9 @@ property string text_generated_on {
 
 property string text_powered_by { noui = 1; des = "Text to describe what site hosts the journal"; }
 
+property string text_layout_authors { noui = 1; des = "Text label for the layout author"; }
+property string text_layout_resources { noui = 1; des = "Text label for the layout resources"; }
+
 property string text_posting_in {
     des = "Text when user is posting in a community";
     example = "posting in ";
@@ -2118,6 +2148,8 @@ set text_default_separator = " | ";
 set text_view_month = "View Subjects";
 set text_generated_on = "Page generated";
 set text_powered_by = "Powered by";
+set text_layout_authors = "Layout:";
+set text_layout_resources = "Resources:";
 set text_posting_in = " posting in ";
 set text_nosubject = "(no subject)";
 
@@ -2392,9 +2424,8 @@ function modules_init()
     if ( $*module_time_show ) { $*module_sections{$*module_time_section}[$*module_time_order]=["time"]; }
     if ( $*module_poweredby_show ) { $*module_sections{$*module_poweredby_section}[$*module_poweredby_order]=["poweredby"]; }
     if ( $*module_customtext_show ) { $*module_sections{$*module_customtext_section}[$*module_customtext_order]=["customtext"]; }
-     
+    if ( $*module_credit_show ) { $*module_sections{$*module_credit_section }[$*module_credit_order]=["credit"]; }
 
-    
     #if ( $*module_%%mod%%_show ) { $*module_sections{$*module_%%mod%%_section }[$*module_%%mod%%_order]=["%%mod%%"]; }
 }
 
@@ -3492,6 +3523,58 @@ function print_module_links() {
         close_module();
     }
 }
+function print_module_credit() {
+    var string ret = "";
+    var int authors_size = size $*layout_authors;
+    if ( $authors_size > 0 ) {
+        var int count = 0;
+        $ret = $ret  + "<dt>$*text_layout_authors</dt>";
+        foreach var string{} author ( $*layout_authors ) {
+            var string item;
+            if ( $author{"url"} != "" ) {
+                $item = "<a href='" + $author{"url"} + "'>" + $author{"name"} + "</a>";
+            } elseif ( $author{"type"} == "user" ) {
+                var UserLite u = UserLite( $author{"name"} );
+                if ( defined $u ) {
+                    $item = $u->ljuser();
+                }
+            }
+            if ( $item == "" ) {
+                $item = $author{"name"};
+            }
+
+            $ret = $ret + "<dd>$item";
+            $count++;
+            if ($count < $authors_size ) { $ret = $ret + ","; }
+            $ret = $ret + "</dd>\n";
+        }
+    }
+
+    var int resources_size = size $*layout_resources;
+    if ( $resources_size > 0 ) {
+        var int count = 0;
+        $ret = $ret  + "<dt>$*text_layout_resources</dt>";
+        foreach var string{} resource ( $*layout_resources ) {
+            var string item;
+            if ( $resource{"url"} != "" ) {
+                $item = "<a href='" + $resource{"url"} + "'>" + $resource{"name"} + "</a>";
+            } else {
+                $item = $resource{"name"};
+            }
+
+            $ret = $ret + "<dd>$item";
+            $count++;
+            if ($count < $resources_size ) { $ret = $ret + ","; }
+            $ret = $ret + "</dd>\n";
+        }
+    }
+
+    if ( $ret != "" ) {
+        open_module("credit", $*text_module_credit, "");
+        print safe "<dl>$ret</dl>";
+        close_module();
+    }
+}
 
 function handle_module_group_array(string[][] list) {
     foreach var string[] item ($list) {
@@ -3530,6 +3613,9 @@ function handle_module_group_array(string[][] list) {
         }
         elseif ($module == "links") {
             print_module_links();
+        }
+        elseif ($module == "credit") {
+            print_module_credit();
         }
     }
 }
