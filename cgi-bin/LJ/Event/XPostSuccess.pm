@@ -37,7 +37,11 @@ sub always_checked { 1 }
 # FIXME make this more useful, like include a link to the crosspost
 sub content {
     my ($self) = @_;
-    return BML::ml('event.xpost.success.content', { accountname => $self->account->displayname });
+    if ( $self->account ) {
+        return BML::ml( 'event.xpost.success.content', { accountname => $self->account->displayname } );
+    } else {
+        return BML::ml( 'event.xpost.noaccount' );
+    }
 }
 
 # short enough that we can just use this the normal content as the summary
@@ -48,10 +52,19 @@ sub content_summary {
 # the main title for the event
 sub as_html {
     my $self = $_[0];
-
     my $subject = $self->entry->subject_html ?  $self->entry->subject_html : BML::ml('event.xpost.nosubject');
-    return BML::ml('event.xpost.success.title', { accountname => $self->account->displayname, entrydesc => $subject, entryurl => $self->entry->url });
 
+    if ( $self->account ) {
+        return BML::ml( 'event.xpost.success.title',
+            {
+                accountname => $self->account->displayname,
+                entrydesc => $subject,
+                entryurl => $self->entry->url
+            } );
+
+    } else {
+        return BML::ml( 'event.xpost.noaccount' );
+    }
 }
 
 # available for all users.

@@ -1989,6 +1989,8 @@ event.xpost.failure.content=Crosspost to [[accountname]] failed.<br /><br />[[er
 
 event.xpost.failure.title=Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> to [[accountname]] action failed.
 
+event.xpost.noaccount=Account not found.
+
 event.xpost.nosubject=an entry
 
 event.xpost.success.content=Crosspost to [[accountname]] successful.

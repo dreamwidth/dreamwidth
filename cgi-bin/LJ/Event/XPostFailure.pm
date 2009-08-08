@@ -58,11 +58,17 @@ sub always_checked { 1 }
 
 sub content {
     my $self = $_[0];
-    return BML::ml( 'event.xpost.failure.content',
+
+    if ( $self->account ) {
+        return BML::ml( 'event.xpost.failure.content',
             {
                 accountname => $self->account->displayname,
                 errmsg => $self->errmsg,
             } );
+
+    } else {
+        return BML::ml( 'event.xpost.noaccount' );
+    }
 }
 
 # short enough that we can just use this the normal content as the summary
@@ -73,10 +79,19 @@ sub content_summary {
 # the main title for the event
 sub as_html {
     my $self = $_[0];
-
     my $subject = $self->entry->subject_html ?  $self->entry->subject_html : BML::ml('event.xpost.nosubject');
-    return BML::ml('event.xpost.failure.title', { accountname => $self->account->displayname, entrydesc => $subject, entryurl => $self->entry->url });
 
+    if ( $self->account ) {
+        return BML::ml( 'event.xpost.failure.title',
+            {
+                accountname => $self->account->displayname,
+                entrydesc => $subject,
+                entryurl => $self->entry->url
+            });
+
+    } else {
+        return BML::ml( 'event.xpost.noaccount' );
+    }
 }
 
 # available for all users.
