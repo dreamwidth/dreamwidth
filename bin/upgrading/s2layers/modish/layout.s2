@@ -1,0 +1,238 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Modish";
+layerinfo redist_uniq = "modish/layout";
+layerinfo author_name = "branchandroot";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set layout_type = "three-columns-right";
+
+function prop_init {
+    if ( not $*image_background_header_url->starts_with("http")  ) {
+        $*image_background_header_url = "$*STATDIR/$*image_background_header_url";
+    }
+}
+
+function print_stylesheet() {
+
+    var string header_colors = generate_color_css( new Color, $*color_header_background, new Color );
+    var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string comment_header_link_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
+    var string module_navlinks_colors = generate_color_css( $*color_page_title, $*color_page_link, new Color );
+    var string module_navlinks_active_colors = generate_color_css( new Color, $*color_page_link_active, new Color );
+    var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
+
+    """
+/* Modish */
+blockquote, q { font-style: italic; }
+dl dt { font-weight: bold; }
+
+a:hover { text-decoration: underline; }
+
+body { margin: 0;
+font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
+    
+#canvas { }
+
+/* header */
+
+#header { text-align: left;
+    padding: 1px 200px 1em 1em;
+    $header_colors }
+    
+#title { font-size: large;
+    font-weight: normal; }
+#subtitle { font-size: medium;
+    font-weight: normal; }
+#pagetitle { font-size:  small;
+    font-style: italic;
+    font-weight: normal; }
+
+
+/* main column */
+
+.two-columns-left .navigation,
+.three-columns-left .navigation { text-align: right; }
+
+/* entries */
+.entry li { margin-left: 1em; }
+.entry-content hr { display: block;
+    margin: 1em 10%; }
+
+.entry { margin-bottom: 3em;
+border: none; }
+
+.entry .entry-title { border-bottom: 2px solid $*color_entry_border;
+    padding: .25em 5px;
+    margin-bottom: .5em;}
+.entry .entry-title a, 
+.entry .entry-title a:visited { $entry_title_colors
+text-decoration: none }
+.entry .entry-title a:hover { text-decoration: underline; }
+
+.entry .datetime { font-size: small;
+    padding: 0 5px;
+    color: #999; }
+
+.entry .poster { display: block;
+margin: .5em 0; }
+
+.entry .contents .userpic { float: right;
+    margin: -1.5em 0 .25em .25em;}
+
+.entry .contents { padding: 0 .5em; }
+
+.entry-content { margin: 1em 0; }
+
+.metadata { margin: 1em 0 0 0; }
+.metadata-label { font-weight: bold; }
+.metadata ul li { margin-left: 0; padding-left: 0; }
+
+.entry .footer { margin: .5em 0; }
+.entry .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
+
+.entry .tag { margin-left: .25em; }
+.entry .tag li { margin-left: 0; padding: .25em .10em; }
+.entry .tag-text { font-weight: bold; }
+
+ul.entry-management-links { float: left;
+    margin-left: -1em;
+    margin-top: 1em;
+    margin-bottom: .25em; }
+ul.entry-interaction-links { text-align: right;
+    margin-top: 1em;
+    margin-bottom: .25em; }
+
+/* comments */
+.comment { margin-bottom: 1em; }
+
+.partial .comment { margin-bottom: 0;} 
+
+.comment .header { border-bottom: 1px solid $*color_entry_border;
+    padding: 2px 5px;
+    margin-bottom: .5em;}
+.comment .header a, 
+.comment .header a:visited { $comment_header_link_colors }
+.comment-title { margin: 0;
+    padding: 0 0 .25em 0;
+    font-weight: bold; }
+.partial .comment-title { display: inline; }
+
+.comment .poster-ip { font-size: small;
+    color: #999999; }
+
+.comment .contents .userpic { float: right;
+    margin: 0 0 .25em .25em;}
+
+.comment-content { margin-top: 1em; }
+
+.comment .ljedittime { margin-top: 1em; }
+.comment-content .datetime { color: #666; }
+
+.comment .multiform-checkbox { display: block;
+    text-align: right;
+    font-size: small;
+    color: #666;
+}
+
+.comment .footer { margin: .5em 0; }
+.comment .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
+
+.comment-management-links { float: right; }
+.comment-interaction-links { text-align: left; }
+
+.bottomcomment { padding: 1px 1px 3px 1px;
+    border-top: 1px solid $*color_entry_border;
+    border-bottom: 1px solid $*color_entry_border; }
+
+.bottomcomment .entry-management-links,
+.bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0; }
+
+.comment-pages { text-align: center; }
+
+#qrdiv { margin: 1em; }
+#qrdiv table { width: 100%; }
+
+
+/* archive */
+
+/* year-by-month view */
+#archive-year .navigation { text-align: left; }
+
+div.month { margin: 0 0 2em 0; }
+
+table.month td,
+table.month th { border-color: #999999;
+    vertical-align: top; }
+
+.month caption { display: none; }
+
+#archive-year .month .footer { padding: .5em;
+text-align: center; }
+
+/* month-by-day view */
+#archive-month .navigation { text-align: center; }
+
+.month dl .tag-text { font-style: italic; }
+
+.month dl h3.entry-title { font-weight: bold; }
+
+/* day-by-entries view */
+.day .inner > h3:first-child { text-align: center; }
+
+
+/* sidebars */
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+    padding: 1em .5em !important;
+}
+
+.module {  padding: 3px; 
+    margin-bottom: 1em;
+border: none; } 
+
+.module-header { 
+    border-bottom: 1px solid $*color_module_border;
+    font-size: large;
+    padding: 1px 3px; }
+.module-header a, 
+.module-header a:visited { $module_header_link_colors
+text-decoration: none; }
+.module-header a:hover { text-decoration: underline; }
+
+.module-userprofile { text-align: center; }
+
+.module-customtext .module-content { padding: .25em 0; }
+
+.module-navlinks ul,
+.module-typelist ul { list-style: none; }
+
+.module-navlinks ul { margin-left: 0;
+    padding-left: 0; }
+.module-navlinks .module-content li { 
+    margin: 0;
+}
+.module-navlinks a { display: block;
+    padding: .5em 1em;
+    margin-bottom: 1px;
+    $module_navlinks_colors }
+.module-navlinks a:hover { $module_navlinks_active_colors
+    text-decoration: none; }
+    
+
+/* footer */
+
+#footer { $footer_colors 
+    color: #ffffff; }
+#footer a,
+#footer a:visited { color: #ffffff; }
+
+
+    """;
+
+
+}
+
+
