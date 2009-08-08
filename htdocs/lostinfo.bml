@@ -26,6 +26,7 @@ body<=
             my $c = Captcha::reCAPTCHA->new;
             $ret .= $c->get_options_setter({ theme => 'white' });
             $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}), '', $LJ::IS_SSL ) . "<br />\n";
+            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
         }
 
 

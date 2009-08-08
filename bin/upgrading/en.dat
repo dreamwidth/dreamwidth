@@ -34,6 +34,8 @@ btn.add=Add
 
 btn.search=Search
 
+captcha.accessibility.contact=If you are unable to use this captcha for any reason, please contact us by email at [[email]]
+
 cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.

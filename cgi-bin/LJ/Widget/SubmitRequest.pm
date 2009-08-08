@@ -110,6 +110,7 @@ sub render_body {
         $ret .= "<p><?de " . $class->text_captcha(%opts) . " de?></p>";
         $ret .= "<div style='position: relative; height: 1%;'>" . $c->get_options_setter({ theme => 'white' });
         $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) ) . "</div>";
+        $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
         $ret .= "</div></p>";
     }
 

@@ -1763,6 +1763,7 @@ QQ
             my $c = Captcha::reCAPTCHA->new;
             $ret .= $c->get_options_setter({ theme => 'white' });
             $ret .= $c->get_html( LJ::conf_test($LJ::RECAPTCHA{public_key}) );
+            $ret .= "<p>" . BML::ml( 'captcha.accessibility.contact', { email => $LJ::SUPPORT_EMAIL } ) . "</p>";
         } else {
             my ($wants_audio, $captcha_sess, $captcha_chal);
             $wants_audio = 1 if lc($form->{answer}) eq 'audio';
