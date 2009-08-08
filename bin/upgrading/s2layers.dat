@@ -4,6 +4,9 @@
 core1                   core            -
 core2                   core            -
 
+basicboxes/layout       layout(core2base/layout)    core2
+basicboxes/themes       theme+                      basicboxes/layout
+
 core2base/layout        layout          core2
 core2base/themes        theme+          core2base/layout
 

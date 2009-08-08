@@ -34,6 +34,7 @@ sub default_theme {
     $layout =~ s/\/layout$//;
 
     my %default_themes = (
+        basicboxes => 'basicboxes/green',
         core2base => 'core2base/testing',
         drifting => 'drifting/blue',
         negatives => 'negatives/black',

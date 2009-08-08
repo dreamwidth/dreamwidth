@@ -1,0 +1,38 @@
+#NEWLAYER: basicboxes/green
+layerinfo type = "theme";
+layerinfo name = "Basic Boxes Green";
+layerinfo redist_uniq = "basicboxes/green";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#818f48";
+set color_page_link = "#e9eed3";
+set color_page_border = "#566030";
+set color_page_title = "#e9eed3";
+
+set color_header_background = "#92a252";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_link = "#92a252";
+set color_entry_link_visited = "#acbf60";
+set color_entry_border = "#566030";
+set color_entry_title = "#e9eed3";
+set color_entry_title_background = "#92a252";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#92a252";
+set color_module_text = "#566030";
+set color_module_border = "#566030";
+set color_module_title = "#566030";
+set color_module_title = "#e9eed3";
