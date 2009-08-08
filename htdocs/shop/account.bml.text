@@ -20,9 +20,13 @@
 
 .giftfor.username=Username to receive this account:
 
+.giftfor.username.random=Random active free user
+
 .intro.gift=Please choose the type of paid account that you'd like to purchase for an existing account.
 
 .intro.new=Please choose the type of paid account that you'd like to purchase for a new account.
+
+.intro.random=Please choose the type of paid account that you'd like to purchase for a random active free account.
 
 .intro.self=Please choose the type of paid account that you'd like to purchase for your account [[user]].
 

@@ -3282,6 +3282,17 @@ CREATE TABLE acctcode_promo (
 )
 EOC
 
+register_tablecreate('users_for_paid_accounts', <<'EOC');
+CREATE TABLE users_for_paid_accounts (
+    userid int unsigned not null,
+    time_inserted int unsigned not null default 0,
+    points int(5) unsigned not null default 0,
+
+    PRIMARY KEY ( userid, time_inserted ),
+    INDEX ( time_inserted )
+)
+EOC
+
 
 # NOTE: new table declarations go ABOVE here ;)
 

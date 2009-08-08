@@ -560,6 +560,53 @@ sub num_permanent_accounts_available_estimated {
 }
 
 ################################################################################
+# DW::Pay::get_random_active_free_user
+#
+# ARGUMENTS: for_u = user that is requesting the random free user (remote if
+#            no user is given)
+#
+# RETURN: a random active free user that for_u can purchase a paid account for,
+#         or undef if there aren't any valid results
+#
+sub get_random_active_free_user {
+    my $for_u = shift || LJ::get_remote();
+
+    my $dbr = LJ::get_db_reader();
+    my $rows = $dbr->selectall_arrayref( "SELECT userid, points FROM users_for_paid_accounts", { Slice => {} } );
+
+    my @active_us;
+    my $us = LJ::load_userids( map { $_->{userid} } @$rows );
+    foreach my $row ( @$rows ) {
+        my $userid = $row->{userid};
+        my $points = $row->{points};
+        my $u = $us->{$userid};
+
+        next unless $u;
+        next unless $u->is_visible;
+        next unless $u->is_personal;
+        next if $u->is_paid;
+        next unless $u->opt_randompaidgifts;
+        next if LJ::sysban_check( 'pay_user', $u->user );
+        next if $for_u && $u->equals( $for_u );
+        next if $for_u && $u->has_banned( $for_u );
+
+        # each point that a user has gives them an extra chance of being chosen out of the array
+        push @active_us, $u;
+        if ( $points ) {
+            foreach my $point ( 1..$points ) {
+                push @active_us, $u;
+            }
+        }
+    }
+
+    return undef unless scalar @active_us;
+
+    my @shuffled_us = List::Util::shuffle( @active_us );
+
+    return $shuffled_us[0];
+}
+
+################################################################################
 ################################################################################
 ################################################################################
 

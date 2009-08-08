@@ -104,6 +104,25 @@ sub handle_post {
 
         $item_data{target_userid} = $target_u->id;
 
+    } elsif ( $post->{for} eq 'random' ) {
+        my $target_u;
+        if ( $post->{username} eq '(random)' ) {
+            $target_u = DW::Pay::get_random_active_free_user();
+            return ( error => $class->ml( 'widget.shopitemoptions.error.nousers' ) )
+                unless LJ::isu( $target_u );
+            $item_data{anonymous_target} = 1;
+        } else {
+            $target_u = LJ::load_user( $post->{username} );
+            return ( error => $class->ml( 'widget.shopitemoptions.error.invalidusername' ) )
+                unless LJ::isu( $target_u );
+        }
+
+        return ( error => $class->ml( 'widget.shopitemoptions.error.banned' ) )
+            if $remote && $target_u->has_banned( $remote );
+
+        $item_data{target_userid} = $target_u->id;
+        $item_data{random} = 1;
+
     } elsif ( $post->{for} eq 'new' ) {
         my @email_errors;
         LJ::check_email( $post->{email}, \@email_errors );

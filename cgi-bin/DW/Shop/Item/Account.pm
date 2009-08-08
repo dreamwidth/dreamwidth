@@ -55,6 +55,14 @@ sub new {
         return undef unless $args{anonymous} == 1;
     }
 
+    if ( $args{random} ) {
+        return undef unless $args{random} == 1;
+    }
+
+    if ( $args{anonymous_target} ) {
+        return undef unless $args{anonymous_target} == 1;
+    }
+
     # looks good
     return bless {
         # user supplied arguments (close enough)
@@ -152,8 +160,13 @@ sub _apply_userid {
             } );
         }
     } else {
-        my $emailtype = $fu && $u->equals( $fu ) ? 'self' : 'other';
-        $emailtype = 'anon' if $self->anonymous;
+        my $emailtype;
+        if ( $self->random ) {
+            $emailtype = $self->anonymous ? 'random_anon' : 'random';
+        } else {
+            $emailtype = $fu && $u->equals( $fu ) ? 'self' : 'other';
+            $emailtype = 'anon' if $self->anonymous;
+        }
 
         $subj = LJ::Lang::ml( "shop.email.user.$emailtype.subject", { sitename => $LJ::SITENAME } );
         $body = LJ::Lang::ml( "shop.email.user.$emailtype.body",
@@ -325,9 +338,19 @@ sub conflicts {
 
 # render our target as a string
 sub t_html {
-    my $self = $_[0];
+    my ( $self, %opts ) = @_;
 
-    if ( my $uid = $self->t_userid ) {
+    if ( $self->anonymous_target ) {
+        my $random_user_string = LJ::Lang::ml( 'shop.item.account.randomuser' );
+        if ( $opts{admin} ) {
+            my $u = LJ::load_userid( $self->t_userid );
+            return "<strong>invalid userid " . $self->t_userid . "</strong>"
+                unless $u;
+            return "$random_user_string (" . $u->ljuser_display . ")";
+        } else {
+            return "<strong>$random_user_string</strong>";
+        }
+    } elsif ( my $uid = $self->t_userid ) {
         my $u = LJ::load_userid( $uid );
         return $u->ljuser_display
             if $u;
@@ -414,6 +437,8 @@ sub permanent    { return $_[0]->months == 99;      }
 sub from_userid  { return $_[0]->{from_userid};     }
 sub deliverydate { return $_[0]->{deliverydate};    }
 sub anonymous    { return $_[0]->{anonymous};       }
+sub random       { return $_[0]->{random};          }
+sub anonymous_target { return $_[0]->{anonymous_target}; }
 
 
 1;

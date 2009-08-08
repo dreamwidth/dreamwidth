@@ -113,6 +113,7 @@ body<=
                 LJ::Setting::CommentIP
                 LJ::Setting::Display::BanUsers
                 DW::Setting::ProfileEmail
+                DW::Setting::RandomPaidGifts
             )],
         },
         history => {

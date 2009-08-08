@@ -52,6 +52,7 @@ sub render_body {
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.deliverydate' ) . "</th>";
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.to' ) . "</th>";
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.from' ) . "</th>";
+    $ret .= "<th>" . $class->ml( 'widget.shopcart.header.random' ) . "</th>" if $opts{admin};
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.price' ) . "</th>";
     $ret .= "<th>ADMIN</th>" if $opts{admin};
     $ret .= "</tr>";
@@ -63,8 +64,9 @@ sub render_body {
             unless $opts{receipt};
         $ret .= "<td>" . $item->name_html . "</td>";
         $ret .= "<td>" . ( $item->deliverydate ? $item->deliverydate : $class->ml( 'widget.shopcart.deliverydate.today' ) ) . "</td>";
-        $ret .= "<td>" . $item->t_html . "</td>";
+        $ret .= "<td>" . $item->t_html( admin => $opts{admin} ) . "</td>";
         $ret .= "<td>" . ( $item->anonymous || !LJ::isu( $from_u ) ? $class->ml( 'widget.shopcart.anonymous' ) : $from_u->ljuser_display ) . "</td>";
+        $ret .= "<td>" . ( $item->random ? 'Y' : 'N' ) . "</td>" if $opts{admin};
         $ret .= "<td>\$" . $item->cost . " USD</td>";
         if ( $opts{admin} ) {
             $ret .= "<td>";

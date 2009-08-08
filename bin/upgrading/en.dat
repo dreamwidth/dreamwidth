@@ -2727,6 +2727,14 @@ setting.prod.display.title=New Setting!
 
 setting.profileemail.label=Email to display on your profile
 
+setting.randompaidgifts.label=Random Paid Gifts
+
+setting.randompaidgifts.option=Include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
+setting.randompaidgifts.option.paid=If your paid account expires, include yourself in the pool of free users who can be randomly selected by our sponsor-a-free-user program.
+
+setting.randompaidgifts.option.note=You may receive a paid account from someone you do not know.
+
 setting.safesearch.error.invalid=Invalid safe search setting.
 
 setting.safesearch.label=Safe Search Filter
@@ -3126,6 +3134,40 @@ The [[sitename]] Team
 
 shop.email.user.other.subject=[[sitename]] Account Purchase
 
+shop.email.user.random.body<<
+Dear [[touser]],
+
+Your account has been randomly selected to receive [[fromuser]]'s payment
+through our sponsor-a-free-user program.  The account that was purchased is:
+
+    [[accounttype]]
+
+Congratulations on your paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.user.random.subject=[[sitename]] Account Purchase
+
+shop.email.user.random_anon.body<<
+Dear [[touser]],
+
+Your account has been randomly selected to receive someone's payment through our
+sponsor-a-free-user program.  The account that was purchased is:
+
+    [[accounttype]]
+
+Congratulations on your paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.user.random_anon.subject=[[sitename]] Account Purchase
+
 shop.email.user.self.body<<
 Dear [[touser]],
 
@@ -3262,6 +3304,8 @@ shop.item.account.conflicts.differentpaid=You cannot purchase two different type
 shop.item.account.conflicts.multipleperms=You cannot purchase more than one seed account for the same person.
 
 shop.item.account.name=[[name]] ([[num]] [[?num|month|months]])
+
+shop.item.account.randomuser=Random active free user
 
 sitescheme.accountlinks.account=Account
 
@@ -4526,6 +4570,8 @@ widget.shopcart.header.item=Item
 
 widget.shopcart.header.price=Price
 
+widget.shopcart.header.random=Random?
+
 widget.shopcart.header.remove=Remove?
 
 widget.shopcart.header.to=To
@@ -4556,6 +4602,10 @@ widget.shopitemgroupdisplay.paidaccounts.item.exisitingaccount=<a [[aopts]]>For 
 
 widget.shopitemgroupdisplay.paidaccounts.item.newaccount=<a [[aopts]]>For a new account</a>
 
+widget.shopitemgroupdisplay.paidaccounts.item.randomaccount.noshow=<a [[aopts]]>For an anonymous random active free account</a>
+
+widget.shopitemgroupdisplay.paidaccounts.item.randomaccount.show=<a [[aopts]]>For an identified random active free account</a>
+
 widget.shopitemgroupdisplay.paidaccounts.item.self=<a [[aopts]]>For yourself</a> ([[user]])
 
 widget.shopitemoptions.error.banned=You are restricted from making purchases for this journal.
@@ -4565,6 +4615,8 @@ widget.shopitemoptions.error.invalidusername=The username you entered is invalid
 widget.shopitemoptions.error.nocart=Unable to get a shopping cart for you.  Please try again later.
 
 widget.shopitemoptions.error.notloggedin=You must be logged in as a personal account in order to purchase paid time for yourself.
+
+widget.shopitemoptions.error.nousers=There are currently no active free users.
 
 widget.shopitemoptions.header.paid=Paid Account
 

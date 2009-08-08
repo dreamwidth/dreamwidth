@@ -38,6 +38,8 @@ sub render_body {
             $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.exisitingaccount', { aopts => "href='$LJ::SITEROOT/shop/account?for=gift'" } ) . "</li>";
         }
         $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.newaccount', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'" } ) . "</li>";
+        $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.randomaccount.show', { aopts => "href='$LJ::SITEROOT/shop/randomgift'" } ) . "</li>";
+        $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.randomaccount.noshow', { aopts => "href='$LJ::SITEROOT/shop/account?for=random'" } ) . "</li>";
         $ret .= "</ul>";
     }
 

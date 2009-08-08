@@ -1,9 +1,9 @@
 <?_c
 #
-# shop.bml
+# /shop/account.bml
 #
-# This is the main storefront for the shop.  Gives people a page they can browse
-# around looking for something interesting to buy.
+# This is the page where a person can choose to buy a paid account for
+# themself, another user, or a new user.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -32,7 +32,7 @@ body<=
     # let's see what they're trying to do
     my $for = $GET{for};
     return BML::redirect( "$LJ::SITEROOT/shop" )
-        unless $for && $for =~ /^(?:self|gift|new)$/;
+        unless $for && $for =~ /^(?:self|gift|new|random)$/;
 
     $title = $ML{'.title'};
 
@@ -57,6 +57,8 @@ body<=
         $ret .= DW::Widget::PaidAccountStatus->render;
     } elsif ( $for eq 'gift' ) {
         $ret .= "<p>" . BML::ml( '.intro.gift', { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</p>";
+    } elsif ( $for eq 'random' ) {
+        $ret .= "<p>" . BML::ml( '.intro.random', { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</p>";
     } else { # $for eq 'new'
         $ret .= "<p>" . BML::ml( '.intro.new', { aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</p>";
     }
@@ -100,11 +102,24 @@ body<=
 
     $ret .= "</table>";
 
-    if ( $for =~ /^(?:gift|new)$/ ) {
+    if ( $for =~ /^(?:gift|new|random)$/ ) {
         $ret .= "<table class='shop-table-gift'>";
 
         if ( $for eq 'gift' ) {
             $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td>" . LJ::html_text( { name => 'username', value => LJ::ehtml( $GET{user} ) } ) . "</td></tr>";
+        } elsif ( $for eq 'random' ) {
+            if ( my $username = LJ::ehtml( $GET{user} ) ) {
+                my $randomu = LJ::load_user( $username );
+                if ( LJ::isu( $randomu ) ) {
+                    $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td><strong>" . $randomu->ljuser_display . "</strong></td></tr>";
+                    $ret .= LJ::html_hidden( username => $randomu->user );
+                } else {
+                    return BML::redirect( "$LJ::SITEROOT/shop" );
+                }
+            } else {
+                $ret .= "<tr><td>$ML{'.giftfor.username'}</td><td><strong>$ML{'.giftfor.username.random'}</strong></td></tr>";
+                $ret .= LJ::html_hidden( username => '(random)' );
+            }
         } else { # $for eq 'new'
             $ret .= "<tr><td>$ML{'.giftfor.email'}</td><td>" . LJ::html_text( { name => 'email' } ) . "</td></tr>";
         }

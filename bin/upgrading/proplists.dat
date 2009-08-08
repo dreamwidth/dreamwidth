@@ -1203,6 +1203,14 @@ logproplist.opt_preformatted:
   sortorder: 20
   ownership: user
 
+userproplist.opt_randompaidgifts:
+  cldversion: 4
+  datatype: char
+  des: N = don't allow this user to receive random paid gifts, otherwise allow it
+  indexed: 1
+  multihomed: 0
+  prettyname: Random Paid Gifts
+
 logproplist.opt_screening:
   datatype: char
   des: Like opt_whoscreened: A = All, R = Remote needed (anonymous only), F = non-Friends, N = None, else use userprop.

@@ -658,6 +658,13 @@ sub is_paid {
 }
 
 
+sub is_perm {
+    my $u = shift;
+    return 0 if $u->is_identity || $u->is_syndicated;
+    return DW::Pay::get_account_type( $u ) eq 'seed' ? 1 : 0;
+}
+
+
 sub is_person {
     my $u = shift;
     return $u->{journaltype} eq "P";
@@ -1987,6 +1994,12 @@ sub opt_nctalklinks {
     }
 
     return $u->prop( 'opt_nctalklinks' ) eq "1" ? 1 : 0;
+}
+
+sub opt_randompaidgifts {
+    my $u = shift;
+
+    return $u->prop( 'opt_randompaidgifts' ) eq 'N' ? 0 : 1;
 }
 
 sub opt_showcontact {
