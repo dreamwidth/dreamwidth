@@ -115,6 +115,9 @@ body<=
                                                   aopts => "href=\"/community/pending?authas=$user\"" }) : '';
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='/community/members?authas=$user'>$ML{'.commlist.actmembers2'}</a>$pend"}) . "&nbsp;&nbsp;";
+
+               $ret .= BML::ml('Actionlink', {
+                   'link'=>"<a href='/manage/tags?authas=$user'>$ML{'.commlist.tags'}</a>$pend"}) . "&nbsp;&nbsp;";
            }
            $ret .= "</td><td align='center'>";
            if ($mods{$id}) {
