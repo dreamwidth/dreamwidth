@@ -1210,6 +1210,7 @@ sub is_innodb {
 
 
 sub last_transition {
+    # FIXME: this function is unused as of Aug 2009 - kareila
     my ($u, $what) = @_;
     croak "invalid user object" unless LJ::isu($u);
 
@@ -1279,6 +1280,7 @@ sub nodb_err {
 
 
 sub note_transition {
+    # FIXME: this function is unused as of Aug 2009 - kareila
     my ($u, $what, $from, $to) = @_;
     croak "invalid user object" unless LJ::isu($u);
 
@@ -1528,6 +1530,7 @@ sub talk2_do {
 
 
 sub transition_list {
+    # FIXME: this function is unused as of Aug 2009 - kareila
     my ($u, $what) = @_;
     croak "invalid user object" unless LJ::isu($u);
 
@@ -1578,6 +1581,7 @@ sub writer {
 
 # format unixtimestamp according to the user's timezone setting
 sub format_time {
+    # FIXME: this function is unused as of Aug 2009 - kareila
     my $u = shift;
     my $time = shift;
 
@@ -1585,13 +1589,6 @@ sub format_time {
 
     return eval { DateTime->from_epoch(epoch=>$time, time_zone=>$u->prop("timezone"))->ymd('-') } ||
                   DateTime->from_epoch(epoch => $time)->ymd('-');
-}
-
-
-sub has_enabled_getting_started {
-    my $u = shift;
-
-    return $u->opt_getting_started eq 'Y' ? 1 : 0;
 }
 
 
@@ -1754,6 +1751,7 @@ sub can_show_location {
 
 
 sub can_show_onlinestatus {
+    # FIXME: this function is unused as of Aug 2009 - kareila
     my $u = shift;
     my $remote = shift;
     croak "invalid user object passed"
@@ -1783,17 +1781,6 @@ sub can_use_google_analytics {
 sub can_use_page_statistics {
     return $_[0]->can_use_google_analytics;
 }
-
-# <LJFUNC>
-# name: LJ::User::caps_icon
-# des: get the icon for a user's cap.
-# returns: HTML with site-specific cap icon.
-# </LJFUNC>
-sub caps_icon {
-    my $u = shift;
-    return LJ::user_caps_icon($u->{caps});
-}
-
 
 sub clear_prop {
     my ($u, $prop) = @_;
@@ -1871,21 +1858,6 @@ sub gizmo_account {
     return wantarray ? ($gizmo, $validated) : $gizmo unless @_;
 }
 
-# get/set the validated status of a user's gizmo account
-sub gizmo_account_validated {
-    my $u = shift;
-
-    my ($gizmo, $validated) = $u->gizmo_account;
-
-    if ( defined $_[0] && $_[0] =~ /[01]/) {
-        $u->set_prop( 'gizmo' => "$_[0];$gizmo" );
-        return $_[0];
-    }
-
-    return $validated;
-}
-
-
 # get/set the Google Analytics ID
 sub google_analytics {
     my $u = shift;
@@ -1896,19 +1868,6 @@ sub google_analytics {
     }
 
     return $u->prop( 'google_analytics' );
-}
-
-
-# tests to see if a user is in a specific named class. class
-# names are site-specific.
-sub in_any_class {
-    my ($u, @classes) = @_;
-
-    foreach my $class (@classes) {
-        return 1 if LJ::caps_in_group($u->{caps}, $class);
-    }
-
-    return 0;
 }
 
 
@@ -2103,7 +2062,7 @@ sub prop {
     if ({ map { $_ => 1 }
           qw(opt_sharebday opt_showbday opt_showlocation opt_showmutualfriends
              view_control_strip show_control_strip opt_ctxpopup opt_embedplaceholders
-             esn_inbox_default_expand opt_getting_started)
+             esn_inbox_default_expand)
         }->{$prop})
     {
         return $u->$prop;
@@ -2269,9 +2228,10 @@ sub clusterid {
 
 
 # returns username or identity display name, not escaped
+*display_username = \&display_name;
 sub display_name {
     my $u = shift;
-    return $u->{'user'} unless $u->{'journaltype'} eq "I";
+    return $u->user unless $u->is_identity;
 
     my $id = $u->identity;
     return "[ERR:unknown_identity]" unless $id;
@@ -2287,14 +2247,6 @@ sub display_name {
         $name =~ s/%([\dA-Fa-f]{2})/chr(hex($1))/ge;
     }
     return $name;
-}
-
-
-# returns username for display
-sub display_username {
-    my $u = shift;
-    return $u->display_name if $u->is_identity;
-    return $u->{user};
 }
 
 
@@ -2452,13 +2404,6 @@ sub url {
 *username = \&user;
 sub user {
     my $u = shift;
-    return $u->{user};
-}
-
-
-sub user_url_arg {
-    my $u = shift;
-    return "I,$u->{userid}" if $u->{journaltype} eq "I";
     return $u->{user};
 }
 
@@ -3201,82 +3146,6 @@ sub relevant_communities {
 }
 
 
-# Used to promote communities in interest search results
-sub render_promo_of_community {
-    my ($comm, $style) = @_;
-
-    return undef unless $comm;
-
-    $style ||= 'Vertical';
-
-    # get the ljuser link
-    my $commljuser = $comm->ljuser_display;
-
-    # link to journal
-    my $journal_base = $comm->journal_base;
-
-    # get default userpic if any
-    # FIXME:  this code is untested because this method appears
-    # to be currently nonfunctional.
-    # Replace the userpic_html assignment with the one below
-    # once this method is operational and testable. 
-    my $userpic = $comm->userpic;
-    my $userpic_html = '';
-    if ($userpic) {
-        my $userpic_url = $userpic->url;
-        $userpic_html = qq { <a href="$journal_base"><img src="$userpic_url" /></a> };
-    }
-#    my $apre = '<a href="$journal_base">';
-#    my $apost = "</a>";
-#    $userpic_html = $apre .  $userpic->imgtag . $apost
-#        if ( $userpic );
-
-    my $blurb = $comm->prop('comm_promo_blurb') || '';
-
-    my $join_link = "$LJ::SITEROOT/community/join?comm=$comm->{user}";
-    my $watch_link = "$LJ::SITEROOT/manage/circle/add?user=$comm->{user}&action=subscribe";
-    my $read_link = $comm->journal_base;
-
-    LJ::need_res("stc/lj_base.css");
-
-    # if horizontal, userpic needs to come before everything
-    my $box_class;
-    my $comm_display;
-
-    if (lc $style eq 'horizontal') {
-        $box_class = 'Horizontal';
-        $comm_display = qq {
-            <div class="Userpic">$userpic_html</div>
-            <div class="Title">LJ Community Promo</div>
-            <div class="CommLink">$commljuser</div>
-        };
-    } else {
-        $box_class = 'Vertical';
-        $comm_display = qq {
-            <div class="Title">LJ Community Promo</div>
-            <div class="CommLink">$commljuser</div>
-            <div class="Userpic">$userpic_html</div>
-        };
-    }
-
-
-    my $html = qq {
-        <div class="CommunityPromoBox">
-            <div class="$box_class">
-                $comm_display
-                <div class="Blurb">$blurb</div>
-                <div class="Links"><a href="$join_link">Join</a> | <a href="$watch_link">Watch</a> |
-                    <a href="$read_link">Read</a></div>
-
-                <div class='ljclear'>&nbsp;</div>
-            </div>
-        </div>
-    };
-
-    return $html;
-}
-
-
 sub trusts_or_has_member {
     my ( $u, $target_u ) = @_;
     $target_u = LJ::want_user( $target_u ) or return 0;
@@ -3694,17 +3563,6 @@ sub number_of_posts {
 }
 
 
-# return the number of posts that the user actually posted themselves
-sub number_of_posted_posts {
-    my $u = shift;
-
-    my $num = $u->number_of_posts;
-    $num-- if LJ::run_hook('user_has_auto_post', $u);
-
-    return $num;
-}
-
-
 # returns array of LJ::Entry objects, ignoring security
 sub recent_entries {
     my ($u, %opts) = @_;
@@ -3914,6 +3772,7 @@ sub hide_ljtalk {
 
 # returns whether or not the user is online on jabber
 sub jabber_is_online {
+    # FIXME: this function is unused as of Aug 2009 - kareila
     my $u = shift;
 
     return keys %{LJ::Jabber::Presence->get_resources($u)} ? 1 : 0;
@@ -4366,30 +4225,6 @@ sub revoke_priv_all {
 ###  24. Styles and S2-Related Functions
 
 
-# Check to see if the user can use eboxes at all
-sub can_use_ebox {
-    my $u = shift;
-    return LJ::is_enabled('ebox', $u);
-}
-
-
-# Allow users to choose eboxes if:
-# 1. The entire ebox feature isn't disabled AND
-# 2. The option to choose eboxes isn't disabled OR
-# 3. The option to choose eboxes is disabled AND
-# 4. The user already has eboxes turned on
-sub can_use_ebox_ui {
-    my $u = shift;
-    my $allow_ebox = 1;
-
-    unless ( LJ::is_enabled('ebox_option') ) {
-        $allow_ebox = $u->prop('journal_box_entries');
-    }
-
-    return $u->can_use_ebox && $allow_ebox;
-}
-
-
 sub journal_base {
     my $u = shift;
     return LJ::journal_base($u);
@@ -4417,96 +4252,6 @@ sub opt_embedplaceholders {
         my $imagelinks = $u->prop('opt_imagelinks');
         return $imagelinks;
     }
-}
-
-
-# revert S2 style to the default if the user is using a layout/theme layer that they don't have permission to use
-sub revert_style {
-    my $u = shift;
-
-    # FIXME: this solution is suboptimal
-    # - ensure that these packages are loaded via Class::Autouse by calling a method on them
-    LJ::S2->can("dostuff");
-    LJ::S2Theme->can("dostuff");
-    LJ::Customize->can("dostuff");
-
-    my $current_theme = LJ::Customize->get_current_theme($u);
-    return unless $current_theme;
-    my $default_theme_of_current_layout = LJ::S2Theme->load_default_of($current_theme->layoutid, user => $u);
-    return unless $default_theme_of_current_layout;
-
-    my $default_style = LJ::run_hook('get_default_style', $u) || $LJ::DEFAULT_STYLE;
-    my $default_layout_uniq = exists $default_style->{layout} ? $default_style->{layout} : '';
-    my $default_theme_uniq = exists $default_style->{theme} ? $default_style->{theme} : '';
-
-    my %style = LJ::S2::get_style($u, "verify");
-    my $public = LJ::S2::get_public_layers();
-    my $userlay = LJ::S2::get_layers_of_user($u);
-
-    # check to see if the user is using a custom layout or theme
-    # if so, we want to let them keep using it
-    foreach my $layerid (keys %$userlay) {
-        return if $current_theme->layoutid == $layerid;
-        return if $current_theme->themeid == $layerid;
-    }
-
-    # if the user cannot use the layout or the default theme of that layout, switch to the default style (if it's defined)
-    if (($default_layout_uniq || $default_theme_uniq) && (!LJ::S2::can_use_layer($u, $current_theme->layout_uniq) || !$default_theme_of_current_layout->available_to($u))) {
-        my $new_theme;
-        if ($default_theme_uniq) {
-            $new_theme = LJ::S2Theme->load_by_uniq($default_theme_uniq);
-        } else {
-            my $layoutid = $public->{$default_layout_uniq}->{s2lid} if $public->{$default_layout_uniq} && $public->{$default_layout_uniq}->{type} eq "layout";
-            $new_theme = LJ::S2Theme->load_default_of($layoutid, user => $u) if $layoutid;
-        }
-
-        return unless $new_theme;
-
-        # look for a style that uses the default layout/theme, and use it if it exists
-        my $styleid = $new_theme->get_styleid_for_theme($u);
-        my $style_exists = 0;
-        if ($styleid) {
-            $style_exists = 1;
-            $u->set_prop("s2_style", $styleid);
-
-            my $stylelayers = LJ::S2::get_style_layers($u, $u->prop('s2_style'));
-            foreach my $layer (qw(user i18nc i18n core)) {
-                $style{$layer} = exists $stylelayers->{$layer} ? $stylelayers->{$layer} : 0;
-            }
-        }
-
-        # set the layers that are defined by $default_style
-        while (my ($layer, $name) = each %$default_style) {
-            next if $name eq "";
-            next unless $public->{$name};
-            my $id = $public->{$name}->{s2lid};
-            $style{$layer} = $id if $id;
-        }
-
-        # make sure core was set
-        $style{core} = $new_theme->coreid
-            if $style{core} == 0;
-
-        # make sure the other layers were set
-        foreach my $layer (qw(user i18nc i18n)) {
-            $style{$layer} = 0 unless $style{$layer} || $style_exists;
-        }
-
-        # create the style
-        if ($style_exists) {
-            LJ::Customize->implicit_style_create($u, %style);
-        } else {
-            LJ::Customize->implicit_style_create({ 'force' => 1 }, $u, %style);
-        }
-
-    # if the user can use the layout but not the theme, switch to the default theme of that layout
-    # we know they can use this theme at this point because if they couldn't, the above block would have caught it
-    } elsif (LJ::S2::can_use_layer($u, $current_theme->layout_uniq) && !LJ::S2::can_use_layer($u, $current_theme->uniq)) {
-        $style{theme} = $default_theme_of_current_layout->themeid;
-        LJ::Customize->implicit_style_create($u, %style);
-    }
-
-    return;
 }
 
 
@@ -5012,17 +4757,8 @@ sub is_friend {
 }
 
 
-sub is_mutual_friend { confess 'LJ::User->is_mutual_friend is deprecated';
-}
-
-
 sub add_friend {
     confess 'LJ::User->add_friend deprecated.';
-}
-
-
-sub friend_and_watch {
-    confess 'LJ::User->friend_and_watch deprecated.';
 }
 
 
@@ -5077,17 +4813,6 @@ sub show_mutualfriends {
 # returns the gift shop URL to buy a gift for that user
 sub gift_url {
     return "$LJ::SITEROOT/shop/account?for=gift";
-}
-
-
-# FIXME: Getting Started has been removed; verify this function can go
-sub opt_getting_started {
-    my $u = shift;
-
-    # if unset, default to on
-    my $prop = $u->raw_prop('opt_getting_started') || 'Y';
-
-    return $prop;
 }
 
 
@@ -5400,19 +5125,6 @@ sub load_user
     }
 
     return undef;
-}
-
-
-# load either a username, or a "I,<userid>" parameter.
-sub load_user_arg {
-    my ($arg) = @_;
-    my $user = LJ::canonical_username($arg);
-    return LJ::load_user($user) if length $user;
-    if ($arg =~ /^I,(\d+)$/) {
-        my $u = LJ::load_userid($1);
-        return $u if $u->is_identity;
-    }
-    return; # undef/()
 }
 
 
@@ -6139,6 +5851,7 @@ sub update_user
 # </LJFUNC>
 sub wipe_major_memcache
 {
+    # FIXME: this function is unused as of Aug 2009 - kareila
     my $u = shift;
     my $userid = LJ::want_userid($u);
     foreach my $key ("userid","bio","talk2ct","talkleftct","log2ct",
