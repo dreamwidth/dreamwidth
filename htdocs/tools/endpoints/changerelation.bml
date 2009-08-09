@@ -17,7 +17,7 @@
         or return $err->("Sorry, you must be logged in to use this feature.");
 
     # check auth token
-    return $err->("Invalid auth token") unless LJ::Auth->check_ajax_auth_token($remote, '/__rpc_changerelation', %POST);
+    return $err->("Invalid auth token") unless $remote->check_ajax_auth_token( '/__rpc_changerelation', %POST );
 
     my $target = $POST{target} or return $err->("No target specified");
     my $action = $POST{action} or return $err->("No action specified");

@@ -2959,9 +2959,9 @@ sub _Comment__get_link
             my $subscr = $subs[0];
             return $null_link unless $subscr;
 
-            my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+            my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                        subid  => $subscr->id,
-                                                       action => 'delsub');
+                                                       action => 'delsub' );
 
             my $etypeid = 'LJ::Event::JournalNewComment'->etypeid;
 
@@ -3009,7 +3009,7 @@ sub _Comment__get_link
                          etypeid   => $etypeid,
                          arg2      => LJ::Comment->new($comment->entry->journal, dtalkid => $dtalkid)->jtalkid,
                          );
-        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs', action => 'addsub', %subparams);
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs', action => 'addsub', %subparams );
 
         my %btn_params = map { ('lj_' . $_, $subparams{$_}) } keys %subparams;
 
@@ -3558,12 +3558,12 @@ sub _Entry__get_link
     my $newentry_auth_token;
 
     if ($newentry_sub) {
-        $newentry_auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        $newentry_auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                          subid     => $newentry_sub->id,
                                                          action    => 'delsub',
                                                          );
     } elsif ($remote) {
-        $newentry_auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        $newentry_auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                          journalid => $journalu->id,
                                                          action    => 'addsub',
                                                          etypeid   => $newentry_etypeid,
@@ -3581,7 +3581,7 @@ sub _Entry__get_link
                                                        require_active => 1,
                                                        );
 
-        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                    journalid => $journalu->id,
                                                    action    => 'addsub',
                                                    etypeid   => $etypeid,
@@ -3614,9 +3614,9 @@ sub _Entry__get_link
         my $subscr = $subs[0];
         return $null_link unless $subscr;
 
-        my $auth_token = LJ::Auth->ajax_auth_token($remote, '/__rpc_esn_subs',
+        my $auth_token = $remote->ajax_auth_token( '/__rpc_esn_subs',
                                                    subid  => $subscr->id,
-                                                   action => 'delsub');
+                                                   action => 'delsub' );
 
         return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_unwatch_comments"},

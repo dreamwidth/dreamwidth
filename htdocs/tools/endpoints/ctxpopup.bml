@@ -112,12 +112,11 @@
     if ($remote) {
         push @actions, 'addTrust', 'addWatch', 'removeTrust', 'removeWatch', 'setBan' , 'setUnban';
         foreach my $action (@actions) {
-            $ret{"${action}_authtoken"} = LJ::Auth->ajax_auth_token(
-                                                                    $remote,
-                                                                    $uri,
-                                                                    target => $u->user,
-                                                                    action => $action,
-                                                                    );
+            $ret{"${action}_authtoken"} = $remote->ajax_auth_token(
+                                                                   $uri,
+                                                                   target => $u->user,
+                                                                   action => $action,
+                                                                  );
         }
     }
 
