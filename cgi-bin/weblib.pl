@@ -2512,7 +2512,7 @@ sub control_strip
         $links{inbox} .= " ($unread)" if $unread;
         $links{inbox} .= "</a>";
 
-        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read/'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
+        $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         $links{'edit_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
         $links{'track_user'} = "<a href='$LJ::SITEROOT/manage/subscriptions/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";

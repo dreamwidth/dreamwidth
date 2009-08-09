@@ -53,7 +53,7 @@ _code?>
 
     if ( $remote ) {
          my $baseurl = $remote->journal_base();
-         $ret .= "<a href='$baseurl/'>$ML{'lynx.nav.recent'}</a> | <a href='$baseurl/read/'>$ML{'lynx.nav.friends'}</a> | ";
+         $ret .= "<a href='$baseurl/'>$ML{'lynx.nav.recent'}</a> | <a href='$baseurl/read'>$ML{'lynx.nav.friends'}</a> | ";
          $ret .= "<a href='<?siteroot?>/logout'><?_ml lynx.nav.logout _ml?></a> " . $remote->ljuser_display . " | ";
     } else {
          $ret .= "<a href='<?siteroot?>/login'><?_ml lynx.nav.login _ml?></a> | ";
