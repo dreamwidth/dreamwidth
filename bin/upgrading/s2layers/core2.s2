@@ -1993,6 +1993,13 @@ property string text_read_comments_friends {
 set text_post_comment_friends = "Leave a comment";
 set text_read_comments_friends = "1 comment // # comments";
 
+property string text_read_comments_threads {
+    des = "Link text to read comment threads from an entry";
+    format = "plurals";
+    example = "1 response // # responses";
+}
+set text_read_comments_threads = "1 response // # responses";
+
 ##===============================
 ## Text - entry actions
 ##===============================
@@ -3271,73 +3278,68 @@ function print_module_poweredby() {
     close_module();
 }
 
+function print_module_pagesummary_comment_count(Comment comment) : int {
+    var int count = 0;
+    foreach var Comment c ( $comment.replies ) {
+        $count = $count + 1 + print_module_pagesummary_comment_count($c);
+    }
+    return $count;
+}
+
+function print_module_pagesummary_comments(string esubject, int count, string prop) : string {
+    var string subject = ($esubject != "" ? striphtml($esubject) : "<em>$*text_nosubject</em>");
+    var string module_comment_text = get_plural_phrase($count, $prop);
+
+    if ($*module_pagesummary_opts_comments_tooltip) {
+        return "title='$module_comment_text'>$subject</a>";
+    }
+    elseif ($count != 0) {
+        return ">$subject</a> +$module_comment_text";
+    }
+    else {
+        return ">$subject</a>";
+    }
+}
+
 function print_module_pagesummary() {
     var Page p = get_page();
-    var string title = $*text_module_pagesummary;
-
     var string[] links = [];
-    if ($p isa EntryPage) {
+
+    if ( $p isa EntryPage ) {
         var EntryPage cp = $p as EntryPage;
-        var string subject;
-        var string poster;
         foreach var Comment c ( $cp.comments ) {
-            $poster = isnull $c.poster ? $*text_poster_anonymous : $c.poster->ljuser();
-            $subject = ($c.subject != "" ? striphtml($c.subject) : "<em>$*text_nosubject</em>");
-            $links[size $links] = """$poster - <a href="#$c.anchor">$subject</a>""";
+            var int count = print_module_pagesummary_comment_count($c);
+            var string comment_display =
+                print_module_pagesummary_comments($c.subject, $count, "text_read_comments_threads");
+            var string poster = isnull $c.poster ? $*text_poster_anonymous : $c.poster->ljuser();
+
+            $links[size $links] = """$poster - <a href="#$c.anchor" $comment_display""";
         }
     }
 
-    elseif ($p isa FriendsPage) {
+    elseif ( $p isa FriendsPage ) {
         var FriendsPage cp = $p as FriendsPage;
-        var string subject;
-        var string poster;
         foreach var Entry e ( $cp.entries ) {
-            $poster = $e.poster->ljuser();
-            $subject = ($e.subject != "" ? striphtml($e.subject) : "<em>$*text_nosubject</em>");
-            var string module_comment_text = get_plural_phrase($e.comments.count, "text_read_comments_friends");
-            var string comment_display;
-            if ($*module_pagesummary_opts_comments_tooltip) {
-                $comment_display = "title='$module_comment_text'>$subject</a>";
-            }
-            else {
-                 if ($e.comments.count != 0) {
-                     $comment_display = ">$subject</a> +$module_comment_text";
-                 }
-                 else {
-                     $comment_display = ">$subject</a>";
-                 }
-            }
+            var string comment_display =
+                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments_friends");
+            var string poster = $e.poster->ljuser();
             
-            if (not $e.poster->equals($e.journal)) {
-                $links[size $links] = """$poster in $e.journal - <a href="#entry-$e.itemid" $comment_display""";
+            if ( not $e.poster->equals($e.journal) ) {
+                $poster = "$poster in $e.journal";
             }
-            else {
-                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
-            }
+
+            $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
         }
     }
-    elseif ($p isa RecentPage) {
+
+    elseif ( $p isa RecentPage ) {
         var RecentPage cp = $p as RecentPage;
-        var string subject;
-        var string poster;
         foreach var Entry e ( $cp.entries ) {
-            $subject = ($e.subject != "" ? striphtml($e.subject) : "<em>$*text_nosubject</em>");
-            var string module_comment_text = get_plural_phrase($e.comments.count, "text_read_comments");
-            var string comment_display;
-            if ($*module_pagesummary_opts_comments_tooltip) {
-                $comment_display = "title='$module_comment_text'>$subject</a>";
-            }
-            else {
-                 if ($e.comments.count != 0) {
-                     $comment_display = ">$subject</a> +$module_comment_text";
-                 }
-                 else {
-                     $comment_display = ">$subject</a>";
-                 }
-            }
-            
-            if (not $e.poster->equals($e.journal)) {
-                $poster = $e.poster->ljuser();
+            var string comment_display =
+                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments");
+            var string poster = $e.poster->ljuser();
+
+            if ( not $e.poster->equals($e.journal) ) {
                 $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
             }
             else {
@@ -3346,28 +3348,14 @@ function print_module_pagesummary() {
         }
     }
     
-    elseif ($p isa DayPage) {
+    elseif ( $p isa DayPage ) {
         var DayPage cp = $p as DayPage;
-        var string subject;
-        var string poster;
         foreach var Entry e ( $cp.entries ) {
-            $subject = ($e.subject != "" ? striphtml($e.subject) : "<em>$*text_nosubject</em>");
-            var string module_comment_text = get_plural_phrase($e.comments.count, "text_read_comments");
-            var string comment_display;
-            if ($*module_pagesummary_opts_comments_tooltip) {
-                $comment_display = "title='$module_comment_text'>$subject</a>";
-            }
-            else {
-                 if ($e.comments.count != 0) {
-                     $comment_display = ">$subject</a> +$module_comment_text";
-                 }
-                 else {
-                     $comment_display = ">$subject</a>";
-                 }
-            }
+            var string comment_display =
+                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments");
+            var string poster = $e.poster->ljuser();
 
-            if (not $e.poster->equals($e.journal)) {
-                $poster = $e.poster->ljuser();
+            if ( not $e.poster->equals($e.journal) ) {
                 $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
             }
             else {
@@ -3375,12 +3363,12 @@ function print_module_pagesummary() {
             }
         }
     }
-    if (size($links) < 1) { return; }
-    open_module("pagesummary", $title, "");
+
+    if ( size($links) < 1 ) { return; }
+    open_module("pagesummary", $*text_module_pagesummary, "");
     print_module_list($links);
     close_module();
 }
-
 
 function print_module_tags() {
     var Page p = get_page();
