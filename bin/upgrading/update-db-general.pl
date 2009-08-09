@@ -999,6 +999,14 @@ register_tabledrop("dw_payments");
 register_tabledrop("dw_pp_details");
 register_tabledrop("dw_pp_log");
 register_tabledrop("dw_pp_notify_log");
+register_tabledrop("smsusermap");
+register_tabledrop("smsuniqmap");
+register_tabledrop("sms_msg");
+register_tabledrop("sms_msgack");
+register_tabledrop("sms_msgtext");
+register_tabledrop("sms_msgerror");
+register_tabledrop("sms_msgprop");
+register_tabledrop("sms_msgproplist");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -2258,100 +2266,6 @@ CREATE TABLE userblobcache (
     timeexpire  INT UNSIGNED NOT NULL,
     INDEX (timeexpire),
     value    MEDIUMBLOB
-)
-EOC
-
-# global
-register_tablecreate("smsusermap", <<'EOC');
-CREATE TABLE smsusermap (
-    number     VARCHAR(25) NOT NULL PRIMARY KEY,
-    userid     INT UNSIGNED NOT NULL,
-
-    INDEX(userid)
-)
-EOC
-
-# global
-register_tablecreate("smsuniqmap", <<'EOC');
-CREATE TABLE smsuniqmap (
-    msg_uniq  VARCHAR(25) NOT NULL PRIMARY KEY,
-    userid    INT UNSIGNED NOT NULL,
-    msgid     MEDIUMINT UNSIGNED NOT NULL
-)
-EOC
-
-# clustered
-register_tablecreate("sms_msg", <<'EOC');
-CREATE TABLE sms_msg (
-    userid        INT UNSIGNED NOT NULL,
-    msgid         MEDIUMINT UNSIGNED NOT NULL,
-    timecreate    INT UNSIGNED NOT NULL,
-    type          ENUM('incoming', 'outgoing'),
-    from_number   VARCHAR(15),
-    to_number     VARCHAR(15),
-    msg_raw       BLOB NOT NULL,
-
-    PRIMARY KEY (userid, msgid)
-)
-EOC
-
-# clustered
-register_tablecreate("sms_msgack", <<'EOC');
-CREATE TABLE sms_msgack (
-    userid         INT UNSIGNED NOT NULL,
-    msgid          MEDIUMINT UNSIGNED NOT NULL,
-    type           ENUM('gateway', 'smsc', 'handset', 'unknown'),
-    timerecv       INT UNSIGNED NOT NULL,
-    status_flag    ENUM('success', 'error', 'unknown'),
-    status_code    VARCHAR(25),
-    status_text    VARCHAR(255) NOT NULL,
-
-    INDEX (userid, msgid)
-)
-EOC
-
-# clustered
-register_tablecreate("sms_msgtext", <<'EOC');
-CREATE TABLE sms_msgtext (
-    userid        INT UNSIGNED NOT NULL,
-    msgid         MEDIUMINT UNSIGNED NOT NULL,
-    msg_raw       BLOB NOT NULL,
-    msg_decoded   BLOB NOT NULL,
-
-    PRIMARY KEY (userid, msgid)
-)
-EOC
-
-# clustered
-register_tablecreate("sms_msgerror", <<'EOC');
-CREATE TABLE sms_msgerror (
-    userid        INT UNSIGNED NOT NULL,
-    msgid         MEDIUMINT UNSIGNED NOT NULL,
-    error         TEXT NOT NULL,
-
-    PRIMARY KEY (userid, msgid)
-)
-EOC
-
-# clustered
-register_tablecreate("sms_msgprop", <<'EOC');
-CREATE TABLE sms_msgprop (
-    userid        INT UNSIGNED NOT NULL,
-    msgid         MEDIUMINT UNSIGNED NOT NULL,
-    propid        SMALLINT UNSIGNED NOT NULL,
-    propval       VARCHAR(255) NOT NULL,
-
-    PRIMARY KEY (userid, msgid, propid)
-)
-EOC
-
-# unlike most other *proplist tables, this one is auto-populated by app
-register_tablecreate("sms_msgproplist", <<'EOC');
-CREATE TABLE sms_msgproplist (
-    propid  SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    name    VARCHAR(255) DEFAULT NULL,
-
-    UNIQUE KEY (name)
 )
 EOC
 
@@ -3749,21 +3663,6 @@ register_alter(sub {
                  "ALTER TABLE eventtypelist CHANGE eventtypeid etypeid SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT");
     }
 
-    unless (column_type("sms_msg", "status")) {
-        do_alter("sms_msg",
-                 "ALTER TABLE sms_msg ADD status ENUM('success', 'error', 'unknown') NOT NULL DEFAULT 'unknown' AFTER type");
-    }
-
-    unless (column_type("sms_msg", "status") =~ /ack_wait/) {
-        do_alter("sms_msg",
-                 "ALTER TABLE sms_msg MODIFY status ENUM('success', 'error', 'ack_wait', 'unknown') NOT NULL DEFAULT 'unknown'");
-    }
-
-    if (column_type("sms_msg", "msg_raw")) {
-        do_alter("sms_msg",
-                 "ALTER TABLE sms_msg DROP msg_raw");
-    }
-
     # add index on journalid, etypeid to subs
     unless (index_name("subs", "INDEX:etypeid-journalid") || index_name("subs", "INDEX:etypeid-journalid-userid")) {
         # This one is deprecated by the one below, which adds a userid
@@ -3778,53 +3677,6 @@ register_alter(sub {
 
     unless (column_type("sch_exitstatus", "funcid")) {
         do_alter("sch_exitstatus", "alter table sch_exitstatus add funcid INT UNSIGNED NOT NULL DEFAULT 0, add index (funcid)");
-    }
-
-    # make userid unique
-    if (index_name("smsusermap", "INDEX:userid")) {
-        # iterate over the table and delete dupes
-        my $sth = $dbh->prepare("SELECT userid, number FROM smsusermap");
-        $sth->execute();
-
-        my %map = ();
-        while (my $row = $sth->fetchrow_hashref) {
-            my $uid = $row->{userid};
-            my $num = $row->{number};
-
-            if ($map{$uid}) {
-                # dupe, delete
-                $dbh->do("DELETE FROM smsusermap WHERE userid=? AND number=?",
-                         undef, $uid, $num);
-            }
-
-            $map{$uid} = 1;
-        }
-
-        do_alter("smsusermap", "ALTER IGNORE TABLE smsusermap ".
-                 "DROP KEY userid, ADD UNIQUE (userid)");
-    }
-
-    # add index to sms_msg
-    unless (index_name("sms_msg", "INDEX:userid-timecreate")) {
-        do_alter("sms_msg", "ALTER TABLE sms_msg ADD INDEX(userid, timecreate)");
-    }
-
-    # add typekey to sms_msg
-    unless (column_type("sms_msg", "class_key")) {
-        do_alter("sms_msg", "ALTER TABLE sms_msg " .
-                 "ADD class_key VARCHAR(25) NOT NULL default 'unknown' AFTER timecreate");
-    }
-
-    # add index on just timecreate for time-bound stats
-    unless (index_name("sms_msg", "INDEX:timecreate")) {
-        do_alter("sms_msg", "ALTER TABLE sms_msg ADD INDEX(timecreate)");
-    }
-
-    # add verified/instime columns to smsusermap
-    unless (column_type("smsusermap", "verified")) {
-        do_alter("smsusermap", "ALTER TABLE smsusermap " .
-                 "ADD verified ENUM('Y','N') NOT NULL DEFAULT 'N', " .
-                 "ADD instime INT UNSIGNED NOT NULL");
     }
 
     # add an index
