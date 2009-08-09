@@ -1,0 +1,25 @@
+;; -*- coding: utf-8 -*-
+
+.backlink=Back to [[sitename]] Shop
+
+.form.getanother=Find a different random active free user
+
+.form.submit=Purchase a Paid Account for [[username]]
+
+.intro=Here is a random active free user who may appreciate a paid account.  If you'd like to find a different random user, just <a [[aopts]]>refresh</a>.
+
+.label.createdate=Created on:
+
+.label.lastupdated=Last updated on:
+
+.label.numcomments=Number of comments posted:
+
+.label.numcommunities=Number of communities they are a member of:
+
+.label.numentries=Number of entries posted:
+
+.label.username=Username:
+
+.nousers=There are currently no active free users.
+
+.title=Find a Random Active Free User
