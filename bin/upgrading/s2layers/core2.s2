@@ -1429,43 +1429,115 @@ set layout_resources = [];
 ## Journal style - fonts
 ##===============================
 
-# FIXME: also need size and units
 property string font_base {
     des = "Preferred journal font";
     maxlength = 25;
-    "size" = 10;
-    example = "Arial";
-    note = "Leave blank if you don't care.";
+    size = 15;
+    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
 }
 set font_base = "";   # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
 
 property string font_fallback {
     des = "Alternative journal font";
-    values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+    values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced||Use browser's default";
     note = "This general style will serve as a fallback if your preferred font is unavailable.";
 }
-set font_fallback = "none"; # Default in core is to let the browser handle it.
+set font_fallback = ""; # Default in core is to let the browser handle it.
+
+property string font_base_size {
+    des = "Size of base font";
+    size = 3;
+}
+
+property string font_base_units {
+    des = "Units for base font size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
 
 property string font_journal_title {
-    des = "Journal titles";
-    values = "|(default journal font)|sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+    des = "Preferred font for journal titles";
+    maxlength = 25;
+    size = 15;
+    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+}
+
+property string font_journal_title_size {
+    des = "Size of title font";
+    size = 3;
+}
+
+property string font_journal_title_units {
+    des = "Units for title size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
+
+property string font_journal_subtitle {
+    des = "Preferred font for journal subtitles";
+    maxlength = 25;
+    size = 15;
+    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+}
+
+property string font_journal_subtitle_size {
+    des = "Size of subtitle font";
+    size = 3;
+}
+
+property string font_journal_subtitle_units {
+    des = "Units for subtitle size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
 }
 
 property string font_entry_title {
-    des = "Entry titles";
-    values = "|(default journal font)|sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+    des = "Preferred font for entry titles";
+    maxlength = 25;
+    size = 15;
+    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+}
+
+property string font_entry_title_size {
+    des = "Size of entry title font";
+    size = 3;
+}
+
+property string font_entry_title_units {
+    des = "Units for entry title size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
 }
 
 property string font_module_heading {
-    des = "Module headings";
-    values = "|(default journal font)|sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
+    des = "Preferred font for module headings";
+    maxlength = 25;
+    size = 15;
+    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+}
+
+property string font_module_heading_size {
+    des = "Size of module heading font";
+    size = 3;
+}
+
+property string font_module_heading_units {
+    des = "Units for module heading size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
 }
 
 property string font_module_text {
-    des = "Module text";
-    values = "|(default journal font)|sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";    
+    des = "Preferred font for module text";
+    maxlength = 25;
+    size = 15;
+    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
 }
 
+property string font_module_text_size {
+    des = "Size of module text font";
+    size = 3;
+}
+
+property string font_module_text_units {
+    des = "Units for module text size";
+    values = "em|em|ex|ex|%|%|pt|pt|px|px";
+}
 
 ##===============================
 ## Journal style - images
@@ -2885,6 +2957,27 @@ function generate_color_css (Color text_color, Color background_color, Color bor
         $color_css = $color_css + "border: solid 1px $border_color;\n";
     }
     return $color_css;
+}
+
+function generate_font_css(string font_base, string font_fallback, string font_size, string font_unit) : string
+{
+    var string font_css = "";
+    if ($font_base != "" or $font_fallback != "") {
+        $font_css = "font-family: ";
+        if ($font_base != "") {
+            $font_css = $font_css + "$font_base";
+            if ($font_fallback != "") {
+                $font_css = $font_css + ", $font_fallback";
+            }
+        } else {
+            $font_css = $font_css + "$font_fallback";
+        }
+        $font_css = $font_css + "; ";
+    }
+    if ($font_size != "" and $font_unit != "") {
+        $font_css = $font_css + "font-size: $font_size$font_unit;";
+    }
+    return $font_css;
 }
 
 function Page::print_title() 

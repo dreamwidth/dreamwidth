@@ -119,13 +119,13 @@ propgroup fonts
 {
     property use font_base;
     property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
 
-    property string title_font_base
-    {
-        des = "Font for Subjects and Title";
-    }
-
-    property string title_font_fallback
+    property string font_title_fallback
     {
         des    = "Alternative font for Subjects and Title";
         values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
@@ -134,8 +134,12 @@ propgroup fonts
 
 set font_base         = "Arial";
 set font_fallback     = "sans-serif";
-set title_font_base     = "Times New Roman";
-set title_font_fallback = "serif";
+set font_base_size  = "16";
+set font_base_units = "px";
+set font_journal_title  = "Times New Roman";
+set font_title_fallback = "serif";
+set font_journal_title_size  = "2.8";
+set font_journal_title_units = "em";
 
 # PRESENTATION
 ################################################################################
@@ -256,22 +260,9 @@ function Page::print_default_stylesheet()
     var string title_font_string  = "";
 
     # Determine the font strings to use in the CSS
-    if ($*font_base != "")
-    {
-        $base_font_string = "\"$*font_base\",";
-    }
-    if ($*font_fallback != "")
-    {
-        $base_font_string = "$base_font_string $*font_fallback";
-    }
-    if ($*title_font_base != "")
-    {
-        $title_font_string = "\"$*title_font_base\",";
-    }
-    if ($*title_font_fallback  != "")
-    {
-        $title_font_string = "$title_font_string $*title_font_fallback";
-    }
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_title_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_title, $*font_title_fallback, "", "");
 
     """<style type="text/css">""";
     start_css();
@@ -279,8 +270,7 @@ function Page::print_default_stylesheet()
     /* Main layout
     ***************************************************************************/
     body {
-        font-family: $base_font_string;
-        font-size: 16px;
+        $page_font
         color: $*color_page_text;
         $page_background
     }
@@ -380,8 +370,7 @@ function Page::print_default_stylesheet()
     }
 
     #header h1#title {
-        font-family:  $title_font_string;
-        font-size: 2.8em;
+        $page_title_font
         font-weight: bold;
         font-style: italic;
         color: $*color_page_title;
@@ -391,7 +380,7 @@ function Page::print_default_stylesheet()
     }
 
     #header h2#subtitle {
-        font-family:  $title_font_string;
+        $page_subtitle_font
         margin: 5px 0px 0px 335px;
         color: $*color_page_subtitle;
         width: 100%;

@@ -132,6 +132,37 @@ set color_module_title_background = "";
 set color_module_border = "";
 
 ##===============================
+## Display settings - fonts
+##===============================
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_module_heading;
+    property use font_module_heading_units;
+    property use font_module_heading_size;
+    property use font_module_text;
+    property use font_module_text_units;
+    property use font_module_text_size;
+}
+
+set font_base = "";
+set font_fallback = "";
+set font_base_size = "100";
+set font_base_units = "%";
+
+##===============================
 ## Display settings - images
 ##===============================
 
@@ -262,7 +293,13 @@ function Page::print_default_stylesheet() {
     var string module_link_hover_colors = generate_color_css($*color_module_link_hover, new Color, new Color);
     var string module_link_visited_colors = generate_color_css($*color_module_link_visited, new Color, new Color);
 
-    
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
     """<style type="text/css">""";
     start_css();
     """
@@ -286,8 +323,7 @@ hr {
 }
 
 body {
-	font-family: ;
-	font-size: 100%;
+    $page_font
 	padding: 0;
     $page_background
     $page_colors
@@ -323,6 +359,14 @@ a:visited { $page_link_visited_colors }
 #header {
     $header_background
     $page_title_colors
+}
+
+h1#title {
+    $page_title_font
+}
+
+h2#subtitle {
+    $page_subtitle_font
 }
 
 #footer {
@@ -425,6 +469,7 @@ a:visited { $page_link_visited_colors }
 
 .entry .entry-title, .entry .entry-title a {
     $entry_title_colors
+    $entry_title_font
 }
 
 .entry a { $entry_link_colors }
@@ -559,6 +604,11 @@ table.month td p {
 
 .module h2 {
     $module_title_colors
+    $module_title_font
+}
+
+.module-content {
+    $module_font
 }
 
 .module-content ul { 

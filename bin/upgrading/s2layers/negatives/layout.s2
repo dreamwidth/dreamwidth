@@ -77,6 +77,34 @@ set color_module_link_hover = "#ffffff";
 ## Journal style - images
 ##===============================
 
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_module_heading;
+    property use font_module_heading_units;
+    property use font_module_heading_size;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+}
+
+set font_base = "Georgia";
+set font_fallback = "serif";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_module_heading = "";
+set font_module_heading_size = "1.1";
+set font_module_heading_units = "em";
+set font_entry_title = "";
+set font_entry_title_size = "1.1";
+set font_entry_title_units = "em";
+
+##===============================
+## Journal style - images
+##===============================
+
 propgroup images {
     property use image_background_page_group;
     property use image_background_header_group;
@@ -184,8 +212,6 @@ propgroup text {
     property use text_module_customtext_url;
 }
 
-set font_base ="Georgia";
-set font_fallback = "serif";
 set entry_management_links = "text";
 set comment_management_links = "text";
 
@@ -204,6 +230,9 @@ function Page::print_default_stylesheet()
     if ($*image_background_header_height > 0) {
         $header_background = $header_background + "\n        height: " + $*image_background_header_height + "px;";
     }
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
     """<style type="text/css">""";
     start_css();
@@ -211,8 +240,7 @@ function Page::print_default_stylesheet()
     body {
         margin: 0;
         padding: 0;
-        font-family: $*font_base, $*font_fallback;
-        font-size: 1em;
+        $page_font
         $page_background
         color:$*color_page_text;
         }
@@ -282,7 +310,7 @@ function Page::print_default_stylesheet()
         border-bottom:1px solid $*color_module_border;
         font-weight:bold;
         letter-spacing:.3em;
-        font-size: 1.1em;
+        $module_title_font
         text-align: right;
     }
     #secondary .module-header a {
@@ -386,7 +414,7 @@ function Page::print_default_stylesheet()
     }
     .subject, .subject a, .subject a:visited, .subject a:hover, .subject a:active {
         font-weight:bold;
-        font-size:1.1em;
+        $entry_title_font
     }
     .module-section-two .module-calendar,
     .module-section-three .module-calendar {

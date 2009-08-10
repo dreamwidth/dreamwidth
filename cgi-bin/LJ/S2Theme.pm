@@ -705,6 +705,12 @@ sub module_props {
         color_module_link_visited
         color_module_title
         color_module_title_background
+        font_module_heading
+        font_module_heading_size
+        font_module_heading_units
+        font_module_text
+        font_module_text_size
+        font_module_text_units
     )
 }
 
@@ -725,6 +731,12 @@ sub header_props {
     qw (
         text_tags_page_header
         color_header_background
+        font_journal_title
+        font_journal_title_size
+        font_journal_title_units
+        font_journal_subtitle
+        font_journal_subtitle_size
+        font_journal_subtitle_units
     )
 }
 
@@ -769,6 +781,9 @@ sub entry_props {
         color_entry_title
         color_entry_title_background
         color_entry_interaction_links
+        font_entry_title
+        font_entry_title_size
+        font_entry_title_units
     )
 }
 
@@ -806,6 +821,10 @@ sub page_props {
         color_page_link_visited
         color_page_title
         color_page_border
+        font_base
+        font_fallback
+        font_base_size
+        font_base_units
     )
 }
 
