@@ -12,17 +12,59 @@
 
 .btn.save=Save Changes
 
+.btn.save2=Add/Save
+
 .btn.toggle=Preview
+
+.circle.access.n=Does not give you access
+
+.circle.access.y=Gives you access
+
+.circle.access=Give access
+
+.circle.header.comms=Communities ([[num]])
+
+.circle.header.feeds=Feeds ([[num]])
+
+.circle.header.people=People ([[num]])
+
+.circle.header=Current Relationships
+
+.circle.img.n=No
+
+.circle.img.y=Yes
+
+.circle.intro=Here are the <a [[aopts1]]>people</a>, <a [[aopts2]]>communities</a>, and <a [[aopts3]]>feeds</a> that are in your circle.  You can change who appears on your Reading Page and who you give access to by using the check boxes.
 
 .circle.intro.people=Here are the people in your circle:
 
 .circle.intro.nonpeople=Here are the communities and feeds in your circle:
 
+.circle.member.n=You are not a member
+
+.circle.member.y=You are a member
+
 .circle.member=Member
+
+.circle.member.n=You are not a member
+
+.circle.member.y=You are a member
 
 .circle.na=N/A
 
 .circle.name=Name
+
+.circle.nocircle=(You do not have any accounts in your circle.)
+
+.circle.none=(None)
+
+.circle.status=Circle status
+
+.circle.subscribe.n=Does not subscribe to you
+
+.circle.subscribe.y=Subscribes to you
+
+.circle.subscribe=Subscribe
 
 .circle.trust=Give access?
 
@@ -72,7 +114,23 @@
 
 .success.head=Success
 
+.table.header1=Account
+
+.table.header2=Subscription
+
+.table.header3.comms=Membership
+
+.table.header3.people=Access
+
+.table.summary.comms=Each row represents a community in your circle; columns are the information about that community, some of which you can change.
+
+.table.summary.feeds=Each row represents a feed account you are subscribed to; columns are the information about that feed, some of which you can change.
+
+.table.summary.people=Each row represents a person in your circle; columns are the information about that person, some of which you can change.
+
 .textcolor=Text Color:
+
+.title=Manage Circle
 
 .title2=Manage Friends
 

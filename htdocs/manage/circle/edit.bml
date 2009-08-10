@@ -27,12 +27,12 @@ body<=
     return BML::redirect("$LJ::SITEROOT/community/members?authas=$u->{'user'}")
         if $u->is_community;
     return LJ::bad_input($ML{'.error.badjournaltype'})
-        unless $u->is_person || $u->is_identity;
+        unless $u->is_individual;
 
     my $ret;
 
     # no post, show edit form
-    unless (LJ::did_post()) {
+    unless ( LJ::did_post() ) {
         my @trusted_userids = $u->trusted_userids;
         my %is_trusted_userid = map { $_ => 1 } @trusted_userids;
         my $watch_list = $u->watch_list;
@@ -44,154 +44,175 @@ body<=
         my %is_member_of_userid = map { $_ => 1 } @member_of_userids;
 
         my $us = LJ::load_userids( @trusted_userids, keys %$watch_list, @trusted_by_userids, @watched_by_userids, @member_of_userids );
-        my @nonperson_userids;
 
         $ret .= "<form method='post' name='editFriends' action='edit$getextra'>\n";
         $ret .= LJ::form_auth();
+        $ret .= "<p>" . BML::ml( '.circle.intro', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'" }) . "</p>\n\n";
+        $ret .= "<?h2 $ML{'.circle.header'} h2?>\n";
 
-        # people table
+        # does the circle exist
         if ( @trusted_userids || keys %$watch_list || @trusted_by_userids || @watched_by_userids || @member_of_userids ) {
-            my $first = 1;
-            my $tableheader = "";
-            $tableheader .= "<p>$ML{'.circle.intro.people'}</p>";
-            $tableheader .= "<div align='center'><table class='editfriends'>";
-            $tableheader .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.trusted_by'}</th><th>$ML{'.circle.watched_by'}</th>";
-            $tableheader .= "<th>$ML{'.circle.trust'}</th>";
-            $tableheader .= "<th>$ML{'.circle.watch'}</th></tr>";
+            my ( @person_userids, @comm_userids, @feed_userids );
+
+            # get sorted arrays
             foreach my $uid ( sort { $us->{$a}->display_name cmp $us->{$b}->display_name } keys %$us ) {
                 my $other_u = $us->{$uid};
                 next unless $other_u;
 
-                if ( $other_u->is_community || $other_u->is_syndicated ) {
-                    push @nonperson_userids, $uid;
-                    next;
-                }
-
-                if ( $first ) {
-                    $ret .= $tableheader;
-                    $first = 0;
-                }
-
-                my ( $u_fg, $u_bg, $t_bg, $w_bg, $t_text, $w_text );
-                if ( $watch_list->{$uid} ) {
-                    $u_fg = $watch_list->{$uid}->{fgcolor};
-                    $u_bg = $watch_list->{$uid}->{bgcolor};
-                }
-
-                if ( $other_u->can_trust( $u ) ) {
-                    if ( $is_trusted_by_userid{$uid} ) {
-                        $t_bg = "#00ff00";
-                        $t_text = "Y";
-                    } else {
-                        $t_bg = "#ff0000";
-                        $t_text = "N";
-                    }
+                if ( $other_u->is_community ) {
+                    push @comm_userids, $uid;
+                } elsif ( $other_u->is_syndicated ) {
+                    push @feed_userids, $uid;
                 } else {
-                    $t_bg = "transparent";
-                    $t_text = $ML{'.circle.na'};
+                    push @person_userids, $uid;
                 }
-
-                if ( $other_u->can_watch( $u ) ) {
-                    if ( $is_watched_by_userid{$uid} ) {
-                        $w_bg = "#00ff00";
-                        $w_text = "Y";
-                    } else {
-                        $w_bg = "#ff0000";
-                        $w_text = "N";
-                    }
-                } else {
-                    $w_bg = "transparent";
-                    $w_text = $ML{'.circle.na'};
-                }
-
-                $ret .= "<tr>";
-                $ret .= "<td>" . $other_u->ljuser_display . "</td>";
-                $ret .= "<td style='color: $u_fg; background-color: $u_bg;'>" . $other_u->name_html . "</td>";
-                $ret .= "<td style='background-color: $t_bg;'>$t_text</td>";
-                $ret .= "<td style='background-color: $w_bg;'>$w_text</td>";
-
-                if ( $u->can_trust( $other_u ) || $is_trusted_userid{$uid} ) {
-                    $ret .= "<td>" . LJ::html_check({
-                        name => "editfriend_edit_${uid}_trust",
-                        value => 1,
-                        selected => $is_trusted_userid{$uid} ? 1 : 0,
-                    }) . "</td>";
-                } else {
-                    $ret .= "<td>$ML{'.circle.na'}</td>";
-                }
-
-                if ( $u->can_watch( $other_u ) || $watch_list->{$uid} ) {
-                    $ret .= "<td>" . LJ::html_check({
-                        name => "editfriend_edit_${uid}_watch",
-                        value => 1,
-                        selected => $watch_list->{$uid} ? 1 : 0,
-                    }) . "</td>";
-                } else {
-                    $ret .= "<td>$ML{'.circle.na'}</td>";
-                }
-
-                $ret .= "</tr>";
-                $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );
             }
-            $ret .= "</table></div>" unless $first;
+
+            # sub for building tables
+            my $generate_table = sub {
+                my ( $type, $uids ) = @_;    # type will be people, comms, or feeds
+
+                my $tid = "edit$type";
+
+                my $ret = "<a name='$tid'></a>\n";
+                $ret .= "<table class='editfriends' id='$tid' summary='" . $ML{".table.summary.$type"} . "'>\n";
+                $ret .= "<caption>" . BML::ml( ".circle.header.$type", { num => scalar @$uids } ) . "</caption>";
+                $ret .= "<tr>";
+                $ret .= "<th id='${tid}_1' scope='col'>$ML{'.table.header1'}</th>";
+                $ret .= "<th id='${tid}_0' abbr='Custom colors'>&nbsp;</th>";
+                $ret .= "<th id='${tid}_2' scope='col'>$ML{'.table.header2'}</th>";
+                $ret .= "<th id='${tid}_3' scope='col'>" . $ML{".table.header3.$type"} . "</th>" unless $type eq "feeds";
+                $ret .= "</tr>";
+
+                foreach my $uid ( @$uids ) {
+                    my $other_u = $us->{$uid};
+                    next unless $other_u;
+
+                    $ret .= "<tr>";
+
+                    # name
+                    $ret .= "<td scope='col' abbr='" . $other_u->display_username . "'>";
+                    $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );
+                    $ret .= $other_u->ljuser_display;
+                    $ret .= "</td>";
+
+                    # color
+                    my $showcolors = 0;
+                    $ret .= "<td";
+                    if ( $watch_list->{$uid} ) {
+                        $ret .= " style='color: " . $watch_list->{$uid}->{fgcolor} .
+                                "; background-color: " . $watch_list->{$uid}->{bgcolor} . ";'";
+                        $showcolors = 1;
+                    }
+                    $ret .= ">";
+                    $ret .= $showcolors ? "*" : "&nbsp;";
+                    $ret .= "</td>";
+
+                    # subscription status
+                    my $iscontent = 0; # tracks whether the table cell has content
+                    $ret .= "<td>";
+                    if ( $u->can_watch( $other_u ) || $watch_list->{$uid} ) {
+                        $ret .= LJ::html_check({
+                            name => "editfriend_edit_${uid}_watch",
+                            value => 1,
+                            selected => $watch_list->{$uid} ? 1 : 0,
+                            id => "editfriend_edit_${uid}_watch",
+                        });
+                        $ret .= "<label for='editfriend_edit_${uid}_watch'>" . $ML{'.circle.subscribe'} . "</label>";
+                        $iscontent = 1;
+                    }
+
+                    if ($type eq "people") {
+                        if ( $other_u->can_watch( $u ) ) {
+                            my $watched = $is_watched_by_userid{$uid} ? 1 : 0;
+                            $ret .= " | <img src='$LJ::IMGPREFIX/silk/site/";
+                            if ( $watched ) {
+                                $ret .= "tick.png' alt='" . $ML{'.circle.img.y'} . "'> ";
+                                $ret .= $ML{'.circle.subscribe.y'}
+                            } else {
+                                $ret .= "cross.png' alt='" . $ML{'.circle.img.n'} . "'> ";
+                                $ret .= $ML{'.circle.subscribe.n'}
+                            }
+                            $iscontent = 1;
+                        }
+                    }
+
+                    $ret .= $ML{'.circle.na'} unless $iscontent;
+
+                    $ret .= "</td><td>" unless $type eq "feeds";
+
+                    # ...and access/membership
+                    $iscontent = 0; # same as before
+                    $iscontent = 1 if $type eq "feeds"; # slightly hacky workaround; feeds don't have this table cell
+                    if ( $u->can_trust( $other_u ) || $is_trusted_userid{$uid} ) {
+                        $ret .= LJ::html_check({
+                            name => "editfriend_edit_${uid}_trust",
+                            value => 1,
+                            selected => $is_trusted_userid{$uid} ? 1 : 0,
+                            id => "editfriend_edit_${uid}_trust",
+                        });
+                        $ret .= "<label for='editfriend_edit_${uid}_trust'>" . $ML{'.circle.access'} . "</label>";
+                        $iscontent = 1;
+                    }
+
+                    if ($type eq "people") {
+                        if ( $other_u->can_trust( $u ) ) {
+                            my $trusted = $is_trusted_by_userid{$uid} ? 1 : 0;
+                            $ret .= " | <img src='$LJ::IMGPREFIX/silk/site/";
+                            if ( $trusted ) {
+                                $ret .= "tick.png' alt='" . $ML{'.circle.img.y'} . "'> ";
+                                $ret .= $ML{'.circle.access.y'}
+                            } else {
+                                $ret .= "cross.png' alt='" . $ML{'.circle.img.n'} . "'> ";
+                                $ret .= $ML{'.circle.access.n'}
+                            }
+                            $iscontent = 1;
+                        }
+                    } elsif ($type eq "comms") {
+                        # check membership
+                        $ret .= "<img src='/img/silk/site/";
+                        if ( $is_member_of_userid{$uid} ) {
+                            $ret .= "tick.png' alt='" . $ML{'.circle.img.y'} . "'> ";
+                            $ret .= $ML{'.circle.member.y'};
+                        } else {
+                            $ret .= "cross.png' alt='" . $ML{'.circle.img.n'} . "'> ";
+                            $ret .= $ML{'.circle.member.n'};
+                        }
+                        $iscontent = 1;
+                    }
+
+                    $ret .= $ML{'.circle.na'} unless $iscontent;
+
+                    $ret .= "</td></tr>";
+                }
+
+                unless ( scalar @$uids ) {
+                    $ret .= "<tr><td colspan='";
+                    $ret .= ( $type eq "feeds" ) ? "4" : "5";
+                    $ret .= "'>$ML{'.circle.none'}</td></tr>";
+                }
+                $ret .= "</table>\n\n";
+                return $ret;
+            };
+            # end of table generation sub
+
+
+            # print tables
+            $ret .= "<div class='editfriendsframe'>\n";
+            $ret .= $generate_table->( 'people', \@person_userids ) . "<br>";
+            $ret .= $generate_table->( 'comms', \@comm_userids ) . "<br>";
+            $ret .= $generate_table->( 'feeds', \@feed_userids ) . "<br>";
+            $ret .= "</div>";
+
+            ### middleified submit block
+            $ret .= "<?standout " . LJ::html_submit($ML{'.btn.save'}) . " standout?>\n";
+        } else {
+            $ret .= "<p>$ML{'.circle.nocircle'}</p><br><br>\n\n";
         }
 
-        # non-people table
-        if ( @nonperson_userids ) {
-            $ret .= "<p>$ML{'.circle.intro.nonpeople'}</p>";
-            $ret .= "<div align='center'><table class='editfriends'>";
-            $ret .= "<tr class='header'><th>$ML{'.circle.username'}</th><th>$ML{'.circle.name'}</th><th>$ML{'.circle.member'}</th><th>$ML{'.circle.watch'}</th></tr>";
-            foreach my $uid ( @nonperson_userids ) { # no need to sort because we inserted them into the array in order
-                my $other_u = $us->{$uid};
-                next unless $other_u;
 
-                my ( $u_fg, $u_bg );
-                if ( $watch_list->{$uid} ) {
-                    $u_fg = $watch_list->{$uid}->{fgcolor};
-                    $u_bg = $watch_list->{$uid}->{bgcolor};
-                }
 
-                $ret .= "<tr>";
-                $ret .= "<td>" . $other_u->ljuser_display . "</td>";
-                $ret .= "<td style='color: $u_fg; background-color: $u_bg;'>" . $other_u->name_html . "</td>";
 
-                if ( $other_u->is_community ) { #check membership
-
-                    my ( $m_text, $jl_url, $jl_text );
-
-                    if ( $is_member_of_userid{$uid} ) {
-                        $m_text = "Y";
-                        $jl_url = "community/leave";
-                        $jl_text = $ML{'.comm.leave'};
-                    } else {
-                        $m_text = "N";
-                        $jl_url = "community/join";                                                     
-                        $jl_text = $ML{'.comm.join'};
-                     }
-
-                    $ret .= "<td>$m_text 
-                             [<a href='$LJ::SITEROOT/$jl_url?comm=" . $other_u->user . "'>$jl_text</a>]
-                             </td>";
-
-                } else {
-                    $ret .= "<td>&nbsp;</td>";
-                }
-
-                if ( $u->can_watch( $other_u ) ) {
-                    $ret .= "<td>" . LJ::html_check({
-                        name => "editfriend_edit_${uid}_watch",
-                        value => 1,
-                        selected => $watch_list->{$uid} ? 1 : 0,
-                    }) . "</td>";
-                } else {
-                    $ret .= "<td>$ML{'.circle.na'}</td>";
-                }
-
-                $ret .= "</tr>";
-                $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );
-            }
-            $ret .= "</table></div>";
-        }
 
         ### add friends
         $ret .= "<?h2 $ML{'.addrelationships.head'} h2?>\n";
@@ -283,7 +304,7 @@ body<=
         $ret .= "</table></div><br />";
 
         ### ending submit block
-        $ret .= "<?standout " . LJ::html_submit($ML{'.btn.save'}) . " standout?>\n";
+        $ret .= "<?standout " . LJ::html_submit($ML{'.btn.save2'}) . " standout?>\n";
         $ret .= "</form>\n";
 
         return $ret;
@@ -407,6 +428,20 @@ head<=
 #addfriends td td, #addfriends th th {
     padding: 0;
     border: 0;
+}
+.editfriends td {
+    text-align: left;
+    border: 1px solid #000;
+}
+.editfriends caption {
+    font-weight: bold;
+}
+.editfriendsframe {
+    text-align: center;
+    padding: 1em;
+}
+.editfriendsframe table, .editfriendsframe caption {
+    margin: 0 auto;
 }
 </style>
 
