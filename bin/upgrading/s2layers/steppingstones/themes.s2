@@ -1,0 +1,37 @@
+#NEWLAYER: steppingstones/purple
+layerinfo "type" = "theme";
+layerinfo "name" = "Purple";
+layerinfo redist_uniq = "steppingstones/purple";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#dcd";
+set color_page_text = "#000";
+set color_page_link = "#858";
+set color_page_link_active = "#444444";
+set color_page_link_visited = "#b9b";
+set color_page_title = "#fcf0fc";
+
+set color_header_background = "#757";
+set color_footer_background = "#757";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff6ff";
+set color_entry_border = "#979";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#979";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#eee";
+set color_module_link_visited = "#ddd";
+

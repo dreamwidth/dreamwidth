@@ -23,6 +23,9 @@ modish/layout           layout(core2base/layout)    core2
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
 
+steppingstones/layout   layout(core2base/layout)    core2
+steppingstones/themes   theme+                      steppingstones/layout
+
 zesty/layout            layout          core2
 zesty/themes            theme+          zesty/layout
 

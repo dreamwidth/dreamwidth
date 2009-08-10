@@ -39,6 +39,7 @@ sub default_theme {
         core2base => 'core2base/testing',
         drifting => 'drifting/blue',
         negatives => 'negatives/black',
+        steppingstones => 'steppingstones/purple',
         zesty => 'zesty/white',
     );
 
