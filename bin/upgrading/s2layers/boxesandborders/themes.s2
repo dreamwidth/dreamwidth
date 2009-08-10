@@ -1,0 +1,31 @@
+#NEWLAYER: boxesandborders/gray
+layerinfo "type" = "theme";
+layerinfo "name" = "Gray";
+layerinfo redist_uniq = "boxesandborders/gray";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ffffff";
+set color_page_text = "#222222";
+set color_page_border = "#cccccc";
+set color_page_link = "#6699cc";
+set color_page_link_active = "#444444";
+set color_page_link_visited = "#336699";
+set color_page_title = "#555555";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#222222";
+set color_entry_border = "#999999";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#222222";
+set color_module_border = "#999999";

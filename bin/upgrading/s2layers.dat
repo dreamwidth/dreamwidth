@@ -7,6 +7,9 @@ core2                   core            -
 basicboxes/layout       layout(core2base/layout)    core2
 basicboxes/themes       theme+                      basicboxes/layout
 
+boxesandborders/layout  layout(core2base/layout)    core2
+boxesandborders/themes  theme+                      boxesandborders/layout
+
 colorside/layout        layout(core2base/layout)    core2
 
 core2base/layout        layout          core2

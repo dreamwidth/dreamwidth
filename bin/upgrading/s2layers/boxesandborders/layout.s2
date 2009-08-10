@@ -1,0 +1,295 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Boxes and Borders";
+layerinfo redist_uniq = "boxesandborders/layout";
+layerinfo author_name = "branchandroot";
+layerinfo lang = "en";
+
+set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
+set layout_type = "two-columns-left";
+
+function Page::print_global_title() {
+
+    """<div id="header-decoration"><div id="header-decoration-inner"></div></div>""";
+
+    if ($.global_title) {
+        """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
+    }
+}
+
+function print_stylesheet() {
+    var string header_decoration_colors = generate_color_css( new Color, $*color_page_text, $*color_page_title );
+    var string header_decoration_inner_colors = generate_color_css( new Color, $*color_page_border, $*color_page_background );
+
+    var string entry_title_link_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string comment_header_link_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+    var string bottomcomment_colors = generate_color_css( new Color, $*color_page_border, new Color );
+
+    var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
+    var string module_link_colors = generate_color_css( $*color_page_background, new Color, new Color );
+    var string module_link_hover_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
+
+    var string calendar_colors = generate_color_css( $*color_page_title, $*color_page_border, new Color );
+    var string calendar_link_colors = generate_color_css( $*color_page_background, $*color_page_title, new Color );
+
+    var string footer_colors = generate_color_css( new Color, $*color_page_title, new Color );
+    """
+
+/* Boxes and Borders */
+blockquote { border-left: 3px solid $*color_entry_border;
+    padding-left: .5em; } 
+q { font-style: italic; }
+dl dt { font-weight: bold; }
+
+ul { list-style: square; }
+
+a { text-decoration: underline; }
+a:hover { text-decoration: none; }
+
+body { margin: 0;
+    border: none;
+    font-family: $*font_base, Verdana, Arial, Helvetica, sans-serif; }
+   
+#canvas { position: relative; 
+    padding-top: 1px; /*margin collapse prevention*/
+    float: left; width: 100%; /*asinine IE7 hack to keep left sidebar from sliding under #primary when #canvas is relative*/ }
+
+/* header */
+
+#header { margin-top: 3em;
+    text-align: right;
+    padding: .5em 1em; }
+   
+#title { font-size: x-large;
+   font-weight: normal; }
+#subtitle { font-size: large;
+   font-weight: normal; }
+#pagetitle { font-size:  medium;
+   font-style: italic;
+   font-weight: normal; }
+
+#header-decoration { float: left;
+    $header_decoration_colors
+    border-width: .65em;
+    margin-left: 6em; }
+#header-decoration-inner { margin: .5em;
+    $header_decoration_inner_colors
+    border-width: 0.5em;
+    width: 1em;
+    height: 1em;}
+
+
+/* main column */
+#primary > .inner:first-child {
+   padding: 1em 2em;
+}
+
+.two-columns-left .navigation,
+.three-columns-left .navigation { text-align: right; }
+
+/* entries */
+.entry li { margin-left: 1em; }
+.entry-content hr { display: block;
+   margin: 1em 10%; }
+
+.entry { margin-bottom: 3em;
+border: none;
+border-bottom: 10px dotted $*color_entry_border;
+border-top: 10px dotted $*color_entry_border;
+position: relative; }
+
+.entry .entry-title { 
+   padding: .25em 5px;
+   margin-bottom: .5em;}
+.entry .entry-title a, 
+.entry .entry-title a:visited { $entry_title_link_colors
+text-decoration: none }
+.entry .entry-title a:hover { text-decoration: underline; }
+
+.entry .datetime { font-size: small;
+   padding: 0 5px;
+   color: #999; }
+
+.entry .poster { display: block;
+margin: .5em 0; }
+
+.entry .contents .userpic { float: left;
+    margin: 0 .5em .5em 0; }
+
+.entry .contents { padding: 0 .5em; }
+
+.entry-content { margin: 1em 0; }
+
+.metadata { margin: 1em 0 0 0; }
+.metadata-label { font-weight: bold; }
+.metadata ul li { margin-left: 0; padding-left: 0; }
+
+.entry .footer { margin: .5em 0; }
+.entry .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
+
+.entry .tag { margin-left: .25em; }
+.entry .tag li { margin-left: 0; padding: .25em .10em; }
+.entry .tag-text { font-weight: bold; }
+
+ul.entry-management-links { float: left;
+   margin-left: -1em;
+   margin-top: 1em; }
+ul.entry-interaction-links { text-align: right;
+   margin-top: 1em;
+   margin-bottom: .25em; }
+
+/* comments */
+.comment { margin-bottom: 1em; }
+
+.partial .comment { margin-bottom: 0;} 
+
+.comment .header { padding: 2px 5px;
+    margin-bottom: .5em;
+    border-left: 10px dashed $*color_entry_border; }
+.comment .header a, 
+.comment .header a:visited { $comment_header_link_colors }
+.comment-title { margin: 0;
+   padding: 0 0 .25em 0;
+   font-weight: bold; }
+.partial .comment-title { display: inline; }
+
+.comment .poster-ip { font-size: small;
+   color: #999999; }
+
+.comment .contents .userpic { float: left;
+   margin: 0 .5em .5em 0;}
+
+.comment-content { margin-top: 1em; }
+
+.comment .ljedittime { margin-top: 1em; }
+.comment-content .datetime { color: #666; }
+
+.comment .multiform-checkbox { display: block;
+   text-align: right;
+   font-size: small;
+   color: #666;
+}
+
+.comment .footer { margin: .5em 0; }
+.comment .footer > .inner:first-child { padding: 1px; } /*float uneveness fix */
+
+.comment-management-links { float: right; }
+.comment-interaction-links { text-align: left; }
+
+.bottomcomment { padding: 1px 1px 3px 1px;
+    $bottomcomment_colors }
+
+.bottomcomment .entry-management-links,
+.bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0; }
+
+.comment-pages { text-align: center; }
+
+#qrdiv { margin: 1em; }
+#qrdiv table { width: 100%; }
+
+
+/* archive */
+
+/* year-by-month view */
+#archive-year .navigation { text-align: left; }
+
+div.month { margin: 0 0 2em 0; }
+
+table.month td,
+table.month th { border-color: $*color_entry_border;
+   vertical-align: top; }
+
+.month caption { display: none; }
+
+#archive-year .month .footer { padding: .5em;
+text-align: center; }
+
+/* month-by-day view */
+#archive-month .navigation { text-align: center; }
+
+.month dl .tag-text { font-style: italic; }
+
+.month dl h3.entry-title { font-weight: bold; }
+
+/* day-by-entries view */
+.day .inner > h3:first-child { text-align: center; }
+
+
+/* sidebars */
+
+#secondary > .inner:first-child,
+#tertiary > .inner:first-child {
+   padding: 1em .5em !important;
+}
+
+#secondary, #tertiary { margin-top: 0; }
+.one-column #secondary, .one-column #tertiary,
+.three-columns-middle #secondary, .three-columns-middle #tertiary { margin-top: 0; }
+
+.module {  padding: 3px; 
+    margin-bottom: 1em;
+    border: none; } 
+
+.module-header { 
+   border-left: 8px dashed $*color_module_border;
+   font-size: large;
+   padding: 1px 3px; }
+.module-header a, 
+.module-header a:visited { $module_header_link_colors
+text-decoration: none; }
+.module-header a:hover { text-decoration: underline; }
+
+.module-content ul { list-style: outside square; }
+
+.module-userprofile { text-align: center; }
+.module-userprofile .module-header { text-align: left; }
+
+.module-navlinks ul,
+.module-typelist ul { list-style: none; }
+
+.module-navlinks { position: absolute;
+    top: 1em;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: $*color_entry_border;
+    width: 100%; }
+
+.module-navlinks ul { margin: 0;
+    padding-left: 1em;
+    background: $*color_entry_border; }
+
+.module-navlinks ul li { display: inline;
+    padding: .25em .5em;
+    margin: 0;
+    border-left: 1px solid $*color_page_border;
+    border-right: 1px solid $*color_page_border; }
+.module-navlinks ul li a { font-size: small;
+    padding: .15em .5em;
+    $module_link_colors
+    text-decoration: none; }
+.module-navlinks ul li a:hover { $module_link_hover_colors
+    text-decoration: underline; }
+
+.module-customtext .module-content { padding: .25em 0; }
+
+.module-calendar td { $calendar_colors }
+.module-calendar td a { $calendar_link_colors
+    text-decoration: none; }
+
+
+/* footer */
+
+#footer { $footer_colors
+   color: #ffffff; }
+#footer a,
+#footer a:visited { color: #ffffff; }
+
+
+    """;
+
+
+}
+
+
+
