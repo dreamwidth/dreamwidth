@@ -2042,8 +2042,13 @@ sub Page
 
     # Automatic Discovery of RSS/Atom
     if ($opts && $opts->{'addfeeds'}) {
-        $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS" href="$p->{'base_url'}/data/rss" />\n};
-        $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom" href="$p->{'base_url'}/data/atom" />\n};
+        if ( $opts->{'tags'} ) {
+            my $taglist = join( ',', map( { LJ::eurl($_) } @{$opts->{tags}} ) );
+            $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: filtered by selected tags" href="$p->{'base_url'}/data/rss?tag=$taglist" />\n};
+            $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: filtered by selected tags" href="$p->{'base_url'}/data/atom?tag=$taglist" />\n};
+        }
+        $p->{'head_content'} .= qq{<link rel="alternate" type="application/rss+xml" title="RSS: all entries" href="$p->{'base_url'}/data/rss" />\n};
+        $p->{'head_content'} .= qq{<link rel="alternate" type="application/atom+xml" title="Atom: all entries" href="$p->{'base_url'}/data/atom" />\n};
         $p->{'head_content'} .= qq{<link rel="service.feed" type="application/atom+xml" title="AtomAPI-enabled feed" href="$LJ::SITEROOT/interface/atomapi/$u->{'user'}/feed" />\n};
         $p->{'head_content'} .= qq{<link rel="service.post" type="application/atom+xml" title="Create a new post" href="$LJ::SITEROOT/interface/atomapi/$u->{'user'}/post" />\n};
     }
