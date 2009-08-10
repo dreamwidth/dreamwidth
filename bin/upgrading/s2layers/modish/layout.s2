@@ -101,7 +101,8 @@ ul.entry-management-links { float: left;
     margin-top: 1em; }
 ul.entry-interaction-links { text-align: right;
     margin-top: 1em;
-    margin-bottom: .25em; }
+    margin-bottom: .25em;
+    min-height: 17px; } /* prevent entry-management icons from shoving quickreply aside */
 
 /* comments */
 .comment { margin-bottom: 1em; }
