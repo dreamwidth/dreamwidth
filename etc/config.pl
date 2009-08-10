@@ -868,6 +868,10 @@
 
     # enable contextual hover
     $CTX_POPUP = 1;
+
+    # page that 'noanon_ip' sysbanned users can access to get more information
+    # on why they're banned
+    # $BLOCKED_ANON_URI = '';
 }
 
 1;

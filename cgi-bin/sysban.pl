@@ -436,6 +436,7 @@ sub sysban_validate {
                'talk_ip_test' => 'ip',
                'invite_user' => 'user',
                'invite_email' => 'email',
+               'noanon_ip' => 'ip',
                );
 
     while (my ($new, $existing) = splice(@map, 0, 2)) {

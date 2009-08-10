@@ -233,6 +233,29 @@ sub blocked_bot
     return OK;
 }
 
+sub blocked_anon
+{
+    my $r = shift;
+    $r->status_line( "403 Denied" );
+    $r->content_type( "text/html" );
+
+    my $subject = $LJ::BLOCKED_ANON_SUBJECT || "403 Denied";
+    my $message = $LJ::BLOCKED_ANON_MESSAGE;
+
+    unless ( $message ) {
+        $message = "You don't have permission to access $LJ::SITENAME. Please first <a href='$LJ::SITEROOT/login.bml?usescheme=lynx'>log in</a>.";
+
+        if ( $LJ::BLOCKED_ANON_URI ) {
+            $message .= " <a href='$LJ::BLOCKED_ANON_URI'>Why can't I access the site without logging in?</a>";
+        }
+    }
+
+    $r->print( "<html><head><title>$subject</title></head><body>" );
+    $r->print( "<h1>$subject</h1> $message" );
+    $r->print( "</body></html>" );
+    return OK;
+}
+
 sub trans
 {
     my $r = shift;
@@ -378,7 +401,28 @@ sub trans
         }
     }
 
-    # check for sysbans on ip address
+    # block on IP address for anonymous users but allow users to log in,
+    # and logged in users to go through
+    
+    # we're not logged in, and we're not in the middle of logging in
+    unless ( LJ::get_remote() || LJ::remote_bounce_url() ) {
+        # blocked anon uri contains more information for the user
+        # re: why they're banned, and what they should do
+        unless ( ( $LJ::BLOCKED_ANON_URI && index( $uri, $LJ::BLOCKED_ANON_URI ) == 0 )
+                # allow the user to go through login and subdomain cookie checking paths
+                || $uri =~ m!^(?:/login|/__setdomsess|/misc/get_domain_session)!) {
+
+            foreach my $ip (@req_hosts) {
+                if ( LJ::sysban_check( 'noanon_ip', $ip ) ) {
+                    $r->handler( "perl-script" );
+                    $r->push_handlers( PerlResponseHandler => \&blocked_anon );
+                    return OK;
+                }
+            }
+        }
+    }
+
+    # check for sysbans on ip address, and block the ip address completely
     unless ( $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0 ) {
         foreach my $ip (@req_hosts) {
             if ( LJ::sysban_check( 'ip', $ip ) ) {
