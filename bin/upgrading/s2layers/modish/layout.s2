@@ -98,8 +98,7 @@ margin: .5em 0; }
 
 ul.entry-management-links { float: left;
     margin-left: -1em;
-    margin-top: 1em;
-    margin-bottom: .25em; }
+    margin-top: 1em; }
 ul.entry-interaction-links { text-align: right;
     margin-top: 1em;
     margin-bottom: .25em; }
