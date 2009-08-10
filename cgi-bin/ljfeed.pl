@@ -908,19 +908,19 @@ sub create_view_userpics {
     my %keywords = ();
     while (my ($kw, $pic) = each %{$info->{kw}}) {
         LJ::text_out(\$kw);
-        push @{$keywords{$pic->{picid}}}, LJ::ehtml($kw);
+        push @{$keywords{$pic->{picid}}}, LJ::exml($kw);
     }
 
     my %comments = ();
     while (my ($pic, $comment) = each %{$info->{comment}}) {
         LJ::text_out(\$comment);
-        $comments{$pic} = LJ::ehtml($comment);
+        $comments{$pic} = LJ::strip_html($comment);
     }
 
     my %descriptions = ();
     while ( my( $pic, $description ) = each %{$info->{description}} ) {
         LJ::text_out(\$description);
-        $descriptions{$pic} = LJ::ehtml( $description );
+        $descriptions{$pic} = LJ::strip_html($description);
     }
 
     my @pics;
@@ -960,9 +960,8 @@ sub create_view_userpics {
         $entry_xml->getDocumentElement->appendChild( $content );
 
         foreach my $kw (@{$keywords{$pic->{picid}}}) {
-            my $ekw = LJ::exml( $kw );
             my $category = $entry_xml->createElement( 'category' );
-            $category->setAttribute( 'term', $ekw );
+            $category->setAttribute( 'term', $kw );
             $category->setNamespace( $ns );
             $entry_xml->getDocumentElement->appendChild( $category );
         }
