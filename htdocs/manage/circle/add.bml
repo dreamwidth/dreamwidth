@@ -299,17 +299,22 @@
     foreach (@color) {
         if ($col==0) { $ret .= "<tr>\n"; }
         $col++;
-        my $ecolor = LJ::ehtml($_->{'item'});
         my $colspan = '';
         my $wh = '16';
         if ($_ eq $color[$#color]) {
             $colspan = "colspan='2'";
             $wh = '32';
         }
+        my $ecolor = LJ::ehtml($_->{'item'});
+        my $jsattrs = qq~href='javascript:void(0);' style='text-decoration: none; background-color: $_->{code};' ~
+            . qq~onclick=\\"setBGColor(findel('editfriend_add_1_fg_value_disp'),'$_->{code}');~
+            . qq~document.editFriends.editfriend_add_1_fg.value = '$_->{code}';~
+            . qq~document.getElementById('preview').style.color = '$_->{code}';\\"~;
+
         $ret .= qq~
    <script type='text/javascript' language='JavaScript'>
    <!--
-   document.write("<td $colspan bgcolor='$_->{code}'><a href='javascript:void(0);' style='text-decoration: none;' onclick=\\"setBGColor(findel('editfriend_add_1_fg_value_disp'),'$_->{code}');document.editFriends.editfriend_add_1_fg.value = '$_->{code}';document.getElementById('preview').style.color = '$_->{code}';\\"><img src='/img/dot.gif' width='$wh' height='16' title='$ecolor - $_->{code}' alt='$ecolor - $_->{code}' border='0'></a></td>");
+   document.write("<td $colspan><a $jsattrs><img src='/img/dot.gif' width='$wh' height='16' title='$ecolor - $_->{code}' alt='$ecolor - $_->{code}' border='0'></a></td>");
    // -->
    </script>
    ~;
@@ -370,7 +375,7 @@
     $ret .= "<td><input type=\"text\" maxlength=\"7\" value=\"$bgvalue\" ";
     $ret .= "name=\"editfriend_add_1_bg\" size=\"8\" ";
     $ret .= "onchange=\"setBGColorWithId(findel('editfriend_add_1_bg_value_disp'),";
-    $ret .= "'editfriend_add_1_bg');setBGColorwithId(findel('";
+    $ret .= "'editfriend_add_1_bg'); setBGColorWithId(findel('";
     $ret .= "preview'),'editfriend_add_1_bg');\" onfocus=\"\" ";
     $ret .= "id=\"editfriend_add_1_bg\" /></td>";
 
@@ -388,10 +393,15 @@
             $wh = '32';
         }
         my $ecolor = LJ::ehtml($_->{'item'});
+        my $jsattrs = qq~href='javascript:void(0);' style='text-decoration: none; background-color: $_->{code};' ~
+            . qq~onclick=\\"setBGColor(findel('editfriend_add_1_bg_value_disp'),'$_->{code}');~
+            . qq~document.editFriends.editfriend_add_1_bg.value = '$_->{code}';~
+            . qq~setBGColor(findel('preview'),'$_->{code}');\\"~;
+
         $ret .= qq~
    <script type='text/javascript' language='JavaScript'>
    <!--
-   document.write("<td $colspan bgcolor='$_->{code}'><a href='javascript:void(0);' style='text-decoration: none;' onclick=\\"setBGColor(findel('editfriend_add_1_bg_value_disp'),'$_->{code}');document.editFriends.editfriend_add_1_bg.value = '$_->{code}';setBGColor(findel('preview'),'$_->{code}');\\"><img src='/img/dot.gif' width='$wh' height='16' title='$ecolor - $_->{code}' alt='$ecolor - $_->{code}' border='0'></a></td>");
+   document.write("<td $colspan><a $jsattrs><img src='/img/dot.gif' width='$wh' height='16' title='$ecolor - $_->{code}' alt='$ecolor - $_->{code}' border='0'></a></td>");
    // -->
    </script>
    ~;
