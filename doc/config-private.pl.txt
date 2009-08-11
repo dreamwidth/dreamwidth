@@ -11,6 +11,46 @@
 {
     package LJ;
 
+    # database info.  only the master is necessary.
+    %DBINFO = (
+               'master' => {  # master must be named 'master'
+                   'host' => "localhost",
+                   'port' => 3306,
+                   'user' => 'dw',
+                   'pass' => 'password',    # CHANGETHIS
+                   'dbname' => 'dw',
+                   'role' => {
+                       'cluster1' => 1,
+                       'slow' => 1,
+
+                       # optionally, apache write its access logs to a mysql database
+                       #logs => 1,
+                   },
+               },
+               # example of a TCP-based DB connection
+               #'somehostname' => {
+               #    'host' => "somehost",
+               #    'port' => 1234,
+               #    'user' => 'username',
+               #    'pass' => 'password',
+               #},
+               # example of a UNIX domain-socket DB connection
+               #'otherhost' => {
+               #    'sock' => "$HOME/var/mysqld.sock",
+               #    'user' => 'username',
+               #    'pass' => 'password',
+               #},
+    );
+
+    # Schwartz DB configuration
+    @THESCHWARTZ_DBS = (
+            {
+                dsn => 'dbi:mysql:dw_schwartz;host=localhost',
+                user => 'dw',
+                pass => 'password',     # CHANGETHIS
+            },
+        );
+
     # allow changelog posting.  this allows unauthenticated posts to the changelog
     # community from the IP and users specified.  this does not work on its own,
     # you have to configure your version control server to do the posting.  see
