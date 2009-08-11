@@ -2255,6 +2255,8 @@ menunav.shop.paidtime=Buy a Paid Account
 
 menunav.shop.history=Payment History
 
+menunav.shop.sponsor=Sponsor a User
+
 notification_method.email.title=Email
 
 notification_method.im.title=IM

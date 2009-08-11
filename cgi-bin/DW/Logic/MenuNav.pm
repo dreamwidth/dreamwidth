@@ -239,6 +239,11 @@ sub get_menu_navigation {
                     text => "menunav.shop.gifts",
                     display => LJ::is_enabled( 'payments' ) && $loggedin ? 1 : 0,
                 },
+                {
+                    url => "$LJ::SITEROOT/shop/randomgift",
+                    text => "menunav.shop.sponsor",
+                    display => LJ::is_enabled( 'payments' ) ? 1 : 0,
+                },
             ],
         },
     );
