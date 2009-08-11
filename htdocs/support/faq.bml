@@ -75,6 +75,11 @@ body<=
                                 $faqcat{$b}->{catorder} } keys %faqcat )
     {
         next if $GET{cat} && $GET{cat} ne $faqcat;
+        my $countfaqs = 0;
+        foreach ( grep {$faqq{$_}->faqcat eq $faqcat } keys %faqq) {
+            $countfaqs++;
+        }
+        next unless $countfaqs;
         $ret .= "<li><a href=#$faqcat>";
         $ret .= LJ::ehtml( $faqcat{$faqcat}->{faqcatname} );
         $ret .= "</a></li>\n";
@@ -85,6 +90,11 @@ body<=
                                    $faqcat{$b}->{'catorder'} } keys %faqcat)
     {
         next if $GET{'cat'} && $GET{'cat'} ne $faqcat;
+        my $countfaqs = 0;
+        foreach ( grep {$faqq{$_}->faqcat eq $faqcat } keys %faqq) {
+            $countfaqs++;
+        }
+        next unless $countfaqs;
         $ret .= "<?h2 ";
         $ret .= LJ::ehtml($faqcat{$faqcat}->{'faqcatname'});
         $ret .= " (<a href='faqbrowse?faqcat=$faqcat' name='$faqcat'>";
