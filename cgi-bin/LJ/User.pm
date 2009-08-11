@@ -3953,7 +3953,7 @@ sub load_identity_user {
         $uid = LJ::create_account({
             caps => undef,
             user => $extuser,
-            name => $name,
+            name => $ident,
             journaltype => 'I',
         });
         last if $uid;
