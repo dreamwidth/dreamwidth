@@ -81,7 +81,7 @@ sub insert_comment {
     warn Dumper( $cmt ) unless $cmt->{jitemid};
 
     my $jitem = LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
-    my $source = $jitem->prop( "import_source" ) . "?thread=" . ( $cmt->{id} << 8 );
+    my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "?thread=" . ( $cmt->{id} << 8 );
     my $user = LJ::load_userid( $cmt->{posterid} )
         if $cmt->{posterid};
 

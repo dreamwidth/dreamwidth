@@ -97,6 +97,10 @@ sub try_work {
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
 
+    # and xpost map
+    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
+    $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
+
     # this is a helper sub that steps a MySQL formatted time by some offset
     # arguments: '2008-01-01 12:03:53', -1 ... returns '2008-01-01 12:03:52'
     my $step_time = sub {
@@ -156,7 +160,15 @@ sub try_work {
 
         delete $sync{$1 >> 8};
     }
-    $log->( 'Syncitems now has %d items post-prune.', scalar( keys %sync ) );
+    $log->( 'Syncitems now has %d items post-prune (first pass).', scalar( keys %sync ) );
+
+    # this is another optimization.  we know crossposted entries can be removed from
+    # the list of things we will import, as we generated them to begin with.
+    foreach my $itemid ( keys %$xpost_map ) {
+        delete $sync{$itemid};
+    }
+    $log->( 'Syncitems now has %d items post-prune (second pass).', scalar( keys %sync ) );
+
     $title->( 'post-prune' );
 
     # simple helper sub
@@ -179,9 +191,11 @@ sub try_work {
             $evt->{key} = $evt->{url};
 
             # skip this if we've already dealt with it before
-            $log->( '    %d %s %s; mapped = %d.', $evt->{itemid}, $evt->{url}, $evt->{realtime}, $entry_map->{$evt->{key}} );
+            $log->( '    %d %s %s; mapped = %d (import_source) || %d (xpost).',
+                    $evt->{itemid}, $evt->{url}, $evt->{realtime}, $entry_map->{$evt->{key}},
+                    $xpost_map->{$evt->{itemid}} );
             my $sync = delete $sync{$evt->{itemid}};
-            return if $entry_map->{$evt->{key}} || !defined $sync;
+            return if $entry_map->{$evt->{key}} || !defined $sync || $xpost_map->{$evt->{itemid}};
 
             # clean up event for LJ
             my @item_errors;
@@ -235,6 +249,11 @@ sub try_work {
         # calculate what time to get entries for
         my ( $tries, $lastgrab, $hash ) = ( 0, undef, undef );
 SYNC:   while ( $tries++ <= 10 ) {
+
+            # if we ever get in here with no entries left, we're done.  this sometimes happens
+            # when the manual advance import code hits the end of the sidewalk and runs out of
+            # things to import.
+            last unless keys %sync;
 
             # calculate the oldest entry we haven't retrieved yet, and offset that time by
             # $tries, so we can break the 'broken client' logic (note: we assert that we are

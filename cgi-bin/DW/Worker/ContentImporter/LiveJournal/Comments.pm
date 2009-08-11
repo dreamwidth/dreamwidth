@@ -99,7 +99,12 @@ sub try_work {
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map( $u ) || {};
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
 
+    # and xpost map
+    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
+    $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
+
     # now backfill into jitemid_map
+    my $entry_source = {};
     my $jitemid_map = {};
     $log->( 'Filtering parameters: hostname=[%s], username=[%s].', $data->{hostname}, $data->{username} );
     foreach my $url ( keys %$entry_map ) {
@@ -113,6 +118,12 @@ sub try_work {
         my $jitemid = $1 >> 8
             if $url =~ m!/(\d+)\.html$!;
         $jitemid_map->{$jitemid} = $entry_map->{$url};
+        $entry_source->{$jitemid_map->{$jitemid}} = $url;
+    }
+
+    foreach my $jitemid ( keys %$xpost_map ) {
+        $jitemid_map->{$jitemid} = $xpost_map->{$jitemid};
+        $entry_source->{$jitemid_map->{$jitemid}} = "CROSSPOSTER " . $data->{hostname} . " " . $data->{username} . " $jitemid "
     }
 
     # this will take a talk_map (old URL -> new jtalkid) and convert it to a jtalkid map (old jtalkid -> new jtalkid)
@@ -315,6 +326,8 @@ sub try_work {
         $comment->{posterid} = $identity_map->{$comment->{posterid}};
         $comment->{jitemid} = $jitemid_map->{$comment->{jitemid}};
         $comment->{orig_id} = $comment->{id};
+
+        $comment->{entry_source} = $entry_source->{$comment->{jitemid}};
 
         # unresolved comments means we haven't got the parent in the database
         # yet so we can't post this one

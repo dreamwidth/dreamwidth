@@ -27,6 +27,7 @@ use Storable qw/ thaw /;
 use LWP::UserAgent;
 use XMLRPC::Lite;
 use Digest::MD5 qw/ md5_hex /;
+use DW::External::Account;
 
 # storage for import related stuff
 our %MAPS;
@@ -258,6 +259,69 @@ sub get_lj_session {
     return $r->{ljsession};
 }
 
+=head2 C<< $class->get_xpost_map( $user, $hashref )
+
+Returns a hashref mapping jitemids to crossposted entries.
+
+=cut
+
+sub get_xpost_map {
+    my ( $class, $u, $data ) = @_;
+
+    # see if the account we're importing from is configured to crosspost
+    my $acct = $class->find_matching_acct( $u, $data );
+    return {} unless $acct;
+
+    # connect to the database and ready the sql
+    my $p = LJ::get_prop( log => 'xpost' )
+        or croak 'unable to get xpost logprop';
+    my $dbcr = LJ::get_cluster_reader( $u )
+        or croak 'unable to get user cluster reader';
+    my $sth = $dbcr->prepare( "SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?" )
+        or croak 'unable to prepare statement';
+
+    # now look up the values we need
+    $sth->execute( $u->id, $p->{id} );
+    croak 'database error: ' . $sth->errstr
+        if $sth->err;
+
+    # ( remote jitemid => local ditemid )
+    my %map;
+
+    # put together the mapping above
+    while ( my ( $jitemid, $value ) = $sth->fetchrow_array ) {
+        # decompose the xposter data
+        my $data = DW::External::Account->xpost_string_to_hash( $value );
+        my $xpost = $data->{$acct->acctid}
+            or next;
+
+        # this item was crossposted, record it
+        $map{$xpost} = $jitemid;
+    }
+
+    return \%map;
+}
+
+sub find_matching_acct {
+    my ( $class, $u, $data ) = @_;
+
+    my @accts = DW::External::Account->get_external_accounts($u);
+
+    my $dh = $data->{hostname};
+    $dh =~ s/^www\.//;
+
+    foreach my $acct (@accts) {
+        my $sh = $acct->serverhost;
+        $sh =~ s/^www\.//;
+
+        next unless lc( $sh ) eq lc( $dh );
+        next unless lc( $acct->username ) eq lc( $data->{username} );
+        return $acct;
+    }
+
+    return undef;
+}
+
 sub xmlrpc_call_helper {
     # helper function that makes life easier on folks that call xmlrpc stuff.  this handles
     # running the actual request and checking for errors, as well as handling the cases where
@@ -266,7 +330,7 @@ sub xmlrpc_call_helper {
 
     # bail if depth is 4, obviously something is going terribly wrong
     if ( $depth >= 4 ) {
-        return 
+        return
             {
                 fault => 1,
                 faultString => 'Exceeded XMLRPC recursion limit.',
@@ -277,7 +341,7 @@ sub xmlrpc_call_helper {
     my $res;
     eval { $res = $xmlrpc->call($method, $req); };
     if ( $res && $res->fault ) {
-        return 
+        return
             {
                 fault => 1,
                 faultString => $res->fault->{faultString} || 'Unknown error.',

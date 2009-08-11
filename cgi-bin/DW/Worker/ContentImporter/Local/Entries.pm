@@ -18,6 +18,8 @@
 package DW::Worker::ContentImporter::Local::Entries;
 use strict;
 
+use Carp qw/ croak /;
+
 =head1 NAME
 
 DW::Worker::ContentImporter::Local::Entries - Local data utilities for entries
@@ -35,19 +37,21 @@ Returns a hashref mapping import_source keys to jitemids
 sub get_entry_map {
     my ( $class, $u ) = @_;
 
-    my $p = LJ::get_prop( "log", "import_source" );
-    return {} unless $p;
-
-    my $dbr = LJ::get_cluster_reader( $u );
-    my %map;
-    my $sth = $dbr->prepare( "SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?" );
+    my $p = LJ::get_prop( log => 'import_source' )
+        or croak 'unable to load logprop';
+    my $dbcr = LJ::get_cluster_reader( $u )
+        or croak 'unable to connect to database';
+    my $sth = $dbcr->prepare( "SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?" )
+        or croak 'unable to prepare SQL';
 
     $sth->execute( $u->id, $p->{id} );
+    croak 'database error: ' . $sth->errstr
+        if $sth->err;
 
+    my %map;
     while ( my ( $jitemid, $value ) = $sth->fetchrow_array ) {
         $map{$value} = $jitemid;
     }
-
     return \%map;
 }
 
