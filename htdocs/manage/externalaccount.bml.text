@@ -8,6 +8,10 @@
 
 .error.maxacct.singular=You are already at your limit of [[max_accts]] account.
 
+.settings.xpost.error.ipban=Too many log-in attempts. Please try creating the account again later.
+
+.settings.xpost.error.password.invalid=Invalid password.
+
 .settings.xpost.error.password.required=Password is required.
 
 .settings.xpost.error.servicename.required=Service Name is required.
@@ -19,6 +23,8 @@
 .settings.xpost.error.serviceurl.required=Service URL is required.
 
 .settings.xpost.error.url=Error connecting to service:  [[url]]
+
+.settings.xpost.error.username.invalid=Invalid username.
 
 .settings.xpost.error.username.required=Username is required.
 

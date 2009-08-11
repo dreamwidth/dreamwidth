@@ -179,6 +179,8 @@ use strict;
     $body .= "<br /><em>$ML{'.setting.xpost.option.password.info'}</em>";
     my $password_errdiv = errdiv(\%errs, "password");
     $body .= "<br />$password_errdiv" if $password_errdiv;
+    my $accountinvalid_errdiv = errdiv(\%errs, "accountinvalid");
+    $body .= "<br />$accountinvalid_errdiv" if $accountinvalid_errdiv;
     $body .= "</td></tr>\n";
 
     $body .= "<tr><td class='setting_label'><label for='xpostbydefault'>" . $ML{'.setting.xpost.option.xpostbydefault'} . "</label></td>";
@@ -282,7 +284,25 @@ sub create_external_account {
             }
         }
     }
-    
+
+    # verification of account info - only do this if $ok isn't already set to 0, so we have username/password and valid site info
+    if ( $ok ) {
+        my $account_valid = account_isvalid( $u, \%POST );
+        if ( $account_valid != 1 ) {
+            $ok = 0;
+            #create different error messages for different server errors. If we get some other error message, show the one we get from the server
+            if ( $account_valid eq "Invalid username" ) {
+                $errs->{username} = BML::ml('.settings.xpost.error.username.invalid');
+            } elsif ( $account_valid eq "Invalid password" ) {
+                $errs->{password} = BML::ml('.settings.xpost.error.password.invalid');
+            } elsif ( $account_valid eq "Client error: Your IP address is temporarily banned for exceeding the login failure rate." ) {
+                $errs->{accountinvalid} = BML::ml('.settings.xpost.error.ipban');
+           } else {
+                $errs->{accountinvalid} = $account_valid;
+           }
+        }
+    }
+
     if ($ok) {
         my $new_acct = DW::External::Account->create($u, \%opts);
         # FIXME add error if create fails.
@@ -295,6 +315,41 @@ sub create_external_account {
     
     return $ok;
 }
+
+#check whether an account actually exists on the other service and whether the password is correct by sending a 'login' request
+sub account_isvalid {
+    my ( $u, $extacct ) = @_;
+    my $protocol_id, my $proxyurl;
+
+    # if the site was selected from the drop-down, we need to get the corresponding values.
+    # if it's user-entered, we can construct the site from these values.
+    # we only run this check if we have already validated the external site.
+    if  ( $extacct->{site} ne -1 ) {
+        my $siteid = $extacct->{site};
+        my $externalsite = DW::External::Site->get_site_by_id( $siteid );
+        $proxyurl = "http://" . $externalsite->{domain} . "/interface/xmlrpc";
+        $protocol_id = $externalsite->{servicetype};
+    } else {
+        $proxyurl = $extacct->{serviceurl}; 
+        $protocol_id = $extacct->{servicetype};
+    }
+
+    #need to encrypt password to send it
+    my $protocol = DW::External::XPostProtocol->get_protocol( $protocol_id );
+    my $encryptedpassword = $protocol->encrypt_password( $extacct->{password} );
+    $extacct->{encrypted_password} = $encryptedpassword;
+
+    #check to see whether we can log in with this data
+    my $authresp = DW::External::XPostProtocol::LJXMLRPC->call_xmlrpc( $proxyurl, 'login', {}, $extacct );
+
+    #if the validation was successful, return 1, if not return the error message
+    if ( $authresp->{success} ) {
+        return 1;
+    } else {
+        return $authresp->{error};
+    }
+}
+
 
 # form handler.  edits the given account.
 sub edit_external_account {
