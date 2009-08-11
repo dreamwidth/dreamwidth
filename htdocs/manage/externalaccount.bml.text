@@ -22,8 +22,9 @@
 
 .settings.xpost.error.username.required=Username is required.
 
-
 .setting.xpost.option.password=Password
+
+.setting.xpost.option.password.info=(Please make sure you have caps-lock disabled and enter the correct password.)
 
 .setting.xpost.option.servicename=Custom Service Name
 
@@ -38,6 +39,8 @@
 .setting.xpost.option.site.custom=Other Site
 
 .setting.xpost.option.username=Username
+
+.setting.xpost.option.username.info=(Please enter a valid username on the selected service. Crossposting to community accounts is not possible.)
 
 .setting.xpost.option.xpostbydefault=Cross Post by Default
 
