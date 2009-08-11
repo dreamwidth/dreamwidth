@@ -538,8 +538,6 @@ INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES 
 UPDATE priv_list SET des='Allows a user to reset the password to an account',is_public='1',privname='Reset User Password',scope='general' WHERE privcode='reset_password';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to edit the database schema documentation.', '1', 'schemadoc', 'Edit Schema Documentation', 'general');
 UPDATE priv_list SET des='Allows a user to edit the database schema documentation.',is_public='1',privname='Edit Schema Documentation',scope='general' WHERE privcode='schemadoc';
-INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to add or remove people\'s access to post in a shared journal. arg=Community/shared journal username that\'s being administrated, or \"*\" for all journals.', '0', 'sharedjournal', 'Shared Journal - Admin', 'general');
-UPDATE priv_list SET des='Allows a user to add or remove people\'s access to post in a shared journal. arg=Community/shared journal username that\'s being administrated, or \"*\" for all journals.',is_public='0',privname='Shared Journal - Admin',scope='general' WHERE privcode='sharedjournal';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to view/adjust certain critical site settings. arg=Unique keyword that user has access to view', '1', 'siteadmin', 'Administer Site', 'general');
 UPDATE priv_list SET des='Allows a user to view/adjust certain critical site settings. arg=Unique keyword that user has access to view',is_public='1',privname='Administer Site',scope='general' WHERE privcode='siteadmin';
 INSERT IGNORE INTO priv_list (des, is_public, privcode, privname, scope) VALUES ('Allows a user to change the summary on support requests. arg=Unique support category', '1', 'supportchangesummary', 'Support - Change Summaries', 'general');
@@ -574,8 +572,6 @@ INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user creates a co
 UPDATE ratelist SET des='Logged when a user creates a community.' WHERE name='commcreate';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when wrong username/password is used.', 'failed_login');
 UPDATE ratelist SET des='Logged when wrong username/password is used.' WHERE name='failed_login';
-INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user sends a free VGift', 'freevgifts');
-UPDATE ratelist SET des='Logged when a user sends a free VGift' WHERE name='freevgifts';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a user sends a friend invite', 'invitefriend');
 UPDATE ratelist SET des='Logged when a user sends a friend invite' WHERE name='invitefriend';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a forgotten password or username e-mail is requested', 'lostinfo');
@@ -652,8 +648,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('firstshowtime', 'The 
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('fmt', 'Format of the uploaded image file. One of \'G\', \'J\', or \'P\', for GIF, JPEG, or PNG formats respectively.', 'userpic2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('friendid', 'The [dbtable[user]].userid of the friend to watch/trust.', 'friends');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('groupmask', 'A bitmask of 1 (1 << 0) OR\'ed with (1 << [dbtable[friendgroup]].groupnum) for each friendgroup this friend belongs to.', 'friends');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('groupname', 'Name given to the friend group.', 'friendgroup');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('groupnum', 'The group number. Can be 1-30.', 'friendgroup');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('height', 'Height of image in pixels.', 'userpic2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('idtype', 'The external identity type. One of \"O\" - OpenID, \"L\" - LID (NetMesh), \"T\" - TypeKey, ?  - etc.', 'identitymap');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('incname', 'The filename of the include file.', 'includetext');
@@ -664,7 +658,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('intcount', 'The numbe
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('interest', 'The text of the interest.', 'interests');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('intid', 'Unique id assigned to the interest.', 'interests');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('is_dirty', 'One of either 1 (indexed), or NULL (not in index) - means we need to update the target\'s etypeid.', 'subs');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('is_public', 'Determines if the group can be seen by anyone, or just the owner.', 'friendgroup');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('item', 'base64digest of rss $item', 'synitem');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('jitemid', 'The unique id number given to the entry.', 'log2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('jitemid', 'Unique id number given to the entry.', 'logsec2');
@@ -734,7 +727,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('scope', 'Either \"gen
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('security', 'The security level of the entry. \"public\" is viewable to all, \"private\" is for only the poster, and \"usemask\" does a bitwise calculation of the allowmask and the groupmask of the friend viewing it.', 'log2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('showbydefault', 'Unused.', 'friends');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('sortorder', 'The sorting number the questions are ordered by. Used while SELECT\'ing them.', 'faq');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('sortorder', 'The sorting order.', 'friendgroup');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('spid', 'Unique ID of Support request. Used in URL.', 'supportprop');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('state', 'Comment state identifier: (A)ctive, (D)eleted, (S)creened, (F)rozen, etc.', 'talk2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('state', 'State code (see [dbtable[codes]] for how to turn this into a full state name)', 'zip');
@@ -760,7 +752,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The owner o
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The userid doing the action, or 0 if user is unknown (as in support realm)', 'duplock');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The userid of the [dbtable[user]] making the change.', 'infohistory');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The userid of the [dbtable[user]] who added the friend.', 'friends');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The userid of the [dbtable[user]] who this friends group belongs to.', 'friendgroup');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The userid of the remote [dbtable[user]] viewing the FAQ item.', 'faquses');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The userid of the subscribing [dbtable[user]].', 'supportnotify');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('userid', 'The userid the disk usage item belongs to.', 'dudata');
@@ -806,7 +797,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered. Stores data for mapping tags; like [dbtable[logtags]], but only for the most recent 100 tags-to-entry.', '0', 'off', NULL, 'logtagsrecent');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered. Stores data for mapping userpic keywords ([dbtable[userkeywords]]) to userpics ([dbtable[userpic2]]).', '0', 'off', NULL, 'userpicmap2');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered. Stores data of failed logins, for use with the rate-limiting system.', '0', 'off', NULL, 'loginstall');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered. Stores data on user custom friends groups.', '0', 'off', NULL, 'friendgroup2');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered. Stores data on where users are active, for per-activity user cluster statistics.\n\r\nThe LJ::make_user_active function updates into this table, so long as it has not already been updated for the same user within the last hour. For sites not using memcached, the table is always updated. Please see also [dbtable[active_user]].', '0', 'off', NULL, 'clustertrack2');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered. Stores data to give users access to view their logins in the past 30 days, if they\'re at all afraid that their account has been compromised.', '0', 'off', NULL, 'loginlog');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered. Stores general purpose status log data, such as when an entry is deleted or logging post-by-e-mail activity.\n\r\nThe initiator of the event is stored here so we can look back and say, for example: \"this person deleted the entry\". This works for communities and individual journals, and the actions are logged on the account that lost the entry.\r\n\r\nThe basic format is [ action, actiontarget ].', '0', 'off', NULL, 'userlog');
@@ -850,8 +840,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'pollquestion2');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'pollresult2');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'pollsubmission2');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'portal_box_prop');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'portal_config');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'ratelog');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 's2stylelayers2');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Clustered.', '0', 'off', NULL, 'sessions_data');
@@ -905,7 +893,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores data for which Support tickets a user responded to. Used for speedier querying for the Support system \"You Replied\" filter.', '0', 'off', NULL, 'support_youreplied');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores data of when different users use which clients, for purposes of statistics.', '0', 'off', NULL, 'clientusage');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores data of which users someone has listed as a \"friend\". Also stores the preferences on the friend item.', '0', 'off', NULL, 'friends');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores data on a user\'s custom friends groups. Friends groups are used to restrict who can see an individual entry, or to filter the friends view. Please see also [dbtable[friendgroup2]].', '0', 'off', NULL, 'friendgroup');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores database connection and replication info, instead of in the %LJ::DBINFO hash, for easier (web-based) management of LiveJournal installations with many databases.', '0', 'off', NULL, 'dbinfo');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores each database\'s roles and weights. The [dbtable[dbinfo]] table keeps track of which databases exist.', '0', 'off', NULL, 'dbweights');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores external user mappings. Note: extuser/extuserid are expected to sometimes be NULL, even though they are keyed. (Null values are not taken into account when using indexes).', '0', 'off', NULL, 'extuser');
@@ -950,7 +937,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. ZIP Code table used to validate and auto-complete user-entered location data. More data can be found in the (redundant) table [dbtable[zips]], which was imported later.', '0', 'off', NULL, 'zip');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global.', '0', 'off', NULL, 'eventtypelist');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Historic. Global. Stores a user\'s posts on other clusters, when either 1) that user isn\'t clustered themselves yet, or 2) we\'re doing a mass conversion (moveucluster.pl) and don\'t want to look it up.\n\r\nA maintenance task (clean_caches) moves data from here to [dbtable[talkleft]] on clusters.', '0', 'off', NULL, 'talkleft_xfp');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Historic. Stored data for old \'1.0\' version of the Portal; used before the Portal was re-designed.', '0', 'off', NULL, 'portal');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Lookup table for states, countries, languages, etc...', '1', 'replace', NULL, 'codes');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Stores data on valid invite codes and who has used them. The acctinvite table stores the data on why they were made.', '0', 'off', NULL, 'acctcode');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Stores globally-unique itemid and talkid ID (entries and comments), for URL compatibility. These were used pre-clustering. The LJ::get_newids function uses this table to find out what journal an old global ID belongs to and maps it to its new ID.', '0', 'off', NULL, 'oldids');
