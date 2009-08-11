@@ -320,6 +320,9 @@ body<=
         # interface, since anyone who's in both the add and edit interfaces should
         # only be proccessed via the add interface and not by the edit interface
         my %userid_processed;
+        
+        #  Maintain a list of invalid userids for display to the user
+        my @not_user;
 
         # process the additions
         foreach my $key ( keys %POST ) {
@@ -328,7 +331,10 @@ body<=
                 next unless $POST{"editfriend_add_${num}_user"};
 
                 my $other_u = LJ::load_user_or_identity( $POST{"editfriend_add_${num}_user"} );
-                next unless $other_u;
+                unless ( $other_u ) {
+                    push @not_user, $POST{"editfriend_add_${num}_user"};
+                    next;
+                }
 
                 my $trusted_nonotify = $u->trusts( $other_u ) ? 1 : 0;
                 my $watched_nonotify = $u->watches( $other_u ) ? 1 : 0;
@@ -392,7 +398,13 @@ body<=
             }
         }
 
-        $ret .= "<?h1 $ML{'.success.head'} h1?>";
+        #if there are entries in the not_user array, tell the user there were problems.
+        if ( @not_user > 0 ) {
+            $ret .= "<?h1 $ML{'.error.adding.header'} h1?>";
+            $ret .= "<br>" . BML::ml('.error.adding.text', { username => LJ::ehtml( $_ ) } ) foreach @not_user;
+        } else {
+            $ret .= "<?h1 $ML{'.success.head'} h1?>";
+        }
         $ret .= "<?p $ML{'.success.fromhere'} p?>";
         $ret .= "<ul>";
         $ret .= "<li><a href='" . $u->journal_base . "/read'>$ML{'.success.friendspage'}</a></li>";

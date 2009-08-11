@@ -90,6 +90,10 @@
 
 .editfriends.username=Username
 
+.error.adding.header=Problems Encountered
+
+.error.adding.text=User <strong>[[username]]</strong> does not exist.
+
 .error.badjournaltype=Cannot modify friends of this journal type.
 
 .error.updating=There was an error updating your friends list:
