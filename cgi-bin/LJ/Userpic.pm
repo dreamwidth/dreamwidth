@@ -331,6 +331,7 @@ sub imgtag {
     # parameters, set them. Otherwise, take what ever is set in
     # the userpic
     my $width = $opts{width} || $self->width;
+    my $height = $opts{height} || $self->height;
     my $keyword = $opts{keyword} || $self->keywords;
 
     # if no description is available for alttext, try to fall
@@ -351,8 +352,9 @@ sub imgtag {
     }    
     $title = LJ::ehtml( $title );
 
-    return '<img src="' . $self->url . '" width="' . $width .
-        '" alt="' . $alttext . '" title="' . $title . '" class="userpic-img" />';
+    return '<img src="' . $self->url . '" width="' . $width . 
+        '" height="' . $height . '" alt="' . $alttext . 
+        '" title="' . $title . '" class="userpic-img" />';
 }
 
 # FIXME: should have alt text, if it should be kept
@@ -379,6 +381,33 @@ sub imgtag_percentagesize {
 
     return '<img src="' . $self->url . '" width="' . $width . '" height="' . $height . '" class="userpic-img" />';
 }
+
+# pass a fixed height or width that you want to be the size of the userpic
+# must include either a height or width, if both are given the smaller of the two is used
+# returns the width and height attributes as a string to insert into an img tag
+sub img_fixedsize {
+    my $self = shift;
+    my %opts = @_;
+
+    my $width = $opts{width} || 0;
+    my $height = $opts{height} || 0;
+
+    if ( $width > 0 && $width < $self->width && 
+        ( !$height || ( $width <= $height && $self->width >= $self->height ) ) ) {
+        my $ratio = $width / $self->width;
+        $height = int( $self->height * $ratio );
+    } elsif ( $height > 0 && $height < $self->height ) {
+        my $ratio = $height / $self->height;
+        $width = int( $self->width * $ratio );
+    } else {
+        $width = $self->width;
+        $height = $self->height;
+    }
+
+    return 'height="' . $height . '" width="' . $width . '"';
+}
+
+
 
 # in scalar context returns comma-seperated list of keywords or "pic#12345" if no keywords defined
 # in list context returns list of keywords ( (pic#12345) if none defined )

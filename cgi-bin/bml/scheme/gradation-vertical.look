@@ -65,20 +65,13 @@ accountlinks<=
         my $inbox = $remote->notification_inbox;
         my $unread = $inbox->unread_count;
         my $identity = $remote->is_identity;
-        my $wh = "";
-        if ( $userpic ) {
-            if ( $userpic->width > $userpic->height ) {
-                $wh = 'width="' . ( $userpic->width > 80 ? 80 : $userpic->width ) . '"';
-            } else {
-                $wh = 'height="' . ( $userpic->height > 80 ? 80 : $userpic->height ) . '"';
-            }
-        }
 
         $ret .= "<div id='account-links-userpic'><a href='$LJ::SITEROOT/editpics'>";
         if ( $userpic ) {
+            my $wh = $userpic->img_fixedsize( width => 80, height => 80 );
             $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         } else {
-            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' width='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+            $ret .= "<img src='$LJ::IMGPREFIX/nouserpic.png' width='80' height='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         }
         $ret .= "</a></div>";
         $ret .= "<div id='account-links-text'>";

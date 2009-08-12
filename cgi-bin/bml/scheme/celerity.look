@@ -64,7 +64,6 @@ accountlinks<=
         my $inbox = $remote->notification_inbox;
         my $unread = $inbox->unread_count;
         my $identity = $remote->is_identity;
-        my $wh = "";
 
         $ret .= "<div id='account-links-text'>";
         $ret .= "<form action='$LJ::SITEROOT/logout?ret=1' method='post'>";
@@ -151,14 +150,10 @@ userpic<=
     if ( $remote ) {
         my $userpic = $remote->userpic;
         if ( $userpic && !$LJ::IS_SSL ) {
-            if ( $userpic->width > $userpic->height ) {
-                $wh = 'width="' . ( $userpic->width > 80 ? 80 : $userpic->width ) . '"';
-            } else {
-                $wh = 'height="' . ( $userpic->height > 80 ? 80 : $userpic->height ) . '"';
-            }
+            my $wh = $userpic->img_fixedsize( width => 80, height => 80 );
             $ret .= "<img src='" . $userpic->url . "' $wh alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         } else {
-            $ret .= "<img src='$imgprefix/nouserpic.png' width='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
+            $ret .= "<img src='$imgprefix/nouserpic.png' width='80' height='80' alt=\"$ML{'sitescheme.accountlinks.userpic.alt'}\" />";
         }
     }
 
