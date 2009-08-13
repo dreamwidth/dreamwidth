@@ -354,11 +354,11 @@
             return if $want_success_redirect->();
 
             my $referer = BML::get_client_header('Referer');
-            if ($POST{'ref'} =~ /\Q$LJ::DOMAIN\E/ && $POST{'ref'} !~ m!/logout\.bml$! &&
-                $POST{'ref'} !~ /[\n\r]/)
-            {
+            if ( $POST{'ref'} =~ /\Q$LJ::DOMAIN\E/ &&                   # page on our site
+                 ! LJ::check_referer( '/logout.bml', $POST{'ref'} ) &&  # but not the logout page
+                 $POST{'ref'} !~ /[\n\r]/ ) {                           # and no newline spoofing
                 return BML::redirect("$POST{'ref'}");
-            } elsif ($GET{'ret'} == 1 && $referer && $referer =~ /\Q$LJ::DOMAIN\E/) {
+            } elsif ( $GET{'ret'} == 1 && LJ::check_referer() ) {
                 my $uniq = BML::get_request()->notes->{uniq};
                 if ($uniq) {
                     LJ::MemCache::set("loginout:$uniq", 1, time() + 15);

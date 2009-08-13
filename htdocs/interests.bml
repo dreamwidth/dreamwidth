@@ -84,7 +84,7 @@ body<=
 
         my $dbr = LJ::get_db_reader();
 
-        unless ($did_post || BML::get_client_header('Referer') =~ /^\Q$LJ::SITEROOT\E\/interests\?/)
+        unless ( $did_post || LJ::check_referer('/interests.bml') )
         {
             my ($int) = $dbr->selectrow_array("SELECT interest FROM interests WHERE intid=?", undef, $intid);
             LJ::text_out(\$int);
