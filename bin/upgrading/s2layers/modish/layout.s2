@@ -5,7 +5,7 @@ layerinfo author_name = "branchandroot";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
-set layout_type = "three-columns-right";
+set layout_type = "two-columns-left";
 
 function prop_init {
     if ( not $*image_background_header_url->starts_with("http")  ) {

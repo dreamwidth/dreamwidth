@@ -5,7 +5,7 @@ layerinfo author_name = "branchandroot";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
-set layout_type = "two-columns-left";
+set layout_type = "three-columns-left";
 
 function print_stylesheet() {
     var string entry_userpic_background = generate_background_css( "$*IMGDIR/profile_icons/user.png", "no-repeat", "center", $*color_entry_border );

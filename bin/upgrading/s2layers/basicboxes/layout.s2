@@ -4,7 +4,7 @@ layerinfo redist_uniq = "basicboxes/layout";
 layerinfo author_name = "branchandroot";
 layerinfo lang = "en";
 
-set layout_type = "two-columns-right";
+set layout_type = "three-columns-sides";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 
 function print_stylesheet () {

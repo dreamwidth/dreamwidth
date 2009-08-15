@@ -5,7 +5,7 @@ layerinfo author_name = "branchandroot";
 layerinfo lang = "en";
 
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
-set layout_type = "two-columns-left";
+set layout_type = "three-columns-sides";
 
 function Page::print_global_title() {
 
