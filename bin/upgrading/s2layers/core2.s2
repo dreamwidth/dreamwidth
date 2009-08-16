@@ -3101,21 +3101,23 @@ function print_tag_manage_link() "Prints out a link to the tag management page, 
 }
 
 function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to full text"
-{    
+{
     var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
-    var string item_class = $opts{"item-class"} ? """class="$opts{"item-class"}" """ : "";
+    var string item_class = $opts{"item-class"} ? $opts{"item-class"} : "";
     var string print_uses = $opts{"print_uses"} ? $opts{"print_uses"} : "text";
     if (size $tagslist) {
         println """<ul $list_class>""";
+
         foreach var TagDetail t ($tagslist) {
+            var string tag_class = """class="visibility-$t.visibility $item_class" """;
             if ($print_uses == "title") {
                 var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                println """<li $item_class><a href="$t.url" title="$uses">$t.name</a></li>\n""";
+                println """<li $tag_class><a href="$t.url" title="$uses">$t.name</a></li>\n""";
             } elseif ($print_uses == "number") {
-                println """<li $item_class><a href="$t.url">$t.name</a> [$t.use_count]</li>\n""";
+                println """<li $tag_class><a href="$t.url">$t.name</a> [$t.use_count]</li>\n""";
             } else {
                 var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                println """<li $item_class><a href="$t.url">$t.name</a> - $uses</li>\n""";
+                println """<li $tag_class><a href="$t.url">$t.name</a> - $uses</li>\n""";
             } 
         }
         println """</ul>""";
@@ -3125,7 +3127,7 @@ function print_list_tags(TagDetail[] tagslist, string{} opts) "Prints out a list
 function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of tags in a cloud. Takes as arguments the taglist and a hash with optional arguments 'min_size' (minimum size in ems, times 10), 'maz_size' (maximum size in ems, times 10), 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to the link title"
 {
     var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
-    var string item_class = $opts{"item-class"} ? """class="$opts{"item-class"}" """ : "";
+    var string item_class = $opts{"item-class"} ? $opts{"item-class"}: "";
     var string print_uses = $opts{"print_uses"} ? $opts{"print_uses"} : "title";
 
     var int min_size = $opts{"min_size"} ? int($opts{"maz_size"}) : 9;
@@ -3134,31 +3136,30 @@ function print_cloud_tags(TagDetail[] tagslist, string{} opts) "Prints out a lis
 
     println """<div $list_class>""";
     foreach var TagDetail t ($tagslist)
-	{
-	    if ($t.use_count > $high_count) { $high_count = $t.use_count; }
-	}
+    {
+        if ($t.use_count > $high_count) { $high_count = $t.use_count; }
+    }
 
-	foreach var TagDetail t ($tagslist)
+    foreach var TagDetail t ($tagslist)
+    {
+        var string tag_size = string($min_size);
+        var string tag_class = """class="visibility-$t.visibility $item_class" """;
+        if ($t.use_count > 1)
         {
-            var string tag_size = string($min_size);
-	    if ($t.use_count > 1)
-	    {
-                $tag_size = string((($maz_size-$min_size)*$t.use_count)/$high_count + $min_size);
-            }   
-            var string tag_size_em = $tag_size->substr(0,($tag_size->length())-1) + "." + $tag_size->substr(($tag_size->length())-1,1) + "em";
-            if ($print_uses == "number") {
-                println """<span $item_class style="font-size: $tag_size_em;"><a href="$t.url">$t.name</a> [$t.use_count]</span>\n""";
-            } elseif ($print_uses == "text") {
-                var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                println """<span $item_class style="font-size: $tag_size_em;"><a href="$t.url">$t.name</a> - $uses</span>\n""";
-            } else {
-                var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
-                println """<span $item_class style="font-size: $tag_size_em;"><a href="$t.url" title="$uses">$t.name</a></span>\n""";
-            }
-
+            $tag_size = string((($maz_size-$min_size)*$t.use_count)/$high_count + $min_size);
+        }   
+        var string tag_size_em = $tag_size->substr(0,($tag_size->length())-1) + "." + $tag_size->substr(($tag_size->length())-1,1) + "em";
+        if ($print_uses == "number") {
+            println """<span $tag_class style="font-size: $tag_size_em;"><a href="$t.url">$t.name</a> [$t.use_count]</span>\n""";
+        } elseif ($print_uses == "text") {
+            var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
+            println """<span $tag_class style="font-size: $tag_size_em;"><a href="$t.url">$t.name</a> - $uses</span>\n""";
+        } else {
+            var string uses = get_plural_phrase($t.use_count, "text_tag_uses");
+            println """<span $tag_class style="font-size: $tag_size_em;"><a href="$t.url" title="$uses">$t.name</a></span>\n""";
         }
+    }
     println """</div>""";
-
 }
 
 function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out a list of multilevel tags. Takes as arguments the taglist and a hash with optional arguments 'list-class' and 'item-class'. 'print_uses' option can be 'number', 'text' or 'title' to determine whether to display the uses as a number, as full text, or in the link title. It defaults to uses as a number"
@@ -3166,7 +3167,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
     if (size($tagslist) < 1) { return; }
     
     var string list_class = $opts{"list-class"} ? """class="$opts{"list-class"}" """ : "";
-    var string item_class = $opts{"item-class"} ? """class="$opts{"item-class"}" """ : "";
+    var string item_class = $opts{"item-class"} ? $opts{"item-class"} : "";
     var string print_uses = $opts{"print_uses"} ? $opts{"print_uses"} : "number";
 
     var string[] closing_html;
@@ -3178,6 +3179,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
 
     foreach var TagDetail t ($tagslist) {
         var string[] tags = $t.name->split($*text_tagsmultilevel_delimiter);
+        var string tag_class = """class="visibility-$t.visibility $item_class" """;
         
         var int pos = 0;
         var bool show_lower_tiers = false;
@@ -3211,7 +3213,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
 
             # $prev_tags has fewer tiers than current tag.
             if ($prev_tags[$pos] == "") {
-                print """\n<ul $list_class><li $item_class>$tier_code""";
+                print """\n<ul $list_class><li $tag_class>$tier_code""";
                 $closing_html[$pos] = "</li></ul>";
             }
             elseif (($tags[$pos] != $prev_tags[$pos]) or ($show_lower_tiers)) {
@@ -3235,12 +3237,12 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
 
                 if ($closing_html[$pos] == "") {
                     # This is the first tier at this level, so open list.
-                    print """\n<ul $list_class><li $item_class>$tier_code""";
+                    print """\n<ul $list_class><li $tag_class>$tier_code""";
                     $closing_html[$pos] = "</li></ul>";
                 }
                 else {
                     # There have already been tiers added at this level
-                    print """</li>\n<li $item_class>$tier_code""";
+                    print """</li>\n<li $tag_class>$tier_code""";
                 }
             }
             else {
