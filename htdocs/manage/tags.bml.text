@@ -55,7 +55,7 @@
 
 .setting.public=Any user
 
-.setting.friends=Friends only
+.setting.trusted=Access only
 
 .setting.maintainers=Only maintainers
 

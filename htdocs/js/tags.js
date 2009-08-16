@@ -129,7 +129,7 @@ function show_props(div, id)
         secimg = secimg + "silk/entry/private.png";
         seclabel = ml.private_label;
     }
-    else if (tag[1] == "friends") {
+    else if (tag[1] == "protected") {
         secimg = secimg + "silk/entry/locked.png";
         seclabel = ml.trusted_label;
     } 

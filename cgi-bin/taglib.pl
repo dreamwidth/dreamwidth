@@ -187,7 +187,7 @@ sub _get_usertagsmulti {
                             public => 0,
                             groups => {},
                             private => 0,
-                            friends => 0
+                            protected => 0
                         },
                         uses => 0,
                         display => $tags{$jid}->{$kwid},
@@ -206,7 +206,7 @@ sub _get_usertagsmulti {
 
         # setup some helper values
         my $public_mask = 1 << 63;
-        my $friends_mask = 1 << 0;
+        my $trust_mask = 1 << 0;
 
         # melt this information down into the hashref
         foreach my $row (@$counts) {
@@ -222,12 +222,12 @@ sub _get_usertagsmulti {
             if ($sec & $public_mask) {
                 $res->{$jid}->{$kwid}->{security}->{public} += $ct;
                 $res->{$jid}->{$kwid}->{security_level} = 'public';
-            } elsif ($sec & $friends_mask) {
-                $res->{$jid}->{$kwid}->{security}->{friends} += $ct;
-                $res->{$jid}->{$kwid}->{security_level} = 'friends'
+            } elsif ($sec & $trust_mask) {
+                $res->{$jid}->{$kwid}->{security}->{protected} += $ct;
+                $res->{$jid}->{$kwid}->{security_level} = 'protected'
                     unless $res->{$jid}->{$kwid}->{security_level} eq 'public';
             } elsif ($sec) {
-                # if $sec is true (>0), and not friends/public, then it's a group.  but it's
+                # if $sec is true (>0), and not trust/public, then it's a group.  but it's
                 # still in the form of a number, and we want to know which group it is.  so
                 # we must convert the mask back to a bit number with LJ::bit_breakdown.  but
                 # we will only ever have one mask, so we just accept that.
@@ -284,9 +284,9 @@ sub get_usertags {
         return $res if LJ::can_manage($opts->{remote}, $u);
 
         # setup helper variables from u to remote
-        my ($is_friend, $grpmask) = (0, 0);
+        my ($trusted, $grpmask) = (0, 0);
         if ($opts->{remote}) {
-            $is_friend = $u->trusts_or_has_member( $opts->{remote} );
+            $trusted = $u->trusts_or_has_member( $opts->{remote} );
             $grpmask = $u->trustmask( $opts->{remote} );
         }
 
@@ -295,7 +295,7 @@ sub get_usertags {
 TAG:    foreach my $tagid (keys %$res) {
             my $sec = $res->{$tagid}->{security_level};
             next TAG if $sec eq 'public';
-            next TAG if $is_friend && $sec eq 'friends';
+            next TAG if $trusted && $sec eq 'protected';
             if ($grpmask && $sec eq 'group') {
                 foreach my $grpid (keys %{$res->{$tagid}->{security}->{groups}}) {
                     next TAG if $grpmask & (1 << $grpid);
@@ -507,7 +507,7 @@ sub _remote_satisfies_permission {
         return 1;
     } elsif ($perm eq 'none') {
         return 0;
-    } elsif ($perm eq 'friends') {
+    } elsif ($perm eq 'protected') {
         return $u->trusts_or_has_member( $remote );
     } elsif ($perm eq 'private') {
         return LJ::can_manage($remote, $u);
@@ -530,8 +530,8 @@ sub _remote_satisfies_permission {
 # args: uobj
 # des-uobj: User id or object of account to get permissions for.
 # returns: Hashref; keys one of 'add', 'control'; values being 'private' (only the account
-#          in question), 'friends' (all friends), 'public' (everybody), 'group:N' (one
-#          friend group with given id), or 'none' (nobody can).
+#          in question), 'protected' (all trusted), 'public' (everybody), 'group:N' (one
+#          trust group with given id), or 'none' (nobody can).
 # </LJFUNC>
 sub get_permission_levels {
     return { add => 'none', control => 'none' }
@@ -546,10 +546,10 @@ sub get_permission_levels {
     # return defaults for accounts
     unless ($u->{opt_tagpermissions}) {
         if ( $u->is_community ) {
-            # communities are members (friends) add, private (maintainers) control
-            return { add => 'friends', control => 'private' };
+            # communities are members (trusted) add, private (maintainers) control
+            return { add => 'protected', control => 'private' };
         } elsif ( $u->is_person ) {
-            # people let friends add, self control
+            # people let trusted add, self control
             return { add => 'private', control => 'private' };
         } else {
             # other account types can't add tags
@@ -641,7 +641,7 @@ sub get_security_breakdown {
         @out = (1 << 63);
     } else {
         # have to get each group bit into a mask
-        foreach my $bit (0..60) { # include 0 for friends only
+        foreach my $bit (0..60) { # include 0 for trusted only
             if ($mask & (1 << $bit)) {
                 push @out, (1 << $bit);
             }
@@ -699,7 +699,7 @@ sub update_logtags {
     my $remote = LJ::want_user(delete $opts->{remote});
     return undef unless $remote || $opts->{force};
 
-    # get access levels
+    # get trust levels
     my $can_control = LJ::Tags::can_control_tags($u, $remote);
     my $can_add = $can_control || LJ::Tags::can_add_tags($u, $remote);
 
@@ -1307,10 +1307,10 @@ sub set_usertag_display {
 # <LJFUNC>
 # name: LJ::Tags::deleted_trust_group
 # class: tags
-# des: Called from ljprotocol when a friends group is deleted.
+# des: Called from ljprotocol when a trust group is deleted.
 # args: uobj, bit
 # des-uobj: User id or object of account deleting the group.
-# des-bit: The id (1..60) of the friends group being deleted.
+# des-bit: The id (1..60) of the trust group being deleted.
 # returns: 1 of success undef on failure.
 # </LJFUNC>
 sub deleted_trust_group {

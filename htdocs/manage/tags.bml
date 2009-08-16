@@ -84,8 +84,8 @@ HEAD
             my $control = $POST{"control_level"};
 
             $ret .= "<?errorbar $ML{'.error.invalidsettings'} errorbar?>"
-               unless $add =~ /^(?:private|public|friends|group:\d+)$/ &&
-               $control =~ /^(?:private|public|friends|group:\d+)$/;
+               unless $add =~ /^(?:private|public|protected|group:\d+)$/ &&
+               $control =~ /^(?:private|public|protected|group:\d+)$/;
 
             $u->set_prop("opt_tagpermissions", "$add,$control");
         }
@@ -166,7 +166,7 @@ HEAD
         my $sec = $tag->{security};
         my ($pub, $pri, $fr, $tot) =
                 ($sec->{public}, $sec->{private},
-                 $sec->{friends}, $tag->{uses});
+                 $sec->{protected}, $tag->{uses});
         my $grp = $tot - ($pub+$pri+$fr);
         $ret .= "tags[$_] = [ '" . LJ::ejs($tag->{name}) . "', '$tag->{security_level}', $pub, $pri, $fr, $grp, $tot ];\n";
     }
@@ -294,10 +294,10 @@ HEAD
     my @groups = ("public", $ML{'.setting.public'});
 
     if ($u->is_person) {
-        push @groups, ("friends", $ML{'.setting.friends'});
+        push @groups, ("protected", $ML{'.setting.trusted'});
         push @groups, ("private", $ML{'.setting.private'});
     } else {
-        push @groups, ("friends", $ML{'.setting.members'});
+        push @groups, ("protected", $ML{'.setting.members'});
         push @groups, ("private", $ML{'.setting.maintainers'});
     }
 
