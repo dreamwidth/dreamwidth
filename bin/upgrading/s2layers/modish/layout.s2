@@ -8,7 +8,7 @@ set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "two-columns-left";
 
 function prop_init {
-    if ( not $*image_background_header_url->starts_with("http")  ) {
+    if ( $*image_background_header_url != "" and not $*image_background_header_url->starts_with("http")  ) {
         $*image_background_header_url = "$*STATDIR/$*image_background_header_url";
     }
 }
