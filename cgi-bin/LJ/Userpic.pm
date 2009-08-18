@@ -514,6 +514,7 @@ sub userpics_partitioned {
 sub load_row {
     my $self = shift;
     my $u = $self->owner;
+    return unless defined $u;
     return if $u->is_expunged;
 
     # Load all of the userpics from cache, or load them from the database and write them to cache
