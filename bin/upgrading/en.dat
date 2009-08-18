@@ -2663,6 +2663,8 @@ setting.graphicpreviews.option.comm=Allow viewers to preview external links with
 
 setting.graphicpreviews.option.self=Display a preview of external links when hovering over them
 
+setting.googleanalytics.error.invalid=Invalid Google Analytics ID entered, must be of the format: UA-NNNNNNN-NN (where N represents numbers).
+
 setting.googleanalytics.label=Google Analytics ID
 
 setting.imageplaceholders.error.invalid=Invalid image size.

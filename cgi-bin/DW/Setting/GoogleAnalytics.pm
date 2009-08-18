@@ -56,7 +56,13 @@ sub save {
     my $txt = $class->get_arg( $args, "code" );
     $txt = LJ::trim( $txt || "" );
     $txt = LJ::text_trim( $txt, 0, 100 );
-    $u->google_analytics ( $txt );
+    # Check that the ID matches the format UA-number-number
+    # or is blank before proceeding.
+    if ( $txt =~ /^UA-\d{1,20}-\d{1,5}$/i or $txt eq "" ) {
+        $u->google_analytics ( $txt );
+    } else {
+        $class->errors( "code" => $class->ml( 'setting.googleanalytics.error.invalid' ) ) ;
+    }
     return 1;
 }
 
