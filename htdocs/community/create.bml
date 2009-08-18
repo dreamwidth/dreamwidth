@@ -179,36 +179,36 @@ SUBMIT:
         });
 
         # nonmember posting options
-        $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'/community/settings.bml.label.nmheader'}" .
+        $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'.label.nmheader'}" .
             "</div><div class='formitemDesc'>$ML{'/community/settings.bml.label.nmtext'}</div><div><p>";
         $ret .= LJ::html_check({ type => 'radio', name => 'nonmember_posting', id => 'nonopen',
                                  value => '0', selected => ($POST{nonmember_posting} eq '0' ? 1 : 0)});
-        $ret .= "<label for='nonopen'> $ML{'/community/settings.bml.label.nmcant'}</label></p><p>";
+        $ret .= "<label for='nonopen'> $ML{'.label.nmcant'}</label></p><p>";
         $ret .= LJ::html_check({ type => 'radio', name => 'nonmember_posting', id => 'nonclosed',
                                  value => '1', selected => ($POST{nonmember_posting} eq '1' ? 1 : 0)});
-        $ret .= "<label for='nonclosed'> $ML{'/community/settings.bml.label.nmcan'}</label></p>";
+        $ret .= "<label for='nonclosed'> $ML{'.label.nmcan'}</label></p>";
         $ret .= "</div></div></li>";
 
         # posting access options
-        $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'/community/settings.bml.label.postaccess'}" .
-            "</div><div class='formitemDesc'>$ML{'/community/settings.bml.label.whocanpost'}</div><div><p>";
+        $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'.label.postaccess'}" .
+            "</div><div class='formitemDesc'>$ML{'.label.whocanpost'}</div><div><p>";
         $ret .= LJ::html_check({ type => 'radio', name => 'postlevel', id => 'postopen',
                 value => 'members', selected => ($POST{postlevel} eq 'members' ? 1 : 0)});
-        $ret .= "<label for='postopen'> $ML{'/community/settings.bml.label.anybodycan'}</label></p><p>";
+        $ret .= "<label for='postopen'> $ML{'.label.anybodycan'}</label></p><p>";
         $ret .= LJ::html_check({ type => 'radio', name => 'postlevel', id => 'postclosed',
                 value => 'select', selected => ($POST{postlevel} eq 'select' ? 1 : 0)});
-        $ret .= "<label for='postclosed'> $ML{'/community/settings.bml.label.selcan'}</label></p>";
+        $ret .= "<label for='postclosed'> $ML{'.label.selcan'}</label></p>";
         $ret .= "</div></div></li>";
 
         # moderated options
-        $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'/community/settings.bml.label.modheader'}" .
-            "</div><div class='formitemDesc'>$ML{'/community/settings.bml.label.modtext'}</div><div><p>";
+        $ret .= "<li><div class='formitem'><div class='formitemName'>$ML{'.label.modheader'}" .
+            "</div><div class='formitemDesc'>$ML{'.label.modtext'}</div><div><p>";
         $ret .= LJ::html_check({ type => 'radio', name => 'moderated', id => 'radunmod',
                 value => '0', selected => ($POST{moderated} eq '0' ? 1 : 0)});
-        $ret .= "<label for='radunmod'> $ML{'/community/settings.bml.label.modisnt'}</label></p><p>";
+        $ret .= "<label for='radunmod'> $ML{'.label.modisnt'}</label></p><p>";
         $ret .= LJ::html_check({ type => 'radio', name => 'moderated', id => 'radmod',
                 value => '1', selected => ($POST{moderated} eq '1' ? 1 : 0)});
-        $ret .= "<label for='radmod'> $ML{'/community/settings.bml.label.modis'}</label></p>";
+        $ret .= "<label for='radmod'> $ML{'.label.modis'}</label></p>";
         $ret .= "</div></div></li>";
 
         # adult content options

@@ -23,6 +23,28 @@
 
 .errors.label=Please note the following problems and resubmit:
 
+.label.anybodycan=<b>All Members</b><br />Anybody can post immediately once a member.
+
+.label.modheader=Entry Moderation
+
+.label.modis=<b>Moderated</b><br />New entries must be approved by a moderator.
+
+.label.modisnt=<b>Unmoderated</b><br />New entries appear immediately.
+
+.label.modtext=Are submissions to this community moderated?
+
+.label.nmcan=<b>Non-Members Can Post</b><br />Users can post to this community without having to join it.
+
+.label.nmcant=<b>Non-Members Cannot Post</b><br />Users have to join this community in order to post in it.
+
+.label.nmheader=Non-Member Posting Restrictions
+
+.label.postaccess=Member Posting Restrictions
+
+.label.selcan=<b>Select Members</b><br />Only some members are able to post, once a maintainer gives them access.
+
+.label.whocanpost=Do you want to allow only certain members the ability to post?
+
 .name.head=Community Name
 
 .name.text=What's the name of this community?  This will appear at the top of the community, and in the user directory should you choose to list the community in it.
