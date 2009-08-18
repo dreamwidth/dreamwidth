@@ -54,7 +54,6 @@ sub option {
 
 sub save {
     my ( $class, $u, $args ) = @_;
-    $class->error_check( $u, $args );
 
     my $val = $class->get_arg( $args, "randompaidgifts" ) ? 'Y' : 'N';
     $u->set_prop( opt_randompaidgifts => $val );
