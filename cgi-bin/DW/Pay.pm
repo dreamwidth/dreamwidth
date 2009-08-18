@@ -572,7 +572,10 @@ sub get_random_active_free_user {
     my $for_u = shift || LJ::get_remote();
 
     my $dbr = LJ::get_db_reader();
-    my $rows = $dbr->selectall_arrayref( "SELECT userid, points FROM users_for_paid_accounts", { Slice => {} } );
+    my $rows = $dbr->selectall_arrayref(
+        q{SELECT userid, points FROM users_for_paid_accounts
+          ORDER BY RAND() LIMIT 10},
+        { Slice => {} } );
 
     my @active_us;
     my $us = LJ::load_userids( map { $_->{userid} } @$rows );
@@ -581,9 +584,7 @@ sub get_random_active_free_user {
         my $points = $row->{points};
         my $u = $us->{$userid};
 
-        next unless $u;
-        next unless $u->is_visible;
-        next unless $u->is_personal;
+        next unless $u && $u->is_visible && $u->is_personal;
         next if $u->is_paid;
         next unless $u->opt_randompaidgifts;
         next if LJ::sysban_check( 'pay_user', $u->user );
