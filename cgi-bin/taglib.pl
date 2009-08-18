@@ -507,7 +507,7 @@ sub _remote_satisfies_permission {
         return 1;
     } elsif ($perm eq 'none') {
         return 0;
-    } elsif ($perm eq 'protected') {
+    } elsif ( $perm eq 'protected' || $perm eq 'friends' ) { # 'friends' for backwards compatibility
         return $u->trusts_or_has_member( $remote );
     } elsif ($perm eq 'private') {
         return LJ::can_manage($remote, $u);
