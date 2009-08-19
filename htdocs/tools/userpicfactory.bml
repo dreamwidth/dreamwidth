@@ -243,6 +243,7 @@ $body .= qq {
       <input type="submit" value="Create Userpic"  id="createbtn" />
       } . LJ::html_hidden('keywords', $GET{'keywords'},
                           'comments', $GET{'comments'},
+                          'descriptions', $GET{'descriptions'},
                           'make_default', $GET{'make_default'},
                           index => $GET{index}) . qq {
       </form></div> standout?>
