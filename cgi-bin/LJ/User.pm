@@ -6119,7 +6119,7 @@ sub ljuser
         return $make_tag->( 'silk/identity/community.png', $url, 16, '', $type_readable );
     } elsif ( $type eq 'Y' ) {
         return $make_tag->( "syn_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
-        return $make_tag->( 'silk/identity/feed.png', $url, 16, , $type_readable );
+        return $make_tag->( 'silk/identity/feed.png', $url, 16, '', $type_readable );
     } elsif ( $type eq 'I' ) {
         return $u->ljuser_display($opts);
     } else {
