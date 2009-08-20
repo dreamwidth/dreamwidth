@@ -133,7 +133,7 @@ body<=
         next if $r->{state} eq "D";
 
         my $pu = $us->{$r->{posterid}};
-        next if $pu->is_expunged || $pu->is_suspended;
+        next if $pu && ( $pu->is_expunged || $pu->is_suspended );
 
         $r->{'props'} = $props{$r->{'jtalkid'}};
 
