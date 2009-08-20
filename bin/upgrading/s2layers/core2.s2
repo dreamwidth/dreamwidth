@@ -3942,9 +3942,7 @@ function Entry::print_wrapper_start() {
     var string journal;
     if ($this.journal.journal_type != "I") {
         $poster = "poster-$this.poster.username";
-        if ($this.journal.journal_type != "Y") {
-            $journal = "journal-$this.journal.username";
-        }
+        $journal = "journal-$this.journal.username";
     }
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
 
