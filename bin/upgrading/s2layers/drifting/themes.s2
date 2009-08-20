@@ -3,3 +3,8 @@ layerinfo type = "theme";
 layerinfo name = "Drifting Blue";
 layerinfo redist_uniq = "drifting/blue";
 
+set image_background_header_url = "drifting/hdr_bg.jpg";
+set image_background_header_repeat = "repeat";
+set image_header_left = "drifting/hdr_left.jpg";
+set image_header_right = "drifting/hdr_right.jpg";
+set image_module_header_url = "drifting/hdr_icon.gif";

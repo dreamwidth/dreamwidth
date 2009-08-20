@@ -77,7 +77,9 @@ propgroup images
     property string image_header_right {
         des = "Right header image URL";
     }
-    property string image_module_header_url { noui = 1; }
+    property string image_module_header_url { 
+        des = "Module/Entry header image URL";
+    }
 }
 
 # TEXT
@@ -216,21 +218,21 @@ set module_links_order         = 3;
 ################################################################################
 function prop_init()
 {
-    if ( $*image_background_header_url == "" )
+    if ( $*image_background_header_url != "" and not $*image_background_header_url->starts_with("http") )
     {
-        $*image_background_header_url = "$*STATDIR/drifting/hdr_bg.jpg";
+        $*image_background_header_url = "$*STATDIR/$*image_background_header_url";
     }
-    if ( $*image_module_header_url == "" )
+    if ( $*image_module_header_url != "" and not $*image_module_header_url->starts_with("http") )
     {
-        $*image_module_header_url = "$*STATDIR/drifting/hdr_icon.gif";
+        $*image_module_header_url = "$*STATDIR/$*image_module_header_url";
     }
-    if ( $*image_header_left == "" )
+    if ( $*image_header_left != "" and not $*image_header_left->starts_with("http") )
     {
-        $*image_header_left = "$*STATDIR/drifting/hdr_left.jpg";
+        $*image_header_left = "$*STATDIR/$*image_header_left";
     }
-    if ( $*image_header_right == "" )
+    if ( $*image_header_right != "" and not $*image_header_right->starts_with("http") )
     {
-        $*image_header_right = "$*STATDIR/drifting/hdr_right.jpg";
+        $*image_header_right = "$*STATDIR/$*image_header_right";
     }
 }
 
