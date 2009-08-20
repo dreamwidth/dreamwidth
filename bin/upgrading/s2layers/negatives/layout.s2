@@ -284,6 +284,7 @@ function Page::print_default_stylesheet()
         border-right:5px double $*color_module_border;
         left: 10%;
         width: 70%;
+        z-index: 10;
         }
     #secondary {
         position: relative;
