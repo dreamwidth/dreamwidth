@@ -33,21 +33,31 @@ propgroup colors {
     property use color_page_text;
     property use color_page_link;
     property use color_page_link_hover;
+    property use color_page_link_active;
+    property use color_page_link_visited;
 
     property use color_module_background;
     property use color_module_text;
     property use color_module_border;
     property use color_module_link;
     property use color_module_link_hover;
+    property use color_module_link_active;
+    property use color_module_link_visited;
     property use color_module_title;
 
     property use color_entry_link;
     property use color_entry_link_hover;
+    property use color_entry_link_active;
+    property use color_entry_link_visited;
     property use color_entry_border;
     property use color_entry_background;
     property use color_entry_text;
     property use color_entry_title;
+
     property use color_entry_interaction_links;
+    property use color_entry_interaction_links_hover;
+    property use color_entry_interaction_links_active;
+    property use color_entry_interaction_links_visited;
 
 }
 
@@ -55,23 +65,31 @@ set color_page_background = "#000000";
 set color_page_text = "#ffffff";
 set color_page_link = "#cccccc";
 set color_page_link_hover = "#ffffff";
+set color_page_link_active = "#666666";
+set color_page_link_visited = "#aaaaaa";
 
-set color_entry_link = "#000000";
-set color_entry_link_hover = "#cccccc";
+set color_entry_link = "#666666";
+set color_entry_link_hover = "#bbbbbb";
+set color_entry_link_active = "#ffffff";
 set color_entry_link_visited = "#000000";
 set color_entry_border = "#000000";
 set color_entry_background = "#ffffff";
 set color_entry_text = "#000000";
 set color_entry_title = "#000000";
-set color_entry_interaction_links = "#ffffff";
 
 set color_module_background = "#000000";
 set color_module_text = "#cccccc";
 set color_module_border = "#aaaaaa";
-set color_module_title = "#cccccc";
-set color_module_link = "#cccccc";
-set color_module_link_active = "#222222";
+set color_module_title = "#dddddd";
+set color_module_link = "#aaaaaa";
+set color_module_link_active = "#444444";
 set color_module_link_hover = "#ffffff";
+set color_module_link_visited = "#777777";
+
+set color_entry_interaction_links = "#aaaaaa";
+set color_entry_interaction_links_hover = "#ffffff";
+set color_entry_interaction_links_active = "#444444";
+set color_entry_interaction_links_visited = "#777777";
 
 ##===============================
 ## Journal style - images
@@ -250,12 +268,15 @@ function Page::print_default_stylesheet()
         color:  $*color_page_link;
         outline: none;
         }
-    a:visited, a:active {
+    a:active {
         color: $*color_entry_link_active;
         }
     a:hover {
         color: $*color_page_link_hover;
         }
+    a:visited {
+        color: $*color_page_link_visited;
+    }
     img, img a {
         border: 0!important;
         }
@@ -299,13 +320,19 @@ function Page::print_default_stylesheet()
         $module_background
         color: $*color_module_text;
         }
-    #secondary a, #secondary a:visited {
+    #secondary a {
         color:$*color_module_link;
         font-weight:normal;
         padding-bottom:1px;
     }
-    #secondary a:hover, #secondary a:active {
+    #secondary a:hover {
         color:$*color_module_link_hover;
+    }
+    #secondary a:active {
+        color:$*color_module_link_active;
+    }
+    #secondary a:visited {
+        color:$*color_module_link_visited;
     }
     #secondary .module-header {
         border-bottom:1px solid $*color_module_border;
@@ -345,6 +372,12 @@ function Page::print_default_stylesheet()
     .entry a:hover, .comment a:hover {
         color: $*color_entry_link_hover;
     }
+    .entry a:active, .comment a:active {
+        color: $*color_entry_link_active;
+    }
+    .entry a:visited, .comment a:visited {
+        color: $*color_entry_link_visited;
+    }
     .tag { margin: 10px 0; }
     .tag ul { display: inline; margin: 0; padding: 0; }
     .tag li { display: inline; }
@@ -379,17 +412,26 @@ function Page::print_default_stylesheet()
     }
     .entry-management-links, .entry-management-links a,
     .entry-interaction-links, .entry-interaction-links a,
-    .comment-interaction-links, .comment-interaction-links a {
+    .comment-interaction-links, .comment-interaction-links a{
         background-color: $*color_page_background;
         color: $*color_entry_interaction_links;
         padding: 0 0.5em;
         font-weight: normal;
         text-align: center;
     }
-    .entry-management-links a:hover .comment-management-links a:hover, 
-    .entry-interaction-links a:hover .comment-interaction-links a:hover{
-        color: $*color_entry_link_hover;
+    .entry-management-links a:hover, .comment-management-links a:hover, 
+    .entry-interaction-links a:hover, .comment-interaction-links a:hover{
+         color: $*color_entry_interaction_links_hover;
+    } 
+    .entry-management-links a:active, .comment-management-links a:active,
+    .entry-interaction-links a:active, .comment-interaction-links a:active{
+        color: $*color_entry_interaction_links_active;
     }
+    .entry-management-links a:visited, .comment-management-links a:visited,
+    .entry-interaction-links a:visited, .comment-interaction-links a:visited{
+        color: $*color_entry_interaction_links_visited;
+     }
+ 
     .userlite-interaction-links ul, .entry-management-links ul, .comment-management-links ul {
         list-style: none;
 	margin-left: 0;

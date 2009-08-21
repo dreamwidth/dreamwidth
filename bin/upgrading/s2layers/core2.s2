@@ -1689,6 +1689,10 @@ property Color color_entry_border       { des = "Entry border color"; }
 property Color color_entry_title        { des = "Entry title color"; }
 property Color color_entry_title_background { des = "Entry title background color"; }
 property Color color_entry_interaction_links { des = "Color of interaction links and text"; }
+property Color color_entry_interaction_links_hover { des = "Color of interaction links and text - hover"; }
+property Color color_entry_interaction_links_active { des = "Color of interaction links and text - active"; }
+property Color color_entry_interaction_links_visited { des = "Color of interaction links and text - visited"; }
+
 
 set color_entry_background = "";
 set color_entry_text = "";
@@ -1700,6 +1704,9 @@ set color_entry_border = "";
 set color_entry_title = "";
 set color_entry_title_background = "";
 set color_entry_interaction_links = "";
+set color_entry_interaction_links_hover = "";
+set color_entry_interaction_links_active = "";
+set color_entry_interaction_links_visited = "";
 
 ##===============================
 ## Journal style - element colors

@@ -781,6 +781,9 @@ sub entry_props {
         color_entry_title
         color_entry_title_background
         color_entry_interaction_links
+        color_entry_interaction_links_hover
+        color_entry_interaction_links_active
+        color_entry_interaction_links_visited
         font_entry_title
         font_entry_title_size
         font_entry_title_units
