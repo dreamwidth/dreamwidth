@@ -1007,6 +1007,7 @@ register_tabledrop("sms_msgtext");
 register_tabledrop("sms_msgerror");
 register_tabledrop("sms_msgprop");
 register_tabledrop("sms_msgproplist");
+register_tabledrop("knob");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -2563,13 +2564,6 @@ CREATE TABLE usersearch_packdata (
 
     INDEX (mtime),
     INDEX (good_until)
-)
-EOC
-
-register_tablecreate("knob", <<'EOC');
-CREATE TABLE knob (
-    knobname    VARCHAR(255) NOT NULL PRIMARY KEY,
-    val         TINYINT UNSIGNED
 )
 EOC
 

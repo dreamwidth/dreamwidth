@@ -38,7 +38,6 @@ use Class::Autouse qw(
                       TheSchwartz::Job
                       LJ::Comment
                       LJ::Config
-                      LJ::Knob
                       LJ::ExternalSite
                       LJ::ExternalSite::Vox
                       LJ::Message
