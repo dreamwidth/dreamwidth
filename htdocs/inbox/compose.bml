@@ -139,7 +139,7 @@ body<=
                     $body .= $ML{'.message.sent'};
                     $body .= "<?p $ML{'.message.sent.options'} <ul>";
                     $body .= "<li><a href='$LJ::SITEROOT/inbox/compose'>$ML{'.link.send.message'}</a></li>";
-                    $body .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'.link.inbox'}</a><li>";
+                    $body .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'.link.inbox'}</a></li>";
                     $body .= "<li><a href='$LJ::SITEROOT/'>$ML{'.link.home'}</a></li>";
                     $body .= "</ul> p?>\n";
                     return $body;
