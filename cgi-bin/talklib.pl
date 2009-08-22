@@ -2113,12 +2113,12 @@ sub get_replycount {
 
 sub comment_htmlid {
     my $id = shift or return '';
-    return "ljcmt$id";
+    return "cmt$id";
 }
 
 sub comment_anchor {
     my $id = shift or return '';
-    return "#ljcmt$id";
+    return "#cmt$id";
 }
 
 package LJ::Talk::Post;

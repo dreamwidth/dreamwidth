@@ -157,7 +157,7 @@ body<=
         my $ljcmt = $LJ_cmtinfo{$talkid} = {};
         $ljcmt->{u} = $pu ? $pu->{user} : "";
 
-        $ret .= "<tr valign='top' id='ljcmtbar$talkid'><td style='width: 150px; line-height: 1.5em; border-top: 1px solid #999; background-color: $bgcolor' id='cmtbar$talkid'>";
+        $ret .= "<tr valign='top' id='cmtbar$talkid'><td style='width: 150px; line-height: 1.5em; border-top: 1px solid #999; background-color: $bgcolor' id='cmtbar$talkid'>";
          $ret .= (LJ::isu($pu) ? LJ::ljuser($pu) : $ML{ '.anonymous' }) . "<br />";
 
         $ret .= LJ::ago_text($now - $r->{datepostunix}) . "<br />";
@@ -282,7 +282,7 @@ body<=
     $ret .= "<script>var LJ_cmtinfo = " . LJ::js_dumper(\%LJ_cmtinfo) . ";\n" .
         "function userhook_screen_comment_ARG (talkid) { setStyle('cmtbar'+talkid, 'background', $js_screen_color); setInner('state'+talkid, 'Screened'); }\n".
         "function userhook_unscreen_comment_ARG (talkid) { setStyle('cmtbar'+talkid, 'background', 'transparent'); setInner('state'+talkid, ''); }\n".
-        "function userhook_delete_comment_ARG (talkid) { hideElement('ljcmtbar'+talkid); }\n".
+        "function userhook_delete_comment_ARG (talkid) { hideElement('cmtbar'+talkid); }\n".
         "var Site; if (!Site) Site = new Object(); Site.imgprefix = \"$LJ::IMGPREFIX\";\n".
         "</script>";
 

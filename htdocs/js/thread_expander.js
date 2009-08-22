@@ -22,7 +22,7 @@ Expander.prototype.set = function(options){
 }
 
 Expander.prototype.getCanvas = function(id,context){
-    return context.document.getElementById('ljcmt'+id); 
+    return context.document.getElementById('cmt'+id); 
 }
 
 Expander.prototype.parseLJ_cmtinfo = function(context,callback){

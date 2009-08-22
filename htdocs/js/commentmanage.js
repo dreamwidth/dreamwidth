@@ -255,7 +255,7 @@ function deleteComment (ditemid) {
 
     killPopup();
 
-    var todel = document.getElementById("ljcmt" + ditemid);
+    var todel = document.getElementById("cmt" + ditemid);
 
     var col = 0;
     var pulse = 0;
@@ -319,7 +319,7 @@ function deleteComment (ditemid) {
 }
 
 function removeComment (ditemid, killChildren) {
-    var todel = document.getElementById("ljcmt" + ditemid);
+    var todel = document.getElementById("cmt" + ditemid);
     if (todel) {
         todel.style.display = 'none';
 
@@ -387,7 +387,7 @@ function createDeleteFunction (ae, dItemid) {
 
             de = document.createElement("div");
             de.style.textAlign = "left";
-            de.className = 'ljcmtmanage';
+            de.className = 'cmtmanage';
             de.style.height = "10px";
             de.style.overflow = "hidden";
             de.style.position = "absolute";
@@ -615,7 +615,7 @@ function setupAjax () {
             if (! reMatch) return true;
 
             var dItemid = reMatch[1];
-            var todel = document.getElementById("ljcmt" + dItemid);
+            var todel = document.getElementById("cmt" + dItemid);
             if (! todel) return true;
 
             if (LJ_cmtinfo && LJ_cmtinfo.disableInlineDelete) continue;
@@ -637,5 +637,5 @@ function regEvent (target, evt, func) {
 if (document.getElementById && getXTR()) {
        regEvent(window, "load", setupAjax);
 	regEvent(document, "click", docClicked);
-        document.write("<style> div.ljcmtmanage { color: #000; background: #e0e0e0; border: 2px solid #000; padding: 3px; }</style>");
+        document.write("<style> div.cmtmanage { color: #000; background: #e0e0e0; border: 2px solid #000; padding: 3px; }</style>");
 }
