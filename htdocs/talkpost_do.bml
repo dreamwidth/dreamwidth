@@ -48,7 +48,7 @@ body<=
 
         if ($GET{'openid.mode'} eq 'id_res') { # Verify their identity
 
-            unless ($GET{'openid.return_to'} =~ m!^\Q$LJ::SITEROOT\E/talkpost_do\.bml!) {
+            unless ( LJ::check_referer('/talkpost_do.bml', $GET{'openid.return_to'}) ) {
                 return LJ::bad_input("Invalid return_to");
             }
 
