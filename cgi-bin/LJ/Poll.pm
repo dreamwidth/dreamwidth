@@ -1132,7 +1132,7 @@ sub render {
                 my $stddev = sprintf("%.2f", $valstddev);
                 my $mean = sprintf("%.2f", $valmean);
                 $results_table .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
-                $results_table .= LJ::Lang::ml('poll.scaleanswers', { 'mean' => $mean, 'median' => $valmedian, 'stddev' => $stddev });
+                $results_table .= "<br />\n";
                 $do_table = 1;
                 $results_table .= "<table>";
             }
