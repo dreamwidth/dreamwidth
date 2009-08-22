@@ -107,7 +107,7 @@ H1, H2, H3, H4, H5 { font-weight: normal; font-style: italic;}
 .entry .contents { padding: .5em .5em 0 .5em; }
 
 .entry .contents .userpic { position: absolute;
-    top: -2em;
+    top: -3em;
     left: -1.5em;
     width: 110px;
     height: 110px;
