@@ -3618,7 +3618,7 @@ function print_module_credit() {
     var int authors_size = size $*layout_authors;
     if ( $authors_size > 0 ) {
         var int count = 0;
-        $ret = $ret  + "<dt>$*text_layout_authors</dt>";
+        $ret = $ret  + "<dt>$*text_layout_authors</dt> ";
         foreach var string{} author ( $*layout_authors ) {
             var string item;
             if ( $author{"url"} != "" ) {
@@ -3643,7 +3643,7 @@ function print_module_credit() {
     var int resources_size = size $*layout_resources;
     if ( $resources_size > 0 ) {
         var int count = 0;
-        $ret = $ret  + "<dt>$*text_layout_resources</dt>";
+        $ret = $ret  + "<dt>$*text_layout_resources</dt> ";
         foreach var string{} resource ( $*layout_resources ) {
             var string item;
             if ( $resource{"url"} != "" ) {
