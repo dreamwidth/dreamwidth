@@ -42,6 +42,8 @@ sub render_body {
     $opts{receipt} = 1
         if $opts{admin};
 
+    my $colspan = $opts{receipt} ? 5 : 6;
+
     $ret .= $class->start_form
         unless $opts{receipt};
 
@@ -92,7 +94,7 @@ sub render_body {
         }
         $ret .= "</tr>";
     }
-    $ret .= "<tr><td colspan='6' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " \$" . $cart->display_total . " USD</td></tr>";
+    $ret .= "<tr><td colspan='" . $colspan . "' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " \$" . $cart->display_total . " USD</td></tr>";
     $ret .= "</table>";
 
     unless ( $opts{receipt} ) {
