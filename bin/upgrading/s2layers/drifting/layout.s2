@@ -674,6 +674,10 @@ function Page::print_default_stylesheet()
         padding-right: 10px;
     }
 
+    .comment-thread .separator-after {
+        border-bottom: 1px solid $*color_entry_border;
+    }
+
     .comment .subject {
         border: 1px solid $*color_entry_border;
         border-left: none;
