@@ -532,6 +532,12 @@ function Page::print_default_stylesheet()
         margin-right: 0.5em;
     }
 
+    /* Tag Module
+    ***************************************************************************/
+    .module-tags_cloud .module-list {
+        margin-bottom: 0.5em;
+    }
+
     /* Reply
     ***************************************************************************/
     #reply h2 {
