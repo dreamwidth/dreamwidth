@@ -1556,7 +1556,7 @@ property string image_background_page_repeat {
     grouped = 1;
 }
 property string image_background_page_position {
-    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
 }
 
@@ -1573,7 +1573,7 @@ property string image_background_header_repeat {
     grouped = 1;
 }
 property string image_background_header_position {
-    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
 }
 # FIXME: This should be grouped, but then it doesn't get a label.
@@ -1595,7 +1595,7 @@ property string image_background_entry_repeat {
     grouped = 1;
 }
 property string image_background_entry_position {
-    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
 }
 
@@ -1612,7 +1612,7 @@ property string image_background_module_repeat {
     grouped = 1;
 }
 property string image_background_module_position {
-    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
 }
 
@@ -1629,7 +1629,7 @@ property string separator_image_repeat {
     grouped = 1;
 }
 property string separator_image_position {
-    values = "top left|top left|center|center|top right|top right| bottom left|bottom left|bottom right|bottom right";
+    values = "top left|top left|top center|top center|top right|top right|center left|center left|center center|center|center right|center right|bottom left|bottom left|bottom center|bottom center|bottom right|bottom right";
     grouped = 1;
 }
 
