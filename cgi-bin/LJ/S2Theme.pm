@@ -720,6 +720,7 @@ sub navigation_props {
         text_view_friends
         text_view_friends_comm
         text_view_friends_filter
+        text_view_network
         text_view_memories
         text_view_recent
         text_view_userinfo

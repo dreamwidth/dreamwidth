@@ -2020,6 +2020,7 @@ sub Page
             userinfo => $u->profile_url,
             archive  => "$base_url/calendar",
             read     => "$base_url/read",
+            network  => "$base_url/network",
             tags     => "$base_url/tag",
             memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
@@ -2076,7 +2077,8 @@ sub Page
     }
 
     # Identity (type I) accounts only have read views
-    $p->{'views_order'} = [ 'read', 'userinfo' ] if $u->is_identity;
+    $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
+    $p->{views_order} = [ 'recent', 'archive', 'read', 'network', 'tags', 'memories', 'userinfo' ] if $u->is_paid;
 
     return $p;
 }
