@@ -3,3 +3,46 @@ layerinfo type = "theme";
 layerinfo name = "Negatives Black";
 layerinfo redist_uniq = "negatives/black";
 
+
+#NEWLAYER: negatives/blastedsands
+layerinfo type = "theme";
+layerinfo name = "Blasted Sands";
+layerinfo redist_uniq = "negatives/blastedsands";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_text = "#996633";
+set color_page_background = "#dcc6b0";
+
+set color_page_link = "#728135";
+set color_page_link_hover = "#e39307";
+set color_page_link_active = "#8B0000";
+set color_page_link_visited = "#8B0000";
+
+set color_entry_text = "#646329";
+set color_entry_border = "#996633";
+set color_entry_background = "#FAFAD2";
+set color_entry_title = "#728135";
+
+set color_entry_link = "#996633";
+set color_entry_link_hover = "#e39307";
+set color_entry_link_active = "#8B0000";
+set color_entry_link_visited = "#8B0000";
+
+set color_entry_interaction_links = "#996633";
+set color_entry_interaction_links_hover = "#e39307";
+set color_entry_interaction_links_active = "#8B0000";
+set color_entry_interaction_links_visited = "#8B0000";
+
+set color_module_text = "#728135";
+set color_module_border = "#996633";
+set color_module_background = "#fefde0";
+set color_module_title = "#728135";
+
+set color_module_link = "#996633";
+set color_module_link_hover = "#e39307";
+set color_module_link_active = "#8B0000";
+set color_module_link_visited = "#8B0000";
+
+
