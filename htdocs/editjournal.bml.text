@@ -9,6 +9,8 @@
 
 .edit.this.entry=Edit this Entry
 
+.error.nofind=Could not find selected journal entry.
+
 .in=In community:
 
 .no.entries.exist=The selected journal has no entries.

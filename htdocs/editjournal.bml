@@ -145,7 +145,7 @@ body<=
                 unless $res{'success'} eq 'OK';
 
             # does the requested entry exist?
-            return "<?h1 $ML{'Error'} h1?><?p $ML{'/editjournal_do.bml.error.nofind'} p?>"
+            return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nofind'} p?>"
                 unless $res{'events_count'} && $res{'events_1_anum'} == $anum;
 
             # are we authorized to edit other peoples' posts in this community?
