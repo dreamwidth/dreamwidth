@@ -4304,7 +4304,9 @@ widget.latestnews.comments=[[num_comments]] [[?num_comments|comment|comments]]
 
 widget.latestnews.more=(Read more...)
 
-widget.latestnews.subscribe=<a [[aopts]]>Add</a> [[news]] to your reading list
+widget.latestnews.subscribe.add=<a [[aopts]]>Add</a> [[news]] to your reading list
+
+widget.latestnews.subscribe.modify=<a [[aopts]]>Modify your subscription</a> to [[news]]
 
 widget.latestnews.title=[[sitename]] News
 

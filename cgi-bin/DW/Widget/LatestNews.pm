@@ -50,9 +50,17 @@ sub render_body {
 
     $ret .= "<div class='sidebar'>";
     $ret .= "<p><a href='" . $entry->url . "#comments'>" . $class->ml( 'widget.latestnews.comments', { num_comments => $entry->reply_count } ) . "</a></p>";
-    $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe', { 
-        aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user. "&action=subscribe'",
-        news => LJ::ljuser( $news_journal ) } ) . "</p>";
+
+    if ( $remote->watches( $news_journal ) ) {
+        $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.modify', { 
+            aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user . "'",
+            news => LJ::ljuser( $news_journal ) } ) . "</p>";
+    } else {
+        $ret .= "<p>" . $class->ml( 'widget.latestnews.subscribe.add', { 
+            aopts => "href='$LJ::SITEROOT/manage/circle/add?user=" . $news_journal->user. "&action=subscribe'",
+            news => LJ::ljuser( $news_journal ) } ) . "</p>";
+    }
+
     $ret .= "</div>";
 
     $ret .= "<div class='contents'>";
