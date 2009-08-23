@@ -36,3 +36,43 @@ set color_module_text = "#566030";
 set color_module_border = "#566030";
 set color_module_title = "#566030";
 set color_module_title = "#e9eed3";
+
+#NEWLAYER: basicboxes/eggplant
+layerinfo type = "theme";
+layerinfo name = "Basic Boxes Eggplant";
+layerinfo redist_uniq = "basicboxes/eggplant";
+layerinfo author_name = "kareila";
+
+set layout_authors = [ { "name" => "kareila", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#40095d";
+set color_page_link = "#a8b257";
+set color_page_border = "#908aa6";
+set color_page_title = "#a8b257";
+
+set color_header_background = "#641471";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#641471";
+set color_entry_text = "#bb90e0";
+set color_entry_link = "#a8b257";
+set color_entry_link_visited = "#908aa6";
+set color_entry_border = "#908aa6";
+set color_entry_title = "#641471";
+set color_entry_title_background = "#a8b257";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#641471";
+set color_module_text = "#bb90e0";
+set color_module_border = "#bb90e0";
+set color_module_title = "#a8b257";
