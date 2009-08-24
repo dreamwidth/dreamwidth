@@ -199,7 +199,6 @@ set color_entry_title_background = "#92a252";
 set color_module_background = "#92a252";
 set color_module_text = "#566030";
 set color_module_border = "#566030";
-set color_module_title = "#566030";
 set color_module_title = "#e9eed3";
 
 
