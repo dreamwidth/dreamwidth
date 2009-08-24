@@ -88,6 +88,7 @@ propgroup text
 {
     property use text_view_recent;
     property use text_view_friends;
+    property use text_view_network;
     property use text_view_friends_comm;
     property use text_view_friends_filter;
     property use text_view_archive;

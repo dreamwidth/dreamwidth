@@ -1888,6 +1888,7 @@ function lang_viewname(string viewid) [notags] : string
     if ($viewid == "reply") { return "Post Comment"; }
     if ($viewid == "tags") { return "Tags"; }
     if ($viewid == "memories") { return $*text_view_memories; }
+    if ($viewid == "network") { return $*text_view_friendsfriends; }
     return "Unknown View";
 }
 
