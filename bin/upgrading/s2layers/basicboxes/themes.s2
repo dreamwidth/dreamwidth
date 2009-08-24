@@ -4,7 +4,7 @@ layerinfo name = "Burgundy";
 layerinfo redist_uniq = "basicboxes/burgundy";
 layerinfo author_name = "branchandroot";
 
-# using the A Glass of Red Wine palatte by Leopard (http://www.colourlovers.com/palette/912330/A_Glass_of_Red_Wine)
+# using the A Glass of Red Wine palette by Leopard (http://www.colourlovers.com/palette/912330/A_Glass_of_Red_Wine)
 
 ##===============================
 ## Page Colors
@@ -46,7 +46,7 @@ layerinfo name = "Denim";
 layerinfo redist_uniq = "basicboxes/denim";
 layerinfo author_name = "branchandroot";
 
-# using the On the Down Low palatte by llucious (http://www.colourlovers.com/palette/912662/On_the_Down_Low)
+# using the On the Down Low palette by llucious (http://www.colourlovers.com/palette/912662/On_the_Down_Low)
 
 ##===============================
 ## Page Colors
@@ -86,7 +86,7 @@ layerinfo name = "Ecru";
 layerinfo redist_uniq = "basicboxes/ecru";
 layerinfo author_name = "branchandroot";
 
-# using the My first palatte palatte by Josos (http://www.colourlovers.com/palette/913706/My_first_palette)
+# using the My first palette palette by Josos (http://www.colourlovers.com/palette/913706/My_first_palette)
 
 ##===============================
 ## Page Colors
@@ -124,7 +124,7 @@ set color_module_title_background = "#fffefd";
 
 #NEWLAYER: basicboxes/eggplant
 layerinfo type = "theme";
-layerinfo name = "Basic Boxes Eggplant";
+layerinfo name = "Eggplant";
 layerinfo redist_uniq = "basicboxes/eggplant";
 layerinfo author_name = "kareila";
 
@@ -165,7 +165,7 @@ set color_module_title = "#a8b257";
 
 #NEWLAYER: basicboxes/green
 layerinfo type = "theme";
-layerinfo name = "Basic Boxes Green";
+layerinfo name = "Green";
 layerinfo redist_uniq = "basicboxes/green";
 layerinfo author_name = "branchandroot";
 
@@ -209,7 +209,7 @@ layerinfo name = "Leaf";
 layerinfo redist_uniq = "basicboxes/leaf";
 layerinfo author_name = "branchandroot";
 
-# using the Medusa's Hair palatte by orangeword (http://www.colourlovers.com/palette/912486/Medusa_Hair)
+# using the Medusa's Hair palette by orangeword (http://www.colourlovers.com/palette/912486/Medusa_Hair)
 
 ##===============================
 ## Page Colors
@@ -251,7 +251,7 @@ layerinfo name = "Peach";
 layerinfo redist_uniq = "basicboxes/peach";
 layerinfo author_name = "branchandroot";
 
-# using the Pure palatte by Sruoloc (http://www.colourlovers.com/palette/912313/Pure)
+# using the Pure palette by Sruoloc (http://www.colourlovers.com/palette/912313/Pure)
 
 ##===============================
 ## Page Colors
