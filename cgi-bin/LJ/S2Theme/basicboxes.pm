@@ -7,11 +7,31 @@ sub layout_prop { "layout_type" }
 sub designer { "branchandroot" }
 
 
+package LJ::S2Theme::basicboxes::burgundy;
+use base qw( LJ::S2Theme::basicboxes );
+sub cats { qw() }
+
+package LJ::S2Theme::basicboxes::denim;
+use base qw( LJ::S2Theme::basicboxes );
+sub cats { qw( featured ) }
+
+package LJ::S2Theme::basicboxes::ecru;
+use base qw( LJ::S2Theme::basicboxes );
+sub cats { qw( featured ) }
+
 package LJ::S2Theme::basicboxes::eggplant;
 use base qw( LJ::S2Theme::basicboxes );
 sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::green;
+use base qw( LJ::S2Theme::basicboxes );
+sub cats { qw( featured ) }
+
+package LJ::S2Theme::basicboxes::leaf;
+use base qw( LJ::S2Theme::basicboxes );
+sub cats { qw( featured ) }
+
+package LJ::S2Theme::basicboxes::peach;
 use base qw( LJ::S2Theme::basicboxes );
 sub cats { qw( featured ) }
 
