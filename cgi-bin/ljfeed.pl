@@ -293,7 +293,8 @@ sub create_view_rss
     # header
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
     $ret .= LJ::run_hook("bot_director", "<!-- ", " -->") . "\n";
-    $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/'>\n";
+    $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/' " .
+            "xmlns:atom10='http://www.w3.org/2005/Atom'>\n";
 
     # channel attributes
     $ret .= "<channel>\n";
@@ -306,6 +307,12 @@ sub create_view_rss
     $ret .= "  <lj:journal>" . $u->user . "</lj:journal>\n";
     $ret .= "  <lj:journaltype>" . $u->journaltype_readable . "</lj:journaltype>\n";
     # TODO: add 'language' field when user.lang has more useful information
+
+    if ( LJ::is_enabled( 'hubbub' ) ) {
+        foreach my $hub (@LJ::HUBBUB_HUBS) {
+            $ret .= "  <atom10:link rel='hub' href='" . LJ::exml($hub) . "' />\n";
+        }
+    }
 
     ### image block, returns info for their current userpic
     if ($u->{'defaultpicid'}) {
@@ -408,7 +415,7 @@ sub create_view_atom
         my ( $rel, $type, $href, $title ) = @_;
         my $link = XML::Atom::Link->new( Version => 1 );
         $link->rel($rel);
-        $link->type($type);
+        $link->type($type) if $type;
         $link->href($href);
         $link->title( $title ) if $title;
         return $link;
@@ -473,6 +480,12 @@ sub create_view_atom
                 'Create a new entry'
             )
         ) if $opts->{'apilinks'};
+
+        if ( LJ::is_enabled( 'hubbub' ) ) {
+            foreach my $hub (@LJ::HUBBUB_HUBS) {
+                $feed->add_link($make_link->('hub', undef, $hub));
+            }
+        }
     }
 
     my $posteru = LJ::load_userids( map { $_->{posterid} } @$cleanitems);
@@ -1060,6 +1073,31 @@ sub create_view_comments
 
 
     return $ret;
+}
+
+sub generate_hubbub_jobs {
+    my ( $u, $joblist ) = @_;
+
+    return unless LJ::is_enabled( 'hubbub' );
+
+    foreach my $hub ( @LJ::HUBBUB_HUBS ) {
+        my $make_hubbub_job = sub {
+            my $type = shift;
+
+            my $topic_url = $u->journal_base . "/data/$type";
+            return TheSchwartz::Job->new(
+                funcname => 'TheSchwartz::Worker::PubSubHubbubPublish',
+                arg => {
+                    hub => $hub,
+                    topic_url => $topic_url,
+                },
+                coalesce => $hub,
+            );
+        };
+
+        push @$joblist, $make_hubbub_job->("rss");
+        push @$joblist, $make_hubbub_job->("atom");
+    }
 }
 
 

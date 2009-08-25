@@ -98,6 +98,12 @@
     # lazy in their typing.  For example, leave off the trailing slash (/bots
     # instead of /bots/) if your URI is a directory.
     #$BLOCKED_BOT_URI = '/bots';
+
+    # If you wish to publish PubSubHubbub notifications, uncomment this.  You can
+    # use this default hub location, as it's supported by Google, or you can run
+    # your own (or use any other hub you want).
+    # @HUBBUB_HUBS = ( 'http://pubsubhubbub.appspot.com/' );
+
 }
 
 {

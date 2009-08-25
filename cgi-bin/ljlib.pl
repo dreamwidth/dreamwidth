@@ -2408,7 +2408,7 @@ sub is_enabled {
         my $remote = LJ::get_remote();
         return 1 if $remote && $remote->get_cap( 'beta_payments' );
     }
-    return ! LJ::conf_test($LJ::DISABLED{$conf}, @_);
+    return ! LJ::conf_test( $LJ::DISABLED{$conf}, @_ );
 }
 
 package LJ::CleanHTML;

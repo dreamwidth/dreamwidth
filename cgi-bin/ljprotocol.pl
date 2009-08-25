@@ -1526,7 +1526,7 @@ sub postevent
     # but still fire the logging events
     unless ( $flags->{nonotify} ) {
         push @jobs, LJ::Event::JournalNewEntry->new($entry)->fire_job;
-        push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if ( LJ::is_enabled('esn-userevents') || $LJ::_T_FIRE_USERNEWENTRY );
+        push @jobs, LJ::Event::UserNewEntry->new($entry)->fire_job if LJ::is_enabled('esn-userevents') || $LJ::_T_FIRE_USERNEWENTRY;
         push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;        
     }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
@@ -1535,6 +1535,9 @@ sub postevent
     if ( @LJ::SPHINX_SEARCHD ) {
         push @jobs, TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $uowner->id } );
     }
+
+    # PubSubHubbub Support
+    LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs );
 
     my $sclient = LJ::theschwartz();
     if ($sclient && @jobs) {
@@ -1889,7 +1892,17 @@ sub editevent
         $sclient->insert_jobs( TheSchwartz::Job->new_from_array( 'DW::Worker::Sphinx::Copier', { userid => $ownerid } ) );
     }
 
-    LJ::run_hooks("editpost", $entry);
+    # PubSubHubbub Support
+    my @jobs;
+    LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs );
+
+    LJ::run_hooks( "editpost", $entry, \@jobs );
+
+    my $sclient = LJ::theschwartz();
+    if ( $sclient && @jobs ) {
+        my @handles = $sclient->insert_jobs(@jobs);
+        # TODO: error on failure?  depends on the job I suppose?  property of the job?
+    }
 
     return $res;
 }
