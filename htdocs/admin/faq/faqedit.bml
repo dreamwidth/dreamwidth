@@ -173,7 +173,7 @@ body<=
             my $s_html = $fake_faq->summary_html;
             LJ::CleanHTML::clean_event( \$s_html, { ljcut_disable => 1 } )
                 if $display_summary;
-            my $a_html = $fake_faq->answer_html;
+            my $a_html = $fake_faq->answer_raw;
             LJ::CleanHTML::clean_event( \$a_html, { ljcut_disable => 1 } )
                 if $display_answer;
 
