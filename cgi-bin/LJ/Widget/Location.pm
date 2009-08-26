@@ -102,7 +102,7 @@ sub render_body {
     $ret .= $class->html_text('id' => 'written_state',
                               'name' => 'stateother',
                               'value' => $state_val,
-                              'size' => '20',
+                              'size' => '12',
                               'style' => 'display:' . ($regions_cfg ? 'none' : 'inline') . ";$state_inline_color",
                               'maxlength' => '50',
                               %minimal_display_state_attrs,

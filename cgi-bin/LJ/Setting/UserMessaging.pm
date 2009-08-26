@@ -9,8 +9,10 @@ sub as_html {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
     my $ret;
+    my $helper = ( $args && $args->{helper} == 0 ) ? 0 : 1;
 
-    $ret .= "<label for='${key}opt_usermsg'>" . $class->ml('settings.usermessaging.question') . "</label>";
+    $ret .= "<label for='${key}opt_usermsg'>" . $class->ml('settings.usermessaging.question') . "</label>"
+        unless $args && $args->{minimal_display};
     $ret .= LJ::html_select({ 'name' => "${key}opt_usermsg",
                               'id' => "${key}opt_usermsg",
                               'class' => "select",
@@ -26,7 +28,7 @@ sub as_html {
     $ret .= "<div class='helper'>" .
             $class->ml('settings.usermessaging.helper', {
                 sitename => $LJ::SITENAMESHORT }) .
-            "</div>";
+            "</div>" if $helper;
     $ret .= $class->errdiv($errs, "opt_usermsg");
 
     return $ret;

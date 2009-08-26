@@ -21,14 +21,15 @@ sub as_html {
 
     $ret .= "<label for='${key}opt_findbyemail'>" .
             $class->ml('settings.findbyemail.question',
-                { sitename => $LJ::SITENAMESHORT }) . "</label>";
+                { sitename => $LJ::SITENAMESHORT }) . "</label>"
+        unless $args && $args->{minimal_display};
 
     # Display learn more link?
     $ret .= " (<a href='" . $LJ::HELPURL{$class->helpurl($u)} .
             "'>" . $class->ml('settings.settingprod.learn') . "</a>)<br />"
                 if ($faq && $LJ::HELPURL{$class->helpurl($u)});
 
-    $ret .= "<br />";
+    $ret .= "<br />" unless $args && $args->{minimal_display};
     my @options;
     push @options, { text => $class->ml('settings.option.select'), value => '' }
         unless $u->opt_findbyemail;
@@ -46,7 +47,7 @@ sub as_html {
             $class->ml('settings.findbyemail.helper', {
                 sitename => $LJ::SITENAMESHORT,
                 siteabbrev => $LJ::SITENAMEABBREV }) .
-            "</div>" if ($helper);
+            "</div>" if $helper;
 
     $ret .= $class->errdiv($errs, "opt_findbyemail");
 
