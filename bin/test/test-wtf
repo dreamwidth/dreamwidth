@@ -376,7 +376,7 @@ push @tests, [ 'validate trustmask == 1', sub
 ################################################################################
 push @tests, [ 'validate nobody in group 1', sub
 {
-    my $ids = $u1->trust_group_list( id => 1 );
+    my $ids = $u1->trust_group_members( id => 1 );
     return ( scalar ( keys %$ids ) == 0 ) ? 1 : 0;
 } ];
 
@@ -390,7 +390,7 @@ push @tests, [ 'add to group, validate trustmask == 3', sub
 ################################################################################
 push @tests, [ 'validate in group 1', sub
 {
-    my $ids = $u1->trust_group_list( id => 1 );
+    my $ids = $u1->trust_group_members( id => 1 );
     return ( scalar ( keys %$ids ) == 1 ) ? 1 : 0;
 } ];
 

@@ -776,7 +776,7 @@ sub create_view_foaf {
     # now information on who you know, limited to a certain maximum number of users
     my @ids;
     if ( $has_foaf_group ) {
-        @ids = keys %{ $u->trust_group_list( name => 'FOAF-knows' ) };
+        @ids = keys %{ $u->trust_group_members( name => 'FOAF-knows' ) };
     } else {
         @ids = $u->trusted_userids;
     }

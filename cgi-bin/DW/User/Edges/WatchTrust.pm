@@ -603,7 +603,7 @@ sub trust_list {
 #    memcache_only => 1,     if set, never hit database
 #    force_database => 1,    if set, ALWAYS hit database (DANGER)
 #
-sub trust_group_list {
+sub trust_group_members {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'invalid user object';
     my $memc_only = delete $args{memcache_only} || 0;
@@ -627,7 +627,7 @@ sub trust_group_list {
 
     # attempt memcache if allowed
     unless ( $db_only ) {
-        my $memc = DW::User::Edges::WatchTrust::Loader::_trust_group_list_memc( $mask, $u );
+        my $memc = DW::User::Edges::WatchTrust::Loader::_trust_group_members_memc( $mask, $u );
         return $memc if $memc;
     }
 
@@ -636,9 +636,9 @@ sub trust_group_list {
     return {} if $memc_only;
 
     # damn you memcache for not having our data
-    return DW::User::Edges::WatchTrust::Loader::_trust_group_list_db( $mask, $u, force_database => $db_only );
+    return DW::User::Edges::WatchTrust::Loader::_trust_group_members_db( $mask, $u, force_database => $db_only );
 }
-*LJ::User::trust_group_list = \&trust_group_list;
+*LJ::User::trust_group_members = \&trust_group_members;
 
 
 # returns hashref;
@@ -855,7 +855,7 @@ sub delete_trust_group {
         or return 0;
 
     # iterate over everybody in this group and remove the bit
-    my $tglist = $u->trust_group_list( id => $bit, force_database => 1 );
+    my $tglist = $u->trust_group_members( id => $bit, force_database => 1 );
     foreach my $tid ( keys %{ $tglist || {} } ) {
         $dbh->do(
             q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},

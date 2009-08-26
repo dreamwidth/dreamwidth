@@ -133,12 +133,12 @@ sub _filter_wt_list {
 
 
 # helper, simply passes down to _wt_list_memc and filters
-sub _watch_list_memc       { return _filter_wt_list( 1 << 61, _wt_list_memc( @_ ) ); }
-sub _watch_list_db         { return _filter_wt_list( 1 << 61, _wt_list_db( @_ ) );   }
-sub _trust_list_memc       { return _filter_wt_list( 1,       _wt_list_memc( @_ ) ); }
-sub _trust_list_db         { return _filter_wt_list( 1,       _wt_list_db( @_ ) );   }
-sub _trust_group_list_memc { return _filter_wt_list( shift(), _wt_list_memc( @_ ) ); }
-sub _trust_group_list_db   { return _filter_wt_list( shift(), _wt_list_db( @_ ) );   }
+sub _watch_list_memc          { return _filter_wt_list( 1 << 61, _wt_list_memc( @_ ) ); }
+sub _watch_list_db            { return _filter_wt_list( 1 << 61, _wt_list_db( @_ ) );   }
+sub _trust_list_memc          { return _filter_wt_list( 1,       _wt_list_memc( @_ ) ); }
+sub _trust_list_db            { return _filter_wt_list( 1,       _wt_list_db( @_ ) );   }
+sub _trust_group_members_memc { return _filter_wt_list( shift(), _wt_list_memc( @_ ) ); }
+sub _trust_group_members_db   { return _filter_wt_list( shift(), _wt_list_db( @_ ) );   }
 
 
 # attempt to load a user's watch list from memcache
