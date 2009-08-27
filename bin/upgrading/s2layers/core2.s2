@@ -2332,7 +2332,7 @@ set text_comment_edittime = "Edited at";
 
 property string text_screened {
    des = "The text used when a comment is screened";
-   example = "(screened)";
+   example = "(screened) ";
 }
 
 property string text_poster_anonymous {
@@ -2366,7 +2366,7 @@ property string text_reply_nocomments {
 
 property string text_website_default_name { noui = 1; des = "If an account's website is specified, but there's no website name, use this text instead"; }
 
-set text_screened = "screened";
+set text_screened = "(screened) ";
 set text_poster_anonymous = "(Anonymous)";
 set text_openid_from = "from";
 set text_reply_back = "Read Comments";
@@ -3928,7 +3928,11 @@ function EntryLite::print_subject() [fixed] {
 
 function EntryLite::print_subject( string{} opts ) [fixed] {
     if ($this isa Comment) {
+        var Comment c = $this as Comment;
         """<div class="comment-title">""";
+        if ($c.screened) {
+            print $*text_screened;
+        }
         print $this->formatted_subject( $opts );
         "</div>";
     }

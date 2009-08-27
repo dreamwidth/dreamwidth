@@ -7,6 +7,8 @@
 
 .confirm.action=Are you sure you wish to delete the selected comments?
 
+.comment.screened.subject=(screened) 
+
 .deletedpost=<b>(Deleted post)</b>
 
 .deleteduser=<i>(Deleted user: [[username]])</i>

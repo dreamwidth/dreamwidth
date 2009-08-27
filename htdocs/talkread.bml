@@ -572,7 +572,11 @@ body<=
                 }
 
                 my $cleansubject = LJ::ehtml($post->{'subject'});
-                $ret .= "<span class='commentsubject'><b>$cleansubject</b></span> $icon";
+                if ( $post->{state} eq 'S' ) {
+                    $ret .= "<span class='commentsubject'>" . BML::ml( '.comment.screened.subject' ) . "<b>$cleansubject</b></span> $icon";
+                } else {
+                    $ret .= "<span class='commentsubject'><b>$cleansubject</b></span> $icon";
+                }
                 $ret .= "<br />$user\n";
                 $ret .= " " . BML::ml( '.from_external', {site=>$post->{props}->{imported_from}} ) if $post->{props}->{imported_from};
                 $ret .= "<br /><span class='datepost'>$datepost</span>\n";
