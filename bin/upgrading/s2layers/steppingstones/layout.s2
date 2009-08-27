@@ -18,7 +18,7 @@ function print_stylesheet() {
 
     var string tertiary_colors = generate_color_css( new Color, $*color_module_background, new Color );
     var string module_header_link_colors = generate_color_css( $*color_module_title, new Color, new Color );
-    var string footer_colors = generate_color_css( new Color, $*color_module_title, new Color );
+    var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
     var string footer_link_colors = generate_color_css( $*color_page_title, new Color, new Color );
     """
 /* Stepping Stones */
@@ -251,6 +251,9 @@ text-align: center; }
 
 .two-columns-left #tertiary > .inner:first-child,
 .two-columns-right #tertiary > .inner:first-child { background-color: transparent; }
+
+.two-columns-left #tertiary .module,
+.two-columns-right #tertiary .module { margin-right: 1em; }
 
 .module {  padding: 3px; 
     margin-bottom: 1em;
