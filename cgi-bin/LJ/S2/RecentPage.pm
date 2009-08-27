@@ -44,7 +44,7 @@ sub RecentPage
     };
     $p->{'data_links_order'} = [ qw(rss atom) ];
 
-    LJ::load_user_props($remote, "opt_nctalklinks", "opt_ljcut_disable_lastn");
+    $remote->preload_props( "opt_nctalklinks", "opt_cut_disable_journal") if $remote;
 
     my $get = $opts->{'getargs'};
 
@@ -172,7 +172,7 @@ sub RecentPage
         my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
                                               'cuturl' => LJ::item_link($u, $itemid, $item->{'anum'}),
-                                              'ljcut_disable' => $remote ? $remote->prop("opt_ljcut_disable_lastn") : undef,
+                                              'ljcut_disable' => $remote ? $remote->prop("opt_cut_disable_journal") : undef,
                                               'suspend_msg' => $suspend_msg,
                                               'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($u, $ditemid, $remote, \$text);

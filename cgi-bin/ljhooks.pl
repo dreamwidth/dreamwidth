@@ -147,23 +147,23 @@ register_setter("maximagesize", sub {
     return 1;
 });
 
-register_setter("opt_ljcut_disable_lastn", sub {
+register_setter("opt_cut_disable_journal", sub {
     my ($u, $key, $value, $err) = @_;
     unless ($value =~ /^(0|1)$/) {
         $$err = "Illegal value. Must be '0' or '1'";
         return 0;
     }
-    $u->set_prop("opt_ljcut_disable_lastn", $value);
+    $u->set_prop( "opt_cut_disable_journal", $value );
     return 1;
 });
 
-register_setter("opt_ljcut_disable_friends", sub {
+register_setter("opt_cut_disable_reading", sub {
     my ($u, $key, $value, $err) = @_;
     unless ($value =~ /^(0|1)$/) {
         $$err = "Illegal value. Must be '0' or '1'";
         return 0;
     }
-    $u->set_prop("opt_ljcut_disable_friends", $value);
+    $u->set_prop( "opt_cut_disable_reading", $value );
     return 1;
 });
 

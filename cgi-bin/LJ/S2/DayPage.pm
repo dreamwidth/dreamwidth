@@ -95,8 +95,7 @@ sub DayPage
     push @items, $_ while $_ = $sth->fetchrow_hashref;
     my @itemids = map { $_->{'itemid'} } @items;
 
-    # load 'opt_ljcut_disable_lastn' prop for $remote.
-    LJ::load_user_props($remote, "opt_ljcut_disable_lastn");
+    $remote->preload_props( "opt_cut_disable_journal" ) if $remote;
 
     ### load the log properties
     my %logprops = ();
@@ -150,7 +149,7 @@ sub DayPage
         my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
         LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
                                              'cuturl' => LJ::item_link($u, $itemid, $anum),
-                                             'ljcut_disable' => $remote ? $remote->{'opt_ljcut_disable_lastn'} : undef,
+                                             'ljcut_disable' => $remote ? $remote->{'opt_cut_disable_journal'} : undef,
                                              'suspend_msg' => $suspend_msg,
                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
         LJ::expand_embedded($u, $ditemid, $remote, \$text);

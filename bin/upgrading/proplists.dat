@@ -638,7 +638,7 @@ userproplist.opt_imageundef:
   multihomed: 0
   prettyname: Use Placeholders for Undefined-Size Images
 
-userproplist.opt_ljcut_disable_friends:
+userproplist.opt_cut_disable_reading:
   cldversion: 4
   datatype: bool
   des: LJCUT disabled in friends view
@@ -646,7 +646,7 @@ userproplist.opt_ljcut_disable_friends:
   multihomed: 0
   prettyname: LJCUT disabled in friends view
 
-userproplist.opt_ljcut_disable_lastn:
+userproplist.opt_cut_disable_journal:
   cldversion: 4
   datatype: bool
   des: LJCUT disabled in lastn and day views

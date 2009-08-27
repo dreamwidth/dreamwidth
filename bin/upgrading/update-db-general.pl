@@ -3968,6 +3968,13 @@ register_alter(sub {
                   q{ALTER TABLE acctcode ADD COLUMN email VARCHAR(255) AFTER timesent} );
     }
 
+    # convert 'ljcut' userprops
+    if ( table_relevant( "userproplist" ) && ! check_dbnote( "userprop_ljcut_to_cut" ) ) {
+        do_sql( "UPDATE userproplist SET name='opt_cut_disable_reading' WHERE name='opt_ljcut_disable_friends'" );
+        do_sql( "UPDATE userproplist SET name='opt_cut_disable_journal' WHERE name='opt_ljcut_disable_lastn'" );
+        set_dbnote( "userprop_ljcut_to_cut", 1 );
+    }
+
 });
 
 

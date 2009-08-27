@@ -57,6 +57,7 @@ body<=
                 LJ::Setting::TimeZone
                 LJ::Setting::ImagePlaceholders
                 LJ::Setting::EmbedPlaceholders
+                DW::Setting::CutDisable
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
                 LJ::Setting::NCTalkLinks

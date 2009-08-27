@@ -2505,6 +2505,18 @@ setting.ctxpopup.label=Hover Menu
 
 setting.ctxpopup.option=Show menu when I hover over userhead images or userpics
 
+setting.cutdisable.label=Cut Tag Behavior
+
+setting.cutdisable.option=Display full content of cut entries?
+
+setting.cutdisable.sel.both=Yes, in both contexts
+
+setting.cutdisable.sel.journal=Yes, when viewing journals
+
+setting.cutdisable.sel.none=No, honor cut tags (default behavior)
+
+setting.cutdisable.sel.reading=Yes, when viewing reading pages
+
 setting.display.accountstatus.actionlink.contactabuse=Contact Abuse
 
 setting.display.accountstatus.actionlink.delete=Delete
