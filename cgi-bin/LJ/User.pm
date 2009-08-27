@@ -3606,11 +3606,11 @@ sub security_group_display {
 
     my @ret;
 
-    my $groups = $u->trust_groups || {};
-    foreach my $groupid ( keys %$groups ) {
-        next unless $group_ids{$groupid};  # not in mask
+    my @groups = $u->trust_groups;
+    foreach my $group ( @groups ) {
+        next unless $group_ids{$group->{groupnum}};  # not in mask
 
-        my $name = LJ::ehtml( $groups->{$groupid}->{groupname} );
+        my $name = LJ::ehtml( $group->{groupname} );
         if ( $use_urls ) {
             my $url = LJ::eurl( $u->journal_base . "/security/group:$name" );
             push @ret, "<a href='$url'>$name</a>";

@@ -181,13 +181,13 @@
         });
     }
 
-    my $trust_groups = $remote->trust_groups;
+    my @trust_groups = $remote->trust_groups;
 
     ## let them pick friend groups
     # FIXME: Add support for reading groups once those exist
     my $err;
 
-    if ( $remote->can_trust( $u ) && keys %$trust_groups ) {
+    if ( $remote->can_trust( $u ) && @trust_groups ) {
 
         ## extra add and cancel buttons
         $body .= "<br /><br />";
@@ -208,16 +208,16 @@
         $body .= "<?p &nbsp;<br />";
         $body .= "$ML{'.groups.text1'} " . LJ::help_icon('customgroups', '&nbsp;') . "p?>\n";
         $body .= "<blockquote>\n";
-           foreach my $g ( sort { lc $trust_groups->{$a}->{groupname} cmp
-                                  lc $trust_groups->{$b}->{groupname} } keys %$trust_groups ) {
-                my $ck = ( $remote->trustmask( $u ) & (1 << $g) );
+        foreach my $group ( @trust_groups ) {
+            my $g = $group->{groupnum};
+            my $ck = ( $remote->trustmask( $u ) & (1 << $g) );
 
-                $body .= LJ::html_check({ 'name'     => "bit_$g",
-                                          'id'       => "fg:bit_$g",
-                                          'selected' => $ck,
-                                          'label' => $trust_groups->{$g}->{groupname} });
-                $body .= "<br />\n";
-            }
+            $body .= LJ::html_check( { name     => "bit_$g",
+                                       id       => "fg:bit_$g",
+                                       selected => $ck,
+                                       label    => $group->{groupname} } );
+            $body .= "<br />\n";
+        }
         $body .= "</blockquote>";
     }
 

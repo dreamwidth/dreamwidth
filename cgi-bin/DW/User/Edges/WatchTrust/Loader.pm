@@ -332,7 +332,12 @@ sub _trust_groups {
         }
 
         # no arg, return entire object
-        return { map { $_->[1] => LJ::MemCache::array_to_hash( 'trust_group', [$memver, @$_] ) } @$fg };
+        if ( wantarray ) {  # group list sorted by sortorder || name order
+            return map { LJ::MemCache::array_to_hash( 'trust_group', [$memver, @$_] ) }
+                   sort { $a->[3] <=> $b->[3] || $a->[2] cmp $b->[2] } @$fg;
+        } else {  # ref to hash keyed by bitnum
+            return { map { $_->[1] => LJ::MemCache::array_to_hash( 'trust_group', [$memver, @$_] ) } @$fg };
+        }
     };
 
     # check memcache

@@ -301,10 +301,8 @@ HEAD
         push @groups, ("private", $ML{'.setting.maintainers'});
     }
 
-    my $grouplist = $u->trust_groups;
-    push @groups,  map  { "group:" . $_, $grouplist->{$_}->{groupname} }
-    sort { $grouplist->{$a}->{groupname} cmp $grouplist->{$b}->{groupname} }
-    keys %$grouplist;
+    my @grouplist = $u->trust_groups;
+    push @groups, map { "group:" . $_->{groupnum}, $_->{groupname} } @grouplist;
 
     my $security = LJ::Tags::get_permission_levels($u);
 

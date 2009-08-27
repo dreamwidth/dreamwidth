@@ -1783,9 +1783,9 @@ PREVIEW
                 my @secs = ("public", $string_public, "friends", $is_comm ? $string_friends_comm : $string_friends);
                 push @secs, ("private", $string_private) unless $is_comm;
 
-                my @secopts;
-                my $trust_groups = $remote && $remote->trust_groups;
-                if ( ref $trust_groups eq 'HASH' && scalar keys %$trust_groups && !$is_comm ) {
+                my ( @secopts, @trust_groups );
+                @trust_groups = $remote->trust_groups if $remote;
+                if ( scalar @trust_groups && !$is_comm ) {
                     push @secs, ("custom", $string_custom);
                     push @secopts, ("onchange" => "customboxes()");
                 }
@@ -1795,17 +1795,18 @@ PREVIEW
                                           'tabindex' => $tabindex->(), @secopts }, @secs) . "\n";
 
                 # if custom security groups available, show them in a hideable div
-                if ( ref $trust_groups eq 'HASH' && scalar keys %$trust_groups ) {
+                if ( scalar @trust_groups ) {
                     my $display = $opts->{'security'} eq "custom" ? "block" : "none";
                     $out .= LJ::help_icon("security", "<span id='security-help'>\n", "\n</span>\n");
                     $out .= "<div id='custom_boxes' class='pkg' style='display: $display;'>\n";
                     $out .= "<ul id='custom_boxes_list'>";
-                    foreach my $fg ( sort { $trust_groups->{$a}->{sortorder} <=> $trust_groups->{$b}->{sortorder} } keys %$trust_groups ) {
+                    foreach my $group ( @trust_groups ) {
+                        my $fg = $group->{groupnum};
                         $out .= "<li>";
                         $out .= LJ::html_check({ 'name' => "custom_bit_$fg",
                                                  'id' => "custom_bit_$fg",
                                                  'selected' => $opts->{"custom_bit_$fg"} || $opts->{'security_mask'}+0 & 1 << $fg }) . " ";
-                        $out .= "<label for='custom_bit_$fg'>" . LJ::ehtml($trust_groups->{$fg}->{groupname}) . "</label>\n";
+                        $out .= "<label for='custom_bit_$fg'>" . LJ::ehtml( $group->{groupname} ) . "</label>\n";
                         $out .= "</li>";
                     }
                     $out .= "</ul>";

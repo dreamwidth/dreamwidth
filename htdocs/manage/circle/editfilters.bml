@@ -414,10 +414,10 @@ END_JS
 
     $body .= "<tr style='vertical-align: top;'>";
     $body .= "<td><select name='list_groups' style='width: 150px;' size='15' onchange='groupClicked();'>";
-    foreach my $trustgroupid ( sort { $trust_groups->{$a}->{sortorder} <=> $trust_groups->{$b}->{sortorder} } keys %$trust_groups ) {
-        my $listname = $trust_groups->{$trustgroupid}->{groupname};
-        $listname .= " $ML{'.group.public'}" if $trust_groups->{$trustgroupid}->{is_public};
-        $body .= "<option value='$trustgroupid'>" . LJ::ehtml($listname);
+    foreach my $trustgroup ( $u->trust_groups ) {
+        my $listname = $trustgroup->{groupname};
+        $listname .= " $ML{'.group.public'}" if $trustgroup->{is_public};
+        $body .= "<option value='$trustgroup->{groupnum}'>" . LJ::ehtml($listname);
     }
     $body .= "</select></td>";
  

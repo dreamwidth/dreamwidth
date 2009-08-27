@@ -358,9 +358,8 @@ body<=
         { "noauth" => 1, }
     );
 
-    my $trusted = $u->trust_groups;
-    my @groups = map { $trusted->{$_}->{'groupname'} }
-        sort { $trusted->{$a}->{'sortorder'} <=> $trusted->{$b}->{'sortorder'} } keys %$trusted;
+    my @trusted = $u->trust_groups;
+    my @groups = map { $_->{'groupname'} } @trusted;
     my @userpics = @{ $res->{'pickws'} };
     
     $ret .= "<?p " . BML::ml('.intro', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?><br />";
