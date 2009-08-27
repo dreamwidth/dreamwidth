@@ -942,27 +942,7 @@ sub group_names {
     my $poster = $self->poster;
     return "" unless $remote && $poster && $poster->equals( $remote );
 
-    my %group_ids = ( map { $_ => 1 } grep { $self->allowmask & ( 1 << $_ ) } 1..60 );
-    return "" unless scalar( keys %group_ids ) > 0;
-
-    my $groups = $poster->trust_groups || {};
-    if ( keys %$groups ) {
-        my @friendgroups = ();
-
-        foreach my $groupid (keys %$groups) {
-            next unless $group_ids{$groupid};
-
-            my $name = LJ::ehtml($groups->{$groupid}->{groupname});
-            my $url = LJ::eurl($poster->journal_base . "/security/group:$name");
-
-            my $group_text = $remote->get_cap("security_filter") || $poster->get_cap("security_filter") ? "<a href='$url'>$name</a>" : $name;
-            push @friendgroups, $group_text;
-        }
-
-        return join(', ', @friendgroups) if @friendgroups;
-    }
-
-    return "";
+    return $poster->security_group_display( $self->allowmask );
 }
 
 sub statusvis {

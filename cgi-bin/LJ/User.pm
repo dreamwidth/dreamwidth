@@ -3592,6 +3592,37 @@ sub recent_entries {
 }
 
 
+sub security_group_display {
+    my ( $u, $allowmask ) = @_;
+    return '' unless LJ::isu( $u );
+    return '' unless defined $allowmask;
+
+    my $remote = LJ::get_remote() or return '';
+    my $use_urls = $remote->get_cap( "security_filter" ) || $u->get_cap( "security_filter" );
+
+    # see which group ids are in the security mask
+    my %group_ids = ( map { $_ => 1 } grep { $allowmask & ( 1 << $_ ) } 1..60 );
+    return '' unless scalar( keys %group_ids ) > 0;
+
+    my @ret;
+
+    my $groups = $u->trust_groups || {};
+    foreach my $groupid ( keys %$groups ) {
+        next unless $group_ids{$groupid};  # not in mask
+
+        my $name = LJ::ehtml( $groups->{$groupid}->{groupname} );
+        if ( $use_urls ) {
+            my $url = LJ::eurl( $u->journal_base . "/security/group:$name" );
+            push @ret, "<a href='$url'>$name</a>";
+        } else {
+            push @ret, $name;
+        }
+    }
+
+    return join( ', ', @ret ) if @ret;
+}
+
+
 sub set_draft_text {
     my ($u, $draft) = @_;
     my $old = $u->draft_text;

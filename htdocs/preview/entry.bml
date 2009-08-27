@@ -169,26 +169,8 @@
         }    
 
         # custom friend groups
-        my %group_ids = ( map { $_ => 1 } grep { $req{allowmask} & ( 1 << $_ ) } 1..60 );
-        
-        if ( scalar( keys %group_ids ) > 0 ) {
-            my $groups = $u->trust_groups || {};
-            if ( keys %$groups ) {
-                my @trust_groups = ();
-        
-                foreach my $groupid ( keys %$groups ) {
-                    next unless $group_ids{$groupid};
-        
-                    my $name = LJ::ehtml( $groups->{$groupid}->{groupname} );
-                    my $url = LJ::eurl( $u->journal_base . "/security/group:$name" );
-        
-                    my $group_text = $u->get_cap( "security_filter" ) ? "<a href='$url'>$name</a>" : $name;
-                    push @trust_groups, $group_text;
-                }
-        
-                $current{Groups} = join( ', ', @trust_groups ) if @trust_groups;
-            }        
-        }
+        $current{Groups} = $u->security_group_display( $req{allowmask} );
+        delete $current{Groups} unless $current{Groups};
 
         my @taglist = ();
         LJ::Tags::is_valid_tagstring( $POST{prop_taglist}, \@taglist );
@@ -288,27 +270,7 @@
             foreach ( qw( current_music current_location current_coords current_moodid current_mood ) );
 
         # custom friends groups
-        my $group_names;
-        my %group_ids = ( map { $_ => 1 } grep { $req{allowmask} & ( 1 << $_ ) } 1..60 );
-        
-        if ( scalar( keys %group_ids ) > 0 ) {
-            my $groups = $u->trust_groups || {};
-            if ( keys %$groups ) {
-                my @trust_groups = ();
-        
-                foreach my $groupid ( keys %$groups ) {
-                    next unless $group_ids{$groupid};
-        
-                    my $name = LJ::ehtml( $groups->{$groupid}->{groupname} );
-                    my $url = LJ::eurl( $u->journal_base . "/security/group:$name" );
-        
-                    my $group_text = $u->get_cap( "security_filter" ) ? "<a href='$url'>$name</a>" : $name;
-                    push @trust_groups, $group_text;
-                }
-        
-                $group_names = join( ', ', @trust_groups ) if @trust_groups;
-            }        
-        }
+        my $group_names = $u->security_group_display( $req{allowmask} ) || undef;
 
         # format it
         my $raw_subj = $req{'subject'};
