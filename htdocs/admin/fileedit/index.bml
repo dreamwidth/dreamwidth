@@ -9,13 +9,13 @@
  my @display_privs = ( "fileedit" );
  my $numprivs = @display_privs;
 
- my %files = ();  # keys: files remote user has access to, value: 1
  my $INC_DIR = $LJ::BML_INC_DIR_ADMIN || $LJ::BML_INC_DIR || "$LJ::HTDOCS/inc";
 
  return "<?needlogin?>" unless $remote;
  return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"})
-     unless (LJ::remote_has_priv($remote, "fileedit", \%files));
- 
+     unless $remote->has_priv( "fileedit" );
+
+ my %files = $remote->priv_args( "fileedit" );
 
  my $valid_filename = sub 
  {

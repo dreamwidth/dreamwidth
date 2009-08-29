@@ -17,8 +17,7 @@ body<=
 
     my $body = my $user = '';
     my $adminmode = 0;
-    if (LJ::check_priv($u, 'canview', 'sessions') ||
-        LJ::check_priv($u, 'canview', '*')) {
+    if ( $u && $u->has_priv( 'canview', 'sessions' ) ) {
         $user = LJ::canonical_username($GET{'user'} || $POST{'user'});
         $body .= "<form method='GET' action='logins'>\n";
         $body .= "<label for='user'>$ML{'.user'} ";

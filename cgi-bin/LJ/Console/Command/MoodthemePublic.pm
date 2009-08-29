@@ -17,7 +17,7 @@ sub usage { '<themeid> <setting>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "moodthememanager");
+    return $remote && $remote->has_priv( "moodthememanager" );
 }
 
 sub execute {

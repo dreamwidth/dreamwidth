@@ -16,7 +16,7 @@ sub usage { '<user>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "finduser", "infohistory");
+    return $remote && $remote->has_priv( "finduser", "infohistory" );
 }
 
 sub execute {

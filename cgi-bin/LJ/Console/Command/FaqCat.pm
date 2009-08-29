@@ -66,7 +66,7 @@ sub execute {
     my $remote = LJ::get_remote();
     # anything from this point on requires a priv
     return $self->error("You are not authorized to run this command.")
-        unless LJ::check_priv($remote, "faqcat");
+        unless $remote && $remote->has_priv( "faqcat" );
 
     if ($command eq "delete") {
         my $catkey = shift @args;

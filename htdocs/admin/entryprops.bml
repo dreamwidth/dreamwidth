@@ -11,7 +11,7 @@ body<=
     my $numprivs = @display_privs;
 
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
-        unless $LJ::IS_DEV_SERVER || LJ::check_priv($remote, "canview", "entryprops");
+        unless $LJ::IS_DEV_SERVER || ( $remote && $remote->has_priv( "canview", "entryprops" ) );
 
     $ret .= "<form method='POST'>";
     $ret .= "View properties for URL: ";

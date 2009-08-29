@@ -17,7 +17,7 @@ sub usage { '<community> <new_owner>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "communityxfer");
+    return $remote && $remote->has_priv( "communityxfer" );
 }
 
 sub execute {

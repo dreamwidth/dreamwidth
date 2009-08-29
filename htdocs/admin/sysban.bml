@@ -42,13 +42,10 @@ body<=
     my $numprivs = @displayprivs;
 
     return BML::ml("admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless LJ::check_priv( $remote, $priv );
+        unless $remote && $remote->has_priv( $priv );
 
-    LJ::load_user_privs($remote, $priv)
-        unless $remote->{'_privloaded'}->{$priv};
-    
     my @sysban_privs;
-    foreach my $arg ( keys %{ $remote->{'_priv'}->{$priv} } ) {
+    foreach my $arg ( keys $remote->priv_args( $priv ) ) {
         if ( $arg eq '*' ) {
             push @sysban_privs, @all_sb_args;
         } else {
@@ -208,8 +205,7 @@ FORM
 
         return $err->("No note field!") unless $note; 
         return $err->("You do not have the correct privileges") unless 
-            ( LJ::check_priv( $remote, $priv, '*' ) ||
-              LJ::check_priv( $remote, $priv, $bantype ) );
+            $remote && $remote->has_priv( $priv, $bantype );
 
         my $notvalid = LJ::sysban_validate( $bantype, $value );
         return $err->("Ban not valid: $notvalid") if $notvalid;

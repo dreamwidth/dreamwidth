@@ -87,7 +87,7 @@ sub has_any_support_priv {
     my $u = shift;
     return 0 unless $u;
     foreach my $support_priv (@SUPPORT_PRIVS) {
-        return 1 if LJ::check_priv($u, $support_priv);
+        return 1 if $u->has_priv( $support_priv );
     }
     return 0;
 }
@@ -152,10 +152,10 @@ sub can_see_helper
         if (can_help($sp, $remote)) {
             return 1;
         }
-        if (LJ::check_priv($remote, "supportviewinternal", $sp->{_cat}->{'catkey'})) {
+        if ( $remote && $remote->has_priv( "supportviewinternal", $sp->{_cat}->{'catkey'} ) ) {
             return 1;
         }
-        if (LJ::check_priv($remote, "supportviewscreened", $sp->{_cat}->{'catkey'})) {
+        if ( $remote && $remote->has_priv( "supportviewscreened", $sp->{_cat}->{'catkey'} ) ) {
             return 1;
         }
         return 0;
@@ -174,8 +174,8 @@ sub can_read_cat
 {
     my ($cat, $remote) = @_;
     return unless ($cat);
-    return ($cat->{'public_read'} ||
-            LJ::check_priv($remote, "supportread", $cat->{'catkey'}));
+    return ( $cat->{'public_read'} ||
+             ( $remote && $remote->has_priv( "supportread", $cat->{'catkey'} ) ) );
 }
 
 *can_bounce = \&can_close_cat;
@@ -185,8 +185,8 @@ sub can_read_cat
 sub can_close_cat
 {
     my ($sp, $remote) = @_;
-    return 1 if $sp->{_cat}->{public_read} && LJ::check_priv($remote, 'supportclose', '');
-    return 1 if LJ::check_priv($remote, 'supportclose', $sp->{_cat}->{catkey});
+    return 1 if $sp->{_cat}->{public_read} && $remote && $remote->has_priv( 'supportclose', '' );
+    return 1 if $remote && $remote->has_priv( 'supportclose', $sp->{_cat}->{catkey} );
     return 0;
 }
 
@@ -255,8 +255,8 @@ sub support_check_priv
     my ($sp, $remote, $priv) = @_;
     return 1 if can_help($sp, $remote);
     return 0 unless can_read_cat($sp->{_cat}, $remote);
-    return 1 if LJ::check_priv($remote, $priv, '') && $sp->{_cat}->{public_read};
-    return 1 if LJ::check_priv($remote, $priv, $sp->{_cat}->{catkey});
+    return 1 if $remote && $remote->has_priv( $priv, '' ) && $sp->{_cat}->{public_read};
+    return 1 if $remote && $remote->has_priv( $priv, $sp->{_cat}->{catkey} );
     return 0;
 }
 
@@ -266,7 +266,7 @@ sub can_read_internal
 {
     my ($sp, $remote) = @_;
     return 1 if LJ::Support::support_check_priv($sp, $remote, 'supportviewinternal');
-    return 1 if LJ::check_priv($remote, "supportread", $sp->{_cat}->{catkey}."+");
+    return 1 if $remote && $remote->has_priv( "supportread", $sp->{_cat}->{catkey} . "+" );
     return 0;
 }
 
@@ -299,13 +299,11 @@ sub can_help
 {
     my ($sp, $remote) = @_;
     if ($sp->{_cat}->{'public_read'}) {
-        if ($sp->{_cat}->{'public_help'}) {
-            return 1;
-        }
-        if (LJ::check_priv($remote, "supporthelp", "")) { return 1; }
+        return 1 if $sp->{_cat}->{'public_help'};
+        return 1 if $remote && $remote->has_priv( "supporthelp", "" );
     }
     my $catkey = $sp->{_cat}->{'catkey'};
-    if (LJ::check_priv($remote, "supporthelp", $catkey)) { return 1; }
+    return 1 if $remote && $remote->has_priv( "supporthelp", $catkey );
     return 0;
 }
 

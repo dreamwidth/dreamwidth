@@ -19,7 +19,7 @@ sub usage { '<journal> <type> <owner> [force]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "changejournaltype") || $LJ::IS_DEV_SERVER;
+    return ( $remote && $remote->has_priv( "changejournaltype" ) ) || $LJ::IS_DEV_SERVER;
 }
 
 sub execute {

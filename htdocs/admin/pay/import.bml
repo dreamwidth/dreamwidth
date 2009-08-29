@@ -15,7 +15,7 @@
 
     return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless LJ::check_priv($remote, 'payments');
+        unless $remote->has_priv( 'payments' );
 
     my $body = '<h1>Payment Status Import Tool</h1>';
 

@@ -12,7 +12,7 @@
 
     return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
-        unless LJ::check_priv($remote, "supporthelp");
+        unless $remote->has_priv( "supporthelp" );
 
     unless (LJ::did_post()) {
 	$ret .= "<h1>duplicate entry killer</h1>\n";

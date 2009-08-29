@@ -18,7 +18,7 @@ sub usage { '<command> [ <package> [ <arg> ] ]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "admin");
+    return $remote && $remote->has_priv( "admin" );
 }
 
 sub execute {

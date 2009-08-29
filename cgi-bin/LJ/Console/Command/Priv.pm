@@ -18,7 +18,7 @@ sub usage { '<action> <privs> <usernames>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "admin") || $LJ::IS_DEV_SERVER;
+    return ( $remote && $remote->has_priv( "admin" ) ) || $LJ::IS_DEV_SERVER;
 }
 
 sub execute {
@@ -53,7 +53,7 @@ sub execute {
     my $remote = LJ::get_remote();
     foreach my $pair (@privs) {
         my ($priv, $arg) = @$pair;
-        unless (LJ::check_priv($remote, "admin", "$priv") || LJ::check_priv($remote, "admin", "$priv/$arg")) {
+        unless ( $remote && ( $remote->has_priv( "admin", "$priv" ) || $remote->has_priv( "admin", "$priv/$arg" ) ) ) {
             $self->error("You are not permitted to $action $priv:$arg");
             next;
         }
@@ -81,21 +81,21 @@ sub execute {
             my $shmsg;
             my $rv;
             if ($action eq "grant") {
-                if (LJ::check_priv($u, $priv, $arg)) {
+                if ( $u && $u->has_priv( $priv, $arg ) ) {
                     $self->error("$user already has $priv:$arg");
                     next;
                 }
                 $rv = $u->grant_priv($priv, $arg);
                 $shmsg = "Granting: '$priv' with arg '$arg'";
             } elsif ($action eq "revoke") {
-                unless (LJ::check_priv($u, $priv, $arg)) {
+                unless ( $u && $u->has_priv( $priv, $arg ) ) {
                     $self->error("$user does not have $priv:$arg");
                     next;
                 }
                 $rv = $u->revoke_priv($priv, $arg);
                 $shmsg = "Denying: '$priv' with arg '$arg'";
             } else {
-                unless (LJ::check_priv($u, $priv)) {
+                unless ( $u && $u->has_priv( $priv ) ) {
                     $self->error("$user does not have any $priv privs");
                     next;
                 }

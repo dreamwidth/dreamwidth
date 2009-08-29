@@ -18,7 +18,7 @@ sub usage { '<user> <state> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "suspend");
+    return $remote && $remote->has_priv( "suspend" );
 }
 
 sub execute {

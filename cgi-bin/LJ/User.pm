@@ -1605,9 +1605,10 @@ sub show_raw_errors {
     return 1 if $LJ::IS_DEV_SERVER;
     return 1 if $LJ::ENABLE_BETA_TOOLS;
 
-    return 1 if LJ::check_priv($u, "supporthelp");
-    return 1 if LJ::check_priv($u, "supportviewscreened");
-    return 1 if LJ::check_priv($u, "siteadmin");
+    return 0 unless LJ::isu( $u );
+    return 1 if $u->has_priv( "supporthelp" );
+    return 1 if $u->has_priv( "supportviewscreened" );
+    return 1 if $u->has_priv( "siteadmin" );
 
     return 0;
 }
@@ -4190,19 +4191,12 @@ sub set_password {
 ###  22. Priv-Related Functions
 
 
-sub has_priv {
-    my ( $u, $priv, $arg ) = @_;
-
-    # FIXME: migrate check_priv here and have users call this instead
-    return LJ::check_priv( $u, $priv, $arg );
-}
-
 sub grant_priv {
     my ($u, $priv, $arg) = @_;
     $arg ||= "";
     my $dbh = LJ::get_db_writer();
 
-    return 1 if LJ::check_priv($u, $priv, $arg);
+    return 1 if $u->has_priv( $priv, $arg );
 
     my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
                                        " WHERE privcode = ?", undef, $priv);
@@ -4216,12 +4210,41 @@ sub grant_priv {
     return 1;
 }
 
+sub has_priv {
+    my ( $u, $priv, $arg ) = @_;
+
+    LJ::load_user_privs($u, $priv)
+        unless $u->{'_privloaded'}->{$priv};
+
+    # no access if they don't have the priv
+    return 0 unless defined $u->{'_priv'}->{$priv};
+
+    # at this point we know they have the priv
+    return 1 unless defined $arg;
+
+    # check if they have the right arguments
+    return 1 if defined $u->{'_priv'}->{$priv}->{$arg};
+    return 1 if defined $u->{'_priv'}->{$priv}->{"*"};
+
+    # don't have the right argument
+    return 0;
+}
+
+sub priv_args
+{
+    my ( $u, $priv ) = @_;
+    return unless $priv && $u->has_priv( $priv );
+    # returns hash of form { arg => 1 }
+    return %{ $u->{'_priv'}->{$priv} };
+}
+
+
 sub revoke_priv {
     my ($u, $priv, $arg) = @_;
     $arg ||="";
     my $dbh = LJ::get_db_writer();
 
-    return 1 unless LJ::check_priv($u, $priv, $arg);
+    return 1 unless $u->has_priv( $priv, $arg );
 
     my $privid = $dbh->selectrow_array("SELECT prlid FROM priv_list".
                                        " WHERE privcode = ?", undef, $priv);
@@ -7492,45 +7515,6 @@ sub set_password {
 ###  22. Priv-Related Functions
 
 # <LJFUNC>
-# name: LJ::check_priv
-# des: Check to see if a user has a certain privilege.
-# info: Usually this is used to check the privs of a $remote user.
-#       See [func[LJ::get_remote]].  As such, a $u argument of undef
-#       is okay to pass: 0 will be returned, as an unknown user can't
-#       have any rights.
-# args: dbarg?, u, priv, arg?
-# des-priv: Priv name to check for (see [dbtable[priv_list]])
-# des-arg: Optional argument.  If defined, function only returns true
-#          when $remote has a priv of type $priv also with arg $arg, not
-#          just any priv of type $priv, which is the behavior without
-#          an $arg. Arg can be "*", for all args.
-# returns: boolean; true if user has privilege
-# </LJFUNC>
-sub check_priv
-{
-    &nodb;
-    my ($u, $priv, $arg) = @_;
-    return 0 unless $u;
-
-    LJ::load_user_privs($u, $priv)
-        unless $u->{'_privloaded'}->{$priv};
-
-    # no access if they don't have the priv
-    return 0 unless defined $u->{'_priv'}->{$priv};
-
-    # at this point we know they have the priv
-    return 1 unless defined $arg;
-
-    # check if they have the right arguments
-    return 1 if defined $u->{'_priv'}->{$priv}->{$arg};
-    return 1 if defined $u->{'_priv'}->{$priv}->{"*"};
-
-    # don't have the right argument
-    return 0;
-}
-
-
-# <LJFUNC>
 # name: LJ::load_user_privs
 # class:
 # des: loads all of the given privs for a given user into a hashref, inside
@@ -7594,7 +7578,7 @@ sub get_daycounts
         # do they have the viewall priv?
         my $r = eval { Apache->request; }; # web context
         my %getargs = $r->args if $r;
-        if (defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and LJ::check_priv($remote, 'canview', '*')) {
+        if ( defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and ( $remote && $remote->has_priv( 'canview', '*' ) ) ) {
             $viewall = 1;
             LJ::statushistory_add( $u->userid, $remote->userid,
                 "viewall", "calendar" );
@@ -8066,8 +8050,8 @@ sub make_journal
 
     }
 
-    unless ($geta->{'viewall'} && LJ::check_priv($remote, "canview", "suspended") ||
-            $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) { # don't check style sheets
+    unless ( $geta->{'viewall'} && $remote && $remote->has_priv( "canview", "suspended" ) ||
+             $opts->{'pathextra'} =~ m!/(\d+)/stylesheet$! ) { # don't check style sheets
         if ( $u->is_deleted ) {
             my $warning;
 
@@ -8169,39 +8153,4 @@ sub userpic_count {
 sub add_friend    { confess 'LJ::add_friend has been deprecated.';    }
 sub remove_friend { confess 'LJ::remove_friend has been deprecated.'; }
 
-
-# <LJFUNC>
-# name: LJ::remote_has_priv
-# class:
-# des: Check to see if the given remote user has a certain privilege.
-# info: <strong>Deprecated</strong>.  You should
-#       use [func[LJ::load_user_privs]] + [func[LJ::check_priv]], instead.
-# FIXME: Check what calls this and kill it.
-# args:
-# des-:
-# returns:
-# </LJFUNC>
-sub remote_has_priv
-{
-    &nodb;
-    my $remote = shift;
-    my $privcode = shift;     # required.  priv code to check for.
-    my $ref = shift;  # optional, arrayref or hashref to populate
-    return 0 unless ($remote);
-
-    ### authentication done.  time to authorize...
-
-    my $dbr = LJ::get_db_reader();
-    my $sth = $dbr->prepare("SELECT pm.arg FROM priv_map pm, priv_list pl WHERE pm.prlid=pl.prlid AND pl.privcode=? AND pm.userid=?");
-    $sth->execute( $privcode, $remote->userid );
-
-    my $match = 0;
-    if (ref $ref eq "ARRAY") { @$ref = (); }
-    if (ref $ref eq "HASH") { %$ref = (); }
-    while (my ($arg) = $sth->fetchrow_array) {
-        $match++;
-        if (ref $ref eq "ARRAY") { push @$ref, $arg; }
-        if (ref $ref eq "HASH") { $ref->{$arg} = 1; }
-    }
-    return $match;
-}
+1;

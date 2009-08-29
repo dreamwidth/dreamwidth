@@ -25,10 +25,9 @@
  my ($sth, $ret);
 
  my $remote = LJ::get_remote();
- my $can_edit = (LJ::check_priv($remote, "translate", "*") ||
-                 LJ::check_priv($remote, "translate", $l->{'lncode'}));
- my $can_delete = LJ::check_priv($remote, "translate", "[itemdelete]");
- my $can_rename = LJ::check_priv($remote, "translate", "[itemrename]");
+ my $can_edit   = $remote && $remote->has_priv( "translate", $l->{'lncode'} );
+ my $can_delete = $remote && $remote->has_priv( "translate", "[itemdelete]" );
+ my $can_rename = $remote && $remote->has_priv( "translate", "[itemrename]" );
 
  # Extra checkboxes for default language and root language (DW: en_DW and en)
  my $extra_checkboxes = $l->{'lncode'} eq $LJ::DEFAULT_LANG || !defined $lp;

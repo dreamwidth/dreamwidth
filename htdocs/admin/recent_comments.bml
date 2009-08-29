@@ -12,7 +12,7 @@
 
     return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless LJ::check_priv($remote, "siteadmin", "commentview");
+        unless $remote->has_priv( "siteadmin", "commentview" );
 
     my $user = $GET{'user'};
     my $u;

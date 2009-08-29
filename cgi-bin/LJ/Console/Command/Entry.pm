@@ -18,7 +18,7 @@ sub usage { '<action> <url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "deletetalk");
+    return $remote && $remote->has_priv( "deletetalk" );
 }
 
 sub execute {

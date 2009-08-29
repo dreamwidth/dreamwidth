@@ -18,7 +18,7 @@ sub usage { '<from_user> "to" <to_user> "using" <url>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "syn_edit");
+    return $remote && $remote->has_priv( "syn_edit" );
 }
 
 sub execute {

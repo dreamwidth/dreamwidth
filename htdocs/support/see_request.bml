@@ -321,9 +321,9 @@ body<=
         # helpers can always find this information anyway just by taking
         # more steps.  Show email history link if they have finduser and
         # thus once again could get this information anyway.
-        my $has_sh = LJ::check_priv($remote, 'supporthelp');
-        my $has_fu = LJ::check_priv($remote, 'finduser');
-        my $has_vs = LJ::check_priv($remote, 'supportviewscreened');
+        my $has_sh = $remote && $remote->has_priv( 'supporthelp' );
+        my $has_fu = $remote && $remote->has_priv( 'finduser' );
+        my $has_vs = $remote && $remote->has_priv( 'supportviewscreened' );
 
         my %show_history = (
                             user  => $has_sh,
@@ -347,7 +347,7 @@ body<=
     $ret .= "</td></tr>\n";
 
     # uniq
-    if (LJ::check_priv($remote, 'sysban', 'uniq') || LJ::check_priv($remote, "canview", "userlog")) {
+    if ( $remote && ( $remote->has_priv( 'sysban', 'uniq' ) || $remote->has_priv( 'canview', 'userlog' ) ) ) {
         my $uniq = $props->{'uniq'} || "<i>$ML{'.none'}</i>";
         $ret .= "<tr><td valign='bottom' align='right'><b>$ML{'.uniq'}</b></td><td>$uniq</td></tr>\n";
     }
@@ -405,8 +405,7 @@ body<=
 
         # if the user has siteadmin:users or siteadmin:* show them link to resend validation email?
         my $extraval = sub {
-            return '' unless LJ::check_priv($remote, 'siteadmin', 'users') ||
-                             LJ::check_priv($remote, 'siteadmin', '*');
+            return '' unless $remote && $remote->has_priv( 'siteadmin', 'users' );
             return " (<a href='$LJ::SITEROOT/register?foruser=$u->{user}'>$ML{'.resend.validation.email'}</a>)";
         };
 
@@ -420,8 +419,8 @@ body<=
         $ret .= "<br />$ML{'.scheme'}: <b>" . ($u->{schemepref} ? $u->{schemepref} : "default") . "</b>; ";
         $ret .= "$ML{'.language'}: <b>" . ($u->{browselang} ? $u->{browselang} : "default") . "</b>";
 
-        my $view_history = LJ::check_priv($remote, 'historyview');
-        my $view_userlog = LJ::check_priv($remote, 'canview', 'userlog') || LJ::check_priv($remote, 'canview', '*');
+        my $view_history = $remote && $remote->has_priv( 'historyview' );
+        my $view_userlog = $remote && $remote->has_priv( 'canview', 'userlog' );
 
         if ($view_history || $view_userlog) {
             $ret .= "<br />$ML{'.view'}: ";
@@ -451,7 +450,7 @@ body<=
         20 => "2",
         30 => "3",
     );
-    my $can_see_tier = LJ::check_priv($remote, "supporthelp") || LJ::check_priv($remote, "supportviewscreened") ? 1 : 0;
+    my $can_see_tier = $remote && ( $remote->has_priv( "supporthelp" ) || $remote->has_priv( "supportviewscreened" ) );
     if (LJ::is_enabled("support_response_tier") && $can_see_tier) {
         my $latest_timelogged = 0;
         my $latest_timelogged_tier = 0;

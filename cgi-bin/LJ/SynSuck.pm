@@ -75,7 +75,7 @@ sub get_content {
     my ($content, $too_big);
     my $max_size = $LJ::SYNSUCK_MAX_SIZE || 150; # in kb
     my $syn_u = LJ::load_user($user);
-    if ($syn_u && LJ::check_priv($syn_u, "siteadmin", "largefeedsize")) {
+    if ( $syn_u && $syn_u->has_priv( "siteadmin", "largefeedsize" ) ) {
         $max_size = $LJ::SYNSUCK_LARGE_MAX_SIZE || 300; # in kb
     }
     my $res = eval {

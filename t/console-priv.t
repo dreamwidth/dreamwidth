@@ -43,21 +43,21 @@ $u->grant_priv("admin", "supportread/bananas");
 # one user, one priv
 is($run->("priv grant supporthelp:test " . $u2->user),
    "info: Granting: 'supporthelp' with arg 'test' for user '" . $u2->user . "'.");
-ok(LJ::check_priv($u2, "supporthelp", "test"), "has priv");
+ok($u2->has_priv( "supporthelp", "test" ), "has priv");
 
 is($run->("priv revoke supporthelp:test " . $u2->user),
    "info: Denying: 'supporthelp' with arg 'test' for user '" . $u2->user . "'.");
-ok(!LJ::check_priv($u2, "supporthelp", "test"), "no longer privved");
+ok(!$u2->has_priv( "supporthelp", "test" ), "no longer privved");
 
 is($run->("priv grant supporthelp:test,supporthelp:bananas " . $u2->user),
    "info: Granting: 'supporthelp' with arg 'test' for user '" . $u2->user . "'.\n"
    . "info: Granting: 'supporthelp' with arg 'bananas' for user '" . $u2->user . "'.");
-ok(LJ::check_priv($u2, "supporthelp", "test"), "has priv");
-ok(LJ::check_priv($u2, "supporthelp", "bananas"), "has priv");
+ok($u2->has_priv( "supporthelp", "test" ), "has priv");
+ok($u2->has_priv( "supporthelp", "bananas" ), "has priv");
 
 is($run->("priv revoke_all supporthelp " . $u2->user),
    "info: Denying: 'supporthelp' with all args for user '" . $u2->user . "'.");
-ok(!LJ::check_priv($u2, "supporthelp"), "no longer has priv");
+ok(!$u2->has_priv( "supporthelp" ), "no longer has priv");
 
 is($run->("priv revoke supporthelp " . $u2->user),
    "error: You must explicitly specify an empty argument when revoking a priv.\n"

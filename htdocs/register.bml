@@ -29,7 +29,7 @@ body<=
          unless $foru;
 
      return "<?p $ML{'.error.noaccess'} p?>"
-         unless (LJ::check_priv($remote, "siteadmin", "users") || LJ::check_priv($remote, "siteadmin", "*"));
+         unless $remote && $remote->has_priv( "siteadmin", "users" );
 
      return "<?p $ML{'.error.valid'} p?>"
          if $foru->is_validated;

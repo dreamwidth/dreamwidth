@@ -48,7 +48,7 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    my $admin = LJ::check_priv($remote, 'supporthelp');
+    my $admin = $remote->has_priv( 'supporthelp' );
 
     my $u;
     if ( $admin ) {

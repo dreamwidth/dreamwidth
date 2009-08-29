@@ -26,8 +26,8 @@ body<=
     # what action are they trying to take?
     if ($POST{'action:close'}) {
         my $can_close = 0;
-        $can_close = 1 if LJ::check_priv($remote, 'supportclose', $cat->{catkey});
-        $can_close = 1 if $cat->{public_read} && LJ::check_priv($remote, 'supportclose', '');
+        $can_close = 1 if $remote && $remote->has_priv( 'supportclose', $cat->{catkey} );
+        $can_close = 1 if $cat->{public_read} && $remote && $remote->has_priv( 'supportclose', '' );
         return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access'} p?>" unless $can_close;
 
         # now close all of these requests

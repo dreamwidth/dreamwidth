@@ -13,7 +13,7 @@
 
     return "<?needlogin?>" unless $remote; 
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless LJ::check_priv($remote, 'payments');
+        unless $remote->has_priv( 'payments' );
 
     # FIXME: there should be a better page for this or something
     if ( my $acid = $GET{striptimefrom} ) {

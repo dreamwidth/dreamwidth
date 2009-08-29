@@ -8,7 +8,7 @@ body<=
     my $u = LJ::get_remote()
         or return "<?needlogin?>";
 
-    my $is_admin = LJ::check_priv($u, "siteadmin", "emailqueue");
+    my $is_admin = $u->has_priv( "siteadmin", "emailqueue" );
 
     # temporary until the information displayed on this page can be expanded
     return "You do not have access to use this page."

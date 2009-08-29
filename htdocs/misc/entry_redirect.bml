@@ -4,7 +4,7 @@
     use vars qw(%GET);
 
     my $remote = LJ::get_remote();
-    return "Not authorized" unless LJ::check_priv($remote, "siteadmin", "entry_redirect");
+    return "Not authorized" unless $remote && $remote->has_priv( "siteadmin", "entry_redirect" );
 
     my $u = LJ::load_user($GET{user}) || LJ::load_userid($GET{userid});
     return "Invalid username/userid" unless $u;

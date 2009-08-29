@@ -11,7 +11,7 @@ body<=
 
     # supporthelp anywhere lets them in
     return "You are not authorized to view this page."
-        unless LJ::check_priv($remote, 'supporthelp');
+        unless $remote && $remote->has_priv( 'supporthelp' );
 
     my $ret;
     if ($GET{user} || $GET{email} || $GET{userid}) {

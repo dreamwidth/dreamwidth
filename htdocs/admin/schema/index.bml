@@ -14,7 +14,7 @@ body<=
 
  return "<?needlogin?>" unless $remote;
  my $can_doc = 0;
- if (LJ::remote_has_priv($remote, "schemadoc")) { $can_doc = 1; }
+ $can_doc = 1 if $remote->has_priv( "schemadoc" );
  return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
      unless ($can_doc); 
  

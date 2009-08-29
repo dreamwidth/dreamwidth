@@ -17,7 +17,7 @@ sub usage { '<account> <status>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "siteadmin", "users");
+    return $remote && $remote->has_priv( "siteadmin", "users" );
 }
 
 sub execute {

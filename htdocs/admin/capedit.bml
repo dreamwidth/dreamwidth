@@ -12,7 +12,7 @@
 
  return "<?needlogin?>" unless $remote;
  return BML::ml ( "admin.noprivserror", { numpriv => $numprivs, needprivs => "<b>"  . join(", ", @display_privs) . "</b>"} )
-   unless $LJ::IS_DEV_SERVER || LJ::check_priv($remote, "admin", "*");
+   unless $LJ::IS_DEV_SERVER || $remote->has_priv( "admin", "*" );
 
  $mode ||= $FORM{'user'} ? "viewuser" : "intro";
 
@@ -36,7 +36,7 @@
          unless (LJ::did_post());
 
      return"<b>Error:</b> You don't have access to change a user's capability class."
-         unless $LJ::IS_DEV_SERVER || LJ::check_priv($remote, "admin", "*");
+         unless $LJ::IS_DEV_SERVER || ( $remote && $remote->has_priv( "admin", "*" ) );
 
      unless ($u) {
          $ret .= "Unknown user.\n";

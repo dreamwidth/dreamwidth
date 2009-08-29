@@ -17,7 +17,7 @@ sub usage { '<ip> [ <forever> ]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "allowopenproxy");
+    return $remote ? $remote->has_priv( "allowopenproxy" ) : 0;
 }
 
 sub execute {

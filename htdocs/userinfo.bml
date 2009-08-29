@@ -52,7 +52,7 @@ body<=
         $u = LJ::load_userid( $userid );
 
         # only users with finduser can view profiles by userid (excluding identity accounts)
-        unless ( LJ::check_priv( $remote, 'finduser' ) || ( $GET{t} eq "I" && $u && $u->is_identity ) ) {
+        unless ( ( $remote && $remote->has_priv( 'finduser' ) ) || ( $GET{t} eq "I" && $u && $u->is_identity ) ) {
             $title = $ML{'Error'};
             return $ML{'.label.reqfinduser'};
         }
@@ -127,8 +127,8 @@ body<=
 
     # can't view suspended/deleted profiles unless you have viewall
     my $viewall = 0;
-    if ( $GET{viewall} && LJ::check_priv( $remote, "canview", "suspended" ) ) {
-        $viewall = LJ::check_priv( $remote, 'canview', '*' ) ? 1 : 0;
+    if ( $GET{viewall} && $remote && $remote->has_priv( "canview", "suspended" ) ) {
+        $viewall = $remote->has_priv( 'canview', '*' ) ? 1 : 0;
         LJ::statushistory_add( $u->id, $remote->id, "viewall", "userinfo: " . $u->user . ", statusvis: " . $u->statusvis );
     } else {
         if ( $u->is_suspended ) {

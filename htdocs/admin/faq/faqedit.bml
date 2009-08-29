@@ -17,10 +17,7 @@ body<=
     my $ret = "";
 
     my $dbh = LJ::get_db_writer();
-
     my $remote = LJ::get_remote();
-    my %ac_edit;
-    my %ac_add;
 
     my @display_privs = ( "faqadd", "faqedit" );
     my $numprivs =  @display_privs;
@@ -28,10 +25,11 @@ body<=
     return "<?needlogin?>" unless $remote;
     
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
-        unless LJ::check_priv($remote, "faqadd") || LJ::check_priv($remote, "faqedit");
+        unless $remote->has_priv( "faqadd" ) || $remote->has_priv( "faqedit" );
 
-    LJ::remote_has_priv( $remote, "faqadd", \%ac_add );
-    LJ::remote_has_priv( $remote, "faqedit", \%ac_edit );
+    my %ac_add  = $remote->priv_args( "faqadd" );
+    my %ac_edit = $remote->priv_args( "faqedit" );
+
     my $faqd = LJ::Lang::get_dom( "faq" );
     my $rlang = LJ::Lang::get_root_lang( $faqd );
     my ( $faqcat, $sortorder, $question, $summary, $answer, $has_summary );

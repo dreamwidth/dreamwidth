@@ -49,11 +49,11 @@ sub DayPage
     if ($remote) {
 
         # do they have the viewall priv?
-        if ($get->{'viewall'} && LJ::check_priv($remote, "canview", "suspended")) {
+        if ( $get->{viewall} && $remote->has_priv( "canview", "suspended" ) ) {
             LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
                                   "viewall", "day: $user, statusvis: $u->{'statusvis'}");
-            $viewall = LJ::check_priv($remote, 'canview', '*');
-            $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+            $viewall = $remote->has_priv( 'canview', '*' );
+            $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
         }
 
         if ($remote->{'userid'} == $u->{'userid'} || $viewall) {

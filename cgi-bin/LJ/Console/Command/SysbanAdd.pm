@@ -19,7 +19,7 @@ sub usage { '<what> <value> [ <days> ] [ <note> ]' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "sysban");
+    return $remote && $remote->has_priv( "sysban" );
 }
 
 sub execute {
@@ -30,7 +30,7 @@ sub execute {
 
     my $remote = LJ::get_remote();
     return $self->error("You cannot create these ban types")
-        unless LJ::check_priv($remote, "sysban", $what);
+        unless $remote && $remote->has_priv( "sysban", $what );
 
     my $err = LJ::sysban_validate($what, $value);
     return $self->error($err) if $err;

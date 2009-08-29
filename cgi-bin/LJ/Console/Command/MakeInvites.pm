@@ -20,7 +20,7 @@ sub usage { '<username> <count> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "payments");
+    return $remote && $remote->has_priv( "payments" );
 }
 
 sub execute {

@@ -15,7 +15,7 @@
 
     return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless (LJ::check_priv($remote, "historyview") || $LJ::IS_DEV_SERVER);
+        unless $remote->has_priv( "historyview" ) || $LJ::IS_DEV_SERVER;
 
     my $ret;
 
@@ -89,8 +89,8 @@
     while (my $hist = $sth->fetchrow_hashref) {
         # see if they can see this item: either they have unarged historyview or
         # they have historyview:shtype
-        next unless LJ::check_priv($remote, 'historyview', '') ||
-                    LJ::check_priv($remote, 'historyview', $hist->{shtype});
+        next unless $remote && ( $remote->has_priv( 'historyview', '' ) ||
+                    $remote->has_priv( 'historyview', $hist->{shtype} ) );
 
         $ret .= "<tr>";
         foreach (qw(user admin shtype shdate notes)) {

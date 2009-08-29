@@ -11,7 +11,7 @@ body<=
 
     return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join (", ", @display_privs) . "</b>" } )
-        unless LJ::check_priv($remote, "supporthelp");
+        unless $remote->has_priv( "supporthelp" );
 
     my $ret;
     foreach my $cid (@LJ::CLUSTERS) {

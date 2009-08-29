@@ -732,9 +732,9 @@ sub visible_to
     return 0 unless $self->valid;
 
     my ($viewall, $viewsome) = (0, 0);
-    if ($canview) {
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+    if ( LJ::isu( $remote ) && $canview ) {
+        $viewall = $remote->has_priv( 'canview', '*' );
+        $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
     }
 
     # can see anything with viewall
@@ -742,7 +742,7 @@ sub visible_to
 
     # can't see anything unless the journal is visible
     # unless you have viewsome. then, other restrictions apply
-    if (!$viewsome) {
+    unless ( $viewsome ) {
         return 0 if $self->journal->is_inactive;
 
         # can't see anything by suspended users
@@ -969,7 +969,7 @@ sub is_suspended_for {
     my $u = shift;
 
     return 0 unless $self->is_suspended;
-    return 0 if LJ::check_priv($u, 'canview', 'suspended');
+    return 0 if LJ::isu($u) && $u->has_priv( 'canview', 'suspended' );
     return 0 if LJ::isu($u) && $u->equals($self->poster);
     return 1;
 }

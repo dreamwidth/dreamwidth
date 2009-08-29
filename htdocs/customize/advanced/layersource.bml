@@ -26,9 +26,9 @@
         $layerinfo->{$id}->{'source_viewable'} : undef;
 
     # authorized to view this layer?
-    my $isadmin = !defined $pub->{$id} &&                          # public styles are pulled from the system
-                  (LJ::check_priv($remote, 'canview', 'styles') || # account, so we don't want to check privileges
-                   LJ::check_priv($remote, 'canview', '*'));       # in case they're private styles
+    my $isadmin = ! defined $pub->{$id} && $remote && $remote->has_priv( 'canview', 'styles' );
+    # public styles are pulled from the system account, so we don't
+    # want to check privileges in case they're private styles
     return $err->($ML{'/customize/advanced/layerbrowse.bml.error.cantviewlayer'})
         unless defined $pub->{$id} && (! defined $srcview || $srcview != 0) ||
                $srcview == 1 ||

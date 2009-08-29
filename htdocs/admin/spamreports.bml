@@ -40,7 +40,7 @@
     my $numprivs = @displayprivs;
 
     return $error->(BML::ml("admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} ))
-        unless LJ::check_priv($remote, 'siteadmin', 'spamreports');
+        unless $remote && $remote->has_priv( 'siteadmin', 'spamreports' );
 
     # show the top 10 spam reports by IP
     my $mode = lc($GET{mode} || $POST{mode});

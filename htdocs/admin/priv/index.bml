@@ -76,7 +76,8 @@
      my ($remote, $priv, $arg) = @_;
      return 0 unless defined $priv;
      return 1 if $LJ::DEBUG{"unrestricted_priv_grant"};
-     return LJ::check_priv($remote, 'admin', $priv) || LJ::check_priv($remote, 'admin', '*') || LJ::check_priv($remote, 'admin', "$priv/$arg");
+     return 0 unless LJ::isu( $remote );
+     return $remote->has_priv( 'admin', $priv ) || $remote->has_priv( 'admin', "$priv/$arg" );
  }
 
  if ($mode eq "userchange" || $mode eq "privchange")
@@ -118,7 +119,7 @@
 
              if ($privcode) {
                  if (remote_can_grant($remote, $privcode, $arg)) {
-                     if (LJ::check_priv($u, $privcode, $arg)) {
+                     if ( $u && $u->has_priv( $privcode, $arg ) ) {
                          $ret .= "ERROR: User already has specified priv <b>$privcode $arg</b>.<br />";
                      } else {
                          my $qarg = $dbh->quote($arg);
@@ -143,7 +144,7 @@
              my $privcode = $priv{$privid}->{'privcode'};
              if ($privcode) {
                  if (remote_can_grant($remote, $privcode, $arg)) {
-                     if (LJ::check_priv($u, $privcode, $arg)) {
+                     if ( $u && $u->has_priv( $privcode, $arg ) ) {
                          $ret .= "ERROR: User already has specified priv <b>$privcode $arg</b>.<br />";
                      }
                      elsif ($userid && $privid) {
@@ -215,7 +216,7 @@
      }
      $ret .= "</table>";
 
-     if (LJ::check_priv($remote, 'admin')) {
+     if ( $remote && $remote->has_priv( 'admin' ) ) {
          $ret .= "<p>Grant <b>$user</b> privilege:<div style='margin-left: 20px;'>\n";
          $ret .= "<select name='grantpriv'><option value='' selected='1'></option>";
          foreach my $priv (@privs) {
@@ -228,7 +229,7 @@
      }
 
      $ret .= "<p>\n";
-     if (LJ::check_priv($remote, 'admin')) {
+     if ( $remote && $remote->has_priv( 'admin') ) {
          $ret .=  "<input type=\"submit\" value=\"Make Changes\" />";
      }
      $ret .= " <input type=\"submit\" name=\"submit:refresh\" value=\"Just Refresh\" />";

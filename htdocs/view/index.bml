@@ -56,11 +56,11 @@
     # do they have the viewall priv?
     my $viewall = 0;
     my $viewsome = 0;
-    if ($GET{'viewall'} && LJ::check_priv($remote, "canview")) {
+    if ( $GET{'viewall'} && $remote && $remote->has_priv( "canview" ) ) {
         LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
                               "viewall", "month: $u->{'user'}, statusvis: " . $u->statusvis);
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+        $viewall = $remote->has_priv( 'canview', '*' );
+        $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
 
     # check for deleted/suspended
     } else {

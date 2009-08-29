@@ -50,7 +50,7 @@
 
     # no need for viewsome, due to the fact that none of this is private anyway.  just
     # allow anybody with any version of viewall to see userpics for non-V statusvis users
-    if ($GET{viewall} && LJ::check_priv($remote, 'canview', 'suspended')) {
+    if ( $GET{viewall} && $remote && $remote->has_priv( 'canview', 'suspended' ) ) {
         LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
                               "viewall", "allpics: $u->{'user'}, statusvis: " . $u->statusvis);
     } else {
@@ -120,8 +120,8 @@
     my $defaultpicid = $u ? $u->{'defaultpicid'} : undef;
 
     # allow support to view inactive userpics for debugging
-    my $view_inactive = $GET{inactive} && (LJ::check_priv($remote, "supportviewscreened") ||
-                                           LJ::check_priv($remote, "supporthelp"));
+    my $view_inactive = $GET{inactive} && $remote &&
+                        ( $remote->has_priv( "supportviewscreened" ) || $remote->has_priv( "supporthelp" ) );
     $view_inactive ||= $can_manage;
 
     push @allpics, $info->{'pic'}->{$u->{'defaultpicid'}} if $defaultpicid;

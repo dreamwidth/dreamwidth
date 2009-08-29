@@ -30,9 +30,8 @@
     {
         my $remote = LJ::get_remote();
         return "This search type is restricted to $l->{'lnname'} translators." unless
-            (LJ::check_priv($remote, "translate", "*") ||
-             LJ::check_priv($remote, "translate", $l->{'lncode'}) ||
-             LJ::check_priv($remote, "faqedit", "*")); # FAQ admins can search too
+            $remote && ( $remote->has_priv( "translate", $l->{'lncode'} ) ||
+                         $remote->has_priv( "faqedit", "*" ) ); # FAQ admins can search too
 
         my $qtext = $dbr->quote($FORM{'searchtext'});
         my $dmid = $FORM{'searchdomain'}+0;

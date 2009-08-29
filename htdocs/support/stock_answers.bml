@@ -20,9 +20,8 @@ body<=
 
     # editing is based on ability to grant supporthelp.  and throw an error if they
     # posted but can't edit.
-    my $canedit = ($spcatid && LJ::check_priv($remote, 'admin', "supporthelp/$cats->{$spcatid}->{catkey}")) ||
-                  LJ::check_priv($remote, 'admin', 'supporthelp') ||
-                  LJ::check_priv($remote, 'admin', '*');
+    my $canedit = ( $spcatid && $remote && $remote->has_priv( 'admin', "supporthelp/$cats->{$spcatid}->{catkey}" ) ) ||
+                  ( $remote && $remote->has_priv( 'admin', 'supporthelp' ) );
     if (LJ::did_post()) {
         return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}" unless LJ::check_form_auth();
         return "<?h1 $ML{'.error'} h1?><?p $ML{'.not.have.access.to.actions'} p?>"

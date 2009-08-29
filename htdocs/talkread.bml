@@ -155,11 +155,11 @@ body<=
     # set viewall/viewsome
     my $viewall = 0;
     my $viewsome = 0;
-    if ($GET{viewall} && LJ::check_priv($remote, 'canview', 'suspended')) {
+    if ( $GET{viewall} && $remote && $remote->has_priv( 'canview', 'suspended' ) ) {
         LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
                               "viewall", "entry: $u->{'user'}, itemid: $item->{'itemid'}, statusvis: " . $u->statusvis);
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+        $viewall = $remote && $remote->has_priv( 'canview', '*' );
+        $viewsome = $viewall || ( $remote && $remote->has_priv( 'canview', 'suspended' ) );
     }
 
     # check for deleted/suspended/security

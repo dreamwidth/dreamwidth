@@ -65,8 +65,8 @@ body<=
  # determine if user can close stuff
  my $can_close = 0;
  if ($remote && $state =~ /(?:green|open)/ && $filtercat && $filtercat !~ /^_/) {
-     $can_close = 1 if LJ::check_priv($remote, 'supportclose', $filtercat);        # private cats/only this cat
-     $can_close = 1 if $fcat->{public_read} && LJ::check_priv($remote, 'supportclose', ''); # public cats
+     $can_close = 1 if $remote && $remote->has_priv( 'supportclose', $filtercat );        # private cats/only this cat
+     $can_close = 1 if $fcat->{public_read} && $remote && $remote->has_priv( 'supportclose', '' ); # public cats
  }
 
  my $append;
@@ -219,7 +219,7 @@ body<=
  $ret .= " $ML{'.requests.type'}: <select name='cat'>";
  $ret .= "<option value=\"\">($ML{'.cat.all'})</option>";
  my @filter_cats = LJ::Support::filter_cats($remote, $cats);
- if (LJ::check_priv($remote, "supportread")) {
+ if ( $remote && $remote->has_priv( "supportread" ) ) {
      unshift @filter_cats, { 'catkey' => '_nonpublic',
                              'catname' => '(Private)' };
      unshift @filter_cats, { 'catkey' => '_nonprivate',

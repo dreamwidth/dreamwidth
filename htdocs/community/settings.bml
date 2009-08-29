@@ -81,7 +81,7 @@ body<=
         }
 
         # disallow changing the journal type if the journal has entries
-        if ($mode eq 'create' && !%errors && !LJ::check_priv($remote, "changejournaltype", "")) {
+        if ( $mode eq 'create' && !%errors && ( !$remote || !$remote->has_priv( "changejournaltype", "" ) ) ) {
             my $count;
             my $userid=$cu->{'userid'}+0;
             

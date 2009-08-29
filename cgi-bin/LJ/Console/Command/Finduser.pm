@@ -17,7 +17,7 @@ sub usage { '<criteria> <data>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "finduser");
+    return $remote && $remote->has_priv( "finduser" );
 }
 
 sub execute {

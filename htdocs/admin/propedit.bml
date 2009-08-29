@@ -19,8 +19,8 @@ body<=
 
     my $temp;
     my $remote = LJ::get_remote();
-    my $is_admin = LJ::check_priv( $remote, "canview", "userprops" );
-    my $can_save = LJ::check_priv( $remote, "siteadmin", "propedit" );
+    my $is_admin = $remote && $remote->has_priv( "canview", "userprops" );
+    my $can_save = $remote && $remote->has_priv( "siteadmin", "propedit" );
 
     my @displayprivs = ( "canview:userprops", "canview:*" );
     my $numprivs = @displayprivs;

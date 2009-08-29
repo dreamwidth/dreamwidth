@@ -214,14 +214,13 @@ body<=
         }
 
         $backfaqcat = $f->faqcat;
-        if (LJ::check_priv($remote, "faqedit", "*") ||
-            LJ::check_priv($remote, "faqedit", $backfaqcat))
+        if ( $remote && $remote->has_priv( "faqedit", $backfaqcat ) )
         {
             $$body .= "<p align=\"right\"><a href=\"/admin/faq/faqedit?id=$faqid\">$ML{'.edit.faq'}</a></p>";
         }
 
         # this is incredibly ugly. i'm sorry.
-        if ($altlang && LJ::check_priv($remote, "translate", $curlang)) {
+        if ( $altlang && $remote && $remote->has_priv( "translate", $curlang ) ) {
             my @itids;
             push @itids, LJ::Lang::get_itemid($mld->{'dmid'}, "$faqid.$_")
                 foreach qw(1question 3summary 2answer);

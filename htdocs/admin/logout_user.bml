@@ -15,7 +15,7 @@ body<=
 
     return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless LJ::check_priv($remote, 'suspend');
+        unless $remote->has_priv( 'suspend' );
 
     my $ret = "";
     

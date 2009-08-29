@@ -19,7 +19,7 @@
     return "<?needlogin?>" unless $remote;
 
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless LJ::check_priv($remote, 'siteadmin', 'navtag');
+        unless $remote->has_priv( 'siteadmin', 'navtag' );
 
     do "LJ/NavTag.pm";
     #use LJ::NavTag;

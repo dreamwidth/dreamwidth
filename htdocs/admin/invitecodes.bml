@@ -16,7 +16,7 @@ body<=
         unless $remote;
 
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-        unless LJ::check_priv( $remote, "finduser", "codetrace" );    
+        unless $remote->has_priv( "finduser", "codetrace" );
 
     my $ret;
 

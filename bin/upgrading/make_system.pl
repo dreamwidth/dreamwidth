@@ -37,7 +37,7 @@ unless ($u) {
 }
 
 print "Giving 'system' account 'admin' priv on all areas...\n";
-if (LJ::check_priv($u, "admin", "*")) {
+if ( $u->has_priv( "admin", "*" ) ) {
     print "Already has it.\n";
 } else {
     my $sth = $dbh->prepare("INSERT INTO priv_map (userid, prlid, arg) ".

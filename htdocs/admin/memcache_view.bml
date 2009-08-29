@@ -15,7 +15,7 @@
 
  return "<?needlogin?>" unless $remote;
  return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @displayprivs) . "</b>"} )
-     unless (LJ::check_priv($remote, "siteadmin", "memcacheview") || $LJ::IS_DEV_SERVER);
+     unless $remote->has_priv( "siteadmin", "memcacheview" ) || $LJ::IS_DEV_SERVER;
 
  return "<b>Error:</b> No memcache servers defined."
      unless @LJ::MEMCACHE_SERVERS;

@@ -19,11 +19,11 @@ sub EntryPage
 
     # setup viewall options
     my ($viewall, $viewsome) = (0, 0);
-    if ($get->{viewall} && LJ::check_priv($remote, 'canview', 'suspended')) {
+    if ( $get->{viewall} && $remote && $remote->has_priv( 'canview', 'suspended' ) ) {
         # we don't log here, as we don't know what entry we're viewing yet.  the logging
         # is done when we call EntryPage_entry below.
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+        $viewall = $remote->has_priv( 'canview', '*' );
+        $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
     }
 
     my ($entry, $s2entry) = EntryPage_entry($u, $remote, $opts);
@@ -403,13 +403,13 @@ sub EntryPage_entry
     my $userlite_poster  = UserLite($pu);
 
     # do they have the viewall priv?
-    my $canview = $get->{'viewall'} && LJ::check_priv($remote, "canview");
+    my $canview = $get->{viewall} && $remote && $remote->has_priv( "canview" );
     my ($viewall, $viewsome) = (0, 0);
     if ($canview) {
         LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
                               "viewall", "entry: $u->{'user'}, itemid: $itemid, statusvis: $u->{'statusvis'}");
-        $viewall = LJ::check_priv($remote, 'canview', '*');
-        $viewsome = $viewall || LJ::check_priv($remote, 'canview', 'suspended');
+        $viewall = $remote->has_priv( 'canview', '*' );
+        $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
     }
 
     # check using normal rules

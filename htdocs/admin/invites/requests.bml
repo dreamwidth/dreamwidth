@@ -22,7 +22,7 @@ body<=
     return "<?needlogin?>" unless $remote;
 
     return "You are not authorized to view this page."
-        unless LJ::check_priv( $remote, "payments" );
+        unless $remote->has_priv( "payments" );
 
     my $ret;
 

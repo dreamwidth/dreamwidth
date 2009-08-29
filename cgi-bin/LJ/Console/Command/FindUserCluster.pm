@@ -16,7 +16,7 @@ sub usage { '<user>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
-    return LJ::check_priv($remote, "supportviewscreened") || LJ::check_priv($remote, "supporthelp");
+    return $remote && ( $remote->has_priv( "supportviewscreened" ) || $remote->has_priv( "supporthelp" ) );
 }
 
 sub execute {

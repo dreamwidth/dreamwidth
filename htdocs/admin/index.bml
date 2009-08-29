@@ -113,7 +113,7 @@ body<=
 
     $ret .= "<ul>\n";
 
-    my $adminstar = LJ::check_priv( $remote, 'admin', '*' );
+    my $adminstar = $remote && $remote->has_priv( 'admin', '*' );
     foreach my $page ( @adminpages ) {
         my ( $path, $name, $description, $privs ) = @{$page};
         my $showpage = 0;
@@ -122,7 +122,7 @@ body<=
         foreach my $priv ( @{$privs} ) {
             my $result = ( ref( $priv ) eq "CODE" ?
                              ( $priv->() )[0] :
-                             LJ::check_priv( $remote, split( /:/, $priv ) ) );
+                             $remote && $remote->has_priv( split( /:/, $priv ) ) );
             my $displayedpriv = ( ref( $priv ) eq "CODE" ? ( $priv->() )[1] : $priv );
             push( @gotprivs,   $displayedpriv ) if $result;
             push( @needsprivs, $displayedpriv ) if !$result;
