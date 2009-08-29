@@ -506,7 +506,6 @@ function Page::print_default_stylesheet()
         width: 24px;
         font-size: 11px;
         margin: 1px;
-        float: left;
         text-align: center;
         border: 1px solid $*color_module_border;
     }
