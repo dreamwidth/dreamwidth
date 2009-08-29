@@ -1,0 +1,27 @@
+#NEWLAYER: blanket/peach
+layerinfo type = "theme";
+layerinfo name = "Peach";
+layerinfo redist_uniq = "blanket/peach";
+layerinfo author_name = "renoir";
+
+set color_page_text = "#888";
+set color_page_background = "#e0c3a2";
+set color_page_border = "#f2ebd7";
+
+set color_page_link = "#51a3b0";
+set color_page_link_active = "#51a3b0";
+set color_page_link_hover = "#f0a830";
+set color_page_link_visited = "#7799aa";
+
+set color_header_background = "#fff";
+set color_page_title = "#aaa";
+
+set color_module_background = "#f2ebd7";
+set color_module_text = "#888";
+set color_module_border = "#c7bfa6";
+set color_module_title = "#099aaf";
+
+set color_entry_background = "#fff";
+set color_entry_text = "#888";
+set color_entry_title = "#099aaf";
+set color_entry_border = "#eee";

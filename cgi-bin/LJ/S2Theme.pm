@@ -35,6 +35,7 @@ sub default_theme {
 
     my %default_themes = (
         basicboxes => 'basicboxes/green',
+        blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
         core2base => 'core2base/testing',
         drifting => 'drifting/blue',

@@ -1,0 +1,372 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Blanket";
+layerinfo "redist_uniq" = "blanket/layout";
+layerinfo "author_name" = "renoir";
+layerinfo "lang" = "en";
+
+set layout_type = "one-column";
+set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
+
+##===============================
+## Display settings - general
+##===============================
+
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+    property use layout_type;
+    property use tags_page_type;
+    property use use_custom_friend_colors;
+}
+
+set layout_type = "one-column";
+set use_custom_friend_colors = false;
+set custom_foreground_element = "userpic_border";
+set custom_background_element = "userpic_background";
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors {
+
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_link_active;
+    property use color_page_link_hover;
+    property use color_page_link_visited;
+    property use color_page_border;
+    property use color_page_title;
+    
+    property use color_header_background;
+
+    property use color_module_background;
+    property use color_module_text;
+    property use color_module_border;
+    property use color_module_title;
+
+    property use color_entry_background;
+    property use color_entry_text;
+    property use color_entry_border;
+    property use color_entry_title;
+}
+
+##===============================
+## Display settings - fonts
+##===============================
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+}
+
+##===============================
+## Display settings - modules
+##===============================
+
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    property use module_customtext_group;
+    property use module_calendar_group;
+    property use module_pagesummary_group;
+    property use module_tags_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+    property use module_credit_group;
+}
+
+##===============================
+## Custom CSS
+##===============================
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+propgroup text {
+##===============================
+## Text - main navigation
+##===============================
+
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+    property use text_view_tags;
+
+##===============================
+## Text - entry comment-related
+##===============================
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+    property use text_meta_music; 
+    property use text_meta_mood; 
+    property use text_meta_location; 
+    property use text_tags; 
+
+    property use text_entry_prev;
+    property use text_entry_next; 
+    property use text_edit_entry; 
+    property use text_edit_tags; 
+    property use text_tell_friend; 
+    property use text_mem_add; 
+    property use text_watch_comments; 
+    property use text_unwatch_comments; 
+    property use text_permalink;
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
+}
+
+
+# group two contains the navigation links module
+# group one contains everything else
+set module_layout_sections = "none|(none)|one|Column|two|Fixed";
+
+set module_navlinks_section = "two";
+set module_navlinks_show = true;
+
+set module_userprofile_section = "one";
+set module_userprofile_show = true;
+
+set module_calendar_section = "one";
+set module_calendar_show = true;
+
+set module_pagesummary_section = "one";
+set module_pagesummary_show = true;
+
+set module_tags_section = "one";
+set module_tags_show = true;
+set module_tags_opts_type = "cloud";
+
+set module_links_section = "one";
+set module_links_show = true;
+
+set module_syndicate_section = "one";
+set module_syndicate_show = true;
+
+set module_time_section = "one";
+set module_time_show = true;
+
+set module_poweredby_section = "one";
+set module_poweredby_show = true;
+
+set module_customtext_section = "one";
+set module_customtext_show = false;
+
+set module_credit_section = "one";
+set module_credit_show = true;
+
+set module_userprofile_order = 1;
+set module_calendar_order = 2;
+set module_credit_order = 3;
+set module_syndicate_order = 5;
+set module_time_order = 6;
+set module_poweredby_order = 7;
+set module_tags_order = 17;
+set module_links_order = 18;
+set module_pagesummary_order = 19;
+set module_customtext_order = 20;
+
+
+set font_base = "'Lucida Grande', 'Lucida Sans Unicode', Helvetica";
+set font_fallback = "sans-serif";
+set font_base_size = "0.625";
+set font_base_units = "em";
+
+set font_journal_title_size = "1.3";
+set font_journal_title_units = "em";
+set font_journal_subtitle_size = "1";
+set font_journal_subtitle_units = "em";
+set font_entry_title_size = "1.6";
+set font_entry_title_units = "em";
+
+function Page::print_default_stylesheet () {
+
+var string page_fonts = generate_font_css( $*font_base, $*font_fallback, $*font_base_size, $*font_base_units );
+
+var string page_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
+
+var string page_link_colors = generate_color_css( $*color_page_link, new Color, new Color );
+var string page_link_active_colors = generate_color_css( $*color_page_link_active, new Color, new Color );
+var string page_link_hover_colors = generate_color_css( $*color_page_link_hover, new Color, new Color );
+var string page_link_visited_colors = generate_color_css( $*color_page_link_visited, new Color, new Color );
+
+var string header_colors = generate_color_css( new Color, $*color_header_background, new Color);
+var string journal_title_colors = generate_color_css( $*color_page_title, new Color, new Color );
+var string page_title_colors = generate_color_css( $*color_page_title->lighter(), new Color, new Color );
+var string journal_title_fonts = generate_font_css( $*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units );
+var string journal_subtitle_fonts = generate_font_css( $*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units );
+
+var string module_colors = generate_color_css( $*color_module_text, $*color_module_background, new Color );
+var string module_title_colors = generate_color_css( $*color_module_title, $*color_module_title_background, new Color );
+
+var string entry_colors = generate_color_css( new Color, $*color_entry_background, new Color );
+var string entry_title_fonts = generate_font_css( $*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units );
+var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
+var string userpic_colors = generate_color_css( new Color, $*color_entry_background, $*color_entry_border->darker() );
+
+var string input_colors = generate_color_css( $*color_page_text, $*color_entry_background, $*color_entry_border );
+
+var string active_month_colors = generate_color_css( $*color_page_link_hover->darker(), new Color, new Color );
+var string month_header_colors = generate_color_css( $*color_page_title, $*color_entry_border, new Color );
+
+"""
+
+<style type="text/css">
+/* Blanket */
+
+body { padding: 0; margin: 0; text-align: center; $page_colors $page_fonts }
+
+a, a:active { text-decoration: none; $page_link_colors }
+a:visited { $page_link_visited_colors }
+a:hover { $page_link_hover_colors }
+
+#canvas { margin: 0 auto 3em auto; text-align: justify; padding: 0; }
+#content { padding: 0; margin: 0; }
+#primary { width: 60%; margin: 0 auto;  z-index: 0; padding: 0; }
+
+/*--- header + footer ---*/
+#header { width: 60%; margin: 0 auto 2em auto; $header_colors }
+#header>.inner { border-left: 20px solid #f2ebd7; padding: 4em 2em; }
+#footer { display: block; clear: both; }
+.page-top { width: 60%; margin: 0 auto; text-transform: uppercase; text-align: right; }
+.navigation { text-transform: uppercase; text-align: right; }
+li.page-back, li.page-forward { display: inline; list-style: none; padding: 0; margin: 0 0 0 0.3125em; }
+li.page-separator { display: none; }
+div.navigation ul { display: inline; padding: 0; margin: 0; }
+
+/*--- header texts ---*/
+div#header h1#title { font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; margin: 0; $journal_title_colors $journal_title_fonts }
+div#header h2#subtitle { font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; $journal_title_colors $journal_subtitle_fonts }
+div#header h2#pagetitle { font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; margin: 1em 0 0 0; $page_title_colors $journal_subtitle_fonts }
+
+/*--- navigation links ---*/
+div.module-navlinks { position: fixed; bottom: 0; z-index: 100; padding: 0.75em; width: 100%; margin: 0 auto; $module_colors }
+div.module-navlinks ul.module-list { display: inline; padding: 0; margin: 0 0 0 2em; text-transform: uppercase; letter-spacing: -0.5px; }
+div.module-navlinks ul.module-list li { display: inline; margin: 0 1em 0 0; list-style: none; border-right: 1px solid $*color_module_border; padding: 0 0.5em 0 0; }
+
+/*--- modules ---*/
+#secondary { width: 60%; margin: 0 auto; z-index: 0; padding: 0; $entry_colors }
+#secondary>.inner { border-left: 20px solid #f2ebd7; padding: 4em 2em; }
+
+#secondary .module { float: left; margin: 2em 1em;}
+#secondary .module-header, #secondary .module-header a { $module_title_colors }
+#secondary .separator-after { clear: both; }
+.module-tags_cloud { margin: 3em 0; width: 100%; float: none; border-top: 1px solid $*color_entry_border; border-bottom: 1px solid $*color_entry_border; }
+.module-tags_cloud .module-content { padding: 0 3em 1em 3em; }
+
+#secondary .module-content { text-align: left; }
+#secondary .module-content ul {  list-style: outside; margin-left: 1em;  padding-left: 0; }
+#secondary .module-content li { margin: .5em 0; }
+.module-photo .module-content { text-align: center; }
+.module-user-links .module-content { text-align: center; }
+ul.userlite-interaction-links { list-style: none; margin-left: 0; padding-left: 0; }
+ul.userlite-interaction-links li { display: inline; padding: 0 .20em; }
+.module-calendar td a { display: block; padding: 2px; }
+.module-credit dt, .module-credit dd { display: inline; margin: 0; padding: 0; }
+.module-credit dt { font-weight: bold; margin-right: 0.5em; }
+
+/*--- entry ---*/
+div.entry { padding: 2em; margin: 0 0 2em 0; border-left: 20px solid $*color_page_border; $entry_colors }
+div.entry-content { margin: 1em 0 0 0; }
+
+div.header { padding: 0; margin: 0 0 1em 0; }
+h3.entry-title { font-weight: normal; text-transform: lowercase; letter-spacing: -1; padding: 0; margin: 0; $entry_title_fonts $entry_title_colors }
+h3.entry-title a { $entry_title_colors }
+
+.datetime { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; $page_title_colors }
+.datetime a { $page_title_colors }
+
+.userpic { display: block; float: left; margin: 0 10px 10px 0; }
+.userpic img { width: 80px; height: 80px; padding: 5px; $userpic_colors }
+
+span.poster { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; $page_title_colors }
+
+.metadata { margin: 2em 0 0 0; }
+div.metadata ul { padding: 0; margin: 0; }
+div.metadata ul li { list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0; $page_title_colors }
+span.metadata-label-location, span.metadata-label-mood, span.metadata-label-music { display: none; }
+span.metadata-item-location { padding: 0 0 0 1.3em; }
+span.metadata-item-mood { padding: 0 0 0 1.3em; }
+span.metadata-item-music { padding: 0 0 0 1.3em; }
+
+span.tag-text { display: none; }
+div.tag ul { padding: 0 0 0 1.3em; margin: 0; display: inline; }
+div.tag ul li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0; $page_title_colors }
+
+ul.entry-management-links { padding: 0; margin: 2em 0 0 0; }
+ul.entry-management-links li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: lowercase; letter-spacing: 0; padding: 0 5px 0 0; $page_title_colors }
+
+ul.entry-interaction-links { padding: 0 0 0.5em 0; margin: 1em 0 0 0; text-align: center; border-bottom: 1px solid $*color_entry_border; }
+ul.entry-interaction-links li { display: inline; list-style: none; font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0 5px 0 0; $page_title_colors }
+
+/*--- comments ---*/
+hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
+
+input, textarea { padding: 5px; font: 1em Helvetica, Arial, 'Arial Narrow', sans-serif; line-height: 1.8em; $input_colors }
+textarea.textbox  { width: 100% !important; }
+
+.comment { margin: 0 auto 2em auto; background: #FFF; padding: 40px 20px; border-left: 20px solid $*color_page_border; }
+.comment-wrapper { margin: 2em 0; padding: 0; }
+
+.bottomcomment { margin: 0 auto 2em auto; padding: 4em 2em; border-left: 20px solid $*color_page_border; $entry_colors }
+
+.comment-management-links ul, .comment-interaction-links ul { margin: 0; padding: 0; list-style: none; }
+.comment-management-links li, .comment-interaction-links li { display: inline; }
+
+#qrform table { border: 0!important; }
+
+/*--- archive ---*/
+li.active { list-style: none; display: inline; text-transform: uppercase; padding: 0; margin: 0; text-align: center; $active_month_colors }
+
+.month { margin: 0 auto 2em auto; padding: 4em 2em; border-left: 20px solid $*color_page_border; $entry_colors }
+.month h3 { font-size: 1em; font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; text-align: right; $page_title_colors }
+
+div.navigation ul { display: inline; }
+div.navigation li { display: inline; list-style: none; }
+
+.month th { font-size: 0.9em; font-weight: normal; text-transform: uppercase; padding: 5px; text-align: center; $month_header_colors }
+.month table { width: 100%; border: 0; margin: auto; }
+.month caption { display: none; }
+
+td.day { padding: 5px; border: 1px solid #F0F0F0; }
+
+/*--- tags ---*/
+.page-tags .tags-container h2 { font-size: 1em; font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; text-align: right; $page_title_colors }
+
+.page-tags .tags-container { margin: 0 auto 2em auto; padding: 4em 2em; border-left: 20px solid $*color_page_border; $entry_colors}
+
+.page-tags .tags-container ul { margin: 1em; padding: 0; }
+.page-tags .tags-container ul li { margin: 0 0 0 1em; padding: 0; list-style: none; }
+
+</style>
+""";
+
+}
