@@ -84,27 +84,51 @@ sub _as_email {
     };
 
     if ( $self->trusted ) {
-        return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.email_text', undef, $vars ) .
-            $self->format_options( $is_html, $lang, $vars,
-            {
-                'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
-                'esn.read_journal'    => [ 2, $journal_url ],
-                'esn.view_profile'    => [ 3, $journal_profile ],
-                'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
-                'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
-            }
-        );
+        if ( $self->fromuser->is_identity ) {
+            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.email_text', undef, $vars ) .
+                $self->format_options( $is_html, $lang, $vars,
+                {
+                    'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
+                    'esn.view_profile'    => [ 2, $journal_profile ],
+                    'esn.edit_friends'    => [ 3, "$LJ::SITEROOT/manage/circle/edit" ],
+                    'esn.edit_groups'     => [ 4, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                }
+            );
+        } else {
+            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.trusted.email_text', undef, $vars ) .
+                $self->format_options( $is_html, $lang, $vars,
+                {
+                    'esn.add_trust'       => [ $u->trusts( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=access" ],
+                    'esn.read_journal'    => [ 2, $journal_url ],
+                    'esn.view_profile'    => [ 3, $journal_profile ],
+                    'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
+                    'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                }
+            );
+        }
     } else { # watched
-        return LJ::Lang::get_text( $lang, 'esn.addedtocircle.watched.email_text', undef, $vars ) .
-            $self->format_options( $is_html, $lang, $vars,
-            {
-                'esn.add_watch'       => [ $u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe" ],
-                'esn.read_journal'    => [ 2, $journal_url ],
-                'esn.view_profile'    => [ 3, $journal_profile ],
-                'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
-                'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
-            }
-        );
+        if ( $self->fromuser->is_identity ) {
+            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.watched.email_text', undef, $vars ) .
+                $self->format_options( $is_html, $lang, $vars,
+                {
+                    'esn.add_watch'       => [ $u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe" ],
+                    'esn.view_profile'    => [ 2, $journal_profile ],
+                    'esn.edit_friends'    => [ 3, "$LJ::SITEROOT/manage/circle/edit" ],
+                    'esn.edit_groups'     => [ 4, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                }
+            );
+        } else {
+            return LJ::Lang::get_text( $lang, 'esn.addedtocircle.watched.email_text', undef, $vars ) .
+                $self->format_options( $is_html, $lang, $vars,
+                {
+                    'esn.add_watch'       => [ $u->watches( $self->fromuser ) ? 0 : 1, "$LJ::SITEROOT/manage/circle/add?user=$postername&action=subscribe" ],
+                    'esn.read_journal'    => [ 2, $journal_url ],
+                    'esn.view_profile'    => [ 3, $journal_profile ],
+                    'esn.edit_friends'    => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
+                    'esn.edit_groups'     => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
+                }
+            );
+        }
     }
 }
 
