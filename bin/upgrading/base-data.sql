@@ -582,16 +582,12 @@ INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a users sends a mes
 UPDATE ratelist SET des='Logged when a users sends a message via Tell A Friend' WHERE name='tellafriend';
 INSERT IGNORE INTO ratelist (des, name) VALUES ('Logged when a users sends a message to another user', 'usermessage');
 UPDATE ratelist SET des='Logged when a users sends a message to another user' WHERE name='usermessage';
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('FIPS', 'U.S. Census Bureau assigned two-digit FIPS (Federal Information Processing Standards) code for geographic sequence of each State within each census division.', 'zips');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('Name', 'Name of city.', 'zips');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('State', 'State.', 'zips');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('aaid', 'Primary key for each authaction.', 'authactions');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('acid', 'Account code ID.  Primary key.', 'acctcode');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('acktime', 'The time the user saw the box, either by clicking next/no/more info.', 'cprod');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('action', 'A textual description of what happened (up to 30 characters).', 'userlog');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('action', 'The action command name to be run when the authaction is confirmed (clicked/etc)', 'authactions');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('actiontarget', 'Optional, but is likely some numeric value.', 'userlog');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('alloc', 'Allocation Factor (decimal portion of state within zipcode).', 'zips');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('allowmask', 'A bitmask to specify who can read the (non-public/non-private) entry. Bit 0 is for all friends (i.e., any defined friend can read it). Bits 1-30 are used for [dbtable[friendgroup2]]/[dbtable[friendgroup]]s. Bit 31 is reserved.', 'log2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('answer', 'The answer text, in plaintext.', 'faq');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('anum', 'The access number. A random number between 0 and 255 associated with the entry to form the jitemid.', 'log2');
@@ -677,10 +673,8 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('lastmodtime', 'The da
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('lastmoduserid', 'The userid of the [dbtable[user]] who last modified the FAQ item.', 'faq');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('lastnew', 'Date and time syndicated account was last updated with new entries. (Profile page will display \'Never\' if feed account is newly created and not yet updated for example.)', 'syndicated');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('laststatus', 'Status of last check, for use on syndicated account profile page. The value might be: \'Parse error\', \'Not Modified\', etc.', 'syndicated');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('lat', 'Latitude (North is assumed, no plus sign).', 'zips');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('level', 'Either \"all\" for user to get notifications and then a copy of each comment/solution posted, or \"new\" for user to get notifications when a new Support request in that category is posted.', 'supportnotify');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('logtime', 'The time of the entry, when the entry was posted (and when LJ logged it to the database - here), according to the server\'s clock.', 'log2');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('lon', 'Longitude (West is assumed, no minus sign).', 'zips');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('masterid', 'The dbid which this server replicates from, or 0 for the master server.  Note: only one server should have a master of 0!', 'dbinfo');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('membership', 'Can people join without being invited?', 'community');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('modtime', 'API gets and sets this when loading/saving style layers and takes it into account when appending modtime (Last-Modified header field, so browsers will cache properly) to stylesheet_url.', 's2styles');
@@ -701,7 +695,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('oldvalue', 'The old v
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('other', 'Optional note space.', 'infohistory');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('parentkwid', '(Can be null.)', 'usertags');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('parenttalkid', 'talkid of parent comment that this comment is in reply to within a comment thread. 0 if it is a top-level comment.', 'talk2');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('pop1990', 'Population in 1990. (Table uses 1990 Census Bureau \'Gazetteer\' data).', 'zips');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('posterid', 'The [dbtable[user]] userid of the person that posted the comment.', 'talk2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('posterid', 'The [dbtable[user]] userid of the person that posted the entry.', 'log2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('postlevel', 'Who can post?  Members only, or a select group.  \"screened\" is not yet used.', 'community');
@@ -772,7 +765,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('what', 'Short name of
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('width', 'Horizontal width of image in pixels.', 'userpic2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('year', 'The year of the eventtime. Duplicated for an index.', 'log2');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('zip', 'ZIP Code', 'zip');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('zip', 'ZIP Code.', 'zips');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('', '0', 'off', NULL, 'moods');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('', '0', 'off', NULL, 's2styles');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('', '0', 'off', NULL, 'synitem');
@@ -932,7 +924,6 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Stores worker(s) result storage status.', '0', 'off', NULL, 'jobstatus');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Table required by DBI::Role for procnotify - the function used to pass a message to all web processes on all clusters.', '0', 'off', NULL, 'procnotify');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. Used by the move user cluster script. Both before and after updating a user\'s read-only flag we add the user to this table, which is just an index onto users who - might - be in read-only.\n\r\nA maintenance task will periodically clean those and make sure nobody is stranded in read-only, without resorting to a full tablescan of the [dbtable[user]] table, by checking if users are still locked, removing those that are not from this table, querying the job server (if up) for users that are still locked and unlocking those that can be unlocked.', '0', 'off', NULL, 'readonly_user');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. ZIP Code data for the United States that includes geographic co-ordinates.\n\r\nOnly used with an ljcom maintenance script that generates marker files for use in making Xplanet maps. Most of the LJ code uses the [dbtable[zip]] table instead.', '0', 'off', NULL, 'zips');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global. ZIP Code table used to validate and auto-complete user-entered location data. More data can be found in the (redundant) table [dbtable[zips]], which was imported later.', '0', 'off', NULL, 'zip');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Global.', '0', 'off', NULL, 'eventtypelist');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Historic. Global. Stores a user\'s posts on other clusters, when either 1) that user isn\'t clustered themselves yet, or 2) we\'re doing a mass conversion (moveucluster.pl) and don\'t want to look it up.\n\r\nA maintenance task (clean_caches) moves data from here to [dbtable[talkleft]] on clusters.', '0', 'off', NULL, 'talkleft_xfp');
@@ -943,7 +934,5 @@ REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tab
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Stores per-user counters on the global (contrary to the name). These are allocated by the LJ::alloc_user_counter function. Please see also [dbtable[counter]].', '0', 'off', NULL, 'usercounter');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Stores the documentation for the database tables.', '0', 'replace', NULL, 'schematables');
 REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Stores the documentation for the individual columns of the database tables.', '0', 'replace', NULL, 'schemacols');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Unused. Designed for the \"Adopt-a-newbie\" system, but never fully implemented.', '0', 'off', NULL, 'adopt');
-REPLACE INTO schematables (des, public_browsable, redist_mode, redist_where, tablename) VALUES ('Unused. Designed for the \"Adopt-a-newbie\" system, but never fully implemented.', '0', 'off', NULL, 'adoptlast');
 INSERT IGNORE INTO supportcat (allow_screened, basepoints, catkey, catname, hide_helpers, is_selectable, no_autoreply, public_help, public_read, replyaddress, scope, sortorder, user_closeable) VALUES ('1', '1', 'general', 'General/Unknown', '0', '1', '0', '0', '1', NULL, 'general', '2', '1');
 UPDATE supportcat SET allow_screened='1',basepoints='1',catname='General/Unknown',hide_helpers='0',is_selectable='1',no_autoreply='0',public_help='0',public_read='1',replyaddress=NULL,scope='general',sortorder='2',user_closeable='1' WHERE catkey='general';

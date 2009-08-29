@@ -4,29 +4,6 @@
 
 mark_clustered(@LJ::USER_TABLES);
 
-register_tablecreate("adopt", <<'EOC');
-CREATE TABLE adopt (
-    adoptid int(10) unsigned NOT NULL auto_increment,
-    helperid int(10) unsigned NOT NULL default '0',
-    newbieid int(10) unsigned NOT NULL default '0',
-    changetime datetime NOT NULL default '0000-00-00 00:00:00',
-
-    PRIMARY KEY  (adoptid),
-    KEY (helperid),
-    KEY (newbieid)
-)
-EOC
-
-register_tablecreate("adoptlast", <<'EOC');
-CREATE TABLE adoptlast (
-    userid int(10) unsigned NOT NULL default '0',
-    lastassigned datetime NOT NULL default '0000-00-00 00:00:00',
-    lastadopted datetime NOT NULL default '0000-00-00 00:00:00',
-
-    PRIMARY KEY  (userid)
-)
-EOC
-
 register_tablecreate("authactions", <<'EOC');
 CREATE TABLE authactions (
     aaid int(10) unsigned NOT NULL auto_increment,
@@ -810,21 +787,6 @@ CREATE TABLE zip (
 ) PACK_KEYS=1
 EOC
 
-register_tablecreate("zips", <<'EOC');
-CREATE TABLE zips (
-    FIPS char(2) default NULL,
-    zip varchar(5) NOT NULL default '',
-    State char(2) NOT NULL default '',
-    Name varchar(30) NOT NULL default '',
-    alloc float(9,7) NOT NULL default '0.0000000',
-    pop1990 int(11) NOT NULL default '0',
-    lon float(10,7) NOT NULL default '0.0000000',
-    lat float(10,7) NOT NULL default '0.0000000',
-
-    PRIMARY KEY  (zip)
-)
-EOC
-
 ################# above was a snapshot.  now, changes:
 
 register_tablecreate("log2", <<'EOC');
@@ -1008,6 +970,9 @@ register_tabledrop("sms_msgerror");
 register_tabledrop("sms_msgprop");
 register_tabledrop("sms_msgproplist");
 register_tabledrop("knob");
+register_tabledrop("zips");
+register_tabledrop("adopt");
+register_tabledrop("adoptlast");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
