@@ -75,14 +75,6 @@
         $jid = $ju->{'userid'};
         $anum = $ditemid % 256;
         $itemid = int($ditemid / 256);
-    } else {
-        # old-style item url?
-        my $newids = LJ::get_newids('L', $ditemid);
-        if ($newids) {
-            ($jid,  $itemid) = @$newids;
-            $ju = LJ::load_userid($jid);
-            $oldstyle = 1;
-        }
     }
 
     unless ($ju && $itemid) {

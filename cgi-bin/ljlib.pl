@@ -337,24 +337,6 @@ sub gtop {
     return $GTop ||= GTop->new;
 }
 
-# <LJFUNC>
-# name: LJ::get_newids
-# des: Lookup an old global ID and see what journal it belongs to and its new ID.
-# info: Interface to [dbtable[oldids]] table (URL compatability)
-# returns: Undef if non-existent or unconverted, or arrayref of [$userid, $newid].
-# args: area, oldid
-# des-area: The "area" of the id.  Legal values are "L" (log), to lookup an old itemid,
-#           or "T" (talk) to lookup an old talkid.
-# des-oldid: The old globally-unique id of the item.
-# </LJFUNC>
-sub get_newids
-{
-    my $sth;
-    my $db = LJ::get_dbh("oldids") || LJ::get_db_reader();
-    return $db->selectrow_arrayref("SELECT userid, newid FROM oldids ".
-                                   "WHERE area=? AND oldid=?", undef,
-                                   $_[0], $_[1]);
-}
 
 # <LJFUNC>
 # name: LJ::get_timeupdate_multi

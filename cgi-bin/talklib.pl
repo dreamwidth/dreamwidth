@@ -207,36 +207,7 @@ sub init
         $init->{'thread'} = int($init->{'thread'} / 256)
             if $init->{'thread'};
     } else {
-        # perhaps it's an old URL for a user that's since been clustered.
-        # look up the itemid and see what user it belongs to.
-        if ($form->{'itemid'}) {
-            my $itemid = $form->{'itemid'}+0;
-            my $newinfo = LJ::get_newids('L', $itemid);
-            if ($newinfo) {
-                $ju = LJ::load_userid($newinfo->[0]);
-                return { 'error' => BML::ml('talk.error.nosuchjournal')} unless $ju;
-                $init->{'clustered'} = 1;
-                $init->{'itemid'} = $newinfo->[1];
-                $init->{'oldurl'} = 1;
-                if ($form->{'thread'}) {
-                    my $tinfo = LJ::get_newids('T', $init->{'thread'});
-                    $init->{'thread'} = $tinfo->[1] if $tinfo;
-                }
-            } else {
-                return { 'error' => BML::ml('talk.error.noentry') };
-            }
-        } elsif ($form->{'replyto'}) {
-            my $replyto = $form->{'replyto'}+0;
-            my $newinfo = LJ::get_newids('T', $replyto);
-            if ($newinfo) {
-                $ju = LJ::load_userid($newinfo->[0]);
-                return { 'error' => BML::ml('talk.error.nosuchjournal')} unless $ju;
-                $init->{'replyto'} = $newinfo->[1];
-                $init->{'oldurl'} = 1;
-            } else {
-                return { 'error' => BML::ml('talk.error.noentry') };
-            }
-        }
+        return { 'error' => BML::ml('talk.error.noentry') };
     }
 
     $init->{'journalu'} = $ju;
