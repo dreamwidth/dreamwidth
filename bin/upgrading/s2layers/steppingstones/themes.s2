@@ -1,3 +1,193 @@
+#NEWLAYER: steppingstones/chocolate
+layerinfo "type" = "theme";
+layerinfo "name" = "Chocolate";
+layerinfo redist_uniq = "steppingstones/chocolate";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#A18E70";
+set color_page_text = "#000";
+set color_page_link = "#A16E44";
+set color_page_link_active = "";
+set color_page_link_visited = "#A18E70";
+set color_page_title = "#fff";
+
+set color_header_background = "#5B3E3B";
+set color_footer_background = "#5B3E3B";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#ECDEC7";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#ECDEC7";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#A16E44";
+set color_module_link_visited = "#A18E70";
+
+
+#NEWLAYER: steppingstones/duskyrose
+layerinfo "type" = "theme";
+layerinfo "name" = "Dusky Rose";
+layerinfo redist_uniq = "steppingstones/duskyrose";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#947070";
+set color_page_text = "#000";
+set color_page_link = "#7A5050";
+set color_page_link_active = "";
+set color_page_link_visited = "#947070";
+set color_page_title = "#fff";
+
+set color_header_background = "#7A5050";
+set color_footer_background = "#7A5050";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#D1B6B6";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#D1B6B6";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#7A5050";
+set color_module_link_visited = "#947070";
+
+
+#NEWLAYER: steppingstones/gray
+layerinfo "type" = "theme";
+layerinfo "name" = "Gray";
+layerinfo redist_uniq = "steppingstones/gray";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#dddddd";
+set color_page_text = "#000";
+set color_page_link = "#559";
+set color_page_link_active = "#444444";
+set color_page_link_visited = "#99c";
+set color_page_title = "#fff";
+
+set color_header_background = "#aaaaaa";
+set color_footer_background = "#aaaaaa";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#eee";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#eeeeee";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#559";
+set color_module_link_visited = "#99c";
+
+
+#NEWLAYER: steppingstones/olive
+layerinfo "type" = "theme";
+layerinfo "name" = "Olive";
+layerinfo redist_uniq = "steppingstones/olive";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#606048";
+set color_page_text = "#000";
+set color_page_link = "#787848";
+set color_page_link_active = "";
+set color_page_link_visited = "#303018";
+set color_page_title = "#fff";
+
+set color_header_background = "#484830";
+set color_footer_background = "#484830";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#787860";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#787860";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#eee"; 
+set color_module_link_visited = "#ccc"; 
+
+
+#NEWLAYER: steppingstones/pool
+layerinfo "type" = "theme";
+layerinfo "name" = "Pool";
+layerinfo redist_uniq = "steppingstones/pool";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#A8C0C0";
+set color_page_text = "#000";
+set color_page_link = "#699F9E";
+set color_page_link_active = "";
+set color_page_link_visited = "#798F8E";
+set color_page_title = "#fff";
+
+set color_header_background = "#798F8E";
+set color_footer_background = "#798F8E";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#C0D8D8";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#C0D8D8";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#596F6E"; 
+set color_module_link_visited = "#798F8E"; 
+
+
 #NEWLAYER: steppingstones/purple
 layerinfo "type" = "theme";
 layerinfo "name" = "Purple";
@@ -34,4 +224,81 @@ set color_module_title = "#fff";
 set color_module_text = "#fff";
 set color_module_link = "#eee";
 set color_module_link_visited = "#ddd";
+
+
+#NEWLAYER: steppingstones/shadows
+layerinfo "type" = "theme";
+layerinfo "name" = "Shadows";
+layerinfo "redist_uniq" = "steppingstones/shadows";
+layerinfo author_name = "branchandroot";
+
+#based on the Industry palatte by manie55 (http://www.colourlovers.com/palette/913723/industry)
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#3D3630";
+set color_page_text = "#fff";
+set color_page_link = "#c8bDc1";
+set color_page_link_active = "";
+set color_page_link_visited = "#988D91";
+set color_page_title = "#fff";
+
+set color_header_background = "#2E2C37";
+set color_footer_background = "#2E2C37";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#232029";
+set color_entry_border = "#655A46";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#655A46";
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+set color_module_link = "#c8bDc1";
+set color_module_link_visited = "#988D91";
+
+
+#NEWLAYER: steppingstones/sunset
+layerinfo "type" = "theme";
+layerinfo "name" = "Sunset";
+layerinfo redist_uniq = "steppingstones/sunset";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#601830";
+set color_page_text = "#000";
+set color_page_link = "#A84800";
+set color_page_link_active = "";
+set color_page_link_visited = "#D8A848";
+set color_page_title = "#fff";
+
+set color_header_background = "#300048";
+set color_footer_background = "#300048";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#D89030";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#D89030";
+set color_module_title = "#000";
+set color_module_text = "#000";
+set color_module_link = "#300048";
+set color_module_link_visited = "#A84800";
 
