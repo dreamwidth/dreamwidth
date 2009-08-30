@@ -2737,7 +2737,7 @@ sub next_birthdays {
 
 # opt_showbday options
 # F - Full Display of Birthday
-# D - Only Show Month/Day
+# D - Only Show Month/Day       DEFAULT
 # Y - Only Show Year
 # N - Do not display
 sub opt_showbday {

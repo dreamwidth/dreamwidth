@@ -175,9 +175,9 @@ sub run_tests {
                                 $isok = 1;
                             }
                         } elsif ($year eq '1979') {
-                            if ($month eq '01' && $day eq '31' && $rv eq '1979-01-31') {
+                            if ($month eq '01' && $day eq '31' && $rv eq '01-31') {
                                 $isok = 1;
-                            } elsif (($month eq '00' || $day eq '00') && $rv eq '1979') {
+                            } elsif (($month eq '00' || $day eq '00') && $rv eq '') {
                                 $isok = 1;
                             }
                         }
