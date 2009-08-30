@@ -45,7 +45,8 @@ body<=
         unless $remote && $remote->has_priv( $priv );
 
     my @sysban_privs;
-    foreach my $arg ( keys $remote->priv_args( $priv ) ) {
+    my %priv_args = $remote->priv_args( $priv );
+    foreach my $arg ( keys %priv_args ) {
         if ( $arg eq '*' ) {
             push @sysban_privs, @all_sb_args;
         } else {
