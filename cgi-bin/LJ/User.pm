@@ -5450,7 +5450,7 @@ sub want_user
 sub want_userid
 {
     my $uuserid = shift;
-    return ($uuserid->userid + 0) if ref $uuserid;
+    return ($uuserid->{userid} + 0) if ref $uuserid;
     return ($uuserid + 0);
 }
 
