@@ -83,7 +83,8 @@ sub try_work {
     $0 = sprintf( 'content-importer [userpics: %s(%d)]', $u->user, $u->id );
 
 # FIXME: URL may not be accurate here for all sites
-    my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{hostname}/users/$data->{username}/", $data, $log );
+    my $un = $data->{usejournal} || $data->{username};
+    my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{hostname}/users/$un/", $data, $log );
 
     my $errs = [];
     my @imported = DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics, $log );

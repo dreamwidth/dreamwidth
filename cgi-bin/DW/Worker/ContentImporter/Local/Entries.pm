@@ -86,7 +86,7 @@ Returns (1, $res) on success, (undef, $res) on error.
 =cut
 
 sub post_event {
-    my ( $class, $data, $map, $u, $evt, $errors ) = @_;
+    my ( $class, $data, $map, $u, $posteru, $evt, $errors ) = @_;
 
     return if $map->{$evt->{key}};
 
@@ -115,6 +115,7 @@ sub post_event {
         current_coords => 1,
         personifi_word_count => 1,
         personifi_lang => 1,
+        personifi_tags => 1,
     );
     foreach my $prop ( keys %$props ) {
         next if $bad_props{$prop};
@@ -134,17 +135,16 @@ sub post_event {
     LJ::do_request(
         {
             mode => 'postevent',
-            user => $u->user,
+            user => $posteru ? $posteru->user : $u->user,
+            usejournal => $posteru ? $u->user : undef,
             ver  => $LJ::PROTOCOL_VER,
             %proto,
         },
         \%res,
         {
-            u => $u,
-            noauth => 1,
-            nonotify => 1,
-            ignore_tags_max => 1,
-            allow_inactive => 1,
+            u => $posteru || $u,
+            u_owner => $u,
+            importer_bypass => 1,
         }
     );
 

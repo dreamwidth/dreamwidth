@@ -990,6 +990,20 @@ sub postevent
     my ($req, $err, $flags) = @_;
     un_utf8_request($req);
 
+    # if the importer is calling us, we want to allow it to post in all but the most extreme
+    # of cases.  and even then, we try our hardest to allow content to be posted.  setting this
+    # flag will bypass a lot of the safety restrictions about who can post where and when, so
+    # we trust the importer to be intelligent about this.  (And if you aren't the importer, don't
+    # use this option!!!)
+    my $importer_bypass = $flags->{importer_bypass} ? 1 : 0;
+    if ( $importer_bypass ) {
+        $flags->{nomod} = 1;
+        $flags->{ignore_tags_max} = 1;
+        $flags->{nonotify} = 1;
+        $flags->{noauth} = 1;
+        $flags->{usejournal_okay} = 1;
+    }
+
     return undef unless LJ::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
 
     # if going through mod queue, then we know they're permitted to post at least this entry
@@ -998,6 +1012,7 @@ sub postevent
     my $u = $flags->{'u'};
     my $ownerid = $flags->{'ownerid'}+0;
     my $uowner = $flags->{'u_owner'} || $u;
+
     # Make sure we have a real user object here
     $uowner = LJ::want_user($uowner) unless LJ::isu($uowner);
     my $clusterid = $uowner->{'clusterid'};
@@ -1009,22 +1024,23 @@ sub postevent
     return fail($err,200) unless $req->{'event'} =~ /\S/;
 
     ### make sure community or identity journals don't post
-    return fail($err,150) if $u->is_community || $u->is_identity;
+    return fail($err,150) if $u->is_community;
+    return fail($err,150) if ! $importer_bypass && $u->is_identity;
 
     # suspended users can't post
-    return fail($err,305) if $u->is_suspended;
+    return fail($err,305) if ! $importer_bypass && $u->is_suspended;
 
     # memorials can't post
-    return fail($err,309) if $u->is_memorial;
+    return fail($err,309) if ! $importer_bypass && $u->is_memorial;
 
     # locked accounts can't post
-    return fail($err,308) if $u->is_locked;
+    return fail($err,308) if ! $importer_bypass && $u->is_locked;
 
     # check the journal's read-only bit
     return fail($err,306) if LJ::get_cap($uowner, "readonly");
 
     # is the user allowed to post?
-    return fail($err,404,$LJ::MSG_NO_POST) unless LJ::get_cap($u, "can_post");
+    return fail($err,404,$LJ::MSG_NO_POST) unless $importer_bypass || LJ::get_cap($u, "can_post");
 
     # is the user allowed to post?
     return fail($err,410) if LJ::get_cap($u, "disable_can_post");
@@ -1036,7 +1052,7 @@ sub postevent
     return fail($err,317) if $uowner->is_readonly;
 
     # can't post to deleted/suspended community
-    return fail($err,307) unless $uowner->is_visible;
+    return fail($err,307) unless $importer_bypass || $uowner->is_visible;
 
     # must have a validated email address to post to a community
     # unless this is approved from the mod queue (we'll error out initially, but in case they change later)
@@ -1079,7 +1095,7 @@ sub postevent
     # confirm we can add tags, at least
     return fail($err, 312)
         if $req->{props} && $req->{props}->{taglist} &&
-           ! LJ::Tags::can_add_tags($uowner, $u);
+           ! ( $importer_bypass || LJ::Tags::can_add_tags( $uowner, $u ) );
 
     my $event = $req->{'event'};
 
@@ -1150,8 +1166,8 @@ sub postevent
 
     # don't allow backdated posts in communities
     return fail($err,152) if
-        ($req->{'props'}->{"opt_backdated"} &&
-         ! $uowner->is_person);
+        ( $req->{props}->{opt_backdated} &&
+         ! ( $importer_bypass || $uowner->is_person ) );
 
     # do processing of embedded polls (doesn't add to database, just
     # does validity checking)
@@ -1335,7 +1351,7 @@ sub postevent
     $getlock->(); return $res if $res_done;
 
     # do rate-checking
-    if ( ! $u->is_syndicated && ! LJ::rate_log($u, "post", 1) ) {
+    if ( ! $u->is_syndicated && ! LJ::rate_log($u, "post", 1) && ! $importer_bypass ) {
         return $fail->($err,405);
     }
 
@@ -1433,6 +1449,7 @@ sub postevent
         my $logtag_opts = {
             remote => $u,
             ignore_max => $flags->{ignore_tags_max} ? 1 : 0,
+            force => $importer_bypass,
             err_ref => \$tagerr,
         };
 

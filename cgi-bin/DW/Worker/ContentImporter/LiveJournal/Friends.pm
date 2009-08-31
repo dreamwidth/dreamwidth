@@ -45,6 +45,10 @@ sub try_work {
     my $ok        = sub { return $class->ok( $data, 'lj_friends', $job ); };
     my $temp_fail = sub { return $class->temp_fail( $data, 'lj_friends', $job, @_ ); };
 
+    # if this is a usejournal request, we have no friends (it's a comm or something) so
+    # bail very early
+    return $ok->() if $data->{usejournal};
+
     # setup
     my $u = LJ::load_userid( $data->{userid} )
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );

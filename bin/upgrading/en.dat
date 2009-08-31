@@ -4188,6 +4188,8 @@ widget.importchoosesource.password=Password on other service
 
 widget.importchoosesource.service=Choose a service to import from:
 
+widget.importchoosesource.usejournal=Community on other service
+
 widget.importchoosesource.username=Username on other service
 
 widget.importchoosesource.warning=Warning: You have another import currently in progress. Setting up a new import will abort your current import!
@@ -4203,6 +4205,8 @@ widget.importconfirm.intro=By clicking the button below, your import task will b
 widget.importconfirm.items=<strong>Data that you are importing:</strong><br />[[items]]
 
 widget.importconfirm.source=<strong>Importing from:</strong><br />[[user]] at [[host]]
+
+widget.importconfirm.source.comm=<strong>Importing from:</strong><br />[[comm]] (authenticated as [[user]]) at [[host]]
 
 widget.importconfirm.warning=Warning: Once confirmed, you cannot stop or reverse an import!
 

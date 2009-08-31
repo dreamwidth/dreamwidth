@@ -113,13 +113,15 @@ sub try_work {
         $turl =~ s/-/_/g; # makes \b work below
         $log->( 'Filtering entry URL: %s', $turl );
         next unless $turl =~ /\Q$data->{hostname}\E/ &&
-                    $turl =~ /\b$data->{username}\b/;
+                    ( $turl =~ /\b$data->{username}\b/ ||
+                        ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
         my $jitemid = $1 >> 8
             if $url =~ m!/(\d+)\.html$!;
         $jitemid_map->{$jitemid} = $entry_map->{$url};
         $entry_source->{$jitemid_map->{$jitemid}} = $url;
     }
+    $log->( 'Entry map has %d entries post-prune.', scalar( keys %$entry_map ) );
 
     foreach my $jitemid ( keys %$xpost_map ) {
         $jitemid_map->{$jitemid} = $xpost_map->{$jitemid};
@@ -138,7 +140,8 @@ sub try_work {
         $turl =~ s/-/_/g; # makes \b work below
         $log->( 'Filtering comment URL: %s', $turl );
         next unless $turl =~ /\Q$data->{hostname}\E/ &&
-                    $turl =~ /\b$data->{username}\b/;
+                    ( $turl =~ /\b$data->{username}\b/ ||
+                        ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
         my $jtalkid = $1 >> 8
             if $url =~ m!thread=(\d+)$!;
@@ -443,7 +446,8 @@ sub do_authed_comment_fetch {
 
     # hit up the server with the specified information and return the raw content
     my $ua = LWP::UserAgent->new;
-    my $request = HTTP::Request->new( GET => "http://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems" );
+    my $authas = $data->{usejournal} ? "&authas=$data->{usejournal}" : '';
+    my $request = HTTP::Request->new( GET => "http://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas" );
     $request->push_header( Cookie => "ljsession=$data->{_session}" );
 
     # try to get the response

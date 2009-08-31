@@ -96,7 +96,7 @@ sub import_data {
 
     my $dbh = LJ::get_db_writer()
         or croak 'unable to get global database master';
-    my $hr = $dbh->selectrow_hashref( 'SELECT userid, hostname, username, password_md5, import_data_id ' .
+    my $hr = $dbh->selectrow_hashref( 'SELECT userid, hostname, username, usejournal, password_md5, import_data_id ' .
                                       'FROM import_data WHERE userid = ? AND import_data_id = ?', undef, $userid, $impid );
     croak $dbh->errstr if $dbh->err;
 

@@ -46,9 +46,9 @@ sub try_work {
     my ( $class, $job, $opts, $data ) = @_;
     my $begin_time = [ gettimeofday() ];
 
-    # we know that we can potentially take a while, so budget a few hours for
+    # we know that we can potentially take a while, so budget an hour for
     # the import job before someone else comes in to snag it
-    $job->grabbed_until( time() + 3600*12 );
+    $job->grabbed_until( time() + 3600 );
     $job->save;
 
     # failure wrappers for convenience
@@ -177,6 +177,9 @@ sub try_work {
         return $sync{$id}->[1] if @{$sync{$id} || []};
     };
 
+    # helper so we don't have to get so much FOAF data
+    my %user_map;
+
     # now get the actual events
     while ( scalar( keys %sync ) > 0 ) {
         my ( $count, $last_itemid ) = ( 0, undef );
@@ -210,13 +213,34 @@ sub try_work {
                 $newmask = 0;
                 push @item_errors, "Could not determine groups to post to.";
             }
-
             $evt->{allowmask} = $newmask;
 
-            my $event = $evt->{event};
+            # now try to determine if we need to post this as a user
+            my $posteru;
+            if ( $evt->{poster} && $evt->{poster} ne $data->{username} ) {
+                my $posterid = exists $user_map{$evt->{poster}} ? $user_map{$evt->{poster}} :
+                    DW::Worker::ContentImporter::LiveJournal->remap_username_friend( $data, $evt->{poster} );
+
+                unless ( $posterid ) {
+                    # set it to 0, but exists, so we don't hit LJ again, but we continue to fail this poster
+                    $user_map{$evt->{poster}} = 0;
+
+                    # FIXME: need a better way of totally dying...
+                    push @item_errors, "Unable to map poster from LJ user '$evt->{poster}' to local user.";
+                    $status->(
+                        remote_url => $evt->{url},
+                        errors     => \@item_errors,
+                    );
+                    return;
+                }
+
+                $user_map{$evt->{poster}} ||= $posterid;
+                $posteru = LJ::load_userid( $posterid );
+            }
 
             # we just link polls to the original site
 # FIXME: this URL should be from some method and not manually constructed
+            my $event = $evt->{event};
             $event =~ s!<.+?-poll-(\d+?)>![<a href="http://www.$data->{hostname}/poll/?id=$1">Poll #$1</a>]!g;
 
             if ( $event =~ m/<.+?-embed-.+?>/ ) {
@@ -235,7 +259,7 @@ sub try_work {
 
             # actually post it
             my ( $ok, $res ) =
-                DW::Worker::ContentImporter::Local::Entries->post_event( $data, $entry_map, $u, $evt, \@item_errors );
+                DW::Worker::ContentImporter::Local::Entries->post_event( $data, $entry_map, $u, $posteru, $evt, \@item_errors );
 
             # now record any errors that happened
             $status->(

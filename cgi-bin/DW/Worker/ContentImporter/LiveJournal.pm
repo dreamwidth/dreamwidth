@@ -372,11 +372,16 @@ sub call_xmlrpc {
 
     my $response = md5_hex( $chal . ( $opts->{md5password} || $opts->{password_md5} || md5_hex( $opts->{password} ) ) );
 
+    # we have to do this like this so that we don't send the argument if it's not valid
+    my %usejournal;
+    $usejournal{usejournal} = $opts->{usejournal} if $opts->{usejournal};
+
     my $res = $class->xmlrpc_call_helper( $opts, $xmlrpc, "LJ.XMLRPC.$mode", {
         username       => $opts->{user} || $opts->{username},
         auth_method    => 'challenge',
         auth_challenge => $chal,
         auth_response  => $response,
+        %usejournal,
         %{ $hash || {} },
     }, $mode, $hash, $depth );
 

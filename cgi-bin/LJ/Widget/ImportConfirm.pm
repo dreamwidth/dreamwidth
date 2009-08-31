@@ -45,7 +45,11 @@ sub render_body {
     $ret .= "<p>" . $class->ml( 'widget.importconfirm.intro' ) . "</p>";
 
     my $imports = DW::Logic::Importer->get_import_data_for_user( $u );
-    $ret .= "<p>" . $class->ml( 'widget.importconfirm.source', { user => $imports->[0]->[2], host => $imports->[0]->[1] } ) . "</p>";
+    if ( $imports->[0]->[3] ) {
+        $ret .= "<p>" . $class->ml( 'widget.importconfirm.source.comm', { user => $imports->[0]->[2], host => $imports->[0]->[1], comm => $imports->[0]->[3] } ) . "</p>";
+    } else {
+        $ret .= "<p>" . $class->ml( 'widget.importconfirm.source', { user => $imports->[0]->[2], host => $imports->[0]->[1] } ) . "</p>";
+    }
     $ret .= "<p>" . $class->ml( 'widget.importconfirm.destination', { user => $u->ljuser_display, host => $LJ::SITENAMESHORT } ) . "</p>";
     $ret .= "<p>" . $class->ml( 'widget.importconfirm.items', { items => join( '<br />', @items_display ) } ) . "</p>";
 

@@ -2972,6 +2972,7 @@ CREATE TABLE import_data (
     import_data_id INT UNSIGNED NOT NULL,
     hostname VARCHAR(255),
     username VARCHAR(255),
+    usejournal VARCHAR(255),
     password_md5 VARCHAR(255),
     groupmap BLOB,
 
@@ -3938,6 +3939,11 @@ register_alter(sub {
         do_sql( "UPDATE userproplist SET name='opt_cut_disable_reading' WHERE name='opt_ljcut_disable_friends'" );
         do_sql( "UPDATE userproplist SET name='opt_cut_disable_journal' WHERE name='opt_ljcut_disable_lastn'" );
         set_dbnote( "userprop_ljcut_to_cut", 1 );
+    }
+
+    unless ( column_type( 'import_data', 'usejournal' ) ) {
+        do_alter( 'import_data',
+                  q{ALTER TABLE import_data ADD COLUMN usejournal VARCHAR(255) AFTER username} );
     }
 
 });

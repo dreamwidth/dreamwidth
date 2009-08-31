@@ -85,6 +85,12 @@ sub render_body {
     $ret .= "<label for='password'>" . $class->ml( 'widget.importchoosesource.password' ) . "</label>";
     $ret .= $class->html_text( type => 'password', name => 'password' );
     $ret .= "</div>";
+    if ( $LJ::ALLOW_COMM_IMPORT{$u->user} ) {
+        $ret .= "<div class='i-usejournal'>";
+        $ret .= "<label for='usejournal'>" . $class->ml( 'widget.importchoosesource.usejournal' ) . "</label>";
+        $ret .= $class->html_text( name => 'usejournal', maxlength => 255 );
+        $ret .= "</div>";
+    }
     $ret .= "</div>";
 
     $ret .= $class->html_submit( submit => $class->ml( 'widget.importchoosesource.btn.continue' ) );
@@ -107,11 +113,18 @@ sub handle_post {
     my $un = LJ::trim( lc $post->{username} );
     $un =~ s/-/_/g;
 
+    # be sure to sanitize the usejournal
+    my $uj = undef;
+    if ( $LJ::ALLOW_COMM_IMPORT{$u->user} ) {
+        $uj = LJ::trim( lc $post->{usejournal} );
+        $uj =~ s/-/_/g;
+    }
+
     my $pw = $post->{password};
     return ( ret => $class->ml( 'widget.importchoosesource.error.nocredentials' ) )
         unless $un && $pw;
 
-    if ( my $error = DW::Logic::Importer->set_import_data_for_user( $u, hostname => $hn, username => $un, password => $pw ) ) {
+    if ( my $error = DW::Logic::Importer->set_import_data_for_user( $u, hostname => $hn, username => $un, password => $pw, usejournal => $uj ) ) {
         return ( ret => $error );
     }
 

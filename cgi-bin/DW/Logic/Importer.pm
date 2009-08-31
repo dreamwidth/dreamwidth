@@ -29,7 +29,7 @@ sub get_import_data_for_user {
     # load up their most recent (active) import
     # FIXME: memcache this
     my $imports = $dbh->selectall_arrayref(
-        'SELECT import_data_id, hostname, username, password_md5 FROM import_data WHERE userid = ? ' .
+        'SELECT import_data_id, hostname, username, usejournal, password_md5 FROM import_data WHERE userid = ? ' .
         'ORDER BY import_data_id DESC LIMIT 1',
         undef, $u->id
     );
@@ -47,8 +47,8 @@ sub get_import_items_for_user {
 
     my $has_items = 0;
     foreach my $import ( @$imports ) {
-        my ( $importid, $host, $username, $password ) = @$import;
-        $items{$importid} = { host => $host, user => $username, pw => $password, items => {} };
+        my ( $importid, $host, $username, $usejournal, $password ) = @$import;
+        $items{$importid} = { host => $host, user => $username, pw => $password, usejournal => $usejournal, items => {} };
 
         my $import_items = $dbh->selectall_arrayref(
             'SELECT item, status, created, last_touch FROM import_items WHERE userid = ? AND import_data_id = ?',
@@ -72,6 +72,7 @@ sub set_import_data_for_user {
     my $hn = $opts{hostname};
     my $un = $opts{username};
     my $pw = $opts{password};
+    my $uj = $opts{usejournal};
 
     return "Did not pass hostname, username, and password."
         unless $hn && $un && $pw;
@@ -81,8 +82,8 @@ sub set_import_data_for_user {
 
     my $id = LJ::alloc_user_counter( $u, "I" ) or return "Can't get id for import data.";
     $dbh->do(
-        "INSERT INTO import_data (userid, import_data_id, hostname, username, password_md5) VALUES (?, ?, ?, ?, ?)",
-        undef, $u->id, $id, $hn, $un, md5_hex( $pw )
+        "INSERT INTO import_data (userid, import_data_id, hostname, username, usejournal, password_md5) VALUES (?, ?, ?, ?, ?, ?)",
+        undef, $u->id, $id, $hn, $un, $uj, md5_hex( $pw )
     );
     return $dbh->errstr if $dbh->err;
 

@@ -61,7 +61,8 @@ sub try_work {
 # FIXME: have to flip this back to using the user_path value instead of hardcoded
 # livejournal.com ... this should probably be part of the import_data structure?
 # abstract out sites?
-    my ( $items, $interests, $schools ) = $class->get_foaf_from( "http://$data->{username}.$data->{hostname}/data/foaf" );
+    my $un = $data->{usejournal} || $data->{username};
+    my ( $items, $interests, $schools ) = $class->get_foaf_from( "http://$un.$data->{hostname}/data/foaf" );
     return $temp_fail->( 'Unable to load FOAF data' )
         unless $items;
 
