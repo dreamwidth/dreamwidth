@@ -566,6 +566,9 @@ table.month {
 	margin: 0 auto;
 	border-collapse: collapse; 
 }
+table.month td {
+    height: 3.25em;
+}
 table.month td,
 table.month th { 
 	border: 1px solid; /* ? */
