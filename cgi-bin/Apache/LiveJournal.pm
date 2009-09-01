@@ -752,20 +752,6 @@ sub trans
             $key =~ s!^/!!;
             my $u = LJ::load_user($user)
                 or return 404;
-
-            my ($type, $nodeid) =
-                LJ::is_enabled('named_permalinks') ?
-                $u->selectrow_array("SELECT nodetype, nodeid FROM urimap WHERE journalid=? AND uri=?",
-                                    undef, $u->{userid}, $key) : ();
-            if ($type eq "L") {
-                $ljentry = LJ::Entry->new($u, ditemid => $nodeid);
-                if ($GET{'mode'} eq "reply" || $GET{'replyto'} || $GET{'edit'}) {
-                    $mode = "reply";
-                } else {
-                    $mode = "entry";
-                }
-            }
-
         }
 
         return undef unless defined $mode;

@@ -973,6 +973,7 @@ register_tabledrop("knob");
 register_tabledrop("zips");
 register_tabledrop("adopt");
 register_tabledrop("adoptlast");
+register_tabledrop("urimap");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -2460,18 +2461,6 @@ CREATE TABLE comm_promo_list (
     r_end INT UNSIGNED NOT NULL,
 
     INDEX (r_start)
-)
-EOC
-
-register_tablecreate("urimap", <<'EOC');
-CREATE TABLE urimap (
-    journalid   INTEGER UNSIGNED NOT NULL,
-    uri         VARCHAR(255) BINARY NOT NULL,
-    PRIMARY KEY (journalid, uri),
-    nodetype    CHAR(1) NOT NULL,
-    nodeid      INTEGER UNSIGNED NOT NULL,
-
-    INDEX       (journalid, nodetype, nodeid)
 )
 EOC
 
