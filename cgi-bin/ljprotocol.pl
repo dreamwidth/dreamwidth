@@ -24,6 +24,7 @@ use lib "$LJ::HOME/cgi-bin";
 
 require "taglib.pl";
 require "ljfeed.pl";
+use LJ::EmbedModule;
 
 #### New interface (meta handler) ... other handlers should call into this.
 package LJ::Protocol;

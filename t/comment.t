@@ -8,6 +8,7 @@ require 'talklib.pl';
 require 'ljprotocol.pl';
 use LJ::Comment;
 use LJ::Test qw(memcache_stress temp_user);
+use POSIX ();
 
 my $u = temp_user();
 
