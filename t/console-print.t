@@ -1,10 +1,13 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
+BEGIN { $LJ::HOME = $ENV{LJHOME}; }
 use LJ::Console;
 local $LJ::T_NO_COMMAND_PRINT = 1;
+
+plan tests => 2;
 
 my $run = sub {
     my $cmd = shift;
