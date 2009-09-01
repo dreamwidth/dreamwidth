@@ -3,6 +3,7 @@ use strict;
 use Carp qw(croak);
 use Digest::MD5;
 use Class::Autouse qw (LJ::Event::NewUserpic);
+use LJ::Constants;
 
 ##
 ## Potential properties of an LJ::Userpic object
@@ -655,6 +656,8 @@ sub create {
     };
 
     eval "use Image::Size;";
+    # FIXME the filetype is supposed to be returned intthe next call
+    # but according to the docs of Image::Size v3.2 it does not return that value
     my ($w, $h, $filetype) = Image::Size::imgsize($dataref);
     my $MAX_UPLOAD = $maxbytesize || LJ::Userpic->max_allowed_bytes($u);
 
