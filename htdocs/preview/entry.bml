@@ -169,8 +169,10 @@
         }    
 
         # custom friend groups
-        $current{Groups} = $u->security_group_display( $req{allowmask} );
-        delete $current{Groups} unless $current{Groups};
+        if ( $u ) {
+            $current{Groups} = $u->security_group_display( $req{allowmask} );
+            delete $current{Groups} unless $current{Groups};
+        }
 
         my @taglist = ();
         LJ::Tags::is_valid_tagstring( $POST{prop_taglist}, \@taglist );
@@ -270,7 +272,7 @@
             foreach ( qw( current_music current_location current_coords current_moodid current_mood ) );
 
         # custom friends groups
-        my $group_names = $u->security_group_display( $req{allowmask} ) || undef;
+        my $group_names = $u ? $u->security_group_display( $req{allowmask} ) : undef;
 
         # format it
         my $raw_subj = $req{'subject'};
