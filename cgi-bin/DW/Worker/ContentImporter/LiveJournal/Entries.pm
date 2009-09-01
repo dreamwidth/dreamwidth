@@ -158,6 +158,10 @@ sub try_work {
             next;
         }
 
+        # FIXME: this is the key moment to "skip".  if we want a paid user or someone
+        # to get their picture keyword updated, we should skip them here.
+        # FIXME: this is a fixme because we should implement some way of making
+        # this available to users.
         delete $sync{$1 >> 8};
     }
     $log->( 'Syncitems now has %d items post-prune (first pass).', scalar( keys %sync ) );
@@ -197,6 +201,16 @@ sub try_work {
             $log->( '    %d %s %s; mapped = %d (import_source) || %d (xpost).',
                     $evt->{itemid}, $evt->{url}, $evt->{realtime}, $entry_map->{$evt->{key}},
                     $xpost_map->{$evt->{itemid}} );
+
+            # always set the picture_keyword property though, in case they're a paid
+            # user come back to fix their keywords.  this forcefully overwrites their
+            # local picture keyword
+            if ( my $jitemid = $entry_map->{$evt->{key}} ) {
+                my $entry = LJ::Entry->new( $u, jitemid => $jitemid );
+                $entry->set_prop( picture_keyword => $evt->{props}->{picture_keyword} );
+            }
+
+            # now try to skip it
             my $sync = delete $sync{$evt->{itemid}};
             return if $entry_map->{$evt->{key}} || !defined $sync || $xpost_map->{$evt->{itemid}};
 
