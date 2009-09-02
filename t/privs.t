@@ -1,10 +1,13 @@
 # -*-perl-*-
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
+BEGIN { $LJ::HOME = $ENV{LJHOME}; }
 use LJ::Console;
 use LJ::Test qw (temp_user);
+
+plan tests => 5;
 
 # check that it requires a login
 my $u = temp_user();
