@@ -309,6 +309,7 @@ sub create_view_rss
     # TODO: add 'language' field when user.lang has more useful information
 
     if ( LJ::is_enabled( 'hubbub' ) ) {
+        $ret .= "  <atom10:link rel='self' href='" . $u->journal_base . "/data/rss' />\n";
         foreach my $hub (@LJ::HUBBUB_HUBS) {
             $ret .= "  <atom10:link rel='hub' href='" . LJ::exml($hub) . "' />\n";
         }

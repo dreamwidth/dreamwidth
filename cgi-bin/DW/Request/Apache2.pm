@@ -29,6 +29,9 @@ use Apache2::SubProcess ();
 
 use fields (
             'r',         # The Apache2::Request object
+
+            # these are mutually exclusive; if you use one you can't use the other
+            'content',   # raw content
             'post_args', # hashref of POST arguments
         );
 
@@ -41,6 +44,7 @@ sub new {
     # setup object
     $self->{r}         = $_[1];
     $self->{post_args} = undef;
+    $self->{content}   = undef;
 
     # done
     return $self;
@@ -75,10 +79,32 @@ sub query_string {
     return $self->{r}->args;
 }
 
+# returns the raw content of the body; note that this can be particularly
+# slow, so you should only call this if you really need it...
+sub content {
+    my DW::Request::Apache2 $self = $_[0];
+
+    die "already loaded post_args\n"
+        if defined $self->{post_args};
+
+    return $self->{content} if defined $self->{content};
+
+    my $buff = '';
+    while ( my $ct = $self->{r}->read( my $buf, 65536 ) ) {
+        $buff .= $buf;
+        last if $ct < 65536;
+    }
+    return $self->{content} = $buff;
+}
+
 # get POST arguments as an APR::Table object (which is a tied hashref)
 sub post_args {
     my DW::Request::Apache2 $self = $_[0];
-    unless ( $self->{post_args} ) {
+
+    die "already loaded content\n"
+        if defined $self->{content};
+
+    unless ( defined $self->{post_args} ) {
         my $tmp_r = Apache2::Request->new( $self->{r} );
         $self->{post_args} = $tmp_r->body;
     }

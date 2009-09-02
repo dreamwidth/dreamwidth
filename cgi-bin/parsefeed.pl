@@ -274,6 +274,19 @@ sub StartTag {
             unless $holder;
 
         if ($tag eq 'link') {
+            # store 'self' and 'hub' rels, for PubSubHubbub support; but only valid
+            # for the feed, so make sure $item is undef
+            if ( ! $item && ( $_{rel} eq 'self' || $_{rel} eq 'hub' ) ) {
+                return err( 'Feed not yet defined' )
+                    unless $feed;
+
+                # we only take the first value, so if the user specifies
+                # multiple hubs (which is allowed) then we are going to just
+                # pick the first.  FIXME: subscribe to all?
+                $feed->{$_{rel}} ||= $_{href};
+                last TAGS;
+            }
+
             # ignore links with rel= anything but alternate
             # and treat links as rel=alternate if not explicit
             unless ($_{'rel'} eq 'alternate' || !$_{'rel'}) {

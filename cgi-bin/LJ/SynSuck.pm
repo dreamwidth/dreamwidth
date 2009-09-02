@@ -158,6 +158,11 @@ sub process_content {
         return;
     }
 
+    # register feeds that can support hubbub
+    if ( LJ::is_enabled( 'hubbub' ) && $feed->{self} && $feed->{hub} ) {
+        register_hubbub_feed( $userid, $feed->{self}, $feed->{hub} );
+    }
+
     # another sanity check
     unless (ref $feed->{'items'} eq "ARRAY") {
         return delay($userid, 3*60, "noitems");
@@ -439,6 +444,104 @@ sub process_content {
     eval { LJ::Worker::SynSuck->cond_debug("Syndication userid $userid updated w/ new items") };
     return 1;
 }
+
+# this takes in data that says a feed supports hubbub.  note that we don't want to ever
+# die here, since that will kill the synsuck process.  we're not that important.  ignore
+# errors, it just means we won't get pings for this feed.  (but next time, we'll try to
+# setup hubbub again, so if it's transient it should go away.)
+sub register_hubbub_feed {
+    my ( $uid, $topicurl, $huburl ) = @_;
+    return unless $uid && $topicurl && $huburl;
+
+    # bail if topicurl and huburl don't pass some sanity checks
+    # FIXME: why isn't there an LJ::valid_url function?  we do this sort of check in
+    # approximately 13,341,394 places...
+    return unless $topicurl =~ /^https?:/ &&
+                  $huburl   =~ /^https?:/;
+
+    # now load things since our data seems OK
+    my $dbh = LJ::get_db_writer() or return;
+    my $u = LJ::load_userid( $uid ) or return;
+
+    # if it exists, we need to know if we should be changing the record.  i.e., if the
+    # feed changes its topic url, or hub, then we want to update this record so that the
+    # subscription system picks up on it.
+    my $row = $dbh->selectrow_hashref(
+        q{SELECT huburl, topicurl, leasegoodto, verifytoken
+          FROM syndicated_hubbub WHERE userid = ?},
+        undef, $u->id
+    );
+    return if $dbh->errstr;
+
+    # bail now if things look good
+    return if $row && $row->{huburl} eq $huburl && $row->{topicurl} eq $topicurl;
+
+    # not the same, or the row doesn't exist, so just replace, we don't need the old data
+    $dbh->do(
+        q{REPLACE INTO syndicated_hubbub (userid, huburl, topicurl, leasegoodto, verifytoken)
+          VALUES (?, ?, ?, ?, ?)},
+        undef, $u->id, $huburl, $topicurl, undef, LJ::rand_chars( 64 )
+    );
+
+    # no error checking for reasons above...
+}
+
+
+# called by the hubbub bml when someone posts something to us and says that feeds
+# have been updated.
+# FIXME: they actually give us enough data to update our feeds with the post
+# content, but for now, we're just scheduling a synsuck job to go update a feed.
+# this is suboptimal.  we have to implement the hub.challenge parameter and
+# post our subscriptions using HTTPS before we can do the "proper" way, though.
+sub process_hubbub_notification {
+    my $bodyref = shift;
+
+    # FIXME: this probably will explode horribly with aggregated content, so as
+    # soon as that becomes supported somewhere, we need to fix this
+
+    # try to parse with our feed parser
+    my ( $feed, $error ) = LJ::ParseFeed::parse_feed( $$bodyref );
+    if ( $error ) {
+        # clean up the error a little for the logs...
+        $error =~ s!^\n?(.+?)(?: at /.+)?$!$1!s;
+        $error =~ s!\n! !;
+        warn "[$$] PubSubHubbub notification parse failed: $error\n";
+        return;
+    }
+
+    # worked, get self which should be the topic url
+    unless ( $feed->{self} ) {
+        warn "[$$] PubSubHubbub notification has no self link?\n";
+        return;
+    }
+
+    my $dbr = LJ::get_db_reader() or die;
+    my ( $uid ) = $dbr->selectrow_array(
+        'SELECT userid FROM syndicated_hubbub WHERE topicurl = ?',
+        undef, $feed->{self}
+    );
+    die if $dbr->err;
+
+    # user must still be visible for us to care
+    my $u = LJ::load_userid( $uid ) or die;
+    return unless $u->is_visible;
+
+    # great! schedule a synsuck job :-)
+    my $sclient = LJ::theschwartz() or die;
+    $sclient->insert_jobs( TheSchwartz::Job->new(
+        funcname => 'DW::Worker::SynSuck',
+        arg      => { userid => $u->id },
+        uniqkey  => "synsuck:" . $u->id,
+    ) );
+
+    # let devserver know
+    if ( $LJ::IS_DEV_SERVER ) {
+        warn "[$$] PubSubHubbub notification scheduled job for " . $u->user . "(" . $u->id . ").\n";
+    }
+    return;
+}
+
+
 
 1;
 

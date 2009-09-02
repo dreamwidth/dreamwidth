@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+#
+# synsuck
+#
+# This worker actually does a syndicated account pull to get the data from a
+# remote syndicated feed.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Worker::TheSchwartz;
+use LJ::SynSuck;
+
+schwartz_decl( 'DW::Worker::SynSuck' );
+schwartz_work();
+
+# ============================================================================
+package DW::Worker::SynSuck;
+use base 'TheSchwartz::Worker';
+
+sub work {
+    my ( $class, $job ) = @_;
+    my $a = $job->arg;
+
+    my $u = LJ::load_userid( $a->{userid} )
+        or die "Invalid userid: $a->{userid}.\n";
+    my $dbh = LJ::get_db_writer()
+        or die "Unable to connect to global database.\n";
+
+    # annotate worker is going
+    warn "[$$] SynSuck worker started for " . $u->user . "(" . $u->id . ").\n";
+
+    # get the syndicated row they expect
+    my $row = $dbh->selectrow_hashref(
+        q{SELECT u.user, s.userid, s.synurl, s.lastmod, s.etag, s.numreaders, s.checknext
+          FROM user u, syndicated s
+          WHERE u.userid = s.userid AND s.userid = ?},
+        undef, $u->id
+    );
+    die $dbh->errstr if $dbh->err;
+    die "Unable to get syndicated row.\n" unless $row;
+
+    # now, all we have to actually do is pass through to the ljfeed code
+    LJ::SynSuck::update_feed( $row, 1 );
+
+    # all good
+    return $job->completed;
+}
+
+sub keep_exit_status_for { 0 }
+sub grab_for { 1800 }
+sub max_retries { 3 }
+sub retry_delay { 1800 }

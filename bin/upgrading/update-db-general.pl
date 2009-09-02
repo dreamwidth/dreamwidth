@@ -1388,6 +1388,21 @@ CREATE TABLE syndicated (
 )
 EOC
 
+register_tablecreate("syndicated_hubbub", <<'EOC');
+CREATE TABLE syndicated_hubbub (
+    userid INT UNSIGNED NOT NULL,
+    huburl VARCHAR(255),
+    topicurl VARCHAR(255),
+    leasegoodto INT UNSIGNED,
+    verifytoken VARCHAR(64),
+
+    UNIQUE (verifytoken),
+    UNIQUE (topicurl),
+    INDEX (leasegoodto),
+    PRIMARY KEY (userid)
+)
+EOC
+
 register_tablecreate("synitem", <<'EOC');
 CREATE TABLE synitem (
     userid  INT UNSIGNED NOT NULL,
