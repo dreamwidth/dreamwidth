@@ -31,6 +31,11 @@ package LJ::S2Theme::basicboxes::leaf;
 use base qw( LJ::S2Theme::basicboxes );
 sub cats { qw() }
 
+package LJ::S2Theme::basicboxes::manilaenvelope;
+use base qw( LJ::S2Theme::basicboxes );
+sub cats { qw() }
+sub designer { "zvi" }
+
 package LJ::S2Theme::basicboxes::peach;
 use base qw( LJ::S2Theme::basicboxes );
 sub cats { qw() }

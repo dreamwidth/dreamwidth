@@ -46,3 +46,81 @@ set color_module_link_active = "#8B0000";
 set color_module_link_visited = "#8B0000";
 
 
+#NEWLAYER: negatives/limecherry
+layerinfo "type" = "theme";
+layerinfo "name" = "Lime Cherry";
+layerinfo redist_uniq = "negatives/limecherry";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_background = "#d9f3d3";
+set color_entry_link_hover = "#919e89";
+set color_page_link = "#8f0000";
+set color_module_link_hover = "#919e89";
+set color_module_background = "#d9f3d3";
+set color_entry_link = "#8f0000";
+set color_module_border = "#DDB4B4";
+set color_entry_text = "#103f0a";
+set color_entry_border = "#DDB4B4";
+set color_module_title = "#103f0a";
+set color_page_text = "#103f0a";
+set color_module_link = "#8f0000";
+set color_entry_title = "#103f0a";
+set color_page_link_hover = "#919e89";
+set color_entry_interaction_links = "#8f0000";
+set color_module_text = "#103f0a";
+set color_entry_background = "#d9f3d3";
+
+set color_entry_interaction_links_hover = "#919e89";
+set color_entry_interaction_links_active = "#8F008F";
+set color_entry_interaction_links_visited = "#00008F";
+set color_entry_link_active = "#8F008F";
+set color_entry_link_hover = "#919e89";
+set color_entry_link_visited = "#00008F";
+set color_module_link_active = "#8F008F";
+set color_module_link_hover = "#919e89";
+set color_module_link_visited = "#00008F";
+set color_page_link_active = "#8F008F";
+set color_page_link_hover = "#919e89";
+set color_page_link_visited = "#00008F";
+
+
+#NEWLAYER: negatives/pumpkinjuice
+layerinfo "type" = "theme";
+layerinfo "name" = "Pumpkin Juice";
+layerinfo redist_uniq = "negatives/pumpkinjuice";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_background = "#fc7837";
+set color_entry_link_hover = "#78f5e8";
+set color_page_link = "#fffff6";
+set color_module_link_hover = "#78f5e8";
+set color_module_background = "#f6aa79";
+set color_entry_link = "#a6e820";
+set color_module_border = "#fc7837";
+set color_entry_text = "#000002";
+set color_entry_border = "#fc7837";
+set color_module_title = "#a6e820";
+set color_page_text = "#a8a8a8";
+set color_module_link = "#a6e820";
+set color_entry_title = "#a6e820";
+set color_page_link_hover = "#78f5e8";
+set color_entry_interaction_links = "#a6e820";
+set color_module_text = "#000002";
+set color_entry_background = "#f6aa79";
+
+set color_page_link_active = "#f6aa79";
+set color_page_link_visited = "#f6aa79";
+
+set color_entry_interaction_links_hover = "#78f5e8";
+set color_entry_interaction_links_active = "#38BBFC";
+set color_entry_interaction_links_visited  = "#38BBFC";
+set color_entry_link_active = "#38BBFC";
+set color_entry_link_visited = "#38BBFC";
+set color_module_link_active = "#38BBFC";
+set color_module_link_visited = "#38BBFC";
+set color_page_link_active = "#38BBFC";
+set color_page_link_visited  = "#38BBFC";	

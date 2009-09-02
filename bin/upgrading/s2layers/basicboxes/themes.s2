@@ -244,6 +244,40 @@ set color_module_title = "#24400B";
 set color_module_title_background = "#e9eee0";
 
 
+#NEWLAYER: basicboxes/manilaenvelope
+layerinfo "type" = "theme";
+layerinfo "name" = "Manila Envelope";
+layerinfo redist_uniq = "basicboxes/manilaenvelope";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_comment_title_background = "#f0d890";
+
+set color_entry_border = "#789090";
+set color_entry_interaction_links = "#c01830";
+set color_entry_text = "#001830";
+set color_entry_title = "#001830";
+
+set color_footer_background = "#f0e8d1";
+
+set color_header_background = "#f0d890";
+
+set color_module_background = "#f0e8d1";
+set color_module_border = "#789090";
+set color_module_title = "#001830";
+set color_module_title_background = "#f0d890";
+
+set color_page_background = "#f0e8d1";
+set color_page_border = "#789090";
+set color_page_link_active = "#30bf17";
+set color_page_link = "#c01830";
+set color_page_link_hover = "#1730bf";
+set color_page_link_visited = "#a617bf";
+set color_page_text = "#001830";
+set color_page_title = "#001830";
+
+
 #NEWLAYER: basicboxes/peach
 layerinfo type = "theme";
 layerinfo name = "Peach";
