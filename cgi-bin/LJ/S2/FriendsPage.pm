@@ -230,7 +230,7 @@ sub FriendsPage
                                              'cuturl' => LJ::item_link($friends{$friendid}, $itemid, $item->{'anum'}, $stylemine),
                                              'maximgwidth' => $maximgwidth,
                                              'maximgheight' => $maximgheight,
-                                             'imageplaceundef' => $remote->{'opt_imageundef'},
+                                             'imageplaceundef' => $remote ? $remote->{'opt_imageundef'} : undef,
                                              'ljcut_disable' => $remote ? $remote->{'opt_cut_disable_reading'} : undef,
                                              'suspend_msg' => $suspend_msg,
                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
