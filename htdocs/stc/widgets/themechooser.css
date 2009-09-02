@@ -13,13 +13,12 @@
     text-align: center;
     padding: 8px;
     font-size: 11px;
-    overflow: auto;
-    height: 205px;
 }
 .theme-item img.theme-preview {
     padding: 1px;
     width: 150px;
     height: 114px;
+    display: block;
 }
 .theme-item .theme-preview-link {
     position: absolute;
@@ -39,11 +38,13 @@
     font-size: 11px;
     padding: 4px 0 0 0;
     margin: 0;
+    height: 2.5em;
 }
 .theme-item .theme-desc {
     font-size: 10px;
     padding: 4px 0 6px 0;
     margin: 0;
+    height: 4em;
 }
 .theme-item.special h4,
 .theme-item.special .theme-desc {
