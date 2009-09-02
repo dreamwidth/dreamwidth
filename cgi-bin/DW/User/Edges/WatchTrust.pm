@@ -311,8 +311,8 @@ sub mutually_trusts {
 # as the third argument.  in which case it returns the newly updated trustmask.
 sub trustmask {
     my ( $from_u, $to_u ) = @_;
-    my $from_u = LJ::want_user( $from_u ) or return 0;
-    my $to_u = LJ::want_user( $to_u ) or return 0;
+    $from_u = LJ::want_user( $from_u ) or return 0;
+    $to_u = LJ::want_user( $to_u ) or return 0;
 
     # if we still have an argument, we need to set someone's mask
     if ( scalar( @_ ) == 3 ) {
@@ -693,7 +693,7 @@ sub watch_list {
 #
 sub trust_groups {
     my ( $u, %opts ) = @_;
-    my $u = LJ::want_user( $u )
+    $u = LJ::want_user( $u )
         or confess 'invalid user object';
     my $bit = delete( $opts{id} )+0;
     confess 'invalid bit number' if $bit < 0 || $bit > 60;
@@ -718,7 +718,7 @@ sub trust_groups {
 #
 sub create_trust_group {
     my ( $u, %opts ) = @_;
-    my $u = LJ::want_user( $u )
+    $u = LJ::want_user( $u )
         or confess 'invalid user object';
     my $grp = $u->trust_groups;
 
@@ -762,7 +762,7 @@ sub create_trust_group {
 #
 sub edit_trust_group {
     my ( $u, %opts ) = @_;
-    my $u = LJ::want_user( $u )
+    $u = LJ::want_user( $u )
         or confess 'invalid user object';
     my $id = delete( $opts{id} )+0;
     confess 'invalid id number' if $id < 0 || $id > 60;
@@ -945,7 +945,7 @@ sub edit_trustmask {
     delete $groups{$_} foreach @del;
 
     # now set it back and we're done
-    my $mask = 0;
+    $mask = 0;
     $mask += ( 1 << $_ ) foreach keys %groups;
     $u->trustmask( $tu, $mask );
     return 1;
