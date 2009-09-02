@@ -3620,7 +3620,7 @@ sub security_group_display {
         }
     }
 
-    return join( ', ', @ret ) if @ret;
+    return join( ', ', @ret );
 }
 
 
