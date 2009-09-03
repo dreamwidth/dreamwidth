@@ -63,6 +63,7 @@ _c?><?_code
     # now figure out what they want
     my ( $topicurl, $leasetime, $verifytoken, $challenge ) =
         map { $GET{$_} } qw/ hub.topic hub.lease_seconds hub.verify_token hub.challenge /;
+    $topicurl = LJ::durl( $topicurl );
 
     # sanity check the hub
     return $err->( 'invalid topic' ) unless $topicurl =~ /^https?:/;
