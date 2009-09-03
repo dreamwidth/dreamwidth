@@ -18,9 +18,10 @@ $SIG{TERM} = sub {
     $quit_flag = 1;
 };
 
-@EXPORT = qw(schwartz_decl schwartz_work schwartz_on_idle schwartz_on_afterwork schwartz_on_prework);
+@EXPORT = qw(schwartz_decl schwartz_work schwartz_on_idle schwartz_on_afterwork schwartz_on_prework schwartz_prioritize);
 
 my $sclient;
+my $prioritize = 0;
 
 my $on_idle = sub {};
 my $on_afterwork = sub {};
@@ -36,6 +37,7 @@ sub schwartz_init {
     $sclient = LJ::theschwartz({ role => $role }) or die "Could not get schwartz client";
     $used_role = $role; # save success role
     $sclient->set_verbose($verbose);
+    $sclient->set_prioritize( $prioritize );
 }
 
 sub schwartz_decl {
@@ -47,6 +49,11 @@ sub schwartz_decl {
     schwartz_init($role) unless $sclient;
 
     $sclient->can_do($classname);
+}
+
+sub schwartz_prioritize {
+    $prioritize = $_[0] ? 1 : 0;
+    $sclient->set_prioritize( $prioritize ) if $sclient;
 }
 
 sub schwartz_on_idle {

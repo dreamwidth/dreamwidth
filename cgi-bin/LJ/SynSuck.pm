@@ -532,6 +532,7 @@ sub process_hubbub_notification {
         funcname => 'DW::Worker::SynSuck',
         arg      => { userid => $u->id },
         uniqkey  => "synsuck:" . $u->id,
+        priority => 200, # arbitrary, high
     ) );
 
     # let devserver know

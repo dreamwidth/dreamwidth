@@ -20,6 +20,7 @@ use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::Worker::TheSchwartz;
 use LJ::SynSuck;
 
+schwartz_prioritize( 1 );
 schwartz_decl( 'DW::Worker::SynSuck' );
 schwartz_work();
 
