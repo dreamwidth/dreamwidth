@@ -48,7 +48,7 @@ sub grab_for { 600 }
 sub work {
     my ($class, $job) = @_;
 
-    my $arg = $job->arg;
+    my $arg = { %{$job->arg} };
 
     my ($uid, $ditemid, $acctid, $password, $auth_challenge, $auth_response, $delete) = map { delete $arg->{$_} } qw( uid ditemid accountid password auth_challenge auth_response delete );
 

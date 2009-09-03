@@ -43,9 +43,9 @@ sub _skeleton {
 # LJ-XMLRPC library class.
 sub _call_xmlrpc {
     my ($self, $xmlrpc, $mode, $req) = @_;
-    
+
     my $result = eval { $xmlrpc->call("LJ.XMLRPC.$mode", $req) };
-    
+
     if ($result) {
         if ($result->fault) {
             # error from server
@@ -64,7 +64,7 @@ sub _call_xmlrpc {
         # connection error
         return {
             success => 0,
-            error => LJ::Lang::ml("xpost.error.connection", { url => $xmlrpc->get_proxy })
+            error => LJ::Lang::ml("xpost.error.connection", { url => $xmlrpc->proxy->endpoint })
         } 
     }
 }
