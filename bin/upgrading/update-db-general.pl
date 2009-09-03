@@ -974,6 +974,7 @@ register_tabledrop("zips");
 register_tabledrop("adopt");
 register_tabledrop("adoptlast");
 register_tabledrop("urimap");
+register_tabledrop("syndicated_hubbub");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -1388,18 +1389,22 @@ CREATE TABLE syndicated (
 )
 EOC
 
-register_tablecreate("syndicated_hubbub", <<'EOC');
-CREATE TABLE syndicated_hubbub (
+register_tablecreate("syndicated_hubbub2", <<'EOC');
+CREATE TABLE syndicated_hubbub2 (
+    id INT UNSIGNED NOT NULL,
     userid INT UNSIGNED NOT NULL,
-    huburl VARCHAR(255),
-    topicurl VARCHAR(255),
+    huburl VARCHAR(255) NOT NULL,
+    topicurl VARCHAR(255) NOT NULL,
+    verifytoken VARCHAR(64) NOT NULL,
+    lastseenat INT UNSIGNED NOT NULL,
     leasegoodto INT UNSIGNED,
-    verifytoken VARCHAR(64),
 
+    UNIQUE (userid, huburl, topicurl),
     UNIQUE (verifytoken),
-    UNIQUE (topicurl),
+    INDEX (topicurl),
     INDEX (leasegoodto),
-    PRIMARY KEY (userid)
+    INDEX (lastseenat),
+    PRIMARY KEY (id)
 )
 EOC
 

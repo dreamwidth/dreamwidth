@@ -55,8 +55,8 @@ sub work {
 
     # find tasks that need doing that are owned by users that are visible
     my $rows = $dbh->selectall_arrayref(
-        q{SELECT s.userid, s.huburl, s.topicurl, s.verifytoken, s.leasegoodto
-          FROM user u, syndicated_hubbub s
+        q{SELECT s.id, s.userid, s.huburl, s.topicurl, s.verifytoken, s.leasegoodto
+          FROM user u, syndicated_hubbub2 s
           WHERE u.userid = s.userid AND u.statusvis = 'V'
             AND (s.leasegoodto IS NULL OR s.leasegoodto < (UNIX_TIMESTAMP() + 1800))
           LIMIT 500}
@@ -65,7 +65,7 @@ sub work {
 
     # iterate over tasks
     foreach my $row ( @$rows ) {
-        my ( $userid, $huburl, $topicurl, $verifytoken, $leasegoodto ) = @$row;
+        my ( $id, $userid, $huburl, $topicurl, $verifytoken, $leasegoodto ) = @$row;
         my $u = LJ::load_userid( $userid ) or next;
 
         print "[$$] Subscribing to " . $u->user . "(" . $u->id . ")\n";
@@ -85,12 +85,18 @@ sub work {
         # no matter what happens, bump the lease time artificially so
         # we won't retry every time this loop runs.  if the hub verifies
         # our subscription, the lease time will be set properly.
-        $dbh->do( 'UPDATE syndicated_hubbub SET leasegoodto = UNIX_TIMESTAMP() + ?',
-                  undef, int( rand() * 3600 ) + 3600 );  # 1-2 hours random
+        $dbh->do( 'UPDATE syndicated_hubbub2 SET leasegoodto = UNIX_TIMESTAMP() + ? WHERE id = ?',
+                  undef, int( rand() * 3600 ) + 3600, $id );  # 1-2 hours random
 
         # be verbose
         print "             == " . $res->code . " " . $res->message . "\n";
     }
+
+    # now the other half of life: removing stale subscriptions.  we keep track of every
+    # time we see a feed reference a (userid, huburl, topicurl) combination.  if one of those
+    # stops getting referenced for some period of time (24 hours?) then we should consider
+    # that subscription to be invalid.  (and in fact, we should unsubscribe.)
+    # FIXME: implement this ;)
 }
 
 

@@ -158,9 +158,18 @@ sub process_content {
         return;
     }
 
-    # register feeds that can support hubbub
+    # register feeds that can support hubbub.
     if ( LJ::is_enabled( 'hubbub' ) && $feed->{self} && $feed->{hub} ) {
-        register_hubbub_feed( $userid, $feed->{self}, $feed->{hub} );
+        # this is a square operation.  register every "self" and the feed url along
+        # with the $synurl with every hub they say they talk to.  but for sanity,
+        # don't let them force us onto more than 10 subscriptions...
+        my $ct = 0;
+        foreach my $topic ( $synurl, @{ $feed->{self} } ) {
+            foreach my $hub ( @{ $feed->{hub} } ) {
+                last if $ct++ >= 10;
+                register_hubbub_feed( $userid, $topic, $hub );
+            }
+        }
     }
 
     # another sanity check
@@ -463,24 +472,29 @@ sub register_hubbub_feed {
     my $dbh = LJ::get_db_writer() or return;
     my $u = LJ::load_userid( $uid ) or return;
 
-    # if it exists, we need to know if we should be changing the record.  i.e., if the
-    # feed changes its topic url, or hub, then we want to update this record so that the
-    # subscription system picks up on it.
+    # since we can have many records for a given feed, we want to see if we have an exact
+    # match for this particular combination.
     my $row = $dbh->selectrow_hashref(
-        q{SELECT huburl, topicurl, leasegoodto, verifytoken
-          FROM syndicated_hubbub WHERE userid = ?},
-        undef, $u->id
+        q{SELECT id, huburl, topicurl, leasegoodto, verifytoken
+          FROM syndicated_hubbub2 WHERE userid = ? AND huburl = ? AND topicurl = ?},
+        undef, $u->id, $huburl, $topicurl
     );
     return if $dbh->errstr;
 
-    # bail now if things look good
-    return if $row && $row->{huburl} eq $huburl && $row->{topicurl} eq $topicurl;
+    # if we do, then we want to update this row with a new lastseenat so our collector
+    # doesn't purge this subscription later
+    if ( $row && $row->{id} ) {
+        $dbh->do( 'UPDATE syndicated_hubbub2 SET lastseenat = UNIX_TIMESTAMP() WHERE id = ?',
+                  undef, $row->{id} );
+        return;
+    }
 
-    # not the same, or the row doesn't exist, so just replace, we don't need the old data
+    # this row (exactly) doesn't exist, so register it
+    my $id = LJ::alloc_global_counter( 'F' ) or return;
     $dbh->do(
-        q{REPLACE INTO syndicated_hubbub (userid, huburl, topicurl, leasegoodto, verifytoken)
-          VALUES (?, ?, ?, ?, ?)},
-        undef, $u->id, $huburl, $topicurl, undef, LJ::rand_chars( 64 )
+        q{INSERT IGNORE INTO syndicated_hubbub2 (id, userid, huburl, topicurl, leasegoodto, verifytoken, lastseenat)
+          VALUES (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())},
+        undef, $id, $u->id, $huburl, $topicurl, undef, LJ::rand_chars( 64 )
     );
 
     # no error checking for reasons above...
@@ -496,6 +510,10 @@ sub register_hubbub_feed {
 sub process_hubbub_notification {
     my $bodyref = shift;
 
+    # needed for the future; get it early
+    my $sclient = LJ::theschwartz() or die;
+    my $dbr = LJ::get_db_reader() or die;
+
     # FIXME: this probably will explode horribly with aggregated content, so as
     # soon as that becomes supported somewhere, we need to fix this
 
@@ -510,34 +528,46 @@ sub process_hubbub_notification {
     }
 
     # worked, get self which should be the topic url
-    unless ( $feed->{self} ) {
-        warn "[$$] PubSubHubbub notification has no self link?\n";
+    unless ( $feed->{self} && ref $feed->{self} eq 'ARRAY' ) {
+        warn "[$$] PubSubHubbub notification has no self link(s)?\n";
         return;
     }
 
-    my $dbr = LJ::get_db_reader() or die;
-    my ( $uid ) = $dbr->selectrow_array(
-        'SELECT userid FROM syndicated_hubbub WHERE topicurl = ?',
-        undef, $feed->{self}
-    );
-    die if $dbr->err;
+    # now select everybody that uses this topic url.  note that this is actually kind of
+    # weird.  in theory we should only ever have one topicurl mapped to one feed, but if
+    # someone comes along and maps a bunch of topicurls to their feeds first, they can
+    # "break" hubbub subscriptions for popular feeds.  so we just make it so that we
+    # allow N feeds to have the same topic url and we schedule a refresh for all of them.
+    # a little more work for us and potentially more traffic, but it's better than the
+    # alternative...
+    my @uids;
+    foreach my $topic ( @{ $feed->{self} } ) {
+        my $uids = $dbr->selectcol_arrayref(
+            'SELECT userid FROM syndicated_hubbub2 WHERE topicurl = ?',
+            undef, $topic
+        );
+        die if $dbr->err;
 
-    # user must still be visible for us to care
-    my $u = LJ::load_userid( $uid ) or die;
-    return unless $u->is_visible;
+        push @uids, @{ $uids || [] };
+    }
 
-    # great! schedule a synsuck job :-)
-    my $sclient = LJ::theschwartz() or die;
-    $sclient->insert_jobs( TheSchwartz::Job->new(
-        funcname => 'DW::Worker::SynSuck',
-        arg      => { userid => $u->id },
-        uniqkey  => "synsuck:" . $u->id,
-        priority => 200, # arbitrary, high
-    ) );
+    # iterate over each user
+    foreach my $uid ( @uids ) {
+        # user must still be visible for us to care
+        my $u = LJ::load_userid( $uid ) or die;
+        next unless $u->is_visible;
 
-    # let devserver know
-    if ( $LJ::IS_DEV_SERVER ) {
-        warn "[$$] PubSubHubbub notification scheduled job for " . $u->user . "(" . $u->id . ").\n";
+        # great! schedule a synsuck job :-)
+        $sclient->insert_jobs( TheSchwartz::Job->new(
+            funcname => 'DW::Worker::SynSuck',
+            arg      => { userid => $u->id },
+            uniqkey  => "synsuck:" . $u->id,
+            priority => 200, # arbitrary, high, try to go fast
+        ) );
+
+        # let devserver know
+        warn "[$$] PubSubHubbub notification scheduled job for " . $u->user . "(" . $u->id . ").\n"
+            if $LJ::IS_DEV_SERVER;
     }
     return;
 }

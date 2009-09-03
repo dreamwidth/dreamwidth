@@ -71,23 +71,27 @@ _c?><?_code
 
     # validate the token matches something we know about
     my $dbh = LJ::get_db_writer() or return $fail->();
-    my ( $uid, $topicurldb )  = $dbh->selectrow_array(
-        'SELECT userid, topicurl FROM syndicated_hubbub WHERE verifytoken = ?',
+    my ( $id, $uid, $topicurldb )  = $dbh->selectrow_array(
+        'SELECT id, userid, topicurl FROM syndicated_hubbub2 WHERE verifytoken = ?',
         undef, $verifytoken
     );
     return $fail->( $dbh->errstr ) if $dbh->err;
 
     # must have a uid, and the topic url must match
-    return $err->( 'no matching row found [' . $verifytoken . ']' ) unless $uid;
-    return $err->( 'topic_url mismatch' ) unless $topicurl eq $topicurldb;
+    return $err->( 'no matching row found: ' . $verifytoken ) unless $uid;
+
+    # if the topic url doesn't match, then that's a terrible thing and we're not sure
+    # why, so log extra information
+    return $err->( 'topic_url mismatch: db=' . $topicurldb . ', hub=' . $topicurl )
+        unless $topicurl eq $topicurldb;
 
     # validate the user is still valid (didn't get suspended or anything)
     my $u = LJ::load_userid( $uid ) or return $fail->( 'failed to load user' );
     return $err->( 'user no longer visible' ) unless $u->is_visible;
     
     # okay, great; let's update our subscription record
-    $dbh->do( 'UPDATE syndicated_hubbub SET leasegoodto = UNIX_TIMESTAMP() + ?',
-              undef, $leasetime );
+    $dbh->do( 'UPDATE syndicated_hubbub2 SET leasegoodto = UNIX_TIMESTAMP() + ? WHERE id = ?',
+              undef, $leasetime, $id );
 
     # if we're a development server, warn some debugging so we know the hub hit us
     if ( $LJ::IS_DEV_SERVER ) {

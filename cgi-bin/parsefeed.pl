@@ -280,10 +280,9 @@ sub StartTag {
                 return err( 'Feed not yet defined' )
                     unless $feed;
 
-                # we only take the first value, so if the user specifies
-                # multiple hubs (which is allowed) then we are going to just
-                # pick the first.  FIXME: subscribe to all?
-                $feed->{$_{rel}} ||= $_{href};
+                # allow these to be specified multiple times, the spec allows for multiple
+                # hubs.  the self link shouldn't allow multiples but it won't hurt if we let it.
+                push @{$feed->{$_{rel}} ||= []}, $_{href};
                 last TAGS;
             }
 

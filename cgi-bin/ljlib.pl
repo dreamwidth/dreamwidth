@@ -2087,7 +2087,8 @@ sub get_secret
 # LJ-generic domains:
 #  $dom: 'S' == style, 'P' == userpic, 'A' == stock support answer
 #        'C' == captcha, 'E' == external user, 'O' == school
-#        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart
+#        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
+#        'F' == PubSubHubbub subscription id (F for Fred)
 #
 sub alloc_global_counter
 {
@@ -2097,7 +2098,7 @@ sub alloc_global_counter
 
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
-    unless ($dom =~ /^[ESLPOAHCM]$/) {
+    unless ($dom =~ /^[ESLPOAHCMF]$/) {
         $dom = LJ::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
@@ -2137,6 +2138,8 @@ sub alloc_global_counter
         my $max_poll      = $dbh->selectrow_array("SELECT MAX(pollid) FROM poll");
         my $max_pollowner = $dbh->selectrow_array("SELECT MAX(pollid) FROM pollowner");
         $newmax = $max_poll > $max_pollowner ? $max_poll : $max_pollowner;
+    } elsif ( $dom eq 'F' ) {
+        $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
     } else {
         $newmax = LJ::run_hook('global_counter_init_value', $dom);
         die "No alloc_global_counter initalizer for domain '$dom'"
