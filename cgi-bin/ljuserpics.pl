@@ -386,7 +386,7 @@ sub get_userpic_info
             $info->{description} = \%minfodesc;
             my $descstring = join( '', map { pack( "Z*N", $minfodesc{$_}, $_ ) } keys %minfodesc );
 
-            my $memkey = [$u->userid, "upicdes:" $u->userid];
+            my $memkey = [$u->userid, "upicdes:" . $u->userid];
             LJ::MemCache::set( $memkey, $descstring );
 
             $info->{_has_descriptions} = 1;
