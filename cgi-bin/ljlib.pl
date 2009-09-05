@@ -1542,8 +1542,7 @@ sub get_keyword_id
 
     # get the keyword and insert it if necessary
     my $kwid;
-    if ($u && $u->{dversion} > 5) {
-        # new style userkeywords -- but only if the user has the right dversion
+    if ( $u ) {
         $kwid = $u->selectrow_array('SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
                                     undef, $u->{userid}, $kw) + 0;
         if ($autovivify && ! $kwid) {
@@ -1564,18 +1563,6 @@ sub get_keyword_id
 
             # nuke cache
             LJ::MemCache::delete([ $u->{userid}, "kws:$u->{userid}" ]);
-        }
-    } else {
-        # old style global
-        my $dbh = LJ::get_db_writer();
-        my $qkw = $dbh->quote($kw);
-
-        # Making this a $dbr could cause problems due to the insertion of
-        # data based on the results of this query. Leave as a $dbh.
-        $kwid = $dbh->selectrow_array("SELECT kwid FROM keywords WHERE keyword=$qkw");
-        if ($autovivify && ! $kwid) {
-            $dbh->do("INSERT INTO keywords (kwid, keyword) VALUES (NULL, $qkw)");
-            $kwid = $dbh->{'mysql_insertid'};
         }
     }
     return $kwid;

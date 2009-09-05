@@ -97,15 +97,8 @@ sub new_from_md5 {
     my ($class, $u, $md5sum) = @_;
     die unless $u && length($md5sum) == 22;
 
-    my $sth;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $sth = $u->prepare("SELECT * FROM userpic2 WHERE userid=? " .
-                           "AND md5base64=?");
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $sth = $dbr->prepare("SELECT * FROM userpic WHERE userid=? " .
-                             "AND md5base64=?");
-    }
+    my $sth = $u->prepare( "SELECT * FROM userpic2 WHERE userid=? " .
+                           "AND md5base64=?" );
     $sth->execute($u->{'userid'}, $md5sum);
     my $row = $sth->fetchrow_hashref
         or return undef;
@@ -467,11 +460,6 @@ sub imagedata {
         return $$data;
     }
 
-    my %MimeTypeMap = (
-                       'image/gif' => 'gif',
-                       'image/jpeg' => 'jpg',
-                       'image/png' => 'png',
-                       );
     my %MimeTypeMapd6 = (
                          'G' => 'gif',
                          'J' => 'jpg',
@@ -480,7 +468,7 @@ sub imagedata {
 
     my $data;
     if ($LJ::USERPIC_BLOBSERVER) {
-        my $fmt = ($u->{'dversion'} > 6) ? $MimeTypeMapd6{ $pic->{fmt} } : $MimeTypeMap{ $pic->{contenttype} };
+        my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
         $data = LJ::Blob::get($u, "userpic", $fmt, $self->{picid});
         return $data if $data;
     }
@@ -493,23 +481,6 @@ sub imagedata {
                                   $self->{picid});
     return $data ? $data : undef;
 }
-
-# does the user's dataversion support userpic comments?
-sub supports_comments {
-    my $self = shift;
-
-    my $u = $self->owner;
-    return $u->{dversion} > 6;
-}
-
-# class method
-# does this user's dataversion support userpic comments?
-sub userpics_partitioned {
-    my ($class, $u) = @_;
-    Carp::croak("Not a valid \$u object") unless LJ::isu($u);
-    return $u->{dversion} > 6;
-}
-*user_supports_comments = \&userpics_partitioned;
 
 # TODO: add in lazy peer loading here
 sub load_row {
@@ -530,18 +501,10 @@ sub load_row {
     # If you get past this conditional something is wrong
     # load_user_userpics  always returns a value
 
-    my $row;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $row = $u->selectrow_hashref("SELECT userid, picid, width, height, state, fmt, comment, description, location, url, " .
+    my $row = $u->selectrow_hashref( "SELECT userid, picid, width, height, state, fmt, comment, description, location, url, " .
                                      "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
                                      "FROM userpic2 WHERE userid=? AND picid=?", undef,
-                                     $u->{userid}, $self->{picid});
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $row = $dbr->selectrow_hashref("SELECT userid, picid, width, height, state, contenttype " .
-                                       "FROM userpic WHERE userid=? AND picid=?", undef,
-                                       $u->{userid}, $self->{picid});
-    }
+                                     $u->userid, $self->{picid} );
     $self->absorb_row($row) if $row;
 }
 
@@ -559,9 +522,6 @@ sub get_cache {
     if ($u->{_userpicids}) {
         return [ map { LJ::Userpic->instance($u, $_) } @{$u->{_userpicids}} ];
     }
-
-    # no memcaching of userpic2 rows unless partitioned
-    return undef unless LJ::Userpic->userpics_partitioned($u);
 
     my $memkey = $class->memkey($u);
     my $memval = LJ::MemCache::get($memkey);
@@ -593,12 +553,9 @@ sub set_cache {
     my $u = shift;
     my $rows = shift;
 
-    # no memcaching of userpic2 rows unless partitioned
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        my $memkey = $class->memkey($u);
-        my @vals = map { LJ::MemCache::hash_to_array('userpic2', $_) } @$rows;
-        LJ::MemCache::set($memkey, \@vals, 60*30);
-    }
+    my $memkey = $class->memkey( $u );
+    my @vals = map { LJ::MemCache::hash_to_array( 'userpic2', $_ ) } @$rows;
+    LJ::MemCache::set( $memkey, \@vals, 60*30 );
 
     # set cache of picids on $u
     $u->{_userpicids} = [ map { $_->{picid} } @$rows ];
@@ -615,17 +572,10 @@ sub load_user_userpics {
     return @$cache if $cache;
 
     # select all of their userpics and iterate through them
-    my $sth;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $sth = $u->prepare("SELECT userid, picid, width, height, state, fmt, comment, description, location, " .
+    my $sth = $u->prepare( "SELECT userid, picid, width, height, state, fmt, comment, description, location, " .
                            "UNIX_TIMESTAMP(picdate) AS 'pictime', flags, md5base64 " .
-                           "FROM userpic2 WHERE userid=?");
-    } else {
-        my $dbh = LJ::get_db_writer();
-        $sth = $dbh->prepare("SELECT userid, picid, width, height, state, contenttype " .
-                             "FROM userpic WHERE userid=?");
-    }
-    $sth->execute($u->{'userid'});
+                           "FROM userpic2 WHERE userid=?" );
+    $sth->execute( $u->userid );
     die "Error loading userpics: clusterid=$u->{clusterid}, errstr=" . $sth->errstr if $sth->err;
 
     while (my $rec = $sth->fetchrow_hashref) {
@@ -690,9 +640,9 @@ sub create {
     my $base64 = Digest::MD5::md5_base64($$dataref);
 
     my $target;
-    if ($u->{dversion} > 6 && $LJ::USERPIC_MOGILEFS) {
+    if ( $LJ::USERPIC_MOGILEFS ) {
         $target = 'mogile';
-    } elsif ($LJ::USERPIC_BLOBSERVER) {
+    } elsif ( $LJ::USERPIC_BLOBSERVER ) {
         $target = 'blob';
     }
 
@@ -706,49 +656,26 @@ sub create {
     # start making a new onew
     my $picid = LJ::alloc_global_counter('P');
 
-    my $contenttype;
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $contenttype = {
+    my $contenttype = {
             'GIF' => 'G',
             'PNG' => 'P',
             'JPG' => 'J',
         }->{$filetype};
-    } else {
-        $contenttype = {
-            'GIF' => 'image/gif',
-            'PNG' => 'image/png',
-            'JPG' => 'image/jpeg',
-        }->{$filetype};
-    }
 
     @errors = (); # TEMP: FIXME: remove... using exceptions
 
     my $dberr = 0;
-    if ($u->{'dversion'} > 6) {
-        $u->do("INSERT INTO userpic2 (picid, userid, fmt, width, height, " .
-               "picdate, md5base64, location) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
-               undef, $picid, $u->{'userid'}, $contenttype, $w, $h, $base64, $target);
-        if ($u->err) {
-            push @errors, $err->($u->errstr);
-            $dberr = 1;
-        }
-    } else {
-        $dbh->do("INSERT INTO userpic (picid, userid, contenttype, width, height, " .
-                 "picdate, md5base64) VALUES (?, ?, ?, ?, ?, NOW(), ?)",
-                 undef, $picid, $u->{'userid'}, $contenttype, $w, $h, $base64);
-        if ($dbh->err) {
-            push @errors, $err->($dbh->errstr);
-            $dberr = 1;
-        }
+    $u->do( "INSERT INTO userpic2 (picid, userid, fmt, width, height, " .
+            "picdate, md5base64, location) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)",
+            undef, $picid, $u->userid, $contenttype, $w, $h, $base64, $target );
+    if ( $u->err ) {
+        push @errors, $err->( $u->errstr );
+        $dberr = 1;
     }
 
     my $clean_err = sub {
-        if ($u->{'dversion'} > 6) {
-            $u->do("DELETE FROM userpic2 WHERE userid=? AND picid=?",
-                   undef, $u->{'userid'}, $picid) if $picid;
-        } else {
-            $dbh->do("DELETE FROM userpic WHERE picid=?", undef, $picid) if $picid;
-        }
+        $u->do( "DELETE FROM userpic2 WHERE userid=? AND picid=?",
+                undef, $u->userid, $picid ) if $picid;
         return $err->(@_);
     };
 
@@ -860,21 +787,12 @@ sub delete {
     $fail->() if $@;
 
     # userpic keywords
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        eval {
-            $u->do("DELETE FROM userpicmap2 WHERE userid=? " .
-                   "AND picid=?", undef, $u->{userid}, $picid) or die;
-            $u->do("DELETE FROM userpic2 WHERE picid=? AND userid=?",
-                   undef, $picid, $u->{'userid'}) or die;
-            };
-    } else {
-        eval {
-            my $dbh = LJ::get_db_writer();
-            $dbh->do("DELETE FROM userpicmap WHERE userid=? " .
-                 "AND picid=?", undef, $u->{userid}, $picid) or die;
-            $dbh->do("DELETE FROM userpic WHERE picid=?", undef, $picid) or die;
+    eval {
+        $u->do( "DELETE FROM userpicmap2 WHERE userid=? " .
+                "AND picid=?", undef, $u->userid, $picid ) or die;
+        $u->do( "DELETE FROM userpic2 WHERE picid=? AND userid=?",
+                undef, $picid, $u->userid ) or die;
         };
-    }
     $fail->() if $@;
 
     $u->log_event('delete_userpic', { picid => $picid });
@@ -903,7 +821,6 @@ sub set_comment {
     local $LJ::THROW_ERRORS = 1;
 
     my $u = $self->owner;
-    return 0 unless LJ::Userpic->user_supports_comments($u);
     $comment = LJ::text_trim($comment, LJ::BMAX_UPIC_COMMENT(), LJ::CMAX_UPIC_COMMENT());
     $u->do("UPDATE userpic2 SET comment=? WHERE userid=? AND picid=?",
                   undef, $comment, $u->{'userid'}, $self->id)
@@ -946,13 +863,8 @@ sub set_keywords {
     my $sth;
     my $dbh;
 
-    if (LJ::Userpic->userpics_partitioned($u)) {
-        $sth = $u->prepare("SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?");
-    } else {
-        $dbh = LJ::get_db_writer();
-        $sth = $dbh->prepare("SELECT kwid FROM userpicmap WHERE userid=? AND picid=?");
-    }
-    $sth->execute($u->{'userid'}, $self->id);
+    $sth = $u->prepare( "SELECT kwid FROM userpicmap2 WHERE userid=? AND picid=?" );
+    $sth->execute( $u->userid, $self->id );
 
     my %exist_kwids;
     while (my ($kwid) = $sth->fetchrow_array) {
@@ -964,7 +876,7 @@ sub set_keywords {
     my $picid = $self->{picid};
 
     foreach my $kw (@keywords) {
-        my $kwid = (LJ::Userpic->userpics_partitioned($u)) ? LJ::get_keyword_id($u, $kw) : LJ::get_keyword_id($kw);
+        my $kwid = LJ::get_keyword_id( $u, $kw );
         next unless $kwid; # TODO: fire some warning that keyword was bogus
 
         if (++$c > $LJ::MAX_USERPIC_KEYWORDS) {
@@ -988,13 +900,8 @@ sub set_keywords {
     if (scalar @data) {
         my $bind = join(',', @bind);
 
-        if (LJ::Userpic->userpics_partitioned($u)) {
-            $u->do("REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
-                          undef, @data);
-        } else {
-            $dbh->do("INSERT INTO userpicmap (userid, kwid, picid) VALUES $bind",
-                            undef, @data);
-        }
+        $u->do( "REPLACE INTO userpicmap2 (userid, kwid, picid) VALUES $bind",
+                undef, @data );
     }
 
     # Let the user know about any we didn't save
@@ -1012,7 +919,6 @@ sub set_keywords {
 sub set_fullurl {
     my ($self, $url) = @_;
     my $u = $self->owner;
-    return 0 unless LJ::Userpic->userpics_partitioned($u);
     $u->do("UPDATE userpic2 SET url=? WHERE userid=? AND picid=?",
            undef, $url, $u->{'userid'}, $self->id);
     $self->{url} = $url;

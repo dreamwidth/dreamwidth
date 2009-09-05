@@ -49,11 +49,6 @@ my %USERPIC;  # conf related to userpics
 my %REDIR;
 
 # Mapping of MIME types to image types understood by the blob functions.
-my %MimeTypeMap = (
-    'image/gif' => 'gif',
-    'image/jpeg' => 'jpg',
-    'image/png' => 'png',
-);
 my %MimeTypeMapd6 = (
     'G' => 'gif',
     'J' => 'jpg',
@@ -1174,7 +1169,7 @@ sub userpic_content
 
         # Now ask the blob lib for the path to send to the reproxy
         eval { LJ::Blob->can("autouse"); };
-        my $fmt = ($u->{'dversion'} > 6) ? $MimeTypeMapd6{ $pic->{fmt} } : $MimeTypeMap{ $pic->{contenttype} };
+        my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
         my $path = LJ::Blob::get_rel_path( $root, $u, "userpic", $fmt, $picid );
 
         $r->headers_out->{'X-REPROXY-FILE'} = $path;
@@ -1209,7 +1204,7 @@ sub userpic_content
 
         if ($LJ::USERPIC_BLOBSERVER) {
             eval { LJ::Blob->can("autouse"); };
-            my $fmt = ($u->{'dversion'} > 6) ? $MimeTypeMapd6{ $pic->{fmt} } : $MimeTypeMap{ $pic->{contenttype} };
+            my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
             $data = LJ::Blob::get($u, "userpic", $fmt, $picid);
         }
 

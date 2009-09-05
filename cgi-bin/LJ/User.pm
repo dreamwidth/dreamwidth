@@ -4648,14 +4648,8 @@ sub activate_userpics {
     my $dbcr = LJ::get_cluster_def_reader($u);
 
     # select all userpics and build active / inactive lists
-    my $sth;
-    if ( $u->dversion > 6 ) {
-        return undef unless $dbcr;
-        $sth = $dbcr->prepare("SELECT picid, state FROM userpic2 WHERE userid=?");
-    } else {
-        return undef unless $dbh;
-        $sth = $dbh->prepare("SELECT picid, state FROM userpic WHERE userid=?");
-    }
+    return undef unless $dbcr;
+    my $sth = $dbcr->prepare( "SELECT picid, state FROM userpic2 WHERE userid=?" );
     $sth->execute($userid);
     while (my ($picid, $state) = $sth->fetchrow_array) {
         next if $state eq 'X'; # expunged, means userpic has been removed from site by admins
@@ -4693,16 +4687,9 @@ sub activate_userpics {
         # map pickws to picids for freq hash below
         my %count_picid = ();
         if ($keywords_in) {
-            my $sth;
-            if ( $u->dversion > 6 ) {
-                $sth = $dbcr->prepare("SELECT k.keyword, m.picid FROM userkeywords k, userpicmap2 m ".
+            my $sth = $dbcr->prepare( "SELECT k.keyword, m.picid FROM userkeywords k, userpicmap2 m ".
                                       "WHERE k.keyword IN ($keywords_in) AND k.kwid=m.kwid AND k.userid=m.userid " .
-                                      "AND k.userid=?");
-            } else {
-                $sth = $dbh->prepare("SELECT k.keyword, m.picid FROM keywords k, userpicmap m " .
-                                     "WHERE k.keyword IN ($keywords_in) AND k.kwid=m.kwid " .
-                                     "AND m.userid=?");
-            }
+                                      "AND k.userid=?" );
             $sth->execute($userid);
             while (my ($keyword, $picid) = $sth->fetchrow_array) {
                 # keyword => picid
@@ -4716,13 +4703,8 @@ sub activate_userpics {
 
         @ban = splice(@ban, 0, $to_ban) if @ban > $to_ban;
         my $ban_in = join(",", map { $dbh->quote($_) } @ban);
-        if ( $u->dversion > 6 ) {
-            $u->do("UPDATE userpic2 SET state='I' WHERE userid=? AND picid IN ($ban_in)",
-                   undef, $userid) if $ban_in;
-        } else {
-            $dbh->do("UPDATE userpic SET state='I' WHERE userid=? AND picid IN ($ban_in)",
-                     undef, $userid) if $ban_in;
-        }
+        $u->do( "UPDATE userpic2 SET state='I' WHERE userid=? AND picid IN ($ban_in)",
+                undef, $userid ) if $ban_in;
     }
 
     # activate previously inactivated userpics
@@ -4736,14 +4718,9 @@ sub activate_userpics {
         my @activate_picids = splice(@inactive, -$to_activate);
 
         my $activate_in = join(",", map { $dbh->quote($_) } @activate_picids);
-        if ($activate_in) {
-            if ( $u->dversion > 6 ) {
-                $u->do("UPDATE userpic2 SET state='N' WHERE userid=? AND picid IN ($activate_in)",
-                       undef, $userid);
-            } else {
-                $dbh->do("UPDATE userpic SET state='N' WHERE userid=? AND picid IN ($activate_in)",
-                         undef, $userid);
-            }
+        if ( $activate_in ) {
+            $u->do( "UPDATE userpic2 SET state='N' WHERE userid=? AND picid IN ($activate_in)",
+                    undef, $userid );
         }
     }
 
@@ -4840,31 +4817,6 @@ sub remove_friend {
     confess 'LJ::User->remove_friend has been deprecated.';
 }
 
-
-# take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
-# DW doesn't support anything earlier than dversion 8, so this can
-# probably go away at some point.
-
-# returns if this user's polls are clustered
-# DW doesn't support anything earlier than dversion 8, so this can
-# probably go away at some point.
-sub polls_clustered {
-    my $u = shift;
-    return $u->dversion >= 8;
-}
-
-
-sub upgrade_to_dversion_8 {
-    my ( $u, $dbh, $dbhslo, $dbcm ) = @_;
-
-    # If user has been purged, go ahead and update version
-    # Otherwise move their polls
-    my $ok = $u->is_expunged ? 1 : LJ::Poll->make_polls_clustered($u, $dbh, $dbhslo, $dbcm);
-
-    LJ::update_user($u, { 'dversion' => 8 }) if $ok;
-
-    return $ok;
-}
 
 # FIXME: Needs updating for WTF
 sub opt_showmutualfriends {
@@ -8153,15 +8105,10 @@ sub make_journal
 sub userpic_count {
     my $u = shift or return undef;
 
-    if ( $u->dversion > 6 ) {
-        my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
-        return $dbcr->selectrow_array("SELECT COUNT(*) FROM userpic2 " .
-                                      "WHERE userid=? AND state <> 'X'", undef, $u->userid);
-    }
-
-    my $dbh = LJ::get_db_writer() or return undef;
-    return $dbh->selectrow_array("SELECT COUNT(*) FROM userpic " .
-                                 "WHERE userid=? AND state <> 'X'", undef, $u->userid);
+    my $dbcr = LJ::get_cluster_def_reader( $u ) or return undef;
+    return $dbcr->selectrow_array( "SELECT COUNT(*) FROM userpic2 " .
+                                   "WHERE userid=? AND state <> 'X'",
+                                   undef, $u->userid );
 }
 
 
