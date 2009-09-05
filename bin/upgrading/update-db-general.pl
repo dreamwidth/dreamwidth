@@ -975,6 +975,7 @@ register_tabledrop("adopt");
 register_tabledrop("adoptlast");
 register_tabledrop("urimap");
 register_tabledrop("syndicated_hubbub");
+register_tabledrop("oldids");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -1116,22 +1117,6 @@ CREATE TABLE includetext (
 
     INDEX (updatetime)
 )
-EOC
-
-# TODO: As part of migration from LJ to DW, hard redirect everything in here,
-# then get rid of this table and of code that references it. Per discussion
-# with xb95, it's not needed anywhere.
-register_tablecreate("oldids", <<'EOC');
-CREATE TABLE oldids (
-    area     CHAR(1) NOT NULL,
-    oldid    INT UNSIGNED NOT NULL,
-    UNIQUE (area, oldid),
-    userid   INT UNSIGNED NOT NULL,
-    newid    INT UNSIGNED NOT NULL AUTO_INCREMENT,
-
-    PRIMARY KEY (area,userid, newid),
-    INDEX (userid)
-) TYPE=MYISAM
 EOC
 
 register_tablecreate("dudata", <<'EOC');
