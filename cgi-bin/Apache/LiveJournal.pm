@@ -1432,16 +1432,16 @@ sub journal_content
     {
         # give a real 404 to the journal owner
         if ($remote && $remote->{'user'} eq $user) {
-            $status = "404 Reading filter does not exist";
+            $status = "404 Content filter does not exist";
             $html = "<h1>Not Found</h1>" .
-                    "<p>The reading filter you are trying to access does not exist.</p>";
+                    "<p>The content filter you are trying to access does not exist.</p>";
 
         # otherwise be vague with a 403
         } else {
             # send back a 403 and don't reveal if the group existed or not
-            $status = "403 Reading filter does not exist, or is not public";
+            $status = "403 Content filter does not exist, or is not public";
             $html = "<h1>Denied</h1>" .
-                    "<p>Sorry, the reading filter you are trying to access does not exist " .
+                    "<p>Sorry, the content filter you are trying to access does not exist " .
                     "or is not public.</p>\n";
 
             $html .= "<p>You're not logged in.  If you're the owner of this journal, " .

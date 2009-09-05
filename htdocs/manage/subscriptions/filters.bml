@@ -1,0 +1,145 @@
+<?_c
+#
+# manage/subscriptions/filters.bml
+#
+# Page to manage your subscription filters.
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST $title $windowtitle $headextra @errors @warnings /;
+
+    # this is how you include custom CSS/JS/etc
+    LJ::set_active_resource_group( 'jquery' );
+    LJ::need_res( {group=>'jquery'}, qw# js/subfilters.js stc/subfilters.css js/json2.js # );
+
+    # for pages that require authentication
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    # stick in some JS to set the current user
+    # FIXME: this should be done automatically as part of the templates!
+    my $ret = "<script type='text/javascript'>\n" .
+              "DW.currentUser = '" . $remote->user . "';\n" .
+              "DW.userIsPaid = " . ( $remote->is_paid ? 'true' : 'false' ) . ";\n" .
+              "</script>\n";
+
+    # and now the main page HTML
+    $ret .= <<EOF;
+
+<div id='cf-select'>
+    <div id='cf-select-filter'>
+        Filter:
+        <select id='cf-filters'>
+            <option value="0">Loading, please wait...</option>
+        </select>
+    </div>
+    <div id='cf-save'>
+        <img id='cf-hourglass' src='$LJ::IMGPREFIX/hourglass.gif' />
+        <span id='cf-unsaved'>Saving in N seconds...</span>
+    </div>
+    <div id='cf-make-new'>
+        <a href='javascript:void(0);' id='cf-delete'>Delete</a>
+        <input id='cf-rename' type='button' value='Rename' />
+        <input id='cf-new' type='button' value='New' />
+    </div>
+    <div style='clear: both;'></div>
+</div>
+
+<div id='cf-filtopts'>
+    Options for <span id='cf-foname'>selected filter</span>:<br /><br />
+
+    (filter options are not implemented yet, sorry!)
+</div>
+
+<div id='cf-intro'>
+    <p>Hello!</p>
+    <p>Welcome to the Dreamwidth Subscription Filters editing page.  If you have already created a filter,
+    you may select it in the dropdown above.</p>
+    <p>If this is your first time here, you should click the New button in the top right to make a new
+    subscription filter.</p>
+</div>
+
+<div id='cf-edit'>
+    <div id='cf-notin'>
+        Not in filter:<br />
+        <select id='cf-notin-list' size='20' multiple></select><br />
+        <div id='cf-add-box'>
+            <input id='cf-add-btn' type='button' value='Add &gt;&gt;' />
+        </div>
+    </div>
+
+    <div id='cf-in'>
+        In filter:<br />
+        <select id='cf-in-list' size='20' multiple></select><br />
+        <div id='cf-del-box'>
+            <input id='cf-del-btn' type='button' value='&lt;&lt; Remove' />
+        </div>
+    </div>
+
+    <div id='cf-options'>
+        Options:<br />
+        <div id='cf-opts-box'>
+            <div id='cf-free-warning'>
+                Your account type does not permit the use of advanced subscription filters.  These options
+                are not active.  If you would like to use these options, please consider supporting the
+                site and upgrading your account.
+            </div>
+            Show only content that ...
+            <div id='cf-ac-box'>
+                ... is rated
+                <select id='cf-adultcontent'>
+                    <option value='any'>anything (show all content)</option>
+                    <option value='nonexplicit'>safe or non-explicit</option>
+                    <option value='sfw'>safe for work only</option>
+                </select>
+            </div>
+            <div id='cf-pt-box'>
+                ... and the poster is
+                <select id='cf-postertype'>
+                    <option value='any'>anybody</option>
+                    <option value='moderator'>a moderator or maintainer</option>
+                    <option value='maintainer'>a maintainer</option>
+                </select>
+            </div>
+            <div id='cf-t-box'>
+                ... and the entry is tagged with
+                <select id='cf-tagmode'>
+                    <option value='any_of'>any</option>
+                    <option value='all_of'>all</option>
+                    <option value='none_of'>none</option>
+                </select>
+                of the selected tags:
+                <div id='cf-notagssel'>(no tags selected)</div>
+                <div id='cf-t-box3'>
+                </div>
+                Available tags (click to select):
+                <div id='cf-notagsavail'>(no tags available)</div>
+                <div id='cf-t-box2'>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style='clear: both;'></div>
+</div>
+
+EOF
+
+    return $ret;
+}
+_code?>
+<=body
+title=>Manage Subscription Filters
+page?>

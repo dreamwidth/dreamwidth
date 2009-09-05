@@ -3176,6 +3176,29 @@ CREATE TABLE users_for_paid_accounts (
 )
 EOC
 
+register_tablecreate('content_filters', <<'EOC');
+CREATE TABLE content_filters (
+  userid int(10) unsigned NOT NULL,
+  filterid int(10) unsigned NOT NULL,
+  filtername varchar(255) NOT NULL,
+  is_public enum('0','1') NOT NULL default '0',
+  sortorder smallint(5) unsigned NOT NULL default '0',
+
+  PRIMARY KEY (userid,filterid),
+  UNIQUE KEY userid (userid,filtername)
+)
+EOC
+
+register_tablecreate('content_filter_data', <<'EOC');
+CREATE TABLE content_filter_data (
+  userid int(10) unsigned NOT NULL,
+  filterid int(10) unsigned NOT NULL,
+  data mediumblob NOT NULL,
+
+  PRIMARY KEY (userid,filterid)
+) 
+EOC
+
 
 # NOTE: new table declarations go ABOVE here ;)
 

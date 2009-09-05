@@ -23,8 +23,10 @@ use List::Util ();
 use LJ::Constants;
 use LJ::MemCache;
 use LJ::Session;
-use DW::User::Edges;
+
 use DW::Logic::ProfilePage;
+use DW::User::ContentFilters;
+use DW::User::Edges;
 
 use Class::Autouse qw(
                       LJ::Subscription
@@ -1361,6 +1363,21 @@ sub rollback {
     if ($u->{_dberr} = $dbcm->err) {
         $u->{_dberrstr} = $dbcm->errstr;
     }
+    return $rv;
+}
+
+
+sub selectall_arrayref {
+    my $u = shift;
+    my $dbcm = $u->{'_dbcm'} ||= LJ::get_cluster_master($u)
+        or croak $u->nodb_err;
+
+    my $rv = $dbcm->selectall_arrayref(@_);
+
+    if ($u->{_dberr} = $dbcm->err) {
+        $u->{_dberrstr} = $dbcm->errstr;
+    }
+
     return $rv;
 }
 
@@ -5652,9 +5669,8 @@ sub unset_remote
 #       'Q' == Notification Inbox, 
 #       'D' == 'moDule embed contents', 'I' == Import data block
 #       'Z' == import status item, 'X' == eXternal account
+#       'F' == filter id
 #
-# FIXME: both phonepost and vgift are ljcom.  need hooks. but then also
-#        need a separate namespace.  perhaps a separate function/table?
 sub alloc_user_counter
 {
     my ($u, $dom, $opts) = @_;
@@ -5662,7 +5678,7 @@ sub alloc_user_counter
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZX]$/;             #
+    return undef unless $dom =~ /^[LTMPSRKCOVEQGDIZXF]$/;            #
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -5779,6 +5795,9 @@ sub alloc_user_counter
                                       undef, $uid);
     } elsif ($dom eq "X") {
         $newmax = $u->selectrow_array("SELECT MAX(acctid) FROM externalaccount WHERE userid=?",
+                                      undef, $uid);
+    } elsif ($dom eq "F") {
+        $newmax = $u->selectrow_array("SELECT MAX(filterid) FROM watch_filters WHERE userid=?",
                                       undef, $uid);
     } else {
         die "No user counter initializer defined for area '$dom'.\n";

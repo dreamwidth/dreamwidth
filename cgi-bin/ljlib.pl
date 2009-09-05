@@ -96,6 +96,7 @@ sub END { LJ::end_request(); }
                     "embedcontent", "usermsg", "usermsgtext", "usermsgprop",
                     "notifyarchive", "notifybookmarks", "pollprop2", "embedcontent_preview",
                     "logprop_history", "import_status", "externalaccount",
+                    "content_filters", "content_filter_data",
                     );
 
 # keep track of what db locks we have out

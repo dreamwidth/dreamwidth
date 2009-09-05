@@ -19,8 +19,6 @@ sub FriendsPage
     $p->{'entries'} = [];
     $p->{'friends'} = {};
     $p->{'friends_title'} = LJ::ehtml($u->{'friendspagetitle'});
-    $p->{'filter_active'} = 0;
-    $p->{'filter_name'} = "";
 
     # Add a friends-specific XRDS reference
     $p->{'head_content'} .= qq{<meta http-equiv="X-XRDS-Location" content="}.LJ::ehtml($u->journal_base).qq{/data/yadis/friends" />\n};
@@ -82,62 +80,46 @@ sub FriendsPage
     if ($skip < 0) { $skip = 0; }
     my $itemload = $itemshow+$skip;
 
-    my $filter;
-    my $group_name    = '';
-    my $common_filter = 1;
     my $events_date   = ($get->{date} =~ m!^(\d{4})-(\d\d)-(\d\d)$!)
                         ? LJ::mysqldate_to_time("$1-$2-$3")
                         : 0;
 
-    if (defined $get->{'filter'} && $remote && $remote->{'user'} eq $user) {
-        $filter = $get->{'filter'};
-        $common_filter = 0;
-        $p->{'filter_active'} = 1;
-        $p->{'filter_name'} = "";
-    } else {
+    # allow toggling network mode
+    $p->{friends_mode} = 'network'
+        if $opts->{view} eq 'network';
 
-        # Show group or day log
-        if ($opts->{'pathextra'}) {
-            $group_name = $opts->{'pathextra'};
-            $group_name =~ s!^/!!;
-            $group_name =~ s!/$!!;
-
-            if ($group_name) {
-                $group_name    = LJ::durl($group_name);
-                $common_filter = 0;
-
-                $p->{'filter_active'} = 1;
-                $p->{'filter_name'}   = LJ::ehtml($group_name);
-            }
-        }
-
-# TODO(mark): WTF broke this, as we no longer use friend groups for watching
-#             and therefore have to implement watch groups.  bug #166
-        my $grp = {};#LJ::get_friend_group($u, { 'name' => $group_name || "Default View" });
-        my $bit = $grp->{'groupnum'};
-        my $public = $grp->{'is_public'};
-        if ($bit && ($public || ($remote && $remote->{'user'} eq $user))) {
-            $filter = (1 << $bit);
-        } elsif ($group_name){
-            $opts->{'badfriendgroup'} = 1;
-            return 1;
-        }
+    # try to get a group name if they specified one
+    my $group_name = '';
+    if ( $group_name = $opts->{pathextra} ) {
+        $group_name =~ s!^/!!;
+        $group_name =~ s!/$!!;
+        $group_name = LJ::durl( $group_name );
     }
 
-    if ($opts->{'view'} eq "network") {
-        $p->{'friends_mode'} = "network";
+    # try to get a content filter, try a specified group name first, fall back to Default,
+    # and failing that try Default View (for the old school diehards)
+    my $cf = $u->content_filters( name => $group_name || "Default" ) ||
+             $u->content_filters( name => "Default View" );
+
+    # but we can't just use a filter, we have to make sure the person is allowed to
+    my $filter;
+    if ( $cf && ( $u->equals( $remote ) || $cf->public ) ) {
+        $filter = $cf;
+
+    # if we couldn't use the group, then we can throw an error, but ONLY IF they specified
+    # a group name manually.  if we tried to load the default on our own, don't toss an
+    # error as that would let a user disable their friends page.
+    } elsif ( $group_name ) {
+        $opts->{badfriendgroup} = 1;  # nobiscuit
+        return 1;
     }
 
     ## load the itemids
-    my %friends;
-    my %friends_row;
-    my %idsbycluster;
+    my ( %friends, %friends_row, %idsbycluster );
     my @items = $u->watch_items(
-        remote            => $remote,
         itemshow          => $itemshow,
         skip              => $skip,
-#        filter            => $filter,
-        common_filter     => $common_filter,
+        content_filter    => $filter,
         friends_u         => \%friends,
         friends           => \%friends_row,
         idsbycluster      => \%idsbycluster,
@@ -364,22 +346,13 @@ sub FriendsPage
         'count' => $eventnum,
     };
 
-    my $base = "$u->{'_journalbase'}/$opts->{'view'}";
-    if ($group_name) {
-        $base .= "/" . LJ::eurl($group_name);
-    }
-
-    # $linkfilter is distinct from $filter: if user has a default view,
-    # $filter is now set according to it but we don't want it to show in the links.
-    # $incfilter may be true even if $filter is 0: user may use filter=0 to turn
-    # off the default group
-    my $linkfilter = $get->{'filter'} + 0;
-    my $incfilter = defined $get->{'filter'};
+    my $base = "$u->{_journalbase}/$opts->{view}";
+    $base .= "/" . LJ::eurl( $group_name )
+        if $group_name;
 
     # if we've skipped down, then we can skip back up
     if ($skip) {
         my %linkvars;
-        $linkvars{'filter'} = $linkfilter if $incfilter;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
         my $newskip = $skip - $itemshow;
         if ($newskip > 0) { $linkvars{'skip'} = $newskip; }
@@ -388,7 +361,7 @@ sub FriendsPage
         $nav->{'forward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_count'} = $itemshow;
-        $p->{head_content} .= qq{<link rel="next" href="$nav->{forward_url}" />\n}
+        $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
     }
 
     ## unless we didn't even load as many as we were expecting on this
@@ -397,7 +370,6 @@ sub FriendsPage
     # Must remember to count $hiddenentries or we'll have no skiplinks when > 1
     unless (($eventnum + $hiddenentries) != $itemshow || $skip == $maxskip) {
         my %linkvars;
-        $linkvars{'filter'} = $linkfilter if $incfilter;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
         $linkvars{'date'} = $get->{'date'} if $get->{'date'};
         my $newskip = $skip + $itemshow;
@@ -405,14 +377,11 @@ sub FriendsPage
         $nav->{'backward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'backward_skip'} = $newskip;
         $nav->{'backward_count'} = $itemshow;
-        $p->{head_content} .= qq{<link rel="prev" href="$nav->{backward_url}" />\n};
+        $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
     }
 
-    $p->{'nav'} = $nav;
+    $p->{nav} = $nav;
 
-    if ($get->{'mode'} eq "framed") {
-        $p->{'head_content'} .= "<base target='_top' />";
-    }
     return $p;
 }
 

@@ -1530,6 +1530,7 @@ sub get_log2_recent_log
     return $construct_singleton->();
 }
 
+# get recent entries for a user
 sub get_log2_recent_user
 {
     my $opts = shift;
@@ -1541,6 +1542,7 @@ sub get_log2_recent_user
     my $left     = $opts->{'itemshow'};
     my $notafter = $opts->{'notafter'};
     my $remote   = $opts->{'remote'};
+    my $filter   = $opts->{filter};
 
     my %mask_for_remote = (); # jid => mask for $remote
     foreach my $item (@$log) {
@@ -1583,6 +1585,10 @@ sub get_log2_recent_user
         } else {
             confess "We removed S1 support, sorry.";
         }
+
+        # now see if this item matches the filter
+        next if $filter && ! $filter->show_entry( $item );
+
         push @$ret, $item;
     }
 

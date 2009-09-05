@@ -86,10 +86,13 @@
     my $trust_list = $u->trust_list;
     my $trusted_us = LJ::load_userids( keys %$trust_list );
 
+    # redirect to managing subscription filters
+    $body .= "<?standout " . BML::ml( '.subfilters', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/filters'" } ) . " standout?>\n\n";
+
     # authas switcher form
-    $body .= "<form method='get' action='editfilters'>\n";
+    $body .= "<?p <form method='get' action='editfilters'>\n";
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
-    $body .= "</form>\n\n";
+    $body .= "</form> p?>\n\n";
 
     $body .= "<?p $ML{'.text'} p?><?p $ML{'.text.sec'} p?><p>";
     $body .= "<form method='post' name='fg' action='editfilters$getextra'>";

@@ -28,58 +28,47 @@ use Carp qw/ confess /;
 #           - remote
 #           - itemshow
 #           - skip
-#           - filter  (opt) defaults to all
 #           - friends (opt) friends rows loaded via [func[LJ::get_friends]]
 #           - friends_u (opt) u objects of all friends loaded
 #           - idsbycluster (opt) hashref to set clusterid key to [ [ journalid, itemid ]+ ]
 #           - dateformat:  either "S2" for S2 code, or anything else for S1
-#           - common_filter:  set true if this is the default view
 #           - friendsoffriends: load friends of friends, not just friends
 #           - showtypes: /[PICNYF]/
 #           - events_date: date to load events for ($u must have friendspage_per_day)
+#           - content_filter: object of type DW::User::ContentFilters::Filter
 # returns: Array of item hashrefs containing the same elements
 sub watch_items
 {
     my ( $u, %args ) = @_;
     $u = LJ::want_user( $u ) or confess 'invalid user object';
 
-    my $userid = $u->id;
-    return () if $LJ::FORCE_EMPTY_FRIENDS{$userid};
+    # bail very, very early for accounts that are too big for a reading page
+    return () if $LJ::FORCE_EMPTY_FRIENDS{$u->id};
 
-    my $dbr = LJ::get_db_reader()
-        or return ();
+    # not sure where best to do this, so we're doing it here: don't allow
+    # content filters for community reading pages.
+    delete $args{content_filter} unless $u->is_individual;
 
-    my $remote = LJ::want_user( delete $args{remote} );
-    my $remoteid = $remote ? $remote->id : 0;
+    # we only allow viewing protected content on your own reading page, if you
+    # are viewing someone else's reading page, we assume you're logged out
+    my $remote = LJ::get_remote();
+    $remote = undef if $remote && $remote->id != $u->id;
 
-    # if ONLY_USER_VHOSTS is on (where each user gets his/her own domain),
-    # then assume we're also using domain-session cookies, and assume
-    # domain session cookies should be as most useless as possible,
-    # so don't let friends pages on other domains have protected content
-    # because really, nobody reads other people's friends pages anyway
-    if ($LJ::ONLY_USER_VHOSTS && $remote && $remoteid != $userid) {
-        $remote = undef;
-        $remoteid = 0;
-    }
-
+    # prepare some variables for later... many variables
     my @items = ();
     my $itemshow = $args{itemshow}+0;
     my $skip = $args{skip}+0;
+    $skip = 0 if $skip < 0;
     my $getitems = $itemshow + $skip;
 
-    # friendspage per day is allowed only for journals with
-    # special cap 'friendspage_per_day'
-    my $events_date = ( ( $remoteid == $userid ) && $u->get_cap('friendspage_per_day') )
-                        ? $args{events_date}
-                        : '';
+    # friendspage per day is allowed only for journals with the special cap 'friendspage_per_day'
+    my $events_date = $args{event_date};
+    $events_date = '' unless $remote && $u->get_cap( 'friendspage_per_day' );
 
-    my $filter  = int $args{filter};
+    my $filter  = $args{content_filter};
     my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14;  # 2 week default.
     my $lastmax = $LJ::EndOfTime - ($events_date || (time() - $max_age));
     my $lastmax_cutoff = 0; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)
-
-    # sanity check:
-    $skip = 0 if $skip < 0;
 
     # given a hash of friends rows, strip out rows with invalid journaltype
     my $filter_journaltypes = sub {
@@ -122,6 +111,14 @@ sub watch_items
         # get all friends for this user and groupmask
         my $friends = $u->watch_list( community_okay => 1 );
         my %friends_u;
+
+        # strip out people who aren't in the filter, if we have one
+        if ( $filter ) {
+            foreach my $fid ( keys %$friends ) {
+                delete $friends->{$fid}
+                    unless $filter->contains_userid( $fid );
+            }
+        }
 
         # strip out rows with invalid journal types
         $filter_journaltypes->($friends, \%friends_u);
@@ -182,8 +179,8 @@ sub watch_items
         foreach my $fid (keys %$friends) {
             $allfriends{$fid}++;
 
-            # delete from friends if it doesn't match the filter
-            next unless $filter && ! ($friends->{$fid}->{'groupmask'}+0 & $filter+0);
+            # if the person is in an active filter, allow them, else delete them
+            next unless $filter && ! $filter->contains_userid( $fid );
             delete $friends->{$fid};
         }
 
@@ -203,7 +200,7 @@ sub watch_items
             my $ct = 0;
             while (my $ffid = each %$ff) {
                 last if $ct > 100;
-                next if $allfriends{$ffid} || $ffid == $userid;
+                next if $allfriends{$ffid} || $ffid == $u->id;
                 $ffriends{$ffid} = $ff->{$ffid};
                 $ct++;
             }
@@ -259,25 +256,24 @@ sub watch_items
         $args{friends_u}->{$friendid} = $fr->[4]; # friend u object
 
         my @newitems = LJ::get_log2_recent_user({
-            'clusterid'   => $fr->[2],
-            'userid'      => $friendid,
-            'remote'      => $remote,
-            'itemshow'    => $itemsleft,
-            'notafter'    => $lastmax,
-            'dateformat'  => $args{dateformat},
-            'update'      => $LJ::EndOfTime - $fr->[1], # reverse back to normal
-            'events_date' => $events_date,
+            clusterid   => $fr->[2],
+            userid      => $friendid,
+            remote      => $remote,
+            itemshow    => $itemsleft,
+            filter      => $filter,
+            notafter    => $lastmax,
+            dateformat  => $args{dateformat},
+            update      => $LJ::EndOfTime - $fr->[1], # reverse back to normal
+            events_date => $events_date,
         });
 
         # stamp each with clusterid if from cluster, so ljviews and other
         # callers will know which items are old (no/0 clusterid) and which
         # are new
-        if ($fr->[2]) {
-            foreach (@newitems) { $_->{'clusterid'} = $fr->[2]; }
-        }
+        $_->{clusterid} = $fr->[2]
+            foreach @newitems;
 
-        if (@newitems)
-        {
+        if (@newitems) {
             push @items, @newitems;
 
             $itemsleft--;
@@ -295,8 +291,7 @@ sub watch_items
             @items = splice(@items, 0, $getitems) if (@items > $getitems);
         }
 
-        if (@items == $getitems)
-        {
+        if (@items == $getitems) {
             $lastmax = $items[-1]->{'rlogtime'};
             $lastmax = $lastmax_cutoff if $lastmax_cutoff && $lastmax > $lastmax_cutoff;
 
