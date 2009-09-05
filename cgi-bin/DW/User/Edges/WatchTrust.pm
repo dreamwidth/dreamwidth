@@ -400,6 +400,19 @@ sub get_birthdays {
     # hash slice for array sorted by date
     my @bdays = @timedata{ sort keys %timedata };
 
+    # birthdays that have already had notifications sent
+    # are sorted to the end, so check for those and rewrap
+    while ( my $last = pop( @bdays ) ) {
+        if ( ( $last->[0] == $mnow &&   # this month
+               $last->[1] >= $dnow ) || # today or later
+             ( $last->[0] == ( $mnow % 12 ) + 1 ) ) {  # next month
+            unshift( @bdays, $last );
+        } else {  # put it back and exit
+            push( @bdays, $last );
+            last;
+        }
+    }
+
     # set birthdays in memcache for later
     LJ::MemCache::set($memkey, \@bdays, 86400);
 
