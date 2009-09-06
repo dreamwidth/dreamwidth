@@ -34,6 +34,7 @@ sub default_theme {
     $layout =~ s/\/layout$//;
 
     my %default_themes = (
+        bases => 'bases/tropical',
         basicboxes => 'basicboxes/green',
         blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
