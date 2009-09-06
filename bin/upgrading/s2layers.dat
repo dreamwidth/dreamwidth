@@ -4,6 +4,9 @@
 core1                   core            -
 core2                   core            -
 
+siteviews/layout        layout          core2
+siteviews/themes        theme+          siteviews/layout
+
 bases/layout            layout          core2
 bases/themes            theme+          bases/layout
 

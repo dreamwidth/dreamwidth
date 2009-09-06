@@ -7907,17 +7907,11 @@ sub make_journal
     }
 
     # signal to LiveJournal.pm that we can't handle this
-    if (($stylesys == 1 || $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light') &&
-        ({ entry=>1, reply=>1, month=>1, tag=>1 }->{$view} || ($view eq 'lastn' && ($geta->{tag} || $geta->{security})))) {
-
-        # pick which fallback method (s2 or bml) we'll use by default, as configured with
-        # $S1_SHORTCOMINGS
-        my $fallback = $LJ::S1_SHORTCOMINGS ? "s2" : "bml";
-
-        # but if the user specifies which they want, override the fallback we picked
-        if ($geta->{'fallback'} && $geta->{'fallback'} =~ /^s2|bml$/) {
-            $fallback = $geta->{'fallback'};
-        }
+    # FIXME: Make this properly invoke siteviews all the time -- once all the views are ready.
+    # Most of this if and tons of messy conditionals can go away once all views are done.
+    if ( ( ($stylesys == 1 || $geta->{'style'} eq 'site' || $geta->{'style'} eq 'default' ) &&
+            ( { entry=>1, reply=>1, month=>1, tag=>1 }->{$view} || ($view eq 'lastn' && ($geta->{tag} || $geta->{security})))) || ( $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light' ) )  {
+        my $fallback = "bml"; # FIXME: Should be S2 once everything's done
 
         # if we are in this path, and they have style=mine set, it means
         # they either think they can get a S2 styled page but their account
@@ -7934,23 +7928,27 @@ sub make_journal
             $r->note(bml_use_scheme => 'lynx');
         }
 
+        # but if the user specifies which they want, override the fallback we picked
+        if ($geta->{'fallback'} && $geta->{'fallback'} =~ /^s2|bml$/) {
+            $fallback = $geta->{'fallback'};
+        }
+
         # there are no BML handlers for these views, so force s2
-        if ($view eq 'tag' || $view eq 'lastn') {
+        # FIXME: Temporaray until talkread/talkpost/month views are converted
+        if ( !( { entry => 1, reply => 1, month => 1 }->{$view} ) ) {
             $fallback = "s2";
         }
 
-        # fall back to BML unless we're using S2
-        # fallback (the "s1shortcomings/layout")
+        # fall back to legacy BML unless we're using BML-wrapped s2
         if ($fallback eq "bml") {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
 
-        # S1 can't handle these views, so we fall back to a
-        # system-owned S2 style (magic value "s1short") that renders
-        # this content
+        # Render a system-owned S2 style that renders
+        # this content, then passes it to get treated as BML
         $stylesys = 2;
-        $styleid = "s1short";
+        $styleid = "siteviews";
     }
 
     # now, if there's a GET argument for tags, split those out
@@ -8068,18 +8066,17 @@ sub make_journal
             if $r;
 
         eval { LJ::S2->can("dostuff") };  # force Class::Autouse
-        my $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
 
-        # intercept flag to handle_with_bml_ref and instead use S1 shortcomings
-        # if BML is disabled
-        if ($opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} &&
-            ($LJ::S1_SHORTCOMINGS || $geta->{fallback} eq "s2"))
-        {
-            # kill the flag
-            ${$opts->{'handle_with_bml_ref'}} = 0;
+        my $mj;
 
-            # and proceed with s1shortcomings (which looks like BML) instead of BML
-            $mj = LJ::S2::make_journal($u, "s1short", $view, $remote, $opts);
+        unless ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} ) {
+            $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
+        }
+
+        # intercept flag to handle_with_bml_ref and instead use siteviews
+        # FIXME: Temporary, till everything is converted.
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && $geta->{fallback} eq "s2" ) {
+            $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 
         return $mj;

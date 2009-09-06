@@ -41,14 +41,6 @@ sub make_journal
     my ( $entry, $page, $use_modtime );
 
     if ($view eq "res") {
-
-        # the s1shortcomings virtual styleid doesn't have a styleid
-        # so we're making the rule that it can't have resource URLs.
-        if ($styleid eq "s1short") {
-            $opts->{'handler_return'} = 404;
-            return;
-        }
-
         if ($opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) {
             $styleid = $1;
             $entry = "print_stylesheet()";
@@ -79,8 +71,17 @@ sub make_journal
     BML::set_language($lang, \&LJ::Lang::get_text);
 
     # let layouts disable EntryPage / ReplyPage, using the BML version
-    # instead.
-    unless ($styleid eq "s1short") {
+    # instead.  Unless we are using siteviews, because that is what
+    # will be handling the "BML" views.
+    if ($styleid eq "siteviews") {
+        $r->notes->{ 'no_control_strip' } = 1;
+        
+        # kill the flag
+        ${$opts->{'handle_with_bml_ref'}} = 0;
+        ${$opts->{'handle_with_siteviews_ref'}} = 1;
+        
+        $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 1;
+    } else {
         if ( ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
@@ -670,6 +671,7 @@ sub s2_context
     # get arguments we'll use frequently
     my $r = DW::Request->get;
     my $u = $opts{u} || LJ::get_active_journal();
+    my $remote = $opts{remote} || LJ::get_remote();
     my $style_u = $opts{style_u} || $u;
 
     # but it doesn't matter if we're using the minimal style ...
@@ -686,10 +688,8 @@ sub s2_context
         }
     };
 
-    # styleid of "s1short" is special in that it makes a
-    # dynamically-created s2 context
-    if ($styleid eq "s1short") {
-        %style = s1_shortcomings_style($u);
+    if ($styleid eq "siteviews") {
+        %style = siteviews_style( $u, $remote, $opts{mode} );
     }
 
     if (ref($styleid) eq "CODE") {
@@ -840,15 +840,16 @@ sub escape_prop_value {
     }
 }
 
-sub s1_shortcomings_style {
-    my $u = shift;
+sub siteviews_style {
+    my ( $u, $remote, $mode ) = @_;
     my %style;
 
     my $public = get_public_layers();
     %style = (
-              core => "core1",
-              layout => "s1shortcomings/layout",
-              );
+              core => "core2",
+              layout => "siteviews/layout",
+              theme => "siteviews/default",
+    );
 
     # convert the value names to s2layerid
     while (my ($layer, $name) = each %style) {
@@ -1249,6 +1250,8 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'SITENAMEABBREV'} = $LJ::SITENAMEABBREV;
     $ctx->[S2::PROPS]->{'IMGDIR'} = $LJ::IMGPREFIX;
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
+    
+    $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 0;
 }
 
 # renamed some props from core1 => core2. Make sure that S2 still handles these variables correctly when working with a core1 layer

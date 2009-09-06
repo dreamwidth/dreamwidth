@@ -1339,6 +1339,10 @@ sub journal_content
     # case it's our job to invoke the legacy BML page.
     my $handle_with_bml = 0;
 
+    # or this flag for pages that are from siteviews and expect
+    # to be processed by /misc/siteviews to get sitescheme around them
+    my $handle_with_siteviews = 0;
+
     my %headers = ();
     my $opts = {
         'r'         => $r,
@@ -1351,6 +1355,7 @@ sub journal_content
             'If-Modified-Since' => $r->headers_in->{"If-Modified-Since"},
         },
         'handle_with_bml_ref' => \$handle_with_bml,
+        'handle_with_siteviews_ref' => \$handle_with_siteviews,
         'ljentry' => $RQ{'ljentry'},
     };
 
@@ -1360,13 +1365,19 @@ sub journal_content
     my $html = LJ::make_journal($user, $RQ{'mode'}, $remote, $opts);
 
     # Allow to add extra http-header or even modify html
-    LJ::run_hooks("after_journal_content_created", $opts, \$html);
+    LJ::run_hooks("after_journal_content_created", $opts, \$html) unless $handle_with_siteviews;
 
     return redir($r, $opts->{'redir'}) if $opts->{'redir'};
     return $opts->{'handler_return'} if defined $opts->{'handler_return'};
 
     # if LJ::make_journal() indicated it can't handle the request:
-    if ($handle_with_bml) {
+    # only if HTML is set, otherwise leave it alone so the user
+    # gets "messed up template definition", cause something went wrong.
+    if ( $handle_with_siteviews && $html ) {
+        $r->pnotes->{siteview_code} = $html;
+        $r->notes->{bml_filename} = "$LJ::HOME/htdocs/misc/siteviews.bml";
+        return Apache::BML::handler($r);
+    } elsif ($handle_with_bml) {
         my $args = $r->args;
         my $args_wq = $args ? "?$args" : "";
 
