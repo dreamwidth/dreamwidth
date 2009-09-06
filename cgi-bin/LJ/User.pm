@@ -927,9 +927,12 @@ sub logout_all {
     $u->_logout_common;
 }
 
+sub make_fake_login_session {
+    return $_[0]->make_login_session( 'once', undef, 1 );
+}
 
 sub make_login_session {
-    my ($u, $exptype, $ipfixed) = @_;
+    my ( $u, $exptype, $ipfixed, $fake_login ) = @_;
     $exptype ||= 'short';
     return 0 unless $u;
 
@@ -940,15 +943,18 @@ sub make_login_session {
         'exptype' => $exptype,
         'ipfixed' => $ipfixed,
     };
+    $sess_opts->{nolog} = 1 if $fake_login;
 
     my $sess = LJ::Session->create($u, %$sess_opts);
     $sess->update_master_cookie;
 
     LJ::User->set_remote($u);
 
-    # add a uniqmap row if we don't have one already
-    my $uniq = LJ::UniqCookie->current_uniq;
-    LJ::UniqCookie->save_mapping($uniq => $u);
+    unless ( $fake_login ) {
+        # add a uniqmap row if we don't have one already
+        my $uniq = LJ::UniqCookie->current_uniq;
+        LJ::UniqCookie->save_mapping($uniq => $u);
+    }
 
     # restore scheme and language
     my $bl = LJ::Lang::get_lang($u->prop('browselang'));
@@ -978,11 +984,13 @@ sub make_login_session {
         "expiretime" => $etime,
     });
 
-    # activity for cluster usage tracking
-    LJ::mark_user_active($u, 'login');
-
-    # activity for global account number tracking
-    $u->note_activity('A');
+    unless ( $fake_login ) {
+        # activity for cluster usage tracking
+        LJ::mark_user_active($u, 'login');
+    
+        # activity for global account number tracking
+        $u->note_activity('A');
+    }
 
     return 1;
 }

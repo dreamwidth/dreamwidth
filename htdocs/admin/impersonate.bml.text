@@ -1,0 +1,15 @@
+.error.emptyreason=A reason is required.
+
+.error.failedlogin=Attempt to impersonate failed.
+
+.error.invalidpassword=Password is incorrect.
+
+.error.invaliduser=Could not load user '[[user]]'.
+
+.form.password=Password:
+
+.form.reason=Reason:
+
+.form.username=Usename:
+
+.title=Impersonate

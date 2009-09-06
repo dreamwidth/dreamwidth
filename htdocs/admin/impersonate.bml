@@ -1,0 +1,90 @@
+<?_c
+#
+# admin/impersonate.bml
+#
+# Allow someone trusted to log in as another user for a limited
+# amount of time.
+#
+# Authors:
+#      Afuna <coder.dw@afunamatata.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %POST @errors /;
+
+    if ( $LJ::USE_SSL && !$LJ::IS_SSL ) {
+        return BML::redirect( "$LJ::SSLROOT/admin/impersonate" );
+    }
+
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my @displayprivs = ( "canview:*" );
+    my $numprivs = @displayprivs;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join( ", ", @displayprivs ) . "</b>" } )
+        unless $remote->has_priv( canview => '*' );
+
+    my $ret;
+
+    if ( LJ::did_post() && LJ::check_referer( '/admin/impersonate.bml' ) ) {
+        return LJ::error_list( $ML{'error.invalidform'} ) unless LJ::check_form_auth();
+
+        my $u = LJ::load_user( $POST{username} );
+        push @errors, BML::ml( '.error.invaliduser', { user => LJ::ehtml( $POST{username} ) } ) unless $u;
+
+        my $password = $POST{password};
+        push @errors, $ML{'.error.invalidpassword'} unless $password && $password eq $remote->password;
+
+        my $reason = LJ::ehtml( LJ::trim( $POST{reason} ) );
+        push @errors, $ML{'.error.emptyreason'} unless $reason;
+
+        $remote->logout;
+
+        if ( $u->make_fake_login_session ) {
+            # log for auditing
+            $remote->log_event( 'impersonator', { actiontarget => $u->id, remote => $remote, reason => $reason } );
+            $u->log_event( 'impersonated', { actiontarget => $u->id, remote => $remote, reason => $reason } );
+            LJ::statushistory_add( $u->id, $remote->id, 'impersonate', $reason );
+    
+            return BML::redirect( $LJ::SITEROOT );
+
+        } else {
+            push @errors, $ML{'.error.failedlogin'};
+        }
+    }
+
+    $ret .= LJ::error_list( @errors ) if @errors;
+
+    $ret .= "<form method='POST'>";
+    $ret .= LJ::form_auth();
+
+    $ret .= LJ::labelfy( 'impersonate_username', $ML{'.form.username' } );
+    $ret .= LJ::html_text( { id => 'impersonate_username', name => 'username', maxlength => '25', size => '25', value => $POST{username} } ) . "<br />";
+
+    $ret .= LJ::labelfy( 'impersonate_password', $ML{'.form.password'} );
+    $ret .= LJ::html_text( { id => 'impersonate_password', name => 'password', type => 'password', size => '25' } ) . "<br />";
+
+    $ret .= LJ::labelfy( 'impersonate_reason', $ML{'.form.reason'} );
+    $ret .= LJ::html_text( { id => 'impersonate_reason', name => 'reason', maxlength => '255', size => '50', value => $POST{reason} } ) . "<br />";
+    $ret .= "<input type='submit' value='Submit' />";
+    $ret .= "</form>";
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_ml .title _ml?>
+head<=
+<?_code return $headextra; _code?>
+<=head
+page?>

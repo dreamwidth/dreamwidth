@@ -109,6 +109,11 @@ FORM
             # TODO: parse out e_unixtime and s_unixtime and display?
         } elsif ($row->{action} eq 'delete_userpic') {
             $action = "Deleted userpic #$extra->{picid}";
+        } elsif ( $row->{action} eq 'impersonated' ) {
+            $action = "Was impersonated: " . LJ::ehtml( $extra->{reason} );
+        } elsif ( $row->{action} eq 'impersonator' ) {
+            my $u = LJ::load_userid( $row->{actiontarget} );
+            $action = "Did impersonate on " . ( $u ? $u->ljuser_display : "(no target)" ) . ": " .  LJ::ehtml( $extra->{reason} );
         } elsif (my $info = LJ::run_hook('userlog_rows', $row)) {
             $action = $info;
         } else {
