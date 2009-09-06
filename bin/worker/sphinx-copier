@@ -26,7 +26,6 @@ schwartz_work();
 package DW::Worker::Sphinx::Copier;
 use base 'TheSchwartz::Worker';
 use Encode;
-use DW::Pay;
 use LJ::DBUtil;
 
 sub work {
@@ -46,16 +45,7 @@ sub work {
     # we have to use utf8 when we write to the db
     $dbto->do( 'SET NAMES \'utf8\'' );
 
-    # if this is a free user, then it's easy
-    my $ps = DW::Pay::get_paid_status( $u );
-    unless ( $ps && ( $ps->{permanent} || $ps->{expiresin} > 0 ) ) {
-        warn "[$$] Removing " . $u->user . "(" . $u->id . ") from the index [free user]...\n";
-        $dbto->do( 'DELETE FROM posts_raw WHERE journal_id = ?', undef, $u->id );
-        die $dbto->errstr if $dbto->err;
-        return $job->completed;
-    }
-
-    # they're a paid user of some sort, so get the posts we know about
+    # figure out which posts the search db knows
     my $sphinx_times = $dbto->selectall_hashref(
         'SELECT jitemid, revtime FROM posts_raw WHERE journal_id = ?',
         'jitemid', undef, $u->id
