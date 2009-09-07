@@ -1509,13 +1509,9 @@ sub cmd_buffer_add
 # class:
 # des: Get the id for a keyword.
 # args: uuid?, keyword, autovivify?
-# des-uuid: User object or userid to use.  Pass this <strong>only</strong> if
-#           you want to use the [dbtable[userkeywords]] clustered table!  If you
-#           do not pass user information, the [dbtable[keywords]] table
-#           on the global will be used.
+# des-uuid: User object or userid to use.
 # des-keyword: A string keyword to get the id of.
-# returns: Returns a kwid into [dbtable[keywords]] or
-#          [dbtable[userkeywords]], depending on if you passed a user or not.
+# returns: Returns a kwid into [dbtable[userkeywords]].
 #          If the keyword doesn't exist, it is automatically created for you.
 # des-autovivify: If present and 1, automatically create keyword.
 #                 If present and 0, do not automatically create the keyword.

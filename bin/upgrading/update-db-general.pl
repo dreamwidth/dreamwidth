@@ -161,16 +161,6 @@ CREATE TABLE interests (
 )
 EOC
 
-register_tablecreate("keywords", <<'EOC');
-CREATE TABLE keywords (
-    kwid int(10) unsigned NOT NULL auto_increment,
-    keyword varchar(80) binary NOT NULL default '',
-
-    PRIMARY KEY  (kwid),
-    UNIQUE KEY kwidx (keyword)
-)
-EOC
-
 register_tablecreate("logproplist", <<'EOC');
 CREATE TABLE logproplist (
     propid tinyint(3) unsigned NOT NULL auto_increment,
@@ -976,6 +966,7 @@ register_tabledrop("adoptlast");
 register_tabledrop("urimap");
 register_tabledrop("syndicated_hubbub");
 register_tabledrop("oldids");
+register_tabledrop("keywords");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -3351,11 +3342,6 @@ register_alter(sub {
         do_alter("memorable",
                  "ALTER TABLE memorable ".
                  "MODIFY des VARCHAR(150) NOT NULL");
-    }
-    if (column_type("keywords", "keyword") eq "varchar(40) binary") {
-        do_alter("keywords",
-                 "ALTER TABLE keywords ".
-                 "MODIFY keyword VARCHAR(80) BINARY NOT NULL");
     }
 
     #allow longer moodtheme pic URLs
