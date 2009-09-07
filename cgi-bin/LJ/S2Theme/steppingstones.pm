@@ -9,7 +9,7 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::steppingstones::chocolate;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::steppingstones::duskyrose;
 use base qw( LJ::S2Theme::steppingstones );
@@ -29,7 +29,7 @@ sub cats { qw( ) }
 
 package LJ::S2Theme::steppingstones::purple;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 package LJ::S2Theme::steppingstones::shadows;
 use base qw( LJ::S2Theme::steppingstones );
