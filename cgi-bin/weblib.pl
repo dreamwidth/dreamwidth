@@ -3250,7 +3250,7 @@ sub subscribe_interface {
                 my $subid = $pending_sub->id;
                 my $deletesub_url = $settings_page ? "$LJ::SITEROOT/manage/settings/?cat=notifications&deletesub_$subid=1" : "?deletesub_$subid=1";
                 $cat_html .= qq {
-                    <a href='$deletesub_url'><img src="$LJ::IMGPREFIX/portal/btn_del.gif" /></a>
+                    <a href='$deletesub_url'><img src="$LJ::IMGPREFIX/portal/btn_del.gif" alt="Delete"/></a>
                 };
             }
             my $always_checked = eval { "$evt_class"->always_checked; };
