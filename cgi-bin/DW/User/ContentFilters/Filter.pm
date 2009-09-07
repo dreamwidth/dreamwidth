@@ -134,9 +134,9 @@ sub data {
 
     # try memcache second
     my $u = $self->owner;
-    my $data = $u->memc_get( 'cfd:' . $self->id );
-    return $self->{_data} = $data
-        if $data;
+    my $mem_data = $u->memc_get( 'cfd:' . $self->id );
+    return $self->{_data} = $mem_data
+        if $mem_data;
 
     # fall back to the database
     my $data = $u->selectrow_array(

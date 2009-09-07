@@ -179,7 +179,7 @@ sub clean
         foreach (@{$opts->{'attrstrip'}}) { push @attrstrip, $_; }
     }
 
-    my %opencount = ();
+    my %opencount = map {$_ => 0} qw(td th);
     my @tablescope = ();
 
     my $cutcount = 0;
