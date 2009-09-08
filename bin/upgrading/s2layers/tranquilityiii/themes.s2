@@ -1,0 +1,108 @@
+#NEWLAYER: tranquilityiii/brick
+layerinfo "type" = "theme";
+layerinfo "name" = "Brick";
+layerinfo "redist_uniq" = "tranquilityiii/brick";
+layerinfo author_name = "branchandroot";
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#6D2F34";
+set color_page_link = "#6D2F34";
+set color_page_link_visited = "#aD6F74";
+set color_page_title = "#fff";
+set color_header_background = "";
+set color_footer_background = "";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_border = "#aD6F74";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#";
+set color_module_text = "#fff";
+set color_module_link = "#eAdDc6";
+set color_module_link_visited = "#CABDA6";
+
+
+#NEWLAYER: tranquilityiii/lilac
+layerinfo "type" = "theme";
+layerinfo "name" = "Lilac";
+layerinfo "redist_uniq" = "tranquilityiii/lilac";
+layerinfo author_name = "branchandroot";
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#786079";
+set color_page_link = "#786079";
+set color_page_link_visited = "#b8a0b9";
+set color_page_title = "#fff";
+set color_header_background = "";
+set color_footer_background = "";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_border = "#b8a0b9";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#b8a0b9";
+set color_module_text = "#fff";
+set color_module_link = "#382039";
+set color_module_link_visited = "#584059";
+
+
+#NEWLAYER: tranquilityiii/nightsea
+layerinfo type = "theme";
+layerinfo name = "Night Sea";
+layerinfo redist_uniq = "tranquilityiii/nightsea";
+layerinfo author_name = "branchandroot";
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#234";
+set color_page_link = "#468";
+set color_page_link_visited = "#79b";
+set color_page_title = "#eee";
+set color_header_background = "#456";
+set color_footer_background = "#456";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_border = "#678";
+
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#678";
+set color_module_text = "#eee";
+set color_module_link = "#012";
+set color_module_link_visited = "#234";

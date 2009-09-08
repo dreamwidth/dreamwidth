@@ -42,6 +42,7 @@ sub default_theme {
         drifting => 'drifting/blue',
         negatives => 'negatives/black',
         steppingstones => 'steppingstones/purple',
+        tranquilityiii => 'tranquilityiii/nightsea',
         zesty => 'zesty/white',
     );
 
