@@ -2546,9 +2546,11 @@ sub control_strip
                     'community'         => BML::ml('web.controlstrip.status.community', {'user' => $journal_display}),
                     'syn'               => BML::ml('web.controlstrip.status.syn', {'user' => $journal_display}),
                     'other'             => BML::ml('web.controlstrip.status.other', {'user' => $journal_display}),
+                    'mutualtrust' => BML::ml('web.controlstrip.status.mutualtrust', {'user' => $journal_display}),
                     'mutualtrust_mutualwatch' => BML::ml('web.controlstrip.status.mutualtrust_mutualwatch', {'user' => $journal_display}),
                     'mutualtrust_watch' => BML::ml('web.controlstrip.status.mutualtrust_watch', {'user' => $journal_display}),
                     'mutualtrust_watchedby' => BML::ml('web.controlstrip.status.mutualtrust_watchedby', {'user' => $journal_display}),
+                    'mutualwatch' => BML::ml('web.controlstrip.status.mutualwatch', {'user' => $journal_display}),
                     'trust_mutualwatch' => BML::ml('web.controlstrip.status.trust_mutualwatch', {'user' => $journal_display}),
                     'trust_watch' => BML::ml('web.controlstrip.status.trust_watch', {'user' => $journal_display}),
                     'trust_watchedby' => BML::ml('web.controlstrip.status.trust_watchedby', {'user' => $journal_display}),
@@ -2680,14 +2682,20 @@ sub control_strip
             } elsif ( $trusted && $mutual_watch ) {
                 $ret .= "$statustext{trust_mutualwatch}<br />";
                 $ret .= "$links{edit_friend}";
+            } elsif ( $trusted_by && $mutual_watch ) {
+                $ret .= "$statustext{trustedby_mutualwatch}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $mutual_trust ) {
+                $ret .= "$statustext{mutualtrust}<br />";
+                $ret .= "$links{edit_friend}";
+            } elsif ( $mutual_watch ) {
+                $ret .= "$statustext{mutualwatch}<br />";
+                $ret .= "$links{edit_friend}";
             } elsif ( $trusted && $watched ) {
                 $ret .= "$statustext{trust_watch}<br />";
                 $ret .= "$links{edit_friend}";
             } elsif ( $trusted && $watched_by ) {
                 $ret .= "$statustext{trust_watchedby}<br />";
-                $ret .= "$links{edit_friend}";
-            } elsif ( $trusted_by && $mutual_watch ) {
-                $ret .= "$statustext{trustedby_mutualwatch}<br />";
                 $ret .= "$links{edit_friend}";
             } elsif ( $trusted_by && $watched ) {
                 $ret .= "$statustext{trustedby_watch}<br />";

@@ -3798,11 +3798,15 @@ web.controlstrip.status.member=You are a member of [[user]]
 
 web.controlstrip.status.memberwatcher=You are a member of and are watching [[user]]
 
+web.controlstrip.status.mutualtrust=[[user]] and you have mutual access
+
 web.controlstrip.status.mutualtrust_mutualwatch=[[user]] and you have mutual access and mutual subscriptions
 
 web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to them
 
 web.controlstrip.status.mutualtrust_watchedby=[[user]] and you have mutual access and they subscribe to you
+
+web.controlstrip.status.mutualwatch=[[user]] and you have mutual subscriptions
 
 web.controlstrip.status.other=You are viewing [[user]]
 
