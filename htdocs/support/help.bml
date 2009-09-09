@@ -1,16 +1,16 @@
 <?page
 head<=
 <style type='text/css'>
-.green {
+.green, .green td {
     background-color: #d0eed0;
 }
-.yellow {
+.yellow, .yellow td {
     background-color: #eeeed0;
 }
-.red {
+.red, .red td {
     background-color: #eed0d0;
 }
-.clicked {
+.clicked, .clicked td {
     background-color: #d0d0ee;
 }
 </style>
