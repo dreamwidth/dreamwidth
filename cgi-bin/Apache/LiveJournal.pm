@@ -1674,17 +1674,15 @@ sub interface_content
 
     if ($RQ{'interface'} ne "flat") {
         $r->content_type("text/plain");
-#        $r->send_http_header;
         $r->print("Unknown interface.");
         return OK;
     }
 
     $r->content_type("text/plain");
 
-    my %out = ();
-    my %FORM = ();
-    my $content;
-    $r->read($content, $r->headers_in->{"Content-Length"});
+    my ( %out, %FORM, $content );
+    $r->read($content, $r->headers_in->{"Content-Length"})
+        if $r->headers_in->{'Content-Length'};
     LJ::decode_url_string($content, \%FORM);
 
     # the protocol needs the remote IP in just one place, where tracking is done.
@@ -1692,7 +1690,6 @@ sub interface_content
     LJ::do_request(\%FORM, \%out);
 
     if ($FORM{'responseenc'} eq "urlenc") {
-#        $r->send_http_header;
         foreach (sort keys %out) {
             $r->print(LJ::eurl($_) . "=" . LJ::eurl($out{$_}) . "&");
         }
@@ -1706,7 +1703,6 @@ sub interface_content
     }
 
     $r->headers_out->{"Content-length"} = $length;
-#    $r->send_http_header;
     foreach (sort keys %out) {
         my $key = $_;
         my $val = $out{$_};
