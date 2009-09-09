@@ -617,11 +617,6 @@ sub trans
             return $bml_handler->( "$LJ::HOME/htdocs/allpics.bml" );
         }
 
-        if ( $opts->{mode} eq "edges" ) {
-            $r->notes->{_journal} = $opts->{user};
-            return $bml_handler->( "$LJ::HOME/htdocs/data/edges.bml" );
-        }
-
         %RQ = %$opts;
 
         if ($opts->{mode} eq "data" && $opts->{pathextra} =~ m!^/(\w+)(/.*)?!) {
@@ -630,6 +625,12 @@ sub trans
             return remote_domsess_bounce() if LJ::remote_bounce_url();
 
             my ($mode, $path) = ($1, $2);
+
+            if ( $mode eq "edges" ) {
+                $r->notes->{_journal} = $opts->{user};
+                return $bml_handler->( "$LJ::HOME/htdocs/data/edges.bml" );
+            }
+
             if ($mode eq "customview") {
                 $r->handler("perl-script");
                 $r->push_handlers(PerlResponseHandler => \&customview_content);
