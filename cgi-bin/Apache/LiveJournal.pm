@@ -617,6 +617,11 @@ sub trans
             return $bml_handler->( "$LJ::HOME/htdocs/allpics.bml" );
         }
 
+        if ( $opts->{mode} eq "edges" ) {
+            $r->notes->{_journal} = $opts->{user};
+            return $bml_handler->( "$LJ::HOME/htdocs/data/edges.bml" );
+        }
+
         %RQ = %$opts;
 
         if ($opts->{mode} eq "data" && $opts->{pathextra} =~ m!^/(\w+)(/.*)?!) {

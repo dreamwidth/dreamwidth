@@ -181,7 +181,8 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                  },
                  "icons" => {
                     "des" => "Icons",
-                 }
+                 },
+                 edges => { des => 'Edges', },
                  );
 
 ## we want to set this right away, so when we get a HUP signal later
