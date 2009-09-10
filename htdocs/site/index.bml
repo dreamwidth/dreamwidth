@@ -110,7 +110,7 @@ body<=
    <li><?ljuser news ljuser?></li>
    <li><?ljuser dw_maintenance ljuser?></li>
    <li><?ljuser dw_lounge ljuser?></li>
-   <li><?ljuser dw_suggestions ljuser?></li>
+   <li><?ljuser dw_suggestions ljuser?> - <a href='/site/suggest'><?_ml .maplinks.suggestion _ml?></li>
    <li><a href='/support/faqbrowse?faqid=65'><?_ml .maplinks.official-journals.list _ml?></a></li>
   </ul></dd></dl>
 
