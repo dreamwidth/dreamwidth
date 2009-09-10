@@ -70,10 +70,9 @@
     # different individual and community edges
     if ( $u->is_individual ) {
         $response->{trusted} = [ $u->trusted_userids ];
-        $response->{watched} = [ $u->trusted_userids ];
-        $response->{trusted_by} = [ $u->trusted_userids ];
-        $response->{member_of} = [ $u->trusted_userids ];
-
+        $response->{watched} = [ $u->watched_userids ];
+        $response->{trusted_by} = [ $u->trusted_by_userids ];
+        $response->{member_of} = [ $u->member_of_userids ];
     } elsif ( $u->is_community ) {
         $response->{maintainer} = [ $u->maintainer_userids ];
         $response->{moderator} = [ $u->moderator_userids ];
