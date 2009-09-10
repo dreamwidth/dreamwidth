@@ -9,7 +9,7 @@ sub designer { "Malionette" }
 
 package LJ::S2Theme::bases::tropical;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( featured ) }
+sub cats { qw( featured base ) }
 
 package LJ::S2Theme::bases::summerholiday;
 use base qw( LJ::S2Theme::bases );

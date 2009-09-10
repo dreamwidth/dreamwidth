@@ -667,13 +667,19 @@ sub get_cats {
         special => {
             text => LJ::Lang::ml('customize.cats.special'),
             main => 1,
-            order => 3,
+            order => 4,
         },
         custom => {
             text => LJ::Lang::ml('customize.cats.custom'),
             main => 1,
-            order => 4,
+            order => 5,
         },
+        base => {
+            text => LJ::Lang::ml( 'customize.cats.base' ),
+            main => 1,
+            order => 3,
+        },
+
     );
 
     LJ::run_hooks("modify_cat_list", \@categories, user => $u,);
