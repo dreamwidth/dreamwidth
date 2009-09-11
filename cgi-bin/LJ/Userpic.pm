@@ -151,7 +151,8 @@ sub absorb_row {
     for my $f (qw(userid picid width height comment description location state url pictime flags md5base64)) {
         $self->{$f} = $row->{$f};
     }
-    $self->{_ext} = $MimeTypeMap{$row->{fmt} || $row->{contenttype}};
+    my $key = $row->{fmt} || $row->{contenttype}; # avoid warnings on uninitialized value in hash element FIXME
+    $self->{_ext} = $MimeTypeMap{$key} if defined $key;
     return $self;
 }
 
@@ -680,6 +681,7 @@ sub create {
     };
 
     ### insert the blob
+    $target ||= ''; # avoid warnings FIXME should this be set before the INSERT call?
     if ($target eq 'mogile' && !$dberr) {
         my $fh = LJ::mogclient()->new_file($u->mogfs_userpic_key($picid), 'userpics');
         if (defined $fh) {
@@ -801,7 +803,8 @@ sub delete {
     # TODO: we could fire warnings if they fail, then if $LJ::DIE_ON_WARN is set,
     # the ->warn methods on errobjs are actually dies.
     eval {
-        if ($self->location eq 'mogile') {
+        my $location = $self->location; # avoid warnings FIXME
+        if (defined $location and $location eq 'mogile') {
             LJ::mogclient()->delete($u->mogfs_userpic_key($picid));
         } elsif ($LJ::USERPIC_BLOBSERVER &&
                  LJ::Blob::delete($u, "userpic", $self->extension, $picid)) {

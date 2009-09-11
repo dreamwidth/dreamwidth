@@ -194,7 +194,7 @@ sub parse_module_embed {
 
         # we decided to switch back to REGULAR and have something in embed buffer
         # so let's save buffer as an embed module and start all over again
-        if ($newstate == REGULAR && $embed) {
+        if (defined $newstate && $newstate == REGULAR && $embed) {
             $embed_attrs{id} = $class->save_module(
                 id => ($preview ? $next_preview_id++ : $embed_attrs{id}),
                 contents => $embed,
