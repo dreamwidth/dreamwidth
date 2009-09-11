@@ -396,6 +396,11 @@ body<=
     $ret .= "<div class='$given_cat'>";
 
     if ($given_cat eq "notifications") {
+
+    $ret .= "<div id='settings_save'>";
+    $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
+    $ret .= "</div>";
+
         my $my_account_extra = LJ::run_hook('subscriptions_manage_my_account_extra', $u);
 
         # set up default subscriptions for users that have not managed ESN stuff
