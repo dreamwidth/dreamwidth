@@ -27,6 +27,9 @@ core2base/themes        theme+          core2base/layout
 drifting/layout         layout          core2
 drifting/themes         theme+          drifting/layout
 
+funkycircles/layout     layout(core2base/layout)    core2
+funkycircles/themes     theme+                      funkycircles/layout
+
 modish/layout           layout(core2base/layout)    core2
 
 negatives/layout        layout          core2

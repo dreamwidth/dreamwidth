@@ -40,6 +40,7 @@ sub default_theme {
         boxesandborders => 'boxesandborders/gray',
         core2base => 'core2base/testing',
         drifting => 'drifting/blue',
+        funkycircles => 'funkycircles/darkpurple',
         negatives => 'negatives/black',
         steppingstones => 'steppingstones/purple',
         tranquilityiii => 'tranquilityiii/nightsea',
