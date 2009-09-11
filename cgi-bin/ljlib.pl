@@ -2118,10 +2118,8 @@ sub alloc_global_counter
     } elsif ($dom eq "H") {
         $newmax = $dbh->selectrow_array("SELECT MAX(cartid) FROM shop_carts");
     } elsif ($dom eq "L") {
-        # pick maximum id from poll and pollowner
-        my $max_poll      = $dbh->selectrow_array("SELECT MAX(pollid) FROM poll");
-        my $max_pollowner = $dbh->selectrow_array("SELECT MAX(pollid) FROM pollowner");
-        $newmax = $max_poll > $max_pollowner ? $max_poll : $max_pollowner;
+        # pick maximum id from pollowner
+        $newmax = $dbh->selectrow_array( "SELECT MAX(pollid) FROM pollowner" );
     } elsif ( $dom eq 'F' ) {
         $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
     } else {

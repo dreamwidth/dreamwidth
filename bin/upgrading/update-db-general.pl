@@ -261,71 +261,6 @@ CREATE TABLE pendcomments (
 )
 EOC
 
-register_tablecreate("poll", <<'EOC');
-CREATE TABLE poll (
-    pollid int(10) unsigned NOT NULL auto_increment,
-    itemid int(10) unsigned NOT NULL default '0',
-    journalid int(10) unsigned NOT NULL default '0',
-    posterid int(10) unsigned NOT NULL default '0',
-    whovote enum('all','friends') NOT NULL default 'all',
-    whoview enum('all','friends','none') NOT NULL default 'all',
-    name varchar(255) default NULL,
-
-    PRIMARY KEY  (pollid),
-    KEY (itemid),
-    KEY (journalid),
-    KEY (posterid)
-)
-EOC
-
-register_tablecreate("pollitem", <<'EOC');
-CREATE TABLE pollitem (
-    pollid int(10) unsigned NOT NULL default '0',
-    pollqid tinyint(3) unsigned NOT NULL default '0',
-    pollitid tinyint(3) unsigned NOT NULL default '0',
-    sortorder tinyint(3) unsigned NOT NULL default '0',
-    item varchar(255) default NULL,
-
-    PRIMARY KEY  (pollid,pollqid,pollitid)
-)
-EOC
-
-register_tablecreate("pollquestion", <<'EOC');
-CREATE TABLE pollquestion (
-    pollid int(10) unsigned NOT NULL default '0',
-    pollqid tinyint(3) unsigned NOT NULL default '0',
-    sortorder tinyint(3) unsigned NOT NULL default '0',
-    type enum('check','radio','drop','text','scale') default NULL,
-    opts varchar(20) default NULL,
-    qtext text,
-
-    PRIMARY KEY  (pollid,pollqid)
-)
-EOC
-
-register_tablecreate("pollresult", <<'EOC');
-CREATE TABLE pollresult (
-    pollid int(10) unsigned NOT NULL default '0',
-    pollqid tinyint(3) unsigned NOT NULL default '0',
-    userid int(10) unsigned NOT NULL default '0',
-    value varchar(255) default NULL,
-
-    PRIMARY KEY  (pollid,pollqid,userid),
-    KEY (pollid,userid)
-)
-EOC
-
-register_tablecreate("pollsubmission", <<'EOC');
-CREATE TABLE pollsubmission (
-    pollid int(10) unsigned NOT NULL default '0',
-    userid int(10) unsigned NOT NULL default '0',
-    datesubmit datetime NOT NULL default '0000-00-00 00:00:00',
-
-    PRIMARY KEY  (pollid,userid),
-    KEY (userid)
-)
-EOC
-
 register_tablecreate("priv_list", <<'EOC');
 CREATE TABLE priv_list (
     prlid smallint(5) unsigned NOT NULL auto_increment,
@@ -967,6 +902,11 @@ register_tabledrop("urimap");
 register_tabledrop("syndicated_hubbub");
 register_tabledrop("oldids");
 register_tabledrop("keywords");
+register_tabledrop("poll");
+register_tabledrop("pollitem");
+register_tabledrop("pollquestion");
+register_tabledrop("pollresult");
+register_tabledrop("pollsubmission");
 
 register_tablecreate("portal", <<'EOC');
 CREATE TABLE portal (
@@ -3732,11 +3672,6 @@ register_alter(sub {
     }
 
     # add a status column to polls
-    unless (column_type("poll", "status")) {
-        do_alter("poll",
-                 "ALTER TABLE poll ADD status CHAR(1) AFTER name, " .
-                 "ADD INDEX (status)");
-    }
     unless (column_type("poll2", "status")) {
         do_alter("poll2",
                  "ALTER TABLE poll2 ADD status CHAR(1) AFTER name, " .
@@ -3868,13 +3803,6 @@ register_alter(sub {
     unless ( column_type( "acctcode", "timesent" ) ) {
         do_alter( "acctcode",
                   "ALTER TABLE acctcode ADD timesent INT UNSIGNED");
-    }
-
-    unless ( column_type( "poll", "whovote" ) =~ /trusted/ ) {
-        do_alter("poll",
-                 "ALTER TABLE poll MODIFY COLUMN whovote ENUM('all','trusted','ofentry') NOT NULL default 'all'" );
-        do_alter("poll",
-                 "ALTER TABLE poll MODIFY COLUMN whoview ENUM('all','trusted','ofentry','none') NOT NULL default 'all'" );
     }
 
     unless ( column_type( "poll2", "whovote" ) =~ /trusted/ ) {

@@ -547,23 +547,14 @@ sub _load {
 
     my $row = '';
 
-    unless ($journalid) {
-        # this is probably not clustered, check global
-        $row = $dbr->selectrow_hashref("SELECT pollid, itemid, journalid, " .
-                                       "posterid, whovote, whoview, name, status " .
-                                       "FROM poll WHERE pollid=?", undef, $self->pollid);
-        die $dbr->errstr if $dbr->err;
-    } else {
-        my $u = LJ::load_userid($journalid)
-            or die "Invalid journalid $journalid";
+    my $u = LJ::load_userid( $journalid )
+        or die "Invalid journalid $journalid";
 
-        # double-check to make sure we are consulting the right table
-        $row = $u->selectrow_hashref( "SELECT pollid, journalid, ditemid, " .
-                                      "posterid, whovote, whoview, name, status " .
-                                      "FROM poll2 WHERE pollid=? " .
-                                      "AND journalid=?", undef, $self->pollid, $journalid );
-        die $u->errstr if $u->err;
-    }
+    $row = $u->selectrow_hashref( "SELECT pollid, journalid, ditemid, " .
+                                  "posterid, whovote, whoview, name, status " .
+                                  "FROM poll2 WHERE pollid=? " .
+                                  "AND journalid=?", undef, $self->pollid, $journalid );
+    die $u->errstr if $u->err;
 
     return undef unless $row;
 
