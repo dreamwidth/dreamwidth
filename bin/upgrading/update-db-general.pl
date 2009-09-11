@@ -907,52 +907,10 @@ register_tabledrop("pollitem");
 register_tabledrop("pollquestion");
 register_tabledrop("pollresult");
 register_tabledrop("pollsubmission");
-
-register_tablecreate("portal", <<'EOC');
-CREATE TABLE portal (
-    userid int(10) unsigned NOT NULL default '0',
-    loc enum('left','main','right','moz') NOT NULL default 'left',
-    pos tinyint(3) unsigned NOT NULL default '0',
-    boxname varchar(30) default NULL,
-    boxargs varchar(255) default NULL,
-
-    PRIMARY KEY  (userid,loc,pos),
-    KEY boxname (boxname)
-)
-EOC
-
-register_tablecreate("portal_box_prop", <<'EOC');
-CREATE TABLE portal_box_prop (
-    userid INT(10),
-    pboxid SMALLINT,
-    ppropid SMALLINT,
-    propvalue VARCHAR(255) BINARY,
-
-    PRIMARY KEY(userid, pboxid, ppropid)
-)
-EOC
-
-register_tablecreate("portal_config", <<'EOC');
-CREATE TABLE portal_config (
-    userid INT(10),
-    pboxid SMALLINT,
-    col CHAR(1),
-    sortorder TINYINT,
-    type INT,
-
-    PRIMARY KEY(userid,pboxid)
-)
-EOC
-
-register_tablecreate("portal_typemap", <<'EOC');
-CREATE TABLE portal_typemap (
-    id SMALLINT UNSIGNED AUTO_INCREMENT NOT NULL,
-    class_name VARCHAR(255),
-
-    PRIMARY KEY (id),
-    UNIQUE (class_name)
-)
-EOC
+register_tabledrop("portal");
+register_tabledrop("portal_box_prop");
+register_tabledrop("portal_config");
+register_tabledrop("portal_typemap");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -3503,16 +3461,6 @@ register_alter(sub {
     if (column_type("includetext", "inctext") !~ /mediumtext/) {
         do_alter("includetext",
                  "ALTER TABLE includetext MODIFY COLUMN inctext MEDIUMTEXT");
-    }
-
-    if (column_type("portal_config", "userid") !~ /unsigned/i) {
-        do_alter("portal_config",
-                 "ALTER TABLE portal_config MODIFY COLUMN userid INT UNSIGNED NOT NULL, MODIFY COLUMN pboxid SMALLINT UNSIGNED NOT NULL, MODIFY COLUMN sortorder SMALLINT UNSIGNED NOT NULL, MODIFY COLUMN type INT UNSIGNED NOT NULL");
-    }
-
-    if (column_type("portal_box_prop", "userid") !~ /unsigned/i) {
-                 do_alter("portal_box_prop",
-                          "ALTER TABLE portal_box_prop MODIFY COLUMN userid INT UNSIGNED NOT NULL, MODIFY COLUMN pboxid SMALLINT UNSIGNED NOT NULL, MODIFY COLUMN ppropid SMALLINT UNSIGNED NOT NULL");
     }
 
     # These table are both livejournal tables, although could have ljcom values

@@ -795,7 +795,6 @@ sub create_table
 sub drop_table
 {
     my $table = shift;
-    return if $cluster && ! defined $clustered_table{$table};
 
     if ($opt_drop) {
         do_sql("DROP TABLE $table");
