@@ -1547,7 +1547,7 @@ sub postevent
         push @jobs, LJ::Event::OfficialPost->new($entry)->fire_job if $uowner->is_official;        
 
         # PubSubHubbub Support
-        LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs );
+        LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
     }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 
@@ -1911,7 +1911,7 @@ sub editevent
 
     # PubSubHubbub Support
     my @jobs;
-    LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs );
+    LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
 
     LJ::run_hooks( "editpost", $entry, \@jobs );
 
