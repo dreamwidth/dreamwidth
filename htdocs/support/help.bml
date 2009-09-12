@@ -13,6 +13,9 @@ head<=
 .clicked, .clicked td {
     background-color: #d0d0ee;
 }
+table.supporttable {
+    margin-left: 1px;
+}
 </style>
 
 <script type='text/javascript'>
