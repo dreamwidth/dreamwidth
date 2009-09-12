@@ -7,7 +7,6 @@ require 'ljlib.pl';
 require 'ljprotocol.pl';
 require 'talklib.pl';
 
-BEGIN { $LJ::HOME = $ENV{LJHOME}; }
 use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);

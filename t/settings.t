@@ -14,7 +14,6 @@ require 'htmlcontrols.pl';
 package main;
 
 
-BEGIN { $LJ::HOME = $ENV{LJHOME}; }
 #use LJ::Setting::WebpageURL;
 use LJ::Setting::Gender;
 use LJ::Setting::Name;

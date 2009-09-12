@@ -10,12 +10,14 @@ use vars qw(@ISA @EXPORT);
 @ISA    = qw(Exporter);
 @EXPORT = qw(module_subclasses);
 
+use DW;
+
 # given a module name, looks under cgi-bin/ for its patch and, if valid,
 # returns (assumed) package names of all modules in the directory
 sub module_subclasses {
     shift if @_ > 1; # get rid of classname
     my $base_class = shift;
-    my $base_path  = "$LJ::HOME/cgi-bin/" . join("/", split("::", $base_class));
+    my $base_path  = join("/", DW->home, 'cgi-bin', split("::", $base_class));
     die "invalid base: $base_class ($base_path)" unless -d $base_path;
 
     my @dirs = $base_path;
@@ -62,7 +64,7 @@ sub require_if_exists {
 
     # allow caller to pass in "filename.pl", which will be
     # assumed in $LJHOME/cgi-bin/, otherwise a full path
-    $req_file = "$LJ::HOME/cgi-bin/$req_file"
+    $req_file = DW->home . "/cgi-bin/$req_file"
         unless $req_file =~ m!/!;
 
     # lib should return 1

@@ -5,7 +5,6 @@ use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'ljprotocol.pl';
-BEGIN { $LJ::HOME = $ENV{LJHOME}; }
 use LJ::Event;
 use LJ::Test qw(memcache_stress temp_user);
 use FindBin qw($Bin);
