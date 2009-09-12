@@ -1711,8 +1711,7 @@ sub talkform {
             return false;
         }
         if (document.getElementById && (document.getSelection || document.selection || window.getSelection)) {
-            // Opera clears the paste buffer before mouse events, useless here
-                if (navigator.userAgent.indexOf("Opera") == -1) { document.write('$quickquote'); }
+            document.write('$quickquote');
         }
 QQ
 
