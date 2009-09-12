@@ -62,7 +62,7 @@ use MIME::Words;
 # Try to load DBI::Profile
 BEGIN { $LJ::HAVE_DBI_PROFILE = eval "use DBI::Profile (); 1;" }
 
-require "ljlang.pl";
+use LJ::Lang;
 require "htmlcontrols.pl";
 require "weblib.pl";
 require "imageconf.pl";

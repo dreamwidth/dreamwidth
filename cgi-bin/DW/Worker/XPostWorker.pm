@@ -27,8 +27,9 @@ use base 'TheSchwartz::Worker';
 use DW::External::Account;
 use LJ::Event::XPostSuccess;
 use LJ::User;
+use LJ::Lang;
 
-BEGIN { require "ljlang.pl"; require "ljprotocol.pl" }
+BEGIN { require "ljprotocol.pl" }
 
 sub schwartz_capabilities { return ('DW::Worker::XPostWorker'); }
 
