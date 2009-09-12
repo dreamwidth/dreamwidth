@@ -3,7 +3,7 @@ package LJ::Widget::BetaFeature;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::BetaFeatures );
+use LJ::BetaFeatures;
 
 sub need_res { }
 

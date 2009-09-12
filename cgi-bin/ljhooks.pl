@@ -1,8 +1,6 @@
 package LJ;
 use strict;
-use Class::Autouse qw(
-                      LJ::ModuleLoader
-                      );
+use LJ::ModuleLoader;
 
 my $hooks_dir_scanned = 0;  # bool: if we've loaded everything from cgi-bin/LJ/Hooks/
 

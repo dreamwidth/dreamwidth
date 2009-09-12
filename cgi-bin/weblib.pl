@@ -10,15 +10,13 @@ use lib "$LJ::HOME/cgi-bin";
 require "crumbs.pl";
 
 use Carp;
-use Class::Autouse qw(
-                      DW::Request
-                      LJ::Event
-                      LJ::Subscription::Pending
-                      LJ::M::ProfilePage
-                      LJ::Directory::Search
-                      LJ::Directory::Constraint
-                      LJ::M::FriendsOf
-                      );
+use DW::Request;
+use LJ::Event;
+use LJ::Subscription::Pending;
+use LJ::M::ProfilePage;
+use LJ::Directory::Search;
+use LJ::Directory::Constraint;
+use LJ::M::FriendsOf;
 
 # <LJFUNC>
 # name: LJ::img

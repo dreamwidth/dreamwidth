@@ -2,10 +2,8 @@ package LJ;
 use strict;
 no warnings 'uninitialized';
 
-use Class::Autouse qw(
-                      LJ::ConvUTF8
-                      HTML::TokeParser
-                      );
+use LJ::ConvUTF8;
+use HTML::TokeParser;
 
 # <LJFUNC>
 # name: LJ::trim

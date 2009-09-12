@@ -5,14 +5,12 @@ use strict;
 package LJ::Talk;
 
 use LJ::Constants;
-use Class::Autouse qw(
-                      LJ::Event::JournalNewComment
-                      LJ::Event::UserNewComment
-                      LJ::Comment
-                      LJ::EventLogRecord::NewComment
-                      Captcha::reCAPTCHA
-                      LJ::OpenID
-                      );
+use LJ::Event::JournalNewComment;
+use LJ::Event::UserNewComment;
+use LJ::Comment;
+use LJ::EventLogRecord::NewComment;
+use Captcha::reCAPTCHA;
+use LJ::OpenID;
 use MIME::Words;
 use Carp qw(croak);
 

@@ -4,7 +4,7 @@ use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
 
-use Class::Autouse qw(LJ::ExpungedUsers);
+use LJ::ExpungedUsers;
 
 # increments with each rendering of the sorter bar
 my $sorter_bar_idx = 0;

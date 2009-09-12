@@ -3,12 +3,10 @@
 package LJ;
 
 use strict;
-use Class::Autouse qw(
-                      LJ::Event::CommunityInvite
-                      LJ::Event::CommunityJoinRequest
-                      LJ::Event::CommunityJoinApprove
-                      LJ::Event::CommunityJoinReject
-                      );
+use LJ::Event::CommunityInvite;
+use LJ::Event::CommunityJoinRequest;
+use LJ::Event::CommunityJoinApprove;
+use LJ::Event::CommunityJoinReject;
 
 # <LJFUNC>
 # name: LJ::get_sent_invites

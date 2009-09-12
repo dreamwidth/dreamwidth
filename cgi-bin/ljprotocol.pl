@@ -5,18 +5,16 @@ use strict;
 no warnings 'uninitialized';
 
 use LJ::Constants;
-use Class::Autouse qw(
-                      LJ::Console
-                      LJ::Event::JournalNewEntry
-                      LJ::Event::UserNewEntry
-                      LJ::Event::AddedToCircle
-                      LJ::Entry
-                      LJ::Poll
-                      LJ::EventLogRecord::NewEntry
-                      LJ::EventLogRecord::EditEntry
-                      LJ::Config
-                      LJ::Comment
-                      );
+use LJ::Console;
+use LJ::Event::JournalNewEntry;
+use LJ::Event::UserNewEntry;
+use LJ::Event::AddedToCircle;
+use LJ::Entry;
+use LJ::Poll;
+use LJ::EventLogRecord::NewEntry;
+use LJ::EventLogRecord::EditEntry;
+use LJ::Config;
+use LJ::Comment;
 
 LJ::Config->load;
 

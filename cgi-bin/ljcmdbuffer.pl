@@ -2,7 +2,7 @@
 #
 
 use strict;
-use Class::Autouse qw(LJ::Event);
+use LJ::Event;
 
 use lib "$LJ::HOME/cgi-bin";
 require "ljlib.pl";

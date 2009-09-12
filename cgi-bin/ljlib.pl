@@ -32,27 +32,24 @@ use LJ::Constants;
 use Time::Local ();
 use Storable ();
 use Compress::Zlib ();
-use Class::Autouse qw(
-                      DW::Request
-                      TheSchwartz
-                      TheSchwartz::Job
-                      LJ::Comment
-                      LJ::Config
-                      LJ::ExternalSite
-                      LJ::ExternalSite::Vox
-                      LJ::Message
-                      LJ::PageStats
-                      LJ::AccessLogSink
-                      LJ::ConvUTF8
-                      LJ::Userpic
-                      LJ::ModuleCheck
-                      IO::Socket::INET
-                      LJ::UniqCookie
-                      LJ::WorkerResultStorage
-                      LJ::EventLogRecord
-                      LJ::EventLogRecord::DeleteComment
-                      );
-
+use DW::Request;
+use TheSchwartz;
+use TheSchwartz::Job;
+use LJ::Comment;
+use LJ::Config;
+use LJ::ExternalSite;
+use LJ::ExternalSite::Vox;
+use LJ::Message;
+use LJ::PageStats;
+use LJ::AccessLogSink;
+use LJ::ConvUTF8;
+use LJ::Userpic;
+use LJ::ModuleCheck;
+use IO::Socket::INET;
+use LJ::UniqCookie;
+use LJ::WorkerResultStorage;
+use LJ::EventLogRecord;
+use LJ::EventLogRecord::DeleteComment;
 use DW::External::Account;
 use DW::External::User;
 use DW::Logic::LogItems;
