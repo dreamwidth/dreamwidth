@@ -454,7 +454,7 @@ sub load_matching {
     croak("unknown parameters: " . join(", ", keys %opts))
         if %opts;
 
-    my @faqs = $class->load_all(lang => $lang);
+    my @faqs = $class->load_all( lang => $lang, allow_no_cat => 1 );
     die "unable to load faqs" unless @faqs;
 
     my %scores  = (); # faqid => score
