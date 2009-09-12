@@ -1757,6 +1757,10 @@ You can:
 
 esn.poll_vote.subject=[[user]] voted in a poll!
 
+esn.poll_vote.subject2=Someone replied to poll #[[number]]: [[topic]].
+
+esn.poll_vote.subject2.notopic=Someone replied to poll #[[number]].
+
 esn.post_entry=[[openlink]]Post an entry[[closelink]]
 
 esn.post_happy_bday=[[openlink]]Post to wish them a happy birthday[[closelink]]

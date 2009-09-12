@@ -92,7 +92,7 @@ my @_ml_strings = (
                                 #
                                 #You can:
                                 #
-    'esn.poll_vote.subject',    #[[user]] voted in a poll!
+    'esn.poll_vote.subject2',    #Someone replied to poll #[[number]]: [[topic]].
     'esn.view_poll_status',     #[[openlink]]View the poll's status[[closelink]]
     'esn.discuss_poll'          #[[openlink]]Discuss the poll[[closelink]]
 );
@@ -100,7 +100,11 @@ my @_ml_strings = (
 sub as_email_subject {
     my $self = shift;
     my $u    = shift;
-    return LJ::Lang::get_text($u->prop('browselang'), 'esn.poll_vote.subject', undef, { user => $self->voter->display_username } );
+    if ( $self->poll->name ) {
+        return LJ::Lang::get_text($u->prop('browselang'), 'esn.poll_vote.subject2', undef, { number => $self->poll->id, topic => $self->poll->name } );
+    } else {
+        return LJ::Lang::get_text($u->prop('browselang'), 'esn.poll_vote.subject2.notopic', undef, { number => $self->poll->id } );
+    }
 }
 
 sub _as_email {
