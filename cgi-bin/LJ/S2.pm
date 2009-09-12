@@ -2252,6 +2252,7 @@ sub UserLite
     $o = {
         '_type' => 'UserLite',
         '_u' => $u,
+        'user' => LJ::ehtml($u->user),
         'username' => LJ::ehtml($u->display_name),
         'name' => LJ::ehtml($u->{'name'}),
         'journal_type' => $u->{'journaltype'},
@@ -2905,7 +2906,7 @@ sub _Comment__get_link
     my $page = get_page();
     my $u = $page->{'_u'};
     my $post_user = $page->{'entry'} ? $page->{'entry'}->{'poster'}->{'username'} : undef;
-    my $com_user = $this->{'poster'} ? $this->{'poster'}->{'username'} : undef;
+    my $com_user = $this->{'poster'} ? $this->{'poster'}->{'user'} : undef;
     my $remote = LJ::get_remote();
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
     my $dtalkid = $this->{talkid};
