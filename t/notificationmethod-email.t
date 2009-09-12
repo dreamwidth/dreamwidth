@@ -10,10 +10,8 @@ use LJ::Test qw(temp_user memcache_stress);
 #plan tests =>;
 plan skip_all => 'Fix this test! LJ/Event/Befriended.pm is missing';
 
-use Class::Autouse qw(
-                      LJ::NotificationMethod::Email
-                      );
-#                      LJ::Event::Befriended
+use LJ::NotificationMethod::Email;
+#use LJ::Event::Befriended;
 
 my $u;
 my $valid_u = sub {

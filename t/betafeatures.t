@@ -6,7 +6,7 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'ljcapabilities.pl';
 use LJ::Test qw(temp_user);
-use Class::Autouse qw(LJ::BetaFeatures);
+use LJ::BetaFeatures;
 
 my $u = LJ::Test::temp_user();
 
