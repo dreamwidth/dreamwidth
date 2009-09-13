@@ -596,8 +596,11 @@ class Page
     function print_stylesheets
     "Prints all defined stylesheets, including default and user-defined ones.";
 
+    function print_default_stylesheets
+    "Prints stylesheets defined by the layout, including any additional CSS defined by the theme.";
+
     function print_default_stylesheet
-    "Prints the default stylesheet.";
+    "Prints the layout's base default stylesheet.";
 
     function builtin print_trusted(string key)
     "Prints a trusted string by key.";
@@ -1802,7 +1805,7 @@ set custom_colors_template = "";
 ##===============================
 
 property bool external_stylesheet {
-    des = "Use linked stylesheet";
+    des = "Use links for external stylesheets";
     note = "If true, a stylesheet link element will point to a file containing the layout's CSS data.";
     noui = 1;
 }
@@ -1813,7 +1816,7 @@ property bool include_default_stylesheet {
 }
 
 property string linked_stylesheet {
-    des = "Use an external stylesheet";
+    des = "Custom stylesheet URL";
     note = "If you have a custom external stylesheet that you'd like to use, enter its URL here.";
 }
 
@@ -2843,21 +2846,27 @@ function Page::print_default_stylesheet()
     """</style>\n""";
 }
 
+function Page::print_default_stylesheets() 
+"Contains the layout and theme default stylesheets. Themes and child layouts may use this to disable the printing of the layout's base default stylesheet, or to add theme-specific CSS bits. May be overriden on a per-layout/theme basis"
+{
+    $this->print_default_stylesheet();
+    if ($*external_stylesheet) {
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        print_stylesheet();
+        end_css();
+        println """</style>""";
+    }   
+}
+
 function Page::print_stylesheets()
 "If you have specific CSS to code onto all themes using this layout, override print_default_stylesheet.  If you have specific CSS to code into this theme, set the external_stylesheet property or override the print_stylesheet function. An end user can choose to link to an off-site stylesheet using the linked_stylesheet property and/or use the custom_css property.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     if ($*include_default_stylesheet) {
-        $this->print_default_stylesheet();
-        if ($*external_stylesheet) {
-            println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-        }
-        else {
-            println """<style type="text/css">""";
-            start_css();
-            print_stylesheet();
-            end_css();
-            println """</style>""";
-        }
+        $this->print_default_stylesheets();
     }
 
     if ($*linked_stylesheet != "") {
