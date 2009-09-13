@@ -51,8 +51,8 @@ body<=
 
     # Take a supplied filter but default it to undef unless it is valid
     my $view = $POST{view} || $GET{view} || undef;
-    $view = undef if ($view eq 'archive' && ! LJ::is_enabled('esn_archive'));
-    $view = undef if ($view && !LJ::NotificationInbox->can("${view}_items"));
+    $view = undef if $view eq 'archive' && ! LJ::is_enabled('esn_archive');
+    $view = undef if $view && !LJ::NotificationInbox->can("${view}_items");
 
     # Bolds the selected View/Folder
     my $selected_folder = $view || 'all';
@@ -121,9 +121,11 @@ body<=
 
     $body .= LJ::error_list(@errors) if (@errors);
 
+    my $viewarg = $view  ? "&view=$view" : "";
     $body .= qq{
     <div class="inbox_newitems pkg">
-        <span class="esnlinks"><a href="$LJ::SITEROOT/inbox/?page=$page" id="RefreshLink"><?_ml inbox.refresh _ml?></a> | <a href="$LJ::SITEROOT/manage/subscriptions/"><?_ml inbox.manage_settings _ml?></a></span>
+        <span class="esnlinks"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg" id="RefreshLink"><?_ml inbox.refresh _ml?></a> |
+          <a href="$LJ::SITEROOT/manage/subscriptions/"><?_ml inbox.manage_settings _ml?></a></span>
     </div> };
 
     # Inbox Nav
