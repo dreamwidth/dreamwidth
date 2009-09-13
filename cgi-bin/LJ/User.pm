@@ -1802,6 +1802,12 @@ sub can_use_google_analytics {
     return $_[0]->get_cap( 'google_analytics' ) ? 1 : 0;
 }
 
+
+sub can_use_network_page {
+    return $_[0]->get_cap( 'friendsfriendsview' ) ? 1 : 0;
+}
+
+
 # Check if the user can use *any* page statistic module for their own journal.
 sub can_use_page_statistics {
     return $_[0]->can_use_google_analytics;
