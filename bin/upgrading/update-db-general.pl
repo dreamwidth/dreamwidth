@@ -177,29 +177,6 @@ CREATE TABLE logproplist (
 )
 EOC
 
-register_tablecreate("memkeyword", <<'EOC');
-CREATE TABLE memkeyword (
-    memid int(10) unsigned NOT NULL default '0',
-    kwid int(10) unsigned NOT NULL default '0',
-
-    PRIMARY KEY  (memid,kwid)
-)
-EOC
-
-register_tablecreate("memorable", <<'EOC');
-CREATE TABLE memorable (
-    memid int(10) unsigned NOT NULL auto_increment,
-    userid int(10) unsigned NOT NULL default '0',
-    itemid int(10) unsigned NOT NULL default '0',
-    des varchar(60) default NULL,
-    security enum('public','friends','private') NOT NULL default 'public',
-
-    PRIMARY KEY  (memid),
-    UNIQUE KEY userid (userid,itemid),
-    KEY (itemid)
-)
-EOC
-
 register_tablecreate("moods", <<'EOC');
 CREATE TABLE moods (
     moodid int(10) unsigned NOT NULL auto_increment,
@@ -911,6 +888,8 @@ register_tabledrop("portal");
 register_tabledrop("portal_box_prop");
 register_tabledrop("portal_config");
 register_tabledrop("portal_typemap");
+register_tabledrop("memkeyword");
+register_tabledrop("memorable");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -3206,15 +3185,6 @@ register_alter(sub {
                  "ADD is_public ENUM('1', '0') DEFAULT '1' NOT NULL");
     }
 
-    if (column_type("memorable", "jitemid") eq "") {
-        do_alter("memorable", "ALTER TABLE memorable ".
-                 "DROP INDEX userid, DROP INDEX itemid, ".
-                 "CHANGE itemid jitemid INT UNSIGNED NOT NULL, ".
-                 "ADD journalid INT UNSIGNED NOT NULL AFTER userid, ".
-                 "ADD UNIQUE uniq (userid, journalid, jitemid), ".
-                 "ADD KEY item (journalid, jitemid)");
-    }
-
     if (column_type("user", "clusterid") eq "") {
         do_alter("user", "ALTER TABLE user ".
                  "ADD clusterid TINYINT UNSIGNED NOT NULL AFTER caps, ".
@@ -3233,13 +3203,6 @@ register_alter(sub {
 
     if (column_type("user", "allow_getpromos") ne "") {
         do_alter("user", "ALTER TABLE user DROP allow_getpromos");
-    }
-
-    # widen columns to accomodate larger Unicode names
-    if (column_type("memorable", "des") eq "varchar(60)") {
-        do_alter("memorable",
-                 "ALTER TABLE memorable ".
-                 "MODIFY des VARCHAR(150) NOT NULL");
     }
 
     #allow longer moodtheme pic URLs

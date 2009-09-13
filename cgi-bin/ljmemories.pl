@@ -104,18 +104,14 @@ sub delete_by_id {
     $memids = [ $memids ] if $memids && !ref $memids; # so they can just pass a single thing...
     return undef unless $u && @{$memids || []};
 
-    # setup
-    my ( $db, $table ) = ( $u, '2' );
-
-    my $in = join ',', map { $_ + 0 } @$memids;
-
     # delete actual memory
-    $db->do("DELETE FROM memorable$table WHERE userid = ? AND memid IN ($in)", undef, $u->{userid});
-    return undef if $db->err;
+    my $in = join ',', map { $_ + 0 } @$memids;
+    $u->do("DELETE FROM memorable2 WHERE userid = ? AND memid IN ($in)", undef, $u->{userid});
+    return undef if $u->err;
 
     # delete keyword associations
     my $euser = "userid = $u->{userid} AND";
-    $db->do("DELETE FROM memkeyword$table WHERE $euser memid IN ($in)");
+    $u->do("DELETE FROM memkeyword2 WHERE $euser memid IN ($in)");
 
     # delete cache of count and keyword counts
     clear_memcache($u);

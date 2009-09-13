@@ -68,17 +68,6 @@ foreach my $uid (@delusers)
     # but with meta-data saying who used to own it
     # ..... hm, with clusters this is a pain.  let's not.
 
-    # delete memories
-    print "  memories\n";
-    while (($ids = $dbh->selectcol_arrayref("SELECT memid FROM memorable WHERE userid=$uid LIMIT 100")) && @{$ids})
-    {
-        my $in = join(",", @$ids);
-        print "  id: $in\n";
-        $runsql->($dbh, $user, "DELETE FROM memkeyword WHERE memid IN ($in)");
-        $runsql->($dbh, $user, "DELETE FROM memorable WHERE memid IN ($in)");
-    }
-
-
     # delete userpics
     {
         print "  userpics\n";
@@ -110,7 +99,6 @@ foreach my $uid (@delusers)
     $runsql->($user, "DELETE FROM wt_edges WHERE from_userid=$uid");
     $runsql->($user, "DELETE FROM wt_edges WHERE to_userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM trust_groups WHERE userid=$uid");
-    $runsql->($user, "DELETE FROM memorable WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM memorable2 WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM userkeywords WHERE userid=$uid");
     $runsql->($dbcm, $user, "DELETE FROM memkeyword2 WHERE userid=$uid");
