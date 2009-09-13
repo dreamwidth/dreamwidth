@@ -82,11 +82,22 @@
 var cfSelectedFilterId = null, cfCurrentUserid = null;
 var cfSubs = {}, cfTags = {}, cfFilters = {};
 
+var cfTypeFilter = '';
+var cfSubsSorted = [];
+
 // [ total count, selected ]
 var cfTagCount = [ 0, 0 ];
 
 // current save timer
 var cfTimerId = null, cfSaveTicksLeft = 0;
+
+
+function cfShowTypes( newtype ) {
+    if ( cfTypeFilter == newtype )
+        return;
+    cfTypeFilter = newtype;
+    cfPopulateLists();
+}
 
 
 function cfPopulateLists() {
@@ -107,11 +118,18 @@ function cfPopulateLists() {
 
     var filt = cfFilters[cfSelectedFilterId];
 
-    // FIXME: ...sort the lists, plz
-    //cfSubs.sort( function( a, b ) { return ( a.username <  b.username ) ? -1 : ( a.username > b.username ) ? 1 : 0; } );
+    // creates a sorted list of userids
+    cfSubsSorted = [];
+    for ( i in cfSubs )
+        if ( cfTypeFilter == '' || cfSubs[i].journaltype == cfTypeFilter )
+            cfSubsSorted.push( i );
+    cfSubsSorted.sort( function( a, b ) {
+        return ( cfSubs[a].username < cfSubs[b].username ) ? -1 : ( cfSubs[a].username > cfSubs[b].username ) ? 1 : 0;
+    } );
 
     var inOpts = '', outOpts = '';
-    for ( i in cfSubs ) {
+    for ( idx in cfSubsSorted ) {
+        var i = cfSubsSorted[idx];
         var isIn = false;
 
         for ( j in filt.members ) {
@@ -581,6 +599,7 @@ DW.whenPageLoaded( function() {
     $('#cf-new').bind( 'click', function(e) { cfNewFilter(); } );
     $('#cf-rename').bind( 'click', function(e) { cfRenameFilter(); } );
     $('#cf-delete').bind( 'click', function(e) { cfDeleteFilter(); } );
+    $('#cf-showtypes').bind( 'change', function(e) { cfShowTypes( $(e.target).val() ); } );
 
     // if the user is paid, we bind these.  note that even if someone goes through the
     // trouble of hacking up the form and submitting data, the server won't actually give

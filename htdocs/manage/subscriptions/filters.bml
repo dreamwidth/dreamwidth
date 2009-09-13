@@ -72,19 +72,27 @@ body<=
 </div>
 
 <div id='cf-edit'>
-    <div id='cf-notin'>
-        Not in filter:<br />
-        <select id='cf-notin-list' size='20' multiple></select><br />
-        <div id='cf-add-box'>
-            <input id='cf-add-btn' type='button' value='Add &gt;&gt;' />
+    <div id='cf-members'>
+        <div id='cf-notin'>
+            Not in filter:<br />
+            <select id='cf-notin-list' size='20' multiple></select><br />
+            <div id='cf-add-box'>
+                <input id='cf-add-btn' type='button' value='Add &gt;&gt;' />
+                <select id='cf-showtypes'>
+                    <option value=''>All Types</option>
+                    <option value='C'>Communities</option>
+                    <option value='Y'>Feeds</option>
+                    <option value='P'>People</option>
+                </select>
+            </div>
         </div>
-    </div>
-
-    <div id='cf-in'>
-        In filter:<br />
-        <select id='cf-in-list' size='20' multiple></select><br />
-        <div id='cf-del-box'>
-            <input id='cf-del-btn' type='button' value='&lt;&lt; Remove' />
+    
+        <div id='cf-in'>
+            In filter:<br />
+            <select id='cf-in-list' size='20' multiple></select><br />
+            <div id='cf-del-box'>
+                <input id='cf-del-btn' type='button' value='&lt;&lt; Remove' />
+            </div>
         </div>
     </div>
 
