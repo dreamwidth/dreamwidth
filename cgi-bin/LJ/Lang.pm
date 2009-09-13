@@ -1,10 +1,6 @@
 package LJ::Lang;
 use strict;
-
-use Class::Autouse qw(
-
-                      LJ::LangDatFile
-                      );
+use LJ::LangDatFile;
 
 
 use constant MAXIMUM_ITCODE_LENGTH => 80;

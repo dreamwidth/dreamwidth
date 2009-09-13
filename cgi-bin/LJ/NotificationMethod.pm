@@ -2,12 +2,11 @@ package LJ::NotificationMethod;
 use strict;
 use Carp qw/ croak /;
 
-use Class::Autouse qw (LJ::Typemap
-                       LJ::NotificationMethod::Email
-                       LJ::NotificationMethod::Inbox
-                       LJ::NotificationMethod::IM
-                       LJ::NotificationMethod::DebugLog
-                       );
+use LJ::Typemap;
+use LJ::NotificationMethod::Email;
+use LJ::NotificationMethod::Inbox;
+use LJ::NotificationMethod::IM;
+use LJ::NotificationMethod::DebugLog;
 
 # this is basically just an interface
 # Mischa's contribution:  "straight up"

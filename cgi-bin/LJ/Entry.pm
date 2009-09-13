@@ -999,10 +999,9 @@ sub put_logprop_in_history {
 
 package LJ;
 
-use Class::Autouse qw (
-                       LJ::Poll
-                       LJ::EmbedModule
-                       );
+use Carp qw(confess);
+use LJ::Poll;
+use LJ::EmbedModule;
 
 # <LJFUNC>
 # name: LJ::get_logtext2multi

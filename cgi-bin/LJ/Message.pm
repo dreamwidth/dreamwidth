@@ -1,10 +1,7 @@
 package LJ::Message;
 use strict;
 use Carp qw/ croak /;
-
-use Class::Autouse qw(
-                      LJ::Typemap
-                      );
+use LJ::Typemap;
 
 my %singletons = (); # journalid-msgid
 

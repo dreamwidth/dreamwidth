@@ -1,7 +1,7 @@
 package LJ::S2Theme;
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 use LJ::ModuleLoader;
 
 LJ::ModuleLoader->autouse_subclasses("LJ::S2Theme");

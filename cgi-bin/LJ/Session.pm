@@ -2,9 +2,7 @@ package LJ::Session;
 use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
-use Class::Autouse qw(
-                      LJ::EventLogRecord::SessionExpired
-                      );
+use LJ::EventLogRecord::SessionExpired;
 
 use constant VERSION => 1;
 

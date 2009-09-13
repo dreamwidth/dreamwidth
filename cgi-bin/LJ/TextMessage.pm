@@ -17,12 +17,9 @@
 package LJ::TextMessage;
 
 use URI::Escape;  # FIXME: don't use this (uri_escape() below), when we have LJ::eurl() as our standard
-
-use Class::Autouse qw(
-                      HTTP::Request
-                      LWP::UserAgent
-                      MIME::Lite
-                      );
+use  HTTP::Request;
+use  LWP::UserAgent;
+use  MIME::Lite;
 
 use strict;
 use vars qw($VERSION %providers);

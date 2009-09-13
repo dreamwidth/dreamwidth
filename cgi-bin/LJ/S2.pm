@@ -7,20 +7,18 @@ use strict;
 use lib "$LJ::HOME/src/s2";
 use S2;
 use S2::Color;
-use Class::Autouse qw(
-                      S2::Checker
-                      S2::Compiler
-                      HTMLCleaner
-                      LJ::CSS::Cleaner
-                      LJ::S2::RecentPage
-                      LJ::S2::YearPage
-                      LJ::S2::DayPage
-                      LJ::S2::FriendsPage
-                      LJ::S2::MonthPage
-                      LJ::S2::EntryPage
-                      LJ::S2::ReplyPage
-                      LJ::S2::TagsPage
-                      );
+use S2::Checker;
+use S2::Compiler;
+use HTMLCleaner;
+use LJ::CSS::Cleaner;
+use LJ::S2::RecentPage;
+use LJ::S2::YearPage;
+use LJ::S2::DayPage;
+use LJ::S2::FriendsPage;
+use LJ::S2::MonthPage;
+use LJ::S2::EntryPage;
+use LJ::S2::ReplyPage;
+use LJ::S2::TagsPage;
 use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();

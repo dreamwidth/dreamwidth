@@ -1,7 +1,7 @@
 package LJ::Directory::SetHandle::Mogile;
 use strict;
 use base 'LJ::Directory::SetHandle';
-use Class::Autouse qw (LWP::UserAgent);
+use LWP::UserAgent;
 
 sub new {
     my ($class, $conskey) = @_;

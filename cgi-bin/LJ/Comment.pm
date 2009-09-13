@@ -8,9 +8,7 @@ package LJ::Comment;
 
 use strict;
 use Carp qw/ croak /;
-use Class::Autouse qw(
-                      LJ::Entry
-                      );
+use LJ::Entry;
 
 use lib "$LJ::HOME/cgi-bin";
 

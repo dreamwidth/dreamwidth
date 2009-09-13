@@ -2,7 +2,7 @@ package LJ::Userpic;
 use strict;
 use Carp qw(croak);
 use Digest::MD5;
-use Class::Autouse qw (LJ::Event::NewUserpic);
+use LJ::Event::NewUserpic;
 use LJ::Constants;
 
 ##
