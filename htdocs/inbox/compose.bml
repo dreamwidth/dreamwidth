@@ -165,8 +165,8 @@ body<=
             return $body;
         }
 
-        $reply_to = $msg->other_u->user;
         $reply_u = $msg->other_u;
+        $reply_to = $reply_u->display_name;
         $disabled_to = 1;
         $msg_subject = $msg->subject || "(no subject)";
         $msg_subject = "Re: " . $msg_subject
