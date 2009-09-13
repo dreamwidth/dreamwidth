@@ -40,13 +40,13 @@ cleanhtml.suspend_msg=This is a suspended entry.
 
 cleanhtml.suspend_msg_with_supportid=This is a suspended entry. <a [[aopts]]>An unsuspension request</a> has been opened, and your entry will be reviewed soon.
 
-contentflag.viewingconcepts.bycommunity=You are about to view content that a community maintainer has advised should be viewed with discretion.
+contentflag.viewingconcepts.bycommunity=You are about to view content that a community administrator has advised should be viewed with discretion.
 
 contentflag.viewingconcepts.byjournal=You are about to view content that the journal owner has advised should be viewed with discretion.
 
 contentflag.viewingconcepts.byposter=You are about to view content that the poster has advised should be viewed with discretion.
 
-contentflag.viewingexplicit.bycommunity=You are about to view content that a community maintainer has marked as possibly inappropriate for anyone under the age of 18.
+contentflag.viewingexplicit.bycommunity=You are about to view content that a community administrator has marked as possibly inappropriate for anyone under the age of 18.
 
 contentflag.viewingexplicit.byjournal=You are about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
@@ -615,6 +615,8 @@ crumb.yourlayers=Your Layers
 crumb.yourstyles=Your Styles
 
 customize.cats.all=All
+
+customize.cats.base=Base Layouts
 
 customize.cats.custom=Your Custom Layers
 
@@ -1754,6 +1756,10 @@ You can:
 .
 
 esn.poll_vote.subject=[[user]] voted in a poll!
+
+esn.poll_vote.subject2=Someone replied to poll #[[number]]: [[topic]].
+
+esn.poll_vote.subject2.notopic=Someone replied to poll #[[number]].
 
 esn.post_entry=[[openlink]]Post an entry[[closelink]]
 
@@ -3375,6 +3381,7 @@ sitescheme.footer.legal.tos=Terms of Service
 
 sitescheme.footer.sitemap=Site Map
 
+sitescheme.footer.suggestion=Make a Suggestion
 
 sorry=Sorry
 
@@ -3798,11 +3805,15 @@ web.controlstrip.status.member=You are a member of [[user]]
 
 web.controlstrip.status.memberwatcher=You are a member of and are watching [[user]]
 
+web.controlstrip.status.mutualtrust=[[user]] and you have mutual access
+
 web.controlstrip.status.mutualtrust_mutualwatch=[[user]] and you have mutual access and mutual subscriptions
 
 web.controlstrip.status.mutualtrust_watch=[[user]] and you have mutual access and you subscribe to them
 
 web.controlstrip.status.mutualtrust_watchedby=[[user]] and you have mutual access and they subscribe to you
+
+web.controlstrip.status.mutualwatch=[[user]] and you have mutual subscriptions
 
 web.controlstrip.status.other=You are viewing [[user]]
 

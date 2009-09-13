@@ -7,20 +7,18 @@ use strict;
 use lib "$LJ::HOME/src/s2";
 use S2;
 use S2::Color;
-use Class::Autouse qw(
-                      S2::Checker
-                      S2::Compiler
-                      HTMLCleaner
-                      LJ::CSS::Cleaner
-                      LJ::S2::RecentPage
-                      LJ::S2::YearPage
-                      LJ::S2::DayPage
-                      LJ::S2::FriendsPage
-                      LJ::S2::MonthPage
-                      LJ::S2::EntryPage
-                      LJ::S2::ReplyPage
-                      LJ::S2::TagsPage
-                      );
+use S2::Checker;
+use S2::Compiler;
+use HTMLCleaner;
+use LJ::CSS::Cleaner;
+use LJ::S2::RecentPage;
+use LJ::S2::YearPage;
+use LJ::S2::DayPage;
+use LJ::S2::FriendsPage;
+use LJ::S2::MonthPage;
+use LJ::S2::EntryPage;
+use LJ::S2::ReplyPage;
+use LJ::S2::TagsPage;
 use Storable;
 use Apache2::Const qw/ :common /;
 use POSIX ();
@@ -41,14 +39,6 @@ sub make_journal
     my ( $entry, $page, $use_modtime );
 
     if ($view eq "res") {
-
-        # the s1shortcomings virtual styleid doesn't have a styleid
-        # so we're making the rule that it can't have resource URLs.
-        if ($styleid eq "s1short") {
-            $opts->{'handler_return'} = 404;
-            return;
-        }
-
         if ($opts->{'pathextra'} =~ m!/(\d+)/stylesheet$!) {
             $styleid = $1;
             $entry = "print_stylesheet()";
@@ -79,8 +69,17 @@ sub make_journal
     BML::set_language($lang, \&LJ::Lang::get_text);
 
     # let layouts disable EntryPage / ReplyPage, using the BML version
-    # instead.
-    unless ($styleid eq "s1short") {
+    # instead.  Unless we are using siteviews, because that is what
+    # will be handling the "BML" views.
+    if ($styleid eq "siteviews") {
+        $r->notes->{ 'no_control_strip' } = 1;
+        
+        # kill the flag
+        ${$opts->{'handle_with_bml_ref'}} = 0;
+        ${$opts->{'handle_with_siteviews_ref'}} = 1;
+        
+        $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 1;
+    } else {
         if ( ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
@@ -670,6 +669,7 @@ sub s2_context
     # get arguments we'll use frequently
     my $r = DW::Request->get;
     my $u = $opts{u} || LJ::get_active_journal();
+    my $remote = $opts{remote} || LJ::get_remote();
     my $style_u = $opts{style_u} || $u;
 
     # but it doesn't matter if we're using the minimal style ...
@@ -686,10 +686,8 @@ sub s2_context
         }
     };
 
-    # styleid of "s1short" is special in that it makes a
-    # dynamically-created s2 context
-    if ($styleid eq "s1short") {
-        %style = s1_shortcomings_style($u);
+    if ($styleid eq "siteviews") {
+        %style = siteviews_style( $u, $remote, $opts{mode} );
     }
 
     if (ref($styleid) eq "CODE") {
@@ -840,15 +838,16 @@ sub escape_prop_value {
     }
 }
 
-sub s1_shortcomings_style {
-    my $u = shift;
+sub siteviews_style {
+    my ( $u, $remote, $mode ) = @_;
     my %style;
 
     my $public = get_public_layers();
     %style = (
-              core => "core1",
-              layout => "s1shortcomings/layout",
-              );
+              core => "core2",
+              layout => "siteviews/layout",
+              theme => "siteviews/default",
+    );
 
     # convert the value names to s2layerid
     while (my ($layer, $name) = each %style) {
@@ -1249,6 +1248,8 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'SITENAMEABBREV'} = $LJ::SITENAMEABBREV;
     $ctx->[S2::PROPS]->{'IMGDIR'} = $LJ::IMGPREFIX;
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
+    
+    $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 0;
 }
 
 # renamed some props from core1 => core2. Make sure that S2 still handles these variables correctly when working with a core1 layer
@@ -2078,7 +2079,7 @@ sub Page
 
     # Identity (type I) accounts only have read views
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
-    $p->{views_order} = [ 'recent', 'archive', 'read', 'network', 'tags', 'memories', 'userinfo' ] if $u->is_paid;
+    $p->{views_order} = [ 'recent', 'archive', 'read', 'network', 'tags', 'memories', 'userinfo' ] if $u->can_use_network_page;
 
     return $p;
 }
@@ -2249,6 +2250,7 @@ sub UserLite
     $o = {
         '_type' => 'UserLite',
         '_u' => $u,
+        'user' => LJ::ehtml($u->user),
         'username' => LJ::ehtml($u->display_name),
         'name' => LJ::ehtml($u->{'name'}),
         'journal_type' => $u->{'journaltype'},
@@ -2902,7 +2904,7 @@ sub _Comment__get_link
     my $page = get_page();
     my $u = $page->{'_u'};
     my $post_user = $page->{'entry'} ? $page->{'entry'}->{'poster'}->{'username'} : undef;
-    my $com_user = $this->{'poster'} ? $this->{'poster'}->{'username'} : undef;
+    my $com_user = $this->{'poster'} ? $this->{'poster'}->{'user'} : undef;
     my $remote = LJ::get_remote();
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
     my $dtalkid = $this->{talkid};
@@ -3654,8 +3656,8 @@ sub EntryPage__print_multiform_actionline
     my ($ctx, $this) = @_;
     return unless $this->{'multiform_on'};
     my $pr = $ctx->[S2::PROPS];
-    $S2::pout->($pr->{'text_multiform_des'} . "\n" .
-                LJ::html_select({'name' => 'mode' },
+    $S2::pout->( LJ::labelfy( 'multiform_mode', $pr->{text_multiform_des} ) . "\n" .
+                LJ::html_select( { name => 'mode', id => 'multiform_mode' },
                                 "" => "",
                                 map { $_ => $pr->{"text_multiform_opt_$_"} }
                                 qw(unscreen screen delete deletespam)) . "\n" .

@@ -8,17 +8,14 @@ require "ljlib.pl";
 
 package LJ;
 
-use Text::Wrap ();
-use Time::HiRes ('gettimeofday', 'tv_interval');
-
-use Encode qw/encode from_to/;
-use MIME::Base64 qw/encode_base64/;
-
-use Class::Autouse qw(
-                      IO::Socket::INET
-                      MIME::Lite
-                      Mail::Address
-                      );
+use Text::Wrap        ();
+use Time::HiRes       qw( gettimeofday tv_interval );
+use Encode            qw( encode from_to );
+use MIME::Base64      qw( encode_base64 );
+use IO::Socket::INET;
+use MIME::Lite;
+use Mail::Address;
+use MIME::Words qw( encode_mimeword );
 
 my $done_init = 0;
 sub init {
@@ -33,7 +30,6 @@ sub init {
     }
 }
 
-use MIME::Words qw/encode_mimeword/;
 
 # <LJFUNC>
 # name: LJ::send_mail

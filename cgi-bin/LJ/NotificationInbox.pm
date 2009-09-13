@@ -6,7 +6,9 @@ package LJ::NotificationInbox;
 
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw (LJ::NotificationItem LJ::Event LJ::NotificationArchive);
+use LJ::NotificationItem;
+use LJ::Event;
+use LJ::NotificationArchive;
 
 # constructor takes a $u
 sub new {

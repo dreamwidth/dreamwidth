@@ -3,8 +3,27 @@ layerinfo type = "theme";
 layerinfo name = "Drifting Blue";
 layerinfo redist_uniq = "drifting/blue";
 
+set color_page_background         = "#eef3fa";
+set color_page_text               = "#234163";
+set color_page_link               = "#5a799d";
+set color_page_link_visited       = "#234163";
+set color_page_link_active        = "#ff0000";
+set color_page_border             = "#5a799d";
+
+set color_module_border           = "#5a799d";
+set color_module_title            = "#5a799d";
+
+set color_entry_border            = "#5a799d";
+set color_entry_background        = "#ffffff";
+set color_entry_title             = "#5a799d";
+set color_entry_text              = "#000000";
+
+set color_page_title              = "#ffffff";
+set color_page_subtitle           = "#5a799d";
+
 set image_background_header_url = "drifting/hdr_bg.jpg";
 set image_background_header_repeat = "repeat";
 set image_header_left = "drifting/hdr_left.jpg";
 set image_header_right = "drifting/hdr_right.jpg";
 set image_module_header_url = "drifting/hdr_icon.gif";
+

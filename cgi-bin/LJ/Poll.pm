@@ -1,7 +1,10 @@
 package LJ::Poll;
 use strict;
 use Carp qw (croak);
-use Class::Autouse qw (LJ::Entry LJ::Poll::Question LJ::Event::PollVote LJ::Typemap);
+use LJ::Entry;
+use LJ::Poll::Question;
+use LJ::Event::PollVote;
+use LJ::Typemap;
 
 ##
 ## Memcache routines
@@ -81,27 +84,17 @@ sub create {
         or die "Invalid journalid $journalid";
 
     my $dbh = LJ::get_db_writer();
-    my $sth;
 
-    if ($u->polls_clustered) {
-        # poll stored on user cluster
-        $u->do("INSERT INTO poll2 (journalid, pollid, posterid, whovote, whoview, name, ditemid) " .
-               "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
-               $journalid, $pollid, $posterid, $whovote, $whoview, $name, $ditemid);
-        die $u->errstr if $u->err;
+    $u->do( "INSERT INTO poll2 (journalid, pollid, posterid, whovote, whoview, name, ditemid) " .
+            "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
+            $journalid, $pollid, $posterid, $whovote, $whoview, $name, $ditemid );
+    die $u->errstr if $u->err;
 
-        # made poll, insert global pollid->journalid mapping into global pollowner map
-        $dbh->do("INSERT INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
-                 $journalid, $pollid);
+    # made poll, insert global pollid->journalid mapping into global pollowner map
+    $dbh->do( "INSERT INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
+              $journalid, $pollid );
 
-        die $dbh->errstr if $dbh->err;
-    } else {
-        # poll stored on global
-        $dbh->do("INSERT INTO poll (pollid, itemid, journalid, posterid, whovote, whoview, name) " .
-                 "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
-                 $pollid, $ditemid, $journalid, $posterid, $whovote, $whoview, $name);
-        die $dbh->errstr if $dbh->err;
-    }
+    die $dbh->errstr if $dbh->err;
 
     ## start inserting poll questions
     my $qnum = 0;
@@ -109,32 +102,19 @@ sub create {
     foreach my $q (@$questions) {
         $qnum++;
 
-        if ($u->polls_clustered) {
-            $u->do("INSERT INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
-                        "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
-                        $journalid, $pollid, $qnum, $qnum, $q->{'type'}, $q->{'opts'}, $q->{'qtext'});
-            die $u->errstr if $u->err;
-        } else {
-            $dbh->do("INSERT INTO pollquestion (pollid, pollqid, sortorder, type, opts, qtext) " .
-                          "VALUES (?, ?, ?, ?, ?, ?)", undef,
-                          $pollid, $qnum, $qnum, $q->{'type'}, $q->{'opts'}, $q->{'qtext'});
-            die $dbh->errstr if $dbh->err;
-        }
+        $u->do( "INSERT INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
+                "VALUES (?, ?, ?, ?, ?, ?, ?)", undef,
+                $journalid, $pollid, $qnum, $qnum, $q->{'type'}, $q->{'opts'}, $q->{'qtext'} );
+        die $u->errstr if $u->err;
 
         ## start inserting poll items
         my $inum = 0;
         foreach my $it (@{$q->{'items'}}) {
             $inum++;
 
-            if ($u->polls_clustered) {
-                $u->do("INSERT INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) " .
-                       "VALUES (?, ?, ?, ?, ?, ?)", undef, $journalid, $pollid, $qnum, $inum, $inum, $it->{'item'});
-                die $u->errstr if $u->err;
-            } else {
-                $dbh->do("INSERT INTO pollitem (pollid, pollqid, pollitid, sortorder, item) " .
-                         "VALUES (?, ?, ?, ?, ?)", undef, $pollid, $qnum, $inum, $inum, $it->{'item'});
-                die $dbh->errstr if $dbh->err;
-            }
+            $u->do( "INSERT INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) " .
+                    "VALUES (?, ?, ?, ?, ?, ?)", undef, $journalid, $pollid, $qnum, $inum, $inum, $it->{'item'} );
+            die $u->errstr if $u->err;
         }
         ## end inserting poll items
 
@@ -570,32 +550,14 @@ sub _load {
 
     my $row = '';
 
-    unless ($journalid) {
-        # this is probably not clustered, check global
-        $row = $dbr->selectrow_hashref("SELECT pollid, itemid, journalid, " .
-                                       "posterid, whovote, whoview, name, status " .
-                                       "FROM poll WHERE pollid=?", undef, $self->pollid);
-        die $dbr->errstr if $dbr->err;
-    } else {
-        my $u = LJ::load_userid($journalid)
-            or die "Invalid journalid $journalid";
+    my $u = LJ::load_userid( $journalid )
+        or die "Invalid journalid $journalid";
 
-        # double-check to make sure we are consulting the right table
-        if ($u->polls_clustered) {
-            # clustered poll
-            $row = $u->selectrow_hashref("SELECT pollid, journalid, ditemid, " .
-                                         "posterid, whovote, whoview, name, status " .
-                                         "FROM poll2 WHERE pollid=? " .
-                                         "AND journalid=?", undef, $self->pollid, $journalid);
-            die $u->errstr if $u->err;
-        } else {
-            # unclustered poll
-            $row = $dbr->selectrow_hashref("SELECT pollid, itemid, journalid, " .
-                                           "posterid, whovote, whoview, name, status " .
-                                           "FROM poll WHERE pollid=?", undef, $self->pollid);
-            die $dbr->errstr if $dbr->err;
-        }
-    }
+    $row = $u->selectrow_hashref( "SELECT pollid, journalid, ditemid, " .
+                                  "posterid, whovote, whoview, name, status " .
+                                  "FROM poll2 WHERE pollid=? " .
+                                  "AND journalid=?", undef, $self->pollid, $journalid );
+    die $u->errstr if $u->err;
 
     return undef unless $row;
 
@@ -632,17 +594,9 @@ sub close_poll {
 
     my $dbh = LJ::get_db_writer();
 
-    if ($u->polls_clustered) {
-        # poll stored on user cluster
-        $u->do("UPDATE poll2 SET status='X' where pollid=? AND journalid=?",
-               undef, $self->pollid, $self->journalid);
-        die $u->errstr if $u->err;
-    } else {
-        # poll stored on global
-        $dbh->do("UPDATE poll SET status='X' where pollid=? ",
-                 undef, $self->pollid);
-        die $dbh->errstr if $dbh->err;
-    }
+    $u->do( "UPDATE poll2 SET status='X' where pollid=? AND journalid=?",
+            undef, $self->pollid, $self->journalid );
+    die $u->errstr if $u->err;
 
     # poll status has changed
     $self->_remove_from_memcache;
@@ -663,17 +617,9 @@ sub open_poll {
 
     my $dbh = LJ::get_db_writer();
 
-    if ($u->polls_clustered) {
-        # poll stored on user cluster
-        $u->do("UPDATE poll2 SET status='' where pollid=? AND journalid=?",
-               undef, $self->pollid, $self->journalid);
-        die $u->errstr if $u->err;
-    } else {
-        # poll stored on global
-        $dbh->do("UPDATE poll SET status='' where pollid=? ",
-                 undef, $self->pollid);
-        die $dbh->errstr if $dbh->err;
-    }
+    $u->do( "UPDATE poll2 SET status='' where pollid=? AND journalid=?",
+            undef, $self->pollid, $self->journalid );
+    die $u->errstr if $u->err;
 
     # poll status has changed
     $self->_remove_from_memcache;
@@ -737,11 +683,6 @@ sub journal {
     return LJ::load_userid($self->journalid);
 }
 
-sub is_clustered {
-    my $self = shift;
-    return $self->journal->polls_clustered;
-}
-
 # return true if poll is closed
 sub is_closed {
     my $self = shift;
@@ -794,19 +735,12 @@ sub question {
 
 # returns the time that the given user answered the given poll
 sub get_time_user_submitted {
-    my ($self, $u) = @_;
+    my ( $self, $u ) = @_;
 
-    my $time;
-    if ($self->is_clustered) {
-        $time = $self->journal->selectrow_array('SELECT datesubmit FROM pollsubmission2 '.
-                                                'WHERE pollid=? AND userid=? AND journalid=?', undef, $self->pollid, $u->userid, $self->journalid);
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $time = $dbr->selectrow_array('SELECT datesubmit FROM pollsubmission '.
-                                      'WHERE pollid=? AND userid=?', undef, $self->pollid, $u->userid);
-    }
+    return $self->journal->selectrow_array( 'SELECT datesubmit FROM pollsubmission2 '.
+                                            'WHERE pollid=? AND userid=? AND journalid=?',
+                                            undef, $self->pollid, $u->userid, $self->journalid );
 
-    return $time;
 }
 
 # expects a fake poll object (doesn't have to have pollid) and
@@ -926,16 +860,11 @@ sub render {
 
     my %preval;
 
-    if ($do_form) {
-        if ($self->is_clustered) {
-            $sth = $self->journal->prepare("SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=? AND journalid=?");
-            $sth->execute($pollid, $remote->{'userid'}, $self->journalid);
-        } else {
-            $sth = $dbr->prepare("SELECT pollqid, value FROM pollresult WHERE pollid=? AND userid=?");
-            $sth->execute($pollid, $remote->{'userid'});
-        }
+    if ( $do_form ) {
+        $sth = $self->journal->prepare( "SELECT pollqid, value FROM pollresult2 WHERE pollid=? AND userid=? AND journalid=?" );
+        $sth->execute( $pollid, $remote->userid, $self->journalid );
 
-        while (my ($qid, $value) = $sth->fetchrow_array) {
+        while ( my ( $qid, $value ) = $sth->fetchrow_array ) {
             $preval{$qid} = $value;
         }
 
@@ -967,15 +896,9 @@ sub render {
         $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . BML::ml( 'poll.seeresults' ) . "</a> ]  ";
     } elsif ( $mode eq 'results' ) {
         #include number of participants
-        my $sth = "";
-        if ($self->is_clustered) {
-            $sth = $self->journal->prepare("SELECT count(DISTINCT userid) FROM pollresult2 WHERE pollid=? AND journalid=?");
-            $sth->execute($pollid, $self->journalid);
-        } else {
-            $sth = $dbr->prepare("SELECT count(DISTINCT userid) FROM pollresult WHERE pollid=?");
-            $sth->execute($pollid);
-        }
-        my ($participants) = $sth->fetchrow_array;
+        my $sth = $self->journal->prepare( "SELECT count(DISTINCT userid) FROM pollresult2 WHERE pollid=? AND journalid=?" );
+        $sth->execute( $pollid, $self->journalid );
+        my ( $participants ) = $sth->fetchrow_array;
         $ret .= LJ::Lang::ml('poll.participants', { 'total' => $participants });
         $ret .= "<br />\n";
         # change vote link
@@ -996,16 +919,11 @@ sub render {
         my ($valcount, $valmean, $valstddev, $valmedian);
         if ($q->type eq "scale") {
             # get stats
-            if ($self->is_clustered) {
-                $sth = $self->journal->prepare("SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult2 " .
-                                               "WHERE pollid=? AND pollqid=? AND journalid=?");
-                $sth->execute($pollid, $qid, $self->journalid);
-            } else {
-                $sth = $dbr->prepare("SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult WHERE pollid=? AND pollqid=?");
-                $sth->execute($pollid, $qid);
-            }
+            $sth = $self->journal->prepare( "SELECT COUNT(*), AVG(value), STDDEV(value) FROM pollresult2 " .
+                                            "WHERE pollid=? AND pollqid=? AND journalid=?" );
+            $sth->execute( $pollid, $qid, $self->journalid );
 
-            ($valcount, $valmean, $valstddev) = $sth->fetchrow_array;
+            ( $valcount, $valmean, $valstddev ) = $sth->fetchrow_array;
 
             # find median:
             $valmedian = 0;
@@ -1018,15 +936,10 @@ sub render {
                 $mid = int(($valcount+1)/2);
                 my $skip = $mid-1;
 
-                if ($self->is_clustered) {
-                    $sth = $self->journal->prepare("SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=? " .
-                                         "ORDER BY value+0 LIMIT $skip,$fetch");
-                    $sth->execute($pollid, $qid, $self->journalid);
-                } else {
-                    $sth = $dbr->prepare("SELECT value FROM pollresult WHERE pollid=? AND pollqid=? " .
-                                         "ORDER BY value+0 LIMIT $skip,$fetch");
-                    $sth->execute($pollid, $qid);
-                }
+                $sth = $self->journal->prepare(
+                    "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=? " .
+                    "ORDER BY value+0 LIMIT $skip,$fetch" );
+                $sth->execute( $pollid, $qid, $self->journalid );
 
                 while (my ($v) = $sth->fetchrow_array) {
                     $valmedian += $v;
@@ -1050,13 +963,8 @@ sub render {
 
             ### but, if this is a non-text item, and we're showing results, need to load the answers:
             if ($q->type ne "text") {
-                if ($self->is_clustered) {
-                    $sth = $self->journal->prepare("SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?");
-                    $sth->execute($pollid, $qid, $self->journalid);
-                } else {
-                    $sth = $dbr->prepare("SELECT value FROM pollresult WHERE pollid=? AND pollqid=?");
-                    $sth->execute($pollid, $qid);
-                }
+                $sth = $self->journal->prepare( "SELECT value FROM pollresult2 WHERE pollid=? AND pollqid=? AND journalid=?" );
+                $sth->execute( $pollid, $qid, $self->journalid );
                 while (my ($val) = $sth->fetchrow_array) {
                     $usersvoted++;
                     if ($q->type eq "check") {
@@ -1269,16 +1177,9 @@ sub questions {
         unless $self->pollid;
 
     my @qs = ();
-    my $sth;
 
-    if ($self->is_clustered) {
-        $sth = $self->journal->prepare('SELECT * FROM pollquestion2 WHERE pollid=? AND journalid=?');
-        $sth->execute($self->pollid, $self->journalid);
-    } else {
-        my $dbr = LJ::get_db_reader();
-        $sth = $dbr->prepare('SELECT * FROM pollquestion WHERE pollid=?');
-        $sth->execute($self->pollid);
-    }
+    my $sth = $self->journal->prepare( 'SELECT * FROM pollquestion2 WHERE pollid=? AND journalid=?' );
+    $sth->execute( $self->pollid, $self->journalid );
 
     die $sth->errstr if $sth->err;
 
@@ -1409,15 +1310,9 @@ sub process_submission {
         # if this particular user has already voted, let them change their answer
         my $time = $poll->get_time_user_submitted($remote);
         unless ($time) {
-            my $uids;
-            if ($poll->is_clustered) {
-                $uids = $poll->journal->selectcol_arrayref("SELECT userid FROM pollsubmission2 " .
-                                                           "WHERE journalid = ? AND pollid = ?", undef, $poll->journalid, $poll->pollid);
-            } else {
-                my $dbr = LJ::get_db_reader();
-                $uids = $dbr->selectcol_arrayref("SELECT userid FROM pollsubmission " .
-                                                 "WHERE pollid = ?", undef, $poll->pollid);
-            }
+            my $uids = $poll->journal->selectcol_arrayref( "SELECT userid FROM pollsubmission2 " .
+                                                           "WHERE journalid = ? AND pollid = ?",
+                                                           undef, $poll->journalid, $poll->pollid );
 
             if (@$uids) {
                 my $remote_email = $remote->email_raw;
@@ -1435,9 +1330,6 @@ sub process_submission {
             }
         }
     }
-
-    # Handler needed only for 7th version of Polls.
-    my $dbh = $poll->is_clustered ? undef : LJ::get_db_writer();
 
     ### load all the questions
     my @qs = $poll->questions;
@@ -1459,33 +1351,17 @@ sub process_submission {
         }
         if ($val ne "") {
             $ct++;
-            if ($poll->is_clustered) {
-                $poll->journal->do("REPLACE INTO pollresult2 (journalid, pollid, pollqid, userid, value) VALUES (?, ?, ?, ?, ?)",
-                         undef, $poll->journalid, $pollid, $qid, $remote->userid, $val);
-            } else {
-
-                $dbh->do("REPLACE INTO pollresult (pollid, pollqid, userid, value) VALUES (?, ?, ?, ?)",
-                         undef, $pollid, $qid, $remote->userid, $val);
-            }
+            $poll->journal->do( "REPLACE INTO pollresult2 (journalid, pollid, pollqid, userid, value) VALUES (?, ?, ?, ?, ?)",
+                                undef, $poll->journalid, $pollid, $qid, $remote->userid, $val );
         } else {
-            if ($poll->is_clustered) {
-                $poll->journal->do("DELETE FROM pollresult2 WHERE journalid=? AND pollid=? AND pollqid=? AND userid=?",
-                         undef, $poll->journalid, $pollid, $qid, $remote->userid);
-            } else {
-                $dbh->do("DELETE FROM pollresult WHERE pollid=? AND pollqid=? AND userid=?",
-                         undef, $pollid, $qid, $remote->userid);
-            }
+            $poll->journal->do( "DELETE FROM pollresult2 WHERE journalid=? AND pollid=? AND pollqid=? AND userid=?",
+                                undef, $poll->journalid, $pollid, $qid, $remote->userid );
         }
     }
 
     ## finally, register the vote happened
-    if ($poll->is_clustered) {
-        $poll->journal->do("REPLACE INTO pollsubmission2 (journalid, pollid, userid, datesubmit) VALUES (?, ?, ?, NOW())",
-                           undef, $poll->journalid, $pollid, $remote->userid);
-    } else {
-        $dbh->do("REPLACE INTO pollsubmission (pollid, userid, datesubmit) VALUES (?, ?, NOW())",
-                 undef, $pollid, $remote->userid);
-    }
+    $poll->journal->do( "REPLACE INTO pollsubmission2 (journalid, pollid, userid, datesubmit) VALUES (?, ?, ?, NOW())",
+                        undef, $poll->journalid, $pollid, $remote->userid );
 
     # if vote results are not cached, there is no need to modify cache
     #$poll->_remove_from_memcache;
@@ -1498,98 +1374,12 @@ sub process_submission {
     return 1;
 }
 
-# take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
-sub make_polls_clustered {
-    my ($class, $u, $dbh, $dbhslo, $dbcm) = @_;
-
-    return 1 if $u->dversion >= 8;
-
-    return 0 unless ($dbh && $dbhslo && $dbcm);
-
-    # find polls this user owns
-    my $psth = $dbhslo->prepare("SELECT pollid, itemid, journalid, posterid, whovote, whoview, name, " .
-                             "status FROM poll WHERE journalid=?");
-    $psth->execute($u->userid);
-    die $psth->errstr if $psth->err;
-
-    while (my @prow = $psth->fetchrow_array) {
-        my $pollid = $prow[0];
-        # insert a copy into poll2
-        $dbcm->do("REPLACE INTO poll2 (pollid, ditemid, journalid, posterid, whovote, whoview, name, " .
-               "status) VALUES (?,?,?,?,?,?,?,?)", undef, @prow);
-        die $dbcm->errstr if $dbcm->err;
-
-        # map pollid -> userid
-        $dbh->do("REPLACE INTO pollowner (journalid, pollid) VALUES (?, ?)", undef,
-                 $u->userid, $pollid);
-        die $dbh->errstr if $dbh->err;
-
-        # get questions
-        my $qsth = $dbhslo->prepare("SELECT pollid, pollqid, sortorder, type, opts, qtext FROM " .
-                                 "pollquestion WHERE pollid=?");
-        $qsth->execute($pollid);
-        die $qsth->errstr if $qsth->err;
-
-        # copy questions to clustered table
-        while (my @qrow = $qsth->fetchrow_array) {
-            my $pollqid = $qrow[1];
-
-            # insert question into pollquestion2
-            $dbcm->do("REPLACE INTO pollquestion2 (journalid, pollid, pollqid, sortorder, type, opts, qtext) " .
-                   "VALUES (?, ?, ?, ?, ?, ?, ?)", undef, $u->userid, @qrow);
-            die $dbcm->errstr if $dbcm->err;
-
-            # get items
-            my $isth = $dbhslo->prepare("SELECT pollid, pollqid, pollitid, sortorder, item FROM pollitem " .
-                                     "WHERE pollid=? AND pollqid=?");
-            $isth->execute($pollid, $pollqid);
-            die $isth->errstr if $isth->err;
-
-            # copy items
-            while (my @irow = $isth->fetchrow_array) {
-                # copy item to pollitem2
-                $dbcm->do("REPLACE INTO pollitem2 (journalid, pollid, pollqid, pollitid, sortorder, item) VALUES " .
-                       "(?, ?, ?, ?, ?, ?)", undef, $u->userid, @irow);
-                die $dbcm->errstr if $dbcm->err;
-            }
-        }
-
-        # copy submissions
-        my $ssth = $dbhslo->prepare("SELECT userid, datesubmit FROM pollsubmission WHERE pollid=?");
-        $ssth->execute($pollid);
-        die $ssth->errstr if $ssth->err;
-
-        while (my @srow = $ssth->fetchrow_array) {
-            # copy to pollsubmission2
-            $dbcm->do("REPLACE INTO pollsubmission2 (pollid, journalid, userid, datesubmit) " .
-                   "VALUES (?, ?, ?, ?)", undef, $pollid, $u->userid, @srow);
-            die $dbcm->errstr if $dbcm->err;
-        }
-
-        # copy results
-        my $rsth = $dbhslo->prepare("SELECT pollid, pollqid, userid, value FROM pollresult WHERE pollid=?");
-        $rsth->execute($pollid);
-        die $rsth->errstr if $rsth->err;
-
-        while (my @rrow = $rsth->fetchrow_array) {
-            # copy to pollresult2
-            $dbcm->do("REPLACE INTO pollresult2 (journalid, pollid, pollqid, userid, value) " .
-                   "VALUES (?, ?, ?, ?, ?)", undef, $u->userid, @rrow);
-            die $dbcm->errstr if $dbcm->err;
-        }
-    }
-
-    return 1;
-}
-
 sub dump_poll {
     my $self = shift;
     my $fh = shift || \*STDOUT;
 
-    my @tables = ($self->is_clustered) ?
-        qw(poll2 pollquestion2 pollitem2 pollsubmission2 pollresult2) :
-        qw(poll  pollquestion  pollitem  pollsubmission  pollresult );
-    my $db = ($self->is_clustered) ? $self->journal : LJ::get_db_reader();
+    my @tables = qw(poll2 pollquestion2 pollitem2 pollsubmission2 pollresult2);
+    my $db = $self->journal;
     my $id = $self->pollid;
 
     print $fh "<poll id='$id'>\n";

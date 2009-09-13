@@ -927,9 +927,12 @@ sub logout_all {
     $u->_logout_common;
 }
 
+sub make_fake_login_session {
+    return $_[0]->make_login_session( 'once', undef, 1 );
+}
 
 sub make_login_session {
-    my ($u, $exptype, $ipfixed) = @_;
+    my ( $u, $exptype, $ipfixed, $fake_login ) = @_;
     $exptype ||= 'short';
     return 0 unless $u;
 
@@ -940,15 +943,18 @@ sub make_login_session {
         'exptype' => $exptype,
         'ipfixed' => $ipfixed,
     };
+    $sess_opts->{nolog} = 1 if $fake_login;
 
     my $sess = LJ::Session->create($u, %$sess_opts);
     $sess->update_master_cookie;
 
     LJ::User->set_remote($u);
 
-    # add a uniqmap row if we don't have one already
-    my $uniq = LJ::UniqCookie->current_uniq;
-    LJ::UniqCookie->save_mapping($uniq => $u);
+    unless ( $fake_login ) {
+        # add a uniqmap row if we don't have one already
+        my $uniq = LJ::UniqCookie->current_uniq;
+        LJ::UniqCookie->save_mapping($uniq => $u);
+    }
 
     # restore scheme and language
     my $bl = LJ::Lang::get_lang($u->prop('browselang'));
@@ -978,11 +984,13 @@ sub make_login_session {
         "expiretime" => $etime,
     });
 
-    # activity for cluster usage tracking
-    LJ::mark_user_active($u, 'login');
-
-    # activity for global account number tracking
-    $u->note_activity('A');
+    unless ( $fake_login ) {
+        # activity for cluster usage tracking
+        LJ::mark_user_active($u, 'login');
+    
+        # activity for global account number tracking
+        $u->note_activity('A');
+    }
 
     return 1;
 }
@@ -1794,6 +1802,12 @@ sub can_use_google_analytics {
     return $_[0]->get_cap( 'google_analytics' ) ? 1 : 0;
 }
 
+
+sub can_use_network_page {
+    return $_[0]->get_cap( 'friendsfriendsview' ) ? 1 : 0;
+}
+
+
 # Check if the user can use *any* page statistic module for their own journal.
 sub can_use_page_statistics {
     return $_[0]->can_use_google_analytics;
@@ -2134,6 +2148,7 @@ sub share_contactinfo {
 sub should_block_robots {
     my $u = shift;
 
+    return 1 if $u->is_syndicated;
     return 1 if $u->prop('opt_blockrobots');
 
     return 0 unless LJ::is_enabled( 'adult_content' );
@@ -4648,14 +4663,8 @@ sub activate_userpics {
     my $dbcr = LJ::get_cluster_def_reader($u);
 
     # select all userpics and build active / inactive lists
-    my $sth;
-    if ( $u->dversion > 6 ) {
-        return undef unless $dbcr;
-        $sth = $dbcr->prepare("SELECT picid, state FROM userpic2 WHERE userid=?");
-    } else {
-        return undef unless $dbh;
-        $sth = $dbh->prepare("SELECT picid, state FROM userpic WHERE userid=?");
-    }
+    return undef unless $dbcr;
+    my $sth = $dbcr->prepare( "SELECT picid, state FROM userpic2 WHERE userid=?" );
     $sth->execute($userid);
     while (my ($picid, $state) = $sth->fetchrow_array) {
         next if $state eq 'X'; # expunged, means userpic has been removed from site by admins
@@ -4693,16 +4702,9 @@ sub activate_userpics {
         # map pickws to picids for freq hash below
         my %count_picid = ();
         if ($keywords_in) {
-            my $sth;
-            if ( $u->dversion > 6 ) {
-                $sth = $dbcr->prepare("SELECT k.keyword, m.picid FROM userkeywords k, userpicmap2 m ".
+            my $sth = $dbcr->prepare( "SELECT k.keyword, m.picid FROM userkeywords k, userpicmap2 m ".
                                       "WHERE k.keyword IN ($keywords_in) AND k.kwid=m.kwid AND k.userid=m.userid " .
-                                      "AND k.userid=?");
-            } else {
-                $sth = $dbh->prepare("SELECT k.keyword, m.picid FROM keywords k, userpicmap m " .
-                                     "WHERE k.keyword IN ($keywords_in) AND k.kwid=m.kwid " .
-                                     "AND m.userid=?");
-            }
+                                      "AND k.userid=?" );
             $sth->execute($userid);
             while (my ($keyword, $picid) = $sth->fetchrow_array) {
                 # keyword => picid
@@ -4716,13 +4718,8 @@ sub activate_userpics {
 
         @ban = splice(@ban, 0, $to_ban) if @ban > $to_ban;
         my $ban_in = join(",", map { $dbh->quote($_) } @ban);
-        if ( $u->dversion > 6 ) {
-            $u->do("UPDATE userpic2 SET state='I' WHERE userid=? AND picid IN ($ban_in)",
-                   undef, $userid) if $ban_in;
-        } else {
-            $dbh->do("UPDATE userpic SET state='I' WHERE userid=? AND picid IN ($ban_in)",
-                     undef, $userid) if $ban_in;
-        }
+        $u->do( "UPDATE userpic2 SET state='I' WHERE userid=? AND picid IN ($ban_in)",
+                undef, $userid ) if $ban_in;
     }
 
     # activate previously inactivated userpics
@@ -4736,14 +4733,9 @@ sub activate_userpics {
         my @activate_picids = splice(@inactive, -$to_activate);
 
         my $activate_in = join(",", map { $dbh->quote($_) } @activate_picids);
-        if ($activate_in) {
-            if ( $u->dversion > 6 ) {
-                $u->do("UPDATE userpic2 SET state='N' WHERE userid=? AND picid IN ($activate_in)",
-                       undef, $userid);
-            } else {
-                $dbh->do("UPDATE userpic SET state='N' WHERE userid=? AND picid IN ($activate_in)",
-                         undef, $userid);
-            }
+        if ( $activate_in ) {
+            $u->do( "UPDATE userpic2 SET state='N' WHERE userid=? AND picid IN ($activate_in)",
+                    undef, $userid );
         }
     }
 
@@ -4840,31 +4832,6 @@ sub remove_friend {
     confess 'LJ::User->remove_friend has been deprecated.';
 }
 
-
-# take a user on dversion 7 and upgrade them to dversion 8 (clustered polls)
-# DW doesn't support anything earlier than dversion 8, so this can
-# probably go away at some point.
-
-# returns if this user's polls are clustered
-# DW doesn't support anything earlier than dversion 8, so this can
-# probably go away at some point.
-sub polls_clustered {
-    my $u = shift;
-    return $u->dversion >= 8;
-}
-
-
-sub upgrade_to_dversion_8 {
-    my ( $u, $dbh, $dbhslo, $dbcm ) = @_;
-
-    # If user has been purged, go ahead and update version
-    # Otherwise move their polls
-    my $ok = $u->is_expunged ? 1 : LJ::Poll->make_polls_clustered($u, $dbh, $dbhslo, $dbcm);
-
-    LJ::update_user($u, { 'dversion' => 8 }) if $ok;
-
-    return $ok;
-}
 
 # FIXME: Needs updating for WTF
 sub opt_showmutualfriends {
@@ -7955,17 +7922,11 @@ sub make_journal
     }
 
     # signal to LiveJournal.pm that we can't handle this
-    if (($stylesys == 1 || $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light') &&
-        ({ entry=>1, reply=>1, month=>1, tag=>1 }->{$view} || ($view eq 'lastn' && ($geta->{tag} || $geta->{security})))) {
-
-        # pick which fallback method (s2 or bml) we'll use by default, as configured with
-        # $S1_SHORTCOMINGS
-        my $fallback = $LJ::S1_SHORTCOMINGS ? "s2" : "bml";
-
-        # but if the user specifies which they want, override the fallback we picked
-        if ($geta->{'fallback'} && $geta->{'fallback'} =~ /^s2|bml$/) {
-            $fallback = $geta->{'fallback'};
-        }
+    # FIXME: Make this properly invoke siteviews all the time -- once all the views are ready.
+    # Most of this if and tons of messy conditionals can go away once all views are done.
+    if ( ( ($stylesys == 1 || $geta->{'style'} eq 'site' || $geta->{'style'} eq 'default' ) &&
+            ( { entry=>1, reply=>1, month=>1, tag=>1 }->{$view} || ($view eq 'lastn' && ($geta->{tag} || $geta->{security})))) || ( $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light' ) )  {
+        my $fallback = "bml"; # FIXME: Should be S2 once everything's done
 
         # if we are in this path, and they have style=mine set, it means
         # they either think they can get a S2 styled page but their account
@@ -7982,23 +7943,27 @@ sub make_journal
             $r->note(bml_use_scheme => 'lynx');
         }
 
+        # but if the user specifies which they want, override the fallback we picked
+        if ($geta->{'fallback'} && $geta->{'fallback'} =~ /^s2|bml$/) {
+            $fallback = $geta->{'fallback'};
+        }
+
         # there are no BML handlers for these views, so force s2
-        if ($view eq 'tag' || $view eq 'lastn') {
+        # FIXME: Temporaray until talkread/talkpost/month views are converted
+        if ( !( { entry => 1, reply => 1, month => 1 }->{$view} ) ) {
             $fallback = "s2";
         }
 
-        # fall back to BML unless we're using S2
-        # fallback (the "s1shortcomings/layout")
+        # fall back to legacy BML unless we're using BML-wrapped s2
         if ($fallback eq "bml") {
             ${$opts->{'handle_with_bml_ref'}} = 1;
             return;
         }
 
-        # S1 can't handle these views, so we fall back to a
-        # system-owned S2 style (magic value "s1short") that renders
-        # this content
+        # Render a system-owned S2 style that renders
+        # this content, then passes it to get treated as BML
         $stylesys = 2;
-        $styleid = "s1short";
+        $styleid = "siteviews";
     }
 
     # now, if there's a GET argument for tags, split those out
@@ -8116,18 +8081,17 @@ sub make_journal
             if $r;
 
         eval { LJ::S2->can("dostuff") };  # force Class::Autouse
-        my $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
 
-        # intercept flag to handle_with_bml_ref and instead use S1 shortcomings
-        # if BML is disabled
-        if ($opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} &&
-            ($LJ::S1_SHORTCOMINGS || $geta->{fallback} eq "s2"))
-        {
-            # kill the flag
-            ${$opts->{'handle_with_bml_ref'}} = 0;
+        my $mj;
 
-            # and proceed with s1shortcomings (which looks like BML) instead of BML
-            $mj = LJ::S2::make_journal($u, "s1short", $view, $remote, $opts);
+        unless ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} ) {
+            $mj = LJ::S2::make_journal($u, $styleid, $view, $remote, $opts);
+        }
+
+        # intercept flag to handle_with_bml_ref and instead use siteviews
+        # FIXME: Temporary, till everything is converted.
+        if ( $opts->{'handle_with_bml_ref'} && ${$opts->{'handle_with_bml_ref'}} && $geta->{fallback} eq "s2" ) {
+            $mj = LJ::S2::make_journal($u, "siteviews", $view, $remote, $opts);
         }
 
         return $mj;
@@ -8153,15 +8117,10 @@ sub make_journal
 sub userpic_count {
     my $u = shift or return undef;
 
-    if ( $u->dversion > 6 ) {
-        my $dbcr = LJ::get_cluster_def_reader($u) or return undef;
-        return $dbcr->selectrow_array("SELECT COUNT(*) FROM userpic2 " .
-                                      "WHERE userid=? AND state <> 'X'", undef, $u->userid);
-    }
-
-    my $dbh = LJ::get_db_writer() or return undef;
-    return $dbh->selectrow_array("SELECT COUNT(*) FROM userpic " .
-                                 "WHERE userid=? AND state <> 'X'", undef, $u->userid);
+    my $dbcr = LJ::get_cluster_def_reader( $u ) or return undef;
+    return $dbcr->selectrow_array( "SELECT COUNT(*) FROM userpic2 " .
+                                   "WHERE userid=? AND state <> 'X'",
+                                   undef, $u->userid );
 }
 
 

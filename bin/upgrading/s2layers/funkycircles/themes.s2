@@ -1,0 +1,74 @@
+#NEWLAYER: funkycircles/darkpurple
+layerinfo "type" = "theme";
+layerinfo "name" = "Dark Purple";
+layerinfo redist_uniq = "funkycircles/darkpurple";
+layerinfo author_name = "900degrees";
+
+set layout_resources = [ { "name" => "Smoke Curl", "url" => "http://www.colourlovers.com/palette/861192/Smoke_Curl" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#473A61";
+set color_page_text = "#fff";
+set color_page_link = "#B8B8B8";
+set color_page_link_active = "#fff";
+set color_page_link_hover = "#fff";
+set color_page_link_visited = "#CEC5FF";
+set color_header_background = "#211F2C";
+set color_page_title_background = "#24203D";
+set color_page_title = "#fff";
+set color_page_subtitle_background = "#696580";
+set color_page_subtitle = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#696580";
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#211F2C";
+set color_entry_link = "#434343";
+set color_entry_link_hover_background  = "#CEC5FF";
+set color_entry_link_hover = "#24203D";
+set color_entry_link_visited = "#6540AE";
+set color_entry_footer_background = "#211F2C";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#B8B8B8";
+set color_entry_footer_link_hover = "#fff";
+set color_entry_footer_link_visited = "#CEC5FF";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#B8B8B8";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#CEC5FF";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/darkpurple-page.jpg";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/darkpurple-header.jpg";
+set image_background_header_repeat = "no-repeat";
+set image_entry_list_background_url = "funkycircles/darkpurple-entrybullet.jpg";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/darkpurple-modulebullet.jpg";
+set image_module_list_active = "funkycircles/darkpurple-modulebulletactive.jpg";
+set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";

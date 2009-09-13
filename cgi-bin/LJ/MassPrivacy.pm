@@ -155,7 +155,7 @@ sub handle {
 package LJ::Worker::MassPrivacy;
 use base 'TheSchwartz::Worker';
 
-use Class::Autouse qw(LJ::MassPrivacy);
+use LJ::MassPrivacy;
 
 sub work {
     my ($class, $job) = @_;

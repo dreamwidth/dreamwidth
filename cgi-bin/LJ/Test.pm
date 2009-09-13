@@ -11,10 +11,8 @@ use vars qw(@ISA @EXPORT);
 # Test::FakeApache because that really fucks with things.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-use Class::Autouse qw(
-                      DBI
-                      LJ::ModuleCheck
-                      );
+use DBI;
+use LJ::ModuleCheck;
 @ISA = qw(Exporter);
 @EXPORT = qw(memcache_stress with_fake_memcache temp_user temp_comm temp_feed fake_apache);
 

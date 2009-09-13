@@ -3,7 +3,7 @@ package LJ::Widget::SubmitRequest;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( Captcha::reCAPTCHA );
+use Captcha::reCAPTCHA;
 
 use LJ::ModuleLoader;
 LJ::ModuleLoader->autouse_subclasses('LJ::Widget::SubmitRequest');

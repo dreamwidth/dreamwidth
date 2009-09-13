@@ -95,7 +95,10 @@
         $body .= "<?h1 $ML{'.add.header'} h1?>";
 
         $body .= "<?p " . BML::ml('.add.text2', { 'ljuser' => LJ::ljuser($u) }) . " p?>";
-        $body .= "<ul><li><a href='" . $remote->journal_base . "/read'>$ML{'.add.next.friends'}</a></li>";
+        $body .= "<ul>";
+        $body .= "<li><a href='$LJ::SITEROOT/inbox/compose?user=$user'>$ML{'.add.next.message'}</a></li>"
+            if $u->is_personal && $u->can_receive_message( $remote );
+        $body .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'.add.next.friends'}</a></li>";
         $body .= "<li><a href='$LJ::SITEROOT/manage/circle/edit'>$ML{'.add.next.modify'}</a></ul>";
         return;
     }

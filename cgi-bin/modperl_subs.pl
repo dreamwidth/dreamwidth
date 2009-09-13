@@ -31,22 +31,20 @@ use LJ::Faq;
 use DW::BusinessRules::InviteCodes;
 use DW::BusinessRules::InviteCodeRequests;
 
-use Class::Autouse qw(
-                      DateTime
-                      DateTime::TimeZone
-                      LJ::CProd
-                      LJ::OpenID
-                      LJ::Location
-                      LJ::SpellCheck
-                      LJ::TextMessage
-                      LJ::ModuleCheck
-                      LJ::Widget
-                      MogileFS::Client
-                      DDLockClient
-                      LJ::BetaFeatures
-                      DW::InviteCodes
-                      DW::InviteCodeRequests
-                      );
+use DateTime;
+use DateTime::TimeZone;
+use LJ::CProd;
+use LJ::OpenID;
+use LJ::Location;
+use LJ::SpellCheck;
+use LJ::TextMessage;
+use LJ::ModuleCheck;
+use LJ::Widget;
+use MogileFS::Client;
+use DDLockClient;
+use LJ::BetaFeatures;
+use DW::InviteCodes;
+use DW::InviteCodeRequests;
 
 
 # force XML::Atom::* to be brought in (if we have it, it's optional),
@@ -55,20 +53,16 @@ BEGIN {
     LJ::ModuleCheck->have_xmlatom unless LJ::is_from_test();
 }
 
-# in web context, Class::Autouse will load this, which loads MapUTF8.
+# this loads MapUTF8.
 # otherwise, we'll rely on the AUTOLOAD in ljlib.pl to load MapUTF8
-use Class::Autouse qw(LJ::ConvUTF8);
+use LJ::ConvUTF8;
 
-# other things we generally want to load in web context, but don't need
-# in testing context:  (not autoloaded normal ways)
-use Class::Autouse qw(
-                      MIME::Words
-                      );
+use MIME::Words;
 
 # Try to load DBI::Profile
 BEGIN { $LJ::HAVE_DBI_PROFILE = eval "use DBI::Profile (); 1;" }
 
-require "ljlang.pl";
+use LJ::Lang;
 require "htmlcontrols.pl";
 require "weblib.pl";
 require "imageconf.pl";

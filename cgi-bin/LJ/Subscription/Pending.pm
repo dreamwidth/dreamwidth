@@ -5,7 +5,8 @@ package LJ::Subscription::Pending;
 use base 'LJ::Subscription';
 use strict;
 use Carp qw(croak carp);
-use Class::Autouse qw (LJ::Event LJ::NotificationMethod);
+use LJ::Event;
+use LJ::NotificationMethod;
 
 sub new {
     my $class = shift;

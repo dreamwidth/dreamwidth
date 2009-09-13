@@ -8,7 +8,8 @@ use LJ::Test;
 use LJ::Directory::Search;
 use LJ::ModuleCheck;
 if (LJ::ModuleCheck->have("LJ::UserSearch")) {
-    plan tests => 9;
+    # plan tests => 9;
+    plan skip_all => "User search without workers currently bitrotted";
 } else {
     plan 'skip_all' => "Need LJ::UserSearch module.";
     exit 0;

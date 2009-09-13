@@ -22,7 +22,7 @@ use Time::HiRes qw/ gettimeofday tv_interval /;
 
 require 'ljlib.pl';
 require 'ljmail.pl';
-require 'ljlang.pl';
+use LJ::Lang;
 use DW::Shop;
 use DW::Shop::Cart;
 

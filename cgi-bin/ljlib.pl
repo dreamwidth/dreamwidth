@@ -32,27 +32,24 @@ use LJ::Constants;
 use Time::Local ();
 use Storable ();
 use Compress::Zlib ();
-use Class::Autouse qw(
-                      DW::Request
-                      TheSchwartz
-                      TheSchwartz::Job
-                      LJ::Comment
-                      LJ::Config
-                      LJ::ExternalSite
-                      LJ::ExternalSite::Vox
-                      LJ::Message
-                      LJ::PageStats
-                      LJ::AccessLogSink
-                      LJ::ConvUTF8
-                      LJ::Userpic
-                      LJ::ModuleCheck
-                      IO::Socket::INET
-                      LJ::UniqCookie
-                      LJ::WorkerResultStorage
-                      LJ::EventLogRecord
-                      LJ::EventLogRecord::DeleteComment
-                      );
-
+use DW::Request;
+use TheSchwartz;
+use TheSchwartz::Job;
+use LJ::Comment;
+use LJ::Config;
+use LJ::ExternalSite;
+use LJ::ExternalSite::Vox;
+use LJ::Message;
+use LJ::PageStats;
+use LJ::AccessLogSink;
+use LJ::ConvUTF8;
+use LJ::Userpic;
+use LJ::ModuleCheck;
+use IO::Socket::INET;
+use LJ::UniqCookie;
+use LJ::WorkerResultStorage;
+use LJ::EventLogRecord;
+use LJ::EventLogRecord::DeleteComment;
 use DW::External::Account;
 use DW::External::User;
 use DW::Logic::LogItems;
@@ -181,7 +178,7 @@ $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
                  },
                  "icons" => {
                     "des" => "Icons",
-                 }
+                 },
                  );
 
 ## we want to set this right away, so when we get a HUP signal later
@@ -1509,13 +1506,9 @@ sub cmd_buffer_add
 # class:
 # des: Get the id for a keyword.
 # args: uuid?, keyword, autovivify?
-# des-uuid: User object or userid to use.  Pass this <strong>only</strong> if
-#           you want to use the [dbtable[userkeywords]] clustered table!  If you
-#           do not pass user information, the [dbtable[keywords]] table
-#           on the global will be used.
+# des-uuid: User object or userid to use.
 # des-keyword: A string keyword to get the id of.
-# returns: Returns a kwid into [dbtable[keywords]] or
-#          [dbtable[userkeywords]], depending on if you passed a user or not.
+# returns: Returns a kwid into [dbtable[userkeywords]].
 #          If the keyword doesn't exist, it is automatically created for you.
 # des-autovivify: If present and 1, automatically create keyword.
 #                 If present and 0, do not automatically create the keyword.
@@ -1542,8 +1535,7 @@ sub get_keyword_id
 
     # get the keyword and insert it if necessary
     my $kwid;
-    if ($u && $u->{dversion} > 5) {
-        # new style userkeywords -- but only if the user has the right dversion
+    if ( $u ) {
         $kwid = $u->selectrow_array('SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
                                     undef, $u->{userid}, $kw) + 0;
         if ($autovivify && ! $kwid) {
@@ -1564,18 +1556,6 @@ sub get_keyword_id
 
             # nuke cache
             LJ::MemCache::delete([ $u->{userid}, "kws:$u->{userid}" ]);
-        }
-    } else {
-        # old style global
-        my $dbh = LJ::get_db_writer();
-        my $qkw = $dbh->quote($kw);
-
-        # Making this a $dbr could cause problems due to the insertion of
-        # data based on the results of this query. Leave as a $dbh.
-        $kwid = $dbh->selectrow_array("SELECT kwid FROM keywords WHERE keyword=$qkw");
-        if ($autovivify && ! $kwid) {
-            $dbh->do("INSERT INTO keywords (kwid, keyword) VALUES (NULL, $qkw)");
-            $kwid = $dbh->{'mysql_insertid'};
         }
     }
     return $kwid;
@@ -2135,10 +2115,8 @@ sub alloc_global_counter
     } elsif ($dom eq "H") {
         $newmax = $dbh->selectrow_array("SELECT MAX(cartid) FROM shop_carts");
     } elsif ($dom eq "L") {
-        # pick maximum id from poll and pollowner
-        my $max_poll      = $dbh->selectrow_array("SELECT MAX(pollid) FROM poll");
-        my $max_pollowner = $dbh->selectrow_array("SELECT MAX(pollid) FROM pollowner");
-        $newmax = $max_poll > $max_pollowner ? $max_poll : $max_pollowner;
+        # pick maximum id from pollowner
+        $newmax = $dbh->selectrow_array( "SELECT MAX(pollid) FROM pollowner" );
     } elsif ( $dom eq 'F' ) {
         $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
     } else {

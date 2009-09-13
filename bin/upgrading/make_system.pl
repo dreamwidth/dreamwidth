@@ -8,7 +8,7 @@ require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 my $dbh = LJ::get_dbh("master");
 
 print "
-This tool will create your LiveJournal 'system' account and
+This tool will create your $LJ::SITENAMESHORT 'system' account and
 set its password.  Or, if you already have a system user, it'll change
 its password to whatever you specify.
 ";

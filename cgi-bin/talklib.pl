@@ -5,14 +5,12 @@ use strict;
 package LJ::Talk;
 
 use LJ::Constants;
-use Class::Autouse qw(
-                      LJ::Event::JournalNewComment
-                      LJ::Event::UserNewComment
-                      LJ::Comment
-                      LJ::EventLogRecord::NewComment
-                      Captcha::reCAPTCHA
-                      LJ::OpenID
-                      );
+use LJ::Event::JournalNewComment;
+use LJ::Event::UserNewComment;
+use LJ::Comment;
+use LJ::EventLogRecord::NewComment;
+use Captcha::reCAPTCHA;
+use LJ::OpenID;
 use MIME::Words;
 use Carp qw(croak);
 
@@ -661,6 +659,7 @@ sub get_talk_data
     # if it seems necessary.
     my $rp_memkey = $nodetype eq "L" ? [$u->{'userid'}, "rp:$u->{'userid'}:$nodeid"] : undef;
     my $rp_count = $rp_memkey ? LJ::MemCache::get($rp_memkey) : 0;
+    $rp_count ||= 0; # avoid warnings, FIXME how can LJ::MemCache::get return undef or sg that is not undef?
 
     # hook for tests to count memcache gets
     if ($LJ::_T_GET_TALK_DATA_MEMCACHE) {
@@ -1712,8 +1711,7 @@ sub talkform {
             return false;
         }
         if (document.getElementById && (document.getSelection || document.selection || window.getSelection)) {
-            // Opera clears the paste buffer before mouse events, useless here
-                if (navigator.userAgent.indexOf("Opera") == -1) { document.write('$quickquote'); }
+            document.write('$quickquote');
         }
 QQ
 
@@ -3366,6 +3364,10 @@ sub post_comment {
     # check for dup ID in memcache.
     my $memkey;
     if (@LJ::MEMCACHE_SERVERS) {
+        # avoid warnings FIXME this should be done elsewhere
+        foreach my $field (qw(body subject subjecticon preformat picture_keyword)) {
+            $comment->{$field} = '' if not defined $comment->{$field};
+        }
         my $md5_b64 = Digest::MD5::md5_base64(
             join(":", ($comment->{body}, $comment->{subject},
                        $comment->{subjecticon}, $comment->{preformat},
@@ -3382,6 +3384,7 @@ sub post_comment {
         $comment->{pic} = $pic;
 
         # put the post in the database
+        $item->{anum} ||= 0; # avoid warning FIXME this should be done elsewhere
         my $ditemid = $item->{itemid}*256 + $item->{anum};
         $jtalkid = enter_comment($journalu, $parent, $item, $comment, $errref);
         return 0 unless $jtalkid;

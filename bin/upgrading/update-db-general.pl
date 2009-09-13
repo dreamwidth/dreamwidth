@@ -161,16 +161,6 @@ CREATE TABLE interests (
 )
 EOC
 
-register_tablecreate("keywords", <<'EOC');
-CREATE TABLE keywords (
-    kwid int(10) unsigned NOT NULL auto_increment,
-    keyword varchar(80) binary NOT NULL default '',
-
-    PRIMARY KEY  (kwid),
-    UNIQUE KEY kwidx (keyword)
-)
-EOC
-
 register_tablecreate("logproplist", <<'EOC');
 CREATE TABLE logproplist (
     propid tinyint(3) unsigned NOT NULL auto_increment,
@@ -184,29 +174,6 @@ CREATE TABLE logproplist (
 
     PRIMARY KEY  (propid),
     UNIQUE KEY name (name)
-)
-EOC
-
-register_tablecreate("memkeyword", <<'EOC');
-CREATE TABLE memkeyword (
-    memid int(10) unsigned NOT NULL default '0',
-    kwid int(10) unsigned NOT NULL default '0',
-
-    PRIMARY KEY  (memid,kwid)
-)
-EOC
-
-register_tablecreate("memorable", <<'EOC');
-CREATE TABLE memorable (
-    memid int(10) unsigned NOT NULL auto_increment,
-    userid int(10) unsigned NOT NULL default '0',
-    itemid int(10) unsigned NOT NULL default '0',
-    des varchar(60) default NULL,
-    security enum('public','friends','private') NOT NULL default 'public',
-
-    PRIMARY KEY  (memid),
-    UNIQUE KEY userid (userid,itemid),
-    KEY (itemid)
 )
 EOC
 
@@ -268,71 +235,6 @@ CREATE TABLE pendcomments (
 
     PRIMARY KEY (pendcid, jid),
     KEY (datesubmit)
-)
-EOC
-
-register_tablecreate("poll", <<'EOC');
-CREATE TABLE poll (
-    pollid int(10) unsigned NOT NULL auto_increment,
-    itemid int(10) unsigned NOT NULL default '0',
-    journalid int(10) unsigned NOT NULL default '0',
-    posterid int(10) unsigned NOT NULL default '0',
-    whovote enum('all','friends') NOT NULL default 'all',
-    whoview enum('all','friends','none') NOT NULL default 'all',
-    name varchar(255) default NULL,
-
-    PRIMARY KEY  (pollid),
-    KEY (itemid),
-    KEY (journalid),
-    KEY (posterid)
-)
-EOC
-
-register_tablecreate("pollitem", <<'EOC');
-CREATE TABLE pollitem (
-    pollid int(10) unsigned NOT NULL default '0',
-    pollqid tinyint(3) unsigned NOT NULL default '0',
-    pollitid tinyint(3) unsigned NOT NULL default '0',
-    sortorder tinyint(3) unsigned NOT NULL default '0',
-    item varchar(255) default NULL,
-
-    PRIMARY KEY  (pollid,pollqid,pollitid)
-)
-EOC
-
-register_tablecreate("pollquestion", <<'EOC');
-CREATE TABLE pollquestion (
-    pollid int(10) unsigned NOT NULL default '0',
-    pollqid tinyint(3) unsigned NOT NULL default '0',
-    sortorder tinyint(3) unsigned NOT NULL default '0',
-    type enum('check','radio','drop','text','scale') default NULL,
-    opts varchar(20) default NULL,
-    qtext text,
-
-    PRIMARY KEY  (pollid,pollqid)
-)
-EOC
-
-register_tablecreate("pollresult", <<'EOC');
-CREATE TABLE pollresult (
-    pollid int(10) unsigned NOT NULL default '0',
-    pollqid tinyint(3) unsigned NOT NULL default '0',
-    userid int(10) unsigned NOT NULL default '0',
-    value varchar(255) default NULL,
-
-    PRIMARY KEY  (pollid,pollqid,userid),
-    KEY (pollid,userid)
-)
-EOC
-
-register_tablecreate("pollsubmission", <<'EOC');
-CREATE TABLE pollsubmission (
-    pollid int(10) unsigned NOT NULL default '0',
-    userid int(10) unsigned NOT NULL default '0',
-    datesubmit datetime NOT NULL default '0000-00-00 00:00:00',
-
-    PRIMARY KEY  (pollid,userid),
-    KEY (userid)
 )
 EOC
 
@@ -976,52 +878,18 @@ register_tabledrop("adoptlast");
 register_tabledrop("urimap");
 register_tabledrop("syndicated_hubbub");
 register_tabledrop("oldids");
-
-register_tablecreate("portal", <<'EOC');
-CREATE TABLE portal (
-    userid int(10) unsigned NOT NULL default '0',
-    loc enum('left','main','right','moz') NOT NULL default 'left',
-    pos tinyint(3) unsigned NOT NULL default '0',
-    boxname varchar(30) default NULL,
-    boxargs varchar(255) default NULL,
-
-    PRIMARY KEY  (userid,loc,pos),
-    KEY boxname (boxname)
-)
-EOC
-
-register_tablecreate("portal_box_prop", <<'EOC');
-CREATE TABLE portal_box_prop (
-    userid INT(10),
-    pboxid SMALLINT,
-    ppropid SMALLINT,
-    propvalue VARCHAR(255) BINARY,
-
-    PRIMARY KEY(userid, pboxid, ppropid)
-)
-EOC
-
-register_tablecreate("portal_config", <<'EOC');
-CREATE TABLE portal_config (
-    userid INT(10),
-    pboxid SMALLINT,
-    col CHAR(1),
-    sortorder TINYINT,
-    type INT,
-
-    PRIMARY KEY(userid,pboxid)
-)
-EOC
-
-register_tablecreate("portal_typemap", <<'EOC');
-CREATE TABLE portal_typemap (
-    id SMALLINT UNSIGNED AUTO_INCREMENT NOT NULL,
-    class_name VARCHAR(255),
-
-    PRIMARY KEY (id),
-    UNIQUE (class_name)
-)
-EOC
+register_tabledrop("keywords");
+register_tabledrop("poll");
+register_tabledrop("pollitem");
+register_tabledrop("pollquestion");
+register_tabledrop("pollresult");
+register_tabledrop("pollsubmission");
+register_tabledrop("portal");
+register_tabledrop("portal_box_prop");
+register_tabledrop("portal_config");
+register_tabledrop("portal_typemap");
+register_tabledrop("memkeyword");
+register_tabledrop("memorable");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -3317,15 +3185,6 @@ register_alter(sub {
                  "ADD is_public ENUM('1', '0') DEFAULT '1' NOT NULL");
     }
 
-    if (column_type("memorable", "jitemid") eq "") {
-        do_alter("memorable", "ALTER TABLE memorable ".
-                 "DROP INDEX userid, DROP INDEX itemid, ".
-                 "CHANGE itemid jitemid INT UNSIGNED NOT NULL, ".
-                 "ADD journalid INT UNSIGNED NOT NULL AFTER userid, ".
-                 "ADD UNIQUE uniq (userid, journalid, jitemid), ".
-                 "ADD KEY item (journalid, jitemid)");
-    }
-
     if (column_type("user", "clusterid") eq "") {
         do_alter("user", "ALTER TABLE user ".
                  "ADD clusterid TINYINT UNSIGNED NOT NULL AFTER caps, ".
@@ -3344,18 +3203,6 @@ register_alter(sub {
 
     if (column_type("user", "allow_getpromos") ne "") {
         do_alter("user", "ALTER TABLE user DROP allow_getpromos");
-    }
-
-    # widen columns to accomodate larger Unicode names
-    if (column_type("memorable", "des") eq "varchar(60)") {
-        do_alter("memorable",
-                 "ALTER TABLE memorable ".
-                 "MODIFY des VARCHAR(150) NOT NULL");
-    }
-    if (column_type("keywords", "keyword") eq "varchar(40) binary") {
-        do_alter("keywords",
-                 "ALTER TABLE keywords ".
-                 "MODIFY keyword VARCHAR(80) BINARY NOT NULL");
     }
 
     #allow longer moodtheme pic URLs
@@ -3579,16 +3426,6 @@ register_alter(sub {
                  "ALTER TABLE includetext MODIFY COLUMN inctext MEDIUMTEXT");
     }
 
-    if (column_type("portal_config", "userid") !~ /unsigned/i) {
-        do_alter("portal_config",
-                 "ALTER TABLE portal_config MODIFY COLUMN userid INT UNSIGNED NOT NULL, MODIFY COLUMN pboxid SMALLINT UNSIGNED NOT NULL, MODIFY COLUMN sortorder SMALLINT UNSIGNED NOT NULL, MODIFY COLUMN type INT UNSIGNED NOT NULL");
-    }
-
-    if (column_type("portal_box_prop", "userid") !~ /unsigned/i) {
-                 do_alter("portal_box_prop",
-                          "ALTER TABLE portal_box_prop MODIFY COLUMN userid INT UNSIGNED NOT NULL, MODIFY COLUMN pboxid SMALLINT UNSIGNED NOT NULL, MODIFY COLUMN ppropid SMALLINT UNSIGNED NOT NULL");
-    }
-
     # These table are both livejournal tables, although could have ljcom values
     # that we need to update.  Not trying to be lazy, but running the updates in
     # update-db-local.pl would cause us to have to do a select on the table everytime
@@ -3746,11 +3583,6 @@ register_alter(sub {
     }
 
     # add a status column to polls
-    unless (column_type("poll", "status")) {
-        do_alter("poll",
-                 "ALTER TABLE poll ADD status CHAR(1) AFTER name, " .
-                 "ADD INDEX (status)");
-    }
     unless (column_type("poll2", "status")) {
         do_alter("poll2",
                  "ALTER TABLE poll2 ADD status CHAR(1) AFTER name, " .
@@ -3882,13 +3714,6 @@ register_alter(sub {
     unless ( column_type( "acctcode", "timesent" ) ) {
         do_alter( "acctcode",
                   "ALTER TABLE acctcode ADD timesent INT UNSIGNED");
-    }
-
-    unless ( column_type( "poll", "whovote" ) =~ /trusted/ ) {
-        do_alter("poll",
-                 "ALTER TABLE poll MODIFY COLUMN whovote ENUM('all','trusted','ofentry') NOT NULL default 'all'" );
-        do_alter("poll",
-                 "ALTER TABLE poll MODIFY COLUMN whoview ENUM('all','trusted','ofentry','none') NOT NULL default 'all'" );
     }
 
     unless ( column_type( "poll2", "whovote" ) =~ /trusted/ ) {

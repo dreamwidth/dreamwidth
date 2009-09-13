@@ -9,7 +9,7 @@ sub layout_prop { "layout_type" }
 
 package LJ::S2Theme::negatives::black;
 use base qw( LJ::S2Theme::negatives );
-sub cats { qw( featured ) }
+sub cats { qw( base ) }
 
 package LJ::S2Theme::negatives::blastedsands;
 use base qw( LJ::S2Theme::negatives );
@@ -18,7 +18,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::negatives::limecherry;
 use base qw( LJ::S2Theme::negatives );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "zvi" }
 
 package LJ::S2Theme::negatives::pumpkinjuice;

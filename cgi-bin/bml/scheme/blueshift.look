@@ -143,7 +143,8 @@ footer<=
     <li><a href="<?siteroot?>/legal/tos"><?_ml sitescheme.footer.legal.tos _ml?></a> &bull; </li>
     <li><a href="<?siteroot?>/legal/diversity"><?_ml sitescheme.footer.legal.diversitystatement _ml?></a> &bull; </li>
     <li><a href="<?siteroot?>/legal/principles"><?_ml sitescheme.footer.legal.guidingprinciples _ml?></a> &bull; </li>
-    <li><a href="<?siteroot?>/site/"><?_ml sitescheme.footer.sitemap _ml?></a></li>
+    <li><a href="<?siteroot?>/site/"><?_ml sitescheme.footer.sitemap _ml?></a> &bull; </li>
+    <li><a href="<?siteroot?>/site/suggest"><?_ml sitescheme.footer.suggestion _ml?></a></li>
 </ul>
 <p><?_ml sitescheme.footer.info _ml?></p>
 <=footer

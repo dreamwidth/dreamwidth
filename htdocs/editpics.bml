@@ -365,17 +365,15 @@ use strict;
             $body .= "</p>\n";
             $body .= "<p class='detail'>$ML{'.label.keywords.desc'}</p>\n";
 
-            if (LJ::Userpic->user_supports_comments($u)) {
-                $body .= "<p class='pkg'>\n";
-                $body .= "<label class='left' for='comments_0'>$ML{'.label.comment'}</label>\n";
-                my $comments = $POST{'comments'};
-                $body .= "<span class='input-wrapper'>";
-                $body .= LJ::html_text({ 'name' => 'comments_0', 'class' => 'text', id => 'comments_0', 'maxlength' => LJ::CMAX_UPIC_COMMENT, 'value', $comments }) . "\n";
-                $body .= LJ::help_icon_html('upic_comments') . "\n";
-                $body .= "</span>";
-                $body .= "</p>\n";
-                $body .= "<p class='detail'>$ML{'.label.comment.desc'}</p>\n";
-            }
+            $body .= "<p class='pkg'>\n";
+            $body .= "<label class='left' for='comments_0'>$ML{'.label.comment'}</label>\n";
+            my $comments = $POST{'comments'};
+            $body .= "<span class='input-wrapper'>";
+            $body .= LJ::html_text({ 'name' => 'comments_0', 'class' => 'text', id => 'comments_0', 'maxlength' => LJ::CMAX_UPIC_COMMENT, 'value', $comments }) . "\n";
+            $body .= LJ::help_icon_html('upic_comments') . "\n";
+            $body .= "</span>";
+            $body .= "</p>\n";
+            $body .= "<p class='detail'>$ML{'.label.comment.desc'}</p>\n";
 
             $body .= "<p class='pkg'>\n";
             $body .= "<label class='left' for='descriptions_0'>$ML{'.label.description'}</label>\n";
@@ -409,9 +407,7 @@ use strict;
                 $body .= "<input type='button' value='$ML{'.btn.addfile'}' onclick='javascript:addNewUpload(\"file\");' /> <input type='button' value='$ML{'.btn.addurl'}' onclick='javascript:addNewUpload(\"url\");'/>\n";
                 $body .= "<script type='text/javascript'>\n";
                 $body .= "maxcounter = $remaining_uploads;\n";
-                if (LJ::Userpic->user_supports_comments($u)) {
-                    $body .= "allowComments = true;\n";
-                }
+                $body .= "allowComments = true;\n";
                 $body .= "allowDescriptions = true;\n";
 
                 $body .= "ep_labels.comment = '$ML{'.label.comment'}';\n";
@@ -498,18 +494,16 @@ use strict;
                                        'value' => $keywords }) . "\n";
             $body .= "</div>\n";
 
-            if ($pic->supports_comments) {
-                $body .= "<div class='userpic_comments pkg'>\n";
-                $body .= "<label class='left' for='com_$pid'>$ML{'.label.comment'}</label>\n ";
-                $body .= LJ::html_text({ 'name' => "com_$pid", 'class' => "text", 'id' => "com_$pid",
-                                         'value' => $comment,
-                                         'maxlength' => LJ::CMAX_UPIC_COMMENT,
-                                         'disabled' => $pic->inactive }) . "\n";
-                $body .= LJ::html_hidden({ 'name' => "com_orig_$pid",
-                                           'value' => $comment }) . "\n";
+            $body .= "<div class='userpic_comments pkg'>\n";
+            $body .= "<label class='left' for='com_$pid'>$ML{'.label.comment'}</label>\n ";
+            $body .= LJ::html_text({ 'name' => "com_$pid", 'class' => "text", 'id' => "com_$pid",
+                                     'value' => $comment,
+                                     'maxlength' => LJ::CMAX_UPIC_COMMENT,
+                                     'disabled' => $pic->inactive }) . "\n";
+            $body .= LJ::html_hidden({ 'name' => "com_orig_$pid",
+                                       'value' => $comment }) . "\n";
 
-                $body .= "</div>\n";
-            }
+            $body .= "</div>\n";
             
             $body .= "<div class='userpic_descriptions pkg'>\n";
             $body .= "<label class='left' for='desc_$pid'>$ML{'.label.description'}</label>\n ";

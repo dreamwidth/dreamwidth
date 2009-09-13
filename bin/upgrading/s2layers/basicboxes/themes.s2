@@ -78,7 +78,8 @@ set color_entry_title_background = "#748896";
 set color_module_background = "#748896";
 set color_module_text = "#595D74";
 set color_module_border = "#595D74";
-
+set color_module_title = "#595D74";
+set color_module_title_background = "#eAe9eC";
 
 #NEWLAYER: basicboxes/ecru
 layerinfo type = "theme";
@@ -97,7 +98,7 @@ set color_page_link = "#fff";
 set color_page_border = "#aFaD96"; 
 set color_page_title = "#fff";
 
-set color_header_background = "#DEDBD1"; #DEDBD1
+set color_header_background = "#DEDBD1";
 
 ##===============================
 ## Entry Colors
@@ -161,6 +162,7 @@ set color_module_background = "#641471";
 set color_module_text = "#bb90e0";
 set color_module_border = "#bb90e0";
 set color_module_title = "#a8b257";
+set color_module_title_background = "#641471";
 
 
 #NEWLAYER: basicboxes/green
@@ -199,7 +201,8 @@ set color_entry_title_background = "#92a252";
 set color_module_background = "#92a252";
 set color_module_text = "#566030";
 set color_module_border = "#566030";
-set color_module_title = "#e9eed3";
+set color_module_title = "#566030";
+set color_module_title_background = "#e9eed3";
 
 
 #NEWLAYER: basicboxes/leaf

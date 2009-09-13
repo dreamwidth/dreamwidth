@@ -3,7 +3,7 @@ package LJ::Widget::SiteMessages;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::SiteMessages );
+use LJ::SiteMessages;
 
 sub render_body {
     my $class = shift;

@@ -22,7 +22,7 @@ use Carp ();
 use List::Util ();
 use lib "$LJ::HOME/cgi-bin";
 use base 'DW::BusinessRules';
-BEGIN { require "ljlang.pl"; }
+use LJ::Lang;
 
 =head1 NAME
 

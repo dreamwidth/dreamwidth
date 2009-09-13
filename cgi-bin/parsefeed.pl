@@ -42,7 +42,7 @@ sub parse_feed
     # simple heuristic: Atom feeds will have '<feed' somewhere
     # TODO: maybe store the feed's type on creation in a userprop and not guess here
 
-    if ($type eq 'atom' || $content =~ m!\<feed!) {
+    if ( (defined $type && $type eq 'atom') || $content =~ m!\<feed!) {
         # try treating it as an atom feed
         $parser = new XML::Parser(Style=>'Stream', Pkg=>'LJ::ParseFeed::Atom');
         return ("", "failed to create XML parser") unless $parser;
@@ -276,7 +276,7 @@ sub StartTag {
         if ($tag eq 'link') {
             # store 'self' and 'hub' rels, for PubSubHubbub support; but only valid
             # for the feed, so make sure $item is undef
-            if ( ! $item && ( $_{rel} eq 'self' || $_{rel} eq 'hub' ) ) {
+            if ( ! $item && $_{rel} && ( $_{rel} eq 'self' || $_{rel} eq 'hub' ) ) {
                 return err( 'Feed not yet defined' )
                     unless $feed;
 
@@ -288,7 +288,7 @@ sub StartTag {
 
             # ignore links with rel= anything but alternate
             # and treat links as rel=alternate if not explicit
-            unless ($_{'rel'} eq 'alternate' || !$_{'rel'}) {
+            unless (!$_{'rel'} || $_{'rel'} eq 'alternate') {
                 swallow();
                 last TAGS;
             }

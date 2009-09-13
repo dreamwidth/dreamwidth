@@ -4,7 +4,7 @@ use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'ljlang.pl';
+use LJ::Lang;
 
 #plan tests => ;
 plan skip_all => 'Fix this test! LJ/Setting/WebpageURL.pm is missing';
@@ -14,7 +14,6 @@ require 'htmlcontrols.pl';
 package main;
 
 
-BEGIN { $LJ::HOME = $ENV{LJHOME}; }
 #use LJ::Setting::WebpageURL;
 use LJ::Setting::Gender;
 use LJ::Setting::Name;

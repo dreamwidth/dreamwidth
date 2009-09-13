@@ -3,7 +3,7 @@ package LJ::Widget::ThemeNav;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub ajax { 1 }
 sub can_fake_ajax_post { 1 }

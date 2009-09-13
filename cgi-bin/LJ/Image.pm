@@ -1,7 +1,7 @@
 package LJ::Image;
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw( Image::Size );
+use Image::Size;
 
 # given an image and some dimensions, will return the dimensions that the image
 # should be if it was resized to be no greater than the given dimensions

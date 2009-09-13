@@ -1,7 +1,7 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 177;
+use Test::More tests => 189;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'talklib.pl';
@@ -55,6 +55,8 @@ sub run_tests {
         # set a prop once, then re-set its value again
         my $jtalkid = $c2->jtalkid;
 
+        # FIXME the whole idea of using undef as one of the loop values seem to make the code 
+        # more complex, check if this can be changed
         foreach my $propval (0,1,undef,1) {
             # re-instantiate if we've blown $c2 away
             $c2 ||= LJ::Comment->new($u, jtalkid => $jtalkid);
@@ -69,11 +71,11 @@ sub run_tests {
             if (defined $propval) {
                 ok($inserted == 1 && $deleted == 0, "$propval: Inserted talkprop row prop-erly");
             } else {
-                ok($deleted == 1 && $inserted == 0, "$propval: Deleted talkprop row prop-erly");
+                ok($deleted == 1 && $inserted == 0, "undef: Deleted talkprop row prop-erly");
             }
                 
-            ok($c2->prop('opt_preformatted') == $propval, "$propval: Set prop and read back via ->prop");
-            ok($c2->props->{opt_preformatted} == $propval, "$propval: Set prop and read back via ->props");
+            is($c2->prop('opt_preformatted'),  $propval, (defined $propval ? $propval : 'undef') . ": Set prop and read back via ->prop");
+            is($c2->props->{opt_preformatted}, $propval, (defined $propval ? $propval : 'undef') . ": Set prop and read back via ->props");
 
             # clear the singleton and load again
             LJ::Comment->reset_singletons;
@@ -82,7 +84,8 @@ sub run_tests {
             
             my $c2_new = LJ::Comment->new($u, jtalkid => $jtalkid);
             my $propval = $c2_new->prop('opt_preformatted');
-            ok($loaded == 1 && $c2_new != $c2 && $propval == $propval, "$propval, Re-instantiated comment and re-loaded prop");
+            ok($loaded == 1, (defined $propval ? $propval : 'undef') . ", Re-instantiated comment and re-loaded prop");
+            ok($c2_new != $c2, (defined $propval ? $propval : 'undef') . ", Re-instantiated comment and re-loaded prop");
         }
 
         # test raw prop setting/modifying
@@ -139,7 +142,7 @@ sub run_tests {
                 my $c4 = $e4->t_enter_comment;
 
                 $c4->set_props('opt_preformatted' => undef, 'picture_keyword' => 2);
-                ok($c4->prop('opt_preformatted') == undef() && $c4->prop('picture_keyword') == 2 && 
+                ok(!defined( $c4->prop('opt_preformatted') ) && $c4->prop('picture_keyword') == 2 && 
                    $inserted == 1 && $deleted == 1 && $queried == 1,
                    "Set 1 prop, deleted 1, and read back");
             }
@@ -151,7 +154,7 @@ sub run_tests {
                 my $c5 = $e5->t_enter_comment;
 
                 $c5->set_props('opt_preformatted' => undef, 'picture_keyword' => undef);
-                ok($c5->prop('opt_preformatted') == undef && $c5->prop('picture_keyword') == undef && 
+                ok(!defined( $c5->prop('opt_preformatted') ) && !defined( $c5->prop('picture_keyword') ) && 
                    $inserted == 0 && $deleted == 1 && $queried == 1,
                    "Set 1 prop, deleted 1, and read back");
             }

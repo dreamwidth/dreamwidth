@@ -837,8 +837,8 @@ body<=
             $ret .= "<div align='center'>" . LJ::make_qr_target('bottom') . "</div>" if $remote;
 
             if ($showmultiform && $multiform_selects) {
-                $ret .= "<p>$ML{'.talkmulti.des'} ";
-                $ret .= LJ::html_select({'name' => 'mode' },
+                $ret .= "<p><label for='multiform_mode'>$ML{'.talkmulti.des'}</label>";
+                $ret .= LJ::html_select( { name => 'mode', id => 'multiform_mode' },
                                         ''           => '',
                                         'unscreen'   => $ML{'.talkmulti.unscreen'},
                                         'screen'     => $ML{'.talkmulti.screen'},

@@ -190,21 +190,6 @@ if ($opt_pop) {
     populate_database();
 }
 
-# make sure they don't have cluster0 users (support for that will be going away)
-# Note:  now cluster 0 means expunged (as well as statuvis 'X'), so there's
-# an option to disable the warning if you're running new code and know what's up.
-# if they're running modern code (with dversion 6 users), we won't check
-unless ($dbh->selectrow_array("SELECT userid FROM user WHERE dversion >= 6 LIMIT 1")) {
-    my $cluster0 = $dbh->selectrow_array("SELECT COUNT(*) FROM user WHERE clusterid=0");
-    if ($cluster0) {
-        print "\n", "* "x35, "\nWARNING: You have $cluster0 users on cluster 0.\n\n".
-            "Support for that old database schema is deprecated and will be removed soon.\n".
-            "You should stop updating from CVS until you've moved all your users to a cluster \n".
-            "(probably cluster '1', which you can run on the same database). \n".
-            "See bin/moveucluster.pl for instructions.\n" . "* "x35 . "\n\n";
-    }
-}
-
 print "# Done.\n";
 
 ############################################################################
@@ -810,7 +795,6 @@ sub create_table
 sub drop_table
 {
     my $table = shift;
-    return if $cluster && ! defined $clustered_table{$table};
 
     if ($opt_drop) {
         do_sql("DROP TABLE $table");

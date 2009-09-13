@@ -4,7 +4,6 @@ use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'communitylib.pl';
-BEGIN { $LJ::HOME = $ENV{LJHOME}; }
 use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;

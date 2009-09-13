@@ -1,0 +1,90 @@
+<?_code
+{
+    #
+    # edges.bml
+    #
+    # Outputs an account's edges in JSON format.
+    #
+    # Authors:
+    #      Thomas Thurman <thomas@thurman.org.uk>
+    #      foxfirefey <skittisheclipse@gmail.com>
+    #      Mark Smith <mark@dreamwidth.org>
+    #
+    # Copyright (c) 2009 by Dreamwidth Studios, LLC.
+    #
+    # This program is free software; you may redistribute it and/or modify it under
+    # the same terms as Perl itself. For a copy of the license, please reference
+    # 'perldoc perlartistic' or 'perldoc perlgpl'.
+    #
+
+    use strict;
+    use warnings;
+    use vars qw/ %GET /;
+    use JSON;
+
+    BML::set_content_type( "application/json" );
+
+    # Outputs an error message
+    my $error_in_json = sub {
+       my ( $code, $message ) = @_;
+       BML::set_status( $code );
+       BML::noparse( objToJson( { error => $message } ) );
+    };
+
+    # make sure we get a user
+    eval { $GET{user} ||= DW::Request->get->note( '_journal' ); };
+
+    # Load the account or error
+    return $error_in_json->(404, 'Need account name as user parameter') unless $GET{user};
+    my $u = LJ::load_user_or_identity( $GET{user} )
+        or return $error_in_json->( 404, "invalid account");
+
+    # Check for other conditions
+    return $error_in_json->( 410, 'expunged' ) if $u->is_expunged;
+    return $error_in_json->( 403, 'suspended' ) if $u->is_suspended;
+    return $error_in_json->( 404, 'deleted' ) if $u->is_deleted;
+
+    # deal with renamed accounts
+    my $renamed_u = $u->get_renamed_user;
+    return $renamed_u->journal_base . '/edges'
+        unless $renamed_u && $u->equals( $renamed_u );
+
+    # Load appropriate usernames for different accounts
+    my $us;
+
+    if ( $u->is_individual ) {
+        $us = LJ::load_userids( $u->trusted_userids, $u->watched_userids, $u->trusted_by_userids, $u->watched_by_userids, $u->member_of_userids );
+    } elsif ( $u->is_community ) {
+        $us = LJ::load_userids( $u->maintainer_userids, $u->moderator_userids, $u->member_userids, $u->watched_by_userids );
+    } elsif ( $u->is_syndicated ) {
+        $us = LJ::load_userids( $u->watched_by_userids );
+    }
+
+    # Contruct the JSON response hash
+    my $response = {};
+
+    # all accounts have this
+    $response->{account_type} = $u->journaltype;
+    $response->{watched_by} = [ $u->watched_by_userids ];
+
+    # different individual and community edges
+    if ( $u->is_individual ) {
+        $response->{trusted} = [ $u->trusted_userids ];
+        $response->{watched} = [ $u->watched_userids ];
+        $response->{trusted_by} = [ $u->trusted_by_userids ];
+        $response->{member_of} = [ $u->member_of_userids ];
+    } elsif ( $u->is_community ) {
+        $response->{maintainer} = [ $u->maintainer_userids ];
+        $response->{moderator} = [ $u->moderator_userids ];
+        $response->{member} = [ $u->member_userids ];
+    }
+
+    # now dump information about the users we loaded
+    $response->{accounts} = {
+        map { $_ => { name => $us->{$_}->display_name, type => $us->{$_}->journaltype } } keys %$us
+    };
+
+    # Output to BML
+    return BML::noparse( objToJson( $response ) );
+}
+_code?>

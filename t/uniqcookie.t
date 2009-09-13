@@ -5,7 +5,7 @@ use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 use LJ::Test qw(temp_user memcache_stress);
-use Class::Autouse qw(LJ::UniqCookie);
+use LJ::UniqCookie;
 
 sub run_tests {
     my $class = "LJ::UniqCookie";

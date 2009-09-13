@@ -6,9 +6,9 @@ require 'ljlib.pl';
 use LJ::Typemap;
 use LJ::Test;
 
-my $table = 'portal_typemap';
-my $classfield = 'class_name';
-my $idfield = 'id';
+my $table = 'cprodlist';
+my $classfield = 'class';
+my $idfield = 'cprodid';
 
 sub run_tests {
     my $tm;

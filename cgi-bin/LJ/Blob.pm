@@ -3,10 +3,8 @@
 package LJ::Blob;
 use strict;
 use lib "$LJ::HOME/cgi-bin";
-use Class::Autouse qw(
-                      BlobClient
-                      BlobClient::Local
-                      );
+use BlobClient;
+use BlobClient::Local;
 
 my %bc_cache = ();
 my %bc_reader_cache = ();

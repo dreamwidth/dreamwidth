@@ -8,9 +8,7 @@ package LJ::Comment;
 
 use strict;
 use Carp qw/ croak /;
-use Class::Autouse qw(
-                      LJ::Entry
-                      );
+use LJ::Entry;
 
 use lib "$LJ::HOME/cgi-bin";
 
@@ -75,6 +73,9 @@ sub instance {
     $self->{journalid} = LJ::want_userid($uuserid) or
         croak("invalid journalid parameter");
 
+    no warnings 'uninitialized';
+    # because $opts{jtalkid} and $opts{dtalkid} can be undef
+    # and int() warns on those
     $self->{jtalkid} = int(delete $opts{jtalkid});
 
     if (my $dtalkid = int(delete $opts{dtalkid})) {

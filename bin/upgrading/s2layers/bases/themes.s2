@@ -1,0 +1,82 @@
+#NEWLAYER: bases/tropical
+layerinfo type = "theme";
+layerinfo name = "Tropical";
+layerinfo redist_uniq = "bases/tropical";
+layerinfo author_name = "Malionette";
+
+set color_page_background = "#f5f5f5";
+set color_page_text = "#606060"; 
+set color_page_link = "#00b4b4";
+set color_page_link_active = "#00b4b4";
+set color_page_link_hover = "#83bfbf";
+set color_page_link_visited = "#00b4b4"; 
+set color_page_border = "#dddddd";
+set color_page_title = "#606060";
+
+set color_header_background = "#ffffff";
+
+set color_module_background = "#ffffff";
+set color_module_border = "#dddddd";
+set color_module_link = "#00b4b4";
+set color_module_link_active = "#00b4b4";
+set color_module_link_hover = "#83bfbf";
+set color_module_link_visited = "#00b4b4";
+set color_module_text = "#606060";
+set color_module_title = "#ffffff";
+set color_module_title_background = "#00b4b4";
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#dddddd";
+set color_entry_interaction_links = "#ffffff";
+set color_entry_link = "#00b4b4";
+set color_entry_link_active = "#00b4b4";
+set color_entry_link_hover = "#83bfbf";
+set color_entry_link_visited = "#00b4b4";
+set color_entry_text = "#606060";
+set color_entry_title = "#00b4b4";
+set color_entry_title_background = "#ffffff";
+
+set color_comment_title_background = "#d1efef";
+
+
+#NEWLAYER: bases/summerholiday
+layerinfo type = "theme";
+layerinfo name = "Summer Holiday";
+layerinfo redist_uniq = "bases/summerholiday";
+layerinfo author_name = "rb";
+
+set layout_authors = [ { "name" => "rb", "type" => "user" } ];
+
+set color_page_background = "#fce4ae";
+set color_page_text = "#000"; 
+set color_page_link = "#217efc";
+set color_page_link_active = "#217efc";
+set color_page_link_hover = "#0055ff";
+set color_page_link_visited = "#217efc"; 
+set color_page_border = "#dddddd";
+set color_page_title = "#000";
+
+set color_header_background = "#ffffff";
+
+set color_module_background = "#ffffff";
+set color_module_border = "#dddddd";
+set color_module_link = "#217efc";
+set color_module_link_active = "#217efc";
+set color_module_link_hover = "#0055ff";
+set color_module_link_visited = "#217efc";
+set color_module_text = "#000";
+set color_module_title = "#fff";
+set color_module_title_background = "#217efc";
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#dddddd";
+set color_entry_interaction_links = "#ffffff";
+set color_entry_link = "#217efc";
+set color_entry_link_active = "#217efc";
+set color_entry_link_hover = "#0055ff";
+set color_entry_link_visited = "#217efc";
+set color_entry_text = "#000";
+set color_entry_title = "#217efc";
+set color_entry_title_background = "#ffffff";
+
+set color_comment_title_background = "#c3d4fe";

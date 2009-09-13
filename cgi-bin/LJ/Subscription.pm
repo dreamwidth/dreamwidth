@@ -1,12 +1,10 @@
 package LJ::Subscription;
 use strict;
 use Carp qw(croak confess);
-use Class::Autouse qw(
-                      LJ::NotificationMethod
-                      LJ::Typemap
-                      LJ::Event
-                      LJ::Subscription::Pending
-                      );
+use LJ::NotificationMethod;
+use LJ::Typemap;
+use LJ::Event;
+use LJ::Subscription::Pending;
 
 use constant {
               INACTIVE => 1 << 0, # user has deactivated

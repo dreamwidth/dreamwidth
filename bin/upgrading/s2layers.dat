@@ -4,6 +4,12 @@
 core1                   core            -
 core2                   core            -
 
+siteviews/layout        layout          core2
+siteviews/themes        theme+          siteviews/layout
+
+bases/layout            layout          core2
+bases/themes            theme+          bases/layout
+
 basicboxes/layout       layout(core2base/layout)    core2
 basicboxes/themes       theme+                      basicboxes/layout
 
@@ -21,6 +27,9 @@ core2base/themes        theme+          core2base/layout
 drifting/layout         layout          core2
 drifting/themes         theme+          drifting/layout
 
+funkycircles/layout     layout(core2base/layout)    core2
+funkycircles/themes     theme+                      funkycircles/layout
+
 modish/layout           layout(core2base/layout)    core2
 
 negatives/layout        layout          core2
@@ -28,6 +37,9 @@ negatives/themes        theme+          negatives/layout
 
 steppingstones/layout   layout(core2base/layout)    core2
 steppingstones/themes   theme+                      steppingstones/layout
+
+tranquilityiii/layout   layout(core2base/layout)    core2
+tranquilityiii/themes   theme+                      tranquilityiii/layout
 
 zesty/layout            layout          core2
 zesty/themes            theme+          zesty/layout

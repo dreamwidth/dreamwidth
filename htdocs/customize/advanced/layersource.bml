@@ -75,7 +75,7 @@
     my $ua = BML::get_client_header("User-Agent");
     if ($ua && $ua =~ /\bMSIE\b/) {
         my $filename = "s2source-$id.txt";
-        BML::get_request()->header_out('Content-Disposition' => "attachment; filename=$filename");
+        DW::Request->get->header_out('Content-Disposition' => "attachment; filename=$filename");
     }
 
     BML::noparse();

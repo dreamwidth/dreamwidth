@@ -651,7 +651,15 @@ body<=
         @trusted_userids = $u->trusted_userids if $u->is_personal;
         @trusted_by_userids = $u->trusted_by_userids if $u->is_personal || $u->is_identity;
         @watched_userids = $u->watched_userids if $u->is_personal || $u->is_identity;
-        @watched_by_userids = $u->watched_by_userids unless $u->is_syndicated;
+        @watched_by_userids = $u->watched_by_userids unless $u->is_syndicated ||
+            # This is kind of a hack; we don't want to load these for communities with lots
+            # of subscribers because the profile page chokes and dies.  This won't load them
+            # if the option to hide subscribers is set and the person cannot manage the communities.
+            # It means the profile page is still broken to people who manage the community, though, but
+            # it doesn't break things for smaller communities by not loading them for the admins.
+            # FIXME: This overall situation of profile pages choking up for large amounts of subscribers or members
+            #   needs to be fixed in a more elegant and useful way.
+            ( $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) ) );
     }
 
     my @members_userids = $u->member_userids if $u->is_community;

@@ -1,0 +1,4 @@
+#NEWLAYER: siteviews/default
+layerinfo type = "theme";
+layerinfo name = "Default Theme";
+layerinfo redist_uniq = "siteviews/default";

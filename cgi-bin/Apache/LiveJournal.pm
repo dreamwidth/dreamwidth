@@ -49,11 +49,6 @@ my %USERPIC;  # conf related to userpics
 my %REDIR;
 
 # Mapping of MIME types to image types understood by the blob functions.
-my %MimeTypeMap = (
-    'image/gif' => 'gif',
-    'image/jpeg' => 'jpg',
-    'image/png' => 'png',
-);
 my %MimeTypeMapd6 = (
     'G' => 'gif',
     'J' => 'jpg',
@@ -630,6 +625,12 @@ sub trans
             return remote_domsess_bounce() if LJ::remote_bounce_url();
 
             my ($mode, $path) = ($1, $2);
+
+            if ( $mode eq "edges" ) {
+                $r->notes->{_journal} = $opts->{user};
+                return $bml_handler->( "$LJ::HOME/htdocs/data/edges.bml" );
+            }
+
             if ($mode eq "customview") {
                 $r->handler("perl-script");
                 $r->push_handlers(PerlResponseHandler => \&customview_content);
@@ -1174,7 +1175,7 @@ sub userpic_content
 
         # Now ask the blob lib for the path to send to the reproxy
         eval { LJ::Blob->can("autouse"); };
-        my $fmt = ($u->{'dversion'} > 6) ? $MimeTypeMapd6{ $pic->{fmt} } : $MimeTypeMap{ $pic->{contenttype} };
+        my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
         my $path = LJ::Blob::get_rel_path( $root, $u, "userpic", $fmt, $picid );
 
         $r->headers_out->{'X-REPROXY-FILE'} = $path;
@@ -1209,7 +1210,7 @@ sub userpic_content
 
         if ($LJ::USERPIC_BLOBSERVER) {
             eval { LJ::Blob->can("autouse"); };
-            my $fmt = ($u->{'dversion'} > 6) ? $MimeTypeMapd6{ $pic->{fmt} } : $MimeTypeMap{ $pic->{contenttype} };
+            my $fmt = $MimeTypeMapd6{ $pic->{fmt} };
             $data = LJ::Blob::get($u, "userpic", $fmt, $picid);
         }
 
@@ -1344,6 +1345,10 @@ sub journal_content
     # case it's our job to invoke the legacy BML page.
     my $handle_with_bml = 0;
 
+    # or this flag for pages that are from siteviews and expect
+    # to be processed by /misc/siteviews to get sitescheme around them
+    my $handle_with_siteviews = 0;
+
     my %headers = ();
     my $opts = {
         'r'         => $r,
@@ -1356,6 +1361,7 @@ sub journal_content
             'If-Modified-Since' => $r->headers_in->{"If-Modified-Since"},
         },
         'handle_with_bml_ref' => \$handle_with_bml,
+        'handle_with_siteviews_ref' => \$handle_with_siteviews,
         'ljentry' => $RQ{'ljentry'},
     };
 
@@ -1365,13 +1371,19 @@ sub journal_content
     my $html = LJ::make_journal($user, $RQ{'mode'}, $remote, $opts);
 
     # Allow to add extra http-header or even modify html
-    LJ::run_hooks("after_journal_content_created", $opts, \$html);
+    LJ::run_hooks("after_journal_content_created", $opts, \$html) unless $handle_with_siteviews;
 
     return redir($r, $opts->{'redir'}) if $opts->{'redir'};
     return $opts->{'handler_return'} if defined $opts->{'handler_return'};
 
     # if LJ::make_journal() indicated it can't handle the request:
-    if ($handle_with_bml) {
+    # only if HTML is set, otherwise leave it alone so the user
+    # gets "messed up template definition", cause something went wrong.
+    if ( $handle_with_siteviews && $html ) {
+        $r->pnotes->{siteview_code} = $html;
+        $r->notes->{bml_filename} = "$LJ::HOME/htdocs/misc/siteviews.bml";
+        return Apache::BML::handler($r);
+    } elsif ($handle_with_bml) {
         my $args = $r->args;
         my $args_wq = $args ? "?$args" : "";
 
@@ -1668,17 +1680,15 @@ sub interface_content
 
     if ($RQ{'interface'} ne "flat") {
         $r->content_type("text/plain");
-#        $r->send_http_header;
         $r->print("Unknown interface.");
         return OK;
     }
 
     $r->content_type("text/plain");
 
-    my %out = ();
-    my %FORM = ();
-    my $content;
-    $r->read($content, $r->headers_in->{"Content-Length"});
+    my ( %out, %FORM, $content );
+    $r->read($content, $r->headers_in->{"Content-Length"})
+        if $r->headers_in->{'Content-Length'};
     LJ::decode_url_string($content, \%FORM);
 
     # the protocol needs the remote IP in just one place, where tracking is done.
@@ -1686,7 +1696,6 @@ sub interface_content
     LJ::do_request(\%FORM, \%out);
 
     if ($FORM{'responseenc'} eq "urlenc") {
-#        $r->send_http_header;
         foreach (sort keys %out) {
             $r->print(LJ::eurl($_) . "=" . LJ::eurl($out{$_}) . "&");
         }
@@ -1700,7 +1709,6 @@ sub interface_content
     }
 
     $r->headers_out->{"Content-length"} = $length;
-#    $r->send_http_header;
     foreach (sort keys %out) {
         my $key = $_;
         my $val = $out{$_};

@@ -44,8 +44,8 @@ sub _as_email {
         subject         => $is_html ? $msg->subject : $msg->subject_raw,
         body            => $is_html ? $msg->body : $msg->body_raw,
         sender          => $is_html ? ($other_u->ljuser_display) : ($other_u->user),
-        postername      => $other_u->user,
-        journal         => $other_u->user,
+        postername      => $other_u->display_name,
+        journal         => $other_u->display_name,
         sitenameshort   => $LJ::SITENAMESHORT,
         inbox           => $inbox,
     };
@@ -55,7 +55,7 @@ sub _as_email {
         {
             'esn.reply_to_message' => [ 1, $replyurl ],
             'esn.view_profile'     => [ 2, $other_u->profile_url ],
-            'esn.read_journal'     => [ 3, $other_u->journal_base ],
+            'esn.read_journal'     => [ $other_u->is_identity ? 0 : 3, $other_u->journal_base ],
             'esn.add_watch'        => [ $u->watches( $other_u ) ? 0 : 4,
                                              "$LJ::SITEROOT/manage/circle/add?user=$sender&action=subscribe" ],
         }

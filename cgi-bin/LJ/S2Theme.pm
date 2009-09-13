@@ -1,7 +1,7 @@
 package LJ::S2Theme;
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 use LJ::ModuleLoader;
 
 LJ::ModuleLoader->autouse_subclasses("LJ::S2Theme");
@@ -34,13 +34,16 @@ sub default_theme {
     $layout =~ s/\/layout$//;
 
     my %default_themes = (
+        bases => 'bases/tropical',
         basicboxes => 'basicboxes/green',
         blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
         core2base => 'core2base/testing',
         drifting => 'drifting/blue',
+        funkycircles => 'funkycircles/darkpurple',
         negatives => 'negatives/black',
         steppingstones => 'steppingstones/purple',
+        tranquilityiii => 'tranquilityiii/nightsea',
         zesty => 'zesty/white',
     );
 

@@ -1,14 +1,7 @@
-#!/usr/bin/perl
-#
-
-use strict;
-use lib "$LJ::HOME/cgi-bin";
-
-use Class::Autouse qw(
-                      LJ::LangDatFile
-                      );
-
 package LJ::Lang;
+use strict;
+use LJ::LangDatFile;
+
 
 use constant MAXIMUM_ITCODE_LENGTH => 80;
 

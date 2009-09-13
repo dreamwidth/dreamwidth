@@ -141,7 +141,8 @@ body<=
         my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
 
         my $ditemid = "$root/$lrow->{ditemid}.html";
-        my $talkurl = "$root/$lrow->{ditemid}.html?thread=$talkid\#t$talkid";
+        my $commentanchor = LJ::Talk::comment_anchor( $talkid );
+        my $talkurl = "$root/$lrow->{ditemid}.html?thread=$talkid$commentanchor";
 
         my $bgcolor = "transparent";
         my $state = "";
@@ -258,7 +259,8 @@ body<=
             my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
 
             my $logurl = $ju->journal_base . "/$lrow->{ditemid}.html";
-            my $talkurl = "$logurl?thread=$talkid\#t$talkid";
+            my $commentanchor = LJ::Talk::comment_anchor( $talkid );
+            my $talkurl = "$logurl?thread=$talkid$commentanchor";
 
             my $hr_ago = LJ::ago_text($now - $r->{'posttime'});
             my $subject;

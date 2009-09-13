@@ -1,0 +1,29 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "Sitescheme views";
+layerinfo redist_uniq = "siteviews/layout";
+layerinfo is_internal = "1";
+
+property builtin bool SITEVIEWS_RENDERED {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "Will be 1 if this layout is going to be parsed for BML once it's done";
+}
+
+function Page::print() {
+    if ($*SITEVIEWS_RENDERED) {
+        """<?page
+body<=\n""";
+$this->print_body();
+"""\n<=body\n""";
+$this->print_head_title();
+"""page?>""";
+    } else {
+       print safe "<b>This style is not intended for direct use.</b>";
+    }
+}
+
+function Page::print_head_title() {
+    print "title=>";
+    print safe $this->view_title();
+    print "\n";
+}

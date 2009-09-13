@@ -179,7 +179,7 @@ sub clean
         foreach (@{$opts->{'attrstrip'}}) { push @attrstrip, $_; }
     }
 
-    my %opencount = ();
+    my %opencount = map {$_ => 0} qw(td th);
     my @tablescope = ();
 
     my $cutcount = 0;
@@ -368,7 +368,7 @@ sub clean
             # because IE understands them.
             $tag =~ s!/.+$!!;
 
-            if ($action{$tag} eq "eat") {
+            if (defined $action{$tag} and $action{$tag} eq "eat") {
                 $p->unget_token($token);
                 $p->get_tag("/$tag");
                 next;
@@ -743,10 +743,10 @@ sub clean
                     my $allow;
                     if ($mode eq "allow") {
                         $allow = 1;
-                        if ($action{$tag} eq "deny") { $allow = 0; }
+                        if (defined $action{$tag} and $action{$tag} eq "deny") { $allow = 0; }
                     } else {
                         $allow = 0;
-                        if ($action{$tag} eq "allow") { $allow = 1; }
+                        if (defined $action{$tag} and $action{$tag} eq "allow") { $allow = 1; }
                     }
 
                     if ($allow && ! $remove{$tag})
@@ -862,10 +862,10 @@ sub clean
             } else {
                 if ($mode eq "allow") {
                     $allow = 1;
-                    if ($action{$tag} eq "deny") { $allow = 0; }
+                    if (defined $action{$tag} and $action{$tag} eq "deny") { $allow = 0; }
                 } else {
                     $allow = 0;
-                    if ($action{$tag} eq "allow") { $allow = 1; }
+                    if (defined $action{$tag} and $action{$tag} eq "allow") { $allow = 1; }
                 }
 
                 if ($extractlinks && $tag eq "a") {

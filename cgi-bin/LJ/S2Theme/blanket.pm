@@ -9,7 +9,7 @@ sub designer { "renoir" }
 
 package LJ::S2Theme::blanket::peach;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( featured ) }
+sub cats { qw( featured base ) }
 
 1;
 
