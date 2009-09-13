@@ -252,12 +252,12 @@ body<=
                 name    => 'msg_subject',
                 size    => '50',
                 value   => $POST{'msg_subject'} || $msg_subject,
-                                class   => 'subj-t'
+                class   => 'subj-t'
              });
     $body .= "</p>\n";
     $body .= "<div class='msg_txt'>";
     $body .= "<textarea name='msg_body' rows=6 cols=55 wrap=soft>";
-    $body .= $POST{'msg_body'} || $msg_body;
+    $body .= LJ::ehtml( $POST{'msg_body'} || $msg_body );
     $body .= "</textarea><br />";
     $body .= "<span class='helper'>Up to " . LJ::commafy($msg_limit) . " characters. Plain text, no HTML.";
     $body .= "</span></div>\n";
