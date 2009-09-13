@@ -376,7 +376,7 @@ h2#pagetitle {
 .comment-wrapper.partial,
 .page-month .month .inner,
 .page-tags .tags-container ul,
-.page-tags .tags-container div.ljtaglist {
+.page-tags .tags-container .tags_cloud {
     $entry_colors
     border-width: 20px;
     border-left: none;
@@ -420,20 +420,19 @@ h2#pagetitle {
 
     .page-tags .tags-container ul.ljtaglist {
         margin: 0;
-        padding: 1em 2em 2em 5em;
+        padding: 2em 2em 2em 5em;
         }
 
-    .page-tags .tags-container div.ljtaglist {
+    .page-tags .tags-container .tags_cloud {
         margin: 0;
         padding: 2em;
         }
 
-    .page-tags .tags-container ul li {
+    .page-tags .tags-container .tags_multilevel li {
         font-weight: bold;
-        margin-top: 1em;
         }
 
-        .page-tags .tags-container ul ul {
+        .page-tags .tags-container .tags_multilevel ul {
             background: none;
             border: none;
             list-style: disc;
@@ -443,17 +442,17 @@ h2#pagetitle {
             -webkit-box-shadow: none;
             }
 
-            .page-tags .tags-container ul ul li {
+            .page-tags .tags-container .tags_multilevel ul li {
                 color: $*color_entry_border;
                 font-weight: normal;
                 margin-top: 0;
                 }
 
-                .page-tags .tags-container ul ul ul {
+                .page-tags .tags-container .tags_multilevel ul ul {
                     list-style: circle;
                     }
 
-                    .page-tags .tags-container ul ul ul li {
+                    .page-tags .tags-container .tags_multilevel ul ul li {
                         color: $*color_entry_text;
                         }
 
