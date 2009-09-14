@@ -232,6 +232,7 @@ text-align: center; }
     $module_colors } 
 
 .module-header {
+    text-align: center;
     font-size: large;
     padding: 1px 3px; 
     $module_header_colors }

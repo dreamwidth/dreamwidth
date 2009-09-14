@@ -355,6 +355,7 @@ text-align: center; }
     
 .module-header { $module_header_colors
     padding: 1px 3px;
+    text-align: center;
     font-size: large; }
     
     #secondary .module-header a,
