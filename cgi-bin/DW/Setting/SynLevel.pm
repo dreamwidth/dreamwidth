@@ -57,8 +57,8 @@ sub option {
     my $userdomain = $u->journal_base;
     
     $ret .= "<br />" . $class->ml( 'setting.synlevel.option.note', {
-        aopts_atom => "href='http://$userdomain/data/atom'",
-        aopts_rss  => "href='http://$userdomain/data/rss'",
+        aopts_atom => "href='$userdomain/data/atom'",
+        aopts_rss  => "href='$userdomain/data/rss'",
     } );
 
     my $errdiv = $class->errdiv( $errs, "synlevel" );
