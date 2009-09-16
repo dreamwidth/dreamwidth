@@ -714,18 +714,11 @@ h2#pagetitle {
 .entry ul.entry-management-links,
 .entry ul.entry-interaction-links,
 .comment ul.comment-management-links,
-.comment ul.comment-interaction-links {
-    display: inline-block;
-    padding: .5em 0;
-    }
-
+.comment ul.comment-interaction-links,
 .bottomcomment ul.entry-interaction-links,
 .bottomcomment ul.entry-management-links {
+    display: inline-block;
     padding: .5em 0;
-    }
-
-.bottomcomment ul.entry-management-links {
-    text-align: left !important;
     }
 
 .comment span.multiform-checkbox {
@@ -733,10 +726,15 @@ h2#pagetitle {
     }
 
 .comment ul.comment-interaction-links,
-.bottomcomment ul.entry-interaction-links {
+.bottomcomment label {
     border-top: 1px dashed $*color_entry_footer_border !important;
     display: block;
     text-align: right;
+    }
+
+.bottomcomment select,
+.bottomcomment input {
+    margin-bottom: .5em;
     }
 
     .entry ul.entry-management-links li,
@@ -753,7 +751,6 @@ h2#pagetitle {
         .entry ul.entry-interaction-links li:last-child,
         .comment ul.comment-management-links li:last-child,
         .comment ul.comment-interaction-links li:last-child,
-        .bottomcomment ul.entry-management-links li:last-child,
         .bottomcomment ul.entry-interaction-links li:last-child {
             background: none;
             padding-right: 0;
@@ -771,6 +768,13 @@ h2#pagetitle {
 
 #qrformdiv {
     padding: 1.5em 1em;
+    }
+
+    #qrformdiv label {
+        border-top: none !important;
+        display: inline;
+        padding-top: 0;
+        text-align: left;
     }
 
     #qrformdiv table {
