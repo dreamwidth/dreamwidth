@@ -3,7 +3,8 @@ package LJ::Widget::ThemeChooser;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::S2Theme LJ::Customize );
+use LJ::S2Theme;
+use LJ::Customize;
 
 sub ajax { 1 }
 sub authas { 1 }

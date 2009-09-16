@@ -3,8 +3,7 @@ package LJ::Widget::RecentlyExpunged;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-
-use Class::Autouse qw(LJ::ExpungedUsers);
+use LJ::ExpungedUsers;
 
 sub need_res {
     return qw( stc/widgets/recentlyexpunged.css );

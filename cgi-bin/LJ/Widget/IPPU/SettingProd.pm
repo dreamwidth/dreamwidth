@@ -3,10 +3,8 @@ package LJ::Widget::IPPU::SettingProd;
 use strict;
 use base qw(LJ::Widget::IPPU);
 use Carp qw(croak);
-use Class::Autouse qw(
-                      LJ::JSUtil
-                      LJ::Setting
-                      );
+use LJ::JSUtil;
+use LJ::Setting;
 
 sub authas { 0 }
 

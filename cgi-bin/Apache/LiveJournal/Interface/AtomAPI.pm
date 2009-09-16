@@ -7,9 +7,7 @@ use Apache2::Const qw(:common);
 use Digest::SHA1;
 use MIME::Base64;
 use lib "$LJ::HOME/cgi-bin";
-use Class::Autouse qw(
-                      LJ::ModuleCheck
-                      );
+use LJ::ModuleCheck;
 
 require 'parsefeed.pl';
 

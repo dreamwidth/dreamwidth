@@ -12,30 +12,21 @@ use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
 
 # needed to call S2::set_domain() so early:
 use LJ::S2;
-
-use Class::Autouse qw(
-                      LJ::Blob
-                      Apache::LiveJournal::Interface::Blogger
-                      Apache::LiveJournal::Interface::AtomAPI
-                      Apache::LiveJournal::Interface::S2
-                      Apache::LiveJournal::Interface::ElsewhereInfo
-                      Apache::LiveJournal::PalImg
-                      LJ::ModuleCheck
-                      LJ::AccessLogSink
-                      LJ::AccessLogRecord
-                      LJ::AccessLogSink::Database
-                      LJ::AccessLogSink::DInsertd
-                      LJ::AccessLogSink::DBIProfile
-                      );
-
-# these aren't lazily loaded in the typical call-a-package-method way,
-# but rather we just use Class::Autouse to bring them in during mod_perl
-# load.  in non-apache mode, they're loaded via LJ::ModuleCheck->have
-use Class::Autouse qw(
-                      Compress::Zlib
-                      XMLRPC::Transport::HTTP
-                      LJ::URI
-                      );
+use LJ::Blob;
+use Apache::LiveJournal::Interface::Blogger;
+use Apache::LiveJournal::Interface::AtomAPI;
+use Apache::LiveJournal::Interface::S2;
+use Apache::LiveJournal::Interface::ElsewhereInfo;
+use Apache::LiveJournal::PalImg;
+use LJ::ModuleCheck;
+use LJ::AccessLogSink;
+use LJ::AccessLogRecord;
+use LJ::AccessLogSink::Database;
+use LJ::AccessLogSink::DInsertd;
+use LJ::AccessLogSink::DBIProfile;
+use Compress::Zlib;
+use XMLRPC::Transport::HTTP;
+use LJ::URI;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";

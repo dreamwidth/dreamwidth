@@ -1,14 +1,12 @@
 #!/usr/bin/perl
 
 use strict;
-use Class::Autouse qw(
-                      URI
-                      HTMLCleaner
-                      LJ::CSS::Cleaner
-                      HTML::TokeParser
-                      LJ::EmbedModule
-                      LJ::Config
-                      );
+use URI;
+use HTMLCleaner;
+use LJ::CSS::Cleaner;
+use HTML::TokeParser;
+use LJ::EmbedModule;
+use LJ::Config;
 
 LJ::Config->load;
 

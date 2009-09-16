@@ -5,9 +5,7 @@ package Apache::LiveJournal::Interface::ElsewhereInfo;
 use strict;
 use Apache2::Const qw(:common);
 use lib "$LJ::HOME/cgi-bin";
-use Class::Autouse qw(
-                      JSON
-                      );
+use JSON;
 
 # for Class::Autouse (so callers can 'ping' this method to lazy-load this class)
 sub load { 1 }

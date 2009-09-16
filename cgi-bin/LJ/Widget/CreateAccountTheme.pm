@@ -3,7 +3,7 @@ package LJ::Widget::CreateAccountTheme;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub need_res { qw( stc/widgets/createaccounttheme.css ) }
 

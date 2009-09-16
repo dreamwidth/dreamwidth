@@ -5,9 +5,7 @@ package Apache::DebateSuicide;
 
 use strict;
 use Apache2::Const qw/ :common /;
-use Class::Autouse qw(
-                      LJ::ModuleCheck
-                      );
+use LJ::ModuleCheck;
 
 use vars qw($gtop);
 our %known_parent;
