@@ -163,9 +163,12 @@ ESN_Inbox.initInboxBtns = function (folder, cur_folder) {
         DOM.addEventListener($(folder + "_MarkUnread_" + i), "click", function(e) { ESN_Inbox.markUnread(e, folder) });
         DOM.addEventListener($(folder + "_Delete_" + i), "click", function(e) { ESN_Inbox.deleteItems(e, folder) });
     }
-    
-    DOM.addEventListener($(folder + "_MarkAllRead"), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder) });
-    DOM.addEventListener($(folder + "_DeleteAll"), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder) });
+
+    // 2 instances of mark all and delete all buttons
+    for (var i=1; i<=2; i++) {
+        DOM.addEventListener($(folder + "_MarkAllRead_" + i), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder) });
+        DOM.addEventListener($(folder + "_DeleteAll_" + i), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder) });
+    }
 };
 
 // set up action links

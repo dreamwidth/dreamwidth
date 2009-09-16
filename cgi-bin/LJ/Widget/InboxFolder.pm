@@ -95,11 +95,25 @@ sub render_body {
             </tr>
         };
     };
-    # create table of messages
-    my $messagetable = qq {
-     <div id="${name}_Table" class="NotificationTable">
-        <table id="${name}" class="inbox" cellspacing="0" border="0" cellpadding="0">
+
+    my $markdeleteall = sub {
+        my $sfx = shift;
+
+        return qq {
+            <div style="text-align: center; margin-bottom: 20px; margin-top: 20px;">
+                <input type="submit" name="markAllRead_$sfx" value="<?_ml widget.inbox.menu.mark_all_read.btn _ml?>" $disabled id="${name}_MarkAllRead_$sfx" style="margin-right: 5em; width: 12em;" />
+                <input type="submit" name="deleteAll_$sfx" value="<?_ml widget.inbox.menu.delete_all.btn _ml?>" $disabled id="${name}_DeleteAll_$sfx" style="width: 12em;" />
+            </div>
         };
+    };
+
+    # create table of messages
+    my $messagetable = $markdeleteall->(1);
+
+    $messagetable .= qq {
+        <div id="${name}_Table" class="NotificationTable">
+        <table id="${name}" class="inbox" cellspacing="0" border="0" cellpadding="0">
+    };
     $messagetable .= $actionsrow->(1);
     $messagetable .= "<tbody id='${name}_Body'>";
 
@@ -197,12 +211,7 @@ sub render_body {
 
     $messagetable .= '</tbody></table></div>';
 
-    $messagetable .= qq {
-      <div style="text-align: center; margin-top: 20px;">
-        <input type="submit" name="markAllRead" value="<?_ml widget.inbox.menu.mark_all_read.btn _ml?>" $disabled id="${name}_MarkAllRead" style="margin-right: 5em; width: 12em;" />
-        <input type="submit" name="deleteAll" value="<?_ml widget.inbox.menu.delete_all.btn _ml?>" $disabled id="${name}_DeleteAll" style="width: 12em;" />
-     </div>
-    };
+    $messagetable .= $markdeleteall->(2);
 
     $msgs_body .= $messagetable;
 
