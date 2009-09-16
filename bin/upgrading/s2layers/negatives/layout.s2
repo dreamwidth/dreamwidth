@@ -441,7 +441,7 @@ function Page::print_default_stylesheet()
    .module-navlinks ul, .module-navlinks li {
         font-weight: bold;
         display: inline;
-        padding: 0.2em 1em 0.2em 2em;
+        padding: 0.2em 1em 0.2em 0.5em;
      }
     .module-photo {
         text-align: center;
