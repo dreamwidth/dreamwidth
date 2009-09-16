@@ -207,6 +207,8 @@ $includes
         </div>
 
         <input type="submit" value="Save & Compile" class="compilelink" />
+
+        <a href="layers"><?_ml .advancedlayerlink _ml?></a>
     </div>
 
     <div class="main" id="maindiv">
