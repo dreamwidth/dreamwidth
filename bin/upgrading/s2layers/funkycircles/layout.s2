@@ -794,8 +794,8 @@ h2#pagetitle {
     -webkit-box-shadow: .067em .067em .667em #111;
     }
 
-    .page-reply #postform {
-        margin-right: 3em;
+    .page-reply #postform a {
+        $entry_footer_link_colors
         }
 
 /* Sidebars
