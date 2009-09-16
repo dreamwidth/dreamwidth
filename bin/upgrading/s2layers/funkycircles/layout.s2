@@ -403,6 +403,7 @@ h2#pagetitle {
 
     .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents,
     .page-read .entry-wrapper.has-userpic .entry .contents,
+    .page-network .entry-wrapper.has-userpic .entry .contents,
     .page-entry .entry-wrapper.has-userpic .entry .contents,
     .page-reply .entry-wrapper.has-userpic .entry .contents,
     .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents {
@@ -540,6 +541,7 @@ h2#pagetitle {
 
 .page-recent .journal-type-C .entry .contents .poster,
 .page-read .entry .contents .poster,
+.page-network .entry .contents .poster,
 .page-entry .entry .contents .poster,
 .page-entry .comment .contents .poster,
 .page-reply .entry .contents .poster,
@@ -554,6 +556,7 @@ h2#pagetitle {
 
     .page-recent .journal-type-C .entry .contents .poster:before,
     .page-read .entry .contents .poster:before,
+    .page-network .entry .contents .poster:before,
     .page-entry .entry .contents .poster:before,
     .page-reply .entry .contents .poster:before,
     .page-day .journal-type-C .entry .contents .poster:before {
