@@ -62,7 +62,7 @@ sub watch_items
     my $getitems = $itemshow + $skip;
 
     # friendspage per day is allowed only for journals with the special cap 'friendspage_per_day'
-    my $events_date = $args{event_date};
+    my $events_date = $args{events_date};
     $events_date = '' unless $remote && $u->get_cap( 'friendspage_per_day' );
 
     my $filter  = $args{content_filter};
