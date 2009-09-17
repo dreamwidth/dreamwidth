@@ -57,3 +57,7 @@ form.theme-switcher {
     overflow: hidden;
     zoom: 1;
 }
+
+.theme-item {
+    border: 1px solid #666;
+}

@@ -612,9 +612,6 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 }
 
 /*themechooser*/
-.theme-item {
-    border: 1px solid #fff;
-}
 .theme-item.current {
     border: 1px solid #DDDDAA;
     background-color: #EEEECC;
