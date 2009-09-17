@@ -151,9 +151,14 @@ sub qotd_display_archive {
             $answer_link = $class->answer_link( $q, user => $opts{user}, button_disabled => $opts{form_disabled} );
         }
 
-        my $date = DateTime->from_epoch( epoch => $q->{time_start}, time_zone => 'America/Los_Angeles' );
+        my $date = '';
+        if ( $q->{time_start} ) {
+            $date = DateTime
+            -> from_epoch( epoch => $q->{time_start}, time_zone => 'America/Los_Angeles' )
+            -> strftime("%B %e, %Y");
+        }
 
-        $ret .= "<p class='qotd-archive-item-date'>" . $date->strftime("%B %e, %Y") . "</p>";
+        $ret .= "<p class='qotd-archive-item-date'>$date</p>";
         $ret .= "<p class='qotd-archive-item-question'>$text</p>";
         $ret .= "<p class='qotd-archive-item-answers'>$answer_link $answers_link" . $class->impression_img($q) . "</p>";
     }
