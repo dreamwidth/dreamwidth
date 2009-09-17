@@ -193,14 +193,22 @@ sub clean
     # till after $good_until bytes into the text).
     my $extra_text;
     my $total_fail = sub {
-        my $tag = LJ::ehtml(@_);
+        my ( $cuturl, $tag ) = @_;
+        $tag = LJ::ehtml( $tag );
 
         my $edata = LJ::ehtml($$data);
         $edata =~ s/\r?\n/<br \/>/g if $addbreaks;
 
-        $extra_text = "<div class='ljparseerror'>[<b>Error:</b> Irreparable invalid markup ('&lt;$tag&gt;') in entry.  ".
+        if ( $cuturl ) {
+            $extra_text = "<b>&nbsp;(<a href=\"" . LJ::ehtml( $cuturl ) . "\">Error: Irreparable invalid markup in entry. Raw contents behind the cut.</a>&nbsp;)</b>";
+        }
+        else {
+            $extra_text = "[<b>Error:</b> Irreparable invalid markup ('&lt;$tag&gt;') in entry.  ".
                       "Owner must fix manually.  Raw contents below.]<br /><br />" .
-                      '<div style="width: 95%; overflow: auto">' . $edata . '</div></div>';
+                      '<div style="width: 95%; overflow: auto">' . $edata . '</div>';
+        }
+
+        $extra_text = "<div class='ljparseerror'>$extra_text</div>";
     };
 
     my $htmlcleaner = HTMLCleaner->new(valid_stylesheet => \&LJ::valid_stylesheet_url);
@@ -357,7 +365,7 @@ sub clean
             $slashclose = 1 if ($tag =~ s!/$!!);
 
             unless ($tag =~ /^\w([\w\-:_]*\w)?$/) {
-                $total_fail->($tag);
+                $total_fail->($cut, $tag);
                 last TOKEN;
             }
 
@@ -569,13 +577,13 @@ sub clean
                         # is returned by HTML::Parser as P_tag("='" => "='") Text( onmouseover...)
                         # which leads to reconstruction of valid HTML.  Clever!
                         # detect this, and fail.
-                        $total_fail->("$tag $attr");
+                        $total_fail->($cut, "$tag $attr");
                         last TOKEN;
                     }
 
                     # ignore attributes that do not fit this strict scheme
                     unless ($attr =~ /^[\w_:-]+$/) {
-                        $total_fail->("$tag " . (%$hash > 1 ? "[...] " : "") . "$attr");
+                        $total_fail->($cut, "$tag " . (%$hash > 1 ? "[...] " : "") . "$attr");
                         last TOKEN;
                     }
 
