@@ -2880,7 +2880,7 @@ LOGIN_BAR
     } else {
         $querysep2 = "?";
     }
-    #appropriate links depending on whether style is "mine" and whether style=light is possible on this type of content
+    #appropriate links depending on whether style is "mine"
     if ($remote) {
         if ($currentstylemine) {
             push @view_options, "<a href='$newuri'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.origstyle' ) . "</a>"
@@ -2888,8 +2888,8 @@ LOGIN_BAR
             push @view_options, "<a href='$newuri${querysep2}style=mine'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.mystyle' ) . "</a>"
         }
     }
-    push @view_options, "<a href='$newuri${querysep2}style=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>"
-        if $view eq "entry" || $view eq "reply" || $view eq "tag" || $view eq "month" || ( $view eq "lastn" && $uri =~ /\/tag/ );
+    #style=light available on every page that supports showing the navstrip
+    push @view_options, "<a href='$newuri${querysep2}style=light'>" . LJ::Lang::ml( 'web.controlstrip.reloadpage.lightstyle' ) . "</a>";
 
     $ret .= "<td id='lj_controlstrip_search'>";
     $ret .= LJ::Widget::Search->render;
