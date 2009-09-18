@@ -984,6 +984,38 @@ sub common_event_validation
     return 1;
 }
 
+sub schedule_xposts {
+    my ( $u, $ditemid, $deletep, $fn ) = @_;
+    return unless LJ::isu( $u ) && $ditemid > 0;
+    return unless $fn && ref $fn eq 'CODE';
+
+    my ( @successes, @failures );
+    my $sclient = LJ::theschwartz() or return;
+    my @accounts = DW::External::Account->get_external_accounts( $u );
+
+    foreach my $acct ( @accounts ) {
+        my ( $xpostp, $info ) = $fn->( $acct );
+        next unless $xpostp;
+
+        my $jobargs = {
+            uid       => $u->userid,
+            accountid => $acct->acctid,
+            ditemid   => $ditemid + 0,
+            delete    => $deletep ? 1 : 0,
+            %{$info}
+        };
+
+        my $job = TheSchwartz::Job->new_from_array( 'DW::Worker::XPostWorker', $jobargs );
+        if ( $job && $sclient->insert($job) ) {
+            push @successes, $acct;
+        } else {
+            push @failures, $acct;
+        }
+    }
+
+    return ( \@successes, \@failures );
+}
+
 sub postevent
 {
     my ($req, $err, $flags) = @_;
@@ -1514,6 +1546,10 @@ sub postevent
 
     my $entry = LJ::Entry->new($uowner, jitemid => $jitemid, anum => $anum);
 
+    if ( $u->equals( $uowner ) && $req->{xpost} ne '0' ) {
+        schedule_xposts( $u, $ditemid, 0, sub { ((shift)->xpostbydefault, {}) } );
+    }
+
     # run local site-specific actions
     LJ::run_hooks("postpost", {
         'itemid'    => $jitemid,
@@ -1567,6 +1603,8 @@ sub postevent
 sub editevent
 {
     my ($req, $err, $flags) = @_;
+    my $res;
+    my $deleted = 0;
     un_utf8_request($req);
 
     return undef unless authenticate($req, $err, $flags);
@@ -1623,6 +1661,8 @@ sub editevent
          "compressed, security, allowmask, year, month, day, ".
          "rlogtime, anum FROM log2 WHERE journalid=$ownerid AND jitemid=$itemid");
 
+    my $ditemid = $itemid * 256 + $oldevent->{anum};
+
     ($oldevent->{subject}, $oldevent->{event}) = $dbcm->selectrow_array
         ("SELECT subject, event FROM logtext2 ".
          "WHERE journalid=$ownerid AND jitemid=$itemid");
@@ -1641,6 +1681,20 @@ sub editevent
     ### make sure this user is allowed to edit this entry
     return fail($err,302)
         unless ($ownerid == $oldevent->{'ownerid'});
+
+    ### load existing meta-data
+    my %curprops;
+    LJ::load_log_props2($dbcm, $ownerid, [ $itemid ], \%curprops);
+
+    # xpost helper for later
+    my $schedule_xposts = sub {
+        my $xpost_string = $curprops{$itemid}->{xpost};
+        if ( $xpost_string && $u->equals( $uowner ) && $req->{xpost} ne '0' ) {
+            my $xpost_info = DW::External::Account->xpost_string_to_hash( $xpost_string );
+            schedule_xposts( $u, $ditemid, $deleted,
+                             sub { ($xpost_info->{(shift)->acctid}, {}) } );
+        }
+    };
 
     ### what can they do to somebody elses entry?  (in shared journal)
     ### can edit it if they own or maintain the journal, but not if the journal is read-only
@@ -1668,6 +1722,8 @@ sub editevent
     # simple logic for deleting an entry
     if (!$flags->{'use_old_content'} && $req->{'event'} !~ /\S/)
     {
+        $deleted = 1;
+
         # if their newesteventtime prop equals the time of the one they're deleting
         # then delete their newesteventtime.
         if ($u->{'userid'} == $uowner->{'userid'}) {
@@ -1683,7 +1739,7 @@ sub editevent
         # delete is initiated.
         $uowner->log_event('delete_entry', {
                 remote => $u,
-                actiontarget => ($req->{itemid} * 256 + $oldevent->{anum}),
+                actiontarget => $ditemid,
                 method => 'protocol',
             })
             unless $flags->{noauth};
@@ -1694,8 +1750,10 @@ sub editevent
         # what they just deleted.  (or something... probably rare.)
         LJ::set_userprop($u, "dupsig_post", undef);
 
-        my $res = { 'itemid' => $itemid,
-                    'anum' => $oldevent->{'anum'} };
+        # pass the delete
+        $schedule_xposts->();
+
+        $res = { itemid => $itemid, anum => $oldevent->{anum} };
         return $res;
     }
 
@@ -1722,10 +1780,6 @@ sub editevent
     # updating an entry:
     return undef
         unless common_event_validation($req, $err, $flags);
-
-    ### load existing meta-data
-    my %curprops;
-    LJ::load_log_props2($dbcm, $ownerid, [ $itemid ], \%curprops);
 
     ## handle meta-data (properties)
     my %props_byname = ();
@@ -1813,7 +1867,7 @@ sub editevent
                        LJ::mysqldate_to_time($eventtime, 1),
                        LJ::mysqldate_to_time($oldevent->{'logtime'}, 1),
                        $sec,
-                       $itemid*256 + $oldevent->{'anum'});
+                       $ditemid);
 
         LJ::MemCache::set([$ownerid, "log2:$ownerid:$itemid"], $row);
 
@@ -1894,7 +1948,7 @@ sub editevent
 
     LJ::memcache_kill($ownerid, "dayct2");
 
-    my $res = { 'itemid' => $itemid };
+    $res = { itemid => $itemid };
     if (defined $oldevent->{'anum'}) {
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'} = LJ::item_link($uowner, $itemid, $oldevent->{'anum'});
@@ -1919,6 +1973,9 @@ sub editevent
         my @handles = $sclient->insert_jobs(@jobs);
         # TODO: error on failure?  depends on the job I suppose?  property of the job?
     }
+
+    # ensure our xposted edit fires
+    $schedule_xposts->();
 
     return $res;
 }
