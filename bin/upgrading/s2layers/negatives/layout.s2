@@ -269,15 +269,15 @@ function Page::print_default_stylesheet()
         color:  $*color_page_link;
         outline: none;
         }
-    a:active {
-        color: $*color_entry_link_active;
-        }
-    a:hover {
-        color: $*color_page_link_hover;
-        }
     a:visited {
         color: $*color_page_link_visited;
     }
+    a:hover {
+        color: $*color_page_link_hover;
+        }
+    a:active {
+        color: $*color_entry_link_active;
+        }
     img, img a {
         border: 0!important;
         }
@@ -326,14 +326,14 @@ function Page::print_default_stylesheet()
         font-weight:normal;
         padding-bottom:1px;
     }
+    #secondary a:visited {
+        color:$*color_module_link_visited;
+    }
     #secondary a:hover {
         color:$*color_module_link_hover;
     }
     #secondary a:active {
         color:$*color_module_link_active;
-    }
-    #secondary a:visited {
-        color:$*color_module_link_visited;
     }
     #secondary .module-header {
         border-bottom:1px solid $*color_module_border;
@@ -370,14 +370,14 @@ function Page::print_default_stylesheet()
     .entry a, .comment a {
         color: $*color_entry_link;
     }
+    .entry a:visited, .comment a:visited {
+        color: $*color_entry_link_visited;
+    }
     .entry a:hover, .comment a:hover {
         color: $*color_entry_link_hover;
     }
     .entry a:active, .comment a:active {
         color: $*color_entry_link_active;
-    }
-    .entry a:visited, .comment a:visited {
-        color: $*color_entry_link_visited;
     }
     .tag { margin: 10px 0; }
     .tag ul { display: inline; margin: 0; padding: 0; }
@@ -420,6 +420,10 @@ function Page::print_default_stylesheet()
         font-weight: normal;
         text-align: center;
     }
+    .entry-management-links a:visited, .comment-management-links a:visited,
+    .entry-interaction-links a:visited, .comment-interaction-links a:visited{
+        color: $*color_entry_interaction_links_visited;
+     }
     .entry-management-links a:hover, .comment-management-links a:hover, 
     .entry-interaction-links a:hover, .comment-interaction-links a:hover{
          color: $*color_entry_interaction_links_hover;
@@ -428,10 +432,6 @@ function Page::print_default_stylesheet()
     .entry-interaction-links a:active, .comment-interaction-links a:active{
         color: $*color_entry_interaction_links_active;
     }
-    .entry-management-links a:visited, .comment-management-links a:visited,
-    .entry-interaction-links a:visited, .comment-interaction-links a:visited{
-        color: $*color_entry_interaction_links_visited;
-     }
  
     .userlite-interaction-links ul, .entry-management-links ul, .comment-management-links ul {
         list-style: none;

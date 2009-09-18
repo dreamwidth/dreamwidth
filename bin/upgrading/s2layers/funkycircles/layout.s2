@@ -337,8 +337,8 @@ h2#pagetitle {
     }
 
     .header a { $page_link_colors }
-    .header a:hover { $page_link_hover_colors }
     .header a:visited { $page_link_visited_colors }
+    .header a:hover { $page_link_hover_colors }
 
     .entry-title,
     .comment-title,

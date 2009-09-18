@@ -318,9 +318,9 @@ function Page::print_default_stylesheet()
     ***************************************************************************/
 
     a { $page_link_colors }
-    a:active { $page_link_active_colors }
-    a:hover { text-decoration: none; }
     a:visited { $page_link_visited_colors }
+    a:hover { text-decoration: none; }
+    a:active { $page_link_active_colors }
 
     h2 {
         font-size: 0.9em;

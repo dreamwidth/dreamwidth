@@ -331,9 +331,9 @@ body {
 }
 
 a { $page_link_colors }
-a:active { $page_link_active_colors }
-a:hover { $page_link_hover_colors }
 a:visited { $page_link_visited_colors }
+a:hover { $page_link_hover_colors }
+a:active { $page_link_active_colors }
 
 .one-column #content { float: none; }
 .two-columns-left #content,
@@ -474,9 +474,9 @@ h2#subtitle {
 }
 
 .entry a { $entry_link_colors }
-.entry a:active { $entry_link_active_colors }
-.entry a:hover { $entry_link_hover_colors }
 .entry a:visited { $entry_link_visited_colors }
+.entry a:hover { $entry_link_hover_colors }
+.entry a:active { $entry_link_active_colors }
 
 
 .metadata ul { 
@@ -602,9 +602,9 @@ table.month td p {
 }
 
 .module a { $module_link_colors }
-.module a:active { $module_link_active_colors }
-.module a:hover { $module_link_hover_colors }
 .module a:visited { $module_link_visited_colors }
+.module a:hover { $module_link_hover_colors }
+.module a:active { $module_link_active_colors }
 
 .module h2 {
     $module_title_colors
