@@ -66,11 +66,22 @@
 
         # update users' trustmasks
         foreach my $post_key ( keys %POST ) {
-            next unless $post_key =~ /^editfriend_groupmask_(\w+)$/;
+            # If someone tries to edit their trust list at the wrong time,
+            # they may get a page sent out with the old format (groupmask) and
+            # processed with the new (maskhi and masklo). So make sure not to
+            # give users the wrong trust masks, by accepting both. (Since no
+            # page will mix both, there's no need to check for contradicting
+            # data.)
+            next unless $post_key =~ /^editfriend_(groupmask|maskhi)_(\w+)$/;
 
-            my $trusted_u = LJ::load_user( $1 );
+            my $trusted_u = LJ::load_user( $2 );
             next unless $trusted_u;
-            my $groupmask = $POST{$post_key};
+            my $groupmask;
+            if ( $1 eq 'groupmask' ) {
+                $groupmask = $POST{$post_key};
+            } else {
+                $groupmask = ( $POST{$post_key} << 31 ) | $POST{"editfriend_masklo_$2"};
+            }
 
             $u->add_edge( $trusted_u, trust => {
                 mask => $groupmask,
@@ -119,8 +130,11 @@
 
         my $user = $trusted_u->user;
         my $groupmask = $trust_list->{$uid}->{groupmask} || 1;
-        my $trustmask = $groupmask & ~( 7 << 61 );
-        $body .= "<input type='hidden' name='editfriend_groupmask_$user' value='$trustmask' />";
+        # Work around JS 64-bit lossitude
+        my $maskhi = ( $groupmask & ~( 7 << 61 ) ) >> 31;
+        my $masklo = $groupmask & ~( ~0 << 31 );
+        $body .= LJ::html_hidden( "editfriend_maskhi_$user", $maskhi,
+                             "editfriend_masklo_$user", $masklo );
 
         if ( $trusted_u->is_identity ) {
             my $dn = $trusted_u->display_name;
@@ -171,14 +185,25 @@
      // clears the other "not in" and "in" boxes
      eraseList(inlist);
      eraseList(outlist);
+
+     // Work around JS 64-bit lossitude
+     var prefix;
+     var bitpos;
+     if ( selectedGroup >= 31 ) {
+         prefix = "editfriend_maskhi_";
+         bitpos = selectedGroup - 31;
+     } else {
+         prefix = "editfriend_masklo_";
+         bitpos = selectedGroup;
+     }
    
      // iterate over all friends, putting them in one group or the other
      var i;
      for (i=0; i<form.elements.length; i++) {
          var name = form.elements[i].name;
          var mask = form.elements[i].value;
-         if (name.substring(0, 21) == "editfriend_groupmask_") {
-             var user = name.substring(21, name.length);
+         if ( name.substring(0, prefix.length) == prefix ) {
+             var user = name.substring( prefix.length, name.length );
 
              // see if we remap their display name
              var display = user;
@@ -191,7 +216,7 @@
                  }
              }
 
-             var list = mask & (1 << selectedGroup) ? inlist : outlist;
+             var list = mask & ( 1 << bitpos ) ? inlist : outlist;
              var optionName = new Option(display, user, false, false)
                  list.options[list.length] = optionName;
          }
@@ -200,6 +225,17 @@
 
  function moveItems (from, to, bitstatus)
  {
+     // Work around JS 64-bit lossitude
+     var prefix;
+     var bitpos;
+     if ( selectedGroup >= 31 ) {
+         prefix = "editfriend_maskhi_";
+         bitpos = selectedGroup - 31;
+     } else {
+         prefix = "editfriend_masklo_";
+         bitpos = selectedGroup;
+     }
+   
      var selindex;
      while ((selindex=from.selectedIndex) != -1)
      {
@@ -226,12 +262,12 @@
 
          // turn the groupmask bit on or off
          var user = item.value;
-         var element = document.fg["editfriend_groupmask_"+user];
+         var element = document.fg[prefix+user];
          var mask = element.value;
          if (bitstatus) {
-             mask |= (1 << selectedGroup);
+             mask |= ( 1 << bitpos );
          } else {
-             mask &= ~(1 << selectedGroup);
+             mask &= ~( 1 << bitpos );
          }
          element.value = mask;
      }
@@ -332,15 +368,26 @@
      document.fg["efg_delete_"+gnum].value = "1";
      document.fg["efg_set_"+gnum+"_name"].value = "";
 
+     // Work around JS 64-bit lossitude
+     var prefix;
+     var bitpos;
+     if ( gnum >= 31 ) {
+         prefix = "editfriend_maskhi_";
+         bitpos = gnum - 31;
+     } else {
+         prefix = "editfriend_masklo_";
+         bitpos = gnum;
+     }
+   
      // as per the protocol documentation, unset bit on all friends
      var i;
      var form = document.fg;
      for (i=0; i<form.elements.length; i++) {
          var name = form.elements[i].name;
-         if (name.substring(0, 21) == "editfriend_groupmask_") {
-             var user = name.substring(21, name.length);
+         if (name.substring( 0, prefix.length ) == prefix ) {
+             var user = name.substring( prefix, name.length );
              var mask = form.elements[i].value;
-             mask &= ~(1 << gnum);
+             mask &= ~( 1 << bitpos );
              form.elements[i].value = mask;
          }
      }
