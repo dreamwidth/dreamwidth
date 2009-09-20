@@ -4,7 +4,8 @@
 package LJ::S2;
 
 use strict;
-use lib "$LJ::HOME/src/s2";
+use DW;
+use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
 use S2::Checker;

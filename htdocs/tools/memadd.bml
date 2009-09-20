@@ -313,7 +313,7 @@
                 return;
             }
 
-            my $kwid = LJ::get_keyword_id($memoryu, $kw);
+            my $kwid = $memoryu->get_keyword_id( $kw );
             $needflush = 1 unless defined $exist_kw->{$kwid};
             push @kwid, $kwid;
         }

@@ -18,7 +18,6 @@
 
 use strict;
 use warnings;
-use lib "$LJ::HOME/cgi-bin";
 
 package DW::Worker::DistributeInvites;
 use base 'TheSchwartz::Worker';

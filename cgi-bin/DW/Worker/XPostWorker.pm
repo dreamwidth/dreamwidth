@@ -20,7 +20,6 @@
 
 use strict;
 use warnings;
-use lib "$LJ::HOME/cgi-bin";
 
 package DW::Worker::XPostWorker;
 use base 'TheSchwartz::Worker';

@@ -56,7 +56,7 @@ sub create {
     $journalid += 0;
     $ditemid += 0;
     $security ||= 'public';
-    $kwids ||= [ LJ::get_keyword_id($u, '*') ]; # * means no category
+    $kwids ||= [ $u->get_keyword_id( '*' ) ]; # * means no category
     $des = LJ::trim($des);
     return undef unless $userid && $journalid && $ditemid && $des && $security && @$kwids;
     return undef unless $security =~ /^(?:public|friends|private)$/;
