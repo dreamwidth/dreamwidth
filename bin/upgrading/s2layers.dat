@@ -30,6 +30,9 @@ drifting/themes         theme+          drifting/layout
 funkycircles/layout     layout(core2base/layout)    core2
 funkycircles/themes     theme+                      funkycircles/layout
 
+fluidmeasure/layout     layout(core2base/layout)    core2
+fluidmeasure/themes     theme+                      fluidmeasure/layout
+
 modish/layout           layout(core2base/layout)    core2
 
 negatives/layout        layout          core2
