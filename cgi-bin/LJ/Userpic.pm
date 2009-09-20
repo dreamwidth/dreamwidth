@@ -879,7 +879,7 @@ sub set_keywords {
     my $picid = $self->{picid};
 
     foreach my $kw (@keywords) {
-        my $kwid = LJ::get_keyword_id( $u, $kw );
+        my $kwid = $u->get_keyword_id( $kw );
         next unless $kwid; # TODO: fire some warning that keyword was bogus
 
         if (++$c > $LJ::MAX_USERPIC_KEYWORDS) {

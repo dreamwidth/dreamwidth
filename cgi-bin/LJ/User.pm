@@ -4624,6 +4624,57 @@ sub can_add_tags_to {
 }
 
 
+# <LJFUNC>
+# name: LJ::User::get_keyword_id
+# class:
+# des: Get the id for a keyword.
+# args: uuid, keyword, autovivify?
+# des-uuid: User object or userid to use.
+# des-keyword: A string keyword to get the id of.
+# returns: Returns a kwid into [dbtable[userkeywords]].
+#          If the keyword doesn't exist, it is automatically created for you.
+# des-autovivify: If present and 1, automatically create keyword.
+#                 If present and 0, do not automatically create the keyword.
+#                 If not present, default behavior is the old
+#                 style -- yes, do automatically create the keyword.
+# </LJFUNC>
+sub get_keyword_id
+{
+    my ( $u, $kw, $autovivify ) = @_;
+    $u = LJ::want_user( $u );
+    return undef unless $u;
+    $autovivify = 1 unless defined $autovivify;
+
+    # setup the keyword for use
+    return 0 unless $kw =~ /\S/;
+    $kw = LJ::text_trim( $kw, LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
+
+    # get the keyword and insert it if necessary
+    my $kwid = $u->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
+                                    undef, $u->userid, $kw ) + 0;
+    if ( $autovivify && ! $kwid ) {
+        # create a new keyword
+        $kwid = LJ::alloc_user_counter( $u, 'K' );
+        return undef unless $kwid;
+
+        # attempt to insert the keyword
+        my $rv = $u->do( "INSERT IGNORE INTO userkeywords (userid, kwid, keyword) VALUES (?, ?, ?)",
+                         undef, $u->userid, $kwid, $kw ) + 0;
+        return undef if $u->err;
+
+        # at this point, if $rv is 0, the keyword is already there so try again
+        unless ( $rv ) {
+            $kwid = $u->selectrow_array( 'SELECT kwid FROM userkeywords WHERE userid = ? AND keyword = ?',
+                                         undef, $u->userid, $kw ) + 0;
+        }
+
+        # nuke cache
+        $u->memc_delete( 'kws' );
+    }
+    return $kwid;
+}
+
+
 sub tags {
     my $u = shift;
 

@@ -730,7 +730,7 @@ sub update_logtags {
         # and turn everything into ids
         $opts->{"${verb}_ids"} ||= [];
         foreach my $kw (@{$opts->{$verb} || []}) {
-            my $kwid = LJ::get_keyword_id($u, $kw, $can_control);
+            my $kwid = $u->get_keyword_id( $kw, $can_control );
             if ($can_control) {
                 # error if we failed to create
                 return undef unless $kwid;
@@ -1065,7 +1065,7 @@ sub create_usertag {
 
     my %res;
     foreach my $tag (@$tags) {
-        my $kwid = LJ::get_keyword_id($u, $tag);
+        my $kwid = $u->get_keyword_id( $tag );
         return undef unless $kwid;
 
         $res{$tag} = $kwid;
@@ -1125,7 +1125,7 @@ sub delete_usertag {
         my $tag = LJ::Tags::validate_tag($val);
         return undef unless $tag;
 
-        $kwid = LJ::get_keyword_id($u, $tag, 0);
+        $kwid = $u->get_keyword_id( $tag, 0 );
     } elsif ($type eq 'id') {
         $kwid = $val + 0;
     }
@@ -1213,14 +1213,14 @@ sub rename_usertag {
         my $val = LJ::Tags::validate_tag($oldkw);
         return $err->( LJ::Lang::ml( 'taglib.error.invalid', { tagname => LJ::ehtml( $oldkw ) } ) )
             unless $val;
-        $kwid = LJ::get_keyword_id($u, $val, 0);
+        $kwid = $u->get_keyword_id( $val, 0 );
     } elsif ($type eq 'id') {
         $kwid = $oldkw + 0;
     }
     return $err->() unless $kwid;
 
     # see if this is already a keyword
-    my $newkwid = LJ::get_keyword_id($u, $newname);
+    my $newkwid = $u->get_keyword_id( $newname );
     return undef unless $newkwid;
 
     # see if the tag we're renaming TO already exists as a keyword,
@@ -1293,7 +1293,7 @@ sub set_usertag_display {
         return undef unless $var;
 
         # do not auto-vivify but get the keyword id
-        $kwid = LJ::get_keyword_id($u, $var, 0);
+        $kwid = $u->get_keyword_id( $var, 0 );
     }
     return undef unless $kwid;
 
