@@ -2,7 +2,6 @@
 
 package LJ::Blob;
 use strict;
-use lib "$LJ::HOME/cgi-bin";
 use BlobClient;
 use BlobClient::Local;
 

@@ -19,7 +19,8 @@ package DW::BusinessRules;
 use strict;
 use warnings;
 use Carp ();
-use lib "$LJ::HOME/cgi-bin";
+use DW;
+use LJ::ModuleLoader;
 
 =head1 NAME
 
@@ -91,7 +92,7 @@ sub install_overrides {
 
     my $pkgpath = $callpkg;
     $pkgpath =~ s!::!/!g;
-    return unless -d "$LJ::HOME/cgi-bin/$pkgpath";
+    return unless -d DW->home . "/cgi-bin/$pkgpath";
 
     my %seen;
     foreach my $dpkg ( LJ::ModuleLoader->module_subclasses( $callpkg ) ) {

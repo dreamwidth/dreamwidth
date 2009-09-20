@@ -20,7 +20,6 @@ use strict;
 use warnings;
 use Carp ();
 use List::Util ();
-use lib "$LJ::HOME/cgi-bin";
 use base 'DW::BusinessRules';
 use LJ::Lang;
 

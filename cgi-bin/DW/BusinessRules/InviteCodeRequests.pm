@@ -18,7 +18,6 @@
 package DW::BusinessRules::InviteCodeRequests;
 use strict;
 use warnings;
-use lib "$LJ::HOME/cgi-bin";
 use base 'DW::BusinessRules';
 
 =head1 NAME

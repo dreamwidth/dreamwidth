@@ -3,7 +3,6 @@ package LJ::NotificationMethod::DebugLog;
 use strict;
 use Carp qw/ croak /;
 use base 'LJ::NotificationMethod';
-use lib "$LJ::HOME/cgi-bin";
 require "weblib.pl";
 
 sub can_digest { 1 };
