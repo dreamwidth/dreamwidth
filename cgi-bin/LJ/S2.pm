@@ -867,15 +867,59 @@ sub cleanup_layers {
     S2::unregister_layer($_) foreach grep { ! $pub->{$_} } @unload;
 }
 
+sub clone_layer
+{
+    die "LJ::S2::clone_layer() has not been ported to use s2compiled2, but this function is not currently in use anywhere; if you use this function, please update it to use s2compiled2.\n";
+
+    my $id = shift;
+    return 0 unless $id;
+
+    my $dbh = LJ::get_db_writer();
+    my $r;
+
+    $r = $dbh->selectrow_hashref("SELECT * FROM s2layers WHERE s2lid=?", undef, $id);
+    return 0 unless $r;
+    $dbh->do("INSERT INTO s2layers (b2lid, userid, type) VALUES (?,?,?)",
+             undef, $r->{'b2lid'}, $r->{'userid'}, $r->{'type'});
+    my $newid = $dbh->{'mysql_insertid'};
+    return 0 unless $newid;
+
+    foreach my $t (qw(s2compiled s2info s2source)) {
+        if ($t eq "s2source") {
+            $r = LJ::S2::load_layer_source_row($id);
+        } else {
+            $r = $dbh->selectrow_hashref("SELECT * FROM $t WHERE s2lid=?", undef, $id);
+        }
+        next unless $r;
+        $r->{'s2lid'} = $newid;
+
+        # kinda hacky:  we have to update the layer id
+        if ($t eq "s2compiled") {
+            $r->{'compdata'} =~ s/\$_LID = (\d+)/\$_LID = $newid/;
+        }
+
+        $dbh->do("INSERT INTO $t (" . join(',', keys %$r) . ") VALUES (".
+                 join(',', map { $dbh->quote($_) } values %$r) . ")");
+    }
+
+    return $newid;
+}
+
 sub create_style
 {
-    my ( $u, $name ) = @_;
+    my ($u, $name, $cloneid) = @_;
 
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh && $u->writer;
 
     my $uid = $u->{userid} + 0
         or return 0;
+
+    my $clone;
+    $clone = load_style($cloneid) if $cloneid;
+
+    # can't clone somebody else's style
+    return 0 if $clone && $clone->{'userid'} != $uid;
 
     # can't create name-less style
     return 0 unless $name =~ /\S/;
@@ -884,6 +928,20 @@ sub create_style
              undef, $u->{'userid'}, $name);
     my $styleid = $dbh->{'mysql_insertid'};
     return 0 unless $styleid;
+
+    if ($clone) {
+        $clone->{'layer'}->{'user'} =
+            LJ::clone_layer($clone->{'layer'}->{'user'});
+
+        my $values;
+        foreach my $ly ('core','i18nc','layout','theme','i18n','user') {
+            next unless $clone->{'layer'}->{$ly};
+            $values .= "," if $values;
+            $values .= "($uid, $styleid, '$ly', $clone->{'layer'}->{$ly})";
+        }
+        $u->do("REPLACE INTO s2stylelayers2 (userid, styleid, type, s2lid) ".
+               "VALUES $values") if $values;
+    }
 
     return $styleid;
 }
@@ -927,7 +985,9 @@ sub delete_user_style
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh && $u->writer;
 
-    $dbh->do("DELETE FROM s2styles WHERE styleid=?", undef, $styleid)
+    foreach my $t (qw(s2styles s2stylelayers)) {
+        $dbh->do("DELETE FROM $t WHERE styleid=?", undef, $styleid)
+    }
     $u->do("DELETE FROM s2stylelayers2 WHERE userid=? AND styleid=?", undef,
            $u->{userid}, $styleid);
 
@@ -999,7 +1059,7 @@ sub create_layer
 }
 
 # takes optional $u as first argument... if user argument is specified, will
-# look through s2stylelayers2 and delete all mappings that this user has to
+# look through s2stylelayers and delete all mappings that this user has to
 # this particular layer.
 sub delete_layer
 {
@@ -1034,6 +1094,9 @@ sub delete_layer
             # map in the ids we got from the user's styles and clear layers referencing
             # this particular layer id
             my $in = join(',', map { $_ + 0 } @ids);
+            $dbh->do("DELETE FROM s2stylelayers WHERE styleid IN ($in) AND s2lid = ?",
+                     undef, $lid);
+
             $u->do("DELETE FROM s2stylelayers2 WHERE userid=? AND styleid IN ($in) AND s2lid = ?",
                    undef, $u->{userid}, $lid);
 
@@ -1086,8 +1149,14 @@ sub get_style_layers
         return 1;
     };
 
-    $fetch->( $u, "SELECT type, s2lid FROM s2stylelayers2 " .
-                  "WHERE userid=? AND styleid=?", $u->userid, $styleid );
+    unless ($fetch->($u, "SELECT type, s2lid FROM s2stylelayers2 " .
+                     "WHERE userid=? AND styleid=?", $u->{userid}, $styleid)) {
+        my $dbh = LJ::get_db_writer();
+        if ($fetch->($dbh, "SELECT type, s2lid FROM s2stylelayers WHERE styleid=?",
+                     $styleid)) {
+            LJ::S2::set_style_layers_raw($u, $styleid, %stylay);
+        }
+    }
 
     # set in memcache
     LJ::MemCache::set($memkey, \%stylay);
@@ -1095,7 +1164,43 @@ sub get_style_layers
     return \%stylay;
 }
 
+# the old interfaces.  handles merging with global database data if necessary.
 sub set_style_layers
+{
+    my ($u, $styleid, %newlay) = @_;
+    my $dbh = LJ::get_db_writer();
+    return 0 unless $dbh && $u->writer;
+
+    my @lay = ('core','i18nc','layout','theme','i18n','user');
+    my %need = map { $_, 1 } @lay;
+    delete $need{$_} foreach keys %newlay;
+    if (%need) {
+        # see if the needed layers are already on the user cluster
+        my ($sth, $t, $lid);
+
+        $sth = $u->prepare("SELECT type FROM s2stylelayers2 WHERE userid=? AND styleid=?");
+        $sth->execute($u->{'userid'}, $styleid);
+        while (($t) = $sth->fetchrow_array) {
+            delete $need{$t};
+        }
+
+        # if we still don't have everything, see if they exist on the
+        # global cluster, and we'll merge them into the %newlay being
+        # posted, so they end up on the user cluster
+        if (%need) {
+            $sth = $dbh->prepare("SELECT type, s2lid FROM s2stylelayers WHERE styleid=?");
+            $sth->execute($styleid);
+            while (($t, $lid) = $sth->fetchrow_array) {
+                $newlay{$t} = $lid;
+            }
+        }
+    }
+
+    set_style_layers_raw($u, $styleid, %newlay);
+}
+
+# just set in user cluster, not merging with global
+sub set_style_layers_raw {
     my ($u, $styleid, %newlay) = @_;
     my $dbh = LJ::get_db_writer();
     return 0 unless $dbh && $u->writer;
@@ -1404,17 +1509,37 @@ sub set_layer_source
 sub load_layer_source
 {
     my $s2lid = shift;
+
+    # s2source is the old global MyISAM table that contains s2 layer sources
+    # s2source_inno is new global InnoDB table that contains new layer sources
+    # -- lazy migration is done whenever an insert/delete happens
+
     my $dbh = LJ::get_db_writer();
 
-    return $dbh->selectrow_array( "SELECT s2code FROM s2source_inno WHERE s2lid=?", undef, $s2lid );
+    # first try InnoDB table
+    my $s2source = $dbh->selectrow_array("SELECT s2code FROM s2source_inno WHERE s2lid=?", undef, $s2lid);
+    return $s2source if $s2source;
+
+    # fall back to MyISAM
+    return $dbh->selectrow_array("SELECT s2code FROM s2source WHERE s2lid=?", undef, $s2lid);
 }
 
 sub load_layer_source_row
 {
     my $s2lid = shift;
+
+    # s2source is the old global MyISAM table that contains s2 layer sources
+    # s2source_inno is new global InnoDB table that contains new layer sources
+    # -- lazy migration is done whenever an insert/delete happens
+
     my $dbh = LJ::get_db_writer();
 
-    return $dbh->selectrow_hashref( "SELECT * FROM s2source_inno WHERE s2lid=?", undef, $s2lid );
+    # first try InnoDB table
+    my $s2source = $dbh->selectrow_hashref("SELECT * FROM s2source_inno WHERE s2lid=?", undef, $s2lid);
+    return $s2source if $s2source;
+
+    # fall back to MyISAM
+    return $dbh->selectrow_hashref("SELECT * FROM s2source WHERE s2lid=?", undef, $s2lid);
 }
 
 sub get_layout_langs
