@@ -322,3 +322,44 @@ set color_module_border = "#FFCD9C";
 set color_module_title = "#125468";
 set color_module_title_background = "#FFF6ED";
 
+#NEWLAYER: basicboxes/repose
+layerinfo type = "theme";
+layerinfo name = "Repose";
+layerinfo redist_uniq = "basicboxes/repose";
+layerinfo author_name = "twtd";
+
+set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2C1503";
+set color_page_link = "#9F632C";
+set color_page_text = "#ffffff";
+set color_page_border = "#7bb4ab";
+set color_page_title = "#ffffff";
+
+set color_header_background = "#7bb4ab";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_link = "#7bb4ab";
+set color_entry_link_visited = "#7bb4ab";
+set color_entry_border = "#2C1503";
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#7bb4ab";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#A6DAD1";
+set color_module_text = "#43230a";
+set color_module_border = "#7bb4ab";
+set color_module_title = "#43230a";
+set color_module_title_background = "#ffffff";
