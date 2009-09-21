@@ -2156,6 +2156,11 @@ property string text_comment_parent {
     example = "Parent";
     maxlength = "50";
 }
+property string text_comment_link {
+    des = "Text to link to the comment";
+    example = "Link";
+    maxlength = "50";
+}
 property string text_comment_thread {
     des = "Text to link to the thread stemming from the comment";
     example = "Thread";
@@ -2169,6 +2174,7 @@ property string text_comment_expand {
 set text_comment_reply = "Reply";
 set text_comment_frozen = "Frozen";
 set text_comment_parent = "Parent";
+set text_comment_link = "Link";
 set text_comment_thread = "Thread";
 set text_comment_expand = "Expand";
 
@@ -4167,6 +4173,7 @@ function Comment::print_interaction_links()
 "Prints comment interaction links, aka reply/thread/parent/expand."
 {
     """<ul class="comment-interaction-links">""";
+    print safe """<li class="link commentpermalink"><a href="$this.permalink_url">$*text_comment_link</a></li>\n""";
     if ($this.frozen) {
         print safe """<li class="link frozen first-item">$*text_comment_frozen</li>\n""";
     } else {
