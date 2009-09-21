@@ -139,18 +139,6 @@ of the Content may be transferred, copied, republished and distributed
 in any form or by any means for commercial use.
 .
 
-.public.helper<<
-By ticking off this checkbox you will set  
-this level of publicity as default for your new entries in 
-LiveJournal, thus allowing various internet and offline media to quote 
-your Content. LiveJournal is not responsible for unauthorized actions 
-of mass media publications that have no partnership agreements with 
-the site. Please, keep in mind that the setting only reflects the 
-default publicity level for your entries. You can change this setting 
-for any particular entry and edit publicity level of your older posts 
-as well.
-.
-
 .safesearch2=You can choose to filter mature or offensive content out of search results.
 
 .safesearch2.select.concepts=Use strict filtering (Excludes content the poster has marked 14+)
