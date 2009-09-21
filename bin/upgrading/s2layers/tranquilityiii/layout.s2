@@ -164,8 +164,6 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
 
 .partial .comment-title { display: inline; margin: 0; }
 
-.comment .header .datetime { font-size: small; }
-
 .comment .poster-ip { font-size: small;
     color: #999999; }
 
@@ -175,12 +173,13 @@ ul.entry-interaction-links li.entry-readlink { font-weight: bold; }
 .comment-content { margin-top: 1em; }
 
 .comment .ljedittime { margin-top: 1em; }
-.comment-content .datetime { color: #666; }
+.comment .header .datetime { font-size: small;
+    color: $*color_entry_title; }
 
 .comment .multiform-checkbox { display: block;
     text-align: right;
     font-size: small;
-    color: #666;
+    color: $*color_entry_text;
 }
 
 .comment .footer { margin: .5em 0;
