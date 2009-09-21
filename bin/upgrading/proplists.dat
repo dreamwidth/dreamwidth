@@ -966,6 +966,14 @@ userproplist.state:
   multihomed: 0
   prettyname: State
 
+userproplist.sticky_entry:
+  cldversion: 4
+  datatype: char
+  des: Sticky Entry ID
+  indexed: 0
+  multihomed: 0
+  prettyname: Sticky Entry ID
+
 userproplist.stylesys:
   cldversion: 4
   datatype: num

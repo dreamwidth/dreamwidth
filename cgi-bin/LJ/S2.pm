@@ -2123,6 +2123,7 @@ sub Image_std
             'security-groups' => Image("$LJ::IMGPREFIX/silk/entry/filtered.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_groups'}),
             'adult-nsfw' => Image("$LJ::IMGPREFIX/icon_nsfw.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_nsfw'}),
             'adult-18' => Image("$LJ::IMGPREFIX/icon_18.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_18'}),
+            'sticky-entry' => Image("$LJ::IMGPREFIX/silk/entry/sticky_entry.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_sticky_entry'}),
         };
     }
     return $LJ::S2::RES_CACHE->{$name};
@@ -3422,7 +3423,7 @@ sub EntryLite__get_link
     my ($ctx, $this, $key) = @_;
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
     
-    if ($this->{_type} eq 'Entry') {
+    if ( $this->{_type} eq 'Entry' || $this->{_type} eq 'StickyEntry' ) {
         return _Entry__get_link($ctx, $this, $key);
     }
     elsif ($this->{_type} eq 'Comment') {
@@ -3440,7 +3441,7 @@ sub EntryLite__formatted_subject {
     my ($ctx, $this, $attrs) = @_;
     my $subject = $this->{subject};
     
-    if ( $this->{_type} eq 'Entry' ) {
+    if ( $this->{_type} eq 'Entry' || $this->{_type} eq 'StickyEntry' ) {
         # if an entry does not have a subject, and text_nosubject is not set, return nothing
         return if $subject eq ""  && $ctx->[S2::PROPS]->{text_nosubject} eq "";
 

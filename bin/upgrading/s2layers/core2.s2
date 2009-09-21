@@ -391,6 +391,16 @@ class Entry extends EntryLite
     "Prints a small horizontal bar of site-specific content between entries in a journal.";
 }
 
+class StickyEntry extends Entry
+"An entry that is shown on top of the journal's recent entries page"
+{
+    var Image sticky_entry_icon "A little icon displayed next to the subject of a sticky entry post";
+
+    function print_sticky_icon () "prints the icon into the subject line";
+}
+
+
+
 class Comment extends EntryLite
 "A comment to a journal entry, or to another comment."
 {
@@ -648,6 +658,11 @@ class RecentPage extends Page
 
     var RecentNav nav;
 
+    var StickyEntry stickyentry
+    "Entry shown on top of the Recent Entries page";
+
+    function print_sticky_entry(StickyEntry s)
+    "function to print the sticky entry";
 }
 
 class FriendsPage extends RecentPage
@@ -2109,6 +2124,8 @@ property string text_permalink {
     size = 20;
 }
 
+property string text_stickyentry_subject { des = "Text that appears before the subject of the sticky entry"; }
+
 set text_entry_prev = "Previous Entry";
 set text_entry_next = "Next Entry";
 set text_edit_entry = "Edit Entry";
@@ -2118,6 +2135,7 @@ set text_mem_add = "Add to Memories";
 set text_watch_comments = "Track This";
 set text_unwatch_comments = "Untrack This";
 set text_permalink = "Link";
+set text_stickyentry_subject = "Sticky: ";
 
 ##===============================
 ## Text - comment actions
@@ -2382,11 +2400,13 @@ property string text_icon_alt_private   { noui = 1; des = "Alternative text for 
 property string text_icon_alt_groups    { noui = 1; des = "Alternative text for icons of custom friends group entries"; }
 property string text_icon_alt_nsfw      { noui = 1; des = "Alternative text for icons of NSFW entries"; }
 property string text_icon_alt_18        { noui = 1; des = "Alternative text for icons of 18+ entries"; }
+property string text_icon_alt_sticky_entry        { noui = 1; des = "Alternative text for icons of sticky entries"; }
 set text_icon_alt_protected = "[protected post]";
 set text_icon_alt_private = "[private post]";
 set text_icon_alt_groups = "[custom friends groups post]";
 set text_icon_alt_nsfw = "[NSFW]";
 set text_icon_alt_18 = "[18+]";
+set text_icon_alt_sticky_entry = "[sticky entry]";
 
 property string text_multiform_check { des = "Text beside a comment multi-action checkbox"; }
 
@@ -3908,6 +3928,13 @@ function Page::print_entry(Entry e)
     $e->print_wrapper_end();
 
 }
+
+function RecentPage::print_sticky_entry(StickyEntry s)
+"function to print the sticky entry. can be overrised by styles to print it differently than other entries."
+{
+    $this->print_entry( $s );
+}
+
 function Comment::print_edit_text() {
     if ($this.edited) {
         print "<div class='ljedittime'><em>$*text_comment_edittime ";
@@ -3946,10 +3973,25 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         "</div>";
     }
     else {
-        """<h3 class="entry-title">""";
-        print $this->formatted_subject( $opts );
-        "</h3>";
+        if ($this isa StickyEntry) {
+            var StickyEntry s = $this as StickyEntry;
+            """<h3 class="sticky-entry-title entry-title">""";
+            $s->print_sticky_icon();
+            print $*text_stickyentry_subject + $this->formatted_subject( $opts );
+            "</h3>";
+        }
+        else {
+            """<h3 class="entry-title">""";
+            print $this->formatted_subject( $opts );
+            "</h3>";
+        }
     }
+}
+
+function StickyEntry::print_sticky_icon() {
+    """<span class="sticky-entry-icon">""";
+    $this.sticky_entry_icon->print($*text_icon_alt_sticky_entry);
+    """</span>\n""";
 }
 
 function EntryLite::print_wrapper_start() {
@@ -3968,9 +4010,17 @@ function Entry::print_wrapper_start() {
     }
     var string userpic = $this.userpic ? "has-userpic" : "no-userpic";
 
-    """<div class="entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="entry-wrapper-$this.itemid">\n""";
-    """<div class="separator separator-before"><div class="inner"></div></div>\n""";
-    """<div class="entry" id="entry-$this.itemid">\n""";
+    #additional classes for sticky entries added
+    if ($this isa StickyEntry) {
+        """<div class="sticky-entry-wrapper entry-wrapper entry-wrapper-even security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="sticky-entry-wrapper-$this.itemid">\n""";
+        """<div class="separator separator-before"><div class="inner"></div></div>\n""";
+        """<div class="sticky-entry entry" id="sticky-entry-$this.itemid">\n""";
+    }
+    else {
+        """<div class="entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="entry-wrapper-$this.itemid">\n""";
+        """<div class="separator separator-before"><div class="inner"></div></div>\n""";
+        """<div class="entry" id="entry-$this.itemid">\n""";
+    }
     """<div class="inner">\n""";
 }
 function Comment::print_wrapper_start() {
@@ -4237,7 +4287,13 @@ function RecentPage::print_body {
 
     foreach var Entry e ($.entries) {
         # Print the entry
-        $this->print_entry($e);
+        if ( $e isa StickyEntry ) {
+            var StickyEntry s = $e as StickyEntry;
+            $this->print_sticky_entry($s);
+        } 
+        else {
+	    $this->print_entry($e);
+        }
     }
 
             $this->print_navigation( { "class" => "bottomnav" } );

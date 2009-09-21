@@ -159,10 +159,12 @@ propgroup Text {
     property use text_skiplinks_forward;
 
     property use text_permalink;
+    property use text_stickyentry_subject;
     property use text_post_comment;
     property use text_post_comment_friends;
 
         set text_permalink = "permalink";
+        set text_stickyentry_subject = "Sticky: ";
         set text_post_comment = "reply";
         set text_post_comment_friends = "reply";
 
@@ -1344,6 +1346,10 @@ function Page::lay_print_entry(Entry e) {
 
 function Page::print_entry(Entry e) {
     $this->lay_print_entry($e);
+}
+
+function RecentPage::print_sticky_entry(StickyEntry s) {
+    $this->lay_print_entry($s);
 }
 
 ###################################################

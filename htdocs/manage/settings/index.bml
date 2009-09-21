@@ -71,6 +71,7 @@ body<=
                 LJ::Setting::SafeSearch
                 DW::Setting::GoogleAnalytics
                 DW::Setting::ExcludeOwnStats
+                DW::Setting::StickyEntry
             )],
         },
         notifications => {

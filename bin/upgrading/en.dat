@@ -2791,6 +2791,10 @@ setting.sitescheme.error.invalid=Invalid site scheme.
 
 setting.sitescheme.label=Site Scheme
 
+setting.stickyentry.error.invalid=Invalid Dreamwidth entry ID or URL entered. 
+
+setting.stickyentry.label=ID or URL of post to make sticky
+
 setting.stylemine.label=Comment Pages
 
 setting.stylemine.option=View comment pages from my Friends page in my own style

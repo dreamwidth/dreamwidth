@@ -766,6 +766,7 @@ sub entry_props {
         text_post_comment_friends
         text_read_comments_friends
         text_permalink
+        text_stickyentry_subject
         text_entry_prev
         text_entry_next
         text_tell_friend

@@ -2205,6 +2205,35 @@ sub show_thread_expander {
     return 0;
 }
 
+#get/set Sticky Entry parent ID for settings menu
+sub sticky_entry {
+    my ( $u, $input ) = @_;
+
+    if ( defined $input ) {
+        #also takes URL
+        my $ditemid;
+        if ( $input =~ m!/(\d+)\.html! ) {
+            $ditemid = $1
+        } elsif ( $input =~ m!(\d+)! ) {
+            $ditemid = $1
+        } else {
+            return 0;
+        }
+        $u->set_prop( sticky_entry => $ditemid );
+    }
+    return $u->prop( 'sticky_entry' );
+}
+
+sub get_sticky_entry {
+    my $u = shift;
+
+    if ( my $ditemid = $u->sticky_entry ) {
+        my $item = LJ::Entry->new( $u, ditemid => $ditemid );
+        return $item if $item->valid;
+    }
+    return undef;
+}
+
 sub _lazy_migrate_infoshow {
     my ($u) = @_;
     return 1 unless LJ::is_enabled('infoshow_migrate');

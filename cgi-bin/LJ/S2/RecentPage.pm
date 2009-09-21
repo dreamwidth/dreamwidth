@@ -103,6 +103,25 @@ sub RecentPage
 
     die $err if $err;
 
+    # prepare sticky entry for S2 - should there ever be a function to get an s2 formatted entry from an Entry object
+    # this should be changed to use that.  only show sticky entry on first page of Recent Entries, not on skip= pages
+    # or tag and security subfilters
+    my $stickyentry = $u->get_sticky_entry
+        if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
+
+    # only show if visible to user
+    if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
+        unshift @items, {
+            posterid    => $stickyentry->poster->userid, 
+            itemid      => $stickyentry->jitemid, 
+            anum        => $stickyentry->anum,
+            security    => $stickyentry->security, 
+            allowmask   => $stickyentry->allowmask, 
+            alldatepart => LJ::alldatepart_s2($stickyentry->eventtime_mysql), 
+            sticky      => 1 
+        };
+    }
+  
     ### load the log properties
     my %logprops = ();
     my $logtext;
@@ -149,7 +168,8 @@ sub RecentPage
             $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
         }
 
-        $itemnum++;
+        #don't count sticky item towards total
+        $itemnum++ unless $item->{sticky};
 
         # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
         next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && !$viewsome;
@@ -248,6 +268,12 @@ sub RecentPage
             'userpic' => $userpic,
             'permalink_url' => $permalink,
         });
+
+        if ( $item->{sticky} ) {
+            my $sticky_icon = Image_std('sticky-entry');
+            $entry->{_type} = 'StickyEntry';
+            $entry->{'sticky_entry_icon'} = $sticky_icon;
+        }
 
         push @{$p->{'entries'}}, $entry;
         LJ::run_hook('notify_event_displayed', $entry_obj);
