@@ -1969,9 +1969,9 @@ property string text_meta_location {
 set text_meta_location = "Current Location";
 
 property string text_meta_groups {
-    des = "Text for 'Custom Friends Groups'";
+    des = "Text for 'Custom Access Groups'";
 }
-set text_meta_groups = "Custom Friends Groups";
+set text_meta_groups = "Custom Access Groups";
 
 property string text_tags {
     des = "Text for 'Tags' header for an entry";
