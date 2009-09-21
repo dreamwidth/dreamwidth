@@ -2857,7 +2857,7 @@ LOGIN_BAR
     #determine whether style is "mine", and define new uri variable to manipulate
     #note: all expressions case-insensitive
     my $currentstylemine = ($uri =~ m/style=mine/i);
-    my $newuri = $uri;
+    my $newuri = LJ::ehtml( $uri );
     #manipulate destination URI for the style links
     if ($currentstylemine) {
         #if last character before style=mine is a &, it can be deleted together with style=mine, 
