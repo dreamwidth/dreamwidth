@@ -192,7 +192,7 @@ width: 96% !important; }
 margin: .75em 0; }
 
 .entry .contents .userpic { position: absolute;
-top: 0;
+top: -1em;
 right: 5px;}
 
 .entry-content { margin-top: 1.25em; }
