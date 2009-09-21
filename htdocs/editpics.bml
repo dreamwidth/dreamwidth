@@ -936,8 +936,11 @@ sub parse_large_upload
             return $mime;
         };
         
-        $upload{mime} = $format_magic->($magic)
-            or die "Unknown format for upload";
+        $upload{mime} = $format_magic->( $magic );
+        unless ( $upload{mime} ) {
+            $$errorref = "Unknown format for upload";
+            return $err->( $$errorref );
+        }
         
         # finished adding data for md5, create digest (but don't destroy original)
         $upload{md5sum} = $upload{md5ctx}->digest;
