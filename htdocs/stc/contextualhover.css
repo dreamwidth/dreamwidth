@@ -69,4 +69,5 @@ div.ContextualPopup .Userpic {
    div.ContextualPopup div.Inner a, div.ContextualPopup div.Inner a:visited {
         text-decoration: underline !important;
         font-weight: bold;
+        color: #000;
         }
