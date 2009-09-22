@@ -4,7 +4,7 @@ use base qw( LJ::S2Theme );
 sub cats { qw() }
 sub designer { "phoenix" }
 
-sub layouts { ( "2r" => "two-columns-right" ) }
+sub layouts { ( "1" => "one-column", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }
 
 package LJ::S2Theme::negatives::black;

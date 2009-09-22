@@ -298,26 +298,20 @@ function Page::print_default_stylesheet()
     }
     #primary {
         position: relative;
-        float: left;
         font-size: 0.9em;
         padding: 10px;
         padding-bottom: 5px;
         border: 0px;
         border-left:5px double $*color_module_border;
         border-right:5px double $*color_module_border;
-        left: 10%;
-        width: 70%;
         z-index: 10;
         }
     #secondary {
         position: relative;
-        float: left;
-        left: 10%;
         margin: 0px;
         padding: 10px;
         border: 0px;
         padding-bottom: 10px;
-        width: 15%;
         font-size: 0.80em;
         $module_background
         color: $*color_module_text;
@@ -510,6 +504,15 @@ function Page::print_default_stylesheet()
     }
     
     .entry h3 { display: inline; }
+
+    .one-column #primary {float: none;}
+    .one-column #secondary {float: none;}
+    .two-columns-right #primary {float: left;}
+    .two-columns-right #secondary {float: left;}
+    .one-column #primary {left: 5%; width: 85%;}
+    .one-column #secondary {left: 5%; width: 15%;}
+    .two-columns-right #primary {left: 10%; width: 70%;}
+    .two-columns-right #secondary {left: 10%; width: 15%;}
 
     """;
     end_css();
