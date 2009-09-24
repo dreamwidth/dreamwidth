@@ -11,5 +11,10 @@ package LJ::S2Theme::blanket::peach;
 use base qw( LJ::S2Theme::blanket );
 sub cats { qw( featured base ) }
 
+package LJ::S2Theme::blanket::sprung;
+use base qw( LJ::S2Theme::blanket );
+sub cats { qw(  ) }
+sub designer { "zvi" }
+
 1;
 

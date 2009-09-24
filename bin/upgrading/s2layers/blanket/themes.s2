@@ -25,3 +25,29 @@ set color_entry_background = "#fff";
 set color_entry_text = "#888";
 set color_entry_title = "#099aaf";
 set color_entry_border = "#eee";
+
+#NEWLAYER: blanket/sprung
+layerinfo type = "theme";
+layerinfo name = "Sprung";
+layerinfo redist_uniq = "blanket/sprung";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#a2a775";
+set color_entry_text = "#5c5726";
+set color_entry_title = "#a2a775";
+set color_header_background = "#ffffff";
+set color_module_background = "#f0d0f9";
+set color_module_border = "#6a5070";
+set color_module_text = "#401a49";
+set color_module_title = "#514254";
+set color_page_background = "#f7feb2";
+set color_page_border = "#a2a775";
+set color_page_link = "#aaaeb6";
+set color_page_link_active = "#00d99e";
+set color_page_link_hover = "#a2a775";
+set color_page_link_visited = "#6A5070";
+set color_page_text = "#5c5726";
+set color_page_title = "#a2a775";
