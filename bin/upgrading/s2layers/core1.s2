@@ -2571,7 +2571,7 @@ function CommentInfo::print_postlink() {
     if ($.maxcomments) {
         print safe "$*text_max_comments";
     } else {
-        print safe "<a href=\"$.post_url\">"+($p.view == "read" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
+        print safe "<a href=\"$.post_url\">"+($p.view == "read" or $p.view == "network" ? $*text_post_comment_friends : $*text_post_comment)+"</a>";
     }
 }
 function CommentInfo::print() {
