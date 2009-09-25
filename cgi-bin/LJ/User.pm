@@ -2210,16 +2210,26 @@ sub sticky_entry {
     my ( $u, $input ) = @_;
 
     if ( defined $input ) {
+        unless ( $input ) {
+            $u->set_prop( sticky_entry => '' );
+            return 1;
+        } 
         #also takes URL
         my $ditemid;
         if ( $input =~ m!/(\d+)\.html! ) {
-            $ditemid = $1
+            $ditemid = $1;
         } elsif ( $input =~ m!(\d+)! ) {
-            $ditemid = $1
+            $ditemid = $1;
         } else {
             return 0;
         }
+        
+        # Validate the entry
+        my $item = LJ::Entry->new( $u, ditemid => $ditemid );
+        return 0 unless $item && $item->valid;
+        
         $u->set_prop( sticky_entry => $ditemid );
+        return 1;
     }
     return $u->prop( 'sticky_entry' );
 }
