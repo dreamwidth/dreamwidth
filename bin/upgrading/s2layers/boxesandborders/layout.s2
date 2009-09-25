@@ -31,7 +31,7 @@ function print_stylesheet() {
     var string calendar_colors = generate_color_css( $*color_page_title, $*color_page_border, new Color );
     var string calendar_link_colors = generate_color_css( $*color_page_background, $*color_page_title, new Color );
 
-    var string footer_colors = generate_color_css( new Color, $*color_page_title, new Color );
+    var string footer_colors = generate_color_css( new Color, $*color_footer_background, new Color );
     """
 
 /* Boxes and Borders */
@@ -281,16 +281,15 @@ text-decoration: none; }
 
 /* footer */
 
-#footer { $footer_colors
-   color: #ffffff; }
-#footer a,
-#footer a:visited { color: #ffffff; }
+#footer { $footer_colors }
+#footer a { color: $*color_footer_link; }
+#footer a:visited { color: $*color_footer_link_visited; }
+#footer a:hover { color: $*color_footer_link_hover; }
 
 
     """;
 
 
 }
-
 
 

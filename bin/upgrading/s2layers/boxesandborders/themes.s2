@@ -16,6 +16,11 @@ set color_page_link_active = "#444444";
 set color_page_link_visited = "#336699";
 set color_page_title = "#555555";
 
+set color_footer_background = "#555555";
+set color_footer_link = "#ffffff";
+set color_footer_link_hover = "#ffffff";
+set color_footer_link_visited = "#ffffff";
+
 ##===============================
 ## Entry Colors
 ##===============================
