@@ -565,7 +565,7 @@ h2#pagetitle {
 
     .entry-wrapper.no-userpic .entry .contents .poster,
     .comment-wrapper.no-userpic .comment .contents .poster {
-        display: none;
+        margin-left: 0;
         }
 
     .poster a {
