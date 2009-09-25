@@ -416,6 +416,15 @@ body<=
     # other statistics
     $ret .= q{ <p> };
     $ret .= join( ', ', ( $profile->entry_stats, $profile->tag_stats, $profile->memory_stats, $profile->userpic_stats ) );
+    $ret .= "</p>";
+
+    #extended profile link
+    $ret .= "<p>";
+    if ( $is_full ) {
+        $ret .= BML::ml( '.details.profile.default', { aopts => "href='" . $u->profile_url . "'" } );
+    } else {
+        $ret .= BML::ml( '.details.profile.full', { aopts => "href='" . $u->profile_url . "?mode=full'" } );
+    }
     $ret .= q{ </p></div></div></div></div> };
 
 ################################################################################

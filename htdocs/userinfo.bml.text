@@ -110,6 +110,10 @@
 
 .details.memories2=[[num_comma]] <a [[aopts]]>[[?num_raw|Memory|Memories]]</a>
 
+.details.profile.default=<a [[aopts]]>View default profile</a>
+
+.details.profile.full=<a [[aopts]]>View extended profile</a>
+
 .details.search=Search
 
 .details.supportpoints=<a [[aopts]]>Support Points</a>: [[num]]
