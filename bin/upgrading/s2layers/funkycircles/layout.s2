@@ -314,7 +314,8 @@ h2#pagetitle {
         }
 
 .entry,
-.page-entry .comment {
+.page-entry .comment,
+.page-reply .comment {
     background-color: transparent;
     border: none;
     position: relative;
@@ -410,7 +411,8 @@ h2#pagetitle {
         padding: 1.2em 2em 2em 2em;
         }
 
-    .page-entry .comment-wrapper.has-userpic .comment .contents {
+    .page-entry .comment-wrapper.has-userpic .comment .contents,
+    .page-reply .comment-wrapper.has-userpic .comment .contents {
         padding: 2em;
         }
 
@@ -545,6 +547,7 @@ h2#pagetitle {
 .page-entry .entry .contents .poster,
 .page-entry .comment .contents .poster,
 .page-reply .entry .contents .poster,
+.page-reply .comment .contents .poster,
 .page-day .journal-type-C .entry .contents .poster {
     border-bottom: 1px dashed $*color_entry_poster_border !important;
     display: block;
@@ -559,6 +562,7 @@ h2#pagetitle {
     .page-network .entry .contents .poster:before,
     .page-entry .entry .contents .poster:before,
     .page-reply .entry .contents .poster:before,
+    .page-reply .comment .contents .poster:before,
     .page-day .journal-type-C .entry .contents .poster:before {
         content: 'Posted by ';
         }
@@ -636,6 +640,7 @@ h2#pagetitle {
 .entry .footer,
 .month .footer,
 .page-entry .comment .footer,
+.page-reply .comment .footer,
 .page-tags .tags-container .manage-tags-link,
 .bottomcomment {
     $entry_footer_colors
@@ -653,6 +658,7 @@ h2#pagetitle {
     .entry .footer a,
     .month .footer a,
     .page-entry .comment .footer a,
+    .page-reply .comment .footer a,
     .page-tags .tags-container .manage-tags-link a,
     .bottomcomment a {
         $entry_footer_link_colors
@@ -669,6 +675,7 @@ h2#pagetitle {
     .entry .footer a:hover,
     .month .footer a:hover,
     .page-entry .comment .footer a:hover,
+    .page-reply .comment .footer a:hover,
     .page-tags .tags-container .manage-tags-link a:hover,
     .bottomcomment a:hover {
         $entry_footer_link_hover_colors
@@ -676,7 +683,8 @@ h2#pagetitle {
             text-decoration: underline !important;
         }
 
-    .page-entry .comment .footer {
+    .page-entry .comment .footer,
+    .page-reply .comment .footer {
         padding: 0 .5em;
             text-align: left;
         }
