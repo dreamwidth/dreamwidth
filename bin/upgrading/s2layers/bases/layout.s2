@@ -168,6 +168,7 @@ propgroup text {
     property use text_watch_comments; 
     property use text_unwatch_comments; 
     property use text_permalink;
+    property use text_stickyentry_subject;
 
     property use text_module_customtext;
     property use text_module_customtext_content;

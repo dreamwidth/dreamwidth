@@ -100,6 +100,7 @@ propgroup text
     property use text_read_comments;
     property use text_post_comment_friends;
     property use text_read_comments_friends;
+    property use text_stickyentry_subject;
 
     property string text_navigation_header
     {
