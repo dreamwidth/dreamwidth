@@ -22,7 +22,7 @@ my $from = shift @ARGV;
 my $to = shift @ARGV;
 usage() unless $from =~ /^\w{1,25}$/ && $to =~ /^\w{1,25}$/;
 
-my $dbh = LJ::get_db_writer();
+my $dbh = LJ::get_db_writer() or die "Could not get DB handle";
 
 unless ($args{swap}) {
     if (rename_user($from, $to)) {
