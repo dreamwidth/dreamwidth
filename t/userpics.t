@@ -98,7 +98,7 @@ sub run_tests {
 
     # fullurl
     {
-        my $fullurl = 'http://pics.livejournal.com/revmischa/pic/0088h66f';
+        my $fullurl = 'http://pics.livejournal.com/rahaeli/pic/0009e384';
         $up->set_fullurl($fullurl);
         is($up->fullurl, $fullurl, "Set fullurl");
     }
