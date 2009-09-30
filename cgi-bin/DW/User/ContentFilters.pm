@@ -107,9 +107,9 @@ sub create_content_filter {
     # FIXME: this is probably the point we should implement limits on how many
     # filters you can create...
 
-    # check if a filter with this name already exists
+    # check if a filter with this name already exists, if so return its id, so the user can edit or remove it
     my $name = LJ::trim( LJ::text_trim( delete $args{name}, 255, 100 ) ) || '';
-    return undef
+    return $u->content_filters( name => $name )->id
         if $u->content_filters( name => $name );
 
     # we need a filterid, or #-1 FAILURE MODE IMMINENT
