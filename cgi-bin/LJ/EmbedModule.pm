@@ -2,10 +2,8 @@
 package LJ::EmbedModule;
 use strict;
 use Carp qw (croak);
-use Class::Autouse qw (
-                       LJ::Auth
-                       HTML::TokeParser
-                       );
+use LJ::Auth;
+use HTML::TokeParser;
 
 # states for a finite-state machine we use in parse()
 use constant {

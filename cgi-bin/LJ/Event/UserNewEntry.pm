@@ -7,7 +7,7 @@ package LJ::Event::UserNewEntry;
 use strict;
 use Scalar::Util qw(blessed);
 use Carp qw(croak);
-use Class::Autouse qw(LJ::Entry);
+use LJ::Entry;
 use base 'LJ::Event';
 
 ############################################################################

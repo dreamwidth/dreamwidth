@@ -4,11 +4,9 @@ no warnings 'uninitialized';
 
 use Carp qw(croak);
 use LJ::ModuleLoader;
-use Class::Autouse qw(
-                      LJ::ESN
-                      LJ::Subscription
-                      LJ::Typemap
-                      );
+use LJ::ESN;
+use LJ::Subscription;
+use LJ::Typemap;
 
 my @EVENTS = LJ::ModuleLoader->module_subclasses("LJ::Event");
 foreach my $event (@EVENTS) {

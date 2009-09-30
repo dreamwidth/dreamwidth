@@ -1,7 +1,7 @@
 package LJ::Event::PollVote;
 use strict;
 use base 'LJ::Event';
-use Class::Autouse qw(LJ::Poll);
+use LJ::Poll;
 use Carp qw(croak);
 
 # we need to specify 'owner' here, because subscriptions are tied

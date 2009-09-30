@@ -1,7 +1,8 @@
 package LJ::Event::JournalNewComment;
 use strict;
 use Scalar::Util qw(blessed);
-use Class::Autouse qw(LJ::Comment LJ::HTML::Template);
+use LJ::Comment;
+use LJ::HTML::Template;
 use Carp qw(croak);
 use base 'LJ::Event';
 

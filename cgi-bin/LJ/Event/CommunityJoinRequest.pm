@@ -1,6 +1,6 @@
 package LJ::Event::CommunityJoinRequest;
 use strict;
-use Class::Autouse qw(LJ::Entry);
+use LJ::Entry;
 use Carp qw(croak);
 use base 'LJ::Event';
 

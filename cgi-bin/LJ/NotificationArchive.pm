@@ -6,7 +6,8 @@ package LJ::NotificationArchive;
 
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw (LJ::NotificationItem LJ::Event);
+use LJ::NotificationItem;
+use LJ::Event;
 
 *new = \&instance;
 

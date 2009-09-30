@@ -3,7 +3,8 @@ package LJ::Widget::CreateAccount;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::CreatePage Captcha::reCAPTCHA );
+use LJ::CreatePage;
+use Captcha::reCAPTCHA;
 
 sub need_res { qw( stc/widgets/createaccount.css js/widgets/createaccount.js js/browserdetect.js ) }
 

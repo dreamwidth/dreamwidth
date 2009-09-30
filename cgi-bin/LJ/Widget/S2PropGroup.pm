@@ -3,7 +3,7 @@ package LJ::Widget::S2PropGroup;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::Customize );
+use LJ::Customize;
 
 sub authas { 1 }
 sub need_res { qw( stc/widgets/s2propgroup.css js/colorpicker.js ) }

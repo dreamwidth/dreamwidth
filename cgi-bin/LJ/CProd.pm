@@ -4,7 +4,7 @@ package LJ::CProd;
 # Let users know about new/old features they can use but never have.
 use strict;
 use List::Util qw (shuffle);
-use Class::Autouse qw (LJ::Typemap);
+use LJ::Typemap;
 
 #################### Override:
 

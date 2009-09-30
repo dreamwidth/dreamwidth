@@ -3,7 +3,7 @@ package LJ::Widget::AddQotD;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
-use Class::Autouse qw( LJ::QotD );
+use LJ::QotD;
 
 sub need_res { }
 

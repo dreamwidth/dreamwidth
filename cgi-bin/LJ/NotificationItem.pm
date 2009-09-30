@@ -9,10 +9,8 @@ use strict;
 use warnings;
 no warnings "redefine";
 
-use Class::Autouse qw(
-                      LJ::NotificationInbox
-                      LJ::Event
-                      );
+use LJ::NotificationInbox;
+use LJ::Event;
 use Carp qw(croak);
 
 *new = \&instance;

@@ -1,7 +1,7 @@
 package LJ::Event::NewUserpic;
 use strict;
 use base 'LJ::Event';
-use Class::Autouse qw(LJ::Entry);
+use LJ::Entry;
 use Carp qw(croak);
 
 sub new {

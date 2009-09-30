@@ -1,11 +1,8 @@
 package LJ::ESN;
 use strict;
 use Carp qw(croak);
-use Class::Autouse qw(
-                      LJ::Event
-                      LJ::Subscription
-                      );
-
+use LJ::Event;
+use LJ::Subscription;
 use Data::Dumper;
 
 our $MAX_FILTER_SET = 5_000;

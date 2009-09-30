@@ -28,17 +28,15 @@ use DW::Logic::ProfilePage;
 use DW::User::ContentFilters;
 use DW::User::Edges;
 
-use Class::Autouse qw(
-                      LJ::Subscription
-                      LJ::Identity
-                      LJ::Auth
-                      LJ::Jabber::Presence
-                      LJ::S2
-                      IO::Socket::INET
-                      Time::Local
-                      LJ::BetaFeatures
-                      LJ::S2Theme
-                      );
+use LJ::Subscription;
+use LJ::Identity;
+use LJ::Auth;
+use LJ::Jabber::Presence;
+use LJ::S2;
+use IO::Socket::INET;
+use Time::Local;
+use LJ::BetaFeatures;
+use LJ::S2Theme;
 
 ########################################################################
 ### Please keep these categorized and alphabetized for ease of use. 

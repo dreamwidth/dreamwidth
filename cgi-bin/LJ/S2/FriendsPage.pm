@@ -3,7 +3,7 @@
 
 use strict;
 package LJ::S2;
-use Class::Autouse qw/ DW::Logic::AdultContent /;
+use DW::Logic::AdultContent;
 
 sub FriendsPage
 {

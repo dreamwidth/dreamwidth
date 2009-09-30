@@ -3,10 +3,8 @@ package LJ::Console::Command::Help;
 use strict;
 use base qw(LJ::Console::Command);
 use Carp qw(croak);
-use Class::Autouse qw(
-                      Text::Wrap
-                      LJ::ModuleLoader
-                      );
+use Text::Wrap;
+use LJ::ModuleLoader;
 
 my @CLASSES = LJ::ModuleLoader->module_subclasses("LJ::Console::Command");
 foreach my $class (@CLASSES) {

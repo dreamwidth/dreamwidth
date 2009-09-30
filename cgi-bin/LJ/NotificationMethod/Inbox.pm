@@ -3,7 +3,7 @@ package LJ::NotificationMethod::Inbox;
 use strict;
 use Carp qw/ croak /;
 use base 'LJ::NotificationMethod';
-use Class::Autouse qw(LJ::NotificationInbox);
+use LJ::NotificationInbox;
 
 sub can_digest { 1 };
 
