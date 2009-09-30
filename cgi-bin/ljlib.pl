@@ -938,7 +938,7 @@ sub auth_digest {
     }
 
     # sanity checks
-    unless ($authname eq 'Digest' && $attrs{'qop'} eq 'auth' &&
+    unless ($authname eq 'Digest' && ( !defined $attrs{'qop'} || $attrs{'qop'} eq 'auth' ) &&
             $attrs{'realm'} eq 'lj' && (!defined $attrs{'algorithm'} || $attrs{'algorithm'} eq 'MD5')) {
         return $decline->(0);
     }
@@ -976,11 +976,17 @@ sub auth_digest {
 
     # recalculate the hash and compare to response
 
+    my $qop = $attrs{qop};
     my $a1src = $u->user . ':lj:' . $u->password;
     my $a1 = Digest::MD5::md5_hex($a1src);
     my $a2src = $r->method . ":$attrs{'uri'}";
     my $a2 = Digest::MD5::md5_hex($a2src);
-    my $hashsrc = "$a1:$attrs{'nonce'}:$attrs{'nc'}:$attrs{'cnonce'}:$attrs{'qop'}:$a2";
+    my $hashsrc; 
+    if ( $qop eq 'auth' ) {
+        $hashsrc = "$a1:$attrs{'nonce'}:$attrs{'nc'}:$attrs{'cnonce'}:$attrs{'qop'}:$a2";
+    } else {
+        $hashsrc = "$a1:$attrs{'nonce'}:$a2";
+    }
     my $hash = Digest::MD5::md5_hex($hashsrc);
 
     return $decline->(0)
