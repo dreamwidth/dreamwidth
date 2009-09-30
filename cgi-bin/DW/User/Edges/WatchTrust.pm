@@ -338,72 +338,56 @@ sub trustmask {
 #      pass in full => 1 to get all friends' birthdays.
 # returns: arrayref of [ month, day, username ] arrayrefs
 sub get_birthdays {
+    my ( $u, %opts ) = @_;
+    $u = LJ::want_user( $u ) or return undef;
 
-    my $u = LJ::want_user( shift )
-        or return undef;
-
-    my %opts = @_;
     my $months_ahead = $opts{months_ahead} || 3;
     my $full = $opts{full};
 
-    # what day is it now?
-    my $now = $u->time_now;
-    my ($mnow, $dnow) = ($now->month, $now->day);
-
+    # try to get the cached birthday
     my $memkey = [$u->userid, 'bdays:' . $u->userid . ':' . ($full ? 'full' : $months_ahead)];
-    my $cached_bdays = LJ::MemCache::get($memkey);
-    # we cached the sorted data, don't need to re-sort
+    my $cached_bdays = LJ::MemCache::get( $memkey );
     return @$cached_bdays if $cached_bdays;
 
     my @circle = $u->is_community ? $u->member_userids : $u->circle_userids;
-    my $nb = LJ::User->next_birthdays( @circle );
-    # returns ref to hash of form (userid => date)
-    my $uids = LJ::load_userids( keys %$nb );
-    # returns ref to hash of form (userid => user object)
-    my %timedata;
+    my $nb = LJ::User->next_birthdays( @circle ) or return undef;
 
-    while ( my ( $id, $u ) = each %$uids ) {
+    # now map it to an array with DateTime objects
+    my @bdays = map { [ $_, DateTime->from_epoch( epoch => $nb->{$_} ) ] }
+                    keys %$nb;
+
+    # now push a second set of objects, for each object, one year ago
+    push @bdays, [ $bdays[$_]->[0],
+                   $bdays[$_]->[1]->clone->subtract( years => 1 ) ]
+        for 0..$#bdays;
+
+    # sort the list... will end up nicely sorted by time
+    @bdays = sort { DateTime->compare( $a->[1], $b->[1] ) } @bdays;
+
+    # remove anything that is actually in the past
+    my $now = $u->time_now;
+    shift @bdays while @bdays && $bdays[0]->[1]->epoch < $now->epoch;
+
+    # remove anything that is too far in the future
+    my $months = $full ? 12 : $months_ahead;
+    my $compare = $now->add( months => $months )->epoch;
+    pop @bdays while @bdays && $bdays[-1]->[1]->epoch > $compare;
+
+    # now load the userids
+    my $uids = LJ::load_userids( map { $_->[0] } @bdays );
+
+    my @results;
+    foreach my $ub ( @bdays ) {
+        my $u = $uids->{$ub->[0]};
         next unless $u->is_personal && $u->can_show_bday;
-        my $date = $nb->{$id} or next;
 
-        # need numeric month and day
-        my @lt = localtime( $date );
-        my $month = $lt[4] + 1;
-        my $day = $lt[3];
-        next unless $month > 0 && $day > 0;
-
-        # skip over unless a few months away (except in full mode)
-        unless ($full) {
-            # the case where months_ahead doesn't wrap around to a new year
-            if ($mnow + $months_ahead <= 12) {
-                # discard old months
-                next if $month < $mnow;
-                # discard months too far in the future
-                next if $month > $mnow + $months_ahead;
-
-            # the case where we wrap around the end of the year (eg, oct->jan)
-            } else {
-                # we're okay if the month is in the future, because
-                # we KNOW we're wrapping around. but if the month is
-                # in the past, we need to verify that we've wrapped
-                # around and are still within the timeframe
-                next if ($month < $mnow) && ($month > ($mnow + $months_ahead) % 12);
-            }
-
-            # month is fine. check the day.
-            next if ($month == $mnow && $day < $dnow);
-        }
-
-        $timedata{"$date.$id"} = [$month, $day, $u->user];
+        push @results, [ $ub->[1]->month, $ub->[1]->day, $u->user ];
     }
 
-    # hash slice for array sorted by date
-    my @bdays = @timedata{ sort keys %timedata };
-
     # set birthdays in memcache for later
-    LJ::MemCache::set($memkey, \@bdays, 86400);
+    LJ::MemCache::set( $memkey, \@results, 86400 );
 
-    return @bdays;
+    return @results;
 }
 *LJ::User::get_birthdays = \&get_birthdays;
 
