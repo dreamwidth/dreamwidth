@@ -157,6 +157,12 @@
                 $data->{$uid} = $member;
             }
 
+            # see whether we deleted any members from the filter
+            foreach my $uid ( keys %{ $data } ) {
+                # delete userid from $data if it is not also in $filt->{members}
+                delete $data->{$uid} unless exists $filt->{members}->{$uid};
+            }
+
             # save the filter, very important...
             $cf->_save;
         }
