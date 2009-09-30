@@ -6,6 +6,10 @@ sub layout_prop { "layout_type" }
 
 sub designer { "Malionette" }
 
+package LJ::S2Theme::bases::strawberrysundae;
+use base qw( LJ::S2Theme::bases );
+sub cats { qw( ) }
+sub designer { "sky" }
 
 package LJ::S2Theme::bases::tropical;
 use base qw( LJ::S2Theme::bases );

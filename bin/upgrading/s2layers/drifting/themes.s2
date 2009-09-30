@@ -27,3 +27,25 @@ set image_header_left = "drifting/hdr_left.jpg";
 set image_header_right = "drifting/hdr_right.jpg";
 set image_module_header_url = "drifting/hdr_icon.gif";
 
+#NEWLAYER: drifting/chocolatecherry
+layerinfo type = "theme";
+layerinfo name = "Chocolate Cherry";
+layerinfo redist_uniq = "drifting/chocolatecherry";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_entry_background = "#4d0012";
+set color_entry_border = "#80404f";
+set color_entry_text = "#ffe6eb";
+set color_entry_title = "#ff80eb";
+set color_module_border = "#ffe6eb";
+set color_module_title = "#000000";
+set color_page_background = "#80404f";
+set color_page_border = "#ffe6eb";
+set color_page_link_active = "#ff5600";
+set color_page_link = "#ff80eb";
+set color_page_link_visited = "#ff809d";
+set color_page_subtitle = "#4D0040";
+set color_page_text = "#ffe6eb";
+set color_page_title = "#804075";

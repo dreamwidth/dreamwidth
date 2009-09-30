@@ -1,3 +1,41 @@
+#NEWLAYER: bases/strawberrysundae
+layerinfo type = "theme";
+layerinfo name = "Strawberry Sundae";
+layerinfo redist_uniq = "bases/strawberrysundae";
+layerinfo author_name = "sky";
+
+set layout_authors = [ { "user" => "sky", "type" => "user" } ];
+
+set color_page_link_active = "#ff9090";
+set color_page_link = "#c00f0f";
+set color_module_link_hover = "#ff9090";
+set color_module_background = "#f5e4da";
+set color_entry_border = "#C47C72";
+set color_entry_text = "#503125";
+set color_module_title = "#f5e4da";
+set color_page_text = "#503125";
+set color_header_background = "#edaaa0";
+set color_page_border = "#C47C72";
+set color_entry_interaction_links = "#ffffff";
+set color_comment_title_background = "#ffffff";
+set color_page_background = "#edaaa0";
+set color_module_title_background = "#84513e";
+set color_entry_link_hover = "#ff9090";
+set color_page_title = "#844124";
+set color_module_border = "#C47C72";
+set color_entry_link = "#cf2e2e";
+set color_module_link = "#cf2e2e";
+set color_entry_link_visited = "#9c4242";
+set color_module_link_visited = "#8a3a3a";
+set color_entry_title = "#844124";
+set color_page_link_visited = "#852c2c";
+set color_entry_title_background = "#f5e4da";
+set color_page_link_hover = "#ff9090";
+set color_entry_link_active = "#ffd7d7";
+set color_module_link_active = "#ff9090";
+set color_module_text = "#503125";
+set color_entry_background = "#f5e4da";
+
 #NEWLAYER: bases/tropical
 layerinfo type = "theme";
 layerinfo name = "Tropical";

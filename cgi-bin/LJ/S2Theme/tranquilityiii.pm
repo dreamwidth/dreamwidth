@@ -19,5 +19,10 @@ package LJ::S2Theme::tranquilityiii::nightsea;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw( featured base ) }
 
+package LJ::S2Theme::tranquilityiii::wintergreen;
+use base qw( LJ::S2Theme::tranquilityiii );
+sub cats { qw(  ) }
+sub designer { "dancing_serpent" }
+
 1;
 
