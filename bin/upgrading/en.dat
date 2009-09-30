@@ -2815,6 +2815,24 @@ setting.synlevel.option.select.summary=Brief Summary
 
 setting.synlevel.option.select.title=Title Only
 
+setting.txtmsgsetup.details=(<a [[aopts]]>details</a>)
+
+setting.txtmsgsetup.error.notsecured=Information will not be saved if you don't allow anyone to send you messages.
+
+setting.txtmsgsetup.error.number=Phone number is missing or invalid.
+
+setting.txtmsgsetup.error.provider=Missing or invalid service provider.
+
+setting.txtmsgsetup.error.security=Invalid text message security setting.
+
+setting.txtmsgsetup.label=Text Messaging
+
+setting.txtmsgsetup.phone=Phone Number:
+
+setting.txtmsgsetup.select.provider=-- Select Carrier --
+
+setting.txtmsgsetup.vis=Who can send you text messages?
+
 setting.timezone.error.invalid=Invalid time zone.
 
 setting.timezone.label=Time Zone
@@ -2972,6 +2990,8 @@ settings.state.us=US States
 settings.usermessaging.error.invalid=Invalid Option
 
 settings.usermessaging.helper=Only registered [[sitename]] users can send you messages. You also have options to receive messages only from users on your access list.
+
+settings.usermessaging.opt.a=Everyone
 
 settings.usermessaging.opt.f=Access Only
 

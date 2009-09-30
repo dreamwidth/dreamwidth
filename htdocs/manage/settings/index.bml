@@ -93,6 +93,7 @@ body<=
             desc => $ML{'.cat.mobile.desc'},
             settings => [qw(
                 LJ::Setting::EmailPosting
+                DW::Setting::TxtMsgSetup
                 LJ::Setting::Display::MobileApps
             )],
         },
