@@ -63,6 +63,7 @@ use MIME::Words;
 BEGIN { $LJ::HAVE_DBI_PROFILE = eval "use DBI::Profile (); 1;" }
 
 use LJ::Lang;
+use LJ::Syn;
 require "htmlcontrols.pl";
 require "weblib.pl";
 require "imageconf.pl";
@@ -76,7 +77,6 @@ require "emailcheck.pl";
 require "ljmemories.pl";
 require "ljmail.pl";
 require "sysban.pl";
-require "synlib.pl";
 require "communitylib.pl";
 require "taglib.pl";
 require "schoollib.pl";
