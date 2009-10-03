@@ -1,3 +1,268 @@
+#NEWLAYER: funkycircles/atomicorange
+layerinfo "type" = "theme";
+layerinfo "name" = "Atomic Orange";
+layerinfo redist_uniq = "funkycircles/atomicorange";
+layerinfo author_name = "900degrees";
+layerinfo source_viewable = 1;
+
+set layout_resources = [ { "name" => "Stuck in Tokyo", "url" => "http://www.colourlovers.com/palette/519675/stuck_in_tokyo" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#21232b";
+set color_page_text = "#fff";
+set color_page_link = "#c1c3c7";
+set color_page_link_active = "#FF863B";
+set color_page_link_hover = "#FF863B";
+set color_page_link_visited = "#DBE4BF";
+set color_header_background = "#080E13";
+set color_page_title_background = "#DBE4BF";
+set color_page_title = "#000";
+set color_page_subtitle_background = "#ff863b";
+set color_page_subtitle = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#ff863b";
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#080E13";
+set color_entry_link = "#434343";
+set color_entry_link_hover_background  = "#FFDFCA";
+set color_entry_link_hover = "#000";
+set color_entry_link_visited = "#BD4900";
+set color_entry_footer_background = "#080E13";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#c1c3c7";
+set color_entry_footer_link_hover = "#FF863B";
+set color_entry_footer_link_visited = "#DBE4BF";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#c1c3c7";
+set color_footer_link_hover = "#FF863B";
+set color_footer_link_visited = "#DBE4BF";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/atomicorange-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/atomicorange-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_entry_list_background_url = "funkycircles/atomicorange-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/atomicorange-modulebullet.png";
+set image_module_list_active = "funkycircles/atomicorange-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/atomicorange-modulebullethover.png";
+
+function Page::print_default_stylesheets()
+{
+    $this->print_default_stylesheet();
+    if ($*external_stylesheet) {
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        print_stylesheet();
+        end_css();
+        println """</style>""";
+    }
+
+    """<style type="text/css">
+/* Modules
+***************************************************************************/
+        .module-calendar td.empty-day {
+            background-color: $*color_header_background;
+            }
+
+            .module-calendar td.entry-day a {
+                color: $*color_page_subtitle !important;
+                }
+
+                .module-calendar td.entry-day a:visited {
+                    color: $*color_page_background !important;
+                    text-decoration: none !important;
+                    }
+
+                .module-calendar td.entry-day:hover > a,
+                .module-calendar td.entry-day a:hover {
+                    color: $*color_entry_text !important;
+                    }
+    </style>""";
+}
+
+#NEWLAYER: funkycircles/chocolaterose
+layerinfo "type" = "theme";
+layerinfo "name" = "Chocolate Rose";
+layerinfo redist_uniq = "funkycircles/chocolaterose";
+layerinfo author_name = "900degrees";
+layerinfo source_viewable = 1;
+
+set layout_resources = [ { "name" => "Dirty Flamingo", "url" => "http://www.colourlovers.com/palette/854961/Dirty_Flamingo" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#4d423d";
+set color_page_text = "#fff";
+set color_page_link = "#DAD1CF";
+set color_page_link_active = "#FFBBC8";
+set color_page_link_hover = "#FFBBC8";
+set color_page_link_visited = "#FFEEB3";
+set color_header_background = "#16130f";
+set color_page_title_background = "#362C2A";
+set color_page_title = "#fff";
+set color_page_subtitle_background = "#B35B6B";
+set color_page_subtitle = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#B35B6B";
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#16130f";
+set color_entry_link = "#333";
+set color_entry_link_hover_background  = "#FFBBC8";
+set color_entry_link_hover = "#16130f";
+set color_entry_link_visited = "#AE4055";
+set color_entry_footer_background = "#16130f";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#DAD1CF";
+set color_entry_footer_link_hover = "#FFBBC8";
+set color_entry_footer_link_visited = "#FFEEB3";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#DAD1CF";
+set color_footer_link_hover = "#FFBBC8";
+set color_footer_link_visited = "#FFEEB3";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/chocolaterose-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/chocolaterose-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_background_header_position = "top right";
+set image_entry_list_background_url = "funkycircles/chocolaterose-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_entry_list_background_position = "center";
+set image_module_list = "funkycircles/chocolaterose-modulebullet.png";
+set image_module_list_active = "funkycircles/chocolaterose-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/chocolaterose-modulebullethover.png";
+
+#NEWLAYER: funkycircles/darkblue
+layerinfo "type" = "theme";
+layerinfo "name" = "Dark Blue";
+layerinfo redist_uniq = "funkycircles/darkblue";
+layerinfo author_name = "900degrees";
+layerinfo source_viewable = 1;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#2d385b";
+set color_page_text = "#fff";
+set color_page_link = "#C8C8C8";
+set color_page_link_active = "#fff";
+set color_page_link_hover = "#fff";
+set color_page_link_visited = "#B3E3FF";
+set color_header_background = "#101423";
+set color_page_title_background = "#19243c";
+set color_page_title = "#fff";
+set color_page_subtitle_background = "#6c778e";
+set color_page_subtitle = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#6c778e";
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#101423";
+set color_entry_link = "#434343";
+set color_entry_link_hover_background  = "#C8EAFF";
+set color_entry_link_hover = "#19243c";
+set color_entry_link_visited = "#1B479F";
+set color_entry_footer_background = "#101423";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#C8C8C8";
+set color_entry_footer_link_hover = "#fff";
+set color_entry_footer_link_visited = "#B3E3FF";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#C8C8C8";
+set color_footer_link_hover = "#fff";
+set color_footer_link_visited = "#B3E3FF";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/darkblue-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/darkblue-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_entry_list_background_url = "funkycircles/darkblue-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/darkblue-modulebullet.png";
+set image_module_list_active = "funkycircles/darkblue-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/darkblue-modulebullethover.png";
+
 #NEWLAYER: funkycircles/darkpurple
 layerinfo "type" = "theme";
 layerinfo "name" = "Dark Purple";
@@ -72,3 +337,404 @@ set image_entry_list_background_repeat = "no-repeat";
 set image_module_list = "funkycircles/darkpurple-modulebullet.jpg";
 set image_module_list_active = "funkycircles/darkpurple-modulebulletactive.jpg";
 set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";
+
+#NEWLAYER: funkycircles/earthygreen
+layerinfo "type" = "theme";
+layerinfo "name" = "Earthy Green";
+layerinfo redist_uniq = "funkycircles/earthygreen";
+layerinfo author_name = "900degrees";
+layerinfo source_viewable = 1;
+
+set layout_resources = [ { "name" => "Good Mood Bug", "url" => "http://www.colourlovers.com/palette/621076/good_mood_bug" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#4a684a";
+set color_page_text = "#fff";
+set color_page_link = "#F6FFE1";
+set color_page_link_active = "#E4FFA1";
+set color_page_link_hover = "#E4FFA1";
+set color_page_link_visited = "#FFDEAC";
+set color_header_background = "#1b1f15";
+set color_page_title_background = "#283723";
+set color_page_title = "#fff";
+set color_page_subtitle_background = "#F3CE97";
+set color_page_subtitle = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#F3CE97";
+set color_entry_background = "#fff";
+set color_entry_text = "#000";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#1b1f15";
+set color_entry_link = "#434343";
+set color_entry_link_hover_background  = "#D4EEB0";
+set color_entry_link_hover = "#1b1f15";
+set color_entry_link_visited = "#004D00";
+set color_entry_footer_background = "#1b1f15";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#F6FFE1";
+set color_entry_footer_link_hover = "#E4FFA1";
+set color_entry_footer_link_visited = "#FFDEAC";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#F6FFE1";
+set color_footer_link_hover = "#E4FFA1";
+set color_footer_link_visited = "#FFDEAC";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/earthygreen-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/earthygreen-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_entry_list_background_url = "funkycircles/earthygreen-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/earthygreen-modulebullet.png";
+set image_module_list_active = "funkycircles/earthygreen-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/earthygreen-modulebullethover.png";
+
+function Page::print_default_stylesheets()
+{
+    $this->print_default_stylesheet();
+    if ($*external_stylesheet) {
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        print_stylesheet();
+        end_css();
+        println """</style>""";
+    }
+
+    """<style type="text/css">
+/* Modules
+***************************************************************************/
+            .module-calendar td.entry-day a {
+                color: $*color_entry_text !important;
+                }
+
+                .module-calendar td.entry-day a:visited {
+                    color: $*color_page_title_background !important;
+                    }
+
+                .module-calendar td.entry-day:hover > a,
+                .module-calendar td.entry-day a:hover {
+                    color: $*color_entry_text !important;
+                    }
+
+    </style>""";
+}
+
+#NEWLAYER: funkycircles/industrialpink
+layerinfo "type" = "theme";
+layerinfo "name" = "Industrial Pink";
+layerinfo redist_uniq = "funkycircles/industrialpink";
+layerinfo author_name = "900degrees";
+layerinfo source_viewable = 1;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#626666";
+set color_page_text = "#fff";
+set color_page_link = "#E4E9E8";
+set color_page_link_active = "#78005A";
+set color_page_link_hover = "#FFFF00";
+set color_page_link_visited = "#FFC3FF";
+set color_header_background = "#111";
+set color_page_title_background = "#4B4C4F";
+set color_page_title = "#fff";
+set color_page_subtitle_background = "#CC1684";
+set color_page_subtitle = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#CC1684";
+set color_entry_background = "#111";
+set color_entry_text = "#fff";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#222";
+set color_entry_link = "#E4E9E8";
+set color_entry_link_hover_background  = "#FFFF00";
+set color_entry_link_hover = "#111";
+set color_entry_link_visited = "#FF85DB";
+set color_entry_footer_background = "#111";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#E4E9E8";
+set color_entry_footer_link_hover = "#FFFF00";
+set color_entry_footer_link_visited = "#FF85DB";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#E4E9E8";
+set color_footer_link_hover = "#FFFF00";
+set color_footer_link_visited = "#FFC3FF";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/industrial-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/industrial-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_entry_list_background_url = "funkycircles/industrial-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/industrialpink-modulebullet.png";
+set image_module_list_active = "funkycircles/industrial-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/industrial-modulebullethover.png";
+
+function Page::print_default_stylesheets()
+{
+    $this->print_default_stylesheet();
+    if ($*external_stylesheet) {
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        print_stylesheet();
+        end_css();
+        println """</style>""";
+    }
+
+    """<style type="text/css">
+/* Modules
+***************************************************************************/
+        .module-calendar td.entry-day {
+            background-color: $*color_page_link_hover;
+            -moz-box-shadow: .067em .067em .134em #444;
+            -webkit-box-shadow: .067em .067em .134em #444;
+            }
+
+                .module-calendar td.entry-day a:visited {
+                    color: $*color_page_background !important;
+                    }
+
+                .module-calendar td.entry-day:hover > a,
+                .module-calendar td.entry-day a:hover {
+                    color: $*color_entry_text !important;
+                    }
+    </style>""";
+}
+
+#NEWLAYER: funkycircles/industrialteal
+layerinfo "type" = "theme";
+layerinfo "name" = "Industrial Teal";
+layerinfo redist_uniq = "funkycircles/industrialteal";
+layerinfo author_name = "900degrees";
+layerinfo source_viewable = 1;
+
+set layout_resources = [ { "name" => "Top of the Pops", "url" => "http://www.colourlovers.com/palette/943055/Top_of_the_Pops" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#5A5A5A";
+set color_page_text = "#fff";
+set color_page_link = "#DDE1E0";
+set color_page_link_active = "#FFFF00";
+set color_page_link_hover = "#FFFF00";
+set color_page_link_visited = "#88F2FF";
+set color_header_background = "#111";
+set color_page_title_background = "#3D3D3D";
+set color_page_title = "#fff";
+set color_page_subtitle_background = "#1693A5";
+set color_page_subtitle = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff";
+set color_entry_border = "#1693A5";
+set color_entry_background = "#111";
+set color_entry_text = "#fff";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#222";
+set color_entry_link = "#CED2D1";
+set color_entry_link_hover_background  = "#FFFF00";
+set color_entry_link_hover = "#111";
+set color_entry_link_visited = "#88F2FF";
+set color_entry_footer_background = "#111";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#CED2D1";
+set color_entry_footer_link_hover = "#FFFF00";
+set color_entry_footer_link_visited = "#88F2FF";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_text = "#fff";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#DDE1E0";
+set color_footer_link_hover = "#FFFF00";
+set color_footer_link_visited = "#88F2FF";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/industrial-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/industrial-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_entry_list_background_url = "funkycircles/industrial-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/industrialteal-modulebullet.png";
+set image_module_list_active = "funkycircles/industrial-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/industrial-modulebullethover.png";
+
+function Page::print_default_stylesheets()
+{
+    $this->print_default_stylesheet();
+    if ($*external_stylesheet) {
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        print_stylesheet();
+        end_css();
+        println """</style>""";
+    }
+
+    """<style type="text/css">
+/* Modules
+***************************************************************************/
+        .module-calendar td.entry-day {
+            background-color: $*color_page_link_hover;
+            -moz-box-shadow: .067em .067em .134em #444;
+            -webkit-box-shadow: .067em .067em .134em #444;
+            }
+
+                .module-calendar td.entry-day a:visited {
+                    color: $*color_page_background !important;
+                    }
+
+                .module-calendar td.entry-day:hover > a,
+                .module-calendar td.entry-day a:hover {
+                    color: $*color_entry_text !important;
+                    }
+    </style>""";
+}
+
+#NEWLAYER: funkycircles/seablues
+layerinfo "type" = "theme";
+layerinfo "name" = "Sea Blues";
+layerinfo redist_uniq = "funkycircles/seablues";
+layerinfo author_name = "900degrees";
+layerinfo source_viewable = 1;
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#C2D6DC";
+set color_page_text = "#000";
+set color_page_link = "#03525C";
+set color_page_link_active = "#000";
+set color_page_link_hover = "#000";
+set color_page_link_visited = "#002F9C";
+set color_header_background = "#0a142b";
+set color_page_title_background = "#03525C";
+set color_page_title = "#fff";
+set color_page_subtitle_background = "#368F88";
+set color_page_subtitle = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#368F88";
+set color_entry_background = "#fff";
+set color_entry_text = "#000000";
+set color_entry_poster_border = "#7D7D7D";
+set color_entry_userpic_border = "#0a142b";
+set color_entry_link = "#333";
+set color_entry_link_hover_background  = "#C2D6DC";
+set color_entry_link_hover = "#02444D";
+set color_entry_link_visited = "#002F9C";
+set color_entry_footer_background = "#0a142b";
+set color_entry_footer_text = "#fff";
+set color_entry_footer_border = "#7D7D7D";
+set color_entry_footer_link = "#DFDFDF";
+set color_entry_footer_link_hover = "#fff";
+set color_entry_footer_link_visited = "#00C3B2";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_text = "#000";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#03525C";
+set color_footer_link_hover = "#000";
+set color_footer_link_visited = "#002F9C";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/seablues-page.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/seablues-header.png";
+set image_background_header_repeat = "no-repeat";
+set image_entry_list_background_url = "funkycircles/seablues-entrybullet.png";
+set image_entry_list_background_repeat = "no-repeat";
+set image_module_list = "funkycircles/seablues-modulebullet.png";
+set image_module_list_active = "funkycircles/seablues-modulebulletactive.png";
+set image_module_list_hover = "funkycircles/seablues-modulebullethover.png";
