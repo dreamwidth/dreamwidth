@@ -11,6 +11,11 @@ package LJ::S2Theme::steppingstones::chocolate;
 use base qw( LJ::S2Theme::steppingstones );
 sub cats { qw( featured ) }
 
+package LJ::S2Theme::steppingstones::cleargreen;
+use base qw( LJ::S2Theme::steppingstones );
+sub cats { qw( ) }
+sub designer { "ambrya" }
+
 package LJ::S2Theme::steppingstones::duskyrose;
 use base qw( LJ::S2Theme::steppingstones );
 sub cats { qw( ) }

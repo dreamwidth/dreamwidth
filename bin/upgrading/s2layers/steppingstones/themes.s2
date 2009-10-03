@@ -36,6 +36,55 @@ set color_module_link = "#A16E44";
 set color_module_link_visited = "#A18E70";
 
 
+#NEWLAYER: steppingstones/cleargreen
+layerinfo type = "theme";
+layerinfo name = "Clear Green";
+layerinfo redist_uniq = "steppingstones/cleargreen";
+layerinfo author_name = "ambrya";
+
+set layout_authors = [ { "name" => "ambrya", "type" => "user" }];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#b1f2aa";
+set color_page_text = "#082d06";
+set color_page_link = "#2c5f2d";
+set color_page_link_active = "#2c5f2d";
+set color_page_link_hover = "#ab2825";
+set color_page_link_visited = "#2c6337";
+set color_page_title = "#911111";
+
+set color_footer_link = "#2c6337";
+set color_footer_link_hover = "#911111";
+set color_footer_link_visited = "#2c6337";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#c3ffbc";
+set color_entry_link = "#911111";
+set color_entry_link_active = "#2c6337";
+set color_entry_link_visited = "#911111";
+set color_entry_link_hover = "#2c5f2d";
+set color_entry_interaction_links = "#911111";
+
+set color_comment_title_background = "#c3ffbc";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#c3ffbc";
+set color_module_title = "#082d06";
+set color_module_text = "#010101";
+set color_module_link = "#911111";
+set color_module_link_hover = "#2c5f2d";
+set color_module_link_visited = "#911111";
+
+
 #NEWLAYER: steppingstones/duskyrose
 layerinfo "type" = "theme";
 layerinfo "name" = "Dusky Rose";
