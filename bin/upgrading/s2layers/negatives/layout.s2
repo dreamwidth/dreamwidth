@@ -433,6 +433,42 @@ function Page::print_default_stylesheet()
 	margin-left: 0;
 	padding-left: 0;
     }
+
+    .tags-container {
+        color: $*color_entry_text;
+        margin: 5px;
+        padding: 5px;
+        $entry_background;
+    }
+
+    .tags-container h2 {
+        font-weight: bold !important;
+        margin: 0 !important;
+        padding-bottom: 10px !important;
+        $entry_title_font
+    }
+
+    .tags-container .ljtaglist {
+        padding-bottom: 5px !important;
+    }
+
+    .tags-container a {
+        color: $*color_entry_link !important;
+    }
+    .tags-container a:visited {
+        color: $*color_entry_link_visited !important;
+    }
+    .tags-container a:hover {
+        color: $*color_entry_link_hover !important;
+    }
+    .tags-container a:active {
+        color: $*color_entry_link_active !important;
+    }
+
+    .page-tags .manage-tags-link {
+        text-align: center;
+    }
+
    .module-navlinks ul, .module-navlinks li {
         font-weight: bold;
         display: inline;
