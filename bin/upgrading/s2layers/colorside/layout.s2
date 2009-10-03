@@ -7,12 +7,6 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "two-columns-right";
 
-function prop_init {
-    if ( $*image_background_header_url != "" and not $*image_background_header_url->starts_with("http")  ) {
-        $*image_background_header_url = "$*STATDIR/$*image_background_header_url";
-    }
-}
-
 function Page::print()
 {
     """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";

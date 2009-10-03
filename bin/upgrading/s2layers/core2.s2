@@ -2966,6 +2966,16 @@ function FriendsPage::print_stylesheets() {
         }
 }
 
+function generate_image_url ( string image_path ) : string
+"Take an image property and append static diretory path if not given absolute path"
+{
+    if ( $image_path != "" and not $image_path->starts_with("http://") ) {
+        $image_path = "$*STATDIR/$image_path";
+    }
+
+    return $image_path;
+}
+
 function generate_background_css (
     string background_image, 
     string background_image_repeat, 
@@ -2978,6 +2988,7 @@ line of CSS for inclusion in your stylesheet."
     var string color = ($background_color.as_string != "") ? $background_color.as_string : "transparent";
     var string background_css = "background: $color";
 
+    $background_image = generate_image_url ($background_image);
     if ($background_image != "") {
         $background_css = $background_css + " url($background_image) $background_image_repeat $background_image_position";
     }

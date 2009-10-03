@@ -7,12 +7,6 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "two-columns-left";
 
-function prop_init {
-    if ( $*image_background_header_url != "" and not $*image_background_header_url->starts_with("http")  ) {
-        $*image_background_header_url = "$*STATDIR/$*image_background_header_url";
-    }
-}
-
 function print_stylesheet() {
 
     var string header_colors = generate_color_css( new Color, $*color_header_background, new Color );

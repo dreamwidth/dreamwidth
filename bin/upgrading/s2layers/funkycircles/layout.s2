@@ -81,33 +81,6 @@ set font_entry_title_units ="em";
 set font_module_heading_size = "1.2";
 set font_module_heading_units = "em";
 
-function prop_init {
-    if ( $*image_background_page_url != "" and not $*image_background_page_url->starts_with("http")  ) {
-        $*image_background_page_url = "$*STATDIR/$*image_background_page_url";
-    }
-
-    if ( $*image_background_header_url != "" and not $*image_background_header_url->starts_with("http")  ) {
-        $*image_background_header_url = "$*STATDIR/$*image_background_header_url";
-    }
-
-    if ( $*image_entry_list_background_url != "" and not $*image_entry_list_background_url->starts_with("http")  ) {
-        $*image_entry_list_background_url = "$*STATDIR/$*image_entry_list_background_url";
-    }
-
-    if ( $*image_module_list != "" and not $*image_module_list->starts_with("http")  ) {
-        $*image_module_list = "$*STATDIR/$*image_module_list";
-    }
-
-    if ( $*image_module_list_active != "" and not $*image_module_list_active->starts_with("http")  ) {
-        $*image_module_list_active = "$*STATDIR/$*image_module_list_active";
-    }
-
-    if ( $*image_module_list_hover != "" and not $*image_module_list_hover->starts_with("http")  ) {
-        $*image_module_list_hover = "$*STATDIR/$*image_module_list_hover";
-    }
-
-}
-
 function print_stylesheet () {
 
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, "", $*color_header_background);
@@ -118,6 +91,9 @@ function print_stylesheet () {
     var string page_title_colors = generate_color_css($*color_page_title, $*color_page_title_background, new Color);
     var string page_subtitle_colors = generate_color_css($*color_page_subtitle, $*color_page_subtitle_background, new Color);
     var string module_title_colors = generate_color_css($*color_module_title, new Color, new Color);
+    var string image_module_list_url = generate_image_url($*image_module_list);
+    var string image_module_list_active_url = generate_image_url($*image_module_list_active);
+    var string image_module_list_hover_url = generate_image_url($*image_module_list_hover);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
@@ -840,13 +816,13 @@ h2#pagetitle {
 ***************************************************************************/
 
 .module li {
-    list-style: url($*image_module_list) disc;
+    list-style: url($image_module_list_url) disc;
     margin: .5em;
     }
 
 
 .module-navlinks li.current {
-        list-style: url($*image_module_list_active) disc;
+        list-style: url($image_module_list_active_url) disc;
         }
 
     .module-navlinks li a.current {
@@ -855,7 +831,7 @@ h2#pagetitle {
         }
 
     .module-navlinks li:hover {
-        list-style: url($*image_module_list_hover) disc;
+        list-style: url($image_module_list_hover_url) disc;
         }
 
 .module-tags_multilevel ul li {

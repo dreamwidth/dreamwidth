@@ -215,33 +215,12 @@ set module_links_order         = 3;
 # Functions
 ################################################################################
 
-# Prop Init
-# Initialize the module groups and header images.
-################################################################################
-function prop_init()
-{
-    if ( $*image_background_header_url != "" and not $*image_background_header_url->starts_with("http") )
-    {
-        $*image_background_header_url = "$*STATDIR/$*image_background_header_url";
-    }
-    if ( $*image_module_header_url != "" and not $*image_module_header_url->starts_with("http") )
-    {
-        $*image_module_header_url = "$*STATDIR/$*image_module_header_url";
-    }
-    if ( $*image_header_left != "" and not $*image_header_left->starts_with("http") )
-    {
-        $*image_header_left = "$*STATDIR/$*image_header_left";
-    }
-    if ( $*image_header_right != "" and not $*image_header_right->starts_with("http") )
-    {
-        $*image_header_right = "$*STATDIR/$*image_header_right";
-    }
-}
-
 # Prints out the stylesheet for Drifting
 ################################################################################
 function Page::print_default_stylesheet()
 {
+    var string image_header_left_url = generate_image_url ($*image_header_left);
+    var string image_header_right_url = generate_image_url ($*image_header_right);
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_module_title);
     if ($*image_background_header_height > 0) {
@@ -359,7 +338,7 @@ function Page::print_default_stylesheet()
     }
 
     .header-left {
-        background-image: url($*image_header_left);
+        background-image: url($image_header_left_url);
         background-repeat: no-repeat;
         height: 4.7em;
         float: left;
@@ -367,7 +346,7 @@ function Page::print_default_stylesheet()
     }
 
     .header-right {
-        background-image: url($*image_header_right);
+        background-image: url($image_header_right_url);
         height: 4.7em;
         float: right;
         width: 250px;
