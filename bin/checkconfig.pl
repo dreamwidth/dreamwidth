@@ -70,10 +70,10 @@ my %modules = (
                "Compress::Zlib" => { 'deb' => 'libcompress-zlib-perl', },
                "Net::DNS" => { 'deb' => 'libnet-dns-perl', },
                "Net::OpenID::Server" => {
-                   opt => 'Required for OpenID support.'
+                   opt => 'Required for OpenID server support.'
                },
-               "Net::OpenID::Server" => {
-                   opt => 'Required for OpenID support.'
+               "Net::OpenID::Consumer" => {
+                   opt => 'Required for OpenID consumer support.'
                },
                "URI::URL" => { 'deb' => 'liburi-perl' },
                "HTML::Tagset" => { 'deb' => 'libhtml-tagset-perl' },
