@@ -302,6 +302,33 @@ sub userpic_stats {
 }
 
 
+# returns the account's PubSubHubbub information
+# available only for syndication account types
+sub hubbub_info_rows {
+    my $self = $_[0];
+
+    my $u = $self->{u};
+    return () unless $u->is_syndicated && LJ::is_enabled( 'hubbub' );
+
+    # FIXME: should probably have a PubSubHubbub module that gets this sort
+    # of thing so we don't have to scatter SQL in the profile logic...
+    my $dbr = LJ::get_db_reader();
+
+    # for each subscription we have active, return a hash of the information
+    my $subs = $dbr->selectall_hashref(
+        q{SELECT id, userid, huburl, topicurl, UNIX_TIMESTAMP() - lastseenat AS 'lastseen',
+                 leasegoodto, timespinged
+          FROM syndicated_hubbub2
+          WHERE userid = ?},
+        'id', undef, $u->id
+    );
+    return () if $dbr->err;
+
+    # return this as an array sorted by id (just keeps it stable)
+    return sort { $a->{id} <=> $b->{id} } values %{ $subs || {} };
+}
+
+
 # returns array of hashrefs
 sub basic_info_rows {
     my $self = $_[0];
@@ -553,10 +580,9 @@ sub _basic_info_syn_status {
     my $self = $_[0];
 
     my $u = $self->{u};
+    return () unless $u->is_syndicated;
+
     my $ret = [];
-
-    return $ret unless $u->is_syndicated;
-
     my $synd = $u->get_syndicated;
     my $syn_status;
 
@@ -591,10 +617,9 @@ sub _basic_info_syn_readers {
     my $self = $_[0];
 
     my $u = $self->{u};
+    return () unless $u->is_syndicated;
+
     my $ret = [];
-
-    return $ret unless $u->is_syndicated;
-
     $ret->[0] = LJ::Lang::ml( '.label.syndreadcount' );
     $ret->[1] = scalar $u->watched_by_userids;
 

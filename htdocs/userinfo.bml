@@ -464,6 +464,42 @@ body<=
     }
 
 ################################################################################
+##### PUBSUBHUBBUB INFORMATION FOR SYNDICATED ACCOUNTS
+
+    my $fredbody = '';
+
+    if ( $is_full && ( my @rows = $profile->hubbub_info_rows ) ) {
+        foreach my $row (@rows) {
+            my @data = (
+                id => $row->{id},
+                pings => $row->{timespinged},
+                huburl => LJ::ehtml( $row->{huburl} ),
+                topicurl => LJ::ehtml( $row->{topicurl} ),
+                lastseen => LJ::ago_text( $row->{lastseen} ),
+                goodfor => LJ::mysql_time( $row->{leasegoodto} ),
+            );
+
+            my @row_texts;
+            while ( @data && ( my ( $ml, $txt ) = splice( @data, 0, 2 ) ) ) {
+                push @row_texts, LJ::Lang::ml( '.label.syn.hubbub.' . $ml ) . '</th><td>' . $txt;
+            }
+
+            $fredbody .= q{ <div class="userinfo"><table><tr><th> };
+            $fredbody .= join( '</td></tr><tr><th>', @row_texts );
+            $fredbody .= q{ </td></tr></table></div> };
+        }
+    }
+
+    if ( $fredbody ) {
+        $ret .= $content_block->(
+            section_name    => 'hubbub',
+            section_name_ml => '.hubbub.header',
+            body            => $fredbody,
+        );
+    }
+
+
+################################################################################
 ##### BIO
 
     my $biobody = '';

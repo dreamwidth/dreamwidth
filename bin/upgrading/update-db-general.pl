@@ -1251,6 +1251,7 @@ CREATE TABLE syndicated_hubbub2 (
     verifytoken VARCHAR(64) NOT NULL,
     lastseenat INT UNSIGNED NOT NULL,
     leasegoodto INT UNSIGNED,
+    timespinged INT UNSIGNED NOT NULL DEFAULT '0',
 
     UNIQUE (userid, huburl, topicurl),
     UNIQUE (verifytoken),
@@ -3786,6 +3787,11 @@ register_alter(sub {
     unless ( column_type( 'import_data', 'usejournal' ) ) {
         do_alter( 'import_data',
                   q{ALTER TABLE import_data ADD COLUMN usejournal VARCHAR(255) AFTER username} );
+    }
+
+    unless ( column_type( 'syndicated_hubbub2', 'timespinged' ) ) {
+        do_alter( 'syndicated_hubbub2',
+                  q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
     }
 
 });

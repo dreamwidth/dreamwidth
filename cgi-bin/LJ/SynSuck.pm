@@ -512,7 +512,7 @@ sub process_hubbub_notification {
 
     # needed for the future; get it early
     my $sclient = LJ::theschwartz() or die;
-    my $dbr = LJ::get_db_reader() or die;
+    my $dbh = LJ::get_db_writer() or die;
 
     # FIXME: this probably will explode horribly with aggregated content, so as
     # soon as that becomes supported somewhere, we need to fix this
@@ -540,19 +540,28 @@ sub process_hubbub_notification {
     # allow N feeds to have the same topic url and we schedule a refresh for all of them.
     # a little more work for us and potentially more traffic, but it's better than the
     # alternative...
-    my @uids;
+    my ( %uniqid, @rows );
     foreach my $topic ( @{ $feed->{self} } ) {
-        my $uids = $dbr->selectcol_arrayref(
-            'SELECT userid FROM syndicated_hubbub2 WHERE topicurl = ?',
+        my $rowrefs = $dbh->selectall_arrayref(
+            'SELECT id, userid FROM syndicated_hubbub2 WHERE topicurl = ?',
             undef, $topic
         );
-        die if $dbr->err;
+        die if $dbh->err;
 
-        push @uids, @{ $uids || [] };
+        foreach my $row ( @$rowrefs ) {
+            next if $uniqid{$row->[0]}++;
+            push @rows, $row;
+        }
     }
 
     # iterate over each user
-    foreach my $uid ( @uids ) {
+    foreach my $row ( @rows ) {
+        my ( $id, $uid ) = @$row;
+
+        # update the times pinged of this row
+        $dbh->do( 'UPDATE syndicated_hubbub2 SET timespinged = timespinged + 1 WHERE id = ?',
+                  undef, $id );
+
         # user must still be visible for us to care
         my $u = LJ::load_userid( $uid ) or die;
         next unless $u->is_visible;
@@ -573,12 +582,4 @@ sub process_hubbub_notification {
 }
 
 
-
 1;
-
-
-# Local Variables:
-# mode: perl
-# c-basic-indent: 4
-# indent-tabs-mode: nil
-# End:

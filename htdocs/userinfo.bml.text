@@ -148,6 +148,8 @@
 
 .flag=Flag Journal
 
+.hubbub.header=PubSubHubbub Status
+
 .im.aol=AIM
 
 .im.aol.status=AIM status
@@ -289,6 +291,18 @@
 .label.syndicatedstatus=Syndication Status:
 
 .label.syndreadcount=Number of Readers:
+
+.label.syn.hubbub.goodfor=Expiration time:
+
+.label.syn.hubbub.huburl=Hub URL:
+
+.label.syn.hubbub.id=Subscription id:
+
+.label.syn.hubbub.lastseen=Last seen at:
+
+.label.syn.hubbub.pings=Pings received:
+
+.label.syn.hubbub.topicurl=Topic URL:
 
 .label.textmessage=<nobr>Text<br>Message</nobr>:
 
