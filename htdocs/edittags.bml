@@ -90,9 +90,12 @@ body<=
     $ret .= '<table class="edittbl" cellpadding="0" cellspacing="0" width="50%">';
     $ret .= "<tr><td class='l'>$ML{'.subject'}</td><td>$subj</td></tr>" if $subj;
 
-    $ret .= "<tr><td class='l'>$ML{'.current'}</td>";
     $ret .= '<form method="POST" action="/edittags" id="edit_tagform">';
+    $ret .= LJ::html_hidden('journal', $journal);
+    $ret .= LJ::html_hidden('itemid', $GET{itemid} || $POST{itemid});
     $ret .= LJ::form_auth();
+
+    $ret .= "<tr><td class='l'>$ML{'.current'}</td>";
     $ret .= "<td class='sep'>";
     if ( LJ::Tags::can_add_tags($u, $remote) ) {
         $ret .= LJ::html_text(
@@ -131,12 +134,11 @@ body<=
     $ret .= "$ML{'.permissions.control.yes'}<br />" if LJ::Tags::can_control_tags($u, $remote);
     $ret .= BML::ml('.view', { aopts => 'href="' . LJ::journal_base($u) . "/$ditemid.html" . '"' });
     $ret .= "</td></tr>";
+    $ret .= '</form>';
+
     $ret .= "<tr><td class='l'>$ML{'.entry'}</td><td class='sep' style='white-space: normal'>$evt</td></tr>";
 
     $ret .= '</table>';
-    $ret .= LJ::html_hidden('journal', $journal);
-    $ret .= LJ::html_hidden('itemid', $GET{itemid} || $POST{itemid});
-    $ret .= '</form>';
 
     return $ret;
 }
