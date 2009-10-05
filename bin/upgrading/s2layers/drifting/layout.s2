@@ -29,6 +29,8 @@ propgroup colors
     property use color_page_border;
     property use color_page_title;
 
+    property use color_header_background;
+
     property use color_module_border;
     property use color_module_title;
     property use color_page_link_visited;
@@ -51,6 +53,8 @@ set color_page_link               = "";
 set color_page_link_visited       = "";
 set color_page_link_active        = "";
 set color_page_border             = "";
+
+set color_header_background       = "";
 
 set color_module_border           = "";
 set color_module_title            = "";
@@ -222,7 +226,7 @@ function Page::print_default_stylesheet()
     var string image_header_left_url = generate_image_url ($*image_header_left);
     var string image_header_right_url = generate_image_url ($*image_header_right);
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
-    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_module_title);
+    var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
         $header_background = """
             $header_background

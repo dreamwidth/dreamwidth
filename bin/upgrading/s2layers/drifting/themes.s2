@@ -10,6 +10,8 @@ set color_page_link_visited       = "#234163";
 set color_page_link_active        = "#ff0000";
 set color_page_border             = "#5a799d";
 
+set color_header_background       = "#5a799d";
+
 set color_module_border           = "#5a799d";
 set color_module_title            = "#5a799d";
 
@@ -40,6 +42,7 @@ set color_entry_border = "#80404f";
 set color_entry_text = "#ffe6eb";
 set color_entry_title = "#ff80eb";
 set color_module_border = "#ffe6eb";
+set color_header_background = "#000000";
 set color_module_title = "#000000";
 set color_page_background = "#80404f";
 set color_page_border = "#ffe6eb";
