@@ -307,15 +307,22 @@ sub find_matching_acct {
 
     my @accts = DW::External::Account->get_external_accounts($u);
 
-    my $dh = $data->{hostname};
+    my $dh = lc( $data->{hostname} );
     $dh =~ s/^www\.//;
 
+    my $duser = lc( $data->{username} );
+    $duser =~ s/-/_/g;
+
+
     foreach my $acct (@accts) {
-        my $sh = $acct->serverhost;
+        my $sh = lc( $acct->serverhost );
         $sh =~ s/^www\.//;
 
-        next unless lc( $sh ) eq lc( $dh );
-        next unless lc( $acct->username ) eq lc( $data->{username} );
+        my $suser = lc( $acct->username );
+        $suser =~ s/-/_/g;
+
+        next unless $sh eq $dh;
+        next unless $suser eq $duser;
         return $acct;
     }
 
