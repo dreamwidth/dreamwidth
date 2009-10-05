@@ -1378,7 +1378,10 @@ sub talkform {
 
         if (LJ::OpenID->consumer_enabled) {
             # OpenID user can post if the account has validated e-mail address
-            if (defined $oid_identity && $remote->is_validated) {
+            # or if the account has been granted access by the journal
+            if ( defined $oid_identity && ( $remote->is_validated ||
+                                            $journalu->trusts( $remote ) )
+               ) {
                 my $logged_in = LJ::ehtml($remote->display_name);
                 $ret .= "<tr valign='middle' id='oidli' name='oidli'>";
                 if (LJ::is_banned($remote, $journalu)) {
