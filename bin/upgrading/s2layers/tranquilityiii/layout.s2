@@ -247,6 +247,10 @@ text-align: center; }
 #tertiary a { color: $*color_module_link; }
 #secondary a:visited,
 #tertiary a:visited { color: $*color_module_link_visited; }
+#secondary a:hover,
+#tertiary a:hover { color: $*color_module_link_hover; }
+#secondary a:active,
+#tertiary a:active { color: $*color_module_link_active; }
 
 #secondary > .inner:first-child,
 #tertiary > .inner:first-child { margin: 1em;
