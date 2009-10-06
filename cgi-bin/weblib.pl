@@ -2625,19 +2625,12 @@ sub control_strip
             $ret .= "<br />";
             if ( $view eq "read" ) {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
-                my %res;
-                # FIXME: Add this in when we have reading filter support!
-                my %group;
-                foreach my $k (keys %res) {
-                    if ($k =~ /^frgrp_(\d+)_name/) {
-                        $group{$1}->{'name'} = $res{$k};
-                    }
-                    elsif ($k =~ /^frgrp_(\d+)_sortorder/) {
-                        $group{$1}->{'sortorder'} = $res{$k};
-                    }
-                }
-                foreach my $g (sort { $group{$a}->{'sortorder'} <=> $group{$b}->{'sortorder'} } keys %group) {
-                    push @filters, "filter:" . lc($group{$g}->{'name'}), $group{$g}->{'name'};
+                # content_filters returns an array of content filters this user had, sorted by sortorder
+                # since this is only shown if LJ::u_equals($remote, $journal) , we don't have to care whether a filter is public or not
+                my @custom_filters = $journal->content_filters;
+
+                foreach my $f ( @custom_filters ) {
+                     push @filters, "filter:" . $f->name, $f->name;
                 }
 
                 my $selected = "all";
