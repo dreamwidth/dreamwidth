@@ -9,11 +9,11 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::steppingstones::chocolate;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( featured ) }
+sub cats { qw( ) }
 
 package LJ::S2Theme::steppingstones::cleargreen;
 use base qw( LJ::S2Theme::steppingstones );
-sub cats { qw( ) }
+sub cats { qw(featured ) }
 sub designer { "ambrya" }
 
 package LJ::S2Theme::steppingstones::duskyrose;

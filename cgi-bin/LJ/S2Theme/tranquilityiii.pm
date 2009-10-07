@@ -17,11 +17,11 @@ sub cats { qw() }
 
 package LJ::S2Theme::tranquilityiii::nightsea;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw( featured base ) }
+sub cats { qw(base ) }
 
 package LJ::S2Theme::tranquilityiii::wintergreen;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw(  ) }
+sub cats { qw( featured  ) }
 sub designer { "dancing_serpent" }
 
 1;

@@ -9,11 +9,11 @@ sub designer { "renoir" }
 
 package LJ::S2Theme::blanket::peach;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( featured base ) }
+sub cats { qw( base ) }
 
 package LJ::S2Theme::blanket::sprung;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw(  ) }
+sub cats { qw( featured  ) }
 sub designer { "zvi" }
 
 1;

@@ -21,7 +21,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::eggplant;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw( featured ) }
+sub cats { qw( ) }
 sub designer { "kareila" }
 
 package LJ::S2Theme::basicboxes::green;
@@ -43,7 +43,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::repose;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw() }
+sub cats { qw( featured ) }
 sub designer { "twtd" }
 
 1;

@@ -21,11 +21,11 @@ sub cats { qw( ) }
 
 package LJ::S2Theme::funkycircles::darkpurple;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( featured base ) }
+sub cats { qw( base ) }
 
 package LJ::S2Theme::funkycircles::earthygreen;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::funkycircles::industrialpink;
 use base qw( LJ::S2Theme::funkycircles );
