@@ -17,7 +17,7 @@ use strict;
 use warnings;
 
 sub should_render {
-    1;
+    $_[1] ? 1 : 0;
 }
 
 sub label {
