@@ -18,6 +18,7 @@ package DW::Widget::ReadingList;
 
 use strict;
 use base qw/ LJ::Widget /;
+use DW::User::ContentFilters;
 
 sub render_body {
     my ( $class, %opts ) = @_;
@@ -34,7 +35,20 @@ sub render_body {
     $ret .= "<p>" . $class->ml( 'widget.readinglist.breakdown.header' ) . "</p>";
     $ret .= "<ul><li>" . $class->ml( 'widget.readinglist.breakdown.personal', { num => $count{personal} + 0 } ) . "</li>";
     $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.communities', { num => $count{community} + 0 } ) . "</li>";
-    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.feeds', { num => $count{syndicated} + 0 } ) . "</li></ul>";
+    $ret .= "<li>" . $class->ml( 'widget.readinglist.breakdown.feeds', { num => $count{syndicated} + 0 } ) . "</li></ul><br />";
+
+    my @filters = $remote->content_filters;
+
+    if ( @filters ) {
+        $ret .= $class->ml( 'widget.readinglist.filters.title' );
+        $ret .= "<ul>";
+        foreach my $filter ( @filters ) {
+            $ret .= "<li><a href='" . $remote->journal_base . "/read/" . LJ::eurl( $filter->{name} ) . "'>" . $filter->{name} . "</a></li>\n";
+        }
+        $ret .= "</ul>";
+    } else {
+        $ret .= $class->ml( 'widget.readinglist.filters.nofilters', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/filters'" } );
+    }
 
     return $ret;
 }

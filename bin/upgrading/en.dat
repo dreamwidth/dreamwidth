@@ -4537,6 +4537,10 @@ widget.readinglist.breakdown.header=You are currently reading:
 
 widget.readinglist.breakdown.personal=[[num]] personal journals
 
+widget.readinglist.filters.nofilters=You currently have no subscription filters. Would you like to <a [[aopts]]>create some</a>?
+
+widget.readinglist.filters.title=Your Subscription Filters
+
 widget.readinglist.readpage=Check out recent updates on your <a [[aopts]]>reading list</a>!
 
 widget.readinglist.title=Reading List
