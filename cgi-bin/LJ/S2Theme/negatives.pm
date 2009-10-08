@@ -16,6 +16,11 @@ use base qw( LJ::S2Theme::negatives );
 sub cats { qw(featured) }
 sub designer { "zvi" }
 
+package LJ::S2Theme::negatives::lightondark;
+use base qw( LJ::S2Theme::negatives );
+sub cats { qw() }
+sub designer { "cesy" }
+
 package LJ::S2Theme::negatives::limecherry;
 use base qw( LJ::S2Theme::negatives );
 sub cats { qw() }
