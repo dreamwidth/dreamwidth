@@ -35,6 +35,92 @@ set color_module_link = "#eAdDc6";
 set color_module_link_visited = "#CABDA6";
 
 
+#NEWLAYER: tranquilityiii/lightondark
+layerinfo type = "theme";
+layerinfo name = "Light On Dark";
+layerinfo redist_uniq = "tranquilityiii/lightondark";
+layerinfo author_name = "cesy";
+
+set layout_authors = [ { "name" => "cesy", "type" => "user" }];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#666666";
+set color_page_border = "#666666";
+set color_page_text = "#ffffff";
+set color_page_link = "#ddddff";
+set color_page_link_active = "#ffcccc";
+set color_page_link_hover = "#ccffcc";
+set color_page_link_visited = "#ffffcc";
+
+set color_header_background = "#009900";
+set color_page_title = "#ffffff";
+
+set color_footer_background = "#000000";
+set color_footer_link = "#ddddff";
+set color_footer_link_active = "#ffcccc";
+set color_footer_link_hover = "#ccffcc";
+set color_footer_link_visited = "#ffffcc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000000";
+set color_entry_border = "#cccccc";
+set color_entry_text = "#ffffff";
+set color_entry_link = "#ddddff";
+set color_entry_link_active = "#ffcccc";
+set color_entry_link_hover = "#ccffcc";
+set color_entry_link_visited = "#ffffcc";
+set color_entry_interaction_links = "#ffffff";
+
+set color_entry_title_background = "#009900";
+set color_entry_title = "#ffffff";
+
+set color_comment_title_background = "#009900";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#666666";
+set color_module_border = "#eeeeee";
+set color_module_text = "#ffffff";
+set color_module_link = "#ddddff";
+set color_module_link_active = "#ffcccc";
+set color_module_link_hover = "#ccffcc";
+set color_module_link_visited = "#ffffcc";
+
+set color_module_title_background = "#000000";
+set color_module_title = "#ffffff";
+
+function Page::print_default_stylesheets() 
+{
+    $this->print_default_stylesheet();
+    if ($*external_stylesheet) {
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        print_stylesheet();
+        end_css();
+        println """</style>""";
+    }
+
+    """<style type="text/css">
+
+    .entry-title, .module-header { padding-left: .5em; }
+    .module-header { margin-bottom: .2em; }
+    .comment-title { padding: .3em; }
+
+    </style>""";
+}
+
+
 #NEWLAYER: tranquilityiii/lilac
 layerinfo "type" = "theme";
 layerinfo "name" = "Lilac";
@@ -106,6 +192,133 @@ set color_module_background = "#678";
 set color_module_text = "#eee";
 set color_module_link = "#012";
 set color_module_link_visited = "#234";
+
+
+#NEWLAYER: tranquilityiii/olive
+layerinfo type = "theme";
+layerinfo name = "Olive";
+layerinfo redist_uniq = "tranquilityiii/olive";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" }];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#666333";
+set color_page_border = "#666333";
+set color_page_text = "#000000";
+set color_page_link = "#cc6600";
+set color_page_link_active = "#cc6600";
+set color_page_link_hover = "#ff9933";
+set color_page_link_visited = "#cc6600";
+
+set color_header_background = "#cccc99";
+set color_page_title = "#000000";
+
+set color_footer_background = "#cccc99";
+set color_footer_link = "#666333";
+set color_footer_link_active = "#666333";
+set color_footer_link_hover = "#999900";
+set color_footer_link_visited = "#666333";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#cc6600";
+set color_entry_text = "#000000";
+set color_entry_link = "#666333";
+set color_entry_link_active = "#666333";
+set color_entry_link_hover = "#999900";
+set color_entry_link_visited = "#666333";
+set color_entry_interaction_links = "#cc6600";
+
+set color_entry_title_background = "#cccc99";
+set color_entry_title = "#000000";
+
+set color_comment_title_background = "#cccc99";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#cccc99";
+set color_module_border = "#cccc99";
+set color_module_text = "#000000";
+set color_module_link = "#666333";
+set color_module_link_active = "#666333";
+set color_module_link_hover = "#999900";
+set color_module_link_visited = "#666333";
+
+set color_module_title_background = "#cccc99";
+set color_module_title = "#000000";
+
+
+#NEWLAYER: tranquilityiii/shallows
+layerinfo type = "theme";
+layerinfo name = "Shallows";
+layerinfo redist_uniq = "tranquilityiii/shallows";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" }];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#556b80";
+set color_page_border = "#556b80";
+set color_page_text = "#000000";
+set color_page_link = "#0a566c";
+set color_page_link_active = "#0a566c";
+set color_page_link_hover = "#6ab1b2";
+set color_page_link_visited = "#0a566c";
+
+set color_page_title = "#000000";
+set color_header_background = "#6ab1b2";
+
+set color_footer_background = "#6ab1b2";
+set color_footer_link = "#effeff";
+set color_footer_link_active = "#effeff";
+set color_footer_link_hover = "#0a566c";
+set color_footer_link_visited = "#effeff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#effeff";
+set color_entry_border = "#effeff";
+set color_entry_text = "#000000";
+set color_entry_link = "#0a566c";
+set color_entry_link_active = "#0a566c";
+set color_entry_link_hover = "#6ab1b2";
+set color_entry_link_visited = "#0a566c";
+set color_entry_interaction_links = "#0a566c";
+
+set color_entry_title_background = "#effeff";
+set color_entry_title = "#000000";
+
+set color_comment_title_background = "#effeff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#6ab1b2";
+set color_module_border = "#6ab1b2";
+set color_module_text = "#000000";
+set color_module_link = "#effeff";
+set color_module_link_active = "#effeff";
+set color_module_link_hover = "#0a566c";
+set color_module_link_visited = "#effeff";
+
+set color_module_title = "#000000";
+set color_module_title_background = "#6ab1b2";
+
 
 #NEWLAYER: tranquilityiii/wintergreen
 layerinfo type = "theme";

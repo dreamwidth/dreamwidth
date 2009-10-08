@@ -11,6 +11,11 @@ package LJ::S2Theme::tranquilityiii::brick;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw() }
 
+package LJ::S2Theme::tranquilityiii::lightondark;
+use base qw( LJ::S2Theme::tranquilityiii );
+sub cats { qw( ) }
+sub designer { "cesy" }
+
 package LJ::S2Theme::tranquilityiii::lilac;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw() }
@@ -18,6 +23,16 @@ sub cats { qw() }
 package LJ::S2Theme::tranquilityiii::nightsea;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw(base ) }
+
+package LJ::S2Theme::tranquilityiii::olive;
+use base qw( LJ::S2Theme::tranquilityiii );
+sub cats { qw(  ) }
+sub designer { "dancing_serpent" }
+
+package LJ::S2Theme::tranquilityiii::shallows;
+use base qw( LJ::S2Theme::tranquilityiii );
+sub cats { qw(  ) }
+sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::tranquilityiii::wintergreen;
 use base qw( LJ::S2Theme::tranquilityiii );
