@@ -18,7 +18,6 @@ package DW::Widget::ReadingList;
 
 use strict;
 use base qw/ LJ::Widget /;
-use DW::User::ContentFilters;
 
 sub render_body {
     my ( $class, %opts ) = @_;
