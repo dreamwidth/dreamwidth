@@ -43,7 +43,7 @@ sub render_body {
         $ret .= $class->ml( 'widget.readinglist.filters.title' );
         $ret .= "<ul>";
         foreach my $filter ( @filters ) {
-            $ret .= "<li><a href='" . $remote->journal_base . "/read/" . LJ::eurl( $filter->{name} ) . "'>" . $filter->{name} . "</a></li>\n";
+            $ret .= "<li><a href='" . $remote->journal_base . "/read/" . LJ::eurl( $filter->name ) . "'>" . $filter->name . "</a></li>\n";
         }
         $ret .= "</ul>";
     } else {
