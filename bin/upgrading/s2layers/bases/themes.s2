@@ -36,6 +36,58 @@ set color_module_link_active = "#ff9090";
 set color_module_text = "#503125";
 set color_entry_background = "#f5e4da";
 
+#NEWLAYER: bases/sunandsand
+layerinfo type = "theme";
+layerinfo name = "Sun and Sand";
+layerinfo redist_uniq = "bases/sunandsand";
+layerinfo author_name = "twtd";
+
+set layout_authors = [ { "name" => "twtd", "type" => "user" }];
+
+set color_page_background = "#086CA2";
+set color_page_text = "#606060"; 
+set color_page_link = "#D47402";
+set color_page_link_active = "#D47402";
+set color_page_link_hover = "#086CA2";
+set color_page_link_visited = "#FF8B00"; 
+set color_page_border = "#dddddd";
+set color_page_title = "#606060";
+
+set color_header_background = "#ffffff";
+
+set color_module_background = "#ffffff";
+set color_module_border = "#dddddd";
+set color_module_link = "#D47402";
+set color_module_link_active = "#D47402";
+set color_module_link_hover = "#086CA2";
+set color_module_link_visited = "#D47402";
+set color_module_text = "#606060";
+set color_module_title = "#ffffff";
+set color_module_title_background = "#FF8B00";
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#dddddd";
+set color_entry_interaction_links = "#ffffff";
+set color_entry_link = "#B66300";
+set color_entry_link_active = "#B66300";
+set color_entry_link_hover = "#086CA2";
+set color_entry_link_visited = "#D47402";
+set color_entry_text = "#606060";
+set color_entry_title = "#FFE08C";
+set color_entry_title_background = "#ffffff";
+
+set color_comment_title_background = "#FDF3DA";
+
+set image_background_module_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_module_repeat = "repeat";
+set image_background_header_position = "top left";
+set image_background_page_position = "top right";
+set image_background_page_url = "bases/sunandsand-background.png";
+set image_background_page_repeat = "no-repeat";
+set image_background_header_repeat = "repeat";
+set image_background_entry_position = "top left";
+
 #NEWLAYER: bases/tropical
 layerinfo type = "theme";
 layerinfo name = "Tropical";
@@ -75,7 +127,6 @@ set color_entry_title = "#00b4b4";
 set color_entry_title_background = "#ffffff";
 
 set color_comment_title_background = "#d1efef";
-
 
 #NEWLAYER: bases/summerholiday
 layerinfo type = "theme";

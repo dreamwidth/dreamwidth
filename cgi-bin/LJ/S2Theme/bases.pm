@@ -11,6 +11,11 @@ use base qw( LJ::S2Theme::bases );
 sub cats { qw( featured  ) }
 sub designer { "sky" }
 
+package LJ::S2Theme::bases::sunandsand;
+use base qw( LJ::S2Theme::bases );
+sub cats { qw( ) }
+sub designer { "twtd" }
+
 package LJ::S2Theme::bases::tropical;
 use base qw( LJ::S2Theme::bases );
 sub cats { qw( base ) }
