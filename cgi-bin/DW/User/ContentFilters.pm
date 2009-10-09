@@ -43,7 +43,8 @@ sub content_filters {
         my @list =
             sort { $a->sortorder <=> $b->sortorder }
             grep { $args{public} ? $_->public : 1 }
-            grep { $args{name} ? $_->name eq $args{name} : 1 }
+            # return content filter regardless of case
+            grep { $args{name} ? lc($_->name) eq lc($args{name}) : 1 }
             grep { $args{id} ? $_->id == $args{id} : 1 }
             @_;
         return wantarray ? @list : $list[0];
