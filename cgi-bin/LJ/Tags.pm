@@ -1,10 +1,7 @@
-#!/usr/bin/perl
+package LJ::Tags;
+use strict;
 
 use LJ::Constants;
-
-package LJ::Tags;
-
-use strict;
 
 # <LJFUNC>
 # name: LJ::Tags::get_usertagsmulti
@@ -227,12 +224,12 @@ sub _get_usertagsmulti {
                 $res->{$jid}->{$kwid}->{security_level} = 'protected'
                     unless $res->{$jid}->{$kwid}->{security_level} eq 'public';
             } elsif ($sec) {
-                # if $sec is true (>0), and not trust/public, then it's a group(s).  but it's
-                # still in the form of a number, and we want to know which group(s) it is.  so
-                # we must convert the mask back to a bit number with LJ::bit_breakdown.
-                foreach my $grpid ( LJ::bit_breakdown($sec) ) {
-                    $res->{$jid}->{$kwid}->{security}->{groups}->{$grpid} += $ct;
-                }
+                # if $sec is true (>0), and not trust/public, then it's a group.  but it's
+                # still in the form of a number, and we want to know which group it is.  so
+                # we must convert the mask back to a bit number with LJ::bit_breakdown.  but
+                # we will only ever have one mask, so we just accept that.
+                my $grpid = (LJ::bit_breakdown($sec))[0] + 0;
+                $res->{$jid}->{$kwid}->{security}->{groups}->{$grpid} += $ct;
                 $res->{$jid}->{$kwid}->{security_level} ||= 'group';
             } else {
                 # $sec must be 0
@@ -622,20 +619,33 @@ sub is_valid_tagstring {
 }
 
 # <LJFUNC>
-# name: LJ::Tags::get_security_level
+# name: LJ::Tags::get_security_breakdown
 # class: tags
-# des: Returns the security level that applies to the given security information.
+# des: Returns a list of security levels that apply to the given security information.
 # args: security, allowmask
 # des-security: 'private', 'public', or 'usemask'
 # des-allowmask: a bitmask in standard allowmask form
-# returns: Bitwise security level to use for [dbtable[logkwsum]] table.
+# returns: List of broken down security levels to use for [dbtable[logkwsum]] table.
 # </LJFUNC>
-sub get_security_level {
+sub get_security_breakdown {
     my ($sec, $mask) = @_;
 
-    return 0 if $sec eq 'private';
-    return 1 << 63 if $sec eq 'public';
-    return $mask;
+    my @out;
+
+    if ($sec eq 'private') {
+        @out = (0);
+    } elsif ($sec eq 'public') {
+        @out = (1 << 63);
+    } else {
+        # have to get each group bit into a mask
+        foreach my $bit (0..60) { # include 0 for trusted only
+            if ($mask & (1 << $bit)) {
+                push @out, (1 << $bit);
+            }
+        }
+    }
+
+    return @out;
 }
 
 # <LJFUNC>
@@ -790,7 +800,7 @@ sub update_logtags {
     return undef unless $l2row;
 
     # calculate security masks
-    my $sec = LJ::Tags::get_security_level($l2row->{security}, $l2row->{allowmask});
+    my @sec = LJ::Tags::get_security_breakdown($l2row->{security}, $l2row->{allowmask});
 
     # setup a rollback bail path so that we can undo everything we've done
     # if anything fails in the middle; and if the rollback fails, scream loudly
@@ -900,26 +910,28 @@ sub update_logtags {
 
     # now iterate and get the security counts
     my %counts;
-    while (my ($kwid, $secu, $ct) = $sth->fetchrow_array) {
-        $counts{$kwid}->{$secu} = $ct;
+    while (my ($kwid, $sec, $ct) = $sth->fetchrow_array) {
+        $counts{$kwid}->{$sec} = $ct;
     }
 
     # now we want to update them, and delete any at 0
     my (@replace, @delete);
     foreach my $kwid (@kwids) {
-        if (exists $counts{$kwid} && exists $counts{$kwid}->{$sec}) {
-            # an old one exists
-            my $new = $counts{$kwid}->{$sec} + $security{$kwid};
-            if ($new > 0) {
-                # update it
-                push @replace, [ $kwid, $sec, $new ];
+        foreach my $sec (@sec) {
+            if (exists $counts{$kwid} && exists $counts{$kwid}->{$sec}) {
+                # an old one exists
+                my $new = $counts{$kwid}->{$sec} + $security{$kwid};
+                if ($new > 0) {
+                    # update it
+                    push @replace, [ $kwid, $sec, $new ];
+                } else {
+                    # delete this one
+                    push @delete, [ $kwid, $sec ];
+                }
             } else {
-                # delete this one
-                push @delete, [ $kwid, $sec ];
+                # add a new one
+                push @replace, [ $kwid, $sec, $security{$kwid} ];
             }
-        } else {
-            # add a new one
-            push @replace, [ $kwid, $sec, $security{$kwid} ];
         }
     }
 
@@ -1303,41 +1315,12 @@ sub deleted_trust_group {
     my $bit = shift() + 0;
     return undef unless $u && $bit >= 1 && $bit <= 60;
 
-    my $bval = 1 << $bit;
-    my %masks;
-    $masks{$bval} = 1;  # don't need alterations for rows that only include the deleted group
-
-    my $rollback = sub {
-        die $u->errstr unless $u->rollback;
-        return undef;
-    };
-
-    # get data for all other security masks that include this group
-    my $sth = $u->prepare("SELECT security, kwid, entryct FROM logkwsum WHERE journalid = ?" .
-                          " AND security & ? AND security != ?");
-    return undef if $u->err || ! $sth;
-    $sth->execute($u->{userid}, $bval, $bval);
-    return undef if $sth->err;
-    $u->begin_work;  # rollback begins here
-
-    while (my ($sec, $kwid, $ct) = $sth->fetchrow_array) {
-        # remove the group from mask and update logkwsum
-        my $newsec = $sec ^ $bval;  # XOR
-        unless ( $u->do("UPDATE logkwsum SET entryct = entryct + ? WHERE journalid = ? AND security = ?  AND kwid = ?",
-                        undef, $ct, $u->{userid}, $newsec, $kwid) ) {
-            # no row to update, have to insert
-            $u->do("INSERT INTO logkwsum (journalid, security, kwid, entryct) VALUES (?,?,?,?)",
-                   undef, $u->{userid}, $newsec, $kwid, $ct);
-        }
-        return $rollback->() if $u->err;
-        $masks{$sec} = 1;
-    }
     # delete from logkwsum and then nuke the user's tags
-    $u->do("DELETE FROM logkwsum WHERE journalid = ? AND security IN (?)",
-           undef, $u->{userid}, join(', ', keys %masks));
-    return $rollback->() if $u->err;
+    $u->do("DELETE FROM logkwsum WHERE journalid = ? AND security = ?",
+           undef, $u->{userid}, 1 << $bit);
+    return undef if $u->err;
 
-    die $u->errstr unless $u->commit;
+    # that was simple
     LJ::Tags::reset_cache($u);
     return 1;
 }

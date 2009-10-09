@@ -78,7 +78,7 @@ require "ljmemories.pl";
 require "ljmail.pl";
 require "sysban.pl";
 require "communitylib.pl";
-require "taglib.pl";
+use LJ::Tags;
 require "schoollib.pl";
 require "ljemailgateway-web.pl";
 require "customizelib.pl";

@@ -20,7 +20,7 @@ LJ::Config->load;
 
 use lib "$LJ::HOME/cgi-bin";
 
-require "taglib.pl";
+use LJ::Tags;
 require "ljfeed.pl";
 use LJ::EmbedModule;
 

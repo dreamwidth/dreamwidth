@@ -100,7 +100,7 @@ sub END { LJ::end_request(); }
 %LJ::LOCK_OUT = (); # {global|user} => caller_with_lock
 
 require "ljdb.pl";
-require "taglib.pl";
+use LJ::Tags;
 require "ljtextutil.pl";
 require "ljtimeutil.pl";
 require "ljcapabilities.pl";
