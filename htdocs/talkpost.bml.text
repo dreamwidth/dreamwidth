@@ -49,6 +49,8 @@
 
 .opt.loggedin=<b>Logged in user:</b> [[username]]
 
+.opt.openidsignin=- OpenID commenting on this post is limited. Please sign in <a [[aopts]]>here</a>.
+
 .opt.membersonly=- this community only allows commenting by members. You may comment here if you are a member of [[username]].
 
 .opt.message=Message:
@@ -75,7 +77,9 @@
 
 .opt.willscreen=(will be screened)
 
-.opt.willscreenfriend=(will be screened if not a friend)
+.opt.willscreenfriend=(will be screened if not given access)
+
+.opt.willscreenopenid=(will be screened if not validated)
 
 .paraformat=Paragraphs will be automatically formatted by default.
 

@@ -1342,8 +1342,10 @@ sub talkform {
                 $ret .= "</td><td align='left'><b><label for='talkpostfromoid' onclick='handleRadios(4);return false;'>OpenID identity:</label></b> ";
 
                 $ret .= "<i>" . $remote->display_name . "</i>";
-
-                $ret .= $BML::ML{'.opt.willscreen'} if $screening;
+                # show willscreen if a) all comments are screened b) anonymous is screened and OpenID user not validated, c) non-access is screened and OpenID user
+                # is not on access list
+                $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A' || ( $screening eq 'R' && !$remote->is_validated )
+                    || ( $screening eq 'F' && !$journalu->trusts($remote) ) ;
                 $ret .= "</td></tr>\n";
             } else {
                 # logged out
@@ -1354,7 +1356,14 @@ sub talkform {
 
                 $ret .= LJ::help_icon_html("openid", " ");
 
-                $ret .= $BML::ML{'.opt.willscreen'} if $screening;
+                # show willscreen text depending on journal settings
+                if ( $screening eq 'F' ) {
+                    $ret .= $BML::ML{'.opt.willscreenfriend'};
+                } elsif ( $screening eq 'A' ) {
+                    $ret .= $BML::ML{'.opt.willscreen'};
+                } elsif ( $screening ) {
+                    $ret .= $BML::ML{'.opt.willscreenopenid'};
+                }
                 $ret .= "</td></tr>\n";
             }
     
@@ -1403,7 +1412,7 @@ sub talkform {
                 $ret .= "<tr valign='middle'>";
                 $ret .= "<td align='center'><img src='$LJ::IMGPREFIX/silk/identity/openid.png' onclick='handleRadios(3);' /></td>";
                 $ret .= "<td align='center'>(  )</td>";
-                $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>OpenID</b></font>";
+                $ret .= "<td align='left' colspan='2'><font color='#c0c0c0'><b>OpenID</b></font>" . BML::ml('.opt.openidsignin', { 'aopts' => "href='$LJ::SITEROOT/openid'" });
                 $ret .= BML::ml('.opt.noopenidpost', { aopts1 => "href='$LJ::SITEROOT/changeemail'", aopts2 => "href='$LJ::SITEROOT/register'" })
                     if defined $oid_identity;
 
@@ -1435,7 +1444,7 @@ sub talkform {
 
                 $ret .= "<i>" . $remote->display_name . "</i>";
 
-                $ret .= $BML::ML{'.opt.willscreen'} if $screening;
+                $ret .= $BML::ML{'.opt.willscreen'} if $screening eq 'A';
                 $ret .= "</td></tr>\n";
             } else {
                 # logged out
@@ -1446,7 +1455,15 @@ sub talkform {
 
                 $ret .= LJ::help_icon_html("openid", " ");
 
-                $ret .= $BML::ML{'.opt.willscreen'} if $screening;
+                # show willscreen text depending on journal settings
+                if ( $screening eq 'F' ) {
+                    $ret .= $BML::ML{'.opt.willscreenfriend'};
+                } elsif ( $screening eq 'A' ) {
+                    $ret .= $BML::ML{'.opt.willscreen'};
+                } elsif ( $screening ) {
+                    $ret .= $BML::ML{'.opt.willscreenopenid'};
+                }
+
                 $ret .= "</td></tr>\n";
             }
 
