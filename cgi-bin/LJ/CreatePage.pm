@@ -58,7 +58,7 @@ sub verify_username {
     }
 
     # don't allow protected usernames
-    $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.reserved')
+    $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.invalid')
         if LJ::User->is_protected_username( $user );
 
     $error = LJ::Widget::CreateAccount->ml('widget.createaccount.error.username.inuse') if $in_use;

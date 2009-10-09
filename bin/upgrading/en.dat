@@ -3985,11 +3985,11 @@ widget.createaccount.error.password.tooshort=Password must be at least 6 charact
 
 widget.createaccount.error.username.inuse=Sorry, this username is already in use.
 
+widget.createaccount.error.username.invalid=Sorry, you can't use that username. Either it's been reserved for future use by site administrators, or it contains characters that are invalid. Usernames must only contain characters a-z, 0-9, and underscores. Usernames can't start or end with underscores, and can't have more than one underscore in a row.
+
 widget.createaccount.error.username.mustenter=You must enter a username.
 
 widget.createaccount.error.username.purged=The username you entered is that of an account which has been deleted and purged. If you wish to use this username, you must first purchase a <a [[aopts]]>rename token</a> for an existing account.
-
-widget.createaccount.error.username.reserved=Sorry, that is a reserved username.
 
 widget.createaccount.field.birthdate=Birthdate:
 
