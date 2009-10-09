@@ -50,10 +50,8 @@
 
     # no need for viewsome, due to the fact that none of this is private anyway.  just
     # allow anybody with any version of viewall to see userpics for non-V statusvis users
-    if ( $GET{viewall} && $remote && $remote->has_priv( 'canview', 'suspended' ) ) {
-        LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                              "viewall", "allpics: $u->{'user'}, statusvis: " . $u->statusvis);
-    } else {
+    
+    unless ( $remote && $remote->view_priv_check( $u, $GET{viewall}, 'allpics' ) ) {
         if ($u->is_suspended) {
             $title = $ML{'error.suspended.title'};
             $body = "<?h1 $ML{'error.suspended.name'} h1?><?p " .

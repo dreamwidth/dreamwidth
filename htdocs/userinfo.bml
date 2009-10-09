@@ -127,10 +127,9 @@ body<=
 
     # can't view suspended/deleted profiles unless you have viewall
     my $viewall = 0;
-    if ( $GET{viewall} && $remote && $remote->has_priv( "canview", "suspended" ) ) {
-        $viewall = $remote->has_priv( 'canview', '*' ) ? 1 : 0;
-        LJ::statushistory_add( $u->id, $remote->id, "viewall", "userinfo: " . $u->user . ", statusvis: " . $u->statusvis );
-    } else {
+    ( $viewall ) = $remote->view_priv_check( $u, $GET{viewall}, 'userinfo' )
+        if $remote;
+    unless ( $viewall ) {
         if ( $u->is_suspended ) {
             BML::set_status(403); # 403 Forbidden
             $title = $ML{'error.suspended.title'};

@@ -49,14 +49,10 @@ sub DayPage
     if ($remote) {
 
         # do they have the viewall priv?
-        if ( $get->{viewall} && $remote->has_priv( "canview", "suspended" ) ) {
-            LJ::statushistory_add($u->{'userid'}, $remote->{'userid'},
-                                  "viewall", "day: $user, statusvis: $u->{'statusvis'}");
-            $viewall = $remote->has_priv( 'canview', '*' );
-            $viewsome = $viewall || $remote->has_priv( 'canview', 'suspended' );
-        }
+        ( $viewall, $viewsome ) =
+            $remote->view_priv_check( $u, $get->{viewall}, 'day' );
 
-        if ($remote->{'userid'} == $u->{'userid'} || $viewall) {
+        if ( $viewall || $remote->equals( $u ) ) {
             $secwhere = "";   # see everything
         } elsif ( $remote->is_individual ) {
             my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );

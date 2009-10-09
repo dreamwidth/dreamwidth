@@ -4408,6 +4408,42 @@ sub view_control_strip {
 }
 
 
+# BE VERY CAREFUL about the return values and arguments you pass to this
+# method.  please understand the security implications of this, and how to
+# properly and safely use it.
+#
+sub view_priv_check {
+    my ( $remote, $u, $requested, $page, $itemid ) = @_;
+
+    # $requested is set to the 'viewall' GET argument.  this should ONLY be on if the
+    # user is EXPLICITLY requesting to view something they can't see normally.  most
+    # of the time this is off, so we can bail now.
+    return unless $requested;
+
+    # now check the rest of our arguments for validity
+    return unless LJ::isu( $remote ) && LJ::isu( $u );
+    return if defined $page && $page !~ /^\w+$/;
+    return if defined $itemid && $itemid !~ /^\d+$/;
+
+    # viewsome = "this user can view suspended content"
+    my $viewsome = $remote->has_priv( canview => 'suspended' );
+
+    # viewall = "this user can view all content, even private"
+    my $viewall = $viewsome && $remote->has_priv( canview => '*' );
+
+    # make sure we log the content being viewed
+    if ( $viewsome && $page ) {
+        my $user = $u->user;
+        $user .= ", itemid: $itemid" if defined $itemid;
+        my $sv = $u->statusvis;
+        LJ::statushistory_add( $u->userid, $remote->userid, 'viewall',
+                               "$page: $user, statusvis: $sv");
+    }
+
+    return wantarray ? ( $viewall, $viewsome ) : $viewsome;
+}
+
+
 ########################################################################
 ###  25. Subscription, Notifiction, and Messaging Functions
 
