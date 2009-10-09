@@ -890,6 +890,8 @@ register_tabledrop("portal_config");
 register_tabledrop("portal_typemap");
 register_tabledrop("memkeyword");
 register_tabledrop("memorable");
+register_tabledrop("s2source");
+register_tabledrop("s2stylelayers");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1045,16 +1047,6 @@ CREATE TABLE s2info (
 )
 EOC
 
-# TODO: Move anything left here to s2source_inno for sites migrating from LJ
-# to DW, then nuke table. New sites should have nothing here.
-register_tablecreate("s2source", <<'EOC'); # global
-CREATE TABLE s2source (
-    s2lid INT UNSIGNED NOT NULL,
-    PRIMARY KEY (s2lid),
-    s2code MEDIUMBLOB
-)
-EOC
-
 register_tablecreate("s2source_inno", <<'EOC'); # global
 CREATE TABLE s2source_inno (
     s2lid INT UNSIGNED NOT NULL,
@@ -1104,15 +1096,6 @@ CREATE TABLE s2styles (
     modtime INT UNSIGNED NOT NULL,
 
     INDEX (userid)
-)
-EOC
-
-register_tablecreate("s2stylelayers", <<'EOC'); # global
-CREATE TABLE s2stylelayers (
-    styleid INT UNSIGNED NOT NULL,
-    type ENUM('core','i18nc','layout','theme','i18n','user') NOT NULL,
-    UNIQUE (styleid, type),
-    s2lid INT UNSIGNED NOT NULL
 )
 EOC
 
@@ -3238,15 +3221,6 @@ register_alter(sub {
         do_sql("UPDATE priv_map SET arg='*' WHERE arg='all'");
 
         set_dbnote("privcode_all_to_*", 1);
-    }
-
-    # convert 'wizard' s2 styles to 'wizard-uniq'
-    if (table_relevant("s2styles") && !check_dbnote("s2style-wizard-update")) {
-
-        # set_dbnote will return true if $opt_sql is set and it sets
-        # the note successfully.  only then do we run the wizard updater
-        set_dbnote("s2style-wizard-update", 1) &&
-            system("$ENV{'LJHOME'}/bin/upgrading/s2style-wizard-update.pl");
     }
 
     # this never ended up being useful, and just freaked people out unnecessarily.
