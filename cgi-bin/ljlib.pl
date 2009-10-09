@@ -86,7 +86,7 @@ sub END { LJ::end_request(); }
                     "logtags", "logtagsrecent", "logkwsum",
                     "recentactions", "usertags", "pendcomments",
                     "user_schools", "loginlog", "active_user", "userblobcache",
-                    "notifyqueue", "cprod",
+                    "notifyqueue", "cprod", "blobcache",
                     "jabroster", "jablastseen", "random_user_set",
                     "poll2", "pollquestion2", "pollitem2",
                     "pollresult2", "pollsubmission2",

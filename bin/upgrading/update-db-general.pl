@@ -3794,6 +3794,71 @@ register_alter(sub {
                   q{ALTER TABLE syndicated_hubbub2 ADD COLUMN timespinged INT UNSIGNED NOT NULL DEFAULT '0'} );
     }
 
+    if ( table_relevant( "logkwsum" ) && ! check_dbnote( "logkwsum_fix_filtered_counts" ) ) {
+        # this is a very, very racy situation ... we want to do an update of this data, but if anybody
+        # else is actively using this table, they're going to be inserting bad data on top of us which
+        # will leave SOMEONE in an inconsistent state.  let's warn the user that they should have the site
+        # turned off for this update.
+        unless ( $::_warn_logkwsum++ > 0 ) {
+            warn <<EOF;
+
+* * * * * * * * * WARNING * * * * * * * *
+
+We need to do an update of tag security metadata.  This is an UNSAFE update
+and we request that you shut off your site.
+
+Please turn off TheSchwartz workers, Gearman workers, Apache processes, and
+anything else that can touch the database.
+
+Once you are done doing that, please press ENTER to proceed.
+
+Press Ctrl+C to cancel this operation now.
+
+* * * * * * * * * WARNING * * * * * * * *
+EOF
+            $_ = <>;
+        }
+
+        do_sql( 'LOCK TABLES logkwsum WRITE, logtags WRITE, log2 WRITE' );
+        do_sql( 'DELETE FROM logkwsum' );
+
+        do_sql(
+            q{INSERT INTO logkwsum
+                  SELECT logtags.journalid, logtags.kwid, log2.allowmask, COUNT(*)
+                  FROM log2, logtags
+                  WHERE logtags.journalid = log2.journalid
+                    AND logtags.jitemid = log2.jitemid
+                    AND log2.security = 'usemask'
+                  GROUP BY journalid, kwid, allowmask
+            }
+        );
+
+        do_sql(
+            q{INSERT INTO logkwsum
+                  SELECT logtags.journalid, logtags.kwid, 0, COUNT(*)
+                  FROM log2, logtags
+                  WHERE logtags.journalid = log2.journalid
+                    AND logtags.jitemid = log2.jitemid
+                    AND log2.security = 'private'
+                  GROUP BY journalid, kwid
+            }
+        );
+
+        do_sql(
+            q{INSERT INTO logkwsum
+                  SELECT logtags.journalid, logtags.kwid, 1 << 63, COUNT(*)
+                  FROM log2, logtags
+                  WHERE logtags.journalid = log2.journalid
+                    AND logtags.jitemid = log2.jitemid
+                    AND log2.security = 'public'
+                  GROUP BY journalid, kwid
+            }
+        );
+
+        do_sql( 'UNLOCK TABLES' );
+        set_dbnote( "logkwsum_fix_filtered_counts", 1 );
+    }
+
 });
 
 
