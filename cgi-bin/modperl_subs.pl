@@ -70,7 +70,7 @@ require "weblib.pl";
 require "imageconf.pl";
 require "propparse.pl";
 require "supportlib.pl";
-require "cleanhtml.pl";
+use LJ::CleanHTML;
 require "talklib.pl";
 require "ljfeed.pl";
 require "emailcheck.pl";

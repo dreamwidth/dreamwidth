@@ -53,6 +53,7 @@ use LJ::EventLogRecord::DeleteComment;
 use DW::External::Account;
 use DW::External::User;
 use DW::Logic::LogItems;
+use LJ::CleanHTML;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
@@ -2321,17 +2322,6 @@ sub is_enabled {
     return ! LJ::conf_test( $LJ::DISABLED{$conf}, @_ );
 }
 
-package LJ::CleanHTML;
-
-use vars qw($AUTOLOAD);
-sub AUTOLOAD {
-    my $lib = "cleanhtml.pl";
-    if ($INC{$lib}) {
-        Carp::croak("Undefined subroutine: $AUTOLOAD");
-    }
-    require $lib;
-    goto &$AUTOLOAD;
-}
 
 package LJ::Error::InvalidParameters;
 sub opt_fields { qw(params) }

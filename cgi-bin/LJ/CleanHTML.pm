@@ -1,6 +1,6 @@
-#!/usr/bin/perl
-
+package LJ::CleanHTML;
 use strict;
+
 use URI;
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
@@ -10,7 +10,6 @@ use LJ::Config;
 
 LJ::Config->load;
 
-package LJ;
 
 # attempt to mangle an email address for printing out to HTML.  this is
 # kind of futile, but we try anyway.
@@ -20,7 +19,6 @@ sub mangle_email_address {
      return $email;
 }
 
-package LJ::CleanHTML;
 #     LJ::CleanHTML::clean(\$u->{'bio'}, {
 #        'wordlength' => 100, # maximum length of an unbroken "word"
 #        'addbreaks' => 1,    # insert <br/> after newlines where appropriate

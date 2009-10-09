@@ -4,7 +4,7 @@ use strict;
 use Test::More 'no_plan';
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'cleanhtml.pl';
+use LJ::CleanHTML;
 use HTMLCleaner;
 
 my $orig_post;

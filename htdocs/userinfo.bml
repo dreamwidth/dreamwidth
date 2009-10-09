@@ -177,7 +177,7 @@ body<=
         } elsif ( $l->{email} ) {
             # the ehtml call here shouldn't be necessary, but just in case they slip in an email
             # that contains Bad Stuff, escape it
-            return LJ::mangle_email_address( LJ::ehtml( $l->{email} ) );
+            return LJ::CleanHTML::mangle_email_address( LJ::ehtml( $l->{email} ) );
         } else {
             return "(Error in Linkification)";
         }

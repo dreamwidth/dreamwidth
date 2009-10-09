@@ -428,7 +428,7 @@ sub clean_lj_tags {
         'raw-code' => 'lj-raw'
     );
 
-    # this is mostly gakked from cgi-bin/cleanhtml.pl
+    # this is mostly gakked from cgi-bin/cleanhtml.pl (LJ::CleanHTML)
 
     # go throught each token.
   TOKEN:
