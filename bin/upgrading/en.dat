@@ -2507,6 +2507,14 @@ setting.commentscreening.option.select.nonfriends=comments from non-friends
 
 setting.commentscreening.option.select.nonmembers=comments from non-members
 
+setting.contactinfo.error.invalid=Invalid selection.
+
+setting.contactinfo.label=Contact Info Security
+
+setting.contactinfo.option=Who can view your contact info?
+
+setting.contactinfo.option.note=This setting controls who can view your contact information for any external services, in addition to your selected email address(es), on your profile page.
+
 setting.ctxpopup.label=Hover Menu
 
 setting.ctxpopup.option=Show menu when I hover over userhead images or userpics

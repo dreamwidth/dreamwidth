@@ -105,6 +105,7 @@ body<=
             desc => $ML{'.cat.privacy.desc'},
             settings => [qw(
                 DW::Setting::EmailAlias
+                DW::Setting::ContactInfo
                 LJ::Setting::MinSecurity
                 DW::Setting::SynLevel
                 LJ::Setting::SearchInclusion
