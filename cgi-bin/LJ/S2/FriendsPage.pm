@@ -137,16 +137,6 @@ sub FriendsPage
 
     return $p unless %friends;
 
-    ### load the log properties
-    my %logprops = ();  # key is "$owneridOrZero $[j]itemid"
-    LJ::load_log_props2multi(\%idsbycluster, \%logprops);
-
-    # load the text of the entries
-    my $logtext = LJ::get_logtext2multi(\%idsbycluster);
-
-    # load tags on these entries
-    my $logtags = LJ::Tags::get_logtagsmulti(\%idsbycluster);
-
     my %posters;
     {
         my @posterids;
@@ -158,71 +148,20 @@ sub FriendsPage
             if @posterids;
     }
 
-    my %objs_of_picid;
-    my @userpic_load;
-
-    my %lite;   # posterid -> s2_UserLite
-    my $get_lite = sub {
-        my $id = shift;
-        return $lite{$id} if $lite{$id};
-        return $lite{$id} = UserLite($posters{$id} || $friends{$id});
-    };
-
     my $eventnum = 0;
     my $hiddenentries = 0;
   ENTRY:
     foreach my $item (@items)
     {
-        my ($friendid, $posterid, $itemid, $security, $allowmask, $alldatepart) =
-            map { $item->{$_} } qw(ownerid posterid itemid security allowmask alldatepart);
+        my ($friendid, $posterid, $itemid, $anum) =
+            map { $item->{$_} } qw(ownerid posterid itemid anum);
 
+        # $fr = journal posted in, can be community
         my $fr = $friends{$friendid};
-        $p->{'friends'}->{$fr->{'user'}} ||= Friend($fr);
+        $p->{friends}->{$fr->{user}} ||= Friend($fr);
 
-        my $clusterid = $item->{'clusterid'}+0;
-        my $datakey = "$friendid $itemid";
-
-        my $replycount = $logprops{$datakey}->{'replycount'};
-        my $subject = $logtext->{$datakey}->[0];
-        my $text = $logtext->{$datakey}->[1];
-        if ($get->{'nohtml'}) {
-            # quote all non-LJ tags
-            $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-            $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        }
-
-        if ($LJ::UNICODE && $logprops{$datakey}->{'unknown8bit'}) {
-            LJ::item_toutf8($friends{$friendid}, \$subject, \$text, $logprops{$datakey});
-        }
-
-        my ($friend, $poster);
-        $friend = $poster = $friends{$friendid}->{'user'};
-
-        LJ::CleanHTML::clean_subject(\$subject) if $subject;
-
-        my $ditemid = $itemid * 256 + $item->{'anum'};
-        my $entry_obj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
-
-        my $stylemine = "";
-        $stylemine .= "style=mine" if $remote && $remote->{'opt_stylemine'} &&
-                                      $remote->{'userid'} != $friendid;
-
-        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
-        LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$datakey}->{'opt_preformatted'},
-                                             'cuturl' => LJ::item_link($friends{$friendid}, $itemid, $item->{'anum'}, $stylemine),
-                                             'maximgwidth' => $maximgwidth,
-                                             'maximgheight' => $maximgheight,
-                                             'imageplaceundef' => $remote ? $remote->{'opt_imageundef'} : undef,
-                                             'ljcut_disable' => $remote ? $remote->{'opt_cut_disable_reading'} : undef,
-                                             'suspend_msg' => $suspend_msg,
-                                             'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
-        LJ::expand_embedded($friends{$friendid}, $ditemid, $remote, \$text);
-
-        $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $friends{$friendid},
-                                                         remote => $remote, entry => $entry_obj );
-
-        my $userlite_poster = $get_lite->($posterid);
-        my $userlite_journal = $get_lite->($friendid);
+        my $ditemid = $itemid * 256 + $anum;
+        my $entry_obj = LJ::Entry->new( $fr, ditemid => $ditemid );
 
         # get the poster user
         my $po = $posters{$posterid} || $friends{$posterid};
@@ -233,92 +172,22 @@ sub FriendsPage
             next ENTRY;
         }
 
-        my $eobj = LJ::Entry->new($friends{$friendid}, ditemid => $ditemid);
+        # reading page might need placeholder images
+        $opts->{cleanhtml_extra} = {
+            maximgheight => $maximgheight,
+            maximgwidth =>  $maximgwidth,
+            imageplaceundef => $remote ? $remote->{'opt_imageundef'} : undef
+        };
 
-        # do the picture
-        my $picid = 0;
-        my $picu = undef;
-        if ($friendid != $posterid && S2::get_property_value($opts->{ctx}, 'use_shared_pic')) {
-            # using the community, the user wants to see shared pictures
-            $picu = $friends{$friendid};
+        # make S2 entry
+        my $entry = Entry_from_entryobj( $u, $entry_obj, $opts );
 
-            # use shared pic for community
-            $picid = $friends{$friendid}->{defaultpicid};
-        } else {
-            # we're using the poster for this picture
-            $picu = $po;
-
-            # check if they specified one
-            $picid = $eobj->userpic ? $eobj->userpic->picid : 0;
-        }
-
-        my $nc = "";
-        $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
-
-        my $journalbase = LJ::journal_base($friends{$friendid});
-        my $permalink = $eobj->url;
-        my $readurl = LJ::Talk::talkargs($permalink, $nc, $stylemine);
-        my $posturl = LJ::Talk::talkargs($permalink, "mode=reply", $stylemine);
-
-        my $comments = CommentInfo({
-            'read_url' => $readurl,
-            'post_url' => $posturl,
-            'count' => $replycount,
-            'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
-            'enabled' => ($friends{$friendid}->{'opt_showtalklinks'} eq "Y" &&
-                          ! $logprops{$datakey}->{'opt_nocomments'}) ? 1 : 0,
-            'screened' => ($logprops{$datakey}->{'hasscreened'} && $remote && LJ::can_manage($remote, $fr)) ? 1 : 0,
-        });
-        $comments->{show_postlink} = $comments->{enabled};
-        $comments->{show_readlink} = $comments->{enabled} && ($replycount || $comments->{screened});
-
-        my $moodthemeid = $u->{'opt_forcemoodtheme'} eq 'Y' ?
-            $u->{'moodthemeid'} : $friends{$friendid}->{'moodthemeid'};
-
-        my @taglist;
-        while (my ($kwid, $kw) = each %{$logtags->{$datakey} || {}}) {
-            push @taglist, Tag($friends{$friendid}, $kwid => $kw);
-        }
-        LJ::run_hooks('augment_s2_tag_list', u => $u, jitemid => $itemid, tag_list => \@taglist);
-        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-
-        if ($opts->{enable_tags_compatibility} && @taglist) {
-            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-        }
-
-        if ($security eq "public" && !$LJ::REQ_GLOBAL{'text_of_first_public_post'}) {
-            $LJ::REQ_GLOBAL{'text_of_first_public_post'} = $text;
-
-            if (@taglist) {
-                $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [map { $_->{name} } @taglist];
-            }
-        }
-
-        my $entry = Entry($u, {
-            'subject' => $subject,
-            'text' => $text,
-            'dateparts' => $alldatepart,
-            'system_dateparts' => $item->{'system_alldatepart'},
-            'security' => $security,
-            'adult_content_level' => $eobj->adult_content_calculated || $friends{$friendid}->adult_content_calculated,
-            'allowmask' => $allowmask,
-            'props' => $logprops{$datakey},
-            'itemid' => $ditemid,
-            'journal' => $userlite_journal,
-            'poster' => $userlite_poster,
-            'comments' => $comments,
-            'new_day' => 0,  # setup below
-            'end_day' => 0,  # setup below
-            'userpic' => Image_userpic( $picu, $picid, $eobj->userpic_kw_from_props( $logprops{$datakey} ) ),
-            'tags' => \@taglist,
-            'permalink_url' => $permalink,
-            'moodthemeid' => $moodthemeid,
-        });
-        $entry->{'_ymd'} = join('-', map { $entry->{'time'}->{$_} } qw(year month day));
+        $entry->{_ymd} = join('-', map { $entry->{'time'}->{$_} } qw(year month day));
 
         push @{$p->{'entries'}}, $entry;
         $eventnum++;
-        LJ::run_hook('notify_event_displayed', $eobj);
+
+        LJ::run_hook('notify_event_displayed', $entry_obj);
     } # end while
 
     # set the new_day and end_day members.

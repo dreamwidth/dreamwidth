@@ -79,136 +79,31 @@ sub DayPage
 
     my @items;
     push @items, $_ while $_ = $sth->fetchrow_hashref;
-    my @itemids = map { $_->{'itemid'} } @items;
 
-    $remote->preload_props( "opt_cut_disable_journal" ) if $remote;
-
-    ### load the log properties
-    my %logprops = ();
-    my $logtext;
-    LJ::load_log_props2($dbcr, $u->{'userid'}, \@itemids, \%logprops);
-    $logtext = LJ::get_logtext2($u, @itemids);
-
-    my (%apu, %apu_lite);  # alt poster users; UserLite objects
+    my %apu;  # alt poster users
     foreach (@items) {
-        next unless $_->{'posterid'} != $u->{'userid'};
-        $apu{$_->{'posterid'}} = undef;
+        next unless $_->{posterid} != $u->{userid};
+        $apu{$_->{posterid}} = undef;
     }
-    if (%apu) {
-        LJ::load_userids_multiple([map { $_, \$apu{$_} } keys %apu], [$u]);
-        $apu_lite{$_} = UserLite($apu{$_}) foreach keys %apu;
-    }
-
-    # load tags
-    my $tags = LJ::Tags::get_logtags($u, \@itemids);
-
-    my $userlite_journal = UserLite($u);
 
   ENTRY:
     foreach my $item (@items)
     {
-        my ($posterid, $itemid, $security, $allowmask, $alldatepart, $anum) =
-            map { $item->{$_} } qw(posterid itemid security allowmask alldatepart anum);
+        my ($posterid, $itemid, $anum) =
+            map { $item->{$_} } qw(posterid itemid anum);
 
         my $ditemid = $itemid*256 + $anum;
-        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
-
-        my $replycount = $logprops{$itemid}->{'replycount'};
-        my $subject = $logtext->{$itemid}->[0];
-        my $text = $logtext->{$itemid}->[1];
-        if ($get->{'nohtml'}) {
-            # quote all non-LJ tags
-            $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-            $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        }
+        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 
         # don't show posts from suspended users or suspended posts
         next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && ! $viewsome;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
-        if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
-            LJ::item_toutf8($u, \$subject, \$text, $logprops{$itemid});
-        }
+        # create S2 Entry object
+        my $entry = Entry_from_entryobj( $u, $entry_obj, $opts );
 
-        LJ::CleanHTML::clean_subject(\$subject) if $subject;
-
-        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
-        LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
-                                             'cuturl' => LJ::item_link($u, $itemid, $anum),
-                                             'ljcut_disable' => $remote ? $remote->{'opt_cut_disable_journal'} : undef,
-                                             'suspend_msg' => $suspend_msg,
-                                             'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
-        LJ::expand_embedded($u, $ditemid, $remote, \$text);
-
-        $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $u,
-                                                         remote => $remote, entry => $entry_obj );
-
-        my $nc = "";
-        $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
-
-        my $permalink = "$journalbase/$ditemid.html";
-        my $readurl = $permalink;
-        $readurl .= "?$nc" if $nc;
-        my $posturl = $permalink . "?mode=reply";
-
-        my $comments = CommentInfo({
-            'read_url' => $readurl,
-            'post_url' => $posturl,
-            'count' => $replycount,
-            'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
-            'enabled' => ($u->{'opt_showtalklinks'} eq "Y" && ! $logprops{$itemid}->{'opt_nocomments'}) ? 1 : 0,
-            'screened' => ($logprops{$itemid}->{'hasscreened'} && $remote && LJ::can_manage($remote, $u)) ? 1 : 0,
-        });
-        $comments->{show_postlink} = $comments->{enabled};
-        $comments->{show_readlink} = $comments->{enabled} && ($replycount || $comments->{screened});
-
-        my $userlite_poster = $userlite_journal;
-        my $pu = $u;
-        if ($u->{'userid'} != $posterid) {
-            $userlite_poster = $apu_lite{$posterid} or die "No apu_lite for posterid=$posterid";
-            $pu = $apu{$posterid};
-        }
-
-        my $kw = LJ::Entry->userpic_kw_from_props($logprops{$itemid});
-        my $userpic = Image_userpic($pu, 0, $kw);
-
-        my @taglist;
-        while (my ($kwid, $kw) = each %{$tags->{$itemid} || {}}) {
-            push @taglist, Tag($u, $kwid => $kw);
-        }
-        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-
-        if ($opts->{enable_tags_compatibility} && @taglist) {
-            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-        }
-
-        if ($security eq "public" && !$LJ::REQ_GLOBAL{'text_of_first_public_post'}) {
-            $LJ::REQ_GLOBAL{'text_of_first_public_post'} = $text;
-
-            if (@taglist) {
-                $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [map { $_->{name} } @taglist];
-            }
-        }
-
-        my $entry = Entry($u, {
-            'subject' => $subject,
-            'text' => $text,
-            'dateparts' => $alldatepart,
-            'system_dateparts' => $item->{system_alldatepart},
-            'security' => $security,
-            'adult_content_level' => $entry_obj->adult_content_calculated || $u->adult_content_calculated,
-            'allowmask' => $allowmask,
-            'props' => $logprops{$itemid},
-            'itemid' => $ditemid,
-            'journal' => $userlite_journal,
-            'poster' => $userlite_poster,
-            'comments' => $comments,
-            'tags' => \@taglist,
-            'userpic' => $userpic,
-            'permalink_url' => $permalink,
-        });
-
-        push @{$p->{'entries'}}, $entry;
+        # add S2 Entry object to page
+        push @{$p->{entries}}, $entry;
         LJ::run_hook('notify_event_displayed', $entry_obj);
     }
 

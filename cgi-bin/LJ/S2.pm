@@ -1834,6 +1834,143 @@ sub Entry
     return $e;
 }
 
+#returns an S2 Entry from a user object and an entry object 
+sub Entry_from_entryobj
+{
+    my ($u, $entry_obj, $opts) = @_;
+    my $remote = LJ::get_remote();
+    my $get = $opts->{getargs};
+
+    my $anum = $entry_obj->anum;
+    my $jitemid = $entry_obj->jitemid;
+    my $ditemid = $entry_obj->ditemid;
+
+    # $journal: journal posted to
+    my $journalid = $entry_obj->journalid;
+    my $journal = LJ::load_userid( $journalid );
+
+    #load and prepare subject and text of entry
+    my $subject = $entry_obj->subject_html;
+    my $text = $entry_obj->event_raw;
+    if ( $get->{nohtml} ) {
+        $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
+        $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
+    }
+    LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
+
+    LJ::CleanHTML::clean_subject( \$subject ) if $subject;
+
+    my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
+    # cleaning the entry text: cuts and such
+    my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum ),
+        ljcut_disable => $remote ? $remote->prop( 'opt_cut_disable_journal' ) : undef,
+        suspend_msg => $suspend_msg,
+        unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0
+    };
+    # reading pages might need to display image placeholders
+    my $cleanhtml_extra = $opts->{cleanhtml_extra} || {};
+    foreach my $k ( keys %$cleanhtml_extra ) {
+        $cleanhtml_opts->{$k} = $cleanhtml_extra->{$k}
+    }
+    LJ::CleanHTML::clean_event( \$text, $cleanhtml_opts );
+
+    LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
+    $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $journal,
+                                                     remote => $remote, entry => $entry_obj );
+
+    # security information
+    my $allowmask = $entry_obj->allowmask;
+    my $security = $entry_obj->security;
+    # time when entry was posted
+    my $alldatepart = LJ::alldatepart_s2( $entry_obj->{eventtime} );
+    my $system_alldatepart = LJ::alldatepart_s2( $entry_obj->{logtime} );;
+
+    # journal: posted to; poster: posted by
+    my $posterid = $entry_obj->posterid;
+    my $userlite_journal = UserLite ( $journal );
+    my $poster = $journal;
+    my $userlite_poster = $userlite_journal;
+    # except for communities, posterid and journalid should match, only load separate UserLite object if that is not the case
+    my $userlite_journal = $userlite_poster;
+    unless ( $posterid == $journalid ) {
+        $poster = LJ::load_userid( $posterid );
+        $userlite_poster = UserLite( $poster );
+    }
+
+    # loading S2 Userpic
+    my $userpic;
+    # if the post was made in a community, use either the userpic it was posted with or the community pic depending on the style setting
+    if ( $posterid == $journalid || !S2::get_property_value($opts->{ctx}, 'use_shared_pic') ) {
+        $userpic = Image_userpic($poster, $entry_obj->userpic->picid) if $entry_obj->userpic;
+    } else {
+       $userpic = Image_userpic($journal, $journal->userpic->picid) if $journal->userpic;
+    } 
+
+    # override used moodtheme if necessary
+    my $moodthemeid = $u->prop( 'opt_forcemoodtheme' ) eq 'Y' ?
+       $u->{moodthemeid} : $poster->{moodthemeid};
+
+    # tags loading and sorting
+    my $tags = LJ::Tags::get_logtags( $journal, $jitemid );
+    my @taglist;
+    while (my ($keywordid, $keyword) = each %{$tags->{$jitemid} || {}}) {
+            push @taglist, Tag( $journal, $keywordid => $keyword );
+        }
+    @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
+    if ( $opts->{enable_tags_compatibility} && @taglist ) {
+            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
+    }
+
+    # is style=mine used? if so, it needs to be added to comment links
+    my $stylemine = "";
+    $stylemine = $get->{style} eq "mine" ? "style=mine" : "";;
+
+    # comment information
+    my $permalink = $entry_obj->url;
+    my $replycount = $entry_obj->reply_count;
+    my $nc = $replycount if $replycount && $remote && $remote->prop( 'opt_nctalklinks' );
+    my $readurl = LJ::Talk::talkargs( $permalink, $nc, $stylemine );
+    my $posturl = LJ::Talk::talkargs( $permalink, 'mode=reply', $stylemine );
+
+    my $comments_enabled = ( ( $journal->{opt_showtalklinks} eq "Y" ) && ( ! $entry_obj->props->{opt_nocomments} ) ) ? 1 : 0;
+    my $has_screened = ( $entry_obj->props->{hasscreened} && LJ::can_manage( $remote, $journal ) ) ? 1 : 0;
+
+    # building the CommentInfo and Entry objects
+    my $comments = CommentInfo({
+        read_url => $readurl,
+        post_url => $posturl,
+        count => $replycount,
+        maxcomments => ( $replycount >= LJ::get_cap( $u, 'maxcomments' ) ) ? 1 : 0,
+        enabled => $comments_enabled,
+        screened => $has_screened,
+        show_readlink => $comments_enabled && ( $replycount || $has_screened ),
+        show_postlink => $comments_enabled,
+    });
+
+    my $entry = Entry($u, {
+        subject => $subject,
+        text => $text,
+        dateparts => $alldatepart,
+        system_dateparts => $system_alldatepart,
+        security => $security,
+        adult_content_level => $entry_obj->adult_content_calculated || $u->adult_content_calculated,
+        allowmask => $allowmask,
+        props => $entry_obj->props,
+        itemid => $ditemid,
+        journal => $userlite_journal,
+        poster => $userlite_poster,
+        comments => $comments,
+        new_day => 0, #if true, set later
+        end_day => 0,   #if true, set later
+        userpic => $userpic,
+        tags => \@taglist,
+        permalink_url => $permalink,
+        moodthemeid => $moodthemeid
+        });
+
+    return $entry;
+}
+
 sub Friend
 {
     my ($u) = @_;

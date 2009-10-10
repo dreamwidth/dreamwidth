@@ -101,181 +101,65 @@ sub RecentPage
 
     die $err if $err;
 
-    # prepare sticky entry for S2 - should there ever be a function to get an s2 formatted entry from an Entry object
-    # this should be changed to use that.  only show sticky entry on first page of Recent Entries, not on skip= pages
+    # prepare sticky entry for S2 - only show sticky entry on first page of Recent Entries, not on skip= pages
     # or tag and security subfilters
     my $stickyentry = $u->get_sticky_entry
         if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
-
     # only show if visible to user
     if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {
-        unshift @items, {
-            posterid    => $stickyentry->poster->userid, 
-            itemid      => $stickyentry->jitemid, 
-            anum        => $stickyentry->anum,
-            security    => $stickyentry->security, 
-            allowmask   => $stickyentry->allowmask, 
-            alldatepart => LJ::alldatepart_s2($stickyentry->eventtime_mysql), 
-            sticky      => 1 
-        };
+        # create S2 entry object and show first on page
+        my $entry = Entry_from_entryobj( $u, $stickyentry, $opts ); 
+        # sticky entry specific things
+        my $sticky_icon = Image_std( 'sticky-entry' );
+        $entry->{_type} = 'StickyEntry';
+        $entry->{sticky_entry_icon} = $sticky_icon;
+        # show on top of page
+        push @{$p->{entries}}, $entry;
     }
-  
-    ### load the log properties
-    my %logprops = ();
-    my $logtext;
-    LJ::load_log_props2($u->{'userid'}, \@itemids, \%logprops);
-    $logtext = LJ::get_logtext2($u, @itemids);
-
+    
     my $lastdate = "";
     my $itemnum = 0;
     my $lastentry = undef;
 
-    my (%apu, %apu_lite);  # alt poster users; UserLite objects
+    my (%apu);  # alt poster users
     foreach (@items) {
-        next unless $_->{'posterid'} != $u->{'userid'};
-        $apu{$_->{'posterid'}} = undef;
+        next unless $_->{posterid} != $u->{userid};
+        $apu{$_->{posterid}} = undef;
     }
-    if (%apu) {
-        LJ::load_userids_multiple([map { $_, \$apu{$_} } keys %apu], [$u]);
-        $apu_lite{$_} = UserLite($apu{$_}) foreach keys %apu;
-    }
-
-    # load tags
-    my $idsbyc = { $u->{clusterid} => [ ] };
-    push @{$idsbyc->{$u->{clusterid}}}, [ $u->{userid}, $_->{itemid} ]
-        foreach @items;
-    my $tags = LJ::Tags::get_logtagsmulti($idsbyc);
-
-    my $userlite_journal = UserLite($u);
 
   ENTRY:
     foreach my $item (@items)
     {
-        my ($posterid, $itemid, $security, $allowmask, $alldatepart) =
-            map { $item->{$_} } qw(posterid itemid security allowmask alldatepart);
+        my ($posterid, $itemid, $anum) =
+            map { $item->{$_} } qw(posterid itemid anum);
 
-        my $ditemid = $itemid * 256 + $item->{'anum'};
-        my $entry_obj = LJ::Entry->new($u, ditemid => $ditemid);
+        my $ditemid = $itemid * 256 + $anum;
+        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 
-        my $replycount = $logprops{$itemid}->{'replycount'};
-        my $subject = $logtext->{$itemid}->[0];
-        my $text = $logtext->{$itemid}->[1];
-        if ($get->{'nohtml'}) {
-            # quote all non-LJ tags
-            $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-            $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        }
-
-        #don't count sticky item towards total
-        $itemnum++ unless $item->{sticky};
+        $itemnum++;
 
         # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
         next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && !$viewsome;
         next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
 
-        if ($LJ::UNICODE && $logprops{$itemid}->{'unknown8bit'}) {
-            LJ::item_toutf8($u, \$subject, \$text, $logprops{$itemid});
-        }
+        # create S2 entry, journal posted to is $u
+        my $entry = $lastentry = Entry_from_entryobj( $u, $entry_obj, $opts );
 
+        # end_day and new_day need to be set
+        my $alldatepart = LJ::alldatepart_s2( $entry_obj->{eventtime} );
         my $date = substr($alldatepart, 0, 10);
         my $new_day = 0;
-        if ($date ne $lastdate) {
+        if ( $date ne $lastdate ) {
             $new_day = 1;
             $lastdate = $date;
-            $lastentry->{'end_day'} = 1 if $lastentry;
+            $lastentry->{end_day} = 1 if $lastentry;
         }
+        $entry->{new_day} = $new_day,
 
-        LJ::CleanHTML::clean_subject(\$subject) if $subject;
+        push @{$p->{entries}}, $entry;
 
-        my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to($remote) ? 1 : 0;
-        LJ::CleanHTML::clean_event(\$text, { 'preformatted' => $logprops{$itemid}->{'opt_preformatted'},
-                                              'cuturl' => LJ::item_link($u, $itemid, $item->{'anum'}),
-                                              'ljcut_disable' => $remote ? $remote->prop("opt_cut_disable_journal") : undef,
-                                              'suspend_msg' => $suspend_msg,
-                                              'unsuspend_supportid' => $suspend_msg ? $entry_obj->prop("unsuspend_supportid") : 0, });
-        LJ::expand_embedded($u, $ditemid, $remote, \$text);
-
-        $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $u,
-                                                         remote => $remote, entry => $entry_obj );
-
-        my @taglist;
-        while (my ($kwid, $kw) = each %{$tags->{"$u->{userid} $itemid"} || {}}) {
-            push @taglist, Tag($u, $kwid => $kw);
-        }
-        LJ::run_hooks('augment_s2_tag_list', u => $u, jitemid => $itemid, tag_list => \@taglist);
-        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-
-        if ($opts->{enable_tags_compatibility} && @taglist) {
-            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-        }
-
-        my $permalink = "$journalbase/$ditemid.html";
-        my $nc = $replycount if $replycount && $remote && $remote->prop('opt_nctalklinks');
-        my $posturl = $permalink . "?mode=reply";
-        my $readurl = LJ::make_link( $permalink, { style => $mine,
-                                                   s2id  => LJ::eurl( $get->{s2id} ) || "",
-                                                   nc    => $nc || "" } );
-
-        my $comments_enabled = ($u->{'opt_showtalklinks'} eq "Y" && ! $logprops{$itemid}->{'opt_nocomments'}) ? 1 : 0;
-        my $has_screened = ($logprops{$itemid}->{'hasscreened'} && LJ::can_manage($remote, $u)) ? 1 : 0;
-
-        my $comments = CommentInfo({
-            'read_url' => $readurl,
-            'post_url' => $posturl,
-            'count' => $replycount,
-            'maxcomments' => ($replycount >= LJ::get_cap($u, 'maxcomments')) ? 1 : 0,
-            'enabled' => $comments_enabled,
-            'screened' => $has_screened,
-            'show_readlink' => $comments_enabled && ($replycount || $has_screened),
-            'show_postlink' => $comments_enabled,
-        });
-
-        my $userlite_poster = $userlite_journal;
-        my $pu = $u;
-        if ($u->{'userid'} != $posterid) {
-            $userlite_poster = $apu_lite{$posterid} or die "No apu_lite for posterid=$posterid";
-            $pu = $apu{$posterid};
-        }
-        my $pickw = LJ::Entry->userpic_kw_from_props($logprops{$itemid});
-        my $userpic = Image_userpic($pu, 0, $pickw);
-
-        if ($security eq "public" && !$LJ::REQ_GLOBAL{'text_of_first_public_post'}) {
-            $LJ::REQ_GLOBAL{'text_of_first_public_post'} = $text;
-
-            if (@taglist) {
-                $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [map { $_->{name} } @taglist];
-            }
-        }
-
-        my $entry = $lastentry = Entry($u, {
-            'subject' => $subject,
-            'text' => $text,
-            'dateparts' => $alldatepart,
-            'system_dateparts' => $item->{system_alldatepart},
-            'security' => $security,
-            'adult_content_level' => $entry_obj->adult_content_calculated || $u->adult_content_calculated,
-            'allowmask' => $allowmask,
-            'props' => $logprops{$itemid},
-            'itemid' => $ditemid,
-            'journal' => $userlite_journal,
-            'poster' => $userlite_poster,
-            'comments' => $comments,
-            'new_day' => $new_day,
-            'end_day' => 0,   # if true, set later
-            'tags' => \@taglist,
-            'userpic' => $userpic,
-            'permalink_url' => $permalink,
-        });
-
-        if ( $item->{sticky} ) {
-            my $sticky_icon = Image_std('sticky-entry');
-            $entry->{_type} = 'StickyEntry';
-            $entry->{'sticky_entry_icon'} = $sticky_icon;
-        }
-
-        push @{$p->{'entries'}}, $entry;
         LJ::run_hook('notify_event_displayed', $entry_obj);
-    } # end huge while loop
+    }
 
     # mark last entry as closing.
     $p->{'entries'}->[-1]->{'end_day'} = 1 if @{$p->{'entries'} || []};
