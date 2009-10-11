@@ -1,0 +1,34 @@
+#NEWLAYER: modish/verdigris
+layerinfo type = "theme";
+layerinfo name = "Verdigris";
+layerinfo author_name = "zvi";
+layerinfo redist_uniq = "modish/verdigris";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" }];
+
+set color_comment_title_background = "#ffe8b9";
+set color_entry_background = "#aceded";
+set color_entry_link = "#a66229";
+set color_entry_link_hover = "#248e8e";
+set color_entry_link_visited = "#000000";
+set color_entry_text = "#132245";
+set color_entry_title = "#a66229";
+set color_entry_title_background = "#ffe8b9";
+set color_footer_link_active = "#ffffff";
+set color_footer_link = "#ffd9b9";
+set color_footer_link_hover = "#aceded";
+set color_footer_link_visited = "#132245";
+set color_header_background = "#6ddbdb";
+set color_module_border = "#248e8e";
+set color_module_link_active = "#ffffff";
+set color_module_link = "#ffd9b9";
+set color_module_link_hover = "#aceded";
+set color_module_link_visited = "#132245";
+set color_module_title_background = "#a66229";
+set color_module_title = "#ffe8b9";
+set color_page_background = "#248e8e";
+set color_page_link_active = "#ffe8b9";
+set color_page_link = "#ffffff";
+set color_page_link_hover = "#aceded";
+set color_page_text = "#ffffff";
+set color_page_title = "#a66229";

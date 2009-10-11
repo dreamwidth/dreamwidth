@@ -41,6 +41,7 @@ fluidmeasure/layout     layout(core2base/layout)    core2
 fluidmeasure/themes     theme+                      fluidmeasure/layout
 
 modish/layout           layout(core2base/layout)    core2
+modish/themes           theme+          modish/layout
 
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
