@@ -40,6 +40,7 @@ sub default_theme {
         boxesandborders => 'boxesandborders/gray',
         brittle => 'brittle/rust',
         core2base => 'core2base/testing',
+        crossroads => 'crossroads/lettuce',
         drifting => 'drifting/blue',
         fluidmeasure => 'fluidmeasure/spice',
         funkycircles => 'funkycircles/darkpurple',

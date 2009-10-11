@@ -28,6 +28,9 @@ colorside/themes        theme+          colorside/layout
 core2base/layout        layout          core2
 core2base/themes        theme+          core2base/layout
 
+crossroads/layout       layout(core2base/layout)    core2
+crossroads/themes       theme+          crossroads/layout
+
 drifting/layout         layout          core2
 drifting/themes         theme+          drifting/layout
 
