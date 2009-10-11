@@ -1,0 +1,48 @@
+#NEWLAYER: brittle/rust
+layerinfo type = "theme";
+layerinfo name = "Rust";
+layerinfo redist_uniq = "brittle/rust";
+layerinfo author_name = "renoir";
+
+set layout_authors = [ { "name" => "renoir", "type" => "user" } ];
+
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#ECE5CE";
+set color_page_text = "#7A7A7A";
+set color_page_link = "#5F8A92";
+set color_page_link_hover = "#ACC5C9";
+set color_page_link_visited = "#8DA8AD";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#FFFFFF";
+set color_footer_link = "#5F8A92";
+set color_footer_link_hover = "#ACC5C9";
+set color_footer_link_visited = "#8DA8AD";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#939393";
+set color_entry_background = "#FFFFFF";
+set color_entry_text = "#7A7A7A";
+set color_entry_link = "#5F8A92";
+set color_entry_link_hover = "#ACC5C9";
+set color_entry_link_visited = "#8DA8AD";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#7A6A53";
+set color_navigation_module_link = "#ACC5C9";
+set color_navigation_module_link_hover = "#CBDADC";
+set color_navigation_module_link_visited = "#DBE6E7";
+

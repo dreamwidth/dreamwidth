@@ -19,6 +19,9 @@ blanket/themes          theme+          blanket/layout
 boxesandborders/layout  layout(core2base/layout)    core2
 boxesandborders/themes  theme+                      boxesandborders/layout
 
+brittle/layout          layout          core2
+brittle/themes          theme+          brittle/layout
+
 colorside/layout        layout(core2base/layout)    core2
 colorside/themes        theme+          colorside/layout
 

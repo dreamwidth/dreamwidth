@@ -38,6 +38,7 @@ sub default_theme {
         basicboxes => 'basicboxes/green',
         blanket => 'blanket/peach',
         boxesandborders => 'boxesandborders/gray',
+        brittle => 'brittle/rust',
         core2base => 'core2base/testing',
         drifting => 'drifting/blue',
         fluidmeasure => 'fluidmeasure/spice',
