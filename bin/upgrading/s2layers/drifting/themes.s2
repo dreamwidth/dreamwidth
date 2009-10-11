@@ -52,3 +52,30 @@ set color_page_link_visited = "#ff809d";
 set color_page_subtitle = "#4D0040";
 set color_page_text = "#ffe6eb";
 set color_page_title = "#804075";
+
+#NEWLAYER: drifting/lightondark
+layerinfo type = "theme";
+layerinfo name = "Light on Dark";
+layerinfo redist_uniq = "drifting/lightondark";
+layerinfo author_name = "cesy";
+
+set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+
+set color_page_link_active = "#ffcccc";
+set color_page_background = "#000000";
+set color_page_link = "#ddddff";
+set color_page_title = "#666666";
+set image_background_header_repeat = "repeat";
+set color_module_border = "#ffffff";
+set color_entry_text = "#ffffff";
+set color_entry_border = "#ffffff";
+set color_page_text = "#ffffff";
+set color_module_title = "#999999";
+set color_header_background = "#999999";
+set image_background_page_position = "top left";
+set color_entry_title = "#ffffff";
+set color_page_link_visited = "#ffffcc";
+set image_background_page_repeat = "repeat";
+set color_page_border = "#ffffff";
+set color_page_subtitle = "#666666";
+set color_entry_background = "#000000";
