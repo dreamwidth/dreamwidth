@@ -35,6 +35,11 @@ package LJ::S2Theme::funkycircles::industrialteal;
 use base qw( LJ::S2Theme::funkycircles );
 sub cats { qw( ) }
 
+package LJ::S2Theme::funkycircles::nevermore;
+use base qw( LJ::S2Theme::funkycircles );
+sub cats { qw( ) }
+sub designer { "wizard101" }
+
 package LJ::S2Theme::funkycircles::seablues;
 use base qw( LJ::S2Theme::funkycircles );
 sub cats { qw( ) }

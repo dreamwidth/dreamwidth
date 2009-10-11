@@ -665,6 +665,127 @@ function Page::print_default_stylesheets()
     </style>""";
 }
 
+#NEWLAYER: funkycircles/nevermore
+layerinfo type = "theme";
+layerinfo name = "Nevermore";
+layerinfo redist_uniq = "funkycircles/nevermore";
+layerinfo author_name = "wizard101";
+
+set layout_authors = [ { "name" => "wizard101", "type" => "user" } ];
+set layout_resources = [ { "name" => "Wordle", "url" => "http://www.wordle.net/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000000";
+set color_page_border = "#333333";
+set color_page_link = "#eeeeee";
+set color_page_link_active = "#eeeeee";
+set color_page_link_hover = "#eeeeee";
+set color_page_link_visited = "#eeeeee";
+set color_page_subtitle = "#666666";
+set color_page_subtitle_background = "#333333";
+set color_page_text = "#666666";
+set color_page_title = "#770000";
+set color_page_title_background = "#000000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000000";
+set color_entry_border = "#333333";
+set color_entry_footer_background = "#000000";
+set color_entry_footer_border = "#333333";
+set color_entry_footer_link = "#eeeeee";
+set color_entry_footer_link_active = "#eeeeee";
+set color_entry_footer_link_hover = "#ffffff";
+set color_entry_footer_link_visited = "#eeeeee";
+set color_entry_footer_text = "#770000";
+set color_entry_interaction_links = "#eeeeee";
+set color_entry_link = "#eeeeee";
+set color_entry_link_active = "#eeeeee";
+set color_entry_link_hover = "#eeeeee";
+set color_entry_link_hover_background = "#000000";
+set color_entry_link_visited = "#eeeeee";
+set color_entry_poster_border = "#666666";
+set color_entry_text = "#666666";
+set color_entry_title = "#770000";
+set color_entry_title_background = "#000000";
+set color_entry_userpic_border = "#666666";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title_background = "#000000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#333333";
+set color_module_border = "#770000";
+set color_module_link = "#eeeeee";
+set color_module_link_active = "#eeeeee";
+set color_module_link_hover = "#eeeeee";
+set color_module_link_visited = "#eeeeee";
+set color_module_text = "#666666";
+set color_module_title = "#770000";
+set color_module_title_background = "#000000";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_background = "#000000";
+set color_footer_link = "#770000";
+set color_footer_link_active = "#770000";
+set color_footer_link_hover = "#770000";
+set color_footer_link_visited = "#770000";
+set color_header_background = "#000000";
+
+##===============================
+## Fonts
+##===============================
+
+set font_base = "Times";
+set font_base_size = "0.875";
+set font_base_units = "em";
+set font_entry_title = "Times";
+set font_entry_title_size = "1.25";
+set font_entry_title_units = "em";
+set font_fallback = "serif";
+set font_journal_subtitle = "Times";
+set font_journal_subtitle_size = "0.94";
+set font_journal_subtitle_units = "em";
+set font_journal_title = "Times";
+set font_journal_title_size = "1.6";
+set font_journal_title_units = "em";
+set font_module_heading = "Times";
+set font_module_heading_size = "0.94";
+set font_module_heading_units = "em";
+set font_module_text = "Times";
+set font_module_text_size = "0.69";
+set font_module_text_units = "em";
+
+##===============================
+## Images
+##===============================
+
+set image_background_entry_position = "top left";
+set image_background_entry_repeat = "repeat";
+set image_background_header_position = "top center";
+set image_background_header_repeat = "no-repeat";
+set image_background_module_position = "top left";
+set image_background_module_repeat = "repeat";
+set image_background_page_position = "top right";
+set image_background_page_repeat = "repeat";
+set image_background_page_url = "funkycircles/nevermore-background.png";
+set image_entry_list_background_position = "top center";
+set image_entry_list_background_repeat = "no-repeat";
+
 #NEWLAYER: funkycircles/seablues
 layerinfo "type" = "theme";
 layerinfo "name" = "Sea Blues";
