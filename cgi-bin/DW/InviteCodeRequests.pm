@@ -224,13 +224,19 @@ sub accept {
 
     $self->change_status( status => "accepted", count => $opts{num_invites} );
     
-    LJ::send_mail({
+    LJ::send_mail( {
         to => $u->email_raw,
         from => $LJ::ACCOUNTS_EMAIL,
         fromname => $LJ::SITENAME,
         charset => $u->mailencoding,
         subject => LJ::Lang::ml( 'email.invitecoderequest.accept.subject' ),
-        body => LJ::Lang::ml( 'email.invitecoderequest.accept.body', { invitesurl => "$LJ::SITEROOT/manage/invitecodes"} ),
+        body => LJ::Lang::ml( 'email.invitecoderequest.accept.body2', { 
+            siteroot => $LJ::SITEROOT, 
+            invitesurl => $LJ::SITEROOT . '/manage/invitecodes',
+            sitename => $LJ::SITENAMESHORT,
+            number => $opts{num_invites},
+            codes => join( "\n", @invitecodes ),
+            } ),
     });
 }
 

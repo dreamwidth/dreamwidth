@@ -776,10 +776,20 @@ edges.watch.error.usernotvisible=Your account must be visible.
 
 email=Email
 
-email.invitecoderequest.accept.body<<
-Your request for invites has been granted. You can view all your invite codes here:
+email.invitecoderequest.accept.body2<<
+Your previous request for invite codes has been granted. You received [[number]] invite [[?number|code|codes]] from site administrators, listed below:
+
+[[codes]]
+
+You may use [[?number|this code|these codes]] however you want. You don't need to save this email, either. Your unused codes will always be there, at:
 
   [[invitesurl]]
+
+When you run out, feel free to request more. Thanks for supporting [[sitename]]!
+
+Sincerely,
+The [[sitename]] Team,
+[[siteroot]]
 .
 
 email.invitecoderequest.accept.subject=Your invite code request has been granted
