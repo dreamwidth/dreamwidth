@@ -118,6 +118,8 @@ body<=
                 LJ::Setting::Display::BanUsers
                 DW::Setting::ProfileEmail
                 DW::Setting::RandomPaidGifts
+                DW::Setting::GlobalSearch
+                DW::Setting::AllowSearchBy
             )],
         },
         history => {

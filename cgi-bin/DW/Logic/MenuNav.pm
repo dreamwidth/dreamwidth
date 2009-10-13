@@ -201,8 +201,8 @@ sub get_menu_navigation {
                 },
                 {
                     url => "$LJ::SITEROOT/search",
-                    text => "menunav.explore.journalsearch",
-                    display => $loggedin_ispaid && @LJ::SPHINX_SEARCHD ? 1 : 0,
+                    text => "menunav.explore.sitesearch",
+                    display => @LJ::SPHINX_SEARCHD ? 1 : 0,
                 },
                 {
                     url => "$LJ::SITEROOT/random",

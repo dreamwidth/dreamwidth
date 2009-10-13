@@ -1736,6 +1736,31 @@ sub add_to_class {
 }
 
 
+# 1/0 whether the argument is allowed to search this journal
+sub allow_search_by {
+    my ( $u, $by ) = @_;
+    return 0 unless LJ::isu( $u ) && LJ::isu( $by );
+
+    # the person doing the search has to be an individual
+    return 0 unless $by->is_individual;
+
+    # someone in the equation has to be a paid account
+    return 0 unless $u->is_paid || $by->is_paid;
+
+    # allow searches if this is a community or it's us
+    return 1 if $u->is_community || $u->equals( $by );
+
+    # check the userprop for security access
+    my $whocan = $u->prop( 'opt_allowsearchby' );
+    return 1 if $whocan eq 'A';
+    return 1 if $whocan eq 'F' && $u->trusts( $by );
+    return 1 if $whocan eq 'N' && $u->equals( $by );
+
+    # failing the above, sorry, no search for you
+    return 0;
+}
+
+
 sub caps {
     my $u = shift;
     return $u->{caps};
@@ -1905,6 +1930,27 @@ sub google_analytics {
 sub in_class {
     my ($u, $class) = @_;
     return LJ::caps_in_group($u->{caps}, $class);
+}
+
+
+# 1/0; whether or not this account should be included in the global search
+# system.  this is used by the bin/worker/sphinx-copier mostly.
+sub include_in_global_search {
+    my $u = $_[0];
+
+    # only P/C accounts should be globally searched
+    return 0 unless $u->is_person || $u->is_community;
+
+    # default) check opt_blockglobalsearch and use that if it's defined
+    my $bgs = $u->prop( 'opt_blockglobalsearch' );
+    return $bgs eq 'Y' ? 0 : 1 if defined $bgs && length $bgs;
+
+    # fallback) use their robot blocking value if it's set
+    my $br = $u->prop( 'opt_blockrobots' );
+    return $br ? 0 : 1 if defined $br && length $br;
+
+    # allow search of this user's content
+    return 1;
 }
 
 

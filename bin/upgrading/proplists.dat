@@ -518,6 +518,14 @@ userproplist.no_mail_alias:
   multihomed: 0
   prettyname: Disable site e-mail alias
 
+userproplist.opt_allowsearchby:
+  cldversion: 4
+  datatype: char
+  des: A = everybody, F = access list only, N = nobody (me only).
+  indexed: 0
+  multihomed: 0
+  prettyname: Allow Search By
+
 userproplist.opt_bdaymail:
   cldversion: 0
   datatype: bool
@@ -525,6 +533,14 @@ userproplist.opt_bdaymail:
   indexed: 1
   multihomed: 0
   prettyname: Get Birthday Reminders
+
+userproplist.opt_blockglobalsearch:
+  cldversion: 4
+  datatype: char
+  des: Y: don't allow global search, N: do allow
+  indexed: 0
+  multihomed: 0
+  prettyname: Block Global Search of Content
 
 userproplist.opt_blockrobots:
   cldversion: 4

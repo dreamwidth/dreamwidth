@@ -2209,11 +2209,11 @@ menunav.explore.interests=Interests
 
 menunav.explore.directorysearch=Directory Search
 
-menunav.explore.journalsearch=Journal Search
-
 menunav.explore.randomjournal=Random Journal
 
 menunav.explore.randomcommunity=Random Community
+
+menunav.explore.sitesearch=Site and Journal Search
 
 menunav.explore.faq=FAQ
 
@@ -2449,6 +2449,14 @@ setting.adultcontent.option.self=This journal contains content that
 
 setting.adultcontentreason.label=Adult Content Reason
 
+setting.allowsearchby.label=Allow Search By
+
+setting.allowsearchby.sel.a=Allow everybody to search my journal
+
+setting.allowsearchby.sel.f=Allow people on my access list to search my journal (default)
+
+setting.allowsearchby.sel.n=Allow nobody else (only me) to search my journal
+
 setting.bio.desc|notes=There shouldn't be a description unless the page specifies one
 setting.bio.desc=_none
 
@@ -2682,6 +2690,12 @@ setting.gender.error.invalid=Invalid option
 setting.gender.error.wrongtype=Only personal or identity journals can have a gender.
 
 setting.gender.question=What's your gender?
+
+setting.globalsearch.label=Global Search Inclusion
+
+setting.globalsearch.sel.no=No, do not allow my content to be displayed
+
+setting.globalsearch.sel.yes=Yes, display my public content in search results (default)
 
 setting.graphicpreviews.label=Graphic Previews
 

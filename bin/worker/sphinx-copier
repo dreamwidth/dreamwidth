@@ -103,9 +103,9 @@ sub work {
     # already has most of their posts copied and they are just updating one or two.
     foreach my $jitemid ( @copy_jitemids ) {
         my $row = $dbfrom->selectrow_hashref(
-            qq{SELECT l.journalid, l.jitemid, l.posterid, l.security, l.eventtime, lt.subject, lt.event
-               FROM log2 l INNER JOIN logtext2 lt ON (l.journalid = lt.journalid AND l.jitemid = lt.jitemid)
-               WHERE l.journalid = ? AND l.jitemid = ?},
+            q{SELECT l.journalid, l.jitemid, l.posterid, l.security, l.allowmask, l.eventtime, lt.subject, lt.event
+              FROM log2 l INNER JOIN logtext2 lt ON (l.journalid = lt.journalid AND l.jitemid = lt.jitemid)
+              WHERE l.journalid = ? AND l.jitemid = ?},
             undef, $u->id, $jitemid
         );
         die $dbfrom->errstr if $dbfrom->err;
@@ -113,17 +113,25 @@ sub work {
         # have to do some more munging
         $row->{is_public} = $row->{security} eq 'public' ? 1 : 0;
         $row->{edittime} = $db_times->{$jitemid};
+        $row->{allowmask} = join ',', LJ::bit_breakdown( $row->{allowmask} );
+        $row->{allowpublic} = $u->include_in_global_search ? 1 : 0;
 
         # very important, the search engine can't index compressed crap...
         foreach ( qw/ subject event / ) {
             LJ::text_uncompress( \$row->{$_} );
+
+            # required, we store raw-bytes in our own database but the Sphinx system expects
+            # things to be proper UTF-8, this does it.
             $row->{$_} = Encode::decode( 'utf8', $row->{$_} );
         }
 
         # insert
-        $dbto->do( 'REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id, is_public, date_posted, title, data, revtime) ' .
-                   'VALUES (NULL, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?)',
-                   undef, map { $row->{$_} } qw/ journalid jitemid posterid is_public eventtime subject event edittime /, );
+        $dbto->do(
+            q{REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id, is_public, security_bits, allow_global_search, date_posted,
+                                      title, data, revtime)
+              VALUES (NULL, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?)},
+            undef, map { $row->{$_} } qw/ journalid jitemid posterid is_public allowmask allowpublic eventtime subject event edittime /
+        );
         die $dbto->errstr if $dbto->err;
 
         # let the viewer know what they missed

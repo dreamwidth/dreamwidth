@@ -463,16 +463,13 @@ sub search {
 
     my $u = $self->{u};
     my $remote = $self->{remote};
-    my $user = $u->user;
 
     # don't show if search is disabled
     return undef unless
-        @LJ::SPHINX_SEARCHD &&
-        ( $u->is_community || ( $u->equals( $remote ) ) ) &&
-        $u->is_paid;
+        @LJ::SPHINX_SEARCHD && $u->allow_search_by( $remote );
 
     my $link = {
-        url => 'search' . ( $u->is_community ? "?search_user=" . $u->user : '' ),
+        url => 'search?user=' . $u->user,
         image => 'search.png',
         text_ml => "userlinkbar.search",
         title_ml => "userlinkbar.search.title",

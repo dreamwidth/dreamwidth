@@ -33,126 +33,147 @@ body<=
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;
 
-    # okay, now let's make sure the data is valid
-    my $su = LJ::load_user( $GET{search_user} || $remote->user );
-    return "Invalid search user.\n" unless $su;
-    return "You can't search that journal!\n"
-        unless $remote->equals( $su ) ||
-               $su->is_community;
+    # see what search mode...
+    my $su = LJ::load_user( $POST{mode} || $GET{user} );
+    my $q = LJ::strip_html( LJ::trim( $POST{query} ) );
 
-    # and make sure we're searching a paid account
-    return "Sorry, searches are only available for paid accounts.\n"
-        unless $su->is_paid;
+    # helper sub for returning the search form
+    my $search_form = sub {
+        my $ret = "<form method='post' action='$LJ::SITEROOT/search'>" . LJ::form_auth();
 
-    # for later
-    my $sulj = $su->ljuser_display;
-    my $suu = $su->user;
+        $ret .= LJ::html_check( { type => 'radio', selected => $su ? 0 : 1, id => 'm-global', name => 'mode',
+                                  value => '', label => 'Site Search (Public Entries)' } );
 
-    # if they posted we might have to do something
-    if ( LJ::did_post() ) {
-        return "Failauth.\n" unless LJ::check_form_auth();
-        # and make sure we got a query
-        my $q = LJ::strip_html( LJ::trim( $POST{query} ) );
-        return "Query must be shorter than 255 characters, sorry!\n"
-            if length( $q ) > 255;
-        return "Please enter a search query. <a href='$LJ::SITEROOT/search'>Search again.</a>\n"
-            unless $q;
-
-        # if an offset, less than 1000 please
-        my $offset = $GET{offset} + 0;
-        return "Hey, that offset is nonsensical... :(\n"
-            if $offset < 0 || $offset > 1000;
-
-        # set a public only flag if this is not your journal
-        my $public = ( $remote->equals( $su ) || ( $su->is_community && $remote->member_of( $su ) ) ) ? 0 : 1;
-
-        # the arguments to the search
-        my $args = { userid => $su->id, query => $q, offset => $offset, public => $public };
-        my $arg = Storable::nfreeze( $args );
-
-        # so we know that they're searching something valid, send to gearman
-        my $result;
-        my $task = Gearman::Task->new(
-            'sphinx_search', \$arg,
-            {
-                uniq => '-',
-                on_complete => sub {
-                    my $res = $_[0] or return undef;
-                    $result = Storable::thaw( $$res );
-                },
-            }
-        );
-
-        # setup the task set for gearman... really, isn't there a way to make this
-        # simpler?  oh well
-        my $ts = $gc->new_task_set();
-        $ts->add_task( $task );
-        $ts->wait( timeout => 20 );
-
-        # if we didn't get a result...
-        return "Sorry, we were unable to find a result in the time allotted.  This may mean that ".
-               "the server is busy or down.  Please try your query again later.\n"
-            unless $result;
-
-        # if we didn't get any matches...
-        return "Sorry, we didn't find any matches for the search <strong>$q</strong>.  We looked for $result->{time} seconds, too!\n"
-            if $result->{total} <= 0;
-
-        # now we can process the results and do something fascinating!
-        my $matches = '';
-        foreach my $match ( @{ $result->{matches} } ) {
-            my $icon = {
-                    public => '',
-                    private => "<img src='$LJ::IMGPREFIX/silk/entry/private.png'>",
-                    usemask => "<img src='$LJ::IMGPREFIX/silk/entry/filtered.png'>",
-                    access => "<img src='$LJ::IMGPREFIX/silk/entry/locked.png'>",
-                }->{$match->{security}};
-
-            my $tags = join( ', ', map { "<strong>" . $match->{tags}->{$_} . "</strong>" } keys %{ $match->{tags} } );
-            $tags = "<br />Tags: $tags"
-                if $tags;
-
-            my $html = qq(<div class='searchres'>$icon <a href="$match->{url}">$match->{subject}</a><br />
-                          <span class='exc'>$match->{excerpt}</span>$tags<br />Posted: <strong>$match->{eventtime}</strong><br /><br />
-                          </div>);
-            $matches .= $html;
+        my $tu = $su || $remote;
+        if ( $tu->allow_search_by( $remote ) ) {
+            $ret .= LJ::html_check( { type => 'radio', selected => $su ? 1 : 0, id => 'm-user', name => 'mode',
+                                      value => $tu->user, label => "Journal Search: <strong>" . $tu->user . "</strong>", noescape => 1 } );
         }
 
-        # build the rest of the search page
-        my $ret = "<?p You have searched $sulj... p?>" . $matches;
-
-        # put some stats on the output
-        my $matchct = scalar( @{ $result->{matches} } );
-        my $skip = $offset > 0 ? " (skipped $offset)" : "";
-        $ret .= qq(<span class="stats">$matchct results displayed out of $result->{total} hits total$skip for <strong>$q</strong>.
-                   $result->{time} seconds.</span>);
-
-        if ( $result->{total} > ( $offset + $matchct ) ) {
-            my $offsetm = $offset + $matchct;
-            my $fa = LJ::form_auth();
-            $ret .= qq(<form method="post" action="$LJ::SITEROOT/search?search_user=$suu&offset=$offsetm">$fa
-                       <input type="hidden" name="query" value="$q"> <input type="submit" value="More Results..." />
-                       </form>);
-        }
+        $ret .= '<br /><input type="text" name="query" maxlength="255" size="60" value="' . LJ::ehtml( $q ) .
+                '"> <input type="submit" value="Search" /></form>';
 
         return $ret;
+    };
+
+    # an error redisplays the form, with an error message
+    my $error = sub {
+        return $search_form->() . "<br /><?p <strong>Error:</strong> $_[0] p?>";
+    };
+
+    # if no $su, then this is a public search, that's allowed.  but if it's a user,
+    # ensure that it's an account that we CAN search
+    return $error->( "You can't search that journal." )
+        if $su && ! $su->allow_search_by( $remote );
+
+    ################################################################################
+    ################################################################################
+
+    # give them the form to do a search if they haven't actually posted to us yet
+    unless ( LJ::did_post() ) {
+        # give them a form to enter their search options
+        return "<?p $LJ::SITENAME content search.  Please select where to search and enter your search terms. p?>" .
+               $search_form->() .
+               '</form><br /> <?p To control who can search your journal, and whether or not your public ' .
+               'entries appear in global search results, please adjust your <a href="' . $LJ::SITEROOT .
+               '/manage/settings/?cat=privacy">account privacy settings</a>. p?>';
     }
 
-    # give them a form to search...
-    my $fa = LJ::form_auth();
-    return <<EOF;
+    ################################################################################
+    ################################################################################
 
-<?p Searching $sulj ... p?>
+    # at this point, they have done a POST, which means they want to search something
+    return $error->( "Failauth." ) unless LJ::check_form_auth();
 
-<form method="post" action="$LJ::SITEROOT/search?search_user=$suu">
-$fa
-<input type="text" name="query" maxlength="255" size="60"> <input type="submit" value="Search!" />
-</form>
+    # and make sure we got a query
+    return $error->( "Query must be shorter than 255 characters, sorry!" )
+        if length( $q ) > 255;
+    return $error->( "Please enter a search query." )
+        unless $q;
 
-<?p This is a beta search.  Things may be slow or broken while we iron out the kinks
-in the system.  If you run into trouble, let us know! p?>
+    # if an offset, less than 1000 please
+    my $offset = $GET{offset} + 0;
+    return $error->( "Hey, that offset is nonsensical... :(" )
+        if $offset < 0 || $offset > 1000;
 
-EOF
+    # set a public only flag if this is not your journal or a community you are in
+    my $public = 1;
+    $public = 0 if $su && ( $remote->equals( $su ) || ( $su->is_community && $remote->member_of( $su ) ) );
+
+    # the arguments to the search (userid=0 implies global search)
+    my $args = { userid => $su ? $su->id : 0, query => $q, offset => $offset, public => $public };
+    my $arg = Storable::nfreeze( $args );
+
+    # so we know that they're searching something valid, send to gearman
+    my $result;
+    my $task = Gearman::Task->new(
+        'sphinx_search', \$arg,
+        {
+            uniq => '-',
+            on_complete => sub {
+                my $res = $_[0] or return undef;
+                $result = Storable::thaw( $$res );
+            },
+        }
+    );
+
+    # setup the task set for gearman... really, isn't there a way to make this
+    # simpler?  oh well
+    my $ts = $gc->new_task_set();
+    $ts->add_task( $task );
+    $ts->wait( timeout => 20 );
+
+    # if we didn't get a result...
+    return $error->( "Sorry, we were unable to find a result in the time allotted.  This may mean that ".
+                     "the server is busy or down.  Please try your query again later." )
+        unless $result;
+
+    # if we didn't get any matches...
+    return $error->( "Sorry, we didn't find any matches for the search <strong>$q</strong>.  We looked for $result->{time} seconds, too!" )
+        if $result->{total} <= 0;
+
+    # now we can process the results and do something fascinating!
+    my $matches = '<br /><br />';
+    foreach my $match ( @{ $result->{matches} } ) {
+        my $mu = LJ::load_userid( $match->{journal_id} );
+
+        my $icon = {
+                public => '',
+                private => "<img src='$LJ::IMGPREFIX/silk/entry/private.png'>",
+                usemask => "<img src='$LJ::IMGPREFIX/silk/entry/filtered.png'>",
+                access => "<img src='$LJ::IMGPREFIX/silk/entry/locked.png'>",
+            }->{$match->{security}};
+
+        my $tags = join( ', ', map { "<strong>" . $match->{tags}->{$_} . "</strong>" } keys %{ $match->{tags} } );
+        $tags = "<br />Tags: $tags"
+            if $tags;
+
+        my $mulj = $mu->ljuser_display;
+        my $html = qq(<div class='searchres'>$mulj: $icon <a href="$match->{url}">$match->{subject}</a><br />
+                      <span class='exc'>$match->{excerpt}</span>$tags<br />Posted: <strong>$match->{eventtime}</strong><br /><br />
+                      </div>);
+        $matches .= $html;
+    }
+
+    # build the rest of the search page
+    my $ret = $search_form->() . $matches;
+
+    # put some stats on the output
+    my $matchct = scalar( @{ $result->{matches} } );
+    my $skip = $offset > 0 ? " (skipped $offset)" : "";
+    $ret .= qq(<span class="stats">$matchct results displayed out of $result->{total} hits total$skip for <strong>$q</strong>.
+               $result->{time} seconds.</span>);
+
+    if ( $result->{total} > ( $offset + $matchct ) ) {
+        my $offsetm = $offset + $matchct;
+        $ret .= "<form method='post' action='$LJ::SITEROOT/search?offset=$offsetm'>" . LJ::form_auth() .
+                "<input type='hidden' name='query' value='" . LJ::ehtml( $q ) . "'>" .
+                "<input type='hidden' name='mode' value='" . ( $su ? $su->user : '' ) . "'>" .
+                "<input type='submit' value='More Results...' />" .
+                "</form>";
+    }
+
+    return $ret;
 }
 _code?>
 <=body

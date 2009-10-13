@@ -32,8 +32,10 @@ sub sphinx_search {
     my $job = $_[0];
 
     my $args = Storable::thaw( $job->arg ) || {};
-    return undef
-        unless $args->{userid} && $args->{query};
+    return undef unless $args->{query};
+
+    # a little sanity check, we don't currently allow a global search on non-public content
+    return undef if $args->{userid} == 0 && $args->{public} != 1;
 
     my $sx = Sphinx::Search->new();
     $sx->SetServer( @LJ::SPHINX_SEARCHD );
@@ -41,9 +43,15 @@ sub sphinx_search {
     $sx->SetMatchMode( SPH_MATCH_ALL )
        ->SetSortMode( SPH_SORT_RELEVANCE )
        ->SetMaxQueryTime( 15_000 )
-       ->SetFilter( 'journal_id', [ $args->{userid} ] )
        ->SetLimits( $args->{offset} || 0, 20 );
+    
+    # filter to a journal if we have a userid set; else, filter on allow_global_search items
+    $sx->SetFilter( 'journal_id', [ $args->{userid} ] )
+        if $args->{userid};
+    $sx->SetFilter( 'allow_global_search', [ 1 ] )
+        unless $args->{userid};
 
+    # further filter on public items or not
     $sx->SetFilter( 'is_public', [ 1 ] )
         if $args->{public};
 
