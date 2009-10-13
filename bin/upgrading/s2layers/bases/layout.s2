@@ -276,7 +276,7 @@ var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallb
 var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, 
     $*image_background_page_position, $*color_page_background);
 var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, 
-    $*image_background_header_position, $*color_module_title);
+    $*image_background_header_position, $*color_header_background);
 var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, 
     $*image_background_entry_position, $*color_entry_background );
 var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, 
@@ -372,7 +372,7 @@ ul ul {list-style: circle;}
 
 #title { $page_title_font font-weight: bold; padding: 2em 0 0 0.65em; color: $*color_page_title; margin: 0; }
 
-#subtitle { $page_subtitle_font padding-left: 1.5em; }
+#subtitle { $page_subtitle_font padding-left: 1.5em; color: $*color_page_title; }
 
 #header {$header_background }
 

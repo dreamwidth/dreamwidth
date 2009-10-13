@@ -36,6 +36,27 @@ set color_module_link_active = "#ff9090";
 set color_module_text = "#503125";
 set color_entry_background = "#f5e4da";
 
+function Page::print_default_stylesheets()
+{
+    $this->print_default_stylesheet();
+    if ($*external_stylesheet) {
+        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
+    }
+    else {
+        println """<style type="text/css">""";
+        start_css();
+        print_stylesheet();
+        end_css();
+        println """</style>""";
+    }
+
+    """<style type="text/css">
+/* ====================== HEADER ======================= */
+#header { border: none; }
+    </style>""";
+}
+
+
 #NEWLAYER: bases/sunandsand
 layerinfo type = "theme";
 layerinfo name = "Sun and Sand";
