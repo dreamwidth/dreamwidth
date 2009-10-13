@@ -14,6 +14,7 @@ set color_page_link_hover = "#f0a830";
 set color_page_link_visited = "#7799aa";
 
 set color_header_background = "#fff";
+set color_header_footer_border = "#f2ebd7";
 set color_page_title = "#aaa";
 
 set color_module_background = "#f2ebd7";
@@ -39,6 +40,7 @@ set color_entry_border = "#a2a775";
 set color_entry_text = "#5c5726";
 set color_entry_title = "#a2a775";
 set color_header_background = "#ffffff";
+set color_header_footer_border = "#f2ebd7";
 set color_module_background = "#f0d0f9";
 set color_module_border = "#6a5070";
 set color_module_text = "#401a49";

@@ -41,6 +41,7 @@ propgroup colors {
     property use color_page_title;
     
     property use color_header_background;
+    property Color color_header_footer_border { des = "Header and footer border color"; }
 
     property use color_module_background;
     property use color_module_text;
@@ -255,7 +256,7 @@ a:hover { $page_link_hover_colors }
 
 /*--- header + footer ---*/
 #header { width: 60%; margin: 0 auto 2em auto; $header_colors }
-#header>.inner { border-left: 20px solid #f2ebd7; padding: 4em 2em; }
+#header>.inner { border-left: 20px solid $*color_header_footer_border; padding: 4em 2em; }
 #footer { display: block; clear: both; }
 .page-top { width: 60%; margin: 0 auto; text-transform: uppercase; text-align: right; }
 .navigation { text-transform: uppercase; text-align: right; }
@@ -275,7 +276,7 @@ div.module-navlinks ul.module-list li { display: inline; margin: 0 1em 0 0; list
 
 /*--- modules ---*/
 #secondary { width: 60%; margin: 0 auto; z-index: 0; padding: 0; $entry_colors }
-#secondary>.inner { border-left: 20px solid #f2ebd7; padding: 4em 2em; }
+#secondary>.inner { border-left: 20px solid $*color_header_footer_border; padding: 4em 2em; }
 
 #secondary .module { float: left; margin: 2em 1em;}
 #secondary .module-header, #secondary .module-header a { $module_title_colors }
