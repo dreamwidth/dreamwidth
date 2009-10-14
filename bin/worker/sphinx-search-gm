@@ -34,9 +34,6 @@ sub sphinx_search {
     my $args = Storable::thaw( $job->arg ) || {};
     return undef unless $args->{query};
 
-    # a little sanity check, we don't currently allow a global search on non-public content
-    return undef if $args->{userid} == 0 && $args->{public} != 1;
-
     my $sx = Sphinx::Search->new();
     $sx->SetServer( @LJ::SPHINX_SEARCHD );
 
@@ -51,9 +48,14 @@ sub sphinx_search {
     $sx->SetFilter( 'allow_global_search', [ 1 ] )
         unless $args->{userid};
 
-    # further filter on public items or not
-    $sx->SetFilter( 'is_public', [ 1 ] )
-        if $args->{public};
+    # security filtering is a dangerous game.  basically, the caller tells us whether to
+    # ignore security or gives us a mask of bits to work with.  from that we intuit what
+    # security options to enable on our filters to Sphinx.
+    unless ( $args->{ignore_security} ) {
+        # allow public posts and anything the mask allows
+        my @bits = ( 102, LJ::bit_breakdown( $args->{allowmask} ) );
+        $sx->SetFilter( 'security_bits', \@bits );
+    }
 
     my $res = $sx->Query( $args->{query} );
     return undef unless $res;

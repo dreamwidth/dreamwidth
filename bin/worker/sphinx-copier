@@ -110,10 +110,16 @@ sub work {
         );
         die $dbfrom->errstr if $dbfrom->err;
 
+        # we need extra security bits for some metadata.  we have to do this this way because
+        # it makes it easier to later do searches on various combinations of things at the same
+        # time...  also, even though these are bits, we're not going to ever use them as actual bits.
+        my @extrabits;
+        push @extrabits, 101 if $row->{security} eq 'private';
+        push @extrabits, 102 if $row->{security} eq 'public';
+
         # have to do some more munging
-        $row->{is_public} = $row->{security} eq 'public' ? 1 : 0;
         $row->{edittime} = $db_times->{$jitemid};
-        $row->{allowmask} = join ',', LJ::bit_breakdown( $row->{allowmask} );
+        $row->{allowmask} = join ',', LJ::bit_breakdown( $row->{allowmask} ), @extrabits;
         $row->{allowpublic} = $u->include_in_global_search ? 1 : 0;
 
         # very important, the search engine can't index compressed crap...
@@ -127,10 +133,10 @@ sub work {
 
         # insert
         $dbto->do(
-            q{REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id, is_public, security_bits, allow_global_search, date_posted,
+            q{REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id, security_bits, allow_global_search, date_posted,
                                       title, data, revtime)
-              VALUES (NULL, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?)},
-            undef, map { $row->{$_} } qw/ journalid jitemid posterid is_public allowmask allowpublic eventtime subject event edittime /
+              VALUES (NULL, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?)},
+            undef, map { $row->{$_} } qw/ journalid jitemid posterid allowmask allowpublic eventtime subject event edittime /
         );
         die $dbto->errstr if $dbto->err;
 

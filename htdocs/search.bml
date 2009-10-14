@@ -96,12 +96,26 @@ body<=
     return $error->( "Hey, that offset is nonsensical... :(" )
         if $offset < 0 || $offset > 1000;
 
-    # set a public only flag if this is not your journal or a community you are in
-    my $public = 1;
-    $public = 0 if $su && ( $remote->equals( $su ) || ( $su->is_community && $remote->member_of( $su ) ) );
+    # we have to set a few flags on what to search.  default to public and no bits.
+    my ( $ignore_security, $allowmask ) = ( 0, 0 );
+    if ( $su ) {
+        # if it's you, all posts, all bits
+        if ( $remote->equals( $su ) ) {
+            $ignore_security = 1;
+
+        # or a comm you're in ...
+        } elsif ( $su->is_community && $remote->member_of( $su ) ) {
+            $ignore_security = 1;
+
+        # otherwise, if they trust you, get the mask ...
+        } elsif ( $su->trusts( $remote ) ) {
+            $allowmask = $su->trustmask( $remote );
+        }
+    }
 
     # the arguments to the search (userid=0 implies global search)
-    my $args = { userid => $su ? $su->id : 0, query => $q, offset => $offset, public => $public };
+    my $args = { userid => $su ? $su->id : 0, query => $q, offset => $offset,
+                 ignore_security => $ignore_security, allowmask => $allowmask };
     my $arg = Storable::nfreeze( $args );
 
     # so we know that they're searching something valid, send to gearman

@@ -1751,7 +1751,7 @@ sub allow_search_by {
     return 1 if $u->is_community || $u->equals( $by );
 
     # check the userprop for security access
-    my $whocan = $u->prop( 'opt_allowsearchby' );
+    my $whocan = $u->prop( 'opt_allowsearchby' ) || 'F';
     return 1 if $whocan eq 'A';
     return 1 if $whocan eq 'F' && $u->trusts( $by );
     return 1 if $whocan eq 'N' && $u->equals( $by );
