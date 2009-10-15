@@ -35,9 +35,6 @@ sub execute {
         return $self->error("Invalid entry.")
             unless $entry->valid;
 
-        return $self->error("Journal and/or poster is purged; cannot suspend entry.")
-            if $poster->is_expunged || $journal->is_expunged;
-
         return $self->error("Entry is already suspended.")
             if $entry->is_suspended;
 
