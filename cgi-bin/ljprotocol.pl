@@ -1033,6 +1033,7 @@ sub postevent
         $flags->{nonotify} = 1;
         $flags->{noauth} = 1;
         $flags->{usejournal_okay} = 1;
+        $flags->{no_xpost} = 1;
     }
 
     return undef unless LJ::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
@@ -1546,7 +1547,7 @@ sub postevent
 
     my $entry = LJ::Entry->new($uowner, jitemid => $jitemid, anum => $anum);
 
-    if ( $u->equals( $uowner ) && $req->{xpost} ne '0' ) {
+    if ( $u->equals( $uowner ) && $req->{xpost} ne '0' && ! $flags->{no_xpost} ) {
         schedule_xposts( $u, $ditemid, 0, sub { ((shift)->xpostbydefault, {}) } );
     }
 
