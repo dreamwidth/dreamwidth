@@ -53,3 +53,34 @@ set color_page_link_hover = "#a2a775";
 set color_page_link_visited = "#6A5070";
 set color_page_text = "#5c5726";
 set color_page_title = "#a2a775";
+
+#NEWLAYER: blanket/thetealandthegrey
+layerinfo type = "theme";
+layerinfo name = "The Teal and the Grey";
+layerinfo redist_uniq = "blanket/thetealandthegrey";
+layerinfo author_name = "twtd";
+
+set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+
+set color_page_text = "#888";
+set color_page_background = "#d5d6d6";
+set color_page_border = "#099aaf";
+
+set color_page_link = "#036472";
+set color_page_link_active = "#036472";
+set color_page_link_hover = "#C07D0C";
+set color_page_link_visited = "#DD8D09";
+
+set color_header_background = "#fff";
+set color_header_footer_border = "#099aaf";
+set color_page_title = "#099aaf";
+
+set color_module_background = "#C3C3C3";
+set color_module_text = "#036472";
+set color_module_border = "#099aaf";
+set color_module_title = "#036472";
+
+set color_entry_background = "#fff";
+set color_entry_text = "#888";
+set color_entry_title = "#099aaf";
+set color_entry_border = "#099aaf";

@@ -18,8 +18,13 @@ sub cats { qw( base ) }
 
 package LJ::S2Theme::blanket::sprung;
 use base qw( LJ::S2Theme::blanket );
-sub cats { qw( featured  ) }
+sub cats { qw( featured ) }
 sub designer { "zvi" }
+
+package LJ::S2Theme::blanket::thetealandthegrey;
+use base qw( LJ::S2Theme::blanket );
+sub cats { qw( ) }
+sub designer { "twtd" }
 
 1;
 
