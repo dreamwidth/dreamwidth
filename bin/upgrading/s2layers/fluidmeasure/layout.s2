@@ -339,6 +339,10 @@ padding-top: 2em; } /*die in a fire, IE7*/
     margin-top: -1.5em;
     white-space: nowrap; }
 
+.ljedittime .datetime {
+    float: none;
+}
+
 .comment .contents {  }
 
 .comment .poster-ip { font-size: small;
