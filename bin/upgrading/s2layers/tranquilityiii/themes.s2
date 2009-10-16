@@ -97,27 +97,13 @@ set color_module_link_visited = "#ffffcc";
 set color_module_title_background = "#000000";
 set color_module_title = "#ffffff";
 
-function Page::print_default_stylesheets() 
+function Page::print_theme_stylesheet() 
 {
-    $this->print_default_stylesheet();
-    if ($*external_stylesheet) {
-        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-    }
-    else {
-        println """<style type="text/css">""";
-        start_css();
-        print_stylesheet();
-        end_css();
-        println """</style>""";
-    }
 
-    """<style type="text/css">
-
-    .entry-title, .module-header { padding-left: .5em; }
+    """.entry-title, .module-header { padding-left: .5em; }
     .module-header { margin-bottom: .2em; }
-    .comment-title { padding: .3em; }
+    .comment-title { padding: .3em; }""";
 
-    </style>""";
 }
 
 

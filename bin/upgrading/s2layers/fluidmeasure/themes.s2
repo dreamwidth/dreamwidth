@@ -63,25 +63,12 @@ set color_module_title = "#000";
 set color_module_title_background = "#DBBD95"; 
 set color_module_border = "#333"; 
 
-function Page::print_default_stylesheets() {
-    $this->print_default_stylesheet();
-
-    if ($*external_stylesheet) {
-        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-    }
-    else {
-        println """<style type="text/css">""";
-        start_css();
-        print_stylesheet();
-        end_css();
-        println """</style>""";
-    }
+function Page::print_theme_stylesheet() {
 
     """
-    <style type="text/css">
     .module-calendar .entry-day a { color: $*color_module_background !important; }
-    </style>
     """;
+
 }
 
 #NEWLAYER: fluidmeasure/spice

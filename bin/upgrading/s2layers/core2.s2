@@ -612,6 +612,9 @@ class Page
     function print_default_stylesheet
     "Prints the layout's base default stylesheet.";
 
+    function print_theme_stylesheet
+    "Prints theme-specific CSS. Should be overwritten by themes that include CSS not part of the layout's default stylesheet.";
+
     function builtin print_trusted(string key)
     "Prints a trusted string by key.";
 }
@@ -2872,6 +2875,12 @@ function Page::print_default_stylesheet()
     """</style>\n""";
 }
 
+function Page::print_theme_stylesheet()
+"Prints theme-specific CSS. Should be overwritten by themes that include CSS not part of the layout's default stylesheet."
+{
+
+}
+
 function Page::print_default_stylesheets() 
 "Contains the layout and theme default stylesheets. Themes and child layouts may use this to disable the printing of the layout's base default stylesheet, or to add theme-specific CSS bits. May be overriden on a per-layout/theme basis"
 {
@@ -2886,10 +2895,17 @@ function Page::print_default_stylesheets()
         end_css();
         println """</style>""";
     }   
+
+    println """<style type="text/css">""";
+    start_css();
+    $this->print_theme_stylesheet();
+    end_css();
+    println """</style>\n""";
+
 }
 
 function Page::print_stylesheets()
-"If you have specific CSS to code onto all themes using this layout, override print_default_stylesheet.  If you have specific CSS to code into this theme, set the external_stylesheet property or override the print_stylesheet function. An end user can choose to link to an off-site stylesheet using the linked_stylesheet property and/or use the custom_css property.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
+"If you have specific CSS to code onto all themes using this layout, override print_default_stylesheet.  If you have specific CSS to code into this theme, set the external_stylesheet property or override the Page::print_theme_stylesheet function. An end user can choose to link to an off-site stylesheet using the linked_stylesheet property and/or use the custom_css property.  Overriding this function is NOT RECOMMENDED. Overriding this function could prevent sitewide improvements to styles, accessibility, or other functionality from operating in your layout."
 {
     if ($*include_default_stylesheet) {
         $this->print_default_stylesheets();

@@ -74,21 +74,10 @@ set image_module_list = "funkycircles/atomicorange-modulebullet.png";
 set image_module_list_active = "funkycircles/atomicorange-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/atomicorange-modulebullethover.png";
 
-function Page::print_default_stylesheets()
+function Page::print_theme_stylesheet()
 {
-    $this->print_default_stylesheet();
-    if ($*external_stylesheet) {
-        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-    }
-    else {
-        println """<style type="text/css">""";
-        start_css();
-        print_stylesheet();
-        end_css();
-        println """</style>""";
-    }
 
-    """<style type="text/css">
+    """
 /* Modules
 ***************************************************************************/
         .module-calendar td.empty-day {
@@ -108,7 +97,8 @@ function Page::print_default_stylesheets()
                 .module-calendar td.entry-day a:hover {
                     color: $*color_entry_text !important;
                     }
-    </style>""";
+    """;
+
 }
 
 #NEWLAYER: funkycircles/chocolaterose
@@ -414,21 +404,10 @@ set image_module_list = "funkycircles/earthygreen-modulebullet.png";
 set image_module_list_active = "funkycircles/earthygreen-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/earthygreen-modulebullethover.png";
 
-function Page::print_default_stylesheets()
+function Page::print_theme_stylesheet()
 {
-    $this->print_default_stylesheet();
-    if ($*external_stylesheet) {
-        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-    }
-    else {
-        println """<style type="text/css">""";
-        start_css();
-        print_stylesheet();
-        end_css();
-        println """</style>""";
-    }
 
-    """<style type="text/css">
+    """
 /* Modules
 ***************************************************************************/
             .module-calendar td.entry-day a {
@@ -444,7 +423,8 @@ function Page::print_default_stylesheets()
                     color: $*color_entry_text !important;
                     }
 
-    </style>""";
+    """;
+
 }
 
 #NEWLAYER: funkycircles/industrialpink
@@ -521,21 +501,10 @@ set image_module_list = "funkycircles/industrialpink-modulebullet.png";
 set image_module_list_active = "funkycircles/industrial-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/industrial-modulebullethover.png";
 
-function Page::print_default_stylesheets()
+function Page::print_theme_stylesheet()
 {
-    $this->print_default_stylesheet();
-    if ($*external_stylesheet) {
-        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-    }
-    else {
-        println """<style type="text/css">""";
-        start_css();
-        print_stylesheet();
-        end_css();
-        println """</style>""";
-    }
 
-    """<style type="text/css">
+    """
 /* Modules
 ***************************************************************************/
         .module-calendar td.entry-day {
@@ -552,7 +521,8 @@ function Page::print_default_stylesheets()
                 .module-calendar td.entry-day a:hover {
                     color: $*color_entry_text !important;
                     }
-    </style>""";
+    """;
+
 }
 
 #NEWLAYER: funkycircles/industrialteal
@@ -631,21 +601,10 @@ set image_module_list = "funkycircles/industrialteal-modulebullet.png";
 set image_module_list_active = "funkycircles/industrial-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/industrial-modulebullethover.png";
 
-function Page::print_default_stylesheets()
+function Page::print_theme_stylesheet()
 {
-    $this->print_default_stylesheet();
-    if ($*external_stylesheet) {
-        println safe """<link rel="stylesheet" href="$.stylesheet_url" type="text/css" />""";
-    }
-    else {
-        println """<style type="text/css">""";
-        start_css();
-        print_stylesheet();
-        end_css();
-        println """</style>""";
-    }
 
-    """<style type="text/css">
+    """
 /* Modules
 ***************************************************************************/
         .module-calendar td.entry-day {
@@ -662,7 +621,8 @@ function Page::print_default_stylesheets()
                 .module-calendar td.entry-day a:hover {
                     color: $*color_entry_text !important;
                     }
-    </style>""";
+    """;
+
 }
 
 #NEWLAYER: funkycircles/nevermore
