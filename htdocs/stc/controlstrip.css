@@ -114,7 +114,6 @@ html body
     text-align: left;
     vertical-align: middle;
     padding: 0 1em 0 1em;
-    white-space: nowrap;
     width: auto;
 }
 
@@ -124,13 +123,7 @@ html body
     text-align: left;
     vertical-align: middle;
     padding: 0 1em 0 1em;
-    white-space: nowrap;
     width: auto;
-}
-
-#lj_controlstrip_actionlinks a
-{
-    white-space: nowrap;
 }
 
 /* Third cell first line */
