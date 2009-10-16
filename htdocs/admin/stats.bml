@@ -39,23 +39,37 @@ body<=
 
     # number of accounts, total
     my $accounts_by_type = DW::StatData::AccountsByType->load_latest( DW::StatStore->get( "accounts" ) );
-    $ret .= "<h2>Number of accounts</h2>";
-    $ret .= "<ul>";
-    $ret .= "<li><label>Total</label>: " . $accounts_by_type->value( "total" ) . "</li>";
-    $ret .= "<li><label>Personal</label>: " . $accounts_by_type->value( "personal" ) . "</li>";
-    $ret .= "<li><label>OpenID</label>: " . $accounts_by_type->value( "identity" ) . "</li>";
-    $ret .= "</ul>";
-    
+    if ( defined $accounts_by_type ) {
+        $ret .= "<h2>Number of accounts</h2>";
+        $ret .= "<ul>";
+        $ret .= "<li><label>Total</label>: " . $accounts_by_type->value( "total" ) . "</li>";
+        $ret .= "<li><label>Personal</label>: " . $accounts_by_type->value( "personal" ) . "</li>";
+        $ret .= "<li><label>OpenID</label>: " . $accounts_by_type->value( "identity" ) . "</li>";
+        $ret .= "</ul>";
+    }
+
     # number of accounts, active
-    
-    
+    my $active_accounts = DW::StatData::ActiveAccounts->load_latest( DW::StatStore->get( "active" ) );
+    my $active; # Used in paid account stats below
+    $ret .= "<h2>$ML{'/stats/site.bml.active.title'}</h2><p>$ML{'/stats/site.bml.active.desc'}</p>";
+ 
+    if ( defined $active_accounts ) {
+        $ret .= "<ul>";
+        $ret .= "<li>" . $ML{"/stats/site.bml.active.bytime.$_"} . " "
+                . $active_accounts->value( $_ ) . "</li>"
+            foreach qw/ active_1d active_7d active_30d /;
+        $ret .= "</ul>";
+        $active = $active_accounts->value( 'active_30d' );
+    } else {
+        $ret .= $ML{'/stats/site.bml.error.notavailable'};
+    }
     
 <<COMMENT;
 
 FIXME: remove this when you have implemented them all 
 
-* Number of accounts, total
-* Number of accounts active
+* Number of accounts, total (done)
+* Number of accounts active (done)
 * Number of paid accounts (by payment level)
   -- as a percentage of total accounts
   -- as a percentage of active accounts
