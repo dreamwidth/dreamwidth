@@ -565,11 +565,6 @@ sub clean
                         next;
                     }
 
-                    if ($attr eq "href" && $hash->{$attr} =~ /^data/) {
-                        delete $hash->{$attr};
-                        next;
-                    }
-
                     if ($attr =~ /(?:^=)|[\x0b\x0d]/) {
                         # Cleaner attack:  <p ='>' onmouseover="javascript:alert(document/**/.cookie)" >
                         # is returned by HTML::Parser as P_tag("='" => "='") Text( onmouseover...)
@@ -593,7 +588,7 @@ sub clean
                     # IE sucks:
                     my $nowhite = $hash->{$attr};
                     $nowhite =~ s/[\s\x0b]+//g;
-                    if ($nowhite =~ /(?:jscript|livescript|javascript|vbscript|about):/ix) {
+                    if ($nowhite =~ /(?:jscript|livescript|javascript|vbscript|about|data):/ix) {
                         delete $hash->{$attr};
                         next;
                     }
