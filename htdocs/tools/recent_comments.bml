@@ -78,12 +78,14 @@ body<=
         }
     }
 
+    # anchors for 'latest received' and  'latest posted', link to Manage Comment Settings
+    # options for how many comments to view
     $ret .= "<?standout <div style='text-align: center'>";
     $ret .= "<a name='received'></a>";
-    $ret .= BML::ml('Actionlink', { 'link' => "Latest Received"}) . " "
+    $ret .= BML::ml('Actionlink', { link => $ML{'.latest.received'}}) . " "
         if $u->is_person;
-    $ret .= BML::ml('Actionlink', { 'link' => "<a href='#posted'>Latest Posted</a>"}) . " ";
-    $ret .= BML::ml('Actionlink', { 'link' => "<a href='$LJ::SITEROOT/manage/comments'>$ML{'.managesettings'}</a>"});
+    $ret .= BML::ml('Actionlink', { link => "<a href='#posted'>$ML{'.latest.posted'}</a>"}) . " ";
+    $ret .= BML::ml('Actionlink', { link => "<a href='$LJ::SITEROOT/manage/comments'>$ML{'.managesettings'}</a>"});
 
     $ret .= "<br />";
     $ret .= " $ML{ '.view.latest' } [ ";
@@ -94,9 +96,11 @@ body<=
         unless grep { $max == $_ } @values;
     my $getextra = LJ::u_equals($u, $remote) ? "" : "&authas=" . $u->user;
 
-    foreach my $val (sort { $a <=> $b } @values) {
+    @values = sort { $a <=> $b } @values;
+
+    foreach my $val ( @values ) {
         next if $val > $max;
-        if ($val == $count) {
+        if ( $val == $count ) {
             $ret .= " <b>$val</b> ";
         } else {
             $ret .= " <a href='?show=$val$getextra'>$val</a> ";
@@ -241,10 +245,26 @@ body<=
                                  " p?>" unless $max >= $LJ::TOOLS_RECENT_COMMENTS_MAX;
 
     if ($u->is_individual) {
-        $ret .= "<div style='text-align: center; margin-top: 1em'><a name='posted'></a>" .
-            BML::ml('Actionlink', { 'link'=>"<a href='#received'>$ML{ '.latest.received' }</a>"}) .
-            BML::ml('Actionlink', { 'link' => $ML{ '.latest.posted' }}) . " " .
-            "</div>";
+
+        $ret .= "<?standout <div style='text-align: center'>";
+        $ret .= "<a name='posted'></a>";
+        $ret .= BML::ml('Actionlink', { link => "<a href='#received'>$ML{'.latest.received'}</a>"}) . " "
+            if $u->is_person;
+        $ret .= BML::ml('Actionlink', { link => $ML{'.latest.posted'}}) . " ";
+        $ret .= BML::ml('Actionlink', { link => "<a href='$LJ::SITEROOT/manage/comments'>$ML{'.managesettings'}</a>"});
+
+        $ret .= "<br />";
+        $ret .= " $ML{ '.view.latest' } [ ";
+        foreach my $val ( @values ) {
+            next if $val > $max;
+            if ( $val == $count ) {
+                $ret .= " <b>$val</b> ";
+            } else {
+                $ret .= " <a href='?show=$val$getextra'>$val</a> ";
+            }
+        }
+        $ret .= "] $ML{ '.latest.comments' } </div> standout?>";
+
         $ret .= "<?h1 $ML{ '.latest.posted' } h1?><?p " . BML::ml('.last.num.posted.by', {num => $count, user => LJ::ljuser($u) }) . " p?>";
         my %jcount;  # jid -> ct
         $ret .= "<table style='text-align: left'>";
