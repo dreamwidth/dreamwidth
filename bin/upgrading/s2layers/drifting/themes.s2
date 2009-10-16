@@ -53,6 +53,37 @@ set color_page_subtitle = "#4D0040";
 set color_page_text = "#ffe6eb";
 set color_page_title = "#804075";
 
+#NEWLAYER: drifting/idolatry
+layerinfo type = "theme";
+layerinfo name = "Idolatry";
+layerinfo author_name = "zvi";
+layerinfo redist_uniq = "drifting/idolatry";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#000000";
+set color_page_background = "#470a0f";
+set color_page_link = "#be8200";
+set color_page_title = "#ffda9f";
+set color_module_border = "#45080d";
+set color_entry_text = "#470a0f";
+set color_entry_border = "#45080d";
+set color_page_text = "#470a0f";
+set color_module_title = "#be8200";
+set color_entry_title = "#ffda9f";
+set color_page_link_visited = "#f8c432";
+set color_page_border = "#45080d";
+set color_page_subtitle = "#f8c432";
+set color_entry_background = "#FFF8F0";
+
+function Page::print_theme_stylesheet() {
+
+    """
+    #footer { color: $*color_module_title ;}
+    """;
+
+}
+
 #NEWLAYER: drifting/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light on Dark";
