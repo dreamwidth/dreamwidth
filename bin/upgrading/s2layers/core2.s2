@@ -2066,7 +2066,7 @@ set text_module_customtext_url = "";
 
 property string text_post_comment {
     des = "Link text to leave a comment";
-    example = "Leave a comment";
+    example = "Reply";
 }
 property string text_max_comments {
     des = "Text when entry has reached a comment maximum";
@@ -2077,20 +2077,20 @@ property string text_read_comments {
     format = "plurals";
     example = "1 comment // # comments";
 }
-set text_post_comment = "Leave a comment";
+set text_post_comment = "Reply";
 set text_max_comments = "Maximum comments reached";
 set text_read_comments = "1 comment // # comments";
 
 property string text_post_comment_friends {
     des = "Link text to leave a comment from your reading page";
-    example = "Leave a comment";
+    example = "Reply";
 }
 property string text_read_comments_friends {
     des = "Link text to read comments from your reading page";
     format = "plurals";
     example = "1 comment // # comments";
 }
-set text_post_comment_friends = "Leave a comment";
+set text_post_comment_friends = "Reply";
 set text_read_comments_friends = "1 comment // # comments";
 
 property string text_read_comments_threads {
@@ -2104,17 +2104,29 @@ set text_read_comments_threads = "1 response // # responses";
 ## Text - entry actions
 ##===============================
 
-property string text_entry_prev { des = "Text to link to the previous entry"; }
+property string text_entry_prev {
+    des = "Text to link to the previous entry";
+    example = "\"Previous Entry\" or \"Previous\"";
+}
 
-property string text_entry_next { des = "Text to link to the next entry"; }
+property string text_entry_next {
+    des = "Text to link to the next entry";
+    example = "\"Next Entry\" or \"Next\"";
+}
 
 property string text_edit_entry { des = "Text to edit an entry"; }
 
 property string text_edit_tags { des = "Text to edit tags for an entry"; }
 
-property string text_tell_friend { des = "Text to tell someone about an entry"; }
+property string text_tell_friend {
+    des = "Text to tell someone about an entry";
+    example = "\"Share This Entry\" or \"Share\"";
+}
 
-property string text_mem_add { des = "Text to add an entry into memories"; }
+property string text_mem_add {
+    des = "Text to add an entry into memories";
+    example = "\"Add Memory\" or \"Memory\"";
+}
 
 property string text_watch_comments { des = "Text to track events on an entry"; }
 
@@ -2133,8 +2145,8 @@ set text_entry_prev = "Previous Entry";
 set text_entry_next = "Next Entry";
 set text_edit_entry = "Edit Entry";
 set text_edit_tags = "Edit Tags";
-set text_tell_friend = "Tell Someone";
-set text_mem_add = "Add to Memories";
+set text_tell_friend = "Share This Entry";
+set text_mem_add = "Add Memory";
 set text_watch_comments = "Track This";
 set text_unwatch_comments = "Untrack This";
 set text_permalink = "Link";
