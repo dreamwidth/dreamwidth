@@ -109,7 +109,10 @@ sub do_auth {
 sub call_xmlrpc {
     my ($self, $proxyurl, $mode, $req, $auth) = @_;
     
-    my $xmlrpc = eval { XMLRPC::Lite->proxy($proxyurl); };
+    my $xmlrpc = eval {
+        XMLRPC::Lite->proxy( $proxyurl, agent => "$LJ::SITENAME XPoster ($LJ::ADMIN_EMAIL)" );
+    };
+
     # connection error if no proxy
     return {
         success => 0,

@@ -369,7 +369,8 @@ sub call_xmlrpc {
     my ( $class, $opts, $mode, $hash, $depth ) = @_;
 
     my $xmlrpc = XMLRPC::Lite->new;
-    $xmlrpc->proxy( "http://" . ( $opts->{server} || $opts->{hostname} ) . "/interface/xmlrpc" );
+    $xmlrpc->proxy( "http://" . ( $opts->{server} || $opts->{hostname} ) . "/interface/xmlrpc",
+                    agent => "$LJ::SITENAME Content Importer ($LJ::ADMIN_EMAIL)" );
 
     my $chal;
     while ( ! $chal ) {
