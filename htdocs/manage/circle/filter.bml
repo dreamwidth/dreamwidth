@@ -3,7 +3,7 @@
     use strict;
     use vars qw($title $body %ML %POST);
 
-    $title = $ML{'.title2'};
+    $title = $ML{'.title3'};
     $body = "";
     
     LJ::set_active_crumb('filterfriends');
@@ -12,16 +12,7 @@
     {
         my $user = lc($POST{'user'});
         my $extra;
-        if ($POST{'type'} eq "mergefilters") {
-            my $filter = 0;
-            foreach my $k (keys %POST) {
-                next unless ($k =~ /^bit_(\d+)$/);
-                my $bit = $1;
-                next if ($bit < 1 || $bit > 60);
-                $filter |= (1 << $bit);
-            }
-            $extra = "?filter=$filter";
-        } elsif ($POST{'type'} eq "allfilters") {
+        if ( $POST{type} eq "allfilters" ) {
             my $view = $POST{'view'};
             if ($view eq "showpeople") {
                 $extra = "?show=P&filter=0";
@@ -36,52 +27,31 @@
         my $u = LJ::load_user($user);
         BML::redirect($u->journal_base() . "/read${extra}");
     }
-    
+
     my $remote = LJ::get_remote();
-    
+
     unless ($remote) { $body .= "<?needlogin?>"; return; }
-    
-    my %res;
-    # FIXME: make this use LJ::Protocol::do_request 
-    LJ::do_request({ 'mode' => 'getfriendgroups',
-                     'ver'  => $LJ::PROTOCOL_VER,
-                     'user' => $remote->{'user'}, },
-                   \%res, { 'noauth' => 1, 'userid' => $remote->{'userid'} });
-    
-    
-    unless ($res{'frgrp_maxnum'}) {
-        $body = "<?h1 $ML{'.error.nogroups.header'} h1?><?p " . BML::ml('.error.nogroups2', {'aopts' => "href='$LJ::SITEROOT/manage/circle/editfilters'"}) . " p?>";
+
+    my @groups = $remote->content_filters;
+
+    unless ( @groups ) {
+        $body = "<?h1 $ML{'.error.nogroups.header2'} h1?><?p " . BML::ml('.error.nogroups3', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/filters'"}) . " p?>";
         return;
     }
-    
-    my %group;
-    foreach my $k (keys %res) {
-        if ($k =~ /^frgrp_(\d+)_name/) {
-            $group{$1}->{'name'} = $res{$k};
-        } 
-        elsif ($k =~ /^frgrp_(\d+)_sortorder/) {
-            $group{$1}->{'sortorder'} = $res{$k};
-        } 
-    }
-    
-    $body .= "<?h1 $ML{'.select.header'} h1?><?p $ML{'.select'} p?>";
-    $body .= "<form method='post' style='display: inline' action='filter'>\n";
-    $body .= LJ::html_hidden("user", $remote->{'user'},
-                             "mode", "view",
-                             "type", "mergefilters");
-    $body .= "<div style='margin-left: 30px'>";
-    
-    foreach my $g (sort { $group{$a}->{'sortorder'} <=> $group{$b}->{'sortorder'} } keys %group)
+
+    $body .= "<?h1 $ML{'.select.header2'} h1?><?p ";
+    $body .= BML::ml('.select2', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/filters'"});
+    $body .= " p?><div style='margin-left: 30px; margin-bottom: 1em'>";
+
+    foreach my $g ( @groups )
     {
-        my $url = $remote->journal_base . "/read/" . LJ::eurl($group{$g}->{'name'});
-        $body .= LJ::html_check({ 'value' => "1", 'name' => "bit_$g" }) . " <a href='$url'>" . LJ::ehtml($group{$g}->{'name'}) . "</a><br />\n";
+        my $url = $remote->journal_base . "/read/" . LJ::eurl( $g->name );
+        $body .= " <a href='$url'>" . LJ::ehtml( $g->name ) . "</a><br />\n";
     }
 
-    $body .= LJ::html_submit($ML{'.submit'});
-    $body .= " <input type='reset' value=\"$ML{'.reset'}\"></div>";
-    $body .= "<?p " . BML::ml('.editgroups', { 'link' => "<a href='editfilters'>$ML{'/manage/circle/editfilters.bml.title'}</a>" }) . " p?>";
-    $body .= "</form>";
-    
+    $body .= "</div>";
+    $body .= "<?p " . BML::ml('.editgroups2', { 'link' => "<a href='editfilters'>$ML{'/manage/circle/editfilters.bml.title2'}</a>" }) . " p?>";
+
     return;
 }
 _code?><?page
