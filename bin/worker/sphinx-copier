@@ -34,6 +34,8 @@ sub work {
 
     my $u = LJ::load_userid( $a->{userid} )
         or die "Invalid userid: $a->{userid}.\n";
+    return $job->completed unless $u->is_person || $u->is_community;
+
     my $dbto = LJ::get_dbh( 'sphinx_search' )
         or die "Unable to connect to Sphinx search database.\n";
     my $p_revtime = LJ::get_prop( log => 'revtime' )
