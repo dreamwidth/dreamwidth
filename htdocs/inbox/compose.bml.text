@@ -29,3 +29,5 @@
 .messaging.disabled=User messaging is currently disabled
 
 .suspended.cannot.send=Suspended accounts are not allowed to send private messages
+
+.warning.empty.message=Warning: You are trying to send a message with no text. Please resubmit if this is correct.

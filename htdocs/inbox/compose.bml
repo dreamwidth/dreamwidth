@@ -33,6 +33,7 @@ body<=
     my $msg_body = ''; # reply body
     my $msg_parent = ''; # Hidden msg field containing id of parent message
     my $msg_limit = LJ::get_cap($remote, "usermessage_length");
+    my $force = 0; # flag for if user wants to force an empty PM
 
     my @errors;
 
@@ -60,6 +61,13 @@ body<=
                   { msg_length => LJ::commafy( $msg_len_c ),
                   => msg_limit -> LJ::commafy( $msg_limit ) } )
                 unless ($msg_len_c <= $msg_limit);
+
+            # checks if the PM is empty (no text)
+            $force = $POST{'force'};
+            unless ( $msg_len_c > 0 || $force ) {
+               push @errors, $ML{'.warning.empty.message'};
+               $force = 1;
+            }
 
             # Get list of recipients
             my $to_field = $POST{'msg_to'};
@@ -225,6 +233,9 @@ body<=
                  });
     }
 
+    $body .= LJ::html_hidden( { name  => 'force',
+                                value => $force,
+                                id    => 'force' } );
     $body .= "</p>\n";
     # autocomplete To field with trusted and watched people
     my @flist = ();
