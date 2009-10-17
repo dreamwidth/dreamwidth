@@ -123,6 +123,24 @@ sub add_row {
     return 1;
 }
 
+# method for deleting a row from the filter.  available arguments: userid
+# this method deletes the complete row from the filter
+#
+# $filter->delete_row( userid )   # userid to remove from the filter
+#
+#
+sub delete_row {
+    my ( $self, $userid ) = @_;
+
+    # check if user is already in this content filter
+    return 0 unless $self->contains_userid( $userid );
+
+    # delete row from filter
+    delete( $self->data->{$userid} );
+    $self->_save;
+
+    return 1;
+}
 
 # make sure that our data is loaded up
 sub data {

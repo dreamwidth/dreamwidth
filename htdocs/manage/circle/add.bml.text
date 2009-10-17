@@ -86,6 +86,8 @@
 
 .groups.text1=<i>Optional:</i> Include in one or more access filters.  <strong>You must grant access to the user by selecting the first box above in order to add them to any access filters.</strong>
 
+.groups.reading=<i>Optional:</i> Include in one or more subscription filters.  <strong>You must subscribe to the user by selecting the second box above in order to add them to any subscription filters.</strong>
+
 .optional=Optional
 
 .remove.header=Success
