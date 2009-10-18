@@ -1862,8 +1862,9 @@ sub Entry_from_entryobj
 
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
     # cleaning the entry text: cuts and such
+    my $cut_disable = $opts->{cut_disable};
     my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum ),
-        ljcut_disable => $remote ? $remote->prop( 'opt_cut_disable_journal' ) : undef,
+        ljcut_disable => $cut_disable,
         suspend_msg => $suspend_msg,
         unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0
     };

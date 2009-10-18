@@ -150,6 +150,8 @@ sub FriendsPage
 
     my $eventnum = 0;
     my $hiddenentries = 0;
+    $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_reading' ) );
+
   ENTRY:
     foreach my $item (@items)
     {

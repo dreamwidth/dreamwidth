@@ -127,6 +127,8 @@ sub RecentPage
         $apu{$_->{posterid}} = undef;
     }
 
+    $opts->{cut_disable} = ( $remote && $remote->prop( 'opt_cut_disable_journal' ) );
+
   ENTRY:
     foreach my $item (@items)
     {
