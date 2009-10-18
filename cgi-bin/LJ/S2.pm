@@ -1928,7 +1928,7 @@ sub Entry_from_entryobj
     # comment information
     my $permalink = $entry_obj->url;
     my $replycount = $entry_obj->reply_count;
-    my $nc = $replycount if $replycount && $remote && $remote->prop( 'opt_nctalklinks' );
+    my $nc = "nc=$replycount" if $replycount && $remote && $remote->prop( 'opt_nctalklinks' );
     my $readurl = LJ::Talk::talkargs( $permalink, $nc, $stylemine );
     my $posturl = LJ::Talk::talkargs( $permalink, 'mode=reply', $stylemine );
 
