@@ -1866,7 +1866,8 @@ sub Entry_from_entryobj
     my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum ),
         ljcut_disable => $cut_disable,
         suspend_msg => $suspend_msg,
-        unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0
+        unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0,
+        preformatted => $entry_obj->prop( "opt_preformatted" ),
     };
     # reading pages might need to display image placeholders
     my $cleanhtml_extra = $opts->{cleanhtml_extra} || {};
