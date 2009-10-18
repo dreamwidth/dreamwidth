@@ -360,6 +360,14 @@ class Entry extends EntryLite
     "Does nothing.";
 }
 
+class StickyEntry extends Entry
+"An entry that is shown on top of the journal's recent entries page"
+{
+    var Image sticky_entry_icon "A little icon displayed next to the subject of a sticky entry post";
+
+    function print_sticky_icon () "prints the icon into the subject line";
+}
+
 class Comment extends EntryLite
 "A comment to a journal entry, or to another comment."
 {
@@ -593,6 +601,13 @@ class RecentPage extends Page
     "Array of entries available to be seen by the viewer of the page.";
 
     var RecentNav nav;
+
+    var StickyEntry stickyentry
+    "Entry shown on top of the Recent Entries page";
+
+    function print_sticky_entry(StickyEntry s)
+    "function to print the sticky entry";
+
 }
 
 class FriendsPage extends RecentPage
@@ -1316,6 +1331,11 @@ property string text_permalink {
 }
 set text_permalink = "Link";
 
+property string text_stickyentry_subject {
+    des = "Text that appears before the subject of the sticky entry";
+}
+set text_stickyentry_subject = "Sticky: ";
+
 property string text_edit_entry {
     des = "Text to edit an entry";
 }
@@ -1597,11 +1617,17 @@ property string text_icon_alt_18 {
     des = "Alternative text for icons of 18+ entries";
     noui = 1;
 }
+property string text_icon_alt_sticky_entry {
+    des = "Alternative text for icons of sticky entries";
+    noui = 1;
+}
+
 set text_icon_alt_protected = "[protected post]";
 set text_icon_alt_private = "[private post]";
 set text_icon_alt_groups = "[custom friends groups post]";
 set text_icon_alt_nsfw = "[NSFW]";
 set text_icon_alt_18 = "[18+]";
+set text_icon_alt_sticky_entry = "[sticky entry]";
 
 property bool use_shared_pic {
     des = "Use community userpics instead of poster's userpic.";
@@ -2219,6 +2245,12 @@ function FriendsPage::print_entry(Entry e) {
     "</div>\n\n";
 }
 
+function RecentPage::print_sticky_entry(StickyEntry s)
+"function to print the sticky entry. can be overrised by styles to print it differently than other entries."
+{
+    $this->print_entry( $s );
+}
+
 function Comment::print_edit_text() {
     if ($this.edited) {
         print "<br /><br /><span class='ljedittime'><em>$*text_comment_edittime " + $this->edittime_display() + "</em></span>";
@@ -2281,6 +2313,14 @@ function Entry::print_linkbar() {
     if ($show_interentry) {
         $this->print_link_next();
     }
+}
+
+function StickyEntry::print_sticky_icon()
+"Can be used by layouts to print out sticky icons. Not used in core1"
+{
+    """<span class="sticky-entry-icon">""";
+    $this.sticky_entry_icon->print($*text_icon_alt_sticky_entry);
+    """</span>\n""";
 }
 
 ### RecentPage and related functions
