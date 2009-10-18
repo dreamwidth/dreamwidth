@@ -1921,9 +1921,13 @@ sub Entry_from_entryobj
             $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
     }
 
-    # is style=mine used? if so, it needs to be added to comment links
+    # is style=mine used?  or if remote has it on and this entry is not part of
+    # their journal.  if either are yes, it needs to be added to comment links
     my $stylemine = "";
-    $stylemine = $get->{style} eq "mine" ? "style=mine" : "";;
+    $stylemine .= "style=mine"
+        if $get->{style} eq 'mine' ||
+            ( $remote && $remote->prop( 'opt_stylemine' ) &&
+              $remote->id != $journal->id );
 
     # comment information
     my $permalink = $entry_obj->url;
