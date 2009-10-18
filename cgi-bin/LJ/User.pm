@@ -6641,8 +6641,9 @@ sub set_userprop
     my %multihomed;  # { $propid => $value }
 
     foreach $propname (keys %$hash) {
-        LJ::run_hook("setprop", prop => $propname,
-                     u => $u, value => $value);
+        # call all hooks, since we don't look at the return values.  we expect anybody who
+        # uses this hook to do extra work a property needs when it is set.
+        LJ::run_hooks( 'setprop', prop => $propname, u => $u, value => $value );
 
         my $p = LJ::get_prop("user", $propname) or
             die "Invalid userprop $propname passed to LJ::set_userprop.";
