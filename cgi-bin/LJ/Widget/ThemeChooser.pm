@@ -190,7 +190,7 @@ sub render_body {
 
         my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$filterarg$showarg' class='theme-layout'><em>$theme_layout_name</em></a>";
         my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$filterarg$showarg' class='theme-cat'";
-        $ret .= "<p class='theme-desc'>";
+        $ret .= "<div class='theme-action'><p class='theme-desc'>";
         if ($theme_designer) {
             my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$filterarg$showarg' class='theme-designer'>$theme_designer</a>";
             if ($theme_types{special}) {
@@ -217,7 +217,7 @@ sub render_body {
             );
             $ret .= $class->end_form;
         }
-        $ret .= "</div><!-- end .theme-item -->";
+        $ret .= "</div><!-- end .theme-action --></div><!-- end .theme-item -->";
     }
     $ret .= "</div><!-- end .themes-area --->";
 

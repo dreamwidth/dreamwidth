@@ -42,9 +42,11 @@
 }
 .theme-item .theme-desc {
     font-size: 10px;
-    padding: 4px 0 6px 0;
     margin: 0;
-    height: 4em;
+}
+.theme-item .theme-action {
+    height: 6em;
+    padding: 4px 0 6px 0;
 }
 .theme-item.special h4,
 .theme-item.special .theme-desc {
