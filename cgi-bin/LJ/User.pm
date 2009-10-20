@@ -6328,13 +6328,18 @@ sub ljuser
     }
 
     if ( $type eq 'C' ) {
-        return $make_tag->( 'silk/identity/community.png', $url, 16, '', $type_readable );
+        if ( $u->get_cap( 'staff_headicon' ) ) {
+            return $make_tag->( 'comm_staff.png', $url, 16, '', 'site community' );
+        } else {
+            return $make_tag->( "comm_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
+            return $make_tag->( 'silk/identity/community.png', $url, 16, '', $type_readable );
+        }
     } elsif ( $type eq 'Y' ) {
         return $make_tag->( 'silk/identity/feed.png', $url, 16, '', $type_readable );
     } elsif ( $type eq 'I' ) {
         return $u->ljuser_display($opts);
     } else {
-        if ( $u->get_cap( 'staff_headicon' ) == 1 ) {
+        if ( $u->get_cap( 'staff_headicon' ) ) {
             return $make_tag->( 'silk/identity/user_staff.png', $url, 17, '', 'staff' );
         }
         else {
