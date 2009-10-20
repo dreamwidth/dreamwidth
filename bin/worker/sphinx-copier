@@ -105,7 +105,7 @@ sub work {
     # already has most of their posts copied and they are just updating one or two.
     foreach my $jitemid ( @copy_jitemids ) {
         my $row = $dbfrom->selectrow_hashref(
-            q{SELECT l.journalid, l.jitemid, l.posterid, l.security, l.allowmask, l.eventtime, lt.subject, lt.event
+            q{SELECT l.journalid, l.jitemid, l.posterid, l.security, l.allowmask, l.logtime, lt.subject, lt.event
               FROM log2 l INNER JOIN logtext2 lt ON (l.journalid = lt.journalid AND l.jitemid = lt.jitemid)
               WHERE l.journalid = ? AND l.jitemid = ?},
             undef, $u->id, $jitemid
@@ -138,7 +138,7 @@ sub work {
             q{REPLACE INTO posts_raw (id, journal_id, jitemid, poster_id, security_bits, allow_global_search, date_posted,
                                       title, data, revtime)
               VALUES (NULL, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?), ?, ?, ?)},
-            undef, map { $row->{$_} } qw/ journalid jitemid posterid allowmask allowpublic eventtime subject event edittime /
+            undef, map { $row->{$_} } qw/ journalid jitemid posterid allowmask allowpublic logtime subject event edittime /
         );
         die $dbto->errstr if $dbto->err;
 
