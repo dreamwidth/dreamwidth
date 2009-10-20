@@ -270,6 +270,7 @@ sub try_work {
             }
 
             $evt->{event} = $class->remap_lj_user( $data, $event );
+            $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
 
             # actually post it
             my ( $ok, $res ) =
