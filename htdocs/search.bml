@@ -193,6 +193,7 @@ body<=
         $ret .= "<form method='post' action='$LJ::SITEROOT/search?offset=$offsetm'>" . LJ::form_auth() .
                 "<input type='hidden' name='query' value='" . LJ::ehtml( $q ) . "'>" .
                 "<input type='hidden' name='mode' value='" . ( $su ? $su->user : '' ) . "'>" .
+                "<input type='hidden' name='sort_by' value='" . $sby . "'>" .
                 "<input type='submit' value='More Results...' />" .
                 "</form>";
     }
