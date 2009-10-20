@@ -1849,6 +1849,14 @@ sub Entry_from_entryobj
     my $journalid = $entry_obj->journalid;
     my $journal = LJ::load_userid( $journalid );
 
+    # is style=mine used?  or if remote has it on and this entry is not part of
+    # their journal.  if either are yes, it needs to be added to comment links
+    my $stylemine = "";
+    $stylemine .= "style=mine"
+        if $get->{style} eq 'mine' ||
+            ( $remote && $remote->prop( 'opt_stylemine' ) &&
+              $remote->id != $journalid );
+
     #load and prepare subject and text of entry
     my $subject = $entry_obj->subject_html;
     my $text = $entry_obj->event_raw;
@@ -1863,7 +1871,7 @@ sub Entry_from_entryobj
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
     # cleaning the entry text: cuts and such
     my $cut_disable = $opts->{cut_disable};
-    my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum ),
+    my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum, $stylemine ),
         ljcut_disable => $cut_disable,
         suspend_msg => $suspend_msg,
         unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0,
@@ -1922,14 +1930,6 @@ sub Entry_from_entryobj
     if ( $opts->{enable_tags_compatibility} && @taglist ) {
             $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
     }
-
-    # is style=mine used?  or if remote has it on and this entry is not part of
-    # their journal.  if either are yes, it needs to be added to comment links
-    my $stylemine = "";
-    $stylemine .= "style=mine"
-        if $get->{style} eq 'mine' ||
-            ( $remote && $remote->prop( 'opt_stylemine' ) &&
-              $remote->id != $journal->id );
 
     # comment information
     my $permalink = $entry_obj->url;
