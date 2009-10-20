@@ -51,6 +51,30 @@ sub get_comment_map {
     return \%map;
 }
 
+
+=head2 C<< $class->update_comment( $u, $comment, $errref ) >>
+
+Called by the importer when it has gotten a copy of a comment and wants to make sure that our local
+copy of a comment is syncronized.
+
+$comment is a hashref representation of a single comment, same as for <<insert_comment>>.
+
+$errref is a scalar reference to put any error text in.
+
+=cut
+
+sub update_comment {
+    my ( $class, $u, $cmt, $errref ) = @_;
+    $errref ||= '';
+
+    # FIXME: we should try to do more than just update the picture keyword, this should handle
+    # edits and such.  for now, I'm just trying to get the icons to update...
+    my $c = LJ::Comment->instance( $u, jtalkid => $cmt->{id} )
+        or return $$errref = 'Unable to instantiate LJ::Comment object.';
+    $c->set_prop( picture_keyword => $cmt->{props}->{picture_keyword} );
+}
+
+
 =head2 C<< $class->insert_comment( $u, $comment, $errref ) >>
 
 $comment is a hashref representation of a single comment, with the following format:
@@ -64,6 +88,8 @@ $comment is a hashref representation of a single comment, with the following for
 
     parentid => $local_parent,
 
+    props => { ... }, # hashref of talkprops
+
     state => 'A',
   }
 
@@ -76,10 +102,6 @@ sub insert_comment {
     $errref ||= '';
 
     # load the data we need to make this comment
-    # FIXME: What is the point of this?
-    use Data::Dumper;
-    warn Dumper( $cmt ) unless $cmt->{jitemid};
-
     my $jitem = LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
     my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "?thread=" . ( $cmt->{id} << 8 );
     my $user = LJ::load_userid( $cmt->{posterid} )
@@ -91,8 +113,14 @@ sub insert_comment {
     $date =~ s/Z//;
 
     # sometimes the date is empty
-    # FIXME: why?  Dre had this, when can the date be empty?
     $date ||= LJ::mysql_time();
+
+    # remove properties that we don't know or care about
+    foreach my $name ( keys %{$cmt->{props} || {}} ) {
+        delete $cmt->{props}->{$name}
+            unless LJ::get_prop( talk => $name ) &&
+                ( $name ne 'import_source' && $name ne 'imported_from' );
+    }
 
     # build the data structures we use.  we are sort of faking it here.
     my $comment = {
@@ -102,9 +130,17 @@ sub insert_comment {
         state => $cmt->{state},
         u => $user,
 
+        # we have to promote these from properties to the main comment hash so that
+        # the enter_imported_comment function can demote them back to properties
+        picture_keyword => delete $cmt->{props}->{picture_keyword},
+        preformat       => delete $cmt->{props}->{opt_preformatted},
+        subjecticon     => delete $cmt->{props}->{subjecticon},
+        unknown8bit     => delete $cmt->{props}->{unknown8bit},
+
         props => {
             import_source => $source,
             imported_from => $cmt->{source},
+            %{$cmt->{props} || {}},
         },
 
         no_urls => 1,

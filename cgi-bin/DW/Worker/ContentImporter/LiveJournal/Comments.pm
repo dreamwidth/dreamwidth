@@ -221,7 +221,7 @@ sub try_work {
     $log->( 'Finished fetching metadata.' );
 
     # body handling section now
-    my ( $lastid, $curid, @tags ) = ( 0, 0 );
+    my ( $lastid, $curid, $lastprop, @tags ) = ( 0, 0, undef );
 
     # setup our handlers for body XML info
     my $body_handler = sub {
@@ -235,21 +235,28 @@ sub try_work {
             $curid = $temp{id};
             $meta{$curid}{parentid} = $temp{parentid}+0;
             $meta{$curid}{jitemid} = $temp{jitemid}+0;
+        } elsif ( $lasttag eq 'property' ) {
+            $lastprop = $temp{name};
         }
     };
     my $body_closer = sub {
         # we hit a closing tag so we're not in a tag anymore
         my $tag = pop @tags;
         $lasttag = $tags[0];
+        $lastprop = undef;
     };
     my $body_content = sub {
-        # this grabs data inside of comments: body, subject, date
+        # this grabs data inside of comments: body, subject, date, properties
         return unless $curid;
-        return unless $lasttag =~ /(?:body|subject|date)/;
-        $meta{$curid}{$lasttag} .= $_[1];
-        # have to .= it, because the parser will split on punctuation such as an apostrophe
-        # that may or may not be in the data stream, and we won't know until we've already
-        # gotten some data
+
+        # have to append to it, because the parser will split on punctuation such as an apostrophe
+        # that may or may not be in the data stream, and we won't know until we've already gotten
+        # some data
+        if ( $lasttag =~ /(?:body|subject|date)/ ) {
+            $meta{$curid}{$lasttag} .= $_[1];
+        } elsif ( $lastprop && $lasttag eq 'property' ) {
+            $meta{$curid}{props}{$lastprop} .= $_[1];
+        }
     };
 
     # start looping to fetch all of the comment bodies
@@ -290,7 +297,7 @@ sub try_work {
                 # reset all text so we don't get it double posted
                 foreach my $cmt ( values %meta ) {
                     delete $cmt->{$_}
-                        foreach qw/ subject body date /;
+                        foreach qw/ subject body date props /;
                 }
 
                 # and now filter.  note that we're assuming this is ISO-8859-1, as that's a
@@ -358,7 +365,7 @@ sub try_work {
     my @to_import = sort { ( $a->{id}+0 ) <=> ( $b->{id}+0 ) } values %meta;
     my $had_unresolved = 1;
 
-    # This loop should never need to run through more then once
+    # This loop should never need to run through more than once
     # but, it will *if* for some reason a comment comes before its parent
     # which *should* never happen, but I'm handling it anyway, just in case.
     $title->( 'posting %d comments', scalar( @to_import ) );
@@ -378,7 +385,19 @@ sub try_work {
 
             # rules we might skip a content with
             next if $comment->{done}; # Skip this comment if it was already imported this round
-            next if $jtalkid_map->{$comment->{orig_id}}; # Or on a previous import round
+
+            # if this comment already exists, we might need to update it, however
+            my $err = "";
+            if ( my $jtalkid = $jtalkid_map->{$comment->{orig_id}} ) {
+                $log->( 'Comment already exists, passing to updater.' );
+
+                $comment->{id} = $jtalkid;
+                DW::Worker::ContentImporter::Local::Comments->update_comment( $u, $comment, \$err );
+                $log->( 'ERROR: %s', $err ) if $err;
+
+                $comment->{done} = 1;
+                next;
+            }
 
             # now we know this one is going in the database
             $ct++;
@@ -407,7 +426,6 @@ sub try_work {
             }
 
             # if we get here we're good to insert into the database
-            my $err = "";
             my $talkid = DW::Worker::ContentImporter::Local::Comments->insert_comment( $u, $comment, \$err );
             if ( $talkid ) {
                 $log->( 'Successfully imported source %d to new jtalkid %d.', $comment->{id}, $talkid );
@@ -417,7 +435,7 @@ sub try_work {
             }
 
             # store this information
-            $jtalkid_map->{$comment->{id}} = $talkid;
+            $jtalkid_map->{$comment->{orig_id}} = $talkid;
             $comment->{id} = $talkid;
             $comment->{done} = 1;
         }
@@ -447,7 +465,9 @@ sub do_authed_comment_fetch {
     # hit up the server with the specified information and return the raw content
     my $ua = LWP::UserAgent->new;
     my $authas = $data->{usejournal} ? "&authas=$data->{usejournal}" : '';
-    my $request = HTTP::Request->new( GET => "http://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas" );
+    my $request = HTTP::Request->new(
+        GET => "http://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems&props=1$authas"
+    );
     $request->push_header( Cookie => "ljsession=$data->{_session}" );
 
     # try to get the response
