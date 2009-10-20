@@ -561,7 +561,7 @@ sub unique {
     return $note->unique . ':' . $self->owner->{user};
 }
 
-# returns true if two subscriptions are equivilant
+# returns true if two subscriptions are equivalent
 sub equals {
     my ($self, $other) = @_;
 
