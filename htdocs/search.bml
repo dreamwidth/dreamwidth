@@ -36,6 +36,8 @@ body<=
     # see what search mode...
     my $su = LJ::load_user( $POST{mode} || $GET{user} );
     my $q = LJ::strip_html( LJ::trim( $POST{query} ) );
+    my $sby = $POST{sort_by} || 'new';
+    $sby = 'new' unless $sby =~ /^(?:new|old|rel)$/;
 
     # helper sub for returning the search form
     my $search_form = sub {
@@ -50,8 +52,16 @@ body<=
                                       value => $tu->user, label => "Journal Search: <strong>" . $tu->user . "</strong>", noescape => 1 } );
         }
 
-        $ret .= '<br /><input type="text" name="query" maxlength="255" size="60" value="' . LJ::ehtml( $q ) .
-                '"> <input type="submit" value="Search" /></form>';
+        $ret .= '<br /><input type="text" name="query" maxlength="255" size="60" value="' . LJ::ehtml( $q ) . '">';
+        $ret .= ' <input type="submit" value="Search" /><br />';
+        $ret .= "Sort results by: ";
+        $ret .= LJ::html_select(
+            { selected => $sby, name => 'sort_by' },
+            new => "Date, newest posts first",
+            old => "Date, oldest posts first",
+            rel => "Relevance to search terms",
+        );
+        $ret .= '</form>';
 
         return $ret;
     };
@@ -114,7 +124,7 @@ body<=
     }
 
     # the arguments to the search (userid=0 implies global search)
-    my $args = { userid => $su ? $su->id : 0, query => $q, offset => $offset,
+    my $args = { userid => $su ? $su->id : 0, query => $q, offset => $offset, sort_by => $sby,
                  ignore_security => $ignore_security, allowmask => $allowmask };
     my $arg = Storable::nfreeze( $args );
 

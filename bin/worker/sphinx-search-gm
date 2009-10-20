@@ -41,6 +41,18 @@ sub sphinx_search {
        ->SetSortMode( SPH_SORT_RELEVANCE )
        ->SetMaxQueryTime( 15_000 )
        ->SetLimits( $args->{offset} || 0, 20 );
+
+    # adjust the match mode if there are quotes around the entire query
+    if ( $args->{query} =~ s/^['"](.+)['"]$/$1/ ) {
+        $sx->SetMatchMode( SPH_MATCH_PHRASE );
+    }
+
+    # setup the sort they've requested
+    if ( $args->{sort_by} eq 'new' ) {
+        $sx->SetSortMode( SPH_SORT_ATTR_DESC, 'date_posted' );
+    } elsif ( $args->{sort_by} eq 'old' ) {
+        $sx->SetSortMode( SPH_SORT_ATTR_ASC, 'date_posted' );
+    }
     
     # filter to a journal if we have a userid set; else, filter on allow_global_search items
     $sx->SetFilter( 'journal_id', [ $args->{userid} ] )
