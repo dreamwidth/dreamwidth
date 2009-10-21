@@ -1,5 +1,3 @@
-#!/usr/bin/perl
-
 package LJ::Schools;
 
 use strict;
