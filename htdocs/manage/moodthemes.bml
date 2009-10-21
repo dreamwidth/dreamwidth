@@ -394,7 +394,7 @@ body<=
 
         my $moodtheme_upsell = LJ::run_hook("moodtheme_upsell");
 
-        unless (LJ::get_cap($u, "moodthemecreate")) {
+        unless ( $u->can_create_moodthemes ) {
             if ($moodtheme_upsell) {
                 $ret .= $moodtheme_upsell;
             } else {

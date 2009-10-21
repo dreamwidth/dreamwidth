@@ -23,7 +23,7 @@ use warnings;
 
 sub should_render {
     my ( $class, $u ) = @_;
-    return $u && $u->get_cap( 'textmessaging' ) ? 1 : 0;
+    return $u && $u->can_use_textmessaging;
 }
 
 sub label {

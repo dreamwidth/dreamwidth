@@ -49,7 +49,7 @@ body<=
         my %uprop;
 
         # journal domains
-        my $dom_cap = LJ::get_cap($u, 'domainmap');
+        my $dom_cap = $u->can_map_domains;
         if ( ( exists $POST{journaldomain} && $u->{journaldomain} ne $POST{journaldomain} ) ||
             ( !$dom_cap && $POST{journaldomain_del} ) ) {
 
@@ -106,7 +106,7 @@ body<=
     $ret .= "<form method='post' action='/manage/domain?authas=$authas'>\n";
     $ret .= LJ::form_auth();
 
-    my $has_cap = LJ::get_cap($u, 'domainmap');
+    my $has_cap = $u->can_map_domains;
     my $has_dom = $u->{journaldomain} ? 1 : 0;
     if ($LJ::OTHER_VHOSTS && ($has_cap || $has_dom)) {
         $ret .= "<?h2 $ML{'.domainalias.head'} h2?><?p $ML{'.domainalias.about'} p?>\n";

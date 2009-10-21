@@ -28,7 +28,7 @@ sub execute {
 
     my $remote = LJ::get_remote();
     return $self->error("Sorry, your account type doesn't let you create new mood themes")
-        unless $remote->get_cap("moodthemecreate");
+        unless $remote->can_create_moodthemes;
 
     my $dbh = LJ::get_db_writer();
 

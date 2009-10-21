@@ -40,7 +40,7 @@ body<=
     } else {
         # TODO: add a link to upgrading your account if you don't have the cap
         return "Sorry, you are not able to view outgoing email."
-            unless $u->get_cap("viewmailqueue");
+            unless $u->can_view_mailqueue;
 
         return LJ::error_list("You must <a href=\"$LJ::SITEROOT/register\">validate your email address</a> in order to view your outgoing mail.")
             unless $u->is_validated;

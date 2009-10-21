@@ -188,7 +188,7 @@ sub subscription_as_html {
 # only users with the track_defriended cap can use this
 sub available_for_user  {
     my ( $class, $u, $subscr ) = @_;
-    return $u->get_cap( 'track_defriended' ) ? 1 : 0;
+    return $u->can_track_defriending;
 }
 
 sub content {

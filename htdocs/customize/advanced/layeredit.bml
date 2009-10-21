@@ -44,7 +44,7 @@
 
     # check priv and ownership
     return $err->("You are not authorized to edit styles.")
-        unless LJ::get_cap($u, "s2styles");
+        unless $u->can_create_s2_styles;
 
     # at this point, they are authorized, allow viewing & editing
 

@@ -22,7 +22,7 @@ sub actionlink {
     my $upgrade_url = LJ::run_hook("upgrade_link", $u, "plus", url_only => 1) || "";
     my $upgrade_link = LJ::run_hook("upgrade_link", $u, "plus") || "";
 
-    if ($u->get_cap('domainmap')) {
+    if ( $u->can_map_domains ) {
         return "<a href='$LJ::SITEROOT/manage/domain?authas=" . $u->user . "'>" . $class->ml('setting.display.domainmapping.actionlink') . "</a>";
     } elsif ($has_domain) {
         return "<a href='$LJ::SITEROOT/manage/domain?authas=" . $u->user . "'>" . $class->ml('setting.display.domainmapping.actionlink.remove') . "</a> $upgrade_link";

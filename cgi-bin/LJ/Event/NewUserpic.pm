@@ -132,7 +132,7 @@ sub subscription_as_html {
 sub available_for_user  {
     my ($class, $u, $subscr) = @_;
 
-    return 0 if ! $u->get_cap('track_user_newuserpic') &&
+    return 0 if ! $u->can_track_new_userpic &&
         $subscr->journalid;
 
     return 1;

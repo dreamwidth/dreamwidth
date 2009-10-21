@@ -74,7 +74,7 @@ sub EntryPage
                     stc/lj_base.css
                     js/datasource.js
                     js/selectable_table.js
-                    )) if LJ::is_enabled('userpicselect') && $remote && $remote->get_cap('userpicselect');
+                    )) if LJ::is_enabled('userpicselect') && $remote && $remote->can_use_userpic_select;
 
     LJ::need_res(qw(
                     js/x_core.js

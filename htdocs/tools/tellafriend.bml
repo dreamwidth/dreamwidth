@@ -33,7 +33,7 @@
  # Get sender's email address
  my $u = LJ::load_userid($remote->{'userid'});
  $u->{'emailpref'} = $u->email_raw;
- if ($LJ::USER_EMAIL && LJ::get_cap($u, "useremail")) {
+ if ( $LJ::USER_EMAIL && $u->can_have_email_alias ) {
      $u->{'emailpref'} = $u->{'user'} . '@' . $LJ::USER_DOMAIN;
  }
 

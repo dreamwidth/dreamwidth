@@ -30,7 +30,7 @@ _code?>
     return "<?needlogin?>" unless $remote;
 
     return LJ::CProd->inline($remote, inline => 'Directory') || BML::ml('cprod.directory.text3.v1')
-        unless $remote->get_cap("directory");
+        unless $remote->can_use_directory;
 
     return "";
 }

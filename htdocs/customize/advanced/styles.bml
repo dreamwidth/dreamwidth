@@ -48,11 +48,10 @@
     return $err->($ML{'.error.cantbeauthenticated'})
         unless $u;
 
-    my $has_priv = LJ::get_cap($u, 's2styles');
     return $err->($remote->{user} eq $u->{user} ?
             $ML{'.error.youcantuseadvanced'} :
             $ML{'.error.usercantuseadvanced'} )
-        unless $has_priv || $viewall;
+        unless $u->can_create_s2_styles || $viewall;
 
     my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
     return $err->($ML{'/customize/advanced/index.bml.error.advanced.editing.denied'})

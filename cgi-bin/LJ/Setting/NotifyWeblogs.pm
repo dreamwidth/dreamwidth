@@ -26,7 +26,7 @@ sub option {
     my $key = $class->pkgkey;
 
     my $notifyweblogs = $class->get_arg($args, "notifyweblogs") || $u->prop("opt_weblogscom");
-    my $can_use_notifyweblogs = $u->get_cap("weblogscom") ? 1 : 0;
+    my $can_use_notifyweblogs = $u->can_notify_weblogs;
     my $upgrade_link = $can_use_notifyweblogs ? "" : (LJ::run_hook("upgrade_link", $u, "paid") || "");
 
     my $ret = LJ::html_check({

@@ -1785,6 +1785,57 @@ sub can_be_text_messaged_by {
     return 0;
 }
 
+sub can_beta_payments {
+    return $_[0]->get_cap( 'beta_payments' ) ? 1 : 0;
+}
+
+sub can_create_feeds {
+    return $_[0]->get_cap( 'synd_create' ) ? 1 : 0;
+}
+
+sub can_create_moodthemes {
+    return $_[0]->get_cap( 'moodthemecreate' ) ? 1 : 0;
+}
+
+sub can_create_polls {
+    return $_[0]->get_cap( 'makepoll' ) ? 1 : 0;
+}
+
+sub can_create_s2_props {
+    return $_[0]->get_cap( 's2props' ) ? 1 : 0;
+}
+
+sub can_create_s2_styles {
+    return $_[0]->get_cap( 's2styles' ) ? 1 : 0;
+}
+
+sub can_edit_comments {
+    return $_[0]->get_cap( 'edit_comments' ) ? 1 : 0;
+}
+
+sub can_emailpost {
+    return $_[0]->get_cap( 'emailpost' ) ? 1 : 0;
+}
+
+sub can_find_similar {
+    return $_[0]->get_cap( 'findsim' ) ? 1 : 0;
+}
+
+sub can_get_self_email {
+    return $_[0]->get_cap( 'getselfemail' ) ? 1 : 0;
+}
+
+sub can_have_email_alias {
+    return $_[0]->get_cap( 'useremail' ) ? 1 : 0;
+}
+
+sub can_map_domains {
+    return $_[0]->get_cap( 'domainmap' ) ? 1 : 0;
+}
+
+sub can_notify_weblogs {
+    return $_[0]->get_cap( 'weblogscom' ) ? 1 : 0;
+}
 
 sub can_show_location {
     my $u = shift;
@@ -1820,11 +1871,49 @@ sub can_show_onlinestatus {
     return 0;
 }
 
+sub can_track_defriending {
+    return $_[0]->get_cap( 'track_defriended' ) ? 1 : 0;
+}
+
+sub can_track_new_userpic {
+    return $_[0]->get_cap( 'track_user_newuserpic' ) ? 1 : 0;
+}
+
+sub can_track_pollvotes {
+    return $_[0]->get_cap( 'track_pollvotes' ) ? 1 : 0;
+}
+
+sub can_track_thread {
+    return $_[0]->get_cap( 'track_thread' ) ? 1 : 0;
+}
+
+sub can_use_daily_readpage {
+    return $_[0]->get_cap( 'friendspage_per_day' ) ? 1 : 0;
+}
+
+sub can_use_directory {
+    return $_[0]->get_cap( 'directory' ) ? 1 : 0;
+}
+
+sub can_use_fastlane {
+    return $_[0]->get_cap( 'fastserver' ) ? 1 : 0;
+}
+
+sub can_use_full_rss {
+    return $_[0]->get_cap( 'full_rss' ) ? 1 : 0;
+}
 
 sub can_use_google_analytics {
     return $_[0]->get_cap( 'google_analytics' ) ? 1 : 0;
 }
 
+sub can_use_latest_comments_rss {
+    return $_[0]->get_cap( 'latest_comments_rss' ) ? 1 : 0;
+}
+
+sub can_use_mass_privacy {
+    return $_[0]->get_cap( 'mass_privacy' ) ? 1 : 0;
+}
 
 sub can_use_network_page {
     return $_[0]->get_cap( 'friendsfriendsview' ) ? 1 : 0;
@@ -1834,6 +1923,18 @@ sub can_use_network_page {
 # Check if the user can use *any* page statistic module for their own journal.
 sub can_use_page_statistics {
     return $_[0]->can_use_google_analytics;
+}
+
+sub can_use_textmessaging {
+    return $_[0]->get_cap( 'textmessaging' ) ? 1 : 0;
+}
+
+sub can_use_userpic_select {
+    return $_[0]->get_cap( 'userpicselect' ) ? 1 : 0;
+}
+
+sub can_view_mailqueue {
+    return $_[0]->get_cap( 'viewmailqueue' ) ? 1 : 0;
 }
 
 sub clear_prop {

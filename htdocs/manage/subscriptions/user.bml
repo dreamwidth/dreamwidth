@@ -47,7 +47,7 @@ body<=
                                                                      event    => "NewUserpic",
                                                                      journal  => $journal,
                                                                      flags    => LJ::Subscription::TRACKING,
-                                                                     disabled => ! $remote->get_cap('track_user_newuserpic'),
+                                                                     disabled => ! $remote->can_track_new_userpic,
                                                                      ),
                                       LJ::Subscription::Pending->new(
                                                                      $remote,

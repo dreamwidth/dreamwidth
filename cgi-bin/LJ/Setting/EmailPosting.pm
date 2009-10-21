@@ -25,7 +25,7 @@ sub option {
     my ($class, $u, $errs, $args) = @_;
     my $key = $class->pkgkey;
 
-    my $can_emailpost = $u->get_cap("emailpost") ? 1 : 0;
+    my $can_emailpost = $u->can_emailpost;
     my $upgrade_link = $can_emailpost ? "" : LJ::run_hook("upgrade_link", $u, "plus");
 
     my $addrlist = LJ::Emailpost::get_allowed_senders($u);

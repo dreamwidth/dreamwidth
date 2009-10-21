@@ -3,7 +3,7 @@ use base 'LJ::CProd';
 
 sub applicable {
     my ($class, $u) = @_;
-    return 0 unless LJ::get_cap($u, "friendsfriendsview");
+    return 0 unless $u->can_use_network_page;
     return 1;
 }
 

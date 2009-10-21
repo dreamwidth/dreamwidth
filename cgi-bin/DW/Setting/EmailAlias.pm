@@ -23,7 +23,7 @@ use warnings;
 
 sub should_render {
     my ( $class, $u ) = @_;
-    return $u && LJ::get_cap( $u, 'useremail' ) ? 1 : 0;
+    return $u && $u->can_have_email_alias;
 }
 
 sub label {

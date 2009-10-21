@@ -3,7 +3,7 @@ use base 'LJ::CProd';
 
 sub applicable {
     my ($class, $u) = @_;
-    return 0 unless LJ::get_cap($u, "makepoll");
+    return 0 unless $u->can_create_polls;
     my $dbcr = LJ::get_cluster_reader( $u )
         or return 0;
     my $used_polls = $dbcr->selectrow_array( "SELECT pollid FROM poll2 WHERE posterid=?",

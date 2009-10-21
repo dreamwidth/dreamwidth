@@ -1539,7 +1539,7 @@ sub get_policy
 sub can_use_layer
 {
     my ($u, $uniq) = @_;  # $uniq = redist_uniq value
-    return 1 if LJ::get_cap($u, "s2styles");
+    return 1 if $u->can_create_s2_styles;
     return 0 unless $uniq;
     return 1 if LJ::run_hook('s2_can_use_layer', {
         u => $u,
@@ -1563,8 +1563,8 @@ sub can_use_layer
 sub can_use_prop
 {
     my ($u, $uniq, $prop) = @_;  # $uniq = redist_uniq value
-    return 1 if LJ::get_cap($u, "s2styles");
-    return 1 if LJ::get_cap($u, "s2props");
+    return 1 if $u->can_create_s2_styles;
+    return 1 if $u->can_create_s2_props;
     my $pol = get_policy();
     my $can = 0;
     my @layers = ('*');

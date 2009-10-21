@@ -727,7 +727,7 @@ sub create_qr_div {
             # userpic browse button
             $qrhtml .= qq {
                 <input type="button" id="lj_userpicselect" value="Browse" />
-                } if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
+                } if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
 
             $qrhtml .= LJ::help_icon_html("userpics", " ");
         }
@@ -891,7 +891,7 @@ QQ
                 }
             });
         </script>
-        } if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
+        } if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
 
     return $ret;
 }
@@ -1191,7 +1191,7 @@ sub entry_form {
                     });
                     // ]]>
                     </script>
-                } if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
+                } if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
 
                 # libs for userpicselect
                 LJ::need_res(qw(
@@ -1208,7 +1208,7 @@ sub entry_form {
                                 stc/ups.css
                                 js/datasource.js
                                 js/selectable_table.js
-                                )) if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
+                                )) if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
 
                 $out .= "<div id='userpic' style='display: none;'><p id='userpic_preview'><a href='javascript:void(0);' id='lj_userpicselect_img'><img src='' alt='selected userpic' id='userpic_preview_image' /><span id='lj_userpicselect_img_txt'>$userpic_link_text</span></a></p></div>";
                 $out .= "\n";
@@ -1303,7 +1303,7 @@ sub entry_form {
                                         @pickws) . "\n";
                 $out .= "<a href='javascript:void(0);' id='lj_userpicselect'> </a>";
                 # userpic browse button
-                $$onload .= " insertViewThumbs();" if LJ::is_enabled('userpicselect') && $remote->get_cap('userpicselect');
+                $$onload .= " insertViewThumbs();" if LJ::is_enabled('userpicselect') && $remote->can_use_userpic_select;
                 $out .= LJ::help_icon_html("userpics", "", " ") . "\n";
                 $out .= "</p>\n\n";
 
@@ -2989,7 +2989,7 @@ sub rte_js_vars {
     # of the poll button in the RTE.
     # Also remove any RTE buttons that have been set to disabled.
     my $canmakepoll = "true";
-    $canmakepoll = "false" if ($remote && !LJ::get_cap($remote, 'makepoll'));
+    $canmakepoll = "false" if ($remote && ! $remote->can_create_polls );
     $ret .= "<script type='text/javascript'>\n";
     $ret .= "    var RTEdisabled = new Array();\n";
     my $rte_disabled = $LJ::DISABLED{rte_buttons} || {};

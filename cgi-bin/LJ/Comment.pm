@@ -903,7 +903,7 @@ sub user_can_edit {
     # comment editing must be enabled and the user must have the cap
     $$errref = LJ::Lang::ml('talk.error.cantedit');
     return 0 unless LJ::is_enabled("edit_comments");
-    return 0 unless $u->get_cap("edit_comments");
+    return 0 unless $u->can_edit_comments;
 
     # entry cannot be suspended
     return 0 if $self->entry->is_suspended;

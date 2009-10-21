@@ -40,7 +40,7 @@ sub apply_theme {
     my $theme = shift;
 
     my %style;
-    my $has_cap = $u->get_cap("s2styles");
+    my $has_cap = $u->can_create_s2_styles;
     my $pub = LJ::S2::get_public_layers();
     my $userlay = LJ::S2::get_layers_of_user($u);
 
@@ -272,7 +272,7 @@ sub get_custom_layouts_for_dropdown {
 
     my @layers = ();
 
-    my $has_cap = LJ::get_cap($u, "s2styles");
+    my $has_cap = $u->can_create_s2_styles;
     my $userlay = LJ::S2::get_layers_of_user($u);
     my %style   = LJ::S2::get_style($u, "verify");
 

@@ -324,7 +324,7 @@ body<=
         # opt_whatemailshow
         $ret .= "<tr><td class='field_name'> $ML{'.fn.emaildisplay'}</td><td> ";
         my $cur = $u->opt_whatemailshow;
-        my @vals = ( ($LJ::USER_EMAIL && LJ::get_cap($u, "useremail"))
+        my @vals = ( ( $LJ::USER_EMAIL && $u->can_have_email_alias )
                      ? ("A" => BML::ml(".email.opt.actual"),
                         "D" => BML::ml(".email.opt.display"),
                         "L" => BML::ml(".email.opt.site", { sitenameshort => $LJ::SITENAMESHORT } ),
@@ -419,7 +419,7 @@ body<=
         ## TEXT MESSAGING
 
         $ret .= "<a name='txtmsg'></a><div class='section_head'>$ML{'.section.textmsg'}\n";
-        unless (LJ::get_cap($u, "textmessaging")) {
+        unless ( $u->can_use_textmessaging ) {
             my $inline;
             if ($inline .= LJ::run_hook("cprod_inline", $u, 'TextMessaging')) {
                 $ret .= "</div>$inline";
@@ -427,7 +427,7 @@ body<=
                 $ret .= "</div>".BML::ml('cprod.textmessaging.text3.v1');
             }
         }
-        if (LJ::get_cap($u, "textmessaging")) {
+        if ( $u->can_use_textmessaging ) {
             my $tminfo = LJ::TextMessage->tm_info($u, remap_result => 1);
             foreach (values %$tminfo) { LJ::text_out(\$_); }
             $tminfo->{'security'} = "N" if ($u->{'txtmsg_status'} eq 'off' || $u->{'txtmsg_status'} eq 'none');

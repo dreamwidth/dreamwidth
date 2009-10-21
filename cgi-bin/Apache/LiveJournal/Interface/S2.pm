@@ -72,7 +72,7 @@ sub handler {
             unless LJ::can_manage($u, $lu);
 
         return error($r, 403, "Forbidden", "Your account type is not allowed to edit layers")
-            unless LJ::get_cap($u, "s2styles");
+            unless $u->can_create_s2_styles;
 
         # Read in the entity body to get the source
         my $len = $r->header_in("Content-length")+0;

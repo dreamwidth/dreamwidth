@@ -447,7 +447,7 @@ sub matches_filter {
     # not a match if this user posted the comment and they don't
     # want to be notified of their own posts
     if (LJ::u_equals($comment->poster, $watcher)) {
-        return 0 unless $watcher->get_cap('getselfemail') && $watcher->prop('opt_getselfemail');
+        return 0 unless $watcher->can_get_self_email && $watcher->prop('opt_getselfemail');
     }
 
     # not a match if this user posted the entry and they don't want comments emailed,
@@ -504,7 +504,7 @@ sub available_for_user  {
     my ($class, $u, $subscr) = @_;
 
     # not allowed to track replies to comments
-    return 0 if ! $u->get_cap('track_thread') &&
+    return 0 if ! $u->can_track_thread &&
         $subscr->arg2;
 
     return 1;

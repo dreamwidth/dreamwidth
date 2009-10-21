@@ -202,7 +202,7 @@ sub make_feed
 
             # users without 'full_rss' get their logtext bodies truncated
             # do this now so that the html cleaner will hopefully fix html we break
-            unless (LJ::get_cap($u, 'full_rss')) {
+            unless ( $u->can_use_full_rss ) {
                 my $trunc = LJ::text_trim($event, 0, 80);
                 $event = "$trunc $readmore" if $trunc ne $event;
             }
@@ -1010,7 +1010,7 @@ sub create_view_comments
         return 404;
     }
 
-    unless ($u->get_cap('latest_comments_rss')) {
+    unless ( $u->can_use_latest_comments_rss ) {
         $opts->{handler_return} = 403;
         return;
     }

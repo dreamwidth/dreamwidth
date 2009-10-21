@@ -364,7 +364,7 @@ body<=
     
     $ret .= "<?p " . BML::ml('.intro', {'aopts' => "href='$LJ::SITEROOT/manage/emailpost?mode=help'"}) . " p?><br />";
 
-    unless (LJ::get_cap($u, 'emailpost')) {
+    unless ( $u->can_emailpost ) {
         $ret .= $ML{'.sorry.acct'};
         return $ret;
     }

@@ -66,7 +66,7 @@
         return;
     }
 
-    my $remote_can_make_polls = LJ::get_cap($remote, "makepoll");
+    my $remote_can_make_polls = $remote->can_create_polls;
 
     my $authas = $GET{'authas'} || $remote->{'user'};
     my $u;
@@ -112,7 +112,7 @@
     }
 
     # does the remote or selected user have the 'makepoll' cap?
-    unless ($remote_can_make_polls || LJ::get_cap($u, "makepoll")) {
+    unless ( $remote_can_make_polls || $u->can_create_polls ) {
         $body .= "<?h1 $ML{'Sorry'} h1?><?p $ML{'.error.accttype2'} p?>";
         return;
     }

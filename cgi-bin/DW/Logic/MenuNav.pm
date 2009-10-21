@@ -53,7 +53,7 @@ sub get_menu_navigation {
     my $loggedin = ( defined( $u ) && $u ) ? 1 : 0;
     my $loggedin_hasjournal = ( $loggedin && !$u->is_identity ) ? 1 : 0;
     my $loggedin_canjoincomms = ( $loggedin && $u->is_person ) ? 1 : 0;   # note the semantic difference
-    my $loggedin_hasnetwork = ( $loggedin && LJ::get_cap($u, "friendsfriendsview") ) ? 1 : 0;
+    my $loggedin_hasnetwork = ( $loggedin && $u->can_use_network_page ) ? 1 : 0;
     my $loggedin_ispaid = ( $loggedin && $u->is_paid ) ? 1 : 0;
     my $loggedout = $loggedin ? 0 : 1;
     my $always = 1;

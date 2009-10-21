@@ -596,7 +596,7 @@ sub login
     }
 
     ## tell some users they can hit the fast servers later.
-    $res->{'fastserver'} = 1 if LJ::get_cap($u, "fastserver");
+    $res->{'fastserver'} = 1 if $u->can_use_fastlane;
 
     ## user info
     $res->{'userid'} = $u->{'userid'};
@@ -1207,9 +1207,8 @@ sub postevent
     if (LJ::Poll->contains_new_poll(\$event))
     {
         return fail($err,301,"Your account type doesn't permit creating polls.")
-            unless (LJ::get_cap($u, "makepoll")
-                    || ($uowner->is_community
-                        && LJ::get_cap($uowner, "makepoll")));
+            unless ( $u->can_create_polls
+                    || ( $uowner->is_community && $uowner->can_create_polls ) );
 
         my $error = "";
         @polls = LJ::Poll->new_from_html(\$event, \$error, {
@@ -1536,7 +1535,7 @@ sub postevent
     my @jobs;  # jobs to add into TheSchwartz
 
     # notify weblogs.com of post if necessary
-    if ( LJ::is_enabled('weblogs_com') && $u->{'opt_weblogscom'} && LJ::get_cap($u, "weblogscom") &&
+    if ( LJ::is_enabled('weblogs_com') && $u->{'opt_weblogscom'} && $u->can_notify_weblogs &&
         ($security eq "public") && !$req->{'props'}->{'opt_backdated'} ) {
         push @jobs, TheSchwartz::Job->new_from_array("LJ::Worker::Ping::WeblogsCom", {
             'user' => $u->{'user'},

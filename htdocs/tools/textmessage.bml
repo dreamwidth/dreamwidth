@@ -45,7 +45,7 @@ body<=
         $tminfo = LJ::TextMessage->tm_info($u);
     }
 
-    unless (LJ::get_cap($u, "textmessaging")) {
+    unless ( $u->can_use_textmessaging ) {
         $ret .= "<?h1 $ML{'.error.unavailable.head'} h1?><?p $ML{'.error.unavailable.notpermitted'} p?>";
         return add_footer( $ret );
     }

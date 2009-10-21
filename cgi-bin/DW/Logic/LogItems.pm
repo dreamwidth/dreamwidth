@@ -63,7 +63,7 @@ sub watch_items
 
     # friendspage per day is allowed only for journals with the special cap 'friendspage_per_day'
     my $events_date = $args{events_date};
-    $events_date = '' unless $remote && $u->get_cap( 'friendspage_per_day' );
+    $events_date = '' unless $remote && $u->can_use_daily_readpage;
 
     my $filter  = $args{content_filter};
     my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600*24*14;  # 2 week default.

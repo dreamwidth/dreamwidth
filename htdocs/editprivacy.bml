@@ -16,9 +16,7 @@ body<=
     return "This feature is currently disabled."
         unless LJ::is_enabled('mass_privacy');
 
-    unless ($u->get_cap('mass_privacy')) {
-        return "<?standout $ML{'.unable'} standout?>";
-    }
+    return "<?standout $ML{'.unable'} standout?>" unless $u->can_use_mass_privacy;
 
     my $mode = $POST{'mode'} || $GET{'mode'} || "init";
     my $more_public = 0; # flag indiciating if security is becoming more public

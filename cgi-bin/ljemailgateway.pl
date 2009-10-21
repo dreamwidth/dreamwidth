@@ -172,7 +172,7 @@ sub process {
     }
 
     return $err->("Email gateway access denied for your account type.")
-        unless $LJ::T_ALLOW_EMAILPOST || LJ::get_cap($u, "emailpost");
+        unless $LJ::T_ALLOW_EMAILPOST || $u->can_emailpost;
 
     # Is this message from a sprint PCS phone?  Sprint doesn't support
     # MMS (yet) - when it does, we should just be able to rip this block

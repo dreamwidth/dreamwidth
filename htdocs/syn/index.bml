@@ -61,7 +61,7 @@ body<=
             unless ($su) {
                 # check cap to create new feeds
                 return $error->($ML{'.error.nocreate'})
-                    unless LJ::get_cap($u, 'synd_create');
+                    unless $u->can_create_feeds;
 
                 # if no account name, give them a proper entry form to pick one, but don't reprompt
                 # for the url, just pass that through (we'll recheck it anyway, though)
@@ -209,7 +209,7 @@ body<=
     $ret .= LJ::html_hidden("userid", $u->{'userid'});
 
     $ret .= "<?h1 $ML{'.add.byurl.title'} h1?><?p $ML{'.add.byurl.text'} p?>";
-    unless (LJ::get_cap($u, "synd_create")) {
+    unless ( $u->can_create_feeds ) {
         my $inline;
         if ($inline .= LJ::run_hook("cprod_inline", $u, 'Syn')) {
             $ret .= $inline;
