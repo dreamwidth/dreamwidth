@@ -159,6 +159,11 @@ sub subset_items {
      return grep { $subset_events{$_->event->class} } $self->items;
 }
 
+sub singleentry_items {
+    my ( $self, $itemid ) = @_;
+    return grep { $_->event->class eq "LJ::Event::JournalNewComment" && $_->event->comment->entry->ditemid == $itemid } $self->items;
+}
+
 # return flagged notifications
 sub bookmark_items {
     my $self = shift;
@@ -544,6 +549,8 @@ sub delete_all {
         @items = $self->bookmark_items;
     } elsif ( $view eq 'usermsg_sent' ) {
         @items = $self->usermsg_sent_items;
+    } elsif ( $view eq 'singleentry' ) {
+        @items = $self->singleentry_items;
     }
 
     @items = grep { !$self->is_bookmark($_->qid) } @items
@@ -586,6 +593,8 @@ sub mark_all_read {
         @items = $self->bookmark_items;
     } elsif ( $view eq 'usermsg_sent' ) {
         @items = $self->usermsg_sent_items;
+    } elsif ( $view eq 'singleentry' ) {
+        @items = $self->singleentry_items;
     }
 
     # Mark read

@@ -56,12 +56,15 @@ body<=
 
     # Bolds the selected View/Folder
     my $selected_folder = $view || 'all';
+    $selected_folder = "entrycomment" if $selected_folder eq "singleentry";
+
     $selected_folder = qq(
         <style>#esn_folder_$selected_folder {
         font-weight: bold;
         background-color: #ffd8d8;
         border: 1px solid #bbb;
-        }</style>
+        } 
+        .filterlink_$view {display: none;}</style>
         );
     $head = $selected_folder;
 
@@ -142,7 +145,12 @@ body<=
     # Filter by view if specified
     my @all_items;
     if ($view) {
-        @all_items = eval "\$inbox->${view}_items";
+        if ( $view eq "singleentry" ) {
+            my $itemid = int( $POST{itemid} || $GET{itemid} );
+            @all_items = eval "\$inbox->${view}_items( $itemid )";
+        } else {
+            @all_items = eval "\$inbox->${view}_items";
+        }
     } else {
         @all_items = $inbox->all_items;
     }

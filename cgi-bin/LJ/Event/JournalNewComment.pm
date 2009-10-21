@@ -263,11 +263,14 @@ sub as_html {
     my $subject = $comment->subject_text ? ' "' . $comment->subject_text . '"' : '';
 
     my $poster = $comment->poster ? "by $pu" : '';
+    my $ret;
     if ($comment->is_edited) {
-        return "Edited <a href=\"$url\">comment</a> $subject $poster on $in_text in $ju.";
+        $ret = "Edited <a href=\"$url\">comment</a> $subject $poster on $in_text in $ju.";
     } else {
-        return "New <a href=\"$url\">comment</a> $subject $poster on $in_text in $ju.";
+        $ret ="New <a href=\"$url\">comment</a> $subject $poster on $in_text in $ju.";
     }
+
+    $ret .= ' <span class="filterlink_singleentry">(<a href="/inbox/?view=singleentry&itemid=' . $entry->ditemid . '">filter to this entry</a>)</span>';
 }
 
 sub as_html_actions {
