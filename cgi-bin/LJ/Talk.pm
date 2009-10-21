@@ -1,8 +1,5 @@
-#!/usr/bin/perl
-#
-
-use strict;
 package LJ::Talk;
+use strict;
 
 use LJ::Constants;
 use LJ::Event::JournalNewComment;
@@ -2436,7 +2433,7 @@ sub mail_comments {
     # them, so it shouldn't matter.)
     my $u = $comment->{u};
     LJ::load_user_props($u, 'opt_getselfemail') if $u;
-    if ($u && $u->{'opt_getselfemail'} && $u->can_get_self_email
+    if ($u && $u->{'opt_getselfemail'} && LJ::get_cap($u, 'getselfemail')
         && !$u->gets_notified(journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid})) {
         my $part;
 

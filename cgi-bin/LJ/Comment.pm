@@ -13,7 +13,7 @@ use LJ::Entry;
 use lib "$LJ::HOME/cgi-bin";
 
 require "htmlcontrols.pl";
-require "talklib.pl";
+use LJ::Talk;
 
 # internal fields:
 #

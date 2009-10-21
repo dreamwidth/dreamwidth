@@ -1527,7 +1527,7 @@ sub split_by_cluster {
 # all reads/writes to talk2 must be done inside a lock, so there's
 # no race conditions between reading from db and putting in memcache.
 # can't do a db write in between those 2 steps.  the talk2 -> memcache
-# is elsewhere (talklib.pl), but this $dbh->do wrapper is provided
+# is elsewhere (LJ::Talk), but this $dbh->do wrapper is provided
 # here because non-talklib things modify the talk2 table, and it's
 # nice to centralize the locking rules.
 #

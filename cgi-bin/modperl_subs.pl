@@ -71,7 +71,7 @@ require "imageconf.pl";
 require "propparse.pl";
 require "supportlib.pl";
 use LJ::CleanHTML;
-require "talklib.pl";
+use LJ::Talk;
 require "ljfeed.pl";
 require "emailcheck.pl";
 require "ljmemories.pl";

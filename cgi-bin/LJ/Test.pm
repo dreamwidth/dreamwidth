@@ -334,12 +334,13 @@ sub t_post_fake_entry {
 
 package LJ::Entry;
 
+use LJ::Talk;
+
 # returns LJ::Comment object or dies on failure
 sub t_enter_comment {
     my ($entry, %opts) = @_;
     my $jitemid = $entry->jitemid;
 
-    require 'talklib.pl';
 
     # entry journal/u
     my $entryu = $entry->journal;
