@@ -2139,7 +2139,7 @@ sub Image_std
         $LJ::S2::RES_CACHE = {
             'security-protected' => Image("$LJ::IMGPREFIX/silk/entry/locked.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_protected'}),
             'security-private' => Image("$LJ::IMGPREFIX/silk/entry/private.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_private'}),
-            'security-groups' => Image("$LJ::IMGPREFIX/silk/entry/filtered.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_groups'}),
+            'security-groups' => Image("$LJ::IMGPREFIX/silk/entry/filtered.png", 21, 13, $ctx->[S2::PROPS]->{'text_icon_alt_groups'}),
             'adult-nsfw' => Image("$LJ::IMGPREFIX/icon_nsfw.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_nsfw'}),
             'adult-18' => Image("$LJ::IMGPREFIX/icon_18.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_18'}),
             'sticky-entry' => Image("$LJ::IMGPREFIX/silk/entry/sticky_entry.png", 16, 16, $ctx->[S2::PROPS]->{'text_icon_alt_sticky_entry'}),
