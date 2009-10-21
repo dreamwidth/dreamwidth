@@ -733,7 +733,7 @@ sub create_qr_div {
         }
     }
 
-    $qrhtml .= "</td></tr>";
+    $qrhtml .= "<span id='quotebuttonspan'></span></td></tr>";
 
     $qrhtml .= "<tr><td align='right'>";
     $qrhtml .= "<b>".BML::ml('/talkpost.bml.opt.subject')."</b></td>";
@@ -772,6 +772,45 @@ sub create_qr_div {
         $qrhtml .= BML::ml('/talkread.bml.qr.spellcheck');
         $qrhtml .= "</label>";
     }
+
+    # quick quote button
+    my $quickquote = LJ::ejs( '<input type="button" value="Quote" onmousedown="quote();" onclick="quote();" />' );
+
+    my $qrjscript = <<"QQ";
+
+    var helped = 0; var pasted = 0;
+    function quote () {
+        var text = '';
+
+        if (document.getSelection) {
+            text = document.getSelection();
+        } else if (document.selection) {
+            text = document.selection.createRange().text;
+        } else if (window.getSelection) {
+            text = window.getSelection();
+        }
+
+        if (text == '') {
+            if (helped != 1 && pasted != 1) {
+                helped = 1; alert("If you'd like to quote a portion of the original message, highlight it then press 'Quote'");
+            }
+            return false;
+        } else {
+            pasted = 1;
+        }
+
+        var element = text.search(/\\n/) == -1 ? 'q' : 'blockquote';
+        var textarea = document.getElementById('body');
+        textarea.focus();
+        textarea.value = textarea.value + "<" + element + ">" + text + "</" + element + ">";
+        textarea.caretPos = textarea.value;
+        textarea.focus();
+        return false;
+    }
+    if (document.getElementById && (document.getSelection || document.selection || window.getSelection)) {
+        document.getElementById('quotebuttonspan').innerHTML = document.getElementById('quotebuttonspan').innerHTML + '$quickquote';
+    }
+QQ
 
     if ($u->opt_logcommentips eq 'A') {
         $qrhtml .= '<br />';
@@ -815,6 +854,8 @@ sub create_qr_div {
                    }
                }
            };
+
+    $ret .= $qrjscript;
 
     $ret .= "\n</script>";
 
