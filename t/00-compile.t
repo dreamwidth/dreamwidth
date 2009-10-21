@@ -31,6 +31,7 @@ my %SKIP = (
     'DW/Hooks/Display.pm'     => 'Undefined subroutine &LJ::register_hook',
     'DW/Hooks/Changelog.pm'   => 'Undefined subroutine &LJ::register_hook',
     'DW/Hooks/EntryForm.pm'   => 'Undefined subroutine &LJ::register_hook',
+    'DW/Hooks/SiteSearch.pm'  => 'Undefined subroutine &LJ::register_hook',
 
     'LJ/Test/AtomAPI.pm'      => 'needs Apache/Constants',
     'Test/FakeApache.pm'      => 'needs Apache/Constants.pm',
