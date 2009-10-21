@@ -83,6 +83,10 @@
 
 .success=Success
 
+.success.posttocommunity=Post to this community
+
+.success.readcommunitypostingguidelines=Read this community's posting guidelines
+
 .title=Join Community
 
 .toomanyfriends=Adding [[community]] as a friend would exceed the maximum number of friends your account is allowed. You have however now joined this community.

@@ -350,6 +350,14 @@ userproplist.hide_adult_content:
   multihomed: 0
   prettyname: Hide adult content on journals
 
+userproplist.hide_join_post_link:
+    cldversion: 4
+    datatype: bool
+    des: Option to hide post to community link on join community success page
+    indexed: 0
+    multihomed: 0
+    prettyname: Hide post to community link on join page
+
 userproplist.icbm:
   cldversion: 4
   datatype: char
@@ -869,6 +877,14 @@ userproplist.opt_show_captcha_to:
   indexed: 0
   multihomed: 0
   prettyname: Show CAPTHCHA on commenting
+
+userproplist.posting_guidelines_entry:
+  cldversion: 4
+  datatype: char
+  des: Community posting guidelines entry ID
+  indexed: 0
+  multihomed: 0
+  prettyname: Community posting guidelines entry ID
 
 userproplist.profile_collapsed_headers:
   cldversion: 4

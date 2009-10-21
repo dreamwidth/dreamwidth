@@ -18,6 +18,8 @@
 
 .error.notfound=Community account not found.
 
+.error.postingguidelinesentryinvalid=Invalid Dreamwidth entry ID or URL entered.
+
 .error.samenames=Maintainer account and community account cannot be the same.
 
 .label.adultcontentconcepts=Users should be warned that the content in this community should be viewed with discretion.
@@ -86,7 +88,15 @@
 
 .label.postingaccessselect=<b>Select Members</b><br />Members can post only if a maintainer gives them access.
 
+.label.postingguidelinesentry=URL or ID of your community's posting guidelines entry (leave blank if you don't want to link to an entry):
+
 .label.rellinks=Relevant links:
+
+.label.showjoinpostlink=Post to community
+
+.label.showwhatlinks=What links should be displayed to users when they join your community?
+
+.label.successpagedisplay=Join Links
 
 .label.username=Username:
 

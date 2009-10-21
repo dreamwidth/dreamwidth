@@ -1925,6 +1925,19 @@ sub google_analytics {
 }
 
 
+# get/set post to community link visibility
+sub hide_join_post_link {
+    my $u = $_[0];
+
+    if ( defined $_[1] ) {
+        $u->set_prop( hide_join_post_link => $_[1] );
+        return $_[1];
+    }
+
+    return $u->prop( 'hide_join_post_link' );
+}
+
+
 # tests to see if a user is in a specific named class. class
 # names are site-specific.
 sub in_class {
@@ -2096,6 +2109,48 @@ sub opt_whatemailshow {
 
     # otherwise, return the default: no email shown
     return 'N';
+}
+
+
+# get/set community's guidelines entry ditemid
+sub posting_guidelines_entry {
+    my ( $u, $args ) = @_;
+
+    if ( defined $args ) {
+        unless ( $args ) {
+            $u->set_prop( posting_guidelines_entry => '' );
+            return 1;
+        }
+        my $ditemid;
+        if ( $args =~ m!/(\d+)\.html! ) {
+            $ditemid = $1;
+        } elsif ( $args =~ m!^(\d+)$! ) {
+            $ditemid = $1;
+        } else {
+            return 0;
+        }
+
+        my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
+        return 0 unless $entry && $entry->valid;
+
+        $u->set_prop( posting_guidelines_entry => $ditemid );
+        return $ditemid;
+    }
+
+    return $u->prop( 'posting_guidelines_entry' );
+}
+
+
+# get community's guidelines entry as entry object
+sub get_posting_guidelines_entry {
+    my $u = shift;
+
+    if ( my $ditemid = $u->posting_guidelines_entry ) {
+        my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
+        return $entry if $entry->valid;
+    }
+
+    return undef;
 }
 
 

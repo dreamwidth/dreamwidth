@@ -103,11 +103,25 @@
 
         $title = $ML{'.add.title'};
         $body .= "<?h1 $ML{'.add.header'} h1?>";
+        my $posting_guidelines_entry_url;
+        my $post_url;
+        if ( $u->is_community ) {
+            my $posting_guidelines_entry = $u->get_posting_guidelines_entry;
+            $posting_guidelines_entry_url = $posting_guidelines_entry->url
+                if $posting_guidelines_entry;
+            my $show_join_post_link = $u->hide_join_post_link ? 0 : 1;
+            $post_url = $LJ::SITEROOT . "/update?usejournal=" . $u->user
+                if $show_join_post_link && $remote->can_post_to( $u );
+        }
 
         $body .= "<?p " . BML::ml('.add.text2', { 'ljuser' => LJ::ljuser($u) }) . " p?>";
         $body .= "<ul>";
         $body .= "<li><a href='$LJ::SITEROOT/inbox/compose?user=$user'>$ML{'.add.next.message'}</a></li>"
             if $u->is_personal && $u->can_receive_message( $remote );
+        $body .= "<li><a href='$posting_guidelines_entry_url'>$ML{'.add.next.postingguidelines'}</a></li>"
+            if $posting_guidelines_entry_url;
+        $body .= "<li><a href='$post_url'>$ML{'.add.next.posttocommunity'}</a></li>"
+            if $post_url;
         $body .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'.add.next.friends'}</a></li>";
         $body .= "<li><a href='$LJ::SITEROOT/manage/circle/edit'>$ML{'.add.next.modify'}</a></ul>";
         return;
