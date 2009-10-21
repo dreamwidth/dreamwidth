@@ -1522,6 +1522,51 @@ sub get_interest {
     return wantarray() ? ($int, $intcount) : $int;
 }
 
+
+# <LJFUNC>
+# name: LJ::get_sitekeyword_id
+# class:
+# des: Get the id for a global keyword.
+# args: keyword, autovivify?
+# des-keyword: A string keyword to get the id of.
+# returns: Returns a kwid into [dbtable[sitekeywords]].
+#          If the keyword doesn't exist, it is automatically created for you.
+# des-autovivify: If present and 1, automatically create keyword.
+#                 If present and 0, do not automatically create the keyword.
+#                 If not present, default behavior is the old
+#                 style -- yes, do automatically create the keyword.
+# </LJFUNC>
+sub get_sitekeyword_id {
+    my ( $kw, $autovivify ) = @_;
+    $autovivify = 1 unless defined $autovivify;
+
+    # setup the keyword for use
+    return 0 unless $kw =~ /\S/;
+    $kw = LJ::text_trim( LJ::trim( $kw ), LJ::BMAX_KEYWORD, LJ::CMAX_KEYWORD );
+
+    # get the keyword and insert it if necessary
+    my $dbr = LJ::get_db_reader();
+    my $kwid = $dbr->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
+    if ( $autovivify && ! $kwid ) {
+        # create a new keyword
+        $kwid = LJ::alloc_global_counter( 'K' );
+        return undef unless $kwid;
+
+        # attempt to insert the keyword
+        my $dbh = LJ::get_db_writer();
+        my $rv = $dbh->do( "INSERT IGNORE INTO sitekeywords (kwid, keyword) VALUES (?, ?)", undef, $kwid, $kw );
+        return undef if $dbh->err;
+
+        # at this point, if $rv is 0, the keyword is already there so try again
+        unless ( $rv ) {
+            $kwid = $dbh->selectrow_array( "SELECT kwid FROM sitekeywords WHERE keyword=?", undef, $kw ) + 0;
+            return undef if $dbh->err;
+        }
+    }
+    return $kwid;
+}
+
+
 # <LJFUNC>
 # name: LJ::can_use_journal
 # class:
@@ -2016,7 +2061,8 @@ sub get_secret
 #  $dom: 'S' == style, 'P' == userpic, 'A' == stock support answer
 #        'C' == captcha, 'E' == external user, 'O' == school
 #        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
-#        'F' == PubSubHubbub subscription id (F for Fred)
+#        'F' == PubSubHubbub subscription id (F for Fred),
+#        'K' == sitekeyword
 #
 sub alloc_global_counter
 {
@@ -2026,7 +2072,7 @@ sub alloc_global_counter
 
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
-    unless ($dom =~ /^[ESLPOAHCMF]$/) {
+    unless ( $dom =~ /^[ESLPOAHCMFK]$/ ) {
         $dom = LJ::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
@@ -2071,6 +2117,11 @@ sub alloc_global_counter
         $newmax = $dbh->selectrow_array( "SELECT MAX(pollid) FROM pollowner" );
     } elsif ( $dom eq 'F' ) {
         $newmax = $dbh->selectrow_array( 'SELECT MAX(id) FROM syndicated_hubbub2' );
+    } elsif ( $dom eq 'K' ) {
+        # pick maximum id from sitekeywords & interests
+        my $max_sitekeys  = $dbh->selectrow_array( "SELECT MAX(kwid) FROM sitekeywords" );
+        my $max_interests = $dbh->selectrow_array( "SELECT MAX(intid) FROM interests" );
+        $newmax = $max_sitekeys > $max_interests ? $max_sitekeys : $max_interests;
     } else {
         $newmax = LJ::run_hook('global_counter_init_value', $dom);
         die "No alloc_global_counter initalizer for domain '$dom'"

@@ -3011,6 +3011,16 @@ CREATE TABLE content_filter_data (
 ) 
 EOC
 
+register_tablecreate('sitekeywords', <<'EOC');
+CREATE TABLE sitekeywords (
+    kwid INT(10) UNSIGNED NOT NULL,
+    keyword VARCHAR(255) NOT NULL,
+
+    PRIMARY KEY (kwid),
+    UNIQUE KEY (keyword)
+)
+EOC
+
 
 # NOTE: new table declarations go ABOVE here ;)
 
