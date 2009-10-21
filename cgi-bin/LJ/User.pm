@@ -4074,8 +4074,117 @@ sub lazy_interests_cleanup {
 }
 
 
+# des: Change a user's interests.
+# des-old: hashref of old interests (hashing being interest => intid)
+# des-new: listref of new interests
+# returns: 1 on success, undef on failure
 sub set_interests {
-    LJ::set_interests( @_ );
+    my ($u, $old, $new) = @_;
+
+    $u = LJ::want_user($u);
+    my $userid = $u->userid;
+    return undef unless $userid;
+
+    return undef unless ref $old eq 'HASH';
+    return undef unless ref $new eq 'ARRAY';
+
+    my $dbh = LJ::get_db_writer();
+    my %int_new = ();
+    my %int_del = %$old;  # assume deleting everything, unless in @$new
+
+    # user interests go in a different table than user interests,
+    # though the schemas are the same so we can run the same queries on them
+    my $uitable = $u->is_community ? 'comminterests' : 'userinterests';
+
+    # track if we made changes to refresh memcache later.
+    my $did_mod = 0;
+
+    my @valid_ints = LJ::validate_interest_list(@$new);
+    foreach my $int (@valid_ints)
+    {
+        $int_new{$int} = 1 unless $old->{$int};
+        delete $int_del{$int};
+    }
+
+    ### were interests removed?
+    if (%int_del)
+    {
+        ## easy, we know their IDs, so delete them en masse
+        my $intid_in = join(", ", values %int_del);
+        $dbh->do("DELETE FROM $uitable WHERE userid=$userid AND intid IN ($intid_in)");
+        $dbh->do("UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)");
+        $did_mod = 1;
+    }
+
+    ### do we have new interests to add?
+    my @new_intids = ();  ## existing IDs we'll add for this user
+    if (%int_new)
+    {
+        $did_mod = 1;
+
+        ## difficult, have to find intids of interests, and create new ints for interests
+        ## that nobody has ever entered before
+        my $int_in = join(", ", map { $dbh->quote($_); } keys %int_new);
+        my %int_exist;
+
+        ## find existing IDs
+        my $sth = $dbh->prepare("SELECT interest, intid FROM interests WHERE interest IN ($int_in)");
+        $sth->execute;
+        while (my ($intr, $intid) = $sth->fetchrow_array) {
+            push @new_intids, $intid;       # - we'll add this later.
+            delete $int_new{$intr};         # - so we don't have to make a new intid for
+                                            #   this next pass.
+        }
+
+        if (@new_intids) {
+            my $sql = "";
+            foreach my $newid (@new_intids) {
+                if ($sql) { $sql .= ", "; }
+                else { $sql = "REPLACE INTO $uitable (userid, intid) VALUES "; }
+                $sql .= "($userid, $newid)";
+            }
+            $dbh->do($sql);
+
+            my $intid_in = join(", ", @new_intids);
+            $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid IN ($intid_in)");
+        }
+    }
+
+    ### do we STILL have interests to add?  (must make new intids)
+    if (%int_new)
+    {
+        foreach my $int (keys %int_new)
+        {
+            my $intid;
+            my $qint = $dbh->quote($int);
+
+            $dbh->do("INSERT INTO interests (intid, intcount, interest) ".
+                     "VALUES (NULL, 1, $qint)");
+            if ($dbh->err) {
+                # somebody beat us to creating it.  find its id.
+                $intid = $dbh->selectrow_array("SELECT intid FROM interests WHERE interest=$qint");
+                $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid=$intid");
+            } else {
+                # newly created
+                $intid = $dbh->{'mysql_insertid'};
+            }
+            if ($intid) {
+                ## now we can actually insert it into the userinterests table:
+                $dbh->do("INSERT INTO $uitable (userid, intid) ".
+                         "VALUES ($userid, $intid)");
+                push @new_intids, $intid;
+            }
+        }
+    }
+    LJ::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
+
+    # do migrations to clean up userinterests vs comminterests conflicts
+    $u->lazy_interests_cleanup;
+
+    LJ::memcache_kill($u, "intids") if $did_mod;
+    $u->{_cache_interests} = undef if $did_mod;
+
+    return 1;
 }
 
 
@@ -7525,125 +7634,6 @@ sub interest_string_to_list {
 
     # final list is ,-sep
     return grep { length } split (/\s*,\s*/, $intstr);
-}
-
-
-# <LJFUNC>
-# name: LJ::set_interests
-# des: Change a user's interests.
-# args: dbarg?, u, old, new
-# des-old: hashref of old interests (hashing being interest => intid)
-# des-new: listref of new interests
-# returns: 1 on success, undef on failure
-# </LJFUNC>
-sub set_interests
-{
-    my ($u, $old, $new) = @_;
-
-    $u = LJ::want_user($u);
-    my $userid = $u->userid;
-    return undef unless $userid;
-
-    return undef unless ref $old eq 'HASH';
-    return undef unless ref $new eq 'ARRAY';
-
-    my $dbh = LJ::get_db_writer();
-    my %int_new = ();
-    my %int_del = %$old;  # assume deleting everything, unless in @$new
-
-    # user interests go in a different table than user interests,
-    # though the schemas are the same so we can run the same queries on them
-    my $uitable = $u->is_community ? 'comminterests' : 'userinterests';
-
-    # track if we made changes to refresh memcache later.
-    my $did_mod = 0;
-
-    my @valid_ints = LJ::validate_interest_list(@$new);
-    foreach my $int (@valid_ints)
-    {
-        $int_new{$int} = 1 unless $old->{$int};
-        delete $int_del{$int};
-    }
-
-    ### were interests removed?
-    if (%int_del)
-    {
-        ## easy, we know their IDs, so delete them en masse
-        my $intid_in = join(", ", values %int_del);
-        $dbh->do("DELETE FROM $uitable WHERE userid=$userid AND intid IN ($intid_in)");
-        $dbh->do("UPDATE interests SET intcount=intcount-1 WHERE intid IN ($intid_in)");
-        $did_mod = 1;
-    }
-
-    ### do we have new interests to add?
-    my @new_intids = ();  ## existing IDs we'll add for this user
-    if (%int_new)
-    {
-        $did_mod = 1;
-
-        ## difficult, have to find intids of interests, and create new ints for interests
-        ## that nobody has ever entered before
-        my $int_in = join(", ", map { $dbh->quote($_); } keys %int_new);
-        my %int_exist;
-
-        ## find existing IDs
-        my $sth = $dbh->prepare("SELECT interest, intid FROM interests WHERE interest IN ($int_in)");
-        $sth->execute;
-        while (my ($intr, $intid) = $sth->fetchrow_array) {
-            push @new_intids, $intid;       # - we'll add this later.
-            delete $int_new{$intr};         # - so we don't have to make a new intid for
-                                            #   this next pass.
-        }
-
-        if (@new_intids) {
-            my $sql = "";
-            foreach my $newid (@new_intids) {
-                if ($sql) { $sql .= ", "; }
-                else { $sql = "REPLACE INTO $uitable (userid, intid) VALUES "; }
-                $sql .= "($userid, $newid)";
-            }
-            $dbh->do($sql);
-
-            my $intid_in = join(", ", @new_intids);
-            $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid IN ($intid_in)");
-        }
-    }
-
-    ### do we STILL have interests to add?  (must make new intids)
-    if (%int_new)
-    {
-        foreach my $int (keys %int_new)
-        {
-            my $intid;
-            my $qint = $dbh->quote($int);
-
-            $dbh->do("INSERT INTO interests (intid, intcount, interest) ".
-                     "VALUES (NULL, 1, $qint)");
-            if ($dbh->err) {
-                # somebody beat us to creating it.  find its id.
-                $intid = $dbh->selectrow_array("SELECT intid FROM interests WHERE interest=$qint");
-                $dbh->do("UPDATE interests SET intcount=intcount+1 WHERE intid=$intid");
-            } else {
-                # newly created
-                $intid = $dbh->{'mysql_insertid'};
-            }
-            if ($intid) {
-                ## now we can actually insert it into the userinterests table:
-                $dbh->do("INSERT INTO $uitable (userid, intid) ".
-                         "VALUES ($userid, $intid)");
-                push @new_intids, $intid;
-            }
-        }
-    }
-    LJ::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
-
-    # do migrations to clean up userinterests vs comminterests conflicts
-    $u->lazy_interests_cleanup;
-
-    LJ::memcache_kill($u, "intids") if $did_mod;
-    $u->{_cache_interests} = undef if $did_mod;
-
-    return 1;
 }
 
 
