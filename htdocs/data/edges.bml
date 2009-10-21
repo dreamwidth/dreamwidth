@@ -64,6 +64,9 @@
     my $response = {};
 
     # all accounts have this
+    $response->{account_id} = $u->userid;
+    $response->{name} = $u->user;
+    $response->{display_name} = $u->display_name if $u->is_identity;
     $response->{account_type} = $u->journaltype;
     $response->{watched_by} = [ $u->watched_by_userids ];
 
@@ -81,7 +84,7 @@
 
     # now dump information about the users we loaded
     $response->{accounts} = {
-        map { $_ => { name => $us->{$_}->display_name, type => $us->{$_}->journaltype } } keys %$us
+        map { $_ => { name => $us->{$_}->user, type => $us->{$_}->journaltype } } keys %$us
     };
 
     # Output to BML
