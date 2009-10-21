@@ -69,7 +69,7 @@ require "htmlcontrols.pl";
 require "weblib.pl";
 require "imageconf.pl";
 require "propparse.pl";
-require "supportlib.pl";
+use LJ::Support;
 use LJ::CleanHTML;
 use LJ::Talk;
 require "ljfeed.pl";

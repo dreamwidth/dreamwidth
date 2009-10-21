@@ -3,8 +3,9 @@
 
 use strict;
 use Getopt::Long
+use lib "$ENV{LJHOME}/cgi-bin";
 require "$ENV{'LJHOME'}/cgi-bin/ljlib.pl";
-require "$ENV{'LJHOME'}/cgi-bin/supportlib.pl";
+use LJ::Support;
 require "$ENV{'LJHOME'}/cgi-bin/ljcmdbuffer.pl";
 
 my $opt_foreground;

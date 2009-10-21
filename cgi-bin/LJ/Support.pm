@@ -1,9 +1,5 @@
-#!/usr/bin/perl
-#
-
-use strict;
-
 package LJ::Support;
+use strict;
 
 use vars qw(@SUPPORT_PRIVS);
 

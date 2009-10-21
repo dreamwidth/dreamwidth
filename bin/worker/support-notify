@@ -2,7 +2,7 @@
 use strict;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require "supportlib.pl";
+use LJ::Support;
 require "ljmail.pl";
 
 use LJ::Worker::TheSchwartz;

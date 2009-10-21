@@ -5,7 +5,7 @@ use LJ::Worker::TheSchwartz;
 
 require "ljlib.pl";
 require "ljemailgateway.pl";
-require "supportlib.pl";
+use LJ::Support;
 require "sysban.pl";
 
 schwartz_decl('LJ::Worker::IncomingEmail');
