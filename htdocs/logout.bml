@@ -51,7 +51,8 @@
             if ( $GET{'ret'} == 1 && LJ::check_referer() ) {
                 my $uniq = DW::Request->get->note('uniq');
                 LJ::MemCache::set( "loginout:$uniq", 1, time() + 15 ) if $uniq;
-                return BML::redirect( BML::get_client_header('Referer') );
+                my $referer = BML::get_client_header( 'Referer' );
+                return BML::redirect( $referer || "$LJ::SITEROOT/" );
             }
 
             # Redirect to offsite uri if allowed.
