@@ -138,6 +138,12 @@ body<=
    <li><a href='/admin/console/reference'><?_ml .maplinks.console-reference _ml?></a></li>
   </ul></dd></dl>
 
+ <dl><dt><?_code return BML::ml('.maplinks.search.title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
+  <dd><ul>
+   <li><a href='/tools/search'><?_ml .maplinks.search.site _ml?></a></li>
+   <li><a href='/search'><?_ml .maplinks.search.journal _ml?></a></li>
+  </ul></dd></dl>
+
 </div>
 
 <div style='clear: both;'>

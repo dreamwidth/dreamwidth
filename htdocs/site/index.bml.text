@@ -124,3 +124,9 @@
 .footer=What are we missing? <a href='/support/submit.bml'>Tell us!</a>
 
 .maplinks.staff=Staff
+
+.maplinks.search.title=...search [[sitename]]:
+
+.maplinks.search.site=Site search
+
+.maplinks.search.journal=Journal search

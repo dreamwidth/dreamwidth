@@ -1,12 +1,16 @@
 ;; -*- coding: utf-8 -*-
-.commsearch=<a [[aopts]]>Community Search</a>
-
 .commsearch.desc=Search for communities.
 
-.directory=<a [[aopts]]>Directory Search</a>
+.commsearch=<a [[aopts]]>Community Search</a>
 
 .directory.desc=Search for users.
 
+.directory=<a [[aopts]]>Directory Search</a>
+
 .intro=Search [[sitename]] using the box below, or use one of our advanced search options.
+
+.journal.desc=Search your journal. (This feature requires a <a [[aopts]]>paid account</a>.)
+
+.journal=<a [[aopts]]>Journal Search</a>
 
 .title=Search [[sitename]]
