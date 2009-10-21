@@ -394,17 +394,7 @@ body<=
     unless ( $u->is_identity ) {
         my $jcdate = BML::ml( '.details.createdon2', 
             { createdate => LJ::mysql_time( $u->timecreate )  } );
-        $ret .= "<p>$jcdate (#" . $u->id . ')';
-
-        my $lastupdated = substr( LJ::mysql_time( $u->timeupdate ), 0, 10 );
-        my $secondsold = time() - $u->timeupdate;
-        my $ago_text = LJ::ago_text( $secondsold );
-        if ( $u->timeupdate ) {
-            $ret .= ", " . BML::ml( '.details.lastupdated3', 
-                { timestamp => $lastupdated, agotext => $ago_text });
-        } else {
-            $ret .= ", $ML{ '.details.lastupdated.never2' }";
-        }
+        $ret .= "<p>$jcdate (#" . $u->id . '), ' . $u->last_updated;
         $ret .= "</p>"; 
     }
 

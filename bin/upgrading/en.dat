@@ -2167,6 +2167,10 @@ label.warning=Warning:
 
 langname.en=English
 
+lastupdated.ago=last updated [[timestamp]] ([[agotext]])
+
+lastupdated.never=never updated
+
 ljfeedback.text=Like to vote?  Join [[journal]] where we post polls and surveys that help influence and improve LJ.
 
 ljlib.pageofpages=Page [[page]] of [[total]]

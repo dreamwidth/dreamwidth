@@ -699,6 +699,25 @@ sub journaltype_readable {
     }->{$u->journaltype};
 }
 
+sub last_updated {
+    # Given a user object, returns a string detailing when that journal
+    # was last updated, or "never" if never updated.
+
+    my ( $u ) = @_;
+
+    return undef unless $u -> is_person || $u->is_community;
+
+    my $lastupdated = substr( LJ::mysql_time( $u->timeupdate ), 0, 10 );
+    my $secondsold = time() - $u->timeupdate;
+    my $ago_text = LJ::ago_text( $secondsold );
+
+    if ( $u->timeupdate ) {
+        return LJ::Lang::ml( 'lastupdated.ago', 
+            { timestamp => $lastupdated, agotext => $ago_text });
+    } else {
+        return LJ::Lang::ml ( 'lastupdated.never' );
+    }
+}
 
 # returns LJ::User class of a random user, undef if we couldn't get one
 #   my $random_u = LJ::User->load_random_user(type);

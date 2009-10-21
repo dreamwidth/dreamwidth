@@ -94,7 +94,7 @@ body<=
                     $ret .= "<td scope='col' abbr='" . $other_u->display_username . "'>";
                     $ret .= LJ::html_hidden( "editfriend_edit_${uid}_user" => 1 );
                     $ret .= $other_u->ljuser_display;
-                    $ret .= "<br /><span style='font-size: smaller;'>" . LJ::last_updated( $other_u ) . "</span>";
+                    $ret .= "<br /><span style='font-size: smaller;'>" . $other_u->last_updated . "</span>";
                     $ret .= "</td>";
 
                     # color
