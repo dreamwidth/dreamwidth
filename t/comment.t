@@ -4,9 +4,9 @@ use strict;
 use Test::More tests => 189;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
-require 'talklib.pl';
 require 'ljprotocol.pl';
 use LJ::Comment;
+use LJ::Talk;
 use LJ::Test qw(memcache_stress temp_user);
 use POSIX ();
 
