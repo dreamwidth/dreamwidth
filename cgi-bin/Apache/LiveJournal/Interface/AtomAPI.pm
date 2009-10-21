@@ -8,8 +8,7 @@ use Digest::SHA1;
 use MIME::Base64;
 use lib "$LJ::HOME/cgi-bin";
 use LJ::ModuleCheck;
-
-require 'parsefeed.pl';
+use LJ::ParseFeed;
 
 # for Class::Autouse (so callers can 'ping' this method to lazy-load this class)
 sub load { 1 }

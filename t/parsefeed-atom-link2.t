@@ -2,7 +2,7 @@
 use strict;
 use Test::More;
 use lib "$ENV{LJHOME}/cgi-bin";
-require "parsefeed.pl";
+use LJ::ParseFeed;
 require 'ljlib.pl';
 
 #plan tests => ;

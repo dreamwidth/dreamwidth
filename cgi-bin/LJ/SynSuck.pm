@@ -4,7 +4,7 @@ use HTTP::Status;
 
 use lib "$LJ::HOME/cgi-bin";  # extra XML::Encoding files in cgi-bin/XML/*
 require "ljprotocol.pl";
-require "parsefeed.pl";
+use LJ::ParseFeed;
 use LJ::CleanHTML;
 
 sub update_feed {

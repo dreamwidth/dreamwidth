@@ -1,8 +1,5 @@
-#!/usr/bin/perl
-
-use strict;
-
 package LJ::ParseFeed;
+use strict;
 
 use XML::RSS;
 use XML::Parser;
