@@ -2048,7 +2048,12 @@ sub alloc_global_counter
     if ($dom eq "S") {
         confess 'Tried to allocate S1 counter.';
     } elsif ($dom eq "P") {
-        $newmax = $dbh->selectrow_array("SELECT MAX(picid) FROM userpic");
+        $newmax = 0;
+        foreach my $cid ( @LJ::CLUSTERS ) {
+            my $dbcm = LJ::get_cluster_master( $cid ) or return undef;
+            my $max = $dbcm->selectrow_array( 'SELECT MAX(picid) FROM userpic2' ) + 0;
+            $newmax = $max if $max > $newmax;
+        }
     } elsif ($dom eq "C") {
         $newmax = $dbh->selectrow_array("SELECT MAX(capid) FROM captchas");
     } elsif ($dom eq "E" || $dom eq "M") {

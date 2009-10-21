@@ -524,23 +524,6 @@ CREATE TABLE userinterests (
 )
 EOC
 
-register_tablecreate("userpic", <<'EOC');
-CREATE TABLE userpic (
-    picid int(10) unsigned NOT NULL auto_increment,
-    userid int(10) unsigned NOT NULL default '0',
-    contenttype char(25) default NULL,
-    width smallint(6) NOT NULL default '0',
-    height smallint(6) NOT NULL default '0',
-    state char(1) NOT NULL default 'N',
-    picdate datetime default NULL,
-    md5base64 char(22) NOT NULL default '',
-
-    PRIMARY KEY  (picid),
-    KEY (userid),
-    KEY (state)
-)
-EOC
-
 register_tablecreate("userpicblob2", <<'EOC');
 CREATE TABLE userpicblob2 (
     userid int unsigned not null,
@@ -549,16 +532,6 @@ CREATE TABLE userpicblob2 (
 
     PRIMARY KEY (userid, picid)
 ) max_rows=10000000
-EOC
-
-register_tablecreate("userpicmap", <<'EOC');
-CREATE TABLE userpicmap (
-    userid int(10) unsigned NOT NULL default '0',
-    kwid int(10) unsigned NOT NULL default '0',
-    picid int(10) unsigned NOT NULL default '0',
-
-    PRIMARY KEY  (userid,kwid)
-)
 EOC
 
 register_tablecreate("userpicmap2", <<'EOC');
@@ -892,6 +865,8 @@ register_tabledrop("memkeyword");
 register_tabledrop("memorable");
 register_tabledrop("s2source");
 register_tabledrop("s2stylelayers");
+register_tabledrop("userpic");
+register_tabledrop("userpicmap");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
