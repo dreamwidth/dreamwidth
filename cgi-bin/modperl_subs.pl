@@ -81,7 +81,7 @@ require "communitylib.pl";
 use LJ::Tags;
 require "schoollib.pl";
 require "ljemailgateway-web.pl";
-require "customizelib.pl";
+use LJ::Customize;
 
 # preload site-local libraries, if present:
 require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
