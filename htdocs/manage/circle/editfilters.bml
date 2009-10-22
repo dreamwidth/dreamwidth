@@ -90,6 +90,7 @@
         }
 
         $body .= "<?h1 $ML{'.saved.header'} h1?><?p $ML{'.saved.text'} p?>";
+        $body .= "<ul><li><a href='$LJ::SITEROOT/update'>$ML{'.saved.action.post'}</li><li><a href='$LJ::SITEROOT/manage/subscriptions/filters'>$ML{'.saved.action.subscription'}</li></ul>";
 
         return;
     }

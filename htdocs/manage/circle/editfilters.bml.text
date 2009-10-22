@@ -35,6 +35,10 @@
 
 .prompt.rename=Rename this access filter to:
 
+.saved.action.post=Post an entry
+
+.saved.action.subscription=Manage subscription filters
+
 .saved.header=Saved
 
 .saved.text=Your access filters are now saved.
