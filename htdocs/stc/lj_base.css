@@ -46,12 +46,14 @@ form {
     background-repeat: repeat-x;
     border: 1px solid #FF9999;
     padding: 8px;
+    color: #000000;
 }
 
 .Note .Inner {
     background: #eee;
     border: 1px solid #ccc;
     padding: 8px;
+    color: #000000;
 }
 
 div.lj_ippu {
