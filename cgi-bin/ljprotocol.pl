@@ -1401,7 +1401,7 @@ sub postevent
     return $fail->($err,501,$dberr) if $dberr;
 
     LJ::MemCache::incr([$ownerid, "log2ct:$ownerid"]);
-    LJ::memcache_kill($ownerid, "dayct2");
+    $uowner->clear_daycounts( $qallowmask || $req->{security} );
 
     # set userprops.
     {
@@ -1749,6 +1749,7 @@ sub editevent
         # clear their duplicate protection, so they can later repost
         # what they just deleted.  (or something... probably rare.)
         LJ::set_userprop($u, "dupsig_post", undef);
+        $uowner->clear_daycounts( $qallowmask || $req->{security} );
 
         # pass the delete
         $schedule_xposts->();
@@ -1946,7 +1947,7 @@ sub editevent
     }
     return fail($err,501,$dbcm->errstr) if $dbcm->err;
 
-    LJ::memcache_kill($ownerid, "dayct2");
+    $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security}, $req->{allowmask} + 0 || $req->{security} );
 
     $res = { itemid => $itemid };
     if (defined $oldevent->{'anum'}) {

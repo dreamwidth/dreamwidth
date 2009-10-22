@@ -1962,6 +1962,38 @@ sub clear_prop {
     return 1;
 }
 
+=head2 C<< $self->clear_daycounts( @security ) >>
+Clears the day counts relevant to the entry security
+
+security is an array of strings: "public", a number (allowmask), "private"
+
+=cut
+sub clear_daycounts
+{
+    my ( $u, @security ) = @_;
+
+    return undef unless LJ::isu( $u );
+    # if old and new security are equal, don't clear the day counts
+    return undef if scalar @security == 2 && $security[0] eq $security[1];
+
+    # memkind can be one of:
+    #  a = all entries in this journal
+    #  g# = access or groupmask
+    #  p = only public entries
+    my @memkind;
+    foreach my $security ( @security )
+    {
+        push @memkind, "p" if $security eq 'public'; # public
+        push @memkind, "g$security" if $security =~ /^\d+/;
+    }
+    # any change to any entry security means this must be expired
+    push @memkind, "a";
+
+    foreach my $memkind ( @memkind )
+    {
+        LJ::MemCache::delete( [ $u->userid, "dayct2:" . $u->userid . ":$memkind" ] );
+    }
+}
 
 sub control_strip_display {
     my $u = shift;
@@ -7919,17 +7951,15 @@ sub get_daycounts
         }
     }
 
-    ##
-    ## the first element of array, that is stored in memcache,
-    ## is the time of the creation of the list. The memcache is
-    ## invalid if there are new entries in journal since that time.
-    ##
     my $memkey = [$uid, "dayct2:$uid:$memkind"];
     unless ($not_memcache) {
         my $list = LJ::MemCache::get($memkey);
         if ($list) {
-            my $list_create_time = shift @$list;
-            return $list if $list_create_time >= $u->timeupdate;
+            # this was an old version of the stored memcache value
+            # where the first argument was the list creation time
+            # so throw away the first argument
+            shift @$list unless ref @$list->[0];
+            return $list;
         }
     }
 
@@ -7943,7 +7973,7 @@ sub get_daycounts
         # so they store smaller in memcache
         push @days, [ int($y), int($m), int($d), int($c) ];
     }
-    LJ::MemCache::add($memkey, [time, @days]);
+    LJ::MemCache::set( $memkey, [@days] );
     return \@days;
 }
 
