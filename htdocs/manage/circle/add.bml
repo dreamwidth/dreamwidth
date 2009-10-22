@@ -234,7 +234,7 @@
 
     # trust group buttons
     if ( $remote->can_trust( $u ) && @trust_groups ) {
-        $body .= "<div style='float: left; width: 49%'>";
+        $body .= "<div style='float: left; width: 45%; padding: 1em;'>";
         $body .= "<?p &nbsp;<br />";
         $body .= "$ML{'.groups.text1'} p?>\n";
         foreach my $group ( @trust_groups ) {
@@ -251,7 +251,7 @@
 
     # content filter buttons
     if ( $remote->can_watch( $u ) && @content_filters ) {
-        $body .= "<div style='float: left; width: 49%'><?p &nbsp;<br />";
+        $body .= "<div style='float: left; width: 45%; padding: 1em;'><?p &nbsp;<br />";
         $body .= "$ML{'.groups.reading'} p?>\n";
         my @sorted_content_filters = sort { $a->{sortorder} <=> $b->{sortorder} } @content_filters;
         foreach my $filter ( @sorted_content_filters ) {
