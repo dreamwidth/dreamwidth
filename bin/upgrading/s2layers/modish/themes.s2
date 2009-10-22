@@ -1,3 +1,49 @@
+#NEWLAYER: modish/greyscale
+layerinfo type = "theme";
+layerinfo name = "Greyscale";
+layerinfo redist_uniq = "modish/greyscale";
+layerinfo author_name = "twtd";
+
+set layout_authors = [ { "name" => "twtd", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#F3F2F2";
+set color_page_text = "#222222";
+set color_page_link = "#3A3A3A";
+set color_page_link_active = "#1B1C5D";
+set color_page_link_visited = "#1B1C5D";
+set color_page_title = "#ffffff";
+
+set color_header_background = "#3A3A3A";
+set color_footer_background = "#3A3A3A";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#3A3A3A";
+set color_entry_border = "#3A3A3A";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#3A3A3A";
+set color_module_border = "#000000";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_link = "#FFFFFF";
+set color_footer_link_active = "#FFFFFF";
+set color_footer_link_hover = "#FFFFFF";
+set color_footer_link_visited = "#FFFFFF";
+
 #NEWLAYER: modish/verdigris
 layerinfo type = "theme";
 layerinfo name = "Verdigris";

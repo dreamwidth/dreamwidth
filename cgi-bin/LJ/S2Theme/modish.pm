@@ -6,10 +6,15 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
+package LJ::S2Theme::modish::greyscale;
+use base qw( LJ::S2Theme::modish );
+
+sub cats { qw ( ) }
+sub designer { "twtd" }
+
 package LJ::S2Theme::modish::verdigris;
 use base qw( LJ::S2Theme::modish );
 
 sub cats { qw ( ) }
-
 sub designer { "zvi" }
 1;
