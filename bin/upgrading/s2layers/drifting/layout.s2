@@ -579,11 +579,14 @@ function Page::print_default_stylesheet()
         padding-left: 10px;
     }
 
+    .datetime-container {
+        margin-top: -10px;
+        margin-bottom: 10px;
+    }
+
     .datetime {
         font-weight: bold;
         font-size: 0.9em;
-        margin-top: -10px;
-        margin-bottom: 10px;
     }
 
     .datetime a {
@@ -689,9 +692,12 @@ function Page::print_default_stylesheet()
         padding-left: 0px;
     }
 
+    .comment .comment-content .datetime-container {
+        padding-top: 10px;
+    }
+
     .comment .comment-content .datetime {
         font-size: 0.9em;
-        padding-top: 10px;
     }
 
     .comment .comment-content .poster-ip {
@@ -908,7 +914,7 @@ function Page::print_entry (Entry e)
             $e->print_poster();
         println "</div>";
 
-        println "<div class=\"datetime\">";
+        println "<div class=\"datetime-container\">";
         $e->print_time("long_day", "");
         println "</div>";
 
@@ -939,7 +945,7 @@ function EntryPage::print_comment (Comment c)
         println "</div>";
 
         println "<div class=\"comment-content\">";
-            println "<div class=\"datetime\">";
+            println "<div class=\"datetime-container\">";
                 $c->print_time("long_day", "");
             println "</div>";
 
@@ -1012,7 +1018,7 @@ function ReplyPage::print_comment (Comment c)
         println "</div>";
 
         println "<div class=\"comment-content\">";
-            println "<div class=\"datetime\">";
+            println "<div class=\"datetime-container\">";
                 $c->print_time("long_day", "");
             println "</div>";
 
