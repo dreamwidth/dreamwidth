@@ -62,7 +62,7 @@
     } else {
         # show a confirmation form
         $body .= "<?h1 $ML{'.sure'} h1?>";
-        $body .= "<p>" . BML::ml( '.label.lastmaintainer.deletedcomm' ) . "</p>" if $cu->is_deleted;
+        $body .= "<?p $ML{'.label.lastmaintainer.deletedcomm'} p?>" if $cu->is_deleted && $remote->can_manage( $cu );
         $body .= "<?p ";
         if ($watching && !$memberof) {
             $body .= BML::ml('.label.buttontostopwatch', { commname => $ecname });
