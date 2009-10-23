@@ -50,6 +50,10 @@ body<=
         $ret .= "<p>" . BML::ml( '.circle.intro', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'" }) . "</p>\n\n";
         $ret .= "<?h2 $ML{'.circle.header'} h2?>\n";
 
+        # little standout box to repeat before each section:
+
+        my $standoutbox .= "<?standout " . BML::ml( '.circle.standout', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'" }) . "standout?><br />\n\n";
+
         # does the circle exist
         if ( @trusted_userids || keys %$watch_list || @trusted_by_userids || @watched_by_userids || @member_of_userids ) {
             my ( @person_userids, @comm_userids, @feed_userids );
@@ -200,8 +204,11 @@ body<=
 
             # print tables
             $ret .= "<div class='editfriendsframe'>\n";
+            $ret .= $standoutbox;
             $ret .= $generate_table->( 'people', \@person_userids ) . "<br>";
+            $ret .= $standoutbox;
             $ret .= $generate_table->( 'comms', \@comm_userids ) . "<br>";
+            $ret .= $standoutbox;
             $ret .= $generate_table->( 'feeds', \@feed_userids ) . "<br>";
             $ret .= "</div>";
 

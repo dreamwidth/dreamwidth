@@ -58,6 +58,8 @@
 
 .circle.none=(None)
 
+.circle.standout=Jump to: <a [[aopts1]]>People</a> | <a [[aopts2]]>Communities</a> | <a [[aopts3]]>Feeds</a> 
+
 .circle.status=Circle status
 
 .circle.subscribe.n=Does not subscribe to you
