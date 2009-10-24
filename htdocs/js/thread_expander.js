@@ -150,8 +150,6 @@ Expander.prototype.onLoadHandler = function(iframe){
                                 });
        this.killDuplicate(comments_intersection);   
        this.loadingStateOff();
-       if ( typeof ContextualPopup.setup() != "undefined" )
-           ContextualPopup.setup();
        return true;
 }
 
