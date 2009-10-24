@@ -335,6 +335,8 @@ function Page::print_default_stylesheet()
         font-weight:bold;
         letter-spacing:.3em;
         $module_title_font
+    }
+    .two-columns-right #secondary .module-header {
         text-align: right;
     }
     #secondary .module-header a {
