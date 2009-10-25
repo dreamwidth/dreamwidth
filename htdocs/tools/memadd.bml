@@ -83,6 +83,36 @@
         return;
     }
 
+    # check to see if it already is memorable (thus we're editing, not adding);
+    my $memory = LJ::Memories::get_by_ditemid($memoryu, $oldstyle ? 0 : $jid, $ditemid);
+
+    # Always allow for a user to delete their memories, regardless of other permissions.
+    if ($POST{'mode'} eq "save")
+    {
+        unless ($POST{'des'}) {
+            # we're deleting.
+            unless (LJ::check_form_auth()) {
+                $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
+                return;
+            }
+            if (defined $memory) {
+                LJ::Memories::delete_by_id($memoryu, $memory->{memid});
+                LJ::Memories::updated_keywords($memoryu);
+                $title = $ML{'.title.deleted'};
+                $body = "<?h1 $ML{'.error.deleted.title'} h1?><?p " .
+                        BML::ml(".error.deleted.body", { 'desc' => $memory->{'des'} }) .
+                        "p?>";
+                return;
+            } else {
+                $title = $ML{'Error'};
+                $body = "<?h1 $ML{'.error.nodescription.title'} h1?><?p ";
+                $body .= BML::ml('.error.nodescription.body');
+                $body .= " p?>";
+                return;
+            }
+        }
+    }
+
     # do access check to see if they can see this entry
     my $log = LJ::get_log2_row($ju, $itemid);
     if ( $log ) {
@@ -90,14 +120,24 @@
         if ( $entry && ! $entry->visible_to( $remote ) ) {
             $title = $ML{'Error'};
             $body = "You are not authorized to view this entry.<br/>";
+
+            if ($memoryu->{user} eq $authas && defined $memory) {
+                $body .= "<br /><form action='memadd$authextra' method='POST'>";
+                $body .= LJ::form_auth();
+                $body .= LJ::html_hidden(journal => $GET{journal}) if $GET{journal};
+                $body .= LJ::html_hidden(itemid => $GET{itemid});
+                $body .= LJ::html_hidden(des => "");
+                $body .= LJ::html_hidden('mode' => 'save');
+                $body .= LJ::html_submit('delete', 'Delete this memory') . "\n";
+                $body .= "</form>\n";
+            }
+
             return;
         }
     }
 
-    # check to see if it already is memorable (thus we're editing, not adding);
-    my $memory = LJ::Memories::get_by_ditemid($memoryu, $oldstyle ? 0 : $jid, $ditemid);
-
-    if (!$log && !$POST{'mode'}) {
+    # do check to see if entry is deleted
+    unless ( $log || $POST{'mode'}) {
         $title = $ML{'Error'};
         $body = "The entry that this memory references has been deleted.<br/>";
 
@@ -262,29 +302,6 @@
         return "<?h1 $ML{'Error'} h1?> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
         my $dbh = LJ::get_db_writer();
-
-        if (! $POST{'des'}) {
-            # then we're deleting.
-            unless (LJ::check_form_auth()) {
-                $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
-                return;
-            }
-            if (defined $memory) {
-                LJ::Memories::delete_by_id($memoryu, $memory->{memid});
-                LJ::Memories::updated_keywords($memoryu);
-                $title = $ML{'.title.deleted'};
-                $body = "<?h1 $ML{'.error.deleted.title'} h1?><?p " .
-                        BML::ml(".error.deleted.body", { 'desc' => $memory->{'des'} }) .
-                        "p?>";
-                return;
-            } else {
-                $title = $ML{'Error'};
-                $body = "<?h1 $ML{'.error.nodescription.title'} h1?><?p ";
-                $body .= BML::ml('.error.nodescription.body');
-                $body .= " p?>";
-                return;
-            }
-        }
 
         #### we're inserting/replacing now into memories
         my @keywords;
