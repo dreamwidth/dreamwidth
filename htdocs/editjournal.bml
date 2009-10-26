@@ -337,7 +337,7 @@ body<=
             my ($year, $mon, $mday, $hour, $min) = split(/\D/, $res{"events_1_eventtime"});
             my $datetime; my $date = LJ::html_datetime_decode({ 'name' => "date_ymd", }, \%POST);
             if ($date ne "0000-00-00 00:00:00") {
-                my ($date, $time) = split( / /, $date);
+                my ($date, $time) = split( m/ /, $date);
                 $datetime = "$date $POST{'hour'}:$POST{'min'}";
             } else {
                 $datetime = "$year-$mon-$mday $hour:$min";
@@ -392,6 +392,11 @@ body<=
 
             # add property for current music button displaying if last.fm user specified
             $entry->{prop_last_fm_user} = $u_for_entry->prop('last_fm_user');
+
+            # add property for xpost data (this is removed by the getevents protocol)
+            # FIXME: this should be added by the entry form, but since it doesn't have an
+            # entry object right now, this is just easier
+            $entry->{prop_xpost} = $entry_obj->prop( 'xpost' );
 
             foreach ( keys %POST ) { $entry->{$_} = %POST->{$_}; }
             $entry->{'richtext_default'} = $entry->{"prop_used_rte"} ? 1 : 0,
