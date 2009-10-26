@@ -687,7 +687,7 @@ sub interests {
     my $remote = $self->{remote};
     my @ret;
 
-    my $ints = LJ::get_interests( $u ); # arrayref of: [ intid, intname, intcount ]
+    my $ints = $u->get_interests(); # arrayref of: [ intid, intname, intcount ]
     if ( @$ints ) {
         foreach my $int ( @$ints ) {
             my $intid = $int->[0];
@@ -699,7 +699,7 @@ sub interests {
             if ( $intcount > 1 ) {
                 # bold shared interests on all profiles except your own
                 if ( $remote && !$remote->equals( $u ) ) {
-                    my %remote_intids = map { $_ => 1 } @{ LJ::get_interests( $remote, { justids => 1 } ) };
+                    my %remote_intids = map { $_ => 1 } @{ $remote->get_interests( { justids => 1 } ) };
                     $intname = "<strong>$intname</strong>" if $remote_intids{$intid};
                 }
                 push @ret, { url => "$LJ::SITEROOT/interests?int=$eint", text => $intname };

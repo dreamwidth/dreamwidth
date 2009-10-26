@@ -764,7 +764,7 @@ sub create_view_foaf {
 
     # interests, please!
     # arrayref of interests rows: [ intid, intname, intcount ]
-    my $intu = LJ::get_interests($u);
+    my $intu = $u->get_interests();
     foreach my $int (@$intu) {
         LJ::text_out(\$int->[1]); # 1==interest
         $ret .= "    <foaf:interest dc:title=\"". LJ::exml($int->[1]) . "\" " .

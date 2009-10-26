@@ -99,7 +99,7 @@ body<=
             return $ret;
         }
 
-        my $rints = LJ::get_interests($remote);
+        my $rints = $remote->get_interests();
         my $count = scalar(@$rints);
 
         # account for the case where we bypass the POST due to the referer
@@ -220,7 +220,7 @@ body<=
         my %uint;
 
         my %fromint;
-        my $fints = LJ::get_interests($fromu);
+        my $fints = $fromu->get_interests();
         foreach (@$fints) {
             $fromint{$_->[1]} = $_->[0]+0;
         }
@@ -239,7 +239,7 @@ body<=
         } else {
             my $in = join (",", map { $fromint{$_} } keys %fromint);
 
-            my $uints = LJ::get_interests($u);
+            my $uints = $u->get_interests();
             foreach (@$uints) {
                 $uint{$_->[1]} = $_->[0];
             }
@@ -301,7 +301,7 @@ body<=
         my %uint;
         my $intcount = 0;
 
-        my $uints = LJ::get_interests($u);
+        my $uints = $u->get_interests();
         foreach (@$uints) {
             $uint{$_->[0]} = $_->[1];  # uint{intid} = interest
             $intcount++;

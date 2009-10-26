@@ -13,7 +13,7 @@
 
         my $ret;
     
-        my $ints = LJ::get_interests($u) || [];
+        my $ints = $u->get_interests() || [];
         foreach my $int (@$ints) {
             $ret .= "$int->[0] $int->[2] $int->[1]\n";
         }

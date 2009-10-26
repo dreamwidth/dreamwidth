@@ -4059,25 +4059,104 @@ sub third_party_notify_list_remove {
 ########################################################################
 ###  17. Interest-Related Functions
 
+# $opts is optional, with keys:
+#    forceids => 1   : don't use memcache for loading the intids
+#    forceints => 1   : don't use memcache for loading the interest rows
+#    justids => 1 : return arrayref of intids only, not names/counts
+# returns otherwise an arrayref of interest rows, sorted by interest name
+sub get_interests {
+    my ( $u, $opts ) = @_;
+    $opts ||= {};
+    return undef unless LJ::isu( $u );
+
+    # first check request cache inside $u
+    if ( my $ints = $u->{_cache_interests} ) {
+        return [ map { $_->[0] } @$ints ] if $opts->{justids};
+        return $ints;
+    }
+
+    my $uid = $u->userid;
+    my $uitable = $u->is_community ? 'comminterests' : 'userinterests';
+
+    # load the ids
+    my $mk_ids = [$uid, "intids:$uid"];
+    my $ids = LJ::MemCache::get($mk_ids) unless $opts->{forceids};
+    unless ( $ids && ref $ids eq "ARRAY" ) {
+        $ids = [];
+        my $dbh = LJ::get_db_writer();
+        my $sth = $dbh->prepare( "SELECT intid FROM $uitable WHERE userid=?" );
+        $sth->execute( $uid );
+        push @$ids, $_ while ($_) = $sth->fetchrow_array;
+        LJ::MemCache::add( $mk_ids, $ids, 3600*12 );
+    }
+
+    # FIXME: set a 'justids' $u cache key in this case, then only return that
+    #        later if 'justids' is requested?  probably not worth it.
+    return $ids if $opts->{justids};
+
+    # load interest rows
+    my %need;
+    $need{$_} = 1 foreach @$ids;
+    my @ret;
+
+    unless ( $opts->{forceints} ) {
+        if ( my $mc = LJ::MemCache::get_multi( map { [$_, "introw:$_"] } @$ids ) ) {
+            while ( my ($k, $v) = each %$mc ) {
+                next unless $k =~ /^introw:(\d+)/;
+                delete $need{$1};
+                push @ret, $v;
+            }
+        }
+    }
+
+    if ( %need ) {
+        my $ids = join( ",", map { $_ + 0 } keys %need );
+        my $dbr = LJ::get_db_reader();
+        my $sth = $dbr->prepare( "SELECT intid, interest, intcount FROM interests ".
+                                 "WHERE intid IN ($ids)" );
+        $sth->execute;
+        my $memc_store = 0;
+        while ( my ($intid, $int, $count) = $sth->fetchrow_array ) {
+            # minimize latency... only store 25 into memcache at a time
+            # (too bad we don't have set_multi.... hmmmm)
+            my $aref = [$intid, $int, $count];
+            if ( $memc_store++ < 25 ) {
+                # if the count is fairly high, keep item in memcache longer,
+                # since count's not so important.
+                my $expire = $count < 10 ? 3600*12 : 3600*48;
+                LJ::MemCache::add( [$intid, "introw:$intid"], $aref, $expire );
+            }
+            push @ret, $aref;
+        }
+    }
+
+    @ret = sort { $a->[1] cmp $b->[1] } @ret;
+    return $u->{_cache_interests} = \@ret;
+}
+
+
 sub interest_count {
     my $u = shift;
+    return undef unless LJ::isu( $u );
 
     # FIXME: fall back to SELECT COUNT(*) if not cached already?
-    return scalar @{LJ::get_interests($u, { justids => 1 })};
+    return scalar @{ $u->get_interests( { justids => 1 } ) };
 }
 
 
 sub interest_list {
     my $u = shift;
+    return undef unless LJ::isu( $u );
 
-    return map { $_->[1] } @{ LJ::get_interests($u) };
+    return map { $_->[1] } @{ $u->get_interests() };
 }
 
 
 # return hashref with intname => intid
 sub interests {
     my $u = shift;
-    my $uints = LJ::get_interests($u);
+    return undef unless LJ::isu( $u );
+    my $uints = $u->get_interests();
     my %interests;
 
     foreach my $int (@$uints) {
@@ -7575,86 +7654,6 @@ sub can_view
 
 ########################################################################
 ###  17. Interest-Related Functions
-
-# $opts is optional, with keys:
-#    forceids => 1   : don't use memcache for loading the intids
-#    forceints => 1   : don't use memcache for loading the interest rows
-#    justids => 1 : return arrayref of intids only, not names/counts
-# returns otherwise an arrayref of interest rows, sorted by interest name
-sub get_interests
-{
-    my ($u, $opts) = @_;
-    $opts ||= {};
-    return undef unless $u;
-
-    # first check request cache inside $u
-    if (my $ints = $u->{_cache_interests}) {
-        if ($opts->{justids}) {
-            return [ map { $_->[0] } @$ints ];
-        }
-        return $ints;
-    }
-
-    my $uid = $u->userid;
-    my $uitable = $u->is_community ? 'comminterests' : 'userinterests';
-
-    # load the ids
-    my $ids;
-    my $mk_ids = [$uid, "intids:$uid"];
-    $ids = LJ::MemCache::get($mk_ids) unless $opts->{'forceids'};
-    unless ($ids && ref $ids eq "ARRAY") {
-        $ids = [];
-        my $dbh = LJ::get_db_writer();
-        my $sth = $dbh->prepare("SELECT intid FROM $uitable WHERE userid=?");
-        $sth->execute($uid);
-        push @$ids, $_ while ($_) = $sth->fetchrow_array;
-        LJ::MemCache::add($mk_ids, $ids, 3600*12);
-    }
-
-    # FIXME: set a 'justids' $u cache key in this case, then only return that
-    #        later if 'justids' is requested?  probably not worth it.
-    return $ids if $opts->{'justids'};
-
-    # load interest rows
-    my %need;
-    $need{$_} = 1 foreach @$ids;
-    my @ret;
-
-    unless ($opts->{'forceints'}) {
-        if (my $mc = LJ::MemCache::get_multi(map { [$_, "introw:$_"] } @$ids)) {
-            while (my ($k, $v) = each %$mc) {
-                next unless $k =~ /^introw:(\d+)/;
-                delete $need{$1};
-                push @ret, $v;
-            }
-        }
-    }
-
-    if (%need) {
-        my $ids = join(",", map { $_+0 } keys %need);
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT intid, interest, intcount FROM interests ".
-                                "WHERE intid IN ($ids)");
-        $sth->execute;
-        my $memc_store = 0;
-        while (my ($intid, $int, $count) = $sth->fetchrow_array) {
-            # minimize latency... only store 25 into memcache at a time
-            # (too bad we don't have set_multi.... hmmmm)
-            my $aref = [$intid, $int, $count];
-            if ($memc_store++ < 25) {
-                # if the count is fairly high, keep item in memcache longer,
-                # since count's not so important.
-                my $expire = $count < 10 ? 3600*12 : 3600*48;
-                LJ::MemCache::add([$intid, "introw:$intid"], $aref, $expire);
-            }
-            push @ret, $aref;
-        }
-    }
-
-    @ret = sort { $a->[1] cmp $b->[1] } @ret;
-    return $u->{_cache_interests} = \@ret;
-}
-
 
 sub interest_string_to_list {
     my $intstr = shift;

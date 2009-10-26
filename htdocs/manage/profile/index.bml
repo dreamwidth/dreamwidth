@@ -65,7 +65,7 @@ body<=
     LJ::text_out(\$u->{'bio'}, "force");
 
     # load interests
-    my $uints = LJ::get_interests($u, { forceids => 1 });
+    my $uints = $u->get_interests( { forceids => 1 } );
     my %interests = ();
     foreach (@$uints) {
         $interests{$_->[1]} = $_->[0];  # $interests{name} = intid
