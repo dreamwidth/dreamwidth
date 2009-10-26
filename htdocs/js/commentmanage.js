@@ -514,6 +514,11 @@ function updateLink (ae, resObj, clickTarget) {
         clickTarget.setAttribute( 'title', resObj.newalt );
         clickTarget.src = resObj.newimage;
         did_something = 1;
+    };
+
+    if ( ae && typeof clickTarget == "undefined" ) {
+        ae.innerHTML = resObj.newalt;
+        did_something = 1;
     }
 
     if (userhook) {

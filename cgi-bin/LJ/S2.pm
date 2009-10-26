@@ -2105,13 +2105,14 @@ sub Page
 }
 
 sub Link {
-    my ($url, $caption, $icon) = @_;
+    my ($url, $caption, $icon, %extra) = @_;
 
     my $lnk = {
         '_type'   => 'Link',
         'caption' => $caption,
         'url'     => $url,
         'icon'    => $icon,
+        'extra'   => {%extra},
     };
 
     return $lnk;
@@ -2995,17 +2996,18 @@ sub _Comment__get_link
 
             my $etypeid = 'LJ::Event::JournalNewComment'->etypeid;
 
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=" . $comment->dtalkid,
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_untrack"},
-                                LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack this',
-                                              'lj_etypeid'    => $etypeid,
-                                              'lj_journalid'  => $u->id,
-                                              'lj_subid'      => $subscr->id,
-                                              'class'         => 'TrackButton',
-                                              'id'            => 'lj_track_btn_' . $dtalkid,
-                                              'lj_dtalkid'    => $dtalkid,
-                                              'lj_arg2'       => $comment->jtalkid,
-                                              'lj_auth_token' => $auth_token));
+                                LJ::S2::Image( "$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack this' ),
+                                'lj_etypeid'    => $etypeid,
+                                'lj_journalid'  => $u->id,
+                                'lj_subid'      => $subscr->id,
+                                'class'         => 'TrackButton',
+                                'id'            => 'lj_track_btn_' . $dtalkid,
+                                'lj_dtalkid'    => $dtalkid,
+                                'lj_arg2'       => $comment->jtalkid,
+                                'lj_auth_token' => $auth_token,
+                                'js_swapname' => $ctx->[S2::PROPS]->{text_multiform_opt_track} );
         }
 
         return $null_link if $remote->has_subscription(journal => $u, event => "JournalNewComment", arg2 => $comment->jtalkid);
@@ -3048,16 +3050,17 @@ sub _Comment__get_link
         $btn_params{'lj_subid'}      = 0;
         $btn_params{'lj_dtalkid'}    = $dtalkid;
         $btn_params{'id'}            = "lj_track_btn_" . $dtalkid;
+        $btn_params{'js_swapname'}   = $ctx->[S2::PROPS]->{text_multiform_opt_untrack};
 
         if ($key eq "watch_thread" && !$watching_parent) {
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid&amp;doodah",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
-                                LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This', %btn_params));
+                                LJ::S2::Image( "$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This' ), %btn_params );
         }
         if ($key eq "watching_parent" && $watching_parent) {
-            return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
-                                LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack This', %btn_params));
+                                LJ::S2::Image( "$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack This' ), %btn_params );
         }
         return $null_link;
     }
@@ -3618,18 +3621,19 @@ sub _Entry__get_link
                                                    arg1      => $this->{itemid},
                                                    );
 
-        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_watch_comments"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This',
-                                          'lj_journalid'        => $journalu->id,
-                                          'lj_etypeid'          => $etypeid,
-                                          'lj_subid'            => 0,
-                                          'lj_arg1'             => $this->{itemid},
-                                          'lj_auth_token'       => $auth_token,
-                                          'lj_newentry_etypeid' => $newentry_etypeid,
-                                          'lj_newentry_token'   => $newentry_auth_token,
-                                          'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
-                                          'class'               => 'TrackButton'));
+                            LJ::S2::Image( "$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This' ),
+                            'lj_journalid'        => $journalu->id,
+                            'lj_etypeid'          => $etypeid,
+                            'lj_subid'            => 0,
+                            'lj_arg1'             => $this->{itemid},
+                            'lj_auth_token'       => $auth_token,
+                            'lj_newentry_etypeid' => $newentry_etypeid,
+                            'lj_newentry_token'   => $newentry_auth_token,
+                            'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
+                            'class'               => 'TrackButton',
+                            'js_swapname'         => $ctx->[S2::PROPS]->{text_unwatch_comments} );
     }
     if ($key eq "unwatch_comments") {
         return $null_link unless LJ::is_enabled('esn');
@@ -3648,18 +3652,19 @@ sub _Entry__get_link
                                                    subid  => $subscr->id,
                                                    action => 'delsub' );
 
-        return LJ::S2::Link("$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
+        return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/entry?journal=$journal&amp;itemid=$this->{'itemid'}",
                             $ctx->[S2::PROPS]->{"text_unwatch_comments"},
-                            LJ::S2::Image("$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack this',
-                                          'lj_journalid'        => $journalu->id,
-                                          'lj_subid'            => $subscr->id,
-                                          'lj_etypeid'          => $etypeid,
-                                          'lj_arg1'             => $this->{itemid},
-                                          'lj_auth_token'       => $auth_token,
-                                          'lj_newentry_etypeid' => $newentry_etypeid,
-                                          'lj_newentry_token'   => $newentry_auth_token,
-                                          'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
-                                          'class'               => 'TrackButton'));
+                            LJ::S2::Image( "$LJ::IMGPREFIX/silk/entry/untrack.png", 16, 16, 'Untrack this' ),
+                            'lj_journalid'        => $journalu->id,
+                            'lj_subid'            => $subscr->id,
+                            'lj_etypeid'          => $etypeid,
+                            'lj_arg1'             => $this->{itemid},
+                            'lj_auth_token'       => $auth_token,
+                            'lj_newentry_etypeid' => $newentry_etypeid,
+                            'lj_newentry_token'   => $newentry_auth_token,
+                            'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
+                            'class'               => 'TrackButton',
+                            'js_swapname'         => $ctx->[S2::PROPS]->{text_watch_comments} );
     }
 }
 

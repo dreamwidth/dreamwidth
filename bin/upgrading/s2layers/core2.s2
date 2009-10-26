@@ -207,6 +207,7 @@ class Link
     var Image icon
     "A suggestion from the server as to which icon to use. layouts/users can override this of course.
     alt text works similarly to [member[Link.caption]].";
+    var readonly string{} extra "Extra attributes passed to the link";
 
     function print_button
     "Output this Link as a clickable button using [member[Link.icon]]";
@@ -4191,13 +4192,18 @@ function Comment::print_management_links()
     """<ul class="comment-management-links">""";
     var Link link;
     var int count;
+    var string extras;
     $count = 0;
     foreach var string k ($.link_keyseq) {
         $link = $this->get_link($k);
         if ($link.url) {
             $count ++;
             if ($*comment_management_links == "text") {
-                """<li class="link $k""" + ( ($count == 1) ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
+                foreach var string extra ( $link.extra ) {
+                    var string value = $link.extra{$extra};
+                    $extras = $extras + "$extra='$value' ";
+                }
+                """<li class="link $k""" + ( ($count == 1) ? " first-item" : "" ) + """"><a href="$link.url" $extras>$link.caption</a></li>\n""";
             }
             else { ## if ($*comment_management_links == "icon")
                 """<li class="link $k""" + ( ($count == 1) ? " first-item" : "" ) + """">$link</li>\n""";
@@ -4259,6 +4265,7 @@ function Entry::print_management_links()
 
     var Page p = get_page();
     var int count;
+    var string extras;
     $count = 0;
     """<ul class="entry-management-links">""";
     var bool show_interentry = ($p.view == "entry" or $p.view == "reply");
@@ -4274,7 +4281,11 @@ function Entry::print_management_links()
         if ($link.url) {
             $count ++;
             if ($*entry_management_links == "text") {
-                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url">$link.caption</a></li>\n""";
+                foreach var string extra ( $link.extra ) {
+                    var string value = $link.extra{$extra};
+                    $extras = $extras + "$extra='$value' ";
+                }
+                """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """"><a href="$link.url" $extras>$link.caption</a></li>\n""";
             }
             else { ## if ($*entry_management_links == "icon")
                 """<li class="link $k""" + ( $count == 1 ? " first-item" : "" ) + """">$link</li>\n""";
@@ -4850,14 +4861,20 @@ function Link::print_button() [fixed] {
 function Link::as_string() [fixed] : string {
     if ($.url == "") { return ""; }
     var string ealt = ehtml($.caption);
-    var string{} extra = $.icon.extra;
-    var string extraParams = "";
+    var string{} extraLink = $.extra;
+    var string{} extraImg = $.icon.extra;
+    var string extraParamsLink = "";
+    var string extraParamsImg = "";
 
-    foreach var string extraKey ($extra) {
-        $extraParams = $extraParams + """$extraKey="$extra{$extraKey}" """;
+    foreach var string extraKeyLink ($extraLink) {
+        $extraParamsLink = $extraParamsLink + """$extraKeyLink="$extraLink{$extraKeyLink}" """;
     }
 
-    return """<a href="$.url"><img border='0' width="$.icon.width" height="$.icon.height" alt="$ealt" title="$ealt" src="$.icon.url" $extraParams /></a>""";
+    foreach var string extraKeyImg ($extraImg) {
+        $extraParamsImg = $extraParamsImg + """$extraKeyImg="$extraImg{$extraKeyImg}" """;
+    }
+
+    return """<a href="$.url" $extraParamsLink><img border='0' width="$.icon.width" height="$.icon.height" alt="$ealt" title="$ealt" src="$.icon.url" $extraParamsImg /></a>""";
 }
 
 # Redirector
