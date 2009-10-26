@@ -561,21 +561,27 @@ sub get_propgroups {
     }
 
     my @groups = S2::get_property_groups($lyr_layout->{'s2lid'});
+    my @merged_groups;
     my $misc_group;
     my %groupprops;  # gname -> [ propname ]
     my %propgroup;   # pname -> gname;
 
     foreach my $gname (@groups) {
         if ($gname eq "misc" || $gname eq "other") { $misc_group = $gname; }
+        my $gname_merge = $gname;
+        $gname_merge =~ s/_child$//;
+        push @merged_groups, $gname if $gname_merge eq $gname;
+
         foreach my $pname (S2::get_property_group_props($lyr_layout->{'s2lid'}, $gname)) {
             my $prop = $prop{$pname};
             next if ! $prop || $prop->{noui} || $propgroup{$pname};
-            $propgroup{$pname} = $gname;
-            push @{$groupprops{$gname}}, $pname;
+            $propgroup{$pname} = $gname_merge;
+            push @{$groupprops{$gname_merge}}, $pname;
         }
     }
+
     # put unsorted props into an existing or new unsorted/misc group
-    if (@groups) {
+    if (@merged_groups) {
         my @unsorted;
         foreach my $pname (@propnames) {
             my $prop = $prop{$pname};
@@ -585,13 +591,13 @@ sub get_propgroups {
         if (@unsorted) {
             unless ($misc_group) {
                 $misc_group = "misc";
-                push @groups, "misc";
+                push @merged_groups, "misc";
             }
             push @{$groupprops{$misc_group}}, @unsorted;
         }
     }
 
-    return ( props => \%prop, groups => \@groups, groupprops => \%groupprops, propgroup => \%propgroup );
+    return ( props => \%prop, groups => \@merged_groups, groupprops => \%groupprops, propgroup => \%propgroup );
 }
 
 sub propgroup_name {
