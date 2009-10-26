@@ -3411,6 +3411,8 @@ sub postevent
     my $rq = upgrade_request($req);
     flatten_props($req, $rq);
 
+    $rq->{'props'}->{'interface'} = "flat";
+
     my $rs = LJ::Protocol::do_request("postevent", $rq, \$err, $flags);
     unless ($rs) {
         $res->{'success'} = "FAIL";

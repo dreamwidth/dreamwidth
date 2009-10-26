@@ -199,6 +199,8 @@ sub handle_post {
         %$security_opts,
     };
 
+    $req->{'props'}->{'interface'} = "atom";
+
     my $err;
     my $res = LJ::Protocol::do_request("postevent",
                                        $req, \$err, { 'noauth' => 1 });
