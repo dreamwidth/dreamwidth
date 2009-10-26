@@ -45,21 +45,32 @@ body<=
                                                    default_selected => 1,
                                                    flags   => LJ::Subscription::TRACKING,
                                                    ),
-                    LJ::Subscription::Pending->new(
-                                                   $remote,
-                                                   event   => "JournalNewEntry",
-                                                   arg1    => '?',
-                                                   journal => $journal,
-                                                   flags   => LJ::Subscription::TRACKING,
-                                                   ),
-                    LJ::Subscription::Pending->new(
-                                                   $remote,
-                                                   event   => "JournalNewEntry",
-                                                   journal => $journal,
-                                                   flags   => LJ::Subscription::TRACKING,
-                                                   ),
                     ],
                 }];
+
+    # only administrators of a community should be given the option to track all comments on another journal
+    push @{@$categories[0]->{Track}},
+        LJ::Subscription::Pending->new(
+                                       $remote,
+                                       event   => "JournalNewComment",
+                                       journal => $journal,
+                                       flags   => LJ::Subscription::TRACKING,
+                                       ) if $journal->is_community && LJ::can_manage_other( $remote, $journal );
+
+    push @{@$categories[0]->{Track}},
+        LJ::Subscription::Pending->new(
+                                       $remote,
+                                       event   => "JournalNewEntry",
+                                       arg1    => '?',
+                                       journal => $journal,
+                                       flags   => LJ::Subscription::TRACKING,
+                                       ),
+        LJ::Subscription::Pending->new(
+                                       $remote,
+                                       event   => "JournalNewEntry",
+                                       journal => $journal,
+                                       flags   => LJ::Subscription::TRACKING,
+                                       );
 
     $body .= LJ::subscribe_interface($remote,
                                      journal      => $journal,

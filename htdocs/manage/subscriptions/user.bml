@@ -42,19 +42,6 @@ body<=
                                                                      journal => $journal,
                                                                      flags   => LJ::Subscription::TRACKING,
                                                                      ),
-                                      LJ::Subscription::Pending->new(
-                                                                     $remote,
-                                                                     event    => "NewUserpic",
-                                                                     journal  => $journal,
-                                                                     flags    => LJ::Subscription::TRACKING,
-                                                                     disabled => ! $remote->can_track_new_userpic,
-                                                                     ),
-                                      LJ::Subscription::Pending->new(
-                                                                     $remote,
-                                                                     event   => "Birthday",
-                                                                     journal => $journal,
-                                                                     flags   => LJ::Subscription::TRACKING,
-                                                                     ),
                                       ]
                                   },
                       ];
@@ -68,6 +55,30 @@ body<=
                                                                       flags   => LJ::Subscription::TRACKING,
                                                                       );
     }
+
+    # only administrators of a community should be given the option to track all comments on another journal
+    push @{@$categories[0]->{""}},
+        LJ::Subscription::Pending->new(
+                                       $remote,
+                                       event   => "JournalNewComment",
+                                       journal => $journal,
+                                       flags   => LJ::Subscription::TRACKING,
+                                       ) if $journal->is_community && LJ::can_manage_other( $remote, $journal );
+    
+    push @{@$categories[0]->{""}},
+        LJ::Subscription::Pending->new(
+                                       $remote,
+                                       event    => "NewUserpic",
+                                       journal  => $journal,
+                                       flags    => LJ::Subscription::TRACKING,
+                                       disabled => ! $remote->get_cap('track_user_newuserpic'),
+                                       ),
+        LJ::Subscription::Pending->new(
+                                       $remote,
+                                       event   => "Birthday",
+                                       journal => $journal,
+                                       flags   => LJ::Subscription::TRACKING,
+                                       );
 
     return LJ::subscribe_interface(
                                    $remote,
