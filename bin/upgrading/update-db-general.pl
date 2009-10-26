@@ -1518,12 +1518,18 @@ post_create("comminterests",
             });
 
 # tracking where users are active
+# accountlevel is the account level at time of activity
+# (may be NULL for transition period or long-term inactive
+# accounts that were active earlier - but not all inactive accounts will be in
+# there, so we won't be looking here for their account levels anyway, so this
+# shouldn't be a problem)
 register_tablecreate("clustertrack2", <<'EOC'); # clustered
 CREATE TABLE clustertrack2 (
     userid INT UNSIGNED NOT NULL,
     PRIMARY KEY (userid),
     timeactive INT UNSIGNED NOT NULL,
     clusterid SMALLINT UNSIGNED,
+    accountlevel SMALLINT UNSIGNED,
 
     INDEX (timeactive, clusterid)
 )
@@ -3817,6 +3823,12 @@ EOF
         do_sql( 'UNLOCK TABLES' );
         set_dbnote( "logkwsum_fix_filtered_counts", 1 );
     }
+
+    unless ( column_type( 'clustertrack2', 'accountlevel' ) ) {
+        do_alter( 'clustertrack2',
+                  q{ALTER TABLE clustertrack2 ADD COLUMN accountlevel SMALLINT UNSIGNED AFTER clusterid} );
+    }
+
 
 });
 

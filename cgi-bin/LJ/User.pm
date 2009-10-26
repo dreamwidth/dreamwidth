@@ -5946,9 +5946,10 @@ sub mark_user_active {
 
         return 0 unless $u->writer;
         my $active = time();
-        $u->do("REPLACE INTO clustertrack2 SET ".
-               "userid=?, timeactive=?, clusterid=?", undef,
-               $uid, $active, $u->clusterid) or return 0;
+        $u->do( "REPLACE INTO clustertrack2 SET ".
+                "userid=?, timeactive=?, clusterid=?, accountlevel=?", undef,
+                $uid, $active, $u->clusterid, DW::Pay::get_current_account_status( $uid ) ) or return 0;
+
         my $memkey = [$u->userid, "timeactive:" . $u->userid];
         LJ::MemCache::set($memkey, $active, 86400);
     }
