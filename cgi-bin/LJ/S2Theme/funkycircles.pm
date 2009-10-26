@@ -6,6 +6,38 @@ sub layout_prop { "layout_type" }
 
 sub designer { "900degrees" }
 
+sub page_props {
+    my $self = shift;
+    my @props = qw( color_page_title_background color_page_subtitle_background color_page_subtitle );
+    return $self->_append_props( "page_props", @props );
+}
+
+sub module_props {
+    my $self = shift;
+    my @props = qw( image_module_list image_module_list_hover image_module_list_active );
+    return $self->_append_props( "module_props", @props );
+}
+
+sub entry_props {
+    my $self = shift;
+    my @props = qw(
+        color_entry_userpic_border
+        color_entry_link_hover_background
+        color_entry_poster_border
+        color_entry_footer_background
+        color_entry_footer_text
+        color_entry_footer_link
+        color_entry_footer_link_active
+        color_entry_footer_link_hover
+        color_entry_footer_link_visited
+        color_entry_footer_border
+        image_entry_list_background_group
+        image_entry_list_background_url
+        image_entry_list_background_repeat
+        image_entry_list_background_position
+    );
+    return $self->_append_props( "entry_props", @props );
+}
 
 package LJ::S2Theme::funkycircles::atomicorange;
 use base qw( LJ::S2Theme::funkycircles );

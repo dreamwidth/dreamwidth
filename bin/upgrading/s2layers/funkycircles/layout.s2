@@ -8,10 +8,10 @@ layerinfo lang = "en";
 ## Display settings - images
 ##===============================
 
-propgroup images {
+propgroup images_child {
 
     property string[] image_entry_list_background_group {
-        des = "Background image";
+        des = "Entry footer links background image";
         grouptype = "image";
         }
     set image_entry_list_background_group = [ "image_entry_list_background_url", "image_entry_list_background_repeat", "image_entry_list_background_position" ];
@@ -35,7 +35,7 @@ propgroup images {
 ## Journal style - colors
 ##===============================
 
-propgroup colors {
+propgroup colors_child {
     property Color color_page_title_background { des = "Page title background color"; }
     property Color color_page_subtitle_background { des = "Page subtitle background color"; }
     property Color color_page_subtitle { des = "Page subtitle color"; }

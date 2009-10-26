@@ -718,6 +718,10 @@ sub module_props {
         font_module_text
         font_module_text_size
         font_module_text_units
+        image_background_module_group
+        image_background_module_url
+        image_background_module_repeat
+        image_background_module_position
     )
 }
 
@@ -745,6 +749,11 @@ sub header_props {
         font_journal_subtitle
         font_journal_subtitle_size
         font_journal_subtitle_units
+        image_background_header_group
+        image_background_header_url
+        image_background_header_repeat
+        image_background_header_position
+        image_background_header_height
     )
 }
 
@@ -796,6 +805,10 @@ sub entry_props {
         font_entry_title
         font_entry_title_size
         font_entry_title_units
+        image_background_entry_group
+        image_background_entry_url
+        image_background_entry_repeat
+        image_background_entry_position
     )
 }
 
@@ -837,6 +850,10 @@ sub page_props {
         font_fallback
         font_base_size
         font_base_units
+        image_background_page_group
+        image_background_page_url
+        image_background_page_repeat
+        image_background_page_position
     )
 }
 
