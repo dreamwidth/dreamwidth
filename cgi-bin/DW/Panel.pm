@@ -59,6 +59,7 @@ sub init {
     ];
 
     $ret->{secondary} = [
+        "DW::Widget::SiteSearch",
         "DW::Widget::ReadingList",
         "LJ::Widget::FriendBirthdays",
         "DW::Widget::AccountStatistics",

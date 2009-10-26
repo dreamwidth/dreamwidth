@@ -4739,6 +4739,10 @@ widget.shopitemoptions.price.seed=Forever for [[price]]
 
 widget.sitemessages.title=[[sitename]] Plugs In
 
+widget.sitesearch.desc=Search for entries containing:
+
+widget.sitesearch.title=Search [[sitename]]
+
 widget.support.submit.button=Submit Request
 
 widget.support.submit.captcha=Prove You're Human
