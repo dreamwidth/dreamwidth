@@ -45,6 +45,7 @@ sub default_theme {
         fluidmeasure => 'fluidmeasure/spice',
         funkycircles => 'funkycircles/darkpurple',
         negatives => 'negatives/black',
+        skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
         tranquilityiii => 'tranquilityiii/nightsea',
         zesty => 'zesty/white',

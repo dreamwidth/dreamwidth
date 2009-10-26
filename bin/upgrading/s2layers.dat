@@ -46,6 +46,9 @@ modish/themes           theme+          modish/layout
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
 
+skittlishdreams/layout        layout    core2
+skittlishdreams/themes        theme+    skittlishdreams/layout
+
 steppingstones/layout   layout(core2base/layout)    core2
 steppingstones/themes   theme+                      steppingstones/layout
 

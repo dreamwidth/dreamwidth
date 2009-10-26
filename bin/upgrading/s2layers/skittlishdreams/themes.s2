@@ -1,0 +1,321 @@
+#NEWLAYER: skittlishdreams/blue
+layerinfo type = "theme";
+layerinfo name = "Blue";
+layerinfo redist_uniq = "skittlishdreams/blue";
+layerinfo author_name = "Kaigou";
+
+## theme color: #0870C9
+
+set image_background_page_url = "skittlishdreams/bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_module_url = "skittlishdreams/blue_box.gif";
+set image_background_entry_url = "skittlishdreams/blue_edge.gif";
+set image_background_navigation_url = "skittlishdreams/blue_circle.gif";
+
+set color_page_border = "#0870C9";
+set color_page_link = "#0870C9";
+set color_page_link_visited = "#0870C9";
+set color_module_background = "#0870C9";
+set color_entry_title = "#0870C9";
+
+set color_page_background = "#e3e3e3";
+
+set color_header_background = "#1C1C1C";
+set color_footer_background = "#1C1C1C";
+set color_footer_link = "#bababa";
+set color_footer_link_hover = "#fff";
+
+set color_page_text = "#666666";
+set color_page_title = "#ddd";
+set color_page_details_text = "#888888";
+
+set color_page_link_hover = "#16E";
+
+set color_module_text = "#DDD";
+set color_module_link = "#FFF";
+set color_module_title = "#FFF";
+
+set color_entry_background = "#FFF";
+set color_entry_text = "#444";
+set color_entry_title_background = "#FFF";
+set color_entry_title_border = "#EEE";
+set color_entry_title_border_alt = "#DDD";
+set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/cyan
+layerinfo type = "theme";
+layerinfo name = "Cyan";
+layerinfo redist_uniq = "skittlishdreams/cyan";
+layerinfo author_name = "Kaigou";
+
+## theme color: #1088F7
+
+set image_background_page_url = "skittlishdreams/bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_module_url = "skittlishdreams/cyan_box.gif";
+set image_background_entry_url = "skittlishdreams/cyan_edge.gif";
+set image_background_navigation_url = "skittlishdreams/cyan_circle.gif";
+
+set color_page_border = "#1088F7";
+set color_page_link = "#1088F7";
+set color_page_link_visited = "#1088F7";
+set color_module_background = "#1088F7";
+set color_entry_title = "#1088F7";
+
+set color_page_background = "#e3e3e3";
+
+set color_header_background = "#1C1C1C";
+set color_footer_background = "#1C1C1C";
+set color_footer_link = "#bababa";
+set color_footer_link_hover = "#fff";
+
+set color_page_text = "#666666";
+set color_page_title = "#ddd";
+set color_page_details_text = "#888888";
+
+set color_page_link_hover = "#16E";
+
+set color_module_text = "#DDD";
+set color_module_link = "#FFF";
+set color_module_title = "#FFF";
+
+set color_entry_background = "#FFF";
+set color_entry_text = "#444";
+set color_entry_title_background = "#FFF";
+set color_entry_title_border = "#EEE";
+set color_entry_title_border_alt = "#DDD";
+set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/green
+layerinfo type = "theme";
+layerinfo name = "Green";
+layerinfo redist_uniq = "skittlishdreams/green";
+layerinfo author_name = "Kaigou";
+
+## theme color: #61AC00
+
+set image_background_page_url = "skittlishdreams/bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_module_url = "skittlishdreams/green_box.gif";
+set image_background_entry_url = "skittlishdreams/green_edge.gif";
+set image_background_navigation_url = "skittlishdreams/green_circle.gif";
+
+set color_page_border = "#61AC00";
+set color_page_link = "#61AC00";
+set color_page_link_visited = "#61AC00";
+set color_module_background = "#61AC00";
+set color_entry_title = "#61AC00";
+
+set color_page_background = "#e3e3e3";
+
+set color_header_background = "#1C1C1C";
+set color_footer_background = "#1C1C1C";
+set color_footer_link = "#bababa";
+set color_footer_link_hover = "#fff";
+
+set color_page_text = "#666666";
+set color_page_title = "#ddd";
+set color_page_details_text = "#888888";
+
+set color_page_link_hover = "#16E";
+
+set color_module_text = "#DDD";
+set color_module_link = "#FFF";
+set color_module_title = "#FFF";
+
+set color_entry_background = "#FFF";
+set color_entry_text = "#444";
+set color_entry_title_background = "#FFF";
+set color_entry_title_border = "#EEE";
+set color_entry_title_border_alt = "#DDD";
+set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/orange
+layerinfo type = "theme";
+layerinfo name = "Orange";
+layerinfo redist_uniq = "skittlishdreams/orange";
+layerinfo author_name = "Kaigou";
+
+## theme color: #F79910
+ 
+set image_background_page_url = "skittlishdreams/bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_module_url = "skittlishdreams/orange_box.gif";
+set image_background_entry_url = "skittlishdreams/orange_edge.gif";
+set image_background_navigation_url = "skittlishdreams/orange_circle.gif";
+
+set color_page_border = "#F79910";
+set color_page_link = "#F79910";
+set color_page_link_visited = "#F79910";
+set color_module_background = "#F79910";
+set color_entry_title = "#F79910";
+
+set color_page_background = "#e3e3e3";
+
+set color_header_background = "#1C1C1C";
+set color_footer_background = "#1C1C1C";
+set color_footer_link = "#bababa";
+set color_footer_link_hover = "#fff";
+
+set color_page_text = "#666666";
+set color_page_title = "#ddd";
+set color_page_details_text = "#888888";
+
+set color_page_link_hover = "#16E";
+
+set color_module_text = "#DDD";
+set color_module_link = "#FFF";
+set color_module_title = "#FFF";
+
+set color_entry_background = "#FFF";
+set color_entry_text = "#444";
+set color_entry_title_background = "#FFF";
+set color_entry_title_border = "#EEE";
+set color_entry_title_border_alt = "#DDD";
+set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/pink
+layerinfo type = "theme";
+layerinfo name = "Pink";
+layerinfo redist_uniq = "skittlishdreams/pink";
+layerinfo author_name = "Kaigou";
+
+## theme color: #F122BE
+
+set image_background_page_url = "skittlishdreams/bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_module_url = "skittlishdreams/pink_box.gif";
+set image_background_entry_url = "skittlishdreams/pink_edge.gif";
+set image_background_navigation_url = "skittlishdreams/pink_circle.gif";
+
+set color_page_border = "#F122BE";
+set color_page_link = "#F122BE";
+set color_page_link_visited = "#F122BE";
+set color_module_background = "#F122BE";
+set color_entry_title = "#F122BE";
+
+set color_page_background = "#e3e3e3";
+
+set color_header_background = "#1C1C1C";
+set color_footer_background = "#1C1C1C";
+set color_footer_link = "#bababa";
+set color_footer_link_hover = "#fff";
+
+set color_page_text = "#666666";
+set color_page_title = "#ddd";
+set color_page_details_text = "#888888";
+
+set color_page_link_hover = "#16E";
+
+set color_module_text = "#DDD";
+set color_module_link = "#FFF";
+set color_module_title = "#FFF";
+
+set color_entry_background = "#FFF";
+set color_entry_text = "#444";
+set color_entry_title_background = "#FFF";
+set color_entry_title_border = "#EEE";
+set color_entry_title_border_alt = "#DDD";
+set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/red
+layerinfo type = "theme";
+layerinfo name = "Red";
+layerinfo redist_uniq = "skittlishdreams/red";
+layerinfo author_name = "Kaigou";
+
+## theme color: #C90808
+
+set image_background_page_url = "skittlishdreams/bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_module_url = "skittlishdreams/red_box.gif";
+set image_background_entry_url = "skittlishdreams/red_edge.gif";
+set image_background_navigation_url = "skittlishdreams/red_circle.gif";
+
+set color_page_border = "#C90808";
+set color_page_link = "#C90808";
+set color_page_link_visited = "#C90808";
+set color_module_background = "#C90808";
+set color_entry_title = "#C90808";
+
+set color_page_background = "#e3e3e3";
+
+set color_header_background = "#1C1C1C";
+set color_footer_background = "#1C1C1C";
+set color_footer_link = "#bababa";
+set color_footer_link_hover = "#fff";
+
+set color_page_text = "#666666";
+set color_page_title = "#ddd";
+set color_page_details_text = "#888888";
+
+set color_page_link_hover = "#16E";
+
+set color_module_text = "#DDD";
+set color_module_link = "#FFF";
+set color_module_title = "#FFF";
+
+set color_entry_background = "#FFF";
+set color_entry_text = "#444";
+set color_entry_title_background = "#FFF";
+set color_entry_title_border = "#EEE";
+set color_entry_title_border_alt = "#DDD";
+set color_entry_metadata_text = "#881111";
+
+#NEWLAYER: skittlishdreams/violet
+layerinfo type = "theme";
+layerinfo name = "Violet";
+layerinfo redist_uniq = "skittlishdreams/violet";
+layerinfo author_name = "Kaigou";
+
+## theme color: #AE3BD4
+
+set image_background_page_url = "skittlishdreams/bg.gif";
+set image_background_header_url = "skittlishdreams/header_bg.gif";
+set image_background_container_url = "skittlishdreams/left_bg.gif";
+set image_background_footer_url = "skittlishdreams/footer_bg.gif";
+set image_background_module_url = "skittlishdreams/violet_box.gif";
+set image_background_entry_url = "skittlishdreams/violet_edge.gif";
+set image_background_navigation_url = "skittlishdreams/violet_circle.gif";
+
+set color_page_border = "#AE3BD4";
+set color_page_link = "#AE3BD4";
+set color_page_link_visited = "#AE3BD4";
+set color_module_background = "#AE3BD4";
+set color_entry_title = "#AE3BD4";
+
+set color_page_background = "#e3e3e3";
+
+set color_header_background = "#1C1C1C";
+set color_footer_background = "#1C1C1C";
+set color_footer_link = "#bababa";
+set color_footer_link_hover = "#fff";
+
+set color_page_text = "#666666";
+set color_page_title = "#ddd";
+set color_page_details_text = "#888888";
+
+set color_page_link_hover = "#16E";
+
+set color_module_text = "#DDD";
+set color_module_link = "#FFF";
+set color_module_title = "#FFF";
+
+set color_entry_background = "#FFF";
+set color_entry_text = "#444";
+set color_entry_title_background = "#FFF";
+set color_entry_title_border = "#EEE";
+set color_entry_title_border_alt = "#DDD";
+set color_entry_metadata_text = "#881111";

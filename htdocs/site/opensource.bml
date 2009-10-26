@@ -32,6 +32,8 @@ body<=
 
 <p><?_code return BML::ml ('.attrib.silk', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
 
+<p><?_code return BML::ml ('.attrib.circular', {'sitenameshort' => $LJ::SITENAMESHORT}); _code?></p>
+
 <h1><?_ml .development.header _ml?></h1>
 
 <p><?_ml .development.main _ml?></p>

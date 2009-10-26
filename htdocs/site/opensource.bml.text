@@ -3,6 +3,8 @@
 
 .attrib.header=Attribution for Content
 
+.attrib.circular=&bull; For some themes, [[sitenameshort]] uses the <a href="http://prothemedesign.com/circular-icons/">Circular</a> icon set, designed by Ben Gillbanks, which are licensed under a <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>. Some icons have been color-shifted to match the layouts they are used in. 
+
 .attrib.silk=&bull; In certain places, [[sitenameshort]] uses the <a href="http://www.famfamfam.com/lab/icons/silk/">Silk</a> icon set made by Mark James, which are licensed under a <a href="http://creativecommons.org/licenses/by/2.5/">Creative Commons Attribution 2.5 License</a>. We are grateful to Mark for creating and sharing these.
 
 .development.header=Development
