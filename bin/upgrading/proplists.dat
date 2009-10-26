@@ -1347,7 +1347,7 @@ logproplist.xpost:
   des: Maps to crossposts of this entry on other sites
   prettyname: Crosspost
   sortorder: 105
-  ownership: user
+  ownership: system
 
 usermsgproplist.userpic:
   des: Userpic chosen by the user who created the message

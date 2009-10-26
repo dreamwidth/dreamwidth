@@ -2221,6 +2221,10 @@ sub getevents
             # replycounts cease being transferred in props
             delete $props{$itemid}->{'replycount'};
 
+            # the xpost property is not something we should be distributing
+            # as it's a serialized string and confuses clients
+            delete $props{$itemid}->{xpost};
+
             my $evt = $evt_from_itemid{$itemid};
             $evt->{'props'} = {};
             foreach my $name (keys %{$props{$itemid}}) {
