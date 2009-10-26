@@ -995,6 +995,27 @@ sub deemp {
     "<span class='de'>$_[0]</span>";
 }
 
+=head2 C<< LJ::viewing_style_args( %arguments ) >>
+Takes a list of viewing styles arguments from a list, makes sure they are valid values,
+and returns them as a string that can be appended to the URL. Looks for "s2id", "format", "style"
+=cut
+sub viewing_style_args {
+    my ( %args ) = @_;
+    my $valid_style_args = {
+        format => { light => 1 },
+        style  => { light => 1, style => 1, site => 1, mine => 1 },
+    };
+    
+    my @valid_args;
+    # only accept purely numerical s2ids
+    push @valid_args, "s2id=$args{s2id}" if $args{s2id} && $args{s2id} =~ /^\d+$/;
+
+    foreach my $key ( qw( format style ) ) {
+         push @valid_args, "style=$args{$key}" if $valid_style_args->{$key}->{$args{$key}};
+    }
+    return join "&", @valid_args;
+}
+
 # <LJFUNC>
 # name: LJ::entry_form
 # class: web
