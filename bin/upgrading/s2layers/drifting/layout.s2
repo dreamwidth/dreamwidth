@@ -516,6 +516,16 @@ function Page::print_default_stylesheet()
         margin-right: 0.5em;
     }
 
+    /* Page Summary
+    ***************************************************************************/
+    /* wrap long content, particularly openid usernames */
+    .module-pagesummary .ljuser {
+        white-space: normal !important;
+    }
+    .module-pagesummary .module-content {
+        word-wrap: break-word;
+    }
+
     /* Tag Module
     ***************************************************************************/
     .module-tags_cloud .module-list {

@@ -513,6 +513,13 @@ function Page::print_default_stylesheet()
     .module-calendar a:hover{
         color: $*color_module_link_hover;
     }
+    /* wrap long content, particularly openid usernames */
+    .module-pagesummary .ljuser {
+        white-space: normal !important;
+    }
+    .module-pagesummary .module-content {
+        word-wrap: break-word;
+    }
     .module-credit dt, .module-credit dd {
         display: inline;
         margin: 0;

@@ -476,6 +476,9 @@ background: $*color_module_link_hover; }
 
 .module-pagesummary ul {display: block; margin: 0; padding: 0.833em; list-style: none; color: $*color_module_text; font-size: 0.75em;}
 .module-pagesummary li {margin: 0.417em 0 0.417em 0; padding: 0 0 0.417em 0; border-bottom: 0.083em solid $*color_module_border;}
+/* wrap long content, particularly openid usernames */
+.module-pagesummary .ljuser {white-space: normal !important;}
+.module-pagesummary .module-content {word-wrap: break-word;}
 
 /* -------- syndicate -------- */
 
