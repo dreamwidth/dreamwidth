@@ -108,7 +108,6 @@ my $check = sub {
         my %drole;  # display role -> 1
         foreach my $role (grep { $role{$_}{$dbid}[1] } keys %{$rolebyid{$dbid}}) {
             my $drole = $role;
-            $drole =~ s/cluster(\d+)\d/cluster${1}0/;
             $drole{$drole} = 1;
         }
         $roles = join(", ", sort keys %drole);
