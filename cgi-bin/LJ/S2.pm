@@ -1909,26 +1909,29 @@ sub Entry_from_entryobj
 
     # loading S2 Userpic
     my $userpic;
+    my $kw = $entry_obj->userpic_kw_from_props( $entry_obj->props );
+
     # if the post was made in a community, use either the userpic it was posted with or the community pic depending on the style setting
     if ( $posterid == $journalid || !S2::get_property_value($opts->{ctx}, 'use_shared_pic') ) {
-        $userpic = Image_userpic($poster, $entry_obj->userpic->picid) if $entry_obj->userpic;
+        $userpic = Image_userpic( $poster, $entry_obj->userpic->picid, $kw ) if $entry_obj->userpic;
     } else {
-       $userpic = Image_userpic($journal, $journal->userpic->picid) if $journal->userpic;
+        $userpic = Image_userpic( $journal, $journal->userpic->picid ) if $journal->userpic;
     } 
 
     # override used moodtheme if necessary
     my $moodthemeid = $u->prop( 'opt_forcemoodtheme' ) eq 'Y' ?
-       $u->{moodthemeid} : $poster->{moodthemeid};
+        $u->{moodthemeid} : $poster->{moodthemeid};
 
     # tags loading and sorting
     my $tags = LJ::Tags::get_logtags( $journal, $jitemid );
     my @taglist;
     while (my ($keywordid, $keyword) = each %{$tags->{$jitemid} || {}}) {
-            push @taglist, Tag( $journal, $keywordid => $keyword );
-        }
+        push @taglist, Tag( $journal, $keywordid => $keyword );
+    }
+
     @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
     if ( $opts->{enable_tags_compatibility} && @taglist ) {
-            $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
+        $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
     }
 
     # comment information
