@@ -348,7 +348,7 @@ sub subscription_as_html {
         my $journal_is_owner = 0;
     }
 
-    return unless $journal->is_person;
+    return if $journal->is_identity;
 
     if ($arg1 == 0 && $arg2 == 0) {
 ### 02 event.journal_new_comment.my_journal=Someone comments in my journal, on any entry
