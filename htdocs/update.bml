@@ -2,6 +2,7 @@
 {
     use strict;
     use vars qw(%GET %POST %ML);
+    use DW::External::Page;
     BML::decl_params(_default => qr/./);
 
     # $_[1] is a pre-request scratch area
@@ -93,6 +94,12 @@
     my $subject = $POST{'subject'} || $GET{'subject'};
     my $event   = $POST{'event'}   || $GET{'event'};
     my $tags    = $POST{'prop_taglist'} || $GET{'prop_taglist'};
+
+    # if a share url was passed in, fill in the fields with the appropriate text
+    if ( $GET{share} && ( my $page = DW::External::Page->new( url => $GET{share} ) ) ) {
+        $subject = LJ::ehtml( $page->title );
+        $event = '<a href="' . $page->url . '">' . ( LJ::ehtml( $page->description ) || $subject || $page->url ) . "</a>\n\n";
+    }
 
     # if a QotD id was passed in, fill in the fields with that QotD
     my $qid = $GET{qotd}+0;
