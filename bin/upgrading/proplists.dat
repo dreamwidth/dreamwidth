@@ -1215,6 +1215,13 @@ logproplist.import_source:
   sortorder: 99
   ownership: user
 
+logproplist.interface:
+  datatype: char
+  des: String describing how this entry was posted
+  prettyname: Interface used
+  sortorder: 99
+  ownership: user
+
 logproplist.opt_backdated:
   datatype: bool
   des: Set to true if this item shouldn't show up on people's friends lists (because it occurred in the past)
