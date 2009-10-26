@@ -178,7 +178,7 @@ ESN.trackBtnClickHandler = function (evt) {
     btnsContainer.appendChild(saveChangesBtn);
 
     var custTrackLink = document.createElement("a");
-    custTrackLink.href = trackBtn.parentNode.href;
+    custTrackLink.href = trackBtn.href;
     btnsContainer.appendChild(custTrackLink);
     custTrackLink.innerHTML = "More Options";
     DOM.addClassName(custTrackLink, "track_moreopts");
@@ -187,7 +187,7 @@ ESN.trackBtnClickHandler = function (evt) {
 
     DOM.addEventListener(custTrackLink, "click", function (evt) {
         Event.stop(evt);
-        document.location.href = trackBtn.parentNode.href;
+        document.location.href = trackBtn.href;
         if (ESN.trackPopup) ESN.trackPopup.hide();
         return false;
     });

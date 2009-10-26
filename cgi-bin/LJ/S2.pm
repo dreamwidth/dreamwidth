@@ -3056,7 +3056,7 @@ sub _Comment__get_link
         $btn_params{'js_swapname'}   = $ctx->[S2::PROPS]->{text_multiform_opt_untrack};
 
         if ($key eq "watch_thread" && !$watching_parent) {
-            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid&amp;doodah",
+            return LJ::S2::Link( "$LJ::SITEROOT/manage/subscriptions/comments?journal=$u->{'user'}&amp;talkid=$dtalkid",
                                 $ctx->[S2::PROPS]->{"text_multiform_opt_track"},
                                 LJ::S2::Image( "$LJ::IMGPREFIX/silk/entry/track.png", 16, 16, 'Track This' ), %btn_params );
         }
