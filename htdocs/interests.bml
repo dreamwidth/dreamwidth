@@ -82,11 +82,9 @@ body<=
         # force them to either come from the interests page, or have posted the request.
         # if both fail, ask them to confirm with a post form.
 
-        my $dbr = LJ::get_db_reader();
-
         unless ( $did_post || LJ::check_referer('/interests.bml') )
         {
-            my ($int) = $dbr->selectrow_array("SELECT interest FROM interests WHERE intid=?", undef, $intid);
+            my $int = LJ::get_interest( $intid );
             LJ::text_out(\$int);
 
             $ret .= "<?h1 $ML{'.add.confirm.head'} h1?>";

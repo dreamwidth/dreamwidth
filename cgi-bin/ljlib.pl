@@ -1509,15 +1509,24 @@ sub cmd_buffer_add
 
 
 sub get_interest {
-    my $intid = shift
-        or return undef;
+    my $intid = shift;
+    return undef unless $intid && $intid =~ /^\d+$/;
+    my ( $int, $intcount );
 
-    # FIXME: caching!
+    my $memkey = [$intid, "introw:$intid"];
+    my $cached = LJ::MemCache::get( $memkey );
+    # memcache row is of form [$intid, $int, $intcount];
 
-    my $dbr = LJ::get_db_reader();
-    my ($int, $intcount) = $dbr->selectrow_array
-        ("SELECT interest, intcount FROM interests WHERE intid=?",
-         undef, $intid);
+    if ( $cached && ref $cached eq 'ARRAY' ) {
+        ( $intid, $int, $intcount ) = @$cached;
+    } else {
+        my $dbr = LJ::get_db_reader();
+        ( $int, $intcount ) =
+            $dbr->selectrow_array( "SELECT interest, intcount FROM interests WHERE intid=?",
+                                   undef, $intid );
+        die $dbr->errstr if $dbr->err;
+        LJ::MemCache::set( $memkey, [$intid, $int, $intcount], 3600*12 );
+    }
 
     return wantarray() ? ($int, $intcount) : $int;
 }
