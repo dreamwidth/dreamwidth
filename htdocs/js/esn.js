@@ -84,6 +84,9 @@ ESN.trackBtnClickHandler = function (evt) {
     var trackBtn = evt.target;
     if ( ! trackBtn ) return true;
 
+    // don't show the popup if we want to open it in a new tab (ctrl+click or cmd+click)
+    if (evt && (evt.ctrlKey || evt.metaKey)) return false;
+
     trackBtn.isIcon = false;
 
     if ( trackBtn.tagName.toLowerCase() == "img" ) {
