@@ -25,6 +25,7 @@ use LJ::MemCache;
 use LJ::Session;
 
 use DW::Logic::ProfilePage;
+use DW::Pay;
 use DW::User::ContentFilters;
 use DW::User::Edges;
 
