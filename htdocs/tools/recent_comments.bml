@@ -106,7 +106,7 @@ body<=
             $ret .= " <a href='?show=$val$getextra'>$val</a> ";
         }
     }
-    $ret .= "] $ML{ '.latest.comments' } </div> standout?>";
+    $ret .= "] $ML{ '.comments' } </div> standout?>";
 
     $ret .= "<?h1 $ML{ '.latest.received' } h1?>";
     $ret .= "<?p " . (%talkids ? BML::ml('.last.num.posted.in', {num => $count}) : "$ML{ '.no.comments.posted' }") . " " . LJ::ljuser($u) . " p?>";
@@ -263,7 +263,7 @@ body<=
                 $ret .= " <a href='?show=$val$getextra'>$val</a> ";
             }
         }
-        $ret .= "] $ML{ '.latest.comments' } </div> standout?>";
+        $ret .= "] $ML{ '.comments' } </div> standout?>";
 
         $ret .= "<?h1 $ML{ '.latest.posted' } h1?><?p " . BML::ml('.last.num.posted.by', {num => $count, user => LJ::ljuser($u) }) . " p?>";
         my %jcount;  # jid -> ct

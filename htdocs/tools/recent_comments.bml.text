@@ -8,6 +8,8 @@
 
 .comment=Comment
 
+.comments=Comments
+
 .delete=Delete
 
 .delete.link=delete
@@ -19,8 +21,6 @@
 .last.num.posted.by=Last [[num]] comments [[user]] has posted
 
 .last.num.posted.in=Last [[num]] comments posted in
-
-.latest.comments=Latest Comments
 
 .latest.posted=Latest Posted
 
