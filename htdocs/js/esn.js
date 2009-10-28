@@ -156,6 +156,8 @@ ESN.trackBtnClickHandler = function (evt) {
         
         if ( typeof LJ_cmtinfo !== 'undefined' ) {
             journal = LJ_cmtinfo["journal"];
+        } else if ( typeof trackBtn.getAttribute( "journal" ) != "undefined" ) {
+            journal = trackBtn.getAttribute( "journal" );
         } else if ( typeof Site !== 'undefined' ) {
             journal = Site.currentJournal;
         }

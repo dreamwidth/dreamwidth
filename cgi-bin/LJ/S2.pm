@@ -3542,6 +3542,7 @@ sub _Entry__get_link
     my $remote = LJ::get_remote();
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
     my $journalu = LJ::load_user($journal);
+    my $esnjournal = $journalu->is_community ? $journal : $poster;
 
     if ($key eq "edit_entry") {
         return $null_link unless $remote && ($remote->{'user'} eq $journal ||
@@ -3636,7 +3637,8 @@ sub _Entry__get_link
                             'lj_newentry_token'   => $newentry_auth_token,
                             'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
                             'class'               => 'TrackButton',
-                            'js_swapname'         => $ctx->[S2::PROPS]->{text_unwatch_comments} );
+                            'js_swapname'         => $ctx->[S2::PROPS]->{text_unwatch_comments},
+                            'journal'              => $esnjournal );
     }
     if ($key eq "unwatch_comments") {
         return $null_link unless LJ::is_enabled('esn');
@@ -3667,7 +3669,8 @@ sub _Entry__get_link
                             'lj_newentry_token'   => $newentry_auth_token,
                             'lj_newentry_subid'   => $newentry_sub ? $newentry_sub->id : 0,
                             'class'               => 'TrackButton',
-                            'js_swapname'         => $ctx->[S2::PROPS]->{text_watch_comments} );
+                            'js_swapname'         => $ctx->[S2::PROPS]->{text_watch_comments},
+                            'journal'             => $esnjournal );
     }
 }
 
