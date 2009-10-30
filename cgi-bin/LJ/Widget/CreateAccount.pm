@@ -390,6 +390,15 @@ sub handle_post {
         my $userid = $u ? $u->id : 0;
         if ( DW::InviteCodes->check_code( code => $code, userid => $userid ) ) {
             $from_post{code_valid} = 1;
+
+            # and if this is a community promo code, set the inviter
+            if ( my $pc = DW::InviteCodes->get_promo_code_info( code => $code ) ) {
+                if ( $pc->{suggest_journalid} ) {
+                    my $invu = LJ::load_userid( $pc->{suggest_journalid} );
+                    $post->{from} = $invu->user if $invu;
+                }
+            }
+
         } else {
             my $r = DW::Request->get;
             my $args = $r->query_string;

@@ -46,31 +46,42 @@ sub render_body {
 
     $ret .= $class->html_hidden( from => $inviter->user );
 
-    if ( $u->can_trust( $inviter ) ) {
-        my $inviter_trust_name = 'inviter_trust_' . $inviter->id;
-        $ret .= $class->html_check(
-            name     => $inviter_trust_name,
-            value    => 1,
-            selected => defined $post->{$inviter_trust_name} ? $post->{$inviter_trust_name} : 1,
-            id       => $inviter_trust_name,
-        );
-        $ret .= " <label for='$inviter_trust_name'>" . $class->ml( 'widget.createaccountinviter.addinviter.trust', { user => $inviter->ljuser_display } ) . "</label><br />";
+    # if the invite code came from a comm (promo) then don't offer to watch/trust
+    if ( $inviter->is_individual ) {
+        if ( $u->can_trust( $inviter ) ) {
+            my $inviter_trust_name = 'inviter_trust_' . $inviter->id;
+            $ret .= $class->html_check(
+                name     => $inviter_trust_name,
+                value    => 1,
+                selected => defined $post->{$inviter_trust_name} ? $post->{$inviter_trust_name} : 1,
+                id       => $inviter_trust_name,
+            );
+            $ret .= " <label for='$inviter_trust_name'>" . $class->ml( 'widget.createaccountinviter.addinviter.trust', { user => $inviter->ljuser_display } ) . "</label><br />";
+        }
+
+        if ( $u->can_watch( $inviter ) ) {
+            my $inviter_watch_name = 'inviter_watch_' . $inviter->id;
+            $ret .= $class->html_check(
+                name     => $inviter_watch_name,
+                value    => 1,
+                selected => defined $post->{$inviter_watch_name} ? $post->{$inviter_watch_name} : 1,
+                id       => $inviter_watch_name,
+            );
+            $ret .= " <label for='$inviter_watch_name'>" . $class->ml( 'widget.createaccountinviter.addinviter.watch', { user => $inviter->ljuser_display } ) . "</label><br />";
+        }
     }
 
-    if ( $u->can_watch( $inviter ) ) {
-        my $inviter_watch_name = 'inviter_watch_' . $inviter->id;
-        $ret .= $class->html_check(
-            name     => $inviter_watch_name,
-            value    => 1,
-            selected => defined $post->{$inviter_watch_name} ? $post->{$inviter_watch_name} : 1,
-            id       => $inviter_watch_name,
-        );
-        $ret .= " <label for='$inviter_watch_name'>" . $class->ml( 'widget.createaccountinviter.addinviter.watch', { user => $inviter->ljuser_display } ) . "</label><br />";
+    my %comms;
+    if ( $inviter->is_individual ) {
+        %comms = $inviter->relevant_communities;
+    } elsif ( $inviter->is_community ) {
+        %comms = ( $inviter->id => { u => $inviter, istatus => 'normal' } );
     }
 
-    my %comms = $inviter->relevant_communities;
     if ( keys %comms ) {
         $ret .= "<br />";
+
+        my ( $any_mm, $any_mod );
 
         my $i = 0;
         foreach my $commid ( sort { $comms{$a}->{u}->display_username cmp $comms{$b}->{u}->display_username } keys %comms ) {
@@ -79,13 +90,21 @@ sub render_body {
             my $commu = $comms{$commid}->{u};
 
             my $note_mm = $comms{$commid}->{istatus} eq 'mm' ? ' *' : '';
+            $any_mm ||= $note_mm;
+
             my $note_moderated = $commu->is_moderated_membership ? ' **' : ''; # we will only get moderated or open communities
+            $any_mod ||= $note_moderated;
+
             my $comm_join_name = "inviter_join_$commid";
+
+            # selected if they have a link in that says to join, OR if they were invited
+            # by a community (which is the only one in the list)
+            my $sel = ( defined $post->{$comm_join_name} ? $post->{$comm_join_name} : 0 ) || $inviter->is_community;
 
             $ret .= $class->html_check(
                 name     => $comm_join_name,
                 value    => 1,
-                selected => defined $post->{$comm_join_name} ? $post->{$comm_join_name} : 0,
+                selected => $sel,
                 id       => $comm_join_name,
             );
             $ret .= " <label for='$comm_join_name'>";
@@ -95,10 +114,14 @@ sub render_body {
             $i++;
         }
 
-        $ret .= "<div style='margin: 10px;'>";
-        $ret .= "<?de * " . $class->ml( 'widget.createaccountinviter.addcomms.note.mm', { user => $inviter->ljuser_display } ) . " de?>";
-        $ret .= "<?de ** " . $class->ml( 'widget.createaccountinviter.addcomms.note.moderated' ) . " de?>";
-        $ret .= "</div>";
+        if ( $any_mm || $any_mod ) {
+            $ret .= "<div style='margin: 10px;'>";
+            $ret .= "<?de * " . $class->ml( 'widget.createaccountinviter.addcomms.note.mm', { user => $inviter->ljuser_display } ) . " de?><br />"
+                if $any_mm;
+            $ret .= "<?de ** " . $class->ml( 'widget.createaccountinviter.addcomms.note.moderated' ) . " de?>"
+                if $any_mod;
+            $ret .= "</div>";
+        }
     }
 
     return $ret;

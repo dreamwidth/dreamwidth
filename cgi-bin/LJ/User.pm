@@ -217,7 +217,9 @@ sub create_personal {
         if ( $inviter ) {
             LJ::set_rel( $u, $inviter, 'I' );
             LJ::statushistory_add( $u, $inviter, 'create_from_invite', "Created new account." );
-            LJ::Event::InvitedFriendJoins->new( $inviter, $u )->fire;
+            if ( $inviter->is_individual ) {
+                LJ::Event::InvitedFriendJoins->new( $inviter, $u )->fire;
+            }
         }
     }
     # if we have initial friends for new accounts, add them.

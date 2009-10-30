@@ -2978,6 +2978,7 @@ CREATE TABLE acctcode_promo (
     max_count int(10) unsigned not null default 0,
     current_count int(10) unsigned not null default 0,
     active enum('1','0') not null default 1,
+    suggest_journalid int unsigned,
 
     PRIMARY KEY ( code )
 )
@@ -3829,6 +3830,10 @@ EOF
                   q{ALTER TABLE clustertrack2 ADD COLUMN accountlevel SMALLINT UNSIGNED AFTER clusterid} );
     }
 
+    unless ( column_type( 'acctcode_promo', 'suggest_journalid' ) ) {
+        do_alter( 'acctcode_promo',
+                  q{ALTER TABLE acctcode_promo ADD COLUMN suggest_journalid INT UNSIGNED} );
+    }
 
 });
 
