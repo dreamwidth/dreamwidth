@@ -123,7 +123,6 @@ EOF
 
             # output entry HTML
             my $subj = $obj->subject_html || 'no subject';
-            my $evt = $obj->event_html;
             my $tags = join ', ', sort { $a cmp $b } $obj->tags;
             my $user = $obj->poster->ljuser_display;
             if ( ! $obj->poster->equals( $obj->journal ) ) {
@@ -131,6 +130,7 @@ EOF
             }
             my $time = LJ::ago_text( $now - $obj->logtime_unix );
             my $url = $obj->url;
+            my $evt = $obj->event_html_summary( 2000, { cuturl => $url } );
             my $comments = $obj->reply_count == 1 ? "1 comment" : ( $obj->reply_count > 0 ? $obj->reply_count . ' comments' : 'no comments' );
             my $replyurl = $obj->reply_url;
 
