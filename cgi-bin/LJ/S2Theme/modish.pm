@@ -12,6 +12,12 @@ use base qw( LJ::S2Theme::modish );
 sub cats { qw ( ) }
 sub designer { "twtd" }
 
+package LJ::S2Theme::modish::nnwm2009;
+use base qw( LJ::S2Theme::modish );
+sub cats { qw ( ) }
+sub designer { "zvi" }
+
+
 package LJ::S2Theme::modish::verdigris;
 use base qw( LJ::S2Theme::modish );
 

@@ -179,3 +179,38 @@ set color_entry_title = "#217efc";
 set color_entry_title_background = "#ffffff";
 
 set color_comment_title_background = "#c3d4fe";
+
+#NEWLAYER: bases/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "bases/nnwm2009";
+layerinfo author_name = "zvi";   
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_header_background = "#ffefbd";
+set color_module_background = "#ffefbd";
+set color_module_text = "#000000";
+set color_module_title = "#ef8229";
+set color_page_background = "#000000";
+set color_page_border = "#842021";
+set color_page_link = "#429ace";
+set color_page_link_active = "#a5cf39";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+set color_page_title = "#ef8229";
+
+set font_base = "Arial";
+set font_base_size = "1";
+set font_base_units = "em";
+
+function Page::print_theme_stylesheet () {
+"""
+
+input, select { color: $*color_module_text !important; background-color: $*color_module_background !important; }
+#pagetitle { color: $*color_module_text; background-color: $*color_module_background !important; }
+#lj_controlstrip_statustext, #lj_controlstrip td { color: $*color_module_text !important; }
+
+""";
+}

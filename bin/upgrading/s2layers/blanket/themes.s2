@@ -1,3 +1,23 @@
+#NEWLAYER: blanket/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "blanket/nnwm2009";
+layerinfo author_name = "zvi";
+
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_link_active = "#a5cf39";
+set color_page_background = "#000000";
+set color_header_background = "#ffefbd";
+set color_page_link = "#429ace";
+set color_page_title = "#ef8229";
+set color_page_border = "#842021";
+set color_module_background = "#ffefbd";
+set color_module_title = "#ef8229";
+set color_page_text = "#ffffff";
+set font_base_size = "1";
+set color_module_text = "#000000";
+
 #NEWLAYER: blanket/peach
 layerinfo type = "theme";
 layerinfo name = "Peach";

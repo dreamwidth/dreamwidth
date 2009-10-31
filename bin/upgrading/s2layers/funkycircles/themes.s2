@@ -746,6 +746,33 @@ set image_background_page_url = "funkycircles/nevermore-background.png";
 set image_entry_list_background_position = "top center";
 set image_entry_list_background_repeat = "no-repeat";
 
+#NEWLAYER: funkycircles/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "funkycircles/nnwm2009";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+set color_header_background = "#ffefbd";
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000000";
+set color_module_title = "#ef8229";
+
+set color_page_background = "#000000";
+set color_page_border = "#842021";
+set color_page_link = "#429ace";
+set color_page_link_active = "#A5CF39";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+set color_page_title = "#ef8229";
+
+
 #NEWLAYER: funkycircles/seablues
 layerinfo "type" = "theme";
 layerinfo "name" = "Sea Blues";

@@ -12,6 +12,11 @@ sub header_props {
     return $self->_append_props( "header_props", @props );
 }
 
+package LJ::S2Theme::blanket::nnwm2009;
+use base qw( LJ::S2Theme::blanket );
+sub cats { qw( ) }
+sub designer { "zvi" }
+
 package LJ::S2Theme::blanket::peach;
 use base qw( LJ::S2Theme::blanket );
 sub cats { qw( base ) }

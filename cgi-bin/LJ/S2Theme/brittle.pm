@@ -40,4 +40,10 @@ package LJ::S2Theme::brittle::rust;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( base ) }
 
+package LJ::S2Theme::brittle::nnwm2009;
+use base qw( LJ::S2Theme::brittle );
+sub cats { qw() }
+
+sub designer { "zvi" }
+
 1;

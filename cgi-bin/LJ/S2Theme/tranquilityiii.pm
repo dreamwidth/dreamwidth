@@ -24,6 +24,11 @@ package LJ::S2Theme::tranquilityiii::nightsea;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw(base ) }
 
+package LJ::S2Theme::tranquilityiii::nnwm2009;
+use base qw( LJ::S2Theme::tranquilityiii );
+sub cats { qw(  ) }
+sub designer { "zvi" }
+
 package LJ::S2Theme::tranquilityiii::olive;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw(  ) }

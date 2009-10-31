@@ -25,6 +25,12 @@ use base qw( LJ::S2Theme::bases );
 sub cats { qw( ) }
 sub designer { "rb" }
 
+package LJ::S2Theme::bases::nnwm2009;
+use base qw( LJ::S2Theme::bases );
+sub cats { qw( ) }
+sub designer { "zvi" }
+
+
 
 1;
 

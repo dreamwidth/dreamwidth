@@ -72,6 +72,11 @@ use base qw( LJ::S2Theme::funkycircles );
 sub cats { qw( ) }
 sub designer { "wizard101" }
 
+package LJ::S2Theme::funkycircles::nnwm2009;
+use base qw( LJ::S2Theme::funkycircles );
+sub cats { qw( ) }
+sub designer { "zvi" }
+
 package LJ::S2Theme::funkycircles::seablues;
 use base qw( LJ::S2Theme::funkycircles );
 sub cats { qw( ) }

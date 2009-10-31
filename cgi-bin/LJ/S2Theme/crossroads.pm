@@ -51,6 +51,11 @@ use base qw( LJ::S2Theme::crossroads );
 sub cats { qw( ) }
 sub designer { "branchandroot" }
 
+package LJ::S2Theme::crossroads::nnwm2009;
+use base qw( LJ::S2Theme::crossroads );
+sub cats { qw( ) }
+sub designer { "zvi" }
+
 package LJ::S2Theme::crossroads::oldhoney;
 use base qw( LJ::S2Theme::crossroads );
 sub cats { qw( ) }

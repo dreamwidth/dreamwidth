@@ -40,3 +40,34 @@ set color_module_link_active = "#ffcccc";
 set color_module_text = "#ffffff";
 set color_entry_background = "#000000";
 set color_footer_link = "#ddddff";
+
+#NEWLAYER: colorside/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "colorside/nnwm2009";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+
+set color_header_background = "#ffefbd";
+
+set color_module_background = "#ffefbd";
+set color_module_text="#000000";
+set color_module_title = "#ef8229";
+
+set color_page_background = "#000000";
+set color_page_border = "#842021";
+set color_page_link = "#429ace";
+set color_page_link_active = "#A5CF39";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+set color_page_title = "#ef8229";
+
+function Page::print_theme_stylesheet () {
+"""
+#title, #pagetitle { padding-left: 5px; }
+""" ;}

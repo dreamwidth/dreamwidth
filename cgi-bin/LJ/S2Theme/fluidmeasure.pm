@@ -6,6 +6,10 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
+package LJ::S2Theme::fluidmeasure::nnwm2009;
+use base qw( LJ::S2Theme::fluidmeasure );
+sub cats { qw() }
+sub designer { "zvi" }
 
 package LJ::S2Theme::fluidmeasure::nutmeg;
 use base qw( LJ::S2Theme::fluidmeasure );
