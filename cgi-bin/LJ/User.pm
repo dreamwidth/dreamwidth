@@ -2122,6 +2122,13 @@ sub include_in_global_search {
 }
 
 
+# whether this user wants to have their content included in the latest feeds or not
+sub include_in_latest_feed {
+    my $u = $_[0];
+    return $u->prop( 'latest_optout' ) ? 0 : 1;
+}
+
+
 # must be called whenever birthday, location, journal modtime, journaltype, etc.
 # changes.  see LJ/Directory/PackedUserRecord.pm
 sub invalidate_directory_record {

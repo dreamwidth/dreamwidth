@@ -1583,6 +1583,9 @@ sub postevent
 
         # PubSubHubbub Support
         LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
+
+        # latest posts feed update
+        DW::LatestFeed->new_item( $entry );
     }
     push @jobs, LJ::EventLogRecord::NewEntry->new($entry)->fire_job;
 

@@ -54,6 +54,7 @@ use DW::External::Account;
 use DW::External::User;
 use DW::Logic::LogItems;
 use LJ::CleanHTML;
+use DW::LatestFeed;
 
 # make Unicode::MapUTF8 autoload:
 sub Unicode::MapUTF8::AUTOLOAD {
