@@ -147,9 +147,9 @@ EOF
     }
 
     # final step, toss this in memcache for a minute
-    LJ::text_compress( \$ret );
-    LJ::MemCache::set( $mckey, [ time + 60, $ret ], 90 );
-
+    my $out = $ret;
+    LJ::text_compress( \$out );
+    LJ::MemCache::set( $mckey, [ time + 60, $out ], 90 );
     return $ret;
 }
 _code?>

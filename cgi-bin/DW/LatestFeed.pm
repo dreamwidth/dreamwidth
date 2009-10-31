@@ -35,6 +35,9 @@ sub new_item {
 
     # entries are [ journalid, jitemid ] which lets us get the LJ::Entry back
     if ( $obj->isa( 'LJ::Entry' ) ) {
+        return unless $obj->journal->is_community ||
+                      $obj->journal->is_individual;
+
         $sclient->insert_jobs(
             TheSchwartz::Job->new_from_array( 'DW::Worker::LatestFeed', {
                 type      => 'entry',
