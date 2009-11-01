@@ -61,14 +61,12 @@ sub render_body {
             $price_string = $class->ml( 'widget.shopitemoptions.price', { num => $month_value, price => "\$$LJ::SHOP{$full_item}->[0] USD" } )
                 if $price_string eq 'ShopItemOptions';
 
-            my $footnote = " *"
-                if $month_value =~ /^(?:12|6|2)$/;
             $ret .= $class->html_check(
                 type => 'radio',
                 name => $option_name,
                 id => $full_item,
                 value => $full_item,
-            ) . " <label for='$full_item'>$price_string$footnote</label><br />";
+            ) . " <label for='$full_item'>$price_string</label><br />";
         }
     }
 

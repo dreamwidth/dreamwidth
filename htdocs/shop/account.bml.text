@@ -10,8 +10,6 @@
 
 .error.noselection=You must select an item to add to your cart.
 
-.footnote.prices=These prices reflect an initial discount of [[discount]] yearly. On November 1, 2009, the discount will expire. Paid accounts will be [[paid]]/year and Premium Paid accounts will be [[prem]]/year.
-
 .giftfor.anonymous=Anonymous gift?
 
 .giftfor.deliverydate=Delivery date:
