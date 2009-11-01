@@ -177,7 +177,7 @@ ESN_Inbox.initActionLinks = function (folder) {
     for (var i=0; i < actions.length; i++) {
         var links = actions[i].getElementsByTagName("a");
         for (var j=0; j < links.length; j++) {
-            DOM.addEventListener(links[j], "click", function(e) { ESN_Inbox.markLinkedItemRead(e, folder) });
+            DOM.addEventListener(links[j], "click", function(e) { ESN_Inbox.markLinkedItemRead(Event.prep(e), folder) });
         }
     }
 };
