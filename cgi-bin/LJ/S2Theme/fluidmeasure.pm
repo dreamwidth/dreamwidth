@@ -17,7 +17,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::fluidmeasure::spice;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( base featured ) }
+sub cats { qw( base ) }
 
 package LJ::S2Theme::fluidmeasure::summerdark;
 use base qw( LJ::S2Theme::fluidmeasure );
@@ -25,7 +25,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::fluidmeasure::wooded;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw() }
+sub cats { qw( Now ) }
 
 1;
 

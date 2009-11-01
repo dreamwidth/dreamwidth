@@ -10,13 +10,13 @@ sub layout_prop { "layout_type" }
 package LJ::S2Theme::drifting::chocolatecherry;
 use base qw( LJ::S2Theme::drifting );
 
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::drifting::idolatry;
 use base qw( LJ::S2Theme::drifting );
 
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 sub designer { "zvi" }
 
 package LJ::S2Theme::drifting::lightondark;

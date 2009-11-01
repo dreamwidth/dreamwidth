@@ -33,7 +33,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::skittlishdreams::orange;
 use base qw( LJ::S2Theme::skittlishdreams );
-sub cats { qw( base ) }
+sub cats { qw( base featured ) }
 
 package LJ::S2Theme::skittlishdreams::pink;
 use base qw( LJ::S2Theme::skittlishdreams );

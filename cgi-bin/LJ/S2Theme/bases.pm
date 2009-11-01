@@ -8,12 +8,12 @@ sub designer { "Malionette" }
 
 package LJ::S2Theme::bases::strawberrysundae;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( featured  ) }
+sub cats { qw() }
 sub designer { "sky" }
 
 package LJ::S2Theme::bases::sunandsand;
 use base qw( LJ::S2Theme::bases );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 sub designer { "twtd" }
 
 package LJ::S2Theme::bases::tropical;

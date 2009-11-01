@@ -28,7 +28,7 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::crossroads::cinnamoncream;
 use base qw( LJ::S2Theme::crossroads );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 sub designer { "branchandroot" }
 
 package LJ::S2Theme::crossroads::coconut;

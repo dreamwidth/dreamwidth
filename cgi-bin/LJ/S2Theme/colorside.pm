@@ -9,7 +9,7 @@ sub designer { "branchandroot" }
 package LJ::S2Theme::colorside::lightondark;
 use base qw( LJ::S2Theme::colorside );
 
-sub cats { qw (featured) }
+sub cats { qw () }
 
 sub designer { "cesy" }
 

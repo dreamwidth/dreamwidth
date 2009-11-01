@@ -42,7 +42,7 @@ sub cats { qw( base ) }
 
 package LJ::S2Theme::brittle::nnwm2009;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 sub designer { "zvi" }
 

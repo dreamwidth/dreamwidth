@@ -6,7 +6,7 @@ sub layout_prop { "layout_type" }
 
 package LJ::S2Theme::core2base::nnwm2009;
 use base qw( LJ::S2Theme::core2base );
-sub cats { qw( )}
+sub cats { qw( featured ) }
 sub designer { "zvi" }
 
 package LJ::S2Theme::core2base::testing;

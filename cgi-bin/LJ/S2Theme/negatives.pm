@@ -13,7 +13,7 @@ sub cats { qw( base ) }
 
 package LJ::S2Theme::negatives::blastedsands;
 use base qw( LJ::S2Theme::negatives );
-sub cats { qw(featured) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::negatives::lightondark;

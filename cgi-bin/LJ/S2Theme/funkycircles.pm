@@ -57,7 +57,7 @@ sub cats { qw( base ) }
 
 package LJ::S2Theme::funkycircles::earthygreen;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 package LJ::S2Theme::funkycircles::industrialpink;
 use base qw( LJ::S2Theme::funkycircles );
@@ -69,12 +69,12 @@ sub cats { qw( ) }
 
 package LJ::S2Theme::funkycircles::nevermore;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 sub designer { "wizard101" }
 
 package LJ::S2Theme::funkycircles::nnwm2009;
 use base qw( LJ::S2Theme::funkycircles );
-sub cats { qw( ) }
+sub cats { qw() }
 sub designer { "zvi" }
 
 package LJ::S2Theme::funkycircles::seablues;
