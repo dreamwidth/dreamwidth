@@ -74,10 +74,17 @@ sub render_body {
 
     @themes = LJ::Customize->remove_duplicate_themes(@themes);
 
-    # sort themes with custom at the end, then alphabetically
-    @themes =
-        sort { $a->is_custom <=> $b->is_custom }
-        sort { lc $a->name cmp lc $b->name } @themes;
+    if ( $cat eq "base" ) {
+        # sort themes with custom at the end, then alphabetically by layout
+        @themes =
+            sort { $a->is_custom <=> $b->is_custom }
+            sort { lc $a->layout_name cmp lc $b->layout_name } @themes;
+    } else {
+        # sort themes with custom at the end, then alphabetically by theme
+        @themes =
+            sort { $a->is_custom <=> $b->is_custom }
+            sort { lc $a->name cmp lc $b->name } @themes;
+    }
 
     LJ::run_hooks("modify_theme_list", \@themes, user => $u, cat => $cat);
 
