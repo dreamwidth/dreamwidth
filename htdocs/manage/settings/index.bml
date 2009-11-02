@@ -355,7 +355,7 @@ body<=
     if ($u && $authas ne $remote->user) {
         $getextra = "?authas=$authas";
         $getsep = "&";
-        $title = BML::ml('.title.comm', { user => $u->ljuser_display({ head_size => 24 }) });
+        $title = BML::ml('.title.comm', { user => $u->ljuser_display });
         $windowtitle = BML::ml('.title.comm', { user => $u->display_username });
     }
 
