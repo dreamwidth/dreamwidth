@@ -480,8 +480,8 @@ END_JS
     $body .= "<option value=''>---------------</option></select></td>";
 
     $body .= "<td style='vertical-align: middle;'>";
-    $body .= "<input type='button' onClick='moveIn();' value='&gt;&gt;' /><br /><br />";
-    $body .= "<input type='button' onClick='moveOut();' value='&lt;&lt;' /></td>";
+    $body .= "<input type='button' onClick='moveIn();' value='$ML{'.btn.add'}' /><br /><br />";
+    $body .= "<input type='button' onClick='moveOut();' value='$ML{'.btn.remove'}' /></td>";
 
     $body .= "<td><select name='list_in' multiple='1' size='15'>";
     $body .= "<option value=''>---------------</option></select></td>";
