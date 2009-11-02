@@ -260,7 +260,7 @@ body<=
             if ( $val == $count ) {
                 $ret .= " <b>$val</b> ";
             } else {
-                $ret .= " <a href='?show=$val$getextra'>$val</a> ";
+                $ret .= " <a href='?show=$val$getextra#posted'>$val</a> ";
             }
         }
         $ret .= "] $ML{ '.comments' } </div> standout?>";
