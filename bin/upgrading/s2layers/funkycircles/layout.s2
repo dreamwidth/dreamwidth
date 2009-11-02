@@ -194,7 +194,7 @@ h2#pagetitle {
 
 .two-columns-left #primary > .inner:first-child,
 .three-columns-left #primary > .inner:first-child {
-    padding: 1em 2em 1em 4.5em;
+    padding: 1em 2em 1em 5em;
     }
 
 .three-columns-sides #primary > .inner:first-child {
@@ -203,8 +203,16 @@ h2#pagetitle {
 
 .two-columns-right #primary > .inner:first-child,
 .three-columns-right #primary > .inner:first-child {
-    padding: 1em 3em 1em 2.5em;
+    padding: 1em 3.5em 1em 2.5em;
     }
+
+#secondary > .inner:first-child {
+    padding: 0;
+    }
+
+    .one-column #secondary > .inner:first-child {
+        padding-top: 1em;
+        }
 
 /* Navigation
 ***************************************************************************/
@@ -815,6 +823,10 @@ h2#pagetitle {
 /* Modules
 ***************************************************************************/
 
+.module {
+    padding: 0 .5em;
+    }
+
 .module li {
     list-style: url($image_module_list_url) disc;
     margin: .5em;
@@ -875,7 +887,7 @@ h2#pagetitle {
 
 .module-calendar table {
     border-spacing: 4px;
-    margin-left: 0;
+    margin: 0 auto;
     }
 
     .module-calendar td {
