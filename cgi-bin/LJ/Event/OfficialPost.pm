@@ -99,7 +99,7 @@ sub as_html {
 
     return LJ::Lang::get_text(
         $u->prop("browselang"),
-        _construct_prefix($self) . '.html',
+        _construct_prefix($self) . '.html2',
         undef,
         {
             siteroot        => $LJ::SITEROOT,
@@ -108,6 +108,7 @@ sub as_html {
             subject         => $self->entry->subject_text || '',
             username        => $entry->journal->ljuser_display,
             url             => $entry->url,
+            poster          => $self->entry->poster->ljuser_display,
         });
 }
 
@@ -118,7 +119,7 @@ sub as_string {
 
     return LJ::Lang::get_text(
         $u->prop("browselang"),
-        _construct_prefix($self) . '.string',
+        _construct_prefix($self) . '.string2',
         undef,
         {
             siteroot        => $LJ::SITEROOT,
@@ -127,6 +128,7 @@ sub as_string {
             subject         => $self->entry->subject_text || '',
             username        => $self->entry->journal->display_username,
             url             => $entry->url,
+            poster          => $self->entry->poster->display_username,
         });
 }
 

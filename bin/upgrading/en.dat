@@ -1747,11 +1747,11 @@ esn.month.day_oct=October [[day]]
 
 esn.month.day_sep=September [[day]]
 
-esn.officialpost.html=There is <a href="[[url]]">a new announcement</a> in [[username]]
+esn.officialpost.html2=[[poster]] made <a href="[[url]]">a new announcement</a> in [[username]]
 
 esn.officialpost.nosubject=[[sitenameshort]] Announcement: New [[username]] announcement
 
-esn.officialpost.string=There is a new announcement in [[username]] at [[url]]
+esn.officialpost.string2=[[poster]] made a new announcement in [[username]] at [[url]]
 
 esn.officialpost.subject=[[sitenameshort]] Announcement: [[subject]]
 
