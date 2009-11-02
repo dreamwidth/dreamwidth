@@ -259,7 +259,8 @@ sub as_html {
     my $pu = LJ::ljuser($comment->poster);
     my $url = $comment->url;
 
-    my $in_text = '<a href="' . $entry->url . '">an entry</a>';
+    my $entry_subject = $entry->subject_text || "an entry";
+    my $in_text = '<a href="' . $entry->url . "\">$entry_subject</a>";
     my $subject = $comment->subject_text ? ' "' . $comment->subject_text . '"' : '';
 
     my $poster = $comment->poster ? "by $pu" : '';
