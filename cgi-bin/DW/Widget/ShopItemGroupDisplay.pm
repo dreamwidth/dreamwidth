@@ -33,9 +33,12 @@ sub render_body {
         $ret .= "<ul>";
         if ( $remote && $remote->is_personal && DW::Pay::get_account_type( $remote ) ne 'seed' ) {
             $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.self', { aopts => "href='$LJ::SITEROOT/shop/account?for=self'", user => $remote->ljuser_display } ) . "</li>";
+        }
+        if ( $remote && $remote->is_personal ) {
+            $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.circleaccount', { aopts => "href='$LJ::SITEROOT/shop/gifts'" } ) . "</li>";
             $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.differentaccount', { aopts => "href='$LJ::SITEROOT/shop/account?for=gift'" } ) . "</li>";
         } else {
-            $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.exisitingaccount', { aopts => "href='$LJ::SITEROOT/shop/account?for=gift'" } ) . "</li>";
+            $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.existingaccount', { aopts => "href='$LJ::SITEROOT/shop/account?for=gift'" } ) . "</li>";
         }
         $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.newaccount', { aopts => "href='$LJ::SITEROOT/shop/account?for=new'" } ) . "</li>";
         $ret .= "<li>" . $class->ml( 'widget.shopitemgroupdisplay.paidaccounts.item.randomaccount.show', { aopts => "href='$LJ::SITEROOT/shop/randomgift'" } ) . "</li>";

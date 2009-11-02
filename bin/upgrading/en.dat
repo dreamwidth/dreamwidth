@@ -4703,9 +4703,11 @@ widget.shopcartstatusbar.viewcart=View Cart
 
 widget.shopitemgroupdisplay.paidaccounts.header=Buy a Paid Account
 
+widget.shopitemgroupdisplay.paidaccounts.item.circleaccount=<a [[aopts]]>For an account in your Circle</a>
+
 widget.shopitemgroupdisplay.paidaccounts.item.differentaccount=<a [[aopts]]>For a different existing account</a>
 
-widget.shopitemgroupdisplay.paidaccounts.item.exisitingaccount=<a [[aopts]]>For an existing account</a>
+widget.shopitemgroupdisplay.paidaccounts.item.existingaccount=<a [[aopts]]>For an existing account</a>
 
 widget.shopitemgroupdisplay.paidaccounts.item.newaccount=<a [[aopts]]>For a new account</a>
 
