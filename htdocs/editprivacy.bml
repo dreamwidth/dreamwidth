@@ -78,6 +78,7 @@ body<=
         $ret .= "<?p " . BML::ml('.calendar',
                                 { aopts => "href='" . $u->journal_base() . "/calendar/'" })
                 . " p?>\n";;
+        $ret .= "<?p " . BML::ml( 'xpost.respected', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=othersites'" } ) . "p?>";
 
         $ret .= "<form method='post' action='./editprivacy'>";
         $ret .= "<?h1 $ML{'.timeframe'} h1?>";

@@ -4847,6 +4847,8 @@ xpost.error.connection=Failed to connect to [[url]].
 
 xpost.error.invalidprotocol=Missing or invalid posting protocol.
 
+xpost.notrespected=This will not respect your default <a [[aopts]]>crosspost settings</a>. Your crossposted entries will not be updated.
+
 xpost.password=Password:
 
 xpost.poll.view=View poll: [[name]]
@@ -4858,6 +4860,8 @@ xpost.redirect.comment=<span style="font-size: smaller;">This entry was original
 xpost.request.success=Crosspost requested to [[account]].  You will be notified when this attempt has completed.
 
 xpost.request.failed=Failed to crosspost to [[account]].  You may go <a href = "[[editurl]]">here</a> to attempt to crosspost this entry again.
+
+xpost.respected=This will respect your default <a [[aopts]]>crosspost settings</a>, so make sure you have them set properly before you do this.
 
 xpost.success=Crosspost to [[username]]@[[server]] successful.  You can view this entry <a href = "[[xpostlink]]">here</a>.
 

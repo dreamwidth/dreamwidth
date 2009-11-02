@@ -84,7 +84,9 @@ body<=
     $logtags = $logtags->{$jitemid} || {};
     my $logtagstr = join ', ', map { LJ::ejs($_) } sort values %$logtags;
 
-    $ret .= "<?p $ML{'.intro'} p?><br />";
+    $ret .= "<?p $ML{'.intro'} p?>";
+    $ret .= "<?p " . BML::ml( 'xpost.notrespected', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=othersites'" } ) . " " . BML::ml( '.xpost.notrespected.editentry', { aopts => "href='$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$ditemid'" } ) . "p?><br />";
+
     $ret .= "<script type='text/javascript'> var cur_taglist = '$logtagstr'; </script>";
 
     $ret .= '<table class="edittbl" cellpadding="0" cellspacing="0" width="50%">';
