@@ -66,9 +66,10 @@ body<=
                                                   journal => $journal,
                                                   event   => 'JournalNewComment',
                                                   arg1    => $ditemid,
-                                                  default_selected => 1,
+                                                  # select by default only if they can't watch the subthread above
+                                                  default_selected => $can_watch ? 0 : 1,
                                                   flags   => LJ::Subscription::TRACKING,
-                                                  ) unless $can_watch;
+                                                  );
 
     # only administrators of a community should be given the option to track all comments on another journal
     push @pending,
