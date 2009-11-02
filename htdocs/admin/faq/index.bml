@@ -16,14 +16,16 @@ body<=
 
     return "<?needlogin?>" unless $remote;
     return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join(", ", @display_privs) . "</b>"} )
-        unless $remote->has_priv( "faqadd" ) || $remote->has_priv( "faqedit" );
+        unless $remote->has_priv( "faqadd" ) || $remote->has_priv( "faqedit" ) || $remote->has_priv( "faqcat" );
 
     my %ac_add  = $remote->priv_args( "faqadd" );
     my %ac_edit = $remote->priv_args( "faqedit" );
 
     my $ret = "";
-    $ret .= "<a href='faqedit'>[Add to FAQ]</a>\n"
+    $ret .= "<a href='faqedit'>[Add to FAQ]</a><br>\n"
         if %ac_add;
+    $ret .= "<a href='faqcat'>[Manage FAQ Categories]</a>\n"
+        if $remote->has_priv( "faqcat" );
 
     my %faqcat;
     my %faqq;

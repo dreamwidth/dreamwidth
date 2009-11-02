@@ -1,0 +1,258 @@
+<?_c
+#
+# admin/faq/faqcat.bml
+#
+# Front end to manage FAQ categories
+#
+# Authors:
+# Aaron Isaac <wyntarvox@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{ 
+    use strict;
+    use vars qw/ %GET %POST $ret $title @errors @warnings /;
+
+    my $dbh = LJ::get_db_writer();
+
+    # translated/custom page title can go here
+    $title = "<?_ml .faqcat.title _ml?>";
+
+    # for pages that require authentication
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    #check privs
+    my @display_privs = ( "faqcat" );
+    my $numprivs = @display_privs;
+
+    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join( ", ", @display_privs ) . "</b>" } )
+        unless $remote->has_priv( "faqcat" );
+
+    my $showcatlist = 1;
+
+    sub move_cat {
+        my ( $direction, $faqcat ) = @_;
+
+        my %pre; # catkey -> key before
+        my %post; # catkey -> key after
+        my %catorder; # catkey -> order
+
+        my $sth = $dbh->prepare( "SELECT faqcat, catorder FROM faqcat ORDER BY catorder" );
+        $sth->execute;
+        my $last;
+        while ( my ( $key, $order ) = $sth->fetchrow_array ) {
+            $catorder{$key} = $order;
+            $post{$last} = $key;
+            $pre{$key} = $last;
+            $last = $key;
+        }
+
+        my %new; # catkey -> new order 
+
+        if ( $direction eq "up" ) {
+            $new{$faqcat} = $catorder{$pre{$faqcat}};
+            $new{$pre{$faqcat}} = $catorder{$faqcat};
+        } elsif ( $direction eq "down" ) {
+            $new{$faqcat} = $catorder{$post{$faqcat}};
+            $new{$post{$faqcat}} = $catorder{$faqcat}; 
+        }
+
+        if ( %new ) {
+            foreach my $n ( keys %new ) {
+                $dbh->do( "UPDATE faqcat SET catorder=? WHERE faqcat=?", undef, $new{$n}, $n );
+            }
+        return "<?p <strong>" . BML::ml( '.catsort.success', { 'direction' => $direction } ) . "</strong> p?>";
+        }
+    }
+
+    $ret .= "<?p <a href='index'>$ML{'.link.faqmain'}</a> p?>";
+
+    if ( LJ::did_post() ) {
+
+        return $ML{'error.nopost'}
+            unless LJ::check_form_auth();
+
+        my $faqcat = $POST{'faqcat'};
+
+        # If coming from the cat list, see if we're editing/sorting/deleting
+        my @faqcats = split( ",", $POST{'faqcats'} );
+        foreach ( @faqcats ) {
+            $faqcat = $_ if ( $POST{"edit:$_"} );
+            $faqcat = $_ if ( $POST{"sortup:$_"} );
+            $faqcat = $_ if ( $POST{"sortdown:$_"} );
+            $faqcat = $_ if ( $POST{"delete:$_"} );
+        }
+
+        if ( $faqcat ) {
+
+            # See if we're adding a new FAQ from the cat list
+            if ( $POST{'action'} eq "add" ) {
+
+                my $faqcatname = LJ::trim( $POST{faqcatname} );
+                my $faqcatorder = $POST{faqcatorder};
+
+                my $faqd = LJ::Lang::get_dom( "faq" );
+                my $rlang = LJ::Lang::get_root_lang( $faqd );
+                undef $faqd
+                    unless $rlang;
+
+                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode}, "cat.$faqcatname", $faqcatname, { changeseverity => 1 } )
+                  if $faqd;
+
+                $dbh->do( "REPLACE INTO faqcat
+                              ( faqcat, faqcatname, catorder )
+                               VALUES ( ?, ?, ? )",
+                                undef, $faqcat, $faqcatname, $faqcatorder );
+
+                $ret .= "<?p <strong><?_ml .addcat.success _ml?></strong> p?>";
+
+            # See if we're saving an edited FAQ from the edit form
+            } elsif ( $POST{'action'} eq "save" ) {
+
+                my $faqcat = $POST{faqcat};
+                my $faqcatname = LJ::trim( $POST{faqcatname} );
+                my $faqcatorder = $POST{faqcatorder};
+
+                my $faqd = LJ::Lang::get_dom( "faq" );
+                my $rlang = LJ::Lang::get_root_lang( $faqd );
+                undef $faqd
+                    unless $rlang;
+
+                LJ::Lang::set_text( $dbh, $faqd->{dmid}, $rlang->{lncode}, "cat.$faqcatname", $faqcatname, { changeseverity => 1 } )
+                    if $faqd;
+
+                $dbh->do( "UPDATE faqcat
+                              SET faqcatname=?, catorder=? 
+                              WHERE faqcat=?",
+                                undef, $faqcatname, $faqcatorder, $faqcat );
+
+                $ret .= "<?p <strong><?_ml .editcat.success _ml?></strong> p?>";
+
+            # See if we're loading the edit form for a cat
+            } elsif ( $POST{"edit:$faqcat"} ) {
+
+                $showcatlist = 0;
+
+                my $sth = $dbh->prepare( "SELECT faqcat, faqcatname, catorder FROM faqcat WHERE faqcat=?" );
+                $sth->execute( $faqcat );
+                my ( $faqcatdata ) = $sth->fetchrow_hashref;
+
+                $ret .= "<h2><?_ml .editcat.title _ml?></h2>\n";
+                $ret .= "<?p <?_ml .editcat.intro _ml?> p?>\n";
+                $ret .= "<form method='POST' action='faqcat.bml'>\n";
+                $ret .= LJ::form_auth();
+                $ret .= LJ::html_hidden( { name => "faqcat", value => $faqcatdata->{faqcat} } ) . "\n";
+                $ret .= LJ::html_hidden( { name => "action", value => 'save' } ) . "\n";
+                $ret .= "<?p <?_ml .label.catkey _ml?>: <strong>" . $faqcatdata->{faqcat} . "</strong> p?>\n";
+                $ret .= "<?p <?_ml .label.catname _ml?>: " . LJ::html_text( { name => 'faqcatname', value => $faqcatdata->{faqcatname}, size => '50', maxlength => '150' } ) . " p?>\n";
+                $ret .= "<?p <?_ml .label.catorder _ml?>: " . LJ::html_text( { name => 'faqcatorder', value => $faqcatdata->{catorder}, size => '4', maxlength => '3' } ) . " p?>\n";
+                $ret .= "<?p <input type='submit' value='<?_ml .btn.catsave _ml?>'> p?>\n";
+                $ret .= "</form>";
+
+            # See if we're deleting an FAQ category
+            } elsif ( $POST{"delete:$faqcat"} ) {
+
+                my $ct = $dbh->do( "DELETE FROM faqcat WHERE faqcat=?",
+                                   undef, $faqcat );
+
+                if ( $ct ) {
+                    $ret .= "<?p <strong><?_ml .deletecat.success _ml?></strong> p?>";
+                } else {
+                    $ret .= "<?p <strong><?_ml .error.unknowncatkey _ml?></strong> p?>";
+                }
+
+            # See if we're sorting a category up the order
+            } elsif ( $POST{"sortup:$faqcat"} ) {
+
+                my $move_up = move_cat( "up", $faqcat );
+
+                $ret .= $move_up;
+
+            # See if we're sorting a category down the order
+            } elsif ( $POST{"sortdown:$faqcat"} ) {
+
+                my $move_down = move_cat( "down", $faqcat );
+
+                $ret .= $move_down;
+
+            }
+
+        }
+
+    }
+
+    # Show add form and cat list
+    if ( $showcatlist ) {
+
+        # List categories to edit/delete
+        $ret .= "<h2><?_ml .editcats.title _ml?></h2>\n";
+        $ret .= "<?p <?_ml .editcats.intro _ml?> p?>\n";
+        my %faqcat;
+        my $sth = $dbh->prepare( "SELECT faqcat, faqcatname, catorder FROM faqcat" );
+        $sth->execute;
+        $faqcat{$_->{faqcat}} = $_
+            while $_ = $sth->fetchrow_hashref;
+
+        #Show existing FAQ categories if there are any
+        if ( keys %faqcat ) {
+
+            my $faqcount = 0;
+            my $confirm_delete = LJ::ejs( $ML{'.deletecat.confirm'} );
+
+            $ret .= "<form action='faqcat.bml' method='post'>\n";
+            $ret .= LJ::form_auth();
+            $ret .= LJ::html_hidden( 'faqcats' => join ( ",", map { $faqcat{$_}->{faqcat} } keys %faqcat ) );
+            $ret .= "<table><tr><th style='padding: 5px'><?_ml .label.catname _ml?></th><th style='padding: 5px'><?_ml .label.catkey _ml?></th><th style='padding: 5px'><?_ml .label.catorder _ml?></th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp</th></tr>";
+
+            foreach my $faqcat ( sort { $faqcat{$a}->{catorder} <=> $faqcat{$b}->{catorder} } keys %faqcat ) {
+
+                $faqcount++;
+
+                my $sortupdis = $faqcount == 1 ? 1 : 0;
+                my $sortdowndis = $faqcount == keys %faqcat ? 1 : 0;
+                
+                $ret .= "<tr><td style='padding: 5px'>" .
+                    LJ::ehtml( $faqcat{$faqcat}->{faqcatname} ) . "</td><td style='padding: 5px'>" .
+                    LJ::ehtml( $faqcat{$faqcat}->{faqcat} ) . "</td><td style='padding: 5px'>" .
+                    LJ::ehtml( $faqcat{$faqcat}->{catorder} ) . "</td><td style='padding: 5px'>" .
+                    LJ::html_submit( "sortup:" . $faqcat{$faqcat}->{faqcat}, $ML{'.btn.sortup'}, { 'disabled' => $sortupdis } ) . "</td><td style='padding: 5px'>" .
+                    LJ::html_submit( "sortdown:" . $faqcat{$faqcat}->{faqcat}, $ML{'.btn.sortdown'}, { 'disabled' => $sortdowndis } ) . "</td><td style='padding: 5px'>" .
+                    LJ::html_submit( "edit:" . $faqcat{$faqcat}->{faqcat}, $ML{'.btn.editcat'} ) . "</td><td style='padding: 5px'>" .
+                    LJ::html_submit( "delete:" . $faqcat{$faqcat}->{faqcat}, $ML{'.btn.deletecat'}, { 'onclick' => "return confirm( '$confirm_delete' );" } ) . "</td></tr>\n";
+            }
+
+            $ret .= "</table></form>";
+
+        }
+
+        # Form to add a new category
+        $ret .= "<h2><?_ml .addcat.title _ml?></h2>\n";
+        $ret .= "<?p <?_ml .addcat.intro _ml?> p?>\n";
+        $ret .= "<form method='POST' action='faqcat.bml'>\n";
+        $ret .= LJ::form_auth();
+        $ret .= LJ::html_hidden( { name => 'action', value => 'add' } ) . "\n";
+        $ret .= "<?p <strong><?_ml .label.catkey _ml?>:</strong> " . LJ::html_text( { name => 'faqcat', size => '10', maxlength => '150' } ) . " p?>\n";
+        $ret .= "<?p <strong><?_ml .label.catname _ml?>:</strong> " . LJ::html_text( { name => 'faqcatname', size => '50', maxlength => '150' } ) . " p?>\n";
+        $ret .= "<?p <strong><?_ml .label.catorder _ml?>:</strong> " . LJ::html_text( { name => 'faqcatorder', size => '4', maxlength => '10' } ) . " p?>\n";
+        $ret .= "<?p <input type='submit' value='<?_ml .btn.addcat _ml?>'> p?>\n";
+        $ret .= "</form>";
+
+    }
+
+    return $ret;
+
+}
+_code?>
+<=body
+title=><?_code return $title; _code?>
+head<=
+<=head
+page?> 
