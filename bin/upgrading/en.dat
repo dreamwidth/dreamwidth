@@ -3599,6 +3599,8 @@ talk.spellcheck=Check spelling during preview
 
 talk.threadlink=Thread
 
+talk.threadrootlink=Thread from start
+
 talk.unscreentoreply=Unscreen to reply
 
 time.ago.day=[[num]] [[?num|day|days]] ago

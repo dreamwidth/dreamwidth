@@ -143,6 +143,8 @@ sub EntryPage
             my $seconds_since_entry = $com->{'datepost_unix'} - $entry->logtime_unix;
             my $datetime_poster = DateTime_tz($com->{'datepost_unix'}, $pu);
 
+            my $threadroot_url;
+
             my ($edited, $edit_url, $edittime, $edittime_remote, $edittime_poster);
             if ($com->{_loaded}) {
                 my $comment = LJ::Comment->new($u, jtalkid => $com->{talkid});
@@ -154,6 +156,8 @@ sub EntryPage
                     $edittime_remote = $tz_remote ? DateTime_tz($comment->edit_time, $tz_remote) : undef;
                     $edittime_poster = DateTime_tz($comment->edit_time, $pu);
                 }
+
+                $threadroot_url = $comment->threadroot_url( LJ::viewing_style_args( %$get ) ) if $com->{parenttalkid};
             }
 
             my $subject_icon = undef;
@@ -235,6 +239,7 @@ sub EntryPage
                 'full' => $com->{'_loaded'} ? 1 : 0,
                 'depth' => $depth,
                 'parent_url' => $par_url,
+                threadroot_url => $threadroot_url,
                 'screened' => $com->{'state'} eq "S" ? 1 : 0,
                 'frozen' => $com->{'state'} eq "F" ? 1 : 0,
                 'deleted' => $com->{'state'} eq "D" ? 1 : 0,

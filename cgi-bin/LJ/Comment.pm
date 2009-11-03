@@ -216,15 +216,29 @@ sub absorb_row {
 }
 
 sub url {
-    my $self    = shift;
+    my ( $self, $url_args ) = @_;
 
     my $dtalkid = $self->dtalkid;
     my $entry   = $self->entry;
     my $url     = $entry->url;
 
-    return "$url?thread=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid );
+    return "$url?thread=$dtalkid" . ( $url_args ? "&$url_args" : "" ) . LJ::Talk::comment_anchor( $dtalkid );
 }
 *thread_url = \&url;
+
+=head2 C<< $self->threadroot_url >>
+URL to the thread root. It would be unnecessarily expensive to look up the thread 
+root, since it is only rarely needed. So we set up a redirect then look up the 
+thread root only if the user clicks the link.
+=cut
+sub threadroot_url {
+    my ( $self, $url_args ) = @_;
+    my $dtalkid = $self->dtalkid;
+    my $jitemid = $self->entry->jitemid;
+    my $journal =$self->entry->journal->user;
+
+    return "$LJ::SITEROOT/go?redir_type=threadroot&journal=$journal&talkid=$dtalkid" . ( $url_args ? "&$url_args" : "" );
+}
 
 sub reply_url {
     my $self    = shift;
@@ -347,6 +361,56 @@ sub nodetype {
     __PACKAGE__->preload_rows([ $self->unloaded_singletons] );
     return $self->{nodetype};
 }
+
+=head2 C<< $self->threadrootid >>
+Gets the id of the topmost comment in the thread this comment is part of.
+If you just want to create a link, do not call this directly. Instead, use
+$self->threadroot_url.
+=cut
+sub threadrootid {
+
+    my ( $self ) = @_;
+
+    # if this has no parent, then this is the thread root
+    return $self->jtalkid unless $self->parenttalkid;
+
+    # if we have the information already, then just return it
+    return $self->{threadrootid} if $self->{threadrootid};
+
+    my $entry = $self->entry;
+
+    # if it is in memcache, then use the cached value
+    my $jid = $entry->journalid;
+    my $memkey = [ $jid, "talkroot:$jid:" . $self->jtalkid ];
+
+    my $cached_threadrootid = LJ::MemCache::get( $memkey );
+    if ( $cached_threadrootid ) {
+        $self->{threadrootid} = $cached_threadrootid;
+        return $cached_threadrootid;
+    }
+
+
+    # not cached anywhere; let's look it up
+
+    # get all comments to post
+    my $comments = LJ::Talk::get_talk_data( $entry->journal, 'L', $entry->jitemid ) || {};
+
+    # see if our comment exists
+    return undef unless $comments->{$self->jtalkid};
+
+    # walk up the tree
+    my $id = $self->jtalkid;
+    while ( $comments->{$id} && $comments->{$id}->{parenttalkid} ) {
+        # avoid (the unlikely chance of) an infinite loop
+        $id = delete $comments->{$id}->{parenttalkid};
+    }
+
+    # cache the value, for future lookup
+    $self->{threadrootid} = $id;
+    LJ::MemCache::set( $memkey, $id );
+    return $id;
+}
+
 
 sub parenttalkid {
     my $self = shift;

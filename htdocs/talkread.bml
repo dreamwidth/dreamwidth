@@ -48,6 +48,7 @@ body<=
                readcomments    talk.commentsread
                parent          talk.parentlink
                thread          talk.threadlink
+               threadroot      talk.threadrootlink
                expand          talk.expandlink
                replythis       talk.replytothis
                unscreentoreply talk.unscreentoreply
@@ -711,6 +712,9 @@ body<=
 
                 my $parentid = $post->{'parenttalkid'} || $post->{'parenttalkid_actual'};
                 if ($parentid != 0) {
+                    my $rooturl = $comment->threadroot_url( LJ::viewing_style_args( %GET ) );
+                    $ret .= "(<a href='$rooturl'>$T{'threadroot'}</a>)";
+
                     my $dpid = $parentid * 256 + $init->{'anum'};
                     $ret .= "(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dpid", $stylemine, $formatlight);
                     $ret .= LJ::Talk::comment_anchor( $dpid ) . "'>$T{'parent'}</a>)";

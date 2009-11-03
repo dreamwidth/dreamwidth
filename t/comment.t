@@ -1,7 +1,7 @@
 # -*-perl-*-
 
 use strict;
-use Test::More tests => 189;
+use Test::More tests => 405;
 use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 require 'ljprotocol.pl';
@@ -266,6 +266,38 @@ sub run_tests {
             ok( $access_ct{data} == 1, "$step: Only one talk data access with legacy interaction");
             ok( $access_ct{text} == 1, "$step: Only one text data access with legacy interaction");
             ok( $access_ct{props} == 1, "$step: Only one prop data access with legacy interaction");
+
+            # Add to the tree:
+            # - child 6
+            #   + child 6.1
+            #     + child 6.1.1
+            #       + child 6.1.1.1
+            my $comment = $entry->t_enter_comment;
+            my $curr = [ $comment => [] ];
+            push @tree, $curr;
+            foreach ( 1..3 ) {
+                $comment = $comment->t_reply;
+                push @{$curr->[1]}, $comment;
+            }
+
+            # look up root
+            foreach my $parent (map { $_->[0] } @tree) {
+                ok ( $parent->threadrootid eq $parent->jtalkid, "Comment depth 1: this is the thread root" );
+
+                my @children = $parent->children;
+                foreach my $child ( @children ) {
+                    ok ( $child->parenttalkid == $child->threadrootid, "Comment depth 2: thread root and parent are equivalent." );
+
+                    my $descendant = $child;
+                    my $depth = 2;
+                    foreach ( $descendant->children ) {
+                        ok ( $child->parenttalkid == $descendant->threadrootid, "Comment depth $depth: thread root is no longer directly linked to this comment." );
+
+                        $depth++;
+                        $descendant = $_;
+                    }
+                }
+            }
         } 
     }
 

@@ -13,6 +13,7 @@
 <uid> talk2row:<uid>:<jtalkid> == packed data
 <uid> talk2ct:<uid> == # rows for user
 <uid> talkleftct:<uid> == # rows for user
+<uid> talkroot:<uid>:<jtalkid> == scalar: root of the thread containing this comment
 
 <uid> logtext:<cid>:<uid>:<jitemid> == [ subject, text ]
 <uid> logprop:<uid>:<jitemid> == { propname => $value, ... }

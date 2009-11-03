@@ -412,6 +412,7 @@ class Comment extends EntryLite
     var readonly string parent_url "URL to parent comment, or blank if a top-level comment.";
     var readonly string reply_url "URL to reply to this comment.";
     var readonly string thread_url "URL to view threaded rooted at this comment, or blank if comment has no children.";
+    var readonly string threadroot_url "URL to view the entire thread this comment is part of, or blank if a top-level comment.";
     var readonly bool screened "True if comment is in screened state.";
     var readonly bool frozen "True if comment is in frozen state.";
     var readonly bool deleted "True if comment has been deleted. Deleted comments still show up if they are the parent of a thread.";
@@ -2182,6 +2183,11 @@ property string text_comment_thread {
     example = "Thread";
     maxlength = "50";
 }
+property string text_comment_threadroot {
+    des = "Text to link to the entire thread this comment is part of";
+    example = "Thread from start";
+    maxlength = "50";
+}
 property string text_comment_expand {
     des = "Text to expand a collapsed comment thread";
     example = "Expand";
@@ -2192,6 +2198,7 @@ set text_comment_frozen = "Frozen";
 set text_comment_parent = "Parent";
 set text_comment_link = "Link";
 set text_comment_thread = "Thread";
+set text_comment_threadroot = "Thread from start";
 set text_comment_expand = "Expand";
 
 ##===============================
@@ -4226,6 +4233,7 @@ function Comment::print_interaction_links()
         $this->print_reply_link({"linktext" => $*text_comment_reply});
         """</li>\n""";
     }
+    if ($this.threadroot_url != "") { print safe """<li class="link threadroot"><a href="$this.threadroot_url">$*text_comment_threadroot</a></li>\n""";}
     if ($this.parent_url != "") { print safe """<li class="link commentparent"><a href="$this.parent_url">$*text_comment_parent</a></li>\n"""; }
     if ($this.thread_url != "") {
         print safe """<li class="link thread"><a href="$this.thread_url">$*text_comment_thread</a></li>\n""";
