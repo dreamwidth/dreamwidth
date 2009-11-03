@@ -275,7 +275,7 @@ sub new_from_html {
                 return $err->('poll.error.nested', { 'tag' => 'poll-question' })
                     if $qopen;
 
-                return $err->('poll.error.missingljpoll2')
+                return $err->('poll.error.missingljpoll')
                     unless $popen;
 
                 return $err->("poll.error.toomanyquestions")
@@ -295,7 +295,7 @@ sub new_from_html {
                         {
                             $size = $opts->{'size'}+0;
                         } else {
-                            return $err->('poll.error.badsize2');
+                            return $err->('poll.error.badsize');
                         }
                     }
                     if (defined $opts->{'maxlength'}) {
@@ -304,7 +304,7 @@ sub new_from_html {
                         {
                             $max = $opts->{'maxlength'}+0;
                         } else {
-                            return $err->('poll.error.badmaxlength2');
+                            return $err->('poll.error.badmaxlength');
                         }
                     }
 
@@ -345,7 +345,7 @@ sub new_from_html {
                     $qopts{'type'} ne "scale" &&
                     $qopts{'type'} ne "text")
                 {
-                    return $err->('poll.error.unknownpqtype2');
+                    return $err->('poll.error.unknownpqtype');
                 }
             }
 
@@ -357,7 +357,7 @@ sub new_from_html {
                     return $err->('poll.error.nested', { 'tag' => 'poll-item' });
                 }
                 if (! $qopen) {
-                    return $err->('poll.error.missingljpq2');
+                    return $err->('poll.error.missingljpq');
                 }
 
                 return $err->("poll.error.toomanyopts")
@@ -365,7 +365,7 @@ sub new_from_html {
 
                 if ($qopts{'type'} eq "text")
                 {
-                    return $err->('poll.error.noitemstext2');
+                    return $err->('poll.error.noitemstext');
                 }
 
                 $iopen = 1;
@@ -426,7 +426,7 @@ sub new_from_html {
                 $qopts{'qtext'} =~ s/^\s+//;
                 $qopts{'qtext'} =~ s/\s+$//;
                 my $len = length($qopts{'qtext'})
-                    or return $err->('poll.error.notext2');
+                    or return $err->('poll.error.notext');
 
                 my $question = LJ::Poll::Question->new_from_row(\%qopts);
                 push @{$popts{'questions'}}, $question;
@@ -444,7 +444,7 @@ sub new_from_html {
                 $iopts{'item'} =~ s/\s+$//;
 
                 my $len = length($iopts{'item'});
-                return $err->('poll.error.pitoolong2', { 'len' => $len, })
+                return $err->('poll.error.pitoolong', { 'len' => $len, })
                     if $len > 255 || $len < 1;
 
                 push @{$qopts{'items'}}, { %iopts };

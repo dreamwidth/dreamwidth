@@ -21,9 +21,9 @@ LJ::register_hook("add_extra_options_to_manage_comments", sub {
     $ret .= "<tr><td class='field_name'>" . BML::ml('.pingback') . "</td>\n<td>";
     $ret .= BML::ml('.pingback.process') . "&nbsp;";
     $ret .= LJ::html_select({ 'name' => 'pingback', 'selected' => $u->{'pingback'} },
-                              "O" => BML::ml( "pingback.option.open" ),
-                              "L" => BML::ml( "pingback.option.lj_only2", { sitenameshort => $LJ::SITENAMESHORT } ),
-                              "D" => BML::ml( "pingback.option.disabled" ),
+                              "O" => BML::ml(".pingback.option.open"),
+                              "L" => BML::ml(".pingback.option.lj_only"),
+                              "D" => BML::ml(".pingback.option.disabled"),
                             );
     $ret .= "</td></tr>\n";
     return $ret;
@@ -64,10 +64,10 @@ LJ::register_hook("add_extra_entryform_fields", sub {
                               'selected' => $opts->{'prop_pingback'},
                               'tabindex' => $tabindex->(),
                               }, 
-                              { value => "J", text => BML::ml( "pingback.option.journal_default" ) },
-                              { value => "O", text => BML::ml( "pingback.option.open" ) },
-                              { value => "L", text => BML::ml( "pingback.option.lj_only2", { sitenameshort => $LJ::SITENAMESHORT } ) },
-                              { value => "D", text => BML::ml( "pingback.option.disabled" ) },
+                              { value => "J", text => BML::ml("pingback.option.journal_default") },
+                              { value => "O", text => BML::ml("pingback.option.open") },
+                              { value => "L", text => BML::ml("pingback.option.lj_only") },
+                              { value => "D", text => BML::ml("pingback.option.disabled") },
                               ) . "
         " . LJ::help_icon_html("pingback", "", " ") . "
         </span>
