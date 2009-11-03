@@ -74,11 +74,11 @@ sub make_journal
     # will be handling the "BML" views.
     if ($styleid eq "siteviews") {
         $r->notes->{ 'no_control_strip' } = 1;
-
+        
         # kill the flag
         ${$opts->{'handle_with_bml_ref'}} = 0;
         ${$opts->{'handle_with_siteviews_ref'}} = 1;
-
+        
         $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 1;
     } else {
         if ( ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} && ( $view eq "entry" || $view eq "reply" ) ) {
@@ -503,12 +503,12 @@ sub b2lid_remap
 sub get_layers_of_user
 {
     my ($u, $is_system, $infokeys) = @_;
-
+    
     my $subst_user = LJ::run_hook("substitute_s2_layers_user", $u);
     if (defined $subst_user && LJ::isu($subst_user)) {
         $u = $subst_user;
     }
-
+    
     my $userid = LJ::want_userid($u);
     return undef unless $userid;
     undef $u unless LJ::isu($u);
@@ -1145,7 +1145,7 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'SITENAMEABBREV'} = $LJ::SITENAMEABBREV;
     $ctx->[S2::PROPS]->{'IMGDIR'} = $LJ::IMGPREFIX;
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
-
+    
     $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 0;
 }
 
@@ -1153,18 +1153,18 @@ sub populate_system_props
 sub alias_renamed_props
 {
     my $ctx = shift;
-    $ctx->[S2::PROPS]->{num_items_recent} = $ctx->[S2::PROPS]->{page_recent_items}
+    $ctx->[S2::PROPS]->{num_items_recent} = $ctx->[S2::PROPS]->{page_recent_items} 
         if exists $ctx->[S2::PROPS]->{page_recent_items};
 
     $ctx->[S2::PROPS]->{num_items_reading} = $ctx->[S2::PROPS]->{page_friends_items}
         if exists $ctx->[S2::PROPS]->{page_friends_items};
-
+    
     $ctx->[S2::PROPS]->{reverse_sortorder_day} = $ctx->[S2::PROPS]->{page_day_sortorder} eq 'reverse' ? 1 : 0
         if exists $ctx->[S2::PROPS]->{page_day_sortorder};
 
     $ctx->[S2::PROPS]->{reverse_sortorder_year} = $ctx->[S2::PROPS]->{page_year_sortorder} eq 'reverse' ? 1 : 0
         if exists $ctx->[S2::PROPS]->{page_year_sortorder};
-
+        
     $ctx->[S2::PROPS]->{use_journalstyle_entry_page} = ! $ctx->[S2::PROPS]->{view_entry_disabled}
         if exists $ctx->[S2::PROPS]->{view_entry_disabled};
 }
@@ -1834,7 +1834,7 @@ sub Entry
     return $e;
 }
 
-#returns an S2 Entry from a user object and an entry object
+#returns an S2 Entry from a user object and an entry object 
 sub Entry_from_entryobj
 {
     my ($u, $entry_obj, $opts) = @_;
@@ -1916,7 +1916,7 @@ sub Entry_from_entryobj
         $userpic = Image_userpic( $poster, $entry_obj->userpic->picid, $kw ) if $entry_obj->userpic;
     } else {
         $userpic = Image_userpic( $journal, $journal->userpic->picid ) if $journal->userpic;
-    }
+    } 
 
     # override used moodtheme if necessary
     my $moodthemeid = $u->prop( 'opt_forcemoodtheme' ) eq 'Y' ?
@@ -2182,7 +2182,7 @@ sub Image_userpic
 
     my $title = $u->display_name;
     $title .= $kw ? ": $kw" : ": (default)";
-
+    
     return {
         '_type' => "Image",
         'url' => "$LJ::USERPIC_ROOT/$picid/$u->{'userid'}",
@@ -2302,7 +2302,7 @@ sub nth_entry_seen {
     my $e = shift;
     my $key = "$e->{'journal'}->{'username'}-$e->{'itemid'}";
     my $ref = $LJ::REQ_GLOBAL{'nth_entry_keys'};
-
+    
     if (exists $ref->{$key}) {
         return $ref->{$key};
     }
@@ -2979,7 +2979,7 @@ sub _Comment__get_link
                             LJ::S2::Image("$LJ::IMGPREFIX/silk/comments/unscreen.png", 16, 16));
     }
 
-
+    
     if ($key eq "watch_thread" || $key eq "unwatch_thread" || $key eq "watching_parent") {
         return $null_link unless LJ::is_enabled('esn');
         return $null_link unless $remote && $remote->can_use_esn;
@@ -3076,8 +3076,8 @@ sub _Comment__get_link
     }
     if ($key eq "expand_comments") {
         return $null_link unless $u->show_thread_expander( $remote );
-        ## show "Expand" link only if
-        ## 1) the comment is collapsed
+        ## show "Expand" link only if 
+        ## 1) the comment is collapsed 
         ## 2) any of comment's children are collapsed
         my $show_expand_link;
         if (!$this->{full} and !$this->{deleted}) {
@@ -3124,7 +3124,7 @@ sub _print_quickreply_link
     my ($ctx, $this, $opts) = @_;
 
     $opts ||= {};
-
+    
     # one of these had better work
     my $replyurl =  $opts->{'reply_url'} || $this->{'reply_url'} || $this->{'entry'}->{'comments'}->{'post_url'};
 
@@ -3345,7 +3345,7 @@ my %dt_vars = (
 
 sub _dt_vars_html {
     my $datecode = shift;
-
+    
     return qq{ "/",$dt_vars{yyyy}, "/", $dt_vars{mm}, "/", $dt_vars{dd}, "/" } if $datecode =~ /^(d|dd|dayord)$/;
     return qq{ "/",$dt_vars{yyyy}, "/", $dt_vars{mm}, "/" } if $datecode =~ /^(m|mm|mon|month)$/;
     return qq{ "/",$dt_vars{yyyy}, "/" } if $datecode =~ /^(yy|yyyy)$/;
@@ -3370,7 +3370,7 @@ sub Date__date_format
     my $code = "\$\$c = sub { my \$time = shift; return join('',";
     my $i = 0;
     foreach (@parts) {
-        if ($i % 2) {
+        if ($i % 2) { 
             # translate date %%variable%% to value
             my $link = _dt_vars_html( $_ );
             $code .= $as_link && $link
@@ -3433,7 +3433,7 @@ sub UserLite__get_link
     return $button->( $linkbar->trust ) if $key eq 'trust';
     return $button->( $linkbar->watch ) if $key eq 'watch';
     return $button->( $linkbar->post ) if $key eq 'post_entry';
-    return $button->( $linkbar->message ) if $key eq 'message';
+    return $button->( $linkbar->message ) if $key eq 'message';    
     return $button->( $linkbar->track ) if $key eq 'track';
     return $button->( $linkbar->memories ) if $key eq 'memories';
     return $button->( $linkbar->tellafriend ) if $key eq 'tell_friend';
@@ -3447,7 +3447,7 @@ sub EntryLite__get_link
 {
     my ($ctx, $this, $key) = @_;
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
-
+    
     if ( $this->{_type} eq 'Entry' || $this->{_type} eq 'StickyEntry' ) {
         return _Entry__get_link($ctx, $this, $key);
     }
@@ -3465,22 +3465,22 @@ sub EntryLite__get_link
 sub EntryLite__formatted_subject {
     my ($ctx, $this, $attrs) = @_;
     my $subject = $this->{subject};
-
+    
     if ( $this->{_type} eq 'Entry' || $this->{_type} eq 'StickyEntry' ) {
         # if an entry does not have a subject, and text_nosubject is not set, return nothing
         return if $subject eq ""  && $ctx->[S2::PROPS]->{text_nosubject} eq "";
 
         # if an entry does not have a subject, text_nosubject is set, and all_entrysubjects, then use text_nosubject as the subject
-        $subject = $ctx->[S2::PROPS]->{text_nosubject}
+        $subject = $ctx->[S2::PROPS]->{text_nosubject}        
             if $subject eq ""
-                && $ctx->[S2::PROPS]->{text_nosubject} ne ""
+                && $ctx->[S2::PROPS]->{text_nosubject} ne "" 
                 && $ctx->[S2::PROPS]->{all_entrysubjects};
 
         # if an entry does not have a subject, text_nosubject is set, and all_entrysubjects is false, then only return the formatted subject with text_nosubject on the month view
         $subject = $ctx->[S2::PROPS]->{text_nosubject}
             if $subject eq ""
-                && $ctx->[S2::PROPS]->{text_nosubject} ne ""
-                && ! $ctx->[S2::PROPS]->{all_entrysubjects}
+                && $ctx->[S2::PROPS]->{text_nosubject} ne "" 
+                && ! $ctx->[S2::PROPS]->{all_entrysubjects} 
                 && $LJ::S2::CURR_PAGE->{view} eq 'month';
 
     } elsif ( $this->{_type} eq "Comment" ) {
@@ -3488,7 +3488,7 @@ sub EntryLite__formatted_subject {
             # if a comment does not have a subject, and all_commentsubjects is false, then return nothing
             return if $subject eq "" && $ctx->[S2::PROPS]->{all_commentsubjects} eq "";
 
-            # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is true,
+            # if a comment does not have a subject, text_nosubject is set, and all_commentsubjects is true, 
             # then return the formatted subject with text_nosubject
             $subject = $ctx->[S2::PROPS]->{text_nosubject}
                 if $subject eq ""
@@ -3510,7 +3510,7 @@ sub EntryLite__formatted_subject {
         my $style = $attrs->{style} ? " style=\"" . LJ::ehtml( $attrs->{style} ) . "\" " : '';
 
         return "<a href=\"$this->{permalink_url}\"$class$style>$subject</a>";
-    }
+    }   
 }
 
 *Entry__formatted_subject = \&EntryLite__formatted_subject;
@@ -3746,29 +3746,23 @@ sub Page__print_ad {}
 sub Page__visible_tag_list
 {
     my ($ctx, $this, $limit) = @_;
-
-    $limit ||= "";
     return $this->{'_visible_tag_list'}
-        if defined $this->{'_visible_tag_list'} && ! $limit;
+        if defined $this->{'_visible_tag_list'};
 
     my $remote = LJ::get_remote();
     my $u = $LJ::S2::CURR_PAGE->{'_u'};
     return [] unless $u;
 
-    # use the cached tag list, if we have it
-    my @taglist = @{$this->{'_visible_tag_list'} || []};
+    my $tags = LJ::Tags::get_usertags($u, { remote => $remote });
+    return [] unless $tags;
 
-    unless ( @taglist) {
-        my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
-        return [] unless $tags;
+    my @taglist;
+    foreach my $kwid (keys %{$tags}) {
+        # only show tags for display
+        next unless $tags->{$kwid}->{display};
 
-        foreach my $kwid (keys %{$tags}) {
-            # only show tags for display
-            next unless $tags->{$kwid}->{display};
-
-            # create tag object
-            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid} );
-        }
+        # create tag object
+        push @taglist, LJ::S2::TagDetail($u, $kwid => $tags->{$kwid});
     }
 
     if ($limit) {
@@ -3916,7 +3910,7 @@ sub YearMonth__month_format
     my $code = "\$\$c = sub { my \$time = shift; return join('',";
     my $i = 0;
     foreach (@parts) {
-        if ($i % 2) {
+        if ($i % 2) { 
             # translate date %%variable%% to value
             my $link = _dt_vars_html( $_ );
             $code .= $as_link && $link
@@ -3959,7 +3953,7 @@ sub string__index
 sub string__substr
 {
     my ($ctx, $this, $start, $length) = @_;
-
+    
     use Encode qw/decode_utf8 encode_utf8/;
     my $ustr = decode_utf8($this);
     my $result = substr($ustr, $start, $length);
