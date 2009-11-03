@@ -294,4 +294,83 @@ set color_header_background = "#6ab1b2";
 
 set color_footer_background = "#6ab1b2";
 set color_footer_link = "#effeff";
-set color_footer_link_active = "#effeff"
+set color_footer_link_active = "#effeff";
+set color_footer_link_hover = "#0a566c";
+set color_footer_link_visited = "#effeff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#effeff";
+set color_entry_border = "#effeff";
+set color_entry_text = "#000000";
+set color_entry_link = "#0a566c";
+set color_entry_link_active = "#0a566c";
+set color_entry_link_hover = "#6ab1b2";
+set color_entry_link_visited = "#0a566c";
+set color_entry_interaction_links = "#0a566c";
+
+set color_entry_title_background = "#effeff";
+set color_entry_title = "#000000";
+
+set color_comment_title_background = "#effeff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#6ab1b2";
+set color_module_border = "#6ab1b2";
+set color_module_text = "#000000";
+set color_module_link = "#effeff";
+set color_module_link_active = "#effeff";
+set color_module_link_hover = "#0a566c";
+set color_module_link_visited = "#effeff";
+
+set color_module_title = "#000000";
+set color_module_title_background = "#6ab1b2";
+
+
+#NEWLAYER: tranquilityiii/wintergreen
+layerinfo type = "theme";
+layerinfo name = "Wintergreen";
+layerinfo redist_uniq = "tranquilityiii/wintergreen";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+set color_footer_link_hover = "#6ab23b";
+set color_page_link_active = "#688052";
+set color_page_link = "#688052";
+set color_module_link_hover = "#6ab23b";
+set color_module_background = "#b4cea1";
+set color_entry_border = "#0a440e";
+set color_entry_text = "#0d1402";
+set color_module_title = "#0d1402";
+set color_page_text = "#0d1402";
+set color_footer_background = "#f2fff2";
+set color_header_background = "#b4cea1";
+set color_page_border = "#f2fff2";
+set color_entry_interaction_links = "#688052";
+set color_comment_title_background = "#f2fff2";
+set color_page_background = "#0a440e";
+set color_module_title_background = "#b4cea1";
+set color_entry_link_hover = "#6ab23b";
+set color_page_title = "#0d1402";
+set color_footer_link_active = "#688052";
+set color_footer_link_visited = "#688052";
+set color_module_border = "#b4cea1";
+set color_entry_link = "#688052";
+set color_module_link = "#f2fff2";
+set color_entry_link_visited = "#688052";
+set color_module_link_visited = "#f2fff2";
+set color_entry_title = "#0d1402";
+set color_page_link_visited = "#688052";
+set color_entry_title_background = "#f2fff2";
+set color_page_link_hover = "#6ab23b";
+set color_entry_link_active = "#688052";
+set color_module_link_active = "#f2fff2";
+set color_module_text = "#0d1402";
+set color_entry_background = "#f2fff2";
+set color_footer_link = "#688052";
