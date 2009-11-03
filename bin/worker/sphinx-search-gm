@@ -87,6 +87,7 @@ sub sphinx_search {
                 $match->{entry} = $entry->event_text;
                 $match->{entry} =~ s#<(?:br|p)\s*/?># #gi;
                 $match->{entry} = LJ::strip_html( $match->{entry} );
+                $match->{entry} ||= "(this entry only contains html content)";
 
                 # we don't munge the subject... just clean it
                 $match->{subject} = $entry->subject_text || '(no subject)';
