@@ -36,6 +36,8 @@
 
 .post.deleted=Post Deleted
 
+.reply=*: This comment has been replied to.
+
 .time=Time
 
 .title=Manage Comments

@@ -278,6 +278,8 @@ body<=
             my $lrow = $logrow{"$ju->{userid} $r->{nodeid}"} ||= LJ::get_log2_row($ju, $r->{'nodeid'});
             my $talkid = ($r->{'jtalkid'} << 8) + $lrow->{'anum'};
 
+            my $comment = LJ::Comment->new( $ju, dtalkid => $talkid );
+
             my $logurl = $ju->journal_base . "/$lrow->{ditemid}.html";
             my $commentanchor = LJ::Talk::comment_anchor( $talkid );
             my $talkurl = "$logurl?thread=$talkid$commentanchor";
@@ -290,6 +292,9 @@ body<=
                 $subject = $log_text->{"$r->{journalid} $r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject(\$subject);
                 $subject = "$subject <a href='$logurl'>(link)</a>";
+                # add a sign if the comment has replies
+                $subject .= "*" if $comment->has_nondeleted_children;
+                # delete link, very helpful for when the user does not have access to that entry anymore
                 $delete = "&nbsp;<a href='$LJ::SITEROOT/delcomment?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
             } else {
                 $subject = $ML{ '.post.deleted' };
@@ -299,6 +304,8 @@ body<=
         }
         $ret .= "</table>";
     }
+
+    $ret .= $ML{ '.reply' };
 
     my $js_screen_color = "\"" . LJ::ejs(BML::get_template_def("screenedbarcolor")) . "\"";
     $ret .= "<script>var LJ_cmtinfo = " . LJ::js_dumper(\%LJ_cmtinfo) . ";\n" .
