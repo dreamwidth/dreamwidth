@@ -63,8 +63,9 @@ $maint{'genstats'} = sub
                    my $stat_min = int($prev_min - (0.2*$prev_max));
                    $stat_min = 1 if $stat_min < 1;
 
-                   my $sth = $db->prepare("SELECT interest, intcount FROM interests WHERE intcount>? " .
-                                          "ORDER BY intcount DESC, interest ASC LIMIT 400");
+                   my $sth = $db->prepare( "SELECT k.keyword, i.intcount FROM interests AS i, sitekeywords AS k " .
+                                           "WHERE k.kwid=i.intid AND i.intcount>? " .
+                                           "ORDER BY i.intcount DESC, k.keyword ASC LIMIT 400" );
                    $sth->execute($stat_min);
                    die $db->errstr if $db->err;
 

@@ -366,18 +366,11 @@ body<=
         return $ret;
     }
 
-    if (!$did_post && ($GET{'intid'} || $GET{'int'})) {
-        my $sth;
-        my $dbr = LJ::get_db_reader();
-        my ($interest, $intid, $intcount);
-        if ($GET{'intid'}) {
-            ($interest, $intid, $intcount) = $dbr->selectrow_array("SELECT interest, intid, intcount
-                FROM interests WHERE intid=?", undef, $GET{'intid'});
-        } else {
-            ($interest, $intid, $intcount) = $dbr->selectrow_array("SELECT interest, intid, intcount
-                FROM interests WHERE interest=?", undef, $GET{'int'});
-        }
-
+    if ( ! $did_post && ( $GET{intid} || $GET{int} ) ) {
+        my $intid = $GET{intid} ? $GET{intid} :
+            LJ::get_sitekeyword_id( $GET{int}, 0 );
+        my ( $interest, $intcount ) = LJ::get_interest( $intid );
+        
         my $check_int = $GET{int} || $interest;
         if (LJ::run_hook("interest_search_ignore", query => $check_int, intid => $intid)) {
             return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.ignored'} p?>";
@@ -421,6 +414,7 @@ body<=
         });
 
         ### communities
+        my $dbr = LJ::get_db_reader();
         my $LIMIT = 500;
 
         my $int_query = sub {

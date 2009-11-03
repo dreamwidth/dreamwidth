@@ -1522,8 +1522,12 @@ sub get_interest {
         ( $intid, $int, $intcount ) = @$cached;
     } else {
         my $dbr = LJ::get_db_reader();
-        ( $int, $intcount ) =
-            $dbr->selectrow_array( "SELECT interest, intcount FROM interests WHERE intid=?",
+        ( $int ) =
+            $dbr->selectrow_array( "SELECT keyword FROM sitekeywords WHERE kwid=?",
+                                          undef, $intid );
+        die $dbr->errstr if $dbr->err;
+        ( $intcount ) =
+            $dbr->selectrow_array( "SELECT intcount FROM interests WHERE intid=?",
                                    undef, $intid );
         die $dbr->errstr if $dbr->err;
         LJ::MemCache::set( $memkey, [$intid, $int, $intcount], 3600*12 );

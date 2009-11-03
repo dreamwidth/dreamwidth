@@ -651,7 +651,6 @@ REPLACE INTO schemacols (colname, des, tablename) VALUES ('inctext', 'The text c
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('instime', 'The time the action first completed.', 'duplock');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('instime', 'The time the query was buffered. Not used by applications, but useful for debugging/humans.', 'cmdbuffer');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('intcount', 'The number of users listing the interest.', 'interests');
-REPLACE INTO schemacols (colname, des, tablename) VALUES ('interest', 'The text of the interest.', 'interests');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('intid', 'Unique id assigned to the interest.', 'interests');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('is_dirty', 'One of either 1 (indexed), or NULL (not in index) - means we need to update the target\'s etypeid.', 'subs');
 REPLACE INTO schemacols (colname, des, tablename) VALUES ('item', 'base64digest of rss $item', 'synitem');

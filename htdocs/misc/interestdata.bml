@@ -26,14 +26,11 @@
     }
 
     if ($GET{'int'}) {
-        my $dbr = LJ::get_db_reader();
-        my $sth = $dbr->prepare("SELECT * FROM interests WHERE interest=?");
-        $sth->execute($GET{'int'});
-        my $h = $sth->fetchrow_hashref;
-        return "! invalid interest\n" unless $h;
-        my $ret;
-        $ret = "# Note: Polite data miners cache on their end.  Impolite ones get banned.\n" .
-            "= intcount=$h->{intcount}\n";
+        my $intid = LJ::get_sitekeyword_id( $GET{int}, 0 );
+        return "! invalid interest\n" unless $intid;
+        my ($int, $intcount) = LJ::get_interest( $intid );
+        my $ret = "# Note: Polite data miners cache on their end.  Impolite ones get banned.\n" .
+            "= intcount=$intcount\n";
         return $ret;
     }
     return "! invalid parameters\n";

@@ -31,16 +31,13 @@ sub intid {
 sub load_row {
     my $self = shift;
     $self->{_loaded_row} = 1;
-    my $row;
 
-    my $field = $self->{intid} ? "intid" : "interest";
-    return unless $self->{$field};
+    if ( $self->{interest} && ! $self->{intid} ) {
+        $self->{intid} = LJ::get_sitekeyword_id( $self->{interest}, 0 );
+    }
+    return unless $self->{intid};
 
-    my $db = LJ::get_dbh("directory") || LJ::get_db_reader();
-    $row = $db->selectrow_hashref("SELECT intid, interest, intcount FROM interests WHERE $field=?",
-                                  undef, $self->{$field});
-
-    $self->{$_} = $row->{$_} foreach (qw(intid interest intcount));
+    ( $self->{interest}, $self->{intcount} ) = LJ::get_interest( $self->{intid} );
 }
 
 sub matching_uids {

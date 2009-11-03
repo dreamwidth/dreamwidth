@@ -152,12 +152,10 @@ EOC
 
 register_tablecreate("interests", <<'EOC');
 CREATE TABLE interests (
-    intid int(10) unsigned NOT NULL auto_increment,
-    interest varchar(255) NOT NULL default '',
+    intid int(10) unsigned NOT NULL,
     intcount mediumint(8) unsigned default NULL,
 
-    PRIMARY KEY  (intid),
-    UNIQUE interest (interest)
+    PRIMARY KEY  (intid)
 )
 EOC
 
@@ -3833,6 +3831,17 @@ EOF
     unless ( column_type( 'acctcode_promo', 'suggest_journalid' ) ) {
         do_alter( 'acctcode_promo',
                   q{ALTER TABLE acctcode_promo ADD COLUMN suggest_journalid INT UNSIGNED} );
+    }
+
+    # migrate interest names to sitekeywords
+    if ( table_relevant( "sitekeywords" ) && table_relevant( "interests" )
+          && column_type( "interests", "interest" ) ) {
+        do_sql( 'LOCK TABLES sitekeywords WRITE, interests WRITE' );
+        do_sql( "REPLACE INTO sitekeywords (kwid, keyword) ".
+                "SELECT intid, interest FROM interests" );
+        do_alter( "interests",
+                  "ALTER TABLE interests DROP interest" );
+        do_sql( 'UNLOCK TABLES' );
     }
 
 });
