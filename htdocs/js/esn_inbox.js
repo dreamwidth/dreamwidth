@@ -380,8 +380,8 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
     // 2 instances of action buttons with suffix 1 and 2
     for (var i=1; i<=2; i++) {
         $(folder + "_MarkRead_" + i).disabled    = unread_count ? false : true;
+        $(folder + "_MarkAllRead_" + i).disabled = unread_count ? false : true;
     }
-    $(folder + "_MarkAllRead").disabled = unread_count ? false : true;
 };
 
 ESN_Inbox.refresh_count = function(name, count) {
