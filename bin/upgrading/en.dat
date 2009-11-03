@@ -6,10 +6,6 @@ admin.noprivserror=Sorry, your account does not have the necessary [[?numprivs|p
 
 backlink=[<a href="[[link]]">&lt;&lt;</a> [[text]]]
 
-birthday.link=birthdays
-
-birthday.text=[[user]], did you know you can surprise your friends by actually remembering their birthdays?  LJ keeps a list of your friends' [[link]] for you.
-
 bml.badcontent.body=One or more errors occurred processing your request.  Please go back, correct the necessary information, and submit your data again.
 
 bml.badinput.body=Your browser sent some text which is not recognised as valid text in the UTF-8 encoding, as it should be. This might happen if you forced your browser to view the previous page in some other encoding rather than UTF-8. It may also indicate a bug in the browser. If you cannot get around this error, contact us.
@@ -52,11 +48,7 @@ contentflag.viewingexplicit.byjournal=You are about to view content that the jou
 
 contentflag.viewingexplicit.byposter=You are about to view content that the poster has marked as possibly inappropriate for anyone under the age of 18.
 
-controlstrip.link=Navigation Strip
-
-controlstrip.text=9 out of 10 LJ users prefer the [[link]].  (OK we made that up, but you should check it out anyway.)
-
-cprod.birthday.link.v1=birthdays
+cprod.birthday.link.v1=
 
 cprod.birthday.link.v2=
 
@@ -66,7 +58,7 @@ cprod.birthday.link.v4=
 
 cprod.birthday.link.v5=
 
-cprod.birthday.text.v1=Hey, [[user]], see which of your friends' [[link]] are coming up! LiveJournal keeps a list of their birthdays for you.
+cprod.birthday.text.v1=
 
 cprod.birthday.text.v2=
 
@@ -76,7 +68,7 @@ cprod.birthday.text.v4=
 
 cprod.birthday.text.v5=
 
-cprod.controlstrip.link.v1=Navigation Strip
+cprod.controlstrip.link.v1=
 
 cprod.controlstrip.link.v2=
 
@@ -86,7 +78,7 @@ cprod.controlstrip.link.v4=
 
 cprod.controlstrip.link.v5=
 
-cprod.controlstrip.text.v1=9 out of 10 LJ users prefer the [[link]].  (OK we made that up, but you should check it out anyway.)
+cprod.controlstrip.text.v1=
 
 cprod.controlstrip.text.v2=
 
@@ -234,7 +226,7 @@ cprod.editstyles.text.v4=
 
 cprod.editstyles.text.v5=
 
-cprod.feeds.link.v1=syndicated feeds
+cprod.feeds.link.v1=
 
 cprod.feeds.link.v2=
 
@@ -244,7 +236,7 @@ cprod.feeds.link.v4=
 
 cprod.feeds.link.v5=
 
-cprod.feeds.text.v1=Find good content outside of LJ? Add [[link]] to your Friends page so you never have to leave.
+cprod.feeds.text.v1=
 
 cprod.feeds.text.v2=
 
@@ -948,124 +940,7 @@ among users in class "[[class]]".
 
 email.invitedist.req.subject=Result of your invite code distribution request
 
-email.newacct.body<<
-Congratulations, you have a new [[sitename]] account!
-
-To complete your journal creation and verify your email address, go
-here:
-
-   [[regurl]]
-
-The URL that your new journal is located at is:
-
-   [[siteroot]]/users/[[username]]/
-
-and also:
-
-   [[siteroot]]/~[[username]]/
-
-Below is your LiveJournal username and password:
-
-   Username: [[username]]
-   Password: [[password]]
-
-Enjoy!
-
-[[sitename]] Team
-[[siteroot]]/
-.
-
 email.newacct.subject=Welcome to [[sitename]]
-
-email.newacct2.body|notes=This string replaces email.newacct.body.  You may refer to the old string while translating if you wish.
-email.newacct2.body<<
-Congratulations, you have a new [[sitename]] account!
-
-To complete your journal creation and verify your email address,
-please visit the following location.  Verifying your email address
-will help to protect your account as well as allow you to utilize
-more features within your journal.
-
-   [[regurl]]
-
-You may access your journal at the following two URLs:
-
-   [[siteroot]]/users/[[username]]/
-   [[siteroot]]/~[[username]]/
-
-Below is your [[sitename]] username that you registered:
-
-   Username: [[username]]
-
-If you need to retrieve your password, you can do so at any time by
-visiting the following URL:
-
-   [[siteroot]]/lostinfo.bml
-
-Enjoy!
-
-[[sitename]] Team
-[[siteroot]]/
-.
-
-email.newacct3.body|notes=Updated for correct journal URL
-email.newacct3.body<<
-Congratulations, you have a new [[sitename]] account!
-
-To complete your journal creation and verify your email address,
-please visit the following location.  Verifying your email address
-will help to protect your account as well as allow you to utilize
-more features within your journal.
-
-   [[regurl]]
-
-You may access your journal at the following URL:
-
-   [[journal_base]]/
-
-Below is your [[sitename]] username that you registered:
-
-   Username: [[username]]
-
-If you need to retrieve your password, you can do so at any time by
-visiting the following URL:
-
-   [[siteroot]]/lostinfo.bml
-
-Enjoy!
-
-[[sitename]] Team
-[[siteroot]]/
-.
-
-email.newacct4.body<<
-Congratulations, you have a new [[sitename]] account!
-
-To complete your journal creation and verify your email address,
-please visit the following location.  Verifying your email address
-will help to protect your account as well as allow you to utilize
-more features within your journal.
-
-   [[regurl]]
-
-You may access your journal at the following URL:
-
-   [[journal_base]]/
-
-Below is your [[sitename]] username that you registered:
-
-   Username: [[username]]
-
-If you need to retrieve your password, you can do so at any time by
-visiting the following URL:
-
-   [[lostinfourl]]
-
-Enjoy!
-
-[[sitename]] Team
-[[siteroot]]/
-.
 
 email.newacct5.body<<
 Congratulations, you have a new [[sitename]] account!
@@ -2021,11 +1896,9 @@ fcklang.cutprompt=Cut link text?
 
 fcklang.invalidchars=Invalid characters in username
 
-fcklang.ljcut=LiveJournal Cut
+fcklang.ljcut=Cut
 
-fcklang.ljuser=LiveJournal User
-
-fcklang.ljvideo=LiveJournal Video
+fcklang.ljuser=Account
 
 fcklang.ljvideo2=Embed Media
 
@@ -2034,10 +1907,6 @@ fcklang.readmore=Read more...
 fcklang.userprompt=Enter their username
 
 fcklang.videoprompt=Please enter the YouTube, PhotoBucket, or Google Video URL:
-
-feeds.link=syndicated feeds
-
-feeds.text=Apparently there's good content outside of LJ?  We'll let you add [[link]] to your Friends page so you never have to leave.
 
 help=Help
 
@@ -2171,11 +2040,7 @@ lastupdated.ago=last updated [[timestamp]] ([[agotext]])
 
 lastupdated.never=never updated
 
-ljfeedback.text=Like to vote?  Join [[journal]] where we post polls and surveys that help influence and improve LJ.
-
 ljlib.pageofpages=Page [[page]] of [[total]]
-
-ljspotlight.text=We're keeping an eye out for interesting communities.  Check out [[journal]] to see some great ways people use LJ.
 
 lostinfo.head=Forget something?
 
@@ -2293,13 +2158,13 @@ optional=(optional)
 
 password=Password
 
-pingback.ljping.comment.text=User <lj user="[[poster]]"> referenced to your post from <a href="[[sourceURI]]">[[subject]]</a> saying: [...] [[context]] [...]
+pingback.ljping.comment.text2=Account <user name="[[poster]]"> referenced to your post from <a href="[[sourceURI]]">[[subject]]</a> saying: [...] [[context]] [...]
 
 pingback.option.disabled=Disabled
 
 pingback.option.journal_default=Journal default
 
-pingback.option.lj_only=LJ only
+pingback.option.lj_only2=[[sitenameshort]] only
 
 pingback.option.open=Open
 
@@ -2317,17 +2182,17 @@ poll.dberror.questions=Database error inserting questions: [[errmsg]]
 
 poll.error.alreadyvoted=Sorry, you have already voted in this poll under the account [[user]].
 
-poll.error.badmaxlength=Maxlength attribute on lj-pq text tags must be an integer from 1-255.
+poll.error.badmaxlength2=Maxlength attribute on poll-question (or lj-pq) text tags must be an integer from 1-255.
 
-poll.error.badsize=Size attribute on lj-pq text tags must be an integer from 1-100.
+poll.error.badsize2=Size attribute on poll-question (or lj-pq) text tags must be an integer from 1-100.
 
 poll.error.cantview=Error: you don't have access to view these poll results.
 
 poll.error.cantvote=Sorry, you don't have permission to vote in this particular poll.
 
-poll.error.missingljpoll=All lj-pq tags must be nested inside an enclosing lj-poll tag.
+poll.error.missingljpoll2=All poll-question (or lj-pq) tags must be nested inside an enclosing poll (or lj-poll) tag.
 
-poll.error.missingljpq=All lj-pi tags must be nested inside an enclosing lj-pq tag.
+poll.error.missingljpq2=All poll-item (or lj-pi) tags must be nested inside an enclosing poll-question (or lj-pq) tag.
 
 poll.error.nested=You cannot nest [[tag]] tags.  Did you forget to close one?
 
@@ -2335,17 +2200,17 @@ poll.error.noentry=Error: this poll is not attached to this journal entry
 
 poll.error.noitems=You must have at least one item in a non-text poll question.
 
-poll.error.noitemstext=lj-pq tags of type 'text' cannot have poll items in them.
+poll.error.noitemstext2=poll-question (or lj-pq) tags of type 'text' cannot have poll items in them.
 
 poll.error.nopollid=pollid parameter is missing.
 
 poll.error.noquestions=You must have at least one question in a poll.
 
-poll.error.notext=Need text inside an lj-pq tag to say what the question is about.
+poll.error.notext2=You need to have text inside a poll-question (or lj-pq) tag to say what the question is about.
 
 poll.error.notvalidated2=Your email address <a [[aopts]]>must be confirmed</a> in order to vote in this poll.
 
-poll.error.pitoolong=Text inside an lj-pi tag must be between 1 and 255 characters.  Yours is [[len]].
+poll.error.pitoolong2=Text inside a poll-item (or lj-pi) tag must be between 1 and 255 characters.  Yours is [[len]].
 
 poll.error.pollnotfound=Error: poll #[[num]] not found
 
@@ -2365,7 +2230,7 @@ poll.error.toomanyquestions=You have too many questions in your poll. Polls are 
 
 poll.error.truncated=... truncated
 
-poll.error.unknownpqtype=Unknown type on lj-pq tag.
+poll.error.unknownpqtype2=Unknown type on poll-question (or lj-pq) tag.
 
 poll.error.unlockedtag=Unlocked [[tag]] tag.
 
@@ -2420,8 +2285,6 @@ protocol.modpost=Your entry has been put into the moderation queue.  It will be 
 protocol.must_revalidate=You need to validate your new email address.  Your old one was good, but since you've changed it, you need to re-validate the new one.  Visit [[siteroot]]/support for more information.
 
 protocol.not_validated=You are currently not validated.  You may continue to use [[sitename]], but please validate your email address for continued use.  See the instructions that were mailed to you when you created your journal, or see [[siteroot]]/support/ for more information.
-
-protocol.old_win32_client=There are significantly newer Windows LiveJournal clients available, and we recommend that you upgrade.  Visit [[siteroot]]/download/ to download a newer client.
 
 protocol.readonly=Your account is temporarily in read-only mode.  Some operations will fail for a few minutes.
 
@@ -4642,8 +4505,6 @@ widget.search.interestonly.btn=Find
 widget.search.jabber=Jabber ID
 
 widget.search.msn=MSN
-
-widget.search.note=If you know some information for an existing LiveJournal user you can search for it here.
 
 widget.search.region=Region
 

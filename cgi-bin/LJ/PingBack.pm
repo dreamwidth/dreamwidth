@@ -48,7 +48,7 @@ sub ping_post {
                     poster       => $poster_u,
 
                     body         => ($source_entry
-                                        ? BML::ml("pingback.ljping.comment.text",
+                                        ? BML::ml("pingback.ljping.comment.text2",
                                             { context   => $context,
                                               subject   => $subject,
                                               sourceURI => $sourceURI,
