@@ -421,8 +421,8 @@ sub process {
       || $u->{'emailpost_comments'} =~ /noemail/i;
 
     $post_headers{security} = lc($post_headers{security}) || $u->{'emailpost_security'};
-    if ($post_headers{security} =~ /^(public|private|friends)$/) {
-        if ($1 eq 'friends') {
+    if ( $post_headers{security} =~ /^(public|private|friends|access)$/ ) {
+        if ( $1 eq 'friends' or $1 eq 'access' ) {
             $post_headers{security} = 'usemask';
             $amask = 1;
         }
@@ -433,7 +433,7 @@ sub process {
             $amask = (1 << $group->{groupnum});
             $post_headers{security} = 'usemask';
         } else {
-            $err->("Friendgroup \"$post_headers{security}\" not found.  Your journal entry was posted privately.",
+            $err->("Access group \"$post_headers{security}\" not found.  Your journal entry was posted privately.",
                    { nolog => 1 });
             $post_headers{security} = 'private';
         }
