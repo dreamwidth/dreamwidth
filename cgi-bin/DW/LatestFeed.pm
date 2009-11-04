@@ -65,7 +65,7 @@ sub new_item {
 # returns arrayref of item hashrefs that you can handle and display if you want
 sub get_items {
     my ( $class, %opts ) = @_;
-    return if $opts{tag} && ! exists $LJ::LATEST_TAGS{$opts{tag}};
+    return if $opts{feed} && ! exists $LJ::LATEST_TAG_FEEDS{group_names}->{$opts{feed}};
 
     # make sure we process the queue of items first.  this makes sure that if we
     # don't have much traffic we don't have to wait for new posts to drive the
@@ -73,8 +73,8 @@ sub get_items {
     $class->_process_queue;
 
     # and simply get the list and return it ... simplicity
-    my $mckey = $opts{tag} ? "latest_items_tag:$opts{tag}" : "latest_items";
-    return LJ::MemCache::get( $mckey );
+    my $mckey = $opts{feed} ? "latest_items_tag:$opts{feed}" : "latest_items";
+    return LJ::MemCache::get( $mckey ) || [];
 }
 
 # INTERNAL; called by the worker when there's an item for us to handle.  at this
@@ -116,7 +116,7 @@ sub _process_item {
 }
 
 
-# INTERNL; called and attempts to do something with the latest items queue 
+# INTERNAL; called and attempts to do something with the latest items queue
 sub _process_queue {
     my ( $class, %opts ) = @_;
 
@@ -247,8 +247,11 @@ sub _process_queue {
 
         # step 7.5) if the entry contains any tags that we are currently showing
         # globally, then put that onto the list
-        foreach my $tag ( grep { $LJ::LATEST_TAGS{$_} } $ent->tags ) {
-            my $nom = "latest_items_tag:$tag";
+        foreach my $tag ( $ent->tags ) {
+            my $feed = $LJ::LATEST_TAG_FEEDS{tag_maps}->{$tag};
+            next unless $feed;
+
+            my $nom = "latest_items_tag:$feed";
             $lists{$nom} ||= LJ::MemCache::get( $nom ) || [];
             unshift @{$lists{$nom}}, $item;
         }

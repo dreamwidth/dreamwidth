@@ -22,11 +22,11 @@ body<=
 
     LJ::need_res( 'stc/latest.css' );
 
-    my ( $type, $max, $fmt, $tag ) = ( $GET{type}, ($GET{max}+0)||100, $GET{fmt}, $GET{tag} );
+    my ( $type, $max, $fmt, $feed ) = ( $GET{type}, ($GET{max}+0)||100, $GET{fmt}, $GET{feed}||$GET{tag} );
     $type = { entries => 'entry', comments => 'comment' }->{$type}  || 'entry';
     $max = 100 if $max > 1000;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
-    $tag = '' unless $tag && exists $LJ::LATEST_TAGS{$tag};
+    $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{tag_maps}->{$feed};
 
     # if they want a format we don't support ... FIXME: implement all formats
     return "Sorry, that format is not supported yet."
@@ -34,7 +34,7 @@ body<=
 
     # see if somebody has asked for this particular feed in the last minute or so, in
     # which case it is going to be in memcache
-    my $mckey = "latest_src:$type:$max:$fmt" . ( $tag ? ":$tag" : '' );
+    my $mckey = "latest_src:$type:$max:$fmt" . ( $feed ? ":$feed" : '' );
     my $page = LJ::MemCache::get( $mckey );
 
     # return from the cache
@@ -60,7 +60,7 @@ body<=
     }
 
     # ask for the items from the latest feed
-    my $items = DW::LatestFeed->get_items( tag => $tag );
+    my $items = DW::LatestFeed->get_items( feed => $feed );
     return "Failed to get latest items."
         unless $items && ref $items eq 'ARRAY';
 
@@ -94,13 +94,14 @@ body<=
     }
 
     # output the header data
-    my $tagfeeds = join ' ', map { $tag eq $_ ? $_ : qq{<a href="$LJ::SITEROOT/latest?tag=$_">$_</a>} } 
-                             sort { $a cmp $b } keys %LJ::LATEST_TAGS;
-    if ( $tag ) {
+    my $tagfeeds = join ' ', map { $feed eq $_ ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
+                                               : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) } 
+                             sort { $a cmp $b } keys %{$LJ::LATEST_TAG_FEEDS{group_names}};
+    if ( $feed ) {
         $tagfeeds = qq{[<a href="$LJ::SITEROOT/latest">show all</a>] } . $tagfeeds;
     }
     if ( $tagfeeds ) {
-        $tagfeeds = qq{<?p Tag feeds are available for some well known tags: $tagfeeds p?>};
+        $tagfeeds = qq{<?p Filter posts by subject: $tagfeeds p?>};
     }
 
     my $ret = <<EOF;

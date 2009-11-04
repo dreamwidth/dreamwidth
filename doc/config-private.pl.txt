@@ -104,8 +104,20 @@
     # your own (or use any other hub you want).
     # @HUBBUB_HUBS = ( 'http://pubsubhubbub.appspot.com/' );
 
-    # Add any tags here that you wish to create global 'latest posts' feeds for
-    # %LATEST_TAGS = ( map { $_ => 1 } qw/ tag othertag bigtag littletag / );
+    # Add any tags here that you wish to create global 'latest posts' feed groups.
+    # %LATEST_TAG_FEEDSS =
+    #     group_names => {
+    #         # short name => long name, used for the UI
+    #         nnwm09 => 'NaNoWriMo 2009',
+    #     },
+    #
+    #     tag_maps => {
+    #         # tag => short name, in this case, all of the tags in the list on the
+    #         # right map to the 'nnwm09' group on the left
+    #         map { $_ => 'nnwm09' } ( 'nnwm09', 'nano', 'nanowrimo' ),
+    #     },
+    # );
+
 }
 
 {
