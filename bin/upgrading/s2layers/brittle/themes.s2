@@ -54,6 +54,8 @@ layerinfo author_name = "zvi";
 
 set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
 
+set color_entry_text = "#ffffff";
+set color_entry_background = "#000000";
 set color_footer_background = "#ffefbd";
 set color_footer_link = "#ef8229";
 set color_navigation_module_background = "#ffefbd";
