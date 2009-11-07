@@ -12,7 +12,7 @@ sub should_render {
 sub disabled {
     my ($class, $u) = @_;
 
-    return $u->can_get_self_email;
+    return $u->can_get_self_email ? 0 : 1;
 }
 
 sub selected {
