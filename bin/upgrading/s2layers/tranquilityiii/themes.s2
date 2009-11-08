@@ -35,6 +35,66 @@ set color_module_link = "#eAdDc6";
 set color_module_link_visited = "#CABDA6";
 
 
+#NEWLAYER: tranquilityiii/freshblue
+layerinfo type = "theme";
+layerinfo name = "Fresh Blue";
+layerinfo redist_uniq = "tranquilityiii/freshblue";
+layerinfo author_name = "forthwritten";
+
+set layout_authors = [ { "name" => "forthwritten", "type" => "user" }];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#86aef9";
+set color_page_border = "#cccccc";
+set color_page_link = "#000000";
+set color_page_link_visited = "#000000";
+set color_page_link_hover = "#dd20ff";
+set color_page_link_active = "#83de19";
+
+set color_header_background = "#86aef9";
+set color_page_title = "#000000";
+
+set color_footer_background = "#86aef9";
+set color_footer_link = "#161616";
+set color_footer_link_visited = "#161616";
+set color_footer_link_hover = "#374b7a";
+set color_footer_link_active = "#374b7a";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#ffffff";
+set color_entry_border = "#374b7a";
+set color_entry_title_background = "#ffffff";
+set color_entry_title = "#374b7a";
+set color_entry_text = "#333333";
+set color_entry_link = "#374b7a";
+set color_entry_link_visited = "#374b7a";
+set color_entry_link_hover = "#dd20ff";
+set color_entry_link_active = "#83de19";
+set color_entry_interaction_links = "#333333";
+
+set color_comment_title_background = "#74a3fd";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#74a3fd";
+set color_module_border = "#74a3fd";
+set color_module_title_background = "#74a3fd";
+set color_module_title = "#000000";
+set color_module_text = "#000000";
+set color_module_link = "#080808";
+set color_module_link_visited = "#080808";
+set color_module_link_hover = "#dd20ff";
+set color_module_link_active = "#83de19";
+
+
 #NEWLAYER: tranquilityiii/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light On Dark";
