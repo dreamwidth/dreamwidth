@@ -637,7 +637,11 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .metadata-label-groups, .tag-text {display:none; }
 .metadata-item {color:#881111; }
 
-.journal-name {text-align:center; font-size: 1.8em; color:$*color_module_link; line-height: 1.43em; margin-bottom:.3em; font-weight: lighter; font-variant: normal; letter-spacing: 0.16em; }
+.journal-name,
+.journal-website-name {text-align: center; font-size: 1.8em; color: $*color_module_link; line-height: 1.43em; margin-bottom:.3em; font-weight: lighter; font-variant: normal; letter-spacing: .16em; }
+
+.journal-name { font-size: 1.8em; }
+.journal-website-name { font-size: 1.6em; } 
 
     """;
     end_css();
