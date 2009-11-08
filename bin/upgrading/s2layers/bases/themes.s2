@@ -1,3 +1,54 @@
+#NEWLAYER: bases/lightondark
+layerinfo type = "theme";
+layerinfo name = "Light On Dark";
+layerinfo redist_uniq = "bases/lightondark";
+layerinfo author_name = "cesy";
+
+set layout_authors = [ { "name" => "cesy", "type" => "user" }];
+
+set color_page_background = "#000000";
+set color_page_text = "#ffffff";
+set color_page_link = "#ddddff";
+set color_page_link_active = "#ffcccc";
+set color_page_border = "#ffffff";
+set color_page_title = "#000066";
+set color_page_link_hover = "#ccffcc";
+set color_page_link_visited = "#ffffcc";
+
+set color_header_background = "#cccccc";
+
+set color_module_background = "#000000";
+set color_module_border = "#ffffff";
+set color_module_link = "#ddddff";
+set color_module_link_active = "#ffcccc";
+set color_module_link_hover = "#ccffcc";
+set color_module_link_visited = "#ffffcc";
+set color_module_text = "#ffffff";
+set color_module_title = "#ffffff";
+set color_module_title_background = "#666666";
+
+set color_entry_background = "#000000";
+set color_entry_border = "#ffffff";
+set color_entry_interaction_links = "#ffffff";
+set color_entry_link = "#ddddff";
+set color_entry_link_active = "#ffcccc";
+set color_entry_link_hover = "#ccffcc";
+set color_entry_link_visited = "#ffffcc";
+set color_entry_text = "#ffffff";
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#660066";
+
+set color_comment_title_background = "#000000";
+
+function Page::print_theme_stylesheet()
+{
+"""
+.module-navlinks .module-list-item a:hover {background: #660066 !important;}
+.module-navlinks .module-list-item a.current {background: #660066 !important;}
+""";
+}
+
+
 #NEWLAYER: bases/strawberrysundae
 layerinfo type = "theme";
 layerinfo name = "Strawberry Sundae";
