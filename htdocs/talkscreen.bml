@@ -9,6 +9,10 @@ _info?><?_code
     my $jsmode = !!$GET{jsmode};
     $body = "";
 
+    # explicitly set language scope for use when called as an 
+    # endpoint from users' journals:
+    BML::set_language_scope('/talkscreen.bml');
+
     my $error = sub {
         if ($jsmode) {
             BML::finish();
