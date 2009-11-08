@@ -38,7 +38,6 @@ use TheSchwartz::Job;
 use LJ::Comment;
 use LJ::Config;
 use LJ::ExternalSite;
-use LJ::ExternalSite::Vox;
 use LJ::Message;
 use LJ::PageStats;
 use LJ::AccessLogSink;
