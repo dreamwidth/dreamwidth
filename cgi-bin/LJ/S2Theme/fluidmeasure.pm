@@ -6,6 +6,11 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
+package LJ::S2Theme::fluidmeasure::mutedseashore;
+use base qw( LJ::S2Theme::fluidmeasure );
+sub cats { qw( ) }
+sub designer { "cimorene" }
+
 package LJ::S2Theme::fluidmeasure::nnwm2009;
 use base qw( LJ::S2Theme::fluidmeasure );
 sub cats { qw() }

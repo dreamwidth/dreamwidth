@@ -1,3 +1,53 @@
+#NEWLAYER: fluidmeasure/mutedseashore
+layerinfo type = "theme";
+layerinfo name = "Muted Seashore";
+layerinfo redist_uniq = "fluidmeasure/mutedseashore";
+layerinfo author_name = "cimorene";
+ 
+set layout_authors = [ { "name" => "cimorene", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#C5BEA2";
+set color_page_title = "#fff";
+set color_page_link = "#2d5853";
+set color_page_link_visited = "#444444";
+set color_page_border = "#aea27a";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#5a9181";
+set color_footer_background = "#2d5853";
+set color_footer_link = "#fff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#fff";
+set color_entry_border = "#eee";
+set color_entry_title = "#fff";
+set color_entry_title_background = "#5a9181";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_module_title_background = "#5a9181";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#C5BEA2";
+set color_module_border = "#2d5853";
+set color_module_title = "#fff";
+set color_comment_title_background = "#346348";
+
 #NEWLAYER: fluidmeasure/nnwm2009
 layerinfo "type" = "theme";
 layerinfo "name" = "NNWM 2009";
