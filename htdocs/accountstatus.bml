@@ -166,6 +166,10 @@ body<=
 
     $ret .= "<?p $ML{'.journalstatus.about'} p?>\n";
 
+    # only show this text to not-deleted OpenID accounts
+    $ret .= "<?p $ML{'.delete.openid'} 'p?>"
+        if $u->is_identity && $u->statusvis ne "D";
+
     $ret .= LJ::run_hook("accountstatus_delete_text", $u);
 
     $ret .= "<div style='margin-left: 30px'>$ML{'.journalstatus.select.head'}\n";

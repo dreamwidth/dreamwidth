@@ -2,6 +2,8 @@
 .btn.status|notes=Submit button for form
 .btn.status=Change Status
 
+.delete.openid=If you wish to delete your OpenID account, please note that deleting it will mean you can no longer delete comments that were imported by other users and are associated with your OpenID account. Deleting your OpenID account will not prevent other users from importing comments you have left on journals under their control. Comments that you already deleted on this site might be reimported. More information on OpenID accounts can be found <a href=http://www.dreamwidth.org/support/faqbrowse?faqid=62>here</a>.
+
 .error.db=There has been a database error processing your request.
 
 .error.invalid=Invalid status type
