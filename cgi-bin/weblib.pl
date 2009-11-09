@@ -13,10 +13,8 @@ use Carp;
 use DW::Request;
 use LJ::Event;
 use LJ::Subscription::Pending;
-use LJ::M::ProfilePage;
 use LJ::Directory::Search;
 use LJ::Directory::Constraint;
-use LJ::M::FriendsOf;
 
 # <LJFUNC>
 # name: LJ::img
