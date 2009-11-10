@@ -266,7 +266,6 @@ sub create_personal {
 #                       'efg_set_1_name' => 'Family',
 #                       'efg_set_2_name' => 'Local Friends',
 #                       'efg_set_3_name' => 'Online Friends',
-#                       'efg_set_4_name' => 'School',
 #                       'efg_set_5_name' => 'Work',
 #                       'efg_set_6_name' => 'Mobile View',
 #                   }, \%res, { 'u' => $u, 'noauth' => 1, }
@@ -2455,16 +2454,6 @@ sub support_points_count {
     return $count;
 }
 
-
-sub should_show_schools_to {
-    my ($u, $targetu) = @_;
-
-    return 0 unless LJ::is_enabled("schools");
-    return 1 if $u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y';
-    return 1 if $u->{'opt_showschools'} eq 'F' && $u->trusts( $targetu );
-
-    return 0;
-}
 
 # should show the thread expander for this user/journal
 sub show_thread_expander {

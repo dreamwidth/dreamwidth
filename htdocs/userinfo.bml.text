@@ -248,8 +248,6 @@
 
 .label.maintainers=Maintainers ([[num]]):
 
-.label.manageschools=Manage Schools
-
 .label.memberof=Member of
 
 .label.memories=Memories
@@ -266,15 +264,11 @@
 
 .label.nofriends=<i>None listed.</i>
 
-.label.noschools=None listed
-
 .label.post=Post to "[[journal]]"
 
 .label.postalt=Update your journal
 
 .label.reqfinduser=You cannot look up users by userid.
-
-.label.schools=Schools
 
 .label.searchjournal=Search This Journal
 
@@ -403,12 +397,6 @@
 .people.watched_by.some=Subscribers ([[num]]):
 
 .pubkey.alt=View public key
-
-.schools.header=Schools:
-
-.schools.manage=Manage
-
-.schools.presentyear=present
 
 .section.edit=Edit
 

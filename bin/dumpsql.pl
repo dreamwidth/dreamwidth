@@ -164,17 +164,6 @@ foreach my $table ('userproplist', 'talkproplist', 'logproplist', 'usermsgpropli
 
 }
 
-# now dump school related information
-print "Dumping schools.dat\n";
-open(F, ">$ENV{LJHOME}/bin/upgrading/schools.dat") or die;
-$sth = $dbh->prepare('SELECT name, country, state, city, url FROM schools');
-$sth->execute;
-while (my @row = $sth->fetchrow_array) {
-    my $line = '"' . join('","', map { $_ || "" } @row) . '"';
-    print F "$line\n";
-}
-close F;
-
 # and dump mood info
 print "Dumping moods.dat\n";
 open (F, ">$ENV{'LJHOME'}/bin/upgrading/moods.dat") or die;

@@ -139,7 +139,6 @@ _code?>
     }
 _code?>
 
-<li><a href="/schools/manage" title="<?_ml .schools _ml?>"><?_ml .schools _ml?></a></li>
 <li><a href="/manage/logins" title="<?_ml .manage.logins _ml?>"><?_ml .manage.logins _ml?></a></li>
 <li><a href="/accountstatus<?authas?>" title="<?_ml .information.status.about _ml?>">
 <?_code

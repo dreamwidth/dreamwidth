@@ -123,8 +123,6 @@
 
 .fn.province=or non-US State/province/territory
 
-.fn.schools=Schools
-
 .fn.servprov=Service Provider
 
 .fn.sitename=Name
@@ -176,10 +174,6 @@
 .optional=Optional
 
 .save_button=Save Changes
-
-.schools=Show your schools to
-
-.schools.manage=Manage schools
 
 .section.bio=Bio
 

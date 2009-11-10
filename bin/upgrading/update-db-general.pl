@@ -865,6 +865,10 @@ register_tabledrop("s2source");
 register_tabledrop("s2stylelayers");
 register_tabledrop("userpic");
 register_tabledrop("userpicmap");
+register_tabledrop("schools");
+register_tabledrop("schools_attended");
+register_tabledrop("schools_pending");
+register_tabledrop("user_schools");
 
 register_tablecreate("infohistory", <<'EOC');
 CREATE TABLE infohistory (
@@ -1931,57 +1935,6 @@ CREATE TABLE openid_external (
     url varchar(255) binary default NULL,
 
     KEY userid (userid)
-)
-EOC
-
-register_tablecreate("schools", <<'EOC');
-CREATE TABLE `schools` (
-    `schoolid` int(10) unsigned NOT NULL default '0',
-    `name` varchar(200) BINARY NOT NULL default '',
-    `country` varchar(4) NOT NULL default '',
-    `state` varchar(100) BINARY default NULL,
-    `city` varchar(100) BINARY NOT NULL default '',
-    `url` varchar(255) default NULL,
-
-    PRIMARY KEY  (`schoolid`),
-    UNIQUE KEY `country` (`country`,`state`,`city`,`name`)
-)
-EOC
-
-register_tablecreate("schools_attended", <<'EOC');
-CREATE TABLE `schools_attended` (
-    `schoolid` int(10) unsigned NOT NULL default '0',
-    `userid` int(10) unsigned NOT NULL default '0',
-    `year_start` smallint(5) unsigned default NULL,
-    `year_end` smallint(5) unsigned default NULL,
-
-    PRIMARY KEY  (`schoolid`,`userid`)
-)
-EOC
-
-register_tablecreate("schools_pending", <<'EOC');
-CREATE TABLE schools_pending (
-    `pendid` int(10) unsigned NOT NULL auto_increment,
-    `userid` int(10) unsigned NOT NULL default '0',
-    `name` varchar(255) NOT NULL default '',
-    `country` varchar(4) NOT NULL default '',
-    `state` varchar(255) default NULL,
-    `city` varchar(255) NOT NULL default '',
-    `url` varchar(255) default NULL,
-
-    PRIMARY KEY (`pendid`),
-    KEY `userid` (`userid`)
-)
-EOC
-
-register_tablecreate("user_schools", <<'EOC');
-CREATE TABLE `user_schools` (
-    `userid` int(10) unsigned NOT NULL default '0',
-    `schoolid` int(10) unsigned NOT NULL default '0',
-    `year_start` smallint(5) unsigned default NULL,
-    `year_end` smallint(5) unsigned default NULL,
-
-    PRIMARY KEY  (`userid`,`schoolid`)
 )
 EOC
 

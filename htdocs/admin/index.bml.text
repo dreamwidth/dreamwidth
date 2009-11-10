@@ -62,9 +62,6 @@
 .admin.recent_comments.link=Recent Comments
 .admin.recent_comments.text=Allows you to view a user's recent comments.
 
-.admin.schools.link=Schools Directory
-.admin.schools.text=View and manipulate schools data.
-
 .admin.sitemessages_add.link=Site Messages - Add
 .admin.sitemessages_add.text=Add new site-wide messages.
 

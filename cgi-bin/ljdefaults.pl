@@ -190,14 +190,6 @@
     $MAX_S2COMPILED_CACHE_SIZE ||= 7500; # bytes
     $S2COMPILED_MIGRATION_DONE ||= 0;    # turn on after s2compiled2 migration
 
-    # max limit of schools attended
-    $SCHOOLSMAX ||= {
-                     'P' => 25,
-                     'I' => 25,
-                     'S' => 25,
-                     'C' => 50,
-                     };
-
     # max content length we should read via ATOM api
     # 25MB
     $MAX_ATOM_UPLOAD ||= 26214400;

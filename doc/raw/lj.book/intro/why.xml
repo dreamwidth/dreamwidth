@@ -296,11 +296,6 @@
             can search by location, age, interest, etc.</simpara></listitem>
       </varlistentry>
       <varlistentry>
-        <term>Schools Directory</term>
-        <listitem><simpara>The Schools Directory lets a user search for users
-            and communities associated with a specific school from around the world.</simpara></listitem>
-      </varlistentry>
-      <varlistentry>
         <term>Random feature</term>
         <listitem><simpara>Users can view a random journal from a subset of users who
             have updated in the past 24 hours.</simpara></listitem>

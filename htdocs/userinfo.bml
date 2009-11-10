@@ -576,40 +576,6 @@ body<=
         $connectbody .= q{ </div> };
     }
 
-    # schools
-    my ( $schoolslist, @schools );
-    foreach my $school ( $profile->schools ) {
-        my $schooltext .= $linkify->( $school );
-        if ( $school->{city} || $school->{state} || $school->{country} ) {
-            my @schoollocation;
-            push @schoollocation, $school->{city} if $school->{city};
-            push @schoollocation, $school->{state} if $school->{state};
-            push @schoollocation, $school->{country} if $school->{country};
-            $schooltext .= " - " . join( ', ', @schoollocation );
-        }
-        if ( $school->{year_start} ) {
-            $schooltext .= " ( $school->{year_start}";
-            $schooltext .= " - $school->{year_end}" if $school->{year_end};
-            $schooltext .= " )";
-        }
-        push @schools, "<span class='schools_item'>$schooltext</span>";
-    }
-    $schoolslist .= join( '<br />', @schools );
-    if ( $schoolslist ) {
-        my $new_schools_margin = " style='margin-top: 0;'" unless $intlist;
-        $connectbody .= qq{ <div class="schools"$new_schools_margin> };
-        my $links = [ { url => "$LJ::SITEROOT/schools/manage?authas=" . $u->user, text => $ML{'.schools.manage'} } ]
-            if $remote && $remote->can_manage( $u );
-        $connectbody .= $content_inner_block->(
-            section_name_ml => '.schools.header',
-            extra_attrs     => $new_schools_margin,
-            body            => $schoolslist,
-            links           => $links,
-            collapsible     => 0,
-        );
-        $connectbody .= q{ </div> };
-    }
-
     if ( $connectbody ) {
         $ret .= $content_block->(
             section_name    => 'connect',

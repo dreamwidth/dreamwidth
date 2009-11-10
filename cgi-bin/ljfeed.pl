@@ -726,35 +726,6 @@ sub create_view_foaf {
         $ret .= "    <ya:bio>" . LJ::exml($u->{'bio'}) . "</ya:bio>\n";
     }
 
-    # user schools
-    if (!$u->is_syndicated &&
-        LJ::is_enabled('schools')  &&
-        ($u->{'opt_showschools'} eq '' || $u->{'opt_showschools'} eq 'Y')) {
-
-        my $schools = LJ::Schools::get_attended($u);
-        if ( ! $u->is_community && $schools && %$schools ) {
-             my @links;
-             foreach my $sid (sort { $schools->{$a}->{year_start} <=> $schools->{$b}->{year_start} } keys %$schools) {
-                 my $link = "$LJ::SITEROOT/schools/" .
-                     "?ctc=" . LJ::eurl($schools->{$sid}->{country}) .
-                     "&sc=" . LJ::eurl($schools->{$sid}->{state}) .
-                     "&cc=" . LJ::eurl($schools->{$sid}->{city}) .
-                     "&sid=" . $sid ;
-                 my $ename = LJ::ehtml($schools->{$sid}->{name});
-                 $ret .= "    <ya:school\n";
-                 $ret .= "       rdf:resource=\"" . LJ::exml($link) . "\"\n";
-                 if (defined $schools->{$sid}->{year_start}) {
-                     $ret .= "       ya:dateStart=\"$schools->{$sid}->{year_start}\"\n";
-                 }
-                 if (defined $schools->{$sid}->{year_end}) {
-                     $ret .= "       ya:dateFinish=\"$schools->{$sid}->{year_end}\"\n";
-                 }
-
-                 $ret .= "       dc:title=\"$ename\"/>\n";
-             }
-         }
-    }
-
     # icbm/location info
     if ($u->{icbm}) {
         my @loc = split(",", $u->{icbm});

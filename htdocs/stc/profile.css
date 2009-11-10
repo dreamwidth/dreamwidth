@@ -176,7 +176,7 @@ span.expandcollapse {
     padding: 0;
 }
 
-.userinfo, .external_services, .user_info_contact, .schools {
+.userinfo, .external_services, .user_info_contact {
     padding-bottom: 10px;
 }
 
@@ -216,18 +216,6 @@ span.expandcollapse {
         .external_services table td.im_status img {
             border: 0;
         }
-
-.schools {
-    float: left;
-    margin: 10px 0 0 0;
-    width: 50%;
-}
-    .schools_item {
-        font-size: 0.77em;
-    }
-         .schools_item a {
-             font-size: 1.07em;
-             }
 
 .profile_right_ad {
     width: 300px;

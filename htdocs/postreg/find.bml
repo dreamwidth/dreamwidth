@@ -15,8 +15,6 @@ body<=
     $ret .= "<h2>" . BML::ml('.browse', {'sitename' => $LJ::SITENAMESHORT}) . "</h2>";
     $ret .= "<p><a href='$LJ::SITEROOT/interests?view=popular'>$ML{'.browse.popinterests'}</a><br />";
     $ret .= BML::ml('.browse.popinterests.desc', {'sitename' => $LJ::SITENAMESHORT}) . "</p>";
-    $ret .= "<p><a href='$LJ::SITEROOT/schools/'>$ML{'.browse.schools'}</a><br />";
-    $ret .= "$ML{'.browse.schools.desc'}</p>";
     $ret .= "<p><a href='$LJ::SITEROOT/syn/'>$ML{'.browse.feeds'}</a><br />";
     $ret .= "$ML{'.browse.feeds.desc'}</p>";
     $ret .= "</div>";

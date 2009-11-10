@@ -79,8 +79,6 @@ body<=
             '<?_ml .admin.propedit.link _ml?>', '<?_ml .admin.propedit.text _ml?>', [ 'canview:userprops', 'canview:*' ] ],
         [ 'recent_comments',
             '<?_ml .admin.recent_comments.link _ml?>', '<?_ml .admin.recent_comments.text _ml?>', [ 'siteadmin:commentview', 'siteadmin:*' ] ],
-        [ 'schools/',
-            '<?_ml .admin.schools.link _ml?>', '<?_ml .admin.schools.text _ml?>', [ 'siteadmin:schools', 'siteadmin:*' ] ],
         [ 'sitemessages/add',
             '<?_ml .admin.sitemessages_add.link _ml?>', '<?_ml .admin.sitemessages_add.text _ml?>', [ 'siteadmin:sitemessages', 'siteadmin:*', sub {
                 return ( $LJ::IS_DEV_SERVER, "<?_ml .devserver _ml?>" );

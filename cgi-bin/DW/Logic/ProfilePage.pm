@@ -860,45 +860,6 @@ sub external_services {
 }
 
 
-# returns an array of schools
-sub schools {
-    my $self = $_[0];
-
-    my $u = $self->{u};
-    my $remote = $self->{remote};
-    my @ret;
-
-    return () unless LJ::is_enabled( 'schools' ) && !$u->is_syndicated && ( $u->should_show_schools_to( $remote ) || $self->{viewall} );
-
-    my $schools_list;
-    my $schools = LJ::Schools::get_attended( $u );
-
-    if ( $schools && %$schools ) {
-        my %countries;
-        LJ::load_codes( { country => \%countries } );
-        foreach my $sid ( sort { $schools->{$a}->{year_start} <=> $schools->{$b}->{year_start} ||
-                                $schools->{$a}->{year_end} <=> $schools->{$b}->{year_end} ||
-                                $schools->{$a}->{name} cmp $schools->{$b}->{name} } keys %$schools ) {
-            push @ret, {
-                url => "$LJ::SITEROOT/schools/" .
-                    "?ctc=" . LJ::eurl( $schools->{$sid}->{country} ) .
-                    "&sc=" . LJ::eurl( $schools->{$sid}->{state} ) .
-                    "&cc=" . LJ::eurl( $schools->{$sid}->{city} ) .
-                    "&sid=$sid",
-                text => LJ::ehtml( $schools->{$sid}->{name} ),
-                city => $schools->{$sid}->{city},
-                state => $schools->{$sid}->{state},
-                country => $schools->{$sid}->{country} ne 'US' ? $countries{ $schools->{$sid}->{country} } : undef,
-                year_start => $schools->{$sid}->{year_start},
-                year_end => $schools->{$sid}->{year_start} != $schools->{$sid}->{year_end} ? $schools->{$sid}->{year_end} || LJ::Lang::ml('.schools.presentyear') : undef,
-            };
-        }
-    }
-
-    return @ret;
-}
-
-
 # returns whether a given list should be hidden or not
 sub hide_list {
     my ( $self, $list ) = @_;

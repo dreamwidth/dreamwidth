@@ -23,7 +23,6 @@ sub render_body {
 
     $ret .= "<div class='browse-findby'>";
     $ret .= "<p><strong>" . $class->ml('widget.browse.findusers') . "</strong><br />";
-    $ret .= "&raquo; <a href='$LJ::SITEROOT/schools/'>" . $class->ml('widget.browse.findusers.school') . "</a><br />";
     $ret .= "&raquo; <a href='$LJ::SITEROOT/directory'>" . $class->ml('widget.browse.findusers.location') . "</a></p>";
     $ret .= "</div>";
 

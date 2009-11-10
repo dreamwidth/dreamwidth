@@ -324,10 +324,6 @@ add_conf('$RATE_COMMENT_ANON',
          des => "Arrayref of rate rules to apply incoming comments from anonymous users .  Each rate rule is an arrayref of two items:  number of comments, and period of time.  If user makes more comments in period of time, comment is denied, at least without a captcha.",
          );
 
-add_conf('$SCHOOLSMAX',
-         des => "Hashref of journaltype (P, C, I, ..) to maximum number of allowed schools for that journal type.",
-         );
-
 add_conf('$SENDMAIL',
          type => 'program+args',
          des => "System path to sendmail, with arguments.  Default is: '/usr/sbin/sendmail -t -oi'.  This option is ignored if you've defined the higher-precedence option: \@MAIL_TRANSPORTS.",

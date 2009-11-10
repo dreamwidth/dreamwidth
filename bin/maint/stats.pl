@@ -13,8 +13,7 @@ $maint{'genstats'} = sub
 {
     my @which = @_ || qw(users countries 
                          states gender clients
-                         pop_interests popfaq
-                         schools);
+                         pop_interests popfaq);
     
     # popular faq items
     LJ::Stats::register_stat
@@ -333,49 +332,6 @@ $maint{'genstats'} = sub
 
          });
 
-    # schools
-    LJ::Stats::register_stat
-        ({
-            'type' => "global",
-            'jobname' => "schools",
-            'statname' => "schools",
-            'handler' =>
-                sub {
-                    my $db_getter = shift;
-                    return undef unless ref $db_getter eq 'CODE';
-                    my $db = $db_getter->();
-                    return undef unless $db;
-
-                    # We want to make sure the country detail information is always showing the current
-                    # top 10.  Thus we must delete old stat data from the table before doing these new
-                    # calculations.  If we don't, then a country which is no longer in the top 10 will
-                    # still be written into the stats.txt file with stale data.  Maybe someday we'll
-                    # write an API to make this seem less hacky.
-                    my $dbh = LJ::Stats::get_db("dbh");
-                    $dbh->do("DELETE FROM stats WHERE statcat='schools'");
-
-                    my @approved_total = $db->selectrow_array("SELECT COUNT(*) FROM schools");
-                    my @pending_total  = $db->selectrow_array("SELECT COUNT(*) FROM schools_pending");
-
-                    my %ret;
-
-                    my $approved_counts = $db->selectall_hashref("SELECT country, COUNT(*) as count FROM schools GROUP BY country ORDER BY count DESC LIMIT 10", 'country');
-                    my $pending_counts  = $db->selectall_hashref("SELECT country, COUNT(*) as count FROM schools_pending GROUP BY country ORDER BY count DESC", 'country');
-
-                    $ret{'approved'} = $approved_total[0];
-                    $ret{'pending'}  = $pending_total[0];
-
-                    foreach (sort { $approved_counts->{$b}->{'count'} <=> $approved_counts->{$a}->{'count'} } keys %$approved_counts) {
-                        $ret{"approved_$_"} = $approved_counts->{$_}->{'count'};
-                    }
-
-                    foreach (sort { $pending_counts->{$b}->{'count'} <=> $pending_counts->{$a}->{'count'} } keys %$pending_counts) {
-                        $ret{"pending_$_"} = $pending_counts->{$_}->{'count'};
-                    }
-
-                    return \%ret;
-                },
-        });
 
     # run stats
     LJ::Stats::run_stats(@which);

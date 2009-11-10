@@ -506,69 +506,6 @@
     </row>
     <row>
         <entry>uid</entry>
-        <entry>saui:&lt;uid&gt;</entry>
-        <entry>{ schoolid =&gt; { year_start =&gt; &hellip;, year_end =&gt; &hellip; } }</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>schoolid</entry>
-        <entry>saal:&lt;schoolid&gt;</entry>
-        <entry>[ userid, &hellip; ]; userids at a school</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>schoolid</entry>
-        <entry>saaly:&lt;schoolid&gt;:&lt;year&gt;</entry>
-        <entry>[ userid, &hellip; ]; userids at a school in this year</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>schoolid</entry>
-        <entry>sasi:&lt;schoolid&gt;</entry>
-        <entry>hashref; keys: name, country, state, city, url</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry></entry>
-        <entry>saccs</entry>
-        <entry>{ country_code =&gt; country_name}; countries with schools</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry></entry>
-        <entry>sascs:&lt;country_code&gt;</entry>
-        <entry>{ state_code =&gt; state_name }; states with schools</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>pendid</entry>
-        <entry>sapiu:&lt;pendid&gt;</entry>
-        <entry>userid of person editing this pending row</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry></entry>
-        <entry>saact</entry>
-        <entry>number of approved schools in &db;; cached for admins</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry></entry>
-        <entry>sapct</entry>
-        <entry>pending schools to be processed count; cached for admins</entry>
-        <entry>livejournal</entry>
-        <entry></entry>
-    </row>
-    <row>
-        <entry>uid</entry>
         <entry>uactive:&lt;type&gt;:&lt;uid&gt;</entry>
         <entry>unixtime user last active for a given type of activity</entry>
         <entry>livejournal</entry>

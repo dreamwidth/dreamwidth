@@ -202,7 +202,6 @@ sub populate_database {
         system("$ENV{'LJHOME'}/bin/upgrading/migrate-userprop.pl", 'external_foaf_url');
     }
 
-    populate_schools();
     populate_basedata();
     populate_proplists();
     clean_schema_docs();
@@ -429,42 +428,6 @@ sub populate_s2 {
         }
     }
 
-    }
-}
-
-sub populate_schools {
-    # see if we have any schools so far, if we do, no import -- this is easier than
-    # doing a COUNT(*) which can be somewhat slow in InnoDB
-    my $sid = $dbh->selectrow_array('SELECT schoolid FROM schools LIMIT 1');
-    die "#  ERROR: " . $dbh->errstr . "\n" if $dbh->err;
-
-    # show message about schools
-    if ($sid) {
-        print "Skipping school data population -- manual population of new data required.\n";
-
-    # okay to populate
-    } elsif (open(F, "$ENV{LJHOME}/bin/upgrading/schools.dat")) {
-        print "Populating school data.\n";
-
-        my $sid;
-        while (<F>) {
-            chomp;
-
-            # make sure we have a line in the right format
-            next unless /^"(.+?)","(.+?)","(.*?)","(.*?)","(.*?)"$/;
-            my ($name, $country, $state, $city, $url) = ($1, $2, $3, $4, $5);
-
-            # get sid and insert (but don't fail on duplicate)
-            $sid ||= LJ::alloc_global_counter('O');
-            my $ct = $dbh->do("INSERT IGNORE INTO schools (schoolid, name, country, city, state, url) " .
-                            "VALUES (?, ?, ?, ?, ?, ?)", undef, $sid, $name, $country, $city, $state, $url);
-            die "#  ERROR: " . $dbh->errstr . "\n" if $dbh->err;
-
-            # if we actually inserted, undef $sid so we get a new one next round
-            $sid = undef
-                if $ct > 0;
-        }
-        close F;
     }
 }
 

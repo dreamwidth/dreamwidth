@@ -798,14 +798,6 @@ userproplist.opt_showonlinestatus:
   multihomed: 0
   prettyname: Show online status
 
-userproplist.opt_showschools:
-  cldversion: 4
-  datatype: char
-  des: Show school info on userinfo Y: everyone, F: friends only N: don't show
-  indexed: 0
-  multihomed: 0
-  prettyname: Show School Information on Userinfo
-
 userproplist.opt_stylemine:
   cldversion: 4
   datatype: bool

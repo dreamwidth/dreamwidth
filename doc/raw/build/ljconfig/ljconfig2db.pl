@@ -126,15 +126,6 @@ my %ljconfig =
             'use_pgp' => {
                     'desc' => "Let users set their <acronym>PGP</acronym>/<acronym>GPG</acronym> public key, and accept <acronym>PGP</acronym>/<acronym>GPG</acronym>-signed &email; for &email; posting. Requires <package>GnuPG::Interface</package> and <package>Mail::GnuPG</package> modules to be installed. Note: users need to use <acronym>GPG</acronym> version 1.2.4, or higher.",
             },
-            'schoolsmax' => {
-                    'desc' => "Hashref of journaltype (P, C, I, &hellip;) to maximum number of allowed attended schools for that journal type.",
-                    'default' => "{
-    'P' => 25,
-    'I' => 25,
-    'S' => 25,
-    'C' => 50,
-    };",
-            },
             'userprop_def' => {
                     'desc' => "This option defines the user-properties that users should have by default.",
                     'type' => "hash",

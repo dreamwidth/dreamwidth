@@ -93,10 +93,6 @@
     interface at <filename>update.bml</filename>.</simpara></listitem>
     </varlistentry>
     <varlistentry>
-      <term>schools</term>
-      <listitem><simpara>Enable the Schools and Schools Directory feature.</simpara></listitem>
-    </varlistentry>
-    <varlistentry>
       <term>tags</term>
       <listitem><simpara>Enable entry tagging for users to categorize and label entries.</simpara></listitem>
     </varlistentry>

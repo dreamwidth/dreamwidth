@@ -79,7 +79,6 @@ require "ljmail.pl";
 require "sysban.pl";
 require "communitylib.pl";
 use LJ::Tags;
-use LJ::Schools;
 require "ljemailgateway-web.pl";
 use LJ::Customize;
 

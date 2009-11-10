@@ -560,12 +560,6 @@ crumb.popfaq=Popular FAQs
 
 crumb.register=Validate Email
 
-crumb.schools=Schools Directory
-
-crumb.schoolsfind=Find a School
-
-crumb.schoolsmy=My Schools
-
 crumb.searchinterests=Search By Interest
 
 crumb.searchregion=Search By Region
@@ -3966,8 +3960,6 @@ widget.browse.extras.random.desc=Feeling spontaneous?  Find a new journal to rea
 widget.browse.findusers=Find users by:
 
 widget.browse.findusers.location=State or Country
-
-widget.browse.findusers.school=School
 
 widget.browse.title=Browse [[sitenameabbrev]]
 
