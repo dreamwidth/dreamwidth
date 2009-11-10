@@ -471,7 +471,11 @@ function Page::print_default_stylesheet()
         text-align: center;
     }
 
-   .module-navlinks ul, .module-navlinks li {
+    .module-navlinks ul {
+        display: block;
+        padding: 0;
+    }
+    .module-navlinks ul, .module-navlinks li {
         font-weight: bold;
     }
     .module-section-three .module-navlinks ul,
@@ -479,7 +483,10 @@ function Page::print_default_stylesheet()
     .module-section-two .module-navlinks ul,
     .module-section-two .module-navlinks li {
         display: inline;
-        padding: 0.2em 1em 0.2em 0.5em;
+        padding: .2em 1em .2em .5em;
+    }
+    .two-columns-left .module-section-two .module-navlinks {
+        text-align: right;
     }
     .module-section-one .module-navlinks {
         clear: both;
@@ -560,10 +567,14 @@ function Page::print_default_stylesheet()
 
     .one-column #primary {float: none;}
     .one-column #secondary {float: none;}
-    .two-columns-right #primary {float: left;}
+    .two-columns-left #primary {float: right;}
+    .two-columns-left #secondary { float: right; }
+    .two-columns-right #primary { float: left; }
     .two-columns-right #secondary {float: left;}
     .one-column #primary {left: 5%; width: 85%;}
     .one-column #secondary {left: 5%; width: 15%;}
+    .two-columns-left #primary { right: 10%; width: 70%; }
+    .two-columns-left #secondary { right: 10%; width: 15%; }
     .two-columns-right #primary {left: 10%; width: 70%;}
     .two-columns-right #secondary {left: 10%; width: 15%;}
 
