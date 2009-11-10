@@ -2092,6 +2092,16 @@ sub hide_join_post_link {
     return $u->prop( 'hide_join_post_link' );
 }
 
+# whether to respect cut tags in the inbox
+sub cut_inbox {
+    my $u = $_[0];
+
+    if ( defined $_[1] ) {
+        $u->set_prop( cut_inbox => $_[1] );
+    }
+
+    return  ( $_[1] || $u->prop( 'cut_inbox' ) || "N" ) eq 'Y' ? 1 : 0;
+}
 
 # tests to see if a user is in a specific named class. class
 # names are site-specific.

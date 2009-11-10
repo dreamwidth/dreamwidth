@@ -18,8 +18,11 @@ sub entry {
 }
 
 sub content {
-    my $self = shift;
-    return $self->entry->event_html;
+    my ( $self, $target ) = @_;
+    return $self->entry->event_html( {
+            # double negatives, ouch!
+            ljcut_disable => ! $target->cut_inbox,
+            cuturl => $self->entry->url } );
 }
 
 sub content_summary {

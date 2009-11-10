@@ -382,6 +382,14 @@ userproplist.import_job:
   multihomed: 0
   prettyname: Import JobID
 
+userproplist.cut_inbox:
+  cldversion: 4
+  datatype: bool
+  des: Respect cut tag in inbox
+  indexed: 0
+  multihomed: 0
+  prettyname: Cut for Inbox
+
 userproplist.init_bdate:
   cldversion: 4
   datatype: char

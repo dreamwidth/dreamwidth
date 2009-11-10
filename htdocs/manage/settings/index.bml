@@ -58,6 +58,7 @@ body<=
                 LJ::Setting::ImagePlaceholders
                 LJ::Setting::EmbedPlaceholders
                 DW::Setting::CutDisable
+                DW::Setting::CutInbox
                 LJ::Setting::EmailFormat
                 LJ::Setting::EntryEditor
                 LJ::Setting::NCTalkLinks

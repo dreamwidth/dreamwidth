@@ -2553,6 +2553,10 @@ setting.cutdisable.sel.none=No, honor cut tags (default behavior)
 
 setting.cutdisable.sel.reading=Yes, when viewing reading pages
 
+setting.cutinbox.label=Cut Tag in Inbox
+
+setting.cutinbox.option=Cut entries in inbox
+
 setting.display.accountstatus.actionlink.contactabuse=Contact Abuse
 
 setting.display.accountstatus.actionlink.delete=Delete

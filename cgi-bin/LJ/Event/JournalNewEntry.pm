@@ -68,7 +68,11 @@ sub content {
     my $entry = $self->entry;
     return undef unless $self->_can_view_content( $entry, $target );
 
-    return $entry->event_html . $self->as_html_actions;
+    return $entry->event_html( {
+            # double negatives, ouch!
+            ljcut_disable => ! $target->cut_inbox,
+            cuturl => $entry->url } )
+        . $self->as_html_actions;
 }
 
 sub content_summary {
