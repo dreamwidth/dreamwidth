@@ -2287,20 +2287,6 @@ optional=(optional)
 
 password=Password
 
-pingback.ljping.comment.text=User <lj user="[[poster]]"> referenced to your post from <a href="[[sourceURI]]">[[subject]]</a> saying: [...] [[context]] [...]
-
-pingback.option.disabled=Disabled
-
-pingback.option.journal_default=Journal default
-
-pingback.option.lj_only=LJ only
-
-pingback.option.open=Open
-
-pingback.public.comment.text=Pingback from <a href="[[sourceURI]]">[[title]]</a>: [...] [[context]] [...]
-
-pingback.sourceuri.default_title=No title
-
 poll.changevote=Change Your Vote
 
 poll.dberror=Database error: [[errmsg]]

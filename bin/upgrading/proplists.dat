@@ -1364,18 +1364,3 @@ pollproplist2.unique:
 
 pollproplist2.createdate:
   des: The voter must have created their account by the date specified (Pacific time) in order to vote.  Must be in format YYYY-MM-DD, otherwise there will be no restriction.
-
-userproplist.pingback:
-  cldversion: 0
-  datatype: char
-  des: (O)pen - all links from post should be processed with PingBack. (L)iveJournal - only leading to/from livejournal.com. (D)isabled - pingbacks disabled.
-  indexed: 0
-  multihomed: 0
-  prettyname: PingBack options
-
-logproplist.pingback:
-  datatype: char
-  des: (J)ournal default, (O)pen - all links from post should be processed with PingBack. (L)iveJournal - only leading to/from livejournal.com. (D)isabled - pingbacks disabled.
-  prettyname: PingBack options
-  sortorder: 105
-  ownership: user

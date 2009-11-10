@@ -26,7 +26,6 @@ my %SKIP = (
 
     'DW/Hooks/NavStrip.pm'    => 'Undefined subroutine &LJ::register_hook',
     'DW/Hooks/SiteScheme.pm'  => 'Undefined subroutine &LJ::register_hook',
-    'LJ/Hooks/PingBack.pm'    => 'Undefined subroutine &LJ::register_hook',
     'DW/Hooks/SSL.pm'         => 'Undefined subroutine &LJ::register_hook',
     'DW/Hooks/Display.pm'     => 'Undefined subroutine &LJ::register_hook',
     'DW/Hooks/Changelog.pm'   => 'Undefined subroutine &LJ::register_hook',
