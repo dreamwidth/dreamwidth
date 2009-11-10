@@ -94,7 +94,7 @@ _info?><?_code
     my $state = $post->{'state'};
 
     $u ||= LJ::load_userid($post->{'journalid'});
-    return $error->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
+    return $error->($LJ::MSG_READONLY_USER) if $u->is_readonly;
 
     if ($post->{'posterid'}) {
         $post->{'userpost'} = LJ::get_username($post->{'posterid'});

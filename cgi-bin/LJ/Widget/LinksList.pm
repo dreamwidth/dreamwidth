@@ -31,7 +31,7 @@ sub render_body {
 
     # how many link inputs to show?
     my $showlinks = $post->{numlinks} || @$linkobj;
-    my $caplinks = $u->get_cap("userlinks");
+    my $caplinks = $u->count_max_userlinks;
     $showlinks += $link_more if $post->{'action:morelinks'};
     $showlinks = $link_min if $showlinks < $link_min;
     $showlinks = $caplinks if $showlinks > $caplinks;

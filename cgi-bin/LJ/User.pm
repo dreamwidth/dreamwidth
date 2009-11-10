@@ -425,7 +425,7 @@ sub is_memorial {
 
 sub is_readonly {
     my $u = shift;
-    return $u->statusvis eq 'O';
+    return $u->statusvis eq 'O' || $u->get_cap( 'readonly' );
 }
 
 
@@ -1842,6 +1842,10 @@ sub can_find_similar {
     return $_[0]->get_cap( 'findsim' ) ? 1 : 0;
 }
 
+sub can_get_comments {
+    return $_[0]->get_cap( 'get_comments' ) ? 1 : 0;
+}
+
 sub can_get_self_email {
     return $_[0]->get_cap( 'getselfemail' ) ? 1 : 0;
 }
@@ -1850,12 +1854,24 @@ sub can_have_email_alias {
     return $_[0]->get_cap( 'useremail' ) ? 1 : 0;
 }
 
+sub can_leave_comments {
+    return $_[0]->get_cap( 'leave_comments' ) ? 1 : 0;
+}
+
 sub can_map_domains {
     return $_[0]->get_cap( 'domainmap' ) ? 1 : 0;
 }
 
 sub can_notify_weblogs {
     return $_[0]->get_cap( 'weblogscom' ) ? 1 : 0;
+}
+
+sub can_post {
+    return $_[0]->get_cap( 'can_post' ) ? 1 : 0;
+}
+
+sub can_post_disabled {
+    return $_[0]->get_cap( 'disable_can_post' ) ? 1 : 0;
 }
 
 sub can_show_location {
@@ -1906,6 +1922,10 @@ sub can_track_pollvotes {
 
 sub can_track_thread {
     return $_[0]->get_cap( 'track_thread' ) ? 1 : 0;
+}
+
+sub can_use_checkfriends {
+    return $_[0]->get_cap( 'checkfriends' ) ? 1 : 0;
 }
 
 sub can_use_daily_readpage {
@@ -2013,6 +2033,74 @@ sub control_strip_display {
     }
 
     return $ret ? $ret : 0;
+}
+
+sub count_bookmark_max {
+    return $_[0]->get_cap( 'bookmark_max' );
+}
+
+sub count_inbox_max {
+    return $_[0]->get_cap( 'inbox_max' );
+}
+
+sub count_maxcomments {
+    return $_[0]->get_cap( 'maxcomments' );
+}
+
+sub count_maxcomments_before_captcha {
+    return $_[0]->get_cap( 'maxcomments-before-captcha' );
+}
+
+sub count_maxfriends {
+    return $_[0]->get_cap( 'friends' );
+}
+
+sub count_max_interests {
+    return $_[0]->get_cap( 'interests' );
+}
+
+sub count_max_mod_queue {
+    return $_[0]->get_cap( 'mod_queue' );
+}
+
+sub count_max_mod_queue_per_poster {
+    return $_[0]->get_cap( 'mod_queue_per_poster' );
+}
+
+sub count_max_subscriptions {
+    return $_[0]->get_cap( 'subscriptions' );
+}
+
+sub count_max_userlinks {
+    return $_[0]->get_cap( 'userlinks' );
+}
+
+sub count_max_userpics {
+    return $_[0]->get_cap( 'userpics' );
+}
+
+sub count_max_xpost_accounts {
+    return $_[0]->get_cap( 'xpost_accounts' );
+}
+
+sub count_recent_comments_display {
+    return $_[0]->get_cap( 'tools_recent_comments_display' );
+}
+
+sub count_s2layersmax {
+    return $_[0]->get_cap( 's2layersmax' );
+}
+
+sub count_s2stylesmax {
+    return $_[0]->get_cap( 's2stylesmax' );
+}
+
+sub count_tags_max {
+    return $_[0]->get_cap( 'tags_max' );
+}
+
+sub count_usermessage_length {
+    return $_[0]->get_cap( 'usermessage_length' );
 }
 
 

@@ -74,7 +74,7 @@ sub save_linkobj
 
     # only save allowed number of links
     my $numlinks = @$linkobj;
-    my $caplinks = LJ::get_cap($u, "userlinks");
+    my $caplinks = $u->count_max_userlinks;
     $numlinks = $caplinks if $numlinks > $caplinks;
 
     # build insert query
@@ -116,7 +116,7 @@ sub make_linkobj_from_form
 
     # find number of links allowed
     my $numlinks = $post->{'numlinks'};
-    my $caplinks = LJ::get_cap($u, "userlinks");
+    my $caplinks = $u->count_max_userlinks;
     $numlinks = $caplinks if $numlinks > $caplinks;
 
     foreach my $num (sort { $post->{"link_${a}_ordernum"} <=>

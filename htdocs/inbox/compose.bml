@@ -32,7 +32,7 @@ body<=
     my $msg_subject = ''; # reply subject
     my $msg_body = ''; # reply body
     my $msg_parent = ''; # Hidden msg field containing id of parent message
-    my $msg_limit = LJ::get_cap($remote, "usermessage_length");
+    my $msg_limit = $remote->count_usermessage_length;
     my $force = 0; # flag for if user wants to force an empty PM
 
     my @errors;

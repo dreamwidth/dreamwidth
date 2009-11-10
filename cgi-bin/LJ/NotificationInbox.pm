@@ -368,7 +368,7 @@ sub enqueue {
     my $u = $self->u or die "No user";
 
     # if over the max, delete the oldest notification
-    my $max = $u->get_cap('inbox_max');
+    my $max = $u->count_inbox_max;
     my $skip = $max - 1; # number to skip to get to max
     if ($max && $self->count >= $max) {
 
@@ -517,7 +517,7 @@ sub toggle_bookmark {
 sub can_add_bookmark {
     my ($self, $count) = @_;
 
-    my $max = $self->u->get_cap('bookmark_max');
+    my $max = $self->u->count_bookmark_max;
     $count = $count || 1;
     my $bookmark_count = scalar $self->bookmark_items;
 

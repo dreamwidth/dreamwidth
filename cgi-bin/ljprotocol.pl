@@ -453,7 +453,7 @@ sub sendmessage
 
     return fail($err, 305) if $u->is_suspended; # suspended cannot send private messages
 
-    my $msg_limit = LJ::get_cap($u, "usermessage_length");
+    my $msg_limit = $u->count_usermessage_length;
 
     my @errors;
 
@@ -732,7 +732,7 @@ sub checkfriends
     my $res = {};
 
     # return immediately if they can't use this mode
-    unless (LJ::get_cap($u, "checkfriends")) {
+    unless ( $u->can_use_checkfriends ) {
         $res->{'new'} = 0;
         $res->{'interval'} = 36000;  # tell client to bugger off
         return $res;
@@ -1069,13 +1069,13 @@ sub postevent
     return fail($err,308) if ! $importer_bypass && $u->is_locked;
 
     # check the journal's read-only bit
-    return fail($err,306) if LJ::get_cap($uowner, "readonly");
+    return fail($err,306) if $uowner->is_readonly;
 
     # is the user allowed to post?
-    return fail($err,404,$LJ::MSG_NO_POST) unless $importer_bypass || LJ::get_cap($u, "can_post");
+    return fail($err,404,$LJ::MSG_NO_POST) unless $importer_bypass || $u->can_post;
 
     # is the user allowed to post?
-    return fail($err,410) if LJ::get_cap($u, "disable_can_post");
+    return fail($err,410) if $u->can_post_disabled;
 
     # read-only accounts can't post
     return fail($err,316) if $u->is_readonly;
@@ -1284,11 +1284,11 @@ sub postevent
         unless ($relcount) {
             # moderation queue full?
             my $modcount = $dbcm->selectrow_array("SELECT COUNT(*) FROM modlog WHERE journalid=$ownerid");
-            return fail($err, 407) if $modcount >= LJ::get_cap($uowner, "mod_queue");
+            return fail($err, 407) if $modcount >= $uowner->count_max_mod_queue;
 
             $modcount = $dbcm->selectrow_array("SELECT COUNT(*) FROM modlog ".
                                                "WHERE journalid=$ownerid AND posterid=$posterid");
-            return fail($err, 408) if $modcount >= LJ::get_cap($uowner, "mod_queue_per_poster");
+            return fail($err, 408) if $modcount >= $uowner->count_max_mod_queue_per_poster;
 
             $req->{'_moderate'}->{'authcode'} = LJ::make_auth_code(15);
 
@@ -1631,7 +1631,7 @@ sub editevent
     my $itemid = $req->{'itemid'}+0;
 
     # check the journal's read-only bit
-    return fail($err,306) if LJ::get_cap($uowner, "readonly");
+    return fail($err,306) if $uowner->is_readonly;
 
     # can't edit in deleted/suspended community
     return fail($err,307) unless $uowner->is_visible || $uowner->is_readonly;
@@ -2592,7 +2592,7 @@ sub login_message
         $res->{'message'} = $pre . translate($u, $code, $args);
     };
 
-    return $msg->("readonly")          if LJ::get_cap($u, "readonly");
+    return $msg->("readonly")          if $u->is_readonly;
     return $msg->("not_validated")     if ($u->{'status'} eq "N" and not $LJ::EVERYONE_VALID);
     return $msg->("must_revalidate")   if ($u->{'status'} eq "T" and not $LJ::EVERYONE_VALID);
 

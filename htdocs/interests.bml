@@ -26,7 +26,7 @@ body<=
 
     my $remote = LJ::get_remote();
 
-    my $maxinterests = $remote ? $remote->get_cap( 'interests' ) : 0;
+    my $maxinterests = $remote ? $remote->count_max_interests : 0;
 
     my $table = sub { $_[0]->is_community ? 'comminterests' : 'userinterests' };
 

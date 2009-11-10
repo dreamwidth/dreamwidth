@@ -36,7 +36,7 @@ sub error_check {
     my @interrors = ();
 
     # Don't bother validating the interests if there are already too many
-    my $maxinterests = $u->get_cap( 'interests' );
+    my $maxinterests = $u->count_max_interests;
 
     if ($intcount > $maxinterests) {
         $class->errors("interests" => LJ::Lang::ml('error.interest.excessive2', { intcount => $intcount, maxinterests => $maxinterests }));

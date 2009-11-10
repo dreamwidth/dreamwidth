@@ -22,7 +22,7 @@ body<=
     my $u = $remote;
     
     return $LJ::MSG_READONLY_USER
-        if LJ::get_cap($u, "readonly");
+        if $u->is_readonly;
 
     # always have links at top
     my $ret;

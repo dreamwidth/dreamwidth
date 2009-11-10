@@ -1949,7 +1949,7 @@ sub Entry_from_entryobj
         read_url => $readurl,
         post_url => $posturl,
         count => $replycount,
-        maxcomments => ( $replycount >= LJ::get_cap( $u, 'maxcomments' ) ) ? 1 : 0,
+        maxcomments => ( $replycount >= $u->count_maxcomments ) ? 1 : 0,
         enabled => $comments_enabled,
         screened => $has_screened,
         show_readlink => $comments_enabled && ( $replycount || $has_screened ),

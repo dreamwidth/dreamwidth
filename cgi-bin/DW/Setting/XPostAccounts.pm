@@ -95,7 +95,7 @@ sub option {
     $ret .= "</table>\n";
 
     # show account usage.
-    my $max_accounts = LJ::get_cap($u, "xpost_accounts");
+    my $max_accounts = $u->count_max_xpost_accounts;
     $ret .= "<p style='text-align: center;'>" . $class->ml('setting.xpost.message.usage', { current => scalar @accounts, max => $max_accounts });
 
     # add account

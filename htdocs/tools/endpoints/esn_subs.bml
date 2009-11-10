@@ -61,7 +61,7 @@
         }
     } elsif ($action eq 'addsub') {
 
-        return $err->("Reached limit of " . $remote->get_cap('subscriptions') . " active subscriptions")
+        return $err->("Reached limit of " . $remote->count_max_subscriptions . " active subscriptions")
             unless $remote->can_add_inbox_subscription;
 
         my %subparams = ();

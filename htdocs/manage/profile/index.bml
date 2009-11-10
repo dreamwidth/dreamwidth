@@ -699,7 +699,7 @@ body<=
 
         # update interests
         unless ($POST{'interests_absent'}) {
-            my $maxinterests = $u->get_cap( 'interests' );
+            my $maxinterests = $u->count_max_interests;
 
             my @ints = LJ::interest_string_to_list($POST{'interests'});
             my $intcount = scalar(@ints);

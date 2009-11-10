@@ -29,7 +29,7 @@ body<=
     my $dbcr = LJ::get_cluster_reader($u);
     return "Error: can't get DB for user" unless $dbcr;
 
-    my $max = $u->get_cap("tools_recent_comments_display");
+    my $max = $u->count_recent_comments_display;
 
     # how many comments to display by default
     $GET{show} = $max if $GET{show} > $max;

@@ -46,7 +46,7 @@ sub handle_post {
         $deleted = 1;
     }
     if (@toadd) {
-        my $maxinterests = $u->get_cap( 'interests' );
+        my $maxinterests = $u->count_max_interests;
 
         if ($intcount + scalar @toadd > $maxinterests) {
             if ($deleted) {

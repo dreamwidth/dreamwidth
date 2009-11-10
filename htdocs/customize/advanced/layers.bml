@@ -86,7 +86,7 @@
         return $err->($ML{'error.invalidform'}) unless LJ::check_form_auth();
 
         return $err->($ML{'.error.maxlayers'})
-            if keys %$ulay >= LJ::get_cap($u, 's2layersmax');
+            if keys %$ulay >= $u->count_s2layersmax;
 
         my $err_badparid = $ML{'.error.badparentid'};
         my $type = $POST{'type'} or return $err->($ML{'.error.nolayertypeselected'});

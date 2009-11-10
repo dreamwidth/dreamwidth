@@ -1057,7 +1057,7 @@ sub _can_add_wt_edge {
 
     # have they reached their friend limit?
     my $fr_count = $opts->{'numfriends'} || $u->friend_uids;
-    my $maxfriends = $u->get_cap('maxfriends');
+    my $maxfriends = $u->count_maxfriends;
     if ($fr_count >= $maxfriends) {
         $$err = "You have reached your limit of $maxfriends friends.";
         return 0;

@@ -779,7 +779,7 @@ sub update_logtags {
 
     # at this point we have enough information to determine if they're going to break their
     # max, so let's do that so we can bail early enough to prevent a rollback operation
-    my $max = $opts->{ignore_max} ? 0 : $u->get_cap('tags_max');
+    my $max = $opts->{ignore_max} ? 0 : $u->count_tags_max;
     if (@to_create && $max && $max > 0) {
         my $total = scalar(keys %$utags) + scalar(@to_create);
         return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max })) if $total > $max;
@@ -1050,7 +1050,7 @@ sub create_usertag {
         unless LJ::Tags::is_valid_tagstring($kw, $tags);
 
     # check to ensure we don't exceed the max of tags
-    my $max = $opts->{ignore_max} ? 0 : $u->get_cap('tags_max');
+    my $max = $opts->{ignore_max} ? 0 : $u->count_tags_max;
     if ($max && $max > 0) {
         my $cur = scalar(keys %{ LJ::Tags::get_usertags($u) || {} });
         return $err->(LJ::Lang::ml('taglib.error.toomany', { max => $max }))

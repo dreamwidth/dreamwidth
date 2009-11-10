@@ -182,7 +182,7 @@ HEAD
     <tr><td valign="top">
         <fieldset>
             <legend>};
-    $ret .= BML::ml( '.label.yours', { tagnum => $tagcount, tagmax => $u->get_cap('tags_max') } );
+    $ret .= BML::ml( '.label.yours', { tagnum => $tagcount, tagmax => $u->count_tags_max } );
     $ret .= qq(</legend>\n            <div style="padding-top: 6px;">);
 
     my $tagsort = sub {

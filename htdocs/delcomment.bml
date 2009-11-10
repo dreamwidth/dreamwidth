@@ -50,7 +50,7 @@ _info?><?_code
     return $bad_input->($ML{'.error.suspended'})
         if $remote->is_suspended;
 
-    return $error->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
+    return $error->($LJ::MSG_READONLY_USER) if $u->is_readonly;
 
     my $dbcr = LJ::get_cluster_def_reader($u);
     return $error->($ML{'error.nodb'})

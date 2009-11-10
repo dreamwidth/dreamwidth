@@ -592,7 +592,7 @@ sub fields { qw(subscr u); }
 sub as_html { $_[0]->as_string }
 sub as_string {
     my $self = shift;
-    my $max = $self->field('u')->get_cap('subscriptions');
+    my $max = $self->field('u')->count_max_subscriptions;
     return 'The subscription "' . $self->field('subscr')->as_html . '" was not saved because you have' .
         " reached your limit of $max active subscriptions. Subscriptions need to be deactivated before more can be added.";
 }

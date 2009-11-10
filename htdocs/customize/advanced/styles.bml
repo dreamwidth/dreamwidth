@@ -271,7 +271,7 @@
             return "<b>$ML{'Error'}</b> $ML{'error.invalidform'}" unless LJ::check_form_auth();
 
             return $err->($ML{'.error.maxstyles'})
-                if scalar(keys %$ustyle) >= LJ::get_cap($u, 's2stylesmax');
+                if scalar(keys %$ustyle) >= $u->count_s2stylesmax;
 
             my $styleid = LJ::S2::create_style($u, $POST{'stylename'});
             return $err->($ML{'.error.cantcreatestyle'}) unless $styleid;

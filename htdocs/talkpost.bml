@@ -50,7 +50,7 @@ body<=
     return $ML{'talk.error.nojournal'} unless $u;
 
     $r->notes->{journalid} = $u->{'userid'};
-    return $LJ::MSG_READONLY_USER if LJ::get_cap($u, "readonly");
+    return $LJ::MSG_READONLY_USER if $u->is_readonly;
 
     my $dbcr = LJ::get_cluster_def_reader($u);
 
@@ -372,8 +372,8 @@ body<=
         $ret .= "<?h1 $ML{'Sorry'} h1?><?p $ML{'.error.nocommentsjournal'} p?>";
         return $ret;
     }
-    unless (LJ::get_cap($u, "get_comments") ||
-            ($remote && LJ::get_cap($remote, "leave_comments"))) {
+    unless ($u->can_get_comments ||
+            ($remote && $remote->can_leave_comments)) {
         $ret .= "<?h1 $ML{'Sorry'} h1?><?p ";
         $ret .= $LJ::MSG_NO_COMMENT || "Sorry, you cannot leave comments at this time.";
         $ret .= " p?>";

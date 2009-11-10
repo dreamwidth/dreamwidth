@@ -50,13 +50,13 @@
             return;
         }
 
-        if (! LJ::get_cap($remote, "can_post")) {
+        if (! $remote->can_post ) {
             $$title = $ML{'.error.cantpost.title'};
             $$body = $LJ::MSG_NO_POST || $ML{'.error.cantpost'};
             return;
         }
 
-        if (LJ::get_cap($remote, "disable_can_post")) {
+        if ( $remote->can_post_disabled ) {
             unless (LJ::run_hook("update.bml_disable_can_post", {
                 title => $title, body => $body,
             })) {

@@ -21,7 +21,7 @@ use strict;
 
     return "<?needlogin?>" unless $u;
 
-    my $max_accts = LJ::get_cap($u, "xpost_accounts");
+    my $max_accts = $u->count_max_xpost_accounts;
 
     my %errs;
 
@@ -221,7 +221,7 @@ sub create_external_account {
     my ($u, $POST, $errs) = @_;
 
     # check to see if we're already at max.
-    my $max_accts = LJ::get_cap($u, "xpost_accounts");
+    my $max_accts = $u->count_max_xpost_accounts;
     my @accounts = DW::External::Account->get_external_accounts($u);
     my $acct_count = scalar @accounts;
     if ($acct_count >= $max_accts) {

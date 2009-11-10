@@ -39,7 +39,7 @@
 
     my $u = LJ::load_user($POST{'journal'});
     return $err->($ML{'talk.error.bogusargs'}) unless $u && $u->{'clusterid'};
-    return $err->($LJ::MSG_READONLY_USER) if LJ::get_cap($u, "readonly");
+    return $err->($LJ::MSG_READONLY_USER) if $u->is_readonly;
 
     my $dbcr = LJ::get_cluster_def_reader($u);
 

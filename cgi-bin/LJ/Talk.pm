@@ -2433,7 +2433,7 @@ sub mail_comments {
     # them, so it shouldn't matter.)
     my $u = $comment->{u};
     LJ::load_user_props($u, 'opt_getselfemail') if $u;
-    if ($u && $u->{'opt_getselfemail'} && LJ::get_cap($u, 'getselfemail')
+    if ($u && $u->{'opt_getselfemail'} && $u->can_get_self_email
         && !$u->gets_notified(journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid})) {
         my $part;
 
@@ -2837,7 +2837,7 @@ sub init {
 
     my $journalu = $init->{'journalu'};
     return $bmlerr->('talk.error.nojournal') unless $journalu;
-    return $err->($LJ::MSG_READONLY_USER) if LJ::get_cap($journalu, "readonly");
+    return $err->($LJ::MSG_READONLY_USER) if $journalu->is_readonly;
 
     return $err->("Account is locked, unable to post or edit a comment.") if $journalu->is_locked;
 
@@ -3306,7 +3306,7 @@ sub require_captcha_test {
     ## 4. Test preliminary limit on comment.
     ## We must check it before we will allow owner to pass.
     ##
-    if (LJ::Talk::get_replycount($journal, $ditemid >> 8) >= LJ::get_cap($journal, 'maxcomments-before-captcha')) {
+    if ( LJ::Talk::get_replycount($journal, $ditemid >> 8) >= $journal->count_maxcomments_before_captcha ) {
         return 1;
     }
 
@@ -3575,7 +3575,7 @@ sub over_maxcomments {
     return 0 unless $journalu && $jitemid;
 
     my $count = LJ::Talk::get_replycount($journalu, $jitemid);
-    return ($count >= LJ::get_cap($journalu, 'maxcomments')) ? 1 : 0;
+    return ( $count >= $journalu->count_maxcomments ) ? 1 : 0;
 }
 
 # more anti-spammer rate limiting.  returns 1 if rate is okay, 0 if too fast.
