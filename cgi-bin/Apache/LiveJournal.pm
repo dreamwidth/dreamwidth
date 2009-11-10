@@ -1807,6 +1807,11 @@ sub xmlrpc_method {
     # Key - field name, value - type.
     my %lj_types_map = (
         journalname => 'string',
+        fullname => 'string',
+        username => 'string',
+        poster => 'string',
+        postername => 'string',
+        name => 'string',
     );
 
     my $recursive_mark_elements;
