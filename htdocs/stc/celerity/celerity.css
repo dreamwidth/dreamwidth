@@ -533,7 +533,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 /* more, detailed by page*/
 /*customizetheme.css*/
 .customize-button {
-    color: #fff;
+    color: #222;
     background: #DDDDAA;
     border: 2px solid #999966;
 }
@@ -796,7 +796,7 @@ table.editfilters td {
 }
 
 .appwidget-createaccountprogressmeter .step-block-inactive {
-    color: #fff;
+    color: #222;
     background-color: #DDDDAA;
 }
 
@@ -840,7 +840,7 @@ hr.hr {
 }
 
 input.create-account {
-    color: #fff;
+    color: #222;
     background: #DDDDAA;
     border: 2px solid #999966;
 }
@@ -921,7 +921,7 @@ h2.solid-blue { /*which is now solid not-blue*/
 input.bright {
     background-color: #DDDDAA;
     border: 1px solid #999966;
-    color: #fff;
+    color: #222;
 }
 .helper {
     /*color: #666;*/
