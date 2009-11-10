@@ -68,7 +68,7 @@ LiveJournal.initInboxUpdate = function () {
     if (! Site || ! Site.has_remote || ! Site.inbox_update_poll) return;
 
     // Don't run if no inbox count
-    var unread = $("LJ_Inbox_Unread_Count");
+    var unread = $("Inbox_Unread_Count");
     if (! unread) return;
 
     // Update every five minutes
@@ -96,7 +96,7 @@ LiveJournal.updateInbox = function () {
 LiveJournal.gotInboxUpdate = function (resp) {
     if (! resp || resp.error) return;
 
-    var unread = $("LJ_Inbox_Unread_Count");
+    var unread = $("Inbox_Unread_Count");
     if (! unread) return;
 
     unread.innerHTML = resp.unread_count ? "  (" + resp.unread_count + ")" : "";

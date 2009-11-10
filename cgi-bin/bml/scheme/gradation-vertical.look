@@ -85,7 +85,7 @@ accountlinks<=
         $ret .= "<li><a href='$LJ::SITEROOT/update'>$ML{'sitescheme.accountlinks.post'}</a>  &bull; </li>" unless $identity;
         $ret .= "<li><a href='" . $remote->journal_base . "/read'>$ML{'sitescheme.accountlinks.readinglist'}</a> &bull; </li>";
         $ret .= "<li><a href='$LJ::SITEROOT/inbox/'>$ML{'sitescheme.accountlinks.inbox'}";
-        $ret .= " ($unread)" if $unread;
+        $ret .= " <span id='Inbox_Unread_Count'>($unread)</span>" if $unread;
         $ret .= "</a> &bull; </li>";
         $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/'>$ML{'sitescheme.accountlinks.account'}</a></li> <br />";
         $ret .= "<li><a href='$LJ::SITEROOT/manage/circle/invite'>$ML{'sitescheme.accountlinks.invitefriend'}</a> &bull; </li>" unless $identity;

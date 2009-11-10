@@ -356,6 +356,9 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
     ESN_Inbox.refresh_count("esn_folder_entrycomment", info.unread_entrycomment);
     ESN_Inbox.refresh_count("esn_folder_usermsg_sent", info.unread_usermsg_sent);
 
+    if ( LiveJournal.gotInboxUpdate )
+        LiveJournal.gotInboxUpdate( { "unread_count" : info.unread_all } );
+
     // Bo row of action buttons counts as 1 row
     if ($(folder + "_Body").getElementsByTagName("tr").length < 2) {
         // no rows left, refresh page if more messages
