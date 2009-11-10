@@ -69,7 +69,7 @@ sub render_body {
         $ret .= "<td>" . $item->t_html( admin => $opts{admin} ) . "</td>";
         $ret .= "<td>" . ( $item->anonymous || !LJ::isu( $from_u ) ? $class->ml( 'widget.shopcart.anonymous' ) : $from_u->ljuser_display ) . "</td>";
         $ret .= "<td>" . ( $item->random ? 'Y' : 'N' ) . "</td>" if $opts{admin};
-        $ret .= "<td>\$" . $item->cost . " USD</td>";
+        $ret .= "<td>\$" . sprintf( "%.2f" , $item->cost ) . " USD</td>";
         if ( $opts{admin} ) {
             $ret .= "<td>";
             if ( $item->t_email ) {

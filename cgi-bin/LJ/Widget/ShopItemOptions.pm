@@ -57,8 +57,8 @@ sub render_body {
     foreach my $month_value ( sort { $b <=> $a } @month_values ) {
         my $full_item = $given_item . $month_value;
         if ( ref $LJ::SHOP{$full_item} eq 'ARRAY' ) {
-            my $price_string = $class->ml( "widget.shopitemoptions.price.$full_item", { price => "\$$LJ::SHOP{$full_item}->[0] USD" } );
-            $price_string = $class->ml( 'widget.shopitemoptions.price', { num => $month_value, price => "\$$LJ::SHOP{$full_item}->[0] USD" } )
+            my $price_string = $class->ml( "widget.shopitemoptions.price.$full_item", { price => "\$".sprintf( "%.2f" , $LJ::SHOP{$full_item}->[0] )." USD" } );
+            $price_string = $class->ml( 'widget.shopitemoptions.price', { num => $month_value, price => "\$".sprintf( "%.2f" , $LJ::SHOP{$full_item}->[0] )." USD" } )
                 if $price_string eq 'ShopItemOptions';
 
             $ret .= $class->html_check(
