@@ -423,6 +423,9 @@ sub clean_lj_tags {
         'raw-code' => 'lj-raw'
     );
 
+    # keep track of unclosed tags
+    my %opencount;
+
     # this is mostly gakked from cgi-bin/cleanhtml.pl (LJ::CleanHTML)
 
     # go throught each token.
@@ -453,6 +456,8 @@ sub clean_lj_tags {
                 }
                 $newdata .= " /" if $slashclose;
                 $newdata .= ">";
+
+                $opencount{$tag}++ unless $slashclose;
             } elsif ($tag eq 'lj' || $tag eq 'user') {
                 my $user = $hash->{user} = exists $hash->{name} ? $hash->{name} :
                     exists $hash->{user} ? $hash->{user} :
@@ -492,12 +497,14 @@ sub clean_lj_tags {
             } else {
                 # if no change was necessary
                 $newdata .= $token->[4];
+                $opencount{$token->[1]}++;
                 next TOKEN;
             }
         }
         elsif ($type eq "E") {
             if ($update_tags{$token->[1]}) {
                 $newdata .= "</" . $update_tags{$token->[1]} . ">";
+                $opencount{$update_tags{$token->[1]}}--;
             } else {
                 $newdata .= $token->[2];
             }
@@ -516,6 +523,8 @@ sub clean_lj_tags {
         }
     } # end while
     
+    # explicitly close any cuts
+    $newdata .= "</lj-cut>" if $opencount{'lj-cut'};
     $$entry_text_ref = $newdata;
     return undef;
 }
