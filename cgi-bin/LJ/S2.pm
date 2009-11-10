@@ -1181,7 +1181,7 @@ sub layer_compile_user
     $s2 .= "layerinfo \"type\" = \"user\";\n";
     $s2 .= "layerinfo \"name\" = \"Auto-generated Customizations\";\n";
 
-    foreach my $name (keys %$overrides) {
+    foreach my $name (sort keys %$overrides) {
         next if $name =~ /\W/;
         my $prop = $overrides->{$name}->[0];
         my $val = $overrides->{$name}->[1];
