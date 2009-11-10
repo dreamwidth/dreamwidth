@@ -3486,13 +3486,13 @@ function print_module_pagesummary_comments(string esubject, int count, string pr
     var string module_comment_text = get_plural_phrase($count, $prop);
 
     if ($*module_pagesummary_opts_comments_tooltip) {
-        return "title='$module_comment_text'>$subject</a>";
+        return "title='$module_comment_text'>$subject</a></span>";
     }
     elseif ($count != 0) {
-        return ">$subject</a> +$module_comment_text";
+        return ">$subject</a></span> <span class='pagesummary-commentcount'>+$module_comment_text</span>";
     }
     else {
-        return ">$subject</a>";
+        return ">$subject</a></span>";
     }
 }
 
@@ -3508,7 +3508,7 @@ function print_module_pagesummary() {
                 print_module_pagesummary_comments($c.subject, $count, "text_read_comments_threads");
             var string poster = isnull $c.poster ? $*text_poster_anonymous : $c.poster->ljuser();
 
-            $links[size $links] = """$poster - <a href="#$c.anchor" $comment_display""";
+            $links[size $links] = """<span class="pagesummary-poster">$poster</span> - <span class="pagesummary-subject"><a href="#$c.anchor" $comment_display""";
         }
     }
 
@@ -3517,13 +3517,13 @@ function print_module_pagesummary() {
         foreach var Entry e ( $cp.entries ) {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments_friends");
-            var string poster = $e.poster->ljuser();
+            var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
             
             if ( not $e.poster->equals($e.journal) ) {
-                $poster = "$poster in $e.journal";
+                $poster = "$poster in <span class='pagesummary-community'>$e.journal</span>";
             }
 
-            $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
+            $links[size $links] = """$poster - <span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
         }
     }
 
@@ -3532,13 +3532,13 @@ function print_module_pagesummary() {
         foreach var Entry e ( $cp.entries ) {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments");
-            var string poster = $e.poster->ljuser();
+            var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
 
             if ( not $e.poster->equals($e.journal) ) {
-                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """$poster - <span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
             }
             else {
-                $links[size $links] = """<a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """<span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
             }
         }
     }
@@ -3548,13 +3548,13 @@ function print_module_pagesummary() {
         foreach var Entry e ( $cp.entries ) {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments");
-            var string poster = $e.poster->ljuser();
+            var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
 
             if ( not $e.poster->equals($e.journal) ) {
-                $links[size $links] = """$poster - <a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """$poster - <span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
             }
             else {
-                $links[size $links] = """<a href="#entry-$e.itemid" $comment_display""";
+                $links[size $links] = """<span class="pagesummary-subject"><a href="#entry-$e.itemid" $comment_display""";
             }
         }
     }
