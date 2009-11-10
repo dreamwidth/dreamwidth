@@ -18,6 +18,7 @@
     $image->Set(pen => 'black');
     $image->Set(font => 'Generic.ttf');
     $image->Set(pointsize => 12);
+    $image->Set(size => '30x12');
     $image->Read("label:$count");
 
     # return the image

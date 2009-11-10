@@ -240,7 +240,7 @@ sub comment_imgtag {
 
     my $alttext = LJ::Lang::ml('setting.xpost.option.footer.vars.comment_image.alttext');
     
-    return '<img src="' . $self->comment_image_url . '" alt="' . $alttext . '" style="vertical-align: middle;"/>';
+    return '<img src="' . $self->comment_image_url . '" width="30" height="12" alt="' . $alttext . '" style="vertical-align: middle;"/>';
 }
 
 sub anum {
