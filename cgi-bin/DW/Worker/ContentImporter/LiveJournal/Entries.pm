@@ -231,7 +231,7 @@ sub try_work {
 
             # now try to determine if we need to post this as a user
             my $posteru;
-            if ( $evt->{poster} && $evt->{poster} ne $data->{username} ) {
+            if ( $data->{usejournal} ) {
                 my $posterid = exists $user_map{$evt->{poster}} ? $user_map{$evt->{poster}} :
                     DW::Worker::ContentImporter::LiveJournal->remap_username_friend( $data, $evt->{poster} );
 
