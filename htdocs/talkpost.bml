@@ -361,7 +361,13 @@ body<=
     my $jarg = "journal=$u->{'user'}&amp;";
     my $readurl = LJ::Talk::talkargs($talkurl, $stylemine, $formatlight);
 
-    $ret .= "<p align='center' class='lesstop'><b>(<a href=\"$readurl#comments\">$ML{'talk.commentsread'}</a>)</b></p>";
+    my $replycount = $entry->prop( "replycount" );
+    my $readlink_text = BML::ml( "talk.commentsread.counted",
+                                 { replycount => $replycount } );
+    $readlink_text = BML::ml( "talk.commentsread.nocomments" )
+        if $replycount == 0;
+
+    $ret .= "<p align='center' class='lesstop'><b>(<a href=\"$readurl#comments\">$readlink_text</a>)</b></p>";
 
     # can a comment even be made?
     if ($props->{'opt_nocomments'}) {

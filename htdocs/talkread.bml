@@ -765,10 +765,19 @@ body<=
         $ret .= "<div id='Comments'>";
         $ret .= "<a name='comments'></a>";
         $ret .= "<p>$navcrap</p>" if $navcrap;
+
         my $readlink;
-        if ($dthread && $pages == 1) {
-            my $readurl = LJ::Talk::talkargs($talkurl, $stylemine, $formatlight);
-            $readlink = "(<a href='$readurl#comments'>$T{'readcomments'}</a>) - ";
+        my $replycount = $entry->prop("replycount");
+        my $readlink_text = BML::ml( "talk.commentsread.counted",
+                            { replycount => $replycount } );
+        my $comments_count = BML::ml( "talk.comments.counted",
+                            { replycount => $replycount } );
+
+        if ( $dthread && $pages == 1 ) {
+            my $readurl = LJ::Talk::talkargs( $talkurl, $stylemine, $formatlight );
+            $readlink = "(<a href='$readurl#comments'>$readlink_text</a>) - ";
+        } else {
+            $readlink = "($comments_count) - " if $replycount > 0;
         }
 
         #
@@ -785,7 +794,7 @@ body<=
             # See if we want to force them to change their password
             my $bp = LJ::bad_password_redirect({ 'returl' => 1 });
             if ($bp) {
-                $ret .= "(<a href='$bp'>$T{'replythis'}</a>)";
+                $ret .= "(<a href='$bp'>$T{'replythis'} </a>)";
             } else {
                 $ret .= "(" . LJ::make_qr_link('top', '', $T{'postcomments'}, $posturl) . ")";
             }

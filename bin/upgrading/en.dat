@@ -3491,6 +3491,12 @@ talk.commentpost=Post a new comment
 
 talk.commentsread=Read comments
 
+talk.commentsread.counted=Read [[replycount]] [[?replycount|comment|comments]]
+
+talk.comments.counted=[[replycount]] [[?replycount|comment|comments]]
+
+talk.commentsread.nocomments=No comments
+
 talk.curname_groups=<b>Custom friends groups:</b>
 
 talk.curname_location=<b>Current location:</b>
