@@ -352,6 +352,12 @@ a:active { $page_link_active_colors }
 	border-right: $*sidebar_width_doubled solid transparent;
 }
 
+#content-footer {
+    height: 0;
+    font-size: 0; /*to make IE happy*/
+    clear: both;
+}
+
 #header, #footer { 
 	margin: 0;
     clear: both;

@@ -3850,6 +3850,7 @@ function Page::print()
                         $this->print_module_section("two");
     """
                     </div></div><!-- end tertiary and tertiary>inner -->
+                    <div id="content-footer"></div>
                 </div><!-- end content>inner -->
             </div> <!-- end content -->
         </div> <!-- end canvas>inner --> 
