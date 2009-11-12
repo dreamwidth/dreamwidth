@@ -1897,9 +1897,8 @@ sub Entry_from_entryobj
     my $posterid = $entry_obj->posterid;
     my $userlite_journal = UserLite ( $journal );
     my $poster = $journal;
-    my $userlite_poster = $userlite_journal;
     # except for communities, posterid and journalid should match, only load separate UserLite object if that is not the case
-    my $userlite_journal = $userlite_poster;
+    my $userlite_poster = $userlite_journal;
     unless ( $posterid == $journalid ) {
         $poster = LJ::load_userid( $posterid );
         $userlite_poster = UserLite( $poster );
