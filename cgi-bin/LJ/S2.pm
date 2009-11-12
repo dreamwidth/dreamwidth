@@ -1866,8 +1866,6 @@ sub Entry_from_entryobj
     }
     LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
 
-    LJ::CleanHTML::clean_subject( \$subject ) if $subject;
-
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
     # cleaning the entry text: cuts and such
     my $cut_disable = $opts->{cut_disable};
