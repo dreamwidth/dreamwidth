@@ -89,6 +89,7 @@ sub parse_feed
         $item->{'text'} = $_->{'description'};
         $item->{'link'} = $_->{'link'} if $_->{'link'};
         $item->{'id'} = $_->{'guid'} if $_->{'guid'};
+        $item->{author} = $_->{dc}->{creator} if $_->{dc} && $_->{dc}->{creator};
 
         my $nsdc = 'http://purl.org/dc/elements/1.1/';
         my $nsenc = 'http://purl.org/rss/1.0/modules/content/';

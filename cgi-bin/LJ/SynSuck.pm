@@ -279,6 +279,11 @@ sub process_content {
         $it->{'text'} =~ s/^\s+//;
         $it->{'text'} =~ s/\s+$//;
 
+        my $author = "";
+        if ( defined $it->{author} ) {
+            $author = "<p class='syndicationauthor'>Posted by " . LJ::ehtml( $it->{author} ) . "</p>";
+        }
+
         my $htmllink;
         if (defined $it->{'link'}) {
             $htmllink = "<p class=\"ljsyndicationlink\">" .
@@ -329,7 +334,7 @@ sub process_content {
             'username' => $user,
             'ver' => 1,
             'subject' => $it->{'subject'},
-            'event' => "$htmllink$it->{'text'}",
+            'event' => "$author$htmllink$it->{'text'}",
             'year' => $year,
             'mon' => $mon,
             'day' => $day,
