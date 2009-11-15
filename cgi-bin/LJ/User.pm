@@ -1957,7 +1957,7 @@ sub can_use_mass_privacy {
 }
 
 sub can_use_network_page {
-    return $_[0]->get_cap( 'friendsfriendsview' ) ? 1 : 0;
+    return 0 unless $_[0]->get_cap( 'friendsfriendsview' ) && $_[0]->is_person;
 }
 
 
