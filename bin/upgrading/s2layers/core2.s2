@@ -232,8 +232,8 @@ class ItemRange
   var readonly string url_last "URL for the 'last' link.  Blank if already on the last page.";
   function builtin url_of(int n) : string "Returns the URL to use to link to the nth item";
 
-  function print () "Prints the item range links";
-  function print(string labeltext) "Prints the item range links with the given \$labeltext";
+  function print () "Prints the item range links with a default anchor and CSS class.";
+  function print(string{} extra) "Prints the item range links with the given attributes";
 }
 
 ### LJ Specific Classes
@@ -4917,7 +4917,7 @@ function Redirector::end_form ()
 
 function EntryPage::print_comment_section(Entry e) {
    "<div id='comments'><div class='inner'>";
-   $.comment_pages->print();
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages" });
    if ($.comment_pages.total_subitems > 0) {
        $this->print_multiform_start();
    }
@@ -4931,7 +4931,7 @@ function EntryPage::print_comment_section(Entry e) {
         $this->print_multiform_end();
         "</div>";
     }
-   $.comment_pages->print();
+   $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages" });
     "</div></div>";
 }
 
@@ -5027,12 +5027,20 @@ function EntryPage::print_comment_partial (Comment c) {
 }
 
 function ItemRange::print() {
+    $this->print({ "anchor" => "", "class" => "" });
+}
+
+function ItemRange::print(string{} opts) {
     if ($.all_subitems_displayed) { return; }
-    """<div class="comment-pages">""";
+
+    var string anchor = $opts{"anchor"} ? "#$opts{"anchor"}" : "";
+    var string class = $opts{"class"} ? $opts{"class"} : "pages";
+
+    """<div class="$class">""";
     print "<b>" + lang_page_of_pages($.current, $.total) + "</b>";
     var string url_prev = $this->url_of($.current - 1);
     if ($.current != 1) {
-        print " <a href='$url_prev#comments'>$*comment_page_prev</a> ";
+        print " <a href='$url_prev$anchor'>$*comment_page_prev</a> ";
     } else {  
         print " $*comment_page_prev "; 
     }
@@ -5040,12 +5048,12 @@ function ItemRange::print() {
         if ($i == $.current) { "<b>[$i]</b> "; }
         else {
             var string url_of = $this->url_of($i);
-            "<a href='$url_of#comments'><b>[$i]</b></a> ";
+            "<a href='$url_of$anchor'><b>[$i]</b></a> ";
         }
     }
     var string url_next = $this->url_of($.current + 1);
     if ($.current != $.total) {
-         print " <a href='$url_next#comments'>$*comment_page_next</a> ";  
+         print " <a href='$url_next$anchor'>$*comment_page_next</a> ";  
     } else { 
          print " $*comment_page_next ";
     }
