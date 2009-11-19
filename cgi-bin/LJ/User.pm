@@ -8506,7 +8506,8 @@ sub make_journal
     # FIXME: pretty this up at some point, to maybe auto-redirect to 
     # the external URL or something, but let's just do this for now
     if ( $u->is_identity && $view ne "read" ) {
-        my $warning = BML::ml( 'error.nojournal.openid', { aopts => "href='$u->openid_identity'", id => $u->openid_identity } );
+        my $location = $u->openid_identity;
+        my $warning = BML::ml( 'error.nojournal.openid', { aopts => "href='$location'", id => $location } );
         return $error->( $warning, "404 Not here" );
     }
 
