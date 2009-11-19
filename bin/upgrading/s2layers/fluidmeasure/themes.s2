@@ -1,3 +1,70 @@
+#NEWLAYER: fluidmeasure/beachaftersunset
+layerinfo type = "theme";
+layerinfo name = "Beach After Sunset";
+layerinfo redist_uniq = "fluidmeasure/beachaftersunset";
+layerinfo author_name = "dancing_serpent";
+ 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#be7303";
+set color_page_text = "#be7303";
+set color_page_link = "#1f6b68";
+set color_page_link_active = "6b4d1f";
+set color_page_link_hover = "6b4d1f";
+set color_page_link_visited = "#1f6b68";
+set color_page_border = "#be7303";
+set color_page_title = "#1f6b68";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#1f2727";
+set color_footer_background = "#6b4d1f";
+set color_footer_link = "#1f2727";
+set color_footer_link_active = "1f6b68";
+set color_footer_link_hover = "1f6b68";
+set color_footer_link_visited = "1f2727";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#264241";
+set color_entry_text = "be7303";
+set color_entry_link = "1f6b68";
+set color_entry_link_active = "6b4d1f";
+set color_entry_link_hover = "6b4d1f";
+set color_entry_link_visited = "1f6b68";
+set color_entry_border = "#1f2727";
+set color_entry_title = "#1f2727";
+set color_entry_title_background = "#1f6b68";
+set color_entry_interaction_links = "1f6b68";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title_background = "#1f6b68";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#264241";
+set color_module_text = "1f6b68";
+set color_module_link = "#6b4d1f";
+set color_module_link_active = "6b4d1f";
+set color_module_link_hover = "6b4d1f";
+set color_module_link_visited = "#6b4d1f";
+set color_module_title = "#1f2727";
+set color_module_title_background = "#1f6b68";
+set color_module_border = "#6b4d1f";
+
 #NEWLAYER: fluidmeasure/mutedseashore
 layerinfo type = "theme";
 layerinfo name = "Muted Seashore";
@@ -145,6 +212,73 @@ function Page::print_theme_stylesheet() {
     """;
 
 }
+
+#NEWLAYER: fluidmeasure/pigeonblue
+layerinfo type = "theme";
+layerinfo name = "Pigeon Blue";
+layerinfo redist_uniq = "fluidmeasure/pigeonblue";
+layerinfo author_name = "dancing_serpent";
+ 
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#babdc4";
+set color_page_text = "#babdc4";
+set color_page_link = "#454f70";
+set color_page_link_active = "808aac";
+set color_page_link_hover = "808aac";
+set color_page_link_visited = "#454f70";
+set color_page_border = "#babdc4";
+set color_page_title = "#454f70";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#020920";
+set color_footer_background = "#808aac";
+set color_footer_link = "#020920";
+set color_footer_link_active = "454f70";
+set color_footer_link_hover = "454f70";
+set color_footer_link_visited = "020920";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#19223f";
+set color_entry_text = "babdc4";
+set color_entry_link = "454f70";
+set color_entry_link_active = "808aac";
+set color_entry_link_hover = "808aac";
+set color_entry_link_visited = "454f70";
+set color_entry_border = "#020920";
+set color_entry_title = "#020920";
+set color_entry_title_background = "#454f70";
+set color_entry_interaction_links = "454f70";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title_background = "#454f70";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#19223f";
+set color_module_text = "454f70";
+set color_module_link = "#808aac";
+set color_module_link_active = "808aac";
+set color_module_link_hover = "808aac";
+set color_module_link_visited = "#808aac";
+set color_module_title = "#020920";
+set color_module_title_background = "#454f70";
+set color_module_border = "#808aac";
 
 #NEWLAYER: fluidmeasure/spice
 layerinfo type = "theme";

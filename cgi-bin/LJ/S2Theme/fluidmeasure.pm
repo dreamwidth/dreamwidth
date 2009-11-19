@@ -6,6 +6,11 @@ sub layout_prop { "layout_type" }
 
 sub designer { "branchandroot" }
 
+package LJ::S2Theme::fluidmeasure::beachaftersunset;
+use base qw( LJ::S2Theme::fluidmeasure );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
+
 package LJ::S2Theme::fluidmeasure::mutedseashore;
 use base qw( LJ::S2Theme::fluidmeasure );
 sub cats { qw( ) }
@@ -19,6 +24,11 @@ sub designer { "zvi" }
 package LJ::S2Theme::fluidmeasure::nutmeg;
 use base qw( LJ::S2Theme::fluidmeasure );
 sub cats { qw() }
+
+package LJ::S2Theme::fluidmeasure::pigeonblue;
+use base qw( LJ::S2Theme::fluidmeasure );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::fluidmeasure::spice;
 use base qw( LJ::S2Theme::fluidmeasure );
