@@ -2767,12 +2767,6 @@ setting.nctalklinks.option=Adds the comment count to entry links. Your browser s
 
 setting.nctalklinks.header=New Comment Link Indicator
 
-setting.notifyweblogs.label=Notify Weblogs.com
-
-setting.notifyweblogs.option.comm=Notify Weblogs.com subscribers when new public entries are posted to my community
-
-setting.notifyweblogs.option.self=Notify Weblogs.com subscribers when I post new public entries to my journal
-
 setting.prod.display.title=New Setting!
 
 setting.profileemail.label=Email to display on your profile

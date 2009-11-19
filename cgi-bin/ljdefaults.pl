@@ -104,7 +104,6 @@
                       'leave_comments' => 1,
                       'mod_queue' => 50,
                       'mod_queue_per_poster' => 1,
-                      'weblogscom' => 0,
                       'hide_email_after' => 0,
                       'userlinks' => 5,
                       'maxcomments' => 10000,

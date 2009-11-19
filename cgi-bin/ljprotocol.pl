@@ -1144,7 +1144,6 @@ sub postevent
     # load userprops all at once
     my @poster_props = qw(newesteventtime dupsig_post);
     my @owner_props = qw(newpost_minsecurity moderated);
-    push @owner_props, 'opt_weblogscom' unless $req->{'props'}->{'opt_backdated'};
 
     LJ::load_user_props($u, @poster_props, @owner_props);
     if ($uowner->{'userid'} == $u->{'userid'}) {
@@ -1533,16 +1532,6 @@ sub postevent
     }
 
     my @jobs;  # jobs to add into TheSchwartz
-
-    # notify weblogs.com of post if necessary
-    if ( LJ::is_enabled('weblogs_com') && $u->{'opt_weblogscom'} && $u->can_notify_weblogs &&
-        ($security eq "public") && !$req->{'props'}->{'opt_backdated'} ) {
-        push @jobs, TheSchwartz::Job->new_from_array("LJ::Worker::Ping::WeblogsCom", {
-            'user' => $u->{'user'},
-            'title' => $u->{'journaltitle'} || $u->{'name'},
-            'url' => LJ::journal_base($u) . "/",
-        });
-      }
 
     my $entry = LJ::Entry->new($uowner, jitemid => $jitemid, anum => $anum);
 

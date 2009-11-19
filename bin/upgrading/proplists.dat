@@ -838,14 +838,6 @@ userproplist.opt_usesharedpic:
   multihomed: 0
   prettyname: Use Shared Journal Pic
 
-userproplist.opt_weblogscom:
-  cldversion: 4
-  datatype: char
-  des: 1: ping weblogs.com with updates
-  indexed: 0
-  multihomed: 0
-  prettyname: Ping Weblogs.com
-
 userproplist.opt_whatemailshow:
   cldversion: 4
   datatype: char

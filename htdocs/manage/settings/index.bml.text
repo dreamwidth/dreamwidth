@@ -88,8 +88,6 @@
 
 .fn.viewingadult=Viewing Age Limited Content
 
-.fn.weblogs=Weblogs.com
-
 .imagelinks.size.custom=Custom: use placeholders for images larger than [[width]]x[[height]]
 
 .imageplace=Use image placeholders for
@@ -196,10 +194,6 @@ in any form or by any means for commercial use.
 .viewingadult.select.explicit=Anyone under the age of 18
 
 .viewingadult.select.none=Do not collapse
-
-.weblogscom=Notify Weblogs.com when I post new public entries
-
-.weblogscom.text=Weblogs.com, a VeriSign service, is a ping server that automatically notifies subscribers when new content is posted to a website or a blog, allowing many more people to be aware of updates to your journal.
 
 .you.could.not.auth=You could not be authenticated as the specified user.
 

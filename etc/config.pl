@@ -121,7 +121,7 @@
     # on a larger installation, it's useful to have multiple qbufferd.pl
     # processes, one for each command type.  this is unecessary on a
     # small installation.  you can also specify a delay between runs.
-    #@QBUFFERD_ISOLATE = ('weblogscom', 'ljcom_newpost');
+    #@QBUFFERD_ISOLATE = ('ljcom_newpost');
     #$QBUFFERD_DELAY   = 10;
 
     # path to sendmail and any necessary options
@@ -322,7 +322,6 @@
             'leave_comments' => 1,
             'mod_queue' => 50,
             'mod_queue_per_poster' => 5,
-            'weblogscom' => 1,
             'hide_email_after' => 60,
             'userlinks' => 10,
             'maxcomments' => 5000,
@@ -398,7 +397,6 @@
             'userpics' => 6,
             'userpicselect' => 0,
             'viewmailqueue' => 0,
-            'weblogscom' => 0,
             'xpost_accounts' => 1,
         },
         '2' => {  # 0x04
@@ -454,7 +452,6 @@
             'userpics' => 75,
             'userpicselect' => 1,
             'viewmailqueue' => 1,
-            'weblogscom' => 1,
             'xpost_accounts' => 3,
             'paid' => 1,
             'fastserver' => 1,
@@ -508,7 +505,6 @@
             'userpics' => 150,
             'userpicselect' => 1,
             'viewmailqueue' => 1,
-            'weblogscom' => 1,
             'xpost_accounts' => 5,
             'paid' => 1,
             'fastserver' => 1,
@@ -569,7 +565,6 @@
             'userpics' => 150,
             'userpicselect' => 1,
             'viewmailqueue' => 1,
-            'weblogscom' => 1,
             'paid' => 1,
             'fastserver' => 1,
         },
@@ -621,7 +616,6 @@
             'userpics' => 150,
             'userpicselect' => 1,
             'viewmailqueue' => 1,
-            'weblogscom' => 1,
             'xpost_accounts' => 9,
             'paid' => 1,
             'fastserver' => 1,

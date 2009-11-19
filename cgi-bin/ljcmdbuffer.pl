@@ -10,19 +10,6 @@ require "ljmail.pl";
 
 package LJ::Cmdbuffer;
 
-# built-in commands
-%LJ::Cmdbuffer::cmds =
-    (
-
-     # ping weblogs.com with updates?  takes a $u argument
-     weblogscom => {
-         too_old => 60*60*2,  # 2 hours old = qbufferd not running?
-         once_per_user => 1,
-         run => \&LJ::Cmdbuffer::_weblogscom,
-     },
-
-     );
-
 # <LJFUNC>
 # name: LJ::Cmdbuffer::flush
 # des: Flush up to 500 rows of a given command type from the [dbtable[cmdbuffer]] table.
@@ -162,23 +149,6 @@ sub get_property {
 
     return undef;
 }
-
-sub _weblogscom {
-    # user, title, url
-    my ($dbh, $db, $c) = @_;
-    my $a = $c->{'args'};
-    eval {
-        eval "use XMLRPC::Lite;";
-        unless ($@) {
-            XMLRPC::Lite
-                ->new( proxy => "http://rpc.weblogs.com/RPC2",
-                       timeout => 5 )
-                ->call('weblogUpdates.ping', # xml-rpc method call
-                       LJ::ehtml($a->{'title'}) . " \@ $LJ::SITENAMESHORT",
-                       $a->{'url'},
-                       "$LJ::SITEROOT/misc/weblogs-change?user=$a->{'user'}");
-        }
-    };
 
     return 1;
 }

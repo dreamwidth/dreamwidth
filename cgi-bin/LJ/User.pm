@@ -1862,10 +1862,6 @@ sub can_map_domains {
     return $_[0]->get_cap( 'domainmap' ) ? 1 : 0;
 }
 
-sub can_notify_weblogs {
-    return $_[0]->get_cap( 'weblogscom' ) ? 1 : 0;
-}
-
 sub can_post {
     return $_[0]->get_cap( 'can_post' ) ? 1 : 0;
 }
