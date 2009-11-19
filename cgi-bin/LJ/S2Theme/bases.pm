@@ -6,10 +6,20 @@ sub layout_prop { "layout_type" }
 
 sub designer { "Malionette" }
 
+package LJ::S2Theme::bases::beechy;
+use base qw( LJ::S2Theme::bases );
+sub cats { qw( ) }
+sub designer { "malionette" }
+
 package LJ::S2Theme::bases::lightondark;
 use base qw( LJ::S2Theme::bases );
 sub cats { qw( ) }
 sub designer { "cesy" }
+
+package LJ::S2Theme::bases::steele;
+use base qw( LJ::S2Theme::bases );
+sub cats { qw( ) }
+sub designer { "malionette" }
 
 package LJ::S2Theme::bases::strawberrysundae;
 use base qw( LJ::S2Theme::bases );
