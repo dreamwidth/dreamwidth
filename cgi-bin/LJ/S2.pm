@@ -3270,7 +3270,7 @@ sub Comment__expand_link
     my $title = $opts->{title} ? " title='" . LJ::ehtml($opts->{title}) . "'" : "";
     my $class = $opts->{class} ? " class='" . LJ::ehtml($opts->{class}) . "'" : "";
 
-    return "<a href='$this->{thread_url}'$title$class onClick=\"Expander.make(this,'$this->{thread_url}','$this->{talkid}'); return false;\">$text</a>";
+    return "<a href='$this->{permalink_url}'$title$class onClick=\"Expander.make(this,'$this->{permalink_url}','$this->{talkid}'); return false;\">$text</a>";
 }
 
 sub Comment__print_expand_link
