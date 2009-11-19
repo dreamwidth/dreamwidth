@@ -391,18 +391,15 @@ h2#pagetitle {
     .page-network .entry-wrapper.has-userpic .entry .contents,
     .page-entry .entry-wrapper.has-userpic .entry .contents,
     .page-reply .entry-wrapper.has-userpic .entry .contents,
-    .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents {
-        padding: 1.2em 2em 2em 2em;
-        }
-
+    .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents,
     .page-entry .comment-wrapper.has-userpic .comment .contents,
     .page-reply .comment-wrapper.has-userpic .comment .contents {
-        padding: 2em;
+        padding: 10px 2em 2em 2em;
         }
 
     .page-recent .entry-wrapper.has-userpic.journal-type-P .entry .contents,
     .page-day .entry-wrapper.has-userpic.journal-type-P .entry .contents {
-        padding: 3em 2em 2em 2em;
+        padding: 55px 2em 2em 2em;
         }
 
     .page-tags .tags-container ul.ljtaglist {
@@ -536,10 +533,25 @@ h2#pagetitle {
     border-bottom: 1px dashed $*color_entry_poster_border !important;
     display: block;
     font-weight: bold;
-    margin-bottom: 1em;
-    margin-left: 4em;
     padding-bottom: .5em;
     }
+
+    .page-recent .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+    .page-read .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-network .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-entry .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-reply .entry-wrapper.has-userpic .entry .contents .poster,
+    .page-day .entry-wrapper.has-userpic.journal-type-C .entry .contents .poster,
+    .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+    .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+        margin-left: 80px;
+        margin-bottom: 20px;
+        }
+
+    .page-entry .comment-wrapper.has-userpic .comment .contents .poster,
+    .page-reply .comment-wrapper.has-userpic .comment .contents .poster {
+        margin-bottom: 32px;
+        }
 
     .page-recent .journal-type-C .entry .contents .poster:before,
     .page-read .entry .contents .poster:before,
