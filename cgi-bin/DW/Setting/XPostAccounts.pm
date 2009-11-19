@@ -145,7 +145,7 @@ sub option {
         value     => $footer_text
     }) . "<br/><br/>";
 
-    $ret .= "" . $class->ml('setting.xpost.preview') . "\n";
+    $ret .= "<div id='preview_section' style='display: none;'>" . $class->ml('setting.xpost.preview') . "\n";
 
     my $baseurl = $LJ::SITEROOT;
     my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alttext');
@@ -153,6 +153,7 @@ sub option {
 
     $ret .= qq [
       <div id='footer_preview' class='xpost_footer_preview'></div>
+      </div>
       <script type="text/javascript">
         function updatePreview() {
           var previewString = \$('${key}crosspost_footer_text').value;
@@ -165,6 +166,7 @@ sub option {
           previewString = previewString.replace(/%%comment_image%%/, '<img src="$baseurl/tools/commentcount?samplecount=23" width="30" height="12" alt="$alttext" style="vertical-align: middle;"/>');
           \$('footer_preview').innerHTML = previewString;
         }
+        \$('preview_section').style.display = 'block';
         updatePreview();
       </script>
     ];
