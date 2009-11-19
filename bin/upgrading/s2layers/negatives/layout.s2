@@ -36,6 +36,18 @@ propgroup colors {
     property use color_page_link_active;
     property use color_page_link_visited;
 
+    property use color_header_background;
+    property use color_header_link;
+    property use color_header_link_hover;
+    property use color_header_link_active;
+    property use color_header_link_visited;
+
+    property use color_footer_background;
+    property use color_footer_link;
+    property use color_footer_link_hover;
+    property use color_footer_link_active;
+    property use color_footer_link_visited;
+
     property use color_module_background;
     property use color_module_text;
     property use color_module_border;
@@ -54,6 +66,7 @@ propgroup colors {
     property use color_entry_text;
     property use color_entry_title;
 
+    property use color_entry_interaction_links_background;
     property use color_entry_interaction_links;
     property use color_entry_interaction_links_hover;
     property use color_entry_interaction_links_active;
@@ -67,6 +80,18 @@ set color_page_link = "";
 set color_page_link_hover = "";
 set color_page_link_active = "";
 set color_page_link_visited = "";
+
+set color_header_background = "";
+set color_header_link = "";
+set color_header_link_hover = "";
+set color_header_link_active = "";
+set color_header_link_visited = "";
+
+set color_footer_background = "";
+set color_footer_link = "";
+set color_footer_link_hover = "";
+set color_footer_link_active = "";
+set color_footer_link_visited = "";
 
 set color_entry_link = "";
 set color_entry_link_hover = "";
@@ -86,6 +111,7 @@ set color_module_link_active = "";
 set color_module_link_hover = "";
 set color_module_link_visited = "";
 
+set color_entry_interaction_links_background = "";
 set color_entry_interaction_links = "";
 set color_entry_interaction_links_hover = "";
 set color_entry_interaction_links_active = "";
@@ -240,11 +266,20 @@ set comment_management_links = "text";
 #######################
 
 ########################
+#Initialize some properties with fallback values
+function prop_init {
+    if ( not defined $*color_entry_interaction_links_background ) {
+        $*color_entry_interaction_links_background = $*color_page_background;
+    }
+}
+
+########################
 #Prints the stylesheet
 function Page::print_default_stylesheet()
 {
     var string page_background = generate_background_css($*image_background_page_url,$*image_background_page_repeat,$*image_background_page_position,$*color_page_background);
-    var string header_background = generate_background_css($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, new Color);
+    var string header_background = generate_background_css($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    var string footer_background = generate_background_css( "", "", "", $*color_footer_background );
     var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position,$*color_entry_background);
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position,$*color_module_background);
     if ($*image_background_header_height > 0) {
@@ -287,6 +322,18 @@ function Page::print_default_stylesheet()
         border-bottom: 5px double $*color_module_border;
         $header_background
     }
+    #header a {
+        color: $*color_header_link;
+    }
+    #header a:active {
+        color: $*color_header_link_active;
+    }
+    #header a:visited {
+        color: $*color_header_link_visited;
+    }
+    #header a:hover {
+        color: $*color_header_link_hover;
+    }
     .module-section-two {
     }
     .module-section-three {
@@ -295,6 +342,19 @@ function Page::print_default_stylesheet()
     }
     #footer {
         clear:both;
+        $footer_background;
+    }
+    #footer a {
+        color: $*color_footer_link;
+    }
+    #footer a:active {
+        color: $*color_footer_link_active;
+    }
+    #footer a:visited {
+        color: $*color_footer_link_visited;
+    }
+    #footer a:hover {
+        color: $*color_footer_link_hover;
     }
     #primary {
         position: relative;
@@ -387,7 +447,7 @@ function Page::print_default_stylesheet()
         color: #000000;
     }
     .entry-wrapper .footer {
-        background-color: $*color_page_background;
+        background-color: $*color_entry_interaction_links_background;
     }
     .comment-poster .anonymous {
         font-weight: bold;
@@ -411,7 +471,7 @@ function Page::print_default_stylesheet()
     .entry-management-links, .entry-management-links a,
     .entry-interaction-links, .entry-interaction-links a,
     .comment-interaction-links, .comment-interaction-links a{
-        background-color: $*color_page_background;
+        background-color: $*color_entry_interaction_links_background;
         color: $*color_entry_interaction_links;
         padding: 0 0.5em;
         font-weight: normal;

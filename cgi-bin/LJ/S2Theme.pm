@@ -744,6 +744,10 @@ sub header_props {
     qw (
         text_tags_page_header
         color_header_background
+        color_header_link 
+        color_header_link_active 
+        color_header_link_hover 
+        color_header_link_visited
         font_journal_title
         font_journal_title_size
         font_journal_title_units
@@ -800,6 +804,7 @@ sub entry_props {
         color_entry_title
         color_entry_title_background
         color_entry_interaction_links
+        color_entry_interaction_links_background
         color_entry_interaction_links_hover
         color_entry_interaction_links_active
         color_entry_interaction_links_visited
