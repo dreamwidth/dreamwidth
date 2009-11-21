@@ -55,11 +55,13 @@
      
      if ($GET{'dir'} eq "next") {
          $jumpid = LJ::get_itemid_after2($u, $itemid);
-         $body = $ML{'.error.noentry.next'};
+         $body = "<p>$ML{'.error.noentry.next'}</p>";
      } elsif ($GET{'dir'} eq "prev") {
          $jumpid = LJ::get_itemid_before2($u, $itemid);
-         $body = $ML{'.error.noentry.prev'};
+         $body = "<p>$ML{'.error.noentry.prev'}</p>";
      }
+
+    $body .= "<p>" . BML::ml( '.link.to.journal', { journal => $u->ljuser_display } ) . "</p>";
 
      if ($jumpid) {
          return BML::redirect(LJ::journal_base($u) . "/$jumpid.html");
