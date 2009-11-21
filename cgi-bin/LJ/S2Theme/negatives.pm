@@ -7,6 +7,11 @@ sub designer { "phoenix" }
 sub layouts { ( "1" => "one-column", "2l" => "two-columns-left", "2r" => "two-columns-right" ) }
 sub layout_prop { "layout_type" }
 
+package LJ::S2Theme::negatives::azure;
+use base qw( LJ::S2Theme::negatives );
+sub cats { qw( ) }
+sub designer { "daven" }
+
 package LJ::S2Theme::negatives::black;
 use base qw( LJ::S2Theme::negatives );
 sub cats { qw( base ) }
