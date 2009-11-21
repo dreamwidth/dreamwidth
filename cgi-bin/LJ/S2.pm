@@ -2025,6 +2025,9 @@ sub Page
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz); } : undef;
     }
 
+    my $style_args = LJ::viewing_style_args( %$get );
+    $style_args = $style_args ? "?$style_args" : "";
+
     my $p = {
         '_type' => 'Page',
         '_u' => $u,
@@ -2037,12 +2040,12 @@ sub Page
         'base_url' => $base_url,
         'stylesheet_url' => "$base_url/res/$styleid/stylesheet?$stylemodtime",
         'view_url' => {
-            recent   => "$base_url/",
+            recent   => "$base_url/$style_args",
             userinfo => $u->profile_url,
-            archive  => "$base_url/calendar",
-            read     => "$base_url/read",
-            network  => "$base_url/network",
-            tags     => "$base_url/tag",
+            archive  => "$base_url/calendar$style_args",
+            read     => "$base_url/read$style_args",
+            network  => "$base_url/network$style_args",
+            tags     => "$base_url/tag/$style_args",
             memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
         'linklist' => $linklist,
