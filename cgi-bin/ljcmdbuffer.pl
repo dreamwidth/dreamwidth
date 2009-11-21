@@ -150,7 +150,4 @@ sub get_property {
     return undef;
 }
 
-    return 1;
-}
-
 1;
