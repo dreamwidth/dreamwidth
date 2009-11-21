@@ -110,3 +110,53 @@ set image_background_page_repeat = "repeat";
 set color_page_border = "#ffffff";
 set color_page_subtitle = "#666666";
 set color_entry_background = "#000000";
+
+#NEWLAYER: drifting/softblues
+layerinfo type = "theme";
+layerinfo name = "Soft Blues";
+layerinfo redist_uniq = "drifting/softblues";
+layerinfo author_name = "ambrya";
+ 
+set layout_authors = [ { "name" => "ambrya", "type" => "user" } ];
+
+set color_page_background = "#a59fd7";
+set color_page_text = "#1b1551";
+set color_page_link = "#295d97";
+set color_page_link_visited = "#295d97";
+set color_page_border = "#1b3f6b";
+
+set color_header_background = "#a59fd7";
+
+set color_module_border = "#1b3f6b";
+
+set color_entry_border = "#1b3f6b";
+set color_entry_background = "#928ad7";
+set color_entry_title = "#2300a3";
+
+set color_page_subtitle = "#295d97";
+
+set image_header_right = "drifting/softblues-hdr_right.jpg";
+
+
+function Page::print_theme_stylesheet() {
+    """
+    #header h1#title {
+        margin-left: 10px;
+    }
+
+    #header h2#subtitle {
+        margin-left: 110px;
+    }
+
+    #header,
+    .header-right {
+        height: 5.813em;
+    }
+
+    .header-right {
+        background-position: top right;
+        background-repeat: no-repeat;
+        width: 250px;
+    }
+    """;
+}

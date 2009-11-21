@@ -24,4 +24,10 @@ use base qw( LJ::S2Theme::drifting );
 
 sub cats { qw( ) }
 sub designer { "cesy" }
+
+package LJ::S2Theme::drifting::softblues;
+use base qw( LJ::S2Theme::drifting );
+sub cats { qw( ) }
+sub designer { "ambrya" }
+
 1;
