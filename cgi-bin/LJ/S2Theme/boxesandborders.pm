@@ -13,6 +13,11 @@ sub cats { qw( base ) }
 
 sub designer { "branchandroot" }
 
+package LJ::S2Theme::boxesandborders::lightondark;
+use base qw( LJ::S2Theme::boxesandborders );
+sub cats { qw( ) }
+
+sub designer { "cesy" }
 
 package LJ::S2Theme::boxesandborders::nnwm2009;
 use base qw( LJ::S2Theme::boxesandborders );

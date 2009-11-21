@@ -35,6 +35,78 @@ set color_entry_border = "#999999";
 set color_module_title = "#222222";
 set color_module_border = "#999999";
 
+#NEWLAYER: boxesandborders/lightondark
+layerinfo type = "theme";
+layerinfo name = "Light On Dark";
+layerinfo redist_uniq = "boxesandborders/lightondark";
+layerinfo author_name = "cesy";
+
+set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#000000";
+set color_page_border = "#0000cc";
+set color_page_text = "#ffffff";
+set color_page_link = "#ddddff";
+set color_page_link_active = "#ffcccc";
+set color_page_link_hover = "#ccffcc";
+set color_page_link_visited = "#ffffcc";
+
+set color_header_background = "#666666";
+set color_page_title = "#ffffff";
+
+set color_footer_background = "#666666";
+set color_footer_link = "#ddddff";
+set color_footer_link_active = "#ffcccc";
+set color_footer_link_hover = "#ccffcc";
+set color_footer_link_visited = "#ffffcc";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#000000";
+set color_entry_border = "#cccccc";
+set color_entry_title_background = "#000000";
+set color_entry_title = "#ffffff";
+set color_entry_text = "#ffffff";
+set color_entry_link = "#ddddff";
+set color_entry_link_hover = "#ccffcc";
+set color_entry_link_active = "#ffcccc";
+set color_entry_link_visited = "#ffffcc";
+set color_entry_interaction_links = "#ffffff";
+set color_comment_title_background = "#ffffff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#000000";
+set color_module_border = "#0000ee";
+set color_module_title_background = "#666666";
+set color_module_title = "#ffffff";
+set color_module_text = "#ffffff";
+set color_module_link = "#ddddff";
+set color_module_link_active = "#ffcccc";
+set color_module_link_hover = "#ccffcc";
+set color_module_link_visited = "#ffffcc";
+
+function Page::print_theme_stylesheet() {
+    """
+    .module-navlinks ul,
+    .module-calendar td {
+        background: $*color_header_background;
+        }
+
+    .module td a:hover {
+        color: $*color_module_border;
+        
+    """;
+}
+
 #NEWLAYER: boxesandborders/nnwm2009
 layerinfo type = "theme";
 layerinfo name = "NNWM 2009";
