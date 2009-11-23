@@ -1959,7 +1959,7 @@ sub Entry_from_entryobj
         dateparts => $alldatepart,
         system_dateparts => $system_alldatepart,
         security => $security,
-        adult_content_level => $entry_obj->adult_content_calculated || $u->adult_content_calculated,
+        adult_content_level => $entry_obj->adult_content_calculated || $journal->adult_content_calculated,
         allowmask => $allowmask,
         props => $entry_obj->props,
         itemid => $ditemid,
