@@ -311,7 +311,7 @@ function setColumns(number) {
     listWrapper.removeChild(listObj);
 }
 
-function settime() {
+function settime( dateUpdatedText, fromButton ) {
     function twodigit (n) {
         if (n < 10) { return "0" + n; }
         else { return n; }
@@ -339,8 +339,13 @@ function settime() {
     var cYear = now.getYear() < 1900 ? now.getYear() + 1900 : now.getYear();
     var cHour = now.getHours();
     var cMinute = twodigit(now.getMinutes());
-    currentdate.innerHTML = mNames[cMonth] + " " + cDay + ", " + cYear + ", " + cHour + ":" + cMinute;
-    
+    var cDateText = mNames[cMonth] + " " + cDay + ", " + cYear + ", " + cHour + ":" + cMinute;
+    currentdate.innerHTML = cDateText;
+
+    if ( dateUpdatedText && fromButton ) {
+       return LJ_IPPU.showNote( dateUpdatedText + " " + cDateText, fromButton );
+    }
+
     return false;
 }
 

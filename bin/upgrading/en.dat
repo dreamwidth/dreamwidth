@@ -1142,6 +1142,8 @@ entryform.date.24hournote=(24 hour time)
 
 entryform.date.edit=Edit
 
+entryform.dateupdated=Date updated to:
+
 entryform.delete=Delete Entry
 
 entryform.delete.confirm=Are you sure you want to delete this entry?
@@ -1247,6 +1249,8 @@ entryform.update2=Save to
 entryform.update3=Post to
 
 entryform.update4=Post Entry
+
+entryform.updatedate=Update Date
 
 entryform.userpic=Userpic:
 

@@ -1751,6 +1751,8 @@ PREVIEW
             if ($LJ::SPELLER && !$opts->{'disabled_save'}) {
                 $out .= LJ::html_submit('action:spellcheck', BML::ml('entryform.spellcheck'), { 'tabindex' => $tabindex->() }) . "&nbsp;";
             }
+            # Update posting date/time
+            $out .= "<input type='button' value='" . BML::ml( 'entryform.updatedate' ) . "' onclick='settime(\"" . LJ::ejs( BML::ml( 'entryform.dateupdated' ) ) . "\", this);' tabindex='" . $tabindex->() . "' />";
             $out .= "</span>\n";
             $out .= "</p>\n";
         }
