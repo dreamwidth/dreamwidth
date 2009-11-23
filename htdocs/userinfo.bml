@@ -710,7 +710,7 @@ body<=
                 );
 
                 my @not_mutually_trusted_by_list = sort { $a->display_name cmp $b->display_name }
-                    grep { $_->is_personal || $_->is_identity }
+                    grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
                     map { $us->{$_} } @not_mutually_trusted_by_userids;
                 my $not_mutually_trusted_by_body_name_ml = @not_mutually_trusted_by_list ?
                     { ml => '.people.not_mutually_trusted_by.some', opts => { num => scalar @not_mutually_trusted_by_list } } :
