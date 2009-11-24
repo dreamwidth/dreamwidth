@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+#
+# bin/worker/userpic-rename
+#
+# TheSchwartz worker for renaming userpics
+#
+# Authors:
+#      Allen Petersen <allen@suberic.net>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+use strict;
+use warnings;
+
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Worker::TheSchwartz;
+use DW::Worker::UserpicRenameWorker;
+
+foreach my $capability (DW::Worker::UserpicRenameWorker->schwartz_capabilities) {
+    schwartz_decl( $capability );
+}
+
+schwartz_work(); # Never returns.

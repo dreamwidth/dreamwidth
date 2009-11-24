@@ -4,6 +4,7 @@ use Carp qw(croak);
 use Digest::MD5;
 use LJ::Event::NewUserpic;
 use LJ::Constants;
+use Storable;
 
 ##
 ## Potential properties of an LJ::Userpic object
@@ -919,6 +920,97 @@ sub set_keywords {
     return 1;
 }
 
+
+# instance method:  takes two strings of comma-separated keywords, the first 
+# being the new set of keywords, the second being the old set of keywords.  
+#
+# the new keywords must be the same number as the old keywords; that is,
+# if the userpic has three keywords and you want to rename them, you must
+# rename them to three keywords (some can match).  otherwise there would be
+# some ambiguity about which old keywords should match up with the new
+# keywords.  if the number of keywords don't match, then an error is thrown 
+# and no changes are made to the keywords for this userpic.
+# 
+# all new keywords must not currently be in use; you can't rename a keyword
+# to a keyword currently mapped to another (or the same) userpic.  this will
+# result in an error and no changes made to these keywords.
+#
+# the setting of new keywords is done by Userpic->set_keywords; the remapping
+# of existing pics is done asynchonously via TheSchwartz using the
+# DW::Worker::UserpicRenameWorker.
+sub set_and_rename_keywords {
+    my $self = shift;
+    my $new_keyword_string = $_[0];
+    my $orig_keyword_string = $_[1];
+
+    my $sclient = LJ::theschwartz();
+    
+    # error out if TheSchwartz isn't available.
+    LJ::errobj("Userpic::RenameKeywords",
+               origkw    => $orig_keyword_string,
+               newkw     => $new_keyword_string)->throw unless $sclient;
+
+    my @keywords = split(',', $new_keyword_string);
+    my @orig_keywords = split(',', $orig_keyword_string);
+
+    # don't allow renames involving no-keyword (pic#0001) values
+    if ( grep ( /^\s*pic\#\d+\s*$/, @orig_keywords ) || grep ( /^\s*pic\#\d+\s*$/, @keywords )) {
+        LJ::errobj("Userpic::RenameBlankKeywords",
+                   origkw    => $orig_keyword_string,
+                   newkw     => $new_keyword_string)->throw;
+    }
+
+    # compare sizes
+    if (scalar @keywords ne scalar @orig_keywords) {
+        LJ::errobj("Userpic::MismatchRenameKeywords",
+                   origkw    => $orig_keyword_string,
+                   newkw     => $new_keyword_string)->throw;
+    }
+
+    #interleave these into a map, excluding duplicates
+    my %keywordmap;
+    foreach my $newkw (@keywords) {
+        my $origkw = shift(@orig_keywords);
+        # clear whitespace
+        $newkw =~ s/^\s+//; 
+        $newkw =~ s/\s+$//;
+        $origkw =~ s/^\s+//; 
+        $origkw =~ s/\s+$//;
+
+        $keywordmap{$origkw} = $newkw if $origkw ne $newkw;
+    }
+    
+    # make sure there is at least one change.
+    if (keys(%keywordmap)) {
+
+        #make sure that none of the target keywords already exist.
+        my $u = $self->owner;
+        foreach my $kw (keys %keywordmap) {
+            if (LJ::get_picid_from_keyword($u, $keywordmap{$kw}, -1) != -1) {
+                LJ::errobj("Userpic::RenameKeywordExisting",
+                           keyword => $keywordmap{$kw})->throw;
+            }
+        }
+        
+        # set the keywords for this userpic to the new set of keywords
+        $self->set_keywords(@keywords);
+        
+        # send to TheSchwartz to do the actual renaming 
+        my $job = TheSchwartz::Job->new_from_array(
+            'DW::Worker::UserpicRenameWorker', { 
+                'uid' => $u->userid, 
+                'keywordmap' => Storable::nfreeze(\%keywordmap) } );
+        
+        unless ($job && $sclient->insert($job)) {
+            LJ::errobj("Userpic::RenameKeywords",
+                       origkw    => $orig_keyword_string,
+                       newkw     => $new_keyword_string)->throw;
+        }
+    }
+
+    return 1;
+}
+
 sub set_fullurl {
     my ($self, $url) = @_;
     my $u = $self->owner;
@@ -986,6 +1078,45 @@ sub as_html {
     my $self = shift;
     return BML::ml("/editpics.bml.error.unsupportedtype",
                           { 'filetype' => $self->{'type'} });
+}
+
+package LJ::Error::Userpic::MismatchRenameKeywords;
+sub user_caused { 1 }
+sub fields      { qw(origkw newkw); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editpics.bml.error.rename.mismatchedlength",
+                          { 'origkw' => $self->{'origkw'},
+                            'newkw' => $self->{'newkw'} });
+}
+
+package LJ::Error::Userpic::RenameBlankKeywords;
+sub user_caused { 1 }
+sub fields      { qw(origkw newkw); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editpics.bml.error.rename.blankkw",
+                          { 'origkw' => $self->{'origkw'},
+                            'newkw' => $self->{'newkw'} });
+}
+
+package LJ::Error::Userpic::RenameKeywordExisting;
+sub user_caused { 1 }
+sub fields      { qw(keyword); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editpics.bml.error.rename.keywordexists",
+                          { 'keyword' => $self->{'keyword'} });
+}
+
+package LJ::Error::Userpic::RenameKeywords;
+sub user_caused { 0 }
+sub fields      { qw(origkw newkw); }
+sub as_html {
+    my $self = shift;
+    return BML::ml("/editpics.bml.error.rename.keywords",
+                          { 'origkw' => $self->{'origkw'},
+                            'newkw' => $self->{'newkw'} });
 }
 
 package LJ::Error::Userpic::DeleteFailed;

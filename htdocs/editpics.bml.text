@@ -40,6 +40,14 @@
 
 .error.nomediauploads.delete=Unable to delete userpics at this time.  Media modification is currently disabled for the site.
 
+.error.rename.blankkw=Error renaming '[[origkw]]' to '[[newkw]]':  renaming of blank (pic#) keywords not allowed.
+
+.error.rename.keywordexists=Cannot rename to '[[keyword]]':  keyword already exists.
+
+.error.rename.keywords=An error occurred trying to rename '[[origkw]]' to '[[newkw]]'; entries and comments with the old keywords may not have changed to use the new keywords.
+
+.error.rename.mismatchedlength=Error renaming '[[origkw]]' to '[[newkw]]':  must rename to the same number of keywords.
+
 .error.toolarge.separately=Image is too large; please submit it separately to resize.
 
 .error.toomanykeywords=The [[?numwords|keyword|keywords]] "[[words]]" [[?numwords|has|have]] not been saved as [[?numwords|its|their]] user picture icon already has [[max]] keywords.
@@ -88,6 +96,8 @@
 .label.keywords=Keywords:
 
 .label.keywords.desc=Comma-separated list of terms you'll use to select this picture.
+
+.label.rename=Rename Keywords
 
 .makedefault=Make this your <u>d</u>efault picture
 

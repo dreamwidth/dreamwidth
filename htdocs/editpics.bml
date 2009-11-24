@@ -79,6 +79,9 @@ use strict;
         if ($POST{'action:save'}) {
             my $refresh = update_userpics(\@userpics, $u, $err);
 
+            # push all the errors to info
+            push(@info, @errors);
+
             # reload the pictures to account for deleted
             @userpics = LJ::Userpic->load_user_userpics($u) if $refresh;
         }
@@ -474,6 +477,8 @@ use strict;
         $body .= "</div>";
 
         $body .= "<div id='list_userpics' style='width: 98%; float: left;'>";
+        my $display_rename = LJ::theschwartz() ? 1 : 0;
+
         foreach my $pic (@userpics) {
             my $pid = $pic->id;
             
@@ -489,9 +494,20 @@ use strict;
             $body .= "<label class='left' for='kw_$pid'>$ML{'.label.keywords'}</label>\n ";
             $body .= LJ::html_text({'name' => "kw_$pid", 'class' => "text", 'id' => "kw_$pid",
                                     'value' => $keywords,
-                                    'disabled' => $pic->inactive }) . "\n";
+                                    'disabled' => $pic->inactive,
+                                    'onfocus' => $display_rename ? "\$(\'rename_div_$pid\').style.display = \'block\';" : ""
+                                   }) . "\n";
             $body .= LJ::html_hidden({ 'name' => "kw_orig_$pid",
                                        'value' => $keywords }) . "\n";
+            if ($display_rename) {
+                $body .= "<div id='rename_div_$pid' class='userpic_rename pkg'>\n";
+                $body .= "<script type='text/javascript'>document.getElementById('rename_div_$pid').style.display = 'none';</script>\n";
+                $body .= LJ::html_check({ 'type' => 'checkbox', 'name' => "rename_keyword_$pid", 'class' => "checkbox",
+                                          'id' => "rename_keyword_$pid", 'value' => 1,
+                                          'disabled' => $LJ::DISABLE_MEDIA_UPLOADS });
+                $body .= "<label for='rename_keyword_$pid'>$ML{'.label.rename'}</label>"; 
+                $body .= "</div>\n";
+            }
             $body .= "</div>\n";
 
             $body .= "<div class='userpic_comments pkg'>\n";
@@ -612,10 +628,15 @@ sub update_userpics
         if ($POST{"kw_$picid"} ne $POST{"kw_orig_$picid"}) {
             my $kws = $POST{"kw_$picid"};
             
-            eval {
-                $up->set_keywords($kws);
-            } or push @errors, $@;
-            
+            if ($POST{"rename_keyword_$picid"}) {
+                eval {
+                    $up->set_and_rename_keywords($kws, $POST{"kw_orig_$picid"});
+                } or push @errors, $@->as_html;
+            } else {
+                eval {
+                    $up->set_keywords($kws);
+                } or push @errors, $@;
+            }
         }
         
         eval {

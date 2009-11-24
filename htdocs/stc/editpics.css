@@ -88,6 +88,12 @@ hr {
 .userpic_defaultdelete {
     width: 200px;
 }
+.userpic_rename {
+    width: 200px;
+    margin-left: 6.5em;
+    margin-bottom: 4px;
+    margin-top: 4px;
+}
 * html .userpic_keywords,
 * html .userpic_comments,
 * html .userpic_descriptions {
