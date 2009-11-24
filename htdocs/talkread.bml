@@ -681,7 +681,7 @@ body<=
                     # quote all non-LJ tags
                     $event =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
                 }
-                my $edit_html = $edittime ? "<br /><br /><span class='ljedittime'><em>" . BML::ml('.edittime', { edittime => $edittime }) . "</em></span>" : "";
+                my $edit_html = $edittime ? "<br /><br /><span class='edittime'><em>" . BML::ml('.edittime', { edittime => $edittime }) . "</em></span>" : "";
                 $ret .= "$event$edit_html";
 
                 $ret .= "<p style='margin: 0.7em 0 0.2em 0'><font size='-2'>";

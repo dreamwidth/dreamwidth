@@ -339,7 +339,7 @@ padding-top: 2em; } /*die in a fire, IE7*/
     margin-top: -1.5em;
     white-space: nowrap; }
 
-.ljedittime .datetime {
+.edittime .datetime {
     float: none;
 }
 
@@ -353,7 +353,7 @@ padding-top: 2em; } /*die in a fire, IE7*/
 
 .comment-content { margin-top: 1em; }
 
-.comment .ljedittime { margin-top: 1em; }
+.comment .edittime { margin-top: 1em; }
 .comment-content .datetime { color: #666; }
 
 .comment .multiform-checkbox { display: block;

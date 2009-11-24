@@ -2253,7 +2253,7 @@ function RecentPage::print_sticky_entry(StickyEntry s)
 
 function Comment::print_edit_text() {
     if ($this.edited) {
-        print "<br /><br /><span class='ljedittime'><em>$*text_comment_edittime " + $this->edittime_display() + "</em></span>";
+        print "<br /><br /><span class='edittime'><em>$*text_comment_edittime " + $this->edittime_display() + "</em></span>";
     }
 }
 

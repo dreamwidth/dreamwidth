@@ -4010,7 +4010,7 @@ function RecentPage::print_sticky_entry(StickyEntry s)
 
 function Comment::print_edit_text() {
     if ($this.edited) {
-        print "<div class='ljedittime'><em>$*text_comment_edittime ";
+        print "<div class='edittime'><em>$*text_comment_edittime ";
         $this->print_edittime();
         print "</em></div>";
     }
