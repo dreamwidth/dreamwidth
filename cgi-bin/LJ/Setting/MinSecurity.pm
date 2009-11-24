@@ -30,9 +30,11 @@ sub option {
     my @options = (
         "" => $class->ml('setting.minsecurity.option.select.public'),
         friends => $u->is_community ? $class->ml('setting.minsecurity.option.select.members') : $class->ml('setting.minsecurity.option.select.friends'),
+        private => $u->is_community ?
+        $class->ml( 'setting.minsecurity.option.select.admin' ) :
+        $class->ml( 'setting.minsecurity.option.select.private' )
     );
-    push @options, ( private => $class->ml('setting.minsecurity.option.select.private') )
-        if $u->is_personal;
+
 
     my $ret = "<label for='${key}minsecurity'>" . $class->ml('setting.minsecurity.option') . "</label> ";
     $ret .= LJ::html_select({
@@ -48,11 +50,7 @@ sub save {
     my ($class, $u, $args) = @_;
 
     my $val = $class->get_arg($args, "minsecurity");
-    if ($u->is_community) {
-        $val = "" unless $val =~ /^(friends)$/;
-    } else {
-        $val = "" unless $val =~ /^(friends|private)$/;
-    }
+    $val = "" unless $val =~ /^(friends|private)$/;
 
     $u->set_prop( newpost_minsecurity => $val );
 

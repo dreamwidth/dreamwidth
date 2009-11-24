@@ -412,8 +412,11 @@ sub recent_items
 
     # decide what level of security the remote user can see
     my $secwhere = "";
-    if ($userid == $remoteid || $args{'viewall'}) {
+    if ( $userid == $remoteid
+        || ( $remote && $remote->can_manage( $u ) )
+        || $args{'viewall'} ) {
         # no extra where restrictions... user can see all their own stuff
+        # community administrators can also see everything in their comms
         # alternatively, if 'viewall' opt flag is set, security is off.
     } elsif ($mask) {
         # can see public or things with them in the mask

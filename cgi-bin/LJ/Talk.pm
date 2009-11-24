@@ -258,7 +258,7 @@ sub check_viewable
         my $journalname = $journal->username;
 
         if (defined $remote) {
-            if ( $journal->is_community && ! $journal->is_closed_membership && $remote ) {
+            if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $item->{security} ne "private" ) {
                 return $err->( BML::ml( 'talk.error.notauthorised.comm.open', { aopts => "href='$LJ::SITEROOT/community/join?comm=$journalname'" } ) );
             } elsif ( $journal->is_community && $journal->is_closed_membership ) {
                 return $err->( BML::ml( 'talk.error.notauthorised.comm.closed' ) );

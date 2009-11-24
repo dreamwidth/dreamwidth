@@ -1828,6 +1828,7 @@ PREVIEW
                 my $string_friends = LJ::ejs(BML::ml('label.security.accesslist'));
                 my $string_friends_comm = LJ::ejs(BML::ml('label.security.members'));
                 my $string_private = LJ::ejs(BML::ml('label.security.private2'));
+                my $string_admin = LJ::ejs( BML::ml( 'label.security.maintainers' ) );
                 my $string_custom = LJ::ejs(BML::ml('label.security.custom'));
 
                 $out .= qq{
@@ -1836,12 +1837,15 @@ PREVIEW
                     UpdateFormStrings.friends = "$string_friends";
                     UpdateFormStrings.friends_comm = "$string_friends_comm";
                     UpdateFormStrings.private = "$string_private";
-                    UpdateFormStrings.custom = "$string_custom";</script>
+                    UpdateFormStrings.custom = "$string_custom";
+                    UpdateFormStrings.admin = "$string_admin";</script>
                 };
+
 
                 $$onload .= " setColumns();" if $remote;
                 my @secs = ("public", $string_public, "friends", $is_comm ? $string_friends_comm : $string_friends);
                 push @secs, ("private", $string_private) unless $is_comm;
+                push @secs, ( "private", $string_admin ) if $is_comm && $remote && $remote->can_manage( $usejournalu );
 
                 my ( @secopts, @trust_groups );
                 @trust_groups = $remote->trust_groups if $remote;

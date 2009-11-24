@@ -19,6 +19,7 @@
 
     my %ret = (
         is_comm => $u->is_comm ? 1 : 0,
+        can_manage =>  $remote && $remote->can_manage( $u ) ? 1 : 0,
     );
 
     return JSON::objToJson({ ret => \%ret }) unless $remote && $remote->can_post_to($u);

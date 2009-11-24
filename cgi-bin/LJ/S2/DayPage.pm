@@ -52,7 +52,7 @@ sub DayPage
         ( $viewall, $viewsome ) =
             $remote->view_priv_check( $u, $get->{viewall}, 'day' );
 
-        if ( $viewall || $remote->equals( $u ) ) {
+        if ( $viewall || $remote->equals( $u ) || $remote->can_manage( $u ) ) {
             $secwhere = "";   # see everything
         } elsif ( $remote->is_individual ) {
             my $gmask = $u->is_community ? $remote->member_of( $u ) : $u->trustmask( $remote );

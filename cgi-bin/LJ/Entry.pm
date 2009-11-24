@@ -764,24 +764,34 @@ sub visible_to
     # owners can always see their own.
     return 1 if $userid == $remoteid;
 
-    # other people can't read private
-    return 0 if $self->{'security'} eq "private";
-
-    # should be 'usemask' security from here out, otherwise
+    # should be 'usemask' or 'private' security from here out, otherwise
     # assume it's something new and return 0
-    return 0 unless $self->{'security'} eq "usemask";
+    return 0 unless $self->{security} eq "usemask" || $self->{security} eq "private";
 
-    # if it's usemask, we have to refuse non-personal journals,
-    # so we have to load the user
     return 0 unless $remote->is_individual;
 
-    # check if it's a community and they're a member
-    return 1 if $self->journal->is_community &&
-                $remote->member_of( $self->journal );
+    if ( $self->security eq "private" ) {
+        # other people can't read private on personal journals
+        return 0 if $self->journal->is_individual;
 
-    my $gmask = $self->journal->trustmask( $remote );
-    my $allowed = (int($gmask) & int($self->{'allowmask'}));
-    return $allowed ? 1 : 0;  # no need to return matching mask
+        # but community administrators can read private entries on communities
+        return 1 if $self->journal->is_community && $remote->can_manage( $self->journal );
+
+        # private entry on a community; we're not allowed to see this
+        return 0;
+    }
+
+    if ( $self->security eq "usemask" ) {
+        # check if it's a community and they're a member
+        return 1 if $self->journal->is_community &&
+                $remote->member_of( $self->journal );
+    
+        my $gmask = $self->journal->trustmask( $remote );
+        my $allowed = (int($gmask) & int($self->{'allowmask'}));
+        return $allowed ? 1 : 0;  # no need to return matching mask
+    }
+
+    return 0;
 }
 
 # returns hashref of (kwid => tag) for tags on the entry
@@ -1548,8 +1558,12 @@ sub get_log2_recent_user
         last unless $left;
         last if $notafter and $item->{'rlogtime'} > $notafter;
         next unless $remote || $item->{'security'} eq 'public';
-        next if $item->{'security'} eq 'private'
-            and $item->{'journalid'} != $remote->{'userid'};
+
+        if ( $item->{security} eq 'private' and $item->{journalid} != $remote->{userid} ) {
+            my $ju = LJ::load_userid( $item->{journalid} );
+            next unless $remote->can_manage( $ju );
+        }
+
         if ($item->{'security'} eq 'usemask') {
             next unless $remote->is_individual;
             my $permit = ($item->{'journalid'} == $remote->{'userid'});

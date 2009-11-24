@@ -7711,27 +7711,37 @@ sub can_view
     # owners can always see their own.
     return 1 if $userid == $remoteid;
 
-    # other people can't read private
-    return 0 if $item->{'security'} eq "private";
-
-    # should be 'usemask' security from here out, otherwise
+    # should be 'usemask' or 'private' security from here out, otherwise
     # assume it's something new and return 0
-    return 0 unless $item->{'security'} eq "usemask";
+    return 0 unless $item->{security} eq "usemask" || $item->{security} eq "private";
 
-    # if it's usemask, we have to refuse non-personal journals,
-    # so we have to load the user
     return 0 unless $remote->is_individual;
 
     # this far down we have to load the user
     my $u = LJ::want_user( $userid ) or return 0;
 
-    # check if it's a community and they're a member
-    return 1 if $u->is_community &&
-                $remote->member_of( $u );
+    if ( $item->{security} eq "private" ) {
+        # other people can't read private on personal journals
+        return 0 if $u->is_individual;
 
-    # now load allowmask
-    my $allowed = ( $u->trustmask( $remoteid ) & int($item->{'allowmask'}) );
-    return $allowed ? 1 : 0;  # no need to return matching mask
+        # but community administrators can read private entries on communities
+        return 1 if $u->is_community && $remote->can_manage( $u );
+
+        # private entry on a community; we're not allowed to see this
+        return 0;
+    }
+
+    if ( $item->{security} eq "usemask" ) {
+        # check if it's a community and they're a member
+        return 1 if $u->is_community &&
+                    $remote->member_of( $u );
+    
+        # now load allowmask
+        my $allowed = ( $u->trustmask( $remoteid ) & int($item->{'allowmask'}) );
+        return $allowed ? 1 : 0;  # no need to return matching mask
+    }
+
+    return 0;
 }
 
 
@@ -8021,7 +8031,7 @@ sub get_daycounts
                 "viewall", "calendar" );
         }
 
-        if ( $remote->userid == $uid || $viewall ) {
+        if ( $remote->userid == $uid || $viewall || $remote->can_manage( $u ) ) {
             $secwhere = "";   # see everything
             $memkind = 'a'; # all
         } elsif ( $remote->is_individual ) {

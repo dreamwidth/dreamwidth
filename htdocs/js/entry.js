@@ -412,6 +412,9 @@ function changeSecurityOptions(defaultjournal) {
                     if (data.ret['is_comm']) {
                         $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
                         $('security').options[1] = new Option(UpdateFormStrings.friends_comm, 'friends');
+                        if ( data.ret['can_manage'] ) {
+                            $('security').options[2] = new Option(UpdateFormStrings.admin, 'private');
+                        }
                     } else {
                         $('security').options[0] = new Option(UpdateFormStrings.public, 'public');
                         $('security').options[1] = new Option(UpdateFormStrings.friends, 'friends');

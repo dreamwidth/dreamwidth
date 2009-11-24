@@ -2751,6 +2751,8 @@ setting.minsecurity.option.select.friends=friends
 
 setting.minsecurity.option.select.members=members
 
+setting.minsecurity.option.select.admin=administrators
+
 setting.minsecurity.option.select.private=just me (private)
 
 setting.minsecurity.option.select.public=everyone (public)

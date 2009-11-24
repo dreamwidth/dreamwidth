@@ -40,10 +40,11 @@ my %e = (
      # User Errors
      "100" => [ E_PERM, "Invalid username" ],
      "101" => [ E_PERM, "Invalid password" ],
-     "102" => [ E_PERM, "Can't use custom/private security on shared/community journals." ],
+     "102" => [ E_PERM, "Can't use custom security on community journals." ],
      "103" => [ E_PERM, "Poll error" ],
      "104" => [ E_TEMP, "Error adding one or more friends" ],
      "105" => [ E_PERM, "Challenge expired" ],
+     "106" => [ E_PERM, "Can only use administrator-locked security on community journals you manage." ],
      "150" => [ E_PERM, "Can't post as non-user" ],
      "151" => [ E_TEMP, "Banned from journal" ],
      "152" => [ E_PERM, "Can't make back-dated entries in non-personal journal." ],
@@ -1184,11 +1185,16 @@ sub postevent
 
     my $qsecurity = $dbh->quote($security);
 
-    ### make sure user can't post with "custom/private security" on shared journals
+    ### make sure user can't post with "custom security" on communities
     return fail($err,102)
-        if ($ownerid != $posterid && # community post
-            ($req->{'security'} eq "private" ||
-            ($req->{'security'} eq "usemask" && $qallowmask != 1 )));
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "usemask" && $qallowmask != 1;
+
+    ## make sure user can't post with "private security" on communities they don't manage
+    return fail( $err, 106 )
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "private" &&
+           ! $u->can_manage( $uowner );
 
     # make sure this user isn't banned from posting here (if
     # this is a community journal)
@@ -1632,11 +1638,16 @@ sub editevent
     return fail($err, 203, "Invalid friends group security set.")
         if $qallowmask > 1 && $qallowmask % 2;
 
-    ### make sure user can't change a post to "custom/private security" on shared journals
+    ### make sure user can't post with "custom security" on communities
     return fail($err,102)
-        if ($ownerid != $posterid && # community post
-            ($req->{'security'} eq "private" ||
-            ($req->{'security'} eq "usemask" && $qallowmask != 1 )));
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "usemask" && $qallowmask != 1;
+
+    ## make sure user can't post with "private security" on communities they don't manage
+    return fail( $err, 106 )
+        if $ownerid != $posterid && # community post
+           $req->{'security'} eq "private" &&
+           ! $u->can_manage( $uowner );
 
     # make sure the new entry's under the char limit
     # NOTE: as in postevent, this requires $req->{event} to be binary data

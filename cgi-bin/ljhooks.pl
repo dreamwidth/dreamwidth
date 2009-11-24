@@ -112,12 +112,9 @@ register_setter("newpost_minsecurity", sub {
         $$err = "Illegal value.  Must be 'public', 'access' (for personal journals), 'members' (for communities), or 'private'";
         return 0;
     }
-    # Don't let commmunities be private or access-locked
+    # Don't let commmunities be access-locked
     if ( $u->is_community ) {
-        if ( $value eq "private" ) {
-            $$err = "newpost_minsecurity cannot be private for communities";
-            return 0;
-        } elsif ( $value eq "access" ) {
+       if ( $value eq "access" ) {
             $$err = "newpost_minsecurity cannot be access-locked for communities (use 'members' instead)";
             return 0;
         }
