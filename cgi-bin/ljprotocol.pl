@@ -1801,22 +1801,28 @@ sub editevent
            $req->{security} =~ /^(?:public|private|usemask)$/;
 
     my $do_tags = $req->{props} && defined $req->{props}->{taglist};
+    my $do_tags_security;
+    my $entry_tags;
+
     if ($oldevent->{security} ne $security || $qallowmask != $oldevent->{allowmask}) {
         # FIXME: this is a hopefully temporary hack which deletes tags from the entry
         # when the security has changed.  the real fix is to make update_logtags aware
         # of security changes so it can update logkwsum appropriately.
 
-        unless ($do_tags) {
-            # we need to fix security on this entry's tags, but the user didn't give us a tag list
-            # to work with, so we have to go get the tags on the entry, and construct a tag list,
-            # in order to pass to update_logtags down at the bottom of this whole update
-            my $tags = LJ::Tags::get_logtags($uowner, $itemid);
-            $tags = $tags->{$itemid};
-            $req->{props}->{taglist} = join(',', sort values %{$tags || {}});
-            $do_tags = 1; # bleh, force the update later
+        # we need to fix security on this entry's tags; if the user didn't give us a
+        # tag list to work with, we use the existing tags on this entry
+        unless ( $do_tags ) {
+            $entry_tags  = LJ::Tags::get_logtags($uowner, $itemid);
+            $entry_tags = $entry_tags->{$itemid};
+            $entry_tags = join(',', sort values %{$entry_tags || {}});
+            $req->{props}->{taglist} = $entry_tags;
         }
 
-        LJ::Tags::delete_logtags($uowner, $itemid);
+        # FIXME: temporary hack until we can make update_logtags recognize entry security edits
+        if ( LJ::Tags::can_control_tags( $uowner, $u ) || LJ::Tags::can_add_tags( $uowner, $u ) ) {
+            my $delete = LJ::Tags::delete_logtags( $uowner, $itemid );
+            $do_tags_security = 1;
+        }
     }
 
     my $qyear = $req->{'year'}+0;
@@ -1898,14 +1904,32 @@ sub editevent
     $req->{'props'}->{'revnum'} = ($curprops{$itemid}->{'revnum'} || 0) + 1;
     $req->{'props'}->{'revtime'} = time();
 
+    if ( $do_tags ) {
+        # we only want to update the tags if they've been modified
+        # so load the original entry tags
+        unless ( $entry_tags ) {
+            $entry_tags  = LJ::Tags::get_logtags($uowner, $itemid);
+            $entry_tags = $entry_tags->{$itemid};
+            $entry_tags = join(',', sort values %{$entry_tags || {}});
+        }
+
+        my $request_tags = [];
+        LJ::Tags::is_valid_tagstring( $req->{props}->{taglist}, $request_tags );
+        $request_tags = join( ",", sort @{ $request_tags || [] } );
+        $do_tags = ( $request_tags ne $entry_tags );
+    }
+
     # handle tags if they're defined
-    if ($do_tags) {
+    if ( $do_tags || $do_tags_security ) {
         my $tagerr = "";
         my $rv = LJ::Tags::update_logtags($uowner, $itemid, {
                 set_string => $req->{props}->{taglist},
                 remote => $u,
                 err_ref => \$tagerr,
             });
+
+        # we only want to fail if we tried to edit the tags, not if we just tried to edit the security
+        return fail( $err, 157, $tagerr ) if $tagerr && $do_tags;
     }
 
     # handle the props

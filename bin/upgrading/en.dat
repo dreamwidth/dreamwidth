@@ -3467,9 +3467,13 @@ subscribe_interface.save=Save
 
 subscribe_interface.special_subs.note=These notification options are only available by email and will not show in your [[sitenameabbrev]] Inbox.
 
+subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] active subscriptions.
+
 taglib.error.access=You are not allowed to tag entries in this journal.
 
-subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] active subscriptions.
+taglib.error.add=You are not allowed to create new tags for this journal; the entry was not tagged with [[tags]].
+
+taglib.error.delete=You are not allowed to delete tags from entries for this journal; the entry is still tagged with [[tags]].
 
 taglib.error.invalid=The following tag name is invalid: [[tagname]]
 
