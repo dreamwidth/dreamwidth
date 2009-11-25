@@ -44,6 +44,7 @@ sub render_body {
     my $nitems = $opts{items};
     my $page = $opts{page} || 1;
     my $view = $opts{view} || "all";
+    my $itemid = int( $opts{itemid} || 0 );
     my $remote = LJ::get_remote();
 
     my $unread_count = 1; #TODO get real number
@@ -60,6 +61,11 @@ sub render_body {
                     id    => "inbox_view",
                   });
 
+    $msgs_body .= LJ::html_hidden({
+                    name => "itemid",
+                    value => "$itemid",
+                    id => "inbox_itemid",
+                  });
     # pagination
     my $page_limit = 15;
     $page = 1 if $page < 1;

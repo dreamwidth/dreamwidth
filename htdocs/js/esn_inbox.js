@@ -9,7 +9,7 @@ DOM.addEventListener(window, "load", function (evt) {
 
       ESN_Inbox.initTableSelection(folder);
       ESN_Inbox.initContentExpandButtons(folder);
-      ESN_Inbox.initInboxBtns(folder, cur_folder);
+      ESN_Inbox.initInboxBtns(folder, cur_folder, itemid);
       ESN_Inbox.initActionLinks(folder);
   }
 });
@@ -156,7 +156,7 @@ ESN_Inbox.saveDefaultExpanded = function (expanded) {
 };
 
 // set up inbox buttons
-ESN_Inbox.initInboxBtns = function (folder, cur_folder) {
+ESN_Inbox.initInboxBtns = function (folder, cur_folder, itemid) {
     // 2 instances of action buttons
     for (var i=1; i<=2; i++) {
         DOM.addEventListener($(folder + "_MarkRead_" + i), "click", function(e) { ESN_Inbox.markRead(e, folder) });
@@ -166,8 +166,8 @@ ESN_Inbox.initInboxBtns = function (folder, cur_folder) {
 
     // 2 instances of mark all and delete all buttons
     for (var i=1; i<=2; i++) {
-        DOM.addEventListener($(folder + "_MarkAllRead_" + i), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder) });
-        DOM.addEventListener($(folder + "_DeleteAll_" + i), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder) });
+        DOM.addEventListener($(folder + "_MarkAllRead_" + i), "click", function(e) { ESN_Inbox.markAllRead(e, folder, cur_folder, itemid) });
+        DOM.addEventListener($(folder + "_DeleteAll_" + i), "click", function(e) { ESN_Inbox.deleteAll(e, folder, cur_folder, itemid) });
     }
 };
 
@@ -223,17 +223,17 @@ ESN_Inbox.deleteItems = function (evt, folder) {
     return false;
 };
 
-ESN_Inbox.markAllRead = function (evt, folder, cur_folder) {
+ESN_Inbox.markAllRead = function (evt, folder, cur_folder, itemid) {
     Event.stop(evt);
-    ESN_Inbox.updateItems('mark_all_read', evt, folder, '', cur_folder);
+    ESN_Inbox.updateItems('mark_all_read', evt, folder, '', cur_folder, itemid);
     return false;
 };
 
-ESN_Inbox.deleteAll = function (evt, folder, cur_folder) {
+ESN_Inbox.deleteAll = function (evt, folder, cur_folder, itemid) {
     Event.stop(evt);
 
     if (confirm("Delete all Inbox messages in the current folder except flagged?")) {
-        ESN_Inbox.updateItems('delete_all', evt, folder, '', cur_folder);
+        ESN_Inbox.updateItems('delete_all', evt, folder, '', cur_folder, itemid);
     }
     return false;
 };
@@ -245,7 +245,7 @@ ESN_Inbox.bookmark = function (evt, folder, qid) {
 }
 
 // do an ajax action on the currently selected items
-ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder) {
+ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder, itemid) {
     if (!ESN_Inbox.hourglass) {
         var coords = DOM.getAbsoluteCursorPosition(evt);
         ESN_Inbox.hourglass = new Hourglass();
@@ -260,7 +260,8 @@ ESN_Inbox.updateItems = function (action, evt, folder, qid, cur_folder) {
         "action": action,
         "qids": qids,
         "folder": folder,
-        "cur_folder": cur_folder
+        "cur_folder": cur_folder,
+        "itemid" : itemid
     };
 
     var opts = {

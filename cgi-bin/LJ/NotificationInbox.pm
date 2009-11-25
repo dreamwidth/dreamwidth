@@ -526,7 +526,7 @@ sub can_add_bookmark {
 }
 
 sub delete_all {
-    my ( $self, $view ) = @_;
+    my ( $self, $view, %args ) = @_;
     my @items;
 
     # Unless in folder 'Bookmarks', don't fetch any bookmarks
@@ -549,8 +549,10 @@ sub delete_all {
         @items = $self->bookmark_items;
     } elsif ( $view eq 'usermsg_sent' ) {
         @items = $self->usermsg_sent_items;
-    } elsif ( $view eq 'singleentry' ) {
-        @items = $self->singleentry_items;
+    } elsif ( $view eq 'singleentry' && $args{itemid} ) {
+        my $itemid = $args{itemid} + 0;
+        return unless $itemid;
+        @items = $self->singleentry_items( $itemid );
     }
 
     @items = grep { !$self->is_bookmark($_->qid) } @items
@@ -570,7 +572,7 @@ sub delete_all {
 }
 
 sub mark_all_read {
-    my ( $self, $view ) = @_;
+    my ( $self, $view, %args ) = @_;
     my @items;
 
     # Only get items in currently viewed folder and subfolders
@@ -593,8 +595,10 @@ sub mark_all_read {
         @items = $self->bookmark_items;
     } elsif ( $view eq 'usermsg_sent' ) {
         @items = $self->usermsg_sent_items;
-    } elsif ( $view eq 'singleentry' ) {
-        @items = $self->singleentry_items;
+    } elsif ( $view eq 'singleentry' && $args{itemid} ) {
+        my $itemid = $args{itemid} + 0;
+        return unless $itemid;
+        @items = $self->singleentry_items( $itemid );
     }
 
     # Mark read

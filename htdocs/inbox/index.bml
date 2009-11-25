@@ -54,6 +54,8 @@ body<=
     $view = undef if $view eq 'archive' && ! LJ::is_enabled('esn_archive');
     $view = undef if $view && !LJ::NotificationInbox->can("${view}_items");
 
+    my $itemid = $view eq "singleentry" ? int( $POST{itemid} || $GET{itemid} || 0 ) : 0;
+
     # Bolds the selected View/Folder
     my $selected_folder = $view || 'all';
     $selected_folder = "entrycomment" if $selected_folder eq "singleentry";
@@ -85,9 +87,9 @@ body<=
         }
 
         if ($POST{markAllRead}) {
-            $inbox->mark_all_read( $view );
+            $inbox->mark_all_read( $view, itemid => $itemid );
         } elsif ($POST{deleteAll}) {
-            $inbox->delete_all( $view );
+            $inbox->delete_all( $view, itemid => $itemid );
         } else {
             # go through each item and see if it's checked
             foreach my $item (@$nitems) {
@@ -125,9 +127,10 @@ body<=
     $body .= LJ::error_list(@errors) if (@errors);
 
     my $viewarg = $view  ? "&view=$view" : "";
+    my $itemidarg = $itemid ? "&itemid=$itemid" : "";
     $body .= qq{
     <div class="inbox_newitems pkg">
-        <span class="esnlinks"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg" id="RefreshLink"><?_ml inbox.refresh _ml?></a> |
+        <span class="esnlinks"><a href="$LJ::SITEROOT/inbox/?page=$page$viewarg$itemidarg" id="RefreshLink"><?_ml inbox.refresh _ml?></a> |
           <a href="$LJ::SITEROOT/manage/subscriptions/"><?_ml inbox.manage_settings _ml?></a></span>
     </div> };
 
@@ -146,7 +149,6 @@ body<=
     my @all_items;
     if ($view) {
         if ( $view eq "singleentry" ) {
-            my $itemid = int( $POST{itemid} || $GET{itemid} );
             @all_items = eval "\$inbox->${view}_items( $itemid )";
         } else {
             @all_items = eval "\$inbox->${view}_items";
@@ -166,7 +168,9 @@ body<=
                      page      => $page,
                      view      => $view,
                      mode      => $GET{mode},
-                     items     => \@all_items);
+                     items     => \@all_items,
+                     itemid    => $itemid,
+              );
 
     $body .= qq{
         </td></tr></table>
@@ -195,6 +199,7 @@ LJ_cmtinfo = {};
 LJ_cmtinfo['disableInlineDelete'] = 1;
 var pageNum;
 var cur_folder = '<?_code return $POST{view} || $GET{view} || undef; _code?>';
+var itemid = <?_code return int( $POST{itemid} || $GET{itemid} || 0 ) _code?>;
 
 DOM.addEventListener(window, "load", setup, cur_folder);
 
@@ -237,6 +242,7 @@ function xtra_args () {
     var args = '';
     var view = $("inbox_view").value;
     if (view) args += "&view=" + view;
+    if (itemid) args += "&itemid="+itemid;
     return args;
 }
 
