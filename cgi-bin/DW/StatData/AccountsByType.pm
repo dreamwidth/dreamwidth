@@ -66,10 +66,13 @@ sub collect {
 =cut
 
 sub data {
-    my $self = shift;
-    my $data = $self->{data};
-    $data->{total} = 0;
-    $data->{total} += $data->{$_} foreach keys %$data;
+    my $data = $_[0]->{data};
+    # don't double-calculate the total
+    return $data if $data->{total};
+
+    my $total = 0;
+    $total += $data->{$_} foreach keys %$data;
+    $data->{total} = $total;
     return $data;
 }
 
