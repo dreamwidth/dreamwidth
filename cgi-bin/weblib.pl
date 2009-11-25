@@ -10,6 +10,7 @@ use lib "$LJ::HOME/cgi-bin";
 require "crumbs.pl";
 
 use Carp;
+use DW::External::Site;
 use DW::Request;
 use LJ::Event;
 use LJ::Subscription::Pending;
@@ -1407,9 +1408,18 @@ sub entry_form {
         if (t) {
 RTE
 
+    my @sites = DW::External::Site->get_sites;
+    my @sitevalues;
+    foreach my $site (sort { $a->{sitename} cmp $b->{sitename} } @sites) {
+        push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
+    }
+
     $out .= "var FCKLang;\n";
     $out .= "if (!FCKLang) FCKLang = {};\n";
     $out .= "FCKLang.UserPrompt = \"".LJ::ejs(BML::ml('fcklang.userprompt'))."\";\n";
+    $out .= "FCKLang.UserPrompt_User = \"".LJ::ejs(BML::ml('fcklang.userprompt.user'))."\";\n";
+    $out .= "FCKLang.UserPrompt_Site = \"".LJ::ejs(BML::ml('fcklang.userprompt.site'))."\";\n";
+    $out .= "FCKLang.UserPrompt_SiteList =" . LJ::js_dumper( \@sitevalues ) . ";\n";
     $out .= "FCKLang.InvalidChars = \"".LJ::ejs(BML::ml('fcklang.invalidchars'))."\";\n";
     $out .= "FCKLang.LJUser = \"".LJ::ejs(BML::ml('fcklang.ljuser'))."\";\n";
     $out .= "FCKLang.VideoPrompt = \"".LJ::ejs(BML::ml('fcklang.videoprompt'))."\";\n";

@@ -2,6 +2,7 @@
 {
     use strict;
     use vars qw(%POST);
+    use DW::External::User;
     use LJ::Auth;
     use JSON;
 
@@ -15,18 +16,36 @@
     };
 
     my $username = $POST{'username'};
-    my $u = LJ::load_user($username);
+    my $site = $POST{site};
 
     my %ret;
 
     BML::set_content_type('text/javascript; charset=utf-8');
     BML::finish();
 
+    my $u;
+
+    if ( $site ) {
+        # verify that this is a proper site
+        $u = DW::External::User->new( user => $username, site => $site );
+        if ( $u ) {
+            $ret{userstr} = '<user site="' . $u->site->{domain} . '" name="' . $u->user . '">';
+            $ret{ljuser} = $u->ljuser_display;
+        }
+    }
+
+    unless ( $u ) {
+        $u = LJ::load_user( $username );
+        $ret{userstr} = "<user name=\"$username\">";
+        $ret{ljuser} = LJ::ljuser( $u );
+    }
+
+    # more general error message if we may have been trying to show an external site
+    return $err->("Invalid user or site") if $site && ! $u;
+
+    # more specific error message if we are loading a user on the site
     return $err->("No such user") unless $u;
-
-    $ret{ljuser} = LJ::ljuser($u);
-    $ret{userstr} = "<user name=\"$username\">";
-
+    
     sleep(1.5) if $LJ::IS_DEV_SERVER;
 
     $ret{success} = 1;

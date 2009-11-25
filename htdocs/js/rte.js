@@ -8,15 +8,22 @@ function LJUser(textArea) {
 
     var html = oEditor.GetXHTML(false);
     if (html) html = html.replace(/<\/(lj|user)>/, '');
-    var regexp = /<(?:lj user|user name)=['"](\w+?)['"] ?\/?>\s?(?:<\/(?:lj|user)>)?\s?/g;
+    var regexp = /<(?:lj|user)( (?:user|name|site)=[^/>]+)\/?>\s?(?:<\/(?:lj|user)>)?\s?/g;
+    var attrs_regexp = /(user|name|site)=['"]([.\w]+?)['"]/g;
     var userstr;
     var users = [];
     var username;
+
     while ((users = regexp.exec(html))) {
-        username = users[1];
-        var postData = {
-            "username" : username
-        };
+        var attrs = [];
+        var postData = {};
+
+        while (( attrs=attrs_regexp.exec(users[1]) )) {
+            if (attrs[1] == 'user' || attrs[1] == 'name')
+                postData.username = attrs[2];
+            else 
+                postData[attrs[1]] = attrs[2];
+        }
         var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser";
 
         var gotError = function(err) {
@@ -24,18 +31,27 @@ function LJUser(textArea) {
             return;
         }
 
-        var gotInfo = function (data) {
+        var gotInfo = (function (userstr, username, site) { return function(data) {
+            // trim any trailing spaces from the userstr
+            // so that we don't get rid of them when we do the replace below
+            userstr = userstr.replace(/\s\s*$/, '');
+
             if (data.error) {
                 alert(data.error+' '+username);
                 return;
             }
             if (!data.success) return;
-            data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
+
+            if ( site ) 
+                data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser" site="' + site + '">');
+            else 
+                data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
+
             data.ljuser = data.ljuser.replace(/<\/span>\s?/,'</div>');
-            html = html.replace(data.userstr,data.ljuser);
+            html = html.replace(userstr,data.ljuser);
             oEditor.SetData(html);
             oEditor.Focus();
-        }
+        }})(users[0], postData.username, postData.site);
 
         var opts = {
             "data": window.parent.HTTPReq.formEncoded(postData),
@@ -245,7 +261,10 @@ function doLinkedFieldUpdate(oEditor) {
 }
 
 function convertToTags(html) {
+    // no site
     html = html.replace(/<div class=['"]ljuser['"]>.+?<b>(\w+?)<\/b><\/a><\/div>/g, '<user name=\"$1\">');
+    // with site
+    html = html.replace(/<div(?: site=['"](.+?)['"]) class=['"]ljuser['"]>.+?<b>(\w+?)<\/b><\/a><\/div>/g, '<user name=\"$2\" site=\"$1\">');
     html = html.replace(/<div class=['"]ljvideo['"] url=['"](\S+)['"]><img.+?\/><\/div>/g, '<site-template name=\"video\">$1</site-template>');
     html = html.replace(/<div class=['"]ljvideo['"] url=['"](\S+)['"]><br \/><\/div>/g, '');
     html = html.replace(/<div class=['"]ljraw['"]>(.+?)<\/div>/g, '<raw-code>$1</raw-code>');

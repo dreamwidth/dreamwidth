@@ -554,3 +554,9 @@ td.subject-desc {
 td.tabs {
     width:41%;
 }
+
+
+/* for entering the user tag */
+.userprompt {  padding: 0 1em 0.5em 1em; }
+.userprompt .submitbtncontainer {  margin-top: 1em; }
+.userprompt label { display: block; padding: 0.5em 0 0.1em 0; }

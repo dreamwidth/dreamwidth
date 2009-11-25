@@ -7,11 +7,6 @@ LJUserCommand.GetState=function() {
     return FCK_TRISTATE_OFF; //we dont want the button to be toggled
 }
 
-// Check for allowed lj user characters
-LJUserCommand.validUsername = function(str) {
-    var pattern = /^\w{1,15}$/i;
-    return pattern.test(str);
-}
 
 LJUserCommand.Execute=function() {
     var username;
@@ -37,47 +32,135 @@ LJUserCommand.Execute=function() {
         }
     }
 
+    function do_insert( username, site ) {
+        var postData = {
+            "username" : username,
+            "site"     : site
+        };
+    
+        if (username == null) return;
+    
+        var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser";
+    
+        var gotError = function(err) {
+            alert(err);
+        }
+    
+        var gotInfo = function (data) {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            if (!data.success) return;
+
+            if ( site ) 
+                data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser" site="' + site + '">');
+            else 
+                data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
+
+            data.ljuser = data.ljuser.replace(/<\/span>/,'</div>');
+            FCK.InsertHtml(data.ljuser);
+            FCK.InsertHtml('&nbsp;')
+            if (selection != '') FCKSelection.Collapse();
+            FCK.Focus();
+        }
+    
+        var opts = {
+            "data": window.parent.HTTPReq.formEncoded(postData),
+            "method": "POST",
+            "url": url,
+            "onError": gotError,
+            "onData": gotInfo
+        };
+    
+        window.parent.HTTPReq.getJSON(opts);
+    }
+
     if (selection != '') {
         username = selection;
+        do_insert( username );
     } else {
-        username = prompt(window.parent.FCKLang.UserPrompt, '');
-    }
-
-    var postData = {
-        "username" : username
-    };
-    if (username == null) return;
-
-    var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser.bml";
-
-    var gotError = function(err) {
-        alert(err);
-        return;
-    }
-
-    var gotInfo = function (data) {
-        if (data.error) {
-            alert(data.error);
-            return;
+        var DOM = window.parent.DOM;
+        var _textDiv = window.parent._textDiv;
+        var userPopup = new window.parent.LJ_IPPU( window.parent.FCKLang.UserPrompt );
+        userPopup.hide =   function() {
+            window.parent.LJ_IPPU.superClass.hide.apply(this);
+            DOM.removeEventListener( window.parent.document, "keyup", LJUserCommand.KeyUpHandler );
         }
-        if (!data.success) return;
-        data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
-        data.ljuser = data.ljuser.replace(/<\/span>/,'</div>');
-        FCK.InsertHtml(data.ljuser);
-        FCK.InsertHtml('&nbsp;')
-        if (selection != '') FCKSelection.Collapse();
-        FCK.Focus();
+
+
+        var inner = document.createElement( "div" );
+        DOM.addClassName( inner, "userprompt" );
+
+        var label = document.createElement( "label" );
+        label.appendChild( _textDiv( window.parent.FCKLang.UserPrompt_User ) );
+        label.setAttribute( "for", "userprompt-username" );
+        inner.appendChild( label );
+
+        var username = document.createElement( "input" );
+        username.name = "username";
+        username.id = "userprompt-username";
+        inner.appendChild( username );
+
+        label = document.createElement( "label" );
+        label.appendChild( _textDiv( window.parent.FCKLang.UserPrompt_Site ) );
+        label.setAttribute( "for", "userprompt-site" );
+        inner.appendChild( label );
+
+        var siteList = document.createElement( "select" );
+        siteList.name = "site";
+        siteList.id = "userprompt-site";
+        var option = new Option( "--", "" );
+        option.selected = "selected";
+        siteList.appendChild( option );
+        inner.appendChild( siteList );
+
+        for ( var i = 0; i < window.parent.FCKLang.UserPrompt_SiteList.length; i++ ) {
+            var site = window.parent.FCKLang.UserPrompt_SiteList[i];
+            var option = new Option( site.sitename, site.domain );
+            siteList.appendChild( option );
+        }
+
+        var btncont = document.createElement( "div" );
+        DOM.addClassName( btncont, "submitbtncontainer" );
+        var btn = document.createElement( "input" );
+        DOM.addClassName ( btn, "submitbtn" );
+        btn.type = "button";
+        btn.value = "Insert";
+        btncont.appendChild( btn );
+        inner.appendChild( btncont );
+
+        userPopup.setContentElement( inner );
+
+        userPopup.setAutoCenter( true, true );
+        userPopup.setDimensions( "15em", "auto" );
+        userPopup.show();
+        username.focus();
+
+        DOM.addEventListener( window.parent.document, "keyup", function(userPopup) { 
+            return  LJUserCommand.KeyUpHandler = function(e) {
+                var code = e.keyCode || e.which;
+                // enter
+                if ( code == 13 ) {            
+                    userPopup.hide();
+                    do_insert( username.value, siteList.value );
+                    return;
+                }
+                // escape
+                if ( code == 27 ) {
+                    userPopup.hide();
+                    return;
+                }
+            } }(userPopup)
+        );
+
+        DOM.addEventListener( btn, "click", function (e) {
+            userPopup.hide();
+            do_insert( username.value, siteList.value );
+        } );
     }
 
-    var opts = {
-        "data": window.parent.HTTPReq.formEncoded(postData),
-        "method": "POST",
-        "url": url,
-        "onError": gotError,
-        "onData": gotInfo
-    };
-
-    window.parent.HTTPReq.getJSON(opts);
     return false;
 }
 

@@ -2031,6 +2031,10 @@ fcklang.readmore=Read more...
 
 fcklang.userprompt=Enter their username
 
+fcklang.userprompt.site=External Site (optional)
+
+fcklang.userprompt.user=Username
+
 fcklang.videoprompt=Please enter the YouTube, PhotoBucket, or Google Video URL:
 
 feeds.link=syndicated feeds
