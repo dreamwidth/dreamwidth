@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 #
 # DW::StatData::ActiveAccounts - Active accounts, by #days since last active
+# and account level
 #
 # Authors:
 #      Pau Amma <pauamma@cpan.org>
@@ -38,7 +39,16 @@ use base 'DW::StatData';
 
 sub category { "active" }
 sub name     { "Active Accounts" }
-sub keylist  { [ qw( active_1d active_7d active_30d ) ] }
+
+my %key_to_days = ( active_1d => 1, active_7d => 7, active_30d => 30 );
+sub keylist {
+    my @levels = ( 'unknown', values %{DW::Pay::all_shortnames()} );
+    my @keys = ();
+    foreach my $k ( keys %key_to_days ) {
+        push @keys, $k, map "$k-$_", @levels;
+    }
+    return \@keys;
+}
 
 =head1 API
 
@@ -48,33 +58,45 @@ Collects data for the following keys:
 
 =over
 
-=item active_1d
+=item active_1d, active_1d-I<< level name >>
 
-Number of accounts active in the last 24 hours
+Number of accounts active in the last 24 hours (total and for each account
+level)
 
-=item active_7d
+=item active_7d, active_7d-I<< level name >>
 
-Number of accounts active in the last 168 (7*24) hours
+Number of accounts active in the last 168 (7*24) hours (total and for each
+account level)
 
-=item active_30d
+=item active_30d, active_30d-I<< level name >>
 
-Number of accounts active in the last 720 (30*24) hours
+Number of accounts active in the last 720 (30*24) hours (total and for each
+account level)
 
 =back
 
+In the above, I<< level name >> is any of the account level names returned by
+C<< DW::Pay::all_shortnames >> or "unknown".
+
 =cut
 
-my %key_to_days = ( active_1d => 1, active_7d => 7, active_30d => 30 );
 sub collect {
     my ( $class, @keys ) = @_;
     my $max_days = 0;
     my %data;
+    my $shortnames = DW::Pay::all_shortnames();
+    my @levels = ( '', 'unknown', values %$shortnames );
 
     foreach my $k ( @keys ) {
+        my ( $keyprefix, $keylevel ) = split( '-', $k );
+        $keylevel ||= '';
+
         die "Unknown statkey $k for $class"
-            unless exists $key_to_days{$k};
-        $max_days = $key_to_days{$k}
-            if $max_days < $key_to_days{$k};
+            unless exists $key_to_days{$keyprefix}
+                   and grep { $_ eq $keylevel } @levels;
+
+        $max_days = $key_to_days{$keyprefix}
+            if $max_days < $key_to_days{$keyprefix};
         $data{$k} = 0;
     }
 
@@ -82,17 +104,25 @@ sub collect {
         my ( $cid, $dbr ) = @_; # $cid isn't used
 
         my $sth = $dbr->prepare( qq{
-            SELECT FLOOR((UNIX_TIMESTAMP()-timeactive)/86400) as days, COUNT(*)
+            SELECT FLOOR((UNIX_TIMESTAMP()-timeactive)/86400) as days,
+                   accountlevel, COUNT(*)
             FROM clustertrack2
-            WHERE timeactive > UNIX_TIMESTAMP()-? GROUP BY days } );
+            WHERE timeactive > UNIX_TIMESTAMP()-?
+            GROUP BY days, accountlevel } );
         $sth->execute( $max_days*86400 );
 
-        while ( my ( $days, $active ) = $sth->fetchrow_array ) {
+        while ( my ( $days, $level, $active ) = $sth->fetchrow_array ) {
+            $level = ( defined $level ) ? $shortnames->{$level} : 'unknown';
 
             # which day interval(s) does this fall in?
             # -- in last day, in last 7, in last 30?
             foreach my $k ( @keys ) {
-                $data{$k} += $active if $days < $key_to_days{$k};
+                my ( $keyprefix, $keylevel ) = split( '-', $k );
+                $keylevel ||= '';
+                if ( $days < $key_to_days{$keyprefix}
+                     && ( $keylevel eq $level || $keylevel eq '' ) ) {
+                    $data{$k} += $active;
+                }
             }
         }
     } );

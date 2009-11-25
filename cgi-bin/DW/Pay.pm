@@ -38,7 +38,8 @@ use constant ERR_TEMP => 2;
 # RETURN: 1/0 if the type is a valid type
 #
 sub type_is_valid {
-    return 1 if $LJ::CAP{$_[0]} && $LJ::CAP{$_[0]}->{_account_type};
+    return 1 if $LJ::CAP{$_[0]} && $LJ::CAP{$_[0]}->{_account_type}
+        && $LJ::CAP{$_[0]}->{_visible_name};
     return 0;
 }
 
@@ -52,9 +53,41 @@ sub type_is_valid {
 # RETURN: string name of type, else undef
 #
 sub type_name {
-    confess 'invalid typeid'
+    confess "invalid typeid $_[0]"
         unless DW::Pay::type_is_valid( $_[0] );
     return $LJ::CAP{$_[0]}->{_visible_name};
+}
+
+################################################################################
+# DW::Pay::type_shortname
+#
+# ARGUMENTS: typeid
+#
+#   typeid      required    the id of the type we're checking
+#
+# RETURN: string short name of type, else undef
+#
+sub type_shortname {
+    confess "invalid typeid $_[0]"
+        unless DW::Pay::type_is_valid( $_[0] );
+    return $LJ::CAP{$_[0]}->{_account_type};
+}
+
+################################################################################
+# DW::Pay::all_shortnames
+#
+# ARGUMENTS: (none)
+#
+# RETURN: { typeid => shortname } hashref
+#
+sub all_shortnames {
+    my %names;
+    while ( my ( $typeid, $data ) = each %LJ::CAP ) {
+        # Avoid calling DW::Pay::type_is_valid a zillion times for the same typeid
+        $names{$typeid} = $data->{_account_type}
+            if DW::Pay::type_is_valid( $typeid );
+    }
+    return \%names;
 }
 
 ################################################################################
@@ -173,7 +206,7 @@ sub get_account_type {
     confess 'account has no valid typeid'
         unless $typeid && $typeid > 0;
     confess "typeid $typeid not a valid account level"
-        unless $LJ::CAP{$typeid} && $LJ::CAP{$typeid}->{_account_type};
+        unless DW::Pay::type_is_valid( $typeid );
     return $LJ::CAP{$typeid}->{_account_type};
 }
 
@@ -191,7 +224,7 @@ sub get_account_type_name {
     confess 'account has no valid typeid'
         unless $typeid && $typeid > 0;
     confess "typeid $typeid not a valid account level"
-        unless $LJ::CAP{$typeid} && $LJ::CAP{$typeid}->{_visible_name};
+        unless DW::Pay::type_is_valid( $typeid );
     return $LJ::CAP{$typeid}->{_visible_name};
 }
 
@@ -679,3 +712,4 @@ sub get_db_writer {
 }
 
 1;
+
