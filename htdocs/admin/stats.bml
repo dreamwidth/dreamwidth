@@ -25,10 +25,8 @@ body<=
     $title = $ML{'/admin/index.bml.admin.stats.link'};
 
     my $remote = LJ::get_remote();
-    my @display_privs = ( "payments" );
-    my $numprivs = @display_privs;
 
-    return BML::ml( "admin.noprivserror", { numprivs => $numprivs, needprivs => "<b>" . join( ", ", @display_privs ) . "</b>"} )
+    return BML::ml( "admin.noprivserror", { numprivs => "1", needprivs => "<b>payments</b>"} )
         unless $LJ::IS_DEV_SERVER || ( $remote && $remote->has_priv( "payments" ) );
 
     my $ret;
@@ -37,20 +35,25 @@ body<=
     use DW::StatData;
     LJ::ModuleLoader::autouse_subclasses( 'DW::StatData' );
 
+    # FIXME: refactor stuff common with stats/site.bml into... something. (A LJ::Widget?)
+    # FIXME: finish stripping
+
     # number of accounts, total
     my $accounts_by_type = DW::StatData::AccountsByType->load_latest( DW::StatStore->get( "accounts" ) );
+    my $total; # Used in paid account stats below
     if ( defined $accounts_by_type ) {
         $ret .= "<h2>Number of accounts</h2>";
         $ret .= "<ul>";
-        $ret .= "<li><label>Total</label>: " . $accounts_by_type->value( "total" ) . "</li>";
-        $ret .= "<li><label>Personal</label>: " . $accounts_by_type->value( "personal" ) . "</li>";
-        $ret .= "<li><label>OpenID</label>: " . $accounts_by_type->value( "identity" ) . "</li>";
+        $ret .= "<li><label>" . $ML{"/stats/site.bml.accounts.bytype.$_"} . "</label> "
+                    . $accounts_by_type->value( $_ ) . "</li>"
+            foreach qw/ total personal identity /;
         $ret .= "</ul>";
+        $total = $accounts_by_type->value( 'total' );
     }
 
     # number of accounts, active
     my $active_accounts = DW::StatData::ActiveAccounts->load_latest( DW::StatStore->get( "active" ) );
-    my $active; # Used in paid account stats below
+    my ( $active, $active_allpaid ); # Used in paid account stats below
     $ret .= "<h2>$ML{'/stats/site.bml.active.title'}</h2><p>$ML{'/stats/site.bml.active.desc'}</p>";
  
     if ( defined $active_accounts ) {
@@ -60,21 +63,56 @@ body<=
             foreach qw/ active_1d active_7d active_30d /;
         $ret .= "</ul>";
         $active = $active_accounts->value( 'active_30d' );
+        $active_allpaid = $active_accounts->value( 'active_30d-paid' )
+                          + $active_accounts->value( 'active_30d-premium' )
+                          + $active_accounts->value( 'active_30d-seed' );
     } else {
         $ret .= $ML{'/stats/site.bml.error.notavailable'};
     }
     
+    # Paid accounts (by level), with % of total and active
+    my $paid = DW::StatData::PaidAccounts->load_latest( DW::StatStore->get( "paid" ) );
+
+    $ret .= "<h2>$ML{'/stats/site.bml.paid.title'}</h2>";
+    if ( defined $paid ) {
+        $ret .= "<table><tr>";
+        $ret .= "<th>" . $ML{"/stats/site.bml.paid.colhdr.$_"} . "</th>"
+            foreach qw/ level number pct_total pct_active /;
+        $ret .= "</tr>\n";
+
+        foreach my $level ( qw( paid premium seed ) ) {
+            $ret .= "<tr><th>" . $ML{"/stats/site.bml.paid.rowhdr.$level"} . "</th>";
+            my $n = $paid->value( $level ) || 0;
+            $ret .= "<td class='stats'>$n</td>";
+            $ret .= "<td class='stats'>"
+                    . ( defined $total ? int( 100 * $n / $total ) : "" )
+                    . "</td>";
+            $ret .= "<td class='stats'>"
+                    . ( defined $active ? int( 100 * $n / $active ) : "" )
+                    . "</td></tr>\n";
+        }
+        $ret .= "<tr><th>$ML{'/stats/site.bml.paid.rowhdr.activepaid'}</th><td class='stats'>";
+        $ret .= $active_allpaid
+            if defined $active_allpaid;
+        $ret .= "</td></tr><tr><th>$ML{'/stats/site.bml.paid.rowhdr.inactivepaid'}</th><td class='stats'>";
+
+        $ret .= $paid->value( 'total' ) - $active_allpaid
+            if defined $active_allpaid;
+        $ret .= "</td></tr></table>";
+    } else {
+        $ret .= $ML{'/stats/site.bml.error.notavailable'};
+    }
 <<COMMENT;
 
 FIXME: remove this when you have implemented them all 
 
 * Number of accounts, total (done)
 * Number of accounts active (done)
-* Number of paid accounts (by payment level)
-  -- as a percentage of total accounts
-  -- as a percentage of active accounts
-  -- number of active paid accounts
-  -- number of inactive paid accounts
+* Number of paid accounts (by payment level) (done)
+  -- as a percentage of total accounts (done)
+  -- as a percentage of active accounts (done)
+  -- number of active paid accounts (done)
+  -- number of inactive paid accounts (done)
 * Number of payments in last 1d/2d/5d/7d/1m/3m/1y
   -- broken down by which payment level/payment item chosen
   -- and divided into new payments vs. renewals

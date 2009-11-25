@@ -42,7 +42,7 @@ sub keylist  {
 
         push @account_type_keys, $name;
     }
-
+    push @account_type_keys, 'total';
     return \@account_type_keys;
 }
 
@@ -80,12 +80,26 @@ sub collect {
 
     while ( my ( $typeid, $active ) = $sth->fetchrow_array ) {
         next unless DW::Pay::type_is_valid( $typeid );
+
         my $account_type = DW::Pay::type_shortname( $typeid );
         $data{$account_type} = $active if exists $data{$account_type};
     }
 
     return \%data;
 }
+
+sub data {
+    my $data = $_[0]->{data};
+    # don't double-calculate the total
+    return $data if $data->{total};
+
+    my $total = 0;
+    $total += $data->{$_} foreach keys %$data;
+    $data->{total} = $total;
+    
+    return $data;
+}
+
 
 =head1 BUGS
 

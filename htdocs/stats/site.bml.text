@@ -28,6 +28,10 @@
 
 .paid.colhdr.pct_active=% of active accounts
 
+.paid.rowhdr.activepaid=Active paid/premium/seed
+
+.paid.rowhdr.inactivepaid=Inactive paid/premium/seed
+
 .paid.rowhdr.paid=Paid
 
 .paid.rowhdr.premium=Premium

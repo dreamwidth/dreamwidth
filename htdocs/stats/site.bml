@@ -51,7 +51,7 @@ body<=
     
     # number of active accounts (by time since last active)
     my $active_accounts = DW::StatData::ActiveAccounts->load_latest( DW::StatStore->get( "active" ) );
-    my $active; # Used in paid account stats below
+    my ( $active, $active_allpaid ); # Used in paid account stats below
     $ret .= "<h2>$ML{'.active.title'}</h2><p>$ML{'.active.desc'}</p>";
  
     if ( defined $active_accounts ) {
@@ -61,6 +61,9 @@ body<=
             foreach qw/ active_1d active_7d active_30d /;
         $ret .= "</ul>";
         $active = $active_accounts->value( 'active_30d' );
+        $active_allpaid = $active_accounts->value( 'active_30d-paid' )
+                          + $active_accounts->value( 'active_30d-premium' )
+                          + $active_accounts->value( 'active_30d-seed' );
     } else {
         $ret .= $ML{'.error.notavailable'};
     }
@@ -70,13 +73,13 @@ body<=
     $ret .= "<h2>$ML{'.paid.title'}</h2>";
  
     if ( defined $paid ) {
-        $ret .= "<table><tr>";
+        $ret .= "<table class='stats-matrix'><tr>";
         $ret .= "<th>" . $ML{".paid.colhdr.$_"} . "</th>"
             foreach qw/ level number pct_total pct_active /;
         $ret .= "</tr>\n";
         foreach my $level ( qw( paid premium seed ) ) {
             $ret .= "<tr><th>" . $ML{".paid.rowhdr.$level"} . "</th>";
-            my $n = $paid->value( $level );
+            my $n = $paid->value( $level ) || 0;
             $ret .= "<td class='stats'>$n</td>";
             $ret .= "<td class='stats'>"
                     . ( defined $total ? int( 100 * $n / $total ) : "" )
@@ -85,21 +88,17 @@ body<=
                     . ( defined $active ? int( 100 * $n / $active ) : "" )
                     . "</td></tr>\n";
         }
-        $ret .= "</table>";
+        $ret .= "<tr><th>$ML{'.paid.rowhdr.activepaid'}</th><td class='stats'>";
+        $ret .= $active_allpaid
+            if defined $active_allpaid;
+        $ret .= "</td></tr><tr><th>$ML{'.paid.rowhdr.inactivepaid'}</th><td class='stats'>";
+        $ret .= $paid->value( 'total' ) - $active_allpaid
+            if defined $active_allpaid;
+        $ret .= "</td></tr></table>";
     } else {
         $ret .= $ML{'.error.notavailable'};
     }
     
-# FIXME: remove this when you have implemented them all 
-#  
-# * Number of accounts, total DONE
-# * Number of accounts active DONE
-# * Number of paid accounts (by payment level) DONE
-#   -- as a percentage of total accounts DONE
-#   -- as a percentage of active accounts DONE
-#   -- xxx number of active paid accounts
-#   -- xxx number of inactive paid accounts
-
     return $ret;
 }
 _code?>
