@@ -60,7 +60,7 @@ use LJ::S2Theme;
 ###  13. Community-Related Functions and Authas
 ###  14. Adult Content Functions
 ###  15. Email-Related Functions
-###  16. Entry-Related Functions
+###  16. (( there is no section 16 ))
 ###  17. Interest-Related Functions
 ###  18. Jabber-Related Functions
 ###  19. OpenID and Identity Functions
@@ -7676,72 +7676,6 @@ sub set_email {
     LJ::MemCache::delete([$userid, "email:$userid"]);
     my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
     $cache->{'_email'} = $email;
-}
-
-
-########################################################################
-###  16. Entry-Related Functions
-
-# <LJFUNC>
-# name: LJ::can_view
-# des: Checks to see if the remote user can view a given journal entry.
-#      <b>Note:</b> This is meant for use on single entries at a time,
-#      not for calling many times on every entry in a journal.
-# returns: boolean; 1 if remote user can see item
-# args: remote, item
-# des-item: Hashref from the 'log' table.
-# </LJFUNC>
-sub can_view
-{
-
-# TODO: fold this into LJ::Entry->visible_to :(
-
-    &nodb;
-    my ( $remote, $item ) = @_;
-
-    # public is okay
-    return 1 if $item->{'security'} eq "public";
-
-    # must be logged in otherwise
-    return 0 unless $remote;
-
-    my $userid = int($item->{'ownerid'} || $item->{'journalid'});
-    my $remoteid = int( $remote->userid );
-
-    # owners can always see their own.
-    return 1 if $userid == $remoteid;
-
-    # should be 'usemask' or 'private' security from here out, otherwise
-    # assume it's something new and return 0
-    return 0 unless $item->{security} eq "usemask" || $item->{security} eq "private";
-
-    return 0 unless $remote->is_individual;
-
-    # this far down we have to load the user
-    my $u = LJ::want_user( $userid ) or return 0;
-
-    if ( $item->{security} eq "private" ) {
-        # other people can't read private on personal journals
-        return 0 if $u->is_individual;
-
-        # but community administrators can read private entries on communities
-        return 1 if $u->is_community && $remote->can_manage( $u );
-
-        # private entry on a community; we're not allowed to see this
-        return 0;
-    }
-
-    if ( $item->{security} eq "usemask" ) {
-        # check if it's a community and they're a member
-        return 1 if $u->is_community &&
-                    $remote->member_of( $u );
-    
-        # now load allowmask
-        my $allowed = ( $u->trustmask( $remoteid ) & int($item->{'allowmask'}) );
-        return $allowed ? 1 : 0;  # no need to return matching mask
-    }
-
-    return 0;
 }
 
 

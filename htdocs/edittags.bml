@@ -33,8 +33,11 @@ body<=
     my $logrow = LJ::get_log2_row($u, $jitemid);
     return $err->($ML{'.invalid.entry'}) unless $logrow;
     return $err->($ML{'.invalid.entry'}) unless $logrow->{anum} == $anum;
-    return $err->($ML{'.invalid.notauthorized'})
-        unless LJ::can_view($remote, $logrow);
+
+    my $ent = LJ::Entry->new_from_item_hash( $logrow )
+        or die "Unable to create entry object.\n";
+    return $err->( $ML{'.invalid.notauthorized'} )
+        unless $ent->visible_to( $remote );
 
     # poster must be visible too
     if ($logrow->{posterid} != $u->{userid}) {

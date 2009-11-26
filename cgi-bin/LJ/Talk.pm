@@ -253,27 +253,29 @@ sub check_viewable
         return 0;
     };
 
-    unless (LJ::can_view($remote, $item)) {
-        my $journal = LJ::load_userid( $item->{ownerid} );
-        my $journalname = $journal->username;
+    my $ent = LJ::Entry->new_from_item_hash( $item )
+        or die "Unable to construct entry object.\n";
+    return 1 if $ent->visible_to( $remote );
 
-        if (defined $remote) {
-            if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $item->{security} ne "private" ) {
-                return $err->( BML::ml( 'talk.error.notauthorised.comm.open', { aopts => "href='$LJ::SITEROOT/community/join?comm=$journalname'" } ) );
-            } elsif ( $journal->is_community && $journal->is_closed_membership ) {
-                return $err->( BML::ml( 'talk.error.notauthorised.comm.closed' ) );
-            } else {
-                return $err->( BML::ml( 'talk.error.notauthorised' ) );
-            }
+    my $journal = LJ::load_userid( $item->{ownerid} );
+    my $journalname = $journal->username;
+
+    if (defined $remote) {
+        if ( $journal->is_community && ! $journal->is_closed_membership && $remote && $item->{security} ne "private" ) {
+            return $err->( BML::ml( 'talk.error.notauthorised.comm.open', { aopts => "href='$LJ::SITEROOT/community/join?comm=$journalname'" } ) );
+        } elsif ( $journal->is_community && $journal->is_closed_membership ) {
+            return $err->( BML::ml( 'talk.error.notauthorised.comm.closed' ) );
         } else {
-            my $r = BML::get_request();
-            my $host = $r->headers_in->{Host};
-            my $args = scalar $r->args;
-            my $querysep = $args ? "?" : "";
-            my $redir = LJ::eurl("http://" . $host . $r->uri . $querysep . $args);
-
-            return $err->(BML::redirect("$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin"));
+            return $err->( BML::ml( 'talk.error.notauthorised' ) );
         }
+    } else {
+        my $r = BML::get_request();
+        my $host = $r->headers_in->{Host};
+        my $args = scalar $r->args;
+        my $querysep = $args ? "?" : "";
+        my $redir = LJ::eurl("http://" . $host . $r->uri . $querysep . $args);
+
+        return $err->(BML::redirect("$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin"));
     }
 
     return 1;
@@ -3087,9 +3089,11 @@ sub init {
     # check that user can even view this post, which is required
     # to reply to it
     ####  Check security before viewing this post
-    unless (LJ::can_view($up, $item)) {
-        $bmlerr->("$SC.error.mustlogin") unless (defined $up);
-        $bmlerr->("$SC.error.noauth");
+    my $ent = LJ::Entry->new_from_item_hash( $item )
+        or die "Unable to create entry object.\n";
+    unless ( $ent->visible_to( $up ) ) {
+        $bmlerr->( "$SC.error.mustlogin" ) unless defined $up;
+        $bmlerr->( "$SC.error.noauth" );
         return undef;
     }
 
