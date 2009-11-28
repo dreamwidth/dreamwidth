@@ -1,3 +1,22 @@
+#NEWLAYER: modish/cleansheets
+layerinfo type = "theme";
+layerinfo name = "Clean Sheets";
+layerinfo redist_uniq = "modish/cleansheets";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#090974";
+set color_page_background = "#ffffff";
+set color_page_link = "#ff9200";
+set color_page_title = "#1b1bb3";
+set color_page_text = "#1b1bb3";
+set color_page_link_visited = "#1BB31B";
+set color_page_link_hover = "#7373d9";
+set color_page_border = "#1b1bb3";
+
+set color_module_link_hover ="#B31B1B";
+
 #NEWLAYER: modish/greyscale
 layerinfo type = "theme";
 layerinfo name = "Greyscale";
