@@ -53,6 +53,28 @@ set color_page_subtitle = "#4D0040";
 set color_page_text = "#ffe6eb";
 set color_page_title = "#804075";
 
+#NEWLAYER: drifting/go
+layerinfo type = "theme";
+layerinfo name = "Go";
+layerinfo redist_uniq = "drifting/go";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#d01b52";
+set color_page_link_visited = "#6ccf1b";
+set color_page_background = "#9dff80";
+set color_page_link = "#005030";
+set color_page_title = "#00b36e";
+set color_page_border = "#00b36e";
+set color_page_subtitle = "#6ccf1b";
+set color_module_border = "#6ccf1b";
+set color_entry_text = "#00b36e";
+set color_entry_border = "#6ccf1b";
+set color_page_text = "#00b36e";
+set color_module_title = "#00b36e";
+set color_entry_title = "#00b36e";
+
 #NEWLAYER: drifting/idolatry
 layerinfo type = "theme";
 layerinfo name = "Idolatry";

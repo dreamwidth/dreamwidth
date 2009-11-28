@@ -13,6 +13,12 @@ use base qw( LJ::S2Theme::drifting );
 sub cats { qw() }
 sub designer { "zvi" }
 
+package LJ::S2Theme::drifting::go;
+use base qw( LJ::S2Theme::drifting );
+
+sub cats { qw( ) }
+sub designer { "zvi" }
+
 package LJ::S2Theme::drifting::idolatry;
 use base qw( LJ::S2Theme::drifting );
 
