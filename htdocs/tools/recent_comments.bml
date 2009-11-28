@@ -85,7 +85,8 @@ body<=
     $ret .= BML::ml('Actionlink', { link => $ML{'.latest.received'}}) . " "
         if $u->is_person;
     $ret .= BML::ml('Actionlink', { link => "<a href='#posted'>$ML{'.latest.posted'}</a>"}) . " ";
-    $ret .= BML::ml('Actionlink', { link => "<a href='$LJ::SITEROOT/manage/comments'>$ML{'.managesettings'}</a>"});
+    my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
+    $ret .= BML::ml('Actionlink', { link => "<a href='$LJ::SITEROOT/manage/comments$getextra'>$ML{'.managesettings'}</a>"});
 
     $ret .= "<br />";
     $ret .= " $ML{ '.view.latest' } [ ";
