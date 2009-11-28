@@ -2723,7 +2723,7 @@ sub ljuser_display {
             "$LJ::SITEROOT/userinfo?userid=" . $u->userid . "&amp;t=I$andfull";
   
         return "<span $display_class lj:user='$name' style='white-space: nowrap;$strike'><a href='$profile'>" .
-            "<img src='$imgurl' alt='[info - $type] ' width='$width' height='$height'" .
+            "<img src='$imgurl' alt='[$type profile] ' width='$width' height='$height'" .
             " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>" .
             "<a href='$url' rel='nofollow'><b>$name</b></a></span>";
 
@@ -6758,7 +6758,7 @@ sub ljuser
         my $bold = (exists $opts->{'bold'} and $opts->{'bold'} == 0) ? 0 : 1;
         my $ljusername = $bold ? "<b>$user</b>" : "$user";
 
-        my $alttext = $type ? " - $type" : "";
+        my $alttext = $type ? "$type profile" : "profile";
 
         my $link_color = "";
         # Make sure it's really a color
@@ -6770,7 +6770,7 @@ sub ljuser
         $url = $journal_url ne '' ? $journal_url : $url;
 
         return "<span $display_class lj:user='$user' style='white-space: nowrap;$strike'>" .
-            "<a href='$profile'><img src='$img/$fil' alt='[info$alttext] ' width='$x' height='$y'" .
+            "<a href='$profile'><img src='$img/$fil' alt='[$alttext] ' width='$x' height='$y'" .
             " style='vertical-align: text-bottom; border: 0; padding-right: 1px;' /></a>" .
             "<a href='$url'$link_color>$ljusername</a></span>";
     };
