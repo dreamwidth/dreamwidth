@@ -36,9 +36,24 @@ sub entry_props {
     return $self->_append_props( "entry_props", @props );
 }
 
+package LJ::S2Theme::brittle::oldroses;
+use base qw( LJ::S2Theme::brittle );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
+
 package LJ::S2Theme::brittle::rust;
 use base qw( LJ::S2Theme::brittle );
 sub cats { qw( base ) }
+
+package LJ::S2Theme::brittle::softblue;
+use base qw( LJ::S2Theme::brittle );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
+
+package LJ::S2Theme::brittle::softgreen;
+use base qw( LJ::S2Theme::brittle );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::brittle::nnwm2009;
 use base qw( LJ::S2Theme::brittle );

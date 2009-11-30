@@ -1,3 +1,50 @@
+#NEWLAYER: brittle/oldroses
+layerinfo type = "theme";
+layerinfo name = "Old Roses";
+layerinfo redist_uniq = "brittle/oldroses";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#E3D7DB";
+set color_page_text = "#000000";
+set color_page_link = "#64434B";
+set color_page_link_hover = "#B18698";
+set color_page_link_visited = "#64434B";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#E3D7DB";
+set color_footer_link = "#64434B";
+set color_footer_link_hover = "#B18698";
+set color_footer_link_visited = "#64434B";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#64434B";
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000000";
+set color_entry_link = "#64434B";
+set color_entry_link_hover = "#B18698";
+set color_entry_link_visited = "#64434B";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#64434B";
+set color_navigation_module_link = "#E3D7DB";
+set color_navigation_module_link_hover = "#B18698";
+set color_navigation_module_link_visited = "#E3D7DB";
+
 #NEWLAYER: brittle/rust
 layerinfo type = "theme";
 layerinfo name = "Rust";
@@ -45,6 +92,100 @@ set color_navigation_module_background = "#7A6A53";
 set color_navigation_module_link = "#ACC5C9";
 set color_navigation_module_link_hover = "#CBDADC";
 set color_navigation_module_link_visited = "#DBE6E7";
+
+#NEWLAYER: brittle/softblue
+layerinfo type = "theme";
+layerinfo name = "Soft Blue";
+layerinfo redist_uniq = "brittle/softblue";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#CDE6FA";
+set color_page_text = "#000811";
+set color_page_link = "#2d4253";
+set color_page_link_hover = "#91bad0";
+set color_page_link_visited = "#2d4253";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#CDE6FA";
+set color_footer_link = "#2d4253";
+set color_footer_link_hover = "#91bad0";
+set color_footer_link_visited = "#2d4253";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#2d4253";
+set color_entry_background = "#ffffff";
+set color_entry_text = "#000811";
+set color_entry_link = "#2d4253";
+set color_entry_link_hover = "#91bad0";
+set color_entry_link_visited = "#2d4253";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#2d4253";
+set color_navigation_module_link = "#CDE6FA";
+set color_navigation_module_link_hover = "#91bad0";
+set color_navigation_module_link_visited = "#CDE6FA";
+
+#NEWLAYER: brittle/softgreen
+layerinfo type = "theme";
+layerinfo name = "Soft Green";
+layerinfo redist_uniq = "brittle/softgreen";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#B0C9AF";
+set color_page_text = "#0C140B";
+set color_page_link = "#557254";
+set color_page_link_hover = "#83AA81";
+set color_page_link_visited = "#557254";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_footer_background = "#B0C9AF";
+set color_footer_link = "#557254";
+set color_footer_link_hover = "#83AA81";
+set color_footer_link_visited = "#557254";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#557254";
+set color_entry_background = "#FFFFFF";
+set color_entry_text = "#0C140B";
+set color_entry_link = "#557254";
+set color_entry_link_hover = "#83AA81";
+set color_entry_link_visited = "#557254";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_navigation_module_background = "#557254";
+set color_navigation_module_link = "#B0C9AF";
+set color_navigation_module_link_hover = "#83AA81";
+set color_navigation_module_link_visited = "#B0C9AF";
 
 #NEWLAYER: brittle/nnwm2009
 layerinfo type = "theme";
