@@ -1,3 +1,22 @@
+#NEWLAYER: brittle/nnwm2009
+layerinfo type = "theme";
+layerinfo name = "NNWM 2009";
+layerinfo redist_uniq = "brittle/nnwm2009";
+layerinfo author_name = "zvi";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_entry_text = "#ffffff";
+set color_entry_background = "#000000";
+set color_footer_background = "#ffefbd";
+set color_footer_link = "#ef8229";
+set color_navigation_module_background = "#ffefbd";
+set color_page_background = "#000000";
+set color_page_link = "#429ace";
+set color_page_link_hover = "#842021";
+set color_page_link_visited = "#ef4921";
+set color_page_text = "#ffffff";
+
 #NEWLAYER: brittle/oldroses
 layerinfo type = "theme";
 layerinfo name = "Old Roses";
@@ -186,22 +205,3 @@ set color_navigation_module_background = "#557254";
 set color_navigation_module_link = "#B0C9AF";
 set color_navigation_module_link_hover = "#83AA81";
 set color_navigation_module_link_visited = "#B0C9AF";
-
-#NEWLAYER: brittle/nnwm2009
-layerinfo type = "theme";
-layerinfo name = "NNWM 2009";
-layerinfo redist_uniq = "brittle/nnwm2009";
-layerinfo author_name = "zvi";
-
-set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
-
-set color_entry_text = "#ffffff";
-set color_entry_background = "#000000";
-set color_footer_background = "#ffefbd";
-set color_footer_link = "#ef8229";
-set color_navigation_module_background = "#ffefbd";
-set color_page_background = "#000000";
-set color_page_link = "#429ace";
-set color_page_link_hover = "#842021";
-set color_page_link_visited = "#ef4921";
-set color_page_text = "#ffffff";
