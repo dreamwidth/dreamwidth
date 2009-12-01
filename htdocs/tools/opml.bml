@@ -71,19 +71,25 @@
             # returns empty here, though it's used in userinfo.bml
             $title = $w->{name};
         }
- 
-        my $feed = $w->journal_base;
-        
-        if( $GET{feed} eq "atom" ) {
-            $feed .= "/data/atom";
+
+        my $feed;
+
+        if ( $w->is_syndicated ) { 
+            my $synd = $w->get_syndicated;
+            $feed = $synd->{synurl};
         } else {
-            $feed .= "/data/rss";
-        }
+            $feed = $w->journal_base;
+        
+            if( $GET{feed} eq "atom" ) {
+                $feed .= "/data/atom";
+            } else {
+                $feed .= "/data/rss";
+            }
 
-        if( $GET{auth} eq "digest" ) {
-            $feed .= "?auth=digest";
+            if( $GET{auth} eq "digest" ) {
+                $feed .= "?auth=digest";
+            }
         }
-
         $x .= "<outline text=\"" . LJ::exml($title) . "\" xmlURL=\"" . LJ::exml($feed) . "\" />\n";
     }
 
