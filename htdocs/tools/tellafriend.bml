@@ -73,7 +73,7 @@
      }
      # Check for external URLs
      foreach ( LJ::get_urls($POST{'body'}) ) {
-         if ($_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.+)?$!i) {
+         if ( $_ !~ m!^https?://([\w-]+\.)?$LJ::DOMAIN(/.*)?$!i ) {
              push @errors, BML::ml( ".error.forbiddenurl", { sitename => $LJ::SITENAME } );
          }
      }
