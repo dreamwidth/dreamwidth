@@ -1,3 +1,5 @@
+var UserTagCache = {};
+
 function LJUser(textArea) {
     var editor_frame = $(textArea + '___Frame');
     if (!editor_frame) return;
@@ -16,7 +18,7 @@ function LJUser(textArea) {
 
     while ((users = regexp.exec(html))) {
         var attrs = [];
-        var postData = {};
+        var postData = { 'username': '', 'site': '' };
 
         while (( attrs=attrs_regexp.exec(users[1]) )) {
             if (attrs[1] == 'user' || attrs[1] == 'name')
@@ -31,11 +33,11 @@ function LJUser(textArea) {
             return;
         }
 
-        var gotInfo = (function (userstr, username, site) { return function(data) {
-            // trim any trailing spaces from the userstr
-            // so that we don't get rid of them when we do the replace below
-            userstr = userstr.replace(/\s\s*$/, '');
+        // trim any trailing spaces from the userstr
+        // so that we don't get rid of them when we do the replace below
+        var userStrToReplace = users[0].replace(/\s\s*$/, '');
 
+        var gotInfo = (function (userstr, username, site) { return function(data) {
             if (data.error) {
                 alert(data.error+' '+username);
                 return;
@@ -48,20 +50,28 @@ function LJUser(textArea) {
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
 
             data.ljuser = data.ljuser.replace(/<\/span>\s?/,'</div>');
+            UserTagCache[username + "_" + site] = data.ljuser;
+
             html = html.replace(userstr,data.ljuser);
             oEditor.SetData(html);
             oEditor.Focus();
-        }})(users[0], postData.username, postData.site);
+        }})(userStrToReplace, postData.username, postData.site);
 
-        var opts = {
-            "data": window.parent.HTTPReq.formEncoded(postData),
-            "method": "POST",
-            "url": url,
-            "onError": gotError,
-            "onData": gotInfo
-        };
-
-        window.parent.HTTPReq.getJSON(opts);
+        if ( UserTagCache[postData.username+"_"+postData.site] ) {
+            html = html.replace( userStrToReplace, UserTagCache[postData.username+"_"+postData.site] );
+            oEditor.SetData(html);
+            oEditor.Focus();            
+        } else {
+            var opts = {
+                "data": window.parent.HTTPReq.formEncoded(postData),
+                "method": "POST",
+                "url": url,
+                "onError": gotError,
+                "onData": gotInfo
+            };
+    
+            window.parent.HTTPReq.getJSON(opts);
+        }
     }
 }
 

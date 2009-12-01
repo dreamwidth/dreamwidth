@@ -34,10 +34,10 @@ LJUserCommand.Execute=function() {
 
     function do_insert( username, site ) {
         var postData = {
-            "username" : username,
-            "site"     : site
+            "username" : username || '',
+            "site"     : site || ''
         };
-    
+
         if (username == null) return;
     
         var url = window.parent.Site.siteroot + "/tools/endpoints/ljuser";
@@ -60,21 +60,30 @@ LJUserCommand.Execute=function() {
                 data.ljuser = data.ljuser.replace(/<span.+?class=['"]?ljuser['"]?.+?>/,'<div class="ljuser">');
 
             data.ljuser = data.ljuser.replace(/<\/span>/,'</div>');
+            UserTagCache[username + "_" + site] = data.ljuser;
+
             FCK.InsertHtml(data.ljuser);
             FCK.InsertHtml('&nbsp;')
             if (selection != '') FCKSelection.Collapse();
             FCK.Focus();
         }
     
-        var opts = {
-            "data": window.parent.HTTPReq.formEncoded(postData),
-            "method": "POST",
-            "url": url,
-            "onError": gotError,
-            "onData": gotInfo
-        };
-    
-        window.parent.HTTPReq.getJSON(opts);
+        if ( UserTagCache[postData.username+"_"+postData.site] ) {
+            FCK.InsertHtml(UserTagCache[postData.username+"_"+postData.site]);
+            FCK.InsertHtml('&nbsp;')
+            if (selection != '') FCKSelection.Collapse();
+            FCK.Focus();
+        } else {
+            var opts = {
+                "data": window.parent.HTTPReq.formEncoded(postData),
+                "method": "POST",
+                "url": url,
+                "onError": gotError,
+                "onData": gotInfo
+            };
+        
+            window.parent.HTTPReq.getJSON(opts);
+        }
     }
 
     if (selection != '') {
@@ -82,6 +91,7 @@ LJUserCommand.Execute=function() {
         do_insert( username );
     } else {
         var DOM = window.parent.DOM;
+        var UserTagCache = window.parent.UserTagCache;
         var _textDiv = window.parent._textDiv;
         var userPopup = new window.parent.LJ_IPPU( window.parent.FCKLang.UserPrompt );
         userPopup.hide =   function() {
