@@ -60,6 +60,11 @@ function setup () {
     pbar.init($("progressBar"));
 
   $("progressBar").className="lj_progresscontainer";
+
+  DOM.addEventListener($("radio_url"), "click", selectUrlUpload);
+  DOM.addEventListener($("radio_file"), "click", selectFileUpload);
+  DOM.addEventListener($("urlpic_0"), "keypress", keyPressUrlUpload);
+  DOM.addEventListener($("userpic_0"), "change", keyPressFileUpload);
 }
 
 function editpicsInit() {
@@ -179,6 +184,26 @@ function removeNoDefaultButton() {
   removeFromTag = document.getElementById("no_default_insert");
   removeElement = document.getElementById("make_default_none");
   removeFromTag.removeChild(removeElement);
+}
+
+function selectUrlUpload() {
+  $("userpic_0").disabled = true;
+  $("urlpic_0").disabled = false;
+}
+
+function selectFileUpload() {
+  $("urlpic_0").disabled = true;
+  $("userpic_0").disabled = false;
+}
+
+function keyPressUrlUpload() {
+  $("radio_url").checked =true;
+  selectUrlUpload();
+}
+
+function keyPressFileUpload() {
+  $("radio_file").checked =true;
+  selectFileUpload();
 }
 
 DOM.addEventListener(window, "load", setup);
