@@ -1999,11 +1999,17 @@ sub clear_daycounts
     #  g# = access or groupmask
     #  p = only public entries
     my @memkind;
+    my $access = 0;
     foreach my $security ( @security )
     {
         push @memkind, "p" if $security eq 'public'; # public
         push @memkind, "g$security" if $security =~ /^\d+/;
+
+        $access++ if $security eq 'public' || ( $security != 1 &&  $security =~ /^\d+/ );
     }
+    # FIXME: temporary workaround, but doesn't cover custom groups
+    push @memkind, "g1" if $access;
+
     # any change to any entry security means this must be expired
     push @memkind, "a";
 
