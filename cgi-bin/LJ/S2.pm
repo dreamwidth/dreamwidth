@@ -886,6 +886,9 @@ sub create_style
     my $styleid = $dbh->{'mysql_insertid'};
     return 0 unless $styleid;
 
+    # in case we had an invalid / empty value from before
+    LJ::MemCache::delete([$styleid, "s2s:$styleid"]);
+
     return $styleid;
 }
 
@@ -959,7 +962,7 @@ sub load_style
 
     my $memkey = [$id, "s2s:$id"];
     my $style = LJ::MemCache::get($memkey);
-    unless ($style) {
+    unless ( defined $style ) {
         $db ||= LJ::S2::get_s2_reader()
             or die "Unable to get S2 reader";
         $style = $db->selectrow_hashref("SELECT styleid, userid, name, modtime ".
@@ -967,7 +970,7 @@ sub load_style
                                         undef, $id);
         die $db->errstr if $db->err;
 
-        LJ::MemCache::add($memkey, $style, 3600);
+        LJ::MemCache::add($memkey, $style || {}, 3600);
     }
     return undef unless $style;
 
