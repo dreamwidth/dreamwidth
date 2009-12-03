@@ -10,6 +10,9 @@
     
     if ($POST{'mode'} eq "view") 
     {
+        # for safety, since we will be redirecting to this page be strict in the value we accept for the pageview
+        my $pageview = $POST{pageview} eq "network" ? "network" : "read";
+
         my $user = lc($POST{'user'});
         my $extra;
         if ( $POST{type} eq "allfilters" ) {
@@ -25,7 +28,7 @@
             }
         }
         my $u = LJ::load_user($user);
-        BML::redirect($u->journal_base() . "/read${extra}");
+        BML::redirect($u->journal_base() . "/$pageview${extra}");
     }
 
     my $remote = LJ::get_remote();

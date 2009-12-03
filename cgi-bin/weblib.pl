@@ -2699,7 +2699,7 @@ sub control_strip
                 $ret .= $statustext{'yourjournal'};
             }
             $ret .= "<br />";
-            if ( $view eq "read" ) {
+            if ( $view eq "read" || $view eq "network" ) {
                 my @filters = ("all", $BML::ML{'web.controlstrip.select.friends.all'}, "showpeople", $BML::ML{'web.controlstrip.select.friends.journals'}, "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'}, "showsyndicated", $BML::ML{'web.controlstrip.select.friends.feeds'});
                 # content_filters returns an array of content filters this user had, sorted by sortorder
                 # since this is only shown if LJ::u_equals($remote, $journal) , we don't have to care whether a filter is public or not
@@ -2717,11 +2717,15 @@ sub control_strip
                 } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
                     my $filter = $1 || "default view";
                     $selected = "filter:" . LJ::durl(lc($filter));
+                } elsif ($r->uri eq "/network" && $r->query_string ne "") {
+                    $selected = "showpeople"      if $r->query_string eq "show=P&filter=0";
+                    $selected = "showcommunities" if $r->query_string eq "show=C&filter=0";
+                    $selected = "showsyndicated"  if $r->query_string eq "show=F&filter=0";
                 }
 
                 $ret .= "$links{'manage_friends'}&nbsp;&nbsp; ";
                 $ret .= "$BML::ML{'web.controlstrip.select.friends.label'} <form method='post' style='display: inline;' action='$LJ::SITEROOT/manage/circle/filter'>\n";
-                $ret .= LJ::html_hidden("user", $remote->{'user'}, "mode", "view", "type", "allfilters");
+                $ret .= LJ::html_hidden( "user", $remote->{'user'}, "mode", "view", "type", "allfilters", "pageview", $view );
                 $ret .= LJ::html_select({'name' => "view", 'selected' => $selected }, @filters) . " ";
                 $ret .= LJ::html_submit($BML::ML{'web.controlstrip.btn.view'});
                 $ret .= "</form>";
