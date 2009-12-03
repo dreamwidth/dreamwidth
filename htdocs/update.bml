@@ -414,6 +414,9 @@
                 # update succeeded
                 $$body .= "<?p <strong>$ML{'.update.status.succeeded'}</strong> ";
 
+                # persist the default value of the disable auto-formatting option
+                $u->disable_auto_formatting( $POST{event_format} ? 1 : 0 );
+
                 # Clear out a draft
                 $remote->set_prop('entry_draft', '')
                     if $remote;

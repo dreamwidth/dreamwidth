@@ -134,6 +134,14 @@ userproplist.delicious:
   multihomed: 0
   prettyname: Delicious user account name
 
+userproplist.disable_auto_formatting:
+  cldversion: 4
+  datatype: bool
+  des: Disable auto-formatting on entries by default for this user
+  indexed: 0 
+  multihomed: 0
+  prettyname: User's default value for auto formatting on their entries
+
 userproplist.disable_comm_promo:
   cldversion: 4
   datatype: bool

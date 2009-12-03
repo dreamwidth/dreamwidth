@@ -2105,10 +2105,19 @@ sub count_usermessage_length {
     return $_[0]->get_cap( 'usermessage_length' );
 }
 
-
 # returns the country specified by the user
 sub country {
     return $_[0]->prop( 'country' );
+}
+
+sub disable_auto_formatting {
+    my ( $u, $value ) = @_;
+    if ( defined $value && $value =~ /[01]/ ) {
+        $u->set_prop( disable_auto_formatting => $value );
+        return $value;
+    }
+
+    return $u->prop( 'disable_auto_formatting' ) ? 1 : 0;
 }
 
 sub exclude_from_own_stats {
