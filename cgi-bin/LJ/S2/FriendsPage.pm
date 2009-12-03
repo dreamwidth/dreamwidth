@@ -117,7 +117,7 @@ sub FriendsPage
     ## load the itemids
     my ( %friends, %friends_row, %idsbycluster );
     my @items = $u->watch_items(
-        itemshow          => $itemshow,
+        itemshow          => $itemshow + 1,
         skip              => $skip,
         content_filter    => $filter,
         friends_u         => \%friends,
@@ -128,6 +128,9 @@ sub FriendsPage
         dateformat        => 'S2',
         events_date       => $events_date,
     );
+
+    my $is_prev_exist = scalar @items - $itemshow > 0 ? 1 : 0;
+    pop @items if $is_prev_exist;
 
     while ($_ = each %friends) {
         # we expect fgcolor/bgcolor to be in here later
@@ -237,9 +240,9 @@ sub FriendsPage
 
     ## unless we didn't even load as many as we were expecting on this
     ## page, then there are more (unless there are exactly the number shown
-    ## on the page, but who cares about that)
+    ## on the page, but who cares about that ... well, we do now...)
     # Must remember to count $hiddenentries or we'll have no skiplinks when > 1
-    unless (($eventnum + $hiddenentries) != $itemshow || $skip == $maxskip) {
+    unless (($eventnum + $hiddenentries) != $itemshow || $skip == $maxskip || !$is_prev_exist) {
         my %linkvars;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
         $linkvars{'date'} = $get->{'date'} if $get->{'date'};
