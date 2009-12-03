@@ -5,6 +5,7 @@ body<=
     # this is for viewing the properties set on a particular entry
     use strict;
     use vars qw($ret %POST);
+    use DW::External::Account;
 
     my $remote = LJ::get_remote();
     my @display_privs = ( "canview:entryprops", "canview:*" );
@@ -62,9 +63,18 @@ body<=
     foreach my $prop (sort keys %props) {
         my $extra = "";
         if (my $p = LJ::get_prop("log", $prop)) {
-            $extra = "<br /><small>$p->{des}</small>";
             # an ugly hack, i know
             $props{$prop} = LJ::mysql_time($props{$prop}) if $p->{des} =~ /unix/i;
+            
+            # render xpost prop into human readable form
+            if ( $prop eq "xpost" ) {
+                my %external_accounts_map = map { $_->siteid => $_->servername }  DW::External::Account->get_external_accounts(  $entry->poster );
+                my %xpost_map = %{ DW::External::Account->xpost_string_to_hash( $props{$prop} ) };
+                $props{$prop} = join ", ", map { ( $external_accounts_map{$_} || "unknown" ) . " => $xpost_map{$_}" } keys %xpost_map;
+                $p->{des} .= " (site name => itemid)";
+            }
+
+            $extra = "<br /><small>$p->{des}</small>";
         }
 
         $ret .= "<li><strong>$prop</strong>: $props{$prop}$extra</li><br />";
