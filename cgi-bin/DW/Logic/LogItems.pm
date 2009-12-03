@@ -547,5 +547,38 @@ sub recent_items
 *LJ::User::recent_items = \&recent_items;
 *DW::User::recent_items = \&recent_items;
 
+# name: $u->active_entries
+# des: Returns 10 last active entries for an account
+# returns: array of itemids
+sub active_entries
+{
+    my ( $u ) = @_;
+    my $uid = $u->userid;
+
+    # check memcache first
+    my $activeentries = LJ::MemCache::get( [ $uid, "activeentries:$uid" ] );
+    return @$activeentries if $activeentries;
+
+    # get latest 10 entries that were commented on - we will see whether $remote can view them later
+    # disregard screened and deleted comments when ordering
+
+    my $entryids = $u->selectcol_arrayref(
+        q{SELECT DISTINCT nodeid FROM talk2
+          WHERE journalid = ? AND state NOT IN ('D', 'S') 
+          ORDER BY jtalkid DESC LIMIT 10},
+        undef, $u->id
+    );
+    die $u->errstr if $u->err;
+    return unless $entryids && @$entryids;
+
+    # memcache this data in the form: activeentries:journalid
+    LJ::MemCache::set( [ $uid, "activeentries:$uid" ], \@$entryids );
+
+    # return. we check whether the user viewing is allowed to view these entries later
+    return @$entryids;
+}
+
+*LJ::User::active_entries = \&active_entries;
+*DW::User::active_entries = \&active_entries;
 
 1;

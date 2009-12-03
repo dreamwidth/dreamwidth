@@ -1814,6 +1814,8 @@ sub delete_comments {
     my $sclient = LJ::theschwartz();
     $sclient->insert_jobs(@jobs) if @jobs;
 
+    LJ::MemCache::delete( [ $jid, "activeentries:$jid" ] );
+
     return $num;
 }
 

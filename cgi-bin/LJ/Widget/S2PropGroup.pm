@@ -90,7 +90,7 @@ sub render_body {
         my %prop_in_subheader;
         foreach my $prop_name ( @$groupprops ) {
             next unless $prop_name =~ /_group$/;
-            
+ 
             my $prop_name_section = $prop_name;
             $prop_name_section =~ s/(.*)_group$/\1_section/;
 
@@ -99,6 +99,12 @@ sub render_body {
 
             # put this property under the proper subheader
             my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+
+            # see whether a cap is needed for this module and don't show the module if the user does not have that cap
+            my $cap;
+            $cap = $props->{$prop_name}->{requires_cap};
+            next if $cap && !( $u->get_cap( $cap ) );
+
             # force it to the "none" section, if property value is not a valid subheader
             my $subheader = $subheaders{$prop_values{override}} ? $prop_values{override} : "none";
             $prop_in_subheader{$subheader} ||= [];

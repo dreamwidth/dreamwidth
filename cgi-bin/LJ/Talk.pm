@@ -593,6 +593,7 @@ sub screen_comment {
 
     # invalidate talk2row memcache props
     LJ::Talk::invalidate_talk2row_memcache($u->id, @jtalkids);
+    LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
     if ($updated > 0) {
         LJ::replycount_do($u, $itemid, "decr", $updated);
@@ -623,6 +624,7 @@ sub unscreen_comment {
     return undef unless $updated;
 
     LJ::Talk::invalidate_talk2row_memcache($u->id, @jtalkids);
+    LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
     if ($updated > 0) {
         LJ::replycount_do($u, $itemid, "incr", $updated);
@@ -2578,6 +2580,8 @@ sub enter_comment {
     my $memkey = "$journalu->{'clusterid'}:$journalu->{'userid'}:$jtalkid";
     LJ::MemCache::set([$journalu->{'userid'},"talksubject:$memkey"], $comment->{subject});
     LJ::MemCache::set([$journalu->{'userid'},"talkbody:$memkey"], $comment->{body});
+
+    LJ::MemCache::delete( [ $journalu->{userid}, "activeentries:" . $journalu->{userid} ] );
 
     # dudata
     my $bytes = length($comment->{subject}) + length($comment->{body});

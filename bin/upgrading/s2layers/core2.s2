@@ -522,6 +522,12 @@ class Page
     var readonly UserLink[] linklist
     "An array of UserLink objects defined by the user to be displayed on their journal.";
 
+    var bool has_activeentries
+    "So we don't try to load the activeentries array when there are no entries to display";
+
+    var readonly Entry[] activeentries
+    "Array of recently active entries available to be seen by the viewer of the page.";
+
     var readonly DateTime local_time
     "A DateTime object filled with the time (in the viewer's timezone) when the page was created.";
 
@@ -1377,6 +1383,20 @@ set module_links_show = true;
 set module_links_order = 4;
 set module_links_section = "one";
 
+property string[] module_active_group {
+    des = "Recent active entries";
+    grouptype = "module";
+    requires_cap = "activeentries";
+}
+set module_active_group = ["module_active_show", "module_active_order", "module_active_section"];
+property bool module_active_show     { grouped = 1; }
+property int  module_active_order    { grouped = 1; }
+property string module_active_section { grouped = 1; }
+
+set module_active_show = true;
+set module_active_order = 8;
+set module_active_section = "one";
+
 property string[] module_syndicate_group {
     des = "Syndication";
     grouptype = "module";
@@ -2033,6 +2053,13 @@ property string text_module_popular_tags {
     example = "Most Popular Tags";
 }
 
+property string text_module_active_entries {
+    des = "Text for the 'Active Entries' heading";
+    maxlength = 50;
+    size = 20;
+    example = "Active Entries";
+}
+
 property string text_module_customtext {
     des = "Text for the 'Custom text' heading";
     maxlength = 50;
@@ -2066,6 +2093,7 @@ set text_module_pagesummary = "Page Summary";
 set text_module_syndicate = "Syndicate";
 set text_module_tags = "Tags";
 set text_module_popular_tags = "Most Popular Tags";
+set text_module_active_entries = "Active Entries";
 set text_module_credit = "Layout Credit";
 
 set text_module_customtext = "Custom text";
@@ -2566,6 +2594,7 @@ function modules_init()
     if ( $*module_navlinks_show ) { $*module_sections{$*module_navlinks_section}[$*module_navlinks_order]=["navlinks"]; }
     if ( $*module_calendar_show ) { $*module_sections{$*module_calendar_section}[$*module_calendar_order]=["calendar"]; }
     if ( $*module_links_show ) { $*module_sections{$*module_links_section}[$*module_links_order]=["links"]; }
+    if ( $*module_active_show ) { $*module_sections{$*module_active_section}[$*module_active_order]=["active"]; }
     if ( $*module_syndicate_show ) { $*module_sections{$*module_syndicate_section}[$*module_syndicate_order]=["syndicate"]; }
     if ( $*module_tags_show ) { $*module_sections{$*module_tags_section}[$*module_tags_order]=["tags"]; }
     if ( $*module_pagesummary_show ) { $*module_sections{$*module_pagesummary_section}[$*module_pagesummary_order]=["pagesummary"]; }
@@ -3608,6 +3637,23 @@ function print_module_tags() {
     }
 }
 
+function print_module_active() {
+    var Page p = get_page();
+    if ( $p.has_activeentries and not $p isa FriendsPage ) {
+        var Entry[] activeentries = $p.activeentries;
+        var string[] subjects;
+        open_module( "active", $*text_module_active_entries, "" );
+        var int i = 1;
+                foreach var Entry activeentry ( $activeentries ) {
+                    var string subject = ( $activeentry.subject != "" ? $activeentry.subject : "$*text_nosubject" );
+                    $subjects[size $subjects] = """$i: <a href="$activeentry.permalink_url">$subject</a>""";
+                    $i++;
+                 }
+        print_module_list( $subjects );
+        close_module();
+    }
+}
+
 function print_module_calendar() {
     var Page p = get_page();
     var YearMonth mon = $p->get_latest_month();
@@ -3794,6 +3840,9 @@ function handle_module_group_array(string[][] list) {
         }
         elseif ($module == "tags") {
             print_module_tags();
+        }
+        elseif ($module == "active") {
+            print_module_active();
         }
         elseif ($module == "calendar") {
             print_module_calendar();

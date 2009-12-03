@@ -295,6 +295,7 @@
     # default capability limits, used only when no other
     # class-specific limit below matches.
     %CAP_DEF = (
+            activeentries => 0,
             'getselfemail' => 0,
             'checkfriends' => 0,
             'checkfriends_interval' => 300,
@@ -353,6 +354,7 @@
             '_key' => 'free_user',
             '_account_type' => 'free',
             '_account_default' => 1,    # default account for payment system
+            'activeentries' => 0,
             'bookmark_max' => 25,
             'checkfriends' => 0,
             'checkfriends_interval' => 0,
@@ -408,6 +410,7 @@
             '_key' => 'paid_user', # Some things expect that key name
             '_visible_name' => 'Paid Account',
             '_account_type' => 'paid',
+            'activeentries' => 1,
             'bookmark_max' => 500,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -461,6 +464,7 @@
             '_key' => 'premium_user',
             '_visible_name' => 'Premium Paid Account',
             '_account_type' => 'premium',
+            'activeentries' => 1,
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -521,6 +525,7 @@
             '_key' => 'permanent_user',
             '_visible_name' => 'Seed Account',
             '_account_type' => 'seed',
+            'activeentries' => 1,
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,
@@ -572,6 +577,7 @@
             '_name' => 'Staff',
             '_key' => 'staff',
             '_visible_name' => 'Staff Account',
+            'activeentries' => 1,
             'bookmark_max' => 1000,
             'checkfriends' => 1,
             'checkfriends_interval' => 600,

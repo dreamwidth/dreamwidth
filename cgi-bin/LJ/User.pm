@@ -1957,6 +1957,10 @@ sub can_use_network_page {
 }
 
 
+sub can_use_active_entries {
+    return $_[0]->get_cap( 'activeentries' ) ? 1 : 0;
+}
+
 # Check if the user can use *any* page statistic module for their own journal.
 sub can_use_page_statistics {
     return $_[0]->can_use_google_analytics;

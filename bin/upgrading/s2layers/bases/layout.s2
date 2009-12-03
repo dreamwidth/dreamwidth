@@ -111,6 +111,7 @@ propgroup modules {
     property use module_calendar_group;
     property use module_pagesummary_group;
     property use module_tags_group;
+    property use module_active_group;
     property use module_links_group;
     property use module_syndicate_group;
     property use module_time_group;

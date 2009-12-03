@@ -1856,6 +1856,7 @@ sub delete_entry
 
     my $dc = $u->log2_do(undef, "DELETE FROM log2 WHERE journalid=$jid AND jitemid=$jitemid $and");
     LJ::MemCache::delete([$jid, "log2:$jid:$jitemid"]);
+    LJ::MemCache::delete( [ $jid, "activeentries:$jid" ] );
     LJ::MemCache::decr([$jid, "log2ct:$jid"]) if $dc > 0;
     LJ::memcache_kill($jid, "dayct2");
     LJ::run_hooks("deletepost", $jid, $jitemid, $anum);

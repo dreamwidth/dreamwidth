@@ -696,6 +696,7 @@ sub module_props {
         text_module_pagesummary
         text_module_syndicate
         text_module_tags
+        text_module_active_entries
         text_generated_on
         text_tags_manage
         text_tag_uses

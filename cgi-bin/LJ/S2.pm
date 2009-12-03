@@ -2120,6 +2120,28 @@ sub Page
     $p->{views_order} = [ 'read', 'userinfo' ] if $u->is_identity;
     $p->{views_order} = [ 'recent', 'archive', 'read', 'network', 'tags', 'memories', 'userinfo' ] if $u->can_use_network_page;
 
+    $p->{has_activeentries} = 0;
+
+    # don't need to load active entries if the user does not have the cap to display them
+    if ( $u->can_use_active_entries ) {
+        my @active = $u->active_entries;
+
+        # array to hold the Entry objects
+        my @activeentries;
+        foreach my $itemid ( @active ) {
+            my $entry_obj = LJ::Entry->new( $u, jitemid => $itemid );
+
+            # only show the entries $remote has the permission to view
+            if ( $entry_obj->visible_to( $remote ) ) {
+                my $activeentry = Entry_from_entryobj( $u, $entry_obj, $opts );
+                push @{$p->{activeentries}}, $activeentry;
+
+                # if at least one is accessible to $remote , show active entries module on journal page
+                $p->{has_activeentries} = 1;
+            }
+        }
+    }
+
     return $p;
 }
 
