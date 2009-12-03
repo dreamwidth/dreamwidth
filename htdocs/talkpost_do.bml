@@ -217,10 +217,10 @@ body<=
     my $dtalkid = $comment->{talkid}*256 + $item->{anum};
 
     # Allow style=mine for QR redirects
-    my $stylemine = $POST{'stylemine'} ? 'style=mine' : '';
+    my $style_args = LJ::viewing_style_args( %POST );
 
     my $cthread = $POST{'viewing_thread'} ? "thread=$POST{viewing_thread}" : "view=$dtalkid";
-    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $stylemine ) . LJ::Talk::comment_anchor( $dtalkid );
+    my $commentlink = LJ::Talk::talkargs( $talkurl, $cthread, $style_args ) . LJ::Talk::comment_anchor( $dtalkid );
 
     my $ret = "";
     $ret .= "<?h1 $ML{'.success.title'} h1?>";

@@ -1002,7 +1002,7 @@ sub viewing_style_args {
     my ( %args ) = @_;
     my $valid_style_args = {
         format => { light => 1 },
-        style  => { light => 1, style => 1, site => 1, mine => 1 },
+        style  => { light => 1, site => 1, mine => 1 },
     };
     
     my @valid_args;

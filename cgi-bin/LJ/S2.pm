@@ -1854,12 +1854,9 @@ sub Entry_from_entryobj
 
     # is style=mine used?  or if remote has it on and this entry is not part of
     # their journal.  if either are yes, it needs to be added to comment links
-    my $stylemine = "";
-    $stylemine .= "style=mine"
-        if $get->{style} eq 'mine' ||
-            ( $remote && $remote->prop( 'opt_stylemine' ) &&
-              $remote->id != $journalid );
-
+    my %opt_stylemine = $remote && $remote->prop( 'opt_stylemine' ) && $remote->id != $journalid ? ( style => 'mine' ) : ();
+    my $style_args = LJ::viewing_style_args( %$get, %opt_stylemine );
+    
     #load and prepare subject and text of entry
     my $subject = $entry_obj->subject_html;
     my $text = $entry_obj->event_raw;
@@ -1872,7 +1869,7 @@ sub Entry_from_entryobj
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;
     # cleaning the entry text: cuts and such
     my $cut_disable = $opts->{cut_disable};
-    my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum, $stylemine ),
+    my $cleanhtml_opts = { cuturl => LJ::item_link( $journal, $jitemid, $anum, $style_args ),
         ljcut_disable => $cut_disable,
         suspend_msg => $suspend_msg,
         unsuspend_supportid => $suspend_msg ? $entry_obj->prop( 'unsuspend_supportid' ) : 0,
@@ -1938,8 +1935,8 @@ sub Entry_from_entryobj
     my $permalink = $entry_obj->url;
     my $replycount = $entry_obj->reply_count;
     my $nc = "nc=$replycount" if $replycount && $remote && $remote->prop( 'opt_nctalklinks' );
-    my $readurl = LJ::Talk::talkargs( $permalink, $nc, $stylemine );
-    my $posturl = LJ::Talk::talkargs( $permalink, 'mode=reply', $stylemine );
+    my $readurl = LJ::Talk::talkargs( $permalink, $nc, $style_args );
+    my $posturl = LJ::Talk::talkargs( $permalink, 'mode=reply', $style_args );
 
     my $comments_enabled = ( ( $journal->{opt_showtalklinks} eq "Y" ) && ( ! $entry_obj->props->{opt_nocomments} ) ) ? 1 : 0;
     my $has_screened = ( $entry_obj->props->{hasscreened} && LJ::can_manage( $remote, $journal ) ) ? 1 : 0;

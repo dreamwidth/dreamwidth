@@ -359,7 +359,7 @@ body<=
     $qotd = $entry->prop("qotdid") if $entry;
 
     my $jarg = "journal=$u->{'user'}&amp;";
-    my $readurl = LJ::Talk::talkargs($talkurl, $stylemine, $formatlight);
+    my $readurl = LJ::Talk::talkargs($talkurl, LJ::viewing_style_args( %GET ) );
 
     my $replycount = $entry->prop( "replycount" );
     my $readlink_text = BML::ml( "talk.commentsread.counted",

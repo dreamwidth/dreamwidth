@@ -101,8 +101,7 @@ body<=
     $itemid = $init->{'itemid'}+0;
 
     # Get format/style parameters to pass to the URL later
-    my $formatlight = ( ( $GET{format} eq 'light' ) || ( $GET{style} eq 'light' ) ) ? 'style=light' : '';
-    my $stylemine = $init->{style} eq "mine" ? "style=mine" : "";
+    my $style_args = LJ::viewing_style_args( %GET, %$init );
 
     my $item = LJ::Talk::get_journal_item($u, $itemid);
 
@@ -587,11 +586,11 @@ body<=
                 }
 
                 $ret .= " <span class='talkargs'>(<a href='";
-                $ret .= LJ::Talk::talkargs( $talkurl, "thread=$dtid", $formatlight );
+                $ret .= LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args );
                 $ret .= LJ::Talk::comment_anchor( $dtid ) . "'>$T{'link'}</a>)</span>";
 
                 if ($comment->remote_can_edit) {
-                    $ret .= "<a href='" . LJ::Talk::talkargs($comment->edit_url, $stylemine, $formatlight) . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
+                    $ret .= "<a href='" . LJ::Talk::talkargs( $comment->edit_url, $style_args ) . "'>" . LJ::img("editcomment", "", { 'align' => 'absmiddle', 'hspace' => 2, 'vspace' => }) . "</a>";
                 }
 
                 if (LJ::Talk::can_delete($remote, $u, $up, $userpost)) {
@@ -686,7 +685,7 @@ body<=
 
                 $ret .= "<p style='margin: 0.7em 0 0.2em 0'><font size='-2'>";
 
-                my $replyurl = LJ::Talk::talkargs($talkurl, "replyto=$dtid", $stylemine, $formatlight);
+                my $replyurl = LJ::Talk::talkargs( $talkurl, "replyto=$dtid", $style_args );
                 if ($post->{'state'} eq 'F') {
                     $ret .= "($T{'frozen'})";
                 } elsif ($remote) {
@@ -716,11 +715,11 @@ body<=
                     $ret .= "(<a href='$rooturl'>$T{'threadroot'}</a>)";
 
                     my $dpid = $parentid * 256 + $init->{'anum'};
-                    $ret .= "(<a href='" . LJ::Talk::talkargs($talkurl, "thread=$dpid", $stylemine, $formatlight);
+                    $ret .= "(<a href='" . LJ::Talk::talkargs( $talkurl, "thread=$dpid",  $style_args );
                     $ret .= LJ::Talk::comment_anchor( $dpid ) . "'>$T{'parent'}</a>)";
                 }
                 if ($post->{'children'} && @{$post->{'children'}}) {
-                    my $url = LJ::Talk::talkargs($talkurl, "thread=$dtid", $stylemine, $formatlight) . LJ::Talk::comment_anchor( $dtid );
+                    my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
                     $ret .= "(<a href='$url'>$T{'thread'}</a>)";
 
                     if ((grep {! $_->{_loaded} and !($_->{state} eq "D")} @{$post->{'children'}}) && $show_thread_expander) {
@@ -736,7 +735,7 @@ body<=
             } else {
                 # link to message
 
-                my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $stylemine, $formatlight ) . LJ::Talk::comment_anchor( $dtid );
+                my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
                 $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table ><tbody><tr>";
                 $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
                 $ret .= "<td><a href='$url'>" . LJ::ehtml($post->{'subject'} || $T{'nosubject'}) . "</a> - $user, <i>$datepost</i>";
@@ -774,7 +773,7 @@ body<=
                             { replycount => $replycount } );
 
         if ( $dthread && $pages == 1 ) {
-            my $readurl = LJ::Talk::talkargs( $talkurl, $stylemine, $formatlight );
+            my $readurl = LJ::Talk::talkargs( $talkurl, $style_args );
             $readlink = "(<a href='$readurl#comments'>$readlink_text</a>) - ";
         } else {
             $readlink = "($comments_count) - " if $replycount > 0;
@@ -783,7 +782,7 @@ body<=
         #
         # Commenting UI
         #
-        my $posturl = LJ::Talk::talkargs($talkurl, "mode=reply", $stylemine, $formatlight);
+        my $posturl = LJ::Talk::talkargs( $talkurl, "mode=reply", $style_args );
 
         $ret .= "<form style='display: inline' method='post' action='$LJ::SITEROOT/talkmulti' name='multiform' id='multiform' >";
 

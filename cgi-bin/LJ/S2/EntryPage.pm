@@ -38,9 +38,7 @@ sub EntryPage
 
     my $itemid = $entry->jitemid;
     my $permalink = $entry->url;
-    my $stylemine = $get->{'style'} eq "mine" ? "style=mine" : "";
-    my $style_set = defined $get->{'s2id'} ? "s2id=" . int( $get->{'s2id'} ) : "";
-    my $style_arg = ($stylemine ne '' and $style_set ne '') ? ($stylemine . '&' . $style_set) : ($stylemine . $style_set);
+    my $style_arg = LJ::viewing_style_args( %$get );
 
     if ($u->should_block_robots || $entry->should_block_robots) {
         $p->{'head_content'} .= LJ::robot_meta_tags();
@@ -445,9 +443,7 @@ sub EntryPage_entry
     my $nc = "";
     $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
 
-    my $stylemine = $get->{'style'} eq "mine" ? "style=mine" : "";
-    my $style_set = defined $get->{'s2id'} ? "s2id=" . int( $get->{'s2id'} ) : "";
-    my $style_arg = ($stylemine ne '' and $style_set ne '') ? ($stylemine . '&' . $style_set) : ($stylemine . $style_set);
+    my $style_arg = LJ::viewing_style_args( %$get );
     
     # load the userpic; include the keyword selected by the user 
     # as a backup for the alttext
