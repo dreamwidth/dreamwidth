@@ -69,7 +69,8 @@ LiveJournal.initInboxUpdate = function () {
 
     // Don't run if no inbox count
     var unread = $("Inbox_Unread_Count");
-    if (! unread) return;
+    var unread_menu = $("Inbox_Unread_Count_Menu");
+    if (! unread && ! unread_menu) return;
 
     // Update every five minutes
     window.setInterval(LiveJournal.updateInbox, 1000 * 60 * 5);
@@ -97,9 +98,13 @@ LiveJournal.gotInboxUpdate = function (resp) {
     if (! resp || resp.error) return;
 
     var unread = $("Inbox_Unread_Count");
-    if (! unread) return;
+    var unread_menu = $("Inbox_Unread_Count_Menu");
+    if (! unread && ! unread_menu) return;
 
-    unread.innerHTML = resp.unread_count ? "  (" + resp.unread_count + ")" : "";
+    if ( unread )
+        unread.innerHTML = resp.unread_count ? "  (" + resp.unread_count + ")" : "";
+    if ( unread_menu )
+        unread_menu.innerHTML = resp.unread_count ? resp.unread_count : "";
 };
 
 // Search for placeholders and initialize them
