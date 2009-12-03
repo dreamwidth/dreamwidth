@@ -8160,7 +8160,8 @@ sub make_journal
 
                 # remote can use s2id on this journal if:
                 # owner of the style is remote or managed by remote OR
-                # owner of the style has s2styles cap and remote is viewing owner's journal
+                # owner of the style has s2styles cap and remote is viewing owner's journal OR
+                # all layers in this style are public (public layer or is_public)
 
                 if ($u->id == $owner && $u->get_cap("s2styles")) {
                     $opts->{'style_u'} = LJ::load_userid($owner);
@@ -8180,6 +8181,8 @@ sub make_journal
                         return (2, $geta->{'s2id'});
                     } # else this style not allowed by policy
                 }
+
+                return ( 2, $geta->{s2id} ) if LJ::S2::style_is_public( $style );
             }
 
             # style=mine passed in GET?

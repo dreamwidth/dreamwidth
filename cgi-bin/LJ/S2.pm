@@ -463,6 +463,22 @@ sub is_public_internal_layer {
     return 0;
 }
 
+# whether all layers in this style are public
+sub style_is_public {
+    my $style = $_[0];
+    return 0 unless $style;
+
+    my %lay_info;
+    LJ::S2::load_layer_info( \%lay_info, [ $style->{layer}->{layout}, $style->{layer}->{theme}, $style->{layer}->{user}, $style->{layer}->{i18n}, $style->{layer}->{i18nc} ] );
+
+    my $pub = get_public_layers();
+    while ( my ( $layerid, $layerinfo ) = each %lay_info ) {
+        return 0 unless $pub->{$layerid} || $layerinfo->{is_public};
+    }
+
+    return 1;
+}
+
 # find existing re-distributed layers that are in the database
 # and their styleids.
 sub get_public_layers
