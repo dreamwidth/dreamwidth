@@ -65,8 +65,15 @@ sub render_body {
 
     $ret .= "<div class='contents'>";
     $ret .= "<p><a href='" . $entry->url . "'>" . $entry->subject_html . "</a></p>";
-    $ret .= "<p>" . $entry->event_html_summary( 300 ) . "</p>";
-    $ret .= "<p><a href='" . $entry->url . "'>" . $class->ml( 'widget.latestnews.more' ) . "</a></p>";
+
+    if ( $entry->event_raw =~ /<(?:lj-)?cut/ ) {
+        # if we have a cut, then use it
+        $ret .= $entry->event_html( { cuturl => $entry->url } );
+    } else {
+        # if we don't have a cut, we want to output in summary mode
+        $ret .= $entry->event_summary;
+    }
+
     $ret .= "</div>";
 
     return $ret;
