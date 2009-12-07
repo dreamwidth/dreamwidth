@@ -76,8 +76,10 @@
         }
 
         if ( $POST{add_watch} ) {
-            my $fg = $POST{color_switch} ? LJ::color_todb( $POST{editfriend_add_1_fg} ) : "";
-            my $bg = $POST{color_switch} ? LJ::color_todb( $POST{editfriend_add_1_bg} ) : "";
+            my $fg = $POST{color_switch} ? $POST{editfriend_add_1_fg} : "#000000";
+            $fg = LJ::color_todb( $fg );
+            my $bg = $POST{color_switch} ? $POST{editfriend_add_1_bg} : "#FFFFFF";
+            $bg = LJ::color_todb( $bg );
             $remote->add_edge( $u, watch => {
                 fgcolor => $fg,
                 bgcolor => $bg,
@@ -140,6 +142,7 @@
     my $watch_list = $remote->watch_list;
     my $fgvalue = $watched ? $watch_list->{$userid}->{fgcolor} : "#000000";
     my $bgvalue = $watched ? $watch_list->{$userid}->{bgcolor} : "#FFFFFF";
+    my $custom_colors = ( $fgvalue ne "#000000" || lc( $bgvalue ) ne "#ffffff" ) || 0;
 
     my $add = ( $watched || $trusted ) ? "" : ".add";
 
@@ -268,9 +271,11 @@
 
     $body .= "<div style='clear: left;'></div>";
 
+    my $color_switch_checked = $custom_colors ?  "checked=\"checked\"" : "";
+
     ## let them pick the colors
     my $color_text = "<?p <table><tr><td valign=\"top\"><i>$ML{'.optional'}:</i> ".
-             "<input type=\"checkbox\" id=\"color_switch\" name=\"color_switch\" onClick=\"color_display(this);\"> </td><td><label for=\"color_switch\">" .
+             "<input type=\"checkbox\" id=\"color_switch\" name=\"color_switch\" onClick=\"color_display(this);\" $color_switch_checked> </td><td><label for=\"color_switch\">" .
              BML::ml( '.colors.text', { user => $username } ) .
              "</label><br /><span style=\"font-size: 7pt;\">($ML{'.colors.disclaimer'})</span></td></tr></table> p?>";
     $body .= "<script>\n";
