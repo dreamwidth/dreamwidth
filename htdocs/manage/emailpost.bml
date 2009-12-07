@@ -36,6 +36,7 @@ body<=
     return LJ::server_down_html() if $LJ::SERVER_DOWN;
 
     my $u = LJ::get_remote();
+    return "<?needlogin?>" unless $u;
     return $LJ::MSG_READONLY_USER if $u->is_readonly;
     my @props =
       qw/

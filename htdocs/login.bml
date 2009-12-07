@@ -286,7 +286,7 @@
                     if $u->is_community && ! LJ::is_enabled('community-logins');
             }
 
-            if ( $u->is_readonly ) {
+            if ( $u && $u->is_readonly ) {
                 return if $want_fail_redirect->("database_readonly");
 
                 $body = LJ::bad_input("The database is temporarily in read-only mode, so creating new login sessions is temporarily down.  Please try again later.");

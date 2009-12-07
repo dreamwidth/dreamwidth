@@ -33,7 +33,7 @@ sub label {
 # adding new accounts.
 sub option {
     my ($class, $u, $errs, $args, %opts) = @_;
-    my $key = $class->pkgkey;
+    return unless LJ::isu( $u );
 
     # first load up the existing accounts.
     my @accounts = DW::External::Account->get_external_accounts($u);
