@@ -29,11 +29,8 @@ sub render_body {
     my $layoutid = defined $opts{layoutid} ? $opts{layoutid} : 0;
     my $designer = defined $opts{designer} ? $opts{designer} : "";
     my $search = defined $opts{search} ? $opts{search} : "";
-    my $filter_available = defined $opts{filter_available} ? $opts{filter_available} : 0;
     my $page = defined $opts{page} ? $opts{page} : 1;
     my $show = defined $opts{show} ? $opts{show} : 12;
-
-    my $filterarg = $filter_available ? "filter_available=1" : "";
     my $showarg = $show != 12 ? "show=$opts{show}" : "";
 
     # we want to have "All" selected if we're filtering by layout or designer, or if we're searching
@@ -62,13 +59,7 @@ sub render_body {
     }
 
     my $ret;
-    $ret .= "<h2 class='widget-header'>" . $class->ml('widget.themenav.title');
-    $ret .= $class->start_form;
-    $ret .= "<span>" . $class->html_check( name => "filter_available", id => "filter_available", selected => $filter_available );
-    $ret .= " <label for='filter_available'>" . $class->ml('widget.themenav.filteravailable') . "</label>";
-    $ret .= " " . $class->html_submit( "filter" => $class->ml('widget.themenav.btn.filteravailable'), { id => "filter_btn" }) . "</span>";
-    $ret .= $class->end_form;
-    $ret .= "</h2>";
+    $ret .= "<h2 class='widget-header'>" . $class->ml('widget.themenav.title') . "</h2>";
 
     my @keywords = LJ::Customize->get_search_keywords_for_js($u);
     my $keywords_string = join(",", @keywords);
@@ -91,7 +82,6 @@ sub render_body {
         viewing_all => $viewing_all,
         cat_list => \@main_cats_sorted,
         getextra => $getextra,
-        filterarg => $filterarg,
         showarg => $showarg,
     );
     $ret .= "</ul>";
@@ -106,7 +96,6 @@ sub render_body {
             viewing_all => $viewing_all,
             cat_list => \@cats_sorted,
             getextra => $getextra,
-            filterarg => $filterarg,
             showarg => $showarg,
         );
         $ret .= "</ul>";
@@ -128,7 +117,6 @@ sub render_body {
         layoutid => $layoutid,
         designer => $designer,
         search => $search,
-        filter_available => $filter_available,
         page => $page,
         show => $show,
     );
@@ -181,13 +169,10 @@ sub print_cat_list {
 
         my $arg = "";
         $arg = "cat=$c" unless $c eq "featured";
-        if ($arg || $opts{filterarg} || $opts{showarg}) {
+        if ($arg || $opts{showarg}) {
             my $allargs = $arg;
-            $allargs .= "&" if $allargs && $opts{filterarg};
-            $allargs .= $opts{filterarg};
             $allargs .= "&" if $allargs && $opts{showarg};
             $allargs .= $opts{showarg};
-
             $arg = $opts{getextra} ? "&$allargs" : "?$allargs";
         }
 
@@ -207,15 +192,10 @@ sub handle_post {
 
     my $url = "$LJ::SITEROOT/customize/";
     if ($post->{filter}) {
-        $q_string =~ s/&?filter_available=\d//g;
         $q_string = "?$q_string" if $q_string;
         my $q_sep = $q_string ? "&" : "?";
+        $url .= $q_string;
 
-        if ($post->{filter_available}) {
-            $url .= "$q_string${q_sep}filter_available=1";
-        } else {
-            $url .= $q_string;
-        }
     } elsif ($post->{page}) {
         $q_string = "?$q_string" if $q_string;
         my $q_sep = $q_string ? "&" : "?";
@@ -238,13 +218,12 @@ sub handle_post {
             $url .= $q_string;
         }
     } elsif ($post->{search}) {
-        my $filter = ($q_string =~ /&?filter_available=\d/) ? "&filter_available=1" : "";
         my $show = ($q_string =~ /&?show=(\w+)/) ? "&show=$1" : "";
         my $authas = ($q_string =~ /&?authas=(\w+)/) ? "&authas=$1" : "";
         $q_string = "";
 
         $post->{search} = LJ::eurl($post->{search});
-        $url .= "?search=$post->{search}$authas$filter$show";
+        $url .= "?search=$post->{search}$authas$show";
     }
 
     return BML::redirect($url);
@@ -277,9 +256,6 @@ sub js {
                 });
             }
 
-            $('filter_btn').style.display = "none";
-            DOM.addEventListener($('filter_available'), "click", function (evt) { self.filterThemes(evt, "filter_available", $('filter_available').checked) });
-
             // add event listener to the search form
             DOM.addEventListener($('search_form'), "submit", function (evt) { self.filterThemes(evt, "search", $('search_box').value) });
 
@@ -291,7 +267,7 @@ sub js {
                 var getArgs = LiveJournal.parseGetArgs(filter_link.href);
                 for (var arg in getArgs) {
                     if (!getArgs.hasOwnProperty(arg)) continue;
-                    if (arg == "authas" || arg == "filter_available" || arg == "show") continue;
+                    if (arg == "authas" || arg == "show") continue;
                     DOM.addEventListener(filter_link, "click", function (evt) { self.filterThemes(evt, arg, getArgs[arg]) });
                     evt_listener_added = 1;
                     break;
@@ -304,18 +280,7 @@ sub js {
             });
         },
         filterThemes: function (evt, key, value) {
-            // filtering by availability, page, and show use the values of the other filters, so do not reset them in that case
-            if (key == "filter_available") {
-                if (value) {
-                    Customize.filter_available = 1;
-                } else {
-                    Customize.filter_available = 0;
-                }
-
-                // need to go back to page 1 if the filter was switched because
-                // the current page may no longer have any themes to show on it
-                Customize.page = 1;
-            } else if (key == "show") {
+            if (key == "show") {
                 // need to go back to page 1 if the show amount was switched because
                 // the current page may no longer have any themes to show on it
                 Customize.page = 1;
@@ -342,7 +307,6 @@ sub js {
                 layoutid: Customize.layoutid,
                 designer: Customize.designer,
                 search: Customize.search,
-                filter_available: Customize.filter_available,
                 page: Customize.page,
                 show: Customize.show,
                 theme_chooser_id: $('theme_chooser_id').value
@@ -361,7 +325,6 @@ sub js {
         },
         onData: function (data) {
             Customize.CurrentTheme.updateContent({
-                filter_available: Customize.filter_available,
                 show: Customize.show
             });
             Customize.hideHourglass();

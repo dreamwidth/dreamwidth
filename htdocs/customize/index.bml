@@ -34,7 +34,6 @@ body<=
     my $layoutid = defined $GET{layoutid} ? $GET{layoutid} : 0;
     my $designer = defined $GET{designer} ? $GET{designer} : "";
     my $search = defined $GET{search} ? $GET{search} : "";
-    my $filter_available = defined $GET{filter_available} ? $GET{filter_available} : 0;
     my $page = defined $GET{page} ? $GET{page} : 1;
     my $show = defined $GET{show} ? $GET{show} : 12;
 
@@ -63,7 +62,7 @@ body<=
     my $current_theme = LJ::Widget::CurrentTheme->new;
     $headextra .= $current_theme->wrapped_js( page_js_obj => "Customize" );
     $ret .= "<div class='theme-current pkg'>";
-    $ret .= $current_theme->render( filter_available => $filter_available, show => $show );
+    $ret .= $current_theme->render( show => $show );
     $ret .= "</div><!-- end .theme-current -->";
 
     my $journal_titles = LJ::Widget::JournalTitles->new;
@@ -81,7 +80,6 @@ body<=
         layoutid => $layoutid,
         designer => $designer,
         search => $search,
-        filter_available => $filter_available,
         page => $page,
         show => $show,
         headextra => \$headextra,

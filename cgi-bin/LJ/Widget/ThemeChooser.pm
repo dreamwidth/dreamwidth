@@ -26,11 +26,9 @@ sub render_body {
     my $layoutid = defined $opts{layoutid} ? $opts{layoutid} : 0;
     my $designer = defined $opts{designer} ? $opts{designer} : "";
     my $search = defined $opts{search} ? $opts{search} : "";
-    my $filter_available = defined $opts{filter_available} ? $opts{filter_available} : 0;
     my $page = $opts{page} || 1;
     my $show = $opts{show} || 12;
 
-    my $filterarg = $filter_available ? "&filter_available=1" : "";
     my $showarg = $show != 12 ? "&show=$opts{show}" : "";
 
     my $viewing_featured = !$cat && !$layoutid && !$designer;
@@ -61,11 +59,6 @@ sub render_body {
         @themes = LJ::S2Theme->load_by_search($search, $u);
     } else { # category is "featured"
         @themes = LJ::S2Theme->load_by_cat("featured");
-    }
-
-    if ($filter_available) {
-        push @getargs, "filter_available=$filter_available";
-        @themes = LJ::S2Theme->filter_available($u, @themes);
     }
 
     if ($show != 12) {
@@ -144,7 +137,7 @@ sub render_body {
         } elsif (!$theme->themeid && !$current_theme->themeid) {
             $theme_types{current} = 1 if $theme->layoutid == $current_theme->layoutid;
         }
-        $theme_types{upgrade} = 1 if !$filter_available && !$theme->available_to($u);
+        $theme_types{upgrade} = 1 if !$theme->available_to($u);
         $theme_types{special} = 1 if LJ::run_hook("layer_is_special", $theme->uniq);
 
         
@@ -195,11 +188,11 @@ sub render_body {
         $ret .= "<img src='$LJ::IMGPREFIX/customize/preview-theme.gif' class='theme-preview-image' /></a>";
         $ret .= $theme_icons;
 
-        my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$filterarg$showarg' class='theme-layout'><em>$theme_layout_name</em></a>";
-        my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$filterarg$showarg' class='theme-cat'";
+        my $layout_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}layoutid=" . $theme->layoutid . "$showarg' class='theme-layout'><em>$theme_layout_name</em></a>";
+        my $special_link_opts = "href='$LJ::SITEROOT/customize/$getextra${getsep}cat=special$showarg' class='theme-cat'";
         $ret .= "<div class='theme-action'><p class='theme-desc'>";
         if ($theme_designer) {
-            my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$filterarg$showarg' class='theme-designer'>$theme_designer</a>";
+            my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($theme_designer) . "$showarg' class='theme-designer'>$theme_designer</a>";
             if ($theme_types{special}) {
                 $ret .= $class->ml('widget.themechooser.theme.specialdesc', {'aopts' => $special_link_opts, 'designer' => $designer_link});
             } else {
@@ -370,7 +363,7 @@ sub js {
                 } else {
                     for (var arg in getArgs) {
                         if (!getArgs.hasOwnProperty(arg)) continue;
-                        if (arg == "authas" || arg == "filter_available" || arg == "show") continue;
+                        if (arg == "authas" || arg == "show") continue;
                         DOM.addEventListener(filter_link, "click", function (evt) { Customize.ThemeNav.filterThemes(evt, arg, getArgs[arg]) });
                         break;
                     }
@@ -415,14 +408,9 @@ sub js {
                 layoutid: Customize.layoutid,
                 designer: Customize.designer,
                 search: Customize.search,
-                filter_available: Customize.filter_available,
                 page: Customize.page,
                 show: Customize.show,
                 theme_chooser_id: $('theme_chooser_id').value
-            });
-            Customize.CurrentTheme.updateContent({
-                filter_available: Customize.filter_available,
-                show: Customize.show
             });
             Customize.LayoutChooser.updateContent({
                 ad_layout_id: $('ad_layout_id').value

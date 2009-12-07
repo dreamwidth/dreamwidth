@@ -295,22 +295,6 @@ sub load_all {
     return @themes;
 }
 
-# given an array of themes, return an array of only those themes available to the given user
-sub filter_available {
-    my $class = shift;
-    my $u = shift;
-    my @themes = @_;
-
-    die "Invalid user object." unless LJ::isu($u);
-
-    my @themes_ret;
-    foreach my $theme (@themes) {
-        push @themes_ret, $theme if $theme->available_to($u);
-    }
-
-    return @themes_ret;
-}
-
 # custom layouts without themes need special treatment when creating an S2Theme object
 sub new_custom_layout {
     my $class = shift;

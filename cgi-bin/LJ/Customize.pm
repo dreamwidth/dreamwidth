@@ -234,11 +234,11 @@ sub get_layouts_for_dropdown {
     my @layouts = map  {
         my $text = $pub->{$_}->{'name'};
         my $can_use_layer = LJ::S2::can_use_layer($u, $pub->{$_}->{'uniq'});
-        $text = "$text*" if $opts{filter_available} && !$can_use_layer; # for browsers that don't support disabled or colored options
+        $text = "$text*" if !$can_use_layer; # for browsers that don't support disabled or colored options
         {
             value => $_,
             text => $text,
-            disabled => $opts{filter_available} && !$can_use_layer,
+            disabled => !$can_use_layer,
         }
     }
     sort { $pub->{$a}->{'name'} cmp $pub->{$b}->{'name'} }
@@ -252,7 +252,7 @@ sub get_layouts_for_dropdown {
            } keys %$pub;
 
     # add custom layouts
-    push @layouts, $class->get_custom_layouts_for_dropdown($u, filter_available => $opts{filter_available});
+    push @layouts, $class->get_custom_layouts_for_dropdown($u);
     LJ::run_hook("modify_layout_list", \@layouts, user => $u, add_seps => 1);
 
     unshift @layouts, 0, LJ::Lang::ml('customize.layouts_for_dropdown.choose');
@@ -273,11 +273,11 @@ sub get_custom_layouts_for_dropdown {
 
     my @user = map {
         my $text = $userlay->{$_}->{'name'} ? $userlay->{$_}->{'name'} : LJ::Lang::ml('customize.layoutname.default', {'layoutid' => "\#$_"});
-        $text = "$text*" if $opts{filter_available} && !$has_cap; # for browsers that don't support disabled or colored options
+        $text = "$text*" if !$has_cap; # for browsers that don't support disabled or colored options
         {
             value => $_,
             text => $text,
-            disabled => $opts{filter_available} && !$has_cap,
+            disabled => !$has_cap,
         }
     }
     sort { $userlay->{$a}->{'name'} cmp $userlay->{$b}->{'name'} || $a <=> $b }
