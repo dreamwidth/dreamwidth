@@ -55,6 +55,9 @@ sub option {
         }
     }
 
+    # convenience
+    my $key = $class->pkgkey;
+
     # be sure to add your style info in htdocs/stc/settings.css or this won't
     # look very good.
     $ret .= "<h2>" . $class->ml('setting.xpost.accounts') ."</h2><br/>"; 
