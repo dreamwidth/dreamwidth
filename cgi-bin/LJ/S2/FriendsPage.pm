@@ -228,11 +228,12 @@ sub FriendsPage
     if ($skip) {
         my %linkvars;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
+        $linkvars{'date'} = $get->{date} if $get->{date};
+        $linkvars{filter} = $get->{filter}+0 if defined $get->{filter};
+        $nav->{'forward_url'} = LJ::make_link($base, \%linkvars);
         my $newskip = $skip - $itemshow;
         if ($newskip > 0) { $linkvars{'skip'} = $newskip; }
         else { $newskip = 0; }
-        $linkvars{'date'} = $get->{date} if $get->{date};
-        $nav->{'forward_url'} = LJ::make_link($base, \%linkvars);
         $nav->{'forward_skip'} = $newskip;
         $nav->{'forward_count'} = $itemshow;
         $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
@@ -246,6 +247,7 @@ sub FriendsPage
         my %linkvars;
         $linkvars{'show'} = $get->{'show'} if $get->{'show'} =~ /^\w+$/;
         $linkvars{'date'} = $get->{'date'} if $get->{'date'};
+        $linkvars{filter} = $get->{filter}+0 if defined $get->{filter};
         my $newskip = $skip + $itemshow;
         $linkvars{'skip'} = $newskip;
         $nav->{'backward_url'} = LJ::make_link($base, \%linkvars);
