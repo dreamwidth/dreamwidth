@@ -2283,15 +2283,15 @@ sub mail_comments {
         if ($paruserid) {
             $paru = LJ::load_userid($paruserid);
 
-            # we don't want to send email to a parent if the email address on the
-            # parent's user is the same as the email address on this comment's user
-            # is_diff_email: also so we don't auto-vivify $comment->{u}
-            my $is_diff_email = !$comment->{u} ||
-                $paru->email_raw ne $comment->{u}->email_raw;
+            # we don't want to send email to a parent if the parent user is the
+            # same as the comment user
+            # is_diff_user: also so we don't auto-vivify $comment->{u}
+            my $is_diff_user = !$comment->{u} ||
+                !LJ::u_equals( $paru, $comment->{u} );
 
             if ($paru->{'opt_gettalkemail'} eq "Y" &&
                 $paru->is_visible &&
-                $is_diff_email &&
+                $is_diff_user &&
                 $paru->{'status'} eq "A" &&
                 !$paru->gets_notified(journal => $journalu, arg1 => $ditemid, arg2 => $comment->{talkid}) 
 
