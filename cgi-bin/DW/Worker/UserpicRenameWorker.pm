@@ -15,11 +15,10 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
+package DW::Worker::UserpicRenameWorker;
+
 use strict;
 use warnings;
-use lib "$LJ::HOME/cgi-bin";
-
-package DW::Worker::UserpicRenameWorker;
 use base 'TheSchwartz::Worker';
 
 sub schwartz_capabilities { return ('DW::Worker::UserpicRenameWorker'); }
