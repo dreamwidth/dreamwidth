@@ -1476,7 +1476,7 @@ property string font_base {
     maxlength = 25;
     "size" = 10;
     example = "Arial";
-    note = "Leave blank if you don't care.";
+    note = "Leave blank to use the default.";
 }
 set font_base = "";   # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
 

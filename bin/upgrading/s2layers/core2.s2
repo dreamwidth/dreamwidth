@@ -1476,7 +1476,7 @@ property string font_base {
     des = "Preferred journal font";
     maxlength = 25;
     size = 15;
-    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
 set font_base = "";   # In core, default is not to care. Layouts will probably specify fonts the author likes instead.
 
@@ -1501,7 +1501,7 @@ property string font_journal_title {
     des = "Preferred font for journal titles";
     maxlength = 25;
     size = 15;
-    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
 
 property string font_journal_title_size {
@@ -1518,7 +1518,7 @@ property string font_journal_subtitle {
     des = "Preferred font for journal subtitles";
     maxlength = 25;
     size = 15;
-    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
 
 property string font_journal_subtitle_size {
@@ -1535,7 +1535,7 @@ property string font_entry_title {
     des = "Preferred font for entry titles";
     maxlength = 25;
     size = 15;
-    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
 
 property string font_entry_title_size {
@@ -1552,7 +1552,7 @@ property string font_module_heading {
     des = "Preferred font for module headings";
     maxlength = 25;
     size = 15;
-    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
 
 property string font_module_heading_size {
@@ -1569,7 +1569,7 @@ property string font_module_text {
     des = "Preferred font for module text";
     maxlength = 25;
     size = 15;
-    note = "For example: Arial or \"Times New Roman\". Leave blank if you don't care.";
+    note = "For example: Arial or \"Times New Roman\". Leave blank to use the default.";
 }
 
 property string font_module_text_size {
