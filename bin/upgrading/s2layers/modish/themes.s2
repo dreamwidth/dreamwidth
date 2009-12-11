@@ -89,6 +89,23 @@ set color_page_link_visited = "#ef4921";
 set color_page_text = "#ffffff";
 set color_page_title = "#ef8229";
 
+#NEWLAYER: modish/plasticgrass
+layerinfo type = "theme";
+layerinfo name = "Plastic Grass";
+layerinfo author_name = "zvi";
+layerinfo redist_uniq = "modish/plasticgrass";
+
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_active = "#d59b90";
+set color_page_background = "#ffffff";
+set color_page_link = "#a9c384";
+set color_page_title = "#9A7EA2";
+set color_page_text = "#000000";
+set color_page_link_visited = "#83608d";
+set color_header_background = "#c2d7a6";
+set color_page_link_hover = "#e8bbb3";
+set color_page_border = "#a9c384";
 
 #NEWLAYER: modish/verdigris
 layerinfo type = "theme";
