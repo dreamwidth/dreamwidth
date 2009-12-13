@@ -59,23 +59,36 @@ sub render_body {
     if ($hook_rv) {
         $ret .= $hook_rv;
     } else {
+        # TabIndex
+        # tab indexes start at 11, instead of 1, in order to make
+        # the mid-page tab indexes start AFTER the login
+        # information in the site header in all of the non-lynx
+        # site schemed pages. Possibly this should be replaced
+        # with a tabindex variable which is scoped by page
+        # instead of by widget.
         $ret .= "<h2>" . LJ::Lang::ml('/login.bml.login.welcome', { 'sitename' => $LJ::SITENAMESHORT }) . "</h2>\n";
         $ret .= "<fieldset class='pkg nostyle'>\n";
         $ret .= "<label for='user' class='left'>" . LJ::Lang::ml('/login.bml.login.username') . "</label>\n";
-        $ret .= "<input type='text' value='$user' name='user' id='user' class='text' size='18' maxlength='27' style='' />\n";
+        $ret .= "<input type='text' value='$user' name='user' id='user' class='text' size='18' maxlength='27' style='' tabindex='11' />\n";
         $ret .= "</fieldset>\n";
         $ret .= "<fieldset class='pkg nostyle'>\n";
         $ret .= "<label for='lj_loginwidget_password' class='left'>" . LJ::Lang::ml('/login.bml.login.password') . "</label>\n";
-        $ret .= "<input type='password' id='lj_loginwidget_password' name='password' class='lj_login_password text' size='20' maxlength='30' /><a href='$LJ::SITEROOT/lostinfo' class='small-link'>" . LJ::Lang::ml('/login.bml.login.forget2') . "</a>\n";
+        $ret .= "<input type='password' id='lj_loginwidget_password' name='password' class='lj_login_password text' size='20' maxlength='30' tabindex='12' /><a href='$LJ::SITEROOT/lostinfo' class='small-link' tabindex='16'>" 
+                . LJ::Lang::ml('/login.bml.login.forget2') 
+                . "</a>\n";
         $ret .= "</fieldset>\n";
-        $ret .= "<p><input type='checkbox' name='remember_me' id='remember_me' value='1' tabindex='4' /> <label for='remember_me'>Remember me</label></p>";
+        $ret .= "<p><input type='checkbox' name='remember_me' id='remember_me' value='1' tabindex='13' /> <label for='remember_me'>Remember me</label></p>";
 
         # standard/secure links removed for now
         my $secure = "<p>";
         $secure .= "<img src='$LJ::IMGPREFIX/padlocked.gif' class='secure-image' width='20' height='16' alt='secure login' />";
         $secure .= LJ::Lang::ml('/login.bml.login.secure') . " | <a href='$LJ::SITEROOT/login?nojs=1'>" . LJ::Lang::ml('/login.bml.login.standard') . "</a></p>";
 
-        $ret .= "<p><input name='action:login' type='submit' value='" . LJ::Lang::ml('/login.bml.login.btn.login') . "' /> <a href='$LJ::SITEROOT/openid/' class='small-link'>" . LJ::Lang::ml('/login.bml.login.openid') . "</a></p>";
+        $ret .= "<p><input name='action:login' type='submit' value='"
+                . LJ::Lang::ml('/login.bml.login.btn.login') 
+                . "' tabindex='14' /> <a href='$LJ::SITEROOT/openid/' class='small-link' tabindex='15'>" 
+                . LJ::Lang::ml('/login.bml.login.openid') 
+                . "</a></p>";
 
         if (! $LJ::IS_SSL) {
             my $login_btn_text = LJ::ejs(LJ::Lang::ml('/login.bml.login.btn.login'));

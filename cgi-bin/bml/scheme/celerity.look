@@ -98,7 +98,8 @@ accountlinks<=
             size => 20,
             maxlength => 27,
             tabindex => 1,
-        }) . " <a href='$LJ::SITEROOT/openid/'>$ML{'sitescheme.accountlinks.login.openid'}</a></td></tr>";
+            raw => 'aria-required="true"',
+        }) . " <a href='$LJ::SITEROOT/openid/' tabindex=5>$ML{'sitescheme.accountlinks.login.openid'}</a></td></tr>";
         $ret .= "<tr><td><label for='login_password'>$ML{'sitescheme.accountlinks.login.password'}</label></td>";
         $ret .= "<td class='input-cell' colspan='2'>" . LJ::html_text({
             type => "password",
@@ -106,7 +107,8 @@ accountlinks<=
             id => "login_password",
             size => 20,
             tabindex => 2,
-        }) . " <a href='$LJ::SITEROOT/lostinfo'>$ML{'sitescheme.accountlinks.login.forgotpassword'}</a></td></tr>";
+            raw => 'aria-required="true"',
+        }) . " <a href='$LJ::SITEROOT/lostinfo' tabindex=6>$ML{'sitescheme.accountlinks.login.forgotpassword'}</a></td></tr>";
         $ret .= "<tr><td>&nbsp;</td>";
         $ret .= "<td class='remember-me-cell'>";
         $ret .= LJ::html_check({
