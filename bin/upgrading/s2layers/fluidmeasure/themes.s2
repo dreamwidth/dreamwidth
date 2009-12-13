@@ -65,6 +65,141 @@ set color_module_title = "#1f2727";
 set color_module_title_background = "#1f6b68";
 set color_module_border = "#6b4d1f";
 
+#NEWLAYER: fluidmeasure/marblei
+layerinfo type = "theme";
+layerinfo name = "Marble I";
+layerinfo redist_uniq = "fluidmeasure/marblei";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#d2cdc7";
+set color_page_border = "#d2cdc7";
+set color_page_link = "#818a8f";
+set color_page_link_active = "#5e6460";
+set color_page_link_hover = "#5e6460";
+set color_page_link_visited = "#818a8f";
+set color_page_text = "#d2cdc7";
+set color_page_title = "#818a8f";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#101413";
+set color_footer_background = "#5e6460";
+set color_footer_link = "#101413";
+set color_footer_link_active = "#818a8f";
+set color_footer_link_hover = "#818a8f";
+set color_footer_link_visited = "#101413";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#233535";
+set color_entry_border = "#101413";
+set color_entry_interaction_links = "#818a8f";
+set color_entry_link = "#818a8f";
+set color_entry_link_active = "#5e6460";
+set color_entry_link_hover = "#5e6460";
+set color_entry_link_visited = "#818a8f";
+set color_entry_text = "#d2cdc7";
+set color_entry_title = "#101413";
+set color_entry_title_background = "#818a8f";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title_background = "#818a8f";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#233535";
+set color_module_border = "#5e6460";
+set color_module_link = "#5e6460";
+set color_module_link_active = "#5e6460";
+set color_module_link_hover = "#5e6460";
+set color_module_link_visited = "#5e6460";
+set color_module_text = "#818a8f";
+set color_module_title = "#101413";
+set color_module_title_background = "#818a8f";
+
+#NEWLAYER: fluidmeasure/marbleii
+layerinfo type = "theme";
+layerinfo name = "Marble II";
+layerinfo redist_uniq = "fluidmeasure/marbleii";
+layerinfo author_name = "dancing_serpent";
+
+set layout_authors = [ { "name" => "dancing_serpent", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#233535";
+set color_page_border = "#233535";
+set color_page_link = "#101413";
+set color_page_link_active = "#5e6460";
+set color_page_link_hover = "#5e6460";
+set color_page_link_visited = "#101413";
+set color_page_text = "#233535";
+set color_page_title = "#101413";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#818a8f";
+set color_footer_background = "#5e6460";
+set color_footer_link = "#818a8f";
+set color_footer_link_active = "#101413";
+set color_footer_link_hover = "#101413";
+set color_footer_link_visited = "#818a8f";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "#d2cdc7";
+set color_entry_border = "#818a8f";
+set color_entry_interaction_links = "#101413";
+set color_entry_link = "#101413";
+set color_entry_link_active = "#5e6460";
+set color_entry_link_hover = "#5e6460";
+set color_entry_link_visited = "#101413";
+set color_entry_text = "#233535";
+set color_entry_title = "#818a8f";
+set color_entry_title_background = "#101413";
+
+##===============================
+## Comment Colors
+##===============================
+
+set color_comment_title_background = "#101413";
+
+##===============================
+## Module Colors
+##===============================
+
+
+set color_module_background = "#d2cdc7";
+set color_module_border = "#5e6460";
+set color_module_link = "#5e6460";
+set color_module_link_active = "#5e6460";
+set color_module_link_hover = "#5e6460";
+set color_module_link_visited = "#5e6460";
+set color_module_text = "#101413";
+set color_module_title = "#818a8f";
+set color_module_title_background = "#101413";
+
 #NEWLAYER: fluidmeasure/mutedseashore
 layerinfo type = "theme";
 layerinfo name = "Muted Seashore";

@@ -11,6 +11,16 @@ use base qw( LJ::S2Theme::fluidmeasure );
 sub cats { qw( ) }
 sub designer { "dancing_serpent" }
 
+package LJ::S2Theme::fluidmeasure::marblei;
+use base qw( LJ::S2Theme::fluidmeasure );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
+
+package LJ::S2Theme::fluidmeasure::marbleii;
+use base qw( LJ::S2Theme::fluidmeasure );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
+
 package LJ::S2Theme::fluidmeasure::mutedseashore;
 use base qw( LJ::S2Theme::fluidmeasure );
 sub cats { qw( ) }
