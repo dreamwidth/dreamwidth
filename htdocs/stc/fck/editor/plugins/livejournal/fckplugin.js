@@ -11,6 +11,7 @@ LJUserCommand.GetState=function() {
 LJUserCommand.Execute=function() {
     var username;
     var selection = '';
+    var UserTagCache = window.parent.UserTagCache;
 
     if (FCK.EditorWindow.getSelection) {
         selection = FCK.EditorWindow.getSelection();
@@ -91,7 +92,6 @@ LJUserCommand.Execute=function() {
         do_insert( username );
     } else {
         var DOM = window.parent.DOM;
-        var UserTagCache = window.parent.UserTagCache;
         var _textDiv = window.parent._textDiv;
         var userPopup = new window.parent.LJ_IPPU( window.parent.FCKLang.UserPrompt );
         userPopup.hide =   function() {
