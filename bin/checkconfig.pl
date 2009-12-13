@@ -63,7 +63,6 @@ my %modules = (
                "Class::Autouse" => { 'deb' => 'libclass-autouse-perl', },
                "Digest::MD5" => { 'deb' => 'libmd5-perl', },
                "Digest::SHA1" => { 'deb' => 'libdigest-sha1-perl', },
-               "HTML::Template" => { 'deb' => 'libhtml-template-perl' },
                "Image::Size" => { 'deb' => 'libimage-size-perl', },
                "MIME::Lite" => { 'deb' => 'libmime-lite-perl', },
                "MIME::Words" => { 'deb' => 'libmime-perl', },

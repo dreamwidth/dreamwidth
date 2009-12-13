@@ -2,7 +2,6 @@ package LJ::Event::JournalNewComment;
 use strict;
 use Scalar::Util qw(blessed);
 use LJ::Comment;
-use LJ::HTML::Template;
 use Carp qw(croak);
 use base 'LJ::Event';
 
@@ -91,14 +90,6 @@ sub as_email_subject {
         $entry_details = ' [ ' . $self->comment->journal->display_name . ' - ' . $self->comment->entry->ditemid . ' ]';
     }
 
-    my $filename = $self->template_file_for(section => 'subject', lang => $lang);
-    if ($filename) {
-        # Load template file into template processor
-        my $t = LJ::HTML::Template->new(filename => $filename);
-        $t->param( subject => $self->comment->subject_html . $entry_details );
-        return $t->output;
-    }
-
     my $key = 'esn.mail_comments.subject.';
     if ($self->comment->subject_orig) {
         return LJ::strip_html( $self->comment->subject_orig . $entry_details );
@@ -125,14 +116,6 @@ sub as_email_string {
     my ($self, $u) = @_;
     my $comment = $self->comment or return "(Invalid comment)";
 
-    my $filename = $self->template_file_for(section => 'body_text', lang => $u->prop('browselang'));
-    if ($filename) {
-        # Load template file into template processor
-        my $t = LJ::HTML::Template->new(filename => $filename);
-
-        return $comment->format_template_text_mail($u, $t) if $t;
-    }
-
     return $comment->format_text_mail($u);
 }
 
@@ -140,14 +123,6 @@ sub as_email_html {
     my ($self, $u) = @_;
     my $comment = $self->comment or return "(Invalid comment)";
 
-    my $filename = $self->template_file_for(section => 'body_html', lang => $u->prop('browselang'));
-    if ($filename) {
-        # Load template file into template processor
-        my $t = LJ::HTML::Template->new(filename => $filename);
-
-        return $comment->format_template_html_mail($u, $t) if $t;
-    }
- 
     return $comment->format_html_mail($u);
 }
 

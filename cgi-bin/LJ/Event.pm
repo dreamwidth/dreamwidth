@@ -442,40 +442,6 @@ sub all_classes {
     return $tm->all_classes;
 }
 
-# Returns path to template file by event type for certain language, journal and e-mail section.
-#
-# @params:  section = [subject | body_html | body_text]
-#           lang    = [ en | ru | ... ]
-#
-# @returns: filename or undef if template could not be found.
-#
-sub template_file_for {
-    my $self = shift;
-    my %opts = @_;
-
-    return unless LJ::is_enabled('template_files');
-
-    my $section      = $opts{section};
-    my $lang         = $opts{lang} || 'default';
-    my ($event_type) = (ref $self) =~ /\:([^:]+)$/; #
-    my $journal_name = $self->event_journal->user;
-
-    # all ESN e-mail templates are located in:
-    #    $LJHOME/templates/ESN/$event_type/$language/$journal_name
-    #
-    # go though file paths until found existing one
-    foreach my $file (
-        "$event_type/$lang/$journal_name/$section.tmpl",
-        "$event_type/$lang/default/$section.tmpl",
-        "$event_type/default/$journal_name/$section.tmpl",
-        "$event_type/default/default/$section.tmpl",
-    ) {
-        $file = "$LJ::HOME/templates/ESN/$file"; # add common prefix
-        return $file if -e $file;
-    }
-    return undef;
-}
-
 sub format_options {
     my ($self, $is_html, $lang, $vars, $urls, $extra) = @_;
 
