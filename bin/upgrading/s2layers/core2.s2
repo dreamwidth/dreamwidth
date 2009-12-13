@@ -4134,7 +4134,7 @@ function Entry::print_wrapper_start() {
 
     #additional classes for sticky entries added
     if ($this isa StickyEntry) {
-        """<div class="sticky-entry-wrapper entry-wrapper entry-wrapper-even security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="sticky-entry-wrapper-$this.itemid">\n""";
+        """<div class="sticky-entry-wrapper entry-wrapper $alternate security-$security restrictions-$adult_content_level $journal_type $poster $journal $userpic" id="sticky-entry-wrapper-$this.itemid">\n""";
         """<div class="separator separator-before"><div class="inner"></div></div>\n""";
         """<div class="sticky-entry entry" id="sticky-entry-$this.itemid">\n""";
     }
