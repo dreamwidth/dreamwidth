@@ -364,7 +364,7 @@ sub poptext {
 
     # learn about local files
     chdir "$ENV{LJHOME}" or die "Failed to chdir to \$LJHOME.\n";
-    my @textfiles = `find htdocs/ -name '*.text' -or -name '*.text.local'`;
+    my @textfiles = `find htdocs/ views/ -name '*.text' -or -name '*.text.local'`;
     chomp @textfiles;
     foreach my $tf (@textfiles) {
         my $is_local = $tf =~ /\.local$/;
@@ -375,6 +375,7 @@ sub poptext {
         }
         my $pfx = $tf;
         $pfx =~ s!^htdocs/!!;
+        $pfx =~ s!^views/!!;
         $pfx =~ s!\.text(\.local)?$!!;
         $pfx = "/$pfx";
         $source{"$ENV{'LJHOME'}/$tf"} = [$lang, $pfx];

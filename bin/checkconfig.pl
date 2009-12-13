@@ -69,6 +69,7 @@ my %modules = (
                "MIME::Words" => { 'deb' => 'libmime-perl', },
                "Compress::Zlib" => { 'deb' => 'libcompress-zlib-perl', },
                "Net::DNS" => { 'deb' => 'libnet-dns-perl', },
+               "Template" => { 'deb' => 'libtemplate-perl', },
                "Net::OpenID::Server" => {
                    opt => 'Required for OpenID server support.'
                },

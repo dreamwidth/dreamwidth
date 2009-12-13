@@ -27,12 +27,15 @@ use Apache2::RequestUtil ();
 use Apache2::RequestIO ();
 use Apache2::SubProcess ();
 
+use DW::Routing::Apache2;
+
 use fields (
             'r',         # The Apache2::Request object
 
             # these are mutually exclusive; if you use one you can't use the other
             'content',   # raw content
             'post_args', # hashref of POST arguments
+            'get_args',  # hashref of GET arguments
         );
 
 # creates a new DW::Request object, based on what type of server environment we
@@ -111,6 +114,14 @@ sub post_args {
     return $self->{post_args};
 }
 
+sub get_args {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{get_args} if defined $self->{get_args};
+
+    my %gets = LJ::parse_args( $self->query_string );
+    return $self->{get_args} = \%gets;
+}
+
 # searches for a given note and returns the value, or sets it
 sub note {
     my DW::Request::Apache2 $self = $_[0];
@@ -163,10 +174,19 @@ sub set_last_modified {
     return $self->{r}->set_last_modified($_[1]);
 }
 
+sub status {
+    my DW::Request::Apache2 $self = $_[0];
+    if (scalar(@_) == 2) {
+        $self->{r}->status($_[1]+0);
+    } else {
+        return $self->{r}->status();
+    }
+}
+
 sub status_line {
     my DW::Request::Apache2 $self = $_[0];
     if (scalar(@_) == 2) {
-        # Apparently both status and status_line must be set
+        # If we set status_line, we must also set status.
         my ($status) = $_[1] =~ m/^(\d+)/;
         $self->{r}->status($status);
         return $self->{r}->status_line($_[1]);
@@ -196,6 +216,16 @@ sub read {
 sub OK {
     my DW::Request::Apache2 $self = $_[0];
     return Apache2::Const::OK;
+}
+
+sub REDIRECT {
+    my DW::Request::Apache2 $self = $_[0];
+    return Apache2::Const::REDIRECT;
+}
+
+sub NOT_FOUND {
+    my DW::Request::Apache2 $self = $_[0];
+    return Apache2::Const::NOT_FOUND;
 }
 
 # spawn a process for an external program

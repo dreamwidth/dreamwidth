@@ -27,6 +27,7 @@ use LJ::AccessLogSink::DBIProfile;
 use Compress::Zlib;
 use XMLRPC::Transport::HTTP;
 use LJ::URI;
+use DW::Routing::Apache2;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -176,14 +177,12 @@ sub totally_down_content
 
     if ($uri =~ m!^/interface/flat! || $uri =~ m!^/cgi-bin/log\.cg!) {
         $r->content_type("text/plain");
-#        $r->send_http_header();
         $r->print("success\nFAIL\nerrmsg\n$LJ::SERVER_DOWN_MESSAGE");
         return OK;
     }
 
     if ($uri =~ m!^/customview.cgi!) {
         $r->content_type("text/html");
-#        $r->send_http_header();
         $r->print("<!-- $LJ::SERVER_DOWN_MESSAGE -->");
         return OK;
     }
@@ -193,7 +192,6 @@ sub totally_down_content
     $r->status_line("503 Server Maintenance");
     $r->content_type("text/html");
     $r->headers_out->{"Content-length"} = length $body;
-#    $r->send_http_header();
 
     $r->print($body);
     return OK;
@@ -205,7 +203,6 @@ sub blocked_bot
 
     $r->status_line("403 Denied");
     $r->content_type("text/html");
-#    $r->send_http_header();
     my $subject = $LJ::BLOCKED_BOT_SUBJECT || "403 Denied";
     my $message = $LJ::BLOCKED_BOT_MESSAGE || "You don't have permission to view this page.";
 
@@ -323,6 +320,9 @@ sub trans
 
     # only allow certain pages over SSL
     if ($is_ssl) {
+        my $ret = DW::Routing::Apache2->call( $r, ssl => 1 );
+        return $ret if defined $ret;
+
         if ($uri =~ m!^/interface/! || $uri =~ m!^/__rpc_!) {
             # handled later
         } elsif ($LJ::SSLDOCS && $uri !~ m!(\.\.|\%|\.\/)!) {
@@ -617,11 +617,6 @@ sub trans
 
             my ($mode, $path) = ($1, $2);
 
-            if ( $mode eq "edges" ) {
-                $r->notes->{_journal} = $opts->{user};
-                return $bml_handler->( "$LJ::HOME/htdocs/data/edges.bml" );
-            }
-
             if ($mode eq "customview") {
                 $r->handler("perl-script");
                 $r->push_handlers(PerlResponseHandler => \&customview_content);
@@ -650,7 +645,8 @@ sub trans
         return DECLINED if $uuri eq "/favicon.ico";
 
         # see if there is a modular handler for this URI
-        my $ret = LJ::URI->handle($uuri, $r);
+        my $ret = LJ::URI->handle($uuri, $r) ||
+                  DW::Routing::Apache2->call( $r, username => $user );
         return $ret if defined $ret;
 
         if ($uuri eq "/__setdomsess") {
@@ -946,7 +942,8 @@ sub trans
     }
 
     # see if there is a modular handler for this URI
-    my $ret = LJ::URI->handle($uri, $r);
+    my $ret = LJ::URI->handle($uri, $r) ||
+              DW::Routing::Apache2->call( $r );
     return $ret if defined $ret;
 
     # customview (get an S1 journal by number)
@@ -1089,7 +1086,6 @@ sub userpic_content
         $r->headers_out->{"Content-length"} = $size+0;
         $r->headers_out->{"Cache-Control"} = "no-transform";
         $r->headers_out->{"Last-Modified"} = LJ::time_to_http($lastmod);
-#        $r->send_http_header();
     };
 
     # Load the user object and pic and make sure the picture is viewable
@@ -1270,7 +1266,6 @@ sub journal_content
 
         $u->preload_props("opt_blockrobots", "adult_content");
         $r->content_type("text/plain");
-#        $r->send_http_header();
         my @extra = LJ::run_hook("robots_txt_extra", $u), ();
         $r->print($_) foreach @extra;
         $r->print("User-Agent: *\n");
@@ -1296,7 +1291,6 @@ sub journal_content
         my $res = LJ::auth_digest($r);
         unless ($res) {
             $r->content_type("text/html");
-#            $r->send_http_header();
             $r->print("<b>Digest authentication failed.</b>");
             return OK;
         }
@@ -1323,7 +1317,6 @@ sub journal_content
             BML::get_request()->err_headers_out->add('Set-Cookie' => $cookiestr);
         }
 
-#        $r->send_http_header();
         $r->print("Invalid cookies.  Try <a href='$LJ::SITEROOT/logout.bml'>logging out</a> and then logging back in.\n");
         $r->print("<!-- xxxxxxxxxxxxxxxxxxxxxxxx -->\n") for (0..100);
         return OK;
@@ -1535,7 +1528,6 @@ sub journal_content
     $r->headers_out->{'Vary'} = 'Accept-Encoding';
 
     $r->headers_out->{"Content-length"} = $length;
-#    $r->send_http_header();
     $r->print($html) unless $r->header_only;
 
     return OK;
@@ -1552,7 +1544,6 @@ sub customview_content
         $charset = $FORM{'charset'};
         if ($charset ne "utf-8" && ! Unicode::MapUTF8::utf8_supported_charset($charset)) {
             $r->content_type("text/html");
-#            $r->send_http_header();
             $r->print("<b>Error:</b> requested charset not supported.");
             return OK;
         }
@@ -1616,7 +1607,6 @@ sub customview_content
 
     $r->headers_out->{"Cache-Control"} = "must-revalidate";
     $r->headers_out->{"Content-Length"} = length($data);
-#    $r->send_http_header();
     $r->print($data) unless $r->header_only;
     return OK;
 }
@@ -1754,7 +1744,6 @@ sub anti_squatter
     $r->push_handlers(PerlResponseHandler => sub {
         my $r = shift;
         $r->content_type("text/html");
-#        $r->send_http_header();
         $r->print("<html><head><title>Dev Server Warning</title>",
                   "<style> body { border: 20px solid red; padding: 30px; margin: 0; font-family: sans-serif; } ",
                   "h1 { color: #500000; }",
