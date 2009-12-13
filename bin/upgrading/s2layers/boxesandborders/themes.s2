@@ -1,3 +1,85 @@
+#NEWLAYER: boxesandborders/bittersweet
+layerinfo "type" = "theme";
+layerinfo "name" = "Bittersweet";
+layerinfo redist_uniq = "boxesandborders/bittersweet";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Passion", "url" => "http://www.colourlovers.com/palette/205028/Passion" } ];
+
+# Uses the palette "Passion" by michelaghio (http://www.colourlovers.com/palette/205028/Passion)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "fff9e9";
+set color_page_text = "#000";
+set color_page_border = "#968D85";
+set color_page_link = "#B20C17";
+set color_page_link_active = "#009";
+set color_page_link_visited = "#920C07";
+set color_page_title = "#62584F";
+
+set color_footer_background = "#62584F";
+set color_footer_link = "#e2d7c9";
+set color_footer_link_active = "#e2d7c9";
+set color_footer_link_visited = "#e2d7c9";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000"; 
+set color_entry_border = "#62584F"; #nav bar
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#62584F";
+
+#NEWLAYER: boxesandborders/grass
+layerinfo "type" = "theme";
+layerinfo "name" = "Grass";
+layerinfo redist_uniq = "boxesandborders/grass";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Spring Hike", "url" => "http://www.colourlovers.com/palette/1016288/Spring_Hike" } ];
+
+# Uses the palette "Spring Hike" by faith4faith (http://www.colourlovers.com/palette/1016288/Spring_Hike)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "fafffb";
+set color_page_text = "#000";
+set color_page_border = "#AEBAA6";
+set color_page_link = "#D25A2B";
+set color_page_link_active = "#c00";
+set color_page_link_visited = "#822A00";
+set color_page_title = "#809A62";
+
+set color_footer_background = "#97AA84";
+set color_footer_link = "#ffffff";
+set color_footer_link_active = "#ffffff";
+set color_footer_link_visited = "#ffffff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000"; #hovered nav bar
+set color_entry_border = "#97AA84"; #nav bar
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#97AA84";
+
 #NEWLAYER: boxesandborders/gray
 layerinfo "type" = "theme";
 layerinfo "name" = "Gray";
@@ -129,3 +211,126 @@ set color_page_link_hover = "#842021";
 set color_page_link_visited = "#ef4921";
 set color_page_text = "#ffffff";
 set color_page_title = "#ef8229";
+
+#NEWLAYER: boxesandborders/onfire
+layerinfo "type" = "theme";
+layerinfo "name" = "On Fire";
+layerinfo redist_uniq = "boxesandborders/onfire";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Beyond", "url" => "http://www.colourlovers.com/palette/913740/Beyond" } ];
+
+# Uses the palette "Beyond" by Ancasta (http://www.colourlovers.com/palette/913740/Beyond)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#FFFcdf";
+set color_page_text = "#34302D";
+set color_page_border = "#B64533";
+set color_page_link = "#6666cc";
+set color_page_link_active = "#66cc99";
+set color_page_link_visited = "#333399";
+set color_page_title = "#D37843";
+
+set color_footer_background = "#B64533";
+set color_footer_link = "#FFFcd9";
+set color_footer_link_active = "#ffffff";
+set color_footer_link_visited = "#FFFcd9";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#34302D";
+set color_entry_border = "#D37843";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#34302D";
+set color_module_border = "#B64533";
+
+#NEWLAYER: boxesandborders/pinkafterdark
+layerinfo "type" = "theme";
+layerinfo "name" = "Pink After Dark";
+layerinfo redist_uniq = "boxesandborders/pinkafterdark";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Salmon Spawn", "url" => "http://www.colourlovers.com/palette/914780/Salmon_Spawn" } ];
+
+# Uses the palette "Salmon Spawn" by miice (http://www.colourlovers.com/palette/914780/Salmon_Spawn)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "373026";
+set color_page_text = "#fff";
+set color_page_border = "#B48889";
+set color_page_link = "#F8E2B1";
+set color_page_link_active = "#009";
+set color_page_link_visited = "#d8c291";
+set color_page_title = "#D7B6AF";
+
+set color_footer_background = "#D29A89";
+set color_footer_link = "#000";
+set color_footer_link_active = "#000";
+set color_footer_link_visited = "#000";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#fff"; 
+set color_entry_border = "#D29A89"; #nav bar
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#fff";
+set color_module_border = "#D29A89";
+
+#NEWLAYER: boxesandborders/rainyday
+layerinfo "type" = "theme";
+layerinfo "name" = "Rainy Day";
+layerinfo redist_uniq = "boxesandborders/rainyday";
+layerinfo author_name = "branchandroot";
+
+set layout_resources = [ { "name" => "Evening Softly Lit 2", "url" => "http://www.colourlovers.com/palette/1023446/Evening_Softly_Lit_2" } ];
+
+# Uses the palette "Evening Softly Lit 2" by o2bqueen (http://www.colourlovers.com/palette/1023446/Evening_Softly_Lit_2)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "fafcff";
+set color_page_text = "#000";
+set color_page_border = "#7C86A6";
+set color_page_link = "#933";
+set color_page_link_active = "#c33";
+set color_page_link_visited = "#600";
+set color_page_title = "#353F4F";
+
+set color_footer_background = "#353F4F";
+set color_footer_link = "#ffffff";
+set color_footer_link_active = "#ffffff";
+set color_footer_link_visited = "#ffffff";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#000";
+set color_entry_border = "#353F4F"; #nav bar
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_title = "#000";
+set color_module_border = "#353F4F";
