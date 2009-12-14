@@ -2,6 +2,7 @@ package LJ::Tags;
 use strict;
 
 use LJ::Constants;
+use LJ::Lang;
 
 # <LJFUNC>
 # name: LJ::Tags::get_usertagsmulti
