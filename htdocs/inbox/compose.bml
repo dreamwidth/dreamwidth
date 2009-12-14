@@ -84,7 +84,7 @@ body<=
             # Check each user being sent a message
             foreach my $to (@to_list) {
                 # Check the To field
-                my $tou = LJ::load_user($to);
+                my $tou = LJ::load_user_or_identity( $to );
                 unless ($tou) {
                     push @errors, BML::ml( '.error.invalid.username',
                                     { to => $to } );
@@ -242,7 +242,7 @@ body<=
     if ( LJ::isu( $remote ) ) {
         my %trusted_and_watched_userids = map { $_ => 1 } ( $remote->trusted_userids, $remote->watched_userids );
         my $us = LJ::load_userids( keys %trusted_and_watched_userids );
-        @flist = map { $us->{$_}->user } grep { $us->{$_}->is_personal || $us->{$_}->is_identity } keys %trusted_and_watched_userids;
+        @flist = map { $us->{$_}->display_name } grep { $us->{$_}->is_personal || $us->{$_}->is_identity } keys %trusted_and_watched_userids;
     }
     $body .= LJ::JSUtil::autocomplete(field => 'msg_to', list => \@flist);
 
