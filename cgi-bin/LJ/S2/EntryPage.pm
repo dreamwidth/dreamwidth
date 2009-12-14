@@ -274,8 +274,10 @@ sub EntryPage
             push @$link_keyseq, "watching_parent" if LJ::is_enabled('esn');
             unshift @$link_keyseq, "edit_comment" if LJ::is_enabled('edit_comments');
 
-            $s2com->{'thread_url'} = LJ::Talk::talkargs($permalink, "thread=$dtalkid", $style_arg) . LJ::Talk::comment_anchor( $dtalkid )
-                if @{$com->{children}};
+            # always populate expand url; let get_link sort out whether this link should be printed or not
+            # the value of expand_url is not directly exposed via s2. It is used by the get_link backend function
+            $s2com->{expand_url} = LJ::Talk::talkargs( $permalink, "thread=$dtalkid", $style_arg ) . LJ::Talk::comment_anchor( $dtalkid );
+            $s2com->{thread_url} = $s2com->{expand_url} if @{$com->{children}};
 
             # add the poster_ip metadata if remote user has
             # access to see it.
