@@ -2120,7 +2120,7 @@ menunav.read=Read
 
 menunav.read.inbox.nounread=Inbox
 
-menunav.read.inbox.unread=Inbox ([[num]])
+menunav.read.inbox.unread2=Inbox [[num]]
 
 menunav.read.network=Network Page
 

@@ -101,10 +101,11 @@ LiveJournal.gotInboxUpdate = function (resp) {
     var unread_menu = $("Inbox_Unread_Count_Menu");
     if (! unread && ! unread_menu) return;
 
+    var unread_count = resp.unread_count? " (" + resp.unread_count + ")" : "";
     if ( unread )
-        unread.innerHTML = resp.unread_count ? "  (" + resp.unread_count + ")" : "";
+        unread.innerHTML = unread_count;
     if ( unread_menu )
-        unread_menu.innerHTML = resp.unread_count ? resp.unread_count : "";
+        unread_menu.innerHTML = unread_count;
 };
 
 // Search for placeholders and initialize them

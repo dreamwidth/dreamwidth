@@ -181,8 +181,8 @@ sub get_menu_navigation {
                 },
                 {
                     url => "$LJ::SITEROOT/inbox/",
-                    text => $inbox_count ? "menunav.read.inbox.unread" : "menunav.read.inbox.nounread",
-                    text_opts => { num => "<span id='Inbox_Unread_Count_Menu'>$inbox_count</span>" },
+                    text => $inbox_count ? "menunav.read.inbox.unread2" : "menunav.read.inbox.nounread",
+                    text_opts => { num => "<span id='Inbox_Unread_Count_Menu'> ($inbox_count)</span>" },
                     display => $loggedin,
                 },
             ],
