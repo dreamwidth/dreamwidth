@@ -55,11 +55,11 @@
 
         # identity accounts do not have feeds
         next if $w->is_identity;
-        # if we only want to show personal accounts
-        next if $GET{show} eq 'P' and $w->is_community;
-        # if we only want to show communities
-        next if $GET{show} eq 'C' and $w->is_person;
-
+        # filter by account type
+        next if $GET{show} && ! ( $GET{show} =~ /[P]/ && $w->is_person
+                    || $GET{show} =~ /[C]/ && $w->is_community 
+                    || $GET{show} =~ /[YF]/ && $w->is_syndicated );
+                    
         my $title;
         
         # use the username + site abbreviation for each feed's title if we have that
