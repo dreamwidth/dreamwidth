@@ -645,8 +645,8 @@ sub trans
         return DECLINED if $uuri eq "/favicon.ico";
 
         # see if there is a modular handler for this URI
-        my $ret = LJ::URI->handle($uuri, $r) ||
-                  DW::Routing::Apache2->call( $r, username => $user );
+        my $ret = LJ::URI->handle($uuri, $r);
+        $ret = DW::Routing::Apache2->call( $r, username => $user ) unless defined $ret;
         return $ret if defined $ret;
 
         if ($uuri eq "/__setdomsess") {
@@ -942,8 +942,8 @@ sub trans
     }
 
     # see if there is a modular handler for this URI
-    my $ret = LJ::URI->handle($uri, $r) ||
-              DW::Routing::Apache2->call( $r );
+    my $ret = LJ::URI->handle($uri, $r);
+    $ret = DW::Routing::Apache2->call( $r ) unless defined $ret;
     return $ret if defined $ret;
 
     # customview (get an S1 journal by number)
