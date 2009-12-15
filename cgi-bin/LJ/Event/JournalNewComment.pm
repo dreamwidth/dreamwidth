@@ -429,8 +429,9 @@ sub matches_filter {
     }
 
     # not a match if this user posted the entry and they don't want comments emailed,
-    # unless they posted it. (don't need to check again for the cap, since we did above.)
-    if (LJ::u_equals($entry->poster, $watcher) && !$watcher->prop('opt_getselfemail')) {
+    # unless it is a reply to one of their comments or they posted it. (don't need to check again for the cap, since we did above.)
+    my $reply_to_own_comment = $comment->parent ? LJ::u_equals( $comment->parent->poster, $watcher ) : 0;
+    if ( LJ::u_equals( $entry->poster, $watcher ) && ! ( $reply_to_own_comment || $watcher->prop( 'opt_getselfemail' ) ) ) {
         return 0 if $entry->prop('opt_noemail') && $subscr->method =~ /Email$/;
     }
 
