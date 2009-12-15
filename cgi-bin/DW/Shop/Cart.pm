@@ -256,7 +256,7 @@ sub has_items {
 sub add_item {
     my ( $self, $item ) = @_;
 
-    # tell teh item who we are
+    # tell the item who we are
     $item->cartid( $self->id );
 
     # make sure this item is allowed to be added
@@ -273,10 +273,17 @@ sub add_item {
         }
     }
 
+    # construct a new, unique id for this item
+    my $itid = LJ::alloc_global_counter( 'I' )
+        or return ( 0, 'Failed to allocate item counter.' );
+    $item->id( $itid );
+
     # looks good, so let's add it...
     push @{$self->items}, $item;
     $self->{total} += $item->cost;
-    $item->id( $#{$self->items} );
+
+    # now call out to the hook system in case anybody wants to munge with us
+    LJ::run_hooks( 'shop_cart_added_item', $self, $item );
 
     # save to db and return
     $self->save || return( 0, 'Unable to save cart.' );
@@ -286,19 +293,30 @@ sub add_item {
 
 # removes an item from this cart by id
 sub remove_item {
-    my ( $self, $id ) = @_;
+    my ( $self, $id, %opts ) = @_;
 
-    my $out = [];
+    my ( $removed, $out ) = ( undef, [] );
     foreach my $it ( @{$self->items} ) {
         if ( $it->id == $id ) {
+            # some items are noremove items
+            if ( $it->noremove && ! $opts{force} ) {
+                push @$out, $it;
+                next;
+            }
+
+            # advise that we removed an item from the cart
+            $removed = $it;
             $self->{total} -= $it->cost;
         } else {
             push @$out, $it;
         }
     }
-
     $self->{items} = $out;
     $self->save;
+
+    # now run the hook, this is later so that we've updated the cart already
+    LJ::run_hooks( 'shop_cart_removed_item', $self, $removed );
+
     return 1;
 }
 

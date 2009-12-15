@@ -2077,7 +2077,7 @@ sub get_secret
 #        'C' == captcha, 'E' == external user, 
 #        'L' == poLL,  'M' == Messaging, 'H' == sHopping cart,
 #        'F' == PubSubHubbub subscription id (F for Fred),
-#        'K' == sitekeyword
+#        'K' == sitekeyword, 'I' == shopping cart Item
 #
 sub alloc_global_counter
 {
@@ -2087,7 +2087,7 @@ sub alloc_global_counter
 
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
-    unless ( $dom =~ /^[ESLPAHCMFK]$/ ) {
+    unless ( $dom =~ /^[ESLPAHCMFKI]$/ ) {
         $dom = LJ::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
@@ -2135,6 +2135,10 @@ sub alloc_global_counter
         my $max_sitekeys  = $dbh->selectrow_array( "SELECT MAX(kwid) FROM sitekeywords" );
         my $max_interests = $dbh->selectrow_array( "SELECT MAX(intid) FROM interests" );
         $newmax = $max_sitekeys > $max_interests ? $max_sitekeys : $max_interests;
+    } elsif ( $dom eq 'I' ) {
+        # if we have no counter, start at 0, as we have no way of determining what
+        # the maximum used item id is
+        $newmax = 0;
     } else {
         $newmax = LJ::run_hook('global_counter_init_value', $dom);
         die "No alloc_global_counter initalizer for domain '$dom'"

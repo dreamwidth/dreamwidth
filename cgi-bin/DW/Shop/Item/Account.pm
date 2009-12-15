@@ -63,6 +63,14 @@ sub new {
         return undef unless $args{anonymous_target} == 1;
     }
 
+    if ( $args{cannot_conflict} ) {
+        return undef unless $args{cannot_conflict} == 1;
+    }
+
+    if ( $args{noremove} ) {
+        return undef unless $args{noremove} == 1;
+    }
+
     # looks good
     return bless {
         # user supplied arguments (close enough)
@@ -111,8 +119,8 @@ sub _apply_userid {
 
     # will need this later
     my $fu = LJ::load_userid( $self->from_userid );
-    unless ( $self->anonymous || $fu ) {
-        warn "Failed to apply: NOT anonymous and no from_user!\n";
+    unless ( $self->anonymous || $self->from_name || $fu ) {
+        warn "Failed to apply: NOT anonymous, no from_name, no from_user!\n";
         return 0;
     }
 
@@ -138,6 +146,7 @@ sub _apply_userid {
         foreach my $maintu ( values %$maintus ) {
             my $emailtype = $fu && $maintu->equals( $fu ) ? 'self' : 'other';
             $emailtype = 'anon' if $self->anonymous;
+            $emailtype = 'explicit' if $self->from_name;
 
             $subj = LJ::Lang::ml( "shop.email.comm.$emailtype.subject", { sitename => $LJ::SITENAME } );
             $body = LJ::Lang::ml( "shop.email.comm.$emailtype.body",
@@ -147,6 +156,7 @@ sub _apply_userid {
                     commname    => $u->display_name,
                     accounttype => $accounttype_string,
                     sitename    => $LJ::SITENAME,
+                    fromname    => $self->from_name,
                 }
             );
 
@@ -166,6 +176,7 @@ sub _apply_userid {
         } else {
             $emailtype = $fu && $u->equals( $fu ) ? 'self' : 'other';
             $emailtype = 'anon' if $self->anonymous;
+            $emailtype = 'explicit' if $self->from_name;
         }
 
         $subj = LJ::Lang::ml( "shop.email.user.$emailtype.subject", { sitename => $LJ::SITENAME } );
@@ -175,6 +186,7 @@ sub _apply_userid {
                 fromuser    => $fu ? $fu->display_name : '',
                 accounttype => $accounttype_string,
                 sitename    => $LJ::SITENAME,
+                fromname    => $self->from_name,
             }
         );
 
@@ -314,6 +326,10 @@ sub can_be_added {
 sub conflicts {
     my ( $self, $item ) = @_;
 
+    # if either item are set as "does not conflict" then never say yes
+    return if
+        $self->cannot_conflict || $item->cannot_conflict;
+
     # first see if we're talking about the same target
     # note that we're not checking email here because they may want to buy
     # multiple paid accounts and send them to all to the same email address
@@ -427,6 +443,20 @@ sub t_userid {
 }
 
 
+# display who this is from
+sub from_html {
+    my $self = $_[0];
+
+    return $self->{from_name} if $self->{from_name};
+
+    my $from_u = LJ::load_userid( $self->from_userid );
+    return LJ::Lang::ml( 'widget.shopcart.anonymous' )
+        if $self->anonymous || ! LJ::isu( $from_u );
+
+    return $from_u->ljuser_display;
+}
+
+
 # simple accessors
 sub applied      { return $_[0]->{applied};         }
 sub cost         { return $_[0]->{cost};            }
@@ -438,7 +468,10 @@ sub from_userid  { return $_[0]->{from_userid};     }
 sub deliverydate { return $_[0]->{deliverydate};    }
 sub anonymous    { return $_[0]->{anonymous};       }
 sub random       { return $_[0]->{random};          }
+sub noremove     { return $_[0]->{noremove};        }
+sub from_name    { return $_[0]->{from_name};       }
 sub anonymous_target { return $_[0]->{anonymous_target}; }
+sub cannot_conflict  { return $_[0]->{cannot_conflict};  }
 
 
 1;

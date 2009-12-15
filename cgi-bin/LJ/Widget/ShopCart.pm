@@ -59,15 +59,18 @@ sub render_body {
     $ret .= "<th>ADMIN</th>" if $opts{admin};
     $ret .= "</tr>";
     foreach my $item ( @{$cart->items} ) {
-        my $from_u = LJ::load_userid( $item->from_userid );
-
         $ret .= "<tr>";
-        $ret .= "<td>" . $class->html_check( name => 'remove_' . $item->id, value => 1 ) . "</td>"
-            unless $opts{receipt};
+        if ( $opts{receipt} ) {
+            # empty column for receipt
+        } elsif ( $item->noremove ) {
+            $ret .= "<td></td>";
+        } else {
+            $ret .= "<td>" . $class->html_check( name => 'remove_' . $item->id, value => 1 ) . "</td>"
+        }
         $ret .= "<td>" . $item->name_html . "</td>";
         $ret .= "<td>" . ( $item->deliverydate ? $item->deliverydate : $class->ml( 'widget.shopcart.deliverydate.today' ) ) . "</td>";
         $ret .= "<td>" . $item->t_html( admin => $opts{admin} ) . "</td>";
-        $ret .= "<td>" . ( $item->anonymous || !LJ::isu( $from_u ) ? $class->ml( 'widget.shopcart.anonymous' ) : $from_u->ljuser_display ) . "</td>";
+        $ret .= "<td>" . $item->from_html . "</td>";
         $ret .= "<td>" . ( $item->random ? 'Y' : 'N' ) . "</td>" if $opts{admin};
         $ret .= "<td>\$" . sprintf( "%.2f" , $item->cost ) . " USD</td>";
         if ( $opts{admin} ) {

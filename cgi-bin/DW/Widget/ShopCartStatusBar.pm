@@ -36,22 +36,25 @@ sub render_body {
     # old cart is gone with the wind ...
     my $cart = $opts{newcart} ? DW::Shop::Cart->new_cart( $u ) : $shop->cart;
 
-    # if the cart is empty, bail
-    return unless $cart->has_items;
-
     # render out information about this cart
-    my $ret = "<div class='shop-cart-status'>";
-    $ret .= "<strong>" . $class->ml( 'widget.shopcartstatusbar.header' ) . "</strong><br />";
-    $ret .= $class->ml( 'widget.shopcartstatusbar.itemcount', { num => $cart->num_items, price => '$' . $cart->display_total . " USD" } );
-    $ret .= "<br />";
+    my $ret;
+    if ( $cart->has_items ) {
+        $ret .= "<div class='shop-cart-status'>";
+        $ret .= "<strong>" . $class->ml( 'widget.shopcartstatusbar.header' ) . "</strong><br />";
+        $ret .= $class->ml( 'widget.shopcartstatusbar.itemcount', { num => $cart->num_items, price => '$' . $cart->display_total . " USD" } );
+        $ret .= "<br />";
 
-    $ret .= "<ul>";
-    $ret .= "<li><a href='$LJ::SITEROOT/shop/cart'><strong>" . $class->ml( 'widget.shopcartstatusbar.viewcart' ) . "</strong></a></li>";
-    $ret .= "<li><a href='$LJ::SITEROOT/shop?newcart=1'><strong>" . $class->ml( 'widget.shopcartstatusbar.newcart' ) . "</strong></a></li>";
-    $ret .= "</ul>";
+        $ret .= "<ul>";
+        $ret .= "<li><a href='$LJ::SITEROOT/shop/cart'><strong>" . $class->ml( 'widget.shopcartstatusbar.viewcart' ) . "</strong></a></li>";
+        $ret .= "<li><a href='$LJ::SITEROOT/shop?newcart=1'><strong>" . $class->ml( 'widget.shopcartstatusbar.newcart' ) . "</strong></a></li>";
+        $ret .= "</ul>";
 
-    $ret .= "</div>";
+        $ret .= "</div>";
+    }
 
+    # call out to hooks to see if they want to munge with the content
+    LJ::run_hooks( 'shop_cart_status_bar', $shop, $cart, \$ret );
+    
     return $ret;
 }
 

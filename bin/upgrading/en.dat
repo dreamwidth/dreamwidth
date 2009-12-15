@@ -2915,6 +2915,23 @@ The [[sitename]] Team
 
 shop.email.comm.anon.subject=[[sitename]] Account Purchase
 
+shop.email.comm.explicit.body<<
+Dear [[touser]],
+
+Your [[sitename]] community [[commname]] has been upgraded by [[fromname]].
+The account that was given is:
+
+    [[accounttype]]
+
+Congratulations on your community's paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.comm.explicit.subject=[[sitename]] Account Purchase
+
 shop.email.comm.other.body<<
 Dear [[touser]],
 
@@ -3059,6 +3076,23 @@ The [[sitename]] Team
 .
 
 shop.email.user.anon.subject=[[sitename]] Account Purchase
+
+shop.email.user.explicit.body<<
+Dear [[touser]],
+
+Your [[sitename]] account has been upgraded by [[fromname]].  The account that
+was given is:
+
+    [[accounttype]]
+
+Congratulations on your paid time!
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.user.explicit.subject=[[sitename]] Account Purchase
 
 shop.email.user.other.body<<
 Dear [[touser]],
