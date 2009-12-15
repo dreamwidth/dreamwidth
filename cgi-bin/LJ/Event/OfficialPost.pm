@@ -18,11 +18,16 @@ sub entry {
 }
 
 sub content {
-    my ( $self, $target ) = @_;
-    return $self->entry->event_html( {
-            # double negatives, ouch!
-            ljcut_disable => ! $target->cut_inbox,
-            cuturl => $self->entry->url } );
+    my ( $self, $target, %opts ) = @_;
+    # force uncut for certain views (e-mail)
+    my $args = $opts{full} 
+            ? {} 
+            : { # double negatives, ouch!
+                ljcut_disable => ! $target->cut_inbox,
+                cuturl => $self->entry->url 
+              };
+
+    return $self->entry->event_html( $args );
 }
 
 sub content_summary {
@@ -78,14 +83,14 @@ sub as_email_html {
 
     return sprintf "%s<br />
 <br />
-%s", $self->as_html($u), $self->content;
+%s", $self->as_html($u), $self->content( $u, full => 1 );
 }
 
 sub as_email_string {
     my $self = shift;
     my $u = shift;
 
-    my $text = $self->content;
+    my $text = $self->content( $u, full => 1 );
     $text =~ s/\n+/ /g;
     $text =~ s/\s*<\s*br\s*\/?>\s*/\n/g;
     $text = LJ::strip_html($text);
