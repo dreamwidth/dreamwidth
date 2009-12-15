@@ -2011,7 +2011,7 @@ sub clear_daycounts
 
         $access++ if $security eq 'public' || ( $security != 1 &&  $security =~ /^\d+/ );
     }
-    # FIXME: temporary workaround, but doesn't cover custom groups
+    # clear access only security, but does not cover custom groups
     push @memkind, "g1" if $access;
 
     # any change to any entry security means this must be expired
@@ -8003,7 +8003,7 @@ sub get_daycounts
             # this was an old version of the stored memcache value
             # where the first argument was the list creation time
             # so throw away the first argument
-            shift @$list unless ref @$list->[0];
+            shift @$list unless ref $list->[0];
             return $list;
         }
     }
@@ -8018,7 +8018,15 @@ sub get_daycounts
         # so they store smaller in memcache
         push @days, [ int($y), int($m), int($d), int($c) ];
     }
-    LJ::MemCache::set( $memkey, [@days] );
+
+    if ( $memkind ne "g1" && $memkind =~ /^g\d+$/ ) {
+        # custom groups are cached for only 15 minutes
+        LJ::MemCache::set( $memkey, [@days], 15 * 60 );
+    } else {
+        # all other security levels are cached indefinitely
+        # because we clear them when there are updates
+        LJ::MemCache::set( $memkey, [@days]  );
+    }
     return \@days;
 }
 
