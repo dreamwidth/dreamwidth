@@ -143,13 +143,14 @@ sub EntryPage
 
             my $threadroot_url;
 
-            my ($edited, $edit_url, $edittime, $edittime_remote, $edittime_poster);
+            my ($edited, $edit_url, $editreason, $edittime, $edittime_remote, $edittime_poster);
             if ($com->{_loaded}) {
                 my $comment = LJ::Comment->new($u, jtalkid => $com->{talkid});
 
                 $edited = $comment->is_edited;
                 $edit_url = LJ::Talk::talkargs($comment->edit_url, $style_arg);
                 if ($edited) {
+                    $editreason = LJ::ehtml( $comment->edit_reason );
                     $edittime = DateTime_unix($comment->edit_time);
                     $edittime_remote = $tz_remote ? DateTime_tz($comment->edit_time, $tz_remote) : undef;
                     $edittime_poster = DateTime_tz($comment->edit_time, $pu);
@@ -233,6 +234,7 @@ sub EntryPage
                 'time' => $datetime,
                 'system_time' => $datetime, # same as regular time for comments
                 'edittime' => $edittime,
+                'editreason' => $editreason,
                 'tags' => [],
                 'full' => $com->{'_loaded'} ? 1 : 0,
                 'depth' => $depth,

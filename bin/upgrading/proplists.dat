@@ -1086,6 +1086,11 @@ userproplist.zip:
   multihomed: 0
   prettyname: ZIP code
 
+talkproplist.edit_reason:
+  datatype: char
+  des: Reason for the last edit.
+  prettyname: Edit Reason
+
 talkproplist.edit_time:
   datatype: num
   des: Unix time of the last edit.  undef if never edited.

@@ -1789,6 +1789,13 @@ QQ
         $ret .= '<br />';
     }
 
+    if ( $editid ) {
+        my $editreason = LJ::ehtml( $comment->edit_reason );
+        $ret .= "<tr valign='top'><td align='right'>$BML::ML{'.opt.editreason'}</td><td><input class='textbox' type='text' size='75' maxlength='255' name='editreason' id='editreason' value=\"$editreason\" onKeyPress='editNoHTML(event);' />\n";
+
+        $ret .= "<div id='nohtmledit' class='ljdeem'><span style='font-size: 8pt; font-style: italic;'>$BML::ML{'.noedithtml'}</span></div>\n";
+    }
+
     my $submit_btn = $editid ? LJ::Lang::ml('.opt.edit') : LJ::Lang::ml('.opt.submit');
 
     # post and preview buttons
@@ -3230,6 +3237,7 @@ sub init {
         picture_keyword => $form->{'prop_picture_keyword'},
         state           => $state,
         editid          => $form->{editid},
+        editreason      => $form->{editreason},
     };
 
     $init->{item} = $item;
@@ -3450,6 +3458,7 @@ sub edit_comment {
         subjecticon => $comment->{subjecticon},
         picture_keyword => $comment->{picture_keyword},
         opt_preformatted => $comment->{preformat} ? 1 : 0,
+        edit_reason => $comment->{editreason},
     );
 
     # set most of the props together

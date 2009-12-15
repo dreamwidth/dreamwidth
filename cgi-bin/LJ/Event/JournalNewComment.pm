@@ -167,6 +167,12 @@ sub content {
 
     $comment_body =~ s/\n/<br \/>/g;
 
+    if ( $comment->is_edited ) {
+        my $reason = LJ::ehtml( $comment->edit_reason );
+        $comment_body .= "<br /><br /><div class='edittime'>" . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) . "</div>"
+            if $reason;
+    }
+
     my $ret = qq {
         <div id="$htmlid" class="JournalNewComment">
             <div class="ManageButtons">$buttons</div>
@@ -210,6 +216,13 @@ sub content_summary {
     my $body_summary = $comment->body_html_summary( 300 );
     my $ret = $body_summary;
     $ret .= "..." if $comment->body_html ne $body_summary;
+
+    if ( $comment->is_edited ) {
+        my $reason = LJ::ehtml( $comment->edit_reason );
+        $ret .= "<br /><br /><div class='edittime'>" . LJ::Lang::get_text( $target->prop( "browselang" ), "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) . "</div>"
+            if $reason;
+    }
+
     $ret .= $self->as_html_actions;
 
     return $ret;

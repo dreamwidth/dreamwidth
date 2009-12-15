@@ -13,7 +13,7 @@
 
 .deleteduser=<i>(Deleted user: [[username]])</i>
 
-.edittime=Edited at [[edittime]]
+.edittime=Edited [[editreason]] [[edittime]]
 
 .from_external=(from [[site]])
 

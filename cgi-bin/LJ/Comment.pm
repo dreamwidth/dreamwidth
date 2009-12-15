@@ -1128,6 +1128,7 @@ my @_ml_strings_en = (
     'esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2',     # 'Somebody replied to another comment you left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
     'esn.journal_new_comment.anonymous.reply_to.your_post2',                     # 'Somebody replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:',
 
+    'esn.journal_new_comment.edit_reason',
     'esn.journal_new_comment.user.comment',                                      # 'Their reply was:',
     'esn.journal_new_comment.user.edit_reply_to.anonymous_comment.to_your_post2',# '[[who]] edited a reply to another comment somebody left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
     'esn.journal_new_comment.user.edit_reply_to.user_comment.to_your_post2',     # '[[who]] edited a reply to another comment [[pwho]] left in [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]]. The comment they replied to was:',
@@ -1411,6 +1412,18 @@ sub _format_mail_both {
         $body .= $intro . "\n\n" . indent($parent ? $parent->body_raw : $entry->event_raw, ">");
     }
 
+    # reason for editing, if applicable
+    if ( $edited ) {
+        my $reason = $self->edit_reason;
+        if ( $is_html ) {
+            $body .= "<br />" . LJ::Lang::get_text( $lang, "esn.journal_new_comment.edit_reason", undef, { reason => LJ::ehtml( $reason ) } ) . "<br />"
+                if $reason;
+        } else {
+            $body .= "\n\n" . LJ::Lang::get_text( $lang, "esn.journal_new_comment.edit_reason", undef, { reason => $reason } ) 
+                if $reason;
+        }
+    }
+
     $body .= "\n\n" . LJ::Lang::get_text($lang, $k_reply_edit, undef, $vars) . "\n\n";
 
     if ($is_html) {
@@ -1602,6 +1615,10 @@ sub set_poster_ip {
 
     $self->set_prop( poster_ip => $new_ip );
     return $new_ip;
+}
+
+sub edit_reason {
+    return $_[0]->prop( "edit_reason" );
 }
 
 sub edit_time {

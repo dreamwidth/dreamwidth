@@ -384,6 +384,7 @@ class Comment extends EntryLite
     var readonly string anchor "Direct link to comment, via HTML name anchors";
     var readonly bool comment_posted "True if comment was just posted by the current user.";
     var readonly bool edited "True if the comment has been edited.";
+    var readonly string editreason "The reason this comment was last edited";
 
     var readonly DateTime time_remote "The local time the comment appeared, in the remote user's (reader's) timezone.  Or undef if no remote user, or remote user hasn't set their timezone.";
     var readonly DateTime time_poster "The local time the comment appeared, in the commenter's timezone.  Or undef if anonymous comment, or commenter's timezone is unknown.";
@@ -1524,14 +1525,14 @@ property string text_comment_ipaddr {
     maxlength = "20";
 }
 property string text_comment_edittime {
-    des = "Text of the 'Edited at' string at the bottom of edited comments";
-    example = "Edited at:";
+    des = "Text of the 'Edited' string at the bottom of edited comments";
+    example = "Edited";
     maxlength = "20";
 }
 set text_comment_from = "From:";
 set text_comment_date = "Date:";
 set text_comment_ipaddr = "IP Address:";
-set text_comment_edittime = "Edited at";
+set text_comment_edittime = "Edited";
 
 property string text_comment_reply {
     des = "Text to link to reply for comment";
@@ -2253,7 +2254,8 @@ function RecentPage::print_sticky_entry(StickyEntry s)
 
 function Comment::print_edit_text() {
     if ($this.edited) {
-        print "<br /><br /><span class='edittime'><em>$*text_comment_edittime " + $this->edittime_display() + "</em></span>";
+        var string editreason = $this.editreason == "" ? "" : "($this.editreason) ";
+        print "<br /><br /><span class='edittime'><em>$*text_comment_edittime $editreason" + $this->edittime_display() + "</em></span>";
     }
 }
 

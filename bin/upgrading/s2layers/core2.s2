@@ -423,6 +423,7 @@ class Comment extends EntryLite
     var readonly DateTime time_remote "The local time the comment appeared, in the remote user's (reader's) timezone.  Or undef if no remote user, or remote user hasn't set their timezone.";
     var readonly DateTime time_poster "The local time the comment appeared, in the commenter's timezone.  Or undef if anonymous comment, or commenter's timezone is unknown.";
     var readonly int seconds_since_entry "The number of elapsed seconds from the time of the journal entry until the comment was initially posted.";
+    var readonly string editreason "The reason this comment was last edited";
 
     var readonly DateTime edittime "The GMT time the comment was edited.  Or undef if the comment hasn't been edited.";
     var readonly DateTime edittime_remote "The local time the comment was edited, in the remote user's (reader's) timezone.  Or undef if no remote user, or remote user hasn't set their timezone, or the comment hasn't been edited.";
@@ -2409,14 +2410,14 @@ property string text_comment_ipaddr {
     maxlength = "20";
 }
 property string text_comment_edittime {
-    des = "Text of the 'Edited at' string at the bottom of edited comments";
-    example = "Edited at:";
+    des = "Text of the 'Edited' string at the bottom of edited comments";
+    example = "Edited";
     maxlength = "20";
 }
 set text_comment_from = "From:";
 set text_comment_date = "Date:";
 set text_comment_ipaddr = "IP Address:";
-set text_comment_edittime = "Edited at";
+set text_comment_edittime = "Edited";
 
 property string text_screened {
    des = "The text used when a comment is screened";
@@ -4059,7 +4060,8 @@ function RecentPage::print_sticky_entry(StickyEntry s)
 
 function Comment::print_edit_text() {
     if ($this.edited) {
-        print "<div class='edittime'><em>$*text_comment_edittime ";
+        var string editreason = $this.editreason == "" ? "" : "($this.editreason) ";
+        print "<div class='edittime'><em>$*text_comment_edittime $editreason";
         $this->print_edittime();
         print "</em></div>";
     }

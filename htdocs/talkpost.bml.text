@@ -33,6 +33,8 @@
 
 .noaccount=Don't have an account? <a [[aopts]]>Create one now</a>.
 
+.noedithtml=No HTML allowed in reason for edit
+
 .nosubjecthtml=No HTML allowed in subject
 
 .opt.anonymous=Anonymous
@@ -42,6 +44,8 @@
 .opt.defpic=(default)
 
 .opt.edit=Edit Comment
+
+.opt.editreason=Reason:
 
 .opt.friendsonly=- you may post here only if [[username]] has given you access; posting by non-Access List accounts has been disabled.
 

@@ -1452,6 +1452,11 @@ esn.journal_new_comment.anonymous.reply_to.your_comment.to_your_post2=Somebody r
 
 esn.journal_new_comment.anonymous.reply_to.your_post2=Somebody replied to [[openlink]]your [[sitenameshort]] post[[postsubject]][[closelink]] in which you said:
 
+esn.journal_new_comment.edit_reason<<
+Reason for edit:
+    [[reason]]
+.
+
 esn.journal_new_comment.message=Message:
 
 esn.journal_new_comment.post_reply=Post Reply

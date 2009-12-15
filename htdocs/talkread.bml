@@ -537,6 +537,7 @@ body<=
                 my $comment = LJ::Comment->new($u, dtalkid => $dtid);
 
                 my $edittime;
+                my $editreason = "";
                 if ($comment->is_edited) {
                     my $s2_datetime_edittime = $tz_remote ?
                         LJ::S2::DateTime_tz($comment->edit_time, $tz_remote) :
@@ -545,6 +546,9 @@ body<=
                     $edittime = S2::Builtin::LJ::Date__date_format($s2_ctx, $s2_datetime_edittime, "iso") .
                         " " . S2::Builtin::LJ::DateTime__time_format($s2_ctx, $s2_datetime_edittime, $fmt_time_short) .
                         ($tz_remote ? " (local)" : " UTC");
+
+                    $editreason = LJ::ehtml( $comment->edit_reason );
+                    $editreason = "($editreason)" if $editreason;
                 }
 
                 $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table width='100%' class='talk-comment'><tbody><tr>";
@@ -680,7 +684,7 @@ body<=
                     # quote all non-LJ tags
                     $event =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
                 }
-                my $edit_html = $edittime ? "<br /><br /><span class='edittime'><em>" . BML::ml('.edittime', { edittime => $edittime }) . "</em></span>" : "";
+                my $edit_html = $edittime ? "<br /><br /><span class='edittime'><em>" . BML::ml('.edittime', { editreason => $editreason, edittime => $edittime }) . "</em></span>" : "";
                 $ret .= "$event$edit_html";
 
                 $ret .= "<p style='margin: 0.7em 0 0.2em 0'><font size='-2'>";
