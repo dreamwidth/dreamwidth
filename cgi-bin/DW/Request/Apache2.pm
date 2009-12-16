@@ -212,6 +212,12 @@ sub read {
     return $ret;
 }
 
+# return the internal Apache2 request object
+sub r {
+    my DW::Request::Apache2 $self = $_[0];
+    return $self->{r};
+}
+
 # constants
 sub OK {
     my DW::Request::Apache2 $self = $_[0];

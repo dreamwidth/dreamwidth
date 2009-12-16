@@ -547,6 +547,10 @@ sub get_text
             my $file;
             ($file, $localcode) = ("$LJ::HTDOCS$1", $2);
             @files = ("$file.text.local", "$file.text");
+        } elsif ( $code =~ m!^(/.+\.tt)(\..+)! ) {
+            my $file;
+            ( $file, $localcode ) = ( "$LJ::HOME/views$1", $2 );
+            @files = ( "$file.text.local", "$file.text" );
         } else {
             $localcode = $code;
             @files = ("$LJ::HOME/bin/upgrading/$LJ::DEFAULT_LANG.dat",

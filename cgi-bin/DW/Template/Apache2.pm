@@ -56,7 +56,7 @@ my $view_engine = Template->new({
         roots => $roots_constants,
     },
     FILTERS => {
-        ml => [ \&ml, 0 ],
+        ml => [ \&ml, 1 ],
     },
     CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.
     STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
@@ -82,7 +82,8 @@ sub template_string {
     $r->note('ml_scope',"/$filename") unless $r->note('ml_scope');
 
     my $out;
-    $view_engine->process( $filename, $opts, \$out ) or die $view_engine->error();
+    $view_engine->process( $filename, $opts, \$out )
+        or die Template->error();
 
     return $out;
 }
@@ -248,12 +249,21 @@ sub ml_scope {
 =cut
 
 sub ml {
-    my ( $code, $vars ) = @_;
-    my $r = DW::Request->get;
-    $code = $r->note( 'ml_scope' ) . $code if rindex($code, '.', 0) == 0;
-    my $lang = decide_language();
-    return $code if $lang eq 'debug';
-    LJ::Lang::get_text( $lang, $code, undef, $vars );
+    # save the last argument as the hashref, hopefully
+    my $args = $_[-1];
+    $args = {} unless $args && ref $args eq 'HASH';
+
+    # we have to return a sub here since we are a dynamic filter
+    return sub {
+        my ( $code ) = @_;
+
+        $code = DW::Request->get->note( 'ml_scope' ) . $code
+            if rindex( $code, '.', 0 ) == 0;
+
+        my $lang = decide_language();
+        return $code if $lang eq 'debug';
+        return LJ::Lang::get_text( $lang, $code, undef, $args );
+    };
 }
 
 sub decide_language {

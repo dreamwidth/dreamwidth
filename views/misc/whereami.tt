@@ -1,0 +1,9 @@
+<h1>[% '.title' | ml %]</h1>
+
+<p>[% '.intro' | ml %]</p>
+
+<form action='[% roots.site %]/misc/whereami'>
+    [% authas_html %]
+</form><br />
+
+<p>[% '.cluster' | ml(user = user.ljuser_display, cluster = cluster_name) %]</p>
