@@ -43,7 +43,7 @@ sub needlogin {
 # returns an error page using a language string
 sub error_ml {
     return DW::Template::Apache2->render_template(
-        DW::Request->get->r, 'error.tt', { message => LJ::Lang::ml( $_[0] ) }
+        'error.tt', { message => LJ::Lang::ml( $_[0] ) }
     );
 }
 
