@@ -120,11 +120,9 @@ sub cached_template_string {
     }, $extra);
 }
 
-=head2 C<< $class->render_cached_template( $r, $key, $filename, $subref, $extra ) >>
+=head2 C<< $class->render_cached_template( $key, $filename, $subref, $extra ) >>
 
 Render a template inside the sitescheme or alone.
-
-NOTE: $r needs to be an Apache2 request, not a DW::Request.
 
 See render_template, except note that the opts hash is returned by subref if it's needed.
 
@@ -151,20 +149,18 @@ $extra can contain:
 =cut
 
 sub render_cached_template {
-    my ($class, $r, $key, $filename, $subref, $opts, $extra) = @_;
+    my ($class, $key, $filename, $subref, $opts, $extra) = @_;
 
     $extra ||= {};
 
     my $out = $class->cached_template_string( $key, $filename, $subref, $opts, $extra );
 
-    return $class->render_string( $r, $out, $extra );
+    return $class->render_string( $out, $extra );
 }
 
-=head2 C<< $class->render_template( $r, $filename, $opts, $extra ) >>
+=head2 C<< $class->render_template( $filename, $opts, $extra ) >>
 
 Render a template inside the sitescheme or alone.
-
-NOTE: $r needs to be an Apache2 request, not a DW::Request.
 
 $extra can contain:
 
@@ -183,18 +179,16 @@ $extra can contain:
 =cut
 
 sub render_template {
-    my ( $class, $r, $filename, $opts, $extra ) = @_;
+    my ( $class, $filename, $opts, $extra ) = @_;
 
     my $out = $class->template_string( $filename, $opts );
 
-    return $class->render_string( $r, $out, $extra );
+    return $class->render_string( $out, $extra );
 }
 
-=head2 C<< $class->render_string( $r, $string, $extra ) >>
+=head2 C<< $class->render_string( $string, $extra ) >>
 
 Render a string inside the sitescheme or alone.
-
-NOTE: $r needs to be an Apache2 request, not a DW::Request.
 
 $extra can contain:
 
@@ -211,9 +205,11 @@ $extra can contain:
 =back
 
 =cut
-sub render_string {
-    my ( $class, $r, $out, $extra ) = @_;
 
+sub render_string {
+    my ( $class, $out, $extra ) = @_;
+
+    my $r = DW::Request->get->r;
     $r->status( $extra->{status} ) if $extra->{status};
     $r->content_type( $extra->{content_type} ) if $extra->{content_type};
 

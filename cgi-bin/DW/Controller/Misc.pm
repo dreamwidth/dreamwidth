@@ -21,50 +21,22 @@ package DW::Controller::Misc;
 
 use strict;
 use warnings;
+use DW::Controller;
 use DW::Routing::Apache2;
 use DW::Template::Apache2;
 
 DW::Routing::Apache2->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
 
-# redirects the user to the login page to handle that eventuality
-sub needlogin {
-    my $r = DW::Request->get;
-
-    my $uri = $r->uri;
-    if ( my $qs = $r->query_string ) {
-        $uri .= '?' . $qs;
-    }
-    $uri = LJ::eurl( $uri );
-
-    $r->header_out( Location => "$LJ::SITEROOT/?returnto=$uri" );
-    return $r->REDIRECT;
-}
-
-# returns an error page using a language string
-sub error_ml {
-    return DW::Template::Apache2->render_template(
-        DW::Request->get->r, 'error.tt', { message => LJ::Lang::ml( $_[0] ) }
-    );
-}
-
 # handles the /misc/whereami page
 sub whereami_handler {
-    my $r = DW::Request->get;
+    my ( $ok, $rv ) = controller( authas => 1 );
+    return $rv unless $ok;
 
-    my $remote = LJ::get_remote()
-        or return needlogin();
-    my $u = LJ::get_authas_user( $r->get_args->{authas} || $remote->user )
-        or return error_ml( 'error.invalidauth' );
-
-    my $vars = {
-        user         => $u,
-        cluster_name => $LJ::CLUSTER_NAME{$u->clusterid} || LJ::Lang::ml( '.cluster.unknown' ),
-        authas_html  => LJ::make_authas_select( $remote, { authas => $u->user } ),
+    my $vars = { %$rv,
+        cluster_name => $LJ::CLUSTER_NAME{$rv->{u}->clusterid} || LJ::Lang::ml( '.cluster.unknown' ),
     };
 
-    return DW::Template::Apache2->render_template(
-        $r->r, 'misc/whereami.tt', $vars, {}
-    );
+    return DW::Template::Apache2->render_template( 'misc/whereami.tt', $vars );
 }
 
 1;
