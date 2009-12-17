@@ -1,3 +1,18 @@
+# cgi-bin/LJ/Console/Command/MakeInvites.pm
+#
+# Adds console setting to create invites.
+#
+# Authors:
+#      Afuna <afunamatata+dw@gmail.com>
+#      Pauamma <fduuvrzv@nerim.net>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
 package LJ::Console::Command::MakeInvites;
 
 use strict;

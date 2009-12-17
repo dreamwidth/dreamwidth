@@ -1,4 +1,7 @@
 #!/usr/bin/perl
+# This code was forked from the LiveJournal project owned and operated
+# by Live Journal, Inc. The code has been modified and expanded by 
+# Dreamwidth Studios, LLC. 
 #
 # LJ::Cache class
 # See perldoc documentation at the end of this file.
