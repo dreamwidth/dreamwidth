@@ -151,8 +151,8 @@
     if ( $u->is_visible ) {
         # was this a syndicated add?
         if ( $u->is_syndicated ) {
-            $windowtitle = BML::ml('.confirm.syn.title1'.$add, {'user'=> $user });
-            $title = BML::ml('.confirm.syn.title1'.$add, {'icon'=> $icon, 'user'=> $user });
+            $windowtitle = BML::ml( '.confirm.title.syn2'.$add, { user => $user } );
+            $title = BML::ml( '.confirm.title.syn2'.$add, { user=> LJ::ljuser( $u, { head_size => "24x24" } ) } );
             $body .= "<?p $ML{'.confirm.text1.feed'} p?>";
 
         # Is this account redirected?
@@ -160,8 +160,8 @@
             return BML::redirect("$LJ::SITEROOT/manage/circle/add?user=" . $u->prop('renamedto'));
 
         } elsif ( $u->is_community ) {
-            $windowtitle = BML::ml('.confirm.title.community'.$add, {'user'=> $user });
-            $title = BML::ml('.confirm.title.community'.$add, {'icon'=> $icon, 'user'=> $user });
+            $windowtitle = BML::ml( '.confirm.title.community2'.$add, { user => $user } );
+            $title = BML::ml('.confirm.title.community2'.$add, { user=> LJ::ljuser( $u, { head_size => "24x24" } ) } );
             unless ( $remote->member_of( $u ) ) {
                 if ( $remote->is_person ) {
                     $body .= "<?p " . BML::ml( '.confirm.text1.community2', {'aopts' => "href='$LJ::SITEROOT/community/join?comm=$user'"} ) . " p?>";
@@ -171,11 +171,11 @@
             }
         } else {
             if ( $u->is_identity ) {
-               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $u->display_name });
-               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $u->display_name });
+               $windowtitle = BML::ml( '.confirm.title.person2'.$add, { user => $u->display_name } );
+               $title = BML::ml('.confirm.title.person2'.$add, { user => LJ::ljuser( $u, { head_size => "24x24" } ) } );
             } else {
-               $windowtitle = BML::ml('.confirm.title.person'.$add, {'user'=> $u->display_name });
-               $title = BML::ml('.confirm.title.person'.$add, {'icon'=> $icon, 'user'=> $u->display_name });
+               $windowtitle = BML::ml( '.confirm.title.person2'.$add, { user => $u->display_name } );
+               $title = BML::ml( '.confirm.title.person2'.$add, { user => LJ::ljuser( $u, { head_size => "24x24" } ) } );
             }
             $body .= "<?p $ML{'.confirm.text1.person'} p?>"
                 if $remote->can_trust( $u ) && $remote->can_watch( $u );

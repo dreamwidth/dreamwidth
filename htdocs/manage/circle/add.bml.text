@@ -44,10 +44,6 @@
 
 .colors.text=Select the colors that will represent [[user]] on your reading page (only applicable if you subscribe to them).
 
-.confirm.syn.title1=Modify [[icon]][[user]]'s subscription?
-
-.confirm.syn.title1.add=Subscribe to [[icon]][[user]]?
-
 .confirm.text=To add <b>[[user]]</b> to your friends list, click the button below.
 
 .confirm.text1.community2=Adding a community allows you to read the community's public posts on your reading page. If you would like to post to the community and be listed as a member, you'll need to <a [[aopts]]>join the community</a>.
@@ -60,13 +56,17 @@
 
 .confirm.text1.person=Choose one or both of the following:
 
-.confirm.title.community=Modify [[icon]][[user]]'s subscription?
+.confirm.title.community2=Modify subscription to [[user]]?
 
-.confirm.title.community.add=Subscribe to [[icon]][[user]]?
+.confirm.title.community2.add=Subscribe to [[user]]?
 
-.confirm.title.person=Modify [[icon]][[user]]'s status in your circle?
+.confirm.title.person2=Modify [[user]]'s status in your circle?
 
-.confirm.title.person.add=Add [[icon]][[user]] to your circle?
+.confirm.title.person2.add=Add [[user]] to your circle?
+
+.confirm.title.syn2=Modify subscription to [[user]]?
+
+.confirm.title.syn2.add=Subscribe to [[user]]?
 
 .disclaimer=This will not allow maintainers or members of the community to view your friends-only posts.
 

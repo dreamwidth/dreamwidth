@@ -2725,7 +2725,7 @@ sub ljuser_display {
         my ($imgurl, $width, $height);
         my $head_size = $opts->{head_size};
         if ($head_size) {
-            $imgurl = "$img/openid_${head_size}.gif";
+            $imgurl = "$img/silk/${head_size}/openid.png";
             $width = $head_size;
             $height = $head_size;
         } else {
@@ -6828,18 +6828,21 @@ sub ljuser
         if ( $u->get_cap( 'staff_headicon' ) ) {
             return $make_tag->( 'comm_staff.png', $url, 16, '', 'site community' );
         } else {
-            return $make_tag->( "comm_${head_size}.gif", $url, $head_size, '', $type_readable ) if $head_size;
+            return $make_tag->( "silk/${head_size}/community.png", $url, $head_size, '', $type_readable ) if $head_size;
             return $make_tag->( 'silk/identity/community.png', $url, 16, '', $type_readable );
         }
     } elsif ( $type eq 'Y' ) {
+        return $make_tag->( "silk/${head_size}/feed.png", $url, $head_size, '', $type_readable ) if $head_size;
         return $make_tag->( 'silk/identity/feed.png', $url, 16, '', $type_readable );
     } elsif ( $type eq 'I' ) {
         return $u->ljuser_display($opts);
     } else {
         if ( $u->get_cap( 'staff_headicon' ) ) {
+            return $make_tag->( "silk/${head_size}/user_staff.png", $url, $head_size, '', $type_readable ) if $head_size;
             return $make_tag->( 'silk/identity/user_staff.png', $url, 17, '', 'staff' );
         }
         else {
+            return $make_tag->( "silk/${head_size}/user.png", $url, $head_size, '', $type_readable ) if $head_size;
             return $make_tag->( 'silk/identity/user.png', $url, 17, '', $type_readable );
         }
     }
