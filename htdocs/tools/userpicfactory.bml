@@ -3,7 +3,7 @@
     use strict;
     use vars qw($title $body $head $bodyopts %POST %GET);
 
-    $title = 'Create Userpic';
+    $title = 'Create Icon';
 
     my $remote = LJ::get_remote();
     unless ($remote) {
@@ -165,13 +165,13 @@ if ($GET{successcount}) {
 }
 
 $body .= qq {
-    <a href="/editpics$sfx"><< Edit Userpics</a>
+    <a href="/editpics$sfx"><< Edit Icons</a>
     <noscript><p><b>
 You need JavaScript in order to use the
-Userpic Factory. Since you have JavaScript disabled, you will be unable
-to select a region or preview your userpic. However, you can create a
-userpic-sized version of the image you uploaded by clicking on the
-Create Userpic button.</b></p>
+Icon Factory. Since you have JavaScript disabled, you will be unable
+to select a region or preview your icon. However, you can create an
+icon-sized version of the image you uploaded by clicking on the
+Create Icon button.</b></p>
     </noscript>
     };
 
@@ -206,7 +206,7 @@ if (0) {
 }
 
 $body .= qq {
-        <?p Click and drag anywhere within the photo to create your userpic. When you're happy with what you see in the preview box click the Create Userpic button to save it. p?>
+        <?p Click and drag anywhere within the photo to create your icon. When you're happy with what you see in the preview box click the Create Icon button to save it. p?>
 
       <div id="picContainer" style="float: left; margin-bottom: 15px; width: ${scaledSizeMax}px; height: ${scaledSizeMax}px; border: 2px solid #EEEEEE; padding: 2px;"> <img src="$picpath" id="userpic" style="display: none;" /></div>
 
@@ -240,7 +240,7 @@ $body .= qq {
       <input type="hidden" name="src" value="factory" />
       } . LJ::form_auth() . qq {
 
-      <input type="submit" value="Create Userpic"  id="createbtn" />
+      <input type="submit" value="Create Icon"  id="createbtn" />
       } . LJ::html_hidden('keywords', $GET{'keywords'},
                           'comments', $GET{'comments'},
                           'descriptions', $GET{'descriptions'},
