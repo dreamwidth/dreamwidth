@@ -19,7 +19,7 @@
     LJ::load_user_props($u, "stylesys", "s2_style");
 
     $body = "";
-    $title = $ML{".user.layer"};
+    $title = $ML{".user.layer2"};
 
     $body .= "<form method='get' action='viewuser'>\n";
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
@@ -47,12 +47,12 @@
     }
 
     unless ($layer) {
-        $body .= $ML{'.no.user.layer'};
+        $body .= $ML{'.no.user.layer2'};
         return;
     }
 
     return $err->($ML{'.layer.belongs'}) unless $layer->{'userid'} == $u->{'userid'};
-    return $err->($ML{'.layer.isnt.type'}) 
+    return $err->($ML{'.layer.isnt.type2'}) 
         unless $layer->{'type'} eq "user";
 
     my $lyr_layout = LJ::S2::load_layer($dbh, $layer->{'b2lid'});

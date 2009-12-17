@@ -25,7 +25,7 @@
 
 .createlayer.layoutspecific.select.theme=Theme
 
-.createlayer.layoutspecific.select.user=User
+.createlayer.layoutspecific.select.user2=Wizard
 
 .createlayer.layoutspecific.select.userlayer=[[name]] (#[[id]])
 

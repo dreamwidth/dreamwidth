@@ -9,7 +9,7 @@
 
 .layer.belongs=Layer belongs to another user.
 
-.layer.isnt.type=Layer isn't of type user or theme.
+.layer.isnt.type2=Layer isn't of type wizard or theme.
 
 .layout.layer=Layout layer for this [[layertype]] layer not found.
 
@@ -17,7 +17,7 @@
 
 .login.first=You must first <a [[url]]>login</a>. 
 
-.no.user.layer=No user layer
+.no.user.layer2=No wizard layer
 
 .raw=Raw
 
@@ -25,7 +25,7 @@
 
 .switch=Switch
 
-.user.layer=User Layer
+.user.layer2=Wizard Layer
 
 .work.with.journal=Work with journal: 
 

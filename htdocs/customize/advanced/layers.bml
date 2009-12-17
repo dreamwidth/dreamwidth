@@ -187,8 +187,11 @@
                 $body .= "<tr><td colspan='4'><small>" . BML::ml('.yourlayers.childof', {'aopts' => "href='$LJ::SITEROOT/customize/advanced/layerbrowse?id=$bid'", 'layerid' => $bid, 'name' => $pname}) . "</small></td></tr>\n";
             }
             my $lay = $ulay->{$lid};
+
+            # this ensures that 'user' layers are called 'wizard' layers in the user interface
+            my $laytype = ( $lay->{'type'} eq 'user' ) ? 'wizard' : $lay->{'type'};
             my $name = LJ::ehtml($lay->{'name'}) || "<i>$ML{'.yourlayers.noname'}</i>";
-            $body .= "<tr><td><a href='layerbrowse?id=$lid'>$lid</a></td><td>$lay->{'type'}</td><td>$name</td><td>";
+            $body .= "<tr><td><a href='layerbrowse?id=$lid'>$lid</a></td><td>$laytype</td><td>$name</td><td>";
             $body .= "<form method='post' style='display:inline' action='layeredit?id=$lid'>";
             $body .= LJ::html_submit('action:edit', $ML{'.btn.edit'}, { disabled => $noactions });
             $body .= "</form>";
@@ -246,7 +249,7 @@
                                         "" => "",
                                         "theme" => $ML{'.createlayer.layoutspecific.select.theme'},
                                         "i18n" => $ML{'.createlayer.layoutspecific.select.language'},
-                                        "user" => $ML{'.createlayer.layoutspecific.select.user'}
+                                        "user" => $ML{'.createlayer.layoutspecific.select.user2'}
                                         ) . "\n";
 
     my @layouts = ('', '');

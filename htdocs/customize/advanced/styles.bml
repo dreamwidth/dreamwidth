@@ -461,7 +461,7 @@
     $body .= "<tr><td>$ML{'.stylelayers.label.theme'} </td><td>";
     $body .= $layerselect->('theme', $layout)->[0];
     $body .= $layerother->('theme') . "</td></tr>\n";
-    $body .= "<tr><td>$ML{'.stylelayers.label.user'} </td><td>";
+    $body .= "<tr><td>$ML{'.stylelayers.label.user2'} </td><td>";
     $body .= $layerselect->('user', $layout)->[0];
     $body .= $layerother->('user') . "</td></tr>\n";
     $body .= "<tr><td>&nbsp;</td><td>";
