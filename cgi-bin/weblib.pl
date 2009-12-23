@@ -2719,7 +2719,7 @@ sub control_strip
                 my @custom_filters = $journal->content_filters;
 
                 foreach my $f ( @custom_filters ) {
-                     push @filters, "filter:" . $f->name, $f->name;
+                    push @filters, "filter:" . lc( $f->name ), $f->name;
                 }
 
                 my $selected = "all";
@@ -2729,7 +2729,7 @@ sub control_strip
                     $selected = "showsyndicated"  if $r->query_string eq "show=F&filter=0";
                 } elsif ($r->uri =~ /^\/read\/?(.+)?/i) {
                     my $filter = $1 || "default view";
-                    $selected = "filter:" . LJ::durl(lc($filter));
+                    $selected = "filter:" . LJ::durl( lc( $filter ) );
                 } elsif ($r->uri eq "/network" && $r->query_string ne "") {
                     $selected = "showpeople"      if $r->query_string eq "show=P&filter=0";
                     $selected = "showcommunities" if $r->query_string eq "show=C&filter=0";
