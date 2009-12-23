@@ -1259,6 +1259,11 @@ li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
     color: #fff;
 }
 
-.display_option {
+.display_option, .mobile_option, .privacy_option, .othersites_option {
     color: #fff;
+}
+
+.xpost_footer_preview {
+    border: 1px solid #fff;
+    background: #333;
 }
