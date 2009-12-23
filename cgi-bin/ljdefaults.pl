@@ -317,6 +317,12 @@
         settings_design => 1,
     );
 
+    $SUBDOMAIN_RULES = {
+        P => [ 1, "users.$LJ::DOMAIN" ],
+        Y => [ 1, "syndicated.$LJ::DOMAIN" ],
+        C => [ 1, "community.$LJ::DOMAIN" ],
+    };
+
     $LJ::USERSEARCH_METAFILE_PATH ||= "$HOME/var/usersearch.data";
 
     # default to limit to 2000 results

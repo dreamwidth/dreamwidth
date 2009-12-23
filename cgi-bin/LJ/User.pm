@@ -8066,18 +8066,13 @@ sub journal_base
 {
     my ($user, $vhost) = @_;
 
-    if (! isu($user) && LJ::Hooks::are_hooks("journal_base")) {
-        my $u = LJ::load_user($user);
-        $user = $u if $u;
-    }
+    my $u = LJ::isu( $user ) ? $user : LJ::load_user( $user );
+    $user = $u->user if $u;
 
-    if (isu($user)) {
-        my $u = $user;
-
+    if ( $u && LJ::Hooks::are_hooks("journal_base") ) {
         my $hookurl = LJ::Hooks::run_hook("journal_base", $u, $vhost);
         return $hookurl if $hookurl;
 
-        $user = $u->user;
         unless (defined $vhost) {
             if ($LJ::FRONTPAGE_JOURNAL eq $user) {
                 $vhost = "front";
@@ -8086,7 +8081,22 @@ sub journal_base
             } elsif ( $u->is_community ) {
                 $vhost = "community";
             }
+        }
+    }
+ 
+    if ( $LJ::ONLY_USER_VHOSTS ) {
+        my $rule = $u ? $LJ::SUBDOMAIN_RULES->{$u->journaltype} : undef;
+        $rule ||= $LJ::SUBDOMAIN_RULES->{P};
 
+        # if no rule, then we don't have any idea what to do ...
+        die "Site misconfigured, no %LJ::SUBDOMAIN_RULES."
+            unless $rule && ref $rule eq 'ARRAY';
+
+        if ( $rule->[0] && $user !~ /^\_/ && $user !~ /\_$/ ) {
+            $user =~ s/_/-/g;
+            return "http://$user.$LJ::DOMAIN";
+        } else {
+            return "http://$rule->[1]/$user";
         }
     }
 

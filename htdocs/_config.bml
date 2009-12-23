@@ -1,5 +1,6 @@
 LookRoot $LJHOME/cgi-bin/bml/scheme
 DefaultLanguage en
+DefaultScheme blueshift
 IncludePath inc/
 
 AllowOldSyntax 0
