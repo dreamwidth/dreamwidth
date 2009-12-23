@@ -64,7 +64,7 @@
     my $cleaner = LJ::CSS::Cleaner->new;
     my $clean = $cleaner->clean($unclean);
 
-    LJ::run_hook('css_cleaner_transform', \$clean);
+    LJ::Hooks::run_hook('css_cleaner_transform', \$clean);
 
     LJ::MemCache::set($memkey, $clean, 300) unless $nocache;  # 5 minute caching
     return $clean;

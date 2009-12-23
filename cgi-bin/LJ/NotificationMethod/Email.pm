@@ -80,17 +80,17 @@ sub notify {
     foreach my $ev (@events) {
         croak "invalid event passed" unless ref $ev;
 
-        $vars->{'hook'} = LJ::run_hook("esn_email_footer", $ev, $u);
+        $vars->{'hook'} = LJ::Hooks::run_hook("esn_email_footer", $ev, $u);
         my $footer = LJ::Lang::get_text($lang, 'esn.footer.text', undef, $vars);
 
-        my $plain_body = LJ::run_hook("esn_email_plaintext", $ev, $u);
+        my $plain_body = LJ::Hooks::run_hook("esn_email_plaintext", $ev, $u);
         unless ($plain_body) {
             $plain_body = $ev->as_email_string($u) or next;
             $plain_body .= $footer;
         }
 
         # run transform hook on plain body
-        LJ::run_hook("esn_email_text_transform", event => $ev, rcpt_u => $u, bodyref => \$plain_body);
+        LJ::Hooks::run_hook("esn_email_text_transform", event => $ev, rcpt_u => $u, bodyref => \$plain_body);
 
         my %headers = (
                        "X-LJ-Recipient" => $u->user,
@@ -99,7 +99,7 @@ sub notify {
                        );
 
         my $email_subject =
-            LJ::run_hook("esn_email_subject", $ev, $u) ||
+            LJ::Hooks::run_hook("esn_email_subject", $ev, $u) ||
             $ev->as_email_subject($u);
 
         if ($LJ::_T_EMAIL_NOTIFICATION) {
@@ -117,12 +117,12 @@ sub notify {
             }) or die "unable to send notification email";
          } else {
 
-             my $html_body = LJ::run_hook("esn_email_html", $ev, $u);
+             my $html_body = LJ::Hooks::run_hook("esn_email_html", $ev, $u);
              unless ($html_body) {
                  $html_body = $ev->as_email_html($u) or next;
                  $html_body =~ s/\n/\n<br\/>/g unless $html_body =~ m!<br!i;
 
-                 my $html_footer = LJ::run_hook('esn_email_html_footer', event => $ev, rcpt_u => $u );
+                 my $html_footer = LJ::Hooks::run_hook('esn_email_html_footer', event => $ev, rcpt_u => $u );
                  unless ($html_footer) {
                      $html_footer = LJ::auto_linkify($footer);
                      $html_footer =~ s/\n/\n<br\/>/g;
@@ -133,7 +133,7 @@ sub notify {
                  $html_body .= $html_footer;
 
                  # run transform hook on html body
-                 LJ::run_hook("esn_email_html_transform", event => $ev, rcpt_u => $u, bodyref => \$html_body);
+                 LJ::Hooks::run_hook("esn_email_html_transform", event => $ev, rcpt_u => $u, bodyref => \$html_body);
              }
 
             LJ::send_mail({

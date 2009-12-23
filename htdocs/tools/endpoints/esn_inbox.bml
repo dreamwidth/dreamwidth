@@ -83,7 +83,7 @@
         $ret{unread_count} = $u->notification_inbox->unread_count;
     } elsif ($action eq 'toggle_bookmark') {
         my $up;
-        $up = LJ::run_hook('upgrade_message', $u, 'bookmark');
+        $up = LJ::Hooks::run_hook('upgrade_message', $u, 'bookmark');
         $up = "<br />$up" if ($up);
         
         foreach my $item (@items) {

@@ -106,8 +106,8 @@ sub can_expunge {
     return 0 unless $u->statusvisdate_unix < time() - 86400*$expunge_days;
 
     my $hook_rv = 0;
-    if (LJ::are_hooks("can_expunge_user", $u)) {
-        $hook_rv = LJ::run_hook("can_expunge_user", $u);
+    if (LJ::Hooks::are_hooks("can_expunge_user", $u)) {
+        $hook_rv = LJ::Hooks::run_hook("can_expunge_user", $u);
         return $hook_rv ? 1 : 0;
     }
 
@@ -179,7 +179,7 @@ sub create {
         }
     }
 
-    LJ::run_hooks("post_create", {
+    LJ::Hooks::run_hooks("post_create", {
         'userid' => $userid,
         'user'   => $username,
         'code'   => undef,
@@ -222,7 +222,7 @@ sub create_personal {
     $u->set_next_birthday;
 
     # Set the default style
-    LJ::run_hook('set_default_style', $u);
+    LJ::Hooks::run_hook('set_default_style', $u);
 
     if ( $opts{inviter} ) {
         # store inviter, if there was one
@@ -466,7 +466,7 @@ sub set_deleted {
     my $res = $u->set_statusvis('D');
 
     # run any account cancellation hooks
-    LJ::run_hooks("account_delete", $u);
+    LJ::Hooks::run_hooks("account_delete", $u);
     return $res;
 }
 
@@ -542,9 +542,9 @@ sub set_suspended {
 
     LJ::statushistory_add($u, $who, "suspend", $reason);
 
-    LJ::run_hooks("account_cancel", $u);
+    LJ::Hooks::run_hooks("account_cancel", $u);
 
-    if (my $err = LJ::run_hook("cdn_purge_userpics", $u)) {
+    if (my $err = LJ::Hooks::run_hook("cdn_purge_userpics", $u)) {
         $$errref = $err if ref $errref and $err;
         return 0;
     }
@@ -628,7 +628,7 @@ sub info_for_js {
     # Without url_message "Send Message" link should not display
     $ret{url_message} = $u->message_url unless ($u->opt_usermsg eq 'N');
 
-    LJ::run_hook("extra_info_for_js", $u, \%ret);
+    LJ::Hooks::run_hook("extra_info_for_js", $u, \%ret);
 
     my $up = $u->userpic;
 
@@ -1001,7 +1001,7 @@ sub make_login_session {
 
     # run some hooks
     my @sopts;
-    LJ::run_hooks("login_add_opts", {
+    LJ::Hooks::run_hooks("login_add_opts", {
         "u" => $u,
         "form" => {},
         "opts" => \@sopts
@@ -1010,7 +1010,7 @@ sub make_login_session {
     $sess->flags($sopts);
 
     my $etime = $sess->expiration_time;
-    LJ::run_hooks("post_login", {
+    LJ::Hooks::run_hooks("post_login", {
         "u" => $u,
         "form" => {},
         "expiretime" => $etime,
@@ -1762,8 +1762,8 @@ sub add_to_class {
     # call add_to_class hook before we modify the
     # current $u, so it can make inferences from the
     # old $u caps vs the new we say we'll be adding
-    if (LJ::are_hooks('add_to_class')) {
-        LJ::run_hooks('add_to_class', $u, $class);
+    if (LJ::Hooks::are_hooks('add_to_class')) {
+        LJ::Hooks::run_hooks('add_to_class', $u, $class);
     }
 
     return LJ::modify_caps($u, [$bit], []);
@@ -2046,7 +2046,7 @@ sub control_strip_display {
 
     # otherwise, return the default: all options checked
     my $ret;
-    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
+    my @pageoptions = LJ::Hooks::run_hook( 'page_control_strip_options' );
     for ( my $i = 0; $i < scalar @pageoptions; $i++ ) {
         $ret |= 1 << $i;
     }
@@ -2288,7 +2288,7 @@ sub large_journal_icon {
 
     # hook will return image to use if it cares about
     # the $u it's been passed
-    my $hook_img = LJ::run_hook("large_journal_icon", $u);
+    my $hook_img = LJ::Hooks::run_hook("large_journal_icon", $u);
     return $wrap_img->($hook_img) if $hook_img;
 
     if ($u->is_comm) {
@@ -2504,8 +2504,8 @@ sub remove_from_class {
     # call remove_from_class hook before we modify the
     # current $u, so it can make inferences from the
     # old $u caps vs what we'll be removing
-    if (LJ::are_hooks('remove_from_class')) {
-        LJ::run_hooks('remove_from_class', $u, $class);
+    if (LJ::Hooks::are_hooks('remove_from_class')) {
+        LJ::Hooks::run_hooks('remove_from_class', $u, $class);
     }
 
     return LJ::modify_caps($u, [], [$bit]);
@@ -2686,7 +2686,7 @@ sub display_name {
         require Net::OpenID::Consumer;
         $url = $id->value;
         $name = Net::OpenID::VerifiedIdentity::DisplayOfURL($url, $LJ::IS_DEV_SERVER);
-        $name = LJ::run_hook("identity_display_name", $name) || $name;
+        $name = LJ::Hooks::run_hook("identity_display_name", $name) || $name;
 
         ## Unescape %xx sequences
         $name =~ s/%([\dA-Fa-f]{2})/chr(hex($1))/ge;
@@ -2964,7 +2964,7 @@ sub ban_user_multi {
     my $us = LJ::load_userids(@banlist);
     foreach my $banuid (@banlist) {
         $u->log_event('ban_set', { actiontarget => $banuid, remote => LJ::get_remote() });
-        LJ::run_hooks('ban_set', $u, $us->{$banuid}) if $us->{$banuid};
+        LJ::Hooks::run_hooks('ban_set', $u, $us->{$banuid}) if $us->{$banuid};
     }
 
     return 1;
@@ -2987,7 +2987,7 @@ sub unban_user_multi {
     my $us = LJ::load_userids(@unbanlist);
     foreach my $banuid (@unbanlist) {
         $u->log_event('ban_unset', { actiontarget => $banuid, remote => LJ::get_remote() });
-        LJ::run_hooks('ban_unset', $u, $us->{$banuid}) if $us->{$banuid};
+        LJ::Hooks::run_hooks('ban_unset', $u, $us->{$banuid}) if $us->{$banuid};
     }
 
     return 1;
@@ -4401,7 +4401,7 @@ sub set_interests {
             push @new_intids, $intid;
         }
     }
-    LJ::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
+    LJ::Hooks::run_hooks("set_interests", $u, \%int_del, \@new_intids); # interest => intid
 
     # do migrations to clean up userinterests vs comminterests conflicts
     $u->lazy_interests_cleanup;
@@ -4938,7 +4938,7 @@ sub opt_embedplaceholders {
 sub show_control_strip {
     my $u = shift;
 
-    LJ::run_hook('control_strip_propcheck', $u, 'show_control_strip') if LJ::is_enabled('control_strip_propcheck');
+    LJ::Hooks::run_hook('control_strip_propcheck', $u, 'show_control_strip') if LJ::is_enabled('control_strip_propcheck');
 
     my $prop = $u->raw_prop('show_control_strip');
     return 0 if $prop =~ /^off/;
@@ -4952,7 +4952,7 @@ sub show_control_strip {
 sub view_control_strip {
     my $u = shift;
 
-    LJ::run_hook('control_strip_propcheck', $u, 'view_control_strip') if LJ::is_enabled('control_strip_propcheck');
+    LJ::Hooks::run_hook('control_strip_propcheck', $u, 'view_control_strip') if LJ::is_enabled('control_strip_propcheck');
 
     my $prop = $u->raw_prop('view_control_strip');
     return 0 if $prop =~ /^off/;
@@ -6559,7 +6559,7 @@ sub update_user
     }
 
     # log this updates
-    LJ::run_hooks("update_user", userid => $_, fields => $ref)
+    LJ::Hooks::run_hooks("update_user", userid => $_, fields => $ref)
         for @uid;
 
     return 1;
@@ -6833,7 +6833,7 @@ sub ljuser
     my $url = $u->journal_base . "/";
     my $head_size = $opts->{head_size};
 
-    if (my ($icon, $size) = LJ::run_hook("head_icon", $u, head_size => $head_size)) {
+    if (my ($icon, $size) = LJ::Hooks::run_hook("head_icon", $u, head_size => $head_size)) {
         return $make_tag->($icon, $url, $size || 16) if $icon;
     }
 
@@ -7075,12 +7075,12 @@ sub modify_caps {
     my %cap_del_mod = ();
 
     # convert capnames to bit numbers
-    if (LJ::are_hooks("get_cap_bit")) {
+    if (LJ::Hooks::are_hooks("get_cap_bit")) {
         foreach my $bit (@$cap_add, @$cap_del) {
             next if $bit =~ /^\d+$/;
 
             # bit is a magical reference into the array
-            $bit = LJ::run_hook("get_cap_bit", $bit);
+            $bit = LJ::Hooks::run_hook("get_cap_bit", $bit);
         }
     }
 
@@ -7107,8 +7107,8 @@ sub modify_caps {
     }
 
     # run hooks for modified bits
-    if (LJ::are_hooks("modify_caps")) {
-        $res = LJ::run_hook("modify_caps",
+    if (LJ::Hooks::are_hooks("modify_caps")) {
+        $res = LJ::Hooks::run_hook("modify_caps",
                             { 'u' => $u,
                               'newcaps' => $newcaps,
                               'oldcaps' => $u->{'caps'},
@@ -7161,7 +7161,7 @@ sub set_userprop
     foreach $propname (keys %$hash) {
         # call all hooks, since we don't look at the return values.  we expect anybody who
         # uses this hook to do extra work a property needs when it is set.
-        LJ::run_hooks( 'setprop', prop => $propname, u => $u, value => $value );
+        LJ::Hooks::run_hooks( 'setprop', prop => $propname, u => $u, value => $value );
 
         my $p = LJ::get_prop("user", $propname) or
             die "Invalid userprop $propname passed to LJ::set_userprop.";
@@ -8066,7 +8066,7 @@ sub journal_base
 {
     my ($user, $vhost) = @_;
 
-    if (! isu($user) && LJ::are_hooks("journal_base")) {
+    if (! isu($user) && LJ::Hooks::are_hooks("journal_base")) {
         my $u = LJ::load_user($user);
         $user = $u if $u;
     }
@@ -8074,7 +8074,7 @@ sub journal_base
     if (isu($user)) {
         my $u = $user;
 
-        my $hookurl = LJ::run_hook("journal_base", $u, $vhost);
+        my $hookurl = LJ::Hooks::run_hook("journal_base", $u, $vhost);
         return $hookurl if $hookurl;
 
         $user = $u->user;
@@ -8246,7 +8246,7 @@ sub make_journal
             }
 
             my $forceflag = 0;
-            LJ::run_hooks("force_s1", $u, \$forceflag);
+            LJ::Hooks::run_hooks("force_s1", $u, \$forceflag);
 
             # if none of the above match, they fall through to here
             if ( !$forceflag && $u->{'stylesys'} == 2 ) {
@@ -8343,7 +8343,7 @@ sub make_journal
     }
     if ($view eq "network" && ! LJ::get_cap($u, "friendsfriendsview")) {
         my $inline;
-        if ($inline .= LJ::run_hook("cprod_inline", $u, 'FriendsFriendsInline')) {
+        if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'FriendsFriendsInline')) {
             return $inline;
         } else {
             return BML::ml('cprod.friendsfriendsinline.text3.v1');

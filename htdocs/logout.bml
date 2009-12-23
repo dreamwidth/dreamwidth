@@ -20,7 +20,7 @@
         my $username = $u ? $u->display_username : $user;
         my $old_remote = LJ::load_user($username);
         return BML::redirect("$LJ::SITEROOT/") unless $old_remote;
-        my $html = LJ::run_hook("logout_page_html", $old_remote, get_ret => $GET{ret}, post_ret => $POST{ret}, nojs => $nojs);
+        my $html = LJ::Hooks::run_hook("logout_page_html", $old_remote, get_ret => $GET{ret}, post_ret => $POST{ret}, nojs => $nojs);
 
         if ($html) {
             $title = $ML{'.title.loggedout'};

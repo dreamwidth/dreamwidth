@@ -91,7 +91,7 @@ sub render_body {
         }
         my $inline;
         if ($ct >= $caplinks) {
-            if ($inline .= LJ::run_hook("cprod_inline", $u, 'Links')) {
+            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'Links')) {
                 $ret .= $inline;
             } else {
                 $ret .= "</td></tr><tr><td colspan='2'>&nbsp;</td><td>" . LJ::Lang::ml('cprod.links.text3.v1');

@@ -134,9 +134,9 @@ sub caps_string {
 # </LJFUNC>
 sub user_caps_icon
 {
-    return undef unless LJ::are_hooks("user_caps_icon");
+    return undef unless LJ::Hooks::are_hooks("user_caps_icon");
     my $caps = shift;
-    return LJ::run_hook("user_caps_icon", $caps);
+    return LJ::Hooks::run_hook("user_caps_icon", $caps);
 }
 
 # <LJFUNC>
@@ -206,11 +206,11 @@ sub get_cap
     }
 
     # is there a hook for this cap name?
-    if (! $opts->{no_hook} && LJ::are_hooks("check_cap_$cname")) {
+    if (! $opts->{no_hook} && LJ::Hooks::are_hooks("check_cap_$cname")) {
         die "Hook 'check_cap_$cname' requires full user object"
             unless LJ::isu($u);
 
-        my $val = LJ::run_hook("check_cap_$cname", $u);
+        my $val = LJ::Hooks::run_hook("check_cap_$cname", $u);
         return $val if defined $val;
 
         # otherwise fall back to standard means

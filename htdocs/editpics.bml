@@ -232,7 +232,7 @@ use strict;
                 ## see if they have too many pictures uploaded
                 my $inline;
                 if ($userpic_count >= $max) {
-                    if ($inline .= LJ::run_hook("cprod_inline", $u, 'EditPicsMax')) {
+                    if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'EditPicsMax')) {
                         push @info, $inline;
                         $no_errors = 0;
                     } else {
@@ -441,7 +441,7 @@ use strict;
         } else {
             $body .= "<div id='limit'>\n";
             my $inline;
-            if ($inline .= LJ::run_hook("cprod_inline", $u, 'EditPicsMax')) {
+            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'EditPicsMax')) {
                 $body .= $inline;
             } else {
                 $body .= BML::ml('.error.toomanypics_standout', { num => $max });
@@ -468,7 +468,7 @@ use strict;
         $body .= "<p><strong>" . BML::ml('.piclimitstatus', {current => scalar @userpics, max => $max}) . "</strong></p>";;
         if (scalar @userpics >= $max) {
             my $inline;
-            if ($inline .= LJ::run_hook("cprod_inline", $u, 'EditPics')) {
+            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'EditPics')) {
                 $body .= "<?warningbar" . $inline . "warningbar?>";
             } else {
                 $body .= "<p>".BML::ml('cprod.editpics.text7.v1',{ "num" => $max })."</p>";

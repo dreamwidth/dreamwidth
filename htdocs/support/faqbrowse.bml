@@ -169,10 +169,10 @@ body<=
         # from false to true. Should that be checked/enforced here instead?
         # FIXME: do we even need that hook? It looks like LJ only ever used
         # it to add stuff to LJ Talk FAQs, for Gizmo sponsorship.
-        LJ::run_hook( "faq.$faqid.transform", $remote, question => \$question,
+        LJ::Hooks::run_hook( "faq.$faqid.transform", $remote, question => \$question,
                       summary => \$summary, display_summary => \$display_summary,
                       answer => \$answer, display_answer => \$display_answer)
-            if LJ::are_hooks( "faq.$faqid.transform" );
+            if LJ::Hooks::are_hooks( "faq.$faqid.transform" );
 
         # display output
         if ($faqcatarg) {

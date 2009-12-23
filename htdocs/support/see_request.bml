@@ -395,7 +395,7 @@ body<=
             $ret .= "(User on S1; why?) ";
         }
 
-        LJ::run_hooks("support_see_request_info_rows", {
+        LJ::Hooks::run_hooks("support_see_request_info_rows", {
             'u' => $u,
             'email' => $email,
             'sp' => $sp,
@@ -509,7 +509,7 @@ body<=
 
     ### end request info table
 
-    LJ::run_hooks("support_see_request_html", {
+    LJ::Hooks::run_hooks("support_see_request_html", {
         'u' => $u,
         'email' => $email,
         'sp' => $sp,

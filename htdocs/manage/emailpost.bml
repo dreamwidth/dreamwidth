@@ -431,7 +431,7 @@ body<=
     $ret .= LJ::html_submit( $ML{'.save'} );
     $ret .= " standout?>";
     $ret .= "</form>";
-    $ret .= LJ::run_hook('sms_footer');
+    $ret .= LJ::Hooks::run_hook('sms_footer');
     return $ret;
 
 } _code?>

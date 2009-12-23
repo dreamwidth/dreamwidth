@@ -42,7 +42,7 @@ sub help_url { undef }
 sub available_for_user  {
     my ($class, $u) = @_;
 
-    my $available = LJ::run_hook('notificationmethod_available_for_user', $class, $u);
+    my $available = LJ::Hooks::run_hook('notificationmethod_available_for_user', $class, $u);
 
     return defined $available ? $available : 1;
 }

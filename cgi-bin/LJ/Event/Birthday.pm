@@ -134,7 +134,7 @@ sub _as_email {
             {
                 'esn.post_happy_bday'   => [ 1, "$LJ::SITEROOT/update" ],
             },
-            LJ::run_hook('birthday_notif_extra_' . ($is_html ? 'html' : 'plaintext'), $u)
+            LJ::Hooks::run_hook('birthday_notif_extra_' . ($is_html ? 'html' : 'plaintext'), $u)
         );
 }
 

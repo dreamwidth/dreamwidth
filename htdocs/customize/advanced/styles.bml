@@ -53,7 +53,7 @@
             $ML{'.error.usercantuseadvanced'} )
         unless $u->can_create_s2_styles || $viewall;
 
-    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
     return $err->($ML{'/customize/advanced/index.bml.error.advanced.editing.denied'})
         if $no_layer_edit;
 
@@ -103,7 +103,7 @@
             # save to db and update user object
             LJ::set_userprop($u, "stylesys", '2');
             LJ::set_userprop($u, "s2_style", $id);
-            LJ::run_hooks('apply_theme', $u);
+            LJ::Hooks::run_hooks('apply_theme', $u);
             return BML::redirect("styles$getextra");
         }
 
@@ -364,7 +364,7 @@
             my $ref = shift;
             return  sort { $ref->{$a}->{'name'} cmp $ref->{$b}->{'name'} || $a <=> $b}
                     grep {
-                        my $is_active = LJ::run_hook("layer_is_active", $ref->{$_}->{uniq});
+                        my $is_active = LJ::Hooks::run_hook("layer_is_active", $ref->{$_}->{uniq});
                         $ref->{$_}->{'type'} eq $type &&
                         $ref->{$_}->{'b2lid'} == $b2lid &&
                         (!defined $is_active || $is_active) &&

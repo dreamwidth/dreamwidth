@@ -16,12 +16,15 @@
 
 package DW::Hooks::Display;
 
+use strict;
+use LJ::Hooks;
+
 # Displays extra info on finduser results. Called as:
-#   LJ::run_hooks("finduser_extrainfo", $u })
+#   LJ::Hooks::run_hooks("finduser_extrainfo", $u })
 # Currently used to return paid status, expiration date, and number of
 # unused invite codes. 
 
-LJ::register_hook( 'finduser_extrainfo', sub {
+LJ::Hooks::register_hook( 'finduser_extrainfo', sub {
     my $u = shift;
 
     my $ret;

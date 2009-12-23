@@ -39,7 +39,7 @@ sub option {
     my $key = $class->pkgkey;
 
     my $can_emailpost = $u->can_emailpost;
-    my $upgrade_link = $can_emailpost ? "" : LJ::run_hook("upgrade_link", $u, "plus");
+    my $upgrade_link = $can_emailpost ? "" : LJ::Hooks::run_hook("upgrade_link", $u, "plus");
 
     my $addrlist = LJ::Emailpost::get_allowed_senders($u);
     my @addresses = sort keys %$addrlist;

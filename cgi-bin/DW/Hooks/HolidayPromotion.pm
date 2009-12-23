@@ -16,9 +16,10 @@
 package DW::Hooks::HolidayPromotion;
 
 use strict;
+use LJ::Hooks;
 
 # promotion HTML
-LJ::register_hook( 'shop_cart_status_bar', sub {
+LJ::Hooks::register_hook( 'shop_cart_status_bar', sub {
     my ( $shop, $cart, $retref ) = @_;
 
     # anonymous sessions can't benefit from the promotion
@@ -33,7 +34,7 @@ LJ::register_hook( 'shop_cart_status_bar', sub {
 } );
 
 # hook to add a new item when they purchase somethign eligibile
-LJ::register_hook( 'shop_cart_added_item', sub {
+LJ::Hooks::register_hook( 'shop_cart_added_item', sub {
     my ( $cart, $item ) = @_;
 
     # ignore promo linked items so we don't loop forever
@@ -68,7 +69,7 @@ LJ::register_hook( 'shop_cart_added_item', sub {
 } );
 
 # when they remove an item ...
-LJ::register_hook( 'shop_cart_removed_item', sub {
+LJ::Hooks::register_hook( 'shop_cart_removed_item', sub {
     my ( $cart, $item ) = @_;
 
     # don't do anything if we're removing a promo item

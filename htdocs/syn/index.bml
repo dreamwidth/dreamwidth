@@ -211,7 +211,7 @@ body<=
     $ret .= "<?h1 $ML{'.add.byurl.title'} h1?><?p $ML{'.add.byurl.text'} p?>";
     unless ( $u->can_create_feeds ) {
         my $inline;
-        if ($inline .= LJ::run_hook("cprod_inline", $u, 'Syn')) {
+        if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'Syn')) {
             $ret .= $inline;
         } else {
             $ret .= "<p>".BML::ml('cprod.syn.text.v1')."</p>";

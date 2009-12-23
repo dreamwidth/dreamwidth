@@ -404,7 +404,7 @@ sub can_send {
     # Will this message put sender over rate limit
     unless ($self->rate_multiple && $ou->rate_check('usermessage', $self->rate_multiple)) {
         my $up;
-        $up = LJ::run_hook('upgrade_message', $ou, 'message');
+        $up = LJ::Hooks::run_hook('upgrade_message', $ou, 'message');
         $up = "<br />$up" if ($up);
         push @$errors, "This message will exceed your limit and cannot be sent.$up";
         return 0;

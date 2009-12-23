@@ -88,7 +88,7 @@
         foreach my $constraint (@constraints) {
             next unless $constraint->isa('LJ::Directory::Constraint::Interest');
             
-            if (LJ::run_hook("interest_search_ignore", intid => $constraint->intid)) {
+            if (LJ::Hooks::run_hook("interest_search_ignore", intid => $constraint->intid)) {
                 return $err->("Sorry, we're unable to help you find users matching the interests you've provided.");
             }
         }

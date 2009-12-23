@@ -182,7 +182,7 @@ sub render_body {
           value => $impression_url ) . "<br />";
     $ret .= "<small>Use <code>[[uniq]]</code> in the URL to have a unique identifier placed there automatically.</small></td></tr>";
 
-    my $hook_rv = LJ::run_hook("qotd_class_checkboxes", class => $class, classes => \@classes, show_logged_out => $show_logged_out);
+    my $hook_rv = LJ::Hooks::run_hook("qotd_class_checkboxes", class => $class, classes => \@classes, show_logged_out => $show_logged_out);
 
     if ($hook_rv) {
         $ret .= "<tr><td valign='top'>$hook_rv";
@@ -267,7 +267,7 @@ sub handle_post {
         die "Invalid user: $from_user" unless LJ::isu($from_u);
     }
 
-    LJ::run_hook("qotd_class_checkboxes_post", $post);
+    LJ::Hooks::run_hook("qotd_class_checkboxes_post", $post);
 
     # Make sure at least one class was given
     die "At least one class of users must be given."

@@ -14,8 +14,9 @@
 package DW::Hooks::Changelog;;
 
 use strict;
+use LJ::Hooks;
 
-LJ::register_hook( 'post_noauth', sub {
+LJ::Hooks::register_hook( 'post_noauth', sub {
     my $req = shift;
 
     # enable or not

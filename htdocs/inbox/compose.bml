@@ -124,7 +124,7 @@ body<=
             # This is only necessary if there are multiple recipients
             if (scalar(@msg_list) > 1) {
                 my $up;
-                $up = LJ::run_hook('upgrade_message', $remote, 'message');
+                $up = LJ::Hooks::run_hook('upgrade_message', $remote, 'message');
                 $up = "<br />$up" if ($up);
                 push @errors, BML::ml( ".error.rate.limit", { up => $up } )
                     unless LJ::Message::ratecheck_multi(userid => $remote_id, msg_list => \@msg_list)

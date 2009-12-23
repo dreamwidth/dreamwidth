@@ -109,7 +109,7 @@ body<=
 
      LJ::update_user($u, { status => 'A' });
      $u->update_email_alias;
-     LJ::run_hook('email_verified', $u);
+     LJ::Hooks::run_hook('email_verified', $u);
 
      if ($u->{'status'} eq "T") {
          $ret .= "<?h1 $ML{'.trans.header'} h1?><?p $ML{'.trans.body'} p?>";
@@ -135,7 +135,7 @@ body<=
          $ret .= "</div><!-- end .columns-2 -->";
      }
 
-     LJ::run_hook('post_email_change',
+     LJ::Hooks::run_hook('post_email_change',
                   {
                       user     => $u,
                       newemail => $aa->{arg1},

@@ -349,8 +349,8 @@ body<=
 
         $u->{'gizmo'} = $u->gizmo_account();
 
-        my $ljtalk_title = '<a href="' . LJ::run_hook('jabber_link') . '">' .
-            LJ::run_hook('jabber_title') . '</a>';
+        my $ljtalk_title = '<a href="' . LJ::Hooks::run_hook('jabber_link') . '">' .
+            LJ::Hooks::run_hook('jabber_title') . '</a>';
 
         foreach my $p (
                        ["ljtalk", $ljtalk_title, 40],
@@ -379,7 +379,7 @@ body<=
                 $ret .= "<label for='opt_showljtalk' style='font-size: 10px;'>$ML{'.showljtalk'}</label>";
 
                 # Jabber Online Status
-                my $jabber_title = LJ::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
+                my $jabber_title = LJ::Hooks::run_hook("jabber_title") || $ML{'/manage/settings/index.bml.jabber.title'};
                 $ret .= "<br />";
                 $ret .= BML::ml('/manage/settings/index.bml.jabber', {'jabbertitle' => $jabber_title}) . " ";
                 $ret .= LJ::html_select({ 'name' => 'opt_showonlinestatus',
@@ -408,7 +408,7 @@ body<=
         $ret .= "<a name='txtmsg'></a><div class='section_head'>$ML{'.section.textmsg'}\n";
         unless ( $u->can_use_textmessaging ) {
             my $inline;
-            if ($inline .= LJ::run_hook("cprod_inline", $u, 'TextMessaging')) {
+            if ($inline .= LJ::Hooks::run_hook("cprod_inline", $u, 'TextMessaging')) {
                 $ret .= "</div>$inline";
             } else {
                 $ret .= "</div>".BML::ml('cprod.textmessaging.text3.v1');
@@ -487,7 +487,7 @@ body<=
 
         $ret .= "</table>\n";
 
-        $ret .= LJ::run_hook("profile_settings_extra", $u);
+        $ret .= LJ::Hooks::run_hook("profile_settings_extra", $u);
 
         # ending submit block
         $ret .= "<?standout " . LJ::html_submit(undef, $ML{'.save_button'}) . " standout?>\n";
@@ -717,8 +717,8 @@ body<=
             $u->set_interests( \%interests, \@valid_ints );
         }
 
-        LJ::run_hooks('profile_save', $u);
-        LJ::run_hook('set_profile_settings_extra', $u, \%POST);
+        LJ::Hooks::run_hooks('profile_save', $u);
+        LJ::Hooks::run_hook('set_profile_settings_extra', $u, \%POST);
 
         # tell the user all is well
         my $base = $u->journal_base;

@@ -267,7 +267,7 @@ sub skip_prop {
     return 1 if $prop_name eq "control_strip_bordercolor";
     return 1 if $prop_name eq "control_strip_linkcolor";
 
-    my $hook_rv = LJ::run_hook("skip_prop_override", $prop_name, user => $opts{user}, theme => $theme, style => $opts{style});
+    my $hook_rv = LJ::Hooks::run_hook("skip_prop_override", $prop_name, user => $opts{user}, theme => $theme, style => $opts{style});
     return $hook_rv if $hook_rv;
 
     return 0;

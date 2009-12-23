@@ -240,7 +240,7 @@ body<=
         $status .= "Changing from $catkey => $cats->{$newcat}->{'catkey'}\n\n";
         $sp->{'spcatid'} = $newcat; # update category so IC e-mail goes to right place
 
-        LJ::run_hook("support_changecat_extra_actions", spid => $spid, catkey => $cats->{$newcat}->{catkey});
+        LJ::Hooks::run_hook("support_changecat_extra_actions", spid => $spid, catkey => $cats->{$newcat}->{catkey});
     }
 
     ## approving a screened response

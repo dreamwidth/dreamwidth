@@ -95,7 +95,7 @@ sub EntryPage
                     ));
 
     $p->{'entry'} = $s2entry;
-    LJ::run_hook('notify_event_displayed', $entry);
+    LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     # add the comments
     my $view_arg = $get->{'view'} || "";
@@ -489,7 +489,7 @@ sub EntryPage_entry
         while (my ($kwid, $kw) = each %$tag_map) {
             push @taglist, Tag($u, $kwid => $kw);
         }
-        LJ::run_hooks('augment_s2_tag_list', u => $u, jitemid => $itemid, tag_list => \@taglist);
+        LJ::Hooks::run_hooks('augment_s2_tag_list', u => $u, jitemid => $itemid, tag_list => \@taglist);
         @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
     }
 

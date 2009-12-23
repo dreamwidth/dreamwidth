@@ -372,7 +372,7 @@ body<=
         my ( $interest, $intcount ) = LJ::get_interest( $intid );
         
         my $check_int = $GET{int} || $interest;
-        if (LJ::run_hook("interest_search_ignore", query => $check_int, intid => $intid)) {
+        if (LJ::Hooks::run_hook("interest_search_ignore", query => $check_int, intid => $intid)) {
             return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.ignored'} p?>";
         }
 
@@ -407,7 +407,7 @@ body<=
         $intid += 0;
 
         ### hook
-        LJ::run_hooks("interests_bml", {
+        LJ::Hooks::run_hooks("interests_bml", {
             'intid'   => $intid,
             'int'     => $interest,
             'ret'     => \$ret,

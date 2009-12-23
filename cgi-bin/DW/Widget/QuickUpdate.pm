@@ -28,7 +28,7 @@ sub render_body {
         or return;
 
     my $ret = "<h2>" . $class->ml( 'widget.quickupdate.title' ) . "</h2>";
-    $ret .= "<div class='sidebar'>" . LJ::run_hook( 'entryforminfo', $remote->user, $remote ) . "</div>";
+    $ret .= "<div class='sidebar'>" . LJ::Hooks::run_hook( 'entryforminfo', $remote->user, $remote ) . "</div>";
     $ret .= "<div class='contents'>";
 
     # not using the LJ::Widget form of the HTML methods, because we're directing this to update.bml

@@ -180,7 +180,7 @@
         }
 
         # see if we should call a hook for extra actions?
-        $body .= LJ::run_hook('spamreport_notification', $remote, { $by => $what })
+        $body .= LJ::Hooks::run_hook('spamreport_notification', $remote, { $by => $what })
             if $state eq 'open' && $by eq 'posterid';
 
         # now the general info gathering

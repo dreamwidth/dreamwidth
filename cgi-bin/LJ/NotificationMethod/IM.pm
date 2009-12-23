@@ -104,7 +104,7 @@ sub configured_for_user {
 sub url {
     my $class = shift;
 
-    return LJ::run_hook('jabber_link');
+    return LJ::Hooks::run_hook('jabber_link');
 }
 
 1;

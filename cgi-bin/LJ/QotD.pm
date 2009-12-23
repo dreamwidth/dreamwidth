@@ -176,7 +176,7 @@ sub filter_by_eff_class {
     my $u = shift;
     my @questions = @_;
 
-    my $eff_class = LJ::run_hook("qotd_get_eff_class", $u);
+    my $eff_class = LJ::Hooks::run_hook("qotd_get_eff_class", $u);
     return @questions unless $eff_class;
 
     my @questions_ret;

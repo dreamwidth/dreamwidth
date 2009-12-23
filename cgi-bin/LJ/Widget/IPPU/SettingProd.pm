@@ -54,7 +54,7 @@ sub render_body {
              "</span></p>";
 
     my $ret;
-    LJ::run_hooks('campaign_tracking', \$ret,
+    LJ::Hooks::run_hooks('campaign_tracking', \$ret,
                   { cname => 'Popup Setting Display' } );
     $body .= $ret;
 
@@ -79,7 +79,7 @@ sub handle_post {
 
     my $xtra;
     my $postvars = join(",", $setting_class->settings($post));
-    LJ::run_hooks('campaign_tracking', \$xtra,
+    LJ::Hooks::run_hooks('campaign_tracking', \$xtra,
                     { cname     => 'Popup Setting Submitted',
                       trackvars => "$postvars", } );
 

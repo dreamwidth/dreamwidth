@@ -148,7 +148,7 @@ body<=
         },
     );
 
-    LJ::run_hook("settings_extra_cats", \@cats_order, \%cats_with_settings, user => $u);
+    LJ::Hooks::run_hook("settings_extra_cats", \@cats_order, \%cats_with_settings, user => $u);
 
     my $given_cat = $GET{cat};
     if ($u) {
@@ -406,7 +406,7 @@ body<=
     $ret .= $cats_with_settings{$given_cat}->{form} ? LJ::html_submit($ML{'.btn.save'}) : "&nbsp;";
     $ret .= "</div>";
 
-        my $my_account_extra = LJ::run_hook('subscriptions_manage_my_account_extra', $u);
+        my $my_account_extra = LJ::Hooks::run_hook('subscriptions_manage_my_account_extra', $u);
 
         # set up default subscriptions for users that have not managed ESN stuff
         if (!$u->prop('esn_has_managed') && !$u->subscription_count) {
@@ -476,7 +476,7 @@ body<=
                     LJ::Subscription::Pending->new($u,
                         event => 'Birthday',
                     ),
-                    (LJ::run_hook('subscriptions_manage_friend_pending_extra', $u) || ()),
+                    (LJ::Hooks::run_hook('subscriptions_manage_friend_pending_extra', $u) || ()),
                 ],
             },
         );
@@ -516,7 +516,7 @@ body<=
         $ret .= "</table>";
 
         if ($given_cat eq "account") {
-            my $account_stats = LJ::run_hook("settings_account_stats", $u);
+            my $account_stats = LJ::Hooks::run_hook("settings_account_stats", $u);
             if ($account_stats) {
                 $ret .= "<div class='account_stats'>";
                 $ret .= $account_stats;

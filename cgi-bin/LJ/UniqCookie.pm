@@ -414,8 +414,8 @@ sub ensure_cookie_value {
 
     my $new_cookie_value = "$uniq:$now";
     my $hook_saved_mapping = 0;
-    if (LJ::are_hooks('transform_ljuniq_value')) {
-        $new_cookie_value = LJ::run_hook
+    if (LJ::Hooks::are_hooks('transform_ljuniq_value')) {
+        $new_cookie_value = LJ::Hooks::run_hook
             ('transform_ljuniq_value',
              { value => $new_cookie_value,
                extra => $uniq_extra,

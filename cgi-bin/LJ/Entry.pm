@@ -225,7 +225,7 @@ sub url {
     croak "Unknown args passed to url: " . join(",", keys %opts)
         if %opts;
 
-    my $override = LJ::run_hook("entry_permalink_override", $self, %opts);
+    my $override = LJ::Hooks::run_hook("entry_permalink_override", $self, %opts);
     return $override if $override;
 
     my $url = $u->journal_base . "/" . $self->ditemid . ".html";
@@ -928,7 +928,7 @@ sub is_special_qotd_entry {
     my $qotdid = $self->qotdid;
     my $poster = $self->poster;
 
-    if ($qotdid && $poster && LJ::run_hook("show_qotd_title_change", $poster)) {
+    if ($qotdid && $poster && LJ::Hooks::run_hook("show_qotd_title_change", $poster)) {
         return 1;
     }
 
@@ -1872,7 +1872,7 @@ sub delete_entry
     LJ::MemCache::delete( [ $jid, "activeentries:$jid" ] );
     LJ::MemCache::decr([$jid, "log2ct:$jid"]) if $dc > 0;
     LJ::memcache_kill($jid, "dayct2");
-    LJ::run_hooks("deletepost", $jid, $jitemid, $anum);
+    LJ::Hooks::run_hooks("deletepost", $jid, $jitemid, $anum);
 
     # if this is running the second time (started by the cmd buffer),
     # the log2 row will already be gone and we shouldn't check for it.
@@ -2127,7 +2127,7 @@ sub expand_embedded
     my ($u, $ditemid, $remote, $eventref, %opts) = @_;
     LJ::Poll->expand_entry($eventref) unless $opts{preview};
     LJ::EmbedModule->expand_entry($u, $eventref, %opts);
-    LJ::run_hooks("expand_embedded", $u, $ditemid, $remote, $eventref, %opts);
+    LJ::Hooks::run_hooks("expand_embedded", $u, $ditemid, $remote, $eventref, %opts);
 }
 
 # <LJFUNC>

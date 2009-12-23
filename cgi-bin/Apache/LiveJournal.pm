@@ -283,7 +283,7 @@ sub trans
     my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
     BML::set_language($lang, \&LJ::Lang::get_text);
 
-    my $is_ssl = $LJ::IS_SSL = LJ::run_hook("ssl_check", {
+    my $is_ssl = $LJ::IS_SSL = LJ::Hooks::run_hook("ssl_check", {
         r => $r,
     });
 
@@ -352,7 +352,7 @@ sub trans
         } else {
             return FORBIDDEN;
         }
-    } elsif (LJ::run_hook("set_alternate_statimg")) {
+    } elsif (LJ::Hooks::run_hook("set_alternate_statimg")) {
         # do nothing, hook did it.
     } else {
         $LJ::DEBUG_HOOK{'pre_restore_bak_stats'}->() if $LJ::DEBUG_HOOK{'pre_restore_bak_stats'};
@@ -429,7 +429,7 @@ sub trans
                 return OK;
             }
         }
-        if ( LJ::run_hook( "forbid_request", $r ) ) {
+        if ( LJ::Hooks::run_hook( "forbid_request", $r ) ) {
             $r->handler( "perl-script" );
             $r->push_handlers( PerlResponseHandler => \&blocked_bot );
             return OK;
@@ -600,7 +600,7 @@ sub trans
                 $r->notes->{journalid} = $u->{userid};
             }
 
-            my $file = LJ::run_hook("profile_bml_file");
+            my $file = LJ::Hooks::run_hook("profile_bml_file");
             $file ||= $LJ::PROFILE_BML_FILE || "userinfo.bml";
             if ($args =~ /\bver=(\w+)\b/) {
                 $file = $LJ::ALT_PROFILE_BML_FILE{$1} if $LJ::ALT_PROFILE_BML_FILE{$1};
@@ -634,7 +634,7 @@ sub trans
                 $r->push_handlers(PerlResponseHandler => \&customview_content);
                 return OK;
             }
-            if (my $handler = LJ::run_hook("data_handler:$mode", $RQ{'user'}, $path)) {
+            if (my $handler = LJ::Hooks::run_hook("data_handler:$mode", $RQ{'user'}, $path)) {
                 $r->handler("perl-script");
                 $r->push_handlers(PerlResponseHandler => $handler);
                 return OK;
@@ -824,7 +824,7 @@ sub trans
 
             unless ($uri =~ m!^/(\w{1,25})(/.*)?$!) {
                 return DECLINED if $uri eq "/favicon.ico";
-                my $redir = LJ::run_hook("journal_subdomain_redirect_url",
+                my $redir = LJ::Hooks::run_hook("journal_subdomain_redirect_url",
                                          $host, $uri);
                 return redir($r, $redir) if $redir;
                 return 404;
@@ -927,7 +927,7 @@ sub trans
 
     # custom interface handler
     if ($uri =~ m!^/interface/([\w\-]+)$!) {
-        my $inthandle = LJ::run_hook("interface_handler", {
+        my $inthandle = LJ::Hooks::run_hook("interface_handler", {
             int         => $1,
             r           => $r,
             bml_handler => $bml_handler,
@@ -1256,7 +1256,7 @@ sub files_trans
     return 404 unless $r->uri =~ m!^/(\w{1,25})/(\w+)(/\S+)!;
     my ($user, $domain, $rest) = ($1, $2, $3);
 
-    if (my $handler = LJ::run_hook("files_handler:$domain", $user, $rest)) {
+    if (my $handler = LJ::Hooks::run_hook("files_handler:$domain", $user, $rest)) {
         $r->notes->{codepath} = "files.$domain";
         $r->handler("perl-script");
         $r->push_handlers(PerlResponseHandler => $handler);
@@ -1278,7 +1278,7 @@ sub journal_content
 
         $u->preload_props("opt_blockrobots", "adult_content");
         $r->content_type("text/plain");
-        my @extra = LJ::run_hook("robots_txt_extra", $u), ();
+        my @extra = LJ::Hooks::run_hook("robots_txt_extra", $u), ();
         $r->print($_) foreach @extra;
         $r->print("User-Agent: *\n");
         if ($u->should_block_robots) {
@@ -1367,7 +1367,7 @@ sub journal_content
     my $html = LJ::make_journal($user, $RQ{'mode'}, $remote, $opts);
 
     # Allow to add extra http-header or even modify html
-    LJ::run_hooks("after_journal_content_created", $opts, \$html) unless $handle_with_siteviews;
+    LJ::Hooks::run_hooks("after_journal_content_created", $opts, \$html) unless $handle_with_siteviews;
 
     return redir($r, $opts->{'redir'}) if $opts->{'redir'};
     return $opts->{'handler_return'} if defined $opts->{'handler_return'};
@@ -1511,8 +1511,8 @@ sub journal_content
 
     # add crap before </body>
     my $before_body_close = "";
-    LJ::run_hooks("insert_html_before_body_close", \$before_body_close);
-    LJ::run_hooks("insert_html_before_journalctx_body_close", \$before_body_close);
+    LJ::Hooks::run_hooks("insert_html_before_body_close", \$before_body_close);
+    LJ::Hooks::run_hooks("insert_html_before_journalctx_body_close", \$before_body_close);
 
     # Insert pagestats HTML and Javascript
     $before_body_close .= LJ::pagestats_obj()->render('journal');

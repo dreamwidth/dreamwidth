@@ -108,7 +108,7 @@
         $body .= "</form>\n\n";
 
         # show pregenerate options
-        $body .= LJ::run_hook('poll_pregeneration_html', $u, $authas);
+        $body .= LJ::Hooks::run_hook('poll_pregeneration_html', $u, $authas);
     }
 
     # does the remote or selected user have the 'makepoll' cap?
@@ -704,7 +704,7 @@
 
     # should we pregenerate something?
     if (my $pgid = $GET{'pregen'}+0) {
-        $poll = LJ::run_hook('pregenerate_poll', $u, $pgid);
+        $poll = LJ::Hooks::run_hook('pregenerate_poll', $u, $pgid);
     }
 
     # process post input

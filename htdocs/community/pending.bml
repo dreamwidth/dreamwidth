@@ -89,7 +89,7 @@ body<=
                 } else {
                     LJ::set_rel($c, $us->{$id}, 'B');
                     $c->log_event('ban_set', { actiontarget => $id, remote => $remote });
-                    LJ::run_hooks('ban_set', $c, $us->{$id});
+                    LJ::Hooks::run_hooks('ban_set', $c, $us->{$id});
                     $banned++;
 
                     LJ::reject_pending_member($cid, $id); # only in case of successful ban

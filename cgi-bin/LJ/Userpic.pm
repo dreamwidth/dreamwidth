@@ -291,7 +291,7 @@ sub max_allowed_bytes {
 sub url {
     my $self = shift;
 
-    if (my $hook_path = LJ::run_hook('construct_userpic_url', $self)) {
+    if (my $hook_path = LJ::Hooks::run_hook('construct_userpic_url', $self)) {
         return $hook_path;
     }
 

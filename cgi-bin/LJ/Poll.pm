@@ -260,13 +260,13 @@ sub new_from_html {
                 $popts{whoview} = "trusted" if $popts{whoview} eq "friends";
 
                 my $journal = LJ::load_userid($iteminfo->{posterid});
-                if (LJ::run_hook("poll_unique_prop_is_enabled", $journal)) {
+                if (LJ::Hooks::run_hook("poll_unique_prop_is_enabled", $journal)) {
                     $popts{props}->{unique} = $opts->{unique} ? 1 : 0;
                 }
-                if (LJ::run_hook("poll_createdate_prop_is_enabled", $journal)) {
+                if (LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $journal)) {
                     $popts{props}->{createdate} = $opts->{createdate} || undef;
                 }
-                LJ::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
+                LJ::Hooks::run_hook('get_more_options_from_poll', finalopts => \%popts, givenopts => $opts, journalu => $journal);
 
                 if ($popts{'whovote'} ne "all" &&
                     $popts{'whovote'} ne "trusted")
@@ -716,14 +716,14 @@ sub is_owner {
 sub is_unique {
     my $self = shift;
 
-    return LJ::run_hook("poll_unique_prop_is_enabled", $self->poster) && $self->prop("unique") ? 1 : 0;
+    return LJ::Hooks::run_hook("poll_unique_prop_is_enabled", $self->poster) && $self->prop("unique") ? 1 : 0;
 }
 
 # poll requires voters to be created on or before a certain date
 sub is_createdate_restricted {
     my $self = shift;
 
-    return LJ::run_hook("poll_createdate_prop_is_enabled", $self->poster) && $self->prop("createdate") ? 1 : 0;
+    return LJ::Hooks::run_hook("poll_createdate_prop_is_enabled", $self->poster) && $self->prop("createdate") ? 1 : 0;
 }
 
 # do we have a valid poll?
@@ -1155,7 +1155,7 @@ sub can_vote {
         }
     }
 
-    my $can_vote_override = LJ::run_hook("can_vote_poll_override", $self);
+    my $can_vote_override = LJ::Hooks::run_hook("can_vote_poll_override", $self);
     return 0 unless !defined $can_vote_override || $can_vote_override;
 
     return 1;

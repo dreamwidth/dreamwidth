@@ -15,8 +15,9 @@
 package DW::Hooks::SSL;
 
 use strict;
+use LJ::Hooks;
 
-LJ::register_hook( 'ssl_check', sub {
+LJ::Hooks::register_hook( 'ssl_check', sub {
     my $r = $_[0]->{r}
         or return 0;
 

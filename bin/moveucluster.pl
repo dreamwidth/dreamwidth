@@ -554,7 +554,7 @@ sub moveUser {
         } else {
             die "Could not load module LJ::Event::UserExpunged: $@";
         }
-        LJ::run_hooks('purged_user', $u);
+        LJ::Hooks::run_hooks('purged_user', $u);
 
         return 1;
     }

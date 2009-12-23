@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <?_code
 {
-    LJ::run_hook('trans_editpage_bml_postsave_begin');
+    LJ::Hooks::run_hook('trans_editpage_bml_postsave_begin');
     return LJ::res_includes();
 }
  _code?>
@@ -335,8 +335,8 @@
              push @errors, $msg;
          }
 
-         push @info, LJ::run_hook('trans_editpage_bml_postsave', $opts)
-             if LJ::are_hooks('trans_editpage_bml_postsave');
+         push @info, LJ::Hooks::run_hook('trans_editpage_bml_postsave', $opts)
+             if LJ::Hooks::are_hooks('trans_editpage_bml_postsave');
      }
 
      $dbh ||= LJ::get_db_writer();

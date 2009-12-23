@@ -117,7 +117,7 @@ list<=
 _code?>
 
 <?_code
-    return LJ::run_hook('extra_manage_setting');
+    return LJ::Hooks::run_hook('extra_manage_setting');
 _code?>
 
 <?_code
@@ -206,7 +206,7 @@ block?>
 <?_code 
 {
     my $u = $BMLCodeBlock::u; my $ret;
-    LJ::run_hook('control_panel_column', $u, \$ret); 
+    LJ::Hooks::run_hook('control_panel_column', $u, \$ret); 
     return $ret;
 }
 _code?>
@@ -256,7 +256,7 @@ pretitle<=
     my $u = $BMLCodeBlock::u; my $ret;
     
     # user switcher
-    LJ::run_hook('control_panel_extra_info', $u, \$ret) if $u;
+    LJ::Hooks::run_hook('control_panel_extra_info', $u, \$ret) if $u;
     return $ret;
 }
 _code?>

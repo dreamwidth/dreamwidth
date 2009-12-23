@@ -577,7 +577,7 @@ sub maintainer_linkbar {
     my $username = $comm->user;
     my @links;
 
-    my %manage_link_info = LJ::run_hook('community_manage_link_info', $username);
+    my %manage_link_info = LJ::Hooks::run_hook('community_manage_link_info', $username);
     if (keys %manage_link_info) {
         push @links, $page eq "account" ?
             "<strong>$manage_link_info{text}</strong>" :

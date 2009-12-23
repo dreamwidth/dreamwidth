@@ -17,7 +17,10 @@
 
 package DW::Hooks::NavStrip;
 
-LJ::register_hook( 'page_control_strip_options', sub {
+use strict;
+use LJ::Hooks;
+
+LJ::Hooks::register_hook( 'page_control_strip_options', sub {
     # if you add to the middle of the list, existing preferences will *break*
     return qw(
         journal.this
@@ -26,7 +29,7 @@ LJ::register_hook( 'page_control_strip_options', sub {
     );
 });
 
-LJ::register_hook( 'show_control_strip', sub {
+LJ::Hooks::register_hook( 'show_control_strip', sub {
 
     return undef unless $LJ::USE_CONTROL_STRIP;
     return undef unless LJ::is_enabled( 'control_strip' );
@@ -40,7 +43,7 @@ LJ::register_hook( 'show_control_strip', sub {
     # don't display if any of these are unavailable
     return undef unless $r && $journal;
 
-    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
+    my @pageoptions = LJ::Hooks::run_hook( 'page_control_strip_options' );
     return undef unless @pageoptions;
 
     my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0..$#pageoptions;
@@ -69,7 +72,7 @@ LJ::register_hook( 'show_control_strip', sub {
     return undef;
 });
 
-LJ::register_hook( 'control_strip_stylesheet_link', sub {
+LJ::Hooks::register_hook( 'control_strip_stylesheet_link', sub {
 
     my $remote = LJ::get_remote();
     my $r = DW::Request->get;

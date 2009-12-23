@@ -146,7 +146,7 @@ sub expunge_userpic {
     LJ::Userpic->delete_cache( $u );
 
     # call the hook and get out of here
-    my @rval = LJ::run_hooks( 'expunge_userpic', $picid, $u->userid );
+    my @rval = LJ::Hooks::run_hooks( 'expunge_userpic', $picid, $u->userid );
     return ( $u->userid, map {$_->[0]} grep {$_ && @$_ && $_->[0]} @rval );
 }
 

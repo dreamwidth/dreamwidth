@@ -193,7 +193,7 @@ body<=
     # See if we should inject QuickReply javascript
     LJ::load_user_props($remote, "opt_no_quickreply");
 
-    LJ::run_hooks("need_res_for_journals", $u);
+    LJ::Hooks::run_hooks("need_res_for_journals", $u);
     LJ::need_res( qw( js/thread_expander.js stc/talkpage.css ) );
 
     if (($remote && !$remote->{'opt_no_quickreply'}) && !$nocomments) {
@@ -246,7 +246,7 @@ body<=
     $ret .= "<table id='poster'><tr>";
 
     my $userpic = $entry->userpic;
-    LJ::run_hook('notify_event_displayed', $entry);
+    LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     # Build the userpic image tag for the entry's userpic
     my %userpics;

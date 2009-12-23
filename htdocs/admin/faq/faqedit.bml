@@ -180,11 +180,11 @@ body<=
             # from false to true. Should that be checked/enforced here instead?
             # FIXME: do we even need that hook? It looks like LJ only ever used
             # it to add stuff to LJ Talk FAQs, for Gizmo sponsorship.
-            LJ::run_hook( "faq.$id.transform", $remote, answer => \$a_html,
+            LJ::Hooks::run_hook( "faq.$id.transform", $remote, answer => \$a_html,
                           question => \$q_html, summary => \$s_html,
                           display_summary => \$display_summary,
                           display_answer => \$display_answer )
-                if LJ::are_hooks( "faq.$id.transform" );
+                if LJ::Hooks::are_hooks( "faq.$id.transform" );
 
             # display output
             $ret .= "<hr /><?h1 $q_html h1?>";

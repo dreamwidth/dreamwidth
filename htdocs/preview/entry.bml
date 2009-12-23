@@ -57,7 +57,7 @@
         my $get_styleinfo = sub {
             if ( $u->{'stylesys'} == 2 ) {
                 my $forceflag = 0;
-                LJ::run_hooks("force_s1", $u, \$forceflag);
+                LJ::Hooks::run_hooks("force_s1", $u, \$forceflag);
 
                 # check whether to use custom comment pages
                 $ctx = LJ::S2::s2_context( $u->{s2_style} );

@@ -314,7 +314,7 @@ sub getfriendspage
         delete $_->{posterid};
     }
 
-    LJ::run_hooks("getfriendspage", { 'userid' => $u->userid, });
+    LJ::Hooks::run_hooks("getfriendspage", { 'userid' => $u->userid, });
 
     return { 'entries' => [ @res ] };
 }
@@ -1050,7 +1050,7 @@ sub postevent
         $flags->{no_xpost} = 1;
     }
 
-    return undef unless LJ::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
+    return undef unless LJ::Hooks::run_hook('post_noauth', $req) || authenticate($req, $err, $flags);
 
     # if going through mod queue, then we know they're permitted to post at least this entry
     return undef unless check_altusage($req, $err, $flags) || $flags->{nomod};
@@ -1559,7 +1559,7 @@ sub postevent
     }
 
     # run local site-specific actions
-    LJ::run_hooks("postpost", {
+    LJ::Hooks::run_hooks("postpost", {
         'itemid'    => $jitemid,
         'anum'      => $anum,
         'journal'   => $uowner,
@@ -2007,7 +2007,7 @@ sub editevent
     my @jobs;
     LJ::Feed::generate_hubbub_jobs( $uowner, \@jobs ) unless $uowner->is_syndicated;
 
-    LJ::run_hooks( "editpost", $entry, \@jobs );
+    LJ::Hooks::run_hooks( "editpost", $entry, \@jobs );
 
     my $sclient = LJ::theschwartz();
     if ( $sclient && @jobs ) {
@@ -2703,7 +2703,7 @@ sub hash_menus
                   'url' => "$LJ::SITEROOT/support/", }
                 ];
 
-    LJ::run_hooks("modify_login_menu", {
+    LJ::Hooks::run_hooks("modify_login_menu", {
         'menu' => $menu,
         'u' => $u,
         'user' => $user,

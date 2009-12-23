@@ -286,7 +286,7 @@ sub module_iframe_tag {
                                 ['E', 'lj-template', {}],
                                 );
 
-                    $embedcodes = LJ::run_hook('expand_template_video', \@tags);
+                    $embedcodes = LJ::Hooks::run_hook('expand_template_video', \@tags);
 
                     $found_embed = 1 if $embedcodes;
                     $found_embed &&= $embedcodes !~ /Invalid video/i;

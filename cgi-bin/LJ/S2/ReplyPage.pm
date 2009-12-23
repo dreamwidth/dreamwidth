@@ -69,7 +69,7 @@ sub ReplyPage
     }
 
     $p->{'entry'} = $s2entry;
-    LJ::run_hook('notify_event_displayed', $entry);
+    LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     # setup the replying item
     my $replyto = $s2entry;

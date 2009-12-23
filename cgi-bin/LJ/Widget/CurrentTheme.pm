@@ -35,7 +35,7 @@ sub render_body {
 
     my $showarg = $opts{show} != 12 ? "&show=$opts{show}" : "";
     my $no_theme_chooser = defined $opts{no_theme_chooser} ? $opts{no_theme_chooser} : 0;
-    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
 
     my $theme = LJ::Customize->get_current_theme($u);
     my $userlay = LJ::S2::get_layers_of_user($u);
@@ -53,7 +53,7 @@ sub render_body {
     $ret .= "<p class='theme-current-desc'>";
     if ($designer) {
         my $designer_link = "<a href='$LJ::SITEROOT/customize/$getextra${getsep}designer=" . LJ::eurl($designer) . "$showarg' class='theme-current-designer'>$designer</a>";
-        if (LJ::run_hook("layer_is_special", $theme->uniq)) {
+        if (LJ::Hooks::run_hook("layer_is_special", $theme->uniq)) {
             $ret .= $class->ml('widget.currenttheme.specialdesc', {'aopts' => $special_link_opts, 'designer' => $designer_link});
         } else {
             $ret .= $class->ml('widget.currenttheme.desc', {'layout' => $layout_link, 'designer' => $designer_link});

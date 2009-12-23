@@ -74,7 +74,7 @@ sub make_journal
     }
 
     my $lang = $remote && $remote->prop( "browselang" );
-    LJ::run_hook('set_s2bml_lang', $ctx, \$lang);
+    LJ::Hooks::run_hook('set_s2bml_lang', $ctx, \$lang);
 
     # note that's it's very important to pass LJ::Lang::get_text here explicitly
     # rather than relying on BML::set_language's fallback mechanism, which won't
@@ -152,7 +152,7 @@ sub make_journal
     return $page if $page && ref $page ne 'HASH';
 
     # Include any head stc or js head content
-    LJ::run_hooks("need_res_for_journals", $u);
+    LJ::Hooks::run_hooks("need_res_for_journals", $u);
     my $extra_js = LJ::statusvis_message_js($u);
     $page->{head_content} .= LJ::res_includes() . $extra_js;
 
@@ -533,7 +533,7 @@ sub get_layers_of_user
 {
     my ($u, $is_system, $infokeys) = @_;
 
-    my $subst_user = LJ::run_hook("substitute_s2_layers_user", $u);
+    my $subst_user = LJ::Hooks::run_hook("substitute_s2_layers_user", $u);
     if (defined $subst_user && LJ::isu($subst_user)) {
         $u = $subst_user;
     }
@@ -845,7 +845,7 @@ sub escape_prop_value {
         }
         elsif ($mode eq 'css') {
             my $clean = $css_c->clean($_[0]);
-            LJ::run_hook('css_cleaner_transform', \$clean);
+            LJ::Hooks::run_hook('css_cleaner_transform', \$clean);
             $_[0] = $clean;
         }
         elsif ($mode eq 'css-attrib') {
@@ -1478,7 +1478,7 @@ sub get_layout_themes
             next unless /^\d+$/;
             my $v = $src->{$_};
             $v->{b2layer} = $src->{$src->{$_}->{b2lid}}; # include layout information
-            my $is_active = LJ::run_hook("layer_is_active", $v->{'uniq'});
+            my $is_active = LJ::Hooks::run_hook("layer_is_active", $v->{'uniq'});
             push @themes, $v if
                 ($v->{type} eq "theme" &&
                  $layid &&
@@ -1573,7 +1573,7 @@ sub can_use_layer
     my ($u, $uniq) = @_;  # $uniq = redist_uniq value
     return 1 if $u->can_create_s2_styles;
     return 0 unless $uniq;
-    return 1 if LJ::run_hook('s2_can_use_layer', {
+    return 1 if LJ::Hooks::run_hook('s2_can_use_layer', {
         u => $u,
         uniq => $uniq,
     });
@@ -1832,7 +1832,7 @@ sub Entry
         $e->{'mood_icon'} = Image($pic{'pic'}, $pic{'w'}, $pic{'h'})
             if LJ::get_mood_picture($theme, $mid, \%pic);
         if (my $mood = LJ::mood_name($mid)) {
-            my $extra = LJ::run_hook("current_mood_extra", $theme) || "";
+            my $extra = LJ::Hooks::run_hook("current_mood_extra", $theme) || "";
             $e->{'metadata'}->{'mood'} = "$mood$extra";
         }
     }
@@ -2090,8 +2090,8 @@ sub Page
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset=' . $opts->{'saycharset'} . "\" />\n";
     }
 
-    if (LJ::are_hooks('s2_head_content_extra')) {
-        $p->{head_content} .= LJ::run_hook('s2_head_content_extra', $remote, $opts->{r});
+    if (LJ::Hooks::are_hooks('s2_head_content_extra')) {
+        $p->{head_content} .= LJ::Hooks::run_hook('s2_head_content_extra', $remote, $opts->{r});
     }
 
     # Automatic Discovery of RSS/Atom
@@ -2114,9 +2114,9 @@ sub Page
     $p->{head_content} .= qq{<link rel="help" href="$LJ::SITEROOT/support/faq" />\n};
 
     # Control strip
-    my $show_control_strip = LJ::run_hook( 'show_control_strip' );
+    my $show_control_strip = LJ::Hooks::run_hook( 'show_control_strip' );
     if ($show_control_strip) {
-        LJ::run_hook( 'control_strip_stylesheet_link' );
+        LJ::Hooks::run_hook( 'control_strip_stylesheet_link' );
         $p->{'head_content'} .= LJ::control_strip_js_inject( user => $u->{user} );
     }
 
@@ -2409,7 +2409,7 @@ sub end_css {
     my $cleaner = LJ::CSS::Cleaner->new;
 
     my $clean = $cleaner->clean($css);
-    LJ::run_hook('css_cleaner_transform', \$clean);
+    LJ::Hooks::run_hook('css_cleaner_transform', \$clean);
 
     $sc->{_start_css_pout}->("/* Cleaned CSS: */\n" .
                              $clean .
@@ -2599,7 +2599,7 @@ sub viewer_sees_control_strip
     return 0 unless $LJ::USE_CONTROL_STRIP;
 
     my $r = BML::get_request();
-    return LJ::run_hook( 'show_control_strip' );
+    return LJ::Hooks::run_hook( 'show_control_strip' );
 }
 
 # maintained only for compatibility with core1, eventually these can be removed
@@ -2620,7 +2620,7 @@ sub control_strip_logged_out_userpic_css
     my $u = LJ::load_userid($r->notes->{journalid});
     return '' unless $u;
 
-    return LJ::run_hook('control_strip_userpic', $u);
+    return LJ::Hooks::run_hook('control_strip_userpic', $u);
 }
 
 sub control_strip_logged_out_full_userpic_css
@@ -2629,7 +2629,7 @@ sub control_strip_logged_out_full_userpic_css
     my $u = LJ::load_userid($r->notes->{journalid});
     return '' unless $u;
 
-    return LJ::run_hook('control_strip_loggedout_userpic', $u);
+    return LJ::Hooks::run_hook('control_strip_loggedout_userpic', $u);
 }
 
 sub weekdays
@@ -2682,11 +2682,11 @@ sub style_is_active {
     my $themeid = $ctx->[S2::LAYERLIST]->[2];
     my $pub = LJ::S2::get_public_layers();
 
-    my $layout_is_active = LJ::run_hook("layer_is_active", $pub->{$layoutid}->{uniq});
+    my $layout_is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$layoutid}->{uniq});
     return 0 unless !defined $layout_is_active || $layout_is_active;
 
     if (defined $themeid) {
-        my $theme_is_active = LJ::run_hook("layer_is_active", $pub->{$themeid}->{uniq});
+        my $theme_is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$themeid}->{uniq});
         return 0 unless !defined $theme_is_active || $theme_is_active;
     }
 

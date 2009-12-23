@@ -146,7 +146,7 @@ body<=
 
             # ... and migrate their interests to the right table
             $cu->lazy_interests_cleanup;
-            LJ::run_hook("change_journal_type", $cu);
+            LJ::Hooks::run_hook("change_journal_type", $cu);
 
             my $moderated = $POST{moderated} ? 1 : 0;
             my $hidejoinpostlink = $POST{showjoinpostlink} ? 0 : 1;

@@ -121,7 +121,7 @@
     }
 
     sleep(1.5) if $LJ::IS_DEV_SERVER;
-    my %extrainfo = LJ::run_hook("ctxpopup_extra_info", $u);
+    my %extrainfo = LJ::Hooks::run_hook("ctxpopup_extra_info", $u);
     %ret = (%ret, %extrainfo);
 
     $ret{is_banned} = LJ::is_banned($u,$remote) ? 1 : 0

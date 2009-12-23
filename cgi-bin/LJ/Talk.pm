@@ -1292,7 +1292,7 @@ sub talkform {
     # special link to create an account
     my $create_link;
     if (!$remote || defined $oid_identity) {
-        $create_link = LJ::run_hook("override_create_link_on_talkpost_form", $journalu);
+        $create_link = LJ::Hooks::run_hook("override_create_link_on_talkpost_form", $journalu);
         $ret .= $create_link;
     }
 
@@ -2318,7 +2318,7 @@ sub mail_comments {
                 # it is possible to register a hook which will intercept this entire conditional block
                 # and do its own logic... if that's the case and the hook returns true, then we'll
                 # skip creating the email notification
-                && ! LJ::run_hook("talklib_email_parent_comment_poster", 
+                && ! LJ::Hooks::run_hook("talklib_email_parent_comment_poster", 
                                    user => $paru, journal => $journalu, talkid => $comment->{talkid}
                                  )
                 )
@@ -3161,7 +3161,7 @@ sub init {
     }
 
     if ($up) {
-        if ($up->{'status'} eq "N" && !$up->is_identity && !LJ::run_hook("journal_allows_unvalidated_commenting", $journalu)) {
+        if ($up->{'status'} eq "N" && !$up->is_identity && !LJ::Hooks::run_hook("journal_allows_unvalidated_commenting", $journalu)) {
             $err->(BML::ml("$SC.error.noverify2", {'aopts' => "href='$LJ::SITEROOT/register'"}));
         }
 
@@ -3448,7 +3448,7 @@ sub post_comment {
     # cluster tracking
     LJ::mark_user_active($comment->{u}, 'comment');
 
-    LJ::run_hooks('new_comment', $journalu->{userid}, $item->{itemid}, $jtalkid);
+    LJ::Hooks::run_hooks('new_comment', $journalu->{userid}, $item->{itemid}, $jtalkid);
 
     return 1;
 }
@@ -3513,7 +3513,7 @@ sub edit_comment {
     # send some emails
     mail_comments($entryu, $journalu, $parent, $comment, $item);
 
-    LJ::run_hooks('edit_comment', $journalu->{userid}, $item->{itemid}, $comment->{talkid});
+    LJ::Hooks::run_hooks('edit_comment', $journalu->{userid}, $item->{itemid}, $comment->{talkid});
 
     return 1;
 }

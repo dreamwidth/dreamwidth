@@ -121,14 +121,14 @@ sub work {
     return dequeue("Virus found") if virus_check($entity);
 
     # see if a hook is registered to handle this message
-    if (LJ::are_hooks("incoming_email_handler")) {
+    if (LJ::Hooks::are_hooks("incoming_email_handler")) {
 
         my $errmsg = "";
         my $retry  = 0;
 
         # incoming_email_handler hook will return a true value
         # if it chose to handle this incoming email
-        my $rv = LJ::run_hook("incoming_email_handler",
+        my $rv = LJ::Hooks::run_hook("incoming_email_handler",
                               entity => $entity,
                               errmsg => \$errmsg,
                               retry  => \$retry);

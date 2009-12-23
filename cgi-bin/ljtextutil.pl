@@ -264,8 +264,8 @@ sub is_ascii {
 sub is_utf8 {
     my $text = shift;
 
-    if (LJ::are_hooks("is_utf8")) {
-        return LJ::run_hook("is_utf8", $text);
+    if (LJ::Hooks::are_hooks("is_utf8")) {
+        return LJ::Hooks::run_hook("is_utf8", $text);
     }
 
     require Unicode::CheckUTF8;

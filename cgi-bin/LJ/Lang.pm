@@ -149,7 +149,7 @@ sub get_root_lang
     my $dom = shift;  # from, say, get_dom
     return undef unless ref $dom eq "HASH";
 
-    my $lang_override = LJ::run_hook("root_lang_override", $dom);
+    my $lang_override = LJ::Hooks::run_hook("root_lang_override", $dom);
     return get_lang($lang_override) if $lang_override;
 
     foreach (keys %{$dom->{'langs'}}) {
@@ -355,8 +355,8 @@ sub web_set_text {
     my $resp = '';
     my $hook_ran = 0;
 
-    if (LJ::are_hooks('web_set_text')) {
-        $hook_ran = LJ::run_hook('web_set_text', $dmid, $lncode, $itcode, $text, $opts);
+    if (LJ::Hooks::are_hooks('web_set_text')) {
+        $hook_ran = LJ::Hooks::run_hook('web_set_text', $dmid, $lncode, $itcode, $text, $opts);
     }
 
     # save in the db

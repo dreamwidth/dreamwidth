@@ -58,7 +58,7 @@
             if ($lay->{'type'} eq 'layout' && $GET{'expand'} != $lid) {
                 my $num_children = 0;
                 foreach my $child (@{$lay->{'children'}}) {
-                    my $is_active = LJ::run_hook("layer_is_active", $pub->{$child}->{uniq});
+                    my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$child}->{uniq});
                     $num_children++ if !defined $is_active || $is_active;
                 }
                 $body .= "<ul><li>[<a href='layerbrowse?expand=$lid'>";
@@ -75,7 +75,7 @@
             # expand children
             $body .= "<ul>";
             foreach (@children) {
-                my $is_active = LJ::run_hook("layer_is_active", $pub->{$_}->{uniq});
+                my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$_}->{uniq});
                 next unless !defined $is_active || $is_active;
                 $self->($self, $_);
             }
@@ -87,7 +87,7 @@
         # iterate through core layers
         $body .= "<ul>";
         foreach (grep { $pub->{$_}->{'b2lid'} == 0 } grep { /^\d+$/ } keys %$pub) {
-            my $is_active = LJ::run_hook("layer_is_active", $pub->{$_}->{uniq});
+            my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$_}->{uniq});
             next unless !defined $is_active || $is_active;
             $recurse->($recurse, $_);  # start from the top
         }

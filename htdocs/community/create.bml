@@ -98,7 +98,7 @@ SUBMIT:
         my $ret;
         my $redirect;
         my $stop_output;
-        LJ::run_hooks("create.bml_postsession", {
+        LJ::Hooks::run_hooks("create.bml_postsession", {
             post => \%POST,
             u => $u,
             type => 'community',
@@ -171,7 +171,7 @@ SUBMIT:
         $ret .= "<label for='memclosed'> $ML{'/community/settings.bml.label.closedmemb2'}</label></p>";
         $ret .= "</div></div></li>";
 
-        LJ::run_hooks("create.bml_opts", {
+        LJ::Hooks::run_hooks("create.bml_opts", {
             post => \%POST,
             get  => \%GET,
             ret  => \$ret,

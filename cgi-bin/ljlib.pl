@@ -37,6 +37,7 @@ use DBI::Role;
 use Digest::MD5 ();
 use Digest::SHA1 ();
 use HTTP::Date ();
+use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
 use LJ::User;      # has a bunch of pkg LJ, non-OO methods at bottom
@@ -119,7 +120,6 @@ require "ljtextutil.pl";
 require "ljtimeutil.pl";
 require "ljcapabilities.pl";
 require "ljmood.pl";
-require "ljhooks.pl";
 require "ljrelation.pl";
 require "ljuserpics.pl";
 
@@ -1394,7 +1394,7 @@ sub start_request
             if $LJ::IS_DEV_SERVER;
     }
 
-    LJ::run_hooks("start_request");
+    LJ::Hooks::run_hooks("start_request");
 
     return 1;
 }
@@ -1447,7 +1447,7 @@ sub server_down_html
 sub get_cluster_description {
     my ($cid) = shift;
     $cid += 0;
-    my $text = LJ::run_hook('cluster_description', $cid);
+    my $text = LJ::Hooks::run_hook('cluster_description', $cid);
     return $text if $text;
 
     # default behavior just returns clusterid
@@ -1821,7 +1821,7 @@ sub delete_comments {
     foreach my $talkid (@talkids) {
         my $cmt = LJ::Comment->new($u, jtalkid => $talkid);
         push @jobs, LJ::EventLogRecord::DeleteComment->new($cmt)->fire_job;
-        LJ::run_hooks('delete_comment', $jid, $nodeid, $talkid); # jitemid, jtalkid
+        LJ::Hooks::run_hooks('delete_comment', $jid, $nodeid, $talkid); # jitemid, jtalkid
     }
 
     my $sclient = LJ::theschwartz();
@@ -2101,7 +2101,7 @@ sub alloc_global_counter
     # $dom can come as a direct argument or as a string to be mapped via hook
     my $dom_unmod = $dom;
     unless ( $dom =~ /^[ESLPAHCMFKI]$/ ) {
-        $dom = LJ::run_hook('map_global_counter_domain', $dom);
+        $dom = LJ::Hooks::run_hook('map_global_counter_domain', $dom);
     }
     return LJ::errobj("InvalidParameters", params => { dom => $dom_unmod })->cond_throw
         unless defined $dom;
@@ -2153,7 +2153,7 @@ sub alloc_global_counter
         # the maximum used item id is
         $newmax = 0;
     } else {
-        $newmax = LJ::run_hook('global_counter_init_value', $dom);
+        $newmax = LJ::Hooks::run_hook('global_counter_init_value', $dom);
         die "No alloc_global_counter initalizer for domain '$dom'"
             unless defined $newmax;
     }

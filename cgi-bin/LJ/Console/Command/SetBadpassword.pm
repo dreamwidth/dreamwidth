@@ -79,7 +79,7 @@ sub execute {
     LJ::statushistory_add($u, $remote, "set_badpassword", $msg);
 
     # run the hook
-    my $hres = LJ::run_hook("set_badpassword", {
+    my $hres = LJ::Hooks::run_hook("set_badpassword", {
         'user'   => $u,
         'on'     => $on,
         'reason' => $reason,

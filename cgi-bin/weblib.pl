@@ -1348,7 +1348,7 @@ sub entry_form {
         ### Other Posting Options
         {
         $out .= "<div id='infobox'>\n";
-        $out .= LJ::run_hook('entryforminfo', $opts->{'usejournal'}, $opts->{'remote'});
+        $out .= LJ::Hooks::run_hook('entryforminfo', $opts->{'usejournal'}, $opts->{'remote'});
         $out .= "</div><!-- end #infobox -->\n\n";
         }
 
@@ -1748,7 +1748,7 @@ MOODS
             }
 
             ### Other Posting Options
-            $out .= LJ::run_hook('add_extra_entryform_fields', { opts => $opts, tabindex => $tabindex });
+            $out .= LJ::Hooks::run_hook('add_extra_entryform_fields', { opts => $opts, tabindex => $tabindex });
 
             $out .= "<span class='inputgroup-right'>";
             # extra submit button so make sure it posts the form when person presses enter key
@@ -2255,7 +2255,7 @@ sub entry_form_decode
     }
 
     # process site-specific options
-    LJ::run_hooks('decode_entry_form', $POST, $req);
+    LJ::Hooks::run_hooks('decode_entry_form', $POST, $req);
 
     return $req;
 }
@@ -2562,7 +2562,7 @@ sub control_strip
 
     my $journal = LJ::load_user($user);
     my $show_strip = 1;
-    $show_strip = LJ::run_hook( "show_control_strip" ) if ( LJ::are_hooks( "show_control_strip" ) );
+    $show_strip = LJ::Hooks::run_hook( "show_control_strip" ) if ( LJ::Hooks::are_hooks( "show_control_strip" ) );
 
     return "" unless $show_strip;
 
@@ -2576,7 +2576,7 @@ sub control_strip
     my $uri = $baseuri ? "http://$baseuri" : "http://" . $r->header_in('Host') . $r->uri;
     $uri .= "$querysep$args";
     my $euri = LJ::eurl($uri);
-    my $create_link = LJ::run_hook("override_create_link_on_navstrip", $journal) || "<a href='$LJ::SITEROOT/create'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>";
+    my $create_link = LJ::Hooks::run_hook("override_create_link_on_navstrip", $journal) || "<a href='$LJ::SITEROOT/create'>" . BML::ml('web.controlstrip.links.create', {'sitename' => $LJ::SITENAMESHORT}) . "</a>";
 
     # Build up some common links
     my %links = (
@@ -2589,7 +2589,7 @@ sub control_strip
                  'invite_friends'    => "<a href='$LJ::SITEROOT/manage/circle/invite'>$BML::ML{'web.controlstrip.links.invitefriends'}</a>",
                  'create_account'    => $create_link,
                  'syndicated_list'   => "<a href='$LJ::SITEROOT/syn/list'>$BML::ML{'web.controlstrip.links.popfeeds'}</a>",
-                 'learn_more'        => LJ::run_hook('control_strip_learnmore_link') || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
+                 'learn_more'        => LJ::Hooks::run_hook('control_strip_learnmore_link') || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
                  'explore'           => "<a href='$LJ::SITEROOT/explore/'>" . BML::ml('web.controlstrip.links.explore', { sitenameabbrev => $LJ::SITENAMEABBREV }) . "</a>",
                  'confirm'           => "<a href='$LJ::SITEROOT/register'>$BML::ML{'web.controlstrip.links.confirm'}</a>",
                  );
@@ -2874,17 +2874,17 @@ sub control_strip
             $ret .= "&nbsp;";
         }
 
-        $ret .= LJ::run_hook('control_strip_logo', $remote, $journal);
+        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal);
         $ret .= "</td>";
 
     } else {
 
-        my $show_login_form = LJ::run_hook("show_control_strip_login_form", $journal);
+        my $show_login_form = LJ::Hooks::run_hook("show_control_strip_login_form", $journal);
         $show_login_form = 1 if !defined $show_login_form;
 
         if ($show_login_form) {
             my $chal = LJ::challenge_generate(300);
-            my $contents = LJ::run_hook('control_strip_userpic_contents', $euri) || "&nbsp;";
+            my $contents = LJ::Hooks::run_hook('control_strip_userpic_contents', $euri) || "&nbsp;";
             $ret .= <<"LOGIN_BAR";
                 <td id='lj_controlstrip_userpic'>$contents</td>
                 <td id='lj_controlstrip_login' style='background-image: none;' nowrap='nowrap'><form id="login" class="lj_login_form" action="$LJ::SITEROOT/login?ret=1" method="post"><div>
@@ -2909,7 +2909,7 @@ LOGIN_BAR
 
             $ret .= '</div></form></td>';
         } else {
-            my $contents = LJ::run_hook('control_strip_loggedout_userpic_contents', $euri) || "&nbsp;";
+            my $contents = LJ::Hooks::run_hook('control_strip_loggedout_userpic_contents', $euri) || "&nbsp;";
             $ret .= "<td id='lj_controlstrip_loggedout_userpic'>$contents</td>";
         }
 
@@ -2934,7 +2934,7 @@ LOGIN_BAR
         $ret .= "<br />";
         $ret .= "$links{'login'}&nbsp;&nbsp; " unless $show_login_form;
         $ret .= "$links{'create_account'}&nbsp;&nbsp; $links{'learn_more'}";
-        $ret .= LJ::run_hook('control_strip_logo', $remote, $journal);
+        $ret .= LJ::Hooks::run_hook('control_strip_logo', $remote, $journal);
         $ret .= "</td>";
     }
 
@@ -3264,7 +3264,7 @@ sub subscribe_interface {
                 my $altrow_class = $sub_count % 2 == 1 ? "altrow" : "";
                 my $hidden = $pending_sub->selected($u) ? "" : " style='visibility: hidden;'";
                 my $sub_title = " " . $pending_sub->htmlcontrol_label($u);
-                $sub_title = LJ::run_hook("disabled_esn_sub", $u) . $sub_title if $pending_sub->disabled($u);
+                $sub_title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $sub_title if $pending_sub->disabled($u);
 
                 $cat_html .= "<tr class='$disabled_class $altrow_class'>";
                 $cat_html .= "<td>" . $pending_sub->htmlcontrol($u) . "$sub_title*</td>";
@@ -3291,7 +3291,7 @@ sub subscribe_interface {
             my $subscribed = ! $pending_sub->pending;
 
             unless ($pending_sub->enabled) {
-                $title = LJ::run_hook("disabled_esn_sub", $u) . $title;
+                $title = LJ::Hooks::run_hook("disabled_esn_sub", $u) . $title;
             }
             next if ! $pending_sub->event_class->is_visible && $showtracking;
 
@@ -3643,7 +3643,7 @@ $LJ::COMMON_CODE{'autoradio_check'} = q{
 # returns HTML which should appear before </body>
 sub final_body_html {
     my $before_body_close = "";
-    LJ::run_hooks('insert_html_before_body_close', \$before_body_close);
+    LJ::Hooks::run_hooks('insert_html_before_body_close', \$before_body_close);
 
     my $pagestats_obj = LJ::pagestats_obj();
     $before_body_close .= $pagestats_obj->render
@@ -3673,7 +3673,7 @@ sub pageview_unique_string {
 # </LJFUNC>
 sub site_schemes {
     my @schemes = @LJ::SCHEMES;
-    LJ::run_hooks('modify_scheme_list', \@schemes);
+    LJ::Hooks::run_hooks('modify_scheme_list', \@schemes);
     @schemes = grep { !$_->{disabled} } @schemes;
     return @schemes;
 }

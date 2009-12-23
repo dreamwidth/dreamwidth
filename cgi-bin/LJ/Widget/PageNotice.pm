@@ -25,7 +25,7 @@ sub render_body {
 
     my $ret;
     my $remote = LJ::get_remote();
-    my $content = LJ::run_hook("page_notice_content", notice_key => $opts{notice_key});
+    my $content = LJ::Hooks::run_hook("page_notice_content", notice_key => $opts{notice_key});
 
     if ($content) {
         $ret .= $class->html_hidden({ name => "notice_key", value => $opts{notice_key}, id => "notice_key" });
@@ -47,7 +47,7 @@ sub should_render_for_remote {
     my $notice_key = $opts{notice_key};
 
     return 0 unless $notice_key;
-    return 0 unless LJ::run_hook("page_notice_content", notice_key => $notice_key);
+    return 0 unless LJ::Hooks::run_hook("page_notice_content", notice_key => $notice_key);
     return 1 unless $remote;
     return $remote->has_dismissed_page_notice($notice_key) ? 0 : 1;
 }

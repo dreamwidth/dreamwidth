@@ -54,7 +54,7 @@ sub render_body {
     $ret .= "<p><a href='$LJ::SITEROOT/random'><strong>" . $class->ml('widget.browse.extras.random') . "</strong></a><br />";
     $ret .= $class->ml('widget.browse.extras.random.desc') . "</p>";
     $ret .= "</div>";
-    $ret .= LJ::run_hook('browse_widget_extras');
+    $ret .= LJ::Hooks::run_hook('browse_widget_extras');
     $ret .= "</div>";
 
     $ret .= "</div>";

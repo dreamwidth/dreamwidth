@@ -118,7 +118,7 @@ sub render_body {
     
     $ret .= "<ul class='theme-nav-small nostyle'>";
     $ret .= "<li class='first'><a href='$LJ::SITEROOT/customize/advanced/'>" . $class->ml('widget.themenav.developer') . "</a>";
-    $ret .= LJ::run_hook('customize_advanced_area_upsell', $u) . "</li>"; 
+    $ret .= LJ::Hooks::run_hook('customize_advanced_area_upsell', $u) . "</li>"; 
     $ret .= "</ul>";
 
     $ret .= "</div>";
@@ -151,8 +151,8 @@ sub print_cat_list {
     my @special_themes = LJ::S2Theme->load_by_cat("special");
     my $special_themes_exist = 0;
     foreach my $special_theme (@special_themes) {
-        my $layout_is_active = LJ::run_hook("layer_is_active", $special_theme->layout_uniq);
-        my $theme_is_active = LJ::run_hook("layer_is_active", $special_theme->uniq);
+        my $layout_is_active = LJ::Hooks::run_hook("layer_is_active", $special_theme->layout_uniq);
+        my $theme_is_active = LJ::Hooks::run_hook("layer_is_active", $special_theme->uniq);
 
         if ($layout_is_active && $theme_is_active) {
             $special_themes_exist = 1;

@@ -102,7 +102,7 @@ body<=
            if ($admin{$id}) {
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='/update?usejournal=$user'>$ML{'.commlist.post'}</a>"}) . "&nbsp;&nbsp;";
-               $ret .= LJ::run_hook('community_manage_actionlink', $user);
+               $ret .= LJ::Hooks::run_hook('community_manage_actionlink', $user);
                $ret .= BML::ml('Actionlink', {
                    'link'=>"<a href='/manage/profile/?authas=$user'>$ML{'.commlist.actinfo2'}</a>"}) . "&nbsp;&nbsp;";
                $ret .= BML::ml('Actionlink', {

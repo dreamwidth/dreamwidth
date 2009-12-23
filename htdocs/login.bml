@@ -64,7 +64,7 @@
             my $redir_host = $1 if $POST{ret} =~ m#^http://([\.:\w-]+)#i;
         
             if ($LJ::REDIRECT_ALLOWED{$redir_host} || $redir_host eq $LJ::DOMAIN_WEB) {
-                LJ::run_hook('login_redirect_extra', $redir_host);
+                LJ::Hooks::run_hook('login_redirect_extra', $redir_host);
                 BML::redirect($POST{ret});
                 return 1;
             }
@@ -226,7 +226,7 @@
         $remote      = undef;
         $cursess = undef;
         LJ::set_remote(undef);
-        LJ::run_hooks("post_logout");
+        LJ::Hooks::run_hooks("post_logout");
     };
 
     if (LJ::did_post()) {
@@ -348,7 +348,7 @@
             my $bindip  = ($POST{'bindip'} eq "yes") ? BML::get_remote_ip() : "";
 
             $u->make_login_session($exptype, $bindip);
-            LJ::run_hook('user_login', $u);
+            LJ::Hooks::run_hook('user_login', $u);
             $cursess = $u->session;
 
             return if $want_success_redirect->();

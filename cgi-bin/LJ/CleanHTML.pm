@@ -300,7 +300,7 @@ sub clean
                     # can pass in tokens to override passing the hook the @capture array
                     my ($token, $override_capture) = @_;
                     my $capture = $override_capture ? [$token] : \@capture;
-                    my $expanded = ($name =~ /^\w+$/) ? LJ::run_hook("expand_template_$name", $capture) : "";
+                    my $expanded = ($name =~ /^\w+$/) ? LJ::Hooks::run_hook("expand_template_$name", $capture) : "";
                     $newdata .= $expanded || "<b>[Error: unknown template '" . LJ::ehtml($name) . "']</b>";
                 };
 
@@ -316,17 +316,17 @@ sub clean
 
             # Capture object and embed tags to possibly transform them into something else.
             if ($tag eq "object" || $tag eq "embed") {
-                if (LJ::are_hooks("transform_embed") && !$noexpand_embedded) {
+                if (LJ::Hooks::are_hooks("transform_embed") && !$noexpand_embedded) {
                     # XHTML style open/close tags done as a singleton shouldn't actually
                     # start a capture loop, because there won't be a close tag.
                     if ($attr->{'/'}) {
-                        $newdata .= LJ::run_hook("transform_embed", [$token],
+                        $newdata .= LJ::Hooks::run_hook("transform_embed", [$token],
                                                  nocheck => $transform_embed_nocheck, wmode => $transform_embed_wmode) || "";
                         next TOKEN;
                     }
 
                     $start_capture->($tag, $token, sub {
-                        my $expanded = LJ::run_hook("transform_embed", \@capture,
+                        my $expanded = LJ::Hooks::run_hook("transform_embed", \@capture,
                                                     nocheck => $transform_embed_nocheck, wmode => $transform_embed_wmode);
                         $newdata .= $expanded || "";
                     });
@@ -345,7 +345,7 @@ sub clean
 
             if (($tag eq "div" || $tag eq "span") && lc $attr->{class} eq "ljvideo") {
                 $start_capture->($tag, $token, sub {
-                    my $expanded = LJ::run_hook("expand_template_video", \@capture);
+                    my $expanded = LJ::Hooks::run_hook("expand_template_video", \@capture);
                     $newdata .= $expanded || "<b>[Error: unknown template 'video']</b>";
                 });
                 next TOKEN;
@@ -469,7 +469,7 @@ sub clean
                 if ( LJ::is_enabled('css_cleaner') ) {
                     my $cleaner = LJ::CSS::Cleaner->new;
                     $style = $cleaner->clean($style);
-                    LJ::run_hook('css_cleaner_transform', \$style);
+                    LJ::Hooks::run_hook('css_cleaner_transform', \$style);
                     if ($LJ::IS_DEV_SERVER) {
                         $style = "/* cleaned */\n" . $style;
                     }

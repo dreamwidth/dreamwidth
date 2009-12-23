@@ -305,7 +305,7 @@ sub create_view_rss
 
     # header
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
-    $ret .= LJ::run_hook("bot_director", "<!-- ", " -->") . "\n";
+    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->") . "\n";
     $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/' " .
             "xmlns:atom10='http://www.w3.org/2005/Atom'>\n";
 
@@ -370,7 +370,7 @@ sub create_view_rss
         }
         $ret .= "  <category>$_</category>\n" foreach map { LJ::exml($_) } @{$it->{tags} || []};
         # support 'podcasting' enclosures
-        $ret .= LJ::run_hook( "pp_rss_enclosure",
+        $ret .= LJ::Hooks::run_hook( "pp_rss_enclosure",
                 { userid => $u->{userid}, ppid => $it->{ppid} }) if $it->{ppid};
         # TODO: add author field with posterid's email address, respect communities
         $ret .= "  <lj:music>" . LJ::exml($it->{music}) . "</lj:music>\n" if $it->{music};
@@ -450,7 +450,7 @@ sub create_view_atom
             $xml->getDocumentElement->setAttribute( "idx:index", "no" );
         }
 
-        $xml->insertBefore( $xml->createComment( LJ::run_hook("bot_director") ), $xml->documentElement());
+        $xml->insertBefore( $xml->createComment( LJ::Hooks::run_hook("bot_director") ), $xml->documentElement());
 
         # attributes
         $feed->id( "urn:lj:$LJ::DOMAIN:atom1:$u->{user}" );
@@ -636,7 +636,7 @@ sub create_view_foaf {
 
     # create bare foaf document, for now
     $ret = "<?xml version='1.0'?>\n";
-    $ret .= LJ::run_hook("bot_director", "<!-- ", " -->");
+    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->");
     $ret .= "<rdf:RDF\n";
     $ret .= "   xml:lang=\"en\"\n";
     $ret .= "   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n";
@@ -847,7 +847,7 @@ sub create_view_yadis {
 
     # Local site-specific content
     # TODO: Give these hooks access to $view somehow?
-    LJ::run_hook("yadis_service_descriptors", \$ret);
+    LJ::Hooks::run_hook("yadis_service_descriptors", \$ret);
 
     $println->('</XRD></xrds:XRDS>');
     return $ret;
@@ -888,7 +888,7 @@ sub create_view_userpics {
         $xml->getDocumentElement->setAttribute( "idx:index", "no" );
     }
 
-    my $bot = LJ::run_hook("bot_director");
+    my $bot = LJ::Hooks::run_hook("bot_director");
     $xml->insertBefore( $xml->createComment( $bot ), $xml->documentElement())
         if $bot;
 
@@ -1001,7 +1001,7 @@ sub create_view_comments
 
     my $ret;
     $ret .= "<?xml version='1.0' encoding='$opts->{'saycharset'}' ?>\n";
-    $ret .= LJ::run_hook("bot_director", "<!-- ", " -->") . "\n";
+    $ret .= LJ::Hooks::run_hook("bot_director", "<!-- ", " -->") . "\n";
     $ret .= "<rss version='2.0' xmlns:lj='http://www.livejournal.org/rss/lj/1.0/'>\n";
 
     # channel attributes

@@ -92,12 +92,12 @@ sub render_body {
             sort { lc $a->name cmp lc $b->name } @themes;
     }
 
-    LJ::run_hooks("modify_theme_list", \@themes, user => $u, cat => $cat);
+    LJ::Hooks::run_hooks("modify_theme_list", \@themes, user => $u, cat => $cat);
 
     # remove any themes from the array that are not defined or whose layout or theme is not active
     for (my $i = 0; $i < @themes; $i++) {
-        my $layout_is_active = LJ::run_hook("layer_is_active", $themes[$i]->layout_uniq);
-        my $theme_is_active = LJ::run_hook("layer_is_active", $themes[$i]->uniq);
+        my $layout_is_active = LJ::Hooks::run_hook("layer_is_active", $themes[$i]->layout_uniq);
+        my $theme_is_active = LJ::Hooks::run_hook("layer_is_active", $themes[$i]->uniq);
 
         unless ((defined $themes[$i]) &&
             (!defined $layout_is_active || $layout_is_active) &&
@@ -151,14 +151,14 @@ sub render_body {
             $theme_types{current} = 1 if $theme->layoutid == $current_theme->layoutid;
         }
         $theme_types{upgrade} = 1 if !$theme->available_to($u);
-        $theme_types{special} = 1 if LJ::run_hook("layer_is_special", $theme->uniq);
+        $theme_types{special} = 1 if LJ::Hooks::run_hook("layer_is_special", $theme->uniq);
 
         
         my ($theme_class, $theme_options, $theme_icons) = ("", "", "");
         
         $theme_icons .= "<div class='theme-icons'>" if $theme_types{upgrade} || $theme_types{special};
         if ($theme_types{current}) {
-            my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $u);
+            my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $u);
 
             $theme_class .= " current";
             $theme_options .= "<strong><a href='$LJ::SITEROOT/customize/options$getextra'>" . $class->ml('widget.themechooser.theme.customize') . "</a></strong>";
@@ -174,12 +174,12 @@ sub render_body {
         if ($theme_types{upgrade}) {
             $theme_class .= " upgrade";
             $theme_options .= "<br />" if $theme_options;
-            $theme_options .= LJ::run_hook("customize_special_options", $u, $theme);
-            $theme_icons .= LJ::run_hook("customize_special_icons", $u, $theme);
+            $theme_options .= LJ::Hooks::run_hook("customize_special_options", $u, $theme);
+            $theme_icons .= LJ::Hooks::run_hook("customize_special_icons", $u, $theme);
         }
         if ($theme_types{special}) {
-            $theme_class .= " special" if $viewing_featured && LJ::run_hook("should_see_special_content", $u);
-            $theme_icons .= LJ::run_hook("customize_available_until", $theme);
+            $theme_class .= " special" if $viewing_featured && LJ::Hooks::run_hook("should_see_special_content", $u);
+            $theme_icons .= LJ::Hooks::run_hook("customize_available_until", $theme);
         }
         $theme_icons .= "</div><!-- end .theme-icons -->" if $theme_icons;
 
@@ -339,7 +339,7 @@ sub handle_post {
     my $layoutid = $post->{apply_layoutid}+0;
 
     # we need to load sponsor's themes for sponsored users
-    my $substitue_user = LJ::run_hook("substitute_s2_layers_user", $u);
+    my $substitue_user = LJ::Hooks::run_hook("substitute_s2_layers_user", $u);
     my $effective_u = defined $substitue_user ? $substitue_user : $u;
     my $theme;
     if ($themeid) {
@@ -351,7 +351,7 @@ sub handle_post {
     }
 
     LJ::Customize->apply_theme($u, $theme);
-    LJ::run_hooks('apply_theme', $u);
+    LJ::Hooks::run_hooks('apply_theme', $u);
 
     return;
 }

@@ -57,7 +57,7 @@
         }
 
         if ( $remote->can_post_disabled ) {
-            unless (LJ::run_hook("update.bml_disable_can_post", {
+            unless (LJ::Hooks::run_hook("update.bml_disable_can_post", {
                 title => $title, body => $body,
             })) {
                 $$title = $ML{'.error.disabled.title'};
@@ -70,7 +70,7 @@
     my %res = ();
 
     # see if we need to do any transformations
-    LJ::run_hooks("transform_update_$POST{transform}", \%GET, \%POST) if $POST{transform};
+    LJ::Hooks::run_hooks("transform_update_$POST{transform}", \%GET, \%POST) if $POST{transform};
 
     LJ::need_res('stc/display_none.css', 'stc/lj_base.css', 'stc/entry.css', 'js/inputcomplete.js');
 
@@ -113,7 +113,7 @@
     }
 
     # try to call a hook to fill in the fields
-    my $override_fields = LJ::run_hook('update_fields', \%GET);
+    my $override_fields = LJ::Hooks::run_hook('update_fields', \%GET);
     my $opt_preformatted = 0;
     if ($override_fields) {
             $event      = $override_fields->{'event'}   if exists($override_fields->{'event'});
@@ -488,11 +488,11 @@
 
                     my $writersblocklink = '';
 
-                    if ($qid && LJ::run_hook('show_qotd_extra_text', $remote)) {
+                    if ($qid && LJ::Hooks::run_hook('show_qotd_extra_text', $remote)) {
                         $writersblocklink = "<li><a href=\"$LJ::SITEROOT/misc/latestqotd?qid=$qid\">View answers to Writer's Block</a></li>";
                     }
 
-                    my @after_entry_post_extra_options = LJ::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
+                    my @after_entry_post_extra_options = LJ::Hooks::run_hooks('after_entry_post_extra_options', user => $ju, itemlink => $itemlink);
                     my $after_entry_post_extra_options = join('', map {$_->[0]} @after_entry_post_extra_options) || '';
 
                     $$body .= " p?><?p $ML{'.success.links'} p?><ul>" . $writersblocklink .
@@ -507,7 +507,7 @@
                 $$body .= "</td><td style=\"padding-left: 2em;\">";
 
                 $$body .= "</td></tr></table>";
-                $$body .= LJ::run_hook('after_entry_post_extra_html', user => $ju, itemlink => $itemlink, request => \%req);
+                $$body .= LJ::Hooks::run_hook('after_entry_post_extra_html', user => $ju, itemlink => $itemlink, request => \%req);
                 return;
             }
         }

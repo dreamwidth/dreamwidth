@@ -46,7 +46,7 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my @pageoptions = LJ::run_hook( 'page_control_strip_options' );
+    my @pageoptions = LJ::Hooks::run_hook( 'page_control_strip_options' );
     return undef unless @pageoptions;
     
     my %pagemask = map { $pageoptions[$_] => 1 << $_ } 0..$#pageoptions;

@@ -38,7 +38,7 @@
     return $err->($ML{'.error.notloggedin'})
         unless $remote;
 
-    my $no_layer_edit = LJ::run_hook("no_theme_or_layer_edit", $remote);
+    my $no_layer_edit = LJ::Hooks::run_hook("no_theme_or_layer_edit", $remote);
     return $err->($ML{'/customize/advanced/index.bml.error.advanced.editing.denied'})
         if $no_layer_edit;
 

@@ -90,7 +90,7 @@ sub table_display {
     $ret .= "<th>Domain</th><th>Who Sees Question</th><th>Countries</th><th>Tags</th><th>Submitted By</th><th>Start Date</th><th>End Date</th><th colspan='2'>Active Status</th><th>Edit</th></tr>";
     foreach my $row (@questions) {
         my @classes = LJ::classes_from_mask($row->{cap_mask});
-        @classes = LJ::run_hook("qotd_filter_classes", @classes);
+        @classes = LJ::Hooks::run_hook("qotd_filter_classes", @classes);
         push @classes, "logged out" if $row->{show_logged_out} eq 'Y';
         my $class_list = join(', ', @classes);
 

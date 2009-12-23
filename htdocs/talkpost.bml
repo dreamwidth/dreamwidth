@@ -65,7 +65,7 @@ body<=
         }
     }
 
-    LJ::run_hooks("need_res_for_journals", $u);
+    LJ::Hooks::run_hooks("need_res_for_journals", $u);
 
     my $ret = "";
 
@@ -205,7 +205,7 @@ body<=
     $ret .= "<table id='poster'><tr>";
 
     my $pickw = $init->{'replyto'} ? $parpost->{'picture_keyword'} : $props->{'picture_keyword'};
-    LJ::run_hook('notify_event_displayed', $entry);
+    LJ::Hooks::run_hook('notify_event_displayed', $entry);
 
     my $userpic;
     if ($init->{'replyto'}) {

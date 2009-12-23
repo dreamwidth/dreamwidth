@@ -44,7 +44,7 @@ sub render_body {
     }
 
     my $root = $LJ::IS_SSL ? $LJ::SSLROOT : $LJ::SITEROOT;
-    my $form_class = LJ::run_hook("login_form_class_name_$opts{mode}");
+    my $form_class = LJ::Hooks::run_hook("login_form_class_name_$opts{mode}");
     $form_class = "lj_login_form pkg" unless $form_class;
     $ret .= "<form action='$root/login$getextra' method='post' class='$form_class'>\n";
     $ret .= LJ::form_auth();
@@ -68,7 +68,7 @@ sub render_body {
         $ret .= LJ::html_hidden('returnto', $opts{returnto});
     }
 
-    my $hook_rv = LJ::run_hook("login_form_$opts{mode}", create_link => $opts{create_link});
+    my $hook_rv = LJ::Hooks::run_hook("login_form_$opts{mode}", create_link => $opts{create_link});
     if ($hook_rv) {
         $ret .= $hook_rv;
     } else {
@@ -130,10 +130,10 @@ sub render_body {
         }
         $ret .= LJ::help_icon('securelogin', '&nbsp;');
 
-        if (LJ::are_hooks("login_formopts")) {
+        if (LJ::Hooks::are_hooks("login_formopts")) {
             $ret .= "<table>";
             $ret .= "<tr><td>" . LJ::Lang::ml('/login.bml.login.otheropts') . "</td><td style='white-space: nowrap'>\n";
-            LJ::run_hooks("login_formopts", { 'ret' => \$ret });
+            LJ::Hooks::run_hooks("login_formopts", { 'ret' => \$ret });
             $ret .= "</td></tr></table>";
         }
     }

@@ -60,7 +60,7 @@ sub get_reluser_id {
         }->{$type}+0;
     return $val if $val;
     return 0 unless $type =~ /^local-/;
-    return LJ::run_hook('get_reluser_id', $type)+0;
+    return LJ::Hooks::run_hook('get_reluser_id', $type)+0;
 }
 
 # <LJFUNC>

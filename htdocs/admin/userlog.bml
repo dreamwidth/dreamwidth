@@ -114,7 +114,7 @@ FORM
         } elsif ( $row->{action} eq 'impersonator' ) {
             my $u = LJ::load_userid( $row->{actiontarget} );
             $action = "Did impersonate on " . ( $u ? $u->ljuser_display : "(no target)" ) . ": " .  LJ::ehtml( $extra->{reason} );
-        } elsif (my $info = LJ::run_hook('userlog_rows', $row)) {
+        } elsif (my $info = LJ::Hooks::run_hook('userlog_rows', $row)) {
             $action = $info;
         } else {
             $action = "Unknown action ($row->{action})";

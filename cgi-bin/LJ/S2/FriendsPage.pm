@@ -205,7 +205,7 @@ sub FriendsPage
         push @{$p->{'entries'}}, $entry;
         $eventnum++;
 
-        LJ::run_hook('notify_event_displayed', $entry_obj);
+        LJ::Hooks::run_hook('notify_event_displayed', $entry_obj);
     } # end while
 
     # set the new_day and end_day members.

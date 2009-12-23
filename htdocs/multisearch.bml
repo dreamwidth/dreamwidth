@@ -247,7 +247,7 @@
     if ($type) {
         # TODO: check return value of this hook, and fall back to another
         # hook that shows the results here, rather than redirecting to another page
-        return LJ::run_hook('multisearch_custom_search_redirect', {
+        return LJ::Hooks::run_hook('multisearch_custom_search_redirect', {
             type  => $type,
             query => $q, });
     }

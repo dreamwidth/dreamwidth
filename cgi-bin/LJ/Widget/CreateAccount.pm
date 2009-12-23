@@ -546,7 +546,7 @@ sub handle_post {
             customizeurl => "$LJ::SITEROOT/customize/",
             postentryurl => "$LJ::SITEROOT/update",
             setsecreturl => "$LJ::SITEROOT/set_secret",
-            LJ::run_hook('extra_fields_in_postreg_esn'),
+            LJ::Hooks::run_hook('extra_fields_in_postreg_esn'),
         });
 
         LJ::send_mail({
@@ -579,7 +579,7 @@ sub handle_post {
         my $stop_output;
         my $body;
         my $redirect = $opts{ret};
-        LJ::run_hook('underage_redirect', {
+        LJ::Hooks::run_hook('underage_redirect', {
             u => $nu,
             redirect => \$redirect,
             ret => \$body,
@@ -588,7 +588,7 @@ sub handle_post {
         return BML::redirect($redirect) if $redirect;
         return $body if $stop_output;
 
-        $redirect = LJ::run_hook('rewrite_redirect_after_create', $nu);
+        $redirect = LJ::Hooks::run_hook('rewrite_redirect_after_create', $nu);
         return BML::redirect($redirect) if $redirect;
 
         return BML::redirect( "$LJ::SITEROOT/create/setup" );

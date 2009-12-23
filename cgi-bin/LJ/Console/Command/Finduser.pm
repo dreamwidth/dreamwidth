@@ -113,7 +113,7 @@ sub execute {
         $self->info("  Last updated: " . ($timeupdate->{$userid} ? LJ::time_to_http($timeupdate->{$userid}) : "Never"))
             if $opt eq 'timeupdate';
 
-        foreach (LJ::run_hooks("finduser_extrainfo", $u)) {
+        foreach (LJ::Hooks::run_hooks("finduser_extrainfo", $u)) {
             next unless $_->[0];
             $self->info($_) foreach (split(/\n/, $_->[0]));
         }

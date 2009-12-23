@@ -80,7 +80,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  }
      $ret .= "</ul>\n";
 
- LJ::run_hook('statspage', {
+ LJ::Hooks::run_hook('statspage', {
      stat => \%stat,
      ret => \$ret,
  });

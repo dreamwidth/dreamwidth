@@ -283,7 +283,7 @@ sub add_item {
     $self->{total} += $item->cost;
 
     # now call out to the hook system in case anybody wants to munge with us
-    LJ::run_hooks( 'shop_cart_added_item', $self, $item );
+    LJ::Hooks::run_hooks( 'shop_cart_added_item', $self, $item );
 
     # save to db and return
     $self->save || return( 0, 'Unable to save cart.' );
@@ -315,7 +315,7 @@ sub remove_item {
     $self->save;
 
     # now run the hook, this is later so that we've updated the cart already
-    LJ::run_hooks( 'shop_cart_removed_item', $self, $removed );
+    LJ::Hooks::run_hooks( 'shop_cart_removed_item', $self, $removed );
 
     return 1;
 }

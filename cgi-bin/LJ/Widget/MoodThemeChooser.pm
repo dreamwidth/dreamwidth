@@ -63,7 +63,7 @@ sub render_body {
     $ret .= "</ul>";
     $ret .= "</div>";
 
-    my $moodtheme_extra = LJ::run_hook("mood_theme_extra_content", $u, \@themes);
+    my $moodtheme_extra = LJ::Hooks::run_hook("mood_theme_extra_content", $u, \@themes);
     my $show_special = $moodtheme_extra ? "special" : "nospecial";
 
     LJ::load_mood_theme($preview_moodthemeid);

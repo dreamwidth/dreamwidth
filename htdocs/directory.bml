@@ -223,7 +223,7 @@ body<=
     $ret .= qq {\n<div id="FilterSearch">$ML{'.new_search_show'}&nbsp;$all_search&nbsp;|&nbsp;};
     $ret .= qq {$community_search&nbsp;|&nbsp;$user_search&nbsp;|&nbsp;$identity_search</div>\n};
 
-    if (LJ::run_hook("interest_search_ignore", query => $GET{int_like})) {
+    if (LJ::Hooks::run_hook("interest_search_ignore", query => $GET{int_like})) {
         $ret .= $ML{'.unable_find_users'};
         return $ret;
     }

@@ -79,7 +79,7 @@
 
         my $ban_user = LJ::load_user($target);
         $success = $remote->ban_user($ban_user);
-        LJ::run_hooks('ban_set', $remote, $ban_user);
+        LJ::Hooks::run_hooks('ban_set', $remote, $ban_user);
 
         #$ret{is_banned} = $remote->is_banned($ban_user) ? 1 : 0;
     } elsif ( $action eq 'setUnban' ) {

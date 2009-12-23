@@ -39,7 +39,7 @@ sub render_body {
     return "" unless @questions;
 
     unless ($embed || $archive) {
-        my $title = LJ::run_hook("qotd_title", $u) || $class->ml('widget.qotd.title');
+        my $title = LJ::Hooks::run_hook("qotd_title", $u) || $class->ml('widget.qotd.title');
         $ret .= "<h2>$title";
     }
 
@@ -117,7 +117,7 @@ sub qotd_display_embed {
             }
 
             my $extra_text;
-            if ($q->{extra_text} && LJ::run_hook('show_qotd_extra_text', $remote)) {
+            if ($q->{extra_text} && LJ::Hooks::run_hook('show_qotd_extra_text', $remote)) {
                 $extra_text = $q->{extra_text};
                 LJ::CleanHTML::clean_event(\$extra_text);
             }
@@ -195,7 +195,7 @@ sub qotd_display {
             LJ::CleanHTML::clean_event(\$text);
 
             my $extra_text;
-            if ($q->{extra_text} && LJ::run_hook('show_qotd_extra_text', $remote)) {
+            if ($q->{extra_text} && LJ::Hooks::run_hook('show_qotd_extra_text', $remote)) {
                 $ml_key = $class->ml_key("$q->{qid}.extra_text");
                 $extra_text = $class->ml($ml_key);
                 LJ::CleanHTML::clean_event(\$extra_text);
@@ -236,7 +236,7 @@ sub qotd_display {
         }
 
         # show promo on vertical pages
-        $ret .= LJ::run_hook("promo_with_qotd", $opts{domain});
+        $ret .= LJ::Hooks::run_hook("promo_with_qotd", $opts{domain});
         $ret .= "</div>";
     }
 
@@ -249,7 +249,7 @@ sub answer_link {
     my %opts = @_;
 
     my $url = $class->answer_url($question, user => $opts{user});
-    my $txt = LJ::run_hook("qotd_answer_txt", $opts{user}) || $class->ml('widget.qotd.answer');
+    my $txt = LJ::Hooks::run_hook("qotd_answer_txt", $opts{user}) || $class->ml('widget.qotd.answer');
     my $dis = $opts{button_disabled} ? "disabled='disabled'" : "";
     my $onclick = qq{onclick="document.location.href='$url'"};
 
@@ -273,7 +273,7 @@ sub subject_text {
     my %opts = @_;
 
     my $ml_key = $class->ml_key("$question->{qid}.subject");
-    my $subject = LJ::run_hook("qotd_subject", $opts{user}, $class->ml($ml_key)) ||
+    my $subject = LJ::Hooks::run_hook("qotd_subject", $opts{user}, $class->ml($ml_key)) ||
         $class->ml('widget.qotd.entry.subject', {'subject' => $class->ml($ml_key)});
 
     return $subject;
@@ -296,7 +296,7 @@ sub event_text {
 
     my $event = $class->ml($ml_key);
     my $from_user = $question->{from_user};
-    my $extra_text = LJ::run_hook('show_qotd_extra_text', $remote) ? $question->{extra_text} : "";
+    my $extra_text = LJ::Hooks::run_hook('show_qotd_extra_text', $remote) ? $question->{extra_text} : "";
 
     if ($from_user || $extra_text) {
         $event .= "\n<span style='font-size: smaller;'>";
@@ -328,7 +328,7 @@ sub impression_img {
         $impression_url = LJ::PromoText->parse_url( qid => $question->{qid}, url => $question->{impression_url} );
     }
 
-    return $impression_url && LJ::run_hook("should_see_special_content", LJ::get_remote()) ? "<img src=\"$impression_url\" border='0' width='1' height='1' alt='' />" : "";
+    return $impression_url && LJ::Hooks::run_hook("should_see_special_content", LJ::get_remote()) ? "<img src=\"$impression_url\" border='0' width='1' height='1' alt='' />" : "";
 }
 
 sub questions_exist_for_user {

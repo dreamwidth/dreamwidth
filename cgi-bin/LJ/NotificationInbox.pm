@@ -116,7 +116,7 @@ sub non_usermsg_items {
                            UserMessageSent
                            );
 
-    @usermsg_events = (@usermsg_events, (LJ::run_hook('usermsg_notification_types') || ()));
+    @usermsg_events = (@usermsg_events, (LJ::Hooks::run_hook('usermsg_notification_types') || ()));
 
     my %usermsg_events = map { "LJ::Event::" . $_ => 1 } @usermsg_events;
     return grep { !$usermsg_events{$_->event->class} } $self->items;
@@ -708,7 +708,7 @@ sub friend_event_list {
                     CommunityInvite
                     NewUserpic
                     );
-    @events = (@events, (LJ::run_hook('friend_notification_types') || ()));
+    @events = (@events, (LJ::Hooks::run_hook('friend_notification_types') || ()));
     return @events;
 }
 
@@ -721,7 +721,7 @@ sub friendplus_event_list {
                     NewUserpic
                     Birthday
                     );
-    @events = (@events, (LJ::run_hook('friend_notification_types') || ()));
+    @events = (@events, (LJ::Hooks::run_hook('friend_notification_types') || ()));
     return @events;
 }
 

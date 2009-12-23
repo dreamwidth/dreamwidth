@@ -177,7 +177,7 @@ sub RecentPage
 
         push @{$p->{entries}}, $entry;
 
-        LJ::run_hook('notify_event_displayed', $entry_obj);
+        LJ::Hooks::run_hook('notify_event_displayed', $entry_obj);
     }
 
     # mark last entry as closing.

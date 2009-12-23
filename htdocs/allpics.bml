@@ -161,7 +161,7 @@
             $body .= "<?h1 $ML{'.current'} h1?><?p ";
             if ($can_manage) {
                 $body .= BML::ml('.pics.owner', {'user' => LJ::ljuser($u),});
-                my $hook_text = LJ::run_hook('allpics_upsell_text', $u, $getextra);
+                my $hook_text = LJ::Hooks::run_hook('allpics_upsell_text', $u, $getextra);
                 if ($hook_text eq "") {
                     $body .= ' ' . BML::ml('.edit4', {'aopts' => "href='$LJ::SITEROOT/editpics$getextra'"});
                 } else {

@@ -17,8 +17,9 @@
 package DW::Hooks::SiteSearch;
 
 use strict;
+use LJ::Hooks;
 
-LJ::register_hook( 'setprop', sub {
+LJ::Hooks::register_hook( 'setprop', sub {
     my %opts = @_;
     return unless $opts{prop} eq 'opt_blockglobalsearch';
 

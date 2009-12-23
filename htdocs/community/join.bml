@@ -78,8 +78,8 @@ body<=
     $next_links .= "<li><a href=\'" . $cu->journal_base . "'>". BML::ml('.label.read_recent_entries', {'user' => $cu->user}) . "</a></li>";
     $next_links .= "<li><a href=\'" . $cu->profile_url . "'>" . BML::ml('.label.read_comm_info', {'user' => $cu->user}) . "</a></li>";
     $next_links .= "<li><a href='$LJ::SITEROOT/community/search'>".BML::ml('.label.search_other') . "</a></li>";
-    $next_links .= LJ::run_hook("join_comm_extra")
-        if LJ::are_hooks("join_comm_extra");
+    $next_links .= LJ::Hooks::run_hook("join_comm_extra")
+        if LJ::Hooks::are_hooks("join_comm_extra");
     $next_links .= "</ul>";
 
     # can't join closed communities

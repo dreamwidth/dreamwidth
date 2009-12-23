@@ -53,7 +53,7 @@ sub render_body {
     }
 
     # call out to hooks to see if they want to munge with the content
-    LJ::run_hooks( 'shop_cart_status_bar', $shop, $cart, \$ret );
+    LJ::Hooks::run_hooks( 'shop_cart_status_bar', $shop, $cart, \$ret );
     
     return $ret;
 }

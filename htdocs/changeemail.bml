@@ -129,7 +129,7 @@ body<=
 
         $u->log_event('email_change', { remote => $remote, new => $POST{'email'} });
 
-        LJ::run_hook('post_email_change',
+        LJ::Hooks::run_hook('post_email_change',
                      {
                          user     => $u,
                          newemail => $POST{'email'},

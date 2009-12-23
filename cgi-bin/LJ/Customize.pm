@@ -256,7 +256,7 @@ sub get_layouts_for_dropdown {
     }
     sort { $pub->{$a}->{'name'} cmp $pub->{$b}->{'name'} }
     grep { my $tmp = $_;
-           my $is_active = LJ::run_hook("layer_is_active", $pub->{$tmp}->{uniq});
+           my $is_active = LJ::Hooks::run_hook("layer_is_active", $pub->{$tmp}->{uniq});
            $tmp =~ /^\d+$/ &&
                $pub->{$tmp}->{'type'} eq "layout" &&
                $pub->{$tmp}->{'uniq'} ne "s1shortcomings/layout" &&
@@ -266,7 +266,7 @@ sub get_layouts_for_dropdown {
 
     # add custom layouts
     push @layouts, $class->get_custom_layouts_for_dropdown($u);
-    LJ::run_hook("modify_layout_list", \@layouts, user => $u, add_seps => 1);
+    LJ::Hooks::run_hook("modify_layout_list", \@layouts, user => $u, add_seps => 1);
 
     unshift @layouts, 0, LJ::Lang::ml('customize.layouts_for_dropdown.choose');
 
@@ -342,8 +342,8 @@ sub get_search_keywords_for_js {
     my @themes = LJ::S2Theme->load_all($u);
     foreach my $theme (@themes) {
         next unless $theme;
-        if (LJ::are_hooks("layer_is_active")) {
-            next unless LJ::run_hook("layer_is_active", $theme->uniq) && LJ::run_hook("layer_is_active", $theme->layout_uniq);
+        if (LJ::Hooks::are_hooks("layer_is_active")) {
+            next unless LJ::Hooks::run_hook("layer_is_active", $theme->uniq) && LJ::Hooks::run_hook("layer_is_active", $theme->layout_uniq);
         }
 
         my $theme_name = LJ::ejs($theme->name);
@@ -684,7 +684,7 @@ sub get_cats {
 
     );
 
-    LJ::run_hooks("modify_cat_list", \@categories, user => $u,);
+    LJ::Hooks::run_hooks("modify_cat_list", \@categories, user => $u,);
 
     return @categories;
 }
@@ -824,11 +824,11 @@ sub get_moodtheme_select_list
 
     my @themes;
     while (my $moodtheme = $sth->fetchrow_hashref) {
-        my $is_active = LJ::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
+        my $is_active = LJ::Hooks::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
         next unless !defined $is_active || $is_active;
         push @themes, $moodtheme;
     }
-    LJ::run_hook('modify_mood_theme_list', \@themes, user => $u, add_seps => 1);
+    LJ::Hooks::run_hook('modify_mood_theme_list', \@themes, user => $u, add_seps => 1);
     unshift @themes, { 'moodthemeid' => 0, 'name' => '(None)' };
 
     ### user's private themes

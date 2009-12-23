@@ -32,8 +32,8 @@ sub actionlink {
     my ($class, $u) = @_;
 
     my $has_domain = $u->prop("journaldomain") ? 1 : 0;
-    my $upgrade_url = LJ::run_hook("upgrade_link", $u, "plus", url_only => 1) || "";
-    my $upgrade_link = LJ::run_hook("upgrade_link", $u, "plus") || "";
+    my $upgrade_url = LJ::Hooks::run_hook("upgrade_link", $u, "plus", url_only => 1) || "";
+    my $upgrade_link = LJ::Hooks::run_hook("upgrade_link", $u, "plus") || "";
 
     if ( $u->can_map_domains ) {
         return "<a href='$LJ::SITEROOT/manage/domain?authas=" . $u->user . "'>" . $class->ml('setting.display.domainmapping.actionlink') . "</a>";

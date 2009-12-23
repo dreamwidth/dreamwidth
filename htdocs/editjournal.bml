@@ -278,7 +278,7 @@ body<=
                     $result .= "<?p $ML{'.success.deletespam'} p?>" if $POST{'action:deletespam'};
 
                     $result .= $xpost_result;
-                    my $deleted_extras = LJ::run_hook('entry_deleted_page_extras');
+                    my $deleted_extras = LJ::Hooks::run_hook('entry_deleted_page_extras');
                     $result .= $deleted_extras if defined $deleted_extras;
                 } else {
                     $result .= "<?p $ML{'.success.edited'} p?>";

@@ -47,7 +47,7 @@ body<=
             unless LJ::Setting->save_had_errors($save_rv);
     }
 
-    $ret .= LJ::run_hook('add_extra_fields_in_postreg_settings', $remote);
+    $ret .= LJ::Hooks::run_hook('add_extra_fields_in_postreg_settings', $remote);
 
     # either no form has been submitted, or we had errors in the form
     $ret .= "<form method='POST'>";

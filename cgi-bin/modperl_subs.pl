@@ -38,6 +38,7 @@ use Time::HiRes ();
 use Image::Size ();
 use POSIX ();
 
+use LJ::Hooks;
 use LJ::Blob;
 use LJ::Captcha;
 use LJ::Faq;
@@ -102,7 +103,7 @@ require "$LJ::HOME/cgi-bin/modperl_subs-local.pl"
 # defer loading of hooks, better that in the future, the hook loader
 # will be smarter and only load in the *.pm files it needs to fulfill
 # the hooks to be run
-LJ::load_hooks_dir() unless LJ::is_from_test();
+LJ::Hooks::_load_hooks_dir() unless LJ::is_from_test();
 
 $LJ::IMGPREFIX_BAK = $LJ::IMGPREFIX;
 $LJ::STATPREFIX_BAK = $LJ::STATPREFIX;

@@ -156,8 +156,8 @@ sub get_property {
         return $c->{$prop};
     }
 
-    if (LJ::are_hooks("cmdbuf:$cmd:$prop")) {
-        return LJ::run_hook("cmdbuf:$cmd:$prop");
+    if (LJ::Hooks::are_hooks("cmdbuf:$cmd:$prop")) {
+        return LJ::Hooks::run_hook("cmdbuf:$cmd:$prop");
     }
 
     return undef;

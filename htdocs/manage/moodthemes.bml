@@ -392,7 +392,7 @@ body<=
         $ret .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} });
         $ret .= "</form>\n\n";
 
-        my $moodtheme_upsell = LJ::run_hook("moodtheme_upsell");
+        my $moodtheme_upsell = LJ::Hooks::run_hook("moodtheme_upsell");
 
         unless ( $u->can_create_moodthemes ) {
             if ($moodtheme_upsell) {

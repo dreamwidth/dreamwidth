@@ -53,12 +53,12 @@ body<=
     $sth->execute;
     my @themes = ();
     while (my $moodtheme = $sth->fetchrow_hashref) {
-        my $is_active = LJ::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
+        my $is_active = LJ::Hooks::run_hook("mood_theme_is_active", $moodtheme->{moodthemeid});
         next unless !defined $is_active || $is_active;
         push @themes, $moodtheme;
     }
     @themes = sort { lc($a->{name}) cmp lc($b->{name}) } @themes;
-    my @special_themes = LJ::run_hook('modify_mood_theme_list', \@themes, user => $u);
+    my @special_themes = LJ::Hooks::run_hook('modify_mood_theme_list', \@themes, user => $u);
 
     my $do_mood_list = sub {
         # Setup the paging bar
@@ -88,7 +88,7 @@ body<=
             my $special = shift;
 
             if ($special) {
-                my $author = LJ::run_hook("mood_theme_author", $theme->{moodthemeid});
+                my $author = LJ::Hooks::run_hook("mood_theme_author", $theme->{moodthemeid});
                 $ret .= "<tr class='standout-border standout-background'><td style='padding-left: 5px;'>$theme->{'name'}";
                 $ret .= "<br /><span style='font-size: smaller;'>" . BML::ml('.moodtheme.byauthor', {'author' => $author}) . "</span>" if $author;
                 $ret .= "</td>\n";
