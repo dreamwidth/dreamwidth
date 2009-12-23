@@ -1267,3 +1267,37 @@ li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
     border: 1px solid #fff;
     background: #333;
 }
+
+/* Support */
+
+div.box {
+    color: #fff !important;
+}
+
+/* This makes the FAQ header not overlap with itself */
+.box h1 {
+    line-height: 1em;
+}
+
+div.blue {
+    background-color: #3D606B !important;
+    border:1px solid #6DB5C2 !important;
+}
+
+div.green {
+    background-color: #2B5229 !important;
+    border:1px solid #53914D !important;
+}
+
+.green, .green td {
+    background-color: #2B5229 !important;
+}
+.yellow, .yellow td {
+    background-color: #815E00 !important;
+}
+.red, .red td {
+    background-color: #831815 !important;
+}
+.clicked, .clicked td {
+    background-color: #3D606B !important;
+}
