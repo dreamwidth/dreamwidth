@@ -31,11 +31,9 @@ my %SKIP = (
     'Data/ObjectDriver/Driver/DBD/SQLite.pm' => 'Bareword "DBI::SQL_BLOB"',
     'Data/ObjectDriver/Driver/DBD/Oracle.pm' => 'no Oracle',
 
-    'cgi-bin/dw-nonfree.pl' => 'Undefined subroutine &LJ::register_hook',
     'cgi-bin/ljdefaults.pl' => 'Cant return outside a subroutine at cgi-bin/ljdefaults.pl',    
     'cgi-bin/modperl.pl'    => 'Cant locate object method "server" via package "Apache2::ServerUtil"',
     'cgi-bin/lj-bml-init.pl' => 'Undefined subroutine &BML::register_isocode',
-    'cgi-bin/ljlib-local.pl' => 'Undefined subroutine &LJ::register_hook',
     'cgi-bin/lj-bml-blocks.pl' => 'Undefined subroutine &BML::register_block',
     'cgi-bin/ljuserpics.pl'  => 'croak is not imported',
 );
