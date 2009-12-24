@@ -1,5 +1,4 @@
-<h1>[% '.title' | ml %]</h1>
-
+[%- sections.title = '.title' | ml -%]
 [% IF u.public_key %]
     <p>[% '.label' | ml(user = u.ljuser_display) %]</p>
     <pre style='background-color:#efefef; border:3px solid #dedede; padding: 10px;'>

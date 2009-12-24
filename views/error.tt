@@ -1,3 +1,2 @@
-<h1>[% 'Error' | ml %]</h1>
-
+[%- sections.title = 'Error' | ml -%]
 <p><strong>[% message %]</strong></p>

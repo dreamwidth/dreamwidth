@@ -110,6 +110,8 @@ fragment opts:
 sub cached_template_string {
     my ($class, $key, $filename, $subref, $opts, $extra ) = @_;
 
+    $extra ||= {};
+    $opts->{sections} = $extra;
     return DW::FragmentCache->get( $key, {
         lock_failed => $opts->{lock_failed},
         expire => $opts->{expire},
@@ -151,8 +153,6 @@ $extra can contain:
 sub render_cached_template {
     my ($class, $key, $filename, $subref, $opts, $extra) = @_;
 
-    $extra ||= {};
-
     my $out = $class->cached_template_string( $key, $filename, $subref, $opts, $extra );
 
     return $class->render_string( $out, $extra );
@@ -180,6 +180,9 @@ $extra can contain:
 
 sub render_template {
     my ( $class, $filename, $opts, $extra ) = @_;
+
+    $extra ||= {};
+    $opts->{sections} = $extra;
 
     my $out = $class->template_string( $filename, $opts );
 

@@ -300,32 +300,6 @@ sub register_regex {
 
 API to be used from the controllers.
 
-=head2 C<< $self->render_template( $template, $data, $extra ) >>
-
-Wrap stuff in the sitescheme.
-
-Helper so the controller doesn't need to dig out the Apache request.
-
-=cut
-
-sub render_template {
-    my $self = shift;
-    return DW::Template::Apache2->render_template( $self->{__r}, @_ );
-}
-
-=head2 C<< $self->render_cached_template( $key, $template, $subref, $extra ) >>
-
-Wrap stuff in the sitescheme.
-
-Helper so the controller doesn't need to dig out the Apache request.
-
-=cut
-
-sub render_cached_template {
-    my $self = shift;
-    return DW::Template::Apache2->render_cached_template( $self->{__r}, @_ );
-}
-
 =head2 C<< $self->args >>
 
 Return the arguments passed to the register call.
