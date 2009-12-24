@@ -1,0 +1,20 @@
+<h1>[% '.title' | ml %]</h1>
+
+[% IF u.public_key %]
+    <p>[% '.label' | ml(user = u.ljuser_display) %]</p>
+    <pre style='background-color:#efefef; border:3px solid #dedede; padding: 10px;'>
+        [% u.public_key | html %]
+    </pre>
+[% ELSE %]
+    <p>[% '.nokey' | ml(user = u.ljuser_display) %]</p>
+[% END %]
+
+<br />
+
+<h1>[% '.info.head' | ml %]</h1>
+
+<p>[% '.info.desc' | ml(aoptspgp = "href='http://www.pgp.com/'", aoptsgpg = "href='http://www.gnupg.org/'") %]</p>
+
+[% IF remote %]
+    <p>[% '.info.upload' | ml(aopts = "href='$roots.site/manage/pubkey'") %]</p>
+[% END %]

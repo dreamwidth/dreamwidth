@@ -1177,6 +1177,8 @@ error.invalidauth=You could not be authenticated as the specified user.
 
 error.invalidform=Invalid form submission.  Please refresh and try again.
 
+error.invaliduser=Unable to load specified user.
+
 error.ipbanned=Your IP address is temporarily banned for exceeding the login failure rate.
 
 error.malformeduser=Malformed username.

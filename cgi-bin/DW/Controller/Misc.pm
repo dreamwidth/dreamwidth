@@ -26,6 +26,7 @@ use DW::Routing::Apache2;
 use DW::Template::Apache2;
 
 DW::Routing::Apache2->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
+DW::Routing::Apache2->register_string( '/pubkey',        \&pubkey_handler,   app => 1 );
 
 # handles the /misc/whereami page
 sub whereami_handler {
@@ -37,6 +38,18 @@ sub whereami_handler {
     };
 
     return DW::Template::Apache2->render_template( 'misc/whereami.tt', $vars );
+}
+
+# handle requests for a user's public key
+sub pubkey_handler {
+    return error_ml( '.error.notconfigured' ) unless $LJ::USE_PGP;
+
+    my ( $ok, $rv ) = controller( anonymous => 1, specify_user => 1 );
+    return $rv unless $ok;
+
+    LJ::load_user_props( $rv->{u}, 'public_key' );
+
+    return DW::Template::Apache2->render_template( 'misc/pubkey.tt', $rv );
 }
 
 1;

@@ -60,14 +60,22 @@ sub controller {
 
     # 'anonymous' pages must declare themselves, else we assume that a remote is
     # necessary as most pages require a user
+    $vars->{u} = $vars->{remote} = LJ::get_remote();
     unless ( $args{anonymous} ) {
-        $vars->{u} = $vars->{remote} = LJ::get_remote()
+        $vars->{remote}
             or return $fail->( needlogin() );
+    }
+
+    # if they can specify a user argument, try to load that
+    my $r = DW::Request->get;
+    if ( $args{specify_user} ) {
+        # use 'user' argument if specified, default to remote
+        $vars->{u} = LJ::load_user( $r->get_args->{user} ) || $vars->{remote}
+            or return $fail->( error_ml( 'error.invaliduser' ) );
     }
 
     # if a page allows authas it must declare it.  authas can only happen if we are
     # requiring the user to be logged in.
-    my $r = DW::Request->get;
     if ( $args{authas} ) {
         $vars->{u} = LJ::get_authas_user( $r->get_args->{authas} || $vars->{remote}->user )
             or return $fail->( error_ml( 'error.invalidauth' ) );
