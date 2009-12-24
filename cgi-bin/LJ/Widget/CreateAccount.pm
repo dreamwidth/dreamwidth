@@ -546,7 +546,6 @@ sub handle_post {
             customizeurl => "$LJ::SITEROOT/customize/",
             postentryurl => "$LJ::SITEROOT/update",
             setsecreturl => "$LJ::SITEROOT/set_secret",
-            LJ::Hooks::run_hook('extra_fields_in_postreg_esn'),
         });
 
         LJ::send_mail({

@@ -370,15 +370,6 @@ sub is_protected_username {
 }
 
 
-sub postreg_completed {
-    my $u = shift;
-
-    return 0 unless $u->bio;
-    return 0 unless $u->interest_count;
-    return 1;
-}
-
-
 sub who_invited {
     my $u = shift;
     my $inviterid = LJ::load_rel_user($u, 'I');
