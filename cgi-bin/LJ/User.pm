@@ -8446,7 +8446,9 @@ sub make_journal
             if $stylesys == 1 && $view ne 'data' && ! $u->is_redirect;
 
         # check the filter itself
-        if ($securityfilter =~ /^(?:public|friends|private)$/i) {
+        if ( lc( $securityfilter ) eq 'access' ) {
+            $opts->{securityfilter} = 'friends';
+        } elsif ($securityfilter =~ /^(?:public|friends|private)$/i) {
             $opts->{securityfilter} = lc($securityfilter);
 
         # see if they want to filter by a custom group
