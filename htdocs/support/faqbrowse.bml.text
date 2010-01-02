@@ -17,6 +17,8 @@
 
 .error.nofaq=The specified FAQ does not exist.
 
+.error.title_nofaq=Error retrieving FAQ [[faqid]]
+
 .lastupdated=Last Updated:
 
 .more=Read More

@@ -76,6 +76,11 @@ body<=
     if ( $faqidarg ) {
         # loading single faqid
         @faqs = ( LJ::Faq->load( $faqidarg, lang => $lang ) );
+        unless ( $faqs[0] ) {
+            $$title = BML::ml( '.error.title_nofaq', { faqid => $faqidarg } );
+            $$body = BML::ml( '.error.nofaq' );
+            return $_[1]->{'body'};
+        }
         $faqs[0]->render_in_place( { user => $user, url => $user_url } );
         $$title = $faqs[0]->question_html;
     } elsif ( $faqcatarg ) {
