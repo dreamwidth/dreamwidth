@@ -50,7 +50,7 @@ body<=
             my @banlist_orig = split(/,/, $POST{ban_list});
             my @banlist;
             foreach my $banusername (@banlist_orig) {
-                my $banu = LJ::load_user($banusername);
+                my $banu = LJ::load_user_or_identity($banusername);
                 push @banlist, $banu->id if $banu;
             }
 
