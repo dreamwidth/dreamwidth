@@ -1,5 +1,7 @@
 ;; -*- coding: utf-8 -*-
 
+.cart.date=<strong>Order Date:</strong> [[date]]
+
 .cart.status=<strong>Current Order Status:</strong> [[status]]
 
 .cart.status.1|note=This status should never be possible on the receipt page!

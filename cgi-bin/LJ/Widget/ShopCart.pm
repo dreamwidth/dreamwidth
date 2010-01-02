@@ -68,7 +68,7 @@ sub render_body {
             $ret .= "<td>" . $class->html_check( name => 'remove_' . $item->id, value => 1 ) . "</td>"
         }
         $ret .= "<td>" . $item->name_html . "</td>";
-        $ret .= "<td>" . ( $item->deliverydate ? $item->deliverydate : $class->ml( 'widget.shopcart.deliverydate.today' ) ) . "</td>";
+        $ret .= "<td>" . ( $item->deliverydate ? $item->deliverydate : $class->ml( 'widget.shopcart.deliverydate.asap' ) ) . "</td>";
         $ret .= "<td>" . $item->t_html( admin => $opts{admin} ) . "</td>";
         $ret .= "<td>" . $item->from_html . "</td>";
         $ret .= "<td>" . ( $item->random ? 'Y' : 'N' ) . "</td>" if $opts{admin};

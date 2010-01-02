@@ -35,6 +35,7 @@ _c?>
 
     my $state = $cart->state;
     my $paymentmethod = $cart->paymentmethod;
+    my $orderdate = DateTime->from_epoch( epoch => $cart->starttime );
 
     # cart cannot be in open, closed, or checkout state
     return BML::redirect( "$LJ::SITEROOT/shop/cart" )
@@ -66,7 +67,8 @@ _c?>
     };
     $ret .= "<h1>$title</h1>";
     $ret .= "<p>" . BML::ml( '.cart.status', { status => $ML{".cart.status.$state"} } ) . "<br />";
-    $ret .= BML::ml( '.cart.paymentmethod', { paymentmethod => $ML{".cart.paymentmethod.$paymentmethod"} } ) . "</p>";
+    $ret .= BML::ml( '.cart.paymentmethod', { paymentmethod => $ML{".cart.paymentmethod.$paymentmethod"} } ) . "</br />";
+    $ret .= BML::ml( '.cart.date', { date => $orderdate->strftime( "%F %r %Z" ) }) . "</p>";
     if ( $paymentmethod eq 'checkmoneyorder' ) {
         my $address = "<p>$LJ::SITECOMPANY<br />Order #" . $cart->id . "<br />$LJ::SITEADDRESS</p>";
         $ret .= "<p>" . BML::ml( ".cart.paymentmethod.$paymentmethod.extra", { sitecompany => "<strong>$LJ::SITECOMPANY</strong>", address => $address } ) . "</p>";

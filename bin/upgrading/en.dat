@@ -4561,7 +4561,7 @@ widget.shopcart.btn.discard=Discard Entire Cart
 
 widget.shopcart.btn.removeselected=Remove Selected Items
 
-widget.shopcart.deliverydate.today=Today
+widget.shopcart.deliverydate.asap=As soon as possible
 
 widget.shopcart.error.nocart=Unable to get a shopping cart for you.  Please try again later.
 
