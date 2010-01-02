@@ -98,10 +98,10 @@ sub friend_items {
 }
 
 # returns a list of friend-related notificationitems
-sub friendplus_items {
+sub circle_items {
     my $self = shift;
 
-    my @friend_events = friendplus_event_list();
+    my @friend_events = circle_event_list();
 
     my %friend_events = map { "LJ::Event::" . $_ => 1 } @friend_events;
     return grep { $friend_events{$_->event->class} } $self->items;
@@ -548,8 +548,8 @@ sub delete_all {
         push @items, $self->usermsg_sent_items;
     } elsif ( $view eq 'usermsg_recvd' ) {
         @items = $self->usermsg_recvd_items;
-    } elsif ( $view eq 'friendplus' ) {
-        @items = $self->friendplus_items;
+    } elsif ( $view eq 'circle' ) {
+        @items = $self->circle_items;
         push @items, $self->birthday_items;
         push @items, $self->befriended_items;
     } elsif ( $view eq 'birthday' ) {
@@ -594,8 +594,8 @@ sub mark_all_read {
         push @items, $self->usermsg_sent_items;
     } elsif ( $view eq 'usermsg_recvd' ) {
         @items = $self->usermsg_recvd_items;
-    } elsif ( $view eq 'friendplus' ) {
-        @items = $self->friendplus_items;
+    } elsif ( $view eq 'circle' ) {
+        @items = $self->circle_items;
         push @items, $self->birthday_items;
         push @items, $self->befriended_items;
     } elsif ( $view eq 'birthday' ) {
@@ -677,9 +677,9 @@ sub friend_event_count {
     return $self->subset_unread_count(friend_event_list());
 }
 
-sub friendplus_event_count {
+sub circle_event_count {
     my $self = shift;
-    return $self->subset_unread_count(friendplus_event_list());
+    return $self->subset_unread_count(circle_event_list());
 }
 
 sub entrycomment_event_count {
@@ -712,7 +712,7 @@ sub friend_event_list {
     return @events;
 }
 
-sub friendplus_event_list {
+sub circle_event_list {
     my @events = qw(
                     AddedToCircle
                     RemovedFromCircle

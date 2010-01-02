@@ -353,7 +353,7 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
 
     ESN_Inbox.refresh_count("esn_folder_all", info.unread_all);
     ESN_Inbox.refresh_count("esn_folder_usermsg_recvd", info.unread_usermsg_recvd);
-    ESN_Inbox.refresh_count("esn_folder_friendplus", info.unread_friend);
+    ESN_Inbox.refresh_count("esn_folder_circle", info.unread_friend);
     ESN_Inbox.refresh_count("esn_folder_entrycomment", info.unread_entrycomment);
     ESN_Inbox.refresh_count("esn_folder_usermsg_sent", info.unread_usermsg_sent);
 

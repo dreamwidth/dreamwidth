@@ -53,7 +53,7 @@ sub render_body {
     $alert_plural .= $unread_count ? '!' : '.';
     my $unread_all = $unread_html->($unread_count);
     my $unread_usermsg_recvd = $unread_html->($inbox->usermsg_recvd_event_count);
-    my $unread_friend = $unread_html->($inbox->friendplus_event_count);
+    my $unread_friend = $unread_html->($inbox->circle_event_count);
     my $unread_entrycomment = $unread_html->($inbox->entrycomment_event_count);
     my $unread_usermsg_sent = $unread_html->($inbox->usermsg_sent_event_count);
     my $message_button = "";
@@ -68,7 +68,7 @@ sub render_body {
             <div class="folders"><p>
             <a href="." id="esn_folder_all"><?_ml inbox.menu.all _ml?>$unread_all</a>};
     $body .= qq{<a href=".?view=usermsg_recvd" class="subs" id="esn_folder_usermsg_recvd"><?_ml inbox.menu.messages _ml?>$unread_usermsg_recvd</a>} if LJ::is_enabled('user_messaging');
-    $body .= qq{<a href=".?view=friendplus" class="subs" id="esn_folder_friendplus"><?_ml inbox.menu.friend_updates _ml?>$unread_friend</a>
+    $body .= qq{<a href=".?view=circle" class="subs" id="esn_folder_friendplus"><?_ml inbox.menu.friend_updates _ml?>$unread_friend</a>
             <a href=".?view=birthday" class="subsubs" id="esn_folder_birthday"><?_ml inbox.menu.birthdays _ml?></a>
             <a href=".?view=befriended" class="subsubs" id="esn_folder_befriended"><?_ml inbox.menu.new_friends _ml?></a><a href=".?view=entrycomment" class="subs" id="esn_folder_entrycomment"><?_ml inbox.menu.entries_and_comments _ml?>$unread_entrycomment</a>
             <span class="subs">---</span>
