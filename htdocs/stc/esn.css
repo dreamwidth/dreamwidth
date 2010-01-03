@@ -251,9 +251,12 @@ span.Pages input {
     text-decoration: none;
     display: block;
     margin: 0px;
-    padding: 0px 0px 1px 2px;
+    padding: 0px 3px 1px 2px; 
 }
 .folders a:hover {
+    background-color: #eee;
+}
+.folders a.active {
     background-color: #eee;
 }
 .folders a.subs {

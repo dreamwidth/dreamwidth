@@ -61,12 +61,7 @@ body<=
     $selected_folder = "entrycomment" if $selected_folder eq "singleentry";
 
     $selected_folder = qq(
-        <style>#esn_folder_$selected_folder {
-        font-weight: bold;
-        background-color: #ffd8d8;
-        border: 1px solid #bbb;
-        } 
-        .filterlink_$view {display: none;}</style>
+        <style>.filterlink_$view {display: none;}</style>
         );
     $head = $selected_folder;
 
@@ -137,7 +132,7 @@ body<=
     # Inbox Nav
     $body .= qq{
         <table id="table_inbox" style="width: 100%"><tr><td id="table_inbox_folders" valign="top" style="padding-right: 12px">};
-    $body .= LJ::Widget::InboxFolderNav->render( 'page' => 1 );
+    $body .= LJ::Widget::InboxFolderNav->render( 'page' => 1, 'view' => $view );
 
     $body .= qq{
         </td>

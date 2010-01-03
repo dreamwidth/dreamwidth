@@ -650,8 +650,10 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 /* inbox */
 
-#esn_folder_all {
+.folders a.active {
+    font-weight: bold;
     background-color: #EEEECC !important;
+    border: 1px solid #999966;
 }
 
 /* lj_settings.css */

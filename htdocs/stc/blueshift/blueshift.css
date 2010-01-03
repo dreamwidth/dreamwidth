@@ -630,8 +630,10 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 /* inbox */
 
-#esn_folder_all {
-    background-color: #E6ECF9 !important;
+.folders a.active {
+    font-weight: bold;
+    background-color: #E6ECF9;
+    border: 1px solid #3960A0;
 }
 
 /* lj_settings.css */

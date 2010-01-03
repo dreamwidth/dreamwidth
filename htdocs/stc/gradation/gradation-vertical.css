@@ -676,15 +676,17 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 }
 
 /*s2propgroup.css */
+
 .graybg {
     background-color: #333;
 }
 
-
 /* inbox */
 
-#esn_folder_all {
-    background-color: #666666 !important;
+.folders a.active {
+    font-weight: bold;
+    background-color: #333333;
+    border: 1px solid #999999;
 }
 
 /* lj_settings.css */

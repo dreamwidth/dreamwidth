@@ -148,7 +148,7 @@ sub birthday_items {
     return $self->subset_items(@events);
 }
 
-sub befriended_items {
+sub encircled_items {
     my $self = shift;
 
     my @events = ( 'AddedToCircle' );
@@ -551,11 +551,11 @@ sub delete_all {
     } elsif ( $view eq 'circle' ) {
         @items = $self->circle_items;
         push @items, $self->birthday_items;
-        push @items, $self->befriended_items;
+        push @items, $self->encircled_items;
     } elsif ( $view eq 'birthday' ) {
         @items = $self->birthday_items;
-    } elsif ( $view eq 'befriended' ) {
-        @items = $self->befriended_items;
+    } elsif ( $view eq 'encircled' ) {
+        @items = $self->encircled_items;
     } elsif ( $view eq 'entrycomment' ) {
         @items = $self->entrycomment_items;
     } elsif ( $view eq 'bookmark' ) {
@@ -597,11 +597,11 @@ sub mark_all_read {
     } elsif ( $view eq 'circle' ) {
         @items = $self->circle_items;
         push @items, $self->birthday_items;
-        push @items, $self->befriended_items;
+        push @items, $self->encircled_items;
     } elsif ( $view eq 'birthday' ) {
         @items = $self->birthday_items;
-    } elsif ( $view eq 'befriended' ) {
-        @items = $self->befriended_items;
+    } elsif ( $view eq 'encircled' ) {
+        @items = $self->encircled_items;
     } elsif ( $view eq 'entrycomment' ) {
         @items = $self->entrycomment_items;
     } elsif ( $view eq 'bookmark' ) {

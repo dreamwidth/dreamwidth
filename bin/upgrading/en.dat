@@ -1973,11 +1973,11 @@ inbox.menu.bookmarks=Bookmarks
 
 inbox.menu.entries_and_comments=Entries &amp; Comments
 
-inbox.menu.friend_updates=Friend Updates
+inbox.menu.circle_updates=Circle Updates
 
 inbox.menu.messages=Messages
 
-inbox.menu.new_friends=New Friends
+inbox.menu.encircled=New People
 
 inbox.menu.new_message.btn=New Message
 
