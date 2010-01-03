@@ -267,7 +267,8 @@ sub process_content {
         # we don't want perl knowing that and fucking stuff up
         # for us behind our back in random places all over
         # http://zilla.livejournal.org/show_bug.cgi?id=1037
-        foreach my $attr (qw(id subject text link)) {
+        foreach my $attr (qw(id subject text link author)) {
+            next unless exists $it->{$attr} && defined $it->{$attr};
             $it->{$attr} = LJ::no_utf8_flag ( $it->{$attr} );
         }
 
