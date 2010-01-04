@@ -46,6 +46,9 @@ modish/themes           theme+          modish/layout
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
 
+refriedtablet/layout    layout(core2base/layout)    core2
+refriedtablet/themes    theme+          refriedtablet/layout
+
 skittlishdreams/layout        layout    core2
 skittlishdreams/themes        theme+    skittlishdreams/layout
 
