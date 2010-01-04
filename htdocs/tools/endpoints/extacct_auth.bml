@@ -5,8 +5,6 @@
     use JSON;
     use DW::External::Account;
 
-    # FIXME:  this functionality has not been enabled yet.
-
     # error method
     my $err = sub {
         my $msg = shift;
@@ -19,9 +17,6 @@
     BML::set_content_type('text/javascript; charset=utf-8');
     BML::finish();
 
-    # annotate this isn't used yet, just in case
-    return $err->( 'This functionality has not been enabled yet.' );
-    
     # get user
     my $u = LJ::get_remote()
         or return $err->(BML::ml('/tools/endpoints/extacct_auth.bml.error.nouser'));
@@ -36,7 +31,7 @@
 
     # get the auth challenge
     my $challenge = $account->challenge;
-    return $err->BML::ml('/tools/endpoints/extacct_auth.bml.error.nosuchaccount', { account => $account->displayname } ) unless $challenge;
+    return $err->(BML::ml('/tools/endpoints/extacct_auth.bml.error.authfailed', { account => $account->displayname } )) unless $challenge;
 
     # return the challenge
     return LJ::js_dumper( { challenge => $challenge, success => 1 } );

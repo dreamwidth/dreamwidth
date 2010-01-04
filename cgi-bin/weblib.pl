@@ -1274,7 +1274,7 @@ sub entry_form {
                 $out .= "<label for='usejournal' class='left'>" . BML::ml('entryform.postto') . "</label>\n";
                 $out .= LJ::html_select({ 'name' => 'usejournal', 'id' => 'usejournal', 'selected' => $usejournal,
                                     'tabindex' => $tabindex->(), 'class' => 'select',
-                                    "onchange" => "changeSubmit('".$submitprefix."','".$remote->{'user'}."'); getUserTags('$remote->{user}'); changeSecurityOptions('$remote->{user}'); LiveJournal.updateXpostFromJournal('$remote->{user}');" },
+                                    "onchange" => "changeSubmit('".$submitprefix."','".$remote->{'user'}."'); getUserTags('$remote->{user}'); changeSecurityOptions('$remote->{user}'); XPostAccount.updateXpostFromJournal('$remote->{user}');" },
                                     "", $remote->{'user'},
                                     map { $_, $_ } @{$res->{'usejournals'}}) . "\n";
                 $out .= "</p>\n";
@@ -1653,7 +1653,6 @@ MOODS
 
             if ( $remote && ! $altlogin ) {
                 # crosspost
-                $$onload .= " LiveJournal.updateXpostFromJournal('$remote->{user}');";
                 my @accounts = DW::External::Account->get_external_accounts($remote);
                 
                 # populate the per-account html first, so that we only have to 
@@ -1686,37 +1685,44 @@ MOODS
                             'value'    => '1',
                             'selected' => $selected,
                             'tabindex' => $tabindex->(),
-                            'onchange' => 'LiveJournal.xpostAcctUpdated();',
+                            'onchange' => 'XPostAccount.xpostAcctUpdated();',
                                                              }) . "</td>\n";
                         $xpostbydefault = 1 if $selected;
                         
-                        # accounts with no password are disabled for now.
-                        #$accthtml .= "<td>";
-                        #unless ($acct->password) {
+                        $accthtml .= "<td>";
+                        unless ($acct->password) {
                         # password field if no password
-                        #    $accthtml .= "<label for='prop_xpost_password_$acctid'>" . BML::ml('xpost.password') . "</label>";
-                        #    $accthtml .= LJ::html_text({
-                        #        'name' => "prop_xpost_password_$acctid",
-                        #        'id' => "prop_xpost_password_$acctid",
-                        #        'value' => "",
-                        #        'disabled' => 0,
-                        #        'size' => 40,
-                        #        'maxlength' => 80,
-                        #        'type' => 'password'
-                        #    });
-                        #}
-                        #$accthtml .= "</td>\n";
-                        # do a challenge/response if available.
-                        #my $challenge = eval { $acct->challenge; };
-                        #if ($challenge) {
-                        #$accthtml .= "<input type='hidden' name='prop_xpost_chal_$acctid' id='prop_xpost_chal_$acctid' class='xpost_chal' value='$challenge' />";
-                        #$accthtml .= "<input type='hidden' name='prop_xpost_chal_$acctid' id='prop_xpost_chal_$acctid' class='xpost_chal' value='$acctid' />";
-                        #$accthtml .= "<input type='hidden' name='prop_xpost_resp_$acctid' id='prop_xpost_resp_$acctid'/>";
-                        #}
+                            $accthtml .= "<span id='prop_xpost_pwspan_$acctid'>";
+                            $accthtml .= "<label for='prop_xpost_password_$acctid'>" . BML::ml('xpost.password') . "</label>";
+                            $accthtml .= LJ::html_text({
+                                'name' => "prop_xpost_password_$acctid",
+                                'id' => "prop_xpost_password_$acctid",
+                                'value' => "",
+                                'disabled' => 0,
+                                'size' => 40,
+                                'maxlength' => 80,
+                                'type' => 'password',
+                                'class' => 'xpost_pw'
+                            });
+                            $accthtml .= "<span class='xpost_pwstatus' id='prop_xpost_pwstatus_$acctid'></span>";
+                            $accthtml .= "<input type='hidden' name='prop_xpost_chal_$acctid' id='prop_xpost_chal_$acctid' class='xpost_chal' />";
+                            $accthtml .= "<input type='hidden' name='prop_xpost_resp_$acctid' id='prop_xpost_resp_$acctid'/>";
+                            $accthtml .= "</span>";
+                        }
+                        $accthtml .= "</td>\n";
+
                         $accthtml .= "</tr>\n";
                     }
                 }
-
+                $out .= qq [
+                    <script type="text/javascript" language="JavaScript">
+                      // xpost messages
+                      var xpostUser = '$remote->{user}';
+                ];
+                $out .= "var xpostCheckingMessage = '" . BML::ml('xpost.nopw.checking') . "';\n";
+                $out .= "var xpostCancelLabel =  '" . BML::ml('xpost.nopw.cancel') . "';\n";
+                $out .= "var xpostPwRequired = '" . BML::ml('xpost.nopw.required') . "';\n";
+                $out .= "</script>\n";
                 $out .= "<div id='xpostdiv'>\n";
                 $out .= "<p><label for='prop_xpost_check' class='left options'>" . BML::ml('entryform.xpost') . "</label>";
                 $out .= LJ::html_check({
@@ -1728,7 +1734,7 @@ MOODS
                     'selected' => $xpostbydefault,
                     'disabled' => (scalar @accounts) ? '0' : '1',
                     'tabindex' => $xpost_tabindex,
-                    'onchange' => 'LiveJournal.xpostButtonUpdated();',
+                    'onchange' => 'XPostAccount.xpostButtonUpdated();',
                                        });
                 $out .= LJ::help_icon_html('prop_xpost_check');
                 $out .= "<a href = '/manage/settings/?cat=othersites'>" . BML::ml('entryform.xpost.manage') . "</a>";
@@ -1737,11 +1743,7 @@ MOODS
                 $out .= "</table>\n";
                 
                 $out .= "</div>\n";
-                # disable choices if no xpost selected by default.
                 $out .= qq [ 
-              <script type="text/javascript">
-                LiveJournal.xpostAcctUpdated();
-              </script>
               <p class='pkg'>
               <span class='inputgroup-left'></span>
                        ];
@@ -1772,7 +1774,7 @@ if (document.getElementById) {
 PREVIEW
             }
             if ($LJ::SPELLER && !$opts->{'disabled_save'}) {
-                $out .= LJ::html_submit('action:spellcheck', BML::ml('entryform.spellcheck'), { 'tabindex' => $tabindex->() }) . "&nbsp;";
+                $out .= LJ::html_submit('action:spellcheck', BML::ml('entryform.spellcheck'), { onclick => 'XPostAccount.doSpellcheck()', tabindex => $tabindex->() }) . "&nbsp;";
             }
             # Update posting date/time
             $out .= "<input type='button' value='" . BML::ml( 'entryform.updatedate' ) . "' onclick='settime(\"" . LJ::ejs( BML::ml( 'entryform.dateupdated' ) ) . "\", this);' tabindex='" . $tabindex->() . "' />";
@@ -1946,7 +1948,7 @@ PREVIEW
 
             # do a double-confirm on delete if we have crossposts that
             # would also get removed
-            my $delete_onclick = "return LiveJournal.confirmDelete('" . LJ::ejs(BML::ml('entryform.delete.confirm')) . "', '" . LJ::ejs(BML::ml('entryform.delete.xposts.confirm')) . "')";
+            my $delete_onclick = "return XPostAccount.confirmDelete('" . LJ::ejs(BML::ml('entryform.delete.confirm')) . "', '" . LJ::ejs(BML::ml('entryform.delete.xposts.confirm')) . "')";
             $out .= LJ::html_submit('action:delete', BML::ml('entryform.delete'), {
                 'disabled' => $opts->{'disabled_delete'},
                 'tabindex' => $tabindex->(),

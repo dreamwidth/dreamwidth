@@ -32,6 +32,8 @@
 
 .setting.xpost.option.password.info=(Please make sure you have caps-lock disabled and enter the correct password.)
 
+.setting.xpost.option.savepassword=Save Password
+
 .setting.xpost.option.servicename=Custom Service Name
 
 .setting.xpost.option.servicetype=Custom Service Type

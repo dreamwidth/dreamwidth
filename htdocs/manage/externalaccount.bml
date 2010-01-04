@@ -191,9 +191,22 @@ use strict;
         selected => $editpage ? $editacct->xpostbydefault : $POST{xpostbydefault}
     });
     my $xpostbydefault_errdiv = errdiv(\%errs, "xpostbydefault");
-        $body .= "<br />$xpostbydefault_errdiv" if $xpostbydefault_errdiv;
-        $body .= "</td></tr>\n";
+    $body .= "<br />$xpostbydefault_errdiv" if $xpostbydefault_errdiv;
+    $body .= "</td></tr>\n";
 
+    $body .= "<tr><td class='setting_label'><label for='savepassword'>" . $ML{'.setting.xpost.option.savepassword'} . "</label></td>";
+    $body .= "<td>" . LJ::html_check({
+        name     => "savepassword",
+        value    => 1,
+        id       => "savepassword",
+        selected => LJ::did_post() ? 
+                      $POST{savepassword} :
+                      $editpage ? $editacct->password ne "" : 1,
+    });
+    my $savepassword_errdiv = errdiv(\%errs, "savepassword");
+    $body .= "<br />$savepassword_errdiv" if $savepassword_errdiv;
+    $body .= "</td></tr>\n";
+    
     $body .= "<tr><td>";
     $body .= "<br />";
     $body .= LJ::html_submit(undef, $editpage ? $ML{'.btn.update'} : $ML{'.btn.create'});
@@ -238,6 +251,7 @@ sub create_external_account {
     $opts{password} = $POST->{password};
     $opts{username} = $POST->{username};
     $opts{xpostbydefault} = $POST->{xpostbydefault};
+    $opts{savepassword} = $POST->{savepassword};
 
     # username is required
     if (! $opts{username}) {
@@ -245,12 +259,6 @@ sub create_external_account {
         $ok = 0;
     }
     
-    # password is required, at least for now.
-    if (! $opts{password}) {
-        $errs->{password} = BML::ml('.settings.xpost.error.password.required');
-        $ok = 0;
-    }
-
     # check if it's a default site or a custom site
     if ($POST->{"site"} ne -1) {
         # default site; just use the siteid
@@ -304,6 +312,10 @@ sub create_external_account {
     }
 
     if ($ok) {
+        # if the user requested that we don't save their password, then
+        # don't save their password.
+        $opts{password} = "" if $opts{savepassword};
+
         my $new_acct = DW::External::Account->create($u, \%opts);
         # FIXME add error if create fails.
         if ($new_acct) {
@@ -358,14 +370,11 @@ sub edit_external_account {
     my $acct = DW::External::Account->get_external_account($u, $POST{acctid});
     return 0 unless $acct;
     
-    # password is required, at least for now.
-    if (! $POST{password}) {
-        $errs->{password} = BML::ml('.settings.xpost.error.password.required');
-        return 0;
-    }
-
     my $newpw = $POST{password} || "";
-    if ($POST{password} ne "__passwd__") {
+    if (! $POST{savepassword}) {
+        # don't save the password.
+        $acct->set_password("");
+    } elsif ($POST{password} ne "__passwd__") {
         # we have a password
         $acct->set_password($POST{password});
     }

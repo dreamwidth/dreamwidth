@@ -4747,6 +4747,12 @@ xpost.error.invalidprotocol=Missing or invalid posting protocol.
 
 xpost.notrespected=This will not respect your default <a [[aopts]]>crosspost settings</a>. Your crossposted entries will not be updated.
 
+xpost.nopw.cancel=Cancel
+
+xpost.nopw.checking=Getting authentication...
+
+xpost.nopw.required=Password required.
+
 xpost.password=Password:
 
 xpost.poll.view=View poll: [[name]]

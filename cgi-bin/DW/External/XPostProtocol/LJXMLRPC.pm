@@ -75,16 +75,34 @@ sub _call_xmlrpc {
 # LJ-XMLRPC library class.
 sub do_auth {
     my ($self, $xmlrpc, $auth) = @_;
-    
+
+    # if we've already set up an ljsession, just use it.
+    if ($auth->{ljsession}) {
+        return $auth;
+    }
+
     # challenge/response for user validation
     if ($auth->{auth_challenge} && $auth->{auth_response}) {
-        # if we already have them, just return.
-        return {
+        # if we already have a challenge and response, then do a login.
+
+        my $challengecall = $self->_call_xmlrpc($xmlrpc, "sessiongenerate", {
+            ver            => 1,
+            auth_method    => 'challenge',
             username       => $auth->{username},
             auth_challenge => $auth->{auth_challenge},
-            auth_response =>  $auth->{auth_response},
-            success => 1
-        };
+            auth_response  => $auth->{auth_response},
+            expiration     => 'short'
+        });
+
+        if ($challengecall->{success}) {
+            $auth->{success} = 1;
+            $auth->{ljsession} = $challengecall->{result}->{ljsession};
+            return $auth;
+        } else {
+            # just return the result hashref (with error)
+            return $challengecall;
+        }
+
     } else {
         my $challengecall = $self->_call_xmlrpc($xmlrpc, 'getchallenge', {});
         if ($challengecall->{success}) {
@@ -125,14 +143,28 @@ sub call_xmlrpc {
     return $authresp unless $authresp->{success};
 
     # return the results of the call
-    return $self->_call_xmlrpc($xmlrpc, $mode, {
-        ver            => 1,
-        auth_method    => 'challenge',
-        username       => $authresp->{username},
-        auth_challenge => $authresp->{auth_challenge},
-        auth_response  => $authresp->{auth_response},
-        %{ $req || {} }
-    });
+    if ($authresp->{ljsession}) {
+        # do an ljsession login
+        $xmlrpc->transport->http_request->push_header('X-LJ-Auth', 'cookie');
+        $xmlrpc->transport->http_request->push_header( Cookie => "ljsession=" . $authresp->{ljsession} );
+
+        return $self->_call_xmlrpc($xmlrpc, $mode, {
+            ver            => 1,
+            auth_method    => 'cookie',
+            username       => $authresp->{username},
+            %{ $req || {} }
+        });
+    } else {
+        # do a standalone challenge/response login.
+        return $self->_call_xmlrpc($xmlrpc, $mode, {
+            ver            => 1,
+            auth_method    => 'challenge',
+            username       => $authresp->{username},
+            auth_challenge => $authresp->{auth_challenge},
+            auth_response  => $authresp->{auth_response},
+            %{ $req || {} }
+        });
+    }
 }
 
 # does a crosspost using the LJ XML-RPC protocol.  returns a hashref
