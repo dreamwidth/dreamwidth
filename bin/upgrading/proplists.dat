@@ -112,7 +112,7 @@ userproplist.crosspost_footer_append:
 
 userproplist.crosspost_footer_text:
   cldversion: 4
-  datatype: char
+  datatype: blobchar
   des: Custom footer for crossposted entries
   indexed: 0
   multihomed: 0

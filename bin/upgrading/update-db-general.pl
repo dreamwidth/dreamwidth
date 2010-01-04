@@ -3809,6 +3809,22 @@ EOF
         do_sql( 'UNLOCK TABLES' );
     }
 
+    # convert xpost-footer-update from char to blobchar
+    if ( table_relevant( 'userproplite2' ) ) {
+        my $upropid = LJ::get_prop( user => 'crosspost_footer_text' )->{upropid};
+
+        my $testresult = $dbh->selectrow_array( "SELECT upropid FROM userproplite2 WHERE upropid = $upropid LIMIT 1" );
+        warn "test = $testresult\n";
+        if ( $testresult > 0 ) {
+            do_sql( "INSERT IGNORE INTO userpropblob (userid, upropid, value) " .
+                    "    SELECT userid, upropid, value FROM userproplite2 WHERE upropid = $upropid" );
+            do_sql( "DELETE FROM userproplite2 WHERE upropid = $upropid" );
+        }
+    }
+    if ( table_relevant( "userproplist" ) && ! check_dbnote("xpost_footer_update") ) {
+        do_sql("UPDATE userproplist SET datatype = 'blobchar' WHERE name = 'crosspost_footer_text'");
+        set_dbnote( "xpost_footer_update", 1 );
+    }
 });
 
 

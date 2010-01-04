@@ -7,6 +7,8 @@ use Digest::MD5 qw(md5_hex);
 
 sub tags { qw(xpost_option_server xpost_option_username xpost_option_password xpost_option_xpostbydefault crosspost_footer_append crosspost_footer_text) }
 
+my $footer_length = 1024;
+
 # show this setting editor
 sub should_render {
     my ($class, $u) = @_;
@@ -153,7 +155,10 @@ sub option {
     my $baseurl = $LJ::SITEROOT;
     my $alttext = $class->ml('setting.xpost.option.footer.vars.comment_image.alttext');
     my $default_comment = $class->ml('xpost.redirect.comment', { postlink => "%%url%%" });
-
+    
+    # the javascript.  we have to do some special magic to get the lengths
+    # to line up for differing newline characters and for unicode characters
+    # outside the basic multilingual plane.
     $ret .= qq [
       <div id='footer_preview' class='xpost_footer_preview'></div>
       </div>
@@ -163,12 +168,48 @@ sub option {
           if (! previewString) {
             previewString = '$default_comment';
           }
+          previewString = previewString.replace(/\\r/g, "");
+          previewString = previewString.replace(/\\n/g, "\\r\\n");
+          previewString = substrUtf(previewString, $footer_length);
           previewString = previewString.replace(/%%url%%/, '$baseurl/12345.html');
           previewString = previewString.replace(/%%reply_url%%/, '$baseurl/12345.html?mode=reply');
           previewString = previewString.replace(/%%comment_url%%/, '$baseurl/12345.html#comments');
           previewString = previewString.replace(/%%comment_image%%/, '<img src="$baseurl/tools/commentcount?samplecount=23" width="30" height="12" alt="$alttext" style="vertical-align: middle;"/>');
           \$('footer_preview').innerHTML = previewString;
         }
+
+        function substrUtf(previewString, count) {
+          if (previewString.length <= count) {
+            // if the length is less than count, just return
+            return previewString;
+          } else if (previewString.match(/[\\uD800-\\uDBFF]/g) == null) {
+            // if there are no surrogate pairs, just return the basic substring
+            return previewString.substring(0, count);
+          } else {
+            // step through the string and get the string length that 
+            // corresponds to the given glyph count
+            var glyphCount = 0;
+            var i = 0;
+            while (glyphCount < count && i < previewString.length) {
+              var charCode = previewString.charCodeAt(i);
+              // check for a surrogate pair
+              if ((charCode >= 55296 && charCode <= 56319) && (previewString.charCodeAt(i+1) >= 56320 && previewString.charCodeAt(i+1) <= 57343)) {
+                i++;
+                glyphCount++;
+              } else {
+                // single char
+                glyphCount++;
+              }
+              i++;
+            }
+            if (glyphCount < count) {
+              return previewString;
+            } else {
+              return previewString.substring(0, i);
+            }
+          }
+        }
+
         \$('preview_section').style.display = 'block';
         updatePreview();
       </script>
@@ -212,7 +253,7 @@ sub save {
     $u->set_prop( opt_xpost_disable_comments => $class->get_arg($args, "xpostdisablecomments") ? "1" : "0");
 
     # change footer text
-    $u->set_prop( crosspost_footer_text => $class->get_arg( $args, "crosspost_footer_text" ) );
+    $u->set_prop( crosspost_footer_text => LJ::text_trim( $class->get_arg( $args, "crosspost_footer_text" ), 0, $footer_length ) );
 
     # change footer display
     $u->set_prop( crosspost_footer_append => $class->get_arg( $args, "crosspost_footer_append" ) );
