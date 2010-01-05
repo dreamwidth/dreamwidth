@@ -89,7 +89,7 @@ $ret .= "<p>" . BML::ml( '.description', { aopts => "href='stats/stats.txt'" } )
  { 
      $ret .= "<h1>$ML{'.recent.header'}</h1>";
      $ret .= "<p>$ML{'.recent.desc'}</p><ul>";
-     $sth = $dbr->prepare("SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY uu.timeupdate DESC LIMIT 10");
+     $sth = $dbr->prepare( "SELECT u.user, u.name, uu.timeupdate FROM user u, userusage uu WHERE u.userid=uu.userid AND uu.timeupdate > DATE_SUB(NOW(), INTERVAL 30 DAY) AND u.journaltype <> 'Y' ORDER BY uu.timeupdate DESC LIMIT 10" );
      $sth->execute;
      my $ct;
      while (my ($iuser, $iname, $itime) = $sth->fetchrow_array) {
