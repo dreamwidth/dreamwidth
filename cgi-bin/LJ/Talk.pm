@@ -1205,9 +1205,6 @@ sub talkform {
             if LJ::Talk::Post::over_maxcomments($journalu, $jitemid);
     }
 
-    if (!$editid && $parpost->{'state'} eq "S") {
-        $ret .= "<div class='ljwarnscreened'>$BML::ML{'.warnscreened'}</div>";
-    }
     $ret .= "<form method='post' action='$LJ::SITEROOT/talkpost_do' id='postform'>";
     $ret .= LJ::form_auth();
 
@@ -1759,7 +1756,21 @@ QQ
     # textarea for their message body
     $ret .= "<tr valign='top'><td align='right'>$BML::ML{'.opt.message'}";
     $ret .= "</td><td style='width: 90%'>";
-    $ret .= "<textarea class='textbox' rows='10' cols='75' wrap='soft' name='body' id='commenttext'>" . LJ::ehtml($form->{body}) . "</textarea>";
+    $ret .= "<textarea class='textbox' rows='10' cols='75' wrap='soft' name='body' id='commenttext'>" . LJ::ehtml($form->{body}) . "</textarea><br />";
+
+    # if parent comment is screened, give option to unscreen it
+    # default is not to unscreen
+    if ( $parpost->{state} eq "S" ) {
+        $ret .= "<label for='unscreen_parent'>$BML::ML{'.opt.unscreenparent'}</label>";
+        $ret .= LJ::html_check(
+                {
+                name  => 'unscreen_parent',
+                id    => 'unscreen_parent',
+                value => 1,
+                selected => 0
+                }
+            );
+    }
 
     # Display captcha challenge if over rate limits.
     if ($opts->{do_captcha}) {
@@ -3394,12 +3405,18 @@ sub require_captcha_test {
 
 # returns 1 on success.  0 on fail (with $$errref set)
 sub post_comment {
-    my ($entryu, $journalu, $comment, $parent, $item, $errref) = @_;
+    my ( $entryu, $journalu, $comment, $parent, $item, $errref, $unscreen_parent ) = @_;
 
     # unscreen the parent comment if needed
-    if ($parent->{state} eq 'S') {
+    if ( $parent->{state} eq 'S' && $unscreen_parent ) {
+        # if parent comment is screened and we got this far, the user has the permission to unscreen it
+        # in this case the parent comment needs to be unscreened and the comment posted as normal
         LJ::Talk::unscreen_comment($journalu, $item->{itemid}, $parent->{talkid});
         $parent->{state} = 'A';
+    } elsif ( $parent->{state} eq 'S' ) {
+        # if the parent comment is screened and the unscreen option was not selected, we also want the
+        # reply to be posted as screened
+        $comment->{state} = 'S';
     }
 
     # check for duplicate entry (double submission)

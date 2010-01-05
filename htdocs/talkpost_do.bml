@@ -179,6 +179,8 @@ body<=
     my $comment  = $init->{comment};
     my $item     = $init->{item};
 
+    my $unscreen_parent = $POST{unscreen_parent} ? 1 : 0;
+
     # check max comments only if posting a new comment (not when editing)
     unless ($editid) {
         return LJ::bad_input($ML{'.error.maxcomments'})
@@ -208,7 +210,7 @@ body<=
             return LJ::bad_input($err);
         }
     } else {
-        unless (LJ::Talk::Post::post_comment($entryu, $journalu, $comment, $parent, $item, \$err)) {
+        unless ( LJ::Talk::Post::post_comment( $entryu, $journalu, $comment, $parent, $item, \$err, $unscreen_parent ) ) {
             return LJ::bad_input($err);
         }
     }

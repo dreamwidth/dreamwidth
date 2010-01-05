@@ -51,7 +51,6 @@ body<=
                threadroot      talk.threadrootlink
                expand          talk.expandlink
                replythis       talk.replytothis
-               unscreentoreply talk.unscreentoreply
                screened        talk.screened
                frozen          talk.frozen
                link            talk.commentpermlink
@@ -700,8 +699,8 @@ body<=
                     } else {
                        if ($post->{state} eq 'S') {
                            if ( LJ::Talk::can_unscreen( $remote, LJ::load_userid( $item->{ownerid} ), $item, $u ) ) {
-                               # show unscreen to reply link id comment screened
-                               $ret .= "(<a href='$LJ::SITEROOT/talkscreen?mode=unscreen&amp;${jargent}talkid=$dtid'>$T{'unscreentoreply'}</a>) ";
+                               # if user can unscreen, they can reply, choosing whether to unscreen or not
+                               $ret .= "(" . LJ::make_qr_link($dtid, $post->{subject}, $T{replythis}, $replyurl) .  ") ";
                            } else {
                                $ret .= "($T{ 'screened' })";
                            }

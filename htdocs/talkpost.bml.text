@@ -79,6 +79,8 @@
 
 .opt.submit=Post Comment
 
+.opt.unscreenparent=Unscreen the comment you are replying to (your comment will also be posted unscreened)
+
 .opt.willscreen=(will be screened)
 
 .opt.willscreenfriend=(will be screened if not given access)
@@ -96,6 +98,4 @@ You have entered a username, but you have deselected the 'LiveJournal user' opti
 
 Please either clear the user textbox or select the relevant posting mode and try again.
 .
-
-.warnscreened=<b>Notice:</b> This comment is screened. Replying to it will automatically un-screen it and make it visible.
 
