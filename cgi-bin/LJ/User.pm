@@ -3416,9 +3416,29 @@ sub can_manage {
 
 # can $u post to $targetu?
 sub can_post_to {
-    my ($u, $targetu) = @_;
+    my ( $u, $targetu, %opts ) = @_;
+    croak "Invalid users passed to LJ::User->can_post_to."
+        unless LJ::isu( $u ) && LJ::isu( $targetu );
 
-    return LJ::can_use_journal($u->id, $targetu->user);
+    # if it's you, and you're a person, you can post to it
+    return 1 if $u->is_person && $u->equals( $targetu );
+
+    # else, you have to be an individual and the target has to be a comm
+    return 0 unless $u->is_individual && $targetu->is_community;
+
+    # check if user has access explicit posting access
+    return 1 if LJ::check_rel( $targetu, $u, 'P' );
+
+    # let's check if this community is allowing post access to non-members
+    if ( $targetu->prop( 'nonmember_posting' ) ) {
+        my ( $ml, $pl ) = LJ::get_comm_settings( $targetu );
+        return 1 if $pl eq 'members';
+    }
+
+    # is the poster an admin for this community?  admins can always post
+    return 1 if $u->can_manage( $targetu );
+
+    return 0;
 }
 
 

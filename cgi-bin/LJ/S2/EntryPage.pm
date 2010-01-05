@@ -17,6 +17,8 @@
 use strict;
 package LJ::S2;
 
+use Carp;
+
 sub EntryPage
 {
     my ($u, $remote, $opts) = @_;
@@ -112,7 +114,7 @@ sub EntryPage
         'userpicref' => \%userpic,
         'userref' => \%user,
         # user object is cached from call just made in EntryPage_entry
-        'up' => LJ::load_user($s2entry->{'poster'}->{'username'}),
+        'up' => LJ::load_user($s2entry->{'poster'}->{'user'}),
         'viewall' => $viewall,
         'expand_all' => $opts->{expand_all},
     };
@@ -214,9 +216,16 @@ sub EntryPage
                 if ($pu) {
                     $poster = UserLite($pu);
                 } else {
+                    # I can't determine where this code is called, if it ever is?  so for now,
+                    # let's spit out a backtrace so we can figure out how this case happens.  we need
+                    # to fix it since the journal_type is wrong in some cases.
+                    # FIXME: watch logs
+                    Carp::cluck "LJ::S2::EntryPage faked a UserLite; userpost=$com->{userpost}:";
+                    
                     $poster = {
                         '_type' => 'UserLite',
                         'username' => $com->{'userpost'},
+                        'user' => $com->{'userpost'},
                         'name' => $com->{'userpost'},  # we don't have this, so fake it
                         'journal_type' => 'P',         # fake too, but only people can post, so correct
                     };
@@ -335,7 +344,7 @@ sub EntryPage
                 my $cmt = LJ::Comment->new($u, dtalkid => $i->{talkid});
 
                 my $has_threads = scalar @{$i->{'replies'}};
-                my $poster = $i->{'poster'} ? $i->{'poster'}{'username'} : "";
+                my $poster = $i->{'poster'} ? $i->{'poster'}{'user'} : "";
                 my @child_ids = map { $_->{'talkid'} } @{$i->{'replies'}};
                 $cmtinfo->{$i->{talkid}} = {
                     rc     => \@child_ids,

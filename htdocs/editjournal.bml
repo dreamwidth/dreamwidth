@@ -29,7 +29,7 @@ body<=
     return LJ::bad_input( $ML{'error.invalidauth'} )
         unless $u;
     return LJ::bad_input( $ML{'error.person'} )
-        unless $u->is_person;
+        unless $u->is_individual;
 
     # are we modify a community post?
     my $usejournal = $GET{'usejournal'} || $POST{'usejournal'} || $GET{'journal'};
@@ -127,6 +127,11 @@ body<=
             my $u_for_entry = $usejournal ? $usejournal_u : $u;
             my $entry_obj = LJ::Entry->new($u_for_entry, ditemid => $ditemid);
 
+            # this is a sanity check, make sure the entry we got is visible to the
+            # person trying to edit it.
+            return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nofind'} p?>"
+                unless $entry_obj->visible_to( $remote );
+
             # do getevents request
             my %res = ();
             LJ::do_request({ 'mode' => 'getevents',
@@ -137,7 +142,8 @@ body<=
                              'itemid' => $itemid },
                            \%res,
                            { "noauth" => 1,
-                             'u' => $u }
+                             'u' => $u,
+                             ignorecanuse => 1 }
                            );
 
             # was there a protocol error?
@@ -156,6 +162,7 @@ body<=
                 $disabled_delete = ! LJ::can_delete_journal_item($u, $usejournal_u);
                 $disabled_save++;
             }
+            $disabled_save++ if $usejournal && ! $u->can_post_to( $usejournal_u );
             $disabled_spamdelete = $disabled_delete || !$usejournal || ($res{'events_1_poster'} eq $u->{'user'});
 
             # read-only posters and journals cannot be edited

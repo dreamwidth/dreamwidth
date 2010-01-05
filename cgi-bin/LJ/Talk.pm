@@ -109,9 +109,9 @@ sub link_bar
     my $opts = shift;
     my ($u, $up, $remote, $headref, $itemid) =
         map { $opts->{$_} } qw(u up remote headref itemid);
-    my $ret;
 
-    my @linkele;
+    # we want user objects, so make sure they are
+    ( $u, $up, $remote ) = map { LJ::want_user( $_ ) } ( $u, $up, $remote );
 
     my $mlink = sub {
         my ($url, $piccode) = @_;
@@ -126,6 +126,7 @@ sub link_bar
     my $entry = LJ::Entry->new($u, ditemid => $itemid);
 
     # << Previous
+    my @linkele;
     push @linkele, $mlink->("$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=prev", "prev_entry");
     $$headref .= "<link href='$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=prev' rel='Previous' />\n";
 
@@ -137,8 +138,8 @@ sub link_bar
     # edit entry - if we have a remote, and that person can manage
     # the account in question, OR, they posted the entry, and have
     # access to the community in question
-    if (defined $remote && (LJ::can_manage($remote, $u) ||
-                            (LJ::u_equals($remote, $up) && LJ::can_use_journal($up->{userid}, $u->{user}, {}))))
+    if ( defined $remote && ( $remote->can_manage( $u ) ||
+                            ( $remote->equals( $up ) && $up->can_post_to( $u ) ) ) )
     {
         push @linkele, $mlink->("$LJ::SITEROOT/editjournal?${jargent}itemid=$itemid", "editentry");
     }
@@ -166,14 +167,14 @@ sub link_bar
     push @linkele, $mlink->("$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=next", "next_entry");
     $$headref .= "<link href='$LJ::SITEROOT/go?${jargent}itemid=$itemid&amp;dir=next' rel='Next' />\n";
 
-    if (@linkele) {
-        $ret .= BML::fill_template("standout", {
+    my $ret;
+    if ( @linkele ) {
+        $ret = BML::fill_template("standout", {
             'DATA' => "<table><tr><td valign='middle'>" .
                 join("&nbsp;&nbsp;", @linkele) .
                 "</td></tr></table>",
             });
     }
-
     return $ret;
 }
 

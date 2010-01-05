@@ -2371,8 +2371,8 @@ package S2::Builtin::LJ;
 use strict;
 
 sub UserLite {
-    my ($ctx,$username) = @_;
-    my $u = LJ::load_user($username);
+    my ($ctx,$user) = @_;
+    my $u = LJ::load_user($user);
     return LJ::S2::UserLite($u);
 }
 
@@ -2502,7 +2502,7 @@ sub get_url
     # now get data from one of two paths, depending on if we were given a UserLite
     # object or a string for the username, so make sure we have the username.
     if (ref $obj eq 'HASH') {
-        $user = $obj->{username};
+        $user = $obj->{user};
     } else {
         $user = $obj;
     }
@@ -2979,7 +2979,7 @@ sub _Comment__get_link
     my ($ctx, $this, $key) = @_;
     my $page = get_page();
     my $u = $page->{'_u'};
-    my $post_user = $page->{'entry'} ? $page->{'entry'}->{'poster'}->{'username'} : undef;
+    my $post_user = $page->{'entry'} ? $page->{'entry'}->{'poster'}->{'user'} : undef;
     my $com_user = $this->{'poster'} ? $this->{'poster'}->{'user'} : undef;
     my $remote = LJ::get_remote();
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
@@ -3336,6 +3336,8 @@ sub Page__print_trusted
 {
     my ($ctx, $this, $key) = @_;
 
+    # use 'username' so that we can put 'foo.site.com' in the hash instead of
+    # having to look up their 'ext_nnnn' name
     my $username = $this->{journal}->{username};
     my $fullkey = "$username-$key";
 
@@ -3588,8 +3590,8 @@ sub EntryLite__get_plain_subject
 sub _Entry__get_link
 {
     my ($ctx, $this, $key) = @_;
-    my $journal = $this->{'journal'}->{'username'};
-    my $poster = $this->{'poster'}->{'username'};
+    my $journal = $this->{'journal'}->{'user'};
+    my $poster = $this->{'poster'}->{'user'};
     my $remote = LJ::get_remote();
     my $null_link = { '_type' => 'Link', '_isnull' => 1 };
     my $journalu = LJ::load_user($journal);
@@ -3764,7 +3766,7 @@ sub EntryPage__print_multiform_start
     return unless $this->{'multiform_on'};
     $S2::pout->("<form style='display: inline' method='post' action='$LJ::SITEROOT/talkmulti' name='multiform'>\n" .
                 LJ::html_hidden("ditemid", $this->{'entry'}->{'itemid'},
-                                "journal", $this->{'entry'}->{'journal'}->{'username'}) . "\n");
+                                "journal", $this->{'entry'}->{'journal'}->{'user'}) . "\n");
 }
 
 sub Page__print_control_strip

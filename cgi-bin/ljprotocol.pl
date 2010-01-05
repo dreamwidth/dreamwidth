@@ -2763,9 +2763,6 @@ sub check_altusage
 {
     my ($req, $err, $flags) = @_;
 
-    # see note in ljlib.pl::can_use_journal about why we return
-    # both 'ownerid' and 'u_owner' in $flags
-
     my $alt = $req->{'usejournal'};
     my $u = $flags->{'u'};
     unless ($u) {
@@ -2786,30 +2783,27 @@ sub check_altusage
     # complain if the username is invalid
     return fail($err,206) unless LJ::canonical_username($alt);
 
+    # we are going to load the alt user
+    $flags->{u_owner} = LJ::load_user( $alt );
+    $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
     my $r = eval { BML::get_request() };
-
-    # allow usage if we're told explicitly that it's okay
-    if ($flags->{'usejournal_okay'}) {
-        $flags->{'u_owner'} = LJ::load_user($alt);
-        $flags->{'ownerid'} = $flags->{'u_owner'}->{'userid'};
-        $r->notes->{journalid} = $flags->{'ownerid'}
-            if $r && !$r->notes->{journalid};
-        return 1 if $flags->{'ownerid'};
-        return fail($err,206);
-    }
-
-    # otherwise, check for access:
-    my $info = {};
-    my $canuse = LJ::can_use_journal($u->{'userid'}, $alt, $info);
-    $flags->{'ownerid'} = $info->{'ownerid'};
-    $flags->{'u_owner'} = $info->{'u_owner'};
-    $r->notes->{journalid} = $flags->{'ownerid'}
+    $r->notes->{journalid} = $flags->{ownerid}
         if $r && !$r->notes->{journalid};
 
-    return 1 if $canuse || $flags->{'ignorecanuse'};
+    # allow usage if we're told explicitly that it's okay
+    if ( $flags->{usejournal_okay} ) {
+        return 1 if $flags->{ownerid};
+        return fail( $err, 206 );
+    }
 
-    # not allowed to access it
-    return fail($err,300);
+    # or, if they have explicitly said to ignore canuse
+    return 1 if $flags->{ignorecanuse};
+
+    # otherwise, check for access
+    return 1 if $u->can_post_to( $flags->{u_owner} );
+
+    # not allowed to access it, bad user, no post
+    return fail( $err, 300 );
 }
 
 sub authenticate

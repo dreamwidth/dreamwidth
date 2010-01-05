@@ -1594,55 +1594,6 @@ sub get_sitekeyword_id {
 
 
 # <LJFUNC>
-# name: LJ::can_use_journal
-# class:
-# des:
-# info:
-# args:
-# des-:
-# returns:
-# </LJFUNC>
-sub can_use_journal
-{
-    &nodb;
-    my ($posterid, $reqownername, $res) = @_;
-
-    ## find the journal owner's info
-    my $uowner = LJ::load_user($reqownername);
-    unless ($uowner) {
-        $res->{'errmsg'} = "Journal \"$reqownername\" does not exist.";
-        return 0;
-    }
-    my $ownerid = $uowner->{'userid'};
-
-    # the 'ownerid' necessity came first, way back when.  but then
-    # with clusters, everything needed to know more, like the
-    # journal's dversion and clusterid, so now it also returns the
-    # user row.
-    $res->{'ownerid'} = $ownerid;
-    $res->{'u_owner'} = $uowner;
-
-    ## check if user has access
-    return 1 if LJ::check_rel($ownerid, $posterid, 'P');
-
-    # let's check if this community is allowing post access to non-members
-    LJ::load_user_props($uowner, "nonmember_posting");
-    if ($uowner->{'nonmember_posting'}) {
-        my $dbr = LJ::get_db_reader() or die "nodb";
-        my $postlevel = $dbr->selectrow_array("SELECT postlevel FROM ".
-                                              "community WHERE userid=$ownerid");
-        return 1 if $postlevel eq 'members';
-    }
-
-    # is the poster an admin for this community?
-    return 1 if LJ::can_manage($posterid, $uowner);
-
-    $res->{'errmsg'} = "You do not have access to post to this journal.";
-    return 0;
-}
-
-
-# <LJFUNC>
 # name: LJ::load_talk_props2
 # class:
 # des:

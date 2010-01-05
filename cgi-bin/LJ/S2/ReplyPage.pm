@@ -135,7 +135,7 @@ sub ReplyPage
             $opts->{status} = "404 Not Found";
             return "<p>This comment has been deleted; you cannot reply to it.</p>";
         }
-        if ($parpost->{'state'} eq 'S' && !LJ::Talk::can_unscreen($remote, $u, $s2entry->{'poster'}->{'username'}, undef)) {
+        if ($parpost->{'state'} eq 'S' && !LJ::Talk::can_unscreen($remote, $u, $s2entry->{'poster'}->{'user'}, undef)) {
             $opts->{'handler_return'} = 403;
             return;
         }

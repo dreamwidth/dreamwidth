@@ -1841,10 +1841,8 @@ PREVIEW
     {
         $out .= "<div id='submitbar' class='pkg'>\n\n";
 
-        $out .= "<div id='security_container'>\n";
-        $out .= "<label for='security'>" . BML::ml('entryform.security2') . " </label>\n";
-
         # Security
+        my $secbar = 0;
             if ($opts->{'mode'} eq "update" || !$opts->{'disabled_save'}) {
                 my $usejournalu = LJ::load_user($opts->{usejournal});
                 my $is_comm = $usejournalu && $usejournalu->is_comm ? 1 : 0;
@@ -1877,6 +1875,12 @@ PREVIEW
                 if ( scalar @trust_groups && !$is_comm ) {
                     push @secs, ("custom", $string_custom);
                     push @secopts, ("onchange" => "customboxes()");
+                }
+                
+                if ( @secs ) {
+                    $secbar = 1;
+                    $out .= "<div id='security_container'>\n";
+                    $out .= "<label for='security'>" . BML::ml('entryform.security2') . " </label>\n";
                 }
 
                 $out .= LJ::html_select({ 'id' => "security", 'name' => 'security', 'include_ids' => 1,
@@ -1924,7 +1928,8 @@ PREVIEW
 
             $out .= LJ::html_submit('action:update', BML::ml('entryform.update4'),
                     { 'onclick' => $onclick, 'class' => 'submit', 'id' => 'formsubmit',
-                      'tabindex' => $tabindex->() }) . "&nbsp;\n"; }
+                      'tabindex' => $tabindex->() }) . "&nbsp;\n";
+        }
 
         if ($opts->{'mode'} eq "edit") {
             my $onclick = "";
@@ -1934,7 +1939,7 @@ PREVIEW
                 $out .= LJ::html_submit('action:save', BML::ml('entryform.save'),
                                         { 'onclick' => $onclick, 'disabled' => $opts->{'disabled_save'},
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
-            } else {
+            } elsif ( $opts->{maintainer_mode} ) {
                 $out .= LJ::html_submit('action:savemaintainer', BML::ml('entryform.save.maintainer'),
                                         { 'onclick' => $onclick, 'disabled' => !$opts->{'maintainer_mode'},
                                           'tabindex' => $tabindex->() }) . "&nbsp;\n";
@@ -1961,7 +1966,7 @@ PREVIEW
             }
         }
 
-        $out .= "</div><!-- end #security_container -->\n\n";
+        $out .= "</div><!-- end #security_container -->\n\n" if $secbar;
         $out .= "</div><!-- end #submitbar -->\n\n";
         $out .= "</div><!-- end #entry-form-wrapper -->\n\n";
 
