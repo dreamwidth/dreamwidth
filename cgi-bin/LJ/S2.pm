@@ -3553,12 +3553,15 @@ sub EntryLite__formatted_subject {
         }
     }
 
-    # if subject has a link and is not collapsed display raw subject
-    # TODO: how about other HTML tags?
-    if ( $subject =~ /href/ && $this->{full} ) {
-        return $subject;
 
+    # display subject as-is (cleaned but not wrapped in a link)
+    # if subject has a link and we are on a full comment/single entry view and don't need to click through
+    # TODO: how about other HTML tags?
+    if ( $subject =~ /href/ && ( $this->{full} || $LJ::S2::CURR_PAGE->{view} eq "reply" ||  $LJ::S2::CURR_PAGE->{view} eq "entry" ) ) {
+        return $subject;
     } else {
+        # we need to be able to click through this subject, so remove links
+        LJ::CleanHTML::clean( \$subject, { noexpandembedded => 1, mode => "allow", remove => [ "a" ] } );
         my $class = $attrs->{class} ? " class=\"" . LJ::ehtml( $attrs->{class} ) . "\" " : '';
         my $style = $attrs->{style} ? " style=\"" . LJ::ehtml( $attrs->{style} ) . "\" " : '';
 
