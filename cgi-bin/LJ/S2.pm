@@ -3476,20 +3476,23 @@ sub UserLite__get_link
     my $linkbar = $this->{_u}->user_link_bar( LJ::get_remote() );
 
     my $button = sub {
-        my $link = $_[0];
+        my ( $link, $key ) = @_;
         return undef unless $link;
 
-        return LJ::S2::Link( $link->{url}, $link->{title}, LJ::S2::Image( $link->{image}, $link->{width} || 20, $link->{height} || 18 ) );
+        my $caption = $ctx->[S2::PROPS]->{userlite_interaction_links} eq "text"
+            ? $ctx->[S2::PROPS]->{"text_user_$key"}
+            : $link->{title};
+        return LJ::S2::Link( $link->{url}, $caption, LJ::S2::Image( $link->{image}, $link->{width} || 20, $link->{height} || 18 ) );
     };
 
-    return $button->( $linkbar->manage_membership ) if $key eq 'manage_membership';
-    return $button->( $linkbar->trust ) if $key eq 'trust';
-    return $button->( $linkbar->watch ) if $key eq 'watch';
-    return $button->( $linkbar->post ) if $key eq 'post_entry';
-    return $button->( $linkbar->message ) if $key eq 'message';
-    return $button->( $linkbar->track ) if $key eq 'track';
-    return $button->( $linkbar->memories ) if $key eq 'memories';
-    return $button->( $linkbar->tellafriend ) if $key eq 'tell_friend';
+    return $button->( $linkbar->manage_membership, $key ) if $key eq 'manage_membership';
+    return $button->( $linkbar->trust, $key ) if $key eq 'trust';
+    return $button->( $linkbar->watch, $key ) if $key eq 'watch';
+    return $button->( $linkbar->post, $key ) if $key eq 'post_entry';
+    return $button->( $linkbar->message, $key ) if $key eq 'message';
+    return $button->( $linkbar->track, $key ) if $key eq 'track';
+    return $button->( $linkbar->memories, $key ) if $key eq 'memories';
+    return $button->( $linkbar->tellafriend, $key ) if $key eq 'tell_friend';
 
     # Else?
     return undef;

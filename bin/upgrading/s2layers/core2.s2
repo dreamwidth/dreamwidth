@@ -2102,6 +2102,59 @@ set text_module_customtext_content = "";
 set text_module_customtext_url = "";
 
 ##===============================
+## Text - user linkbar
+##===============================
+property string text_user_manage_membership {
+    des = "Link text to manage your membership to a community journal";
+    example = "Membership";
+}
+
+property string text_user_trust {
+    des = "Link text to manage your access settings for this journal";
+    example = "Manage Access";
+}
+
+property string text_user_watch {
+    des = "Link text to manage your subscription settings for this journal";
+    example = "Manage Subscription";
+}
+
+property string text_user_post_entry {
+    des = "Link text to post an entry to this journal";
+    example = "Post Entry";
+}
+
+property string text_user_message {
+    des = "Link text to send a message to this user";
+    example = "Send Message";
+}
+
+property string text_user_track {
+    des = "Link text to track new entries made to this journal";
+    example = "Track Entries";
+}
+
+property string text_user_memories {
+    des = "Link text to memories saved by this journal";
+    example = "Memories";
+}
+
+property string text_user_tell_friend {
+    des = "Link text to send other people a link to this journal";
+    example = "Share Journal Link";
+}
+
+set text_user_manage_membership = "Membership";
+set text_user_trust = "Manage Access";
+set text_user_watch = "Manage Subscription";
+set text_user_post_entry = "Post";
+set text_user_message = "Send Message";
+set text_user_track = "Track Entries";
+set text_user_memories = "Memories";
+set text_user_tell_friend = "Share Journal Link";
+
+
+##===============================
 ## Text - entry comment-related
 ##===============================
 
