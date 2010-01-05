@@ -1,0 +1,203 @@
+<?_c
+#
+# tools/popsubscriptions.bml
+#
+# Page that shows a sorted list of popular accounts in the user's circle. User can pick
+# which circle group to base these calculations on by selecting from a drop-down menu.
+# Results are displayed in three sections: personal accounts, community accounts, feed accounts.
+# 
+# Authors:
+#   Rebecca Freiburg <beckyvi@gmail.com>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+_c?>
+
+<?page
+title=><?_ml .title _ml?>
+body<=
+<?_code
+{
+    use strict;
+    use warnings;
+
+    my $ret = "<?p $ML{'.intro'} p?>";
+
+    my $remote = LJ::get_remote();
+
+    return "<?needlogin?>" unless $remote;
+
+    return $ML{'.invalidaccounttype'} unless $remote->can_use_popsubscriptions;
+
+    return $ML{'.disabled'} unless LJ::is_enabled( 'popsubscriptions' );
+
+    # filters options: 
+    # 1: only accounts subscribed to
+    # 2: only mutually subscribed accounts
+    # 3: trusted accounts
+    # 4: mutually trusted accounts
+    # 5: whole circle => subscriptions + gives access to
+
+    my @calc_options;
+    @calc_options = ("1", $ML{'.filters.subscriptions'}, "2", $ML{'.filters.mutualsubscriptions'}, "3", $ML{'.filters.access'},
+        "4", $ML{'.filters.mutualaccess'}, "5", $ML{'.filters.circle'} );
+
+    # drop-down menu and button for selecting which user accounts to base the calulations on
+    $ret .= "<?p $ML{'.options.filter'} p?>";
+    $ret .= "<form method='get' action='/tools/popsubscriptions'>\n";
+    $ret .= LJ::html_select( { name => 'filter'}, @calc_options );
+    $ret .= LJ::html_submit( $ML{'.options.submit'} );
+    $ret .= "</form><br /></p>";
+
+    # circle_ids stores the user ids of accounts to base the calculation on. which accounts these are is based on which filter the user picks.
+    # default: subscriptions (filter: 1)
+    my @circle_ids;
+
+    my $filter = $GET{filter};
+    if ( !$filter || $filter == 1 ) {
+        @circle_ids = $remote->watched_userids;
+    } elsif ( $filter == 2 ) {
+        @circle_ids = $remote->mutually_watched_userids;
+    } elsif ( $filter == 3 ) {
+        @circle_ids = $remote->trusted_userids;
+    } elsif ( $filter == 4 ) {
+        @circle_ids = $remote->mutually_trusted_userids;
+    } else {
+        @circle_ids = $remote->circle_userids;
+    }
+
+    # circle can currently have a maximum of 4,000 userid (2,000 watched, 2,000 trusted) calculate for a maximum of 750 of  them
+    # on those scales, we won't lose much resolution doing this, as trusted and watched are almost always overlapping
+    my $circle_limit = 750;
+    @circle_ids = splice( @circle_ids, 0, $circle_limit ) if @circle_ids > $circle_limit;
+
+    # hash for searching whether the user is already subscribed to someone later
+    my %circle_members;
+    foreach my $id ( @circle_ids ) {
+        $circle_members{$id} = 1;
+    }
+
+    # hash for counting how many accounts in @circle_ids are subscribed to a particular account
+    my %count;
+
+    # limit the number of userids loaded for each @circle_ids user to 500
+    my $limit = 500;
+    my $remote_id = $remote->userid;
+
+    # load users...
+    my $circleusers = LJ::load_userids( @circle_ids );
+
+    # now load the accounts the users are watching...
+    foreach my $uid ( @circle_ids ) {
+        # don't want to include the user themself
+        next if $uid == $remote_id;
+
+        # since we have just loaded all user objects, we can now load subscribed accounts of that user
+        my $circleuser = $circleusers->{$uid};
+
+        # but we only include undeleted, unsuspended, personal journals (personal + identity)
+        next unless $circleuser->is_individual || ! $circleuser->is_inactive;
+
+        # get userids subscribers are watching
+        my @subsubs =$circleuser->watched_userids( limit => $limit ) ;
+
+        # if there are none, skip to next subscription
+        next unless @subsubs;
+
+        # now we count the occurance of the userids
+        foreach my $userid ( @subsubs ) {
+            $count{$userid}++;
+        }
+    }
+
+    # now that we have the count for all userids, we sort it and take the most popular 500
+    my @pop = sort { $count{$b} <=> $count{$a} } keys %count;
+    @pop =  splice( @pop, 0, 500 );
+
+    # now we sort according to personal, community or feed account and only take the top 50 accounts
+    # for this we need to lead the user objects
+    my $popusers = LJ::load_userids( @pop );
+    my ( @poppersonal, @popcomms, @popfeeds );
+    my ( $numberpersonal, $numbercomms, $numberfeeds ) = ( 0, 0, 0 );
+    my $maximum = 50;
+    foreach my $uid ( @pop ) {
+        my $popuser = $popusers->{$uid};
+
+        # don't show already subscribed to accounts, inactive accounts, or banned accounts
+        next if $circle_members{$uid} || $uid == $remote_id || $popuser->is_inactive || $remote->is_banned( $popuser, $remote);
+
+        # sort userids into arrays
+        if ( $numberpersonal < $maximum && $popuser->is_personal ) {
+            push @poppersonal, $uid;
+            $numberpersonal++;
+        } elsif ( $numbercomms < $maximum && $popuser->is_community ) {
+            push @popcomms, $uid;
+            $numbercomms++;
+        } elsif ( $numberfeeds < $maximum && $popuser->is_syndicated ) {
+            push @popfeeds, $uid;
+            $numberfeeds++;
+        }
+
+        # don't continue loop if all three arrays have reached the maximum number
+        last if $numberpersonal + $numbercomms + $numberfeeds >= $maximum * 3;
+    }
+
+    # function to construct table rows which we print later
+    sub make_results_rows {
+        my ( $poparray, $count ) = @_;
+        my ( $results, $count_user, $popularu );
+
+        # need to load user objects to use ->ljuser_display. this is for a maximum of 50 accounts here
+        my $popularusers = LJ::load_userids( @$poparray );
+
+        foreach my $popularid ( @$poparray ) {
+            $count_user = $count->{$popularid};
+            $popularu = $popularusers->{$popularid};
+            $results .= "<tr><td>" . $popularu->ljuser_display . "</td>";
+            $results .= "<td align='right'>&nbsp;$count_user</td></tr>";
+        }
+        return $results;        
+    }
+
+    # store results in table format. these rows can be empty
+    my ( $results_personal, $results_communities, $results_feeds );
+    $results_personal = make_results_rows ( \@poppersonal, \%count );
+    $results_communities = make_results_rows ( \@popcomms, \%count );
+    $results_feeds = make_results_rows ( \@popfeeds, \%count );
+
+    # no results to display: show error message
+    unless ( $results_personal || $results_communities || $results_feeds ) {
+        $ret .= $ML{'.error.noresults'};
+        return $ret;
+    }
+
+    # print the tables
+    # only show each result section if there are accounts in them, if not show a message
+    if ( $results_personal ) {
+        $ret .= $ML{'.results.personal'};
+        $ret .= "<table cellpadding='3'>" . $results_personal . "</table><br /></p>";
+    } else {
+        $ret .= "<?p $ML{'.error.noresults.personal'} p?>";
+    }
+    if ( $results_communities ) {
+        $ret .= $ML{'.results.communities'};
+        $ret .= "<table cellpadding='3'>" . $results_communities . "</table><br /></p>";
+    } else {
+        $ret .= "<?p $ML{'.error.noresults.communities'} p?>";
+    }
+    if ( $results_feeds) {
+        $ret .= $ML{'.results.feeds'};
+        $ret .= "<table cellpadding='3'>" . $results_feeds . "</table><br /></p>";
+    } else {
+        $ret .= "<?p $ML{'.error.noresults.feeds'} p?>";
+    }
+
+    return $ret;
+
+
+}
+_code?>
+<=body
+page?>

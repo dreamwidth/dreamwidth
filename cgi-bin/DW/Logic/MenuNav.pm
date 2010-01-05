@@ -55,6 +55,7 @@ sub get_menu_navigation {
     my $loggedin_canjoincomms = ( $loggedin && $u->is_person ) ? 1 : 0;   # note the semantic difference
     my $loggedin_hasnetwork = ( $loggedin && $u->can_use_network_page ) ? 1 : 0;
     my $loggedin_ispaid = ( $loggedin && $u->is_paid ) ? 1 : 0;
+    my $loggedin_popsubscriptions = ( $loggedin && $u->can_use_popsubscriptions );
     my $loggedout = $loggedin ? 0 : 1;
     my $always = 1;
     my $never = 0;
@@ -213,6 +214,11 @@ sub get_menu_navigation {
                     url => "$LJ::SITEROOT/community/random",
                     text => "menunav.explore.randomcommunity",
                     display => $always,
+                },
+                {
+                    url => "$LJ::SITEROOT/tools/popsubscriptions",
+                    text => "menunav.explore.popsubscriptions",
+                    display => $loggedin_popsubscriptions,
                 },
                 {
                     url => "$LJ::SITEROOT/support/faq",

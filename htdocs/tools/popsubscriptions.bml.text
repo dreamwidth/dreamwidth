@@ -1,0 +1,39 @@
+.communities.intro=These are the most popular community accounts in your circle:
+
+.disabled=This feature is not available on this service.
+
+.error.noresults=Sorry, there were no accounts found for your search.
+
+.error.noresults.communities=Sorry, there were no community accounts found for your search.
+
+.error.noresults.feeds=Sorry, there were no personal accounts found for your search.
+
+.error.noresults.personal=Sorry, there were no feeds found for your search.
+
+.feeds.intro=These are the most popular feeds in your circle:
+
+.filters.access=access list
+
+.filters.circle=your circle
+
+.filters.mutualaccess=mutual access
+
+.filters.mutualsubscriptions=mutual subscriptions
+
+.filters.subscriptions=subscriptions
+
+.intro=This page displays popular subscriptions within your circle. Only personal accounts are used for this analysis.
+
+.invalidaccounttype=Sorry, your account type does not permit using this page.
+
+.options.filter=Select a method to filter which users to include for this analysis.
+
+.options.submit=Submit
+
+.results.communities=These are the most popular community accounts in your circle:
+
+.results.feeds=These are the most popular feeds in your circle:
+
+.results.personal=These are the most popular personal accounts in your circle:
+
+.title=Popular With Circle

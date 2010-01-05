@@ -1956,6 +1956,10 @@ sub can_use_mass_privacy {
     return $_[0]->get_cap( 'mass_privacy' ) ? 1 : 0;
 }
 
+sub can_use_popsubscriptions {
+    return $_[0]->get_cap( 'popsubscriptions' ) ? 1 : 0;
+}
+
 sub can_use_network_page {
     return 0 unless $_[0]->get_cap( 'friendsfriendsview' ) && $_[0]->is_person;
 }
