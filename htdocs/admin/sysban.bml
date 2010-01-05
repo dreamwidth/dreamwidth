@@ -56,6 +56,7 @@ body<=
 
     my $action;
     if    ( $POST{'query'} )  { $action = 'query'; }
+    elsif ( $POST{queryone} ) { $action = 'queryone'; }
     elsif ( $POST{'addnew'} ) { $action = 'addnew'; }
     elsif ( $POST{'add'} )    { $action = 'add'; }
     elsif ( $POST{'modify'} ) { $action = 'modify'; }
@@ -73,7 +74,8 @@ body<=
 </select>
 <input type='submit' name='addnew' value='Add New'>
 <input type='submit' name='query' value='Query'>
-
+<br /><br />
+<input type='text' name='queryvalue' /> <input type='submit' name='queryone' value='Query This Value' />
 </form>
 FORM
 
@@ -130,6 +132,17 @@ QUERYFORM
         }
         $ret .= "</table>";
 
+    }
+
+    elsif ( $action eq "queryone" ) {
+        return $err->("Requires post") unless LJ::did_post();
+        return $err->("Invalid form") unless LJ::check_form_auth();
+
+        my $bantype = $POST{bantype};
+        my $banquery = $POST{queryvalue};
+
+        $ret .= "<br />" . LJ::ehtml( $bantype ) . ": " .  LJ::ehtml( $banquery );
+        $ret .= LJ::sysban_check( $bantype, $banquery ) ?  " is sysbanned."  : " is not sysbanned.";
     }
 
     # this action comes from the query section
