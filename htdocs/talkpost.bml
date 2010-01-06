@@ -112,9 +112,6 @@ body<=
 
     my $itemid = $init->{'itemid'};
 
-    my $formatlight = ( ( $GET{format} eq 'light' ) || ( $GET{style} eq 'light' ) ) ? 'style=light' : '';
-    my $stylemine = $init->{style} eq "mine" ? "style=mine" : "";
-
     ## load the journal item
     my $item = LJ::Talk::get_journal_item($u, $itemid);
 
@@ -394,7 +391,6 @@ body<=
                                  'parpost'   => $parpost,
                                  'replyto'   => $init->{replyto},
                                  'ditemid'   => $ditemid,
-                                 'stylemine' => $GET{'style'} eq "mine",
                                  'form'      => \%FORM,
                                  'do_captcha' => LJ::Talk::Post::require_captcha_test($remote, $u, $FORM{body}, $ditemid)});
 

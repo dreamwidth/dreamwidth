@@ -229,8 +229,8 @@ sub ReplyPage
         '_u' => $u,
         '_ditemid' => $ditemid,
         '_parpost' => $parpost,
-        '_stylemine' => $get->{'style'} eq "mine",
         '_values' => \%comment_values,
+        '_styleopts' => $p->{_styleopts},
     };
 
     return $p;
@@ -254,7 +254,7 @@ sub ReplyForm__print
                                      'parpost'   => $parpost,
                                      'replyto'   => $parent,
                                      'ditemid'   => $form->{'_ditemid'},
-                                     'stylemine' => $form->{'_stylemine'},
+                                     'styleopts' => $form->{_styleopts},
                                      'form'      => $post_vars, 
                                      'do_captcha' => LJ::Talk::Post::require_captcha_test($remote, $u, $post_vars->{body}, $form->{'_ditemid'})}));
 

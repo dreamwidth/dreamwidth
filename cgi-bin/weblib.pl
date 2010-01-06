@@ -659,20 +659,21 @@ sub check_form_auth {
 # class: web
 # des: Creates the hidden div that stores the QuickReply form.
 # returns: undef upon failure or HTML for the div upon success
-# args: user, remote, ditemid, stylemine, userpic
+# args: user, remote, ditemid, style args, userpic, viewing thread
 # des-u: user object or userid for journal reply in.
 # des-ditemid: ditemid for this comment.
-# des-stylemine: if the user has specified style=mine for this page.
+# des-style_opts: the viewing style arguments on this page, as a hashref.
 # des-userpic: alternate default userpic.
 # </LJFUNC>
 sub create_qr_div {
 
-    my ($user, $ditemid, $stylemine, $userpic, $viewing_thread) = @_;
+    my ( $user, $ditemid, $style_opts, $userpic, $viewing_thread ) = @_;
     my $u = LJ::want_user($user);
     my $remote = LJ::get_remote();
     return undef unless $u && $remote && $ditemid;
 
-    $stylemine ||= 0;
+    $style_opts ||= {};
+
     my $qrhtml;
 
     LJ::load_user_props($remote, "opt_no_quickreply");
@@ -681,7 +682,7 @@ sub create_qr_div {
     $qrhtml .= "<div id='qrformdiv'><form id='qrform' name='qrform' method='POST' action='$LJ::SITEROOT/talkpost_do'>";
     $qrhtml .= LJ::form_auth();
 
-    my $stylemineuri = $stylemine ? "style=mine&" : "";
+    my $stylemineuri = $style_opts ? LJ::viewing_style_args( $style_opts ) : "";
     my $basepath =  LJ::journal_base($u) . "/$ditemid.html?${stylemineuri}";
     my $usertype = ($remote->openid_identity && $remote->is_validated) ? 'openid_cookie' : 'cookieuser';
     $qrhtml .= LJ::html_hidden({'name' => 'replyto', 'id' => 'replyto', 'value' => ''},
@@ -693,9 +694,11 @@ sub create_qr_div {
                                {'name' => 'cookieuser', 'id' => 'cookieuser', 'value' => $remote->{'user'}},
                                {'name' => 'dtid', 'id' => 'dtid', 'value' => ''},
                                {'name' => 'basepath', 'id' => 'basepath', 'value' => $basepath},
-                               {'name' => 'stylemine', 'id' => 'stylemine', 'value' => $stylemine},
                                {'name' => 'viewing_thread', 'id' => 'viewing_thread', 'value' => $viewing_thread},
                                );
+    while ( my ( $key, $value ) = each %$style_opts ) {
+        $qrhtml .= LJ::html_hidden( { name => $key, id => $key, value => $value } );
+    }
 
     # rate limiting challenge
     {
@@ -1013,19 +1016,39 @@ and returns them as a string that can be appended to the URL. Looks for "s2id", 
 =cut
 sub viewing_style_args {
     my ( %args ) = @_;
+
+    %args = %{ LJ::viewing_style_opts( %args ) };
+
+    my @valid_args;
+    while ( my ( $key, $value ) = each %args ) {
+            push @valid_args, "$key=$value";
+    }
+
+    return join "&", @valid_args;
+}
+
+=head2 C<< LJ::viewing_style_opts( %arguments ) >>
+Takes a list of viewing styles arguments from a list, and returns a hashref of valid values
+=cut
+
+sub viewing_style_opts {
+    my ( %args ) = @_;
+
     my $valid_style_args = {
         format => { light => 1 },
         style  => { light => 1, site => 1, mine => 1 },
     };
-    
-    my @valid_args;
-    # only accept purely numerical s2ids
-    push @valid_args, "s2id=$args{s2id}" if $args{s2id} && $args{s2id} =~ /^\d+$/;
 
-    foreach my $key ( qw( format style ) ) {
-         push @valid_args, "style=$args{$key}" if $valid_style_args->{$key}->{$args{$key}};
+    my %ret;
+
+    # only accept purely numerical s2ids
+    $ret{s2id} = $args{s2id} if $args{s2id} && $args{s2id} =~ /^\d+$/;
+
+    for my $key( qw ( format style ) ) {
+        $ret{$key} = $args{$key} if $valid_style_args->{$key}->{$args{$key}};
     }
-    return join "&", @valid_args;
+
+    return \%ret;
 }
 
 # <LJFUNC>

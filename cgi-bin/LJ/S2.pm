@@ -2084,6 +2084,7 @@ sub Page
         'head_content' => '',
         'data_link' => {},
         'data_links_order' => [],
+        '_styleopts' => \%{ LJ::viewing_style_opts( %$get ) },
     };
 
     if ($LJ::UNICODE && $opts && $opts->{'saycharset'}) {
@@ -3278,7 +3279,7 @@ sub _print_reply_container
 
         my $userpic = LJ::ehtml($page->{'_picture_keyword'}) || "";
         my $thread = $page->{'viewing_thread'} + 0 || "";
-        $S2::pout->(LJ::create_qr_div($u, $ditemid, $page->{'_stylemine'} || 0, $userpic, $thread));
+        $S2::pout->( LJ::create_qr_div( $u, $ditemid, $page->{_styleopts}, $userpic, $thread ) );
     }
 }
 

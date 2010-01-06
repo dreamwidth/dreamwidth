@@ -809,7 +809,7 @@ body<=
 
         $ret .= "<div align='center'>" . LJ::make_qr_target('top') . "</div>" if $remote;
 
-        my $stylemine = $GET{'style'} eq 'mine' ? 1 : 0;
+        my $styleopts = LJ::viewing_style_opts( %GET );
 
         #
         # Comment thread display
@@ -818,7 +818,7 @@ body<=
         if (defined $GET{'thread'}) {
             $viewing_thread = $GET{'thread'};
         }
-        $ret .= LJ::create_qr_div($u, $ditemid, $stylemine, $GET{'prop_picture_keyword'}, $viewing_thread);
+        $ret .= LJ::create_qr_div( $u, $ditemid, $styleopts, $GET{prop_picture_keyword}, $viewing_thread );
 
         $ret .= LJ::html_hidden("ditemid", $ditemid);
         $ret .= LJ::html_hidden("journal", $u->{'user'});

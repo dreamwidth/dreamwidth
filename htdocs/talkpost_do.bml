@@ -157,7 +157,6 @@ body<=
                                     'ditemid'     => $POST{itemid},
                                     'require_tos' => $require_tos,
                                     'do_captcha'  => $need_captcha,
-                                    'stylemine'   => $GET{'style'} eq "mine",
                                     'errors'      => \@errors,
                                     'form'        => \%POST });
     }
@@ -218,7 +217,7 @@ body<=
     # Yeah, we're done.
     my $dtalkid = $comment->{talkid}*256 + $item->{anum};
 
-    # Allow style=mine for QR redirects
+    # Allow style=mine, etc for QR redirects
     my $style_args = LJ::viewing_style_args( %POST );
 
     my $cthread = $POST{'viewing_thread'} ? "thread=$POST{viewing_thread}" : "view=$dtalkid";

@@ -371,7 +371,6 @@ sub EntryPage
                     js/commentmanage.js
                     ));
 
-    $p->{'_stylemine'} = $get->{'style'} eq 'mine' ? 1 : 0;
     $p->{'_picture_keyword'} = $get->{'prop_picture_keyword'};
 
     $p->{'viewing_thread'} = $get->{'thread'} ? 1 : 0;
