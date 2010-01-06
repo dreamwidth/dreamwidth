@@ -1,0 +1,63 @@
+.active.active=active
+
+.active.inactive=inactive
+
+.btn.create=Create
+
+.btn.save=Save
+
+.count.outof= out of 
+
+.error.label=Error:
+
+.error.code.exists=Promo code already exists
+
+.error.code.invalid=Code invalid
+
+.error.code.invalid_character=Code must be [a-z0-9] only
+
+.error.code.missing=Code must be specified
+
+.error.count.negative=Count must be positive
+
+.error.suggest_journal.invalid=Cannot find that user
+
+.field.active.label=Active
+
+.field.code.label=Code:
+
+.field.count.label=Count:
+
+.field.suggest_journal.label=Suggest Journal:
+
+.heading.active=Active
+
+.heading.code=Code
+
+.heading.count=Count
+
+.heading.suggest=Suggest Journal
+
+.nomatch=No promo codes match your criteria
+
+.return=Return to list
+
+.suggest.none=<em>(none)</em>
+
+.state.active=Active
+
+.state.new=Create new
+
+.state.noneleft=All creations used
+
+.state.unfiltered=Unfiltered
+
+.state.unused=Unused
+
+.state.inactive=Inactive
+
+.title=Manage Promo Codes
+
+.title.create=Create Promo Code
+
+.title.edit=Edit Promo Code: [[code]]

@@ -53,6 +53,8 @@ body<=
             '<?_ml .admin.faq.link _ml?>', '<?_ml .admin.faq.text _ml?>', [ 'faqadd', 'faqedit', 'faqcat' ] ],
         [ 'fileedit/',
             '<?_ml .admin.file_edit.link _ml?>', 'Allows you to edit various include files.', [ 'fileedit' ] ],
+        [ 'invites/promo',
+            '<?_ml .admin.invite_promo.link _ml?>', '<?_ml .admin.invite_promo.text _ml?>', [ 'payments' ] ],
         [ 'invites/requests',
             '<?_ml .admin.invite_requests.link _ml?>', '<?_ml .admin.invite_requests.text _ml?>', [ 'payments' ] ],
         [ 'invites/review',

@@ -29,6 +29,9 @@
 .admin.invite_codes.link=Invite Codes
 .admin.invite_codes.text=Shows the provenance of an invite code.
 
+.admin.invite_promo.link=Promotional Invite Codes
+.admin.invite_promo.text=Allows you to manage promotional invite codes.
+
 .admin.invite_requests.link=Invite Code Requests
 .admin.invite_requests.text=Allows you to review requests for invite codes.
 

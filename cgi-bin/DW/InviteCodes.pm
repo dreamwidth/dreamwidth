@@ -158,6 +158,42 @@ sub get_promo_code_info {
     return $dbh->selectrow_hashref( "SELECT * FROM acctcode_promo WHERE code = ?", undef, $code );
 }
 
+=head2 C<< $class->get_promo_codes( state => $state ) >>
+
+Return the list of promo codes, optionally filtering by state.
+State can be:
+  * active ( active promo codes )
+  * inactive ( inactive promo codes )
+  * unused ( unused promo codes )
+  * noneleft ( no uses left )
+
+=cut
+
+sub get_promo_codes {
+    my ( $class, %opts ) = @_;
+    my $dbh = LJ::get_db_writer();
+    my $state = $opts{state} || '';
+
+    my $sql = "SELECT * FROM acctcode_promo";
+    if ( $state eq 'active' ) {
+        $sql .= " WHERE active = '1' AND current_count < max_count";
+    } elsif ( $state eq 'inactive' ) {
+        $sql .= " WHERE active = '0' OR current_count >= max_count";
+    } elsif ( $state eq 'unused' ) {
+        $sql .= " WHERE current_count = 0"
+    } elsif ( $state eq 'noneleft' ) {
+        $sql .= " WHERE current_count >= max_count";
+    }
+    my $sth = $dbh->prepare( $sql ) or die $dbh->errstr;
+    $sth->execute() or die $dbh->errstr;
+
+    my @out;
+    while ( my $row = $sth->fetchrow_hashref ) {
+        push @out, $row;
+    }
+    return \@out;
+}
+
 =head2 C<< $class->check_code( code => $invite [, userid => $recipient] ) >>
 
 Checks whether code $invite is valid before trying to create an account. Takes
