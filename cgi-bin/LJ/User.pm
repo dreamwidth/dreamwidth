@@ -8378,8 +8378,7 @@ sub make_journal
     # signal to LiveJournal.pm that we can't handle this
     # FIXME: Make this properly invoke siteviews all the time -- once all the views are ready.
     # Most of this if and tons of messy conditionals can go away once all views are done.
-    if ( ( ($stylesys == 1 || $geta->{'style'} eq 'site' || $geta->{'style'} eq 'default' ) &&
-            ( { entry=>1, reply=>1, month=>1, tag=>1 }->{$view} || ($view eq 'lastn' && ($geta->{tag} || $geta->{security})))) || ( $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light' ) )  {
+    if ( $stylesys == 1 || $geta->{'style'} eq 'site' || $geta->{'format'} eq 'light' || $geta->{'style'} eq 'light' )  {
         my $fallback = "bml"; # FIXME: Should be S2 once everything's done
 
         # if we are in this path, and they have style=mine set, it means

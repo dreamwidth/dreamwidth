@@ -40,6 +40,7 @@ use Compress::Zlib;
 use XMLRPC::Transport::HTTP;
 use LJ::URI;
 use DW::Routing::Apache2;
+use DW::Template::Apache2;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -1358,6 +1359,7 @@ sub journal_content
         },
         'handle_with_bml_ref' => \$handle_with_bml,
         'handle_with_siteviews_ref' => \$handle_with_siteviews,
+        'siteviews_extra_content' => {},
         'ljentry' => $RQ{'ljentry'},
     };
 
@@ -1376,10 +1378,8 @@ sub journal_content
     # only if HTML is set, otherwise leave it alone so the user
     # gets "messed up template definition", cause something went wrong.
     if ( $handle_with_siteviews && $html ) {
-        $r->pnotes->{siteview_code} = $html;
-        $r->notes->{bml_filename} = "$LJ::HOME/htdocs/misc/siteviews.bml";
-        return Apache::BML::handler($r);
-    } elsif ($handle_with_bml) {
+        return DW::Template::Apache2->render_string( $html, $opts->{siteviews_extra_content} );
+    } elsif ( $handle_with_bml ) {
         my $args = $r->args;
         my $args_wq = $args ? "?$args" : "";
 

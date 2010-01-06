@@ -3,27 +3,34 @@ layerinfo "name" = "Sitescheme views";
 layerinfo redist_uniq = "siteviews/layout";
 layerinfo is_internal = "1";
 
-property builtin bool SITEVIEWS_RENDERED {
+class Siteviews {
+    function builtin need_res(string res);
+    function builtin start_capture();
+    function builtin end_capture() : string;
+
+    function builtin set_content(string area, string text);
+}
+
+property builtin Siteviews SITEVIEWS {
     noui = 1;
     doc_flags = "[sys]";
-    des = "Will be 1 if this layout is going to be parsed for BML once it's done";
+    des = "Instance of the Siteviews class";
 }
 
 function Page::print() {
-    if ($*SITEVIEWS_RENDERED) {
-        """<?page
-body<=\n""";
-$this->print_body();
-"""\n<=body\n""";
-$this->print_head_title();
-"""page?>""";
+    if ( $*SITEVIEWS ) {
+        $*SITEVIEWS->start_capture();
+        $this->print_head();
+        $this->print_stylesheets();
+        $*SITEVIEWS->set_content("head",$*SITEVIEWS->end_capture());
+        $*SITEVIEWS->set_content("windowtitle",$this->view_title());
+
+        $this->print_body();
     } else {
        print safe "<b>This style is not intended for direct use.</b>";
     }
 }
 
-function Page::print_head_title() {
-    print "title=>";
-    print safe $this->view_title();
-    print "\n";
+function Page::print_stylesheets() {
+    # Do not actually *print* any stylesheets here, but you can $*SITEVIEWS->need_res(...); here to pull in anything.
 }

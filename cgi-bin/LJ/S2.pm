@@ -91,8 +91,16 @@ sub make_journal
         # kill the flag
         ${$opts->{'handle_with_bml_ref'}} = 0;
         ${$opts->{'handle_with_siteviews_ref'}} = 1;
+        $opts->{siteviews_extra_content} ||= {};
 
-        $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 1;
+        my $siteviews_class = {
+            '_type' => "Siteviews",
+            '_input_captures' => [],
+            '_content' => $opts->{siteviews_extra_content},
+        };
+        
+        $ctx->[S2::SCRATCH]->{siteviews_enabled} = 1;
+        $ctx->[S2::PROPS]->{SITEVIEWS} = $siteviews_class;
     } else {
         if ( ! $ctx->[S2::PROPS]->{use_journalstyle_entry_page} && ( $view eq "entry" || $view eq "reply" ) ) {
             ${$opts->{'handle_with_bml_ref'}} = 1;
@@ -1177,8 +1185,6 @@ sub populate_system_props
     $ctx->[S2::PROPS]->{'SITENAMEABBREV'} = $LJ::SITENAMEABBREV;
     $ctx->[S2::PROPS]->{'IMGDIR'} = $LJ::IMGPREFIX;
     $ctx->[S2::PROPS]->{'STATDIR'} = $LJ::STATPREFIX;
-
-    $ctx->[S2::PROPS]->{'SITEVIEWS_RENDERED'} = 0;
 }
 
 # renamed some props from core1 => core2. Make sure that S2 still handles these variables correctly when working with a core1 layer
@@ -4190,5 +4196,43 @@ sub string__css_keyword_list
     return join(' ', @out);
 }
 
+sub Siteviews__need_res
+{
+    my ($ctx, $this, $res) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+    LJ::need_res($res);
+}
+
+sub Siteviews__start_capture {
+    my ($ctx, $this) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+
+    # force flush
+    S2::get_output()->("");
+
+    push @{$this->{_input_captures}}, $LJ::S2::ret_ref;
+    my $text = "";
+    $LJ::S2::ret_ref = \$text;
+}
+
+sub Siteviews__end_capture {
+    my ($ctx, $this) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+
+    return "" unless scalar( @{$this->{_input_captures}} );
+
+    # force flush
+    S2::get_output()->("");
+    my $text_ref = $LJ::S2::ret_ref;
+    $LJ::S2::ret_ref = pop @{$this->{_input_captures}};
+    return $$text_ref;
+}
+
+sub Siteviews__set_content {
+    my ($ctx, $this, $content, $text) = @_;
+    die "Siteviews doesn't work standalone" unless $ctx->[S2::SCRATCH]->{siteviews_enabled};
+    
+    $this->{_content}->{$content} = $text;
+}
 
 1;
