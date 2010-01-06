@@ -1096,6 +1096,7 @@ sub info {
 
     my %LJ_cmtinfo;
     $LJ_cmtinfo{'canAdmin'} = LJ::can_manage($remote, $self->journal);
+    $LJ_cmtinfo{'canSpam'} = ! LJ::sysban_check( 'spamreport', $self->journal->user );
     $LJ_cmtinfo{'journal'} = $self->journal->{user};
     $LJ_cmtinfo{'remote'} = $remote->{user};
 

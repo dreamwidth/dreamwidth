@@ -3747,11 +3747,13 @@ sub EntryPage__print_multiform_actionline
     my ($ctx, $this) = @_;
     return unless $this->{'multiform_on'};
     my $pr = $ctx->[S2::PROPS];
+    my @actions = qw( unscreen screen delete );
+    push @actions, "deletespam"  unless  LJ::sysban_check( 'spamreport', $this->{entry}->{journal}->{username} );
     $S2::pout->( LJ::labelfy( 'multiform_mode', $pr->{text_multiform_des} ) . "\n" .
                 LJ::html_select( { name => 'mode', id => 'multiform_mode' },
                                 "" => "",
                                 map { $_ => $pr->{"text_multiform_opt_$_"} }
-                                qw(unscreen screen delete deletespam)) . "\n" .
+                                @actions ) . "\n" .
                 LJ::html_submit('', $pr->{'text_multiform_btn'},
                                 { "onclick" =>
                                       'return ((document.multiform.mode.value != "delete" ' .

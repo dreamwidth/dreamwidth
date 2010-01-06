@@ -125,6 +125,11 @@ if ($add) {
                                          'exptime' => LJ::mysqldate_to_time($banuntil) });
         LJ::MemCache::delete("sysban:uniq");
     }
+    if ( $what eq 'spamreport' ) {
+        LJ::procnotify_add( 'ban_spamreport', { spamreport => $value,
+                                                exptime => LJ::mysqldate_to_time( $banuntil ) } );
+        LJ::MemCache::delete( 'sysban:spamreport' );
+    }
 
     # log in statushistory
     LJ::statushistory_add(0, 0, 'sysban_add',
@@ -161,6 +166,11 @@ if ($modify) {
             LJ::procnotify_add("unban_uniq", { 'uniq' => $value || $ban->{'value'} });
             LJ::MemCache::delete("sysban:uniq");
         }
+
+        if ( $ban->{what} eq 'spamreport' ) {
+            LJ::procnotify_add( 'unban_spamreport', { spamreport => $value || $ban->{value} } );
+            LJ::MemCache::delete( 'sysban:spamreport' );
+        }
     }
         
     # what - must have a value
@@ -186,6 +196,12 @@ if ($modify) {
             LJ::procnotify_add("ban_uniq", { 'uniq' => $value || $ban->{'value'},
                                              'exptime' => LJ::mysqldate_to_time($new_banuntil) });
             LJ::MemCache::delete("sysban:uniq");
+       }
+
+        if ( $ban->{what} eq 'spamreport' ) {
+            LJ::procnotify_add( 'ban_spamreport', { spamreport => $value || $ban->{value},
+                                                    exptime => LJ::mysqldate_to_time( $new_banuntil ) } );
+            LJ::MemCache::delete( 'sysban:spamreport' );
         }
     }
 

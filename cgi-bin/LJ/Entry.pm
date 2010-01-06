@@ -1918,6 +1918,7 @@ sub mark_entry_as_spam {
     $journalu = LJ::want_user($journalu);
     $jitemid += 0;
     return 0 unless $journalu && $jitemid;
+    return 0 if LJ::sysban_check( 'spamreport', $journalu->user );
 
     my $dbcr = LJ::get_cluster_def_reader($journalu);
     my $dbh = LJ::get_db_writer();
@@ -1946,6 +1947,7 @@ sub reject_entry_as_spam {
     $journalu = LJ::want_user($journalu);
     $modid += 0;
     return 0 unless $journalu && $modid;
+    return 0 if LJ::sysban_check( 'spamreport', $journalu->user );
 
     my $dbcr = LJ::get_cluster_def_reader($journalu);
     my $dbh = LJ::get_db_writer();

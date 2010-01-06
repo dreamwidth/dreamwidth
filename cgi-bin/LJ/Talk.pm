@@ -1922,6 +1922,9 @@ sub mark_comment_as_spam {
     # can't mark your own comments as spam.
     return 0 if $posterid && $posterid == $journalu->id;
 
+    # can't mark comments as spam if sysbanned
+    return 0 if LJ::sysban_check( 'spamreport', $journalu->user );
+
     # step 2a: if it's a suspended user, don't add, but pretend that we were successful
     if ($posterid) {
     	my $posteru = LJ::want_user($posterid);

@@ -328,12 +328,14 @@ sub EntryPage
     # print comment info
     {
         my $canAdmin = LJ::can_manage($remote, $u) ? 1 : 0;
+        my $canSpam = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
         my $formauth = LJ::ejs(LJ::eurl(LJ::form_auth(1)));
 
         my $cmtinfo = {
             form_auth => $formauth,
             journal   => $u->user,
             canAdmin  => $canAdmin,
+            canSpam   => $canSpam,
             remote    => $remote ? $remote->user : undef,
         };
 

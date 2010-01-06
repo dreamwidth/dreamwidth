@@ -195,6 +195,9 @@ body<=
         $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.notfound'} p?>";
         return $ret;
     }
+
+    my $can_spam = LJ::sysban_check( 'spamreport', $c->user ) ? 0 : 1;
+
     my $dbcr = LJ::get_cluster_def_reader($c);
 
     unless (LJ::check_rel($c, $remote, 'M')) {
@@ -408,7 +411,7 @@ body<=
         $actions .= "<input type='hidden' name='modid' value='$modid' />";
         $actions .= "<input type='submit' name='action:approve' value='$ML{'.choice.approve'}' style='font-size: 15pt; background: #82dd88; color: #000000' />";
         $actions .= "&nbsp;&nbsp;<input type='submit' name='action:reject' value='$ML{'.choice.reject'}' style='font-size: 15pt; background: #e08291; color: #000000' />";
-        $actions .= "&nbsp;&nbsp;<input type='submit' name='action:mark_as_spam' value='$ML{'.choice.mark_as_spam'}' style='font-size: 15pt; background: #e08291; color: #000000' />";
+        $actions .= "&nbsp;&nbsp;<input type='submit' name='action:mark_as_spam' value='$ML{'.choice.mark_as_spam'}' style='font-size: 15pt; background: #e08291; color: #000000' />" if $can_spam;
 
         $ret .= "<form method='post' action='/community/moderate'>";
         $ret .= BML::fill_template("standout", {'DATA'=> $actions});

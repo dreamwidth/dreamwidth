@@ -82,7 +82,7 @@
         # then delete, updating the log2 replycount as necessary
 
         # Mark as spam
-        if ($mode eq 'deletespam') {
+        if ( $mode eq 'deletespam' && ! LJ::sysban_check( 'spamreport', $u->user ) ) {
             # don't let $remote mark their own comments as spam
             foreach (grep { $talkinfo{$_}->[1] != $remote->id } @talkids) {
                 my $s = LJ::Talk::mark_comment_as_spam($u, $_);

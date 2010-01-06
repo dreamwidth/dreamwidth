@@ -100,6 +100,38 @@ sub sysban_check {
         return $LJ::UNIQ_BANNED{$value};
     }
 
+    # cache if spamreport ban
+    if ( $what eq 'spamreport' ) {
+        # check memcache first if not loaded
+        unless ( $LJ::SPAMREPORT_BANNED_LOADED ) {
+            my $memval = LJ::MemCache::get( "sysban:spamreport" );
+            if ( $memval ) {
+                *LJ::SPAMREPORT_BANNED = $memval;
+                $LJ::SPAMREPORT_BANNED_LOADED++;
+            }
+        }
+
+        # is it already cached in memory?
+        if ( $LJ::SPAMREPORT_BANNED_LOADED ) {
+            return ( defined $LJ::SPAMREPORT_BANNED{$value} &&
+                    ( $LJ::SPAMREPORT_BANNED{$value} == 0 ||        # forever
+                      $LJ::SPAMREPORT_BANNED{$value} > time() ) );  # not expired
+        }
+
+        # set this now before the query
+        $LJ::SPAMREPORT_BANNED_LOADED++;
+
+        LJ::sysban_populate( \%LJ::SPAMREPORT_BANNED, "spamreport" )
+            or return undef $LJ::SPAMREPORT_BANNED_LOADED;
+
+        # set in memcache
+        my $exp = 60 * 30; # 30 minutes
+        LJ::MemCache::set( "sysban:spamreport", \%LJ::SPAMREPORT_BANNED, $exp );
+
+        # return value to user
+        return $LJ::SPAMREPORT_BANNED{$value};
+    }
+
     # need the db below here
     my $dbr = LJ::get_db_reader();
     return undef unless $dbr;
@@ -350,7 +382,7 @@ sub sysban_create {
     my $banid = $dbh->{'mysql_insertid'};
 
     my $exptime = $opts{bandays} ? time() + 86400*$opts{bandays} : 0;
-    # special case: creating ip/uniq ban
+    # special case: creating ip/uniq/spamreport ban
     if ($opts{'what'} eq 'ip') {
         LJ::procnotify_add("ban_ip", { 'ip' => $opts{'value'}, exptime => $exptime });
         LJ::MemCache::delete("sysban:ip");
@@ -359,6 +391,11 @@ sub sysban_create {
     if ($opts{'what'} eq 'uniq') {
         LJ::procnotify_add("ban_uniq", { 'uniq' => $opts{'value'}, exptime => $exptime});
         LJ::MemCache::delete("sysban:uniq");
+    }
+
+    if ( $opts{what} eq 'spamreport' ) {
+        LJ::procnotify_add( 'ban_spamreport', { spamreport => $opts{value}, exptime => $exptime } );
+        LJ::MemCache::delete( 'sysban:spamreport' );
     }
 
     # log in statushistory
@@ -450,6 +487,7 @@ sub sysban_validate {
                'invite_user' => 'user',
                'invite_email' => 'email',
                'noanon_ip' => 'ip',
+               'spamreport' => 'user',
                );
 
     while (my ($new, $existing) = splice(@map, 0, 2)) {

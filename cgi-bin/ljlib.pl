@@ -1883,6 +1883,28 @@ sub procnotify_callback
         return;
     }
 
+    # spamreport bans
+    if ( $cmd eq "ban_spamreport" ) {
+        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
+        return;
+    }
+
+    if ( $cmd eq "unban_spamreport" ) {
+        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
+        return;
+    }
+
+    # spamreport bans
+    if ( $cmd eq "ban_spamreport" ) {
+        $LJ::SPAMREPORT_BANNED{$arg->{spamreport}} = $arg->{exptime};
+        return;
+    }
+
+    if ( $cmd eq "unban_spamreport" ) {
+        delete $LJ::SPAMREPORT_BANNED{$arg->{spamreport}};
+        return;
+    }
+
     # cluster switchovers
     if ($cmd eq 'cluster_switch') {
         $LJ::CLUSTER_PAIR_ACTIVE{ $arg->{'cluster'} } = $arg->{ 'role' };

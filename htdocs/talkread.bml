@@ -453,6 +453,7 @@ body<=
     $LJ_cmtinfo{'form_auth'} = LJ::form_auth(1);
     $LJ_cmtinfo{'journal'} = $u->{user};
     $LJ_cmtinfo{'canAdmin'} = LJ::can_manage($remote, $u) ? 1 : 0;
+    $LJ_cmtinfo{'canSpam'} = LJ::sysban_check( 'spamreport', $u->user ) ? 0 : 1;
     $LJ_cmtinfo{'remote'} = $remote ? $remote->{user} : "";
     my $fmt_time_short = "%%hh%%:%%min%% %%a%%m";
     my $show_thread_expander = $u->show_thread_expander( $remote );
@@ -851,13 +852,13 @@ body<=
 
             if ($showmultiform && $multiform_selects) {
                 $ret .= "<p><label for='multiform_mode'>$ML{'.talkmulti.des'}</label>";
-                $ret .= LJ::html_select( { name => 'mode', id => 'multiform_mode' },
-                                        ''           => '',
-                                        'unscreen'   => $ML{'.talkmulti.unscreen'},
-                                        'screen'     => $ML{'.talkmulti.screen'},
-                                        'delete'     => $ML{'.talkmulti.delete'},
-                                        'deletespam' => $ML{'.talkmulti.deletespam'},
-                                        );
+                my @actions = ( ''          => '',
+                                unscreen    => $ML{'.talkmulti.unscreen'},
+                                screen      => $ML{'.talkmulti.screen'},
+                                delete      => $ML{'.talkmulti.delete'},
+                                );
+                push @actions, deletespam => $ML{'.talkmulti.deletespam'} unless LJ::sysban_check( 'spamreport', $u->user );
+                $ret .= LJ::html_select( { name => 'mode', id => 'multiform_mode' }, @actions );
                 $ret .= " " . LJ::html_submit('', $ML{'.talkmulti.submit'},
                                               {
                                                   "onclick" =>

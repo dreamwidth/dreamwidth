@@ -366,6 +366,7 @@ function createDeleteFunction (ae, dItemid) {
             if (!com || !remoteUser)
                 return true;
             var canAdmin = LJ_cmtinfo["canAdmin"];
+            var canSpam = LJ_cmtinfo["canSpam"];
 
             var clickTarget = getTarget(e);
 
@@ -410,7 +411,7 @@ function createDeleteFunction (ae, dItemid) {
                 finalHeight -= 15;
             }
 
-            if (remoteUser != "" && remoteUser != com.u) {
+            if (remoteUser != "" && remoteUser != com.u && canSpam) {
                 lbl = "ljpopdel" + dItemid + "spam";
                 inHTML += "<input type='checkbox' value='spam' id='" + lbl + "'> <label for='" + lbl + "'>Mark this comment as spam</label><br />";
             } else {

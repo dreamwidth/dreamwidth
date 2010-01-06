@@ -96,7 +96,8 @@ _info?><?_code
     my $can_delthread = $can_manage || $jposterid == $remote->{userid};
 
     # can mark as spam if they're not the comment poster
-    my $can_spam = $remote && $remote->id != $tp->{'posterid'};
+    # or if the account is not sysbanned
+    my $can_spam = $remote && $remote->id != $tp->{'posterid'} && ! LJ::sysban_check( 'spamreport', $u->user ); 
 
     ### perform actions
     if (LJ::did_post() && $POST{'confirm'}) {
@@ -123,7 +124,7 @@ _info?><?_code
             $msg = BML::ml('.success.andban', { 'user' => LJ::ljuser($tp->{'userpost'}) });
         }
         $msg ||= $ML{'.success.noban'};
-        $msg .= "<?p $ML{'.success.spam'} p?>" if $POST{spam};
+        $msg .= "<?p $ML{'.success.spam'} p?>" if $POST{spam} && $can_spam;
 
         if ($jsmode) {
             BML::finish();
@@ -152,7 +153,7 @@ _info?><?_code
         $body .= "</label></div>";
     }
 
-    if ($tp->{'posterid'} != $remote->{'userid'}) { # Despite the idea of natural selection, don't let users report their own comments as spam
+    if ( $can_spam ) { # Despite the idea of natural selection, don't let users report their own comments as spam
         $body .= "<div>" . LJ::html_check({name => 'spam', id => 'spam'});
         $body .= "<label for='spam'>$ML{'.confirm.spam'}</label></div>";
     }

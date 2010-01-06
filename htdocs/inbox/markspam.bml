@@ -26,6 +26,9 @@ body<=
     return "<?p You cannot report a message you sent as spam. p?>"
         if $msg->type eq "out";
 
+    return "<?p You are not allowed to report messages as spam. p?>"
+        if LJ::sysban_check( 'spamreport', $remote->user );
+
     my $body = '';
 
     if (LJ::did_post() && $POST{'confirm'}) {

@@ -33,7 +33,7 @@ body<=
     my @all_sb_args = qw( ip uniq email email_domain user pay_cc 
                           pay_user pay_email pay_uniq support_user 
                           support_uniq lostpassword  talk_ip_test 
-                          invite_user invite_email noanon_ip );
+                          invite_user invite_email noanon_ip spamreport );
 
     my $remote = LJ::get_remote();
     return "<?needlogin?>" unless $remote;

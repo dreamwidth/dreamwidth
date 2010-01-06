@@ -127,7 +127,8 @@ sub as_html_actions {
     $ret .= " <a href='$LJ::SITEROOT/inbox/compose?mode=reply&msgid=$msgid'>Reply</a>";
     $ret .= " | <a href='$LJ::SITEROOT/manage/circle/add?user=". $msg->other_u->user ."&action=subscribe'>Add to reading list</a>"
         unless $u->watches( $msg->other_u );
-    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>";
+    $ret .= " | <a href='$LJ::SITEROOT/inbox/markspam?msgid=". $msg->msgid ."'>Mark as Spam</a>"
+        unless LJ::sysban_check( 'spamreport', $u->user );
     $ret .= "</div>";
 
     return $ret;

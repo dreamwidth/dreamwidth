@@ -26,6 +26,8 @@ body<=
 
     my $user = $u->{'user'};
 
+    $LJ_cmtinfo{canSpam} = LJ::sysban_check( 'spamreport', $user ) ? 0 : 1;
+
     my $dbcr = LJ::get_cluster_reader($u);
     return "Error: can't get DB for user" unless $dbcr;
 
