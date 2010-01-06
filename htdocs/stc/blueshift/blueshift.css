@@ -1188,3 +1188,11 @@ li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
 {
     background-color: #eee;
 }
+
+/* Adult warning interstitals */
+
+div.adult_warning {
+    background-color: #E6ECF9;
+    border: 1px solid #3960A0;
+    padding: 0 10px;
+}

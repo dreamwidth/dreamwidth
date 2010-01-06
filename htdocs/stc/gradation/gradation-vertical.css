@@ -1276,6 +1276,12 @@ div.box {
     color: #fff !important;
 }
 
+div.adult_warning {
+    background-color: #333;
+    border: 1px solid #fff;
+    padding: 0 10px;
+}
+
 /* This makes the FAQ header not overlap with itself */
 .box h1 {
     line-height: 1em;

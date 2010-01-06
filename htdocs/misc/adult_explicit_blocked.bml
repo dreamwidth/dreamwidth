@@ -31,7 +31,7 @@ body<=
         $markedby = $journal->adult_content_marker;
     }
 
-    $ret .= "<div style='background-color: #ffffd4; border: 1px solid black; padding: 0 10px;'>";
+    $ret .= "<div class="adult_warning adult_blocked">";
     $ret .= "<h1 style='text-align: center;'>$ML{'.title'}</h1>";
     $ret .= "<p>" . BML::ml( '.message.explicit.blocked.by' . $markedby, { journal => $journal->ljuser_display, poster => $poster->ljuser_display } ) . "</p>";
     $ret .= DW::Logic::AdultContent->interstitial_reason( $journal, $entry );
