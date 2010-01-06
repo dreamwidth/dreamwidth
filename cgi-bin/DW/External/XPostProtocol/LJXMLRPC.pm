@@ -20,6 +20,7 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);  
 use XMLRPC::Lite;
+use HTML::Entities ();
 
 # create a new instance of LJXMLRPC
 sub instance {
@@ -483,7 +484,7 @@ sub clean_lj_tags {
                 $newdata .= "<$tag";
                 # output attributes in original order
                 foreach (@$attrs) {
-                    $newdata .= " $_=\"" . LJ::ehtml($hash->{$_}) . "\""
+                    $newdata .= " $_=\"" . HTML::Entities::encode( $hash->{$_} ) . "\""
                         if exists $hash->{$_};
                 }
                 $newdata .= " /" if $slashclose;
