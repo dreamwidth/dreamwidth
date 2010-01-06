@@ -187,6 +187,7 @@ sub ReplyPage
 
 
         my $dtalkid = $re_talkid * 256 + $entry->anum;
+        my $cmtobj = LJ::Comment->new( $u, dtalkid => $dtalkid );
         $replyto = {
             '_type' => 'Comment',
             'subject' => LJ::ehtml($parpost->{'subject'}),
@@ -197,6 +198,8 @@ sub ReplyPage
             'metadata' => {},
             'permalink_url' => $u->{'_journalbase'} . "/$ditemid.html?view=$dtalkid" . LJ::Talk::comment_anchor( $dtalkid ),
             'depth' => 1,
+            'parent_url' => $cmtobj->parent_url,
+            'threadroot_url' => $cmtobj->threadroot_url,
             'time' => $datetime,
             'system_time' => $datetime,
             'tags' => [],
