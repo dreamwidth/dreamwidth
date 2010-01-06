@@ -152,10 +152,13 @@ sub RecentPage
         my ($posterid, $itemid, $anum) =
             map { $item->{$_} } qw(posterid itemid anum);
 
-        my $ditemid = $itemid * 256 + $anum;
-        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
-
+        # need to increment before possibly doing a next, so that the skiplinks will work
         $itemnum++;
+
+        my $ditemid = $itemid * 256 + $anum;
+        next if $itemnum > 0 && $stickyentry && $stickyentry->ditemid == $ditemid;
+
+        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
 
         # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
         next ENTRY if $apu{$posterid} && $apu{$posterid}->is_suspended && !$viewsome;
