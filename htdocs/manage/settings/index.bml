@@ -362,7 +362,7 @@ body<=
     if ($u) {
         $ret .= "<div id='authas_select'>";
         $ret .= "<form action='$LJ::SITEROOT/manage/settings/' method='get'>";
-        $ret .= LJ::make_authas_select($remote, { authas => $GET{authas} });
+        $ret .= LJ::make_authas_select( $remote, { authas => $GET{authas}, showall => ( $given_cat eq "account" ) } );
         $ret .= LJ::html_hidden( cat => $given_cat );
         $ret .= "</form>";
         $ret .= "</div>";
