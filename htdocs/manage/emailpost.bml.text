@@ -63,6 +63,8 @@
 
 .help.headers.options.header=Journal entry options
 
+.help.headers.options.location.example=Paris, France
+
 .help.headers.options.mood.example=happy
 
 .help.headers.options.music.example=The Pixies: Where is my mind?

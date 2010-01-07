@@ -178,6 +178,7 @@ body<=
                     <b>post-tags:</b> $ML{'.help.headers.options.tags.example'}<br />
                     <b>post-mood:</b> $ML{'.help.headers.options.mood.example'}<br />
                     <b>post-music:</b> $ML{'.help.headers.options.music.example'}<br />
+                    <b>post-location:</b> $ML{'.help.headers.options.location.example'}<br />
                     <b>post-comments:</b> } . BML::ml('.help.headers.options.comments.example', {'off' => 'off', 'noemail' => 'noemail'}) . qq{<br />
                     <br />
                     $body
