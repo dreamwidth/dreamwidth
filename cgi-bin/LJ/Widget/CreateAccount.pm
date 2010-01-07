@@ -40,12 +40,7 @@ sub render_body {
         return "$pre $msg $post";
     };
 
-    my $alt_layout = $opts{alt_layout} ? 1 : 0;
     my $ret;
-
-    if ($alt_layout) {
-        $ret .= "<div class='signup-container'>";
-    }
 
     $ret .= $class->start_form(%{$opts{form_attr}});
 
@@ -54,159 +49,172 @@ sub render_body {
     my $tip_password = LJ::ejs($class->ml('widget.createaccount.tip.password'));
     my $tip_username = LJ::ejs($class->ml('widget.createaccount.tip.username'));
 
-    # tip module
-    if ($alt_layout) {
-        $ret .= "<script type='text/javascript'>\n";
-        $ret .= "CreateAccount.alt_layout = true;\n";
-        $ret .= "</script>\n";
-    } else {
-        $ret .= "<script type='text/javascript'>\n";
-        $ret .= "CreateAccount.birthdate = \"$tip_birthdate\"\n";
-        $ret .= "CreateAccount.email = \"$tip_email\"\n";
-        $ret .= "CreateAccount.password = \"$tip_password\"\n";
-        $ret .= "CreateAccount.username = \"$tip_username\"\n";
-        $ret .= "</script>\n";
-        $ret .= "<div id='tips_box_arrow'></div>";
-        $ret .= "<div id='tips_box'></div>";
+    $ret .= "<script type='text/javascript'>\n";
+    $ret .= "CreateAccount.birthdate = \"$tip_birthdate\"\n";
+    $ret .= "CreateAccount.email = \"$tip_email\"\n";
+    $ret .= "CreateAccount.password = \"$tip_password\"\n";
+    $ret .= "CreateAccount.username = \"$tip_username\"\n";
+    $ret .= "</script>\n";
+
+    # Errors container, listed in a TOC for screen-reader convenience
+    # Don't even build if there are no errors in the page
+    # IMPORTANT: The placement of this list in the HTML is necessary for
+    # screen readers to announce it correctly after form submission. If you want to
+    # move it, use CSS.
+    if ( keys %$errors ) {
+        $ret .= "<div tabindex=1 id='error-list' class='error-list' role='alert'>";
+        $ret .= "<h2 class='nav' id='errorlist_label'>"
+                .  LJ::ejs($class->ml('widget.createaccount.error.list'))
+                .  "</h2>";
+        $ret .= "<ol role='alert' labelledby='errorlist_label'>";
+
+        # Print out all of the error messages that exist.
+        # Do this manually as opposed to in a for loop in order to guarantee the order
+        # matches the layout of the page
+        $ret .= $error_msg->('username', '<li class="formitemFlag" role="alert">', '</li>');
+        $ret .= $error_msg->('email', '<li class="formitemFlag" role="alert">', '</li>');
+        $ret .= $error_msg->('password', '<li class="formitemFlag" role="alert">', '</li>');
+        $ret .= $error_msg->('confirmpass', '<li class="formitemFlag" role="alert">', '</li>');
+        $ret .= $error_msg->('bday', '<li class="formitemFlag" role="alert">', '</li>');
+        $ret .= $error_msg->('captcha', '<li class="formitemFlag" role="alert">', '</li>');
+        $ret .= $error_msg->('tos', '<li class="formitemFlag" role="alert">', '</li>');
+            
+        $ret .= "</ol>";
+        $ret .= "</div> <!-- error-list -->\n";
     }
 
-    $ret .= "<table class='create-form' cellspacing='0' cellpadding='3'>\n" unless $alt_layout;
+    # FIXME: this table should be converted to fieldsets and css layout
+    # instead of tables for maximum accessibility. Eventually.
+
+    $ret .= "<div class='relative-container'>\n";
+    $ret .= "<div id='tips_box_arrow'></div>";
+    $ret .= "<div id='tips_box'></div>";
+    $ret .= "<table class='create-form' cellspacing='0' cellpadding='3'>\n";
 
     ### username
-    if ($alt_layout) {
-        $ret .= "<label for='create_user' class='label_create'>" . $class->ml('widget.createaccount.field.username') . "</label>";
-        $ret .= "<div class='bubble' id='bubble_user'>";
-        $ret .= "<div class='bubble-arrow'></div>";
-        $ret .= "<div class='bubble-text'>$tip_username</div>";
-        $ret .= "</div>";
-    } else {
-        $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.username') . "</td>\n<td>";
-    }
+
+    # Highlight the field if the user needs to fix errors
+    my $label_username = $errors->{'username'} ? "errors-present" : "errors-absent"; 
+      
+    $ret .= "<tr><td class='$label_username'>"
+            .  $class->ml('widget.createaccount.field.username')
+            .  "</td>\n<td>";
+    
     # maxlength 26, so if people don't notice that they hit the limit,
     # we give them a warning. (some people don't notice/proofread)
     $ret .= $class->html_text(
         name => 'user',
         id => 'create_user',
-        size => $alt_layout ? undef : 20,
+        size => 20,
         maxlength => 26,
-        raw => 'style="<?loginboxstyle?>"',
+        raw => 'tabindex=1 style="<?loginboxstyle?>" aria-required="true"',
         value => $post->{user} || $get->{user},
     );
-    $ret .= " <img id='username_check' src='$LJ::IMGPREFIX/create/check.png' alt='" . $class->ml('widget.createaccount.field.username.available') . "' title='" . $class->ml('widget.createaccount.field.username.available') . "' />";
-    $ret .= $error_msg->('username', '<span id="username_error_main"><br /><span class="formitemFlag">', '</span></span>');
-    $ret .= "<span id='username_error'><br /><span id='username_error_inner' class='formitemFlag'></span></span>";
-    $ret .= "</td></tr>\n" unless $alt_layout;
+
+    # If JavaScript is available, check to see if the username is available
+    # before submitting the form. Make sure that responses are returned as
+    # ARIA live region for screen reader compatibility.
+    $ret .= " <img id='username_check' src='$LJ::IMGPREFIX/create/check.png' alt='"
+            .  $class->ml('widget.createaccount.field.username.available')
+            .  "' title='"
+            .  $class->ml('widget.createaccount.field.username.available')
+            .  "' aria-live='polite' />";
+    $ret .= "<span id='username_error'><br /><span id='username_error_inner' class='formitemFlag' role='alert'></span></span>";
+
+    $ret .= "</td></tr>\n";
 
     ### email
-    if ($alt_layout) {
-        $ret .= "<label for='create_email' class='label_create'>" . $class->ml('widget.createaccount.field.email') . "</label>";
-        $ret .= "<div class='bubble' id='bubble_email'>";
-        $ret .= "<div class='bubble-arrow'></div>";
-        $ret .= "<div class='bubble-text'>$tip_email</div>";
-        $ret .= "</div>";
-    } else {
-        $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.email') . "</td>\n<td>";
-    }
+
+    # Highlight the field if the user needs to fix errors
+    my $label_email = $errors->{'email'} ? "errors-present" : "errors-absent"; 
+      
+    $ret .= "<tr><td class='$label_email'>"
+            .  $class->ml('widget.createaccount.field.email')
+            .  "</td>\n<td>";
     $ret .= $class->html_text(
         name => 'email',
         id => 'create_email',
         size => 28,
         maxlength => 50,
+        raw => 'tabindex=1 aria-required="true"',
         value => $post->{email},
     );
-    $ret .= $error_msg->('email', '<br /><span class="formitemFlag">', '</span>');
-    $ret .= "</td></tr>\n" unless $alt_layout;
+    $ret .= "</td></tr>\n";
 
     ### password
+
+    # Highlight the field if the user needs to fix errors
+    my $label_password = $errors->{'password'} ? "errors-present" : "errors-absent"; 
+      
     my $pass_value = $errors->{password} ? "" : $post->{password1};
-    if ($alt_layout) {
-        $ret .= "<label for='create_password1' class='label_create'>" . $class->ml('widget.createaccount.field.password') . "</label>";
-        $ret .= "<div class='bubble' id='bubble_password1'>";
-        $ret .= "<div class='bubble-arrow'></div>";
-        $ret .= "<div class='bubble-text'>$tip_password</div>";
-        $ret .= "</div>";
-    } else {
-        $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.password') . "</td>\n<td>";
-    }
+
+    $ret .= "<tr><td class='$label_password'>"
+            .  $class->ml('widget.createaccount.field.password')
+            .  "</td>\n<td>";
     $ret .= $class->html_text(
         name => 'password1',
         id => 'create_password1',
         size => 28,
         maxlength => 31,
         type => "password",
+        raw => 'tabindex=1 aria-required="true"',
         value => $pass_value,
     );
-    $ret .= $error_msg->('password', '<br /><span class="formitemFlag">', '</span>');
-    $ret .= "</td></tr>\n" unless $alt_layout;
+    $ret .= "</td></tr>\n";
 
     ### confirm password
-    if ($alt_layout) {
-        $ret .= "<label for='create_password2' class='label_create'>" . $class->ml('widget.createaccount.field.confirmpassword') . "</label>";
-        $ret .= "<div class='bubble' id='bubble_password1'>";
-        $ret .= "<div class='bubble-arrow'></div>";
-        $ret .= "<div class='bubble-text'>$tip_password</div>";
-        $ret .= "</div>";
-    } else {
-        $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.confirmpassword') . "</td>\n<td>";
-    }
+
+    # Highlight the field if the user needs to fix errors
+    my $label_confirmpass = $errors->{'confirmpass'} ? "errors-present" : "errors-absent"; 
+      
+    $ret .= "<tr><td class='$label_confirmpass'>"
+            . $class->ml('widget.createaccount.field.confirmpassword')
+            . "</td>\n<td>";
     $ret .= $class->html_text(
         name => 'password2',
         id => 'create_password2',
         size => 28,
         maxlength => 31,
         type => "password",
+        raw => 'tabindex=1 aria-required="true"',
         value => $pass_value,
     );
-    $ret .= $error_msg->('confirmpass', '<br /><span class="formitemFlag">', '</span>');
-    $ret .= "</td></tr>\n" unless $alt_layout;
+    $ret .= "</td></tr>\n";
 
     ### birthdate
-    if ($alt_layout) {
-        $ret .= "<label for='create_bday_mm' class='label_create'>" . $class->ml('widget.createaccount.field.birthdate') . "</label>";
-        $ret .= "<div class='bubble' id='bubble_bday_mm'>";
-        $ret .= "<div class='bubble-arrow'></div>";
-        $ret .= "<div class='bubble-text'>$tip_birthdate</div>";
-        $ret .= "</div>";
-        $ret .= $class->html_select(
-            name => "bday_mm",
-            id => "create_bday_mm",
-            selected => $post->{bday_mm} || 1,
-            list => [ map { $_, LJ::Lang::month_long_ml( $_ ) } (1..12) ],
-        ) . " ";
-        $ret .= $class->html_text(
-            name => "bday_dd",
-            id => "create_bday_dd",
-            class => 'date',
-            maxlength => '2',
-            value => $post->{bday_dd} || "",
-        );
-        $ret .= $class->html_text(
-            name => "bday_yyyy",
-            id => "create_bday_yyyy",
-            class => 'year',
-            maxlength => '4',
-            value => $post->{bday_yyyy} || "",
-        );
-    } else {
-        $ret .= "<tr><td class='field-name'>" . $class->ml('widget.createaccount.field.birthdate') . "</td>\n<td>";
-        $ret .= $class->html_datetime(
-            name => 'bday',
-            id => 'create_bday',
-            notime => 1,
-            default => sprintf("%04d-%02d-%02d", $post->{bday_yyyy}, $post->{bday_mm}, $post->{bday_dd}),
-        );
-    }
-    $ret .= $error_msg->('bday', '<br /><span class="formitemFlag">', '</span>');
-    $ret .= "</td></tr>\n" unless $alt_layout;
+
+    # Highlight the field if the user needs to fix errors
+    my $label_bday = $errors->{'bday'} ? "errors-present" : "errors-absent"; 
+      
+
+    $ret .= "<tr>"
+            .  "<td class='$label_bday'><label for='create_bday_mm'>"
+            .  $class->ml('widget.createaccount.field.birthdate')
+            .  "</label></td>\n<td>";
+    $ret .= $class->html_datetime(
+        name => 'bday',
+        id => 'create_bday',
+        raw => 'aria-required="true" tabindex=1',
+        notime => 1,
+        default => sprintf("%04d-%02d-%02d", $post->{bday_yyyy}, $post->{bday_mm}, $post->{bday_dd}),
+    );
+      
+    $ret .= "</td></tr>\n";
 
     ### captcha
+
+    # Highlight the field if the user needs to fix errors
+    # NOTE: Because captcha is not currently in use on
+    # dreamwidth.org, and because its accessibility is negligible
+    # at best, WAI-ARIA code is not wrapped around the
+    # captcha functionality.
+    my $label_captcha = $errors->{'captcha'} ? "errors-present" : "errors-absent"; 
+      
     if ($LJ::HUMAN_CHECK{create}) {
         if (LJ::is_enabled("recaptcha")) {
-            if ($alt_layout) {
-                $ret .= "<label class='text'>" . $class->ml('widget.createaccount.alt_layout.field.captcha') . "</label>";
-            } else {
-                $ret .= "<tr valign='top'><td class='field-name'>" . $class->ml('widget.createaccount.field.captcha') . "</td>\n<td>";
-            }
+            $ret .= "<tr valign='top'><td class='$label_captcha'>"
+                    .  $class->ml('widget.createaccount.field.captcha')
+                    .  "</td>\n<td>";
 
             my $c = Captcha::reCAPTCHA->new;
             $ret .= $c->get_options_setter({ theme => 'white' });
@@ -230,7 +238,9 @@ sub render_body {
             $captcha_chal = $captcha_chal || LJ::challenge_generate(900);
             $captcha_sess = LJ::get_challenge_attributes($captcha_chal);
 
-            $ret .= "<tr valign='top'><td class='field-name'>" . $class->ml('widget.createaccount.field.captcha') . "</td>\n<td>";
+            $ret .= "<tr valign='top'><td class='$label_captcha'>"
+                  . $class->ml('widget.createaccount.field.captcha')
+                  . "</td>\n<td>";
 
             if ($wants_audio || $post->{audio_chal}) { # audio
                 my $url = $capid && $anum ? # previously entered correctly
@@ -258,69 +268,43 @@ sub render_body {
             $ret .= $class->html_hidden( captcha_chal => $captcha_chal );
         }
 
-        $ret .= $error_msg->('captcha', '<span class="formitemFlag">', '</span><br />');
         $ret .= "</td></tr>\n";
     }
 
-    if ($alt_layout) {
-        $ret .= "<p class='terms'>";
+    ### TOS
 
-        ### TOS
-        my $tos_string = $class->ml( 'widget.createaccount.alt_layout.tos', { sitename => $LJ::SITENAMESHORT } );
-        if ( $tos_string ) {
-            $ret .= "$tos_string<br />";
-            $ret .= $class->html_check(
-                name => 'tos',
-                id => 'create_tos',
-                value => '1',
-                selected => LJ::did_post() ? $post->{tos} : 0,
-            );
-            $ret .= " <label for='create_tos' class='text'>" . $class->ml( 'widget.createaccount.alt_layout.field.tos' ) . "</label><br /><br />";
-        } else {
-            $ret .= LJ::html_hidden( tos => 1 );
-        }
+    # Highlight the field if the user needs to fix errors
+    my $label_tos = $errors->{'tos'} ? "errors-present" : "errors-absent"; 
+      
+    # site news
+    $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+    $ret .= $class->html_check(
+        name => 'news',
+        id => 'create_news',
+        value => '1',
+        raw => 'tabindex=1',
+        selected => LJ::did_post() ? $post->{news} : 1,
+        label => $class->ml('widget.createaccount.field.news', { sitename => $LJ::SITENAMESHORT }),
+    );
+    $ret .= "</td></tr>\n";
 
-        ### site news
-        $ret .= $class->html_check(
-            name => 'news',
-            id => 'create_news',
-            value => '1',
-            selected => LJ::did_post() ? $post->{news} : 0,
-        );
-        $ret .= " <label for='create_news' class='text'>" . $class->ml('widget.createaccount.field.news', { sitename => $LJ::SITENAMESHORT }) . "</label>";
-
-        $ret .= "</p>";
-        $ret .= $error_msg->('tos', '<span class="formitemFlag">', '</span><br />');
-    } else {
-        ### site news
-        $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
-        $ret .= $class->html_check(
-            name => 'news',
-            id => 'create_news',
-            value => '1',
-            selected => LJ::did_post() ? $post->{news} : 1,
-            label => $class->ml('widget.createaccount.field.news', { sitename => $LJ::SITENAMESHORT }),
-        );
-        $ret .= "</td></tr>\n";
-
-        ### TOS
-        $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
-        $ret .= $class->html_check(
-            name => 'tos',
-            id => 'create_tos',
-            value => '1',
-            selected => LJ::did_post() ? $post->{tos} : 0,
-        );
-        $ret .= " <label for='create_tos' class='text'>";
-        $ret .= $class->ml( 'widget.createaccount.field.tos', {
-            sitename => $LJ::SITENAMESHORT,
-            aopts1 => "href='$LJ::SITEROOT/legal/tos' target='_new'",
-            aopts2 => "href='$LJ::SITEROOT/legal/privacy' target='_new'",
-        } );
-        $ret .= "</label>";
-        $ret .= $error_msg->( 'tos', '<span class="formitemFlag">', '</span><br />' );
-        $ret .= "</td></tr>\n";
-    }
+    # TOS
+    $ret .= "<tr valign='top'><td class='$label_tos'>&nbsp;</td>\n<td>";
+    $ret .= $class->html_check(
+        name => 'tos',
+        id => 'create_tos',
+        value => '1',
+        raw => 'tabindex=1',
+        selected => LJ::did_post() ? $post->{tos} : 0,
+    );
+    $ret .= " <label for='create_tos' class='text'>";
+    $ret .= $class->ml( 'widget.createaccount.field.tos', {
+        sitename => $LJ::SITENAMESHORT,
+        aopts1 => "href='$LJ::SITEROOT/legal/tos' target='_new'",
+        aopts2 => "href='$LJ::SITEROOT/legal/privacy' target='_new'",
+    } );
+    $ret .= "</label>";
+    $ret .= "</td></tr>\n";
 
     if ( $LJ::USE_ACCT_CODES && !DW::InviteCodes->is_promo_code( code => $code ) ) {
         my $item = DW::InviteCodes->paid_status( code => $code );
@@ -336,24 +320,21 @@ sub render_body {
     }
 
     ### submit button
-    if ($alt_layout) {
-        $ret .= $class->html_submit( submit => $class->ml('widget.createaccount.btn'), { class => "login-button" }) . "\n";
-    } else {
-        $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
-        $ret .= $class->html_submit( submit => $class->ml('widget.createaccount.btn'), { class => "create-button" }) . "\n";
-        $ret .= "</td></tr>\n";
-    }
-
-    $ret .= "</table>\n" unless $alt_layout;
+    $ret .= "<tr valign='top'><td class='field-name'>&nbsp;</td>\n<td>";
+    $ret .= $class->html_submit( 
+        submit => $class->ml('widget.createaccount.btn'), 
+        { class => "create-button",
+          raw => 'tabindex=1', 
+        },
+    ) . "\n";
+    $ret .= "</td></tr>\n";
+    $ret .= "</table>\n";
+    $ret .= "</div> <!-- relative-container -->\n";
 
     $ret .= $class->html_hidden( from => $from ) if $from;
     $ret .= $class->html_hidden( code => $code ) if $LJ::USE_ACCT_CODES;
 
     $ret .= $class->end_form;
-
-    if ($alt_layout) {
-        $ret .= "</div>";
-    }
 
     return $ret;
 }
@@ -365,7 +346,6 @@ sub handle_post {
 
     my %from_post;
     my $remote = LJ::get_remote();
-    my $alt_layout = $opts{alt_layout} ? 1 : 0;
 
     # flag to indicate they've submitted with 'audio' as the answer to the captcha
     my $wants_audio = $from_post{wants_audio} = 0;
@@ -504,7 +484,7 @@ sub handle_post {
     }
 
     # check TOS agreement
-    $from_post{errors}->{tos} = $class->ml( 'widget.createaccount.alt_layout.error.tos' ) unless $post->{tos};
+    $from_post{errors}->{tos} = $class->ml( 'widget.createaccount.error.tos' ) unless $post->{tos};
 
     # create user and send email as long as the user didn't double-click submit
     # (or they tried to re-create a purged account)

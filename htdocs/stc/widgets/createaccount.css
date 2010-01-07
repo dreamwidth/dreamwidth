@@ -1,3 +1,26 @@
+/* Relative container allows a parent container to something which
+   needs absolute positioning around it */
+.relative-container {
+   position: relative;
+}
+
+.error-list {
+    background-color: #fcf6db;
+    border: 1px solid #ffdfc0;
+    padding: 1em;
+    padding-left: 3em;
+    margin-top: 3em;
+}
+
+div.error-list ol, div.error-list li {
+    list-style-type: decimal;
+}
+
+.errors-present {
+    font-weight: bold;
+    color: #f00;
+}
+
 .appwidget-createaccount .field-name {
     text-align: right;
     width: 125px;
@@ -54,9 +77,7 @@ span.appwidget-createaccount #username_error {
     font-weight: bold;
 }
 
-.create-form span.formitemFlag {
-    display: block;
-    width: 330px;
+li.formitemFlag {
     font-weight: bold;
     color: #f00;
 }

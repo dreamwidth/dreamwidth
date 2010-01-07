@@ -3879,12 +3879,6 @@ widget.communitymanagement.pending.member=[[num]] [[?num|member|members]]
 
 widget.communitymanagement.title=Community Management
 
-widget.createaccount.alt_layout.error.tos=You must agree to the Terms of Service.
-
-widget.createaccount.alt_layout.field.captcha=Enter the text below to help verify the authenticity of this account:
-
-widget.createaccount.alt_layout.field.tos=Check here to agree.
-
 widget.createaccount.btn=Create Account
 
 widget.createaccount.error.birthdate.invalid=You must enter a valid birthdate.
@@ -3896,6 +3890,8 @@ widget.createaccount.error.cannotcreate=There was an error creating your account
 widget.createaccount.error.captcha.invalid=Invalid answer to previous challenge.  Try another.
 
 widget.createaccount.error.email.lj_domain=You cannot use a [[domain]] alias when creating an account.  Please enter a different email address.
+
+widget.createaccount.error.list=Errors in form:
 
 widget.createaccount.error.password.asciionly=You can only use ASCII symbols in the password.
 
@@ -3920,6 +3916,8 @@ widget.createaccount.error.password.nomatch=Passwords do not match.
 widget.createaccount.error.password.toolong=Password must not be longer than 30 characters.
 
 widget.createaccount.error.password.tooshort=Password must be at least 6 characters.
+
+widget.createaccount.error.tos=You must agree to the Terms of Service.
 
 widget.createaccount.error.username.inuse=Sorry, this username is already in use.
 

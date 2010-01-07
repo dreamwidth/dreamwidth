@@ -18,15 +18,13 @@ CreateAccount.init = function () {
     DOM.addEventListener($('create_bday_dd'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
     DOM.addEventListener($('create_bday_yyyy'), "focus", CreateAccount.eventShowTip.bindEventListener("create_bday_mm"));
 
-    if (CreateAccount.alt_layout) {
-        DOM.addEventListener($('create_user'), "blur", CreateAccount.eventHideTip.bindEventListener("create_user"));
-        DOM.addEventListener($('create_email'), "blur", CreateAccount.eventHideTip.bindEventListener("create_email"));
-        DOM.addEventListener($('create_password1'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
-        DOM.addEventListener($('create_password2'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
-        DOM.addEventListener($('create_bday_mm'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
-        DOM.addEventListener($('create_bday_dd'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
-        DOM.addEventListener($('create_bday_yyyy'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
-    }
+    DOM.addEventListener($('create_user'), "blur", CreateAccount.eventHideTip.bindEventListener("create_user"));
+    DOM.addEventListener($('create_email'), "blur", CreateAccount.eventHideTip.bindEventListener("create_email"));
+    DOM.addEventListener($('create_password1'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_password2'), "blur", CreateAccount.eventHideTip.bindEventListener("create_password1"));
+    DOM.addEventListener($('create_bday_mm'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_dd'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
+    DOM.addEventListener($('create_bday_yyyy'), "blur", CreateAccount.eventHideTip.bindEventListener("create_bday_mm"));
 
     if (!$('username_check')) return;
     if (!$('username_error')) return;
@@ -50,51 +48,46 @@ CreateAccount.showTip = function (id) {
     if (!id) return;
 
     var drop, arrowdrop, text;
-    if (CreateAccount.alt_layout) {
-        CreateAccount.bubbleid = id.replace(/create/, 'bubble');
-        if ($(CreateAccount.bubbleid)) {
-            $(CreateAccount.bubbleid).style.visibility = "visible";
-        }
-    } else {
-        if (id == "create_bday_mm") {
-            text = CreateAccount.birthdate;
-            drop = 40;
-            arrowdrop = 53;
-        } else if (id == "create_email") {
-            text = CreateAccount.email;
-            drop = 10;
-            arrowdrop = 13;
-        } else if (id == "create_password1") {
-            text = CreateAccount.password;
-            drop = 20;
-            arrowdrop = 24;
-        } else if (id == "create_user") {
-            text = CreateAccount.username;
-            drop = 0;
-            arrowdrop = 3;
-        }
 
-        var box = $('tips_box'), box_arr = $('tips_box_arrow');
-        if (box && box_arr) {
-            box.innerHTML = text;
+    // Create the location for the tooltip
+    if (id == "create_bday_mm") {
+        text = CreateAccount.birthdate;
+        drop = 40;
+        arrowdrop = 53;
+    } else if (id == "create_email") {
+        text = CreateAccount.email;
+        drop = 10;
+        arrowdrop = 13;
+    } else if (id == "create_password1") {
+        text = CreateAccount.password;
+        drop = 20;
+        arrowdrop = 24;
+    } else if (id == "create_user") {
+        text = CreateAccount.username;
+        drop = 0;
+        arrowdrop = 3;
+    }
 
-            box.style.top = drop + "%";
-            box.style.display = "block";
+    var box = $('tips_box'), box_arr = $('tips_box_arrow');
+    if (box && box_arr) {
+        box.innerHTML = text;
 
-            box_arr.style.top = arrowdrop + "%";
-            box_arr.style.display = "block";
-        }
+        box.style.top = drop + "%";
+        box.style.display = "block";
+        box.style.visibility = "visible";
+
+        box_arr.style.top = arrowdrop + "%";
+        box_arr.style.display = "block";
     }
 }
 
 CreateAccount.hideTip = function (id) {
     if (!id) return;
 
-    if (CreateAccount.alt_layout) {
-        if ($(CreateAccount.bubbleid)) {
-            $(CreateAccount.bubbleid).style.visibility = "hidden";
-        }
-    }
+    // Set the tip to the empty string instead of just relying
+    // on CSS to maximize accessibility
+    $('tips_box').style.visibility = "hidden";
+    $('tips_box').innerHTML = "";
 }
 
 CreateAccount.checkUsername = function () {
@@ -110,11 +103,13 @@ CreateAccount.checkUsername = function () {
                 $('username_error_inner').innerHTML = data.error;
                 $('username_check').style.display = "none";
                 $('username_error').style.display = "inline";
+                $('create_user').setAttribute("aria-invalid", "true");
             } else {
                 if ($('username_error_main')) $('username_error_main').style.display = "none";
 
                 $('username_error').style.display = "none";
                 $('username_check').style.display = "inline";
+                $('create_user').setAttribute("aria-invalid", "false");
             }
             CreateAccount.showTip(CreateAccount.id); // recalc
         },
