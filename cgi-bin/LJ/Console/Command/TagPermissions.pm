@@ -44,7 +44,7 @@ sub execute {
     my $foru = $remote;            # may be overridden later
     my ($add, $control);
 
-    if (scalar(@args) == 4) {
+    if (scalar(@args) == 4) {  # community case
         return $self->error("Invalid arguments. First argument must be 'for'")
             if $args[0] ne "for";
 
@@ -55,16 +55,18 @@ sub execute {
         return $self->error("You cannot change tag permission settings for $args[1]")
             unless LJ::can_manage($remote, $foru);
 
-        ($add, $control) = ($args[2], $args[3]);
-        map { $_ = 'friends' if $_ eq 'members' } ($add, $control);
-    } else {
-        ($add, $control) = ($args[0], $args[1]);
-        map { $_ = 'friends' if $_ eq 'access' } ($add, $control);
+        $add = $args[2] eq 'members' ? 'protected' : $args[2];
+        $control = $args[3] eq 'members' ? 'protected' : $args[3];
+    } else {  # individual case
+        $add = $args[0] eq 'access' ? 'protected' : $args[0];
+        $control = $args[1] eq 'access' ? 'protected' : $args[1];
     }
 
     my $validate_level = sub {
         my $level = shift;
-        return $level if $level =~ /^(?:private|public|none|friends)$/;
+        return 'protected' if $level eq 'friends';
+        return $level if $level =~ /^(?:private|public|none|protected)$/;
+        # can't use access for a community or members for an individual
         return undef if $level =~ /^(?:members|access)$/;
 
         my $grp = $foru->trust_groups( name => $level );
