@@ -235,10 +235,10 @@ sub module_iframe_tag {
 
     my $journalid = $u->userid;
     $moduleid += 0;
+    my $preview = $opts{preview};
 
     # parse the contents of the module and try to come up with a guess at the width and height of the content
-    my $content = $class->module_content(moduleid => $moduleid, journalid => $journalid);
-    my $preview = $opts{preview};
+    my $content = $class->module_content( moduleid => $moduleid, journalid => $journalid, preview => $preview );
     my $width = 0;
     my $height = 0;
     my $p = HTML::TokeParser->new(\$content);
