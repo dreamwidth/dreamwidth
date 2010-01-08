@@ -1981,6 +1981,8 @@ inbox.menu.encircled=New People
 
 inbox.menu.new_message.btn=New Message
 
+inbox.menu.poll_votes=Poll Votes
+
 inbox.menu.sent=Sent
 
 inbox.message=Message

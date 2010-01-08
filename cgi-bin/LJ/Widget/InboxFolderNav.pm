@@ -88,6 +88,7 @@ sub render_body {
     $body .= $subfolder_link->( "birthday", "inbox.menu.birthdays", "subsubs" );
     $body .= $subfolder_link->( "encircled", "inbox.menu.encircled", "subsubs" );
     $body .= $subfolder_link->( "entrycomment", "inbox.menu.entries_and_comments", "subs", $unread_html->( $inbox->entrycomment_event_count ) );
+    $body .= $subfolder_link->( "pollvote", "inbox.menu.poll_votes", "subs", $unread_html->( $inbox->pollvote_event_count ) );
     $body .= qq{<span class="subs">---</span>\n};
     $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", 
         qq{<img src="$LJ::IMGPREFIX/flag_on.gif" width="12" height="14" border="0" />} );

@@ -112,6 +112,7 @@
         unread_usermsg_recvd => $inbox->usermsg_recvd_event_count,
         unread_friend => $inbox->circle_event_count,
         unread_entrycomment => $inbox->entrycomment_event_count,
+        unread_pollvote => $inbox->pollvote_event_count,
         unread_usermsg_sent => $inbox->usermsg_sent_event_count,
         %ret,
     });

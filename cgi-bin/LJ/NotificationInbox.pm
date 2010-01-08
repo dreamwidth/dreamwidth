@@ -164,6 +164,10 @@ sub entrycomment_items {
     return $self->subset_items(@events);
 }
 
+sub pollvote_items {
+    return $_[0]->subset_items( 'PollVote' );
+}
+
 # return a subset of notificationitems
 sub subset_items {
     my ($self, @subset) = @_;
@@ -566,6 +570,8 @@ sub delete_all {
         my $itemid = $args{itemid} + 0;
         return unless $itemid;
         @items = $self->singleentry_items( $itemid );
+    } elsif ( $view eq 'pollvote' ) {
+        @items = $self->pollvote_items;
     }
 
     @items = grep { !$self->is_bookmark($_->qid) } @items
@@ -612,6 +618,8 @@ sub mark_all_read {
         my $itemid = $args{itemid} + 0;
         return unless $itemid;
         @items = $self->singleentry_items( $itemid );
+    } elsif ( $view eq 'pollvote' ) {
+        @items = $self->pollvote_items;
     }
 
     # Mark read
@@ -685,6 +693,11 @@ sub circle_event_count {
 sub entrycomment_event_count {
     my $self = shift;
     return $self->subset_unread_count(entrycomment_event_list());
+}
+
+sub pollvote_event_count {
+    my $self = shift;
+    return $self->subset_unread_count( 'PollVote' );
 }
 
 sub usermsg_recvd_event_count {

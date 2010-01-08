@@ -306,6 +306,7 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
     var usermsg_sent_count = 0;
     var friend_count = 0;
     var entrycomment_count = 0;
+    var pollvote_count = 0;
     var inbox_count  = info.items.length;
 
     info.items.forEach(function (item) {
@@ -355,6 +356,7 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
     ESN_Inbox.refresh_count("esn_folder_usermsg_recvd", info.unread_usermsg_recvd);
     ESN_Inbox.refresh_count("esn_folder_circle", info.unread_friend);
     ESN_Inbox.refresh_count("esn_folder_entrycomment", info.unread_entrycomment);
+    ESN_Inbox.refresh_count("esn_folder_pollvote", info.unread_pollvote);
     ESN_Inbox.refresh_count("esn_folder_usermsg_sent", info.unread_usermsg_sent);
 
     if ( LiveJournal.gotInboxUpdate )
