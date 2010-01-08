@@ -317,10 +317,10 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
 
         if (!qid) return;
 
-        if (!read && !deleted) unread_count++;
-
         var rowElement = $(folder + "_Row_" + qid);
         if (!rowElement) return;
+
+        if (!read && !deleted) unread_count++;
 
         var bookmarks = DOM.getElementsByClassName(rowElement, "InboxItem_Bookmark") || [];
         for (var i=0; i<bookmarks.length; i++) {
@@ -353,6 +353,7 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
     });
 
     ESN_Inbox.refresh_count("esn_folder_all", info.unread_all);
+    ESN_Inbox.refresh_count("esn_folder_unread", info.unread_all);
     ESN_Inbox.refresh_count("esn_folder_usermsg_recvd", info.unread_usermsg_recvd);
     ESN_Inbox.refresh_count("esn_folder_circle", info.unread_friend);
     ESN_Inbox.refresh_count("esn_folder_entrycomment", info.unread_entrycomment);
@@ -367,7 +368,10 @@ ESN_Inbox.finishedUpdate = function (info, folder) {
         // no rows left, refresh page if more messages
         if (inbox_count != 0)
             window.location.href = $("RefreshLink").href;
-    }
+    } else if ( cur_folder == "unread" && info.unread_all > 0 && unread_count == 0 ) {
+        // unread folder, there are still more unread items, but we have marked everything on this page read
+        window.location.href = $("RefreshLink").href;
+    } 
 
     if (inbox_count == 0) {
         // reset if no messages

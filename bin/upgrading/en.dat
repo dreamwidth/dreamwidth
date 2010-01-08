@@ -1985,6 +1985,8 @@ inbox.menu.poll_votes=Poll Votes
 
 inbox.menu.sent=Sent
 
+inbox.menu.unread=Unread
+
 inbox.message=Message
 
 inbox.messages=Messages

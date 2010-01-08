@@ -197,6 +197,13 @@ sub archived_items {
     return $archive->items;
 }
 
+# return unread notifications
+sub unread_items {
+    my $self = shift;
+
+    return grep { $_->unread } $self->items;
+}
+
 sub count {
     my $self = shift;
 
@@ -572,6 +579,8 @@ sub delete_all {
         @items = $self->singleentry_items( $itemid );
     } elsif ( $view eq 'pollvote' ) {
         @items = $self->pollvote_items;
+    } elsif ( $view eq 'unread' ) {
+        @items = $self->unread_items;
     }
 
     @items = grep { !$self->is_bookmark($_->qid) } @items
@@ -620,6 +629,8 @@ sub mark_all_read {
         @items = $self->singleentry_items( $itemid );
     } elsif ( $view eq 'pollvote' ) {
         @items = $self->pollvote_items;
+    } elsif ( $view eq 'unread' ) {
+        @items = $self->unread_items;
     }
 
     # Mark read

@@ -79,9 +79,11 @@ sub render_body {
             $message_button
             <div class="folders"><p>
     };
+
+    my $unread_all_html = $unread_html->( $unread_count );
     $body .= '<a href="." id="esn_folder_all"';
     $body .= ' class="active"' unless $opts{view};
-    $body .= "><?_ml inbox.menu.all _ml?>" . $unread_html->( $unread_count ) . "</a>";
+    $body .= "><?_ml inbox.menu.all _ml?>$unread_all_html</a>";
     $body .= $subfolder_link->( "usermsg_recvd", "inbox.menu.messages", "subs", 
         $unread_html->( $inbox->usermsg_recvd_event_count ) ) if LJ::is_enabled( 'user_messaging' );
     $body .= $subfolder_link->( "circle", "inbox.menu.circle_updates", "subs", $unread_html->( $inbox->circle_event_count ) );
@@ -90,6 +92,7 @@ sub render_body {
     $body .= $subfolder_link->( "entrycomment", "inbox.menu.entries_and_comments", "subs", $unread_html->( $inbox->entrycomment_event_count ) );
     $body .= $subfolder_link->( "pollvote", "inbox.menu.poll_votes", "subs", $unread_html->( $inbox->pollvote_event_count ) );
     $body .= qq{<span class="subs">---</span>\n};
+    $body .= $subfolder_link->( "unread", "inbox.menu.unread", "subs", $unread_all_html );
     $body .= $subfolder_link->( "bookmark", "inbox.menu.bookmarks", "subs", "", 
         qq{<img src="$LJ::IMGPREFIX/flag_on.gif" width="12" height="14" border="0" />} );
     $body .= $subfolder_link->( "usermsg_sent", "inbox.menu.sent", "subs", 
