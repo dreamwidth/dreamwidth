@@ -67,6 +67,11 @@ package LJ::S2Theme::funkycircles::industrialteal;
 use base qw( LJ::S2Theme::funkycircles );
 sub cats { qw( ) }
 
+package LJ::S2Theme::funkycircles::lightondark;
+use base qw( LJ::S2Theme::funkycircles );
+sub cats { qw( ) }
+sub designer { "cesy" }
+
 package LJ::S2Theme::funkycircles::nevermore;
 use base qw( LJ::S2Theme::funkycircles );
 sub cats { qw( featured ) }

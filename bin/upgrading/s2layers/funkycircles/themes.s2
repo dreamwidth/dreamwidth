@@ -625,6 +625,94 @@ function Page::print_theme_stylesheet()
 
 }
 
+#NEWLAYER: funkycircles/lightondark
+layerinfo type = "theme";
+layerinfo name = "Light On Dark";
+layerinfo redist_uniq = "funkycircles/lightondark";
+layerinfo author_name = "cesy";
+
+set layout_authors = [ { "name" => "cesy", "type" => "user" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#473a61";
+set color_page_border = "#ffffff";
+set color_page_text = "#ffffff";
+set color_page_link = "#ddddff";
+set color_page_link_active = "#ffcccc";
+set color_page_link_hover = "#ccffcc";
+set color_page_link_visited = "#ffffcc";
+set color_header_background = "#666666";
+set color_page_title = "#ffffff";
+set color_page_title_background = "#473a61";
+set color_page_subtitle = "#ffffff";
+set color_page_subtitle_background = "#473a61";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_title = "#ffffff";
+set color_entry_title_background = "#330066";
+set color_entry_background = "#000000";
+set color_entry_border = "#9900ff";
+set color_entry_text = "#ffffff";
+set color_entry_poster_border = "#ffffff";
+set color_entry_userpic_border = "#ffffff";
+set color_entry_link = "#ddddff";
+set color_entry_link_active = "#ffcccc";
+set color_entry_link_hover = "#ccffcc";
+set color_entry_link_hover_background = "#000000";
+set color_entry_link_visited = "#ffffcc";
+set color_entry_footer_background = "#000000";
+set color_entry_footer_text = "#ffffff";
+set color_entry_footer_border = "#ffffff";
+set color_entry_footer_link = "#ddddff";
+set color_entry_footer_link_active = "#ffcccc";
+set color_entry_footer_link_hover = "#ccffcc";
+set color_entry_footer_link_visited = "#ffffcc";
+set color_entry_interaction_links = "#ffffff";
+
+set color_comment_title_background = "#660066";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#330066";
+set color_module_border = "#eeeeee";
+set color_module_title = "#ffffff";
+set color_module_title_background = "#666666";
+set color_module_text = "#ffffff";
+set color_module_link = "#ddddff";
+set color_module_link_active = "#ffcccc";
+set color_module_link_hover = "#ccffcc";
+set color_module_link_visited = "#ffffcc";
+
+##===============================
+## Footer Colors
+##===============================
+
+set color_footer_background = "#666666";
+set color_footer_link = "#ddddff";
+set color_footer_link_active = "#ffcccc";
+set color_footer_link_hover = "#ccffcc";
+set color_footer_link_visited = "#ffffcc";
+
+#=================
+# Images
+#=================
+
+set image_background_page_url = "funkycircles/darkpurple-page.jpg";
+set image_background_page_repeat = "no-repeat";
+set image_background_page_position = "bottom left";
+set image_background_header_url = "funkycircles/darkpurple-header.jpg";
+set image_background_header_repeat = "no-repeat";
+set image_module_list = "funkycircles/darkpurple-modulebullet.jpg";
+set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";
+
 #NEWLAYER: funkycircles/nevermore
 layerinfo type = "theme";
 layerinfo name = "Nevermore";
