@@ -33,7 +33,7 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $inbox_cut = $class->get_arg( $args, "cutinbox" ) || ( $u->cut_inbox || "" ) eq "Y";
+    my $inbox_cut = $class->get_arg( $args, "cutinbox" ) || $u->cut_inbox;
 
     my $ret = LJ::html_check( {
         name => "${key}cutinbox",
