@@ -3385,6 +3385,8 @@ subscribe_interface.special_subs.note=These notification options are only availa
 
 subscribe_interface.subs.total=You are using [[active]] out of [[max_active]] active subscriptions.
 
+success=Success
+
 taglib.error.access=You are not allowed to tag entries in this journal.
 
 taglib.error.add=You are not allowed to create new tags for this journal; the entry was not tagged with [[tags]].

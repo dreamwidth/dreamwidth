@@ -24,7 +24,7 @@ use DW::Template::Apache2;
 
 our ( @ISA, @EXPORT );
 @ISA = qw/ Exporter /;
-@EXPORT = qw/ needlogin error_ml controller /;
+@EXPORT = qw/ needlogin error_ml success_ml controller /;
 
 # redirects the user to the login page to handle that eventuality
 sub needlogin {
@@ -43,7 +43,14 @@ sub needlogin {
 # returns an error page using a language string
 sub error_ml {
     return DW::Template::Apache2->render_template(
-        'error.tt', { message => LJ::Lang::ml( $_[0] ) }
+        'error.tt', { message => LJ::Lang::ml( @_ ) }
+    );
+}
+
+# return a success page using a language string
+sub success_ml {
+    return DW::Template::Apache2->render_template(
+        'success.tt', { message => LJ::Lang::ml( @_ ) }
     );
 }
 
