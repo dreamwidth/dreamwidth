@@ -106,6 +106,8 @@ The [[sitename]] Team
 
 .success=Message sent to [[email]]! Want to invite somebody else?
 
-.success.code=Message sent to [[email]] using invite code "[[invitecode]]"! Want to invite somebody else?
+.success.code=Message sent to [[email]] using invite code "[[invitecode]]".
+
+.success.invitemore=Would you like to invite someone else?
 
 .title=Invite a Friend!

@@ -166,7 +166,10 @@
                 my $invite_obj = DW::InviteCodes->new( code => $code );
                 $invite_obj->send_code( email => $email );
 
-                $body .= "<?standout " . BML::ml('.success.code', { email  => $email, invitecode => $code }) . " standout?>";
+                $body .= "<?standout " . BML::ml( '.success.code', { email  => $email, invitecode => $code } );
+                $body .= BML::ml( '.success.invitemore' )
+                    if DW::InviteCodes->unused_count( userid => $u->id ) > 1;
+                $body .= " standout?>";
 
                 $code_sent = 1;
 
