@@ -15,6 +15,7 @@
 package DW::Logic::MenuNav;
 
 use strict;
+use LJ::Lang;
 
 # name: get_menu_navigation
 #
@@ -255,6 +256,71 @@ sub get_menu_navigation {
     );
 
     return \@nav;
+}
+
+# name: get_menu_display
+#
+# des: Returns the menu navigation structure for the site, but processed for display.
+#
+# args: (optional)
+#    $cat A string with a menu category name or array ref of multiple category names,
+#         which will make this function only return menus in the wanted categories.
+#    $u An LJ::User object for which the 'display' fields should be
+#       calculated. Defaults to the remote user.
+#
+# returns: an arrayref of top-level menu items, each represented as a hashref
+#          describing the menu as follows:
+#              - name:  the short (URL-friendly) name for this menu.
+#              - title: the translated title for this menu
+#              - items:  an arrayref of menu items, containing hashrefs
+#                        giving the details for each one as follows:
+#                            - url:  the URL that the link should lead to
+#                            - text:  the translated text for the link
+#          if there are no menus with items, returns undef
+sub get_menu_display {
+    my ( $class, $cat, $u ) = @_;
+
+    $u ||= LJ::get_remote();
+    my $menu_nav = DW::Logic::MenuNav->get_menu_navigation( $u );
+
+    foreach my $menu (@$menu_nav) {
+        # remove menu items not displayed 
+        my @display = grep { $_->{display} } @{ $menu->{items} };
+
+        # will use this to filter out empty menus or unrequested menus
+        $menu->{display} = scalar( @display );
+
+        # if we have a cat, only display requested menu(s)
+        if ( $cat ) {
+            if ( ref( $cat ) eq 'ARRAY' ) {
+                $menu->{display} = 0 unless ( grep { $_ eq $menu->{name} } @$cat );
+            } else {
+                $menu->{display} = 0 unless $menu->{name} eq $cat;
+            }
+        }
+
+        # only translate and process menus that will be displayed
+        if ( $menu->{display} ) {
+            # translate all menu item labels that will be displayed
+            map { $_->{text} = LJ::Lang::ml( $_->{text}, $_->{text_opts} ) } @display;
+
+            # only include the text and url attributes
+            @display = map { { text => $_->{text}, url => $_->{url} } } @display;
+
+            # replace unprocessed menu items with processed ones
+            $menu->{items} = \@display;
+        }
+
+        # translate menu title -- keep the name for people's reference
+        $menu->{title} = LJ::Lang::ml( "menunav." . $menu->{name} );
+    }
+
+    # remove empty menus and only include title, name and item information
+    my @menus = map { { title => $_->{title}, name => $_->{name}, items => $_->{items} } } 
+        grep { $_->{display} } @$menu_nav;
+
+    # Return undefined if we don't have any menus to return
+    return scalar( @menus ) ? \@menus : undef;
 }
 
 1;
