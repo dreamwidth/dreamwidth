@@ -3721,6 +3721,8 @@ web.controlstrip.links.removecomm=Unsubscribe from this community
 
 web.controlstrip.links.removefeed=Remove it from your reading page
 
+web.controlstrip.links.settings=Settings
+
 web.controlstrip.links.stylemystyle=View in my style
 
 web.controlstrip.links.styleorigstyle=View in original style

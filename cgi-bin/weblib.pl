@@ -2630,6 +2630,7 @@ sub control_strip
         $links{inbox} .= " ($unread)" if $unread;
         $links{inbox} .= "</a>";
 
+        $links{settings} = "<a href='$LJ::SITEROOT/manage/settings'>$BML::ML{'web.controlstrip.links.settings'}</a>";
         $links{'view_friends_page'} = "<a href='" . $remote->journal_base . "/read'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
         $links{'edit_friend'} = "<a href='$LJ::SITEROOT/manage/circle/add?user=$journal->{user}'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
@@ -2729,7 +2730,7 @@ sub control_strip
         $ret .= "&nbsp;&nbsp; $links{confirm}" unless $remote->is_validated;
         $ret .= "</div></form>\n";
         $ret .= "$links{home}&nbsp;&nbsp; $links{post_journal}&nbsp;&nbsp;" unless $remote->is_identity;
-        $ret .= "$links{view_friends_page}&nbsp;&nbsp;$links{inbox}";
+        $ret .= "$links{view_friends_page}&nbsp;&nbsp;$links{settings}&nbsp;&nbsp;$links{inbox}";
         $ret .= "</td>\n";
 
         $ret .= "<td id='lj_controlstrip_actionlinks' nowrap='nowrap'>";
