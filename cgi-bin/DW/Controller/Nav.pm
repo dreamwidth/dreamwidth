@@ -36,7 +36,7 @@ sub nav_handler {
     my $cat = $_[0]->subpatterns->[0] || $r->get_args->{cat} || '';
 
     # this function returns an array reference of menu hashes
-    my $menu_nav = DW::Logic::MenuNav->get_menu_display( $cat );
+    my $menu_nav = DW::Logic::MenuNav->get_menu_display( $cat )
         or return error_ml( '/nav.tt.error.invalidcat' );
 
     # this data doesn't need HTML in the titles, like in the real menu
