@@ -1329,9 +1329,9 @@ sub get_log2_row
     $row = LJ::MemCache::get($memkey);
 
     if ($row) {
-        @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack("NNNQN", $row);
+        @$item{'posterid', 'eventtime', 'logtime', 'allowmask', 'ditemid'} = unpack($LJ::LOGMEMCFMT, $row);
         $item->{'security'} = ($item->{'allowmask'} == 0 ? 'private' :
-                               ($item->{'allowmask'} == 2**63 ? 'public' : 'usemask'));
+                               ($item->{'allowmask'} == $LJ::PUBLICBIT ? 'public' : 'usemask'));
         $item->{'journalid'} = $jid;
         @$item{'jitemid', 'anum'} = ($item->{'ditemid'} >> 8, $item->{'ditemid'} % 256);
         $item->{'eventtime'} = LJ::mysql_time($item->{'eventtime'}, 1);
@@ -1355,13 +1355,13 @@ sub get_log2_row
     my ($sec, $eventtime, $logtime);
     $sec = $item->{'allowmask'};
     $sec = 0 if $item->{'security'} eq 'private';
-    $sec = 2**63 if $item->{'security'} eq 'public';
+    $sec = $LJ::PUBLICBIT if $item->{'security'} eq 'public';
     $eventtime = LJ::mysqldate_to_time($item->{'eventtime'}, 1);
     $logtime = LJ::mysqldate_to_time($item->{'logtime'}, 1);
 
     # note: this cannot distinguish between security == private and security == usemask with allowmask == 0 (no groups)
     # both should have the same display behavior, but we don't store the security value in memcache
-    $row = pack("NNNQN", $item->{'posterid'}, $eventtime, $logtime, $sec,
+    $row = pack($LJ::LOGMEMCFMT, $item->{'posterid'}, $eventtime, $logtime, $sec,
                 $item->{'ditemid'});
     LJ::MemCache::set($memkey, $row);
 
@@ -1425,11 +1425,11 @@ sub get_log2_recent_log
         my $n = (length($rows) - 5)/24;
         for (my $i=0; $i<$n; $i++) {
             my ($posterid, $eventtime, $rlogtime, $allowmask, $ditemid) =
-                unpack("NNNQN", substr($rows, $i*24+5, 24));
+                unpack($LJ::LOGMEMCFMT, substr($rows, $i*24+5, 24));
             next if $notafter and $rlogtime > $notafter;
             $eventtime = LJ::mysql_time($eventtime, 1);
             my $security = $allowmask == 0 ? 'private' :
-                ($allowmask == 2**63 ? 'public' : 'usemask');
+                ($allowmask == $LJ::PUBLICBIT ? 'public' : 'usemask');
             my ($jitemid, $anum) = ($ditemid >> 8, $ditemid % 256);
             my $item = {};
             @$item{'posterid','eventtime','rlogtime','allowmask','ditemid',
@@ -1526,11 +1526,11 @@ sub get_log2_recent_log
         my ($sec, $ditemid, $eventtime, $logtime);
         $sec = $item->{'allowmask'};
         $sec = 0 if $item->{'security'} eq 'private';
-        $sec = 2**63 if $item->{'security'} eq 'public';
+        $sec = $LJ::PUBLICBIT if $item->{'security'} eq 'public';
         $ditemid = $item->{'jitemid'}*256 + $item->{'anum'};
         $eventtime = LJ::mysqldate_to_time($item->{'eventtime'}, 1);
 
-        $rows .= pack("NNNQN",
+        $rows .= pack($LJ::LOGMEMCFMT,
                       $item->{'posterid'},
                       $eventtime,
                       $item->{'rlogtime'},

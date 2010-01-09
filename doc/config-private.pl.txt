@@ -51,6 +51,14 @@
             },
         );
 
+    # 32 vs 64 bit arch. By default everything goes to a 64 bit arch.  Uncomment
+    # to enable 32 bit arch support.  
+    #
+    # WARNING: This must be set prior to setting up your site.  If you change it
+    # later on a running site, things may go badly for you.
+    #
+    #$ARCH32 = "1";
+
     # allow changelog posting.  this allows unauthenticated posts to the changelog
     # community from the IP and users specified.  this does not work on its own,
     # you have to configure your version control server to do the posting.  see

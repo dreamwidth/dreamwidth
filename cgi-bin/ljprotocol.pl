@@ -1884,9 +1884,9 @@ sub editevent
         # update memcached
         my $sec = $qallowmask;
         $sec = 0 if $security eq 'private';
-        $sec = 2**63 if $security eq 'public';
+        $sec = $LJ::PUBLICBIT if $security eq 'public';
 
-        my $row = pack("NNNQN", $oldevent->{'posterid'},
+        my $row = pack($LJ::LOGMEMCFMT, $oldevent->{'posterid'},
                        LJ::mysqldate_to_time($eventtime, 1),
                        LJ::mysqldate_to_time($oldevent->{'logtime'}, 1),
                        $sec,
