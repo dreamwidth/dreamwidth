@@ -86,10 +86,10 @@ sub get_content {
         if $etag;
 
     my ($content, $too_big);
-    my $max_size = $LJ::SYNSUCK_MAX_SIZE || 150; # in kb
+    my $max_size = $LJ::SYNSUCK_MAX_SIZE || 3000; # in kb
     my $syn_u = LJ::load_user($user);
     if ( $syn_u && $syn_u->has_priv( "siteadmin", "largefeedsize" ) ) {
-        $max_size = $LJ::SYNSUCK_LARGE_MAX_SIZE || 300; # in kb
+        $max_size = $LJ::SYNSUCK_LARGE_MAX_SIZE || 6000; # in kb
     }
     my $res = eval {
         $ua->request($req, sub {
