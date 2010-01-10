@@ -9,6 +9,8 @@
 
 .edit.this.entry=Edit this Entry
 
+.error.getting=There was an error while loading this entry.
+
 .error.nofind=Could not find selected journal entry.
 
 .in=In community:
