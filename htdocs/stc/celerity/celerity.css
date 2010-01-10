@@ -230,9 +230,9 @@ a:active,
     border-left: 9em solid #DDDDAA;
     margin-top: 170px;
     padding: 1px 1em 1em 1.5em;
-    min-height: 55em;
+    min-height: 65em;
     height: auto !important; /*these two lines are a min-height hack that fixes it in IE6*/
-      height: 55em;
+      height: 65em;
 }
 
 #content p {
