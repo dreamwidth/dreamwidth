@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 ##############################################################################
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -9,7 +9,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -447,13 +447,13 @@ sub moveUser {
     # this is okay to call even if ! $dclust above
     $check_sig->($dbch, "dbch(database dst)");
 
-    # get a definitive source handle where deletes should happen in 
+    # get a definitive source handle where deletes should happen in
     # cases of sourcedel, etc
     $dboa = get_definitive_source_dbh($u);
     $check_sig->($dboa, "dboa(database src)");
 
-    # get a source handle to move from, which is not necessarily a 
-    # definitive copy of the source data... it could just be a 
+    # get a source handle to move from, which is not necessarily a
+    # definitive copy of the source data... it could just be a
     # movemaster slave
     $dbo = get_move_source_dbh($u);
     $check_sig->($dbo, "dbo(movemaster)");
@@ -845,7 +845,7 @@ sub moveUser {
             $flush->() if $sqlvals > 5000 || length($sqlins) > 800_000;
         };
 
-        # let tables perform extra processing on the $r before it's 
+        # let tables perform extra processing on the $r before it's
         # sent off for inserting.
         my $magic;
 
@@ -966,7 +966,7 @@ sub moveUser {
     # NOTE:  we've just finished moving a bunch of rows form $dbo to $dbch,
     #        which could have potentially been a very slow process since the
     #        time for the copy is directly proportional to the data a user
-    #        had to move.  We'll revalidate handles now to ensure that they 
+    #        had to move.  We'll revalidate handles now to ensure that they
     #        haven't died due to (insert eleventy billion circumstances here).
     #
 

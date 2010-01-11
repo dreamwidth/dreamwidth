@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -21,7 +21,7 @@ use XML::Parser;
 # <LJFUNC>
 # name: LJ::ParseFeed::parse_feed
 # des: Parses an RSS/Atom feed.
-# class: 
+# class:
 # args: content, type?
 # des-content: Feed content.
 # des-type: Optional; can be "atom" or "rss".
@@ -131,7 +131,7 @@ sub parse_feed
 # convert rfc822-time in RSS's <pubDate> to our time
 # see http://www.faqs.org/rfcs/rfc822.html
 # RFC822 specifies 2 digits for year, and RSS2.0 refers to RFC822,
-# but real RSS2.0 feeds apparently use 4 digits. 
+# but real RSS2.0 feeds apparently use 4 digits.
 sub time822_to_time {
     my $t822 = shift;
     # remove day name if present
@@ -380,7 +380,7 @@ sub EndTag {
     TAGS: {
         if ($tag eq 'entry') {
             # finalize item...
-            # generate suitable text from $item->{'contents'}            
+            # generate suitable text from $item->{'contents'}
             my $content;
             $item->{'contents'} ||= [];
             unless (scalar(@{$item->{'contents'}}) >= 1) {

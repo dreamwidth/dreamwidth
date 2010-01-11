@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -9,7 +9,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -504,10 +504,10 @@ sub sysban_validate {
 # des: modifies the expiry or note field of an entry
 # args: banid, bandays, expiry, expirenow, note (passed in as hash)
 # des-banid: the ban ID we're modifying
-# des-bandays: the new expiry 
+# des-bandays: the new expiry
 # des-expire: the old expiry
 # des-note: the new note (optional)
-# des-what: the ban type 
+# des-what: the ban type
 # des-value: the ban value
 # returns: ERROR object on success, error message on failure
 # </LJFUNC>

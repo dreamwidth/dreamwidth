@@ -204,7 +204,7 @@ sub crosspost {
         my $xpostfootprop = $extacct->owner->prop( 'crosspost_footer_append' ) ? $extacct->owner->prop( 'crosspost_footer_append' ) : "D"; # assume old behavior if undefined
 
         if ( $xpostfootprop eq "A" ) {
-            # we are always adding a footer, but we need to 
+            # we are always adding a footer, but we need to
             # make some adjustments based on whether it's a custom
             # footer, whether comments are disabled, etc
 
@@ -237,7 +237,7 @@ sub crosspost {
             $footer_text = "\n\n" . LJ::Lang::ml( $footer_text_redirect_key, { postlink => $entry->url } );
         }
 
-        # now that we have all of that settled, let's assemble it 
+        # now that we have all of that settled, let's assemble it
         # together into the post-in-progress:
 
         $req->{event} = $req->{event} . $footer_text if $adding_footer;
@@ -299,7 +299,7 @@ sub validate_server {
         return 0;
     }
 
-    # otherwise success.  
+    # otherwise success.
     return 1;
 }
 
@@ -390,7 +390,7 @@ sub entry_to_req {
     return $req;
 }
 
-# translates the given allowmask to 
+# translates the given allowmask to
 sub translate_allowmask {
     my ($self, $extacct, $auth, $entry) = @_;
  
@@ -500,7 +500,7 @@ sub clean_lj_tags {
                 if (my $site = $hash->{site}) {
                     # try to load this user@site combination
                     if (my $ext_u = DW::External::User->new( user => $user, site => $site )) {
-                        # if the sites match, make this into a standard 
+                        # if the sites match, make this into a standard
                         # lj user tag
                         if ($ext_u->site == $extacct->externalsite) {
                             $newdata .= "<lj user=\"$user\">";

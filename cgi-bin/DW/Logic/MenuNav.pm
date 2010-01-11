@@ -284,7 +284,7 @@ sub get_menu_display {
     my $menu_nav = DW::Logic::MenuNav->get_menu_navigation( $u );
 
     foreach my $menu (@$menu_nav) {
-        # remove menu items not displayed 
+        # remove menu items not displayed
         my @display = grep { $_->{display} } @{ $menu->{items} };
 
         # will use this to filter out empty menus or unrequested menus

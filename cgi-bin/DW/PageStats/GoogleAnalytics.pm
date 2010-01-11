@@ -29,7 +29,7 @@ sub render {
         $code = $LJ::SITE_PAGESTAT_CONFIG{google_analytics};
     } elsif ( $ctx eq 'journal' ) {
         $code = LJ::get_active_journal()->google_analytics;
-        # the ejs call isn't strictly necessary but catches any 
+        # the ejs call isn't strictly necessary but catches any
         # dodgy analytics codes which may have been stored before
         # validation was implemented.
         $code = LJ::ejs( $code );

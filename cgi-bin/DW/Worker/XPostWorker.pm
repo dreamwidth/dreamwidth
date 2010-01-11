@@ -3,10 +3,10 @@
 # DW::Worker::XPostWorker
 #
 # TheSchwartz worker module for crossposting. Called with:
-# LJ::theschwartz()->insert('DW::Worker::XPostWorker', { 
-# 'uid' => $remote->userid, 'ditemid' => $itemid, 'ditemid' => $itemid, 
-# 'accountid' => $acctid, 'password' => $auth{password}, 
-# 'auth_challenge' => $auth{auth_challenge}, 
+# LJ::theschwartz()->insert('DW::Worker::XPostWorker', {
+# 'uid' => $remote->userid, 'ditemid' => $itemid, 'ditemid' => $itemid,
+# 'accountid' => $acctid, 'password' => $auth{password},
+# 'auth_challenge' => $auth{auth_challenge},
 # 'auth_response' => $auth{auth_response}, 'delete' => 0' });
 #
 # Authors:

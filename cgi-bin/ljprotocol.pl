@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -9,7 +9,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -295,7 +295,7 @@ sub getfriendspage
             $h{$method} = $entry->$method;
         }
 
-        # log time value 
+        # log time value
         $h{logtime} = $LJ::EndOfTime - $ei->{rlogtime};
 
         push @res, \%h;
@@ -361,7 +361,7 @@ sub getinbox
     my @notifications;
 
     my $sync_date;
-    # check lastsync for valid date 
+    # check lastsync for valid date
     if ($req->{'lastsync'}) {
         $sync_date = int $req->{'lastsync'};
         if($sync_date <= 0) {
@@ -438,7 +438,7 @@ sub setmessageread {
         foreach my $item (@notifications) {
             my $msgid = $item->event->raw_info($u)->{msgid};
             next unless $requested_items{$msgid}; 
-            # if message already read - 
+            # if message already read -
             if ($item->{state} eq 'R') {
                 push @result, { msgid => $msgid, result => 'already red' };
                 next;

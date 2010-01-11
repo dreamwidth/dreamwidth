@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -106,7 +106,7 @@ sub name_caps_short
 
 # <LJFUNC>
 # name: LJ::caps_string
-# des: Given a user's capability class bitfield and a name field key, 
+# des: Given a user's capability class bitfield and a name field key,
 #      returns an array of all the account class names.
 # args: caps, name_value
 # des-caps: bitfield

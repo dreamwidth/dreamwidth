@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
-# Dreamwidth Studios, LLC. 
+# by Live Journal, Inc. The code has been modified and expanded by
+# Dreamwidth Studios, LLC.
 #
 # LJ::Cache class
 # See perldoc documentation at the end of this file.
@@ -10,7 +10,7 @@
 #
 # This package is released under the LGPL (GNU Library General Public License)
 #
-# A copy of the license has been included with the software as LGPL.txt.  
+# A copy of the license has been included with the software as LGPL.txt.
 # If not, the license is available at:
 #      http://www.gnu.org/copyleft/library.txt
 #

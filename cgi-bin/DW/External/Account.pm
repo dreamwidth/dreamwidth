@@ -232,8 +232,8 @@ sub delete {
 }
 
 # does the crosspost.  calls the underlying protocol implementation.
-# returns a hashref with success => 1 and message => the success 
-# message on success, or success => 0 and error => the error message 
+# returns a hashref with success => 1 and message => the success
+# message on success, or success => 0 and error => the error message
 # on failure.
 sub crosspost {
     my ($self, $auth, $entry) = @_;
@@ -284,8 +284,8 @@ sub crosspost {
 }
 
 # deletes the entry.  calls the underlying protocol implementation.
-# returns a hashref with success => 1 and message => the success 
-# message on success, or success => 0 and error => the error message 
+# returns a hashref with success => 1 and message => the success
+# message on success, or success => 0 and error => the error message
 # on failure.
 sub delete_entry {
     my ($self, $auth, $entry) = @_;

@@ -37,8 +37,8 @@ sub get_all_protocols {
 
 # instance methods for subclasses.
 
-# does a crosspost using this protocol.  implementations should return a hash 
-# reference with success => 1 and url => the new post url on success, 
+# does a crosspost using this protocol.  implementations should return a hash
+# reference with success => 1 and url => the new post url on success,
 # success => 0 and error => the error message on failure.
 #
 # usage:  $protocol->crosspost($extacct, $auth, $entry, $itemid, $delete);

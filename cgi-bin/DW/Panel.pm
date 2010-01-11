@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Panel - Generic movable container which wraps around an object of 
+# DW::Panel - Generic movable container which wraps around an object of
 # class LJ::Widget, and remembers state and position.
 #
 # Authors:

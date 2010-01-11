@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -22,13 +22,13 @@ use Storable;
 ##
 ## Potential properties of an LJ::Userpic object
 ##
-# picid		: (accessors picid, id) unique identifier for the object, generated 
+# picid		: (accessors picid, id) unique identifier for the object, generated
 # userid	: (accessor userid) the userid  associated with the object
 # state		: state
 # comment	: user submitted descriptive comment
-# description	: user submitted description 
+# description	: user submitted description
 # keywords	: user submitted keywords (all keywords in a single string)
-# dim		: (accessors width, height, dimensions) array:[width][height] 
+# dim		: (accessors width, height, dimensions) array:[width][height]
 # pictime	: pictime
 # flags		: flags
 # md5base64	: md5sum of of the image bitstream to prevent duplication
@@ -523,7 +523,7 @@ sub load_row {
     $self->absorb_row($row) if $row;
 }
 
-# checks request cache and memcache, 
+# checks request cache and memcache,
 # returns: undef if nothing in cache
 #          arrayref of LJ::Userpic instances if found in cache
 sub get_cache {
@@ -934,14 +934,14 @@ sub set_keywords {
 }
 
 
-# instance method:  takes two strings of comma-separated keywords, the first 
-# being the new set of keywords, the second being the old set of keywords.  
+# instance method:  takes two strings of comma-separated keywords, the first
+# being the new set of keywords, the second being the old set of keywords.
 #
 # the new keywords must be the same number as the old keywords; that is,
 # if the userpic has three keywords and you want to rename them, you must
 # rename them to three keywords (some can match).  otherwise there would be
 # some ambiguity about which old keywords should match up with the new
-# keywords.  if the number of keywords don't match, then an error is thrown 
+# keywords.  if the number of keywords don't match, then an error is thrown
 # and no changes are made to the keywords for this userpic.
 # 
 # all new keywords must not currently be in use; you can't rename a keyword
@@ -1008,7 +1008,7 @@ sub set_and_rename_keywords {
         # set the keywords for this userpic to the new set of keywords
         $self->set_keywords(@keywords);
         
-        # send to TheSchwartz to do the actual renaming 
+        # send to TheSchwartz to do the actual renaming
         my $job = TheSchwartz::Job->new_from_array(
             'DW::Worker::UserpicRenameWorker', { 
                 'uid' => $u->userid, 

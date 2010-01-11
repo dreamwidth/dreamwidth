@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Setting::Display::AccountLevel - shows user's current account 
+# DW::Setting::Display::AccountLevel - shows user's current account
 # level and a link to the shop.
 #
 # Authors:

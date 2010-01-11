@@ -38,11 +38,11 @@ DW::InviteCodeRequests - Invite code request backend for Dreamwidth
   my $new_request = DW::InviteCodeRequests->create( userid => $userid, reason => $reason )
     if ! $outstanding_count;
 
-  ## request processing  
+  ## request processing
   # load a request object
   my $request = DW::InviteCodeRequests->new( reqid => $reqid )
   
-  # accept or reject the request 
+  # accept or reject the request
   $request->accept( num_invites => $num_invites );
   $request->reject;
   

@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -26,7 +26,7 @@ use String::CRC32 qw/crc32/;
 ## _memcache_id                 { $_[0]->userid                 }
 ## _memcache_key_prefix         { "user"                        }
 ## _memcache_stored_props       { qw/$VERSION name age caps /   }
-## _memcache_hashref_to_object  { LJ::User->new_from_row($_[0]) } 
+## _memcache_hashref_to_object  { LJ::User->new_from_row($_[0]) }
 ## _memcache_expires            { 24*3600                       }
 ##
 ## In many cases you can use aliases for subs, e.g.:
@@ -64,7 +64,7 @@ sub _load_from_memcache {
     return $class->_memcache_hashref_to_object(\%hash);
 }
 
-## warning: instance or class method. 
+## warning: instance or class method.
 ## $id may be absent when calling on instance.
 sub _remove_from_memcache {
     my $class = shift;

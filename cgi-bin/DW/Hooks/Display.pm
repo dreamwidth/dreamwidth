@@ -22,7 +22,7 @@ use LJ::Hooks;
 # Displays extra info on finduser results. Called as:
 #   LJ::Hooks::run_hooks("finduser_extrainfo", $u })
 # Currently used to return paid status, expiration date, and number of
-# unused invite codes. 
+# unused invite codes.
 
 LJ::Hooks::register_hook( 'finduser_extrainfo', sub {
     my $u = shift;

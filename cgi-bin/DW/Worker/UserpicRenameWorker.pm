@@ -3,7 +3,7 @@
 # DW::Worker::UserpicRenameWorker
 #
 # TheSchwartz worker module for renaming userpics.  Called with
-# LJ::theschwartz()->insert('DW::Worker::UserpicRenameWorker', { 
+# LJ::theschwartz()->insert('DW::Worker::UserpicRenameWorker', {
 # 'uid' => $u->userid, 'keywordmap' => Storable::nfreeze(\%keywordmap);
 #
 # Authors:

@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 #
@@ -138,7 +138,7 @@ sub new_from_url {
 # name: LJ::Comment::create
 # class: comment
 # des: Create a new comment. Add them to DB.
-# args: 
+# args:
 # returns: A new LJ::Comment object. Returns undef on failure.
 # </LJFUNC>
 
@@ -182,7 +182,7 @@ sub create {
                             if not exists $talk_opts{$talk_key};
     }
 
-    # The following 2 options are necessary for successful user authentification 
+    # The following 2 options are necessary for successful user authentification
     # in the depth of LJ::Talk::Post::init.
     #
     # FIXME: this almost certainly should be 'usertype=user' rather than

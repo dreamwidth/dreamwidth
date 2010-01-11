@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC.
 #
 # LJ::SpellCheck class
@@ -10,7 +10,7 @@
 #
 # This package is released under the LGPL (GNU Library General Public License)
 #
-# A copy of the license has been included with the software as LGPL.txt.  
+# A copy of the license has been included with the software as LGPL.txt.
 # If not, the license is available at:
 #      http://www.gnu.org/copyleft/library.txt
 #
@@ -29,7 +29,7 @@ use vars qw( $VERSION );
 $VERSION = '2.0';
 
 # Good spellcommand values:
-#    /usr/bin/ispell -a -h  
+#    /usr/bin/ispell -a -h
 #    /usr/bin/aspell pipe -H --sug-mode=fast --ignore-case
 #
 # Use the full path to the command, not just the command name.
@@ -52,8 +52,8 @@ sub new {
     return $self;
 }
 
-# This function takes a block of text to spell-check and returns HTML 
-# to show suggesting correction, if any.  If the return from this 
+# This function takes a block of text to spell-check and returns HTML
+# to show suggesting correction, if any.  If the return from this
 # function is empty, then there were no misspellings found.
 
 sub check_html {

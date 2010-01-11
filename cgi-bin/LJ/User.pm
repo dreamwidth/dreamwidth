@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -53,7 +53,7 @@ use LJ::BetaFeatures;
 use LJ::S2Theme;
 
 ########################################################################
-### Please keep these categorized and alphabetized for ease of use. 
+### Please keep these categorized and alphabetized for ease of use.
 ### If you need a new category, add it at the end, BEFORE category 99.
 ### Categories kinda fuzzy, but better than nothing.
 ###
@@ -5563,7 +5563,7 @@ package LJ;
 use Carp;
 
 ########################################################################
-### Please keep these categorized and alphabetized for ease of use. 
+### Please keep these categorized and alphabetized for ease of use.
 ### If you need a new category, add it at the end, BEFORE category 99.
 ### Categories kinda fuzzy, but better than nothing. Weird numbers are
 ### to match the sections above -- please check up there if adding.
@@ -6328,7 +6328,7 @@ sub unset_remote
 #       'R' == memory (remembrance), 'K' == keyword id,
 #       'P' == phone post, 'C' == pending comment
 #       'V' == 'vgift', 'E' == ESN subscription id
-#       'Q' == Notification Inbox, 
+#       'Q' == Notification Inbox,
 #       'D' == 'moDule embed contents', 'I' == Import data block
 #       'Z' == import status item, 'X' == eXternal account
 #       'F' == filter id
@@ -8515,7 +8515,7 @@ sub make_journal
     }
     return $error->( BML::ml( 'error.purged.text' ), "410 Gone", BML::ml( 'error.purged.name' ) ) if $u->is_expunged;
 
-    # FIXME: pretty this up at some point, to maybe auto-redirect to 
+    # FIXME: pretty this up at some point, to maybe auto-redirect to
     # the external URL or something, but let's just do this for now
     if ( $u->is_identity && $view ne "read" ) {
         my $location = $u->openid_identity;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -8,7 +8,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -110,7 +110,7 @@ sub set_memcache_by_user {
     my $uid = LJ::want_userid($u_arg)
         or croak "invalid user arg: $u_arg";
 
-    # we store uid => [] and uniq => [], so defined but false 
+    # we store uid => [] and uniq => [], so defined but false
     # is okay as a value of these memcache keys, but not as part of the key
     my $exptime = 3600;
     LJ::MemCache::set("uid2uniqs:$uid" => $uniq_list, $exptime);
@@ -144,7 +144,7 @@ sub set_memcache_by_uniq {
         push @userids, $uid;
     }
 
-    # we store uid => [] and uniq => [], so defined but false 
+    # we store uid => [] and uniq => [], so defined but false
     # is okay as a value of these memcache keys, but not as part of the key
     my $exptime = 3600;
     LJ::MemCache::set("uniq2uids:$uniq" => \@userids, $exptime);
@@ -174,7 +174,7 @@ sub save_mapping {
     my $dbh = LJ::get_db_writer()
         or die "unable to contact global master for uniq mapping";
 
-    # allow tests to specify an insertion time callback which specifies 
+    # allow tests to specify an insertion time callback which specifies
     # how we calculate insertion times for rows
     my $time_sql = "UNIX_TIMESTAMP()";
     if ($LJ::_T_UNIQCOOKIE_MODTIME_CB) {
@@ -193,7 +193,7 @@ sub save_mapping {
     $class->clear_request_cache;
 
     # we clean on cache misses in ->load_mapping, but we also want
-    # to randomly clean on write actions so that we don't end up 
+    # to randomly clean on write actions so that we don't end up
     # with users who write many rows but for some reason never
     # load any rows, and are therefore never cleaned
     if ($class->should_lazy_clean) {
@@ -422,7 +422,7 @@ sub ensure_cookie_value {
                hook_saved_mapping => \$hook_saved_mapping});
 
         # if it changed the actual uniq identifier (first part)
-        # then we'll need to 
+        # then we'll need to
         $uniq = $class->parts_from_value($new_cookie_value);
     }
 
@@ -524,7 +524,7 @@ sub current_uniq {
 
     # see if a uniq is set for this request
     # -- this accounts for cases when the cookie was initially
-    #    set in this request, so it wasn't received in an 
+    #    set in this request, so it wasn't received in an
     #    incoming headerno cookie was sent in
     return $r->notes->{uniq};
 }

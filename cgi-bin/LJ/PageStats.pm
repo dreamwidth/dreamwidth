@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -57,8 +57,8 @@ sub render {
     return "<div id='hello-world' style='text-align: left; font-size:0; line-height:0; height:0; overflow:hidden;'>$output</div>";
 }
 
-# method on root object (LJ::PageStats instance) to decide if user has 
-# opted-out of page stats tracking.  Note: this isn't pagestat-specific logic.  
+# method on root object (LJ::PageStats instance) to decide if user has
+# opted-out of page stats tracking.  Note: this isn't pagestat-specific logic.
 #  that's in the "should_render" method.
 sub should_do_pagestats {
     my $self = shift;

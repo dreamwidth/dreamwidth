@@ -2,8 +2,8 @@
 #
 # LJ::Setting::NCTalkLinks
 #
-# LJ::Setting module for choosing whether or not to add ?nc=XX to the 
-# end of entry links, forcing the link color back to unread if the 
+# LJ::Setting module for choosing whether or not to add ?nc=XX to the
+# end of entry links, forcing the link color back to unread if the
 # comment count changes.
 #
 # Authors:
