@@ -16,6 +16,8 @@ package LJ;
 use strict;
 no warnings 'uninitialized';
 
+use LJ::Config;
+
 BEGIN {
     # ugly hack to shutup dependent libraries which sometimes want to bring in
     # ljlib.pl (via require, ick!).  so this lets them know if it's recursive.
@@ -26,6 +28,21 @@ BEGIN {
     $LJ::HOME ||= $ENV{LJHOME};
     die "No \$LJ::HOME set, or not a directory!\n"
         unless $LJ::HOME && -d $LJ::HOME;
+
+    # mod_perl does this early too, make sure we do as well
+    LJ::Config->load;
+
+    # arch support has to be done pretty early
+    if ( $LJ::ARCH32 ) {
+        $LJ::ARCH = 32;
+        $LJ::LOGMEMCFMT = 'NNNLN';
+        $LJ::PUBLICBIT = 2 ** 31;
+    } else {
+        $LJ::ARCH32 = 0;
+        $LJ::ARCH = 64;
+        $LJ::LOGMEMCFMT = 'NNNQN';
+        $LJ::PUBLICBIT = 2 ** 63;
+    }
 }
 
 use lib "$LJ::HOME/cgi-bin";
@@ -50,7 +67,6 @@ use DW::Request;
 use TheSchwartz;
 use TheSchwartz::Job;
 use LJ::Comment;
-use LJ::Config;
 use LJ::ExternalSite;
 use LJ::Message;
 use LJ::PageStats;
@@ -77,8 +93,6 @@ sub Unicode::MapUTF8::AUTOLOAD {
     no strict 'refs';
     goto *{$Unicode::MapUTF8::AUTOLOAD}{CODE};
 }
-
-LJ::Config->load;
 
 sub END { LJ::end_request(); }
 

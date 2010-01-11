@@ -26,18 +26,6 @@ use LJ::Config;
 
 BEGIN {
     LJ::Config->load;
-
-    # now that configuration is loaded, setup arch specific stuff
-    if ( $LJ::ARCH32 ) {
-        $LJ::ARCH = 32;
-        $LJ::LOGMEMCFMT = 'NNNLN';
-        $LJ::PUBLICBIT = 2 ** 31;
-    } else {
-        $LJ::ARCH32 = 0;
-        $LJ::ARCH = 64;
-        $LJ::LOGMEMCFMT = 'NNNQN';
-        $LJ::PUBLICBIT = 2 ** 63;
-    }
 }
 
 use Apache::LiveJournal;
