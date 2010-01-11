@@ -16,8 +16,6 @@ package LJ;
 use strict;
 no warnings 'uninitialized';
 
-use LJ::Config;
-
 BEGIN {
     # ugly hack to shutup dependent libraries which sometimes want to bring in
     # ljlib.pl (via require, ick!).  so this lets them know if it's recursive.
@@ -28,7 +26,14 @@ BEGIN {
     $LJ::HOME ||= $ENV{LJHOME};
     die "No \$LJ::HOME set, or not a directory!\n"
         unless $LJ::HOME && -d $LJ::HOME;
+}
 
+# now that the library is setup, we can start pulling things in.  start with
+# the configuration library we need.
+use lib "$LJ::HOME/cgi-bin";
+use LJ::Config;
+
+BEGIN {
     # mod_perl does this early too, make sure we do as well
     LJ::Config->load;
 
@@ -44,8 +49,6 @@ BEGIN {
         $LJ::PUBLICBIT = 2 ** 63;
     }
 }
-
-use lib "$LJ::HOME/cgi-bin";
 
 use Apache2::Connection ();
 use Carp;
