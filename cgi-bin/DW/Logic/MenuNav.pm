@@ -207,6 +207,11 @@ sub get_menu_navigation {
                     display => @LJ::SPHINX_SEARCHD ? 1 : 0,
                 },
                 {
+                    url => "$LJ::SITEROOT/latest",
+                    text => "menunav.explore.latestthings",
+                    display => $always,
+                },
+                {
                     url => "$LJ::SITEROOT/random",
                     text => "menunav.explore.randomjournal",
                     display => $always,

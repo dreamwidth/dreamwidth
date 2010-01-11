@@ -125,6 +125,7 @@ body<=
   <dd><ul>
    <li><a href='/directorysearch'><?_ml .maplinks.directory _ml?></a></li>
    <li><a href='/community/search'><?_ml .maplinks.search-comm _ml?></a></li>
+   <li><a href='/latest'><?_ml .maplinks.latestthings _ml?></a></li>
   </ul></dd></dl>
 
  <dl><dt><?_code return BML::ml('.maplinks.toys-title', { sitename => $LJ::SITENAMESHORT }); _code?></dt>
