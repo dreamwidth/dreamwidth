@@ -3,8 +3,6 @@ title=><?_ml .title _ml?>
 head<=
 <style>
     div.tagcloud a { text-decoration: none; }
-    div.tagcloud a:visited { color: #00f; }
-    div.tagcloud a:link { color: #00f; }
     li { padding-bottom: 3px; }
 </style>
 <=head

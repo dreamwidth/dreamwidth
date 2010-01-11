@@ -1233,3 +1233,13 @@ div.adult_warning {
     border: 1px solid #999966;
     padding: 0 10px;
 }
+
+/* For the manage/banusers page */
+
+.userslist-table tr.odd {
+    background-color: #EEEECC;
+}
+
+.userslist-table tr.even {
+    background-color: #FFF;
+}

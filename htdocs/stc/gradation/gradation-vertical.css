@@ -68,6 +68,7 @@ body {
 
 H1, H2, H3, H4 {
     padding: 1em 0;
+    line-height: 1em;
     }
 H1 { font-size: 175%; }
 H2 { font-size: 150%; }
@@ -430,8 +431,8 @@ table#table_yourlayers td { padding: .15em .25em; }
 
 /* editpics.css */
 #uploadBox {
-    background-color: #666666;
-    border: 1px solid #333333;
+    background-color: #333333;
+    border: 1px solid #888888;
     margin: 0 20px 0 0;
 }
 
@@ -693,7 +694,7 @@ h2.widget-header, .theme-item.current, .theme-item img.theme-preview, .theme-ite
 
 .section_head, table.alternating-rows th, div.username {
     background-color: #666666;
-    color: #eee;
+    color: #CCC;
 }
 
 .field_name { background: #333333; }
@@ -724,6 +725,10 @@ div.CommunityPromoBox {
 #settings_nav_title p {
     background: #666666;
     border-left: 1px solid #888888;
+}
+
+.color-light {
+    color: #666;
 }
 
 /* cprod.css */
@@ -805,6 +810,14 @@ table.editfilters td {
     border: 1px solid #888888;
 }
 
+.shop-cart th, .shop-cart td.total, .shop-cart-status {
+    background-color: #222;
+}
+
+.shop-account-status {
+    background-color: #815E00; 
+}
+
 /* create flow */
 
 .create-form td {
@@ -872,13 +885,13 @@ input.create-account {
 }
 input.text,
 textarea.text,
-select.select {
+select {
     /*background: #fff url("/img/input-bg.gif") repeat-x 0 -1px;*/
     background-color: #222;
     border: 1px solid #666666;
     border-top: 1px solid #888888;
     border-left: 1px solid #888888;
-    color: #fff;
+    color: #ccc;
 }
 textarea,
 input { background-color: #222 !important;
@@ -894,13 +907,13 @@ h2.widget-header {
 table.alternating-rows th {
     border-top: 1px solid #888888;
     border-bottom: 1px solid #888888;
-    background-color: #666666;
+    background-color: #333;
 }
 table.alternating-rows tr.altrow1 {
-    background-color: #444444;
+    background-color: #222;
 }
 table.alternating-rows tr.altrow2 {
-    background-color: #666666;
+    background-color: #333;
 }
 table.alternating-rows td {
     border-bottom: 1px solid #888888;
@@ -980,7 +993,8 @@ input.bright {
 }
 
 .Subscribe tr.Disabled {
-    background-color: #999;
+    background-color: #111;
+    color: #777;
 }
 
 .Subscribe tr.altrow {
@@ -1200,58 +1214,65 @@ li.profile_trackuser_disabled, li.profile_sendmessage_disabled {
 }
 
 /* tags.css */
-#selected_tags
-{
+#selected_tags {
     color: #999;
 }
-.tagsort
-{
 
+.taginfo {
+    background-image: none;
+    background-color: #222;
+    border-color: #888;
+    color: #CCC;
 }
+
+.tagbox {
+    background-color: #222;
+    color: #CCC;
+}
+
 .tagfield {
     color: #999;
     border: 1px solid #888888;
 }
-.tagfield:focus
-{
+
+.tagfield:focus {
     color: #fff;
     border: 1px solid #888888;
 }
-.tagfield_error
-{
+
+.tagfield_error {
     border: 1px solid red;
     background-color: #ecd7d7;
 }
-.proptbl .t
-{
 
+.proptbl .h {
+    background-image: none;
+    background-color: #222;
+}
+
+.proptbl .t {
     background-color: #333;
     border-right: 1px solid #888888;
 }
-.proptbl .r
-{
 
+.proptbl .r {
     background-color: #333;
     border-right: 1px solid #888888;
 }
-.proptbl .rv
-{
+
+.proptbl .rv {
     background-color: #444444;
 }
-.edittbl .l, .lsep
-{
+
+.edittbl .l, .lsep {
     border-right: 1px solid;
 }
-.edittbl .sep
-{
+
+.edittbl .sep {
     border-top: 1px solid;
 }
-.curtags
-{
 
-}
-.tagbox_nohist
-{
+.tagbox_nohist {
     background-color: #444444;
 }
 
@@ -1308,4 +1329,77 @@ div.green {
 }
 .clicked, .clicked td {
     background-color: #3D606B !important;
+}
+
+/* For the manage/circle page */
+/* These are in the page CSS, so must be important. */
+
+.editfriends td, .editfriends td, .editfriends th, #addfriends td, #addfriends th {
+    border-color: #888 !important;
+}
+
+.editfriends tr:hover {
+    background-color: #333 !important;
+}
+
+/* /manage/circle/filters */
+
+.editfilters select {
+    background-color: #222;
+    color: #CCC;
+}
+
+/* For the manage/banusers page */
+
+.userslist-table tr.odd {
+    background-color: #222;
+}
+
+.userslist-table tr.even {
+    background-color: #111;
+}
+
+/* Import */
+
+h1.gradient, h2.gradient, h3.gradient, h4.gradient, h5.gradient {
+    background-image: none;
+    background-color: #222;
+    border-color: #888;
+}
+
+.importer .importoption {
+    background-color: #222;
+    border-color: #888;
+}
+
+.importer .importoption p {
+    color: #888;
+}
+
+.importer-status .table-header {
+    background-color: #222;
+}
+
+.importer-status td {
+    border-color: #444;
+}
+
+/* Update */
+
+/* # Makes sure the tab doesn't end up white */
+#compose-entry ul li.on a {
+    background-color: #222;
+}
+
+/* manage/subscriptions/filters */
+
+#cf-select, #cf-edit, #cf-filtopts, #cf-intro {
+    background-color: #222;
+    border-color: #888;
+}
+
+div#cf-edit select {
+    background-color: #111;
+    border-color: #888;
+    color: #888;
 }

@@ -117,8 +117,9 @@ body<=
             my $bu = $us->{$banuid};
             next unless $bu;
 			
-            my $rstyle = ($rc++ & 1) ? '#efefef' : '#ffffff';
-            $ret .= "<tr style='background-color: $rstyle;'>";
+            # sets the class for alternating rows
+            my $rclass = ($rc++ & 1) ? 'even' : 'odd';
+            $ret .= "<tr class='$rclass'>";
             $ret .= "<td>" . LJ::html_check({
                 name => "unban_user",
                 value => $bu->id,
