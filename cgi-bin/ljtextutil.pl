@@ -211,6 +211,7 @@ sub ejs
     $a =~ s/&quot;/\\&quot;/g;
     $a =~ s/\r?\n/\\n/gs;
     $a =~ s/\r//gs;
+    $a =~ s/\xE2\x80[\xA8\xA9]//gs;
     return $a;
 }
 
