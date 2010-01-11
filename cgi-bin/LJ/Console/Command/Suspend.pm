@@ -1,5 +1,5 @@
 # This code was forked from the LiveJournal project owned and operated
-# by Live Journal, Inc. The code has been modified and expanded by 
+# by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under
 # the terms of the license supplied by Live Journal, Inc, which can
 # currently be found at:
@@ -7,7 +7,7 @@
 # http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
 #
 # In accordance with the original license, this code and all its
-# modifications are provided under the GNU General Public License. 
+# modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
 
@@ -40,10 +40,14 @@ sub execute {
         unless $user && $reason && scalar(@args) == 0;
 
     my $remote = LJ::get_remote();
+
     my $entry = LJ::Entry->new_from_url($user);
     if ($entry) {
         my $poster = $entry->poster;
         my $journal = $entry->journal;
+
+        return $self->error("You are not authorized to suspend entries.")
+            if $remote->has_priv( "suspend", "openid" );
 
         return $self->error("Invalid entry.")
             unless $entry->valid;
@@ -66,6 +70,10 @@ sub execute {
         push @users, $user;
 
     } else {
+
+        return $self->error( "You are not authorized to suspend by email address." )
+            if $remote->has_priv( "suspend", "openid" );
+
         $self->info("Acting on users matching email $user");
 
         my $dbr = LJ::get_db_reader();
@@ -107,8 +115,13 @@ sub execute {
             next;
         }
 
+        if ( $remote->has_priv( "suspend", "openid" ) && ! $u->is_identity ) {
+            $self->error( "$username is not an identity account." );
+            next;
+        }
+
         my $err;
-        $self->error($err) 
+        $self->error($err)
             unless $u->set_suspended($remote, $reason, \$err);
 
         $self->print("User '$username' suspended.");
