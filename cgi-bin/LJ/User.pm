@@ -4220,7 +4220,8 @@ sub get_interests {
 
     # load the ids
     my $mk_ids = [$uid, "intids:$uid"];
-    my $ids = LJ::MemCache::get($mk_ids) unless $opts->{forceids};
+    my $ids;
+    $ids = LJ::MemCache::get($mk_ids) unless $opts->{forceids};
     unless ( $ids && ref $ids eq "ARRAY" ) {
         $ids = [];
         my $dbh = LJ::get_db_writer();
