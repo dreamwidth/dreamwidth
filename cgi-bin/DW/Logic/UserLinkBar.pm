@@ -94,7 +94,7 @@ sub get_links {
     
     my @ret;
     foreach my $key ( @link_keyseq ) {
-        my $link = $self->$key if $self->can( $key );
+        my $link = $self->can( $key ) ? $self->$key : undef;
         push @ret, $link if $link;
     }
     return @ret;

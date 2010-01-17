@@ -90,7 +90,8 @@ sub post_event {
 
     return if $map->{$evt->{key}};
 
-    my ( $yr, $month, $day, $hr, $min, $sec ) = ( $1, $2, $3, $4, $5, $6 )
+    my ( $yr, $month, $day, $hr, $min, $sec );
+    ( $yr, $month, $day, $hr, $min, $sec ) = ( $1, $2, $3, $4, $5, $6 )
         if $evt->{eventtime} =~ m/(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/;
 
     my %proto = (

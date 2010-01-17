@@ -32,7 +32,7 @@ sub handler
     return OK if $r->main;
     return OK unless $LJ::HAVE_AVAIL && $LJ::FREECHILDREN_BCAST;
 
-    my $callback = $r->current_callback() if $r;
+    my $callback = $r ? $r->current_callback() : "";
     my $cleanup = $callback eq "PerlCleanupHandler";
     my $childinit = $callback eq "PerlChildInitHandler";
 

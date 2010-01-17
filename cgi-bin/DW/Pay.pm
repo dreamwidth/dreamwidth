@@ -110,8 +110,9 @@ sub get_paid_status {
     DW::Pay::clear_error();
 
     my $uuid = shift;
+    my $uid;
 
-    my $uid = LJ::want_userid($uuid) if defined $uuid;
+    $uid = LJ::want_userid( $uuid ) if defined $uuid;
     return error( ERR_FATAL, "Invalid user object/userid passed in." )
         unless defined $uid && $uid > 0;
 

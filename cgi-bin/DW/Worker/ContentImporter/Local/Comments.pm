@@ -104,8 +104,7 @@ sub insert_comment {
     # load the data we need to make this comment
     my $jitem = LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
     my $source = ( $cmt->{entry_source} || $jitem->prop( "import_source" ) ) . "?thread=" . ( $cmt->{id} << 8 );
-    my $user = LJ::load_userid( $cmt->{posterid} )
-        if $cmt->{posterid};
+    my $user = $cmt->{posterid} ? LJ::load_userid( $cmt->{posterid} ) : undef;
 
     # fix the XML timestamp to a useful timestamp
     my $date = $cmt->{date};

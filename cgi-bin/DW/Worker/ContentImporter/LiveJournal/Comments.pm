@@ -116,10 +116,11 @@ sub try_work {
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
-        my $jitemid = $1 >> 8
-            if $url =~ m!/(\d+)\.html$!;
-        $jitemid_map->{$jitemid} = $entry_map->{$url};
-        $entry_source->{$jitemid_map->{$jitemid}} = $url;
+        if ( $url =~ m!/(\d+)\.html$! ) {
+            my $jitemid = $1 >> 8;
+            $jitemid_map->{$jitemid} = $entry_map->{$url};
+            $entry_source->{$jitemid_map->{$jitemid}} = $url;
+        }
     }
     $log->( 'Entry map has %d entries post-prune.', scalar( keys %$entry_map ) );
 
@@ -143,9 +144,10 @@ sub try_work {
                     ( $turl =~ /\b$data->{username}\b/ ||
                         ( $data->{usejournal} && $turl =~ /\b$data->{usejournal}\b/ ) );
 
-        my $jtalkid = $1 >> 8
-            if $url =~ m!thread=(\d+)$!;
-        $jtalkid_map->{$jtalkid} = $talk_map->{$url};
+        if ( $url =~ m!thread=(\d+)$! ) {
+            my $jtalkid = $1 >> 8;
+            $jtalkid_map->{$jtalkid} = $talk_map->{$url};
+        }
     }
 
     # parameters for below

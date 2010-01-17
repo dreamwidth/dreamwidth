@@ -101,8 +101,9 @@ sub get_from_cartid {
 # returns a new cart given an ordernum
 sub get_from_ordernum {
     my ( $class, $ordernum ) = @_;
+    my ( $cartid, $authcode );
 
-    my ( $cartid, $authcode ) = ( $1+0, $2 )
+    ( $cartid, $authcode ) = ( $1+0, $2 )
         if $ordernum =~ /^(\d+)-(.+)$/;
     return undef
         unless $cartid && $cartid > 0;
@@ -197,8 +198,11 @@ sub get_all {
     my ( $class, $u, %opts ) = @_;
     $u = LJ::want_user( $u );
 
-    my $extra_sql = " AND state NOT IN ($DW::Shop::STATE_OPEN, $DW::Shop::STATE_CLOSED, $DW::Shop::STATE_CHECKOUT)"
-        if $opts{finished};
+    my $extra_sql = $opts{finished}
+                    ? " AND state NOT IN ($DW::Shop::STATE_OPEN," .
+                      " $DW::Shop::STATE_CLOSED," .
+                      " $DW::Shop::STATE_CHECKOUT)"
+                    : "";
 
     my $dbh = LJ::get_db_writer()
         or return undef;

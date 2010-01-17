@@ -209,21 +209,22 @@ sub remap_username_friend {
         my $r = $ua->get( "http://$data->{hostname}/tools/opml.bml?user=$username" );
         my $data = $r->content;
 
-        my $url = $1
-            if $data =~ m!<ownerName>(.+?)</ownerName>!;
-        $url = "http://$url/"
-            unless $url =~ m/^https?:/;
-        return undef unless $url;
+        if ( $data =~ m!<ownerName>(.+?)</ownerName>! ) {
+            my $url = $1;
+            $url = "http://$url/"
+                unless $url =~ m/^https?:/;
+            return undef unless $url;
 
-        if ( $url =~ m!http://(.+)\.$LJ::DOMAIN\/$! ) {
-            # this appears to be a local user!
-            # Map this to the local userid in feed_map too, as this is a local user.
-            return LJ::User->new_from_url( $url )->id;
+            if ( $url =~ m!http://(.+)\.$LJ::DOMAIN\/$! ) {
+                # this appears to be a local user!
+                # Map this to the local userid in feed_map too, as this is a local user.
+                return LJ::User->new_from_url( $url )->id;
+            }
+
+            my $iu = LJ::User::load_identity_user( 'O', $url, undef )
+                or return undef;
+            return $iu->id;
         }
-
-        my $iu = LJ::User::load_identity_user( 'O', $url, undef )
-            or return undef;
-        return $iu->id;
 
     } else {
         my $url_prefix = "http://$data->{hostname}/~" . $username;

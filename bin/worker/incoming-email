@@ -304,15 +304,15 @@ EMAIL_END
 
     # convert email body to utf-8
     my $content_type = $head->get('Content-type:');
-    my $charset      = $1
-      if $content_type =~ /\bcharset=[\'\"]?(\S+?)[\'\"]?[\s\;]/i;
-    if (   defined($charset)
-        && $charset !~ /^UTF-?8$/i
-        && Unicode::MapUTF8::utf8_supported_charset($charset) )
-    {
-        $body =
-          Unicode::MapUTF8::to_utf8(
-            { -string => $body, -charset => $charset } );
+    if ( $content_type =~ /\bcharset=[\'\"]?(\S+?)[\'\"]?[\s\;]/i ) {
+        my $charset = $1;
+        if ( defined $charset
+             && $charset !~ /^UTF-?8$/i
+             && Unicode::MapUTF8::utf8_supported_charset( $charset )
+           ) {
+            $body = Unicode::MapUTF8::to_utf8(
+                    { -string => $body, -charset => $charset } );
+        }
     }
 
     my $spid = LJ::Support::file_request(

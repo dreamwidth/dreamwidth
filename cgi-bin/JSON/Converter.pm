@@ -58,10 +58,11 @@ sub toJson {
 sub hashToJson {
 	my $self = shift;
 	my $obj  = shift;
-	my ($k,$v);
-	my %res;
+	my ( $k, $v );
+	my ( $pre, $post, %res );
 
-	my ($pre,$post) = $self->_upIndent() if($self->{pretty});
+	( $pre, $post ) = $self->_upIndent()
+	    if $self->{pretty};
 
 	if(grep { $_ == $obj } @{ $self->{_stack_myself} }){
 		die "circle ref!";
@@ -102,9 +103,10 @@ sub hashToJson {
 sub arrayToJson {
 	my $self = shift;
 	my $obj  = shift;
-	my @res;
+	my ( $pre, $post, @res );
 
-	my ($pre,$post) = $self->_upIndent() if($self->{pretty});
+	( $pre, $post ) = $self->_upIndent()
+	    if $self->{pretty};
 
 	if(grep { $_ == $obj } @{ $self->{_stack_myself} }){
 		die "circle ref!";
@@ -190,7 +192,9 @@ sub _stringfy {
 
 sub _initConvert {
 	my $self = shift;
-	my %opt  = %{ $_[0] } if(@_ > 0 and ref($_[0]) eq 'HASH');
+	my %opt;
+	%opt = %{ $_[0] }
+	    if ( @_ > 0 and ref $_[0] eq 'HASH' );
 
 	$self->{autoconv}    = $JSON::AUTOCONVERT if(!defined $self->{autoconv});
 	$self->{execcoderef} = $JSON::ExecCoderef if(!defined $self->{execcoderef});
