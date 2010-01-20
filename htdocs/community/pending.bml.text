@@ -8,6 +8,10 @@
 
 .button.reject_ban=Reject membership and set ban
 
+.error.noaccess=Only community administrators can accept and reject membership requests. You aren't an administrator of [[comm]].
+
+.error.nocomm=Community not found.
+
 .jump=Jump to user
 
 .no=No
@@ -20,7 +24,9 @@
 
 .success.banned=You have banned [[num]] [[?num|person|persons]] from this community.
 
-.succedd.ban_skipped=You have [[num]] failed [[?num|ban|bans]] from this community. You can clean ban list and try again.
+.success.ban_skipped=You have [[num]] failed [[?num|ban|bans]] from this community. You can clear the ban list and try again.
+
+.success.header=Success
 
 .success.ignored=[[num]] [[?num|request is|requests are]] still on file pending decisions.
 

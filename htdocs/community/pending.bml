@@ -29,14 +29,14 @@ body<=
 
     # get $c object
     my $c = LJ::load_user($cname);
-    return $ret . "<?h1 $ML{'Error'} h1?><?p $ML{'/community/members.bml.error.nocomm'} p?>"
+    return $ret . "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nocomm'} p?>"
         unless $c;
     my $cid = $c->{'userid'};
 
     # is $remote an admin?
     unless (LJ::can_manage($remote, $c)) {
         $ret .= "<?h1 $ML{'Error'} h1?><?p ";
-        $ret .= BML::ml('/community/members.bml.error.noaccess', 
+        $ret .= BML::ml('.error.noaccess', 
                         { comm => LJ::ljuser($cname, { type => 'C' }) });
         $ret .= " p?>";
         return $ret;
@@ -98,14 +98,14 @@ body<=
             }
         }
 
-        $ret .= "<?h1 $ML{'/community/members.bml.success.header'} h1?><?p $ML{'/community/members.bml.success.message'} p?>";
+        $ret .= "<?h1 $ML{'/community/members.bml.success.header'} h1?><?p $ML{'/community/members.bml.success.message2'} p?>";
         $ret .= "<?p " . BML::ml('.success.added', { num => $added }) . " p?>" if $added;
         $ret .= "<?p " . BML::ml('.success.rejected', { num => $rejected }) . " p?>" if $rejected;
         $ret .= "<?p " . BML::ml('.success.ignored', { num => $ignored }) . " p?>" if $ignored;
         $ret .= "<?p " . BML::ml('.success.previous', { num => $previous }) . " p?>" if $previous;
         $ret .= "<?p " . BML::ml('.success.banned', { num => $banned }) . " p?>" if $banned;
         $ret .= "<?p " . BML::ml('.success.ban_skipped', { num => $ban_skipped }) . " p?>" if $ban_skipped;
-        $ret .= "<?p " . BML::ml("/community/members.bml.success.return", { 'link' => BML::get_uri() . "?authas=$cname" }) . " p?>";
+        $ret .= "<?p " . BML::ml("/community/members.bml.success.return2", { 'link' => BML::get_uri() . "?authas=$cname" }) . " p?>";
 
         return $ret;
     }
