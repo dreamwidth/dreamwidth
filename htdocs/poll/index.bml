@@ -41,7 +41,7 @@
 
     # Handle opening and closing of polls
     # We do this first because a closed poll will alter how a poll is displayed
-    if ($poll->is_owner($remote)) {
+    if ( $poll->is_owner( $remote ) || $remote && $remote->can_manage( $u ) ) {
         if ($FORM{'mode'} =~ /(close|open)/) {
             $mode = $FORM{'mode'};
             $poll->close_poll if ($mode eq 'close');
@@ -74,7 +74,7 @@
     $body .= "<a href='" . $entry->url . "'>[ $ML{'.discuss'} ]</a> ";
 
     # Links for closing/reopening polls
-    if ($poll->is_owner($remote)) {
+    if ( $poll->is_owner($remote) || $remote && $remote->can_manage( $u ) ) {
         $body .= $poll->is_closed ?
             "<a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=open'>[ $ML{'.reopen'} ]</a> " :
             "<a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=close'>[ $ML{'.close'} ]</a> ";
