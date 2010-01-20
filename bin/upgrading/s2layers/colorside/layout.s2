@@ -311,7 +311,8 @@ text-align: center; }
 /* footer */
 
 #footer { $footer_colors
- padding: 1em; }
+ width: 96% !important;
+ padding: 1em 2%; }
 
     """;
 
