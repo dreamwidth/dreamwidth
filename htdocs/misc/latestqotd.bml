@@ -12,7 +12,7 @@ body<=
     my $ret;
 
     my $qid = $GET{qid}+0;
-    my $qotd = LJ::QotD->get_single_question($qid) if $qid;
+    my $qotd = $qid ? LJ::QotD->get_single_question($qid) : undef;
 
     $ret .= "<table width='100%' cellspacing='5' cellpadding='0'><tr><td valign='top'>";
     $ret .= LJ::Widget::QotDResponses->render;

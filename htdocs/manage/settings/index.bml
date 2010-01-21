@@ -381,7 +381,7 @@ body<=
         if ($cats_with_settings{$cat}->{disabled}) {
             $ret .= "<li class='disabled'>$cats_with_settings{$cat}->{name}</li>";
         } else {
-            my $active_class = " class='active'" if $cat eq $given_cat;
+            my $active_class = $cat eq $given_cat ? " class='active'" : "";
             $ret .= "<li><a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$cat'$active_class>$cats_with_settings{$cat}->{name}</a></li>";
         }
     }

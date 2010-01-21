@@ -67,7 +67,7 @@ body<=
                 };
                 push @userids, $row->[4] if $row->[4];
             }
-            my $us = LJ::load_userids(@userids) if @userids;
+            my $us = @userids ? LJ::load_userids(@userids) : undef;
 
             # get categories
             my $cats = LJ::Support::load_cats();

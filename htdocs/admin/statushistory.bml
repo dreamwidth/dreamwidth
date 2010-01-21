@@ -51,7 +51,8 @@
         push @where, "s.shtype=$qt";
     }
 
-    my $where = "WHERE " . join(" AND ", @where) . " " if @where;
+    my $where = "";
+    $where = "WHERE " . join(" AND ", @where) . " " if @where;
 
     my $orderby = 'shdate';
     foreach (qw(user admin shdate shtype notes)) {

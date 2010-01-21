@@ -193,7 +193,7 @@ body<=
             $$body .= "<br />";
 
             unless ( $display_answer ) {
-                my $q = "&amp;q=" . LJ::eurl($qterm) if $qterm;
+                my $q = $qterm ? "&amp;q=" . LJ::eurl($qterm) : "";
 
                 $$body .= "<div id='rm' name='rm'>";
                 my $oc = $faqcatarg ? '' : "onclick='return showAnswer();'";

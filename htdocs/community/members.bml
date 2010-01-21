@@ -502,7 +502,7 @@ body<=
 
     # how to make links back to this page
     my $self_link = sub {
-        my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
+        my $sort = $GET{'sort'} ? "&sort=$GET{'sort'}" : "";
         return "members?authas=$cname&page=$_[0]$sort";
     };
 

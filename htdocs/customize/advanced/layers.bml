@@ -28,7 +28,8 @@
     };
 
     # id is optional
-    my $id = $POST{'id'} if $POST{'id'} =~ /^\d+$/;
+    my $id;
+    $id = $POST{'id'} if $POST{'id'} =~ /^\d+$/;
 
     # this catches core_hidden if it's set
     $POST{'parid'} ||= $POST{'parid_hidden'};

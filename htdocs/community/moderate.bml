@@ -59,7 +59,7 @@ body<=
         my $frozen = $dbcm->selectrow_array("SELECT request_stor FROM modblob WHERE journalid=? AND modid=?",
                                             undef, $c->{'userid'}, $modid);
 
-        my $req = Storable::thaw($frozen) if $frozen;
+        my $req = $frozen ? Storable::thaw($frozen) : undef;
         unless ($frozen && $entry && $req->{'_moderate'}->{'authcode'} && $req->{'_moderate'}->{'authcode'} eq $POST{'auth'}) {
             $ret .= "<?h1 $ML{'Error'} h1?><?p $ML{'.error.noentry'} p?>";
             return $ret;

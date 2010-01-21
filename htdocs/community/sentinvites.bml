@@ -147,8 +147,9 @@ body<=
 
     # how to make links back to this page
     my $self_link = sub {
-        my $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
-        my $filter = "&show=$GET{'show'}" if $GET{'show'};
+        my ( $sort, $filter ) = ( "", "" );
+        $sort = "&sort=$GET{'sort'}" if $GET{'sort'};
+        $filter = "&show=$GET{'show'}" if $GET{'show'};
         return "sentinvites?authas=$cname&page=$_[0]$sort$filter";
     };
 
@@ -178,7 +179,7 @@ body<=
     $showlinks .= LJ::html_submit( undef, $ML{'.filterto.btn.refresh'} );
     $showlinks .= "</form>";
 
-    my $filter = "&show=$GET{show}" if $GET{show};
+    my $filter = $GET{show} ? "&show=$GET{show}" : "";
     my $sortlink = BML::get_uri() . "?authas=$cname$filter&sort=";
     $ret .= "<br /><div align='center'>$showlinks";
     $ret .= <<END; 

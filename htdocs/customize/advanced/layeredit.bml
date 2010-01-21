@@ -9,7 +9,8 @@
     };
 
     # we need a valid id
-    my $id = $GET{'id'} if $GET{'id'} =~ /^\d+$/;
+    my $id;
+    $id = $GET{'id'} if $GET{'id'} =~ /^\d+$/;
     return $err->("You have not specified a layer to edit.")
         unless $id;
 

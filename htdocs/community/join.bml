@@ -118,10 +118,12 @@ body<=
         # success message -- only shows if user didn't add the community as a friend
         my $profile_url = $cu->profile_url;
         my $show_join_post_link = $cu->hide_join_post_link ? 0 : 1;
-        my $post_url = $LJ::SITEROOT . "/update?usejournal=" . $cu->user
+        my $post_url;
+        $post_url = $LJ::SITEROOT . "/update?usejournal=" . $cu->user
             if $show_join_post_link && $remote->can_post_to( $cu );
         my $posting_guidelines_entry = $cu->get_posting_guidelines_entry;
-        my $posting_guidelines_entry_url = $posting_guidelines_entry->url
+        my $posting_guidelines_entry_url;
+        $posting_guidelines_entry_url = $posting_guidelines_entry->url
             if $posting_guidelines_entry;
 
         $ret .= "<?h1 $ML{'.success'} h1?><?p " . BML::ml('.label.membernow6',

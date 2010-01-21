@@ -335,7 +335,7 @@ body<=
                     "$ename <a href=\"history?user=$u->{user}\">" . LJ::ehtml($u->{name}) . "</a>" :
                     "$ename";
 
-            my $email_string = " ($visemail)" if $has_vs || $has_sh;
+            my $email_string = $has_vs || $has_sh ? " ($visemail)" : "";
             $email_string = " (<a href=\"history?email=" . LJ::eurl($email) . "\">$email</a>)" if $show_history{email};
             $ret .= $email_string;
         } else {
