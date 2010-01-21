@@ -64,7 +64,7 @@ sub start_form {
     if ($class->authas) {
         my $u = $opts{authas} || $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas};
         $u = LJ::load_user($u) unless LJ::isu($u);
-        my $authas = $u->user if LJ::isu($u);
+        my $authas = LJ::isu($u) ? $u->user : undef;
 
         if ($authas && !$LJ::REQ_GLOBAL{widget_authas_form}) {
             $ret .= $class->html_hidden({ name => "authas", value => $authas, id => "_widget_authas" });

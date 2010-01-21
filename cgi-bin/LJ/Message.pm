@@ -97,8 +97,10 @@ sub save_to_db {
     my $same_cluster = $orig_u->clusterid eq $rcpt_u->clusterid;
 
     # Begin DB Transaction
-    my $o_rv = $orig_u->begin_work;
-    my $r_rv = $rcpt_u->begin_work unless $same_cluster;
+    my ( $o_rv, $r_rv );
+    $o_rv = $orig_u->begin_work;
+    $r_rv = $rcpt_u->begin_work
+        unless $same_cluster;
 
     # Write to DB
     my $rcpt_write = $self->_save_recipient_message;

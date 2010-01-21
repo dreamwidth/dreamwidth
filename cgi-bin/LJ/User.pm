@@ -5881,7 +5881,7 @@ sub load_user_or_identity {
     {
         # overload the uidof memcache key to accept both display name and name
         my $uid = LJ::MemCache::get( "uidof:$url" );
-        my $u = LJ::memcache_get_u( [ $uid, "userid:$uid" ] ) if $uid;
+        my $u = $uid ? LJ::memcache_get_u( [ $uid, "userid:$uid" ] ) : undef;
         return _set_u_req_cache( $u ) if $u;
     }
 
@@ -5889,7 +5889,7 @@ sub load_user_or_identity {
     my $uid = $dbh->selectrow_array("SELECT userid FROM identitymap WHERE idtype=? AND identity=?",
                                     undef, 'O', $url);
 
-    my $u = LJ::load_userid($uid) if $uid;
+    my $u = $uid ? LJ::load_userid($uid) : undef;
 
     # set user in memcache
     if ( $u ) {
@@ -8009,7 +8009,7 @@ sub get_daycounts
     if ($remote) {
         # do they have the viewall priv?
         my $r = eval { Apache->request; }; # web context
-        my %getargs = $r->args if $r;
+        my %getargs = $r ? $r->args : undef;
         if ( defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and ( $remote && $remote->has_priv( 'canview', '*' ) ) ) {
             $viewall = 1;
             LJ::statushistory_add( $u->userid, $remote->userid,

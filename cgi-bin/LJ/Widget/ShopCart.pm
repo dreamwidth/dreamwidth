@@ -106,7 +106,8 @@ sub render_body {
         $ret .= "<p>" . $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " ";
         $ret .= $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
 
-        my @paypal_option = (
+        my @paypal_option;
+        @paypal_option = (
             paypal => $class->ml( 'widget.shopcart.paymentmethod.paypal' ),
             creditcardpp => $class->ml( 'widget.shopcart.paymentmethod.creditcardpp' ),
         )

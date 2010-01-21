@@ -598,7 +598,7 @@ sub get_preview_styleid {
 
     # get the styleid of the _for_preview style
     my $styleid = $u->prop('theme_preview_styleid');
-    my $style = LJ::S2::load_style($styleid) if $styleid;
+    my $style = $styleid ? LJ::S2::load_style( $styleid ) : undef;
     if (!$styleid || !$style) {
         $styleid = LJ::S2::create_style($u, "_for_preview");
         $u->set_prop('theme_preview_styleid', $styleid);

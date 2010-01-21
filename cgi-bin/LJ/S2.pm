@@ -1969,7 +1969,8 @@ sub Entry_from_entryobj
     # comment information
     my $permalink = $entry_obj->url;
     my $replycount = $entry_obj->reply_count;
-    my $nc = "nc=$replycount" if $replycount && $remote && $remote->prop( 'opt_nctalklinks' );
+    my $nc;
+    $nc = "nc=$replycount" if $replycount && $remote && $remote->prop( 'opt_nctalklinks' );
     my $readurl = LJ::Talk::talkargs( $permalink, $nc, $style_args );
     my $posturl = LJ::Talk::talkargs( $permalink, 'mode=reply', $style_args );
 

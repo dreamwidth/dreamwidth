@@ -120,7 +120,8 @@ sub RecentPage
 
     # prepare sticky entry for S2 - only show sticky entry on first page of Recent Entries, not on skip= pages
     # or tag and security subfilters
-    my $stickyentry = $u->get_sticky_entry
+    my $stickyentry;
+    $stickyentry = $u->get_sticky_entry
         if $skip == 0 && ! $opts->{securityfilter} && ! $opts->{tagids};
     # only show if visible to user
     if ( $stickyentry && $stickyentry->visible_to( $remote, $get->{viewall} ) ) {

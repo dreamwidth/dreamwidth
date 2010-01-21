@@ -51,7 +51,8 @@ sub option {
         "0|0" => 1,
         "" => 1,
     }->{$imgplaceholders};
-    my $extra = $class->ml('setting.imageplaceholders.option.select.custom', { width => $maxwidth, height => $maxheight })
+    my $extra;
+    $extra = $class->ml('setting.imageplaceholders.option.select.custom', { width => $maxwidth, height => $maxheight })
         unless $is_stock;
 
     my @options = (

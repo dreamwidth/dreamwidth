@@ -1382,7 +1382,7 @@ sub talkform {
             }
     
             # URL: [    ]  Verify? [ ]
-            my $url_def = $form->{'oidurl'} || $oid_identity if defined $oid_identity;
+            my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
 
             $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
             $ret .= "Identity URL:&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";
@@ -1482,7 +1482,7 @@ sub talkform {
             }
 
             # URL: [    ]  Verify? [ ]
-            my $url_def = $form->{'oidurl'} || $oid_identity if defined $oid_identity;
+            my $url_def = defined $oid_identity ? $form->{'oidurl'} || $oid_identity : "";
 
             $ret .= "<tr valign='middle' align='left' id='oid_more'><td colspan='2'></td><td>";
             $ret .= "Identity URL:&nbsp;<input class='textbox' name='oidurl' maxlength='60' size='53' id='oidurl' value='$url_def' /> ";

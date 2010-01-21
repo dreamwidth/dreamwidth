@@ -955,14 +955,16 @@ sub make_qr_link
 # </LJFUNC>
 sub get_lastcomment {
     my $remote = LJ::get_remote();
-    return (undef, undef) unless $remote;
+    my ( $talkid, $jid );
 
     # Figure out their last post
-    my $memkey = [$remote->{'userid'}, "lastcomm:$remote->{'userid'}"];
-    my $memval = LJ::MemCache::get($memkey);
-    my ($jid, $talkid) = split(/:/, $memval) if $memval;
+    if ( $remote ) {
+        my $memkey = [$remote->{'userid'}, "lastcomm:$remote->{'userid'}"];
+        my $memval = LJ::MemCache::get( $memkey );
+        ( $jid, $talkid ) = split( /:/, $memval ) if $memval;
+    }
 
-    return ($talkid, $jid);
+    return ( $talkid, $jid );
 }
 
 # <LJFUNC>
@@ -3718,7 +3720,8 @@ sub statusvis_message_js {
 
     return "" unless $u->is_locked || $u->is_memorial || $u->is_readonly;
 
-    my $statusvis_full = "locked" if $u->is_locked;
+    my $statusvis_full;
+    $statusvis_full = "locked"   if $u->is_locked;
     $statusvis_full = "memorial" if $u->is_memorial;
     $statusvis_full = "readonly" if $u->is_readonly;
 

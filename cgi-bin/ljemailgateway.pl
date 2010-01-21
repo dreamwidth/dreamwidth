@@ -133,7 +133,8 @@ sub process {
     my $content_type = $tent->head->get('Content-type:');
     $charset = $1 if $content_type =~ /\bcharset=['\"]?(\S+?)['\"]?[\s\;]/i;
     $format = $1 if $content_type =~ /\bformat=['\"]?(\S+?)['\"]?[\s\;]/i;
-    my $delsp = $1 if $content_type =~ /\bdelsp=['\"]?(\w+?)['\"]?[\s\;]/i;
+    my $delsp;
+    $delsp = $1 if $content_type =~ /\bdelsp=['\"]?(\w+?)['\"]?[\s\;]/i;
 
     if (defined($charset) && $charset !~ /^UTF-?8$/i) { # no charset? assume us-ascii
         return $err->("Unknown charset encoding type. ($charset)")
@@ -212,7 +213,8 @@ sub process {
 
         # ok, parse the XML.
         my $html = $tent->bodyhandle->as_string();
-        my $xml_string = $1 if $html =~ /<!-- lsPictureMail-Share-\w+-comment\n(.+)\n-->/is;
+        my $xml_string;
+        $xml_string = $1 if $html =~ /<!-- lsPictureMail-Share-\w+-comment\n(.+)\n-->/is;
         return $err->(
             "Unable to find XML content in PictureMail message.",
           ) unless $xml_string;

@@ -166,7 +166,8 @@ sub html_select
     $ret .= ">\n";
 
     # build hashref from arrayref if multiple selected
-    my $selref = { map { $_, 1 } @{$opts->{'selected'}} }
+    my $selref;
+    $selref = { map { $_, 1 } @{$opts->{'selected'}} }
         if $opts->{'multiple'} && ref $opts->{'selected'} eq 'ARRAY';
 
     my $did_sel = 0;
