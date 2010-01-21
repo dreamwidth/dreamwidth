@@ -40,6 +40,8 @@ body<=
     # 4: mutually trusted accounts
     # 5: whole circle => subscriptions + gives access to
 
+    my $filter = $GET{filter};
+
     my @calc_options;
     @calc_options = ("1", $ML{'.filters.subscriptions'}, "2", $ML{'.filters.mutualsubscriptions'}, "3", $ML{'.filters.access'},
         "4", $ML{'.filters.mutualaccess'}, "5", $ML{'.filters.circle'} );
@@ -47,7 +49,7 @@ body<=
     # drop-down menu and button for selecting which user accounts to base the calulations on
     $ret .= "<?p $ML{'.options.filter'} p?>";
     $ret .= "<form method='get' action='/tools/popsubscriptions'>\n";
-    $ret .= LJ::html_select( { name => 'filter'}, @calc_options );
+    $ret .= LJ::html_select( { name => 'filter', selected => $filter }, @calc_options );
     $ret .= LJ::html_submit( $ML{'.options.submit'} );
     $ret .= "</form><br /></p>";
 
@@ -55,7 +57,6 @@ body<=
     # default: subscriptions (filter: 1)
     my @circle_ids;
 
-    my $filter = $GET{filter};
     if ( !$filter || $filter == 1 ) {
         @circle_ids = $remote->watched_userids;
     } elsif ( $filter == 2 ) {
@@ -75,7 +76,7 @@ body<=
 
     # hash for searching whether the user is already subscribed to someone later
     my %circle_members;
-    foreach my $id ( @circle_ids ) {
+    foreach my $id ( $remote->watched_userids ) {
         $circle_members{$id} = 1;
     }
 
@@ -106,9 +107,9 @@ body<=
         # if there are none, skip to next subscription
         next unless @subsubs;
 
-        # now we count the occurance of the userids
+        # now we count the occurance of the userids that the user isn't already subscribed to
         foreach my $userid ( @subsubs ) {
-            $count{$userid}++;
+            $count{$userid}++ unless $circle_members{$userid};
         }
     }
 
@@ -125,8 +126,8 @@ body<=
     foreach my $uid ( @pop ) {
         my $popuser = $popusers->{$uid};
 
-        # don't show already subscribed to accounts, inactive accounts, or banned accounts
-        next if $circle_members{$uid} || $uid == $remote_id || $popuser->is_inactive || $remote->is_banned( $popuser, $remote);
+        # don't show inactive accounts, or banned accounts
+        next if $uid == $remote_id || $popuser->is_inactive || $remote->is_banned( $popuser, $remote);
 
         # sort userids into arrays
         if ( $numberpersonal < $maximum && $popuser->is_personal ) {
