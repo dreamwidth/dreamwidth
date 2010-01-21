@@ -39,8 +39,7 @@
             return;
         }
 
-        my $cursess;
-        $cursess = $u->session if $u;
+        my $cursess = $u->session if $u;
 
         if ($cursess &&
             $user eq $u->{'user'} &&
@@ -58,8 +57,7 @@
 
             # Redirect to offsite uri if allowed.
             if ($POST{'ret'}) {
-                my $redir_host;
-                $redir_host = $1 if $POST{'ret'} =~ m#^http://([\.:\w-]+)#i;
+                my $redir_host = $1 if $POST{'ret'} =~ m#^http://([\.:\w-]+)#i;
                 return BML::redirect($POST{'ret'}) if $LJ::REDIRECT_ALLOWED{$redir_host};
             }
 

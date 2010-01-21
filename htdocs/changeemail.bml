@@ -82,8 +82,7 @@ body<=
     };
 
     if ($POST{'mode'} eq 'submit' && ($POST{'email'} || $POST{'password'})) {
-        my $password;
-        $password = $POST{'password'} unless $remote->is_identity;
+        my $password = $POST{'password'} unless $remote->is_identity;
         my $email = LJ::trim($POST{'email'});
 
         my @errors = ();
