@@ -61,7 +61,8 @@
 
         # Redirect to offsite uri if allowed, and not an internal LJ redirect. ('ret' == 1)
         if ($POST{ret} && $POST{ret} != 1) {
-            my $redir_host = $1 if $POST{ret} =~ m#^http://([\.:\w-]+)#i;
+            my $redir_host;
+            $redir_host = $1 if $POST{ret} =~ m#^http://([\.:\w-]+)#i;
         
             if ($LJ::REDIRECT_ALLOWED{$redir_host} || $redir_host eq $LJ::DOMAIN_WEB) {
                 LJ::Hooks::run_hook('login_redirect_extra', $redir_host);

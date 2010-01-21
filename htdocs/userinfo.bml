@@ -361,7 +361,8 @@ body<=
     my $title = $u->prop( "journaltitle" ) ?
                     LJ::ehtml( $u->prop( "journaltitle" ) ) :
                     BML::ml( '.details.title', { user => $u->display_username } );
-    my $subtitle = LJ::ehtml( $u->prop( "journalsubtitle" ) )
+    my $subtitle;
+    $subtitle = LJ::ehtml( $u->prop( "journalsubtitle" ) )
         if $u->prop( "journalsubtitle" );
 
     $ret .= qq{
@@ -382,7 +383,8 @@ body<=
     # account type
     my $accttype = DW::Pay::get_account_type_name( $u );
     if ( $accttype ) {
-        my $expiretime = DW::Pay::get_account_expiration_time( $u )
+        my $expiretime;
+        $expiretime = DW::Pay::get_account_expiration_time( $u )
             if $remote && $remote->can_manage( $u );
 
         $ret .= "<p>";
@@ -442,7 +444,8 @@ body<=
     };
 
     if ( $bibody ) {
-        my $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user, text => $ML{'.section.edit'} } ]
+        my $links;
+        $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user, text => $ML{'.section.edit'} } ]
             if $remote && $remote->can_manage( $u );
         $ret .= $content_block->(
             section_name    => 'basics',
@@ -496,7 +499,8 @@ body<=
     $biobody .= $profile->bio;
 
     if ( $biobody ) {
-        my $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#bio", text => $ML{'.section.edit'} } ]
+        my $links;
+        $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#bio", text => $ML{'.section.edit'} } ]
             if $remote && $remote->can_manage( $u );
         $ret .= $content_block->(
             section_name    => 'bio',
@@ -562,9 +566,11 @@ body<=
         $imlist .= "</tr>"; 
     }
     if ( $imlist ) {
-        my $new_im_margin = " style='margin-top: 0;'" unless $intlist;
+        my $new_im_margin;
+        $new_im_margin = " style='margin-top: 0;'" unless $intlist;
         $connectbody .= qq{ <div class="external_services"$new_im_margin> };
-        my $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#iminfo", text => $ML{'.section.edit'} } ]
+        my $links;
+        $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user . "#iminfo", text => $ML{'.section.edit'} } ]
             if $remote && $remote->can_manage( $u );
         $connectbody .= $content_inner_block->(
             section_name_ml => '.im.header2',
@@ -616,7 +622,8 @@ body<=
         }
 
         if ( $maintbody || $modbody ) {
-            my $links = [ { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} } ]
+            my $links;
+            $links = [ { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} } ]
                 if $remote && $remote->can_manage( $u );
             $ret .= $content_block->(
                 section_name    => 'admins',
@@ -662,10 +669,11 @@ body<=
             ( $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) ) );
     }
 
-    my @members_userids = $u->member_userids if $u->is_community;
-    my @member_of_userids = $u->member_of_userids if $u->is_personal;
-    my @posting_access_to_userids = @{LJ::load_rel_target( $u, 'P' )} if $u->is_personal;
-    my @posting_access_from_userids = @{LJ::load_rel_user( $u, 'P' )} if $u->is_community;
+    my ( @members_userids, @member_of_userids, @posting_access_to_userids, @posting_access_from_userids );
+    @members_userids = $u->member_userids if $u->is_community;
+    @member_of_userids = $u->member_of_userids if $u->is_personal;
+    @posting_access_to_userids = @{LJ::load_rel_target( $u, 'P' )} if $u->is_personal;
+    @posting_access_from_userids = @{LJ::load_rel_user( $u, 'P' )} if $u->is_community;
 
     my $us = LJ::load_userids(
         @trusted_userids, @trusted_by_userids,

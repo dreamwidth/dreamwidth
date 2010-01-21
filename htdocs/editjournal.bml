@@ -19,7 +19,8 @@ body<=
     if ($GET{'itemid'} || $POST{'itemid'}) { $mode = "edit"; }
 
     my $ret;
-    my $getextra = "?authas=$GET{'authas'}" if $GET{'authas'};
+    my $getextra;
+    $getextra = "?authas=$GET{'authas'}" if $GET{'authas'};
 
     LJ::need_res('stc/entry.css', 'js/inputcomplete.js');
     
