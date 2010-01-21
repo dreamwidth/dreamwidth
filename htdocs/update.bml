@@ -103,7 +103,8 @@
 
     # if a QotD id was passed in, fill in the fields with that QotD
     my $qid = $GET{qotd}+0;
-    my $qotd = LJ::QotD->get_single_question($qid) if $qid;
+    my $qotd;
+    $qotd = LJ::QotD->get_single_question($qid) if $qid;
     if ($qotd) {
         $subject = LJ::Widget::QotD->subject_text($qotd, user => $remote);
         $event = LJ::Widget::QotD->embed_text($qotd);
