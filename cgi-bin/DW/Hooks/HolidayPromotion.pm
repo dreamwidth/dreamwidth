@@ -37,6 +37,9 @@ LJ::Hooks::register_hook( 'shop_cart_status_bar', sub {
 LJ::Hooks::register_hook( 'shop_cart_added_item', sub {
     my ( $cart, $item ) = @_;
 
+    # bail out if it's expired (2010-01-01 00:00:00)
+    return if time > 1262304000;
+
     # ignore promo linked items so we don't loop forever
     return if $item->{_holiday_promo_2009};
 
