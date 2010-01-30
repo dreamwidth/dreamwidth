@@ -64,13 +64,14 @@
         return $err->($ML{'.error.failed_sign_url'});
     }
 
-    $title = $ML{'.form.title'};
-    $body = "<?p " . BML::ml( ".form.request", { sitename => $LJ::SITENAMESHORT } ) . " p?>";
+    $title = $ML{'.form.title2'};
+    my $dis_site = LJ::ehtml($site);
+    $dis_site =~ s!\*\.!<span style='color: red'><i>&lt;anything&gt;</i></span>.!;
+
+    $body = "<?p " . BML::ml( ".form.request2", { sitename => $LJ::SITENAMESHORT, refurl => $dis_site, url => LJ::ehtml( $GET{'identity'} ) } ) . " p?>";
     $body .= "<?p " . $ML{'.form.address'} . " p?>";
     $body .= "<form method='post'>";
     $body .= LJ::form_auth();
-    my $dis_site = LJ::ehtml($site);
-    $dis_site =~ s!\*\.!<span style='color: red'><i>&lt;anything&gt;</i></span>.!;
 
     $body .= "<div style='overflow: auto; background: #DDD; word-wrap: break-word; color: black; border: 2px solid black; padding: 0.5em; font-size: 13pt'><tt>$dis_site</tt></div>";
     $body .= "<?p " . $ML{'.form.passid'} . " p?>";

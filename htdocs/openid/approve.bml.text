@@ -26,6 +26,6 @@
 
 .form.passid=Do you want to pass your identity to them?
 
-.form.request=Another site on the web wants to validate your [[sitename]] identity.  No information will be shared with them that isn't already public in your profile, only that you're who you've already told them you are (if you told them).
+.form.request2=The site you just came from has asked [[sitename]] to prove that you own this [[sitename]] account. If you allow this, we will <b>not</b> give them access to your [[sitename]] account or password, or any information that isn't already public in your account. All we'll do is tell [[refurl]] that you control the account [[url]].
 
-.form.title=Grant identity validation?
+.form.title2=Pass identity along?
