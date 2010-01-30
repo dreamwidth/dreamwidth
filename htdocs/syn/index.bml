@@ -203,7 +203,6 @@ body<=
     my $title = BML::ml('.using.title', {'sitename' => $LJ::SITENAME});
     my $ret = "<?h1 $title h1?><?p $ML{'.using.text'} p?>";
     $ret .= "<?p " . BML::ml('.top1000.text', {'aopts' => "href='$LJ::SITEROOT/syn/list'"}) . " p?>";
-    $ret .= "<?p $ML{'.promo.text'} p?>";
 
     $ret .= "<form method='post' action='./'>";
     $ret .= LJ::html_hidden("userid", $u->{'userid'});
