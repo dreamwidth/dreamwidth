@@ -1,0 +1,59 @@
+<?_c
+#
+# admin/invites/index.bml
+#
+# Brief dashboard page for dealing with invite codes.
+#
+# Authors:
+#      Denise Paolucci <denise@dreamwidth.org>
+#
+# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+_c?><?page
+body<=
+<?_code
+{
+    use strict;
+    use vars qw/ %GET %POST /;
+
+    # for pages that require authentication
+    my $remote = LJ::get_remote();
+    return "<?needlogin?>" unless $remote;
+
+    my $haspayments = $remote->has_priv( "payments" );
+    my $hasfinduser = $remote->has_priv ( "finduser", "codetrace" );
+
+    my $ret;
+
+    $ret .= "<div class='itemhead'><a href='codetrace'><?_ml .codetrace.head _ml?></a></div><div class='itemdef'><?_ml .codetrace.desc _ml?></div>" 
+        if $hasfinduser;
+
+    $ret .= "<div class='itemhead'><a href='distribute'><?_ml .distribute.head _ml?></a></div><div class='itemdef'><?_ml .distribute.desc _ml?></div>"
+        if $haspayments;
+
+    $ret .= "<div class='itemhead'><a href='requests'><?_ml .requests.head _ml?></a></div><div class='itemdef'><?_ml .requests.desc _ml?></div>"
+        if $haspayments;
+
+    $ret .= "<div class='itemhead'><a href='review'><?_ml .review.head _ml?></a></div><div class='itemdef'><?_ml .review.desc _ml?></div>"
+        if $haspayments;
+
+    $ret .= "<div class='itemhead'><a href='promo'><?_ml .promo.head _ml?></a></div><div class='itemdef'><?_ml .promo.desc _ml?></div>"
+        if $haspayments;
+
+
+    return $ret;
+}
+_code?>
+<=body
+title=><?_ml .title _ml?>
+head<=
+    <style type="text/css">
+    .itemhead {font-size: bigger; font-weight: bold;}
+    .itemdef {margin-left: 2em; margin-bottom: 15px;}
+    </style>
+<=head
+page?>

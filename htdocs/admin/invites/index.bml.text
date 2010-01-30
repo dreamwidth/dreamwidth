@@ -1,0 +1,23 @@
+;; -*- coding: utf-8 -*-
+
+.codetrace.desc=Look up invite codes, by code or by user
+
+.codetrace.head=Codetrace
+
+.distribute.desc=Bulk invite code distribution
+
+.distribute.head=Distribute Invite Codes
+
+.promo.desc=Create and manage promotional invite codes
+
+.promo.head=Manage Promo Codes
+
+.requests.desc=Process requests for invite codes
+
+.requests.head=Invite Code Requests
+
+.review.desc=Review an individual user's invite history
+
+.review.head=Review Invite History
+
+.title=Invite Codes Administration

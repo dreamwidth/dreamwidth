@@ -26,17 +26,8 @@
 .admin.file_edit.link=File Edit
 .admin.file_edit.text=Allows you to edit various include files.
 
-.admin.invite_codes.link=Invite Codes
-.admin.invite_codes.text=Shows the provenance of an invite code.
-
-.admin.invite_promo.link=Promotional Invite Codes
-.admin.invite_promo.text=Allows you to manage promotional invite codes.
-
-.admin.invite_requests.link=Invite Code Requests
-.admin.invite_requests.text=Allows you to review requests for invite codes.
-
-.admin.invite_review.link=Review Invite History
-.admin.invite_review.text=Allows you to view a user's invite history.
+.admin.invites.link=Invite Code Management
+.admin.invites.text=View and manage invite codes.
 
 .admin.logout_user.link=Logout User
 .admin.logout_user.text=Logs a user out of the site.
