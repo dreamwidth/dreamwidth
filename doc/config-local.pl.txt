@@ -31,7 +31,7 @@
 
     # human readable name of this site as well as shortened versions
     # CHANGE THIS
-    $SITENAME = "Some LiveJournal Site";
+    $SITENAME = "A New Dreamwidth Installation";
     $SITENAMESHORT = "YourSite";
     $SITENAMEABBREV = "YS";
     $SITECOMPANY = "YourSite's Company";
