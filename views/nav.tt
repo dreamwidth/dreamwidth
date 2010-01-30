@@ -14,7 +14,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% FOREACH menu = menu_nav %]
     [% IF NOT cat %]<h2 class="[% menu.name %]">[% menu.title | html %]</h2>[% END %]
-    <ul
+    <ul>
     [% FOREACH menu_item = menu.items %]
         <li><a href="[% menu_item.url | url %]">[% menu_item.text | html %]</a></li>
     [% END %]
