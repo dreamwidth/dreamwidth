@@ -225,7 +225,6 @@ sub is_disabled {
     my $remote = LJ::get_remote();
     my $uniq   = $class->current_uniq;
 
-    return 1 unless $LJ::UNIQ_COOKIES;
     return ! LJ::is_enabled('uniq_mapping', $remote, $uniq);
 }
 

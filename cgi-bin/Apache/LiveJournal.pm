@@ -303,19 +303,17 @@ sub trans
         }
 
         # handle uniq cookies
-        if ($LJ::UNIQ_COOKIES) {
+        # this will ensure that we have a correct cookie value
+        # and also add it to $r->notes
+        LJ::UniqCookie->ensure_cookie_value;
 
-            # this will ensure that we have a correct cookie value
-            # and also add it to $r->notes
-            LJ::UniqCookie->ensure_cookie_value;
-
-            # apply sysban block if applicable
-            if (LJ::UniqCookie->sysban_should_block) {
-                $r->handler("perl-script");
-                $r->push_handlers(PerlResponseHandler => \&blocked_bot );
-                return OK;
+        # apply sysban block if applicable
+        if ( LJ::UniqCookie->sysban_should_block ) {
+            $r->handler( "perl-script" );
+            $r->push_handlers( PerlResponseHandler => \&blocked_bot );
+            return OK;
             }
-        }
+
 
         # this is a fancy transform - basically, if the file exists with a BML extension,
         # then assume we're trying to get to it.  (this allows us to write URLs without the

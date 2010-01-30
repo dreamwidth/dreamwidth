@@ -91,9 +91,6 @@ my %ljconfig =
         'morphese',
         );",
             },
-            'uniq_cookies' => {
-                    'desc' => "Set this boolean value to true, to give users a unique session cookie, unrelated to their login session cookie, to help fight abuse.",
-            },
         },
 
         'caps' => {

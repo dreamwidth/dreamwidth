@@ -417,12 +417,11 @@ sub handle_post {
     # age checking to determine how old they are
     my $uniq;
     my $is_underage = 0;
-    if ($LJ::UNIQ_COOKIES) {
-        $uniq = DW::Request->get->note('uniq');
-        if ($uniq) {
-            my $timeof = $dbh->selectrow_array('SELECT timeof FROM underage WHERE uniq = ?', undef, $uniq);
-            $is_underage = 1 if $timeof && $timeof > 0;
-        }
+
+    $uniq = DW::Request->get->note('uniq');
+    if ($uniq) {
+        my $timeof = $dbh->selectrow_array('SELECT timeof FROM underage WHERE uniq = ?', undef, $uniq);
+        $is_underage = 1 if $timeof && $timeof > 0;
     }
 
     my ($year, $mon, $day) = ( $post->{bday_yyyy}+0, $post->{bday_mm}+0, $post->{bday_dd}+0 );

@@ -62,7 +62,6 @@
     ###
 
     $TOS_CHECK = 0;     # require users to agree to TOS
-    $UNIQ_COOKIES = 1;  # give users uniq cookies to help fight abuse
 
     %REQUIRED_TOS =
         (
