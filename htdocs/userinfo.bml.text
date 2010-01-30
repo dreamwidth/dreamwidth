@@ -206,6 +206,8 @@
 
 .label.email=Email:
 
+.label.feedchange=If this feed has stopped updating because its location has changed, please contact <a [[aopts]]>Support</a> to have the location updated instead of creating a new feed.
+
 .label.frcommunity=Communities
 
 .label.frpeople=People

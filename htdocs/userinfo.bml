@@ -443,6 +443,8 @@ body<=
         $bibody .= q{ </div> };
     };
 
+    $bibody .= BML::ml( '.label.feedchange', { aopts => "href='$LJ::SITEROOT/support'" } ) if $u->is_syndicated;
+
     if ( $bibody ) {
         my $links;
         $links = [ { url => "$LJ::SITEROOT/manage/profile/?authas=" . $u->user, text => $ML{'.section.edit'} } ]
