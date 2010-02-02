@@ -114,11 +114,13 @@ sub work {
 
     my $subject = $head->get('Subject');
     chomp $subject;
+    $subject = LJ::trim( $subject );
 
     # simple/effective spam/bounce/virus checks:
     return dequeue("Bounce")      if $head->get("Return-Path") =~ /^\s*<>\s*$/;
     return dequeue("Spam")        if subject_is_bogus($subject);
     return dequeue("Virus found") if virus_check($entity);
+    return dequeue("Spam")        if $subject && $subject =~ /^\[SPAM: \d+\.?\d*\]/;
 
     # see if a hook is registered to handle this message
     if (LJ::Hooks::are_hooks("incoming_email_handler")) {
