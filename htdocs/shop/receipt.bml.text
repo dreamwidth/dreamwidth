@@ -31,6 +31,8 @@
 
 .cart.paymentmethod.creditcardpp=Credit Card
 
+.cart.paymentmethod.gco=Google Checkout Account
+
 .cart.paymentmethod.paypal=PayPal Account
 
 .error.invalidordernum=Your order number is invalid.

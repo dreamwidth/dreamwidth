@@ -85,6 +85,10 @@ our %PAYMENTMETHODS = (
         id => 3,
         class => 'CreditCardPP',
     },
+    gco => {
+        id => 4,
+        class => 'GoogleCheckout',
+    },
 );
 
 

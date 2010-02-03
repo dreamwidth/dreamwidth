@@ -26,7 +26,7 @@ use base qw/ DW::Shop::Engine /;
 
 # new( $cart )
 #
-# instantiates a new PayPal engine for the given cart
+# instantiates a new CMO engine for the given cart
 sub new {
     return bless { cart => $_[1] }, $_[0];
 }
@@ -111,7 +111,7 @@ sub cancel_order {
     my $self = $_[0];
 
     # ensure the cart is in open state
-    return $self->error( 'paypal.engbadstate' )
+    return $self->error( 'cmo.engbadstate' )
         unless $self->cart->state == $DW::Shop::STATE_OPEN;
 
     return 1;

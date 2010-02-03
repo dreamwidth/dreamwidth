@@ -2867,6 +2867,30 @@ CREATE table externalaccount (
 )
 EOC
 
+register_tablecreate('gco_log', <<'EOC');
+CREATE TABLE gco_log (
+    gcoid bigint unsigned not null,
+    ip varchar(15) not null,
+    transtime int unsigned not null,
+    req_content text not null,
+
+    index (gcoid)
+)
+EOC
+
+register_tablecreate('gco_map', <<'EOC');
+CREATE TABLE gco_map (
+    gcoid bigint unsigned not null,
+    cartid int unsigned not null,
+
+    email varchar(255),
+    contactname varchar(255),
+
+    index (gcoid),
+    unique (cartid)
+)
+EOC
+
 register_tablecreate('pp_tokens', <<'EOC');
 CREATE TABLE pp_tokens (
     ppid int unsigned not null auto_increment,

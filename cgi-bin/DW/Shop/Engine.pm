@@ -20,12 +20,14 @@ use strict;
 use DW::Shop::Engine::CheckMoneyOrder;
 use DW::Shop::Engine::CreditCardPP;
 use DW::Shop::Engine::PayPal;
+use DW::Shop::Engine::GoogleCheckout;
 
 # get( $method, $cart )
 #
 # returns the proper subclass for the given payment method, if one exists
 sub get {
     return DW::Shop::Engine::PayPal->new( $_[2] ) if $_[1] eq 'paypal';
+    return DW::Shop::Engine::GoogleCheckout->new( $_[2] ) if $_[1] eq 'gco';
     return DW::Shop::Engine::CreditCardPP->new( $_[2] ) if $_[1] eq 'creditcardpp';
     return DW::Shop::Engine::CheckMoneyOrder->new( $_[2] ) if $_[1] eq 'checkmoneyorder';
 

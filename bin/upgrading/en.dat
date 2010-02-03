@@ -4595,6 +4595,8 @@ widget.shopcart.paymentmethod.checkmoneyorder=Check/Money Order
 
 widget.shopcart.paymentmethod.creditcardpp=Credit Card
 
+widget.shopcart.paymentmethod.gco=Google Checkout Account
+
 widget.shopcart.paymentmethod.paypal=PayPal Account
 
 widget.shopcart.total=Total:

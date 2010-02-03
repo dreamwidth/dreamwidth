@@ -97,34 +97,32 @@ sub render_body {
         }
         $ret .= "</tr>";
     }
-    $ret .= "<tr><td colspan='" . $colspan . "' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " \$" . $cart->display_total . " USD</td></tr>";
+
+    my $buttons = '&nbsp;';
+    unless ( $opts{receipt} ) {
+        $buttons = $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " " .
+                   $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
+    }
+
+    $ret .= "<tr><td class='total' style='border-right: none; text-align: left;' colspan='3'>$buttons</td>";
+    $ret .= "<td style='border-left: none;' colspan='" . ($colspan-3) .
+            "' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " \$" . $cart->display_total . " USD</td></tr>";
     $ret .= "</table>";
 
     unless ( $opts{receipt} ) {
-        $ret .= "<div class='shop-cart-btn'>";
+        $ret .= "<div class='shop-cart-btn'><p>";
 
-        $ret .= "<p>" . $class->html_submit( removeselected => $class->ml( 'widget.shopcart.btn.removeselected' ) ) . " ";
-        $ret .= $class->html_submit( discard => $class->ml( 'widget.shopcart.btn.discard' ) ) . "</p>";
+        # google has very specific rules about where the buttons go and how to display them
+        # ... so we have to abide by that
+        if ( LJ::is_enabled( 'googlecheckout' ) ) {
+            $ret .= '<input type="image" name="' . $class->input_prefix . '_checkout_gco" src="https://checkout.google.com/buttons/checkout.gif?' .
+                    'merchant_id=&w=180&h=46&style=trans&variant=text&loc=en_US" alt="Use Google Checkout" style="vertical-align: middle;" /> or use ';
+        }
 
-        my @paypal_option;
-        @paypal_option = (
-            paypal => $class->ml( 'widget.shopcart.paymentmethod.paypal' ),
-            creditcardpp => $class->ml( 'widget.shopcart.paymentmethod.creditcardpp' ),
-        )
-            if keys %LJ::PAYPAL_CONFIG;
-        $ret .= "<p>" . $class->ml( 'widget.shopcart.paymentmethod' ) . " ";
-        $ret .= $class->html_select(
-            name => 'paymentmethod',
-            selected => keys %LJ::PAYPAL_CONFIG ? 'paypal' : 'checkmoneyorder',
-            list => [
-                @paypal_option,
-                checkmoneyorder => $class->ml( 'widget.shopcart.paymentmethod.checkmoneyorder' ),
-            ],
-        ) . " ";
-        $ret .= $class->html_submit( checkout => $class->ml( 'widget.shopcart.btn.checkout' ) ) . "</p>";
+        # check or money order button
+        $ret .= $class->html_submit( checkout_cmo => $class->ml( 'widget.shopcart.paymentmethod.checkmoneyorder' ) );
 
-        $ret .= "</div>";
-
+        $ret .= "</p></div>";
         $ret .= $class->end_form
     }
 
@@ -134,9 +132,14 @@ sub render_body {
 sub handle_post {
     my ( $class, $post, %opts ) = @_;
 
-    # check out
-    return BML::redirect( "$LJ::SITEROOT/shop/checkout?method=$post->{paymentmethod}" )
-        if $post->{checkout};
+    # checkout methods depend on which button was clicked
+    my $cm;
+    $cm = 'gco' if LJ::is_enabled( 'googlecheckout' ) && ( $post->{checkout_gco} || $post->{'checkout_gco.x'} );
+    $cm = 'checkmoneyorder' if $post->{checkout_cmo};
+
+    # check out?
+    return BML::redirect( "$LJ::SITEROOT/shop/checkout?method=$cm" )
+        if defined $cm;
 
     # remove selected items
     if ( $post->{removeselected} ) {

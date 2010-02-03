@@ -183,6 +183,7 @@
                  eventlogrecord => 1,
                  feedster_search => 0,
                  free_create => 1,
+                 googlecheckout => 1,
                  'interests-findsim' => 0,
                  memories => 0,
                  opt_findbyemail => 1,

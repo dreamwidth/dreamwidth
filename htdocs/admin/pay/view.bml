@@ -6,6 +6,7 @@
 {
     use strict;
     use vars qw(%GET %POST);
+    use Storable qw/ thaw /;
 
     my $remote = LJ::get_remote();
     my @displayprivs = ( "payments" );
@@ -130,15 +131,28 @@ EOF
         # make an educated guess at durl-ing something
         my $durl = sub {
             my $val = shift;
+
+            my $hr;
+            my $out = sub {
+                foreach ( qw/ SIGNATURE USER PWD / ) {
+                    $hr->{$_} = '<em>redacted</em>'
+                        if exists $hr->{$_};
+                }
+                return join( '<br />', map { "<strong>$_:</strong> $hr->{$_}" } sort keys %$hr );
+            };
+
+            # first see if it's Storable encoded ...
+            eval {
+                my $x = thaw( $val );
+                $hr = $x if $x && ref $x eq 'HASH';
+            };
+            return $out->() if $hr;
+
+            # and now fall back to urlencoded ...
             return $val
                 unless $val =~ /&/ && $val =~ /=/;
-            my ( $hr, $ar ) = ( {}, [] );
-            LJ::decode_url_string( $val, $hr, $ar );
-            foreach ( qw/ SIGNATURE USER PWD / ) {
-                $hr->{$_} = '<em>redacted</em>'
-                    if exists $hr->{$_};
-            }
-            return "<br />-----------<br />" . join( '<br />', map { "<strong>$_:</strong> $hr->{$_}" } sort keys %$hr );
+            LJ::decode_url_string( $val, $hr );
+            return $out->();
         };
 
         my $dbh = LJ::get_db_writer();
@@ -155,7 +169,7 @@ EOF
             unless $rows && @$rows;
 
         my @cols = sort { $a cmp $b } keys %{ $rows->[0] };
-        $body .= q{<table><tr><th>};
+        $body .= q{<table border=1 cellpadding=5><tr><th>};
         $body .= join( '</th><th>', @cols );
         $body .= q{</th></tr>};
 
@@ -189,6 +203,18 @@ EOF
         # now show the pp_log log
         $body .= "<h2>raw: pp_log (PayPal raw log)</h2>";
         $dump->( 'SELECT * FROM pp_log WHERE ppid = ?', $engine->ppid );
+
+    } elsif ( $classname eq 'GoogleCheckout' ) {
+        # show the payer's details.
+        $body .= "<h2>GCO Payer Details</h2>";
+        $body .= "<table border='1'>";
+        $body .= "<tr><th>Contact Name:</th><td>" . $engine->contactname . "</td></tr>";
+        $body .= "<tr><th>GCO Email Address:</th><td>" . $engine->email . "</td></tr>";
+        $body .= "</table>";
+
+        # now show the pp_trans log
+        $body .= "<h2>raw: gco_log (GCO raw)</h2>";
+        $dump->( 'SELECT * FROM gco_log WHERE gcoid = ?', $engine->gcoid );
 
     } elsif ( $classname eq 'CheckMoneyOrder' ) {
         # show the payer's details.
