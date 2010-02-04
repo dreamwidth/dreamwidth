@@ -20,12 +20,25 @@ package DW::Shop::Engine::GoogleCheckout;
 use strict;
 use Carp qw/ croak confess /;
 use Storable qw/ nfreeze thaw /;
+
+
+# put these in an eval ... most people won't actually be using Google Checkout,
+# so we don't want to force (e.g.) development environments to have to install
+# these modules.  however, if someone DOES want to use GCO, then they need to
+# make sure these modules are installed ...
+BEGIN {
+    my $rv = eval <<USE;
 use Google::Checkout::General::GCO;
 use Google::Checkout::General::MerchantCheckoutFlow;
 use Google::Checkout::General::DigitalContent;
 use Google::Checkout::General::ShoppingCart;
 use Google::Checkout::Command::ChargeOrder;
 use Google::Checkout::General::Util qw/ is_gco_error /;
+1;
+USE
+    warn "NOTE: Google::Checkout::* Perl modules were not found.\n"
+        unless $rv;
+}
 
 use base qw/ DW::Shop::Engine /;
 
