@@ -18,9 +18,6 @@
     use strict;
     use vars qw( %FORM );
 
-    return BML::redirect( "$LJ::SITEROOT/" )
-        unless LJ::is_enabled( 'payments' );
-
     DW::Shop::Engine::GoogleCheckout->process_notification( \%FORM );
 
     return "failure";
