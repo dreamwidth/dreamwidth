@@ -128,6 +128,7 @@ my %e = (
      "504" => [ E_PERM, "Protocol mode no longer supported." ],
      "505" => [ E_TEMP, "Account data format on server is old and needs to be upgraded." ], # cluster0
      "506" => [ E_TEMP, "Journal sync temporarily unavailable." ],
+     "507" => [ E_TEMP, "Method temporarily disabled; try again later." ],
 );
 
 sub translate
@@ -744,6 +745,9 @@ sub checkfriends
     return undef unless authenticate($req, $err, $flags);
     my $u = $flags->{'u'};
     my $res = {};
+
+    # FIXME: not updated for WTF yet
+    return fail( $err, 507 );
 
     # return immediately if they can't use this mode
     unless ( $u->can_use_checkfriends ) {
