@@ -228,10 +228,10 @@ input.bright {
 .usercontent dl dd {
     margin-left: 2em;
 }
-.usercontent ol li {
+.usercontent ol > li {
     list-style: decimal outside;
 }
-.usercontent ul li { 
+.usercontent ul > li { 
     list-style: disc outside;
 }
 .usercontent sup {
