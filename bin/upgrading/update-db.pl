@@ -234,7 +234,7 @@ sub populate_database {
     print "\nThe system user was created with a random password.\nRun \$LJHOME/bin/upgrading/make_system.pl to change its password and grant the necessary privileges."
         if $made_system;
 
-    print "\nRemember to also run:\n  bin/upgrading/texttool.pl load\n  bin/upgrading/copy-emailpass-out-of-user\n\n"
+    print "\nRemember to also run:\n  bin/upgrading/texttool.pl load\n\n"
         if $LJ::IS_DEV_SERVER;
 
 }
