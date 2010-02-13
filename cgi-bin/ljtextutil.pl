@@ -276,8 +276,25 @@ sub is_utf8 {
         *stab = *{"main::LJ::"};
         undef $stab{is_utf8};
     }
-    *LJ::is_utf8 = \&Unicode::CheckUTF8::is_utf8;
-    return Unicode::CheckUTF8::is_utf8($text);
+    *LJ::is_utf8 = \&LJ::is_utf8_wrapper;
+    return LJ::is_utf8_wrapper( $text );
+}
+
+# <LJFUNC>
+# name: LJ::is_utf8_wrapper
+# des: wraps the check for UTF-8 validity.
+# args: text
+# des-text: text to check for UTF-8 validity
+# returns: 1 if text is a valid UTF-8 stream, a reference, or null; 0 otherwise.
+# </LJFUNC>
+sub is_utf8_wrapper {
+    my $text = shift;
+
+    if ( defined $text && ! ref $text )  {
+        return Unicode::CheckUTF8::is_utf8( $text );
+    } else {
+        return 1;
+    }
 }
 
 # <LJFUNC>
