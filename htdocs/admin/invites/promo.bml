@@ -191,7 +191,7 @@ body<=
                 $ret .= "<td><a href=\"/admin/invites/promo?code=" . LJ::eurl($code->{code}) . "&state=$state\">" . LJ::ehtml($code->{code}) . "</a></td>";
                 $ret .= "<td>" . ( $code->{active} ? $ML{'.active.active'} : $ML{'.active.inactive'} ) . "</td>";
                 $ret .= "<td>" . $code->{current_count} . $ML{'.count.outof'} . $code->{max_count} . "</td>";
-                $ret .= "<td>" . ( $suggest_u ? $suggest_u->ljuser_display : $ML{'.suggest.done'} ) . "</td>";
+                $ret .= "<td>" . ( $suggest_u ? $suggest_u->ljuser_display : $ML{'.suggest.none'} ) . "</td>";
                 $ret .= "</tr>";
             }
         } else {
