@@ -75,7 +75,9 @@ body<=
 <input type='submit' name='addnew' value='Add New'>
 <input type='submit' name='query' value='Query'>
 <br /><br />
-<input type='text' name='queryvalue' /> <input type='submit' name='queryone' value='Query This Value' />
+
+<label for="queryvalue">Query all sysbans for this value:</label><br />
+<input type='text' id="queryvalue" name='queryvalue' /> <input type='submit' name='queryone' value='Query This Value' />
 </form>
 FORM
 
@@ -138,11 +140,22 @@ QUERYFORM
         return $err->("Requires post") unless LJ::did_post();
         return $err->("Invalid form") unless LJ::check_form_auth();
 
-        my $bantype = $POST{bantype};
         my $banquery = $POST{queryvalue};
-
-        $ret .= "<br />" . LJ::ehtml( $bantype ) . ": " .  LJ::ehtml( $banquery );
-        $ret .= LJ::sysban_check( $bantype, $banquery ) ?  " is sysbanned."  : " is not sysbanned.";
+        my $sysbans = LJ::sysban_populate_full_by_value( $banquery, @sysban_privs ) || {};
+        if ( %$sysbans ) {
+            $ret .= "Sysbans for " . LJ::ehtml( $banquery );
+            $ret .= "<table><tr><th>Type</th><th>Expiration</th><th>Note</th></tr>";
+            while ( my ( $what, $details ) = each %$sysbans  ) {
+                $ret .= "<tr>";
+                $ret .= "<td>$what</td>";
+                $ret .= "<td>" . localtime( $details->{expire} ) . "</td> ";
+                $ret .= "<td>" . LJ::ehtml( $details->{note} ) . "</td>";
+                $ret .= "</tr>";
+            }
+            $ret .= "</table>";
+        } else {
+            $ret .= "No sysbans matching " . LJ::ehtml( $banquery );
+        }
     }
 
     # this action comes from the query section

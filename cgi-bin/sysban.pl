@@ -276,6 +276,55 @@ sub _db_sysban_populate_full {
 }
 
 
+=h2 C<< LJ::sysban_populate_full_by_value( $value, @types ) >>
+
+List all sysbans for the given value, of the specified types. This can be used, for example, to limit the sysban to only the privs that this user can see.
+Returns a hashref of hashes in the format:
+    what => { expire => expiration, note => note, banid => banid }
+
+=cut
+sub sysban_populate_full_by_value {
+    my ( $value, @types ) = @_;
+    return LJ::_db_sysban_populate_full_by_value( $value, @types );
+}
+
+sub _db_sysban_populate_full_by_value {
+    my ( $value, @types ) = @_;
+    my $dbh = LJ::get_db_writer();
+    return undef unless $dbh;
+
+    my $in_what = "";
+    my $has_all = 0;
+
+    $in_what = join ", ", map { $dbh->quote( $_ ) } @types
+        unless $has_all;
+    $in_what = " AND what IN ( $in_what )"
+        if $in_what;
+
+    # build cache from db
+    my $sth = $dbh->prepare(
+        qq{SELECT banid, what, UNIX_TIMESTAMP(banuntil), note
+           FROM sysban
+           WHERE status = 'active'
+                 AND value = ?
+                 $in_what
+                 AND NOW() > bandate
+                 AND ( NOW() < banuntil OR banuntil IS NULL )
+        }
+    );
+    $sth->execute( $value );
+    return undef if $sth->err;
+
+    my $where;
+    while ( my ( $banid, $what, $exp, $note ) = $sth->fetchrow_array ) {
+        $where->{$what}->{banid} = $banid || 0;
+        $where->{$what}->{expire} = $exp || 0;
+        $where->{$what}->{note} = $note || 0;
+    }
+
+    return $where;
+}
+
 
 # <LJFUNC>
 # name: LJ::sysban_note
