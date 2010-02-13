@@ -547,10 +547,10 @@ class Page
     or a date for the day view. Should be overridden in i18n layers. Ideally, layout layers should never override
     this.  See [method[Page.title()]].";
 
-   function print_head_title "Print the title for this particular page, as in print_title, formatted with <title> and the journal username";
+    function print_head_title "Print the title for this particular page, as in print_title, formatted with <title> and the journal username";
 
-   function print_global_title;
-   function print_global_subtitle;
+    function print_global_title;
+    function print_global_subtitle;
 
     function view_title : string
     "Return a title for this particular page, such as \"Friends' Recent Entries\" for the friends view,
@@ -3185,6 +3185,14 @@ function Page::print_global_title() {
         """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
     }
 }
+function FriendsPage::print_global_title() {
+    if ($.friends_title) {
+        """<h1 id="title"><span>""" + $.friends_title + """</span></h1>""";
+    }
+    else {
+        """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
+    }
+}
 function Page::print_global_subtitle() {
     if ($.global_subtitle) {
         """<h2 id="subtitle"><span>""" + $.global_subtitle + """</span></h2>""";
@@ -3200,18 +3208,12 @@ function FriendsPage::view_title() : string {
     if ($.friends_mode == "") {
         if ($.filter_active) {
             if ($.filter_name != "") {
-                if ($.friends_title != "") {
-                    return $.friends_title+" ("+$.filter_name+")";
-                } else {
-                    return $*text_view_friends+" ("+$.filter_name+")";
-                }
+                return $*text_view_friends+" ("+$.filter_name+")";
             } else {
                 return $*text_view_friends_filter;
             }
         } else {
-            if ($.friends_title != "") {
-                return $.friends_title;
-            } elseif ($.journal.journal_type == "C") {
+            if ($.journal.journal_type == "C") {
                 return $*text_view_friends_comm;
             } else {
                 return $*text_view_friends;
