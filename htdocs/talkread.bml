@@ -676,7 +676,7 @@ body<=
                 $ret .= "</td></tr><tr><td class='commentbody usercontent'>";
 
                 LJ::CleanHTML::clean_comment(\$post->{'body'}, { 'preformatted' => $post->{'props'}->{'opt_preformatted'},
-                                                                 'anon_comment' => ( !$pu || $pu->is_identity ),
+                                                                 'anon_comment' => !$pu || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
                                                              });
                 BML::ebml(\$post->{'body'});
                 my $event = $post->{'body'};

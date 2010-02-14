@@ -182,7 +182,7 @@ sub ReplyPage
         LJ::CleanHTML::clean_comment(\$parpost->{'body'},
                                      {
                                          'preformatted' => $parpost->{'props'}->{'opt_preformatted'},
-                                         'anon_comment' => !$parpost->{posterid} || $pu->is_identity,
+                                         'anon_comment' => !$parpost->{posterid} || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
                                      });
 
 

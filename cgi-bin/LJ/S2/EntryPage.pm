@@ -146,8 +146,9 @@ sub EntryPage
                 # quote all non-LJ tags
                 $text =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
             }
+
             LJ::CleanHTML::clean_comment(\$text, { 'preformatted' => $com->{'props'}->{'opt_preformatted'},
-                                                   'anon_comment' => (!$pu || $pu->is_identity),
+                                                   'anon_comment' => !$pu || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
                                                });
 
             # local time in mysql format to gmtime

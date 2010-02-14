@@ -1861,6 +1861,9 @@ LOGIN
         $ret .= "<br />$BML::ML{'.loganonip'}";
         $ret .= LJ::help_icon_html("iplogging", " ");
     }
+    if ( !$remote || ( $remote && $remote->is_identity && !$journalu->trusts_or_has_member( $remote ) ) ) {
+        $ret .= "<br />$BML::ML{'.linkstripped'}";
+    }
 
     $ret .= LJ::html_hidden( editid => $editid );
     $ret .= "</td></tr></td></tr></table>\n";

@@ -37,6 +37,8 @@
 
 .nosubjecthtml=No HTML allowed in subject
 
+.linkstripped=Links will be displayed as unclickable URLs to help prevent spam.
+
 .opt.anonymous=Anonymous
 
 .opt.bannedfrom= - you have been banned from commenting in this journal.

@@ -832,6 +832,10 @@ QQ
         $qrhtml .= LJ::deemp(BML::ml('/talkpost.bml.logyourip'));
         $qrhtml .= LJ::help_icon_html("iplogging", " ");
     }
+    if ( !$remote || ( $remote && $remote->is_identity && !$u->trusts_or_has_member( $remote ) ) ) {
+        $qrhtml .= '<br />';
+        $qrhtml .= LJ::deemp( BML::ml( '/talkpost.bml.linkstripped' ) );
+    }
 
     $qrhtml .= "</td></tr></table>";
     $qrhtml .= "</form></div>";
