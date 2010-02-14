@@ -281,10 +281,12 @@ sub as_html_actions {
     my $comment = $self->comment;
     my $url = $comment->url;
     my $reply_url = $comment->reply_url;
+    my $parent_url = $comment->parent_url;
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='$reply_url'>Reply</a>";
-    $ret .= " <a href='$url'>Link</a>";
+    $ret .= " <a href='$reply_url'>Reply</a> | ";
+    $ret .= " <a href='$url'>Link</a> ";
+    $ret .= " | <a href='$parent_url'>Parent</a>" if $parent_url;
     $ret .= "</div>";
 
     return $ret;
