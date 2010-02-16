@@ -73,9 +73,6 @@ my %ljconfig =
             'require_talkhash_notold' => {
                     'desc' => "If [ljconfig[require_talkhash]] is on, also make sure that the talkhash provided was issued in the past two hours.  Defaults to off.",
             },
-            'secure_password_reset' => {
-                    'desc' => "If enabled, do not &email; passwords in the clear from <filename>lostinfo.bml</filename>. Instead, &email; a link that allows the user to reset their password. The link authorizes the user to use <filename>changepassword.bml</filename>, without an old password.",
-            },
             'talk_abort_regexp' => {
                     'desc' => "Regular expression which, when matched on incoming comment bodies, kills the comment.",
                     # How is this different from @talkspam?
