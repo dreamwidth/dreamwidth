@@ -146,7 +146,7 @@ sub as_html_actions {
     my $reply_url = $entry->url(mode => 'reply');
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='$reply_url'>Reply</a>";
+    $ret .= " <a href='$reply_url'>Reply</a> |";
     $ret .= " <a href='$url'>Link</a>";
     $ret .= "</div>";
 

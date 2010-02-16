@@ -63,7 +63,7 @@ sub as_html_actions {
     my ($self) = @_;
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='" . $self->requestor->profile_url . "'>View Profile</a>";
+    $ret .= " <a href='" . $self->requestor->profile_url . "'>View Profile</a> |";
     $ret .= " <a href='$LJ::SITEROOT/community/pending?authas=" . $self->comm->user . "'>Manage Members</a>";
     $ret .= "</div>";
 

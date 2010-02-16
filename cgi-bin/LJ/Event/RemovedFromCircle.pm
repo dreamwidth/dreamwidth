@@ -149,11 +149,11 @@ sub as_html_actions {
 
     my $ret .= "<div class='actions'>";
     if ( $self->trusted ) {
-        $ret .= "<a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "'>Remove Access</a>"
+        $ret .= "<a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "'>Remove Access</a> |"
             if $u->trusts( $fromuser );
         $ret .= " <a href='" . $fromuser->profile_url . "'>View Profile</a>";
     } else { # watched
-        $ret .= "<a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "'>Unsubscribe</a>"
+        $ret .= "<a href='$LJ::SITEROOT/manage/circle/add?user=" . $fromuser->user . "'>Unsubscribe</a> |"
             if $u->watches( $fromuser );
         $ret .= " <a href='" . $fromuser->profile_url . "'>View Profile</a>";
     }

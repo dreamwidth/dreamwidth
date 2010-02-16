@@ -119,7 +119,7 @@ sub as_html_actions {
     my ($self) = @_;
 
     my $ret .= "<div class='actions'>";
-    $ret .= " <a href='" . $self->comm->profile_url . "'>View Profile</a>";
+    $ret .= " <a href='" . $self->comm->profile_url . "'>View Profile</a> |";
     $ret .= " <a href='$LJ::SITEROOT/manage/invites'>Join Community</a>";
     $ret .= "</div>";
 

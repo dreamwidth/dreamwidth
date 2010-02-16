@@ -91,7 +91,7 @@ sub as_html_actions {
     my $entry_url = $self->entry->url;
     my $poll_url = $self->poll->url;
     my $ret = "<div class='actions'>";
-    $ret .= " <a href='$poll_url'>View poll status</a>";
+    $ret .= " <a href='$poll_url'>View poll status</a> |";
     $ret .= " <a href='$entry_url'>Discuss results</a>";
     $ret .= "</div>";
 
