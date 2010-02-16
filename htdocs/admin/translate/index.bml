@@ -47,7 +47,7 @@ body<=
     my $ret;
     my $sorter = sub { $a->{$sortcol} cmp $b->{$sortcol} };
 
-    $ret .= BML::ml('.text', {'aopts' => "href='$LJ::SITEROOT/translate/teams'"});
+    $ret .= BML::ml('.text', {'aopts' => "href='$LJ::SITEROOT/admin/translate/teams'"});
 
     $ret .= "<p><table border='1' cellspacing='1' cellpadding='3'><tr>";
     foreach (@cols) {

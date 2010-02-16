@@ -45,3 +45,13 @@
 /mobile/friends.bml                 /mobile/read
 /misc/import                        /tools/importer
 /misc/import.bml                    /tools/importer
+/translate                          /admin/translate
+/translate/                         /admin/translate
+/translate/diff.bml                 /admin/translate/diff
+/translate/edit.bml                 /admin/translate/edit
+/translate/editpage.bml             /admin/translate/editpage
+/translate/help-severity.bml        /admin/translate/help-severity
+/translate/search.bml               /admin/translate/search
+/translate/searchform.bml           /admin/translate/searchform
+/translate/teams.bml                /admin/translate/teams
+/translate/welcome.bml              /admin/translate/welcome
