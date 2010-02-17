@@ -38,6 +38,9 @@ use Google::Checkout::General::Util qw/ is_gco_error /;
 USE
     warn "NOTE: Google::Checkout::* Perl modules were not found.\n"
         unless $rv;
+
+    # avoid compile error, if we don't have the google checkout modules installed
+    our $EMAIL_DELIVERY = eval { no strict "subs"; Google::Checkout::General::DigitalContent::EMAIL_DELIVERY };
 }
 
 use base qw/ DW::Shop::Engine /;
@@ -142,7 +145,7 @@ sub checkout_url {
             price       => $item->cost,
             quantity    => 1,
             private     => $item->id,
-            delivery_method => Google::Checkout::General::DigitalContent::EMAIL_DELIVERY,
+            delivery_method => $DW::Shop::Engine::GoogleCheckout::EMAIL_DELIVERY,
         );
 
         $gcart->add_item( $gitem );
