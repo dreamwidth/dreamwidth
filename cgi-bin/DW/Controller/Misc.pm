@@ -42,7 +42,7 @@ sub whereami_handler {
 
 # handle requests for a user's public key
 sub pubkey_handler {
-    return error_ml( '.error.notconfigured' ) unless $LJ::USE_PGP;
+    return error_ml( '/misc/pubkey.tt.error.notconfigured' ) unless $LJ::USE_PGP;
 
     my ( $ok, $rv ) = controller( anonymous => 1, specify_user => 1 );
     return $rv unless $ok;
