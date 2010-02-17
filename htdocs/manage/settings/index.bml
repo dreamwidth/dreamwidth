@@ -120,6 +120,7 @@ body<=
                 DW::Setting::RandomPaidGifts
                 DW::Setting::GlobalSearch
                 DW::Setting::AllowSearchBy
+                DW::Setting::CommunityPromo
             )],
         },
         history => {

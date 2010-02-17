@@ -2031,6 +2031,17 @@ sub clear_daycounts
     }
 }
 
+sub optout_community_promo {
+    my ( $u, $val ) = @_;
+
+    if ( defined $val && $val =~ /^[01]$/ ) {
+        $u->set_prop( optout_community_promo => $val );
+        return $val;
+    }
+
+    return $u->prop( 'optout_community_promo' ) ? 1 : 0;
+}
+
 sub control_strip_display {
     my $u = shift;
 
@@ -3523,10 +3534,12 @@ sub relevant_communities {
     my $memberships = LJ::load_userids( @ids );
 
     # get all communities that $u is a member of that aren't closed membership
+    # and that wish to be included in the community promo
     foreach my $membershipid ( keys %$memberships ) {
         my $membershipu = $memberships->{$membershipid};
 
         next unless $membershipu->is_community;
+        next if $membershipu->optout_community_promo;
         next unless $membershipu->is_visible;
         next if $membershipu->is_closed_membership;
 

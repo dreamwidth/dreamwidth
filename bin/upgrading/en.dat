@@ -2395,6 +2395,10 @@ setting.commentscreening.option.select.nonfriends=comments from non-friends
 
 setting.commentscreening.option.select.nonmembers=comments from non-members
 
+setting.communitypromo.label=Community Promo
+
+setting.communitypromo.option=Opt out of putting this community in the list of promoted communities, when a user you invite creates an account
+
 setting.contactinfo.error.invalid=Invalid selection.
 
 setting.contactinfo.label=Contact Info Security

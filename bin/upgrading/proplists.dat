@@ -62,6 +62,14 @@ userproplist.city:
   multihomed: 0
   prettyname: City
 
+userproplist.optout_community_promo:
+  cldversion: 4
+  datatype: char
+  des: Promote this community to invited users when they create their account
+  indexed: 0 
+  multihomed: 0
+  prettyname: Account creation community promo
+
 userproplist.comm_promo_blurb:
   cldversion: 4
   datatype: char
