@@ -19,6 +19,7 @@ package DW::Request;
 
 use strict;
 use DW::Request::Apache2;
+use DW::Request::Standard;
 
 use vars qw( $cur_req $determined );
 
@@ -36,6 +37,10 @@ sub get {
         $cur_req = DW::Request::Apache2->new( $r )
             if $r;
     };
+
+    # NOTE: the Standard module is not done through this path, it is done by
+    # someone instantiating the module.  the module itself then sets $determined
+    # and $cur_req appropriately.
 
     # hopefully one of the above worked and set $cur_req, but if not, then we
     # assume we're in fallback/command line mode
