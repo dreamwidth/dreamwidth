@@ -19,8 +19,8 @@ package DW::Controller;
 use strict;
 use warnings;
 use Exporter;
-use DW::Routing::Apache2;
-use DW::Template::Apache2;
+use DW::Routing;
+use DW::Template;
 
 our ( @ISA, @EXPORT );
 @ISA = qw/ Exporter /;
@@ -42,14 +42,14 @@ sub needlogin {
 
 # returns an error page using a language string
 sub error_ml {
-    return DW::Template::Apache2->render_template(
+    return DW::Template->render_template(
         'error.tt', { message => LJ::Lang::ml( @_ ) }
     );
 }
 
 # return a success page using a language string
 sub success_ml {
-    return DW::Template::Apache2->render_template(
+    return DW::Template->render_template(
         'success.tt', { message => LJ::Lang::ml( @_ ) }
     );
 }

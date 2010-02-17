@@ -1,34 +1,30 @@
 #!/usr/bin/perl
 #
-# DW::Template::Apache2
+# DW::Template
 #
 # Template Toolkit helpers for Apache2.
 #
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Template::Apache2;
+package DW::Template;
 use strict;
 use Template;
 use Template::Plugins;
 use Template::Namespace::Constants;
 use DW::FragmentCache;
-
-# FIXME: I cannot use a DW::Request for the Apache::BML::handler call,
-#        so I am only using Apache2 requests here, not mixing the two objects inside the same methods.
-#        Once we dispose of BML, this can switch.
-use Apache2::Const qw/ :common /;
+use DW::Request;
 
 =head1 NAME
 
-DW::Template::Apache2 - Template Toolkit helpers for Apache2.
+DW::Template - Template Toolkit helpers for Apache2.
 
 =head1 SYNOPSIS
 
@@ -212,28 +208,27 @@ $extra can contain:
 sub render_string {
     my ( $class, $out, $extra ) = @_;
 
-    my $r = DW::Request->get->r;
+    my $r = DW::Request->get;
     $r->status( $extra->{status} ) if $extra->{status};
     $r->content_type( $extra->{content_type} ) if $extra->{content_type};
 
     if ( $extra->{no_sitescheme} ) {
         $r->print( $out );
 
-        return OK;
+        return $r->OK;
     } else {
-        $r->pnotes->{render_sitescheme_code} = $out;
-        $r->pnotes->{render_sitescheme_extra} = $extra || {};
-        $r->notes->{bml_filename} = "$LJ::HOME/htdocs/misc/render_sitescheme.bml";
+        $r->pnote(render_sitescheme_code => $out);
+        $r->pnote(render_sitescheme_extra => $extra || {});
 
-        return Apache::BML::handler($r);
+        return $r->call_bml("$LJ::HOME/htdocs/misc/render_sitescheme.bml");
     }
 }
 
 =head1 ML Stuff
 
-NOTE: All these methods use DW::Template::Apache2::blah, not DW::Template::Apache2->blah.
+NOTE: All these methods use DW::Template::blah, not DW::Template->blah.
 
-=head2 C<< DW::Template::Apache2::ml_scope( $scope ) >>
+=head2 C<< DW::Template::ml_scope( $scope ) >>
 
 Gets the scope or sets the scope to the given location
 
@@ -243,7 +238,7 @@ sub ml_scope {
     return DW::Request->get->note('ml_scope', $_[0]);
 }
 
-=head2 C<< DW::Template::Apache2::ml( $code, $vars ) >>
+=head2 C<< DW::Template::ml( $code, $vars ) >>
 
 =cut
 
@@ -288,7 +283,7 @@ sub _decide_language
 
     # next is their cookie preference
     #FIXME: COOKIE!
-    #if ($BML::COOKIE{'langpref'} =~ m!^(\w{2,10})/(\d+)$!) {
+    #if ($BML::COOKIEIE{'langpref'} =~ m!^(\w{2,10})/(\d+)$!) {
     #    if (exists $env->{"Langs-$1"}) {
     #        # FIXME: Probably should actually do this!!!
     #        # make sure the document says it was changed at least as new as when
@@ -317,7 +312,7 @@ sub _decide_language
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

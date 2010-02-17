@@ -27,8 +27,6 @@ use Apache2::RequestUtil ();
 use Apache2::RequestIO ();
 use Apache2::SubProcess ();
 
-use DW::Routing::Apache2;
-
 use fields (
             'r',         # The Apache2::Request object
 
@@ -216,6 +214,26 @@ sub read {
 sub r {
     my DW::Request::Apache2 $self = $_[0];
     return $self->{r};
+}
+
+# calls the method as a handler.
+sub call_response_handler {
+    my DW::Request::Apache2 $self = shift;
+
+    $self->{r}->handler( 'perl-script' );
+    $self->{r}->push_handlers( PerlResponseHandler => $_[0] );
+
+    return Apache2::Const::OK;
+}
+
+# FIXME: Temporary, until BML is gone / converted
+# FIXME: This is only valid from a response handler
+sub call_bml {
+    my DW::Request::Apache2 $self = shift;
+
+    $self->note(bml_filename => $_[0]);
+
+    return Apache::BML::handler($self->{r});
 }
 
 # constants

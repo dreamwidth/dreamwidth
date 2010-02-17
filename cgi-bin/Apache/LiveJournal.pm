@@ -39,8 +39,8 @@ use LJ::AccessLogSink::DBIProfile;
 use Compress::Zlib;
 use XMLRPC::Transport::HTTP;
 use LJ::URI;
-use DW::Routing::Apache2;
-use DW::Template::Apache2;
+use DW::Routing;
+use DW::Template;
 
 BEGIN {
     $LJ::OPTMOD_ZLIB = eval "use Compress::Zlib (); 1;";
@@ -331,7 +331,7 @@ sub trans
 
     # only allow certain pages over SSL
     if ($is_ssl) {
-        my $ret = DW::Routing::Apache2->call( $r, ssl => 1 );
+        my $ret = DW::Routing->call( ssl => 1 );
         return $ret if defined $ret;
 
         if ($uri =~ m!^/interface/! || $uri =~ m!^/__rpc_!) {
@@ -657,7 +657,7 @@ sub trans
 
         # see if there is a modular handler for this URI
         my $ret = LJ::URI->handle($uuri, $r);
-        $ret = DW::Routing::Apache2->call( $r, username => $user ) unless defined $ret;
+        $ret = DW::Routing->call( username => $user ) unless defined $ret;
         return $ret if defined $ret;
 
         if ($uuri eq "/__setdomsess") {
@@ -954,7 +954,7 @@ sub trans
 
     # see if there is a modular handler for this URI
     my $ret = LJ::URI->handle($uri, $r);
-    $ret = DW::Routing::Apache2->call( $r ) unless defined $ret;
+    $ret = DW::Routing->call unless defined $ret;
     return $ret if defined $ret;
 
     # customview (get an S1 journal by number)
@@ -1376,7 +1376,7 @@ sub journal_content
     # only if HTML is set, otherwise leave it alone so the user
     # gets "messed up template definition", cause something went wrong.
     if ( $handle_with_siteviews && $html ) {
-        return DW::Template::Apache2->render_string( $html, $opts->{siteviews_extra_content} );
+        return DW::Template->render_string( $html, $opts->{siteviews_extra_content} );
     } elsif ( $handle_with_bml ) {
         my $args = $r->args;
         my $args_wq = $args ? "?$args" : "";

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Routing::Apache2
+# DW::Routing
 #
 # Module to allow calling non-BML controller/views.
 #
@@ -8,28 +8,23 @@
 #      Andrea Nall <anall@andreanall.com>
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Routing::Apache2;
+package DW::Routing;
 use strict;
 
 use LJ::ModuleLoader;
-use DW::Template::Apache2;
+use DW::Template;
 use JSON;
+use DW::Request;
 
-# FIXME: This shouldn't depend on Apache, but I'm using it here as I need to do a few calls
-#        that aren't supported by DW::Request, as well as it's needed in DW::Template.
-use Apache2::Const qw/ :common REDIRECT HTTP_NOT_MODIFIED
-                       HTTP_MOVED_PERMANENTLY HTTP_MOVED_TEMPORARILY
-                       M_TRACE M_OPTIONS /;
-
-my %string_choices;
-my %regex_choices = (
+our %string_choices;
+our %regex_choices = (
     app  => [],
     ssl  => [],
     user => []
@@ -40,11 +35,11 @@ my $default_content_types = {
     'json' => "application/json; charset=utf-8",
 };
 
-LJ::ModuleLoader->autouse_subclasses( "DW::Controller" );
+LJ::ModuleLoader->require_subclasses( "DW::Controller" );
 
 =head1 NAME
 
-DW::Routing::Apache2 - Module to allow calling non-BML controller/views.
+DW::Routing - Module to allow calling non-BML controller/views.
 
 =head1 SYNOPSIS
 
@@ -55,36 +50,48 @@ DW::Routing::Apache2 - Module to allow calling non-BML controller/views.
 =cut
 
 sub call {
-    my ( $class, $r, %opts ) = @_;
+    my $class = shift;
+    my $call_opts = $class->get_call_opts(@_);
+
+    return $class->call_hash( $call_opts ) if defined $call_opts;
+    return undef;
+}
+
+=head2 C<< $class->get_call_opts( $r, %opts ) >>
+
+=cut
+
+sub get_call_opts {
+    my ( $class, %opts ) = @_;
+    my $r = DW::Request->get;
 
     my ( $uri, $format ) = ( $r->uri, undef );
     ( $uri, $format ) = ( $1, $2 )
         if $uri =~ m/^(.+?)\.([a-z]+)$/;
 
     # add more data to the options hash, we'll need it
-    $opts{mode}   = $opts{ssl} ? 'ssl' : ( $opts{username} ? 'user' : 'app' );
+    $opts{role} ||= $opts{ssl} ? 'ssl' : ( $opts{username} ? 'user' : 'app' );
     $opts{uri}    = $uri;
     $opts{format} = $format;
-    $opts{__r}    = $r;
 
     # we construct this object as an easy way to get options later, it gives
     # us accessors.  FIXME: this should be a separate class, not DW::Routing.
     my $call_opts = bless( \%opts, $class );
 
     # try the string options first as they're fast
-    my $hash = $opts{__hash} = $string_choices{$opts{mode} . $uri};
-    return $class->call_hash( $call_opts ) if defined $hash;
+    my $hash = $opts{__hash} = $string_choices{$opts{role} . $uri};
+    return $call_opts if defined $hash;
 
     # try the regex choices next
     # FIXME: this should be a dynamically sorting array so the most used items float to the top
     # for now it doesn't matter so much but eventually when everything is in the routing table
     # that will have to be done
     my @args;
-    foreach $hash ( @{ $regex_choices{$opts{mode}} } ) {
+    foreach $hash ( @{ $regex_choices{$opts{role}} } ) {
         if ( ( @args = $uri =~ $hash->{regex} ) ) {
             $opts{__hash} = $hash;
             $opts{subpatterns} = \@args;
-            return $class->call_hash( $call_opts );
+            return $call_opts;
         }
     }
 
@@ -100,26 +107,24 @@ Calls the raw hash.
 
 sub call_hash {
     my ( $class, $opts ) = @_;
+    my $r = DW::Request->get;
 
     my $hash = $opts->{__hash};
-    return undef unless $hash && $hash->{sub} && $opts->{__r};
+    return undef unless $hash && $hash->{sub};
 
-    $opts->{__r}->handler( 'perl-script' );
-    $opts->{__r}->pnotes->{routing_opts} = $opts;
-    $opts->{__r}->push_handlers( PerlResponseHandler => \&_call_hash );
-
-    return OK;
+    $r->pnote(routing_opts => $opts);
+    return $r->call_response_handler( \&_call_hash );
 }
 
-=head2 C<< $class->_call_hash( $r ) >>
+=head2 C<< $class->_call_hash() >>
 
 Perl Response Handler for call_hash
 
 =cut
 
 sub _call_hash {
-    my ( $r ) = @_;
-    my $opts = $r->pnotes->{routing_opts};
+    my $r = DW::Request->get;
+    my $opts = $r->pnote('routing_opts');
     my $hash = $opts->{__hash};
 
     $opts->{format} ||= $hash->{format};
@@ -150,7 +155,7 @@ sub _call_hash {
 
         $r->status( 500 );
         $r->print(objToJson( { error => $text } ));
-        return OK;
+        return $r->OK;
 
     # default error rendering
     } else {
@@ -164,13 +169,14 @@ sub _call_hash {
         my $text = $LJ::MSG_ERROR || "Sorry, there was a problem.";
         my $remote = LJ::get_remote();
         $text = "<b>[Error: $msg]</b>" if ( $remote && $remote->show_raw_errors ) || $LJ::IS_DEV_SERVER;
-        return DW::Template::Apache2->render_string( $r, $text, { status=>500, content_type=>'text/html' } );
+        return DW::Template->render_string( $text, { status=>500, content_type=>'text/html' } );
     }
 }
 
 sub _static_helper {
-    return NOT_FOUND unless $_[0]->format eq 'html';
-    return $_[0]->render_template( $_[0]->args );
+    my $r = DW::Request->get;
+    return $r->NOT_FOUND unless $_[0]->format eq 'html';
+    return  DW::Template->render_template( $_[0]->args );
 }
 
 =head1 Registration API
@@ -316,13 +322,13 @@ Return the format.
 
 sub format { return $_[0]->{format}; }
 
-=head2 C<< $self->mode >>
+=head2 C<< $self->role >>
 
 Current mode: 'app' or 'user' or 'ssl'
 
 =cut
 
-sub mode { return $_[0]->{mode}; }
+sub role { return $_[0]->{role}; }
 
 =head2 C<< $self->ssl >>
 
@@ -330,7 +336,7 @@ Is SSL request?
 
 =cut
 
-sub ssl { return $_[0]->{mode} eq 'ssl' ? 1 : 0; }
+sub ssl { return $_[0]->{role} eq 'ssl' ? 1 : 0; }
 
 =head2 C<< $self->subpatterns >>
 
@@ -356,7 +362,7 @@ sub username { return $_[0]->{username}; }
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2009 by Dreamwidth Studios, LLC.
+Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself. For a copy of the license, please reference

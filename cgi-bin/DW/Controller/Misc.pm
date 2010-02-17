@@ -22,11 +22,11 @@ package DW::Controller::Misc;
 use strict;
 use warnings;
 use DW::Controller;
-use DW::Routing::Apache2;
-use DW::Template::Apache2;
+use DW::Routing;
+use DW::Template;
 
-DW::Routing::Apache2->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
-DW::Routing::Apache2->register_string( '/pubkey',        \&pubkey_handler,   app => 1 );
+DW::Routing->register_string( '/misc/whereami', \&whereami_handler, app => 1 );
+DW::Routing->register_string( '/pubkey',        \&pubkey_handler,   app => 1 );
 
 # handles the /misc/whereami page
 sub whereami_handler {
@@ -37,7 +37,7 @@ sub whereami_handler {
         cluster_name => $LJ::CLUSTER_NAME{$rv->{u}->clusterid} || LJ::Lang::ml( '.cluster.unknown' ),
     };
 
-    return DW::Template::Apache2->render_template( 'misc/whereami.tt', $vars );
+    return DW::Template->render_template( 'misc/whereami.tt', $vars );
 }
 
 # handle requests for a user's public key
@@ -49,7 +49,7 @@ sub pubkey_handler {
 
     LJ::load_user_props( $rv->{u}, 'public_key' );
 
-    return DW::Template::Apache2->render_template( 'misc/pubkey.tt', $rv );
+    return DW::Template->render_template( 'misc/pubkey.tt', $rv );
 }
 
 1;

@@ -70,6 +70,16 @@ sub autouse_subclasses {
     }
 }
 
+sub require_subclasses {
+    shift if @_ > 1; # get rid of classname
+    my $base_class = shift;
+
+    foreach my $class (LJ::ModuleLoader->module_subclasses($base_class)) {
+        eval "use $class";
+        die "Error loading $class: $@" if $@;
+    }
+}
+
 sub require_if_exists {
     shift if @_ > 1; # get rid of classname
 

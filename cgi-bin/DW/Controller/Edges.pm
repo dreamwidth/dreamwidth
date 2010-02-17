@@ -21,11 +21,11 @@ package DW::Controller::Edges;
 
 use strict;
 use warnings;
-use DW::Routing::Apache2;
+use DW::Routing;
 use DW::Request;
 use JSON;
 
-DW::Routing::Apache2->register_string(  "/data/edges", \&edges_handler, user => 1, format => 'json' );
+DW::Routing->register_string(  "/data/edges", \&edges_handler, user => 1, format => 'json' );
 
 my $formats = {
     'json' => [ "application/json; charset=utf-8", sub { $_[0]->print( objToJson( $_[1] ) ); } ],

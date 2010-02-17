@@ -19,14 +19,14 @@ package DW::Controller::Nav;
 use strict;
 use warnings;
 use DW::Controller;
-use DW::Routing::Apache2;
-use DW::Template::Apache2;
+use DW::Routing;
+use DW::Template;
 use DW::Logic::MenuNav;
 use JSON;
 
 # Defines the URL for routing.  I could use register_string( '/nav' ... ) if I didn't want to capture arguments
 # This is an application page, not a user styled page, and the default format is HTML (ie, /nav gives /nav.html)
-DW::Routing::Apache2->register_regex( qr!^/nav(?:/([a-z]*))?$!, \&nav_handler, app => 1 );
+DW::Routing->register_regex( qr!^/nav(?:/([a-z]*))?$!, \&nav_handler, app => 1 );
 
 # handles menu nav pages
 sub nav_handler {
@@ -63,7 +63,7 @@ sub nav_handler {
         $vars->{cat_title} = $menu_nav->[0]->{title} if $cat;
 
         # Now we tell it what template to render and pass in our variables
-        return DW::Template::Apache2->render_template( 'nav.tt', $vars );
+        return DW::Template->render_template( 'nav.tt', $vars );
     } else { 
         # return 404 for an unknown format
         return $r->NOT_FOUND;
