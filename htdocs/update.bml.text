@@ -19,6 +19,8 @@
 
 .draft.confirm=Restore from saved draft?
 
+.draft.confirm2=Restore from saved draft entitled [[subjectline]]?
+
 .draft.restored=Restored last saved draft
 
 .error.cantpost=Sorry, you cannot post at this time.

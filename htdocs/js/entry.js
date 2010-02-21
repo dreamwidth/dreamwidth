@@ -905,18 +905,114 @@ LJDraft.save = function (drafttext, cb) {
       onError: function () { LJDraft.saveInProg = false; },
       data: HTTPReq.formEncoded({"saveDraft": drafttext})
     });
+
 };
 
+
 LJDraft.startTimer = function () {
+    var draftProperties = new Object();
+
+    // Get all the properties, excluding the draft body, of the user's draft so
+    // that we can pass them to LJDraft.checkProperties. We do this here to
+    // avoid querying draft.bml every second, and thus spamming MySQL to death.
+    HTTPReq.getJSON({
+      method: "GET",
+      url: "/tools/endpoints/draft",
+      onData: function (resObj) {
+              draftProperties = resObj;
+              }, 
+      data: HTTPReq.formEncoded({"getProperties": 1})
+      });
+
     setInterval(LJDraft.checkIfDirty, 1000);  // check every second
+    setInterval(function () {LJDraft.checkProperties(draftProperties)}, 1000);
     LJDraft.epoch = 0;
+};
+
+LJDraft.clearProperties = function () { //Clear all the draft's properties
+    HTTPReq.getJSON({                   //Excluding the Body.
+      method: "POST",
+      url: "/tools/endpoints/draft",
+      data: HTTPReq.formEncoded({"clearProperties": 1})
+      });
+};
+
+//Check and see if one of the draft's properties was changed.
+//If so, save them all through draft.bml.
+LJDraft.checkProperties = function (properties) {
+    if ( $("prop_picture_keyword") ) { //In case the user has no userpics
+        var currentUserpic = $("prop_picture_keyword").selectedIndex;
+    };
+    var currentSubject = $("subject").value;
+    var currentTaglist = $("prop_taglist").value;
+    var currentMoodID = $("prop_current_moodid").selectedIndex;
+    var currentMood = $("prop_current_mood").value;
+    var currentLocation = $("prop_current_location").value;
+    var currentMusic = $("prop_current_music").value;
+    var currentAdultReason = $("prop_adult_content_reason").value;
+    var currentCommentSet = $("comment_settings").selectedIndex;
+    var currentCommentScr = $("prop_opt_screening").selectedIndex;
+    var currentAdultCnt = $("prop_adult_content").selectedIndex;
+
+
+    currentAdultReason = convert_to_draft(currentAdultReason);
+    currentMusic = convert_to_draft(currentMusic);
+    currentLocation = convert_to_draft(currentLocation);
+    currentSubject = convert_to_draft(currentSubject);
+    currentTaglist = convert_to_draft(currentTaglist);
+    currentMood = convert_to_draft(currentMood);
+
+    if ( currentUserpic     != properties.userpic     ||
+         currentSubject     != properties.subject     ||
+         currentTaglist     != properties.taglist     ||
+         currentMoodID      != properties.moodid      ||
+         currentMood        != properties.mood        ||
+         currentLocation    != properties.location1   || //avoiding saved JS term
+         currentMusic       != properties.music       ||
+         currentAdultReason != properties.adultreason ||
+         currentCommentSet  != properties.commentset  ||
+         currentCommentScr  != properties.commentscr  ||
+         currentAdultCnt    != properties.adultcnt       ) 
+       {
+         
+         properties.userpic = currentUserpic;
+         properties.subject = currentSubject;
+         properties.taglist = currentTaglist;
+         properties.moodid  = currentMoodID;
+         properties.mood    = currentMood;
+         properties.location1 = currentLocation;
+         properties.music     = currentMusic;
+         properties.adultreason = currentAdultReason;
+         properties.commentset  = currentCommentSet;
+         properties.commentscr  = currentCommentScr;
+         properties.adultcnt    = currentAdultCnt;
+
+         HTTPReq.getJSON({
+           method: "POST",
+           url: "/tools/endpoints/draft",
+           data: HTTPReq.formEncoded({"saveUserpic":     currentUserpic,
+                                      "saveSubject":     currentSubject,
+                                      "saveTaglist":     currentTaglist,
+                                      "saveMoodID":      currentMoodID,
+                                      "saveMood":        currentMood,
+                                      "saveLocation":    currentLocation,
+                                      "saveMusic":       currentMusic,
+                                      "saveAdultReason": currentAdultReason,
+                                      "saveCommentSet":  currentCommentSet,
+                                      "saveCommentScr":  currentCommentScr,
+                                      "saveAdultCnt":    currentAdultCnt    })
+           });
+    };
 };
 
 LJDraft.checkIfDirty = function () {
     LJDraft.epoch++;
     var curBody;
 
-    if (!$("draft")) return false;
+    // If the draft is empty, delete it.
+    if ( !$( "draft" ) ) {
+        LJDraft.save("");
+    };
     if ($("draft").style.display == 'none') { // Need to check this to deal with hitting the back button
         // Since they may start using the RTE in the middle of writing their
         // entry, we should just get the editor each time.

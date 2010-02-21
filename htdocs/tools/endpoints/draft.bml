@@ -2,6 +2,7 @@
 {
     use strict;
     use vars qw(%POST);
+    use Storable;
 
     my $err = sub {
         my $msg = shift;
@@ -20,9 +21,80 @@
 
     my $ret = {};
 
+
+    # This property thaws the contents of the userprop 'draft_properties' and
+    # sends them back as a JS object.
+    if ( defined $GET{getProperties} ) {
+        my $rv = Storable::thaw( $u->prop( 'draft_properties' ) || '' );
+
+        BML::set_content_type('text/javascript; charset=utf-8');
+        BML::finish();
+
+        return LJ::js_dumper( $rv );
+    }
+        
+
+    # This property clears out all the fields of the user's draft, except the
+    # draft body itself.
+    if ( defined $POST{clearProperties} ) {
+        $u->clear_prop( 'draft_properties' );
+    }
+
+    # If even one property of the draft was changed, this property saves them
+    # all into a new draft (in order to avoid multiple HTTP posts which would
+    # decrease performance considerably).
+    # This is set up as a long if statement to avoid tying draft property saving to
+    # the draft body save logic, so that users won't have to change their
+    # draft body every time they want to get their properties saved.
+    if ( ( defined $POST{saveSubject}     ) || 
+         ( defined $POST{saveUserpic}     ) ||
+         ( defined $POST{saveTaglist}     ) ||
+         ( defined $POST{saveMoodID}      ) ||
+         ( defined $POST{saveMood}        ) ||
+         ( defined $POST{saveLocation}    ) ||
+         ( defined $POST{saveMusic}       ) ||
+         ( defined $POST{saveAdultReason} ) ||
+         ( defined $POST{saveCommentSet}  ) ||
+         ( defined $POST{saveCommentScr}  ) ||
+         ( defined $POST{saveAdultCnt}    )  ) 
+        {
+        my %properties = ( subject     => $POST{saveSubject}, 
+                           userpic     => $POST{saveUserpic},
+                           taglist     => $POST{saveTaglist},
+                           moodid      => $POST{saveMoodID},
+                           mood        => $POST{saveMood},
+                           location1   => $POST{saveLocation},
+                           music       => $POST{saveMusic},
+                           adultreason => $POST{saveAdultReason},
+                           commentset  => $POST{saveCommentSet},
+                           commentscr  => $POST{saveCommentScr},
+                           adultcnt    => $POST{saveAdultCnt}   );
+        
+        # If the property is null, a default menu selection or a JS undefined
+        # value, we don't want to save it.
+        foreach my $key ( keys ( %properties ) ) {
+            if ( ( $properties{$key} =~ /^$/          ) ||
+                 ( $properties{$key} =~ /^0$/         ) ||
+                 ( $properties{$key} =~ /^undefined$/ ) ) {
+                delete $properties{$key};
+            };
+        };
+
+        # Freeze the hash into a frozen storable string. If the hash is not empty
+        # save it to the userprop. If it is, delete it. 
+        my $frozen_properties =  Storable::nfreeze( \%properties );
+        if ( $frozen_properties =~ /\w/ ) {
+            $u->set_prop('draft_properties', $frozen_properties);
+        } else {
+            $u->clear_prop('draft_properties');
+        };
+    }
+
+    # This property saves the main body of the draft.
     if (defined $POST{'saveDraft'}) {
         $u->set_draft_text($POST{'saveDraft'});
 
+    # This property clears out the main body of the draft.
     } elsif ($POST{'clearDraft'}) {
         $u->set_draft_text('');
 

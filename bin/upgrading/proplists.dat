@@ -278,6 +278,14 @@ userproplist.entry_draft:
   multihomed: 0
   prettyname: New Entry Draft
 
+userproplist.draft_properties:
+  cldversion: 4
+  datatype: blobchar
+  des: Storable hashref of a user's most recent draft properties
+  indexed: 0
+  multihomed: 0
+  prettyname: Backup of an Entry Draft's properties (subject line, etc.)
+
 userproplist.entry_editor:
   cldversion: 4
   datatype: char

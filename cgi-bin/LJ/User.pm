@@ -31,6 +31,7 @@ no warnings 'uninitialized';
 
 package LJ::User;
 use Carp;
+use Storable;
 use lib "$LJ::HOME/cgi-bin";
 use List::Util ();
 use LJ::Constants;
@@ -4099,6 +4100,7 @@ sub security_group_display {
 }
 
 
+
 sub set_draft_text {
     my ($u, $draft) = @_;
     my $old = $u->draft_text;
@@ -4144,7 +4146,6 @@ sub set_draft_text {
     }
     return 0;
 }
-
 
 sub third_party_notify_list {
     my $u = shift;

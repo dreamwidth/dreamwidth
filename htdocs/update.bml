@@ -533,6 +533,7 @@ head<=
 <?_code
 {
     use strict;
+    use Storable;
 
     my $ret = $_[1]->{'head'};
 
@@ -548,14 +549,24 @@ head<=
                     ));
 
     # draft autosave and restore
+    # The $draft variable contains the draft itself. The hash contains the various
+    # fields of the user's draft properties (subject, tags, music, etc.)
     my $remote = LJ::get_remote();
     my $draft = '""';
+    my %draft_properties;
+
     if ($remote) {
+        # Here we get the value of the userprop 'draft_properties', containing
+        # a frozen Storable string, which we then thaw into a hash by the same
+        # name.
         $draft = LJ::ejs_string($remote->prop('entry_draft'));
+        %draft_properties = $remote->prop( 'draft_properties' ) ? 
+            %{Storable::thaw( $remote->prop( 'draft_properties' ) )} : ' ';
     }
 
     my $eMLautosave = LJ::ejs(BML::ml('.draft.autosave', { 'time' => '[[time]]' }));
-    my $eMLconfirm = LJ::ejs($ML{'.draft.confirm'});
+    my $eMLconfirm = LJ::ejs( BML::ml( '.draft.confirm2', 
+                { 'subjectline' => LJ::ejs_string( $draft_properties{subject} ) } ) );
     my $eMLrestored = LJ::ejs($ML{'.draft.restored'});
 
     # Setup draft saving and try to restore from a draft
@@ -582,7 +593,20 @@ head<=
     $ret .= qq^
     <script type="text/javascript">
     //<![CDATA[
-        var restoredDraft = $draft;
+        
+        // These JS variables contain the contents of the various draft fields.
+        var restoredDraft       = $draft;
+        var restoredSubject     = '$draft_properties{subject}';
+        var restoredUserpic     = '$draft_properties{userpic}';
+        var restoredTaglist     = '$draft_properties{taglist}';
+        var restoredMoodID      = '$draft_properties{moodid}';
+        var restoredMood        = '$draft_properties{mood}';
+        var restoredLocation    = '$draft_properties{location1}';
+        var restoredMusic       = '$draft_properties{music}';
+        var restoredAdultReason = '$draft_properties{adultreason}';
+        var restoredCommentSet  = '$draft_properties{commentset}';
+        var restoredCommentScr  = '$draft_properties{commentscr}';
+        var restoredAdultCnt    = '$draft_properties{adultcnt}';
 
         function init_update_bml() {
             $initDraft
@@ -594,18 +618,34 @@ head<=
         LJDraft.autoSaveInterval = $LJ::AUTOSAVE_DRAFT_INTERVAL;
         LJDraft.savedMsg = '$eMLautosave';
 
-            function initDraft(askToRestore) {
-                if (askToRestore && restoredDraft) {
-                    if (confirm("$eMLconfirm")) {
-                        \$("draft").value = restoredDraft;
-                        \$("draftstatus").value = '$eMLrestored ';
-                    } else {
-                        // Clear out their current draft
-                        LJDraft.save('');
-                    }
+        function initDraft(askToRestore) {
+            if (askToRestore && restoredDraft) {
+                if (confirm("$eMLconfirm")) {
+                  // If the user wants to restore the draft, we place the
+                  // values of their saved draft into the form.
+                  \$("draft").value = restoredDraft;
+                  \$("draftstatus").value = '$eMLrestored ';
+                  \$("subject").value = restoredSubject;
+                  if ( \$("prop_picture_keyword") ) {
+                      \$("prop_picture_keyword").selectedIndex = restoredUserpic;
+                  }
+                  \$("prop_taglist").value                 = restoredTaglist;
+                  \$("prop_current_moodid").selectedIndex  = restoredMoodID;
+                  \$("prop_current_mood").value            = restoredMood;
+                  \$("prop_current_location").value        = restoredLocation;
+                  \$("prop_current_music").value           = restoredMusic;
+                  \$("prop_adult_content_reason").value    = restoredAdultReason;
+                  \$("comment_settings").selectedIndex     = restoredCommentSet;
+                  \$("prop_opt_screening").selectedIndex   = restoredCommentScr;
+                  \$("prop_adult_content").selectedIndex   = restoredAdultCnt;
+                } else {
+                    // Clear out their current draft
+                    LJDraft.save('');
+                    LJDraft.clearProperties();
                 }
-                LJDraft.startTimer();
            }
+            LJDraft.startTimer();
+       }
     //]]>
     </script>^;
 
