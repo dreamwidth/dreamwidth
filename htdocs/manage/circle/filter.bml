@@ -17,7 +17,9 @@
         my $extra;
         if ( $POST{type} eq "allfilters" ) {
             my $view = $POST{'view'};
-            if ($view eq "showpeople") {
+            if ( $view eq "all" ) {
+                $extra = "?filter=0";
+            } elsif ($view eq "showpeople") {
                 $extra = "?show=P&filter=0";
             } elsif ($view eq "showcommunities") {
                 $extra = "?show=C&filter=0";

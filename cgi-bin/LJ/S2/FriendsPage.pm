@@ -116,7 +116,7 @@ sub FriendsPage
 
     # but we can't just use a filter, we have to make sure the person is allowed to
     my $filter;
-    if ( $cf && ( $u->equals( $remote ) || $cf->public ) ) {
+    if ( ( $get->{filter} ne "0" ) && $cf && ( $u->equals( $remote ) || $cf->public ) ) {
         $filter = $cf;
 
     # if we couldn't use the group, then we can throw an error, but ONLY IF they specified
