@@ -3,6 +3,8 @@
 
 .approve.header=Approve this entry?
 
+.approve.note=You can attach a note to the poster and it will be emailed to the user.
+
 .approve.preapprove=Also, add user [[user]] to the list of pre-approved users for this community.
 
 .approve.text=Are you sure you want to approve this entry?

@@ -117,6 +117,8 @@ body<=
             my $body = "Your message submitted to the moderated community $c->{'user'} ";
             if ($why_mail eq 'success') {
                 $body .= "has been approved and successfully posted.\n\n$posturl";
+                $body .= "The moderator that approved your post has attached the following note: \n\n$POST{why}\n\n"
+                    if $POST{why};
             } elsif ($why_mail eq 'proterror') {
                 $body .= "has been approved, but failed to be posted due to the following protocol error:\n$prot_err\n\n";
             } elsif ($why_mail eq 'reject') {
@@ -233,6 +235,15 @@ body<=
         $ret .= "<input type='hidden' name='auth' value='" . $req->{'_moderate'}->{'authcode'} . "'>";
         $ret .= "<input type='submit' value='$ML{'.approve.button'}'>";
         $ret .= "</center>";
+        if ( $poster && $poster->email_status eq 'A' ) {
+            $ret .= "<?p $ML{'.approve.note'} p?>";
+            $ret .= LJ::html_textarea({
+                name => "why",
+                class => "text",
+                rows => 10,
+                cols => 60,
+            });
+        }
         $ret .= "<p><input type='checkbox' name='preapprove'> " .
             BML::ml('.approve.preapprove', {'user'=>"<?ljuser $poster->{'user'} ljuser?>"});
         $ret .= "</form>";
