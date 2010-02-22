@@ -17,92 +17,60 @@
 
 package DW::Shop::Item::Account;
 
+use base 'DW::Shop::Item';
+
 use strict;
 use DW::InviteCodes;
 use DW::Pay;
 
+=head1 NAME
 
-# instantiates an account to be purchased of some sort
+DW::Shop::Item::Account - Represents a paid account that someone is purchasing. See 
+the documentation for DW::Shop::Item for usage examples and description of methods
+inherited from that base class.
+
+=head1 API
+
+=head2 C<< $class->new( [ %args ] ) >>
+
+Instantiates an account of some sort to be purchased.
+
+Arguments:
+=item ( see DW::Shop::Item ), 
+=item months => number of months of paid time,
+=item class => type of paid account,
+=item random => 1 (if gifting paid time to a random user),
+=item anonymous_target => 1 (if random user should be anonymous, not identified) 
+
+=cut
+
+# override
 sub new {
     my ( $class, %args ) = @_;
 
-    my $type = delete $args{type};
-    return undef unless exists $LJ::SHOP{$type};
-
-    # from_userid will be 0 if the sender isn't logged in
-    return undef unless $args{from_userid} == 0 || LJ::load_userid( $args{from_userid} );
-
-    # now do validation.  since new is only called when the item is being added
-    # to the shopping cart, then we are comfortable doing all of these checks
-    # on things at the time this item is put together
-    if ( my $uid = $args{target_userid} ) {
-        # userid needs to exist
-        return undef unless LJ::load_userid( $uid );
-    } elsif ( my $email = $args{target_email} ) {
-        # email address must be valid
-        my @email_errors;
-        LJ::check_email( $email, \@email_errors );
-        return undef if @email_errors;
-    } else {
-        return undef;
-    }
-
-    if ( $args{deliverydate} ) {
-        return undef unless $args{deliverydate} =~ /^\d\d\d\d-\d\d-\d\d$/;
-    }
-
-    if ( $args{anonymous} ) {
-        return undef unless $args{anonymous} == 1;
+    if ( $args{anonymous_target} ) {
+        return undef unless $args{anonymous_target} == 1;
     }
 
     if ( $args{random} ) {
         return undef unless $args{random} == 1;
     }
 
-    if ( $args{anonymous_target} ) {
-        return undef unless $args{anonymous_target} == 1;
+    my $self = $class->SUPER::new( %args );
+
+    if ( $self ) {
+        $self->{months} = $LJ::SHOP{$self->{type}}->[1];
+        $self->{class} = $LJ::SHOP{$self->{type}}->[2];
     }
 
-    if ( $args{cannot_conflict} ) {
-        return undef unless $args{cannot_conflict} == 1;
-    }
-
-    if ( $args{noremove} ) {
-        return undef unless $args{noremove} == 1;
-    }
-
-    # looks good
-    return bless {
-        # user supplied arguments (close enough)
-        cost    => $LJ::SHOP{$type}->[0] + 0.00,
-        months  => $LJ::SHOP{$type}->[1],
-        class   => $LJ::SHOP{$type}->[2],
-        %args,
-
-        # internal things we use to track the state of this item
-        type    => 'account',
-        applied => 0,
-        cartid  => 0,
-    }, $class;
+    return $self;
 }
 
 
-# called when we are told we need to apply this item, i.e., turn it on.  note that we
-# update ourselves, but it's up to the cart to make sure that it saves.
-sub apply {
+# override
+sub _apply {
     my $self = $_[0];
-    return 1 if $self->applied;
 
-    # 1) deliverydate must be present/past
-    if ( my $ddate = $self->deliverydate ) {
-        my $cur = LJ::mysql_time();
-        $cur =~ s/^(\d\d\d\d-\d\d-\d\d).+$/$1/;
-
-        return 0
-            unless $ddate le $cur;
-    }
-
-    # application variability
     return $self->_apply_email  if $self->t_email;
     return $self->_apply_userid if $self->t_userid;
 
@@ -269,7 +237,7 @@ sub _apply_email {
 }
 
 
-# called when we need to turn this item off
+# override
 sub unapply {
     my $self = $_[0];
     return unless $self->applied;
@@ -282,7 +250,7 @@ sub unapply {
 }
 
 
-# returns 1 if this item is allowed to be added to the shopping cart
+# override
 sub can_be_added {
     my ( $self, %opts ) = @_;
 
@@ -319,10 +287,7 @@ sub can_be_added {
 }
 
 
-# given another item, see if that item conflicts with this item (i.e.,
-# if you can't have both in your shopping cart at the same time).
-#
-# returns undef on "no conflict" else an error message.
+# override
 sub conflicts {
     my ( $self, $item ) = @_;
 
@@ -352,7 +317,7 @@ sub conflicts {
 }
 
 
-# render our target as a string
+# override
 sub t_html {
     my ( $self, %opts ) = @_;
 
@@ -366,22 +331,14 @@ sub t_html {
         } else {
             return "<strong>$random_user_string</strong>";
         }
-    } elsif ( my $uid = $self->t_userid ) {
-        my $u = LJ::load_userid( $uid );
-        return $u->ljuser_display
-            if $u;
-        return "<strong>invalid userid $uid</strong>";
+    } 
 
-    } elsif ( my $email = $self->t_email ) {
-        return "<strong>$email</strong>";
-
-    }
-
-    return "<strong>invalid/unknown target</strong>";
+    # otherwise, fall back upon default display
+    return $self->SUPER::t_html( %opts );
 }
 
 
-# render the item name as a string
+# override
 sub name_html {
     my $self = $_[0];
 
@@ -390,6 +347,12 @@ sub name_html {
     return LJ::Lang::ml( 'shop.item.account.name', { name => $name, num => $self->months } );
 }
 
+
+=head2 C<< $self->class_name >>
+
+Return the display name of this account class.
+
+=cut
 
 sub class_name {
     my $self = $_[0];
@@ -403,75 +366,33 @@ sub class_name {
 }
 
 
-# returns a short string talking about what this is
-sub short_desc {
-    my $self = $_[0];
-
-    # does not contain HTML, I hope
-    my $desc = $self->name_html;
-
-    my $for = $self->t_email;
-    unless ( $for ) {
-        my $u = LJ::load_userid( $self->t_userid );
-        $for = $u->user
-            if $u;
-    }
-
-    # FIXME: english strip
-    return "$desc for $for";
-}
-
-
-# this is a getter/setter so it is pulled out
-sub id {
-    return $_[0]->{id} unless defined $_[1];
-    return $_[0]->{id} = $_[1];
-}
-
-
-# gets/sets
-sub cartid {
-    return $_[0]->{cartid} unless defined $_[1];
-    return $_[0]->{cartid} = $_[1];
-}
-
-
-# gets/sets
-sub t_userid {
-    return $_[0]->{target_userid} unless defined $_[1];
-    return $_[0]->{target_userid} = $_[1];
-}
-
-
-# display who this is from
-sub from_html {
-    my $self = $_[0];
-
-    return $self->{from_name} if $self->{from_name};
-
-    my $from_u = LJ::load_userid( $self->from_userid );
-    return LJ::Lang::ml( 'widget.shopcart.anonymous' )
-        if $self->anonymous || ! LJ::isu( $from_u );
-
-    return $from_u->ljuser_display;
-}
-
-
 # simple accessors
-sub applied      { return $_[0]->{applied};         }
-sub cost         { return $_[0]->{cost};            }
+=head2 C<< $self->months >>
+
+Number of months of paid time to be applied.
+
+=head2 C<< $self->class >>
+
+Account class identifier; not for display.
+
+=head2 C<< $self->permanent >>
+
+Returns whether this item is for a permanent account, or just a normal paid.
+
+=head2 C<< $self->random >>
+
+Returns whether this item is for a random user.
+
+=head2 C<< $self->anonymous_target >>
+
+Returns whether this item for a random user should go to an anonymous user (true)
+or to an identified user (false)
+
+=cut 
 sub months       { return $_[0]->{months};          }
 sub class        { return $_[0]->{class};           }
-sub t_email      { return $_[0]->{target_email};    }
 sub permanent    { return $_[0]->months == 99;      }
-sub from_userid  { return $_[0]->{from_userid};     }
-sub deliverydate { return $_[0]->{deliverydate};    }
-sub anonymous    { return $_[0]->{anonymous};       }
 sub random       { return $_[0]->{random};          }
-sub noremove     { return $_[0]->{noremove};        }
-sub from_name    { return $_[0]->{from_name};       }
 sub anonymous_target { return $_[0]->{anonymous_target}; }
-sub cannot_conflict  { return $_[0]->{cannot_conflict};  }
-
 
 1;
