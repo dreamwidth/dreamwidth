@@ -49,10 +49,10 @@ The [[sitenameshort]] Team
 
 .intro=Use this form as often as you like, or just cut and paste this link and send from your own email account: <strong><a [[aopts]]>[[createlink]]</a></strong>
 
-.intro.code2<<
+.intro.code3<<
 You can use this form as often as you'd like. Invite codes that you've sent, but haven't been used to create accounts yet, are counted as unused.<br /><br />
 
-You currently have <strong>[[num]]</strong> unused invite codes available. The first five are displayed here. For the full list, or to get multiple codes at once, see <a [[aopts]]>your complete list of invite codes</a>. 
+You currently have <strong>[[num]]</strong> unused invite codes available. The first five are displayed here. For the full list, or to get multiple codes at once, see <a [[aopts]]>your complete list of invite codes</a>. You can <a [[notif]]>choose to be notified</a> when someone you invite creates a journal.
 .
 
 .msg<<

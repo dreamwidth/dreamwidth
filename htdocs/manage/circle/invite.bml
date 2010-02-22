@@ -193,7 +193,7 @@
         $body .= $findfriends_intro;
     } elsif ( $LJ::USE_ACCT_CODES ) {
         my $unusedinvites = DW::InviteCodes->unused_count( userid => $u->id );
-        $body .= "<?p " . BML::ml('.intro.code2', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" , num => $unusedinvites } ) . " p?>";
+        $body .= "<?p " . BML::ml('.intro.code3', { aopts => "href='$LJ::SITEROOT/manage/invitecodes'" , num => $unusedinvites, notif => "href='$LJ::SITEROOT/manage/settings/?cat=notifications'" } ) . " p?>";
     } else {
         $body .= "<?p " . BML::ml('.intro', { aopts => "href='$create_link'", createlink => $create_link} ) . " p?>";
     }
