@@ -250,8 +250,8 @@ body<=
     # Build the userpic image tag for the entry's userpic
     my %userpics;
     if ($userpic) {
-        my $apre = "<td class='userpic' valign='bottom'>";
-        my $apost = "</td>";
+        my $apre = "<td class='userpic' valign='bottom'><a href='". $up->allpics_base . "'>";
+        my $apost = "</a></td>";
 
         # for each image, get the html imgtag
         $ret .= $apre . $userpic->imgtag( keyword => $props->{picture_keyword}, user => $up ) . $apost;
@@ -569,7 +569,7 @@ body<=
                    );
 
                    # build the imgtag for the userpic associated with the keyword
-                   $ret .= "<div style=\"float:left\">" .$postpic->imgtag( %kwopts ) . "</div>";
+                   $ret .= "<div style=\"float:left\"><a href='" . $upost->allpics_base . "'>" . $postpic->imgtag( %kwopts ) . "</a></div>";
 
                 }
 
