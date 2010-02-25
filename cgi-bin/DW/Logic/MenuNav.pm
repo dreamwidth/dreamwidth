@@ -117,7 +117,7 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/manage/circle/editfilters",
+                    url => "$LJ::SITEROOT/manage/subscriptions/filters",
                     text => "menunav.organize.managefilters",
                     display => $loggedin,
                 },

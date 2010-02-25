@@ -53,6 +53,6 @@
 
 .text.sec=<strong>Security note:</strong> If you wish to delete an access filter and make a new access filter, do <strong>not</strong> do this by renaming one access filter and then editing it. If you do this, all your old entries which are accessible to the old access filter will then be accessible to the new access filter.
 
-.title2=Manage Filters
+.title2=Manage Access Filters
 
 .yourgroups=Your access filters:

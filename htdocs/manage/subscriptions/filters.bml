@@ -35,6 +35,9 @@ body<=
               "DW.userIsPaid = " . ( $remote->is_paid ? 'true' : 'false' ) . ";\n" .
               "</script>\n";
 
+    # redirect to managing access filters
+    $ret .= "<?standout " . BML::ml( '.accessfilters', { aopts => "href='$LJ::SITEROOT/manage/circle/editfilters'" } ) . " standout?>\n\n"; 
+
     # and now the main page HTML
     $ret .= <<EOF;
 
