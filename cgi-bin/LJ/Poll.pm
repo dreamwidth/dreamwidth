@@ -894,7 +894,7 @@ sub render {
     }
     $ret .= "<br />\n";
     $ret .= "<span style='font-family: monospace; font-weight: bold; font-size: 1.2em;'>" .
-            BML::ml('poll.isclosed') . "</span><br />\n"
+            LJ::Lang::ml( 'poll.isclosed' ) . "</span><br />\n"
         if ($self->is_closed);
 
     my $whoview = $self->whoview;
@@ -906,7 +906,7 @@ sub render {
 
     if ( $mode eq 'enter' && $self->can_view( $remote ) ) {
         $ret .= "<br />\n";
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . BML::ml( 'poll.seeresults' ) . "</a> ]  ";
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=results'>" . LJ::Lang::ml( 'poll.seeresults' ) . "</a> ]  ";
     } elsif ( $mode eq 'results' ) {
         #include number of participants
         my $sth = $self->journal->prepare( "SELECT count(DISTINCT userid) FROM pollresult2 WHERE pollid=? AND journalid=?" );
@@ -915,7 +915,7 @@ sub render {
         $ret .= LJ::Lang::ml('poll.participants', { 'total' => $participants });
         $ret .= "<br />\n";
         # change vote link
-        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter'>" . BML::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
+        $ret .= "[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=enter'>" . LJ::Lang::ml( 'poll.changevote' ) . "</a> ]" if $self->can_vote( $remote ) && !$self->is_closed;
     } else {
         $ret .= "<br />\n";
     }
