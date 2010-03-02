@@ -3716,6 +3716,7 @@ function print_module_calendar() {
 
     if ($*module_calendar_opts_type=="horizontal") {
         open_module("calendar","", "");
+        "<div class='calendar-horizontal'>";
         print $mon->month_format("%%month%%", true);
         foreach var YearWeek week ($mon.weeks) {
             foreach var YearDay day ($week.days) {
@@ -3728,6 +3729,7 @@ function print_module_calendar() {
             }
         }
         print $mon->month_format("%%yyyy%%", true);
+        "</div>";
         close_module();
     }
     else {
