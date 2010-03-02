@@ -25,6 +25,11 @@ package LJ::S2Theme::tranquilityiii::lilac;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw() }
 
+package LJ::S2Theme::tranquilityiii::marbleiii;
+use base qw( LJ::S2Theme::tranquilityiii );
+sub cats { qw( ) }
+sub designer { "dancing_serpent" }
+
 package LJ::S2Theme::tranquilityiii::nightsea;
 use base qw( LJ::S2Theme::tranquilityiii );
 sub cats { qw( base ) }
