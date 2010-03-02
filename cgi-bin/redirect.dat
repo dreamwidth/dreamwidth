@@ -55,3 +55,10 @@
 /translate/searchform.bml           /admin/translate/searchform
 /translate/teams.bml                /admin/translate/teams
 /translate/welcome.bml              /admin/translate/welcome
+/syn                                /feeds
+/syn/                               /feeds
+/syn/index.bml                      /feeds
+/syn/list                           /feeds/list
+/syn/list.bml                       /feeds/list
+/syn/raw                            /feeds/raw
+/syn/raw.bml                        /feeds/raw
