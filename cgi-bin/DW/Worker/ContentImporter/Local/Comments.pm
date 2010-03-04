@@ -26,7 +26,7 @@ DW::Worker::ContentImporter::Local::Comments - Local data utilities for comments
 
 These functions are part of the Saving API for comments.
 
-=head2 C<< $class->get_comment_map( $user, $hashref )
+=head2 C<< $class->get_comment_map( $user, $hashref ) >>
 
 Returns a hashref mapping import_source keys to jtalkids
 
@@ -158,5 +158,24 @@ sub insert_comment {
     return LJ::Talk::Post::enter_imported_comment( $u, $parent, $item, $comment, $date, \$errref );
 }
 
+=head1 AUTHORS
+
+=over
+
+=item Andrea Nall <anall@andreanall.com>
+
+=item Mark Smith <mark@dreamwidth.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2009 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+=cut
 
 1;

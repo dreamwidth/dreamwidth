@@ -828,7 +828,11 @@ Wrapper around BML::decl_params().
 
 Wrapper around LJ::form_auth().
 
+=back
+
 =head2 AJAX-Related Methods
+
+=over 4
 
 =item C<js>
 
@@ -842,7 +846,11 @@ widgets can be used.  If a C<page_js_obj> parameter is passed in, its value is
 used to create a JavaScript variable that holds the widget JavaScript object in
 it.
 
+=back
+
 =head2 Flags for Widgets
+
+=over 4
 
 =item C<ajax>
 
@@ -858,7 +866,11 @@ Can be subclassed.
 Returns if a widget supports authas authentication or not (in GET or POST).  Can
 be subclassed.
 
+=back
+
 =head2 Form Utility Methods
+
+=over 4
 
 =item C<start_form>
 
@@ -913,7 +925,11 @@ if C<handle_post> is being used.
 
 The prefix that's added on to form element names to make them widget-specific.
 
+=back
+
 =head2 Translation String Methods
+
+=over 4
 
 =item C<ml_key>
 

@@ -28,7 +28,7 @@ DW::Worker::ContentImporter::Local::Entries - Local data utilities for entries
 
 These functions are part of the Saving API for entries.
 
-=head2 C<< $class->get_entry_map( $user, $hashref )
+=head2 C<< $class->get_entry_map( $user, $hashref ) >>
 
 Returns a hashref mapping import_source keys to jitemids
 
@@ -164,5 +164,24 @@ sub post_event {
     # flow will never get here
 }
 
+=head1 AUTHORS
+
+=over
+
+=item Andrea Nall <anall@andreanall.com>
+
+=item Mark Smith <mark@dreamwidth.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2009 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+=cut
 
 1;

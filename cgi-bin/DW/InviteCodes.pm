@@ -275,7 +275,7 @@ sub use_code {
     return 1; # 1 means success? Needs error return in that case.
 }
 
-=head2 C<< $class->use_promo_code
+=head2 C<< $class->use_promo_code >>
 
 Increments the current_count on the given promo code.
 

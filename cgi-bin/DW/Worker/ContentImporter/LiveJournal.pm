@@ -18,6 +18,14 @@
 
 package DW::Worker::ContentImporter::LiveJournal;
 
+=head1 NAME
+
+DW::Worker::ContentImporter::LiveJournal - Importer worker for LiveJournal-based sites.
+
+=head1 API
+
+=cut
+
 use strict;
 use base 'DW::Worker::ContentImporter';
 
@@ -40,6 +48,11 @@ sub retry_delay {
     return ( 10, 30, 60, 300, 600 )[$fails];
 }
 
+=head2 C<< $class->remap_groupmask( $data, $allowmask ) >>
+
+Converts a remote groupmask into a local groupmask.
+
+=cut
 
 sub remap_groupmask {
     my ( $class, $data, $allowmask ) = @_;
@@ -71,6 +84,9 @@ sub remap_groupmask {
 
     return $newmask;
 }
+
+=head2 C<< $class->get_feed_account_from_url( $data, $url, $acct ) >>
+=cut
 
 sub get_feed_account_from_url {
     my ( $class, $data, $url, $acct ) = @_;
@@ -133,6 +149,14 @@ sub get_feed_account_from_url {
     return undef;
 }
 
+=head2 C<< $class->get_remapped_userids( $data, $user ) >>
+
+Remaps a remote user to local userids.
+
+( $access_uid, $read_uid )
+
+=cut
+
 sub get_remapped_userids {
     my ( $class, $data, $user ) = @_;
 
@@ -174,6 +198,12 @@ sub get_remapped_userids {
     return ( $oid, $fid );
 }
 
+=head2 C<< $class->remap_username_feed( $data, $username ) >>
+
+Remaps a remote user to a local feed.
+
+=cut
+
 sub remap_username_feed {
     my ( $class, $data, $username ) = @_;
 
@@ -191,6 +221,12 @@ sub remap_username_feed {
 
     return $acct;
 }
+
+=head2 C<< $class->remap_username_friend( $data, $username ) >>
+
+Remaps a remote user to a local OpenID user.
+
+=cut
 
 sub remap_username_friend {
     my ( $class, $data, $username ) = @_;
@@ -244,11 +280,23 @@ sub remap_username_friend {
     }
 }
 
+=head2 C<< $class->remap_lj_user( $data, $event ) >>
+
+Remaps lj user tags to point to the remote site.
+
+=cut
+
 sub remap_lj_user {
     my ( $class, $data, $event ) = @_;
     $event =~ s/(<lj[^>]+?(user|comm|syn)=["']?(.+?)["' ]?>)/<lj site="$data->{hostname}" $2="$3">/gi;
     return $event;
 }
+
+=head2 C<< $class->get_lj_session( $opts ) >>
+
+Returns a LJ session cookie.
+
+=cut
 
 sub get_lj_session {
     my ( $class, $imp ) = @_;
@@ -260,7 +308,7 @@ sub get_lj_session {
     return $r->{ljsession};
 }
 
-=head2 C<< $class->get_xpost_map( $user, $hashref )
+=head2 C<< $class->get_xpost_map( $user, $hashref ) >>
 
 Returns a hashref mapping jitemids to crossposted entries.
 
@@ -302,6 +350,12 @@ sub get_xpost_map {
 
     return \%map;
 }
+
+=head2 C<< $class->find_matching_acct( $u, $data ) >>
+
+Finds the External Account ID, if this user is set up to xpost.
+
+=cut
 
 sub find_matching_acct {
     my ( $class, $u, $data ) = @_;
@@ -363,6 +417,12 @@ sub xmlrpc_call_helper {
     return $res->result;
 }
 
+=head2 C<< $class->call_xmlrpc( $opts, $mode, $hash ) >>
+
+Call XMLRPC request.
+
+=cut
+
 sub call_xmlrpc {
     # also a way to help people do xmlrpc stuff easily.  this method actually does the
     # challenge response stuff so we never send the user's password or md5 digest over
@@ -396,6 +456,14 @@ sub call_xmlrpc {
 
     return $res;
 }
+
+=head2 C<< $class->get_foaf_from( $url ) >>
+
+Get FOAF data.
+
+Returns ( \%items, \@interests, \@schools ).
+
+=cut
 
 sub get_foaf_from {
     my ( $class, $url ) = @_;
@@ -483,5 +551,25 @@ sub get_foaf_from {
 
     return ( \%items, \@interests, \@schools );
 }
+
+=head1 AUTHORS
+
+=over
+
+=item Andrea Nall <anall@andreanall.com>
+
+=item Mark Smith <mark@dreamwidth.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2009 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+=cut
 
 1;

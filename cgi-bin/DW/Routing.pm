@@ -41,11 +41,21 @@ LJ::ModuleLoader->require_subclasses( "DW::Controller" );
 
 DW::Routing - Module to allow calling non-BML controller/views.
 
-=head1 SYNOPSIS
-
 =head1 Page Call API
 
 =head2 C<< $class->call( $r, %opts ) >>
+
+Valid options:
+
+=over
+
+=item role - explicitly define the role
+=item username - define the username, implies username role
+=item ssl - this is a SSL page, implies the ssl role
+
+=back
+
+This method should be directly returned by the caller if defined.
 
 =cut
 
@@ -58,6 +68,18 @@ sub call {
 }
 
 =head2 C<< $class->get_call_opts( $r, %opts ) >>
+
+Valid options:
+
+=over
+
+=item role - explicitly define the role
+=item username - define the username, implies username role
+=item ssl - this is a SSL page, implies the ssl role
+
+=back
+
+Returns a call_opts hash, or undefined.
 
 =cut
 
@@ -265,8 +287,6 @@ sub register_string {
 
 =item sub - sub
 
-=over
-
 =item Opts:
 
 =over
@@ -284,6 +304,7 @@ sub register_string {
 =back
 
 =cut
+
 sub register_regex {
     my ( $class, $regex, $sub, %opts ) = @_;
 
@@ -356,9 +377,13 @@ sub username { return $_[0]->{username}; }
 
 =head1 AUTHOR
 
+=over
+
 =item Andrea Nall <anall@andreanall.com>
 
 =item Mark Smith <mark@dreamwidth.org>
+
+=back
 
 =head1 COPYRIGHT AND LICENSE
 

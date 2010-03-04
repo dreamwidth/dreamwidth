@@ -377,6 +377,7 @@ Name of the sender in special cases. For example, can be the site name for
 promotions. Not exposed/settable via the shop.
 
 =cut
+
 sub applied      { return $_[0]->{applied};         }
 sub cost         { return $_[0]->{cost};            }
 sub t_email      { return $_[0]->{target_email};    }

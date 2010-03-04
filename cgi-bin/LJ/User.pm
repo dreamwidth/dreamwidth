@@ -89,12 +89,13 @@ use LJ::S2Theme;
 ###  99. Miscellaneous Legacy Items
 
 
-
-
-
 ########################################################################
 ### 1. Creating and Deleting Accounts
 
+=head1 LJ::User Methods
+
+=head2 Creating and Deleting Accounts
+=cut
 
 sub can_expunge {
     my $u = shift;
@@ -379,9 +380,11 @@ sub who_invited {
 }
 
 
-
 ########################################################################
 ###  2. Statusvis and Account Types
+
+=head2 Statusvis and Account Types
+=cut
 
 sub get_previous_statusvis {
     my $u = shift;
@@ -592,10 +595,11 @@ sub statusvisdate_unix {
 }
 
 
-
 ########################################################################
 ### 3. Working with All Types of Account
 
+=head2 Working with All Types of Account
+=cut
 
 # this will return a hash of information about this user.
 # this is useful for JavaScript endpoints which need to dump
@@ -843,6 +847,8 @@ sub unset_remote
 ########################################################################
 ### 4. Login, Session, and Rename Functions
 
+=head2 Login, Session, and Rename Functions
+=cut
 
 # returns a new LJ::Session object, or undef on failure
 sub create_session
@@ -1128,6 +1134,8 @@ sub _logout_common {
 ########################################################################
 ### 5. Database and Memcache Functions
 
+=head2 Database and Memcache Functions
+=cut
 
 sub begin_work {
     my $u = shift;
@@ -1627,6 +1635,9 @@ sub writer {
 ########################################################################
 ### 6. What the App Shows to Users
 
+=head2 What the App Shows to Users
+=cut
+
 # format unixtimestamp according to the user's timezone setting
 sub format_time {
     # FIXME: this function is unused as of Aug 2009 - kareila
@@ -1745,6 +1756,8 @@ sub tosagree_verify {
 ########################################################################
 ### 7. Userprops, Caps, and Displaying Content to Others
 
+=head2 Userprops, Caps, and Displaying Content to Others
+=cut
 
 sub add_to_class {
     my ($u, $class) = @_;
@@ -1993,12 +2006,13 @@ sub clear_prop {
     return 1;
 }
 
-=head2 C<< $self->clear_daycounts( @security ) >>
+=head3 C<< $self->clear_daycounts( @security ) >>
 Clears the day counts relevant to the entry security
 
 security is an array of strings: "public", a number (allowmask), "private"
 
 =cut
+
 sub clear_daycounts
 {
     my ( $u, @security ) = @_;
@@ -2658,6 +2672,9 @@ sub _lazy_migrate_infoshow {
 ########################################################################
 ### 8. Formatting Content Shown to Users
 
+=head2 Formatting Content Shown to Users
+=cut
+
 sub ajax_auth_token {
     return LJ::Auth->ajax_auth_token( @_ );
 }
@@ -2894,6 +2911,8 @@ sub set_bio {
 ########################################################################
 ### 9. Logging and Recording Actions
 
+=head2 Logging and Recording Actions
+=cut
 
 # <LJFUNC>
 # name: LJ::User::dudata_set
@@ -2952,6 +2971,8 @@ sub log_event {
 ########################################################################
 ### 10. Banning-Related Functions
 
+=head2 Banning-Related Functions
+=cut
 
 sub ban_user {
     my ($u, $ban_u) = @_;
@@ -3005,7 +3026,8 @@ sub unban_user_multi {
 ### 11. Birthdays and Age-Related Functions
 ###   FIXME: Some of these may be outdated when we remove under-13 accounts.
 
-
+=head2 Birthdays and Age-Related Functions
+=cut
 
 # Users age based off their profile birthdate
 sub age {
@@ -3327,6 +3349,8 @@ sub usersearch_age_with_expire {
 ########################################################################
 ### 12. Comment-Related Functions
 
+=head2 Comment-Related Functions
+=cut
 
 # get recent talkitems posted to this user
 # args: maximum number of comments to retrieve
@@ -3424,6 +3448,8 @@ sub num_comments_received {
 ########################################################################
 ### 13. Community-Related Functions and Authas
 
+=head2 Community-Related Functions and Authas
+=cut
 
 sub can_manage {
     return LJ::can_manage( @_ );
@@ -3636,6 +3662,8 @@ sub trusts_or_has_member {
 ########################################################################
 ### 14. Adult Content Functions
 
+=head2 Adult Content Functions
+=cut
 
 # defined by the user
 # returns 'none', 'concepts' or 'explicit'
@@ -3735,6 +3763,8 @@ sub should_show_in_search_results {
 ########################################################################
 ###  15. Email-Related Functions
 
+=head2 Email-Related Functions
+=cut
 
 sub delete_email_alias {
     my $u = shift;
@@ -3909,6 +3939,9 @@ sub validated_mbox_sha1sum {
 
 ########################################################################
 ###  16. Entry-Related Functions
+
+=head2 Entry-Related Functions
+=cut
 
 # front-end to recent_entries, which forces the remote user to be
 # the owner, so we get everything.
@@ -4213,6 +4246,9 @@ sub third_party_notify_list_remove {
 ########################################################################
 ###  17. Interest-Related Functions
 
+=head2 Interest-Related Functions
+=cut
+
 # $opts is optional, with keys:
 #    forceids => 1   : don't use memcache for loading the intids
 #    forceints => 1   : don't use memcache for loading the interest rows
@@ -4446,6 +4482,8 @@ sub set_interests {
 ########################################################################
 ###  18. Jabber-Related Functions
 
+=head2 Jabber-Related Functions
+=cut
 
 # Hide the LJ Talk field on profile?  opt_showljtalk needs a value of 'N'.
 sub hide_ljtalk {
@@ -4555,6 +4593,9 @@ sub show_ljtalk {
 
 ########################################################################
 ###  19. OpenID and Identity Users
+
+=head2 OpenID and Identity Users
+=cut
 
 # returns a true value if user has a reserved 'ext' name.
 sub external {
@@ -4744,6 +4785,9 @@ sub rename_identity {
 ########################################################################
 ###  20. Page Notices Functions
 
+=head2 Page Notices Functions
+=cut
+
 sub dismissed_page_notices {
     my $u = shift;
 
@@ -4807,6 +4851,9 @@ sub has_dismissed_page_notice {
 
 ########################################################################
 ###  21. Password Functions
+
+=head2 Password Functions
+=cut
 
 sub can_receive_password {
     my ($u, $email) = @_;
@@ -4934,6 +4981,8 @@ sub revoke_priv_all {
 ########################################################################
 ###  24. Styles and S2-Related Functions
 
+=head2 Styles and S2-Related Functions
+=cut
 
 sub journal_base {
     my $u = shift;
@@ -5032,6 +5081,8 @@ sub view_priv_check {
 ########################################################################
 ###  25. Subscription, Notifiction, and Messaging Functions
 
+=head2 Subscription, Notifiction, and Messaging Functions
+=cut
 
 # this is the count used to check the maximum subscription count
 sub active_inbox_subscription_count {
@@ -5250,6 +5301,9 @@ sub subscriptions {
 ########################################################################
 ### 26. Syndication-Related Functions
 
+=head2 Syndication-Related Functions
+=cut
+
 # retrieve hash of basic syndicated info
 sub get_syndicated {
     my $u = shift;
@@ -5273,6 +5327,9 @@ sub get_syndicated {
 
 ########################################################################
 ###  27. Tag-Related Functions
+
+=head2 Tag-Related Functions
+=cut
 
 # can $u add existing tags to $targetu's entries?
 sub can_add_tags_to {
@@ -5342,6 +5399,9 @@ sub tags {
 
 ########################################################################
 ###  28. Userpic-Related Functions
+
+=head2 Userpic-Related Functions
+=cut
 
 # <LJFUNC>
 # name: LJ::User::activate_userpics
@@ -5607,6 +5667,10 @@ use Carp;
 ########################################################################
 ###  1. Creating and Deleting Accounts
 
+=head1 LJ Methods
+
+=head2 Creating and Deleting Accounts (LJ)
+=cut
 
 # <LJFUNC>
 # name: LJ::create_account
@@ -5674,6 +5738,8 @@ sub random_cluster {
 ########################################################################
 ###  2. Working with All Types of Accounts
 
+=head2 Working with All Types of Accounts (LJ)
+=cut
 
 # <LJFUNC>
 # name: LJ::canonical_username
@@ -6152,6 +6218,8 @@ sub want_userid
 ########################################################################
 ###  3. Login, Session, and Rename Functions
 
+=head2 Login, Session, and Rename Functions (LJ)
+=cut
 
 # returns the country that the remote IP address comes from
 # undef is returned if the country cannot be determined from the IP
@@ -6338,6 +6406,8 @@ sub unset_remote
 ########################################################################
 ###  5. Database and Memcache Functions
 
+=head2 Database and Memcache Functions (LJ)
+=cut
 
 # $dom: 'L' == log, 'T' == talk, 'M' == modlog, 'S' == session,
 #       'R' == memory (remembrance), 'K' == keyword id,
@@ -6691,6 +6761,9 @@ sub _set_u_req_cache {
 ########################################################################
 ###  6. What the App Shows to Users
 
+=head2 What the App Shows to Users (LJ)
+=cut
+
 # <LJFUNC>
 # name: LJ::get_timezone
 # des: Gets the timezone offset for the user.
@@ -6894,6 +6967,9 @@ sub ljuser
 
 ########################################################################
 ###  7. Userprops, Caps, and Displaying Content to Others
+
+=head2 Userprops, Caps, and Displaying Content to Others (LJ)
+=cut
 
 # <LJFUNC>
 # name: LJ::get_bio
@@ -7277,6 +7353,8 @@ sub set_userprop
 ########################################################################
 ###  8. Formatting Content Shown to Users
 
+=head2 Formatting Content Shown to Users (LJ)
+=cut
 
 # Returns HTML to display user search results
 # Args: %args
@@ -7414,6 +7492,9 @@ sub user_search_display {
 
 ########################################################################
 ###  9. Logging and Recording Actions
+
+=head2 Logging and Recording Actions (LJ)
+=cut
 
 # <LJFUNC>
 # name: LJ::infohistory_add
@@ -7555,6 +7636,9 @@ sub rate_log
 ########################################################################
 ###  12. Comment-Related Functions
 
+=head2 Comment-Related Functions (LJ)
+=cut
+
 # <LJFUNC>
 # name: LJ::delete_all_comments
 # des: deletes all comments from a post, permanently, for when a post is deleted
@@ -7600,6 +7684,8 @@ sub delete_all_comments {
 ########################################################################
 ###  13. Community-Related Functions and Authas
 
+=head2 Community-Related Functions and Authas (LJ)
+=cut
 
 sub can_delete_journal_item {
     return LJ::can_manage(@_);
@@ -7725,6 +7811,9 @@ sub get_postto_list {
 ########################################################################
 ###  15. Email-Related Functions
 
+=head2 Email-Related Functions (LJ)
+=cut
+
 sub set_email {
     my ($userid, $email) = @_;
 
@@ -7746,6 +7835,9 @@ sub set_email {
 
 ########################################################################
 ###  17. Interest-Related Functions
+
+=head2 Interest-Related Functions (LJ)
+=cut
 
 sub interest_string_to_list {
     my $intstr = shift;
@@ -7802,6 +7894,9 @@ sub validate_interest_list {
 
 ########################################################################
 ###  19. OpenID and Identity Functions
+
+=head2 OpenID and Identity Functions (LJ)
+=cut
 
 # create externally mapped user.
 # return uid of LJ user on success, undef on error.
@@ -7915,6 +8010,9 @@ sub get_extuser_uid
 ########################################################################
 ###  21. Password Functions
 
+=head2 Password Functions (LJ)
+=cut
+
 # Checks if they are flagged as having a bad password and redirects
 # to changepassword.bml.  If returl is on it returns the URL to
 # redirect to vs doing the redirect itself.  Useful in non-BML context
@@ -7960,6 +8058,9 @@ sub set_password {
 ########################################################################
 ###  22. Priv-Related Functions
 
+=head2 Priv-Related Functions (LJ)
+=cut
+
 # <LJFUNC>
 # name: LJ::load_user_privs
 # class:
@@ -8000,6 +8101,8 @@ sub load_user_privs
 ########################################################################
 ###  24. Styles and S2-Related Functions
 
+=head2 Styles and S2-Related Functions (LJ)
+=cut
 
 # returns undef on error, or otherwise arrayref of arrayrefs,
 # each of format [ year, month, day, count ] for all days with
@@ -8576,6 +8679,9 @@ sub make_journal
 
 ########################################################################
 ###  28. Userpic-Related Functions
+
+=head2 Userpic-Related Functions (LJ)
+=cut
 
 # <LJFUNC>
 # name: LJ::userpic_count

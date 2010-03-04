@@ -19,6 +19,10 @@ no warnings 'uninitialized';
 
 package LJ;
 
+=head1 Methods
+
+=cut
+
 # <LJFUNC>
 # name: LJ::sysban_check
 # des: Given a 'what' and 'value', checks to see if a ban exists.
@@ -276,13 +280,14 @@ sub _db_sysban_populate_full {
 }
 
 
-=h2 C<< LJ::sysban_populate_full_by_value( $value, @types ) >>
+=head2 C<< LJ::sysban_populate_full_by_value( $value, @types ) >>
 
 List all sysbans for the given value, of the specified types. This can be used, for example, to limit the sysban to only the privs that this user can see.
 Returns a hashref of hashes in the format:
     what => { expire => expiration, note => note, banid => banid }
 
 =cut
+
 sub sysban_populate_full_by_value {
     my ( $value, @types ) = @_;
     return LJ::_db_sysban_populate_full_by_value( $value, @types );

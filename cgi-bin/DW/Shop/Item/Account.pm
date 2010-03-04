@@ -388,7 +388,8 @@ Returns whether this item is for a random user.
 Returns whether this item for a random user should go to an anonymous user (true)
 or to an identified user (false)
 
-=cut 
+=cut
+
 sub months       { return $_[0]->{months};          }
 sub class        { return $_[0]->{class};           }
 sub permanent    { return $_[0]->months == 99;      }

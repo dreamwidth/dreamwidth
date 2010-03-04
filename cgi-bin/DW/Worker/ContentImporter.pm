@@ -51,6 +51,7 @@ $friends is a reference to an array of hashrefs, with each hashref with the foll
   }
 
 =cut
+
 sub merge_trust {
     my ( $class, $u, $opts, $friends ) = @_;
     foreach my $friend ( @$friends ) {
@@ -70,6 +71,7 @@ $friends is a reference to an array of hashrefs, with each hashref with the foll
   }
 
 =cut
+
 sub merge_watch {
     my ( $class, $u, $opts, $friends ) = @_;
     foreach my $friend ( @$friends ) {
@@ -164,7 +166,7 @@ sub temp_fail {
     return;
 }
 
-=head2 C<< $class->ok( $import_data, $item, $job, $show )>>
+=head2 C<< $class->ok( $import_data, $item, $job, $show ) >>
 
 Successfully end this import job.
 

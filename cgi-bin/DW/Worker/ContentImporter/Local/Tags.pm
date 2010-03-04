@@ -40,5 +40,24 @@ sub merge_tags {
     }
 }
 
+=head1 AUTHORS
+
+=over
+
+=item Andrea Nall <anall@andreanall.com>
+
+=item Mark Smith <mark@dreamwidth.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2009 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself. For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+
+=cut
 
 1;

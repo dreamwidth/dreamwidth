@@ -160,6 +160,7 @@ sub load {
 Accepts the same arguments as $class->load, but returns only the latest row
 
 =cut
+
 sub load_latest {
     my $self = shift;
     my $rows = $self->load( @_ );
