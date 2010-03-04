@@ -65,7 +65,7 @@ set color_footer_link_visited = "#FFFFFF";
 
 #NEWLAYER: modish/nnwm2009
 layerinfo type = "theme";
-layerinfo name = "NaNoWriMo 2009";
+layerinfo name = "NNWM 2009";
 layerinfo redist_uniq = "modish/nnwm2009";
 layerinfo author_name = "zvi";
 

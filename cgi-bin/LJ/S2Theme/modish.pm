@@ -8,13 +8,11 @@ sub designer { "branchandroot" }
 
 package LJ::S2Theme::modish::cleansheets;
 use base qw( LJ::S2Theme::modish );
-
 sub cats { qw ( ) }
 sub designer { "zvi" }
 
 package LJ::S2Theme::modish::greyscale;
 use base qw( LJ::S2Theme::modish );
-
 sub cats { qw ( featured ) }
 sub designer { "twtd" }
 
@@ -30,7 +28,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::modish::verdigris;
 use base qw( LJ::S2Theme::modish );
-
 sub cats { qw ( ) }
 sub designer { "zvi" }
+
 1;
