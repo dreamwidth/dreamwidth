@@ -3,7 +3,6 @@ layerinfo "type" = "theme";
 layerinfo "name" = "Atomic Orange";
 layerinfo redist_uniq = "funkycircles/atomicorange";
 layerinfo author_name = "900degrees";
-layerinfo source_viewable = 1;
 
 set layout_resources = [ { "name" => "Stuck in Tokyo", "url" => "http://www.colourlovers.com/palette/519675/stuck_in_tokyo" } ];
 
@@ -101,12 +100,12 @@ function Page::print_theme_stylesheet()
 
 }
 
+
 #NEWLAYER: funkycircles/chocolaterose
 layerinfo "type" = "theme";
 layerinfo "name" = "Chocolate Rose";
 layerinfo redist_uniq = "funkycircles/chocolaterose";
 layerinfo author_name = "900degrees";
-layerinfo source_viewable = 1;
 
 set layout_resources = [ { "name" => "Dirty Flamingo", "url" => "http://www.colourlovers.com/palette/854961/Dirty_Flamingo" } ];
 
@@ -179,12 +178,12 @@ set image_module_list = "funkycircles/chocolaterose-modulebullet.png";
 set image_module_list_active = "funkycircles/chocolaterose-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/chocolaterose-modulebullethover.png";
 
+
 #NEWLAYER: funkycircles/darkblue
 layerinfo "type" = "theme";
 layerinfo "name" = "Dark Blue";
 layerinfo redist_uniq = "funkycircles/darkblue";
 layerinfo author_name = "900degrees";
-layerinfo source_viewable = 1;
 
 ##===============================
 ## Page Colors
@@ -252,6 +251,7 @@ set image_entry_list_background_repeat = "no-repeat";
 set image_module_list = "funkycircles/darkblue-modulebullet.png";
 set image_module_list_active = "funkycircles/darkblue-modulebulletactive.png";
 set image_module_list_hover = "funkycircles/darkblue-modulebullethover.png";
+
 
 #NEWLAYER: funkycircles/darkpurple
 layerinfo "type" = "theme";
@@ -328,12 +328,12 @@ set image_module_list = "funkycircles/darkpurple-modulebullet.jpg";
 set image_module_list_active = "funkycircles/darkpurple-modulebulletactive.jpg";
 set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";
 
+
 #NEWLAYER: funkycircles/earthygreen
 layerinfo "type" = "theme";
 layerinfo "name" = "Earthy Green";
 layerinfo redist_uniq = "funkycircles/earthygreen";
 layerinfo author_name = "900degrees";
-layerinfo source_viewable = 1;
 
 set layout_resources = [ { "name" => "Good Mood Bug", "url" => "http://www.colourlovers.com/palette/621076/good_mood_bug" } ];
 
@@ -427,12 +427,12 @@ function Page::print_theme_stylesheet()
 
 }
 
+
 #NEWLAYER: funkycircles/industrialpink
 layerinfo "type" = "theme";
 layerinfo "name" = "Industrial Pink";
 layerinfo redist_uniq = "funkycircles/industrialpink";
 layerinfo author_name = "900degrees";
-layerinfo source_viewable = 1;
 
 ##===============================
 ## Page Colors
@@ -525,12 +525,12 @@ function Page::print_theme_stylesheet()
 
 }
 
+
 #NEWLAYER: funkycircles/industrialteal
 layerinfo "type" = "theme";
 layerinfo "name" = "Industrial Teal";
 layerinfo redist_uniq = "funkycircles/industrialteal";
 layerinfo author_name = "900degrees";
-layerinfo source_viewable = 1;
 
 set layout_resources = [ { "name" => "Top of the Pops", "url" => "http://www.colourlovers.com/palette/943055/Top_of_the_Pops" } ];
 
@@ -625,6 +625,7 @@ function Page::print_theme_stylesheet()
 
 }
 
+
 #NEWLAYER: funkycircles/lightondark
 layerinfo type = "theme";
 layerinfo name = "Light On Dark";
@@ -712,6 +713,7 @@ set image_background_header_url = "funkycircles/darkpurple-header.jpg";
 set image_background_header_repeat = "no-repeat";
 set image_module_list = "funkycircles/darkpurple-modulebullet.jpg";
 set image_module_list_hover = "funkycircles/darkpurple-modulebullethover.jpg";
+
 
 #NEWLAYER: funkycircles/nevermore
 layerinfo type = "theme";
@@ -834,6 +836,7 @@ set image_background_page_url = "funkycircles/nevermore-background.png";
 set image_entry_list_background_position = "top center";
 set image_entry_list_background_repeat = "no-repeat";
 
+
 #NEWLAYER: funkycircles/nnwm2009
 layerinfo type = "theme";
 layerinfo name = "NNWM 2009";
@@ -866,7 +869,6 @@ layerinfo "type" = "theme";
 layerinfo "name" = "Sea Blues";
 layerinfo redist_uniq = "funkycircles/seablues";
 layerinfo author_name = "900degrees";
-layerinfo source_viewable = 1;
 
 ##===============================
 ## Page Colors
