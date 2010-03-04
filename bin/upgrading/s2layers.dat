@@ -34,6 +34,9 @@ crossroads/themes       theme+          crossroads/layout
 drifting/layout         layout          core2
 drifting/themes         theme+          drifting/layout
 
+easyread/layout         layout          core2
+easyread/themes         theme+          easyread/layout
+
 funkycircles/layout     layout(core2base/layout)    core2
 funkycircles/themes     theme+                      funkycircles/layout
 

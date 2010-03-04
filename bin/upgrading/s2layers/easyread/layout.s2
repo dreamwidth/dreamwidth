@@ -1,0 +1,653 @@
+layerinfo "type" = "layout";
+layerinfo "name" = "EasyRead";
+layerinfo redist_uniq = "easyread/layout";
+layerinfo author_name = "Ricky Buchanan";
+layerinfo "des" = "A journal layout which is friendly to low vision users who need a large font, and to screen reader users. Accessibility is paramount.";
+layerinfo author_email = "ricky@notdoneliving.net";
+set layout_authors = [ { "name" => "rb", "type" => "user" }];
+
+##===============================
+## Display settings - general
+##===============================
+
+propgroup presentation {
+    property use num_items_recent;
+    property use num_items_reading;
+    property use use_journalstyle_entry_page;
+    property use layout_type;
+    property use tags_page_type;
+}
+
+set layout_type = "one-column";
+
+##===============================
+## Journal style - colors
+##===============================
+
+propgroup colors {
+
+    property use color_page_background;
+    property use color_page_text;
+    property use color_page_link;
+    property use color_page_link_active;
+    property use color_page_link_visited;
+    property use color_page_title;
+  
+    property use color_header_background;
+
+    property use color_entry_background;
+    property use color_entry_text;
+  
+}
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "";
+set color_page_text = "";
+set color_page_link = "";
+set color_page_link_active = "";
+set color_page_link_visited = "";
+set color_page_title = "";
+set color_page_border = "";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_background = "";
+set color_entry_text = "";
+
+##===============================
+## Display settings - fonts
+##===============================
+
+propgroup fonts {
+    property use font_base;
+    property use font_fallback;
+    property use font_base_size;
+    property use font_base_units;
+    property use font_journal_title;
+    property use font_journal_title_size;
+    property use font_journal_title_units;
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_module_heading;
+    property use font_module_heading_units;
+    property use font_module_heading_size;
+    property use font_module_text;
+    property use font_module_text_units;
+    property use font_module_text_size;
+}
+set font_base = """APHont, "Helvetica Neue", Arial, Helvetica, Geneva""";
+set font_base_size = "1";
+set font_base_units = "em";
+set font_fallback = "sans-serif";
+set font_journal_title = """APHont, "Helvetica Neue", Arial, Helvetica, Geneva""";
+set font_journal_title_size = "3";
+set font_journal_title_units = "em";
+set font_journal_subtitle = """APHont, "Helvetica Neue", Arial, Helvetica, Geneva""";
+set font_journal_subtitle_size = "1.5";
+set font_journal_subtitle_units = "em";
+
+##===============================
+## Display settings - modules
+##===============================
+
+propgroup modules {
+    property use module_userprofile_group;
+    property use module_navlinks_group;
+    property use module_customtext_group;
+    property use module_calendar_group;
+    property use module_pagesummary_group;
+    property use module_tags_group;
+    property use module_links_group;
+    property use module_syndicate_group;
+    property use module_time_group;
+    property use module_poweredby_group;
+    property use module_credit_group;
+}
+
+# explicitly define what sections the layout has available
+set module_layout_sections = "none|(none)|one|Group One|two|Group Two";
+
+##===============================
+## Custom CSS
+##===============================
+
+propgroup customcss {
+    property use external_stylesheet;
+    property use include_default_stylesheet;
+    property use linked_stylesheet;
+    property use custom_css;
+}
+
+propgroup text {
+##===============================
+## Text - main navigation
+##===============================
+
+    property use text_view_recent;
+    property use text_view_friends;
+    property use text_view_network;
+    property use text_view_archive;
+    property use text_view_userinfo;
+    property use text_view_memories;
+    property use text_view_tags;
+
+##===============================
+## Text - entry comment-related
+##===============================
+
+    property use text_post_comment;
+    property use text_max_comments;
+    property use text_read_comments;
+    property use text_post_comment_friends;
+    property use text_read_comments_friends;
+
+    property use text_skiplinks_back;
+    property use text_skiplinks_forward;
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
+    property use text_tags;
+
+    property use text_entry_prev;
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_tell_friend;
+    property use text_mem_add;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
+    property use text_permalink;
+    property use text_stickyentry_subject;
+
+    property use text_module_customtext;
+    property use text_module_customtext_content;
+    property use text_module_customtext_url;
+}
+
+set module_userprofile_section = "one";
+set module_userprofile_show = true;
+
+set module_pagesummary_section = "one";
+set module_pagesummary_show = true;
+
+
+set module_navlinks_section = "two";
+set module_navlinks_show = true;
+
+set module_tags_section = "two";
+set module_tags_show = true;
+set module_tags_opts_type = "cloud";
+
+set module_links_section = "two";
+set module_links_show = true;
+
+
+set module_customtext_section = "two";
+set module_customtext_show = false;
+
+set module_syndicate_section = "two";
+set module_syndicate_show = true;
+
+set module_credit_section = "two";
+set module_credit_show = true;
+
+set module_time_section = "two";
+set module_time_show = true;
+
+set module_poweredby_section = "two";
+set module_poweredby_show = true;
+
+
+set module_calendar_section = "two";
+set module_calendar_show = false;
+
+
+set module_userprofile_order = 1;
+set module_pagesummary_order = 2;
+
+set module_navlinks_order = 10;
+set module_tags_order = 11;
+set module_links_order = 12;
+
+set module_customtext_order = 13;
+set module_syndicate_order = 14;
+set module_credit_order = 15;
+set module_time_order = 16;
+set module_poweredby_order = 17;
+
+set module_calendar_order = 18;
+
+function Page::print()
+{
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head profile="http://www.w3.org/2006/03/hcard http://purl.org/uF/hAtom/0.1/ http://gmpg.org/xfn/11">\n""";
+    $this->print_head();
+    $this->print_stylesheets();
+    $this->print_head_title();
+    """</head>""";
+    $this->print_wrapper_start();
+    $this->print_control_strip();
+    """
+    <div id="canvas">
+        <div class="inner">
+            <div id="header">
+                <div class="inner">
+                    """;
+                    $this->print_global_title();
+                    $this->print_global_subtitle();
+                    $this->print_title();
+    """
+                </div><!-- end header>inner -->
+            </div><!-- end header -->
+            <div id="content">
+                <div class="inner">
+                    <div id="secondary"><div class="inner">
+                        """;
+                        $this->print_module_section("one");
+    """
+                    </div></div><!--  end secondary and secondary>inner -->
+
+                    <div id="primary"><div class="inner">
+                        """; 
+                        $this->print_body();
+    """
+                    </div></div><!-- end primary and primary>inner -->
+                    <div id="tertiary"><div class="inner">
+                        """;
+                        $this->print_module_section("two");
+    """
+                    </div></div><!-- end tertiary and tertiary>inner -->
+                </div><!-- end content>inner -->
+            </div> <!-- end content -->
+        </div> <!-- end canvas>inner --> 
+    """;
+    
+    """
+    <div id="footer">
+        <div class="inner">
+            """;
+            print safe """
+                <div class="page-top"><a href="#">$*text_page_top</a></div>
+        </div><!-- end footer>inner -->
+    </div><!-- end footer -->
+    
+    </div> <!-- end canvas -->
+    """;
+    $this->print_wrapper_end();
+    """</html>""";
+}
+
+function Page::print_default_stylesheet {
+
+    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
+    var string page_colors = generate_color_css($*color_page_text, $*color_page_background, $*color_page_border);
+    var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
+    var string page_title_colors = generate_color_css($*color_page_title, new Color, new Color);
+    var string page_link_colors = generate_color_css($*color_page_link, new Color, new Color);
+    var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
+    var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
+    var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+
+"""<style type="text/css">""";
+
+start_css();
+"""/* Globals */
+ul {
+    margin-top: 0;
+}
+
+a {
+    $page_link_colors
+}
+
+a:visited {
+    $page_link_visited_colors
+}
+
+a:focus, a:active {
+    $page_link_active_colors
+}
+
+/* All posts & all navigation */
+#primary, #secondary, #tertiary, #footer {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: $page_font
+    $entry_colors
+    padding: 0px 1em;
+
+}
+
+/* General page background */
+body {
+    font-family: $page_font;
+    $page_colors
+}
+
+
+/*
+ * Journal Header
+ */
+
+#header {
+    padding: 10px;
+    color: $*color_page_title ;
+    background-color: $*color_header_background ;
+}
+
+#header h1#title {
+    font-weight: bold;
+    margin-bottom: 0;
+    $page_title_font
+}
+
+#header h2#subtitle {
+    font-style: italic;
+    margin-top: 0;
+    $page_subtitle_font
+}
+
+#header h2#pagetitle:before {
+    content: "This page: ";
+}
+
+/* Navigation at top/bottom of recent entries page */
+.navigation {
+    margin-top: 10px;
+}
+
+.navigation .inner ul:before {
+    content: "Navigation: ";
+}
+
+.navigation ul {
+    clear: left;
+    list-style: none;
+    font-weight: bold;
+    padding-left: 0;
+}
+
+.navigation .inner ul li {
+    display: inline;  
+}
+
+.navigation ul li.page-back:after {
+    content: " posts";
+}
+
+/*
+ * Page Header (module-section-one)
+ */
+
+ul.userlite-interaction-links {
+    list-style: none;
+    padding-left: 0;
+}
+
+ul.userlite-interaction-links li {
+    display: inline;
+}
+
+.module-photo.module img {
+    border: 0;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    float: left;
+}
+
+.module-section-one {
+    clear: left;
+}
+
+h2.module-header {
+    margin-top: 0;
+    margin-bottom: 0;
+    clear: left;
+}
+
+h2.module-header a {
+    text-decoration: none;
+}
+
+.module-navlinks ul li {
+    display: inline;
+}
+
+.module-tags_list ul.module-list {
+    list-style: none;
+    padding-left: 0;
+    display: inline;
+}
+
+.module-tags_list ul.module-list li {
+    display: inline;
+}
+
+.module-tags_list .manage-tags-link:before {
+    content: "(";
+}
+
+.module-tags_list .manage-tags-link:after {
+    content: ")";
+}
+
+/*
+ * Single Post and Comment pages
+ */
+
+#primary .entry, #primary .comment {
+    position: relative;
+}
+
+/* Entry header */
+#primary .header {
+    position: relative;
+    left: 110px;
+}
+
+.has-userpic .entry .header {
+    margin-bottom: 1em;
+}
+
+.entry {
+    border-top: solid 2px $*color_page_border;
+}
+
+
+.entry .metadata-label {
+    font-weight: bold;
+}
+
+.entry .metadata-label:first {
+    text-transform: uppercase;
+}
+
+.entry .metadata ul {  
+    list-style: none;
+    padding-left: 0;
+}
+
+.entry .metadata {
+    margin-top: 1em;
+    position: relative;
+}
+
+.entry h3.entry-title {
+    font-size: 2em;
+}
+
+.entry h3.entry-title a {
+    text-decoration: none;
+}
+
+.entry .contents .userpic a img {
+    border: 0;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.has-userpic .entry .contents .userpic {
+    height: 100px;
+    width: 100px;
+}
+
+.has-userpic .entry .poster {
+    left:110px;
+    top:-35px;
+    position:relative;
+}
+
+/* Main body of a post */
+/* Pushed down in order to accomodate the header being next to the icon. */
+.entry .contents {
+    position: relative;
+    bottom: 84px;
+}
+
+/* Single post metadata links location/etc. */
+.entry .footer {
+    position: relative;
+    bottom: 84px;  
+}
+
+/* Entry/Comment links */
+ul.entry-interaction-links, ul.entry-management-links, ul.comment-management-links, ul.comment-interaction-links {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+/* entries w/o icons (especially feeds) needs to be styled separately */
+
+.ljsyndicationlink {
+    margin-top: 1em;
+}
+
+#primary .no-userpic .header {
+    position: static;
+    padding-bottom: 1em;
+}
+
+.no-userpic .poster .entry-poster {
+    position: static;
+}
+
+.no-userpic .entry .contents {
+    position: static;
+}
+
+.no-userpic .entry .footer {
+    position: static;
+}
+
+/*
+ * Calendar/Archive page
+ * NB: This is horribly inaccessible so mostly I just have trashed/hidden it :)
+ */
+
+#archive-year table.month {
+    display: none;
+}
+
+#archive-year div.inner div.year div.inner div.month-wrapper div.month div.inner div.header h3 {
+    margin-left: 0;
+    float: left;
+    clear: left;
+}
+
+#archive-year div.inner div.year div.inner div.month-wrapper div.month div.inner div.footer div.inner a {
+    margin-left: 0;
+    float: left;
+    clear: left;
+}
+
+
+/*
+ * Comments
+ */
+#comments .userpic a img, .comment-wrapper .userpic a img  {
+    border: 0;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#comments .comment-content, .comment-wrapper .comment-content {
+    clear: left;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+ul.entry-interaction-links li, ul.entry-management-links li,  ul.comment-interaction-links li, ul.comment-management-links li {
+    display: inline;
+    font-weight: bold;
+}
+
+.tag {
+    margin-top: 1em;
+}
+
+.tag ul {
+    list-style: none;
+    display: inline;
+    padding-left: 0;
+}
+
+.tag ul li {
+    display: inline;
+}
+
+/*
+ * page footer
+ */
+
+.module-credit .module-content dl dt, .module-credit .module-content dl dd {
+       display: inline;
+       margin-left: 0;
+}
+
+.module-section-two, .module-section-one {
+    border-top: solid $*color_page_border 2px;
+    padding-top: 1em;
+      
+}
+
+ul.module-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+module-section-two ul.module-list li {
+    display: inline;
+
+}
+
+div.page-top {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+/* End of CSS file */""";
+end_css();
+"""</style>""";
+}
