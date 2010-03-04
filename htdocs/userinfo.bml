@@ -144,7 +144,9 @@ body<=
                 $del_body .= BML::ml( 'error.deleted.text.withreason', { user => $u->display_name, reason => $u->prop( 'delete_reason' ) } );
             } else {
                 $del_body .= BML::ml( 'error.deleted.text', { user => $u->display_name } );
-            }            
+            }
+
+            $del_body .= "&nbsp;" . BML::ml( 'error.deleted.leavecomm', { aopts => "href='$LJ::SITEROOT/community/leave?comm=" . $u->user . "'" } ) if $u->is_community && $u->trusts_or_has_member( $remote );
 
             $del_body .= " p?>";
             $del_body .= BML::ml( '.error.deleted.purgenotification', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=" . $u->user . "'" } )

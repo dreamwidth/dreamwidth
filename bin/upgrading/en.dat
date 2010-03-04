@@ -1151,6 +1151,8 @@ error.console.notpermitted=You are not permitted to run this command.
 
 error.dberror=A database error occurred:
 
+error.deleted.leavecomm=If you want, you can <a [[aopts]]>leave the community</a>.
+
 error.deleted.name=Deleted
 
 error.deleted.text=This journal has been deleted.  If you are [[user]], you have a period of 30 days from the deletion time to undelete the journal.  After 30 days we will delete all content permanently from our servers.

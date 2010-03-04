@@ -8618,6 +8618,8 @@ sub make_journal
                 $warning = BML::ml( 'error.deleted.text', { user => $u->display_name } );
             }
 
+            $warning .= "&nbsp;" . BML::ml( 'error.deleted.leavecomm', { aopts => "href='$LJ::SITEROOT/community/leave?comm=" . $u->user . "'" } ) if $u->is_community && $u->trusts_or_has_member( $remote );
+
             return $error->( $warning, "404 Not Found", BML::ml( 'error.deleted.name' ) );
         }
         if ( $u->is_suspended ) {
