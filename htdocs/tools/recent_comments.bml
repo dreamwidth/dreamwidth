@@ -284,7 +284,9 @@ body<=
         $ret .= "<?h1 $ML{ '.latest.posted' } h1?><?p " . BML::ml('.last.num.posted.by', {num => $count, user => LJ::ljuser($u) }) . " p?>";
         my %jcount;  # jid -> ct
         $ret .= "<table style='text-align: left'>";
-        $ret .= "<tr><th>$ML{ '.time' }</th><th>&nbsp;$ML{ '.location' }</th><th>&nbsp;$ML{ '.delete' }</th</tr>";
+        $ret .= "<tr><th>$ML{ '.time' }</th><th>&nbsp;$ML{ '.location' }</th><th>&nbsp;$ML{ '.delete' }</th>";
+        $ret .= "<th>&nbsp;$ML{ '.edit' }</th>" if $remote->can_edit_comments;
+        $ret .= "</tr>";
 
         foreach my $r (@posted) {
             $jcount{$r->{'journalid'}}++;
@@ -303,20 +305,31 @@ body<=
             my $hr_ago = LJ::ago_text($now - $r->{'posttime'});
             my $subject;
             my $delete;
+            my $editlink;
+
             if (defined $lrow->{ditemid}) {
                 $hr_ago = "<a href='$talkurl'>$hr_ago</a>";
                 $subject = $log_text->{"$r->{journalid} $r->{nodeid}"}[0] || "$lrow->{ditemid}.html";
                 LJ::CleanHTML::clean_subject(\$subject);
                 $subject = "$subject <a href='$logurl'>(link)</a>";
+
                 # add a sign if the comment has replies
                 $subject .= "*" if $comment->has_nondeleted_children;
+
                 # delete link, very helpful for when the user does not have access to that entry anymore
                 $delete = "&nbsp;<a href='$LJ::SITEROOT/delcomment?journal=$ju->{'user'}&amp;id=$talkid'>$ML{ '.delete.link' }</a>";
+
+                # edit link, if comment can be edited
+                $editlink = "&nbsp;<a href='" . LJ::Talk::talkargs( $comment->edit_url ) . "'>$ML{ '.edit.link' }</a>" if $comment->remote_can_edit;
+
+
             } else {
                 $subject = $ML{ '.post.deleted' };
             }
 
-            $ret .= "<tr><td>$hr_ago</td><td>" . LJ::ljuser($ju->{user}) . ": $subject</td><td>$delete</td></tr>";
+            $ret .= "<tr><td>$hr_ago</td><td>" . LJ::ljuser($ju->{user}) . ": $subject</td><td>$delete</td>";
+            $ret .= "<td>$editlink</td>" if $remote->can_edit_comments;
+            $ret .= "</tr>";
         }
         $ret .= "</table>";
     }
