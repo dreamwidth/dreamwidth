@@ -4,6 +4,7 @@ layerinfo redist_uniq = "easyread/layout";
 layerinfo author_name = "Ricky Buchanan";
 layerinfo "des" = "A journal layout which is friendly to low vision users who need a large font, and to screen reader users. Accessibility is paramount.";
 layerinfo author_email = "ricky@notdoneliving.net";
+
 set layout_authors = [ { "name" => "rb", "type" => "user" }];
 
 ##===============================

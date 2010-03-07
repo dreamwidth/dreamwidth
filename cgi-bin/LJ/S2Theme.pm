@@ -55,7 +55,7 @@ sub default_theme {
         core2base => 'core2base/testing',
         crossroads => 'crossroads/lettuce',
         drifting => 'drifting/blue',
-        easyread => 'easyread/easyreadgreen',
+        easyread => 'easyread/green',
         fluidmeasure => 'fluidmeasure/spice',
         funkycircles => 'funkycircles/darkpurple',
         negatives => 'negatives/black',

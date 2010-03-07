@@ -14,13 +14,13 @@ set color_page_title = "#FF8C00";
 set color_entry_text = "#000000";
 set color_entry_background = "#ffffff";
 
+
 #NEWLAYER: easyread/green
 layerinfo "type" = "theme";
 layerinfo "name" = "Green";
 layerinfo redist_uniq = "easyread/green";
 layerinfo author_name = "Ricky Buchanan";
 layerinfo author_email = "ricky@notdoneliving.net";
-set layout_authors = [ { "name" => "rb", "type" => "user" }];
 
 set color_page_background = "#bdedc3";
 set color_page_text = "#000000";
@@ -31,6 +31,7 @@ set color_entry_background = "#bdedc3";
 set color_entry_text = "#000000";
 set color_header_background = "#117f09";
 set color_page_title = "#fff";
+
 
 #NEWLAYER: easyread/hcblack
 layerinfo "type" = "theme";
@@ -49,6 +50,7 @@ set color_entry_text = "#ffffff";
 set color_page_text = "#ffffff";
 set color_entry_background = "#000000";
 
+
 #NEWLAYER: easyread/hcblackandyellow
 layerinfo "type" = "theme";
 layerinfo "name" = "High Contrast Black and Yellow";
@@ -66,6 +68,7 @@ set color_entry_text = "#ffff00";
 set color_page_text = "#ffff00";
 set color_entry_background = "#000000";
 
+
 #NEWLAYER: easyread/hcblueyellow
 layerinfo "type" = "theme";
 layerinfo "name" = "High Contrast Blue and Yellow";
@@ -79,6 +82,25 @@ set color_page_link = "#ffffff";
 set color_entry_text = "#FFFF00";
 set color_page_text = "#FFFF00";
 set color_page_link_visited = "#FFFF00";
+
+
+#NEWLAYER: easyread/hcwhite
+layerinfo "type" = "theme";
+layerinfo "name" = "High Contrast White";
+layerinfo redist_uniq = "easyread/hcwhite";
+layerinfo author_name = "zvi";
+set layout_authors = [ { "name" => "zvi", "type" => "user" } ];
+
+set color_page_link_visited = "#FF0000";
+set color_page_link_active = "#800080";
+set color_page_background = "#ffffff";
+set color_header_background = "#ffffff";
+set color_page_link = "#0000FF";
+set color_page_title = "#000000";
+set color_entry_text = "#000000";
+set color_page_text = "#000000";
+set color_entry_background = "#ffffff";
+
 
 #NEWLAYER: easyread/lcorange
 layerinfo "type" = "theme";
@@ -96,6 +118,7 @@ set color_page_title = "#ffefa6";
 set color_entry_text = "#d19152";
 set color_page_text = "#ffefa6";
 set color_entry_background = "#ffefa6";
+
 
 #NEWLAYER: easyread/nnwm2009    
 layerinfo "type" = "theme"; 
@@ -129,6 +152,7 @@ function print_stylesheet () {
 .module-header { color $*color_module_title; }
 """
 ;}
+
 
 #NEWLAYER: easyread/toros
 layerinfo "type" = "theme";
