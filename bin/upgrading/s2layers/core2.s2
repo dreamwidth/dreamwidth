@@ -3403,7 +3403,7 @@ function print_multilevel_tags(TagDetail[] tagslist, string{} opts) "Prints out 
                 }
             }
             else {
-                $tier_code = $tier;
+                $tier_code = """<span class="non-link-tag">$tier</span>""";
             }
 
             # $prev_tags has fewer tiers than current tag.
