@@ -2477,6 +2477,11 @@ property string text_screened {
    example = "(screened) ";
 }
 
+property string text_frozen {
+   des = "The text used when a comment is frozen";
+   example = "(frozen) ";
+}
+
 property string text_poster_anonymous {
     des = "The placeholder used when something is posted by an anonymous user";
     example = "(Anonymous)";
@@ -2509,6 +2514,7 @@ property string text_reply_nocomments {
 property string text_website_default_name { noui = 1; des = "If an account's website is specified, but there's no website name, use this text instead"; }
 
 set text_screened = "(screened) ";
+set text_frozen = "(frozen) ";
 set text_poster_anonymous = "(Anonymous)";
 set text_openid_from = "from";
 set text_reply_back = "Read Comments";
@@ -4149,6 +4155,9 @@ function EntryLite::print_subject( string{} opts ) [fixed] {
         """<div class="comment-title">""";
         if ($c.screened) {
             print $*text_screened;
+        }
+        if ($c.frozen) {
+            print $*text_frozen;
         }
         print $this->formatted_subject( $opts );
         "</div>";

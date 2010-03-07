@@ -756,7 +756,14 @@ body<=
                 my $url = LJ::Talk::talkargs( $talkurl, "thread=$dtid", $style_args ) . LJ::Talk::comment_anchor( $dtid );
                 $ret .= "<a name='$htmlid'></a><span id='$htmlid'><table ><tbody><tr>";
                 $ret .= "<td><img src='$LJ::IMGPREFIX/dot.gif' height='1' width='" . ($opts->{'depth'} * 25) . "'></td>";
-                $ret .= "<td><a href='$url'>" . LJ::ehtml($post->{'subject'} || $T{'nosubject'}) . "</a> - $user, <i>$datepost</i>";
+                $ret .= "<td>";
+                if ($post->{'state'} eq 'S') {
+                    $ret .= "($T{'screened'}) ";
+                }
+                if ($post->{'state'} eq 'F') {
+                    $ret .= "($T{'frozen'}) ";
+                }
+                $ret .= "<a href='$url'>" . LJ::ehtml($post->{'subject'} || $T{'nosubject'}) . "</a> - $user, <i>$datepost</i>";
                 $ret .= qq[ (<a href='$url' onClick="Expander.make(this,'$url','$dtid',true);return false;">$T{'expand'}</a>)] if $show_thread_expander;
 
                 # Comment Posted Notice
