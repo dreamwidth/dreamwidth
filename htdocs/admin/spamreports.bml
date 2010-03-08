@@ -182,7 +182,7 @@ _c?>
         } elsif ($by eq 'poster') {
             my $u = LJ::load_user($what);
             return $error->('No such user.') unless $u;
-            $title = "Spam Reports - Comments By $u->{user}";
+            $title = "Spam Reports - Comments By " . $u->ljuser_display;
 
             # Now just pretend that user used 'posterid'
             $by = 'posterid';
