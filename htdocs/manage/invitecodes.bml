@@ -86,7 +86,7 @@ body<=
         } @invitecodes;
 
 
-        $ret .= "<table class='invitecodes' id='invitecodes'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th width='200'>$ML{'.header.sent'}</th><th>$ML{'.header.email'}</th></tr>";
+        $ret .= "<table class='invitecodes' id='invitecodes'><tr><th>$ML{'.header.code'}</th><th>$ML{'.header.recipient'}</th><th width='200'>$ML{'.header.used'}</th><th width='200'>$ML{'.header.sent'}</th><th>$ML{'.header.email'}</th></tr>";
     
         foreach my $code ( @invitecodes ) {
             $ret .= "<tr>";
@@ -102,6 +102,14 @@ body<=
                 $ret .= BML::ml( '.code.use', { aopts => "href='$create_link'" } );
             }        
 
+            $ret .= "</td>";
+            
+            $ret .= "<td>";
+            if ( $code->is_used ) {
+                my $u = $recipient_users->{$code->recipient};
+                my $timeused = $u->timecreate;
+                $ret .= LJ::time_to_http( $timeused ) if $timeused;
+            }
             $ret .= "</td>";
             
             $ret .= "<td>";
