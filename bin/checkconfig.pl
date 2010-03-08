@@ -70,6 +70,7 @@ my $err = sub {
 };
 
 my %modules = (
+               "Date::Parse" => { 'deb' => 'libtimedate-perl' },
                "DateTime" => { 'deb' => 'libdatetime-perl' },
                "DBI" => { 'deb' => 'libdbi-perl',  },
                "DBD::mysql" => { 'deb' => 'libdbd-mysql-perl', },

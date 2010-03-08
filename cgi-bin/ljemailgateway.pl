@@ -31,6 +31,7 @@ BEGIN {
 require 'ljlib.pl';
 require 'ljemailgateway-web.pl';
 require 'ljprotocol.pl';
+use Date::Parse;
 use HTML::Entities;
 use IO::Handle;
 use MIME::Words ();
@@ -393,6 +394,10 @@ sub process {
     # trim off excess whitespace (html cleaner converts to breaks)
     $body =~ s/\n+$/\n/;
 
+    # Pull the Date: header details
+    my ( $ss, $mm, $hh, $day, $month, $year, $zone ) =
+            strptime( $head->get( 'Date:' ) );
+
     # Find and set entry props.
     my $props = {};
     my (%post_headers, $amask);
@@ -406,6 +411,13 @@ sub process {
         $post_headers{lc($1)} = LJ::trim($2);
     }
     $body =~ s/^\s*//;
+
+    # If we had an lj/post-date pseudo header, override the real Date header
+    ( $ss, $mm, $hh, $day, $month, $year, $zone ) =
+        strptime( $post_headers{date} ) if $post_headers{date};
+
+    # TZ is parsed into seconds, we want something more like -0800
+    $zone = defined $zone ? sprintf( '%+05d', $zone / 36 ) : 'guess';
 
     LJ::load_user_props(
         $u,
@@ -505,15 +517,20 @@ sub process {
 
     # build lj entry
     $req = {
-        'usejournal' => $journal,
-        'ver' => 1,
-        'username' => $user,
-        'event' => $body,
-        'subject' => $subject,
-        'security' => $post_headers{security},
-        'allowmask' => $amask,
-        'props' => $props,
-        'tz'    => 'guess',
+        usejournal  => $journal,
+        ver         => 1,
+        username    => $user,
+        event       => $body,
+        subject     => $subject,
+        security    => $post_headers{security},
+        allowmask   => $amask,
+        props       => $props,
+        tz          => $zone,
+        year        => $year + 1900,
+        mon         => $month + 1,
+        day         => $day,
+        hour        => $hh,
+        min         => $mm,
     };
 
     # post!
