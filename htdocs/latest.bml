@@ -22,11 +22,14 @@ body<=
 
     LJ::need_res( 'stc/latest.css' );
 
-    my ( $type, $max, $fmt, $feed ) = ( $GET{type}, ($GET{max}+0)||100, $GET{fmt}, $GET{feed}||$GET{tag} );
+    my ( $type, $max, $fmt, $feed, $tag ) = ( $GET{type}, ($GET{max}+0)||100, $GET{fmt}, $GET{feed}, $GET{tag} );
+    my $tagname = $tag;
+
     $type = { entries => 'entry', comments => 'comment' }->{$type}  || 'entry';
     $max = 100 if $max > 1000;
     $fmt = { rss => 'rss', atom => 'atom', html => 'html' }->{$fmt} || 'html';
     $feed = '' unless $feed && exists $LJ::LATEST_TAG_FEEDS{tag_maps}->{$feed};
+    $tag = '' unless $tag = LJ::get_sitekeyword_id( $tag, 0 );
 
     # if they want a format we don't support ... FIXME: implement all formats
     return "Sorry, that format is not supported yet."
@@ -34,13 +37,13 @@ body<=
 
     # see if somebody has asked for this particular feed in the last minute or so, in
     # which case it is going to be in memcache
-    my $mckey = "latest_src:$type:$max:$fmt" . ( $feed ? ":$feed" : '' );
+    my $mckey = "latest_src:$type:$max:$fmt" . ( $feed ? ":$feed" : '' ) . ( $tag ? ":$tag" : '' );
     my $page = LJ::MemCache::get( $mckey );
 
     # return from the cache
     if ( $page && $page->[0] > time ) {
         LJ::text_uncompress( \$page->[1] );
-        return $page->[1];
+#        return $page->[1];
     }
 
     # now we need a lock to make sure we're allowed to generate this data
@@ -60,7 +63,7 @@ body<=
     }
 
     # ask for the items from the latest feed
-    my $items = DW::LatestFeed->get_items( feed => $feed );
+    my $items = DW::LatestFeed->get_items( feed => $feed, tagkwid => $tag );
     return "Failed to get latest items."
         unless $items && ref $items eq 'ARRAY';
 
@@ -94,15 +97,40 @@ body<=
     }
 
     # output the header data
-    my $tagfeeds = join ' ', map { $feed eq $_ ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
-                                               : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) } 
-                             sort { $a cmp $b } keys %{$LJ::LATEST_TAG_FEEDS{group_names}};
+    my $tagfeeds = '';
+    unless ( $tag || $feed ) {
+        $tagfeeds = join ' ', map { $feed eq $_ ? $LJ::LATEST_TAG_FEEDS{group_names}->{$_}
+                                                : qq(<a href="$LJ::SITEROOT/latest?feed=$_">$LJ::LATEST_TAG_FEEDS{group_names}->{$_}</a>) } 
+                              sort { $a cmp $b } keys %{$LJ::LATEST_TAG_FEEDS{group_names}};
+        if ( $feed ) {
+            $tagfeeds = qq{[<a href="$LJ::SITEROOT/latest">show all</a>] } . $tagfeeds;
+        }
+    }
+
+    # but if we are filtering to a tag, let them unfilter
     if ( $feed ) {
-        $tagfeeds = qq{[<a href="$LJ::SITEROOT/latest">show all</a>] } . $tagfeeds;
+        $tagfeeds .= qq|Currently viewing posts about <strong>$LJ::LATEST_TAG_FEEDS{group_names}->{$feed}</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>|;
     }
-    if ( $tagfeeds ) {
-        $tagfeeds = qq{<?p Filter posts by subject: $tagfeeds p?>};
+    if ( $tag ) {
+        $tagfeeds .= qq{Currently viewing posts tagged <strong>} . LJ::ehtml( $tagname ) . qq{</strong>.  <a href="$LJ::SITEROOT/latest">Show all.</a>};
     }
+
+    # and now, tag cloud!
+    my $tfmap = DW::LatestFeed->get_popular_tags( count => 100 ) || {};
+    if ( ! $tag && ! $feed && scalar keys %$tfmap ) {
+        my $taghr = {
+            map {
+                $tfmap->{$_}->{tag} => {
+                    url   => "$LJ::SITEROOT/latest?tag=$tfmap->{$_}->{tag}",
+                    value => $tfmap->{$_}->{count}
+                }
+            } keys %$tfmap
+        };
+        $tagfeeds .= "<br /><br />" . LJ::tag_cloud( $taghr ) . "\n";
+    }
+
+    # put filtering options in a standout box
+    $tagfeeds = "<?standout $tagfeeds standout?><br />" if $tagfeeds;
 
     my $ret = <<EOF;
 <?p Latest things on $LJ::SITENAME.  This page shows you a sample of the most recently posted

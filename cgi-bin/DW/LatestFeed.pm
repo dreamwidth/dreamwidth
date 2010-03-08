@@ -7,10 +7,14 @@
 # There is a lot of room for optimization to make this process more efficient
 # but for now I haven't really done that.
 #
+# Also note, if memcache is cleared, the latest things go away and have to be
+# repopulated from scratch.  This is not good behavior from the user experience
+# aspect, but it's OK for this feature.
+#
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -23,6 +27,11 @@ use strict;
 # time in seconds to hold events for.  until an event is this old, we will not
 # show it on any page.
 use constant EVENT_HORIZON => 300;
+
+# number of popular tags to track... more tags means more work, more memory, but
+# more neat data?  might be worth experimenting with this.  this should always
+# be higher than what we show in any UI across the site...
+use constant NUM_TOP_TAGS => 200;
 
 # call this with whatever you want to stick onto the latest feed, and note that
 # this just fires off TheSchwartz jobs, the work isn't actually done until the
@@ -66,6 +75,7 @@ sub new_item {
 sub get_items {
     my ( $class, %opts ) = @_;
     return if $opts{feed} && ! exists $LJ::LATEST_TAG_FEEDS{group_names}->{$opts{feed}};
+    return if $opts{tagkwid} && $opts{tagkwid} !~ /^\d+$/;
 
     # make sure we process the queue of items first.  this makes sure that if we
     # don't have much traffic we don't have to wait for new posts to drive the
@@ -73,8 +83,34 @@ sub get_items {
     $class->_process_queue;
 
     # and simply get the list and return it ... simplicity
-    my $mckey = $opts{feed} ? "latest_items_tag:$opts{feed}" : "latest_items";
+    my $thinger = $opts{feed} || $opts{tagkwid};
+    my $mckey = $thinger ? "latest_items_tag:$thinger" : "latest_items";
     return LJ::MemCache::get( $mckey ) || [];
+}
+
+# returns a hashref of our popular tags.
+#    { kwid => { tag => tagname, count => value }, ... }
+sub get_popular_tags {
+    my ( $class, %opts ) = @_;
+    my $ct = $opts{count}+0;
+
+    # and just for safety, we should warn the site admin if they adjust something
+    # or try to do something that we know is going to fail or be weird.
+    warn "WARNING: Requested $ct tags in $class->get_popular_tags, but currently we are\n" .
+         "         configured to only store data for " . NUM_TOP_TAGS . " tags.\n"
+        if $ct > NUM_TOP_TAGS * 0.8;
+
+    # make sure we process the queue of items first.  this makes sure that if we
+    # don't have much traffic we don't have to wait for new posts to drive the
+    # processor.
+    $class->_process_queue;
+
+    # get the data, then splice the most popular requested
+    my $data = LJ::MemCache::get( 'latest_items_tag_frequency_map' ) || [];
+    @$data = splice @$data, 0, $ct if $ct;
+
+    # return it in a slightly more useful format
+    return { map { $_->[1] => { tag => $_->[0], count => $_->[2] } } @$data };
 }
 
 # INTERNAL; called by the worker when there's an item for us to handle.  at this
@@ -235,8 +271,16 @@ sub _process_queue {
         }
     }
 
+    # step 6.5) we're going to need the latest things global tag frequency map (...hah)
+    #   [ [ tagname, kwid, ct ], [ tagname, kwid, ct ], ... ]
+    my $tfmap = LJ::MemCache::get( 'latest_items_tag_frequency_map' ) || [];
+
+    #   ( kwid => tagname, kwid => tagname, ... )
+    my %tfsr = map { $_->[1] => $_->[0] } @$tfmap;
+
     # step 7) now that we have the good items, we want to sort them and put them on the
     # list of latest items
+    my %tagids;
     my %lists = ( latest_items => LJ::MemCache::get( 'latest_items' ) || [] );
     foreach my $item ( @gq ) {
         # $ent is always the entry, since comments always have obj_entry, and if that doesn't
@@ -248,16 +292,62 @@ sub _process_queue {
         # step 7.5) if the entry contains any tags that we are currently showing
         # globally, then put that onto the list
         foreach my $tag ( $ent->tags ) {
-            my $feed = $LJ::LATEST_TAG_FEEDS{tag_maps}->{$tag};
-            next unless $feed;
 
-            my $nom = "latest_items_tag:$feed";
-            $lists{$nom} ||= LJ::MemCache::get( $nom ) || [];
-            unshift @{$lists{$nom}}, $item;
+            # some lists we guarantee are always shown, these are the special feeds that actually
+            # allow combining tags and things...
+            if ( my $feed = $LJ::LATEST_TAG_FEEDS{tag_maps}->{$tag} ) {
+                my $nom = "latest_items_tag:$feed";
+                $lists{$nom} ||= LJ::MemCache::get( $nom ) || [];
+                unshift @{$lists{$nom}}, $item;
+            }
+
+            # and now we try to determine if a tag is popular (top-N) and if so, then we also want
+            # to store that information.  (actually we want to store information on the top N+10% tags
+            # so that as things move up and down the popularity list they have data)
+            if ( my $kwid = $tagids{$tag} ||= LJ::get_sitekeyword_id( $tag ) ) {
+
+                # this has the side effect of allowing a tag to get promoted later if it gets enough
+                # hits to get it onto the popular category... note: inefficient, heh.
+                foreach my $row ( @$tfmap ) {
+                    next unless $row->[1] == $kwid;
+
+                    # found the row, so increment the count and bail
+                    $row->[2]++;
+                    last;
+                }
+
+                # ensure it's in memcache, then increment itd                
+                LJ::MemCache::add( "latest_items_tag_ct:$kwid", 0 );
+                LJ::MemCache::incr( "latest_items_tag_ct:$kwid" );
+
+                # if the tag is noo already in the list, see if we should add it
+                if ( ! exists $tfsr{$kwid} ) {
+                    my $ct = LJ::MemCache::get( "latest_items_tag_ct:$kwid" ) || 0;
+                    next unless scalar @$tfmap < NUM_TOP_TAGS  # or we don't have enough tags in the list
+                                || $ct > $tfmap->[-1]->[2];    # exceeds minimum value in list already
+
+                    # okay, we're going to put this one in the list, prepare a space
+                    push @$tfmap, [ $tag, $kwid, $ct ];
+                    @$tfmap = sort { $b->[2] <=> $a->[2] } @$tfmap;
+                    @$tfmap = splice @$tfmap, 0, NUM_TOP_TAGS;
+                }
+
+                # and now we insert it onto a list for this keyword id (tag)
+                my $nom = "latest_items_tag:$kwid";
+                $lists{$nom} ||= LJ::MemCache::get( $nom ) || [];
+                unshift @{$lists{$nom}}, $item;
+            }
+
         }
 
+        # we always put the item onto the latest everything list
         unshift @{$lists{latest_items}}, $item;
     }
+
+    # re-sort and update our tag frequency map, then store it
+    @$tfmap = sort { $b->[2] <=> $a->[2] } @$tfmap;
+    @$tfmap = splice @$tfmap, 0, NUM_TOP_TAGS;
+    LJ::MemCache::set( latest_items_tag_frequency_map => $tfmap );
 
     # prune and set all lists
     foreach my $key ( keys %lists ) {
