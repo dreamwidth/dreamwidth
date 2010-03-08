@@ -346,7 +346,7 @@ class EntryLite
     function builtin get_link (string key) : Link "Get a link to some action related to this entry or comment. You can iterate over [member[EntryLite.link_keyseq]] to get keys to pass in here to produce a 'toolbar' of links.";
     function builtin get_plain_subject () : string "For Entries that can contain HTML subjects, this returns the subject without HTML.  Comments can't have HTML in subjects, so this is equivalent to just using \$.subject.  The returned 'plain' subject may still contain HTML entities, so don't do substring chops on it either.";
     function builtin get_tags_text () : string "Returns a string containing a div of class 'ljtags' with the tags for the entry.  If there are no tags on the entry, returns a blank string.  The string is formatted according to the 'text_tags' property.";
-    function print_userpic() [fixed] "Print the userpic for this entry or comment";
+    function print_userpic() "Print the userpic for this entry or comment";
     function print_management_links() "Print the links to manage this entry or comment. (Screen, freeze, track, etc)";
     function print_interaction_links() "Print the links to interact with this entry or comment. (Post a comment etc)";
     function print_time () [fixed] "Print the time of this post, with most useful information for user, and with tooltip for more.";
@@ -468,7 +468,7 @@ class User extends UserLite
     var Image default_pic "Information about default userpic";
     var readonly string website_url "URL pointer to user's website";
     var readonly string website_name "'pretty' name of user's website";
-    function print_userpic() [fixed] "Print the userpic for this user";
+    function print_userpic() "Print the userpic for this user";
 
 }
 
@@ -2974,7 +2974,7 @@ function Friend::print() {
     print $this->as_string();
 }
 
-function User::print_userpic() [fixed] {
+function User::print_userpic() {
   print """<a href="$this.userpic_listing_url">""";
   if ( defined $this.default_pic ) {
       $this.default_pic->print();
@@ -4316,7 +4316,7 @@ function Entry::print_tags() [fixed] {
     }
 }
 
-function EntryLite::print_userpic() [fixed] {
+function EntryLite::print_userpic() {
     print "<div class=\"userpic\">";
     if ( defined $this.userpic )
     {
