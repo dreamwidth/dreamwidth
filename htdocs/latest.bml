@@ -43,7 +43,7 @@ body<=
     # return from the cache
     if ( $page && $page->[0] > time ) {
         LJ::text_uncompress( \$page->[1] );
-#        return $page->[1];
+        return $page->[1];
     }
 
     # now we need a lock to make sure we're allowed to generate this data
