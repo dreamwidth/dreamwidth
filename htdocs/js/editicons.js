@@ -67,7 +67,7 @@ function setup () {
   DOM.addEventListener($("userpic_0"), "change", keyPressFileUpload);
 }
 
-function editpicsInit() {
+function editiconsInit() {
     if ($("upload_desc_link")) {
         $("upload_desc_link").style.display = 'block';
         $("upload_desc").style.display = 'none';

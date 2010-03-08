@@ -1057,7 +1057,7 @@ sub lost_keywords_as_html {
 sub as_html {
     my $self = shift;
     my $num_words = $self->number_lost;
-    return BML::ml("/editpics.bml.error.toomanykeywords", {
+    return BML::ml("/editicons.bml.error.toomanykeywords", {
         numwords => $self->number_lost,
         words    => $self->lost_keywords_as_html,
         max      => $LJ::MAX_USERPIC_KEYWORDS,
@@ -1069,9 +1069,9 @@ sub user_caused { 1 }
 sub fields      { qw(size max); }
 sub as_html {
     my $self = shift;
-    return BML::ml('/editpics.bml.error.filetoolarge',
+    return BML::ml('/editicons.bml.error.filetoolarge',
                    { 'maxsize' => $self->{'max'} .
-                         BML::ml('/editpics.bml.kilobytes')} );
+                         BML::ml('/editicons.bml.kilobytes')} );
 }
 
 package LJ::Error::Userpic::Dimensions;
@@ -1079,7 +1079,7 @@ sub user_caused { 1 }
 sub fields      { qw(w h); }
 sub as_html {
     my $self = shift;
-    return BML::ml('/editpics.bml.error.imagetoolarge', {
+    return BML::ml('/editicons.bml.error.imagetoolarge', {
         imagesize => $self->{'w'} . 'x' . $self->{'h'}
         });
 }
@@ -1089,7 +1089,7 @@ sub user_caused { 1 }
 sub fields      { qw(type); }
 sub as_html {
     my $self = shift;
-    return BML::ml("/editpics.bml.error.unsupportedtype",
+    return BML::ml("/editicons.bml.error.unsupportedtype",
                           { 'filetype' => $self->{'type'} });
 }
 
@@ -1098,7 +1098,7 @@ sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = shift;
-    return BML::ml("/editpics.bml.error.rename.mismatchedlength",
+    return BML::ml("/editicons.bml.error.rename.mismatchedlength",
                           { 'origkw' => $self->{'origkw'},
                             'newkw' => $self->{'newkw'} });
 }
@@ -1108,7 +1108,7 @@ sub user_caused { 1 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = shift;
-    return BML::ml("/editpics.bml.error.rename.blankkw",
+    return BML::ml("/editicons.bml.error.rename.blankkw",
                           { 'origkw' => $self->{'origkw'},
                             'newkw' => $self->{'newkw'} });
 }
@@ -1118,7 +1118,7 @@ sub user_caused { 1 }
 sub fields      { qw(keyword); }
 sub as_html {
     my $self = shift;
-    return BML::ml("/editpics.bml.error.rename.keywordexists",
+    return BML::ml("/editicons.bml.error.rename.keywordexists",
                           { 'keyword' => $self->{'keyword'} });
 }
 
@@ -1127,7 +1127,7 @@ sub user_caused { 0 }
 sub fields      { qw(origkw newkw); }
 sub as_html {
     my $self = shift;
-    return BML::ml("/editpics.bml.error.rename.keywords",
+    return BML::ml("/editicons.bml.error.rename.keywords",
                           { 'origkw' => $self->{'origkw'},
                             'newkw' => $self->{'newkw'} });
 }

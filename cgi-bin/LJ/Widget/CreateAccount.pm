@@ -521,7 +521,7 @@ sub handle_post {
             lostinfourl => "$LJ::SITEROOT/lostinfo",
             editprofileurl => "$LJ::SITEROOT/manage/profile/",
             searchinterestsurl => "$LJ::SITEROOT/interests",
-            editpicsurl => "$LJ::SITEROOT/editpics",
+            editiconsurl => "$LJ::SITEROOT/editicons",
             customizeurl => "$LJ::SITEROOT/customize/",
             postentryurl => "$LJ::SITEROOT/update",
             setsecreturl => "$LJ::SITEROOT/set_secret",

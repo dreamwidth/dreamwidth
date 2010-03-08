@@ -30,7 +30,7 @@ sub render_body {
     $ret .= "<table cellspacing='0' cellpadding='0'>";
     $ret .= "<tr valign='top'><td><ul>";
     $ret .= "<li><a href='$LJ::SITEROOT/update'>" . $class->ml('widget.createaccountnextsteps.steps.post') . "</a></li>";
-    $ret .= "<li><a href='$LJ::SITEROOT/editpics'>" . $class->ml('widget.createaccountnextsteps.steps.userpics') . "</a></li>";
+    $ret .= "<li><a href='$LJ::SITEROOT/editicons'>" . $class->ml('widget.createaccountnextsteps.steps.userpics') . "</a></li>";
     $ret .= "<li><a href='$LJ::SITEROOT/interests'>" . $class->ml('widget.createaccountnextsteps.steps.find') . "</a></li>";
     $ret .= "</ul></td><td><ul>";
     $ret .= "<li><a href='$LJ::SITEROOT/customize/'>" . $class->ml('widget.createaccountnextsteps.steps.customize') . "</a></li>";

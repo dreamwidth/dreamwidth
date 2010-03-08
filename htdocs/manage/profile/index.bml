@@ -133,7 +133,7 @@ body<=
         $ret .= "</div><div style='margin-left: 110px'>\n";
         $ret .= "<span class='helper'>$ML{'.userpic'}</span>";
         $ret .= LJ::help_icon('upic_keywords');
-        $ret .= "<?p <a href='$LJ::SITEROOT/editpics$getextra'>$ML{'.userpic.change'}</a> p?>\n";
+        $ret .= "<?p <a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.userpic.change'}</a> p?>\n";
         $ret .= "</td>";
         $ret .= "</tr>\n";
 
@@ -742,7 +742,7 @@ body<=
                          "<?p $ML{'.success.gonext'} p?>" .
                          "<ul><li><a href='$profile_url'>$ML{'.success.viewprofile'}</a></li>" .
                          "<li><a href='$LJ::SITEROOT/manage/profile/$getextra'>$ML{'.success.editprofile'}</a></li>" .
-                         "<li><a href='$LJ::SITEROOT/editpics$getextra'>$ML{'.success.editpics'}</a></li></ul>";
+                         "<li><a href='$LJ::SITEROOT/editicons$getextra'>$ML{'.success.editicons'}</a></li></ul>";
     }
 
     # should never happen

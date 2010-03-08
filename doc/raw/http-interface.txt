@@ -133,7 +133,7 @@ POST
         selecttype
         howmany
 
-editpics.bml
+editicons.bml
 GET
         authas
 POST

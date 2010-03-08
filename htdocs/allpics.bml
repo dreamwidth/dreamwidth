@@ -177,7 +177,7 @@ _c?>
                 $body .= BML::ml('.pics.owner', {'user' => LJ::ljuser($u),});
                 my $hook_text = LJ::Hooks::run_hook('allpics_upsell_text', $u, $getextra);
                 if ($hook_text eq "") {
-                    $body .= ' ' . BML::ml('.edit4', {'aopts' => "href='$LJ::SITEROOT/editpics$getextra'"});
+                    $body .= ' ' . BML::ml('.edit4', {'aopts' => "href='$LJ::SITEROOT/editicons$getextra'"});
                 } else {
                     $body .= $hook_text;
                 }
@@ -269,7 +269,7 @@ _c?>
     } else {
         if ($can_manage) {
             $body = "<?h1 $ML{'.nopics.title'} h1?><?p ";
-            $body .= BML::ml('.nopics.text3', {'aopts' => "href='$LJ::SITEROOT/editpics$getextra#upload'"}) . " p?>";
+            $body .= BML::ml('.nopics.text3', {'aopts' => "href='$LJ::SITEROOT/editicons$getextra#upload'"}) . " p?>";
         } else {
             $body = "<?h1 $ML{'.nopics.title'} h1?><?p ". BML::ml('.nopics.text.other2', {'aopts' => "href='$LJ::SITEROOT/manage/subscriptions/user?journal=$u->{user}'", username => $u->ljuser_display }). " p?>";
         }

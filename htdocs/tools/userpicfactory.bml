@@ -179,7 +179,7 @@ if ($GET{successcount}) {
 }
 
 $body .= qq {
-    <a href="/editpics$sfx"><< Edit Icons</a>
+    <a href="/editicons$sfx"><< Edit Icons</a>
     <noscript><p><b>
 You need JavaScript in order to use the
 Icon Factory. Since you have JavaScript disabled, you will be unable
@@ -191,7 +191,7 @@ Create Icon button.</b></p>
 
 
 my $upload_form = qq {
-        <form enctype="multipart/form-data" action="/editpics$sfx"
+        <form enctype="multipart/form-data" action="/editicons$sfx"
         method='post'>
       From File: <input type="file" name="userpic" /><br/>
       <small>JPEG only.</small>
@@ -225,7 +225,7 @@ $body .= qq {
       <div id="picContainer" style="float: left; margin-bottom: 15px; width: ${scaledSizeMax}px; height: ${scaledSizeMax}px; border: 2px solid #EEEEEE; padding: 2px;"> <img src="$picpath" id="userpic" style="display: none;" /></div>
 
       <?standout <div style='float: right;'>
-      <form action="$LJ::SITEROOT/editpics$sfx?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
+      <form action="$LJ::SITEROOT/editicons$sfx?authas=$GET{'authas'}" method="POST" enctype='multipart/form-data'>
       <table cellpadding="4"><tr>
       <td style='whitespace: nowrap'>
         <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />

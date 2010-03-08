@@ -990,7 +990,7 @@ sub common_event_validation
 
         # need to make sure they aren't trying to post with an inactive keyword, but also
         # we don't want to allow them to post with a keyword that has no pic at all to prevent
-        # them from deleting the keyword, posting, then adding it back with editpics.bml
+        # them from deleting the keyword, posting, then adding it back with editicons.bml
         delete $req->{'props'}->{'picture_keyword'} if ! $pic || $pic->{'state'} eq 'I';
     }
 

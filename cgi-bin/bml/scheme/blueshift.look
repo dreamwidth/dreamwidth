@@ -66,7 +66,7 @@ accountlinks<=
         my $unread = $inbox->unread_count;
         my $identity = $remote->is_identity;
 
-        $ret .= "<div id='account-links-userpic'><a href='$LJ::SITEROOT/editpics'>";
+        $ret .= "<div id='account-links-userpic'><a href='$LJ::SITEROOT/editicons'>";
 
         if ( $userpic ) {
             my $wh = $userpic->img_fixedsize( width => 80, height => 80 );

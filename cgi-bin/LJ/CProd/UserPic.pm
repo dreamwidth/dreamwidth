@@ -34,7 +34,7 @@ height: 100px; border: 1px solid #000000;">&nbsp;</div>';
 }
 
 sub ml { 'cprod.userpic.text' }
-sub link { "$LJ::SITEROOT/editpics" }
+sub link { "$LJ::SITEROOT/editicons" }
 sub button_text { "Userpic" }
 
 1;

@@ -67,7 +67,7 @@ use Errno qw(ENOENT);
     'managefriendgrps' => ['Manage Filters', '/manage/circle/editfilters', 'friends'],
     'managetags' => ['Manage Tags', '/manage/tags', 'manage'],
     'managelogins' => ['Manage Your Login Sessions', '/manage/logins', 'manage'],
-    'manageuserpics' => ['Manage Userpics', '/editpics', 'manage'],
+    'manageuserpics' => ['Manage Userpics', '/editicons', 'manage'],
     'memories' => ['Memorable Posts', '/tools/memories', 'manage'],
     'mobilepost' => ['Mobile Post Settings', '/manage/emailpost', 'manage'],
     'moderate' => ['Community Moderation', '/community/moderate', 'community'],

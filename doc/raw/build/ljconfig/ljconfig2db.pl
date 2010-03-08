@@ -93,7 +93,7 @@ my %ljconfig =
         'caps' => {
             'name' => "Capabilities/User Options",
             'allow_pics_over_quota' => {
-                    'desc' => "By default, when a user has more userpics than their account type allows, perhaps due to expiration of paid time, their least often used userpics (based on their journal posts) will be marked inactive. This happens whenever their account type is changed or they visit <filename>editpics.bml</filename>. They will no longer be available for use, and only the account owner may see them on <filename>editpics.bml</filename>. Turning this boolean setting true will circumvent this behavior. In other words, enabling this option lets users just keep whatever userpics they had when their account type changed.",
+                    'desc' => "By default, when a user has more userpics than their account type allows, perhaps due to expiration of paid time, their least often used userpics (based on their journal posts) will be marked inactive. This happens whenever their account type is changed or they visit <filename>editicons.bml</filename>. They will no longer be available for use, and only the account owner may see them on <filename>editicons.bml</filename>. Turning this boolean setting true will circumvent this behavior. In other words, enabling this option lets users just keep whatever userpics they had when their account type changed.",
             },
             'cap' => {
                     'desc' => "A hash that defines the capability class limits. The keys are bit numbers, from 0 &ndash; 15, and the values ".
@@ -450,7 +450,7 @@ my %ljconfig =
     );'
             },
             'disable_media_uploads' => {
-                'desc' => "Boolean to disable all media uploads/modifications that would go to &mogfs;. This puts code that interacts with &mogfs; into read-only mode: editpics.bml - users can&apos;t delete/upload userpics while in this mode, and &captcha;s - can&apos;t generate new ones or delete old ones while flag on. You might set this if you needed to turn off your &mogfs; install, for example.",
+                'desc' => "Boolean to disable all media uploads/modifications that would go to &mogfs;. This puts code that interacts with &mogfs; into read-only mode: editicons.bml - users can&apos;t delete/upload userpics while in this mode, and &captcha;s - can&apos;t generate new ones or delete old ones while flag on. You might set this if you needed to turn off your &mogfs; install, for example.",
             },
             'mogilefs_config' => {
                     'desc' => "If you are using &mogfs; on your site for userpics (the userpic factory requires &mogfs; in order to work) or other purposes, you will need to define this hash and complete the information in it. Please see also [ljconfig[userpic_mogilefs]]. The <literal>your_class</literal> element allows you to define any special &mogfs; classes you need. If you want &captcha;s to come from a &mogfs; backend, enable [ljconfig[captcha_mogilefs]]; you also need a class called &apos;captcha&apos; in your domain, as in the example.",

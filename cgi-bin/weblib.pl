@@ -1172,7 +1172,7 @@ sub entry_form {
                                     userpic_preview_image.alt = alttext[userpic_select.selectedIndex];
                                 } else {
                                     userpic_preview.className += " userpic_preview_border";
-                                    userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/editpics"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
+                                    userpic_preview.innerHTML = '<a href="$LJ::SITEROOT/editicons"><img src="" alt="selected userpic" id="userpic_preview_image" style="display: none;" /><span id="userpic_msg">' + userpic_msg + '</span></a>';
                                 }
                             }
                         }
@@ -1278,7 +1278,7 @@ sub entry_form {
             } elsif (!$remote || $altlogin)  {
                 $out .= "<div id='userpic'><p id='userpic_preview'><img src='/img/nouserpic.png' alt='selected userpic' id='userpic_preview_image' class='userpic_loggedout'  /></p></div>";
             } else {
-                $out .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editpics'>Upload a userpic</a></p></div>";
+                $out .= "<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='$LJ::SITEROOT/editicons'>Upload a userpic</a></p></div>";
             }
 
 
@@ -2701,7 +2701,7 @@ sub control_strip
         my $userpic = $remote->userpic;
         if ( $userpic ) {
             my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
-            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editpics'>";
+            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editicons'>";
             $ret .= "<img src='" . $userpic->url . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a></td>";
         } else {
             my $tinted_nouserpic_img = "";
@@ -2718,7 +2718,7 @@ sub control_strip
                     }
                 }
             }
-            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editpics'>";
+            $ret .= "<td id='lj_controlstrip_userpic' style='background-image: none;'><a href='$LJ::SITEROOT/editicons'>";
             if ($tinted_nouserpic_img eq "") {
                 $ret .= "<img src='$LJ::IMGPREFIX/controlstrip/nouserpic.gif' ";
             } else {

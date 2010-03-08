@@ -9,8 +9,8 @@
 /faqbrowse.bml      /support/faqbrowse.bml
 /setscheme.bml          /manage/settings/
 /setlang.bml            /manage/settings/
-/uploadpic.bml          /editpics.bml
-/uploadpic_do.bml       /editpics.bml
+/uploadpic.bml          /editicons
+/uploadpic_do.bml       /editicons
 /modify_do.bml          /modify.bml
 /editjournal_do.bml     /editjournal.bml
 /editinfo.bml       /manage/profile/
@@ -62,3 +62,5 @@
 /syn/list.bml                       /feeds/list
 /syn/raw                            /feeds/raw
 /syn/raw.bml                        /feeds/raw
+/editpics                           /editicons
+/editpics.bml                       /editicons

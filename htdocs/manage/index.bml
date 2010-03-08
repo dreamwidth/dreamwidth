@@ -229,7 +229,7 @@ _code?>
 header=><?_ml .userpics.header _ml?>
 about=><?_ml .userpics        _ml?>
 list<=
-<li><a href="/editpics<?authas?>"><?_ml .userpics.edit.about _ml?></a></li>
+<li><a href="/editicons<?authas?>"><?_ml .userpics.edit.about _ml?></a></li>
 <=list
 block?>
 

@@ -91,7 +91,7 @@ sub get_menu_navigation {
                     display => $loggedin,
                 },
                 {
-                    url => "$LJ::SITEROOT/editpics",
+                    url => "$LJ::SITEROOT/editicons",
                     text => "menunav.create.uploaduserpics",
                     text_opts => { num => $userpic_count, max => $userpic_max },
                     display => $loggedin,

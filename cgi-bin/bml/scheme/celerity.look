@@ -147,7 +147,7 @@ userpic<=
     my $remote = LJ::get_remote();
     my $ret;
 
-    $ret .= "<div id='header-userpic'><a href='$LJ::SITEROOT/editpics'>";
+    $ret .= "<div id='header-userpic'><a href='$LJ::SITEROOT/editicons'>";
 
     if ( $remote ) {
         my $userpic = $remote->userpic;

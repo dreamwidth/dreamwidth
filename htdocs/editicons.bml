@@ -19,10 +19,10 @@ use strict;
     use Carp qw(croak);
 
     LJ::set_active_crumb('manageuserpics');
-    BML::set_language_scope("/editpics.bml");
+    BML::set_language_scope("/editicons.bml");
 
     my $suffix = "";
-    if (BML::get_request()->uri =~ /editpics-beta/) {
+    if (BML::get_request()->uri =~ /editicons-beta/) {
         $suffix = "-beta";
     }
 
@@ -48,11 +48,11 @@ use strict;
 
     LJ::need_res(qw(
                     stc/lj_base.css
-                    stc/editpics.css
+                    stc/editicons.css
                     js/progressbar.js
                     js/ljprogressbar.js
                     js/perlbal-uploadtrack.js
-                    js/editpics.js
+                    js/editicons.js
                     ));
 
     my $authas = $GET{'authas'} || $remote->{'user'};
@@ -322,7 +322,7 @@ use strict;
     }
 
     # authas switcher form
-    $body .= "<form method='get' id='userpic_authas' action='editpics$suffix'>\n";
+    $body .= "<form method='get' id='userpic_authas' action='editicons$suffix'>\n";
     $body .= LJ::make_authas_select($remote, { 'authas' => $GET{'authas'} }) . "\n";
     $body .= "</form>\n\n";
 
@@ -345,8 +345,8 @@ use strict;
             $body .= qq {
                 <iframe name='upiframe' width='1' height='1' style='border: none'></iframe>
                 <div id='uploadBox' class='pkg'><div id='uploadBox-inner'>
-                    <form enctype="multipart/form-data" action="editpics$suffix$getextra" method='post' id='uploadPic'>
-                    <input type="hidden" id="go_to" name="go_to" value="editpics$suffix$getextra" />
+                    <form enctype="multipart/form-data" action="editicons$suffix$getextra" method='post' id='uploadPic'>
+                    <input type="hidden" id="go_to" name="go_to" value="editicons$suffix$getextra" />
             };
 
             $body .= "<?h1 $ML{'.uploadheader'} h1?>\n";
@@ -471,13 +471,13 @@ use strict;
     # print out each pic and editing fields
     if ( scalar @userpics ) {
         $body .= "<div id='current_userpics'>";
-        $body .= "<form method='post' action='editpics$suffix$getextra'>";
+        $body .= "<form method='post' action='editicons$suffix$getextra'>";
         $body .= LJ::form_auth();
 
         $body .= qq {
                 <?h1 $ML{'.curpics'} h1?>
                 <?p $ML{'.curpics.desc2'} p?>
-                <div class='EditPicsStatus'>
+                <div class='EditIconsStatus'>
             };
 
         $body .= "<p><strong>" . BML::ml('.piclimitstatus', {current => scalar @userpics, max => $max}) . "</strong></p>";;
@@ -498,7 +498,7 @@ use strict;
             my $pid = $pic->id;
             
             $body .= "<div class='pkg userpic_wrapper'>";
-            $body .= "<span class='EditPicsUserpic'>" .  $pic->imgtag . "</span>\n";
+            $body .= "<span class='EditIconsUserpic'>" .  $pic->imgtag . "</span>\n";
 
             # TODO: if no keywords then light grey text and empty out when you click in it
             my $keywords = $pic->keywords;
@@ -580,7 +580,7 @@ use strict;
         $body .= "</form>";
         $body .= "</div><!-- end #current_userpics -->";
         $body .= "<script type='text/javascript'>\n";
-        $body .= "editpicsInit();\n";
+        $body .= "editiconsInit();\n";
         $body .= "</script>\n";
 
     } else {
