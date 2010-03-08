@@ -103,15 +103,34 @@ sub render_body {
         my %prop_in_subheader;
         foreach my $prop_name ( @$groupprops ) {
             next unless $prop_name =~ /_group$/;
- 
+
+            # use module_*_section for the dropdown 
             my $prop_name_section = $prop_name;
             $prop_name_section =~ s/(.*)_group$/\1_section/;
+
+            # module_*_section_override overrides module_*_section;
+            # for use in child layouts since they cannot redefine an existing property
+            my $prop_name_section_override = $props->{"${prop_name_section}_override"}->{values};
+
+            $prop_name_section = "${prop_name_section}_override"
+                if $prop_name_section_override;
 
             # populate section dropdown values with the layout's list of available sections, if not already set
             $props->{$prop_name_section}->{values} ||= $layout_sections_values;
 
             # put this property under the proper subheader
             my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+
+            if ( $prop_name_section_override ) {
+                my %override_sections = split( /\|/, $prop_name_section_override );
+
+                while ( my ( $key, $value ) = each %override_sections ) {
+                    unless ( $subheaders{$key} ) {
+                        $subheaders{$key} = $value;
+                        push @layout_sections_order, $key;
+                    }
+                }
+            }
 
             # see whether a cap is needed for this module and don't show the module if the user does not have that cap
             my $cap;
