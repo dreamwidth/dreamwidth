@@ -96,11 +96,7 @@ var allowComments = false;
 var allowDescriptions = false;
 
 function addNewUpload(uploadType) {
-  if (document.forms.uploadPic.make_default instanceof HTMLInputElement) {
-    value = document.forms.uploadPic.make_default.checked;
-    document.forms.uploadPic.make_default.type = "radio";
-    document.forms.uploadPic.make_default.checked = value;
-  }
+  updateMakeDefaultType(true);
 
   insertIntoTag = document.getElementById("multi_insert");
   insertElement = document.createElement("p");
@@ -142,6 +138,7 @@ function addNewUpload(uploadType) {
 function removeAdditionalUpload(removeIndex) {
   if (document.forms.uploadPic.make_default.length == 3) {
     removeNoDefaultButton();
+    updateMakeDefaultType(false);
   }
 
   removeFromTag = document.getElementById("multi_insert");
@@ -152,11 +149,6 @@ function removeAdditionalUpload(removeIndex) {
     unhideUploadButtons();
   }
 
-  if (document.forms.uploadPic.make_default instanceof HTMLInputElement) {
-    value = document.forms.uploadPic.make_default.checked;
-    document.forms.uploadPic.make_default.type = "checkbox";
-    document.forms.uploadPic.make_default.checked = value;
-  }
 }
 
 function hideUploadButtons() {
@@ -204,6 +196,25 @@ function keyPressUrlUpload() {
 function keyPressFileUpload() {
   $("radio_file").checked =true;
   selectFileUpload();
+}
+
+function updateMakeDefaultType(multi) {
+  var makeDefaultInput = $('make_default_0');
+
+  if (makeDefaultInput != null) {
+    // see if we're already correct
+    if ((multi && makeDefaultInput.type != "radio") || (! multi && makeDefaultInput.type != "checkbox")) {
+      var containerElement = $('main_make_default');
+
+      value = makeDefaultInput.checked;
+      if (multi) {
+        containerElement.innerHTML = containerElement.innerHTML.replace(/checkbox/, "radio");
+      } else {
+        containerElement.innerHTML = containerElement.innerHTML.replace(/radio/, "checkbox");
+      }
+      $('make_default_0').checked = value;
+    }
+  }
 }
 
 DOM.addEventListener(window, "load", setup);

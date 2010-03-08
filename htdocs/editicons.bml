@@ -404,12 +404,14 @@ use strict;
             $body .= "<p class='detail'>$ML{'.label.description.desc'}</p>\n";
 
             $body .= "<p class='pkg'>\n";
+            $body .= "<span id='main_make_default'>";
             $body .= LJ::html_check({ 'type' => 'checkbox',
                                       'name' => 'make_default',
                                       'id' => 'make_default_0',
                                       'value' => '0',
                                       'selected' => @userpics ? 0 : 1,
                                       'accesskey' => $ML{'.makedefault.key'} });
+            $body .= "</span>";
 
             $body .= "<label for='make_default_0'>$ML{'.makedefault'}</label>\n";
             $body .= "</p>\n";
