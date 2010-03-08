@@ -21,14 +21,14 @@ body<=
 {
     use strict;
     use DW::Request;
-    use vars qw/ $title $windowtitle $headextra /;
+    use vars qw/ $title $windowtitle $head /;
 
     my $r = DW::Request->get;
     my $code = $r->pnote( 'render_sitescheme_code' );
     my $extras = $r->pnote( 'render_sitescheme_extra' );
     return BML::redirect($LJ::SITEROOT) unless $code;
 
-    $headextra = $extras->{headextra} || "";
+    $head = $extras->{head} || "";
     $title = $extras->{title} || "";
     $windowtitle = $extras->{windowtitle} || "";
 
@@ -36,7 +36,7 @@ body<=
 }
 _code?>
 <=body
-headextra=><?_code return BML::ebml( $headextra ); _code?>
+head=><?_code return BML::ebml( $head ); _code?>
 title=><?_code return BML::ebml( $title ); _code?>
 windowtitle=><?_code return BML::ebml( $windowtitle ); _code?>
 page?>
