@@ -49,6 +49,9 @@ modish/themes           theme+          modish/layout
 negatives/layout        layout          core2
 negatives/themes        theme+          negatives/layout
 
+nouveauoleanders/layout           layout(core2base/layout)    core2
+nouveauoleanders/themes           theme+          nouveauoleanders/layout
+
 refriedtablet/layout    layout(core2base/layout)    core2
 refriedtablet/themes    theme+          refriedtablet/layout
 

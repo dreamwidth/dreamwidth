@@ -1,0 +1,257 @@
+#NEWLAYER: nouveauoleanders/sienna
+layerinfo "type" = "theme";
+layerinfo "name" = "Sienna";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "nouveauoleanders/sienna";
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#900";
+set color_page_link_visited = "#600";
+set color_page_link_hover = "";
+set color_page_link_active = "#f00";
+set color_page_title = "#fff";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#000";
+set color_footer_background = "#000";
+set color_footer_link = "#fff";
+set color_footer_link_visited = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#000";
+set color_entry_title = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#7C7363";
+set color_module_text = "#fff";
+set color_module_link = "#fff";
+set color_module_link_visited = "#ddd";
+set color_module_link_hover = "";
+set color_module_link_active = "#900";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/piquant
+layerinfo "type" = "theme";
+layerinfo "name" = "Piquant";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "nouveauoleanders/piquant";
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+#uses the "I'm a fat tomato" palatte by BobWestbrook (http://www.colourlovers.com/palette/912675/Im_a_fat_tomato)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#9E9767";
+set color_page_text = "#fff";
+set color_page_link = "#eee";
+set color_page_link_visited = "#ddd";
+set color_page_link_hover = "";
+set color_page_link_active = "#c00";
+set color_page_title = "#fff";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#3A0404";
+set color_footer_background = "#4A0404";
+set color_footer_link = "#fff";
+set color_footer_link_visited = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#000";
+set color_entry_title = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#524D2D";
+set color_module_text = "#fff";
+set color_module_link = "#fff";
+set color_module_link_visited = "#ddd";
+set color_module_link_hover = "";
+set color_module_link_active = "";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/wisteria
+layerinfo "type" = "theme";
+layerinfo "name" = "Wisteria";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "nouveauoleanders/wisteria";
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+#uses the "Siren" palatte by Faeleia (http://www.colourlovers.com/palette/912366/Siren)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#D7B55C";
+set color_page_link_visited = "#9F7DA1";
+set color_page_link_hover = "";
+set color_page_link_active = "#c00";
+set color_page_title = "#fff";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#4A3549";#293066
+set color_footer_background = "#4A3549";
+set color_footer_link = "#fff";
+set color_footer_link_visited = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#000";
+set color_entry_title = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#856685";
+set color_module_text = "#fff";
+set color_module_link = "#eee";
+set color_module_link_visited = "#ddd";
+set color_module_link_hover = "";
+set color_module_link_active = "#D7B55C";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+
+
+#NEWLAYER: nouveauoleanders/dustyantique
+layerinfo "type" = "theme";
+layerinfo "name" = "Dusty Antique";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "nouveauoleanders/dustyantique";
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+#uses the "i'm home again" palatte by dinsdale (http://www.colourlovers.com/palette/130396/im_home_again)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#7A7172";
+set color_page_text = "#fff";
+set color_page_link = "#E7CDCE";
+set color_page_link_visited = "#2B1A1A";
+set color_page_link_hover = "";
+set color_page_link_active = "#fed";
+set color_page_title = "#fff";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#2B1A1A";
+set color_footer_background = "#2B1A1A";
+set color_footer_link = "#fff";
+set color_footer_link_visited = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#000";
+set color_entry_title = "#fff";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#443738";
+set color_module_text = "#fff";
+set color_module_link = "#fff";
+set color_module_link_visited = "#ccc";
+set color_module_link_hover = "";
+set color_module_link_active = "#E7CDCE";
+set color_module_title = "#fff";
+set color_module_title_background = "#282421";
+
+
+#NEWLAYER: nouveauoleanders/seaandsalt
+layerinfo "type" = "theme";
+layerinfo "name" = "Sea and Salt";
+layerinfo author_name = "branchandroot";
+layerinfo redist_uniq = "nouveauoleanders/seaandsalt";
+
+set layout_resources = [ { "name" => "OpenClipart", "url" => "http://www.openclipart.org/" } ];
+
+#uses the "Oceanside Twilight" palatte by BlueLou (http://www.colourlovers.com/palette/912345/Oceanside_Twilight)
+
+##===============================
+## Page Colors
+##===============================
+
+set color_page_background = "#fff";
+set color_page_text = "#000";
+set color_page_link = "#125468";
+set color_page_link_visited = "#1A3148";
+set color_page_link_hover = "";
+set color_page_link_active = "#cc6";
+set color_page_title = "#fff";
+
+##===============================
+## Header and Footer Colors
+##===============================
+
+set color_header_background = "#1A3148";
+set color_footer_background = "#1A3148";
+set color_footer_link = "#fff";
+set color_footer_link_visited = "#ddd";
+
+##===============================
+## Entry Colors
+##===============================
+
+set color_entry_border = "#000";
+set color_entry_title = "#000";
+
+##===============================
+## Module Colors
+##===============================
+
+set color_module_background = "#125468";
+set color_module_text = "#fff";
+set color_module_link = "#eee";
+set color_module_link_visited = "#ddd";
+set color_module_link_hover = "";
+set color_module_link_active = "#ffd";
+set color_module_title = "#fff";
+set color_module_title_background = "#000";
+

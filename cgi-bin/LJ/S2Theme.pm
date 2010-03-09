@@ -59,6 +59,7 @@ sub default_theme {
         fluidmeasure => 'fluidmeasure/spice',
         funkycircles => 'funkycircles/darkpurple',
         negatives => 'negatives/black',
+		nouveauoleanders => 'nouveauoleanders/sienna',
         refriedtablet => 'refriedtablet/refriedclassic',
         skittlishdreams => 'skittlishdreams/orange',
         steppingstones => 'steppingstones/purple',
