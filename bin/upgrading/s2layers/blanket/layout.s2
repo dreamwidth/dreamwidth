@@ -336,7 +336,7 @@ hr.above-entry-interaction-links, hr.below-reply-container { display: none; }
 input, textarea { padding: 5px; font: 1em Helvetica, Arial, 'Arial Narrow', sans-serif; line-height: 1.8em; $input_colors }
 textarea.textbox  { width: 100% !important; }
 
-.comment { margin: 0 auto 2em auto; background: #FFF; padding: 40px 20px; border-left: 20px solid $*color_page_border; }
+.comment { margin: 0 auto 2em auto; padding: 40px 20px; border-left: 20px solid $*color_page_border; $entry_colors }
 .comment-wrapper { margin: 2em 0; padding: 0; }
 
 .bottomcomment { margin: 0 auto 2em auto; padding: 4em 2em; border-left: 20px solid $*color_page_border; $entry_colors }
