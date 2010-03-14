@@ -269,6 +269,7 @@ _c?>
         my $comments = LJ::S2::CommentInfo({
             'read_url' => "#",
             'post_url' => "#",
+            'permalink_url' => "#",
             'count' => "0",
             'maxcomments' => 0,
             'enabled' => ($u->{'opt_showtalklinks'} eq "Y" && !

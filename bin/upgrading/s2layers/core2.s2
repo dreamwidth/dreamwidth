@@ -243,6 +243,7 @@ class CommentInfo
 {
     var readonly string read_url "URL pointer to the 'Read Comments' view.";
     var readonly string post_url "URL pointer to the 'Post Comments' view.";
+    var readonly string permalink_url "Permanent URL for the entry.";
     var int count "Current number of comments available to be read by the viewer.";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
@@ -4981,17 +4982,16 @@ function CommentInfo::print_postlink() {
 }
 function CommentInfo::print() {
         """<ul class="entry-interaction-links">\n""";
+        """<li class="entry-permalink first-item"><a href="$.permalink_url">$*text_permalink</a></li>\n""";
         if ($.show_readlink) {
-            """<li class="entry-readlink first-item">""";
+            """<li class="entry-readlink">""";
             $this->print_readlink();
-	    "</li>\n";
-        } else {
-	    """<li class="entry-permalink first-item"><a href="$.read_url">$*text_permalink</a></li>\n""";
+            "</li>\n";
         }
         if ($.show_postlink and $.enabled) {
             """<li class="entry-replylink">""";
             $this->print_postlink();
-	    "</li>\n";
+            "</li>\n";
         }
         "</ul>";
 }
