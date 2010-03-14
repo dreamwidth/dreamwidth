@@ -3176,7 +3176,7 @@ sub init {
         $bmlerr->("$SC.error.noanon");
     }
 
-    if ($iprops->{'opt_nocomments'}) {
+    if ( $ent->comments_disabled ) {
         $bmlerr->("$SC.error.nocomments");
     }
 

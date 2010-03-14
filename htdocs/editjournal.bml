@@ -206,7 +206,7 @@ body<=
             if ($POST{'action:savemaintainer'} && !$disabled_spamdelete) {
                 return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
 
-                my @props = qw(adult_content_maintainer_reason adult_content_maintainer);
+                my @props = qw( adult_content_maintainer_reason adult_content_maintainer opt_nocomments_maintainer );
 
                 my $propset = {};
                 foreach my $pname (@props) {

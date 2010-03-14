@@ -1975,7 +1975,7 @@ sub Entry_from_entryobj
     my $readurl = LJ::Talk::talkargs( $permalink, $nc, $style_args );
     my $posturl = LJ::Talk::talkargs( $permalink, 'mode=reply', $style_args );
 
-    my $comments_enabled = ( ( $journal->{opt_showtalklinks} eq "Y" ) && ( ! $entry_obj->props->{opt_nocomments} ) ) ? 1 : 0;
+    my $comments_enabled = ( ( $journal->{opt_showtalklinks} eq "Y" ) && !$entry_obj->comments_disabled ) ? 1 : 0;
     my $has_screened = ( $entry_obj->props->{hasscreened} && LJ::can_manage( $remote, $journal ) ) ? 1 : 0;
 
     # building the CommentInfo and Entry objects

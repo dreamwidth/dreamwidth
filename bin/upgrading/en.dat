@@ -989,6 +989,8 @@ entryform.backdated2=Backdate &amp; exclude from all Friends Pages
 
 entryform.backdated3=Date Out of Order
 
+entryform.comment.disable=Disable comments?
+
 entryform.comment.screening=Screen Comments:
 
 entryform.comment.screening2=Comment Screening:
@@ -1006,6 +1008,8 @@ entryform.comment.settings.default4=Journal Default ([[aopts]])
 entryform.comment.settings.default5=Journal Default
 
 entryform.comment.settings.nocomments=Disabled
+
+entryform.comment.settings.nocomments.maintainer=Disabled by maintainer
 
 entryform.comment.settings.noemail=Don't E-mail
 
@@ -3422,6 +3426,8 @@ talk.commentsread=Read comments
 talk.commentsread.counted=Read [[replycount]] [[?replycount|comment|comments]]
 
 talk.comments.counted=[[replycount]] [[?replycount|comment|comments]]
+
+talk.comments.disabled_maintainer=Comments disabled by a maintainer of this community
 
 talk.commentsread.nocomments=No comments
 

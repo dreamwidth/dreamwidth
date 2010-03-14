@@ -489,7 +489,8 @@ sub EntryPage_entry
         'permalink_url' => $linkurl,
         'count' => $replycount,
         'maxcomments' => ( $replycount >= $u->count_maxcomments ) ? 1 : 0,
-        'enabled' => ($viewall || ($u->{'opt_showtalklinks'} eq "Y" && !$entry->prop("opt_nocomments"))) ? 1 : 0,
+        enabled => ( $viewall || ( $u->{opt_showtalklinks} eq "Y" && !$entry->comments_disabled ) ) ? 1 : 0,
+        comments_disabled_maintainer => $entry->comments_disabled_maintainer,
         'screened' => ($entry->prop("hasscreened") && $remote && LJ::can_manage($remote, $u)) ? 1 : 0,
     });
     $comments->{show_postlink} = $comments->{enabled} && $get->{mode} ne 'reply';

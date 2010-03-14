@@ -381,7 +381,7 @@ body<=
     $ret .= "<p align='center' class='lesstop'><b>(<a href=\"$readurl#comments\">$readlink_text</a>)</b></p>";
 
     # can a comment even be made?
-    if ($props->{'opt_nocomments'}) {
+    if ( $entry->comments_disabled ) {
         $ret .= "<?h1 $ML{'Sorry'} h1?><?p $ML{'.error.nocommentspost'} p?>";
         return $ret;
     }

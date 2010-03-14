@@ -915,6 +915,25 @@ sub adult_content_marker {
     return $self->journal->adult_content_marker;
 }
 
+# return whether this entry has comments disabled, either by the poster or by the maintainer
+sub comments_disabled {
+    my $self = $_[0];
+
+    return $self->prop( 'opt_nocomments' ) || $self->prop( 'opt_nocomments_maintainer' );
+}
+
+# return whether comments were disabled by the entry poster
+sub comments_disabled_poster {
+    return $_[0]->prop( 'opt_nocomments' );
+}
+
+# return whether this post had its comments disabled by a community maintainer (not by the poster, who can override the community moderator)
+sub comments_disabled_maintainer {
+    my $self = $_[0];
+
+    return $self->prop( 'opt_nocomments_maintainer' ) && !$self->comments_disabled_poster;
+}
+
 sub qotdid {
     my $self = shift;
 

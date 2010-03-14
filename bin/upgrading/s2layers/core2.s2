@@ -247,6 +247,7 @@ class CommentInfo
     var int count "Current number of comments available to be read by the viewer.";
     var bool screened "Set to true if there are screened comments and remote user can unscreen them.";
     var bool enabled "Set to false if comments disabled journal-wide or just on this item.";
+    var bool comments_disabled_maintainer "Set to true if the comments on this entry were disabled by a community maintainer";
     var bool maxcomments "Set to true if entry has reached a comment maximum.";
     var bool show_postlink "Indicates whether the Post Comment link for this entry should be shown.";
     var bool show_readlink "Indicates whether the Read Comments link for this entry should be shown.";
@@ -2194,6 +2195,12 @@ property string text_read_comments_threads {
     example = "1 response // # responses";
 }
 set text_read_comments_threads = "1 response // # responses";
+
+property string text_comments_disabled_maintainer {
+    des = "Text shown instead of comments if a community maintainer has disabled comments";
+    example = "Comments disabled by a maintainer of this community";
+}
+set text_comments_disabled_maintainer = "Comments disabled by a maintainer of this community";
 
 ##===============================
 ## Text - entry actions
@@ -5045,11 +5052,14 @@ function Redirector::end_form ()
 function EntryPage::print_comment_section(Entry e) {
    "<div id='comments'><div class='inner'>";
    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages" });
+   if ( $e.comments.comments_disabled_maintainer ) {
+       """<div class='comments-message'>$*text_comments_disabled_maintainer</div>""";
+   } 
    if ($.comment_pages.total_subitems > 0) {
        $this->print_multiform_start();
    }
    $this->print_comments($.comments);
-    if ($.comment_pages.total_subitems > 0) {
+   if ($.comment_pages.total_subitems > 0) {
         "<div class='bottomcomment'>";
         $e->print_management_links();
         $e->print_interaction_links("bottomcomment");
@@ -5057,7 +5067,7 @@ function EntryPage::print_comment_section(Entry e) {
         $this->print_multiform_actionline();
         $this->print_multiform_end();
         "</div>";
-    }
+   }
    $.comment_pages->print({ "anchor" => "comments", "class" => "comment-pages" });
     "</div></div>";
 }

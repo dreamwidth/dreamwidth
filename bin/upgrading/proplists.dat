@@ -1257,6 +1257,13 @@ logproplist.opt_nocomments:
   sortorder: 25
   ownership: user
 
+logproplist.opt_nocomments_maintainer:
+  datatype: bool
+  des: Disables comments on this entry -- community maintainer override.
+  prettyname: Don't Allow Comments (Maintainer Override)
+  sortorder: 105
+  ownership: system
+
 logproplist.opt_noemail:
   datatype: bool
   des: Turn on if the poster isn't interested in receiving comments to this post by email

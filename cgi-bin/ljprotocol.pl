@@ -1810,6 +1810,11 @@ sub editevent
             $props_byname{$key} = $req->{'props'}->{$key};
         }
     }
+    # additionally, if the 'opt_nocomments_maintainer' prop was set before and the poster now sets
+    # 'opt_nocomments' to 0 again, 'opt_nocomments_maintainer' should be set to 0 again, as well
+    # so comments are enabled again
+    $req->{props}->{opt_nocomments_maintainer} = 0 
+        if defined $req->{props}->{opt_nocomments} && !$req->{props}->{opt_nocomments};
 
     my $event = $req->{'event'};
     my $owneru = LJ::load_userid($ownerid);

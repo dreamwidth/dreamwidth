@@ -1577,7 +1577,7 @@ MOODS
             # Comment Settings
             my $comment_settings_selected = sub {
                 return "noemail" if $opts->{'prop_opt_noemail'};
-                return "nocomments" if $opts->{'prop_opt_nocomments'};
+                return "nocomments" if $opts->{prop_opt_nocomments} || $opts->{prop_opt_nocomments_maintainer};
                 return $opts->{'comment_settings'};
             };
 
@@ -1587,10 +1587,13 @@ MOODS
                 return "Enabled";
             };
 
+            my $nocomments_display = $opts->{prop_opt_nocomments_maintainer} ? 
+                'entryform.comment.settings.nocomments.maintainer' : 'entryform.comment.settings.nocomments';
+
             my $comment_settings_default = BML::ml('entryform.comment.settings.default5', {'aopts' => $comment_settings_journaldefault->()});
             $out .= LJ::html_select({ 'name' => "comment_settings", 'id' => 'comment_settings', 'class' => 'select', 'selected' => $comment_settings_selected->(),
-                                  'tabindex' => $tabindex->() },
-                                "", $comment_settings_default, "nocomments", BML::ml('entryform.comment.settings.nocomments',"noemail"), "noemail", BML::ml('entryform.comment.settings.noemail'));
+                'tabindex' => $tabindex->() },
+                 "", $comment_settings_default, "nocomments", BML::ml( $nocomments_display ,"noemail" ), "noemail", BML::ml( 'entryform.comment.settings.noemail' ));
             $out .= LJ::help_icon_html("comment", "", " ");
             $out .= "\n";
             $out .= "</span>\n";
@@ -1818,6 +1821,7 @@ PREVIEW
         $out .= "<em>" . BML::ml('entryform.maintainer') . "</em>\n";
         $out .= "</p>\n";
 
+        # adult content settings
         if ( LJ::is_enabled( 'adult_content' ) ) {
             $out .= "<p class='pkg'>\n";
             my %poster_adult_content_menu = (
@@ -1862,6 +1866,28 @@ PREVIEW
              $out .= "</p>";
         }
 
+        # comment disabling/enabling
+        # only possible if comments weren't disabled by poster
+        unless ( $opts->{prop_opt_nocomments} ) {
+            $out .= "<p class='pkg'>";
+            $out .= "<label for='prop_opt_nocomments_maintainer' class='left options'>" . BML::ml( 'entryform.comment.disable' ) . "</label>";
+
+            # comment disabling is done via a checkbox as it has only two settings
+            # if we got this far, this is always set to the maintainer setting
+            my $selected = $opts->{prop_opt_nocomments_maintainer};
+            $out .= LJ::html_check( 
+                {
+                    type     => 'checkbox',
+                    name     => "prop_opt_nocomments_maintainer",
+                    id       => "prop_opt_nocomments_maintainer",
+                    class    => 'check',
+                    value    => '1',
+                    selected => $selected,
+                    tabindex => $tabindex->(),
+                }
+            );
+            $out .= "</p>";
+        }
     }
 
     $out .= "</div><!-- end #options -->\n\n";

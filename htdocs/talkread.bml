@@ -196,8 +196,7 @@ body<=
 
     my $props = $item->{'props'};
     my $nocomments = $viewall                         ? 0 :
-                     $u->{'opt_showtalklinks'} eq "N" ? 1 : $props->{'opt_nocomments'};
-
+                     $u->{'opt_showtalklinks'} eq "N" ? 1 : $entry->comments_disabled;
 
     #
     # End of permissions logic
@@ -784,8 +783,9 @@ body<=
     #
     # Display comment threads and commenting UI
     #
-    unless ($nocomments)
-    {
+    if ( $nocomments ) {
+        $ret .= BML::ml( "talk.comments.disabled_maintainer" ) if $entry->comments_disabled_maintainer;
+    } else {
         $ret .= "<div id='Comments'>";
         $ret .= "<a name='comments'></a>";
         $ret .= "<p>$navcrap</p>" if $navcrap;

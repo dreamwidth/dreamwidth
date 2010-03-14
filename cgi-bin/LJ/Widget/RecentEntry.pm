@@ -68,7 +68,7 @@ sub render_body {
             } else {
                 $ret .= "<a href='$link'><strong>Link</strong></a>";
             }
-            unless ($entry->prop('opt_nocomments')) {
+            unless ( $entry->comments_disabled ) {
                 $ret .= " | <a href='$link?mode=reply'><strong>Leave a comment</strong></a>";
             }
         } else {
