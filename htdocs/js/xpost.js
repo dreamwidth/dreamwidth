@@ -43,8 +43,12 @@ XPostAccount = new Class(Object, {
     },
 
     doChallengeResponse: function () {
+      var xpost_button = $("prop_xpost_check");
+
       // check to see if we need to do a challenge/response for this.
-      if ((! this.locked) && this.chalField != null && this.checkboxTag != null && this.checkboxTag.checked) {
+      if ((! this.locked) && this.chalField != null
+            && this.checkboxTag != null && this.checkboxTag.checked
+            && xpost_button != null && xpost_button.checked) {
         this.locked = true;
 
         if (this.passField == null || this.passField.value == null || this.passField.value == "") {
