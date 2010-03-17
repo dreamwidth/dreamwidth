@@ -328,7 +328,7 @@ sub create_external_account {
     if ($ok) {
         # if the user requested that we don't save their password, then
         # don't save their password.
-        $opts{password} = "" if $opts{savepassword};
+        $opts{password} = "" unless $opts{savepassword};
 
         my $new_acct = DW::External::Account->create($u, \%opts);
         # FIXME add error if create fails.
