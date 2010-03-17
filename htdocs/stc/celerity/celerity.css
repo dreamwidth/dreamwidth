@@ -724,7 +724,7 @@ table.allpics {
     vertical-align: bottom;
 }
 
-.allpics img {
+.allpics .userpic-img {
     margin-right: 1em;
     margin-top: 15px;
 }
