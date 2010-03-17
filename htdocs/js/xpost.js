@@ -155,8 +155,10 @@ XPostAccount.updateXpostFromJournal = function (user) {
 
   var xpostdiv = $('xpostdiv');
   if (allowXpost) {
+    XPostAccount.skipChecks = false;
     xpostdiv.style.display = 'block';
   } else {
+    XPostAccount.skipChecks = true;
     xpostdiv.style.display = 'none';
   }
 }
