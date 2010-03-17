@@ -275,7 +275,7 @@ HEAD
          );
         $ret .= '<br /><br />';
 
-        my $del_conf = $ML{'.confirm.delete'};
+        my $del_conf = LJ::ejs( $ML{'.confirm.delete'} );
         $ret .= LJ::html_submit(
             'delete', $ML{'.button.delete'},
             {
