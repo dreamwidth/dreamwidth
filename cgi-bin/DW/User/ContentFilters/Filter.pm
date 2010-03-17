@@ -258,12 +258,16 @@ sub show_entry {
     # step 3) tags, but only if they actually selected some
     my @tagids = @{ $opts->{tags} || [] };
     if ( scalar @tagids > 0 ) {
+
+        # set a default/assumed value
+        $opts->{tagmode} ||= 'any_of';
+
         # we change the initial state to make the logic below easier
         my $include = {
                 none_of => 1,
                 any_of => 0,
                 all_of => 0,
-            }->{$opts->{tagmode} || 'any_of'};
+            }->{$opts->{tagmode}};
         return $fail->( 'bad_tagmode' ) unless defined $include;
 
         # now iterate over each tag and alter $include
