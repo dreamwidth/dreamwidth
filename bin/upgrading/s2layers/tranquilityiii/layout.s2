@@ -198,7 +198,7 @@ ul.comment-interaction-links li { border-left: 1px solid;
 ul.comment-management-links li.first-item { border-left: none; }
 ul.comment-interaction-links li.reply { font-weight: bold; }
 
-.bottomcomment { padding: 1px; }
+.bottomcomment, .comments-message { padding: 1px; }
 
 .bottomcomment .entry-management-links,
 .bottomcomment .entry-interaction-links { margin: .25em 0 .5em 0;}

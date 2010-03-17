@@ -638,7 +638,7 @@ h2#pagetitle {
 .page-entry .comment .footer,
 .page-reply .comment .footer,
 .page-tags .tags-container .manage-tags-link,
-.bottomcomment {
+.bottomcomment, .comments-message {
     $entry_footer_colors
     padding: 0 .5em;
     text-align: right;

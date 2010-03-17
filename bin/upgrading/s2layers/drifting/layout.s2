@@ -722,9 +722,9 @@ function Page::print_default_stylesheet()
         width: 500px; /* will cause scrolling without this in IE7 */
     }
 
-    /* Mass Actions
+    /* Mass Actions, Comments Message
     ***************************************************************************/
-    .bottomcomment {
+    .bottomcomment, .comments-message {
         font-size: 0.9em;
         margin: 1em;
     }

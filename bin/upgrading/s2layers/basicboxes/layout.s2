@@ -169,7 +169,7 @@ ul.entry-interaction-links { text-align: right;
 .comment-management-links { float: right; }
 .comment-interaction-links { text-align: left; }
 
-.bottomcomment { $bottomcomment_colors
+.bottomcomment, .comments-message { $bottomcomment_colors
     padding: .25em; }
     
 .bottomcomment .entry-management-links,

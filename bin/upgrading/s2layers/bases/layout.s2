@@ -602,7 +602,7 @@ li.first-item {margin-left: 0;}
 
 .comment-wrapper {padding-top: 0;}
 
-.bottomcomment {padding-bottom: 0.833em; text-align: center; margin: 0.833em 0 0 0; }
+.bottomcomment, .comments-message {padding-bottom: 0.833em; text-align: center; margin: 0.833em 0 0 0; }
 .bottomcomment .entry-interaction-links {margin-bottom: 0.833em; text-align: left;}
 
 .ljcmtmanage, .Note .Inner {border: 0.083em solid $*color_page_border !important; background: $*color_entry_background !important; }

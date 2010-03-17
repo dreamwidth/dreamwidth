@@ -369,7 +369,7 @@ padding-top: 2em; } /*die in a fire, IE7*/
 .comment-management-links { float: right; }
 .comment-interaction-links { text-align: left; }
 
-.bottomcomment { padding: .5em;
+.bottomcomment, .comments-message { padding: .5em;
     margin-bottom: 2em;
     background-color: $*color_entry_background;
     border-radius: 1em;

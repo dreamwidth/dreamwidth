@@ -591,11 +591,11 @@ blockquote {margin: 1em; padding: 1em; $blockquote_colors }
 .two-columns-right.page-tags .navigation {$navigation_background}
 .two-columns-left.page-tags .navigation {$navigation_background_redux}
 
-.two-columns-right .bottomcomment { $navigation_background }
-.two-columns-left .bottomcomment { $navigation_background_redux }
-#comments .bottomcomment  {min-height:6em;border-top:4px solid $*color_page_border;text-align:center; background-color: transparent;}
-.two-columns-right .bottomcomment  {margin:20px -22px 20px 0;padding-right:30px;}
-.two-columns-left .bottomcomment  {margin:20px 0 20px -22px;padding-left:30px;}
+.two-columns-right .bottomcomment, .two-columns-right .comments-message { $navigation_background }
+.two-columns-left .bottomcomment, .two-columns-left .comments-message { $navigation_background_redux }
+#comments .bottomcomment, #comments .comments-message {min-height:6em;border-top:4px solid $*color_page_border;text-align:center; background-color: transparent;}
+.two-columns-right .bottomcomment, .two-columns-right .comments-message {margin:20px -22px 20px 0;padding-right:30px;}
+.two-columns-left .bottomcomment, .two-columns-left .comments-message  {margin:20px 0 20px -22px;padding-left:30px;}
 
 .navigation {margin: 0; padding: 0; text-align: center; $navigation_colors }
 .navigation ul {margin: 0; padding: 5px 0 0 0; text-align: center; }

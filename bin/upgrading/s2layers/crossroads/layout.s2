@@ -238,7 +238,7 @@ ul.entry-interaction-links { text-align: right;
     margin-top: .5em;
     margin-bottom: .5em; }
 
-.bottomcomment { padding: .5em;
+.bottomcomment, .comments-message { padding: .5em;
     margin: 2em 0;
     font-size: small;
     background-color: $*color_entry_title_background;

@@ -193,7 +193,7 @@ right: 5px;}
 .comment-management-links { float: right; }
 .comment-interaction-links { text-align: left; }
 
-.bottomcomment { padding: .25em;
+.bottomcomment, .comments-message { padding: .25em;
     $bottomcomment_colors }
 .bottomcomment a,
 .bottomcomment a:visited { $bottomcomment_link_colors }

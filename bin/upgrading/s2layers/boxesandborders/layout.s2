@@ -176,7 +176,7 @@ ul.entry-interaction-links { text-align: right;
 .comment-management-links { float: right; }
 .comment-interaction-links { text-align: left; }
 
-.bottomcomment { padding: 1px 1px 3px 1px;
+.bottomcomment, .comments-message { padding: 1px 1px 3px 1px;
     $bottomcomment_colors }
 
 .bottomcomment .entry-management-links,

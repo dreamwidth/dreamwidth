@@ -296,7 +296,7 @@ ul.entry-interaction-links { text-align: right;
 .comment-management-links { float: right; }
 .comment-interaction-links { text-align: left; }
 
-.bottomcomment { padding: .5em;
+.bottomcomment, .comments-message { padding: .5em;
     font-size: small;
     border-bottom: 6px double $*color_entry_border;
     border-top: 6px double $*color_entry_border;  }

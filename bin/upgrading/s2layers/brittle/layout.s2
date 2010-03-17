@@ -648,7 +648,7 @@ div.comment div.userpic img {
 .comment-wrapper { margin: 20px 0; padding: 0; }
 .comment-content { margin: 10px 0; }
 
-.bottomcomment {
+.bottomcomment, .comments-message {
     background: $*color_entry_background;
     padding: 20px;
     margin: 0;

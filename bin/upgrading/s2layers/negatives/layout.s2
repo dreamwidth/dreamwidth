@@ -440,7 +440,7 @@ function Page::print_default_stylesheet()
     .tag { margin: 10px 0; }
     .tag ul { display: inline; margin: 0; padding: 0; }
     .tag li { display: inline; }
-    .bottomcomment {
+    .bottomcomment, .comments-message {
         border: 15px double $*color_entry_border;
         padding: 5px;
         margin-top: 5px;
