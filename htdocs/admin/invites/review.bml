@@ -38,8 +38,11 @@ body<=
         }
     }
 
+    my $form = "<form method='GET'><label>User:</label> <input type='text' name='user' /> <input type='submit' value='View Invite History' /></form>"; 
+    return $form unless $GET{user};
+
     my $u = LJ::load_user( $GET{user} );
-    return "<?h1 $ML{'Error'} h1?> Invalid user." unless $u;
+    return "<?h1 $ML{'Error'} h1?> <p>Invalid user.</p> $form" unless $u;
 
     $ret .= "<?p User: " . $u->ljuser_display . " p?>";
     $ret .= "<?h2 Invites h2?>";
