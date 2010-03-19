@@ -677,6 +677,13 @@ class RecentPage extends Page
 
     function print_sticky_entry(StickyEntry s)
     "function to print the sticky entry";
+
+    var bool filter_active
+    "If true, some kind of filter is in effect. If this filter has a name, it will be included in [member[RecentPage.filter_name]]";
+
+    var string filter_name
+    "The name of the filter in effect, if it has a name. This is only used when [member[RecentPage.filter_active]] is true.";
+
 }
 
 class FriendsPage extends RecentPage
@@ -690,12 +697,6 @@ class FriendsPage extends RecentPage
 
     var string friends_mode
     "The 'mode' of this view. An empty string indicates a normal friends view, while 'network' indicates the network view.";
-
-    var bool filter_active
-    "If true, some kind of filter is in effect. If this filter has a name, it will be included in [member[FriendsPage.filter_name]]";
-
-    var string filter_name
-    "The name of the filter in effect, if it has a name. This is only used when 'custom' [member[FriendsPage.filter_active]] is true.";
 }
 
 class DayPage extends Page
@@ -1896,6 +1897,12 @@ property string text_view_recent {
     "size" = 15;
     example = "Recent Posts";
 }
+property string text_view_recent_tagged {
+    des = "Text used to link to a tag-filtered version of the 'Recent Entries' view";
+    maxlength = 40;
+    "size" = 15;
+    example = "Entries tagged with ";
+}
 property string text_view_friends {
     des = "Text used to link to the 'Reading' view";
     maxlength = 40;
@@ -1954,6 +1961,7 @@ property string text_view_tags {
 }
 
 set text_view_recent = "Recent Entries";
+set text_view_recent_tagged = "Entries tagged with ";
 set text_view_friends = "Reading";
 set text_view_friends_comm = "Reading";
 set text_view_friends_filter = "Reading (Custom filter)";
@@ -3216,7 +3224,12 @@ function Page::view_title() [notags] : string {
     return lang_viewname($.view);
 }
 function RecentPage::view_title() : string {
-    return $*text_view_recent;
+    if ($.filter_active) {
+        return $*text_view_recent_tagged + $.filter_name;
+    }
+    else {
+        return $*text_view_recent;
+    }
 }
 function FriendsPage::view_title() : string {
     if ($.friends_mode == "") {

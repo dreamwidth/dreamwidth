@@ -32,6 +32,8 @@ sub RecentPage
     $p->{'_type'} = "RecentPage";
     $p->{'view'} = "recent";
     $p->{'entries'} = [];
+    $p->{'filter_active'} = 0;
+    $p->{'filter_name'} = "";
 
     # Link to the friends page as a "group", for use with OpenID "Group Membership Protocol"
     {
@@ -59,6 +61,11 @@ sub RecentPage
     $p->{'data_links_order'} = [ qw(rss atom) ];
 
     $remote->preload_props( "opt_nctalklinks", "opt_cut_disable_journal") if $remote;
+
+    if ( $opts->{tags} ) {
+        $p->{'filter_active'} = 1;
+        $p->{'filter_name'} = join(", ", @{$opts->{tags}});
+    }
 
     my $get = $opts->{'getargs'};
 
