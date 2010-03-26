@@ -39,7 +39,8 @@ _c?>
     # This property thaws the contents of the userprop 'draft_properties' and
     # sends them back as a JS object.
     if ( defined $GET{getProperties} ) {
-        my $rv = Storable::thaw( $u->prop( 'draft_properties' ) || '' );
+        my $rv = $u->prop( 'draft_properties' ) ? Storable::thaw( $u->prop(
+'draft_properties' ) ) : {};
 
         BML::set_content_type('text/javascript; charset=utf-8');
         BML::finish();

@@ -576,11 +576,13 @@ head<=
         $draft = LJ::ejs_string($remote->prop('entry_draft'));
         %draft_properties = $remote->prop( 'draft_properties' ) ? 
             %{Storable::thaw( $remote->prop( 'draft_properties' ) )} : ' ';
+        %draft_properties = map { $_ => LJ::ejs_string( $draft_properties{$_} ) }
+            qw( subject userpic taglist moodid mood location1 music adultreason commentset commentscr adultcnt );
     }
 
     my $eMLautosave = LJ::ejs(BML::ml('.draft.autosave', { 'time' => '[[time]]' }));
     my $eMLconfirm = LJ::ejs( BML::ml( '.draft.confirm2', 
-                { 'subjectline' => LJ::ejs_string( $draft_properties{subject} ) } ) );
+                { 'subjectline' => $draft_properties{subject}} ) );
     my $eMLrestored = LJ::ejs($ML{'.draft.restored'});
 
     # Setup draft saving and try to restore from a draft
@@ -610,17 +612,17 @@ head<=
         
         // These JS variables contain the contents of the various draft fields.
         var restoredDraft       = $draft;
-        var restoredSubject     = '$draft_properties{subject}';
-        var restoredUserpic     = '$draft_properties{userpic}';
-        var restoredTaglist     = '$draft_properties{taglist}';
-        var restoredMoodID      = '$draft_properties{moodid}';
-        var restoredMood        = '$draft_properties{mood}';
-        var restoredLocation    = '$draft_properties{location1}';
-        var restoredMusic       = '$draft_properties{music}';
-        var restoredAdultReason = '$draft_properties{adultreason}';
-        var restoredCommentSet  = '$draft_properties{commentset}';
-        var restoredCommentScr  = '$draft_properties{commentscr}';
-        var restoredAdultCnt    = '$draft_properties{adultcnt}';
+        var restoredSubject     = $draft_properties{subject};
+        var restoredUserpic     = $draft_properties{userpic};
+        var restoredTaglist     = $draft_properties{taglist};
+        var restoredMoodID      = $draft_properties{moodid};
+        var restoredMood        = $draft_properties{mood};
+        var restoredLocation    = $draft_properties{location1};
+        var restoredMusic       = $draft_properties{music};
+        var restoredAdultReason = $draft_properties{adultreason};
+        var restoredCommentSet  = $draft_properties{commentset};
+        var restoredCommentScr  = $draft_properties{commentscr};
+        var restoredAdultCnt    = $draft_properties{adultcnt};
 
         function init_update_bml() {
             $initDraft
