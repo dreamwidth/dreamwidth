@@ -60,3 +60,7 @@
 td .commentbody {
     margin-bottom: 15px;
 }
+
+a .userpic-img {
+    border: none;
+}
