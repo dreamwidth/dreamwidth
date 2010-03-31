@@ -660,7 +660,7 @@ sub trans
         $ret = DW::Routing->call( username => $user ) unless defined $ret;
         return $ret if defined $ret;
 
-        if ($uuri =~ m#tags(.*)#) {
+        if ($uuri =~ m#^/tags(.*)#) {
             return redir($r, "/tag$1");
         }
 
