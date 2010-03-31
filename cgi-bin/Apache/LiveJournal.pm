@@ -660,6 +660,10 @@ sub trans
         $ret = DW::Routing->call( username => $user ) unless defined $ret;
         return $ret if defined $ret;
 
+        if ($uuri =~ m#tags(.*)#) {
+            return redir($r, "/tag$1");
+        }
+
         if ($uuri eq "/__setdomsess") {
             return redir($r, LJ::Session->setdomsess_handler($r));
         }
