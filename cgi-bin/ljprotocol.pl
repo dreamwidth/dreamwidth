@@ -2695,7 +2695,7 @@ sub hash_menus
                 { 'text' => "Recent Entries",
                   'url' => "$LJ::SITEROOT/users/$user/", },
                 { 'text' => "Calendar View",
-                  'url' => "$LJ::SITEROOT/users/$user/calendar", },
+                  'url' => "$LJ::SITEROOT/users/$user/archive", },
                 { 'text' => "Friends View",
                   'url' => "$LJ::SITEROOT/users/$user/read", },
                 { 'text' => "-", },

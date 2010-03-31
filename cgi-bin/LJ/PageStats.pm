@@ -162,7 +162,7 @@ sub codepath {
     my %s1_map = (
         'bml.talkpost'   => "reply",
         'bml.talkread'   => "entry",
-        'bml.view.index' => "calendar",
+        'bml.view.index' => "archive",
     );
 
     foreach my $s1code (keys %s1_map) {

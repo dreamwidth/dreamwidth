@@ -156,13 +156,13 @@ LJ::MemCache::init();
 $LJ::PROTOCOL_VER = ($LJ::UNICODE ? "1" : "0");
 
 # declare views (calls into ljviews.pl)
-@LJ::views = qw(lastn read calendar day);
+@LJ::views = qw(lastn read archive day);
 %LJ::viewinfo = (
                  "lastn" => {
                      "des" => "Most Recent Events",
                  },
-                 "calendar" => {
-                     "des" => "Calendar",
+                 "archive" => {
+                     "des" => "Archive",
                  },
                  "day" => {
                      "des" => "Day View",

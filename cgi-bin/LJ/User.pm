@@ -8130,7 +8130,7 @@ sub get_daycounts
         if ( defined $getargs{'viewall'} and $getargs{'viewall'} eq '1' and ( $remote && $remote->has_priv( 'canview', '*' ) ) ) {
             $viewall = 1;
             LJ::statushistory_add( $u->userid, $remote->userid,
-                "viewall", "calendar" );
+                "viewall", "archive" );
         }
 
         if ( $remote->userid == $uid || $viewall || $remote->can_manage( $u ) ) {

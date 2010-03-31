@@ -89,8 +89,8 @@ body<=
         $ret .= LJ::bad_input(@errors) if @errors;
         $ret .= "<?p $ML{'.intro'} p?>";
 
-        $ret .= "<?p " . BML::ml('.calendar',
-                                { aopts => "href='" . $u->journal_base() . "/calendar/'" })
+        $ret .= "<?p " . BML::ml('.archive',
+                                { aopts => "href='" . $u->journal_base() . "/archive/'" })
                 . " p?>\n";;
         $ret .= "<?p " . BML::ml( 'xpost.respected', { aopts => "href='$LJ::SITEROOT/manage/settings/?cat=othersites'" } ) . "p?>";
 

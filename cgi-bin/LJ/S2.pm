@@ -129,7 +129,7 @@ sub make_journal
 
     my $view2class = {
         lastn    => "RecentPage",
-        calendar => "YearPage",
+        archive  => "YearPage",
         day      => "DayPage",
         read     => "FriendsPage",
         month    => "MonthPage",
@@ -2080,7 +2080,7 @@ sub Page
         'view_url' => {
             recent   => "$base_url/$style_args",
             userinfo => $u->profile_url,
-            archive  => "$base_url/calendar$style_args",
+            archive  => "$base_url/archive$style_args",
             read     => "$base_url/read$style_args",
             network  => "$base_url/network$style_args",
             tags     => "$base_url/tag/$style_args",
@@ -2522,7 +2522,6 @@ sub get_url
 
     # construct URL to return
     $view = "profile" if $view eq "userinfo";
-    $view = "calendar" if $view eq "archive";
     $view = "" if $view eq "recent";
     my $base = $u->journal_base;
     return "$base/$view";

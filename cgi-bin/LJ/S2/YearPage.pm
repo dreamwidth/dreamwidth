@@ -41,7 +41,7 @@ sub YearPage
     my $maxyear = @years ? $years[-1] : undef;
     my $year = $get->{'year'};  # old form was /users/<user>/calendar?year=1999
 
-    # but the new form is purtier:  */calendar/2001
+    # but the new form is purtier:  */archive/2001
     if (! $year && $opts->{'pathextra'} =~ m!^/(\d\d\d\d)/?\b!) {
         $year = $1;
     }

@@ -539,7 +539,7 @@ sub trans
 
             my %journal_pages = (
                 read => 1,
-                calendar => 1,
+                archive => 1,
                 month => 1,
                 day => 1,
                 tag => 1,
@@ -668,6 +668,10 @@ sub trans
             return redir($r, LJ::Session->setdomsess_handler($r));
         }
 
+        if ($uuri =~ m#^/calendar(.*)#) {
+            return redir($r, "/archive$1");
+        }
+
         if ($uuri =~ m#^/(\d+)\.html$#) {
             my $u = LJ::load_user($user)
                 or return 404;
@@ -699,7 +703,7 @@ sub trans
             } elsif (defined $mon) {
                 $mode = "month";
             } else {
-                $mode = "calendar";
+                $mode = "archive";
             }
 
         } elsif ($uuri =~ m!
