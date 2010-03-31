@@ -12,7 +12,7 @@ set color_page_background = "#A18E70";
 set color_page_text = "#000";
 set color_page_link = "#A16E44";
 set color_page_link_active = "";
-set color_page_link_visited = "#A18E70";
+set color_page_link_visited = "#5B3E3B";
 set color_page_title = "#fff";
 
 set color_header_background = "#5B3E3B";
@@ -99,7 +99,7 @@ set color_page_background = "#947070";
 set color_page_text = "#000";
 set color_page_link = "#7A5050";
 set color_page_link_active = "";
-set color_page_link_visited = "#947070";
+set color_page_link_visited = "#D1B6B6";
 set color_page_title = "#fff";
 
 set color_header_background = "#7A5050";
