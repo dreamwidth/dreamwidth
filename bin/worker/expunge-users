@@ -99,7 +99,7 @@ sub load_expungable_users {
     unless (@uids) {
         debug("querying within $days_before_expunge days");
         my $sth = $dbr->prepare
-            ("SELECT userid FROM user WHERE clusterid>0 AND statusvis='D' " .
+            ("SELECT userid FROM user WHERE clusterid>0 AND statusvis='D' AND journaltype IN ('P','C') " .
              "AND statusvisdate < NOW() - INTERVAL $days_before_expunge DAY LIMIT $target_queue_depth");
         $sth->execute;
         die "Error selecting users for expunge: " . $dbr->errstr if $dbr->err;

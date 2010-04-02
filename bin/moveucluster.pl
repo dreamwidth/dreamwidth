@@ -529,8 +529,7 @@ sub moveUser {
             $dbh->do("DELETE FROM syndicated WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM supportnotify WHERE userid = ?", undef, $u->id);
             $dbh->do("DELETE FROM reluser WHERE userid = ?", undef, $u->id);
-            $dbh->do("DELETE FROM friends WHERE userid = ?", undef, $u->id);
-            $dbh->do("DELETE FROM phonepostlogin WHERE userid = ?", undef, $u->id);
+            $dbh->do("DELETE FROM wt_edges WHERE from_userid = ?", undef, $u->id);
 
             # no need for other users to ban this user any more
             while ($dbh->do("DELETE FROM reluser WHERE targetid = ? AND type = 'B' LIMIT 1000", undef, $u->id) > 0) {
@@ -1030,7 +1029,7 @@ sub fetchTableInfo
     my $memkey = "moveucluster:" . Digest::MD5::md5_hex(join(",",@tables));
     my $tinfo = LJ::MemCache::get($memkey) || {};
     foreach my $table (@tables) {
-        next if grep { $_ eq $table } qw(events cmdbuffer captcha_session recentactions pendcomments active_user random_user_set);
+        next if grep { $_ eq $table } qw(events cmdbuffer captcha_session recentactions pendcomments active_user random_user_set blobcache);
         next if $tinfo->{$table};  # no need to load this one
 
         # find the index we'll use
