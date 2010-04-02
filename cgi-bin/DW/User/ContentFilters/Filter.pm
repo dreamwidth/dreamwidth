@@ -186,6 +186,13 @@ sub contains_userid {
     return 0;
 }
 
+# check whether this filter qualifies as a default filter. Case-insensitive.
+# e.g., Default, Default View, etc
+sub is_default {
+    my $name = lc( $_[0]->{name} );
+    return 1 if $name eq "default" || $name eq "default view";
+    return 0;
+}
 
 # called with an item hashref or LJ::Entry object, determines whether or not this
 # filter allows this entry to be shown

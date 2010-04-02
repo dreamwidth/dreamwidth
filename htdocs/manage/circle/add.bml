@@ -272,7 +272,8 @@ _c?>
         $body .= "$ML{'.groups.reading'} p?>\n";
         my @sorted_content_filters = sort { $a->{sortorder} <=> $b->{sortorder} } @content_filters;
         foreach my $filter ( @sorted_content_filters ) {
-            my $ck = ( $filter->contains_userid( $u->userid ) );
+            my $ck = ( $filter->contains_userid( $u->userid ) )
+                || ( $action eq "subscribe" && ! $watched && $filter->is_default() );
             my $fid = $filter->id;
             $body .= LJ::html_check( { name     => "content_$fid",
                                        id       => "content_$fid",

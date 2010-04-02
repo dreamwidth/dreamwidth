@@ -58,6 +58,16 @@ _c?>
             unless $remote->can_watch( $targetu, errref => \$error );
 
         $success = $remote->add_edge( $targetu, watch => {} );
+
+        if ( $success ) {
+            my @content_filters = $remote->content_filters;
+            foreach my $filter ( @content_filters ) {
+                next unless $filter->is_default();
+                next if $filter->contains_userid( $targetu->userid );
+    
+                $success = $filter->add_row( userid => $targetu->userid ) && $success;
+            }
+        }
     } elsif ( $action eq 'removeTrust' ) {
         $success = $remote->remove_edge( $targetu, trust => {} );
     } elsif ( $action eq 'removeWatch' ) {
