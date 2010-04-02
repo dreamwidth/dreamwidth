@@ -18,6 +18,8 @@
 
 .btn.save=Save
 
+.btn.deleteinactive=Delete all inactive subscriptions
+
 .cat.account=Account
 
 .cat.account.desc=Basic account settings
@@ -49,6 +51,8 @@
 .commentpage=View comment pages in your own journal style
 
 .commentpage.text=When you follow a comment link from your Friends page, you can view that comment page in your own journal style.
+
+.confirm.deleteinactive=Are you sure you want to delete all inactive subscriptions?
 
 .contextualhover=Show contextual hover menu
 
@@ -166,6 +170,8 @@ in any form or by any means for commercial use.
 .security.visibility.nobody=Nobody
 
 .success=You have successfully saved your account settings.
+
+.success.deleteinactive=You have successfully deleted all inactive subscriptions.
 
 .success.header=Success!
 
