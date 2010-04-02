@@ -59,9 +59,7 @@ for an example.
 
 sub new {
     my ( $class, %args ) = @_;
-
-    my $type = delete $args{type};
-    return undef unless exists $LJ::SHOP{$type};
+    return undef unless exists $LJ::SHOP{$args{type}};
 
     # from_userid will be 0 if the sender isn't logged in
     return undef unless $args{from_userid} == 0 || LJ::load_userid( $args{from_userid} );
@@ -100,7 +98,7 @@ sub new {
     # looks good
     return bless {
         # user supplied arguments (close enough)
-        cost    => $LJ::SHOP{$type}->[0] + 0.00,
+        cost    => $LJ::SHOP{$args{type}}->[0] + 0.00,
         %args,
 
         # internal things we use to track the state of this item,
