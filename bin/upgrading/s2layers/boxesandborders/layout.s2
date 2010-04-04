@@ -7,9 +7,19 @@ layerinfo lang = "en";
 set layout_authors = [ { "name" => "branchandroot", "type" => "user" } ];
 set layout_type = "three-columns-sides";
 
+propgroup presentation_child {
+    property bool display_header_decoration {
+        des = "Display the decorative block in the header";
+    }
+}
+
+set display_header_decoration = true;
+
 function Page::print_global_title() {
 
-    """<div id="header-decoration"><div id="header-decoration-inner"></div></div>""";
+    if ($*display_header_decoration) {
+        """<div id="header-decoration"><div id="header-decoration-inner"></div></div>""";
+    }
 
     if ($.global_title) {
         """<h1 id="title"><span>""" + $.global_title + """</span></h1>""";
