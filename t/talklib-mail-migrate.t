@@ -6,15 +6,13 @@ use lib "$ENV{LJHOME}/cgi-bin";
 use FindBin qw($Bin);
 chdir "$Bin/data/userpics" or die "Failed to chdir to t/data/userpics";
 
-#plan tests => ;
-plan skip_all => 'fix this test!, cannot find phonepost.pl';
+plan tests => 1;
 
 package LJ;
 
 require 'ljlib.pl';
 require 'htmlcontrols.pl';
-require 'talklib.pl';
-require 'phonepost.pl';
+use LJ::Talk;
 
 use LJ::Test qw(temp_user memcache_stress);
 
