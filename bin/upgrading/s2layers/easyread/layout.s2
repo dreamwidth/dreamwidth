@@ -85,11 +85,11 @@ propgroup fonts {
     property use font_entry_title_size;
     property use font_entry_title_units;
     property use font_module_heading;
-    property use font_module_heading_units;
     property use font_module_heading_size;
+    property use font_module_heading_units;
     property use font_module_text;
-    property use font_module_text_units;
     property use font_module_text_size;
+    property use font_module_text_units;
 }
 set font_base = """APHont, "Helvetica Neue", Arial, Helvetica, Geneva""";
 set font_base_size = "1";
@@ -303,9 +303,14 @@ function Page::print_default_stylesheet {
     var string page_link_active_colors = generate_color_css($*color_page_link_active, new Color, new Color);
     var string page_link_hover_colors = generate_color_css($*color_page_link_hover, new Color, new Color);
     var string page_link_visited_colors = generate_color_css($*color_page_link_visited, new Color, new Color);
+
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
     var string page_title_font = generate_font_css($*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
     var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
-    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
 
 """<style type="text/css">""";
 
@@ -344,6 +349,14 @@ body {
     $page_colors
 }
 
+/* Modules */
+.module h2 {
+    $module_title_font
+}
+
+.module-content {
+    $module_font
+}
 
 /*
  * Journal Header
@@ -364,6 +377,10 @@ body {
 #header h2#subtitle {
     font-style: italic;
     margin-top: 0;
+    $page_subtitle_font
+}
+
+#header h2#pagetitle {
     $page_subtitle_font
 }
 
@@ -473,6 +490,9 @@ h2.module-header a {
     border-top: solid 2px $*color_page_border;
 }
 
+.entry .entry-title {
+    $entry_title_font
+}
 
 .entry .metadata-label {
     font-weight: bold;

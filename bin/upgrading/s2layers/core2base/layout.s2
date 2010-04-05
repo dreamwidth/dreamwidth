@@ -150,11 +150,11 @@ propgroup fonts {
     property use font_entry_title_size;
     property use font_entry_title_units;
     property use font_module_heading;
-    property use font_module_heading_units;
     property use font_module_heading_size;
+    property use font_module_heading_units;
     property use font_module_text;
-    property use font_module_text_units;
     property use font_module_text_size;
+    property use font_module_text_units;
 }
 
 set font_base = "";
@@ -374,7 +374,8 @@ h1#title {
     $page_title_font
 }
 
-h2#subtitle {
+h2#subtitle,
+h2#pagetitle {
     $page_subtitle_font
 }
 
@@ -476,9 +477,12 @@ h2#subtitle {
     $entry_colors
 }
 
+.entry .entry-title {
+    $entry_title_font
+}
+
 .entry .entry-title, .entry .entry-title a {
     $entry_title_colors
-    $entry_title_font
 }
 
 .entry a { $entry_link_colors }

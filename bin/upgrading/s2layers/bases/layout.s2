@@ -81,11 +81,11 @@ propgroup fonts {
     property use font_entry_title_size;
     property use font_entry_title_units;
     property use font_module_heading;
-    property use font_module_heading_units;
     property use font_module_heading_size;
+    property use font_module_heading_units;
     property use font_module_text;
-    property use font_module_text_units;
     property use font_module_text_size;
+    property use font_module_text_units;
 }
 
 ##===============================

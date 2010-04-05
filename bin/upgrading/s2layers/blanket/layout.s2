@@ -63,12 +63,21 @@ propgroup fonts {
     property use font_fallback;
     property use font_base_size;
     property use font_base_units;
+    property use font_journal_title;
     property use font_journal_title_size;
     property use font_journal_title_units;
+    property use font_journal_subtitle;
     property use font_journal_subtitle_size;
     property use font_journal_subtitle_units;
+    property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
 }
 
 ##===============================
@@ -212,8 +221,6 @@ set font_entry_title_units = "em";
 
 function Page::print_default_stylesheet () {
 
-var string page_fonts = generate_font_css( $*font_base, $*font_fallback, $*font_base_size, $*font_base_units );
-
 var string page_colors = generate_color_css( $*color_page_text, $*color_page_background, new Color );
 
 var string page_link_colors = generate_color_css( $*color_page_link, new Color, new Color );
@@ -224,14 +231,11 @@ var string page_link_visited_colors = generate_color_css( $*color_page_link_visi
 var string header_colors = generate_color_css( new Color, $*color_header_background, new Color);
 var string journal_title_colors = generate_color_css( $*color_page_title, new Color, new Color );
 var string page_title_colors = generate_color_css( $*color_page_title->lighter(), new Color, new Color );
-var string journal_title_fonts = generate_font_css( $*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units );
-var string journal_subtitle_fonts = generate_font_css( $*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units );
 
 var string module_colors = generate_color_css( $*color_module_text, $*color_module_background, new Color );
 var string module_title_colors = generate_color_css( $*color_module_title, $*color_module_title_background, new Color );
 
 var string entry_colors = generate_color_css( new Color, $*color_entry_background, new Color );
-var string entry_title_fonts = generate_font_css( $*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units );
 var string entry_title_colors = generate_color_css( $*color_entry_title, new Color, new Color );
 var string userpic_colors = generate_color_css( new Color, $*color_entry_background, $*color_entry_border->darker() );
 
@@ -240,12 +244,20 @@ var string input_colors = generate_color_css( $*color_page_text, $*color_entry_b
 var string active_month_colors = generate_color_css( $*color_page_link_hover->darker(), new Color, new Color );
 var string month_header_colors = generate_color_css( $*color_entry_border->darker(130), $*color_entry_border, new Color );
 
+    var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
+    var string page_title_font = generate_font_css($*font_journal_title, $*font_fallback, $*font_journal_title_size, $*font_journal_title_units);
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+
 """
 
 <style type="text/css">
 /* Blanket */
 
-body { padding: 0; margin: 0; text-align: center; $page_colors $page_fonts }
+body { padding: 0; margin: 0; text-align: center; $page_colors $page_font }
 
 a, a:active { text-decoration: none; $page_link_colors }
 a:visited { $page_link_visited_colors }
@@ -266,9 +278,9 @@ li.page-separator { display: none; }
 div.navigation ul { display: inline; padding: 0; margin: 0; }
 
 /*--- header texts ---*/
-div#header h1#title { font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; margin: 0; $journal_title_colors $journal_title_fonts }
-div#header h2#subtitle { font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; $journal_title_colors $journal_subtitle_fonts }
-div#header h2#pagetitle { font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; margin: 1em 0 0 0; $page_title_colors $journal_subtitle_fonts }
+div#header h1#title { font-weight: normal; text-transform: uppercase; letter-spacing: 0; padding: 0; margin: 0; $journal_title_colors $page_title_font }
+div#header h2#subtitle { font-weight: normal; text-transform: lowercase; letter-spacing: 1px; padding: 0; margin: 0; $journal_title_colors $page_subtitle_font }
+div#header h2#pagetitle { font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; margin: 1em 0 0 0; $page_title_colors $page_subtitle_font }
 
 /*--- navigation links ---*/
 div.module-navlinks { position: fixed; bottom: 0; z-index: 100; padding: 0.75em; width: 100%; margin: 0 auto; $module_colors }
@@ -281,11 +293,12 @@ div.module-navlinks ul.module-list li { display: inline; margin: 0 1em 0 0; list
 
 #secondary .module { float: left; margin: 2em 1em;}
 #secondary .module-header, #secondary .module-header a { $module_title_colors }
+#secondary .module-header { $module_title_font }
 #secondary .separator-after { clear: both; }
 .module-tags_cloud { margin: 3em 0; width: 100%; float: none; border-top: 1px solid $*color_entry_border; border-bottom: 1px solid $*color_entry_border; }
 .module-tags_cloud .module-content { padding: 0 3em 1em 3em; }
 
-#secondary .module-content { text-align: left; }
+#secondary .module-content { text-align: left; $module_font }
 #secondary .module-content ul {  list-style: outside; margin-left: 1em;  padding-left: 0; }
 #secondary .module-content li { margin: .5em 0; }
 .module-photo .module-content { text-align: center; }
@@ -301,7 +314,7 @@ div.entry { padding: 2em; margin: 0 0 2em 0; border-left: 20px solid $*color_pag
 div.entry-content { margin: 1em 0 0 0; }
 
 div.header { padding: 0; margin: 0 0 1em 0; }
-h3.entry-title { font-weight: normal; text-transform: lowercase; letter-spacing: -1; padding: 0; margin: 0; $entry_title_fonts $entry_title_colors }
+h3.entry-title { font-weight: normal; text-transform: lowercase; letter-spacing: -1; padding: 0; margin: 0; $entry_title_font $entry_title_colors }
 h3.entry-title a { $entry_title_colors }
 
 .datetime { font-size: 0.9em; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; padding: 0; $page_title_colors }

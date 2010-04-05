@@ -132,12 +132,23 @@ propgroup fonts
     property use font_journal_title;
     property use font_journal_title_size;
     property use font_journal_title_units;
-
+    property use font_journal_subtitle;
+    property use font_journal_subtitle_size;
+    property use font_journal_subtitle_units;
     property string font_title_fallback
     {
-        des    = "Alternative font for Subjects and Title";
+        des    = "Alternative font for journal title and subtitle";
         values = "sans-serif|Sans-serif|serif|Serif|cursive|Cursive|monospace|Monospaced|none|Use browser's default";
     }
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
+    property use font_module_heading;
+    property use font_module_heading_size;
+    property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
 }
 
 set font_base         = "Arial";
@@ -145,9 +156,9 @@ set font_fallback     = "sans-serif";
 set font_base_size  = "16";
 set font_base_units = "px";
 set font_journal_title  = "Times New Roman";
-set font_title_fallback = "serif";
 set font_journal_title_size  = "2.8";
 set font_journal_title_units = "em";
+set font_title_fallback = "serif";
 
 # PRESENTATION
 ################################################################################
@@ -250,7 +261,10 @@ function Page::print_default_stylesheet()
     # Determine the font strings to use in the CSS
     var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
     var string page_title_font = generate_font_css($*font_journal_title, $*font_title_fallback, $*font_journal_title_size, $*font_journal_title_units);
-    var string page_subtitle_font = generate_font_css($*font_journal_title, $*font_title_fallback, "", "");
+    var string page_subtitle_font = generate_font_css($*font_journal_subtitle, $*font_title_fallback, $*font_journal_subtitle_size, $*font_journal_subtitle_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
     """<style type="text/css">""";
     start_css();
@@ -332,6 +346,15 @@ function Page::print_default_stylesheet()
         padding-left: 10px;
         font-size: 1.1em;
     }
+
+    .module h2 {
+        $module_title_font
+    }
+
+    .module-content {
+        $module_font
+    }
+
 
     /* Header
     ***************************************************************************/
@@ -584,6 +607,7 @@ function Page::print_default_stylesheet()
         display: inline;
         font-size: 1.1em;
         color: $*color_entry_title;
+        $entry_title_font
     }
 
     .entry .trust-filter {

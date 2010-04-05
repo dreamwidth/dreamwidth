@@ -149,6 +149,7 @@ set image_background_header_position = "top left";
 set image_background_header_height = 100;
 set image_background_page_repeat = "repeat-x";
 set image_background_page_position = "top left";
+
 propgroup fonts {
     property use font_base;
     property use font_fallback;
@@ -156,9 +157,16 @@ propgroup fonts {
     property use font_base_units;
     property use font_journal_title_size;
     property use font_journal_title_units;
+    property use font_entry_title;
+    property use font_entry_title_size;
+    property use font_entry_title_units;
     property use font_module_heading_size;
     property use font_module_heading_units;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
 }
+
 set font_base = "tahoma, verdana, arial";
 set font_fallback = "sans-serif";
 set font_base_size = "1";
@@ -346,6 +354,8 @@ function Page::print_default_stylesheet () {
 
     var string page_font = generate_font_css( $*font_base, $*font_fallback, $*font_base_size, $*font_base_units );
     var string journal_title_font = generate_font_css("", "", $*font_journal_title_size, $*font_journal_title_units);
+    var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css("", "", $*font_module_heading_size, $*font_module_heading_units);
     
 
@@ -481,7 +491,7 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .module-section-one ul li a:hover, .module-section-one ul li a.current { $header_footer_hover_colors }
 .module-section-two a { $module_link_colors }
 .module-section-two .module-header a {text-decoration: none; }
-.module-section-two h2 {margin: 0; margin-bottom: 7px; $module_title_font padding: 0.2em; $module_title_colors }
+.module-section-two h2 {margin: 0; margin-bottom: 7px; padding: 0.2em; $module_title_colors }
 .module-section-two ul {list-style-type: none; margin-left: 0.5em; padding: 0; }
 .module-section-two ul ul {list-style-type: none; margin-left: 0.5em; padding: 0.5em; }
 .module-userprofile .userpic img {border: none; margin: 20px; }
@@ -491,6 +501,14 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .module-userprofile li {display: inline; padding: 5px; list-style: none; }
 .module-calendar .module-content {text-align: center; }
 .module-calendar table {margin-left: auto; margin-right: auto; }
+
+.module h2 {
+    $module_title_font
+}
+
+.module-content {
+    $module_font
+}
 
 .two-columns-right #entries, 
 .two-columns-right.page-entry .entry-wrapper, 
@@ -517,6 +535,11 @@ h1, h2, h3, h4 {font-weight: 700; font-variant: normal; letter-spacing: 0.08em; 
 .page-entry #comments {padding-top:20px;}
 
 .entry-title, .comment-title {margin:0 120px .5em 0; padding: 0.2em;border: solid 1px $*color_entry_title_border; $entry_title_colors }
+
+.entry .entry-title {
+    $entry_title_font
+}
+
 .two-columns-right .entry-title, .two-columns-right .comment-title {margin:0 120px .5em 0;}
 .two-columns-left .entry-title, .two-columns-left .comment-title  {margin:0 0 .5em 120px;}
 

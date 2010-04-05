@@ -126,12 +126,15 @@ propgroup fonts {
     property use font_fallback;
     property use font_base_size;
     property use font_base_units;
-    property use font_module_heading;
-    property use font_module_heading_units;
-    property use font_module_heading_size;
     property use font_entry_title;
     property use font_entry_title_size;
     property use font_entry_title_units;
+    property use font_module_heading;
+    property use font_module_heading_units;
+    property use font_module_heading_size;
+    property use font_module_text;
+    property use font_module_text_size;
+    property use font_module_text_units;
 }
 
 set font_base = "Georgia";
@@ -287,8 +290,9 @@ function Page::print_default_stylesheet()
         $header_background = $header_background + "\n        height: " + $*image_background_header_height + "px;";
     }
     var string page_font = generate_font_css($*font_base, $*font_fallback, $*font_base_size, $*font_base_units);
-    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
+    var string module_font = generate_font_css($*font_module_text, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
+    var string module_title_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
     """<style type="text/css">""";
     start_css();
@@ -395,7 +399,6 @@ function Page::print_default_stylesheet()
         border-bottom:1px solid $*color_module_border;
         font-weight:bold;
         letter-spacing:.3em;
-        $module_title_font
     }
     .two-columns-right #secondary .module-header {
         text-align: right;
@@ -410,6 +413,15 @@ function Page::print_default_stylesheet()
         letter-spacing:.3em;
         padding: 0.5em 0;
     }
+
+    .module h2 {
+        $module_title_font
+    }
+
+    .module-content {
+        $module_font
+    }
+
     .userpic{
         float:right;}
     .entry, .entry-wrapper, .comment, .comment-wrapper {
@@ -567,6 +579,8 @@ function Page::print_default_stylesheet()
     }
     .subject, .subject a, .subject a:visited, .subject a:hover, .subject a:active {
         font-weight:bold;
+    }
+    .subject {
         $entry_title_font
     }
     .module-section-two .module-calendar,
