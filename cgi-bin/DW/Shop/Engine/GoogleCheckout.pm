@@ -213,7 +213,8 @@ sub process_notification {
 
     # now that it's logged, we can do some processing depending on what type it is
     if ( $form->{_type} eq 'new-order-notification' ) {
-        my $cart = DW::Shop::Cart->get_from_cartid( $1 )
+        my $cart;
+        $cart = DW::Shop::Cart->get_from_cartid( $1 )
             if $form->{'shopping-cart.merchant-private-data'} =~ m!note>(\d+)</merch!;
 
         # now ensure the cart is good ...
