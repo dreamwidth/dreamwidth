@@ -131,6 +131,9 @@ a:hover {
     text-decoration: underline;
     }
 
+q { font-style: italic;
+    }
+
 /* Header
 ***************************************************************************/
 #header {

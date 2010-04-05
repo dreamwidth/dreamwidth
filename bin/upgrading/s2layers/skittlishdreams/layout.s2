@@ -444,6 +444,8 @@ a, a:link, a:active { $page_link_colors text-decoration: none; }
 a:visited { $page_link_visited_colors  }
 a:hover {  $page_link_hover_colors text-decoration: underline; }
 
+q { font-style: italic; }
+
 body { $page_background $page_font margin: 0; padding: 0; }
 .two-columns-right #container { $container_background }
 .two-columns-left #container { $container_background_redux }

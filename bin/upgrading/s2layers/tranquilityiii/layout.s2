@@ -51,7 +51,6 @@ function print_stylesheet () {
 blockquote { margin: 1em 1em .5em 1em;
     padding: .5em .75em;
     border-left: 6px double $*color_entry_border; } 
-q { font-style: italic; }
 dl dt { font-weight: bold; }
 
 a { color: $*color_page_link; }

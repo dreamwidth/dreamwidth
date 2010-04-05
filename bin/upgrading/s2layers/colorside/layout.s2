@@ -29,7 +29,7 @@ function print_stylesheet() {
 
 /* ColorSide */
 
-blockquote, q { font-style: italic; }
+blockquote { font-style: italic; }
 dl dt { font-weight: bold; }
 
 h1, h2, h3 {font-family: "Century Gothic", Verdana, sans-serif;

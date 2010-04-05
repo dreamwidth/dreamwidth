@@ -337,6 +337,8 @@ a:visited { $page_link_visited_colors }
 a:hover { $page_link_hover_colors }
 a:active { $page_link_active_colors }
 
+q { font-style: italic; }
+
 .one-column #content { float: none; }
 .two-columns-left #content,
 .three-columns-sides #content { 

@@ -327,6 +327,8 @@ abbr {border-color: $*color_page_link; }
 blockquote {border-bottom: 0.083em solid $*color_page_border; clear: both; margin: 0.833em 1.667em 0.833em 1.667em; 
             padding: 0.833em; background: $element_background; border-top: 0.583em solid $*color_page_link; }
 
+q { font-style: italic; }
+
 caption {font-size: 0.75em; text-transform: uppercase;}
 
 code {font: italic 1em georgia; }

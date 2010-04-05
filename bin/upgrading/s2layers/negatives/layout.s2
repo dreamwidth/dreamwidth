@@ -322,6 +322,8 @@ function Page::print_default_stylesheet()
     img, img a {
         border: 0!important;
         }
+    q { font-style: italic;
+        }
     #header {
         border-top: 0!important;
         border-bottom: 5px double $*color_module_border;

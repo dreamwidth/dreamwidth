@@ -321,6 +321,8 @@ function Page::print_default_stylesheet()
     a:hover { text-decoration: none; }
     a:active { $page_link_active_colors }
 
+    q { font-style: italic; }
+
     h2 {
         font-size: 0.9em;
         color: $*color_module_title;

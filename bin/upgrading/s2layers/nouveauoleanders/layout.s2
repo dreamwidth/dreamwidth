@@ -75,7 +75,6 @@ function print_stylesheet () {
 blockquote { padding: 1em 1em .5em 2em;
     font-style: italic;  } 
 blockquote > p:first-child { margin-top: 0; }
-q { font-style: italic; }
 dl dt { font-weight: bold; }
 
 ul,

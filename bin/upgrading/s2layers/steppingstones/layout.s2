@@ -25,7 +25,6 @@ function print_stylesheet() {
 
 blockquote { border-left: 3px solid $*color_entry_border;
     padding-left: .5em; } 
-q { font-style: italic; }
 dl dt { font-weight: bold; }
 
 a {  }

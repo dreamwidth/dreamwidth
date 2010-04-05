@@ -310,6 +310,8 @@ a, a:link { color: $*color_page_link;   }
 a:visited { color: $*color_page_link_visited; }
 a:hover { color: $*color_page_link_hover; }
 
+q { font-style: italic; }
+
 #canvas {
     margin: 0 auto;
     padding: 5% 0 5% 15%;

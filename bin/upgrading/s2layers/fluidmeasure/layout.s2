@@ -103,7 +103,6 @@ blockquote { margin: 0 1em 1em 1em;
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
     -khtml-border-radius: 1em; } 
-q { font-style: italic; }
 dl dt { font-weight: bold; }
 
 ul {  }

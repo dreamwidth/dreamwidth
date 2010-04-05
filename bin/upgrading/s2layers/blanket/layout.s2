@@ -263,6 +263,8 @@ a, a:active { text-decoration: none; $page_link_colors }
 a:visited { $page_link_visited_colors }
 a:hover { $page_link_hover_colors }
 
+q { font-style: italic; }
+
 #canvas { margin: 0 auto 3em auto; text-align: justify; padding: 0; }
 #content { padding: 0; margin: 0; }
 #primary { width: 60%; margin: 0 auto;  z-index: 0; padding: 0; }

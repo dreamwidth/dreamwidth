@@ -28,7 +28,7 @@ function print_stylesheet () {
     """
 /* Basic Boxes */
 
-blockquote, q { font-style: italic; }
+blockquote { font-style: italic; }
 dl dt { font-weight: bold; }
 
 a { text-decoration: none; }

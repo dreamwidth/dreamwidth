@@ -332,6 +332,9 @@ a:focus, a:active {
     $page_link_active_colors
 }
 
+q { font-style: italic;
+}
+
 /* All posts & all navigation */
 #primary, #secondary, #tertiary, #footer {
     width: 80%;

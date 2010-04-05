@@ -19,7 +19,7 @@ function print_stylesheet() {
 
     """
 /* Modish */
-blockquote, q { font-style: italic; }
+blockquote { font-style: italic; }
 dl dt { font-weight: bold; }
 
 a:hover { text-decoration: underline; }
