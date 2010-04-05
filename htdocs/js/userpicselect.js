@@ -1,6 +1,6 @@
 UserpicSelect = new Class (LJ_IPPU, {
   init: function () {
-    UserpicSelect.superClass.init.apply(this, ["Choose Userpic"]);
+    UserpicSelect.superClass.init.apply(this, ["Choose Icon"]);
 
     this.setDimensions("550px", "441px");
 
@@ -229,9 +229,14 @@ UserpicSelect = new Class (LJ_IPPU, {
         if (pic.comment)
           piccomment = pic.comment.toLocaleUpperCase();
 
+        var picalt = "";
+        if (pic.alt)
+          picalt = pic.alt.toLocaleUpperCase();
+
         if(kw.toLocaleUpperCase().indexOf(filter) != -1 || // matches a keyword
            (piccomment && piccomment.indexOf(filter) != -1) || // matches comment
-           (pic.keywords.join(", ").toLocaleUpperCase().indexOf(filter) != -1)) { // matches comma-seperated list of keywords
+           (pic.keywords.join(", ").toLocaleUpperCase().indexOf(filter) != -1) || // matches comma-seperated list of keywords
+           (picalt && picalt.indexOf(filter) != -1)) { // matches description
 
           newpics.pics[picid] = pic;
           newpics.ids.push(picid);
