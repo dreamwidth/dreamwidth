@@ -44,21 +44,8 @@ $LJ::HOME = $ENV{LJHOME};
 #    return Apache2::Const::OK;
 #}
 
-# Image::Size wants to pull in Image::Magick.  Let's not let it during
-# the init process.
-my $still_loading = 1;
-unshift @INC, sub {
-    my $f = $_[1];
-    return undef unless $still_loading;
-    return undef unless $f eq "Image/Magick.pm";
-    die "Will not start with Image/Magick.pm"; # makes the require fail, which Image::Size traps
-};
-
 # pull in libraries and do per-start initialization once.
 require "modperl_subs.pl";
-
-# now we're done loading
-$still_loading = 0;
 
 # do per-restart initialization
 LJ::ModPerl::setup_restart();
