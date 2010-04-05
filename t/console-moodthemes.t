@@ -7,8 +7,7 @@ use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 
-#plan tests => 23;
-plan skip_all => 'Fix this test!';
+plan tests => 23;
 
 my $u = temp_user();
 
@@ -20,8 +19,8 @@ my $run = sub {
 ### CREATING AND LISTING THEMES #######
 
 # FIXME: be less ghetto about this.
-ok($run->("moodtheme_list") =~ "acedia's Little Gent", "Got public theme");
-ok($run->("moodtheme_list 1") =~ "32x48 /img/mood/acedia/littlegent/cranky.gif", "Got a theme");
+ok($run->("moodtheme_list") =~ "Kanji Moods", "Got public theme");
+ok($run->("moodtheme_list 1") =~ "18x18 /img/mood/kanji/crazy.gif", "Got a theme");
 
 ok($run->("moodtheme_list") !~ "Your themes", "No logged-in stuff.");
 LJ::set_remote($u);

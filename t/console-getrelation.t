@@ -7,7 +7,7 @@ use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 
-plan skip_all => 'Fix this test!';
+plan tests => 5;
 
 my $u = temp_user();
 my $comm = temp_comm();
