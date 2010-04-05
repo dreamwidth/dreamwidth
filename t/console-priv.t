@@ -7,8 +7,7 @@ use LJ::Console;
 use LJ::Test qw (temp_user temp_comm);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 
-#plan tests => 24;
-plan skip_all => 'Fix this test!';
+plan tests => 24;
 
 my $u = temp_user();
 my $u2 = temp_user();
@@ -21,7 +20,7 @@ my $run = sub {
 };
 
 is($run->("priv grant admin:* " . $u2->user),
-   "error: You are not authorized to run this command.");
+   "error: You are not permitted to grant admin:*");
 is($run->("priv_package list"),
    "error: You are not authorized to run this command.");
 $u->grant_priv("admin", "supporthelp");
