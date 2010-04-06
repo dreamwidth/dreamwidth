@@ -363,8 +363,9 @@ text-align: center; }
     top: 2.5em;
     white-space: nowrap;
     color: $*color_page_title;
-    background-color: transparent;
-    font-family: $*font_journal_title; }
+    background-color: transparent; }
+
+.module-navlinks ul { font-family: $*font_journal_title; }
 
 .two-columns-left .module-navlinks { left: $*sidebar_width; }
 .three-columns-left .module-navlinks { left: $*sidebar_width_doubled; }
