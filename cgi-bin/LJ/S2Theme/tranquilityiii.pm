@@ -13,12 +13,12 @@ sub cats { qw() }
 
 package LJ::S2Theme::tranquilityiii::freshblue;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 sub designer { "forthwritten" }
 
 package LJ::S2Theme::tranquilityiii::lightondark;
 use base qw( LJ::S2Theme::tranquilityiii );
-sub cats { qw( featured ) }
+sub cats { qw() }
 sub designer { "cesy" }
 
 package LJ::S2Theme::tranquilityiii::lilac;

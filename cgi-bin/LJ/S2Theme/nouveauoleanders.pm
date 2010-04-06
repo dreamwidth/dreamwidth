@@ -24,6 +24,6 @@ sub cats { qw() }
 
 package LJ::S2Theme::nouveauoleanders::seaandsalt;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw() }
+sub cats { qw( featured ) }
 
 1;

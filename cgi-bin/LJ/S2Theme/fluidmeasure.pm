@@ -50,7 +50,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::fluidmeasure::wooded;
 use base qw( LJ::S2Theme::fluidmeasure );
-sub cats { qw( Now ) }
+sub cats { qw( featured ) }
 
 1;
 

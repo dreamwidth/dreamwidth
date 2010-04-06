@@ -13,7 +13,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::modish::greyscale;
 use base qw( LJ::S2Theme::modish );
-sub cats { qw ( featured ) }
+sub cats { qw ( ) }
 sub designer { "twtd" }
 
 package LJ::S2Theme::modish::nnwm2009;

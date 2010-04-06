@@ -38,7 +38,7 @@ sub entry_props {
 
 package LJ::S2Theme::brittle::nnwm2009;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( featured ) }
+sub cats { qw( ) }
 sub designer { "zvi" }
 
 package LJ::S2Theme::brittle::oldroses;
@@ -57,7 +57,7 @@ sub designer { "dancing_serpent" }
 
 package LJ::S2Theme::brittle::softgreen;
 use base qw( LJ::S2Theme::brittle );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 sub designer { "dancing_serpent" }
 
 1;

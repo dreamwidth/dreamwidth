@@ -13,7 +13,7 @@ sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::denim;
 use base qw( LJ::S2Theme::basicboxes );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 package LJ::S2Theme::basicboxes::ecru;
 use base qw( LJ::S2Theme::basicboxes );

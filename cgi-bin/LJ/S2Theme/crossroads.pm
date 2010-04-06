@@ -24,7 +24,7 @@ sub cats { qw( ) }
 
 package LJ::S2Theme::crossroads::cinnamoncream;
 use base qw( LJ::S2Theme::crossroads );
-sub cats { qw( featured ) }
+sub cats { qw() }
 
 package LJ::S2Theme::crossroads::coconut;
 use base qw( LJ::S2Theme::crossroads );
@@ -49,7 +49,7 @@ sub designer { "zvi" }
 
 package LJ::S2Theme::crossroads::oldhoney;
 use base qw( LJ::S2Theme::crossroads );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 
 package LJ::S2Theme::crossroads::orangejulius;
 use base qw( LJ::S2Theme::crossroads );

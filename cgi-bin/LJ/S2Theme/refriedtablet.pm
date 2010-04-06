@@ -25,7 +25,7 @@ sub cats { qw( base ) }
 
 package LJ::S2Theme::refriedtablet::seeded;
 use base qw( LJ::S2Theme::refriedtablet );
-sub cats { qw( ) }
+sub cats { qw( featured ) }
 
 1;
 
