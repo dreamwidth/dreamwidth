@@ -98,8 +98,8 @@ sub checkout_url {
     # make sure that the cart contains something that costs something.  since
     # this check should have been done above, we die hardcore here.
     my $cart = $self->cart;
-    die "Constraints not met: cart && cart->has_items && cart->has_total > 0.00.\n"
-        unless $cart && $cart->has_items && $cart->total > 0.00;
+    die "Constraints not met: cart && cart->has_items && cart->total_cash > 0.00.\n"
+        unless $cart && $cart->has_items && $cart->total_cash > 0.00;
 
     # and, just in case something terrible happens, make sure our state is good
     die "Cart not in valid state!\n"
@@ -116,8 +116,8 @@ sub checkout_url {
         paymentaction => 'Sale',
 
         # how much it costs.  no tax or shipping.
-        amt           => $cart->display_total,
-        itemamt       => $cart->display_total,
+        amt           => $cart->total_cash,
+        itemamt       => $cart->total_cash,
         taxamt        => '0.00',
         noshipping    => 1,
 
@@ -129,7 +129,7 @@ sub checkout_url {
         returnurl     => "$LJ::SITEROOT/shop/confirm",
 
         # custom data we send to reference this cart
-        custom        => join( ';', ( $cart->ordernum, $cart->display_total ) ),
+        custom        => join( ';', ( $cart->ordernum, $cart->total_cash ) ),
     );
 
     # now we have to stick in data for each of the items in the cart
@@ -138,7 +138,7 @@ sub checkout_url {
         push @req, "L_NAME$cur"   => $item->class_name,
                    "L_NUMBER$cur" => $cart->id . $item->id,
                    "L_DESC$cur"   => $item->short_desc,
-                   "L_AMT$cur"    => $item->cost,
+                   "L_AMT$cur"    => $item->cost_cash,
                    "L_QTY$cur"    => 1;
         $cur++;
     }
@@ -209,7 +209,7 @@ sub confirm_order {
         'DoExpressCheckoutPayment',
         token         => $self->token,
         payerid       => $self->payerid,
-        amt           => $cart->display_total,
+        amt           => $cart->total_cash,
         paymentaction => 'Sale',
     );
     return $self->temp_error(
@@ -408,7 +408,7 @@ sub process_ipn {
             unless $cart &&
                    $cart->state == $DW::Shop::STATE_PEND_PAID &&
                    $cart->paymentmethod eq 'creditcardpp' &&
-                   $cart->display_total == $form->{payment_gross};
+                   $cart->total_cash == $form->{payment_gross};
 
         # looks good, mark it paid so it gets processed
         $cart->state( $DW::Shop::STATE_PAID );

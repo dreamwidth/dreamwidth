@@ -236,6 +236,13 @@ sub call_bml {
     return Apache::BML::handler($self->{r});
 }
 
+# simply sets the location header and returns REDIRECT
+sub redirect {
+    my $self = $_[0];
+    $self->header_out( Location => $_[1] );
+    return $self->REDIRECT;
+}
+
 # constants
 sub OK {
     my DW::Request::Apache2 $self = $_[0];

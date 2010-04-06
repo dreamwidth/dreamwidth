@@ -51,8 +51,8 @@ sub checkout_url {
     # make sure that the cart contains something that costs something.  since
     # this check should have been done above, we die hardcore here.
     my $cart = $self->cart;
-    die "Constraints not met: cart && cart->has_items && cart->has_total > 0.00.\n"
-        unless $cart && $cart->has_items && $cart->total > 0.00;
+    die "Constraints not met: cart && cart->has_items && ( cart->total_cash > 0.00 || cart->total_points > 0 ).\n"
+        unless $cart && $cart->has_items && ( $cart->total_cash > 0.00 || $cart->total_points > 0 );
 
     # and, just in case something terrible happens, make sure our state is good
     die "Cart not in valid state!\n"
@@ -77,6 +77,17 @@ sub confirm_order {
     return $self->error( 'cmo.engbadstate' )
         unless $cart->state == $DW::Shop::STATE_CHECKOUT;
 
+    # and now, if this order is free (paid on points) then try to deduct the points
+    # from the user and if that works, mark it paid
+    if ( $cart->total_cash == 0.00 && $cart->total_points > 0 ) {
+        $self->try_capture_points
+            or die "Unknown error capturing points for sale.\n";
+
+        # if the above succeeded the order is paid and done
+        $cart->state( $DW::Shop::STATE_PAID );
+        return 1;
+    }
+
     # now set it pending
     $cart->state( $DW::Shop::STATE_PEND_PAID );
 
@@ -93,7 +104,7 @@ sub confirm_order {
         body => LJ::Lang::ml( 'shop.email.confirm.checkmoneyorder.body', {
             touser => LJ::isu( $u ) ? $u->display_name : $cart->email,
             receipturl => "$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum,
-            total => '$' . $cart->total . ' USD',
+            total => '$' . $cart->total_cash . ' USD',
             payableto => $LJ::SITECOMPANY,
             address => "$LJ::SITECOMPANY${linebreak}Order #" . $cart->id . "$linebreak$address",
             sitename => $LJ::SITENAME,

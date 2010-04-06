@@ -98,7 +98,8 @@ sub new {
     # looks good
     return bless {
         # user supplied arguments (close enough)
-        cost    => $LJ::SHOP{$args{type}}->[0] + 0.00,
+        cost_cash   => $LJ::SHOP{$args{type}}->[0] + 0.00,
+        cost_points => $LJ::SHOP{$args{type}}->[3] + 0,
         %args,
 
         # internal things we use to track the state of this item,
@@ -337,15 +338,80 @@ sub from_html {
     return $from_u->ljuser_display;
 }
 
-# simple accessors
+=head2 C<< $self->paid_cash >>
+
+Returns the amount paid for this item in USD.  This varies from cart to cart
+and item to item and is a reflection of the actual amount of cash paid for
+this item.  paid_points may also be non-zero.
+
+=cut
+
+# this method has to be aware of old items
+sub paid_cash {
+    my $self = $_[0];
+
+    # we try to promote the item to a new style.  we don't know if this is
+    # going to get saved in the cart or not ...
+    if ( exists $self->{cost} ) {
+        $self->{paid_cash} = delete( $self->{cost} ) + 0.00;
+        $self->{paid_points} = 0;
+    }
+
+    return $_[0]->{paid_cash} unless defined $_[1];
+    return $_[0]->{paid_cash} = $_[1];
+}
+
+=head2 C<< $self->paid_points >>
+
+Returns the amount paid in points for this item.  This varies just like the
+paid_cash item, which may also be non-zero for items that a user paid both
+cash and points for.
+
+=cut
+
+sub paid_points {
+    return $_[0]->{paid_points} unless defined $_[1];
+    return $_[0]->{paid_points} = $_[1];
+}
+
+=head2 C<< $self->display_paid >>
+
+Displays how much cash and/or points this item costs right now.
+
+=cut
+
+sub display_paid {
+    my $self = $_[0];
+    if ( $self->paid_cash && $self->paid_points ) {
+        return sprintf( '$%0.2f USD and %d points', $self->paid_cash, $self->paid_points );
+    } elsif ( $self->paid_cash ) {
+        return sprintf( '$%0.2f USD', $self->paid_cash );
+    } elsif ( $self->paid_points ) {
+        return sprintf( '%d points', $self->paid_points );
+    } else {
+        return 'free';
+    }
+}
+
+=head2 C<< $self->display_paid_cash >>
+
+Display how much cash this item costs right now.
+
+=head2 C<< $self->display_paid_points >>
+
+Display how many points this item costs right now.
 
 =head2 C<< $self->applied >>
 
 Returns whether the item which was bought has been already applied
 
-=head2 C<< $self->cost >>
+=head2 C<< $self->cost_cash >>
 
-Returns the cost of the item, as configured for this site.
+Returns the cost in USD of the item, as configured for this site.
+
+=head2 C<< $self->cost_points >>
+
+Returns the cost in points of the item, as configured for this site.
 
 =head2 C<< $self->t_email >>
 
@@ -376,14 +442,23 @@ promotions. Not exposed/settable via the shop.
 
 =cut
 
+sub display_paid_cash { sprintf( '$%0.2f USD', $_[0]->paid_cash ) }
+sub display_paid_points { sprintf( '%d points', $_[0]->paid_points ) }
 sub applied      { return $_[0]->{applied};         }
-sub cost         { return $_[0]->{cost};            }
+sub cost_points  { return $_[0]->{cost_points};     }
 sub t_email      { return $_[0]->{target_email};    }
 sub from_userid  { return $_[0]->{from_userid};     }
 sub deliverydate { return $_[0]->{deliverydate};    }
 sub anonymous    { return $_[0]->{anonymous};       }
 sub noremove     { return $_[0]->{noremove};        }
 sub from_name    { return $_[0]->{from_name};       }
+
+# this has to work with old items (pre-points) too
+sub cost_cash {
+    my $self = $_[0];
+    return $self->{cost} + 0.00 if exists $self->{cost};
+    return $self->{cost_cash} + 0.00;
+}
 
 
 =head2 C<< $self->cannot_conflict >>

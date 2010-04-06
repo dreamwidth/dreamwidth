@@ -116,8 +116,8 @@ sub checkout_url {
     # make sure that the cart contains something that costs something.  since
     # this check should have been done above, we die hardcore here.
     my $cart = $self->cart;
-    die "Constraints not met: cart && cart->has_items && cart->has_total > 0.00.\n"
-        unless $cart && $cart->has_items && $cart->total > 0.00;
+    die "Constraints not met: cart && cart->has_items && cart->total_cash > 0.00.\n"
+        unless $cart && $cart->has_items && $cart->total_cash > 0.00;
 
     # and, just in case something terrible happens, make sure our state is good
     die "Cart not in valid state!\n"
@@ -142,7 +142,7 @@ sub checkout_url {
         my $gitem = Google::Checkout::General::DigitalContent->new(
             name        => $item->class_name,
             description => $item->short_desc,
-            price       => $item->cost,
+            price       => $item->cost_cash,
             quantity    => 1,
             private     => $item->id,
             delivery_method => $DW::Shop::Engine::GoogleCheckout::EMAIL_DELIVERY,
@@ -180,7 +180,7 @@ sub charge_order {
 
     my $charge_order = Google::Checkout::Command::ChargeOrder->new(
         order_number => $self->gcoid,
-        amount       => $self->cart->display_total,
+        amount       => $self->cart->total_cash,
     );
 
     my $response = $self->gco->command( $charge_order );
@@ -222,7 +222,7 @@ sub process_notification {
             unless $cart &&
                    $cart->state == $DW::Shop::STATE_OPEN &&
                    $cart->paymentmethod eq 'gco' &&
-                   $cart->display_total == $form->{'order-total'};
+                   $cart->total_cash == $form->{'order-total'};
 
         $dbh->do(
             q{INSERT INTO gco_map (gcoid, cartid, email, contactname)
@@ -247,7 +247,7 @@ sub process_notification {
         return 1
             unless $eng->cart->state == $DW::Shop::STATE_PEND_PAID &&
                    $eng->cart->paymentmethod eq 'gco' &&
-                   $eng->cart->display_total == $form->{'total-charge-amount'};
+                   $eng->cart->total_cash == $form->{'total-charge-amount'};
 
         # looks good, mark it paid so it gets processed
         $eng->cart->state( $DW::Shop::STATE_PAID );

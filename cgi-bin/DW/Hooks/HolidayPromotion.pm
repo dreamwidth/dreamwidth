@@ -55,7 +55,8 @@ LJ::Hooks::register_hook( 'shop_cart_added_item', sub {
 
     # looks good, build a new object and stick it on the cart
     my $new = bless {
-        cost   => 0.00,
+        cost_cash => 0.00,
+        cost_points => 0,
         months => int( $item->months / 6 ) * 2,
         class  => $type,
         target_userid => $cart->userid,

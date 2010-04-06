@@ -49,7 +49,7 @@ body<=
 
     # FIXME: if they have a $0 cart, we don't support that yet
     return $ML{'.error.zerocart'}
-        if $cart->total == 0.00;
+        if $cart->total_cash == 0.00;
 
     # looks good, set the payment method and state
     $cart->paymentmethod( 'creditcardpp' );
@@ -57,7 +57,7 @@ body<=
 
     # values we need
     my $cartid = $cart->id;
-    my $cost = $cart->display_total;
+    my $cost = $cart->display_total_cash;
 
     # okay, render out the button :-)
     return qq|

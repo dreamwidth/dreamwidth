@@ -9,7 +9,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Janine Smith <janine@netrophic.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -164,7 +164,8 @@ sub new_cart {
         ip        => BML::get_remote_ip(),
         state     => $DW::Shop::STATE_OPEN,
         items     => [],
-        total     => 0.00,
+        total_cash => 0.00,
+        total_points => 0,
         nextscan  => 0,
         authcode  => LJ::make_auth_code( 20 ),
         paymentmethod => 0, # we don't have a payment method yet
@@ -240,6 +241,14 @@ sub save {
 }
 
 
+# returns an engine for this cart
+sub engine {
+    my $self = $_[0];
+
+    return $self->{_engine} ||= DW::Shop::Engine->get( $self->paymentmethod => $self );
+}
+
+
 # returns the number of items in this cart
 sub num_items {
     my $self = $_[0];
@@ -259,6 +268,10 @@ sub has_items {
 # add an item to the shopping cart, returns 1/0
 sub add_item {
     my ( $self, $item ) = @_;
+    return unless $self && $item;
+
+    die "Attempted to alter cart not in OPEN state.\n"
+        unless $self->state == $DW::Shop::STATE_OPEN;
 
     # tell the item who we are
     $item->cartid( $self->id );
@@ -284,7 +297,7 @@ sub add_item {
 
     # looks good, so let's add it...
     push @{$self->items}, $item;
-    $self->{total} += $item->cost;
+    $self->recalculate_costs;
 
     # now call out to the hook system in case anybody wants to munge with us
     LJ::Hooks::run_hooks( 'shop_cart_added_item', $self, $item );
@@ -298,6 +311,10 @@ sub add_item {
 # removes an item from this cart by id
 sub remove_item {
     my ( $self, $id, %opts ) = @_;
+    return unless $self && $id;
+
+    die "Attempted to alter cart not in OPEN state.\n"
+        unless $self->state == $DW::Shop::STATE_OPEN;
 
     my ( $removed, $out ) = ( undef, [] );
     foreach my $it ( @{$self->items} ) {
@@ -309,19 +326,94 @@ sub remove_item {
             }
 
             # advise that we removed an item from the cart
+            die "Attempted to remove two items in one pass with id $id.\n"
+                if defined $removed;
             $removed = $it;
-            $self->{total} -= $it->cost;
         } else {
             push @$out, $it;
         }
     }
     $self->{items} = $out;
+
+    # now recalculate the costs and save
+    $self->recalculate_costs;
     $self->save;
 
     # now run the hook, this is later so that we've updated the cart already
     LJ::Hooks::run_hooks( 'shop_cart_removed_item', $self, $removed );
 
     return 1;
+}
+
+
+sub recalculate_costs {
+    my $self = $_[0];
+
+    # if we're not in the OPEN state, do not recalculate.  the prices are fixed.
+    return unless $self->state == $DW::Shop::STATE_OPEN;
+
+    my ( $has_points, $max_points ) = ( 0, 0 );
+    if ( $self->userid ) {
+        my $u = LJ::load_userid( $self->userid );
+        $has_points = $u->shop_points;
+    }
+
+    # we have to determine the total cost of the order first so we can do the
+    # minimum order size calculations later
+    ( $self->{total_points}, $self->{total_cash} ) = ( 0, 0.00 );
+    foreach my $item ( @{$self->items} ) {
+        $self->{total_cash} += $item->paid_cash( $item->cost_cash );
+        $item->paid_points( 0 );
+        $max_points += $item->cost_points;
+    }
+
+    # if the user has no points, we're done
+    return unless $has_points;
+
+    # now, if we're short on points, the maximum we can use is based on the
+    # minimum cash order size
+    if ( $has_points < $max_points ) {
+        # x10 to convert from USD to points
+        my $cutoff = $max_points - ( $DW::Shop::MIN_ORDER_COST * 10 );
+
+        # now we effectively constrain the ceiling of how many points the user
+        # has to the point that makes the cash equivalent $3.00
+        $has_points = $cutoff
+            if $has_points > $cutoff;
+    }
+
+    # second loop has to iterate and actually adjust the point/cash balances
+    foreach my $item ( @{$self->items} ) {
+        # in some cases, we have items that cost no points, those items
+        # we can just ignore and skip
+        next unless $item->cost_points;
+
+        # start deducting items from points until one goes negative
+        $has_points -= $item->cost_points;
+
+        # if positive, the item was paid for by points entirely
+        if ( $has_points >= 0 ) {
+            $item->paid_cash( 0.00 );
+            $item->paid_points( $item->cost_points );
+
+            $self->{total_cash} -= $item->cost_cash;
+            $self->{total_points} += $item->cost_points;
+
+            # and last if we're at 0 points left
+            last if $has_points == 0;
+
+        } else {
+            my $cash = -$has_points;
+            $item->paid_cash( $cash / 10 );
+            $item->paid_points( $item->cost_points - $cash );
+
+            $self->{total_cash} -= $item->cost_cash - $item->paid_cash;
+            $self->{total_points} += $item->paid_points;
+
+            # and this means we're done
+            last;
+        }
+    }
 }
 
 
@@ -378,6 +470,7 @@ sub email {
     return $self->{email};
 }
 
+
 ################################################################################
 ## read-only accessor methods
 ################################################################################
@@ -392,13 +485,33 @@ sub ip       { $_[0]->{ip}                 }
 sub uniq     { $_[0]->{uniq}               }
 sub nextscan { $_[0]->{nextscan}           }
 sub authcode { $_[0]->{authcode}           }
-sub total    { $_[0]->{total}+0.00         }
+sub total_points { $_[0]->{total_points}+0 }
+sub ordernum { $_[0]->{cartid} . '-' . $_[0]->{authcode} }
+
+# this has to work for both old items (pre-points) and new ones
+sub total_cash {
+    my $self = $_[0];
+    return $self->{total} + 0.00 if exists $self->{total};
+    return $self->{total_cash} + 0.00;
+}
 
 # returns the total in a displayed format
-sub display_total { sprintf( '%0.2f', $_[0]->total ) }
+sub display_total {
+    my $self = $_[0];
+    if ( $self->total_cash && $self->total_points ) {
+        return sprintf( '$%0.2f USD and %d points', $self->total_cash, $self->total_points );
+    } elsif ( $self->total_cash ) {
+        return sprintf( '$%0.2f USD', $self->total_cash );
+    } elsif ( $self->total_points ) {
+        return sprintf( '%d points', $self->total_points );
+    } else {
+        return 'free';
+    }
+}
 
-# and our order number
-sub ordernum { $_[0]->{cartid} . '-' . $_[0]->{authcode} }
+sub display_total_cash { sprintf( '$%0.2f USD', $_[0]->total_cash ) }
+sub display_total_points { sprintf( '%d points', $_[0]->total_points ) }
+
 
 
 ################################################################################

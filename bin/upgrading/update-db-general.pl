@@ -3015,6 +3015,60 @@ CREATE TABLE sitekeywords (
 )
 EOC
 
+# this table is included, even though it's not used in the stock dw-free
+# installation.  but if you want to use it, you can, or you can ignore it
+# and make your own which you might have to do.
+register_tablecreate('cc_trans', <<'EOC');
+CREATE TABLE cc_trans (
+    cctransid int unsigned not null auto_increment,
+    cartid int unsigned not null,
+
+    gctaskref varchar(255),
+    dispatchtime int unsigned,
+    jobstate varchar(255),
+    joberr varchar(255),
+
+    response char(1),
+    responsetext varchar(255),
+    authcode varchar(255),
+    transactionid varchar(255),
+    avsresponse char(1),
+    cvvresponse char(1),
+    responsecode mediumint unsigned,
+
+    ccnumhash varchar(32) not null,
+    expmon tinyint not null,
+    expyear smallint not null,
+    firstname varchar(25) not null,
+    lastname varchar(25) not null,
+    street1 varchar(100) not null,
+    street2 varchar(100),
+    city varchar(40) not null,
+    state varchar(40) not null,
+    country char(2) not null,
+    zip varchar(20) not null,
+    phone varchar(40),
+    ipaddr varchar(15) not null,
+
+    primary key (cctransid),
+    index (cartid)
+)
+EOC
+
+# same as the above
+register_tablecreate('cc_log', <<'EOC');
+CREATE TABLE cc_log (
+    cartid int unsigned not null,
+    ip varchar(15),
+    transtime int unsigned not null,
+    req_content text not null,
+    res_content text not null,
+
+    index (cartid)
+)
+EOC
+
+
 
 # NOTE: new table declarations go ABOVE here ;)
 

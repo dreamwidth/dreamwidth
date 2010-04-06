@@ -42,7 +42,7 @@ body<=
 
     # FIXME: if they have a $0 cart, we don't support that yet
     return $ML{'.error.zerocart'}
-        if $cart->total == 0.00;
+        if $cart->total_cash == 0.00 && $cart->total_points == 0;
 
     # establish the engine they're trying to use
     my $eng = DW::Shop::Engine->get( $GET{method}, $cart );

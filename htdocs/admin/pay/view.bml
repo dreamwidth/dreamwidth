@@ -109,7 +109,7 @@ EOF
     $body .= "<table border='1'>";
     $body .= "<tr><th>From:</th><td>$from</td></tr>";
     $body .= "<tr><th>Date:</th><td>" . DateTime->from_epoch( epoch => $cart->starttime )->strftime( "%F %r %Z" ) . "</td></tr>";
-    $body .= "<tr><th>Total:</th><td>\$" . $cart->total . " USD</td></tr>";
+    $body .= "<tr><th>Total:</th><td>\$" . $cart->display_total . " USD</td></tr>";
     $body .= "<tr><th>Payment Method:</th><td>$paystr</td></tr>";
     $body .= "<tr><th>Uniq:</th><td>" . $cart->uniq . "</td></tr>";
     $body .= "<tr><th>IP:</th><td>" . $cart->ip . "</td></tr>";

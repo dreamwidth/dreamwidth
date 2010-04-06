@@ -2007,6 +2007,7 @@ sub clear_prop {
 }
 
 =head3 C<< $self->clear_daycounts( @security ) >>
+
 Clears the day counts relevant to the entry security
 
 security is an array of strings: "public", a number (allowmask), "private"
@@ -2175,6 +2176,75 @@ sub get_cap {
     my ( $u, $cname ) = @_;
     return 1 if $LJ::T_HAS_ALL_CAPS;
     return LJ::get_cap( $u, $cname );
+}
+
+
+=head3 C<< $self->give_shop_points( %options ) >>
+
+The options hash MUST contain the following keys:
+
+=over 4
+
+=item amount
+
+How many points to give the user.  May be positive or negative, s
+use a negative number to deduct points from a user's balance.  Will not allow
+a user's balance to go negative.
+
+=item reason
+
+A short description of why this transaction is happening.  For
+example: 'purchase of cart 9883463'.
+
+=back
+
+The options hash MAY contain these keys, as well:
+
+=over 4
+
+=item admin
+
+If this action was being done by an administrator, pass their userid
+or user object here.  This helps us record when admins make things happen.
+
+=back
+
+Example usage:
+
+C<<   $self->give_shop_points( amount => 50, reason => 'purchased' ); >>
+
+This gives 50 points to the user as a routine purchase.
+
+C<<   $self->give_shop_points( amount => -100, reason => 'refund', admin => $remote ); >>
+
+Admin processed refund, remove 100 points from the user's balance.
+
+Returns a true value on success, undef on error.
+
+=cut
+
+sub give_shop_points {
+    my ( $self, %opts ) = @_;
+    return unless LJ::isu( $self );
+
+    # do some cleanup on our input parameters
+    $opts{amount} += 0;
+    $opts{reason} = LJ::trim( $opts{reason} );
+    return unless $opts{amount} && $opts{reason};
+
+    # ensure we're not going negative ...
+    my $old = $self->shop_points;
+    die "Unable to set points balance to negative value.\n"
+        if $old + $opts{amount} < 0;
+
+    # log the change first so we know what's going on
+    my $admin = $opts{admin} ? LJ::want_user( $opts{admin} ) : undef;
+    my $msg = sprintf( 'old balance: %d, adjust amount: %d, reason: %s', $old, $opts{amount}, $opts{reason} );
+    LJ::statushistory_add( $self->id, $admin ? $admin->id : undef, 'shop_points', $msg);
+
+    # finally set the value
+    $self->set_prop( shop_points => $old + $opts{amount } );
+    return 1;
 }
 
 
@@ -2549,6 +2619,18 @@ sub share_contactinfo {
     return 0 if $u->opt_showcontact eq 'R' && !$remote;
     return 0 if $u->opt_showcontact eq 'F' && !$u->trusts( $remote );
     return 1;
+}
+
+
+=head3 C<< $self->shop_points >>
+
+Returns how many points this user currently has available for spending in the
+shop.  For adjusting points on a user, please see C<<$self->give_shop_points>>.
+
+=cut
+
+sub shop_points {
+    return $_[0]->prop( 'shop_points' )+0;
 }
 
 

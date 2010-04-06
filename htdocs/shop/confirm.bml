@@ -9,7 +9,7 @@
 #      Mark Smith <mark@dreamwidth.org>
 #      Janine Smith <janine@netrophic.com>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -73,8 +73,12 @@ body<=
         $ret .= LJ::Widget::ShopCart->render( receipt => 1, cart => $cart );
         $ret .= "<form method='post' action='$LJ::SITEROOT/shop/confirm?ordernum=$ordernum'>\n";
         $ret .= LJ::form_auth();
-        $ret .= "<?p " . BML::ml( '.confirm', { sitename => $LJ::SITENAME, total => '<strong>$' . $cart->display_total . ' USD</strong>' } ) . " p?>";
-        $ret .= "<?p $ML{\".confirm.$paymentmethod\"} p?>";
+        if ( $cart->total_cash > 0.00 ) {
+            $ret .= "<?p " . BML::ml( '.confirm', { sitename => $LJ::SITENAME, total => '<strong>' . $cart->display_total_cash . '</strong>' } ) . " p?>";
+            $ret .= "<?p $ML{\".confirm.$paymentmethod\"} p?>";
+        } elsif ( $cart->total_points > 0 ) {
+            $ret .= "<?p " . BML::ml( '.confirm.onlypoints', { sitename => $LJ::SITENAME } ) . " p?>";
+        }
 
         # get their email address if they're not logged in
         unless ( $cart->userid ) {

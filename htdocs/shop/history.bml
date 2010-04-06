@@ -49,7 +49,7 @@ body<=
         $ret .= "<tr>";
         $ret .= "<td>" . $cart->id . "</td>";
         $ret .= "<td>" . $date->strftime( "%F %r %Z" ) . "</td>";
-        $ret .= "<td>\$" . $cart->total . " USD</td>";
+        $ret .= "<td>" . $cart->display_total . "</td>";
         $ret .= "<td>$ML{\"/shop/receipt.bml.cart.paymentmethod.$paymentmethod\"}</td>";
         $ret .= "<td>$ML{\"/shop/receipt.bml.cart.status.$state\"}</td>";
         $ret .= "<td><a href='$LJ::SITEROOT/shop/receipt?ordernum=" . $cart->ordernum . "'>$ML{'.cart.details'}</a></td>";

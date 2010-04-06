@@ -1,0 +1,7 @@
+.header=Shopping Cart
+
+.itemcount=[[num]] [[?num|item|items]] for a total of [[price]]
+
+.newcart=Discard Cart
+
+.viewcart=View Cart

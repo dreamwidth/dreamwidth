@@ -195,6 +195,10 @@ Return the response as a string.
 
 Spawn off an external program.
 
+=head2 C<< $r->redirect( $url ) >>
+
+Redirect to a different URL.
+
 =head1 AUTHORS
 
 =over

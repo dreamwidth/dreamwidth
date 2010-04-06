@@ -123,7 +123,7 @@ EOF
                 $body .= "<tr>";
                 $body .= "<td>" . $cart->id . "</td>";
                 $body .= "<td>" . $date->strftime( "%F %r %Z" ) . "</td>";
-                $body .= "<td>\$" . $cart->total . " USD</td>";
+                $body .= "<td>" . $cart->display_total . "</td>";
                 $body .= "<td>$paystr</td>";
                 $body .= "<td>$ML{\"/shop/receipt.bml.cart.status.$state\"}</td>";
                 $body .= "<td><a href='$LJ::SITEROOT/admin/pay/view?cartid=" . $cart->id . "'>$detailstext</a></td>";

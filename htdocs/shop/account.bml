@@ -48,9 +48,13 @@ body<=
     return $ML{'.error.invalidself.perm'}
         if $for eq 'self' && $account_type eq 'seed';
 
-    my $ret = DW::Widget::ShopCartStatusBar->render( %GET );
+    my $ret = "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";
 
-    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; " . BML::ml( '.backlink', { sitename => $LJ::SITENAMESHORT } ) . "</a></p>";
+    # hack in cart status here ... will be easy once this page is TTd
+    {
+        my $shop = DW::Shop->get;
+        $ret .= DW::Template->template_string( 'shop/cartdisplay.tt', { shop => $shop, cart => $shop->cart, remote => $remote } );
+    }
 
     if ( $for eq 'self' ) {
         $ret .= "<div class='leftybox'>" . BML::ml( '.intro.self', { user => $remote->ljuser_display, aopts => "href='$LJ::HELPURL{paidaccountinfo}'" } ) . "</div>";
@@ -81,7 +85,7 @@ body<=
         if ( $error ) {
             $ret .= qq{<div class="shop-error">$error</div>};
         } else {
-            return BML::redirect( "$LJ::SITEROOT/shop/cart" );
+            return BML::redirect( "$LJ::SITEROOT/shop" );
         }
     }
 

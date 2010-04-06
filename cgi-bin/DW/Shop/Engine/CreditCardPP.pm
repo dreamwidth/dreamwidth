@@ -42,8 +42,8 @@ sub checkout_url {
     # make sure that the cart contains something that costs something.  since
     # this check should have been done above, we die hardcore here.
     my $cart = $self->cart;
-    die "Constraints not met: cart && cart->has_items && cart->has_total > 0.00.\n"
-        unless $cart && $cart->has_items && $cart->total > 0.00;
+    die "Constraints not met: cart && cart->has_items && cart->total_cash > 0.00.\n"
+        unless $cart && $cart->has_items && $cart->total_cash > 0.00;
 
     # and, just in case something terrible happens, make sure our state is good
     die "Cart not in valid state!\n"

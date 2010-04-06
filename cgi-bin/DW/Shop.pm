@@ -8,7 +8,7 @@
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
 #
-# Copyright (c) 2009 by Dreamwidth Studios, LLC.
+# Copyright (c) 2009-2010 by Dreamwidth Studios, LLC.
 #
 # This program is free software; you may redistribute it and/or modify it under
 # the same terms as Perl itself.  For a copy of the license, please reference
@@ -23,6 +23,12 @@ use Carp qw/ croak confess /;
 use DW::Shop::Cart;
 use DW::Shop::Engine;
 use DW::Shop::Item::Account;
+use DW::Shop::Item::Points;
+
+# constants across the site
+our $MIN_ORDER_COST = 3.00; # cost in USD minimum.  this only comes into affect if
+                            # a user is trying to check out an order that costs
+                            # less than this.
 
 # variables we maintain
 our $STATE_OPEN        = 1;    # open carts - user can still modify
@@ -88,6 +94,10 @@ our %PAYMENTMETHODS = (
     gco => {
         id => 4,
         class => 'GoogleCheckout',
+    },
+    creditcard => {
+        id => 5,
+        class => 'CreditCard',
     },
 );
 

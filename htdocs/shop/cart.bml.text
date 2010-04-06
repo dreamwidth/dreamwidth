@@ -4,4 +4,8 @@
 
 .gift=Give a Gift
 
+.payment.failed=Unfortunately, your method of payment was declined by our merchant processor.  If you would like to choose an alternate form of payment, or make sure you entered everything correctly, you will need to initiate the checkout process again.
+
+.payment.failed.title=Payment Failed
+
 .title=Your Shopping Cart

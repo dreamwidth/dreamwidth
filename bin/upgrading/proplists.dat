@@ -974,6 +974,14 @@ userproplist.safe_search:
   multihomed: 0
   prettyname: Safe Search Filtering
 
+userproplist.shop_points:
+  cldversion: 0
+  datatype: num
+  des: current points balance
+  indexed: 0
+  multihomed: 0
+  prettyname: How many shop points the user has available
+
 userproplist.sidx_bdate:
   cldversion: 0
   datatype: char

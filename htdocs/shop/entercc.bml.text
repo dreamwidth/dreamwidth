@@ -1,0 +1,63 @@
+;; -*- coding: utf-8 -*-
+
+.about=This page allows you to complete your payment using an accepted major credit card.
+
+.about.security=[[sitename]] does not store your credit card information.  Your payment details are passed to our payment processor using industry standard encryption and will never be stored on our servers.
+
+.confirm.button=Confirm Payment of [[amount]]
+
+.confirm.para=By filling out the above form and clicking the confirmation button below, you authorize [[sitename]] to charge the given credit card in the amount of [[amount]] to complete this purchase.
+
+.error.badcartstate=Your shopping cart has already been checked out.  If your payment failed, you will need to build a new shopping cart to try again.  We're sorry for the inconvenience.
+
+.error.ccnum.invalid=Credit card number appears invalid.  Try again.
+
+.error.cctype.invalid=Invalid credit card type selected.
+
+.error.cvv2.invalid=CVV invalid.  Must be a three or four digit number such as 123 or 4567.
+
+.error.emptycart=Your cart is empty.
+
+.error.invalidpaymentmethod=The payment method you chose is not currently supported.
+
+.error.megafail=Internal failure setting up payment.  Please try again.
+
+.error.nocart=You do not have a shopping cart.
+
+.error.reinput=Please reinput this data.
+
+.error.required=Required field.
+
+.error.zerocart=Sorry, we don't support $0 carts yet.
+
+.error.zip.invalidus=Invalid US zip code.  Must be in the form 12345 or 12345-5678.
+
+.form.ccnum=Credit Card Number:
+
+.form.cctype=Credit Card Type:
+
+.form.city=City:
+
+.form.country=Country:
+
+.form.cvv2=CVV Number:
+
+.form.expmon=Expiration (Month):
+
+.form.expyear=Expiration (Year):
+
+.form.firstname=First Name:
+
+.form.lastname=Last Name:
+
+.form.phone=Phone Number:
+
+.form.state=State/Province:
+
+.form.street1=Address line 1:
+
+.form.street2=Address line 2:
+
+.form.zip=Zip/Postal Code:
+
+.title=Purchase by Credit Card

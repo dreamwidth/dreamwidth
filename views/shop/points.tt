@@ -1,0 +1,36 @@
+[%- sections.title = '.title' | ml(sitename = site.nameshort) -%]
+
+[% cart_display %]
+
+<p>[% '.about' | ml(sitename = site.nameshort) %]</p>
+
+<form method='post'>
+<table class='shop-table-gift'>
+[% IF foru %]
+    <tr><td>[% '.buying.for' | ml %]</td><td>[% foru.ljuser_display %]
+        <input type='hidden' name='foruser' value='[% foru.user %]' />
+    </td></tr>
+[% ELSE %]
+    <tr><td>[% '.buying.for' | ml %]</td><td><input type='text' name='foruser' maxlength='25' size='15' />
+        [% IF errs.foruser %]<br /><strong>[% errs.foruser %][% END %]
+    </td></tr>
+[% END %]
+<tr><td>[% '.buying.points' | ml %]</td><td><input type='text' name='points' id='points' maxlength='4' size='10' value='[% points %]' />
+    [% '.buying.points.range' | ml %]
+    [% IF errs.points %]<br /><strong>[% errs.points %][% END %]
+</td></tr>
+<tr><td><span id='points-cost'></span></td><td><input type='submit' value='[% '.addtocart' | ml %]' /></td></tr>
+</table>
+</form>
+
+<p id='points-about'>[% '.about2' | ml %]</p>
+
+[%# FIXME: move this to shop.js or something %]
+<script type='text/javascript'>
+    DW.whenPageLoaded( function() {
+        setInterval(
+            function() {
+                $('#points-cost').html( 'Cost: <strong>$' + ($('#points').val() / 10).toFixed(2) + ' USD</strong>' );
+            }, 250 );
+    } );
+</script>

@@ -1,0 +1,58 @@
+[%- sections.title = '.title' | ml(sitename = site.name) -%]
+
+[% cart_display %]
+
+<p>[% '.about' | ml %]</p>
+
+<div class='shop-category'>
+    <div class='shop-category-title'>[% '.title.paidacc' | ml %]</div>
+    <div class='shop-category-items'>
+[% IF remote AND remote.is_personal AND NOT remote.is_perm %]
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
+[% END %]
+[% IF remote AND remote.is_personal %]
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/gifts?type=account">[% '.for.circle' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=gift">[% '.for.different' | ml %]</a></span>
+[% ELSE %]
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=gift">[% '.for.existing' | ml %]</a></span>
+[% END %]
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/account?for=new">[% '.for.new' | ml %]</a></span>
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/randomgift">[% '.for.random' | ml %]</a></span>
+    </div>
+</div>
+
+<div class='shop-category'>
+    <div class='shop-category-title'>[% '.title.points' | ml(site=site.nameshort) %]</div>
+    <div class='shop-category-items'>
+[% IF remote AND remote.is_personal %]
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/points?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
+        <span class='shop-category-item'><a href="[% roots.site %]/shop/points?for=gift">[% '.for.different' | ml %]</a></span>
+[% ELSE %]
+        <span class='shop-category-item'>[% '.points.login' | ml %]</span>
+[% END %]
+    </div>
+</div>
+
+
+[%#
+
+Here for future expansion ...
+
+<div class='shop-category'>
+    <div class='shop-category-title'>Virtual Gifts for ...</div>
+    <div class='shop-category-items'>
+        <span class='shop-category-item'><a href="...">yourself</a> (username)</span>
+        <span class='shop-category-item'><a href="...">your circle</a></span>
+        <span class='shop-category-item'><a href="...">a random user</a></span>
+    </div>
+</div>
+
+
+<div class='shop-category'>
+    <div class='shop-category-title'>Rename Tokens for ...</div>
+    <div class='shop-category-items'>
+        <span class='shop-category-item'><a href="...">yourself</a> (username)</span>
+        <span class='shop-category-item'><a href="...">your circle</a></span>
+    </div>
+</div>
+%]

@@ -42,13 +42,20 @@ sub render_body {
     $opts{receipt} = 1
         if $opts{admin};
 
+    # if we're not doing a receipt load, then we should balance the points.  this
+    # fixes situations where the user gets gifted points while they're shopping.
+    unless ( $opts{receipt} ) { 
+        $cart->recalculate_costs;
+        $cart->save;
+    }
+
     my $colspan = $opts{receipt} ? 5 : 6;
 
     $ret .= $class->start_form
         unless $opts{receipt};
 
     $ret .= "<table class='shop-cart'>";
-    $ret .= "<tr><th>" . $class->ml( 'widget.shopcart.header.remove' ) . "</th>"
+    $ret .= "<tr><th></th>"
         unless $opts{receipt};
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.item' ) . "</th>";
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.deliverydate' ) . "</th>";
@@ -58,6 +65,7 @@ sub render_body {
     $ret .= "<th>" . $class->ml( 'widget.shopcart.header.price' ) . "</th>";
     $ret .= "<th>ADMIN</th>" if $opts{admin};
     $ret .= "</tr>";
+
     foreach my $item ( @{$cart->items} ) {
         $ret .= "<tr>";
         if ( $opts{receipt} ) {
@@ -72,7 +80,8 @@ sub render_body {
         $ret .= "<td>" . $item->t_html( admin => $opts{admin} ) . "</td>";
         $ret .= "<td>" . $item->from_html . "</td>";
         $ret .= "<td>" . ( $item->random ? 'Y' : 'N' ) . "</td>" if $opts{admin};
-        $ret .= "<td>\$" . sprintf( "%.2f" , $item->cost ) . " USD</td>";
+        $ret .= "<td>" . $item->display_paid . "</td>\n";
+
         if ( $opts{admin} ) {
             $ret .= "<td>";
             if ( $item->t_email ) {
@@ -106,24 +115,35 @@ sub render_body {
 
     $ret .= "<tr><td class='total' style='border-right: none; text-align: left;' colspan='3'>$buttons</td>";
     $ret .= "<td style='border-left: none;' colspan='" . ($colspan-3) .
-            "' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " \$" . $cart->display_total . " USD</td></tr>";
+            "' class='total'>" . $class->ml( 'widget.shopcart.total' ) . " " . $cart->display_total . "</td></tr>";
     $ret .= "</table>";
 
     unless ( $opts{receipt} ) {
-        $ret .= "<div class='shop-cart-btn'><p>";
+        $ret .= "<div class='shop-cart-btn'><p><strong>" . $class->ml( 'widget.shopcart.paymentmethod' ) . "</strong> ";
 
-        # google has very specific rules about where the buttons go and how to display them
-        # ... so we have to abide by that
-        if ( LJ::is_enabled( 'googlecheckout' ) ) {
-            $ret .= '<input type="image" name="' . $class->input_prefix . '_checkout_gco" src="https://checkout.google.com/buttons/checkout.gif?' .
-                    'merchant_id=&w=180&h=46&style=trans&variant=text&loc=en_US" alt="Use Google Checkout" style="vertical-align: middle;" /> or use ';
+        # if the cart is zero cost, then we can just let them check out
+        if ( $cart->total_cash == 0.00 ) {
+            $ret .= $class->html_submit( checkout_free => $class->ml( 'widget.shopcart.paymentmethod.free' ) );
+
+        } else {
+            # google has very specific rules about where the buttons go and how to display them
+            # ... so we have to abide by that
+            if ( LJ::is_enabled( 'googlecheckout' ) ) {
+                $ret .= '<input type="image" name="' . $class->input_prefix . '_checkout_gco" src="https://checkout.google.com/buttons/checkout.gif?' .
+                        'merchant_id=&w=180&h=46&style=trans&variant=text&loc=en_US" alt="Use Google Checkout" style="vertical-align: middle;" /> or use ';
+                $ret .= " &nbsp;&nbsp;";
+            }
+
+            # and now any hooks that want to add to this...
+            $ret .= $class->html_submit( checkout_creditcard => $class->ml( 'widget.shopcart.paymentmethod.creditcard' ) );
+            $ret .= " &nbsp;&nbsp;";
+
+            # check or money order button
+            $ret .= $class->html_submit( checkout_cmo => $class->ml( 'widget.shopcart.paymentmethod.checkmoneyorder' ) );
         }
 
-        # check or money order button
-        $ret .= $class->html_submit( checkout_cmo => $class->ml( 'widget.shopcart.paymentmethod.checkmoneyorder' ) );
-
         $ret .= "</p></div>";
-        $ret .= $class->end_form
+        $ret .= $class->end_form;
     }
 
     return $ret;
@@ -135,7 +155,8 @@ sub handle_post {
     # checkout methods depend on which button was clicked
     my $cm;
     $cm = 'gco' if LJ::is_enabled( 'googlecheckout' ) && ( $post->{checkout_gco} || $post->{'checkout_gco.x'} );
-    $cm = 'checkmoneyorder' if $post->{checkout_cmo};
+    $cm = 'creditcard' if $post->{checkout_creditcard};
+    $cm = 'checkmoneyorder' if $post->{checkout_cmo} || $post->{checkout_free};
 
     # check out?
     return BML::redirect( "$LJ::SITEROOT/shop/checkout?method=$cm" )

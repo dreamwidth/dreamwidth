@@ -295,6 +295,10 @@ sub conflicts {
     return if
         $self->cannot_conflict || $item->cannot_conflict;
 
+    # we can only conflict with other items of our own type
+    return if
+        ref $self ne ref $item;
+
     # first see if we're talking about the same target
     # note that we're not checking email here because they may want to buy
     # multiple paid accounts and send them to all to the same email address
@@ -343,8 +347,15 @@ sub name_html {
     my $self = $_[0];
 
     my $name = $self->class_name;
-    return $name if $self->permanent;
-    return LJ::Lang::ml( 'shop.item.account.name', { name => $name, num => $self->months } );
+
+    if ( $self->cost_points > 0 ) {
+        return LJ::Lang::ml( 'shop.item.account.name.perm', { name => $name, points => $self->cost_points } )
+            if $self->permanent;
+        return LJ::Lang::ml( 'shop.item.account.name', { name => $name, num => $self->months, points => $self->cost_points } );
+    } else {
+        return $name if $self->permanent;
+        return LJ::Lang::ml( 'shop.item.account.name.nopoints', { name => $name, num => $self->months } );
+    }
 }
 
 

@@ -34,6 +34,10 @@ body<=
     return $err if $err;
 
     my $ret;
+    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a> &bull; <a href='$LJ::SITEROOT/shop/gifts'>$ML{'.gift'}</a></p>";
+
+    $ret .= "<?standout <strong>$ML{'.payment.failed.title'}</strong><br /><br />$ML{'.payment.failed'} standout?>\n"
+        if $GET{failed};
 
     if ( LJ::did_post() ) {
         my %from_post = LJ::Widget->handle_post( \%POST, ( 'ShopCart' ) );
@@ -41,7 +45,6 @@ body<=
             if $from_post{error};
     }
 
-    $ret .= "<p><a href='$LJ::SITEROOT/shop'>&lt;&lt; $ML{'.backlink'}</a> &bull; <a href='$LJ::SITEROOT/shop/gifts'>$ML{'.gift'}</a></p>";
 
     $ret .= LJ::Widget::ShopCart->render;
 

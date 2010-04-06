@@ -42,6 +42,7 @@ my $site_constants = Template::Namespace::Constants->new({
 
 my $roots_constants = Template::Namespace::Constants->new({
     site => $LJ::SITEROOT,
+    img => $LJ::IMGPREFIX,
 });
 
 # precreating this
@@ -50,6 +51,7 @@ my $view_engine = Template->new({
     NAMESPACE => {
         site => $site_constants,
         roots => $roots_constants,
+        help => Template::Namespace::Constants->new( \%LJ::HELPURL ),
     },
     CACHE_SIZE => $LJ::TEMPLATE_CACHE_SIZE, # this can be undef, and that means cache everything.
     STAT_TTL => $LJ::IS_DEV_SERVER ? 1 : 3600,
@@ -71,15 +73,21 @@ Render a template to a string.
 =cut
 
 sub template_string {
-    my ($class, $filename, $opts, $extra ) = @_;
+    my ( $class, $filename, $opts, $extra ) = @_;
     my $r = DW::Request->get;
 
     $opts->{sections} = $extra;
-    $r->note('ml_scope',"/$filename") unless $r->note('ml_scope');
+
+    # now we have to save the scope and update it for this rendering
+    my $oldscope = $r->note( 'ml_scope' );
+    $r->note( ml_scope => ( $extra->{ml_scope} || "/$filename" ) );
 
     my $out;
     $view_engine->process( $filename, $opts, \$out )
         or die Template->error();
+
+    # now revert the scope if we had one
+    $r->note( ml_scope => $oldscope ) if $oldscope;
 
     return $out;
 }

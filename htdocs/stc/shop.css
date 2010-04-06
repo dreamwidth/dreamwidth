@@ -115,3 +115,67 @@
 .shop-footnote {
     font-size: smaller;
 }
+
+.ccrow {
+    padding: 3px;
+}
+
+.ccrowerr {
+    background-color: #ccc;
+}
+
+.shop-points-status {
+    margin: 20px;
+    border: 1px solid #c1272d;
+    padding: 0.5em;
+    font-size: larger;
+}
+
+.status-bar-options {
+    float: right;
+}
+
+.status-bar-option {
+    margin-left: 1em;
+    font-weight: bold;
+}
+
+.shop-category {
+    margin-top: 20px;
+}
+
+.shop-category-title {
+    font-size: larger;
+    font-weight: bold;
+}
+
+.shop-category-items {
+    margin-left: 10px;
+}
+
+.shop-category-item {
+    margin-left: 30px;
+}
+
+#shop-status-bar {
+    margin: 20px;
+    padding: 0.5em;
+    font-size: larger;
+}
+
+.shop-status-left {
+    width: 25%;
+    float: left;
+}
+
+.shop-status-right {
+    width: 25%;
+    float: right;
+    text-align: right;
+}
+
+.shop-status-middle {
+    float: left;
+    width: 50%;
+    text-align: center;
+}

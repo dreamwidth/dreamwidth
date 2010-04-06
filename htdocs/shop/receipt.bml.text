@@ -23,11 +23,15 @@
 .cart.status.8|note=This status should never be possible on the receipt page!
 .cart.status.8=Closed before completion
 
+.cart.status.9=Charge declined
+
 .cart.paymentmethod=<strong>Payment Method:</strong> [[paymentmethod]]
 
 .cart.paymentmethod.checkmoneyorder=Check/Money Order
 
 .cart.paymentmethod.checkmoneyorder.extra=Please make your check or money order out to: [[sitecompany]]</p><p>Mail it to: [[address]]
+
+.cart.paymentmethod.creditcard=Credit Card
 
 .cart.paymentmethod.creditcardpp=Credit Card
 

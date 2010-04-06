@@ -3085,6 +3085,35 @@ The [[sitename]] Team
 
 shop.email.email.other.subject=[[sitename]] Account Purchase
 
+shop.email.gift.other.body<<
+Dear [[touser]],
+
+Your [[sitename]] account has received a gift from [[fromuser]]!  Your account
+has been credited with:
+
+    [[gift]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.gift.other.subject=[[sitename]] Gift Received
+
+shop.email.gift.self.body<<
+Dear [[touser]],
+
+Your [[sitename]] account has now been credited with the following:
+
+    [[gift]]
+
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.email.gift.self.subject=[[sitename]] Account Credited
+
 shop.email.user.anon.body<<
 Dear [[touser]],
 
@@ -3305,9 +3334,21 @@ shop.item.account.conflicts.differentpaid=You cannot purchase two different type
 
 shop.item.account.conflicts.multipleperms=You cannot purchase more than one seed account for the same person.
 
-shop.item.account.name=[[name]] ([[num]] [[?num|month|months]])
+shop.item.account.name=[[points]] points for a [[name]] ([[num]] [[?num|month|months]])
+
+shop.item.account.name.nopoints=[[name]] ([[num]] [[?num|month|months]])
+
+shop.item.account.name.perm=[[points]] points for a [[name]]
 
 shop.item.account.randomuser=Random active free user
+
+shop.item.points.canbeadded.invalidjournaltype=You can only buy points for a personal journal.
+
+shop.item.points.canbeadded.notauser=You can only buy points for an active account.
+
+shop.item.points.canbeadded.outofrange=Minimum purchase is 30 points, maximum is 5000.
+
+shop.item.points.name=[[num]] [[sitename]] Points
 
 sitescheme.accountlinks.account=Account
 
@@ -4601,25 +4642,21 @@ widget.shopcart.header.remove=Remove?
 
 widget.shopcart.header.to=To
 
-widget.shopcart.paymentmethod=Payment Method:
+widget.shopcart.paymentmethod=Select a Payment Method:
 
 widget.shopcart.paymentmethod.checkmoneyorder=Check/Money Order
 
+widget.shopcart.paymentmethod.creditcard=Credit Card
+
 widget.shopcart.paymentmethod.creditcardpp=Credit Card
+
+widget.shopcart.paymentmethod.free=Free/No Cost Order
 
 widget.shopcart.paymentmethod.gco=Google Checkout Account
 
 widget.shopcart.paymentmethod.paypal=PayPal Account
 
 widget.shopcart.total=Total:
-
-widget.shopcartstatusbar.header=Shopping Cart
-
-widget.shopcartstatusbar.itemcount=[[num]] [[?num|item|items]] for a total of [[price]]
-
-widget.shopcartstatusbar.newcart=Discard Cart
-
-widget.shopcartstatusbar.viewcart=View Cart
 
 widget.shopitemgroupdisplay.paidaccounts.header=Buy a Paid Account
 
@@ -4655,9 +4692,9 @@ widget.shopitemoptions.header.seed=Seed Account
 
 widget.shopitemoptions.highlight.seed=- Fewer than [[num]] remaining!
 
-widget.shopitemoptions.price=[[num]] [[?num|month|months]] for [[price]]
+widget.shopitemoptions.price=[[num]] [[?num|month|months]] for [[points]] points ([[price]])
 
-widget.shopitemoptions.price.seed=Forever for [[price]]
+widget.shopitemoptions.price.seed=Forever for [[points]] points ([[price]])
 
 widget.sitemessages.title=[[sitename]] Plugs In
 

@@ -396,12 +396,14 @@ table#table_yourlayers td { padding: .15em .25em; }
     text-align: center;
 }
 .standout .standout-inner {
-    background-color: #DDDDAA;
-    color: #000;
-    border: 1px solid #999966;
     margin-top: 0.5em;
     margin-left: auto;
     margin-right: auto;
+}
+.standout .standout-inner, .standout-colors {
+    background-color: #DDDDAA;
+    color: #000;
+    border: 1px solid #999966;
 }
 .standout .standout-inner td {
     padding: 0.5em;

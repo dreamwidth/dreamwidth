@@ -41,7 +41,7 @@ sub render_body {
     if ( $cart->has_items ) {
         $ret .= "<div class='shop-cart-status'>";
         $ret .= "<strong>" . $class->ml( 'widget.shopcartstatusbar.header' ) . "</strong><br />";
-        $ret .= $class->ml( 'widget.shopcartstatusbar.itemcount', { num => $cart->num_items, price => '$' . $cart->display_total . " USD" } );
+        $ret .= $class->ml( 'widget.shopcartstatusbar.itemcount', { num => $cart->num_items, price => $cart->display_total } );
         $ret .= "<br />";
 
         $ret .= "<ul>";
