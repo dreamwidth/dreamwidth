@@ -101,7 +101,7 @@ body<=
             phone => LJ::html_text({ name => 'phone', maxlength => 40, value => $POST{phone} }),
             '--' => '',
             ccnum => LJ::html_text({ name => 'ccnum', maxlength => 19 }) . $accepted_ccs,
-            cvv2 => LJ::html_text({ name => 'cvv2', maxlength => 3, size => 5 }),
+            cvv2 => LJ::html_text({ name => 'cvv2', maxlength => 4, size => 5 }),
             expmon => LJ::html_select({ name => 'expmon', selected => $POST{expmon} }, map { $_ => LJ::Lang::month_long( $_ ) } 1..12 ),
             expyear => LJ::html_select({ name => 'expyear', selected => $POST{expyear} }, map { $_ => $_ } 2010..2019 ),
         );
