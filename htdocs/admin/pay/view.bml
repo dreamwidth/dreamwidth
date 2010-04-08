@@ -109,7 +109,7 @@ EOF
     $body .= "<table border='1'>";
     $body .= "<tr><th>From:</th><td>$from</td></tr>";
     $body .= "<tr><th>Date:</th><td>" . DateTime->from_epoch( epoch => $cart->starttime )->strftime( "%F %r %Z" ) . "</td></tr>";
-    $body .= "<tr><th>Total:</th><td>\$" . $cart->display_total . " USD</td></tr>";
+    $body .= "<tr><th>Total:</th><td>" . $cart->display_total . "</td></tr>";
     $body .= "<tr><th>Payment Method:</th><td>$paystr</td></tr>";
     $body .= "<tr><th>Uniq:</th><td>" . $cart->uniq . "</td></tr>";
     $body .= "<tr><th>IP:</th><td>" . $cart->ip . "</td></tr>";
@@ -134,7 +134,7 @@ EOF
 
             my $hr;
             my $out = sub {
-                foreach ( qw/ SIGNATURE USER PWD / ) {
+                foreach ( qw/ SIGNATURE USER PWD ccnumber password username / ) {
                     $hr->{$_} = '<em>redacted</em>'
                         if exists $hr->{$_};
                 }
@@ -148,10 +148,14 @@ EOF
             };
             return $out->() if $hr;
 
+            # but see if it seems to be a unix time we can convert to a readable one
+            return LJ::mysql_time( $val, 1 )
+                if $val =~ /^1\d{9}$/;
+
             # and now fall back to urlencoded ...
             return $val
                 unless $val =~ /&/ && $val =~ /=/;
-            LJ::decode_url_string( $val, $hr );
+            LJ::decode_url_string( $val, $hr = {} );
             return $out->();
         };
 
@@ -215,6 +219,13 @@ EOF
         # now show the pp_trans log
         $body .= "<h2>raw: gco_log (GCO raw)</h2>";
         $dump->( 'SELECT * FROM gco_log WHERE gcoid = ?', $engine->gcoid );
+
+    } elsif ( $classname eq 'CreditCard' ) {
+        # dump the tables
+        $body .= "<h2>raw: cc_trans (raw transaction data)</h2>\n";
+        $dump->( 'SELECT * FROM cc_trans WHERE cartid = ?', $cart->id );
+        $body .= "<h2>raw: cc_log (raw server query/response log)</h2>\n";
+        $dump->( 'SELECT * FROM cc_log WHERE cartid = ?', $cart->id );
 
     } elsif ( $classname eq 'CheckMoneyOrder' ) {
         # show the payer's details.

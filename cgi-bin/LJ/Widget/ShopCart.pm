@@ -79,7 +79,7 @@ sub render_body {
         $ret .= "<td>" . ( $item->deliverydate ? $item->deliverydate : $class->ml( 'widget.shopcart.deliverydate.asap' ) ) . "</td>";
         $ret .= "<td>" . $item->t_html( admin => $opts{admin} ) . "</td>";
         $ret .= "<td>" . $item->from_html . "</td>";
-        $ret .= "<td>" . ( $item->random ? 'Y' : 'N' ) . "</td>" if $opts{admin};
+        $ret .= "<td>" . ( ref $item =~ /Account/ && $item->random ? 'Y' : 'N' ) . "</td>" if $opts{admin};
         $ret .= "<td>" . $item->display_paid . "</td>\n";
 
         if ( $opts{admin} ) {
