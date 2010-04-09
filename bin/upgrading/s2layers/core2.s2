@@ -3546,7 +3546,7 @@ function print_module_userprofile() {
     var Page p = get_page();
     var string title = "Profile";
 
-    open_module("userprofile", $title, "");
+    open_module("userprofile", $title, $p.view_url{"userinfo"});
 
     if ($*module_userprofile_opts_userpic) {
         if (defined $p.journal.default_pic) {
