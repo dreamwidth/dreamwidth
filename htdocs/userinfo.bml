@@ -662,7 +662,7 @@ body<=
         @trusted_userids = $u->trusted_userids if $u->is_personal;
         @trusted_by_userids = $u->trusted_by_userids if $u->is_personal || $u->is_identity;
         @watched_userids = $u->watched_userids if $u->is_personal || $u->is_identity;
-        @watched_by_userids = $u->watched_by_userids unless $u->is_syndicated ||
+        @watched_by_userids = $u->watched_by_userids
             # This is kind of a hack; we don't want to load these for communities with lots
             # of subscribers because the profile page chokes and dies.  This won't load them
             # if the option to hide subscribers is set and the person cannot manage the communities.
@@ -670,7 +670,7 @@ body<=
             # it doesn't break things for smaller communities by not loading them for the admins.
             # FIXME: This overall situation of profile pages choking up for large amounts of subscribers or members
             #   needs to be fixed in a more elegant and useful way.
-            ( $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) ) );
+            unless $u->prop( 'opt_hidefriendofs' ) && ( !$remote || !$remote->can_manage( $u ) );
     }
 
     my ( @members_userids, @member_of_userids, @posting_access_to_userids, @posting_access_from_userids );
@@ -691,9 +691,9 @@ body<=
 ################################################################################
 ##### PEOPLE LISTS
 
-    unless ( $u->is_syndicated ) {
-        my ( $trusted_body, $trusted_by_body, $watched_body, $watched_by_body, $members_body, $posting_access_from_body );
+    my ( $trusted_body, $trusted_by_body, $watched_body, $watched_by_body, $members_body, $posting_access_from_body );
 
+    unless ( $u->is_syndicated ) {
         if ( $u->show_mutualfriends ) { # only can return true for personal or identity accounts
             if ( $u->is_personal ) {
                 my @mutually_trusted_list = sort { $a->display_name cmp $b->display_name }
@@ -870,27 +870,44 @@ body<=
             );
         }
 
-        if ( $trusted_body || $trusted_by_body || $watched_body || $watched_by_body || $members_body || $posting_access_from_body ) {
-            my $links = [];
-            if ( $u->is_community ) {
-                push @$links, { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} }
-                    if $remote && $remote->can_manage( $u );
-                push @$links, { url => $u->journal_base . "/read", text => $ML{'.people.viewentries'} };
-            } else {
-                push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} }
-                    if $remote && $remote->can_manage( $u );
-                push @$links, { url => $u->journal_base . "/read?show=P", text => $ML{'.people.viewentries'} };
-            }
+    } else {
 
-            $ret .= $content_block->(
-                section_name    => 'people',
-                section_name_ml => $u->is_community ? '.members.header' : '.people.header',
-                header_image    => $u->is_community ? '' : "$LJ::IMGPREFIX/silk/identity/user.png",
-                links           => $links,
-                body            => "$trusted_body$trusted_by_body$watched_body$members_body$watched_by_body$posting_access_from_body",
-                collapsible     => 0,
-            );
+        # syndicated accounts only need to show people who are subscribed to them
+        my @watched_by_list = sort { $a->display_name cmp $b->display_name }
+        grep { ( $_->is_personal || $_->is_identity ) && $includeuser->( $_ ) }
+            map { $us->{$_} } @watched_by_userids;
+        my $watched_by_body_name_ml = @watched_by_list ?
+            { ml => '.people.watched_by.some', opts => { num => scalar @watched_by_list } } :
+                '.people.watched_by.none';
+        $watched_by_body = $content_inner_block->(
+            section_name    => 'watched_by_people',
+            section_name_ml => $watched_by_body_name_ml,
+            body            => $listusers->( \@watched_by_list ),
+            hidable         => 1,
+        );   
+    }
+
+    if ( $trusted_body || $trusted_by_body || $watched_body || $watched_by_body || $members_body || $posting_access_from_body ) {
+        my $links = [];
+        if ( $u->is_community ) {
+           push @$links, { url => "$LJ::SITEROOT/community/members?authas=" . $u->user, text => $ML{'.section.edit'} }
+                if $remote && $remote->can_manage( $u );
+           push @$links, { url => $u->journal_base . "/read", text => $ML{'.people.viewentries'} };
+        } else {
+            push @$links, { url => "$LJ::SITEROOT/manage/circle/edit", text => $ML{'.section.edit'} }
+                if $remote && $remote->can_manage( $u );
+            push @$links, { url => $u->journal_base . "/read?show=P", text => $ML{'.people.viewentries'} }
+                unless $u->is_syndicated;
         }
+
+        $ret .= $content_block->(
+            section_name    => 'people',
+            section_name_ml => $u->is_community ? '.members.header' : '.people.header',
+            header_image    => $u->is_community ? '' : "$LJ::IMGPREFIX/silk/identity/user.png",
+            links           => $links,
+            body            => "$trusted_body$trusted_by_body$watched_body$members_body$watched_by_body$posting_access_from_body",
+            collapsible     => 0,
+        );
     }
 
 ################################################################################
