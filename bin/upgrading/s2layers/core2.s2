@@ -3603,7 +3603,7 @@ function print_module_pagesummary_comment_count(Comment comment) : int {
     return $count;
 }
 
-function print_module_pagesummary_comments(string esubject, int count, string prop) : string {
+function print_module_pagesummary_comments(string esubject, int count, string prop, string read_url) : string {
     var string subject = ($esubject != "" ? striphtml($esubject) : "<em>$*text_nosubject</em>");
     var string module_comment_text = get_plural_phrase($count, $prop);
 
@@ -3611,7 +3611,11 @@ function print_module_pagesummary_comments(string esubject, int count, string pr
         return "title='$module_comment_text'>$subject</a></span>";
     }
     elseif ($count != 0) {
-        return ">$subject</a></span> <span class='pagesummary-commentcount'>+$module_comment_text</span>";
+        if ($read_url == "") {
+            return ">$subject</a></span> <span class='pagesummary-commentcount'>+$module_comment_text</span>";
+        } else {
+            return ">$subject</a></span> <span class='pagesummary-commentcount'><a href='$read_url'>+$module_comment_text</a></span>";
+        }
     }
     else {
         return ">$subject</a></span>";
@@ -3627,7 +3631,7 @@ function print_module_pagesummary() {
         foreach var Comment c ( $cp.comments ) {
             var int count = print_module_pagesummary_comment_count($c);
             var string comment_display =
-                print_module_pagesummary_comments($c.subject, $count, "text_read_comments_threads");
+                print_module_pagesummary_comments($c.subject, $count, "text_read_comments_threads", "");
             var string poster = isnull $c.poster ? $*text_poster_anonymous : $c.poster->ljuser();
 
             $links[size $links] = """<span class="pagesummary-poster">$poster</span> - <span class="pagesummary-subject"><a href="#$c.anchor" $comment_display""";
@@ -3638,7 +3642,7 @@ function print_module_pagesummary() {
         var FriendsPage cp = $p as FriendsPage;
         foreach var Entry e ( $cp.entries ) {
             var string comment_display =
-                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments_friends");
+                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments_friends", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
             
             if ( not $e.poster->equals($e.journal) ) {
@@ -3653,7 +3657,7 @@ function print_module_pagesummary() {
         var RecentPage cp = $p as RecentPage;
         foreach var Entry e ( $cp.entries ) {
             var string comment_display =
-                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments");
+                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
 
             if ( not $e.poster->equals($e.journal) ) {
@@ -3669,7 +3673,7 @@ function print_module_pagesummary() {
         var DayPage cp = $p as DayPage;
         foreach var Entry e ( $cp.entries ) {
             var string comment_display =
-                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments");
+                print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
 
             if ( not $e.poster->equals($e.journal) ) {
