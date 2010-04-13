@@ -127,7 +127,7 @@ margin: .75em 0; }
 top: -1em;
 right: 5px;}
 
-.entry-content { margin-top: 1.25em; }
+.entry-content { margin-top: 2em; }
 
 .metadata { margin: 1em 0 0 0; }
 .metadata-label { font-weight: bold; }
@@ -175,7 +175,7 @@ ul.entry-interaction-links { text-align: right;
 top: 0;
 right: 5px;}
 
-.comment-content { margin-top: 1em; }
+.comment-content { margin-top: 2em; }
 
 .comment .edittime { margin-top: 1em; }
 .comment .header .datetime { font-size: small;
