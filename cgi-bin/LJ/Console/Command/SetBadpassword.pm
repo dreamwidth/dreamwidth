@@ -86,7 +86,7 @@ sub execute {
     });
 
     $self->error("Running of hook failed!")
-        if $on && !$hres;
+        if $on && !$hres && LJ::Hooks::are_hooks( 'set_badpassword' );
 
     return 1;
 }
