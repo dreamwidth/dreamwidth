@@ -491,25 +491,25 @@ sub EntryPage_entry
         }
     }
 
-    my $s2entry = Entry($u, {
-        'subject' => $subject,
-        'text' => $event,
-        'dateparts' => LJ::alldatepart_s2($entry->eventtime_mysql),
-        'system_dateparts' => LJ::alldatepart_s2($entry->logtime_mysql),
-        'security' => $entry->security,
-        'adult_content_level' => $entry->adult_content_calculated || $u->adult_content_calculated,
-        'allowmask' => $entry->allowmask,
-        'props' => $entry->props,
-        'itemid' => $ditemid,
-        'comments' => $comments,
-        'journal' => $userlite_journal,
-        'poster' => $userlite_poster,
-        'tags' => \@taglist,
-        'new_day' => 0,
-        'end_day' => 0,
-        'userpic' => $userpic,
-        'permalink_url' => $entry->url,
-    });
+    my $s2entry = Entry( $u, {
+        subject => $subject,
+        text => $event,
+        dateparts => LJ::alldatepart_s2( $entry->eventtime_mysql ),
+        system_dateparts => LJ::alldatepart_s2( $entry->logtime_mysql ),
+        security => $entry->security,
+        adult_content_level => $entry->adult_content_calculated || $u->adult_content_calculated,
+        allowmask => $entry->allowmask,
+        props => $entry->props,
+        itemid => $ditemid,
+        comments => $comments,
+        journal => $userlite_journal,
+        poster => $userlite_poster,
+        tags => \@taglist,
+        new_day => 0,
+        end_day => 0,
+        userpic => $userpic,
+        permalink_url => $entry->url,
+    } );
 
     return ($entry, $s2entry);
 }

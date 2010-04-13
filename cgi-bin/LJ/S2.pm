@@ -1946,13 +1946,6 @@ sub Entry_from_entryobj
     $text = DW::Logic::AdultContent->transform_post( post => $text, journal => $journal,
                                                      remote => $remote, entry => $entry_obj );
 
-    # security information
-    my $allowmask = $entry_obj->allowmask;
-    my $security = $entry_obj->security;
-    # time when entry was posted
-    my $alldatepart = LJ::alldatepart_s2( $entry_obj->{eventtime} );
-    my $system_alldatepart = LJ::alldatepart_s2( $entry_obj->{logtime} );;
-
     # journal: posted to; poster: posted by
     my $posterid = $entry_obj->posterid;
     my $userlite_journal = UserLite ( $journal );
@@ -1989,26 +1982,26 @@ sub Entry_from_entryobj
         u => $u, remote => $remote, style_args => $style_args, journal => $journal
     ) );
 
-    my $entry = Entry($u, {
+    my $entry = Entry( $u, {
         subject => $subject,
         text => $text,
-        dateparts => $alldatepart,
-        system_dateparts => $system_alldatepart,
-        security => $security,
+        dateparts => LJ::alldatepart_s2( $entry_obj->{eventtime} ),
+        system_dateparts => LJ::alldatepart_s2( $entry_obj->{logtime} ),
+        security => $entry_obj->security,
         adult_content_level => $entry_obj->adult_content_calculated || $journal->adult_content_calculated,
-        allowmask => $allowmask,
+        allowmask => $entry_obj->allowmask,
         props => $entry_obj->props,
         itemid => $ditemid,
         journal => $userlite_journal,
         poster => $userlite_poster,
         comments => $comments,
-        new_day => 0, #if true, set later
+        new_day => 0,   #if true, set later
         end_day => 0,   #if true, set later
         userpic => $userpic,
         tags => $taglist,
         permalink_url => $entry_obj->url,
         moodthemeid => $moodthemeid
-        });
+        } );
 
     return $entry;
 }
