@@ -141,11 +141,7 @@ sub EntryPage
             my $pu = $com->{'posterid'} ? $user{$com->{'posterid'}} : undef;
 
             my $dtalkid = $com->{'talkid'} * 256 + $entry->anum;
-            my $text = $com->{'body'};
-            if ($get->{'nohtml'}) {
-                # quote all non-LJ tags
-                $text =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-            }
+            my $text = LJ::CleanHTML::quote_html( $com->{body}, $get->{nohtml} );
 
             LJ::CleanHTML::clean_comment(\$text, { 'preformatted' => $com->{'props'}->{'opt_preformatted'},
                                                    'anon_comment' => !$pu || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
@@ -491,13 +487,8 @@ sub EntryPage_entry
         @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
     }
 
-    my $subject = $entry->subject_html;
-    my $event = $entry->event_html;
-    if ($get->{'nohtml'}) {
-        # quote all non-LJ tags
-        $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        $event   =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-    }
+    my $subject = LJ::CleanHTML::quote_html( $entry->subject_html, $get->{nohtml} );
+    my $event = LJ::CleanHTML::quote_html( $entry->event_html, $get->{nohtml} );
 
     if ($opts->{enable_tags_compatibility} && @taglist) {
         $event .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);

@@ -1440,4 +1440,13 @@ sub break_word {
     return $word;
 }
 
+sub quote_html {
+    my ( $string, $bool ) = @_;
+    return $string unless $bool;
+
+    # quote all non-LJ tags
+    $string =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
+    return $string;
+}
+
 1;

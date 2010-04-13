@@ -1907,12 +1907,8 @@ sub Entry_from_entryobj
     my $style_args = LJ::viewing_style_args( %$get, %opt_stylemine );
     
     #load and prepare subject and text of entry
-    my $subject = $entry_obj->subject_html;
-    my $text = $entry_obj->event_raw;
-    if ( $get->{nohtml} ) {
-        $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        $text    =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-    }
+    my $subject = LJ::CleanHTML::quote_html( $entry_obj->subject_html, $get->{nohtml} );
+    my $text = LJ::CleanHTML::quote_html( $entry_obj->event_raw, $get->{nohtml} );
     LJ::item_toutf8( $journal, \$subject, \$text, $entry_obj->props ) if $LJ::UNICODE && $entry_obj->props->{unknown8bit};
 
     my $suspend_msg = $entry_obj && $entry_obj->should_show_suspend_msg_to( $remote ) ? 1 : 0;

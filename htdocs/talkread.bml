@@ -384,21 +384,14 @@ body<=
 
     ###
     if ($item->{'subject'}) {
-        my $subject = $item->{'subject'};
-        if ($GET{'nohtml'}) {
-            # quote all non-LJ tags
-            $subject =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-        }
+        my $subject = LJ::CleanHTML::quote_html( $item->{subject}, $GET{nohtml} );
         LJ::CleanHTML::clean_subject(\$subject);
         BML::ebml(\$subject);
         $ret .= "<div id='entrysubj'>$subject</div><br />\n";
     }
 
 
-     if ($GET{'nohtml'}) {
-         # quote all non-LJ tags
-         $event =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-     }
+    $event = LJ::CleanHTML::quote_html( $event, $GET{nohtml} );
     $ret .= $event;
     $ret .= "</div>";
 
@@ -692,11 +685,7 @@ body<=
                                                                  'anon_comment' => !$pu || ( $pu->is_identity && !$u->trusts_or_has_member( $pu ) ),
                                                              });
                 BML::ebml(\$post->{'body'});
-                my $event = $post->{'body'};
-                if ($GET{'nohtml'}) {
-                    # quote all non-LJ tags
-                    $event =~ s{<(?!/?lj)(.*?)>} {&lt;$1&gt;}gi;
-                }
+                my $event = LJ::CleanHTML::quote_html( $post->{body}, $GET{nohtml} );
                 my $edit_html = $edittime ? "<br /><br /><span class='edittime'><em>" . BML::ml('.edittime', { editreason => $editreason, edittime => $edittime }) . "</em></span>" : "";
                 $ret .= "$event$edit_html";
 
