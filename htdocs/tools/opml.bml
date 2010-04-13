@@ -11,8 +11,7 @@
 # modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
-_c?>
-<?_code
+_c?><?_code
 {
     use strict;
 
