@@ -2821,11 +2821,16 @@ sub ljuser_display {
     my $id = $u->identity;
     return "<b>????</b>" unless $id;
 
-    my $andfull = $opts->{'full'} ? "&amp;mode=full" : "";
-    my $img = $opts->{'imgroot'} || $LJ::IMGPREFIX;
-    my $strike = $opts->{'del'} ? ' text-decoration: line-through;' : '';
-    my $profile_url = $opts->{'profile_url'} || '';
-    my $journal_url = $opts->{'journal_url'} || '';
+    # Mark accounts as deleted that aren't visible, memorial, locked, or
+    # read-only
+    $opts->{del} = 1 unless $u->is_visible || $u->is_memorial ||
+            $u->is_locked || $u->is_readonly;
+
+    my $andfull = $opts->{full} ? "&amp;mode=full" : "";
+    my $img = $opts->{imgroot} || $LJ::IMGPREFIX;
+    my $strike = $opts->{del} ? ' text-decoration: line-through;' : '';
+    my $profile_url = $opts->{profile_url} || '';
+    my $journal_url = $opts->{journal_url} || '';
     my $display_class = $opts->{no_ljuser_class} ? "" : "class='ljuser'";
     my $type = $u->journaltype_readable;
 
