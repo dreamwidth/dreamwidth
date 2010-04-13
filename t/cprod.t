@@ -7,8 +7,11 @@ require 'ljlib.pl';
 use LJ::CProd;
 use LJ::Test qw(memcache_stress temp_user);
 
-#plan tests => 4;
-plan skip_all => 'Fix this test!';
+if ( @LJ::CPROD_PROMOS ) {
+    plan tests => 4;
+} else {
+    plan skip_all => '@LJ::CPROD_PROMOS undefined.';
+}
 
 sub run_tests {
     my $u = temp_user();
