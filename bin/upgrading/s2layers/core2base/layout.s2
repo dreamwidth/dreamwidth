@@ -232,19 +232,19 @@ propgroup text {
 
     property use text_skiplinks_back;
     property use text_skiplinks_forward;
-    property use text_meta_music; 
-    property use text_meta_mood; 
-    property use text_meta_location; 
-    property use text_tags; 
+    property use text_meta_music;
+    property use text_meta_mood;
+    property use text_meta_location;
+    property use text_tags;
 
     property use text_entry_prev;
-    property use text_entry_next; 
-    property use text_edit_entry; 
-    property use text_edit_tags; 
-    property use text_tell_friend; 
-    property use text_mem_add; 
-    property use text_watch_comments; 
-    property use text_unwatch_comments; 
+    property use text_entry_next;
+    property use text_edit_entry;
+    property use text_edit_tags;
+    property use text_tell_friend;
+    property use text_mem_add;
+    property use text_watch_comments;
+    property use text_unwatch_comments;
     property use text_permalink;
     property use text_stickyentry_subject;
 
@@ -307,27 +307,27 @@ function Page::print_default_stylesheet() {
     start_css();
     """
     <!--
-H1, H2, H3 { 
-	margin: .25em 0;
-	padding: .25em 0;
+H1, H2, H3 {
+    margin: .25em 0;
+    padding: .25em 0;
 }
 
-img { 
-	border: none; 
+img {
+    border: none;
 }
 
 hr {
-	display: none;
+    display: none;
 }
 .entry-content hr,
 .comment-content hr {
-	display: block;
-	margin: 1em 10%;
+    display: block;
+    margin: 1em 10%;
 }
 
 body {
     $page_font
-	padding: 0;
+    padding: 0;
     $page_background
     $page_colors
 }
@@ -341,18 +341,18 @@ q { font-style: italic; }
 
 .one-column #content { float: none; }
 .two-columns-left #content,
-.three-columns-sides #content { 
-	border-left: $*sidebar_width solid transparent;
+.three-columns-sides #content {
+    border-left: $*sidebar_width solid transparent;
 }
 .two-columns-right #content,
 .three-columns-sides #content {
-	border-right: $*sidebar_width solid transparent;
+    border-right: $*sidebar_width solid transparent;
 }
 .three-columns-left #content {
-	border-left: $*sidebar_width_doubled solid transparent;
+    border-left: $*sidebar_width_doubled solid transparent;
 }
 .three-columns-right #content {
-	border-right: $*sidebar_width_doubled solid transparent;
+    border-right: $*sidebar_width_doubled solid transparent;
 }
 
 #content-footer {
@@ -361,10 +361,10 @@ q { font-style: italic; }
     clear: both;
 }
 
-#header, #footer { 
-	margin: 0;
+#header, #footer {
+    margin: 0;
     clear: both;
-	padding: .5em;
+    padding: .5em;
 }
 
 #header {
@@ -391,43 +391,43 @@ h2#pagetitle {
 #footer a:visited { $footer_link_visited_colors }
 
 #primary {
-	float: left;
-	width:100%;
-	margin-right:-100%;
-	margin-left: 0;
+    float: left;
+    width:100%;
+    margin-right:-100%;
+    margin-left: 0;
 }
 
 .one-column #primary { float: none; }
 
 #primary > .inner:first-child {
-	padding: 1em;
+    padding: 1em;
 }
-	
+
 .one-column #secondary { width: $*sidebar_width; }
 .two-columns-left #secondary,
-.three-columns-sides #secondary { 
-	float: left;
-	width: $*sidebar_width;
-	margin-left: -$*sidebar_width; 
+.three-columns-sides #secondary {
+    float: left;
+    width: $*sidebar_width;
+    margin-left: -$*sidebar_width;
 }
-.two-columns-right #secondary { 
-	float: right; 
-	width: $*sidebar_width;
-	margin-right: -$*sidebar_width;
+.two-columns-right #secondary {
+    float: right;
+    width: $*sidebar_width;
+    margin-right: -$*sidebar_width;
 }
-.three-columns-left #secondary { 
-	float: left;
-	width: $*sidebar_width;
-	margin-left: -$*sidebar_width_doubled; 
+.three-columns-left #secondary {
+    float: left;
+    width: $*sidebar_width;
+    margin-left: -$*sidebar_width_doubled;
 }
-.three-columns-right #secondary { 
-	float: right;
-	width: $*sidebar_width;
-	margin-right: -$*sidebar_width; 
+.three-columns-right #secondary {
+    float: right;
+    width: $*sidebar_width;
+    margin-right: -$*sidebar_width;
 }
 
 #secondary > .inner:first-child {
-	padding: 1em;
+    padding: 1em;
 }
 
 .one-column #tertiary { width: $*sidebar_width; }
@@ -442,38 +442,39 @@ h2#pagetitle {
     float: left;
     width: $*sidebar_width;
 }
-.three-columns-left #tertiary { 
-	float: left;
-	width: $*sidebar_width;
-	margin-left: -$*sidebar_width; 
+.three-columns-left #tertiary {
+    float: left;
+    width: $*sidebar_width;
+    margin-left: -$*sidebar_width;
 }
 .three-columns-right #tertiary {
-	float: right;
-	width: $*sidebar_width;
-	margin-right: -$*sidebar_width_doubled;
-	margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
+    float: right;
+    width: $*sidebar_width;
+    margin-right: -$*sidebar_width_doubled;
+    margin-left: $*sidebar_width; /* so that #tertiary won't overlay #secondary in IE7 */
 }
-.three-columns-sides #tertiary { 
-	float: right;
-	width: $*sidebar_width;
-	margin-right: -$*sidebar_width; 
+.three-columns-sides #tertiary {
+    float: right;
+    width: $*sidebar_width;
+    margin-right: -$*sidebar_width;
 }
 
 #tertiary > .inner:first-child {
-	padding: 1em;
+    padding: 1em;
 }
 
-.navigation ul { 
-	list-style: none;
-	margin-left: 0;
-	padding-left: 0;
+.navigation ul {
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
 }
-.navigation li { 
-	display: inline;
-	padding: 0 .5em; 
+.navigation li {
+    display: inline;
+    padding: 0 .5em;
 }
 
 /* entries */
+
 .entry {
     $entry_background
     $entry_colors
@@ -493,55 +494,55 @@ h2#pagetitle {
 .entry a:active { $entry_link_active_colors }
 
 
-.metadata ul { 
-	display: inline;
-	list-style: none;
-	margin-left: .5em;
-	padding-left: 0;
+.metadata ul {
+    display: inline;
+    list-style: none;
+    margin-left: .5em;
+    padding-left: 0;
 }
-.metadata li { 
-	margin-bottom: .5em;
+.metadata li {
+    margin-bottom: .5em;
 }
 
-.tag ul { 
-	display: inline;
-	list-style: none;
-	margin-left: .5em;
-	padding-left: 0; 
+.tag ul {
+    display: inline;
+    list-style: none;
+    margin-left: .5em;
+    padding-left: 0;
 }
 .tag ul li {
-	display: inline;
-	padding: .25em; 
+    display: inline;
+    padding: .25em;
 } /* same for month view */
 
 ul.entry-management-links {
-	list-style: none;
-	margin-left: 0;
-	padding-left: 0;
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
 }
-ul.entry-management-links li { 
-	display: inline;
-	padding: 0 .25em;
+ul.entry-management-links li {
+    display: inline;
+    padding: 0 .25em;
 }
 
 ul.entry-interaction-links {
-	list-style: none;
-	margin-left: 0;
-	padding-left: 0;
-	text-align: right;
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+    text-align: right;
 }
 
 .entry-interaction-links a { $entry_interaction_link_colors }
 
-ul.entry-interaction-links li { 
-	display: inline;
-	padding: 0 .25em;
+ul.entry-interaction-links li {
+    display: inline;
+    padding: 0 .25em;
 }
 
 /* comments */
 
-.comment-wrapper { 
-	padding: .5em 0;
+.comment-wrapper {
+    padding: .5em 0;
 }
 
 .comment .comment-title {
@@ -549,64 +550,62 @@ ul.entry-interaction-links li {
 }
 
 ul.comment-management-links {
-	list-style: none;
-	margin-left: 0;
-	padding-left: 0;
-	text-align: right;
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
+    text-align: right;
 }
-ul.comment-management-links li { 
-	display: inline;
-	padding: 0 .25em;
+ul.comment-management-links li {
+    display: inline;
+    padding: 0 .25em;
 }
 
 ul.comment-interaction-links {
-	list-style: none;
-	margin-left: 0;
-	padding-left: 0;
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
 }
-ul.comment-interaction-links li { 
-	display: inline;
-	padding: 0 .25em;
-}
-
-textarea#commenttext { 
-	width: 100%; /* fix for FF form width glitch */
+ul.comment-interaction-links li {
+    display: inline;
+    padding: 0 .25em;
 }
 
+textarea#commenttext {
+    width: 100%; /* fix for FF form width glitch */
+}
 
 /* archive */
 
-table.month { 
-	margin: 0 auto;
-	border-collapse: collapse; 
+table.month {
+    margin: 0 auto;
+    border-collapse: collapse;
 }
 table.month td {
     height: 3.25em;
 }
 table.month td,
-table.month th { 
-	border: 1px solid; /* ? */
-	padding: 3px; 
+table.month th {
+    border: 1px solid; /* ? */
+    padding: 3px;
 }
-table.month td p { 
-	margin: 0;
-	padding: 3px; 
-}
-
-.month dl dt { 
-	font-weight: bold; 
-}
-.month dl span.time { 
-	padding-right: .5em; 
-}
-.month dl h3 { 
-	display: inline;
-	font-size: medium; 
-}
-.month dl .tag ul { 
-	margin-top: 0; 
+table.month td p {
+    margin: 0;
+    padding: 3px;
 }
 
+.month dl dt {
+    font-weight: bold;
+}
+.month dl span.time {
+    padding-right: .5em;
+}
+.month dl h3 {
+    display: inline;
+    font-size: medium;
+}
+.month dl .tag ul {
+    margin-top: 0;
+}
 
 /* modules */
 
@@ -629,44 +628,44 @@ table.month td p {
     $module_font
 }
 
-.module-content ul { 
-	list-style: outside;
-	margin-left: 1em; 
-	padding-left: 0;
+.module-content ul {
+    list-style: outside;
+    margin-left: 1em;
+    padding-left: 0;
 }
-.module-content li { 
-	margin: .5em 0;
-}
-
-.module-photo .module-content { 
-	text-align: center;
+.module-content li {
+    margin: .5em 0;
 }
 
-.module-user-links .module-content { 
-	text-align: center;
+.module-photo .module-content {
+    text-align: center;
+}
+
+.module-user-links .module-content {
+    text-align: center;
 }
 ul.userlite-interaction-links {
-	list-style: none;
-	margin-left: 0;
-	padding-left: 0;
+    list-style: none;
+    margin-left: 0;
+    padding-left: 0;
 }
-ul.userlite-interaction-links li { 
-	display: inline;
-	padding: 0 .20em; 
+ul.userlite-interaction-links li {
+    display: inline;
+    padding: 0 .20em;
 }
 
-.module-calendar .module-content { 
-	text-align: center;
+.module-calendar .module-content {
+    text-align: center;
 }
-.module-calendar table { 
-	margin: 0 auto;
+.module-calendar table {
+    margin: 0 auto;
 }
-.module-calendar td { 
-	padding: 1px; 
+.module-calendar td {
+    padding: 1px;
 }
-.module-calendar td a { 
-	display: block;
-	padding: 2px;
+.module-calendar td a {
+    display: block;
+    padding: 2px;
 }
 /* wrap long content, particularly openid usernames */
 .module-pagesummary .ljuser {
@@ -684,8 +683,8 @@ ul.userlite-interaction-links li {
     font-weight: bold;
     margin-right: 0.5em;
 }
-.module-syndicate  .module-content { 
-	text-align: center;
+.module-syndicate  .module-content {
+    text-align: center;
 }    --->
     """;
     end_css();
