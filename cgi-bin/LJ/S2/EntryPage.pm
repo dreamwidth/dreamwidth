@@ -467,34 +467,18 @@ sub EntryPage_entry
         return;
     }
 
-    my $replycount = $entry->prop("replycount");
-    my $nc = "";
-    $nc .= "nc=$replycount" if $replycount && $remote && $remote->{'opt_nctalklinks'};
-
-    my $style_arg = LJ::viewing_style_args( %$get );
+    my $style_args = LJ::viewing_style_args( %$get );
     
     # load the userpic; include the keyword selected by the user
     # as a backup for the alttext
     my $pickw = LJ::Entry->userpic_kw_from_props($entry->props);
     my $userpic = Image_userpic($pu, $entry->userpic ? $entry->userpic->picid : 0, $pickw);
 
-    my $permalink = $entry->url;
-    my $linkurl = LJ::Talk::talkargs( $permalink, $style_arg );
-    my $readurl = LJ::Talk::talkargs( $permalink, $nc, $style_arg );
-    my $posturl = LJ::Talk::talkargs( $permalink, "mode=reply", $style_arg );
-
-    my $comments = CommentInfo({
-        'read_url' => $readurl,
-        'post_url' => $posturl,
-        'permalink_url' => $linkurl,
-        'count' => $replycount,
-        'maxcomments' => ( $replycount >= $u->count_maxcomments ) ? 1 : 0,
-        enabled => ( $viewall || ( $u->{opt_showtalklinks} eq "Y" && !$entry->comments_disabled ) ) ? 1 : 0,
-        comments_disabled_maintainer => $entry->comments_disabled_maintainer,
-        'screened' => ($entry->prop("hasscreened") && $remote && LJ::can_manage($remote, $u)) ? 1 : 0,
-    });
-    $comments->{show_postlink} = $comments->{enabled} && $get->{mode} ne 'reply';
-    $comments->{show_readlink} = $comments->{enabled} && ($replycount || $comments->{screened}) && $get->{mode} eq 'reply';
+    my $comments = CommentInfo( $entry->comment_info(
+        u => $u, remote => $remote, style_args => $style_args, viewall => $viewall
+    ) );
+    $comments->{show_postlink} &&= $get->{mode} ne 'reply';
+    $comments->{show_readlink} &&= $get->{mode} eq 'reply';
 
     # load tags
     my @taglist;
@@ -544,7 +528,7 @@ sub EntryPage_entry
         'new_day' => 0,
         'end_day' => 0,
         'userpic' => $userpic,
-        'permalink_url' => $permalink,
+        'permalink_url' => $entry->url,
     });
 
     return ($entry, $s2entry);

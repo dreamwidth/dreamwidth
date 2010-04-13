@@ -1980,30 +1980,10 @@ sub Entry_from_entryobj
         $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
     }
 
-    # comment information
-    my $permalink = $entry_obj->url;
-    my $replycount = $entry_obj->reply_count;
-    my $nc;
-    $nc = "nc=$replycount" if $replycount && $remote && $remote->prop( 'opt_nctalklinks' );
-    my $linkurl = LJ::Talk::talkargs( $permalink, $style_args );
-    my $readurl = LJ::Talk::talkargs( $permalink, $nc, $style_args );
-    my $posturl = LJ::Talk::talkargs( $permalink, 'mode=reply', $style_args );
-
-    my $comments_enabled = ( ( $journal->{opt_showtalklinks} eq "Y" ) && !$entry_obj->comments_disabled ) ? 1 : 0;
-    my $has_screened = ( $entry_obj->props->{hasscreened} && LJ::can_manage( $remote, $journal ) ) ? 1 : 0;
-
     # building the CommentInfo and Entry objects
-    my $comments = CommentInfo({
-        read_url => $readurl,
-        post_url => $posturl,
-        permalink_url => $linkurl,
-        count => $replycount,
-        maxcomments => ( $replycount >= $u->count_maxcomments ) ? 1 : 0,
-        enabled => $comments_enabled,
-        screened => $has_screened,
-        show_readlink => $comments_enabled && ( $replycount || $has_screened ),
-        show_postlink => $comments_enabled,
-    });
+    my $comments = CommentInfo( $entry_obj->comment_info(
+        u => $u, remote => $remote, style_args => $style_args, journal => $journal
+    ) );
 
     my $entry = Entry($u, {
         subject => $subject,
@@ -2022,7 +2002,7 @@ sub Entry_from_entryobj
         end_day => 0,   #if true, set later
         userpic => $userpic,
         tags => \@taglist,
-        permalink_url => $permalink,
+        permalink_url => $entry_obj->url,
         moodthemeid => $moodthemeid
         });
 

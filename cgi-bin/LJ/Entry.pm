@@ -510,6 +510,44 @@ sub comment_text {
 }
 
 
+# returns data hashref suitable for use in S2 CommentInfo function
+sub comment_info {
+    my ( $self, %opts )= @_;
+    return unless %opts;
+    return unless exists $opts{u};
+    return unless exists $opts{remote};
+    return unless exists $opts{style_args};
+
+    my $u = $opts{u};
+    my $remote = $opts{remote};
+    my $style_args = $opts{style_args};
+    my $viewall = $opts{viewall};
+
+    my $journal = exists $opts{journal} ? $opts{journal} : $u;
+
+    my $permalink = $self->url;
+    my $comments_enabled = ( $viewall ||
+        ( $journal->{opt_showtalklinks} eq "Y" && !$self->comments_disabled ) ) ? 1 : 0;
+    my $has_screened = ( $self->props->{hasscreened} && $remote && LJ::can_manage( $remote, $journal ) ) ? 1 : 0;
+    my $replycount = $self->reply_count;
+    my $nc = "";
+    $nc .= "nc=$replycount" if $replycount && $remote && $remote->{opt_nctalklinks};
+
+    return {
+        read_url => LJ::Talk::talkargs( $permalink, $nc, $style_args ),
+        post_url => LJ::Talk::talkargs( $permalink, "mode=reply", $style_args ),
+        permalink_url => LJ::Talk::talkargs( $permalink, $style_args ),
+        count => $replycount,
+        maxcomments => ( $replycount >= $u->count_maxcomments ) ? 1 : 0,
+        enabled => $comments_enabled,
+        comments_disabled_maintainer => $self->comments_disabled_maintainer,
+        screened => $has_screened,
+        show_readlink => $comments_enabled && ( $replycount || $has_screened ),
+        show_postlink => $comments_enabled,
+    };
+}
+
+
 # used in comment notification email headers
 sub email_messageid {
     my $self = shift;
