@@ -1781,6 +1781,21 @@ sub TagDetail
     return $t;
 }
 
+sub TagList
+{
+    my ( $tags, $u, $jitemid, $opts, $taglist ) = @_;
+
+    while ( my ( $kwid, $keyword ) = each %{ $tags || {} } ) {
+        push @$taglist, Tag( $u, $kwid => $keyword );
+    }
+
+    LJ::Hooks::run_hooks( 'augment_s2_tag_list', u => $u, jitemid => $jitemid, tag_list => $taglist );
+    @$taglist = sort { $a->{name} cmp $b->{name} } @$taglist;
+
+    return "" unless $opts->{enable_tags_compatibility} && @$taglist;
+    return LJ::S2::get_tags_text( $opts->{ctx}, $taglist );
+}
+
 sub Entry
 {
     my ($u, $arg) = @_;
@@ -1966,15 +1981,8 @@ sub Entry_from_entryobj
 
     # tags loading and sorting
     my $tags = LJ::Tags::get_logtags( $journal, $jitemid );
-    my @taglist;
-    while (my ($keywordid, $keyword) = each %{$tags->{$jitemid} || {}}) {
-        push @taglist, Tag( $journal, $keywordid => $keyword );
-    }
-
-    @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-    if ( $opts->{enable_tags_compatibility} && @taglist ) {
-        $text .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-    }
+    my $taglist = [];
+    $text .= TagList( $tags->{$jitemid}, $journal, $jitemid, $opts, $taglist );
 
     # building the CommentInfo and Entry objects
     my $comments = CommentInfo( $entry_obj->comment_info(
@@ -1997,7 +2005,7 @@ sub Entry_from_entryobj
         new_day => 0, #if true, set later
         end_day => 0,   #if true, set later
         userpic => $userpic,
-        tags => \@taglist,
+        tags => $taglist,
         permalink_url => $entry_obj->url,
         moodthemeid => $moodthemeid
         });

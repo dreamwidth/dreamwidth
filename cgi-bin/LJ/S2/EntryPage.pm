@@ -476,23 +476,12 @@ sub EntryPage_entry
     $comments->{show_postlink} &&= $get->{mode} ne 'reply';
     $comments->{show_readlink} &&= $get->{mode} eq 'reply';
 
-    # load tags
-    my @taglist;
-    {
-        my $tag_map = $entry->tag_map;
-        while (my ($kwid, $kw) = each %$tag_map) {
-            push @taglist, Tag($u, $kwid => $kw);
-        }
-        LJ::Hooks::run_hooks('augment_s2_tag_list', u => $u, jitemid => $itemid, tag_list => \@taglist);
-        @taglist = sort { $a->{name} cmp $b->{name} } @taglist;
-    }
-
     my $subject = LJ::CleanHTML::quote_html( $entry->subject_html, $get->{nohtml} );
     my $event = LJ::CleanHTML::quote_html( $entry->event_html, $get->{nohtml} );
 
-    if ($opts->{enable_tags_compatibility} && @taglist) {
-        $event .= LJ::S2::get_tags_text($opts->{ctx}, \@taglist);
-    }
+    # load tags
+    my @taglist;
+    $event .= TagList( $entry->tag_map, $u, $itemid, $opts, \@taglist );
 
     if ($entry->security eq "public") {
         $LJ::REQ_GLOBAL{'text_of_first_public_post'} = $event;
