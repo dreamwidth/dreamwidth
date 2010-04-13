@@ -791,6 +791,7 @@ sub s2_context
 
         LJ::S2::populate_system_props($ctx);
         LJ::S2::alias_renamed_props( $ctx );
+        LJ::S2::alias_overriding_props( $ctx );
         S2::set_output(sub {});  # printing suppressed
         S2::set_output_safe(sub {});
         eval { S2::run_code($ctx, "prop_init()"); };
@@ -1205,6 +1206,19 @@ sub alias_renamed_props
 
     $ctx->[S2::PROPS]->{use_journalstyle_entry_page} = ! $ctx->[S2::PROPS]->{view_entry_disabled}
         if exists $ctx->[S2::PROPS]->{view_entry_disabled};
+}
+
+# use the "grouped_property_override" property to determine whether a custom property should override a default property.
+# one potential use: to customize which sections a module may show up in.
+sub alias_overriding_props {
+    my $ctx = $_[0];
+
+    my %overrides = %{$ctx->[S2::PROPS]->{grouped_property_override} || {}};
+    return unless %overrides;
+
+    while ( my ( $original, $overriding ) = each %overrides ) {
+        $ctx->[S2::PROPS]->{$original} = $ctx->[S2::PROPS]->{$overriding} if $ctx->[S2::PROPS]->{$overriding};
+    }
 }
 
 sub layer_compile_user

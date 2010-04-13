@@ -1269,6 +1269,12 @@ property string[][]{} module_sections {
     noui = 1;
 }
 
+property string{} grouped_property_override {
+    des="Use to override a specific property in a group of properties (for example, which sections a module should show up in), by mapping the default property to a new property you create";
+    example="""{ "module_something_section" => "module_something_section_override" } (module_something_section_override is a new property created in your layout layer) """;
+    noui = 1;
+}
+
 ##===============================
 ## Display settings - modules
 ##===============================

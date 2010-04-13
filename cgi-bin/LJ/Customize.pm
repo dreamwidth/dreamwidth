@@ -514,10 +514,7 @@ sub save_s2_props {
 
 # returns hash with existing (parent) prop value and override (user layer) prop value
 sub get_s2_prop_values {
-    my $class = shift;
-    my $prop_name = shift;
-    my $u = shift;
-    my $style = shift;
+    my ( $class, $prop_name, $u, $style, %opts ) = @_;
 
     $class->load_all_s2_props($u, $style);
 
@@ -533,13 +530,13 @@ sub get_s2_prop_values {
         last if defined $existing;
     }
 
-    if (ref $existing eq "HASH") { $existing = $existing->{'as_string'}; }
+    if ( ref $existing eq "HASH" && ! $opts{noui} ) { $existing = $existing->{'as_string'}; }
 
     my $override = S2::get_set($layer->{'s2lid'}, $prop_name);
     my $had_override = defined $override;
     $override = $existing unless defined $override;
 
-    if (ref $override eq "HASH") { $override = $override->{'as_string'}; }
+    if ( ref $override eq "HASH" && ! $opts{noui} ) { $override = $override->{'as_string'}; }
 
     return ( existing => $existing, override => $override );
 }

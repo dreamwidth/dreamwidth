@@ -93,6 +93,10 @@ sub render_body {
         my $layout_sections_values = $prop_values{override};
         my @layout_sections_order = split( /\|/, $layout_sections_values );
 
+        # allow to override the default property with your own custom property definition. Created and values set in layout layers.
+        my %grouped_prop_override = LJ::Customize->get_s2_prop_values( "grouped_property_override", $u, $style, noui => 1 );
+        %grouped_prop_override = %{$grouped_prop_override{override}} if %{$grouped_prop_override{override} || {}};
+
         my %subheaders = @layout_sections_order;
         $subheaders{none} = "Unassigned";
         
@@ -108,18 +112,36 @@ sub render_body {
             my $prop_name_section = $prop_name;
             $prop_name_section =~ s/(.*)_group$/\1_section/;
 
+            my $overriding_prop_name = $grouped_prop_override{$prop_name_section};
+
             # module_*_section_override overrides module_*_section;
             # for use in child layouts since they cannot redefine an existing property
-            my $prop_name_section_override = $props->{"${prop_name_section}_override"}->{values};
+            my $prop_name_section_override = $props->{$overriding_prop_name}->{values};
 
-            $prop_name_section = "${prop_name_section}_override"
-                if $prop_name_section_override;
+            # put this property under the proper subheader (this is the original; may be overriden)
+            my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+
+            if ( $prop_name_section_override ) {
+                $prop_name_section = $overriding_prop_name;
+
+                # check if we have anything previously saved into the overriding property. If we don't we retain
+                # the value of the original (non-overridden) property, so we don't break existing customizations
+                my %overriding_prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
+                my $contains_values = 0;
+
+                foreach ( keys %overriding_prop_values ) {
+                    if ( defined $overriding_prop_values{$_} ) {
+                        $contains_values++;
+                        last;
+                    }
+                }
+
+                %prop_values = %overriding_prop_values if $contains_values;
+                $grouped_prop_override{"${prop_name_section}_values"} = \%prop_values;
+            }
 
             # populate section dropdown values with the layout's list of available sections, if not already set
             $props->{$prop_name_section}->{values} ||= $layout_sections_values;
-
-            # put this property under the proper subheader
-            my %prop_values = LJ::Customize->get_s2_prop_values( $prop_name_section, $u, $style );
 
             if ( $prop_name_section_override ) {
                 my %override_sections = split( /\|/, $prop_name_section_override );
@@ -162,7 +184,7 @@ sub render_body {
 
                 $row_class = $count % 2 == 0 ? " graybg" : "";
 
-                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props );
+                $ret .= $class->output_prop( $props->{$prop_name}, $prop_name, $row_class, $u, $style, $theme, $props, \%grouped_prop_override );
                 $count++;
             }
             $ret .= "</table>" if $header_printed;
@@ -295,14 +317,7 @@ sub skip_prop {
 }
 
 sub output_prop {
-    my $class = shift;
-    my $prop = shift;
-    my $prop_name = shift;
-    my $row_class = shift;
-    my $u = shift;
-    my $style = shift;
-    my $theme = shift;
-    my $props = shift;
+    my ( $class, $prop, $prop_name, $row_class, $u, $style, $theme, $props, $grouped_prop_override ) = @_;
     
     # for themes that don't use the linklist_support prop
     my $linklist_tab;
@@ -322,7 +337,7 @@ sub output_prop {
     $ret .= "<td class='prop-header'>" . LJ::eall( $prop->{des} ) . " " . LJ::help_icon( "s2opt_$prop->{name}" ) . "</td>"
         unless $prop->{type} eq "Color" || $prop->{type} eq "string[]";
 
-   $ret .= $class->output_prop_element( $prop, $prop_name, $u, $style, $theme, $props );
+   $ret .= $class->output_prop_element( $prop, $prop_name, $u, $style, $theme, $props, 0, $grouped_prop_override );
 
     my $note = "";
     $note .= LJ::eall( $prop->{note} ) if $prop->{note};
@@ -333,21 +348,17 @@ sub output_prop {
 }
 
 sub output_prop_element {
-    my $class = shift;
-    my $prop = shift;
-    my $prop_name = shift;
-    my $u = shift;
-    my $style = shift;
-    my $theme = shift;
-    my $props = shift;
-    my $is_group = shift;
+    my ( $class, $prop, $prop_name, $u, $style, $theme, $props, $is_group, $grouped_prop_override, $overriding_values ) = @_;
+    $grouped_prop_override ||= {};
+    $overriding_values ||= {};
 
     my $name = $prop->{name};
     my $type = $prop->{type};
 
     my $can_use = LJ::S2::can_use_prop($u, $theme->layout_uniq, $name);
 
-    my %prop_values = LJ::Customize->get_s2_prop_values($name, $u, $style);
+    my %prop_values = %$overriding_values ? %$overriding_values : LJ::Customize->get_s2_prop_values( $name, $u, $style );
+
     my $existing = $prop_values{existing};
     my $override = $prop_values{override};
 
@@ -358,17 +369,24 @@ sub output_prop_element {
 
     my $ret;
     # visually grouped properties. Allow nesting to only two levels
-    if ( $type eq "string[]" && $is_group < 2 ) {    
+    if ( $type eq "string[]" && $is_group < 2 ) {
 
         if ( $prop->{grouptype} eq "module" ) {
             my $has_opts;
             $ret .= "<td class='prop-grouped prop-$prop->{grouptype}' colspan=2>";
             foreach my $prop_in_group ( @$override ) {
+
+                my $overriding_values;
+                if ( $grouped_prop_override->{$prop_in_group} ) {
+                    $prop_in_group = $grouped_prop_override->{$prop_in_group};
+                    $overriding_values = $grouped_prop_override->{"${prop_in_group}_values"};
+                }
+
                 if ( $prop_in_group =~ /opts_group$/ ) {
                     $has_opts = 1;
                     next;
                 }
-                $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
+                $ret .= $class->output_prop_element( $props->{$prop_in_group}, $prop_in_group, $u, $style, $theme, $props, $is_group + 1, $grouped_prop_override, $overriding_values );
             }
             
             my $modulename = $prop->{name};
