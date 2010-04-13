@@ -17,7 +17,23 @@
 package DW::Template::Filters;
 use strict;
 
-# Seperated out of DW::Template::Plugin to avoid accidental use as a method.
+=head1 NAME
+
+DW::Template::Plugin - Template Toolkit plugin for Dreamwidth
+
+=head1 METHODS
+
+=cut
+
+=head2 ml
+
+Apply a ML string.
+
+    [% '.foo' | ml(arg = 'bar') %]
+
+=cut
+
+# Separated out of DW::Template::Plugin to avoid accidental use as a method.
 sub ml {
     # save the last argument as the hashref, hopefully
     my $args = $_[-1];

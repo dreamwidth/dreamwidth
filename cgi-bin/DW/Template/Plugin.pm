@@ -60,25 +60,21 @@ sub need_res {
 
 =head2 ml_scope
 
-Set the ML scope of the template
+Get or set the ML scope of the template
 
-    [% dw.ml_scope( '/foo.tt' ) %]
+    # store the old value
+    [% old_scope = dw.ml_scope( ) %]
+
+    # CALL forces us to ignore the returned value, and not print it out
+    [% CALL dw.ml_scope( '/foo.tt' ) %]
+    [% CALL dw.ml_scope( old_scope ) %]
 
 =cut
 
 sub ml_scope {
-    return DW::Request->get->note( 'ml_scope', $_[1] );
+    my $r = DW::Request->get;
+    return $#_ == 1 ? $r->note( 'ml_scope', $_[1] ) : $r->note( 'ml_scope' );
 }
-
-=head1 FILTERS
-
-=head2 ml
-
-Apply a ML string.
-
-    [% '.foo' | ml(arg = 'bar') %]
-
-=cut
 
 =head1 AUTHOR
 
