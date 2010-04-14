@@ -131,5 +131,7 @@
 
 .update.success2=Update successful. You can view your updated journal <a [[aopts]]>here</a>.
 
+.update.success2.community=Update successful. You can view the updated community <a [[aopts]]>here</a>. 
+
 .username=Username:
 

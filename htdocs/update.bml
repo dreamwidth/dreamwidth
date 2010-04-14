@@ -452,6 +452,8 @@ _c?>
                 } else {
 
                     # update success
+                    my $updatemessage = '.update.success2';
+
                     if ($POST{'usejournal'}) {
                         $ju = LJ::load_user($POST{'usejournal'});  # posting as community
                     } elsif ($user) {
@@ -459,7 +461,12 @@ _c?>
                     } else {
                         $ju = $remote;                             # posting as remote
                     };
-                    $$body .= BML::ml('.update.success2', {'aopts' => "href='" . $ju->journal_base . "/'"});
+                    
+                    if ( $ju->is_community ) { # changes the update message if journal is from a community
+                        $updatemessage = '.update.success2.community';
+                    }
+
+                    $$body .= BML::ml( $updatemessage, {'aopts' => "href='" . $ju->journal_base . "/'"} );
                     my $juser = $ju->{'user'};
                     my ($itemid, $anum) = ($res{'itemid'}, $res{'anum'});
                     $itemlink = LJ::item_link($ju, $itemid, $anum);
