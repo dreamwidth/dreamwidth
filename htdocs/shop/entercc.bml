@@ -157,9 +157,8 @@ body<=
 
     # if US, then US state must be selected
     $err{state} = $ML{'.error.required'}
-        if $in{country} eq 'US' && $POST{usstate} !~ /^\w\w$/;
-    $err{state} = $ML{'.error.required'}
-        if $in{country} ne 'US' && $POST{otherstate} !~ /\S/;
+        if ( $in{country} eq 'US' && $POST{usstate} !~ /^\w\w$/ ) ||
+           ( $in{country} eq 'CA' && $POST{otherstate} !~ /\S/ );
 
     # if there are any errors in fields (some required but not given) then
     # we return to handle the form now
