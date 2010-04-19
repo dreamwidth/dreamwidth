@@ -40,7 +40,7 @@ body<=
 
 <?_code
 {
-    my $remote = LJ::get_remote();
+    my $remote = LJ::get_remote() or return "<?needlogin?>";
     if (LJ::Hooks::are_hooks("cprod_redirect_user")) {
         return LJ::Hooks::run_hook("cprod_redirect_user", $remote);
     }
