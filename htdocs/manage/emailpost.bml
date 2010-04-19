@@ -99,7 +99,7 @@ body<=
 
         if ($need_login) {
             $ret .= "<?h1 $ML{'.error.notloggedin.header'} h1?>";
-            $ret .= "<?p " . LJ::error_noremote() . "p?>";
+            $ret .= "<?p " . LJ::error_noremote() . " p?>";
         }
 
         my @topics = (

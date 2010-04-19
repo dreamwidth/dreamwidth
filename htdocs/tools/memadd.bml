@@ -115,7 +115,7 @@ _c?>
                 $title = $ML{'.title.deleted'};
                 $body = "<?h1 $ML{'.error.deleted.title'} h1?><?p " .
                         BML::ml(".error.deleted.body", { 'desc' => $memory->{'des'} }) .
-                        "p?>";
+                        " p?>";
                 return;
             } else {
                 $title = $ML{'Error'};
@@ -340,7 +340,7 @@ _c?>
             if (length($kw) > 40) {
                 $title = $ML{'Error'};
                 $body = "<?h1 $ML{'Error'} h1?><?p " .
-                        BML::ml(".error.maxsize", { 'keyword' => LJ::ehtml($kw) }) . "p?>";
+                        BML::ml(".error.maxsize", { 'keyword' => LJ::ehtml($kw) }) . " p?>";
                 return;
             }
 
