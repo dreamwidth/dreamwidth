@@ -285,6 +285,9 @@ LiveJournal.pollAnswersReceived = function (answers) {
     answerPagEle.innerHTML  = answers.paging_html ? answers.paging_html : "";
     answerEle.innerHTML     = answers.answer_html ? answers.answer_html : "(No answers)";
 
+    if (typeof ContextualPopup != "undefined")
+        ContextualPopup.setup();
+
     LiveJournal.initPolls();
 };
 
