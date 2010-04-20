@@ -6,8 +6,7 @@ use lib "$ENV{LJHOME}/cgi-bin";
 require 'ljlib.pl';
 
 
-#plan tests => 228;
-plan skip_all => 'Fix this test!';
+plan tests => 228;
 
 use LJ::Test qw(temp_user memcache_stress);
 
@@ -53,7 +52,7 @@ sub run_tests {
                 ok(defined $temp_var, "prop value after migration: defined");
                 is($u->{'allow_infoshow'}, ' ', 'lazy migrate: allow_infoshow set to SPACE');
                 is($u->{'opt_showbday'}, undef, 'lazy_migrate: opt_showbday unset');
-                is($u->opt_showbday, 'F', "lazy_migrate: opt_showbday returned as F");
+                is($u->opt_showbday, 'D', "lazy_migrate: opt_showbday returned as D");
                 is($u->{'opt_showlocation'}, undef, 'lazy_migrate: opt_showlocation unset');
                 is($u->opt_showlocation, 'Y', "lazy_migrate: opt_showlocation set as Y");
             }
